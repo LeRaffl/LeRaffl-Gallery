@@ -1,0 +1,85 @@
+{
+  "updated": "2025-09-21",
+  "images": [
+    {
+      "country": "Germany",
+      "type": "share",
+      "date": "",
+      "filename": "germany_ICE_BEV_20250704.png",
+      "url": "images/germany_ICE_BEV_20250704.png",
+      "alt": "Germany: share"
+    },
+    {
+      "country": "Germany",
+      "type": "time",
+      "date": "2025-07-04",
+      "filename": "germany_time_20250704.png",
+      "url": "images/germany_time_20250704.png",
+      "alt": "Germany: time"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "date": "",
+      "filename": "germany_ttm_shares_20250704.png",
+      "url": "images/germany_ttm_shares_20250704.png",
+      "alt": "Germany: share"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "share",
+      "date": "2025-06-30",
+      "filename": "bulgaria_20250630.png",
+      "url": "images/bulgaria_20250630.png",
+      "alt": "Bulgaria: share"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "share",
+      "date": "",
+      "filename": "bulgaria_ICE_BEV_20250630.png",
+      "url": "images/bulgaria_ICE_BEV_20250630.png",
+      "alt": "Bulgaria: share"
+    },
+    {
+      "country": "Singapore",
+      "type": "share",
+      "date": "",
+      "filename": "singapore_ICE_BEV_20250601.png",
+      "url": "images/singapore_ICE_BEV_20250601.png",
+      "alt": "Singapore: share"
+    },
+    {
+      "country": "Singapore",
+      "type": "time",
+      "date": "2025-06-01",
+      "filename": "singapore_time_20250601.png",
+      "url": "images/singapore_time_20250601.png",
+      "alt": "Singapore: time"
+    },
+    {
+      "country": "Türkiye",
+      "type": "share",
+      "date": "2025-06-21",
+      "filename": "tuerkiye_20250621.png",
+      "url": "images/tuerkiye_20250621.png",
+      "alt": "Tuerkiye: share"
+    },
+    {
+      "country": "Türkiye",
+      "type": "share",
+      "date": "",
+      "filename": "tuerkiye_ttm_shares_20250621.png",
+      "url": "images/tuerkiye_ttm_shares_20250621.png",
+      "alt": "Tuerkiye: share"
+    },
+    {
+      "country": "Türkiye",
+      "type": "share",
+      "date": "",
+      "filename": "tuerkiye_ICE_BEV_20250621.png",
+      "url": "images/tuerkiye_ICE_BEV_20250621.png",
+      "alt": "Tuerkiye: share"
+    }
+  ]
+}
