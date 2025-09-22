@@ -58,8 +58,3 @@ build_manifest <- function(root = "images", base_url = "images/", periods_tbl = 
   message("manifest.json written")
   invisible(manifest)
 }
-
-# Example call:
-source('build_manifest.R')
-build_manifest('images', 'images/')
-
