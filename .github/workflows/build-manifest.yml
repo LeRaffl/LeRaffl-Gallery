@@ -5,15 +5,17 @@ on:
       - 'images/**'
       - 'build_manifest.R'
       - '.github/workflows/build-manifest.yml'
+  workflow_dispatch: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # erlaubt Commit zurück ins Repo
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r@v2
-      - name: Install packages
+      - name: Install R packages
         run: |
           Rscript -e "install.packages(c('jsonlite','stringr','dplyr','lubridate','purrr','fs'), repos='https://cloud.r-project.org')"
       - name: Build manifest
@@ -23,4 +25,4 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: "manifest.json"
-          message: "chore: update manifest.json"
+          message: "chore: update manifest.json (CI)"
