@@ -1,26 +1,35 @@
 name: Build manifest
+
 on:
   push:
     paths:
-      - 'images/**'
-      - 'build_manifest.R'
-      - '.github/workflows/build-manifest.yml'
-  workflow_dispatch: {}
+      - 'images/**'                 # triggert bei neuen/gelöschten/verschobenen Dateien in images/
+      - 'build_manifest.R'          # falls du den Builder änderst
+  workflow_dispatch: {}             # optional: manuell auslösbar
+  schedule:
+    - cron: '17 3 * * *'            # optional: einmal täglich als Fallback (03:17 UTC)
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write               # erlaubt das Committen von manifest.json
+    concurrency:
+      group: manifest-${{ github.ref }}
+      cancel-in-progress: true      # vermeidet parallele Läufe bei vielen kleinen Pushes
     steps:
       - uses: actions/checkout@v4
+
       - uses: r-lib/actions/setup-r@v2
+
       - name: Install R packages
         run: |
           Rscript -e "install.packages(c('jsonlite','stringr','dplyr','lubridate','purrr','fs'), repos='https://cloud.r-project.org')"
+
       - name: Build manifest
         run: |
           Rscript -e "source('build_manifest.R'); build_manifest(root='images', base_url='images/')"
+
       - name: Commit manifest.json
         uses: EndBug/add-and-commit@v9
         with:
