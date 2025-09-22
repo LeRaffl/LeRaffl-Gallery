@@ -62,3 +62,4 @@ build_manifest <- function(root = "images", base_url = "images/", periods_tbl = 
 # Example call:
 source('build_manifest.R')
 build_manifest('images', 'images/')
+
