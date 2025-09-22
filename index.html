@@ -13,8 +13,26 @@
       .bar{max-width:var(--maxw);margin:0 auto;padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
       .bar h1{grid-column:1/-1;margin:4px 0 8px;font-size:20px;font-weight:600}
       select,input,button{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
+      /* Entfernt natives Look&Feel des Selects (Safari/Firefox/Chromium) */
+      select{
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        /* optional: eigener Pfeil rechts */
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 12px 12px;
+        padding-right: 36px; /* Platz für den Pfeil */
+      }
+
+      /* (IE/alt) den Standardpfeil verstecken – schadet modernen Browsern nicht */
+      select::-ms-expand { display: none; }
+
       .controls{display:contents}
       .chips{display:flex;gap:8px;flex-wrap:wrap}
+      .chip{white-space:nowrap}
       .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #273145;background:#0f1525;border-radius:999px;font-size:13px}
       .wrap{max-width:var(--maxw);margin:16px auto;padding:10px}
       .grid{display:grid;grid-template-columns:repeat( auto-fill, minmax(260px, 1fr) );gap:var(--gap)}
@@ -34,7 +52,7 @@
       .lb img{max-width:100%;max-height:90vh;display:block}
       .x{position:absolute;top:8px;right:8px}
       .noresults{padding:24px;text-align:center;opacity:.7}
-      .badge{padding:2px 6px;border:1px solid #2b364f;border-radius:6px;background:#0f1525;font-size:11px}
+      .badge{padding:2px 8px;border:1px solid #2b364f;border-radius:999px;background:#0f1525;font-size:12px}
       @media (max-width:720px){.bar{grid-template-columns:1fr 1fr}.chips{grid-column:1/-1}}
     </style>
   </head>
@@ -74,6 +92,13 @@
       const searchInput = document.getElementById('search');
       const stats = document.getElementById('stats');
       const typeChecks = [...document.querySelectorAll('.chip input[type="checkbox"]')];
+      const TYPE_LABEL = {
+            ICE_BEV: 'ICE ↔ BEV',
+            time: 'Zeitverlauf',
+            ttm_shares: 'TTM-Shares',
+            share: 'Monats-Share'
+          };
+
 
       async function loadManifest(){
         const res = await fetch('manifest.json', {cache:'no-store'});
@@ -89,6 +114,8 @@
         for(const it of items){
           const card = document.createElement('article');
           card.className = 'card';
+          const box = document.createElement('div');
+          box.className = 'thumbbox';
           const img = document.createElement('img');
           img.loading = 'lazy';
           img.decoding = 'async';
@@ -96,14 +123,15 @@
           img.alt = it.alt || `${it.country} – ${it.type}`;
           img.className = 'thumb';
           img.addEventListener('click', ()=>{ lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal(); });
+          box.append(img);
           const meta = document.createElement('div');
           meta.className = 'meta';
           const date = it.date || '';
-          meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${it.type}</div></div><div class="date">${date}</div>`;
+          meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type] || it.type}</div></div><div class="date">${date}</div>`;
           const footer = document.createElement('div');
           footer.className = 'footer';
-          footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="badge">${it.filename}</span>`;
-          card.append(img, meta, footer);
+          footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`;
+          card.append(box, meta, footer);
           frag.append(card);
         }
         grid.append(frag);
