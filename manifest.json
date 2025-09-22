@@ -1647,6 +1647,114 @@
       "filename": "uk_ttm_shares_20250704.png",
       "url": "images/2025-06/uk_ttm_shares_20250704.png",
       "alt": "Uk TTM market split graph"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-19",
+      "filename": "china_20250919.png",
+      "url": "images/2025-08/china_20250919.png",
+      "alt": "China BEV trajectory"
+    },
+    {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-19",
+      "filename": "china_ICE_BEV_20250919.png",
+      "url": "images/2025-08/china_ICE_BEV_20250919.png",
+      "alt": "China ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-19",
+      "filename": "china_time_20250919.png",
+      "url": "images/2025-08/china_time_20250919.png",
+      "alt": "China Transition time curve"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-19",
+      "filename": "china_ttm_shares_20250919.png",
+      "url": "images/2025-08/china_ttm_shares_20250919.png",
+      "alt": "China TTM market split graph"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-21",
+      "filename": "poland_20250921.png",
+      "url": "images/2025-08/poland_20250921.png",
+      "alt": "Poland BEV trajectory"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-21",
+      "filename": "poland_ICE_BEV_20250921.png",
+      "url": "images/2025-08/poland_ICE_BEV_20250921.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-21",
+      "filename": "poland_time_20250921.png",
+      "url": "images/2025-08/poland_time_20250921.png",
+      "alt": "Poland Transition time curve"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-21",
+      "filename": "poland_ttm_shares_20250921.png",
+      "url": "images/2025-08/poland_ttm_shares_20250921.png",
+      "alt": "Poland TTM market split graph"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-20",
+      "filename": "spain_20250920.png",
+      "url": "images/2025-08/spain_20250920.png",
+      "alt": "Spain BEV trajectory"
+    },
+    {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-20",
+      "filename": "spain_ICE_BEV_20250920.png",
+      "url": "images/2025-08/spain_ICE_BEV_20250920.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-20",
+      "filename": "spain_time_20250920.png",
+      "url": "images/2025-08/spain_time_20250920.png",
+      "alt": "Spain Transition time curve"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-20",
+      "filename": "spain_ttm_shares_20250920.png",
+      "url": "images/2025-08/spain_ttm_shares_20250920.png",
+      "alt": "Spain TTM market split graph"
     }
   ]
 }
