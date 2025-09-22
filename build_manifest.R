@@ -1,4 +1,4 @@
-# build_manifest.R
+# build_manifest.R — backslash-sicher
 suppressPackageStartupMessages({
   library(jsonlite); library(stringr); library(dplyr); library(lubridate); library(purrr); library(fs)
 })
@@ -22,7 +22,9 @@ norm_country <- function(x){
 # base_url: how your site will reference files (typically "images/")
 build_manifest <- function(root = "images", base_url = "images/", periods_tbl = NULL) {
   stopifnot(fs::dir_exists(root))
-  files <- fs::dir_ls(root, recurse = TRUE, type = "file", regexp = "\.(png|webp)$", fail = FALSE)
+  files <- fs::dir_ls(root, recurse = TRUE, type = "file",
+                      regexp = "[.](png|webp)$", fail = FALSE)   # <- kein \\.
+
   if (length(files) == 0) stop("No images in ", root)
 
   df <- tibble::tibble(path = as.character(files)) |>
@@ -30,12 +32,12 @@ build_manifest <- function(root = "images", base_url = "images/", periods_tbl = 
       rel_path = fs::path_rel(path, start = fs::path_abs(root)),
       period   = stringr::str_match(rel_path, "^([0-9]{4}-[0-9]{2})/")[,2],
       filename = fs::path_file(path),
-      base     = stringr::str_remove(filename, "\.(png|webp)$"),
+      base     = stringr::str_remove(filename, "[.](png|webp)$"),  # <- kein \\.
       parts    = stringr::str_split(base, "_", simplify = TRUE),
       country0 = parts[,1],
       country  = norm_country(country0),
       type     = infer_type(filename),
-      date8    = stringr::str_extract(filename, "(?<!\d)(\d{8})(?!\d)"),
+      date8    = stringr::str_extract(filename, "(?<!\\d)(\\d{8})(?!\\d)"),
       date     = dplyr::if_else(!is.na(date8), as.character(lubridate::ymd(date8)), NA_character_),
       url      = paste0(base_url, rel_path),
       alt      = paste(country, dplyr::recode(type,
@@ -54,7 +56,11 @@ build_manifest <- function(root = "images", base_url = "images/", periods_tbl = 
   }
 
   manifest <- list(updated = as.character(Sys.Date()), images = df)
-  jsonlite::write_json(manifest, file.path(dirname(root), "manifest.json"), auto_unbox = TRUE, pretty = TRUE)
+  jsonlite::write_json(manifest, file.path(dirname(root), "manifest.json"),
+                       auto_unbox = TRUE, pretty = TRUE)
   message("manifest.json written")
   invisible(manifest)
 }
+
+# Example call (lokal testen):
+# source('build_manifest.R'); build_manifest('images', 'images/')
