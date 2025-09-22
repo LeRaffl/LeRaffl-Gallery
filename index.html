@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>BEV Trajectories • Gallery</title>
-    <meta name="description" content="Galerie für @LeRaffl EV‑Charts: Länderfilter, Typenfilter, Suche, Lightbox." />
+    <meta name="description" content="Galerie für @LeRaffl EV-Charts: Länderfilter, Typenfilter, Suche, Lightbox." />
     <style>
       :root{--maxw:1200px;--gap:14px}
       *{box-sizing:border-box}
@@ -12,46 +12,51 @@
       header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
       .bar{max-width:var(--maxw);margin:0 auto;padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
       .bar h1{grid-column:1/-1;margin:4px 0 8px;font-size:20px;font-weight:600}
+
+      /* Inputs */
       select,input,button{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
-      /* Entfernt natives Look&Feel des Selects (Safari/Firefox/Chromium) */
+      /* native Select-Pfeil entfernen und eigenen setzen */
       select{
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-
-        /* optional: eigener Pfeil rechts */
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 12px 12px;
-        padding-right: 36px; /* Platz für den Pfeil */
+        appearance:none;-webkit-appearance:none;-moz-appearance:none;
+        background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+        background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px;
       }
-
-      /* (IE/alt) den Standardpfeil verstecken – schadet modernen Browsern nicht */
-      select::-ms-expand { display: none; }
+      select::-ms-expand{display:none}
 
       .controls{display:contents}
       .chips{display:flex;gap:8px;flex-wrap:wrap}
       .chip{white-space:nowrap}
       .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #273145;background:#0f1525;border-radius:999px;font-size:13px}
       .wrap{max-width:var(--maxw);margin:16px auto;padding:10px}
-      .grid{display:grid;grid-template-columns:repeat( auto-fill, minmax(260px, 1fr) );gap:var(--gap)}
-      .card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-      .thumb{aspect-ratio:16/10;width:100%;display:block;object-fit:cover;background:#121826}
+
+      /* Grid responsiv vergrößern -> bessere Lesbarkeit der Thumbs */
+      .grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill, minmax(320px, 1fr))}
+      @media (min-width:1200px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)) } }
+      @media (min-width:1600px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(480px, 1fr)) } }
+
+      /* Card + Thumbnail-Box */
+      .card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s ease, transform .15s ease}
+      .card:hover{ box-shadow:0 10px 24px rgba(0,0,0,.35) }
+      .thumbbox{aspect-ratio:16/9;width:100%;background:#121826;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #1f2a44;border-top-left-radius:14px;border-top-right-radius:14px;position:relative}
+      .thumb{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:transform .15s ease;will-change:transform}
+      .thumbbox:hover .thumb{transform:scale(1.08)}
+
+      /* Meta/Footer */
       .meta{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
       .meta .left{display:flex;flex-direction:column}
       .country{font-weight:600}
-      .type{opacity:.75;font-size:12px}
-      .date{opacity:.8;font-size:12px}
-      .footer{padding:8px 12px;border-top:1px solid #1f2a44;display:flex;justify-content:space-between;align-items:center}
-      .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px}
+      .type{opacity:.9;font-size:12px}
+      .date{opacity:.9;font-size:12px}
+      .footer{padding:8px 12px;border-top:1px solid #1f2a44;display:flex;align-items:center;gap:10px}
+      .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px;text-decoration:none;color:#e9eef2}
+      .filename{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.9;font-size:12px;border:1px solid #2b364f;border-radius:8px;padding:4px 8px;background:#0f1525}
       .empty{opacity:.7;text-align:center;padding:40px}
+
       dialog{border:none;border-radius:14px;padding:0;background:#0b0c10cc}
       dialog::backdrop{background:rgba(0,0,0,.6)}
       .lb{position:relative;max-width:90vw;max-height:90vh;margin:auto}
       .lb img{max-width:100%;max-height:90vh;display:block}
       .x{position:absolute;top:8px;right:8px}
-      .noresults{padding:24px;text-align:center;opacity:.7}
       .badge{padding:2px 8px;border:1px solid #2b364f;border-radius:999px;background:#0f1525;font-size:12px}
       @media (max-width:720px){.bar{grid-template-columns:1fr 1fr}.chips{grid-column:1/-1}}
     </style>
@@ -67,8 +72,8 @@
           <div class="chips">
             <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
             <label class="chip"><input type="checkbox" value="time" checked/> Zeitverlauf</label>
-            <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM‑Shares</label>
-            <label class="chip"><input type="checkbox" value="share" checked/> Monats‑Share</label>
+            <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM-Shares</label>
+            <label class="chip"><input type="checkbox" value="share" checked/> Monats-Share</label>
           </div>
         </div>
         <div class="controls"><input id="search" placeholder="Suche (Land, Typ, Datum)"/></div>
@@ -92,50 +97,71 @@
       const searchInput = document.getElementById('search');
       const stats = document.getElementById('stats');
       const typeChecks = [...document.querySelectorAll('.chip input[type="checkbox"]')];
-      const TYPE_LABEL = {
-            ICE_BEV: 'ICE ↔ BEV',
-            time: 'Zeitverlauf',
-            ttm_shares: 'TTM-Shares',
-            share: 'Monats-Share'
-          };
 
+      const TYPE_LABEL = {
+        ICE_BEV: 'ICE ↔ BEV',
+        time: 'Zeitverlauf',
+        ttm_shares: 'TTM-Shares',
+        share: 'Monats-Share'
+      };
 
       async function loadManifest(){
         const res = await fetch('manifest.json', {cache:'no-store'});
         return res.json();
       }
       function uniq(xs){ return [...new Set(xs)]; }
+
       function render(items){
         grid.innerHTML = '';
-        if(items.length === 0){ empty.hidden = false; stats.textContent = ''; return; }
+        if(items.length === 0){
+          empty.hidden = false; stats.textContent = ''; return;
+        }
         empty.hidden = true;
         stats.innerHTML = `<span class="badge">${items.length} Charts</span>`;
         const frag = document.createDocumentFragment();
+
         for(const it of items){
           const card = document.createElement('article');
           card.className = 'card';
+
+          // Thumb
           const box = document.createElement('div');
           box.className = 'thumbbox';
           const img = document.createElement('img');
+          img.className = 'thumb';
           img.loading = 'lazy';
           img.decoding = 'async';
           img.src = it.url;
           img.alt = it.alt || `${it.country} – ${it.type}`;
-          img.className = 'thumb';
-          img.addEventListener('click', ()=>{ lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal(); });
+          img.addEventListener('click', ()=>{
+            lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal();
+          });
           box.append(img);
+
+          // Meta
           const meta = document.createElement('div');
           meta.className = 'meta';
           const date = it.date || '';
-          meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type] || it.type}</div></div><div class="date">${date}</div>`;
+          meta.innerHTML =
+            `<div class="left">
+               <div class="country">${it.country}</div>
+               <div class="type">${TYPE_LABEL[it.type] || it.type}</div>
+             </div>
+             <div class="date">${date}</div>`;
+
+          // Footer
           const footer = document.createElement('div');
           footer.className = 'footer';
-          footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`;
+          footer.innerHTML =
+            `<a class="btn" href="${it.url}" download>Download</a>
+             <span class="filename">${it.filename}</span>`;
+
           card.append(box, meta, footer);
           frag.append(card);
         }
         grid.append(frag);
       }
+
       function applyFilters(all){
         const q = searchInput.value.trim().toLowerCase();
         const allowedTypes = new Set(typeChecks.filter(c=>c.checked).map(c=>c.value));
@@ -147,12 +173,12 @@
           return q === '' || hay.includes(q);
         });
       }
+
       loadManifest().then(({images})=>{
         uniq(images.map(x=>x.country)).sort().forEach(c=>{
-          const opt = document.createElement('option');
-          opt.value = opt.textContent = c; countrySelect.append(opt);
+          const opt = document.createElement('option'); opt.value = opt.textContent = c; countrySelect.append(opt);
         });
-        const update=()=>render(applyFilters(images));
+        const update = ()=>render(applyFilters(images));
         countrySelect.addEventListener('change', update);
         typeChecks.forEach(c=>c.addEventListener('change', update));
         searchInput.addEventListener('input', update);
