@@ -5,51 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>BEV Trajectories • Gallery</title>
 <style>
-:root{--maxw:1200px;--gap:14px}
+:root{--maxw:1280px;--gap:18px}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
 header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
-.bar{max-width:var(--maxw);margin:0 auto;padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.bar h1{grid-column:1/-1;margin:4px 0 8px;font-size:20px;font-weight:600}
+header .bar{max-width:var(--maxw);margin:0 auto;padding:12px 10px;display:flex;align-items:center;gap:12px}
+header h1{margin:0;font-size:20px;font-weight:700}
 
+/* Layout: Sidebar left, content right */
+.page{max-width:var(--maxw);margin:14px auto;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:0 10px}
+@media (max-width:880px){.page{grid-template-columns:1fr}}
+
+/* Sidebar */
+.side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:64px;height:fit-content}
+.side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
-/* buttons nicht global auf 100% ziehen */
-button{padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
-select{appearance:none;-webkit-appearance:none;-moz-appearance:none;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
 select::-ms-expand{display:none}
+.chips{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;font-size:14px;font-weight:600;color:#eef3ff}
+.chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.1rem;block-size:1.1rem;margin:0}
+.small{font-size:12px;opacity:.8}
 
-.controls{display:contents}
-.chips{display:flex;gap:10px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:999px;font-size:14px;font-weight:600;color:#eef3ff}
-.chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.15rem;block-size:1.15rem;margin:0}
-.wrap{max-width:var(--maxw);margin:16px auto;padding:10px}
+/* Content columns by type */
+.cols{display:grid;grid-template-columns:repeat(4, minmax(220px, 1fr));gap:var(--gap)}
+@media (max-width:1200px){.cols{grid-template-columns:repeat(3, minmax(220px, 1fr))}}
+@media (max-width:900px){.cols{grid-template-columns:repeat(2, minmax(220px, 1fr))}}
+@media (max-width:600px){.cols{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:var(--gap)}
+.col h3{margin:0 0 6px;font-size:14px;font-weight:700;opacity:.9}
 
-.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill, minmax(360px, 1fr))}
-@media (min-width:1600px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(480px, 1fr)) } }
-@media (max-width:480px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)) } }
-
+/* Cards */
 .card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s ease}
 .card:hover{ box-shadow:0 10px 24px rgba(0,0,0,.35) }
-
-/* Thumbnail: feste Fläche + contain */
 .thumbbox{position:relative;width:100%;aspect-ratio:16/9;background:#121826;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #1f2a44}
 .thumb{width:100%;height:100%;object-fit:contain;display:block;transition:transform .15s ease}
-.thumbbox:hover .thumb{transform:scale(1.06)}
-
-.meta{padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.thumbbox:hover .thumb{transform:scale(1.04)}
+.meta{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .meta .left{display:flex;flex-direction:column}
-.country{font-weight:700}
-.type,.date{opacity:1;font-size:12px}
-.footer{padding:8px 12px;border-top:1px solid #1f2a44;display:flex;align-items:center;gap:10px}
+.country{font-weight:700;font-size:14px}
+.type,.date{opacity:.9;font-size:12px}
+.footer{padding:10px 14px;border-top:1px solid #1f2a44;display:flex;align-items:center;gap:10px}
 .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px;text-decoration:none;color:#e9eef2}
 .filename{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.95;font-size:12px;border:1px solid #2b364f;border-radius:8px;padding:4px 8px;background:#0f1525}
-.empty{opacity:.7;text-align:center;padding:40px}
 .badge{padding:2px 8px;border:1px solid #2b364f;border-radius:999px;background:#0f1525;font-size:12px}
-@media (max-width:720px){.bar{grid-template-columns:1fr 1fr}.chips{grid-column:1/-1}}
+.empty{opacity:.7;text-align:center;padding:40px}
 
-/* Lightbox: immer auf Viewport skalieren */
+/* Lightbox */
 dialog#lightbox{border:none;padding:0;background:rgba(0,0,0,.6)}
 dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .lb{position:relative;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;max-width:100vw;max-height:100vh;margin:0;padding:8px}
@@ -61,40 +63,45 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
   <header>
     <div class="bar">
       <h1>BEV Trajectories • Gallery</h1>
-
-      <div class="controls">
-        <select id="countrySelect"><option value="">All countries</option></select>
-      </div>
-
-      <div class="controls">
-        <div class="chips">
-          <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV trajectory</label>
-          <label class="chip"><input type="checkbox" value="time" checked/> Transition time curves</label>
-          <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM market split</label>
-          <label class="chip"><input type="checkbox" value="share" checked/> BEV trajectory</label>
-          <label class="chip"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
-        </div>
-      </div>
-
-      <div class="controls">
-        <div style="display:flex;gap:10px">
-          <select id="periodSelect" hidden><option value="">All months</option></select>
-          <input id="search" placeholder="Search (country, type, filename)" />
-        </div>
-      </div>
+      <div id="stats" class="small"></div>
     </div>
   </header>
 
-  <main class="wrap">
-    <div id="stats" style="margin-bottom:10px;opacity:.8"></div>
-    <div id="grid" class="grid"></div>
-    <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
-  </main>
+  <div class="page">
+    <aside class="side">
+      <h2>Filters</h2>
+      <label class="small">Country</label>
+      <select id="countrySelect"><option value="">All countries</option></select>
+
+      <div style="height:10px"></div>
+      <label class="small">Types</label>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" value="share" checked/> BEV trajectory</label>
+        <label class="chip"><input type="checkbox" value="ICE_BEV"/> ICE↔BEV trajectory</label>
+        <label class="chip"><input type="checkbox" value="ttm_shares"/> TTM market split</label>
+        <label class="chip"><input type="checkbox" value="time"/> Transition time curves</label>
+        <label class="chip"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
+      </div>
+
+      <div style="height:10px"></div>
+      <label class="small">Month</label>
+      <select id="periodSelect" hidden><option value="">All months</option></select>
+
+      <div style="height:10px"></div>
+      <label class="small">Search</label>
+      <input id="search" placeholder="Search (country, type, filename)" />
+    </aside>
+
+    <main>
+      <div id="cols" class="cols"></div>
+      <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
+    </main>
+  </div>
 
   <dialog id="lightbox"><div class="lb"><button class="btn x" onclick="lb.close()">Close</button><img alt=""/></div></dialog>
 
 <script>
-const grid = document.getElementById('grid');
+const cols = document.getElementById('cols');
 const empty = document.getElementById('empty');
 const lb = document.getElementById('lightbox');
 const lbImg = lb.querySelector('img');
@@ -102,22 +109,22 @@ const countrySelect = document.getElementById('countrySelect');
 const periodSelect  = document.getElementById('periodSelect');
 const searchInput   = document.getElementById('search');
 const stats = document.getElementById('stats');
-const typeChecks = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
 const latestOnly   = document.getElementById('latestOnly');
+const typeChecks   = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
 
 const TYPE_LABEL = {
+  share: 'BEV trajectory',
   ICE_BEV: 'ICE↔BEV trajectory',
-  time: 'Transition time curve',
   ttm_shares: 'TTM market split graph',
-  share: 'BEV trajectory'
+  time: 'Transition time curve'
 };
+const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 
 function prettyPeriod(p){
   if(!/^\d{4}-\d{2}$/.test(p)) return p;
   const [y,m] = p.split('-').map(Number);
   return new Date(y, m-1, 1).toLocaleDateString('en-US', {month:'short', year:'numeric'});
 }
-
 async function loadManifest(){
   const res = await fetch('manifest.json', {cache:'no-store'});
   return res.json();
@@ -135,38 +142,41 @@ function latestByKey(items){
   return [...map.values()];
 }
 
-function render(items){
-  grid.innerHTML = '';
+function renderColumns(items){
+  cols.innerHTML = '';
   if(items.length === 0){ empty.hidden = false; stats.textContent = ''; return; }
   empty.hidden = true;
   stats.innerHTML = `<span class="badge">${items.length} charts</span>`;
-  const frag = document.createDocumentFragment();
-  for(const it of items){
-    const card = document.createElement('article');
-    card.className = 'card';
 
-    const box = document.createElement('div');
-    box.className = 'thumbbox';
-    const img = document.createElement('img');
-    img.className = 'thumb';
-    img.loading='lazy'; img.decoding='async';
-    img.src = it.url; img.alt = it.alt || `${it.country} – ${it.type}`;
-    img.addEventListener('click', ()=>{ lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal(); });
-    box.append(img);
+  const byType = Object.fromEntries(TYPE_ORDER.map(t=>[t, []]));
+  for(const it of items){ if(byType[it.type]) byType[it.type].push(it); }
 
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    const right = [it.period || '', it.date || ''].filter(Boolean).join(' • ');
-    meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type] || it.type}</div></div><div class="date">${right}</div>`;
+  for(const t of TYPE_ORDER){
+    const list = byType[t];
+    if(!list || list.length === 0) continue;
+    const col = document.createElement('section');
+    col.className = 'col';
+    const h = document.createElement('h3'); h.textContent = TYPE_LABEL[t]; col.append(h);
 
-    const footer = document.createElement('div');
-    footer.className = 'footer';
-    footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`;
+    for(const it of list){
+      const card = document.createElement('article'); card.className = 'card';
+      const box = document.createElement('div'); box.className = 'thumbbox';
+      const img = document.createElement('img'); img.className = 'thumb'; img.loading='lazy'; img.decoding='async'; img.src = it.url; img.alt = it.alt || `${it.country} – ${it.type}`;
+      img.addEventListener('click', ()=>{ lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal(); });
+      box.append(img);
 
-    card.append(box, meta, footer);
-    frag.append(card);
+      const meta = document.createElement('div'); meta.className = 'meta';
+      const right = [it.period || '', it.date || ''].filter(Boolean).join(' • ');
+      meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type] || it.type}</div></div><div class="date">${right}</div>`;
+
+      const footer = document.createElement('div'); footer.className = 'footer';
+      footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`;
+
+      card.append(box, meta, footer);
+      col.append(card);
+    }
+    cols.append(col);
   }
-  grid.append(frag);
 }
 
 function applyFilters(all){
@@ -182,23 +192,19 @@ function applyFilters(all){
     const hay = `${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase();
     return q === '' || hay.includes(q);
   });
-
   if(latestOnly && latestOnly.checked && !period) out = latestByKey(out);
   return out;
 }
 
 loadManifest().then(({images})=>{
-  const countries = uniq(images.map(x=>x.country)).sort();
-  countries.forEach(c=>{
+  // populate filters
+  uniq(images.map(x=>x.country)).sort().forEach(c=>{
     const opt = document.createElement('option'); opt.value = c; opt.textContent = c; countrySelect.append(opt);
   });
   const periods = uniq(images.map(x=>x.period).filter(Boolean)).sort();
-  if(periods.length){
-    periodSelect.hidden = false;
-    periods.forEach(p=>{ const o = document.createElement('option'); o.value = p; o.textContent = prettyPeriod(p); periodSelect.append(o); });
-  }
+  if(periods.length){ periodSelect.hidden = false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o); }); }
 
-  const update = ()=>render(applyFilters(images));
+  const update=()=>{ const list = applyFilters(images); renderColumns(list); };
   countrySelect.addEventListener('change', update);
   periodSelect.addEventListener('change', update);
   typeChecks.forEach(c=>c.addEventListener('change', update));
@@ -207,9 +213,7 @@ loadManifest().then(({images})=>{
   update();
 });
 
-// Lightbox goodies
 lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
-lbImg.addEventListener('dblclick', () => { if (lbImg.src) window.open(lbImg.src, '_blank', 'noopener'); });
 </script>
 </body>
 </html>
