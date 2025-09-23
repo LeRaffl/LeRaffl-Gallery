@@ -12,7 +12,9 @@ header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:satu
 .bar{max-width:var(--maxw);margin:0 auto;padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .bar h1{grid-column:1/-1;margin:4px 0 8px;font-size:20px;font-weight:600}
 
-select,input,button{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
+select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
+/* buttons nicht global auf 100% ziehen */
+button{padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
@@ -24,8 +26,9 @@ select::-ms-expand{display:none}
 .chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.15rem;block-size:1.15rem;margin:0}
 .wrap{max-width:var(--maxw);margin:16px auto;padding:10px}
 
-.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill, minmax(420px, 1fr))}
-@media (min-width:1600px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(500px, 1fr)) } }
+.grid{display:grid;gap:var(--gap);grid-template-columns:repeat(auto-fill, minmax(360px, 1fr))}
+@media (min-width:1600px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(480px, 1fr)) } }
+@media (max-width:480px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)) } }
 
 .card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s ease}
 .card:hover{ box-shadow:0 10px 24px rgba(0,0,0,.35) }
@@ -49,9 +52,9 @@ select::-ms-expand{display:none}
 /* Lightbox: immer auf Viewport skalieren */
 dialog#lightbox{border:none;padding:0;background:rgba(0,0,0,.6)}
 dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
-.lb{display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;max-width:100vw;max-height:100vh;margin:0}
+.lb{position:relative;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;max-width:100vw;max-height:100vh;margin:0;padding:8px}
 .lb img{width:auto;height:auto;max-width:min(96vw,1600px);max-height:92vh;object-fit:contain;display:block;border-radius:10px;background:#0b0c10}
-.btn.x{position:absolute;top:10px;right:10px;z-index:2}
+.btn.x{position:absolute;top:8px;right:8px;width:auto;z-index:2}
 </style>
 </head>
 <body>
