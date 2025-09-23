@@ -79,7 +79,41 @@ select::-ms-expand{display:none}
     <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
   </main>
 
-  <dialog id="lightbox"><div class="lb"><button class="btn x" onclick="lb.close()">Close</button><img alt=""/></div></dialog>
+/* Lightbox: immer auf Bildschirm einpassen */
+dialog#lightbox{
+  border: none;
+  padding: 0;
+  background: rgba(0,0,0,.6);
+}
+dialog#lightbox::backdrop{
+  background: rgba(0,0,0,.6);
+}
+.lb{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+}
+.lb img{
+  width: auto;                /* nicht hart strecken */
+  height: auto;
+  max-width: min(96vw, 1600px);
+  max-height: 92vh;           /* Platz für Close-Button */
+  object-fit: contain;        /* komplett sichtbar */
+  display: block;
+  border-radius: 10px;
+  background: #0b0c10;
+}
+.btn.x{
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
 
 <script>
 const grid = document.getElementById('grid');
