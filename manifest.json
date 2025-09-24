@@ -2657,6 +2657,42 @@
       "alt": "China TTM market split graph"
     },
     {
+      "country": "Germany",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "germany_20250924.png",
+      "url": "images/2025-08/germany_20250924.png",
+      "alt": "Germany BEV trajectory"
+    },
+    {
+      "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "germany_ICE_BEV_20250924.png",
+      "url": "images/2025-08/germany_ICE_BEV_20250924.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Germany",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "germany_time_20250924.png",
+      "url": "images/2025-08/germany_time_20250924.png",
+      "alt": "Germany Transition time curve"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "germany_ttm_shares_20250924.png",
+      "url": "images/2025-08/germany_ttm_shares_20250924.png",
+      "alt": "Germany TTM market split graph"
+    },
+    {
       "country": "Italy",
       "type": "share",
       "period": "2025-08",
