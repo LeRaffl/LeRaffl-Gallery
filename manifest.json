@@ -1,5 +1,5 @@
 {
-  "updated": "2025-09-23",
+  "updated": "2025-09-24",
   "images": [
     {
       "country": "Australia",
@@ -2655,6 +2655,15 @@
       "filename": "spain_ttm_shares_20250920.png",
       "url": "images/2025-08/spain_ttm_shares_20250920.png",
       "alt": "Spain TTM market split graph"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-09-23",
+      "filename": "italy_20250923.png",
+      "url": "images/2025-09/italy_20250923.png",
+      "alt": "Italy BEV trajectory"
     }
   ]
 }
