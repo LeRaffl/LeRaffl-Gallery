@@ -12,7 +12,7 @@ header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:satu
 header .bar{max-width:var(--maxw);margin:0 auto;padding:12px 10px;display:flex;align-items:center;gap:12px}
 header h1{margin:0;font-size:20px;font-weight:700}
 
-/* Layout: Sidebar left, content right */
+/* Layout */
 .page{max-width:var(--maxw);margin:14px auto;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:0 10px}
 @media (max-width:880px){.page{grid-template-columns:1fr}}
 
@@ -27,7 +27,7 @@ select::-ms-expand{display:none}
 .chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.1rem;block-size:1.1rem;margin:0}
 .small{font-size:12px;opacity:.8}
 
-/* Content columns by type */
+/* Content */
 .cols{display:grid;grid-template-columns:repeat(4, minmax(220px, 1fr));gap:var(--gap)}
 @media (max-width:1200px){.cols{grid-template-columns:repeat(3, minmax(220px, 1fr))}}
 @media (max-width:900px){.cols{grid-template-columns:repeat(2, minmax(220px, 1fr))}}
@@ -57,6 +57,9 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .lb{position:relative;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;max-width:100vw;max-height:100vh;margin:0;padding:8px}
 .lb img{width:auto;height:auto;max-width:min(96vw,1600px);max-height:92vh;object-fit:contain;display:block;border-radius:10px;background:#0b0c10}
 .btn.x{position:absolute;top:8px;right:8px;width:auto;z-index:2}
+
+/* NEW: Pager row */
+.pager{display:flex;justify-content:center;margin-top:18px}
 </style>
 </head>
 <body>
@@ -90,11 +93,33 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
       <div style="height:10px"></div>
       <label class="small">Search</label>
       <input id="search" placeholder="Search (country, type, filename)" />
+
+      <!-- NEW: Sorting UI -->
+      <div style="height:14px"></div>
+      <h2>Sort</h2>
+      <label class="small">Field</label>
+      <select id="sortField">
+        <option value="created" selected>Created time (from filename)</option>
+        <option value="country">Country</option>
+        <option value="filename">Filename</option>
+      </select>
+      <div style="height:8px"></div>
+      <label class="small">Direction</label>
+      <select id="sortDir">
+        <option value="desc" selected>Descending</option>
+        <option value="asc">Ascending</option>
+      </select>
+      <!-- /NEW -->
     </aside>
 
     <main>
       <div id="cols" class="cols"></div>
       <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
+      <!-- NEW: Pager -->
+      <div id="pager" class="pager" hidden>
+        <button id="loadMore" class="btn">Load more</button>
+      </div>
+      <!-- /NEW -->
     </main>
   </div>
 
@@ -111,6 +136,16 @@ const searchInput   = document.getElementById('search');
 const stats = document.getElementById('stats');
 const latestOnly   = document.getElementById('latestOnly');
 const typeChecks   = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
+
+// NEW: sorting + paging
+const sortField = document.getElementById('sortField');
+const sortDir   = document.getElementById('sortDir');
+const pager     = document.getElementById('pager');
+const loadMoreBtn = document.getElementById('loadMore');
+const INITIAL_ROWS = 3;        // wie viele Zeilen pro Spalte initial
+const PAGE_ROWS    = 3;        // wie viele Zeilen "Load more" zusätzlich zeigt
+let visibleRows    = INITIAL_ROWS;
+// /NEW
 
 const TYPE_LABEL = {
   share: 'BEV trajectory',
@@ -131,6 +166,7 @@ async function loadManifest(){
 }
 const uniq = xs => [...new Set(xs)];
 
+// unverändert: nimmt das jüngste period je country+type
 function latestByKey(items){
   const map = new Map();
   const toNum = p => Number((p||"0000-00").replace("-",""));
@@ -142,14 +178,50 @@ function latestByKey(items){
   return [...map.values()];
 }
 
+// NEW: Created-Time (aus Dateiname) extrahieren, z.B. germany_ICE_BEV_20250704.png
+function createdNum(it){
+  const m = it.filename && it.filename.match(/(\d{8})(?=\.[^.]+$)/);
+  return m ? Number(m[1]) : 0;
+}
+function compareItems(a,b,field,dir){
+  const sgn = dir === 'asc' ? 1 : -1;
+  if(field === 'created'){
+    const da = createdNum(a), db = createdNum(b);
+    if(da === db) return sgn * a.filename.localeCompare(b.filename);
+    return sgn * (da - db);
+  }
+  if(field === 'country'){
+    return sgn * a.country.localeCompare(b.country);
+  }
+  if(field === 'filename'){
+    return sgn * a.filename.localeCompare(b.filename);
+  }
+  return 0;
+}
+// /NEW
+
 function renderColumns(items){
   cols.innerHTML = '';
-  if(items.length === 0){ empty.hidden = false; stats.textContent = ''; return; }
+  if(items.length === 0){ 
+    empty.hidden = false; 
+    stats.textContent = ''; 
+    pager.hidden = true;
+    return; 
+  }
   empty.hidden = true;
-  stats.innerHTML = `<span class="badge">${items.length} charts</span>`;
+
+  // NEW: sortiere VOR Aufteilung nach Typ
+  const field = sortField.value;
+  const dir   = sortDir.value;
+  const sorted = [...items].sort((a,b)=>compareItems(a,b,field,dir));
+  // /NEW
 
   const byType = Object.fromEntries(TYPE_ORDER.map(t=>[t, []]));
-  for(const it of items){ if(byType[it.type]) byType[it.type].push(it); }
+  for(const it of sorted){ if(byType[it.type]) byType[it.type].push(it); }
+
+  let visibleCount = 0;
+  let totalCount = 0;
+  let canLoadMore = false;
 
   for(const t of TYPE_ORDER){
     const list = byType[t];
@@ -158,7 +230,13 @@ function renderColumns(items){
     col.className = 'col';
     const h = document.createElement('h3'); h.textContent = TYPE_LABEL[t]; col.append(h);
 
-    for(const it of list){
+    const take = Math.min(list.length, visibleRows);
+    totalCount += list.length;
+    visibleCount += take;
+    if(list.length > visibleRows) canLoadMore = true;
+
+    for(let i=0;i<take;i++){
+      const it = list[i];
       const card = document.createElement('article'); card.className = 'card';
       const box = document.createElement('div'); box.className = 'thumbbox';
       const img = document.createElement('img'); img.className = 'thumb'; img.loading='lazy'; img.decoding='async'; img.src = it.url; img.alt = it.alt || `${it.country} – ${it.type}`;
@@ -177,6 +255,11 @@ function renderColumns(items){
     }
     cols.append(col);
   }
+
+  // NEW: Stats & Pager
+  stats.innerHTML = `<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`;
+  pager.hidden = !canLoadMore;
+  // /NEW
 }
 
 function applyFilters(all){
@@ -197,19 +280,37 @@ function applyFilters(all){
 }
 
 loadManifest().then(({images})=>{
-  // populate filters
-  uniq(images.map(x=>x.country)).sort().forEach(c=>{
+  // Filters
+  const countries = uniq(images.map(x=>x.country)).sort();
+  countries.forEach(c=>{
     const opt = document.createElement('option'); opt.value = c; opt.textContent = c; countrySelect.append(opt);
   });
   const periods = uniq(images.map(x=>x.period).filter(Boolean)).sort();
   if(periods.length){ periodSelect.hidden = false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o); }); }
 
-  const update=()=>{ const list = applyFilters(images); renderColumns(list); };
-  countrySelect.addEventListener('change', update);
-  periodSelect.addEventListener('change', update);
-  typeChecks.forEach(c=>c.addEventListener('change', update));
-  latestOnly.addEventListener('change', update);
-  searchInput.addEventListener('input', update);
+  const update=()=>{ 
+    const list = applyFilters(images); 
+    renderColumns(list); 
+  };
+
+  const resetAndUpdate=()=>{ visibleRows = INITIAL_ROWS; update(); }; // NEW
+
+  countrySelect.addEventListener('change', resetAndUpdate);
+  periodSelect.addEventListener('change', resetAndUpdate);
+  typeChecks.forEach(c=>c.addEventListener('change', resetAndUpdate));
+  latestOnly.addEventListener('change', resetAndUpdate);
+  searchInput.addEventListener('input', resetAndUpdate);
+
+  // NEW: sort + pager events
+  sortField.addEventListener('change', resetAndUpdate);
+  sortDir.addEventListener('change', resetAndUpdate);
+  loadMoreBtn.addEventListener('click', ()=>{ visibleRows += PAGE_ROWS; update(); });
+  // /NEW
+
+  // Default: Created time desc
+  sortField.value = 'created';
+  sortDir.value = 'desc';
+
   update();
 });
 
