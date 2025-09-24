@@ -2,6 +2,42 @@
   "updated": "2025-09-24",
   "images": [
     {
+      "country": "Usa",
+      "type": "share",
+      "period": "2025-03",
+      "date": "2025-04-19",
+      "filename": "usa_20250419.png",
+      "url": "images/2025-03/usa_20250419.png",
+      "alt": "Usa BEV trajectory"
+    },
+    {
+      "country": "Usa",
+      "type": "ICE_BEV",
+      "period": "2025-03",
+      "date": "2025-04-19",
+      "filename": "usa_ICE_BEV_20250419.png",
+      "url": "images/2025-03/usa_ICE_BEV_20250419.png",
+      "alt": "Usa ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Usa",
+      "type": "time",
+      "period": "2025-03",
+      "date": "2025-04-19",
+      "filename": "usa_time_20250419.png",
+      "url": "images/2025-03/usa_time_20250419.png",
+      "alt": "Usa Transition time curve"
+    },
+    {
+      "country": "Usa",
+      "type": "ttm_shares",
+      "period": "2025-03",
+      "date": "2025-04-19",
+      "filename": "usa_ttm_shares_20250419.png",
+      "url": "images/2025-03/usa_ttm_shares_20250419.png",
+      "alt": "Usa TTM market split graph"
+    },
+    {
       "country": "Australia",
       "type": "share",
       "period": "2025-04",
@@ -2549,6 +2585,42 @@
       "alt": "Uk TTM market split graph"
     },
     {
+      "country": "Brazil",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "brazil_20250924.png",
+      "url": "images/2025-08/brazil_20250924.png",
+      "alt": "Brazil BEV trajectory"
+    },
+    {
+      "country": "Brazil",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "brazil_ICE_BEV_20250924.png",
+      "url": "images/2025-08/brazil_ICE_BEV_20250924.png",
+      "alt": "Brazil ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Brazil",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "brazil_time_20250924.png",
+      "url": "images/2025-08/brazil_time_20250924.png",
+      "alt": "Brazil Transition time curve"
+    },
+    {
+      "country": "Brazil",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "brazil_ttm_shares_20250924.png",
+      "url": "images/2025-08/brazil_ttm_shares_20250924.png",
+      "alt": "Brazil TTM market split graph"
+    },
+    {
       "country": "China",
       "type": "share",
       "period": "2025-08",
@@ -2583,6 +2655,42 @@
       "filename": "china_ttm_shares_20250919.png",
       "url": "images/2025-08/china_ttm_shares_20250919.png",
       "alt": "China TTM market split graph"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "italy_20250924.png",
+      "url": "images/2025-08/italy_20250924.png",
+      "alt": "Italy BEV trajectory"
+    },
+    {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "italy_ICE_BEV_20250924.png",
+      "url": "images/2025-08/italy_ICE_BEV_20250924.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "italy_time_20250924.png",
+      "url": "images/2025-08/italy_time_20250924.png",
+      "alt": "Italy Transition time curve"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-24",
+      "filename": "italy_ttm_shares_20250924.png",
+      "url": "images/2025-08/italy_ttm_shares_20250924.png",
+      "alt": "Italy TTM market split graph"
     },
     {
       "country": "Poland",
