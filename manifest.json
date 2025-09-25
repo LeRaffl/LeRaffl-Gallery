@@ -2801,6 +2801,42 @@
       "alt": "Spain TTM market split graph"
     },
     {
+      "country": "Türkiye",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-25",
+      "filename": "tuerkiye_20250925.png",
+      "url": "images/2025-08/tuerkiye_20250925.png",
+      "alt": "Türkiye BEV trajectory"
+    },
+    {
+      "country": "Türkiye",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-25",
+      "filename": "tuerkiye_ICE_BEV_20250925.png",
+      "url": "images/2025-08/tuerkiye_ICE_BEV_20250925.png",
+      "alt": "Türkiye ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Türkiye",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-25",
+      "filename": "tuerkiye_time_20250925.png",
+      "url": "images/2025-08/tuerkiye_time_20250925.png",
+      "alt": "Türkiye Transition time curve"
+    },
+    {
+      "country": "Türkiye",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-25",
+      "filename": "tuerkiye_ttm_shares_20250925.png",
+      "url": "images/2025-08/tuerkiye_ttm_shares_20250925.png",
+      "alt": "Türkiye TTM market split graph"
+    },
+    {
       "country": "Uk",
       "type": "share",
       "period": "2025-08",
