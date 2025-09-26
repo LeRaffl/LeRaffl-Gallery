@@ -2585,6 +2585,42 @@
       "alt": "Uk TTM market split graph"
     },
     {
+      "country": "Sweden",
+      "type": "share",
+      "period": "2025-07",
+      "date": "2025-09-26",
+      "filename": "sweden_20250926.png",
+      "url": "images/2025-07/sweden_20250926.png",
+      "alt": "Sweden BEV trajectory"
+    },
+    {
+      "country": "Sweden",
+      "type": "ICE_BEV",
+      "period": "2025-07",
+      "date": "2025-09-26",
+      "filename": "sweden_ICE_BEV_20250926.png",
+      "url": "images/2025-07/sweden_ICE_BEV_20250926.png",
+      "alt": "Sweden ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Sweden",
+      "type": "time",
+      "period": "2025-07",
+      "date": "2025-09-26",
+      "filename": "sweden_time_20250926.png",
+      "url": "images/2025-07/sweden_time_20250926.png",
+      "alt": "Sweden Transition time curve"
+    },
+    {
+      "country": "Sweden",
+      "type": "ttm_shares",
+      "period": "2025-07",
+      "date": "2025-09-26",
+      "filename": "sweden_ttm_shares_20250926.png",
+      "url": "images/2025-07/sweden_ttm_shares_20250926.png",
+      "alt": "Sweden TTM market split graph"
+    },
+    {
       "country": "Brazil",
       "type": "share",
       "period": "2025-08",
