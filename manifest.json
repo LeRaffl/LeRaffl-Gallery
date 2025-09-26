@@ -2693,6 +2693,42 @@
       "alt": "China TTM market split graph"
     },
     {
+      "country": "Denmark",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-26",
+      "filename": "denmark_20250926.png",
+      "url": "images/2025-08/denmark_20250926.png",
+      "alt": "Denmark BEV trajectory"
+    },
+    {
+      "country": "Denmark",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-26",
+      "filename": "denmark_ICE_BEV_20250926.png",
+      "url": "images/2025-08/denmark_ICE_BEV_20250926.png",
+      "alt": "Denmark ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Denmark",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-26",
+      "filename": "denmark_time_20250926.png",
+      "url": "images/2025-08/denmark_time_20250926.png",
+      "alt": "Denmark Transition time curve"
+    },
+    {
+      "country": "Denmark",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-26",
+      "filename": "denmark_ttm_shares_20250926.png",
+      "url": "images/2025-08/denmark_ttm_shares_20250926.png",
+      "alt": "Denmark TTM market split graph"
+    },
+    {
       "country": "Germany",
       "type": "share",
       "period": "2025-08",
