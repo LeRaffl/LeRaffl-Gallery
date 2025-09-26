@@ -17,7 +17,7 @@ header h1{margin:0;font-size:20px;font-weight:700}
 @media (max-width:880px){.page{grid-template-columns:1fr}}
 
 /* Sidebar */
-.side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:64px;height:fit-content}
+.side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:64px;height:fit-content;z-index:10}
 .side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
@@ -60,6 +60,12 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 
 /* NEW: Pager row */
 .pager{display:flex;justify-content:center;margin-top:18px}
+ @media (max-width: 880px) {
+    .side {
+    position: static; /* Sticky ausschalten */
+    top: auto;
+  }
+}
 </style>
 </head>
 <body>
