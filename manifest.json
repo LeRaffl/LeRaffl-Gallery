@@ -2621,6 +2621,42 @@
       "alt": "Sweden TTM market split graph"
     },
     {
+      "country": "Austria",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "austria_20250927.png",
+      "url": "images/2025-08/austria_20250927.png",
+      "alt": "Austria BEV trajectory"
+    },
+    {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "austria_ICE_BEV_20250927.png",
+      "url": "images/2025-08/austria_ICE_BEV_20250927.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "austria_time_20250927.png",
+      "url": "images/2025-08/austria_time_20250927.png",
+      "alt": "Austria Transition time curve"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "austria_ttm_shares_20250927.png",
+      "url": "images/2025-08/austria_ttm_shares_20250927.png",
+      "alt": "Austria TTM market split graph"
+    },
+    {
       "country": "Brazil",
       "type": "share",
       "period": "2025-08",
