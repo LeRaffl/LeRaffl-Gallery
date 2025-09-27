@@ -2837,6 +2837,42 @@
       "alt": "Germany TTM market split graph"
     },
     {
+      "country": "Indonesia",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "indonesia_20250927.png",
+      "url": "images/2025-08/indonesia_20250927.png",
+      "alt": "Indonesia BEV trajectory"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "indonesia_ICE_BEV_20250927.png",
+      "url": "images/2025-08/indonesia_ICE_BEV_20250927.png",
+      "alt": "Indonesia ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Indonesia",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "indonesia_time_20250927.png",
+      "url": "images/2025-08/indonesia_time_20250927.png",
+      "alt": "Indonesia Transition time curve"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-27",
+      "filename": "indonesia_ttm_shares_20250927.png",
+      "url": "images/2025-08/indonesia_ttm_shares_20250927.png",
+      "alt": "Indonesia TTM market split graph"
+    },
+    {
       "country": "Italy",
       "type": "share",
       "period": "2025-08",
