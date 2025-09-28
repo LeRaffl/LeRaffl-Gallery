@@ -2945,6 +2945,42 @@
       "alt": "Italy TTM market split graph"
     },
     {
+      "country": "Norway",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-09-28",
+      "filename": "norway_20250928.png",
+      "url": "images/2025-08/norway_20250928.png",
+      "alt": "Norway BEV trajectory"
+    },
+    {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-09-28",
+      "filename": "norway_ICE_BEV_20250928.png",
+      "url": "images/2025-08/norway_ICE_BEV_20250928.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-09-28",
+      "filename": "norway_time_20250928.png",
+      "url": "images/2025-08/norway_time_20250928.png",
+      "alt": "Norway Transition time curve"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-09-28",
+      "filename": "norway_ttm_shares_20250928.png",
+      "url": "images/2025-08/norway_ttm_shares_20250928.png",
+      "alt": "Norway TTM market split graph"
+    },
+    {
       "country": "Poland",
       "type": "share",
       "period": "2025-08",
