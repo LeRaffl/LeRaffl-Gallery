@@ -32,51 +32,46 @@ extract_country_slug <- function(base){
 to_title_keep_digits <- function(x) {
   x <- gsub("_", " ", x)
   x <- gsub("([0-9])([a-zA-Z])", "\\1-\\2", x)  # 4wheelers -> 4-wheelers
-  # Titlecase grob
   stringr::str_to_title(x)
 }
 
 label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = NULL){
   s <- tolower(slug)
   
-  # Basisland: bis zum ersten _
+  # Basisland = alles bis erstes "_"
   base <- sub("^([a-z0-9-]+).*$", "\\1", s)
   
-  # Sonderfälle Länder (Diakritika etc.)
-  country_map <- c(
-    "tuerkiye" = "Türkiye"
-    # weitere bei Bedarf ergänzen
-  )
+  # Länder-Overrides (Diakritika etc.)
+  country_map <- c("tuerkiye" = "Türkiye")
   if (!is.null(country_overrides)) {
-    # user-override gewinnt
-    country_map <- c(country_map, country_overrides)
+    country_map[names(country_overrides)] <- country_overrides
   }
   
-  base_label <- if (!is.na(country_map[base])) country_map[base] else str_to_title(base)
+  base_label <- ifelse(!is.na(country_map[base]), country_map[base], stringr::str_to_title(base))
   
-  # Variante: alles nach erstem _
+  # Variante = alles nach erstem "_"
   rest <- sub("^[a-z0-9-]+_?", "", s)
-  if (rest == "" || rest == s) return(base_label)
   
-  # Heuristiken für Akronyme und Begriffe
-  rest <- gsub("-", " ", rest)
-  rest <- gsub("\\bhev\\b", "HEV", rest, ignore.case = TRUE)
-  rest <- gsub("\\bphev\\b", "PHEV", rest, ignore.case = TRUE)
-  rest <- gsub("\\bev\\b",  "EV",  rest, ignore.case = TRUE)
-  
-  rest_label <- to_title_keep_digits(rest)
-  
-  # Stil-Korrekturen klein
+  # Normalisierung Rest (vektorisiert)
+  rest2 <- gsub("-", " ", rest)
+  rest2 <- gsub("\\bhev\\b",  "HEV",  rest2, ignore.case = TRUE)
+  rest2 <- gsub("\\bphev\\b", "PHEV", rest2, ignore.case = TRUE)
+  rest2 <- gsub("\\bev\\b",   "EV",   rest2, ignore.case = TRUE)
+  rest_label <- to_title_keep_digits(rest2)
   rest_label <- gsub("\\bAnd\\b", "and", rest_label)
   rest_label <- gsub("\\bOf\\b",  "of",  rest_label)
-  rest_label <- gsub("\\bIn\\b",  "In",  rest_label)  # bewusst groß
+  rest_label <- gsub("\\bIn\\b",  "In",  rest_label)
   
-  # Optional: Variant-Overrides (feintuning einzelner Schreibweisen)
-  if (!is.null(variant_overrides)) {
-    if (!is.na(variant_overrides[rest])) rest_label <- variant_overrides[rest]
+  # Variant-Overrides optional (vektorisiert)
+  if (!is.null(variant_overrides) && length(variant_overrides)) {
+    idx <- match(tolower(rest_label), tolower(names(variant_overrides)))
+    repl <- ifelse(is.na(idx), rest_label, unname(variant_overrides[idx]))
+    rest_label <- repl
   }
   
-  sprintf("%s (%s)", base_label, rest_label)
+  # Wenn keine Variante existiert, nur Land; sonst "Land (Variante)"
+  out <- ifelse(rest == "" | rest == s, base_label, sprintf("%s (%s)", base_label, rest_label))
+  return(out)
 }
 
 # ---- Hauptfunktion ----
