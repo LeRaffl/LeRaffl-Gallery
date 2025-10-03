@@ -66,14 +66,6 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
     top: auto;
   }
 }
-
-/* Tabs UI */
-.tabs{max-width:var(--maxw);margin:8px auto 0;padding:0 10px;display:flex;gap:10px;flex-wrap:wrap}
-.tablink{padding:8px 12px;border:1px solid #1f2a44;border-radius:10px;background:#101a33;color:#e9eef2;text-decoration:none}
-.tablink.active{background:#e9eef2;color:#0b0c10}
-.tab{display:none}
-.tab.active{display:block}
-
 </style>
 </head>
 <body>
@@ -83,14 +75,6 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
       <div id="stats" class="small"></div>
     </div>
   </header>
-
-  <nav class="tabs">
-    <a href="#gallery" class="tablink active">Galerie</a>
-    <a href="#thresholds" class="tablink">Thresholds</a>
-    <a href="#durations" class="tablink">Durations</a>
-  </nav>
-<section id="tab-gallery" class="tab active">
-
 
   <div class="page">
     <aside class="side">
@@ -146,45 +130,8 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
   </div>
 
   <dialog id="lightbox"><div class="lb"><button class="btn x" onclick="lb.close()">Close</button><img alt=""/></div></dialog>
-</section>
-
-
-
-<section id="tab-thresholds" class="tab" hidden>
-  <div style="max-width:var(--maxw);margin:14px auto;padding:0 10px">
-    <h2 style="margin:0 0 12px;font-size:16px">Thresholds (coming next)</h2>
-    <div id="thresholdsMount" class="empty" style="padding:16px;border:1px dashed #2a3654;border-radius:10px;background:#0f1525">
-      This tab will render tables calculated in the browser from params.csv.
-    </div>
-  </div>
-</section>
-
-<section id="tab-durations" class="tab" hidden>
-  <div style="max-width:var(--maxw);margin:14px auto;padding:0 10px">
-    <h2 style="margin:0 0 12px;font-size:16px">Durations (coming next)</h2>
-    <div id="durationsMount" class="empty" style="padding:16px;border:1px dashed #2a3654;border-radius:10px;background:#0f1525">
-      This tab will show p_low→p_high durations like 20→80 in months.
-    </div>
-  </div>
-</section>
 
 <script>
-
-// ---- Tabs: hash-based routing ----
-function activateTabByHash(){
-  const hash = location.hash || '#gallery';
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tablink').forEach(a => a.classList.remove('active'));
-  const id = hash.replace('#','');
-  const tab = document.getElementById('tab-' + id) || document.getElementById('tab-gallery');
-  if (tab) tab.classList.add('active');
-  const link = document.querySelector('.tablink[href="' + (tab ? '#' + id : '#gallery') + '"]');
-  if (link) link.classList.add('active');
-}
-window.addEventListener('hashchange', activateTabByHash);
-document.addEventListener('DOMContentLoaded', activateTabByHash);
-// ---- /Tabs ----
-
 const cols = document.getElementById('cols');
 const empty = document.getElementById('empty');
 const lb = document.getElementById('lightbox');
