@@ -86,14 +86,6 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 
 /* Durations placeholder */
 .table-wrap{max-width:var(--maxw);margin:14px auto;padding:0 10px}
-
-/* Mobile: let the filter box scroll away instead of sticking */
-@media (max-width:880px){
-  .side{ position:static; top:auto; z-index:auto }
-  /* tighten spacing a touch on mobile */
-  .page{ gap:12px }
-}
-
 </style>
 </head>
 <body>
@@ -668,5 +660,115 @@ function renderThresholds(csvText){
   }
 }
 </script>
+
+<script>
+// Default-select "Whole" and "4-Wheelers" in Thresholds tab, if present.
+(function(){
+  const WANTS = ["Whole","4-Wheelers"];
+
+  function textOrValueMatch(opt, target){
+    const t = (opt.textContent || "").trim();
+    const v = (opt.value || "").trim();
+    return t === target || v === target;
+  }
+
+  function applyDefaults(root){
+    if (!root) return;
+
+    // 1) Multi-/Single-selects
+    root.querySelectorAll("select").forEach(sel => {
+      // does this select even contain any of the wanted options?
+      const hasAny = WANTS.some(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
+      if (!hasAny) return;
+
+      if (sel.multiple || sel.hasAttribute("multiple")) {
+        Array.from(sel.options).forEach(o => {
+          const want = WANTS.some(w => textOrValueMatch(o,w));
+          o.selected = want || o.selected; // keep existing truths, add desired ones
+        });
+      } else {
+        // prefer 4-Wheelers over Whole for single selects
+        let preferred = null;
+        if (Array.from(sel.options).some(o => textOrValueMatch(o,"4-Wheelers"))) preferred = "4-Wheelers";
+        else if (Array.from(sel.options).some(o => textOrValueMatch(o,"Whole"))) preferred = "Whole";
+        if (preferred){
+          const opt = Array.from(sel.options).find(o => textOrValueMatch(o, preferred));
+          if (opt) sel.value = opt.value;
+        }
+      }
+      // Notify any JS libraries (Choices.js/Tom Select/Selectize/vanilla)
+      sel.dispatchEvent(new Event("change", {bubbles:true}));
+      sel.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+
+    // 2) Checkbox / radio groups
+    root.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(inp => {
+      const val = (inp.value || "").trim();
+      const lbl = (root.querySelector(`label[for="${inp.id}"]`)?.textContent || "").trim();
+      const match = WANTS.includes(val) || WANTS.includes(lbl);
+      if (match) {
+        inp.checked = true;
+        inp.dispatchEvent(new Event("change", {bubbles:true}));
+        inp.dispatchEvent(new Event("input", {bubbles:true}));
+      }
+    });
+
+    // 3) Choices.js enhanced selects: try setting via underlying select firing was usually enough,
+    // but as a fallback, poke Choices if present.
+    root.querySelectorAll(".choices").forEach(wrapper => {
+      try {
+        const sel = wrapper.querySelector("select");
+        if (!sel) return;
+        const hasAny = WANTS.some(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
+        if (!hasAny) return;
+        if (wrapper.choices && typeof wrapper.choices.setChoiceByValue === "function") {
+          // for multi-selects, pass array; for single, pass preferred
+          const isMulti = sel.multiple || sel.hasAttribute("multiple");
+          if (isMulti) {
+            const values = WANTS.filter(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
+            if (values.length) wrapper.choices.setChoiceByValue(values);
+          } else {
+            const pref = Array.from(sel.options).some(o => textOrValueMatch(o,"4-Wheelers")) ? "4-Wheelers" : "Whole";
+            wrapper.choices.setChoiceByValue(pref);
+          }
+        }
+      } catch(e){ /* swallow */ }
+    });
+  }
+
+  function findThresholdsRoot(){
+    // Try common ids/data-attrs/classes
+    return document.querySelector("#thresholds, [data-tab='thresholds'], #tab-thresholds, .tab-panel.thresholds, .thresholds");
+  }
+
+  function applyWhenReady(){
+    const root = findThresholdsRoot();
+    if (root) { applyDefaults(root); return; }
+    // If tabs lazy-render, observe for later
+    const obs = new MutationObserver(() => {
+      const r = findThresholdsRoot();
+      if (r) { applyDefaults(r); obs.disconnect(); }
+    });
+    obs.observe(document.documentElement, {childList:true, subtree:true});
+  }
+
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    setTimeout(applyWhenReady, 0);
+  } else {
+    document.addEventListener("DOMContentLoaded", applyWhenReady);
+  }
+
+  // Also re-apply when user switches to Thresholds tab
+  document.addEventListener("click", ev => {
+    const t = ev.target;
+    if (!t) return;
+    const txt = (t.textContent || "").toLowerCase();
+    if (txt.includes("threshold")) {
+      setTimeout(() => applyDefaults(findThresholdsRoot()), 0);
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
