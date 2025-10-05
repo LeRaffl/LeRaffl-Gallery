@@ -2,6 +2,86 @@
   "updated": "2025-10-05",
   "images": [
     {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_ICE_BEV_20251005.png",
+      "url": "images/2025-09/latvia_ICE_BEV_20251005.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_20251005.png",
+      "url": "images/2025-09/latvia_20251005.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_time_20251005.png",
+      "url": "images/2025-09/latvia_time_20251005.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_ttm_shares_20251005.png",
+      "url": "images/2025-09/latvia_ttm_shares_20251005.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia (Used)",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_used_ICE_BEV_20251005.png",
+      "url": "images/2025-09/latvia_used_ICE_BEV_20251005.png",
+      "alt": "Latvia (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia_used"
+    },
+    {
+      "country": "Latvia (Used)",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_used_20251005.png",
+      "url": "images/2025-09/latvia_used_20251005.png",
+      "alt": "Latvia (Used) BEV trajectory",
+      "country_slug": "latvia_used"
+    },
+    {
+      "country": "Latvia (Used)",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_used_time_20251005.png",
+      "url": "images/2025-09/latvia_used_time_20251005.png",
+      "alt": "Latvia (Used) Transition time curve",
+      "country_slug": "latvia_used"
+    },
+    {
+      "country": "Latvia (Used)",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-05",
+      "filename": "latvia_used_ttm_shares_20251005.png",
+      "url": "images/2025-09/latvia_used_ttm_shares_20251005.png",
+      "alt": "Latvia (Used) TTM market split graph",
+      "country_slug": "latvia_used"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2025-09",
