@@ -86,6 +86,14 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 
 /* Durations placeholder */
 .table-wrap{max-width:var(--maxw);margin:14px auto;padding:0 10px}
+
+/* Mobile: let the filter box scroll away instead of sticking */
+@media (max-width:880px){
+  .side{ position:static; top:auto; z-index:auto }
+  /* tighten spacing a touch on mobile */
+  .page{ gap:12px }
+}
+
 </style>
 </head>
 <body>
