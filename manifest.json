@@ -42,6 +42,46 @@
       "country_slug": "luxembourg"
     },
     {
+      "country": "Uk",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-08",
+      "filename": "uk_ICE_BEV_20251008.png",
+      "url": "images/2025-09/uk_ICE_BEV_20251008.png",
+      "alt": "Uk ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-08",
+      "filename": "uk_20251008.png",
+      "url": "images/2025-09/uk_20251008.png",
+      "alt": "Uk BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-08",
+      "filename": "uk_time_20251008.png",
+      "url": "images/2025-09/uk_time_20251008.png",
+      "alt": "Uk Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-08",
+      "filename": "uk_ttm_shares_20251008.png",
+      "url": "images/2025-09/uk_ttm_shares_20251008.png",
+      "alt": "Uk TTM market split graph",
+      "country_slug": "uk"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2025-08",
