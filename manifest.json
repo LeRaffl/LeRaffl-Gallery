@@ -2,6 +2,46 @@
   "updated": "2025-10-11",
   "images": [
     {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_ICE_BEV_20251011.png",
+      "url": "images/2025-09/netherlands_ICE_BEV_20251011.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_20251011.png",
+      "url": "images/2025-09/netherlands_20251011.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_time_20251011.png",
+      "url": "images/2025-09/netherlands_time_20251011.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_ttm_shares_20251011.png",
+      "url": "images/2025-09/netherlands_ttm_shares_20251011.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-09",
