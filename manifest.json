@@ -42,6 +42,46 @@
       "country_slug": "netherlands"
     },
     {
+      "country": "Netherlands (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_hdv_ICE_BEV_20251011.png",
+      "url": "images/2025-09/netherlands_hdv_ICE_BEV_20251011.png",
+      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_hdv_20251011.png",
+      "url": "images/2025-09/netherlands_hdv_20251011.png",
+      "alt": "Netherlands (Hdv) BEV trajectory",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_hdv_time_20251011.png",
+      "url": "images/2025-09/netherlands_hdv_time_20251011.png",
+      "alt": "Netherlands (Hdv) Transition time curve",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-11",
+      "filename": "netherlands_hdv_ttm_shares_20251011.png",
+      "url": "images/2025-09/netherlands_hdv_ttm_shares_20251011.png",
+      "alt": "Netherlands (Hdv) TTM market split graph",
+      "country_slug": "netherlands_hdv"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-09",
