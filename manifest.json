@@ -42,6 +42,66 @@
       "country_slug": "bulgaria"
     },
     {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "croatia_20251029.png",
+      "url": "images/2025-09/croatia_20251029.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "croatia_ttm_shares_20251029.png",
+      "url": "images/2025-09/croatia_ttm_shares_20251029.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "cyprus_ICE_BEV_20251029.png",
+      "url": "images/2025-09/cyprus_ICE_BEV_20251029.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "cyprus_20251029.png",
+      "url": "images/2025-09/cyprus_20251029.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "cyprus_time_20251029.png",
+      "url": "images/2025-09/cyprus_time_20251029.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-10-29",
+      "filename": "cyprus_ttm_shares_20251029.png",
+      "url": "images/2025-09/cyprus_ttm_shares_20251029.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
       "country": "Czechia",
       "type": "ICE_BEV",
       "period": "2025-09",
