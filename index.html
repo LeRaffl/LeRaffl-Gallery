@@ -5,38 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>BEV Trajectories • Gallery + Thresholds + Durations</title>
 <style>
-:root{--maxw:1280px;--gap:18px;--thw:1100px}
+:root{--maxw:1280px;--gap:18px;--thw:1280px}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
 header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
 header .bar{max-width:var(--maxw);margin:0 auto;padding:12px 10px;display:flex;align-items:center;gap:12px}
 header h1{margin:0;font-size:20px;font-weight:700}
 
-/* Tabs UI */
+/* Tabs */
 .tabs{max-width:var(--maxw);margin:8px auto 0;padding:0 10px;display:flex;gap:10px;flex-wrap:wrap}
 .tablink{padding:8px 12px;border:1px solid #1f2a44;border-radius:10px;background:#101a33;color:#e9eef2;text-decoration:none}
 .tablink.active{background:#e9eef2;color:#0b0c10}
 .tab{display:none}
 .tab.active{display:block}
 
-/* Shared containers */
+/* Gallery layout */
 .page{max-width:var(--maxw);margin:14px auto;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:0 10px}
 @media (max-width:880px){.page{grid-template-columns:1fr}}
 .card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:16px}
 .empty{opacity:.7;text-align:center;padding:40px}
 
-/* Sidebar for Gallery */
+/* Sidebar */
 .side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:64px;height:fit-content;z-index:10}
 .side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
-select::-ms-expand{display:none}
 .chips{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;font-size:14px;font-weight:600;color:#eef3ff}
 .chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.1rem;block-size:1.1rem;margin:0}
 .small{font-size:12px;opacity:.8}
 
-/* Gallery content */
+/* Gallery cards */
 .cols{display:grid;grid-template-columns:repeat(4, minmax(220px, 1fr));gap:var(--gap)}
 @media (max-width:1200px){.cols{grid-template-columns:repeat(3, minmax(220px, 1fr))}}
 @media (max-width:900px){.cols{grid-template-columns:repeat(2, minmax(220px, 1fr))}}
@@ -55,69 +54,58 @@ select::-ms-expand{display:none}
 .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px;text-decoration:none;color:#e9eef2}
 .filename{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.95;font-size:12px;border:1px solid #2b364f;border-radius:8px;padding:4px 8px;background:#0f1525}
 .badge{padding:2px 8px;border:1px solid #2b364f;border-radius:999px;background:#0f1525;font-size:12px}
-
-/* Pager */
 .pager{display:flex;justify-content:center;margin-top:18px}
 
 /* Lightbox */
 dialog#lightbox{border:none;padding:0;background:rgba(0,0,0,.6)}
 dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .lb{position:relative;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;max-width:100vw;max-height:100vh;margin:0;padding:8px}
-.lb img{width:auto;height:auto;max-width:min(96vw,1600px);max-height:92vh;object-fit:contain;display:block;border-radius:10px;background:#0b0c10}
-.btn.x{position:absolute;top:8px;right:8px;width:auto;z-index:2}
+.lbbox{position:relative;display:inline-block;max-width:min(96vw,1600px);max-height:92vh}
+.lbbox img{width:auto;height:auto;max-width:100%;max-height:92vh;object-fit:contain;display:block;border-radius:10px;background:#0b0c10}
+.btn.x{position:absolute;top:8px;right:8px;z-index:3;line-height:1;border-radius:999px;padding:10px 12px}
+@media (max-width:600px){.lb{padding:12px}.lbbox{max-width:98vw;max-height:86vh}.lbbox img{max-height:86vh}.btn.x{top:auto;bottom:8px;right:8px}}
 
-/* Thresholds styles (narrow container) */
-#tab-thresholds .container{max-width:var(--thw);margin:14px auto;padding:0 10px}
-#tab-thresholds .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
-#tab-thresholds .card{padding:16px}
-#tab-thresholds table { width:100%; border-collapse: collapse; }
-#tab-thresholds th, #tab-thresholds td { padding: 10px 12px; border-bottom: 1px solid #1f2a44; }
-#tab-thresholds thead th { font-weight: 750; letter-spacing: 0.02em; }
-#tab-thresholds th.sortable { cursor: pointer; position: relative; user-select: none; }
-#tab-thresholds th.sortable::after { content: " ↕"; opacity: 0.6; font-size: 0.9em; }
-#tab-thresholds th.sortable.asc::after { content: " ↑"; }
-#tab-thresholds th.sortable.desc::after { content: " ↓"; }
-#tab-thresholds td.num, #tab-thresholds th.num { width: 56px; text-align: right; color: #9fb3d1; }
+/* Thresholds + Durations shared */
+.container{max-width:var(--thw);margin:14px auto;padding:0 10px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:12px;color:#9fb3d1}
-.btn-ghost { background:#0e1a34; color:#e9eef2; border:1px solid #1f2a44; }
-.spacer { flex: 1 1 auto; }
-.error { color:#ffb4b4; font-size:13px; }
+.tablepad{padding:12px}
+.tablecard{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:auto}
+.tablecard table{width:100%;border-collapse:collapse;min-width:100%}
+.tablecard thead th{background:#0e1a34}
+.tablecard th,.tablecard td{padding:10px 12px;border-bottom:1px solid #1f2a44}
+.tablecard tbody tr:nth-child(even){background:rgba(255,255,255,0.02)}
+th.sortable{cursor:pointer;position:relative;user-select:none}
+th.sortable::after{content:" ↕";opacity:.6;font-size:.9em}
+th.sortable.asc::after{content:" ↑"}
+th.sortable.desc::after{content:" ↓"}
+.num{width:56px;text-align:right;color:#9fb3d1}
+.error{color:#ffb4b4;font-size:13px}
 
-/* Durations placeholder */
-.table-wrap{max-width:var(--maxw);margin:14px auto;padding:0 10px}
+/* Compact Thresholds toolbar to match Durations */
+#tab-thresholds .toolbar .field:first-child{min-width:150px}
+#variantMulti,#variantMultiD{min-width:320px}
 
-/* Mobile: let the filter box scroll away instead of sticking */
+/* Mobile dropdown scroll safety */
 @media (max-width:880px){
-  .side{ position:static; top:auto; z-index:auto }
-  .page{ gap:12px }
+  .side{position:static;top:auto;z-index:auto}
+  .page{gap:12px}
+  select,[role="listbox"]{max-height:50vh;overflow:auto;-webkit-overflow-scrolling:touch}
 }
 
-
-/* Mobile: dropdowns must be scrollable and not clipped */
-@media (max-width:880px){
-  select,
-  .select, .dropdown, .dropdown-menu,
-  .choices__list--dropdown, .choices__list[role="listbox"],
-  [role="listbox"], .ts-dropdown, .tom-select-dropdown,
-  .selectize-dropdown, .select2-results__options {
-    max-height: 50vh !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  .side, .filters, .controls, .page, .header {
-    overflow: visible !important;
-  }
-  .choices__list--dropdown, .ts-dropdown, .tom-select-dropdown,
-  .selectize-dropdown, .dropdown-menu {
-    position: absolute;
-    z-index: 9999;
-  }
-  .choices, .tom-select, .selectize-control, .select-wrapper {
-    z-index: 1000;
-  }
+/* Thresholds: 20/50/80% columns a bit narrower */
+#tab-thresholds .tablecard th:nth-child(4),
+#tab-thresholds .tablecard th:nth-child(5),
+#tab-thresholds .tablecard th:nth-child(6),
+#tab-thresholds .tablecard td:nth-child(4),
+#tab-thresholds .tablecard td:nth-child(5),
+#tab-thresholds .tablecard td:nth-child(6){
+  width:92px;white-space:nowrap;padding-left:8px;padding-right:8px;
 }
-
+#tab-thresholds .tablecard th:nth-child(3),
+#tab-thresholds .tablecard td:nth-child(3){min-width:220px}
+#tab-thresholds .tablecard th:nth-child(8){white-space:nowrap}
 </style>
 </head>
 <body>
@@ -134,14 +122,13 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
     <a href="#durations" class="tablink">Durations</a>
   </nav>
 
-  <!-- GALLERY TAB (unchanged) -->
+  <!-- GALLERY TAB -->
   <section id="tab-gallery" class="tab active">
     <div class="page">
       <aside class="side">
         <h2>Filters</h2>
         <label class="small">Country</label>
         <select id="countrySelect"><option value="">All countries</option></select>
-
         <div style="height:10px"></div>
         <label class="small">Types</label>
         <div class="chips">
@@ -151,15 +138,12 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
           <label class="chip"><input type="checkbox" value="time" checked/> Transition time curves</label>
           <label class="chip"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
         </div>
-
         <div style="height:10px"></div>
         <label class="small">Month</label>
         <select id="periodSelect" hidden><option value="">All months</option></select>
-
         <div style="height:10px"></div>
         <label class="small">Search</label>
         <input id="search" placeholder="Search (country, type, filename)" />
-
         <div style="height:14px"></div>
         <h2>Sort</h2>
         <label class="small">Field</label>
@@ -185,55 +169,83 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
       </main>
     </div>
 
-    <dialog id="lightbox"><div class="lb"><button class="btn x" onclick="lb.close()">Close</button><img alt=""/></div></dialog>
+    <dialog id="lightbox">
+      <div class="lb">
+        <div class="lbbox">
+          <button class="btn x" onclick="lb.close()" aria-label="Close preview">✕</button>
+          <img alt=""/>
+        </div>
+      </div>
+    </dialog>
   </section>
 
-  <!-- THRESHOLDS TAB (narrow, like v11) -->
+  <!-- THRESHOLDS TAB -->
   <section id="tab-thresholds" class="tab">
     <div class="container">
       <h2 style="margin:6px 0 12px">Thresholds (years)</h2>
       <div class="toolbar">
-        <div class="field">
-          <label for="customPct">Custom threshold (%)</label>
-          <input id="customPct" type="number" min="1" max="99" step="1" value="90" />
-        </div>
-        <div class="field">
-          <label>&nbsp;</label>
-          <button id="applyBtn">Recalculate</button>
-        </div>
-        <div class="field" style="min-width:320px">
-          <label for="variantMulti">Variant filter (multi-select)</label>
-          <select id="variantMulti" multiple size="6" aria-label="Variant multi-select"></select>
-        </div>
-        <div class="spacer"></div>
-        <div class="field" style="min-width:240px">
-          <label>Export current table</label>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="exportCsv" class="btn-ghost">CSV (comma)</button>
-            <button id="exportCsvEU" class="btn-ghost">CSV (semicolon)</button>
-            <button id="copyCsv" class="btn-ghost">Copy CSV</button>
+        <div class="field" style="min-width:320px"><label for="variantMulti">Variant filter (multi-select)</label><select id="variantMulti" multiple size="6"></select></div>
+        <div class="field"><label for="customPct">Custom threshold (%)</label><input id="customPct" type="number" min="1" max="99" step="1" value="90" /></div>
+        <div class="field"><label>&nbsp;</label><button id="applyBtn" class="btn">Recalculate</button></div>
+        <div class="field" style="min-width:240px;margin-left:auto"><label>Export current table</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="exportCsv" class="btn">CSV (comma)</button>
+            <button id="exportCsvEU" class="btn">CSV (semicolon)</button>
+            <button id="copyCsv" class="btn">Copy CSV</button>
           </div>
         </div>
       </div>
       <p class="small" style="max-width:740px">Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”. Exports reflect your current filter and custom setting.</p>
     </div>
-    <div class="container">
-      <div id="thresholdsMount" class="card">Loading <code>params.csv</code> and computing 20% / 50% / 80% + Custom in the browser.</div>
+    <div class="container tablepad">
+      <div id="thresholdsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
     </div>
   </section>
 
   <!-- DURATIONS TAB -->
   <section id="tab-durations" class="tab">
-    <div class="table-wrap">
-      <div class="card">
-        <h2 style="margin:0 0 12px;font-size:16px">Durations</h2>
-        <div class="empty" id="durationsMount">Placeholder.</div>
+    <div class="container">
+      <h2 style="margin:6px 0 12px">Durations (time to move between thresholds)</h2>
+      <div class="toolbar">
+        <div class="field" style="min-width:320px"><label for="variantMultiD">Variant filter (multi-select)</label><select id="variantMultiD" multiple size="6"></select></div>
+        <div class="field"><label for="customFrom">Custom from (%)</label><input id="customFrom" type="number" min="1" max="98" step="1" value="25" /></div>
+        <div class="field"><label for="customTo">Custom to (%)</label><input id="customTo" type="number" min="2" max="99" step="1" value="75" /></div>
+        <div class="field"><label>&nbsp;</label><button id="applyDurBtn" class="btn">Recalculate</button></div>
+        <div class="field" style="min-width:240px;margin-left:auto"><label>Export current table</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="exportDurCsv" class="btn">CSV (comma)</button>
+            <button id="exportDurCsvEU" class="btn">CSV (semicolon)</button>
+            <button id="copyDurCsv" class="btn">Copy CSV</button>
+          </div>
+        </div>
       </div>
+      <p class="small" style="max-width:740px">This view shows the projected time to progress from one market share threshold to another. Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from <code>params.csv</code>. Durations longer than 200 years are shown as “shows no transition”.</p>
+    </div>
+    <div class="container tablepad">
+      <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
     </div>
   </section>
 
 <script>
-// ---- Tabs ----
+// ===== Dev fallback so Canvas preview actually shows something =====
+const DEV_SAMPLE = true;
+const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`\
+  <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720">\
+  <rect width="100%" height="100%" fill="#121826"/>\
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9fb3d1" font-family="system-ui" font-size="24">Placeholder chart</text>\
+  </svg>`);
+const SAMPLE_MANIFEST = {images:[
+  {country:'Türkiye', type:'share', url:PLACEHOLDER_IMG, filename:'tuerkiye_20250621.png', period:'2025-06'},
+  {country:'Germany', type:'ICE_BEV', url:PLACEHOLDER_IMG, filename:'germany_ICE_BEV_20250704.png', period:'2025-07'},
+  {country:'Singapore', type:'ttm_shares', url:PLACEHOLDER_IMG, filename:'singapore_ttm_shares_20250601.png', period:'2025-06'},
+  {country:'Germany', type:'time', url:PLACEHOLDER_IMG, filename:'germany_time_20250704.png', period:'2025-07'}
+]};
+const SAMPLE_PARAMS_CSV = `country,variant,v1,v2,t0,baseline_year,data_per\n\
+Türkiye,Whole,-3.2,2.8,2027-07-01,2020,2025-08\n\
+Denmark,Whole,-4.1,3.2,2024-05-19,2018,2025-09\n\
+Singapore,Whole,-3.7,3.0,2025-09-10,2019,2025-08`;
+
+// -------- Tabs --------
 function activateTabByHash(){
   const hash = location.hash || '#gallery';
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -245,536 +257,160 @@ function activateTabByHash(){
   if (link) link.classList.add('active');
 }
 window.addEventListener('hashchange', activateTabByHash);
-document.addEventListener('DOMContentLoaded', activateTabByHash);
+window.addEventListener('DOMContentLoaded', activateTabByHash);
 
-// ------- GALLERY -------
-const cols = document.getElementById('cols');
-const empty = document.getElementById('empty');
+// -------- Lightbox ergonomics --------
 const lb = document.getElementById('lightbox');
 const lbImg = lb.querySelector('img');
+lb.addEventListener('click', e => { if(e.target === lb) lb.close(); });
+window.addEventListener('keydown', e => { if(lb.open && e.key==='Escape') lb.close(); });
+lbImg.addEventListener('click', () => { if(lb.open) lb.close(); });
+
+// -------- Gallery loader --------
+const cols = document.getElementById('cols');
+const empty = document.getElementById('empty');
 const countrySelect = document.getElementById('countrySelect');
 const periodSelect  = document.getElementById('periodSelect');
 const searchInput   = document.getElementById('search');
-const stats = document.getElementById('stats');
-const latestOnly   = document.getElementById('latestOnly');
-const typeChecks   = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
-
-const sortField = document.getElementById('sortField');
-const sortDir   = document.getElementById('sortDir');
-const pager     = document.getElementById('pager');
-const loadMoreBtn = document.getElementById('loadMore');
-const INITIAL_ROWS = 3;
-const PAGE_ROWS    = 3;
-let visibleRows    = INITIAL_ROWS;
-
+const stats         = document.getElementById('stats');
+const latestOnly    = document.getElementById('latestOnly');
+const typeChecks    = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
+const sortField     = document.getElementById('sortField');
+const sortDir       = document.getElementById('sortDir');
+const pager         = document.getElementById('pager');
+const loadMoreBtn   = document.getElementById('loadMore');
+const INITIAL_ROWS = 3, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
 const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
-
-function prettyPeriod(p){
-  if(!/^\d{4}-\d{2}$/.test(p)) return p;
-  const [y,m] = p.split('-').map(Number);
-  return new Date(y, m-1, 1).toLocaleDateString('en-US', {month:'short', year:'numeric'});
-}
+function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
 async function loadManifest(){
-  const res = await fetch('manifest.json', {cache:'no-store'});
-  return res.json();
+  const candidates=['manifest.json','./manifest.json','/manifest.json','images/manifest.json','./images/manifest.json'];
+  for(const url of candidates){
+    try{ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) continue; const j=await r.json(); return j; }catch{ /* try next */ }
+  }
+  if(DEV_SAMPLE) return SAMPLE_MANIFEST;
+  throw new Error('Could not load manifest.json');
 }
 const uniq = xs => [...new Set(xs)];
-function latestByKey(items){
-  const map = new Map();
-  const toNum = p => Number((p||"0000-00").replace("-",""));
-  for(const it of items){
-    const k = `${it.country}|||${it.type}`;
-    const cur = map.get(k);
-    if(!cur || toNum(it.period) > toNum(cur.period)) map.set(k, it);
-  }
-  return [...map.values()];
-}
-function createdNum(it){
-  const m = it.filename && it.filename.match(/(\d{8})(?=\.[^.]+$)/);
-  return m ? Number(m[1]) : 0;
-}
-function compareItems(a,b,field,dir){
-  const sgn = dir === 'asc' ? 1 : -1;
-  if(field === 'created'){
-    const da = createdNum(a), db = createdNum(b);
-    if(da === db) return sgn * a.filename.localeCompare(b.filename);
-    return sgn * (da - db);
-  }
-  if(field === 'country'){ return sgn * a.country.localeCompare(b.country); }
-  if(field === 'filename'){ return sgn * a.filename.localeCompare(b.filename); }
-  return 0;
-}
+function latestByKey(items){ const map=new Map(); const toNum=p=>Number((p||'0000-00').replace('-','')); for(const it of items){ const k=`${it.country}|||${it.type}`; const cur=map.get(k); if(!cur||toNum(it.period)>toNum(cur.period)) map.set(k,it);} return [...map.values()]; }
+function createdNum(it){ const m = it.filename && it.filename.match(/(\d{8})(?=\.[^.]+$)/); return m?Number(m[1]):0; }
+function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='created'){ const da=createdNum(a), db=createdNum(b); if(da===db) return sgn*a.filename.localeCompare(b.filename); return sgn*(da-db);} if(field==='country') return sgn*a.country.localeCompare(b.country); if(field==='filename') return sgn*a.filename.localeCompare(b.filename); return 0; }
 function renderColumns(items){
-  cols.innerHTML = '';
-  if(items.length === 0){ empty.hidden = false; stats.textContent = ''; pager.hidden = true; return; }
-  empty.hidden = true;
-  const field = sortField.value, dir = sortDir.value;
-  const sorted = [...items].sort((a,b)=>compareItems(a,b,field,dir));
-  const byType = Object.fromEntries(TYPE_ORDER.map(t=>[t, []]));
-  for(const it of sorted){ if(byType[it.type]) byType[it.type].push(it); }
-  let visibleCount = 0, totalCount = 0, canLoadMore = false;
-  for(const t of TYPE_ORDER){
-    const list = byType[t]; if(!list || list.length === 0) continue;
-    const col = document.createElement('section'); col.className = 'col';
-    const h = document.createElement('h3'); h.textContent = TYPE_LABEL[t]; col.append(h);
-    const take = Math.min(list.length, visibleRows);
-    totalCount += list.length; visibleCount += take;
-    if(list.length > visibleRows) canLoadMore = true;
-    for(let i=0;i<take;i++){
-      const it = list[i];
-      const card = document.createElement('article'); card.className = 'card g';
-      const box = document.createElement('div'); box.className = 'thumbbox';
-      const img = document.createElement('img'); img.className = 'thumb'; img.loading='lazy'; img.decoding='async'; img.src = it.url; img.alt = it.alt || `${it.country} – ${it.type}`;
-      img.addEventListener('click', ()=>{ lbImg.src = it.url; lbImg.alt = img.alt; lb.showModal(); });
-      box.append(img);
-      const meta = document.createElement('div'); meta.className = 'meta';
-      const right = [it.period || '', it.date || ''].filter(Boolean).join(' • ');
-      meta.innerHTML = `<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type] || it.type}</div></div><div class="date">${right}</div>`;
-      const footer = document.createElement('div'); footer.className = 'footer';
-      footer.innerHTML = `<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`;
-      card.append(box, meta, footer); col.append(card);
-    }
-    cols.append(col);
-  }
-  stats.innerHTML = `<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`;
-  pager.hidden = !canLoadMore;
-}
-function applyFilters(all){
-  const q = searchInput.value.trim().toLowerCase();
-  const allowedTypes = new Set(typeChecks.filter(c=>c.checked).map(c=>c.value));
-  const country = countrySelect.value;
-  const period  = periodSelect.value;
-  let out = all.filter(it=>{
-    if(country && it.country !== country) return false;
-    if(!allowedTypes.has(it.type)) return false;
-    if(period && it.period !== period) return false;
-    const hay = `${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase();
-    return q === '' || hay.includes(q);
-  });
-  if(latestOnly && latestOnly.checked && !period) out = latestByKey(out);
-  return out;
-}
+  cols.innerHTML=''; if(items.length===0){ empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
+  const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
+  let visibleCount=0,totalCount=0,canLoadMore=false;
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} cols.append(col);} stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 loadManifest().then(({images})=>{
-  const countries = uniq(images.map(x=>x.country)).sort();
-  countries.forEach(c=>{ const opt = document.createElement('option'); opt.value = c; opt.textContent = c; countrySelect.append(opt); });
-  const periods = uniq(images.map(x=>x.period).filter(Boolean)).sort();
-  if(periods.length){ periodSelect.hidden = false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o); }); }
-  const update=()=>{ const list = applyFilters(images); renderColumns(list); };
-  const resetAndUpdate=()=>{ visibleRows = INITIAL_ROWS; update(); };
-  countrySelect.addEventListener('change', resetAndUpdate);
-  periodSelect.addEventListener('change', resetAndUpdate);
-  typeChecks.forEach(c=>c.addEventListener('change', resetAndUpdate));
-  latestOnly.addEventListener('change', resetAndUpdate);
-  searchInput.addEventListener('input', resetAndUpdate);
-  sortField.addEventListener('change', resetAndUpdate);
-  sortDir.addEventListener('change', resetAndUpdate);
-  loadMoreBtn.addEventListener('click', ()=>{ visibleRows += PAGE_ROWS; update(); });
-  sortField.value = 'created'; sortDir.value = 'desc'; update();
-});
-lb.addEventListener('click', (e) => { if (e.target === lb) lb.close(); });
+  const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
+  uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
+  const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
+  const update=()=>{ const list=applyFilters(imgs); renderColumns(list);}; const reset=()=>{ visibleRows=INITIAL_ROWS; update(); };
+  [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
+  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',reset); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>{ visibleRows+=PAGE_ROWS; update(); });
+  sortField.value='created'; sortDir.value='desc'; update();
+}).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
 
-// ------- THRESHOLDS (v11-wide logic, narrow layout) -------
-function showFatal(msg){
-  const m = document.getElementById('thresholdsMount');
-  if(m) m.innerHTML = '<div class="error">Error: ' + String(msg) + '</div>';
-  console.error(msg);
+// -------- Shared helpers for thresholds + durations --------
+function parseCSV(text){
+  const raw=(text||'').trim(); if(!raw) return [];
+  const first=raw.split(/\r?\n/)[0]||''; const delimiter=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':',';
+  const lines=raw.split(/\r?\n/); const header=(()=>{ const {row}=splitCsvLine(lines.shift()||'',delimiter); return row.map(h=>h.replace(/^\uFEFF?/, '').trim()); })();
+  const out=[]; for(const line of lines){ if(!line) continue; const {row}=splitCsvLine(line,delimiter); if(row.length===1&&row[0]==='') continue; const o={}; header.forEach((h,i)=>o[h]=(row[i]??'').trim()); out.push(o);} return out;
+  function splitCsvLine(line,d){ const row=[]; let cur='',inQ=false; for(let i=0;i<line.length;i++){ const ch=line[i]; if(ch==='"'){ if(inQ && line[i+1]=='"'){cur+='"'; i++;} else inQ=!inQ; } else if(ch===d && !inQ){ row.push(cur); cur=''; } else { cur+=ch; } } row.push(cur); return {row}; }
 }
-function parseCSV(text) {
-  const raw = (text || '').trim();
-  if (!raw) return [];
-  const first = raw.split(/\r?\n/)[0] || '';
-  const delimiter = (first.match(/;/g)||[]).length > (first.match(/,/g)||[]).length ? ';' : ',';
-  const lines = raw.split(/\r?\n/);
-  const header = (lines.shift() || '').split(delimiter).map(h => h.replace(/^\uFEFF?/,'').trim());
-  return lines.filter(Boolean).map(line => {
-    const cols = line.split(new RegExp(`${delimiter}(?=(?:[^"]*"[^"]*")*[^"]*$)`));
-    const o = {};
-    header.forEach((h,i)=> o[h] = (cols[i]||'').replace(/^\"|\"$/g,'').trim());
-    return o;
-  });
-}
-const normNumber = x => { const s = String(x||"").trim().replace(',','.'); const n = Number(s); return isFinite(n)?n:NaN; };
-function isoDateToYearFrac(iso){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||"")))return NaN;
-  const d=new Date(iso+"T00:00:00Z"); if(isNaN(d))return NaN;
-  const y0=Date.UTC(d.getUTCFullYear(),0,1), y1=Date.UTC(d.getUTCFullYear()+1,0,1);
-  return d.getUTCFullYear()+((d.getTime()-y0)/(y1-y0));
-}
-function toYYYYMM(s){
-  if(!s) return '';
-  if(/^\d{4}-\d{2}$/.test(s)) return s;
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s.slice(0,7);
-  return '';
-}
-function normalizeBase(s){
-  const k = String(s||'').trim().toLowerCase();
-  if(!k) return '';
-  if(['all','total','overall','whole','total market','market total','entire','entire market','total vehicles','fleet total'].includes(k)) return 'whole';
-  return k;
-}
-function displayLabelFromBase(base){
-  const n = normalizeBase(base);
-  if(n==='whole') return 'Whole';
-  return String(base||'').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g, c => c.toUpperCase());
-}
-function yearsIndexToDate(xYears, baseline_date, baseline_year){
-  if(!isFinite(xYears)) return "";
-  if (xYears >= 1800 && xYears < 3000) {
-    const y = Math.floor(xYears);
-    const frac = xYears - y;
-    const start = new Date(Date.UTC(y, 0, 1));
-    const end   = new Date(Date.UTC(y + 1, 0, 1));
-    const t = start.getTime() + frac * (end.getTime() - start.getTime());
-    return new Date(t).toISOString().slice(0,10);
-  }
-  let base;
-  if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){
-    base=new Date(baseline_date+"T00:00:00Z");
-  }else if(isFinite(normNumber(baseline_year))){
-    base=new Date(Math.round(normNumber(baseline_year))+"-01-01T00:00:00Z");
-  }else{return "";}
-  if(isNaN(base))return "";
-  const years=Math.floor(xYears), frac=xYears-years;
-  const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate()));
-  const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate()));
-  const t=start.getTime()+frac*(end.getTime()-start.getTime());
-  return new Date(t).toISOString().slice(0,10);
-}
-function inv_x_years(y,v1,v2,t0){
-  const v1n=normNumber(v1), v2n=normNumber(v2), t0n=normNumber(t0);
-  if(!(y>0&&y<1))return{x:NaN,why:"y∉(0,1)"};
-  if(!isFinite(v1n)||!isFinite(v2n)||!isFinite(t0n))return{x:NaN,why:"v1/v2/t0 not numeric"};
-  if(v2n===0)return{x:NaN,why:"v2=0"};
-  if(v1n>=0)return{x:NaN,why:"v1 must be < 0"};
-  const num=Math.log(1-y)/v1n; if(!(num>0))return{x:NaN,why:"ln(1-y)/v1 ≤ 0"};
-  return{x:(t0n-1)+Math.pow(num,1/v2n),why:null};
-}
-function getT0Years(r){
-  const baseDate=r.baseline_date||"", baseYear=normNumber(r.baseline_year), t0raw=(r.t0||"").trim();
-  let t0n=normNumber(t0raw);
-  if(isFinite(t0n)&&t0n>=1800&&(isFinite(baseYear)||/^\d{4}-\d{2}-\d{2}$/.test(baseDate))){
-    const by=isFinite(baseYear)?Math.round(baseYear):(new Date(baseDate+"T00:00:00Z")).getUTCFullYear();
-    return (t0n-by)+1;
-  }
-  if(/^\d{4}-\d{2}-\d{2}$/.test(t0raw)){
-    const t0yf=isoDateToYearFrac(t0raw);
-    const by=isFinite(baseYear)?baseYear:isoDateToYearFrac(baseDate);
-    if(isFinite(by)&&isFinite(t0yf))return (t0yf-by)+1;
-  }
-  return t0n;
-}
-function getDataPer(r){
-  const candidates=[
-    r.data_per, r.latest_month, r.last_month, r.month_latest, r.data_month,
-    r.latest_date, r.last_date, r.obs_last, r.data_asof
-  ].map(x=>String(x||'').trim()).filter(Boolean);
-  for(const c of candidates){
-    const m = toYYYYMM(c);
-    if(m) return m;
-  }
-  return '';
-}
-function extractVariantParts(variant){
-  const v=String(variant||'');
-  const base = v.replace(/\s*\([^)]*\)\s*$/, '').trim();
-  const paren = (v.match(/\(([^)]*)\)/)||[])[1]||'';
-  const attrs = new Set();
-  paren.split(/[,;|/]/).map(s=>s.trim()).filter(Boolean).forEach(x=>attrs.add(x));
-  return { base, attrs: Array.from(attrs) };
-}
-document.addEventListener("DOMContentLoaded",()=>{
-  const urls=["./params.csv","params.csv"];
-  (function next(i){ if(i>=urls.length){ showFatal("Could not load params.csv."); return; }
-    fetch(urls[i],{cache:"no-store"})
-      .then(r=>r.ok?r.text():Promise.reject("HTTP " + r.status))
-      .then(txt=>renderThresholds(txt))
-      .catch(err=>next(i+1));
-  })(0);
-});
-function renderThresholds(csvText){
-  try {
-    const rows=parseCSV(csvText);
-    const mount=document.getElementById('thresholdsMount');
-    if(!rows.length){ showFatal("params.csv contains no data rows."); return; }
+const normNumber = x => { const s=String(x||'').trim().replace(',', '.'); const n=Number(s); return isFinite(n)?n:NaN; };
+function isoDateToYearFrac(iso){ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return NaN; const d=new Date(iso+'T00:00:00Z'); if(isNaN(d)) return NaN; const y0=Date.UTC(d.getUTCFullYear(),0,1), y1=Date.UTC(d.getUTCFullYear()+1,0,1); return d.getUTCFullYear()+((d.getTime()-y0)/(y1-y0)); }
+function toYYYYMM(s){ if(!s) return ''; if(/^\d{4}-\d{2}$/.test(s)) return s; if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s.slice(0,7); return ''; }
+function normalizeBase(s){ const k=String(s||'').trim().toLowerCase(); if(!k) return ''; if(['all','total','overall','whole','total market','market total','entire','entire market','total vehicles','fleet total'].includes(k)) return 'whole'; return k; }
+function displayLabelFromBase(base){ const n=normalizeBase(base); if(n==='whole') return 'Whole'; return String(base||'').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g,c=>c.toUpperCase()); }
+function yearsIndexToDate(xYears, baseline_date, baseline_year){ if(!isFinite(xYears)) return ""; if(xYears>=1800 && xYears<3000){ const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} let base; if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){ base=new Date(baseline_date+'T00:00:00Z'); } else if(isFinite(normNumber(baseline_year))){ base=new Date(Math.round(normNumber(baseline_year))+'-01-01T00:00:00Z'); } else { return ""; } if(isNaN(base)) return ""; const years=Math.floor(xYears), frac=xYears-years; const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate())); const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate())); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); } }
+function inv_x_years(y,v1,v2,t0){ const v1n=normNumber(v1), v2n=normNumber(v2), t0n=normNumber(t0); if(!(y>0&&y<1))return{x:NaN,why:'y∉(0,1)'}; if(!isFinite(v1n)||!isFinite(v2n)||!isFinite(t0n))return{x:NaN,why:'v1/v2/t0 not numeric'}; if(v2n===0)return{x:NaN,why:'v2=0'}; if(v1n>=0)return{x:NaN,why:'v1 must be < 0'}; const num=Math.log(1-y)/v1n; if(!(num>0))return{x:NaN,why:'ln(1-y)/v1 ≤ 0'}; return{x:(t0n-1)+Math.pow(num,1/v2n),why:null}; }
+function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year), t0raw=(r.t0||'').trim(); let t0n=normNumber(t0raw); if(isFinite(t0n)&&t0n>=1800&&(isFinite(baseYear)||/^\d{4}-\d{2}-\d{2}$/.test(baseDate))){ const by=isFinite(baseYear)?Math.round(baseYear):(new Date(baseDate+'T00:00:00Z')).getUTCFullYear(); return (t0n-by)+1; } if(/^\d{4}-\d{2}-\d{2}$/.test(t0raw)){ const t0yf=isoDateToYearFrac(t0raw); const by=isFinite(baseYear)?baseYear:isoDateToYearFrac(baseDate); if(isFinite(by)&&isFinite(t0yf)) return (t0yf-by)+1; } return t0n; }
+function getDataPer(r){ const c=[r.data_per,r.latest_month,r.last_month,r.month_latest,r.data_month,r.latest_date,r.last_date,r.obs_last,r.data_asof].map(x=>String(x||'').trim()).filter(Boolean); for(const v of c){ const m=toYYYYMM(v); if(m) return m; } return ''; }
+function extractVariantParts(variant){ const v=String(variant||''); const base=v.replace(/\s*\([^)]*\)\s*$/, '').trim(); const paren=(v.match(/\(([^)]*)\)/)||[])[1]||''; const attrs=new Set(); paren.split(/[,;|/]/).map(s=>s.trim()).filter(Boolean).forEach(x=>attrs.add(x)); return { base, attrs:[...attrs] }; }
 
-    const rawBases = new Set();
-    rows.forEach(r=>{ const parts=extractVariantParts(r.variant||''); if(parts.base) rawBases.add(parts.base); });
+// -------- THRESHOLDS --------
+document.addEventListener('DOMContentLoaded',()=>{ const urls=['./params.csv','params.csv']; (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ renderThresholds(SAMPLE_PARAMS_CSV); return;} showFatal('Could not load params.csv.'); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>renderThresholds(txt)).catch(()=>next(i+1)); })(0); });
+function showFatal(msg){ const m=document.getElementById('thresholdsMount'); if(m) m.innerHTML='<div class="error">Error: '+String(msg)+'</div>'; }
+function renderThresholds(csvText){ try{ const rows=parseCSV(csvText); const mount=document.getElementById('thresholdsMount'); if(!rows.length){ showFatal('params.csv contains no data rows.'); return; }
+  const rawBases=new Set(); rows.forEach(r=>{ const parts=extractVariantParts(r.variant||''); if(parts.base) rawBases.add(parts.base); });
+  const sel=document.getElementById('variantMulti'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canonical=normalizeBase(base); if(!canonical||seen.has(canonical)) return; seen.add(canonical); const opt=document.createElement('option'); opt.value=canonical; opt.textContent=displayLabelFromBase(base); if(canonical==='whole') opt.selected=true; sel.appendChild(opt); }); sel.addEventListener('change', renderTable);
+  const customPctEl=document.getElementById('customPct'); document.getElementById('applyBtn').addEventListener('click',()=>renderTable());
+  let sortKey='val80', sortAsc=true; let data=[];
+  function computeData(){ const pct=Math.max(1,Math.min(99,Number(customPctEl.value)||90)); const y=pct/100; return rows.map(r=>{ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r), baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year); const r20=inv_x_years(0.2,v1,v2,t0), r50=inv_x_years(0.5,v1,v2,t0), r80=inv_x_years(0.8,v1,v2,t0), rc=inv_x_years(y,v1,v2,t0); const fmt=res=>!res||!isFinite(res.x)?{text:'—',val:Infinity,title:res?.why||'no solution'}:{ text:(yearsIndexToDate(res.x,baseDate,baseYear)||res.x.toFixed(2)), val:Date.parse(yearsIndexToDate(res.x,baseDate,baseYear))||parseFloat(res.x), title:''}; const f20=fmt(r20), f50=fmt(r50), f80=fmt(r80), fc=fmt(rc); const parts=extractVariantParts(r.variant||''); return { country:r.country||'', variantBaseCanonical:normalizeBase(parts.base||''), variant:r.variant||'', val20:f20.text,_v20:f20.val, val50:f50.text,_v50:f50.val, val80:f80.text,_v80:f80.val, custom:fc.text,_vc:fc.val, data_per:getDataPer(r) }; }); }
+  function getSelectedCanonicals(){ return Array.from(sel.selectedOptions||[]).map(o=>o.value); }
+  function applyVariantFilter(arr){ const selected=new Set(getSelectedCanonicals()); if(selected.size===0) return []; return arr.filter(r=>selected.has(r.variantBaseCanonical||'')); }
+  function isoOrValForSort(row,key){ if(key==='_v20'||key==='_v50'||key==='_v80'||key==='_vc') return row[key]||Infinity; if(key==='val20') return row._v20||Infinity; if(key==='val50') return row._v50||Infinity; if(key==='val80') return row._v80||Infinity; if(key==='custom') return row._vc||Infinity; if(key==='data_per') return Date.parse((row.data_per||'')+'-01')||row.data_per||''; return row[key]; }
+  function doSort(){ if(!sortKey) return; data.sort((a,b)=>{ const va=isoOrValForSort(a,sortKey), vb=isoOrValForSort(b,sortKey); return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); }
+  function headerHTML(){ return `<thead><tr>
+    <th class="num">#</th>
+    <th class="sortable" data-key="country">Country</th>
+    <th class="sortable" data-key="variant">Variant</th>
+    <th class="sortable" data-key="val20">20%</th>
+    <th class="sortable" data-key="val50">50%</th>
+    <th class="sortable" data-key="val80">80%</th>
+    <th class="sortable" data-key="custom">Custom</th>
+    <th class="sortable" data-key="data_per">Data per</th>
+  </tr></thead>`; }
+  function bodyHTML(){ const filtered=applyVariantFilter(data); return `<tbody>${filtered.map((r,i)=>`<tr>
+    <td class="num">${i+1}</td><td>${r.country}</td><td>${r.variant}</td><td>${r.val20}</td><td>${r.val50}</td><td>${r.val80}</td><td>${r.custom}</td><td>${r.data_per||''}</td>
+  </tr>`).join('')}</tbody>`; }
+  function renderTable(){ data=computeData(); doSort(); mount.classList.add('tablecard'); mount.innerHTML=`<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`; mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); if(th.dataset.key===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ const key=th.dataset.key; if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; } renderTable(); }; }); }
+  // exports
+  function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
+  function buildExportRows(){ const filtered=applyVariantFilter(data).slice(); return filtered.map((r,i)=>({rank:i+1,country:r.country,variant:r.variant,y20:r.val20,y50:r.val50,y80:r.val80,ycustom:r.custom,data_per:r.data_per||''})); }
+  function download(filename,text,mime){ const blob=new Blob([text],{type:mime||'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
+  function rowsToCSV(rows,d){ const header=['#','Country','Variant','20%','50%','80%','Custom','Data per']; const head=header.map(h=>escapeCsvCell(h,d)).join(d); const body=rows.map(r=>[r.rank,r.country,r.variant,r.y20,r.y50,r.y80,r.ycustom,r.data_per].map(v=>escapeCsvCell(v,d)).join(d)).join('\n'); return head+'\n'+body+'\n'; }
+  function copyToClipboard(text){ if(navigator.clipboard && window.isSecureContext){ return navigator.clipboard.writeText(text);} const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return Promise.resolve(); }
+  document.getElementById('exportCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),','); download('bev_thresholds.csv',csv,'text/csv;charset=utf-8');});
+  document.getElementById('exportCsvEU').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),';'); download('bev_thresholds_eu.csv',csv,'text/csv;charset=utf-8');});
+  document.getElementById('copyCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),','); copyToClipboard(csv).then(()=>{ const btn=document.getElementById('copyCsv'); const old=btn.textContent; btn.textContent='Copied ✓'; setTimeout(()=>btn.textContent=old,1200); }); });
+  renderTable();
+} catch(e){ showFatal(e && e.message ? e.message : e); } }
 
-    const sel = document.getElementById('variantMulti');
-    sel.innerHTML = '';
-    const bases = [...rawBases].sort((a,b)=>a.localeCompare(b));
-    const seenCanonical = new Set();
-    const optionMap = [];
-    bases.forEach(base => {
-      const canonical = normalizeBase(base);
-      const label = displayLabelFromBase(base);
-      if(!canonical) return;
-      if(seenCanonical.has(canonical)) return;
-      seenCanonical.add(canonical);
-      optionMap.push({canonical, label});
-    });
-    optionMap.sort((a,b)=> (a.canonical==='whole'? -1 : b.canonical==='whole'? 1 : a.label.localeCompare(b.label)) );
-    optionMap.forEach(({canonical,label}) => {
-      const opt = document.createElement('option');
-      opt.value = canonical;
-      opt.textContent = label;
-      if (canonical === 'whole') opt.selected = true;
-      sel.appendChild(opt);
-    });
-    sel.addEventListener('change', renderTable);
-
-    const customPctEl = document.getElementById('customPct');
-    document.getElementById('applyBtn').addEventListener('click', ()=> renderTable());
-
-    let sortKey = 'val80', sortAsc = true;
-
-    function computeData(){
-      const pct = Math.max(1, Math.min(99, Number(customPctEl.value)||90));
-      const y = pct/100;
-      return rows.map(r=>{
-        const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r), baseDate=r.baseline_date||"", baseYear=normNumber(r.baseline_year);
-        const r20=inv_x_years(0.2,v1,v2,t0), r50=inv_x_years(0.5,v1,v2,t0), r80=inv_x_years(0.8,v1,v2,t0), rc=inv_x_years(y,v1,v2,t0);
-        const fmt=res=>!res||!isFinite(res.x)?{text:"—",val:Infinity,title:res?.why||"no solution"}:{
-          text: (yearsIndexToDate(res.x,baseDate,baseYear) || res.x.toFixed(2)),
-          val: Date.parse(yearsIndexToDate(res.x,baseDate,baseYear)) || parseFloat(res.x),
-          title:""
-        };
-        const f20=fmt(r20), f50=fmt(r50), f80=fmt(r80), fc=fmt(rc);
-        const parts = extractVariantParts(r.variant||'');
-        return {
-          country: r.country||'',
-          variantBaseCanonical: normalizeBase(parts.base||''),
-          variant: r.variant||'',
-          val20: f20.text, _v20: f20.val,
-          val50: f50.text, _v50: f50.val,
-          val80: f80.text, _v80: f80.val,
-          custom: fc.text, _vc: fc.val,
-          data_per: getDataPer(r)
-        };
-      });
-    }
-
-    function getSelectedCanonicals(){
-      return Array.from(sel.selectedOptions || []).map(o => o.value);
-    }
-    function applyVariantFilter(arr){
-      const selected = new Set(getSelectedCanonicals());
-      if(selected.size===0) return [];
-      return arr.filter(r => selected.has(r.variantBaseCanonical||''));
-    }
-
-    let data = computeData();
-
-    function isoOrValForSort(row, key){
-      if(key==='_v20' || key==='_v50' || key==='_v80' || key==='__vc') return row[key] || Infinity;
-      if(key==='val20') return row._v20 || Infinity;
-      if(key==='val50') return row._v50 || Infinity;
-      if(key==='val80') return row._v80 || Infinity;
-      if(key==='custom') return row._vc || Infinity;
-      if(key==='data_per') return Date.parse((row.data_per||'')+'-01') || row.data_per || '';
-      return row[key];
-    }
-
-    function doSort(){ if(!sortKey) return; data.sort((a,b)=>{
-      const va=isoOrValForSort(a,sortKey), vb=isoOrValForSort(b,sortKey);
-      return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0;
-    }); }
-
-    function headerHTML(){
-      return `<thead><tr>
-        <th class="num">#</th>
-        <th class="sortable" data-key="country">Country</th>
-        <th class="sortable" data-key="variant">Variant</th>
-        <th class="sortable" data-key="val20">20%</th>
-        <th class="sortable" data-key="val50">50%</th>
-        <th class="sortable" data-key="val80">80%</th>
-        <th class="sortable" data-key="custom">Custom</th>
-        <th class="sortable" data-key="data_per">Data per</th>
-      </tr></thead>`;
-    }
-
-    function bodyHTML(){
-      const filtered = applyVariantFilter(data);
-      return `<tbody>${filtered.map((r,i)=>`<tr>
-        <td class="num">${i+1}</td>
-        <td>${r.country}</td>
-        <td>${r.variant}</td>
-        <td>${r.val20}</td>
-        <td>${r.val50}</td>
-        <td>${r.val80}</td>
-        <td>${r.custom}</td>
-        <td>${r.data_per||''}</td>
-      </tr>`).join('')}</tbody>`;
-    }
-
-    function renderTable(){
-      try{
-        data = computeData();
-        doSort();
-        mount.innerHTML = `<table id="thTable">${headerHTML()}${bodyHTML()}</table>`;
-        mount.querySelectorAll('th.sortable').forEach(th=>{
-          th.classList.remove('asc','desc');
-          if(th.dataset.key===sortKey) th.classList.add(sortAsc?'asc':'desc');
-          th.onclick=()=>{ const key=th.dataset.key; if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; } renderTable(); };
-        });
-      }catch(e){ showFatal(e && e.message ? e.message : e); }
-    }
-
-    // Exports
-    function escapeCsvCell(s, delimiter){
-      const needsQuote = typeof s === 'string' && (s.includes(delimiter) || s.includes('"') || s.includes('\n'));
-      let out = String(s ?? '');
-      out = out.replace(/"/g, '""');
-      return needsQuote ? `"${out}"` : out;
-    }
-    function buildExportRows(){
-      const filtered = applyVariantFilter(data).slice();
-      return filtered.map((r,i)=>({
-        rank: i+1,
-        country: r.country,
-        variant: r.variant,
-        y20: r.val20,
-        y50: r.val50,
-        y80: r.val80,
-        ycustom: r.custom,
-        data_per: r.data_per || ''
-      }));
-    }
-    function download(filename, text, mime){
-      const blob = new Blob([text], {type: mime || 'text/plain;charset=utf-8'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename;
-      document.body.appendChild(a); a.click();
-      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
-    }
-    function rowsToCSV(rows, delimiter){
-      const d = delimiter || ',';
-      const header = ['#','Country','Variant','20%','50%','80%','Custom','Data per'];
-      const head = header.map(h => escapeCsvCell(h, d)).join(d);
-      const body = rows.map(r => [r.rank,r.country,r.variant,r.y20,r.y50,r.y80,r.ycustom,r.data_per].map(v=>escapeCsvCell(v,d)).join(d)).join('\n');
-      return head + '\n' + body + '\n';
-    }
-    function copyToClipboard(text){
-      if(navigator.clipboard && window.isSecureContext){
-        return navigator.clipboard.writeText(text);
-      }
-      const ta = document.createElement('textarea');
-      ta.value = text; document.body.appendChild(ta);
-      ta.select(); document.execCommand('copy'); ta.remove();
-      return Promise.resolve();
-    }
-    document.getElementById('exportCsv').addEventListener('click', ()=>{
-      const rows = buildExportRows();
-      const csv = rowsToCSV(rows, ',');
-      download('bev_thresholds.csv', csv, 'text/csv;charset=utf-8');
-    });
-    document.getElementById('exportCsvEU').addEventListener('click', ()=>{
-      const rows = buildExportRows();
-      const csv = rowsToCSV(rows, ';');
-      download('bev_thresholds_eu.csv', csv, 'text/csv;charset=utf-8');
-    });
-    document.getElementById('copyCsv').addEventListener('click', ()=>{
-      const rows = buildExportRows();
-      const csv = rowsToCSV(rows, ',');
-      copyToClipboard(csv).then(()=>{
-        const btn = document.getElementById('copyCsv');
-        const old = btn.textContent;
-        btn.textContent = 'Copied ✓';
-        setTimeout(()=>btn.textContent = old, 1200);
-      });
-    });
-
-    renderTable();
-  } catch(e){
-    showFatal(e && e.message ? e.message : e);
-  }
-}
-</script>
-
-<script>
+// -------- DURATIONS --------
 (function(){
-  const WANTS = ["Whole","4-Wheelers"];
-  function textOrValueMatch(opt, target){
-    const t = (opt.textContent || "").trim();
-    const v = (opt.value || "").trim();
-    return t === target || v === target;
+  const CAP_YEARS = 200; // cutoff for "shows no transition"
+  function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ resolve(parseCSV(SAMPLE_PARAMS_CSV)); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(parseCSV(txt))).catch(()=>next(i+1)); })(0); }); }
+  function slopeAtInflection(v1,v2){ const k=normNumber(v2), v1n=normNumber(v1); if(!(isFinite(k)&&isFinite(v1n))) return NaN; if(v1n>=0||k<=1) return NaN; const invLambda=Math.pow(-v1n,1/k); const u=Math.pow((k-1)/k,1/k); return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); }
+  function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
+  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; if(Math.abs(dYears)>CAP_YEARS) return 'shows no transition'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}  
+  function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); }
+  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:Infinity}; if(Math.abs(d)>CAP_YEARS) return {text:'shows no transition',val:Infinity}; return {text:fmtYearsMonths(d),val:d}; } return rows.map(r=>{ const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:d2080.text,_d2080:d2080.val, d1090_text:d1090.text,_d1090:d1090.val, dC_text:dC.text,_dC:dC.val, speed_text:isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—', _speed:isFinite(sNum)?sNum:-Infinity, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
+  function renderDurations(rows){
+    const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
+    let data=computeDurations(rows); let sortKey='_d2080', sortAsc=true;
+    function selected(){ return new Set(Array.from(sel.selectedOptions||[]).map(o=>o.value)); }
+    function filtered(){ const s=selected(); if(s.size===0) return []; return data.filter(r=>s.has(r.variantBaseCanonical||'')); }
+    function sortNow(){ const arr=filtered(); arr.sort((a,b)=>{ const va=a[sortKey], vb=b[sortKey]; return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); return arr; }
+    function head(){ return `<thead><tr>
+      <th class="num">#</th>
+      <th class="sortable" data-k="country">Country</th>
+      <th class="sortable" data-k="variant">Variant</th>
+      <th class="sortable" data-k="_d2080">20→80%</th>
+      <th class="sortable" data-k="_d1090">10→90%</th>
+      <th class="sortable" data-k="_dC">Custom</th>
+      <th class="sortable" data-k="_speed">Numerical speed</th>
+      <th class="sortable" data-k="_periodSort">Data per</th>
+    </tr></thead>`; }
+    function body(arr){ return `<tbody>${arr.map((r,i)=>`<tr>
+      <td class="num">${i+1}</td><td>${r.country}</td><td>${r.variant}</td><td>${r.d2080_text}</td><td>${r.d1090_text}</td><td>${r.dC_text}</td><td>${r.speed_text}</td><td>${r.data_per||''}</td>
+    </tr>`).join('')}</tbody>`; }
+    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
+    document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
+    // exports
+    function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
+    function buildRows(){ return sortNow().map((r,i)=>({rank:i+1,country:r.country,variant:r.variant,d2080:r.d2080_text,d1090:r.d1090_text,dC:r.dC_text,speed:r.speed_text,data_per:r.data_per||''})); }
+    function rowsToCSV(rows,d){ const header=['#','Country','Variant','20→80%','10→90%','Custom','Numerical speed','Data per']; const head=header.map(h=>escapeCsvCell(h,d)).join(d); const body=rows.map(r=>[r.rank,r.country,r.variant,r.d2080,r.d1090,r.dC,r.speed,r.data_per].map(v=>escapeCsvCell(v,d)).join(d)).join('\n'); return head+'\n'+body+'\n'; }
+    function download(filename,text,mime){ const blob=new Blob([text],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
+    document.getElementById('exportDurCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildRows(),','); download('bev_durations.csv',csv,'text/csv;charset=utf-8'); });
+    document.getElementById('exportDurCsvEU').addEventListener('click',()=>{ const csv=rowsToCSV(buildRows(),';'); download('bev_durations_eu.csv',csv,'text/csv;charset=utf-8'); });
+    document.getElementById('copyDurCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildRows(),','); if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(csv).then(()=>{ const btn=document.getElementById('copyDurCsv'); const old=btn.textContent; btn.textContent='Copied ✓'; setTimeout(()=>btn.textContent=old,1200); }); } });
+    draw();
   }
-  function applyDefaults(root){
-    if (!root) return;
-    root.querySelectorAll("select").forEach(sel => {
-      const hasAny = WANTS.some(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
-      if (!hasAny) return;
-      if (sel.multiple || sel.hasAttribute("multiple")) {
-        Array.from(sel.options).forEach(o => {
-          const want = WANTS.some(w => textOrValueMatch(o,w));
-          o.selected = want || o.selected;
-        });
-      } else {
-        let preferred = null;
-        if (Array.from(sel.options).some(o => textOrValueMatch(o,"4-Wheelers"))) preferred = "4-Wheelers";
-        else if (Array.from(sel.options).some(o => textOrValueMatch(o,"Whole"))) preferred = "Whole";
-        if (preferred){
-          const opt = Array.from(sel.options).find(o => textOrValueMatch(o, preferred));
-          if (opt) sel.value = opt.value;
-        }
-      }
-      sel.dispatchEvent(new Event("change", {bubbles:true}));
-      sel.dispatchEvent(new Event("input", {bubbles:true}));
-    });
-    root.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(inp => {
-      const val = (inp.value || "").trim();
-      const lbl = (root.querySelector(`label[for="${inp.id}"]`)?.textContent || "").trim();
-      if (WANTS.includes(val) || WANTS.includes(lbl)) {
-        inp.checked = true;
-        inp.dispatchEvent(new Event("change", {bubbles:true}));
-        inp.dispatchEvent(new Event("input", {bubbles:true}));
-      }
-    });
-    root.querySelectorAll(".choices").forEach(wrapper => {
-      try {
-        const sel = wrapper.querySelector("select");
-        if (!sel) return;
-        const hasAny = WANTS.some(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
-        if (!hasAny) return;
-        if (wrapper.choices && typeof wrapper.choices.setChoiceByValue === "function") {
-          const isMulti = sel.multiple || sel.hasAttribute("multiple");
-          if (isMulti) {
-            const values = WANTS.filter(w => Array.from(sel.options).some(o => textOrValueMatch(o,w)));
-            if (values.length) wrapper.choices.setChoiceByValue(values);
-          } else {
-            const pref = Array.from(sel.options).some(o => textOrValueMatch(o,"4-Wheelers")) ? "4-Wheelers" : "Whole";
-            wrapper.choices.setChoiceByValue(pref);
-          }
-        }
-      } catch(e){}
-    });
-  }
-  function findThresholdsRoot(){
-    return document.querySelector("#thresholds, [data-tab='thresholds'], #tab-thresholds, .tab-panel.thresholds, .thresholds");
-  }
-  function applyWhenReady(){
-    const root = findThresholdsRoot();
-    if (root) { applyDefaults(root); return; }
-    const obs = new MutationObserver(() => {
-      const r = findThresholdsRoot();
-      if (r) { applyDefaults(r); obs.disconnect(); }
-    });
-    obs.observe(document.documentElement, {childList:true, subtree:true});
-  }
-  if (document.readyState === "complete" || document.readyState === "interactive") {
-    setTimeout(applyWhenReady, 0);
-  } else {
-    document.addEventListener("DOMContentLoaded", applyWhenReady);
-  }
-  document.addEventListener("click", ev => {
-    const t = ev.target;
-    const txt = (t?.textContent || "").toLowerCase();
-    if (txt.includes("threshold")) setTimeout(() => applyDefaults(findThresholdsRoot()), 0);
-  });
+  document.addEventListener('DOMContentLoaded',()=>{ loadParams().then(rows=>renderDurations(rows)).catch(err=>{ const m=document.getElementById('durationsMount'); m.classList.remove('tablecard'); m.innerHTML='<div class="error">'+((err&&err.message)||'Failed to load params.csv')+'</div>'; }); });
 })();
 </script>
-
 </body>
 </html>
