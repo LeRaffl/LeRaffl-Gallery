@@ -338,7 +338,59 @@ function renderThresholds(csvText){ try{ const rows=parseCSV(csvText); const mou
   const sel=document.getElementById('variantMulti'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canonical=normalizeBase(base); if(!canonical||seen.has(canonical)) return; seen.add(canonical); const opt=document.createElement('option'); opt.value=canonical; opt.textContent=displayLabelFromBase(base); if(canonical==='whole') opt.selected=true; sel.appendChild(opt); }); sel.addEventListener('change', renderTable);
   const customPctEl=document.getElementById('customPct'); document.getElementById('applyBtn').addEventListener('click',()=>renderTable());
   let sortKey='val80', sortAsc=true; let data=[];
-  function computeData(){ const pct=Math.max(1,Math.min(99,Number(customPctEl.value)||90)); const y=pct/100; return rows.map(r=>{ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r), baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year); const r20=inv_x_years(0.2,v1,v2,t0), r50=inv_x_years(0.5,v1,v2,t0), r80=inv_x_years(0.8,v1,v2,t0), rc=inv_x_years(y,v1,v2,t0); const fmt=res=>!res||!isFinite(res.x)?{text:'—',val:Infinity,title:res?.why||'no solution'}:{ text:(yearsIndexToDate(res.x,baseDate,baseYear)||res.x.toFixed(2)), val:Date.parse(yearsIndexToDate(res.x,baseDate,baseYear))||parseFloat(res.x), title:''}; const f20=fmt(r20), f50=fmt(r50), f80=fmt(r80), fc=fmt(rc); const parts=extractVariantParts(r.variant||''); return { country:r.country||'', variantBaseCanonical:normalizeBase(parts.base||''), variant:r.variant||'', val20:f20.text,_v20:f20.val, val50:f50.text,_v50:f50.val, val80:f80.text,_v80:f80.val, custom:fc.text,_vc:fc.val, data_per:getDataPer(r) }; }); }
+function computeData(){
+  const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
+  const y = pct / 100;
+  const MAX_TS = Date.parse('2999-12-31');
+
+  return rows.map(r => {
+    const v1 = normNumber(r.v1),
+          v2 = normNumber(r.v2),
+          t0 = getT0Years(r),
+          baseDate = r.baseline_date || '',
+          baseYear = normNumber(r.baseline_year);
+
+    const r20 = inv_x_years(0.2, v1, v2, t0),
+          r50 = inv_x_years(0.5, v1, v2, t0),
+          r80 = inv_x_years(0.8, v1, v2, t0),
+          rc  = inv_x_years(y,   v1, v2, t0);
+
+    function fmt(res){
+      if(!res || !isFinite(res.x)){
+        return { text: '—', val: Infinity, title: res?.why || 'no solution' };
+      }
+      // Versuche absolutes Datum zu bauen
+      const dstr = yearsIndexToDate(res.x, baseDate, baseYear);
+      if (dstr){
+        const ts = Date.parse(dstr);
+        if (isFinite(ts) && ts > MAX_TS){
+          return { text: 'shows no transition', val: Infinity, title: 'beyond 2999-12-31' };
+        }
+        return { text: dstr, val: ts, title: '' };
+      }
+      // Fallback: nackte Jahreszahl sehr weit in der Zukunft
+      if (res.x >= 3000){
+        return { text: 'shows no transition', val: Infinity, title: 'beyond year 2999' };
+      }
+      // Letzter Fallback: numerisch anzeigen, sortierbar halten
+      return { text: res.x.toFixed(2), val: parseFloat(res.x), title: '' };
+    }
+
+    const f20 = fmt(r20), f50 = fmt(r50), f80 = fmt(r80), fc = fmt(rc);
+    const parts = extractVariantParts(r.variant || '');
+
+    return {
+      country: r.country || '',
+      variantBaseCanonical: normalizeBase(parts.base || ''),
+      variant: r.variant || '',
+      val20: f20.text, _v20: f20.val,
+      val50: f50.text, _v50: f50.val,
+      val80: f80.text, _v80: f80.val,
+      custom: fc.text, _vc: fc.val,
+      data_per: getDataPer(r)
+    };
+  });
+}
   function getSelectedCanonicals(){ return Array.from(sel.selectedOptions||[]).map(o=>o.value); }
   function applyVariantFilter(arr){ const selected=new Set(getSelectedCanonicals()); if(selected.size===0) return []; return arr.filter(r=>selected.has(r.variantBaseCanonical||'')); }
   function isoOrValForSort(row,key){ if(key==='_v20'||key==='_v50'||key==='_v80'||key==='_vc') return row[key]||Infinity; if(key==='val20') return row._v20||Infinity; if(key==='val50') return row._v50||Infinity; if(key==='val80') return row._v80||Infinity; if(key==='custom') return row._vc||Infinity; if(key==='data_per') return Date.parse((row.data_per||'')+'-01')||row.data_per||''; return row[key]; }
