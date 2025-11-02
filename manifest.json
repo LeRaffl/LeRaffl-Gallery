@@ -1,5 +1,5 @@
 {
-  "updated": "2025-10-31",
+  "updated": "2025-11-02",
   "images": [
     {
       "country": "Hungary",
@@ -40,46 +40,6 @@
       "url": "images/2025-09/hungary_ttm_shares_20251031.png",
       "alt": "Hungary TTM market split graph",
       "country_slug": "hungary"
-    },
-    {
-      "country": "Iceland",
-      "type": "ICE_BEV",
-      "period": "2025-09",
-      "date": "2025-10-31",
-      "filename": "iceland_ICE_BEV_20251031.png",
-      "url": "images/2025-09/iceland_ICE_BEV_20251031.png",
-      "alt": "Iceland ICE-BEV-Hybrid trajectory",
-      "country_slug": "iceland"
-    },
-    {
-      "country": "Iceland",
-      "type": "share",
-      "period": "2025-09",
-      "date": "2025-10-31",
-      "filename": "iceland_20251031.png",
-      "url": "images/2025-09/iceland_20251031.png",
-      "alt": "Iceland BEV trajectory",
-      "country_slug": "iceland"
-    },
-    {
-      "country": "Iceland",
-      "type": "time",
-      "period": "2025-09",
-      "date": "2025-10-31",
-      "filename": "iceland_time_20251031.png",
-      "url": "images/2025-09/iceland_time_20251031.png",
-      "alt": "Iceland Transition time curve",
-      "country_slug": "iceland"
-    },
-    {
-      "country": "Iceland",
-      "type": "ttm_shares",
-      "period": "2025-09",
-      "date": "2025-10-31",
-      "filename": "iceland_ttm_shares_20251031.png",
-      "url": "images/2025-09/iceland_ttm_shares_20251031.png",
-      "alt": "Iceland TTM market split graph",
-      "country_slug": "iceland"
     },
     {
       "country": "Bulgaria",
