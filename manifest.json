@@ -2,6 +2,126 @@
   "updated": "2025-11-03",
   "images": [
     {
+      "country": "Ireland",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-11-03",
+      "filename": "ireland_ICE_BEV_20251103.png",
+      "url": "images/2025-09/ireland_ICE_BEV_20251103.png",
+      "alt": "Ireland ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "ireland_ICE_BEV_20251103.png",
+      "url": "images/2025-10/ireland_ICE_BEV_20251103.png",
+      "alt": "Ireland ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-11-03",
+      "filename": "ireland_20251103.png",
+      "url": "images/2025-09/ireland_20251103.png",
+      "alt": "Ireland BEV trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "ireland_20251103.png",
+      "url": "images/2025-10/ireland_20251103.png",
+      "alt": "Ireland BEV trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-11-03",
+      "filename": "ireland_time_20251103.png",
+      "url": "images/2025-09/ireland_time_20251103.png",
+      "alt": "Ireland Transition time curve",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "ireland_time_20251103.png",
+      "url": "images/2025-10/ireland_time_20251103.png",
+      "alt": "Ireland Transition time curve",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-11-03",
+      "filename": "ireland_ttm_shares_20251103.png",
+      "url": "images/2025-09/ireland_ttm_shares_20251103.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "ireland_ttm_shares_20251103.png",
+      "url": "images/2025-10/ireland_ttm_shares_20251103.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "italy_ICE_BEV_20251103.png",
+      "url": "images/2025-10/italy_ICE_BEV_20251103.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "italy_20251103.png",
+      "url": "images/2025-10/italy_20251103.png",
+      "alt": "Italy BEV trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "italy_time_20251103.png",
+      "url": "images/2025-10/italy_time_20251103.png",
+      "alt": "Italy Transition time curve",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-11-03",
+      "filename": "italy_ttm_shares_20251103.png",
+      "url": "images/2025-10/italy_ttm_shares_20251103.png",
+      "alt": "Italy TTM market split graph",
+      "country_slug": "italy"
+    },
+    {
       "country": "Portugal",
       "type": "ICE_BEV",
       "period": "2025-10",
