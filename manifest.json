@@ -42,84 +42,84 @@
       "country_slug": "india_2-wheelers"
     },
     {
-      "country": "India (2 Wheelers20251105)",
-      "type": "share",
-      "period": "2025-10",
-      "date": "2025-11-05",
-      "filename": "india_2-Wheelers20251105.png",
-      "url": "images/2025-10/india_2-Wheelers20251105.png",
-      "alt": "India (2 Wheelers20251105) BEV trajectory",
-      "country_slug": "india_2-wheelers20251105"
-    },
-    {
-      "country": "India (2 Wheelersice Bev)",
-      "type": "share",
-      "period": "2025-10",
-      "date": "2025-11-05",
-      "filename": "india_2-WheelersICE_BEV_20251105.png",
-      "url": "images/2025-10/india_2-WheelersICE_BEV_20251105.png",
-      "alt": "India (2 Wheelersice Bev) BEV trajectory",
-      "country_slug": "india_2-wheelersice_bev"
-    },
-    {
-      "country": "India (2 Wheelerstime)",
-      "type": "share",
-      "period": "2025-10",
-      "date": "2025-11-05",
-      "filename": "india_2-Wheelerstime_20251105.png",
-      "url": "images/2025-10/india_2-Wheelerstime_20251105.png",
-      "alt": "India (2 Wheelerstime) BEV trajectory",
-      "country_slug": "india_2-wheelerstime"
-    },
-    {
-      "country": "India (2 Wheelersttm Shares)",
-      "type": "share",
-      "period": "2025-10",
-      "date": "2025-11-05",
-      "filename": "india_2-Wheelersttm_shares_20251105.png",
-      "url": "images/2025-10/india_2-Wheelersttm_shares_20251105.png",
-      "alt": "India (2 Wheelersttm Shares) BEV trajectory",
-      "country_slug": "india_2-wheelersttm_shares"
-    },
-    {
-      "country": "India (2)",
+      "country": "India (3 Wheelers)",
       "type": "ICE_BEV",
       "period": "2025-10",
       "date": "2025-11-05",
-      "filename": "india_2_ICE_BEV_20251105.png",
-      "url": "images/2025-10/india_2_ICE_BEV_20251105.png",
-      "alt": "India (2) ICE-BEV-Hybrid trajectory",
-      "country_slug": "india_2"
+      "filename": "india_3-Wheelers_ICE_BEV_20251105.png",
+      "url": "images/2025-10/india_3-Wheelers_ICE_BEV_20251105.png",
+      "alt": "India (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "india_3-wheelers"
     },
     {
-      "country": "India (2)",
+      "country": "India (3 Wheelers)",
       "type": "share",
       "period": "2025-10",
       "date": "2025-11-05",
-      "filename": "india_2_20251105.png",
-      "url": "images/2025-10/india_2_20251105.png",
-      "alt": "India (2) BEV trajectory",
-      "country_slug": "india_2"
+      "filename": "india_3-Wheelers_20251105.png",
+      "url": "images/2025-10/india_3-Wheelers_20251105.png",
+      "alt": "India (3 Wheelers) BEV trajectory",
+      "country_slug": "india_3-wheelers"
     },
     {
-      "country": "India (2)",
+      "country": "India (3 Wheelers)",
       "type": "time",
       "period": "2025-10",
       "date": "2025-11-05",
-      "filename": "india_2_time_20251105.png",
-      "url": "images/2025-10/india_2_time_20251105.png",
-      "alt": "India (2) Transition time curve",
-      "country_slug": "india_2"
+      "filename": "india_3-Wheelers_time_20251105.png",
+      "url": "images/2025-10/india_3-Wheelers_time_20251105.png",
+      "alt": "India (3 Wheelers) Transition time curve",
+      "country_slug": "india_3-wheelers"
     },
     {
-      "country": "India (2)",
+      "country": "India (3 Wheelers)",
       "type": "ttm_shares",
       "period": "2025-10",
       "date": "2025-11-05",
-      "filename": "india_2_ttm_shares_20251105.png",
-      "url": "images/2025-10/india_2_ttm_shares_20251105.png",
-      "alt": "India (2) TTM market split graph",
-      "country_slug": "india_2"
+      "filename": "india_3-Wheelers_ttm_shares_20251105.png",
+      "url": "images/2025-10/india_3-Wheelers_ttm_shares_20251105.png",
+      "alt": "India (3 Wheelers) TTM market split graph",
+      "country_slug": "india_3-wheelers"
+    },
+    {
+      "country": "India (4 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_4-Wheelers_ICE_BEV_20251105.png",
+      "url": "images/2025-10/india_4-Wheelers_ICE_BEV_20251105.png",
+      "alt": "India (4 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "india_4-wheelers"
+    },
+    {
+      "country": "India (4 Wheelers)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_4-Wheelers_20251105.png",
+      "url": "images/2025-10/india_4-Wheelers_20251105.png",
+      "alt": "India (4 Wheelers) BEV trajectory",
+      "country_slug": "india_4-wheelers"
+    },
+    {
+      "country": "India (4 Wheelers)",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_4-Wheelers_time_20251105.png",
+      "url": "images/2025-10/india_4-Wheelers_time_20251105.png",
+      "alt": "India (4 Wheelers) Transition time curve",
+      "country_slug": "india_4-wheelers"
+    },
+    {
+      "country": "India (4 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_4-Wheelers_ttm_shares_20251105.png",
+      "url": "images/2025-10/india_4-Wheelers_ttm_shares_20251105.png",
+      "alt": "India (4 Wheelers) TTM market split graph",
+      "country_slug": "india_4-wheelers"
     },
     {
       "country": "Ireland",
