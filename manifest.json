@@ -2,6 +2,46 @@
   "updated": "2025-11-05",
   "images": [
     {
+      "country": "India (2 Wheelers20251105)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2-Wheelers20251105.png",
+      "url": "images/2025-10/india_2-Wheelers20251105.png",
+      "alt": "India (2 Wheelers20251105) BEV trajectory",
+      "country_slug": "india_2-wheelers20251105"
+    },
+    {
+      "country": "India (2 Wheelersice Bev)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2-WheelersICE_BEV_20251105.png",
+      "url": "images/2025-10/india_2-WheelersICE_BEV_20251105.png",
+      "alt": "India (2 Wheelersice Bev) BEV trajectory",
+      "country_slug": "india_2-wheelersice_bev"
+    },
+    {
+      "country": "India (2 Wheelerstime)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2-Wheelerstime_20251105.png",
+      "url": "images/2025-10/india_2-Wheelerstime_20251105.png",
+      "alt": "India (2 Wheelerstime) BEV trajectory",
+      "country_slug": "india_2-wheelerstime"
+    },
+    {
+      "country": "India (2 Wheelersttm Shares)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2-Wheelersttm_shares_20251105.png",
+      "url": "images/2025-10/india_2-Wheelersttm_shares_20251105.png",
+      "alt": "India (2 Wheelersttm Shares) BEV trajectory",
+      "country_slug": "india_2-wheelersttm_shares"
+    },
+    {
       "country": "India (2)",
       "type": "ICE_BEV",
       "period": "2025-10",
