@@ -2,6 +2,46 @@
   "updated": "2025-11-05",
   "images": [
     {
+      "country": "India (2)",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2_ICE_BEV_20251105.png",
+      "url": "images/2025-10/india_2_ICE_BEV_20251105.png",
+      "alt": "India (2) ICE-BEV-Hybrid trajectory",
+      "country_slug": "india_2"
+    },
+    {
+      "country": "India (2)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2_20251105.png",
+      "url": "images/2025-10/india_2_20251105.png",
+      "alt": "India (2) BEV trajectory",
+      "country_slug": "india_2"
+    },
+    {
+      "country": "India (2)",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2_time_20251105.png",
+      "url": "images/2025-10/india_2_time_20251105.png",
+      "alt": "India (2) Transition time curve",
+      "country_slug": "india_2"
+    },
+    {
+      "country": "India (2)",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-11-05",
+      "filename": "india_2_ttm_shares_20251105.png",
+      "url": "images/2025-10/india_2_ttm_shares_20251105.png",
+      "alt": "India (2) TTM market split graph",
+      "country_slug": "india_2"
+    },
+    {
       "country": "Ireland",
       "type": "ICE_BEV",
       "period": "2025-09",
