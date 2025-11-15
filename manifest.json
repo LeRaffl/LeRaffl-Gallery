@@ -2,6 +2,46 @@
   "updated": "2025-11-15",
   "images": [
     {
+      "country": "Uruguay",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-11-15",
+      "filename": "uruguay_ICE_BEV_20251115.png",
+      "url": "images/2025-10/uruguay_ICE_BEV_20251115.png",
+      "alt": "Uruguay ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-11-15",
+      "filename": "uruguay_20251115.png",
+      "url": "images/2025-10/uruguay_20251115.png",
+      "alt": "Uruguay BEV trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-11-15",
+      "filename": "uruguay_time_20251115.png",
+      "url": "images/2025-10/uruguay_time_20251115.png",
+      "alt": "Uruguay Transition time curve",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-11-15",
+      "filename": "uruguay_ttm_shares_20251115.png",
+      "url": "images/2025-10/uruguay_ttm_shares_20251115.png",
+      "alt": "Uruguay TTM market split graph",
+      "country_slug": "uruguay"
+    },
+    {
       "country": "China",
       "type": "ICE_BEV",
       "period": "2025-10",
