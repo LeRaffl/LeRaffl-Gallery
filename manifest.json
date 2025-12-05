@@ -53,11 +53,31 @@
     },
     {
       "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2025-06",
+      "date": "2025-12-06",
+      "filename": "romania_ICE_BEV_20251206.png",
+      "url": "images/2025-06/romania_ICE_BEV_20251206.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
       "type": "share",
       "period": "2025-05",
       "date": "2025-12-06",
       "filename": "romania_20251206.png",
       "url": "images/2025-05/romania_20251206.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2025-06",
+      "date": "2025-12-06",
+      "filename": "romania_20251206.png",
+      "url": "images/2025-06/romania_20251206.png",
       "alt": "Romania BEV trajectory",
       "country_slug": "romania"
     },
@@ -73,11 +93,31 @@
     },
     {
       "country": "Romania",
+      "type": "time",
+      "period": "2025-06",
+      "date": "2025-12-06",
+      "filename": "romania_time_20251206.png",
+      "url": "images/2025-06/romania_time_20251206.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
       "type": "ttm_shares",
       "period": "2025-05",
       "date": "2025-12-06",
       "filename": "romania_ttm_shares_20251206.png",
       "url": "images/2025-05/romania_ttm_shares_20251206.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2025-06",
+      "date": "2025-12-06",
+      "filename": "romania_ttm_shares_20251206.png",
+      "url": "images/2025-06/romania_ttm_shares_20251206.png",
       "alt": "Romania TTM market split graph",
       "country_slug": "romania"
     },
