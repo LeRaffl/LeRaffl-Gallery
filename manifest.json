@@ -122,6 +122,86 @@
       "country_slug": "hungary"
     },
     {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-12-07",
+      "filename": "latvia_ICE_BEV_20251207.png",
+      "url": "images/2025-09/latvia_ICE_BEV_20251207.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-07",
+      "filename": "latvia_ICE_BEV_20251207.png",
+      "url": "images/2025-10/latvia_ICE_BEV_20251207.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-12-07",
+      "filename": "latvia_20251207.png",
+      "url": "images/2025-09/latvia_20251207.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-07",
+      "filename": "latvia_20251207.png",
+      "url": "images/2025-10/latvia_20251207.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2025-12-07",
+      "filename": "latvia_time_20251207.png",
+      "url": "images/2025-09/latvia_time_20251207.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-07",
+      "filename": "latvia_time_20251207.png",
+      "url": "images/2025-10/latvia_time_20251207.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-12-07",
+      "filename": "latvia_ttm_shares_20251207.png",
+      "url": "images/2025-09/latvia_ttm_shares_20251207.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-07",
+      "filename": "latvia_ttm_shares_20251207.png",
+      "url": "images/2025-10/latvia_ttm_shares_20251207.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2025-10",
