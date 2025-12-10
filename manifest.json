@@ -42,6 +42,46 @@
       "country_slug": "austria"
     },
     {
+      "country": "Türkiye",
+      "type": "ICE_BEV",
+      "period": "2025-08",
+      "date": "2025-12-10",
+      "filename": "tuerkiye_ICE_BEV_20251210.png",
+      "url": "images/2025-08/tuerkiye_ICE_BEV_20251210.png",
+      "alt": "Türkiye ICE-BEV-Hybrid trajectory",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "share",
+      "period": "2025-08",
+      "date": "2025-12-10",
+      "filename": "tuerkiye_20251210.png",
+      "url": "images/2025-08/tuerkiye_20251210.png",
+      "alt": "Türkiye BEV trajectory",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "time",
+      "period": "2025-08",
+      "date": "2025-12-10",
+      "filename": "tuerkiye_time_20251210.png",
+      "url": "images/2025-08/tuerkiye_time_20251210.png",
+      "alt": "Türkiye Transition time curve",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "ttm_shares",
+      "period": "2025-08",
+      "date": "2025-12-10",
+      "filename": "tuerkiye_ttm_shares_20251210.png",
+      "url": "images/2025-08/tuerkiye_ttm_shares_20251210.png",
+      "alt": "Türkiye TTM market split graph",
+      "country_slug": "tuerkiye"
+    },
+    {
       "country": "Uk",
       "type": "ICE_BEV",
       "period": "2025-11",
