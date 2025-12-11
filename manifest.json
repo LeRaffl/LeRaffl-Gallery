@@ -5,6 +5,46 @@
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-11",
+      "date": "2025-12-11",
+      "filename": "austria_ICE_BEV_20251211.png",
+      "url": "images/2025-11/austria_ICE_BEV_20251211.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-11",
+      "filename": "austria_20251211.png",
+      "url": "images/2025-11/austria_20251211.png",
+      "alt": "Austria BEV trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-11",
+      "filename": "austria_time_20251211.png",
+      "url": "images/2025-11/austria_time_20251211.png",
+      "alt": "Austria Transition time curve",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-11",
+      "filename": "austria_ttm_shares_20251211.png",
+      "url": "images/2025-11/austria_ttm_shares_20251211.png",
+      "alt": "Austria TTM market split graph",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2025-11",
       "date": "2025-12-10",
       "filename": "austria_ICE_BEV_20251210.png",
       "url": "images/2025-11/austria_ICE_BEV_20251210.png",
