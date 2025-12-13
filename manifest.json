@@ -2,6 +2,46 @@
   "updated": "2025-12-13",
   "images": [
     {
+      "country": "Australia",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-13",
+      "filename": "australia_ICE_BEV_20251213.png",
+      "url": "images/2025-11/australia_ICE_BEV_20251213.png",
+      "alt": "Australia ICE-BEV-Hybrid trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-13",
+      "filename": "australia_20251213.png",
+      "url": "images/2025-11/australia_20251213.png",
+      "alt": "Australia BEV trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-13",
+      "filename": "australia_time_20251213.png",
+      "url": "images/2025-11/australia_time_20251213.png",
+      "alt": "Australia Transition time curve",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-13",
+      "filename": "australia_ttm_shares_20251213.png",
+      "url": "images/2025-11/australia_ttm_shares_20251213.png",
+      "alt": "Australia TTM market split graph",
+      "country_slug": "australia"
+    },
+    {
       "country": "China",
       "type": "ICE_BEV",
       "period": "2025-11",
