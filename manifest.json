@@ -162,6 +162,46 @@
       "country_slug": "croatia"
     },
     {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "cyprus_ICE_BEV_20251213.png",
+      "url": "images/2025-10/cyprus_ICE_BEV_20251213.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "cyprus_20251213.png",
+      "url": "images/2025-10/cyprus_20251213.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "cyprus_time_20251213.png",
+      "url": "images/2025-10/cyprus_time_20251213.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "cyprus_ttm_shares_20251213.png",
+      "url": "images/2025-10/cyprus_ttm_shares_20251213.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
       "country": "Newzealand",
       "type": "ICE_BEV",
       "period": "2025-11",
