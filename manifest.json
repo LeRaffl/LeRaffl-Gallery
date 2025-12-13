@@ -242,6 +242,46 @@
       "country_slug": "iceland"
     },
     {
+      "country": "Lithuania",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "lithuania_ICE_BEV_20251213.png",
+      "url": "images/2025-10/lithuania_ICE_BEV_20251213.png",
+      "alt": "Lithuania ICE-BEV-Hybrid trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "lithuania_20251213.png",
+      "url": "images/2025-10/lithuania_20251213.png",
+      "alt": "Lithuania BEV trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "lithuania_time_20251213.png",
+      "url": "images/2025-10/lithuania_time_20251213.png",
+      "alt": "Lithuania Transition time curve",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "lithuania_ttm_shares_20251213.png",
+      "url": "images/2025-10/lithuania_ttm_shares_20251213.png",
+      "alt": "Lithuania TTM market split graph",
+      "country_slug": "lithuania"
+    },
+    {
       "country": "Luxembourg",
       "type": "ICE_BEV",
       "period": "2025-10",
