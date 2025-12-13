@@ -242,6 +242,46 @@
       "country_slug": "iceland"
     },
     {
+      "country": "Luxembourg",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "luxembourg_ICE_BEV_20251213.png",
+      "url": "images/2025-10/luxembourg_ICE_BEV_20251213.png",
+      "alt": "Luxembourg ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "luxembourg_20251213.png",
+      "url": "images/2025-10/luxembourg_20251213.png",
+      "alt": "Luxembourg BEV trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "luxembourg_time_20251213.png",
+      "url": "images/2025-10/luxembourg_time_20251213.png",
+      "alt": "Luxembourg Transition time curve",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-13",
+      "filename": "luxembourg_ttm_shares_20251213.png",
+      "url": "images/2025-10/luxembourg_ttm_shares_20251213.png",
+      "alt": "Luxembourg TTM market split graph",
+      "country_slug": "luxembourg"
+    },
+    {
       "country": "Newzealand",
       "type": "ICE_BEV",
       "period": "2025-11",
