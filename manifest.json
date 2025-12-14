@@ -202,6 +202,46 @@
       "country_slug": "slovakia"
     },
     {
+      "country": "Switzerland",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-14",
+      "filename": "switzerland_ICE_BEV_20251214.png",
+      "url": "images/2025-11/switzerland_ICE_BEV_20251214.png",
+      "alt": "Switzerland ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-14",
+      "filename": "switzerland_20251214.png",
+      "url": "images/2025-11/switzerland_20251214.png",
+      "alt": "Switzerland BEV trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-14",
+      "filename": "switzerland_time_20251214.png",
+      "url": "images/2025-11/switzerland_time_20251214.png",
+      "alt": "Switzerland Transition time curve",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-14",
+      "filename": "switzerland_ttm_shares_20251214.png",
+      "url": "images/2025-11/switzerland_ttm_shares_20251214.png",
+      "alt": "Switzerland TTM market split graph",
+      "country_slug": "switzerland"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2025-11",
