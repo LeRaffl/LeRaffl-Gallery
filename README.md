@@ -98,6 +98,110 @@ The tables calculate thresholds and durations live.
 
 ---
 
+## 🧠 The model – explained without math pain (revised & precise)
+1. What is being modelled
+
+For each country, I model the BEV share of new car registrations over time.
+Empirically, this share does not behave like random noise.
+It behaves like a structured transition process: slow start, acceleration, eventual stabilization.
+The model is therefore not trying to “predict the future”, but to describe the structure of the transition as observed so far.
+
+
+2. Why an S-curve at all?
+
+Most large-scale technology transitions follow a similar qualitative pattern:
+- early friction (costs, infrastructure, trust)
+- positive feedback loops once adoption takes off
+- diminishing returns as edge cases remain
+
+This produces curves that are monotonic, bounded, and nonlinear.
+An S-shape is not assumed because it is pretty, it is assumed because it is the simplest structure that repeatedly matches real transitions. We've seen transitions between technologies in the past and this shape just fits.
+
+
+3. Why not a normal distribution (clarified)
+
+A normal distribution can, in fact, be fitted to cumulative adoption data like this.
+The problem is not fit quality per se. The problem is structure.
+
+A normal distribution is:
+- symmetric by construction
+- unable to express asymmetric acceleration/deceleration
+- unable to “break” as visibly when the data stops behaving like a transition
+
+In other words:
+A normal distribution is just less suited.
+
+
+4. Why a Weibull / generalized logistic formulation
+The Weibull-style formulation is chosen for three reasons:
+
+(1) Asymmetry
+Real-world adoption curves are almost never symmetric. The Weibull allows early-heavy, late-heavy, or roughly symmetric transitions — all with the same functional form.
+
+(2) Failure visibility
+A Weibull does not HAVE to produce an S-curve. It could yield other shapes as well. It just doesn't because the data fits S-shapes best.
+If the data does not support a meaningful transition, the model can:
+- fail to converge
+- produce nonsensical parameters (NaN, ±∞)
+- collapse into degenerate shapes
+This is a feature, not a bug.
+
+Example:
+Markets like Japan, which show no clear BEV transition, cause the model to break — exactly where it should. These examples are rare though. At time of writing I know of exactly 2 cases: Japan and Croatia
+
+(3) Parameter parsimony
+The model uses two shape parameters.
+fewer → insufficient flexibility
+more → unstable estimation and overfitting
+Two parameters are a sweet spot, flexible enough to reflect reality, constrained enough to remain interpretable.
+
+
+5. What the parameters mean (conceptually)
+v1 — transition intensity
+Controls how aggressively the market moves once adoption starts.
+Intuitively: How sharp is the flip from “niche” to “mainstream”?
+
+v2 — transition shape
+Controls where acceleration happens.
+Intuitively: Does the market ramp up early, or only after a long hesitation phase?
+
+t0 — time shift
+It's a horizontal shift so the curve aligns nicely with calendar time. Ignore this one.
+
+
+6. Most important model assumption
+Two hard assumptions are imposed:
+- The transition starts at 0%
+- The transition asymptotically ends at 100%
+
+Technically these are assumptions. However, would we not assume these we'd introduce either less stable models or subjective models (which goes against what I want this to be).
+However, both the 0% and the 100% seem to fit reality. Would they not fit reality, models would eventually output nonsense. If real data contradicts these bounds, the model stops fitting and this breakdown is visible.
+So far, mature markets (e.g. Norway) genuinely converge towards 100%, not 80% or 90%
+
+
+7. This is a statement about TODAY
+This deserves to be absolutely unambiguous:
+
+This is not a forecast.
+This is not a prediction.
+This is not a statement about the future.
+
+The curve represents a best-fit description of the transition as of today. If future data changes the trajectory also changes, which is why I update it regularly.
+The parameters change, the curve changes, the derived thresholds change.
+
+Think of it as:
+“Given everything we know right now,
+what would the transition look like if things simply continued?”
+
+Not:
+“What will happen?”
+
+
+8. Early-stage instability
+Uncertainty is not only a function of data quantity. It is also a function of where a market sits on the curve. Early-stage markets (low BEV share) are inherently volatile. Small absolute changes produce large parameter swings. This stabilizes naturally as the transition progresses. This stabilization is visible in the transition-time curves. Stability is also greater in bigger markets.
+
+---
+
 ## 🌍 License & Usage
 
 Charts and model outputs may be shared freely with attribution to **@LeRaffl**.
