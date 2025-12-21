@@ -2,6 +2,46 @@
   "updated": "2025-12-21",
   "images": [
     {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "czechia_ICE_BEV_20251221.png",
+      "url": "images/2025-10/czechia_ICE_BEV_20251221.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "czechia_20251221.png",
+      "url": "images/2025-10/czechia_20251221.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "czechia_time_20251221.png",
+      "url": "images/2025-10/czechia_time_20251221.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "czechia_ttm_shares_20251221.png",
+      "url": "images/2025-10/czechia_ttm_shares_20251221.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2025-08",
