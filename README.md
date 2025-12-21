@@ -98,7 +98,7 @@ The tables calculate thresholds and durations live.
 
 ---
 
-## 🧠 The model – explained without math pain (revised & precise)
+## 🧠 The model
 1. What is being modelled
 
 For each country, I model the BEV share of new car registrations over time.
@@ -118,10 +118,10 @@ This produces curves that are monotonic, bounded, and nonlinear.
 An S-shape is not assumed because it is pretty, it is assumed because it is the simplest structure that repeatedly matches real transitions. We've seen transitions between technologies in the past and this shape just fits.
 
 
-3. Why not a normal distribution (clarified)
+3. Why not a normal distribution?
 
 A normal distribution can, in fact, be fitted to cumulative adoption data like this.
-The problem is not fit quality per se. The problem is structure.
+The problem is not that it can't be used. The problem is structure.
 
 A normal distribution is:
 - symmetric by construction
@@ -132,14 +132,14 @@ In other words:
 A normal distribution is just less suited.
 
 
-4. Why a Weibull / generalized logistic formulation
+4. Why a Weibull / generalized logistic formulation?
 The Weibull-style formulation is chosen for three reasons:
 
 (1) Asymmetry
 Real-world adoption curves are almost never symmetric. The Weibull allows early-heavy, late-heavy, or roughly symmetric transitions — all with the same functional form.
 
 (2) Failure visibility
-A Weibull does not HAVE to produce an S-curve. It could yield other shapes as well. It just doesn't because the data fits S-shapes best.
+A Weibull does not HAVE to produce an S-curve. It could yield other shapes as well. It doesn't produce other shapes in most cases though, simply because the data fits S-shapes best.
 If the data does not support a meaningful transition, the model can:
 - fail to converge
 - produce nonsensical parameters (NaN, ±∞)
@@ -149,11 +149,15 @@ This is a feature, not a bug.
 Example:
 Markets like Japan, which show no clear BEV transition, cause the model to break — exactly where it should. These examples are rare though. At time of writing I know of exactly 2 cases: Japan and Croatia
 
-(3) Parameter parsimony
-The model uses two shape parameters.
+(3) Parametes
+The model uses two parameters.
 fewer → insufficient flexibility
 more → unstable estimation and overfitting
 Two parameters are a sweet spot, flexible enough to reflect reality, constrained enough to remain interpretable.
+
+(4) Weights and calculation
+The basis for the fit was a basic Weibull distribution function of the form 1-exp(v[1]*x^v[2]). This function is being fitted to the data via a numerical OLS approach that introduces the market sizes as weights. These weights have turned out to be necessary in cases where countries have highly fluctuating market sizes. That is because BEV have proven to be much more stable in their absolute number of registrations than other fuel types, meaning that if in a certain month, there are much fewer newly registered cars, then this affects BEV much less than Petrol, Diesel or even Hybrids. As an aftereffect this means that with a relatively constant absolute number compared to this now shrunken total number, BEV share would produce an outlier that pulls the BEV share upwards more than it should. Weights correct this and make cases like Ireland much more stable. Convergence criteria are set to maxit = 100000 and reltol=10^-30.
+
 
 
 5. What the parameters mean (conceptually)
@@ -171,15 +175,20 @@ It's a horizontal shift so the curve aligns nicely with calendar time. Ignore th
 
 6. Most important model assumption
 Two hard assumptions are imposed:
-- The transition starts at 0%
-- The transition asymptotically ends at 100%
+- The transition starts at 0% (or 100% for ICE)
+- The transition asymptotically ends at 100% (or 0% for ICE)
 
-Technically these are assumptions. However, would we not assume these we'd introduce either less stable models or subjective models (which goes against what I want this to be).
-However, both the 0% and the 100% seem to fit reality. Would they not fit reality, models would eventually output nonsense. If real data contradicts these bounds, the model stops fitting and this breakdown is visible.
-So far, mature markets (e.g. Norway) genuinely converge towards 100%, not 80% or 90%
+Technically these are assumptions. However, would we not assume this we'd introduce either less stable models or subjective models (which goes against what I want this to be).
+However, both the 0% and the 100% seem to fit reality quite well. Would they not fit reality, models would eventually output nonsense. If real data contradicts these bounds, the model stops fitting and this breakdown is visible.
+So far, mature markets (e.g. Norway or Denmark) genuinely converge towards 100%, not 70% or 80%.
 
 
-7. This is a statement about TODAY
+7. ICE and PHEV curves
+Since the BEV curves fits so well, I have decided to redo an analogue curve for newly registered ICE cars as well. I struggled with the definition of what to call an ICE in this definition, but ended up at the split BEV & PHEV & ICE, meaning ICE in this categorisation includes HEV, H2, GAS, PETROL, DIESEL, ETHANOL and all other fuel types that are not BEV or PHEV (this also means that EREV are treated as PHEV). I could have chosen to define a Hybrid category for PHEV+HEV and sometimes I do even use it due to lack of more granular data (Türkiye), but this BEV-PHEV-ICE split seems like the one that yields the best insight on these trajectory curves. As a result of producing ICE and BEV curves, the leftover PHEV part should now not only make up the remaining percentage points to get to 100% if summed up, but if models behave, should also fit against real world data, so can be used as a sort of verification.
+Thus the graph showing 3 curves is produced.
+
+
+8. This is a statement about TODAY
 This deserves to be absolutely unambiguous:
 
 This is not a forecast.
@@ -197,7 +206,7 @@ Not:
 “What will happen?”
 
 
-8. Early-stage instability
+9. Early-stage instability
 Uncertainty is not only a function of data quantity. It is also a function of where a market sits on the curve. Early-stage markets (low BEV share) are inherently volatile. Small absolute changes produce large parameter swings. This stabilizes naturally as the transition progresses. This stabilization is visible in the transition-time curves. Stability is also greater in bigger markets.
 
 ---
