@@ -42,6 +42,46 @@
       "country_slug": "czechia"
     },
     {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "spain_ICE_BEV_20251221.png",
+      "url": "images/2025-10/spain_ICE_BEV_20251221.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "spain_20251221.png",
+      "url": "images/2025-10/spain_20251221.png",
+      "alt": "Spain BEV trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "spain_time_20251221.png",
+      "url": "images/2025-10/spain_time_20251221.png",
+      "alt": "Spain Transition time curve",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-21",
+      "filename": "spain_ttm_shares_20251221.png",
+      "url": "images/2025-10/spain_ttm_shares_20251221.png",
+      "alt": "Spain TTM market split graph",
+      "country_slug": "spain"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2025-08",
