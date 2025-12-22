@@ -275,6 +275,7 @@ th.sortable.desc::after{content:" ↓"}
       </div>
       <p class="small">
         Internally uses <b>index time (years since baseline)</b> — Rounding Errors must be expected in this graph.
+        
       </p>
       <p class="small">
       This Tab can stack Transition Curves for countries. You can choose pre set groups or select your own.
@@ -409,7 +410,7 @@ function renderThresholds(csvText){ try{ const rows=parseCSV(csvText); const mou
 function computeData(){
   const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
   const y = pct / 100;
-  const MAX_TS = Date.parse('2999-12-31');
+  const MAX_TS = Date.parse('2199-12-31');
 
   return rows.map(r => {
     const v1 = normNumber(r.v1),
@@ -432,13 +433,13 @@ function computeData(){
       if (dstr){
         const ts = Date.parse(dstr);
         if (isFinite(ts) && ts > MAX_TS){
-          return { text: 'shows no transition', val: Infinity, title: 'beyond 2999-12-31' };
+          return { text: 'shows no transition', val: Infinity, title: 'beyond 2199-12-31' };
         }
         return { text: dstr, val: ts, title: '' };
       }
       // Fallback: nackte Jahreszahl sehr weit in der Zukunft
       if (res.x >= 3000){
-        return { text: 'shows no transition', val: Infinity, title: 'beyond year 2999' };
+        return { text: 'shows no transition', val: Infinity, title: 'beyond year 2199' };
       }
       // Letzter Fallback: numerisch anzeigen, sortierbar halten
       return { text: res.x.toFixed(2), val: parseFloat(res.x), title: '' };
@@ -491,7 +492,7 @@ function computeData(){
 
 // -------- DURATIONS --------
 (function(){
-  const CAP_YEARS = 200; // cutoff for "shows no transition"
+  const CAP_YEARS = 100; // cutoff for "shows no transition"
   function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ resolve(parseCSV(SAMPLE_PARAMS_CSV)); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(parseCSV(txt))).catch(()=>next(i+1)); })(0); }); }
   function slopeAtInflection(v1,v2){ const k=normNumber(v2), v1n=normNumber(v1); if(!(isFinite(k)&&isFinite(v1n))) return NaN; if(v1n>=0||k<=1) return NaN; const invLambda=Math.pow(-v1n,1/k); const u=Math.pow((k-1)/k,1/k); return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
