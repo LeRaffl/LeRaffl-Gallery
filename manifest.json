@@ -13,6 +13,36 @@
     },
     {
       "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2025-12-22",
+      "filename": "japan_ICE_BEV_20251222.png",
+      "url": "images/2025-09/japan_ICE_BEV_20251222.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-22",
+      "filename": "japan_ICE_BEV_20251222.png",
+      "url": "images/2025-10/japan_ICE_BEV_20251222.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-22",
+      "filename": "japan_ICE_BEV_20251222.png",
+      "url": "images/2025-11/japan_ICE_BEV_20251222.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
       "type": "share",
       "period": "2025-08",
       "date": "2025-12-22",
@@ -23,11 +53,71 @@
     },
     {
       "country": "Japan",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2025-12-22",
+      "filename": "japan_20251222.png",
+      "url": "images/2025-09/japan_20251222.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-22",
+      "filename": "japan_20251222.png",
+      "url": "images/2025-10/japan_20251222.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-22",
+      "filename": "japan_20251222.png",
+      "url": "images/2025-11/japan_20251222.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
       "type": "ttm_shares",
       "period": "2025-08",
       "date": "2025-12-22",
       "filename": "japan_ttm_shares_20251222.png",
       "url": "images/2025-08/japan_ttm_shares_20251222.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2025-12-22",
+      "filename": "japan_ttm_shares_20251222.png",
+      "url": "images/2025-09/japan_ttm_shares_20251222.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-22",
+      "filename": "japan_ttm_shares_20251222.png",
+      "url": "images/2025-10/japan_ttm_shares_20251222.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-22",
+      "filename": "japan_ttm_shares_20251222.png",
+      "url": "images/2025-11/japan_ttm_shares_20251222.png",
       "alt": "Japan TTM market split graph",
       "country_slug": "japan"
     },
