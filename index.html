@@ -287,6 +287,7 @@ th.sortable.desc::after{content:" ↓"}
         <div id="builderPlot"></div>
       </div>
     </div>
+    <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
   </section>
 
 <script>
@@ -534,8 +535,10 @@ function computeData(){
 })();
 
 // -------- BUILDER (fixed + robust time logic) --------
+
 (function(){
   let PARAM_ROWS = [];
+  let WEIGHTS = {};
 
   // Load Plotly on-demand so we don't touch <head>
   function ensurePlotly(){
@@ -590,6 +593,47 @@ function computeData(){
       })(0);
     });
   }
+function loadWeights(){
+  const urls = ['./weights.csv','weights.csv'];
+
+  // helper: pick first existing key (case variants)
+  const pick = (obj, keys) => {
+    for (const k of keys) {
+      if (obj[k] != null && String(obj[k]).trim() !== '') return obj[k];
+      // also try case-insensitive match
+      const found = Object.keys(obj).find(h => h.toLowerCase() === k.toLowerCase());
+      if (found && obj[found] != null && String(obj[found]).trim() !== '') return obj[found];
+    }
+    return '';
+  };
+
+  return new Promise((resolve)=>{
+    (function next(i){
+      if(i>=urls.length){ resolve({}); return; }
+
+      fetch(urls[i],{cache:'no-store'})
+        .then(r=>r.ok?r.text():Promise.reject())
+        .then(txt=>{
+          const rows = parseCSV(txt);
+          const map = {};
+
+          rows.forEach(r=>{
+            const countryRaw = pick(r, ['country','Country','COUNTRY','name','Name']);
+            const weightRaw  = pick(r, ['weight','Weight','WEIGHT','market_size','MarketSize','size','Size']);
+
+            const country = String(countryRaw||'').trim();
+            const w = normNumber(weightRaw);
+
+            if(country && isFinite(w)) map[country] = w;
+          });
+
+          resolve(map);
+        })
+        .catch(()=>next(i+1));
+    })(0);
+  });
+}
+
 
   
     // --- Predefined country groupings (Builder only) ---
@@ -669,72 +713,84 @@ const BUILDER_GROUPS = {
   }
 
   function build(){
-    const sel = document.getElementById('builderCountries');
-    const chosen = [...sel.selectedOptions].map(o=>o.value);
-    if(!chosen.length) return;
+  const sel = document.getElementById('builderCountries');
+  const chosen = [...sel.selectedOptions].map(o=>o.value);
+  if(!chosen.length) return;
 
-    // Filter to selected rows (all variants present in params.csv; you can later add a variant filter)
-    const rows = PARAM_ROWS.filter(r =>
-      chosen.includes(r.country) &&
-      ['whole', '4-wheelers'].includes(normalizeBase(r.variant))
-    );
+  const rows = PARAM_ROWS.filter(r =>
+    chosen.includes(r.country) &&
+    ['whole','4-wheelers'].includes(normalizeBase(r.variant))
+  );
 
+  const xs = [];
+  const ys = [];
 
-    // Simple equal weights for now (consistent + stable). Market-size weights can be added later.
-    const w = 1 / rows.length;
+  for(let year = 2015; year <= 2050; year += 0.25){
+    let ySum = 0;
+    let wSum = 0;
 
-    const xs=[], ys=[];
-    for(let year=2015; year<=2050; year+=1/12){
-      let y=0;
+    rows.forEach(r=>{
+      const v1 = normNumber(r.v1);
+      const v2 = normNumber(r.v2);
+      const t0 = getT0Years(r);
+      const by = baselineYearOf(r);
+      //const wi = WEIGHTS[r.country] ?? 1;
+      const wi = (r.country === 'China') ? 1000 : 1;
 
-      rows.forEach(r=>{
-        const v1 = normNumber(r.v1);
-        const v2 = normNumber(r.v2);
-        const t0 = getT0Years(r);           // KEY: consistent with Thresholds/Durations
-        const by = baselineYearOf(r);       // baseline year used for x transform
+      if(!isFinite(v1)||!isFinite(v2)||!isFinite(t0)||!isFinite(by)||!isFinite(wi)) return;
 
-        if(!isFinite(v1) || !isFinite(v2) || !isFinite(t0) || !isFinite(by)){
-          return; // skip malformed rows instead of poisoning whole curve
-        }
+      const x = year - by + 1;
+      const yi = bevShareIndex(x, v1, v2, t0);
 
-        const x = year - by + 1; // index time aligned to baseline + t0            // KEY: calendar year -> index time
-        y += w * bevShareIndex(x, v1, v2, t0);
-      });
+      ySum += wi * yi;
+      wSum += wi;
+    });
 
-      xs.push(year);
-      ys.push(100*y);
-    }
-
-    // Plot with numeric x; show month labels in tooltip (NOT as categorical axis)
-    const trace = {
-      x: xs,
-      y: ys,
-      mode: 'lines',
-      name: 'Aggregated BEV share',
-      customdata: xs.map(yearFracToLabel),
-      hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
-    };
-
-    const layout = {
-      margin: {t: 18, r: 10, b: 55, l: 55},
-      yaxis: {title: 'BEV share (%)', range: [0, 100]},
-      xaxis: {title: 'Calendar time', range: [2015, 2050]},
-      paper_bgcolor: '#0f1525',
-      plot_bgcolor:  '#0f1525',
-      font: {color: '#e9eef2'}
-    };
-
-    Plotly.newPlot('builderPlot', [trace], layout, {displayModeBar: true, responsive: true});
+    xs.push(year);
+    ys.push(wSum > 0 ? 100 * ySum / wSum : 0);
   }
+
+  const trace = {
+    x: xs,
+    y: ys,
+    mode: 'lines',
+    name: 'Aggregated BEV share',
+    customdata: xs.map(yearFracToLabel),
+    hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+  };
+
+  Plotly.newPlot('builderPlot', [trace], {
+    yaxis:{title:'BEV share (%)',range:[0,100]},
+    xaxis:{title:'Calendar time'},
+    paper_bgcolor:'#0f1525',
+    plot_bgcolor:'#0f1525',
+    font:{color:'#e9eef2'}
+  }, {responsive:true});
+    
+      const dbg = rows.map(r => {
+      const w = WEIGHTS[r.country] ?? 1;
+      return `${r.country}: ${w}`;
+    }).join(' • ');
+
+    document.getElementById('builderDebug').textContent =
+      `Weights used (${rows.length}): ` + dbg;
+}
+
 
   document.addEventListener('DOMContentLoaded',()=>{
     // Ensure plot mount has a height (some browsers collapse empty divs)
     const mount = document.getElementById('builderPlot');
     if(mount && !mount.style.height) mount.style.height = '440px';
 
-    Promise.all([ensurePlotly(), loadParamsForBuilder()])
-      .then(([,rows])=>initBuilder(rows))
-      .catch(()=>console.warn('Builder: Plotly or params.csv not loaded'));
+      Promise.all([
+        ensurePlotly(),
+        loadParamsForBuilder(),
+        loadWeights()
+      ]).then(([,rows,weights])=>{
+        WEIGHTS = weights;
+        initBuilder(rows);
+      }).catch(()=>console.warn('Builder: Plotly / params / weights not loaded'));
+
 
     document.getElementById('buildCurve')
       .addEventListener('click', ()=>ensurePlotly().then(build));
