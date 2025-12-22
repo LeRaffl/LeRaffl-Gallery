@@ -274,8 +274,13 @@ th.sortable.desc::after{content:" ↓"}
         </div>
       </div>
       <p class="small">
-        Internally uses <b>index time (years since baseline)</b> — identical to Thresholds/Durations.
-        Axis labels are rendered as calendar year + month.
+        Internally uses <b>index time (years since baseline)</b> — Rounding Errors must be expected in this graph.
+      </p>
+      <p class="small">
+      This Tab can stack Transition Curves for countries. You can choose pre set groups or select your own.
+      </p>      
+      <p class="small">
+        Transition Curves are weighed by market size of the country given in weights.csv, where the 1 year market sizes are approximately set. Market sizes do not fluctuate enough to require monthly updates of weights.csv
       </p>
       <div class="card" style="margin-top:12px">
         <div id="builderPlot"></div>
