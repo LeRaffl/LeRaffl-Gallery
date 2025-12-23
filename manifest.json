@@ -272,6 +272,46 @@
       "country_slug": "estonia"
     },
     {
+      "country": "France",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "france_ICE_BEV_20251223.png",
+      "url": "images/2025-11/france_ICE_BEV_20251223.png",
+      "alt": "France ICE-BEV-Hybrid trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "france_20251223.png",
+      "url": "images/2025-11/france_20251223.png",
+      "alt": "France BEV trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "france_time_20251223.png",
+      "url": "images/2025-11/france_time_20251223.png",
+      "alt": "France Transition time curve",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "france_ttm_shares_20251223.png",
+      "url": "images/2025-11/france_ttm_shares_20251223.png",
+      "alt": "France TTM market split graph",
+      "country_slug": "france"
+    },
+    {
       "country": "Chile",
       "type": "ICE_BEV",
       "period": "2025-08",
