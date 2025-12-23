@@ -2,6 +2,86 @@
   "updated": "2025-12-23",
   "images": [
     {
+      "country": "Belgium",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2025-12-23",
+      "filename": "belgium_ICE_BEV_20251223.png",
+      "url": "images/2025-10/belgium_ICE_BEV_20251223.png",
+      "alt": "Belgium ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "belgium_ICE_BEV_20251223.png",
+      "url": "images/2025-11/belgium_ICE_BEV_20251223.png",
+      "alt": "Belgium ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2025-12-23",
+      "filename": "belgium_20251223.png",
+      "url": "images/2025-10/belgium_20251223.png",
+      "alt": "Belgium BEV trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "belgium_20251223.png",
+      "url": "images/2025-11/belgium_20251223.png",
+      "alt": "Belgium BEV trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2025-12-23",
+      "filename": "belgium_time_20251223.png",
+      "url": "images/2025-10/belgium_time_20251223.png",
+      "alt": "Belgium Transition time curve",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "belgium_time_20251223.png",
+      "url": "images/2025-11/belgium_time_20251223.png",
+      "alt": "Belgium Transition time curve",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2025-12-23",
+      "filename": "belgium_ttm_shares_20251223.png",
+      "url": "images/2025-10/belgium_ttm_shares_20251223.png",
+      "alt": "Belgium TTM market split graph",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-23",
+      "filename": "belgium_ttm_shares_20251223.png",
+      "url": "images/2025-11/belgium_ttm_shares_20251223.png",
+      "alt": "Belgium TTM market split graph",
+      "country_slug": "belgium"
+    },
+    {
       "country": "Chile",
       "type": "ICE_BEV",
       "period": "2025-10",
