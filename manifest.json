@@ -2,6 +2,36 @@
   "updated": "2025-12-26",
   "images": [
     {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-26",
+      "filename": "chile_ICE_BEV_20251226.png",
+      "url": "images/2025-11/chile_ICE_BEV_20251226.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-26",
+      "filename": "chile_20251226.png",
+      "url": "images/2025-11/chile_20251226.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-26",
+      "filename": "chile_ttm_shares_20251226.png",
+      "url": "images/2025-11/chile_ttm_shares_20251226.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
       "country": "Poland",
       "type": "ICE_BEV",
       "period": "2025-11",
