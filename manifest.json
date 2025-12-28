@@ -122,6 +122,46 @@
       "country_slug": "denmark_private"
     },
     {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "spain_ICE_BEV_20251228.png",
+      "url": "images/2025-11/spain_ICE_BEV_20251228.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "spain_20251228.png",
+      "url": "images/2025-11/spain_20251228.png",
+      "alt": "Spain BEV trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "spain_time_20251228.png",
+      "url": "images/2025-11/spain_time_20251228.png",
+      "alt": "Spain Transition time curve",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "spain_ttm_shares_20251228.png",
+      "url": "images/2025-11/spain_ttm_shares_20251228.png",
+      "alt": "Spain TTM market split graph",
+      "country_slug": "spain"
+    },
+    {
       "country": "Chile",
       "type": "ICE_BEV",
       "period": "2025-11",
