@@ -122,6 +122,46 @@
       "country_slug": "denmark_private"
     },
     {
+      "country": "Indonesia",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "indonesia_ICE_BEV_20251228.png",
+      "url": "images/2025-11/indonesia_ICE_BEV_20251228.png",
+      "alt": "Indonesia ICE-BEV-Hybrid trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "indonesia_20251228.png",
+      "url": "images/2025-11/indonesia_20251228.png",
+      "alt": "Indonesia BEV trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "indonesia_time_20251228.png",
+      "url": "images/2025-11/indonesia_time_20251228.png",
+      "alt": "Indonesia Transition time curve",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2025-12-28",
+      "filename": "indonesia_ttm_shares_20251228.png",
+      "url": "images/2025-11/indonesia_ttm_shares_20251228.png",
+      "alt": "Indonesia TTM market split graph",
+      "country_slug": "indonesia"
+    },
+    {
       "country": "Slovenia",
       "type": "ICE_BEV",
       "period": "2025-06",
