@@ -4,40 +4,40 @@
     {
       "country": "Canada",
       "type": "ICE_BEV",
-      "period": "2025-08",
+      "period": "2025-09",
       "date": "2025-12-31",
       "filename": "canada_ICE_BEV_20251231.png",
-      "url": "images/2025-08/canada_ICE_BEV_20251231.png",
+      "url": "images/2025-09/canada_ICE_BEV_20251231.png",
       "alt": "Canada ICE-BEV-Hybrid trajectory",
       "country_slug": "canada"
     },
     {
       "country": "Canada",
       "type": "share",
-      "period": "2025-08",
+      "period": "2025-09",
       "date": "2025-12-31",
       "filename": "canada_20251231.png",
-      "url": "images/2025-08/canada_20251231.png",
+      "url": "images/2025-09/canada_20251231.png",
       "alt": "Canada BEV trajectory",
       "country_slug": "canada"
     },
     {
       "country": "Canada",
       "type": "time",
-      "period": "2025-08",
+      "period": "2025-09",
       "date": "2025-12-31",
       "filename": "canada_time_20251231.png",
-      "url": "images/2025-08/canada_time_20251231.png",
+      "url": "images/2025-09/canada_time_20251231.png",
       "alt": "Canada Transition time curve",
       "country_slug": "canada"
     },
     {
       "country": "Canada",
       "type": "ttm_shares",
-      "period": "2025-08",
+      "period": "2025-09",
       "date": "2025-12-31",
       "filename": "canada_ttm_shares_20251231.png",
-      "url": "images/2025-08/canada_ttm_shares_20251231.png",
+      "url": "images/2025-09/canada_ttm_shares_20251231.png",
       "alt": "Canada TTM market split graph",
       "country_slug": "canada"
     },
