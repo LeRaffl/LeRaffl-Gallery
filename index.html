@@ -289,6 +289,15 @@ th.sortable.desc::after{content:" ↓"}
               </optgroup>
             </select>
         </div>
+        
+        <div class="field">
+          <label>Weights variant</label>
+          <select id="builderWeightVariant">
+            <option value="whole" selected>Whole</option>
+            <option value="hdv">HDV</option>
+          </select>
+        </div>
+
 
         <div class="field">
           <label>Build</label>
@@ -408,7 +417,23 @@ function parseCSV(text){
 const normNumber = x => { const s=String(x||'').trim().replace(',', '.'); const n=Number(s); return isFinite(n)?n:NaN; };
 function isoDateToYearFrac(iso){ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||''))) return NaN; const d=new Date(iso+'T00:00:00Z'); if(isNaN(d)) return NaN; const y0=Date.UTC(d.getUTCFullYear(),0,1), y1=Date.UTC(d.getUTCFullYear()+1,0,1); return d.getUTCFullYear()+((d.getTime()-y0)/(y1-y0)); }
 function toYYYYMM(s){ if(!s) return ''; if(/^\d{4}-\d{2}$/.test(s)) return s; if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s.slice(0,7); return ''; }
-function normalizeBase(s){ const k=String(s||'').trim().toLowerCase(); if(!k) return ''; if(['all','total','overall','whole','total market','market total','entire','entire market','total vehicles','fleet total'].includes(k)) return 'whole'; return k; }
+function normalizeBase(s){
+  const k = String(s || '').trim().toLowerCase();
+  if(!k) return '';
+
+  if ([
+    'all','total','overall','whole','total market','market total',
+    'entire','entire market','total vehicles','fleet total'
+  ].includes(k)) return 'whole';
+
+  if ([
+    'hdv','heavy duty','heavy-duty','heavy duty vehicles',
+    'trucks','truck','commercial heavy','heavy vehicles'
+  ].includes(k)) return 'hdv';
+
+  return k;
+}
+
 function displayLabelFromBase(base){ const n=normalizeBase(base); if(n==='whole') return 'Whole'; return String(base||'').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g,c=>c.toUpperCase()); }
 function yearsIndexToDate(xYears, baseline_date, baseline_year){ if(!isFinite(xYears)) return ""; if(xYears>=1800 && xYears<3000){ const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} let base; if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){ base=new Date(baseline_date+'T00:00:00Z'); } else if(isFinite(normNumber(baseline_year))){ base=new Date(Math.round(normNumber(baseline_year))+'-01-01T00:00:00Z'); } else { return ""; } if(isNaN(base)) return ""; const years=Math.floor(xYears), frac=xYears-years; const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate())); const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate())); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); } }
 function inv_x_years(y,v1,v2,t0){ const v1n=normNumber(v1), v2n=normNumber(v2), t0n=normNumber(t0); if(!(y>0&&y<1))return{x:NaN,why:'y∉(0,1)'}; if(!isFinite(v1n)||!isFinite(v2n)||!isFinite(t0n))return{x:NaN,why:'v1/v2/t0 not numeric'}; if(v2n===0)return{x:NaN,why:'v2=0'}; if(v1n>=0)return{x:NaN,why:'v1 must be < 0'}; const num=Math.log(1-y)/v1n; if(!(num>0))return{x:NaN,why:'ln(1-y)/v1 ≤ 0'}; return{x:(t0n-1)+Math.pow(num,1/v2n),why:null}; }
@@ -666,14 +691,23 @@ function loadWeights(){
           const map = {};
 
           rows.forEach(r=>{
-            const countryRaw = pick(r, ['country','Country','COUNTRY','name','Name']);
-            const weightRaw  = pick(r, ['weight','Weight','WEIGHT','market_size','MarketSize','size','Size']);
+            const country = String(
+              pick(r,['country','Country','COUNTRY','name','Name']) || ''
+            ).trim();
 
-            const country = String(countryRaw||'').trim();
-            const w = normNumber(weightRaw);
+            const variant = normalizeBase(
+              pick(r,['variant','Variant']) || 'whole'
+            );
 
-            if(country && isFinite(w)) map[country] = w;
+            const w = normNumber(
+              pick(r,['weight','Weight','WEIGHT','market_size','MarketSize','size','Size'])
+            );
+
+            if(country && isFinite(w)){
+              map[`${country}|${variant}`] = w;
+            }
           });
+
 
           resolve(map);
         })
@@ -765,10 +799,14 @@ const BUILDER_GROUPS = {
   const chosen = [...sel.selectedOptions].map(o=>o.value);
   if(!chosen.length) return;
 
+  const vSel =
+    document.getElementById('builderWeightVariant')?.value || 'whole';
+
   const rows = PARAM_ROWS.filter(r =>
     chosen.includes(r.country) &&
-    ['whole','4-wheelers'].includes(normalizeBase(r.variant))
+    normalizeBase(r.variant) === vSel
   );
+
 
   const xs = [];
   const ys = [];
@@ -783,7 +821,13 @@ const BUILDER_GROUPS = {
       const t0 = getT0Years(r);
       const by = baselineYearOf(r);
       //const wi = WEIGHTS[r.country] ?? 1;
-      const wi = (r.country === 'China') ? 1000 : 1;
+const vSel =
+  document.getElementById('builderWeightVariant')?.value || 'whole';
+
+const wi =
+  WEIGHTS[`${r.country}|${vSel}`] ??
+  WEIGHTS[`${r.country}|whole`] ??
+  1;
 
       if(!isFinite(v1)||!isFinite(v2)||!isFinite(t0)||!isFinite(by)||!isFinite(wi)) return;
 
@@ -816,7 +860,13 @@ const BUILDER_GROUPS = {
   }, {responsive:true});
     
       const dbg = rows.map(r => {
-      const w = WEIGHTS[r.country] ?? 1;
+      const vSel =
+        document.getElementById('builderWeightVariant')?.value || 'whole';
+
+      const w =
+        WEIGHTS[`${r.country}|${vSel}`] ??
+        WEIGHTS[`${r.country}|whole`] ??
+        1;
       return `${r.country}: ${w}`;
     }).join(' • ');
 
