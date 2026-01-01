@@ -82,6 +82,46 @@
       "country_slug": "finland_hdv"
     },
     {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-01",
+      "filename": "netherlands_ICE_BEV_20260101.png",
+      "url": "images/2025-11/netherlands_ICE_BEV_20260101.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-01",
+      "filename": "netherlands_20260101.png",
+      "url": "images/2025-11/netherlands_20260101.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-01",
+      "filename": "netherlands_time_20260101.png",
+      "url": "images/2025-11/netherlands_time_20260101.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-01",
+      "filename": "netherlands_ttm_shares_20260101.png",
+      "url": "images/2025-11/netherlands_ttm_shares_20260101.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
       "country": "Singapore",
       "type": "ICE_BEV",
       "period": "2025-11",
@@ -10260,6 +10300,42 @@
       "url": "images/2025-03/usa_ttm_shares_20250419.png",
       "alt": "Usa TTM market split graph",
       "country_slug": "usa"
+    },
+    {
+      "country": "World (Interval 2026 01 01 Mobile V20)",
+      "type": "share",
+      "period": "2025-11",
+      "filename": "world_interval_2026-01-01_mobile_v20.png",
+      "url": "images/2025-11/world_interval_2026-01-01_mobile_v20.png",
+      "alt": "World (Interval 2026 01 01 Mobile V20) BEV trajectory",
+      "country_slug": "world_interval_2026-01-01_mobile_v20"
+    },
+    {
+      "country": "World (Interval 2026 01 01 Mobile)",
+      "type": "share",
+      "period": "2025-11",
+      "filename": "world_interval_2026-01-01_mobile.png",
+      "url": "images/2025-11/world_interval_2026-01-01_mobile.png",
+      "alt": "World (Interval 2026 01 01 Mobile) BEV trajectory",
+      "country_slug": "world_interval_2026-01-01_mobile"
+    },
+    {
+      "country": "World (Interval 2026 01 01 V20)",
+      "type": "share",
+      "period": "2025-11",
+      "filename": "world_interval_2026-01-01_v20.png",
+      "url": "images/2025-11/world_interval_2026-01-01_v20.png",
+      "alt": "World (Interval 2026 01 01 V20) BEV trajectory",
+      "country_slug": "world_interval_2026-01-01_v20"
+    },
+    {
+      "country": "World (Interval 2026 01 01)",
+      "type": "share",
+      "period": "2025-11",
+      "filename": "world_interval_2026-01-01.png",
+      "url": "images/2025-11/world_interval_2026-01-01.png",
+      "alt": "World (Interval 2026 01 01) BEV trajectory",
+      "country_slug": "world_interval_2026-01-01"
     }
   ]
 }
