@@ -19,6 +19,19 @@ header h1{margin:0;font-size:20px;font-weight:700}
 .tab{display:none}
 .tab.active{display:block}
 
+  /* Threshold coloring */
+td.past {
+  background: rgba(60, 180, 120, 0.18);
+  color: #bff5d8;
+  font-weight: 600;
+}
+
+td.late {
+  background: rgba(220, 80, 80, 0.18);
+  color: #ffb4b4;
+  font-weight: 600;
+}
+
 /* Gallery layout */
 .page{max-width:var(--maxw);margin:14px auto;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:0 10px}
 @media (max-width:880px){.page{grid-template-columns:1fr}}
@@ -198,7 +211,16 @@ th.sortable.desc::after{content:" ↓"}
           </div>
         </div>
       </div>
-      <p class="small" style="max-width:740px">Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”. Exports reflect your current filter and custom setting.</p>
+      <p class="small" style="max-width:740px">
+        Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”.
+        Exports reflect your current filter and custom setting.<br>
+        <span style="opacity:0.85">
+          Color coding:
+          <span style="color:#7fe0b0;font-weight:600">green</span> = threshold already reached;
+          <span style="color:#ff9a9a;font-weight:600">red</span> = 80% threshold after Jan 2035.
+        </span>
+      </p>
+
     </div>
     <div class="container tablepad">
       <div id="thresholdsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
@@ -475,9 +497,35 @@ function computeData(){
     <th class="sortable" data-key="custom">Custom</th>
     <th class="sortable" data-key="data_per">Data per</th>
   </tr></thead>`; }
-  function bodyHTML(){ const filtered=applyVariantFilter(data); return `<tbody>${filtered.map((r,i)=>`<tr>
-    <td class="num">${i+1}</td><td>${r.country}</td><td>${r.variant}</td><td>${r.val20}</td><td>${r.val50}</td><td>${r.val80}</td><td>${r.custom}</td><td>${r.data_per||''}</td>
-  </tr>`).join('')}</tbody>`; }
+                                        
+  const TODAY_TS = Date.now();
+const RED_80_TS = Date.parse('2035-01-01');
+
+function tdWithClass(text, ts, is80 = false) {
+  let cls = '';
+  if (isFinite(ts)) {
+    if (ts < TODAY_TS) cls = 'past';
+    if (is80 && ts > RED_80_TS) cls = 'late';
+  }
+  return `<td class="${cls}">${text}</td>`;
+}
+
+
+function bodyHTML(){
+  const filtered = applyVariantFilter(data);
+  return `<tbody>${filtered.map((r,i)=>`<tr>
+    <td class="num">${i+1}</td>
+    <td>${r.country}</td>
+    <td>${r.variant}</td>
+    ${tdWithClass(r.val20, r._v20)}
+    ${tdWithClass(r.val50, r._v50)}
+    ${tdWithClass(r.val80, r._v80, true)}
+    ${tdWithClass(r.custom, r._vc)}
+    <td>${r.data_per || ''}</td>
+  </tr>`).join('')}</tbody>`;
+}
+
+                                        
   function renderTable(){ data=computeData(); doSort(); mount.classList.add('tablecard'); mount.innerHTML=`<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`; mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); if(th.dataset.key===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ const key=th.dataset.key; if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; } renderTable(); }; }); }
   // exports
   function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
