@@ -292,8 +292,9 @@ th.sortable.desc::after{content:" ↓"}
         
         <div class="field">
           <label>Weights variant</label>
-          <select id="builderWeightVariant">
+          <select id="builderWeightVariant" multiple size="3">
             <option value="whole" selected>Whole</option>
+            <option value="4-wheelers" selected>4-Wheelers</option>
             <option value="hdv">HDV</option>
           </select>
         </div>
@@ -407,6 +408,16 @@ loadManifest().then(({images})=>{
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
 
 // -------- Shared helpers for thresholds + durations --------
+function getSelectedWeightVariants(){
+  const sel = document.getElementById('builderWeightVariant');
+  return [...sel.selectedOptions].map(o => normalizeBase(o.value));
+}
+
+function fmtInt(n){
+  if (!isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('en-US');
+}
+  
 function parseCSV(text){
   const raw=(text||'').trim(); if(!raw) return [];
   const first=raw.split(/\r?\n/)[0]||''; const delimiter=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':',';
@@ -792,88 +803,129 @@ const BUILDER_GROUPS = {
       o.value=c; o.textContent=c;
       sel.appendChild(o);
     });
+      // Default: World
+    if (groupSel) {
+      groupSel.value = 'world';
+      applyBuilderGroup('world');
+    }
   }
 
   function build(){
-  const sel = document.getElementById('builderCountries');
-  const chosen = [...sel.selectedOptions].map(o=>o.value);
-  if(!chosen.length) return;
+    const sel = document.getElementById('builderCountries');
+    const chosen = [...sel.selectedOptions].map(o=>o.value);
+    if(!chosen.length) return;
+    const vSels = getSelectedWeightVariants(); // ['whole','4-wheelers',...]
+    const rows = PARAM_ROWS.filter(r =>
+      chosen.includes(r.country) &&
+      vSels.includes(normalizeBase(r.variant))
+    );
+    if(!rows.length) return;
+  // ab hier Plotly + weights
 
-  const vSel =
-    document.getElementById('builderWeightVariant')?.value || 'whole';
+  let total = 0;
 
-  const rows = PARAM_ROWS.filter(r =>
-    chosen.includes(r.country) &&
-    normalizeBase(r.variant) === vSel
+  const sorted = [...rows].sort((a,b) =>
+    a.country.localeCompare(b.country)
   );
 
+  const lines = sorted.map(r => {
+    let w = NaN;
+    for (const v of vSels) {
+      const cand = WEIGHTS[`${r.country}|${v}`];
+      if (isFinite(cand)) { w = cand; break; }
+    }
+    if (!isFinite(w)) {
+      w = WEIGHTS[`${r.country}|whole`] ?? 1;
+    }
+    if (isFinite(w)) total += w;
+    return `${r.country}: ${fmtInt(w)}`;
+  });
 
+
+
+  const WORLD_2024_REF = 87e6;
+  // HDV selected?
+  const hasHDV = vSels.includes('hdv');
+
+  const coveragePct = (!hasHDV && WORLD_2024_REF > 0)
+    ? 100 * total / WORLD_2024_REF
+    : NaN;
+
+  const coverageLine = (!hasHDV && isFinite(coveragePct))
+    ? `<span style="opacity:0.75">
+         (worldwide ~${(WORLD_2024_REF / 1e6).toFixed(1)}M in 2024 –
+          model reflects ~${coveragePct.toFixed(1)}% of the market)
+       </span>`
+    : '';
+
+  document.getElementById('builderDebug').innerHTML = `
+    <div style="
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap:6px 16px;
+      margin-bottom:10px;
+    ">
+      ${lines.map(l => `<div>${l}</div>`).join('')}
+    </div>
+
+    <strong>Total:</strong> ${fmtInt(total)}
+    <br>
+    ${coverageLine}
+  `;
+    // -------- PLOT (restored) --------
   const xs = [];
   const ys = [];
 
-  for(let year = 2015; year <= 2050; year += 0.25){
+  for (let year = 2015; year <= 2050; year += 0.25) {
     let ySum = 0;
     let wSum = 0;
-
-    rows.forEach(r=>{
+    rows.forEach(r => {
       const v1 = normNumber(r.v1);
       const v2 = normNumber(r.v2);
       const t0 = getT0Years(r);
       const by = baselineYearOf(r);
-      //const wi = WEIGHTS[r.country] ?? 1;
-const vSel =
-  document.getElementById('builderWeightVariant')?.value || 'whole';
-
-const wi =
-  WEIGHTS[`${r.country}|${vSel}`] ??
-  WEIGHTS[`${r.country}|whole`] ??
-  1;
-
-      if(!isFinite(v1)||!isFinite(v2)||!isFinite(t0)||!isFinite(by)||!isFinite(wi)) return;
-
+      if (!isFinite(v1) || !isFinite(v2) || !isFinite(t0) || !isFinite(by)) return;
+      // same weight logic as debug
+      let w = NaN;
+      for (const v of vSels) {
+        const cand = WEIGHTS[`${r.country}|${v}`];
+        if (isFinite(cand)) { w = cand; break; }
+      }
+      if (!isFinite(w)) {
+        w = WEIGHTS[`${r.country}|whole`] ?? 1;
+      }
       const x = year - by + 1;
-      const yi = bevShareIndex(x, v1, v2, t0);
-
-      ySum += wi * yi;
-      wSum += wi;
+      const y = bevShareIndex(x, v1, v2, t0);
+      if (isFinite(y) && isFinite(w)) {
+        ySum += w * y;
+        wSum += w;
+      }
     });
-
     xs.push(year);
     ys.push(wSum > 0 ? 100 * ySum / wSum : 0);
   }
+  Plotly.newPlot(
+    'builderPlot',
+    [{
+      x: xs,
+      y: ys,
+      mode: 'lines',
+      line: { width: 3 },
+      name: 'Aggregated BEV share',
+      customdata: xs.map(yearFracToLabel),
+      hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+    }],
+    {
+      yaxis: { title: 'BEV share (%)', range: [0, 100] },
+      xaxis: { title: 'Calendar time' },
+      paper_bgcolor: '#0f1525',
+      plot_bgcolor: '#0f1525',
+      font: { color: '#e9eef2' }
+    },
+    { responsive: true }
+  );
 
-  const trace = {
-    x: xs,
-    y: ys,
-    mode: 'lines',
-    name: 'Aggregated BEV share',
-    customdata: xs.map(yearFracToLabel),
-    hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
-  };
-
-  Plotly.newPlot('builderPlot', [trace], {
-    yaxis:{title:'BEV share (%)',range:[0,100]},
-    xaxis:{title:'Calendar time'},
-    paper_bgcolor:'#0f1525',
-    plot_bgcolor:'#0f1525',
-    font:{color:'#e9eef2'}
-  }, {responsive:true});
-    
-      const dbg = rows.map(r => {
-      const vSel =
-        document.getElementById('builderWeightVariant')?.value || 'whole';
-
-      const w =
-        WEIGHTS[`${r.country}|${vSel}`] ??
-        WEIGHTS[`${r.country}|whole`] ??
-        1;
-      return `${r.country}: ${w}`;
-    }).join(' • ');
-
-    document.getElementById('builderDebug').textContent =
-      `Weights used (${rows.length}): ` + dbg;
 }
-
 
   document.addEventListener('DOMContentLoaded',()=>{
     // Ensure plot mount has a height (some browsers collapse empty divs)
