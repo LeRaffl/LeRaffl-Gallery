@@ -2,6 +2,46 @@
   "updated": "2026-01-03",
   "images": [
     {
+      "country": "India (4)",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2026-01-03",
+      "filename": "india_4_ICE_BEV_20260103.png",
+      "url": "images/2025-10/india_4_ICE_BEV_20260103.png",
+      "alt": "India (4) ICE-BEV-Hybrid trajectory",
+      "country_slug": "india_4"
+    },
+    {
+      "country": "India (4)",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2026-01-03",
+      "filename": "india_4_20260103.png",
+      "url": "images/2025-10/india_4_20260103.png",
+      "alt": "India (4) BEV trajectory",
+      "country_slug": "india_4"
+    },
+    {
+      "country": "India (4)",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2026-01-03",
+      "filename": "india_4_time_20260103.png",
+      "url": "images/2025-10/india_4_time_20260103.png",
+      "alt": "India (4) Transition time curve",
+      "country_slug": "india_4"
+    },
+    {
+      "country": "India (4)",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2026-01-03",
+      "filename": "india_4_ttm_shares_20260103.png",
+      "url": "images/2025-10/india_4_ttm_shares_20260103.png",
+      "alt": "India (4) TTM market split graph",
+      "country_slug": "india_4"
+    },
+    {
       "country": "Southkorea",
       "type": "ICE_BEV",
       "period": "2025-10",
