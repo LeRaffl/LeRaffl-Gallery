@@ -192,6 +192,36 @@
       "country_slug": "croatia"
     },
     {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "cyprus_ICE_BEV_20260104.png",
+      "url": "images/2025-11/cyprus_ICE_BEV_20260104.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "cyprus_20260104.png",
+      "url": "images/2025-11/cyprus_20260104.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "cyprus_ttm_shares_20260104.png",
+      "url": "images/2025-11/cyprus_ttm_shares_20260104.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
       "country": "India (2 Wheelers)",
       "type": "ICE_BEV",
       "period": "2025-10",
