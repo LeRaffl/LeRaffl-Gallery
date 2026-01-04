@@ -122,6 +122,46 @@
       "country_slug": "bulgaria"
     },
     {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "china_ICE_BEV_20260104.png",
+      "url": "images/2025-11/china_ICE_BEV_20260104.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "china_20260104.png",
+      "url": "images/2025-11/china_20260104.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "china_time_20260104.png",
+      "url": "images/2025-11/china_time_20260104.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "china_ttm_shares_20260104.png",
+      "url": "images/2025-11/china_ttm_shares_20260104.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
       "country": "India (2 Wheelers)",
       "type": "ICE_BEV",
       "period": "2025-10",
@@ -3549,36 +3589,6 @@
       "filename": "china_ICE_BEV_20251212.png",
       "url": "images/2025-11/china_ICE_BEV_20251212.png",
       "alt": "China ICE-BEV-Hybrid trajectory",
-      "country_slug": "china"
-    },
-    {
-      "country": "China",
-      "type": "share",
-      "period": "2025-11",
-      "date": "2025-12-12",
-      "filename": "china_20251212.png",
-      "url": "images/2025-11/china_20251212.png",
-      "alt": "China BEV trajectory",
-      "country_slug": "china"
-    },
-    {
-      "country": "China",
-      "type": "time",
-      "period": "2025-11",
-      "date": "2025-12-12",
-      "filename": "china_time_20251212.png",
-      "url": "images/2025-11/china_time_20251212.png",
-      "alt": "China Transition time curve",
-      "country_slug": "china"
-    },
-    {
-      "country": "China",
-      "type": "ttm_shares",
-      "period": "2025-11",
-      "date": "2025-12-12",
-      "filename": "china_ttm_shares_20251212.png",
-      "url": "images/2025-11/china_ttm_shares_20251212.png",
-      "alt": "China TTM market split graph",
       "country_slug": "china"
     },
     {
