@@ -162,6 +162,36 @@
       "country_slug": "china"
     },
     {
+      "country": "Croatia",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "croatia_ICE_BEV_20260104.png",
+      "url": "images/2025-11/croatia_ICE_BEV_20260104.png",
+      "alt": "Croatia ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "croatia_20260104.png",
+      "url": "images/2025-11/croatia_20260104.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-04",
+      "filename": "croatia_ttm_shares_20260104.png",
+      "url": "images/2025-11/croatia_ttm_shares_20260104.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
       "country": "India (2 Wheelers)",
       "type": "ICE_BEV",
       "period": "2025-10",
