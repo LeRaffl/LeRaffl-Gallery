@@ -23,6 +23,16 @@
     },
     {
       "country": "Cyprus",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "cyprus_time_20260105.png",
+      "url": "images/2025-11/cyprus_time_20260105.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-05",
