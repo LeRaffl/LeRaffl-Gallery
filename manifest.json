@@ -322,6 +322,46 @@
       "country_slug": "germany"
     },
     {
+      "country": "Greece",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "greece_ICE_BEV_20260105.png",
+      "url": "images/2025-11/greece_ICE_BEV_20260105.png",
+      "alt": "Greece ICE-BEV-Hybrid trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "greece_20260105.png",
+      "url": "images/2025-11/greece_20260105.png",
+      "alt": "Greece BEV trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "greece_time_20260105.png",
+      "url": "images/2025-11/greece_time_20260105.png",
+      "alt": "Greece Transition time curve",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "greece_ttm_shares_20260105.png",
+      "url": "images/2025-11/greece_ttm_shares_20260105.png",
+      "alt": "Greece TTM market split graph",
+      "country_slug": "greece"
+    },
+    {
       "country": "Hungary",
       "type": "ICE_BEV",
       "period": "2025-11",
@@ -360,6 +400,126 @@
       "url": "images/2025-11/hungary_ttm_shares_20260105.png",
       "alt": "Hungary TTM market split graph",
       "country_slug": "hungary"
+    },
+    {
+      "country": "Iceland",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "iceland_ICE_BEV_20260105.png",
+      "url": "images/2025-11/iceland_ICE_BEV_20260105.png",
+      "alt": "Iceland ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "iceland_20260105.png",
+      "url": "images/2025-11/iceland_20260105.png",
+      "alt": "Iceland BEV trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "iceland_time_20260105.png",
+      "url": "images/2025-11/iceland_time_20260105.png",
+      "alt": "Iceland Transition time curve",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "iceland_ttm_shares_20260105.png",
+      "url": "images/2025-11/iceland_ttm_shares_20260105.png",
+      "alt": "Iceland TTM market split graph",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "indonesia_ICE_BEV_20260105.png",
+      "url": "images/2025-11/indonesia_ICE_BEV_20260105.png",
+      "alt": "Indonesia ICE-BEV-Hybrid trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "indonesia_20260105.png",
+      "url": "images/2025-11/indonesia_20260105.png",
+      "alt": "Indonesia BEV trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "indonesia_time_20260105.png",
+      "url": "images/2025-11/indonesia_time_20260105.png",
+      "alt": "Indonesia Transition time curve",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "indonesia_ttm_shares_20260105.png",
+      "url": "images/2025-11/indonesia_ttm_shares_20260105.png",
+      "alt": "Indonesia TTM market split graph",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "latvia_ICE_BEV_20260105.png",
+      "url": "images/2025-11/latvia_ICE_BEV_20260105.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "latvia_20260105.png",
+      "url": "images/2025-11/latvia_20260105.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "latvia_time_20260105.png",
+      "url": "images/2025-11/latvia_time_20260105.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-05",
+      "filename": "latvia_ttm_shares_20260105.png",
+      "url": "images/2025-11/latvia_ttm_shares_20260105.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
     },
     {
       "country": "Sweden",
