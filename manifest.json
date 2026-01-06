@@ -13,11 +13,31 @@
     },
     {
       "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-06",
+      "filename": "germany_ICE_BEV_20260106.png",
+      "url": "images/2025-12/germany_ICE_BEV_20260106.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "germany_20260106.png",
       "url": "images/2025-11/germany_20260106.png",
+      "alt": "Germany BEV trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-06",
+      "filename": "germany_20260106.png",
+      "url": "images/2025-12/germany_20260106.png",
       "alt": "Germany BEV trajectory",
       "country_slug": "germany"
     },
@@ -33,11 +53,31 @@
     },
     {
       "country": "Germany",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-06",
+      "filename": "germany_time_20260106.png",
+      "url": "images/2025-12/germany_time_20260106.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "germany_ttm_shares_20260106.png",
       "url": "images/2025-11/germany_ttm_shares_20260106.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-06",
+      "filename": "germany_ttm_shares_20260106.png",
+      "url": "images/2025-12/germany_ttm_shares_20260106.png",
       "alt": "Germany TTM market split graph",
       "country_slug": "germany"
     },
