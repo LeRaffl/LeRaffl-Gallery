@@ -42,6 +42,46 @@
       "country_slug": "thailand"
     },
     {
+      "country": "Thailand (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-06",
+      "filename": "thailand_hdv_ICE_BEV_20260106.png",
+      "url": "images/2025-11/thailand_hdv_ICE_BEV_20260106.png",
+      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-06",
+      "filename": "thailand_hdv_20260106.png",
+      "url": "images/2025-11/thailand_hdv_20260106.png",
+      "alt": "Thailand (Hdv) BEV trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-06",
+      "filename": "thailand_hdv_time_20260106.png",
+      "url": "images/2025-11/thailand_hdv_time_20260106.png",
+      "alt": "Thailand (Hdv) Transition time curve",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-06",
+      "filename": "thailand_hdv_ttm_shares_20260106.png",
+      "url": "images/2025-11/thailand_hdv_ttm_shares_20260106.png",
+      "alt": "Thailand (Hdv) TTM market split graph",
+      "country_slug": "thailand_hdv"
+    },
+    {
       "country": "Türkiye",
       "type": "ICE_BEV",
       "period": "2025-11",
