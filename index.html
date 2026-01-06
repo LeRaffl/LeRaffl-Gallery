@@ -287,6 +287,12 @@ th.sortable.desc::after{content:" ↓"}
                 <option value="g7">G7</option>
                 <option value="asia">Asia</option>
               </optgroup>
+              
+              <optgroup label="Analytical">
+                <option value="small_markets">Small Markets  (&lt;50k units/year)</option>
+                <option value="medium_markets">Medium Markets  (50k-1M units/year)</option>
+                <option value="big_markets">Big Markets  (>1M) units/year)</option>
+              </optgroup>
             </select>
         </div>
         
@@ -730,6 +736,8 @@ function loadWeights(){
 
   
     // --- Predefined country groupings (Builder only) ---
+const SMALL_MARKET_LIMIT  = 50_000;
+const BIG_MARKET_LIMIT    = 1_000_000;
 const BUILDER_GROUPS = {
   world: rows =>
     [...new Set(rows.map(r => r.country).filter(Boolean))],
@@ -777,7 +785,57 @@ const BUILDER_GROUPS = {
     'China','Japan','South Korea','India',
     'Thailand','Malaysia','Indonesia',
     'Vietnam','Philippines','Singapore','Taiwan'
-  ]
+  ],
+small_markets: rows => {
+  const vars = getSelectedWeightVariants();
+  const out = new Set();
+
+  rows.forEach(r => {
+    for (const v of vars) {
+      const w = WEIGHTS[`${r.country}|${v}`];
+      if (isFinite(w) && w < SMALL_MARKET_LIMIT) {
+        out.add(r.country);
+        break;
+      }
+    }
+  });
+
+  return [...out];
+},
+
+medium_markets: rows => {
+  const vars = getSelectedWeightVariants();
+  const out = new Set();
+  rows.forEach(r => {
+    for (const v of vars) {
+      const w = WEIGHTS[`${r.country}|${v}`];
+      if (
+        isFinite(w) &&
+        w >= SMALL_MARKET_LIMIT &&
+        w < BIG_MARKET_LIMIT
+      ) {
+        out.add(r.country);
+        break;
+      }
+    }
+  });
+  return [...out];
+},
+big_markets: rows => {
+  const vars = getSelectedWeightVariants();
+  const out = new Set();
+
+  rows.forEach(r => {
+    for (const v of vars) {
+      const w = WEIGHTS[`${r.country}|${v}`];
+      if (isFinite(w) && w > BIG_MARKET_LIMIT) {
+        out.add(r.country);
+        break;
+      }
+    }
+  });
+  return [...out];
+}
 };
 
 
