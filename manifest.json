@@ -42,6 +42,46 @@
       "country_slug": "finland"
     },
     {
+      "country": "Finland (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-07",
+      "filename": "finland_hdv_ICE_BEV_20260107.png",
+      "url": "images/2025-12/finland_hdv_ICE_BEV_20260107.png",
+      "alt": "Finland (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (Hdv)",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-07",
+      "filename": "finland_hdv_20260107.png",
+      "url": "images/2025-12/finland_hdv_20260107.png",
+      "alt": "Finland (Hdv) BEV trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (Hdv)",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-07",
+      "filename": "finland_hdv_time_20260107.png",
+      "url": "images/2025-12/finland_hdv_time_20260107.png",
+      "alt": "Finland (Hdv) Transition time curve",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (Hdv)",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-07",
+      "filename": "finland_hdv_ttm_shares_20260107.png",
+      "url": "images/2025-12/finland_hdv_ttm_shares_20260107.png",
+      "alt": "Finland (Hdv) TTM market split graph",
+      "country_slug": "finland_hdv"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2025-11",
