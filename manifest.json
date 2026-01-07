@@ -162,6 +162,76 @@
       "country_slug": "finland_hdv"
     },
     {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "japan_ICE_BEV_20260107.png",
+      "url": "images/2025-11/japan_ICE_BEV_20260107.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "japan_20260107.png",
+      "url": "images/2025-11/japan_20260107.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "japan_ttm_shares_20260107.png",
+      "url": "images/2025-11/japan_ttm_shares_20260107.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "poland_ICE_BEV_20260107.png",
+      "url": "images/2025-11/poland_ICE_BEV_20260107.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "poland_20260107.png",
+      "url": "images/2025-11/poland_20260107.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "poland_time_20260107.png",
+      "url": "images/2025-11/poland_time_20260107.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-07",
+      "filename": "poland_ttm_shares_20260107.png",
+      "url": "images/2025-11/poland_ttm_shares_20260107.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2025-11",
