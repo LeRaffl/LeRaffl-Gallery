@@ -2,6 +2,36 @@
   "updated": "2026-01-08",
   "images": [
     {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-08",
+      "filename": "japan_ICE_BEV_20260108.png",
+      "url": "images/2025-12/japan_ICE_BEV_20260108.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-08",
+      "filename": "japan_20260108.png",
+      "url": "images/2025-12/japan_20260108.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-08",
+      "filename": "japan_ttm_shares_20260108.png",
+      "url": "images/2025-12/japan_ttm_shares_20260108.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
       "country": "Bulgaria",
       "type": "ICE_BEV",
       "period": "2025-11",
