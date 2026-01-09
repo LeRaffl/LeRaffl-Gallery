@@ -42,6 +42,36 @@
       "country_slug": "denmark"
     },
     {
+      "country": "Germany (Custom No2024)",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-09",
+      "filename": "germany_custom_no2024_ICE_BEV_20260109.png",
+      "url": "images/2025-12/germany_custom_no2024_ICE_BEV_20260109.png",
+      "alt": "Germany (Custom No2024) ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany_custom_no2024"
+    },
+    {
+      "country": "Germany (Custom No2024)",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-09",
+      "filename": "germany_custom_no2024_20260109.png",
+      "url": "images/2025-12/germany_custom_no2024_20260109.png",
+      "alt": "Germany (Custom No2024) BEV trajectory",
+      "country_slug": "germany_custom_no2024"
+    },
+    {
+      "country": "Germany (Custom No2024)",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-09",
+      "filename": "germany_custom_no2024_time_20260109.png",
+      "url": "images/2025-12/germany_custom_no2024_time_20260109.png",
+      "alt": "Germany (Custom No2024) Transition time curve",
+      "country_slug": "germany_custom_no2024"
+    },
+    {
       "country": "Germany (Custom)",
       "type": "ICE_BEV",
       "period": "2025-12",
