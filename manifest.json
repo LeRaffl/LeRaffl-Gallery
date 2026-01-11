@@ -53,26 +53,6 @@
     },
     {
       "country": "Netherlands (Used Imports)",
-      "type": "share",
-      "period": "2025-11",
-      "date": "2026-01-11",
-      "filename": "netherlands_used_imports_20260111.png",
-      "url": "images/2025-11/netherlands_used_imports_20260111.png",
-      "alt": "Netherlands (Used Imports) BEV trajectory",
-      "country_slug": "netherlands_used_imports"
-    },
-    {
-      "country": "Netherlands (Used Imports)",
-      "type": "time",
-      "period": "2025-11",
-      "date": "2026-01-11",
-      "filename": "netherlands_used_imports_time_20260111.png",
-      "url": "images/2025-11/netherlands_used_imports_time_20260111.png",
-      "alt": "Netherlands (Used Imports) Transition time curve",
-      "country_slug": "netherlands_used_imports"
-    },
-    {
-      "country": "Netherlands (Used Imports)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-11",
