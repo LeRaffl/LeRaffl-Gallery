@@ -119,6 +119,14 @@ th.sortable.desc::after{content:" ↓"}
 #tab-thresholds .tablecard th:nth-child(3),
 #tab-thresholds .tablecard td:nth-child(3){min-width:220px}
 #tab-thresholds .tablecard th:nth-child(8){white-space:nowrap}
+#builderDebug {
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 </style>
 </head>
 <body>
@@ -453,7 +461,24 @@ function normalizeBase(s){
 
 function displayLabelFromBase(base){ const n=normalizeBase(base); if(n==='whole') return 'Whole'; return String(base||'').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g,c=>c.toUpperCase()); }
 function yearsIndexToDate(xYears, baseline_date, baseline_year){ if(!isFinite(xYears)) return ""; if(xYears>=1800 && xYears<3000){ const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} let base; if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){ base=new Date(baseline_date+'T00:00:00Z'); } else if(isFinite(normNumber(baseline_year))){ base=new Date(Math.round(normNumber(baseline_year))+'-01-01T00:00:00Z'); } else { return ""; } if(isNaN(base)) return ""; const years=Math.floor(xYears), frac=xYears-years; const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate())); const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate())); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); } }
-function inv_x_years(y,v1,v2,t0){ const v1n=normNumber(v1), v2n=normNumber(v2), t0n=normNumber(t0); if(!(y>0&&y<1))return{x:NaN,why:'y∉(0,1)'}; if(!isFinite(v1n)||!isFinite(v2n)||!isFinite(t0n))return{x:NaN,why:'v1/v2/t0 not numeric'}; if(v2n===0)return{x:NaN,why:'v2=0'}; if(v1n>=0)return{x:NaN,why:'v1 must be < 0'}; const num=Math.log(1-y)/v1n; if(!(num>0))return{x:NaN,why:'ln(1-y)/v1 ≤ 0'}; return{x:(t0n-1)+Math.pow(num,1/v2n),why:null}; }
+function inv_x_years(y,v1,v2,t0){
+  let v1n=normNumber(v1), 
+        v2n=normNumber(v2), 
+        t0n=normNumber(t0); 
+  if(v1n == 0) v1n = -1e-24;
+  if(!(y>0&&y<1))
+    return{x:NaN,why:'y∉(0,1)'}; 
+  if(!isFinite(v1n)||!isFinite(v2n)||!isFinite(t0n))
+    return{x:NaN,why:'v1/v2/t0 not numeric'}; 
+  if(v2n===0)
+    return{x:NaN,why:'v2=0'}; 
+  if(v1n>=0)
+    return{x:NaN,why:'v1 must be < 0'}; 
+  const num=Math.log(1-y)/v1n; 
+  if(!(num>0))
+    return{x:NaN,why:'ln(1-y)/v1 ≤ 0'}; 
+  return{x:(t0n-1)+Math.pow(num,1/v2n),why:null}; 
+}
 function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year), t0raw=(r.t0||'').trim(); let t0n=normNumber(t0raw); if(isFinite(t0n)&&t0n>=1800&&(isFinite(baseYear)||/^\d{4}-\d{2}-\d{2}$/.test(baseDate))){ const by=isFinite(baseYear)?Math.round(baseYear):(new Date(baseDate+'T00:00:00Z')).getUTCFullYear(); return (t0n-by)+1; } if(/^\d{4}-\d{2}-\d{2}$/.test(t0raw)){ const t0yf=isoDateToYearFrac(t0raw); const by=isFinite(baseYear)?baseYear:isoDateToYearFrac(baseDate); if(isFinite(by)&&isFinite(t0yf)) return (t0yf-by)+1; } return t0n; }
 function getDataPer(r){ const c=[r.data_per,r.latest_month,r.last_month,r.month_latest,r.data_month,r.latest_date,r.last_date,r.obs_last,r.data_asof].map(x=>String(x||'').trim()).filter(Boolean); for(const v of c){ const m=toYYYYMM(v); if(m) return m; } return ''; }
 function extractVariantParts(variant){
@@ -585,7 +610,19 @@ function bodyHTML(){
 (function(){
   const CAP_YEARS = 100; // cutoff for "shows no transition"
   function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ resolve(parseCSV(SAMPLE_PARAMS_CSV)); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(parseCSV(txt))).catch(()=>next(i+1)); })(0); }); }
-  function slopeAtInflection(v1,v2){ const k=normNumber(v2), v1n=normNumber(v1); if(!(isFinite(k)&&isFinite(v1n))) return NaN; if(v1n>=0||k<=1) return NaN; const invLambda=Math.pow(-v1n,1/k); const u=Math.pow((k-1)/k,1/k); return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); }
+  function slopeAtInflection(v1,v2){ 
+    let k=normNumber(v2), 
+          v1n=normNumber(v1);
+    if(v1n == 0)
+      v1n = -1e-24;
+    if(!(isFinite(k)&&isFinite(v1n))) 
+      return NaN; 
+    if(v1n>=0||k<=1) 
+      return NaN; 
+    const invLambda=Math.pow(-v1n,1/k); 
+    const u=Math.pow((k-1)/k,1/k); 
+    return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); 
+  }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; if(Math.abs(dYears)>CAP_YEARS) return 'shows no transition'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}  
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); }
@@ -934,7 +971,7 @@ big_markets: rows => {
   const xs = [];
   const ys = [];
 
-  for (let year = 2015; year <= 2050; year += 0.25) {
+  for (let year = 2015; year <= 2050; year += 0.05) {
     let ySum = 0;
     let wSum = 0;
     rows.forEach(r => {
@@ -963,32 +1000,44 @@ big_markets: rows => {
     ys.push(wSum > 0 ? 100 * ySum / wSum : 0);
   }
   Plotly.newPlot(
-    'builderPlot',
-    [{
-      x: xs,
-      y: ys,
-      mode: 'lines',
-      line: { width: 3 },
-      name: 'Aggregated BEV share',
-      customdata: xs.map(yearFracToLabel),
-      hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
-    }],
-    {
-      yaxis: { title: 'BEV share (%)', range: [0, 100] },
-      xaxis: { title: 'Calendar time' },
-      paper_bgcolor: '#0f1525',
-      plot_bgcolor: '#0f1525',
-      font: { color: '#e9eef2' }
+  'builderPlot',
+  [{
+    x: xs,
+    y: ys,
+    mode: 'lines',
+    line: { width: 3 },
+    name: 'Aggregated BEV share',
+    customdata: xs.map(yearFracToLabel),
+    hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+  }],
+  {
+    height: 560,              // ← vorher implizit ~440
+    margin: { t: 30, r: 20, b: 70, l: 70 },  // etwas mehr Luft unten
+    yaxis: {
+      title: 'BEV share (%)',
+      range: [0, 100],
+      gridcolor: 'rgba(255,255,255,0.12)'
     },
-    { responsive: true }
-  );
+    xaxis: {
+      title: 'Calendar time',
+      gridcolor: 'rgba(255,255,255,0.10)',
+      tickmode: 'linear',
+      tick0: 2016,
+      dtick: 2
+    },
+    paper_bgcolor: '#0f1525',
+    plot_bgcolor: '#0f1525',
+    font: { color: '#e9eef2' }
+  },
+  { responsive: true }
+);
+
 
 }
 
   document.addEventListener('DOMContentLoaded',()=>{
     // Ensure plot mount has a height (some browsers collapse empty divs)
     const mount = document.getElementById('builderPlot');
-    if(mount && !mount.style.height) mount.style.height = '440px';
 
       Promise.all([
         ensurePlotly(),
