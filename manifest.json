@@ -8282,44 +8282,44 @@
       "country_slug": "switzerland"
     },
     {
-      "country": "Switzerland (N Classes)",
+      "country": "Switzerland (Hdv)",
       "type": "ICE_BEV",
       "period": "2025-09",
       "date": "2025-10-12",
-      "filename": "switzerland_n_classes_ICE_BEV_20251012.png",
-      "url": "images/2025-09/switzerland_n_classes_ICE_BEV_20251012.png",
-      "alt": "Switzerland (N Classes) ICE-BEV-Hybrid trajectory",
-      "country_slug": "switzerland_n_classes"
+      "filename": "switzerland_HDV_ICE_BEV_20251012.png",
+      "url": "images/2025-09/switzerland_HDV_ICE_BEV_20251012.png",
+      "alt": "Switzerland (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (N Classes)",
+      "country": "Switzerland (Hdv)",
       "type": "share",
       "period": "2025-09",
       "date": "2025-10-12",
-      "filename": "switzerland_n_classes_20251012.png",
-      "url": "images/2025-09/switzerland_n_classes_20251012.png",
-      "alt": "Switzerland (N Classes) BEV trajectory",
-      "country_slug": "switzerland_n_classes"
+      "filename": "switzerland_HDV_20251012.png",
+      "url": "images/2025-09/switzerland_HDV_20251012.png",
+      "alt": "Switzerland (Hdv) BEV trajectory",
+      "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (N Classes)",
+      "country": "Switzerland (Hdv)",
       "type": "time",
       "period": "2025-09",
       "date": "2025-10-12",
-      "filename": "switzerland_n_classes_time_20251012.png",
-      "url": "images/2025-09/switzerland_n_classes_time_20251012.png",
-      "alt": "Switzerland (N Classes) Transition time curve",
-      "country_slug": "switzerland_n_classes"
+      "filename": "switzerland_HDV_time_20251012.png",
+      "url": "images/2025-09/switzerland_HDV_time_20251012.png",
+      "alt": "Switzerland (Hdv) Transition time curve",
+      "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (N Classes)",
+      "country": "Switzerland (Hdv)",
       "type": "ttm_shares",
       "period": "2025-09",
       "date": "2025-10-12",
-      "filename": "switzerland_n_classes_ttm_shares_20251012.png",
-      "url": "images/2025-09/switzerland_n_classes_ttm_shares_20251012.png",
-      "alt": "Switzerland (N Classes) TTM market split graph",
-      "country_slug": "switzerland_n_classes"
+      "filename": "switzerland_HDV_ttm_shares_20251012.png",
+      "url": "images/2025-09/switzerland_HDV_ttm_shares_20251012.png",
+      "alt": "Switzerland (Hdv) TTM market split graph",
+      "country_slug": "switzerland_hdv"
     },
     {
       "country": "Netherlands",
