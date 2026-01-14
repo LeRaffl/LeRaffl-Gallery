@@ -82,6 +82,46 @@
       "country_slug": "denmark_vans"
     },
     {
+      "country": "Switzerland (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-14",
+      "filename": "switzerland_hdv_ICE_BEV_20260114.png",
+      "url": "images/2025-11/switzerland_hdv_ICE_BEV_20260114.png",
+      "alt": "Switzerland (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (Hdv)",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-14",
+      "filename": "switzerland_hdv_20260114.png",
+      "url": "images/2025-11/switzerland_hdv_20260114.png",
+      "alt": "Switzerland (Hdv) BEV trajectory",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (Hdv)",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-14",
+      "filename": "switzerland_hdv_time_20260114.png",
+      "url": "images/2025-11/switzerland_hdv_time_20260114.png",
+      "alt": "Switzerland (Hdv) Transition time curve",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (Hdv)",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-14",
+      "filename": "switzerland_hdv_ttm_shares_20260114.png",
+      "url": "images/2025-11/switzerland_hdv_ttm_shares_20260114.png",
+      "alt": "Switzerland (Hdv) TTM market split graph",
+      "country_slug": "switzerland_hdv"
+    },
+    {
       "country": "Denmark",
       "type": "ICE_BEV",
       "period": "2025-12",
