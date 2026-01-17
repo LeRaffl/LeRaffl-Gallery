@@ -242,6 +242,46 @@
       "country_slug": "norway"
     },
     {
+      "country": "Southkorea",
+      "type": "ICE_BEV",
+      "period": "2025-10",
+      "date": "2026-01-17",
+      "filename": "southkorea_ICE_BEV_20260117.png",
+      "url": "images/2025-10/southkorea_ICE_BEV_20260117.png",
+      "alt": "Southkorea ICE-BEV-Hybrid trajectory",
+      "country_slug": "southkorea"
+    },
+    {
+      "country": "Southkorea",
+      "type": "share",
+      "period": "2025-10",
+      "date": "2026-01-17",
+      "filename": "southkorea_20260117.png",
+      "url": "images/2025-10/southkorea_20260117.png",
+      "alt": "Southkorea BEV trajectory",
+      "country_slug": "southkorea"
+    },
+    {
+      "country": "Southkorea",
+      "type": "time",
+      "period": "2025-10",
+      "date": "2026-01-17",
+      "filename": "southkorea_time_20260117.png",
+      "url": "images/2025-10/southkorea_time_20260117.png",
+      "alt": "Southkorea Transition time curve",
+      "country_slug": "southkorea"
+    },
+    {
+      "country": "Southkorea",
+      "type": "ttm_shares",
+      "period": "2025-10",
+      "date": "2026-01-17",
+      "filename": "southkorea_ttm_shares_20260117.png",
+      "url": "images/2025-10/southkorea_ttm_shares_20260117.png",
+      "alt": "Southkorea TTM market split graph",
+      "country_slug": "southkorea"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-12",
