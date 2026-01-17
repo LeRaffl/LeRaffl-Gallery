@@ -5,7 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>BEV Trajectories • Gallery + Thresholds + Durations</title>
 <style>
-:root{--maxw:1280px;--gap:18px;--thw:1280px}
+:root{
+  --maxw:1280px;
+  --gap:18px;
+  --thw:1280px;
+  --thr-past-bg: rgba(60, 180, 120, 0.18);
+  --thr-past-txt:#bff5d8;
+  --thr-late-bg: rgba(220, 80, 80, 0.18);
+  --thr-late-txt:#ffb4b4;
+}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
 header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
@@ -21,14 +29,14 @@ header h1{margin:0;font-size:20px;font-weight:700}
 
   /* Threshold coloring */
 td.past {
-  background: rgba(60, 180, 120, 0.18);
-  color: #bff5d8;
+  background: var(--thr-past-bg);
+  color: var(--thr-past-txt);
   font-weight: 600;
 }
 
 td.late {
-  background: rgba(220, 80, 80, 0.18);
-  color: #ffb4b4;
+  background: var(--thr-late-bg);
+  color: var(--thr-late-txt);
   font-weight: 600;
 }
 
@@ -65,6 +73,16 @@ select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-i
 .type,.date{opacity:.9;font-size:12px}
 .footer{padding:10px 14px;border-top:1px solid #1f2a44;display:flex;align-items:center;gap:10px}
 .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px;text-decoration:none;color:#e9eef2}
+.btn.primary {
+  background: linear-gradient(135deg, #1fd655, #00b43d);
+  border-color: #00b43d;
+  color: #041b0b;
+  font-weight: 700;
+  padding: 10px 16px;
+}
+.btn.primary:hover {
+  filter: brightness(1.05);
+}
 .filename{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.95;font-size:12px;border:1px solid #2b364f;border-radius:8px;padding:4px 8px;background:#0f1525}
 .badge{padding:2px 8px;border:1px solid #2b364f;border-radius:999px;background:#0f1525;font-size:12px}
 .pager{display:flex;justify-content:center;margin-top:18px}
@@ -81,6 +99,8 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 /* Thresholds + Durations shared */
 .container{max-width:var(--thw);margin:14px auto;padding:0 10px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+
+  
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:12px;color:#9fb3d1}
 .tablepad{padding:12px}
@@ -89,6 +109,12 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .tablecard thead th{background:#0e1a34}
 .tablecard th,.tablecard td{padding:10px 12px;border-bottom:1px solid #1f2a44}
 .tablecard tbody tr:nth-child(even){background:rgba(255,255,255,0.02)}
+.export-title {
+  font-size: 12px;
+  color: #9fb3d1;
+  margin-bottom: 6px;
+}
+
 th.sortable{cursor:pointer;position:relative;user-select:none}
 th.sortable::after{content:" ↕";opacity:.6;font-size:.9em}
 th.sortable.asc::after{content:" ↑"}
@@ -125,6 +151,18 @@ th.sortable.desc::after{content:" ↓"}
   border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 12px;
   line-height: 1.4;
+}
+#builderPlot {
+  width: 100%;
+  min-width: 0;
+}
+#tab-builder .page {
+  display: block;
+}
+.builder-card {
+  width: 100%;
+  max-width: 1200px;
+  margin: 24px auto;
 }
 
 </style>
@@ -206,17 +244,32 @@ th.sortable.desc::after{content:" ↓"}
     <div class="container">
       <h2 style="margin:6px 0 12px">Thresholds (years)</h2>
       <div class="toolbar">
-        <div class="field" style="min-width:320px"><label for="variantMulti">Variant filter (multi-select)</label><select id="variantMulti" multiple size="6"></select></div>
-        <div class="field"><label for="customPct">Custom threshold (%)</label><input id="customPct" type="number" min="1" max="99" step="1" value="90" /></div>
-        <div class="field"><label>&nbsp;</label><button id="applyBtn" class="btn">Recalculate</button></div>
-        <div class="field" style="min-width:240px;margin-left:auto"><label>Export current table</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="exportCsv" class="btn">CSV (comma)</button>
-            <button id="exportCsvEU" class="btn">CSV (semicolon)</button>
+        <div class="field" style="min-width:320px">
+          <label for="variantMulti">Variant filter</label>
+          <select id="variantMulti" multiple size="6"></select>
+        </div>
+
+        <div class="field">
+          <label for="customPct">Custom threshold (%)</label>
+          <input id="customPct" type="number" value="90">
+        </div>
+
+        <div class="field">
+          <label>&nbsp;</label>
+          <button id="applyBtn" class="btn">Recalculate</button>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="export-box">
+          <label class="export-title">Export current table</label>
+          <div class="export-actions">
+            <button id="exportCsv" class="btn">CSV</button>
+            <button id="exportCsvEU" class="btn">CSV (EU)</button>
             <button id="copyCsv" class="btn">Copy CSV</button>
           </div>
         </div>
-      </div>
+
       <p class="small" style="max-width:740px">
         Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”.
         Exports reflect your current filter and custom setting.<br>
@@ -242,15 +295,24 @@ th.sortable.desc::after{content:" ↓"}
         <div class="field"><label for="customFrom">Custom from (%)</label><input id="customFrom" type="number" min="1" max="98" step="1" value="25" /></div>
         <div class="field"><label for="customTo">Custom to (%)</label><input id="customTo" type="number" min="2" max="99" step="1" value="75" /></div>
         <div class="field"><label>&nbsp;</label><button id="applyDurBtn" class="btn">Recalculate</button></div>
-        <div class="field" style="min-width:240px;margin-left:auto"><label>Export current table</label>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="exportDurCsv" class="btn">CSV (comma)</button>
-            <button id="exportDurCsvEU" class="btn">CSV (semicolon)</button>
+        <div class="spacer"></div>
+        <div class="export-box">
+          <div class="export-title">Export current table</div>
+          <div class="export-actions">
+            <button id="exportDurCsv" class="btn">CSV</button>
+            <button id="exportDurCsvEU" class="btn">CSV (EU)</button>
             <button id="copyDurCsv" class="btn">Copy CSV</button>
           </div>
         </div>
+        </div>
       </div>
-      <p class="small" style="max-width:740px">This view shows the projected time to progress from one market share threshold to another. Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from <code>params.csv</code>. Durations longer than 200 years are shown as “shows no transition”.</p>
+      <p class="small" style="max-width:740px">
+        This view shows the projected time to progress from one market share threshold to another. 
+        Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from 
+        <code>params.csv</code>. Durations longer than 200 years are shown as “shows no transition”. <br>
+        Indonesia parameters yield almost 0, and need to receice a minimum parameter value. 
+        Indonesia can thus be off in the tables.
+    </p>
     </div>
     <div class="container tablepad">
       <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
@@ -300,6 +362,13 @@ th.sortable.desc::after{content:" ↓"}
                 <option value="big_markets">Big Markets  (>1M) units/year)</option>
               </optgroup>
             </select>
+              <button id="buildCurve" class="btn primary">
+                Build curve
+              </button>
+              <label class="chip">
+                <input type="checkbox" id="toggleICE">
+                Show ICE &amp; PHEV
+              </label>
         </div>
         
         <div class="field">
@@ -311,24 +380,21 @@ th.sortable.desc::after{content:" ↓"}
             <option value="vans">Vans</option>
           </select>
         </div>
+        <div class="spacer"></div>
 
 
-        <div class="field">
-          <label>Build</label>
-          <button id="buildCurve" class="btn">Build curve</button>
-        </div>
-      </div>
-      <p class="small">
-        Internally uses <b>index time (years since baseline)</b> — Rounding Errors must be expected in this graph.
-        
-      </p>
-      <p class="small">
-      This Tab can stack Transition Curves for countries. You can choose pre set groups or select your own.
-      </p>      
-      <p class="small">
-        Transition Curves are weighed by market size of the country given in weights.csv, where the 1 year market sizes are approximately set. Market sizes do not fluctuate enough to require monthly updates of weights.csv
-      </p>
-      <div class="card" style="margin-top:12px">
+        <div class="toolbar"></div>
+        <p class="small">
+          This builder aggregates national BEV transition models into regional or global curves.
+          Multiple countries are stacked into a single trajectory. <br>
+          Aggregation is weighted by market size using <code>weights.csv</code>, ensuring that large markets
+          dominate the result while small markets contribute proportionally. <br>
+          The x-axis uses index time internally (see t0 parameter).
+          Minor rounding artefacts are expected due to time conversion and general limitation while rounding, since these calculations run client side on your device. <br>
+          The builder defaults to passenger cars (= Whole) and 4-Wheelers (= Whole, but for India) in case there are no parameters for a variant like HDV or Vans. <br>
+          If the variant exists (for example in Thresholds or Durations Tab), then the Builder will create the variant curve. <br>
+        </p>
+      <div class="card builder-card">
         <div id="builderPlot"></div>
       </div>
     </div>
@@ -336,6 +402,19 @@ th.sortable.desc::after{content:" ↓"}
   </section>
 
 <script>
+// ===== Color constants (single source of truth) =====
+const COLORS = {
+  BEV:  '#00ff15',
+  ICE:  '#692500',
+  PHEV: '#1fa6d0',
+
+  THRESHOLD_PAST_BG:  'rgba(60, 180, 120, 0.18)',
+  THRESHOLD_PAST_TXT: '#bff5d8',
+
+  THRESHOLD_LATE_BG:  'rgba(220, 80, 80, 0.18)',
+  THRESHOLD_LATE_TXT: '#ffb4b4'
+};
+
 // ===== Dev fallback so Canvas preview actually shows something =====
 const DEV_SAMPLE = true;
 const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`\
@@ -687,6 +766,13 @@ function bodyHTML(){
     return 1 - Math.exp(v1 * Math.pow(z, v2));
   }
 
+function iceShareIndex(x, v1, v2, t0){
+  if (x <= 0) return 1;
+  const z = x - t0;
+  if (z <= 0) return 1;
+  return Math.exp(v1 * Math.pow(z, v2));
+}
+
   // Convert numeric calendar year to YYYY-MM label (for tooltip only)
   function yearFracToLabel(y){
     const yr = Math.floor(y);
@@ -905,6 +991,7 @@ big_markets: rows => {
   }
 
   function build(){
+    const showICE = document.getElementById('toggleICE')?.checked;
     const sel = document.getElementById('builderCountries');
     const chosen = [...sel.selectedOptions].map(o=>o.value);
     if(!chosen.length) return;
@@ -934,9 +1021,7 @@ big_markets: rows => {
     if (isFinite(w)) total += w;
     return `${r.country}: ${fmtInt(w)}`;
   });
-
-
-
+    
   const WORLD_2024_REF = 87e6;
   // HDV selected?
   const hasHDV = vSels.includes('hdv');
@@ -969,15 +1054,30 @@ big_markets: rows => {
     // -------- PLOT (restored) --------
   const xs = [];
   const ys = [];
+  let sumICE = [];
+  let sumPHEV = [];
 
   for (let year = 2015; year <= 2050; year += 0.05) {
     let ySum = 0;
     let wSum = 0;
+    let iceSum = 0;
+    let iceWSum = 0;
+    let phevSum = 0;
+    let phevWSum = 0;
+
+
     rows.forEach(r => {
       const v1 = normNumber(r.v1);
       const v2 = normNumber(r.v2);
       const t0 = getT0Years(r);
       const by = baselineYearOf(r);
+      const ice_v1 = normNumber(r.ice_v1);
+      const ice_v2 = normNumber(r.ice_v2);
+      const ice_t0 = getT0Years({
+        ...r,
+        t0: r.ice_t0
+      });
+      const hasICE = isFinite(ice_v1) && isFinite(ice_v2) && isFinite(ice_t0);
       if (!isFinite(v1) || !isFinite(v2) || !isFinite(t0) || !isFinite(by)) return;
       // same weight logic as debug
       let w = NaN;
@@ -989,47 +1089,97 @@ big_markets: rows => {
         w = WEIGHTS[`${r.country}|whole`] ?? 1;
       }
       const x = year - by + 1;
-      const y = bevShareIndex(x, v1, v2, t0);
+      const y   = bevShareIndex(x, v1, v2, t0);
+
+      if (showICE && hasICE) {
+        const ice  = iceShareIndex(x, ice_v1, ice_v2, ice_t0);
+        const phev = Math.max(0, 1 - y - ice);
+
+        if (isFinite(w)) {
+          iceSum  += w * ice;
+          iceWSum += w;
+
+          phevSum  += w * phev;
+          phevWSum += w;
+        }
+      }
+
       if (isFinite(y) && isFinite(w)) {
         ySum += w * y;
         wSum += w;
       }
+
     });
     xs.push(year);
     ys.push(wSum > 0 ? 100 * ySum / wSum : 0);
+    if (showICE) {
+      sumICE.push(iceWSum > 0 ? 100 * iceSum / iceWSum : null );
+      sumPHEV.push(phevWSum > 0 ? 100 * phevSum / phevWSum : null );
+    }
+
   }
-  Plotly.newPlot(
-  'builderPlot',
-  [{
+
+  
+const traces = [{
+  x: xs,
+  y: ys,
+  mode: 'lines',
+  line: { width: 3, color: COLORS.BEV},
+  name: 'Aggregated BEV share',
+  customdata: xs.map(yearFracToLabel),
+  hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+}];
+
+if (showICE) {
+  traces.push({
     x: xs,
-    y: ys,
+    y: sumICE,
     mode: 'lines',
-    line: { width: 3 },
-    name: 'Aggregated BEV share',
+    line: { width: 2, dash: 'solid', color: COLORS.ICE},
+    name: 'Aggregated ICE share',
     customdata: xs.map(yearFracToLabel),
     hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
-  }],
-  {
-    height: 560,              // ← vorher implizit ~440
-    margin: { t: 30, r: 20, b: 70, l: 70 },  // etwas mehr Luft unten
-    yaxis: {
-      title: 'BEV share (%)',
-      range: [0, 100],
-      gridcolor: 'rgba(255,255,255,0.12)'
-    },
-    xaxis: {
-      title: 'Calendar time',
-      gridcolor: 'rgba(255,255,255,0.10)',
-      tickmode: 'linear',
-      tick0: 2016,
-      dtick: 2
-    },
-    paper_bgcolor: '#0f1525',
-    plot_bgcolor: '#0f1525',
-    font: { color: '#e9eef2' }
+  });
+
+  traces.push({
+    x: xs,
+    y: sumPHEV,
+    mode: 'lines',
+    line: { width: 2, dash: 'solid', color: COLORS.PHEV},
+    name: 'Aggregated PHEV share',
+    customdata: xs.map(yearFracToLabel),
+    hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+  });
+}
+
+
+const layout = {
+  margin: { t: 20, r: 20, b: 40, l: 50 },
+
+  xaxis: {
+    showgrid: true,
+    gridcolor: 'rgba(0,0,0,0.1)',   // vertikale Linien dunkler
+    gridwidth: 1,
+    zeroline: false
   },
-  { responsive: true }
-);
+
+  yaxis: {
+    title: 'Share (%)',
+    range: [0, 100],
+    dtick: 10,
+    showgrid: true,
+    gridcolor: 'rgba(0,0,0,0.10)',   // horizontale Linien sichtbar
+    gridwidth: 1,
+    zerolinecolor: 'rgba(0,0,0,0.1)',
+    zerolinewidth: 1
+  },
+
+  legend: { orientation: 'h' }
+};
+
+
+
+Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
 
 
 }
