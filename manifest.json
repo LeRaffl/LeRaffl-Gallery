@@ -82,6 +82,46 @@
       "country_slug": "chile"
     },
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2025-11",
+      "date": "2026-01-17",
+      "filename": "norway_ICE_BEV_20260117.png",
+      "url": "images/2025-11/norway_ICE_BEV_20260117.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2025-11",
+      "date": "2026-01-17",
+      "filename": "norway_20260117.png",
+      "url": "images/2025-11/norway_20260117.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2025-11",
+      "date": "2026-01-17",
+      "filename": "norway_time_20260117.png",
+      "url": "images/2025-11/norway_time_20260117.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2025-11",
+      "date": "2026-01-17",
+      "filename": "norway_ttm_shares_20260117.png",
+      "url": "images/2025-11/norway_ttm_shares_20260117.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-12",
