@@ -42,6 +42,46 @@
       "country_slug": "bulgaria"
     },
     {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-17",
+      "filename": "chile_ICE_BEV_20260117.png",
+      "url": "images/2025-12/chile_ICE_BEV_20260117.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-17",
+      "filename": "chile_20260117.png",
+      "url": "images/2025-12/chile_20260117.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-17",
+      "filename": "chile_time_20260117.png",
+      "url": "images/2025-12/chile_time_20260117.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-17",
+      "filename": "chile_ttm_shares_20260117.png",
+      "url": "images/2025-12/chile_ttm_shares_20260117.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2025-12",
