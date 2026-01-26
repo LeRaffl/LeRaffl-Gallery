@@ -82,6 +82,36 @@
       "country_slug": "bulgaria"
     },
     {
+      "country": "Croatia",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-26",
+      "filename": "croatia_ICE_BEV_20260126.png",
+      "url": "images/2025-12/croatia_ICE_BEV_20260126.png",
+      "alt": "Croatia ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-26",
+      "filename": "croatia_20260126.png",
+      "url": "images/2025-12/croatia_20260126.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-26",
+      "filename": "croatia_ttm_shares_20260126.png",
+      "url": "images/2025-12/croatia_ttm_shares_20260126.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
       "country": "France",
       "type": "ICE_BEV",
       "period": "2025-12",
