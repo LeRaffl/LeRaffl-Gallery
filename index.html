@@ -240,7 +240,7 @@ th.sortable.desc::after{content:" ↓"}
       <div class="lb">
         <div class="lbbox">
           <button class="btn x" onclick="lb.close()" aria-label="Close preview">✕</button>
-          <img alt=""/>
+          <img alt=""/> <!-- debugger says this line is missing required src attribute or sth? -->
         </div>
       </div>
     </dialog>
@@ -340,8 +340,9 @@ th.sortable.desc::after{content:" ↓"}
             <select id="builderGroups">
               <option value="">— select group —</option>
 
+              <option value="none">None</option>
               <option value="world">World</option>
-
+              
               <optgroup label="Europe">
                 <option value="western_europe">Western Europe</option>
                 <option value="northern_europe">Northern Europe</option>
@@ -868,6 +869,7 @@ const BIG_MARKET_LIMIT    = 1_000_000;
 const BUILDER_GROUPS = {
   world: rows =>
     [...new Set(rows.map(r => r.country).filter(Boolean))],
+  none: rows => [],
   // ---- EUROPE ----
   western_europe: rows => [
     'Austria','Belgium','France','Germany','Netherlands',
