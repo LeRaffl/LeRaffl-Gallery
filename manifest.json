@@ -202,6 +202,46 @@
       "country_slug": "greece"
     },
     {
+      "country": "Hungary",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "hungary_ICE_BEV_20260127.png",
+      "url": "images/2025-12/hungary_ICE_BEV_20260127.png",
+      "alt": "Hungary ICE-BEV-Hybrid trajectory",
+      "country_slug": "hungary"
+    },
+    {
+      "country": "Hungary",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "hungary_20260127.png",
+      "url": "images/2025-12/hungary_20260127.png",
+      "alt": "Hungary BEV trajectory",
+      "country_slug": "hungary"
+    },
+    {
+      "country": "Hungary",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "hungary_time_20260127.png",
+      "url": "images/2025-12/hungary_time_20260127.png",
+      "alt": "Hungary Transition time curve",
+      "country_slug": "hungary"
+    },
+    {
+      "country": "Hungary",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "hungary_ttm_shares_20260127.png",
+      "url": "images/2025-12/hungary_ttm_shares_20260127.png",
+      "alt": "Hungary TTM market split graph",
+      "country_slug": "hungary"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2025-12",
