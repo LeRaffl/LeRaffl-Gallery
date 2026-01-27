@@ -99,6 +99,9 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 /* Thresholds + Durations shared */
 .container{max-width:var(--thw);margin:14px auto;padding:0 10px}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+.spacer {
+  flex: 1 1 auto;
+}
 
   
 .field{display:flex;flex-direction:column;gap:6px}
@@ -114,6 +117,10 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
   color: #9fb3d1;
   margin-bottom: 6px;
 }
+.export-box {
+  margin-left: auto;
+}
+
 
 th.sortable{cursor:pointer;position:relative;user-select:none}
 th.sortable::after{content:" ↕";opacity:.6;font-size:.9em}
@@ -269,7 +276,7 @@ th.sortable.desc::after{content:" ↓"}
             <button id="copyCsv" class="btn">Copy CSV</button>
           </div>
         </div>
-
+      </div>
       <p class="small" style="max-width:740px">
         Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”.
         Exports reflect your current filter and custom setting.<br>
@@ -303,8 +310,7 @@ th.sortable.desc::after{content:" ↓"}
             <button id="exportDurCsvEU" class="btn">CSV (EU)</button>
             <button id="copyDurCsv" class="btn">Copy CSV</button>
           </div>
-        </div>
-        </div>
+      </div>
       </div>
       <p class="small" style="max-width:740px">
         This view shows the projected time to progress from one market share threshold to another. 
@@ -313,7 +319,6 @@ th.sortable.desc::after{content:" ↓"}
         Indonesia parameters yield almost 0, and need to receice a minimum parameter value. 
         Indonesia can thus be off in the tables.
     </p>
-    </div>
     <div class="container tablepad">
       <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
     </div>
@@ -321,7 +326,7 @@ th.sortable.desc::after{content:" ↓"}
 
 
   <!-- BUILDER TAB -->
-  <section id="tab-builder" class="tab">
+  <div id="tab-builder" class="tab">
     <div class="container">
       <h2 style="margin:6px 0 12px">Region / World Curve Builder</h2>
       <div class="toolbar">
@@ -399,7 +404,7 @@ th.sortable.desc::after{content:" ↓"}
       </div>
     </div>
     <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
-  </section>
+  </div>
 
 <script>
 // ===== Color constants (single source of truth) =====
