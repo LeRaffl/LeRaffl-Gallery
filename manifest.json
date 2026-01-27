@@ -13,11 +13,31 @@
     },
     {
       "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "cyprus_ICE_BEV_20260127.png",
+      "url": "images/2025-12/cyprus_ICE_BEV_20260127.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-27",
       "filename": "cyprus_20260127.png",
       "url": "images/2025-11/cyprus_20260127.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "cyprus_20260127.png",
+      "url": "images/2025-12/cyprus_20260127.png",
       "alt": "Cyprus BEV trajectory",
       "country_slug": "cyprus"
     },
@@ -33,6 +53,16 @@
     },
     {
       "country": "Cyprus",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "cyprus_time_20260127.png",
+      "url": "images/2025-12/cyprus_time_20260127.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-27",
@@ -40,6 +70,56 @@
       "url": "images/2025-11/cyprus_ttm_shares_20260127.png",
       "alt": "Cyprus TTM market split graph",
       "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "cyprus_ttm_shares_20260127.png",
+      "url": "images/2025-12/cyprus_ttm_shares_20260127.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "czechia_ICE_BEV_20260127.png",
+      "url": "images/2025-12/czechia_ICE_BEV_20260127.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "czechia_20260127.png",
+      "url": "images/2025-12/czechia_20260127.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "czechia_time_20260127.png",
+      "url": "images/2025-12/czechia_time_20260127.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-27",
+      "filename": "czechia_ttm_shares_20260127.png",
+      "url": "images/2025-12/czechia_ttm_shares_20260127.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
     },
     {
       "country": "Belgium",
