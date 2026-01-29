@@ -2,6 +2,46 @@
   "updated": "2026-01-29",
   "images": [
     {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-29",
+      "filename": "malaysia_ICE_BEV_20260129.png",
+      "url": "images/2025-12/malaysia_ICE_BEV_20260129.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-29",
+      "filename": "malaysia_20260129.png",
+      "url": "images/2025-12/malaysia_20260129.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-29",
+      "filename": "malaysia_time_20260129.png",
+      "url": "images/2025-12/malaysia_time_20260129.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-29",
+      "filename": "malaysia_ttm_shares_20260129.png",
+      "url": "images/2025-12/malaysia_ttm_shares_20260129.png",
+      "alt": "Malaysia TTM market split graph",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "Iceland",
       "type": "ICE_BEV",
       "period": "2025-11",
