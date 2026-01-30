@@ -2,6 +2,46 @@
   "updated": "2026-01-30",
   "images": [
     {
+      "country": "Thailand",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-30",
+      "filename": "thailand_ICE_BEV_20260130.png",
+      "url": "images/2025-12/thailand_ICE_BEV_20260130.png",
+      "alt": "Thailand ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-30",
+      "filename": "thailand_20260130.png",
+      "url": "images/2025-12/thailand_20260130.png",
+      "alt": "Thailand BEV trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-30",
+      "filename": "thailand_time_20260130.png",
+      "url": "images/2025-12/thailand_time_20260130.png",
+      "alt": "Thailand Transition time curve",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-30",
+      "filename": "thailand_ttm_shares_20260130.png",
+      "url": "images/2025-12/thailand_ttm_shares_20260130.png",
+      "alt": "Thailand TTM market split graph",
+      "country_slug": "thailand"
+    },
+    {
       "country": "Malaysia",
       "type": "ICE_BEV",
       "period": "2025-12",
