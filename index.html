@@ -1030,16 +1030,17 @@ big_markets: rows => {
   });
     
   const WORLD_2024_REF = 87e6;
+  const WORLD_2025_REF = 91.7e6;
   // HDV selected?
   const hasHDV = vSels.includes('hdv');
 
-  const coveragePct = (!hasHDV && WORLD_2024_REF > 0)
-    ? 100 * total / WORLD_2024_REF
+  const coveragePct = (!hasHDV && WORLD_2025_REF > 0)
+    ? 100 * total / WORLD_2025_REF
     : NaN;
 
   const coverageLine = (!hasHDV && isFinite(coveragePct))
     ? `<span style="opacity:0.75">
-         (worldwide ~${(WORLD_2024_REF / 1e6).toFixed(1)}M in 2024 –
+         (worldwide ~${(WORLD_2025_REF / 1e6).toFixed(1)}M in 2025 –
           model reflects ~${coveragePct.toFixed(1)}% of the market)
        </span>`
     : '';
