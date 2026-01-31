@@ -13,11 +13,31 @@
     },
     {
       "country": "Brazil",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "brazil_ICE_BEV_20260131.png",
+      "url": "images/2025-12/brazil_ICE_BEV_20260131.png",
+      "alt": "Brazil ICE-BEV-Hybrid trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-31",
       "filename": "brazil_20260131.png",
       "url": "images/2025-11/brazil_20260131.png",
+      "alt": "Brazil BEV trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "brazil_20260131.png",
+      "url": "images/2025-12/brazil_20260131.png",
       "alt": "Brazil BEV trajectory",
       "country_slug": "brazil"
     },
@@ -33,11 +53,31 @@
     },
     {
       "country": "Brazil",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "brazil_time_20260131.png",
+      "url": "images/2025-12/brazil_time_20260131.png",
+      "alt": "Brazil Transition time curve",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-31",
       "filename": "brazil_ttm_shares_20260131.png",
       "url": "images/2025-11/brazil_ttm_shares_20260131.png",
+      "alt": "Brazil TTM market split graph",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "brazil_ttm_shares_20260131.png",
+      "url": "images/2025-12/brazil_ttm_shares_20260131.png",
       "alt": "Brazil TTM market split graph",
       "country_slug": "brazil"
     },
