@@ -2,6 +2,46 @@
   "updated": "2026-01-31",
   "images": [
     {
+      "country": "Albania",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "albania_ICE_BEV_20260131.png",
+      "url": "images/2025-12/albania_ICE_BEV_20260131.png",
+      "alt": "Albania ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "albania_20260131.png",
+      "url": "images/2025-12/albania_20260131.png",
+      "alt": "Albania BEV trajectory",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "albania_time_20260131.png",
+      "url": "images/2025-12/albania_time_20260131.png",
+      "alt": "Albania Transition time curve",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "albania_ttm_shares_20260131.png",
+      "url": "images/2025-12/albania_ttm_shares_20260131.png",
+      "alt": "Albania TTM market split graph",
+      "country_slug": "albania"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2025-11",
