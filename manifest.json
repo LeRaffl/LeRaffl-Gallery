@@ -162,6 +162,86 @@
       "country_slug": "denmark"
     },
     {
+      "country": "Indonesia",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "indonesia_ICE_BEV_20260131.png",
+      "url": "images/2025-12/indonesia_ICE_BEV_20260131.png",
+      "alt": "Indonesia ICE-BEV-Hybrid trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "indonesia_20260131.png",
+      "url": "images/2025-12/indonesia_20260131.png",
+      "alt": "Indonesia BEV trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "indonesia_time_20260131.png",
+      "url": "images/2025-12/indonesia_time_20260131.png",
+      "alt": "Indonesia Transition time curve",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "indonesia_ttm_shares_20260131.png",
+      "url": "images/2025-12/indonesia_ttm_shares_20260131.png",
+      "alt": "Indonesia TTM market split graph",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Singapore",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "singapore_ICE_BEV_20260131.png",
+      "url": "images/2025-12/singapore_ICE_BEV_20260131.png",
+      "alt": "Singapore ICE-BEV-Hybrid trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "singapore_20260131.png",
+      "url": "images/2025-12/singapore_20260131.png",
+      "alt": "Singapore BEV trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "singapore_time_20260131.png",
+      "url": "images/2025-12/singapore_time_20260131.png",
+      "alt": "Singapore Transition time curve",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-01-31",
+      "filename": "singapore_ttm_shares_20260131.png",
+      "url": "images/2025-12/singapore_ttm_shares_20260131.png",
+      "alt": "Singapore TTM market split graph",
+      "country_slug": "singapore"
+    },
+    {
       "country": "Slovenia",
       "type": "ICE_BEV",
       "period": "2025-12",
