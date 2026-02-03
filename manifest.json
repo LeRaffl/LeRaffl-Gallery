@@ -1,5 +1,5 @@
 {
-  "updated": "2026-02-02",
+  "updated": "2026-02-03",
   "images": [
     {
       "country": "Albania",
@@ -14926,6 +14926,42 @@
       "url": "images/2025-11/world_interval_2026-01-01.png",
       "alt": "World (Interval 2026 01 01) BEV trajectory",
       "country_slug": "world_interval_2026-01-01"
+    },
+    {
+      "country": "World (Interval 2026 02 02 V20 Mobile)",
+      "type": "share",
+      "period": "2025-12",
+      "filename": "world_interval_2026-02-02_v20_mobile.png",
+      "url": "images/2025-12/world_interval_2026-02-02_v20_mobile.png",
+      "alt": "World (Interval 2026 02 02 V20 Mobile) BEV trajectory",
+      "country_slug": "world_interval_2026-02-02_v20_mobile"
+    },
+    {
+      "country": "World (Interval 2026 02 02 V20)",
+      "type": "share",
+      "period": "2025-12",
+      "filename": "world_interval_2026-02-02_v20.png",
+      "url": "images/2025-12/world_interval_2026-02-02_v20.png",
+      "alt": "World (Interval 2026 02 02 V20) BEV trajectory",
+      "country_slug": "world_interval_2026-02-02_v20"
+    },
+    {
+      "country": "World (Interval 2026 02 02 V80 Mobile)",
+      "type": "share",
+      "period": "2025-12",
+      "filename": "world_interval_2026-02-02_v80_mobile.png",
+      "url": "images/2025-12/world_interval_2026-02-02_v80_mobile.png",
+      "alt": "World (Interval 2026 02 02 V80 Mobile) BEV trajectory",
+      "country_slug": "world_interval_2026-02-02_v80_mobile"
+    },
+    {
+      "country": "World (Interval 2026 02 02 V80)",
+      "type": "share",
+      "period": "2025-12",
+      "filename": "world_interval_2026-02-02_v80.png",
+      "url": "images/2025-12/world_interval_2026-02-02_v80.png",
+      "alt": "World (Interval 2026 02 02 V80) BEV trajectory",
+      "country_slug": "world_interval_2026-02-02_v80"
     }
   ]
 }
