@@ -2,6 +2,46 @@
   "updated": "2026-02-04",
   "images": [
     {
+      "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-04",
+      "filename": "germany_ICE_BEV_20260204.png",
+      "url": "images/2026-01/germany_ICE_BEV_20260204.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-04",
+      "filename": "germany_20260204.png",
+      "url": "images/2026-01/germany_20260204.png",
+      "alt": "Germany BEV trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-04",
+      "filename": "germany_time_20260204.png",
+      "url": "images/2026-01/germany_time_20260204.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-04",
+      "filename": "germany_ttm_shares_20260204.png",
+      "url": "images/2026-01/germany_ttm_shares_20260204.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
       "country": "Ireland",
       "type": "ICE_BEV",
       "period": "2026-01",
