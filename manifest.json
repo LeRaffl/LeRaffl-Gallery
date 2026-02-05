@@ -2,6 +2,46 @@
   "updated": "2026-02-05",
   "images": [
     {
+      "country": "Uk",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-05",
+      "filename": "uk_ICE_BEV_20260205.png",
+      "url": "images/2026-01/uk_ICE_BEV_20260205.png",
+      "alt": "Uk ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-05",
+      "filename": "uk_20260205.png",
+      "url": "images/2026-01/uk_20260205.png",
+      "alt": "Uk BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-05",
+      "filename": "uk_time_20260205.png",
+      "url": "images/2026-01/uk_time_20260205.png",
+      "alt": "Uk Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-05",
+      "filename": "uk_ttm_shares_20260205.png",
+      "url": "images/2026-01/uk_ttm_shares_20260205.png",
+      "alt": "Uk TTM market split graph",
+      "country_slug": "uk"
+    },
+    {
       "country": "Germany",
       "type": "ICE_BEV",
       "period": "2026-01",
