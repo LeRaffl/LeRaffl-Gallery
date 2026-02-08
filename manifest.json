@@ -2,6 +2,86 @@
   "updated": "2026-02-08",
   "images": [
     {
+      "country": "Finland",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_ICE_BEV_20260208.png",
+      "url": "images/2026-01/finland_ICE_BEV_20260208.png",
+      "alt": "Finland ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_20260208.png",
+      "url": "images/2026-01/finland_20260208.png",
+      "alt": "Finland BEV trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_time_20260208.png",
+      "url": "images/2026-01/finland_time_20260208.png",
+      "alt": "Finland Transition time curve",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_ttm_shares_20260208.png",
+      "url": "images/2026-01/finland_ttm_shares_20260208.png",
+      "alt": "Finland TTM market split graph",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Sweden",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "sweden_ICE_BEV_20260208.png",
+      "url": "images/2026-01/sweden_ICE_BEV_20260208.png",
+      "alt": "Sweden ICE-BEV-Hybrid trajectory",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "sweden_20260208.png",
+      "url": "images/2026-01/sweden_20260208.png",
+      "alt": "Sweden BEV trajectory",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "sweden_time_20260208.png",
+      "url": "images/2026-01/sweden_time_20260208.png",
+      "alt": "Sweden Transition time curve",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "sweden_ttm_shares_20260208.png",
+      "url": "images/2026-01/sweden_ttm_shares_20260208.png",
+      "alt": "Sweden TTM market split graph",
+      "country_slug": "sweden"
+    },
+    {
       "country": "Japan",
       "type": "ICE_BEV",
       "period": "2025-12",
