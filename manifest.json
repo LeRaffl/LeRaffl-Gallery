@@ -82,6 +82,46 @@
       "country_slug": "finland_industry"
     },
     {
+      "country": "Finland (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_private_ICE_BEV_20260208.png",
+      "url": "images/2026-01/finland_private_ICE_BEV_20260208.png",
+      "alt": "Finland (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_private_20260208.png",
+      "url": "images/2026-01/finland_private_20260208.png",
+      "alt": "Finland (Private) BEV trajectory",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_private_time_20260208.png",
+      "url": "images/2026-01/finland_private_time_20260208.png",
+      "alt": "Finland (Private) Transition time curve",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "finland_private_ttm_shares_20260208.png",
+      "url": "images/2026-01/finland_private_ttm_shares_20260208.png",
+      "alt": "Finland (Private) TTM market split graph",
+      "country_slug": "finland_private"
+    },
+    {
       "country": "Sweden",
       "type": "ICE_BEV",
       "period": "2026-01",
