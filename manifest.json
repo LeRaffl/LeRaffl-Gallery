@@ -5,6 +5,126 @@
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "finland_ICE_BEV_20260209.png",
+      "url": "images/2026-01/finland_ICE_BEV_20260209.png",
+      "alt": "Finland ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "finland_20260209.png",
+      "url": "images/2026-01/finland_20260209.png",
+      "alt": "Finland BEV trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "finland_time_20260209.png",
+      "url": "images/2026-01/finland_time_20260209.png",
+      "alt": "Finland Transition time curve",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "finland_ttm_shares_20260209.png",
+      "url": "images/2026-01/finland_ttm_shares_20260209.png",
+      "alt": "Finland TTM market split graph",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Newzealand",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "newzealand_ICE_BEV_20260209.png",
+      "url": "images/2026-01/newzealand_ICE_BEV_20260209.png",
+      "alt": "Newzealand ICE-BEV-Hybrid trajectory",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "newzealand_20260209.png",
+      "url": "images/2026-01/newzealand_20260209.png",
+      "alt": "Newzealand BEV trajectory",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "newzealand_time_20260209.png",
+      "url": "images/2026-01/newzealand_time_20260209.png",
+      "alt": "Newzealand Transition time curve",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-09",
+      "filename": "newzealand_ttm_shares_20260209.png",
+      "url": "images/2026-01/newzealand_ttm_shares_20260209.png",
+      "alt": "Newzealand TTM market split graph",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Brazil",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "brazil_ICE_BEV_20260208.png",
+      "url": "images/2026-01/brazil_ICE_BEV_20260208.png",
+      "alt": "Brazil ICE-BEV-Hybrid trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "brazil_20260208.png",
+      "url": "images/2026-01/brazil_20260208.png",
+      "alt": "Brazil BEV trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "brazil_time_20260208.png",
+      "url": "images/2026-01/brazil_time_20260208.png",
+      "alt": "Brazil Transition time curve",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-08",
+      "filename": "brazil_ttm_shares_20260208.png",
+      "url": "images/2026-01/brazil_ttm_shares_20260208.png",
+      "alt": "Brazil TTM market split graph",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Finland",
+      "type": "ICE_BEV",
+      "period": "2026-01",
       "date": "2026-02-08",
       "filename": "finland_ICE_BEV_20260208.png",
       "url": "images/2026-01/finland_ICE_BEV_20260208.png",
