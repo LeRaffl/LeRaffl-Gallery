@@ -2,6 +2,206 @@
   "updated": "2026-02-14",
   "images": [
     {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-14",
+      "filename": "china_ICE_BEV_20260214.png",
+      "url": "images/2026-01/china_ICE_BEV_20260214.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-14",
+      "filename": "china_20260214.png",
+      "url": "images/2026-01/china_20260214.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-14",
+      "filename": "china_time_20260214.png",
+      "url": "images/2026-01/china_time_20260214.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-14",
+      "filename": "china_ttm_shares_20260214.png",
+      "url": "images/2026-01/china_ttm_shares_20260214.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-13",
+      "filename": "china_ICE_BEV_20260213.png",
+      "url": "images/2026-01/china_ICE_BEV_20260213.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-13",
+      "filename": "china_20260213.png",
+      "url": "images/2026-01/china_20260213.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-13",
+      "filename": "china_time_20260213.png",
+      "url": "images/2026-01/china_time_20260213.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-13",
+      "filename": "china_ttm_shares_20260213.png",
+      "url": "images/2026-01/china_ttm_shares_20260213.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-12",
+      "filename": "chile_ICE_BEV_20260212.png",
+      "url": "images/2026-01/chile_ICE_BEV_20260212.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-12",
+      "filename": "chile_20260212.png",
+      "url": "images/2026-01/chile_20260212.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-12",
+      "filename": "chile_time_20260212.png",
+      "url": "images/2026-01/chile_time_20260212.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-12",
+      "filename": "chile_ttm_shares_20260212.png",
+      "url": "images/2026-01/chile_ttm_shares_20260212.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-02-11",
+      "filename": "malaysia_ICE_BEV_20260211.png",
+      "url": "images/2025-12/malaysia_ICE_BEV_20260211.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-02-11",
+      "filename": "malaysia_20260211.png",
+      "url": "images/2025-12/malaysia_20260211.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-02-11",
+      "filename": "malaysia_time_20260211.png",
+      "url": "images/2025-12/malaysia_time_20260211.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-02-11",
+      "filename": "malaysia_ttm_shares_20260211.png",
+      "url": "images/2025-12/malaysia_ttm_shares_20260211.png",
+      "alt": "Malaysia TTM market split graph",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-02-10",
+      "filename": "austria_ICE_BEV_20260210.png",
+      "url": "images/2026-01/austria_ICE_BEV_20260210.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-02-10",
+      "filename": "austria_20260210.png",
+      "url": "images/2026-01/austria_20260210.png",
+      "alt": "Austria BEV trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-02-10",
+      "filename": "austria_time_20260210.png",
+      "url": "images/2026-01/austria_time_20260210.png",
+      "alt": "Austria Transition time curve",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-02-10",
+      "filename": "austria_ttm_shares_20260210.png",
+      "url": "images/2026-01/austria_ttm_shares_20260210.png",
+      "alt": "Austria TTM market split graph",
+      "country_slug": "austria"
+    },
+    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-01",
