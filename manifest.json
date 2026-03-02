@@ -2,6 +2,46 @@
   "updated": "2026-03-02",
   "images": [
     {
+      "country": "Portugal",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-02",
+      "filename": "portugal_ICE_BEV_20260302.png",
+      "url": "images/2026-02/portugal_ICE_BEV_20260302.png",
+      "alt": "Portugal ICE-BEV-Hybrid trajectory",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-02",
+      "filename": "portugal_20260302.png",
+      "url": "images/2026-02/portugal_20260302.png",
+      "alt": "Portugal BEV trajectory",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-02",
+      "filename": "portugal_time_20260302.png",
+      "url": "images/2026-02/portugal_time_20260302.png",
+      "alt": "Portugal Transition time curve",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-02",
+      "filename": "portugal_ttm_shares_20260302.png",
+      "url": "images/2026-02/portugal_ttm_shares_20260302.png",
+      "alt": "Portugal TTM market split graph",
+      "country_slug": "portugal"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2025-12",
