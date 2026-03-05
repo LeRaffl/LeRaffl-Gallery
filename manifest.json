@@ -2,6 +2,116 @@
   "updated": "2026-03-05",
   "images": [
     {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-05",
+      "filename": "japan_ICE_BEV_20260305.png",
+      "url": "images/2026-02/japan_ICE_BEV_20260305.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-05",
+      "filename": "japan_20260305.png",
+      "url": "images/2026-02/japan_20260305.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-05",
+      "filename": "japan_ttm_shares_20260305.png",
+      "url": "images/2026-02/japan_ttm_shares_20260305.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-04",
+      "filename": "germany_ICE_BEV_20260304.png",
+      "url": "images/2026-02/germany_ICE_BEV_20260304.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-04",
+      "filename": "germany_20260304.png",
+      "url": "images/2026-02/germany_20260304.png",
+      "alt": "Germany BEV trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-04",
+      "filename": "germany_time_20260304.png",
+      "url": "images/2026-02/germany_time_20260304.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-04",
+      "filename": "germany_ttm_shares_20260304.png",
+      "url": "images/2026-02/germany_ttm_shares_20260304.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-03",
+      "filename": "italy_ICE_BEV_20260303.png",
+      "url": "images/2026-02/italy_ICE_BEV_20260303.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-03",
+      "filename": "italy_20260303.png",
+      "url": "images/2026-02/italy_20260303.png",
+      "alt": "Italy BEV trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-03",
+      "filename": "italy_time_20260303.png",
+      "url": "images/2026-02/italy_time_20260303.png",
+      "alt": "Italy Transition time curve",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-03",
+      "filename": "italy_ttm_shares_20260303.png",
+      "url": "images/2026-02/italy_ttm_shares_20260303.png",
+      "alt": "Italy TTM market split graph",
+      "country_slug": "italy"
+    },
+    {
       "country": "Portugal",
       "type": "ICE_BEV",
       "period": "2026-02",
