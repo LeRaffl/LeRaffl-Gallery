@@ -1,0 +1,15 @@
+country, fuel, hazard, source, comment
+NL, BEV,  0.025, observed, "Derived from RDW uitstroom + imports"
+NL, PHEV, 0.065, observed, "Higher churn due to company cars"
+NL, HEV, 0.115, assumed, "set as the same as ICE"
+NL, REST, 0.115, observed, "Includes export + scrap"
+
+EU, BEV, 0.025, borrowed_NL, "Assumed similar attrition"
+EU, PHEV, 0.065, borrowed_NL, "Assumed similar attrition"
+EU, HEV, 0.115, borrowed_NL, "Assumed similar attrition"
+EU, REST, 0.115, borrowed_NL, "Assumed similar attrition"
+
+WORLD, BEV, 0.020, assumed, "Lower export pressure"
+WORLD, PHEV, 0.060, assumed, "Mixed markets"
+WORLD, HEV, 0.060, assumed, "Mixed markets"
+WORLD, REST, 0.100, assumed, "Conservative"

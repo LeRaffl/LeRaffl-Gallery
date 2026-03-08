@@ -1,0 +1,14 @@
+{
+  "fleet_model": {
+    "description": "Stock-flow fleet model using observed or assumed net attrition (hazard rates).",
+    "notes": [
+      "Hazard represents net exit from national fleet (export + scrap + deregistration).",
+      "Imports are added explicitly when data is available.",
+      "For countries without observed hazards, NL-based or assumed hazards are used."
+    ]
+  }
+}
+{
+  "countries": ["Germany", "Netherlands", "Austria"],
+  "categories": ["BEV", "PHEV", "REST"]
+}
