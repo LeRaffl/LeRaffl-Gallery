@@ -42,6 +42,46 @@
       "country_slug": "australia"
     },
     {
+      "country": "Newzealand",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-09",
+      "filename": "newzealand_ICE_BEV_20260309.png",
+      "url": "images/2026-02/newzealand_ICE_BEV_20260309.png",
+      "alt": "Newzealand ICE-BEV-Hybrid trajectory",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-09",
+      "filename": "newzealand_20260309.png",
+      "url": "images/2026-02/newzealand_20260309.png",
+      "alt": "Newzealand BEV trajectory",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-09",
+      "filename": "newzealand_time_20260309.png",
+      "url": "images/2026-02/newzealand_time_20260309.png",
+      "alt": "Newzealand Transition time curve",
+      "country_slug": "newzealand"
+    },
+    {
+      "country": "Newzealand",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-09",
+      "filename": "newzealand_ttm_shares_20260309.png",
+      "url": "images/2026-02/newzealand_ttm_shares_20260309.png",
+      "alt": "Newzealand TTM market split graph",
+      "country_slug": "newzealand"
+    },
+    {
       "country": "Japan",
       "type": "ICE_BEV",
       "period": "2026-02",
