@@ -2296,11 +2296,24 @@ function buildFleetPlot() {
       });
     }
   });
+  
+  const selectedCountries =
+  [...document.getElementById("fleetCountries").selectedOptions]
+  .map(o => o.value);
 
+  const countryLabel =
+    selectedCountries.length <= 8
+      ? selectedCountries.join(", ")
+      : selectedCountries.slice(0, 8).join(", ") + " +" + (selectedCountries.length - 8);
+  
   const layout = {
-    hovermode: "closest",
+    hovermode: "x", //closest = show one bar value  and x or x unified = show all bars of the year
     barmode: "stack",
-    margin: { t: 30, r: 20, l: 100, b: 80 },
+    margin: { t: 30, r: 20, l: 100, b: 110 },
+    title: {
+      text: "Fleet",
+      x: 0
+    },
     yaxis: {
       title: mode === 'absolute' ? "Vehicles" : "Share (%)",
       range: mode === 'absolute' ? [0, null] : [0, 100],
@@ -2335,14 +2348,26 @@ function buildFleetPlot() {
       yref: 'paper',
       line: { color: 'rgba(255,255,255,0.5)', width: 2, dash: 'dot' }
     }] : [],
-    annotations: projectedSeries.length ? [{
-      x: lastObservedYear + 0.5,
-      y: 1.04,
-      yref: 'paper',
-      text: 'projection starts',
-      showarrow: false,
-      font: { size: 12, color: '#cfd8e3' }
-    }] : [],
+    annotations: [
+      ...(projectedSeries.length ? [{
+        x: lastObservedYear + 0.5,
+        y: 1.04,
+        yref: 'paper',
+        text: 'projection starts',
+        showarrow: false,
+        font: { size: 12, color: '#cfd8e3' }
+      }] : []),
+      {
+        x: 0.5,
+        y: -0.24,
+        xref: 'paper',
+        yref: 'paper',
+        text: 'Countries: ' + countryLabel,
+        showarrow: false,
+        align: 'center',
+        font: { size: 12, color: '#9fb3d1' }
+      }
+    ],
     plot_bgcolor: '#0f1525',
     paper_bgcolor: '#0b0c10',
     font: { color: '#e9eef2' }
