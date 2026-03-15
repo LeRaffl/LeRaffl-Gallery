@@ -211,11 +211,47 @@ th.sortable.desc::after{content:" ↓"}
   cursor: help;
   vertical-align: middle;
 }
-.info-tip:hover {
-  color: #ffffff;
-  border-color: #7ea6ff;
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 6px;
+  border: 1px solid #4a5a7a;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #9fb3d1;
+  background: #101a33;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+}
+
+.info-bubble {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  padding: 10px 12px;
+  border: 1px solid #4a5a7a;
+  border-radius: 10px;
   background: #162445;
-} 
+  color: #e9eef2;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  z-index: 9999;
+  display: none;
+}
+
+.info-bubble.show {
+  display: block;
+}
 </style>
   
   
@@ -716,7 +752,7 @@ th.sortable.desc::after{content:" ↓"}
   <div class="field" style="min-width:180px;">
     <label>
       Projection
-      <span class="info-tip" title="Turns future fleet projection on or off. If disabled, only observed historical fleet data is shown.">i</span>
+      <span class="info-tip" data-tip="Turns future fleet projection on or off. If disabled, only observed historical fleet data is shown.">i</span>    
     </label>
     <label class="chip">
       <input type="checkbox" id="fleetEnableProjection" checked>
@@ -725,89 +761,161 @@ th.sortable.desc::after{content:" ↓"}
   </div>
 
   <div class="field" style="min-width:120px;">
-    <label for="fleetProjectionEndYear">
-      Project until
-      <span class="info-tip" title="Last year shown in the fleet projection. Projection starts after the last common observed year across the selected countries.">i</span>
-    </label>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="fleetProjectionEndYear">Project until</label>
+      <span class="info-tip" data-tip="Last year shown in the fleet projection. Projection starts after the last common observed year across the selected countries.">i</span>
+    </div>
     <input id="fleetProjectionEndYear" type="number" min="2025" max="2100" step="1" value="2035">
   </div>
 
   <div class="field" style="min-width:140px;">
-    <label for="fleetInflowMultiplier">
-      Inflow multiplier
-      <span class="info-tip" title="Scales the annual inflow used in the projection. 1 means baseline inflow, 0.8 means 20% lower inflow, 1.2 means 20% higher inflow. Baseline inflow is the weight used in the Builder Tab and equals the trailing 12 months overall new registrations number of vehicles.">i</span>
-    </label>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="fleetInflowMultiplier">Inflow multiplier</label>
+      <span class="info-tip" data-tip="Scales the annual inflow used in the projection. 1 means baseline inflow, 0.8 means 20% lower inflow, 1.2 means 20% higher inflow. Baseline inflow is the weight used in the Builder Tab and equals the trailing 12 months overall new registrations number of vehicles.">i</span>
+    </div>
     <input id="fleetInflowMultiplier" type="number" min="0" max="5" step="0.05" value="1">
   </div>
 
   <div class="field" style="min-width:140px;">
-    <label for="fleetNetImportsPerYear">
-      Net imports / year
-      <span class="info-tip" title="Net number of vehicles added to or removed from the fleet each year outside regular inflow. Positive values increase fleet size, negative values reduce it.">i</span>
-    </label>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="fleetNetImportsPerYear">Net imports / year</label>
+      <span class="info-tip"
+        data-tip="Net number of vehicles added to or removed from the fleet each year outside regular inflow. Positive values increase fleet size, negative values reduce it.">
+        i
+      </span>
+    </div>
     <input id="fleetNetImportsPerYear" type="number" step="1" value="0">
   </div>
 
   <div class="field" style="min-width:160px;">
-    <label for="fleetBevImportShare">
-      BEV share of net imports (0 to 1)
-      <span class="info-tip" title="Share of net imports assigned to BEVs. Example: 0.4 means 40% of the value in Net imports / year are added to BEV and 60% to OTHERS. If net imports are negative, 40% are removed from BEV and 60% from OTHERS.">i</span>
-    </label>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="fleetBevImportShare">BEV share of net imports (0 to 1)</label>
+      <span class="info-tip"
+        data-tip="Share of net imports assigned to BEVs. Example: 0.4 means 40% of the value in Net imports / year are added to BEV and 60% to OTHERS. If net imports are negative, 40% are removed from BEV and 60% from OTHERS.">
+        i
+      </span>
+    </div>
     <input id="fleetBevImportShare" type="number" min="0" max="1" step="0.001" value="1">
   </div>
     
 </div>
 
   <div style="height:12px;"></div>
-
-<div class="small" style="margin-bottom:8px;">
-  Annual hazard / attrition by category
-  <span class="info-tip" title="Annual share of vehicles leaving the fleet in each category. Example: 0.04 means about 4% of that category disappears each year due to scrappage, accidents, or other deregistrations. You can think of the hazard rate as the probability that a car leaves the fleet in the upcoming year.">i</span>
+<div class="small" style="margin-bottom:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+  <span>Annual hazard / attrition by category</span>
+  <span class="info-tip"
+        data-tip="Annual share of vehicles leaving the fleet in each category. Example: 0.04 means about 4% of that category disappears each year due to scrappage, accidents, or other deregistrations. You can think of the hazard rate as the probability that a car leaves the fleet in the upcoming year.">
+    i
+  </span>
 </div>
-  <div id="fleetHazardGrid" style="
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap:10px;
-  ">
-    <div class="field"> <label> BEV <span class="info-tip" title="Annual attrition applied to the BEV fleet. Example: 0.02 means 2% of BEVs leave the fleet each year.">i</span> </label>  
-      <input id="hazBEV" type="number" min="0" max="0.5" step="0.001" value="0.035"></div>
-    <div class="field"> <label> PHEV <span class="info-tip" title="Annual attrition applied to the PHEV fleet. Example: 0.02 means 2% of PHEVs leave the fleet each year.">i</span> </label>  
-      <input id="hazPHEV" type="number" min="0" max="0.5" step="0.001" value="0.040"></div>
-    <div class="field"> <label> HEV <span class="info-tip" title="Annual attrition applied to the HEV fleet. Example: 0.02 means 2% of HEVs leave the fleet each year.">i</span> </label>  
-      <input id="hazHEV" type="number" min="0" max="0.5" step="0.001" value="0.042"></div>
-    <div class="field"> <label> HYBRID <span class="info-tip" title="Annual attrition applied to the HYBRID fleet. Example: 0.02 means 2% of HYBRIDs leave the fleet each year.">i</span> </label>  
-      <input id="hazHYBRID" type="number" min="0" max="0.5" step="0.001" value="0.041"></div>
-    <div class="field"> <label> PETROL <span class="info-tip" title="Annual attrition applied to the PETROL fleet. Example: 0.02 means 2% of PETROL leave the fleet each year.">i</span> </label>  
-      <input id="hazPETROL" type="number" min="0" max="0.5" step="0.001" value="0.050"></div>
-    <div class="field"> <label> DIESEL <span class="info-tip" title="Annual attrition applied to the DIESEL fleet. Example: 0.02 means 2% of DIESEL leave the fleet each year.">i</span> </label>  
-      <input id="hazDIESEL" type="number" min="0" max="0.5" step="0.001" value="0.055"></div>    
-    <div class="field"> <label> OTHERS <span class="info-tip" title="Annual attrition applied to the OTHERS fleet. Example: 0.02 means 2% of OTHERS leave the fleet each year.">i</span> </label>  
-      <input id="hazOTHERS" type="number" min="0" max="0.5" step="0.001" value="0.06"></div>
+
+<div id="fleetHazardGrid" style="
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap:10px;
+">
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazBEV">BEV</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the BEV fleet. Example: 0.02 means 2% of BEVs leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazBEV" type="number" min="0" max="0.5" step="0.001" value="0.035">
   </div>
 
-  <div class="small" style="margin-top:10px;">
-    Future years are projected from the last common observed year. Historical bars remain solid, projected bars are hatched.
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazPHEV">PHEV</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the PHEV fleet. Example: 0.02 means 2% of PHEVs leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazPHEV" type="number" min="0" max="0.5" step="0.001" value="0.040">
+  </div>
+
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazHEV">HEV</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the HEV fleet. Example: 0.02 means 2% of HEVs leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazHEV" type="number" min="0" max="0.5" step="0.001" value="0.042">
+  </div>
+
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazHYBRID">HYBRID</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the HYBRID fleet. Example: 0.02 means 2% of HYBRIDs leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazHYBRID" type="number" min="0" max="0.5" step="0.001" value="0.041">
+  </div>
+
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazPETROL">PETROL</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the PETROL fleet. Example: 0.02 means 2% of PETROL vehicles leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazPETROL" type="number" min="0" max="0.5" step="0.001" value="0.050">
+  </div>
+
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazDIESEL">DIESEL</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the DIESEL fleet. Example: 0.02 means 2% of DIESEL vehicles leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazDIESEL" type="number" min="0" max="0.5" step="0.001" value="0.055">
+  </div>
+
+  <div class="field">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <label for="hazOTHERS">OTHERS</label>
+      <span class="info-tip"
+            data-tip="Annual attrition applied to the OTHERS fleet. Example: 0.02 means 2% of OTHERS leave the fleet each year.">
+        i
+      </span>
+    </div>
+    <input id="hazOTHERS" type="number" min="0" max="0.5" step="0.001" value="0.06">
   </div>
 </div>
-    <div class="card">
-      <div id="fleetPlot" style="height:520px;"></div>
-    </div>
-  </div>
-  
-      <div id="fleetDebugBox" style="
-      background: #332200;
-      color: #ffdd88;
-      padding: 16px;
-      border-radius: 10px;
-      margin: 16px 0 24px;
-      font-family: monospace;
-      white-space: pre-wrap;
-      border: 2px dashed #664400;
-      min-height: 120px;
-    ">
-    Fleet-Debug (Loading-Status):
-    → waiting for Tab-Activation ...
-    </div>
+
+<div class="small" style="margin-top:10px;">
+  Future years are projected from the last common observed year. Historical bars remain solid, projected bars are hatched.
+</div>
+</div>
+
+<div class="card">
+  <div id="fleetPlot" style="height:520px;"></div>
+</div>
+</div>
+
+<div id="fleetDebugBox" style="
+  background: #332200;
+  color: #ffdd88;
+  padding: 16px;
+  border-radius: 10px;
+  margin: 16px 0 24px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  border: 2px dashed #664400;
+  min-height: 120px;
+">
+  Fleet-Debug (Loading-Status):
+  → waiting for Tab-Activation ...
+</div>
   
 </section>
     
@@ -2456,6 +2564,32 @@ if (faqSearch) {
     });
   });
 }
+document.addEventListener('click', (e) => {
+  const clickedTip = e.target.closest('.info-tip');
+  document.querySelectorAll('.info-bubble').forEach(b => {
+    if (!clickedTip || b.parentElement !== clickedTip) {
+      b.remove();
+    }
+  });
+  if (!clickedTip) return;
+  const text = clickedTip.dataset.tip;
+  if (!text) return;
+  let bubble = clickedTip.querySelector('.info-bubble');
+  if (bubble) {
+    bubble.remove();
+    return;
+  }
+  bubble = document.createElement('div');
+  bubble.className = 'info-bubble show';
+  bubble.textContent = text;
+  clickedTip.appendChild(bubble);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.info-bubble').forEach(b => b.remove());
+  }
+});
 </script>
 </body>
 </html>
