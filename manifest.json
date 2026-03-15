@@ -122,6 +122,46 @@
       "country_slug": "denmark_industry"
     },
     {
+      "country": "Denmark (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-15",
+      "filename": "denmark_private_ICE_BEV_20260315.png",
+      "url": "images/2026-02/denmark_private_ICE_BEV_20260315.png",
+      "alt": "Denmark (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-15",
+      "filename": "denmark_private_20260315.png",
+      "url": "images/2026-02/denmark_private_20260315.png",
+      "alt": "Denmark (Private) BEV trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-15",
+      "filename": "denmark_private_time_20260315.png",
+      "url": "images/2026-02/denmark_private_time_20260315.png",
+      "alt": "Denmark (Private) Transition time curve",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-15",
+      "filename": "denmark_private_ttm_shares_20260315.png",
+      "url": "images/2026-02/denmark_private_ttm_shares_20260315.png",
+      "alt": "Denmark (Private) TTM market split graph",
+      "country_slug": "denmark_private"
+    },
+    {
       "country": "Usa",
       "type": "ICE_BEV",
       "period": "2026-02",
