@@ -2,6 +2,46 @@
   "updated": "2026-03-19",
   "images": [
     {
+      "country": "Türkiye",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-19",
+      "filename": "tuerkiye_ICE_BEV_20260319.png",
+      "url": "images/2026-02/tuerkiye_ICE_BEV_20260319.png",
+      "alt": "Türkiye ICE-BEV-Hybrid trajectory",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-19",
+      "filename": "tuerkiye_20260319.png",
+      "url": "images/2026-02/tuerkiye_20260319.png",
+      "alt": "Türkiye BEV trajectory",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-19",
+      "filename": "tuerkiye_time_20260319.png",
+      "url": "images/2026-02/tuerkiye_time_20260319.png",
+      "alt": "Türkiye Transition time curve",
+      "country_slug": "tuerkiye"
+    },
+    {
+      "country": "Türkiye",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-19",
+      "filename": "tuerkiye_ttm_shares_20260319.png",
+      "url": "images/2026-02/tuerkiye_ttm_shares_20260319.png",
+      "alt": "Türkiye TTM market split graph",
+      "country_slug": "tuerkiye"
+    },
+    {
       "country": "Denmark",
       "type": "ICE_BEV",
       "period": "2025-12",
