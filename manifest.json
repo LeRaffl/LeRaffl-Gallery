@@ -2,6 +2,86 @@
   "updated": "2026-03-20",
   "images": [
     {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-20",
+      "filename": "china_ICE_BEV_20260320.png",
+      "url": "images/2026-01/china_ICE_BEV_20260320.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-20",
+      "filename": "china_ICE_BEV_20260320.png",
+      "url": "images/2026-02/china_ICE_BEV_20260320.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-20",
+      "filename": "china_20260320.png",
+      "url": "images/2026-01/china_20260320.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-20",
+      "filename": "china_20260320.png",
+      "url": "images/2026-02/china_20260320.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-20",
+      "filename": "china_time_20260320.png",
+      "url": "images/2026-01/china_time_20260320.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-20",
+      "filename": "china_time_20260320.png",
+      "url": "images/2026-02/china_time_20260320.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-20",
+      "filename": "china_ttm_shares_20260320.png",
+      "url": "images/2026-01/china_ttm_shares_20260320.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-20",
+      "filename": "china_ttm_shares_20260320.png",
+      "url": "images/2026-02/china_ttm_shares_20260320.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
       "country": "Türkiye",
       "type": "ICE_BEV",
       "period": "2026-02",
