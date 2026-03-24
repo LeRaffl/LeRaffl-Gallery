@@ -2,6 +2,196 @@
   "updated": "2026-03-24",
   "images": [
     {
+      "country": "Bulgaria",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "bulgaria_ICE_BEV_20260324.png",
+      "url": "images/2026-01/bulgaria_ICE_BEV_20260324.png",
+      "alt": "Bulgaria ICE-BEV-Hybrid trajectory",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "bulgaria_20260324.png",
+      "url": "images/2026-01/bulgaria_20260324.png",
+      "alt": "Bulgaria BEV trajectory",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "bulgaria_time_20260324.png",
+      "url": "images/2026-01/bulgaria_time_20260324.png",
+      "alt": "Bulgaria Transition time curve",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "bulgaria_ttm_shares_20260324.png",
+      "url": "images/2026-01/bulgaria_ttm_shares_20260324.png",
+      "alt": "Bulgaria TTM market split graph",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Croatia",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "croatia_ICE_BEV_20260324.png",
+      "url": "images/2026-01/croatia_ICE_BEV_20260324.png",
+      "alt": "Croatia ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "croatia_20260324.png",
+      "url": "images/2026-01/croatia_20260324.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "croatia_ttm_shares_20260324.png",
+      "url": "images/2026-01/croatia_ttm_shares_20260324.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "France",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "france_ICE_BEV_20260324.png",
+      "url": "images/2026-01/france_ICE_BEV_20260324.png",
+      "alt": "France ICE-BEV-Hybrid trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "france_20260324.png",
+      "url": "images/2026-01/france_20260324.png",
+      "alt": "France BEV trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "france_time_20260324.png",
+      "url": "images/2026-01/france_time_20260324.png",
+      "alt": "France Transition time curve",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "france_ttm_shares_20260324.png",
+      "url": "images/2026-01/france_ttm_shares_20260324.png",
+      "alt": "France TTM market split graph",
+      "country_slug": "france"
+    },
+    {
+      "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "romania_ICE_BEV_20260324.png",
+      "url": "images/2026-01/romania_ICE_BEV_20260324.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "romania_ICE_BEV_20260324.png",
+      "url": "images/2026-02/romania_ICE_BEV_20260324.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "romania_20260324.png",
+      "url": "images/2026-01/romania_20260324.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "romania_20260324.png",
+      "url": "images/2026-02/romania_20260324.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "romania_time_20260324.png",
+      "url": "images/2026-01/romania_time_20260324.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "romania_time_20260324.png",
+      "url": "images/2026-02/romania_time_20260324.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-24",
+      "filename": "romania_ttm_shares_20260324.png",
+      "url": "images/2026-01/romania_ttm_shares_20260324.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "romania_ttm_shares_20260324.png",
+      "url": "images/2026-02/romania_ttm_shares_20260324.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2026-02",
