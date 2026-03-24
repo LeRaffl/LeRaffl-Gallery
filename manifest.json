@@ -53,11 +53,31 @@
     },
     {
       "country": "Bulgaria",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "bulgaria_ICE_BEV_20260324.png",
+      "url": "images/2026-02/bulgaria_ICE_BEV_20260324.png",
+      "alt": "Bulgaria ICE-BEV-Hybrid trajectory",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
       "type": "share",
       "period": "2026-01",
       "date": "2026-03-24",
       "filename": "bulgaria_20260324.png",
       "url": "images/2026-01/bulgaria_20260324.png",
+      "alt": "Bulgaria BEV trajectory",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "bulgaria_20260324.png",
+      "url": "images/2026-02/bulgaria_20260324.png",
       "alt": "Bulgaria BEV trajectory",
       "country_slug": "bulgaria"
     },
@@ -73,11 +93,31 @@
     },
     {
       "country": "Bulgaria",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "bulgaria_time_20260324.png",
+      "url": "images/2026-02/bulgaria_time_20260324.png",
+      "alt": "Bulgaria Transition time curve",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
       "type": "ttm_shares",
       "period": "2026-01",
       "date": "2026-03-24",
       "filename": "bulgaria_ttm_shares_20260324.png",
       "url": "images/2026-01/bulgaria_ttm_shares_20260324.png",
+      "alt": "Bulgaria TTM market split graph",
+      "country_slug": "bulgaria"
+    },
+    {
+      "country": "Bulgaria",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "bulgaria_ttm_shares_20260324.png",
+      "url": "images/2026-02/bulgaria_ttm_shares_20260324.png",
       "alt": "Bulgaria TTM market split graph",
       "country_slug": "bulgaria"
     },
