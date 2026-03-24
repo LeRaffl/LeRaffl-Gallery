@@ -2,6 +2,46 @@
   "updated": "2026-03-24",
   "images": [
     {
+      "country": "Belgium",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "belgium_ICE_BEV_20260324.png",
+      "url": "images/2026-02/belgium_ICE_BEV_20260324.png",
+      "alt": "Belgium ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "belgium_20260324.png",
+      "url": "images/2026-02/belgium_20260324.png",
+      "alt": "Belgium BEV trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "belgium_time_20260324.png",
+      "url": "images/2026-02/belgium_time_20260324.png",
+      "alt": "Belgium Transition time curve",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "belgium_ttm_shares_20260324.png",
+      "url": "images/2026-02/belgium_ttm_shares_20260324.png",
+      "alt": "Belgium TTM market split graph",
+      "country_slug": "belgium"
+    },
+    {
       "country": "Bulgaria",
       "type": "ICE_BEV",
       "period": "2026-01",
