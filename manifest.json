@@ -133,11 +133,31 @@
     },
     {
       "country": "Croatia",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "croatia_ICE_BEV_20260324.png",
+      "url": "images/2026-02/croatia_ICE_BEV_20260324.png",
+      "alt": "Croatia ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
       "type": "share",
       "period": "2026-01",
       "date": "2026-03-24",
       "filename": "croatia_20260324.png",
       "url": "images/2026-01/croatia_20260324.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "croatia_20260324.png",
+      "url": "images/2026-02/croatia_20260324.png",
       "alt": "Croatia BEV trajectory",
       "country_slug": "croatia"
     },
@@ -150,6 +170,96 @@
       "url": "images/2026-01/croatia_ttm_shares_20260324.png",
       "alt": "Croatia TTM market split graph",
       "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "croatia_ttm_shares_20260324.png",
+      "url": "images/2026-02/croatia_ttm_shares_20260324.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "cyprus_ICE_BEV_20260324.png",
+      "url": "images/2026-02/cyprus_ICE_BEV_20260324.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "cyprus_20260324.png",
+      "url": "images/2026-02/cyprus_20260324.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "cyprus_time_20260324.png",
+      "url": "images/2026-02/cyprus_time_20260324.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "cyprus_ttm_shares_20260324.png",
+      "url": "images/2026-02/cyprus_ttm_shares_20260324.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "czechia_ICE_BEV_20260324.png",
+      "url": "images/2026-02/czechia_ICE_BEV_20260324.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "czechia_20260324.png",
+      "url": "images/2026-02/czechia_20260324.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "czechia_time_20260324.png",
+      "url": "images/2026-02/czechia_time_20260324.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-24",
+      "filename": "czechia_ttm_shares_20260324.png",
+      "url": "images/2026-02/czechia_ttm_shares_20260324.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
     },
     {
       "country": "France",
