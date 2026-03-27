@@ -322,6 +322,126 @@
       "country_slug": "netherlands"
     },
     {
+      "country": "Netherlands (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "netherlands_hdv_ICE_BEV_20260327.png",
+      "url": "images/2026-02/netherlands_hdv_ICE_BEV_20260327.png",
+      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "netherlands_hdv_20260327.png",
+      "url": "images/2026-02/netherlands_hdv_20260327.png",
+      "alt": "Netherlands (Hdv) BEV trajectory",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "netherlands_hdv_time_20260327.png",
+      "url": "images/2026-02/netherlands_hdv_time_20260327.png",
+      "alt": "Netherlands (Hdv) Transition time curve",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Netherlands (Hdv)",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "netherlands_hdv_ttm_shares_20260327.png",
+      "url": "images/2026-02/netherlands_hdv_ttm_shares_20260327.png",
+      "alt": "Netherlands (Hdv) TTM market split graph",
+      "country_slug": "netherlands_hdv"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "poland_ICE_BEV_20260327.png",
+      "url": "images/2026-01/poland_ICE_BEV_20260327.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "poland_ICE_BEV_20260327.png",
+      "url": "images/2026-02/poland_ICE_BEV_20260327.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "poland_20260327.png",
+      "url": "images/2026-01/poland_20260327.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "poland_20260327.png",
+      "url": "images/2026-02/poland_20260327.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "poland_time_20260327.png",
+      "url": "images/2026-01/poland_time_20260327.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "poland_time_20260327.png",
+      "url": "images/2026-02/poland_time_20260327.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "poland_ttm_shares_20260327.png",
+      "url": "images/2026-01/poland_ttm_shares_20260327.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "poland_ttm_shares_20260327.png",
+      "url": "images/2026-02/poland_ttm_shares_20260327.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
       "country": "Thailand",
       "type": "ICE_BEV",
       "period": "2026-02",
@@ -360,6 +480,46 @@
       "url": "images/2026-02/thailand_ttm_shares_20260327.png",
       "alt": "Thailand TTM market split graph",
       "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_hdv_ICE_BEV_20260327.png",
+      "url": "images/2026-02/thailand_hdv_ICE_BEV_20260327.png",
+      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_hdv_20260327.png",
+      "url": "images/2026-02/thailand_hdv_20260327.png",
+      "alt": "Thailand (Hdv) BEV trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_hdv_time_20260327.png",
+      "url": "images/2026-02/thailand_hdv_time_20260327.png",
+      "alt": "Thailand (Hdv) Transition time curve",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (Hdv)",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_hdv_ttm_shares_20260327.png",
+      "url": "images/2026-02/thailand_hdv_ttm_shares_20260327.png",
+      "alt": "Thailand (Hdv) TTM market split graph",
+      "country_slug": "thailand_hdv"
     },
     {
       "country": "Estonia",
