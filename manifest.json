@@ -2,6 +2,46 @@
   "updated": "2026-03-27",
   "images": [
     {
+      "country": "Thailand",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_ICE_BEV_20260327.png",
+      "url": "images/2026-02/thailand_ICE_BEV_20260327.png",
+      "alt": "Thailand ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_20260327.png",
+      "url": "images/2026-02/thailand_20260327.png",
+      "alt": "Thailand BEV trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_time_20260327.png",
+      "url": "images/2026-02/thailand_time_20260327.png",
+      "alt": "Thailand Transition time curve",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "thailand_ttm_shares_20260327.png",
+      "url": "images/2026-02/thailand_ttm_shares_20260327.png",
+      "alt": "Thailand TTM market split graph",
+      "country_slug": "thailand"
+    },
+    {
       "country": "Estonia",
       "type": "ICE_BEV",
       "period": "2026-02",
@@ -40,6 +80,46 @@
       "url": "images/2026-02/estonia_ttm_shares_20260325.png",
       "alt": "Estonia TTM market split graph",
       "country_slug": "estonia"
+    },
+    {
+      "country": "France",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-25",
+      "filename": "france_ICE_BEV_20260325.png",
+      "url": "images/2026-02/france_ICE_BEV_20260325.png",
+      "alt": "France ICE-BEV-Hybrid trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-25",
+      "filename": "france_20260325.png",
+      "url": "images/2026-02/france_20260325.png",
+      "alt": "France BEV trajectory",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-25",
+      "filename": "france_time_20260325.png",
+      "url": "images/2026-02/france_time_20260325.png",
+      "alt": "France Transition time curve",
+      "country_slug": "france"
+    },
+    {
+      "country": "France",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-25",
+      "filename": "france_ttm_shares_20260325.png",
+      "url": "images/2026-02/france_ttm_shares_20260325.png",
+      "alt": "France TTM market split graph",
+      "country_slug": "france"
     },
     {
       "country": "Belgium",
