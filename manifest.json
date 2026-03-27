@@ -82,6 +82,126 @@
       "country_slug": "hungary"
     },
     {
+      "country": "Iceland",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "iceland_ICE_BEV_20260327.png",
+      "url": "images/2026-01/iceland_ICE_BEV_20260327.png",
+      "alt": "Iceland ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "iceland_ICE_BEV_20260327.png",
+      "url": "images/2026-02/iceland_ICE_BEV_20260327.png",
+      "alt": "Iceland ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "iceland_20260327.png",
+      "url": "images/2026-01/iceland_20260327.png",
+      "alt": "Iceland BEV trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "iceland_20260327.png",
+      "url": "images/2026-02/iceland_20260327.png",
+      "alt": "Iceland BEV trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "iceland_time_20260327.png",
+      "url": "images/2026-01/iceland_time_20260327.png",
+      "alt": "Iceland Transition time curve",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "iceland_time_20260327.png",
+      "url": "images/2026-02/iceland_time_20260327.png",
+      "alt": "Iceland Transition time curve",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "iceland_ttm_shares_20260327.png",
+      "url": "images/2026-01/iceland_ttm_shares_20260327.png",
+      "alt": "Iceland TTM market split graph",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-27",
+      "filename": "iceland_ttm_shares_20260327.png",
+      "url": "images/2026-02/iceland_ttm_shares_20260327.png",
+      "alt": "Iceland TTM market split graph",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "latvia_ICE_BEV_20260327.png",
+      "url": "images/2026-01/latvia_ICE_BEV_20260327.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "latvia_20260327.png",
+      "url": "images/2026-01/latvia_20260327.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "latvia_time_20260327.png",
+      "url": "images/2026-01/latvia_time_20260327.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-27",
+      "filename": "latvia_ttm_shares_20260327.png",
+      "url": "images/2026-01/latvia_ttm_shares_20260327.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
+    },
+    {
       "country": "Thailand",
       "type": "ICE_BEV",
       "period": "2026-02",
