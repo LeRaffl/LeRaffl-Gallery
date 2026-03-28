@@ -2,6 +2,246 @@
   "updated": "2026-03-28",
   "images": [
     {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2026-01",
+      "date": "2026-03-28",
+      "filename": "chile_ICE_BEV_20260328.png",
+      "url": "images/2026-01/chile_ICE_BEV_20260328.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "chile_ICE_BEV_20260328.png",
+      "url": "images/2026-02/chile_ICE_BEV_20260328.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2026-01",
+      "date": "2026-03-28",
+      "filename": "chile_20260328.png",
+      "url": "images/2026-01/chile_20260328.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "chile_20260328.png",
+      "url": "images/2026-02/chile_20260328.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2026-01",
+      "date": "2026-03-28",
+      "filename": "chile_time_20260328.png",
+      "url": "images/2026-01/chile_time_20260328.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "chile_time_20260328.png",
+      "url": "images/2026-02/chile_time_20260328.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2026-01",
+      "date": "2026-03-28",
+      "filename": "chile_ttm_shares_20260328.png",
+      "url": "images/2026-01/chile_ttm_shares_20260328.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "chile_ttm_shares_20260328.png",
+      "url": "images/2026-02/chile_ttm_shares_20260328.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Ireland",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "ireland_ICE_BEV_20260328.png",
+      "url": "images/2026-02/ireland_ICE_BEV_20260328.png",
+      "alt": "Ireland ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "ireland_20260328.png",
+      "url": "images/2026-02/ireland_20260328.png",
+      "alt": "Ireland BEV trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "ireland_time_20260328.png",
+      "url": "images/2026-02/ireland_time_20260328.png",
+      "alt": "Ireland Transition time curve",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "ireland_ttm_shares_20260328.png",
+      "url": "images/2026-02/ireland_ttm_shares_20260328.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Lithuania",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "lithuania_ICE_BEV_20260328.png",
+      "url": "images/2026-02/lithuania_ICE_BEV_20260328.png",
+      "alt": "Lithuania ICE-BEV-Hybrid trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "lithuania_20260328.png",
+      "url": "images/2026-02/lithuania_20260328.png",
+      "alt": "Lithuania BEV trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "lithuania_time_20260328.png",
+      "url": "images/2026-02/lithuania_time_20260328.png",
+      "alt": "Lithuania Transition time curve",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "lithuania_ttm_shares_20260328.png",
+      "url": "images/2026-02/lithuania_ttm_shares_20260328.png",
+      "alt": "Lithuania TTM market split graph",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "luxembourg_ICE_BEV_20260328.png",
+      "url": "images/2026-02/luxembourg_ICE_BEV_20260328.png",
+      "alt": "Luxembourg ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "luxembourg_20260328.png",
+      "url": "images/2026-02/luxembourg_20260328.png",
+      "alt": "Luxembourg BEV trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "luxembourg_time_20260328.png",
+      "url": "images/2026-02/luxembourg_time_20260328.png",
+      "alt": "Luxembourg Transition time curve",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "luxembourg_ttm_shares_20260328.png",
+      "url": "images/2026-02/luxembourg_ttm_shares_20260328.png",
+      "alt": "Luxembourg TTM market split graph",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovakia_ICE_BEV_20260328.png",
+      "url": "images/2026-02/slovakia_ICE_BEV_20260328.png",
+      "alt": "Slovakia ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovakia_20260328.png",
+      "url": "images/2026-02/slovakia_20260328.png",
+      "alt": "Slovakia BEV trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovakia_time_20260328.png",
+      "url": "images/2026-02/slovakia_time_20260328.png",
+      "alt": "Slovakia Transition time curve",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovakia_ttm_shares_20260328.png",
+      "url": "images/2026-02/slovakia_ttm_shares_20260328.png",
+      "alt": "Slovakia TTM market split graph",
+      "country_slug": "slovakia"
+    },
+    {
       "country": "Greece",
       "type": "ICE_BEV",
       "period": "2026-02",
