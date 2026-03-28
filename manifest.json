@@ -202,6 +202,46 @@
       "country_slug": "luxembourg"
     },
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "norway_ICE_BEV_20260328.png",
+      "url": "images/2026-02/norway_ICE_BEV_20260328.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "norway_20260328.png",
+      "url": "images/2026-02/norway_20260328.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "norway_time_20260328.png",
+      "url": "images/2026-02/norway_time_20260328.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "norway_ttm_shares_20260328.png",
+      "url": "images/2026-02/norway_ttm_shares_20260328.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Slovakia",
       "type": "ICE_BEV",
       "period": "2026-02",
@@ -240,6 +280,46 @@
       "url": "images/2026-02/slovakia_ttm_shares_20260328.png",
       "alt": "Slovakia TTM market split graph",
       "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovenia",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovenia_ICE_BEV_20260328.png",
+      "url": "images/2026-02/slovenia_ICE_BEV_20260328.png",
+      "alt": "Slovenia ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovenia"
+    },
+    {
+      "country": "Slovenia",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovenia_20260328.png",
+      "url": "images/2026-02/slovenia_20260328.png",
+      "alt": "Slovenia BEV trajectory",
+      "country_slug": "slovenia"
+    },
+    {
+      "country": "Slovenia",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovenia_time_20260328.png",
+      "url": "images/2026-02/slovenia_time_20260328.png",
+      "alt": "Slovenia Transition time curve",
+      "country_slug": "slovenia"
+    },
+    {
+      "country": "Slovenia",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "slovenia_ttm_shares_20260328.png",
+      "url": "images/2026-02/slovenia_ttm_shares_20260328.png",
+      "alt": "Slovenia TTM market split graph",
+      "country_slug": "slovenia"
     },
     {
       "country": "Spain",
