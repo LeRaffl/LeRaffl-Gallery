@@ -242,6 +242,46 @@
       "country_slug": "slovakia"
     },
     {
+      "country": "Switzerland",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "switzerland_ICE_BEV_20260328.png",
+      "url": "images/2026-02/switzerland_ICE_BEV_20260328.png",
+      "alt": "Switzerland ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "switzerland_20260328.png",
+      "url": "images/2026-02/switzerland_20260328.png",
+      "alt": "Switzerland BEV trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "switzerland_time_20260328.png",
+      "url": "images/2026-02/switzerland_time_20260328.png",
+      "alt": "Switzerland Transition time curve",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "switzerland_ttm_shares_20260328.png",
+      "url": "images/2026-02/switzerland_ttm_shares_20260328.png",
+      "alt": "Switzerland TTM market split graph",
+      "country_slug": "switzerland"
+    },
+    {
       "country": "Greece",
       "type": "ICE_BEV",
       "period": "2026-02",
