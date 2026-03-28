@@ -242,6 +242,46 @@
       "country_slug": "slovakia"
     },
     {
+      "country": "Sweden",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "sweden_ICE_BEV_20260328.png",
+      "url": "images/2026-02/sweden_ICE_BEV_20260328.png",
+      "alt": "Sweden ICE-BEV-Hybrid trajectory",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "sweden_20260328.png",
+      "url": "images/2026-02/sweden_20260328.png",
+      "alt": "Sweden BEV trajectory",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "sweden_time_20260328.png",
+      "url": "images/2026-02/sweden_time_20260328.png",
+      "alt": "Sweden Transition time curve",
+      "country_slug": "sweden"
+    },
+    {
+      "country": "Sweden",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "sweden_ttm_shares_20260328.png",
+      "url": "images/2026-02/sweden_ttm_shares_20260328.png",
+      "alt": "Sweden TTM market split graph",
+      "country_slug": "sweden"
+    },
+    {
       "country": "Switzerland",
       "type": "ICE_BEV",
       "period": "2026-02",
