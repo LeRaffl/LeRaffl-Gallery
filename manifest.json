@@ -282,6 +282,46 @@
       "country_slug": "switzerland"
     },
     {
+      "country": "Uk",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "uk_ICE_BEV_20260328.png",
+      "url": "images/2026-02/uk_ICE_BEV_20260328.png",
+      "alt": "Uk ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "uk_20260328.png",
+      "url": "images/2026-02/uk_20260328.png",
+      "alt": "Uk BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "uk_time_20260328.png",
+      "url": "images/2026-02/uk_time_20260328.png",
+      "alt": "Uk Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Uk",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-03-28",
+      "filename": "uk_ttm_shares_20260328.png",
+      "url": "images/2026-02/uk_ttm_shares_20260328.png",
+      "alt": "Uk TTM market split graph",
+      "country_slug": "uk"
+    },
+    {
       "country": "Greece",
       "type": "ICE_BEV",
       "period": "2026-02",
