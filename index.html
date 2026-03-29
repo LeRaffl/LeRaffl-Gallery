@@ -252,9 +252,46 @@ th.sortable.desc::after{content:" ↓"}
 .info-bubble.show {
   display: block;
 }
+
+.faq-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-right: 8px;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+/* Kategorien */
+.faq-model {
+  background: rgba(120, 160, 255, 0.15);
+  color: #9fb3ff;
+  border: 1px solid rgba(120, 160, 255, 0.3);
+}
+
+.faq-data {
+  background: rgba(80, 200, 120, 0.15);
+  color: #7fe0b0;
+  border: 1px solid rgba(80, 200, 120, 0.3);
+}
+
+.faq-basics {
+  background: rgba(255, 200, 80, 0.15);
+  color: #ffd27f;
+  border: 1px solid rgba(255, 200, 80, 0.3);
+} 
+  
+.faq-general {
+  background: #0f1525;
+  color: #e9eef2;
+  border: 1px solid #1f2a44;
+} 
+  
+  
 </style>
   
-  
+
   
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -282,189 +319,519 @@ th.sortable.desc::after{content:" ↓"}
     <!--- for search -->
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
     
-    <!-- GENERAL -->
-    <div class="card">
-      <h3 style="margin-top:0;">What does this website show?</h3>
-      <p class="small">
-        This site visualizes how passenger vehicle markets transition from internal combustion engines (ICE)
-        to battery electric vehicles (BEV) using historical registration data and fitted transition models.
-      </p>
-    </div>
+<!-- GENERAL -->
+<!-- GENERAL (BASICS) -->
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Is this a prediction?</h3>
-      <p class="small">
-        No. The curves are analytical approximations based on historical data. They illustrate transition dynamics,
-        not precise forecasts of future market shares. Think of the output as `If things continued developing as they have, how would the future look like?`. These extrapolations naturally change as new data comes in, thus regular updates are needed.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What does this project do?
+  </h3>
+  <p class="small">
+    It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.
+  </p>
+</div>
 
-    <!-- DATA -->
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Where does the data come from?</h3>
-      <p class="small">
-        Data comes from multiple sources, the biggest being ACEA. Where possible I refer to the actual underlying ministry or national statistical agencies.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What exactly is being modeled?
+  </h3>
+  <p class="small">
+    The BEV share of new vehicle registrations over time.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why do some countries show BEV / PHEV / HEV separately while others only show HYBRID?</h3>
-      <p class="small">
-        Statistical agencies publish different category structures. Some split hybrids into
-        plug-in hybrids (PHEV) and conventional hybrids (HEV), while others publish only a combined hybrid category. Some label numbers as "Hybrid" when they are specifically PHEV, some throw mild hybrids (MHEV) into HEV, some throw them into their respective ICE categroy, some do that with all hybrids, some split the ICE category into Petrol/Diesel/FCEV (=hydrogen), and others make up their own categories. 
-        <br>Defining categories in a harmonized way is a tricky business. Generally I have made the experience that BEV/PHEV/ICE works best if I want to compare countries.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Is this a forecast?
+  </h3>
+  <p class="small">
+    No. It is a best-fit description of the transition as of today, conditional on currently observed data.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why can shares differ slightly from official statistics?</h3>
-      <p class="small">
-        Shares are sometimes recalculated from category totals to ensure internal consistency
-        across the dataset. Also it is not uncommon for agencies to update not only the most recent month, but the month before that too. Throw in small differences in which type of vehicle is counted (passenger cars, busses, vans, trucks, only private, ambulances or taxis and the like) and coupled with the non-harmonized fuel type categories it is easy to get differences. As a default, I refer to passenger vehicles.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What does the curve mean in plain English?
+  </h3>
+  <p class="small">
+    It shows what the transition looks like if the structure visible in the data continues.
+  </p>
+</div>
 
-    <!-- MODEL -->
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">What model is used for the transition curves?</h3>
-      <p class="small">
-        The curves are based on a Weibull-type transition model fitted to the BEV and ICE share trajectories. It is a weighted model using market sizes as weights.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why do curves change over time?
+  </h3>
+  <p class="small">
+    Because the model is refit when new data arrives, so parameters and derived dates update.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why do modeled values differ from historical data points?</h3>
-      <p class="small">
-        The model represents a smoothed transition trajectory and does not reproduce every
-        monthly fluctuation in the raw data. The intent is to model the structure of the transition rather than try to predict singular points in time.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why are some countries ahead?
+  </h3>
+  <p class="small">
+    Because adoption drivers differ by taxes, incentives, charging, vehicle supply, income, fleet structure and policy.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Does the model assume BEV reaches 100%?</h3>
-      <p class="small">
-        Yes. The model represents a long-term transition from ICE vehicles to BEV. As such this is the key assumption. However, this assumptions is not baseless, but rather is motivated by nordic countries where we can see this happen already. The assumption can also be checked, since if it truly does not hold, models will fail in such a way, that models throw errors. Two countries have yielded such errors in the past: Japan and Croatia. This is expected, as they have never had relevant BEV shares. No country that has had relevant BEV share at some point in the past crashed the assumption though.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why are some countries slower?
+  </h3>
+  <p class="small">
+    Because the observed data shows a slower transition shape or later acceleration.
+  </p>
+</div>
 
-    <!-- TRANSITION QUESTIONS -->
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why does electrification sometimes appear slow?</h3>
-      <p class="small">
-        Fleet turnover is slow. Even when BEV sales grow rapidly, replacing the entire
-        vehicle fleet takes many years. That is because cars on the street don't just vanish just because the influx to the fleet is now electric. Cars have a lifespan of roundabout 10-15 years (depending on brand, drivetrain, country and other variables) and the substitution of the fleet is accordingly slow.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does this matter?
+  </h3>
+  <p class="small">
+    It makes different national transitions comparable with one consistent framework.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why do some countries electrify faster than others?</h3>
-      <p class="small">
-        Adoption speed depends on vehicle supply, charging infrastructure,
-        electricity prices, income levels, prices for electricity and fossil fuels, taxation, how BEV are portrayed in the news and dozens of other variables. Surprisingly, I have not yet found a singular predictor that I can point to and say "this is what drives electrification most". The only thing I am confident influences BEV transition without a doubt is the existence of purchase incentives by the government.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What is BEV share?
+  </h3>
+  <p class="small">
+    The percentage of newly registered vehicles that are battery-electric vehicles.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why does adoption accelerate after a certain point?</h3>
-      <p class="small">
-        Technology adoption often follows an S-curve where growth accelerates
-        after early market barriers are overcome. This is not a "wall" to be passed. You will rarely be able to point to a specific date and say "this is where it started". Rather it is a gradual development. The models are supposed to visualize this development.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What is being compared across countries?
+  </h3>
+  <p class="small">
+    Transition shape, timing, duration, thresholds and speed.
+  </p>
+</div>
 
-    <!-- FLEET -->
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">How are fleet projections calculated?</h3>
-      <p class="small">
-        Fleet projections combine the last observed fleet composition with modeled
-        inflow of new vehicles and category-specific attrition rates.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why not just show raw monthly data?
+  </h3>
+  <p class="small">
+    Because raw monthly data is noisy and hard to compare across markets.
+  </p>
+</div>
 
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">How are fleet projections calculated in detail?</h3>
-      <p class="small">
-        The model projects the fleet forward year by year using three components: 
-        (1) the existing fleet from the previous year, 
-        (2) category-specific retirement ("hazard") rates, and 
-        (3) the annual inflow of newly registered vehicles.
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why is the project public?
+  </h3>
+  <p class="small">
+    To make transition dynamics transparent and accessible.
+  </p>
+</div>
 
-      <p class="small">
-        Example starting fleet (2025):
-        <br>BEV: 945,182
-        <br>PHEV: 208,467
-        <br>HEV: 162,422
-        <br>DIESEL: 942,780
-        <br>PETROL: 676,614
-        <br>OTHERS: 270
-      </p>
 
-      <p class="small">
-        Example hazard (retirement) rates:
-        <br>BEV: 0.010
-        <br>PHEV: 0.020
-        <br>HEV: 0.030
-        <br>HYBRID: 0.030
-        <br>DIESEL: 0.065
-        <br>PETROL: 0.055
-        <br>OTHERS: 0.050
-      </p>
+<!-- DATA -->
+<!-- DATA -->
 
-      <p class="small">
-        Assume:
-        <br>Annual new car sales (inflow): 150,000
-        <br>Inflow multiplier: 1
-        <br>Net imports: 0
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Where does the data come from?
+  </h3>
+  <p class="small">
+    Data comes from multiple sources, with ACEA being the largest. Where possible, original national statistical agencies or ministries are used.
+  </p>
+</div>
 
-      <p class="small">
-        Step 1 – Apply hazard rates (vehicles leaving the fleet).
-        <br>Each category loses a fraction of its vehicles according to its hazard rate.
-        <br>Example for BEV:
-        <br>
-        2026 BEV survivors = 945,182 × (1 − 0.010)
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    How often is the data updated?
+  </h3>
+  <p class="small">
+    The dataset is updated whenever new official registration data becomes available and the models are re-run.
+  </p>
+</div>
 
-      <p class="small">
-        Step 2 – Add new vehicle inflow.
-        <br>The annual inflow (150,000 vehicles in this example) is distributed using the 
-        modeled BEV share for the middle of the projection year (year + 0.5).
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Are all countries based on monthly data?
+  </h3>
+  <p class="small">
+    No. Some countries provide monthly data, others only quarterly or yearly data depending on the source.
+  </p>
+</div>
 
-      <p class="small">
-        Example BEV calculation:
-        <br>
-        2026 BEV fleet = 945,182 × (1 − 0.010) + 150,000 × BEV_share(2026.5)
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What is TTM?
+  </h3>
+  <p class="small">
+    TTM stands for trailing twelve months. It represents a rolling 12-month view of market shares.
+  </p>
+</div>
 
-      <p class="small">
-        Step 3 – Assign the remaining inflow.
-        <br>The portion of new vehicles that are not BEV is assigned as follows:
-        <br>• If the dataset contains a PHEV category → inflow goes to PHEV
-        <br>• Otherwise, if it contains HYBRID → inflow goes to HYBRID
-        <br>• If neither exists → inflow is placed in OTHERS
-      </p>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why use TTM instead of monthly values?
+  </h3>
+  <p class="small">
+    TTM smooths seasonal effects and short-term volatility, making underlying trends easier to interpret.
+  </p>
+</div>
 
-      <p class="small">
-        The process then repeats for every following year, using the newly calculated fleet 
-        as the starting point for the next projection step.
-      </p>
-    </div>
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why do some countries show BEV / PHEV / HEV separately while others only show HYBRID?
+  </h3>
+  <p class="small">
+    Statistical agencies publish different category structures. Some split hybrids into plug-in hybrids (PHEV) and conventional hybrids (HEV), while others only provide a combined hybrid category. Definitions also vary widely (e.g. treatment of mild hybrids or fuel splits).
+    <br>
+    Harmonizing categories across countries is inherently imperfect. In practice, BEV / PHEV / ICE tends to provide the most consistent cross-country comparison.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are country categories inconsistent?
+  </h3>
+  <p class="small">
+    Different statistical agencies use different definitions and reporting standards for drivetrain categories, which leads to inconsistencies across countries.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are some data sources better than others?
+  </h3>
+  <p class="small">
+    Some sources provide cleaner splits between BEV, PHEV and ICE and offer more frequent updates, making them more suitable for modeling.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What happens if a country only reports BEV, Hybrid and ICE?
+  </h3>
+  <p class="small">
+    The model adapts to the available categories, but interpretation must take into account that hybrids are not split into PHEV and HEV.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why can shares differ slightly from official statistics?
+  </h3>
+  <p class="small">
+    Shares are sometimes recalculated from category totals to ensure internal consistency. In addition, agencies may revise past months, use different vehicle scopes (e.g. passenger cars vs. total vehicles), and apply non-harmonized fuel categories.
+    <br>
+    By default, this site focuses on passenger vehicles.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What does “Updated to” mean?
+  </h3>
+  <p class="small">
+    It indicates the latest time period for which data is included in the model for a given country.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What is the base data used for modeling?
+  </h3>
+  <p class="small">
+    Absolute registration numbers are used as the base and then converted into shares for modeling.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are absolute numbers still important?
+  </h3>
+  <p class="small">
+    They are used as weights in the model to reduce distortions from unusually small or volatile months.
+  </p>
+</div>
+
+<!-- MODEL -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What function is used?
+  </h3>
+  <p class="small">
+    A Weibull-style cumulative transition function is used to model BEV adoption over time.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the mathematical form of the model?
+  </h3>
+  <p class="small">
+    The core function is f(x) = 1 - exp(v1 · x^v2), combined with a time shift parameter to align the curve with calendar time.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why use a Weibull-type model?
+  </h3>
+  <p class="small">
+    It allows flexible, asymmetric S-curves and makes it obvious when the data does not support a meaningful transition.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why not use a normal distribution?
+  </h3>
+  <p class="small">
+    A normal distribution is symmetric, while real-world adoption processes are typically asymmetric.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why not use a linear model?
+  </h3>
+  <p class="small">
+    Technology transitions are nonlinear and bounded, making linear models unsuitable.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why assume an S-curve?
+  </h3>
+  <p class="small">
+    Most technology transitions start slowly, accelerate, and then saturate, which is well captured by S-shaped curves.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Is the model monotonic?
+  </h3>
+  <p class="small">
+    Yes. The model enforces a monotonic transition from low to high BEV share.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the lower bound of the model?
+  </h3>
+  <p class="small">
+    Conceptually 0% BEV share at the start of the transition.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the upper bound of the model?
+  </h3>
+  <p class="small">
+    Conceptually 100% BEV share in the long run.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why enforce 0% and 100% bounds?
+  </h3>
+  <p class="small">
+    It stabilizes the model and ensures comparability across countries.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How many parameters does the model have?
+  </h3>
+  <p class="small">
+    Two shape parameters (v1 and v2) plus a time shift parameter.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why only two shape parameters?
+  </h3>
+  <p class="small">
+    Fewer parameters would be too rigid, while more would increase instability and overfitting.
+  </p>
+</div>
     
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">How are new vehicle registrations assigned to fleet categories in the projections?</h3>
-      <p class="small">
-        Annual vehicle inflow is split using the modeled BEV and ICE shares for the middle of the projection year (year + 0.5). BEV inflow goes to the BEV category. The remaining non-BEV inflow is assigned to PHEV if that category exists in the country dataset, otherwise to HYBRID. Only if neither PHEV nor HYBRID exists does it go to OTHERS. 
-      </p>
-    </div>
-    
-    <div class="card" style="margin-top:12px;">
-      <h3 style="margin-top:0;">Why do some countries show inflow into PHEV or HYBRID instead of OTHERS?</h3>
-      <p class="small">
-        If a country dataset contains a PHEV category, the model places the non-BEV-non-ICE inflow there. If PHEV does not exist but HYBRID does, it is assigned to HYBRID. This keeps the projected fleet composition consistent with the categories available in the observed fleet data. 
-      </p>
-    </div>    
+<!-- TRANSITION QUESTIONS -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does electrification sometimes appear slow?
+  </h3>
+  <p class="small">
+    Fleet turnover is slow. Even if BEV sales grow rapidly, replacing the existing vehicle fleet takes many years. Cars on the road do not disappear just because new registrations are electric. With typical lifespans of around 10–15 years, the transition of the fleet naturally lags behind the transition in new sales.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why do some countries electrify faster than others?
+  </h3>
+  <p class="small">
+    Adoption speed depends on many factors: vehicle supply, charging infrastructure, electricity and fuel prices, income levels, taxation, media perception and more. There is no single dominant driver. However, strong purchase incentives from governments consistently accelerate BEV adoption.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does adoption accelerate after a certain point?
+  </h3>
+  <p class="small">
+    Technology adoption typically follows an S-curve: slow at first, then accelerating as barriers fall, and eventually slowing again as saturation is approached. This acceleration is gradual, not tied to a specific moment. The model visualizes this continuous process rather than a discrete tipping point.
+  </p>
+</div>
+
+<!-- FLEET -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are fleet projections calculated?
+  </h3>
+  <p class="small">
+    Fleet projections combine the last observed fleet composition with modeled inflow of new vehicles and category-specific attrition rates.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are fleet projections calculated in detail?
+  </h3>
+  <p class="small">
+    The model projects the fleet forward year by year using three components:
+    (1) the existing fleet from the previous year,
+    (2) category-specific retirement ("hazard") rates, and
+    (3) the annual inflow of newly registered vehicles.
+  </p>
+
+  <p class="small">
+    Example starting fleet (2025):
+    <br>BEV: 945,182
+    <br>PHEV: 208,467
+    <br>HEV: 162,422
+    <br>DIESEL: 942,780
+    <br>PETROL: 676,614
+    <br>OTHERS: 270
+  </p>
+
+  <p class="small">
+    Example hazard (retirement) rates:
+    <br>BEV: 0.010
+    <br>PHEV: 0.020
+    <br>HEV: 0.030
+    <br>HYBRID: 0.030
+    <br>DIESEL: 0.065
+    <br>PETROL: 0.055
+    <br>OTHERS: 0.050
+  </p>
+
+  <p class="small">
+    Assume:
+    <br>Annual new vehicle inflow: 150,000
+    <br>Inflow multiplier: 1
+    <br>Net imports: 0
+  </p>
+
+  <p class="small">
+    Step 1 – Apply hazard rates (vehicles leaving the fleet).
+    <br>Each category loses a fraction of its vehicles according to its hazard rate.
+    <br>Example:
+    <br>2026 BEV survivors = 945,182 × (1 − 0.010)
+  </p>
+
+  <p class="small">
+    Step 2 – Add new vehicle inflow.
+    <br>The annual inflow is distributed using the modeled BEV share for the middle of the projection year (year + 0.5).
+  </p>
+
+  <p class="small">
+    Example:
+    <br>2026 BEV fleet = 945,182 × (1 − 0.010) + 150,000 × BEV_share(2026.5)
+  </p>
+
+  <p class="small">
+    Step 3 – Assign the remaining inflow.
+    <br>Non-BEV inflow is assigned as follows:
+    <br>• If PHEV exists → to PHEV
+    <br>• Else if HYBRID exists → to HYBRID
+    <br>• Else → to OTHERS
+  </p>
+
+  <p class="small">
+    The process repeats each year, using the updated fleet as the new baseline.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are new vehicle registrations assigned to fleet categories in the projections?
+  </h3>
+  <p class="small">
+    Annual inflow is split using the modeled BEV and ICE shares at the midpoint of the projection year (year + 0.5). BEV inflow goes to BEV. The remaining non-BEV inflow is assigned to PHEV if available, otherwise to HYBRID, and only falls back to OTHERS if neither category exists.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why do some countries show inflow into PHEV or HYBRID instead of OTHERS?
+  </h3>
+  <p class="small">
+    The model follows the category structure of the underlying dataset. If PHEV exists, non-BEV inflow is assigned there. If not, but HYBRID exists, it is assigned to HYBRID. This ensures consistency between projected and observed fleet categories.
+  </p>
+</div>  
     
   </div>
 </section>
@@ -661,7 +1028,7 @@ th.sortable.desc::after{content:" ↓"}
           <label>Weights variant</label>
           <select id="builderWeightVariant" multiple size="4">
             <option value="whole" selected>Whole</option>
-            <option value="4-wheelers" selected>4-Wheelers</option>
+            <!-- <option value="4-wheelers" >4-Wheelers</option> -->
             <option value="hdv">HDV</option>
             <option value="vans">Vans</option>
           </select>
@@ -676,7 +1043,7 @@ th.sortable.desc::after{content:" ↓"}
           dominate the result while small markets contribute proportionally. <br>
           The x-axis uses index time internally (see t0 parameter).
           Minor rounding artefacts are expected due to time conversion and general limitation while rounding, since these calculations run client side on your device. <br>
-          The builder defaults to passenger cars (= Whole) and 4-Wheelers (= Whole, but for India) in case there are no parameters for a variant like HDV or Vans. <br>
+          The builder defaults to passenger cars (= Whole) (4-Wheelers = legacy for India) in case there are no parameters for a variant like HDV or Vans. <br>
           If the variant exists (for example in Thresholds or Durations Tab), then the Builder will create the variant curve. <br>
         </p>
       <div class="card builder-card">
@@ -1968,9 +2335,9 @@ function getCountryAnnualInflow(country){
   for (const c of candidates) {
     const wWhole = fleetState.weights[`${c}|whole`];
     if (wWhole !== undefined) return Number(wWhole) || 0;
-
-    const w4 = fleetState.weights[`${c}|4-wheelers`];
-    if (w4 !== undefined) return Number(w4) || 0;
+    //4-wheelers are now legacy
+    //const w4 = fleetState.weights[`${c}|4-wheelers`];
+    //if (w4 !== undefined) return Number(w4) || 0;
   }
 
   console.warn("Missing annual inflow weight for country:", country, "candidates tried:", candidates);
