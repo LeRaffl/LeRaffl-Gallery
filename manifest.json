@@ -2,6 +2,86 @@
   "updated": "2026-04-01",
   "images": [
     {
+      "country": "Ireland",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-01",
+      "filename": "ireland_ICE_BEV_20260401.png",
+      "url": "images/2026-03/ireland_ICE_BEV_20260401.png",
+      "alt": "Ireland ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-01",
+      "filename": "ireland_20260401.png",
+      "url": "images/2026-03/ireland_20260401.png",
+      "alt": "Ireland BEV trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-01",
+      "filename": "ireland_time_20260401.png",
+      "url": "images/2026-03/ireland_time_20260401.png",
+      "alt": "Ireland Transition time curve",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-01",
+      "filename": "ireland_ttm_shares_20260401.png",
+      "url": "images/2026-03/ireland_ttm_shares_20260401.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-04-01",
+      "filename": "malaysia_ICE_BEV_20260401.png",
+      "url": "images/2026-02/malaysia_ICE_BEV_20260401.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-04-01",
+      "filename": "malaysia_20260401.png",
+      "url": "images/2026-02/malaysia_20260401.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-04-01",
+      "filename": "malaysia_time_20260401.png",
+      "url": "images/2026-02/malaysia_time_20260401.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-04-01",
+      "filename": "malaysia_ttm_shares_20260401.png",
+      "url": "images/2026-02/malaysia_ttm_shares_20260401.png",
+      "alt": "Malaysia TTM market split graph",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-02",
