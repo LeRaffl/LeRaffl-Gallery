@@ -2,6 +2,46 @@
   "updated": "2026-04-03",
   "images": [
     {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-03",
+      "filename": "italy_ICE_BEV_20260403.png",
+      "url": "images/2026-03/italy_ICE_BEV_20260403.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-03",
+      "filename": "italy_20260403.png",
+      "url": "images/2026-03/italy_20260403.png",
+      "alt": "Italy BEV trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-03",
+      "filename": "italy_time_20260403.png",
+      "url": "images/2026-03/italy_time_20260403.png",
+      "alt": "Italy Transition time curve",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-03",
+      "filename": "italy_ttm_shares_20260403.png",
+      "url": "images/2026-03/italy_ttm_shares_20260403.png",
+      "alt": "Italy TTM market split graph",
+      "country_slug": "italy"
+    },
+    {
       "country": "Ireland",
       "type": "ICE_BEV",
       "period": "2026-03",
