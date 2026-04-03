@@ -140,19 +140,57 @@ th.sortable.desc::after{content:" ↓"}
   select,[role="listbox"]{max-height:50vh;overflow:auto;-webkit-overflow-scrolling:touch}
 }
 
-/* Thresholds: 20/50/80% columns a bit narrower */
+/* Thresholds + Durations table harmonization */
+#tab-thresholds .tablecard table,
+#tab-durations .tablecard table{
+  table-layout: auto;
+}
+
+#tab-thresholds .tablecard th,
+#tab-thresholds .tablecard td,
+#tab-durations .tablecard th,
+#tab-durations .tablecard td{
+  white-space: nowrap;
+}
+
+/* Country column */
+#tab-thresholds .tablecard th:nth-child(2),
+#tab-thresholds .tablecard td:nth-child(2),
+#tab-durations .tablecard th:nth-child(2),
+#tab-durations .tablecard td:nth-child(2){
+  min-width: 150px;
+}
+
+/* Threshold / duration metric columns */
+#tab-thresholds .tablecard th:nth-child(3),
 #tab-thresholds .tablecard th:nth-child(4),
 #tab-thresholds .tablecard th:nth-child(5),
 #tab-thresholds .tablecard th:nth-child(6),
+#tab-thresholds .tablecard td:nth-child(3),
 #tab-thresholds .tablecard td:nth-child(4),
 #tab-thresholds .tablecard td:nth-child(5),
-#tab-thresholds .tablecard td:nth-child(6){
-  width:92px;white-space:nowrap;padding-left:8px;padding-right:8px;
+#tab-thresholds .tablecard td:nth-child(6),
+#tab-durations .tablecard th:nth-child(3),
+#tab-durations .tablecard th:nth-child(4),
+#tab-durations .tablecard th:nth-child(5),
+#tab-durations .tablecard td:nth-child(3),
+#tab-durations .tablecard td:nth-child(4),
+#tab-durations .tablecard td:nth-child(5){
+  min-width: 110px;
 }
-#tab-thresholds .tablecard th:nth-child(3),
-#tab-thresholds .tablecard td:nth-child(3){min-width:220px}
-#tab-thresholds .tablecard th:nth-child(8){white-space:nowrap}
 
+/* Data period identical in both tabs */
+.data-per-col{
+  min-width: 92px;
+  text-align: center;
+}
+
+/* Variant always right + compact */
+.variant-col{
+  min-width: 160px;
+  text-align: center;
+  white-space: nowrap;
+}
 
   /*Builder Debug*/
 #builderDebug {
@@ -925,7 +963,7 @@ th.sortable.desc::after{content:" ↓"}
         </div>
       </div>
       <p class="small" style="max-width:740px">
-        Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “Whole”.
+        Choose a custom threshold, then sort the table. Use the variant filter to include multiple categories. Default selects “New Cars”.
         Exports reflect your current filter and custom setting.<br>
         <span style="opacity:0.85">
           Color coding:
@@ -1027,7 +1065,7 @@ th.sortable.desc::after{content:" ↓"}
         <div class="field">
           <label>Weights variant</label>
           <select id="builderWeightVariant" multiple size="4">
-            <option value="whole" selected>Whole</option>
+            <option value="whole" selected>New Cars</option>
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
             <option value="hdv">HDV</option>
             <option value="vans">Vans</option>
@@ -1043,7 +1081,7 @@ th.sortable.desc::after{content:" ↓"}
           dominate the result while small markets contribute proportionally. <br>
           The x-axis uses index time internally (see t0 parameter).
           Minor rounding artefacts are expected due to time conversion and general limitation while rounding, since these calculations run client side on your device. <br>
-          The builder defaults to passenger cars (= Whole) (4-Wheelers = legacy for India) in case there are no parameters for a variant like HDV or Vans. <br>
+          The builder defaults to passenger cars (= New Cars) (4-Wheelers = legacy for India) in case there are no parameters for a variant like HDV or Vans. <br>
           If the variant exists (for example in Thresholds or Durations Tab), then the Builder will create the variant curve. <br>
         </p>
       <div class="card builder-card">
@@ -1486,8 +1524,54 @@ function normalizeBase(s){
   return k;
 }
 
-function displayLabelFromBase(base){ const n=normalizeBase(base); if(n==='whole') return 'Whole'; return String(base||'').replace(/\s+/g,' ').trim().replace(/(^|\s)\S/g,c=>c.toUpperCase()); }
-function yearsIndexToDate(xYears, baseline_date, baseline_year){ if(!isFinite(xYears)) return ""; if(xYears>=1800 && xYears<3000){ const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} let base; if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){ base=new Date(baseline_date+'T00:00:00Z'); } else if(isFinite(normNumber(baseline_year))){ base=new Date(Math.round(normNumber(baseline_year))+'-01-01T00:00:00Z'); } else { return ""; } if(isNaN(base)) return ""; const years=Math.floor(xYears), frac=xYears-years; const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate())); const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate())); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); } }
+function displayLabelFromBase(base){
+  const n = normalizeBase(base);
+  const raw = String(base || '').trim();
+  const map = {
+    whole: 'New Cars',
+    used: 'Used Cars',
+    'used imports': 'Used Cars (imported)',
+    private: 'New Cars (Private)',
+    industry: 'New Cars (Industry)',
+    vans: 'New Vans',
+    hdv: 'New HDV',
+    '4-wheelers': '4-Wheelers (legacy model)'
+  };
+  if (map[n]) return map[n];
+  if (map[raw.toLowerCase()]) return map[raw.toLowerCase()];
+  return raw
+    .replace(/\s+/g,' ')
+    .trim()
+    .replace(/(^|\s)\S/g, c => c.toUpperCase());
+}
+  
+function displayVariantLabel(v){
+  const map = {
+    "Whole": "New Cars",
+    "Used": "Used Cars",
+    "Used Imports": "Used Cars (imported)",
+    "Private": "New Cars (Private)",
+    "Industry": "New Cars (Industry)",
+    "Vans": "New Vans",
+    "HDV": "New HDV"
+  };
+  return map[v] || v;
+}
+function yearsIndexToDate(xYears, baseline_date, baseline_year){ 
+  if(!isFinite(xYears)) return ""; 
+  if(xYears>=1800 && xYears<3000){const y=Math.floor(xYears); const frac=xYears-y; const start=new Date(Date.UTC(y,0,1)); const end=new Date(Date.UTC(y+1,0,1)); const t=start.getTime()+frac*(end.getTime()-start.getTime()); { const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); }} 
+  let base; 
+  if(baseline_date && /^\d{4}-\d{2}-\d{2}$/.test(baseline_date)){ 
+    base=new Date(baseline_date+'T00:00:00Z'); 
+  } else if(isFinite(normNumber(baseline_year))){ 
+    base=new Date(Math.round(normNumber(baseline_year))+'-01-01T00:00:00Z'); 
+  } else { return ""; } 
+  if(isNaN(base)) 
+    return ""; 
+  const years=Math.floor(xYears), frac=xYears-years; const start=new Date(Date.UTC(base.getUTCFullYear()+years, base.getUTCMonth(), base.getUTCDate())); 
+  const end=new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth(),start.getUTCDate())); 
+  const t=start.getTime()+frac*(end.getTime()-start.getTime()); {const d = new Date(t); return isNaN(d) ? "" : d.toISOString().slice(0,10); } 
+}
 function inv_x_years(y,v1,v2,t0){
   let v1n=normNumber(v1), 
         v2n=normNumber(v2), 
@@ -1533,120 +1617,293 @@ function iceShareIndex(x, v1, v2, t0){
 
 // -------- THRESHOLDS --------
 document.addEventListener('DOMContentLoaded',()=>{ const urls=['./params.csv','params.csv']; (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ renderThresholds(SAMPLE_PARAMS_CSV); return;} showFatal('Could not load params.csv.'); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>renderThresholds(txt)).catch(()=>next(i+1)); })(0); });
-function showFatal(msg){ const m=document.getElementById('thresholdsMount'); if(m) m.innerHTML='<div class="error">Error: '+String(msg)+'</div>'; }
-function renderThresholds(csvText){ try{ const rows=parseCSV(csvText); const mount=document.getElementById('thresholdsMount'); if(!rows.length){ showFatal('params.csv contains no data rows.'); return; }
-  const rawBases=new Set(); rows.forEach(r=>{ const parts=extractVariantParts(r.variant||''); if(parts.base) rawBases.add(parts.base); });
-  const sel=document.getElementById('variantMulti'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canonical=normalizeBase(base); if(!canonical||seen.has(canonical)) return; seen.add(canonical); const opt=document.createElement('option'); opt.value=canonical; opt.textContent=displayLabelFromBase(base); if(canonical==='whole') opt.selected=true; sel.appendChild(opt); }); sel.addEventListener('change', renderTable);
-  const customPctEl=document.getElementById('customPct'); document.getElementById('applyBtn').addEventListener('click',()=>renderTable());
-  let sortKey='val80', sortAsc=true; let data=[];
-function computeData(){
-  const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
-  const y = pct / 100;
-  const MAX_TS = Date.parse('2199-12-31');
+function showFatal(msg){ 
+  const m=document.getElementById('thresholdsMount'); 
+  if(m) m.innerHTML='<div class="error">Error: '+String(msg)+'</div>'; 
+}
+function renderThresholds(csvText){
+  try{
+    const rows = parseCSV(csvText);
+    const mount = document.getElementById('thresholdsMount');
 
-  return rows.map(r => {
-    const v1 = normNumber(r.v1),
-          v2 = normNumber(r.v2),
-          t0 = getT0Years(r),
-          baseDate = r.baseline_date || '',
-          baseYear = normNumber(r.baseline_year);
-
-    const r20 = inv_x_years(0.2, v1, v2, t0),
-          r50 = inv_x_years(0.5, v1, v2, t0),
-          r80 = inv_x_years(0.8, v1, v2, t0),
-          rc  = inv_x_years(y,   v1, v2, t0);
-
-    function fmt(res){
-      if(!res || !isFinite(res.x)){
-        return { text: '—', val: Infinity, title: res?.why || 'no solution' };
-      }
-      // Versuche absolutes Datum zu bauen
-      const dstr = yearsIndexToDate(res.x, baseDate, baseYear);
-      if (dstr){
-        const ts = Date.parse(dstr);
-        if (isFinite(ts) && ts > MAX_TS){
-          return { text: 'shows no transition', val: Infinity, title: 'beyond 2199-12-31' };
-        }
-        return { text: dstr, val: ts, title: '' };
-      }
-      // Fallback: nackte Jahreszahl sehr weit in der Zukunft
-      if (res.x >= 3000){
-        return { text: 'shows no transition', val: Infinity, title: 'beyond year 2199' };
-      }
-      // Letzter Fallback: numerisch anzeigen, sortierbar halten
-      return { text: res.x.toFixed(2), val: parseFloat(res.x), title: '' };
+    if(!rows.length){
+      showFatal('params.csv contains no data rows.');
+      return;
     }
 
-    const f20 = fmt(r20), f50 = fmt(r50), f80 = fmt(r80), fc = fmt(rc);
-    const parts = extractVariantParts(r.variant || '');
+    const rawBases = new Set();
+    rows.forEach(r => {
+      const parts = extractVariantParts(r.variant || '');
+      if(parts.base) rawBases.add(parts.base);
+    });
 
-    return {
-      country: r.country || '',
-      variantBaseCanonical: normalizeBase(parts.base || ''),
-      variant: r.variant || '',
-      val20: f20.text, _v20: f20.val,
-      val50: f50.text, _v50: f50.val,
-      val80: f80.text, _v80: f80.val,
-      custom: fc.text, _vc: fc.val,
-      data_per: getDataPer(r)
-    };
-  });
-}
-  function getSelectedCanonicals(){ return Array.from(sel.selectedOptions||[]).map(o=>o.value); }
-  function applyVariantFilter(arr){ const selected=new Set(getSelectedCanonicals()); if(selected.size===0) return []; return arr.filter(r=>selected.has(r.variantBaseCanonical||'')); }
-  function isoOrValForSort(row,key){ if(key==='_v20'||key==='_v50'||key==='_v80'||key==='_vc') return row[key]||Infinity; if(key==='val20') return row._v20||Infinity; if(key==='val50') return row._v50||Infinity; if(key==='val80') return row._v80||Infinity; if(key==='custom') return row._vc||Infinity; if(key==='data_per') return Date.parse((row.data_per||'')+'-01')||row.data_per||''; return row[key]; }
-  function doSort(){ if(!sortKey) return; data.sort((a,b)=>{ const va=isoOrValForSort(a,sortKey), vb=isoOrValForSort(b,sortKey); return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); }
-  function headerHTML(){ return `<thead><tr>
+    const sel = document.getElementById('variantMulti');
+    sel.innerHTML = '';
+
+    const seen = new Set();
+    [...rawBases]
+      .sort((a,b)=>a.localeCompare(b))
+      .forEach(base=>{
+        const canonical = normalizeBase(base);
+        if(!canonical || seen.has(canonical)) return;
+        seen.add(canonical);
+
+        const opt = document.createElement('option');
+        opt.value = canonical;
+        opt.textContent = displayLabelFromBase(base);
+
+        if(canonical === 'whole') opt.selected = true;
+        sel.appendChild(opt);
+      });
+
+    const customPctEl = document.getElementById('customPct');
+
+    let sortKey = 'val80';
+    let sortAsc = true;
+    let data = [];
+
+    function computeData(){
+      const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
+      const y = pct / 100;
+      const MAX_TS = Date.parse('2199-12-31');
+
+      return rows.map(r => {
+        const v1 = normNumber(r.v1);
+        const v2 = normNumber(r.v2);
+        const t0 = getT0Years(r);
+        const baseDate = r.baseline_date || '';
+        const baseYear = normNumber(r.baseline_year);
+
+        const r20 = inv_x_years(0.2, v1, v2, t0);
+        const r50 = inv_x_years(0.5, v1, v2, t0);
+        const r80 = inv_x_years(0.8, v1, v2, t0);
+        const rc  = inv_x_years(y,   v1, v2, t0);
+
+        function fmt(res){
+          if(!res || !isFinite(res.x)){
+            return {
+              text: '—',
+              val: Infinity
+            };
+          }
+
+          const dstr = yearsIndexToDate(res.x, baseDate, baseYear);
+
+          if(dstr){
+            const ts = Date.parse(dstr);
+
+            if(isFinite(ts) && ts > MAX_TS){
+              return {
+                text: 'shows no transition',
+                val: Infinity
+              };
+            }
+
+            return {
+              text: dstr,
+              val: ts
+            };
+          }
+
+          if(res.x >= 3000){
+            return {
+              text: 'shows no transition',
+              val: Infinity
+            };
+          }
+
+          return {
+            text: res.x.toFixed(2),
+            val: Number(res.x)
+          };
+        }
+
+        const f20 = fmt(r20);
+        const f50 = fmt(r50);
+        const f80 = fmt(r80);
+        const fc  = fmt(rc);
+
+        const parts = extractVariantParts(r.variant || '');
+
+        return {
+          country: r.country || '',
+          variantBaseCanonical: normalizeBase(parts.base || ''),
+          variant: r.variant || '',
+          val20: f20.text,
+          _v20: f20.val,
+          val50: f50.text,
+          _v50: f50.val,
+          val80: f80.text,
+          _v80: f80.val,
+          custom: fc.text,
+          _vc: fc.val,
+          data_per: getDataPer(r)
+        };
+      });
+    }
+
+    function getSelectedCanonicals(){
+      return [...sel.selectedOptions].map(o => o.value);
+    }
+
+    function applyVariantFilter(arr){
+      const selected = new Set(getSelectedCanonicals());
+      if(selected.size === 0) return [];
+      return arr.filter(r => selected.has(r.variantBaseCanonical));
+    }
+
+    function isoOrValForSort(row,key){
+      const map = {
+        val20: row._v20,
+        val50: row._v50,
+        val80: row._v80,
+        custom: row._vc
+      };
+
+      if(key in map) return map[key] ?? Infinity;
+
+      if(key === 'data_per'){
+        return Date.parse((row.data_per || '') + '-01') || Infinity;
+      }
+
+      return row[key] ?? '';
+    }
+
+    function doSort(){
+      data.sort((a,b)=>{
+        const va = isoOrValForSort(a,sortKey);
+        const vb = isoOrValForSort(b,sortKey);
+
+        if(va < vb) return sortAsc ? -1 : 1;
+        if(va > vb) return sortAsc ? 1 : -1;
+        return a.country.localeCompare(b.country);
+      });
+    }
+function headerHTML(){
+  return `<thead><tr>
     <th class="num">#</th>
     <th class="sortable" data-key="country">Country</th>
-    <th class="sortable" data-key="variant">Variant</th>
     <th class="sortable" data-key="val20">20%</th>
     <th class="sortable" data-key="val50">50%</th>
     <th class="sortable" data-key="val80">80%</th>
     <th class="sortable" data-key="custom">Custom</th>
     <th class="sortable" data-key="data_per">Data per</th>
-  </tr></thead>`; }
-                                        
-  const TODAY_TS = Date.now();
+    <th class="sortable" data-key="variant">Variant</th>
+  </tr></thead>`;
+}
+
+const TODAY_TS = Date.now();
 const RED_80_TS = Date.parse('2035-01-01');
 
-function tdWithClass(text, ts, is80 = false) {
+function tdWithClass(text, ts, is80 = false){
   let cls = '';
-  if (isFinite(ts)) {
-    if (ts < TODAY_TS) cls = 'past';
-    if (is80 && ts > RED_80_TS) cls = 'late';
+
+  if(isFinite(ts)){
+    if(ts < TODAY_TS) cls = 'past';
+    if(is80 && ts > RED_80_TS) cls = 'late';
   }
+
   return `<td class="${cls}">${text}</td>`;
 }
 
-
 function bodyHTML(){
   const filtered = applyVariantFilter(data);
+
   return `<tbody>${filtered.map((r,i)=>`<tr>
     <td class="num">${i+1}</td>
     <td>${r.country}</td>
-    <td>${r.variant}</td>
     ${tdWithClass(r.val20, r._v20)}
     ${tdWithClass(r.val50, r._v50)}
     ${tdWithClass(r.val80, r._v80, true)}
     ${tdWithClass(r.custom, r._vc)}
-    <td>${r.data_per || ''}</td>
+    <td class="data-per-col">${r.data_per || ''}</td>
+    <td class="variant-col">${displayVariantLabel(r.variant)}</td>
   </tr>`).join('')}</tbody>`;
 }
 
-                                        
-  function renderTable(){ data=computeData(); doSort(); mount.classList.add('tablecard'); mount.innerHTML=`<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`; mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); if(th.dataset.key===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ const key=th.dataset.key; if(sortKey===key) sortAsc=!sortAsc; else { sortKey=key; sortAsc=true; } renderTable(); }; }); }
-  // exports
-  function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
-  function buildExportRows(){ const filtered=applyVariantFilter(data).slice(); return filtered.map((r,i)=>({rank:i+1,country:r.country,variant:r.variant,y20:r.val20,y50:r.val50,y80:r.val80,ycustom:r.custom,data_per:r.data_per||''})); }
-  function download(filename,text,mime){ const blob=new Blob([text],{type:mime||'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
-  function rowsToCSV(rows,d){ const header=['#','Country','Variant','20%','50%','80%','Custom','Data per']; const head=header.map(h=>escapeCsvCell(h,d)).join(d); const body=rows.map(r=>[r.rank,r.country,r.variant,r.y20,r.y50,r.y80,r.ycustom,r.data_per].map(v=>escapeCsvCell(v,d)).join(d)).join('\n'); return head+'\n'+body+'\n'; }
-  function copyToClipboard(text){ if(navigator.clipboard && window.isSecureContext){ return navigator.clipboard.writeText(text);} const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return Promise.resolve(); }
-  document.getElementById('exportCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),','); download('bev_thresholds.csv',csv,'text/csv;charset=utf-8');});
-  document.getElementById('exportCsvEU').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),';'); download('bev_thresholds_eu.csv',csv,'text/csv;charset=utf-8');});
-  document.getElementById('copyCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildExportRows(),','); copyToClipboard(csv).then(()=>{ const btn=document.getElementById('copyCsv'); const old=btn.textContent; btn.textContent='Copied ✓'; setTimeout(()=>btn.textContent=old,1200); }); });
-  renderTable();
-} catch(e){ showFatal(e && e.message ? e.message : e); } }
+function renderTable(){
+  data = computeData();
+  doSort();
+
+  mount.classList.add('tablecard');
+  mount.innerHTML = `<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`;
+
+  mount.querySelectorAll('th.sortable').forEach(th=>{
+    th.classList.remove('asc','desc');
+
+    if(th.dataset.key === sortKey){
+      th.classList.add(sortAsc ? 'asc' : 'desc');
+    }
+
+    th.onclick = ()=>{
+      const key = th.dataset.key;
+
+      if(sortKey === key){
+        sortAsc = !sortAsc;
+      } else {
+        sortKey = key;
+        sortAsc = true;
+      }
+
+      renderTable();
+    };
+  });
+}
+
+function escapeCsvCell(s,d){
+  let out = String(s ?? '');
+  const needs = out.includes(d) || out.includes('"') || out.includes('\n');
+  out = out.replace(/"/g,'""');
+  return needs ? `"${out}"` : out;
+}
+
+function buildExportRows(){
+  return applyVariantFilter(data).map((r,i)=>({
+    rank: i+1,
+    country: r.country,
+    variant: r.variant,
+    y20: r.val20,
+    y50: r.val50,
+    y80: r.val80,
+    ycustom: r.custom,
+    data_per: r.data_per || ''
+  }));
+}
+
+function rowsToCSV(rows,d){
+  const header = ['#','Country','20%','50%','80%','Custom','Data per','Variant'];
+  const head = header.map(h=>escapeCsvCell(h,d)).join(d);
+
+  const body = rows.map(r =>
+    [r.rank,r.country,r.y20,r.y50,r.y80,r.ycustom,r.data_per,r.variant]
+      .map(v=>escapeCsvCell(v,d))
+      .join(d)
+  ).join('\n');
+
+  return head + '\n' + body + '\n';
+}
+
+sel.onchange = renderTable;
+document.getElementById('applyBtn').onclick = renderTable;
+
+document.getElementById('exportCsv').onclick = ()=>{
+  download('bev_thresholds.csv', rowsToCSV(buildExportRows(), ','), 'text/csv;charset=utf-8');
+};
+
+document.getElementById('exportCsvEU').onclick = ()=>{
+  download('bev_thresholds_eu.csv', rowsToCSV(buildExportRows(), ';'), 'text/csv;charset=utf-8');
+};
+
+document.getElementById('copyCsv').onclick = ()=>{
+  copyToClipboard(rowsToCSV(buildExportRows(), ','));
+};
+
+renderTable();
+
+} catch(e){
+  showFatal(e?.message || e);
+}
+}
 
 // -------- DURATIONS --------
 (function(){
@@ -1678,22 +1935,36 @@ function bodyHTML(){
     function head(){ return `<thead><tr>
       <th class="num">#</th>
       <th class="sortable" data-k="country">Country</th>
-      <th class="sortable" data-k="variant">Variant</th>
       <th class="sortable" data-k="_d2080">20→80%</th>
       <th class="sortable" data-k="_d1090">10→90%</th>
       <th class="sortable" data-k="_dC">Custom</th>
       <th class="sortable" data-k="_speed">Numerical speed</th>
       <th class="sortable" data-k="_periodSort">Data per</th>
+      <th class="sortable" data-k="variant">Variant</th>
     </tr></thead>`; }
-    function body(arr){ return `<tbody>${arr.map((r,i)=>`<tr>
-      <td class="num">${i+1}</td><td>${r.country}</td><td>${r.variant}</td><td>${r.d2080_text}</td><td>${r.d1090_text}</td><td>${r.dC_text}</td><td>${r.speed_text}</td><td>${r.data_per||''}</td>
-    </tr>`).join('')}</tbody>`; }
+    function body(arr){ 
+      return `<tbody>${arr.map((r,i)=>`<tr>
+        <td class="num">${i+1}</td>
+        <td>${r.country}</td>
+        <td>${r.d2080_text}</td>
+        <td>${r.d1090_text}</td>
+        <td>${r.dC_text}</td>
+        <td>${r.speed_text}</td>
+        <td class="data-per-col">${r.data_per}</td>
+        <td class="variant-col">${displayVariantLabel(r.variant)}</td>
+      </tr>`).join('')}</tbody>`; 
+    }
     function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
     document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
     // exports
     function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
-    function buildRows(){ return sortNow().map((r,i)=>({rank:i+1,country:r.country,variant:r.variant,d2080:r.d2080_text,d1090:r.d1090_text,dC:r.dC_text,speed:r.speed_text,data_per:r.data_per||''})); }
-    function rowsToCSV(rows,d){ const header=['#','Country','Variant','20→80%','10→90%','Custom','Numerical speed','Data per']; const head=header.map(h=>escapeCsvCell(h,d)).join(d); const body=rows.map(r=>[r.rank,r.country,r.variant,r.d2080,r.d1090,r.dC,r.speed,r.data_per].map(v=>escapeCsvCell(v,d)).join(d)).join('\n'); return head+'\n'+body+'\n'; }
+    function buildRows(){ return sortNow().map((r,i)=>({rank:i+1,country:r.country,d2080:r.d2080_text,d1090:r.d1090_text,dC:r.dC_text,speed:r.speed_text,data_per:r.data_per,variant:r.variant||''})); }
+    function rowsToCSV(rows,d){ 
+      const header=['#','Country','20→80%','10→90%','Custom','Numerical speed','Data per','Variant']; 
+      const head=header.map(h=>escapeCsvCell(h,d)).join(d); 
+      const body=rows.map(r=>[r.rank,r.country,r.d2080,r.d1090,r.dC,r.speed,r.data_per,r.variant].map(v=>escapeCsvCell(v,d)).join(d)).join('\n');
+      return head+'\n'+body+'\n'; 
+    }
     function download(filename,text,mime){ const blob=new Blob([text],{type:'text/plain;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
     document.getElementById('exportDurCsv').addEventListener('click',()=>{ const csv=rowsToCSV(buildRows(),','); download('bev_durations.csv',csv,'text/csv;charset=utf-8'); });
     document.getElementById('exportDurCsvEU').addEventListener('click',()=>{ const csv=rowsToCSV(buildRows(),';'); download('bev_durations_eu.csv',csv,'text/csv;charset=utf-8'); });
