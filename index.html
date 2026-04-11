@@ -52,8 +52,10 @@ td.late {
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
 .chips{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;font-size:14px;font-weight:600;color:#eef3ff}
-.chip input[type="checkbox"]{accent-color:#4da3ff;inline-size:1.1rem;block-size:1.1rem;margin:0}
+.chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;font-size:14px;font-weight:600;color:#eef3ff;white-space:nowrap;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.chip:hover{border-color:#3a4a72}
+.chip input[type="checkbox"],.chip input[type="radio"]{accent-color:#4da3ff;inline-size:1.1rem;block-size:1.1rem;margin:0}
+.chip:has(input[type="radio"]:checked){border-color:#4da3ff;background:#11203d;color:#fff}
 .small{font-size:12px;opacity:.8}
 
 /* Gallery cards */
@@ -236,12 +238,12 @@ th.sortable.desc::after{content:" ↓"}
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   margin-left: 6px;
   border: 1px solid #4a5a7a;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1;
   color: #9fb3d1;
@@ -249,6 +251,12 @@ th.sortable.desc::after{content:" ↓"}
   cursor: pointer;
   vertical-align: middle;
   position: relative;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.info-tip:hover {
+  border-color: #4da3ff;
+  color: #cfe1ff;
+  background: #16234a;
 }
 
 .info-bubble {
@@ -256,16 +264,16 @@ th.sortable.desc::after{content:" ↓"}
   left: 50%;
   top: calc(100% + 8px);
   transform: translateX(-50%);
-  min-width: 220px;
-  max-width: 320px;
-  padding: 10px 12px;
+  min-width: 260px;
+  max-width: 420px;
+  padding: 14px 16px;
   border: 1px solid #4a5a7a;
   border-radius: 10px;
   background: #162445;
   color: #e9eef2;
-  font-size: 12px;
-  line-height: 1.4;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.45);
   z-index: 9999;
   display: none;
 }
@@ -273,6 +281,85 @@ th.sortable.desc::after{content:" ↓"}
 .info-bubble.show {
   display: block;
 }
+
+/* Form sections — labelled cards inside the Fleet projection controls. */
+.fc-section {
+  border: 1px solid #2a3654;
+  border-radius: 12px;
+  background: rgba(11, 19, 36, 0.55);
+  padding: 14px 16px 12px;
+  margin-bottom: 14px;
+}
+.fc-section:last-child { margin-bottom: 0; }
+.fc-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: -4px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #2a3654;
+}
+.fc-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #9fb3d1;
+}
+.fc-section-hint {
+  font-size: 12px;
+  color: #6f86ad;
+}
+.fc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: flex-start;
+}
+
+/* Sub-card: settings that depend on a parent toggle. */
+.fc-sub {
+  position: relative;
+  margin-top: 12px;
+  padding: 12px 14px 10px;
+  border: 1px solid #243250;
+  border-radius: 10px;
+  background: rgba(7, 13, 28, 0.55);
+  transition: opacity .2s, filter .2s, border-color .2s;
+}
+.fc-sub-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b7c7e3;
+}
+.fc-sub-status {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid #2a3654;
+  color: #6f86ad;
+  background: #0b1324;
+}
+.fc-sub.is-active {
+  border-color: #355084;
+}
+.fc-sub.is-active .fc-sub-status {
+  border-color: #4da3ff;
+  color: #cfe1ff;
+  background: #11203d;
+}
+.fc-sub.is-inactive {
+  opacity: 0.6;
+  filter: saturate(0.6);
+}
+/* Inputs in inactive sub-cards stay fully interactive — otherwise the
+   control that enables the sub-card (e.g. the decay floor) would be
+   unreachable. Visual mute only. */
 
 .faq-tag {
   font-size: 11px;
@@ -628,130 +715,155 @@ th.sortable.desc::after{content:" ↓"}
       <br>If PHEV is available explicitly, it is named as such,. If PHEV is, but HEV is not, HEV are part of the respective ICE category.
     </p>
     <div class="card" id="fleetProjectionControls" style="margin: 14px 0 16px;">
-  <div class="toolbar" style="gap:18px; align-items:flex-start;">
 
-  <div class="field" style="min-width:180px;">
-    <label>
-      Projection
-      <span class="info-tip" data-tip="Turns future fleet projection on or off. If disabled, only observed historical fleet data is shown.">i</span>    
-    </label>
-    <label class="chip">
-      <input type="checkbox" id="fleetEnableProjection" checked>
-      Enable future projection
-    </label>
+<!-- Section 1: Projection -->
+<div class="fc-section">
+  <div class="fc-section-head">
+    <span class="fc-section-title">Projection</span>
+    <span class="fc-section-hint">When does the projection run, and how far?</span>
   </div>
-
-  <div class="field" style="min-width:120px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetProjectionEndYear">Project until</label>
-      <span class="info-tip" data-tip="Last year shown in the fleet projection. Projection starts after the last common observed year across the selected countries.">i</span>
+  <div class="fc-row">
+    <div class="field" style="min-width:200px;">
+      <label>
+        Enable
+        <span class="info-tip" data-tip="Turns future fleet projection on or off. If disabled, only observed historical fleet data is shown.">i</span>
+      </label>
+      <label class="chip">
+        <input type="checkbox" id="fleetEnableProjection" checked>
+        Enable future projection
+      </label>
     </div>
-    <input id="fleetProjectionEndYear" type="number" min="2025" max="2100" step="1" value="2035">
-  </div>
-
-  <div class="field" style="min-width:140px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowMultiplier">Inflow multiplier</label>
-      <span class="info-tip" data-tip="Scales the annual inflow used in the projection. 1 means baseline inflow, 0.8 means 20% lower inflow, 1.2 means 20% higher inflow. Baseline inflow is the weight used in the Builder Tab and equals the trailing 12 months overall new registrations number of vehicles.">i</span>
+    <div class="field" style="min-width:140px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetProjectionEndYear">Project until</label>
+        <span class="info-tip" data-tip="Last year shown in the fleet projection. Projection starts after the last common observed year across the selected countries.">i</span>
+      </div>
+      <input id="fleetProjectionEndYear" type="number" min="2025" max="2100" step="1" value="2035">
     </div>
-    <input id="fleetInflowMultiplier" type="number" min="0" max="5" step="0.05" value="1">
-  </div>
-
-  <div class="field" style="min-width:140px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetNetImportsPerYear">Net imports / year</label>
-      <span class="info-tip"
-        data-tip="Net number of vehicles added to or removed from the fleet each year outside regular inflow. Positive values increase fleet size, negative values reduce it.">
-        i
-      </span>
-    </div>
-    <input id="fleetNetImportsPerYear" type="number" step="1" value="0">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetBevImportShare">BEV share of net imports (0 to 1)</label>
-      <span class="info-tip"
-        data-tip="Share of net imports assigned to BEVs. Example: 0.4 means 40% of the value in Net imports / year are added to BEV and 60% to OTHERS. If net imports are negative, 40% are removed from BEV and 60% from OTHERS.">
-        i
-      </span>
-    </div>
-    <input id="fleetBevImportShare" type="number" min="0" max="1" step="0.001" value="1">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayFloor">Inflow decay floor</label>
-      <span class="info-tip"
-        data-tip="Robotaxi / shared-mobility scenario: the annual inflow shrinks exponentially toward this floor, expressed as a fraction of the start inflow. Example: 0.10 means inflow converges to 10% of today's value. Set to 1 to disable the decay (default).">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayFloor" type="number" min="0" max="1" step="0.01" value="1">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayStart">Decay start year</label>
-      <span class="info-tip"
-        data-tip="First projection year in which the inflow decay kicks in. Before this year the inflow stays at its baseline value. Default 2030.">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayStart" type="number" min="2020" max="2100" step="1" value="2030">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayLambda">Decay rate (&lambda;)</label>
-      <span class="info-tip"
-        data-tip="Speed of the exponential decay. Half-life in years \u2248 ln(2) / \u03bb. Default 0.10 \u2192 ~7-year half-life: after 7 years the inflow has covered 50% of the way from start to floor, after ~23 years 90% of the way.">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayLambda" type="number" min="0" max="2" step="0.01" value="0.10">
-  </div>
-
-</div>
-
-  <div style="height:12px;"></div>
-
-<div class="small" style="margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-  <span>Hazard model</span>
-  <span class="info-tip"
-        data-tip="Two ways of computing how the fleet shrinks. Per-vintage Weibull (default) tracks each model year individually and gives a realistic bathtub-shaped survival curve. Linear age curve is a single global rate that climbs after a knee year — simpler, but less realistic for projections beyond ~15 years.">
-    i
-  </span>
-</div>
-
-<div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
-  <label class="chip">
-    <input type="radio" name="hazardMode" value="weibull" checked>
-    Per-vintage Weibull
-  </label>
-  <label class="chip">
-    <input type="radio" name="hazardMode" value="linear">
-    Linear age curve
-  </label>
-  <div class="field" style="min-width:140px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="weibullShape">Weibull shape</label>
-      <span class="info-tip"
-            data-tip="Controls how sharply the hazard rises with vehicle age in Weibull mode. shape = 1 means constant hazard (= linear mode with slope 0). shape = 3 (default) gives a realistic bathtub: very low hazards for young vehicles, climbing past the median age. Higher values give a sharper end-of-life cliff. Ignored in Linear mode.">
-        i
-      </span>
-    </div>
-    <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="3.0">
   </div>
 </div>
 
-<div class="small" style="margin-bottom:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-  <span>Annual hazard / attrition by category</span>
-  <span class="info-tip"
-        data-tip="In Linear mode: the constant annual share of each category that leaves the fleet (before the age curve kicks in). In Weibull mode: the equivalent constant hazard that would produce the same median fleet life — the actual per-vintage hazards are derived from this number plus the global Weibull shape, so a young vehicle has a much lower hazard and an old one a much higher hazard. The first projection year behaves similarly in both modes; they diverge over longer horizons.">
-    i
-  </span>
+<!-- Section 2: Inflow -->
+<div class="fc-section">
+  <div class="fc-section-head">
+    <span class="fc-section-title">Inflow of new vehicles</span>
+    <span class="fc-section-hint">How many new cars are sold each year, and what mix?</span>
+  </div>
+  <div class="fc-row">
+    <div class="field" style="min-width:160px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetInflowMultiplier">Inflow multiplier</label>
+        <span class="info-tip" data-tip="Scales the annual inflow used in the projection. 1 means baseline inflow, 0.8 means 20% lower inflow, 1.2 means 20% higher inflow. Baseline inflow is the weight used in the Builder Tab and equals the trailing 12 months overall new registrations number of vehicles.">i</span>
+      </div>
+      <input id="fleetInflowMultiplier" type="number" min="0" max="5" step="0.05" value="1">
+    </div>
+    <div class="field" style="min-width:160px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetNetImportsPerYear">Net imports / year</label>
+        <span class="info-tip"
+          data-tip="Net number of vehicles added to or removed from the fleet each year outside regular inflow. Positive values increase fleet size, negative values reduce it.">i</span>
+      </div>
+      <input id="fleetNetImportsPerYear" type="number" step="1" value="0">
+    </div>
+    <div class="field" style="min-width:200px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetBevImportShare">BEV share of net imports (0 to 1)</label>
+        <span class="info-tip"
+          data-tip="Share of net imports assigned to BEVs. Example: 0.4 means 40% of the value in Net imports / year are added to BEV and 60% to OTHERS. If net imports are negative, 40% are removed from BEV and 60% from OTHERS.">i</span>
+      </div>
+      <input id="fleetBevImportShare" type="number" min="0" max="1" step="0.001" value="1">
+    </div>
+  </div>
+
+  <!-- Sub-card: robotaxi inflow decay (active when floor < 1) -->
+  <div class="fc-sub" id="fcSubInflowDecay">
+    <div class="fc-sub-head">
+      <span>Robotaxi / shared-mobility decay</span>
+      <span class="info-tip"
+        data-tip="Optional scenario: the inflow of new vehicles shrinks exponentially over time toward a floor (e.g. 10% of today's value), AND the BEV share of whatever remains rises toward 100% on the same schedule. One control, both effects. Activated by setting the floor below 1.">i</span>
+      <span class="fc-sub-status" id="fcSubInflowDecayStatus">off — floor = 1</span>
+    </div>
+    <div class="fc-row">
+      <div class="field" style="min-width:160px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="fleetInflowDecayFloor">Floor</label>
+          <span class="info-tip"
+            data-tip="Fraction of today's inflow that the decay converges toward. Examples: 1.00 = decay disabled (default, every year sees today's inflow); 0.50 = mild shared-mobility scenario, long-run inflow halves because some households drop a second car; 0.25 = strong shift, roughly one in four of today's new cars still gets bought while the rest are replaced by shared/robotaxi trips; 0.10 = aggressive robotaxi scenario, only 10% of today's inflow remains in the long run because one autonomous vehicle serves many riders; 0.05 = extreme upper-bound 'fleet on demand' world.">i</span>
+        </div>
+        <input id="fleetInflowDecayFloor" type="number" min="0" max="1" step="0.01" value="1">
+      </div>
+      <div class="field" style="min-width:160px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="fleetInflowDecayStart">Start year</label>
+          <span class="info-tip"
+            data-tip="First projection year in which the inflow decay kicks in. Before this year the inflow stays at its baseline value. Default 2030.">i</span>
+        </div>
+        <input id="fleetInflowDecayStart" type="number" min="2020" max="2100" step="1" value="2030">
+      </div>
+      <div class="field" style="min-width:160px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="fleetInflowDecayLambda">Decay rate (&lambda;)</label>
+          <span class="info-tip"
+            data-tip="Speed of the exponential decay. Half-life in years ≈ ln(2) / λ — so a smaller λ means a slower, more gradual transition. Examples: λ = 0.05 → ~14-year half-life (very slow, transition barely visible before 2050); λ = 0.10 → ~7-year half-life (default, after 7 years the inflow has covered 50% of the way from start to floor, after ~23 years 90% of the way); λ = 0.20 → ~3.5-year half-life (fast transition, most of the change within a decade); λ = 0.35 → ~2-year half-life (very fast, fleet flips within one car generation); λ = 0.70 → ~1-year half-life (practically a step change).">i</span>
+        </div>
+        <input id="fleetInflowDecayLambda" type="number" min="0" max="2" step="0.01" value="0.10">
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Section 3: Hazard / attrition -->
+<div class="fc-section">
+  <div class="fc-section-head">
+    <span class="fc-section-title">Hazard &amp; attrition</span>
+    <span class="fc-section-hint">How many vehicles leave the fleet each year as they age</span>
+  </div>
+
+  <div class="fc-row" style="align-items:center;">
+    <div class="field" style="min-width:140px;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label>Hazard model</label>
+        <span class="info-tip"
+          data-tip="Two ways of computing how the fleet shrinks. Per-vintage Weibull (default) tracks each model year individually and gives a realistic bathtub-shaped survival curve. Linear age curve is a single global rate that climbs after a knee year — simpler, but less realistic for projections beyond ~15 years.">i</span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <label class="chip">
+          <input type="radio" name="hazardMode" value="weibull" checked>
+          Per-vintage Weibull
+        </label>
+        <label class="chip">
+          <input type="radio" name="hazardMode" value="linear">
+          Linear age curve
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-card: Weibull-only setting (shape) -->
+  <div class="fc-sub" id="fcSubWeibull">
+    <div class="fc-sub-head">
+      <span>Weibull settings</span>
+      <span class="info-tip"
+        data-tip="Only used when the Per-vintage Weibull hazard model is selected. Controls how sharply the survival curve bends with age.">i</span>
+      <span class="fc-sub-status" id="fcSubWeibullStatus">active</span>
+    </div>
+    <div class="fc-row">
+      <div class="field" style="min-width:160px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="weibullShape">Weibull shape</label>
+          <span class="info-tip"
+            data-tip="Controls how sharply the hazard rises with vehicle age in Weibull mode. shape = 1 means constant hazard (= linear mode with slope 0). shape = 3 (default) gives a realistic bathtub: very low hazards for young vehicles, climbing past the median age. Higher values give a sharper end-of-life cliff. Ignored in Linear mode.">i</span>
+        </div>
+        <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="3.0">
+      </div>
+    </div>
+  </div>
+
+  <div class="small" style="margin:14px 0 8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+    <span>Annual hazard / attrition by category</span>
+    <span class="info-tip"
+      data-tip="In Linear mode: the constant annual share of each category that leaves the fleet (before the age curve kicks in). In Weibull mode: the equivalent constant hazard that would produce the same median fleet life — the actual per-vintage hazards are derived from this number plus the global Weibull shape, so a young vehicle has a much lower hazard and an old one a much higher hazard. The first projection year behaves similarly in both modes; they diverge over longer horizons.">i</span>
+  </div>
 
 <div id="fleetHazardGrid" style="
   display:grid;
@@ -836,41 +948,34 @@ th.sortable.desc::after{content:" ↓"}
   </div>
 </div>
 
-<div class="small" style="margin-top:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-  <span>Hazard age curve</span>
-  <span class="info-tip"
-        data-tip="Hazards above are the BASE rate. As the projection runs forward, the effective hazard climbs once the projection age passes the knee year. Effective rate = base + slope × max(0, projection_age − knee_year). Set slope = 0 to keep hazards static (the previous behaviour).">
-    i
-  </span>
-</div>
-
-<div id="fleetHazardCurveGrid" style="
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap:10px;
-">
-  <div class="field">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="hazardKneeYear">Knee (years into projection)</label>
+  <!-- Sub-card: Linear-only setting (knee + slope) -->
+  <div class="fc-sub" id="fcSubLinearCurve">
+    <div class="fc-sub-head">
+      <span>Linear age curve settings</span>
       <span class="info-tip"
-            data-tip="Number of projection years before the hazard rate starts climbing above the base. Default 12: a fleet snapshot ages roughly 12 years before scrappage hazard rises noticeably.">
-        i
-      </span>
+        data-tip="Only used when the Linear age curve hazard model is selected. Hazards above stay constant until projection_age = knee, then climb at slope per year. Effective rate = base + slope × max(0, projection_age − knee).">i</span>
+      <span class="fc-sub-status" id="fcSubLinearCurveStatus">off</span>
     </div>
-    <input id="hazardKneeYear" type="number" min="0" max="50" step="1" value="12">
-  </div>
-
-  <div class="field">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="hazardSlope">Slope (per year past knee)</label>
-      <span class="info-tip"
-            data-tip="Annual increase added to every category's hazard once the projection age passes the knee. Default 0.004 = +0.4 percentage points per year past the knee. Set to 0 to disable the curve and keep hazards static.">
-        i
-      </span>
+    <div class="fc-row" id="fleetHazardCurveGrid">
+      <div class="field" style="min-width:180px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="hazardKneeYear">Knee (years into projection)</label>
+          <span class="info-tip"
+            data-tip="Number of projection years before the hazard rate starts climbing above the base. Default 12: a fleet snapshot ages roughly 12 years before scrappage hazard rises noticeably.">i</span>
+        </div>
+        <input id="hazardKneeYear" type="number" min="0" max="50" step="1" value="12">
+      </div>
+      <div class="field" style="min-width:180px;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <label for="hazardSlope">Slope (per year past knee)</label>
+          <span class="info-tip"
+            data-tip="Annual increase added to every category's hazard once the projection age passes the knee. Default 0.004 = +0.4 percentage points per year past the knee. Set to 0 to disable the curve and keep hazards static.">i</span>
+        </div>
+        <input id="hazardSlope" type="number" min="0" max="0.05" step="0.001" value="0.004">
+      </div>
     </div>
-    <input id="hazardSlope" type="number" min="0" max="0.05" step="0.001" value="0.004">
   </div>
-</div>
+</div><!-- /Section 3 -->
 
 <div class="small" style="margin-top:10px;">
   Future years are projected from the last common observed year. Historical bars remain solid, projected bars are hatched.
@@ -2088,6 +2193,29 @@ function inflowDecayMultiplier(decay, year){
   return decay.floor + (1 - decay.floor) * Math.exp(-decay.lambda * dt);
 }
 
+// Robotaxi composition shift (coupled to the inflow decay).
+//
+// Whenever the decay shrinks the *quantity* of new vehicles by factor
+// `decayMult`, the share of what remains shifts toward BEV by the same
+// amount, so the surviving inflow electrifies as the fleet shrinks. This
+// keeps the scenario "fewer cars, but the cars that ARE bought are
+// (almost) all electric" expressible with a single set of controls.
+//
+// Math: bev_new = bev + (1 - bev) * (1 - decayMult)
+//       ice_new = ice * decayMult
+//       nonBevNonIce_new = nonBevNonIce * decayMult   (preserved by identity)
+//
+// decayMult = 1 (no decay) → unchanged shares.
+// decayMult → floor      → bev share → close to 1.
+function shiftSharesForDecay(bevShare, iceShare, decayMult){
+  if (decayMult >= 1) return { bevShare, iceShare };
+  if (!isFinite(bevShare)) return { bevShare, iceShare };
+  return {
+    bevShare: bevShare + (1 - bevShare) * (1 - decayMult),
+    iceShare: isFinite(iceShare) ? iceShare * decayMult : iceShare
+  };
+}
+
 // ----- Per-vintage Weibull survival -----
 //
 // Each vehicle category has a survival function S(age) = exp(-(age/scale)^shape).
@@ -2443,8 +2571,11 @@ function projectCountryFleet(country, startYear, endYear, options){
     const annualInflowBase = getCountryAnnualInflow(country);
     const decayMult = inflowDecayMultiplier(inflowDecay, year);
     const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
-    const bevShare = modeledBevShareForYear(country, year + 0.5);
-    const iceShare = modeledIceShareForYear(country, year + 0.5);
+    const rawBevShare = modeledBevShareForYear(country, year + 0.5);
+    const rawIceShare = modeledIceShareForYear(country, year + 0.5);
+    const shifted = shiftSharesForDecay(rawBevShare, rawIceShare, decayMult);
+    const bevShare = shifted.bevShare;
+    const iceShare = shifted.iceShare;
     let inflowBEV = 0;
     let inflowNonBEV = 0;
     let inflowOthers = 0;
@@ -2535,8 +2666,11 @@ function projectCountryFleetVintage(country, startYear, endYear, options){
     const annualInflowBase = getCountryAnnualInflow(country);
     const decayMult = inflowDecayMultiplier(inflowDecay, year);
     const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
-    const bevShare = modeledBevShareForYear(country, year + 0.5);
-    const iceShare = modeledIceShareForYear(country, year + 0.5);
+    const rawBevShare = modeledBevShareForYear(country, year + 0.5);
+    const rawIceShare = modeledIceShareForYear(country, year + 0.5);
+    const shifted = shiftSharesForDecay(rawBevShare, rawIceShare, decayMult);
+    const bevShare = shifted.bevShare;
+    const iceShare = shifted.iceShare;
 
     let inflowBEV = 0, inflowNonBEV = 0, inflowOthers = 0;
     if (isFinite(bevShare)) {
@@ -3013,15 +3147,58 @@ const updateFleetPlot = () => buildFleetPlot();
 // the Plotly chart five times while the user types "0.035".
 const updateFleetPlotDebounced = debounce(updateFleetPlot, 200);
 
+// Toggle the visual active/inactive state of the sub-cards based on the
+// current values of their parent controls. Visual only — the actual logic
+// already respects the values themselves (floor=1 disables decay, the mode
+// dispatch picks the right projection function, etc.). The sub-cards stay
+// visible at all times so the features remain discoverable.
+function syncFleetSubStates(){
+  const floor = safeNum(document.getElementById('fleetInflowDecayFloor')?.value, 1);
+  const decayActive = floor < 1;
+  const decay = document.getElementById('fcSubInflowDecay');
+  const decayStatus = document.getElementById('fcSubInflowDecayStatus');
+  if (decay) {
+    decay.classList.toggle('is-active', decayActive);
+    decay.classList.toggle('is-inactive', !decayActive);
+  }
+  if (decayStatus) {
+    decayStatus.textContent = decayActive ? 'active' : 'off — floor = 1';
+  }
+
+  const mode = document.querySelector('input[name="hazardMode"]:checked')?.value || 'weibull';
+  const weib = document.getElementById('fcSubWeibull');
+  const weibStatus = document.getElementById('fcSubWeibullStatus');
+  const lin = document.getElementById('fcSubLinearCurve');
+  const linStatus = document.getElementById('fcSubLinearCurveStatus');
+  const weibActive = mode === 'weibull';
+  if (weib) {
+    weib.classList.toggle('is-active', weibActive);
+    weib.classList.toggle('is-inactive', !weibActive);
+  }
+  if (weibStatus) {
+    weibStatus.textContent = weibActive ? 'active' : 'off (Linear mode)';
+  }
+  if (lin) {
+    lin.classList.toggle('is-active', !weibActive);
+    lin.classList.toggle('is-inactive', weibActive);
+  }
+  if (linStatus) {
+    linStatus.textContent = weibActive ? 'off (Weibull mode)' : 'active';
+  }
+}
+
+const updateFleetPlotAndSync = () => { syncFleetSubStates(); updateFleetPlot(); };
+const updateFleetPlotAndSyncDebounced = debounce(updateFleetPlotAndSync, 200);
+
 document.getElementById("fleetBuild")?.addEventListener("click", updateFleetPlot);
 
 document.querySelectorAll('input[name="fleetMode"]').forEach(radio => {
   radio.addEventListener('change', updateFleetPlot);
 });
 
-// Hazard mode radio (linear vs Weibull) -> immediate redraw on change.
+// Hazard mode radio (linear vs Weibull) -> immediate redraw + sub-card sync.
 document.querySelectorAll('input[name="hazardMode"]').forEach(radio => {
-  radio.addEventListener('change', updateFleetPlot);
+  radio.addEventListener('change', updateFleetPlotAndSync);
 });
 
 // Checkbox -> immediate redraw on `change` only.
@@ -3038,10 +3215,15 @@ document.getElementById('fleetEnableProjection')
   'hazBEV','hazPHEV','hazHEV','hazHYBRID','hazPETROL','hazDIESEL','hazOTHERS',
   'hazardKneeYear','hazardSlope',
   'weibullShape',
-  'fleetInflowDecayFloor','fleetInflowDecayStart','fleetInflowDecayLambda'
+  'fleetInflowDecayStart','fleetInflowDecayLambda'
 ].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateFleetPlotDebounced);
 });
+
+// The decay floor toggles the active/inactive state of the decay sub-card,
+// so it gets the sync-aware variant.
+document.getElementById('fleetInflowDecayFloor')
+  ?.addEventListener('input', updateFleetPlotAndSyncDebounced);
 
 // Listener für dynamische Checkboxen (wird in updateCategoryCheckboxes neu gebunden)
 document.getElementById("fleetCountries")?.addEventListener("change", () => {
@@ -3060,6 +3242,7 @@ async function initFleetTab() {
   if (debug) debug.textContent += "loadFleetSupportData completed\n";
   populateFleetCountries();
   if (debug) debug.textContent += "Country-Dropdown filled\n";
+  syncFleetSubStates();
   buildFleetPlot();
   if (debug) debug.textContent += "First plot called\n";
   if (debug && fleetState.observed.length > 0) {
@@ -3221,7 +3404,16 @@ const FAQ_DATA = [
   { tag: 'model', label: 'Model', q: 'What is the inflow decay (robotaxi scenario)?',
     answers: [
       'Robotaxis and shared autonomous fleets replace privately owned cars: one robotaxi serves several people, so the total number of vehicles registered each year shrinks. The inflow decay models exactly that — it lets the annual inflow of new vehicles fall over time toward a floor (e.g. 10% of today\u2019s value).',
-      'Setting the floor to <b>1</b> turns the decay off completely (the previous behaviour). Setting the floor below 1 activates a smooth exponential decline starting from the chosen year.'
+      'Setting the floor to <b>1</b> turns the decay off completely (the previous behaviour). Setting the floor below 1 activates a smooth exponential decline starting from the chosen year.',
+      '<b>Coupled effect — composition shift:</b> robotaxi fleets are predominantly electric, so it would be inconsistent to shrink the inflow but keep its mix of BEV / diesel / petrol the same. Whenever the decay is active, the BEV share of whatever new vehicles remain is shifted toward 100% by the same amount the quantity has shrunk. One control, both effects: <b>fewer cars, and the cars that ARE bought are (almost) all electric</b>.'
+    ] },
+  { tag: 'model', label: 'Model', q: 'What is the formula for the robotaxi composition shift?',
+    answers: [
+      'Let <b>m = decay(year)</b> be the inflow decay multiplier (1 = no decay, falling toward the floor over time). The model takes the modeled raw shares of the inflow and rebalances them as:',
+      '<b>bev\u2032 = bev + (1 \u2212 bev) \u00d7 (1 \u2212 m)</b><br><b>ice\u2032 = ice \u00d7 m</b><br><b>nonBevNonIce\u2032 = nonBevNonIce \u00d7 m</b>',
+      'Sanity checks:<br>\u2022 m = 1 (no decay): bev\u2032 = bev, ice\u2032 = ice. Nothing changes.<br>\u2022 m = 0 (extreme robotaxi limit): bev\u2032 = 1, ice\u2032 = 0. The surviving inflow is 100% electric.<br>\u2022 The three shares always sum to 1.',
+      'Worked example. Today bev = 0.30, ice = 0.55, decay m = 0.40 (60% of the inflow has been removed). Then bev\u2032 = 0.30 + 0.70 \u00d7 0.60 = 0.72 and ice\u2032 = 0.55 \u00d7 0.40 = 0.22. So 60% fewer new cars, but 72% of them are electric instead of 30%.',
+      '<b>Limitation:</b> the composition shift uses the same speed and start year as the quantity decay because they share one control. If you want them decoupled (e.g. fleet shrinks but composition stays mixed) the existing inflow share controls in the Builder tab can be tuned independently \u2014 the shift here is on top of those, not a replacement.'
     ] },
   { tag: 'model', label: 'Model', q: 'What is the formula for the inflow decay?',
     answers: [
