@@ -231,7 +231,24 @@ th.sortable.desc::after{content:" ↓"}
   align-items: center;
   gap: 6px;             /* Abstand zwischen Kreis und Text */
 }
-/* tooltip for information */
+/* tooltip for information*/
+.info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  margin-left: 6px;
+  border: 1px solid #4a5a7a;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: #9fb3d1;
+  background: #101a33;
+  cursor: help;
+  vertical-align: middle;
+}
 .info-tip {
   display: inline-flex;
   align-items: center;
@@ -307,21 +324,14 @@ th.sortable.desc::after{content:" ↓"}
   background: #0f1525;
   color: #e9eef2;
   border: 1px solid #1f2a44;
-}
-
-/* FAQ items: rendered from FAQ_DATA. Replaces the old per-card inline styles. */
-.faq-item { margin-top: 12px; }
-.faq-q { margin-top: 0; }
+} 
+  
+  
 </style>
   
 
   
-<!--
-  Plotly v1.58.5 pinned. The unpinned plotly-latest.min.js URL also resolves to
-  v1.58.5 (last release of the 1.x line, July 2021), so this preserves current
-  behaviour exactly while making the dependency explicit and stoppable from drift.
--->
-<script src="https://cdn.plot.ly/plotly-1.58.5.min.js" defer></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
   <header>
@@ -344,9 +354,523 @@ th.sortable.desc::after{content:" ↓"}
 <section id="tab-faq" class="tab">
   <div class="container">
     <h2 style="margin:2px 0 16px">FAQ</h2>
+    <!--- for search -->
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
-    <!-- Cards are rendered from FAQ_DATA in the script block below. -->
-    <div id="faqList"></div>
+    
+<!-- GENERAL -->
+<!-- GENERAL (BASICS) -->
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What does this project do?
+  </h3>
+  <p class="small">
+    It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What exactly is being modeled?
+  </h3>
+  <p class="small">
+    The BEV share of new vehicle registrations over time.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Is this a forecast?
+  </h3>
+  <p class="small">
+    No. It is a best-fit description of the transition as of today, conditional on currently observed data.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What does the curve mean in plain English?
+  </h3>
+  <p class="small">
+    It shows what the transition looks like if the structure visible in the data continues.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why do curves change over time?
+  </h3>
+  <p class="small">
+    Because the model is refit when new data arrives, so parameters and derived dates update.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why are some countries ahead?
+  </h3>
+  <p class="small">
+    Because adoption drivers differ by taxes, incentives, charging, vehicle supply, income, fleet structure and policy.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why are some countries slower?
+  </h3>
+  <p class="small">
+    Because the observed data shows a slower transition shape or later acceleration.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does this matter?
+  </h3>
+  <p class="small">
+    It makes different national transitions comparable with one consistent framework.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What is BEV share?
+  </h3>
+  <p class="small">
+    The percentage of newly registered vehicles that are battery-electric vehicles.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    What is being compared across countries?
+  </h3>
+  <p class="small">
+    Transition shape, timing, duration, thresholds and speed.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why not just show raw monthly data?
+  </h3>
+  <p class="small">
+    Because raw monthly data is noisy and hard to compare across markets.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why is the project public?
+  </h3>
+  <p class="small">
+    To make transition dynamics transparent and accessible.
+  </p>
+</div>
+
+
+<!-- DATA -->
+<!-- DATA -->
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Where does the data come from?
+  </h3>
+  <p class="small">
+    Data comes from multiple sources, with ACEA being the largest. Where possible, original national statistical agencies or ministries are used.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    How often is the data updated?
+  </h3>
+  <p class="small">
+    The dataset is updated whenever new official registration data becomes available and the models are re-run.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Are all countries based on monthly data?
+  </h3>
+  <p class="small">
+    No. Some countries provide monthly data, others only quarterly or yearly data depending on the source.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What is TTM?
+  </h3>
+  <p class="small">
+    TTM stands for trailing twelve months. It represents a rolling 12-month view of market shares.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why use TTM instead of monthly values?
+  </h3>
+  <p class="small">
+    TTM smooths seasonal effects and short-term volatility, making underlying trends easier to interpret.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why do some countries show BEV / PHEV / HEV separately while others only show HYBRID?
+  </h3>
+  <p class="small">
+    Statistical agencies publish different category structures. Some split hybrids into plug-in hybrids (PHEV) and conventional hybrids (HEV), while others only provide a combined hybrid category. Definitions also vary widely (e.g. treatment of mild hybrids or fuel splits).
+    <br>
+    Harmonizing categories across countries is inherently imperfect. In practice, BEV / PHEV / ICE tends to provide the most consistent cross-country comparison.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are country categories inconsistent?
+  </h3>
+  <p class="small">
+    Different statistical agencies use different definitions and reporting standards for drivetrain categories, which leads to inconsistencies across countries.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are some data sources better than others?
+  </h3>
+  <p class="small">
+    Some sources provide cleaner splits between BEV, PHEV and ICE and offer more frequent updates, making them more suitable for modeling.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What happens if a country only reports BEV, Hybrid and ICE?
+  </h3>
+  <p class="small">
+    The model adapts to the available categories, but interpretation must take into account that hybrids are not split into PHEV and HEV.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why can shares differ slightly from official statistics?
+  </h3>
+  <p class="small">
+    Shares are sometimes recalculated from category totals to ensure internal consistency. In addition, agencies may revise past months, use different vehicle scopes (e.g. passenger cars vs. total vehicles), and apply non-harmonized fuel categories.
+    <br>
+    By default, this site focuses on passenger vehicles.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What does “Updated to” mean?
+  </h3>
+  <p class="small">
+    It indicates the latest time period for which data is included in the model for a given country.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    What is the base data used for modeling?
+  </h3>
+  <p class="small">
+    Absolute registration numbers are used as the base and then converted into shares for modeling.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-data">Data:</span>
+    Why are absolute numbers still important?
+  </h3>
+  <p class="small">
+    They are used as weights in the model to reduce distortions from unusually small or volatile months.
+  </p>
+</div>
+
+<!-- MODEL -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What function is used?
+  </h3>
+  <p class="small">
+    A Weibull-style cumulative transition function is used to model BEV adoption over time.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the mathematical form of the model?
+  </h3>
+  <p class="small">
+    The core function is f(x) = 1 - exp(v1 · x^v2), combined with a time shift parameter to align the curve with calendar time.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why use a Weibull-type model?
+  </h3>
+  <p class="small">
+    It allows flexible, asymmetric S-curves and makes it obvious when the data does not support a meaningful transition.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why not use a normal distribution?
+  </h3>
+  <p class="small">
+    A normal distribution is symmetric, while real-world adoption processes are typically asymmetric.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why not use a linear model?
+  </h3>
+  <p class="small">
+    Technology transitions are nonlinear and bounded, making linear models unsuitable.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why assume an S-curve?
+  </h3>
+  <p class="small">
+    Most technology transitions start slowly, accelerate, and then saturate, which is well captured by S-shaped curves.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Is the model monotonic?
+  </h3>
+  <p class="small">
+    Yes. The model enforces a monotonic transition from low to high BEV share.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the lower bound of the model?
+  </h3>
+  <p class="small">
+    Conceptually 0% BEV share at the start of the transition.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    What is the upper bound of the model?
+  </h3>
+  <p class="small">
+    Conceptually 100% BEV share in the long run.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why enforce 0% and 100% bounds?
+  </h3>
+  <p class="small">
+    It stabilizes the model and ensures comparability across countries.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How many parameters does the model have?
+  </h3>
+  <p class="small">
+    Two shape parameters (v1 and v2) plus a time shift parameter.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why only two shape parameters?
+  </h3>
+  <p class="small">
+    Fewer parameters would be too rigid, while more would increase instability and overfitting.
+  </p>
+</div>
+    
+<!-- TRANSITION QUESTIONS -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does electrification sometimes appear slow?
+  </h3>
+  <p class="small">
+    Fleet turnover is slow. Even if BEV sales grow rapidly, replacing the existing vehicle fleet takes many years. Cars on the road do not disappear just because new registrations are electric. With typical lifespans of around 10–15 years, the transition of the fleet naturally lags behind the transition in new sales.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why do some countries electrify faster than others?
+  </h3>
+  <p class="small">
+    Adoption speed depends on many factors: vehicle supply, charging infrastructure, electricity and fuel prices, income levels, taxation, media perception and more. There is no single dominant driver. However, strong purchase incentives from governments consistently accelerate BEV adoption.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-general">General:</span>
+    Why does adoption accelerate after a certain point?
+  </h3>
+  <p class="small">
+    Technology adoption typically follows an S-curve: slow at first, then accelerating as barriers fall, and eventually slowing again as saturation is approached. This acceleration is gradual, not tied to a specific moment. The model visualizes this continuous process rather than a discrete tipping point.
+  </p>
+</div>
+
+<!-- FLEET -->
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are fleet projections calculated?
+  </h3>
+  <p class="small">
+    Fleet projections combine the last observed fleet composition with modeled inflow of new vehicles and category-specific attrition rates.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are fleet projections calculated in detail?
+  </h3>
+  <p class="small">
+    The model projects the fleet forward year by year using three components:
+    (1) the existing fleet from the previous year,
+    (2) category-specific retirement ("hazard") rates, and
+    (3) the annual inflow of newly registered vehicles.
+  </p>
+
+  <p class="small">
+    Example starting fleet (2025):
+    <br>BEV: 945,182
+    <br>PHEV: 208,467
+    <br>HEV: 162,422
+    <br>DIESEL: 942,780
+    <br>PETROL: 676,614
+    <br>OTHERS: 270
+  </p>
+
+  <p class="small">
+    Example hazard (retirement) rates:
+    <br>BEV: 0.010
+    <br>PHEV: 0.020
+    <br>HEV: 0.030
+    <br>HYBRID: 0.030
+    <br>DIESEL: 0.065
+    <br>PETROL: 0.055
+    <br>OTHERS: 0.050
+  </p>
+
+  <p class="small">
+    Assume:
+    <br>Annual new vehicle inflow: 150,000
+    <br>Inflow multiplier: 1
+    <br>Net imports: 0
+  </p>
+
+  <p class="small">
+    Step 1 – Apply hazard rates (vehicles leaving the fleet).
+    <br>Each category loses a fraction of its vehicles according to its hazard rate.
+    <br>Example:
+    <br>2026 BEV survivors = 945,182 × (1 − 0.010)
+  </p>
+
+  <p class="small">
+    Step 2 – Add new vehicle inflow.
+    <br>The annual inflow is distributed using the modeled BEV share for the middle of the projection year (year + 0.5).
+  </p>
+
+  <p class="small">
+    Example:
+    <br>2026 BEV fleet = 945,182 × (1 − 0.010) + 150,000 × BEV_share(2026.5)
+  </p>
+
+  <p class="small">
+    Step 3 – Assign the remaining inflow.
+    <br>Non-BEV inflow is assigned as follows:
+    <br>• If PHEV exists → to PHEV
+    <br>• Else if HYBRID exists → to HYBRID
+    <br>• Else → to OTHERS
+  </p>
+
+  <p class="small">
+    The process repeats each year, using the updated fleet as the new baseline.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    How are new vehicle registrations assigned to fleet categories in the projections?
+  </h3>
+  <p class="small">
+    Annual inflow is split using the modeled BEV and ICE shares at the midpoint of the projection year (year + 0.5). BEV inflow goes to BEV. The remaining non-BEV inflow is assigned to PHEV if available, otherwise to HYBRID, and only falls back to OTHERS if neither category exists.
+  </p>
+</div>
+
+<div class="card" style="margin-top:12px;">
+  <h3 style="margin-top:0;">
+    <span class="faq-tag faq-model">Model:</span>
+    Why do some countries show inflow into PHEV or HYBRID instead of OTHERS?
+  </h3>
+  <p class="small">
+    The model follows the category structure of the underlying dataset. If PHEV exists, non-BEV inflow is assigned there. If not, but HYBRID exists, it is assigned to HYBRID. This ensures consistency between projected and observed fleet categories.
+  </p>
+</div>  
+    
   </div>
 </section>
   
@@ -678,77 +1202,14 @@ th.sortable.desc::after{content:" ↓"}
     </div>
     <input id="fleetBevImportShare" type="number" min="0" max="1" step="0.001" value="1">
   </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayFloor">Inflow decay floor</label>
-      <span class="info-tip"
-        data-tip="Robotaxi / shared-mobility scenario: the annual inflow shrinks exponentially toward this floor, expressed as a fraction of the start inflow. Example: 0.10 means inflow converges to 10% of today's value. Set to 1 to disable the decay (default).">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayFloor" type="number" min="0" max="1" step="0.01" value="1">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayStart">Decay start year</label>
-      <span class="info-tip"
-        data-tip="First projection year in which the inflow decay kicks in. Before this year the inflow stays at its baseline value. Default 2030.">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayStart" type="number" min="2020" max="2100" step="1" value="2030">
-  </div>
-
-  <div class="field" style="min-width:160px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="fleetInflowDecayLambda">Decay rate (&lambda;)</label>
-      <span class="info-tip"
-        data-tip="Speed of the exponential decay. Half-life in years \u2248 ln(2) / \u03bb. Default 0.10 \u2192 ~7-year half-life: after 7 years the inflow has covered 50% of the way from start to floor, after ~23 years 90% of the way.">
-        i
-      </span>
-    </div>
-    <input id="fleetInflowDecayLambda" type="number" min="0" max="2" step="0.01" value="0.10">
-  </div>
-
+    
 </div>
 
   <div style="height:12px;"></div>
-
-<div class="small" style="margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-  <span>Hazard model</span>
-  <span class="info-tip"
-        data-tip="Two ways of computing how the fleet shrinks. Per-vintage Weibull (default) tracks each model year individually and gives a realistic bathtub-shaped survival curve. Linear age curve is a single global rate that climbs after a knee year — simpler, but less realistic for projections beyond ~15 years.">
-    i
-  </span>
-</div>
-
-<div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
-  <label class="chip">
-    <input type="radio" name="hazardMode" value="weibull" checked>
-    Per-vintage Weibull
-  </label>
-  <label class="chip">
-    <input type="radio" name="hazardMode" value="linear">
-    Linear age curve
-  </label>
-  <div class="field" style="min-width:140px;">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="weibullShape">Weibull shape</label>
-      <span class="info-tip"
-            data-tip="Controls how sharply the hazard rises with vehicle age in Weibull mode. shape = 1 means constant hazard (= linear mode with slope 0). shape = 3 (default) gives a realistic bathtub: very low hazards for young vehicles, climbing past the median age. Higher values give a sharper end-of-life cliff. Ignored in Linear mode.">
-        i
-      </span>
-    </div>
-    <input id="weibullShape" type="number" min="0.5" max="10" step="0.1" value="3.0">
-  </div>
-</div>
-
 <div class="small" style="margin-bottom:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
   <span>Annual hazard / attrition by category</span>
   <span class="info-tip"
-        data-tip="In Linear mode: the constant annual share of each category that leaves the fleet (before the age curve kicks in). In Weibull mode: the equivalent constant hazard that would produce the same median fleet life — the actual per-vintage hazards are derived from this number plus the global Weibull shape, so a young vehicle has a much lower hazard and an old one a much higher hazard. The first projection year behaves similarly in both modes; they diverge over longer horizons.">
+        data-tip="Annual share of vehicles leaving the fleet in each category. Example: 0.04 means about 4% of that category disappears each year due to scrappage, accidents, or other deregistrations. You can think of the hazard rate as the probability that a car leaves the fleet in the upcoming year.">
     i
   </span>
 </div>
@@ -836,42 +1297,6 @@ th.sortable.desc::after{content:" ↓"}
   </div>
 </div>
 
-<div class="small" style="margin-top:14px; margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-  <span>Hazard age curve</span>
-  <span class="info-tip"
-        data-tip="Hazards above are the BASE rate. As the projection runs forward, the effective hazard climbs once the projection age passes the knee year. Effective rate = base + slope × max(0, projection_age − knee_year). Set slope = 0 to keep hazards static (the previous behaviour).">
-    i
-  </span>
-</div>
-
-<div id="fleetHazardCurveGrid" style="
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap:10px;
-">
-  <div class="field">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="hazardKneeYear">Knee (years into projection)</label>
-      <span class="info-tip"
-            data-tip="Number of projection years before the hazard rate starts climbing above the base. Default 12: a fleet snapshot ages roughly 12 years before scrappage hazard rises noticeably.">
-        i
-      </span>
-    </div>
-    <input id="hazardKneeYear" type="number" min="0" max="50" step="1" value="12">
-  </div>
-
-  <div class="field">
-    <div style="display:flex; align-items:center; gap:6px;">
-      <label for="hazardSlope">Slope (per year past knee)</label>
-      <span class="info-tip"
-            data-tip="Annual increase added to every category's hazard once the projection age passes the knee. Default 0.004 = +0.4 percentage points per year past the knee. Set to 0 to disable the curve and keep hazards static.">
-        i
-      </span>
-    </div>
-    <input id="hazardSlope" type="number" min="0" max="0.05" step="0.001" value="0.004">
-  </div>
-</div>
-
 <div class="small" style="margin-top:10px;">
   Future years are projected from the last common observed year. Historical bars remain solid, projected bars are hatched.
 </div>
@@ -901,16 +1326,6 @@ th.sortable.desc::after{content:" ↓"}
     
     
 <script>
-// Generic trailing-edge debounce. Used to throttle expensive recomputes
-// (Plotly redraws, full-list DOM scans) when an input fires on every keystroke.
-function debounce(fn, ms = 150){
-  let t;
-  return function(...args){
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(this, args), ms);
-  };
-}
-
 // Fleet state
 const fleetState = {
   observed: [],
@@ -1968,17 +2383,7 @@ const layout = {
     zerolinewidth: 1
   },
 
-  legend: { orientation: 'h' },
-
-  // Author tag — visible on screenshots that get shared without context.
-  annotations: [{
-    x: 0.995, y: 0.02,
-    xref: 'paper', yref: 'paper',
-    xanchor: 'right', yanchor: 'bottom',
-    text: '@LeRaffl',
-    showarrow: false,
-    font: { size: 11, color: 'rgba(159,179,209,0.55)' }
-  }]
+  legend: { orientation: 'h' }
 };
 
 
@@ -2025,160 +2430,15 @@ function safeNum(x, fallback = 0){
 }
 
 function readFleetHazards(){
-  // Base (year-zero) hazard per category. The age curve below scales these
-  // up as the projection runs forward. Defaults match the HTML `value=`
-  // attributes, not the older 0.01-style numbers — those are stale.
   return {
-    BEV:    safeNum(document.getElementById('hazBEV')?.value, 0.035),
-    PHEV:   safeNum(document.getElementById('hazPHEV')?.value, 0.040),
-    HEV:    safeNum(document.getElementById('hazHEV')?.value, 0.042),
-    HYBRID: safeNum(document.getElementById('hazHYBRID')?.value, 0.041),
-    PETROL: safeNum(document.getElementById('hazPETROL')?.value, 0.050),
-    DIESEL: safeNum(document.getElementById('hazDIESEL')?.value, 0.055),
-    OTHERS: safeNum(document.getElementById('hazOTHERS')?.value, 0.060)
+    BEV:    safeNum(document.getElementById('hazBEV')?.value, 0.010),
+    PHEV:   safeNum(document.getElementById('hazPHEV')?.value, 0.020),
+    HEV:    safeNum(document.getElementById('hazHEV')?.value, 0.030),
+    HYBRID: safeNum(document.getElementById('hazHYBRID')?.value, 0.030),
+    PETROL: safeNum(document.getElementById('hazPETROL')?.value, 0.055),
+    DIESEL: safeNum(document.getElementById('hazDIESEL')?.value, 0.065),
+    OTHERS: safeNum(document.getElementById('hazOTHERS')?.value, 0.050)
   };
-}
-
-// Age-aware hazard curve. The "base" rates above are treated as the
-// hazard at projection year 0 (i.e. the snapshot year). As we project
-// forward, the average vehicle gets older, so the effective hazard
-// climbs linearly past `kneeYear`:
-//
-//   hz_eff(cat, age) = base[cat] + slope * max(0, age - kneeYear)
-//
-// where `age` = projection year - snapshot year. Capped at 0.5 so a
-// pathological slope can never wipe a category in a single year.
-//
-// Set slope = 0 in the UI to recover the previous static behaviour.
-function readHazardCurve(){
-  return {
-    base: readFleetHazards(),
-    kneeYear: Math.max(0, safeNum(document.getElementById('hazardKneeYear')?.value, 12)),
-    slope:    Math.max(0, safeNum(document.getElementById('hazardSlope')?.value, 0.004))
-  };
-}
-
-function effectiveHazard(curve, cat, projectionAge){
-  const base = Math.max(0, safeNum(curve.base?.[cat], 0));
-  const extra = curve.slope * Math.max(0, projectionAge - curve.kneeYear);
-  return Math.min(0.5, base + extra);
-}
-
-// Inflow decay (robotaxi / shared-mobility scenario).
-// Models the assumption that fewer privately owned vehicles get registered
-// as shared autonomous fleets take over. The annual inflow shrinks
-// exponentially toward a floor (a fraction of the start inflow):
-//
-//   inflow(year) = floor + (1 - floor) * exp(-lambda * (year - decayStart))
-//
-// Returned as a unitless multiplier in [floor, 1] applied on top of the
-// existing `inflowMultiplier`. floor = 1 disables the decay (default).
-function readInflowDecay(){
-  return {
-    floor:      clamp01(safeNum(document.getElementById('fleetInflowDecayFloor')?.value, 1)),
-    startYear:  safeNum(document.getElementById('fleetInflowDecayStart')?.value, 2030),
-    lambda:     Math.max(0, safeNum(document.getElementById('fleetInflowDecayLambda')?.value, 0.10))
-  };
-}
-
-function inflowDecayMultiplier(decay, year){
-  if (decay.floor >= 1 || decay.lambda <= 0) return 1;
-  const dt = year - decay.startYear;
-  if (dt <= 0) return 1;
-  return decay.floor + (1 - decay.floor) * Math.exp(-decay.lambda * dt);
-}
-
-// ----- Per-vintage Weibull survival -----
-//
-// Each vehicle category has a survival function S(age) = exp(-(age/scale)^shape).
-// The annual probability that a vehicle of age `a` lives to age `a+1` is
-// S(a+1)/S(a) = exp( -((a+1)^shape - a^shape) / scale^shape ).
-//
-// We do not ask the user for `scale` directly. Instead they keep editing the
-// existing 7 hazBEV...hazOTHERS boxes and we re-interpret each box as the
-// "constant hazard that would produce the same median fleet life as this
-// Weibull". That keeps the 7 inputs intuitive and ~comparable across modes.
-// For input h0 the derivation is:
-//
-//   median(constant h0) = ln(2) / h0
-//   median(Weibull)     = scale * (ln 2)^(1/shape)
-//
-// Setting them equal:
-//
-//   scale = ln(2) / ( h0 * (ln 2)^(1/shape) )
-//
-// At shape = 1 the Weibull degenerates to an exponential with constant hazard
-// h0, so the two modes coincide exactly. At shape = 3 (default) young
-// vehicles have hazards near zero and old ones spike past the median age,
-// while the first projection year still loses roughly h0 of the fleet.
-const VINTAGE_AGE_CAP = 50;
-
-function deriveWeibullScale(h0, shape){
-  if (!(h0 > 0)) return Infinity;
-  const ln2 = Math.log(2);
-  return ln2 / (h0 * Math.pow(ln2, 1 / shape));
-}
-
-// One-step Weibull survival from age `a` to age `a+1`.
-function weibullStepSurvival(a, scale, shape){
-  if (!isFinite(scale) || scale <= 0) return 1;
-  const num = Math.pow(a + 1, shape) - Math.pow(a, shape);
-  return Math.exp(-num / Math.pow(scale, shape));
-}
-
-function emptyVintageBuckets(){
-  const out = {};
-  getFleetCategories().forEach(cat => {
-    out[cat] = new Float64Array(VINTAGE_AGE_CAP + 1);
-  });
-  return out;
-}
-
-// Initial vintage distribution from a snapshot row. We do NOT know the real
-// age distribution at the snapshot year, so we use option (a) from the
-// design discussion: spread each category's count uniformly over the ages
-// 0..floor(scale[cat]). The mean assumed age is then ~scale/2, which scales
-// naturally with the category's expected lifetime — BEVs (low h0 -> long
-// scale) get a wider, younger spread than DIESEL (higher h0 -> shorter
-// scale). For young real-world fleets like Norwegian BEVs this is mildly
-// pessimistic; for older real-world fleets like German Diesel it is mildly
-// optimistic. Both biases push the projection in the conservative direction.
-function initVintageBuckets(startRow, scaleByCat){
-  const v = emptyVintageBuckets();
-  getFleetCategories().forEach(cat => {
-    const total = safeNum(startRow[cat], 0);
-    if (total <= 0) return;
-    const sc = scaleByCat[cat];
-    const cap = Math.max(1, Math.min(VINTAGE_AGE_CAP, Math.floor(isFinite(sc) ? sc : 15)));
-    const perAge = total / (cap + 1);
-    for (let a = 0; a <= cap; a++) v[cat][a] = perAge;
-  });
-  return v;
-}
-
-function vintageTotal(buckets, cat){
-  const arr = buckets[cat];
-  let s = 0;
-  for (let a = 0; a <= VINTAGE_AGE_CAP; a++) s += arr[a];
-  return s;
-}
-
-// Age every vintage by one year. Survivors of the oldest tracked age fall
-// off the end of the array (treated as scrapped). Inflow is added to age 0
-// AFTER the ageing step.
-function stepVintageBuckets(prev, inflowByCat, scaleByCat, shape){
-  const next = emptyVintageBuckets();
-  getFleetCategories().forEach(cat => {
-    const sc = scaleByCat[cat];
-    const prevArr = prev[cat];
-    const nextArr = next[cat];
-    for (let a = 0; a < VINTAGE_AGE_CAP; a++) {
-      const sur = weibullStepSurvival(a, sc, shape);
-      nextArr[a + 1] = prevArr[a] * sur;
-    }
-    nextArr[0] = inflowByCat[cat] || 0;
-  });
-  return next;
 }
 
 function getFleetCategories(){
@@ -2417,15 +2677,7 @@ function inferNonBevSplit(startRow){
 function projectCountryFleet(country, startYear, endYear, options){
   const startRow = getObservedRow(country, startYear);
   if(!startRow) return [];
-  // `hazardCurve` is the new age-aware form: { base, kneeYear, slope }.
-  // `options.hazards` (the old flat map) is still accepted as a fallback
-  // so external callers — and tests — keep working without changes.
-  const hazardCurve = options.hazardCurve
-    || { base: options.hazards || {}, kneeYear: 0, slope: 0 };
-  // Inflow decay: { floor, startYear, lambda }. Defaults to floor=1
-  // (= disabled) so existing callers without the field stay unchanged.
-  const inflowDecay = options.inflowDecay
-    || { floor: 1, startYear: 2030, lambda: 0 };
+  const hazards = options.hazards;
   const inflowMultiplier = options.inflowMultiplier;
   const netImports = options.netImportsPerYear;
   const bevImportShare = clamp01(options.bevImportShare);
@@ -2433,16 +2685,14 @@ function projectCountryFleet(country, startYear, endYear, options){
   const series = [{ ...startRow, projected:false, country }];
   let prev = { ...startRow };
   for(let year = startYear + 1; year <= endYear; year++){
-    const projectionAge = year - startYear;
     const next = emptyFleetRow(year);
     getFleetCategories().forEach(cat => {
       const prevVal = safeNum(prev[cat], 0);
-      const hz = effectiveHazard(hazardCurve, cat, projectionAge);
+      const hz = Math.max(0, safeNum(hazards[cat], 0));
       next[cat] = prevVal * (1 - hz);
     });
     const annualInflowBase = getCountryAnnualInflow(country);
-    const decayMult = inflowDecayMultiplier(inflowDecay, year);
-    const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
+    const annualInflow = annualInflowBase * inflowMultiplier;
     const bevShare = modeledBevShareForYear(country, year + 0.5);
     const iceShare = modeledIceShareForYear(country, year + 0.5);
     let inflowBEV = 0;
@@ -2497,112 +2747,6 @@ function projectCountryFleet(country, startYear, endYear, options){
     series.push(next);
     prev = next;
   }
-  return series;
-}
-
-// Per-vintage version of projectCountryFleet. Same inputs, same output
-// shape (one flat row per year), but internally tracks each model year as
-// its own cohort and applies the Weibull step survival to it. The first
-// row is the observed snapshot, identical to the static version.
-function projectCountryFleetVintage(country, startYear, endYear, options){
-  const startRow = getObservedRow(country, startYear);
-  if (!startRow) return [];
-
-  const hazardCurve = options.hazardCurve
-    || { base: options.hazards || {}, kneeYear: 0, slope: 0 };
-  const inflowDecay = options.inflowDecay
-    || { floor: 1, startYear: 2030, lambda: 0 };
-  const inflowMultiplier = options.inflowMultiplier;
-  const netImports = options.netImportsPerYear;
-  const bevImportShare = clamp01(options.bevImportShare);
-  const shape = Math.max(0.5, safeNum(options.weibullShape, 3));
-  const splitInfo = inferNonBevSplit(startRow);
-
-  // Derive a Weibull scale per category from the user's h0 input.
-  const scaleByCat = {};
-  getFleetCategories().forEach(cat => {
-    const h0 = Math.max(0.0001, safeNum(hazardCurve.base?.[cat], 0.04));
-    scaleByCat[cat] = deriveWeibullScale(h0, shape);
-  });
-
-  // Spread the snapshot uniformly across young vintages (option a).
-  let buckets = initVintageBuckets(startRow, scaleByCat);
-  const series = [{ ...startRow, projected: false, country }];
-
-  for (let year = startYear + 1; year <= endYear; year++) {
-    // Compute new inflow per category for this year (same logic as the
-    // static version, including inflow decay).
-    const annualInflowBase = getCountryAnnualInflow(country);
-    const decayMult = inflowDecayMultiplier(inflowDecay, year);
-    const annualInflow = annualInflowBase * inflowMultiplier * decayMult;
-    const bevShare = modeledBevShareForYear(country, year + 0.5);
-    const iceShare = modeledIceShareForYear(country, year + 0.5);
-
-    let inflowBEV = 0, inflowNonBEV = 0, inflowOthers = 0;
-    if (isFinite(bevShare)) {
-      inflowBEV = annualInflow * bevShare;
-      if (isFinite(iceShare)) {
-        const nonBevNonIceShare = clamp01(1 - bevShare - iceShare);
-        inflowNonBEV = annualInflow * nonBevNonIceShare;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      } else {
-        const pRatio = splitInfo.pRatio || 0;
-        inflowNonBEV = annualInflow * Math.max(0, 1 - bevShare) * pRatio;
-        inflowOthers = Math.max(0, annualInflow - inflowBEV - inflowNonBEV);
-      }
-    } else {
-      inflowOthers = annualInflow;
-    }
-
-    const inflowByCat = { BEV:0, PHEV:0, HEV:0, HYBRID:0, DIESEL:0, PETROL:0, OTHERS:0 };
-    inflowByCat.BEV = inflowBEV;
-    if (splitInfo.targetBucket) {
-      inflowByCat[splitInfo.targetBucket] = inflowNonBEV;
-    } else {
-      inflowByCat.OTHERS = inflowNonBEV;
-    }
-    inflowByCat.OTHERS += inflowOthers;
-
-    // Age the cohorts and add the new vintage 0.
-    buckets = stepVintageBuckets(buckets, inflowByCat, scaleByCat, shape);
-
-    const next = emptyFleetRow(year);
-    getFleetCategories().forEach(cat => { next[cat] = vintageTotal(buckets, cat); });
-
-    // Net imports — added/removed AFTER ageing. Positive imports go in as a
-    // brand-new vintage (age 0). Negative imports are removed proportionally
-    // from each vintage so the age distribution is preserved.
-    if (netImports >= 0) {
-      const bevImports = netImports * bevImportShare;
-      const otherImports = netImports - bevImports;
-      buckets.BEV[0] += bevImports;
-      buckets.OTHERS[0] += otherImports;
-      next.BEV += bevImports;
-      next.OTHERS += otherImports;
-    } else {
-      const exportAbs = Math.abs(netImports);
-      const removableBase = Math.max(next.BEV + next.OTHERS, 0);
-      if (removableBase > 0) {
-        const bevRemoval = exportAbs * (next.BEV / removableBase);
-        const otherRemoval = exportAbs * (next.OTHERS / removableBase);
-        if (next.BEV > 0) {
-          const factor = Math.max(0, (next.BEV - bevRemoval) / next.BEV);
-          for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.BEV[a] *= factor;
-        }
-        if (next.OTHERS > 0) {
-          const factor = Math.max(0, (next.OTHERS - otherRemoval) / next.OTHERS);
-          for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.OTHERS[a] *= factor;
-        }
-        next.BEV = Math.max(0, next.BEV - bevRemoval);
-        next.OTHERS = Math.max(0, next.OTHERS - otherRemoval);
-      }
-    }
-
-    next.projected = true;
-    next.country = country;
-    series.push(next);
-  }
-
   return series;
 }
 
@@ -2786,13 +2930,8 @@ function buildFleetPlot() {
     safeNum(document.getElementById('fleetProjectionEndYear')?.value, 2035)
   );
 
-  const hazardMode = document.querySelector('input[name="hazardMode"]:checked')?.value || 'weibull';
-  const projectFn = hazardMode === 'weibull' ? projectCountryFleetVintage : projectCountryFleet;
-
   const options = {
-    hazardCurve: readHazardCurve(),
-    inflowDecay: readInflowDecay(),
-    weibullShape: safeNum(document.getElementById('weibullShape')?.value, 3),
+    hazards: readFleetHazards(),
     inflowMultiplier: safeNum(document.getElementById('fleetInflowMultiplier')?.value, 1),
     netImportsPerYear: safeNum(document.getElementById('fleetNetImportsPerYear')?.value, 0),
     bevImportShare: clamp01(
@@ -2824,7 +2963,7 @@ function buildFleetPlot() {
   let projectedSeries = [];
   if (projectionEnabled && endYear > lastObservedYear) {
     const countrySeries = countries.map(country =>
-      projectFn(country, lastObservedYear, endYear, options)
+      projectCountryFleet(country, lastObservedYear, endYear, options)
     );
     const agg = aggregateFleetSeries(countrySeries);
     projectedSeries = agg.filter(r => r.year > lastObservedYear);
@@ -2973,15 +3112,6 @@ function buildFleetPlot() {
         showarrow: false,
         align: 'center',
         font: { size: 12, color: '#9fb3d1' }
-      },
-      // Author tag — visible on screenshots shared without context.
-      {
-        x: 0.995, y: 0.02,
-        xref: 'paper', yref: 'paper',
-        xanchor: 'right', yanchor: 'bottom',
-        text: '@LeRaffl',
-        showarrow: false,
-        font: { size: 11, color: 'rgba(159,179,209,0.55)' }
       }
     ],
     plot_bgcolor: '#0f1525',
@@ -3009,40 +3139,24 @@ function buildFleetPlot() {
 }
 
 const updateFleetPlot = () => buildFleetPlot();
-// Number inputs fire `input` on every keystroke; debounce so we don't rebuild
-// the Plotly chart five times while the user types "0.035".
-const updateFleetPlotDebounced = debounce(updateFleetPlot, 200);
 
 document.getElementById("fleetBuild")?.addEventListener("click", updateFleetPlot);
 
 document.querySelectorAll('input[name="fleetMode"]').forEach(radio => {
   radio.addEventListener('change', updateFleetPlot);
 });
-
-// Hazard mode radio (linear vs Weibull) -> immediate redraw on change.
-document.querySelectorAll('input[name="hazardMode"]').forEach(radio => {
-  radio.addEventListener('change', updateFleetPlot);
-});
-
-// Checkbox -> immediate redraw on `change` only.
-document.getElementById('fleetEnableProjection')
-  ?.addEventListener('change', updateFleetPlot);
-
-// Number inputs -> debounced redraw on `input` only. Binding both `change`
-// and `input` (as before) caused duplicate rebuilds on every edit.
 [
+  'fleetEnableProjection',
   'fleetProjectionEndYear',
   'fleetInflowMultiplier',
   'fleetNetImportsPerYear',
   'fleetBevImportShare',
-  'hazBEV','hazPHEV','hazHEV','hazHYBRID','hazPETROL','hazDIESEL','hazOTHERS',
-  'hazardKneeYear','hazardSlope',
-  'weibullShape',
-  'fleetInflowDecayFloor','fleetInflowDecayStart','fleetInflowDecayLambda'
+  'hazBEV','hazPHEV','hazHEV','hazHYBRID','hazPETROL','hazDIESEL','hazOTHERS'
 ].forEach(id => {
-  document.getElementById(id)?.addEventListener('input', updateFleetPlotDebounced);
+  document.getElementById(id)?.addEventListener('change', updateFleetPlot);
+  document.getElementById(id)?.addEventListener('input', updateFleetPlot);
 });
-
+  
 // Listener für dynamische Checkboxen (wird in updateCategoryCheckboxes neu gebunden)
 document.getElementById("fleetCountries")?.addEventListener("change", () => {
   updateCategoryCheckboxes();
@@ -3076,215 +3190,17 @@ async function initFleetTab() {
   }
 }
 
-// -------- FAQ --------
-// Single source of truth for the FAQ. Each entry becomes one .card.
-// `tag` is one of: 'general' | 'data' | 'model' | 'basics'.
-// `answers` is an array of HTML strings (one <p class="small"> per entry),
-// allowing inline <br>, <em>, etc. without escaping.
-const FAQ_DATA = [
-  // ----- GENERAL (BASICS) -----
-  { tag: 'general', label: 'General', q: 'What does this project do?',
-    answers: ['It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.'] },
-  { tag: 'general', label: 'General', q: 'What exactly is being modeled?',
-    answers: ['The BEV share of new vehicle registrations over time.'] },
-  { tag: 'general', label: 'General', q: 'Is this a forecast?',
-    answers: ['No. It is a best-fit description of the transition as of today, conditional on currently observed data.'] },
-  { tag: 'general', label: 'General', q: 'What does the curve mean in plain English?',
-    answers: ['It shows what the transition looks like if the structure visible in the data continues.'] },
-  { tag: 'general', label: 'General', q: 'Why do curves change over time?',
-    answers: ['Because the model is refit when new data arrives, so parameters and derived dates update.'] },
-  { tag: 'general', label: 'General', q: 'Why are some countries ahead?',
-    answers: ['Because adoption drivers differ by taxes, incentives, charging, vehicle supply, income, fleet structure and policy.'] },
-  { tag: 'general', label: 'General', q: 'Why are some countries slower?',
-    answers: ['Because the observed data shows a slower transition shape or later acceleration.'] },
-  { tag: 'general', label: 'General', q: 'Why does this matter?',
-    answers: ['It makes different national transitions comparable with one consistent framework.'] },
-  { tag: 'general', label: 'General', q: 'What is BEV share?',
-    answers: ['The percentage of newly registered vehicles that are battery-electric vehicles.'] },
-  { tag: 'general', label: 'General', q: 'What is being compared across countries?',
-    answers: ['Transition shape, timing, duration, thresholds and speed.'] },
-  { tag: 'general', label: 'General', q: 'Why not just show raw monthly data?',
-    answers: ['Because raw monthly data is noisy and hard to compare across markets.'] },
-  { tag: 'general', label: 'General', q: 'Why is the project public?',
-    answers: ['To make transition dynamics transparent and accessible.'] },
-
-  // ----- DATA -----
-  { tag: 'data', label: 'Data', q: 'Where does the data come from?',
-    answers: ['Data comes from multiple sources, with ACEA being the largest. Where possible, original national statistical agencies or ministries are used.'] },
-  { tag: 'data', label: 'Data', q: 'How often is the data updated?',
-    answers: ['The dataset is updated whenever new official registration data becomes available and the models are re-run.'] },
-  { tag: 'data', label: 'Data', q: 'Are all countries based on monthly data?',
-    answers: ['No. Some countries provide monthly data, others only quarterly or yearly data depending on the source.'] },
-  { tag: 'data', label: 'Data', q: 'What is TTM?',
-    answers: ['TTM stands for trailing twelve months. It represents a rolling 12-month view of market shares.'] },
-  { tag: 'data', label: 'Data', q: 'Why use TTM instead of monthly values?',
-    answers: ['TTM smooths seasonal effects and short-term volatility, making underlying trends easier to interpret.'] },
-  { tag: 'data', label: 'Data', q: 'Why do some countries show BEV / PHEV / HEV separately while others only show HYBRID?',
-    answers: ['Statistical agencies publish different category structures. Some split hybrids into plug-in hybrids (PHEV) and conventional hybrids (HEV), while others only provide a combined hybrid category. Definitions also vary widely (e.g. treatment of mild hybrids or fuel splits).<br>Harmonizing categories across countries is inherently imperfect. In practice, BEV / PHEV / ICE tends to provide the most consistent cross-country comparison.'] },
-  { tag: 'data', label: 'Data', q: 'Why are country categories inconsistent?',
-    answers: ['Different statistical agencies use different definitions and reporting standards for drivetrain categories, which leads to inconsistencies across countries.'] },
-  { tag: 'data', label: 'Data', q: 'Why are some data sources better than others?',
-    answers: ['Some sources provide cleaner splits between BEV, PHEV and ICE and offer more frequent updates, making them more suitable for modeling.'] },
-  { tag: 'data', label: 'Data', q: 'What happens if a country only reports BEV, Hybrid and ICE?',
-    answers: ['The model adapts to the available categories, but interpretation must take into account that hybrids are not split into PHEV and HEV.'] },
-  { tag: 'data', label: 'Data', q: 'Why can shares differ slightly from official statistics?',
-    answers: ['Shares are sometimes recalculated from category totals to ensure internal consistency. In addition, agencies may revise past months, use different vehicle scopes (e.g. passenger cars vs. total vehicles), and apply non-harmonized fuel categories.<br>By default, this site focuses on passenger vehicles.'] },
-  { tag: 'data', label: 'Data', q: 'What does \u201cUpdated to\u201d mean?',
-    answers: ['It indicates the latest time period for which data is included in the model for a given country.'] },
-  { tag: 'data', label: 'Data', q: 'What is the base data used for modeling?',
-    answers: ['Absolute registration numbers are used as the base and then converted into shares for modeling.'] },
-  { tag: 'data', label: 'Data', q: 'Why are absolute numbers still important?',
-    answers: ['They are used as weights in the model to reduce distortions from unusually small or volatile months.'] },
-
-  // ----- MODEL -----
-  { tag: 'model', label: 'Model', q: 'What function is used?',
-    answers: ['A Weibull-style cumulative transition function is used to model BEV adoption over time.'] },
-  { tag: 'model', label: 'Model', q: 'What is the mathematical form of the model?',
-    answers: ['The core function is f(x) = 1 - exp(v1 \u00b7 x^v2), combined with a time shift parameter to align the curve with calendar time.'] },
-  { tag: 'model', label: 'Model', q: 'Why use a Weibull-type model?',
-    answers: ['It allows flexible, asymmetric S-curves and makes it obvious when the data does not support a meaningful transition.'] },
-  { tag: 'model', label: 'Model', q: 'Why not use a normal distribution?',
-    answers: ['A normal distribution is symmetric, while real-world adoption processes are typically asymmetric.'] },
-  { tag: 'model', label: 'Model', q: 'Why not use a linear model?',
-    answers: ['Technology transitions are nonlinear and bounded, making linear models unsuitable.'] },
-  { tag: 'model', label: 'Model', q: 'Why assume an S-curve?',
-    answers: ['Most technology transitions start slowly, accelerate, and then saturate, which is well captured by S-shaped curves.'] },
-  { tag: 'model', label: 'Model', q: 'Is the model monotonic?',
-    answers: ['Yes. The model enforces a monotonic transition from low to high BEV share.'] },
-  { tag: 'model', label: 'Model', q: 'What is the lower bound of the model?',
-    answers: ['Conceptually 0% BEV share at the start of the transition.'] },
-  { tag: 'model', label: 'Model', q: 'What is the upper bound of the model?',
-    answers: ['Conceptually 100% BEV share in the long run.'] },
-  { tag: 'model', label: 'Model', q: 'Why enforce 0% and 100% bounds?',
-    answers: ['It stabilizes the model and ensures comparability across countries.'] },
-  { tag: 'model', label: 'Model', q: 'How many parameters does the model have?',
-    answers: ['Two shape parameters (v1 and v2) plus a time shift parameter.'] },
-  { tag: 'model', label: 'Model', q: 'Why only two shape parameters?',
-    answers: ['Fewer parameters would be too rigid, while more would increase instability and overfitting.'] },
-
-  // ----- TRANSITION -----
-  { tag: 'general', label: 'General', q: 'Why does electrification sometimes appear slow?',
-    answers: ['Fleet turnover is slow. Even if BEV sales grow rapidly, replacing the existing vehicle fleet takes many years. Cars on the road do not disappear just because new registrations are electric. With typical lifespans of around 10\u201315 years, the transition of the fleet naturally lags behind the transition in new sales.'] },
-  { tag: 'general', label: 'General', q: 'Why do some countries electrify faster than others?',
-    answers: ['Adoption speed depends on many factors: vehicle supply, charging infrastructure, electricity and fuel prices, income levels, taxation, media perception and more. There is no single dominant driver. However, strong purchase incentives from governments consistently accelerate BEV adoption.'] },
-  { tag: 'general', label: 'General', q: 'Why does adoption accelerate after a certain point?',
-    answers: ['Technology adoption typically follows an S-curve: slow at first, then accelerating as barriers fall, and eventually slowing again as saturation is approached. This acceleration is gradual, not tied to a specific moment. The model visualizes this continuous process rather than a discrete tipping point.'] },
-
-  // ----- FLEET -----
-  { tag: 'model', label: 'Model', q: 'What is the hazard rate, in one sentence?',
-    answers: [
-      'The hazard rate is the share of a category that disappears from the fleet in one year (scrappage, accidents, deregistrations).',
-      'Example: a BEV hazard of 0.035 means that without any new inflow, 3.5% of the BEV fleet leaves every year, so 96.5% survive into the next year.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'What is the formula for the hazard rate?',
-    answers: [
-      'For each category (BEV, PHEV, HEV, HYBRID, PETROL, DIESEL, OTHERS) the effective hazard at projection year <i>age</i> is:',
-      '<b>hz_eff(cat, age) = base[cat] + slope \u00d7 max(0, age \u2212 knee)</b>',
-      'where <i>age</i> = projection year \u2212 snapshot year (the last observed year), and the result is capped at 0.5 so a single year can never wipe more than half of a category.',
-      'The seven number inputs in the Fleet tab are the <b>base[cat]</b> values \u2014 the hazard at year 0. The two extra inputs <b>knee</b> (default 12) and <b>slope</b> (default 0.004) describe how the hazard climbs as the fleet ages.',
-      'Setting <b>slope = 0</b> turns the function into a constant: every category keeps its base rate forever. That is the previous (static) behaviour, exactly.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'Why does the hazard rate change over time?',
-    answers: [
-      'Real vehicles do not have a constant scrappage probability. A 2-year-old car almost never gets scrapped; a 15-year-old car frequently does. The longer the projection runs, the older the average vehicle in the fleet, so the average yearly attrition naturally rises.',
-      'The linear age curve fakes this without tracking each vintage individually: the base rate applies for the first <b>knee</b> years (default 12), and after that the rate climbs by <b>slope</b> per year. So a BEV with base 0.035, knee 12, slope 0.004 still has a 3.5% hazard up to projection year 12, then 3.9% at year 13, 4.3% at year 14, and so on.',
-      '<b>Caveat:</b> real survival curves are roughly bathtub-shaped (very low hazard for the first few years, a long plateau, then a steeper rise around 15\u201320 years), and they eventually plateau again rather than rising forever. A straight line is a deliberate simplification \u2014 it is more realistic than a constant rate and stays useful for projection horizons up to ~15 years, but for very long horizons (25+ years) it understates the middle years and overstates the tail. A per-vintage tracking model would be the next step up.',
-      'The same curve is also applied uniformly to every category, even though in practice the average age of a Diesel fleet today is several years above the average age of a BEV fleet. That difference is not modelled here \u2014 the projection treats every category as if its current snapshot were "year 0".'
-    ] },
-  { tag: 'model', label: 'Model', q: 'What is the per-vintage Weibull mode?',
-    answers: [
-      'The Fleet tab now offers two ways of computing how the fleet shrinks: <b>Linear age curve</b> (the original) and <b>Per-vintage Weibull</b> (the new default). The radio buttons above the hazard inputs switch between them.',
-      'The linear curve treats every car in a category the same. The Weibull mode tracks each model year (vintage) of every category individually and applies a realistic survival function to each cohort: very young cars have a hazard close to zero, the hazard climbs gently up to the median age of that category, and rises sharply after that.',
-      'Both modes share the same seven hazard input boxes \u2014 in linear mode they are constants, in Weibull mode they are interpreted as the equivalent constant hazard that would produce the same median fleet life. The first projection year behaves similarly in both modes; they only diverge over longer horizons.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'What is the formula for the Weibull survival?',
-    answers: [
-      'For each category we use the standard two-parameter Weibull survival function:',
-      '<b>S(age) = exp( \u2212 (age / scale)^shape )</b>',
-      'The probability that a vehicle of age <i>a</i> survives one more year is <b>S(a+1) / S(a)</b>, and the annual hazard for that vintage is <b>1 \u2212 S(a+1) / S(a)</b>. There is one global <b>shape</b> input (default 3.0) and a per-category <b>scale</b> derived from the seven hazard boxes:',
-      '<b>scale = ln(2) / ( h0 \u00d7 (ln 2)^(1/shape) )</b>',
-      'This is chosen so that the median life of the Weibull equals the median life of a constant-hazard model with rate <i>h0</i>. Worked example for the BEV default (<i>h0</i> = 0.035, shape = 3):<br>scale = 0.693 / (0.035 \u00d7 0.885) \u2248 22.4 years.<br>Annual hazards: ~0% at age 0, ~2% at age 15, ~6% at age 22, ~22% at age 30.',
-      'Setting <b>shape = 1</b> turns the Weibull into a pure exponential with constant hazard <i>h0</i> \u2014 i.e. the linear-mode behaviour with slope = 0, exactly.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'How is the initial vintage distribution chosen?',
-    answers: [
-      'The model does not know the real age distribution of today\u2019s fleet, so the snapshot count is spread <b>uniformly across the ages 0 to floor(scale)</b> for each category. Mean assumed age is then ~scale/2, which scales naturally with the category\u2019s expected lifetime: BEV (low <i>h0</i> \u2192 long scale) gets a wider, younger spread than DIESEL (higher <i>h0</i> \u2192 shorter scale).',
-      'For young real-world fleets like Norwegian BEVs this is mildly pessimistic (the average BEV in Norway today is younger than the model assumes). For older real-world fleets like German Diesel it is mildly optimistic. Both biases push projections in the conservative direction \u2014 the real transition tends to be slightly faster than the model shows.',
-      'A more elaborate option would be to reconstruct the vintage distribution from historical year-over-year inflows. That is on the roadmap but not implemented today.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'How does each year\u2019s fleet shrink (worked example)?',
-    answers: [
-      'Take the BEV count for the previous year and multiply by (1 \u2212 hz_eff). Then add this year\u2019s new BEV inflow. That\u2019s it.',
-      'Norway BEV at end of 2025: 945,182. With base 0.035 and projection age 1 (so hz_eff still = 0.035):<br>2026 survivors = 945,182 \u00d7 (1 \u2212 0.035) = 912,101.<br>Add new inflow on top, and you have the 2026 BEV count.',
-      'The same step is applied to every category every year. The model just repeats this loop until it reaches the end year you set.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'What is the inflow decay (robotaxi scenario)?',
-    answers: [
-      'Robotaxis and shared autonomous fleets replace privately owned cars: one robotaxi serves several people, so the total number of vehicles registered each year shrinks. The inflow decay models exactly that — it lets the annual inflow of new vehicles fall over time toward a floor (e.g. 10% of today\u2019s value).',
-      'Setting the floor to <b>1</b> turns the decay off completely (the previous behaviour). Setting the floor below 1 activates a smooth exponential decline starting from the chosen year.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'What is the formula for the inflow decay?',
-    answers: [
-      'For every projection year:',
-      '<b>inflow(year) = base \u00d7 inflowMultiplier \u00d7 decay(year)</b>',
-      '<b>decay(year) = floor + (1 \u2212 floor) \u00d7 exp(\u2212\u03bb \u00d7 max(0, year \u2212 startYear))</b>',
-      'Inputs:<br>\u2022 <b>floor</b> \u2014 fraction of today\u2019s inflow that the decay converges toward (default 1 = disabled; try 0.10 for "10% of today" once robotaxis are mature).<br>\u2022 <b>startYear</b> \u2014 first year the decay applies (default 2030).<br>\u2022 <b>\u03bb</b> \u2014 decay speed. Half-life in years \u2248 ln(2) / \u03bb. Default 0.10 means a ~7-year half-life: after 7 years the inflow has covered 50% of the way from start to floor, after ~23 years 90% of the way.',
-      'Worked example: floor = 0.10, startYear = 2030, \u03bb = 0.10.<br>2030: decay = 0.10 + 0.90 \u00d7 exp(0) = 1.00 (just kicked in).<br>2037: decay = 0.10 + 0.90 \u00d7 exp(\u22120.7) \u2248 0.547 (half-life reached).<br>2050: decay = 0.10 + 0.90 \u00d7 exp(\u22122.0) \u2248 0.222.<br>2070: decay \u2248 0.122 (almost at the floor).',
-      '<b>Effect on the plot:</b> BEV stock keeps growing but more slowly (less inflow to feed it). ICE stocks shrink faster than they would otherwise, because they keep losing vehicles to the hazard rate while the smaller inflow no longer fully replaces them. After ~30 years the total fleet sits roughly at floor \u00d7 today\u2019s size, plus whatever has not yet been hazarded out.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'How are fleet projections calculated?',
-    answers: ['Fleet projections combine the last observed fleet composition with modeled inflow of new vehicles and category-specific attrition rates.'] },
-  { tag: 'model', label: 'Model', q: 'How are fleet projections calculated in detail?',
-    answers: [
-      'The model projects the fleet forward year by year using three components: (1) the existing fleet from the previous year, (2) category-specific retirement ("hazard") rates that climb with projection age, and (3) the annual inflow of newly registered vehicles.',
-      'Example starting fleet (2025):<br>BEV: 945,182<br>PHEV: 208,467<br>HEV: 162,422<br>DIESEL: 942,780<br>PETROL: 676,614<br>OTHERS: 270',
-      'Example BASE hazard rates (year 0):<br>BEV: 0.035<br>PHEV: 0.040<br>HEV: 0.042<br>HYBRID: 0.041<br>DIESEL: 0.055<br>PETROL: 0.050<br>OTHERS: 0.060',
-      'Hazard age curve: hz_eff(cat, age) = base[cat] + slope \u00d7 max(0, age \u2212 knee).<br>Defaults: knee = 12 years, slope = 0.004 per year.<br>Example: a BEV at projection year 15 has hz_eff = 0.035 + 0.004 \u00d7 (15 \u2212 12) = 0.047.<br>Set slope = 0 to keep hazards static.',
-      'Assume:<br>Annual new vehicle inflow: 150,000<br>Inflow multiplier: 1<br>Net imports: 0',
-      'Step 1 \u2013 Apply the effective hazard rate for this projection year (vehicles leaving the fleet).<br>Each category loses a fraction of its vehicles according to its current hz_eff.<br>Example:<br>2026 BEV survivors = 945,182 \u00d7 (1 \u2212 0.035)',
-      'Step 2 \u2013 Add new vehicle inflow.<br>The annual inflow is distributed using the modeled BEV share for the middle of the projection year (year + 0.5).',
-      'Example:<br>2026 BEV fleet = 945,182 \u00d7 (1 \u2212 0.035) + 150,000 \u00d7 BEV_share(2026.5)',
-      'Step 3 \u2013 Assign the remaining inflow.<br>Non-BEV inflow is assigned as follows:<br>\u2022 If PHEV exists \u2192 to PHEV<br>\u2022 Else if HYBRID exists \u2192 to HYBRID<br>\u2022 Else \u2192 to OTHERS',
-      'The process repeats each year, using the updated fleet as the new baseline.'
-    ] },
-  { tag: 'model', label: 'Model', q: 'How are new vehicle registrations assigned to fleet categories in the projections?',
-    answers: ['Annual inflow is split using the modeled BEV and ICE shares at the midpoint of the projection year (year + 0.5). BEV inflow goes to BEV. The remaining non-BEV inflow is assigned to PHEV if available, otherwise to HYBRID, and only falls back to OTHERS if neither category exists.'] },
-  { tag: 'model', label: 'Model', q: 'Why do some countries show inflow into PHEV or HYBRID instead of OTHERS?',
-    answers: ['The model follows the category structure of the underlying dataset. If PHEV exists, non-BEV inflow is assigned there. If not, but HYBRID exists, it is assigned to HYBRID. This ensures consistency between projected and observed fleet categories.'] }
-];
-
-function renderFaq(){
-  const mount = document.getElementById('faqList');
-  if (!mount) return;
-  // Build with a single innerHTML write to avoid 44 reflows.
-  mount.innerHTML = FAQ_DATA.map(item => `
-    <div class="card faq-item">
-      <h3 class="faq-q">
-        <span class="faq-tag faq-${item.tag}">${item.label}:</span>
-        ${item.q}
-      </h3>
-      ${item.answers.map(a => `<p class="small">${a}</p>`).join('')}
-    </div>
-  `).join('');
-}
-renderFaq();
-
-// FAQ search — debounced because every keystroke walks every card.
+// for search
 const faqSearch = document.getElementById("faqSearch");
 
 if (faqSearch) {
-  // Cache the card list once. The FAQ section is rendered once at startup,
-  // so re-querying on every keystroke is pure overhead.
-  let faqCards = null;
-  const runFaqFilter = () => {
-    if (!faqCards) faqCards = [...document.querySelectorAll("#tab-faq .card")];
-    const q = faqSearch.value.toLowerCase();
-    faqCards.forEach(card => {
+  faqSearch.addEventListener("input", function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll("#tab-faq .card").forEach(card => {
       const text = card.innerText.toLowerCase();
       card.style.display = text.includes(q) ? "" : "none";
     });
-  };
-  faqSearch.addEventListener("input", debounce(runFaqFilter, 120));
+  });
 }
 document.addEventListener('click', (e) => {
   const clickedTip = e.target.closest('.info-tip');
