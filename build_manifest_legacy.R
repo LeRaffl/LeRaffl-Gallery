@@ -42,7 +42,7 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   base <- sub("^([a-z0-9-]+).*$", "\\1", s)
   
   # Länder-Overrides (Diakritika etc.)
-  country_map <- c("tuerkiye" = "Türkiye", "uk" = "UK", "usa" = "USA")
+  country_map <- c("tuerkiye" = "Türkiye")
   if (!is.null(country_overrides)) {
     country_map[names(country_overrides)] <- country_overrides
   }
