@@ -19,6 +19,19 @@ html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto
 header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
 header .bar{max-width:var(--maxw);margin:0 auto;padding:12px 10px;display:flex;align-items:center;gap:12px}
 header h1{margin:0;font-size:20px;font-weight:700}
+/* Visible warning banner shown when the page falls back to bundled sample
+   data because a real CSV/JSON file could not be loaded. Hidden by default;
+   JS flips `hidden` off from showSampleDataWarning() in the loader code. */
+#sampleDataBanner{background:#5a2a00;color:#ffd7a1;border-bottom:1px solid #8a4b00;font-weight:600;font-size:14px;padding:10px 14px;text-align:center;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#sampleDataBanner .tag{display:inline-block;padding:2px 8px;border-radius:6px;background:#ffb25a;color:#3a1a00;font-size:12px;font-weight:700;letter-spacing:0.04em}
+#sampleDataBanner .why{opacity:0.85;font-weight:400}
+/* Softer, amber data-hygiene banner shown when a loader detects legacy
+   rows it had to clean up on the fly (e.g. duplicate country spellings
+   in weights.csv). Non-blocking — the page still renders fine — but
+   visible enough that we eventually go fix the source CSV. */
+#legacyDataBanner{background:#3a2e05;color:#ffe9a3;border-bottom:1px solid #6b5200;font-weight:500;font-size:13px;padding:8px 14px;text-align:center;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+#legacyDataBanner .tag{display:inline-block;padding:2px 8px;border-radius:6px;background:#d4a017;color:#2a1f00;font-size:11px;font-weight:700;letter-spacing:0.04em}
+#legacyDataBanner .detail{opacity:0.85;font-weight:400;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
 
 /* Tabs */
 .tabs{max-width:var(--maxw);margin:8px auto 0;padding:0 10px;display:flex;gap:10px;flex-wrap:wrap}
@@ -51,6 +64,11 @@ td.late {
 .side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
+select[multiple]{background-image:none;padding-right:12px;scrollbar-width:thin;scrollbar-color:#2a3654 #0b1324}
+select[multiple] option{padding:6px 10px;border-radius:6px;margin:1px 2px;transition:background .1s}
+select[multiple] option:checked{background:#1a3a5c linear-gradient(0deg,#1a3a5c,#1a3a5c);color:#7cc4ff;font-weight:600}
+select[multiple] option:hover{background:#162845}
+select[multiple]:focus{border-color:#3a6fad;outline:none;box-shadow:0 0 0 2px rgba(77,163,255,0.15)}
 .chips{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;font-size:14px;font-weight:600;color:#eef3ff;white-space:nowrap;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
 .chip:hover{border-color:#3a4a72}
@@ -69,10 +87,11 @@ select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-i
 .thumbbox{position:relative;width:100%;aspect-ratio:16/9;background:#121826;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #1f2a44}
 .thumb{width:100%;height:100%;object-fit:contain;display:block;transition:transform .15s ease}
 .thumbbox:hover .thumb{transform:scale(1.04)}
-.meta{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.meta .left{display:flex;flex-direction:column}
+.meta{padding:10px 14px 12px;display:flex;flex-direction:column;gap:2px}
+.meta .left{display:contents}
 .country{font-weight:700;font-size:14px}
-.type,.date{opacity:.9;font-size:12px}
+.type{opacity:.9;font-size:12px}
+.date{opacity:.7;font-size:11px;margin-top:3px}
 .footer{padding:10px 14px;border-top:1px solid #1f2a44;display:flex;align-items:center;gap:10px}
 .btn{cursor:pointer;border:1px solid #2a385d;background:#101a33;padding:8px 10px;border-radius:10px;text-decoration:none;color:#e9eef2}
 .btn.primary {
@@ -96,6 +115,8 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .lbbox{position:relative;display:inline-block;max-width:min(96vw,1600px);max-height:92vh}
 .lbbox img{width:auto;height:auto;max-width:100%;max-height:92vh;object-fit:contain;display:block;border-radius:10px;background:#0b0c10}
 .btn.x{position:absolute;top:8px;right:8px;z-index:3;line-height:1;border-radius:999px;padding:10px 12px}
+.btn.lb-dl{position:absolute;top:8px;left:8px;z-index:3;line-height:1;border-radius:999px;padding:10px 14px;font-size:16px;font-weight:700;background:#101a33cc;backdrop-filter:blur(4px);text-decoration:none}
+.chart-dl{display:inline-flex;align-items:center;gap:6px;margin:8px 0;padding:8px 14px;font-size:13px}
 @media (max-width:600px){.lb{padding:12px}.lbbox{max-width:98vw;max-height:86vh}.lbbox img{max-height:86vh}.btn.x{top:auto;bottom:8px;right:8px}}
 
 /* Thresholds + Durations shared */
@@ -140,6 +161,53 @@ th.sortable.desc::after{content:" ↓"}
   .side{position:static;top:auto;z-index:auto}
   .page{gap:12px}
   select,[role="listbox"]{max-height:50vh;overflow:auto;-webkit-overflow-scrolling:touch}
+
+  /* Table horizontal scroll hint */
+  .tablecard{
+    position:relative;
+  }
+  .tablecard::after{
+    content:'';
+    position:absolute;
+    top:0;bottom:0;right:0;width:28px;
+    background:linear-gradient(to right,transparent,rgba(15,21,37,0.85));
+    pointer-events:none;
+    border-radius:0 14px 14px 0;
+  }
+  .tablecard.scrolled-end::after{display:none}
+
+  /* Tighter table cells on mobile */
+  #tab-thresholds .tablecard th,
+  #tab-thresholds .tablecard td,
+  #tab-durations .tablecard th,
+  #tab-durations .tablecard td{
+    padding:8px 8px;
+    font-size:13px;
+  }
+  #tab-thresholds .tablecard th:nth-child(2),
+  #tab-thresholds .tablecard td:nth-child(2),
+  #tab-durations .tablecard th:nth-child(2),
+  #tab-durations .tablecard td:nth-child(2){
+    min-width:110px;
+  }
+  #tab-thresholds .tablecard th:nth-child(3),
+  #tab-thresholds .tablecard th:nth-child(4),
+  #tab-thresholds .tablecard th:nth-child(5),
+  #tab-thresholds .tablecard th:nth-child(6),
+  #tab-thresholds .tablecard td:nth-child(3),
+  #tab-thresholds .tablecard td:nth-child(4),
+  #tab-thresholds .tablecard td:nth-child(5),
+  #tab-thresholds .tablecard td:nth-child(6),
+  #tab-durations .tablecard th:nth-child(3),
+  #tab-durations .tablecard th:nth-child(4),
+  #tab-durations .tablecard th:nth-child(5),
+  #tab-durations .tablecard td:nth-child(3),
+  #tab-durations .tablecard td:nth-child(4),
+  #tab-durations .tablecard td:nth-child(5){
+    min-width:80px;
+  }
+  .variant-col{min-width:120px}
+  .data-per-col{min-width:72px}
 }
 
 /* Thresholds + Durations table harmonization */
@@ -221,13 +289,16 @@ th.sortable.desc::after{content:" ↓"}
   height: 14px;
   margin-right: 6px;    /* Abstand zum Text reduzieren */
 }
+/* Radio-chip toolbar items: tighter padding, no forced min-width and a
+   smaller type size so the 2-3 option groups fit on a single row even
+   on narrow viewports. */
 .toolbar .chip:has(input[type="radio"]) {
-  padding: 6px 10px;    /* Kleineres Padding um den ganzen Chip */
-  min-width: auto;      /* Keine Mindestbreite erzwingen */
-  white-space: nowrap;  /* Text bleibt in einer Zeile */
-  font-size: 13px;      /* Etwas kleinerer Text für mehr Kompaktheit */
+  padding: 6px 10px;
+  min-width: auto;
+  white-space: nowrap;
+  font-size: 13px;
 }
-/* Optional: Label-Text noch enger am Button */
+/* Keep the label text flush with the radio button itself. */
 .toolbar .chip:has(input[type="radio"]) label {
   display: flex;
   align-items: center;
@@ -357,6 +428,49 @@ th.sortable.desc::after{content:" ↓"}
   opacity: 0.6;
   filter: saturate(0.6);
 }
+
+/* Collapsible fleet control cards */
+.fc-collapse-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #2a3654;
+  border-radius: 6px;
+  color: #6f86ad;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 8px;
+  line-height: 1.4;
+  transition: color .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.fc-collapse-btn:hover { color: #9fb3d1; border-color: #4a6080; }
+.fc-collapsible-body.fc-body-hidden { display: none; }
+
+/* World-map region / zoom buttons */
+.wm-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:6px 12px;
+  border:1px solid #2a3654;
+  background:#0b1324;
+  color:#cfe1ff;
+  border-radius:8px;
+  font:inherit;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:border-color .15s,background .15s,color .15s;
+}
+.wm-btn:hover{border-color:#4da3ff;background:#11203d;color:#fff}
+.wm-btn.is-active{border-color:#4da3ff;background:#11203d;color:#fff}
+.wm-btn-zoom{
+  min-width:34px;
+  justify-content:center;
+  padding:6px 10px;
+  font-size:14px;
+  font-weight:700;
+}
 /* Inputs in inactive sub-cards stay fully interactive — otherwise the
    control that enables the sub-card (e.g. the decay floor) would be
    unreachable. Visual mute only. */
@@ -399,16 +513,17 @@ th.sortable.desc::after{content:" ↓"}
 /* FAQ items: rendered from FAQ_DATA. Replaces the old per-card inline styles. */
 .faq-item { margin-top: 12px; }
 .faq-q { margin-top: 0; }
+
+/* Uniform section heading margin across all tabs */
+section.tab .container > h2 { margin: 6px 0 12px; }
 </style>
   
 
   
 <!--
-  Plotly v1.58.5 pinned. The unpinned plotly-latest.min.js URL also resolves to
-  v1.58.5 (last release of the 1.x line, July 2021), so this preserves current
-  behaviour exactly while making the dependency explicit and stoppable from drift.
+  Plotly v3.5.0 (latest stable as of April 2026).
 -->
-<script src="https://cdn.plot.ly/plotly-1.58.5.min.js" defer></script>
+<script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
 </head>
 <body>
   <header>
@@ -418,19 +533,36 @@ th.sortable.desc::after{content:" ↓"}
     </div>
   </header>
 
+  <!-- Visible only when DEV_SAMPLE fallback kicks in (manifest/params missing). -->
+  <div id="sampleDataBanner" hidden role="status" aria-live="polite">
+    <span class="tag">SAMPLE DATA</span>
+    <span>This page is showing bundled placeholder data.</span>
+    <span class="why" id="sampleDataBannerWhy"></span>
+  </div>
+
+  <!-- Visible only when a loader detects legacy/duplicate rows it had to
+       clean up (D3). The page still works — this is a nudge to go fix
+       the source CSV, not a fatal error. -->
+  <div id="legacyDataBanner" hidden role="status" aria-live="polite">
+    <span class="tag">LEGACY DATA</span>
+    <span>Found legacy data — please clean source data.</span>
+    <span class="detail" id="legacyDataBannerDetail"></span>
+  </div>
+
   <nav class="tabs">
     <a href="#gallery" class="tablink active">Gallery</a>
     <a href="#thresholds" class="tablink">Thresholds</a>
     <a href="#durations" class="tablink">Durations</a>
     <a href="#builder" class="tablink">Builder</a>
     <a href="#fleet" class="tablink">Fleet</a>
+    <a href="#worldmap" class="tablink">World Map</a>
     <a href="#faq" class="tablink">FAQ</a>
   </nav>
 
 <!-- FAQ TAB -->
 <section id="tab-faq" class="tab">
   <div class="container">
-    <h2 style="margin:2px 0 16px">FAQ</h2>
+    <h2>FAQ</h2>
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
     <!-- Cards are rendered from FAQ_DATA in the script block below. -->
     <div id="faqList"></div>
@@ -488,7 +620,8 @@ th.sortable.desc::after{content:" ↓"}
       <div class="lb">
         <div class="lbbox">
           <button class="btn x" onclick="lb.close()" aria-label="Close preview">✕</button>
-          <img src="about:blank" alt=""/> 
+          <a id="lbDownload" class="btn lb-dl" download aria-label="Download image">↓</a>
+          <img src="about:blank" alt=""/>
         </div>
       </div>
     </dialog>
@@ -497,7 +630,7 @@ th.sortable.desc::after{content:" ↓"}
   <!-- THRESHOLDS TAB -->
   <section id="tab-thresholds" class="tab">
     <div class="container">
-      <h2 style="margin:6px 0 12px">Thresholds (years)</h2>
+      <h2>Thresholds (years)</h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px">
           <label for="variantMulti">Variant filter</label>
@@ -517,11 +650,12 @@ th.sortable.desc::after{content:" ↓"}
         <div class="spacer"></div>
 
         <div class="export-box">
-          <label class="export-title">Export current table</label>
+          <div class="export-title">Export current table</div>
           <div class="export-actions">
             <button id="exportCsv" class="btn">CSV</button>
             <button id="exportCsvEU" class="btn">CSV (EU)</button>
             <button id="copyCsv" class="btn">Copy CSV</button>
+            <button id="exportThresholdsPng" class="btn">PNG</button>
           </div>
         </div>
       </div>
@@ -544,7 +678,7 @@ th.sortable.desc::after{content:" ↓"}
   <!-- DURATIONS TAB -->
   <section id="tab-durations" class="tab">
     <div class="container">
-      <h2 style="margin:6px 0 12px">Durations (time to move between thresholds)</h2>
+      <h2>Durations (time to move between thresholds)</h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px"><label for="variantMultiD">Variant filter (multi-select)</label><select id="variantMultiD" multiple size="6"></select></div>
         <div class="field"><label for="customFrom">Custom from (%)</label><input id="customFrom" type="number" min="1" max="98" step="1" value="25" /></div>
@@ -557,26 +691,27 @@ th.sortable.desc::after{content:" ↓"}
             <button id="exportDurCsv" class="btn">CSV</button>
             <button id="exportDurCsvEU" class="btn">CSV (EU)</button>
             <button id="copyDurCsv" class="btn">Copy CSV</button>
+            <button id="exportDurPng" class="btn">PNG</button>
           </div>
         </div>
       </div>
       <p class="small" style="max-width:740px">
         This view shows the projected time to progress from one market share threshold to another. 
         Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from 
-        <code>params.csv</code>. Durations longer than 200 years are shown as “shows no transition”. <br>
-        Indonesia parameters yield almost 0, and need to receice a minimum parameter value. 
-        Indonesia can thus be off in the tables.
+        <code>params.csv</code>. Durations longer than 200 years are shown as “no transition”. <br>
+        Indonesia’s fitted parameters round to almost zero, so a minimum value is enforced —
+        its entries in the table may therefore be slightly off.
       </p>
-      <div class="container tablepad">
-        <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
-      </div>
+    </div>
+    <div class="container tablepad">
+      <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
     </div>
   </section>
 
   <!-- BUILDER TAB -->
 <section id="tab-builder" class="tab">
     <div class="container">
-      <h2 style="margin:6px 0 12px">Region / World Curve Builder</h2>
+      <h2>Region / World Curve Builder</h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px">
           <label>Countries (multi‑select)</label>
@@ -613,7 +748,7 @@ th.sortable.desc::after{content:" ↓"}
               <optgroup label="Analytical">
                 <option value="small_markets">Small Markets  (&lt;50k units/year)</option>
                 <option value="medium_markets">Medium Markets  (50k-1M units/year)</option>
-                <option value="big_markets">Big Markets  (&gt;1M) units/year)</option>
+                <option value="big_markets">Big Markets  (&gt;1M units/year)</option>
               </optgroup>
             </select>
               <button id="buildCurve" class="btn primary">
@@ -629,6 +764,20 @@ th.sortable.desc::after{content:" ↓"}
           <label>Weights variant</label>
           <select id="builderWeightVariant" multiple size="4">
             <option value="whole" selected>New Cars</option>
+            <!--
+              Legacy option intentionally kept as a disabled reminder, do NOT delete.
+              Background: India used to expose its passenger cars under the non-
+              standard variant label "4-Wheelers" (alongside "2-Wheelers" and
+              "3-Wheelers"). The successor dataset folds India's 4-wheelers into
+              the regular "Whole" bucket used by every other country, so the
+              option below is redundant for all current data. The option stays
+              commented out — and the matching "India|4-Wheelers" rows stay in
+              params.csv / weights.csv — so historical comparisons and old R
+              exports remain resolvable. Re-enabling it requires re-mapping the
+              India rows in params.csv / weights.csv first, otherwise the builder
+              will end up double-counting India (once via "Whole", once via
+              "4-Wheelers").
+            -->
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
             <option value="hdv">HDV</option>
             <option value="vans">Vans</option>
@@ -649,6 +798,7 @@ th.sortable.desc::after{content:" ↓"}
         </p>
       <div class="card builder-card">
         <div id="builderPlot"></div>
+        <button class="btn chart-dl" onclick="downloadPlotlyChart('builderPlot','builder_chart.png')">↓ Download PNG</button>
       </div>
     </div>
     <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
@@ -678,10 +828,10 @@ th.sortable.desc::after{content:" ↓"}
     <div class="field">
       <label>View Mode</label>
       <div style="display: flex; flex-direction: column; gap: 8px;">
-        <label class="chip" style="padding: 8px 12px; font-size: 13px; justify-content: flex-start; white-space: nowrap;">
+        <label class="chip">
           <input type="radio" name="fleetMode" value="absolute" checked> Absolute
         </label>
-        <label class="chip" style="padding: 8px 12px; font-size: 13px; justify-content: flex-start; white-space: nowrap;">
+        <label class="chip">
           <input type="radio" name="fleetMode" value="relative"> Relative (%)
         </label>
       </div>
@@ -692,36 +842,16 @@ th.sortable.desc::after{content:" ↓"}
     </div>
   </div>
 
-  <!-- Zeile 3: Categories – volle Breite unten -->
-  <div class="field" style="flex: 1 1 100%; min-width: 100%;">
-    <label>Categories</label>
-<div id="fleetCategoryContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
-      <label class="chip"><input type="checkbox" id="fleetShowBEV"    checked> BEV</label>
-      <label class="chip"><input type="checkbox" id="fleetShowPHEV"   checked> PHEV</label>
-      <label class="chip"><input type="checkbox" id="fleetShowHEV"    checked> HEV</label>
-      <label class="chip"><input type="checkbox" id="fleetShowOTHERS" checked> OTHERS</label>
-    </div>
-  </div>
 </div>
 
-    <p class="small">
-      Observed fleet stock (on the road) by drivetrain.
-      <br>
-      <em>Projections based on modeled inflow & attrition will be added.</em>
-      <br>
-      <br>If you select multiple countries, they will simply be stacked by category, so if a country doesn't have a split for HYBRID into PHEV and HEV, 
-      <br>you will see 3 bars for HYBRID, PHEV, HEV, instead of two for PHEV and HEV, similar with OTHERS split into PETROL/DIESEL.
-      <br>If no split into PHEV and HEV is available, both are fused into the HYBRID category.
-      <br>If PHEV is available explicitly, it is named as such,. If PHEV is, but HEV is not, HEV are part of the respective ICE category.
-    </p>
-    <div class="card" id="fleetProjectionControls" style="margin: 14px 0 16px;">
-
-<!-- Section 1: Projection -->
-<div class="fc-section">
-  <div class="fc-section-head">
+<!-- Section 1: Projection (collapsible, starts open) -->
+<div class="fc-section" id="fleetProjectionControls" style="margin: 14px 0 0;">
+  <div class="fc-section-head" style="cursor:pointer; user-select:none;" onclick="fcToggle('fcBodyProjection','fcBtnProjection')">
     <span class="fc-section-title">Projection</span>
     <span class="fc-section-hint">When does the projection run, and how far?</span>
+    <button class="fc-collapse-btn" id="fcBtnProjection" tabindex="-1">▾ hide</button>
   </div>
+  <div id="fcBodyProjection" class="fc-collapsible-body">
   <div class="fc-row">
     <div class="field" style="min-width:200px;">
       <label>
@@ -740,15 +870,27 @@ th.sortable.desc::after{content:" ↓"}
       </div>
       <input id="fleetProjectionEndYear" type="number" min="2025" max="2100" step="1" value="2035">
     </div>
+    <div class="field">
+      <label>Categories</label>
+      <div id="fleetCategoryContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <label class="chip"><input type="checkbox" id="fleetShowBEV"    checked> BEV</label>
+        <label class="chip"><input type="checkbox" id="fleetShowPHEV"   checked> PHEV</label>
+        <label class="chip"><input type="checkbox" id="fleetShowHEV"    checked> HEV</label>
+        <label class="chip"><input type="checkbox" id="fleetShowOTHERS" checked> OTHERS/UNCATEGORIZED</label>
+      </div>
+    </div>
   </div>
-</div>
+  </div><!-- /fcBodyProjection -->
+</div><!-- /Section 1: Projection -->
 
-<!-- Section 2: Inflow -->
-<div class="fc-section">
-  <div class="fc-section-head">
+<!-- Section 2: Inflow (collapsible, starts collapsed) -->
+<div class="fc-section" style="margin: 8px 0 0;">
+  <div class="fc-section-head" style="cursor:pointer; user-select:none;" onclick="fcToggle('fcBodyInflow','fcBtnInflow')">
     <span class="fc-section-title">Inflow of new vehicles</span>
     <span class="fc-section-hint">How many new cars are sold each year, and what mix?</span>
+    <button class="fc-collapse-btn" id="fcBtnInflow" tabindex="-1">▸ show</button>
   </div>
+  <div id="fcBodyInflow" class="fc-collapsible-body fc-body-hidden">
   <div class="fc-row">
     <div class="field" style="min-width:160px;">
       <div style="display:flex; align-items:center; gap:6px;">
@@ -769,7 +911,7 @@ th.sortable.desc::after{content:" ↓"}
       <div style="display:flex; align-items:center; gap:6px;">
         <label for="fleetBevImportShare">BEV share of net imports (0 to 1)</label>
         <span class="info-tip"
-          data-tip="Share of net imports assigned to BEVs. Example: 0.4 means 40% of the value in Net imports / year are added to BEV and 60% to OTHERS. If net imports are negative, 40% are removed from BEV and 60% from OTHERS.">i</span>
+          data-tip="Share of net imports/exports assigned to BEVs. Positive imports: bevImportShare goes to BEV, the rest to OTHERS/UNCATEGORIZED. Negative imports (= exports): bevImportShare is removed from BEV, the remaining share is removed from all non-BEV categories proportionally to their current fleet mix.">i</span>
       </div>
       <input id="fleetBevImportShare" type="number" min="0" max="1" step="0.001" value="1">
     </div>
@@ -810,14 +952,17 @@ th.sortable.desc::after{content:" ↓"}
       </div>
     </div>
   </div>
-</div>
+  </div><!-- /fcBodyInflow -->
+</div><!-- /Section 2: Inflow -->
 
-<!-- Section 3: Hazard / attrition -->
-<div class="fc-section">
-  <div class="fc-section-head">
+<!-- Section 3: Hazard / attrition (collapsible, starts collapsed) -->
+<div class="fc-section" style="margin: 8px 0 0;">
+  <div class="fc-section-head" style="cursor:pointer; user-select:none;" onclick="fcToggle('fcBodyHazard','fcBtnHazard')">
     <span class="fc-section-title">Hazard &amp; attrition</span>
     <span class="fc-section-hint">How many vehicles leave the fleet each year as they age</span>
+    <button class="fc-collapse-btn" id="fcBtnHazard" tabindex="-1">▸ show</button>
   </div>
+  <div id="fcBodyHazard" class="fc-collapsible-body fc-body-hidden">
 
   <div class="fc-row" style="align-items:center;">
     <div class="field" style="min-width:140px;">
@@ -938,7 +1083,7 @@ th.sortable.desc::after{content:" ↓"}
 
   <div class="field">
     <div style="display:flex; align-items:center; gap:6px;">
-      <label for="hazOTHERS">OTHERS</label>
+      <label for="hazOTHERS">OTHERS/UNCATEGORIZED</label>
       <span class="info-tip"
             data-tip="Annual attrition applied to the OTHERS fleet. Example: 0.02 means 2% of OTHERS leave the fleet each year.">
         i
@@ -975,16 +1120,18 @@ th.sortable.desc::after{content:" ↓"}
       </div>
     </div>
   </div>
-</div><!-- /Section 3 -->
+  </div><!-- /fcBodyHazard -->
+</div><!-- /Section 3: Hazard -->
 
-<div class="small" style="margin-top:10px;">
-  Future years are projected from the last common observed year. Historical bars remain solid, projected bars are hatched.
-</div>
-</div>
-
-<div class="card">
+<div class="card" style="margin-top:8px;">
   <div id="fleetPlot" style="height:520px;"></div>
+  <button class="btn chart-dl" onclick="downloadPlotlyChart('fleetPlot','fleet_chart.png')">↓ Download PNG</button>
 </div>
+
+<p class="small" style="margin-top:12px;">
+  Observed fleet stock (on the road) by drivetrain. Projections use modeled inflow &amp; attrition (see controls above).
+  <br>When multiple countries are selected they are stacked by category. If a country lacks a PHEV/HEV split, both appear under HYBRID; if PETROL/DIESEL detail is missing they appear under OTHERS.
+</p>
 </div>
 
 <div id="fleetDebugBox" style="
@@ -1001,10 +1148,149 @@ th.sortable.desc::after{content:" ↓"}
   Fleet-Debug (Loading-Status):
   → waiting for Tab-Activation ...
 </div>
-  
+
 </section>
-    
-    
+
+<!-- WORLD MAP TAB -->
+<section id="tab-worldmap" class="tab">
+  <div class="container">
+    <h2>World Map</h2>
+    <p class="small" style="margin:0 0 14px">
+      Same country data as the <b>Thresholds</b> and <b>Durations</b> tabs, painted on a world map.
+      Only the default (whole-market, passenger-car) variant is shown.
+    </p>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="small" style="margin-bottom:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span>Metric</span>
+        <span class="info-tip"
+          data-tip="Pick the metric painted on every country. Same underlying Weibull model as the Thresholds and Durations tabs — this view just rearranges the data on a map so the geographic pattern is visible at a glance. You can change the threshold(s) freely to match whatever column in Thresholds / Durations you want to see spatially.">i</span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <label class="chip">
+          <input type="radio" name="wmMode" value="year" checked>
+          Year reaching threshold
+        </label>
+        <label class="chip">
+          <input type="radio" name="wmMode" value="duration">
+          Transition time between thresholds
+        </label>
+        <label class="chip">
+          <input type="radio" name="wmMode" value="share">
+          BEV share timeline
+        </label>
+      </div>
+
+      <div id="wmInputsYear" style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+        <div class="field" style="min-width:120px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label for="wmThreshold">Threshold (% BEV, inflow)</label>
+            <span class="info-tip"
+              data-tip="BEV share of new registrations at which the map 'fires'. 80% matches the default Thresholds column; 50% is the halfway pivot; 95% shows the last stragglers. Integer from 1 to 99.">i</span>
+          </div>
+          <input id="wmThreshold" type="number" min="1" max="99" step="1" value="80" style="width:90px">
+        </div>
+      </div>
+
+      <div id="wmInputsShare" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+        <div class="field" style="flex:1; min-width:220px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label for="wmShareYear">Year</label>
+            <span class="info-tip"
+              data-tip="Drag to scrub through time and watch BEV shares evolve across the world map. The Weibull model is evaluated at the selected date for every country. Hit ▶ to auto-play.">i</span>
+            <span id="wmShareYearLabel" style="font-weight:700; font-size:15px; color:#eef3ff; margin-left:6px;">2026</span>
+            <button id="wmPlayBtn" class="wm-btn" style="margin-left:8px; padding:4px 10px; font-size:13px;" title="Auto-play timeline">▶</button>
+          </div>
+          <input id="wmShareYear" type="range" min="2010" max="2070" step="1" value="2026" style="width:100%; margin-top:6px; accent-color:#4da3ff;">
+        </div>
+      </div>
+
+      <div id="wmInputsDuration" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+        <div class="field" style="min-width:120px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label for="wmThresholdFrom">From (%)</label>
+            <span class="info-tip"
+              data-tip="Lower bound of the transition window. 20% matches the default Durations column (20 → 80 %). Must be strictly smaller than the upper bound.">i</span>
+          </div>
+          <input id="wmThresholdFrom" type="number" min="1" max="98" step="1" value="20" style="width:90px">
+        </div>
+        <div class="field" style="min-width:120px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <label for="wmThresholdTo">To (%)</label>
+            <span class="info-tip"
+              data-tip="Upper bound of the transition window. 80% matches the default Durations column. Must be strictly larger than the lower bound.">i</span>
+          </div>
+          <input id="wmThresholdTo" type="number" min="2" max="99" step="1" value="80" style="width:90px">
+        </div>
+      </div>
+
+      <p class="small" id="wmExplainer" style="margin:14px 0 0; color:#9fb3d1; line-height:1.5;"></p>
+    </div>
+
+    <div class="card" style="padding:0;">
+      <div id="wmRegionBar" style="display:flex; flex-wrap:wrap; gap:6px; padding:10px 12px 6px; align-items:center; border-bottom:1px solid #1a2440;">
+        <span class="small" style="margin-right:4px; opacity:0.8;">View</span>
+        <button class="wm-btn" data-region="world">🌍 World</button>
+        <button class="wm-btn" data-region="europe">Europe</button>
+        <button class="wm-btn" data-region="namerica">N. America</button>
+        <button class="wm-btn" data-region="samerica">S. America</button>
+        <button class="wm-btn" data-region="asia">Asia</button>
+        <button class="wm-btn" data-region="africa">Africa</button>
+        <button class="wm-btn" data-region="oceania">Oceania</button>
+        <span style="flex:1"></span>
+        <span class="small" style="margin-right:4px; opacity:0.8;">Zoom</span>
+        <button class="wm-btn wm-btn-zoom" data-zoom="-1" title="Zoom out">−</button>
+        <button class="wm-btn wm-btn-zoom" data-zoom="+1" title="Zoom in">+</button>
+        <button class="wm-btn wm-btn-zoom" data-zoom="reset" title="Reset view">⟲</button>
+      </div>
+      <div id="worldMapPlot" style="height:620px"></div>
+      <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
+      <p class="small" style="margin:4px 14px 10px; color:#6f86ad;">
+        Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
+        <b style="color:#00e5ff">Cyan</b> = pioneers that have already reached the threshold.
+        <b style="color:#d65aff">Purple</b> = countries whose fitted model does not project a transition within a reasonable horizon.
+        Exact values always live in the hover tooltip.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
+        <div>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#7fe0b0; letter-spacing:0.3px; text-transform:uppercase;">Leaders</h3>
+          <ol id="wmTopList" style="margin:0; padding:0 0 0 22px; color:#eef3ff; font-size:13px; line-height:1.7;"></ol>
+        </div>
+        <div>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#ffb07f; letter-spacing:0.3px; text-transform:uppercase;">Laggards</h3>
+          <ol id="wmBottomList" style="margin:0; padding:0 0 0 22px; color:#eef3ff; font-size:13px; line-height:1.7;"></ol>
+        </div>
+        <div>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#00e5ff; letter-spacing:0.3px; text-transform:uppercase;">Pioneers</h3>
+          <ul id="wmPioneerList" style="margin:0 0 0; padding:0 0 0 22px; color:#eef3ff; font-size:13px; line-height:1.7;"></ul>
+        </div>
+        <div>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#d65aff; letter-spacing:0.3px; text-transform:uppercase;">No transition</h3>
+          <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:#eef3ff; font-size:13px; line-height:1.7;"></ul>
+        </div>
+      </div>
+      <p class="small" style="margin:12px 0 0; color:#6f86ad;">
+        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric. <b style="color:#00e5ff">Pioneers</b> have already reached the threshold at the time of the last data point. <b style="color:#d65aff">No transition</b> countries have a fitted Weibull that does not reach the threshold within a reasonable horizon — usually because v2 is very small (flat curve) or the model is still in its early phase.
+      </p>
+    </div>
+
+    <div id="worldMapDebugBox" style="
+      background: #332200;
+      color: #ffdd88;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 16px 0 24px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      border: 2px dashed #664400;
+      display: none;
+    "></div>
+  </div>
+</section>
+
 <script>
 // Generic trailing-edge debounce. Used to throttle expensive recomputes
 // (Plotly redraws, full-list DOM scans) when an input fires on every keystroke.
@@ -1044,7 +1330,10 @@ async function ensurePlotly() {
         resolve();
       }
     }, 100);
-    // Timeout nach 10 Sekunden
+    // Hard timeout after 10 s: give up waiting for Plotly instead of
+    // polling forever. NOTE: we only stop the interval; the promise is
+    // left unresolved on purpose so the caller's fallback rendering
+    // (empty state + debug message) stays visible.
     setTimeout(() => {
       clearInterval(interval);
       if (debug) debug.textContent += "Plotly loading timeout – check <script src>!\n";
@@ -1066,7 +1355,50 @@ const COLORS = {
 };
 
 // ===== Dev fallback so Canvas preview actually shows something =====
+// When any of the real data files (manifest.json, params.csv, ...) cannot
+// be loaded, we fall back to the bundled SAMPLE_* constants below. The
+// fallback is silent on its own, so we also surface a visible banner via
+// showSampleDataWarning() whenever it kicks in — otherwise a broken deploy
+// would look identical to a healthy one.
 const DEV_SAMPLE = true;
+const __SAMPLE_REASONS = new Set();
+function showSampleDataWarning(reason){
+  if (reason) __SAMPLE_REASONS.add(reason);
+  const bar = document.getElementById('sampleDataBanner');
+  const why = document.getElementById('sampleDataBannerWhy');
+  if (!bar) return;
+  bar.hidden = false;
+  if (why) {
+    const items = [...__SAMPLE_REASONS];
+    why.textContent = items.length
+      ? '(' + items.join(', ') + ' could not be loaded)'
+      : '';
+  }
+}
+
+// Legacy-data banner (D3). Loaders call this whenever they detect rows
+// they had to merge, dedupe or pick between because the source CSV
+// contained an old spelling / duplicate key that should be cleaned at
+// source. The banner is non-blocking — it just surfaces the issue so
+// it doesn't rot in silence. Accumulates messages across the session.
+const __LEGACY_DATA_NOTES = new Set();
+function showLegacyDataWarning(note){
+  if (note) __LEGACY_DATA_NOTES.add(note);
+  const bar = document.getElementById('legacyDataBanner');
+  const detail = document.getElementById('legacyDataBannerDetail');
+  if (!bar) return;
+  bar.hidden = false;
+  if (detail) {
+    const items = [...__LEGACY_DATA_NOTES];
+    // Keep the banner short: show up to 3 notes inline, then "+N more".
+    const shown = items.slice(0, 3).join(' • ');
+    const extra = items.length > 3 ? ` • +${items.length - 3} more` : '';
+    detail.textContent = items.length ? '(' + shown + extra + ')' : '';
+  }
+  // Mirror everything to the console so "+N more" cases are still
+  // fully inspectable when debugging.
+  if (note) console.warn('[legacy-data]', note);
+}
 const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(`\
   <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720">\
   <rect width="100%" height="100%" fill="#121826"/>\
@@ -1096,26 +1428,199 @@ function activateTabByHash(){
 }
 window.addEventListener('hashchange', activateTabByHash);
 window.addEventListener('DOMContentLoaded', activateTabByHash);
-// Fleet-Tab nur laden, wenn er aktiv wird
+// Lazy-load the Fleet tab: only run initFleetTab() when the tab is
+// actually active, so the (expensive) Plotly+CSV bootstrap is not paid
+// by users who never open it. We null-check the tab element so a future
+// HTML refactor that removes `#tab-fleet` fails quietly instead of
+// throwing on page load.
 function loadFleetWhenActive() {
-  if (location.hash === '#fleet' || (!location.hash && document.getElementById('tab-fleet').classList.contains('active'))) {
+  const tab = document.getElementById('tab-fleet');
+  if (!tab) return;
+  if (location.hash === '#fleet' || (!location.hash && tab.classList.contains('active'))) {
     initFleetTab();
   }
 }
-// Bei jedem Tab-Wechsel prüfen
+// Same deferred-init pattern for the World Map tab.
+function loadWorldMapWhenActive() {
+  if (location.hash === '#worldmap') {
+    initWorldMap();
+  }
+}
+// Re-check on every tab switch so lazy tabs boot the first time the
+// user navigates to them.
 window.addEventListener('hashchange', () => {
   activateTabByHash();
+  wmStopPlay();
   loadFleetWhenActive();
+  loadWorldMapWhenActive();
 });
-// Initial beim Laden prüfen
+// And once on initial page load, in case the URL already points at a
+// lazy tab (e.g. a bookmark).
 window.addEventListener('DOMContentLoaded', () => {
   activateTabByHash();
   loadFleetWhenActive();
+  loadWorldMapWhenActive();
 });
   
+// -------- Plotly chart download helper --------
+// Returns "_YYYYMMDDHHMM" suffix for download filenames.
+function downloadTimestamp(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `_${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+
+// Inserts timestamp before the last "." in a filename, e.g.
+// "fleet_chart.png" → "fleet_chart_202506211342.png"
+function stampedFilename(filename){
+  const dot = filename.lastIndexOf('.');
+  return dot === -1
+    ? filename + downloadTimestamp()
+    : filename.slice(0, dot) + downloadTimestamp() + filename.slice(dot);
+}
+
+function downloadPlotlyChart(plotId, filename){
+  if (typeof Plotly === 'undefined') return;
+  Plotly.toImage(plotId, {format:'png', width:1200, height:700, scale:2}).then(url => {
+    const a = document.createElement('a');
+    a.href = url; a.download = stampedFilename(filename);
+    document.body.appendChild(a); a.click(); a.remove();
+  }).catch(err => console.warn('Chart download failed:', err));
+}
+
+// -------- Table → PNG export --------
+function tableToImage(tableEl, filename, title){
+  const rows = tableEl.querySelectorAll('tr');
+  if (!rows.length) return;
+
+  const pad = 16, cellPad = 10, rowH = 32, headerH = 36, footerH = 40;
+  const cols = rows[0].querySelectorAll('th,td').length;
+
+  // Measure column widths from text
+  const ctx0 = document.createElement('canvas').getContext('2d');
+  ctx0.font = '13px system-ui, sans-serif';
+  const colWidths = new Array(cols).fill(60);
+  rows.forEach(row => {
+    row.querySelectorAll('th,td').forEach((cell, ci) => {
+      if (ci < cols) colWidths[ci] = Math.max(colWidths[ci], ctx0.measureText(cell.textContent.trim()).width + cellPad * 2 + 4);
+    });
+  });
+  // Header font is bolder
+  ctx0.font = 'bold 13px system-ui, sans-serif';
+  rows[0].querySelectorAll('th,td').forEach((cell, ci) => {
+    if (ci < cols) colWidths[ci] = Math.max(colWidths[ci], ctx0.measureText(cell.textContent.trim()).width + cellPad * 2 + 4);
+  });
+
+  const titleH = title ? 40 : 0;
+  const tableW = colWidths.reduce((a, b) => a + b, 0);
+  const W = tableW + pad * 2;
+  const H = titleH + headerH + (rows.length - 1) * rowH + footerH + pad * 2;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; canvas.height = H * 2;
+  const c = canvas.getContext('2d');
+  c.scale(2, 2);
+
+  // Background
+  c.fillStyle = '#0b0c10';
+  c.fillRect(0, 0, W, H);
+
+  let y = pad;
+
+  // Title
+  if (title) {
+    c.fillStyle = '#e9eef2';
+    c.font = 'bold 15px system-ui, sans-serif';
+    c.fillText(title, pad, y + 20);
+    y += titleH;
+  }
+
+  // Header
+  c.fillStyle = '#0e1a34';
+  c.fillRect(pad, y, tableW, headerH);
+  c.fillStyle = '#e9eef2';
+  c.font = 'bold 12px system-ui, sans-serif';
+  const headerCells = rows[0].querySelectorAll('th,td');
+  let x = pad;
+  headerCells.forEach((cell, ci) => {
+    if (ci < cols) {
+      c.fillText(cell.textContent.trim(), x + cellPad, y + headerH / 2 + 4, colWidths[ci] - cellPad * 2);
+      x += colWidths[ci];
+    }
+  });
+  y += headerH;
+
+  // Data rows
+  c.font = '12px system-ui, sans-serif';
+  for (let ri = 1; ri < rows.length; ri++) {
+    // Zebra
+    if (ri % 2 === 0) {
+      c.fillStyle = 'rgba(255,255,255,0.03)';
+      c.fillRect(pad, y, tableW, rowH);
+    }
+    const cells = rows[ri].querySelectorAll('th,td');
+    x = pad;
+    cells.forEach((cell, ci) => {
+      if (ci >= cols) return;
+      // Color coding
+      if (cell.classList.contains('past')) {
+        c.fillStyle = 'rgba(60,180,120,0.18)';
+        c.fillRect(x, y, colWidths[ci], rowH);
+        c.fillStyle = '#bff5d8';
+      } else if (cell.classList.contains('late')) {
+        c.fillStyle = 'rgba(220,80,80,0.18)';
+        c.fillRect(x, y, colWidths[ci], rowH);
+        c.fillStyle = '#ffb4b4';
+      } else {
+        c.fillStyle = '#c8d6e5';
+      }
+      c.fillText(cell.textContent.trim(), x + cellPad, y + rowH / 2 + 4, colWidths[ci] - cellPad * 2);
+      x += colWidths[ci];
+    });
+    // Grid line
+    c.strokeStyle = 'rgba(31,42,68,0.6)';
+    c.beginPath(); c.moveTo(pad, y + rowH); c.lineTo(pad + tableW, y + rowH); c.stroke();
+    y += rowH;
+  }
+
+  // Footer: timestamp + tag
+  y += 8;
+  const now = new Date();
+  const ts = now.getUTCFullYear() + '-' +
+    String(now.getUTCMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getUTCDate()).padStart(2, '0') + ' ' +
+    String(now.getUTCHours()).padStart(2, '0') + ':' +
+    String(now.getUTCMinutes()).padStart(2, '0') + ' UTC';
+  c.fillStyle = '#6f86ad';
+  c.font = '11px system-ui, sans-serif';
+  c.fillText(ts, pad, y + 12);
+  c.fillStyle = '#9fb3d1';
+  c.font = 'bold 11px system-ui, sans-serif';
+  c.textAlign = 'right';
+  c.fillText('@LeRaffl', W - pad, y + 12);
+  c.textAlign = 'left';
+
+  // Download
+  const a = document.createElement('a');
+  a.download = filename;
+  a.href = canvas.toDataURL('image/png');
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// Wire up PNG export buttons
+document.getElementById('exportThresholdsPng')?.addEventListener('click', () => {
+  const table = document.querySelector('#thresholdsMount table');
+  if (table) tableToImage(table, stampedFilename('bev_thresholds.png'), 'BEV Thresholds (years)');
+});
+document.getElementById('exportDurPng')?.addEventListener('click', () => {
+  const table = document.querySelector('#durationsMount table');
+  if (table) tableToImage(table, stampedFilename('bev_durations.png'), 'BEV Durations');
+});
+
 // -------- Lightbox ergonomics --------
 const lb = document.getElementById('lightbox');
 const lbImg = lb.querySelector('img');
+const lbDl = document.getElementById('lbDownload');
 lb.addEventListener('click', e => { if(e.target === lb) lb.close(); });
 window.addEventListener('keydown', e => { if(lb.open && e.key==='Escape') lb.close(); });
 lbImg.addEventListener('click', () => { if(lb.open) lb.close(); });
@@ -1142,7 +1647,7 @@ async function loadManifest(){
   for(const url of candidates){
     try{ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) continue; const j=await r.json(); return j; }catch{ /* try next */ }
   }
-  if(DEV_SAMPLE) return SAMPLE_MANIFEST;
+  if(DEV_SAMPLE){ showSampleDataWarning('manifest.json'); return SAMPLE_MANIFEST; }
   throw new Error('Could not load manifest.json');
 }
 const uniq = xs => [...new Set(xs)];
@@ -1150,18 +1655,27 @@ function latestByKey(items){ const map=new Map(); const toNum=p=>Number((p||'000
 function createdNum(it){ const m = it.filename && it.filename.match(/(\d{8})(?=\.[^.]+$)/); return m?Number(m[1]):0; }
 function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='created'){ const da=createdNum(a), db=createdNum(b); if(da===db) return sgn*a.filename.localeCompare(b.filename); return sgn*(da-db);} if(field==='country') return sgn*a.country.localeCompare(b.country); if(field==='filename') return sgn*a.filename.localeCompare(b.filename); return 0; }
 function renderColumns(items){
-  cols.innerHTML=''; if(items.length===0){ empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
+  // Perf note: build everything inside a DocumentFragment so the entire
+  // gallery swap is a single DOM mutation (one reflow) instead of one
+  // reflow per column. replaceChildren(frag) at the end swaps atomically
+  // and preserves scroll position.
+  if(items.length===0){ cols.replaceChildren(); empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
+  const frag=document.createDocumentFragment();
   const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
   let visibleCount=0,totalCount=0,canLoadMore=false;
-  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country">${it.country}</div><div class="type">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} cols.append(col);} stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
 function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
   const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
   const update=()=>{ const list=applyFilters(imgs); renderColumns(list);}; const reset=()=>{ visibleRows=INITIAL_ROWS; update(); };
+  // Search input is debounced by ~150 ms so rapid typing does not
+  // trigger one full gallery rebuild per keystroke. Every other control
+  // is immediate — users expect selects/checkboxes to react instantly.
+  const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
-  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',reset); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>{ visibleRows+=PAGE_ROWS; update(); });
+  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>{ visibleRows+=PAGE_ROWS; update(); });
   sortField.value='created'; sortDir.value='desc'; update();
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
 
@@ -1212,6 +1726,83 @@ function normalizeBase(s){
   ].includes(k)) return 'hdv';
 
   return k;
+}
+
+// D1(b): Defensive dedupe for params.csv rows. If the source CSV ever
+// carries two rows for the same (country, variant) — e.g. the old
+// "New Zealand" duplicate or any future copy-paste accident — this
+// folds them down to one row so downstream aggregation loops never
+// double-count. On collision we keep the row with the freshest
+// `data_per` (mirrors what wmBuildRows already does for the world
+// map). Additionally, we consider countries whose whitespace-free,
+// lower-cased name matches the same canonical form (e.g. "New Zealand"
+// vs "NewZealand") to be the same country, and prefer the spelling
+// WITH whitespace as the authoritative one, surfacing a legacy-data
+// warning for the stripped spelling so it can be cleaned at source.
+function canonicalCountryKey(c){
+  return String(c || '').toLowerCase().replace(/\s+/g, '');
+}
+function dedupeParamRows(rows){
+  if (!Array.isArray(rows)) return rows;
+  // Two-pass: first collapse country spelling variants (keeping the
+  // prettiest form), then collapse (country, variant) duplicates by
+  // data_per recency.
+  const countryByCanon = new Map();  // canon -> chosen display country
+  for (const r of rows) {
+    const raw = String(r.country || '').trim();
+    if (!raw) continue;
+    const canon = canonicalCountryKey(raw);
+    if (!canon) continue;
+    const existing = countryByCanon.get(canon);
+    if (!existing) {
+      countryByCanon.set(canon, raw);
+      continue;
+    }
+    if (existing === raw) continue;
+    // Collision: two different raw spellings map to the same canonical
+    // country. Prefer the one that contains whitespace (matches the
+    // "Country Name" convention used everywhere else). If both or
+    // neither have whitespace, keep the existing choice stable.
+    const existingHasSpace = /\s/.test(existing);
+    const newHasSpace = /\s/.test(raw);
+    let chosen = existing;
+    let legacy = raw;
+    if (newHasSpace && !existingHasSpace) {
+      chosen = raw;
+      legacy = existing;
+    }
+    countryByCanon.set(canon, chosen);
+    showLegacyDataWarning(
+      `params.csv: "${legacy}" → "${chosen}" (alias)`
+    );
+  }
+  // Second pass: rewrite rows to use the chosen spelling, then dedupe
+  // by (country, variant) keeping freshest data_per.
+  const byKey = new Map();
+  for (const r of rows) {
+    const raw = String(r.country || '').trim();
+    if (!raw) continue;
+    const canon = canonicalCountryKey(raw);
+    const chosen = countryByCanon.get(canon) || raw;
+    const variant = normalizeBase(r.variant || '');
+    const key = `${chosen}|||${variant}`;
+    const dp = String(r.data_per || r.DATA_PER || '').trim();
+    const patched = { ...r, country: chosen };
+    const prev = byKey.get(key);
+    if (!prev) {
+      byKey.set(key, { row: patched, _dp: dp });
+      continue;
+    }
+    // Collision on (country, variant). Keep the freshest; surface a
+    // note either way so the source CSV gets cleaned.
+    showLegacyDataWarning(
+      `params.csv: duplicate ${chosen}|${variant || '∅'} — kept freshest`
+    );
+    if (dp && dp > (prev._dp || '')) {
+      byKey.set(key, { row: patched, _dp: dp });
+    }
+  }
+  return [...byKey.values()].map(v => v.row);
 }
 
 function displayLabelFromBase(base){
@@ -1306,14 +1897,15 @@ function iceShareIndex(x, v1, v2, t0){
 }
 
 // -------- THRESHOLDS --------
-document.addEventListener('DOMContentLoaded',()=>{ const urls=['./params.csv','params.csv']; (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ renderThresholds(SAMPLE_PARAMS_CSV); return;} showFatal('Could not load params.csv.'); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>renderThresholds(txt)).catch(()=>next(i+1)); })(0); });
+document.addEventListener('DOMContentLoaded',()=>{ const urls=['./params.csv','params.csv']; (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ showSampleDataWarning('params.csv'); renderThresholds(SAMPLE_PARAMS_CSV); return;} showFatal('Could not load params.csv.'); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>renderThresholds(txt)).catch(()=>next(i+1)); })(0); });
 function showFatal(msg){ 
   const m=document.getElementById('thresholdsMount'); 
   if(m) m.innerHTML='<div class="error">Error: '+String(msg)+'</div>'; 
 }
 function renderThresholds(csvText){
   try{
-    const rows = parseCSV(csvText);
+    // D1(b): dedupe defensively before any downstream aggregation.
+    const rows = dedupeParamRows(parseCSV(csvText));
     const mount = document.getElementById('thresholdsMount');
 
     if(!rows.length){
@@ -1598,7 +2190,9 @@ renderTable();
 // -------- DURATIONS --------
 (function(){
   const CAP_YEARS = 100; // cutoff for "shows no transition"
-  function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ resolve(parseCSV(SAMPLE_PARAMS_CSV)); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(parseCSV(txt))).catch(()=>next(i+1)); })(0); }); }
+  // D1(b): every resolve path goes through dedupeParamRows so the
+  // Builder, Durations and aggregate callers all receive clean data.
+  function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ showSampleDataWarning('params.csv'); resolve(dedupeParamRows(parseCSV(SAMPLE_PARAMS_CSV))); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(dedupeParamRows(parseCSV(txt)))).catch(()=>next(i+1)); })(0); }); }
   function slopeAtInflection(v1,v2){ 
     let k=normNumber(v2), 
           v1n=normNumber(v1);
@@ -1899,7 +2493,8 @@ big_markets: rows => {
       vSels.includes(normalizeBase(r.variant))
     );
     if(!rows.length) return;
-  // ab hier Plotly + weights
+  // From here on: build the aggregated BEV curve with Plotly, using the
+  // per-country weights from weights.csv.
 
   let total = 0;
 
@@ -1907,15 +2502,23 @@ big_markets: rows => {
     a.country.localeCompare(b.country)
   );
 
+  // D2: look up the weight for the row's OWN variant, not the first
+  // user-selected variant. The old code iterated vSels and broke on the
+  // first hit, which meant a Denmark|HDV row got weighted by the
+  // Denmark|whole passenger-car count whenever the user also had
+  // "New Cars" selected. Now: exact-variant first, fall back to
+  // `whole`, then 1.
+  const weightForRow = (r) => {
+    const rowVariant = normalizeBase(r.variant);
+    const exact = WEIGHTS[`${r.country}|${rowVariant}`];
+    if (isFinite(exact)) return exact;
+    const whole = WEIGHTS[`${r.country}|whole`];
+    if (isFinite(whole)) return whole;
+    return 1;
+  };
+
   const lines = sorted.map(r => {
-    let w = NaN;
-    for (const v of vSels) {
-      const cand = WEIGHTS[`${r.country}|${v}`];
-      if (isFinite(cand)) { w = cand; break; }
-    }
-    if (!isFinite(w)) {
-      w = WEIGHTS[`${r.country}|whole`] ?? 1;
-    }
+    const w = weightForRow(r);
     if (isFinite(w)) total += w;
     return `${r.country}: ${fmtInt(w)}`;
   });
@@ -1978,15 +2581,10 @@ big_markets: rows => {
       });
       const hasICE = isFinite(ice_v1) && isFinite(ice_v2) && isFinite(ice_t0);
       if (!isFinite(v1) || !isFinite(v2) || !isFinite(t0) || !isFinite(by)) return;
-      // same weight logic as debug
-      let w = NaN;
-      for (const v of vSels) {
-        const cand = WEIGHTS[`${r.country}|${v}`];
-        if (isFinite(cand)) { w = cand; break; }
-      }
-      if (!isFinite(w)) {
-        w = WEIGHTS[`${r.country}|whole`] ?? 1;
-      }
+      // D2: identical weight-lookup to the debug block above — use the
+      // row's own variant, not the first vSels entry. Keep the two
+      // sites in sync to avoid the debug Total drifting from the plot.
+      const w = weightForRow(r);
       const x = year - by + 1;
       const y   = bevShareIndex(x, v1, v2, t0);
 
@@ -2178,6 +2776,16 @@ function effectiveHazard(curve, cat, projectionAge){
 //
 // Returned as a unitless multiplier in [floor, 1] applied on top of the
 // existing `inflowMultiplier`. floor = 1 disables the decay (default).
+// Toggle a collapsible fleet control section.
+// btnId text switches between "▸ show" and "▾ hide".
+function fcToggle(bodyId, btnId) {
+  const body = document.getElementById(bodyId);
+  const btn  = document.getElementById(btnId);
+  if (!body) return;
+  const isHidden = body.classList.toggle('fc-body-hidden');
+  if (btn) btn.textContent = isHidden ? '▸ show' : '▾ hide';
+}
+
 function readInflowDecay(){
   return {
     floor:      clamp01(safeNum(document.getElementById('fleetInflowDecayFloor')?.value, 1)),
@@ -2355,16 +2963,55 @@ function getCommonFleetYears(countries){
   return [...common].sort((a,b)=>a-b);
 }
 
+// D3: Build the weights lookup map from weights.csv rows with legacy-
+// alias handling. Two different raw country spellings that canonicalize
+// to the same key (e.g. "New Zealand" vs the old "NewZealand") are
+// folded together. The spelling WITH whitespace wins — that is the
+// authoritative form used everywhere else in the app (params.csv,
+// fleet CSVs, UI labels). The legacy spelling is still exposed under
+// its original key so any stale code path can find it, but we emit a
+// banner note so it gets cleaned at source.
 function buildWeightMap(rows){
   const map = {};
+  // First pass: group rows by canonical (country, variant) so we can
+  // see all the spelling variants at once and pick a winner.
+  const groups = new Map(); // canonKey -> [{country, variant, weight}]
   rows.forEach(r => {
     const country = String(r.country || r.Country || '').trim();
     const variant = normalizeBase(r.variant || r.Variant || 'whole');
     const weight  = normNumber(r.weight || r.Weight || r.market_size || r.size);
-    if(country && isFinite(weight)){
-      map[`${country}|${variant}`] = weight;
-    }
+    if (!country || !isFinite(weight)) return;
+    const canonKey = `${canonicalCountryKey(country)}|${variant}`;
+    if (!groups.has(canonKey)) groups.set(canonKey, []);
+    groups.get(canonKey).push({ country, variant, weight });
   });
+  // Second pass: within each group, prefer the spelling that contains
+  // whitespace. Still publish both raw keys to `map` for back-compat
+  // (legacy code might look the row up by its literal name), but the
+  // winning spelling gets the authoritative weight and losers are
+  // reported to the legacy-data banner.
+  for (const [, rowsInGroup] of groups) {
+    if (rowsInGroup.length === 1) {
+      const only = rowsInGroup[0];
+      map[`${only.country}|${only.variant}`] = only.weight;
+      continue;
+    }
+    // Pick the winner: first row whose country contains whitespace,
+    // else the first row overall. Stable ordering preserves CSV order.
+    let winner = rowsInGroup.find(r => /\s/.test(r.country)) || rowsInGroup[0];
+    for (const r of rowsInGroup) {
+      // Every raw key gets published to the map so legacy lookups by
+      // the old spelling still resolve — but they all point at the
+      // winning weight, not at their own (possibly stale) value. This
+      // is the "give the spaced spelling priority" rule made explicit.
+      map[`${r.country}|${r.variant}`] = winner.weight;
+      if (r !== winner) {
+        showLegacyDataWarning(
+          `weights.csv: "${r.country}" → "${winner.country}" (alias)`
+        );
+      }
+    }
+  }
   return map;
 }
 
@@ -2386,7 +3033,9 @@ async function loadFleetSupportData(){
   const paramsText  = await loadText(['./params.csv', 'params.csv']);
   const weightsText = await loadText(['./weights.csv', 'weights.csv']);
 
-  fleetState.params   = paramsText  ? parseCSV(paramsText)  : [];
+  // D1(b): run the params through the shared dedupe helper before
+  // caching, so the Fleet tab's lookups never hit duplicate rows.
+  fleetState.params   = paramsText  ? dedupeParamRows(parseCSV(paramsText))  : [];
   fleetState.weights  = weightsText ? buildWeightMap(parseCSV(weightsText)) : {};
   fleetState.supportLoaded = true;
 
@@ -2610,17 +3259,21 @@ function projectCountryFleet(country, startYear, endYear, options){
       next.BEV += bevImports;
       next.OTHERS += otherImports;
     } else {
-      // vorerst einfache Logik für negative Net Imports:
-      // zuerst proportional aus BEV und OTHERS ziehen
+      // Negative net imports (= net exports): mirrors the positive split.
+      // bevImportShare of the export volume is removed from BEV;
+      // the remainder is removed proportionally from all non-BEV categories
+      // (PHEV, HEV, HYBRID, DIESEL, PETROL, OTHERS) based on their current mix.
       const exportAbs = Math.abs(netImports);
-      const removableBase = Math.max(next.BEV + next.OTHERS, 0);
+      const bevRemoval = exportAbs * bevImportShare;
+      next.BEV = Math.max(0, next.BEV - bevRemoval);
 
-      if (removableBase > 0) {
-        const bevRemoval = exportAbs * (next.BEV / removableBase);
-        const otherRemoval = exportAbs * (next.OTHERS / removableBase);
-
-        next.BEV = Math.max(0, next.BEV - bevRemoval);
-        next.OTHERS = Math.max(0, next.OTHERS - otherRemoval);
+      const restRemoval = exportAbs * (1 - bevImportShare);
+      const nonBevCats = ['PHEV','HEV','HYBRID','DIESEL','PETROL','OTHERS'];
+      const nonBevTotal = nonBevCats.reduce((s, c) => s + Math.max(0, next[c]), 0);
+      if (nonBevTotal > 0 && restRemoval > 0) {
+        for (const cat of nonBevCats) {
+          next[cat] = Math.max(0, next[cat] - restRemoval * (Math.max(0, next[cat]) / nonBevTotal));
+        }
       }
     }
     next.projected = true;
@@ -2714,21 +3367,32 @@ function projectCountryFleetVintage(country, startYear, endYear, options){
       next.BEV += bevImports;
       next.OTHERS += otherImports;
     } else {
+      // Negative net imports: same split logic as positive, applied as removal.
+      // bevImportShare from BEV (vintage buckets scaled accordingly);
+      // remainder proportional across all non-BEV categories + their buckets.
       const exportAbs = Math.abs(netImports);
-      const removableBase = Math.max(next.BEV + next.OTHERS, 0);
-      if (removableBase > 0) {
-        const bevRemoval = exportAbs * (next.BEV / removableBase);
-        const otherRemoval = exportAbs * (next.OTHERS / removableBase);
-        if (next.BEV > 0) {
-          const factor = Math.max(0, (next.BEV - bevRemoval) / next.BEV);
-          for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.BEV[a] *= factor;
-        }
-        if (next.OTHERS > 0) {
-          const factor = Math.max(0, (next.OTHERS - otherRemoval) / next.OTHERS);
-          for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.OTHERS[a] *= factor;
-        }
+
+      const bevRemoval = exportAbs * bevImportShare;
+      if (next.BEV > 0) {
+        const factor = Math.max(0, (next.BEV - bevRemoval) / next.BEV);
+        for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets.BEV[a] *= factor;
         next.BEV = Math.max(0, next.BEV - bevRemoval);
-        next.OTHERS = Math.max(0, next.OTHERS - otherRemoval);
+      }
+
+      const restRemoval = exportAbs * (1 - bevImportShare);
+      const nonBevCats = ['PHEV','HEV','HYBRID','DIESEL','PETROL','OTHERS'];
+      const nonBevTotal = nonBevCats.reduce((s, c) => s + Math.max(0, next[c]), 0);
+      if (nonBevTotal > 0 && restRemoval > 0) {
+        for (const cat of nonBevCats) {
+          if (next[cat] > 0) {
+            const removal = restRemoval * (Math.max(0, next[cat]) / nonBevTotal);
+            const factor = Math.max(0, (next[cat] - removal) / next[cat]);
+            if (buckets[cat]) {
+              for (let a = 0; a <= VINTAGE_AGE_CAP; a++) buckets[cat][a] *= factor;
+            }
+            next[cat] = Math.max(0, next[cat] - removal);
+          }
+        }
       }
     }
 
@@ -2787,7 +3451,7 @@ async function loadFleetObserved() {
     const res = await fetch("./fleet/fleet_initial.csv", { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const text = await res.text();
-    if (debug) debug.textContent += "Content length: " + text.length + " Zeichen\n";
+    if (debug) debug.textContent += "Content length: " + text.length + " characters\n";
     const rows = parseCSV(text);
     if (rows.length === 0) throw new Error("CSV empty or header only");
     fleetState.observed = rows.map(r => {
@@ -2799,18 +3463,24 @@ async function loadFleetObserved() {
       const petrol = Number(r.PETROL) || 0;
       const others = Number(r.OTHERS) || Number(r.REST) || 0;
 
-      // Prüfe, welche Hybride-Daten da sind
+      // Decide how to represent hybrids for this row. Some national data
+      // sources expose a single "HYBRID" column (e.g. mild/full hybrid
+      // lumped together), others split it into "PHEV" and "HEV". We use
+      // whichever variant actually has meaningful numbers — the 100-unit
+      // threshold filters out ghost columns that are always 0 or single-
+      // digit placeholders. If neither variant has data, the row carries
+      // no hybrid category at all (as opposed to zero).
       const hasHybrid = hybrid > 100;
       const hasPhevHev = (phev > 100 || hev > 100);
 
       let drivetrain = { BEV: bev, DIESEL: diesel, PETROL: petrol, OTHERS: others };
 
       if (hasHybrid) {
-        drivetrain.HYBRID = hybrid;  // nur HYBRID nutzen
+        drivetrain.HYBRID = hybrid;  // use the combined HYBRID column
       } else if (hasPhevHev) {
-        drivetrain.PHEV = phev;      // separate PHEV + HEV nutzen
+        drivetrain.PHEV = phev;      // use the split PHEV + HEV columns
         drivetrain.HEV = hev;
-      } // sonst keine Hybride
+      } // otherwise: this country has no hybrid data and none is added
 
       return {
         country: (r.country || '').trim(),
@@ -2845,25 +3515,32 @@ function populateFleetCountries() {
   placeholder.value = "";
   placeholder.textContent = "— Choose countries —";
   placeholder.disabled = true;
-  // placeholder.selected = true; // commented out cuz Norway will be set as default country
+  // We do NOT pre-select the placeholder. Norway is auto-selected below
+  // as the default, so starting with the placeholder would clash.
   sel.appendChild(placeholder);
 
   fleetState.countries.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
-    // Automatische vollständige Ländernamen in Englisch (keine Tabelle nötig!)
+    // Convert ISO country codes to the full English country name via
+    // the browser's Intl API — no manual lookup table needed. If the
+    // incoming value is not a 2-letter code (or the API cannot resolve
+    // it), we keep the raw string as a safe fallback.
     const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-    opt.textContent = regionNames.of(c) || c;  // z. B. "DE" → "Deutschland", Fallback auf Kürzel
-    // ← Hier kommt der Trick: Norway (NO) automatisch vorselektieren
+    opt.textContent = regionNames.of(c) || c;
+    // Pre-select Norway by default: it has the richest historical data
+    // and produces a meaningful first plot without any user action.
     if (c === "NO" || c === "Norway") {
       opt.selected = true;
     }
     sel.appendChild(opt);
   });
 
-  // Nach dem Befüllen: Kategorien updaten + Plot sofort laden
+  // Build the category toggle row for whatever country is now selected
+  // (i.e. Norway), then kick off the first plot immediately so the user
+  // sees real data instead of an empty chart area.
   updateCategoryCheckboxes();
-  updateFleetPlot(); // ← sofort Plot mit NO anzeigen
+  updateFleetPlot();
 }
 
 function updateCategoryCheckboxes() {
@@ -2877,7 +3554,11 @@ const container = document.getElementById('fleetCategoryContainer');
 
   const relevantData = fleetState.observed.filter(d => selectedCountries.includes(d.country));
 
-  // Dynamisch prüfen, welche Kategorien in den Daten > 0 sind
+  // Dynamically decide which category toggles to show: only offer a
+  // toggle if the selected countries actually contain a meaningful
+  // amount of that category. The 100-unit threshold skips ghost columns
+  // (always 0 or a handful of stray rows) so the UI does not offer a
+  // "HYBRID" toggle for a country that reports no hybrids at all.
   const hasPhev = relevantData.some(d => (d.PHEV || 0) > 100);
   const hasHev = relevantData.some(d => (d.HEV || 0) > 100);
   const hasHybrid = relevantData.some(d => (d.HYBRID || 0) > 100);
@@ -2894,7 +3575,7 @@ const container = document.getElementById('fleetCategoryContainer');
   if (hasDiesel) categories.push({ id: 'fleetShowDIESEL', label: 'DIESEL', checked: true });
   if (hasPetrol) categories.push({ id: 'fleetShowPETROL', label: 'PETROL', checked: true });
 
-  categories.push({ id: 'fleetShowOTHERS', label: 'OTHERS', checked: true });
+  categories.push({ id: 'fleetShowOTHERS', label: 'OTHERS/UNCATEGORIZED', checked: true });
 
   categories.forEach(cat => {
     const label = document.createElement('label');
@@ -2991,7 +3672,7 @@ function buildFleetPlot() {
     { key:'HYBRID', label:'HYBRID', show:showHYBRID },
     { key:'DIESEL', label:'DIESEL', show:showDIESEL },
     { key:'PETROL', label:'PETROL', show:showPETROL },
-    { key:'OTHERS', label:'OTHERS', show:showOTHERS }
+    { key:'OTHERS', label:'OTHERS/UNCATEGORIZED', show:showOTHERS }
   ];
 
   const traces = [];
@@ -3024,9 +3705,10 @@ function buildFleetPlot() {
           color: colorMap[cat.key],
           pattern: {
             shape: '/',
-            fgcolor: 'rgba(255,255,255,0.85)',
+            bgcolor: colorMap[cat.key],   // keep category colour visible under the hatch
+            fgcolor: 'rgba(255,255,255,0.75)',
             size: 6,
-            solidity: 0.25
+            solidity: 0.3
           }
         },
         legendgroup: cat.key,
@@ -3225,7 +3907,11 @@ document.getElementById('fleetEnableProjection')
 document.getElementById('fleetInflowDecayFloor')
   ?.addEventListener('input', updateFleetPlotAndSyncDebounced);
 
-// Listener für dynamische Checkboxen (wird in updateCategoryCheckboxes neu gebunden)
+// Country-selection listener. Re-runs the category builder (which
+// adds/removes chip toggles based on what the new country set actually
+// has data for) and then redraws the plot. The chip toggle listeners
+// themselves are (re-)bound inside updateCategoryCheckboxes() because
+// the DOM nodes are replaced on every call.
 document.getElementById("fleetCountries")?.addEventListener("change", () => {
   updateCategoryCheckboxes();
   updateFleetPlot();
@@ -3248,14 +3934,17 @@ async function initFleetTab() {
   if (debug && fleetState.observed.length > 0) {
     setTimeout(() => { debug.style.display = 'none'; }, 60000);
   }
-  // Hinweis, wenn leer
-  if (fleetState.countries.length > 0 && !document.getElementById("fleetCountries").value) {
-    document.getElementById("fleetPlot").innerHTML = `
-      <div style="padding: 40px; text-align: center; color: #9fb3d1; font-size: 16px;">
-        Wähle ein oder mehrere Länder aus,<br>
-        aktiviere die Kategorien und warte auf Update<br>
-        oder klicke "Build".
-      </div>`;
+  // Empty-state hint when countries exist but none are selected yet.
+  if (fleetState.countries.length > 0 && !document.getElementById("fleetCountries")?.value) {
+    const plot = document.getElementById("fleetPlot");
+    if (plot) {
+      plot.innerHTML = `
+        <div style="padding: 40px; text-align: center; color: #9fb3d1; font-size: 16px;">
+          Select one or more countries,<br>
+          enable the categories and wait for the update,<br>
+          or click "Build".
+        </div>`;
+    }
   }
 }
 
@@ -3497,12 +4186,641 @@ document.addEventListener('click', (e) => {
   bubble.className = 'info-bubble show';
   bubble.textContent = text;
   clickedTip.appendChild(bubble);
+  // keep bubble inside viewport
+  const r = bubble.getBoundingClientRect();
+  if (r.left < 4) bubble.style.transform = `translateX(${-r.left + 4}px)`;
+  else if (r.right > window.innerWidth - 4) bubble.style.transform = `translateX(${window.innerWidth - 4 - r.right}px)`;
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.info-bubble').forEach(b => b.remove());
   }
+});
+
+// -------- WORLD MAP --------
+//
+// The world map reuses the same Weibull-fit data that Thresholds and
+// Durations already load from params.csv. We only take the "whole"
+// (passenger-car / whole-market) variant of each country, cache the
+// raw v1/v2/t0/baseline, and compute year-at-threshold / duration
+// on demand so the user can pick any threshold and we don't have to
+// re-parse the CSV for every click.
+//
+// Countries are painted as one of three categories:
+//   - "normal"   — continuous green → orange colorscale (P5..P95 clip)
+//   - "pioneer"  — already past the threshold by the data_per date,
+//                   painted bright yellow to signal "in a different league"
+//   - "stalled"  — Weibull does not project a transition within a
+//                   reasonable horizon, painted purple to signal
+//                   "not slow, but different"
+//
+// Plotly understands full country names when locationmode is set to
+// 'country names'. A small alias table handles the handful of names
+// where params.csv and Plotly's Natural Earth dataset disagree.
+
+const WORLDMAP_STATE = {
+  loaded: false,
+  rows: [],        // cleaned per-country rows with all metrics pre-computed
+};
+
+// params.csv names → Plotly choropleth names (where they differ).
+const WM_COUNTRY_ALIASES = {
+  'Türkiye':                 'Turkey',
+  'Turkiye':                 'Turkey',
+  'USA':                     'United States',
+  'US':                      'United States',
+  'United States of America':'United States',
+  'UK':                      'United Kingdom',
+  'Great Britain':           'United Kingdom',
+  'South Korea':             'South Korea',
+  'Korea':                   'South Korea',
+  'Korea, Republic of':      'South Korea',
+  'Republic of Korea':       'South Korea',
+  'Czechia':                 'Czech Republic',
+  'Russia':                  'Russia',
+  'Russian Federation':      'Russia',
+  'Viet Nam':                'Vietnam',
+  'UAE':                     'United Arab Emirates',
+  'Hong Kong, China':        'Hong Kong',
+  'Taiwan, China':           'Taiwan',
+  'Chinese Taipei':          'Taiwan',
+  'NewZealand':              'New Zealand',
+  'Newzealand':              'New Zealand',
+  'SouthKorea':              'South Korea',
+  'SaudiArabia':             'Saudi Arabia',
+  'UnitedKingdom':           'United Kingdom',
+  'UnitedStates':            'United States'
+};
+
+function wmNormalizeCountry(raw){
+  const k = String(raw || '').trim();
+  if (!k) return '';
+  return WM_COUNTRY_ALIASES[k] || k;
+}
+
+// Pull params.csv (via the same two-URL probe Thresholds uses), keep
+// only the "whole" variant of each country, compute the 20/50/80 year
+// and the 20→80 duration, and cache everything for fast re-renders.
+function wmLoadData(){
+  if (WORLDMAP_STATE.loaded) return Promise.resolve();
+  const urls = ['./params.csv','params.csv'];
+  return new Promise((resolve, reject) => {
+    (function next(i){
+      if (i >= urls.length){
+        reject(new Error('Could not load params.csv for world map'));
+        return;
+      }
+      fetch(urls[i], { cache: 'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
+        .then(txt => {
+          // D1(b): dedupe first so legacy-alias detection also covers
+          // the map tab. wmBuildRows still does its own (country, whole,
+          // data_per) collapse on top — both are cheap and composable.
+          const rows = dedupeParamRows(parseCSV(txt));
+          WORLDMAP_STATE.rows = wmBuildRows(rows);
+          WORLDMAP_STATE.loaded = true;
+          resolve();
+        })
+        .catch(() => next(i + 1));
+    })(0);
+  });
+}
+
+function wmBuildRows(csvRows){
+  // Keep one row per country — the "whole" variant. If a country has
+  // several "whole" rows (shouldn't happen, but just in case) pick the
+  // one with the most recent data_per so we reflect the freshest fit.
+  const byCountry = new Map();
+  for (const r of csvRows){
+    const parts = extractVariantParts(r.variant || '');
+    if (normalizeBase(parts.base || '') !== 'whole') continue;
+
+    const country = wmNormalizeCountry(r.country);
+    if (!country) continue;
+
+    const prev = byCountry.get(country);
+    const dp = getDataPer(r);
+    if (!prev || (dp && dp > (prev._dp || ''))) {
+      byCountry.set(country, { ...r, _dp: dp });
+    }
+  }
+
+  const out = [];
+  for (const r of byCountry.values()){
+    let v1 = normNumber(r.v1);
+    // v1 exactly 0 means the CSV precision rounded away a tiny negative
+    // value (e.g. Indonesia). Patch to -1e-24 so the Weibull is technically
+    // valid but yields ~0% share → classifies as stalled automatically.
+    if (!isFinite(v1)) continue;
+    if (v1 === 0) v1 = -1e-24;
+
+    // Resolve baseYear: prefer baseline_year → baseline_date → t0 as
+    // calendar year (if ≥1800). The live CSV has no baseline_year or
+    // baseline_date columns, so t0 (a calendar year like 2009) is the
+    // only source for most countries.
+    // normNumber returns 0 for undefined/empty, so check for actual field presence
+    let baseYear = NaN;
+    if (r.baseline_year != null && String(r.baseline_year).trim() !== ''){
+      baseYear = normNumber(r.baseline_year);
+    }
+    if (!isFinite(baseYear) && r.baseline_date && /^\d{4}/.test(r.baseline_date)){
+      baseYear = parseInt(r.baseline_date.slice(0,4), 10);
+    }
+    if (!isFinite(baseYear)){
+      const t0str = String(r.t0 || '').trim();
+      const t0raw = normNumber(t0str);
+      if (t0str !== '' && isFinite(t0raw) && t0raw >= 1800) baseYear = Math.round(t0raw);
+    }
+
+    out.push({
+      country:  wmNormalizeCountry(r.country),
+      dataPer:  r._dp || '',
+      v1,
+      v2:       normNumber(r.v2),
+      t0:       getT0Years(r),
+      _t0raw:   normNumber((r.t0||'').trim()),  // calendar year from CSV, for direct share calc
+      baseYear,
+      baseDate: r.baseline_date || ''
+    });
+  }
+  out.sort((a,b) => a.country.localeCompare(b.country));
+  return out;
+}
+
+// Compute the calendar year (as a float: 2027.5 = mid-2027) in which
+// the fitted Weibull reaches BEV share y \in (0,1), or NaN if the
+// model does not produce a finite answer. Pure function so we can
+// call it for any threshold, not just the cached 20/50/80.
+function wmYearAt(row, y){
+  const res = inv_x_years(y, row.v1, row.v2, row.t0);
+  if (!res || !isFinite(res.x)) return NaN;
+  const dstr = yearsIndexToDate(res.x, row.baseDate, row.baseYear);
+  if (!dstr) return NaN;
+  const parsed = Date.parse(dstr);
+  if (!isFinite(parsed)) return NaN;
+  const d = new Date(parsed);
+  return d.getUTCFullYear()
+    + (d.getUTCMonth() + (d.getUTCDate() - 1) / 31) / 12;
+}
+
+// Anchor "pioneer" to the data_per date of each row (fallback 2025).
+// Countries whose fitted year-at-threshold is earlier than this are
+// labelled pioneers — they had already hit the threshold by their
+// most recent data point.
+function wmPioneerCutoff(row){
+  const dp = row.dataPer || '';
+  if (/^\d{4}-\d{2}$/.test(dp)) {
+    const y = parseInt(dp.slice(0,4), 10);
+    const m = parseInt(dp.slice(5,7), 10);
+    return y + (m - 1) / 12;
+  }
+  return 2025;
+}
+
+// 'normal' | 'pioneer' | 'stalled'. Duration mode never produces a
+// "pioneer" — it can only be normal or stalled (at least one endpoint
+// unreachable within the fitted horizon).
+function wmClassify(mode, value, row){
+  // v1 was patched from exactly 0 to -1e-24 → CSV precision too low.
+  // This happens for extremely fast transitions (e.g. Indonesia) where
+  // v1 is so small that it rounds to 0. Treat as normal — the computed
+  // year will place it at the green (early) end of the scale.
+  if (Math.abs(row.v1) < 1e-20) return 'normal';
+  if (mode === 'share') return 'normal';   // every country gets a 0-100% value
+  if (!isFinite(value)) return 'stalled';
+  if (mode === 'year'){
+    if (value > 2199) return 'stalled';
+    if (value < wmPioneerCutoff(row)) return 'pioneer';
+    return 'normal';
+  }
+  if (Math.abs(value) > 200) return 'stalled';
+  return 'normal';
+}
+
+function wmComputeMetric(row, mode, pct, pct2){
+  if (mode === 'year'){
+    return wmYearAt(row, pct / 100);
+  }
+  if (mode === 'share'){
+    // BEV share using raw CSV formula: 1 - exp(v1 * (calYear - t0_calendar)^v2)
+    // The CSV stores t0 as a calendar year (e.g. 2009), not index-time.
+    const slider = document.getElementById('wmShareYear');
+    const yearVal = slider ? parseFloat(slider.value) : new Date().getUTCFullYear();
+    const t0cal = normNumber(String(row._t0raw || row.baseYear));
+    const z = yearVal - t0cal;
+    if (z <= 0) return 0;
+    return Math.max(0, Math.min(100, (1 - Math.exp(row.v1 * Math.pow(z, row.v2))) * 100));
+  }
+  const from = wmYearAt(row, pct  / 100);
+  const to   = wmYearAt(row, pct2 / 100);
+  if (!isFinite(from) || !isFinite(to)) return NaN;
+  return to - from;
+}
+
+function wmFmt(mode, value){
+  if (!isFinite(value)) return '—';
+  if (mode === 'share') return value.toFixed(1) + '%';
+  return mode === 'year' ? wmYearFmt(value) : wmDurationFmt(value);
+}
+
+function wmYearFmt(yearFrac){
+  if (!isFinite(yearFrac)) return '—';
+  const y = Math.floor(yearFrac);
+  const m = Math.min(12, Math.max(1, Math.floor((yearFrac - y) * 12) + 1));
+  return `${y}-${String(m).padStart(2,'0')}`;
+}
+
+function wmDurationFmt(years){
+  if (!isFinite(years)) return '—';
+  const y = Math.floor(Math.abs(years) + 1e-9);
+  const m = Math.round((Math.abs(years) - y) * 12);
+  const sign = years < 0 ? '-' : '';
+  if (y && m) return `${sign}${y}y ${m}m`;
+  if (y)      return `${sign}${y}y`;
+  return `${sign}${m}m`;
+}
+
+// Percentile clip for the color scale — one or two outliers (Norway
+// hitting 80% well before anyone else) would otherwise flatten the
+// whole world into a single color. We clamp the scale to P5..P95 of
+// the actual data so the rest of the map gets a useful spread.
+function wmPercentileRange(values){
+  const arr = values.filter(v => isFinite(v)).slice().sort((a,b)=>a-b);
+  if (!arr.length) return [0, 1];
+  const q = p => {
+    const idx = Math.max(0, Math.min(arr.length-1, Math.round((arr.length-1) * p)));
+    return arr[idx];
+  };
+  const lo = q(0.05);
+  const hi = q(0.95);
+  if (lo === hi){
+    // Degenerate case: give the scale at least a tiny range so Plotly
+    // doesn't complain.
+    return [lo - 0.5, hi + 0.5];
+  }
+  return [lo, hi];
+}
+
+/* ── World Map: current UI state readers ── */
+function wmReadMode(){
+  return document.querySelector('input[name="wmMode"]:checked')?.value || 'year';
+}
+function wmReadThresholds(){
+  const mode = wmReadMode();
+  if (mode === 'year'){
+    return { pct: parseFloat(document.getElementById('wmThreshold')?.value) || 80, pct2: 0 };
+  }
+  return {
+    pct:  parseFloat(document.getElementById('wmThresholdFrom')?.value) || 20,
+    pct2: parseFloat(document.getElementById('wmThresholdTo')?.value) || 80
+  };
+}
+
+/* ── Region presets (center lat/lon + scale) ── */
+const WM_REGIONS = {
+  world:    { center: { lat: 20, lon: 0 },    scale: 1 },
+  europe:   { center: { lat: 54, lon: 15 },   scale: 3.8 },
+  namerica: { center: { lat: 45, lon: -100 }, scale: 2.4 },
+  samerica: { center: { lat: -20, lon: -60 }, scale: 2.2 },
+  asia:     { center: { lat: 35, lon: 90 },   scale: 2.2 },
+  africa:   { center: { lat: 5, lon: 20 },    scale: 2.2 },
+  oceania:  { center: { lat: -28, lon: 145 }, scale: 3 }
+};
+let wmCurrentRegion = 'world';
+let wmCurrentScale = 1;
+
+/* ── Build hover text for a row ── */
+function wmHover(row, mode, pct, pct2, value){
+  const y20  = wmYearAt(row, 0.20);
+  const y50  = wmYearAt(row, 0.50);
+  const y80  = wmYearAt(row, 0.80);
+  const d2080 = (isFinite(y20) && isFinite(y80)) ? y80 - y20 : NaN;
+  let label, mainVal;
+  if (mode === 'year'){
+    label = `Year reaching ${pct}%`;
+    mainVal = wmFmt('year', value);
+  } else {
+    label = `${pct}% → ${pct2}% transition`;
+    mainVal = wmFmt('duration', value);
+  }
+  return `<b>${row.country}</b><br>` +
+    `${label}: <b>${mainVal}</b><br>` +
+    `<span style="opacity:0.75">` +
+    `20%: ${wmFmt('year', y20)} · 50%: ${wmFmt('year', y50)} · 80%: ${wmFmt('year', y80)}<br>` +
+    `20→80%: ${wmFmt('duration', d2080)}` +
+    (row.dataPer ? `<br>data per: ${row.dataPer}` : '') +
+    `</span><extra></extra>`;
+}
+
+/* ── Main render ── */
+function wmRender(){
+  const mode = wmReadMode();
+  const { pct, pct2 } = wmReadThresholds();
+  const rows = WORLDMAP_STATE.rows;
+
+  // Toggle input visibility
+  document.getElementById('wmInputsYear').style.display     = mode === 'year' ? 'flex' : 'none';
+  document.getElementById('wmInputsDuration').style.display  = mode === 'duration' ? 'flex' : 'none';
+  document.getElementById('wmInputsShare').style.display     = mode === 'share' ? 'flex' : 'none';
+
+  // Compute metrics + classify
+  const data = rows.map(r => {
+    const v = wmComputeMetric(r, mode, pct, pct2);
+    const cls = wmClassify(mode, v, r);
+    return { r, v, cls };
+  });
+
+  // Split into three traces: normal, pioneer, stalled
+  const normal  = data.filter(d => d.cls === 'normal');
+  const pioneer = data.filter(d => d.cls === 'pioneer');
+  const stalled = data.filter(d => d.cls === 'stalled');
+
+  const normalVals = normal.map(d => d.v);
+  // For share mode, fixed 0-100% range; otherwise percentile clip
+  const [zmin, zmax] = mode === 'share' ? [0, 100] : wmPercentileRange(normalVals);
+
+  // Color scales: for share mode, reverse (red=low → green=high, higher share = better)
+  // For year/duration: green=early/fast → red=late/slow
+  const greenOrange = [
+    [0,   '#1a9641'],
+    [0.25,'#72bf6a'],
+    [0.5, '#f7f76e'],
+    [0.75,'#f5a646'],
+    [1,   '#d7191c']
+  ];
+  const shareScale = [
+    [0,   '#d7191c'],
+    [0.25,'#f5a646'],
+    [0.5, '#f7f76e'],
+    [0.75,'#72bf6a'],
+    [1,   '#1a9641']
+  ];
+  const colorscale = mode === 'share' ? shareScale : greenOrange;
+
+  const markerLine = { color: '#0b1324', width: 0.5 };
+
+  const shareYr = mode === 'share' ? (document.getElementById('wmShareYear')?.value || '2026') : '';
+  const colorbarTitle = mode === 'year'
+    ? `Year → ${pct}%`
+    : mode === 'duration'
+    ? `${pct}→${pct2}% (years)`
+    : `BEV % (${shareYr})`;
+
+  const traceNormal = {
+    type: 'choropleth', locationmode: 'country names',
+    locations: normal.map(d => d.r.country),
+    z: normalVals,
+    text: normal.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
+    hovertemplate: '%{text}',
+    colorscale: colorscale,
+    reversescale: false,
+    zmin, zmax,
+    marker: { line: markerLine },
+    colorbar: {
+      title: { text: colorbarTitle, font: { color: '#9fb3d1', size: 12 } },
+      tickfont: { color: '#9fb3d1', size: 11 },
+      outlinewidth: 0, thickness: 14, len: 0.85,
+      bgcolor: 'rgba(0,0,0,0)',
+      tickformat: mode === 'share' ? '.0f' : mode === 'duration' ? '.1f' : 'd'
+    }
+  };
+
+  const tracePioneer = {
+    type: 'choropleth', locationmode: 'country names',
+    locations: pioneer.map(d => d.r.country),
+    z: pioneer.map(() => 1),
+    text: pioneer.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
+    hovertemplate: '%{text}',
+    colorscale: [[0, '#00e5ff'], [1, '#00e5ff']],
+    zmin: 0, zmax: 1,
+    showscale: false,
+    marker: { line: markerLine }
+  };
+
+  const traceStalled = {
+    type: 'choropleth', locationmode: 'country names',
+    locations: stalled.map(d => d.r.country),
+    z: stalled.map(() => 1),
+    text: stalled.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
+    hovertemplate: '%{text}',
+    colorscale: [[0, '#d65aff'], [1, '#d65aff']],
+    zmin: 0, zmax: 1,
+    showscale: false,
+    marker: { line: markerLine }
+  };
+
+  const region = WM_REGIONS[wmCurrentRegion] || WM_REGIONS.world;
+
+  const layout = {
+    paper_bgcolor: '#0b1324',
+    plot_bgcolor: '#0b1324',
+    margin: { l: 0, r: 0, t: 6, b: 0 },
+    geo: {
+      bgcolor: '#0b1324',
+      showframe: false,
+      showcoastlines: true,
+      coastlinecolor: '#1a2440',
+      showland: true,
+      landcolor: '#101a33',
+      showocean: true,
+      oceancolor: '#080f20',
+      showcountries: true,
+      countrycolor: '#1a2440',
+      projection: {
+        type: 'natural earth',
+        scale: wmCurrentScale * (region.scale || 1)
+      },
+      center: region.center,
+      lataxis: { range: [-58, 85] }
+    },
+    annotations: [{
+      x: 0.995, y: 0.02,
+      xref: 'paper', yref: 'paper',
+      xanchor: 'right', yanchor: 'bottom',
+      text: '@LeRaffl',
+      showarrow: false,
+      font: { size: 11, color: 'rgba(159,179,209,0.55)' }
+    }]
+  };
+
+  Plotly.newPlot('worldMapPlot', [traceNormal, tracePioneer, traceStalled], layout, {
+    responsive: true, displaylogo: false
+  });
+
+  // Explainer
+  const expl = document.getElementById('wmExplainer');
+  if (expl){
+    if (mode === 'year'){
+      expl.innerHTML = `Showing the <b>year</b> each country's BEV inflow share reaches <b>${pct}%</b> — same underlying Weibull model as the <em>Thresholds</em> tab, just painted on a map.`;
+    } else if (mode === 'duration'){
+      expl.innerHTML = `Showing the <b>transition time</b> from <b>${pct}%</b> to <b>${pct2}%</b> BEV inflow share — same model as the <em>Durations</em> tab, viewed geographically.`;
+    } else {
+      const slider = document.getElementById('wmShareYear');
+      const yr = slider ? slider.value : new Date().getUTCFullYear();
+      expl.innerHTML = `Showing the <b>modeled BEV inflow share</b> in <b>${yr}</b> — the Weibull curve evaluated at the selected year. Drag the slider or hit <b>▶</b> to watch the global transition unfold over time.`;
+    }
+  }
+
+  // Leaders + Laggards (normal countries only, sorted by metric value)
+  // For share mode, higher = better, so reverse the sort
+  const sortable = normal.slice().sort((a,b) => a.v - b.v);
+  const top5 = mode === 'share' ? sortable.slice(-5).reverse() : sortable.slice(0, 5);
+  const bot5 = mode === 'share' ? sortable.slice(0, 5) : sortable.slice(-5).reverse();
+
+  const fmtLi = (d, tag) => {
+    const txt = wmFmt(mode, d.v);
+    return `<${tag}><b>${d.r.country}</b> — ${txt}</${tag}>`;
+  };
+
+  const topList = document.getElementById('wmTopList');
+  const botList = document.getElementById('wmBottomList');
+  if (topList) topList.innerHTML = top5.map(d => fmtLi(d, 'li')).join('');
+  if (botList) botList.innerHTML = bot5.map(d => fmtLi(d, 'li')).join('');
+
+  // Pioneers + Stalled
+  const pioneerList = document.getElementById('wmPioneerList');
+  const stalledList = document.getElementById('wmStalledList');
+  if (pioneerList) pioneerList.innerHTML = pioneer.length
+    ? pioneer.map(d => `<li><b>${d.r.country}</b> — already past ${pct}% (${wmFmt('year', d.v)})</li>`).join('')
+    : '<li style="opacity:0.6">None at this threshold</li>';
+  if (stalledList) stalledList.innerHTML = stalled.length
+    ? stalled.map(d => `<li><b>${d.r.country}</b></li>`).join('')
+    : '<li style="opacity:0.6">None at this threshold</li>';
+}
+
+/* ── Init ── */
+let WORLDMAP_INITED = false;
+let WORLDMAP_LOADING = false;
+let wmPlayInterval = null;
+
+function wmStopPlay(){
+  if (!wmPlayInterval) return;
+  clearInterval(wmPlayInterval);
+  wmPlayInterval = null;
+  const btn = document.getElementById('wmPlayBtn');
+  if (btn){ btn.textContent = '▶'; btn.classList.remove('is-active'); }
+}
+
+async function initWorldMap(){
+  if (WORLDMAP_INITED) { wmRender(); return; }
+  if (WORLDMAP_LOADING) return;
+  WORLDMAP_LOADING = true;
+  const dbg = document.getElementById('worldMapDebugBox');
+  try {
+    await ensurePlotly();
+    await wmLoadData();
+    if (!WORLDMAP_STATE.rows.length){
+      if (dbg){ dbg.style.display = 'block'; dbg.textContent = 'World map: params.csv loaded but produced 0 countries after variant filter.'; }
+      return;
+    }
+
+    // Mode radio → toggle inputs + re-render
+    document.querySelectorAll('input[name="wmMode"]').forEach(radio => {
+      radio.addEventListener('change', wmRender);
+    });
+
+    // Threshold inputs → debounced re-render
+    let wmDebounce = null;
+    const debouncedRender = () => {
+      clearTimeout(wmDebounce);
+      wmDebounce = setTimeout(wmRender, 400);
+    };
+    ['wmThreshold', 'wmThresholdFrom', 'wmThresholdTo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', debouncedRender);
+    });
+
+    // Share timeline slider
+    const shareSlider = document.getElementById('wmShareYear');
+    const shareLabel  = document.getElementById('wmShareYearLabel');
+    if (shareSlider){
+      // Set default to current year
+      const curYear = new Date().getUTCFullYear();
+      shareSlider.value = Math.min(Math.max(curYear, 2010), 2070);
+      if (shareLabel) shareLabel.textContent = shareSlider.value;
+
+      shareSlider.addEventListener('input', () => {
+        if (shareLabel) shareLabel.textContent = shareSlider.value;
+        wmRender();
+      });
+    }
+
+    // Play button — auto-advance slider
+    const playBtn = document.getElementById('wmPlayBtn');
+    if (playBtn && shareSlider){
+      playBtn.addEventListener('click', () => {
+        if (wmPlayInterval){ wmStopPlay(); return; }
+        // Start from current position (or reset to 2010 if at end)
+        if (parseInt(shareSlider.value) >= parseInt(shareSlider.max)){
+          shareSlider.value = shareSlider.min;
+        }
+        playBtn.textContent = '⏸';
+        playBtn.classList.add('is-active');
+        wmPlayInterval = setInterval(() => {
+          const next = parseInt(shareSlider.value) + 1;
+          if (next > parseInt(shareSlider.max)){
+            wmStopPlay();
+            return;
+          }
+          shareSlider.value = next;
+          if (shareLabel) shareLabel.textContent = next;
+          wmRender();
+        }, 350);
+      });
+    }
+
+    // Region buttons
+    const regionBtns = document.querySelectorAll('#wmRegionBar button[data-region]');
+    function setActiveRegion(key){
+      wmCurrentRegion = key;
+      wmCurrentScale = 1;
+      regionBtns.forEach(b => b.classList.toggle('is-active', b.dataset.region === key));
+      const region = WM_REGIONS[key] || WM_REGIONS.world;
+      Plotly.relayout('worldMapPlot', {
+        'geo.center': region.center,
+        'geo.projection.scale': wmCurrentScale * (region.scale || 1)
+      });
+    }
+    regionBtns.forEach(b => {
+      b.addEventListener('click', () => setActiveRegion(b.dataset.region));
+    });
+    // Mark world active by default
+    regionBtns.forEach(b => b.classList.toggle('is-active', b.dataset.region === 'world'));
+
+    // Zoom +/- / reset
+    document.querySelectorAll('#wmRegionBar button[data-zoom]').forEach(b => {
+      b.addEventListener('click', () => {
+        const action = b.dataset.zoom;
+        if (action === 'reset'){
+          wmCurrentScale = 1;
+        } else if (action === '+1'){
+          wmCurrentScale = Math.min(wmCurrentScale * 1.5, 20);
+        } else if (action === '-1'){
+          wmCurrentScale = Math.max(wmCurrentScale / 1.5, 0.3);
+        }
+        const region = WM_REGIONS[wmCurrentRegion] || WM_REGIONS.world;
+        Plotly.relayout('worldMapPlot', {
+          'geo.projection.scale': wmCurrentScale * (region.scale || 1)
+        });
+      });
+    });
+
+    WORLDMAP_INITED = true;
+    wmRender();
+  } catch (err){
+    WORLDMAP_LOADING = false;
+    if (dbg){ dbg.style.display = 'block'; dbg.textContent = 'World map init failed: ' + (err?.message || err); }
+    console.error('[worldmap]', err);
+  }
+}
+
+// Scroll-shadow hint: hide gradient when scrolled to end
+document.querySelectorAll('.tablecard').forEach(tc => {
+  tc.addEventListener('scroll', () => {
+    const atEnd = tc.scrollLeft + tc.clientWidth >= tc.scrollWidth - 2;
+    tc.classList.toggle('scrolled-end', atEnd);
+  });
 });
 </script>
 </body>
