@@ -82,6 +82,76 @@
       "country_slug": "bulgaria"
     },
     {
+      "country": "Croatia",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "croatia_ICE_BEV_20260422.png",
+      "url": "images/2026-03/croatia_ICE_BEV_20260422.png",
+      "alt": "Croatia ICE-BEV-Hybrid trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "croatia_20260422.png",
+      "url": "images/2026-03/croatia_20260422.png",
+      "alt": "Croatia BEV trajectory",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Croatia",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "croatia_ttm_shares_20260422.png",
+      "url": "images/2026-03/croatia_ttm_shares_20260422.png",
+      "alt": "Croatia TTM market split graph",
+      "country_slug": "croatia"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "cyprus_ICE_BEV_20260422.png",
+      "url": "images/2026-03/cyprus_ICE_BEV_20260422.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "cyprus_20260422.png",
+      "url": "images/2026-03/cyprus_20260422.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "cyprus_time_20260422.png",
+      "url": "images/2026-03/cyprus_time_20260422.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-22",
+      "filename": "cyprus_ttm_shares_20260422.png",
+      "url": "images/2026-03/cyprus_ttm_shares_20260422.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
       "country": "France",
       "type": "ICE_BEV",
       "period": "2026-03",
