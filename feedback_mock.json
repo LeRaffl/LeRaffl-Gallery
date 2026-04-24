@@ -1,0 +1,109 @@
+{
+  "updated": "2026-04-24T10:00:00Z",
+  "note": "V1 mock data. Shape mirrors what the Cloudflare Worker will return once it fetches from the GitHub Issues API, so the renderer does not need to change when we go live.",
+  "issues": [
+    {
+      "number": 7,
+      "title": "Wie lese ich die Threshold-Spalte?",
+      "body": "Hallo, ich verstehe nicht ganz, was in der Spalte `t_50` genau steht. Ist das ein Jahr oder ein Datum? Und bezieht sich das auf BEV-Anteil oder auf Neuzulassungen?",
+      "category": "question",
+      "status": "answered",
+      "author": "Martina",
+      "pinned": true,
+      "created_at": "2026-04-18T14:22:00Z",
+      "updated_at": "2026-04-19T09:10:00Z",
+      "context": { "tab": "thresholds", "hash": "#thresholds" },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Guter Punkt — das ist in der Tat nicht super klar beschriftet. `t_50` ist das **Jahr** (als Dezimalzahl, z.B. `2028.4`), in dem der BEV-Anteil an den **Neuzulassungen** 50% erreicht. Nicht im Bestand.\n\nIch nehme das in die FAQ-Kandidaten auf.",
+          "created_at": "2026-04-19T09:10:00Z"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "title": "Türkiye BEV-Anteil Mai 2025 sieht zu hoch aus",
+      "body": "Im Gallery-Tab zeigt die Türkiye-Kurve für Mai 2025 ~14% BEV-Anteil, aber die offiziellen ODD-Zahlen liegen bei ca. 9,8%. Kann es sein, dass da PHEVs reingerutscht sind?",
+      "category": "data",
+      "status": "open",
+      "author": "eray_k",
+      "pinned": false,
+      "created_at": "2026-04-22T08:45:00Z",
+      "updated_at": "2026-04-22T08:45:00Z",
+      "context": { "tab": "gallery", "hash": "#gallery", "filters": { "country": "Türkiye", "type": "share" } },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": []
+    },
+    {
+      "number": 14,
+      "title": "Idee: CSV-Download pro Land im Fleet-Tab",
+      "body": "Wäre es möglich, die projizierten Fleet-Zahlen pro Land als CSV herunterzuladen? Wäre super für eigene Auswertungen.",
+      "category": "idea",
+      "status": "open",
+      "author": "Anonymous",
+      "pinned": false,
+      "created_at": "2026-04-23T16:02:00Z",
+      "updated_at": "2026-04-23T16:02:00Z",
+      "context": { "tab": "fleet", "hash": "#fleet" },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": []
+    },
+    {
+      "number": 9,
+      "title": "Mobile: Chart-Legende wird abgeschnitten",
+      "body": "Auf meinem iPhone 13 im Durations-Tab wird die Plotly-Legende rechts abgeschnitten, ich kann sie nicht mehr lesen. Safari aktuell.",
+      "category": "bug",
+      "status": "resolved",
+      "author": "Tom",
+      "pinned": false,
+      "created_at": "2026-04-10T11:00:00Z",
+      "updated_at": "2026-04-14T17:30:00Z",
+      "context": { "tab": "durations", "hash": "#durations" },
+      "version": { "page_updated": "2026-04-08", "data_per": "2025-07" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Danke fürs Melden. Konnte ich reproduzieren — Layout-Bug im Plotly-Config unter 400px Viewport-Breite.",
+          "created_at": "2026-04-11T08:12:00Z"
+        },
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Behoben in der Version vom 2026-04-14. Bitte mal den Cache leeren und nochmal schauen.",
+          "created_at": "2026-04-14T17:30:00Z"
+        },
+        {
+          "author": "Tom",
+          "is_maintainer": false,
+          "body": "Passt, danke!",
+          "created_at": "2026-04-14T19:02:00Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Was bedeutet 'data_per' genau?",
+      "body": "In den Dateinamen und Tabellen taucht öfter 'data_per' auf — was ist das?",
+      "category": "question",
+      "status": "answered",
+      "author": "Anonymous",
+      "pinned": true,
+      "created_at": "2026-03-28T12:00:00Z",
+      "updated_at": "2026-03-28T18:20:00Z",
+      "context": { "tab": "gallery", "hash": "#gallery" },
+      "version": { "page_updated": "2026-03-25", "data_per": "2025-07" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "`data_per` ist der **Datenstand** — also der letzte Monat, für den Zulassungszahlen vorliegen, auf denen die Kurve fittet. `2025-08` heißt: Fit auf Daten bis einschließlich August 2025, alles danach ist Extrapolation.",
+          "created_at": "2026-03-28T18:20:00Z"
+        }
+      ]
+    }
+  ]
+}
