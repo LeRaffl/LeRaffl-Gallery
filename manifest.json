@@ -82,6 +82,86 @@
       "country_slug": "luxembourg"
     },
     {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2026-02",
+      "date": "2026-04-25",
+      "filename": "netherlands_ICE_BEV_20260425.png",
+      "url": "images/2026-02/netherlands_ICE_BEV_20260425.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "netherlands_ICE_BEV_20260425.png",
+      "url": "images/2026-03/netherlands_ICE_BEV_20260425.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2026-02",
+      "date": "2026-04-25",
+      "filename": "netherlands_20260425.png",
+      "url": "images/2026-02/netherlands_20260425.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "netherlands_20260425.png",
+      "url": "images/2026-03/netherlands_20260425.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2026-02",
+      "date": "2026-04-25",
+      "filename": "netherlands_time_20260425.png",
+      "url": "images/2026-02/netherlands_time_20260425.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "netherlands_time_20260425.png",
+      "url": "images/2026-03/netherlands_time_20260425.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2026-02",
+      "date": "2026-04-25",
+      "filename": "netherlands_ttm_shares_20260425.png",
+      "url": "images/2026-02/netherlands_ttm_shares_20260425.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "netherlands_ttm_shares_20260425.png",
+      "url": "images/2026-03/netherlands_ttm_shares_20260425.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
       "country": "Spain",
       "type": "ICE_BEV",
       "period": "2026-03",
