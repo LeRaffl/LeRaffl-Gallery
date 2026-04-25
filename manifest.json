@@ -82,6 +82,46 @@
       "country_slug": "luxembourg"
     },
     {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "spain_ICE_BEV_20260425.png",
+      "url": "images/2026-03/spain_ICE_BEV_20260425.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "spain_20260425.png",
+      "url": "images/2026-03/spain_20260425.png",
+      "alt": "Spain BEV trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "spain_time_20260425.png",
+      "url": "images/2026-03/spain_time_20260425.png",
+      "alt": "Spain Transition time curve",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "spain_ttm_shares_20260425.png",
+      "url": "images/2026-03/spain_ttm_shares_20260425.png",
+      "alt": "Spain TTM market split graph",
+      "country_slug": "spain"
+    },
+    {
       "country": "Switzerland",
       "type": "ICE_BEV",
       "period": "2026-03",
