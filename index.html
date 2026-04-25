@@ -666,7 +666,11 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
    The JS layer reads data-fb-context and prefills the modal. */
 .fb-ctx-cluster{display:inline-flex;gap:2px;align-items:center;vertical-align:middle}
 .fb-ctx-btn{width:24px;height:24px;padding:0;border:1px solid transparent;background:transparent;border-radius:6px;font-size:13px;line-height:1;cursor:pointer;opacity:.55;transition:opacity .15s,border-color .15s,background .15s}
-.fb-ctx-btn:hover{opacity:1;border-color:#2a3654;background:#0b1324}
+.fb-ctx-btn:hover,.fb-ctx-btn:focus-visible{opacity:1;border-color:#2a3654;background:#0b1324;outline:none}
+/* Heading-level placements get bumped up so the icons read at the same
+   weight as the surrounding h2 text and stay tappable on mobile. */
+h2 .fb-ctx-cluster{margin-left:10px;font-size:initial;font-weight:400}
+h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 </style>
   
 
@@ -714,7 +718,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 <!-- FAQ TAB -->
 <section id="tab-faq" class="tab">
   <div class="container">
-    <h2>FAQ</h2>
+    <h2>FAQ
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"faq"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
     <!-- Cards are rendered from FAQ_DATA in the script block below. -->
     <div id="faqList"></div>
@@ -856,7 +868,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
   <section id="tab-gallery" class="tab active">
     <div class="page">
       <aside class="side">
-        <h2>Filters</h2>
+        <h2>Filters
+          <span class="fb-ctx-cluster" data-fb-context='{"section":"gallery"}'>
+            <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+            <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+            <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+            <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+            <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+          </span>
+        </h2>
         <label class="small">Country</label>
         <select id="countrySelect"><option value="">All countries</option></select>
         <div style="height:10px"></div>
@@ -914,10 +934,12 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
   <section id="tab-thresholds" class="tab">
     <div class="container">
       <h2>Thresholds (years)
-        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}' style="margin-left:8px">
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
           <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
-          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
           <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
         </span>
       </h2>
       <div class="toolbar">
@@ -967,7 +989,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
   <!-- DURATIONS TAB -->
   <section id="tab-durations" class="tab">
     <div class="container">
-      <h2>Durations (time to move between thresholds)</h2>
+      <h2>Durations (time to move between thresholds)
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px"><label for="variantMultiD">Variant filter (multi-select)</label><select id="variantMultiD" multiple size="6"></select></div>
         <div class="field"><label for="customFrom">Custom from (%)</label><input id="customFrom" type="number" min="1" max="98" step="1" value="25" /></div>
@@ -1000,7 +1030,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
   <!-- BUILDER TAB -->
 <section id="tab-builder" class="tab">
     <div class="container">
-      <h2>Region / World Curve Builder</h2>
+      <h2>Region / World Curve Builder
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px">
           <label>Countries (multi‑select)</label>
@@ -1097,7 +1135,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
   <!-- Fleet TAB -->
 <section id="tab-fleet" class="tab">
   <div class="container">
-    <h2>Fleet</h2>
+    <h2>Fleet
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <!-- Fleet errors -->
     <div id="fleetErrors"
          class="error"
@@ -1443,7 +1489,15 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 <!-- WORLD MAP TAB -->
 <section id="tab-worldmap" class="tab">
   <div class="container">
-    <h2>World Map</h2>
+    <h2>World Map
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <p class="small" style="margin:0 0 14px">
       Same country data as the <b>Thresholds</b> and <b>Durations</b> tabs, painted on a world map.
       Only the default (whole-market, passenger-car) variant is shown.
@@ -5176,21 +5230,23 @@ async function fbLoad(){
 // Needed so someone reporting a bug on Fleet / Builder / Thresholds also
 // sends along which projection-end-year, which countries, which Weibull
 // shape etc. they had selected — otherwise bugs are unreproducible.
-// Unnamed checkboxes (e.g. the gallery type-chips) get grouped under their
-// nearest `.chips` container so we don't lose them.
+//
+// We deliberately do NOT skip controls that are visually hidden because
+// their parent <details> is collapsed: those settings still affect the
+// rendered output, they're just folded away. Disabled controls are
+// skipped because they're inert by definition.
+//
+// Unnamed checkboxes (e.g. the gallery type-chips) get grouped under
+// their nearest `.chips` container so we don't lose them.
 function fbCollectControls(tabEl){
   if (!tabEl) return {};
   const state = {};
   tabEl.querySelectorAll('input, select, textarea').forEach(el => {
     if (el.disabled) return;
-    // Skip controls that aren't visible (hidden attr, display:none ancestor).
-    if (el.type !== 'hidden' && el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return;
     const key = el.id || el.name;
     if (el.type === 'checkbox' || el.type === 'radio') {
       if (!el.checked) return;
       if (key) { state[key] = el.value && el.value !== 'on' ? el.value : true; return; }
-      // Unnamed checkbox → group under the closest .chips container so we
-      // still know which set it belonged to.
       const group = el.closest('.chips');
       const gk = group?.id || group?.getAttribute('data-fb-group') || '_chips';
       (state[gk] = state[gk] || []).push(el.value || '(on)');
