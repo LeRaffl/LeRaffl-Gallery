@@ -521,8 +521,7 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 
 /* =========================================================================
    Feedback tab — discussion list, filters, submission modal.
-   V1 is rendered against feedback_mock.json. V2 will swap the loader for a
-   Cloudflare-Worker-backed GitHub Issues fetch; the render path stays.
+   Backed by a Cloudflare Worker that proxies the GitHub Issues API.
    ========================================================================= */
 .fb-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .fb-toolbar .grow{flex:1 1 220px}
@@ -734,9 +733,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 </section>
 
 <!-- FEEDBACK & QUESTIONS TAB
-     V1: renders against feedback_mock.json. V2 will swap the loader to hit
-     a Cloudflare Worker that proxies GitHub Issues. The render/interaction
-     code below is already shape-compatible with the GitHub Issues API. -->
+     Backed by a Cloudflare Worker that proxies the GitHub Issues API. -->
 <section id="tab-feedback" class="tab">
   <div class="container">
     <h2>Feedback &amp; Questions</h2>
@@ -5167,11 +5164,12 @@ document.querySelectorAll('.tablecard').forEach(tc => {
 });
 
 // =========================================================================
-// Feedback & Questions — V1: renders against feedback_mock.json. V2 will swap
-// the loader + submit path to a Cloudflare Worker that proxies the GitHub
-// Issues API. The shape below mirrors what that Worker will return, so the
-// renderer, filters, and helpful-counter stay the same.
+// Feedback & Questions — V2: live against the Cloudflare Worker that proxies
+// the GitHub Issues API. GET /issues lists feedback issues + comments, POST
+// /issues creates a new one. The Worker holds the GitHub PAT as a secret;
+// users never need a GitHub account.
 // =========================================================================
+const FB_API = 'https://leraffl-gallery-feedback.xgwvfz7nrb.workers.dev';
 const FB_STATE = {
   issues: [],
   filters: { cat: 'all', status: 'all', search: '' },
@@ -5214,12 +5212,12 @@ function fbRelTime(iso){
 async function fbLoad(){
   if (FB_STATE.loaded) return;
   try {
-    const res = await fetch('feedback_mock.json', { cache: 'no-store' });
+    const res = await fetch(`${FB_API}/issues`, { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
     FB_STATE.issues = Array.isArray(json.issues) ? json.issues : [];
   } catch (err) {
-    console.warn('[feedback] could not load mock data:', err);
+    console.warn('[feedback] could not load issues:', err);
     FB_STATE.issues = [];
   }
   FB_STATE.loaded = true;
@@ -5475,22 +5473,35 @@ function fbSimilarSuggest(query){
   hint.hidden = false;
 }
 
-function fbSubmitMock(payload){
-  // V1: optimistic local add. V2 replaces this with a fetch() to the Worker
-  // which returns the created issue; rendering stays the same.
-  const issue = {
-    number: Math.max(0, ...FB_STATE.issues.map(i=>i.number)) + 1,
-    title: payload.title.trim(),
-    body: payload.body.trim(),
-    category: payload.category,
-    status: 'open',
-    author: payload.author.trim() || 'Anonymous',
-    pinned: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    context: FB_STATE.prefillContext || fbCurrentContext(),
-    comments: []
+async function fbPostIssue(payload){
+  // Posts to the Worker, which validates + creates a GitHub issue and returns
+  // it in our shape. Throws with a user-readable message on failure.
+  const ctx = FB_STATE.prefillContext || fbCurrentContext();
+  const body = {
+    title:         payload.title.trim(),
+    body:          payload.body.trim(),
+    category:      payload.category,
+    author:        payload.author.trim() || 'Anonymous',
+    context:       ctx,
+    version:       window.__FB_VERSION__ || null,
+    math_answer:   payload.captcha,
+    math_expected: FB_STATE.captchaAnswer,
+    _hp:           payload.website || ''
   };
+  const res = await fetch(`${FB_API}/issues`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    let msg = 'Submission failed. Please try again.';
+    try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+    throw new Error(msg);
+  }
+  const issue = await res.json();
+  // Optimistic insert at the top so the user sees their thread immediately
+  // even if the GET cache hasn't refreshed yet.
+  FB_STATE.issues = FB_STATE.issues.filter(i => i.number !== issue.number);
   FB_STATE.issues.unshift(issue);
   fbRender();
   return issue;
@@ -5546,10 +5557,11 @@ function fbWireEvents(){
     }, 120);
   });
 
-  document.getElementById('fbForm')?.addEventListener('submit', e => {
+  document.getElementById('fbForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const err = document.getElementById('fbError');
     err.textContent = '';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
     const fd = new FormData(e.target);
     const payload = {
       category: fd.get('category'),
@@ -5570,11 +5582,18 @@ function fbWireEvents(){
       err.textContent = 'Title and description can’t be empty.';
       return;
     }
-    fbSubmitMock(payload);
-    e.target.reset();
-    fbCloseModal();
-    location.hash = '#feedback';
-    setTimeout(() => document.querySelector('#fbList .fb-thread')?.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.label = submitBtn.textContent; submitBtn.textContent = 'Submitting…'; }
+    try {
+      await fbPostIssue(payload);
+      e.target.reset();
+      fbCloseModal();
+      location.hash = '#feedback';
+      setTimeout(() => document.querySelector('#fbList .fb-thread')?.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+    } catch (ex) {
+      err.textContent = ex.message || 'Submission failed. Please try again.';
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label || 'Submit'; }
+    }
   });
 }
 
