@@ -2,6 +2,46 @@
   "updated": "2026-04-25",
   "images": [
     {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "czechia_ICE_BEV_20260425.png",
+      "url": "images/2026-03/czechia_ICE_BEV_20260425.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "czechia_20260425.png",
+      "url": "images/2026-03/czechia_20260425.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "czechia_time_20260425.png",
+      "url": "images/2026-03/czechia_time_20260425.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-25",
+      "filename": "czechia_ttm_shares_20260425.png",
+      "url": "images/2026-03/czechia_ttm_shares_20260425.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
+    },
+    {
       "country": "Luxembourg",
       "type": "ICE_BEV",
       "period": "2026-03",
