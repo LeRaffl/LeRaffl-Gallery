@@ -1,0 +1,26 @@
+name            = "leraffl-gallery-feedback"
+main            = "index.js"
+compatibility_date = "2024-09-23"
+
+# Uncomment and fill in your Cloudflare account ID after running `wrangler login`
+# account_id = "YOUR_ACCOUNT_ID_HERE"
+
+[vars]
+# Public, non-secret config — override per environment below if needed
+GITHUB_OWNER = "leraffl"
+GITHUB_REPO  = "leraffl-gallery"
+
+# KV namespace for rate limiting.
+# After deploying, create with:  wrangler kv namespace create RATE_KV
+# Then paste the returned id below and uncomment.
+# [[kv_namespaces]]
+# binding = "RATE_KV"
+# id      = "PASTE_KV_NAMESPACE_ID_HERE"
+
+# Secret: GITHUB_TOKEN
+# Do NOT put the token here. Set it with:
+#   wrangler secret put GITHUB_TOKEN
+# (you will be prompted to paste the value)
+
+[env.production]
+name = "leraffl-gallery-feedback"

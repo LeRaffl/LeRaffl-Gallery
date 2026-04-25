@@ -1,0 +1,147 @@
+{
+  "updated": "2026-04-24T10:00:00Z",
+  "note": "V1 mock data. Shape mirrors what the Cloudflare Worker will return once it fetches from the GitHub Issues API, so the renderer does not need to change when we go live. `pinned: true` will be derived from a `pinned` label on the real GitHub issue.",
+  "issues": [
+    {
+      "number": 7,
+      "title": "How do I read the t_50 threshold column?",
+      "body": "Hi, I don't quite get what is in the `t_50` column. Is that a year or a date? And does it refer to the BEV share in the fleet or in new registrations?",
+      "category": "question",
+      "status": "answered",
+      "author": "Martina",
+      "pinned": true,
+      "created_at": "2026-04-18T14:22:00Z",
+      "updated_at": "2026-04-19T09:10:00Z",
+      "context": {
+        "tab": "thresholds",
+        "hash": "#thresholds",
+        "controls": {
+          "variantMulti": ["Whole", "ICE_BEV"],
+          "customPct": "50"
+        }
+      },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Good point — that column isn't labeled clearly enough. `t_50` is the **year** (as a decimal, e.g. `2028.4`) at which the BEV share of **new registrations** reaches 50%. Not the fleet.\n\nAdding this to the FAQ candidates.",
+          "created_at": "2026-04-19T09:10:00Z"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "title": "Türkiye BEV share for May 2025 looks too high",
+      "body": "On the Gallery tab the Türkiye curve shows ~14% BEV share for May 2025, but official ODD numbers are around 9.8%. Could PHEVs have leaked in?",
+      "category": "data",
+      "status": "open",
+      "author": "eray_k",
+      "pinned": false,
+      "created_at": "2026-04-22T08:45:00Z",
+      "updated_at": "2026-04-22T08:45:00Z",
+      "context": {
+        "tab": "gallery",
+        "hash": "#gallery",
+        "controls": {
+          "countrySelect": "Türkiye",
+          "chips": ["share"],
+          "latestOnly": true,
+          "sortField": "created",
+          "sortDir": "desc"
+        }
+      },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": []
+    },
+    {
+      "number": 14,
+      "title": "Idea: per-country CSV download on the Fleet tab",
+      "body": "Would it be possible to download projected fleet numbers per country as CSV? Would be great for custom analysis.",
+      "category": "idea",
+      "status": "open",
+      "author": "Anonymous",
+      "pinned": false,
+      "created_at": "2026-04-23T16:02:00Z",
+      "updated_at": "2026-04-23T16:02:00Z",
+      "context": {
+        "tab": "fleet",
+        "hash": "#fleet",
+        "controls": {
+          "fleetCountries": ["Germany", "France"],
+          "fleetShowBEV": true,
+          "fleetShowPHEV": true,
+          "fleetProjectionEndYear": "2040",
+          "fleetEnableProjection": true
+        }
+      },
+      "version": { "page_updated": "2026-04-15", "data_per": "2025-08" },
+      "comments": []
+    },
+    {
+      "number": 9,
+      "title": "Mobile: chart legend gets cut off",
+      "body": "On my iPhone 13 in the Durations tab the Plotly legend on the right gets clipped and I can't read it. Safari latest.",
+      "category": "bug",
+      "status": "resolved",
+      "author": "Tom",
+      "pinned": false,
+      "created_at": "2026-04-10T11:00:00Z",
+      "updated_at": "2026-04-14T17:30:00Z",
+      "context": {
+        "tab": "durations",
+        "hash": "#durations",
+        "controls": {
+          "variantMultiD": ["Whole"],
+          "customFrom": "0",
+          "customTo": "50"
+        }
+      },
+      "version": { "page_updated": "2026-04-08", "data_per": "2025-07" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Thanks for reporting. Reproduced — layout bug in the Plotly config at viewport widths under 400px.",
+          "created_at": "2026-04-11T08:12:00Z"
+        },
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "Fixed in the 2026-04-14 build. Please clear cache and have another look.",
+          "created_at": "2026-04-14T17:30:00Z"
+        },
+        {
+          "author": "Tom",
+          "is_maintainer": false,
+          "body": "Works, thanks!",
+          "created_at": "2026-04-14T19:02:00Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "What does 'data_per' mean exactly?",
+      "body": "I see 'data_per' in filenames and tables — what is it?",
+      "category": "question",
+      "status": "answered",
+      "author": "Anonymous",
+      "pinned": true,
+      "created_at": "2026-03-28T12:00:00Z",
+      "updated_at": "2026-03-28T18:20:00Z",
+      "context": {
+        "tab": "gallery",
+        "hash": "#gallery"
+      },
+      "version": { "page_updated": "2026-03-25", "data_per": "2025-07" },
+      "comments": [
+        {
+          "author": "LeRaffl",
+          "is_maintainer": true,
+          "body": "`data_per` is the **data cutoff** — i.e. the last month for which registration numbers are available and to which the curve is fit. `2025-08` means: fit on data through August 2025, everything after that is extrapolation.",
+          "created_at": "2026-03-28T18:20:00Z"
+        }
+      ]
+    }
+  ]
+}

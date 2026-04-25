@@ -518,6 +518,158 @@ th.sortable.desc::after{content:" ↓"}
 
 /* Uniform section heading margin across all tabs */
 section.tab .container > h2 { margin: 6px 0 12px; }
+
+/* =========================================================================
+   Feedback tab — discussion list, filters, submission modal.
+   Backed by a Cloudflare Worker that proxies the GitHub Issues API.
+   ========================================================================= */
+.fb-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.fb-toolbar .grow{flex:1 1 220px}
+.fb-toolbar input[type="search"],
+.fb-toolbar select{padding:8px 10px;font-size:13px}
+.fb-new-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #00b43d;background:linear-gradient(135deg,#1fd655,#00b43d);color:#041b0b;font-weight:700;cursor:pointer;white-space:nowrap}
+.fb-new-btn:hover{filter:brightness(1.05)}
+.fb-new-btn svg{width:16px;height:16px}
+
+.fb-filterbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.fb-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #2a3654;background:#0b1324;border-radius:999px;font-size:12px;color:#cfd8e8;cursor:pointer;user-select:none}
+.fb-chip.active{border-color:#4da3ff;background:#11203d;color:#fff;font-weight:600}
+.fb-chip:hover{border-color:#3a4a72}
+
+.fb-list{display:flex;flex-direction:column;gap:10px}
+.fb-empty{opacity:.7;text-align:center;padding:40px;background:#0f1525;border:1px dashed #1f2a44;border-radius:14px}
+
+.fb-thread{background:#0f1525;border:1px solid #1f2a44;border-radius:12px;overflow:hidden;transition:border-color .15s}
+.fb-thread:hover{border-color:#2a3a5c}
+.fb-thread.pinned{border-color:#3a5a2a}
+.fb-thread-head{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;cursor:pointer}
+.fb-thread-head:hover{background:#11182c}
+.fb-thread-cat{flex:0 0 auto;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:14px}
+.fb-thread-main{flex:1 1 auto;min-width:0}
+.fb-thread-title{margin:0;font-size:14px;font-weight:600;line-height:1.35;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fb-thread-meta{margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;font-size:12px;opacity:.75}
+.fb-thread-caret{flex:0 0 auto;opacity:.5;font-size:18px;line-height:1;padding:4px;transition:transform .15s}
+.fb-thread.open .fb-thread-caret{transform:rotate(90deg)}
+.fb-thread-body{padding:0 14px 14px 54px;display:none;border-top:1px solid #1f2a44;margin-top:0}
+.fb-thread.open .fb-thread-body{display:block;padding-top:12px}
+.fb-thread-body p{margin:6px 0;line-height:1.5;font-size:13px;white-space:pre-wrap;word-wrap:break-word}
+.fb-thread-ctx{margin:10px 0;padding:8px 10px;background:#0b1324;border:1px solid #1f2a44;border-radius:8px;font-size:12px;opacity:.85;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.fb-thread-ctx code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:transparent}
+.fb-thread-ctx a{color:#7cc4ff;text-decoration:none}
+.fb-thread-ctx a:hover{text-decoration:underline}
+
+.fb-comments{margin-top:14px;display:flex;flex-direction:column;gap:8px;border-left:2px solid #1f2a44;padding-left:14px}
+.fb-comment{background:#0b1324;border:1px solid #1f2a44;border-radius:10px;padding:10px 12px}
+.fb-comment.maintainer{border-color:#2a4a6c;background:#0e1930}
+.fb-comment-head{display:flex;gap:8px;align-items:center;font-size:12px;margin-bottom:4px}
+.fb-comment-author{font-weight:700;color:#cfd8e8}
+.fb-comment.maintainer .fb-comment-author{color:#7cc4ff}
+.fb-comment-badge{padding:1px 6px;border-radius:4px;background:#2a4a6c;color:#cfe7ff;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.fb-comment-time{opacity:.6}
+.fb-comment-body{font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.fb-comment-body strong{color:#e9eef2}
+
+.fb-helpful{margin-top:10px;display:flex;gap:8px;align-items:center;font-size:12px;opacity:.8}
+.fb-helpful button{padding:4px 10px;font-size:12px;border-radius:999px;background:#0b1324;border:1px solid #2a3654;color:#cfd8e8;cursor:pointer}
+.fb-helpful button:hover{border-color:#4da3ff}
+.fb-helpful button.voted{border-color:#4da3ff;background:#11203d;color:#fff}
+
+/* Category & status pills (compact, inline). */
+.fb-pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:600;line-height:1.6;white-space:nowrap}
+.fb-pill.cat-bug      {background:rgba(220,80,80,0.18);  color:#ffb4b4}
+.fb-pill.cat-question {background:rgba(80,160,255,0.18); color:#b3d4ff}
+.fb-pill.cat-idea     {background:rgba(220,180,60,0.18); color:#ffe29a}
+.fb-pill.cat-data     {background:rgba(255,140,60,0.20); color:#ffcfa3}
+.fb-pill.cat-comment  {background:rgba(180,180,180,0.18);color:#d6d6d6}
+.fb-pill.status-open     {background:#1a3a5c;color:#7cc4ff}
+.fb-pill.status-answered {background:#1a4a2c;color:#8fe5a8}
+.fb-pill.status-resolved {background:#2a3a2a;color:#bff5d8}
+.fb-pill.pinned {background:#3a5a2a;color:#d4f5b8}
+.fb-pill.pinned::before{content:"📌"}
+
+/* Submission modal. Uses native <dialog> so the backdrop + focus-trap come
+   for free. Sized to stay comfortable on mobile without dominating desktop. */
+dialog#feedbackModal{border:none;padding:0;background:transparent;max-width:100vw;max-height:100vh}
+dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
+.fb-modal{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;width:min(560px,94vw);max-height:92vh;overflow:auto;padding:20px;color:#e9eef2;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.fb-modal header{position:static;background:transparent;backdrop-filter:none;border:none;padding:0;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.fb-modal h2{margin:0;font-size:18px;flex:1}
+.fb-modal .close-x{background:#0b1324;border:1px solid #2a3654;color:#e9eef2;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;line-height:1}
+.fb-modal .close-x:hover{border-color:#4da3ff}
+.fb-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fb-field label{font-size:12px;color:#9fb3d1;font-weight:600}
+.fb-field input[type="text"],
+.fb-field textarea{padding:10px 12px;font-size:14px;background:#0b1324;border:1px solid #2a3654;color:#e9eef2;border-radius:10px;width:100%;font-family:inherit}
+.fb-field textarea{min-height:120px;resize:vertical;line-height:1.5}
+.fb-field input:focus,
+.fb-field textarea:focus{outline:none;border-color:#4da3ff;box-shadow:0 0 0 2px rgba(77,163,255,0.15)}
+.fb-field .hint{font-size:11px;opacity:.7}
+
+/* Category picker — radio row with icon buttons. */
+.fb-catpicker{display:flex;gap:6px;flex-wrap:wrap}
+.fb-catpicker label{flex:1 1 90px;min-width:90px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid #2a3654;background:#0b1324;border-radius:10px;cursor:pointer;font-size:12px;font-weight:600;color:#cfd8e8;transition:border-color .15s,background .15s}
+.fb-catpicker label:hover{border-color:#3a4a72}
+.fb-catpicker input{position:absolute;opacity:0;pointer-events:none}
+.fb-catpicker label:has(input:checked){border-color:#4da3ff;background:#11203d;color:#fff}
+.fb-catpicker .cat-icon{font-size:20px;line-height:1}
+
+/* Auto-captured context preview inside the modal. */
+.fb-ctx-preview{background:#0b1324;border:1px solid #1f2a44;border-radius:8px;padding:8px 10px;font-size:12px;opacity:.85}
+.fb-ctx-preview summary{cursor:pointer;user-select:none;opacity:.9}
+.fb-ctx-preview summary:hover{opacity:1}
+.fb-ctx-preview pre{margin:8px 0 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;word-wrap:break-word;color:#9fb3d1}
+
+/* Similar-issues hint panel while the user types a title. */
+.fb-similar{margin-top:6px;padding:8px 10px;background:#0e1a34;border:1px solid #1a3a5c;border-radius:8px;font-size:12px}
+.fb-similar[hidden]{display:none}
+.fb-similar-title{font-weight:600;color:#7cc4ff;margin-bottom:4px}
+.fb-similar-item{display:block;padding:4px 0;color:#cfd8e8;text-decoration:none;border-top:1px solid #1a3a5c}
+.fb-similar-item:first-of-type{border-top:none}
+.fb-similar-item:hover{color:#fff}
+
+/* Math-captcha row: label + input on one line, plus honeypot (visually hidden
+   but still in the DOM so bots that fill every field get flagged). */
+.fb-captcha{display:flex;gap:10px;align-items:center;margin-bottom:12px;padding:10px;background:#0b1324;border:1px solid #2a3654;border-radius:10px}
+.fb-captcha label{margin:0;font-size:13px;font-weight:600}
+.fb-captcha input{width:80px;padding:6px 10px;font-size:14px;text-align:center;background:#0f1525;border:1px solid #2a3654;color:#e9eef2;border-radius:8px}
+.fb-honeypot{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
+
+.fb-privacy{font-size:11px;opacity:.7;margin:10px 0;padding:8px 10px;background:#2a2005;border:1px solid #4a3500;border-radius:8px;color:#ffe9a3;line-height:1.5}
+.fb-privacy strong{color:#ffd787}
+
+.fb-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #1f2a44}
+.fb-modal-actions .btn-cancel{padding:10px 16px;background:#0b1324;border:1px solid #2a3654;color:#cfd8e8;border-radius:10px;cursor:pointer;font-weight:600}
+.fb-modal-actions .btn-cancel:hover{border-color:#4a5a82}
+.fb-modal-actions .btn-submit{padding:10px 18px;background:linear-gradient(135deg,#1fd655,#00b43d);border:1px solid #00b43d;color:#041b0b;border-radius:10px;cursor:pointer;font-weight:700}
+.fb-modal-actions .btn-submit:hover{filter:brightness(1.05)}
+.fb-modal-actions .btn-submit:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.fb-error{color:#ffb4b4;font-size:12px;margin-top:6px;min-height:16px}
+
+/* Global Floating Action Button — always visible, opens modal with no
+   pre-captured context. Use the contextual icon-cluster (below) when you
+   want to attach "report this specific thing" triggers next to data. */
+.fb-fab{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;border:1px solid #00b43d;background:linear-gradient(135deg,#1fd655,#00b43d);color:#041b0b;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:transform .15s}
+.fb-fab:hover{transform:translateY(-2px)}
+.fb-fab svg{width:18px;height:18px}
+@media (max-width:600px){
+  .fb-fab{padding:12px;border-radius:999px}
+  .fb-fab .fb-fab-label{display:none}
+}
+
+/* Contextual icon cluster — drop this anywhere near a data row/chart to
+   offer "report this specific item". Markup pattern:
+     <span class="fb-ctx-cluster" data-fb-context='{"...":"..."}'>
+       <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+       <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+     </span>
+   The JS layer reads data-fb-context and prefills the modal. */
+.fb-ctx-cluster{display:inline-flex;gap:2px;align-items:center;vertical-align:middle}
+.fb-ctx-btn{width:24px;height:24px;padding:0;border:1px solid transparent;background:transparent;border-radius:6px;font-size:13px;line-height:1;cursor:pointer;opacity:.55;transition:opacity .15s,border-color .15s,background .15s}
+.fb-ctx-btn:hover,.fb-ctx-btn:focus-visible{opacity:1;border-color:#2a3654;background:#0b1324;outline:none}
+/* Heading-level placements get bumped up so the icons read at the same
+   weight as the surrounding h2 text and stay tappable on mobile. */
+h2 .fb-ctx-cluster{margin-left:10px;font-size:initial;font-weight:400}
+h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 </style>
   
 
@@ -559,23 +711,169 @@ section.tab .container > h2 { margin: 6px 0 12px; }
     <a href="#fleet" class="tablink">Fleet</a>
     <a href="#worldmap" class="tablink">World Map</a>
     <a href="#faq" class="tablink">FAQ</a>
+    <a href="#feedback" class="tablink">Feedback &amp; Questions</a>
   </nav>
 
 <!-- FAQ TAB -->
 <section id="tab-faq" class="tab">
   <div class="container">
-    <h2>FAQ</h2>
+    <h2>FAQ
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"faq"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
     <!-- Cards are rendered from FAQ_DATA in the script block below. -->
     <div id="faqList"></div>
   </div>
 </section>
-  
+
+<!-- FEEDBACK & QUESTIONS TAB
+     Backed by a Cloudflare Worker that proxies the GitHub Issues API. -->
+<section id="tab-feedback" class="tab">
+  <div class="container">
+    <h2>Feedback &amp; Questions</h2>
+    <p class="small" style="margin:0 0 14px;max-width:70ch">
+      Found a bug? Question about the data? Idea for how something could be
+      shown better? Just let me know — no account required. Replies appear
+      right here, visible to everyone.
+    </p>
+
+    <div class="fb-toolbar">
+      <button type="button" class="fb-new-btn" id="fbNewBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New topic
+      </button>
+      <input type="search" id="fbSearch" class="grow" placeholder="Search discussions…">
+      <select id="fbSort" title="Sort">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="most-commented">Most commented</option>
+        <option value="recently-answered">Recently answered</option>
+      </select>
+    </div>
+
+    <div class="fb-filterbar" id="fbFilters">
+      <span class="fb-chip active" data-filter="cat"    data-value="all">All categories</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="bug">🐛 Bug</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="question">❓ Question</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="idea">💡 Idea</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="data">⚠️ Data error</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="comment">💬 Comment</span>
+      <span style="width:1px;background:#1f2a44;margin:0 4px"></span>
+      <span class="fb-chip active" data-filter="status" data-value="all">All statuses</span>
+      <span class="fb-chip"        data-filter="status" data-value="open">Open</span>
+      <span class="fb-chip"        data-filter="status" data-value="answered">Answered</span>
+      <span class="fb-chip"        data-filter="status" data-value="resolved">Resolved</span>
+    </div>
+
+    <div id="fbList" class="fb-list" aria-live="polite"></div>
+    <div id="fbEmpty" class="fb-empty" hidden>No discussions match your current filters.</div>
+  </div>
+</section>
+
+<!-- Submission modal. Rendered once at body-level so it can be triggered
+     from the FAB, from the tab's "Neues Thema" button, and from contextual
+     icon clusters next to data rows/charts. -->
+<dialog id="feedbackModal" aria-labelledby="fbModalTitle">
+  <form class="fb-modal" id="fbForm" method="dialog">
+    <header>
+      <h2 id="fbModalTitle">New topic</h2>
+      <button type="button" class="close-x" id="fbClose" aria-label="Close">✕</button>
+    </header>
+
+    <div class="fb-field">
+      <label>What is this about?</label>
+      <div class="fb-catpicker" id="fbCatPicker">
+        <label><input type="radio" name="category" value="question" checked><span class="cat-icon">❓</span>Question</label>
+        <label><input type="radio" name="category" value="bug"><span class="cat-icon">🐛</span>Bug</label>
+        <label><input type="radio" name="category" value="data"><span class="cat-icon">⚠️</span>Data error</label>
+        <label><input type="radio" name="category" value="idea"><span class="cat-icon">💡</span>Idea</label>
+        <label><input type="radio" name="category" value="comment"><span class="cat-icon">💬</span>Comment</label>
+      </div>
+    </div>
+
+    <div class="fb-field">
+      <label for="fbTitle">Title</label>
+      <input type="text" id="fbTitle" name="title" maxlength="120" required autocomplete="off" placeholder="Short, descriptive title">
+      <div class="fb-similar" id="fbSimilar" hidden>
+        <div class="fb-similar-title">Similar topics — maybe already covered?</div>
+        <div id="fbSimilarList"></div>
+      </div>
+    </div>
+
+    <div class="fb-field">
+      <label for="fbBody">Description</label>
+      <textarea id="fbBody" name="body" maxlength="4000" required placeholder="What did you see? What did you expect? The more specific, the faster I can help."></textarea>
+      <span class="hint">Markdown supported. Max. 4,000 characters.</span>
+    </div>
+
+    <div class="fb-field">
+      <label for="fbAuthor">Your name (optional)</label>
+      <input type="text" id="fbAuthor" name="author" maxlength="40" autocomplete="off" placeholder="Leave blank → 'Anonymous'">
+    </div>
+
+    <div class="fb-field">
+      <label>Captured context</label>
+      <details class="fb-ctx-preview">
+        <summary id="fbCtxSummary">Tab, filters, current settings… (show)</summary>
+        <pre id="fbCtxJson"></pre>
+      </details>
+    </div>
+
+    <div class="fb-captcha">
+      <label for="fbCaptcha" id="fbCaptchaQuestion">Quick math: … = ?</label>
+      <input type="text" id="fbCaptcha" name="captcha" inputmode="numeric" autocomplete="off" required>
+      <span class="hint" style="flex:1">Spam guard, no tracking.</span>
+    </div>
+
+    <!-- Honeypot: visually hidden via CSS; aria-hidden so screen readers
+         skip it. Humans leave this empty. Bots that auto-fill every field
+         get silently dropped at submit time. -->
+    <div class="fb-honeypot" aria-hidden="true">
+      <label>Website (leave blank)</label>
+      <input type="text" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <div class="fb-privacy">
+      <strong>Heads up:</strong> Your submission is displayed <strong>publicly</strong>
+      on the site and cannot be edited after posting. Please do not include
+      personal data, email addresses, or similar.
+    </div>
+
+    <div class="fb-error" id="fbError"></div>
+
+    <div class="fb-modal-actions">
+      <button type="button" class="btn-cancel" id="fbCancel">Cancel</button>
+      <button type="submit" class="btn-submit" id="fbSubmit">Submit</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Global entry point. Always visible, opens the modal without any
+     pre-captured context (user describes where the issue is in free text). -->
+<button type="button" class="fb-fab" id="fbFab" title="Give feedback">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="fb-fab-label">Feedback</span>
+</button>
+
   <!-- GALLERY TAB -->
   <section id="tab-gallery" class="tab active">
     <div class="page">
       <aside class="side">
-        <h2>Filters</h2>
+        <h2>Filters
+          <span class="fb-ctx-cluster" data-fb-context='{"section":"gallery"}'>
+            <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+            <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+            <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+            <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+            <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+          </span>
+        </h2>
         <label class="small">Country</label>
         <select id="countrySelect"><option value="">All countries</option></select>
         <div style="height:10px"></div>
@@ -632,7 +930,15 @@ section.tab .container > h2 { margin: 6px 0 12px; }
   <!-- THRESHOLDS TAB -->
   <section id="tab-thresholds" class="tab">
     <div class="container">
-      <h2>Thresholds (years)</h2>
+      <h2>Thresholds (years)
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px">
           <label for="variantMulti">Variant filter</label>
@@ -680,7 +986,15 @@ section.tab .container > h2 { margin: 6px 0 12px; }
   <!-- DURATIONS TAB -->
   <section id="tab-durations" class="tab">
     <div class="container">
-      <h2>Durations (time to move between thresholds)</h2>
+      <h2>Durations (time to move between thresholds)
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px"><label for="variantMultiD">Variant filter (multi-select)</label><select id="variantMultiD" multiple size="6"></select></div>
         <div class="field"><label for="customFrom">Custom from (%)</label><input id="customFrom" type="number" min="1" max="98" step="1" value="25" /></div>
@@ -713,7 +1027,15 @@ section.tab .container > h2 { margin: 6px 0 12px; }
   <!-- BUILDER TAB -->
 <section id="tab-builder" class="tab">
     <div class="container">
-      <h2>Region / World Curve Builder</h2>
+      <h2>Region / World Curve Builder
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
       <div class="toolbar">
         <div class="field" style="min-width:320px">
           <label>Countries (multi‑select)</label>
@@ -810,7 +1132,15 @@ section.tab .container > h2 { margin: 6px 0 12px; }
   <!-- Fleet TAB -->
 <section id="tab-fleet" class="tab">
   <div class="container">
-    <h2>Fleet</h2>
+    <h2>Fleet
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <!-- Fleet errors -->
     <div id="fleetErrors"
          class="error"
@@ -1156,7 +1486,15 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 <!-- WORLD MAP TAB -->
 <section id="tab-worldmap" class="tab">
   <div class="container">
-    <h2>World Map</h2>
+    <h2>World Map
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
     <p class="small" style="margin:0 0 14px">
       Same country data as the <b>Thresholds</b> and <b>Durations</b> tabs, painted on a world map.
       Only the default (whole-market, passenger-car) variant is shown.
@@ -4824,6 +5162,444 @@ document.querySelectorAll('.tablecard').forEach(tc => {
     tc.classList.toggle('scrolled-end', atEnd);
   });
 });
+
+// =========================================================================
+// Feedback & Questions — V2: live against the Cloudflare Worker that proxies
+// the GitHub Issues API. GET /issues lists feedback issues + comments, POST
+// /issues creates a new one. The Worker holds the GitHub PAT as a secret;
+// users never need a GitHub account.
+// =========================================================================
+const FB_API = 'https://leraffl-gallery-feedback.xgwvfz7nrb.workers.dev';
+const FB_STATE = {
+  issues: [],
+  filters: { cat: 'all', status: 'all', search: '' },
+  sort: 'newest',
+  loaded: false,
+  captchaAnswer: null,
+  prefillContext: null
+};
+const FB_CATS = {
+  bug:      { icon: '🐛', label: 'Bug' },
+  question: { icon: '❓', label: 'Question' },
+  idea:     { icon: '💡', label: 'Idea' },
+  data:     { icon: '⚠️', label: 'Data error' },
+  comment:  { icon: '💬', label: 'Comment' }
+};
+const FB_STATUS = { open: 'Open', answered: 'Answered', resolved: 'Resolved' };
+
+function fbEscape(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+// Tiny markdown: escape-first, then bold / inline-code / linebreaks. Enough
+// for reply bodies — no tables, no links, no injection surface.
+function fbMd(s){
+  return fbEscape(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\n/g, '<br>');
+}
+function fbRelTime(iso){
+  const t = new Date(iso); if (isNaN(t)) return '';
+  const diff = (Date.now() - t.getTime()) / 1000;
+  if (diff < 60)       return 'just now';
+  if (diff < 3600)     return `${Math.floor(diff/60)} min ago`;
+  if (diff < 86400)    return `${Math.floor(diff/3600)} h ago`;
+  if (diff < 86400*7)  { const d = Math.floor(diff/86400);       return `${d} day${d===1?'':'s'} ago`; }
+  if (diff < 86400*60) { const w = Math.floor(diff/(86400*7));   return `${w} week${w===1?'':'s'} ago`; }
+  return t.toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
+}
+
+async function fbLoad(){
+  if (FB_STATE.loaded) return;
+  try {
+    const res = await fetch(`${FB_API}/issues`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    FB_STATE.issues = Array.isArray(json.issues) ? json.issues : [];
+  } catch (err) {
+    console.warn('[feedback] could not load issues:', err);
+    FB_STATE.issues = [];
+  }
+  FB_STATE.loaded = true;
+  fbRender();
+}
+
+// Walk every form control on the given tab and return a { id: value } map.
+// Needed so someone reporting a bug on Fleet / Builder / Thresholds also
+// sends along which projection-end-year, which countries, which Weibull
+// shape etc. they had selected — otherwise bugs are unreproducible.
+//
+// We deliberately do NOT skip controls that are visually hidden because
+// their parent <details> is collapsed: those settings still affect the
+// rendered output, they're just folded away. Disabled controls are
+// skipped because they're inert by definition.
+//
+// Unnamed checkboxes (e.g. the gallery type-chips) get grouped under
+// their nearest `.chips` container so we don't lose them.
+function fbCollectControls(tabEl){
+  if (!tabEl) return {};
+  const state = {};
+  tabEl.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.disabled) return;
+    const key = el.id || el.name;
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      if (!el.checked) return;
+      if (key) { state[key] = el.value && el.value !== 'on' ? el.value : true; return; }
+      const group = el.closest('.chips');
+      const gk = group?.id || group?.getAttribute('data-fb-group') || '_chips';
+      (state[gk] = state[gk] || []).push(el.value || '(on)');
+    } else if (el.tagName === 'SELECT' && el.multiple) {
+      if (!key) return;
+      const vals = [...el.selectedOptions].map(o => o.value);
+      if (vals.length) state[key] = vals;
+    } else {
+      if (!key) return;
+      if (el.value !== '' && el.value != null) state[key] = el.value;
+    }
+  });
+  return state;
+}
+
+// Capture the page state so a future reader can click "Jump to context" and
+// see the same view — and so the maintainer can reproduce reported bugs
+// without guessing which 17 knobs were set where.
+function fbCurrentContext(){
+  const hash = location.hash || '#gallery';
+  const tab = hash.replace('#','');
+  const ctx = { tab, hash };
+  const tabEl = document.getElementById('tab-' + tab);
+  // Don't capture the feedback tab's own search/sort fields — they would
+  // just confuse the reader.
+  if (tabEl && tab !== 'feedback') {
+    const controls = fbCollectControls(tabEl);
+    if (Object.keys(controls).length) ctx.controls = controls;
+  }
+  // Data-version snapshot (if a loader exposed it on window).
+  if (window.__FB_VERSION__) ctx.version = window.__FB_VERSION__;
+  return ctx;
+}
+
+function fbRender(){
+  const mount = document.getElementById('fbList');
+  const empty = document.getElementById('fbEmpty');
+  if (!mount) return;
+
+  const q = FB_STATE.filters.search.trim().toLowerCase();
+  let rows = FB_STATE.issues.filter(i => {
+    if (FB_STATE.filters.cat !== 'all' && i.category !== FB_STATE.filters.cat) return false;
+    if (FB_STATE.filters.status !== 'all' && i.status !== FB_STATE.filters.status) return false;
+    if (q){
+      const hay = (i.title + ' ' + i.body + ' ' + (i.comments||[]).map(c=>c.body).join(' ')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  rows.sort((a,b) => {
+    switch (FB_STATE.sort) {
+      case 'oldest':            return new Date(a.created_at) - new Date(b.created_at);
+      case 'most-commented':    return (b.comments?.length||0) - (a.comments?.length||0);
+      case 'recently-answered': return new Date(b.updated_at) - new Date(a.updated_at);
+      default:                  return new Date(b.created_at) - new Date(a.created_at);
+    }
+  });
+  // Pinned threads always float to the top (FAQ-style), independent of sort.
+  rows.sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0));
+
+  empty.hidden = rows.length > 0;
+  mount.innerHTML = rows.map(fbRenderThread).join('');
+  mount.querySelectorAll('.fb-thread-head').forEach(h => {
+    h.addEventListener('click', () => h.parentElement.classList.toggle('open'));
+  });
+  mount.querySelectorAll('.fb-helpful button').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); fbToggleHelpful(b.dataset.issue, b.dataset.vote); });
+  });
+}
+
+function fbRenderThread(issue){
+  const cat = FB_CATS[issue.category] || FB_CATS.comment;
+  const statusLabel = FB_STATUS[issue.status] || issue.status;
+  const ctx = issue.context || {};
+  const ctxParts = [];
+  if (ctx.tab)                 ctxParts.push(`Tab: <code>${fbEscape(ctx.tab)}</code>`);
+  if (ctx.controls && Object.keys(ctx.controls).length) {
+    const n = Object.keys(ctx.controls).length;
+    ctxParts.push(`${n} setting${n===1?'':'s'} captured`);
+  }
+  if (issue.version?.data_per) ctxParts.push(`Data as of: <code>${fbEscape(issue.version.data_per)}</code>`);
+  const ctxLink = ctx.hash ? `<a href="${fbEscape(ctx.hash)}">↗ Jump to context</a>` : '';
+  const ctxDetails = (ctx.controls && Object.keys(ctx.controls).length)
+    ? `<details style="margin:8px 0 0"><summary class="small" style="cursor:pointer;opacity:.8">Show captured settings</summary><pre style="margin:6px 0 0;padding:8px;background:#0b1324;border:1px solid #1f2a44;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;word-wrap:break-word;color:#9fb3d1">${fbEscape(JSON.stringify(ctx.controls, null, 2))}</pre></details>`
+    : '';
+
+  const helpful = fbHelpfulGet(issue.number);
+  const commentsHtml = (issue.comments||[]).map(c => `
+    <div class="fb-comment${c.is_maintainer ? ' maintainer' : ''}">
+      <div class="fb-comment-head">
+        <span class="fb-comment-author">${fbEscape(c.author||'Anonymous')}</span>
+        ${c.is_maintainer ? '<span class="fb-comment-badge">Author</span>' : ''}
+        <span class="fb-comment-time">${fbEscape(fbRelTime(c.created_at))}</span>
+      </div>
+      <div class="fb-comment-body">${fbMd(c.body)}</div>
+    </div>
+  `).join('');
+
+  const maintainerAnswered = (issue.comments||[]).some(c => c.is_maintainer);
+  const helpfulBlock = maintainerAnswered ? `
+    <div class="fb-helpful">
+      <span>Was this answer helpful?</span>
+      <button data-issue="${issue.number}" data-vote="up"   class="${helpful==='up'?'voted':''}">👍 ${fbHelpfulCount(issue.number,'up')}</button>
+      <button data-issue="${issue.number}" data-vote="down" class="${helpful==='down'?'voted':''}">👎 ${fbHelpfulCount(issue.number,'down')}</button>
+    </div>
+  ` : '';
+
+  const nComments = (issue.comments||[]).length;
+  return `
+    <article class="fb-thread${issue.pinned ? ' pinned' : ''}" data-number="${issue.number}">
+      <div class="fb-thread-head">
+        <div class="fb-thread-cat" title="${fbEscape(cat.label)}">${cat.icon}</div>
+        <div class="fb-thread-main">
+          <h3 class="fb-thread-title">
+            <span>${fbEscape(issue.title)}</span>
+            <span class="fb-pill cat-${fbEscape(issue.category)}">${cat.label}</span>
+            <span class="fb-pill status-${fbEscape(issue.status)}">${fbEscape(statusLabel)}</span>
+            ${issue.pinned ? '<span class="fb-pill pinned">Pinned</span>' : ''}
+          </h3>
+          <div class="fb-thread-meta">
+            <span>#${issue.number}</span>
+            <span>${fbEscape(issue.author||'Anonymous')}</span>
+            <span>${fbEscape(fbRelTime(issue.created_at))}</span>
+            <span>${nComments} ${nComments===1?'reply':'replies'}</span>
+          </div>
+        </div>
+        <div class="fb-thread-caret">›</div>
+      </div>
+      <div class="fb-thread-body">
+        <div class="fb-comment-body">${fbMd(issue.body)}</div>
+        ${ctxParts.length || ctxLink ? `<div class="fb-thread-ctx">${ctxParts.join(' · ')} ${ctxLink}</div>` : ''}
+        ${ctxDetails}
+        ${commentsHtml ? `<div class="fb-comments">${commentsHtml}</div>` : ''}
+        ${helpfulBlock}
+      </div>
+    </article>
+  `;
+}
+
+// "War das hilfreich?" — pure client-side counter in localStorage. Not
+// authoritative, easy to game from the console. Point is: if lots of people
+// click 👍 on a maintainer answer, that's a signal to promote it to FAQ.
+function fbHelpfulKey(){ return 'fb_helpful_v1'; }
+function fbHelpfulAll(){
+  try { return JSON.parse(localStorage.getItem(fbHelpfulKey()) || '{}'); } catch { return {}; }
+}
+function fbHelpfulGet(n){ return fbHelpfulAll()[n]?.vote || null; }
+function fbHelpfulCount(n, vote){ return fbHelpfulAll()[n]?.[vote] || 0; }
+function fbToggleHelpful(n, newVote){
+  const data = fbHelpfulAll();
+  const entry = data[n] || { up:0, down:0, vote:null };
+  if (entry.vote === newVote) {
+    entry[newVote] = Math.max(0, entry[newVote] - 1);
+    entry.vote = null;
+  } else {
+    if (entry.vote) entry[entry.vote] = Math.max(0, entry[entry.vote] - 1);
+    entry[newVote] = (entry[newVote] || 0) + 1;
+    entry.vote = newVote;
+  }
+  data[n] = entry;
+  try { localStorage.setItem(fbHelpfulKey(), JSON.stringify(data)); } catch {}
+  fbRender();
+}
+
+function fbOpenModal(prefill){
+  const dlg = document.getElementById('feedbackModal');
+  if (!dlg) return;
+  if (prefill?.category) {
+    const r = dlg.querySelector(`input[name="category"][value="${prefill.category}"]`);
+    if (r) r.checked = true;
+  }
+  const ctx = Object.assign({}, fbCurrentContext(), prefill?.context || {});
+  FB_STATE.prefillContext = ctx;
+  document.getElementById('fbCtxJson').textContent = JSON.stringify(ctx, null, 2);
+  // Build a one-line summary of what will be sent. We collapse the nested
+  // `controls` object into a count so the summary line stays readable.
+  const summaryBits = [];
+  if (ctx.tab) summaryBits.push(`tab: ${ctx.tab}`);
+  if (ctx.controls) {
+    const n = Object.keys(ctx.controls).length;
+    if (n) summaryBits.push(`${n} setting${n===1?'':'s'}`);
+  }
+  if (ctx.version) summaryBits.push(`version: ${typeof ctx.version==='object'?JSON.stringify(ctx.version):ctx.version}`);
+  document.getElementById('fbCtxSummary').textContent = summaryBits.length
+    ? summaryBits.join(' · ') + '  (show)'
+    : 'No specific context captured  (show)';
+  const a = Math.floor(Math.random()*8) + 2;
+  const b = Math.floor(Math.random()*8) + 2;
+  FB_STATE.captchaAnswer = a + b;
+  document.getElementById('fbCaptchaQuestion').textContent = `Quick math: ${a} + ${b} = ?`;
+  document.getElementById('fbCaptcha').value = '';
+  document.getElementById('fbError').textContent = '';
+  if (prefill?.title) document.getElementById('fbTitle').value = prefill.title;
+  document.getElementById('fbSimilar').hidden = true;
+
+  if (typeof dlg.showModal === 'function') dlg.showModal();
+  else dlg.setAttribute('open', '');
+  setTimeout(() => document.getElementById('fbTitle').focus(), 50);
+}
+function fbCloseModal(){
+  const dlg = document.getElementById('feedbackModal');
+  if (dlg?.close) dlg.close(); else dlg?.removeAttribute('open');
+}
+
+// Similar-issue suggestions: naive token-intersection scoring. Good enough
+// for a few hundred issues; if the list grows, swap in a proper fuzzy index.
+function fbSimilarSuggest(query){
+  const hint = document.getElementById('fbSimilar');
+  const list = document.getElementById('fbSimilarList');
+  const q = (query||'').trim().toLowerCase();
+  if (q.length < 4) { hint.hidden = true; return; }
+  const tokens = q.split(/\s+/).filter(t => t.length >= 3);
+  if (!tokens.length) { hint.hidden = true; return; }
+  const scored = FB_STATE.issues.map(i => {
+    const hay = (i.title + ' ' + i.body).toLowerCase();
+    const score = tokens.reduce((s,t) => hay.includes(t) ? s+1 : s, 0);
+    return { i, score };
+  }).filter(x => x.score > 0).sort((a,b) => b.score - a.score).slice(0,3);
+  if (!scored.length) { hint.hidden = true; return; }
+  list.innerHTML = scored.map(({i}) => `
+    <a class="fb-similar-item" href="#feedback" data-target="${i.number}">
+      ${FB_CATS[i.category]?.icon || '💬'} ${fbEscape(i.title)}
+    </a>
+  `).join('');
+  hint.hidden = false;
+}
+
+async function fbPostIssue(payload){
+  // Posts to the Worker, which validates + creates a GitHub issue and returns
+  // it in our shape. Throws with a user-readable message on failure.
+  const ctx = FB_STATE.prefillContext || fbCurrentContext();
+  const body = {
+    title:         payload.title.trim(),
+    body:          payload.body.trim(),
+    category:      payload.category,
+    author:        payload.author.trim() || 'Anonymous',
+    context:       ctx,
+    version:       window.__FB_VERSION__ || null,
+    math_answer:   payload.captcha,
+    math_expected: FB_STATE.captchaAnswer,
+    _hp:           payload.website || ''
+  };
+  const res = await fetch(`${FB_API}/issues`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    let msg = 'Submission failed. Please try again.';
+    try { const j = await res.json(); if (j?.error) msg = j.error; } catch {}
+    throw new Error(msg);
+  }
+  const issue = await res.json();
+  // Optimistic insert at the top so the user sees their thread immediately
+  // even if the GET cache hasn't refreshed yet.
+  FB_STATE.issues = FB_STATE.issues.filter(i => i.number !== issue.number);
+  FB_STATE.issues.unshift(issue);
+  fbRender();
+  return issue;
+}
+
+function fbWireEvents(){
+  document.getElementById('fbFab')?.addEventListener('click', () => fbOpenModal());
+  document.getElementById('fbNewBtn')?.addEventListener('click', () => fbOpenModal());
+  document.getElementById('fbClose')?.addEventListener('click', fbCloseModal);
+  document.getElementById('fbCancel')?.addEventListener('click', fbCloseModal);
+
+  // Delegated handler so contextual icon clusters sprinkled anywhere on the
+  // page (incl. ones rendered dynamically later) all work without rebinding.
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.fb-ctx-btn'); if (!btn) return;
+    e.preventDefault();
+    const cluster = btn.closest('.fb-ctx-cluster');
+    let ctx = {};
+    try { ctx = JSON.parse(cluster?.getAttribute('data-fb-context') || '{}'); } catch {}
+    fbOpenModal({ category: btn.dataset.cat, context: ctx });
+  });
+
+  const search = document.getElementById('fbSearch');
+  if (search) search.addEventListener('input', debounce(() => {
+    FB_STATE.filters.search = search.value; fbRender();
+  }, 150));
+  document.getElementById('fbSort')?.addEventListener('change', e => {
+    FB_STATE.sort = e.target.value; fbRender();
+  });
+  document.getElementById('fbFilters')?.addEventListener('click', e => {
+    const chip = e.target.closest('.fb-chip'); if (!chip) return;
+    const group = chip.dataset.filter, value = chip.dataset.value;
+    FB_STATE.filters[group] = value;
+    document.querySelectorAll(`.fb-chip[data-filter="${group}"]`).forEach(c => {
+      c.classList.toggle('active', c.dataset.value === value);
+    });
+    fbRender();
+  });
+
+  const title = document.getElementById('fbTitle');
+  if (title) title.addEventListener('input', debounce(() => fbSimilarSuggest(title.value), 200));
+
+  // Clicking a similar-issue suggestion closes the modal and expands the
+  // referenced thread in the feedback tab.
+  document.getElementById('fbSimilarList')?.addEventListener('click', e => {
+    const link = e.target.closest('.fb-similar-item'); if (!link) return;
+    const target = link.dataset.target;
+    fbCloseModal();
+    location.hash = '#feedback';
+    setTimeout(() => {
+      const el = document.querySelector(`.fb-thread[data-number="${target}"]`);
+      if (el) { el.classList.add('open'); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+    }, 120);
+  });
+
+  document.getElementById('fbForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const err = document.getElementById('fbError');
+    err.textContent = '';
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const fd = new FormData(e.target);
+    const payload = {
+      category: fd.get('category'),
+      title:    (fd.get('title')||'').toString(),
+      body:     (fd.get('body')||'').toString(),
+      author:   (fd.get('author')||'').toString(),
+      captcha:  (fd.get('captcha')||'').toString(),
+      website:  (fd.get('website')||'').toString()
+    };
+    // Honeypot: real users leave this empty. Pretend success so bots don't
+    // retry with variations.
+    if (payload.website) { fbCloseModal(); e.target.reset(); return; }
+    if (parseInt(payload.captcha, 10) !== FB_STATE.captchaAnswer) {
+      err.textContent = 'Math doesn’t add up — please try again.';
+      return;
+    }
+    if (!payload.title.trim() || !payload.body.trim()) {
+      err.textContent = 'Title and description can’t be empty.';
+      return;
+    }
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.dataset.label = submitBtn.textContent; submitBtn.textContent = 'Submitting…'; }
+    try {
+      await fbPostIssue(payload);
+      e.target.reset();
+      fbCloseModal();
+      location.hash = '#feedback';
+      setTimeout(() => document.querySelector('#fbList .fb-thread')?.scrollIntoView({behavior:'smooth', block:'center'}), 120);
+    } catch (ex) {
+      err.textContent = ex.message || 'Submission failed. Please try again.';
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label || 'Submit'; }
+    }
+  });
+}
+
+// Preload mock data once on boot so the modal's similar-issue hint works
+// from any tab (via the FAB) without a perceptible first-open delay.
+window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); });
 </script>
 </body>
 </html>
