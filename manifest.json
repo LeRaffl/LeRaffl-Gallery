@@ -122,6 +122,46 @@
       "country_slug": "indonesia"
     },
     {
+      "country": "Latvia",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "latvia_ICE_BEV_20260426.png",
+      "url": "images/2026-03/latvia_ICE_BEV_20260426.png",
+      "alt": "Latvia ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "latvia_20260426.png",
+      "url": "images/2026-03/latvia_20260426.png",
+      "alt": "Latvia BEV trajectory",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "latvia_time_20260426.png",
+      "url": "images/2026-03/latvia_time_20260426.png",
+      "alt": "Latvia Transition time curve",
+      "country_slug": "latvia"
+    },
+    {
+      "country": "Latvia",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "latvia_ttm_shares_20260426.png",
+      "url": "images/2026-03/latvia_ttm_shares_20260426.png",
+      "alt": "Latvia TTM market split graph",
+      "country_slug": "latvia"
+    },
+    {
       "country": "Poland",
       "type": "ICE_BEV",
       "period": "2026-03",
