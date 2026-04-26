@@ -162,6 +162,46 @@
       "country_slug": "latvia"
     },
     {
+      "country": "Lithuania",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "lithuania_ICE_BEV_20260426.png",
+      "url": "images/2026-03/lithuania_ICE_BEV_20260426.png",
+      "alt": "Lithuania ICE-BEV-Hybrid trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "lithuania_20260426.png",
+      "url": "images/2026-03/lithuania_20260426.png",
+      "alt": "Lithuania BEV trajectory",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "lithuania_time_20260426.png",
+      "url": "images/2026-03/lithuania_time_20260426.png",
+      "alt": "Lithuania Transition time curve",
+      "country_slug": "lithuania"
+    },
+    {
+      "country": "Lithuania",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "lithuania_ttm_shares_20260426.png",
+      "url": "images/2026-03/lithuania_ttm_shares_20260426.png",
+      "alt": "Lithuania TTM market split graph",
+      "country_slug": "lithuania"
+    },
+    {
       "country": "Poland",
       "type": "ICE_BEV",
       "period": "2026-03",
