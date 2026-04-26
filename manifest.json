@@ -2,6 +2,46 @@
   "updated": "2026-04-26",
   "images": [
     {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "poland_ICE_BEV_20260426.png",
+      "url": "images/2026-03/poland_ICE_BEV_20260426.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "poland_20260426.png",
+      "url": "images/2026-03/poland_20260426.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "poland_time_20260426.png",
+      "url": "images/2026-03/poland_time_20260426.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-26",
+      "filename": "poland_ttm_shares_20260426.png",
+      "url": "images/2026-03/poland_ttm_shares_20260426.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
       "country": "Singapore",
       "type": "ICE_BEV",
       "period": "2026-03",
