@@ -2,6 +2,46 @@
   "updated": "2026-04-28",
   "images": [
     {
+      "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-04-28",
+      "filename": "romania_ICE_BEV_20260428.png",
+      "url": "images/2026-03/romania_ICE_BEV_20260428.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-04-28",
+      "filename": "romania_20260428.png",
+      "url": "images/2026-03/romania_20260428.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-04-28",
+      "filename": "romania_time_20260428.png",
+      "url": "images/2026-03/romania_time_20260428.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-04-28",
+      "filename": "romania_ttm_shares_20260428.png",
+      "url": "images/2026-03/romania_ttm_shares_20260428.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
       "country": "Southkorea",
       "type": "ICE_BEV",
       "period": "2026-03",
