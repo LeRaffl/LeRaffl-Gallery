@@ -42,7 +42,13 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   base <- sub("^([a-z0-9-]+).*$", "\\1", s)
   
   # Länder-Overrides (Diakritika etc.)
-  country_map <- c("tuerkiye" = "Türkiye", "uk" = "UK", "usa" = "USA")
+  country_map <- c(
+    "tuerkiye" = "Türkiye",
+    "uk" = "UK",
+    "usa" = "USA",
+    "newzealand" = "New Zealand",
+    "southkorea" = "South Korea"
+  )
   if (!is.null(country_overrides)) {
     country_map[names(country_overrides)] <- country_overrides
   }
@@ -54,10 +60,15 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   
   # Normalisierung Rest (vektorisiert)
   rest2 <- gsub("-", " ", rest)
+  rest2 <- gsub("\\bhdv\\b",  "HDV",  rest2, ignore.case = TRUE)
   rest2 <- gsub("\\bhev\\b",  "HEV",  rest2, ignore.case = TRUE)
   rest2 <- gsub("\\bphev\\b", "PHEV", rest2, ignore.case = TRUE)
   rest2 <- gsub("\\bev\\b",   "EV",   rest2, ignore.case = TRUE)
   rest_label <- to_title_keep_digits(rest2)
+  rest_label <- gsub("\\bHdv\\b",  "HDV",  rest_label)
+  rest_label <- gsub("\\bHev\\b",  "HEV",  rest_label)
+  rest_label <- gsub("\\bPhev\\b", "PHEV", rest_label)
+  rest_label <- gsub("\\bEv\\b",   "EV",   rest_label)
   rest_label <- gsub("\\bAnd\\b", "and", rest_label)
   rest_label <- gsub("\\bOf\\b",  "of",  rest_label)
   rest_label <- gsub("\\bIn\\b",  "In",  rest_label)

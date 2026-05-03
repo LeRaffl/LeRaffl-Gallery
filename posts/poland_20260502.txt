@@ -1,0 +1,11 @@
+🇵🇱 Poland - March 26 - BEV Trajectory
+5.3% BEV
+8.0% PHEV
+86.6% ICE (of which 51.8%p were HEV)
+
+Trailing 12 months are:
+7.8% BEV
+6.5% PHEV
+85.7% ICE (of which 45.6%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

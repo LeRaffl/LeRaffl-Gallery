@@ -1,0 +1,48 @@
+name: Deploy Pages
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - master
+    paths:
+      - "index.html"
+      - "manifest.json"
+      - "params.csv"
+      - "weights.csv"
+      - "images/**"
+      - "posts/**"
+      - ".github/workflows/deploy-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # Generated chart commits are deployed by the workflow that created them.
+    if: ${{ github.actor != 'github-actions[bot]' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,11 @@
+🇪🇪 Estonia - March 26 - BEV Trajectory
+6.8% BEV
+9.2% PHEV
+84.0% ICE (of which 58.9%p were HEV)
+
+Trailing 12 months are:
+6.0% BEV
+10.3% PHEV
+83.7% ICE (of which 52.3%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

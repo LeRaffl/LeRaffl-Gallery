@@ -1,0 +1,11 @@
+🇫🇮 Finland (HDV) - March 26 - BEV Trajectory
+0.4% BEV
+0.0% PHEV
+99.6% ICE (of which 0.0%p were HEV)
+
+Trailing 12 months are:
+2.9% BEV
+0.0% PHEV
+97.1% ICE (of which 0.0%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

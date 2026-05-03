@@ -1,0 +1,11 @@
+🇨🇿 Czechia - March 26 - BEV Trajectory
+6.4% BEV
+4.2% PHEV
+89.4% ICE (of which 24.8%p were HEV)
+
+Trailing 12 months are:
+5.7% BEV
+4.7% PHEV
+89.7% ICE (of which 23.6%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

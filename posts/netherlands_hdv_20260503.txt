@@ -1,0 +1,11 @@
+🇳🇱 Netherlands (HDV) - March 26 - BEV Trajectory
+10.6% BEV
+0.2% PHEV
+89.2% ICE (of which 0.0%p were HEV)
+
+Trailing 12 months are:
+10.7% BEV
+0.1% PHEV
+89.3% ICE (of which 0.0%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

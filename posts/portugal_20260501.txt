@@ -1,0 +1,11 @@
+🇵🇹 Portugal - March 26 - BEV Trajectory
+22.7% BEV
+13.6% PHEV
+63.7% ICE (of which 29.2%p were HEV)
+
+Trailing 12 months are:
+23.9% BEV
+15.6% PHEV
+60.4% ICE (of which 24.5%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

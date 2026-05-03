@@ -1,0 +1,150 @@
+name: R pipeline (BEV trajectories)
+
+# Two ways to trigger:
+#   1) Manual from the Actions tab — pick sheets + whether to commit back
+#   2) Auto on push when data/markets/**.csv changes (new month landed)
+# The auto path is intentionally limited to the data files so unrelated
+# code-only commits don't kick off a 5-minute render.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sheets:
+        description: "Sheets to process (comma-separated, blank = all)."
+        required: false
+        default: ""
+      commit_outputs:
+        description: "Commit regenerated PNGs / params.csv / weights.csv / posts back to the branch."
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+  push:
+    branches:
+      - master
+    paths:
+      - "data/markets/**.csv"
+
+permissions:
+  contents: write   # used when generated outputs are committed back
+  pages: write      # deploys the generated site when Pages source is GitHub Actions
+  id-token: write
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: r-pipeline-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5'
+          use-public-rspm: true
+
+      - name: Cache R packages
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: r-pipeline-${{ runner.os }}-${{ hashFiles('R/lib/*.R', 'R/*.R') }}
+          restore-keys: r-pipeline-${{ runner.os }}-
+
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::dplyr
+            any::tidyr
+            any::ggplot2
+            any::ggtext
+            any::scales
+            any::viridis
+            any::png
+            any::glue
+            any::jsonlite
+            any::stringr
+            any::lubridate
+            any::purrr
+            any::fs
+            any::tibble
+            any::readr
+            any::stringi
+            any::countrycode
+          extra-packages: |
+            any::sysfonts
+            any::showtext
+
+      - name: Audit Submit Data category coverage
+        run: node scripts/audit_submit_categories.js
+
+      - name: Run pipeline
+        shell: bash
+        env:
+          SHEETS: ${{ inputs.sheets }}
+        run: |
+          if [ -z "$SHEETS" ]; then
+            Rscript R/run_all.R --skip-fail
+          else
+            IFS=',' read -ra SHEET_ARR <<< "$SHEETS"
+            Rscript R/run_all.R --skip-fail "${SHEET_ARR[@]}"
+          fi
+
+      - name: Build manifest
+        run: |
+          Rscript -e "source('build_manifest.R'); build_manifest(root='images', base_url='images/')"
+
+      - name: Show changed files
+        run: git status --short
+
+      # Commit-back: on workflow_dispatch when explicitly requested, or
+      # always when triggered by a data file push (the data PR has already
+      # been reviewed; it's safe to auto-render).
+      - name: Commit regenerated outputs
+        id: commit_outputs
+        if: ${{ (inputs.commit_outputs == 'true' || github.event_name == 'push') && github.ref == 'refs/heads/master' }}
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(r-pipeline): regenerate charts + params.csv + posts"
+          git pull --rebase
+          git push
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Pages
+        if: ${{ (github.event_name == 'push' || inputs.commit_outputs == 'true') && github.ref == 'refs/heads/master' }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ (github.event_name == 'push' || inputs.commit_outputs == 'true') && github.ref == 'refs/heads/master' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy Pages
+        if: ${{ (github.event_name == 'push' || inputs.commit_outputs == 'true') && github.ref == 'refs/heads/master' }}
+        uses: actions/deploy-pages@v4
+
+      - name: Upload regenerated artifacts (always)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: r-pipeline-output
+          path: |
+            params.csv
+            weights.csv
+            manifest.json
+            images/**/*_*.png
+            posts/*.txt
+          if-no-files-found: ignore

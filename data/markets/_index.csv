@@ -1,0 +1,60 @@
+slug,sheet_name,country,variant,rows,source
+albania,Albania,Albania,New Cars,609,dpshtrr.al / @robbieandrew.bsky.social
+australia,Australia,Australia,New Cars,436,VFACTS & Prof. Ray Willis
+austria,Austria,Austria,New Cars,1052,Statistik Austria
+belgium,Belgium,Belgium,New Cars,693,ACEA
+brazil,Brazil,Brazil,New Cars,1358,ANFAVEA
+bulgaria,Bulgaria,Bulgaria,New Cars,693,ACEA
+canada,Canada,Canada,New Cars,417,150.statcan.gc.ca
+chile,Chile,Chile,New Cars,824,ANAC
+china,China,China,New Cars,1170,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently)
+croatia,Croatia,Croatia,New Cars,546,ACEA
+cyprus,Cyprus,Cyprus,New Cars,525,ACEA
+czechia,Czechia,Czechia,New Cars,1149,ACEA / sda-cia.cz
+denmark,Denmark,Denmark,New Cars,637,statbank.dk
+denmark_hdv,Denmark (HDV),Denmark,HDV,441,statbank.dk
+denmark_vans,Denmark (Vans),Denmark,Vans,657,statbank.dk
+estonia,Estonia,Estonia,New Cars,693,ACEA
+finland,Finland,Finland,New Cars,884,pxdata.stat.fi
+finland_private,Finland (Private),Finland,Private,883,pxdata.stat.fi
+finland_industry,Finland (Industry),Finland,Industry,1029,pxdata.stat.fi
+finland_hdv,Finland (HDV),Finland,HDV,1029,pxdata.stat.fi
+france,France,France,New Cars,765,ACEA
+georgia,Georgia,Georgia,New Cars,222,National Statistics Office of Georgia
+germany,Germany,Germany,New Cars,1017,KBA
+germany_custom,Germany (Custom),Germany,Custom,912,KBA
+greece,Greece,Greece,New Cars,729,ACEA
+hungary,Hungary,Hungary,New Cars,885,ACEA
+iceland,Iceland,Iceland,New Cars,693,ACEA
+india,India,India,New Cars,1351,vahan.parivahan.gov.in
+indonesia,Indonesia,Indonesia,New Cars,1365,robbieandrew.github.io / gaikindo.io
+ireland,Ireland,Ireland,New Cars,1531,stats.simi.ie
+italy,Italy,Italy,New Cars,870,unrae.it
+japan,Japan,Japan,New Cars,909,JADA /JAMA
+latvia,Latvia,Latvia,New Cars,825,ACEA
+lithuania,Lithuania,Lithuania,New Cars,764,ACEA
+luxembourg,Luxembourg,Luxembourg,New Cars,1365,ACEA / lustat.statec.lu
+malta,Malta,Malta,New Cars,315,ACEA
+netherlands,Netherlands,Netherlands,New Cars,846,durzamemobiliteit.datenbank.nl
+netherlands_used_imports,Netherlands (Used Imports),Netherlands,Used Imports,576,duurzamemobiliteit.databank.nl/viewer?workspace_guid=367f17d2-80c3-46fa-8737-5d0e98230fa6 (RDW)
+netherlands_hdv,Netherlands (HDV),Netherlands,HDV,598,durzamemobiliteit.datenbank.nl
+newzealand,New Zealand,New Zealand,New Cars,1197,transport.govt.nz & Prof. Ray Willis
+newzealand_hdv,New Zealand (HDV),New Zealand,HDV,828,transport.govt.nz & Prof. Ray Willis
+norway,Norway,Norway,New Cars,1785,ofv.no & ACEA
+poland,Poland,Poland,New Cars,1029,ACEA / PZPM
+portugal,Portugal,Portugal,New Cars,1077,ACAP
+romania,Romania,Romania,New Cars,749,ACEA
+singapore,Singapore,Singapore,New Cars,791,data.gov.s / lta.gov.sg / robbieandrew
+slovakia,Slovakia,Slovakia,New Cars,693,ACEA
+slovenia,Slovenia,Slovenia,New Cars,570,ACEA
+southkorea,South Korea,South Korea,New Cars,666,motir.go.kr
+spain,Spain,Spain,New Cars,945,ACEA / DGT / asierlizarraga
+sweden,Sweden,Sweden,New Cars,1944,statistikdatabasen.scb.se
+switzerland,Switzerland,Switzerland,New Cars,1365,pxweb.bfs.admin.ch / ACEA
+switzerland_hdv,Switzerland (HDV),Switzerland,HDV,1337,pxweb.bfs.admin.ch
+thailand,Thailand,Thailand,New Cars,587,data.thaiauto.or.th
+thailand_hdv,Thailand (HDV),Thailand,HDV,497,data.thaiauto.or.th
+uk,UK,UK,New Cars,908,SMMT
+uruguay,Uruguay,Uruguay,New Cars,265,ACAU
+usa,USA,USA,New Cars,1097,ANL
+tuerkiye,Türkiye,Türkiye,New Cars,573,data.tuik.gov.tr/

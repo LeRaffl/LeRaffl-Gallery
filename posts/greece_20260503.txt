@@ -1,0 +1,11 @@
+🇬🇷 Greece - March 26 - BEV Trajectory
+6.9% BEV
+5.3% PHEV
+87.8% ICE (of which 55.4%p were HEV)
+
+Trailing 12 months are:
+6.3% BEV
+8.2% PHEV
+85.5% ICE (of which 52.7%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

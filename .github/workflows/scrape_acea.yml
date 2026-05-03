@@ -1,0 +1,80 @@
+name: ACEA scrape
+
+# Pull a single month's by-market table from the ACEA monthly press
+# release, write the values into data/markets/*.csv, and let the existing
+# render workflow pick up the change automatically (the R pipeline auto-
+# triggers on push to data/markets/**.csv).
+#
+# Trigger from the Actions tab — also reachable from the GitHub mobile app.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Four-digit year, e.g. 2026"
+        required: true
+      month:
+        description: "Month number 1..12"
+        required: true
+      include:
+        description: "Optional comma-separated slug list. Blank = pure-ACEA defaults."
+        required: false
+        default: ""
+      exclude:
+        description: "Optional comma-separated slug list to skip."
+        required: false
+        default: ""
+      url:
+        description: "Optional explicit PDF URL (overrides the ACEA path template)."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install scraper dependencies
+        run: pip install pdfplumber requests
+
+      - name: Run scraper
+        env:
+          YEAR:    ${{ inputs.year }}
+          MONTH:   ${{ inputs.month }}
+          INCLUDE: ${{ inputs.include }}
+          EXCLUDE: ${{ inputs.exclude }}
+          URL:     ${{ inputs.url }}
+        run: |
+          ARGS=("$YEAR" "$MONTH")
+          [ -n "$INCLUDE" ] && ARGS+=(--include "$INCLUDE")
+          [ -n "$EXCLUDE" ] && ARGS+=(--exclude "$EXCLUDE")
+          [ -n "$URL" ]     && ARGS+=(--url "$URL")
+          [ -z "$URL" ]     && ARGS+=(--missing-ok)
+          python scripts/scrape_acea.py "${ARGS[@]}"
+
+      - name: Show changed files
+        run: git status --short
+
+      - name: Commit scraped CSVs
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/markets
+          git commit -m "data(acea): scrape ${{ inputs.year }}-${{ inputs.month }}"
+          git push

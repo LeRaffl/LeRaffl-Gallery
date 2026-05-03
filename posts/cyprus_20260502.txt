@@ -1,0 +1,11 @@
+🇨🇾 Cyprus - March 26 - BEV Trajectory
+9.2% BEV
+6.4% PHEV
+84.4% ICE (of which 50.5%p were HEV)
+
+Trailing 12 months are:
+11.1% BEV
+5.3% PHEV
+83.6% ICE (of which 49.1%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

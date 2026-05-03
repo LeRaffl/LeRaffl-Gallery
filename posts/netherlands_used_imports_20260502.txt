@@ -1,0 +1,11 @@
+🇳🇱 Netherlands (Used Imports) - December 25 - BEV Trajectory
+5.0% BEV
+34.2% PHEV
+60.8% ICE
+
+Trailing 12 months are:
+3.8% BEV
+31.7% PHEV
+64.5% ICE
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

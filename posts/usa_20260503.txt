@@ -1,0 +1,11 @@
+🇺🇸 USA - March 26 - BEV Trajectory
+6.3% BEV
+1.2% PHEV
+92.5% ICE (of which 14.1%p were HEV)
+
+Trailing 12 months are:
+7.2% BEV
+1.4% PHEV
+91.4% ICE (of which 12.9%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

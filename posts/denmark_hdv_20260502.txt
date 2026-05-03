@@ -1,0 +1,11 @@
+🇩🇰 Denmark (HDV) - March 26 - BEV Trajectory
+20.0% BEV
+0.0% PHEV
+80.0% ICE (of which 0.0%p were HEV)
+
+Trailing 12 months are:
+27.8% BEV
+0.0% PHEV
+72.2% ICE (of which 0.0%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

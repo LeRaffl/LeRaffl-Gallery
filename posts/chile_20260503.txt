@@ -1,0 +1,11 @@
+🇨🇱 Chile - March 26 - BEV Trajectory
+3.7% BEV
+2.8% PHEV
+93.5% ICE (of which 6.6%p were HEV)
+
+Trailing 12 months are:
+2.0% BEV
+1.4% PHEV
+96.6% ICE (of which 6.0%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

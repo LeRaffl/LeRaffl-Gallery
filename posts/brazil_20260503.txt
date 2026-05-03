@@ -1,0 +1,11 @@
+🇧🇷 Brazil - March 26 - BEV Trajectory
+5.4% BEV
+4.5% PHEV
+90.1% ICE (of which 5.6%p were HEV)
+
+Trailing 12 months are:
+3.7% BEV
+4.0% PHEV
+92.3% ICE (of which 4.9%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

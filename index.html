@@ -128,6 +128,21 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
   flex: 1 1 auto;
 }
 
+/* Data submission */
+.data-submit-form{display:flex;flex-direction:column;gap:14px}
+.data-submit-grid{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:12px}
+.data-submit-details[hidden]{display:none}
+.data-submit-add-row{display:grid;grid-template-columns:minmax(180px,360px) auto;gap:10px;align-items:end;margin:0 0 12px}
+.data-submit-cats{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px}
+.data-submit-cats .field{background:#0b1324;border:1px solid #1f2a44;border-radius:10px;padding:10px}
+.data-submit-form textarea{width:100%;min-height:88px;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2;resize:vertical}
+.data-submit-preview{margin:0;padding:12px;background:#0b1324;border:1px solid #1f2a44;border-radius:10px;overflow:auto;white-space:pre;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#cfe1ff}
+.data-submit-warnings{display:flex;flex-direction:column;gap:6px}
+.data-submit-warnings p{margin:0;padding:8px 10px;border-radius:8px;background:#3a2e05;color:#ffe9a3;border:1px solid #6b5200;font-size:12px}
+.data-submit-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media (max-width:900px){.data-submit-grid{grid-template-columns:1fr 1fr}.data-submit-cats{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.data-submit-grid,.data-submit-cats,.data-submit-add-row{grid-template-columns:1fr}}
+
   
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:12px;color:#9fb3d1}
@@ -580,6 +595,7 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 .fb-pill.cat-question {background:rgba(80,160,255,0.18); color:#b3d4ff}
 .fb-pill.cat-idea     {background:rgba(220,180,60,0.18); color:#ffe29a}
 .fb-pill.cat-data     {background:rgba(255,140,60,0.20); color:#ffcfa3}
+.fb-pill.cat-submission{background:rgba(70,190,140,0.18); color:#9be7c4}
 .fb-pill.cat-comment  {background:rgba(180,180,180,0.18);color:#d6d6d6}
 .fb-pill.status-open     {background:#1a3a5c;color:#7cc4ff}
 .fb-pill.status-answered {background:#1a4a2c;color:#8fe5a8}
@@ -711,6 +727,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
     <a href="#fleet" class="tablink">Fleet</a>
     <a href="#worldmap" class="tablink">World Map</a>
     <a href="#faq" class="tablink">FAQ</a>
+    <a href="#submitdata" class="tablink">Submit Data</a>
     <a href="#feedback" class="tablink">Feedback &amp; Questions</a>
   </nav>
 
@@ -762,6 +779,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
       <span class="fb-chip"        data-filter="cat"    data-value="bug">🐛 Bug</span>
       <span class="fb-chip"        data-filter="cat"    data-value="question">❓ Question</span>
       <span class="fb-chip"        data-filter="cat"    data-value="idea">💡 Idea</span>
+      <span class="fb-chip"        data-filter="cat"    data-value="submission">📊 Data submission</span>
       <span class="fb-chip"        data-filter="cat"    data-value="data">⚠️ Data error</span>
       <span class="fb-chip"        data-filter="cat"    data-value="comment">💬 Comment</span>
       <span style="width:1px;background:#1f2a44;margin:0 4px"></span>
@@ -773,6 +791,83 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
 
     <div id="fbList" class="fb-list" aria-live="polite"></div>
     <div id="fbEmpty" class="fb-empty" hidden>No discussions match your current filters.</div>
+  </div>
+</section>
+
+<!-- SUBMIT DATA TAB -->
+<section id="tab-submitdata" class="tab">
+  <div class="container">
+    <h2>Submit Data</h2>
+    <p class="small" style="margin:0 0 14px;max-width:76ch">
+      Add a new monthly data point without touching raw CSV files. The form
+      creates canonical CSV rows and sends them as a public review submission.
+    </p>
+
+    <form id="dataSubmissionForm" class="data-submit-form">
+      <div class="data-submit-grid">
+        <div class="field">
+          <label for="dsMarket">Market</label>
+          <select id="dsMarket" required>
+            <option value="">Loading markets...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dsPeriod">Month</label>
+          <select id="dsPeriod" required></select>
+        </div>
+        <div class="field">
+          <label for="dsSource">Source</label>
+          <input id="dsSource" type="text" placeholder="URL or source name" required>
+        </div>
+      </div>
+
+      <div class="data-submit-grid data-submit-details" id="dsMarketDetails" hidden>
+        <div class="field">
+          <label for="dsNewCountry">New country / market</label>
+          <input id="dsNewCountry" type="text" placeholder="e.g. Italy, California, EU">
+        </div>
+        <div class="field">
+          <label for="dsNewVariant">Variant / scope</label>
+          <input id="dsNewVariant" type="text" list="dsVariantList" placeholder="New Cars, HDV, Vans, Private...">
+          <datalist id="dsVariantList"></datalist>
+        </div>
+        <div class="field">
+          <label for="dsNewSlug">Proposed CSV slug</label>
+          <input id="dsNewSlug" type="text" placeholder="italy_vans">
+        </div>
+      </div>
+
+      <div>
+        <label class="small">Registrations by category</label>
+        <p class="small" style="margin:8px 0 12px;color:var(--muted);max-width:72ch">
+          Default view shows the full category superset. After you choose a market, the form narrows to the categories already used by that market. Use <code>ICE</code> only when the source does not split <code>PETROL</code> and <code>DIESEL</code>. Add special categories here when a source reports them separately.
+        </p>
+        <div class="data-submit-add-row">
+          <div class="field">
+            <label for="dsExtraCategory">Additional category</label>
+            <input id="dsExtraCategory" type="text" list="dsKnownCategoryList" placeholder="EREV, HYBRIDS, FLEXFUEL...">
+            <datalist id="dsKnownCategoryList"></datalist>
+          </div>
+          <button type="button" class="btn" id="dsAddCategory">Add category</button>
+        </div>
+        <div id="dsCategoryGrid" class="data-submit-cats"></div>
+        <p class="small" id="dsCategoryStatus" style="margin:8px 0 0;color:var(--muted)"></p>
+      </div>
+
+      <div class="field">
+        <label for="dsNotes">Notes for review</label>
+        <textarea id="dsNotes" placeholder="Optional: source table, uncertainty, scope change, definitions, anything weird."></textarea>
+      </div>
+
+      <div class="data-submit-warnings" id="dsWarnings"></div>
+      <pre class="data-submit-preview" id="dsPreview">Choose a market and enter values to preview CSV rows.</pre>
+
+      <div class="data-submit-actions">
+        <button type="button" class="btn" id="dsCopyRows">Copy CSV rows</button>
+        <button type="button" class="btn primary" id="dsSubmitReview">Submit for review</button>
+        <span class="small" id="dsStatus"></span>
+      </div>
+    </form>
   </div>
 </section>
 
@@ -791,6 +886,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
       <div class="fb-catpicker" id="fbCatPicker">
         <label><input type="radio" name="category" value="question" checked><span class="cat-icon">❓</span>Question</label>
         <label><input type="radio" name="category" value="bug"><span class="cat-icon">🐛</span>Bug</label>
+        <label><input type="radio" name="category" value="submission"><span class="cat-icon">📊</span>Data submission</label>
         <label><input type="radio" name="category" value="data"><span class="cat-icon">⚠️</span>Data error</label>
         <label><input type="radio" name="category" value="idea"><span class="cat-icon">💡</span>Idea</label>
         <label><input type="radio" name="category" value="comment"><span class="cat-icon">💬</span>Comment</label>
@@ -1087,19 +1183,19 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
         <div class="field">
           <label>Weights variant</label>
           <select id="builderWeightVariant" multiple size="4">
-            <option value="whole" selected>New Cars</option>
+            <option value="new cars" selected>New Cars</option>
             <!--
               Legacy option intentionally kept as a disabled reminder, do NOT delete.
               Background: India used to expose its passenger cars under the non-
               standard variant label "4-Wheelers" (alongside "2-Wheelers" and
               "3-Wheelers"). The successor dataset folds India's 4-wheelers into
-              the regular "Whole" bucket used by every other country, so the
+              the regular "New Cars" bucket used by every other country, so the
               option below is redundant for all current data. The option stays
               commented out — and the matching "India|4-Wheelers" rows stay in
               params.csv / weights.csv — so historical comparisons and old R
               exports remain resolvable. Re-enabling it requires re-mapping the
               India rows in params.csv / weights.csv first, otherwise the builder
-              will end up double-counting India (once via "Whole", once via
+              will end up double-counting India (once via "New Cars", once via
               "4-Wheelers").
             -->
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
@@ -1497,7 +1593,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
     </h2>
     <p class="small" style="margin:0 0 14px">
       Same country data as the <b>Thresholds</b> and <b>Durations</b> tabs, painted on a world map.
-      Only the default (whole-market, passenger-car) variant is shown.
+      Only the default New Cars / passenger-car variant is shown.
     </p>
 
     <div class="card" style="margin-bottom:14px">
@@ -1751,9 +1847,9 @@ const SAMPLE_MANIFEST = {images:[
   {country:'Germany', type:'time', url:PLACEHOLDER_IMG, filename:'germany_time_20250704.png', period:'2025-07'}
 ]};
 const SAMPLE_PARAMS_CSV = `country,variant,v1,v2,t0,baseline_year,data_per\n\
-Türkiye,Whole,-3.2,2.8,2027-07-01,2020,2025-08\n\
-Denmark,Whole,-4.1,3.2,2024-05-19,2018,2025-09\n\
-Singapore,Whole,-3.7,3.0,2025-09-10,2019,2025-08`;
+Türkiye,New Cars,-3.2,2.8,2027-07-01,2020,2025-08\n\
+Denmark,New Cars,-4.1,3.2,2024-05-19,2018,2025-09\n\
+Singapore,New Cars,-3.7,3.0,2025-09-10,2019,2025-08`;
 
 // -------- Tabs --------
 function activateTabByHash(){
@@ -2020,8 +2116,11 @@ loadManifest().then(({images})=>{
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
 
 // debug warning system
+const DEFAULT_VARIANT_CANON = 'new cars';
+const DEFAULT_VARIANT_LABEL = 'New Cars';
+
 function getWeight(country){
-  const key = `${country}|whole`;
+  const key = `${country}|${DEFAULT_VARIANT_CANON}`;
   const w = fleetState.weights[key];
   if (w === undefined) {
     console.warn("Missing weight for", key);
@@ -2056,9 +2155,11 @@ function normalizeBase(s){
   if(!k) return '';
 
   if ([
+    'new cars','new car','passenger cars','passenger car',
+    'new_cars','new-cars','passenger_cars','passenger-cars',
     'all','total','overall','whole','total market','market total',
     'entire','entire market','total vehicles','fleet total'
-  ].includes(k)) return 'whole';
+  ].includes(k)) return DEFAULT_VARIANT_CANON;
 
   if ([
     'hdv','heavy duty','heavy-duty','heavy duty vehicles',
@@ -2149,7 +2250,7 @@ function displayLabelFromBase(base){
   const n = normalizeBase(base);
   const raw = String(base || '').trim();
   const map = {
-    whole: 'New Cars',
+    [DEFAULT_VARIANT_CANON]: DEFAULT_VARIANT_LABEL,
     used: 'Used Cars',
     'used imports': 'Used Cars (imported)',
     private: 'New Cars (Private)',
@@ -2167,16 +2268,7 @@ function displayLabelFromBase(base){
 }
   
 function displayVariantLabel(v){
-  const map = {
-    "Whole": "New Cars",
-    "Used": "Used Cars",
-    "Used Imports": "Used Cars (imported)",
-    "Private": "New Cars (Private)",
-    "Industry": "New Cars (Industry)",
-    "Vans": "New Vans",
-    "HDV": "New HDV"
-  };
-  return map[v] || v;
+  return displayLabelFromBase(v);
 }
 function yearsIndexToDate(xYears, baseline_date, baseline_year){ 
   if(!isFinite(xYears)) return ""; 
@@ -2274,7 +2366,7 @@ function renderThresholds(csvText){
         opt.value = canonical;
         opt.textContent = displayLabelFromBase(base);
 
-        if(canonical === 'whole') opt.selected = true;
+        if(canonical === DEFAULT_VARIANT_CANON) opt.selected = true;
         sel.appendChild(opt);
       });
 
@@ -2548,7 +2640,7 @@ renderTable();
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; if(Math.abs(dYears)>CAP_YEARS) return 'shows no transition'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}  
-  function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); }
+  function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon===DEFAULT_VARIANT_CANON) opt.selected=true; sel.appendChild(opt); }); }
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:Infinity}; if(Math.abs(d)>CAP_YEARS) return {text:'shows no transition',val:Infinity}; return {text:fmtYearsMonths(d),val:d}; } return rows.map(r=>{ const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:d2080.text,_d2080:d2080.val, d1090_text:d1090.text,_d1090:d1090.val, dC_text:dC.text,_dC:dC.val, speed_text:isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—', _speed:isFinite(sNum)?sNum:-Infinity, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
@@ -2666,7 +2758,7 @@ function loadWeights(){
             ).trim();
 
             const variant = normalizeBase(
-              pick(r,['variant','Variant']) || 'whole'
+              pick(r,['variant','Variant']) || DEFAULT_VARIANT_LABEL
             );
 
             const w = normNumber(
@@ -2827,7 +2919,7 @@ big_markets: rows => {
     const sel = document.getElementById('builderCountries');
     const chosen = [...sel.selectedOptions].map(o=>o.value);
     if(!chosen.length) return;
-    const vSels = getSelectedWeightVariants(); // ['whole','4-wheelers',...]
+    const vSels = getSelectedWeightVariants();
     const rows = PARAM_ROWS.filter(r =>
       chosen.includes(r.country) &&
       vSels.includes(normalizeBase(r.variant))
@@ -2845,15 +2937,15 @@ big_markets: rows => {
   // D2: look up the weight for the row's OWN variant, not the first
   // user-selected variant. The old code iterated vSels and broke on the
   // first hit, which meant a Denmark|HDV row got weighted by the
-  // Denmark|whole passenger-car count whenever the user also had
+  // Denmark|New Cars passenger-car count whenever the user also had
   // "New Cars" selected. Now: exact-variant first, fall back to
-  // `whole`, then 1.
+  // the default New Cars weight, then 1.
   const weightForRow = (r) => {
     const rowVariant = normalizeBase(r.variant);
     const exact = WEIGHTS[`${r.country}|${rowVariant}`];
     if (isFinite(exact)) return exact;
-    const whole = WEIGHTS[`${r.country}|whole`];
-    if (isFinite(whole)) return whole;
+    const defaultWeight = WEIGHTS[`${r.country}|${DEFAULT_VARIANT_CANON}`];
+    if (isFinite(defaultWeight)) return defaultWeight;
     return 1;
   };
 
@@ -3318,7 +3410,7 @@ function buildWeightMap(rows){
   const groups = new Map(); // canonKey -> [{country, variant, weight}]
   rows.forEach(r => {
     const country = String(r.country || r.Country || '').trim();
-    const variant = normalizeBase(r.variant || r.Variant || 'whole');
+    const variant = normalizeBase(r.variant || r.Variant || DEFAULT_VARIANT_LABEL);
     const weight  = normNumber(r.weight || r.Weight || r.market_size || r.size);
     if (!country || !isFinite(weight)) return;
     const canonKey = `${canonicalCountryKey(country)}|${variant}`;
@@ -3442,13 +3534,13 @@ function getCountryCandidates(country){
   return [...new Set(candidates)];
 }
 
-function getCountryWholeParam(country){
+function getCountryDefaultParam(country){
   const candidates = getCountryCandidates(country);
 
   for (const c of candidates) {
     const row = fleetState.params.find(r =>
       String(r.country || '').trim() === c &&
-      normalizeBase(r.variant) === 'whole'
+      normalizeBase(r.variant) === DEFAULT_VARIANT_CANON
     );
     if (row) return row;
   }
@@ -3461,8 +3553,8 @@ function getCountryAnnualInflow(country){
   const candidates = getCountryCandidates(country);
 
   for (const c of candidates) {
-    const wWhole = fleetState.weights[`${c}|whole`];
-    if (wWhole !== undefined) return Number(wWhole) || 0;
+    const wDefault = fleetState.weights[`${c}|${DEFAULT_VARIANT_CANON}`];
+    if (wDefault !== undefined) return Number(wDefault) || 0;
     //4-wheelers are now legacy
     //const w4 = fleetState.weights[`${c}|4-wheelers`];
     //if (w4 !== undefined) return Number(w4) || 0;
@@ -3473,7 +3565,7 @@ function getCountryAnnualInflow(country){
 }
 
 function modeledBevShareForYear(country, year){
-  const r = getCountryWholeParam(country);
+  const r = getCountryDefaultParam(country);
   if(!r) return NaN;
 
   const v1 = normNumber(r.v1);
@@ -3488,7 +3580,7 @@ function modeledBevShareForYear(country, year){
 }
 
 function modeledIceShareForYear(country, year){
-  const r = getCountryWholeParam(country);
+  const r = getCountryDefaultParam(country);
   if(!r) return NaN;
 
   const v1 = normNumber(r.ice_v1);
@@ -4541,8 +4633,8 @@ document.addEventListener('keydown', (e) => {
 // -------- WORLD MAP --------
 //
 // The world map reuses the same Weibull-fit data that Thresholds and
-// Durations already load from params.csv. We only take the "whole"
-// (passenger-car / whole-market) variant of each country, cache the
+// Durations already load from params.csv. We only take the default
+// New Cars / passenger-car variant of each country, cache the
 // raw v1/v2/t0/baseline, and compute year-at-threshold / duration
 // on demand so the user can pick any threshold and we don't have to
 // re-parse the CSV for every click.
@@ -4600,7 +4692,7 @@ function wmNormalizeCountry(raw){
 }
 
 // Pull params.csv (via the same two-URL probe Thresholds uses), keep
-// only the "whole" variant of each country, compute the 20/50/80 year
+// only the default New Cars variant of each country, compute the 20/50/80 year
 // and the 20→80 duration, and cache everything for fast re-renders.
 function wmLoadData(){
   if (WORLDMAP_STATE.loaded) return Promise.resolve();
@@ -4615,7 +4707,7 @@ function wmLoadData(){
         .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
         .then(txt => {
           // D1(b): dedupe first so legacy-alias detection also covers
-          // the map tab. wmBuildRows still does its own (country, whole,
+          // the map tab. wmBuildRows still does its own country/default/data_per
           // data_per) collapse on top — both are cheap and composable.
           const rows = dedupeParamRows(parseCSV(txt));
           WORLDMAP_STATE.rows = wmBuildRows(rows);
@@ -4628,13 +4720,13 @@ function wmLoadData(){
 }
 
 function wmBuildRows(csvRows){
-  // Keep one row per country — the "whole" variant. If a country has
-  // several "whole" rows (shouldn't happen, but just in case) pick the
+  // Keep one row per country — the default New Cars variant. If a country has
+  // several default rows (shouldn't happen, but just in case) pick the
   // one with the most recent data_per so we reflect the freshest fit.
   const byCountry = new Map();
   for (const r of csvRows){
     const parts = extractVariantParts(r.variant || '');
-    if (normalizeBase(parts.base || '') !== 'whole') continue;
+    if (normalizeBase(parts.base || '') !== DEFAULT_VARIANT_CANON) continue;
 
     const country = wmNormalizeCountry(r.country);
     if (!country) continue;
@@ -4783,7 +4875,7 @@ function wmDurationFmt(years){
 
 // Percentile clip for the color scale — one or two outliers (Norway
 // hitting 80% well before anyone else) would otherwise flatten the
-// whole world into a single color. We clamp the scale to P5..P95 of
+// map into a single color. We clamp the scale to P5..P95 of
 // the actual data so the rest of the map gets a useful spread.
 function wmPercentileRange(values){
   const arr = values.filter(v => isFinite(v)).slice().sort((a,b)=>a-b);
@@ -5182,6 +5274,7 @@ const FB_CATS = {
   bug:      { icon: '🐛', label: 'Bug' },
   question: { icon: '❓', label: 'Question' },
   idea:     { icon: '💡', label: 'Idea' },
+  submission: { icon: '📊', label: 'Data submission' },
   data:     { icon: '⚠️', label: 'Data error' },
   comment:  { icon: '💬', label: 'Comment' }
 };
@@ -5413,6 +5506,8 @@ function fbToggleHelpful(n, newVote){
 function fbOpenModal(prefill){
   const dlg = document.getElementById('feedbackModal');
   if (!dlg) return;
+  const form = document.getElementById('fbForm');
+  if (form) form.reset();
   if (prefill?.category) {
     const r = dlg.querySelector(`input[name="category"][value="${prefill.category}"]`);
     if (r) r.checked = true;
@@ -5438,7 +5533,8 @@ function fbOpenModal(prefill){
   document.getElementById('fbCaptchaQuestion').textContent = `Quick math: ${a} + ${b} = ?`;
   document.getElementById('fbCaptcha').value = '';
   document.getElementById('fbError').textContent = '';
-  if (prefill?.title) document.getElementById('fbTitle').value = prefill.title;
+  document.getElementById('fbTitle').value = prefill?.title || '';
+  document.getElementById('fbBody').value = prefill?.body || '';
   document.getElementById('fbSimilar').hidden = true;
 
   if (typeof dlg.showModal === 'function') dlg.showModal();
@@ -5597,12 +5693,457 @@ function fbWireEvents(){
   });
 }
 
+// =========================================================================
+// Data Submission — static helper for turning mobile-friendly form input into
+// canonical data/markets CSV rows. It deliberately does not edit the repo from
+// the browser; it opens a structured review topic through the feedback flow.
+// =========================================================================
+const DS_CATEGORY_ORDER = ['BEV','PHEV','EREV','HEV','HYBRIDS','PETROL','DIESEL','FLEXFUEL','PETROL-GAS','ICE','OTHER','TOTAL'];
+const DS_DEFAULT_CATEGORIES = ['BEV','PHEV','HEV','PETROL','DIESEL','ICE','OTHER','TOTAL'];
+const DS_KNOWN_CATEGORIES = ['BEV','PHEV','EREV','HEV','HYBRIDS','PETROL','DIESEL','FLEXFUEL','PETROL-GAS','ICE','OTHER','TOTAL','CNG','LPG','FCEV','MHEV'];
+const DS_DEFAULT_VARIANTS = [DEFAULT_VARIANT_LABEL,'HDV','Vans','Private','Industry','Custom','Used Imports'];
+const DS_NEW_MARKET_VALUE = '__new_market__';
+const DS_MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DS_STATE = { markets: [], categories: [], customCategories: [] };
+
+function dsSetStatus(msg){ const el = document.getElementById('dsStatus'); if (el) el.textContent = msg || ''; }
+function dsSetCategoryStatus(msg){ const el = document.getElementById('dsCategoryStatus'); if (el) el.textContent = msg || ''; }
+function dsFormatModelYear(n){
+  return Number(n).toFixed(6).replace(/0+$/,'').replace(/\.$/,'');
+}
+function dsMonthValue(year, month){
+  return `${year}-${String(month).padStart(2,'0')}`;
+}
+function dsMonthLabel(value){
+  const m = /^(\d{4})-(\d{2})$/.exec(String(value || '').trim());
+  if (!m) return '';
+  const month = Number(m[2]);
+  return `${DS_MONTH_NAMES[month - 1] || m[2]} ${m[1]}`;
+}
+function dsPopulatePeriodSelect(){
+  const select = document.getElementById('dsPeriod');
+  if (!select) return;
+  const selected = select.value;
+  const now = new Date();
+  const startYear = 2010;
+  const endYear = now.getFullYear() + 1;
+  const options = ['<option value="">Choose month...</option>'];
+  for (let year = endYear; year >= startYear; year -= 1) {
+    for (let month = 12; month >= 1; month -= 1) {
+      const value = dsMonthValue(year, month);
+      options.push(`<option value="${value}">${dsMonthLabel(value)}</option>`);
+    }
+  }
+  select.innerHTML = options.join('');
+  select.value = selected || dsMonthValue(now.getFullYear(), now.getMonth() + 1);
+}
+function dsPeriodParts(monthValue){
+  const m = /^(\d{4})-(\d{2})$/.exec(String(monthValue || '').trim());
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) return null;
+  return {
+    period: `${year}M${String(month).padStart(2,'0')}`,
+    interval: 'monthly',
+    year: dsFormatModelYear((year - 1) + ((month - 1) / 12))
+  };
+}
+function dsSlugify(value){
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+function dsNormalizeVariant(value){
+  const v = String(value || '').trim();
+  return v || DEFAULT_VARIANT_LABEL;
+}
+function dsDisplayMarketName(country, variant){
+  const c = String(country || '').trim();
+  const v = dsNormalizeVariant(variant);
+  return !c || normalizeBase(v) === DEFAULT_VARIANT_CANON ? c : `${c} (${v})`;
+}
+function dsNewMarketFromInputs(){
+  const country = (document.getElementById('dsNewCountry')?.value || '').trim();
+  const variant = dsNormalizeVariant(document.getElementById('dsNewVariant')?.value);
+  const slugInput = (document.getElementById('dsNewSlug')?.value || '').trim();
+  const slug = dsSlugify(slugInput || dsDisplayMarketName(country, variant));
+  return {
+    slug,
+    sheetName: dsDisplayMarketName(country, variant),
+    country,
+    variant,
+    isNew: true
+  };
+}
+function dsCsvCell(value){
+  const s = String(value ?? '');
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function dsNormalizeCategory(value){
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^A-Za-z0-9_+-]/g, '')
+    .toUpperCase();
+}
+function dsCategoryInputId(cat){
+  return `dsCat_${dsSlugify(cat).replace(/_/g, '-') || 'category'}`;
+}
+function dsCollectCategoryValues(){
+  const values = {};
+  document.querySelectorAll('[data-ds-category]').forEach(input => {
+    values[input.dataset.dsCategory] = input.value;
+  });
+  return values;
+}
+function dsPopulateDatalists(){
+  const cats = document.getElementById('dsKnownCategoryList');
+  if (cats) cats.innerHTML = DS_KNOWN_CATEGORIES.map(c => `<option value="${fbEscape(c)}"></option>`).join('');
+  const variants = new Set(DS_DEFAULT_VARIANTS);
+  DS_STATE.markets.forEach(m => { if (m.variant) variants.add(m.variant); });
+  const list = document.getElementById('dsVariantList');
+  if (list) list.innerHTML = [...variants].sort((a,b) => a.localeCompare(b)).map(v => `<option value="${fbEscape(v)}"></option>`).join('');
+}
+function dsSyncNewSlug(){
+  const slug = document.getElementById('dsNewSlug');
+  if (!slug) return;
+  const next = dsSlugify(dsDisplayMarketName(
+    document.getElementById('dsNewCountry')?.value,
+    document.getElementById('dsNewVariant')?.value
+  ));
+  if (!slug.value || slug.dataset.autoValue === slug.value) slug.value = next;
+  slug.dataset.autoValue = next;
+}
+function dsSelectedMarket(){
+  const sel = document.getElementById('dsMarket');
+  const opt = sel?.selectedOptions?.[0];
+  if (!opt || !opt.value) return null;
+  if (opt.value === DS_NEW_MARKET_VALUE) return dsNewMarketFromInputs();
+  return {
+    slug: opt.value,
+    sheetName: opt.dataset.sheetName || opt.textContent,
+    country: opt.dataset.country || '',
+    variant: opt.dataset.variant || ''
+  };
+}
+function dsOrderedCategories(cats, options = {}){
+  const normalized = (cats || []).map(c => String(c || '').trim().toUpperCase()).filter(Boolean);
+  const set = new Set(normalized);
+  if (!normalized.length && options.useDefaults) DS_DEFAULT_CATEGORIES.forEach(c => set.add(c));
+  DS_STATE.customCategories.forEach(c => set.add(c));
+  const ordered = DS_CATEGORY_ORDER.filter(c => c !== 'TOTAL' && set.has(c));
+  [...set].sort().forEach(c => { if (c !== 'TOTAL' && !ordered.includes(c)) ordered.push(c); });
+  if (set.has('TOTAL')) ordered.push('TOTAL');
+  return ordered;
+}
+function dsRenderCategoryInputs(cats, keepValues = dsCollectCategoryValues(), options = {}){
+  DS_STATE.categories = dsOrderedCategories(cats, { useDefaults: !!options.useDefaults });
+  const grid = document.getElementById('dsCategoryGrid');
+  if (!grid) return;
+  if (!DS_STATE.categories.length) {
+    grid.innerHTML = `<p class="small" style="grid-column:1/-1;margin:0;color:var(--muted)">Choose a market to load the categories from its CSV.</p>`;
+    dsSetCategoryStatus('');
+    dsUpdatePreview();
+    return;
+  }
+  grid.innerHTML = DS_STATE.categories.map(cat => {
+    const id = dsCategoryInputId(cat);
+    return `
+    <div class="field">
+      <label for="${fbEscape(id)}">${fbEscape(cat)}</label>
+      <input id="${fbEscape(id)}" data-ds-category="${fbEscape(cat)}" type="number" min="0" step="any" inputmode="decimal" placeholder="0" value="${fbEscape(keepValues[cat] || '')}">
+    </div>
+  `;
+  }).join('');
+  grid.querySelectorAll('input').forEach(input => input.addEventListener('input', dsUpdatePreview));
+  if (options.status) dsSetCategoryStatus(options.status);
+  else dsSetCategoryStatus('');
+  dsUpdatePreview();
+}
+async function dsLoadMarkets(){
+  const sel = document.getElementById('dsMarket');
+  if (!sel) return;
+  try {
+    const urls = ['./data/markets/_index.csv', 'data/markets/_index.csv', '/data/markets/_index.csv'];
+    let text = null;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        text = await res.text();
+        break;
+      } catch {
+        /* try next path */
+      }
+    }
+    if (!text) throw new Error('could not load market index');
+    const rows = parseCSV(text);
+    DS_STATE.markets = rows.filter(r => r.slug && r.sheet_name);
+    sel.innerHTML = `<option value="">Choose existing market...</option>
+      <option value="${DS_NEW_MARKET_VALUE}">+ New market / variant...</option>` + DS_STATE.markets.map(r => `
+      <option value="${fbEscape(r.slug)}" data-sheet-name="${fbEscape(r.sheet_name)}" data-country="${fbEscape(r.country)}" data-variant="${fbEscape(r.variant)}">${fbEscape(r.sheet_name)}</option>
+    `).join('');
+    dsPopulateDatalists();
+    if (!DS_STATE.markets.length) {
+      sel.innerHTML = `<option value="">Market index is empty</option>
+        <option value="${DS_NEW_MARKET_VALUE}">+ New market / variant...</option>`;
+      dsSetStatus('No markets found in _index.csv.');
+    }
+  } catch (err) {
+    console.warn('[data-submission] could not load market index:', err);
+    sel.innerHTML = `<option value="">Market index unavailable</option>
+      <option value="${DS_NEW_MARKET_VALUE}">+ New market / variant...</option>`;
+    dsPopulateDatalists();
+    dsSetStatus('Could not load market list.');
+  }
+}
+async function dsLoadMarketCategories(){
+  const market = dsSelectedMarket();
+  if (!market) {
+    dsSetStatus('');
+    dsRenderCategoryInputs([]);
+    return;
+  }
+  dsSetStatus('Loading category template...');
+  try {
+    const urls = [`./data/markets/${market.slug}.csv`, `data/markets/${market.slug}.csv`, `/data/markets/${market.slug}.csv`];
+    let text = null;
+    for (const url of urls) {
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        text = await res.text();
+        break;
+      } catch {
+        /* try next path */
+      }
+    }
+    if (!text) throw new Error('could not load market csv');
+    const rows = parseCSV(text);
+    const categories = [...new Set(rows.map(r => dsNormalizeCategory(r.category)).filter(Boolean))];
+    if (!categories.length) throw new Error('market csv has no categories');
+    dsRenderCategoryInputs(categories, dsCollectCategoryValues(), {
+      status: `Loaded CSV categories for ${market.sheetName}: ${dsOrderedCategories(categories).join(', ')}`
+    });
+    dsSetStatus('');
+  } catch (err) {
+    console.warn('[data-submission] could not load market CSV:', err);
+    dsRenderCategoryInputs([]);
+    dsSetStatus('Could not load this market CSV; categories are hidden to avoid wrong rows.');
+  }
+}
+function dsSetNewMarketFieldsVisible(visible){
+  const details = document.getElementById('dsMarketDetails');
+  if (details) details.hidden = !visible;
+}
+function dsHandleMarketChange(){
+  const isNew = document.getElementById('dsMarket')?.value === DS_NEW_MARKET_VALUE;
+  dsSetNewMarketFieldsVisible(isNew);
+  if (isNew) {
+    dsSetStatus('');
+    dsSyncNewSlug();
+    dsRenderCategoryInputs([], dsCollectCategoryValues(), {
+      useDefaults: true,
+      status: `Using starter categories for a new market: ${DS_DEFAULT_CATEGORIES.join(', ')}`
+    });
+  } else {
+    dsLoadMarketCategories();
+  }
+  dsUpdatePreview();
+}
+function dsAddCustomCategory(){
+  const input = document.getElementById('dsExtraCategory');
+  const cat = dsNormalizeCategory(input?.value);
+  if (!cat) {
+    dsSetStatus('Enter a category name first.');
+    return;
+  }
+  const known = new Set(DS_STATE.categories.concat(DS_STATE.customCategories));
+  if (known.has(cat)) {
+    dsSetStatus(`${cat} is already shown.`);
+    if (input) input.value = '';
+    return;
+  }
+  DS_STATE.customCategories.push(cat);
+  if (!DS_KNOWN_CATEGORIES.includes(cat)) DS_KNOWN_CATEGORIES.push(cat);
+  dsPopulateDatalists();
+  dsRenderCategoryInputs(DS_STATE.categories);
+  if (input) input.value = '';
+  dsSetStatus(`${cat} added.`);
+}
+function dsBuildPayload(){
+  const market = dsSelectedMarket();
+  const period = dsPeriodParts(document.getElementById('dsPeriod')?.value);
+  const source = (document.getElementById('dsSource')?.value || '').trim();
+  const notes = (document.getElementById('dsNotes')?.value || '').trim();
+  const warnings = [];
+  if (!market) warnings.push('Choose an existing market or use new market / variant.');
+  if (market?.isNew && !market.country) warnings.push('Enter the new country / market name.');
+  if (market?.isNew && !market.slug) warnings.push('Enter a proposed CSV slug.');
+  if (!period) warnings.push('Choose a valid month.');
+  if (!source) warnings.push('Source is required.');
+
+  const rows = [];
+  document.querySelectorAll('[data-ds-category]').forEach(input => {
+    const raw = String(input.value || '').trim();
+    if (raw === '') return;
+    const value = Number(raw);
+    const cat = input.dataset.dsCategory;
+    if (!Number.isFinite(value) || value < 0) {
+      warnings.push(`${cat}: enter a non-negative number.`);
+      return;
+    }
+    rows.push({
+      period: period?.period || '',
+      interval: period?.interval || 'monthly',
+      year: period?.year || '',
+      category: cat,
+      registrations: raw,
+      source
+    });
+  });
+  if (!rows.length) warnings.push('Enter at least one category value.');
+  rows
+    .filter(r => !DS_CATEGORY_ORDER.includes(r.category))
+    .forEach(r => warnings.push(`${r.category}: custom category will land in the CSV; add R/schema handling if it should get its own model or TTM layer.`));
+
+  const total = rows.find(r => r.category === 'TOTAL');
+  if (!total) warnings.push('TOTAL is missing.');
+  if (total) {
+    const sum = rows
+      .filter(r => r.category !== 'TOTAL')
+      .reduce((acc, r) => acc + Number(r.registrations), 0);
+    const totalN = Number(total.registrations);
+    if (Number.isFinite(totalN) && Number.isFinite(sum)) {
+      const delta = Math.abs(totalN - sum);
+      if (delta > Math.max(1, totalN * 0.005)) {
+        warnings.push(`Visible categories sum to ${fmtInt(sum)}, TOTAL is ${fmtInt(totalN)}. That can be okay, but review hidden/other categories.`);
+      }
+    }
+  }
+
+  const csv = rows.map(r =>
+    [r.period, r.interval, r.year, r.category, r.registrations, r.source]
+      .map(dsCsvCell)
+      .join(',')
+  ).join('\n');
+
+  return { market, period, source, notes, rows, warnings, csv };
+}
+function dsUpdatePreview(){
+  const built = dsBuildPayload();
+  const preview = document.getElementById('dsPreview');
+  const warnings = document.getElementById('dsWarnings');
+  if (!built.csv) dsSetStatus('');
+  if (preview) {
+    preview.textContent = built.csv
+      ? 'period,interval,year,category,registrations,source\n' + built.csv
+      : 'Choose a market and enter values to preview CSV rows.';
+  }
+  if (warnings) warnings.innerHTML = built.warnings.map(w => `<p>${fbEscape(w)}</p>`).join('');
+  return built;
+}
+async function dsCopyRows(){
+  const built = dsUpdatePreview();
+  if (!built.csv) { dsSetStatus('Nothing to copy yet.'); return; }
+  const text = 'period,interval,year,category,registrations,source\n' + built.csv;
+  try {
+    await navigator.clipboard.writeText(text);
+    dsSetStatus('CSV rows copied.');
+  } catch {
+    dsSetStatus('Copy failed; select the preview manually.');
+  }
+}
+function dsSubmitForReview(){
+  const built = dsUpdatePreview();
+  if (!built.csv || !built.market || !built.period || !built.market.slug || !built.market.sheetName || !built.source) {
+    dsSetStatus('Complete market, month, source and at least one value first.');
+    return;
+  }
+  const indexRow = built.market.isNew
+    ? [built.market.slug, built.market.sheetName, built.market.country, built.market.variant, built.rows.length, built.source].map(dsCsvCell).join(',')
+    : '';
+  const title = `Data submission: ${built.market.sheetName} ${built.period.period}`;
+  const body =
+`Structured data submission for review.
+
+Market status: ${built.market.isNew ? 'New market / variant proposal' : 'Existing market'}
+Market: ${built.market.sheetName}
+Slug: ${built.market.slug}
+Country: ${built.market.country || '(missing)'}
+Variant: ${built.market.variant || '(missing)'}
+Period: ${built.period.period}
+Interval: ${built.period.interval}
+Model year: ${built.period.year}
+Source: ${built.source || '(missing)'}
+${built.market.isNew ? `
+Proposed _index.csv row:
+\`\`\`csv
+slug,sheet_name,country,variant,rows,source
+${indexRow}
+\`\`\`
+` : ''}
+
+CSV rows:
+\`\`\`csv
+period,interval,year,category,registrations,source
+${built.csv}
+\`\`\`
+
+Review notes:
+${built.notes || '(none)'}
+
+Validation notes:
+${built.warnings.length ? built.warnings.map(w => `- ${w}`).join('\n') : '- No client-side warnings.'}`;
+  fbOpenModal({
+    category: 'submission',
+    title,
+    body,
+    context: {
+      section: 'data-submission',
+      market: built.market,
+      period: built.period,
+      row_count: built.rows.length,
+      warnings: built.warnings
+    }
+  });
+  dsSetStatus('Review topic prepared. Submit it in the modal.');
+}
+function dataSubmissionInit(){
+  const form = document.getElementById('dataSubmissionForm');
+  if (!form) return;
+  const period = document.getElementById('dsPeriod');
+  dsPopulatePeriodSelect();
+  dsSetStatus('');
+  dsPopulateDatalists();
+  dsRenderCategoryInputs([]);
+  dsLoadMarkets();
+  document.getElementById('dsMarket')?.addEventListener('change', dsHandleMarketChange);
+  ['dsPeriod','dsSource','dsNotes','dsNewSlug'].forEach(id => document.getElementById(id)?.addEventListener('input', dsUpdatePreview));
+  ['dsNewCountry','dsNewVariant'].forEach(id => document.getElementById(id)?.addEventListener('input', () => {
+    dsSyncNewSlug();
+    dsUpdatePreview();
+  }));
+  document.getElementById('dsAddCategory')?.addEventListener('click', dsAddCustomCategory);
+  document.getElementById('dsExtraCategory')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      dsAddCustomCategory();
+    }
+  });
+  document.getElementById('dsCopyRows')?.addEventListener('click', dsCopyRows);
+  document.getElementById('dsSubmitReview')?.addEventListener('click', dsSubmitForReview);
+  form.addEventListener('submit', e => e.preventDefault());
+}
+
 // Preload mock data once on boot so the modal's similar-issue hint works
 // from any tab (via the FAB) without a perceptible first-open delay.
-window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); });
+window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); dataSubmissionInit(); fbLoad(); });
 </script>
 </body>
 </html>
-
-
-

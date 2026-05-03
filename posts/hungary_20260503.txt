@@ -1,0 +1,11 @@
+🇭🇺 Hungary - March 26 - BEV Trajectory
+8.9% BEV
+5.9% PHEV
+85.2% ICE (of which 58.2%p were HEV)
+
+Trailing 12 months are:
+8.9% BEV
+6.5% PHEV
+84.6% ICE (of which 50.9%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

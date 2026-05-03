@@ -1,0 +1,11 @@
+🇦🇹 Austria - April 26 - BEV Trajectory
+22.3% BEV
+11.0% PHEV
+66.7% ICE (of which 32.0%p were HEV)
+
+Trailing 12 months are:
+21.5% BEV
+10.7% PHEV
+67.8% ICE (of which 30.2%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

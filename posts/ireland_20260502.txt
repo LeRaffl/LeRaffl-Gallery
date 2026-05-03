@@ -1,0 +1,11 @@
+🇮🇪 Ireland - March 26 - BEV Trajectory
+24.8% BEV
+14.7% PHEV
+60.5% ICE (of which 29.3%p were HEV)
+
+Trailing 12 months are:
+22.1% BEV
+15.4% PHEV
+62.6% ICE (of which 25.5%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

@@ -2,38 +2,77 @@ name: Build manifest
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'images/**'                 # triggert bei neuen/gelöschten/verschobenen Dateien in images/
       - 'build_manifest.R'          # falls du den Builder änderst
+      - '.github/workflows/build-manifest.yml'
   workflow_dispatch: {}             # optional: manuell auslösbar
   schedule:
     - cron: '17 3 * * *'            # optional: einmal täglich als Fallback (03:17 UTC)
 
 jobs:
   build:
+    if: ${{ github.event_name != 'push' || github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write               # erlaubt das Committen von manifest.json
+      pages: write                  # deploys the rebuilt manifest when Pages source is GitHub Actions
+      id-token: write
     concurrency:
       group: manifest-${{ github.ref }}
       cancel-in-progress: true      # vermeidet parallele Läufe bei vielen kleinen Pushes
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: '4.5'
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          packages: jsonlite, stringr, dplyr, lubridate, purrr, fs, tibble
+          packages: |
+            any::jsonlite
+            any::stringr
+            any::dplyr
+            any::lubridate
+            any::purrr
+            any::fs
 
       - name: Build manifest
         run: |
           Rscript -e "source('build_manifest.R'); build_manifest(root='images', base_url='images/')"
 
       - name: Commit manifest.json
-        uses: EndBug/add-and-commit@v9
+        id: commit_manifest
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain -- manifest.json)" ]; then
+            echo "No manifest changes to commit."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "chore: update manifest.json (CI)"
+          git pull --rebase
+          git push
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Configure Pages
+        if: ${{ steps.commit_manifest.outputs.committed == 'true' && github.ref == 'refs/heads/master' }}
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: ${{ steps.commit_manifest.outputs.committed == 'true' && github.ref == 'refs/heads/master' }}
+        uses: actions/upload-pages-artifact@v3
         with:
-          add: "manifest.json"
-          message: "chore: update manifest.json (CI)"
+          path: .
+
+      - name: Deploy Pages
+        if: ${{ steps.commit_manifest.outputs.committed == 'true' && github.ref == 'refs/heads/master' }}
+        uses: actions/deploy-pages@v4

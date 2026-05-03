@@ -1,0 +1,11 @@
+🇷🇴 Romania - March 26 - BEV Trajectory
+6.5% BEV
+0.0% PHEV
+93.5% ICE (of which 57.9%p were HEV)
+
+Trailing 12 months are:
+6.2% BEV
+0.0% PHEV
+93.8% ICE (of which 51.3%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

@@ -1,0 +1,11 @@
+🇭🇷 Croatia - March 26 - BEV Trajectory
+5.5% BEV
+6.0% PHEV
+88.5% ICE (of which 37.2%p were HEV)
+
+Trailing 12 months are:
+2.6% BEV
+4.4% PHEV
+93.0% ICE (of which 32.8%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

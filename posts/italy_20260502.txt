@@ -1,0 +1,11 @@
+🇮🇹 Italy - April 26 - BEV Trajectory
+8.6% BEV
+9.1% PHEV
+82.3% ICE (of which 50.2%p were HEV)
+
+Trailing 12 months are:
+7.3% BEV
+8.1% PHEV
+84.5% ICE (of which 47.0%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

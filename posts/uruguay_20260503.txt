@@ -1,0 +1,11 @@
+🇺🇾 Uruguay - March 26 - BEV Trajectory
+40.4% BEV
+4.3% PHEV
+55.3% ICE (of which 8.0%p were HEV)
+
+Trailing 12 months are:
+33.7% BEV
+2.3% PHEV
+64.0% ICE (of which 9.6%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

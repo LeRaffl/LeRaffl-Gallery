@@ -1,6 +1,33 @@
-params 2.csv
-params Kopie.csv
-images/2025-10/germany_20251129.png
-images/2025-10/germany_ICE_BEV_20251129.png
-images/2025-10/germany_time_20251129.png
-images/2025-10/germany_ttm_shares_20251129.png
+# macOS
+.DS_Store
+
+# Local AI/tooling worktrees and handoff notes
+.claude/
+HANDOFF.md
+
+# R session artifacts
+.Rhistory
+.Rapp.history
+.RData
+.Rproj.user/
+*.Rproj
+
+# Source PDFs are fetched at runtime (or via the ACEA Action) — don't commit
+# them. They'd bloat the repo (~300 KB × monthly forever) and create binary
+# diffs nobody can review.
+data/raw/*.pdf
+
+# The legacy text-based ACEA scraper lives outside the repo. If a copy ends
+# up under data/raw/ for reference, keep it local-only.
+data/raw/ACEA scraping/
+data/raw/ACEA_scraping/
+
+# Never commit Google service-account credentials or anything that looks
+# like one.
+**/credentials*.json
+**/service-account*.json
+
+# Python virtualenvs from the legacy scraper
+**/.venv/
+__pycache__/
+*.pyc

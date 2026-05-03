@@ -1,0 +1,11 @@
+🇯🇵 Japan - March 26 - BEV Trajectory
+4.2% BEV
+1.6% PHEV
+94.2% ICE (of which 67.2%p were HEV)
+
+Trailing 12 months are:
+2.2% BEV
+1.6% PHEV
+96.2% ICE (of which 61.1%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/

@@ -1,0 +1,11 @@
+🇬🇧 UK - March 26 - BEV Trajectory
+22.6% BEV
+13.0% PHEV
+64.3% ICE (of which 15.8%p were HEV)
+
+Trailing 12 months are:
+23.9% BEV
+12.2% PHEV
+63.9% ICE (of which 15.5%p were HEV)
+
+Graphs are available in the Gallery: leraffl.github.io/Gallery-TEST/
