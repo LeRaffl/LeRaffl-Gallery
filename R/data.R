@@ -58,16 +58,29 @@ compute_ttm_long <- function(df) {
   }
 
   total_ttm <- rolling12(total)
+  # Per-column rolling sum: only valid when the entire 12-month window is non-NA.
+  # This ensures stacked bars hit 100% from the very first plotted period.
+  rolling12_strict <- function(x) {
+    n <- length(x); out <- rep(NA_real_, n)
+    for (i in 12:n) {
+      w <- x[(i-11):i]
+      if (!any(is.na(w))) out[i] <- sum(w)
+    }
+    out
+  }
   ttm <- list()
+  any_present <- rep(TRUE, nrow(m))
   for (col in present) {
     v <- as.numeric(m[[col]])
     if (all(is.na(v))) next
-    v[is.na(v)] <- 0
-    ttm[[col]] <- rolling12(v) / total_ttm
+    rs <- rolling12_strict(v)
+    ttm[[col]] <- rs / total_ttm
+    any_present <- any_present & !is.na(rs)
   }
 
-  # Drop pre-12-month rows
-  keep <- 12:nrow(m)
+  # Keep only rows where every present column has a complete 12-month window.
+  keep <- which(any_present)
+  if (length(keep) == 0) return(NULL)
   months <- substr(m$period[keep], 1, 7)
   out <- data.frame(month = months, stringsAsFactors = FALSE)
   for (col in names(ttm)) out[[col]] <- ttm[[col]][keep]
