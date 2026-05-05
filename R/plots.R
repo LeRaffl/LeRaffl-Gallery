@@ -153,6 +153,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
          caption = meta$entire_caption, x = " ", y = "New Registration Share") +
+    theme_minimal() +
     theme(axis.title = element_text(size = rel(1.2)), axis.text = element_text(size = rel(0.9)),
           plot.title = element_text(face = "bold", size = rel(1.5)),
           plot.subtitle = element_text(size = rel(1.2)),
