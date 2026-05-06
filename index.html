@@ -670,6 +670,38 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
    weight as the surrounding h2 text and stay tappable on mobile. */
 h2 .fb-ctx-cluster{margin-left:10px;font-size:initial;font-weight:400}
 h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
+
+/* ── Submit Data tab ──────────────────────────────────────────────────── */
+.sd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+.sd-grid .sd-field{display:flex;flex-direction:column;gap:6px}
+.sd-grid label{font-size:.85em;color:#8aa0c8}
+.sd-grid input,.sd-grid select{background:#0b1324;color:#e9eef2;border:1px solid #2a3654;border-radius:6px;padding:8px 10px;font-size:.95em}
+.sd-grid input:focus,.sd-grid select:focus{outline:none;border-color:#5b87ff}
+.sd-rows{margin-top:18px;border:1px solid #1f2a44;border-radius:10px;overflow:hidden}
+.sd-row{padding:14px;border-bottom:1px solid #1f2a44;background:#0f1525}
+.sd-row:last-child{border-bottom:none}
+.sd-row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sd-row-head .sd-row-title{font-weight:600}
+.sd-row-head .sd-row-rm{background:transparent;border:1px solid #2a3654;color:#e9eef2;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.85em}
+.sd-row-head .sd-row-rm:hover{background:#3a1f24;border-color:#6a3a40}
+.sd-row-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.sd-row-grid .sd-cell{display:flex;flex-direction:column;gap:4px}
+.sd-row-grid .sd-cell label{font-size:.75em;color:#8aa0c8;text-transform:uppercase;letter-spacing:.04em}
+.sd-row-grid .sd-cell input,.sd-row-grid .sd-cell select{background:#0b1324;color:#e9eef2;border:1px solid #2a3654;border-radius:6px;padding:6px 8px;font-size:.9em}
+.sd-row-sumcheck{margin-top:8px;font-size:.8em;color:#8aa0c8}
+.sd-row-sumcheck.bad{color:#ff8a8a}
+.sd-row-sumcheck.good{color:#7adba0}
+.sd-actions{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.sd-add{background:transparent;border:1px dashed #2a3654;color:#e9eef2;border-radius:8px;padding:10px 14px;cursor:pointer;font-size:.95em}
+.sd-add:hover{background:#0f1525;border-style:solid}
+.sd-submit{background:#33A1FF;color:#0b0c10;border:none;border-radius:8px;padding:10px 18px;cursor:pointer;font-size:.95em;font-weight:600}
+.sd-submit:hover{background:#5cb6ff}
+.sd-submit[disabled]{opacity:.5;cursor:not-allowed}
+.sd-msg{margin-top:14px;padding:12px;border-radius:8px}
+.sd-msg.error{background:#3a1f24;border:1px solid #6a3a40;color:#ffb3b3}
+.sd-msg.success{background:#1f3a24;border:1px solid #3a6a40;color:#b3ffb3}
+.sd-help{font-size:.85em;color:#8aa0c8;max-width:80ch;line-height:1.45}
+.sd-help code{background:#0b1324;padding:1px 5px;border-radius:3px}
 </style>
   
 
@@ -711,6 +743,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
     <a href="#fleet" class="tablink">Fleet</a>
     <a href="#worldmap" class="tablink">World Map</a>
     <a href="#faq" class="tablink">FAQ</a>
+    <a href="#submit" class="tablink">Submit Data</a>
     <a href="#feedback" class="tablink">Feedback &amp; Questions</a>
   </nav>
 
@@ -729,6 +762,52 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
     <input id="faqSearch" placeholder="Search FAQ..." style="width:100%;padding:8px;margin-bottom:14px">
     <!-- Cards are rendered from FAQ_DATA in the script block below. -->
     <div id="faqList"></div>
+  </div>
+</section>
+
+<!-- SUBMIT DATA TAB
+     Form posts to the Cloudflare Worker's /submissions endpoint, which
+     opens a PR against data/<Country>.csv for review. New rows are added,
+     existing periods (same variant) are corrected by overwrite. -->
+<section id="tab-submit" class="tab">
+  <div class="container">
+    <h2>Submit Data</h2>
+    <p class="sd-help">
+      Add a new monthly data point or correct an existing one. The form opens
+      a pull request against the country's CSV in this repo, the maintainer
+      reviews and merges, then triggers the render Action — your numbers
+      appear on the page within a few minutes after merge. Multiple rows
+      (multiple months / corrections) can ship in one submission.
+    </p>
+
+    <div class="sd-grid">
+      <div class="sd-field">
+        <label for="sdCountry">Country</label>
+        <select id="sdCountry"></select>
+      </div>
+      <div class="sd-field">
+        <label for="sdVariant">Variant</label>
+        <select id="sdVariant"><option value="Whole">Whole (= "New Cars")</option></select>
+      </div>
+      <div class="sd-field">
+        <label for="sdSource">Source (URL or short name)</label>
+        <input id="sdSource" type="text" placeholder="e.g. KBA or kba.de/…" maxlength="200">
+      </div>
+    </div>
+
+    <div class="sd-rows" id="sdRows"></div>
+
+    <div class="sd-actions">
+      <button type="button" class="sd-add" id="sdAddRow">+ Add another month</button>
+      <span style="flex:1"></span>
+      <input id="sdAuthor" type="text" placeholder="Your name (optional)" maxlength="40" style="background:#0b1324;color:#e9eef2;border:1px solid #2a3654;border-radius:6px;padding:8px 10px">
+      <button type="button" class="sd-submit" id="sdSubmit">Submit for review</button>
+    </div>
+
+    <!-- Honeypot: hidden via inline style so casual scrapers fill it. -->
+    <input id="sdHp" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+
+    <div class="sd-msg" id="sdMsg" hidden></div>
   </div>
 </section>
 
@@ -5600,6 +5679,316 @@ function fbWireEvents(){
 // Preload mock data once on boot so the modal's similar-issue hint works
 // from any tab (via the FAB) without a perceptible first-open delay.
 window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); });
+
+// =========================================================================
+// SUBMIT-DATA TAB — talks to the same Cloudflare Worker (POST /submissions),
+// which opens a PR against data/<Country>.csv for review.
+// =========================================================================
+
+// Hardcoded for v1: only countries with a data/<Country>.csv that the render
+// pipeline can consume. Extend as more countries get a CSV.
+const SD_COUNTRIES = [
+  { country: 'Germany', variants: ['Whole'] },
+];
+
+// Fuel columns we render inputs for, in canonical order. Per-country we only
+// show the ones that exist in that country's CSV header.
+const SD_FUEL_ORDER = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','TOTAL'];
+
+const SD_RAW_BASE = 'https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master/data';
+
+const SD_STATE = {
+  countryCols: null,   // array of fuel columns for the currently selected country
+  rowCount: 0,
+  defaultSource: '',   // remembered from CSV's most-recent row
+};
+
+function sdEl(id) { return document.getElementById(id); }
+
+function sdInit() {
+  const csel = sdEl('sdCountry');
+  csel.innerHTML = SD_COUNTRIES.map(c => `<option value="${c.country}">${c.country}</option>`).join('');
+  csel.addEventListener('change', sdOnCountryChange);
+  sdEl('sdAddRow').addEventListener('click', () => sdAddRow());
+  sdEl('sdSubmit').addEventListener('click', sdSubmit);
+  sdOnCountryChange();
+}
+
+async function sdOnCountryChange() {
+  const country = sdEl('sdCountry').value;
+  const variant = sdEl('sdVariant').value || 'Whole';
+  const filename = variant === 'Whole' ? `${country}.csv` : `${country}_${variant}.csv`;
+  sdMsg('', null);
+
+  // Fetch the CSV header (and last row's source as a default).
+  let cols = SD_FUEL_ORDER;  // fall back to canonical full set
+  let lastSource = '';
+  try {
+    const res = await fetch(`${SD_RAW_BASE}/${encodeURIComponent(filename)}`, { cache: 'no-store' });
+    if (res.ok) {
+      const text = await res.text();
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      if (lines.length) {
+        const header = lines[0].split(',');
+        const fuels  = header.filter(h => SD_FUEL_ORDER.includes(h));
+        if (fuels.length) cols = fuels;
+        const sourceIdx = header.indexOf('source');
+        if (sourceIdx >= 0 && lines.length > 1) {
+          lastSource = lines[lines.length - 1].split(',')[sourceIdx] || '';
+        }
+      }
+    }
+  } catch (_) { /* no network / first-time country: use defaults */ }
+
+  SD_STATE.countryCols = cols;
+  SD_STATE.defaultSource = lastSource;
+  if (lastSource && !sdEl('sdSource').value) sdEl('sdSource').value = lastSource;
+
+  // Reset rows
+  sdEl('sdRows').innerHTML = '';
+  SD_STATE.rowCount = 0;
+  sdAddRow();
+}
+
+// English month/quarter labels — keep the picker locale-independent so
+// every visitor sees the same UI regardless of their browser's language.
+const SD_MONTH_NAMES = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+const SD_QUARTERS = [
+  { value: 1, label: 'Q1 (Jan–Mar)', month: 2 },   // mid-quarter month — convention asked for
+  { value: 2, label: 'Q2 (Apr–Jun)', month: 5 },
+  { value: 3, label: 'Q3 (Jul–Sep)', month: 8 },
+  { value: 4, label: 'Q4 (Oct–Dec)', month: 11 },
+];
+const SD_YEAR_MIN = 2010;
+function sdYearMax() { return new Date().getFullYear() + 1; }
+function sdYearOptions(selected) {
+  const out = [];
+  for (let y = sdYearMax(); y >= SD_YEAR_MIN; y--) {
+    out.push(`<option value="${y}"${y === selected ? ' selected' : ''}>${y}</option>`);
+  }
+  return out.join('');
+}
+
+// Compose period (YYYY-MM) from interval + dropdown values.
+function sdComposePeriod(interval, year, month, quarter) {
+  if (!year) return '';
+  if (interval === 'yearly')    return `${year}-07`;
+  if (interval === 'quarterly') {
+    const q = SD_QUARTERS.find(x => x.value === quarter);
+    return q ? `${year}-${String(q.month).padStart(2, '0')}` : '';
+  }
+  if (!month) return '';
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+// Human-readable label for the current period (used as the row's title).
+function sdPeriodLabel(interval, year, month, quarter) {
+  if (!year) return 'New entry';
+  if (interval === 'yearly')    return String(year);
+  if (interval === 'quarterly') {
+    const q = SD_QUARTERS.find(x => x.value === quarter);
+    return q ? `Q${q.value} ${year}` : 'New entry';
+  }
+  if (!month) return 'New entry';
+  return `${SD_MONTH_NAMES[month - 1]} ${year}`;
+}
+
+function sdAddRow() {
+  const idx = SD_STATE.rowCount++;
+  const cols = SD_STATE.countryCols || SD_FUEL_ORDER;
+  const today = new Date();
+  const defaultYear  = today.getFullYear();
+  const defaultMonth = today.getMonth() + 1;
+
+  const fuelCellsHtml = cols.map(c => `
+    <div class="sd-cell">
+      <label>${c}</label>
+      <input type="number" min="0" step="any" data-fuel="${c}" placeholder="0">
+    </div>`).join('');
+
+  const html = `
+    <div class="sd-row" data-row-idx="${idx}">
+      <div class="sd-row-head">
+        <span class="sd-row-title">New entry</span>
+        ${idx > 0 ? '<button type="button" class="sd-row-rm">Remove</button>' : ''}
+      </div>
+      <div class="sd-row-grid">
+        <div class="sd-cell">
+          <label>Time interval</label>
+          <select data-field="time_interval">
+            <option value="monthly" selected>Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+        <div class="sd-cell" data-period-cell="month" hidden>
+          <label>Month</label>
+          <select data-field="month">
+            ${SD_MONTH_NAMES.map((n, i) =>
+              `<option value="${i + 1}"${(i + 1) === defaultMonth ? ' selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sd-cell" data-period-cell="quarter" hidden>
+          <label>Quarter</label>
+          <select data-field="quarter">
+            ${SD_QUARTERS.map(q =>
+              `<option value="${q.value}">${q.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sd-cell" data-period-cell="year">
+          <label>Year</label>
+          <select data-field="year">${sdYearOptions(defaultYear)}</select>
+        </div>
+        ${fuelCellsHtml}
+        <div class="sd-cell" style="grid-column:1 / -1">
+          <label>Notes (optional, saved to the CSV's notes column)</label>
+          <input type="text" data-field="notes" maxlength="200" placeholder="e.g. preliminary, methodology change">
+        </div>
+      </div>
+      <div class="sd-row-sumcheck" data-sumcheck></div>
+    </div>`;
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  const node = wrap.firstElementChild;
+  sdEl('sdRows').appendChild(node);
+
+  node.querySelector('.sd-row-rm')?.addEventListener('click', () => { node.remove(); });
+  node.querySelectorAll('input[data-fuel]').forEach(inp => {
+    inp.addEventListener('input', () => sdUpdateSumcheck(node));
+  });
+
+  const intervalSel = node.querySelector('[data-field=time_interval]');
+  const refresh = () => sdRefreshRowPeriod(node);
+  intervalSel.addEventListener('change', refresh);
+  ['month','quarter','year'].forEach(f => {
+    node.querySelector(`[data-field=${f}]`).addEventListener('change', refresh);
+  });
+  refresh();
+  sdUpdateSumcheck(node);
+}
+
+// Show only the period inputs relevant to the current interval, then update
+// the row's title accordingly.
+function sdRefreshRowPeriod(node) {
+  const interval = node.querySelector('[data-field=time_interval]').value;
+  node.querySelector('[data-period-cell=month]').hidden   = interval !== 'monthly';
+  node.querySelector('[data-period-cell=quarter]').hidden = interval !== 'quarterly';
+
+  const year    = parseInt(node.querySelector('[data-field=year]').value, 10);
+  const month   = parseInt(node.querySelector('[data-field=month]').value, 10);
+  const quarter = parseInt(node.querySelector('[data-field=quarter]').value, 10);
+  node.querySelector('.sd-row-title').textContent = sdPeriodLabel(interval, year, month, quarter);
+}
+
+// Read composed period from a row node.
+function sdRowPeriod(node) {
+  const interval = node.querySelector('[data-field=time_interval]').value;
+  const year     = parseInt(node.querySelector('[data-field=year]').value, 10);
+  const month    = parseInt(node.querySelector('[data-field=month]').value, 10);
+  const quarter  = parseInt(node.querySelector('[data-field=quarter]').value, 10);
+  return { interval, period: sdComposePeriod(interval, year, month, quarter) };
+}
+
+function sdUpdateSumcheck(node) {
+  const fuels = {};
+  node.querySelectorAll('input[data-fuel]').forEach(inp => {
+    const v = inp.value.trim();
+    if (v !== '') fuels[inp.dataset.fuel] = Number(v);
+  });
+  const el = node.querySelector('[data-sumcheck]');
+  if (fuels.TOTAL === undefined) { el.textContent = ''; el.className = 'sd-row-sumcheck'; return; }
+
+  const cats = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS'];
+  const sum = cats.reduce((s, k) => s + (fuels[k] || 0), 0);
+  const total = fuels.TOTAL;
+  const diff = sum - total;
+  const pct = total ? (Math.abs(diff) / total * 100) : 0;
+
+  if (sum === 0) { el.textContent = 'Categories sum: 0 — only TOTAL set.'; el.className = 'sd-row-sumcheck'; return; }
+  if (Math.abs(diff) < 1 || pct < 0.5) {
+    el.textContent = `Categories sum: ${sum.toLocaleString()} ≈ TOTAL (${total.toLocaleString()})`;
+    el.className = 'sd-row-sumcheck good';
+  } else {
+    el.textContent = `Categories sum: ${sum.toLocaleString()} vs TOTAL ${total.toLocaleString()} (off by ${diff.toLocaleString()}, ${pct.toFixed(1)}%) — please double-check.`;
+    el.className = 'sd-row-sumcheck bad';
+  }
+}
+
+function sdMsg(text, kind) {
+  const el = sdEl('sdMsg');
+  if (!text) { el.hidden = true; el.textContent = ''; el.className = 'sd-msg'; return; }
+  el.hidden = false; el.className = `sd-msg ${kind || ''}`; el.innerHTML = text;
+}
+
+async function sdSubmit() {
+  sdMsg('', null);
+  const btn = sdEl('sdSubmit');
+  btn.disabled = true;
+
+  const country = sdEl('sdCountry').value;
+  const variant = sdEl('sdVariant').value || 'Whole';
+  const source  = sdEl('sdSource').value.trim();
+  const author  = sdEl('sdAuthor').value.trim();
+  const _hp     = sdEl('sdHp').value;
+
+  if (!source) {
+    sdMsg('Source is required (URL or short publisher name).', 'error');
+    btn.disabled = false; return;
+  }
+
+  const rows = [];
+  for (const node of document.querySelectorAll('#sdRows .sd-row')) {
+    const { interval, period } = sdRowPeriod(node);
+    const notes    = node.querySelector('[data-field=notes]').value;
+    if (!period) { sdMsg('Each row needs a period (year/month/quarter).', 'error'); btn.disabled = false; return; }
+    const fuels = {};
+    node.querySelectorAll('input[data-fuel]').forEach(inp => {
+      const v = inp.value.trim();
+      if (v !== '') fuels[inp.dataset.fuel] = Number(v);
+    });
+    if (fuels.TOTAL === undefined || fuels.BEV === undefined) {
+      sdMsg(`Row ${period}: BEV and TOTAL are required.`, 'error');
+      btn.disabled = false; return;
+    }
+    rows.push({ period, time_interval: interval, fuels, notes });
+  }
+  if (!rows.length) { sdMsg('At least one row required.', 'error'); btn.disabled = false; return; }
+
+  try {
+    const res = await fetch(`${FB_API}/submissions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country, variant, source, author, rows, _hp }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      sdMsg(`Submission failed: ${data.error || res.statusText}`, 'error');
+      btn.disabled = false; return;
+    }
+    if (data.pr_url) {
+      sdMsg(
+        `Thanks! Submission opened as <a href="${data.pr_url}" target="_blank" rel="noopener">PR #${data.pr_number}</a> — ` +
+        `${data.summary?.added || 0} added, ${data.summary?.replaced || 0} corrected. ` +
+        `The maintainer will review and merge.`,
+        'success'
+      );
+      // Clear rows so user can submit another batch without restart.
+      sdEl('sdRows').innerHTML = '';
+      SD_STATE.rowCount = 0;
+      sdAddRow();
+    } else {
+      sdMsg('Submission accepted (no changes).', 'success');
+    }
+  } catch (e) {
+    sdMsg(`Network error: ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', sdInit);
 </script>
 </body>
 </html>
