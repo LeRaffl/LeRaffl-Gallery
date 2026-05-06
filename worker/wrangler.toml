@@ -1,7 +1,14 @@
-name            = "leraffl-gallery-feedback"
-main            = "index.js"
-compatibility_date = "2024-09-23"
-account_id      = "20d1cbcabbe991286927c4e790c8b528"
+name               = "leraffl-gallery-feedback"
+main               = "index.js"
+compatibility_date = "2026-04-25"
+account_id         = "20d1cbcabbe991286927c4e790c8b528"
+preview_urls       = false
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
 
 [vars]
 GITHUB_OWNER = "leraffl"
@@ -16,6 +23,3 @@ id      = "88b72d5db6444ed2860f0ce5787c0836"
 #   Issues: Read+Write, Contents: Read+Write, Pull requests: Read+Write,
 #   Metadata: Read.
 # Set with: npx wrangler@latest secret put GITHUB_TOKEN
-
-[env.production]
-name = "leraffl-gallery-feedback"
