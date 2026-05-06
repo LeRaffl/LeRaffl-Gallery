@@ -5750,11 +5750,56 @@ async function sdOnCountryChange() {
   sdAddRow();
 }
 
+// English month/quarter labels — keep the picker locale-independent so
+// every visitor sees the same UI regardless of their browser's language.
+const SD_MONTH_NAMES = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+const SD_QUARTERS = [
+  { value: 1, label: 'Q1 (Jan–Mar)', month: 2 },   // mid-quarter month — convention asked for
+  { value: 2, label: 'Q2 (Apr–Jun)', month: 5 },
+  { value: 3, label: 'Q3 (Jul–Sep)', month: 8 },
+  { value: 4, label: 'Q4 (Oct–Dec)', month: 11 },
+];
+const SD_YEAR_MIN = 2010;
+function sdYearMax() { return new Date().getFullYear() + 1; }
+function sdYearOptions(selected) {
+  const out = [];
+  for (let y = sdYearMax(); y >= SD_YEAR_MIN; y--) {
+    out.push(`<option value="${y}"${y === selected ? ' selected' : ''}>${y}</option>`);
+  }
+  return out.join('');
+}
+
+// Compose period (YYYY-MM) from interval + dropdown values.
+function sdComposePeriod(interval, year, month, quarter) {
+  if (!year) return '';
+  if (interval === 'yearly')    return `${year}-07`;
+  if (interval === 'quarterly') {
+    const q = SD_QUARTERS.find(x => x.value === quarter);
+    return q ? `${year}-${String(q.month).padStart(2, '0')}` : '';
+  }
+  if (!month) return '';
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+// Human-readable label for the current period (used as the row's title).
+function sdPeriodLabel(interval, year, month, quarter) {
+  if (!year) return 'New entry';
+  if (interval === 'yearly')    return String(year);
+  if (interval === 'quarterly') {
+    const q = SD_QUARTERS.find(x => x.value === quarter);
+    return q ? `Q${q.value} ${year}` : 'New entry';
+  }
+  if (!month) return 'New entry';
+  return `${SD_MONTH_NAMES[month - 1]} ${year}`;
+}
+
 function sdAddRow() {
   const idx = SD_STATE.rowCount++;
   const cols = SD_STATE.countryCols || SD_FUEL_ORDER;
   const today = new Date();
-  const defaultPeriod = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+  const defaultYear  = today.getFullYear();
+  const defaultMonth = today.getMonth() + 1;
 
   const fuelCellsHtml = cols.map(c => `
     <div class="sd-cell">
@@ -5765,25 +5810,39 @@ function sdAddRow() {
   const html = `
     <div class="sd-row" data-row-idx="${idx}">
       <div class="sd-row-head">
-        <span class="sd-row-title">Row ${idx + 1}</span>
+        <span class="sd-row-title">New entry</span>
         ${idx > 0 ? '<button type="button" class="sd-row-rm">Remove</button>' : ''}
       </div>
       <div class="sd-row-grid">
         <div class="sd-cell">
-          <label>Period (YYYY-MM)</label>
-          <input type="month" data-field="period" value="${defaultPeriod}">
-        </div>
-        <div class="sd-cell">
           <label>Time interval</label>
           <select data-field="time_interval">
-            <option value="monthly" selected>monthly</option>
-            <option value="quarterly">quarterly</option>
-            <option value="yearly">yearly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="yearly">Yearly</option>
           </select>
         </div>
+        <div class="sd-cell" data-period-cell="month" hidden>
+          <label>Month</label>
+          <select data-field="month">
+            ${SD_MONTH_NAMES.map((n, i) =>
+              `<option value="${i + 1}"${(i + 1) === defaultMonth ? ' selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sd-cell" data-period-cell="quarter" hidden>
+          <label>Quarter</label>
+          <select data-field="quarter">
+            ${SD_QUARTERS.map(q =>
+              `<option value="${q.value}">${q.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="sd-cell" data-period-cell="year">
+          <label>Year</label>
+          <select data-field="year">${sdYearOptions(defaultYear)}</select>
+        </div>
         ${fuelCellsHtml}
-        <div class="sd-cell" style="grid-column:span 2">
-          <label>Notes (optional)</label>
+        <div class="sd-cell" style="grid-column:1 / -1">
+          <label>Notes (optional, saved to the CSV's notes column)</label>
           <input type="text" data-field="notes" maxlength="200" placeholder="e.g. preliminary, methodology change">
         </div>
       </div>
@@ -5795,17 +5854,41 @@ function sdAddRow() {
   const node = wrap.firstElementChild;
   sdEl('sdRows').appendChild(node);
 
-  node.querySelector('.sd-row-rm')?.addEventListener('click', () => { node.remove(); sdRenumber(); });
+  node.querySelector('.sd-row-rm')?.addEventListener('click', () => { node.remove(); });
   node.querySelectorAll('input[data-fuel]').forEach(inp => {
     inp.addEventListener('input', () => sdUpdateSumcheck(node));
   });
+
+  const intervalSel = node.querySelector('[data-field=time_interval]');
+  const refresh = () => sdRefreshRowPeriod(node);
+  intervalSel.addEventListener('change', refresh);
+  ['month','quarter','year'].forEach(f => {
+    node.querySelector(`[data-field=${f}]`).addEventListener('change', refresh);
+  });
+  refresh();
   sdUpdateSumcheck(node);
 }
 
-function sdRenumber() {
-  [...document.querySelectorAll('#sdRows .sd-row')].forEach((node, i) => {
-    node.querySelector('.sd-row-title').textContent = `Row ${i + 1}`;
-  });
+// Show only the period inputs relevant to the current interval, then update
+// the row's title accordingly.
+function sdRefreshRowPeriod(node) {
+  const interval = node.querySelector('[data-field=time_interval]').value;
+  node.querySelector('[data-period-cell=month]').hidden   = interval !== 'monthly';
+  node.querySelector('[data-period-cell=quarter]').hidden = interval !== 'quarterly';
+
+  const year    = parseInt(node.querySelector('[data-field=year]').value, 10);
+  const month   = parseInt(node.querySelector('[data-field=month]').value, 10);
+  const quarter = parseInt(node.querySelector('[data-field=quarter]').value, 10);
+  node.querySelector('.sd-row-title').textContent = sdPeriodLabel(interval, year, month, quarter);
+}
+
+// Read composed period from a row node.
+function sdRowPeriod(node) {
+  const interval = node.querySelector('[data-field=time_interval]').value;
+  const year     = parseInt(node.querySelector('[data-field=year]').value, 10);
+  const month    = parseInt(node.querySelector('[data-field=month]').value, 10);
+  const quarter  = parseInt(node.querySelector('[data-field=quarter]').value, 10);
+  return { interval, period: sdComposePeriod(interval, year, month, quarter) };
 }
 
 function sdUpdateSumcheck(node) {
@@ -5857,10 +5940,9 @@ async function sdSubmit() {
 
   const rows = [];
   for (const node of document.querySelectorAll('#sdRows .sd-row')) {
-    const period   = node.querySelector('[data-field=period]').value;
-    const interval = node.querySelector('[data-field=time_interval]').value;
+    const { interval, period } = sdRowPeriod(node);
     const notes    = node.querySelector('[data-field=notes]').value;
-    if (!period) { sdMsg('Each row needs a period (YYYY-MM).', 'error'); btn.disabled = false; return; }
+    if (!period) { sdMsg('Each row needs a period (year/month/quarter).', 'error'); btn.disabled = false; return; }
     const fuels = {};
     node.querySelectorAll('input[data-fuel]').forEach(inp => {
       const v = inp.value.trim();
