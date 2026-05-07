@@ -13,6 +13,16 @@
     },
     {
       "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-07",
+      "filename": "germany_ICE_BEV_20260507_git.png",
+      "url": "images/2026-04/germany_ICE_BEV_20260507_git.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "share",
       "period": "2026-04",
       "date": "2026-05-07",
@@ -33,6 +43,16 @@
     },
     {
       "country": "Germany",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-07",
+      "filename": "germany_time_20260507_git.png",
+      "url": "images/2026-04/germany_time_20260507_git.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "ttm_shares",
       "period": "2026-04",
       "date": "2026-05-07",
@@ -40,6 +60,26 @@
       "url": "images/2026-04/germany_ttm_shares_20260507.png",
       "alt": "Germany TTM market split graph",
       "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-07",
+      "filename": "germany_ttm_shares_20260507_git.png",
+      "url": "images/2026-04/germany_ttm_shares_20260507_git.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany (20260507 Git)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-07",
+      "filename": "germany_20260507_git.png",
+      "url": "images/2026-04/germany_20260507_git.png",
+      "alt": "Germany (20260507 Git) BEV trajectory",
+      "country_slug": "germany_20260507_git"
     },
     {
       "country": "Germany",
