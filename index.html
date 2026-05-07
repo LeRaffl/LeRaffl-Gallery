@@ -792,6 +792,7 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
       <div class="sd-field">
         <label for="sdSource">Source (URL or short name)</label>
         <input id="sdSource" type="text" placeholder="e.g. KBA or kba.de/…" maxlength="200">
+        <div id="sdSourceHint" class="sd-help" style="margin-top:4px;font-size:.78em" hidden></div>
       </div>
     </div>
 
@@ -5699,9 +5700,11 @@ const SD_FUEL_ORDER = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS',
 const SD_RAW_BASE = 'https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master/data';
 
 const SD_STATE = {
-  countryCols: null,   // array of fuel columns for the currently selected country
+  countryCols: null,    // array of fuel columns for the currently selected country
   rowCount: 0,
-  defaultSource: '',   // remembered from CSV's most-recent row
+  lastSource: '',       // most-recent source seen in the CSV (shown as a hint, not autofilled)
+  nextYear: null,       // year of the period that follows the CSV's last row
+  nextMonth: null,      // month (1-12) of that period
 };
 
 function sdEl(id) { return document.getElementById(id); }
@@ -5712,6 +5715,14 @@ function sdInit() {
   csel.addEventListener('change', sdOnCountryChange);
   sdEl('sdAddRow').addEventListener('click', () => sdAddRow());
   sdEl('sdSubmit').addEventListener('click', sdSubmit);
+  // One-click "use this source" from the hint below the source input.
+  sdEl('sdSourceHint').addEventListener('click', (e) => {
+    const link = e.target.closest('[data-fill-source]');
+    if (!link) return;
+    e.preventDefault();
+    sdEl('sdSource').value = SD_STATE.lastSource || '';
+    sdEl('sdSource').focus();
+  });
   sdOnCountryChange();
 }
 
@@ -5721,9 +5732,14 @@ async function sdOnCountryChange() {
   const filename = variant === 'Whole' ? `${country}.csv` : `${country}_${variant}.csv`;
   sdMsg('', null);
 
-  // Fetch the CSV header (and last row's source as a default).
-  let cols = SD_FUEL_ORDER;  // fall back to canonical full set
+  // Fetch the CSV header + last row to derive: schema (which fuel columns
+  // exist), the period that follows the most recent data point (so the form
+  // defaults to that), and the most recently used source (shown as a hint
+  // below the source input — not auto-filled, so the submitter has to look
+  // at it before accepting).
+  let cols = SD_FUEL_ORDER;
   let lastSource = '';
+  let nextYear = null, nextMonth = null;
   try {
     const res = await fetch(`${SD_RAW_BASE}/${encodeURIComponent(filename)}`, { cache: 'no-store' });
     if (res.ok) {
@@ -5734,16 +5750,38 @@ async function sdOnCountryChange() {
         const fuels  = header.filter(h => SD_FUEL_ORDER.includes(h));
         if (fuels.length) cols = fuels;
         const sourceIdx = header.indexOf('source');
-        if (sourceIdx >= 0 && lines.length > 1) {
-          lastSource = lines[lines.length - 1].split(',')[sourceIdx] || '';
+        const periodIdx = header.indexOf('period');
+        if (lines.length > 1) {
+          const lastFields = lines[lines.length - 1].split(',');
+          if (sourceIdx >= 0) lastSource = lastFields[sourceIdx] || '';
+          if (periodIdx >= 0) {
+            const m = /^(\d{4})-(\d{2})$/.exec(lastFields[periodIdx] || '');
+            if (m) {
+              const y = parseInt(m[1], 10), mo = parseInt(m[2], 10);
+              if (mo === 12) { nextYear = y + 1; nextMonth = 1; }
+              else           { nextYear = y;     nextMonth = mo + 1; }
+            }
+          }
         }
       }
     }
   } catch (_) { /* no network / first-time country: use defaults */ }
 
   SD_STATE.countryCols = cols;
-  SD_STATE.defaultSource = lastSource;
-  if (lastSource && !sdEl('sdSource').value) sdEl('sdSource').value = lastSource;
+  SD_STATE.lastSource  = lastSource;
+  SD_STATE.nextYear    = nextYear;
+  SD_STATE.nextMonth   = nextMonth;
+
+  // Source field: leave empty, but show a clickable hint of the last-known
+  // source so a user who agrees can fill it in one tap.
+  sdEl('sdSource').value = '';
+  const hint = sdEl('sdSourceHint');
+  if (lastSource) {
+    hint.hidden = false;
+    hint.innerHTML = `Most recent source for ${country}: <a href="#" data-fill-source>${lastSource}</a>`;
+  } else {
+    hint.hidden = true;
+  }
 
   // Reset rows
   sdEl('sdRows').innerHTML = '';
@@ -5799,8 +5837,10 @@ function sdAddRow() {
   const idx = SD_STATE.rowCount++;
   const cols = SD_STATE.countryCols || SD_FUEL_ORDER;
   const today = new Date();
-  const defaultYear  = today.getFullYear();
-  const defaultMonth = today.getMonth() + 1;
+  // Default = the period that follows the country's most recent CSV row.
+  // Falls back to today's month for a brand-new country (CSV not yet present).
+  const defaultYear  = SD_STATE.nextYear  || today.getFullYear();
+  const defaultMonth = SD_STATE.nextMonth || today.getMonth() + 1;
 
   const fuelCellsHtml = cols.map(c => `
     <div class="sd-cell">
