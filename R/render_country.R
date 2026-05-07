@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(png); library(ggtext)
 })
 
-source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R")
+source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R"); source("R/post_text.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 1) stop("usage: Rscript R/render_country.R <Country> [<Variant>]")
@@ -133,5 +133,16 @@ upsert_params("params.csv", country, variant, fit, data_per, source_str)
 weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
+
+# Build the social-media post text and write to posts/<slug>.txt (latest, what
+# the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
+# copy posts/<slug>_<period>.txt that stays around as a history record.
+post_text <- build_post_text(df, country, last_period)
+if (nzchar(post_text)) {
+  dir.create("posts", showWarnings = FALSE)
+  writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
+  writeLines(post_text, file.path("posts", paste0(slug, "_", last_period, ".txt")), useBytes = TRUE)
+  cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, last_period))
+}
 
 cat("[render] done.\n")

@@ -2082,7 +2082,7 @@ function renderColumns(items){
   const frag=document.createDocumentFragment();
   const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
   let visibleCount=0,totalCount=0,canLoadMore=false;
-  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_\d{8}\.png$/,'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,''); footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${slug}" title="Copy social-media post text for ${it.country}">📋 Copy post</button><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
 function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
@@ -5688,6 +5688,7 @@ window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); })
 // Hardcoded for v1: only countries with a data/<Country>.csv that the render
 // pipeline can consume. Extend as more countries get a CSV.
 const SD_COUNTRIES = [
+  { country: 'Austria', variants: ['Whole'] },
   { country: 'Germany', variants: ['Whole'] },
 ];
 
@@ -5989,6 +5990,33 @@ async function sdSubmit() {
 }
 
 window.addEventListener('DOMContentLoaded', sdInit);
+
+// =========================================================================
+// COPY-POST BUTTON — wires every Gallery card's "📋 Copy post" via event
+// delegation. Fetches posts/<slug>.txt from the page's own origin (relative
+// path, so it works on both GitHub Pages and local preview), copies into
+// the clipboard, and gives the button a brief visual confirmation.
+// =========================================================================
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-copy-post]');
+  if (!btn) return;
+  const slug = btn.dataset.copyPost;
+  if (!slug) return;
+
+  const original = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const res = await fetch(`posts/${encodeURIComponent(slug)}.txt`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`No post text yet (${res.status})`);
+    const text = await res.text();
+    await navigator.clipboard.writeText(text);
+    btn.textContent = '✓ Copied';
+  } catch (err) {
+    btn.textContent = '⚠ ' + (err.message || 'Failed');
+  } finally {
+    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+  }
+});
 </script>
 </body>
 </html>
