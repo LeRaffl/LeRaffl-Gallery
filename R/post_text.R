@@ -35,7 +35,9 @@
 
 .pt_pp_if <- function(label, value, extra_label = NULL, extra_value = NA_real_) {
   if (!is.na(extra_value) && is.finite(extra_value) && extra_value > 0) {
-    sprintf("%s %s (of which %.1fp were %s)", .pt_pct(value), label, extra_value * 100, extra_label)
+    # "%p" reads as percentage points; intentional notation so readers can
+    # tell at a glance these add up (HEV is a subset of ICE, EREV of PHEV).
+    sprintf("%s %s (of which %sp were %s)", .pt_pct(value), label, .pt_pct(extra_value), extra_label)
   } else {
     sprintf("%s %s", .pt_pct(value), label)
   }
