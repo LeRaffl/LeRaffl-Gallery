@@ -1,0 +1,11 @@
+🇷🇴 Romania - March 26 - BEV Trajectory
+6.5% BEV
+57.9% Hybrid
+35.5% ICE
+
+Trailing 12 months are:
+6.2% BEV
+51.3% Hybrid
+42.6% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

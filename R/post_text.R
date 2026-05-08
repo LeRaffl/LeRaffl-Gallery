@@ -70,7 +70,9 @@
 }
 
 .pt_month_label <- function(period) {
-  # period like "2026-03" → "March 26"
+  # period like "2026-03" → "March 26". Defensive: garbage in → garbage out.
+  if (is.null(period) || !is.character(period) || !nzchar(period) ||
+      !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
   old <- Sys.getlocale("LC_TIME")
@@ -78,6 +80,7 @@
   Sys.setlocale("LC_TIME", "C")
   paste(format(d, "%B"), format(d, "%y"))
 }
+`%||%` <- function(a, b) if (is.null(a)) b else a
 
 # Build the share triplet (BEV / second / ICE) for either monthly row or TTM
 # rolling 12 sums. `vals` is a named numeric vector with keys BEV, PHEV, EREV,
@@ -115,7 +118,8 @@
 }
 
 # Public entry. Returns the post text as a single string with \n separators.
-build_post_text <- function(df, country_label, last_period) {
+# `last_period` is optional — if NULL/empty, it is derived from the data.
+build_post_text <- function(df, country_label, last_period = NULL) {
   monthly <- df[df$time_interval == "monthly", , drop = FALSE]
   if (nrow(monthly) == 0) {
     # Some countries are quarterly/yearly only — fall back to last available row.
@@ -125,6 +129,9 @@ build_post_text <- function(df, country_label, last_period) {
   }
   if (nrow(monthly) == 0) return("")
   last <- monthly[nrow(monthly), , drop = FALSE]
+  if (is.null(last_period) || !nzchar(last_period)) {
+    last_period <- last$period[1]
+  }
 
   pick <- function(name) {
     if (name %in% names(last)) suppressWarnings(as.numeric(last[[name]][1])) else NA_real_
