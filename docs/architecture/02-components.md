@@ -30,6 +30,8 @@ flowchart TB
         REPO["Repo: data/, posts/, images/, params.csv, weights.csv, manifest.json"]
     end
 
+    Maintainer((Maintainer))
+
     SP -.served by.-> GP
     SP -- POST --> WK
     WK -- REST --> REPO
@@ -38,8 +40,8 @@ flowchart TB
     RA -- commits --> REPO
     BA -- commits --> REPO
     LR -- commits --> REPO
-    REPO -- triggers --> RA
-    REPO -- triggers --> BA
+    Maintainer -- manual dispatch --> RA
+    REPO -- "push to images/**" --> BA
     REPO -- auto-deploy --> GP
 ```
 

@@ -56,13 +56,13 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia. |
 | `EREV` | optional | numeric | Extended-range EVs (subset of PHEV in some sources). Currently only China. |
 | `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia), this column carries the total and the post-text labels it as "Hybrid". |
-| `MHEV` | optional | numeric | Mild hybrid. Reserved; not currently in any active CSV. |
-| `PETROL` | optional | numeric | Pure-petrol ICE. |
-| `DIESEL` | optional | numeric | Pure-diesel ICE. |
-| `GAS`, `CNG`, `LPG` | optional | numeric | Reserved for sources that split natural-gas variants. |
-| `FLEXFUEL` | optional | numeric | Brazil, Sweden. |
-| `ETHANOL` | optional | numeric | Reserved. |
-| `OTHERS` | optional | numeric | Catch-all bucket. |
+| `MHEV` | optional | numeric | Mild hybrid. Reserved; not currently in any active CSV. Treated as a subset of HEV (which is a subset of ICE) in every output chart. |
+| `PETROL` | optional | numeric | Conceptually pure-petrol ICE. *Caveat:* a small number of source statistics today fold petrol-HEV variants into this column rather than the HEV column. Improving the upstream split is a known data-quality task; for now the headline ICE/BEV/PHEV trajectory is unaffected because all of it ends up in the ICE bucket either way. |
+| `DIESEL` | optional | numeric | Conceptually pure-diesel ICE. Same caveat as `PETROL` — a few sources fold diesel-HEV here. |
+| `GAS`, `CNG`, `LPG` | optional | numeric | Reserved for sources that split natural-gas variants. In practice most countries' source data folds these into `OTHERS`. Always counted as ICE in the output charts. |
+| `FLEXFUEL` | optional | numeric | Country-specific (Brazil-relevant; some Sweden rows). Counted as ICE in the output charts. |
+| `ETHANOL` | optional | numeric | Reserved; mostly seen folded into `OTHERS` upstream. ICE in the output charts. |
+| `OTHERS` | optional | numeric | Catch-all bucket — typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` when the source doesn't split them. ICE in the output charts. |
 | `ICE` | optional | numeric | Reported when source gives a single ICE total without petrol/diesel breakdown (China, USA, South Korea, Thailand, Chile). |
 | `TOTAL` | yes | numeric | Sum of everything for the period. |
 | `notes` | optional | string | Free text for the submitter or maintainer. |
@@ -242,7 +242,7 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 ### What it is
 
-A **separate** dataset and model — vehicle fleet (Bestand) projections, not new-registrations. Driven by a hazard-rate retirement model. Has its own tab in the static page.
+A **separate** dataset and model — vehicle fleet (stock) projections, not new-registrations. Driven by a hazard-rate retirement model. Has its own tab in the static page.
 
 ### Why separate from the main pipeline?
 

@@ -46,7 +46,7 @@ Domain jargon used across the codebase, the data, and the chats. Look here when 
 | **ice_v1, ice_v2, ice_t0** | Same shape, fit independently on the ICE share. |
 | **verschiebung** | Internal R variable for `t0`. Historical name kept because the math comes from a German R script and renaming it would obscure the byte-for-byte invariant. |
 | **extrapol** | The integer year the regression extrapolates to. Currently 2200, far enough that all countries cross every meaningful threshold. |
-| **confidence_level** | `0.999` — used for the BEV/ICE confidence ribbons on the trajectory plots. |
+| **confidence_level** | `0.999` — used to derive the grey/coloured ribbon around each fitted curve. **This is not a true statistical confidence interval.** It is a visual band derived from the fit's standard error scaled by the z-quantile at this level. Useful as a "the curve could plausibly sit anywhere in here" hint, not for rigorous inference. A proper CI is a future improvement. |
 | **weight** | In `weights.csv`, the trailing 12-month sum of TOTAL for monthly countries (or trailing-4-quarter sum, or last-yearly). Used as a country importance weight in cross-country aggregates. |
 
 ## Architecture / deployment

@@ -122,14 +122,9 @@ sequenceDiagram
     Repo->>Repo: build-manifest workflow triggers on images/** push
 ```
 
-**Why this still exists alongside Flow B:**
-- Faster iteration (no CI cold-start, can use RStudio breakpoints)
-- Still the maintainer's preferred path during data-collection phase
-- Outputs are byte-compatible with Flow B (same filenames, same params row format)
-
-**Risk and mitigation:**
-- Risk: local R drift from the new pipeline (different package versions, different plotting code)
-- Mitigation: any time the new pipeline changes its plotting or fitting code, the maintainer should pull those changes back into the local scripts — or eventually retire the local scripts entirely
+**Why this exists at all (context for engineers):**
+- Outputs are byte-compatible with Flow B — same filenames, same params row format, same posts format. So commits to master can come from either path without confusing downstream consumers.
+- This path is being phased out as more data flows directly through Submit → PR → Render Action. Eventually Flow B becomes the only render path. Any new feature in `R/*.R` should be designed assuming Flow B is the canonical path.
 
 ---
 
@@ -173,23 +168,15 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant Repo as GitHub Repo
-    participant Action as build-manifest Action
+    participant Action as Build-manifest Action
     participant Runner as Action Runner
 
-    alt Push to images/**
-        Repo-->>Action: trigger
-    else Push to build_manifest.R
-        Repo-->>Action: trigger
-    else Daily cron 03:17 UTC
-        Action-->>Action: schedule fires
-    else Manual dispatch
-        Action-->>Action: workflow_dispatch
-    end
-
+    Note over Repo,Action: Trigger sources (any one of):<br/>• push to images/**<br/>• push to build_manifest.R<br/>• daily cron 03:17 UTC<br/>• manual workflow_dispatch
+    Repo->>Action: workflow trigger
     Action->>Runner: dispatch
     Runner->>Repo: checkout
-    Runner->>Runner: setup-r + install jsonlite, stringr, dplyr, lubridate, purrr, fs, tibble
-    Runner->>Runner: Rscript -e source('build_manifest.R'); build_manifest(...)
+    Runner->>Runner: setup-r + install jsonlite/stringr/dplyr/lubridate/purrr/fs/tibble
+    Runner->>Runner: Rscript build_manifest.R
     Runner->>Runner: scan images/, derive country/variant/period/type per filename
     Runner->>Runner: write manifest.json
     Runner->>Repo: git add manifest.json

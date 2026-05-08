@@ -56,7 +56,8 @@ flowchart LR
 
     Actions -- "git push" --> Repo
     Repo -- "auto-deploy" --> Pages
-    Repo -- "trigger" --> Actions
+    Repo -- "push to images/** triggers build-manifest" --> Actions
+    Maintainer -- "manual dispatch (render-country)" --> Actions
 
     RStudio -- "git push images, params, posts" --> Repo
 ```
