@@ -47,7 +47,7 @@ compute_ttm_long <- function(df) {
   m <- m[m$year >= min(m$year) + 1, ]
   if (nrow(m) < 12) return(NULL)
 
-  fuel_cols <- c("BEV","PHEV","EREV","HEV","MHEV","PETROL","DIESEL","GAS","CNG","LPG","FLEXFUEL","ETHANOL","OTHERS")
+  fuel_cols <- c("BEV","PHEV","EREV","HEV","MHEV","PETROL","DIESEL","GAS","CNG","LPG","FLEXFUEL","ETHANOL","OTHERS","ICE")
   present <- fuel_cols[fuel_cols %in% names(m)]
   total <- as.numeric(m$TOTAL)
 
@@ -87,13 +87,16 @@ compute_ttm_long <- function(df) {
 
   # Display labels: title-case for ICE-fuel families, keep acronyms as-is.
   display_label <- function(c) {
-    if (c %in% c("BEV","PHEV","EREV","HEV","MHEV","CNG","LPG")) return(c)
+    if (c %in% c("BEV","PHEV","EREV","HEV","MHEV","CNG","LPG","ICE")) return(c)
     if (c == "OTHERS") return("Other")
     paste0(toupper(substr(c, 1, 1)), tolower(substr(c, 2, nchar(c))))
   }
 
   # Long format with stack order (top-of-stack last)
-  stack_order <- c("OTHERS","FLEXFUEL","ETHANOL","LPG","CNG","GAS","PETROL","DIESEL","MHEV","HEV","EREV","PHEV","BEV")
+  # Stack from bottom to top. ICE sits next to the petrol/diesel cluster — it's
+  # what countries report when they don't break ICE down further (China, USA,
+  # South Korea, Thailand, Chile).
+  stack_order <- c("OTHERS","FLEXFUEL","ETHANOL","LPG","CNG","GAS","PETROL","DIESEL","ICE","MHEV","HEV","EREV","PHEV","BEV")
   long_cols <- stack_order[stack_order %in% names(out)]
   long <- do.call(rbind, lapply(long_cols, function(c) {
     data.frame(month = out$month, type = display_label(c), value = out[[c]],

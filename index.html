@@ -5689,13 +5689,54 @@ window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); })
 // Hardcoded for v1: only countries with a data/<Country>.csv that the render
 // pipeline can consume. Extend as more countries get a CSV.
 const SD_COUNTRIES = [
-  { country: 'Austria', variants: ['Whole'] },
-  { country: 'Germany', variants: ['Whole'] },
+  { country: 'Australia',   variants: ['Whole'] },
+  { country: 'Austria',     variants: ['Whole'] },
+  { country: 'Belgium',     variants: ['Whole'] },
+  { country: 'Brazil',      variants: ['Whole'] },
+  { country: 'Bulgaria',    variants: ['Whole'] },
+  { country: 'Canada',      variants: ['Whole'] },
+  { country: 'Chile',       variants: ['Whole'] },
+  { country: 'China',       variants: ['Whole'] },
+  { country: 'Croatia',     variants: ['Whole'] },
+  { country: 'Cyprus',      variants: ['Whole'] },
+  { country: 'Czechia',     variants: ['Whole'] },
+  { country: 'Estonia',     variants: ['Whole'] },
+  { country: 'France',      variants: ['Whole'] },
+  { country: 'Georgia',     variants: ['Whole'] },
+  { country: 'Germany',     variants: ['Whole'] },
+  { country: 'Greece',      variants: ['Whole'] },
+  { country: 'Hungary',     variants: ['Whole'] },
+  { country: 'Iceland',     variants: ['Whole'] },
+  { country: 'Indonesia',   variants: ['Whole'] },
+  { country: 'Ireland',     variants: ['Whole'] },
+  { country: 'Italy',       variants: ['Whole'] },
+  { country: 'Japan',       variants: ['Whole'] },
+  { country: 'Latvia',      variants: ['Whole'] },
+  { country: 'Lithuania',   variants: ['Whole'] },
+  { country: 'Luxembourg',  variants: ['Whole'] },
+  { country: 'Malta',       variants: ['Whole'] },
+  { country: 'New Zealand', variants: ['Whole'] },
+  { country: 'Norway',      variants: ['Whole'] },
+  { country: 'Poland',      variants: ['Whole'] },
+  { country: 'Portugal',    variants: ['Whole'] },
+  { country: 'Romania',     variants: ['Whole'] },
+  { country: 'Singapore',   variants: ['Whole'] },
+  { country: 'Slovakia',    variants: ['Whole'] },
+  { country: 'Slovenia',    variants: ['Whole'] },
+  { country: 'South Korea', variants: ['Whole'] },
+  { country: 'Spain',       variants: ['Whole'] },
+  { country: 'Sweden',      variants: ['Whole'] },
+  { country: 'Switzerland', variants: ['Whole'] },
+  { country: 'Thailand',    variants: ['Whole'] },
+  { country: 'Türkiye',     variants: ['Whole'] },
+  { country: 'UK',          variants: ['Whole'] },
+  { country: 'Uruguay',     variants: ['Whole'] },
+  { country: 'USA',         variants: ['Whole'] },
 ];
 
 // Fuel columns we render inputs for, in canonical order. Per-country we only
 // show the ones that exist in that country's CSV header.
-const SD_FUEL_ORDER = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','TOTAL'];
+const SD_FUEL_ORDER = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
 
 const SD_RAW_BASE = 'https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master/data';
 

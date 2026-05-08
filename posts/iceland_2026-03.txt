@@ -1,0 +1,11 @@
+🇮🇸 Iceland - March 26 - BEV Trajectory
+48.2% BEV
+21.2% PHEV
+30.6% ICE (of which 24.7%p were HEV)
+
+Trailing 12 months are:
+38.8% BEV
+22.4% PHEV
+38.8% ICE (of which 23.4%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

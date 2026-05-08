@@ -1,0 +1,11 @@
+🇹🇭 Thailand - February 26 - BEV Trajectory
+9.9% BEV
+2.1% PHEV
+88.0% ICE (of which 29.8%p were HEV)
+
+Trailing 12 months are:
+23.5% BEV
+3.0% PHEV
+73.5% ICE (of which 22.1%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

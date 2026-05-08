@@ -329,7 +329,7 @@ export default {
 const ALLOWED_TIME_INTERVALS = new Set(['monthly', 'quarterly', 'yearly']);
 const ALLOWED_FUEL_COLS = new Set([
   'BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG',
-  'FLEXFUEL','ETHANOL','OTHERS','TOTAL'
+  'FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'
 ]);
 
 async function handleSubmission(request, env, ctx) {
@@ -503,7 +503,7 @@ function upsertRows(existingCsv, variant, source, rows) {
     // Brand new file. Build a sensible default header from the union of the
     // submitted columns, with the canonical order.
     const cols = ['period','time_interval','variant','source'];
-    const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','TOTAL'];
+    const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
     const presentFuels = new Set();
     for (const r of rows) for (const k of Object.keys(r.fuels)) presentFuels.add(k);
     for (const f of fuelOrder) if (presentFuels.has(f)) cols.push(f);
@@ -519,7 +519,7 @@ function upsertRows(existingCsv, variant, source, rows) {
   // Ensure every submitted fuel column exists; append if missing.
   const submittedFuels = new Set();
   for (const r of rows) for (const k of Object.keys(r.fuels)) submittedFuels.add(k);
-  const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','TOTAL'];
+  const fuelOrder = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE','TOTAL'];
   const newFuelCols = [];
   for (const f of fuelOrder) {
     if (submittedFuels.has(f) && !cols.includes(f)) newFuelCols.push(f);

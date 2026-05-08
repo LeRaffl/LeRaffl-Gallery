@@ -1,0 +1,11 @@
+🇲🇹 Malta - May 25 - BEV Trajectory
+24.4% BEV
+4.7% PHEV
+70.9% ICE (of which 26.0%p were HEV)
+
+Trailing 12 months are:
+32.4% BEV
+6.3% PHEV
+61.4% ICE (of which 19.6%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
