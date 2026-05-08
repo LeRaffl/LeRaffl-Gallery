@@ -54,6 +54,7 @@ Key files in the repository root:
 | **log_params.R** | Produces and updates the parameter table (`params.csv`). |
 | **images/** | Contains all exported PNG files structured as `images/YYYY-MM/...`. GitHub Pages serves them directly. |
 | **.github/workflows/build-manifest.yml** | CI workflow ensuring that `manifest.json` always stays up to date. |
+| **docs/architecture/** | Architecture handbook — components, data objects, interfaces, flows, secrets, ops. Kept up to date with every PR that changes structure. Start at [docs/architecture/README.md](docs/architecture/README.md). |
 
 ---
 
