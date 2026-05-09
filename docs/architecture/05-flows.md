@@ -92,7 +92,7 @@ sequenceDiagram
     Pages->>Pages: serve updated assets
 ```
 
-After this, Flow E (manifest rebuild) is auto-triggered by the push to `images/**`.
+After this, Flow E (manifest rebuild) is auto-triggered by the push to `images/**`. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed).
 
 **Performance notes:**
 - Cold runner: ~2 min including R-package install

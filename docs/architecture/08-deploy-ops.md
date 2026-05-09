@@ -55,7 +55,7 @@ Steps:
 4. Fill `country` (e.g. `Germany`) and `variant` (default `Whole`)
 5. Click "Run workflow"
 
-The action takes 30–120 s and commits four PNGs + params/weights row update + posts files. The Build-manifest action triggers automatically on the resulting `images/**` push.
+The action takes 30–120 s and commits four PNGs + params/weights row update + posts files. The Build-manifest action triggers automatically on the resulting `images/**` push. GitHub Pages then auto-deploys from `master` (Pages-from-branch — there is no separate Pages workflow).
 
 **You can also trigger via gh CLI:**
 ```bash
