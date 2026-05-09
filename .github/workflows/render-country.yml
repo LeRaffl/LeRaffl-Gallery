@@ -3,7 +3,7 @@ name: Render country charts
 # Manual trigger from the Actions UI. After data/<Country>.csv is updated
 # (typically via a merged Submit-Data PR), pick the country here and the
 # four PNGs + params.csv + weights.csv are regenerated and committed.
-# The Build manifest workflow then picks up the new images automatically.
+# The Build manifest workflow is dispatched after the render commit.
 
 on:
   workflow_dispatch:
@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     concurrency:
       group: render-${{ inputs.country }}-${{ inputs.variant }}
       cancel-in-progress: false
@@ -60,3 +61,9 @@ jobs:
             posts
           message: "chore: render ${{ inputs.country }} (${{ inputs.variant }})"
           default_author: github_actions
+
+      - name: Trigger manifest build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run build-manifest.yml --ref "${GITHUB_REF_NAME}"

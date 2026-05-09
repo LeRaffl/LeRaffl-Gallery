@@ -87,12 +87,13 @@ sequenceDiagram
     Runner->>Repo: git add images/ params.csv weights.csv posts/
     Runner->>Repo: git commit -m "chore: render Germany (Whole)"
     Runner->>Repo: git push origin master
+    Runner->>Repo: gh workflow run build-manifest.yml
 
     Repo->>Pages: deploy hook
     Pages->>Pages: serve updated assets
 ```
 
-After this, Flow E (manifest rebuild) is auto-triggered by the push to `images/**`. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed).
+After this, Flow E (manifest rebuild) is explicitly dispatched by the Render-country workflow. Direct maintainer pushes to `images/**` still trigger Flow E through the path filter. The manifest commit then pushes to `master`, which GitHub Pages auto-deploys (Pages-from-branch; no separate Pages workflow exists or is needed).
 
 **Performance notes:**
 - Cold runner: ~2 min including R-package install
@@ -171,7 +172,7 @@ sequenceDiagram
     participant Action as Build-manifest Action
     participant Runner as Action Runner
 
-    Note over Repo,Action: Trigger sources (any one of):<br/>• push to images/**<br/>• push to build_manifest.R<br/>• daily cron 03:17 UTC<br/>• manual workflow_dispatch
+    Note over Repo,Action: Trigger sources (any one of):<br/>• Render-country explicit dispatch<br/>• push to images/**<br/>• push to build_manifest.R<br/>• daily cron 03:17 UTC<br/>• manual workflow_dispatch
     Repo->>Action: workflow trigger
     Action->>Runner: dispatch
     Runner->>Repo: checkout
