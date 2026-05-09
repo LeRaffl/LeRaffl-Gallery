@@ -199,6 +199,7 @@ A GitHub Action with `workflow_dispatch` only — it runs only when manually tri
 3. Installs the R package set (ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue) with apt prebuilds
 4. Runs `Rscript R/render_country.R <country> <variant>`
 5. Commits the resulting `images/<period>/*.png`, `params.csv` row update, `weights.csv` row update, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` via `EndBug/add-and-commit`
+6. Dispatches `build-manifest.yml` explicitly so the generated images are indexed immediately
 
 ### Why manual trigger only and not on `data/` push?
 
@@ -217,7 +218,7 @@ A GitHub Action that rebuilds `manifest.json` whenever PNG files change.
 - Push to `images/**` (any new/deleted/renamed image)
 - Push to `build_manifest.R` (the builder itself changed)
 - Daily cron at 03:17 UTC as a self-healing fallback
-- Manual dispatch
+- Manual dispatch, including the explicit dispatch from Render-country after a successful render commit
 
 ### Why the cron?
 
