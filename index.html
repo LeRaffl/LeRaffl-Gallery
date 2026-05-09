@@ -6078,7 +6078,7 @@ window.addEventListener('DOMContentLoaded', sdInit);
 // path, so it works on both GitHub Pages and local preview), copies into
 // the clipboard, and gives the button a brief visual confirmation.
 // =========================================================================
-document.addEventListener('click', async (e) => {
+document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-copy-post]');
   if (!btn) return;
   const slug = btn.dataset.copyPost;
@@ -6086,16 +6086,30 @@ document.addEventListener('click', async (e) => {
 
   const original = btn.textContent;
   btn.disabled = true; btn.textContent = '⏳';
-  try {
-    const res = await fetch(`posts/${encodeURIComponent(slug)}.txt`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`No post text yet (${res.status})`);
-    const text = await res.text();
-    await navigator.clipboard.writeText(text);
-    btn.textContent = '✓ Copied';
-  } catch (err) {
-    btn.textContent = '⚠ ' + (err.message || 'Failed');
-  } finally {
+  const restore = (label) => {
+    btn.textContent = label;
     setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+  };
+
+  // Safari rejects clipboard.writeText() if a fetch was awaited first — the
+  // user-gesture frame is gone by then. Passing a Promise<Blob> into
+  // ClipboardItem lets us call clipboard.write() synchronously while the
+  // network request resolves in the background.
+  const url = `posts/${encodeURIComponent(slug)}.txt`;
+  const blobPromise = fetch(url, { cache: 'no-store' }).then(res => {
+    if (!res.ok) throw new Error(`No post text yet (${res.status})`);
+    return res.text();
+  }).then(text => new Blob([text], { type: 'text/plain' }));
+
+  if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+    navigator.clipboard.write([new ClipboardItem({ 'text/plain': blobPromise })])
+      .then(() => restore('✓ Copied'))
+      .catch(err => restore('⚠ ' + ((err && err.message) || 'Failed')));
+  } else {
+    blobPromise.then(b => b.text())
+      .then(text => navigator.clipboard.writeText(text))
+      .then(() => restore('✓ Copied'))
+      .catch(err => restore('⚠ ' + ((err && err.message) || 'Failed')));
   }
 });
 </script>

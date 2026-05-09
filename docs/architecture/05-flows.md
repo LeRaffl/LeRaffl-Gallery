@@ -229,11 +229,13 @@ sequenceDiagram
     participant Clipboard
 
     Visitor->>Page: Click "📋 Copy post" on a Germany card
+    Page->>Clipboard: clipboard.write([ClipboardItem(text/plain → blobPromise)])
     Page->>Pages: GET posts/germany.txt (no-store)
-    Pages-->>Page: text/plain
-    Page->>Clipboard: navigator.clipboard.writeText(text)
+    Pages-->>Page: text/plain (resolves blobPromise)
     Page->>Visitor: Button briefly shows "✓ Copied"
 ```
+
+`clipboard.write()` is invoked synchronously inside the click handler — passing a `Promise<Blob>` to `ClipboardItem` lets the fetch resolve afterwards without losing Safari's user-gesture context. An older `await fetch(...) → clipboard.writeText(text)` chain throws `NotAllowedError` on Safari and iOS for exactly that reason.
 
 ### G.2 Apple Shortcut
 
