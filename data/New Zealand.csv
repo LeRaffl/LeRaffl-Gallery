@@ -170,3 +170,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,transport.govt.nz & Prof. Ray Willis,946.0,823.0,7179.0,7203.0,3127.0,0.0,19278.0,
 2026-02,monthly,Whole,transport.govt.nz & Prof. Ray Willis,841.0,773.0,5809.0,6584.0,2969.0,0.0,16976.0,
 2026-03,monthly,Whole,transport.govt.nz & Prof. Ray Willis,2992.0,1566.0,8307.0,6351.0,3769.0,1.0,22986.0,
+2026-04,monthly,Whole,transport.govt.nz & Prof. Ray Willis,1415,1273,6996,7265,2418,0,19367,https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/light-motor-vehicle-registrations/
