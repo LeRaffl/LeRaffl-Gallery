@@ -57,5 +57,6 @@ jobs:
             images
             params.csv
             weights.csv
+            posts
           message: "chore: render ${{ inputs.country }} (${{ inputs.variant }})"
           default_author: github_actions
