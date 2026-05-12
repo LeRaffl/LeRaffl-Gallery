@@ -42,6 +42,86 @@
       "country_slug": "austria"
     },
     {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-12",
+      "filename": "china_ICE_BEV_20260512.png",
+      "url": "images/2026-04/china_ICE_BEV_20260512.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-12",
+      "filename": "china_20260512.png",
+      "url": "images/2026-04/china_20260512.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-12",
+      "filename": "china_time_20260512.png",
+      "url": "images/2026-04/china_time_20260512.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-12",
+      "filename": "china_ttm_shares_20260512.png",
+      "url": "images/2026-04/china_ttm_shares_20260512.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-05-12",
+      "filename": "indonesia_ICE_BEV_20260512.png",
+      "url": "images/2026-03/indonesia_ICE_BEV_20260512.png",
+      "alt": "Indonesia ICE-BEV-Hybrid trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-05-12",
+      "filename": "indonesia_20260512.png",
+      "url": "images/2026-03/indonesia_20260512.png",
+      "alt": "Indonesia BEV trajectory",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-05-12",
+      "filename": "indonesia_time_20260512.png",
+      "url": "images/2026-03/indonesia_time_20260512.png",
+      "alt": "Indonesia Transition time curve",
+      "country_slug": "indonesia"
+    },
+    {
+      "country": "Indonesia",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-05-12",
+      "filename": "indonesia_ttm_shares_20260512.png",
+      "url": "images/2026-03/indonesia_ttm_shares_20260512.png",
+      "alt": "Indonesia TTM market split graph",
+      "country_slug": "indonesia"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2026-04",
