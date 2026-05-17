@@ -1,0 +1,64 @@
+name: Fetch Brazil data (ANFAVEA)
+
+# Fetches the latest ANFAVEA Excel file, parses the fuel-type registration
+# table for cars + light commercial vehicles, and upserts new monthly rows
+# into data/Brazil.csv. If the CSV changed, render-country.yml is triggered
+# automatically for Brazil.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Direct Excel URL (leave empty to auto-discover from ANFAVEA page)'
+        required: false
+        default: ''
+      year:
+        description: 'Year to fetch (leave empty for current year)'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 8 10 * *'   # 10th of each month at 08:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 openpyxl
+
+      - name: Fetch & update Brazil.csv
+        run: |
+          python scripts/fetch_brazil.py \
+            ${URL:+--url "$URL"} \
+            ${YEAR:+--year "$YEAR"}
+        env:
+          URL: ${{ inputs.url }}
+          YEAR: ${{ inputs.year }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Brazil.csv
+          message: 'chore: update Brazil data from ANFAVEA'
+          default_author: github_actions
+
+      - name: Trigger render for Brazil
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Brazil \
+            -f variant=Whole
