@@ -55,6 +55,8 @@ Key files in the repository root:
 | **images/** | Contains all exported PNG files structured as `images/YYYY-MM/...`. GitHub Pages serves them directly. |
 | **.github/workflows/build-manifest.yml** | CI workflow ensuring that `manifest.json` always stays up to date. |
 | **docs/architecture/** | Architecture handbook — components, data objects, interfaces, flows, secrets, ops. Kept up to date with every PR that changes structure. Start at [docs/architecture/README.md](docs/architecture/README.md). |
+| **scripts/fetch_brazil.py** | Automated data ingestion for Brazil. Scrapes the ANFAVEA xlsx for the current year, parses sheet "III. Emplacamento Combustível" (cars + light commercial, Unidades table), and upserts new monthly rows into `data/Brazil.csv`. Full parsing logic & column mapping documented in the module docstring. |
+| **.github/workflows/fetch-brazil.yml** | Runs `fetch_brazil.py` on the 10th of each month (08:00 UTC) and on manual dispatch. If `data/Brazil.csv` changes, the workflow commits it and triggers `render-country.yml` with `country=Brazil`. |
 
 ---
 

@@ -13,6 +13,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | E | [Auto-rebuild manifest](#flow-e--manifest-rebuild) | Push to images/** or daily cron | Updated manifest.json |
 | F | [Visitor reads gallery](#flow-f--gallery-read) | Page load on leraffl.github.io | Manifest + images displayed |
 | G | [Copy post text](#flow-g--copy-post) | Click "📋 Copy post" or run Apple Shortcut | Text in clipboard |
+| H | [Auto-ingest Brazil from ANFAVEA](#flow-h--anfavea-ingest) | Monthly cron (10th, 08:00 UTC) or manual dispatch | Updated `data/Brazil.csv` → triggers Flow B for Brazil |
 
 ---
 
@@ -257,6 +258,43 @@ sequenceDiagram
 ```
 
 **Why two paths to the same artefact:** the in-page button is for visitors and casual mobile/desktop use; the Shortcut is for the maintainer's posting workflow on iOS where launching Safari is more friction than tapping a Shortcut on the home screen.
+
+## Flow H — ANFAVEA ingest
+
+Brazil is the first country with an automated, source-side ingestion. ANFAVEA publishes one Excel workbook per year (`siteautoveiculos<YEAR>.xlsx`) covering production, registrations, exports, and employment. We only consume sheet "III. Emplacamento Combustível" — the cars + light-commercial fuel-split table.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-brazil.yml job
+    participant Site as anfavea.com.br
+    participant CSV as data/Brazil.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (10th 08:00 UTC)
+    Job->>Site: GET /site/edicoes-em-excel/ (browser UA)
+    Site-->>Job: HTML index
+    Job->>Job: regex match siteautoveiculos<year>(-N)?.xlsx
+    Job->>Site: GET /docs/siteautoveiculos<year>.xlsx
+    Site-->>Job: xlsx bytes
+    Job->>Job: Open sheet "III. Emplacamento Combustível"<br/>locate "Unidades" header → month row → fuel rows
+    Job->>Job: Map Portuguese fuel labels → CSV columns<br/>(Elétrico→BEV, Híbrido Plug-in→PHEV, Híbrido→HEV,<br/>Gasolina→PETROL, Diesel→DIESEL, Flex Fuel→FLEXFUEL)
+    Job->>Job: Skip months where all fuel values are 0
+    Job->>CSV: Upsert by period; warn on >50% delta vs existing
+    alt CSV changed
+        Job->>Render: gh workflow run render-country.yml -f country=Brazil
+    else No change
+        Job-->>Cron: Exit cleanly, nothing committed
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_brazil.py](../../scripts/fetch_brazil.py). The module docstring is the authoritative reference for the parsing rules, column map, and how the script handles partial-year data.
+
+**Why a browser User-Agent:** ANFAVEA's Apache returns HTTP 406 for `python-requests/*`. We send a Chrome desktop UA + standard `Accept` / `Accept-Language` headers on both calls.
+
+**Why not the trucks/buses table:** sheet III has a second "Caminhões e Ônibus" block below the cars block. It uses a different fuel taxonomy (Elétrico/Gás/Diesel only) and isn't represented in `data/Brazil.csv`'s schema. The parser only walks the FIRST "Unidades" header and stops at the closing "Fonte:" marker, so the trucks table is naturally skipped.
+
+**Adding more countries:** the pattern (`fetch-<country>.yml` → `scripts/fetch_<country>.py` → commit + dispatch render) is intentionally country-local rather than generic, because each statistics agency has its own URL scheme, file layout, and quirks. Duplicate and adapt rather than parameterise prematurely.
 
 ## See also
 

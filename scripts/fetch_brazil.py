@@ -2,17 +2,99 @@
 """
 Fetch Brazil vehicle registration data from ANFAVEA and update data/Brazil.csv.
 
-Usage:
+Usage
+-----
     python scripts/fetch_brazil.py [--url URL] [--year YEAR] [--csv PATH]
 
-If --url is omitted, the script scrapes the ANFAVEA page to find the Excel
-file URL for the given year (default: current year). --url also accepts a
-local file path for testing (e.g. --url /path/to/file.xlsx).
+* --url   Direct Excel URL or local file path. If omitted, the ANFAVEA
+          index page is scraped for the current year's file.
+* --year  Override the year (default: current calendar year).
+* --csv   Target CSV (default: data/Brazil.csv).
+
+This script is invoked by .github/workflows/fetch-brazil.yml on a monthly
+cron (10th, 08:00 UTC) and via manual workflow_dispatch. When it produces
+changes, the workflow commits data/Brazil.csv and triggers render-country.yml
+for Brazil.
+
+Data source
+-----------
+ANFAVEA (Associação Nacional dos Fabricantes de Veículos Automotores) publishes
+one Excel workbook per year at https://anfavea.com.br/site/edicoes-em-excel/.
+The canonical filename is `siteautoveiculos<YEAR>.xlsx`; mid-year revisions
+may add a `-N` suffix. ANFAVEA also publishes `_nacionais` and `_importados`
+splits — we explicitly ignore those (regex in `find_excel_url`) and parse
+only the combined total file.
+
+Parsing strategy
+----------------
+We read sheet "III. Emplacamento Combustível", which contains two tables:
+
+  1. "Automóveis e Comerciais Leves" (cars + light commercial) — WE PARSE THIS
+  2. "Caminhões e Ônibus" (trucks + buses) — IGNORED for now
+
+Each table is laid out as:
+
+    | <category> | <metric type> | Jan | Fev | Mar | ... | Dez | Total Ano |
+    | Gasolina   |               | 6222| 5856| ...
+    | Elétrico   |               | 8313| 8738| ...
+    | ...
+
+Row positions shift slightly year to year, so we locate the table dynamically:
+
+  1. Find the FIRST row that contains the literal cell value "Unidades"
+     (= the units sub-header of the cars table; "Porcenrtagem" [sic] marks
+     the percentage table below it which we skip).
+  2. The row immediately below that holds the month abbreviations
+     (Jan, Fev, Mar, Abr, Mai, Jun, Jul, Ago, Set, Out, Nov, Dez). We build
+     a {month_abbrev → column_index} map from whatever columns contain those
+     strings, so layout changes don't break us.
+  3. We then walk subsequent rows reading the fuel name from column B (or C
+     as a fallback), looking it up in FUEL_MAP. Reading stops as soon as we
+     hit a row containing "Fonte:" — that's the ANFAVEA end-of-table marker.
+
+Column mapping (Portuguese → CSV column)
+----------------------------------------
+    Elétrico         → BEV
+    Híbrido Plug-in  → PHEV
+    Híbrido          → HEV         (regular non-plug-in hybrids)
+    Gasolina         → PETROL
+    Diesel           → DIESEL
+    Flex Fuel        → FLEXFUEL    (Brazil-specific: gasoline + ethanol)
+    (none)           → OTHERS = 0  (always zero for Brazil)
+    sum of all above → TOTAL
+
+Months without published data
+-----------------------------
+ANFAVEA pre-fills the entire calendar year with zeros and overwrites
+month-by-month as data becomes available. We skip any month where ALL fuel
+values are zero — that lets the script run mid-year without producing fake
+"all-zero" rows for future months.
+
+Upsert + plausibility check
+---------------------------
+Existing rows in data/Brazil.csv are keyed by `period` (YYYY-MM). For each
+month parsed:
+
+  * If the period is missing, we append a new row.
+  * If it exists, we overwrite the row, but emit a WARNING to stdout if any
+    fuel-type value moved by more than 50% versus the previous value — a
+    cheap guard against parser drift or upstream relabeling.
+
+The CSV is rewritten sorted by period. The `notes` field on touched rows
+records the source filename (e.g. "siteautoveiculos2026.xlsx") for
+provenance.
+
+HTTP details
+------------
+ANFAVEA's Apache returns HTTP 406 Not Acceptable to the default
+python-requests User-Agent, so we send desktop-Chrome headers (see
+HTTP_HEADERS below) on both the page scrape and the xlsx download.
 """
 import argparse
 import csv
 import io
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -23,6 +105,18 @@ from bs4 import BeautifulSoup
 
 ANFAVEA_PAGE = "https://anfavea.com.br/site/edicoes-em-excel/"
 TARGET_SHEET = "III. Emplacamento Combustível"
+
+# ANFAVEA's Apache returns HTTP 406 for the default python-requests UA,
+# so we identify as a regular desktop browser.
+HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+}
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "FLEXFUEL",
@@ -44,21 +138,21 @@ MONTH_ABR = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
 
 
 def find_excel_url(year: int) -> str:
-    """Scrape the ANFAVEA page and return the xlsx URL for the given year."""
-    resp = requests.get(ANFAVEA_PAGE, timeout=30)
+    """Scrape the ANFAVEA page and return the xlsx URL for the given year.
+
+    Prefers the canonical "siteautoveiculos<year>(-N)?.xlsx" (total file)
+    over the "_nacionais" / "_importados" splits.
+    """
+    resp = requests.get(ANFAVEA_PAGE, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
-    year_str = str(year)
 
+    # Matches siteautoveiculos2026.xlsx and siteautoveiculos2026-2.xlsx,
+    # but NOT siteautoveiculos_nacionais2026.xlsx (digit must follow directly).
+    pattern = re.compile(rf"siteautoveiculos{year}(?:[-_]\d+)?\.xlsx", re.IGNORECASE)
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "siteautoveiculos" in href.lower() and year_str in href:
-            return href if href.startswith("http") else "https://anfavea.com.br" + href
-
-    # Fallback: any .xlsx link whose text contains the year
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if href.lower().endswith(".xlsx") and year_str in (a.get_text() + href):
+        if pattern.search(href):
             return href if href.startswith("http") else "https://anfavea.com.br" + href
 
     raise RuntimeError(
@@ -71,7 +165,7 @@ def load_workbook_bytes(url_or_path: str) -> tuple[bytes, str]:
     """Return (file_bytes, source_filename). Accepts http(s) URL or local path."""
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, timeout=60)
+        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content, url_or_path.split("/")[-1]
     path = url_or_path.replace("file://", "")
