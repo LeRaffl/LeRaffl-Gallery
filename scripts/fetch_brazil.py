@@ -13,6 +13,7 @@ import argparse
 import csv
 import io
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -23,6 +24,18 @@ from bs4 import BeautifulSoup
 
 ANFAVEA_PAGE = "https://anfavea.com.br/site/edicoes-em-excel/"
 TARGET_SHEET = "III. Emplacamento Combustível"
+
+# ANFAVEA's Apache returns HTTP 406 for the default python-requests UA,
+# so we identify as a regular desktop browser.
+HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+}
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "FLEXFUEL",
@@ -44,21 +57,21 @@ MONTH_ABR = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
 
 
 def find_excel_url(year: int) -> str:
-    """Scrape the ANFAVEA page and return the xlsx URL for the given year."""
-    resp = requests.get(ANFAVEA_PAGE, timeout=30)
+    """Scrape the ANFAVEA page and return the xlsx URL for the given year.
+
+    Prefers the canonical "siteautoveiculos<year>(-N)?.xlsx" (total file)
+    over the "_nacionais" / "_importados" splits.
+    """
+    resp = requests.get(ANFAVEA_PAGE, headers=HTTP_HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
-    year_str = str(year)
 
+    # Matches siteautoveiculos2026.xlsx and siteautoveiculos2026-2.xlsx,
+    # but NOT siteautoveiculos_nacionais2026.xlsx (digit must follow directly).
+    pattern = re.compile(rf"siteautoveiculos{year}(?:[-_]\d+)?\.xlsx", re.IGNORECASE)
     for a in soup.find_all("a", href=True):
         href = a["href"]
-        if "siteautoveiculos" in href.lower() and year_str in href:
-            return href if href.startswith("http") else "https://anfavea.com.br" + href
-
-    # Fallback: any .xlsx link whose text contains the year
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        if href.lower().endswith(".xlsx") and year_str in (a.get_text() + href):
+        if pattern.search(href):
             return href if href.startswith("http") else "https://anfavea.com.br" + href
 
     raise RuntimeError(
@@ -71,7 +84,7 @@ def load_workbook_bytes(url_or_path: str) -> tuple[bytes, str]:
     """Return (file_bytes, source_filename). Accepts http(s) URL or local path."""
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, timeout=60)
+        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.content, url_or_path.split("/")[-1]
     path = url_or_path.replace("file://", "")
