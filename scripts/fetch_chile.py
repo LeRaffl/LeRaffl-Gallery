@@ -29,6 +29,14 @@ Both PDFs for a given month are usually published a few weeks into the
 following month, but NOT necessarily at the same time. We only write a CSV
 row when both are available for the target month (no partial writes).
 
+Vehicle scope
+-------------
+"Livianos y medianos" = passenger cars + SUVs + pickups + light commercial
+vehicles up to 3.860 kg GVWR (livianos < 2.700 kg, medianos 2.700–3.859 kg)
+per DS N°241/2014 del MTT. Trucks (camiones) and buses appear in the same
+PDFs in separate sections; we explicitly do NOT ingest them. See
+docs/architecture/09-glossary.md § Vehicle scope per source.
+
 Parsing strategy
 ----------------
 * Mercado Automotor: locate the first standalone "Total Mes" label in the
