@@ -14,6 +14,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | F | [Visitor reads gallery](#flow-f--gallery-read) | Page load on leraffl.github.io | Manifest + images displayed |
 | G | [Copy post text](#flow-g--copy-post) | Click "📋 Copy post" or run Apple Shortcut | Text in clipboard |
 | H | [Auto-ingest Brazil from ANFAVEA](#flow-h--anfavea-ingest) | Monthly cron (10th, 08:00 UTC) or manual dispatch | Updated `data/Brazil.csv` → triggers Flow B for Brazil |
+| I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:00 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 
 ---
 
@@ -295,6 +296,43 @@ sequenceDiagram
 **Why not the trucks/buses table:** sheet III has a second "Caminhões e Ônibus" block below the cars block. It uses a different fuel taxonomy (Elétrico/Gás/Diesel only) and isn't represented in `data/Brazil.csv`'s schema. The parser only walks the FIRST "Unidades" header and stops at the closing "Fonte:" marker, so the trucks table is naturally skipped.
 
 **Adding more countries:** the pattern (`fetch-<country>.yml` → `scripts/fetch_<country>.py` → commit + dispatch render) is intentionally country-local rather than generic, because each statistics agency has its own URL scheme, file layout, and quirks. Duplicate and adapt rather than parameterise prematurely.
+
+## Flow I — ANAC ingest
+
+Chile follows the same `fetch-<country>` pattern as Brazil, with one twist: ANAC publishes **two** PDFs per month and they don't appear at the same time. The cron runs daily from the 14th onward and the script self-throttles via the CSV's latest period — most invocations are a no-op.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-chile.yml job
+    participant Site as anac.cl
+    participant CSV as data/Chile.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (daily 14–31, 08:00 UTC)
+    Job->>CSV: read latest period
+    alt Latest period ≥ target month
+        Job-->>Cron: Exit cleanly (no-op)
+    else Target month missing
+        Job->>Site: GET /category/estudio-de-mercado/ (browser UA)
+        Site-->>Job: HTML listing PDFs
+        alt Either PDF missing
+            Job-->>Cron: Exit cleanly (no-op, retry tomorrow)
+        else Both PDFs present
+            Job->>Site: GET Mercado Automotor + Cero y Bajas Emisiones PDFs
+            Site-->>Job: PDF bytes
+            Job->>Job: Parse TOTAL + BEV/PHEV/HEV via pypdf
+            Job->>CSV: Append target-month row (ICE = TOTAL − BEV − PHEV − HEV)
+            Job->>Render: gh workflow run render-country.yml -f country=Chile
+        end
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_chile.py](../../scripts/fetch_chile.py). The module docstring documents the regex patterns, the MHEV-into-ICE convention, and the no-partial-writes rule.
+
+**Why two PDFs:** ANAC splits the headline market total (Mercado Automotor) from the alternative-drivetrain breakdown (Cero y Bajas Emisiones). Both are needed to fill one CSV row; partial writes would produce wrong charts because BEV/PHEV/HEV would default to 0 and inflate ICE.
+
+**Why MHEV → ICE:** ANAC reports mild-hybrids (Microhíbridos) as a separate line that didn't exist historically and isn't in `data/Chile.csv`'s schema. Per maintainer's call we bucket them into ICE via the implicit subtraction (`ICE = TOTAL − BEV − PHEV − HEV − OTHERS`) rather than introducing a new column.
 
 ## See also
 

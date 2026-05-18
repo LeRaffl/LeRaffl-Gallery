@@ -1,0 +1,85 @@
+name: Fetch Chile data (ANAC)
+
+# Scrapes the latest ANAC PDFs (Mercado Automotor + Cero y Bajas Emisiones)
+# and upserts the most recent month into data/Chile.csv. Runs daily from
+# the 14th of each month onward — the script self-throttles via the latest
+# period already present in the CSV, so most invocations are a no-op until
+# both PDFs for the target month are published.
+# When the CSV changes, render-country.yml is dispatched for Chile.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      mercado_url:
+        description: 'Direct Mercado Automotor PDF URL (leave empty to auto-discover)'
+        required: false
+        default: ''
+      emisiones_url:
+        description: 'Direct Cero y Bajas Emisiones PDF URL (leave empty to auto-discover)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 8 14-31 * *'   # 14th through end of month at 08:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pypdf cryptography
+
+      - name: Fetch & update Chile.csv
+        run: |
+          python scripts/fetch_chile.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${MERCADO_URL:+--mercado-url "$MERCADO_URL"} \
+            ${EMISIONES_URL:+--emisiones-url "$EMISIONES_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          MERCADO_URL: ${{ inputs.mercado_url }}
+          EMISIONES_URL: ${{ inputs.emisiones_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Chile.csv
+          message: 'chore: update Chile data from ANAC'
+          default_author: github_actions
+
+      - name: Trigger render for Chile
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Chile \
+            -f variant=Whole
