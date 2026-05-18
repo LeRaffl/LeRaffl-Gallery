@@ -1,0 +1,86 @@
+name: Fetch Japan data (JADA)
+
+# Scrapes the latest JADA monthly file (燃料別メーカー別登録台数（乗用車）)
+# and upserts the previous calendar month into data/Japan.csv. Runs daily
+# from the 1st of each month — the script self-throttles via the latest
+# period already present in the CSV, so most invocations are a no-op until
+# JADA has published the file for the target month (typically the first
+# business week of the following month).
+# When the CSV changes, render-country.yml is dispatched for Japan.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      xlsx_url:
+        description: 'Direct XLSX URL (preferred; leave empty to auto-discover)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct PDF URL (fallback; leave empty to auto-discover)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 8 1-31 * *'   # daily at 08:00 UTC, from the 1st onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pypdf openpyxl cryptography
+
+      - name: Fetch & update Japan.csv
+        run: |
+          python scripts/fetch_japan.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${XLSX_URL:+--xlsx-url "$XLSX_URL"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          XLSX_URL: ${{ inputs.xlsx_url }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Japan.csv
+          message: 'chore: update Japan data from JADA'
+          default_author: github_actions
+
+      - name: Trigger render for Japan
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Japan \
+            -f variant=Whole
