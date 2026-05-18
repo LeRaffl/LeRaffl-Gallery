@@ -4,19 +4,37 @@ Domain jargon used across the codebase, the data, and the chats. Look here when 
 
 ## Vehicle / fuel categories
 
-| Term | Meaning | Notes |
+These are the *technical* definitions — what physically distinguishes one drivetrain from another. How each one is mapped into the CSV schema and the chart rollups is in the rightmost column.
+
+| Term | Definition | In our schema |
 |---|---|---|
-| **BEV** | Battery Electric Vehicle | Pure-electric, no combustion engine. The headline metric. |
-| **PHEV** | Plug-in Hybrid Electric Vehicle | Has both a battery (chargeable from outside) and a combustion engine. |
-| **EREV** | Extended-Range Electric Vehicle | A specific PHEV variant where the engine only acts as a generator for the battery. Some sources (notably China's CPCA from 2025-01-01 onwards) report this separately from PHEV. In our 3-curve plot, EREV is folded into PHEV. In the TTM stack, EREV is its own layer. |
-| **HEV** | (Full) Hybrid Electric Vehicle | Battery is regen-charged only, can't be plugged in. Counts as ICE in our 3-curve rollup; renders as a parenthetical "of which Xp were HEV" in the post text. |
-| **MHEV** | Mild Hybrid | Small battery assist; effectively ICE. Reserved column, not yet used. |
-| **PETROL / DIESEL / FLEXFUEL / ETHANOL** | Conventional ICE subcategories | Where reported. |
-| **GAS / CNG / LPG** | Gas-powered ICE variants | Reserved columns; only Georgia currently uses GAS (via a re-mapped PETROL-GAS column). |
-| **OTHERS** | Catch-all | Any fuel not fitting the named categories. |
-| **ICE** | Internal Combustion Engine, single bucket | Used by countries (China, USA, South Korea, Thailand, Chile) that don't break ICE down further. In the 3-curve rollup ICE is *derived* (TOTAL − BEV − PHEV − EREV); when reported as an explicit column it's used directly in the TTM stack. |
-| **TOTAL** | All registrations in the period | Required field. The denominator for every share computation. |
-| **Hybrid (capital, no qualifier)** | A country's single combined hybrid bucket | Some sources (Türkiye `HYBRIDS`, Georgia `Hybrid`) don't split PHEV vs HEV. In our schema this maps to the `HEV` column and the post text labels it as "Hybrid" without parentheses. |
+| **BEV** | Battery Electric Vehicle. Propelled exclusively by one or more electric motors drawing from an on-board traction battery, which is recharged from the grid. No combustion engine on board. | `BEV` column. Required for every country. Headline metric of the project. |
+| **PHEV** | Plug-in Hybrid Electric Vehicle. Combines a combustion engine with a traction battery that can be recharged from the grid. Can operate in pure-electric mode while the battery has charge; the engine engages above a state-of-charge or speed threshold. Always has an external charging port. | `PHEV` column. Counted as PHEV in the 3-curve rollup; in the TTM stack EREVs (where reported) appear as a separate layer above PHEV. |
+| **EREV / P-EREV** | Extended-Range Electric Vehicle. A PHEV variant where the combustion engine is mechanically decoupled from the wheels and acts only as a generator that recharges the battery. P-EREV adds an external charging port (otherwise the engine is the sole energy source). Some sources (China CPCA from 2025-01, ANAC from 2025) lump EREV/P-EREV into PHEV; we follow each source's reporting. | `EREV` column when the source breaks it out (currently China only). Folded into PHEV in the 3-curve plot; its own layer in `_ttm_shares`. |
+| **HEV** | (Full) Hybrid Electric Vehicle, a.k.a. self-charging hybrid. Combustion engine plus traction battery, but the battery is recharged *only* by regenerative braking and the engine itself — there is no external charging port. Can drive short distances on electric power alone. | `HEV` column. Counted as ICE in the 3-curve rollup; renders as a parenthetical "of which Xp were HEV" in the post text. |
+| **MHEV** | Mild Hybrid (Microhíbrido / Mild-Hybrid). Combustion engine with a small 48V (or smaller) battery that assists with start-stop, regenerative recovery, and brief torque-fill. The MHEV system *cannot* propel the vehicle on electric power alone. Mechanically closer to a conventional ICE than to a full HEV. | `MHEV` column (reserved; not yet populated in any active CSV). Where a source reports MHEV without giving us a column to put it in (e.g. Chile), it falls into the ICE bucket via the implicit `ICE = TOTAL − BEV − PHEV − HEV − OTHERS` subtraction. |
+| **ICE** | Internal Combustion Engine. Catch-all for any drivetrain whose sole propulsion source is fuel combustion: petrol, diesel, ethanol, flex-fuel, CNG, LPG, hydrogen ICE, etc. Includes MHEVs by maintainer convention (the mild-hybrid systems don't change the propulsion principle). | `ICE` column when the source reports a single ICE total without splitting fuels (China, USA, South Korea, Thailand, Chile). Otherwise *derived* in the 3-curve plot as `TOTAL − BEV − PHEV − EREV` and shown in the TTM stack as the sum of `PETROL` + `DIESEL` + `FLEXFUEL` + `OTHERS` (+ explicit `ICE` column if present). |
+| **PETROL / DIESEL** | Pure-petrol / pure-diesel ICE. Conventional spark-ignition or compression-ignition engine with no hybrid assist. | `PETROL` / `DIESEL` columns. *Caveat:* a small number of source statistics fold petrol-HEV variants into `PETROL` rather than `HEV` (and the same for diesel). Headline ICE/BEV/PHEV trajectories are unaffected — both end up in ICE — but per-fuel TTM shares can be off. Improving the upstream split is a known data-quality task. |
+| **FLEXFUEL** | Engine certified to run on a variable mix of petrol and ethanol (E20–E100). Brazil-specific in practice (>80% of new sales there); a small number of Sweden rows also use this column. Counted as ICE in every output. | `FLEXFUEL` column. |
+| **ETHANOL** | Pure ethanol (E85+) ICE. Reserved; in practice folded into `OTHERS` or `FLEXFUEL` upstream. Counted as ICE. | `ETHANOL` column (reserved). |
+| **GAS / CNG / LPG** | Gas-powered ICE: generic natural gas (`GAS`), compressed natural gas (`CNG`), liquefied petroleum gas (`LPG`). | Reserved columns. Only Georgia currently uses `GAS` (via the re-mapped `PETROL-GAS` source column). Counted as ICE. |
+| **OTHERS** | Catch-all for anything the source doesn't put in a named bucket. Typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` and hydrogen fuel-cell (FCEV) where they appear. | `OTHERS` column. Counted as ICE in every output chart. |
+| **FCEV** | Fuel-Cell Electric Vehicle. Electric motor powered by a hydrogen fuel cell. We do not yet have a dedicated column — sources that report FCEV either fold it into `BEV` (rare, technically wrong but consistent with their definition) or into `OTHERS`. | No dedicated column today. |
+| **TOTAL** | All registrations in the period, summed across every drivetrain. | `TOTAL` column. Required. The denominator for every share computation. |
+| **Hybrid (capital, no qualifier)** | A source's single combined hybrid bucket — sources that don't split PHEV vs HEV (Türkiye `HYBRIDS`, Georgia `Hybrid`). | Mapped to the `HEV` column on ingest; the post text labels it as "Hybrid" without parentheses to flag the ambiguity. |
+
+## Vehicle scope per source
+
+The technical definitions above are universal; what varies between countries is **which vehicles the source counts in the first place**. Most countries' headline reports cover only light-duty passenger and commercial vehicles, but the exact weight cut-off depends on national regulation. This is the table to keep up-to-date as new countries are added.
+
+| Country | Source | Vehicle scope (included) | Excluded | Authority |
+|---|---|---|---|---|
+| Chile | ANAC | "Livianos y medianos": passenger cars (Vehículo de Pasajeros), SUVs, pickups (Camionetas) and light commercial vehicles (Vehículo Comercial). **Livianos** = peso bruto vehicular (GVWR) < 2.700 kg; **Medianos** = 2.700 ≤ GVWR < 3.860 kg. | Camiones (trucks ≥ 3.860 kg GVWR), Buses (all). ANAC publishes those in the same monthly PDFs but we don't ingest them. | DS N°241/2014, MTT (Reglamento del Impuesto Adicional a vehículos motorizados nuevos, livianos y medianos) |
+| Brazil | ANFAVEA | "Automóveis e Comerciais Leves": passenger cars + light commercial vehicles. ANFAVEA's sheet III is split into two blocks — the first is what we parse. | Caminhões e Ônibus (trucks + buses): different fuel taxonomy, excluded by stopping the parser at the "Fonte:" end-of-table marker. | ANFAVEA classification (industry self-definition); no single legal decree referenced. |
+| Others | various | *To be documented per country as the scope is confirmed by the maintainer or pulled from the agency's methodology page.* | — | — |
+
+**Why this matters:** the headline BEV-share number for a country is `BEV_count / TOTAL_count`, and `TOTAL` is exactly the count of vehicles within that source's scope. Different scopes are not directly comparable — Chile counting up to 3.860 t is broader than EU `M1+N1` (≤ 3.5 t) but narrower than US light-duty (≤ 8.500 lb ≈ 3.856 t). Document scope before comparing absolute volumes across countries.
+
 
 ## Time / period
 

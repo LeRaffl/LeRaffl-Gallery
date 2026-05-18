@@ -57,6 +57,8 @@ Key files in the repository root:
 | **docs/architecture/** | Architecture handbook — components, data objects, interfaces, flows, secrets, ops. Kept up to date with every PR that changes structure. Start at [docs/architecture/README.md](docs/architecture/README.md). |
 | **scripts/fetch_brazil.py** | Automated data ingestion for Brazil. Scrapes the ANFAVEA xlsx for the current year, parses sheet "III. Emplacamento Combustível" (cars + light commercial, Unidades table), and upserts new monthly rows into `data/Brazil.csv`. Full parsing logic & column mapping documented in the module docstring. |
 | **.github/workflows/fetch-brazil.yml** | Runs `fetch_brazil.py` on the 10th of each month (08:00 UTC) and on manual dispatch. If `data/Brazil.csv` changes, the workflow commits it and triggers `render-country.yml` with `country=Brazil`. |
+| **scripts/fetch_chile.py** | Automated data ingestion for Chile. Discovers the latest ANAC PDFs (Mercado Automotor + Cero y Bajas Emisiones) for the previous calendar month, parses TOTAL from the bar chart and BEV/PHEV/HEV from the summary table, and writes the new row to `data/Chile.csv` only when both PDFs are available. Self-throttles via the CSV's latest period. |
+| **.github/workflows/fetch-chile.yml** | Runs `fetch_chile.py` daily from the 14th of each month (08:00 UTC) and on manual dispatch — most runs are no-ops until ANAC publishes both PDFs. If `data/Chile.csv` changes, the workflow commits it and triggers `render-country.yml` with `country=Chile`. |
 
 ---
 
