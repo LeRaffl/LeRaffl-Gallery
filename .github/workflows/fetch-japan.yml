@@ -1,6 +1,7 @@
 name: Fetch Japan data (JADA)
 
-# Scrapes the latest JADA monthly file (燃料別メーカー別登録台数（乗用車）)
+# Scrapes the latest JADA monthly file (燃料別メーカー別登録台数（乗用車）
+# = "Registrations by fuel type × maker (passenger cars)")
 # and upserts the previous calendar month into data/Japan.csv. Runs daily
 # from the 1st of each month — the script self-throttles via the latest
 # period already present in the CSV, so most invocations are a no-op until

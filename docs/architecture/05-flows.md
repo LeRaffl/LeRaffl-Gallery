@@ -362,17 +362,17 @@ sequenceDiagram
             Job->>Site: GET newest /files/libs/.../*.xlsx (and .pdf as fallback)
         end
         Site-->>Job: file bytes
-        Job->>Job: Find sheet/page titled "YYYY年M月"
-        Job->>Job: Extract 乗用車計 row → PETROL/HEV/PHEV/DIESEL/BEV/(FCV+その他)/TOTAL
+        Job->>Job: Find sheet/page titled "YYYY年M月" (year/month)
+        Job->>Job: Extract 乗用車計 (passenger-car total) row → PETROL/HEV/PHEV/DIESEL/BEV/(FCV+その他)/TOTAL
         Job->>Job: Sanity-check: sum of fuels == TOTAL
         Job->>CSV: Upsert target-month row (preserves CRLF endings)
         Job->>Render: gh workflow run render-country.yml -f country=Japan
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_japan.py](../../scripts/fetch_japan.py). The module docstring documents the column mapping, the FCV+その他 fold-in convention, and the no-partial-writes rule.
+**Where parsing lives:** [scripts/fetch_japan.py](../../scripts/fetch_japan.py). The module docstring documents the column mapping, the FCV+その他 *(sonota, "other")* fold-in convention, and the no-partial-writes rule.
 
-**Vehicle scope:** JADA page 342 covers 登録車 (registered passenger cars) only. Kei cars (軽自動車) are explicitly excluded by the file's footer "２．軽自動車は含みません。" — see [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source). The pre-existing `data/Japan.csv` rows since 2020-02 follow the same scope (monthly totals 180–280k match 登録車-only volumes).
+**Vehicle scope:** JADA page 342 covers 登録車 *(tōrokusha,* standard passenger cars: engine > 660 cc **or** length > 3.40 m / width > 1.48 m / height > 2.00 m; ≈ LDV / EU M1, almost all under 3.5 t — no formal weight cap*)* only. Kei cars (軽自動車 *kei jidōsha*: ≤ 660 cc **and** ≤ 3.40 × 1.48 × 2.00 m, typically 700-1000 kg, ~35-40 % of Japan's new-car market) are explicitly excluded by the file's footer "２．軽自動車は含みません。" *("2. Kei cars not included.")* — see [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source). The pre-existing `data/Japan.csv` rows since 2020-02 follow the same scope (monthly totals 180–280k match 登録車-only volumes).
 
 **Why XLSX preferred, PDF fallback:** both files carry the same payload but the XLSX has stable cell positions (A=row label, D=PETROL, F=HEV, …, R=TOTAL). The PDF text, when extracted with pypdf, is reordered column-by-column rather than row-by-row, which forced us into a line-based parser (see "Issues hit" below). We try XLSX first and only fall back to PDF if the XLSX URL was not supplied / not parseable for the target month. This also future-proofs us against JADA dropping one of the two formats.
 
@@ -407,7 +407,7 @@ Parser was checked byte-exact against the existing `data/Japan.csv` rows:
 
 | Sample file | Months validated | Result |
 |---|---|---|
-| `燃料別登録台数統計（2022年1月~12月）.xlsx` (full-year rollup) | 2022-01 … 2022-12 | 12/12 EXACT match |
+| `燃料別登録台数統計（2022年1月~12月）.xlsx` *("Registration counts by fuel type (Jan–Dec 2022)")*, full-year rollup | 2022-01 … 2022-12 | 12/12 EXACT match |
 | `202605081028169165.xlsx` (May 2026 monthly rollup) | 2026-01, 2026-02, 2026-03 | 3/3 EXACT match |
 | `202605081028169165.xlsx` — new row | 2026-04 | Sum check ✓ (parsed BEV/PHEV/HEV/PETROL/DIESEL/OTHERS sum to 223,369 = TOTAL) |
 | `202605081027423166.pdf` (same publication, PDF format) | 2026-01 … 2026-04 | Matches XLSX byte-exact (after the line-based parser fix; see Issue 2 above) |
