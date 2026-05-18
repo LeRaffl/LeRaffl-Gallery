@@ -2,6 +2,46 @@
   "updated": "2026-05-18",
   "images": [
     {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-18",
+      "filename": "japan_ICE_BEV_20260518.png",
+      "url": "images/2026-04/japan_ICE_BEV_20260518.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-18",
+      "filename": "japan_20260518.png",
+      "url": "images/2026-04/japan_20260518.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-18",
+      "filename": "japan_time_20260518.png",
+      "url": "images/2026-04/japan_time_20260518.png",
+      "alt": "Japan Transition time curve",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-18",
+      "filename": "japan_ttm_shares_20260518.png",
+      "url": "images/2026-04/japan_ttm_shares_20260518.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-04",
