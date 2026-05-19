@@ -136,6 +136,17 @@ Germany,Whole,-1.050261627753e-4,2.898020288277,2011,2026-04,2026-05-08,KBA,,-3.
 
 This matches what the maintainer's local R script produces, so PR diffs from local-R pushes and from the Render Action look the same.
 
+### Known fragility — Indonesia-style `v1=0` corruption
+
+Fast-adoption markets (currently only Indonesia) fit to `v1 ≈ -6e-20` with `v2 > 10`. R's default `format()` / `round(x, 6)` rounds these to literal `0`, so any external tool that round-trips `params.csv` via base-R defaults silently destroys the precision. Once `v1 = 0` is in the CSV, the page used to anchor the Weibull ~20 years too far into the future and reported a ~5-year 20→80 transition for Indonesia (the truth is ~2.3 years).
+
+The schema is deliberately **not** extended to defend against this — every defence sits in code, so external tools that aren't aware of the new schema can't accidentally undo it:
+
+- **Frontend `index.html::recoverV1FromAnchor()`** — at load time, every `v1 = 0` row is rewritten by anchoring the Weibull at a v2-dependent BEV share at `data_per` (28 % for `v2 ≥ 10` like Indonesia, else 50 %). Calibrated against the live Indonesia fit, the resulting 20→80 lands within ~1 day of the true fit.
+- **Backend `R/upsert.R::heal_v1_zero_rows()`** — invoked from `R/render_country.R` at the end of every render. Scans `params.csv` for rows with `|v1| < 1e-25` AND `v2 ≥ 10`, re-fits them from `data/<Country>.csv`, and rewrites the row in place. Cheap when nothing is corrupted (file read + numeric parse).
+
+See [08-deploy-ops.md § "Indonesia v1=0 corruption"](08-deploy-ops.md#indonesia-v10-corruption) for the operator-facing runbook and the long-form root-cause story.
+
 ---
 
 ## 3.3 Aggregate Weights
