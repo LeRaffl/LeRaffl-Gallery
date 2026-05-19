@@ -4,12 +4,27 @@ name: Render country charts
 # (typically via a merged Submit-Data PR), pick the country here and the
 # four PNGs + params.csv + weights.csv are regenerated and committed.
 # The Build manifest workflow is dispatched after the render commit.
+#
+# Also exposed as `workflow_call` so multi-country fetchers (fetch-acea.yml)
+# can fan it out via a matrix with `max-parallel: 1` for a strict serial
+# rendering chain across all changed countries.
 
 on:
   workflow_dispatch:
     inputs:
       country:
         description: 'Country (filename in data/, e.g. "Germany")'
+        required: true
+        type: string
+      variant:
+        description: 'Variant (default Whole)'
+        required: false
+        default: 'Whole'
+        type: string
+  workflow_call:
+    inputs:
+      country:
+        description: 'Country (filename in data/)'
         required: true
         type: string
       variant:

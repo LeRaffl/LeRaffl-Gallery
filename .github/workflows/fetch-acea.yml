@@ -1,0 +1,100 @@
+name: Fetch ACEA data (multi-country)
+
+# Scrapes the monthly ACEA press release PDF and upserts new rows into the
+# data/<Country>.csv files for every country in the maintainer-defined lists.
+# Two passes per run:
+#
+#   1. fetch job — parses the PDF and writes the changed CSVs in one commit.
+#      The script self-throttles via the latest period across the always-list
+#      countries, so the cheapest run is "all CSVs already at target, no HTTP".
+#
+#   2. render job — matrix over the changed countries with max-parallel=1.
+#      Each entry calls render-country.yml as a reusable workflow, so the
+#      countries render strictly one after another (the maintainer's
+#      preference) without flooding the runner pool. Each render commit
+#      dispatches build-manifest.yml; its own concurrency group with
+#      cancel-in-progress=true coalesces the resulting fan-in into a single
+#      final manifest build, so the deployment chain never stalls.
+#
+# ACEA usually publishes the previous month's press release between the
+# 22nd and 25th of the following month. We cron daily from the 16th onward
+# so the first publication day is in range without us hammering ACEA in
+# the empty days.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct ACEA PDF URL or path (leave empty to auto-construct)'
+        required: false
+        default: ''
+      force:
+        description: 'Skip the latest-period short-circuit'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 8 16-31 * *'   # 16th through end of month at 08:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    outputs:
+      changed_countries: ${{ steps.fetch.outputs.changed_countries }}
+      any_changed: ${{ steps.fetch.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pdfplumber
+
+      - name: Fetch & update ACEA CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_acea.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        if: steps.fetch.outputs.any_changed == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data
+          message: 'chore: update ACEA data (multi-country)'
+          default_author: github_actions
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.any_changed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        country: ${{ fromJson(needs.fetch.outputs.changed_countries) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: ${{ matrix.country }}
+      variant: Whole
+    secrets: inherit
