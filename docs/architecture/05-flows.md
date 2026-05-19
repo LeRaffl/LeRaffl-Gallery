@@ -16,7 +16,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | H | [Auto-ingest Brazil from ANFAVEA](#flow-h--anfavea-ingest) | Monthly cron (10th, 08:00 UTC) or manual dispatch | Updated `data/Brazil.csv` → triggers Flow B for Brazil |
 | I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:00 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
-| K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤25 countries → sequential Flow B for each |
+| K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
 
 ---
 
@@ -417,14 +417,14 @@ The XLSX layout has been stable from at least 2022 through 2026 — same column 
 
 ## Flow K — ACEA ingest
 
-ACEA (European Automobile Manufacturers' Association) publishes one PDF press release per month covering ~25 European markets at once. This is qualitatively different from the previous fetchers, which each target a single country: a single ACEA run can touch up to 25 CSVs and therefore needs both a multi-CSV upsert step and a multi-country render fan-out. We keep the `fetch-<source>` workflow shape but split the run into two jobs:
+ACEA (European Automobile Manufacturers' Association) publishes one PDF press release per month covering ~25 European markets at once. We treat 21 of those markets as in-scope (16 always-list + 5 conditional-list — see "The two country lists" below); a single ACEA run can therefore touch up to 21 CSVs and needs both a multi-CSV upsert step and a multi-country render fan-out. We keep the `fetch-<source>` workflow shape but split the run into two jobs:
 
 ```mermaid
 sequenceDiagram
     participant Cron as GitHub Actions (cron / dispatch)
     participant Fetch as fetch-acea.yml · fetch job
     participant Site as acea.auto
-    participant CSVs as data/<Country>.csv (≤25 files)
+    participant CSVs as data/<Country>.csv (≤21 files)
     participant Render as fetch-acea.yml · render matrix (max-parallel=1)
     participant RC as render-country.yml (workflow_call)
     participant Manifest as build-manifest.yml
@@ -462,7 +462,7 @@ sequenceDiagram
 
 ### Pre-design audit
 
-Before drafting the per-country rules we read every existing `data/<Country>.csv` for the 25 ACEA countries in scope and recorded the `source` column on the most recent monthly row. The audit drove the two-list split and a handful of edge cases that needed explicit confirmation from the maintainer:
+Before drafting the per-country rules we read every existing `data/<Country>.csv` for the ACEA countries we initially considered and recorded the `source` column on the most recent monthly row. The audit drove the two-list split, surfaced four countries that needed to be removed from scope entirely, and exposed a handful of edge cases that needed explicit confirmation from the maintainer:
 
 | Country | Most recent source | Notes |
 |---|---|---|
@@ -475,10 +475,7 @@ Before drafting the per-country rules we read every existing `data/<Country>.csv
 | Poland | `ACEA / PZPM` | Conditional — same. |
 | Norway | `ofv.no & ACEA` | Conditional — same. |
 | Switzerland | `pxweb.bfs.admin.ch / ACEA` | Conditional — same. |
-| Sweden | `statistikdatabasen.scb.se` | Conditional — non-ACEA. **Also has a non-standard 13-column schema** (`…,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes`); see "Sweden's FLEXFUEL column" below. |
-| Denmark, Finland, Netherlands | *(no CSV file)* | Conditional countries that have never been ingested. The fetcher creates the file from scratch with the standard 12-column schema. |
-
-**Sweden's FLEXFUEL column:** Sweden's CSV is the only file in scope with a non-standard schema; ACEA does not break out flex-fuel separately so we can't fill that column from this source. In practice Sweden is always skipped by the conditional rule (the live source is `statistikdatabasen.scb.se`, never `ACEA`), so the schema mismatch is moot today. We *do* still handle it defensively: `build_row` reads the existing CSV's `fieldnames`, populates the columns it knows (BEV/PHEV/HEV/PETROL/DIESEL/OTHERS/TOTAL), and defaults any extra columns (`FLEXFUEL`) to `0.0`. If Sweden ever needs an ACEA-sourced write, the resulting row would carry `FLEXFUEL=0.0` instead of crashing.
+| ~~Denmark, Finland, Netherlands, Sweden~~ | — | **Out of scope.** All four are fed from national databases that also expose variants ACEA can't (Private / Industry / Used / HDV). The maintainer's preferred pipeline is the database, not the ACEA monthly headline, so the ACEA fetcher would only muddy the water. Sweden additionally has a non-standard 13-column CSV schema (`…,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes`) that ACEA can't fill. A separate workflow for these four is planned for later. |
 
 ### Maintainer Q&A that shaped the rules
 
@@ -497,10 +494,10 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 
 | Bucket | Countries | When ACEA writes |
 |---|---|---|
-| Always-list | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
-| Conditional-list | Denmark, Finland, Luxembourg, Netherlands, Poland, Spain, Sweden, Norway, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ACEA / DGT / asierlizarraga`, `ofv.no & ACEA`, `statistikdatabasen.scb.se`) are left untouched. |
+| Always-list (16) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
+| Conditional-list (5) | Luxembourg, Norway, Poland, Spain, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ACEA / DGT / asierlizarraga`, `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. |
 
-ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, and the United Kingdom; those countries are intentionally outside this fetcher's scope (the maintainer wants to build separate, more granular workflows for them later). The script skips them silently.
+ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Austria/Germany/Ireland/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose variants ACEA can't (Private / Industry / Used / HDV). The script skips all of them silently.
 
 ### Previous-year corrections
 
@@ -568,9 +565,9 @@ Parser was checked byte-exact against the existing CSV rows where applicable:
 
 | Check | Result |
 |---|---|
-| `Press_release_car_registrations_March_2026.pdf` — 2026-03 column for all 25 in-scope countries | 25/25 current-month values match the existing `data/<Country>.csv` rows (where source = `ACEA`). Malta has a known 580 vs. 581 (sum-vs-TOTAL) off-by-one that appears identically in `data/Malta.csv` — the parser logs a `sanity Malta curr: components=581 TOTAL=580` warning and proceeds. |
+| `Press_release_car_registrations_March_2026.pdf` — 2026-03 column for all 21 in-scope countries | 21/21 current-month values match the existing `data/<Country>.csv` rows (where source = `ACEA`). Malta has a known 580 vs. 581 (sum-vs-TOTAL) off-by-one that appears identically in `data/Malta.csv` — the parser logs a `sanity Malta curr: components=581 TOTAL=580` warning and proceeds. |
 | Same file — 2025-03 column (prior-year correction) | 9 countries with source=`ACEA` (Belgium, Bulgaria, Croatia, Cyprus, Iceland, Latvia, Lithuania, Slovakia, Slovenia) received the ACEA-revised values (e.g. Belgium 2025-03 PHEV: 3399 → 3244, HEV: 4455 → 4610, OTHERS: 349 → 348, PETROL: 17056 → 17057). Countries with non-`ACEA` source (Czechia `ACEA / sda-cia.cz`, Hungary, Spain, …) correctly left untouched. |
-| Same file — Denmark, Finland, Netherlands | New CSV created from scratch with the standard 12-column schema and CRLF line endings; 2 data rows (2025-03 + 2026-03). |
+| Same file — Denmark, Finland, Netherlands, Sweden | Out of scope — script skips them silently and no CSV is created/modified. (Verified: `ls data/Denmark.csv data/Finland.csv data/Netherlands.csv` → not found after the run.) |
 | Re-run the script over the just-written tree | Idempotent: `Countries with CSV changes: []`, no diff against the previous write. |
 | Re-run the script without `--force` | Short-circuits before any HTTP / PDF parse: `All always-list CSVs already at 2026-03 ≥ 2026-03 — nothing to do.` |
 | Run the script against an off-target PDF (`--year 2026 --month 4` but `--pdf-url <March 2026 PDF>`) | Hard-fails with `PDF reports 'March 2026' but target is 'April 2026' — refusing to write mismatched data.` (sanity check added after spotting that `--pdf-url` overrides could otherwise silently scrape the wrong month). |
