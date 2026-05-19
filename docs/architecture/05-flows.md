@@ -460,6 +460,37 @@ sequenceDiagram
 
 **Vehicle scope:** ACEA's "new passenger car registrations" — M1 vehicles only. Light commercial vehicles are published in a separate ACEA press release that we don't ingest. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
 
+### Pre-design audit
+
+Before drafting the per-country rules we read every existing `data/<Country>.csv` for the 25 ACEA countries in scope and recorded the `source` column on the most recent monthly row. The audit drove the two-list split and a handful of edge cases that needed explicit confirmation from the maintainer:
+
+| Country | Most recent source | Notes |
+|---|---|---|
+| Belgium, Bulgaria, Croatia, Cyprus, Estonia, France, Greece, Iceland, Latvia, Lithuania, Romania, Slovakia, Slovenia | `ACEA` | Pure ACEA-sourced — natural fit for the always-list. |
+| Czechia | `ACEA / sda-cia.cz` | Blended source. Always-list current-month overwrites it cleanly; prior-year correction skips it (source != exact `ACEA`). |
+| Hungary | `Hungary` | Custom string. Maintainer confirmed in chat: this is a historical mislabel, the data is actually ACEA. Always-list overwrite is intended — we let the source converge to `ACEA` going forward and leave the past untouched. |
+| Malta | `ACEA` | Always-list; last entry was `2025-05` — the file had a multi-month gap that this fetcher will close. |
+| Spain | `ACEA / DGT / asierlizarraga` | Conditional — non-ACEA source means the manual blend stays untouched. |
+| Luxembourg | `ACEA / lustat.statec.lu` | Conditional — same. |
+| Poland | `ACEA / PZPM` | Conditional — same. |
+| Norway | `ofv.no & ACEA` | Conditional — same. |
+| Switzerland | `pxweb.bfs.admin.ch / ACEA` | Conditional — same. |
+| Sweden | `statistikdatabasen.scb.se` | Conditional — non-ACEA. **Also has a non-standard 13-column schema** (`…,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes`); see "Sweden's FLEXFUEL column" below. |
+| Denmark, Finland, Netherlands | *(no CSV file)* | Conditional countries that have never been ingested. The fetcher creates the file from scratch with the standard 12-column schema. |
+
+**Sweden's FLEXFUEL column:** Sweden's CSV is the only file in scope with a non-standard schema; ACEA does not break out flex-fuel separately so we can't fill that column from this source. In practice Sweden is always skipped by the conditional rule (the live source is `statistikdatabasen.scb.se`, never `ACEA`), so the schema mismatch is moot today. We *do* still handle it defensively: `build_row` reads the existing CSV's `fieldnames`, populates the columns it knows (BEV/PHEV/HEV/PETROL/DIESEL/OTHERS/TOTAL), and defaults any extra columns (`FLEXFUEL`) to `0.0`. If Sweden ever needs an ACEA-sourced write, the resulting row would carry `FLEXFUEL=0.0` instead of crashing.
+
+### Maintainer Q&A that shaped the rules
+
+Four interactive decisions made via `AskUserQuestion` mid-design. Recording them here so the rationale survives future reviews:
+
+| Question | Maintainer's call |
+|---|---|
+| For the conditional list, when does "schon was da" trigger — any row, or only rows already from ACEA? | "Skip nur wenn Quelle != ACEA". A pure-ACEA row gets overwritten; any blended/custom source is treated as manual curation and left alone. |
+| Hungary is in the always-list but its CSV's source is `Hungary` — overwrite, treat as conditional, or remove from the list? | Overwrite with ACEA — the `Hungary` source string is itself a historical bug. |
+| Previous-year corrections — same rule as conditional, always overwrite, or ignore? | Same as conditional, applied to both lists. If the existing source is empty (some old rows have no source) or non-ACEA, leave it for the maintainer's manual data-quality review later. |
+| 16+ countries can change per run — sequential rendering, parallel via `gh workflow run`, or staggered dispatches? | Sequential, same workflow, max-parallel=1. |
+
 ### The two country lists
 
 The maintainer maintains the gallery for a ~50-country roster; ACEA only covers part of it, and several of the countries ACEA *does* cover also have a "better" upstream source the maintainer (or community contributors) already feeds in. We split ACEA's covered countries into two buckets:
@@ -489,6 +520,15 @@ The maintainer's preference is for the countries to render one after another rat
 
 The downstream build-manifest dispatches from each render aren't an issue: `build-manifest.yml` uses `concurrency: manifest-${{ github.ref }}` with `cancel-in-progress: true`, so all but the last fan-in trigger gets cancelled and exactly one manifest build runs at the end. Deployment is therefore never blocked by the fan-out — the maintainer's explicit concern that "die anderen actions die dranhängen wie z.B. deployment sollten sich nicht aufhängen".
 
+**Alternatives considered:**
+
+| Approach | Why we didn't go with it |
+|---|---|
+| Fan out `gh workflow run render-country.yml` calls in a loop (Brazil/Chile/Japan pattern) | Would dispatch 16 renders in parallel — each has its own per-country `concurrency` group, so they don't serialize. Fine for a single-country fetcher, wrong for a multi-country one. |
+| Same as above with `sleep` between dispatches | Hides the parallelism but doesn't eliminate it; the dispatched runs still execute in parallel once the queue empties. Adds no real backpressure. |
+| Inline the R rendering steps directly in `fetch-acea.yml` (no reusable workflow) | Duplicates the setup-r block, the package list, the EndBug commit, and the manifest dispatch. The matrix + `workflow_call` approach reuses every line of `render-country.yml` verbatim and stays consistent with the existing single-country flow. |
+| `workflow_run` trigger on `build-manifest.yml` listening for ACEA commits | Couples the manifest build to the ACEA workflow lifecycle; an unrelated workflow modifying the same paths wouldn't trigger it. The existing `paths: ['images/**']` push trigger already covers all callers uniformly. |
+
 ### Why the 16th and not the 1st
 
 ACEA's March 2026 release went out on **23 April 2026** (the embargo line on page 1 reads "EMBARGOED PRESS RELEASE 6.00 CEST (4.00 GMT), 23 April 2026"). Cross-checked against earlier months, ACEA reliably publishes between the 22nd and 25th of the following month. We cron daily from the 16th onward (vs. Chile's 14th and Japan's 1st) to keep the first plausible publication day in range without inflating the empty-day cost — most schedule fires before the 23rd are no-ops via the self-throttle and don't even touch the network.
@@ -510,23 +550,30 @@ ACEA's March 2026 release went out on **23 April 2026** (the embargo line on pag
 
 ### Issues hit during development
 
-1. **ACEA blocked the dev sandbox.** Initial `WebFetch` and `curl` against `https://www.acea.auto/files/Press_release_car_registrations_March_2026.pdf` returned `HTTP 403 x-deny-reason: host_not_allowed` — the same pattern we saw with JADA. The maintainer uploaded the March 2026 PDF to the branch (`data/Press_release_car_registrations_March_2026.pdf`) and we developed the parser against that. Whether the GitHub-hosted runner is blocked too is an open question; if it is, the `--pdf-url` workflow input lets the maintainer paste in any working URL or local path.
+1. **ACEA blocked the dev sandbox.** Initial `WebFetch`, `curl` with a desktop Chrome User-Agent, and even `web.archive.org` access all returned `HTTP 403 x-deny-reason: host_not_allowed` — the same pattern we saw with JADA. The maintainer uploaded the March 2026 PDF directly to `master` (`data/Press_release_car_registrations_March_2026.pdf`) and we developed the parser against that. Whether the GitHub-hosted runner is blocked too is an open question; if it is, the `--pdf-url` workflow input lets the maintainer paste in any working URL or local path. The downstream user-agent and `Referer: https://www.acea.auto/` headers in `HTTP_HEADERS` are the same trick that unblocked ANAC/JADA.
 
-2. **pdfplumber recovers the table grid, pypdf doesn't.** The first prototype used pypdf and reproduced the JADA "PETROL column shifted by one" class of bug whenever a count was rendered with extra spaces (`"18 4"` instead of `"184"`). Switching to pdfplumber's `extract_tables()` makes each fuel section a discrete cell whose text reads `"18 43 -58.1"` — much easier to tokenize. Trade-off: pdfplumber pulls in pdfminer.six + pypdfium2 + Pillow, which is a heavier dependency than pypdf, but the install on `ubuntu-latest` is ~20 s and stays well within the runner's available disk.
+2. **First parser prototype with pypdf shifted columns.** Used pypdf's `extract_text()` and a row-token regex first. Whenever ACEA rendered a count with extra inter-glyph spacing the tokens split (Cyprus DIESEL `"184"` in the PDF read as `"18 4"` in extracted text, then again as `"18 4 3 -58.1"` after the next `43` joined it), shifting every later column by one. pdfplumber's `extract_tables()` recovers the actual table-cell grid; a fuel-section cell reads cleanly as `"18 43 -58.1"`. Trade-off: pdfplumber pulls in pdfminer.six + pypdfium2 + Pillow, heavier than pypdf, but the install on `ubuntu-latest` is ~20 s and stays well within the runner's disk budget.
 
 3. **First test wrote a noisy diff for Belgium.** End-to-end smoke test against the March 2026 PDF moved three 2022 rows around in `data/Belgium.csv` even though the actual data change was a single corrected 2025-03 row. Cause: `write_csv` was sorting everything by period; Belgium had `2022-07/-08/-09` inserted out of order historically (during a prior batch import). Fix: capture the on-disk row order before mutating and pass it back to `write_csv` so unchanged rows stay where they were; new periods are sorted and appended.
 
 4. **The `notes` column for previous-year corrections.** Each row writes the source URL into the `notes` column. For prior-year corrections this means a row originally noted "" or empty now carries the URL of the file that produced the correction. The maintainer is OK with this — the URL is a useful "what publication did this come from" pointer, and the existing rows the script *doesn't* touch (non-ACEA source) keep their original notes.
 
+5. **YTD page vs MONTHLY page.** Page 4 carries a year-to-date version of the same table; the maintainer warned explicitly: "Pass außerdem auf dass du die richtige Tabelle hast". The parser disambiguates by inspecting row 1 of each candidate table — MONTHLY cells read `March\n2026`, YTD cells read `Jan-Mar\n2026`. We *only* read the monthly table because (a) the maintainer's CSVs are monthly, not YTD, and (b) the monthly table already exposes the same-month prior-year column we need for corrections, so the YTD page adds nothing.
+
+6. **Page 4 (YTD) renders the header text letter-spaced.** Side observation while debugging the table-disambiguation: pdfplumber emits the YTD header as `"B A T T E R Y E L E C T R IC"` (each glyph separated) while the monthly header is the clean `"BATTERY ELECTRIC"`. The `_normalise_header` helper (`re.sub(r"\s+", "", s).rstrip("123").upper()`) handles both transparently, but it's a foot-gun if someone later writes a different header matcher without the whitespace-strip step.
+
 ### Validation
 
 Parser was checked byte-exact against the existing CSV rows where applicable:
 
-| Sample file | Months validated | Result |
-|---|---|---|
-| `Press_release_car_registrations_March_2026.pdf` — 2026-03 column for all 25 in-scope countries | 25/25 currrent-month values | EXACT match against existing `data/<Country>.csv` (where source = `ACEA`); see Malta's known 580 vs. 581 off-by-one which appears identically in `data/Malta.csv`. |
-| Same file — 2025-03 column (prior-year correction) | 9 countries with source=`ACEA` (Belgium, Bulgaria, Croatia, Cyprus, Iceland, Latvia, Lithuania, Slovakia, Slovenia) | Captures ACEA-revised values (e.g. Belgium 2025-03 PHEV: 3399 → 3244). Countries with non-`ACEA` source (Czechia / sda-cia.cz, Hungary, Spain, …) correctly left untouched. |
-| Same file — Denmark, Finland, Netherlands | 2 rows each (2025-03 + 2026-03) | New CSV created from scratch with the standard 12-column schema and CRLF line endings. |
+| Check | Result |
+|---|---|
+| `Press_release_car_registrations_March_2026.pdf` — 2026-03 column for all 25 in-scope countries | 25/25 current-month values match the existing `data/<Country>.csv` rows (where source = `ACEA`). Malta has a known 580 vs. 581 (sum-vs-TOTAL) off-by-one that appears identically in `data/Malta.csv` — the parser logs a `sanity Malta curr: components=581 TOTAL=580` warning and proceeds. |
+| Same file — 2025-03 column (prior-year correction) | 9 countries with source=`ACEA` (Belgium, Bulgaria, Croatia, Cyprus, Iceland, Latvia, Lithuania, Slovakia, Slovenia) received the ACEA-revised values (e.g. Belgium 2025-03 PHEV: 3399 → 3244, HEV: 4455 → 4610, OTHERS: 349 → 348, PETROL: 17056 → 17057). Countries with non-`ACEA` source (Czechia `ACEA / sda-cia.cz`, Hungary, Spain, …) correctly left untouched. |
+| Same file — Denmark, Finland, Netherlands | New CSV created from scratch with the standard 12-column schema and CRLF line endings; 2 data rows (2025-03 + 2026-03). |
+| Re-run the script over the just-written tree | Idempotent: `Countries with CSV changes: []`, no diff against the previous write. |
+| Re-run the script without `--force` | Short-circuits before any HTTP / PDF parse: `All always-list CSVs already at 2026-03 ≥ 2026-03 — nothing to do.` |
+| Run the script against an off-target PDF (`--year 2026 --month 4` but `--pdf-url <March 2026 PDF>`) | Hard-fails with `PDF reports 'March 2026' but target is 'April 2026' — refusing to write mismatched data.` (sanity check added after spotting that `--pdf-url` overrides could otherwise silently scrape the wrong month). |
 
 The PDF's column layout (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL) has been stable across the maintainer's recent reference period, but the script identifies columns by their header text rather than position, so a future reordering is a no-op as long as the labels themselves don't change.
 
