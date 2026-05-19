@@ -134,6 +134,13 @@ weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
 
+# Self-heal any rows whose v1 was rounded to 0 by an external tool — see
+# heal_v1_zero_rows() in R/upsert.R for full context. Runs on every render so
+# Indonesia-style corruption from the legacy "auto-publish model" script is
+# repaired the next time CI touches params.csv, even if a different country
+# is being rendered.
+heal_v1_zero_rows("params.csv", "weights.csv")
+
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
