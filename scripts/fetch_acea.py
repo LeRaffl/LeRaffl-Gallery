@@ -1,0 +1,598 @@
+#!/usr/bin/env python3
+"""
+Fetch ACEA monthly car-registrations PDF and upsert per-country rows into
+the data/<Country>.csv files we maintain.
+
+Usage
+-----
+    python scripts/fetch_acea.py [--year YEAR] [--month MONTH] \
+        [--pdf-url URL_OR_PATH] [--data-dir data] [--force] \
+        [--github-output PATH]
+
+* --year / --month   Target month (default: previous calendar month).
+* --pdf-url          Direct URL/path to a Press_release_car_registrations PDF.
+                     If omitted, the canonical ACEA URL for the target month is
+                     constructed and tried.
+* --data-dir         Folder containing data/<Country>.csv (default: ./data).
+* --force            Skip the "already up-to-date" short-circuit; the per-row
+                     write rules still apply.
+* --github-output    Optional path; when set, the list of countries whose CSV
+                     was actually modified is written there as
+                     `changed_countries=<json-array>` (used by fetch-acea.yml).
+
+Invoked by .github/workflows/fetch-acea.yml on a daily cron from the 16th of
+each month onward (ACEA typically publishes the previous month's PDF around
+the 22nd–25th). The script self-throttles by reading the latest period from
+every always-list CSV; the cheapest path is "all CSVs already at target, no
+HTTP". When something changes, the workflow commits the modified CSVs in one
+commit and then a sequential matrix job renders each affected country.
+
+Data source
+-----------
+ACEA (European Automobile Manufacturers' Association) publishes monthly press
+releases at https://www.acea.auto/files/Press_release_car_registrations_<Month>_<Year>.pdf
+(e.g. Press_release_car_registrations_March_2026.pdf). The link is stable;
+only Month and Year change.
+
+The PDF has 6 pages. Page 3 carries the MONTHLY by-market-and-power-source
+table; page 4 the YEAR-TO-DATE table. We always parse the MONTHLY table
+because:
+  * the monthly table includes one columns block for the target month (e.g.
+    March 2026) **and** one for the prior-year same month (March 2025), giving
+    us the prior-year correction the maintainer wants — no YTD parsing needed.
+  * YTD totals are derived; the source month-by-month columns are authoritative.
+
+Column order in the monthly table — observed for the March 2026 file:
+    BATTERY ELECTRIC | PLUG-IN HYBRID | HYBRID ELECTRIC¹ | OTHERS² | PETROL | DIESEL | TOTAL
+Note this differs from our CSV order (BEV, PHEV, HEV, PETROL, DIESEL, OTHERS,
+TOTAL — OTHERS sits between DIESEL and TOTAL). The maintainer warned that ACEA
+shuffles columns occasionally, so we detect each fuel's column position from
+the header row rather than hard-coding offsets.
+
+Cell formatting quirks
+----------------------
+* Both year columns of a fuel section can read "0 0" with the YoY % omitted
+  (Bulgaria OTHERS, Estonia OTHERS, …). We treat this as 0 / 0.
+* Some countries report a dash glyph (U+A7F7 "ꟷ", or a regular em/en-dash)
+  instead of "0" — Latvia HEV, Romania PHEV. Treated as 0 by the parser, per
+  the maintainer's instruction.
+* Both PDF text-extraction layouts (pdfplumber's & pypdf's) sometimes split a
+  count across whitespace (e.g. "184" → "18 4"). pdfplumber's table extraction
+  keeps the cell boundaries intact, which avoids this; the tokeniser below
+  filters integer tokens (with thousand separators) and ignores any
+  percentage tokens (anything with a "." or a stand-alone sign).
+* On page 4 (YTD) the title cells are rendered as letter-spaced glyphs
+  ("B A T T E R Y E L E C T R IC"); we don't parse page 4 but the
+  normaliser strips inner whitespace so the header regex is robust either way.
+
+Per-country write rules
+-----------------------
+The maintainer enumerated two lists:
+
+* "Always" list — always overwrite the current-month row, source := "ACEA":
+    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece,
+    Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia
+
+* "Conditional" list — only touch a row if the existing source is exactly
+  "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
+    Denmark, Finland, Luxembourg, Netherlands, Poland, Spain, Sweden, Norway,
+    Switzerland
+
+For the prior-year correction (e.g. the March 2025 column of a March 2026
+file) the rule from the maintainer is identical to the conditional rule
+**for both lists**: overwrite only if the existing row's source is exactly
+"ACEA"; if the source field is empty (some old rows have no source) or
+non-ACEA, leave the row alone — the maintainer wants those flagged for
+manual data-quality review rather than blindly overwritten.
+
+Other countries on the PDF (Austria, Germany, Ireland, Italy, Portugal,
+United Kingdom, EU/EFTA aggregates) are intentionally skipped — those are
+handled by separate per-country workflows that aren't built yet.
+"""
+import argparse
+import csv
+import io
+import json
+import os
+import re
+import sys
+from datetime import date
+from pathlib import Path
+
+import pdfplumber
+import requests
+
+# --- Constants ------------------------------------------------------------
+
+ALWAYS_COUNTRIES = [
+    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
+    "France", "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
+    "Malta", "Romania", "Slovakia", "Slovenia",
+]
+CONDITIONAL_COUNTRIES = [
+    "Denmark", "Finland", "Luxembourg", "Netherlands", "Poland", "Spain",
+    "Sweden", "Norway", "Switzerland",
+]
+ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
+
+ENGLISH_MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+]
+
+ACEA_URL_TEMPLATE = (
+    "https://www.acea.auto/files/"
+    "Press_release_car_registrations_{month_name}_{year}.pdf"
+)
+
+HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/pdf,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.acea.auto/",
+}
+
+# Standard CSV column order (matches the existing Belgium/France/… files).
+STANDARD_CSV_COLUMNS = [
+    "period", "time_interval", "variant", "source",
+    "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS",
+    "TOTAL", "notes",
+]
+
+# Source string for rows we write/overwrite.
+ACEA_SOURCE = "ACEA"
+
+# Dash glyphs the PDF uses in place of "0".
+DASH_GLYPHS = ("ꟷ", "–", "—", "−")
+
+# Header tokens (normalised — whitespace stripped, footnotes "1"/"2" trimmed,
+# upper-cased) and the CSV fuel key they correspond to.
+HEADER_TO_FUEL = {
+    "BATTERYELECTRIC": "BEV",
+    "PLUG-INHYBRID": "PHEV",
+    "HYBRIDELECTRIC": "HEV",
+    "OTHERS": "OTHERS",
+    "PETROL": "PETROL",
+    "DIESEL": "DIESEL",
+    "TOTAL": "TOTAL",
+}
+
+# --- Date helpers ---------------------------------------------------------
+
+def previous_month(today: date) -> tuple[int, int]:
+    if today.month == 1:
+        return today.year - 1, 12
+    return today.year, today.month - 1
+
+
+def prev_year_period(period: str) -> str:
+    y, m = period.split("-")
+    return f"{int(y) - 1}-{m}"
+
+
+# --- CSV helpers ---------------------------------------------------------
+
+def detect_line_ending(path: Path) -> str:
+    """Returns '\\r\\n' if the file is CRLF (matches Belgium et al.), else '\\n'."""
+    if not path.exists():
+        return "\r\n"  # match the convention used by the existing ACEA CSVs
+    with open(path, "rb") as f:
+        head = f.read(4096)
+    return "\r\n" if b"\r\n" in head else "\n"
+
+
+def load_csv(path: Path) -> tuple[list[str], list[dict]]:
+    """Returns (fieldnames, rows). New file → default schema + empty rows."""
+    if not path.exists():
+        return list(STANDARD_CSV_COLUMNS), []
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        fields = list(reader.fieldnames or STANDARD_CSV_COLUMNS)
+    return fields, rows
+
+
+def write_csv(path: Path, fields: list[str], rows: list[dict],
+              original_order: list[str] | None = None) -> None:
+    """Write `rows` keyed by `period`. If `original_order` is given (list of
+    periods from the file as it was on disk), rows are emitted in that order
+    and any *new* periods are sorted and appended at the end. This keeps the
+    diff minimal when the historical file isn't strictly period-sorted — the
+    Belgium/France/… files have a few prior-year correction rows inserted
+    out of order, and we don't want to noisily resort them on every run.
+    """
+    line_ending = detect_line_ending(path)
+    by_period = {r["period"]: r for r in rows}
+    if original_order:
+        ordered: list[dict] = []
+        seen: set[str] = set()
+        for p in original_order:
+            if p in by_period and p not in seen:
+                ordered.append(by_period[p])
+                seen.add(p)
+        # New periods: append in sorted order at the end.
+        new_periods = sorted(set(by_period.keys()) - seen)
+        for p in new_periods:
+            ordered.append(by_period[p])
+    else:
+        ordered = [by_period[p] for p in sorted(by_period.keys())]
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator=line_ending)
+        writer.writeheader()
+        for r in ordered:
+            writer.writerow({k: r.get(k, "") for k in fields})
+
+
+def is_acea_source(src: str | None) -> bool:
+    """True iff the existing row's source column is exactly "ACEA" (case-insensitive)."""
+    return (src or "").strip().upper() == "ACEA"
+
+
+def latest_period_across(data_dir: Path, countries: list[str]) -> str | None:
+    """Returns the maximum period in any of the given country CSVs."""
+    best: str | None = None
+    for name in countries:
+        path = data_dir / f"{name}.csv"
+        _, rows = load_csv(path)
+        for r in rows:
+            p = r.get("period") or ""
+            if p and (best is None or p > best):
+                best = p
+    return best
+
+
+# --- PDF download ---------------------------------------------------------
+
+def load_pdf_bytes(url_or_path: str) -> bytes:
+    if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
+        print(f"Downloading: {url_or_path}")
+        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
+        if resp.status_code in (403, 404):
+            # 403 = ACEA's host-allowlist or genuinely unknown URL; 404 = not
+            # yet published. We treat both as "PDF not available right now"
+            # and let the caller no-op the run.
+            print(f"  HTTP {resp.status_code} — PDF not available "
+                  f"({resp.headers.get('x-deny-reason', 'n/a')}).")
+            raise FileNotFoundError(url_or_path)
+        resp.raise_for_status()
+        return resp.content
+    path = url_or_path.replace("file://", "")
+    with open(path, "rb") as f:
+        return f.read()
+
+
+# --- PDF parsing ---------------------------------------------------------
+
+def _normalise_header(s: str | None) -> str:
+    """Strip whitespace and trailing footnote digits; upper-case."""
+    if not s:
+        return ""
+    cleaned = re.sub(r"\s+", "", s).rstrip("123").upper()
+    return cleaned
+
+
+_INT_RE = re.compile(r"^-?\d{1,3}(?:,\d{3})*$")
+
+
+def parse_cell(s: str) -> tuple[int, int]:
+    """Parse a fuel-section cell into (current_year, prior_year) integers.
+
+    Cell content forms observed:
+        '113 105 +7.6'   → (113, 105)        normal section
+        '0 0'            → (0, 0)            both zero, YoY omitted
+        'ꟷ ꟷ'           → (0, 0)            dash glyph means 0
+        '5 0'            → (5, 0)            prior-year zero, YoY omitted
+        '153 1 15,200.0' → (153, 1)          large YoY split across spaces
+        '+ 22.4'-suffix  → ignored           YTD-page formatting (sign+number split)
+    """
+    tokens = s.split()
+    ints: list[int] = []
+    for t in tokens:
+        if t in DASH_GLYPHS:
+            ints.append(0)
+            continue
+        if "." in t:
+            continue  # percentage value
+        if t in ("+", "-"):
+            continue  # stand-alone sign (YTD page artifact)
+        if _INT_RE.match(t):
+            ints.append(int(t.replace(",", "")))
+    if len(ints) < 2:
+        raise ValueError(f"Cell did not yield two integers: {s!r} → {ints}")
+    return ints[0], ints[1]
+
+
+def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+    """Returns ({country: {fuel: (curr, prev)}}, period_label).
+
+    `period_label` is the human-readable month string ("March 2026") parsed
+    from the column header — used for sanity-logging only.
+    """
+    with pdfplumber.open(pdf_path) as pdf:
+        # Page 3 (index 2) holds the MONTHLY table. We scan all pages defensively
+        # in case ACEA inserts an extra page in the future, but stop at the
+        # first match.
+        table = period = None
+        for page in pdf.pages:
+            tables = page.extract_tables() or []
+            for cand in tables:
+                if not cand or len(cand) < 3:
+                    continue
+                header_norm = [_normalise_header(c) for c in cand[0]]
+                if "BATTERYELECTRIC" in header_norm and "TOTAL" in header_norm:
+                    # Distinguish MONTHLY from YEAR-TO-DATE by inspecting the
+                    # sub-header row (cand[1]). Monthly cells read "March\n2026";
+                    # YTD cells read "Jan-Mar\n2026".
+                    sub = " ".join((cand[1][i] or "") for i in range(len(cand[1])))
+                    sub_compact = re.sub(r"\s+", " ", sub)
+                    if "Jan-" in sub_compact or "Jan -" in sub_compact:
+                        continue  # YTD, skip
+                    table = cand
+                    # Pull "March 2026" out of e.g. 'March\n2026' for logging.
+                    m = re.search(r"([A-Z][a-z]+)\D+(\d{4})", sub_compact)
+                    period = f"{m.group(1)} {m.group(2)}" if m else None
+                    break
+            if table is not None:
+                break
+        if table is None:
+            raise RuntimeError("Could not locate the MONTHLY table in the PDF")
+
+        # Map normalised header text → column index.
+        fuel_col: dict[str, int] = {}
+        for ci, cell in enumerate(table[0]):
+            key = HEADER_TO_FUEL.get(_normalise_header(cell))
+            if key and key not in fuel_col:
+                fuel_col[key] = ci
+        missing = set(HEADER_TO_FUEL.values()) - set(fuel_col.keys())
+        if missing:
+            raise RuntimeError(f"Missing header columns: {sorted(missing)}")
+
+        # Walk all data rows. Country names are newline-joined in column 0;
+        # fuel values are newline-joined in the section's column. Aggregate
+        # rows (EUROPEAN UNION, EFTA, EU + EFTA + UK, United Kingdom) hold a
+        # single value per column — we skip them via a country whitelist below.
+        countries: dict[str, dict[str, tuple[int, int]]] = {}
+        wanted = set(ALL_COUNTRIES)
+        for row in table[1:]:
+            name_cell = row[0] or ""
+            names = [n.strip() for n in name_cell.split("\n") if n.strip()]
+            # Skip the header row (already consumed) and non-country aggregate rows.
+            if not names or names == [""]:
+                continue
+            if all(n.upper() in {"EUROPEAN UNION", "EFTA", "EU + EFTA + UK"} for n in names):
+                continue
+            # Pull the per-fuel lines for this row block.
+            fuel_lines: dict[str, list[str]] = {}
+            for fuel, ci in fuel_col.items():
+                cell = row[ci] or ""
+                fuel_lines[fuel] = cell.split("\n")
+            # Each country gets the i-th line from each fuel cell.
+            for i, country in enumerate(names):
+                if country not in wanted:
+                    continue
+                parsed: dict[str, tuple[int, int]] = {}
+                for fuel in HEADER_TO_FUEL.values():
+                    lines = fuel_lines[fuel]
+                    if i >= len(lines):
+                        # Aggregate rows can have a single value; for country
+                        # blocks the index always maps. Defensive guard only.
+                        continue
+                    parsed[fuel] = parse_cell(lines[i])
+                countries[country] = parsed
+
+        return countries, period
+
+
+# --- Row construction & decision logic ------------------------------------
+
+def build_row(period: str, parsed: dict[str, tuple[int, int]], use_prev: bool,
+              fields: list[str], source_url: str) -> dict:
+    """Build a CSV row dict for `period` from a parsed-country fuel map.
+
+    `use_prev=False` writes the (current-year) value, `True` the prior-year one.
+    Schema is inferred from `fields` so non-standard columns (Sweden FLEXFUEL)
+    are preserved as 0.0.
+    """
+    idx = 1 if use_prev else 0
+    val = {fuel: float(vals[idx]) for fuel, vals in parsed.items()}
+    row: dict[str, str | float] = {f: "" for f in fields}
+    row["period"] = period
+    row["time_interval"] = "monthly"
+    row["variant"] = "Whole"
+    row["source"] = ACEA_SOURCE
+    row["notes"] = source_url
+    for fuel in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"):
+        if fuel in fields:
+            row[fuel] = val.get(fuel, 0.0)
+    # Any extra columns (e.g. FLEXFUEL for Sweden) default to 0.0 — ACEA
+    # doesn't break those out.
+    for f in fields:
+        if f not in row or row[f] == "":
+            if f in ("period", "time_interval", "variant", "source", "notes"):
+                continue
+            row[f] = 0.0
+    return row
+
+
+def should_write(country: str, row_kind: str, existing_row: dict | None) -> bool:
+    """Decision matrix per maintainer's instructions.
+
+    row_kind:
+      * 'current'       — the target period itself (e.g. 2026-03)
+      * 'previous_year' — same month, prior year (e.g. 2025-03)
+    """
+    if row_kind == "current" and country in ALWAYS_COUNTRIES:
+        return True  # always-list current month: unconditional overwrite
+    # Every other case: write iff no row exists OR existing source == "ACEA".
+    if existing_row is None:
+        return True
+    return is_acea_source(existing_row.get("source"))
+
+
+def row_equals(existing: dict | None, new: dict, fields: list[str]) -> bool:
+    """True if `existing` already carries the same payload as `new`.
+
+    A row is considered equal when all numeric fuel columns and TOTAL match
+    (compared as floats with a tiny tolerance), and source/time_interval/variant
+    agree. `notes` is allowed to differ — the URL changes month to month.
+    """
+    if existing is None:
+        return False
+    if (existing.get("time_interval") or "") != new["time_interval"]:
+        return False
+    if (existing.get("variant") or "") != new["variant"]:
+        return False
+    if (existing.get("source") or "") != new["source"]:
+        return False
+    numeric_fields = [f for f in fields
+                      if f not in ("period", "time_interval", "variant", "source", "notes")]
+    for f in numeric_fields:
+        try:
+            a = float(existing.get(f) or 0.0)
+            b = float(new.get(f) or 0.0)
+        except (TypeError, ValueError):
+            return False
+        if abs(a - b) > 0.5:  # float ≈ integer-counts → 0.5 is safe slack
+            return False
+    return True
+
+
+# --- Per-country update ---------------------------------------------------
+
+def update_country(data_dir: Path, country: str,
+                   parsed: dict[str, tuple[int, int]],
+                   target_period: str, source_url: str) -> bool:
+    """Apply the write rules to one country. Returns True if the CSV changed."""
+    path = data_dir / f"{country}.csv"
+    fields, rows = load_csv(path)
+    original_order = [r["period"] for r in rows]
+    by_period = {r["period"]: r for r in rows}
+    changed = False
+
+    for kind, period, use_prev in (
+        ("current", target_period, False),
+        ("previous_year", prev_year_period(target_period), True),
+    ):
+        existing = by_period.get(period)
+        if not should_write(country, kind, existing):
+            print(f"    {country} {period} ({kind}): skipped "
+                  f"(existing source={existing.get('source')!r})")
+            continue
+        new_row = build_row(period, parsed, use_prev=use_prev,
+                            fields=fields, source_url=source_url)
+        if row_equals(existing, new_row, fields):
+            # No-op: already at the desired state.
+            continue
+        by_period[period] = new_row
+        action = "added" if existing is None else "updated"
+        print(f"    {country} {period} ({kind}): {action}")
+        changed = True
+
+    if changed:
+        write_csv(path, fields, list(by_period.values()),
+                  original_order=original_order)
+    return changed
+
+
+# --- Main ----------------------------------------------------------------
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--year", type=int)
+    parser.add_argument("--month", type=int, choices=range(1, 13))
+    parser.add_argument("--pdf-url", help="Direct URL/path to ACEA monthly PDF")
+    parser.add_argument("--data-dir", default="data")
+    parser.add_argument("--force", action="store_true",
+                        help="Skip the latest-period short-circuit")
+    parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"),
+                        help="Write `changed_countries=<json>` here (workflow output)")
+    args = parser.parse_args()
+
+    # Target month
+    if args.year and args.month:
+        target_year, target_month = args.year, args.month
+    elif args.year or args.month:
+        sys.exit("--year and --month must be given together")
+    else:
+        target_year, target_month = previous_month(date.today())
+    target_period = f"{target_year}-{target_month:02d}"
+    month_name = ENGLISH_MONTHS[target_month - 1]
+    print(f"Target period: {target_period} ({month_name} {target_year})")
+
+    data_dir = Path(args.data_dir)
+
+    # Self-throttle: if every always-list country already has the target period,
+    # we don't need to hit ACEA at all. We compare against MAX so partial
+    # back-fills (e.g. a country missing one historical month) don't block us.
+    if not args.force:
+        max_period = latest_period_across(data_dir, ALWAYS_COUNTRIES)
+        if max_period and max_period >= target_period:
+            print(f"All always-list CSVs already at {max_period} ≥ {target_period} — "
+                  f"nothing to do.")
+            return 0
+
+    # PDF source
+    pdf_url = args.pdf_url or ACEA_URL_TEMPLATE.format(
+        month_name=month_name, year=target_year)
+    try:
+        pdf_bytes = load_pdf_bytes(pdf_url)
+    except FileNotFoundError:
+        print("PDF not available yet — will retry next scheduled run.")
+        return 0
+    except requests.HTTPError as e:
+        print(f"Could not fetch {pdf_url}: {e}. Pass --pdf-url manually.")
+        return 0
+
+    # pdfplumber needs a file path or buffer
+    tmp_pdf = Path("/tmp/_acea_latest.pdf")
+    tmp_pdf.write_bytes(pdf_bytes)
+
+    parsed_all, period_label = parse_monthly_table(str(tmp_pdf))
+    if period_label:
+        print(f"Parsed table for: {period_label}")
+        # Verify the PDF's month matches what was requested. A mismatch
+        # usually means --pdf-url was pointed at a different month's release.
+        expected_label = f"{month_name} {target_year}"
+        if period_label != expected_label:
+            sys.exit(f"PDF reports {period_label!r} but target is "
+                     f"{expected_label!r} — refusing to write mismatched data.")
+    print(f"Countries parsed: {sorted(parsed_all.keys())}")
+
+    missing = set(ALL_COUNTRIES) - set(parsed_all.keys())
+    if missing:
+        print(f"WARNING: countries missing from PDF: {sorted(missing)}")
+
+    # Per-country sanity: component sum should match TOTAL. We warn but don't
+    # fail — Malta has been observed off-by-1 in ACEA's source data.
+    for country, fuels in parsed_all.items():
+        for idx_name, idx in (("curr", 0), ("prev", 1)):
+            s = sum(fuels[f][idx] for f in ("BEV", "PHEV", "HEV",
+                                            "OTHERS", "PETROL", "DIESEL"))
+            total = fuels["TOTAL"][idx]
+            if s != total:
+                print(f"  sanity {country} {idx_name}: components={s} TOTAL={total} "
+                      f"(Δ={s - total})")
+
+    changed: list[str] = []
+    for country in ALL_COUNTRIES:
+        if country not in parsed_all:
+            continue
+        if update_country(data_dir, country, parsed_all[country], target_period, pdf_url):
+            changed.append(country)
+
+    print(f"\nCountries with CSV changes: {changed}")
+
+    if args.github_output:
+        with open(args.github_output, "a", encoding="utf-8") as f:
+            f.write(f"changed_countries={json.dumps(changed)}\n")
+            f.write(f"any_changed={'true' if changed else 'false'}\n")
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
