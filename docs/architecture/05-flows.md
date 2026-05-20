@@ -17,6 +17,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:00 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
 | K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
+| L | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 
 ---
 
@@ -573,6 +574,91 @@ Parser was checked byte-exact against the existing CSV rows where applicable:
 | Run the script against an off-target PDF (`--year 2026 --month 4` but `--pdf-url <March 2026 PDF>`) | Hard-fails with `PDF reports 'March 2026' but target is 'April 2026' — refusing to write mismatched data.` (sanity check added after spotting that `--pdf-url` overrides could otherwise silently scrape the wrong month). |
 
 The PDF's column layout (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL) has been stable across the maintainer's recent reference period, but the script identifies columns by their header text rather than position, so a future reordering is a no-op as long as the labels themselves don't change.
+
+## Flow L — ACAU ingest
+
+Uruguay follows the same `fetch-<country>` shape as Brazil / Japan / Chile. ACAU publishes one yearly "Compilado YYYY" xlsx (per-model rows, six sheets — AUTOS, SUV, MINIBUSES, UTILITARIO, CAMIONES, OMNIBUS) that gets edited in place with each new month's volumes. We aggregate AUTOS + SUV into a single passenger-car series. The cron runs daily from the 1st onward and the script self-throttles via the CSV's latest period — most invocations are a no-op until ACAU edits the previous month into the file (typically the first week of the following month, but with no published embargo date).
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-uruguay.yml job
+    participant Site as acau.com.uy
+    participant CSV as data/Uruguay.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (daily 1–31, 08:00 UTC)
+    Job->>CSV: read latest period
+    alt Latest period ≥ target month
+        Job-->>Cron: Exit cleanly (no-op)
+    else Target month missing
+        Job->>Site: GET / (browser UA)
+        Site-->>Job: HTML with download links
+        Job->>Job: Find <a>…</a> whose text matches /Compilado <year>/
+        Job->>Site: GET panel/estadisticas/<random>.xlsx
+        Site-->>Job: xlsx bytes
+        Job->>Job: Parse AUTOS + SUV sheets; map Combustible code → BEV/PHEV/HEV/PETROL/DIESEL/OTHERS<br/>(E→BEV, PHEV→PHEV, H→HEV, N→PETROL, D→DIESEL, MHEV→OTHERS)
+        Job->>Job: Cross-check per-sheet fuel sum against the sheet's bottom TOTAL row
+        Job->>Job: Skip all-zero months (= unpublished months in the calendar year)
+        alt Target month not yet in the file
+            Job-->>Cron: Exit cleanly (no-op, retry tomorrow)
+        else Target month present
+            Job->>CSV: Upsert (new periods only, unless --force)
+            Job->>Render: gh workflow run render-country.yml -f country=Uruguay
+        end
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_uruguay.py](../../scripts/fetch_uruguay.py). The module docstring documents the fuel-code map, the AUTOS+SUV aggregation rule, the MHEV→OTHERS convention, and why we don't try to back-fill pre-2026 years.
+
+**Vehicle scope:** AUTOS (turismos: sedans, hatchbacks, coupés) plus SUV. MINIBUSES, UTILITARIO (light commercial / pickups), CAMIONES (medium/heavy trucks) and OMNIBUS (buses) are explicitly out of scope — Uruguay has no HDV variant yet and the light-commercial / minibus categories don't map cleanly onto the existing CSV schema. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source). CAMIONES is the most plausible future HDV candidate but adding it is gated on the project gaining an HDV variant convention more broadly.
+
+**Why daily from the 1st:** the user's stated rule is "schauen ob der Vormonat von Heute noch nicht in den Daten is" — run daily until the previous month lands. The Compilado file has no published embargo date and we've observed it being refreshed at varying points in the first week of the following month, so starting on day 1 keeps the earliest plausible publication day in range. The self-throttle (`latest_period(csv) ≥ target_period`) makes the empty days free.
+
+**Why `MHEV → OTHERS`:** ACAU breaks out Mild Hybrids (MHEV) as a distinct Combustible code starting in 2026. The maintainer's gut preference ranking was OTHERS > ICE > PETROL > DIESEL — OTHERS keeps the EV-share series clean and avoids inflating either HEV (which would mix full hybrids with 48V boost systems) or PETROL (which would over-state pure-ICE counts). Consequence: a one-time discontinuity in `data/Uruguay.csv` at the 2026-01 cutover, because the manually-curated 2025-and-earlier rows excluded MHEV from `TOTAL` entirely.
+
+### Design decisions
+
+| Decision | Rationale |
+|---|---|
+| Duplicate Chile/Japan structure rather than abstract a generic "fetch_country" runner | Project convention (Brazil flow notes) is country-local fetchers. ACAU's xlsx layout is different from any other source, and the year-format has already broken once between 2025 and 2026 (sheet names, column order, presence of PHEV column) — keeping the parser tightly coupled to one year's layout makes future format breaks loud rather than silent. |
+| Discover the URL by scraping the homepage rather than guessing the filename | ACAU's filenames are HH_MM_SS-of-upload-time + "ar1.xlsx" — unpredictable. The homepage is small (~45 KB) and stable enough to scrape every run. |
+| AUTOS + SUV summed into a single `variant=Whole` series | Matches the maintainer's request to treat passenger cars and SUVs as one passenger-vehicle aggregate, consistent with how Chile's "livianos y medianos" lumps them. Splitting them into two variants later is trivial — only the per-sheet aggregator would change. |
+| MHEV → OTHERS (and one-time `--force` overwrite of 2026-01..03) | See "Why MHEV → OTHERS" above. The one-time force overwrite was the cleanest way to make the new automated series consistent with itself from 2026-01; the alternative (continue excluding MHEV) would have wasted the new structured ACAU data. |
+| Don't try to back-fill pre-2026 from ACAU | The 2025 file has a fundamentally different layout (sheet names "MINI"/"UTIL" vs "MINIBUSES"/"UTILITARIO", abbreviated month headers "Ene"/"Feb"/…, per-brand subtotal rows breaking the simple iter-until-TOTAL pattern) and no PHEV breakdown (the maintainer was googling models manually). A 2025 parser is a separate workstream and the user explicitly scoped this one to 2026+. |
+| Cross-check per-sheet fuel sum against the sheet's bottom "TOTAL" row, hard-fail on mismatch | The TOTAL row is computed by ACAU; if our per-fuel aggregate doesn't match, the parser missed rows. Hard-failing here surfaces format drift early. Confirmed exact match for AUTOS and SUV across all four published months of the 2026 reference file. |
+| Skip months where AUTOS+SUV is all-zero | ACAU pre-fills the calendar year with zeros and overwrites month-by-month as new data lands. Without the skip we'd write 8 fake all-zero rows for the rest of 2026 on every run. |
+| Without `--force`, never overwrite an existing period | The historical rows (2021-2025) were manually curated from a mix of sources; the script should never silently rewrite them. New months only. `--force` is the explicit opt-in. |
+
+### Issues hit during development
+
+1. **The existing `data/Uruguay.csv` had hand-curated 2026-01..03 rows that didn't match the parsed values.** Differences were:
+   - TOTAL ≈ 320–370 lower (no MHEV included)
+   - HEV +15–25 higher (some MHEV models reclassified to HEV)
+   - PETROL +9–10 higher (some MHEV-Petrol models reclassified to PETROL)
+   - PHEV −11 to −23 lower (slight reclassification)
+   The user chose to `--force` overwrite the four published 2026 months for a clean reproducible series from 2026-01 onward, accepting the one-time discontinuity against 2025-12.
+
+2. **The 2025 Compilado file has a different schema.** Inspecting `12_32_17ar1.xlsx` (Compilado 2025) showed: sheet names abbreviated (`MINI`/`UTIL` instead of `MINIBUSES`/`UTILITARIO`), header row uses "Empresa"/"Modelos" instead of "Nombre_Socio"/"Modelo", abbreviated month columns ("Ene"/"Feb"/...), per-brand "Total:" subtotal rows interleaved with model rows, no MHEV code in 2025 data. The parser raises a clear error if asked to process a 2025-shaped file rather than silently mis-reading it (the `month_to_col` lookup fails on the abbreviated headers).
+
+3. **Combustible codes mix case.** Both `N`/`n`, `D`/`d`, `H`/`h`, `E`/`e` appear in the source — likely typing inconsistency between rows entered by different brand representatives. The parser normalises with `.upper()` before lookup. Unknown codes are folded into `OTHERS` with a console warning rather than dropped silently, so the per-sheet sanity check still balances.
+
+4. **`max_row` is unreliable on the 2025 file.** openpyxl reported `max_row=1047953` (basically Excel's hard limit) because the sheet was zero-padded. We iterate `iter_rows` and stop at the `TOTAL` row instead — works for both 2025 and 2026 layouts even if the latter ever picks up the same padding.
+
+5. **First end-to-end write rewrote all 42 rows of `data/Uruguay.csv`.** The historical CSV is CRLF-terminated; `csv.DictWriter(lineterminator="\n")` collapsed everything to LF, producing a 42-row diff for what should have been a 4-row change. Same gotcha as Japan — fixed by detecting the existing file's line ending (sniff the first 4 KiB for `b"\r\n"`) and feeding it back to `DictWriter`. After the fix the same `--force` re-run produces a clean 4-row diff.
+
+### Validation
+
+Parser was checked against the live ACAU 2026 Compilado file:
+
+| Check | Result |
+|---|---|
+| `15_18_25ar1.xlsx` (Compilado 2026, fetched live from acau.com.uy) | All four published months (2026-01..04) parsed; per-sheet fuel sum exactly matches each sheet's bottom TOTAL row for AUTOS and SUV. |
+| Re-run without `--force` | Short-circuits before any HTTP: `Latest period in CSV is 2026-04 ≥ 2026-04 — nothing to do.` |
+| Re-run with `--force` | Re-parses and rewrites all four published rows; no other rows in the CSV touched. |
+| Auto-discover from `acau.com.uy` | The homepage scrape finds the "Compilado 2026" link by text label and resolves the relative href to `https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx`. |
+
+The `Mercado YYYY` sibling xlsx (manufacturer-per-month totals) is *not* ingested; useful as a maintainer-side cross-check but adds no fuel-split data the Compilado doesn't already carry.
 
 ## See also
 
