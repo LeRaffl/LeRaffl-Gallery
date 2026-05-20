@@ -16,6 +16,7 @@ flowchart LR
         D4["images/&lt;period&gt;/*.png<br/>(four charts × country)"]
         D5["posts/&lt;slug&gt;.txt<br/>posts/&lt;slug&gt;_&lt;period&gt;.txt<br/>(post text)"]
         D6["manifest.json<br/>(image index)"]
+        D12["builder_history/&lt;date&gt;.csv<br/>(monthly aggregate snapshots)"]
     end
 
     subgraph Independent["Independent datasets"]
@@ -31,6 +32,7 @@ flowchart LR
 
     D1 --> D2 & D3 & D4 & D5
     D4 --> D6
+    D2 & D3 --> D12
 ```
 
 ## 3.1 Country Raw Data
@@ -245,7 +247,67 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 ---
 
-## 3.7 Fleet Dataset
+## 3.7 Builder History Snapshots
+
+### Where
+
+- `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
+- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`).
+
+### Schema (`builder_history/<date>.csv`)
+
+| Column | Type | Notes |
+|---|---|---|
+| `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
+| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). |
+| `bev_share` | float | Weighted aggregate BEV share in `[0, 100]`. |
+| `ice_share` | float \| empty | Weighted aggregate ICE share in `[0, 100]`. Empty when no row in the group has ICE Weibull parameters. |
+| `phev_share` | float \| empty | Implied PHEV = `max(0, 100 - bev - ice)`, weighted. Empty when ICE is empty. |
+
+### Schema (`builder_history/index.json`)
+
+```json
+{
+  "updated": "2026-05-20",
+  "snapshots": [
+    {
+      "date": "2026-05-20",
+      "file": "2026-05-20.csv",
+      "groups": {
+        "world": {"n_countries": 48, "total_weight": 69682736, "latest_data_per": "2026-04"},
+        "eu":    {"n_countries": 26, "total_weight": 10970870, "latest_data_per": "2026-04"}
+      }
+    }
+  ]
+}
+```
+
+`updated` tracks the maximum snapshot `date` in the file (not the file's mtime) so a back-dated run doesn't make it go backwards.
+
+### Owner / lifecycle
+
+- **Author**: [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py), invoked by [.github/workflows/snapshot-builder.yml](../../.github/workflows/snapshot-builder.yml).
+- **Created**: On the 25th of each month (cron) or via manual workflow dispatch.
+- **Updated**: Each new snapshot adds one CSV and replaces / appends one entry in `index.json`. Running on a date that already exists overwrites that snapshot only.
+- **Read by**: Nothing in the static page today. Reserved for a future time-lapse visualisation tab.
+
+### Why one CSV per snapshot date and not one growing CSV?
+
+- Diffs stay tiny: a new snapshot is a single new file, not a 4900-row append to an existing file.
+- Frontend time-lapse can fetch any one frame in a single HTTP request and skip the rest.
+- Per-snapshot replacement (re-running for the same date) is just an overwrite — no row-level upsert logic.
+
+### Why include ICE / PHEV next to BEV?
+
+The in-page Builder shows all three when the ICE toggle is on, and the underlying weighted aggregation is byte-identical work. The marginal storage cost is two columns × a few percent and the snapshot becomes useful for "ICE phase-out" time-lapses too. The schema is conservative: empty cells signal "no ICE params in this group", not "0%".
+
+### Why no per-snapshot rebuild of the input parameters?
+
+`params.csv` is the source of truth for the curves and is already versioned by git. A historian who wants the parameters that produced a given snapshot can `git log` `params.csv` at that date. Duplicating the inputs into `builder_history/` would just bloat the repo with redundant data.
+
+---
+
+## 3.8 Fleet Dataset
 
 ### Where
 
@@ -265,7 +327,7 @@ Maintainer-curated. No public submit path yet. No automatic render — fleet vis
 
 ---
 
-## 3.8 Assets
+## 3.9 Assets
 
 ### Where
 
@@ -287,7 +349,7 @@ The maintainer originally bundled the full FA distribution (~24 MB). Only the OT
 
 ---
 
-## 3.9 Feedback Issues
+## 3.10 Feedback Issues
 
 ### Where
 
@@ -307,7 +369,7 @@ Free, integrated with maintainer's existing GitHub workflow, no extra moderation
 
 ---
 
-## 3.10 Submission PRs
+## 3.11 Submission PRs
 
 ### Where
 
@@ -326,7 +388,7 @@ Re-uses GitHub's review UI (rich diff, line comments, mobile app). Zero new infr
 
 ---
 
-## 3.11 Rate-Limit Counters
+## 3.12 Rate-Limit Counters
 
 ### Where
 

@@ -17,6 +17,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:00 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
 | K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
+| L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
 | L | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 
 ---
@@ -575,6 +576,9 @@ Parser was checked byte-exact against the existing CSV rows where applicable:
 
 The PDF's column layout (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL) has been stable across the maintainer's recent reference period, but the script identifies columns by their header text rather than position, so a future reordering is a no-op as long as the labels themselves don't change.
 
+## Flow L — Snapshot Builder
+
+The Builder tab's aggregated curves (BEV / ICE / PHEV per group, weighted by `weights.csv`) are entirely derived from `params.csv` + `weights.csv`. To enable a future time-lapse of how the global bottom-up curve evolves, we periodically dump the curve to disk so each snapshot is a frozen, append-only artefact independent of future parameter changes.
 ## Flow L — ACAU ingest
 
 Uruguay follows the same `fetch-<country>` shape as Brazil / Japan / Chile. ACAU publishes one yearly "Compilado YYYY" xlsx (per-model rows, six sheets — AUTOS, SUV, MINIBUSES, UTILITARIO, CAMIONES, OMNIBUS) that gets edited in place with each new month's volumes. We aggregate AUTOS + SUV into a single passenger-car series. The cron runs daily from the 1st onward and the script self-throttles via the CSV's latest period — most invocations are a no-op until ACAU edits the previous month into the file (typically the first week of the following month, but with no published embargo date).
@@ -582,6 +586,29 @@ Uruguay follows the same `fetch-<country>` shape as Brazil / Japan / Chile. ACAU
 ```mermaid
 sequenceDiagram
     participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as snapshot-builder.yml job
+    participant Repo as params.csv + weights.csv
+    participant Snap as builder_history/<date>.csv + index.json
+
+    Cron->>Job: workflow_dispatch OR cron (25th 09:00 UTC)
+    Job->>Repo: read params.csv, weights.csv
+    Job->>Job: apply_v1_recovery (mirrors index.html)
+    Job->>Job: dedupe_param_rows
+    Job->>Job: resolve_groups (world + 10 static + 3 weight-based)
+    loop per group
+        Job->>Job: weighted Weibull aggregation, year=2015..2050 step 0.1
+    end
+    Job->>Snap: write <date>.csv + upsert index.json entry
+    Job->>Repo: commit if changed
+```
+
+**Where the math lives:** [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py). The module docstring documents the JS-quirk (Number('') === 0) that the in-page Builder relies on for missing `baseline_year` columns and that the Python script mirrors so the output is bit-equivalent to what the in-page Builder plots.
+
+**Why monthly:** the underlying data (`params.csv`, `weights.csv`) is updated on a roughly monthly cadence per country. Daily snapshots would mostly duplicate themselves. Monthly snapshots match the natural update cadence and keep the repository footprint at ~200 KB per snapshot (~2.4 MB/year).
+
+**Why bit-equivalent to the in-page Builder:** the static page is the canonical surface area for the curves. Anyone comparing a snapshot to the live page (e.g. validating a time-lapse frame against today's view) should see identical numbers. The cross-check is mechanical: a Node port of `bevShareIndex` / `getT0Years` / `baselineYearOf` over the same `params.csv` matches the Python script to four decimal places.
+
+**Why no render re-trigger:** snapshots are downstream of `params.csv` — they don't feed back into any chart, post-text, or manifest. The workflow only commits the new file; the page is not yet a consumer.
     participant Job as fetch-uruguay.yml job
     participant Site as acau.com.uy
     participant CSV as data/Uruguay.csv

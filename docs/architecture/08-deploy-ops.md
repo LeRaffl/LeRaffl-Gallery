@@ -15,6 +15,7 @@ Operational runbook. How to deploy, how to trigger, how to debug. Commands you c
 | Bulk-render all countries | Loop through countries calling [§ 8.2](#82-trigger-a-country-render) one at a time | [§ 8.7](#87-bulk-rerender) |
 | Debug Worker errors | Cloudflare dashboard → Workers → Tail logs | [§ 8.8](#88-debugging) |
 | Indonesia table shows ~5y 20→80 again | Frontend + backend recovery both already in place — see § "Indonesia v1=0 corruption" | [§ 8.8](#indonesia-v10-corruption) |
+| Manually snapshot Builder curves | Actions tab → "Snapshot Builder curves" → Run workflow | [§ 8.9](#89-snapshot-builder-curves) |
 
 ## 8.1 Deploy the Worker
 
@@ -234,7 +235,26 @@ The page's CSV-fetch fallback kicked in. Either:
 - The branch with the country's CSV isn't merged yet (check master)
 - raw.githubusercontent.com had a transient 5xx (rare)
 
-## 8.9 Restoring from disaster
+## 8.9 Snapshot Builder curves
+
+The Builder-tab aggregated curves are dumped to `builder_history/<date>.csv` automatically on the 25th of each month (cron in [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml)). The script is [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py); full design notes are in [Flow L](05-flows.md#flow-l--snapshot-builder).
+
+**Trigger manually (e.g. after a large `params.csv` correction):** Actions tab → "Snapshot Builder curves" → Run workflow. Optional `date` input lets you label a back-dated run.
+
+**Run locally to inspect or debug:**
+
+```bash
+python scripts/snapshot_builder.py                  # uses today's date
+python scripts/snapshot_builder.py --date 2026-05-20
+```
+
+The script is zero-dependency (stdlib only) so no `pip install` is needed.
+
+**If a snapshot looks wrong:** the most likely culprit is `params.csv` or `weights.csv` having a row that the in-page Builder also misrenders. Validate by selecting "World" on the Builder tab in the browser and comparing the curve to the snapshot's `world` rows — if they disagree, the script has drifted from the page and the JS/Python parity has a bug; if they agree, the upstream data is the issue.
+
+---
+
+## 8.10 Restoring from disaster
 
 | Disaster | Recovery |
 |---|---|
