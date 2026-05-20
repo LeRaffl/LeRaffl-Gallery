@@ -1,0 +1,50 @@
+name: Snapshot Builder curves
+
+# Runs scripts/snapshot_builder.py to capture a frozen image of the Builder-tab
+# aggregated BEV/ICE/PHEV curves for "world" and every other BUILDER_GROUPS
+# region, writing builder_history/<date>.csv plus an updated
+# builder_history/index.json. Snapshots accumulate over time so a future
+# frontend can render a time-lapse of how the global bottom-up curve evolves.
+#
+# Cadence: 25th of each month at 09:00 UTC, after the bulk of the country
+# fetches in the first two weeks have settled. Manual dispatch supports an
+# optional --date override (useful for testing or labelling a back-dated run).
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Snapshot date YYYY-MM-DD (leave empty to use today UTC)'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 9 25 * *'
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: snapshot-builder-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Snapshot Builder curves
+        run: |
+          python scripts/snapshot_builder.py ${DATE:+--date "$DATE"}
+        env:
+          DATE: ${{ inputs.date }}
+
+      - name: Commit if changed
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: builder_history
+          message: 'chore: snapshot Builder curves (CI)'
+          default_author: github_actions
