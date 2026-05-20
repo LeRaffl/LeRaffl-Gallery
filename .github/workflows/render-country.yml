@@ -9,6 +9,12 @@ name: Render country charts
 # can fan it out via a matrix with `max-parallel: 1` for a strict serial
 # rendering chain across all changed countries.
 
+# Stamp the country (and variant if non-default) into the run name so the
+# Actions UI lists "Render: Brazil" / "Render: Germany (Private)" instead
+# of 20 identical "Render country charts" entries.
+run-name: >-
+  Render: ${{ inputs.country }}${{ inputs.variant != '' && inputs.variant != 'Whole' && format(' ({0})', inputs.variant) || '' }}
+
 on:
   workflow_dispatch:
     inputs:

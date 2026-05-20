@@ -1,0 +1,73 @@
+name: Fetch Uruguay data (ACAU)
+
+# Scrapes the latest ACAU "Compilado <year>" xlsx (AUTOS + SUV sheets) and
+# upserts new months into data/Uruguay.csv. Runs daily from the 1st of each
+# month — the script self-throttles via the latest period already present
+# in the CSV, so most invocations are a no-op until ACAU publishes the
+# previous month's data inside the Compilado workbook.
+# When the CSV changes, render-country.yml is dispatched for Uruguay.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Compilado year (leave empty for the year of the previous calendar month)'
+        required: false
+        default: ''
+      url:
+        description: 'Direct Compilado xlsx URL or local path (leave empty to auto-discover)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process months that already exist in the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 8 1-31 * *'   # daily at 08:00 UTC, from the 1st onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 openpyxl
+
+      - name: Fetch & update Uruguay.csv
+        run: |
+          python scripts/fetch_uruguay.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${URL:+--url "$URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          URL: ${{ inputs.url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Uruguay.csv
+          message: 'chore: update Uruguay data from ACAU'
+          default_author: github_actions
+
+      - name: Trigger render for Uruguay
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Uruguay \
+            -f variant=Whole
