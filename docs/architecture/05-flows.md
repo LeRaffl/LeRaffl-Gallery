@@ -19,6 +19,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
 | L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
 | L | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
+| M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:00 UTC) or manual dispatch with `press_id` | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
 
 ---
 
@@ -690,6 +691,95 @@ Parser was checked against the live ACAU 2026 Compilado file:
 | Auto-discover from `acau.com.uy` | The homepage scrape finds the "Compilado 2026" link by text label and resolves the relative href to `https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx`. |
 
 The `Mercado YYYY` sibling xlsx (manufacturer-per-month totals) is *not* ingested; useful as a maintainer-side cross-check but adds no fuel-split data the Compilado doesn't already carry.
+
+## Flow M — TÜİK ingest
+
+Türkiye follows the same `fetch-<country>` shape as Brazil / Chile / Japan / Uruguay, but with two structural twists: (1) the TÜİK Veri Portalı is a React SPA so there is no scrapeable index page — auto-discovery of the bulletin Sayı is deferred and the maintainer dispatches the workflow with a `press_id` input once per month when the new bulletin appears; (2) the bulletin's fuel-breakdown table is embedded as a raster image, not text, so the parser shells out to `pdfimages` + `imagemagick` + `tesseract-ocr-tur` and uses three independent validation layers (narrative-vs-OCR Toplam, sum check with single-error auto-repair via Pay % cross-check, previous-year-same-month column cross-check) to guarantee byte-exact ingestion despite OCR noise.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-turkey.yml job
+    participant TUIK as veriportali.tuik.gov.tr
+    participant CSV as data/Türkiye.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch (with press_id) OR cron (daily 15–31, 08:00 UTC)
+    Job->>CSV: read latest period
+    alt Latest period ≥ target month
+        Job-->>Cron: Exit cleanly (no-op)
+    else No press_id supplied AND no auto-discovery
+        Job-->>Cron: Exit cleanly with "dispatch manually with press_id" message
+    else Target month missing AND press_id supplied
+        Job->>TUIK: GET /tr/press/<press_id> (browser UA)
+        TUIK-->>Job: 5-page PDF bulletin
+        Job->>Job: pypdf → narrative: extract <Month> + monthly TOTAL + YTD TOTAL
+        Job->>Job: pdfimages → extract embedded raster images (4 per bulletin)
+        Job->>Job: imagemagick 4× upscale + tesseract -l tur → TSV with word boxes
+        Job->>Job: Identify the table image by presence of all 6 fuel labels<br/>(Toplam / Benzin / Hibrit / Elektrik / Dizel / LPG)
+        Job->>Job: Group TSV words by row anchor (label y-center), split into counts vs Pay %
+        Job->>Job: Validate: OCR Toplam[col 1] == narrative monthly_total
+        Job->>Job: Validate: Σ fuel counts == Toplam[col 1]<br/>(if off by single fuel, repair via Pay % cross-check)
+        Job->>Job: Validate: OCR col 0 (prev-year same month) == existing CSV row
+        Job->>CSV: Upsert <year>-<month> row (preserves CRLF)
+        Job->>Render: gh workflow run render-country.yml -f country=Türkiye
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_turkey.py](../../scripts/fetch_turkey.py). The module docstring documents the fuel mapping, the OCR pipeline, the three validation layers, and the auto-discovery limitation.
+
+**Vehicle scope:** Otomobil (passenger cars) only. The TÜİK bulletin reports all motor-land-vehicle categories (otomobil, motosiklet, kamyonet, traktör, kamyon, minibüs, otobüs, özel amaçlı taşıt — passenger car, motorcycle, light commercial pickup, tractor, truck, minibus, bus, special-purpose vehicle), but **only otomobil is broken down by fuel type**. The historical `data/Türkiye.csv` rows match this scope (monthly totals 30–110 k otomobile match the bulletin's "X bin Y adet otomobilin trafiğe kaydı yapıldı" sentence). The 14 % Renault / 7 % Toyota / … brand breakdown in the bulletin is for context only and isn't ingested.
+
+**Fuel mapping:** Elektrik → BEV, Hibrit → HEV, Benzin → PETROL, Dizel → DIESEL, LPG → OTHERS, Toplam → TOTAL. `data/Türkiye.csv` carries no PHEV column — TÜİK reports a single combined "Hibrit" bucket (full + plug-in lumped together). See [09-glossary.md "Hybrid (capital, no qualifier)"](09-glossary.md) for the project-wide convention.
+
+**Why daily from the 15th:** the bulletin embargo for the previous month is mid-month — Mart 2026 was published 16 April 2026 (Sayı 58041), Nisan 2026 on 18 May 2026 (Sayı 58042). The next bulletin's date is footnoted in each release (e.g. Nisan 2026 ends with "Bu konu ile ilgili bir sonraki haber bülteninin yayımlanma tarihi 16 Haziran 2026'dır"). Starting the cron on the 15th keeps the earliest plausible publication day in range; the self-throttle (`latest_period(csv) ≥ target_period`) makes the empty days free.
+
+**Why no auto-discovery yet:** `https://veriportali.tuik.gov.tr/tr/press/<id>` returns a React SPA shell (`<div id="root"></div>` + `/assets/index-<hash>.js`); the bulletin data is hydrated client-side via an undocumented JSON API. Plain HTML scraping sees only the shell. Reverse-engineering the API would unlock fully-automated runs; until then the maintainer dispatches the workflow with the bulletin's Sayı (numeric, sequential across all TÜİK bulletins) once per month. The cron still exists because the per-month manual step is small; the cron's empty-day cost is one self-throttle check.
+
+**Why OCR + three validation layers:** the bulletin PDF's narrative gives us the authoritative monthly TOTAL ("Nisan ayında 81 bin 907 adet otomobilin trafiğe kaydı yapıldı") but the per-fuel breakdown lives only in an embedded raster table image — pypdf / pdftotext skip it. We OCR the table, then cross-check:
+1. **Toplam check** (hard fail): the OCR'd Toplam in the current-month column must equal the narrative-extracted monthly total. Catches column-shift bugs and corrupted PDFs.
+2. **Sum check with auto-repair**: sum of the five fuel counts must equal Toplam. If off, we identify the wrong fuel by the largest deviation from its OCR'd Pay %, then set wrong_fuel = Toplam − sum(others) and verify the implied Pay % rounds to the OCR'd Pay %. Single-digit OCR misreads are recovered; multi-fuel mismatches hard-fail.
+3. **Previous-year column check**: the OCR'd column 0 (e.g. Nisan 2025 in the Nisan 2026 bulletin) must match the corresponding row already in `data/Türkiye.csv`. Catches row-grouping bugs that would otherwise pass layers 1–2.
+
+### Design decisions
+
+| Decision | Rationale |
+|---|---|
+| Duplicate Brazil/Chile/Japan/Uruguay structure rather than abstract a generic "fetch_country" runner | Project convention (Brazil flow notes) is country-local fetchers. TÜİK's bulletin format is unlike any other source we ingest (narrative-only text + raster table images), so the parser is meaningfully different. |
+| Defer auto-discovery; require press-id via workflow_dispatch | The Veri Portalı's React SPA blocks plain HTML scraping. Reverse-engineering the JSON API is a separate workstream; the cost of a one-line `press_id` dispatch once per month is small enough that this isn't a blocker. The cron infrastructure is in place so that once auto-discovery lands, it slots in without workflow changes. |
+| Pull authoritative TOTAL from narrative, fuel breakdown from OCR | The narrative `"<Month> ayında X bin Y adet otomobilin trafiğe kaydı yapıldı"` extracts deterministically with a single regex and gives us a ground-truth Toplam. We use it as the canchor for all three validation layers, which lets OCR be lossy on individual digits without corrupting the CSV. |
+| 4× upscale before tesseract | Some bulletins embed the fuel table as a ~98 dpi PPM (Mart 2026 sample) which tesseract misreads at native resolution (observed: "27 715" instead of "27 775" for Hibrit). 4× resize with the Mitchell filter pushed effective DPI high enough to fix this on every sample we have; the residual single-digit errors are caught by the sum check + auto-repair. |
+| Sum-check auto-repair (single fuel only) | OCR digit-swaps are common but rarely multi-fuel on the same image. Repairing the single largest deviation lets the script handle the most common failure mode without human intervention; multi-fuel deviations hard-fail so a layout change can't silently mis-correct the data. |
+| `source = "TUIK"`, `notes = https://veriportali.tuik.gov.tr/tr/press/<id>` for new rows | Matches the Brazil/Chile/Japan/Uruguay convention (short agency label in `source`, canonical source URL in `notes`). Historical rows use `data.tuik.gov.tr/` and are left untouched per the project rule of never rewriting historical rows. |
+| OCR-alias list for row labels | Spotted in dev: tesseract sometimes misreads "Elektrik" as "Elekirik" / "Elekftrik" on low-res rasters. Maintaining an explicit alias list per canonical label means future label-OCR drift is a one-line fix instead of a hard failure. |
+
+### Issues hit during development
+
+1. **The Veri Portalı is a JS SPA.** Initial plan was to scrape the search page (`/tr/search?q=Motorlu+Kara+Ta%C5%9F%C4%B1tlar%C4%B1+<MonthTR>+<Year>&year=<Year>`) for the bulletin link. Saving the page source returned only the React shell (`<div id="root"></div>` + `<script>` for the index bundle); the JS hydrates the actual content via an undocumented JSON API. Decided to defer auto-discovery and ship with a manual `press_id` dispatch as the only entry point — see "Why no auto-discovery yet" above.
+
+2. **Press-bulletin PDFs embed the fuel table as a raster image.** `pdftotext` (poppler) and `pypdf` both extract the bulletin's narrative paragraphs perfectly but produce no text where the table sits — `pdfimages -list` confirmed each bulletin has 3–4 embedded JPEG/PPM images including one ~700–820 px wide table image on page 4. Adding tesseract + Turkish language pack to the pipeline was the simplest path; the per-bulletin OCR work is ~2 s on `ubuntu-latest`.
+
+3. **OCR digit-swap on a low-resolution sample.** The Mart 2026 bulletin's table image is a PPM at ~98 dpi (vs. Nisan 2026's ~120 dpi JPEG); tesseract misread Hibrit "27 775" as "27 715" — a single-digit swap (7 → 1). The sum check caught it (sum was off by 60), and the Pay % cross-check identified Hibrit as the culprit (its OCR Sayı/Toplam ratio was 34.49 % vs the OCR'd Pay % of 34.6 %, the largest deviation). The repair formula (Toplam − sum(others)) recovered 27 775 exactly, and the implied Pay % matched OCR's 34.6 % to within 0.05 %. This is now the canonical case for the auto-repair layer.
+
+4. **`pdfimages -all` extracts as PPM when the source image isn't JPEG.** Forgot this at first and assumed all extracts would be JPEG; ended up with `.ppm` for the Mart sample and `.jpg` for Nisan. ImageMagick `convert` handles both transparently, so the only effect was a sanity-check on the file-glob in `find_table_image` (`img-*` not `img-*.jpg`).
+
+5. **CRLF line endings on `data/Türkiye.csv`.** Same gotcha as Japan and Uruguay — the existing file is CRLF-terminated. `csv.DictWriter(lineterminator="\n")` would have rewritten all 123 rows from CRLF to LF on the first ingest, producing a noisy diff. Fix: sniff the existing file's line ending in the first 4 KiB and feed it back to `DictWriter`. Same code as the Japan/Uruguay fetchers — copied verbatim, not refactored into a shared helper because each fetcher is meant to stand alone (see the "duplicate rather than abstract" design decision in the Brazil flow notes).
+
+6. **Trailing stray integer on one row.** Nisan 2026 Hibrit OCR'd 5 integer tokens instead of 4: `[24472, 28743, 98690, 99550, 275]`. The trailing `275` is a fragment of an adjacent label or border. Mitigation: cap each row's count list at the first 4 tokens — that's the correct column count for the table and trailing tokens are by construction noise.
+
+### Validation
+
+Parser was checked byte-exact against the existing `data/Türkiye.csv` and the user-supplied sample PDFs:
+
+| Check | Result |
+|---|---|
+| `Motorlu Kara Taşıtları - Mart 2026 - Veri Portalı - TÜİK.pdf` (Sayı 58041) re-parsed with the existing 2026-03 row removed from the CSV | Output row matches the historical row byte-exact: `14532.0, 27775.0, 30927.0, 6441.0, 673.0, 80348.0` (BEV, HEV, PETROL, DIESEL, OTHERS, TOTAL). The Hibrit value required a one-line auto-repair (see Issue 3). |
+| `Motorlu Kara Taşıtları - Nisan 2026 - Veri Portalı - TÜİK.pdf` (Sayı 58042) added as the new 2026-04 row | Sum check passes on the first parse: `16411 + 28743 + 30532 + 5312 + 909 = 81907 = OCR Toplam = narrative monthly total`. Previous-year cross-check against 2025-04 passes. |
+| Self-throttle | After ingesting 2026-04, re-running with default args short-circuits before any HTTP/OCR: `Latest period in CSV is 2026-04 ≥ 2026-04 — nothing to do.` |
+| Bulletin month vs target month mismatch | Passing `tuik_mart_2026.pdf` with `--month 4` (target Nisan) is refused: `Bulletin month is Mart (3) but target month is Nisan (4). Refusing to write.` |
+| No-input default | Running with no `--press-id` / `--pdf-url` / `--pdf-path` and no target month covered prints the helpful "dispatch manually with press_id" message and exits 0 (so cron self-throttle paths don't fail the workflow). |
+
+The sample PDFs (`data/tuik_mart_2026.pdf`, `data/tuik_nisan_2026.pdf`) are not in the feature branch — they're in `master` (committed by the maintainer as "Add files via upload") and were pulled into the working tree only during development.
 
 ## See also
 
