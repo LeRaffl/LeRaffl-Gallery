@@ -340,6 +340,10 @@ sequenceDiagram
 
 **Why MHEV → ICE:** ANAC reports mild-hybrids (Microhíbridos) as a separate line that didn't exist historically and isn't in `data/Chile.csv`'s schema. Per maintainer's call we bucket them into ICE via the implicit subtraction (`ICE = TOTAL − BEV − PHEV − HEV − OTHERS`) rather than introducing a new column.
 
+### Issues hit in production
+
+1. **ANAC hrefs sometimes carry a leading newline.** The April 2026 cron failed three days in a row with `requests.exceptions.ConnectionError: HTTPSConnectionPool(host='www.anac.cl%0ahttps', …)`. Root cause: on the category listing page, ANAC's CMS emits some `<a href>` values as `"\nhttps://www.anac.cl/wp-content/uploads/…pdf"` (literal leading newline). The discovery loop's `href.startswith("http")` returned False on the unstripped value, so the script prepended the host — producing `"https://www.anac.cl\nhttps://www.anac.cl/…"`. `requests` URL-encoded the newline (`%0a`) into the hostname and the connection bombed before any PDF was touched. Fix: `href = a["href"].strip()` before the prefix check. The earlier months (Enero/Febrero/Marzo 2026) were ingested manually as part of the bootstrap, so the bug only surfaced once the cron tried to discover its first month live. Pre-existing pattern: see the same `host_not_allowed` and User-Agent stories in Flow J / ACEA — ANAC's WordPress in particular is whitespace-loose in its emitted HTML and we should treat any href we don't control as needing `.strip()` before structural checks.
+
 ## Flow J — JADA ingest
 
 Japan follows the same `fetch-<country>` pattern as Brazil and Chile, with two twists: (1) JADA publishes the data in **both** PDF and XLSX form — we prefer the XLSX because its cell layout is machine-readable; (2) each publication is a rolling **4-month rollup** (one sheet/page per month), not a single-month file. We extract the target month from whichever sheet matches and let older months pass through untouched. The cron runs daily from the 1st onward and the script self-throttles via the CSV's latest period — most invocations are a no-op until JADA publishes the file for the previous month (typically the first business week).
