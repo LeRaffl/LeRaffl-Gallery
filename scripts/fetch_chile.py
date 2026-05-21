@@ -174,7 +174,12 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
 
     mercado_url = emisiones_url = None
     for a in soup.find_all("a", href=True):
-        href = a["href"]
+        # ANAC occasionally renders hrefs with leading whitespace/newlines
+        # (seen in the wild: "\nhttps://www.anac.cl/wp-content/..."). Without
+        # this strip(), startswith("http") returns False and we'd prepend
+        # the host, producing "https://www.anac.cl\nhttps://..." → requests
+        # then raises ConnectionError on host 'www.anac.cl%0ahttps'.
+        href = a["href"].strip()
         if mercado_url is None and mercado_re.search(href):
             mercado_url = href if href.startswith("http") else "https://www.anac.cl" + href
         if emisiones_url is None and emisiones_re.search(href):
