@@ -2,6 +2,36 @@
   "updated": "2026-05-21",
   "images": [
     {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-21",
+      "filename": "chile_ICE_BEV_20260521.png",
+      "url": "images/2026-04/chile_ICE_BEV_20260521.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-21",
+      "filename": "chile_20260521.png",
+      "url": "images/2026-04/chile_20260521.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-21",
+      "filename": "chile_time_20260521.png",
+      "url": "images/2026-04/chile_time_20260521.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
       "country": "Uruguay",
       "type": "ICE_BEV",
       "period": "2026-04",
