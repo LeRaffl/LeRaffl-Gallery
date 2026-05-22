@@ -6,19 +6,20 @@ and update data/USA.csv.
 Usage
 -----
     python scripts/fetch_usa.py [--year YEAR] [--month MONTH] \
-        [--pdf-url URL_OR_PATH] [--csv PATH] [--force]
+        [--months N] [--pdf-url URL_OR_PATH] [--csv PATH] [--force]
 
-* --year / --month  Override the target month (default: previous calendar month).
+* --year / --month  Override the cutoff month (default: previous calendar
+                    month). Only PDF rows up to and including this month are
+                    considered.
+* --months          How many trailing months to (re)write (default: 3).
 * --pdf-url         Direct URL/path to the "Total Sales for Website" PDF
                     (leave empty to auto-discover from the ANL reference page).
 * --csv             Target CSV (default: data/USA.csv).
-* --force           Re-process even if the target period already exists.
+* --force           Rewrite the trailing window even if values are unchanged.
 
 Invoked by .github/workflows/fetch-usa.yml on a daily cron from the 10th of
-each month onward, plus manual workflow_dispatch. The script self-throttles via
-the latest period already present in the CSV, so most invocations are a no-op
-until ANL publishes the month we are after. When the CSV changes, the workflow
-commits data/USA.csv and triggers render-country.yml for USA.
+each month onward, plus manual workflow_dispatch. When the CSV changes, the
+workflow commits data/USA.csv and triggers render-country.yml for USA.
 
 Data source
 -----------
@@ -31,11 +32,14 @@ Each release contains the FULL monthly history (Dec-2010 onward) in one table:
     Month   BEV     PHEV    HEV     Total LDV
     Apr-26  64,517  18,309  209,456 1,361,970
 
-ANL frequently revises the most recent ~3 months (and occasionally older
-months) between releases. Per the project rule we only ever write the most
-recent month; older rows are never touched, even if a later ANL release would
-adjust them — so the historical rows in data/USA.csv may legitimately differ
-from the values in a newer PDF.
+ANL frequently revises the most recent ~2 months (and occasionally older
+months) between releases. To absorb those revisions we re-write a trailing
+window of the last `--months` (default 3) months on every run: new months are
+appended and recently-revised months are corrected in place. Rows older than
+the window are never touched, even if a later ANL release would adjust them —
+so the deep-history rows in data/USA.csv may still differ from a newer PDF.
+The CSV is only rewritten when at least one value in the window actually
+changed, so steady-state runs are a no-op.
 
 Vehicle scope
 -------------
@@ -111,14 +115,6 @@ def previous_month(today: date) -> tuple[int, int]:
     if today.month == 1:
         return today.year - 1, 12
     return today.year, today.month - 1
-
-
-def latest_period(csv_path: str) -> str | None:
-    if not Path(csv_path).exists():
-        return None
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        periods = [row["period"] for row in csv.DictReader(f)]
-    return max(periods) if periods else None
 
 
 def discover_pdf_url() -> str | None:
@@ -211,10 +207,31 @@ def build_row(period: str, vals: dict[str, int]) -> dict:
     }
 
 
-def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
-    """Append `row` for `period` to the CSV (sorted). Returns True if written.
+_NUMERIC_FIELDS = ("BEV", "PHEV", "HEV", "OTHERS", "ICE", "TOTAL")
 
-    Returns False without writing if the period already exists and not --force.
+
+def _row_unchanged(existing: dict, new: dict) -> bool:
+    """True if the existing CSV row already carries `new`'s numeric values.
+
+    Legacy rows may store OTHERS as "" — treated as a mismatch so the value
+    is normalised to 0.0 on the next write.
+    """
+    for field in _NUMERIC_FIELDS:
+        raw = existing.get(field, "")
+        try:
+            cur = float(raw) if raw not in ("", None) else None
+        except ValueError:
+            cur = None
+        if cur != new[field]:
+            return False
+    return True
+
+
+def upsert_window(csv_path: str, rows: dict[str, dict], force: bool) -> list[str]:
+    """Upsert each period in `rows` into the CSV (sorted). Returns periods written.
+
+    A period is written if it is new, its numeric values changed, or --force is
+    set. The file is only rewritten when at least one period was written.
     """
     existing: dict[str, dict] = {}
     if Path(csv_path).exists():
@@ -222,45 +239,48 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
             for r in csv.DictReader(f):
                 existing[r["period"]] = r
 
-    if period in existing and not force:
-        print(f"  Period {period} already in CSV — not overwriting (use --force).")
-        return False
+    changed: list[str] = []
+    for period, row in rows.items():
+        old = existing.get(period)
+        if old is None or force or not _row_unchanged(old, row):
+            existing[period] = row
+            changed.append(period)
 
-    existing[period] = row
+    if not changed:
+        return []
+
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS, lineterminator="\n")
         writer.writeheader()
         for p in sorted(existing.keys()):
             writer.writerow(existing[p])
-    return True
+    return sorted(changed)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int)
     parser.add_argument("--month", type=int, choices=range(1, 13))
+    parser.add_argument("--months", type=int, default=3,
+                        help="How many trailing months to (re)write (default: 3)")
     parser.add_argument("--pdf-url", help="Direct URL/path to the Total Sales PDF")
     parser.add_argument("--csv", default="data/USA.csv")
     parser.add_argument("--force", action="store_true",
-                        help="Re-process even if target period already exists")
+                        help="Rewrite the trailing window even if values are unchanged")
     args = parser.parse_args()
+    if args.months < 1:
+        sys.exit("--months must be >= 1")
 
-    # Determine target month (defaults to the calendar month before today)
+    # Determine the cutoff month (defaults to the calendar month before today).
+    # Only PDF rows up to and including this month are considered.
     if args.year and args.month:
-        target_year, target_month = args.year, args.month
+        cutoff_year, cutoff_month = args.year, args.month
     elif args.year or args.month:
         sys.exit("--year and --month must be given together")
     else:
-        target_year, target_month = previous_month(date.today())
-    target_period = f"{target_year}-{target_month:02d}"
-    print(f"Target period: {target_period}")
-
-    # Short-circuit: if already in CSV and not forced, no-op.
-    if not args.force:
-        latest = latest_period(args.csv)
-        if latest and latest >= target_period:
-            print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
-            return 0
+        cutoff_year, cutoff_month = previous_month(date.today())
+    cutoff_period = f"{cutoff_year}-{cutoff_month:02d}"
+    print(f"Cutoff period: {cutoff_period} (writing up to {args.months} trailing months)")
 
     # Resolve the PDF URL
     if args.pdf_url:
@@ -279,22 +299,31 @@ def main() -> int:
         sys.exit("Parsed zero rows from the ANL PDF — layout may have changed.")
     print(f"Parsed {len(table)} monthly rows ({min(table)} … {max(table)}).")
 
-    if target_period not in table:
-        print(f"Target {target_period} not yet present in the PDF "
-              f"(latest is {max(table)}). Will retry on next scheduled run.")
+    eligible = sorted(p for p in table if p <= cutoff_period)
+    if not eligible:
+        print(f"No PDF rows at or before {cutoff_period} yet — nothing to do.")
         return 0
+    if cutoff_period not in table:
+        print(f"Note: {cutoff_period} not yet in the PDF (latest eligible is "
+              f"{eligible[-1]}); refreshing the trailing window instead.")
 
-    vals = table[target_period]
-    ice = vals["TOTAL"] - vals["BEV"] - vals["PHEV"] - vals["HEV"]
-    if ice < 0:
-        sys.exit(f"Computed ICE is negative ({ice}); parser likely picked wrong "
-                 f"values for {target_period}: {vals}")
-    print(f"  BEV={vals['BEV']}, PHEV={vals['PHEV']}, HEV={vals['HEV']}, "
-          f"TOTAL={vals['TOTAL']}, ICE={ice}")
+    window = eligible[-args.months:]
+    rows: dict[str, dict] = {}
+    for period in window:
+        vals = table[period]
+        ice = vals["TOTAL"] - vals["BEV"] - vals["PHEV"] - vals["HEV"]
+        if ice < 0:
+            sys.exit(f"Computed ICE is negative ({ice}); parser likely picked wrong "
+                     f"values for {period}: {vals}")
+        rows[period] = build_row(period, vals)
+        print(f"  {period}: BEV={vals['BEV']}, PHEV={vals['PHEV']}, "
+              f"HEV={vals['HEV']}, TOTAL={vals['TOTAL']}, ICE={ice}")
 
-    row = build_row(target_period, vals)
-    if upsert_row(args.csv, target_period, row, args.force):
-        print(f"\nWrote {target_period} to {args.csv}")
+    changed = upsert_window(args.csv, rows, args.force)
+    if changed:
+        print(f"\nWrote {len(changed)} row(s) to {args.csv}: {', '.join(changed)}")
+    else:
+        print("\nWindow already matches the PDF — CSV unchanged.")
     return 0
 
 

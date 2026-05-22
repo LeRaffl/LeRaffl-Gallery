@@ -28,7 +28,9 @@ on:
         default: 'false'
         type: boolean
   schedule:
-    - cron: '0 8 10-31 * *'   # 10th through end of month at 08:00 UTC
+    # 10:00 UTC to avoid the 08:00 slot already used by Japan/Uruguay (daily)
+    # and Brazil (the 10th).
+    - cron: '0 10 10-31 * *'   # 10th through end of month at 10:00 UTC
 
 jobs:
   fetch:
