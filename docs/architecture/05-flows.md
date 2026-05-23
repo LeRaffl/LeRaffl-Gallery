@@ -20,6 +20,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
 | L | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 | M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:00 UTC) or manual dispatch with `press_id` | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
+| N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:00 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
 
 ---
 
@@ -780,6 +781,127 @@ Parser was checked byte-exact against the existing `data/Türkiye.csv` and the u
 | No-input default | Running with no `--press-id` / `--pdf-url` / `--pdf-path` and no target month covered prints the helpful "dispatch manually with press_id" message and exits 0 (so cron self-throttle paths don't fail the workflow). |
 
 The sample PDFs (`data/tuik_mart_2026.pdf`, `data/tuik_nisan_2026.pdf`) are not in the feature branch — they're in `master` (committed by the maintainer as "Add files via upload") and were pulled into the working tree only during development.
+
+## Flow N — ANL ingest
+
+USA follows the same `fetch-<country>` pattern as the others, but with the one
+structural difference that sets it apart from every other fetcher: **it
+re-writes a trailing window of months instead of only appending the newest
+one.** ANL publishes a single PDF that contains the *entire* monthly history
+(Dec-2010 → latest) and silently revises the most recent ~2 months between
+releases. To absorb those revisions the script rebuilds the last `--months`
+(default 3) rows on every run; new months are appended and recently-revised
+months are corrected in place. Everything older than the window is left alone.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Cron as fetch-usa.yml (10:00 UTC, 10th→EOM)
+    participant Job as fetch-usa.yml job
+    participant Site as anl.gov
+    participant CSV as data/USA.csv
+
+    Cron->>Job: schedule / workflow_dispatch
+    Job->>Site: GET reference page (browser UA)
+    Site-->>Job: HTML with "Total Sales for Website_<Month> <Year>.pdf" link
+    Job->>Site: GET the PDF
+    Site-->>Job: full-history table (Month, BEV, PHEV, HEV, Total LDV)
+    Job->>Job: parse table → take last N periods ≤ cutoff
+    Job->>CSV: upsert window; rewrite only if a value changed
+    alt CSV changed
+        Job->>Render: gh workflow run render-country.yml -f country=USA
+    else nothing changed
+        Job-->>Job: no-op (idempotent)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_usa.py](../../scripts/fetch_usa.py). The
+module docstring is the authoritative reference for the column map, the ICE
+derivation, and the trailing-window rule.
+
+**Vehicle scope:** Light-Duty Vehicles (passenger cars + light trucks). See
+[09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
+
+**Column map — no ICE column in the source:** ANL's table is
+`Month | BEV | PHEV | HEV | Total LDV`. There is no gasoline/diesel/ICE column
+and no FCV/other column. We map BEV/PHEV/HEV directly, take `Total LDV` → TOTAL,
+set `OTHERS = 0`, and derive `ICE = TOTAL − BEV − PHEV − HEV − OTHERS` (same
+implicit-subtraction convention as Chile). A negative computed ICE aborts the
+run as a parser sanity-check.
+
+**Why the trailing window (and why this differs from every other fetcher):**
+the maintainer confirmed ANL routinely corrects the last ~2 months. The other
+agencies either don't revise, or we deliberately freeze the past (ACEA only
+revises the explicit prior-year column; Chile/Japan never touch older rows).
+For USA the corrections are the norm, so freezing them would leave the chart's
+most recent — and most-viewed — points permanently stale. `--months 3` gives
+one month of headroom over the observed ~2-month revision horizon. Months that
+ANL revises *outside* that window (it occasionally adjusts 2023–2025 too — see
+Validation) stay at their original CSV values by design; we don't chase the
+entire history on every run.
+
+**Why change-detection instead of a period-based self-throttle:** the other
+fetchers no-op by comparing the CSV's latest period to the target. That can't
+work here because a correction-only release leaves the latest period unchanged
+while still altering earlier rows. Instead `upsert_window` compares the numeric
+fields of each windowed row against the CSV and only rewrites the file when at
+least one value actually changed — so steady-state cron runs are still a no-op,
+but a pure-correction release is picked up.
+
+**Why 10:00 UTC:** every other fetcher crons at 08:00 UTC. On the 10th of the
+month that slot already runs Japan + Uruguay (daily, 1st→EOM) and Brazil (10th
+only). USA runs at 10:00 to avoid piling onto that slot. ANL's publication day
+is irregular (the sample "updated through April 2026" file was provided
+mid-May), so we cron daily from the 10th onward and let the change-detection
+make the empty days free.
+
+### Issues hit during development
+
+1. **ANL blocked the dev sandbox.** `WebFetch` and `curl` (even with a desktop
+   Chrome User-Agent) against the reference page returned `HTTP 403`, and the
+   sandbox's egress proxy returned `Host not in allowlist` for `anl.gov` and for
+   `apt`/`pip` mirrors. Same pattern as JADA/ACEA. The maintainer uploaded the
+   PDF to `master` (`data/Total Sales for Website_April 2026.pdf`) and the parser
+   was developed and validated against it offline. Whether the GitHub-hosted
+   runner can reach `anl.gov` is an open question the first scheduled run will
+   answer; if not, the `--pdf-url` workflow input accepts any URL or local path.
+
+2. **No PDF library available offline.** The sandbox has neither `pypdf` nor a
+   system `pdftotext`, and `pip`/`apt` were firewalled. `parse_table()` is
+   therefore written to operate on already-extracted text (pypdf does the
+   extraction in CI), and was validated by feeding it the PDF's text content
+   transcribed verbatim — see Validation.
+
+3. **Opposite CRLF decision to Japan.** `data/USA.csv` was committed CRLF
+   (Excel-origin). Japan/Chile chose to *preserve* CRLF to keep diffs clean.
+   For USA we deliberately **normalised to LF** instead: the script writes LF
+   (like Brazil/Uruguay output), the other scraped CSVs are LF, and the first CI
+   run would flip it anyway — so we took the one-time 185-line reformat now
+   rather than leave a latent noisy diff for later. The functional change in that
+   commit was only the 2026-02/2026-03 corrections.
+
+### Validation
+
+`parse_table()` was run against the verbatim text of
+`data/Total Sales for Website_April 2026.pdf` and every parsed cell compared to
+the pre-existing `data/USA.csv` (which was hand-maintained from older ANL
+vintages, so it is *not* expected to match the new PDF on recently-revised
+months — this is the point the maintainer flagged up front).
+
+| Check | Result |
+|---|---|
+| Column mapping | **100 fields matched the CSV exactly**, including stable older rows (2011-01, 2020-03, 2022-12) and an unbroken 2023-02…2023-07 run. Exact matches across distinct rows prove BEV/PHEV/HEV/Total are read from the right columns. |
+| Recent corrections (in-window) | 2026-03 BEV 88,582→76,058, HEV 198,534→203,512, TOTAL 1,403,623→1,388,654; 2026-02 BEV 72,896→58,284, TOTAL 1,197,916→1,178,786. These are now applied in the CSV. |
+| Older ANL revisions (out-of-window) | ANL has also revised much of 2023–2025 (e.g. 2023-09 BEV +11,664, 2024-08 TOTAL −17,867). **Left untouched by design** — they fall outside the 3-month window. If the maintainer ever wants a full-history refresh, run `fetch_usa.py --year 2023 --month 12 --months 300 --force` (or similar) once. |
+| Pre-existing CSV bug surfaced | 2025-08 HEV is `150,988` in the CSV — a copy of the Sep-25 value; the PDF correctly shows `181,048` (Δ +30,060). Out of window, so not auto-corrected; flagged here for a possible manual fix. |
+| Pre-existing CSV typos surfaced | 2011-10 HEV `20,257` vs PDF `20,057`; 2014-08 PHEV `4,920` vs PDF `5,920`. Single-cell transcription artefacts in the original hand-entered data, far outside any window. |
+| Legacy empty cell | 2025-11 has an empty `OTHERS` cell (vs `0.0` elsewhere). `_row_unchanged` treats empty as a mismatch, so the value normalises to `0.0` the next time that row enters the window. |
+| Idempotency | Re-running the window against the same PDF reports `changed: []` and does not rewrite the file. |
+| ICE derivation | `ICE = TOTAL − BEV − PHEV − HEV` verified non-negative for every windowed row (e.g. 2026-04: 1,361,970 − 64,517 − 18,309 − 209,456 = 1,069,688). |
+
+The sample PDF (`data/Total Sales for Website_April 2026.pdf`) is in `master`
+(committed by the maintainer as "Add files via upload"), not produced by the
+branch.
 
 ## See also
 
