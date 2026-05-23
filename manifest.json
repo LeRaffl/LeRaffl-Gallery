@@ -2,6 +2,46 @@
   "updated": "2026-05-23",
   "images": [
     {
+      "country": "USA",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-23",
+      "filename": "usa_ICE_BEV_20260523.png",
+      "url": "images/2026-04/usa_ICE_BEV_20260523.png",
+      "alt": "USA ICE-BEV-Hybrid trajectory",
+      "country_slug": "usa"
+    },
+    {
+      "country": "USA",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-23",
+      "filename": "usa_20260523.png",
+      "url": "images/2026-04/usa_20260523.png",
+      "alt": "USA BEV trajectory",
+      "country_slug": "usa"
+    },
+    {
+      "country": "USA",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-23",
+      "filename": "usa_time_20260523.png",
+      "url": "images/2026-04/usa_time_20260523.png",
+      "alt": "USA Transition time curve",
+      "country_slug": "usa"
+    },
+    {
+      "country": "USA",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-23",
+      "filename": "usa_ttm_shares_20260523.png",
+      "url": "images/2026-04/usa_ttm_shares_20260523.png",
+      "alt": "USA TTM market split graph",
+      "country_slug": "usa"
+    },
+    {
       "country": "Chile",
       "type": "ICE_BEV",
       "period": "2026-04",
