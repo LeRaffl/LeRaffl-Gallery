@@ -96,6 +96,22 @@ Some sources use non-canonical column names. The Excel→CSV extraction normalis
 | `HYBRIDS` | `HEV` | Türkiye (single hybrid bucket) |
 | `Hybrid` | `HEV` | Georgia (single hybrid bucket) |
 | `PETROL-GAS` | `PETROL` | Georgia (treated as ICE/petrol per maintainer convention) |
+| `Benzine` | `PETROL` | Netherlands |
+| `Overig` + `FCEV` | `OTHERS` | Netherlands (FCEV folded — single-digit units/month) |
+
+### Netherlands (multi-variant single file)
+
+`data/Netherlands.csv` carries three variants in one file, keyed on `(period, variant)`:
+
+| Variant | Slug-suffix | What it covers |
+|---|---|---|
+| `Whole` | (none) | Instroom Personenauto Nieuw — newly-registered passenger cars |
+| `Used Imports` | `_used_imports` | Personenauto Occasion import — sum of `> 90 dgn` (genuine used) and `<= 90 dgn` (near-new) sub-categories |
+| `HDV` | `_hdv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (N-class trucks ≥3500kg). Approximate; "Zware bedrijfsvoertuigen" is the closest single Dutch category. |
+
+**HEV is not reported separately** by RDW — full hybrids are folded into `Benzine` / `Diesel` upstream. The CSV therefore leaves the `HEV` column blank for all Netherlands rows, and the post-text generator drops the "of which Xp were HEV" annotation accordingly (see [post_text.R](../../R/post_text.R) `.pt_pp_if`, which only emits parens when `extra_value > 0`).
+
+**Source pipeline**: data is scraped by [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py) from three pre-saved Swing workspace templates (configured in the Swing UI via share-icon → permalink). The template GUIDs are baked into the script as the `TEMPLATES` constant; the per-row `notes` column carries them for provenance. If a GUID needs to change (e.g. the maintainer reconfigures a pivot), update `TEMPLATES` in the script. See the script docstring for the full bootstrap flow (`/viewer?workspace_guid=…` → extract `WsGuid` from inline JS → `Presentation/GetTableStart` + `GetTableRows` for pagination).
 
 ---
 
