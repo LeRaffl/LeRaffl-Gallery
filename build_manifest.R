@@ -52,20 +52,30 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   # Variante = alles nach erstem "_"
   rest <- sub("^[a-z0-9-]+_?", "", s)
   
-  # Normalisierung Rest (vektorisiert)
+  # Normalisierung Rest (vektorisiert). str_to_title runs first because it
+  # lowercases its input; abbreviation upper-casing (HDV/HEV/PHEV/EV) must
+  # happen AFTER, otherwise "HDV" becomes "Hdv" again.
   rest2 <- gsub("-", " ", rest)
-  rest2 <- gsub("\\bhev\\b",  "HEV",  rest2, ignore.case = TRUE)
-  rest2 <- gsub("\\bphev\\b", "PHEV", rest2, ignore.case = TRUE)
-  rest2 <- gsub("\\bev\\b",   "EV",   rest2, ignore.case = TRUE)
   rest_label <- to_title_keep_digits(rest2)
+  rest_label <- gsub("\\bHdv\\b",  "HDV",  rest_label)
+  rest_label <- gsub("\\bPhev\\b", "PHEV", rest_label)  # before \bHev\b so PHEV wins
+  rest_label <- gsub("\\bHev\\b",  "HEV",  rest_label)
+  rest_label <- gsub("\\bEv\\b",   "EV",   rest_label)
   rest_label <- gsub("\\bAnd\\b", "and", rest_label)
   rest_label <- gsub("\\bOf\\b",  "of",  rest_label)
   rest_label <- gsub("\\bIn\\b",  "In",  rest_label)
-  
-  # Variant-Overrides optional (vektorisiert)
-  if (!is.null(variant_overrides) && length(variant_overrides)) {
-    idx <- match(tolower(rest_label), tolower(names(variant_overrides)))
-    repl <- ifelse(is.na(idx), rest_label, unname(variant_overrides[idx]))
+
+  # Built-in variant label overrides (display-only; the variant key in
+  # data/params/weights CSVs stays canonical, e.g. "Used Imports").
+  # Caller-provided variant_overrides win over these.
+  default_variant_overrides <- c("Used Imports" = "Used")
+  merged_overrides <- c(default_variant_overrides, variant_overrides)
+  # Dedupe keeping caller overrides (later entries win in `[`-subscript)
+  merged_overrides <- merged_overrides[!duplicated(tolower(names(merged_overrides)), fromLast = TRUE)]
+
+  if (length(merged_overrides)) {
+    idx <- match(tolower(rest_label), tolower(names(merged_overrides)))
+    repl <- ifelse(is.na(idx), rest_label, unname(merged_overrides[idx]))
     rest_label <- repl
   }
   
