@@ -14,8 +14,10 @@ the curve's baseline year (`t0` = floor min year) from 2010 to 2018 and visibly
 change the published Netherlands trajectory.
 
 Scope: only the "Netherlands" tab (variant = Whole) has pre-2018 data — the
-"Netherlands (HDV)" and "Netherlands (Used Imports)" tabs both start 2018-01
-which matches Swing, so this script does not touch those variants.
+"Netherlands (HDV)" and "Netherlands (Used Imports)" sheet tabs both start
+2018-01 which matches Swing, so this script does not touch those variants.
+(Per-variant CSVs live in data/Netherlands_Used.csv and data/Netherlands_HDV.csv;
+this backfill only writes to data/Netherlands.csv, the Whole-variant file.)
 
 Idempotent: existing (period, variant=Whole) rows in data/Netherlands.csv are
 left untouched. Only periods strictly before 2018-01 that are missing get

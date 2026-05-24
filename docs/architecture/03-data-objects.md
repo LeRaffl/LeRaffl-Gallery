@@ -38,9 +38,12 @@ flowchart LR
 ### Where
 
 `data/<Country>.csv` for variant "Whole" (the default).
-`data/<Country>_<Variant>.csv` for non-Whole variants (planned, not yet active).
+`data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
+(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`); R/render_country.R
+also retains a fall-through to the single-CSV-with-variant-column layout so
+countries that haven't been migrated yet still render.
 
-Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`.
+Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`, `data/Netherlands_HDV.csv`.
 
 ### Schema
 
@@ -99,15 +102,15 @@ Some sources use non-canonical column names. The Excel→CSV extraction normalis
 | `Benzine` | `PETROL` | Netherlands |
 | `Overig` + `FCEV` | `OTHERS` | Netherlands (FCEV folded — single-digit units/month) |
 
-### Netherlands (multi-variant single file)
+### Netherlands (per-variant files)
 
-`data/Netherlands.csv` carries three variants in one file, keyed on `(period, variant)`:
+Netherlands is the first country split into per-variant CSVs:
 
-| Variant | Slug-suffix | What it covers |
+| Variant | File | What it covers |
 |---|---|---|
-| `Whole` | (none) | Instroom Personenauto Nieuw — newly-registered passenger cars |
-| `Used Imports` | `_used_imports` | Personenauto Occasion import — sum of `> 90 dgn` (genuine used) and `<= 90 dgn` (near-new) sub-categories |
-| `HDV` | `_hdv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (N-class trucks ≥3500kg). Approximate; "Zware bedrijfsvoertuigen" is the closest single Dutch category. |
+| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Includes pre-2018 backfill (2011-01..2017-12) from the maintainer's Google Sheet, written by [scripts/backfill_netherlands_pre2018.py](../../scripts/backfill_netherlands_pre2018.py). |
+| `Used` | `data/Netherlands_Used.csv` | Personenauto Occasion import — sum of `> 90 dgn` (genuine used) and `<= 90 dgn` (near-new) sub-categories. |
+| `HDV` | `data/Netherlands_HDV.csv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (N-class trucks ≥3500kg). Approximate; "Zware bedrijfsvoertuigen" is the closest single Dutch category. |
 
 **HEV is not reported separately** by RDW — full hybrids are folded into `Benzine` / `Diesel` upstream. The CSV therefore leaves the `HEV` column blank for all Netherlands rows, and the post-text generator drops the "of which Xp were HEV" annotation accordingly (see [post_text.R](../../R/post_text.R) `.pt_pp_if`, which only emits parens when `extra_value > 0`).
 

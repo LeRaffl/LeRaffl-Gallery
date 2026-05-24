@@ -65,17 +65,12 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   rest_label <- gsub("\\bOf\\b",  "of",  rest_label)
   rest_label <- gsub("\\bIn\\b",  "In",  rest_label)
 
-  # Built-in variant label overrides (display-only; the variant key in
-  # data/params/weights CSVs stays canonical, e.g. "Used Imports").
-  # Caller-provided variant_overrides win over these.
-  default_variant_overrides <- c("Used Imports" = "Used")
-  merged_overrides <- c(default_variant_overrides, variant_overrides)
-  # Dedupe keeping caller overrides (later entries win in `[`-subscript)
-  merged_overrides <- merged_overrides[!duplicated(tolower(names(merged_overrides)), fromLast = TRUE)]
-
-  if (length(merged_overrides)) {
-    idx <- match(tolower(rest_label), tolower(names(merged_overrides)))
-    repl <- ifelse(is.na(idx), rest_label, unname(merged_overrides[idx]))
+  # Variant-Overrides optional (vektorisiert). Caller can pass e.g.
+  # c("Used Imports" = "Used") to remap display labels without renaming
+  # the underlying variant key. Lookup is case-insensitive.
+  if (!is.null(variant_overrides) && length(variant_overrides)) {
+    idx <- match(tolower(rest_label), tolower(names(variant_overrides)))
+    repl <- ifelse(is.na(idx), rest_label, unname(variant_overrides[idx]))
     rest_label <- repl
   }
   

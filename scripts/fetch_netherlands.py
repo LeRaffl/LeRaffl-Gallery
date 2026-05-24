@@ -5,15 +5,21 @@ and update data/Netherlands.csv.
 
 Usage
 -----
-    python scripts/fetch_netherlands.py [--variant {whole,used,hdv,all}] [--csv PATH]
+    python scripts/fetch_netherlands.py [--variant {whole,used,hdv,all}]
 
 * --variant  Which slice(s) to fetch (default: all).
-* --csv      Target CSV (default: data/Netherlands.csv).
 
-This script is invoked by .github/workflows/fetch-netherlands.yml on a monthly
-cron and via manual workflow_dispatch. When it produces changes, the workflow
-commits data/Netherlands.csv and triggers render-country.yml for each touched
-variant.
+Output files (one per variant; non-Whole variants use the data/<Country>_<Variant>.csv
+naming convention documented in docs/architecture/03-data-objects.md):
+
+    data/Netherlands.csv       <- Whole (newly-registered passenger cars)
+    data/Netherlands_Used.csv  <- Used (Personenauto Occasion import, >90 + <=90)
+    data/Netherlands_HDV.csv   <- HDV (Zware bedrijfsvoertuigen Nieuw)
+
+This script is invoked by .github/workflows/fetch-netherlands.yml on a daily
+cron (1st-15th) and via manual workflow_dispatch. When it produces changes,
+the workflow commits each touched CSV and triggers render-country.yml for the
+corresponding variant.
 
 Data source
 -----------
@@ -83,9 +89,18 @@ BASE = "https://duurzamemobiliteit.databank.nl"
 # Each is pre-set to monthly granularity, all years 2018-current selected, and
 # the relevant Voertuigsoort / Aanvoertype dimension picks.
 TEMPLATES = {
-    "Whole":        "a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba",  # Personenauto Nieuw
-    "Used Imports": "ffaf2d83-0174-4b36-92b9-f7bd96ad4d89",  # Personenauto Occasion import (>90 + <=90)
-    "HDV":          "992eb09a-0828-4ef9-97b4-1577ebba3a21",  # Zware bedrijfsvoertuigen Nieuw
+    "Whole": "a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba",  # Personenauto Nieuw
+    "Used":  "ffaf2d83-0174-4b36-92b9-f7bd96ad4d89",  # Personenauto Occasion import (>90 + <=90)
+    "HDV":   "992eb09a-0828-4ef9-97b4-1577ebba3a21",  # Zware bedrijfsvoertuigen Nieuw
+}
+
+# Each variant writes to its own CSV. Whole keeps the canonical filename
+# (no suffix) — that's the convention for the country's "default" slice and
+# what the gallery's world-map + aggregate computations pick up.
+CSV_PATHS = {
+    "Whole": "data/Netherlands.csv",
+    "Used":  "data/Netherlands_Used.csv",
+    "HDV":   "data/Netherlands_HDV.csv",
 }
 
 # Short, stable source string for the CSV (matches the pattern other countries
@@ -337,22 +352,15 @@ def previous_month_period() -> str:
     return f"{today.year}-{today.month - 1:02d}"
 
 
-def csv_has_period_for_all(csv_path: str, period: str, variants: list[str]) -> bool:
-    """Return True if csv_path has a row for `period` in every given variant.
-
-    Used by main() to short-circuit the daily cron once last month's data has
-    materialised — no point pounding the Swing API for the rest of the polling
-    window. RDW occasionally restates older months, but those revisions don't
-    need same-day pickup.
-    """
+def csv_has_period(csv_path: str, period: str) -> bool:
+    """Return True if csv_path exists and contains any row for `period`."""
     if not os.path.exists(csv_path):
         return False
-    have: set[str] = set()
     with open(csv_path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            if row["period"] == period and row["variant"] in variants:
-                have.add(row["variant"])
-    return have >= set(variants)
+            if row["period"] == period:
+                return True
+    return False
 
 
 def main() -> None:
@@ -364,31 +372,32 @@ def main() -> None:
         help="Which slice to fetch (default: all)",
     )
     parser.add_argument(
-        "--csv", default="data/Netherlands.csv",
-        help="Target CSV (default: data/Netherlands.csv)",
-    )
-    parser.add_argument(
         "--force", action="store_true",
         help="Skip the 'already current' early-exit check.",
     )
     args = parser.parse_args()
 
-    variant_aliases = {"whole": "Whole", "used": "Used Imports", "hdv": "HDV"}
+    variant_aliases = {"whole": "Whole", "used": "Used", "hdv": "HDV"}
     targets = (
         list(variant_aliases.values())
         if args.variant == "all"
         else [variant_aliases[args.variant]]
     )
 
+    # Early exit per variant: skip those whose CSV already has last month's
+    # row. RDW occasionally restates older months but those don't need
+    # same-day pickup; --force is the override for restatement runs.
     if not args.force:
         prev = previous_month_period()
-        if csv_has_period_for_all(args.csv, prev, targets):
-            print(f"CSV already has {prev} for all requested variants; nothing to do.")
-            print("(Pass --force to fetch anyway, e.g. to pick up RDW restatements.)")
+        current = [v for v in targets if csv_has_period(CSV_PATHS[v], prev)]
+        targets = [v for v in targets if v not in current]
+        for v in current:
+            print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
+        if not targets:
+            print("All requested variants are current; nothing to do.")
             return
 
     session = requests.Session()
-    all_new_rows: dict[tuple[str, str], dict] = {}
     for variant in targets:
         data = fetch_table(variant, session)
         print(f"[{variant}] caption: {data['caption']}")
@@ -396,15 +405,11 @@ def main() -> None:
         rows = to_csv_rows(parsed, variant)
         print(f"[{variant}] parsed {len(rows)} non-zero months "
               f"({min(rows, default='—')} .. {max(rows, default='—')})")
-        for period, row in rows.items():
-            all_new_rows[(period, variant)] = row
-
-    if not all_new_rows:
-        print("No data parsed. Nothing to update.")
-        sys.exit(1)
-
-    added, updated = upsert_csv(args.csv, all_new_rows)
-    print(f"\nDone: {added} rows added, {updated} rows updated -> {args.csv}")
+        if not rows:
+            continue
+        keyed = {(p, variant): r for p, r in rows.items()}
+        added, updated = upsert_csv(CSV_PATHS[variant], keyed)
+        print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
 
 
 if __name__ == "__main__":

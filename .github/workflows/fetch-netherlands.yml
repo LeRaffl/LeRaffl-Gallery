@@ -58,20 +58,26 @@ jobs:
         env:
           VARIANT: ${{ inputs.variant }}
 
-      - name: Detect which variants changed
+      - name: Detect which CSVs changed
         id: changed
         run: |
-          # Emit a pipe-separated list of variant names (Whole / "Used Imports"
-          # / HDV) whose rows moved this run, so we trigger render only for
-          # those. `git add -N` makes `git diff` include untracked new files —
-          # needed for the very first run when data/Netherlands.csv didn't
-          # exist on master yet.
-          git add -N data/Netherlands.csv
-          variants=$(git diff -- data/Netherlands.csv \
-            | grep -E '^[+-][0-9]{4}-[0-9]{2},' \
-            | awk -F',' '{print $3}' \
-            | sort -u \
-            | paste -sd '|' -)
+          # For each of the 3 per-variant CSVs, check if git sees changes.
+          # `git add -N` makes `git diff` include untracked new files (needed
+          # the very first time each file is created). Emit a pipe-separated
+          # list of variant names so we trigger render only for those.
+          touched=()
+          for pair in "Whole:data/Netherlands.csv" \
+                     "Used:data/Netherlands_Used.csv" \
+                     "HDV:data/Netherlands_HDV.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
           echo "variants=$variants" >> "$GITHUB_OUTPUT"
           echo "Touched variants: ${variants:-<none>}"
 
@@ -79,7 +85,10 @@ jobs:
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Netherlands.csv
+          add: |
+            data/Netherlands.csv
+            data/Netherlands_Used.csv
+            data/Netherlands_HDV.csv
           message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
           default_author: github_actions
 
