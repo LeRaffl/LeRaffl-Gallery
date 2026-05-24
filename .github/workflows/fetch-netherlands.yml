@@ -27,7 +27,12 @@ on:
           - used
           - hdv
   schedule:
-    - cron: '0 8 12 * *'   # 12th of each month at 08:00 UTC
+    # Daily 1st–15th at 06:30 UTC. RDW's publication date varies (sometime in
+    # the first half of the following month), so we poll daily until the
+    # previous month's row materialises in the CSV, then idempotent re-fetches
+    # produce no diff (no commit, no render trigger). 06:30 UTC keeps us clear
+    # of fetch-brazil's 08:00 UTC slot and most country-side timezones.
+    - cron: '30 6 1-15 * *'
 
 jobs:
   fetch:

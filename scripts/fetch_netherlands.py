@@ -72,6 +72,7 @@ import os
 import re
 import sys
 import time
+from datetime import date
 from pathlib import Path
 
 import requests
@@ -328,6 +329,32 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
     return added, updated
 
 
+def previous_month_period() -> str:
+    """YYYY-MM for the calendar month before today (UTC)."""
+    today = date.today()
+    if today.month == 1:
+        return f"{today.year - 1}-12"
+    return f"{today.year}-{today.month - 1:02d}"
+
+
+def csv_has_period_for_all(csv_path: str, period: str, variants: list[str]) -> bool:
+    """Return True if csv_path has a row for `period` in every given variant.
+
+    Used by main() to short-circuit the daily cron once last month's data has
+    materialised — no point pounding the Swing API for the rest of the polling
+    window. RDW occasionally restates older months, but those revisions don't
+    need same-day pickup.
+    """
+    if not os.path.exists(csv_path):
+        return False
+    have: set[str] = set()
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row["period"] == period and row["variant"] in variants:
+                have.add(row["variant"])
+    return have >= set(variants)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -340,6 +367,10 @@ def main() -> None:
         "--csv", default="data/Netherlands.csv",
         help="Target CSV (default: data/Netherlands.csv)",
     )
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Skip the 'already current' early-exit check.",
+    )
     args = parser.parse_args()
 
     variant_aliases = {"whole": "Whole", "used": "Used Imports", "hdv": "HDV"}
@@ -348,6 +379,13 @@ def main() -> None:
         if args.variant == "all"
         else [variant_aliases[args.variant]]
     )
+
+    if not args.force:
+        prev = previous_month_period()
+        if csv_has_period_for_all(args.csv, prev, targets):
+            print(f"CSV already has {prev} for all requested variants; nothing to do.")
+            print("(Pass --force to fetch anyway, e.g. to pick up RDW restatements.)")
+            return
 
     session = requests.Session()
     all_new_rows: dict[tuple[str, str], dict] = {}
