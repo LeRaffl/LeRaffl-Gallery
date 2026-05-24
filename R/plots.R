@@ -8,6 +8,30 @@ suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(ggtext); library(viridis)
 })
 
+# Palette aligned with the in-browser Fleet plot (index.html ~line 4078) so
+# the static PNGs and the live HTML chart read as one visual language.
+# Keys for TTM_FUEL_COLORS are the DISPLAY labels emitted by compute_ttm_long
+# (R/data.R `display_label`) — not the raw column names.
+TTM_FUEL_COLORS <- c(
+  BEV      = "#00ff2c",
+  PHEV     = "#00bdfe",
+  EREV     = "#1976d2",  # darker PHEV-cousin (subset of PHEV in some sources)
+  HEV      = "#ffd300",
+  MHEV     = "#c4a000",  # darker HEV-cousin
+  ICE      = "#692500",  # used when a source gives ICE as one bucket (China etc.)
+  Petrol   = "#502900",
+  Diesel   = "#914700",
+  Gas      = "#8a7253",
+  CNG      = "#a89071",
+  LPG      = "#bfa890",
+  Flexfuel = "#6b4423",
+  Ethanol  = "#7a5530",
+  Other    = "#3c2f2f"
+)
+# 3-curve plot uses the gallery-wide builder palette (top-level COLORS in
+# index.html ~line 1765): BEV green, PHEV blue, ICE brown.
+TRAJ_COLORS <- c(BEV = "#00ff2c", PHEV = "#00bdfe", ICE = "#692500")
+
 # 1) TTM stacked bar plot (uses long ttm frame from compute_ttm_long)
 plot_ttm_shares <- function(ttm_long, meta) {
   if (is.null(ttm_long) || nrow(ttm_long) == 0) return(NULL)
@@ -25,7 +49,7 @@ plot_ttm_shares <- function(ttm_long, meta) {
     scale_y_continuous(labels = scales::percent_format(scale = 100), expand = c(0, 0),
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",
                                            labels = scales::percent_format(scale = 100))) +
-    scale_fill_viridis_d(name = "Fuel Type", option = "H", direction = -1) +
+    scale_fill_manual(name = "Fuel Type", values = TTM_FUEL_COLORS, drop = FALSE) +
     labs(title = paste0("12-Month Trailing Market Shares by Fuel Type in ", meta$country_label),
          y = "Trailing 12 Months Market Share", x = "Jahre",
          caption = meta$entire_caption) +
@@ -131,15 +155,15 @@ plot_ice_bev_phev <- function(fit, df, meta) {
   germany <- fit$extrap; default_size <- 2
 
   p <- ggplot(germany, aes(x = x, y = BEV, color = Type)) +
-    geom_ribbon(aes(ymin = BEV_lower, ymax = BEV_upper), fill = "green", alpha = 0.5, color = NA) +
+    geom_ribbon(aes(ymin = BEV_lower, ymax = BEV_upper), fill = TRAJ_COLORS[["BEV"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = BEV, color = "BEV", shape = "BEV"), lwd = 1) +
     geom_point(data = fit$BEV, aes(x = x, y = y, color = "BEV", shape = "BEV"),
                size = default_size + (fit$BEV$overall - mean(fit$BEV$overall)) / sd(fit$BEV$overall)) +
-    geom_ribbon(aes(ymin = ICE_lower, ymax = ICE_upper), fill = "red", alpha = 0.5, color = NA) +
+    geom_ribbon(aes(ymin = ICE_lower, ymax = ICE_upper), fill = TRAJ_COLORS[["ICE"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = ICE, color = "ICE", shape = "ICE"), lwd = 1) +
     geom_point(data = fit$ICE, aes(x = x, y = y, color = "ICE", shape = "ICE"),
                size = default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall)) +
-    geom_ribbon(aes(ymin = Hybrid_lower, ymax = Hybrid_upper), fill = "blue", alpha = 0.5, color = NA) +
+    geom_ribbon(aes(ymin = Hybrid_lower, ymax = Hybrid_upper), fill = TRAJ_COLORS[["PHEV"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = Hybrid, color = "PHEV", shape = "PHEV"), lwd = 1) +
     geom_point(data = df, aes(x = year, y = hybrid_share, color = "PHEV", shape = "PHEV"),
                size = default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall)) +
@@ -161,12 +185,12 @@ plot_ice_bev_phev <- function(fit, df, meta) {
           legend.title = element_text(size = rel(1)), legend.text = element_text(size = rel(0.9)),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9))) +
     scale_color_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
-                       values = c("ICE"="red","BEV"="green","PHEV"="blue")) +
+                       values = TRAJ_COLORS) +
     scale_shape_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
                        values = c("ICE"=15,"BEV"=16,"PHEV"=23))
 
   p <- p + annotate("text", x = 2010, y = 0.9, label = "New ICE in",
-                    size = rel(6), hjust = 0, vjust = 1, col = "red")
+                    size = rel(6), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
   counter <- 0
   repeat {
     cond_row  <- subset(germany, germany$x == 2024 + counter - 1 & germany$Type == "New Registrations")
@@ -175,7 +199,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
     if (!(5 < round(cond_row$ICE * 100, 1) & 1 - 0.05 * (counter + 1) > 0.1)) break
     p <- p + annotate("text", x = 2010 + 0.5, y = 0.85 - counter * 0.05,
                       label = paste0("Jan ", 2024 + counter + 1, ": ", round(label_row$ICE * 100, 1), "%"),
-                      size = rel(5), hjust = 0, vjust = 1, col = "red")
+                      size = rel(5), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
     counter <- counter + 1
   }
   if (!is.null(meta$flag_img)) {
