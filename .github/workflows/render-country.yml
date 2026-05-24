@@ -23,9 +23,17 @@ on:
         required: true
         type: string
       variant:
-        description: 'Variant (default Whole)'
+        description: 'Variant (matches the `variant` column in data/<Country>.csv or the suffix in data/<Country>_<Variant>.csv)'
         required: false
         default: 'Whole'
+        type: choice
+        options:
+          - Whole
+          - Used
+          - HDV
+          - Industry
+          - Private
+          - Vans
         type: string
   workflow_call:
     inputs:

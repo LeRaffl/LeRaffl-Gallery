@@ -21,6 +21,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 7 | [07-secrets-trust.md](07-secrets-trust.md) | Secrets, trust boundaries, threat model, rate-limits |
 | 8 | [08-deploy-ops.md](08-deploy-ops.md) | Operational runbook: deploys, triggers, common breakage |
 | 9 | [09-glossary.md](09-glossary.md) | Domain jargon (TTM, EREV, slug, variant, …) |
+| 10 | [10-source-netherlands.md](10-source-netherlands.md) | Per-country source playbook for Netherlands (Swing/RDW). Template for other BI-portal sources (Denmark/Sweden/Finland/Norway) when those land. |
 
 ## Big picture in one diagram
 

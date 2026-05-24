@@ -16,7 +16,21 @@ if (length(args) < 1) stop("usage: Rscript R/render_country.R <Country> [<Varian
 country <- args[[1]]
 variant <- if (length(args) >= 2) args[[2]] else "Whole"
 
-csv_path <- file.path("data", paste0(country, ".csv"))
+# Per-variant CSV layout: non-Whole variants live in data/<Country>_<Variant>.csv;
+# Whole (the default) stays in data/<Country>.csv. The legacy fall-through
+# (any variant in the single data/<Country>.csv keyed by the variant column)
+# is preserved so countries that haven't been migrated yet still work.
+variant_filename <- function(country, variant) {
+  if (variant == "Whole") return(file.path("data", paste0(country, ".csv")))
+  file.path("data", paste0(country, "_", variant, ".csv"))
+}
+csv_path <- variant_filename(country, variant)
+legacy_path <- file.path("data", paste0(country, ".csv"))
+if (!file.exists(csv_path) && file.exists(legacy_path)) {
+  cat(sprintf("[render] %s not found; falling back to %s with variant filter\n",
+              csv_path, legacy_path))
+  csv_path <- legacy_path
+}
 if (!file.exists(csv_path)) stop("missing data file: ", csv_path)
 
 df_all <- load_country_csv(csv_path)

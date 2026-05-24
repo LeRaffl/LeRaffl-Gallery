@@ -40,9 +40,12 @@ flowchart LR
 ### Where
 
 `data/<Country>.csv` for variant "Whole" (the default).
-`data/<Country>_<Variant>.csv` for non-Whole variants (planned, not yet active).
+`data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
+(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`); R/render_country.R
+also retains a fall-through to the single-CSV-with-variant-column layout so
+countries that haven't been migrated yet still render.
 
-Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`.
+Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`, `data/Netherlands_HDV.csv`.
 
 ### Schema
 
@@ -98,6 +101,22 @@ Some sources use non-canonical column names. The Excel→CSV extraction normalis
 | `HYBRIDS` | `HEV` | Türkiye (single hybrid bucket) |
 | `Hybrid` | `HEV` | Georgia (single hybrid bucket) |
 | `PETROL-GAS` | `PETROL` | Georgia (treated as ICE/petrol per maintainer convention) |
+| `Benzine` | `PETROL` | Netherlands |
+| `Overig` + `FCEV` | `OTHERS` | Netherlands (FCEV folded — single-digit units/month) |
+
+### Netherlands (per-variant files)
+
+Netherlands is the first country split into per-variant CSVs:
+
+| Variant | File | What it covers |
+|---|---|---|
+| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Includes pre-2018 backfill from the maintainer's Google Sheet. |
+| `Used` | `data/Netherlands_Used.csv` | Personenauto Occasion import (sum of `> 90 dgn` + `<= 90 dgn` sub-categories). |
+| `HDV` | `data/Netherlands_HDV.csv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (≈ N-class trucks ≥3500kg). |
+
+Netherlands also has an **HEV gap** (RDW doesn't split full hybrids; they fold into Benzine/Diesel) and **FCEV folded into OTHERS** (~1 unit/month — negligible).
+
+The full source-playbook for this pipeline — Swing endpoint flow, variant rationale, schedule, fragility, maintenance recipes — lives in [10-source-netherlands.md](10-source-netherlands.md). Read that doc before changing anything in [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py).
 
 ---
 

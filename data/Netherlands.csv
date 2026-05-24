@@ -1,0 +1,185 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes
+2011-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,74786.0,backfill: pre-2018 from maintainer google sheet
+2011-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,49018.0,backfill: pre-2018 from maintainer google sheet
+2011-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,56601.0,backfill: pre-2018 from maintainer google sheet
+2011-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,47634.0,backfill: pre-2018 from maintainer google sheet
+2011-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,49806.0,backfill: pre-2018 from maintainer google sheet
+2011-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,2.0,,,,,,50500.0,backfill: pre-2018 from maintainer google sheet
+2011-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,42091.0,backfill: pre-2018 from maintainer google sheet
+2011-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,39064.0,backfill: pre-2018 from maintainer google sheet
+2011-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,2.0,,,,,,44382.0,backfill: pre-2018 from maintainer google sheet
+2011-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,43626.0,backfill: pre-2018 from maintainer google sheet
+2011-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,1.0,,,,,,41061.0,backfill: pre-2018 from maintainer google sheet
+2011-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,71.0,2.0,,,,,,17229.0,backfill: pre-2018 from maintainer google sheet
+2012-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,70157.0,backfill: pre-2018 from maintainer google sheet
+2012-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,43968.0,backfill: pre-2018 from maintainer google sheet
+2012-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,52334.0,backfill: pre-2018 from maintainer google sheet
+2012-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,41033.0,backfill: pre-2018 from maintainer google sheet
+2012-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,47759.0,backfill: pre-2018 from maintainer google sheet
+2012-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,76120.0,backfill: pre-2018 from maintainer google sheet
+2012-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,30918.0,backfill: pre-2018 from maintainer google sheet
+2012-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,32996.0,backfill: pre-2018 from maintainer google sheet
+2012-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,31952.0,backfill: pre-2018 from maintainer google sheet
+2012-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,25775.0,backfill: pre-2018 from maintainer google sheet
+2012-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,30270.0,backfill: pre-2018 from maintainer google sheet
+2012-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,69.0,361.0,,,,,,18214.0,backfill: pre-2018 from maintainer google sheet
+2013-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,47957.0,backfill: pre-2018 from maintainer google sheet
+2013-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,31901.0,backfill: pre-2018 from maintainer google sheet
+2013-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,35559.0,backfill: pre-2018 from maintainer google sheet
+2013-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,30407.0,backfill: pre-2018 from maintainer google sheet
+2013-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,30084.0,backfill: pre-2018 from maintainer google sheet
+2013-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,35044.0,backfill: pre-2018 from maintainer google sheet
+2013-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,30474.0,backfill: pre-2018 from maintainer google sheet
+2013-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,28307.0,backfill: pre-2018 from maintainer google sheet
+2013-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,31394.0,backfill: pre-2018 from maintainer google sheet
+2013-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,36321.0,backfill: pre-2018 from maintainer google sheet
+2013-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,50536.0,backfill: pre-2018 from maintainer google sheet
+2013-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,260.0,1639.0,,,,,,39163.0,backfill: pre-2018 from maintainer google sheet
+2014-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,51129.0,backfill: pre-2018 from maintainer google sheet
+2014-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,38462.0,backfill: pre-2018 from maintainer google sheet
+2014-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,35454.0,backfill: pre-2018 from maintainer google sheet
+2014-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,33743.0,backfill: pre-2018 from maintainer google sheet
+2014-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,36367.0,backfill: pre-2018 from maintainer google sheet
+2014-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,38467.0,backfill: pre-2018 from maintainer google sheet
+2014-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,34765.0,backfill: pre-2018 from maintainer google sheet
+2014-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,29920.0,backfill: pre-2018 from maintainer google sheet
+2014-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,35634.0,backfill: pre-2018 from maintainer google sheet
+2014-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,40844.0,backfill: pre-2018 from maintainer google sheet
+2014-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,37870.0,backfill: pre-2018 from maintainer google sheet
+2014-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,270.0,3078.0,,,,,,40417.0,backfill: pre-2018 from maintainer google sheet
+2015-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,47946.0,backfill: pre-2018 from maintainer google sheet
+2015-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,33944.0,backfill: pre-2018 from maintainer google sheet
+2015-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,29030.0,backfill: pre-2018 from maintainer google sheet
+2015-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,27148.0,backfill: pre-2018 from maintainer google sheet
+2015-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,28049.0,backfill: pre-2018 from maintainer google sheet
+2015-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,36999.0,backfill: pre-2018 from maintainer google sheet
+2015-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,33908.0,backfill: pre-2018 from maintainer google sheet
+2015-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,31225.0,backfill: pre-2018 from maintainer google sheet
+2015-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,35277.0,backfill: pre-2018 from maintainer google sheet
+2015-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,39006.0,backfill: pre-2018 from maintainer google sheet
+2015-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,40516.0,backfill: pre-2018 from maintainer google sheet
+2015-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,316.0,3263.0,,,,,,69159.0,backfill: pre-2018 from maintainer google sheet
+2016-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,40776.0,backfill: pre-2018 from maintainer google sheet
+2016-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,28408.0,backfill: pre-2018 from maintainer google sheet
+2016-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,29869.0,backfill: pre-2018 from maintainer google sheet
+2016-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,27783.0,backfill: pre-2018 from maintainer google sheet
+2016-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,29083.0,backfill: pre-2018 from maintainer google sheet
+2016-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,39241.0,backfill: pre-2018 from maintainer google sheet
+2016-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,31050.0,backfill: pre-2018 from maintainer google sheet
+2016-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,27110.0,backfill: pre-2018 from maintainer google sheet
+2016-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,33545.0,backfill: pre-2018 from maintainer google sheet
+2016-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,30179.0,backfill: pre-2018 from maintainer google sheet
+2016-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,32271.0,backfill: pre-2018 from maintainer google sheet
+2016-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,335.0,1565.0,,,,,,35723.0,backfill: pre-2018 from maintainer google sheet
+2017-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,490.0,342.0,,,,,,51536.0,backfill: pre-2018 from maintainer google sheet
+2017-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,453.0,206.0,,,,,,32329.0,backfill: pre-2018 from maintainer google sheet
+2017-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,809.0,195.0,,,,,,36789.0,backfill: pre-2018 from maintainer google sheet
+2017-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,319.0,139.0,,,,,,29360.0,backfill: pre-2018 from maintainer google sheet
+2017-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,526.0,212.0,,,,,,36484.0,backfill: pre-2018 from maintainer google sheet
+2017-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,889.0,237.0,,,,,,41309.0,backfill: pre-2018 from maintainer google sheet
+2017-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,406.0,165.0,,,,,,32735.0,backfill: pre-2018 from maintainer google sheet
+2017-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,663.0,175.0,,,,,,29584.0,backfill: pre-2018 from maintainer google sheet
+2017-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,1101.0,219.0,,,,,,35964.0,backfill: pre-2018 from maintainer google sheet
+2017-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,800.0,211.0,,,,,,37130.0,backfill: pre-2018 from maintainer google sheet
+2017-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,1075.0,191.0,,,,,,37713.0,backfill: pre-2018 from maintainer google sheet
+2017-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW) — pre-2018 via maintainer sheet,1096.0,153.0,,,,,,17528.0,backfill: pre-2018 from maintainer google sheet
+2018-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1328.0,311.0,,47424.0,9765.0,,187.0,59015.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),922.0,210.0,,28234.0,5185.0,,297.0,34848.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1694.0,280.0,,33643.0,5466.0,,189.0,41272.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),827.0,194.0,,28147.0,4449.0,,119.0,33736.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1159.0,237.0,,30221.0,4391.0,,150.0,36158.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2023.0,285.0,,39440.0,4897.0,,161.0,46806.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1041.0,291.0,,29946.0,4357.0,,217.0,35852.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1570.0,321.0,,34352.0,4513.0,,197.0,40953.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2539.0,402.0,,23191.0,2777.0,,32.0,28941.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1979.0,371.0,,24065.0,3448.0,,51.0,29914.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3062.0,494.0,,27522.0,3527.0,,68.0,34673.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2018-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6033.0,157.0,,12581.0,1073.0,,72.0,19916.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2440.0,774.0,,39423.0,4832.0,,115.0,47584.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2045.0,384.0,,24514.0,2583.0,,58.0,29584.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3991.0,701.0,,31109.0,2722.0,,88.0,38611.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2103.0,340.0,,27358.0,2381.0,,102.0,32284.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2247.0,391.0,,30926.0,2239.0,,147.0,35950.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4059.0,431.0,,33968.0,2472.0,,139.0,41069.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2033.0,293.0,,28278.0,2206.0,,62.0,32872.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2801.0,333.0,,28336.0,2097.0,,55.0,33622.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),7591.0,500.0,,27704.0,1658.0,,42.0,37495.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2214.0,630.0,,28968.0,1733.0,,67.0,33612.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6712.0,493.0,,29759.0,1816.0,,40.0,38820.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2019-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),22468.0,213.0,,16917.0,1192.0,,53.0,40843.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1435.0,1556.0,,38154.0,2437.0,,39.0,43621.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2760.0,931.0,,24622.0,1238.0,,41.0,29592.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3915.0,1153.0,,22654.0,1242.0,,88.0,29052.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1548.0,592.0,,12147.0,573.0,,99.0,14959.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1383.0,638.0,,11986.0,376.0,,94.0,14477.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2808.0,1114.0,,19542.0,778.0,,184.0,24426.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3845.0,1639.0,,27501.0,991.0,,207.0,34183.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4316.0,1238.0,,19421.0,746.0,,339.0,26060.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6131.0,1538.0,,20365.0,638.0,,287.0,28959.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),7177.0,1649.0,,21808.0,690.0,,273.0,31597.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),7439.0,1947.0,,22625.0,626.0,,254.0,32891.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2020-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),29204.0,1234.0,,11127.0,143.0,,431.0,42139.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),863.0,3273.0,,29265.0,762.0,,157.0,34320.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),1102.0,1721.0,,17869.0,394.0,,144.0,21230.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2092.0,2651.0,,18078.0,442.0,,125.0,23388.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2360.0,2671.0,,17391.0,374.0,,172.0,22968.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3334.0,2630.0,,18346.0,310.0,,151.0,24771.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5786.0,2925.0,,22856.0,343.0,,285.0,32195.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3925.0,2420.0,,18779.0,197.0,,271.0,25592.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4145.0,2238.0,,14351.0,170.0,,121.0,21025.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5103.0,2684.0,,15796.0,211.0,,195.0,23989.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5476.0,2630.0,,14914.0,186.0,,276.0,23482.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),7432.0,2983.0,,15899.0,161.0,,232.0,26707.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2021-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),20632.0,1965.0,,12112.0,89.0,,272.0,35070.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),2518.0,4030.0,,22683.0,364.0,,333.0,29928.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),3496.0,2656.0,,15786.0,192.0,,121.0,22251.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5519.0,3267.0,,14891.0,195.0,,135.0,24007.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4614.0,3082.0,,13054.0,128.0,,119.0,20997.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4871.0,2797.0,,14657.0,152.0,,143.0,22620.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6860.0,2692.0,,19089.0,204.0,,404.0,29249.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4746.0,2001.0,,14281.0,134.0,,135.0,21297.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5663.0,2319.0,,14772.0,103.0,,113.0,22970.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),5921.0,3127.0,,15882.0,102.0,,151.0,25183.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6226.0,3296.0,,18467.0,118.0,,167.0,28274.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6751.0,2860.0,,16995.0,110.0,,333.0,27049.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2022-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),13444.0,2045.0,,14533.0,149.0,,243.0,30414.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),4834.0,4059.0,,23086.0,140.0,,164.0,32283.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6759.0,4242.0,,16119.0,109.0,,153.0,27382.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),12933.0,5187.0,,17927.0,124.0,,152.0,36323.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8110.0,3749.0,,16644.0,85.0,,113.0,28701.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10654.0,4275.0,,17363.0,86.0,,159.0,32537.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),13455.0,5006.0,,21541.0,93.0,,304.0,40399.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6994.0,4030.0,,15791.0,50.0,,162.0,27027.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8994.0,3418.0,,14552.0,87.0,,186.0,27237.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10073.0,3573.0,,15299.0,27.0,,218.0,29190.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8057.0,3374.0,,15976.0,76.0,,198.0,27681.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9300.0,3003.0,,14821.0,90.0,,297.0,27511.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2023-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10875.0,2217.0,,12492.0,62.0,,315.0,25961.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8562.0,4872.0,,20193.0,50.0,,219.0,33896.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8221.0,4171.0,,17161.0,23.0,,247.0,29823.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),12868.0,4803.0,,18345.0,31.0,,258.0,36305.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8984.0,3845.0,,14420.0,99.0,,211.0,27559.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9609.0,3922.0,,13840.0,83.0,,95.0,27549.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),11316.0,5139.0,,17956.0,43.0,,206.0,34660.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8042.0,3940.0,,13990.0,31.0,,107.0,26110.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9201.0,3767.0,,13880.0,48.0,,170.0,27066.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),12363.0,3565.0,,14452.0,84.0,,128.0,30592.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10753.0,4950.0,,15792.0,70.0,,162.0,31727.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),13685.0,4879.0,,15374.0,70.0,,135.0,34143.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2024-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),17352.0,3368.0,,15773.0,48.0,,239.0,36780.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),11253.0,5226.0,,15859.0,31.0,,57.0,32426.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10038.0,4201.0,,12783.0,30.0,,50.0,27102.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),11080.0,5934.0,,13383.0,55.0,,148.0,30600.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9526.0,5314.0,,11348.0,40.0,,111.0,26339.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-05,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10696.0,6330.0,,12286.0,53.0,,100.0,29465.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-06,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),12691.0,7009.0,,14369.0,51.0,,138.0,34258.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-07,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9282.0,6669.0,,12160.0,77.0,,64.0,28252.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-08,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),8937.0,5409.0,,11237.0,38.0,,103.0,25724.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-09,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),12014.0,6156.0,,13414.0,16.0,,98.0,31698.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-10,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),13864.0,6657.0,,13264.0,19.0,,111.0,33915.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-11,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),17078.0,5644.0,,11828.0,10.0,,130.0,34690.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2025-12,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),30997.0,4336.0,,11872.0,12.0,,208.0,47425.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2026-01,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6863.0,7649.0,,12888.0,15.0,,11.0,27426.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2026-02,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),6675.0,5129.0,,9585.0,13.0,,11.0,21413.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2026-03,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),10944.0,7139.0,,12360.0,16.0,,88.0,30547.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba
+2026-04,monthly,Whole,duurzamemobiliteit.databank.nl (RDW),9457.0,5767.0,,9376.0,16.0,,111.0,24727.0,workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba

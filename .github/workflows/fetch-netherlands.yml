@@ -1,0 +1,108 @@
+name: Fetch Netherlands data (RDW via Swing)
+
+# Fetches three workspace pivots from duurzamemobiliteit.databank.nl (RDW data
+# served via the Swing 7.1 BI platform) and upserts new monthly rows into
+# data/Netherlands.csv for three variants:
+#
+#   * Whole         — Instroom Personenauto Nieuw
+#   * Used Imports  — Instroom Personenauto Occasion import (>90 + <=90 dgn)
+#   * HDV           — Instroom Zware bedrijfsvoertuigen Nieuw
+#
+# Each variant is fetched from a pre-saved Swing workspace template (configured
+# in the Swing UI via the share-icon → permalink mechanism). See the docstring
+# in scripts/fetch_netherlands.py for details. If the CSV changed, this workflow
+# dispatches render-country.yml once per touched variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - whole
+          - used
+          - hdv
+  schedule:
+    # Daily 1st–15th at 06:30 UTC. RDW's publication date varies (sometime in
+    # the first half of the following month), so we poll daily until the
+    # previous month's row materialises in the CSV, then idempotent re-fetches
+    # produce no diff (no commit, no render trigger). 06:30 UTC keeps us clear
+    # of fetch-brazil's 08:00 UTC slot and most country-side timezones.
+    - cron: '30 6 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Netherlands.csv
+        run: |
+          python scripts/fetch_netherlands.py \
+            ${VARIANT:+--variant "$VARIANT"}
+        env:
+          VARIANT: ${{ inputs.variant }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          # For each of the 3 per-variant CSVs, check if git sees changes.
+          # `git add -N` makes `git diff` include untracked new files (needed
+          # the very first time each file is created). Emit a pipe-separated
+          # list of variant names so we trigger render only for those.
+          touched=()
+          for pair in "Whole:data/Netherlands.csv" \
+                     "Used:data/Netherlands_Used.csv" \
+                     "HDV:data/Netherlands_HDV.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Netherlands.csv
+            data/Netherlands_Used.csv
+            data/Netherlands_HDV.csv
+          message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Netherlands \
+              -f variant="$variant"
+          done
