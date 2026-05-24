@@ -108,13 +108,13 @@ Netherlands is the first country split into per-variant CSVs:
 
 | Variant | File | What it covers |
 |---|---|---|
-| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Includes pre-2018 backfill (2011-01..2017-12) from the maintainer's Google Sheet, written by [scripts/backfill_netherlands_pre2018.py](../../scripts/backfill_netherlands_pre2018.py). |
-| `Used` | `data/Netherlands_Used.csv` | Personenauto Occasion import — sum of `> 90 dgn` (genuine used) and `<= 90 dgn` (near-new) sub-categories. |
-| `HDV` | `data/Netherlands_HDV.csv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (N-class trucks ≥3500kg). Approximate; "Zware bedrijfsvoertuigen" is the closest single Dutch category. |
+| `Whole` | `data/Netherlands.csv` | Instroom Personenauto Nieuw — newly-registered passenger cars. Includes pre-2018 backfill from the maintainer's Google Sheet. |
+| `Used` | `data/Netherlands_Used.csv` | Personenauto Occasion import (sum of `> 90 dgn` + `<= 90 dgn` sub-categories). |
+| `HDV` | `data/Netherlands_HDV.csv` | Zware bedrijfsvoertuigen Nieuw — heavy goods vehicles (≈ N-class trucks ≥3500kg). |
 
-**HEV is not reported separately** by RDW — full hybrids are folded into `Benzine` / `Diesel` upstream. The CSV therefore leaves the `HEV` column blank for all Netherlands rows, and the post-text generator drops the "of which Xp were HEV" annotation accordingly (see [post_text.R](../../R/post_text.R) `.pt_pp_if`, which only emits parens when `extra_value > 0`).
+Netherlands also has an **HEV gap** (RDW doesn't split full hybrids; they fold into Benzine/Diesel) and **FCEV folded into OTHERS** (~1 unit/month — negligible).
 
-**Source pipeline**: data is scraped by [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py) from three pre-saved Swing workspace templates (configured in the Swing UI via share-icon → permalink). The template GUIDs are baked into the script as the `TEMPLATES` constant; the per-row `notes` column carries them for provenance. If a GUID needs to change (e.g. the maintainer reconfigures a pivot), update `TEMPLATES` in the script. See the script docstring for the full bootstrap flow (`/viewer?workspace_guid=…` → extract `WsGuid` from inline JS → `Presentation/GetTableStart` + `GetTableRows` for pagination).
+The full source-playbook for this pipeline — Swing endpoint flow, variant rationale, schedule, fragility, maintenance recipes — lives in [10-source-netherlands.md](10-source-netherlands.md). Read that doc before changing anything in [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py).
 
 ---
 

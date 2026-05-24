@@ -1,76 +1,45 @@
 #!/usr/bin/env python3
 """
 Fetch Netherlands vehicle registration data from duurzamemobiliteit.databank.nl
-and update data/Netherlands.csv.
+and upsert per-variant CSVs under data/.
 
 Usage
 -----
-    python scripts/fetch_netherlands.py [--variant {whole,used,hdv,all}]
+    python scripts/fetch_netherlands.py [--variant {whole,used,hdv,all}] [--force]
 
-* --variant  Which slice(s) to fetch (default: all).
+Output files
+------------
+    data/Netherlands.csv       <- variant=Whole (Personenauto Nieuw)
+    data/Netherlands_Used.csv  <- variant=Used  (Personenauto Occasion import)
+    data/Netherlands_HDV.csv   <- variant=HDV   (Zware bedrijfsvoertuigen Nieuw)
 
-Output files (one per variant; non-Whole variants use the data/<Country>_<Variant>.csv
-naming convention documented in docs/architecture/03-data-objects.md):
+The script is invoked by .github/workflows/fetch-netherlands.yml on a daily
+cron (1st-15th, 06:30 UTC) and via manual workflow_dispatch. When it produces
+changes, the workflow commits each touched CSV and triggers render-country.yml
+for the corresponding variant.
 
-    data/Netherlands.csv       <- Whole (newly-registered passenger cars)
-    data/Netherlands_Used.csv  <- Used (Personenauto Occasion import, >90 + <=90)
-    data/Netherlands_HDV.csv   <- HDV (Zware bedrijfsvoertuigen Nieuw)
+Full pipeline context — Swing endpoint flow, variant rationale, HEV gap,
+FCEV folding, schedule, fragility, maintenance recipes — lives in
+docs/architecture/10-source-netherlands.md. Read that before changing the
+TEMPLATES constant, the parser, or the column mapping.
 
-This script is invoked by .github/workflows/fetch-netherlands.yml on a daily
-cron (1st-15th) and via manual workflow_dispatch. When it produces changes,
-the workflow commits each touched CSV and triggers render-country.yml for the
-corresponding variant.
+Brief recap (so the script reads on its own):
 
-Data source
------------
-duurzamemobiliteit.databank.nl is RDW data (Rijksdienst voor het Wegverkeer)
-re-presented through the Swing 7.1 BI platform (vendor: ABF Research). There is
-no documented public API, but each saved "workspace" (a pivot configuration) is
-addressable via a shareable URL of the form:
-
-    /viewer?workspace_guid=<TEMPLATE_GUID>
-
-Hitting that URL with a cookie jar establishes a session-bound workspace whose
-GUID is embedded in the response HTML as `WsGuid: "<SESSION_GUID>"`. From there,
-
-    /viewer/Presentation/GetTableStart?workspaceGuid=<SESSION_GUID>
-
-returns the pivot data as JSON. Three workspaces are configured (by the
-maintainer, in the Swing UI, via the share-icon → permalink mechanism) — one
-per variant we render:
-
-  * Whole         — Instroom Personenauto Nieuw   (2018-01 .. current)
-  * Used Imports  — Instroom Personenauto Occasion import (>90 dgn + <=90 dgn)
-  * HDV           — Instroom Zware bedrijfsvoertuigen Nieuw
-
-All three list BEV, FCEV, PHEV, Benzine, Diesel, Overig as the only fuel
-categories. Notable: **the Netherlands does not split HEV separately** — full
-hybrids are folded into Benzine/Diesel upstream. We therefore emit no HEV
-column for Netherlands.
-
-Column mapping (Dutch -> CSV column)
-------------------------------------
-    BEV               -> BEV
-    PHEV              -> PHEV
-    Benzine           -> PETROL
-    Diesel            -> DIESEL
-    FCEV  + Overig    -> OTHERS   (FCEV folded — <1 unit/month for Whole,
-                                   ~30/month for Used Imports; effect on the
-                                   ICE/BEV trajectory is negligible)
-    (none)            -> HEV       (always blank for Netherlands)
-    sum of above      -> TOTAL
-
-Table orientation
------------------
-The Whole and HDV workspaces return tables with periods as rows and fuels as
-columns; Used Imports returns fuels as rows and (period × sub-column) as
-columns, because that workspace splits Aanvoertype into "> 90 dgn" and
-"<= 90 dgn" sub-categories which we sum together. The parser detects
-orientation from the headRows / headCols labels.
-
-Number format: Dutch locale uses "." as thousands separator (e.g. "6.863" is
-six-thousand-eight-hundred-sixty-three, not 6.863). Empty cells render as
-"&nbsp;" and are treated as zero.
+* duurzamemobiliteit.databank.nl is RDW data served by Swing 7.1 (ABF
+  Research). No documented public API. We hit pre-saved workspace permalinks
+  the maintainer set up in the Swing UI.
+* Bootstrap: GET /viewer?workspace_guid=<TEMPLATE> establishes a session and
+  embeds a session-bound GUID as `WsGuid: "..."` in the HTML. We then hit
+  /viewer/Presentation/GetTableStart with that session GUID, paginating with
+  GetTableRows when the pivot is longer than the initial page (~70 rows).
+* Dutch label -> canonical column:
+      BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
+      FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
+      split it; full hybrids fold into Benzine/Diesel upstream).
+* Dutch locale: "." is thousands separator (6.863 == 6863). "&nbsp;" == 0.
+* Two table orientations are possible (Whole/HDV return periods-in-rows;
+  Used returns fuels-in-rows with a 2-level period × sub-column header).
+  The parser detects which case applies from the headRows labels.
 """
 import argparse
 import csv
