@@ -42,6 +42,46 @@
       "country_slug": "netherlands"
     },
     {
+      "country": "Netherlands (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-24",
+      "filename": "netherlands_used_ICE_BEV_20260524.png",
+      "url": "images/2026-04/netherlands_used_ICE_BEV_20260524.png",
+      "alt": "Netherlands (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands_used"
+    },
+    {
+      "country": "Netherlands (Used)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-24",
+      "filename": "netherlands_used_20260524.png",
+      "url": "images/2026-04/netherlands_used_20260524.png",
+      "alt": "Netherlands (Used) BEV trajectory",
+      "country_slug": "netherlands_used"
+    },
+    {
+      "country": "Netherlands (Used)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-24",
+      "filename": "netherlands_used_time_20260524.png",
+      "url": "images/2026-04/netherlands_used_time_20260524.png",
+      "alt": "Netherlands (Used) Transition time curve",
+      "country_slug": "netherlands_used"
+    },
+    {
+      "country": "Netherlands (Used)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-24",
+      "filename": "netherlands_used_ttm_shares_20260524.png",
+      "url": "images/2026-04/netherlands_used_ttm_shares_20260524.png",
+      "alt": "Netherlands (Used) TTM market split graph",
+      "country_slug": "netherlands_used"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-04",
