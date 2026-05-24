@@ -1,0 +1,11 @@
+🇳🇱 Netherlands - April 26 - BEV Trajectory
+38.2% BEV
+23.3% PHEV
+38.4% ICE
+
+Trailing 12 months are:
+40.5% BEV
+20.0% PHEV
+39.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
