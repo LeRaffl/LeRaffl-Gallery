@@ -1,0 +1,81 @@
+name: Fetch USA data (ANL)
+
+# Downloads the latest ANL "Total Sales for Website" PDF, parses the monthly
+# light-duty BEV/PHEV/HEV/Total table, and upserts the most recent month into
+# data/USA.csv. Runs daily from the 10th of each month onward — the script
+# self-throttles via the latest period already present in the CSV, so most
+# invocations are a no-op until ANL publishes the month we are after.
+# When the CSV changes, render-country.yml is dispatched for USA.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct Total Sales PDF URL (leave empty to auto-discover)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # 10:00 UTC to avoid the 08:00 slot already used by Japan/Uruguay (daily)
+    # and Brazil (the 10th).
+    - cron: '0 10 10-31 * *'   # 10th through end of month at 10:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pypdf
+
+      - name: Fetch & update USA.csv
+        run: |
+          python scripts/fetch_usa.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/USA.csv
+          message: 'chore: update USA data from ANL'
+          default_author: github_actions
+
+      - name: Trigger render for USA
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=USA \
+            -f variant=Whole

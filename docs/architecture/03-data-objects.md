@@ -16,6 +16,7 @@ flowchart LR
         D4["images/&lt;period&gt;/*.png<br/>(four charts × country)"]
         D5["posts/&lt;slug&gt;.txt<br/>posts/&lt;slug&gt;_&lt;period&gt;.txt<br/>(post text)"]
         D6["manifest.json<br/>(image index)"]
+        D12["builder_history/&lt;date&gt;.csv<br/>(monthly aggregate snapshots)"]
     end
 
     subgraph Independent["Independent datasets"]
@@ -31,6 +32,7 @@ flowchart LR
 
     D1 --> D2 & D3 & D4 & D5
     D4 --> D6
+    D2 & D3 --> D12
 ```
 
 ## 3.1 Country Raw Data
@@ -155,6 +157,17 @@ Germany,Whole,-1.050261627753e-4,2.898020288277,2011,2026-04,2026-05-08,KBA,,-3.
 
 This matches what the maintainer's local R script produces, so PR diffs from local-R pushes and from the Render Action look the same.
 
+### Known fragility — Indonesia-style `v1=0` corruption
+
+Fast-adoption markets (currently only Indonesia) fit to `v1 ≈ -6e-20` with `v2 > 10`. R's default `format()` / `round(x, 6)` rounds these to literal `0`, so any external tool that round-trips `params.csv` via base-R defaults silently destroys the precision. Once `v1 = 0` is in the CSV, the page used to anchor the Weibull ~20 years too far into the future and reported a ~5-year 20→80 transition for Indonesia (the truth is ~2.3 years).
+
+The schema is deliberately **not** extended to defend against this — every defence sits in code, so external tools that aren't aware of the new schema can't accidentally undo it:
+
+- **Frontend `index.html::recoverV1FromAnchor()`** — at load time, every `v1 = 0` row is rewritten by anchoring the Weibull at a v2-dependent BEV share at `data_per` (28 % for `v2 ≥ 10` like Indonesia, else 50 %). Calibrated against the live Indonesia fit, the resulting 20→80 lands within ~1 day of the true fit.
+- **Backend `R/upsert.R::heal_v1_zero_rows()`** — invoked from `R/render_country.R` at the end of every render. Scans `params.csv` for rows with `|v1| < 1e-25` AND `v2 ≥ 10`, re-fits them from `data/<Country>.csv`, and rewrites the row in place. Cheap when nothing is corrupted (file read + numeric parse).
+
+See [08-deploy-ops.md § "Indonesia v1=0 corruption"](08-deploy-ops.md#indonesia-v10-corruption) for the operator-facing runbook and the long-form root-cause story.
+
 ---
 
 ## 3.3 Aggregate Weights
@@ -253,7 +266,67 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 ---
 
-## 3.7 Fleet Dataset
+## 3.7 Builder History Snapshots
+
+### Where
+
+- `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
+- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`).
+
+### Schema (`builder_history/<date>.csv`)
+
+| Column | Type | Notes |
+|---|---|---|
+| `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
+| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). |
+| `bev_share` | float | Weighted aggregate BEV share in `[0, 100]`. |
+| `ice_share` | float \| empty | Weighted aggregate ICE share in `[0, 100]`. Empty when no row in the group has ICE Weibull parameters. |
+| `phev_share` | float \| empty | Implied PHEV = `max(0, 100 - bev - ice)`, weighted. Empty when ICE is empty. |
+
+### Schema (`builder_history/index.json`)
+
+```json
+{
+  "updated": "2026-05-20",
+  "snapshots": [
+    {
+      "date": "2026-05-20",
+      "file": "2026-05-20.csv",
+      "groups": {
+        "world": {"n_countries": 48, "total_weight": 69682736, "latest_data_per": "2026-04"},
+        "eu":    {"n_countries": 26, "total_weight": 10970870, "latest_data_per": "2026-04"}
+      }
+    }
+  ]
+}
+```
+
+`updated` tracks the maximum snapshot `date` in the file (not the file's mtime) so a back-dated run doesn't make it go backwards.
+
+### Owner / lifecycle
+
+- **Author**: [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py), invoked by [.github/workflows/snapshot-builder.yml](../../.github/workflows/snapshot-builder.yml).
+- **Created**: On the 25th of each month (cron) or via manual workflow dispatch.
+- **Updated**: Each new snapshot adds one CSV and replaces / appends one entry in `index.json`. Running on a date that already exists overwrites that snapshot only.
+- **Read by**: Nothing in the static page today. Reserved for a future time-lapse visualisation tab.
+
+### Why one CSV per snapshot date and not one growing CSV?
+
+- Diffs stay tiny: a new snapshot is a single new file, not a 4900-row append to an existing file.
+- Frontend time-lapse can fetch any one frame in a single HTTP request and skip the rest.
+- Per-snapshot replacement (re-running for the same date) is just an overwrite — no row-level upsert logic.
+
+### Why include ICE / PHEV next to BEV?
+
+The in-page Builder shows all three when the ICE toggle is on, and the underlying weighted aggregation is byte-identical work. The marginal storage cost is two columns × a few percent and the snapshot becomes useful for "ICE phase-out" time-lapses too. The schema is conservative: empty cells signal "no ICE params in this group", not "0%".
+
+### Why no per-snapshot rebuild of the input parameters?
+
+`params.csv` is the source of truth for the curves and is already versioned by git. A historian who wants the parameters that produced a given snapshot can `git log` `params.csv` at that date. Duplicating the inputs into `builder_history/` would just bloat the repo with redundant data.
+
+---
+
+## 3.8 Fleet Dataset
 
 ### Where
 
@@ -273,7 +346,7 @@ Maintainer-curated. No public submit path yet. No automatic render — fleet vis
 
 ---
 
-## 3.8 Assets
+## 3.9 Assets
 
 ### Where
 
@@ -295,7 +368,7 @@ The maintainer originally bundled the full FA distribution (~24 MB). Only the OT
 
 ---
 
-## 3.9 Feedback Issues
+## 3.10 Feedback Issues
 
 ### Where
 
@@ -315,7 +388,7 @@ Free, integrated with maintainer's existing GitHub workflow, no extra moderation
 
 ---
 
-## 3.10 Submission PRs
+## 3.11 Submission PRs
 
 ### Where
 
@@ -334,7 +407,7 @@ Re-uses GitHub's review UI (rich diff, line comments, mobile app). Zero new infr
 
 ---
 
-## 3.11 Rate-Limit Counters
+## 3.12 Rate-Limit Counters
 
 ### Where
 

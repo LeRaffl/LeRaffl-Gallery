@@ -46,10 +46,32 @@ period_folder <- last_period
 date_suffix <- format(Sys.Date(), "%Y%m%d")
 
 # Country slug used in image filenames + flag lookup.
+#
+# Why translit before gsub-to-underscore: a naive `gsub("[^A-Za-z0-9]+", "_")`
+# applied to "Türkiye" produces "t_rkiye" because "ü" is non-ASCII and gets
+# replaced with the separator — which then makes build_manifest.R's manifest
+# pipeline split the slug into country="t" + variant="rkiye" (rendered as
+# "T (Rkiye)" in the gallery dropdown). The historical convention, baked into
+# build_manifest.R's `country_map = c("tuerkiye" = "Türkiye", …)`, is the
+# German-style expansion ü→ue / ö→oe / ä→ae plus a few Turkish letters that
+# have unambiguous ASCII equivalents. Apply that translit step first so the
+# slug-then-relabel round-trips cleanly.
 slug_country <- function(country, variant) {
-  base <- tolower(gsub("[^A-Za-z0-9]+", "_", country))
+  translit <- function(s) {
+    pairs <- list(
+      c("ü","ue"), c("ö","oe"), c("ä","ae"), c("ß","ss"),
+      c("Ü","Ue"), c("Ö","Oe"), c("Ä","Ae"),
+      c("ı","i"),  c("İ","I"),
+      c("ş","s"),  c("Ş","S"),
+      c("ğ","g"),  c("Ğ","G"),
+      c("ç","c"),  c("Ç","C")
+    )
+    for (p in pairs) s <- gsub(p[1], p[2], s, fixed = TRUE)
+    s
+  }
+  base <- tolower(gsub("[^A-Za-z0-9]+", "_", translit(country)))
   if (variant == "Whole") return(base)
-  paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", variant)))
+  paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", translit(variant))))
 }
 slug <- slug_country(country, variant)
 
@@ -147,6 +169,13 @@ upsert_params("params.csv", country, variant, fit, data_per, source_str)
 weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
+
+# Self-heal any rows whose v1 was rounded to 0 by an external tool — see
+# heal_v1_zero_rows() in R/upsert.R for full context. Runs on every render so
+# Indonesia-style corruption from the legacy "auto-publish model" script is
+# repaired the next time CI touches params.csv, even if a different country
+# is being rendered.
+heal_v1_zero_rows("params.csv", "weights.csv")
 
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised

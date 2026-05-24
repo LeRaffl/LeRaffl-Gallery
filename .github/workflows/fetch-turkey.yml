@@ -1,0 +1,102 @@
+name: Fetch Türkiye data (TÜİK)
+
+# Scrapes a TÜİK "Motorlu Kara Taşıtları" monthly bulletin from the Veri
+# Portalı and upserts the previous calendar month into data/Türkiye.csv.
+# Runs daily from the 15th onward — the script self-throttles via the latest
+# period already present in the CSV, so most invocations are a no-op until
+# the new bulletin appears (TÜİK typically publishes ~mid-month, the exact
+# date is footnoted in the previous bulletin).
+#
+# Auto-discovery of the bulletin ID is NOT implemented: the Veri Portalı is
+# a React SPA whose data API we haven't reverse-engineered. The daily cron
+# only does the self-throttle and exits when no press-id is supplied; the
+# maintainer dispatches the workflow with the press_id input once per month
+# when the new bulletin appears on
+# https://veriportali.tuik.gov.tr/tr/search?q=Motorlu+Kara+Ta%C5%9F%C4%B1tlar%C4%B1
+#
+# When the CSV changes, render-country.yml is dispatched for Türkiye.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      press_id:
+        description: 'TÜİK bulletin Sayı (numeric id, e.g. 58042 for Nisan 2026)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct press PDF URL (overrides press_id; leave empty to use press_id)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 8 15-31 * *'   # daily at 08:00 UTC, from the 15th onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system OCR + PDF tools
+        # poppler-utils → pdfimages; tesseract-ocr-tur → Turkish language pack;
+        # imagemagick → convert (used to upscale 4× before OCR).
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            poppler-utils tesseract-ocr tesseract-ocr-tur imagemagick
+
+      - name: Install Python dependencies
+        run: pip install requests pypdf cryptography
+
+      - name: Fetch & update Türkiye.csv
+        run: |
+          python scripts/fetch_turkey.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${PRESS_ID:+--press-id "$PRESS_ID"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          PRESS_ID: ${{ inputs.press_id }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Türkiye.csv
+          message: 'chore: update Türkiye data from TÜİK'
+          default_author: github_actions
+
+      - name: Trigger render for Türkiye
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Türkiye \
+            -f variant=Whole

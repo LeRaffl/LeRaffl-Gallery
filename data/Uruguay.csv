@@ -37,6 +37,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-10,monthly,Whole,ACAU,1748.0,58.0,564.0,2661.0,25.0,0.0,5056.0,
 2025-11,monthly,Whole,ACAU,1356.0,88.0,448.0,2657.0,3.0,0.0,4552.0,
 2025-12,monthly,Whole,ACAU,1548.0,99.0,632.0,2468.0,14.0,0.0,4761.0,
-2026-01,monthly,Whole,ACAU,1582.0,171.0,195.0,1514.0,7.0,,3469.0,
-2026-02,monthly,Whole,ACAU,1578.0,179.0,278.0,1782.0,4.0,,3821.0,
-2026-03,monthly,Whole,ACAU,1774.0,188.0,353.0,2060.0,11.0,0.0,4386.0,
+2026-01,monthly,Whole,ACAU,1582.0,182.0,172.0,1504.0,6.0,346.0,3792.0,https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx
+2026-02,monthly,Whole,ACAU,1578.0,191.0,260.0,1774.0,0.0,456.0,4259.0,https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx
+2026-03,monthly,Whole,ACAU,1774.0,211.0,338.0,2051.0,10.0,368.0,4752.0,https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx
+2026-04,monthly,Whole,ACAU,2055.0,208.0,268.0,1795.0,2.0,312.0,4640.0,https://www.acau.com.uy/panel/estadisticas/15_18_25ar1.xlsx

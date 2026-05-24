@@ -1,11 +1,11 @@
-🇸🇬 Singapore - March 26 - BEV Trajectory
-61.1% BEV
-1.7% PHEV
-37.2% ICE (of which 31.4%p were HEV)
+🇸🇬 Singapore - April 26 - BEV Trajectory
+65.5% BEV
+2.1% PHEV
+32.4% ICE (of which 27.3%p were HEV)
 
 Trailing 12 months are:
-49.0% BEV
-2.0% PHEV
-49.1% ICE (of which 37.0%p were HEV)
+51.0% BEV
+2.1% PHEV
+46.9% ICE (of which 35.8%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

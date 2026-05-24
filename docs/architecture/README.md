@@ -67,6 +67,10 @@ flowchart LR
 
 The project is a **publication pipeline**. Country registration data lives in versioned CSVs in the repo. R turns CSVs into PNG charts and parameter rows. A static page renders those PNGs from a JSON manifest. Updates flow either from the maintainer's local R run (legacy, fast iteration) or from public submissions that go through a Cloudflare Worker → PR → review → merge → GitHub Action re-render. Every persistent artefact is a file in Git; the only non-Git state is rate-limit counters in Cloudflare KV.
 
+## Known gotchas worth knowing about
+
+- **Indonesia `v1=0` corruption** in `params.csv` — fast-adoption fits round to zero on CSV round-trip by external tools. Defence is layered (frontend `applyV1Recovery`, backend `heal_v1_zero_rows`). Long-form runbook: [08-deploy-ops.md § "Indonesia v1=0 corruption"](08-deploy-ops.md#indonesia-v10-corruption). Schema note: [03-data-objects.md § 3.2](03-data-objects.md#known-fragility--indonesia-style-v10-corruption).
+
 ## When to update these docs
 
 Update the matching chapter in the same PR if your change introduces or modifies:

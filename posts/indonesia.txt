@@ -1,11 +1,11 @@
-🇮🇩 Indonesia - March 26 - BEV Trajectory
-22.7% BEV
-0.7% PHEV
-76.5% ICE (of which 14.9%p were HEV)
+🇮🇩 Indonesia - April 26 - BEV Trajectory
+25.5% BEV
+1.0% PHEV
+73.5% ICE (of which 13.9%p were HEV)
 
 Trailing 12 months are:
-20.0% BEV
-1.1% PHEV
-78.9% ICE (of which 11.3%p were HEV)
+20.6% BEV
+1.2% PHEV
+78.2% ICE (of which 11.6%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

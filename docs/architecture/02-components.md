@@ -248,7 +248,51 @@ GitHub Pages serves with default `Cache-Control: max-age=600`. The page uses `ca
 
 ---
 
-## 2.8 Legacy Local R Pipeline
+## 2.8 Builder Snapshot Script (`scripts/snapshot_builder.py`)
+
+### What it is
+
+A small Python script that mirrors the in-page Builder logic and writes a snapshot of the aggregated BEV / ICE / PHEV curves to `builder_history/<date>.csv` plus a metadata entry into `builder_history/index.json`. One snapshot per run; the run is driven by `.github/workflows/snapshot-builder.yml` on a monthly cron.
+
+### Inputs and outputs
+
+```
+INPUT:  params.csv, weights.csv
+OUTPUT: builder_history/<YYYY-MM-DD>.csv   (14 groups × 351 year-steps)
+        builder_history/index.json         (updated in place)
+```
+
+### Key invariants
+
+- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf` byte-for-byte, including the JS-only quirk that `Number('') === 0` (the in-page Builder relies on this when `params.csv` carries no `baseline_year` column — see the script's module docstring).
+- Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()`. A v1=0 row from external CSV round-trip corruption produces the same recovered Weibull on the page and in the snapshot.
+- Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change.
+- No render trigger downstream — snapshots are pure read-only artefacts; the static page is not (yet) a consumer.
+
+### Why a separate script instead of extending `R/render_country.R`?
+
+The render pipeline produces per-country PNGs and updates `params.csv` / `weights.csv` — its output feeds the page. The snapshot is *downstream* of those files; it has no dependency on the R toolchain or on data ingestion. Keeping it as a small Python script (zero dependencies, matches the `scripts/fetch_*.py` pattern) means the snapshot workflow installs in ~5 s and doesn't have to re-mount the R action runner.
+
+---
+
+## 2.9 Snapshot-Builder Action (`.github/workflows/snapshot-builder.yml`)
+
+### What it is
+
+A GitHub Action that runs `scripts/snapshot_builder.py` on the 25th of each month at 09:00 UTC (after the bulk of in-month country fetches has settled) and commits the resulting `builder_history/` changes back to master.
+
+### Triggers
+
+- Monthly cron at 09:00 UTC on the 25th
+- Manual dispatch with optional `--date YYYY-MM-DD` override (useful for testing or labelling a back-dated run)
+
+### Why the 25th and not the 1st?
+
+Most country fetchers (Brazil, Chile, Japan, ACEA) run during the first half of the month and finish writing their target month between the 10th and the 23rd. Snapshotting on the 25th means the recorded snapshot reflects the most complete picture available for the previous month before the next month's data starts arriving — the curve we store is the one a visitor would have seen on the page that day.
+
+---
+
+## 2.10 Legacy Local R Pipeline
 
 ### What it is
 
