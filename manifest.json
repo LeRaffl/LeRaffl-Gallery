@@ -120,6 +120,8 @@
       "url": "images/2026-04/netherlands_used_ttm_shares_20260524.png",
       "alt": "Netherlands (Used) TTM market split graph",
       "country_slug": "netherlands_used"
+    },
+    {
       "country": "USA",
       "type": "ICE_BEV",
       "period": "2026-04",
