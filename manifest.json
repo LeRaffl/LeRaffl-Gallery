@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-17",
+  "updated": "2026-05-24",
   "images": [
     {
       "country": "Austria",
@@ -2152,43 +2152,43 @@
       "country_slug": "denmark"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ICE_BEV",
       "period": "2026-03",
       "date": "2026-04-18",
       "filename": "denmark_hdv_ICE_BEV_20260418.png",
       "url": "images/2026-03/denmark_hdv_ICE_BEV_20260418.png",
-      "alt": "Denmark (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Denmark (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "share",
       "period": "2026-03",
       "date": "2026-04-18",
       "filename": "denmark_hdv_20260418.png",
       "url": "images/2026-03/denmark_hdv_20260418.png",
-      "alt": "Denmark (Hdv) BEV trajectory",
+      "alt": "Denmark (HDV) BEV trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "time",
       "period": "2026-03",
       "date": "2026-04-18",
       "filename": "denmark_hdv_time_20260418.png",
       "url": "images/2026-03/denmark_hdv_time_20260418.png",
-      "alt": "Denmark (Hdv) Transition time curve",
+      "alt": "Denmark (HDV) Transition time curve",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ttm_shares",
       "period": "2026-03",
       "date": "2026-04-18",
       "filename": "denmark_hdv_ttm_shares_20260418.png",
       "url": "images/2026-03/denmark_hdv_ttm_shares_20260418.png",
-      "alt": "Denmark (Hdv) TTM market split graph",
+      "alt": "Denmark (HDV) TTM market split graph",
       "country_slug": "denmark_hdv"
     },
     {
@@ -2552,43 +2552,43 @@
       "country_slug": "finland"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ICE_BEV",
       "period": "2026-03",
       "date": "2026-04-12",
       "filename": "finland_hdv_ICE_BEV_20260412.png",
       "url": "images/2026-03/finland_hdv_ICE_BEV_20260412.png",
-      "alt": "Finland (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Finland (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "share",
       "period": "2026-03",
       "date": "2026-04-12",
       "filename": "finland_hdv_20260412.png",
       "url": "images/2026-03/finland_hdv_20260412.png",
-      "alt": "Finland (Hdv) BEV trajectory",
+      "alt": "Finland (HDV) BEV trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "time",
       "period": "2026-03",
       "date": "2026-04-12",
       "filename": "finland_hdv_time_20260412.png",
       "url": "images/2026-03/finland_hdv_time_20260412.png",
-      "alt": "Finland (Hdv) Transition time curve",
+      "alt": "Finland (HDV) Transition time curve",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ttm_shares",
       "period": "2026-03",
       "date": "2026-04-12",
       "filename": "finland_hdv_ttm_shares_20260412.png",
       "url": "images/2026-03/finland_hdv_ttm_shares_20260412.png",
-      "alt": "Finland (Hdv) TTM market split graph",
+      "alt": "Finland (HDV) TTM market split graph",
       "country_slug": "finland_hdv"
     },
     {
@@ -4022,43 +4022,43 @@
       "country_slug": "netherlands"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ICE_BEV",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "netherlands_hdv_ICE_BEV_20260327.png",
       "url": "images/2026-02/netherlands_hdv_ICE_BEV_20260327.png",
-      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "share",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "netherlands_hdv_20260327.png",
       "url": "images/2026-02/netherlands_hdv_20260327.png",
-      "alt": "Netherlands (Hdv) BEV trajectory",
+      "alt": "Netherlands (HDV) BEV trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "time",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "netherlands_hdv_time_20260327.png",
       "url": "images/2026-02/netherlands_hdv_time_20260327.png",
-      "alt": "Netherlands (Hdv) Transition time curve",
+      "alt": "Netherlands (HDV) Transition time curve",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ttm_shares",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "netherlands_hdv_ttm_shares_20260327.png",
       "url": "images/2026-02/netherlands_hdv_ttm_shares_20260327.png",
-      "alt": "Netherlands (Hdv) TTM market split graph",
+      "alt": "Netherlands (HDV) TTM market split graph",
       "country_slug": "netherlands_hdv"
     },
     {
@@ -4182,43 +4182,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ICE_BEV",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "thailand_hdv_ICE_BEV_20260327.png",
       "url": "images/2026-02/thailand_hdv_ICE_BEV_20260327.png",
-      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "share",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "thailand_hdv_20260327.png",
       "url": "images/2026-02/thailand_hdv_20260327.png",
-      "alt": "Thailand (Hdv) BEV trajectory",
+      "alt": "Thailand (HDV) BEV trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "time",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "thailand_hdv_time_20260327.png",
       "url": "images/2026-02/thailand_hdv_time_20260327.png",
-      "alt": "Thailand (Hdv) Transition time curve",
+      "alt": "Thailand (HDV) Transition time curve",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ttm_shares",
       "period": "2026-02",
       "date": "2026-03-27",
       "filename": "thailand_hdv_ttm_shares_20260327.png",
       "url": "images/2026-02/thailand_hdv_ttm_shares_20260327.png",
-      "alt": "Thailand (Hdv) TTM market split graph",
+      "alt": "Thailand (HDV) TTM market split graph",
       "country_slug": "thailand_hdv"
     },
     {
@@ -8142,43 +8142,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ICE_BEV",
       "period": "2025-12",
       "date": "2026-01-30",
       "filename": "thailand_hdv_ICE_BEV_20260130.png",
       "url": "images/2025-12/thailand_hdv_ICE_BEV_20260130.png",
-      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "share",
       "period": "2025-12",
       "date": "2026-01-30",
       "filename": "thailand_hdv_20260130.png",
       "url": "images/2025-12/thailand_hdv_20260130.png",
-      "alt": "Thailand (Hdv) BEV trajectory",
+      "alt": "Thailand (HDV) BEV trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "time",
       "period": "2025-12",
       "date": "2026-01-30",
       "filename": "thailand_hdv_time_20260130.png",
       "url": "images/2025-12/thailand_hdv_time_20260130.png",
-      "alt": "Thailand (Hdv) Transition time curve",
+      "alt": "Thailand (HDV) Transition time curve",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-01-30",
       "filename": "thailand_hdv_ttm_shares_20260130.png",
       "url": "images/2025-12/thailand_hdv_ttm_shares_20260130.png",
-      "alt": "Thailand (Hdv) TTM market split graph",
+      "alt": "Thailand (HDV) TTM market split graph",
       "country_slug": "thailand_hdv"
     },
     {
@@ -9012,83 +9012,83 @@
       "country_slug": "netherlands"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ICE_BEV",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_hdv_ICE_BEV_20260125.png",
       "url": "images/2025-12/netherlands_hdv_ICE_BEV_20260125.png",
-      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "share",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_hdv_20260125.png",
       "url": "images/2025-12/netherlands_hdv_20260125.png",
-      "alt": "Netherlands (Hdv) BEV trajectory",
+      "alt": "Netherlands (HDV) BEV trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "time",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_hdv_time_20260125.png",
       "url": "images/2025-12/netherlands_hdv_time_20260125.png",
-      "alt": "Netherlands (Hdv) Transition time curve",
+      "alt": "Netherlands (HDV) Transition time curve",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_hdv_ttm_shares_20260125.png",
       "url": "images/2025-12/netherlands_hdv_ttm_shares_20260125.png",
-      "alt": "Netherlands (Hdv) TTM market split graph",
+      "alt": "Netherlands (HDV) TTM market split graph",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "ICE_BEV",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_used_imports_ICE_BEV_20260125.png",
       "url": "images/2025-12/netherlands_used_imports_ICE_BEV_20260125.png",
-      "alt": "Netherlands (Used Imports) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (Used) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_used_imports"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "share",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_used_imports_20260125.png",
       "url": "images/2025-12/netherlands_used_imports_20260125.png",
-      "alt": "Netherlands (Used Imports) BEV trajectory",
+      "alt": "Netherlands (Used) BEV trajectory",
       "country_slug": "netherlands_used_imports"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "time",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_used_imports_time_20260125.png",
       "url": "images/2025-12/netherlands_used_imports_time_20260125.png",
-      "alt": "Netherlands (Used Imports) Transition time curve",
+      "alt": "Netherlands (Used) Transition time curve",
       "country_slug": "netherlands_used_imports"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-01-25",
       "filename": "netherlands_used_imports_ttm_shares_20260125.png",
       "url": "images/2025-12/netherlands_used_imports_ttm_shares_20260125.png",
-      "alt": "Netherlands (Used Imports) TTM market split graph",
+      "alt": "Netherlands (Used) TTM market split graph",
       "country_slug": "netherlands_used_imports"
     },
     {
@@ -9532,43 +9532,43 @@
       "country_slug": "denmark_vans"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-14",
       "filename": "switzerland_hdv_ICE_BEV_20260114.png",
       "url": "images/2025-11/switzerland_hdv_ICE_BEV_20260114.png",
-      "alt": "Switzerland (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Switzerland (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-14",
       "filename": "switzerland_hdv_20260114.png",
       "url": "images/2025-11/switzerland_hdv_20260114.png",
-      "alt": "Switzerland (Hdv) BEV trajectory",
+      "alt": "Switzerland (HDV) BEV trajectory",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2026-01-14",
       "filename": "switzerland_hdv_time_20260114.png",
       "url": "images/2025-11/switzerland_hdv_time_20260114.png",
-      "alt": "Switzerland (Hdv) Transition time curve",
+      "alt": "Switzerland (HDV) Transition time curve",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-14",
       "filename": "switzerland_hdv_ttm_shares_20260114.png",
       "url": "images/2025-11/switzerland_hdv_ttm_shares_20260114.png",
-      "alt": "Switzerland (Hdv) TTM market split graph",
+      "alt": "Switzerland (HDV) TTM market split graph",
       "country_slug": "switzerland_hdv"
     },
     {
@@ -9612,43 +9612,43 @@
       "country_slug": "denmark"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ICE_BEV",
       "period": "2025-12",
       "date": "2026-01-13",
       "filename": "denmark_hdv_ICE_BEV_20260113.png",
       "url": "images/2025-12/denmark_hdv_ICE_BEV_20260113.png",
-      "alt": "Denmark (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Denmark (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "share",
       "period": "2025-12",
       "date": "2026-01-13",
       "filename": "denmark_hdv_20260113.png",
       "url": "images/2025-12/denmark_hdv_20260113.png",
-      "alt": "Denmark (Hdv) BEV trajectory",
+      "alt": "Denmark (HDV) BEV trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "time",
       "period": "2025-12",
       "date": "2026-01-13",
       "filename": "denmark_hdv_time_20260113.png",
       "url": "images/2025-12/denmark_hdv_time_20260113.png",
-      "alt": "Denmark (Hdv) Transition time curve",
+      "alt": "Denmark (HDV) Transition time curve",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-01-13",
       "filename": "denmark_hdv_ttm_shares_20260113.png",
       "url": "images/2025-12/denmark_hdv_ttm_shares_20260113.png",
-      "alt": "Denmark (Hdv) TTM market split graph",
+      "alt": "Denmark (HDV) TTM market split graph",
       "country_slug": "denmark_hdv"
     },
     {
@@ -9812,23 +9812,23 @@
       "country_slug": "malaysia"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-11",
       "filename": "netherlands_used_imports_ICE_BEV_20260111.png",
       "url": "images/2025-11/netherlands_used_imports_ICE_BEV_20260111.png",
-      "alt": "Netherlands (Used Imports) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (Used) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_used_imports"
     },
     {
-      "country": "Netherlands (Used Imports)",
+      "country": "Netherlands (Used)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-11",
       "filename": "netherlands_used_imports_ttm_shares_20260111.png",
       "url": "images/2025-11/netherlands_used_imports_ttm_shares_20260111.png",
-      "alt": "Netherlands (Used Imports) TTM market split graph",
+      "alt": "Netherlands (Used) TTM market split graph",
       "country_slug": "netherlands_used_imports"
     },
     {
@@ -10322,43 +10322,43 @@
       "country_slug": "finland"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ICE_BEV",
       "period": "2025-12",
       "date": "2026-01-07",
       "filename": "finland_hdv_ICE_BEV_20260107.png",
       "url": "images/2025-12/finland_hdv_ICE_BEV_20260107.png",
-      "alt": "Finland (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Finland (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "share",
       "period": "2025-12",
       "date": "2026-01-07",
       "filename": "finland_hdv_20260107.png",
       "url": "images/2025-12/finland_hdv_20260107.png",
-      "alt": "Finland (Hdv) BEV trajectory",
+      "alt": "Finland (HDV) BEV trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "time",
       "period": "2025-12",
       "date": "2026-01-07",
       "filename": "finland_hdv_time_20260107.png",
       "url": "images/2025-12/finland_hdv_time_20260107.png",
-      "alt": "Finland (Hdv) Transition time curve",
+      "alt": "Finland (HDV) Transition time curve",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-01-07",
       "filename": "finland_hdv_ttm_shares_20260107.png",
       "url": "images/2025-12/finland_hdv_ttm_shares_20260107.png",
-      "alt": "Finland (Hdv) TTM market split graph",
+      "alt": "Finland (HDV) TTM market split graph",
       "country_slug": "finland_hdv"
     },
     {
@@ -10662,43 +10662,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "thailand_hdv_ICE_BEV_20260106.png",
       "url": "images/2025-11/thailand_hdv_ICE_BEV_20260106.png",
-      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "thailand_hdv_20260106.png",
       "url": "images/2025-11/thailand_hdv_20260106.png",
-      "alt": "Thailand (Hdv) BEV trajectory",
+      "alt": "Thailand (HDV) BEV trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "thailand_hdv_time_20260106.png",
       "url": "images/2025-11/thailand_hdv_time_20260106.png",
-      "alt": "Thailand (Hdv) Transition time curve",
+      "alt": "Thailand (HDV) Transition time curve",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-06",
       "filename": "thailand_hdv_ttm_shares_20260106.png",
       "url": "images/2025-11/thailand_hdv_ttm_shares_20260106.png",
-      "alt": "Thailand (Hdv) TTM market split graph",
+      "alt": "Thailand (HDV) TTM market split graph",
       "country_slug": "thailand_hdv"
     },
     {
@@ -10982,43 +10982,43 @@
       "country_slug": "czechia"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-05",
       "filename": "denmark_hdv_ICE_BEV_20260105.png",
       "url": "images/2025-11/denmark_hdv_ICE_BEV_20260105.png",
-      "alt": "Denmark (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Denmark (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-05",
       "filename": "denmark_hdv_20260105.png",
       "url": "images/2025-11/denmark_hdv_20260105.png",
-      "alt": "Denmark (Hdv) BEV trajectory",
+      "alt": "Denmark (HDV) BEV trajectory",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2026-01-05",
       "filename": "denmark_hdv_time_20260105.png",
       "url": "images/2025-11/denmark_hdv_time_20260105.png",
-      "alt": "Denmark (Hdv) Transition time curve",
+      "alt": "Denmark (HDV) Transition time curve",
       "country_slug": "denmark_hdv"
     },
     {
-      "country": "Denmark (Hdv)",
+      "country": "Denmark (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-05",
       "filename": "denmark_hdv_ttm_shares_20260105.png",
       "url": "images/2025-11/denmark_hdv_ttm_shares_20260105.png",
-      "alt": "Denmark (Hdv) TTM market split graph",
+      "alt": "Denmark (HDV) TTM market split graph",
       "country_slug": "denmark_hdv"
     },
     {
@@ -12322,43 +12322,43 @@
       "country_slug": "finland"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "finland_hdv_ICE_BEV_20260101.png",
       "url": "images/2025-11/finland_hdv_ICE_BEV_20260101.png",
-      "alt": "Finland (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Finland (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "finland_hdv_20260101.png",
       "url": "images/2025-11/finland_hdv_20260101.png",
-      "alt": "Finland (Hdv) BEV trajectory",
+      "alt": "Finland (HDV) BEV trajectory",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "finland_hdv_time_20260101.png",
       "url": "images/2025-11/finland_hdv_time_20260101.png",
-      "alt": "Finland (Hdv) Transition time curve",
+      "alt": "Finland (HDV) Transition time curve",
       "country_slug": "finland_hdv"
     },
     {
-      "country": "Finland (Hdv)",
+      "country": "Finland (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "finland_hdv_ttm_shares_20260101.png",
       "url": "images/2025-11/finland_hdv_ttm_shares_20260101.png",
-      "alt": "Finland (Hdv) TTM market split graph",
+      "alt": "Finland (HDV) TTM market split graph",
       "country_slug": "finland_hdv"
     },
     {
@@ -12442,43 +12442,43 @@
       "country_slug": "netherlands"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "netherlands_hdv_ICE_BEV_20260101.png",
       "url": "images/2025-11/netherlands_hdv_ICE_BEV_20260101.png",
-      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "netherlands_hdv_20260101.png",
       "url": "images/2025-11/netherlands_hdv_20260101.png",
-      "alt": "Netherlands (Hdv) BEV trajectory",
+      "alt": "Netherlands (HDV) BEV trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "netherlands_hdv_time_20260101.png",
       "url": "images/2025-11/netherlands_hdv_time_20260101.png",
-      "alt": "Netherlands (Hdv) Transition time curve",
+      "alt": "Netherlands (HDV) Transition time curve",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2026-01-01",
       "filename": "netherlands_hdv_ttm_shares_20260101.png",
       "url": "images/2025-11/netherlands_hdv_ttm_shares_20260101.png",
-      "alt": "Netherlands (Hdv) TTM market split graph",
+      "alt": "Netherlands (HDV) TTM market split graph",
       "country_slug": "netherlands_hdv"
     },
     {
@@ -12922,43 +12922,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ICE_BEV",
       "period": "2025-11",
       "date": "2025-12-29",
       "filename": "thailand_hdv_ICE_BEV_20251229.png",
       "url": "images/2025-11/thailand_hdv_ICE_BEV_20251229.png",
-      "alt": "Thailand (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "share",
       "period": "2025-11",
       "date": "2025-12-29",
       "filename": "thailand_hdv_20251229.png",
       "url": "images/2025-11/thailand_hdv_20251229.png",
-      "alt": "Thailand (Hdv) BEV trajectory",
+      "alt": "Thailand (HDV) BEV trajectory",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "time",
       "period": "2025-11",
       "date": "2025-12-29",
       "filename": "thailand_hdv_time_20251229.png",
       "url": "images/2025-11/thailand_hdv_time_20251229.png",
-      "alt": "Thailand (Hdv) Transition time curve",
+      "alt": "Thailand (HDV) Transition time curve",
       "country_slug": "thailand_hdv"
     },
     {
-      "country": "Thailand (Hdv)",
+      "country": "Thailand (HDV)",
       "type": "ttm_shares",
       "period": "2025-11",
       "date": "2025-12-29",
       "filename": "thailand_hdv_ttm_shares_20251229.png",
       "url": "images/2025-11/thailand_hdv_ttm_shares_20251229.png",
-      "alt": "Thailand (Hdv) TTM market split graph",
+      "alt": "Thailand (HDV) TTM market split graph",
       "country_slug": "thailand_hdv"
     },
     {
@@ -17772,43 +17772,43 @@
       "country_slug": "switzerland"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "ICE_BEV",
       "period": "2025-09",
       "date": "2025-10-12",
       "filename": "switzerland_HDV_ICE_BEV_20251012.png",
       "url": "images/2025-09/switzerland_HDV_ICE_BEV_20251012.png",
-      "alt": "Switzerland (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Switzerland (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "share",
       "period": "2025-09",
       "date": "2025-10-12",
       "filename": "switzerland_HDV_20251012.png",
       "url": "images/2025-09/switzerland_HDV_20251012.png",
-      "alt": "Switzerland (Hdv) BEV trajectory",
+      "alt": "Switzerland (HDV) BEV trajectory",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "time",
       "period": "2025-09",
       "date": "2025-10-12",
       "filename": "switzerland_HDV_time_20251012.png",
       "url": "images/2025-09/switzerland_HDV_time_20251012.png",
-      "alt": "Switzerland (Hdv) Transition time curve",
+      "alt": "Switzerland (HDV) Transition time curve",
       "country_slug": "switzerland_hdv"
     },
     {
-      "country": "Switzerland (Hdv)",
+      "country": "Switzerland (HDV)",
       "type": "ttm_shares",
       "period": "2025-09",
       "date": "2025-10-12",
       "filename": "switzerland_HDV_ttm_shares_20251012.png",
       "url": "images/2025-09/switzerland_HDV_ttm_shares_20251012.png",
-      "alt": "Switzerland (Hdv) TTM market split graph",
+      "alt": "Switzerland (HDV) TTM market split graph",
       "country_slug": "switzerland_hdv"
     },
     {
@@ -17852,43 +17852,43 @@
       "country_slug": "netherlands"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ICE_BEV",
       "period": "2025-09",
       "date": "2025-10-11",
       "filename": "netherlands_hdv_ICE_BEV_20251011.png",
       "url": "images/2025-09/netherlands_hdv_ICE_BEV_20251011.png",
-      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "share",
       "period": "2025-09",
       "date": "2025-10-11",
       "filename": "netherlands_hdv_20251011.png",
       "url": "images/2025-09/netherlands_hdv_20251011.png",
-      "alt": "Netherlands (Hdv) BEV trajectory",
+      "alt": "Netherlands (HDV) BEV trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "time",
       "period": "2025-09",
       "date": "2025-10-11",
       "filename": "netherlands_hdv_time_20251011.png",
       "url": "images/2025-09/netherlands_hdv_time_20251011.png",
-      "alt": "Netherlands (Hdv) Transition time curve",
+      "alt": "Netherlands (HDV) Transition time curve",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ttm_shares",
       "period": "2025-09",
       "date": "2025-10-11",
       "filename": "netherlands_hdv_ttm_shares_20251011.png",
       "url": "images/2025-09/netherlands_hdv_ttm_shares_20251011.png",
-      "alt": "Netherlands (Hdv) TTM market split graph",
+      "alt": "Netherlands (HDV) TTM market split graph",
       "country_slug": "netherlands_hdv"
     },
     {
@@ -17972,43 +17972,43 @@
       "country_slug": "netherlands"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ICE_BEV",
       "period": "2025-09",
       "date": "2025-10-10",
       "filename": "netherlands_hdv_ICE_BEV_20251010.png",
       "url": "images/2025-09/netherlands_hdv_ICE_BEV_20251010.png",
-      "alt": "Netherlands (Hdv) ICE-BEV-Hybrid trajectory",
+      "alt": "Netherlands (HDV) ICE-BEV-Hybrid trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "share",
       "period": "2025-09",
       "date": "2025-10-10",
       "filename": "netherlands_hdv_20251010.png",
       "url": "images/2025-09/netherlands_hdv_20251010.png",
-      "alt": "Netherlands (Hdv) BEV trajectory",
+      "alt": "Netherlands (HDV) BEV trajectory",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "time",
       "period": "2025-09",
       "date": "2025-10-10",
       "filename": "netherlands_hdv_time_20251010.png",
       "url": "images/2025-09/netherlands_hdv_time_20251010.png",
-      "alt": "Netherlands (Hdv) Transition time curve",
+      "alt": "Netherlands (HDV) Transition time curve",
       "country_slug": "netherlands_hdv"
     },
     {
-      "country": "Netherlands (Hdv)",
+      "country": "Netherlands (HDV)",
       "type": "ttm_shares",
       "period": "2025-09",
       "date": "2025-10-10",
       "filename": "netherlands_hdv_ttm_shares_20251010.png",
       "url": "images/2025-09/netherlands_hdv_ttm_shares_20251010.png",
-      "alt": "Netherlands (Hdv) TTM market split graph",
+      "alt": "Netherlands (HDV) TTM market split graph",
       "country_slug": "netherlands_hdv"
     },
     {
