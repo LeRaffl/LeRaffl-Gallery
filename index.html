@@ -3,7 +3,30 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BEV Trajectories • Gallery + Thresholds + Durations</title>
+
+<!-- ── PREVIEW SHIM ─ make relative fetches resolve to the deployed origin ── -->
+<base href="https://leraffl.github.io/LeRaffl-Gallery/">
+<script>
+  // Keep #-anchor clicks local to this preview file instead of jumping to the deployed origin.
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href*="#"]');
+    if(!a) return;
+    var url = new URL(a.getAttribute('href'), document.baseURI);
+    var here = new URL(location.href);
+    if(url.origin === 'https://leraffl.github.io' && url.pathname === '/LeRaffl-Gallery/' && url.hash){
+      e.preventDefault();
+      if(location.hash !== url.hash) location.hash = url.hash;
+      else window.dispatchEvent(new HashChangeEvent('hashchange'));
+    }
+  });
+</script>
+<!-- ─── proposed: title + meta refresh ─── -->
+<title>BEV Trajectories — Gallery</title>
+<meta name="description" content="Gallery, thresholds, durations and fleet projections for BEV registrations.">
+<meta name="theme-color" content="#0a0d10">
+<meta property="og:title" content="BEV Trajectories">
+<meta property="og:description" content="BEV registration trajectories per country.">
+<meta property="og:type" content="website">
 <style>
 /* Ensure the HTML `hidden` attribute always wins over any display rule. */
 [hidden] { display: none !important; }
@@ -62,7 +85,7 @@ td.late {
 .empty{opacity:.7;text-align:center;padding:40px}
 
 /* Sidebar */
-.side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:64px;height:fit-content;z-index:10}
+.side{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px;position:sticky;top:var(--header-h);height:fit-content;z-index:10}
 .side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #273145;background:#0f1525;color:#e9eef2}
 select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e9eef2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
@@ -725,11 +748,25 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
   --shadow:0 18px 42px rgba(0,0,0,.34);
   --radius:8px;
   color-scheme:dark;
+
+  /* ─── proposed: sticky chrome heights — one source of truth ─── */
+  --header-h:68px;
+  --tabs-h:58px;
+  --chrome-h:calc(var(--header-h) + var(--tabs-h));
+}
+
+/* ─── proposed: respect prefers-reduced-motion ─── */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    transition-duration:.01ms !important;
+    animation-duration:.01ms !important;
+  }
+  .card.g:hover,.thumbbox:hover .thumb{transform:none !important}
 }
 
 html{
   background:var(--bg);
-  scroll-padding-top:112px;
+  scroll-padding-top:calc(var(--chrome-h) + 12px);
 }
 
 body{
@@ -780,90 +817,137 @@ header h1::before{
 }
 
 .tabs{
+/* ─── proposed: tab bar — variant E (grouped + chip-style active) ─── */
   position:sticky;
-  top:68px;
+  top:var(--header-h);
   z-index:4;
   max-width:100%;
   margin:0;
-  padding:0 max(18px, calc((100vw - var(--maxw)) / 2 + 18px));
-  gap:20px;
+  padding:6px max(18px, calc((100vw - var(--maxw)) / 2 + 18px)) 0;
+  gap:22px;
   overflow-x:auto;
   flex-wrap:nowrap;
   background:rgba(10,13,16,.78);
   border-bottom:1px solid var(--line-soft);
   backdrop-filter:saturate(130%) blur(12px);
   scrollbar-width:thin;
+  align-items:flex-end;
+  min-height:var(--tabs-h);
 }
 
 .tab-group{
   display:flex;
-  align-items:center;
-  gap:16px;
+  align-items:flex-end;
+  gap:6px;
   flex:0 0 auto;
 }
 
 .tab-group + .tab-group{
-  margin-left:4px;
-  padding-left:20px;
+  padding-left:22px;
   border-left:1px solid var(--line-soft);
+  margin-left:0;
 }
 
 .tab-group-label{
+  align-self:flex-start;
+  margin:6px 8px 0 0;
   color:var(--muted-2);
   font-size:10px;
   font-weight:800;
   letter-spacing:.11em;
   text-transform:uppercase;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:color .2s ease;
+}
+
+/* Active group label — the "über-tab" pops with the accent color and a glowing dot. */
+.tab-group:has(.tablink.active) .tab-group-label{
+  color:var(--text);
+  letter-spacing:.13em;
+}
+.tab-group:has(.tablink.active) .tab-group-label::before{
+  content:"";
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent), 0 0 0 1px rgba(41,211,152,.25);
+  flex:0 0 auto;
 }
 
 .tablink{
   position:relative;
   flex:0 0 auto;
-  border:0;
-  border-radius:0;
+  display:inline-flex;
+  align-items:center;
   background:transparent;
   color:var(--muted);
-  padding:15px 0 14px;
+  padding:10px 12px 12px;
   font-size:13px;
-  font-weight:650;
-  transition:background .15s,border-color .15s,color .15s;
+  font-weight:600;
+  border-radius:10px 10px 0 0;
+  border:1px solid transparent;
+  border-bottom:none;
+  text-decoration:none;
+  white-space:nowrap;
+  letter-spacing:.005em;
+  transition:
+    font-size .22s cubic-bezier(.4,0,.2,1),
+    padding .22s cubic-bezier(.4,0,.2,1),
+    color .15s ease,
+    background .18s ease,
+    border-color .18s ease,
+    letter-spacing .22s cubic-bezier(.4,0,.2,1);
 }
 
 .tablink:hover{
-  background:transparent;
-  border-color:transparent;
   color:var(--text);
+  background:rgba(255,255,255,.03);
 }
 
 .tablink.active{
-  background:transparent;
-  border-color:transparent;
   color:var(--text);
-}
-
-.tablink::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:-1px;
-  height:2px;
-  border-radius:999px;
-  background:transparent;
-  transform:scaleX(.55);
-  opacity:0;
-  transition:opacity .15s,transform .15s,background .15s;
-}
-
-.tablink:hover::after{
-  background:rgba(255,255,255,.22);
-  opacity:1;
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  padding:10px 18px 12px;
+  background:linear-gradient(180deg,
+    rgba(41,211,152,.16),
+    rgba(41,211,152,.05));
+  border-color:color-mix(in srgb, var(--accent) 55%, var(--line));
+  border-bottom-color:transparent;
+  box-shadow:0 -1px 0 rgba(255,255,255,.04) inset;
 }
 
 .tablink.active::after{
+  content:"";
+  position:absolute;
+  left:8px;right:8px;bottom:-1px;height:2px;
   background:var(--accent);
-  opacity:1;
-  transform:scaleX(1);
+  border-radius:999px;
+  box-shadow:0 0 12px rgba(41,211,152,.6);
+}
+
+/* ─── proposed: gentle chip lift animation on activate ─── */
+@keyframes tabPop{
+  0%   { transform:translateY(2px) scale(.98) }
+  60%  { transform:translateY(-1px) scale(1.01) }
+  100% { transform:translateY(0)    scale(1) }
+}
+.tablink.active{
+  animation:tabPop .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* ─── proposed: placeholder option styling in multi-selects ─── */
+select option:disabled,
+select option[value=""]:disabled{
+  color:var(--muted-2);
+  font-style:italic;
+  background:transparent !important;
+}
+select[multiple] option:disabled{
+  padding:8px 10px;
+  border-bottom:1px dashed var(--line);
 }
 
 .page,.container{
@@ -918,7 +1002,7 @@ section.tab .container > h2{
 }
 
 .side{
-  top:122px;
+  top:calc(var(--chrome-h) + 8px);
   padding:14px;
   box-shadow:var(--shadow);
 }
@@ -1049,7 +1133,7 @@ a:focus-visible{
 
 .col h3{
   position:sticky;
-  top:124px;
+  top:calc(var(--chrome-h) + 10px);
   z-index:2;
   margin:0;
   padding:8px 4px;
@@ -1078,8 +1162,154 @@ a:focus-visible{
 }
 
 .meta{
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-areas:
+    "country stack"
+    "type    stack"
+    "date    stack";
+  align-items:start;
   padding:11px 12px 10px;
+  gap:3px 10px;
+}
+.meta .left{display:contents}
+.meta .country{grid-area:country}
+.meta .type{grid-area:type}
+.meta .date{grid-area:date}
+
+.tag-stack{
+  grid-area:stack;
+  display:flex;
+  flex-direction:column;
   gap:3px;
+  align-items:flex-end;
+  align-self:start;
+  margin-top:1px;
+}
+
+/* Narrow cards (3-col on tablets, 2-col on phones) — pills wrap below the
+   meta text instead of squeezing into a side column. Container query so it
+   tracks the card's actual width, not the viewport. */
+.card.g{
+  container-type:inline-size;
+}
+@container (max-width: 260px){
+  .meta{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "country"
+      "type"
+      "date"
+      "stack";
+  }
+  .tag-stack{
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:center;
+    align-self:stretch;
+    margin-top:6px;
+    gap:4px;
+  }
+}
+
+/* Tag column in Thresholds / Durations tables — pills laid out horizontally,
+   wrapping when the column is constrained. */
+.col-tags{
+  min-width:230px;
+}
+.tablecard .tag-stack{
+  flex-direction:row;
+  flex-wrap:wrap;
+  gap:4px;
+  align-items:center;
+  align-self:center;
+  margin-top:0;
+}
+
+/* ─── proposed: mobile — collapsible sidebar so 9 filter chips don't eat
+   the whole screen above the gallery. Desktop layout is untouched. ─── */
+.side-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.side-toggle .side-toggle-label{ flex:0 0 auto }
+.side-toggle .fb-ctx-cluster{ flex:0 0 auto }
+.side-toggle .side-chevron{
+  display:none;
+  margin-left:auto;
+  font-size:14px;
+  color:var(--muted-2);
+  transition:transform .18s ease;
+}
+@media (max-width: 880px){
+  .side-toggle{ cursor:pointer; user-select:none }
+  .side-toggle .side-chevron{ display:inline-block }
+  .side[data-collapsed="true"] .side-chevron{ transform:rotate(-90deg) }
+  .side[data-collapsed="true"] .side-body{ display:none }
+  /* Pull the panel tight so the closed state is just a slim bar. */
+  .side[data-collapsed="true"]{ padding:10px 14px }
+}
+
+.status-pill{
+  font-size:9.5px;
+  font-weight:700;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  padding:2px 7px;
+  border-radius:999px;
+  white-space:nowrap;
+  border:1px solid var(--line);
+  background:transparent;
+  color:var(--muted-2);
+  line-height:1.4;
+}
+.status-pill:empty{display:none}
+
+/* Status tag — t80 vs today vs target year */
+.status-pill[data-tag="status"][data-value="past"]{
+  color:#d4f5b8;
+  background:rgba(60,180,120,.18);
+  border-color:rgba(60,180,120,.45);
+}
+.status-pill[data-tag="status"][data-value="ontrack"]{
+  color:#b3d4ff;
+  background:rgba(80,160,255,.16);
+  border-color:rgba(80,160,255,.4);
+}
+.status-pill[data-tag="status"][data-value="late"]{
+  color:#ffb4b4;
+  background:rgba(220,80,80,.18);
+  border-color:rgba(220,80,80,.45);
+}
+
+/* Speed tag — quartiles of slope at inflection */
+.status-pill[data-tag="speed"][data-value="fast"]{
+  color:#cffff0;
+  background:rgba(41,211,152,.14);
+  border-color:rgba(41,211,152,.4);
+}
+.status-pill[data-tag="speed"][data-value="avg"]{
+  color:var(--muted);
+  background:rgba(255,255,255,.04);
+  border-color:var(--line);
+}
+.status-pill[data-tag="speed"][data-value="slow"]{
+  color:#ffe29a;
+  background:rgba(240,179,90,.14);
+  border-color:rgba(240,179,90,.4);
+}
+
+/* Timing tag — t20 vs 2023/2025 */
+.status-pill[data-tag="timing"][data-value="early"]{
+  color:#c5deff;
+  background:rgba(105,183,255,.14);
+  border-color:rgba(105,183,255,.4);
+}
+.status-pill[data-tag="timing"][data-value="late_start"]{
+  color:#ffd1b3;
+  background:rgba(255,140,60,.14);
+  border-color:rgba(255,140,60,.4);
 }
 
 .country{
@@ -1424,7 +1654,7 @@ a:focus-visible{
       <a href="#durations" class="tablink">Durations</a>
     </span>
     <span class="tab-group">
-      <span class="tab-group-label">Model</span>
+      <span class="tab-group-label">DIY Curves</span>
       <a href="#builder" class="tablink">Builder</a>
       <a href="#fleet" class="tablink">Fleet</a>
     </span>
@@ -1633,8 +1863,9 @@ a:focus-visible{
   <!-- GALLERY TAB -->
   <section id="tab-gallery" class="tab active">
     <div class="page">
-      <aside class="side">
-        <h2>Filters
+      <aside class="side" data-collapsed="true">
+        <h2 class="side-toggle">
+          <span class="side-toggle-label">Filters</span>
           <span class="fb-ctx-cluster" data-fb-context='{"section":"gallery"}'>
             <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
             <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
@@ -1642,7 +1873,9 @@ a:focus-visible{
             <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
             <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
           </span>
+          <span class="side-chevron" aria-hidden="true">▾</span>
         </h2>
+        <div class="side-body">
         <label class="small">Country</label>
         <select id="countrySelect"><option value="">All countries</option></select>
         <div style="height:10px"></div>
@@ -1653,6 +1886,30 @@ a:focus-visible{
           <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM market split</label>
           <label class="chip"><input type="checkbox" value="time" checked/> Transition time curves</label>
           <label class="chip"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
+        </div>
+
+        <div style="height:14px"></div>
+        <label class="small">Status <span class="small" style="opacity:.6">(80% by 2035)</span></label>
+        <div class="chips tag-filter" data-tag-cat="status">
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="past"    checked/> Past 80%</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="ontrack" checked/> On track</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="late"    checked/> Late</label>
+        </div>
+
+        <div style="height:10px"></div>
+        <label class="small">Speed <span class="small" style="opacity:.6">(slope quartile)</span></label>
+        <div class="chips tag-filter" data-tag-cat="speed">
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="fast" checked/> Fast</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="avg"  checked/> Avg speed</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="slow" checked/> Slow</label>
+        </div>
+
+        <div style="height:10px"></div>
+        <label class="small">Timing <span class="small" style="opacity:.6">(10% before 2023 / after 2025)</span></label>
+        <div class="chips tag-filter" data-tag-cat="timing">
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="early"      checked/> Early starter</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="mid"        checked/> Mid</label>
+          <label class="chip tag-chip"><input type="checkbox" data-tag-value="late_start" checked/> Late starter</label>
         </div>
         <div style="height:10px"></div>
         <label class="small">Month</label>
@@ -1674,6 +1931,7 @@ a:focus-visible{
           <option value="desc" selected>Descending</option>
           <option value="asc">Ascending</option>
         </select>
+        </div><!-- /.side-body -->
       </aside>
 
       <main>
@@ -1690,7 +1948,7 @@ a:focus-visible{
         <div class="lbbox">
           <button class="btn x" onclick="lb.close()" aria-label="Close preview">✕</button>
           <a id="lbDownload" class="btn lb-dl" download aria-label="Download image">↓</a>
-          <img src="about:blank" alt=""/>
+          <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt=""/>
         </div>
       </div>
     </dialog>
@@ -2293,7 +2551,7 @@ a:focus-visible{
         </label>
       </div>
 
-      <div id="wmInputsYear" style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+      <div id="wmInputsYear" style="display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px; min-height:74px;">
         <div class="field" style="min-width:120px;">
           <div style="display:flex; align-items:center; gap:6px;">
             <label for="wmThreshold">Threshold (% BEV, inflow)</label>
@@ -2304,7 +2562,7 @@ a:focus-visible{
         </div>
       </div>
 
-      <div id="wmInputsShare" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+      <div id="wmInputsShare" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px; min-height:74px;">
         <div class="field" style="flex:1; min-width:220px;">
           <div style="display:flex; align-items:center; gap:6px;">
             <label for="wmShareYear">Year</label>
@@ -2317,7 +2575,7 @@ a:focus-visible{
         </div>
       </div>
 
-      <div id="wmInputsDuration" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px;">
+      <div id="wmInputsDuration" style="display:none; flex-wrap:wrap; gap:14px; align-items:center; margin-top:12px; min-height:74px;">
         <div class="field" style="min-width:120px;">
           <div style="display:flex; align-items:center; gap:6px;">
             <label for="wmThresholdFrom">From (%)</label>
@@ -2355,7 +2613,7 @@ a:focus-visible{
         <button class="wm-btn wm-btn-zoom" data-zoom="+1" title="Zoom in">+</button>
         <button class="wm-btn wm-btn-zoom" data-zoom="reset" title="Reset view">⟲</button>
       </div>
-      <div id="worldMapPlot" style="height:620px"></div>
+      <div id="worldMapPlot" style="height:720px"></div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
       <p class="small" style="margin:4px 14px 10px; color:#6f86ad;">
         Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
@@ -2846,8 +3104,39 @@ function renderColumns(items){
   const frag=document.createDocumentFragment();
   const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
   let visibleCount=0,totalCount=0,canLoadMore=false;
-  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${slug}" title="Copy social-media post text for ${it.country}">Copy</button><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
-function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${slug}" title="Copy social-media post text for ${it.country}">Copy</button><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+// Tag filters — read chip state per category, return { cat: Set<value> } only for
+// categories where the user has unchecked something. Empty result = no filter.
+function getActiveTagFilters(){
+  const result = {};
+  document.querySelectorAll('.tag-filter[data-tag-cat]').forEach(group => {
+    const cat = group.dataset.tagCat;
+    const all = [...group.querySelectorAll('input[data-tag-value]')];
+    const checked = all.filter(c => c.checked).map(c => c.dataset.tagValue);
+    if (checked.length === 0) { result[cat] = new Set(); return; }       // all unchecked → hide everything in this cat
+    if (checked.length < all.length) result[cat] = new Set(checked);     // partial → filter
+    // else (all checked) → no filter for this category
+  });
+  return result;
+}
+function passesTagFilter(country, filters){
+  const cats = Object.keys(filters);
+  if (!cats.length) return true;
+  const tags = window.__bevTagsByCountry && window.__bevTagsByCountry[country];
+  for (const cat of cats){
+    const allowed = filters[cat];
+    // Timing has a designed middle band — missing tag means "mid".
+    // Status/Speed without a tag means we couldn't compute it; treat as 'unknown'
+    // and only accept when the user explicitly includes the 'mid' pseudo-value
+    // (timing only) or when no filter is active.
+    const v = cat === 'timing'
+      ? (tags && tags.timing && tags.timing.v) || 'mid'
+      : (tags && tags[cat] && tags[cat].v) || null;
+    if (!v || !allowed.has(v)) return false;
+  }
+  return true;
+}
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
@@ -2859,6 +3148,8 @@ loadManifest().then(({images})=>{
   const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
   typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>{ visibleRows+=PAGE_ROWS; update(); });
+  // Tag-filter chips — same reset() flow as the type chips.
+  document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
   sortField.value='created'; sortDir.value='desc'; update();
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
 
@@ -3319,6 +3610,7 @@ function headerHTML(){
     <th class="sortable" data-key="custom">Custom</th>
     <th class="sortable" data-key="data_per">Data per</th>
     <th class="sortable" data-key="variant">Variant</th>
+    <th class="col-tags">Tags</th>
   </tr></thead>`;
 }
 
@@ -3339,7 +3631,10 @@ function tdWithClass(text, ts, is80 = false){
 function bodyHTML(){
   const filtered = applyVariantFilter(data);
 
-  return `<tbody>${filtered.map((r,i)=>`<tr>
+  return `<tbody>${filtered.map((r,i)=>{
+    const v = String(r.variant || '').trim();
+    const key = (!v || v.toLowerCase() === 'whole') ? r.country : `${r.country} (${v})`;
+    return `<tr>
     <td class="num">${i+1}</td>
     <td>${r.country}</td>
     ${tdWithClass(r.val20, r._v20)}
@@ -3348,7 +3643,8 @@ function bodyHTML(){
     ${tdWithClass(r.custom, r._vc)}
     <td class="data-per-col">${r.data_per || ''}</td>
     <td class="variant-col">${displayVariantLabel(r.variant)}</td>
-  </tr>`).join('')}</tbody>`;
+    <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
+  </tr>`;}).join('')}</tbody>`;
 }
 
 function renderTable(){
@@ -3475,9 +3771,13 @@ renderTable();
       <th class="sortable" data-k="_speed">Numerical speed</th>
       <th class="sortable" data-k="_periodSort">Data per</th>
       <th class="sortable" data-k="variant">Variant</th>
+      <th class="col-tags">Tags</th>
     </tr></thead>`; }
     function body(arr){ 
-      return `<tbody>${arr.map((r,i)=>`<tr>
+      return `<tbody>${arr.map((r,i)=>{
+        const v = String(r.variant || '').trim();
+        const key = (!v || v.toLowerCase() === 'whole') ? r.country : `${r.country} (${v})`;
+        return `<tr>
         <td class="num">${i+1}</td>
         <td>${r.country}</td>
         <td>${r.d2080_text}</td>
@@ -3486,7 +3786,8 @@ renderTable();
         <td>${r.speed_text}</td>
         <td class="data-per-col">${r.data_per}</td>
         <td class="variant-col">${displayVariantLabel(r.variant)}</td>
-      </tr>`).join('')}</tbody>`; 
+        <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
+      </tr>`;}).join('')}</tbody>`; 
     }
     function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
     document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
@@ -3720,6 +4021,11 @@ big_markets: rows => {
     if(groupSel){ groupSel.onchange = e => applyBuilderGroup(e.target.value); }
     const sel = document.getElementById('builderCountries');
     sel.innerHTML = '';
+    // Disabled placeholder so the picker matches the Fleet tab affordance.
+    const ph = document.createElement('option');
+    ph.textContent = '— Choose countries —';
+    ph.disabled = true;
+    sel.appendChild(ph);
     const countries = [...new Set(rows.map(r=>r.country).filter(Boolean))].sort();
     countries.forEach(c=>{
       const o=document.createElement('option');
@@ -3905,12 +4211,16 @@ if (showICE) {
 
 const layout = {
   margin: { t: 20, r: 20, b: 40, l: 50 },
+  paper_bgcolor: '#0b0c10',
+  plot_bgcolor: '#0f1525',
+  font: { color: '#e9eef2' },
 
   xaxis: {
     showgrid: true,
-    gridcolor: 'rgba(0,0,0,0.1)',   // vertikale Linien dunkler
+    gridcolor: 'rgba(255,255,255,0.06)',
     gridwidth: 1,
-    zeroline: false
+    zeroline: false,
+    linecolor: 'rgba(255,255,255,0.12)'
   },
 
   yaxis: {
@@ -3918,13 +4228,14 @@ const layout = {
     range: [0, 100],
     dtick: 10,
     showgrid: true,
-    gridcolor: 'rgba(0,0,0,0.10)',   // horizontale Linien sichtbar
+    gridcolor: 'rgba(255,255,255,0.06)',
     gridwidth: 1,
-    zerolinecolor: 'rgba(0,0,0,0.1)',
-    zerolinewidth: 1
+    zerolinecolor: 'rgba(255,255,255,0.12)',
+    zerolinewidth: 1,
+    linecolor: 'rgba(255,255,255,0.12)'
   },
 
-  legend: { orientation: 'h' },
+  legend: { orientation: 'h', font: { color: '#cfd8e8' } },
 
   // Author tag — visible on screenshots that get shared without context.
   annotations: [{
@@ -5211,6 +5522,14 @@ async function initFleetTab() {
 // allowing inline <br>, <em>, etc. without escaping.
 const FAQ_DATA = [
   // ----- GENERAL (BASICS) -----
+  { tag: 'general', label: 'General', q: 'What do the small tags on gallery cards mean?',
+    answers: [
+      'Each gallery card carries up to three stacked tags summarising the country\u2019s curve at a glance. All three are computed from the same Weibull fit shown in <em>Thresholds</em> and <em>Durations</em>.',
+      '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
+      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) across all rows in <code>params.csv</code>:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of countries by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
+      '<b>Timing</b> \u2014 when the country crossed (or is projected to cross) <b>10 %</b> BEV share:<br>&nbsp;&nbsp;<b>Early starter</b> = before Jan 2023.<br>&nbsp;&nbsp;<b>Late starter</b> = after 2025.<br>&nbsp;&nbsp;If 10 % was/will be crossed between 2023 and 2025, no timing tag is shown.',
+      'All thresholds (80 %, 2035, 10 %, 2023, 2025) and the quartile breakpoints are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+    ] },
   { tag: 'general', label: 'General', q: 'What does this project do?',
     answers: ['It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.'] },
   { tag: 'general', label: 'General', q: 'What exactly is being modeled?',
@@ -5886,11 +6205,11 @@ function wmRender(){
       showcountries: true,
       countrycolor: '#1a2440',
       projection: {
-        type: 'natural earth',
+        type: 'mercator',
         scale: wmCurrentScale * (region.scale || 1)
       },
       center: region.center,
-      lataxis: { range: [-58, 85] }
+      lataxis: { range: [-56, 70] }
     },
     annotations: [{
       x: 0.995, y: 0.02,
@@ -6950,6 +7269,153 @@ document.addEventListener('click', (e) => {
       .catch(err => restore('⚠ ' + ((err && err.message) || 'Failed')));
   }
 });
+</script>
+
+<!-- ─── proposed: gallery status pills (Past 80% / On track / Late) ─── -->
+<script>
+(function(){
+  const TARGET_YEAR    = 2035;  // status: late vs on-track cutoff
+  const PAST_THRESHOLD = 0.8;   // status: "past 80%" is past hitting 0.8 share
+  const EARLY_BY       = 2023;  // timing: t10 before this → early starter
+  const LATE_AFTER     = 2025;  // timing: t10 after this → late starter
+
+  // Re-implementation of slopeAtInflection (the original lives in an IIFE).
+  // Returns the dimensionless slope (dS/dz) at the inflection point of the
+  // Weibull S-curve 1 − exp(v1 · z^v2).
+  function slopeAtInflection(v1raw, v2raw){
+    let k = +v2raw, v1n = +v1raw;
+    if (v1n === 0) v1n = -1e-24;
+    if (!isFinite(k) || !isFinite(v1n)) return NaN;
+    if (v1n >= 0 || k <= 1) return NaN;
+    const invLambda = Math.pow(-v1n, 1/k);
+    const u = Math.pow((k - 1) / k, 1/k);
+    return k * invLambda * Math.pow(u, k - 1) * Math.exp(-Math.pow(u, k));
+  }
+
+  function quantile(sorted, q){
+    if (!sorted.length) return NaN;
+    const idx = (sorted.length - 1) * q;
+    const lo = Math.floor(idx), hi = Math.ceil(idx);
+    if (lo === hi) return sorted[lo];
+    return sorted[lo] * (hi - idx) + sorted[hi] * (idx - lo);
+  }
+
+  function statusTag(t80){
+    if (!isFinite(t80)) return null;
+    const now = new Date();
+    const today = now.getUTCFullYear() + now.getUTCMonth() / 12;
+    if (t80 <= today)        return { v: 'past',    label: 'Past 80%' };
+    if (t80 <= TARGET_YEAR)  return { v: 'ontrack', label: 'On track' };
+    return                          { v: 'late',    label: 'Late' };
+  }
+
+  function speedTag(speed, p25, p75){
+    if (!isFinite(speed)) return null;
+    if (speed >= p75) return { v: 'fast', label: 'Fast' };
+    if (speed <= p25) return { v: 'slow', label: 'Slow' };
+    return                   { v: 'avg',  label: 'Avg speed' };
+  }
+
+  function timingTag(t10){
+    if (!isFinite(t10)) return null;
+    if (t10 < EARLY_BY)   return { v: 'early',      label: 'Early starter' };
+    if (t10 > LATE_AFTER) return { v: 'late_start', label: 'Late starter' };
+    return null; // middle band → no tag
+  }
+
+  let byCountry = null;
+
+  async function compute(){
+    try {
+      const r = await fetch('./params.csv');
+      if (!r.ok) return;
+      const rows = parseCSV(await r.text());
+
+      // Phase 1 — enrich every row with t80, t10, speed.
+      const enriched = rows.map(row => {
+        const variant = String(row.variant || '').trim();
+        const key = (!variant || variant.toLowerCase() === 'whole')
+          ? row.country
+          : `${row.country} (${variant})`;
+        const t80res = inv_x_years(PAST_THRESHOLD, row.v1, row.v2, row.t0);
+        const t10res = inv_x_years(0.10,           row.v1, row.v2, row.t0);
+        return {
+          key,
+          t80:   t80res && isFinite(t80res.x) ? t80res.x : NaN,
+          t10:   t10res && isFinite(t10res.x) ? t10res.x : NaN,
+          speed: slopeAtInflection(row.v1, row.v2),
+        };
+      });
+
+      // Phase 2 — speed quartiles across all rows with a finite speed.
+      const speeds = enriched.map(e => e.speed).filter(isFinite).sort((a, b) => a - b);
+      const p25 = quantile(speeds, 0.25);
+      const p75 = quantile(speeds, 0.75);
+
+      // Phase 3 — assemble the tag set per row.
+      const acc = {};
+      for (const e of enriched){
+        const tags = {};
+        const s = statusTag(e.t80);   if (s) tags.status = s;
+        const sp = speedTag(e.speed, p25, p75); if (sp) tags.speed = sp;
+        const tm = timingTag(e.t10);  if (tm) tags.timing = tm;
+        if (Object.keys(tags).length) acc[e.key] = tags;
+      }
+      byCountry = acc;
+      window.__bevTagsByCountry = byCountry; // exposed for gallery filters and external paint() triggers
+      paint();
+    } catch (e) { /* silent */ }
+  }
+
+  function paint(){
+    if (!byCountry) return;
+    const order = ['status', 'speed', 'timing'];
+    document.querySelectorAll('.tag-stack[data-tag-country]').forEach(el => {
+      const c = el.dataset.tagCountry;
+      const tags = byCountry[c];
+      if (!tags) { el.innerHTML = ''; return; }
+      el.innerHTML = order
+        .filter(k => tags[k])
+        .map(k => `<span class="status-pill" data-tag="${k}" data-value="${tags[k].v}">${tags[k].label}</span>`)
+        .join('');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    compute();
+    // Repaint whenever any of the three mounts re-renders.
+    const targets = ['cols', 'thresholdsMount', 'durationsMount'];
+    targets.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) new MutationObserver(paint).observe(el, { childList: true });
+    });
+  });
+})();
+</script>
+
+<!-- ─── proposed: mobile sidebar collapse ─── -->
+<script>
+(function(){
+  const side = document.querySelector('aside.side');
+  const toggle = side && side.querySelector('.side-toggle');
+  if (!toggle) return;
+  // Default: collapsed on mobile, open on desktop. Toggle is mobile-only.
+  function sync(){
+    if (window.innerWidth > 880) {
+      side.dataset.collapsed = 'false';
+    } else if (side.dataset.collapsed == null) {
+      side.dataset.collapsed = 'true';
+    }
+  }
+  sync();
+  window.addEventListener('resize', sync);
+  toggle.addEventListener('click', e => {
+    // Ignore clicks on the feedback-icon cluster (they open their own modal).
+    if (e.target.closest('.fb-ctx-cluster')) return;
+    if (window.innerWidth > 880) return; // no-op on desktop
+    side.dataset.collapsed = side.dataset.collapsed === 'true' ? 'false' : 'true';
+  });
+})();
 </script>
 </body>
 </html>
