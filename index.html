@@ -826,6 +826,8 @@ header h1::before{
   padding:6px max(18px, calc((100vw - var(--maxw)) / 2 + 18px)) 0;
   gap:22px;
   overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-y:contain;
   flex-wrap:nowrap;
   background:rgba(10,13,16,.78);
   border-bottom:1px solid var(--line-soft);
