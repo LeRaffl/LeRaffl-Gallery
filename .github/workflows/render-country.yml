@@ -34,7 +34,6 @@ on:
           - Industry
           - Private
           - Vans
-        type: string
   workflow_call:
     inputs:
       country:
