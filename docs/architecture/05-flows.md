@@ -215,7 +215,7 @@ sequenceDiagram
         Pages-->>Browser: PNG
     end
     par (on tab switch)
-        Browser->>Pages: GET params.csv (Builder/Thresholds/Durations/Map)
+        Browser->>Pages: GET params.csv (Builder/Thresholds/Durations/Speed/Map)
         Pages-->>Browser: CSV
     end
 ```

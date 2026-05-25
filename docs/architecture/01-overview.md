@@ -2,7 +2,7 @@
 
 ## What this project is
 
-A public-facing static site at <https://leraffl.github.io/LeRaffl-Gallery/> that publishes monthly extrapolations of the BEV / PHEV / ICE share of new vehicle registrations across ~43 countries, plus four canonical chart types per country, plus interactive tools (Builder, Thresholds, Durations, World Map, Fleet) backed by a model parameter file.
+A public-facing static site at <https://leraffl.github.io/LeRaffl-Gallery/> that publishes monthly extrapolations of the BEV / PHEV / ICE share of new vehicle registrations across ~43 countries, plus four canonical chart types per country, plus interactive tools (Builder, Thresholds, Durations, Speed, World Map, Fleet) backed by a model parameter file.
 
 Every chart is the output of a weighted regression on registration data the maintainer collects from national statistics offices. The same parameter set (`params.csv`) drives both the static images and the in-browser interactive tools — there is one source of truth for the model.
 

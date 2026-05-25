@@ -60,6 +60,7 @@ A single ~6000-line HTML file with inline CSS and inline JavaScript. No build st
 | Gallery | `manifest.json` + `images/<period>/<slug>_*.png` | Grid of all PNGs filterable by country, type, period |
 | Thresholds | `params.csv` | When each country reaches 20%/50%/80% BEV under the current model |
 | Durations | `params.csv` | How many years each country needs to traverse 20→80% |
+| Speed | `params.csv` | Interval chart: horizontal bar per country from From%→To% BEV share, dot at Mid%; sortable by start/mid/end/duration, region encoded by color, variant (Whole / Private / Industry / HDV / Used / …) encoded by bar shape (solid / diagonal / cross-hatch / thick stripes / outline). Custom From/Mid/To inputs default to 20/50/80. PNG and SVG export with `@LeRaffl` tag, created timestamp (incl. time, UTC) and `data per <oldest> (<country>) – <newest>` footer. |
 | Builder | `params.csv` | Interactive "what-if" curves with adjustable v1/v2/t0 |
 | Fleet | `fleet/*.csv`, `fleet_meta.json` | Bestand projection (separate from new-registrations data) |
 | World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share |

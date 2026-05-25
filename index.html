@@ -839,20 +839,21 @@ header h1::before{
 
 .tab-group{
   display:flex;
+  flex-wrap:wrap;
   align-items:flex-end;
-  gap:6px;
+  gap:4px 6px;
   flex:0 0 auto;
 }
 
 .tab-group + .tab-group{
-  padding-left:22px;
+  padding-left:16px;
   border-left:1px solid var(--line-soft);
   margin-left:0;
 }
 
 .tab-group-label{
-  align-self:flex-start;
-  margin:6px 8px 0 0;
+  flex:0 0 100%;
+  margin:0 0 2px 4px;
   color:var(--muted-2);
   font-size:10px;
   font-weight:800;
@@ -1651,9 +1652,10 @@ a:focus-visible{
       <a href="#worldmap" class="tablink">World Map</a>
     </span>
     <span class="tab-group">
-      <span class="tab-group-label">Tables</span>
+      <span class="tab-group-label">Rankings</span>
       <a href="#thresholds" class="tablink">Thresholds</a>
       <a href="#durations" class="tablink">Durations</a>
+      <a href="#speed" class="tablink">Speed</a>
     </span>
     <span class="tab-group">
       <span class="tab-group-label">DIY Curves</span>
@@ -2051,6 +2053,57 @@ a:focus-visible{
     </div>
     <div class="container tablepad">
       <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
+    </div>
+  </section>
+
+  <!-- SPEED TAB (20–80% transition interval plot) -->
+  <section id="tab-speed" class="tab">
+    <div class="container">
+      <h2>Transition Speed
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
+      <div class="toolbar">
+        <div class="field" style="min-width:280px">
+          <label for="speedVariantMulti">Variant filter</label>
+          <select id="speedVariantMulti" multiple size="6"></select>
+        </div>
+        <div class="field"><label for="speedFrom">From (%)</label><input id="speedFrom" type="number" min="0.1" max="49.9" step="0.5" value="20"></div>
+        <div class="field"><label for="speedMid">Mid dot (%)</label><input id="speedMid" type="number" min="1" max="99" step="0.5" value="50"></div>
+        <div class="field"><label for="speedTo">To (%)</label><input id="speedTo" type="number" min="50.1" max="99.9" step="0.5" value="80"></div>
+        <div class="field">
+          <label for="speedSort">Sort by</label>
+          <select id="speedSort">
+            <option value="start" selected>Start (From%)</option>
+            <option value="mid">Mid dot</option>
+            <option value="end">End (To%)</option>
+            <option value="duration">Duration</option>
+            <option value="country">Country (A–Z)</option>
+          </select>
+        </div>
+        <div class="field"><label>&nbsp;</label><button id="speedApplyBtn" class="btn">Recalculate</button></div>
+        <div class="spacer"></div>
+        <div class="export-box">
+          <div class="export-title">Export</div>
+          <div class="export-actions">
+            <button id="speedExportPng" class="btn">PNG</button>
+            <button id="speedExportSvg" class="btn">SVG</button>
+          </div>
+        </div>
+      </div>
+      <p class="small" style="max-width:740px">
+        Each bar shows the modelled time span from the <em>From%</em> to the <em>To%</em> BEV share; the dot marks the <em>Mid dot%</em> threshold. Bars truncated at the right edge (➜) indicate the transition continues beyond the visible window. Defaults: 20 / 50 / 80%. Hover a bar for exact years.
+      </p>
+    </div>
+    <div class="container tablepad">
+      <div id="speedMount" class="tablecard" style="padding:0">
+        <div style="padding:14px">Loading <code>params.csv</code>…</div>
+      </div>
     </div>
   </section>
 
@@ -3809,6 +3862,482 @@ renderTable();
     draw();
   }
   document.addEventListener('DOMContentLoaded',()=>{ loadParams().then(rows=>renderDurations(rows)).catch(err=>{ const m=document.getElementById('durationsMount'); m.classList.remove('tablecard'); m.innerHTML='<div class="error">'+((err&&err.message)||'Failed to load params.csv')+'</div>'; }); });
+})();
+
+// -------- SPEED (20–80% transition interval plot) --------
+(function(){
+  const SVG_NS='http://www.w3.org/2000/svg';
+  const REGION_COLORS={
+    'Europe':'#4C78A8','North America':'#F58518','South America':'#54A24B',
+    'Asia':'#E45756','Oceania':'#72B7B2','Africa':'#B279A2','Other':'#9aa3b2'
+  };
+  const COUNTRY_REGION={
+    // Europe
+    'Austria':'Europe','Belgium':'Europe','Bulgaria':'Europe','Croatia':'Europe',
+    'Cyprus':'Europe','Czechia':'Europe','Denmark':'Europe','Estonia':'Europe',
+    'Finland':'Europe','France':'Europe','Germany':'Europe','Greece':'Europe',
+    'Hungary':'Europe','Iceland':'Europe','Ireland':'Europe','Italy':'Europe',
+    'Latvia':'Europe','Lithuania':'Europe','Luxembourg':'Europe','Malta':'Europe',
+    'Netherlands':'Europe','Norway':'Europe','Poland':'Europe','Portugal':'Europe',
+    'Romania':'Europe','Slovakia':'Europe','Slovenia':'Europe','Spain':'Europe',
+    'Sweden':'Europe','Switzerland':'Europe','UK':'Europe','United Kingdom':'Europe',
+    'Türkiye':'Europe','Turkey':'Europe','Russia':'Europe','Georgia':'Europe',
+    'Armenia':'Europe','Azerbaijan':'Europe','Kazakhstan':'Europe','Ukraine':'Europe',
+    'Belarus':'Europe','Moldova':'Europe','Serbia':'Europe','Albania':'Europe',
+    'North Macedonia':'Europe','Bosnia and Herzegovina':'Europe','Montenegro':'Europe',
+    'Kosovo':'Europe',
+    // North America
+    'USA':'North America','United States':'North America','Canada':'North America','Mexico':'North America',
+    // South America
+    'Brazil':'South America','Argentina':'South America','Chile':'South America',
+    'Colombia':'South America','Peru':'South America','Uruguay':'South America',
+    'Ecuador':'South America','Bolivia':'South America','Paraguay':'South America',
+    'Venezuela':'South America',
+    // Asia
+    'China':'Asia','Japan':'Asia','South Korea':'Asia','India':'Asia',
+    'Thailand':'Asia','Malaysia':'Asia','Indonesia':'Asia','Vietnam':'Asia',
+    'Philippines':'Asia','Singapore':'Asia','Taiwan':'Asia','Hong Kong':'Asia',
+    'Mongolia':'Asia','Israel':'Asia','UAE':'Asia','Saudi Arabia':'Asia',
+    // Oceania
+    'Australia':'Oceania','New Zealand':'Oceania',
+    // Africa
+    'South Africa':'Africa','Morocco':'Africa','Egypt':'Africa','Nigeria':'Africa','Kenya':'Africa'
+  };
+  function regionOf(country){
+    if(!country) return 'Other';
+    if(COUNTRY_REGION[country]) return COUNTRY_REGION[country];
+    const base = country.replace(/\s*\(.*\)\s*$/,'').trim();
+    return COUNTRY_REGION[base] || 'Other';
+  }
+  function yx(r,y){
+    const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r);
+    const res=inv_x_years(y,v1,v2,t0);
+    return (res && isFinite(res.x)) ? res.x : NaN;
+  }
+  function loadParams(){
+    const urls=['./params.csv','params.csv'];
+    return new Promise((resolve,reject)=>{
+      (function next(i){
+        if(i>=urls.length){
+          if(typeof DEV_SAMPLE !== 'undefined' && DEV_SAMPLE){
+            try { resolve(applyV1Recovery(dedupeParamRows(parseCSV(SAMPLE_PARAMS_CSV)))); return; } catch(_){}
+          }
+          reject(new Error('Could not load params.csv.')); return;
+        }
+        fetch(urls[i],{cache:'no-store'})
+          .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+          .then(txt=>resolve(applyV1Recovery(dedupeParamRows(parseCSV(txt)))))
+          .catch(()=>next(i+1));
+      })(0);
+    });
+  }
+  function makeVariantOptions(rows){
+    const rawBases=new Set();
+    rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); });
+    const sel=document.getElementById('speedVariantMulti'); if(!sel) return;
+    sel.innerHTML='';
+    const seen=new Set();
+    [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{
+      const canon=normalizeBase(base);
+      if(!canon||seen.has(canon)) return;
+      seen.add(canon);
+      const opt=document.createElement('option');
+      opt.value=canon; opt.textContent=displayLabelFromBase(base);
+      if(canon==='whole'||canon==='private'||canon==='industry'||canon==='hdv') opt.selected=true;
+      sel.appendChild(opt);
+    });
+  }
+  function compute(rows, fromPct, midPct, toPct){
+    const sel=document.getElementById('speedVariantMulti');
+    const selected=new Set(Array.from(sel?.selectedOptions||[]).map(o=>o.value));
+    const out=[];
+    rows.forEach(r=>{
+      const parts=extractVariantParts(r.variant||'');
+      const canon=normalizeBase(parts.base||'');
+      if(selected.size && !selected.has(canon)) return;
+      const yStart=yx(r, fromPct/100);
+      const yMid  =yx(r, midPct/100);
+      const yEnd  =yx(r, toPct/100);
+      if(!isFinite(yStart) || !isFinite(yEnd)) return;
+      if(yEnd - yStart > 200) return; // skip non-transitioning rows
+      out.push({
+        country: r.country||'',
+        variant: r.variant||'',
+        variantLabel: displayVariantLabel(r.variant||''),
+        baseCanon: canon,
+        yStart, yMid, yEnd,
+        duration: yEnd - yStart,
+        region: regionOf(r.country),
+        data_per: getDataPer(r)
+      });
+    });
+    return out;
+  }
+  function sortRows(arr, key){
+    const cmp={
+      start: (a,b)=>a.yStart-b.yStart,
+      mid:   (a,b)=>a.yMid-b.yMid,
+      end:   (a,b)=>a.yEnd-b.yEnd,
+      duration:(a,b)=>a.duration-b.duration,
+      country:(a,b)=>a.country.localeCompare(b.country) || a.variant.localeCompare(b.variant)
+    }[key] || ((a,b)=>a.yStart-b.yStart);
+    return arr.slice().sort(cmp);
+  }
+  function fmtYearMonth(y){
+    if(!isFinite(y)) return '—';
+    const yr=Math.floor(y);
+    const m=Math.min(12,Math.max(1,Math.round((y-yr)*12)+1));
+    return yr+'-'+String(m).padStart(2,'0');
+  }
+  // Short suffix per variant — avoids the "Finland (New Cars (Private))"
+  // double-bracket from displayVariantLabel. "whole" deliberately renders
+  // with no suffix.
+  const VARIANT_SHORT={
+    whole:'', private:'Private', industry:'Industry', hdv:'HDV', vans:'Vans',
+    used:'Used','used imports':'Used (imports)','4-wheelers':'4-Wheelers'
+  };
+  // Fill style per variant. "solid" uses the region color flat; everything
+  // else routes through an SVG <pattern> built from the same color so the
+  // shape of the bar still encodes the region.
+  const VARIANT_STYLE={
+    whole:'solid', private:'diag', industry:'cross', hdv:'thick',
+    vans:'dots', used:'outline','used imports':'outline-dashed',
+    '4-wheelers':'solid'
+  };
+  function variantShort(canon){
+    if(canon in VARIANT_SHORT) return VARIANT_SHORT[canon];
+    return canon ? canon.replace(/(^|\s)\S/g, c=>c.toUpperCase()) : '';
+  }
+  function variantStyle(canon){
+    return VARIANT_STYLE[canon] || 'solid';
+  }
+  function labelFor(d){
+    const suf=variantShort(d.baseCanon);
+    return suf ? `${d.country}   (${suf})` : d.country;
+  }
+  function svgEl(name, attrs, text){
+    const el=document.createElementNS(SVG_NS, name);
+    if(attrs) for(const k in attrs) el.setAttribute(k, attrs[k]);
+    if(text!=null) el.textContent=text;
+    return el;
+  }
+  // Build (or reuse) an SVG <pattern> for a (style, color) combination.
+  // The pattern is solid-color on a slightly darker bg so the texture reads
+  // against the dark gallery background; "outline" styles return null to
+  // signal the caller should draw a stroke-only rect instead.
+  function ensurePattern(defs, style, color){
+    if(style==='solid' || style==='outline' || style==='outline-dashed') return null;
+    const id=`speed-pat-${style}-${color.replace('#','')}`;
+    if(defs.querySelector('#'+CSS.escape(id))) return id;
+    const p=svgEl('pattern',{
+      id, patternUnits:'userSpaceOnUse', width:8, height:8
+    });
+    // dark base so the texture has contrast
+    p.appendChild(svgEl('rect',{x:0,y:0,width:8,height:8,fill:color,opacity:'0.30'}));
+    if(style==='diag'){
+      p.appendChild(svgEl('path',{d:'M-2,2 l4,-4 M0,8 l8,-8 M6,10 l4,-4', stroke:color,'stroke-width':'2.4'}));
+    } else if(style==='cross'){
+      p.appendChild(svgEl('path',{d:'M-2,2 l4,-4 M0,8 l8,-8 M6,10 l4,-4', stroke:color,'stroke-width':'2'}));
+      p.appendChild(svgEl('path',{d:'M-2,6 l4,4 M0,0 l8,8 M6,-2 l4,4',     stroke:color,'stroke-width':'2'}));
+    } else if(style==='thick'){
+      p.appendChild(svgEl('rect',{x:0,y:0,width:8,height:3,fill:color}));
+      p.appendChild(svgEl('rect',{x:0,y:5,width:8,height:3,fill:color,opacity:'0.55'}));
+    } else if(style==='dots'){
+      p.appendChild(svgEl('circle',{cx:2,cy:2,r:1.4,fill:color}));
+      p.appendChild(svgEl('circle',{cx:6,cy:6,r:1.4,fill:color}));
+    }
+    defs.appendChild(p);
+    return id;
+  }
+  function ensureTooltip(mount){
+    let tip=mount.querySelector('.speed-tooltip');
+    if(tip) return tip;
+    if(getComputedStyle(mount).position==='static') mount.style.position='relative';
+    tip=document.createElement('div');
+    tip.className='speed-tooltip';
+    tip.style.cssText=[
+      'position:absolute','pointer-events:none','z-index:5',
+      'background:rgba(11,12,16,0.95)','border:1px solid #2a3654',
+      'color:#e9eef2','font:12px/1.4 system-ui,-apple-system,Segoe UI,sans-serif',
+      'padding:8px 10px','border-radius:8px','box-shadow:0 6px 18px rgba(0,0,0,0.4)',
+      'max-width:280px','opacity:0','transition:opacity .12s ease','left:0','top:0'
+    ].join(';');
+    mount.appendChild(tip);
+    return tip;
+  }
+  function showTip(tip, mount, evt, html){
+    tip.innerHTML=html;
+    tip.style.opacity='1';
+    const r=mount.getBoundingClientRect();
+    let x=evt.clientX-r.left+14;
+    let y=evt.clientY-r.top+14;
+    // keep inside container
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    if(x+tw>r.width-6) x=evt.clientX-r.left-tw-14;
+    if(y+th>r.height-6) y=evt.clientY-r.top-th-14;
+    if(x<6) x=6; if(y<6) y=6;
+    tip.style.transform=`translate(${x}px,${y}px)`;
+  }
+  function hideTip(tip){ tip.style.opacity='0'; }
+
+  function render(rows, opts){
+    const mount=document.getElementById('speedMount');
+    mount.innerHTML='';
+    if(!rows.length){
+      mount.innerHTML='<div style="padding:14px">No rows match — adjust the variant filter.</div>';
+      return;
+    }
+    const sorted=sortRows(rows, opts.sortKey);
+    // x scale: clamp upper end so a few extreme tails don't squash everything
+    const xMinRaw=Math.floor(Math.min(...sorted.map(d=>d.yStart)));
+    const xMaxData=Math.max(...sorted.map(d=>d.yEnd));
+    // Visible upper bound: median end + 25, but at least 2055 and at most data max
+    const ends=sorted.map(d=>d.yEnd).slice().sort((a,b)=>a-b);
+    const medianEnd=ends[Math.floor(ends.length*0.85)] || xMaxData;
+    const xMax=Math.min(xMaxData, Math.max(2055, Math.ceil(medianEnd)+5));
+    const xMin=Math.min(xMinRaw, 2015);
+
+    // Measure widest country label so padLeft hugs it instead of reserving
+    // a fixed wide gutter
+    const labelFont='11px system-ui,-apple-system,"Segoe UI",sans-serif';
+    const _measureCtx=document.createElement('canvas').getContext('2d');
+    _measureCtx.font=labelFont;
+    const maxLabelW=sorted.reduce((m,d)=>{
+      const w=_measureCtx.measureText(labelFor(d)).width;
+      return w>m?w:m;
+    },0);
+    const rowH=22, padTop=70, padBottom=70, padRight=40;
+    const padLeft=Math.ceil(maxLabelW)+16;
+    const W=Math.max(900, mount.clientWidth || 1100);
+    const variantsPresent=Array.from(new Set(sorted.map(d=>d.baseCanon)));
+    const regionsPresent=Array.from(new Set(sorted.map(d=>d.region)));
+    // Legend is overlaid inside the plot top-right (sorted-by-start means
+    // top rows are short bars near the left, so the upper-right is empty)
+    const lboxH=60 + regionsPresent.length*16 + variantsPresent.length*16 + 8;
+    const H=padTop + padBottom + sorted.length*rowH;
+    const plotW=W - padLeft - padRight;
+    const xScale=v=>padLeft + (v - xMin)/(xMax - xMin) * plotW;
+
+    const svg=svgEl('svg', {
+      xmlns:SVG_NS, viewBox:`0 0 ${W} ${H}`, width:'100%', height:H,
+      'data-w':W, 'data-h':H, style:'display:block;background:#0b0c10;border-radius:14px;font-family:system-ui,-apple-system,Segoe UI,sans-serif'
+    });
+    const defs=svgEl('defs');
+    svg.appendChild(defs);
+
+    // Title block
+    svg.appendChild(svgEl('text',{
+      x:padLeft, y:28, fill:'#e9eef2','font-size':'18','font-weight':'600'
+    }, 'Speed of the BEV transition by country'));
+    svg.appendChild(svgEl('text',{
+      x:padLeft, y:50, fill:'#9fb3d1','font-size':'12'
+    }, `Bars: ${opts.fromPct}% → ${opts.toPct}% BEV share · dot marks ${opts.midPct}% · sorted by ${opts.sortKey}`));
+
+    // Gridlines every 5 years
+    const gridStart=Math.ceil(xMin/5)*5;
+    for(let v=gridStart; v<=xMax; v+=5){
+      const x=xScale(v);
+      svg.appendChild(svgEl('line',{x1:x,x2:x,y1:padTop-8,y2:H-padBottom+4,stroke:'#1f2a44','stroke-width':'1'}));
+      svg.appendChild(svgEl('text',{x:x,y:H-padBottom+20,fill:'#7a8aaa','font-size':'11','text-anchor':'middle'}, String(v)));
+    }
+    // Axis label
+    svg.appendChild(svgEl('text',{x:padLeft+plotW/2,y:H-padBottom+44,fill:'#9fb3d1','font-size':'12','text-anchor':'middle'},'Calendar year'));
+
+    const tip=ensureTooltip(mount);
+
+    // Bars
+    sorted.forEach((d,i)=>{
+      const y=padTop + i*rowH + rowH/2;
+      const xs=xScale(d.yStart);
+      const truncated=d.yEnd>xMax;
+      const xeRaw=truncated ? xScale(xMax) - 10 : xScale(d.yEnd);
+      const xe=Math.max(xs+2, xeRaw);
+      const color=REGION_COLORS[d.region]||REGION_COLORS.Other;
+      const style=variantStyle(d.baseCanon);
+
+      // label
+      const labelText=labelFor(d);
+      svg.appendChild(svgEl('text',{
+        x:padLeft-10, y:y+4, fill:'#c8d6e5','font-size':'11','text-anchor':'end'
+      }, labelText));
+
+      // bar — solid uses flat color, patterned uses <pattern>, outline draws stroke-only
+      const barAttrs={x:xs, y:y-7, width:xe-xs, height:14, rx:3, ry:3, style:'cursor:pointer'};
+      if(style==='outline' || style==='outline-dashed'){
+        barAttrs.fill='rgba(11,12,16,0.0)';
+        barAttrs.stroke=color;
+        barAttrs['stroke-width']='2';
+        if(style==='outline-dashed') barAttrs['stroke-dasharray']='5 3';
+      } else {
+        const patId=ensurePattern(defs, style, color);
+        barAttrs.fill = patId ? `url(#${patId})` : color;
+        barAttrs.opacity='0.94';
+        if(patId){
+          // outline so the pattern row reads as a single bar
+          barAttrs.stroke=color; barAttrs['stroke-width']='1';
+        }
+      }
+      const bar=svgEl('rect', barAttrs);
+      const variantTxt=variantShort(d.baseCanon) || 'New Cars';
+      const tipHTML = `
+        <div style="font-weight:600;margin-bottom:4px">${d.country}<span style="opacity:.6"> · ${variantTxt}</span></div>
+        <div style="display:grid;grid-template-columns:auto auto;gap:2px 10px">
+          <span style="opacity:.7">${opts.fromPct}%</span><span>${fmtYearMonth(d.yStart)}</span>
+          <span style="opacity:.7">${opts.midPct}%</span><span>${fmtYearMonth(d.yMid)}</span>
+          <span style="opacity:.7">${opts.toPct}%</span><span>${fmtYearMonth(d.yEnd)}${truncated?' <span style=\"opacity:.6\">(off-chart)</span>':''}</span>
+          <span style="opacity:.7">Duration</span><span>${d.duration.toFixed(1)} y</span>
+          <span style="opacity:.7">Region</span><span>${d.region}</span>
+          <span style="opacity:.7">Data per</span><span>${d.data_per||'—'}</span>
+        </div>`;
+      bar.addEventListener('mouseenter', e=>showTip(tip,mount,e,tipHTML));
+      bar.addEventListener('mousemove',  e=>showTip(tip,mount,e,tipHTML));
+      bar.addEventListener('mouseleave', ()=>hideTip(tip));
+      svg.appendChild(bar);
+
+      // truncation arrow
+      if(truncated){
+        const ax=xScale(xMax)-2;
+        const path=`M ${ax-8} ${y-5} L ${ax} ${y} L ${ax-8} ${y+5} Z`;
+        svg.appendChild(svgEl('path',{d:path, fill:color}));
+      }
+
+      // mid dot
+      if(d.yMid>=xMin && d.yMid<=xMax){
+        svg.appendChild(svgEl('circle',{
+          cx:xScale(d.yMid), cy:y, r:3.4, fill:'#0b0c10', stroke:'#e9eef2','stroke-width':'1.4',
+          style:'pointer-events:none'
+        }));
+      }
+    });
+
+    // Legend — Region (color) + Variant (shape) overlaid inside the plot
+    // (top-right corner — empty when sorted by start because top rows are
+    // short bars near the left edge of the timeline)
+    const lboxW=180;
+    const lx=W-padRight-lboxW-8, ly=padTop+8;
+    const legend=svgEl('g',{transform:`translate(${lx},${ly})`});
+    legend.appendChild(svgEl('rect',{x:0,y:0,width:lboxW,height:lboxH,fill:'rgba(15,21,37,0.88)',stroke:'#1f2a44',rx:6,ry:6}));
+    legend.appendChild(svgEl('text',{x:10,y:14,fill:'#e9eef2','font-size':'12','font-weight':'600'},'Region (color)'));
+    regionsPresent.forEach((r,i)=>{
+      const yy=30+i*16;
+      legend.appendChild(svgEl('rect',{x:10,y:yy-9,width:14,height:10,fill:REGION_COLORS[r]||REGION_COLORS.Other,rx:2,ry:2}));
+      legend.appendChild(svgEl('text',{x:30,y:yy,fill:'#c8d6e5','font-size':'11'}, r));
+    });
+    // Variant section
+    const vBaseY=30 + regionsPresent.length*16 + 6;
+    legend.appendChild(svgEl('text',{x:10, y:vBaseY+8, fill:'#e9eef2','font-size':'12','font-weight':'600'},'Variant (shape)'));
+    const neutralColor='#9fb3d1';
+    variantsPresent.forEach((canon,i)=>{
+      const yy=vBaseY+24+i*16;
+      const style=variantStyle(canon);
+      const swAttrs={x:10, y:yy-9, width:18, height:10, rx:2, ry:2};
+      if(style==='outline' || style==='outline-dashed'){
+        swAttrs.fill='none'; swAttrs.stroke=neutralColor; swAttrs['stroke-width']='1.6';
+        if(style==='outline-dashed') swAttrs['stroke-dasharray']='3 2';
+      } else {
+        const patId=ensurePattern(defs, style, neutralColor);
+        swAttrs.fill = patId ? `url(#${patId})` : neutralColor;
+        if(patId){ swAttrs.stroke=neutralColor; swAttrs['stroke-width']='1'; }
+      }
+      legend.appendChild(svgEl('rect', swAttrs));
+      legend.appendChild(svgEl('text',{x:34, y:yy, fill:'#c8d6e5','font-size':'11'}, variantShort(canon) || 'New Cars'));
+    });
+    svg.appendChild(legend);
+
+    // Footer: @LeRaffl + dates (created with HH:MM UTC, oldest+newest data per)
+    const dataEntries=sorted.map(d=>({date:d.data_per||'', label:labelFor(d)}))
+      .filter(e=>e.date)
+      .sort((a,b)=>a.date.localeCompare(b.date));
+    const oldest=dataEntries[0];
+    const newest=dataEntries[dataEntries.length-1];
+    const dataRange=(!oldest)
+      ? '—'
+      : (oldest.date===newest.date
+          ? `data per ${newest.date}`
+          : `data per ${oldest.date} (${oldest.label}) – ${newest.date}`);
+    const pad2=n=>String(n).padStart(2,'0');
+    const now=new Date();
+    const today=now.getUTCFullYear()+'-'+pad2(now.getUTCMonth()+1)+'-'+pad2(now.getUTCDate())
+      +' '+pad2(now.getUTCHours())+':'+pad2(now.getUTCMinutes())+' UTC';
+    svg.appendChild(svgEl('text',{
+      x:padLeft, y:H-12, fill:'#6f86ad','font-size':'11'
+    }, `Created ${today} · ${dataRange}`));
+    const tag=svgEl('text',{
+      x:W-padRight, y:H-12, fill:'#9fb3d1','font-size':'11','font-weight':'600','text-anchor':'end'
+    },'@LeRaffl');
+    svg.appendChild(tag);
+
+    mount.appendChild(svg);
+    mount._lastSorted=sorted;
+    mount._lastOpts=opts;
+  }
+  function currentOpts(){
+    const fromPct=Math.max(0.1, Math.min(49.9, Number(document.getElementById('speedFrom').value)||20));
+    const toPct  =Math.max(fromPct+0.5, Math.min(99.9, Number(document.getElementById('speedTo').value)||80));
+    const midPct =Math.max(fromPct+0.1, Math.min(toPct-0.1, Number(document.getElementById('speedMid').value)||50));
+    const sortKey=document.getElementById('speedSort').value||'start';
+    return {fromPct, midPct, toPct, sortKey};
+  }
+  function svgToPngBlob(svgEl, scale){
+    return new Promise((resolve,reject)=>{
+      const w=Number(svgEl.getAttribute('data-w'))||svgEl.viewBox.baseVal.width;
+      const h=Number(svgEl.getAttribute('data-h'))||svgEl.viewBox.baseVal.height;
+      const xml=new XMLSerializer().serializeToString(svgEl);
+      const blob=new Blob([xml],{type:'image/svg+xml;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        canvas.width=w*scale; canvas.height=h*scale;
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#0b0c10'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b=>b?resolve(b):reject(new Error('toBlob failed')),'image/png');
+      };
+      img.onerror=()=>{ URL.revokeObjectURL(url); reject(new Error('svg→image load failed')); };
+      img.src=url;
+    });
+  }
+  function downloadBlob(blob, filename){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    loadParams().then(rows=>{
+      makeVariantOptions(rows);
+      const redraw=()=>{ const o=currentOpts(); render(compute(rows,o.fromPct,o.midPct,o.toPct), o); };
+      document.getElementById('speedApplyBtn').addEventListener('click', redraw);
+      document.getElementById('speedSort').addEventListener('change', redraw);
+      document.getElementById('speedVariantMulti').addEventListener('change', redraw);
+      ['speedFrom','speedMid','speedTo'].forEach(id=>{
+        document.getElementById(id).addEventListener('change', redraw);
+      });
+      document.getElementById('speedExportPng').addEventListener('click', ()=>{
+        const svg=document.querySelector('#speedMount svg');
+        if(!svg) return;
+        svgToPngBlob(svg, 2).then(b=>downloadBlob(b, stampedFilename('bev_speed.png')))
+          .catch(err=>console.warn('PNG export failed:', err));
+      });
+      document.getElementById('speedExportSvg').addEventListener('click', ()=>{
+        const svg=document.querySelector('#speedMount svg');
+        if(!svg) return;
+        const xml=new XMLSerializer().serializeToString(svg);
+        downloadBlob(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}), stampedFilename('bev_speed.svg'));
+      });
+      window.addEventListener('resize', (()=>{
+        let t; return ()=>{ clearTimeout(t); t=setTimeout(redraw,200); };
+      })());
+      redraw();
+    }).catch(err=>{
+      const m=document.getElementById('speedMount');
+      if(m){ m.classList.remove('tablecard'); m.innerHTML='<div class="error">'+((err&&err.message)||'Failed to load params.csv')+'</div>'; }
+    });
+  });
 })();
 
 // -------- BUILDER (fixed + robust time logic) --------
