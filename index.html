@@ -4106,7 +4106,7 @@ renderTable();
       const w=_measureCtx.measureText(labelFor(d)).width;
       return w>m?w:m;
     },0);
-    const rowH=22, padTop=70, padBottom=70, padRight=40;
+    const rowH=22, padTop=90, padBottom=70, padRight=40;
     const padLeft=Math.ceil(maxLabelW)+16;
     const W=Math.max(900, mount.clientWidth || 1100);
     const variantsPresent=Array.from(new Set(sorted.map(d=>d.baseCanon)));
