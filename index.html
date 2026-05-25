@@ -4138,6 +4138,7 @@ renderTable();
     for(let v=gridStart; v<=xMax; v+=5){
       const x=xScale(v);
       svg.appendChild(svgEl('line',{x1:x,x2:x,y1:padTop-8,y2:H-padBottom+4,stroke:'#1f2a44','stroke-width':'1'}));
+      svg.appendChild(svgEl('text',{x:x,y:padTop-12,fill:'#7a8aaa','font-size':'11','text-anchor':'middle'}, String(v)));
       svg.appendChild(svgEl('text',{x:x,y:H-padBottom+20,fill:'#7a8aaa','font-size':'11','text-anchor':'middle'}, String(v)));
     }
     // Axis label
