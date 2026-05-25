@@ -7671,7 +7671,7 @@ function sdUpdateSumcheck(node) {
   const el = node.querySelector('[data-sumcheck]');
   if (fuels.TOTAL === undefined) { el.textContent = ''; el.className = 'sd-row-sumcheck'; return; }
 
-  const cats = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS'];
+  const cats = ['BEV','PHEV','EREV','HEV','MHEV','PETROL','DIESEL','GAS','CNG','LPG','FLEXFUEL','ETHANOL','OTHERS','ICE'];
   const sum = cats.reduce((s, k) => s + (fuels[k] || 0), 0);
   const total = fuels.TOTAL;
   const diff = sum - total;
