@@ -2,7 +2,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,OTHERS,ICE,TOTAL,notes
 2017-01,monthly,Whole,motir.go.kr,369.0,4.0,3925.0,5.0,119281.0,123584.0,
 2017-02,monthly,Whole,https://www.motir.go.kr#anchor1,486.0,32.0,4465.0,0.0,131850.0,136833.0,
 2017-03,monthly,Whole,https://www.kama.or.kr/NewsController?cmd=V&boardmaster_id=Register&board_id=497&menunum=0003&searchGubun=&searchValue=&pagenum=1,874.0,16.0,5895.0,9.0,162206.0,169000.0,
-2017-04,monthly,Whole,https://www.motir.go.kr/kor/article/ATCL3f49a5a8c?mno=&rowPageC=0&displayAuthor=&searchCategory=1&schClear=on&startDtD=&endDtD=&searchCondition=1&searchKeyword=자동차산업+동향,862.0,25.0,6364.0,1.0,146326.0,153578.0,
+2017-04,monthly,Whole,https://www.motir.go.kr/kor/article/ATCL3f49a5a8c?mno=&rowPageC=0&displayAuthor=&searchCategory=1&schClear=on&startDtD=&endDtD=&searchCondition=1&searchKeyword=ìëì°¨ì°ì+ëí¥,862.0,25.0,6364.0,1.0,146326.0,153578.0,
 2017-05,monthly,Whole,motir.go.kr,854.0,19.0,7116.0,6.0,147740.0,155735.0,
 2017-06,monthly,Whole,motir.go.kr,972.0,39.0,8628.0,18.0,155062.0,164719.0,
 2017-07,monthly,Whole,motir.go.kr,1371.0,61.0,8061.0,10.0,139637.0,149140.0,
@@ -108,5 +108,6 @@ period,time_interval,variant,source,BEV,PHEV,HEV,OTHERS,ICE,TOTAL,notes
 2025-11,monthly,Whole,motir.go.kr,18166.0,988.0,51094.0,572.0,75421.0,146241.0,
 2025-12,monthly,Whole,motir.go.kr,9255.0,1150.0,56383.0,386.0,77708.0,144882.0,
 2026-01,monthly,Whole,motir.go.kr,10101.0,911.0,46488.0,119.0,63197.0,120816.0,
-2026-02,monthly,Whole,motir.go.kr,36332.0,870.0,38468.0,467.0,47138.0,123275.0,
-2026-03,monthly,Whole,motir.go.kr,41232.0,1031.0,54516.0,1050.0,66984.0,164813.0,
+2026-02,monthly,Whole,motir.go.kr,36332,870,38468,467,47138,123275,
+2026-03,monthly,Whole,motir.go.kr,41237,1031,54516,1120,66906,164810,taken from Robbie, scraping yet to implement
+2026-04,monthly,Whole,motir.go.kr,38927,951,50782,500,60533,151693,taken from Robbie, scraping yet to implement
