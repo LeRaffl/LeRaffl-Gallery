@@ -37,20 +37,50 @@ to_title_keep_digits <- function(x) {
 
 label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = NULL){
   s <- tolower(slug)
-  
-  # Basisland = alles bis erstes "_"
-  base <- sub("^([a-z0-9-]+).*$", "\\1", s)
-  
-  # Länder-Overrides (Diakritika etc.)
-  country_map <- c("tuerkiye" = "Türkiye", "uk" = "UK", "usa" = "USA")
+
+  # Länder-Overrides (Diakritika + Multi-Word-Slugs wie "south_korea").
+  # Multi-Word-Einträge MÜSSEN hier registriert sein, sonst splittet die
+  # Heuristik unten am ersten "_" und macht aus "south_korea" fälschlich
+  # "South (Korea)".
+  country_map <- c(
+    "tuerkiye"     = "Türkiye",
+    "uk"           = "UK",
+    "usa"          = "USA",
+    "south_korea"  = "South Korea",
+    "southkorea"   = "South Korea",
+    "new_zealand"  = "New Zealand",
+    "saudi_arabia" = "Saudi Arabia",
+    "south_africa" = "South Africa",
+    "hong_kong"    = "Hong Kong",
+    "czech_republic" = "Czech Republic",
+    "united_kingdom" = "United Kingdom",
+    "united_states"  = "United States"
+  )
   if (!is.null(country_overrides)) {
     country_map[names(country_overrides)] <- country_overrides
   }
-  
+
+  # Multi-Word-Länder zuerst matchen (Präfix-Match auf dem ganzen Slug),
+  # damit "south_korea_hdv" zu base="south_korea", rest="hdv" wird statt
+  # base="south", rest="korea_hdv".
+  multi <- names(country_map)[grepl("_", names(country_map))]
+  multi_match <- vapply(s, function(x){
+    hit <- multi[startsWith(x, multi) &
+                 (nchar(x) == nchar(multi) | substr(x, nchar(multi) + 1, nchar(multi) + 1) == "_")]
+    if (length(hit)) hit[which.max(nchar(hit))] else NA_character_
+  }, character(1))
+
+  # Basisland = Multi-Word-Treffer ODER alles bis erstes "_"
+  base <- ifelse(!is.na(multi_match),
+                 multi_match,
+                 sub("^([a-z0-9-]+).*$", "\\1", s))
+
   base_label <- ifelse(!is.na(country_map[base]), country_map[base], stringr::str_to_title(base))
-  
-  # Variante = alles nach erstem "_"
-  rest <- sub("^[a-z0-9-]+_?", "", s)
+
+  # Variante = alles nach dem Basisland (mit oder ohne "_")
+  rest <- mapply(function(x, b){
+    sub(paste0("^", b, "_?"), "", x)
+  }, s, base, USE.NAMES = FALSE)
   
   # Normalisierung Rest (vektorisiert). str_to_title runs first because it
   # lowercases its input; abbreviation upper-casing (HDV/HEV/PHEV/EV) must
