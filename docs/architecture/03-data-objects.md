@@ -147,7 +147,7 @@ Germany,Whole,-1.050261627753e-4,2.898020288277,2011,2026-04,2026-05-08,KBA,,-3.
 
 - **Author**: R Render Pipeline (`R/upsert.R::upsert_params`) on every render.
 - **Updated**: Line-level — only the touched `(country, variant)` row changes. The rest of the file stays byte-identical.
-- **Read by**: The Static Page for Builder, Thresholds, Durations, World Map tabs.
+- **Read by**: The Static Page for Builder, Thresholds, Durations, Speed, World Map tabs.
 
 ### Number formatting convention
 
