@@ -105,9 +105,13 @@ import argparse
 import csv
 import os
 import re
+import shutil
+import subprocess
 import sys
-from datetime import date, datetime
+import tempfile
+from datetime import date
 from pathlib import Path
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -202,6 +206,252 @@ def _grab(pat: re.Pattern, text: str) -> float | None:
     return _wan(m.group(1)) if m else None
 
 
+# ----------------------------------------------------------------------
+# OCR of the embedded NEV retail/export table.
+#
+# CPCA's monthly analysis is rendered server-side as an HTML article that
+# embeds ~10 JPG slides (admin/ewebeditor/uploadfile/*.jpg). One of those
+# slides — typically around page 6 of the deck — carries a structured
+# "新能源市场 - YYYY年M月零售、出口分析表" table with explicit retail and
+# export breakdowns by fuel (BEV / PHEV / EREV / NEV). The article narrative
+# DOES NOT restate the retail BEV/PHEV/EREV split, so this table is our only
+# direct source for those values.
+#
+# We OCR each candidate image (with `tesseract -l eng`) — the column headers
+# and data are Latin/numeric, so the Chinese language pack is not required.
+# Decimal points are sometimes dropped by OCR ("57.9" → "579"); we recover
+# them by enforcing BEV+PHEV+EREV ≈ NEV on the matched row.
+# ----------------------------------------------------------------------
+
+def _have_tesseract() -> bool:
+    return shutil.which("tesseract") is not None
+
+
+def collect_image_urls(html: str, base_url: str | None = None) -> list[str]:
+    """Return absolute URLs of all uploaded JPGs embedded in the detail page."""
+    soup = BeautifulSoup(html, "html.parser")
+    urls: list[str] = []
+    for img in soup.find_all("img", src=True):
+        src = img["src"]
+        if "upload" not in src.lower():
+            continue
+        if base_url:
+            src = urljoin(base_url, src)
+        elif src.startswith("/"):
+            src = urljoin("https://www.cpcaauto.com/", src)
+        urls.append(src)
+    return urls
+
+
+def _ocr_image_bytes(jpg_bytes: bytes) -> str:
+    """Run tesseract on a JPG byte string and return the OCR text.
+
+    The image is 4× upscaled before OCR; CPCA's slides are 960×540 JPEGs
+    and the small digits OCR much more cleanly at 4×.
+    """
+    from PIL import Image  # lazy import — only needed when OCR runs
+    from io import BytesIO
+
+    with tempfile.TemporaryDirectory() as tmp:
+        img = Image.open(BytesIO(jpg_bytes))
+        big = img.resize((img.width * 4, img.height * 4), Image.LANCZOS)
+        png_path = Path(tmp) / "page.png"
+        out_path = Path(tmp) / "ocr"
+        big.save(png_path)
+        try:
+            subprocess.run(
+                [
+                    "tesseract", str(png_path), str(out_path),
+                    "-l", "eng", "--psm", "6",
+                    "-c", "preserve_interword_spaces=1",
+                ],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            return ""
+        return (Path(str(out_path) + ".txt")).read_text(encoding="utf-8", errors="replace")
+
+
+def _recover_decimal(tokens: list[str], nev_target: float) -> list[float] | None:
+    """Given 4 OCR tokens for BEV / PHEV / EREV / NEV and the expected NEV
+    (从 article narrative), recover the implied decimal point on tokens that
+    OCR'd without one.
+
+    Tesseract drops decimal points on this layout fairly often: 57.9 → 579,
+    23.2 → 232. All values here are 万-units in the 0.1 – 999.9 range, so
+    if a token has no decimal and ÷10 makes BEV+PHEV+EREV match NEV, that
+    is almost certainly the correct interpretation.
+    """
+    if len(tokens) != 4:
+        return None
+
+    def candidates(tok: str) -> list[float]:
+        if "." in tok:
+            try:
+                return [float(tok)]
+            except ValueError:
+                return []
+        if not tok.isdigit():
+            return []
+        n = int(tok)
+        if n == 0:
+            return [0.0]
+        # If the integer is "small" (1-2 digits), it could be either
+        # X (e.g. 7 → 7.0) or X.Y with the decimal eaten (e.g. 79 → 7.9).
+        # Always offer both forms; validation picks the right one.
+        out = [float(n)]
+        if n >= 10:
+            out.append(n / 10.0)
+        if n >= 100:
+            out.append(n / 100.0)
+        return out
+
+    # Sanity: NEV should match the article-provided total.
+    nev_cands = candidates(tokens[3])
+    best = None
+    best_err = None
+    import itertools
+    for bev, phev, erev, nev in itertools.product(
+        candidates(tokens[0]), candidates(tokens[1]),
+        candidates(tokens[2]), nev_cands,
+    ):
+        # NEV row must match the article aggregate within 1万.
+        if abs(nev - nev_target) > 1.0:
+            continue
+        diff = abs((bev + phev + erev) - nev)
+        if diff <= 1.0 and (best is None or diff < best_err):
+            best = [bev, phev, erev, nev]
+            best_err = diff
+    return best
+
+
+def _merge_split_decimals(tokens: list[str], month: int) -> list[str]:
+    """Merge OCR-split decimals like ["37", "8"] → "37.8".
+
+    Tesseract occasionally reads the decimal point as inter-word whitespace
+    (especially on small 9-pt slide text), splitting "37.8" into two tokens.
+    We detect the pattern — plain integer followed by a single-digit integer
+    — and rejoin with a literal dot. Tokens that already carry a decimal,
+    or that are 2+ digits on the right, are left alone.
+
+    Single-digit tokens equal to the current month are NOT merged: those are
+    the export-half month label ("2A" → token "2") between the retail and
+    export sub-tables, and must remain a separate token so the caller can
+    drop them in the next step.
+    """
+    out: list[str] = []
+    i = 0
+    while i < len(tokens):
+        cur = tokens[i]
+        nxt = tokens[i + 1] if i + 1 < len(tokens) else None
+        if (
+            nxt is not None
+            and "." not in cur
+            and cur.lstrip("-").isdigit()
+            and len(nxt) == 1
+            and nxt.isdigit()
+            and nxt != str(month)
+        ):
+            out.append(f"{cur}.{nxt}")
+            i += 2
+        else:
+            out.append(cur)
+            i += 1
+    return out
+
+
+def _extract_retail_from_ocr(text: str, month: int, nev_target_wan: float) -> tuple[list[float], str] | None:
+    """Scan an OCR text for the target-month retail row.
+
+    Returns (recovered_values, raw_line) or None. recovered_values is a
+    [BEV, PHEV, EREV, NEV] list in 万-units.
+    """
+    # Row labels in the CPCA slide appear in two styles, both rendered as
+    # mojibake under -l eng:
+    #   "1月份"  / "12月份"            → OCR "1A" / "12A" / "12A8"
+    #   "26年1月份" / "25年12月份"    → OCR "261A" / "25412A"
+    # The pattern tolerates a greedy leading-digit "year" prefix (regex
+    # backtracking lands on the right split) and one trailing junk
+    # digit/letter after the "A" (e.g. the "8" in "12A8" — a misread "份").
+    month_label = re.compile(
+        rf"^\s*(?:\d+\s*年?\s*)?[^\d]{{0,4}}{month}\s*[A-Za-z月][A-Za-z月\d]?"
+    )
+    for line in text.splitlines():
+        m = month_label.match(line)
+        if not m:
+            continue
+        rest = line[m.end():]
+        tokens = re.findall(r"-?\d+(?:\.\d+)?%?", rest)
+        tokens = [t for t in tokens if not t.endswith("%")]
+        tokens = _merge_split_decimals(tokens, month)
+        # The export half repeats "<month>月" / "<month>A" mid-line; that
+        # leading "<month>" lands in our token stream as a spurious 5th value.
+        # Drop any standalone "{month}" that immediately follows the retail half.
+        if len(tokens) >= 5 and tokens[4] == str(month):
+            tokens = tokens[:4] + tokens[5:]
+        if len(tokens) < 8:
+            continue
+        recovered = _recover_decimal(tokens[:4], nev_target_wan)
+        if recovered is not None:
+            return recovered, line
+    return None
+
+
+def parse_retail_table(
+    image_urls: list[str],
+    session: requests.Session,
+    month: int,
+    nev_target_wan: float,
+) -> dict | None:
+    """OCR each candidate image until we find the NEV market retail+export
+    table, then return the retail BEV / PHEV / EREV / NEV for the target
+    month — all in absolute units (万 × 10,000).
+
+    Returns None if no image yields a row matching `nev_target_wan` (the
+    retail NEV total extracted from the article narrative). Without that
+    cross-check we'd risk parsing the wrong table (e.g. wholesale).
+    """
+    if not _have_tesseract():
+        print("WARNING: tesseract not installed — skipping NEV-table OCR")
+        return None
+
+    for url in image_urls:
+        try:
+            resp = session.get(url, headers=HTTP_HEADERS, timeout=30)
+            resp.raise_for_status()
+        except requests.RequestException:
+            continue
+        text = _ocr_image_bytes(resp.content)
+        if not text:
+            continue
+
+        # The headers ("BEV PHEV EREV NEV") are rendered as styled white text
+        # on a teal band and survive OCR poorly with -l eng. Skip the header
+        # check; the NEV-target validation in _recover_decimal is sufficient
+        # to reject wrong tables.
+
+        result = _extract_retail_from_ocr(text, month, nev_target_wan)
+        if result is None:
+            continue
+        recovered, line = result
+        bev_wan, phev_wan, erev_wan, nev_wan = recovered
+        print(
+            f"OCR matched {url.rsplit('/', 1)[-1]} row '{line.strip()[:60]}' → "
+            f"retail BEV={bev_wan} PHEV={phev_wan} EREV={erev_wan} NEV={nev_wan} (万)"
+        )
+        return {
+            "BEV": bev_wan * 10_000,
+            "PHEV": phev_wan * 10_000,
+            "EREV": erev_wan * 10_000,
+            "NEV": nev_wan * 10_000,
+            "source_image": url,
+        }
+
+    return None
+
+
 def parse_detail(html: str) -> dict:
     """Extract retail and wholesale aggregates from a detail-page article.
 
@@ -241,35 +491,53 @@ def parse_detail(html: str) -> dict:
     return {"retail": retail, "wholesale": wholesale}
 
 
-def build_rows(period: str, parsed: dict) -> tuple[dict | None, dict | None]:
+def build_rows(
+    period: str,
+    parsed: dict,
+    ocr_retail: dict | None = None,
+) -> tuple[dict | None, dict | None]:
     """Build (retail_row, wholesale_row) for a single period.
 
-    Returns None for a track that is missing critical fields. Retail rows
-    derive BEV/PHEV/EREV by applying the wholesale mix to retail NEV.
+    Returns None for a track that is missing critical fields.
+
+    Retail BEV/PHEV/EREV come from `ocr_retail` (the CPCA slide-deck NEV
+    market table) when available — that's CPCA's only direct retail-side
+    breakdown. If OCR is unavailable, we fall back to applying the wholesale
+    BEV/PHEV/EREV mix to the article-stated retail NEV total. The fallback
+    is documented in the row's `source` field so it's distinguishable from
+    a clean OCR pull.
     """
     rt = parsed["retail"]
     ws = parsed["wholesale"]
 
     retail_row = None
     if rt["TOTAL"] is not None and rt["NEV"] is not None and rt["ICE"] is not None:
-        # Derive BEV/PHEV/EREV by applying wholesale mix to retail NEV.
-        ws_bev, ws_phev, ws_erev = ws["BEV"], ws["PHEV"], ws["EREV"]
-        if None not in (ws_bev, ws_phev, ws_erev) and (ws_bev + ws_phev + ws_erev) > 0:
-            mix_sum = ws_bev + ws_phev + ws_erev
-            rt_bev = rt["NEV"] * ws_bev / mix_sum
-            rt_phev = rt["NEV"] * ws_phev / mix_sum
-            rt_erev = rt["NEV"] * ws_erev / mix_sum
+        retail_split_source = None
+        if ocr_retail is not None:
+            rt_bev = ocr_retail["BEV"]
+            rt_phev = ocr_retail["PHEV"]
+            rt_erev = ocr_retail["EREV"]
+            retail_split_source = "ocr"
         else:
-            # No wholesale split available — leave the split empty rather
-            # than fake a distribution. Keep NEV total in BEV for now? No:
-            # explicit zeros would corrupt the chart, so leave blank.
-            rt_bev = rt_phev = rt_erev = None
+            ws_bev, ws_phev, ws_erev = ws["BEV"], ws["PHEV"], ws["EREV"]
+            if None not in (ws_bev, ws_phev, ws_erev) and (ws_bev + ws_phev + ws_erev) > 0:
+                mix_sum = ws_bev + ws_phev + ws_erev
+                rt_bev = rt["NEV"] * ws_bev / mix_sum
+                rt_phev = rt["NEV"] * ws_phev / mix_sum
+                rt_erev = rt["NEV"] * ws_erev / mix_sum
+                retail_split_source = "ws-proportional"
+            else:
+                rt_bev = rt_phev = rt_erev = None
+
+        source_label = RETAIL_SOURCE
+        if retail_split_source == "ws-proportional":
+            source_label = RETAIL_SOURCE + " [BEV/PHEV/EREV: ws-proportional]"
 
         retail_row = {
             "period": period,
             "time_interval": "monthly",
             "variant": "Whole",
-            "source": RETAIL_SOURCE,
+            "source": source_label,
             "BEV": rt_bev,
             "PHEV": rt_phev,
             "EREV": rt_erev,
@@ -277,6 +545,11 @@ def build_rows(period: str, parsed: dict) -> tuple[dict | None, dict | None]:
             "ICE": rt["ICE"],
             "TOTAL": rt["TOTAL"],
             "notes": "",
+            # Internal flag (stripped before CSV write) telling upsert whether
+            # the BEV/PHEV/EREV split is authoritative (OCR) or merely a
+            # proxy (ws-proportional). The proxy must NOT overwrite an
+            # existing CSV row's hand-transcribed split.
+            "_split_source": retail_split_source,
         }
 
     wholesale_row = None
@@ -321,27 +594,50 @@ def upsert_csv(csv_path: str, new_rows: list[dict], header_variant: str) -> tupl
     added = updated = 0
     for new_row in sorted(new_rows, key=lambda r: r["period"]):
         period = new_row["period"]
+        # Pull and strip the internal _split_source flag before persisting.
+        split_source = new_row.pop("_split_source", None)
         if period not in existing:
             existing[period] = new_row
             added += 1
             print(f"  + {period} [{header_variant}]")
         else:
             old = existing[period]
-            for col in ("BEV", "PHEV", "EREV", "ICE", "TOTAL"):
-                try:
-                    old_val = float(old.get(col) or 0)
-                    new_val = float(new_row.get(col) or 0)
-                except (TypeError, ValueError):
-                    continue
-                if old_val > 0 and abs(new_val - old_val) / old_val > 0.20:
-                    print(
-                        f"  WARNING {period} [{header_variant}] {col}: "
-                        f"existing={old_val:.0f}, new={new_val:.0f} — "
-                        f"diff >20%, please verify"
-                    )
-            existing[period] = {**old, **new_row}
+            # When the parser's BEV/PHEV/EREV is only a ws-proportional proxy
+            # (OCR failed) AND the existing CSV row already has those columns
+            # filled in (hand-transcribed historicals), don't overwrite them.
+            # The proxy is less accurate than the user's manual transcription
+            # from the CPCA slide image.
+            preserve_split = (
+                split_source == "ws-proportional"
+                and any((old.get(c) or "") not in ("", None) for c in ("BEV", "PHEV", "EREV"))
+            )
+            merged = {**old, **new_row}
+            if preserve_split:
+                merged["BEV"] = old.get("BEV", "")
+                merged["PHEV"] = old.get("PHEV", "")
+                merged["EREV"] = old.get("EREV", "")
+                # Keep the existing source label too, so the row stays clean.
+                merged["source"] = old.get("source", new_row.get("source", ""))
+                print(
+                    f"  ~ {period} [{header_variant}] (BEV/PHEV/EREV preserved "
+                    f"— OCR unavailable, ws-proportional proxy not applied)"
+                )
+            else:
+                for col in ("BEV", "PHEV", "EREV", "ICE", "TOTAL"):
+                    try:
+                        old_val = float(old.get(col) or 0)
+                        new_val = float(new_row.get(col) or 0)
+                    except (TypeError, ValueError):
+                        continue
+                    if old_val > 0 and abs(new_val - old_val) / old_val > 0.20:
+                        print(
+                            f"  WARNING {period} [{header_variant}] {col}: "
+                            f"existing={old_val:.0f}, new={new_val:.0f} — "
+                            f"diff >20%, please verify"
+                        )
+                print(f"  ~ {period} [{header_variant}]")
+            existing[period] = merged
             updated += 1
-            print(f"  ~ {period} [{header_variant}]")
 
     # Write with sorted period order. Keep yearly + monthly mixed in
     # whatever order they sort lexically — China.csv historically has both.
@@ -389,6 +685,13 @@ def main() -> None:
                         help="Wholesale CSV path")
     parser.add_argument("--force", action="store_true",
                         help="Re-process even if target period already exists")
+    parser.add_argument("--no-ocr", action="store_true",
+                        help="Skip OCR of the NEV market slide (fall back to "
+                             "wholesale-proportional retail BEV/PHEV/EREV split)")
+    parser.add_argument("--image-dir",
+                        help="Local directory of pre-downloaded slide JPGs "
+                             "(file: page_*.jpg or any name). Used instead of "
+                             "downloading from the live page; useful offline.")
     args = parser.parse_args()
 
     # Target period: default = previous calendar month
@@ -448,7 +751,51 @@ def main() -> None:
     print(f"Retail:    {parsed['retail']}")
     print(f"Wholesale: {parsed['wholesale']}")
 
-    retail_row, wholesale_row = build_rows(target_period, parsed)
+    # Pull retail BEV/PHEV/EREV from the embedded NEV-market slide via OCR.
+    # CPCA does not restate that split in the article narrative — the slide
+    # is the only direct retail source. NEV-total (from the narrative) is
+    # passed as the cross-check anchor so we know we OCR'd the right table.
+    ocr_retail = None
+    if not args.no_ocr and parsed["retail"]["NEV"] is not None:
+        nev_target_wan = parsed["retail"]["NEV"] / 10_000  # back to 万-units for OCR row match
+        session = requests.Session()
+        session.headers.update(HTTP_HEADERS)
+
+        if args.image_dir:
+            # OCR each local JPG until one matches the article NEV target.
+            for path in sorted(Path(args.image_dir).glob("*.jp*g")):
+                text = _ocr_image_bytes(path.read_bytes())
+                if not text:
+                    continue
+                result = _extract_retail_from_ocr(text, target_month, nev_target_wan)
+                if result is None:
+                    continue
+                recovered, line = result
+                bev_wan, phev_wan, erev_wan, nev_wan = recovered
+                ocr_retail = {
+                    "BEV": bev_wan * 10_000,
+                    "PHEV": phev_wan * 10_000,
+                    "EREV": erev_wan * 10_000,
+                    "NEV": nev_wan * 10_000,
+                    "source_image": f"file://{path}",
+                }
+                print(
+                    f"OCR matched {path.name} row '{line.strip()[:60]}' → "
+                    f"retail BEV={bev_wan} PHEV={phev_wan} EREV={erev_wan} NEV={nev_wan} (万)"
+                )
+                break
+        else:
+            image_urls = collect_image_urls(html)
+            print(f"Embedded slides: {len(image_urls)}")
+            ocr_retail = parse_retail_table(image_urls, session, target_month, nev_target_wan)
+
+        if ocr_retail is None:
+            print(
+                "WARNING: no NEV-market slide matched the article-NEV target — "
+                "falling back to wholesale-proportional retail split"
+            )
+
+    retail_row, wholesale_row = build_rows(target_period, parsed, ocr_retail)
     if retail_row is None and wholesale_row is None:
         print("ERROR: failed to extract any complete row from the detail page", file=sys.stderr)
         sys.exit(1)
