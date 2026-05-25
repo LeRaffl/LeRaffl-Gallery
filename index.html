@@ -1655,7 +1655,7 @@ a:focus-visible{
       <span class="tab-group-label">Rankings</span>
       <a href="#thresholds" class="tablink">Thresholds</a>
       <a href="#durations" class="tablink">Durations</a>
-      <a href="#speed" class="tablink">Speed</a>
+      <a href="#speed" class="tablink">Time Interval</a>
     </span>
     <span class="tab-group">
       <span class="tab-group-label">DIY Curves</span>
@@ -2059,7 +2059,7 @@ a:focus-visible{
   <!-- SPEED TAB (20–80% transition interval plot) -->
   <section id="tab-speed" class="tab">
     <div class="container">
-      <h2>Transition Speed
+      <h2>Transition Time Interval
         <span class="fb-ctx-cluster" data-fb-context='{"section":"heading"}'>
           <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
           <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
@@ -4128,7 +4128,7 @@ renderTable();
     // Title block
     svg.appendChild(svgEl('text',{
       x:padLeft, y:28, fill:'#e9eef2','font-size':'18','font-weight':'600'
-    }, 'Speed of the BEV transition by country'));
+    }, 'BEV transition time interval by country'));
     svg.appendChild(svgEl('text',{
       x:padLeft, y:50, fill:'#9fb3d1','font-size':'12'
     }, `Bars: ${opts.fromPct}% → ${opts.toPct}% BEV share · dot marks ${opts.midPct}% · sorted by ${opts.sortKey}`));
@@ -4320,14 +4320,14 @@ renderTable();
       document.getElementById('speedExportPng').addEventListener('click', ()=>{
         const svg=document.querySelector('#speedMount svg');
         if(!svg) return;
-        svgToPngBlob(svg, 2).then(b=>downloadBlob(b, stampedFilename('bev_speed.png')))
+        svgToPngBlob(svg, 2).then(b=>downloadBlob(b, stampedFilename('bev_time_interval.png')))
           .catch(err=>console.warn('PNG export failed:', err));
       });
       document.getElementById('speedExportSvg').addEventListener('click', ()=>{
         const svg=document.querySelector('#speedMount svg');
         if(!svg) return;
         const xml=new XMLSerializer().serializeToString(svg);
-        downloadBlob(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}), stampedFilename('bev_speed.svg'));
+        downloadBlob(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}), stampedFilename('bev_time_interval.svg'));
       });
       window.addEventListener('resize', (()=>{
         let t; return ()=>{ clearTimeout(t); t=setTimeout(redraw,200); };
