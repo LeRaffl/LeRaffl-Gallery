@@ -82,6 +82,46 @@
       "country_slug": "china"
     },
     {
+      "country": "South (Korea)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-25",
+      "filename": "south_korea_ICE_BEV_20260525.png",
+      "url": "images/2026-04/south_korea_ICE_BEV_20260525.png",
+      "alt": "South (Korea) ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South (Korea)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-25",
+      "filename": "south_korea_20260525.png",
+      "url": "images/2026-04/south_korea_20260525.png",
+      "alt": "South (Korea) BEV trajectory",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South (Korea)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-25",
+      "filename": "south_korea_time_20260525.png",
+      "url": "images/2026-04/south_korea_time_20260525.png",
+      "alt": "South (Korea) Transition time curve",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South (Korea)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-25",
+      "filename": "south_korea_ttm_shares_20260525.png",
+      "url": "images/2026-04/south_korea_ttm_shares_20260525.png",
+      "alt": "South (Korea) TTM market split graph",
+      "country_slug": "south_korea"
+    },
+    {
       "country": "Netherlands",
       "type": "ICE_BEV",
       "period": "2026-04",
