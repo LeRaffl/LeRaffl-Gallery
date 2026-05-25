@@ -46,15 +46,28 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
     "tuerkiye"     = "Türkiye",
     "uk"           = "UK",
     "usa"          = "USA",
-    "south_korea"  = "South Korea",
-    "southkorea"   = "South Korea",
-    "new_zealand"  = "New Zealand",
-    "saudi_arabia" = "Saudi Arabia",
-    "south_africa" = "South Africa",
-    "hong_kong"    = "Hong Kong",
-    "czech_republic" = "Czech Republic",
-    "united_kingdom" = "United Kingdom",
-    "united_states"  = "United States"
+    # Multi-Word-Slugs (underscore). Reihenfolge egal, längster Präfix
+    # gewinnt im Match unten.
+    "south_korea"     = "South Korea",
+    "new_zealand"     = "New Zealand",
+    "saudi_arabia"    = "Saudi Arabia",
+    "south_africa"    = "South Africa",
+    "hong_kong"       = "Hong Kong",
+    "czech_republic"  = "Czech Republic",
+    "united_kingdom"  = "United Kingdom",
+    "united_states"   = "United States",
+    # Legacy-Single-Word-Slugs aus früheren Renders. Bleiben hier, damit
+    # die alten PNGs nicht umbenannt werden müssen und trotzdem unter
+    # demselben Display-Label wie die neuen Slugs landen → keine
+    # Doppelung im Country-Dropdown.
+    "southkorea"      = "South Korea",
+    "newzealand"      = "New Zealand",
+    "saudiarabia"     = "Saudi Arabia",
+    "southafrica"     = "South Africa",
+    "hongkong"        = "Hong Kong",
+    "czechrepublic"   = "Czech Republic",
+    "unitedkingdom"   = "United Kingdom",
+    "unitedstates"    = "United States"
   )
   if (!is.null(country_overrides)) {
     country_map[names(country_overrides)] <- country_overrides
