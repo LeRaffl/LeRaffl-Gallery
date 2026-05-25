@@ -1,0 +1,113 @@
+name: Fetch China data (CPCA)
+
+# Scrapes the CPCA monthly market analysis (乘用车厂商批发/零售) from
+# https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24 and upserts
+# the previous calendar month into data/China.csv (retail) plus
+# data/China_Wholesale.csv. Runs daily from the 1st onward at 11:00 UTC —
+# the script self-throttles via the latest period already present in each
+# CSV, so most invocations are a no-op until CPCA publishes (typically
+# between the 8th and 11th of the following month).
+#
+# CPCA also restates the prior month inside each new release, so the parser
+# overwrites existing periods when their values move. When either CSV
+# changes, render-country.yml is dispatched for the affected variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target year (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (leave empty for previous calendar month)'
+        required: false
+        default: ''
+      detail_id:
+        description: 'CPCA detail-page id (numeric, e.g. 4179 for March 2026 analysis)'
+        required: false
+        default: ''
+      detail_url:
+        description: 'Direct detail-page URL (overrides detail_id; leave empty to use listing discovery)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '0 11 1-31 * *'   # daily at 11:00 UTC, from the 1st onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Fetch & update China CSVs
+        run: |
+          python scripts/fetch_china.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${DETAIL_ID:+--id "$DETAIL_ID"} \
+            ${DETAIL_URL:+--url "$DETAIL_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          MONTH: ${{ inputs.month }}
+          DETAIL_ID: ${{ inputs.detail_id }}
+          DETAIL_URL: ${{ inputs.detail_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Detect which variants changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/China.csv" \
+                     "Wholesale:data/China_Wholesale.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/China.csv
+            data/China_Wholesale.csv
+          message: 'chore: update China data from CPCA'
+          default_author: github_actions
+
+      - name: Trigger render for Whole
+        # The Wholesale variant is captured into data/China_Wholesale.csv
+        # for a separate downstream model and is NOT rendered by
+        # render-country.yml yet — only dispatch retail (Whole) here.
+        if: steps.commit.outputs.committed == 'true' && contains(steps.changed.outputs.variants, 'Whole')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=China \
+            -f variant=Whole
