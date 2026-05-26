@@ -382,6 +382,44 @@ def _dump_pdf_diagnostics(pdf) -> None:
                 preview = " | ".join((c or "").replace("\n", "\\n")[:40] for c in row)
                 print(f"      row[{ri}]: {preview}")
 
+    # Word-generated PDFs frequently have data that extract_tables misses
+    # because the cell boundaries aren't explicit rules. Dump per-page text
+    # and try alternate extract_tables strategies so we can see country
+    # names and pick the strategy that actually returns a country-by-fuel
+    # grid.
+    print("DIAGNOSTIC: per-page extract_text() (first 1500 chars)")
+    for pi, page in enumerate(pdf.pages):
+        text = (page.extract_text() or "")
+        print(f"  --- page {pi}: {len(text)} chars ---")
+        for line in text[:1500].split("\n"):
+            print(f"    {line}")
+
+    print("DIAGNOSTIC: alternate extract_tables strategies (table counts only)")
+    strategies = {
+        "text/text": {"vertical_strategy": "text", "horizontal_strategy": "text"},
+        "text/lines": {"vertical_strategy": "text", "horizontal_strategy": "lines"},
+        "lines/text": {"vertical_strategy": "lines", "horizontal_strategy": "text"},
+    }
+    for sname, settings in strategies.items():
+        print(f"  -- strategy={sname}")
+        for pi, page in enumerate(pdf.pages):
+            try:
+                tables = page.extract_tables(table_settings=settings) or []
+            except Exception as e:
+                print(f"    page {pi}: error: {e}")
+                continue
+            if not tables:
+                continue
+            for ti, cand in enumerate(tables):
+                rows = len(cand) if cand else 0
+                cols = len(cand[0]) if cand and cand[0] else 0
+                header_preview = ""
+                if cand and cand[0]:
+                    header_preview = " | ".join(
+                        (c or "").replace("\n", "\\n")[:25] for c in cand[0][:8]
+                    )
+                print(f"    page {pi} table {ti}: rows={rows}, cols={cols} | {header_preview}")
+
 
 def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Returns ({country: {fuel: (curr, prev)}}, period_label).
