@@ -98,6 +98,7 @@ jobs:
             posts
           message: "chore: render ${{ inputs.country }} (${{ inputs.variant }})"
           default_author: github_actions
+          pull: '--rebase --autostash'
 
       - name: Trigger manifest build
         env:
