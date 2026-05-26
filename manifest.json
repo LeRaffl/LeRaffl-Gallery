@@ -282,6 +282,86 @@
       "country_slug": "malta"
     },
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "norway_ICE_BEV_20260526.png",
+      "url": "images/2026-04/norway_ICE_BEV_20260526.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "norway_20260526.png",
+      "url": "images/2026-04/norway_20260526.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "norway_time_20260526.png",
+      "url": "images/2026-04/norway_time_20260526.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "norway_ttm_shares_20260526.png",
+      "url": "images/2026-04/norway_ttm_shares_20260526.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "poland_ICE_BEV_20260526.png",
+      "url": "images/2026-04/poland_ICE_BEV_20260526.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "poland_20260526.png",
+      "url": "images/2026-04/poland_20260526.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "poland_time_20260526.png",
+      "url": "images/2026-04/poland_time_20260526.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "poland_ttm_shares_20260526.png",
+      "url": "images/2026-04/poland_ttm_shares_20260526.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
       "country": "Romania",
       "type": "ICE_BEV",
       "period": "2026-04",
