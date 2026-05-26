@@ -81,8 +81,12 @@ jobs:
           YEAR: ${{ inputs.year }}
           MONTH: ${{ inputs.month }}
           PDF_URL: ${{ inputs.pdf_url }}
-          FORCE: ${{ inputs.force == true && '1' || '' }}
-          FORCE_RENDER: ${{ inputs.force_render == true && '1' || '' }}
+          # GitHub Actions sometimes hands workflow_dispatch booleans through
+          # as the strings 'true'/'false' rather than the JSON booleans
+          # true/false; accept either so a truthy-only check doesn't
+          # accidentally fire on the string 'false'.
+          FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
+          FORCE_RENDER: ${{ (inputs.force_render == true || inputs.force_render == 'true') && '1' || '' }}
 
       - name: Commit if changed
         if: steps.fetch.outputs.any_changed == 'true'
