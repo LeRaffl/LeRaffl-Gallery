@@ -107,6 +107,10 @@ Full contracts → [04-interfaces.md](04-interfaces.md).
 - `RATE_KV` (binding) — Cloudflare KV namespace used as a per-IP counter with 1-hour TTL
 - `GITHUB_OWNER`, `GITHUB_REPO` (vars) — non-secret config
 
+### How it gets deployed
+
+The Worker is linked to this repository via **Cloudflare Workers Builds** (configured in the Cloudflare dashboard → Workers → `leraffl-gallery-feedback` → Settings → Builds). Any push to `master` that touches `worker/` triggers `npx wrangler deploy` from the `worker/` subdirectory inside a Cloudflare-managed build container. No local CLI step needed for routine deploys; `wrangler` from the maintainer's Mac is the manual fallback. Secrets (`GITHUB_TOKEN`) live in the Worker's runtime env and are not read from the repo. Full deploy runbook in [08-deploy-ops.md § 8.1](08-deploy-ops.md#81-deploy-the-worker).
+
 ### Why a Worker and not Lambdas / Vercel functions / a tiny VPS?
 
 - Cloudflare Workers free tier covers our load comfortably (we'd need >100k requests/day to leave it)
@@ -227,7 +231,29 @@ Defensive — if a manual upload bypasses the Render action (legacy local R work
 
 ---
 
-## 2.7 GitHub Pages
+## 2.7 Fetch Actions (overview)
+
+A family of country-specific `fetch-<source>.yml` workflows that scrape national registration sources, upsert the new monthly row into the relevant `data/<Country>.csv`, and dispatch `render-country.yml` per touched country/variant when a CSV actually changed. Each follows the same shape (`workflow_dispatch` + `schedule`, Python script under `scripts/fetch_<source>.py`, EndBug commit, then `gh workflow run render-country.yml`) but the parser is intentionally country-local — every statistics agency has its own URL scheme, file layout, and quirks that don't justify a generic abstraction.
+
+| Workflow | Source | Variants written | Scope | Schedule |
+|---|---|---|---|---|
+| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | ACEA monthly PDF press release | `Whole` only | Up to 21 EU countries (16 always + 5 conditional, see [Flow K](05-flows.md#flow-k--acea-ingest)) | Daily 08:00 UTC, 16th → EOM |
+| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | ANFAVEA Excel | `Whole` | Brazil | Monthly 10th 08:00 UTC |
+| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | ANAC (Mercado + Cero y Bajas Emisiones) | `Whole` | Chile | Daily 08:00 UTC, 14th → EOM |
+| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis | `Whole` (retail) + `Wholesale` to separate CSV | China | Daily 11:00 UTC, 1st → EOM |
+| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA (XLSX preferred, PDF fallback) | `Whole` | Japan | Daily 08:00 UTC, 1st → EOM |
+| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | `Whole` + `Used` + `HDV` | Netherlands | Daily 06:30 UTC, 1st → 15th |
+| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | TÜİK press bulletin (PDF + OCR) | `Whole` | Türkiye | Daily 08:00 UTC, 15th → EOM (requires manual `press_id`) |
+| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | ACAU "Compilado YYYY" xlsx | `Whole` (AUTOS + SUV aggregated) | Uruguay | Daily 08:00 UTC, 1st → EOM |
+| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL Total Sales PDF | `Whole` (trailing 3-month window) | USA | Daily 10:00 UTC, 10th → EOM |
+
+Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Denmark, Finland, Georgia, Germany, Indonesia, Ireland, Italy, New Zealand, Portugal, Singapore, South Korea, Sweden, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
+
+Per-flow design notes, sequence diagrams, and validation tables live in [05-flows.md](05-flows.md) (Flows H–P). Cron schedules in one place: [08-deploy-ops.md § 8.11](08-deploy-ops.md#811-cron-schedule-overview).
+
+---
+
+## 2.8 GitHub Pages
 
 ### What it is
 
@@ -249,7 +275,7 @@ GitHub Pages serves with default `Cache-Control: max-age=600`. The page uses `ca
 
 ---
 
-## 2.8 Builder Snapshot Script (`scripts/snapshot_builder.py`)
+## 2.9 Builder Snapshot Script (`scripts/snapshot_builder.py`)
 
 ### What it is
 
@@ -276,7 +302,7 @@ The render pipeline produces per-country PNGs and updates `params.csv` / `weight
 
 ---
 
-## 2.9 Snapshot-Builder Action (`.github/workflows/snapshot-builder.yml`)
+## 2.10 Snapshot-Builder Action (`.github/workflows/snapshot-builder.yml`)
 
 ### What it is
 
@@ -293,7 +319,7 @@ Most country fetchers (Brazil, Chile, Japan, ACEA) run during the first half of 
 
 ---
 
-## 2.10 Legacy Local R Pipeline
+## 2.11 Legacy Local R Pipeline
 
 ### What it is
 

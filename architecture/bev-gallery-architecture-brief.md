@@ -82,10 +82,27 @@
 
 ### 3.5 GitHub Actions
 - **`Build manifest` (`.github/workflows/build-manifest.yml`):** Triggert auf Push zu `images/**` oder `build_manifest.R`. Installiert R, ruft `build_manifest.R`, committet `manifest.json`. Cron-Fallback täglich 03:17 UTC.
-- **`Render country charts` (`.github/workflows/render-country.yml`):** Manueller Trigger via Actions UI (`workflow_dispatch`) mit Inputs `country` und `variant`. Installiert R + Pakete (`renv`-Cache empfohlen), ruft `R/render_country.R`, committet `images/`+`params.csv`+`weights.csv`. Triggert dadurch implizit den Manifest-Build.
+- **`Render country charts` (`.github/workflows/render-country.yml`):** Manueller Trigger via Actions UI (`workflow_dispatch`) plus reusable `workflow_call`-Eintrittspunkt (genutzt von den Multi-Country-Fetchern wie ACEA). Inputs `country` und `variant`. Installiert R + Pakete, ruft `R/render_country.R`, committet `images/`+`params.csv`+`weights.csv`+`posts/`. Dispatcht im Erfolgsfall `build-manifest.yml` explizit.
+- **`Snapshot Builder curves` (`.github/workflows/snapshot-builder.yml`):** Cron 25. jedes Monats 09:00 UTC plus `workflow_dispatch`. Dumpt die aggregierten Builder-Kurven nach `builder_history/<date>.csv`.
+- **Country Fetch Actions (Familie `.github/workflows/fetch-*.yml`):** Ein Workflow pro Datenquelle. Cron-getrieben, self-throttling über `latest_period(<CSV>) ≥ target`. Nach Schreib-Diff Auto-Dispatch von `render-country.yml` pro betroffener Country/Variant. Aktueller Stand (Schedule in UTC):
+  - `fetch-acea.yml` — täglich 08:00, 16.→EOM. Bis zu 21 EU-Länder (16 always + 5 conditional).
+  - `fetch-brazil.yml` — monatlich 10. 08:00. Brazil.
+  - `fetch-chile.yml` — täglich 08:00, 14.→EOM. Chile.
+  - `fetch-china.yml` — täglich 11:00, 1.→EOM. China (retail + wholesale).
+  - `fetch-japan.yml` — täglich 08:00, 1.→EOM. Japan.
+  - `fetch-netherlands.yml` — täglich 06:30, 1.→15. Netherlands (Whole / Used / HDV).
+  - `fetch-turkey.yml` — täglich 08:00, 15.→EOM. Türkiye (benötigt manuelles `press_id`).
+  - `fetch-uruguay.yml` — täglich 08:00, 1.→EOM. Uruguay.
+  - `fetch-usa.yml` — täglich 10:00, 10.→EOM. USA (trailing 3-month window).
 
 ### 3.6 GitHub Pages
 - **Rolle:** Static Hosting für die Gallery. Auto-Deploy auf jeden Push zu `master`.
+
+### 3.7 Cloudflare Workers Builds — Auto-Deploy-Pipeline für den Worker
+- **Rolle:** Cloudflare-seitige CI/CD-Integration, die `worker/index.js` + `worker/wrangler.toml` bei jedem Push zu `master` automatisch deployt. Ersetzt den vorherigen rein-lokalen `wrangler deploy`-Pfad als Default; der lokale CLI-Pfad bleibt Fallback.
+- **Konfiguration:** Cloudflare Dashboard → Workers → `leraffl-gallery-feedback` → Settings → Builds → "Connect to Git". Root directory `worker`, Deploy command `npx wrangler deploy`, Branch `master`.
+- **Was deployt wird:** Code + `wrangler.toml`. **Secrets nicht.** Der `GITHUB_TOKEN` lebt weiterhin nur in der Worker-Runtime-Env und wird out-of-band rotiert.
+- **Trust-Implikation:** Cloudflare hat ab jetzt Read-Access auf den GitHub-Repo via OAuth-App `Cloudflare Workers & Pages`. Scope ist auf das Repo begrenzt; kein Schreibzugriff. Im Disaster-Fall (revoked Integration) bleibt der Worker auf der letzten deployten Version und der manuelle `wrangler`-Pfad funktioniert weiter.
 
 ---
 
@@ -169,7 +186,8 @@
 | Layer | Technologie | Wo verwendet |
 |---|---|---|
 | Runtime: Edge | Cloudflare Workers (V8 isolate) | Worker `/issues` und `/submissions` |
-| Runtime: CI | GitHub Actions (Ubuntu Runner) | Manifest-Build, Country-Render |
+| Runtime: CI | GitHub Actions (Ubuntu Runner) | Manifest-Build, Country-Render, Country-Fetcher (9 Workflows), Snapshot-Builder |
+| Runtime: CI (extern) | Cloudflare Workers Builds | Auto-Deploy `worker/` bei Push zu `master` |
 | Runtime: Static Hosting | GitHub Pages | Gallery |
 | Sprache: Backend | JavaScript (ES Modules, Workers API) | Worker |
 | Sprache: Frontend | Vanilla JS (ES2020), HTML5, CSS3 (kein Build) | `index.html` |
@@ -189,7 +207,8 @@
 |---|---|---|---|
 | GitHub (Repo, Issues, PRs, Actions, Pages) | Source-of-Truth, CI/CD, Hosting, Diskussionsplattform | GitHub Inc. | hoch — Single Point of Failure für nahezu alles |
 | Cloudflare (Workers, KV, OAuth) | Edge-Compute, Anti-Abuse | Cloudflare Inc. | hoch — ohne Worker keine Submit/Feedback-Funktionalität |
-| Cloudflare Dashboard | Out-of-band Worker-Konfiguration (compatibility_date, observability, logs) | Maintainer | medium — Einstellungen werden in `wrangler.toml` gespiegelt |
+| Cloudflare Dashboard | Out-of-band Worker-Konfiguration (compatibility_date, observability, logs) **plus Workers-Builds-Konfiguration (Branch, Root directory, Deploy command, GitHub-OAuth-Verknüpfung)** | Maintainer | medium — Einstellungen werden in `wrangler.toml` gespiegelt; die Git-Integration ist OAuth-basiert und revoke-bar |
+| Cloudflare ↔ GitHub OAuth-App | Read-Access auf das Repo für Workers Builds (Code-Checkout zum Bauen). Kein Schreibzugriff. | Maintainer (granted), Cloudflare Inc. (Konsument) | medium — Revoke macht Auto-Deploy unmöglich, ohne den Worker selbst zu beeinflussen; lokaler `wrangler` bleibt nutzbar |
 | Posit Public Package Manager | R-Package-Quelle in CI | Posit | medium — Cache-fähig |
 | Google Sheets | Legacy: Rohdaten-Quelle für Maintainer-lokalen R-Run | Maintainer | sinkt — wird durch `data/<Country>.csv` ersetzt |
 | ACEA (acea.auto) | Zukünftige primäre Multi-Land-Quelle (geplant) | ACEA | extern, wird gescraped |

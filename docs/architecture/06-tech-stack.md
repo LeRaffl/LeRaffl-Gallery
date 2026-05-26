@@ -95,6 +95,7 @@ id      = "<redacted>"
 |---|---|---|
 | GitHub | Free public repo | Source, Issues, PRs, Actions, Pages |
 | Cloudflare Workers | Free | The edge worker |
+| Cloudflare Workers Builds | Free | Auto-deploys the worker on every push to `master` that touches `worker/` — `npx wrangler deploy` runs in a Cloudflare-managed build container, no local CLI needed. Configured per-Worker in the dashboard (Settings → Builds → Connect to Git). |
 | Cloudflare KV | Free (under 1k writes/day, 100k reads/day) | Rate-limit counters |
 | Posit Public Package Manager | Free | R package binaries for CI |
 
