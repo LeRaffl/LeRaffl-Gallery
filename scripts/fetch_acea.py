@@ -192,6 +192,19 @@ DASH_GLYPHS = ("ꟷ", "–", "—", "−")
 # in this order — the keys here are our internal CSV column names.
 PDF_FUEL_ORDER = ("BEV", "PHEV", "HEV", "OTHERS", "PETROL", "DIESEL", "TOTAL")
 
+# Header tokens (normalised — whitespace stripped, footnotes "1"/"2" trimmed,
+# upper-cased) and the CSV fuel key they correspond to. Only used by the
+# legacy extract_tables() fallback parser.
+HEADER_TO_FUEL = {
+    "BATTERYELECTRIC": "BEV",
+    "PLUG-INHYBRID": "PHEV",
+    "HYBRIDELECTRIC": "HEV",
+    "OTHERS": "OTHERS",
+    "PETROL": "PETROL",
+    "DIESEL": "DIESEL",
+    "TOTAL": "TOTAL",
+}
+
 # --- Date helpers ---------------------------------------------------------
 
 def previous_month(today: date) -> tuple[int, int]:
@@ -411,58 +424,161 @@ def _dump_pdf_diagnostics(pdf) -> None:
                 print(f"    page {pi} table {ti}: rows={rows}, cols={cols} | {header_preview}")
 
 
-def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
-    """Returns ({country: {fuel: (curr, prev)}}, period_label).
+def _normalise_header(s: str | None) -> str:
+    """Strip whitespace and trailing footnote digits; upper-case."""
+    if not s:
+        return ""
+    return re.sub(r"\s+", "", s).rstrip("123").upper()
 
-    The MONTHLY country-by-fuel grid lives on the page titled "NEW CAR
-    REGISTRATIONS BY MARKET AND POWER SOURCE / MONTHLY"; the sibling
-    "YEAR TO DATE" page carries cumulative values and is skipped because
-    the monthly page already gives us the prior-year same-month column.
 
-    Implementation note: through March 2026 the PDF generator emitted
-    explicit table cell rules that pdfplumber.extract_tables() handled
-    cleanly; from April 2026 ACEA switched to Microsoft Word's PDF
-    export, which lays the data down without those rules — extract_tables
-    returns either nothing or an unrelated EU summary. extract_text()
-    however still produces one clean line per country in the documented
-    column order (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL), so we
-    parse from that.
+def _parse_cell(s: str) -> tuple[int, int]:
+    """Parse a fuel-section cell into (current_year, prior_year) integers.
+
+    Cell content forms observed in the legacy (pre-April 2026) PDF layout:
+        '113 105 +7.6'   → (113, 105)        normal section
+        '0 0'            → (0, 0)            both zero, YoY omitted
+        'ꟷ ꟷ'           → (0, 0)            dash glyph means 0
+        '5 0'            → (5, 0)            prior-year zero, YoY omitted
+        '153 1 15,200.0' → (153, 1)          large YoY split across spaces
+    """
+    ints: list[int] = []
+    for t in s.split():
+        if t in DASH_GLYPHS:
+            ints.append(0)
+            continue
+        if "." in t or t in ("+", "-"):
+            continue
+        if _INT_RE.match(t):
+            ints.append(int(t.replace(",", "")))
+    if len(ints) < 2:
+        raise ValueError(f"Cell did not yield two integers: {s!r} → {ints}")
+    return ints[0], ints[1]
+
+
+def _parse_via_text(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+    """Primary parser: pull the country grid out of pdfplumber's text layer.
+
+    Works on the April 2026+ Word-generated PDFs where extract_tables()
+    returns nothing on the country pages. Each country renders as a single
+    line carrying 14 integers (7 fuel sections × {current, prior}); we
+    tokenise and read off pairs in the documented PDF column order.
     """
     wanted = set(ALL_COUNTRIES)
-    with pdfplumber.open(pdf_path) as pdf:
-        for page in pdf.pages:
-            text = page.extract_text() or ""
-            if "BY MARKET AND POWER SOURCE" not in text:
-                continue
-            if "YEAR TO DATE" in text or "MONTHLY" not in text:
-                continue  # the YTD page — same country list but cumulative
+    for page in pdf.pages:
+        text = page.extract_text() or ""
+        if "BY MARKET AND POWER SOURCE" not in text:
+            continue
+        if "YEAR TO DATE" in text or "MONTHLY" not in text:
+            continue  # YTD page — same country list but cumulative
 
-            # Period label from the sub-headers, e.g. "April April % change"
-            # on one line and "2026 2025 26/25" on the next.
-            mm = re.search(r"\b([A-Z][a-z]+)\s+[A-Z][a-z]+\s+% change\b", text)
-            ym = re.search(r"\b(\d{4})\s+\d{4}\s+\d{2}/\d{2}\b", text)
-            period_label = (f"{mm.group(1)} {ym.group(1)}"
-                            if mm and ym else None)
+        # Period label from "April April % change" + "2026 2025 26/25".
+        mm = re.search(r"\b([A-Z][a-z]+)\s+[A-Z][a-z]+\s+% change\b", text)
+        ym = re.search(r"\b(\d{4})\s+\d{4}\s+\d{2}/\d{2}\b", text)
+        period_label = (f"{mm.group(1)} {ym.group(1)}"
+                        if mm and ym else None)
+
+        countries: dict[str, dict[str, tuple[int, int]]] = {}
+        for line in text.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            for country in wanted:
+                # `country + " "` so "Slovenia 100…" doesn't match
+                # "Slovakia " (or vice versa).
+                if not line.startswith(country + " "):
+                    continue
+                pairs = _parse_country_pairs(line[len(country):])
+                if pairs is not None:
+                    countries[country] = dict(zip(PDF_FUEL_ORDER, pairs))
+                break
+
+        if countries:
+            return countries, period_label
+
+    return {}, None
+
+
+def _parse_via_tables(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+    """Legacy parser: read the country grid via extract_tables().
+
+    Kept as a fallback for the pre-April-2026 PDF generator that emitted
+    explicit table cell rules. On those files extract_tables() returns a
+    country-by-fuel grid with country names newline-joined in column 0 and
+    fuel values newline-joined in each fuel column.
+    """
+    wanted = set(ALL_COUNTRIES)
+    for page in pdf.pages:
+        for cand in (page.extract_tables() or []):
+            if not cand or len(cand) < 3:
+                continue
+            header_norm = [_normalise_header(c) for c in cand[0]]
+            if "BATTERYELECTRIC" not in header_norm or "TOTAL" not in header_norm:
+                continue
+            # MONTHLY vs YTD lives in the sub-header row.
+            sub = " ".join((cand[1][i] or "") for i in range(len(cand[1])))
+            sub_compact = re.sub(r"\s+", " ", sub)
+            if "Jan-" in sub_compact or "Jan -" in sub_compact:
+                continue  # YTD
+            m = re.search(r"([A-Z][a-z]+)\D+(\d{4})", sub_compact)
+            period_label = f"{m.group(1)} {m.group(2)}" if m else None
+
+            fuel_col: dict[str, int] = {}
+            for ci, cell in enumerate(cand[0]):
+                key = HEADER_TO_FUEL.get(_normalise_header(cell))
+                if key and key not in fuel_col:
+                    fuel_col[key] = ci
+            if set(HEADER_TO_FUEL.values()) - set(fuel_col.keys()):
+                continue  # header malformed, try next candidate
 
             countries: dict[str, dict[str, tuple[int, int]]] = {}
-            for line in text.split("\n"):
-                line = line.strip()
-                if not line:
+            for row in cand[1:]:
+                names = [n.strip() for n in (row[0] or "").split("\n") if n.strip()]
+                if not names or all(
+                    n.upper() in {"EUROPEAN UNION", "EFTA", "EU + EFTA + UK"}
+                    for n in names
+                ):
                     continue
-                for country in wanted:
-                    # `country + " "` so "Slovenia 100…" doesn't match
-                    # "Slovakia " and vice versa.
-                    if not line.startswith(country + " "):
+                fuel_lines = {
+                    fuel: (row[ci] or "").split("\n")
+                    for fuel, ci in fuel_col.items()
+                }
+                for i, country in enumerate(names):
+                    if country not in wanted:
                         continue
-                    pairs = _parse_country_pairs(line[len(country):])
-                    if pairs is not None:
-                        countries[country] = dict(zip(PDF_FUEL_ORDER, pairs))
-                    break
+                    parsed: dict[str, tuple[int, int]] = {}
+                    for fuel in HEADER_TO_FUEL.values():
+                        lines = fuel_lines[fuel]
+                        if i < len(lines):
+                            parsed[fuel] = _parse_cell(lines[i])
+                    countries[country] = parsed
 
             if countries:
                 return countries, period_label
 
-        # Nothing matched: dump what pdfplumber sees so we can iterate.
+    return {}, None
+
+
+def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+    """Returns ({country: {fuel: (curr, prev)}}, period_label).
+
+    Tries the text-layer parser first (works on April 2026+ Word PDFs and
+    is generator-agnostic). If that yields no countries — most likely
+    because pdfplumber's extract_text() laid the page out unexpectedly —
+    falls back to the legacy extract_tables() parser (works on pre-April
+    PDFs with explicit cell rules). Only when both paths come up empty
+    do we dump diagnostics and raise.
+    """
+    with pdfplumber.open(pdf_path) as pdf:
+        countries, period_label = _parse_via_text(pdf)
+        if countries:
+            return countries, period_label
+
+        print("text-layer parser found no countries; falling back to "
+              "extract_tables()")
+        countries, period_label = _parse_via_tables(pdf)
+        if countries:
+            return countries, period_label
+
         _dump_pdf_diagnostics(pdf)
         raise RuntimeError("Could not locate the MONTHLY country grid in the PDF")
 
