@@ -135,15 +135,37 @@ ACEA_URL_TEMPLATE = (
     "Press_release_car_registrations_{month_name}_{year}.pdf"
 )
 
+ACEA_HOMEPAGE = "https://www.acea.auto/"
+
+# ACEA's edge (Cloudflare-style WAF) 403s requests that don't look like a
+# real browser. A bare UA/Accept/Referer set used to work but stopped working
+# from GitHub Actions runners — they now need the modern Chrome client-hints
+# and Sec-Fetch-* headers, plus a session that carries cookies set by a prior
+# GET to the homepage. Without the warmup, the PDF request 403s with no
+# x-deny-reason header (vs. host_not_allowed for an IP allowlist hit).
 HTTP_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
+        "Chrome/124.0.0.0 Safari/537.36"
     ),
-    "Accept": "application/pdf,*/*;q=0.8",
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "application/pdf;q=0.95,image/avif,image/webp,*/*;q=0.8"
+    ),
+    "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.acea.auto/",
+    "Referer": ACEA_HOMEPAGE,
+    "Sec-Ch-Ua": (
+        '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"'
+    ),
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
 }
 
 # Standard CSV column order (matches the existing Belgium/France/… files).
@@ -257,17 +279,44 @@ def latest_period_across(data_dir: Path, countries: list[str]) -> str | None:
 
 # --- PDF download ---------------------------------------------------------
 
+class PDFAccessDenied(RuntimeError):
+    """403 from ACEA — bot detection or IP allowlist hit. Not retryable."""
+
+
 def load_pdf_bytes(url_or_path: str) -> bytes:
     if url_or_path.startswith("http://") or url_or_path.startswith("https://"):
         print(f"Downloading: {url_or_path}")
-        resp = requests.get(url_or_path, headers=HTTP_HEADERS, timeout=60)
-        if resp.status_code in (403, 404):
-            # 403 = ACEA's host-allowlist or genuinely unknown URL; 404 = not
-            # yet published. We treat both as "PDF not available right now"
-            # and let the caller no-op the run.
-            print(f"  HTTP {resp.status_code} — PDF not available "
-                  f"({resp.headers.get('x-deny-reason', 'n/a')}).")
+        session = requests.Session()
+        session.headers.update(HTTP_HEADERS)
+        # Warm up the session: a GET to the homepage lets ACEA's edge set the
+        # session cookies its WAF expects on subsequent /files/*.pdf requests.
+        # Failures here are non-fatal — surface only the PDF response status.
+        try:
+            session.get(ACEA_HOMEPAGE, timeout=30)
+        except requests.RequestException as e:
+            print(f"  homepage warmup request failed: {e}")
+        resp = session.get(url_or_path, timeout=60)
+        if resp.status_code == 404:
+            # Truly not yet published. ACEA usually publishes the previous
+            # month's PDF between the 22nd and 25th of the following month,
+            # so 404s during the early cron days are expected.
+            print("  HTTP 404 — PDF not published yet.")
             raise FileNotFoundError(url_or_path)
+        if resp.status_code == 403:
+            # 403 means we're blocked, not "not yet published". Two known
+            # variants from ACEA's edge:
+            #   * `x-deny-reason: host_not_allowed` — IP allowlist hit.
+            #   * no x-deny-reason header — Cloudflare-style WAF/bot block.
+            # Both are configuration problems, not a "retry tomorrow"
+            # situation. Raise loudly so the workflow turns red and the
+            # maintainer sees it (rather than the cron silently no-op'ing
+            # every day until someone notices the data is stale).
+            raise PDFAccessDenied(
+                f"HTTP 403 from {url_or_path} "
+                f"(x-deny-reason={resp.headers.get('x-deny-reason', 'n/a')}). "
+                f"ACEA is blocking this runner; download the PDF from a "
+                f"browser and re-run with --pdf-url path/to/file.pdf."
+            )
         resp.raise_for_status()
         return resp.content
     path = url_or_path.replace("file://", "")
@@ -553,6 +602,11 @@ def main() -> int:
     except FileNotFoundError:
         print("PDF not available yet — will retry next scheduled run.")
         return 0
+    except PDFAccessDenied as e:
+        # Hard fail: the runner is blocked, not the PDF missing. Cron retries
+        # from the same IP won't help — the maintainer needs to download the
+        # PDF manually and re-dispatch with the pdf_url input.
+        sys.exit(str(e))
     except requests.HTTPError as e:
         print(f"Could not fetch {pdf_url}: {e}. Pass --pdf-url manually.")
         return 0
