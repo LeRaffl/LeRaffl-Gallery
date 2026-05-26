@@ -6,23 +6,41 @@ Operational runbook. How to deploy, how to trigger, how to debug. Commands you c
 
 | Task | Command | Section |
 |---|---|---|
-| Deploy worker code change | `cd worker && npx wrangler@latest deploy` | [§ 8.1](#81-deploy-the-worker) |
+| Deploy worker code change | Push to `master` (Workers Builds auto-deploys); fallback `cd worker && npx wrangler@latest deploy` | [§ 8.1](#81-deploy-the-worker) |
 | Re-render one country | Actions tab → "Render country charts" → Run workflow | [§ 8.2](#82-trigger-a-country-render) |
 | Add a new country | Extract CSV, push, run render | [§ 8.3](#83-add-a-new-country) |
-| Rotate the Worker's PAT | Edit PAT in GitHub, re-`wrangler secret put` | [§ 8.4](#84-rotate-secrets) |
+| Rotate the Worker's PAT | Edit PAT in GitHub, re-`wrangler secret put` (or re-set in Workers Builds env) | [§ 8.4](#84-rotate-secrets) |
 | Merge a public submission | Review PR diff, click Merge, then [§ 8.2](#82-trigger-a-country-render) | [§ 8.5](#85-process-a-submission-pr) |
 | Hide spam feedback | Add `hidden` label to the issue | [§ 8.6](#86-moderate-feedback) |
 | Bulk-render all countries | Loop through countries calling [§ 8.2](#82-trigger-a-country-render) one at a time | [§ 8.7](#87-bulk-rerender) |
 | Debug Worker errors | Cloudflare dashboard → Workers → Tail logs | [§ 8.8](#88-debugging) |
 | Indonesia table shows ~5y 20→80 again | Frontend + backend recovery both already in place — see § "Indonesia v1=0 corruption" | [§ 8.8](#indonesia-v10-corruption) |
 | Manually snapshot Builder curves | Actions tab → "Snapshot Builder curves" → Run workflow | [§ 8.9](#89-snapshot-builder-curves) |
+| Look up when a country fetcher next runs | Cron schedule overview | [§ 8.11](#811-cron-schedule-overview) |
 
 ## 8.1 Deploy the Worker
+
+### Default path — Workers Builds (auto-deploy from Git)
+
+The Cloudflare Worker is linked to this repository via **Workers Builds** (Cloudflare → Workers → `leraffl-gallery-feedback` → Settings → Builds → "Connect to Git"). Any push to `master` that touches the `worker/` subdirectory triggers a Cloudflare build that runs `npx wrangler deploy` from the repo root (build config: `Root directory = worker`, `Deploy command = npx wrangler deploy`, `Branch = master`). No local CLI step needed for the day-to-day case.
 
 Required when **any** of these change:
 - `worker/index.js`
 - `worker/wrangler.toml` (compat date, KV bindings, account_id, vars)
-- The Worker's `GITHUB_TOKEN` secret (set separately, see § 8.4)
+
+**What you should see** in Cloudflare dashboard → Workers & Pages → `leraffl-gallery-feedback` → Builds:
+- A "Building" row appears within ~30 s of the push
+- Logs show `npx wrangler deploy` running, KV/var bindings being read, upload + deploy completing in ~10–15 s
+- Final state: `Success`, with the deployed version pinned to the commit SHA
+
+If the build fails:
+- **Auth-side**: re-link the GitHub integration (the dashboard surfaces a "Reconnect" button); see the [Cloudflare Workers Builds docs](https://developers.cloudflare.com/workers/ci-cd/builds/) for the OAuth flow.
+- **Build-side**: same diagnostics as a local `wrangler deploy` failure (compat date, KV binding name mismatch, missing secret).
+- **Fallback**: deploy manually from the maintainer's Mac with the command below — Workers Builds is convenience, not load-bearing.
+
+### Fallback path — manual deploy from the maintainer's Mac
+
+Still required if Workers Builds is unavailable (CI outage, GitHub integration revoked, hotfix-out-of-band):
 
 ```bash
 cd /Users/leraffl/Projects/GitHub/LeRaffl-Gallery/worker
@@ -42,6 +60,8 @@ Deployed leraffl-gallery-feedback triggers (~5 sec)
 ```
 
 If wrangler prompts about a config diff between local and remote, **say no** and reconcile the diff first (usually means someone tweaked the worker via the Cloudflare dashboard; pull those settings into `wrangler.toml`).
+
+> **Secrets are not auto-deployed.** Workers Builds only ships the code + `wrangler.toml`. The `GITHUB_TOKEN` secret lives in the Worker's runtime environment (set out-of-band via `wrangler secret put` or the dashboard) and is **not** read from the repository. See § 8.4 to rotate.
 
 ## 8.2 Trigger a country render
 
@@ -254,14 +274,62 @@ The script is zero-dependency (stdlib only) so no `pip install` is needed.
 
 ---
 
+## 8.11 Cron schedule overview
+
+Every scheduled GitHub Action in the repo, in one place. All times are UTC (GitHub Actions crons don't honour timezones). All schedules are best-effort — GitHub may delay cron runs by 5–15 minutes under load — and every workflow also exposes a `workflow_dispatch` trigger for manual runs from the Actions UI.
+
+### Country data-fetch actions
+
+These are the workflows that pull the previous month's data from each national source and commit the resulting CSV change. Each one self-throttles by re-reading the latest period from the target CSV before any HTTP work, so most invocations on empty days are free (no commit, no render trigger, no downstream fan-out).
+
+| Workflow | Cron expression | Human reading | Source | Country/Variant scope | Self-throttle |
+|---|---|---|---|---|---|
+| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | `0 8 16-31 * *` | Daily 08:00 UTC, 16th → EOM | ACEA monthly PDF | Always-list (16): Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia. Conditional-list (5): Luxembourg, Norway, Poland, Spain, Switzerland — written only if existing source is exactly `ACEA`. | `max(period)` across always-list ≥ target |
+| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | `0 8 10 * *` | Monthly 10th 08:00 UTC | ANFAVEA Excel | Brazil | (always fetches; idempotent on no-change) |
+| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | `0 8 14-31 * *` | Daily 08:00 UTC, 14th → EOM | ANAC (two PDFs) | Chile | `latest_period(Chile.csv) ≥ target` |
+| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | `0 11 1-31 * *` | Daily 11:00 UTC, 1st → EOM | CPCA monthly market analysis | China (retail → `China.csv`, wholesale → `China_Wholesale.csv`) | `latest_period` of both CSVs ≥ target |
+| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | `0 8 1-31 * *` | Daily 08:00 UTC, 1st → EOM | JADA (XLSX preferred, PDF fallback) | Japan | `latest_period(Japan.csv) ≥ target` |
+| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | `30 6 1-15 * *` | Daily 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | Netherlands — three variants: Whole, Used Imports, HDV | Per-variant diff vs CSV (no commit if all three idempotent) |
+| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | `0 8 15-31 * *` | Daily 08:00 UTC, 15th → EOM | TÜİK press bulletin PDF + OCR | Türkiye | `latest_period(Türkiye.csv) ≥ target` — and requires manual `press_id` dispatch (no auto-discovery on SPA) |
+| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | `0 8 1-31 * *` | Daily 08:00 UTC, 1st → EOM | ACAU "Compilado YYYY" xlsx | Uruguay (AUTOS + SUV aggregated) | `latest_period(Uruguay.csv) ≥ target` |
+| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | `0 10 10-31 * *` | Daily 10:00 UTC, 10th → EOM | ANL Total Sales PDF | USA — trailing 3-month window (re-writes last 3 months on every run to absorb ANL revisions) | Change-detection on the 3-month window (no diff → no commit) |
+
+Notes on the schedule shape:
+- **08:00 UTC is the most crowded slot.** Brazil/Chile/Japan/Türkiye/Uruguay/ACEA all share it on the days they're scheduled. They don't conflict (each writes a different CSV; ACEA's matrix render fan-out is serialised by `max-parallel: 1`), but a CI outage at 08:00 UTC affects all of them simultaneously.
+- **Netherlands sits at 06:30 UTC** to clear the 08:00 crowd; **China at 11:00 UTC** to clear it from the other side; **USA at 10:00 UTC** to avoid piling onto the 10th's Brazil window.
+- **Day-1 starters** (Japan, Uruguay, China, Netherlands) rely entirely on the self-throttle to keep the empty days free — they fire 1-15 or 1-31 times per month but only do real HTTP on the days the source publishes.
+- **Date-window starters** (USA 10+, Chile 14+, Türkiye 15+, Netherlands ≤15, ACEA 16+) reflect the earliest plausible publication day for the previous month from that source; cutting off the empty days saves a handful of self-throttle checks but doesn't change correctness.
+
+Country coverage of automated fetchers: **see also** [02-components.md](02-components.md#27-fetch-actions-overview) for which CSVs are auto-fed vs hand-maintained. Countries without an entry in the table above (Australia, Austria, Canada, Denmark, Finland, Georgia, Germany, Indonesia, Ireland, Italy, New Zealand, Portugal, Singapore, South Korea, Sweden, Thailand, UK — and all conditional-list ACEA countries until their source flips to pure `ACEA`) are maintained manually via the legacy local R pipeline or via public-submit PRs.
+
+### Infrastructure actions
+
+| Workflow | Cron expression | Human reading | Purpose |
+|---|---|---|---|
+| [`build-manifest.yml`](../../.github/workflows/build-manifest.yml) | `17 3 * * *` | Daily 03:17 UTC | Self-healing fallback: rescans `images/` and rewrites `manifest.json` if anything drifted (also triggered on every push to `images/**` and on explicit dispatch from `render-country.yml`). |
+| [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv` for time-lapse purposes. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
+| [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
+
+### Reading a cron expression quickly
+
+GitHub uses the standard 5-field cron format `minute hour day-of-month month day-of-week`. Two patterns dominate this repo:
+
+- `0 8 D-31 * *` — "every day from the Dth to the end of the month at 08:00 UTC". Used as a "earliest plausible publication day onward" pattern.
+- `0 H DD * *` — "the DDth of each month at HH:00 UTC". Used for sources with a known fixed publication day (Brazil).
+
+If you need the *next* fire time for one of these, the easiest sanity check is the Actions tab — each workflow's run history shows the previous fire times, and from there the next one is +1 day (for daily windows) or +1 month (for monthly fixed-day crons).
+
+---
+
 ## 8.10 Restoring from disaster
 
 | Disaster | Recovery |
 |---|---|
 | Repo deleted / corrupted | Restore from any clone — every artefact is in Git |
-| Cloudflare account lost | Re-create Worker via wrangler, re-set secret, re-bind KV. The KV's rate-limit data is lost but uncritical. |
-| Maintainer's Mac lost | Clone the repo on a new machine, `wrangler login`, `gitcreds_set` for git OAuth, done. The local R scripts (`bev_share_*.R`) are off-repo and need to be restored from iCloud or a backup; if not, the in-repo `R/` pipeline alone is sufficient. |
-| GitHub down | Read-side serves from GitHub Pages CDN, may stay up briefly. Submit/feedback writes fail — Worker returns 502; page shows error. Wait for GitHub. |
+| Cloudflare account lost | Re-create Worker via wrangler, re-set secret, re-bind KV, re-link Workers Builds to the repo (Cloudflare → Workers → Settings → Builds → "Connect to Git"). The KV's rate-limit data is lost but uncritical. |
+| Workers Builds integration revoked | Manual deploy via `cd worker && npx wrangler@latest deploy` keeps the Worker fresh; re-link via the dashboard at convenience. The fallback is identical to the pre-integration deploy path, so no functional outage. |
+| Maintainer's Mac lost | Clone the repo on a new machine, `wrangler login`, `gitcreds_set` for git OAuth, done. The local R scripts (`bev_share_*.R`) are off-repo and need to be restored from iCloud or a backup; if not, the in-repo `R/` pipeline alone is sufficient. Worker pushes still deploy via Workers Builds without any Mac-side setup. |
+| GitHub down | Read-side serves from GitHub Pages CDN, may stay up briefly. Submit/feedback writes fail — Worker returns 502; page shows error. Workers Builds is also paused (no source to pull). Wait for GitHub. |
 
 ## See also
 

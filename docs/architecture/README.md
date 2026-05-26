@@ -57,6 +57,7 @@ flowchart LR
 
     Actions -- "git push" --> Repo
     Repo -- "auto-deploy" --> Pages
+    Repo -- "Workers Builds: push worker/** → wrangler deploy" --> Worker
     Repo -- "push to images/** triggers build-manifest" --> Actions
     Maintainer -- "manual dispatch (render-country)" --> Actions
 

@@ -18,9 +18,11 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
 | K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
 | L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
-| L | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
+| L₂ | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 | M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:00 UTC) or manual dispatch with `press_id` | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
 | N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:00 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
+| O | [Auto-ingest Netherlands from RDW/Swing](#flow-o--rdw-swing-ingest) | Daily cron (1st–15th, 06:30 UTC) or manual dispatch | Updated `data/Netherlands.csv` / `Netherlands_Used.csv` / `Netherlands_HDV.csv` → per-variant Flow B |
+| P | [Auto-ingest China from CPCA](#flow-p--cpca-ingest) | Daily cron (1st–end of month, 11:00 UTC) or manual dispatch | Updated `data/China.csv` (+ `China_Wholesale.csv`) → triggers Flow B for China |
 
 ---
 
@@ -585,9 +587,6 @@ The PDF's column layout (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL) has been
 ## Flow L — Snapshot Builder
 
 The Builder tab's aggregated curves (BEV / ICE / PHEV per group, weighted by `weights.csv`) are entirely derived from `params.csv` + `weights.csv`. To enable a future time-lapse of how the global bottom-up curve evolves, we periodically dump the curve to disk so each snapshot is a frozen, append-only artefact independent of future parameter changes.
-## Flow L — ACAU ingest
-
-Uruguay follows the same `fetch-<country>` shape as Brazil / Japan / Chile. ACAU publishes one yearly "Compilado YYYY" xlsx (per-model rows, six sheets — AUTOS, SUV, MINIBUSES, UTILITARIO, CAMIONES, OMNIBUS) that gets edited in place with each new month's volumes. We aggregate AUTOS + SUV into a single passenger-car series. The cron runs daily from the 1st onward and the script self-throttles via the CSV's latest period — most invocations are a no-op until ACAU edits the previous month into the file (typically the first week of the following month, but with no published embargo date).
 
 ```mermaid
 sequenceDiagram
@@ -615,6 +614,14 @@ sequenceDiagram
 **Why bit-equivalent to the in-page Builder:** the static page is the canonical surface area for the curves. Anyone comparing a snapshot to the live page (e.g. validating a time-lapse frame against today's view) should see identical numbers. The cross-check is mechanical: a Node port of `bevShareIndex` / `getT0Years` / `baselineYearOf` over the same `params.csv` matches the Python script to four decimal places.
 
 **Why no render re-trigger:** snapshots are downstream of `params.csv` — they don't feed back into any chart, post-text, or manifest. The workflow only commits the new file; the page is not yet a consumer.
+
+## Flow L₂ — ACAU ingest
+
+Uruguay follows the same `fetch-<country>` shape as Brazil / Japan / Chile. ACAU publishes one yearly "Compilado YYYY" xlsx (per-model rows, six sheets — AUTOS, SUV, MINIBUSES, UTILITARIO, CAMIONES, OMNIBUS) that gets edited in place with each new month's volumes. We aggregate AUTOS + SUV into a single passenger-car series. The cron runs daily from the 1st onward and the script self-throttles via the CSV's latest period — most invocations are a no-op until ACAU edits the previous month into the file (typically the first week of the following month, but with no published embargo date).
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
     participant Job as fetch-uruguay.yml job
     participant Site as acau.com.uy
     participant CSV as data/Uruguay.csv
@@ -902,6 +909,119 @@ months — this is the point the maintainer flagged up front).
 The sample PDF (`data/Total Sales for Website_April 2026.pdf`) is in `master`
 (committed by the maintainer as "Add files via upload"), not produced by the
 branch.
+
+## Flow O — RDW/Swing ingest
+
+Netherlands is the first country with **three variants in one workflow** (Whole / Used Imports / HDV). Source is `duurzamemobiliteit.databank.nl`, a Swing 7.1 BI portal (ABF Research) that exposes RDW registration data. There is no documented public API; we drive three pre-saved Swing workspace permalinks the maintainer configured in the UI (one per variant). Each variant writes to its own CSV and triggers `render-country.yml` independently if it changed.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-netherlands.yml job
+    participant Swing as duurzamemobiliteit.databank.nl
+    participant CSVs as data/Netherlands{,_Used,_HDV}.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (daily 1–15, 06:30 UTC)
+    loop per variant in {Whole, Used, HDV}
+        Job->>Swing: GET /viewer?workspace_guid=<TEMPLATE>
+        Swing-->>Job: HTML with WsGuid: "<session>"
+        Job->>Swing: POST /viewer/Presentation/GetTableStart (session GUID)
+        opt pivot longer than initial page
+            Job->>Swing: POST /viewer/Presentation/GetTableRows
+        end
+        Swing-->>Job: pivot rows (HTML fragments)
+        Job->>Job: Detect orientation (periods-in-rows vs fuels-in-rows)
+        Job->>Job: Parse Dutch labels → BEV/PHEV/PETROL/DIESEL/OTHERS<br/>(Benzine→PETROL, FCEV+Overig→OTHERS, HEV blank)
+        Job->>Job: Decode Dutch locale ("6.863"=6863, "&nbsp;"=0)
+        Job->>CSVs: Upsert into per-variant file
+    end
+    Job->>Job: git diff each CSV → touched=[variants that changed]
+    alt any touched
+        Job->>CSVs: Single commit for the touched files
+        loop per touched variant
+            Job->>Render: gh workflow run render-country.yml -f country=Netherlands -f variant=<v>
+        end
+    else nothing touched
+        Job-->>Cron: Exit cleanly (no-op, no commit)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py). Pipeline rationale, variant choices, template-GUID maintenance, and HEV/FCEV fold-in convention live in [10-source-netherlands.md](10-source-netherlands.md) — read that before changing the `TEMPLATES` constant.
+
+**Vehicle scope:** Personenauto (passenger cars) for Whole + Used; Zware bedrijfsvoertuigen (heavy commercial > 3.5 t) for HDV. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
+
+**Why three variants in one workflow:** all three pivots ride on the same Swing session protocol, the same response shape, and the same fuel-label map. Splitting them into three workflows would triple the YAML for zero functional gain. Per-variant render dispatch lets a single-variant change still trigger only the right re-render.
+
+**Why HEV is always blank:** RDW source data does not split full hybrids from PETROL/DIESEL — full hybrids fold into Benzine or Diesel upstream in the agency's classification. We leave the `HEV` column empty rather than guess; the page treats blank as "category unsupported for this country" rather than zero.
+
+**Why a separate `Used Imports` variant:** the Dutch market includes a sizeable parallel-import stream (used cars imported from Germany/Belgium and re-registered). RDW publishes this as its own dimension; we surface it so the maintainer can compare the new-registration trajectory against the used-import trajectory in the gallery's variant picker.
+
+**Why daily 1st–15th at 06:30 UTC:** RDW publishes the previous month sometime in the first half of the following month — exact day varies. We poll daily and the script self-throttles once the previous month's row exists in all three CSVs (no diff, no commit, no render trigger). 06:30 UTC sits clear of the 08:00 UTC slot used by Brazil/Chile/Japan/Türkiye/Uruguay/ACEA and most country-side timezones.
+
+**Why Swing-permalinks instead of a documented API:** Swing 7.1 exposes only undocumented endpoints (`GetTableStart`, `GetTableRows`) that require a session GUID bootstrapped from the HTML response of the workspace permalink. Reverse-engineering and replaying this is the only path; the alternative is a once-a-month manual CSV download, which contradicts the project's automation goal.
+
+**Known fragility:** the `TEMPLATES` constant in `scripts/fetch_netherlands.py` carries three Swing workspace GUIDs. If ABF/RDW rebuild the BI portal or invalidate saved workspaces, these GUIDs break. Recovery is a Swing-UI session: pick the source/dimension/period, share-icon → permalink, copy the new GUID into the script. See [10-source-netherlands.md § "If the GUIDs break"](10-source-netherlands.md) for the step-by-step.
+
+## Flow P — CPCA ingest
+
+China follows the same `fetch-<country>` pattern as Brazil/Chile/Japan/Uruguay/Türkiye, but with three structural twists: (1) CPCA reports both retail (零售) and wholesale (批发) in the same article, so the parser writes **two CSVs in one run** (`data/China.csv` for retail, `data/China_Wholesale.csv` for wholesale-only downstream model); (2) the retail-side BEV/PHEV/EREV breakdown is not in the article text — it's only on an embedded NEV-market slide JPG, so the parser shells out to `tesseract-ocr` for the retail split; (3) CPCA restates the previous month inside each new release, so the parser overwrites existing periods when their values move.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-china.yml job
+    participant CPCA as cpcaauto.com
+    participant Retail as data/China.csv
+    participant Whole as data/China_Wholesale.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (daily 1–31, 11:00 UTC)
+    Job->>Retail: read latest period
+    Job->>Whole: read latest period
+    alt Both CSVs already at target month AND no --force
+        Job-->>Cron: Exit cleanly (no-op)
+    else Target month missing
+        alt --url / --id supplied
+            Job->>CPCA: GET /newslist.php?types=csjd&id=<id>
+        else
+            Job->>CPCA: GET /news.php?types=csjd&anid=129&nid=24 (listing)
+            CPCA-->>Job: HTML listing
+            Job->>Job: Find link "【月度分析】<year>年<month>月份…"
+            Job->>CPCA: GET resolved detail URL
+        end
+        CPCA-->>Job: detail-page HTML
+        Job->>Job: Parse retail narrative (零售 / 新能源…零售 / 常规燃油…零售) → TOTAL, NEV-agg, ICE
+        Job->>Job: Parse wholesale narrative (批发 / 纯电动 / 狭义插混 / 增程式 / 常规燃油…批发) → TOTAL, BEV, PHEV, EREV, ICE
+        Job->>CPCA: GET embedded NEV-market slide JPG
+        CPCA-->>Job: image bytes
+        Job->>Job: tesseract-ocr → retail BEV/PHEV/EREV split
+        Job->>Job: Sanity: BEV+PHEV+EREV ≈ NEV-aggregate from narrative
+        Job->>Retail: Upsert target period (retail row)
+        Job->>Whole: Upsert target period (wholesale row)
+        Job->>Job: git diff each CSV → touched=[variants that changed]
+        Job->>Retail: Commit touched files in one commit
+        opt Whole variant in touched
+            Job->>Render: gh workflow run render-country.yml -f country=China -f variant=Whole
+        end
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_china.py](../../scripts/fetch_china.py). The module docstring documents the two-track model (retail vs wholesale), the OCR slide pipeline, the `万辆 → unit` conversion (1 万 = 10,000), and the EREV→PHEV-fold convention used by `data/China.csv` (retail PHEV column carries narrow-PHEV + EREV combined).
+
+**Vehicle scope:** Passenger cars (乘用车) only. Commercial vehicles, kei-equivalent NEVs, and exports are out of scope. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
+
+**Why retail + wholesale into two CSVs:** the existing `data/China.csv` has tracked retail since 2020; the wholesale series is a separate downstream model the maintainer wants kept distinct rather than blended. Two CSVs in one fetcher keeps the parsing pass single (one HTML fetch, one detail page) while preserving the schema separation.
+
+**Why only retail (Whole) triggers a render:** the gallery's per-country pipeline is wired to `data/<Country>.csv`; `data/China_Wholesale.csv` is consumed by a separate offline model and isn't surfaced in the page yet. Dispatching `render-country.yml` for Wholesale would produce nothing useful today.
+
+**Why OCR for the retail split:** CPCA publishes the article narrative with only an NEV-aggregate retail figure ("新能源乘用车市场零售 Y万辆"). The per-fuel BEV/PHEV/EREV breakdown for retail sits inside an embedded JPG (their NEV market-overview slide). pypdf-style extractors return nothing for raster content; tesseract on the slide is the only path to the per-fuel retail row without manual transcription. The eng language pack suffices — table data is Latin digits.
+
+**Why daily from the 1st at 11:00 UTC:** CPCA's monthly analysis lands between the 8th and 11th of the following month (e.g. March 2026 was published 2026-04-09, April 2026 on 2026-05-09). Cron starts day 1 and the self-throttle makes empty days free. 11:00 UTC = 19:00 Beijing — well after CPCA's typical mid-morning publication slot — and clears the 08:00 UTC slot already crowded by Brazil/Chile/Japan/Türkiye/Uruguay/ACEA.
+
+**Why overwrites for existing periods:** unlike Brazil/Chile/Japan (which never touch older rows once written), CPCA restates the prior month inside each new release. The parser writes any target period unconditionally; the change-detection step still ensures no-op runs don't commit.
+
+**Known limitation:** auto-discovery falls back to a listing scrape (`news.php?types=csjd&anid=129&nid=24`) — if CPCA changes that page layout, the workflow inputs `detail_id` and `detail_url` are the manual override. The numeric `id` is visible in the detail-page URL once the maintainer opens the article in a browser.
 
 ## See also
 
