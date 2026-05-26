@@ -365,6 +365,24 @@ def parse_cell(s: str) -> tuple[int, int]:
     return ints[0], ints[1]
 
 
+def _dump_pdf_diagnostics(pdf) -> None:
+    """Print what pdfplumber sees for every page/table candidate. Called on
+    parser failure so we can iterate on layout changes (e.g. April 2026
+    switched from the old PDF generator to Microsoft Word, which renders
+    table cell boundaries differently)."""
+    print("DIAGNOSTIC: tables pdfplumber found")
+    for pi, page in enumerate(pdf.pages):
+        tables = page.extract_tables() or []
+        print(f"  page {pi}: {len(tables)} table(s)")
+        for ti, cand in enumerate(tables):
+            rows = len(cand) if cand else 0
+            cols = len(cand[0]) if cand and cand[0] else 0
+            print(f"    table {ti}: rows={rows}, cols={cols}")
+            for ri, row in enumerate(cand[:3] if cand else []):
+                preview = " | ".join((c or "").replace("\n", "\\n")[:40] for c in row)
+                print(f"      row[{ri}]: {preview}")
+
+
 def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Returns ({country: {fuel: (curr, prev)}}, period_label).
 
@@ -398,6 +416,7 @@ def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, i
             if table is not None:
                 break
         if table is None:
+            _dump_pdf_diagnostics(pdf)
             raise RuntimeError("Could not locate the MONTHLY table in the PDF")
 
         # Map normalised header text → column index.
