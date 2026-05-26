@@ -98,3 +98,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,Hungary,780.0,638.0,4496.0,1682.0,669.0,22.0,8287.0,
 2026-02,monthly,Whole,Hungary,856.0,1021.0,4718.0,3250.0,582.0,302.0,10729.0,
 2026-03,monthly,Whole,Hungary,1557.0,1022.0,10145.0,3274.0,1394.0,51.0,17443.0,
+2026-04,monthly,Whole,ACEA,1420.0,1083.0,5531.0,2453.0,1269.0,76.0,11832.0,data/Press_release_car_registrations_April_2026.pdf

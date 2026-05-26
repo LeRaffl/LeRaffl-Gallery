@@ -194,3 +194,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,ACEA / lustat.statec.lu,975.0,201.0,1076.0,720.0,367.0,0.0,3339.0,
 2026-02,monthly,Whole,ACEA / lustat.statec.lu,1022.0,272.0,1564.0,1067.0,475.0,0.0,4400.0,
 2026-03,monthly,Whole,ACEA / lustat.statec.lu,1384.0,234.0,1578.0,1194.0,409.0,0.0,4799.0,
+2026-04,monthly,Whole,ACEA,1533.0,272.0,1557.0,1165.0,395.0,0.0,4922.0,data/Press_release_car_registrations_April_2026.pdf
