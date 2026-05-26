@@ -431,8 +431,9 @@ def _normalise_header(s: str | None) -> str:
     return re.sub(r"\s+", "", s).rstrip("123").upper()
 
 
-def _parse_cell(s: str) -> tuple[int, int]:
-    """Parse a fuel-section cell into (current_year, prior_year) integers.
+def _parse_cell(s: str) -> tuple[int, int] | None:
+    """Parse a fuel-section cell into (current_year, prior_year) integers,
+    or None if the cell doesn't yield at least two integers.
 
     Cell content forms observed in the legacy (pre-April 2026) PDF layout:
         '113 105 +7.6'   → (113, 105)        normal section
@@ -440,6 +441,10 @@ def _parse_cell(s: str) -> tuple[int, int]:
         'ꟷ ꟷ'           → (0, 0)            dash glyph means 0
         '5 0'            → (5, 0)            prior-year zero, YoY omitted
         '153 1 15,200.0' → (153, 1)          large YoY split across spaces
+
+    Returning None (rather than raising) lets _parse_via_tables skip the
+    country gracefully so the dispatcher can fall back to diagnostics
+    instead of crashing on a single bad cell.
     """
     ints: list[int] = []
     for t in s.split():
@@ -451,7 +456,7 @@ def _parse_cell(s: str) -> tuple[int, int]:
         if _INT_RE.match(t):
             ints.append(int(t.replace(",", "")))
     if len(ints) < 2:
-        raise ValueError(f"Cell did not yield two integers: {s!r} → {ints}")
+        return None
     return ints[0], ints[1]
 
 
@@ -546,11 +551,16 @@ def _parse_via_tables(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str |
                     if country not in wanted:
                         continue
                     parsed: dict[str, tuple[int, int]] = {}
+                    incomplete = False
                     for fuel in HEADER_TO_FUEL.values():
                         lines = fuel_lines[fuel]
-                        if i < len(lines):
-                            parsed[fuel] = _parse_cell(lines[i])
-                    countries[country] = parsed
+                        cell = _parse_cell(lines[i]) if i < len(lines) else None
+                        if cell is None:
+                            incomplete = True
+                            break
+                        parsed[fuel] = cell
+                    if not incomplete:
+                        countries[country] = parsed
 
             if countries:
                 return countries, period_label
