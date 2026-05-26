@@ -42,6 +42,46 @@
       "country_slug": "belgium"
     },
     {
+      "country": "Cyprus",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "cyprus_ICE_BEV_20260526.png",
+      "url": "images/2026-04/cyprus_ICE_BEV_20260526.png",
+      "alt": "Cyprus ICE-BEV-Hybrid trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "cyprus_20260526.png",
+      "url": "images/2026-04/cyprus_20260526.png",
+      "alt": "Cyprus BEV trajectory",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "cyprus_time_20260526.png",
+      "url": "images/2026-04/cyprus_time_20260526.png",
+      "alt": "Cyprus Transition time curve",
+      "country_slug": "cyprus"
+    },
+    {
+      "country": "Cyprus",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-26",
+      "filename": "cyprus_ttm_shares_20260526.png",
+      "url": "images/2026-04/cyprus_ttm_shares_20260526.png",
+      "alt": "Cyprus TTM market split graph",
+      "country_slug": "cyprus"
+    },
+    {
       "country": "China",
       "type": "ICE_BEV",
       "period": "2026-03",
