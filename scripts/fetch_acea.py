@@ -714,9 +714,27 @@ def main() -> int:
     parser.add_argument("--data-dir", default="data")
     parser.add_argument("--force", action="store_true",
                         help="Skip the latest-period short-circuit")
+    parser.add_argument("--force-render", action="store_true",
+                        help="Recovery mode: skip fetch/parse entirely and "
+                             "emit changed_countries=ALL_COUNTRIES for the "
+                             "workflow's render matrix. Use after a "
+                             "stale-checkout render run lost the renders "
+                             "while the data commit succeeded.")
     parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"),
                         help="Write `changed_countries=<json>` here (workflow output)")
     args = parser.parse_args()
+
+    # Recovery shortcut: skip everything, just emit the country list so the
+    # render matrix fans out. No data writes, no PDF download. The render
+    # workflow re-reads each CSV from the current branch tip.
+    if args.force_render:
+        print(f"--force-render: skipping fetch/parse, dispatching render "
+              f"matrix for {len(ALL_COUNTRIES)} countries.")
+        if args.github_output:
+            with open(args.github_output, "a", encoding="utf-8") as f:
+                f.write(f"changed_countries={json.dumps(list(ALL_COUNTRIES))}\n")
+                f.write("any_changed=true\n")
+        return 0
 
     # Target month
     if args.year and args.month:

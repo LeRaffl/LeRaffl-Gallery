@@ -41,6 +41,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      force_render:
+        description: 'Skip fetch/parse and just dispatch the render matrix for all ACEA countries (recovery for stale-checkout render failures)'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
     - cron: '0 8 16-31 * *'   # 16th through end of month at 08:00 UTC
 
@@ -70,12 +75,14 @@ jobs:
             ${YEAR:+--year "$YEAR"} \
             ${MONTH:+--month "$MONTH"} \
             ${PDF_URL:+--pdf-url "$PDF_URL"} \
-            ${FORCE:+--force}
+            ${FORCE:+--force} \
+            ${FORCE_RENDER:+--force-render}
         env:
           YEAR: ${{ inputs.year }}
           MONTH: ${{ inputs.month }}
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          FORCE_RENDER: ${{ inputs.force_render == true && '1' || '' }}
 
       - name: Commit if changed
         if: steps.fetch.outputs.any_changed == 'true'
