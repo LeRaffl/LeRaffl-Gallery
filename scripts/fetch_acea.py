@@ -42,28 +42,35 @@ because:
     us the prior-year correction the maintainer wants — no YTD parsing needed.
   * YTD totals are derived; the source month-by-month columns are authoritative.
 
-Column order in the monthly table — observed for the March 2026 file:
+Column order in the monthly table — stable across releases:
     BATTERY ELECTRIC | PLUG-IN HYBRID | HYBRID ELECTRIC¹ | OTHERS² | PETROL | DIESEL | TOTAL
 Note this differs from our CSV order (BEV, PHEV, HEV, PETROL, DIESEL, OTHERS,
-TOTAL — OTHERS sits between DIESEL and TOTAL). The maintainer warned that ACEA
-shuffles columns occasionally, so we detect each fuel's column position from
-the header row rather than hard-coding offsets.
+TOTAL — OTHERS sits between DIESEL and TOTAL). The parser reads pairs in the
+PDF order and writes by fuel name, so CSV column order is independent.
+
+Parsing approach
+----------------
+Through March 2026, ACEA's PDF generator emitted explicit table cell rules
+and pdfplumber.extract_tables() returned a clean country-by-fuel grid. From
+April 2026 ACEA switched to Microsoft Word's PDF export, which lays the
+same data down without those cell rules — extract_tables() returns nothing
+on the country pages. extract_text() however still yields one tidy line
+per country, so we parse that text directly: split on whitespace, drop
+percentage tokens (anything with a ".") and stand-alone signs, then read
+off 14 integers as 7 (current_year, prior_year) pairs.
 
 Cell formatting quirks
 ----------------------
 * Both year columns of a fuel section can read "0 0" with the YoY % omitted
-  (Bulgaria OTHERS, Estonia OTHERS, …). We treat this as 0 / 0.
+  (Bulgaria OTHERS, Estonia OTHERS, Cyprus OTHERS, …). The 14-int contract
+  still holds — the next fuel's values just follow without an intervening %.
 * Some countries report a dash glyph (U+A7F7 "ꟷ", or a regular em/en-dash)
-  instead of "0" — Latvia HEV, Romania PHEV. Treated as 0 by the parser, per
-  the maintainer's instruction.
-* Both PDF text-extraction layouts (pdfplumber's & pypdf's) sometimes split a
-  count across whitespace (e.g. "184" → "18 4"). pdfplumber's table extraction
-  keeps the cell boundaries intact, which avoids this; the tokeniser below
-  filters integer tokens (with thousand separators) and ignores any
-  percentage tokens (anything with a "." or a stand-alone sign).
-* On page 4 (YTD) the title cells are rendered as letter-spaced glyphs
-  ("B A T T E R Y E L E C T R IC"); we don't parse page 4 but the
-  normaliser strips inner whitespace so the header regex is robust either way.
+  instead of "0" — Latvia HEV, Romania PHEV historically. Treated as 0 by
+  the parser, per the maintainer's instruction.
+* pdfplumber's text extraction can occasionally split a count across
+  whitespace (e.g. "184" → "18 4"). That would land 15 integers on the line
+  instead of 14; the parser returns None for that country and main() logs
+  it as a missing country so the maintainer notices.
 
 Per-country write rules
 -----------------------
@@ -96,7 +103,6 @@ are handled by separate per-country workflows that aren't built yet.
 """
 import argparse
 import csv
-import io
 import json
 import os
 import re
@@ -181,17 +187,10 @@ ACEA_SOURCE = "ACEA"
 # Dash glyphs the PDF uses in place of "0".
 DASH_GLYPHS = ("ꟷ", "–", "—", "−")
 
-# Header tokens (normalised — whitespace stripped, footnotes "1"/"2" trimmed,
-# upper-cased) and the CSV fuel key they correspond to.
-HEADER_TO_FUEL = {
-    "BATTERYELECTRIC": "BEV",
-    "PLUG-INHYBRID": "PHEV",
-    "HYBRIDELECTRIC": "HEV",
-    "OTHERS": "OTHERS",
-    "PETROL": "PETROL",
-    "DIESEL": "DIESEL",
-    "TOTAL": "TOTAL",
-}
+# Column order in the MONTHLY country-by-fuel grid (PDF layout, left to
+# right). We read 7 (current-year, prior-year) integer pairs per data line
+# in this order — the keys here are our internal CSV column names.
+PDF_FUEL_ORDER = ("BEV", "PHEV", "HEV", "OTHERS", "PETROL", "DIESEL", "TOTAL")
 
 # --- Date helpers ---------------------------------------------------------
 
@@ -326,43 +325,34 @@ def load_pdf_bytes(url_or_path: str) -> bytes:
 
 # --- PDF parsing ---------------------------------------------------------
 
-def _normalise_header(s: str | None) -> str:
-    """Strip whitespace and trailing footnote digits; upper-case."""
-    if not s:
-        return ""
-    cleaned = re.sub(r"\s+", "", s).rstrip("123").upper()
-    return cleaned
-
-
 _INT_RE = re.compile(r"^-?\d{1,3}(?:,\d{3})*$")
 
 
-def parse_cell(s: str) -> tuple[int, int]:
-    """Parse a fuel-section cell into (current_year, prior_year) integers.
+def _parse_country_pairs(rest: str) -> list[tuple[int, int]] | None:
+    """Read 7 (current_year, prior_year) integer pairs from one data line
+    (everything after the country name).
 
-    Cell content forms observed:
-        '113 105 +7.6'   → (113, 105)        normal section
-        '0 0'            → (0, 0)            both zero, YoY omitted
-        'ꟷ ꟷ'           → (0, 0)            dash glyph means 0
-        '5 0'            → (5, 0)            prior-year zero, YoY omitted
-        '153 1 15,200.0' → (153, 1)          large YoY split across spaces
-        '+ 22.4'-suffix  → ignored           YTD-page formatting (sign+number split)
+    Each fuel section reads "<curr> <prev> <±pct>" left to right, except
+    when both <curr> and <prev> are 0 — then the percentage token is
+    omitted ("0 0" with the next fuel's value immediately following).
+    We tokenise on whitespace, drop tokens containing "." (percentages),
+    drop stand-alone +/- signs, and require exactly 14 integers.
+
+    Dash glyphs ("ꟷ", "–", "—", "−") substitute for "0" in some country
+    rows (Latvia HEV, Romania PHEV historically) and are treated as 0.
     """
-    tokens = s.split()
     ints: list[int] = []
-    for t in tokens:
+    for t in rest.split():
         if t in DASH_GLYPHS:
             ints.append(0)
             continue
-        if "." in t:
-            continue  # percentage value
-        if t in ("+", "-"):
-            continue  # stand-alone sign (YTD page artifact)
+        if "." in t or t in ("+", "-"):
+            continue  # percentage value or stand-alone sign
         if _INT_RE.match(t):
             ints.append(int(t.replace(",", "")))
-    if len(ints) < 2:
-        raise ValueError(f"Cell did not yield two integers: {s!r} → {ints}")
-    return ints[0], ints[1]
+    if len(ints) != 14:
+        return None
+    return [(ints[i * 2], ints[i * 2 + 1]) for i in range(7)]
 
 
 def _dump_pdf_diagnostics(pdf) -> None:
@@ -424,83 +414,57 @@ def _dump_pdf_diagnostics(pdf) -> None:
 def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Returns ({country: {fuel: (curr, prev)}}, period_label).
 
-    `period_label` is the human-readable month string ("March 2026") parsed
-    from the column header — used for sanity-logging only.
+    The MONTHLY country-by-fuel grid lives on the page titled "NEW CAR
+    REGISTRATIONS BY MARKET AND POWER SOURCE / MONTHLY"; the sibling
+    "YEAR TO DATE" page carries cumulative values and is skipped because
+    the monthly page already gives us the prior-year same-month column.
+
+    Implementation note: through March 2026 the PDF generator emitted
+    explicit table cell rules that pdfplumber.extract_tables() handled
+    cleanly; from April 2026 ACEA switched to Microsoft Word's PDF
+    export, which lays the data down without those rules — extract_tables
+    returns either nothing or an unrelated EU summary. extract_text()
+    however still produces one clean line per country in the documented
+    column order (BEV, PHEV, HEV, OTHERS, PETROL, DIESEL, TOTAL), so we
+    parse from that.
     """
+    wanted = set(ALL_COUNTRIES)
     with pdfplumber.open(pdf_path) as pdf:
-        # Page 3 (index 2) holds the MONTHLY table. We scan all pages defensively
-        # in case ACEA inserts an extra page in the future, but stop at the
-        # first match.
-        table = period = None
         for page in pdf.pages:
-            tables = page.extract_tables() or []
-            for cand in tables:
-                if not cand or len(cand) < 3:
-                    continue
-                header_norm = [_normalise_header(c) for c in cand[0]]
-                if "BATTERYELECTRIC" in header_norm and "TOTAL" in header_norm:
-                    # Distinguish MONTHLY from YEAR-TO-DATE by inspecting the
-                    # sub-header row (cand[1]). Monthly cells read "March\n2026";
-                    # YTD cells read "Jan-Mar\n2026".
-                    sub = " ".join((cand[1][i] or "") for i in range(len(cand[1])))
-                    sub_compact = re.sub(r"\s+", " ", sub)
-                    if "Jan-" in sub_compact or "Jan -" in sub_compact:
-                        continue  # YTD, skip
-                    table = cand
-                    # Pull "March 2026" out of e.g. 'March\n2026' for logging.
-                    m = re.search(r"([A-Z][a-z]+)\D+(\d{4})", sub_compact)
-                    period = f"{m.group(1)} {m.group(2)}" if m else None
-                    break
-            if table is not None:
-                break
-        if table is None:
-            _dump_pdf_diagnostics(pdf)
-            raise RuntimeError("Could not locate the MONTHLY table in the PDF")
-
-        # Map normalised header text → column index.
-        fuel_col: dict[str, int] = {}
-        for ci, cell in enumerate(table[0]):
-            key = HEADER_TO_FUEL.get(_normalise_header(cell))
-            if key and key not in fuel_col:
-                fuel_col[key] = ci
-        missing = set(HEADER_TO_FUEL.values()) - set(fuel_col.keys())
-        if missing:
-            raise RuntimeError(f"Missing header columns: {sorted(missing)}")
-
-        # Walk all data rows. Country names are newline-joined in column 0;
-        # fuel values are newline-joined in the section's column. Aggregate
-        # rows (EUROPEAN UNION, EFTA, EU + EFTA + UK, United Kingdom) hold a
-        # single value per column — we skip them via a country whitelist below.
-        countries: dict[str, dict[str, tuple[int, int]]] = {}
-        wanted = set(ALL_COUNTRIES)
-        for row in table[1:]:
-            name_cell = row[0] or ""
-            names = [n.strip() for n in name_cell.split("\n") if n.strip()]
-            # Skip the header row (already consumed) and non-country aggregate rows.
-            if not names or names == [""]:
+            text = page.extract_text() or ""
+            if "BY MARKET AND POWER SOURCE" not in text:
                 continue
-            if all(n.upper() in {"EUROPEAN UNION", "EFTA", "EU + EFTA + UK"} for n in names):
-                continue
-            # Pull the per-fuel lines for this row block.
-            fuel_lines: dict[str, list[str]] = {}
-            for fuel, ci in fuel_col.items():
-                cell = row[ci] or ""
-                fuel_lines[fuel] = cell.split("\n")
-            # Each country gets the i-th line from each fuel cell.
-            for i, country in enumerate(names):
-                if country not in wanted:
+            if "YEAR TO DATE" in text or "MONTHLY" not in text:
+                continue  # the YTD page — same country list but cumulative
+
+            # Period label from the sub-headers, e.g. "April April % change"
+            # on one line and "2026 2025 26/25" on the next.
+            mm = re.search(r"\b([A-Z][a-z]+)\s+[A-Z][a-z]+\s+% change\b", text)
+            ym = re.search(r"\b(\d{4})\s+\d{4}\s+\d{2}/\d{2}\b", text)
+            period_label = (f"{mm.group(1)} {ym.group(1)}"
+                            if mm and ym else None)
+
+            countries: dict[str, dict[str, tuple[int, int]]] = {}
+            for line in text.split("\n"):
+                line = line.strip()
+                if not line:
                     continue
-                parsed: dict[str, tuple[int, int]] = {}
-                for fuel in HEADER_TO_FUEL.values():
-                    lines = fuel_lines[fuel]
-                    if i >= len(lines):
-                        # Aggregate rows can have a single value; for country
-                        # blocks the index always maps. Defensive guard only.
+                for country in wanted:
+                    # `country + " "` so "Slovenia 100…" doesn't match
+                    # "Slovakia " and vice versa.
+                    if not line.startswith(country + " "):
                         continue
-                    parsed[fuel] = parse_cell(lines[i])
-                countries[country] = parsed
+                    pairs = _parse_country_pairs(line[len(country):])
+                    if pairs is not None:
+                        countries[country] = dict(zip(PDF_FUEL_ORDER, pairs))
+                    break
 
-        return countries, period
+            if countries:
+                return countries, period_label
+
+        # Nothing matched: dump what pdfplumber sees so we can iterate.
+        _dump_pdf_diagnostics(pdf)
+        raise RuntimeError("Could not locate the MONTHLY country grid in the PDF")
 
 
 # --- Row construction & decision logic ------------------------------------
