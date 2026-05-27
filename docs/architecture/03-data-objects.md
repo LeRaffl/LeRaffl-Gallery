@@ -41,9 +41,11 @@ flowchart LR
 
 `data/<Country>.csv` for variant "Whole" (the default).
 `data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
-(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`); R/render_country.R
-also retains a fall-through to the single-CSV-with-variant-column layout so
-countries that haven't been migrated yet still render.
+(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`) and Denmark
+(`data/Denmark_Private.csv`, `data/Denmark_Industry.csv`, `data/Denmark_HDV.csv`,
+`data/Denmark_Vans.csv`); R/render_country.R also retains a fall-through to the
+single-CSV-with-variant-column layout so countries that haven't been migrated
+yet still render.
 
 Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`, `data/Netherlands_HDV.csv`.
 
@@ -117,6 +119,22 @@ Netherlands is the first country split into per-variant CSVs:
 Netherlands also has an **HEV gap** (RDW doesn't split full hybrids; they fold into Benzine/Diesel) and **FCEV folded into OTHERS** (~1 unit/month — negligible).
 
 The full source-playbook for this pipeline — Swing endpoint flow, variant rationale, schedule, fragility, maintenance recipes — lives in [10-source-netherlands.md](10-source-netherlands.md). Read that doc before changing anything in [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py).
+
+### Denmark (per-variant files)
+
+Denmark uses the same per-variant CSV layout, sourced from Statistics Denmark's StatBank table BIL53 (`api.statbank.dk`):
+
+| Variant | File | What it covers |
+|---|---|---|
+| `Whole` | `data/Denmark.csv` | Passenger cars, terms of use = Total. Includes pre-2018 backfill from the maintainer's Google Sheet (2014-01..2017-12). |
+| `Private` | `data/Denmark_Private.csv` | Passenger cars, terms of use = In households. |
+| `Industry` | `data/Denmark_Industry.csv` | Passenger cars, terms of use = In industries. |
+| `HDV` | `data/Denmark_HDV.csv` | Lorries, total. History starts 2021-01 (Statbank only began publishing the Lorries × propellant breakdown then; pre-2021 cells are real zeros). |
+| `Vans` | `data/Denmark_Vans.csv` | Vans, total. |
+
+Invariant (per-month): `Private + Industry = Whole`. Statbank uses two distinct `Ethanol` propellant codes (`20256`, `20258`) that both fold into `OTHERS`. Like Netherlands, Denmark has an **HEV gap** — Statbank folds full hybrids into Petrol/Diesel and the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`.
+
+The full source-playbook — API request shape, BILTYPE/BRUG/DRIV codes, HDV-2021 quirk, backfill, fragility, maintenance recipes — lives in [11-source-denmark.md](11-source-denmark.md). Read that doc before changing anything in [scripts/fetch_denmark.py](../../scripts/fetch_denmark.py).
 
 ---
 

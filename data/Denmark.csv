@@ -1,0 +1,149 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes
+2014-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,109.0,0.0,,,,,0.0,16242.0,backfill: pre-2018 from maintainer google sheet
+2014-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,44.0,1.0,,,,,0.0,14726.0,backfill: pre-2018 from maintainer google sheet
+2014-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,141.0,1.0,,,,,0.0,16766.0,backfill: pre-2018 from maintainer google sheet
+2014-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,121.0,2.0,,,,,0.0,16446.0,backfill: pre-2018 from maintainer google sheet
+2014-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,76.0,0.0,,,,,0.0,16833.0,backfill: pre-2018 from maintainer google sheet
+2014-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,123.0,4.0,,,,,0.0,17530.0,backfill: pre-2018 from maintainer google sheet
+2014-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,74.0,11.0,,,,,0.0,14223.0,backfill: pre-2018 from maintainer google sheet
+2014-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,123.0,16.0,,,,,0.0,14564.0,backfill: pre-2018 from maintainer google sheet
+2014-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,100.0,20.0,,,,,0.0,14357.0,backfill: pre-2018 from maintainer google sheet
+2014-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,132.0,15.0,,,,,0.0,16264.0,backfill: pre-2018 from maintainer google sheet
+2014-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,191.0,4.0,,,,,0.0,15092.0,backfill: pre-2018 from maintainer google sheet
+2014-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,330.0,8.0,,,,,1.0,15363.0,backfill: pre-2018 from maintainer google sheet
+2015-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,61.0,5.0,,,,,4.0,16001.0,backfill: pre-2018 from maintainer google sheet
+2015-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,51.0,11.0,,,,,1.0,13515.0,backfill: pre-2018 from maintainer google sheet
+2015-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,441.0,14.0,,,,,0.0,19538.0,backfill: pre-2018 from maintainer google sheet
+2015-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,145.0,41.0,,,,,0.0,16926.0,backfill: pre-2018 from maintainer google sheet
+2015-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,115.0,21.0,,,,,9.0,17002.0,backfill: pre-2018 from maintainer google sheet
+2015-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,228.0,38.0,,,,,0.0,21316.0,backfill: pre-2018 from maintainer google sheet
+2015-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,130.0,15.0,,,,,0.0,16202.0,backfill: pre-2018 from maintainer google sheet
+2015-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,531.0,35.0,,,,,4.0,16113.0,backfill: pre-2018 from maintainer google sheet
+2015-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,236.0,19.0,,,,,4.0,17738.0,backfill: pre-2018 from maintainer google sheet
+2015-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,208.0,35.0,,,,,2.0,16815.0,backfill: pre-2018 from maintainer google sheet
+2015-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,602.0,50.0,,,,,1.0,17067.0,backfill: pre-2018 from maintainer google sheet
+2015-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,1553.0,122.0,,,,,13.0,18420.0,backfill: pre-2018 from maintainer google sheet
+2016-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,65.0,19.0,,,,,1.0,16380.0,backfill: pre-2018 from maintainer google sheet
+2016-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,16.0,30.0,,,,,1.0,16590.0,backfill: pre-2018 from maintainer google sheet
+2016-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,32.0,52.0,,,,,1.0,19150.0,backfill: pre-2018 from maintainer google sheet
+2016-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,24.0,30.0,,,,,2.0,19855.0,backfill: pre-2018 from maintainer google sheet
+2016-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,33.0,36.0,,,,,0.0,21124.0,backfill: pre-2018 from maintainer google sheet
+2016-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,75.0,39.0,,,,,2.0,23623.0,backfill: pre-2018 from maintainer google sheet
+2016-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,26.0,51.0,,,,,0.0,15692.0,backfill: pre-2018 from maintainer google sheet
+2016-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,144.0,65.0,,,,,3.0,17361.0,backfill: pre-2018 from maintainer google sheet
+2016-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,267.0,44.0,,,,,0.0,18400.0,backfill: pre-2018 from maintainer google sheet
+2016-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,80.0,46.0,,,,,0.0,16993.0,backfill: pre-2018 from maintainer google sheet
+2016-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,204.0,73.0,,,,,2.0,17976.0,backfill: pre-2018 from maintainer google sheet
+2016-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,299.0,87.0,,,,,2.0,19325.0,backfill: pre-2018 from maintainer google sheet
+2017-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,5.0,10.0,,,,,0.0,19491.0,backfill: pre-2018 from maintainer google sheet
+2017-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,12.0,13.0,,,,,2.0,17444.0,backfill: pre-2018 from maintainer google sheet
+2017-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,23.0,25.0,,,,,5.0,22733.0,backfill: pre-2018 from maintainer google sheet
+2017-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,12.0,12.0,,,,,1.0,17638.0,backfill: pre-2018 from maintainer google sheet
+2017-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,9.0,17.0,,,,,1.0,22313.0,backfill: pre-2018 from maintainer google sheet
+2017-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,69.0,24.0,,,,,0.0,23982.0,backfill: pre-2018 from maintainer google sheet
+2017-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,30.0,34.0,,,,,0.0,15221.0,backfill: pre-2018 from maintainer google sheet
+2017-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,181.0,29.0,,,,,0.0,15305.0,backfill: pre-2018 from maintainer google sheet
+2017-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,89.0,3.0,,,,,0.0,14326.0,backfill: pre-2018 from maintainer google sheet
+2017-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,84.0,72.0,,,,,0.0,18524.0,backfill: pre-2018 from maintainer google sheet
+2017-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,124.0,197.0,,,,,0.0,18014.0,backfill: pre-2018 from maintainer google sheet
+2017-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,53.0,185.0,,,,,6.0,16482.0,backfill: pre-2018 from maintainer google sheet
+2018-01,monthly,Whole,api.statbank.dk (BIL53),36.0,354.0,,12225.0,7282.0,,0.0,19897.0,
+2018-02,monthly,Whole,api.statbank.dk (BIL53),47.0,243.0,,10801.0,6182.0,,0.0,17273.0,
+2018-03,monthly,Whole,api.statbank.dk (BIL53),111.0,252.0,,12584.0,6838.0,,0.0,19785.0,
+2018-04,monthly,Whole,api.statbank.dk (BIL53),135.0,311.0,,12183.0,6137.0,,0.0,18766.0,
+2018-05,monthly,Whole,api.statbank.dk (BIL53),76.0,218.0,,14628.0,7669.0,,1.0,22592.0,
+2018-06,monthly,Whole,api.statbank.dk (BIL53),119.0,274.0,,14666.0,7494.0,,2.0,22555.0,
+2018-07,monthly,Whole,api.statbank.dk (BIL53),51.0,374.0,,10996.0,5061.0,,0.0,16482.0,
+2018-08,monthly,Whole,api.statbank.dk (BIL53),172.0,497.0,,12980.0,7014.0,,2.0,20665.0,
+2018-09,monthly,Whole,api.statbank.dk (BIL53),183.0,123.0,,8210.0,3468.0,,2.0,11986.0,
+2018-10,monthly,Whole,api.statbank.dk (BIL53),169.0,151.0,,10997.0,5325.0,,0.0,16642.0,
+2018-11,monthly,Whole,api.statbank.dk (BIL53),212.0,230.0,,11920.0,5565.0,,2.0,17929.0,
+2018-12,monthly,Whole,api.statbank.dk (BIL53),233.0,99.0,,9127.0,4438.0,,4.0,13901.0,
+2019-01,monthly,Whole,api.statbank.dk (BIL53),257.0,432.0,,15095.0,5507.0,,0.0,21291.0,
+2019-02,monthly,Whole,api.statbank.dk (BIL53),218.0,398.0,,13179.0,4803.0,,0.0,18598.0,
+2019-03,monthly,Whole,api.statbank.dk (BIL53),512.0,390.0,,18327.0,6958.0,,2.0,26189.0,
+2019-04,monthly,Whole,api.statbank.dk (BIL53),458.0,170.0,,11400.0,4222.0,,3.0,16253.0,
+2019-05,monthly,Whole,api.statbank.dk (BIL53),422.0,198.0,,13363.0,5161.0,,2.0,19146.0,
+2019-06,monthly,Whole,api.statbank.dk (BIL53),702.0,165.0,,14284.0,5629.0,,0.0,20780.0,
+2019-07,monthly,Whole,api.statbank.dk (BIL53),263.0,277.0,,11554.0,4681.0,,1.0,16776.0,
+2019-08,monthly,Whole,api.statbank.dk (BIL53),338.0,325.0,,13131.0,4917.0,,0.0,18711.0,
+2019-09,monthly,Whole,api.statbank.dk (BIL53),724.0,410.0,,10866.0,3948.0,,0.0,15948.0,
+2019-10,monthly,Whole,api.statbank.dk (BIL53),327.0,421.0,,12732.0,4889.0,,3.0,18372.0,
+2019-11,monthly,Whole,api.statbank.dk (BIL53),374.0,432.0,,12266.0,5012.0,,1.0,18085.0,
+2019-12,monthly,Whole,api.statbank.dk (BIL53),906.0,262.0,,9666.0,4635.0,,2.0,15471.0,
+2020-01,monthly,Whole,api.statbank.dk (BIL53),530.0,773.0,,11798.0,5578.0,,1.0,18680.0,
+2020-02,monthly,Whole,api.statbank.dk (BIL53),492.0,596.0,,10173.0,3796.0,,0.0,15057.0,
+2020-03,monthly,Whole,api.statbank.dk (BIL53),1110.0,647.0,,9616.0,3844.0,,0.0,15217.0,
+2020-04,monthly,Whole,api.statbank.dk (BIL53),373.0,530.0,,6777.0,2606.0,,0.0,10286.0,
+2020-05,monthly,Whole,api.statbank.dk (BIL53),372.0,587.0,,8059.0,2529.0,,0.0,11547.0,
+2020-06,monthly,Whole,api.statbank.dk (BIL53),828.0,1415.0,,11853.0,3950.0,,1.0,18047.0,
+2020-07,monthly,Whole,api.statbank.dk (BIL53),486.0,2537.0,,11897.0,4182.0,,0.0,19102.0,
+2020-08,monthly,Whole,api.statbank.dk (BIL53),1014.0,2462.0,,10819.0,3381.0,,0.0,17676.0,
+2020-09,monthly,Whole,api.statbank.dk (BIL53),2337.0,1347.0,,10400.0,3147.0,,0.0,17231.0,
+2020-10,monthly,Whole,api.statbank.dk (BIL53),1097.0,1622.0,,9028.0,3379.0,,0.0,15126.0,
+2020-11,monthly,Whole,api.statbank.dk (BIL53),1740.0,2219.0,,10055.0,4223.0,,2.0,18239.0,
+2020-12,monthly,Whole,api.statbank.dk (BIL53),3839.0,3500.0,,10199.0,5194.0,,41.0,22773.0,
+2021-01,monthly,Whole,api.statbank.dk (BIL53),573.0,1452.0,,6246.0,2040.0,,0.0,10311.0,
+2021-02,monthly,Whole,api.statbank.dk (BIL53),343.0,1362.0,,6078.0,2193.0,,0.0,9976.0,
+2021-03,monthly,Whole,api.statbank.dk (BIL53),2059.0,4691.0,,13868.0,3247.0,,2.0,23867.0,
+2021-04,monthly,Whole,api.statbank.dk (BIL53),998.0,2834.0,,9431.0,2367.0,,0.0,15630.0,
+2021-05,monthly,Whole,api.statbank.dk (BIL53),1148.0,3525.0,,9814.0,2530.0,,0.0,17017.0,
+2021-06,monthly,Whole,api.statbank.dk (BIL53),2271.0,4551.0,,10576.0,3109.0,,1.0,20508.0,
+2021-07,monthly,Whole,api.statbank.dk (BIL53),1340.0,2959.0,,7425.0,1842.0,,0.0,13566.0,
+2021-08,monthly,Whole,api.statbank.dk (BIL53),3047.0,3397.0,,7655.0,1810.0,,1.0,15910.0,
+2021-09,monthly,Whole,api.statbank.dk (BIL53),3185.0,3248.0,,6404.0,1440.0,,3.0,14280.0,
+2021-10,monthly,Whole,api.statbank.dk (BIL53),2122.0,3279.0,,5761.0,1488.0,,66.0,12716.0,
+2021-11,monthly,Whole,api.statbank.dk (BIL53),3024.0,3635.0,,6601.0,1714.0,,1.0,14975.0,
+2021-12,monthly,Whole,api.statbank.dk (BIL53),4758.0,5506.0,,5815.0,1736.0,,1.0,17816.0,
+2022-01,monthly,Whole,api.statbank.dk (BIL53),1668.0,1210.0,,5559.0,1015.0,,1.0,9453.0,
+2022-02,monthly,Whole,api.statbank.dk (BIL53),1717.0,1711.0,,5649.0,1189.0,,0.0,10266.0,
+2022-03,monthly,Whole,api.statbank.dk (BIL53),2547.0,2617.0,,7891.0,1688.0,,2.0,14745.0,
+2022-04,monthly,Whole,api.statbank.dk (BIL53),1447.0,1846.0,,6626.0,1226.0,,0.0,11145.0,
+2022-05,monthly,Whole,api.statbank.dk (BIL53),2196.0,2389.0,,7433.0,1619.0,,0.0,13637.0,
+2022-06,monthly,Whole,api.statbank.dk (BIL53),2574.0,2781.0,,7814.0,1792.0,,0.0,14961.0,
+2022-07,monthly,Whole,api.statbank.dk (BIL53),1924.0,1889.0,,4909.0,1191.0,,0.0,9913.0,
+2022-08,monthly,Whole,api.statbank.dk (BIL53),2440.0,2313.0,,6793.0,1276.0,,1.0,12823.0,
+2022-09,monthly,Whole,api.statbank.dk (BIL53),3003.0,2197.0,,6262.0,1589.0,,1.0,13052.0,
+2022-10,monthly,Whole,api.statbank.dk (BIL53),2403.0,1831.0,,5454.0,1199.0,,0.0,10887.0,
+2022-11,monthly,Whole,api.statbank.dk (BIL53),3219.0,2230.0,,6123.0,1584.0,,0.0,13156.0,
+2022-12,monthly,Whole,api.statbank.dk (BIL53),5656.0,3425.0,,4932.0,1223.0,,1.0,15237.0,
+2023-01,monthly,Whole,api.statbank.dk (BIL53),2197.0,790.0,,6562.0,884.0,,0.0,10433.0,
+2023-02,monthly,Whole,api.statbank.dk (BIL53),3140.0,1180.0,,6442.0,868.0,,0.0,11630.0,
+2023-03,monthly,Whole,api.statbank.dk (BIL53),6449.0,1919.0,,7975.0,1556.0,,0.0,17899.0,
+2023-04,monthly,Whole,api.statbank.dk (BIL53),3465.0,1513.0,,5890.0,1269.0,,0.0,12137.0,
+2023-05,monthly,Whole,api.statbank.dk (BIL53),4441.0,1504.0,,6597.0,1557.0,,0.0,14099.0,
+2023-06,monthly,Whole,api.statbank.dk (BIL53),6344.0,2261.0,,8135.0,1734.0,,1.0,18475.0,
+2023-07,monthly,Whole,api.statbank.dk (BIL53),3511.0,1146.0,,5708.0,982.0,,0.0,11347.0,
+2023-08,monthly,Whole,api.statbank.dk (BIL53),4770.0,1226.0,,6498.0,1087.0,,0.0,13581.0,
+2023-09,monthly,Whole,api.statbank.dk (BIL53),6355.0,1279.0,,6388.0,915.0,,0.0,14937.0,
+2023-10,monthly,Whole,api.statbank.dk (BIL53),4821.0,1405.0,,6099.0,955.0,,0.0,13280.0,
+2023-11,monthly,Whole,api.statbank.dk (BIL53),7222.0,1278.0,,6435.0,1421.0,,0.0,16356.0,
+2023-12,monthly,Whole,api.statbank.dk (BIL53),9864.0,1717.0,,5865.0,1758.0,,0.0,19204.0,
+2024-01,monthly,Whole,api.statbank.dk (BIL53),3115.0,365.0,,4881.0,500.0,,0.0,8861.0,
+2024-02,monthly,Whole,api.statbank.dk (BIL53),4970.0,522.0,,5120.0,663.0,,0.0,11275.0,
+2024-03,monthly,Whole,api.statbank.dk (BIL53),7071.0,848.0,,7641.0,1388.0,,0.0,16948.0,
+2024-04,monthly,Whole,api.statbank.dk (BIL53),6572.0,768.0,,6988.0,1035.0,,0.0,15363.0,
+2024-05,monthly,Whole,api.statbank.dk (BIL53),7228.0,628.0,,5613.0,1178.0,,0.0,14647.0,
+2024-06,monthly,Whole,api.statbank.dk (BIL53),9931.0,617.0,,7348.0,1682.0,,0.0,19578.0,
+2024-07,monthly,Whole,api.statbank.dk (BIL53),5927.0,442.0,,4369.0,841.0,,0.0,11579.0,
+2024-08,monthly,Whole,api.statbank.dk (BIL53),7035.0,436.0,,4577.0,819.0,,0.0,12867.0,
+2024-09,monthly,Whole,api.statbank.dk (BIL53),8888.0,610.0,,4943.0,1132.0,,0.0,15573.0,
+2024-10,monthly,Whole,api.statbank.dk (BIL53),8816.0,568.0,,4230.0,771.0,,0.0,14385.0,
+2024-11,monthly,Whole,api.statbank.dk (BIL53),8758.0,570.0,,4424.0,1200.0,,0.0,14952.0,
+2024-12,monthly,Whole,api.statbank.dk (BIL53),10732.0,693.0,,5002.0,988.0,,0.0,17415.0,
+2025-01,monthly,Whole,api.statbank.dk (BIL53),6953.0,190.0,,3268.0,442.0,,0.0,10853.0,
+2025-02,monthly,Whole,api.statbank.dk (BIL53),7716.0,326.0,,3170.0,465.0,,0.0,11677.0,
+2025-03,monthly,Whole,api.statbank.dk (BIL53),9829.0,567.0,,3943.0,724.0,,0.0,15063.0,
+2025-04,monthly,Whole,api.statbank.dk (BIL53),9560.0,524.0,,4275.0,879.0,,0.0,15238.0,
+2025-05,monthly,Whole,api.statbank.dk (BIL53),10941.0,457.0,,5748.0,917.0,,0.0,18063.0,
+2025-06,monthly,Whole,api.statbank.dk (BIL53),12114.0,643.0,,5475.0,876.0,,15.0,19123.0,
+2025-07,monthly,Whole,api.statbank.dk (BIL53),9274.0,426.0,,3374.0,808.0,,13.0,13895.0,
+2025-08,monthly,Whole,api.statbank.dk (BIL53),8984.0,393.0,,2825.0,883.0,,0.0,13085.0,
+2025-09,monthly,Whole,api.statbank.dk (BIL53),12991.0,302.0,,3299.0,1186.0,,0.0,17778.0,
+2025-10,monthly,Whole,api.statbank.dk (BIL53),11399.0,310.0,,3487.0,985.0,,0.0,16181.0,
+2025-11,monthly,Whole,api.statbank.dk (BIL53),11728.0,252.0,,3125.0,839.0,,0.0,15944.0,
+2025-12,monthly,Whole,api.statbank.dk (BIL53),14954.0,437.0,,2437.0,704.0,,0.0,18532.0,
+2026-01,monthly,Whole,api.statbank.dk (BIL53),10615.0,141.0,,1718.0,406.0,,1.0,12881.0,
+2026-02,monthly,Whole,api.statbank.dk (BIL53),9732.0,122.0,,1533.0,675.0,,2.0,12064.0,
+2026-03,monthly,Whole,api.statbank.dk (BIL53),14564.0,142.0,,3472.0,843.0,,0.0,19021.0,
+2026-04,monthly,Whole,api.statbank.dk (BIL53),13715.0,119.0,,2175.0,826.0,,0.0,16835.0,

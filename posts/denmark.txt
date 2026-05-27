@@ -1,0 +1,11 @@
+🇩🇰 Denmark - April 26 - BEV Trajectory
+81.5% BEV
+0.7% PHEV
+17.8% ICE
+
+Trailing 12 months are:
+72.9% BEV
+1.9% PHEV
+25.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
