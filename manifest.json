@@ -522,6 +522,46 @@
       "country_slug": "malta"
     },
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-27",
+      "filename": "norway_ICE_BEV_20260527.png",
+      "url": "images/2026-04/norway_ICE_BEV_20260527.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-27",
+      "filename": "norway_20260527.png",
+      "url": "images/2026-04/norway_20260527.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-27",
+      "filename": "norway_time_20260527.png",
+      "url": "images/2026-04/norway_time_20260527.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-27",
+      "filename": "norway_ttm_shares_20260527.png",
+      "url": "images/2026-04/norway_ttm_shares_20260527.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Romania",
       "type": "ICE_BEV",
       "period": "2026-04",
