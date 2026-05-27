@@ -103,8 +103,12 @@ social_caption <- if (have_fonts) {
 }
 entire_caption <- paste0(social_caption, " | \t ", Sys.Date(), "  | \t    Source: ", source_str)
 
+# Non-Whole variants get the variant appended in parens so the chart title
+# matches the gallery entry (e.g. "Denmark (Private)", "Netherlands (HDV)").
+country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
+
 meta <- list(
-  country = country, country_label = country,
+  country = country, country_label = country_label,
   flag_img = flag_img,
   social_caption = social_caption,
   entire_caption = entire_caption
