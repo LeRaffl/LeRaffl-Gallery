@@ -98,3 +98,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-01,monthly,Vans,api.statbank.dk (BIL53),617.0,20.0,,106.0,1115.0,,0.0,1858.0,
 2026-02,monthly,Vans,api.statbank.dk (BIL53),671.0,30.0,,57.0,1128.0,,0.0,1886.0,
 2026-03,monthly,Vans,api.statbank.dk (BIL53),940.0,27.0,,84.0,1595.0,,0.0,2646.0,
+2026-04,monthly,Vans,api.statbank.dk (BIL53),852.0,14.0,,43.0,1180.0,,0.0,2089.0,
