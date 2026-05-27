@@ -288,6 +288,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | `0 8 10 * *` | Monthly 10th 08:00 UTC | ANFAVEA Excel | Brazil | (always fetches; idempotent on no-change) |
 | [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | `0 8 14-31 * *` | Daily 08:00 UTC, 14th → EOM | ANAC (two PDFs) | Chile | `latest_period(Chile.csv) ≥ target` |
 | [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | `0 11 1-31 * *` | Daily 11:00 UTC, 1st → EOM | CPCA monthly market analysis | China (retail → `China.csv`, wholesale → `China_Wholesale.csv`) | `latest_period` of both CSVs ≥ target |
+| [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | `15 5 1-15 * *` | Daily 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | Denmark — five variants: Whole, Private, Industry, HDV, Vans | Per-variant diff vs CSV (no commit if all five idempotent) |
 | [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | `0 8 1-31 * *` | Daily 08:00 UTC, 1st → EOM | JADA (XLSX preferred, PDF fallback) | Japan | `latest_period(Japan.csv) ≥ target` |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | `30 6 1-15 * *` | Daily 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | Netherlands — three variants: Whole, Used Imports, HDV | Per-variant diff vs CSV (no commit if all three idempotent) |
 | [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | `0 8 15-31 * *` | Daily 08:00 UTC, 15th → EOM | TÜİK press bulletin PDF + OCR | Türkiye | `latest_period(Türkiye.csv) ≥ target` — and requires manual `press_id` dispatch (no auto-discovery on SPA) |
@@ -296,11 +297,11 @@ These are the workflows that pull the previous month's data from each national s
 
 Notes on the schedule shape:
 - **08:00 UTC is the most crowded slot.** Brazil/Chile/Japan/Türkiye/Uruguay/ACEA all share it on the days they're scheduled. They don't conflict (each writes a different CSV; ACEA's matrix render fan-out is serialised by `max-parallel: 1`), but a CI outage at 08:00 UTC affects all of them simultaneously.
-- **Netherlands sits at 06:30 UTC** to clear the 08:00 crowd; **China at 11:00 UTC** to clear it from the other side; **USA at 10:00 UTC** to avoid piling onto the 10th's Brazil window.
-- **Day-1 starters** (Japan, Uruguay, China, Netherlands) rely entirely on the self-throttle to keep the empty days free — they fire 1-15 or 1-31 times per month but only do real HTTP on the days the source publishes.
-- **Date-window starters** (USA 10+, Chile 14+, Türkiye 15+, Netherlands ≤15, ACEA 16+) reflect the earliest plausible publication day for the previous month from that source; cutting off the empty days saves a handful of self-throttle checks but doesn't change correctness.
+- **Denmark sits at 05:15 UTC** and **Netherlands at 06:30 UTC** to clear the 08:00 crowd; **China at 11:00 UTC** to clear it from the other side; **USA at 10:00 UTC** to avoid piling onto the 10th's Brazil window.
+- **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark) rely entirely on the self-throttle to keep the empty days free — they fire 1-15 or 1-31 times per month but only do real HTTP on the days the source publishes.
+- **Date-window starters** (USA 10+, Chile 14+, Türkiye 15+, Netherlands ≤15, Denmark ≤15, ACEA 16+) reflect the earliest plausible publication day for the previous month from that source; cutting off the empty days saves a handful of self-throttle checks but doesn't change correctness.
 
-Country coverage of automated fetchers: **see also** [02-components.md](02-components.md#27-fetch-actions-overview) for which CSVs are auto-fed vs hand-maintained. Countries without an entry in the table above (Australia, Austria, Canada, Denmark, Finland, Georgia, Germany, Indonesia, Ireland, Italy, New Zealand, Portugal, Singapore, South Korea, Sweden, Thailand, UK — and all conditional-list ACEA countries until their source flips to pure `ACEA`) are maintained manually via the legacy local R pipeline or via public-submit PRs.
+Country coverage of automated fetchers: **see also** [02-components.md](02-components.md#27-fetch-actions-overview) for which CSVs are auto-fed vs hand-maintained. Countries without an entry in the table above (Australia, Austria, Canada, Finland, Georgia, Germany, Indonesia, Ireland, Italy, New Zealand, Portugal, Singapore, South Korea, Sweden, Thailand, UK — and all conditional-list ACEA countries until their source flips to pure `ACEA`) are maintained manually via the legacy local R pipeline or via public-submit PRs.
 
 ### Infrastructure actions
 
