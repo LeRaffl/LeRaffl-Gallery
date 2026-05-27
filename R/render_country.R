@@ -184,7 +184,7 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
-post_text <- build_post_text(df, country, last_period)
+post_text <- build_post_text(df, country_label, last_period)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
