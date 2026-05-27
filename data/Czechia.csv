@@ -182,3 +182,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,ACEA / sda-cia.cz,940.0,850.0,4482.0,7754.0,3786.0,231.0,18043.0,
 2026-02,monthly,Whole,ACEA / sda-cia.cz,958.0,937.0,4136.0,8543.0,3644.0,373.0,18591.0,
 2026-03,monthly,Whole,ACEA / sda-cia.cz,1541.0,996.0,5939.0,10700.0,4206.0,534.0,23916.0,
+2026-04,monthly,Whole,ACEA,1684.0,1090.0,5166.0,10170.0,3888.0,399.0,22397.0,data/Press_release_car_registrations_April_2026.pdf

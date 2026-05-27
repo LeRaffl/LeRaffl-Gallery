@@ -56,7 +56,16 @@ jobs:
       group: render-${{ inputs.country }}-${{ inputs.variant }}
       cancel-in-progress: false
     steps:
+      # When called from fetch-acea.yml (or any caller that committed to
+      # the branch between its dispatch and our matrix entry), the default
+      # checkout would grab the dispatch-time SHA — i.e. the branch state
+      # before the fetch job's data commit, missing exactly the rows we're
+      # supposed to render. Pinning `ref` to the branch name pulls the
+      # latest tip, which also lets sequential matrix entries see each
+      # earlier render's commit and push fast-forwards cleanly.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -89,6 +98,7 @@ jobs:
             posts
           message: "chore: render ${{ inputs.country }} (${{ inputs.variant }})"
           default_author: github_actions
+          pull: '--rebase --autostash'
 
       - name: Trigger manifest build
         env:

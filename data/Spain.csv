@@ -134,3 +134,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,ACEA / DGT / asierlizarraga,6472.0,8740.0,35597.0,16533.0,3299.0,2462.0,73103.0,
 2026-02,monthly,Whole,ACEA / DGT / asierlizarraga,8889.0,12092.0,46592.0,22534.0,3927.0,3048.0,97082.0,
 2026-03,monthly,Whole,ACEA / DGT / asierlizarraga,11863.0,14862.0,61938.0,32727.0,4709.0,4241.0,130340.0,
+2026-04,monthly,Whole,ACEA,9723.0,13035.0,50237.0,25618.0,3973.0,4276.0,106862.0,data/Press_release_car_registrations_April_2026.pdf
