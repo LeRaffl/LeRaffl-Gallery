@@ -15,14 +15,6 @@ name: Fetch Denmark data (Statbank BIL53)
 # touched variant.
 
 on:
-  # TEMP: push trigger so the workflow runs on this feature branch before it's
-  # merged to master. Remove together with the `push:` block once the workflow
-  # is on master.
-  push:
-    branches: [feat/denmark-data-pipeline]
-    paths:
-      - '.github/workflows/fetch-denmark.yml'
-      - 'scripts/fetch_denmark.py'
   workflow_dispatch:
     inputs:
       variant:
