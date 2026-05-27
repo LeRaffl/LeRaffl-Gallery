@@ -1,4 +1,52 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes
+2014-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,109.0,0.0,,,,,0.0,16242.0,backfill: pre-2018 from maintainer google sheet
+2014-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,44.0,1.0,,,,,0.0,14726.0,backfill: pre-2018 from maintainer google sheet
+2014-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,141.0,1.0,,,,,0.0,16766.0,backfill: pre-2018 from maintainer google sheet
+2014-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,121.0,2.0,,,,,0.0,16446.0,backfill: pre-2018 from maintainer google sheet
+2014-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,76.0,0.0,,,,,0.0,16833.0,backfill: pre-2018 from maintainer google sheet
+2014-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,123.0,4.0,,,,,0.0,17530.0,backfill: pre-2018 from maintainer google sheet
+2014-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,74.0,11.0,,,,,0.0,14223.0,backfill: pre-2018 from maintainer google sheet
+2014-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,123.0,16.0,,,,,0.0,14564.0,backfill: pre-2018 from maintainer google sheet
+2014-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,100.0,20.0,,,,,0.0,14357.0,backfill: pre-2018 from maintainer google sheet
+2014-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,132.0,15.0,,,,,0.0,16264.0,backfill: pre-2018 from maintainer google sheet
+2014-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,191.0,4.0,,,,,0.0,15092.0,backfill: pre-2018 from maintainer google sheet
+2014-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,330.0,8.0,,,,,1.0,15363.0,backfill: pre-2018 from maintainer google sheet
+2015-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,61.0,5.0,,,,,4.0,16001.0,backfill: pre-2018 from maintainer google sheet
+2015-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,51.0,11.0,,,,,1.0,13515.0,backfill: pre-2018 from maintainer google sheet
+2015-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,441.0,14.0,,,,,0.0,19538.0,backfill: pre-2018 from maintainer google sheet
+2015-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,145.0,41.0,,,,,0.0,16926.0,backfill: pre-2018 from maintainer google sheet
+2015-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,115.0,21.0,,,,,9.0,17002.0,backfill: pre-2018 from maintainer google sheet
+2015-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,228.0,38.0,,,,,0.0,21316.0,backfill: pre-2018 from maintainer google sheet
+2015-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,130.0,15.0,,,,,0.0,16202.0,backfill: pre-2018 from maintainer google sheet
+2015-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,531.0,35.0,,,,,4.0,16113.0,backfill: pre-2018 from maintainer google sheet
+2015-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,236.0,19.0,,,,,4.0,17738.0,backfill: pre-2018 from maintainer google sheet
+2015-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,208.0,35.0,,,,,2.0,16815.0,backfill: pre-2018 from maintainer google sheet
+2015-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,602.0,50.0,,,,,1.0,17067.0,backfill: pre-2018 from maintainer google sheet
+2015-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,1553.0,122.0,,,,,13.0,18420.0,backfill: pre-2018 from maintainer google sheet
+2016-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,65.0,19.0,,,,,1.0,16380.0,backfill: pre-2018 from maintainer google sheet
+2016-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,16.0,30.0,,,,,1.0,16590.0,backfill: pre-2018 from maintainer google sheet
+2016-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,32.0,52.0,,,,,1.0,19150.0,backfill: pre-2018 from maintainer google sheet
+2016-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,24.0,30.0,,,,,2.0,19855.0,backfill: pre-2018 from maintainer google sheet
+2016-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,33.0,36.0,,,,,0.0,21124.0,backfill: pre-2018 from maintainer google sheet
+2016-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,75.0,39.0,,,,,2.0,23623.0,backfill: pre-2018 from maintainer google sheet
+2016-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,26.0,51.0,,,,,0.0,15692.0,backfill: pre-2018 from maintainer google sheet
+2016-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,144.0,65.0,,,,,3.0,17361.0,backfill: pre-2018 from maintainer google sheet
+2016-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,267.0,44.0,,,,,0.0,18400.0,backfill: pre-2018 from maintainer google sheet
+2016-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,80.0,46.0,,,,,0.0,16993.0,backfill: pre-2018 from maintainer google sheet
+2016-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,204.0,73.0,,,,,2.0,17976.0,backfill: pre-2018 from maintainer google sheet
+2016-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,299.0,87.0,,,,,2.0,19325.0,backfill: pre-2018 from maintainer google sheet
+2017-01,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,5.0,10.0,,,,,0.0,19491.0,backfill: pre-2018 from maintainer google sheet
+2017-02,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,12.0,13.0,,,,,2.0,17444.0,backfill: pre-2018 from maintainer google sheet
+2017-03,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,23.0,25.0,,,,,5.0,22733.0,backfill: pre-2018 from maintainer google sheet
+2017-04,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,12.0,12.0,,,,,1.0,17638.0,backfill: pre-2018 from maintainer google sheet
+2017-05,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,9.0,17.0,,,,,1.0,22313.0,backfill: pre-2018 from maintainer google sheet
+2017-06,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,69.0,24.0,,,,,0.0,23982.0,backfill: pre-2018 from maintainer google sheet
+2017-07,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,30.0,34.0,,,,,0.0,15221.0,backfill: pre-2018 from maintainer google sheet
+2017-08,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,181.0,29.0,,,,,0.0,15305.0,backfill: pre-2018 from maintainer google sheet
+2017-09,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,89.0,3.0,,,,,0.0,14326.0,backfill: pre-2018 from maintainer google sheet
+2017-10,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,84.0,72.0,,,,,0.0,18524.0,backfill: pre-2018 from maintainer google sheet
+2017-11,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,124.0,197.0,,,,,0.0,18014.0,backfill: pre-2018 from maintainer google sheet
+2017-12,monthly,Whole,api.statbank.dk (BIL53) — pre-2018 via maintainer sheet,53.0,185.0,,,,,6.0,16482.0,backfill: pre-2018 from maintainer google sheet
 2018-01,monthly,Whole,api.statbank.dk (BIL53),36.0,354.0,,12225.0,7282.0,,0.0,19897.0,
 2018-02,monthly,Whole,api.statbank.dk (BIL53),47.0,243.0,,10801.0,6182.0,,0.0,17273.0,
 2018-03,monthly,Whole,api.statbank.dk (BIL53),111.0,252.0,,12584.0,6838.0,,0.0,19785.0,
