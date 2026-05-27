@@ -1,0 +1,112 @@
+name: Fetch Denmark data (Statbank BIL53)
+
+# Fetches five slices of Statbank table BIL53 (api.statbank.dk) and upserts
+# new monthly rows into per-variant CSVs:
+#
+#   * Whole    — Passenger cars, terms of use = Total
+#   * Private  — Passenger cars, In households
+#   * Industry — Passenger cars, In industries
+#   * HDV      — Lorries, total
+#   * Vans     — Vans, total
+#
+# See scripts/fetch_denmark.py for the API request shape and DRIV-code mapping,
+# and docs/architecture/11-source-denmark.md for the full pipeline context.
+# When the CSV changes, this workflow dispatches render-country.yml once per
+# touched variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - whole
+          - private
+          - industry
+          - hdv
+          - vans
+  schedule:
+    # Daily 1st–15th at 05:15 UTC. Statbank publishes BIL53 around the 10th
+    # of the following month; we poll daily until the previous month's row
+    # materialises, then per-variant early-exit makes subsequent runs no-ops
+    # (no diff, no commit, no render trigger) until the next 1st kicks off
+    # polling for the next month. 05:15 UTC keeps us clear of fetch-acea
+    # (08:00), fetch-netherlands (06:30), and the 03:17 ACEA fallback.
+    - cron: '15 5 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Denmark CSVs
+        run: |
+          python scripts/fetch_denmark.py \
+            ${VARIANT:+--variant "$VARIANT"}
+        env:
+          VARIANT: ${{ inputs.variant }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/Denmark.csv" \
+                     "Private:data/Denmark_Private.csv" \
+                     "Industry:data/Denmark_Industry.csv" \
+                     "HDV:data/Denmark_HDV.csv" \
+                     "Vans:data/Denmark_Vans.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Denmark.csv
+            data/Denmark_Private.csv
+            data/Denmark_Industry.csv
+            data/Denmark_HDV.csv
+            data/Denmark_Vans.csv
+          message: 'chore: update Denmark data from api.statbank.dk (BIL53)'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Denmark \
+              -f variant="$variant"
+          done
