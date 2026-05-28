@@ -252,6 +252,8 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 
 Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Ireland, Italy, New Zealand, Portugal, Singapore, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
 
+For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico, Colombia, where the free data is incomplete, paywalled, or login-walled) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question.
+
 Per-flow design notes, sequence diagrams, and validation tables live in [05-flows.md](05-flows.md) (Flows H–P). Cron schedules in one place: [08-deploy-ops.md § 8.11](08-deploy-ops.md#811-cron-schedule-overview).
 
 ---

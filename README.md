@@ -111,6 +111,8 @@ The workflow:
 
 The tables calculate thresholds and durations live.
 
+**Why isn't country X on the gallery?** Some countries were investigated and deliberately left off because their freely-available data is incomplete (e.g. the dominant EV brand doesn't report), paywalled, or login-walled. The rationale per country (Argentina, Mexico, Colombia, …) is documented in [docs/architecture/14-data-source-gaps.md](docs/architecture/14-data-source-gaps.md).
+
 ---
 
 ## 🧠 The model
