@@ -1,0 +1,11 @@
+🇫🇮 Finland (HDV) - April 26 - BEV Trajectory
+1.9% BEV
+0.0% PHEV
+98.1% ICE
+
+Trailing 12 months are:
+3.0% BEV
+0.0% PHEV
+97.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
