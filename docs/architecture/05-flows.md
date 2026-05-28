@@ -24,6 +24,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | O | [Auto-ingest Netherlands from RDW/Swing](#flow-o--rdw-swing-ingest) | Daily cron (1st–15th, 06:30 UTC) or manual dispatch | Updated `data/Netherlands.csv` / `Netherlands_Used.csv` / `Netherlands_HDV.csv` → per-variant Flow B |
 | P | [Auto-ingest China from CPCA](#flow-p--cpca-ingest) | Daily cron (1st–end of month, 11:00 UTC) or manual dispatch | Updated `data/China.csv` (+ `China_Wholesale.csv`) → triggers Flow B for China |
 | Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
+| R | [Auto-ingest Finland from PxWeb](#flow-r--pxweb-ingest) | Daily cron (1st–15th, 04:40 UTC) or manual dispatch | Updated `data/Finland.csv` and five variant CSVs → per-variant Flow B |
 
 ---
 
@@ -486,7 +487,7 @@ Before drafting the per-country rules we read every existing `data/<Country>.csv
 | Poland | `ACEA / PZPM` | Conditional — same. |
 | Norway | `ofv.no & ACEA` | Conditional — same. |
 | Switzerland | `pxweb.bfs.admin.ch / ACEA` | Conditional — same. |
-| ~~Denmark, Finland, Netherlands, Sweden~~ | — | **Out of scope.** All four are fed from national databases that also expose variants ACEA can't (Private / Industry / Used / HDV). The maintainer's preferred pipeline is the database, not the ACEA monthly headline, so the ACEA fetcher would only muddy the water. Sweden additionally has a non-standard 13-column CSV schema (`…,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes`) that ACEA can't fill. Denmark and Netherlands now have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow O](#flow-o--rdw-swing-ingest)); Finland and Sweden are still planned. |
+| ~~Denmark, Finland, Netherlands, Sweden~~ | — | **Out of scope.** All four are fed from national databases that also expose variants ACEA can't (Private / Industry / Used / HDV). The maintainer's preferred pipeline is the database, not the ACEA monthly headline, so the ACEA fetcher would only muddy the water. Sweden additionally has a non-standard 13-column CSV schema (`…,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes`) that ACEA can't fill. Denmark, Finland and Netherlands now have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest)); only Sweden is still planned. |
 
 ### Maintainer Q&A that shaped the rules
 
@@ -508,7 +509,7 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 | Always-list (16) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
 | Conditional-list (5) | Luxembourg, Norway, Poland, Spain, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ACEA / DGT / asierlizarraga`, `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. |
 
-ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Austria/Germany/Ireland/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose variants ACEA can't (Private / Industry / Used / HDV). Denmark and Netherlands now have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow O](#flow-o--rdw-swing-ingest)); Finland and Sweden remain on the legacy local R pipeline. The ACEA fetcher script skips all of them silently regardless.
+ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Austria/Germany/Ireland/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose variants ACEA can't (Private / Industry / Used / HDV). Denmark, Finland and Netherlands now have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest)); Sweden remains on the legacy local R pipeline. The ACEA fetcher script skips all of them silently regardless.
 
 ### Previous-year corrections
 
@@ -590,7 +591,7 @@ Parser was checked byte-exact against the existing CSV rows where applicable:
 |---|---|
 | `Press_release_car_registrations_March_2026.pdf` — 2026-03 column for all 21 in-scope countries | 21/21 current-month values match the existing `data/<Country>.csv` rows (where source = `ACEA`). Malta has a known 580 vs. 581 (sum-vs-TOTAL) off-by-one that appears identically in `data/Malta.csv` — the parser logs a `sanity Malta curr: components=581 TOTAL=580` warning and proceeds. |
 | Same file — 2025-03 column (prior-year correction) | 9 countries with source=`ACEA` (Belgium, Bulgaria, Croatia, Cyprus, Iceland, Latvia, Lithuania, Slovakia, Slovenia) received the ACEA-revised values (e.g. Belgium 2025-03 PHEV: 3399 → 3244, HEV: 4455 → 4610, OTHERS: 349 → 348, PETROL: 17056 → 17057). Countries with non-`ACEA` source (Czechia `ACEA / sda-cia.cz`, Hungary, Spain, …) correctly left untouched. |
-| Same file — Denmark, Finland, Netherlands, Sweden | Out of scope for the ACEA fetcher — script skips them silently. Denmark and Netherlands are fed by their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow O](#flow-o--rdw-swing-ingest)) which create `data/Denmark.csv` / `data/Netherlands.csv`. Finland and Sweden remain on the legacy local R pipeline. |
+| Same file — Denmark, Finland, Netherlands, Sweden | Out of scope for the ACEA fetcher — script skips them silently. Denmark, Finland and Netherlands are fed by their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest)) which create `data/Denmark.csv` / `data/Finland.csv` / `data/Netherlands.csv`. Sweden remains on the legacy local R pipeline. |
 | Re-run the script over the just-written tree | Idempotent: `Countries with CSV changes: []`, no diff against the previous write. |
 | Re-run the script without `--force` | Short-circuits before any HTTP / PDF parse: `All always-list CSVs already at 2026-03 ≥ 2026-03 — nothing to do.` |
 | Run the script against an off-target PDF (`--year 2026 --month 4` but `--pdf-url <March 2026 PDF>`) | Hard-fails with `PDF reports 'March 2026' but target is 'April 2026' — refusing to write mismatched data.` (sanity check added after spotting that `--pdf-url` overrides could otherwise silently scrape the wrong month). |
@@ -1084,6 +1085,57 @@ sequenceDiagram
 **Why daily 1st–15th at 05:15 UTC:** Statbank publishes BIL53 between the 9th and 12th of the following month. Daily polling within that window catches the new data on publication day; per-variant early-exit makes post-publication days free. 05:15 UTC sits clear of fetch-netherlands (06:30) and the 08:00 UTC crowd.
 
 **Known fragility:** if Statbank adds a new propellant (e.g. a synthetic-fuel split), the parser raises `RuntimeError("unmapped DRIV code …")` and aborts before commit — recovery is one line in `DRIV_TO_COL`. Larger schema shifts (BILTYPE / BRUG taxonomy changes) are detectable via the `/v1/tableinfo/BIL53` endpoint; see [11-source-denmark.md § "Known fragility"](11-source-denmark.md).
+
+## Flow R — PxWeb ingest
+
+Finland is fed from Statistics Finland's PxWeb API (`pxdata.stat.fi`, StatFin table 121d). One workflow fetches **six variants** in a single run: Whole, Private, Industry, HDV, Vans, Buses (see [03-data-objects.md § "Finland (per-variant files)"](03-data-objects.md)). The PxWeb API is documented and stable — one POST per query, JSON-stat2 response. Two structural twists distinguish it from the Denmark Statbank flow: Finland splits plug-in hybrids natively, and the **Industry slice is derived** (possessor Total − Private person) because there is no industry possessor bucket.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-finland.yml job
+    participant API as pxdata.stat.fi (StatFin 121d)
+    participant CSVs as data/Finland{,_Private,_Industry,_HDV,_Vans,_Buses}.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (daily 1–15, 04:40 UTC)
+    loop per variant in {Whole, Private, Industry, HDV, Vans, Buses}
+        Job->>Job: Early-exit if CSV already has previous-month row
+        Job->>API: POST query {vehicle class, region=MA1, driving power, purpose=Total, possessor(s), month=*}
+        API-->>Job: JSON-stat2 dataset (value[] + dimension indices)
+        Job->>Job: Map driving-power → BEV/PHEV/PETROL/DIESEL/OTHERS<br/>(04→BEV, 39+44→PHEV, HEV blank, gas/CNG/ethanol/LNG/other→OTHERS)
+        opt variant == Industry
+            Job->>Job: subtract possessor Private (01) from Total (00), cell-by-cell
+        end
+        Job->>Job: Skip months where TOTAL == 0 (pre-publication months)
+        Job->>CSVs: Upsert into per-variant file
+    end
+    Job->>Job: git diff each CSV → touched=[variants that changed]
+    alt any touched
+        Job->>CSVs: Single commit for the touched files
+        loop per touched variant
+            Job->>Render: gh workflow run render-country.yml -f country=Finland -f variant=<v>
+        end
+    else nothing touched
+        Job-->>Cron: Exit cleanly (no-op, no commit)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_finland.py](../../scripts/fetch_finland.py). PxWeb query shape, driving-power codes, Industry-derivation, the Åland exclusion, the legacy-to-automated migration, fragility, and maintenance recipes live in [12-source-finland.md](12-source-finland.md) — read that before changing `VARIANT_CONFIG` or `DRIV_TO_COL`.
+
+**Vehicle scope:** Passenger cars for Whole/Private/Industry, Lorries > 3.5 t for HDV, Vans for Vans, Buses & coaches for Buses. Region pinned to `MA1` (Mainland Finland; Åland is not in table 121d). Purpose-of-use pinned to Total.
+
+**Why six variants in one workflow:** all six share the same PxWeb API, the same driving-power map, and the same JSON-stat2 layout. Per-variant render dispatch lets a single-variant update trigger only the relevant re-render.
+
+**Why Industry is derived:** Statistics Finland has no "industry" possessor; per the maintainer's definition Industry = Total − Private person, computed cell-by-cell so `Private + Industry = Whole` holds exactly and the per-fuel breakdown stays consistent.
+
+**Why HEV is always blank:** Finland splits plug-in hybrids (39/44 → PHEV) but has no non-plug-in full-hybrid code — those fold into Petrol. Same blank-HEV outcome as Denmark/Netherlands; the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`.
+
+**Why no backfill:** table 121d starts 2014M01 and the maintainer has no pre-2014 Finland data, so there's no Google-Sheet backfill step (unlike Denmark/Netherlands). `t0` floors to 2013.
+
+**Why daily 1st–15th at 04:40 UTC:** Statistics Finland publishes 121d around the 5th–8th of the following month. Daily polling within the window catches it; per-variant early-exit makes post-publication days free. 04:40 UTC sits between the ACEA 03:17 fallback and fetch-denmark (05:15), clear of the 06:30/08:00 crowd.
+
+**Known fragility:** a new driving-power code raises `RuntimeError("unmapped driving-power code …")` and aborts before commit — recovery is one line in `DRIV_TO_COL`. Larger schema shifts are detectable via the table's GET metadata endpoint; see [12-source-finland.md § "Known fragility"](12-source-finland.md). Migration note: Finland previously rendered via the legacy local R pipeline with no committed data file; this flow supersedes that.
 
 ## See also
 
