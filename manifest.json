@@ -42,6 +42,46 @@
       "country_slug": "finland"
     },
     {
+      "country": "Finland (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_buses_ICE_BEV_20260528.png",
+      "url": "images/2026-04/finland_buses_ICE_BEV_20260528.png",
+      "alt": "Finland (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_buses_20260528.png",
+      "url": "images/2026-04/finland_buses_20260528.png",
+      "alt": "Finland (Buses) BEV trajectory",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_buses_time_20260528.png",
+      "url": "images/2026-04/finland_buses_time_20260528.png",
+      "alt": "Finland (Buses) Transition time curve",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_buses_ttm_shares_20260528.png",
+      "url": "images/2026-04/finland_buses_ttm_shares_20260528.png",
+      "alt": "Finland (Buses) TTM market split graph",
+      "country_slug": "finland_buses"
+    },
+    {
       "country": "Finland (HDV)",
       "type": "ICE_BEV",
       "period": "2026-04",
