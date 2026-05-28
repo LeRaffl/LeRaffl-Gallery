@@ -1,0 +1,122 @@
+name: Fetch Finland data (StatFin 121d)
+
+# Fetches six slices of Statistics Finland table 121d (pxdata.stat.fi) and
+# upserts new monthly rows into per-variant CSVs:
+#
+#   * Whole    — Passenger cars, possessor = Total
+#   * Private  — Passenger cars, possessor = Private person
+#   * Industry — Passenger cars, possessor = Total − Private person
+#   * HDV      — Lorries > 3.5 t, possessor = Total
+#   * Vans     — Vans, possessor = Total
+#   * Buses    — Buses & coaches, possessor = Total
+#
+# See scripts/fetch_finland.py for the PxWeb query shape and driving-power
+# mapping, and docs/architecture/12-source-finland.md for the full pipeline
+# context. When a CSV changes, this workflow dispatches render-country.yml
+# once per touched variant.
+
+on:
+  # TEMP: push trigger so the workflow runs on this feature branch before it's
+  # merged to master. Remove together with the `push:` block once on master.
+  push:
+    branches: [feat/finland-data-pipeline]
+    paths:
+      - '.github/workflows/fetch-finland.yml'
+      - 'scripts/fetch_finland.py'
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - whole
+          - private
+          - industry
+          - hdv
+          - vans
+          - buses
+  schedule:
+    # Daily 1st–15th at 04:40 UTC. Statistics Finland publishes 121d around
+    # the 5th–8th of the following month; we poll daily until the previous
+    # month's row materialises, then per-variant early-exit makes runs no-ops
+    # until the next 1st. 04:40 UTC sits between the ACEA 03:17 fallback and
+    # fetch-denmark (05:15), clear of the 06:30/08:00 crowd.
+    - cron: '40 4 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Finland CSVs
+        run: |
+          python scripts/fetch_finland.py \
+            ${VARIANT:+--variant "$VARIANT"}
+        env:
+          VARIANT: ${{ inputs.variant }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/Finland.csv" \
+                     "Private:data/Finland_Private.csv" \
+                     "Industry:data/Finland_Industry.csv" \
+                     "HDV:data/Finland_HDV.csv" \
+                     "Vans:data/Finland_Vans.csv" \
+                     "Buses:data/Finland_Buses.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Finland.csv
+            data/Finland_Private.csv
+            data/Finland_Industry.csv
+            data/Finland_HDV.csv
+            data/Finland_Vans.csv
+            data/Finland_Buses.csv
+          message: 'chore: update Finland data from pxdata.stat.fi (StatFin 121d)'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Finland \
+              -f variant="$variant"
+          done
