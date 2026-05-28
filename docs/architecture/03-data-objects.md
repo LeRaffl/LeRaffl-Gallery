@@ -155,6 +155,12 @@ Invariant (per-month): `Private + Industry = Whole`. Finland **splits plug-in hy
 
 The full source-playbook — PxWeb query shape, driving-power codes, Industry-derivation, Åland exclusion, fragility, maintenance recipes — lives in [12-source-finland.md](12-source-finland.md). Read that doc before changing anything in [scripts/fetch_finland.py](../../scripts/fetch_finland.py).
 
+### Sweden (single variant, native HEV + FLEXFUEL)
+
+Sweden has a single `Whole` variant in `data/Sweden.csv`, sourced from SCB's PxWeb table TK1001A/PersBilarDrivMedel (`statistikdatabasen.scb.se`). The table is passenger-cars-only with no possessor or vehicle-class dimension, so there is no Private/Industry/HDV/Vans/Buses split. Sweden is notable for being the first database-fed country to report **HEV natively** (fuel code `130` "electric hybrid") and **ethanol/flexifuel natively** (`150` → the `FLEXFUEL` column). The renderer gives both their own TTM stacked-shares slices and folds `FLEXFUEL` + `HEV` into the brown ICE line of the three-curve (ICE = all minus BEV and PHEV/EREV). History runs from 2006-01 (table start; 2002–2005 excluded upstream). Migrated from the legacy local R pipeline; the migration normalised the file from CRLF to LF line endings.
+
+The full source-playbook — PxWeb v1 query shape, fuel codes, the HEV/FLEXFUEL handling, the CRLF→LF normalisation, fragility, maintenance recipes — lives in [13-source-sweden.md](13-source-sweden.md). Read that doc before changing anything in [scripts/fetch_sweden.py](../../scripts/fetch_sweden.py).
+
 ---
 
 ## 3.2 Model Parameters

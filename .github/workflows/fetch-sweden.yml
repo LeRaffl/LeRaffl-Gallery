@@ -9,13 +9,6 @@ name: Fetch Sweden data (SCB PersBilarDrivMedel)
 # docs/architecture/13-source-sweden.md for the full pipeline context.
 
 on:
-  # TEMP: push trigger so the workflow runs on this feature branch before it's
-  # merged to master. Remove together with the `push:` block once on master.
-  push:
-    branches: [feat/sweden-data-pipeline]
-    paths:
-      - '.github/workflows/fetch-sweden.yml'
-      - 'scripts/fetch_sweden.py'
   workflow_dispatch:
   schedule:
     # Daily 1st–15th at 05:50 UTC. SCB publishes the previous month's new
