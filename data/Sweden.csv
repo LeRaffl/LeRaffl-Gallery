@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes
 2006-01,monthly,Whole,statistikdatabasen.scb.se,2.0,0.0,216.0,13617.0,3521.0,1646.0,171.0,19173.0,
-2006-02,monthly,Whole,https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/,0.0,0.0,163.0,14687.0,3444.0,1798.0,234.0,20326.0,
+2006-02,monthly,Whole,statistikdatabasen.scb.se,0.0,0.0,163.0,14687.0,3444.0,1798.0,234.0,20326.0,
 2006-03,monthly,Whole,statistikdatabasen.scb.se,0.0,0.0,214.0,19609.0,4764.0,3165.0,255.0,28007.0,
 2006-04,monthly,Whole,statistikdatabasen.scb.se,0.0,0.0,239.0,21439.0,4598.0,2105.0,370.0,28751.0,
 2006-05,monthly,Whole,statistikdatabasen.scb.se,0.0,0.0,260.0,24117.0,5168.0,2481.0,530.0,32556.0,
@@ -240,5 +240,6 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2025-11,monthly,Whole,statistikdatabasen.scb.se,8539.0,5299.0,2047.0,4389.0,1565.0,73.0,3.0,21915.0,
 2025-12,monthly,Whole,statistikdatabasen.scb.se,10320.0,6124.0,2385.0,4221.0,1485.0,83.0,3.0,24621.0,
 2026-01,monthly,Whole,statistikdatabasen.scb.se,6750.0,3630.0,1609.0,3434.0,1153.0,88.0,3.0,16667.0,
-2026-02,monthly,Whole,statistikdatabasen.scb.se,7686.0,4948.0,1568.0,4126.0,1576.0,101.0,0.0,20225.0,
-2026-03,monthly,Whole,statistikdatabasen.scb.se,10875.0,6466.0,2450.0,4987.0,1647.0,150.0,3.0,26578.0,
+2026-02,monthly,Whole,statistikdatabasen.scb.se,7686.0,4948.0,1568.0,4126.0,1576.0,101.0,0.0,20005.0,
+2026-03,monthly,Whole,statistikdatabasen.scb.se,10926.0,6545.0,2032.0,5893.0,2039.0,142.0,2.0,27579.0,
+2026-04,monthly,Whole,statistikdatabasen.scb.se,9886.0,5843.0,2257.0,4873.0,2172.0,131.0,7.0,25169.0,
