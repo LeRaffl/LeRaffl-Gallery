@@ -2,6 +2,86 @@
   "updated": "2026-05-28",
   "images": [
     {
+      "country": "Finland",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_ICE_BEV_20260528.png",
+      "url": "images/2026-04/finland_ICE_BEV_20260528.png",
+      "alt": "Finland ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_20260528.png",
+      "url": "images/2026-04/finland_20260528.png",
+      "alt": "Finland BEV trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_time_20260528.png",
+      "url": "images/2026-04/finland_time_20260528.png",
+      "alt": "Finland Transition time curve",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_ttm_shares_20260528.png",
+      "url": "images/2026-04/finland_ttm_shares_20260528.png",
+      "alt": "Finland TTM market split graph",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_industry_ICE_BEV_20260528.png",
+      "url": "images/2026-04/finland_industry_ICE_BEV_20260528.png",
+      "alt": "Finland (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_industry_20260528.png",
+      "url": "images/2026-04/finland_industry_20260528.png",
+      "alt": "Finland (Industry) BEV trajectory",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_industry_time_20260528.png",
+      "url": "images/2026-04/finland_industry_time_20260528.png",
+      "alt": "Finland (Industry) Transition time curve",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-28",
+      "filename": "finland_industry_ttm_shares_20260528.png",
+      "url": "images/2026-04/finland_industry_ttm_shares_20260528.png",
+      "alt": "Finland (Industry) TTM market split graph",
+      "country_slug": "finland_industry"
+    },
+    {
       "country": "Finland (Private)",
       "type": "ICE_BEV",
       "period": "2026-04",
