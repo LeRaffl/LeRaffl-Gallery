@@ -1,0 +1,64 @@
+name: Fetch Sweden data (SCB PersBilarDrivMedel)
+
+# Fetches new passenger-car registrations from Statistics Sweden's PxWeb API
+# (table TK1001A/PersBilarDrivMedel, a.k.a. TAB3277) and upserts the new monthly
+# row into data/Sweden.csv (single variant: Whole). When the CSV changes, this
+# workflow dispatches render-country.yml for Sweden.
+#
+# See scripts/fetch_sweden.py for the query shape and fuel mapping, and
+# docs/architecture/13-source-sweden.md for the full pipeline context.
+
+on:
+  # TEMP: push trigger so the workflow runs on this feature branch before it's
+  # merged to master. Remove together with the `push:` block once on master.
+  push:
+    branches: [feat/sweden-data-pipeline]
+    paths:
+      - '.github/workflows/fetch-sweden.yml'
+      - 'scripts/fetch_sweden.py'
+  workflow_dispatch:
+  schedule:
+    # Daily 1st–15th at 05:50 UTC. SCB publishes the previous month's new
+    # registrations early in the following month; we poll daily until the row
+    # materialises, then the early-exit makes runs no-ops until the next 1st.
+    # 05:50 UTC sits between fetch-denmark (05:15) and fetch-netherlands (06:30),
+    # clear of the 08:00 crowd.
+    - cron: '50 5 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Sweden.csv
+        run: python scripts/fetch_sweden.py
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Sweden.csv
+          message: 'chore: update Sweden data from statistikdatabasen.scb.se'
+          default_author: github_actions
+
+      - name: Trigger render
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Sweden \
+            -f variant=Whole
