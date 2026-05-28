@@ -1,0 +1,11 @@
+🇫🇮 Finland (Buses) - April 26 - BEV Trajectory
+78.1% BEV
+0.0% PHEV
+21.9% ICE
+
+Trailing 12 months are:
+34.8% BEV
+0.0% PHEV
+65.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

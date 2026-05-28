@@ -41,9 +41,11 @@ flowchart LR
 
 `data/<Country>.csv` for variant "Whole" (the default).
 `data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
-(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`) and Denmark
+(`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`), Denmark
 (`data/Denmark_Private.csv`, `data/Denmark_Industry.csv`, `data/Denmark_HDV.csv`,
-`data/Denmark_Vans.csv`); R/render_country.R also retains a fall-through to the
+`data/Denmark_Vans.csv`) and Finland (`data/Finland_Private.csv`,
+`data/Finland_Industry.csv`, `data/Finland_HDV.csv`, `data/Finland_Vans.csv`,
+`data/Finland_Buses.csv`); R/render_country.R also retains a fall-through to the
 single-CSV-with-variant-column layout so countries that haven't been migrated
 yet still render.
 
@@ -135,6 +137,23 @@ Denmark uses the same per-variant CSV layout, sourced from Statistics Denmark's 
 Invariant (per-month): `Private + Industry = Whole`. Statbank uses two distinct `Ethanol` propellant codes (`20256`, `20258`) that both fold into `OTHERS`. Like Netherlands, Denmark has an **HEV gap** — Statbank folds full hybrids into Petrol/Diesel and the renderer recovers ICE share from `(TOTAL − BEV − PHEV)`.
 
 The full source-playbook — API request shape, BILTYPE/BRUG/DRIV codes, HDV-2021 quirk, backfill, fragility, maintenance recipes — lives in [11-source-denmark.md](11-source-denmark.md). Read that doc before changing anything in [scripts/fetch_denmark.py](../../scripts/fetch_denmark.py).
+
+### Finland (per-variant files)
+
+Finland uses the same per-variant CSV layout, sourced from Statistics Finland's PxWeb table StatFin 121d (`pxdata.stat.fi`). It migrated from the legacy local R pipeline (which had no committed `data/Finland*.csv`) to the automated fetcher, gaining two new variants (Vans, Buses):
+
+| Variant | File | What it covers |
+|---|---|---|
+| `Whole` | `data/Finland.csv` | Passenger cars, possessor = Total. |
+| `Private` | `data/Finland_Private.csv` | Passenger cars, possessor = Private person. |
+| `Industry` | `data/Finland_Industry.csv` | Passenger cars, possessor = Total − Private person (derived cell-by-cell; Finland has no "industry" possessor bucket). |
+| `HDV` | `data/Finland_HDV.csv` | Lorries > 3.5 tonnes, possessor = Total. |
+| `Vans` | `data/Finland_Vans.csv` | Vans, possessor = Total. |
+| `Buses` | `data/Finland_Buses.csv` | Buses & coaches, possessor = Total. Very low volume. |
+
+Invariant (per-month): `Private + Industry = Whole`. Finland **splits plug-in hybrids natively** (driving-power `39` Petrol/Electricity + `44` Diesel/Electricity → PHEV) but has **no non-plug-in full-hybrid code**, so full hybrids fold into Petrol and the `HEV` column stays blank — same outcome as Denmark/Netherlands. Region is pinned to `MA1` Mainland Finland; **Åland is not in table 121d** so the "Finland" figure is mainland-only. History starts 2014-01 with no backfill (table start; no pre-2014 maintainer data).
+
+The full source-playbook — PxWeb query shape, driving-power codes, Industry-derivation, Åland exclusion, fragility, maintenance recipes — lives in [12-source-finland.md](12-source-finland.md). Read that doc before changing anything in [scripts/fetch_finland.py](../../scripts/fetch_finland.py).
 
 ---
 
