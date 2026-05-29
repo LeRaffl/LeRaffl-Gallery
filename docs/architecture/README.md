@@ -25,6 +25,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 11 | [11-source-denmark.md](11-source-denmark.md) | Per-country source playbook for Denmark (api.statbank.dk, table BIL53). |
 | 12 | [12-source-finland.md](12-source-finland.md) | Per-country source playbook for Finland (pxdata.stat.fi PxWeb, StatFin table 121d). |
 | 13 | [13-source-sweden.md](13-source-sweden.md) | Per-country source playbook for Sweden (statistikdatabasen.scb.se PxWeb, table TK1001A / TAB3277). |
+| 14 | [14-data-source-gaps.md](14-data-source-gaps.md) | Countries investigated but **not** added, and why (Argentina/Mexico/Colombia + the zemo-la aggregator). The "why isn't X on the map?" reference. |
 
 ## Big picture in one diagram
 
