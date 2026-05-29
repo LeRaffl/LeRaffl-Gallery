@@ -1,28 +1,33 @@
 name: Fetch Ireland data (SIMI motorstats)
 
-# Fetches new passenger-car registrations from the SIMI / motorstats public
-# dashboard (stats.simi.ie) and upserts data/Ireland.csv (single variant: Whole).
-# The dashboard is a Laravel + Inertia.js SPA with no public REST API; the
-# fetcher replays the session-filter flow (GET → PATCH /filter/passenger → GET
-# Inertia partial carsByEngineType). See scripts/fetch_ireland.py and
-# docs/architecture/15-source-ireland.md.
+# Fetches new registrations from the SIMI / motorstats public dashboard
+# (stats.simi.ie) and upserts per-variant CSVs:
 #
-# Each run re-fetches a trailing window of recent months (default 4) to pick up
-# SIMI's revisions, with an early-exit once the previous month is already in the
-# CSV. When the CSV changes, this workflow dispatches render-country.yml.
+#   * Whole — passenger cars (root /)
+#   * Vans  — Light Commercial  (N1, <=3.5t)        /lcv
+#   * HDV   — Heavy Commercial   (N2/N3, >3.5t goods) /hcv
+#   * Buses — buses & coaches    (M2/M3)             /bus
+#
+# The dashboard is a Laravel + Inertia.js SPA with no public REST API; the
+# fetcher replays the session-filter flow (GET → PATCH /filter/<type> → GET
+# Inertia partial carsByEngineType) per variant. See scripts/fetch_ireland.py
+# and docs/architecture/15-source-ireland.md. Each run re-fetches a trailing
+# window per variant (revisions), with per-variant early-exit. When a CSV
+# changes, this workflow dispatches render-country.yml once per touched variant.
 
 on:
   workflow_dispatch:
     inputs:
-      since:
-        description: 'Backfill start YYYY-MM (optional; overrides trailing window)'
+      variant:
+        description: 'Variant to fetch (default: all)'
         required: false
-        default: ''
-        type: string
+        default: 'all'
+        type: choice
+        options: [all, whole, vans, hdv, buses]
   schedule:
-    # Ireland (SIMI) publishes the new month very early — usually on the 1st.
-    # Poll twice daily on the 1st–5th; the early-exit makes runs no-ops once the
-    # previous month is in the CSV. 04:00 and 13:00 UTC are both free slots.
+    # SIMI publishes the new month very early — usually on the 1st. Poll twice
+    # daily on the 1st–5th; per-variant early-exit makes runs no-ops once the
+    # previous month is in each CSV. 04:00 & 13:00 UTC are free slots.
     - cron: '0 4 1-5 * *'
     - cron: '0 13 1-5 * *'
 
@@ -43,27 +48,56 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Fetch & update Ireland.csv
+      - name: Fetch & update Ireland CSVs
         run: |
           python scripts/fetch_ireland.py \
-            ${SINCE:+--since "$SINCE"}
+            ${VARIANT:+--variant "$VARIANT"}
         env:
-          SINCE: ${{ inputs.since }}
+          VARIANT: ${{ inputs.variant }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/Ireland.csv" \
+                     "Vans:data/Ireland_Vans.csv" \
+                     "HDV:data/Ireland_HDV.csv" \
+                     "Buses:data/Ireland_Buses.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
 
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Ireland.csv
+          add: |
+            data/Ireland.csv
+            data/Ireland_Vans.csv
+            data/Ireland_HDV.csv
+            data/Ireland_Buses.csv
           message: 'chore: update Ireland data from stats.simi.ie'
           default_author: github_actions
 
-      - name: Trigger render
-        if: steps.commit.outputs.committed == 'true'
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Ireland \
-            -f variant=Whole
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Ireland \
+              -f variant="$variant"
+          done

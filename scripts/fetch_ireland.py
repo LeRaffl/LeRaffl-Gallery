@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Fetch Ireland new passenger-car registration data from the SIMI / motorstats
-public dashboard (stats.simi.ie) and upsert data/Ireland.csv.
+Fetch Ireland new registration data from the SIMI / motorstats public
+dashboard (stats.simi.ie) and upsert per-variant CSVs.
 
 Usage
 -----
-    python scripts/fetch_ireland.py [--months N] [--since YYYY-MM] [--force]
+    python scripts/fetch_ireland.py [--variant {whole,vans,hdv,buses,all}]
+                                    [--months N] [--since YYYY-MM] [--force]
 
+    --variant     Which slice to fetch (default: all).
     --months N    Trailing window of recent months to (re)fetch each run
                   (default 4 — captures the new month plus revisions to the
                   preceding few; SIMI restates recent months).
@@ -14,9 +16,12 @@ Usage
                   available (used once to populate history). Overrides --months.
     --force       Skip the 'previous month already present' early-exit.
 
-Output file
------------
-    data/Ireland.csv   <- variant=Whole (passenger cars, all engine types)
+Output files (one per SIMI vehicle-category dashboard, same session-filter flow)
+-------------------------------------------------------------------------------
+    data/Ireland.csv         <- Whole  passenger cars        (root /)
+    data/Ireland_Vans.csv    <- Vans   Light Commercial N1   (/lcv)
+    data/Ireland_HDV.csv     <- HDV    Heavy Commercial N2/N3 (/hcv)
+    data/Ireland_Buses.csv   <- Buses  buses & coaches M2/M3 (/bus)
 
 How the source works (reverse-engineered May 2026)
 --------------------------------------------------
@@ -78,8 +83,18 @@ import requests
 
 BASE = "https://stats.simi.ie"
 SOURCE = "stats.simi.ie"
-CSV_PATH = "data/Ireland.csv"
-VARIANT = "Whole"
+
+# Variant -> SIMI dashboard route / Inertia component / filter path / CSV.
+# Each SIMI vehicle-category dashboard uses the same session-filter flow; only
+# the route, the Inertia component name, and the /filter/<type> path differ.
+#   Whole  = passenger cars (root /)        Vans = Light Commercial (N1, <=3.5t)
+#   HDV    = Heavy Commercial (N2/N3 >3.5t)  Buses = buses & coaches (M2/M3)
+VARIANT_CONFIG = {
+    "Whole": {"route": "",    "component": "Public/Passenger", "filter": "passenger", "csv": "data/Ireland.csv"},
+    "Vans":  {"route": "lcv", "component": "Public/Lcv",       "filter": "lcv",       "csv": "data/Ireland_Vans.csv"},
+    "HDV":   {"route": "hcv", "component": "Public/Hcv",       "filter": "hcv",       "csv": "data/Ireland_HDV.csv"},
+    "Buses": {"route": "bus", "component": "Public/Bus",       "filter": "bus",       "csv": "data/Ireland_Buses.csv"},
+}
 
 MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
                "July", "August", "September", "October", "November", "December"]
@@ -133,8 +148,10 @@ class SimiClient:
     def _xsrf(self) -> str:
         return requests.utils.unquote(self.s.cookies.get("XSRF-TOKEN"))
 
-    def fetch_month(self, year: int, month: int) -> dict[str, float]:
-        """Return {canonical_col: count} for a single (year, month)."""
+    def fetch_month(self, variant: str, year: int, month: int) -> dict[str, float]:
+        """Return {canonical_col: count} for a single (variant, year, month)."""
+        cfg = VARIANT_CONFIG[variant]
+        page_url = f"{BASE}/{cfg['route']}" if cfg["route"] else f"{BASE}/"
         body = {
             "years": [{"name": year, "value": year}],
             "month_from": {"name": MONTH_NAMES[month - 1], "value": month},
@@ -147,25 +164,25 @@ class SimiClient:
             "colours": [], "segments": [], "counties": [],
         }
         p = self.s.patch(
-            f"{BASE}/filter/passenger",
+            f"{BASE}/filter/{cfg['filter']}",
             headers={
                 "X-XSRF-TOKEN": self._xsrf(),
                 "Content-Type": "application/json",
                 "Accept": "application/json",
                 "X-Requested-With": "XMLHttpRequest",
-                "Origin": BASE, "Referer": f"{BASE}/",
+                "Origin": BASE, "Referer": page_url,
             },
             data=json.dumps(body), allow_redirects=False, timeout=30,
         )
         if p.status_code not in (200, 302, 303):
-            raise RuntimeError(f"[{year}-{month:02d}] filter PATCH failed: "
+            raise RuntimeError(f"[{variant} {year}-{month:02d}] filter PATCH failed: "
                                f"HTTP {p.status_code} {p.text[:200]}")
         g = self.s.get(
-            f"{BASE}/",
+            page_url,
             headers={
                 "X-Inertia": "true",
                 "X-Inertia-Version": self.version,
-                "X-Inertia-Partial-Component": "Public/Passenger",
+                "X-Inertia-Partial-Component": cfg["component"],
                 "X-Inertia-Partial-Data": "carsByEngineType",
             },
             allow_redirects=False, timeout=30,
@@ -188,12 +205,12 @@ class SimiClient:
         return cols
 
 
-def row_from_cols(period: str, cols: dict[str, float]) -> dict | None:
+def row_from_cols(variant: str, period: str, cols: dict[str, float]) -> dict | None:
     total = sum(cols.values())
     if total == 0.0:
         return None
     return {
-        "period": period, "time_interval": "monthly", "variant": VARIANT, "source": SOURCE,
+        "period": period, "time_interval": "monthly", "variant": variant, "source": SOURCE,
         "BEV": cols.get("BEV", 0.0), "PHEV": cols.get("PHEV", 0.0), "HEV": cols.get("HEV", 0.0),
         "PETROL": cols.get("PETROL", 0.0), "DIESEL": cols.get("DIESEL", 0.0),
         "FLEXFUEL": cols.get("FLEXFUEL", 0.0), "OTHERS": cols.get("OTHERS", 0.0),
@@ -251,15 +268,34 @@ def month_range(start: tuple[int, int], end: tuple[int, int]):
             y, m = y + 1, 1
 
 
-def csv_has_period(csv_path: str, period: str) -> bool:
+def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
     if not os.path.exists(csv_path):
         return False
     with open(csv_path, newline="", encoding="utf-8") as f:
-        return any(r["period"] == period and r["variant"] == VARIANT for r in csv.DictReader(f))
+        return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
+
+
+def run_variant(client: "SimiClient", variant: str, start, end) -> None:
+    cfg = VARIANT_CONFIG[variant]
+    print(f"[{variant}] fetching {start[0]}-{start[1]:02d} .. {end[0]}-{end[1]:02d}")
+    new_rows: dict = {}
+    for y, mo in month_range(start, end):
+        cols = client.fetch_month(variant, y, mo)
+        row = row_from_cols(variant, f"{y}-{mo:02d}", cols)
+        if row is None:
+            continue
+        new_rows[(f"{y}-{mo:02d}", variant)] = row
+    if not new_rows:
+        print(f"[{variant}] no non-zero months fetched.")
+        return
+    added, updated = upsert_csv(cfg["csv"], new_rows)
+    print(f"[{variant}] {added} added, {updated} updated -> {cfg['csv']}")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--variant", choices=["whole", "vans", "hdv", "buses", "all"],
+                    default="all", help="Which slice to fetch (default: all).")
     ap.add_argument("--months", type=int, default=4,
                     help="Trailing window of recent months to (re)fetch (default 4).")
     ap.add_argument("--since", type=str, default=None,
@@ -268,12 +304,12 @@ def main() -> None:
                     help="Skip the 'previous month already present' early-exit.")
     args = ap.parse_args()
 
+    aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
+    targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
+
     py, pm = previous_month()
     prev_period = f"{py}-{pm:02d}"
-
-    if not args.since and not args.force and csv_has_period(CSV_PATH, prev_period):
-        print(f"CSV already has {prev_period}; nothing to do (use --force or --since).")
-        return
+    end = (py, pm)
 
     if args.since:
         m = re.match(r"(\d{4})-(\d{2})$", args.since)
@@ -281,30 +317,25 @@ def main() -> None:
             sys.exit("--since must be YYYY-MM")
         start = (int(m.group(1)), int(m.group(2)))
     else:
-        # trailing window ending at the previous month
         total = py * 12 + (pm - 1) - (args.months - 1)
         start = (total // 12, total % 12 + 1)
-    end = (py, pm)
+
+    # Per-variant early-exit (skip variants already current), unless --since/--force.
+    if not args.since and not args.force:
+        pending = [v for v in targets
+                   if not csv_has_period(VARIANT_CONFIG[v]["csv"], prev_period, v)]
+        for v in [v for v in targets if v not in pending]:
+            print(f"[{v}] CSV already has {prev_period}; skipping.")
+        targets = pending
+        if not targets:
+            print("All requested variants are current; nothing to do.")
+            return
 
     client = SimiClient()
     client.bootstrap()
-    print(f"Fetching Ireland {start[0]}-{start[1]:02d} .. {end[0]}-{end[1]:02d} "
-          f"(inertia version {client.version})")
-
-    new_rows: dict = {}
-    for y, mo in month_range(start, end):
-        cols = client.fetch_month(y, mo)
-        row = row_from_cols(f"{y}-{mo:02d}", cols)
-        if row is None:
-            print(f"  . {y}-{mo:02d} no data (skipped)")
-            continue
-        new_rows[(f"{y}-{mo:02d}", VARIANT)] = row
-
-    if not new_rows:
-        print("No non-zero months fetched.")
-        return
-    added, updated = upsert_csv(CSV_PATH, new_rows)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+    print(f"Inertia version {client.version}")
+    for variant in targets:
+        run_variant(client, variant, start, end)
 
 
 if __name__ == "__main__":

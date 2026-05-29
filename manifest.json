@@ -42,6 +42,126 @@
       "country_slug": "ireland"
     },
     {
+      "country": "Ireland (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_buses_ICE_BEV_20260529.png",
+      "url": "images/2026-04/ireland_buses_ICE_BEV_20260529.png",
+      "alt": "Ireland (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland_buses"
+    },
+    {
+      "country": "Ireland (Buses)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_buses_20260529.png",
+      "url": "images/2026-04/ireland_buses_20260529.png",
+      "alt": "Ireland (Buses) BEV trajectory",
+      "country_slug": "ireland_buses"
+    },
+    {
+      "country": "Ireland (Buses)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_buses_time_20260529.png",
+      "url": "images/2026-04/ireland_buses_time_20260529.png",
+      "alt": "Ireland (Buses) Transition time curve",
+      "country_slug": "ireland_buses"
+    },
+    {
+      "country": "Ireland (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_buses_ttm_shares_20260529.png",
+      "url": "images/2026-04/ireland_buses_ttm_shares_20260529.png",
+      "alt": "Ireland (Buses) TTM market split graph",
+      "country_slug": "ireland_buses"
+    },
+    {
+      "country": "Ireland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_hdv_ICE_BEV_20260529.png",
+      "url": "images/2026-04/ireland_hdv_ICE_BEV_20260529.png",
+      "alt": "Ireland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland_hdv"
+    },
+    {
+      "country": "Ireland (HDV)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_hdv_20260529.png",
+      "url": "images/2026-04/ireland_hdv_20260529.png",
+      "alt": "Ireland (HDV) BEV trajectory",
+      "country_slug": "ireland_hdv"
+    },
+    {
+      "country": "Ireland (HDV)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_hdv_time_20260529.png",
+      "url": "images/2026-04/ireland_hdv_time_20260529.png",
+      "alt": "Ireland (HDV) Transition time curve",
+      "country_slug": "ireland_hdv"
+    },
+    {
+      "country": "Ireland (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_hdv_ttm_shares_20260529.png",
+      "url": "images/2026-04/ireland_hdv_ttm_shares_20260529.png",
+      "alt": "Ireland (HDV) TTM market split graph",
+      "country_slug": "ireland_hdv"
+    },
+    {
+      "country": "Ireland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_vans_ICE_BEV_20260529.png",
+      "url": "images/2026-04/ireland_vans_ICE_BEV_20260529.png",
+      "alt": "Ireland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland_vans"
+    },
+    {
+      "country": "Ireland (Vans)",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_vans_20260529.png",
+      "url": "images/2026-04/ireland_vans_20260529.png",
+      "alt": "Ireland (Vans) BEV trajectory",
+      "country_slug": "ireland_vans"
+    },
+    {
+      "country": "Ireland (Vans)",
+      "type": "time",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_vans_time_20260529.png",
+      "url": "images/2026-04/ireland_vans_time_20260529.png",
+      "alt": "Ireland (Vans) Transition time curve",
+      "country_slug": "ireland_vans"
+    },
+    {
+      "country": "Ireland (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_vans_ttm_shares_20260529.png",
+      "url": "images/2026-04/ireland_vans_ttm_shares_20260529.png",
+      "alt": "Ireland (Vans) TTM market split graph",
+      "country_slug": "ireland_vans"
+    },
+    {
       "country": "Portugal",
       "type": "ICE_BEV",
       "period": "2026-04",

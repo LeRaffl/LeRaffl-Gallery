@@ -43,11 +43,12 @@ flowchart LR
 `data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
 (`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`), Denmark
 (`data/Denmark_Private.csv`, `data/Denmark_Industry.csv`, `data/Denmark_HDV.csv`,
-`data/Denmark_Vans.csv`) and Finland (`data/Finland_Private.csv`,
+`data/Denmark_Vans.csv`), Finland (`data/Finland_Private.csv`,
 `data/Finland_Industry.csv`, `data/Finland_HDV.csv`, `data/Finland_Vans.csv`,
-`data/Finland_Buses.csv`); R/render_country.R also retains a fall-through to the
-single-CSV-with-variant-column layout so countries that haven't been migrated
-yet still render.
+`data/Finland_Buses.csv`) and Ireland (`data/Ireland_Vans.csv`,
+`data/Ireland_HDV.csv`, `data/Ireland_Buses.csv`); R/render_country.R also
+retains a fall-through to the single-CSV-with-variant-column layout so countries
+that haven't been migrated yet still render.
 
 Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`, `data/Netherlands_HDV.csv`.
 
@@ -161,9 +162,9 @@ Sweden has a single `Whole` variant in `data/Sweden.csv`, sourced from SCB's PxW
 
 The full source-playbook — PxWeb v1 query shape, fuel codes, the HEV/FLEXFUEL handling, the CRLF→LF normalisation, fragility, maintenance recipes — lives in [13-source-sweden.md](13-source-sweden.md). Read that doc before changing anything in [scripts/fetch_sweden.py](../../scripts/fetch_sweden.py).
 
-### Ireland (single variant, Inertia session-filter source)
+### Ireland (four variants, Inertia session-filter source)
 
-Ireland has a single `Whole` variant in `data/Ireland.csv`, sourced from the SIMI / motorstats public dashboard (`stats.simi.ie`). There is **no public REST API** — it's a Laravel + Inertia.js SPA, so the fetcher replays a session-filter flow (GET → PATCH `/filter/passenger` → GET Inertia partial `carsByEngineType`); see [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py). Engine-type labels map to BEV/PHEV/HEV/PETROL/DIESEL/FLEXFUEL/OTHERS — Ireland reports **HEV** (a large slice) and **ethanol/flexifuel** natively, like Sweden. Source history starts 2010-01 (2008-2009 remain legacy rows). Migrated from the legacy local R pipeline; the migration normalised the file from the **old 12-column schema (no FLEXFUEL) to the canonical 13 columns** and re-sourced the full history so FLEXFUEL is populated across the plotted span (a half-filled FLEXFUEL column otherwise breaks the strict TTM 12-month window — see [15-source-ireland.md § 6](15-source-ireland.md)).
+Ireland has four variants — `Whole` (`data/Ireland.csv`), `Vans` (`data/Ireland_Vans.csv`, Light Commercial N1), `HDV` (`data/Ireland_HDV.csv`, Heavy Commercial N2/N3 >3.5t goods incl. tractor units) and `Buses` (`data/Ireland_Buses.csv`, M2/M3) — all sourced from the SIMI / motorstats public dashboard (`stats.simi.ie`). There is **no public REST API** — it's a Laravel + Inertia.js SPA, so the fetcher replays a session-filter flow per category (GET → PATCH `/filter/<type>` → GET Inertia partial `carsByEngineType`); see [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py). Engine-type labels map to BEV/PHEV/HEV/PETROL/DIESEL/FLEXFUEL/OTHERS — Ireland reports **HEV** (a large slice for passenger) and **ethanol/flexifuel** natively, like Sweden. All variants backfilled to 2010-01 (Whole's 2008-2009 remain legacy rows). Migrated from the legacy local R pipeline; the migration normalised `Ireland.csv` from the **old 12-column schema (no FLEXFUEL) to the canonical 13 columns** and re-sourced the full history so FLEXFUEL is populated across the plotted span (a half-filled FLEXFUEL column otherwise breaks the strict TTM 12-month window — see [15-source-ireland.md § 6](15-source-ireland.md)). The commercial variants are diesel-dominated with electrification just starting, so their fits are deliberately noisy.
 
 The full source-playbook — the Inertia session-filter flow, the `month_from` must-be-an-object and Inertia-version quirks, the FLEXFUEL backfill gotcha, fragility, maintenance recipes — lives in [15-source-ireland.md](15-source-ireland.md). Read that doc before changing anything in [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py).
 
