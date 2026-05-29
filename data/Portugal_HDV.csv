@@ -1,0 +1,5 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes
+2026-01,monthly,HDV,ACAP,11.0,0.0,0.0,0.0,751.0,,0.0,762.0,
+2026-02,monthly,HDV,ACAP,7.0,0.0,0.0,0.0,469.0,,0.0,476.0,
+2026-03,monthly,HDV,ACAP,3.0,0.0,0.0,0.0,555.0,,2.0,560.0,
+2026-04,monthly,HDV,ACAP,9.0,0.0,0.0,0.0,471.0,,0.0,480.0,

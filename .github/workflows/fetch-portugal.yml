@@ -1,25 +1,40 @@
 name: Fetch Portugal data (ACAP / motordata)
 
-# Fetches new passenger-car registrations from ACAP's public data backend
-# (motordata.pt/autoinforma) and upserts data/Portugal.csv (single variant:
-# Whole). Per fuel, the endpoint returns the current calendar year's monthly
-# series; OTHERS is computed as the residual against the all-fuels total.
+# Fetches new registrations from ACAP's motordata.pt chart backend and upserts
+# per-variant CSVs:
+#   * Whole — Ligeiros de Passageiros (passenger cars)        -> auto-render
+#   * Vans  — Ligeiros de Mercadorias (N1, <=3.5t)            -> fetch only
+#   * HDV   — Pesados de Mercadorias  (N2/N3, >3.5t goods)    -> fetch only
+#   * Buses — Pesados de Passageiros  (M2/M3)                 -> fetch only
+#
+# IMPORTANT: only Whole is auto-rendered on schedule. The commercial variants
+# are fetched and committed (so their history accumulates — motordata only
+# exposes the current year, no year parameter) but NOT auto-rendered, because
+# their history is still very thin (started 2025/2026). Render them on demand
+# via render-country.yml once enough months have accumulated.
+#
 # See scripts/fetch_portugal.py and docs/architecture/16-source-portugal.md.
 
 on:
+  # TEMP: push trigger to bootstrap the workflow on this feature branch before
+  # merge. Remove together with the `push:` block once on master.
+  push:
+    branches: [feat/portugal-commercials]
+    paths:
+      - '.github/workflows/fetch-portugal.yml'
+      - 'scripts/fetch_portugal.py'
   workflow_dispatch:
     inputs:
       sheet:
-        description: 'Backfill/patch from the Google Sheet instead of motordata (true/false)'
+        description: 'Backfill/patch Whole from the Google Sheet (true/false)'
         required: false
         default: 'false'
         type: choice
         options: ['false', 'true']
   schedule:
     # ACAP publishes on the 1st from ~17:00 Lisbon time (WET=UTC, WEST=UTC+1).
-    # Poll on the 1st–5th at 17:30 and 20:30 UTC (both after publication in
-    # either season); the early-exit makes runs no-ops once the previous month
-    # is in the CSV. Both slots are otherwise free.
+    # Poll on the 1st–5th at 17:30 and 20:30 UTC; per-variant early-exit makes
+    # runs no-ops once the previous month is in each CSV.
     - cron: '30 17 1-5 * *'
     - cron: '30 20 1-5 * *'
 
@@ -40,22 +55,38 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Fetch & update Portugal.csv
+      - name: Fetch & update Portugal CSVs (all variants)
         run: |
           python scripts/fetch_portugal.py ${SHEET:+--sheet}
         env:
           SHEET: ${{ inputs.sheet == 'true' && '1' || '' }}
 
+      - name: Detect whether Whole changed
+        id: changed
+        run: |
+          # Only the Whole variant is auto-rendered. Commercials are committed
+          # but not rendered on schedule (thin history).
+          git add -N data/Portugal.csv 2>/dev/null || true
+          if git diff --quiet -- data/Portugal.csv; then
+            echo "whole=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "whole=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Portugal.csv
+          add: |
+            data/Portugal.csv
+            data/Portugal_Vans.csv
+            data/Portugal_HDV.csv
+            data/Portugal_Buses.csv
           message: 'chore: update Portugal data from ACAP (motordata.pt)'
           default_author: github_actions
 
-      - name: Trigger render
-        if: steps.commit.outputs.committed == 'true'
+      - name: Trigger render (Whole only)
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.whole == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

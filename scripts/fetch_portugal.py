@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 """
-Fetch Portugal new passenger-car registration data from ACAP's public data
-backend (motordata.pt / autoinforma) and upsert data/Portugal.csv.
+Fetch Portugal new registration data from ACAP's public data backend
+(motordata.pt / autoinforma) and upsert per-variant CSVs.
 
 Usage
 -----
-    python scripts/fetch_portugal.py [--force]
-    python scripts/fetch_portugal.py --sheet [--force]    # backfill/patch from Google Sheet
+    python scripts/fetch_portugal.py [--variant {whole,vans,hdv,buses,all}] [--force]
+    python scripts/fetch_portugal.py --sheet [--force]    # backfill/patch Whole from Google Sheet
 
-Output file
------------
-    data/Portugal.csv   <- variant=Whole (Ligeiros de Passageiros, all fuels)
+Output files (one per motordata vehicle-category; same POST flow, different cat)
+-------------------------------------------------------------------------------
+    data/Portugal.csv         <- Whole  Ligeiros de Passageiros (M1)        cat 0
+    data/Portugal_Vans.csv    <- Vans   Ligeiros de Mercadorias (N1 <=3.5t) cat 1
+    data/Portugal_HDV.csv     <- HDV    Pesados de Mercadorias (N2/N3 >3.5t) cat 3
+    data/Portugal_Buses.csv   <- Buses  Pesados de Passageiros (M2/M3)      cat 2
+
+Note: motordata exposes only the CURRENT calendar year (no year param), and the
+Google Sheet only has passenger history — so the commercial variants start thin
+(2025/2026) and accumulate over time. They are fetched/committed but not
+auto-rendered on schedule (see .github/workflows/fetch-portugal.yml).
 
 Sources
 -------
@@ -69,10 +77,17 @@ import requests
 
 CHART_URL = "https://motordata.pt/autoinforma/chartdata_novo.php"
 CHART_REFERER = "https://motordata.pt/autoinforma/charts1t.php"
-CAT_PASSENGER = "0"
 SOURCE = "ACAP"
-CSV_PATH = "data/Portugal.csv"
-VARIANT = "Whole"
+
+# Variant -> motordata vehicle-category code (list_catveiculo) + CSV.
+#   0 Ligeiros Passageiros (M1) | 1 Ligeiros Mercadorias (N1, Vans) |
+#   2 Pesados Passageiros (M2/M3, Buses) | 3 Pesados Mercadorias (N2/N3 >3.5t, HDV)
+VARIANT_CONFIG = {
+    "Whole": {"cat": "0", "csv": "data/Portugal.csv"},
+    "Vans":  {"cat": "1", "csv": "data/Portugal_Vans.csv"},
+    "HDV":   {"cat": "3", "csv": "data/Portugal_HDV.csv"},
+    "Buses": {"cat": "2", "csv": "data/Portugal_Buses.csv"},
+}
 
 SHEET_ID = "1tT_Ja3de_S528_JeSBkj74q-lfEIekE5-GRm9_pWgUo"
 SHEET_GID = "1007806052"
@@ -96,12 +111,12 @@ CSV_COLUMNS = [
 ]
 
 
-def fetch_fuel_series(session: requests.Session, fuel_code: str) -> list[float]:
-    """Return the current year's monthly series for one fuel (index 0 = January)."""
+def fetch_fuel_series(session: requests.Session, cat: str, fuel_code: str) -> list[float]:
+    """Current year's monthly series for one (vehicle category, fuel). Index 0 = January."""
     r = session.post(
         CHART_URL,
         headers={"Referer": CHART_REFERER, "X-Requested-With": "XMLHttpRequest"},
-        data={"list_catveiculo": CAT_PASSENGER, "list_combustivel": fuel_code},
+        data={"list_catveiculo": cat, "list_combustivel": fuel_code},
         timeout=30,
     )
     r.raise_for_status()
@@ -109,19 +124,19 @@ def fetch_fuel_series(session: requests.Session, fuel_code: str) -> list[float]:
     return [float(str(v).replace(".", "").replace(",", ".") or 0) for v in data.get("thisyear", [])]
 
 
-def fetch_motordata() -> dict:
+def fetch_motordata(cat: str) -> dict:
     """Build {period: {col: value, 'TOTAL': t}} for the current calendar year."""
     year = date.today().year
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
 
     # All-fuels total (empty fuel filter) — authoritative monthly TOTAL.
-    total_series = fetch_fuel_series(session, "")
+    total_series = fetch_fuel_series(session, cat, "")
 
     # month index -> {core col: value}
     by_month: dict[int, dict[str, float]] = {}
     for fuel_code, col in PT_CORE_FUEL.items():
-        series = fetch_fuel_series(session, fuel_code)
+        series = fetch_fuel_series(session, cat, fuel_code)
         for i, val in enumerate(series):
             by_month.setdefault(i, {}).setdefault(col, 0.0)
             by_month[i][col] += val
@@ -165,15 +180,15 @@ def fetch_sheet() -> dict:
     return out
 
 
-def to_rows(parsed: dict, from_sheet: bool) -> dict:
+def to_rows(parsed: dict, variant: str, from_sheet: bool) -> dict:
     rows: dict = {}
     for period, cols in parsed.items():
         total = cols.get("TOTAL", "")
         total_num = float(total) if total not in ("", None) else 0.0
         if total_num == 0.0:
             continue
-        rows[(period, VARIANT)] = {
-            "period": period, "time_interval": "monthly", "variant": VARIANT, "source": SOURCE,
+        rows[(period, variant)] = {
+            "period": period, "time_interval": "monthly", "variant": variant, "source": SOURCE,
             "BEV": cols.get("BEV", 0.0 if not from_sheet else ""),
             "PHEV": cols.get("PHEV", 0.0 if not from_sheet else ""),
             "HEV": cols.get("HEV", 0.0 if not from_sheet else ""),
@@ -229,38 +244,60 @@ def previous_month_period() -> str:
     return f"{t.year}-{t.month - 1:02d}"
 
 
-def csv_has_period(csv_path: str, period: str) -> bool:
+def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
     if not os.path.exists(csv_path):
         return False
     with open(csv_path, newline="", encoding="utf-8") as f:
-        return any(r["period"] == period and r["variant"] == VARIANT for r in csv.DictReader(f))
+        return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
+
+
+def run_variant(variant: str, from_sheet: bool) -> None:
+    cfg = VARIANT_CONFIG[variant]
+    if from_sheet:
+        parsed = fetch_sheet()  # sheet only carries passenger (Whole)
+    else:
+        parsed = fetch_motordata(cfg["cat"])
+    rows = to_rows(parsed, variant, from_sheet)
+    if not rows:
+        print(f"[{variant}] no non-zero months fetched.")
+        return
+    periods = sorted(p for p, _ in rows)
+    print(f"[{variant}] parsed {len(rows)} months ({periods[0]} .. {periods[-1]})")
+    added, updated = upsert_csv(cfg["csv"], rows)
+    print(f"[{variant}] {added} added, {updated} updated -> {cfg['csv']}")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--variant", choices=["whole", "vans", "hdv", "buses", "all"],
+                    default="all", help="Which slice to fetch (default: all).")
     ap.add_argument("--sheet", action="store_true",
-                    help="Backfill/patch from the maintainer's Google Sheet instead of motordata.")
+                    help="Backfill/patch the Whole variant from the maintainer's Google Sheet "
+                         "(the sheet only carries passenger cars).")
     ap.add_argument("--force", action="store_true", help="Skip the 'previous month present' early-exit.")
     args = ap.parse_args()
 
-    if not args.sheet and not args.force and csv_has_period(CSV_PATH, previous_month_period()):
-        print(f"CSV already has {previous_month_period()}; nothing to do (use --force or --sheet).")
-        return
-
     if args.sheet:
-        parsed = fetch_sheet()
-        rows = to_rows(parsed, from_sheet=True)
-    else:
-        parsed = fetch_motordata()
-        rows = to_rows(parsed, from_sheet=False)
-
-    if not rows:
-        print("No non-zero months fetched.")
+        # The Google Sheet only has passenger data → Whole only.
+        run_variant("Whole", from_sheet=True)
         return
-    periods = sorted(p for p, _ in rows)
-    print(f"Parsed {len(rows)} months ({periods[0]} .. {periods[-1]})")
-    added, updated = upsert_csv(CSV_PATH, rows)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+
+    aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
+    targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
+
+    if not args.force:
+        prev = previous_month_period()
+        pending = [v for v in targets
+                   if not csv_has_period(VARIANT_CONFIG[v]["csv"], prev, v)]
+        for v in [v for v in targets if v not in pending]:
+            print(f"[{v}] CSV already has {prev}; skipping.")
+        targets = pending
+        if not targets:
+            print("All requested variants are current; nothing to do.")
+            return
+
+    for variant in targets:
+        run_variant(variant, from_sheet=False)
 
 
 if __name__ == "__main__":
