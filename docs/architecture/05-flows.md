@@ -26,6 +26,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
 | R | [Auto-ingest Finland from PxWeb](#flow-r--pxweb-ingest) | Daily cron (1st–15th, 04:40 UTC) or manual dispatch | Updated `data/Finland.csv` and five variant CSVs → per-variant Flow B |
 | S | [Auto-ingest Sweden from SCB](#flow-s--scb-ingest) | Daily cron (1st–15th, 05:50 UTC) or manual dispatch | Updated `data/Sweden.csv` → Flow B for Sweden |
+| T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
 
 ---
 
@@ -510,7 +511,7 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 | Always-list (16) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
 | Conditional-list (5) | Luxembourg, Norway, Poland, Spain, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ACEA / DGT / asierlizarraga`, `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. |
 
-ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Austria/Germany/Ireland/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel). All four now have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
+ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Ireland now has its own workflow ([Flow T](#flow-t--simi-ingest)); Austria/Germany/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel) and have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
 
 ### Previous-year corrections
 
@@ -1176,6 +1177,48 @@ sequenceDiagram
 **Why daily 1st–15th at 05:50 UTC:** SCB publishes the previous month early in the following month; daily polling catches it and the early-exit makes post-publication days free. 05:50 UTC sits between fetch-denmark (05:15) and fetch-netherlands (06:30).
 
 **Known fragility:** a new fuel code raises `RuntimeError("unmapped fuel code …")` and aborts before commit — recovery is one line in `DRIV_TO_COL`. If SCB deprecates the v1 API, switch to the v2 endpoint (`statistikdatabasen.scb.se/api/v2/tables/TAB3277/data`); see [13-source-sweden.md § "Known fragility"](13-source-sweden.md). Migration note: Sweden previously rendered via the legacy local R pipeline; the data file was committed (CRLF), and this flow normalised it to LF.
+
+## Flow T — SIMI ingest
+
+Ireland is fed from the SIMI / motorstats public dashboard (`stats.simi.ie`). It is the **only** database-fed country with **no public API**: the dashboard is a Laravel + Inertia.js SPA, so the fetcher replays a **server-side session-filter flow** rather than calling an endpoint. Single variant (Whole, passenger cars). A headless browser was used once to reverse-engineer the flow; the fetcher itself runs headless via `requests`.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-ireland.yml job
+    participant SIMI as stats.simi.ie (Inertia SPA)
+    participant CSV as data/Ireland.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (1st–5th, 04:00 & 13:00 UTC)
+    Job->>Job: Early-exit if CSV already has previous-month row
+    Job->>SIMI: GET / (cookies XSRF-TOKEN + session; Inertia version from data-page)
+    loop per month in trailing window
+        Job->>SIMI: PATCH /filter/passenger {years:[{name,value}], month_from/to:{name,value}, registration_type:new-total}<br/>(X-XSRF-TOKEN) → 303
+        Job->>SIMI: GET / (X-Inertia, version, Partial-Data: carsByEngineType)
+        SIMI-->>Job: engine-type datasets for that month
+        Job->>Job: map labels → BEV/PHEV/HEV/PETROL/DIESEL/FLEXFUEL/OTHERS; skip TOTAL==0
+    end
+    Job->>CSV: Upsert (13-col schema)
+    alt CSV changed
+        Job->>CSV: Commit data/Ireland.csv
+        Job->>Render: gh workflow run render-country.yml -f country=Ireland -f variant=Whole
+    else unchanged
+        Job-->>Cron: Exit cleanly (no-op)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py). The full session-filter flow, the two killer quirks (`month_from`/`month_to` must be `{name,value}` objects — a bare int 500s; `X-Inertia-Version` must match or you get 409), the engine-type label map, the FLEXFUEL backfill gotcha, and the re-capture recipe live in [15-source-ireland.md](15-source-ireland.md).
+
+**Vehicle scope:** Passenger cars only (`Whole`). The dashboard also exposes `/lcv`, `/hcv`, `/bus`; if added later the mapping is HCV→HDV (goods vehicles >3.5t), LCV→Vans, Bus→Buses — see [15-source-ireland.md § 5](15-source-ireland.md).
+
+**Why HEV and FLEXFUEL render natively:** SIMI splits Petrol/Diesel Electric (Hybrid) → HEV (a large slice in Ireland) and Ethanol/Petrol+Ethanol/Diesel → FLEXFUEL. The renderer gives both their own TTM slices and folds them into ICE for the three-curve. No renderer change needed.
+
+**The FLEXFUEL backfill lesson:** the migration added the FLEXFUEL column; populating it only on recent months left a half-filled column that made the strict TTM 12-month window drop the whole plot. Fixed by re-fetching the full source history (2010-01+) so FLEXFUEL is complete across the plotted span. See [15-source-ireland.md § 6](15-source-ireland.md).
+
+**Why twice-daily on the 1st–5th:** SIMI publishes the new month very early — usually on the 1st. Polling twice daily early in the month catches it fast; the early-exit makes runs no-ops once the previous month is in. Each active run re-fetches a trailing window (default 4 months) to absorb SIMI's revisions.
+
+**Known fragility:** SIMI redeploys rotate the Inertia version (self-heals — read fresh each run); a new engine-type label raises `RuntimeError` before commit; if SIMI restructures the SPA, re-capture the Inertia prop names and the `/filter/passenger` request shape in a browser. See [15-source-ireland.md § 9](15-source-ireland.md). Migration note: Ireland previously rendered via the legacy local R pipeline with an older 12-column (no-FLEXFUEL) CSV; this flow normalised it to 13 columns.
 
 ## See also
 

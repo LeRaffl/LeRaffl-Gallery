@@ -161,6 +161,12 @@ Sweden has a single `Whole` variant in `data/Sweden.csv`, sourced from SCB's PxW
 
 The full source-playbook — PxWeb v1 query shape, fuel codes, the HEV/FLEXFUEL handling, the CRLF→LF normalisation, fragility, maintenance recipes — lives in [13-source-sweden.md](13-source-sweden.md). Read that doc before changing anything in [scripts/fetch_sweden.py](../../scripts/fetch_sweden.py).
 
+### Ireland (single variant, Inertia session-filter source)
+
+Ireland has a single `Whole` variant in `data/Ireland.csv`, sourced from the SIMI / motorstats public dashboard (`stats.simi.ie`). There is **no public REST API** — it's a Laravel + Inertia.js SPA, so the fetcher replays a session-filter flow (GET → PATCH `/filter/passenger` → GET Inertia partial `carsByEngineType`); see [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py). Engine-type labels map to BEV/PHEV/HEV/PETROL/DIESEL/FLEXFUEL/OTHERS — Ireland reports **HEV** (a large slice) and **ethanol/flexifuel** natively, like Sweden. Source history starts 2010-01 (2008-2009 remain legacy rows). Migrated from the legacy local R pipeline; the migration normalised the file from the **old 12-column schema (no FLEXFUEL) to the canonical 13 columns** and re-sourced the full history so FLEXFUEL is populated across the plotted span (a half-filled FLEXFUEL column otherwise breaks the strict TTM 12-month window — see [15-source-ireland.md § 6](15-source-ireland.md)).
+
+The full source-playbook — the Inertia session-filter flow, the `month_from` must-be-an-object and Inertia-version quirks, the FLEXFUEL backfill gotcha, fragility, maintenance recipes — lives in [15-source-ireland.md](15-source-ireland.md). Read that doc before changing anything in [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py).
+
 ---
 
 ## 3.2 Model Parameters

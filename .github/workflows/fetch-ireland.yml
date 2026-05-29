@@ -1,0 +1,69 @@
+name: Fetch Ireland data (SIMI motorstats)
+
+# Fetches new passenger-car registrations from the SIMI / motorstats public
+# dashboard (stats.simi.ie) and upserts data/Ireland.csv (single variant: Whole).
+# The dashboard is a Laravel + Inertia.js SPA with no public REST API; the
+# fetcher replays the session-filter flow (GET → PATCH /filter/passenger → GET
+# Inertia partial carsByEngineType). See scripts/fetch_ireland.py and
+# docs/architecture/15-source-ireland.md.
+#
+# Each run re-fetches a trailing window of recent months (default 4) to pick up
+# SIMI's revisions, with an early-exit once the previous month is already in the
+# CSV. When the CSV changes, this workflow dispatches render-country.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Backfill start YYYY-MM (optional; overrides trailing window)'
+        required: false
+        default: ''
+        type: string
+  schedule:
+    # Ireland (SIMI) publishes the new month very early — usually on the 1st.
+    # Poll twice daily on the 1st–5th; the early-exit makes runs no-ops once the
+    # previous month is in the CSV. 04:00 and 13:00 UTC are both free slots.
+    - cron: '0 4 1-5 * *'
+    - cron: '0 13 1-5 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Ireland.csv
+        run: |
+          python scripts/fetch_ireland.py \
+            ${SINCE:+--since "$SINCE"}
+        env:
+          SINCE: ${{ inputs.since }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Ireland.csv
+          message: 'chore: update Ireland data from stats.simi.ie'
+          default_author: github_actions
+
+      - name: Trigger render
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Ireland \
+            -f variant=Whole
