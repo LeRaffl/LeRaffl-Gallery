@@ -1,0 +1,11 @@
+🇮🇪 Ireland (Vans) - April 26 - BEV Trajectory
+3.7% BEV
+3.6% PHEV
+92.7% ICE (of which 1.3%p were HEV)
+
+Trailing 12 months are:
+6.1% BEV
+2.5% PHEV
+91.4% ICE (of which 0.6%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

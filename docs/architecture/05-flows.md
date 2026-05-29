@@ -1181,7 +1181,7 @@ sequenceDiagram
 
 ## Flow T — SIMI ingest
 
-Ireland is fed from the SIMI / motorstats public dashboard (`stats.simi.ie`). It is the **only** database-fed country with **no public API**: the dashboard is a Laravel + Inertia.js SPA, so the fetcher replays a **server-side session-filter flow** rather than calling an endpoint. Single variant (Whole, passenger cars). A headless browser was used once to reverse-engineer the flow; the fetcher itself runs headless via `requests`.
+Ireland is fed from the SIMI / motorstats public dashboard (`stats.simi.ie`). It is the **only** database-fed country with **no public API**: the dashboard is a Laravel + Inertia.js SPA, so the fetcher replays a **server-side session-filter flow** rather than calling an endpoint. Four variants — Whole (passenger), Vans (`/lcv`), HDV (`/hcv`), Buses (`/bus`) — all via the identical flow against different routes/components, dispatching a render per touched variant. A headless browser was used once to reverse-engineer the flow; the fetcher itself runs headless via `requests`.
 
 ```mermaid
 sequenceDiagram
@@ -1211,7 +1211,7 @@ sequenceDiagram
 
 **Where parsing lives:** [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py). The full session-filter flow, the two killer quirks (`month_from`/`month_to` must be `{name,value}` objects — a bare int 500s; `X-Inertia-Version` must match or you get 409), the engine-type label map, the FLEXFUEL backfill gotcha, and the re-capture recipe live in [15-source-ireland.md](15-source-ireland.md).
 
-**Vehicle scope:** Passenger cars only (`Whole`). The dashboard also exposes `/lcv`, `/hcv`, `/bus`; if added later the mapping is HCV→HDV (goods vehicles >3.5t), LCV→Vans, Bus→Buses — see [15-source-ireland.md § 5](15-source-ireland.md).
+**Vehicle scope:** Whole = passenger cars (M1); Vans = Light Commercial (N1 ≤3.5t, `/lcv`); HDV = Heavy Commercial (N2/N3 >3.5t goods incl. tractor units, `/hcv`); Buses = M2/M3 (`/bus`). Commercials backfilled to 2010-01 and are diesel-dominated with electrification just starting (noisy fits by design). See [15-source-ireland.md § 5](15-source-ireland.md).
 
 **Why HEV and FLEXFUEL render natively:** SIMI splits Petrol/Diesel Electric (Hybrid) → HEV (a large slice in Ireland) and Ethanol/Petrol+Ethanol/Diesel → FLEXFUEL. The renderer gives both their own TTM slices and folds them into ICE for the three-curve. No renderer change needed.
 
