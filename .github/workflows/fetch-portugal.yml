@@ -1,0 +1,72 @@
+name: Fetch Portugal data (ACAP / motordata)
+
+# Fetches new passenger-car registrations from ACAP's public data backend
+# (motordata.pt/autoinforma) and upserts data/Portugal.csv (single variant:
+# Whole). Per fuel, the endpoint returns the current calendar year's monthly
+# series; OTHERS is computed as the residual against the all-fuels total.
+# See scripts/fetch_portugal.py and docs/architecture/16-source-portugal.md.
+
+on:
+  # TEMP: push trigger to bootstrap the workflow on this feature branch before
+  # merge. Remove together with the `push:` block once on master.
+  push:
+    branches: [feat/portugal-data-pipeline]
+    paths:
+      - '.github/workflows/fetch-portugal.yml'
+      - 'scripts/fetch_portugal.py'
+  workflow_dispatch:
+    inputs:
+      sheet:
+        description: 'Backfill/patch from the Google Sheet instead of motordata (true/false)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+  schedule:
+    # ACAP publishes on the 1st from ~17:00 Lisbon time (WET=UTC, WEST=UTC+1).
+    # Poll on the 1st–5th at 17:30 and 20:30 UTC (both after publication in
+    # either season); the early-exit makes runs no-ops once the previous month
+    # is in the CSV. Both slots are otherwise free.
+    - cron: '30 17 1-5 * *'
+    - cron: '30 20 1-5 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Portugal.csv
+        run: |
+          python scripts/fetch_portugal.py ${SHEET:+--sheet}
+        env:
+          SHEET: ${{ inputs.sheet == 'true' && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Portugal.csv
+          message: 'chore: update Portugal data from ACAP (motordata.pt)'
+          default_author: github_actions
+
+      - name: Trigger render
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Portugal \
+            -f variant=Whole
