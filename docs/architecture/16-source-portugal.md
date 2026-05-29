@@ -96,14 +96,30 @@ motordata's live values to within a few units (motordata is fractionally newer
 on recent months — routine ACAP revision; motordata is the live truth). The
 sheet is used for backfill / patching, not as the live source.
 
-## 5. Vehicle categories (only passenger cars used)
+## 5. The four variants (`list_catveiculo`)
 
-`list_catveiculo` values: `0` Ligeiros de Passageiros (passenger cars) — used;
-`1` Ligeiros de Mercadorias (light goods → **Vans**); `2` Pesados de Passageiros
-(**Buses**); `3` Pesados de Mercadorias (heavy goods > 3.5 t → **HDV**, matches
-our N2/N3 convention); plus mopeds/motorcycles. If the commercial variants are
-added later, the mapping is HCV(3)→HDV, LCV(1)→Vans, Bus(2)→Buses, each via the
-same flow with a different `list_catveiculo`.
+`VARIANT_CONFIG` maps each variant to a motordata vehicle-category code via the
+identical POST flow (canonical definitions: [09-glossary.md § Variant definitions](09-glossary.md#variant-definitions-canonical)):
+
+| Variant | CSV | cat | Source category | EU class |
+|---|---|---|---|---|
+| `Whole` | `data/Portugal.csv` | `0` | Ligeiros de Passageiros | M1 |
+| `Vans` | `data/Portugal_Vans.csv` | `1` | Ligeiros de Mercadorias | N1 (≤ 3.5 t) |
+| `HDV` | `data/Portugal_HDV.csv` | `3` | Pesados de Mercadorias (incl. tractor units) | N2/N3 (> 3.5 t) |
+| `Buses` | `data/Portugal_Buses.csv` | `2` | Pesados de Passageiros | M2/M3 |
+
+(Mopeds/motorcycles categories 4–7 are not ingested.)
+
+**Commercials are fetch-only — not auto-rendered on schedule.** motordata exposes
+only the current calendar year (no year param) and the Google Sheet has no
+commercial history, so Vans/HDV/Buses start very thin (2025/2026) and accumulate
+month by month. A Weibull fit on 4 points is meaningless (the first eyeball
+render gave "175 years" transitions and the TTM was skipped for lack of a
+12-month window). So `fetch-portugal.yml` fetches + commits all four CSVs but
+**dispatches a render only for `Whole`**; render the commercials on demand once
+enough months have accumulated. Portuguese **buses electrify fast** (BEV often
+exceeds diesel monthly) — the most interesting commercial slice once it has
+depth.
 
 ## 6. The December year-boundary caveat
 
@@ -175,7 +191,8 @@ curl -s -X POST 'https://motordata.pt/autoinforma/chartdata_novo.php' \
 
 ## 11. What is **not** in this pipeline
 
-- LCV / HCV / Bus variants (passenger cars only for now — §5).
+- Mopeds / motorcycles (categories 4–7). The four car/van/lorry/bus variants
+  are ingested; commercials are fetch-only (not auto-rendered) — see §5.
 - A year parameter / arbitrary historical fetch from motordata (current year only).
 - The PDF on the ACAP page (it publishes a few hours later than the chart data —
   the live chart is the earlier source).

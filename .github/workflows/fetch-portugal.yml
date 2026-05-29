@@ -16,13 +16,6 @@ name: Fetch Portugal data (ACAP / motordata)
 # See scripts/fetch_portugal.py and docs/architecture/16-source-portugal.md.
 
 on:
-  # TEMP: push trigger to bootstrap the workflow on this feature branch before
-  # merge. Remove together with the `push:` block once on master.
-  push:
-    branches: [feat/portugal-commercials]
-    paths:
-      - '.github/workflows/fetch-portugal.yml'
-      - 'scripts/fetch_portugal.py'
   workflow_dispatch:
     inputs:
       sheet:

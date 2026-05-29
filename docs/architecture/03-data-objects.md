@@ -43,11 +43,13 @@ flowchart LR
 `data/<Country>_<Variant>.csv` for non-Whole variants. Active for Netherlands
 (`data/Netherlands_Used.csv`, `data/Netherlands_HDV.csv`), Denmark
 (`data/Denmark_Private.csv`, `data/Denmark_Industry.csv`, `data/Denmark_HDV.csv`,
-`data/Denmark_Vans.csv`) and Finland (`data/Finland_Private.csv`,
+`data/Denmark_Vans.csv`), Finland (`data/Finland_Private.csv`,
 `data/Finland_Industry.csv`, `data/Finland_HDV.csv`, `data/Finland_Vans.csv`,
-`data/Finland_Buses.csv`); R/render_country.R also retains a fall-through to the
-single-CSV-with-variant-column layout so countries that haven't been migrated
-yet still render.
+`data/Finland_Buses.csv`) and Portugal (`data/Portugal_Vans.csv`,
+`data/Portugal_HDV.csv`, `data/Portugal_Buses.csv`); Ireland adds the same
+three (`data/Ireland_Vans.csv`, `_HDV`, `_Buses`). R/render_country.R also
+retains a fall-through to the single-CSV-with-variant-column layout so countries
+that haven't been migrated yet still render.
 
 Examples: `data/Germany.csv`, `data/Türkiye.csv`, `data/New Zealand.csv`, `data/Netherlands_HDV.csv`.
 
@@ -167,9 +169,9 @@ Ireland has a single `Whole` variant in `data/Ireland.csv`, sourced from the SIM
 
 The full source-playbook — the Inertia session-filter flow, the `month_from` must-be-an-object and Inertia-version quirks, the FLEXFUEL backfill gotcha, fragility, maintenance recipes — lives in [15-source-ireland.md](15-source-ireland.md). Read that doc before changing anything in [scripts/fetch_ireland.py](../../scripts/fetch_ireland.py).
 
-### Portugal (single variant, OTHERS as residual)
+### Portugal (Whole + commercials, OTHERS as residual)
 
-Portugal has a single `Whole` variant in `data/Portugal.csv`, sourced from ACAP via its motordata.pt chart backend (`chartdata_novo.php`). The endpoint returns the **current calendar year's** monthly series per fuel (no year parameter); see [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). Fuel codes map to BEV/PHEV/HEV/PETROL/DIESEL; **OTHERS is computed as the residual** against the all-fuels total (the fuel dropdown is incomplete, so summing named "other" codes would undercount — verified against the maintainer's Google Sheet). Portugal reports **HEV** natively but **never reports ethanol/flexfuel**, so the FLEXFUEL column is **uniformly empty** (an all-empty column is skipped by the TTM logic — no half-fill hazard). Migrated from the legacy local R pipeline; the file went from the old 12-column schema to the canonical 13. History retained from 2010-01; a `--sheet` mode patches from the Google Sheet (also the fallback for the December year-boundary, when motordata's current-year window can't yet see December).
+Portugal has `Whole` (`data/Portugal.csv`) plus three **fetch-only** commercial variants — `Vans` (N1), `HDV` (N2/N3 >3.5t goods incl. tractor units), `Buses` (M2/M3) — sourced from ACAP via its motordata.pt chart backend (`chartdata_novo.php`). The endpoint returns the **current calendar year's** monthly series per fuel (no year parameter); see [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). Fuel codes map to BEV/PHEV/HEV/PETROL/DIESEL; **OTHERS is computed as the residual** against the all-fuels total (the fuel dropdown is incomplete, so summing named "other" codes would undercount — verified against the maintainer's Google Sheet). Portugal reports **HEV** natively but **never reports ethanol/flexfuel**, so the FLEXFUEL column is **uniformly empty** (an all-empty column is skipped by the TTM logic — no half-fill hazard). `Whole` was migrated from the legacy local R pipeline (old 12-column schema → canonical 13) and its history is retained from 2010-01; a `--sheet` mode patches it from the Google Sheet (also the fallback for the December year-boundary). The **commercials start thin (2025/2026)** because motordata has no year param and the sheet has no commercial history — so they are fetched/committed but **not auto-rendered on schedule** (a 4-point Weibull is meaningless); render on demand once depth accumulates.
 
 The full source-playbook — the motordata POST flow, the OTHERS-residual rationale, the December year-boundary caveat, the vehicle categories (HDV/Vans/Buses available but out of scope), fragility, maintenance recipes — lives in [16-source-portugal.md](16-source-portugal.md). Read that doc before changing anything in [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py).
 

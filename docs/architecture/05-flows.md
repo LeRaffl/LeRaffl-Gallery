@@ -1223,7 +1223,7 @@ sequenceDiagram
 
 ## Flow U — ACAP ingest
 
-Portugal is fed from ACAP via its motordata.pt chart backend (the acap.pt "Dados" page embeds the AUTOINFORMA chart). Single variant (Whole, Ligeiros de Passageiros). ACAP publishes on the 1st of each month from ~17:00 Lisbon — the earliest reliable source.
+Portugal is fed from ACAP via its motordata.pt chart backend (the acap.pt "Dados" page embeds the AUTOINFORMA chart). Four variants via the same POST flow (different `list_catveiculo`): Whole (passenger), Vans (N1), HDV (N2/N3 >3.5t goods), Buses (M2/M3) — but **only Whole is auto-rendered**; the commercials are fetch-only (thin history, see below). ACAP publishes on the 1st of each month from ~17:00 Lisbon — the earliest reliable source.
 
 ```mermaid
 sequenceDiagram
@@ -1258,7 +1258,7 @@ sequenceDiagram
 
 **Where parsing lives:** [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). The POST flow, the no-year-param constraint, the OTHERS-residual rationale (the fuel dropdown is incomplete), the December year-boundary caveat + `--sheet` fallback, and the vehicle categories live in [16-source-portugal.md](16-source-portugal.md).
 
-**Vehicle scope:** Passenger cars only (`list_catveiculo=0`). Categories 1/2/3 (Vans / Buses / HDV >3.5t goods) are out of scope for now — mapping noted in the playbook.
+**Vehicle scope:** Whole = passenger cars (`list_catveiculo=0`, M1); Vans = Ligeiros de Mercadorias (cat 1, N1); HDV = Pesados de Mercadorias (cat 3, N2/N3 >3.5t goods incl. tractor units); Buses = Pesados de Passageiros (cat 2, M2/M3). **Commercials are fetch-only / not auto-rendered:** motordata exposes only the current year (no year param) and the Google Sheet has no commercial history, so they start thin (2025/2026) and a 4-point Weibull is meaningless — they accumulate monthly and can be rendered on demand. See [16-source-portugal.md § 5](16-source-portugal.md).
 
 **Why OTHERS is a residual:** the fuel dropdown doesn't list every code (hidden codes exist), so OTHERS = all-fuels TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL) is exact. Verified against the maintainer's Google Sheet (2026-04 OTHERS = 1618). HEV and PHEV are split across Gasolina/Gasóleo variants and summed. FLEXFUEL stays empty (Portugal doesn't report it) — uniformly empty, so no TTM hazard.
 
