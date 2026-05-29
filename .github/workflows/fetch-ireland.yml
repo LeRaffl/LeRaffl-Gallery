@@ -16,13 +16,6 @@ name: Fetch Ireland data (SIMI motorstats)
 # changes, this workflow dispatches render-country.yml once per touched variant.
 
 on:
-  # TEMP: push trigger to bootstrap the workflow on this feature branch before
-  # merge. Remove together with the `push:` block once on master.
-  push:
-    branches: [feat/ireland-commercials]
-    paths:
-      - '.github/workflows/fetch-ireland.yml'
-      - 'scripts/fetch_ireland.py'
   workflow_dispatch:
     inputs:
       variant:

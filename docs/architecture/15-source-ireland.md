@@ -18,8 +18,9 @@ is the most involved of the database-fed sources; read this before touching
 Source:    stats.simi.ie (SIMI / motorstats public dashboard)
            Stack: Laravel + Inertia.js SPA, no public REST API
 Auth:      None (public dashboard). members.simi.ie is a separate gated portal — not used.
-API:       Session-filter flow: GET / → PATCH /filter/passenger → GET / (Inertia partial)
-Variants:  Whole only (passenger cars). LCV/HCV/Bus exist but are out of scope (see §8).
+API:       Session-filter flow: GET <page> → PATCH /filter/<type> → GET <page> (Inertia partial)
+Variants:  Whole (passenger), Vans (LCV /lcv), HDV (HCV /hcv), Buses (/bus) — see §5
+           All four use the identical flow against different routes/components.
 HEV:       Reported natively (Petrol/Diesel Electric (Hybrid)) — a large slice in Ireland
 FLEXFUEL:  Reported natively (Ethanol/Petrol, Ethanol/Diesel)
 Backfill:  Full history re-fetched from source (2010-01+); 2008-2009 remain legacy rows
@@ -123,20 +124,30 @@ Like Denmark/Finland/Sweden, FLEXFUEL gets its own TTM stacked-shares slice and
 folds into the brown ICE line of the BEV/PHEV/ICE three-curve; HEV is a large
 slice in Ireland and renders distinctly.
 
-## 5. Single variant; the commercial slices are out of scope
+## 5. The four variants
 
-The dashboard also has `/lcv` (Light Commercial), `/hcv` (Heavy Commercial) and
-`/bus`. For now Ireland is **passenger cars only** (`Whole`). If the commercials
-are added later, the intended mapping (consistent with our other countries) is:
+Each SIMI vehicle-category dashboard is its own Inertia page driven by the
+*identical* session-filter flow — only the route, the component name, and the
+`/filter/<type>` path change. `VARIANT_CONFIG` in the fetcher maps them:
 
-- **HCV → HDV.** Heavy Commercial ≈ goods vehicles > 3.5 t (EU N2/N3 — lorries,
-  box vans, articulated tractor units). Matches the NL "Zware bedrijfsvoertuigen"
-  and DK/FI "Lorries" HDV convention: freight, not people.
-- **LCV → Vans.** Light Commercial ≈ vans/pickups (N1 ≤ 3.5 t).
-- **Bus → Buses.**
+| Variant | CSV | Route | Component | Filter | Definition |
+|---|---|---|---|---|---|
+| `Whole` | `data/Ireland.csv` | `/` | `Public/Passenger` | `passenger` | Passenger cars (M1) |
+| `Vans` | `data/Ireland_Vans.csv` | `/lcv` | `Public/Lcv` | `lcv` | Light Commercial — N1, ≤ 3.5 t (vans/pickups) |
+| `HDV` | `data/Ireland_HDV.csv` | `/hcv` | `Public/Hcv` | `hcv` | Heavy Commercial — N2/N3, > 3.5 t goods (lorries, box vans, articulated tractor units) |
+| `Buses` | `data/Ireland_Buses.csv` | `/bus` | `Public/Bus` | `bus` | Buses & coaches (M2/M3) |
 
-Each would be its own variant CSV via the same flow against `/hcv`, `/lcv`,
-`/bus` (component names `Public/Hcv`, `Public/Lcv`, `Public/Bus`).
+This matches the cross-country convention (Vans = N1, HDV = N2/N3 heavy goods,
+Buses = M2/M3) used for Denmark/Finland/Netherlands. **Note** Ireland's HDV
+(Heavy Commercial) *includes* articulated tractor units — the full N2+N3 goods
+definition; Denmark's HDV was deliberately narrower (Lorries only, excluding
+road tractors). Both are defensible; the difference is documented here and in
+[11-source-denmark.md](11-source-denmark.md).
+
+All four are backfilled to 2010-01 (Vans/HDV 196 months, Buses 183 — early
+months with zero bus registrations are skipped). Commercials are diesel-dominated
+with electrification just starting (HDV BEV ≈ 1–2 % recently), so their fits are
+deliberately noisy — that volatility is itself the signal.
 
 ## 6. Backfill & the FLEXFUEL completeness gotcha
 
@@ -239,6 +250,7 @@ The flow was reverse-engineered with a headless Playwright trace:
 
 - members.simi.ie. The gated member portal is unused; everything comes from the
   public dashboard.
-- LCV / HCV / Bus variants (passenger cars only for now — see §5).
+- Mopeds / motorcycles and other non-car SIMI categories (only the four
+  car/commercial/bus dashboards are ingested — see §5).
 - Pre-2010 history from SIMI (the dashboard has none; 2008-2009 are legacy rows).
 - A browser at runtime (Playwright was reverse-engineering only).

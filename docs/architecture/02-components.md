@@ -243,7 +243,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis | `Whole` (retail) + `Wholesale` to separate CSV | China | Daily 11:00 UTC, 1st → EOM |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | Denmark | Daily 05:15 UTC, 1st → 15th |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | Finland | Daily 04:40 UTC, 1st → 15th |
-| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
+| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
 | [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA (XLSX preferred, PDF fallback) | `Whole` | Japan | Daily 08:00 UTC, 1st → EOM |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | `Whole` + `Used` + `HDV` | Netherlands | Daily 06:30 UTC, 1st → 15th |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` | Portugal | Twice daily 17:30 & 20:30 UTC, 1st → 5th |
