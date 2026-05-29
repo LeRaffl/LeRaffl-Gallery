@@ -38,6 +38,39 @@ The technical definitions above are universal; what varies between countries is 
 
 **Why this matters:** the headline BEV-share number for a country is `BEV_count / TOTAL_count`, and `TOTAL` is exactly the count of vehicles within that source's scope. Different scopes are not directly comparable — Chile counting up to 3.860 t is broader than EU `M1+N1` (≤ 3.5 t) but narrower than US light-duty (≤ 8.500 lb ≈ 3.856 t); Japan's 登録車 has no explicit weight cap but is dimension-gated and in practice sits in the same LDV neighbourhood (excluding the ~35-40 % kei-car segment entirely). Document scope before comparing absolute volumes across countries.
 
+## Variant definitions (canonical)
+
+A **variant** is a within-country slice rendered as its own gallery entry (own CSV `data/<Country>_<Variant>.csv`, own `params.csv`/`weights.csv` row, own slug/flag). This is the single reference for what each variant *means*; the per-country source playbooks (10–16) give the exact source category. The intended definition is anchored to the **EU vehicle-category classes** so variants are comparable across countries:
+
+> EU classes: **M1** = passenger cars (≤ 8 seats besides driver) · **M2/M3** = buses & coaches (> 8 seats; M2 ≤ 5 t, M3 > 5 t) · **N1** = goods vehicles ≤ 3.5 t · **N2** = goods 3.5–12 t · **N3** = goods > 12 t.
+
+| Variant | Canonical meaning | EU class | Notes |
+|---|---|---|---|
+| `Whole` | The country's headline new-registration series — **passenger cars** (the default slice; UI label "New Cars"). | M1 | What `data/<Country>.csv` (no suffix) holds. The world map + cross-country rankings use this. |
+| `Private` | Passenger cars registered to **private persons / households**. | M1 | Subset of Whole. |
+| `Industry` | Passenger cars **not** registered to private persons (companies, state, etc.). | M1 | Defined as `Whole − Private` where the source has no direct "industry" bucket (Finland), or a direct "in industries" category (Denmark). `Private + Industry = Whole`. |
+| `Used` | **Used / second-hand** registrations (not new). | M1 | Netherlands only (used imports). A different population from all other variants (which are *new* registrations). |
+| `Vans` | **Light commercial** goods vehicles (vans, pickups). | **N1** (≤ 3.5 t) | |
+| `HDV` | **Heavy goods** vehicles (lorries / trucks — freight, not people). | **N2 + N3** (> 3.5 t) | See the cross-country deviation note below. |
+| `Buses` | **Buses & coaches.** | **M2 + M3** | Very low volume in most countries → lumpy, batch-driven fleet orders make the TTM share swing hard (this is real, not a bug — see e.g. Ireland Buses). |
+
+### Per-country variant → source category
+
+| Country | Whole | Private | Industry | Vans (N1) | HDV (N2/N3) | Buses (M2/M3) |
+|---|---|---|---|---|---|---|
+| Denmark | Passenger cars (BIL53) | terms of use = In households | terms of use = In industries | "Vans, total" | **"Lorries, total" — excludes Road tractors** | — |
+| Finland | Passenger cars (121d) | possessor = Private person | Total − Private person | "Vans" | "Lorries > 3.5 t" | "Buses & coaches" |
+| Netherlands | Personenauto Nieuw | — | — | — | "Zware bedrijfsvoertuigen" (≈ N-class ≥ 3500 kg) | — |
+| Ireland | Passenger Cars | — | — | Light Commercial | Heavy Commercial (**incl. articulated tractor units**) | Buses |
+| Portugal | Ligeiros de Passageiros | — | — | Ligeiros de Mercadorias | Pesados de Mercadorias (**incl. tractor units**) | Pesados de Passageiros |
+| Sweden | Passenger cars (TK1001A) | — | — | — | — | — |
+
+(Netherlands also has a `Used` variant; it is M1 used-imports, not a commercial class.)
+
+### Known HDV deviation (documented, accepted)
+
+The HDV intent is "heavy goods vehicles > 3.5 t = N2 + N3". Most sources expose exactly that as one bucket (Ireland Heavy Commercial, Portugal Pesados de Mercadorias, Finland Lorries > 3.5 t, Netherlands Zware bedrijfsvoertuigen) — **including articulated tractor / road-tractor units**. **Denmark is deliberately narrower**: BIL53 lists "Lorries" and "Road tractors" as separate categories and our Denmark HDV takes **only Lorries** (excluding road tractors), because at the time that was the cleaner single bucket. So Denmark HDV slightly under-counts vs the others' full N2+N3. Both are defensible "heavy goods" definitions; the difference is recorded here and in [11-source-denmark.md](11-source-denmark.md). If exact cross-country HDV comparability ever matters, add Denmark's road-tractor category to its HDV.
+
 
 ## Time / period
 
