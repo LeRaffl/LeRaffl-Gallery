@@ -27,6 +27,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | R | [Auto-ingest Finland from PxWeb](#flow-r--pxweb-ingest) | Daily cron (1st–15th, 04:40 UTC) or manual dispatch | Updated `data/Finland.csv` and five variant CSVs → per-variant Flow B |
 | S | [Auto-ingest Sweden from SCB](#flow-s--scb-ingest) | Daily cron (1st–15th, 05:50 UTC) or manual dispatch | Updated `data/Sweden.csv` → Flow B for Sweden |
 | T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
+| U | [Auto-ingest Portugal from ACAP](#flow-u--acap-ingest) | Twice-daily cron (1st–5th, 17:30 & 20:30 UTC) or manual dispatch | Updated `data/Portugal.csv` → Flow B for Portugal |
 
 ---
 
@@ -511,7 +512,7 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 | Always-list (16) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
 | Conditional-list (5) | Luxembourg, Norway, Poland, Spain, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ACEA / DGT / asierlizarraga`, `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. |
 
-ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Ireland now has its own workflow ([Flow T](#flow-t--simi-ingest)); Austria/Germany/Italy/Portugal/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel) and have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
+ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Ireland and Portugal now have their own workflows ([Flow T](#flow-t--simi-ingest), [Flow U](#flow-u--acap-ingest)); Austria/Germany/Italy/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel) and have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
 
 ### Previous-year corrections
 
@@ -1219,6 +1220,51 @@ sequenceDiagram
 **Why twice-daily on the 1st–5th:** SIMI publishes the new month very early — usually on the 1st. Polling twice daily early in the month catches it fast; the early-exit makes runs no-ops once the previous month is in. Each active run re-fetches a trailing window (default 4 months) to absorb SIMI's revisions.
 
 **Known fragility:** SIMI redeploys rotate the Inertia version (self-heals — read fresh each run); a new engine-type label raises `RuntimeError` before commit; if SIMI restructures the SPA, re-capture the Inertia prop names and the `/filter/passenger` request shape in a browser. See [15-source-ireland.md § 9](15-source-ireland.md). Migration note: Ireland previously rendered via the legacy local R pipeline with an older 12-column (no-FLEXFUEL) CSV; this flow normalised it to 13 columns.
+
+## Flow U — ACAP ingest
+
+Portugal is fed from ACAP via its motordata.pt chart backend (the acap.pt "Dados" page embeds the AUTOINFORMA chart). Single variant (Whole, Ligeiros de Passageiros). ACAP publishes on the 1st of each month from ~17:00 Lisbon — the earliest reliable source.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-portugal.yml job
+    participant MD as motordata.pt/autoinforma
+    participant Sheet as Google Sheet (Portugal tab)
+    participant CSV as data/Portugal.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (1st–5th, 17:30 & 20:30 UTC)
+    Job->>Job: Early-exit if CSV already has previous-month row
+    alt default (motordata)
+        Job->>MD: POST chartdata_novo.php (list_catveiculo=0, list_combustivel=empty) → all-fuels TOTAL
+        loop per core fuel (BEV, PHEV×2, HEV×2, PETROL, DIESEL)
+            Job->>MD: POST chartdata_novo.php (list_combustivel=code)
+            MD-->>Job: thisyear monthly series (current calendar year)
+        end
+        Job->>Job: OTHERS = TOTAL − core; FLEXFUEL empty
+    else --sheet (backfill/patch, incl. December)
+        Job->>Sheet: GET gviz CSV (Portugal tab)
+        Sheet-->>Job: full history BEV/PHEV/HEV/PETROL/DIESEL/OTHERS/TOTAL
+    end
+    Job->>CSV: Upsert (13-col)
+    alt CSV changed
+        Job->>CSV: Commit data/Portugal.csv
+        Job->>Render: gh workflow run render-country.yml -f country=Portugal -f variant=Whole
+    else unchanged
+        Job-->>Cron: Exit cleanly (no-op)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py). The POST flow, the no-year-param constraint, the OTHERS-residual rationale (the fuel dropdown is incomplete), the December year-boundary caveat + `--sheet` fallback, and the vehicle categories live in [16-source-portugal.md](16-source-portugal.md).
+
+**Vehicle scope:** Passenger cars only (`list_catveiculo=0`). Categories 1/2/3 (Vans / Buses / HDV >3.5t goods) are out of scope for now — mapping noted in the playbook.
+
+**Why OTHERS is a residual:** the fuel dropdown doesn't list every code (hidden codes exist), so OTHERS = all-fuels TOTAL − (BEV+PHEV+HEV+PETROL+DIESEL) is exact. Verified against the maintainer's Google Sheet (2026-04 OTHERS = 1618). HEV and PHEV are split across Gasolina/Gasóleo variants and summed. FLEXFUEL stays empty (Portugal doesn't report it) — uniformly empty, so no TTM hazard.
+
+**Why twice-daily on the 1st–5th at 17:30 & 20:30 UTC:** ACAP publishes from ~17:00 Lisbon on the 1st; both UTC slots sit after publication in either DST season. Early-exit makes runs no-ops once the previous month is in.
+
+**Known fragility / December:** the endpoint only returns the current calendar year, so December (published Jan 1) can fall in a gap when the year rolls over — patch via `--sheet` (workflow `sheet=true` input). A renumbered core fuel code would be silently absorbed into the OTHERS residual; cross-check BEV/PHEV/HEV against the Google Sheet. Migration note: Portugal previously rendered via the legacy local R pipeline with an older 12-column CSV; this flow normalised it to 13 columns (FLEXFUEL uniformly empty).
 
 ## See also
 
