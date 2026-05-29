@@ -32,6 +32,16 @@
       "country_slug": "ireland"
     },
     {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2026-04",
+      "date": "2026-05-29",
+      "filename": "ireland_ttm_shares_20260529.png",
+      "url": "images/2026-04/ireland_ttm_shares_20260529.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-04",
