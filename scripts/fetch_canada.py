@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Fetch Canada new passenger-car registration data from the Statistics Canada
-(StatCan) Web Data Service (WDS) JSON API, cube **20-10-0024 "New motor vehicle
-registrations"** (productId ``20100024``), and upsert ``data/Canada.csv``.
+(StatCan) Web Data Service (WDS) JSON API, cube **20-10-0025 "New motor vehicle
+registrations"** (productId ``20100025``), and upsert ``data/Canada.csv``.
 
 Usage
 -----
@@ -15,7 +15,7 @@ Output files / variants
     data/Canada_Non-Passenger.csv  <- variant=Non-Passenger  (Pickup trucks +
                                        Multi-purpose vehicles + Vans)
 
-Cube 20-10-0024 is a LIGHT-vehicle cube; its Vehicle type members are
+Cube 20-10-0025 is a LIGHT-vehicle cube; its Vehicle type members are
 ``Total, vehicle type | Passenger cars | Pickup trucks | Multi-purpose vehicles
 | Vans`` (no heavy trucks, no buses). `Whole` is passenger cars (cars proper,
 which in Canada have collapsed to a ~45-65k/quarter minority as buyers moved to
@@ -34,7 +34,7 @@ newer-than-cube rows already in data/Canada.csv are preserved untouched.
 
 Cadence
 -------
-StatCan cube 20-10-0024 is **quarterly**. The repo's convention (inherited from
+StatCan cube 20-10-0025 is **quarterly**. The repo's convention (inherited from
 the legacy hand-maintained file) records each quarter under its *middle* month:
 Q1 -> ``YYYY-02``, Q2 -> ``YYYY-05``, Q3 -> ``YYYY-08``, Q4 -> ``YYYY-11``. We
 derive the middle month from the StatCan reference period regardless of whether
@@ -47,7 +47,7 @@ Base: https://www150.statcan.gc.ca/t1/wds/rest
 
 We make two calls, no auth:
 
-1. ``getCubeMetadata`` (POST ``[{"productId": 20100024}]``) returns the cube's
+1. ``getCubeMetadata`` (POST ``[{"productId": 20100025}]``) returns the cube's
    dimensions, each with its members (``memberId``, ``memberNameEn``,
    ``parentMemberId``). We use it to discover, by name, the member IDs for
    Geography=Canada, Vehicle type=<target>, the "total" member of every other
@@ -92,14 +92,14 @@ from pathlib import Path
 import requests
 
 WDS_BASE = "https://www150.statcan.gc.ca/t1/wds/rest"
-PRODUCT_ID = 20100024            # cube 20-10-0024 "New motor vehicle registrations"
+PRODUCT_ID = 20100025            # cube 20-10-0025 "New motor vehicle registrations"
 SOURCE = "150.statcan.gc.ca"
 CSV_PATH = "data/Canada.csv"
 GEOGRAPHY = "Canada"
 DEFAULT_LATEST_N = 16           # 4 years of quarters; StatCan revises recent ones
 
 # Variant -> the StatCan "Vehicle type" member(s) summed into it. Cube
-# 20-10-0024 is a LIGHT-vehicle cube: its Vehicle type members are
+# 20-10-0025 is a LIGHT-vehicle cube: its Vehicle type members are
 #   Total, vehicle type | Passenger cars | Pickup trucks |
 #   Multi-purpose vehicles | Vans
 # (no heavy trucks, no buses — so this is NOT the EU N1/N2/N3/M2/M3 split the

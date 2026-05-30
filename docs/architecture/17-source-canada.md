@@ -1,15 +1,15 @@
-# 17 · Source: Canada (150.statcan.gc.ca / WDS cube 20-10-0024)
+# 17 · Source: Canada (150.statcan.gc.ca / WDS cube 20-10-0025)
 
 Statistics Canada (StatCan) publishes new motor-vehicle registrations by fuel
-type in cube **20-10-0024 "New motor vehicle registrations"** (productId
-`20100024`) and exposes it through the **Web Data Service (WDS)** REST API.
+type in cube **20-10-0025 "New motor vehicle registrations"** (productId
+`20100025`) and exposes it through the **Web Data Service (WDS)** REST API.
 This is a database-fed country like Sweden/Finland: no PDF, no scraping — a
 metadata call plus a data call, both unauthenticated JSON.
 
 ## TL;DR
 
 ```
-Source:    150.statcan.gc.ca (StatCan WDS, cube 20-10-0024)
+Source:    150.statcan.gc.ca (StatCan WDS, cube 20-10-0025)
 Auth:      None required
 API:       POST getCubeMetadata + POST getDataFromCubePidCoordAndLatestNPeriods
 Variants:  Whole (Passenger cars) + Non-Passenger (Pickup trucks +
@@ -29,12 +29,16 @@ Workflow:  .github/workflows/fetch-canada.yml
 ## 1. Migration note: Canada was previously legacy-local
 
 Before this pipeline, `data/Canada.csv` was maintained by hand from the StatCan
-table viewer (the file's `source` column even records the viewer URLs for
-`pid=2010002401` and `pid=2010002501`). This pipeline migrates Canada to the
-automated WDS fetcher. Historical values are unchanged except for routine
-StatCan revisions of the most recent quarters (StatCan restates recent periods
-each release). The file is rewritten with LF line endings like every automated
-fetcher.
+table viewer (the file's `source` column records the viewer URLs for
+`pid=2010002401` **and** `pid=2010002501`). This pipeline migrates Canada to the
+automated WDS fetcher and standardises on the **20-10-0025** cube — the
+"by geographic level" table the legacy sheet's BEV/PHEV/HEV split was actually
+based on (it is current through the latest quarter and carries the
+zero-emission detail). The older **20-10-0024** cube was tried first but lags
+(it ended at 2024-Q4) and reported a different hybrid breakdown, so it is not
+used. Historical values are unchanged except for routine StatCan revisions of
+the most recent quarters. The file is rewritten with LF line endings like every
+automated fetcher.
 
 ## 2. The API
 
@@ -42,11 +46,11 @@ WDS is a plain REST/JSON service. We make two POSTs (no auth, no key):
 
 ```
 POST https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata
-     [{"productId": 20100024}]
+     [{"productId": 20100025}]
      → dimensions[], each with member[] (memberId, memberNameEn, parentMemberId)
 
 POST https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNPeriods
-     [{"productId":20100024,"coordinate":"<10 dot-separated member IDs>","latestN":16}, …]
+     [{"productId":20100025,"coordinate":"<10 dot-separated member IDs>","latestN":16}, …]
      → object.vectorDataPoint[] : {refPer, value, …}
 ```
 
@@ -104,15 +108,16 @@ The historical Google Sheet carries only the `Whole` passenger-car series, so
 `Non-Passenger` has no legacy values to migrate — its first run seeds the file
 from StatCan directly (use a large `--latest-n` once; see §9).
 
-> **PHEV/HEV vs the legacy sheet.** On the first live run, `Whole`'s 2017-2024
-> quarters matched the legacy CSV on PETROL/DIESEL/BEV/OTHERS but came back with
-> **PHEV and HEV swapped** (every quarter: new PHEV == old HEV and vice-versa).
-> The fetcher's mapping is verified correct by member name
-> (`Plug-in hybrid electric → PHEV`, `Hybrid electric → HEV`), so StatCan's live
-> values and the hand-entered sheet disagree on which column is which. Treat
-> StatCan as authoritative (the fetcher overwrites with StatCan's split); the
-> `>50%` upsert warnings on PHEV/HEV for 2017-2024 are this one-time correction,
-> not a bug. Spot-check one cell on the StatCan table viewer if in doubt.
+> **Why 20-10-0025 and not 20-10-0024 (the PHEV/HEV lesson).** The first live
+> run hit the **20-10-0024** cube and came back with PHEV and HEV *swapped*
+> relative to the legacy sheet on every quarter (PETROL/DIESEL/BEV/OTHERS
+> matched). The mapping was correct by member name, so the two cubes simply
+> report a different hybrid split — and 20-10-0024 was also stale (ended
+> 2024-Q4). Checking the StatCan viewer confirmed the **20-10-0025** cube matches
+> the legacy sheet *exactly, column for column* (e.g. Q4 2024 Passenger cars:
+> Gasoline 37,291 · BEV 7,635 · Plug-in hybrid 1,767 · Hybrid electric 9,694 ·
+> Total 56,391). So 20-10-0025 is authoritative and is what this fetcher uses;
+> the sheet's PHEV/HEV labelling was right all along.
 
 ## 4. Column mapping
 
@@ -163,7 +168,7 @@ StatCan stamps a quarter with its first or last month. `time_interval` is
 flowchart TD
     Cron["Cron 1-15 * 06:40 UTC<br/>or workflow_dispatch"]
     Cron --> Fetch["scripts/fetch_canada.py"]
-    Fetch -->|"POST getCubeMetadata"| Meta["150.statcan.gc.ca<br/>cube 20-10-0024 metadata"]
+    Fetch -->|"POST getCubeMetadata"| Meta["150.statcan.gc.ca<br/>cube 20-10-0025 metadata"]
     Meta -->|"dimensions + members"| Fetch
     Fetch -->|"POST …LatestNPeriods (per fuel leaf)"| Data["150.statcan.gc.ca<br/>vectorDataPoint[]"]
     Data -->|"refPer + value"| Fetch
@@ -229,7 +234,7 @@ full history on first run, dispatch the workflow with a large `latest_n`.
 ```sh
 curl -s -X POST 'https://www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata' \
   -H 'Content-Type: application/json' \
-  -d '[{"productId":20100024}]' | python3 -m json.tool | head -120
+  -d '[{"productId":20100025}]' | python3 -m json.tool | head -120
 ```
 
 Look for the `Fuel type`, `Vehicle type`, and `Geography` dimensions and their
@@ -247,7 +252,8 @@ Look for the `Fuel type`, `Vehicle type`, and `Geography` dimensions and their
   Vans/HDV/Buses variants.
 - Heavy trucks and buses. They are **not in this cube** at all (it is
   light-vehicle only) — so there is no HDV/Buses data to extract for Canada.
-- Monthly data. Cube 20-10-0024 is quarterly.
-- The separate ZEV cube **20-10-0025** (`pid=2010002501`, referenced in the
-  legacy `source` column). 20-10-0024 already carries the BEV/PHEV/HEV split we
-  need; 20-10-0025 remains available as a future cross-check.
+- Monthly data. Cube 20-10-0025 is quarterly.
+- The older **20-10-0024** cube (`pid=2010002401`). It lags (ended 2024-Q4) and
+  reports a different hybrid split that did not match the legacy sheet, so we
+  standardise on 20-10-0025 (`pid=2010002501`), which matches the sheet exactly.
+  See the note in §3.

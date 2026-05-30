@@ -1,7 +1,7 @@
 name: Fetch Canada data (StatCan WDS)
 
 # Fetches new motor-vehicle registrations from Statistics Canada's Web Data
-# Service (cube 20-10-0024 "New motor vehicle registrations") and upserts the
+# Service (cube 20-10-0025 "New motor vehicle registrations") and upserts the
 # latest quarters into per-variant CSVs:
 #
 #   * Whole          — Vehicle type = Passenger cars   -> data/Canada.csv
