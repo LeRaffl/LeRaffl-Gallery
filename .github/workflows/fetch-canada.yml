@@ -1,13 +1,13 @@
 name: Fetch Canada data (StatCan WDS)
 
 # Fetches new motor-vehicle registrations from Statistics Canada's Web Data
-# Service (cube 20-10-0024 "New motor vehicle registrations") and upserts the
+# Service (cube 20-10-0025 "New motor vehicle registrations") and upserts the
 # latest quarters into per-variant CSVs:
 #
-#   * Whole          — Vehicle type = Passenger cars   -> data/Canada.csv
-#   * Non-Passenger  — Vehicle type = Trucks           -> data/Canada_Non-Passenger.csv
-#                      (StatCan "Trucks" = all non-passenger-car vehicles:
-#                       minivans, SUVs, pickups, vans, light+heavy trucks, buses)
+#   * Whole          — Passenger cars                          -> data/Canada.csv
+#   * Non-Passenger  — Pickup trucks + Multi-purpose vehicles  -> data/Canada_Non-Passenger.csv
+#                      + Vans (this is a light-vehicle cube: all
+#                      non-passenger-car body types, no heavy trucks or buses)
 #
 # StatCan revises recent quarters, so the script always re-fetches the latest N
 # quarters; the commit step is change-gated, making steady-state runs a no-op.
