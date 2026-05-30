@@ -103,42 +103,62 @@ heal_v1_zero_rows <- function(params_path = "params.csv",
   ci_v1 <- ci("v1"); ci_v2 <- ci("v2")
   if (any(is.na(c(ci_country, ci_variant, ci_v1, ci_v2)))) return(invisible())
 
-  i <- 2L
-  while (i <= length(lines)) {
+  # Collect the corruption-fingerprint rows ONCE, up front, deduped by
+  # country/variant. Processing a fixed candidate list (instead of the old
+  # "rewrite file, reset i to 1, rescan" loop) is what makes this terminate:
+  # a genuinely degenerate fit — e.g. Canada/Whole's v1 ≈ -4e-153, which still
+  # satisfies |v1| < 1e-25 after re-fitting — would otherwise re-match its own
+  # fingerprint forever and spin the render job until it times out.
+  need_max <- max(ci_country, ci_variant, ci_v1, ci_v2)
+  candidates <- list(); seen <- character(0)
+  for (i in 2:length(lines)) {
     parts <- strsplit(lines[i], ",", fixed = TRUE)[[1]]
-    need_max <- max(ci_country, ci_variant, ci_v1, ci_v2)
-    if (length(parts) >= need_max) {
-      v1 <- suppressWarnings(as.numeric(parts[ci_v1]))
-      v2 <- suppressWarnings(as.numeric(parts[ci_v2]))
-      if (!is.na(v1) && !is.na(v2) && abs(v1) < 1e-25 && v2 >= v2_threshold) {
-        country <- parts[ci_country]; variant <- parts[ci_variant]
-        csv_path <- file.path("data", paste0(country, ".csv"))
-        if (file.exists(csv_path)) {
-          cat(sprintf("[heal] %s/%s: v1=0 corruption (v2=%.3f) — re-fitting from %s\n",
-                      country, variant, v2, csv_path))
-          df_all <- load_country_csv(csv_path)
-          df <- df_all[df_all$variant == variant, ]
-          if (nrow(df) > 0) {
-            fit <- fit_history(df)
-            data_per <- data_per_from_df(df)
-            source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
-            if (is.na(source_str)) source_str <- ""
-            upsert_params(params_path, country, variant, fit, data_per, source_str)
-            weight <- compute_weight(df)
-            upsert_weights(weights_path, country, variant, weight, data_per)
-            cat(sprintf("[heal] %s/%s: restored v1=%.4e v2=%.4f\n",
-                        country, variant, fit$v1, fit$v2))
-            # File rewritten — reload and rescan from the top
-            lines <- readLines(params_path, encoding = "UTF-8", warn = FALSE)
-            i <- 1L
-          }
-        } else {
-          cat(sprintf("[heal] %s/%s: v1=0 detected but %s missing — skipping\n",
-                      country, variant, csv_path))
-        }
+    if (length(parts) < need_max) next
+    v1 <- suppressWarnings(as.numeric(parts[ci_v1]))
+    v2 <- suppressWarnings(as.numeric(parts[ci_v2]))
+    if (is.na(v1) || is.na(v2)) next
+    if (abs(v1) < 1e-25 && v2 >= v2_threshold) {
+      key <- paste(parts[ci_country], parts[ci_variant], sep = "\r")
+      if (!(key %in% seen)) {
+        seen <- c(seen, key)
+        candidates[[length(candidates) + 1L]] <-
+          list(country = parts[ci_country], variant = parts[ci_variant], v2 = v2)
       }
     }
-    i <- i + 1L
+  }
+
+  for (cand in candidates) {
+    country <- cand$country; variant <- cand$variant
+    csv_path <- file.path("data", paste0(country, ".csv"))
+    if (!file.exists(csv_path)) {
+      cat(sprintf("[heal] %s/%s: v1=0 detected but %s missing — skipping\n",
+                  country, variant, csv_path))
+      next
+    }
+    df_all <- load_country_csv(csv_path)
+    df <- df_all[df_all$variant == variant, ]
+    if (nrow(df) == 0) next
+    fit <- fit_history(df)
+    # Only rewrite when re-fitting actually RECOVERS a non-tiny v1 (the
+    # Indonesia "CSV rounded v1 to literal 0" case). If the re-fit is itself
+    # ≈0, the stored value is the genuine (degenerate) fit — the market has no
+    # clean monotonic transition, like Japan/Croatia — not corruption. Leave it
+    # and move on, so we neither loop nor churn params.csv on every render.
+    if (abs(fit$v1) < 1e-25) {
+      cat(sprintf("[heal] %s/%s: re-fit v1=%.4e v2=%.4f still ~0 — genuine degenerate fit, not corruption; leaving as-is\n",
+                  country, variant, fit$v1, fit$v2))
+      next
+    }
+    cat(sprintf("[heal] %s/%s: v1=0 corruption (v2=%.3f) — re-fitting from %s\n",
+                country, variant, cand$v2, csv_path))
+    data_per <- data_per_from_df(df)
+    source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
+    if (is.na(source_str)) source_str <- ""
+    upsert_params(params_path, country, variant, fit, data_per, source_str)
+    weight <- compute_weight(df)
+    upsert_weights(weights_path, country, variant, weight, data_per)
+    cat(sprintf("[heal] %s/%s: restored v1=%.4e v2=%.4f\n",
+                country, variant, fit$v1, fit$v2))
   }
   invisible()
 }

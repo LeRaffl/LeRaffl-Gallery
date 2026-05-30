@@ -40,9 +40,16 @@ if (nrow(df) == 0) stop("no rows for variant '", variant, "' in ", csv_path)
 source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
 if (is.na(source_str)) source_str <- ""
 
-# Period folder and filename suffix mirror the historical R script.
+# Period folder + post date use the "as of" period (data_per): for quarterly
+# data the CSV stores each quarter's MIDDLE month (so the regression dots sit in
+# the middle of the quarter and the fit behaves), but the outward-facing period
+# is the quarter's END month (Q4 → December), which is what params.csv/data_per
+# and the Thresholds/Durations tables already show. Keeping the image folder on
+# the middle month was the lone inconsistency. last_period (the raw CSV period)
+# is kept only for logging.
 last_period <- df$period[order(df$year)][nrow(df)]
-period_folder <- last_period
+as_of_period <- data_per_from_df(df)
+period_folder <- as_of_period
 date_suffix <- format(Sys.Date(), "%Y%m%d")
 
 # Country slug used in image filenames + flag lookup.
@@ -114,7 +121,8 @@ meta <- list(
   entire_caption = entire_caption
 )
 
-cat(sprintf("[render] %s / %s — %d rows, last period %s\n", country, variant, nrow(df), last_period))
+cat(sprintf("[render] %s / %s — %d rows, last period %s (as of %s)\n",
+            country, variant, nrow(df), last_period, as_of_period))
 
 cat("[render] fitting ...\n")
 fit <- fit_history(df)
@@ -167,7 +175,7 @@ save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20
 save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in")
 
 # params.csv / weights.csv upsert
-data_per <- data_per_from_df(df)
+data_per <- as_of_period
 cat(sprintf("[upsert] params.csv  %s/%s  data_per=%s\n", country, variant, data_per))
 upsert_params("params.csv", country, variant, fit, data_per, source_str)
 weight <- compute_weight(df)
@@ -184,12 +192,12 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
-post_text <- build_post_text(df, country_label, last_period)
+post_text <- build_post_text(df, country_label, as_of_period)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
-  writeLines(post_text, file.path("posts", paste0(slug, "_", last_period, ".txt")), useBytes = TRUE)
-  cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, last_period))
+  writeLines(post_text, file.path("posts", paste0(slug, "_", as_of_period, ".txt")), useBytes = TRUE)
+  cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, as_of_period))
 }
 
 cat("[render] done.\n")
