@@ -21,7 +21,7 @@ HEV:       Reported natively (Hybrid electric, non-plug-in)
 DIESEL:    ~0 for passenger cars in Canada (diesel car near-extinct) — the
            column is emitted but typically 0
 Backfill:  None — WDS serves the full history; we pull the latest N quarters
-Schedule:  Daily cron 1st-15th, 06:40 UTC; commit-gated (no early-exit)
+Schedule:  Daily days 8-20 in Mar/Jun/Sep/Dec, 06:40 UTC; commit-gated
 Scripts:   scripts/fetch_canada.py
 Workflow:  .github/workflows/fetch-canada.yml
 ```
@@ -151,12 +151,14 @@ StatCan stamps a quarter with its first or last month. `time_interval` is
 
 ## 6. Schedule and idempotency
 
-`fetch-canada.yml` runs **daily on the 1st-15th at 06:40 UTC**
-(`cron: '40 6 1-15 * *'`), in the gap between fetch-netherlands (06:30) and the
-08:00 crowd.
+`fetch-canada.yml` runs **daily on days 8-20 in March/June/September/December
+at 06:40 UTC** (`cron: '40 6 8-20 3,6,9,12 *'`), in the gap between
+fetch-netherlands (06:30) and the 08:00 crowd.
 
-- StatCan releases the cube quarterly with a lag; daily polling in the window
-  catches a release whenever it lands.
+- StatCan releases this quarterly cube ~2.5 months after quarter-end, i.e.
+  roughly mid-March/June/September/December (Q4 2025 landed 2026-03-12). The
+  schedule polls daily through that window each quarter; the change-gated
+  commit makes every poll a no-op until the new quarter lands.
 - There is no local early-exit: the script always re-fetches the latest N
   quarters (StatCan revises recent ones), but `EndBug/add-and-commit` only
   commits on a real change, so most runs are a no-op.
@@ -166,7 +168,7 @@ StatCan stamps a quarter with its first or last month. `time_interval` is
 
 ```mermaid
 flowchart TD
-    Cron["Cron 1-15 * 06:40 UTC<br/>or workflow_dispatch"]
+    Cron["Cron 8-20 Mar/Jun/Sep/Dec 06:40 UTC<br/>or workflow_dispatch"]
     Cron --> Fetch["scripts/fetch_canada.py"]
     Fetch -->|"POST getCubeMetadata"| Meta["150.statcan.gc.ca<br/>cube 20-10-0025 metadata"]
     Meta -->|"dimensions + members"| Fetch

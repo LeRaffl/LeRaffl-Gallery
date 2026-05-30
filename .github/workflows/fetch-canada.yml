@@ -34,11 +34,12 @@ on:
         required: false
         default: ''
   schedule:
-    # Daily 1st-15th at 06:40 UTC. StatCan releases the cube quarterly with a
-    # lag; daily polling within the window catches a release whenever it lands,
-    # and the change-gated commit makes the other runs no-ops. 06:40 sits
-    # between fetch-netherlands (06:30) and the 08:00 crowd.
-    - cron: '40 6 1-15 * *'
+    # StatCan releases this quarterly cube ~2.5 months after quarter-end, i.e.
+    # roughly mid-March / June / September / December (the 20-10-0025 release
+    # for Q4 2025 landed 2026-03-12). Poll daily on days 8-20 of just those four
+    # months; the change-gated commit makes every run a no-op until the new
+    # quarter actually lands. 06:40 UTC stays clear of the other fetchers.
+    - cron: '40 6 8-20 3,6,9,12 *'
 
 jobs:
   fetch:
