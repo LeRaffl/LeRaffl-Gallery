@@ -6,13 +6,23 @@ registrations"** (productId ``20100024``), and upsert ``data/Canada.csv``.
 
 Usage
 -----
-    python scripts/fetch_canada.py [--latest-n N] [--vehicle-type NAME]
-                                   [--product-id PID] [--force] [--dry-run]
+    python scripts/fetch_canada.py [--latest-n N] [--variant all|Whole|Non-Passenger]
+                                   [--product-id PID] [--list-members] [--dry-run]
 
-Output file
------------
-    data/Canada.csv   <- variant=Whole (Geography = Canada, Vehicle type =
-                         Passenger cars, all fuel types)
+Output files / variants
+-----------------------
+    data/Canada.csv                <- variant=Whole          (Vehicle type = Passenger cars)
+    data/Canada_Non-Passenger.csv  <- variant=Non-Passenger  (Vehicle type = Trucks)
+
+`Whole` is passenger cars (cars proper, which in Canada have collapsed to a
+~45-65k/quarter minority as buyers moved to light trucks/SUVs — hence DIESEL is
+~0, the diesel passenger car being near-extinct); this matches the historical
+data/Canada.csv. `Non-Passenger` is StatCan's "Trucks" Vehicle type, which is a
+catch-all for *everything that is not a passenger car* — minivans, SUVs,
+pickups, vans, light AND heavy trucks, and buses. It is intentionally NOT named
+"Trucks"/"HDV" (which would imply heavy goods vehicles only); the mixed-bag
+nature is the point. See the VARIANTS map for the full rationale. Both variants
+are unauthenticated reads of the same cube; only the Vehicle type member differs.
 
 Cadence
 -------
@@ -22,14 +32,6 @@ Q1 -> ``YYYY-02``, Q2 -> ``YYYY-05``, Q3 -> ``YYYY-08``, Q4 -> ``YYYY-11``. We
 derive the middle month from the StatCan reference period regardless of whether
 StatCan stamps a quarter with its first or last month, via
 ``((month - 1) // 3) * 3 + 2``. ``time_interval`` is therefore ``quarterly``.
-
-Why "Passenger cars" only
--------------------------
-The existing series tracks Vehicle type = "Passenger cars" (cars proper, which
-in Canada have collapsed to a ~45-65k/quarter minority as buyers moved to
-light trucks/SUVs — hence DIESEL is ~0, the diesel passenger car being
-near-extinct). That matches the historical values in data/Canada.csv. Override
-with ``--vehicle-type`` if a different slice is ever wanted.
 
 The API (WDS REST)
 ------------------
@@ -85,10 +87,31 @@ WDS_BASE = "https://www150.statcan.gc.ca/t1/wds/rest"
 PRODUCT_ID = 20100024            # cube 20-10-0024 "New motor vehicle registrations"
 SOURCE = "150.statcan.gc.ca"
 CSV_PATH = "data/Canada.csv"
-VARIANT = "Whole"
 GEOGRAPHY = "Canada"
-DEFAULT_VEHICLE_TYPE = "Passenger cars"
 DEFAULT_LATEST_N = 16           # 4 years of quarters; StatCan revises recent ones
+
+# Variant -> StatCan "Vehicle type" member. The cube's Vehicle type dimension
+# only splits Passenger cars vs Trucks (North American classification), so we
+# can't reproduce the EU-category variants (Vans=N1, HDV=N2/N3, Buses=M2/M3)
+# the other countries use. Instead we expose StatCan's "Trucks" bucket as its
+# own honestly-named catch-all variant: it is *everything that is not a
+# passenger car* — minivans, SUVs, pickups, vans, light AND heavy trucks, and
+# buses lumped together. It is deliberately NOT called "HDV"/"Trucks", which
+# would imply heavy goods vehicles; "Non-Passenger" makes the mixed-bag nature
+# clear. It is an orphan variant (not comparable to other countries' HDV/Vans/
+# Buses and not in the Builder aggregation), but it renders its own trajectory.
+VARIANTS = {
+    "Whole": "Passenger cars",
+    "Non-Passenger": "Trucks",
+}
+
+
+def variant_csv_path(variant: str) -> str:
+    """Whole lives in data/Canada.csv; other variants in data/Canada_<V>.csv."""
+    if variant == "Whole":
+        return CSV_PATH
+    return f"data/Canada_{variant}.csv"
+
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -267,7 +290,8 @@ def refper_to_period(ref_per: str) -> str:
 
 
 def collect_rows(session: requests.Session, product_id: int,
-                 coords: list[tuple[str, str]], latest_n: int) -> dict[str, dict]:
+                 coords: list[tuple[str, str]], latest_n: int,
+                 variant: str) -> dict[str, dict]:
     payload = [
         {"productId": product_id, "coordinate": coord, "latestN": latest_n}
         for coord, _col in coords
@@ -295,7 +319,7 @@ def collect_rows(session: requests.Session, product_id: int,
         rows[period] = {
             "period": period,
             "time_interval": "quarterly",
-            "variant": VARIANT,
+            "variant": variant,
             "source": SOURCE,
             **{c: cols[c] for c in VALUE_COLUMNS},
             "TOTAL": total,
@@ -316,11 +340,12 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
 
     added = updated = 0
     for period, new_row in sorted(new_rows.items()):
-        key = (period, VARIANT)
+        variant = new_row["variant"]
+        key = (period, variant)
         if key not in existing:
             existing[key] = new_row
             added += 1
-            print(f"  + {VARIANT} {period}")
+            print(f"  + {variant} {period}")
         else:
             old = existing[key]
             for col in VALUE_COLUMNS:
@@ -328,7 +353,7 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
                 new_val = float(new_row[col] or 0)
                 if old_val > 100 and abs(new_val - old_val) / old_val > 0.5:
                     print(
-                        f"  WARNING {VARIANT} {period} {col}: existing={old_val:.0f}, "
+                        f"  WARNING {variant} {period} {col}: existing={old_val:.0f}, "
                         f"new={new_val:.0f} — diff >50%, please verify"
                     )
             existing[key] = {**old, **new_row}
@@ -347,9 +372,11 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--latest-n", type=int, default=DEFAULT_LATEST_N,
-                        help=f"quarters to fetch per fuel (default {DEFAULT_LATEST_N}).")
-    parser.add_argument("--vehicle-type", default=DEFAULT_VEHICLE_TYPE,
-                        help=f"StatCan Vehicle type member (default {DEFAULT_VEHICLE_TYPE!r}).")
+                        help=f"quarters to fetch per fuel (default {DEFAULT_LATEST_N}). "
+                             f"Use a large value once to seed a new variant's full history.")
+    parser.add_argument("--variant", default="all", choices=["all", *VARIANTS],
+                        help="Which variant(s) to fetch (default: all). "
+                             f"Variants: {', '.join(VARIANTS)}.")
     parser.add_argument("--product-id", type=int, default=PRODUCT_ID,
                         help=f"StatCan cube productId (default {PRODUCT_ID}).")
     parser.add_argument("--force", action="store_true",
@@ -375,26 +402,32 @@ def main() -> None:
                 print(f"{indent}[{m['memberId']}] {m['memberNameEn']}")
         return
 
-    coords, summary = build_coordinates(meta, args.vehicle_type)
-    print("[plan] fixed dimensions and fuel leaves:")
-    print(summary)
+    selected = list(VARIANTS) if args.variant == "all" else [args.variant]
+    for variant in selected:
+        vehicle_type = VARIANTS[variant]
+        csv_path = variant_csv_path(variant)
+        print(f"\n=== variant {variant!r} (Vehicle type = {vehicle_type!r}) -> {csv_path} ===")
 
-    rows = collect_rows(session, args.product_id, coords, args.latest_n)
-    if not rows:
-        print("no non-zero quarters in response")
-        return
-    print(f"parsed {len(rows)} quarters ({min(rows)} .. {max(rows)})")
+        coords, summary = build_coordinates(meta, vehicle_type)
+        print("[plan] fixed dimensions and fuel leaves:")
+        print(summary)
 
-    if args.dry_run:
-        for period in sorted(rows):
-            r = rows[period]
-            print(f"  {period}  " + "  ".join(f"{c}={r[c]:.0f}" for c in VALUE_COLUMNS)
-                  + f"  TOTAL={r['TOTAL']:.0f}")
-        print("(dry-run: CSV not written)")
-        return
+        rows = collect_rows(session, args.product_id, coords, args.latest_n, variant)
+        if not rows:
+            print("no non-zero quarters in response")
+            continue
+        print(f"parsed {len(rows)} quarters ({min(rows)} .. {max(rows)})")
 
-    added, updated = upsert_csv(CSV_PATH, rows)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+        if args.dry_run:
+            for period in sorted(rows):
+                r = rows[period]
+                print(f"  {period}  " + "  ".join(f"{c}={r[c]:.0f}" for c in VALUE_COLUMNS)
+                      + f"  TOTAL={r['TOTAL']:.0f}")
+            print("(dry-run: CSV not written)")
+            continue
+
+        added, updated = upsert_csv(csv_path, rows)
+        print(f"{added} added, {updated} updated -> {csv_path}")
 
 
 if __name__ == "__main__":
