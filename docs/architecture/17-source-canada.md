@@ -12,8 +12,9 @@ metadata call plus a data call, both unauthenticated JSON.
 Source:    150.statcan.gc.ca (StatCan WDS, cube 20-10-0024)
 Auth:      None required
 API:       POST getCubeMetadata + POST getDataFromCubePidCoordAndLatestNPeriods
-Variants:  Whole (Vehicle type=Passenger cars) + Non-Passenger (Vehicle
-           type=Trucks = all non-cars: minivans/SUVs/pickups/vans/lorries/buses)
+Variants:  Whole (Passenger cars) + Non-Passenger (Pickup trucks +
+           Multi-purpose vehicles + Vans = all non-cars in this light cube)
+Coverage:  fuel split ~2017-Q1 onward (no heavy trucks / buses in the cube)
 Cadence:   Quarterly -> stored under the quarter's MIDDLE month (Q1→02, Q2→05,
            Q3→08, Q4→11); time_interval=quarterly
 HEV:       Reported natively (Hybrid electric, non-plug-in)
@@ -59,42 +60,59 @@ single batched POST.
 
 ## 3. Variants
 
-| Variant | File | Geography | Vehicle type | Notes |
-|---|---|---|---|---|
-| `Whole` | `data/Canada.csv` | `Canada` | `Passenger cars` | Cars proper |
-| `Non-Passenger` | `data/Canada_Non-Passenger.csv` | `Canada` | `Trucks` | StatCan's "Trucks" catch-all: all non-cars |
+The cube is a **light-vehicle** cube. Its Vehicle type members (confirmed live
+via `--list-members`) are:
+
+```
+Total, vehicle type | Passenger cars | Pickup trucks | Multi-purpose vehicles | Vans
+```
+
+No heavy trucks, no buses. We map two variants:
+
+| Variant | File | Vehicle type member(s) summed |
+|---|---|---|
+| `Whole` | `data/Canada.csv` | `Passenger cars` |
+| `Non-Passenger` | `data/Canada_Non-Passenger.csv` | `Pickup trucks` + `Multi-purpose vehicles` + `Vans` |
 
 Canadian "passenger cars" (cars proper) have collapsed to a ~45-65k/quarter
 minority as buyers moved to light trucks/SUVs — which is why the `Whole` totals
-look small and its DIESEL is ~0.
+look small and its DIESEL is ~0. `Non-Passenger` picks up that majority.
 
-### Why "Non-Passenger" and not "HDV"/"Vans"/"Buses" (definition mismatch)
+### Why "Non-Passenger" and not "HDV"/"Vans"/"Buses"
 
 The other multi-variant countries (Denmark, Finland, Ireland, Portugal,
 Netherlands) split commercial vehicles by **EU vehicle category**: `Vans` = N1
-(≤ 3.5 t), `HDV` = N2/N3 (> 3.5 t), `Buses` = M2/M3. StatCan's registration
-cube uses the **North American** split — Vehicle type is only `Passenger cars`
-vs `Trucks` (plus `Total`). That "Trucks" bucket is a catch-all dominated by
-SUVs/pickups/minivans (M1 passenger vehicles in EU terms) lumped together with
-real LCVs, heavy trucks **and** buses; it **cannot** be separated into
-N1 / N2-N3 / M2-M3.
+(≤ 3.5 t), `HDV` = N2/N3 (> 3.5 t), `Buses` = M2/M3. StatCan's cube has no such
+split — it's a North-American **light-vehicle body-type** split (cars, pickups,
+SUVs/crossovers, vans), all personal-use-dominated and all M1-ish in EU terms,
+with no heavy-goods or bus category at all. (Its `Vans` member is mostly
+minivans/personal vans, not EU N1 commercial vans.)
 
 So Canada cannot contribute `Vans`/`HDV`/`Buses` variants comparable to the
-other countries, and calling this bucket `Trucks` or `HDV` would wrongly imply
-heavy goods vehicles. We therefore expose it under the deliberately neutral
-name **`Non-Passenger`**, which signals a mixed catch-all of everything that
+other countries. We sum the three non-car body types into the deliberately
+neutral **`Non-Passenger`**, signalling a mixed catch-all of everything that
 isn't a passenger car. It is an **orphan variant**: it renders its own
 trajectory in the Gallery / Thresholds / Durations (the renderer is
 variant-name-agnostic, and bespoke names like India's `2-/3-/4-Wheelers`
 already exist), but it does **not** join any cross-country HDV/Vans/Buses
 ranking and is **not** in the Builder's weight-variant aggregation (the Builder
 falls back to passenger cars for variants it doesn't know — see the note in
-`index.html`). Confirm the live Vehicle type members anytime with
+`index.html`). Re-confirm the live members anytime with
 `python scripts/fetch_canada.py --list-members`.
 
 The historical Google Sheet carries only the `Whole` passenger-car series, so
 `Non-Passenger` has no legacy values to migrate — its first run seeds the file
 from StatCan directly (use a large `--latest-n` once; see §9).
+
+> **PHEV/HEV vs the legacy sheet.** On the first live run, `Whole`'s 2017-2024
+> quarters matched the legacy CSV on PETROL/DIESEL/BEV/OTHERS but came back with
+> **PHEV and HEV swapped** (every quarter: new PHEV == old HEV and vice-versa).
+> The fetcher's mapping is verified correct by member name
+> (`Plug-in hybrid electric → PHEV`, `Hybrid electric → HEV`), so StatCan's live
+> values and the hand-entered sheet disagree on which column is which. Treat
+> StatCan as authoritative (the fetcher overwrites with StatCan's split); the
+> `>50%` upsert warnings on PHEV/HEV for 2017-2024 are this one-time correction,
+> not a bug. Spot-check one cell on the StatCan table viewer if in doubt.
 
 ## 4. Column mapping
 
@@ -222,10 +240,13 @@ Look for the `Fuel type`, `Vehicle type`, and `Geography` dimensions and their
 - Authentication. WDS is open; no key.
 - Provincial/territorial breakdowns. `Geography` exposes provinces; we pin
   `Canada`.
-- `Total, new motor vehicles`. We fetch `Passenger cars` (Whole) and `Trucks`
-  (Non-Passenger) separately; their sum is the total, so we don't store a
-  redundant Total variant. See §3 for why the `Trucks` bucket is exposed as the
-  neutral `Non-Passenger` and can't yield consistent Vans/HDV/Buses variants.
+- `Total, vehicle type`. We fetch `Passenger cars` (Whole) and the three
+  non-car body types (Non-Passenger) separately; their sum is the total, so we
+  don't store a redundant Total variant. See §3 for why the non-car body types
+  are summed into the neutral `Non-Passenger` and can't yield consistent
+  Vans/HDV/Buses variants.
+- Heavy trucks and buses. They are **not in this cube** at all (it is
+  light-vehicle only) — so there is no HDV/Buses data to extract for Canada.
 - Monthly data. Cube 20-10-0024 is quarterly.
 - The separate ZEV cube **20-10-0025** (`pid=2010002501`, referenced in the
   legacy `source` column). 20-10-0024 already carries the BEV/PHEV/HEV split we

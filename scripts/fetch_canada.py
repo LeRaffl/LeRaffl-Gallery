@@ -11,18 +11,26 @@ Usage
 
 Output files / variants
 -----------------------
-    data/Canada.csv                <- variant=Whole          (Vehicle type = Passenger cars)
-    data/Canada_Non-Passenger.csv  <- variant=Non-Passenger  (Vehicle type = Trucks)
+    data/Canada.csv                <- variant=Whole          (Passenger cars)
+    data/Canada_Non-Passenger.csv  <- variant=Non-Passenger  (Pickup trucks +
+                                       Multi-purpose vehicles + Vans)
 
-`Whole` is passenger cars (cars proper, which in Canada have collapsed to a
-~45-65k/quarter minority as buyers moved to light trucks/SUVs — hence DIESEL is
-~0, the diesel passenger car being near-extinct); this matches the historical
-data/Canada.csv. `Non-Passenger` is StatCan's "Trucks" Vehicle type, which is a
-catch-all for *everything that is not a passenger car* — minivans, SUVs,
-pickups, vans, light AND heavy trucks, and buses. It is intentionally NOT named
-"Trucks"/"HDV" (which would imply heavy goods vehicles only); the mixed-bag
-nature is the point. See the VARIANTS map for the full rationale. Both variants
-are unauthenticated reads of the same cube; only the Vehicle type member differs.
+Cube 20-10-0024 is a LIGHT-vehicle cube; its Vehicle type members are
+``Total, vehicle type | Passenger cars | Pickup trucks | Multi-purpose vehicles
+| Vans`` (no heavy trucks, no buses). `Whole` is passenger cars (cars proper,
+which in Canada have collapsed to a ~45-65k/quarter minority as buyers moved to
+light trucks/SUVs — hence DIESEL is ~0, the diesel passenger car being
+near-extinct); this matches the historical data/Canada.csv. `Non-Passenger`
+sums the three non-car members — a catch-all for *everything that is not a
+passenger car* in this cube (personal-use light trucks/SUVs/minivans/vans). It
+is intentionally NOT named "Trucks"/"HDV"/"Vans" (which would imply a specific
+EU category); the mixed-bag nature is the point. See the VARIANTS map for the
+full rationale. Both variants are unauthenticated reads of the same cube.
+
+Coverage note: the fuel-type split in this cube currently spans ~2017-Q1
+onward (older years and the most recent quarters may be absent). The upsert
+only adds/updates the quarters StatCan returns, so pre-2017 and any
+newer-than-cube rows already in data/Canada.csv are preserved untouched.
 
 Cadence
 -------
@@ -90,19 +98,23 @@ CSV_PATH = "data/Canada.csv"
 GEOGRAPHY = "Canada"
 DEFAULT_LATEST_N = 16           # 4 years of quarters; StatCan revises recent ones
 
-# Variant -> StatCan "Vehicle type" member. The cube's Vehicle type dimension
-# only splits Passenger cars vs Trucks (North American classification), so we
-# can't reproduce the EU-category variants (Vans=N1, HDV=N2/N3, Buses=M2/M3)
-# the other countries use. Instead we expose StatCan's "Trucks" bucket as its
-# own honestly-named catch-all variant: it is *everything that is not a
-# passenger car* — minivans, SUVs, pickups, vans, light AND heavy trucks, and
-# buses lumped together. It is deliberately NOT called "HDV"/"Trucks", which
-# would imply heavy goods vehicles; "Non-Passenger" makes the mixed-bag nature
-# clear. It is an orphan variant (not comparable to other countries' HDV/Vans/
-# Buses and not in the Builder aggregation), but it renders its own trajectory.
+# Variant -> the StatCan "Vehicle type" member(s) summed into it. Cube
+# 20-10-0024 is a LIGHT-vehicle cube: its Vehicle type members are
+#   Total, vehicle type | Passenger cars | Pickup trucks |
+#   Multi-purpose vehicles | Vans
+# (no heavy trucks, no buses — so this is NOT the EU N1/N2/N3/M2/M3 split the
+# other countries use). We expose two variants:
+#   * Whole         = Passenger cars (cars proper) — matches the legacy series.
+#   * Non-Passenger = Pickup trucks + Multi-purpose vehicles + Vans, i.e.
+#                     *everything that is not a passenger car* in this cube
+#                     (personal-use light trucks/SUVs/minivans/vans). It is
+#                     deliberately NOT called "Trucks"/"HDV"/"Vans" — it is a
+#                     mixed catch-all. An orphan variant: it renders its own
+#                     trajectory but is not comparable to other countries'
+#                     HDV/Vans/Buses and is not in the Builder aggregation.
 VARIANTS = {
-    "Whole": "Passenger cars",
-    "Non-Passenger": "Trucks",
+    "Whole": ["Passenger cars"],
+    "Non-Passenger": ["Pickup trucks", "Multi-purpose vehicles", "Vans"],
 }
 
 
@@ -204,9 +216,12 @@ def _choose_total_member(members: list, dim_name: str) -> dict:
     pool = roots or members
     nl = dim_name.lower()
     if "statistic" in nl:
-        for m in pool:
-            if "unit" in m["memberNameEn"].lower():
-                return m
+        # The cube reports counts under e.g. "Number of vehicles" / "Units"
+        # (there can also be a "Dollars" statistic we must avoid).
+        for needle in ("number of vehicle", "units", "unit"):
+            for m in pool:
+                if needle in m["memberNameEn"].lower():
+                    return m
     for m in pool:
         ml = m["memberNameEn"].strip().lower()
         if ml.startswith("total") or ml.startswith("all") or ml.startswith("units"):
@@ -219,16 +234,22 @@ def _leaf_members(members: list) -> list:
     return [m for m in members if m["memberId"] not in parent_ids]
 
 
-def build_coordinates(meta: dict, vehicle_type: str) -> tuple[list[tuple[str, str]], str]:
+def build_coordinates(meta: dict, vehicle_types: list[str]) -> tuple[list[tuple[str, str]], str]:
     """Return ([(coordinate, column), ...], summary_str).
 
-    Holds Geography=Canada, Vehicle type=<target>, and the total member of every
-    other dimension fixed; varies Fuel type across its leaf members.
+    Holds Geography=Canada and the total member of every dimension other than
+    Vehicle type and Fuel type fixed, then emits one coordinate for each
+    (vehicle member in ``vehicle_types``) x (fuel leaf). A variant that spans
+    several vehicle members (e.g. Non-Passenger = Pickup trucks + Multi-purpose
+    vehicles + Vans) therefore produces several coordinates per fuel column;
+    ``collect_rows`` sums them into that column automatically.
     """
     dims = sorted(meta["dimension"], key=lambda d: d["dimensionPositionId"])
     n_dims = len(dims)
 
-    fixed: dict[int, int] = {}      # positionId -> memberId
+    fixed: dict[int, int] = {}      # positionId -> memberId (non-vehicle, non-fuel dims)
+    vehicle_pos: int | None = None
+    vehicle_members: list[dict] = []
     fuel_pos: int | None = None
     fuel_leaves: list[dict] = []
     summary_lines = []
@@ -243,37 +264,40 @@ def build_coordinates(meta: dict, vehicle_type: str) -> tuple[list[tuple[str, st
             fixed[pos] = m["memberId"]
             summary_lines.append(f"  dim {pos} {name!r} -> {m['memberNameEn']!r}")
         elif "vehicle" in nl:
-            m = _member_by_name(members, vehicle_type, exact=True)
-            fixed[pos] = m["memberId"]
-            summary_lines.append(f"  dim {pos} {name!r} -> {m['memberNameEn']!r}")
+            vehicle_pos = pos
+            vehicle_members = [_member_by_name(members, vt, exact=True) for vt in vehicle_types]
+            summary_lines.append(
+                f"  dim {pos} {name!r} -> {[m['memberNameEn'] for m in vehicle_members]}")
         elif "fuel" in nl:
             fuel_pos = pos
             fuel_leaves = _leaf_members(members)
-            mapped = [(lf["memberNameEn"], map_fuel(lf["memberNameEn"])) for lf in fuel_leaves]
             summary_lines.append(f"  dim {pos} {name!r} -> {len(fuel_leaves)} leaves:")
-            for nm, col in mapped:
-                summary_lines.append(f"      {nm!r} -> {col}")
+            for lf in fuel_leaves:
+                summary_lines.append(f"      {lf['memberNameEn']!r} -> {map_fuel(lf['memberNameEn'])}")
         else:
             m = _choose_total_member(members, name)
             fixed[pos] = m["memberId"]
             summary_lines.append(f"  dim {pos} {name!r} -> {m['memberNameEn']!r} (total)")
 
-    if fuel_pos is None:
+    if fuel_pos is None or vehicle_pos is None:
         raise RuntimeError(
-            f"no Fuel type dimension in cube; dims: "
+            f"missing Vehicle type / Fuel type dimension; dims: "
             f"{[d['dimensionNameEn'] for d in dims]}"
         )
 
     coords: list[tuple[str, str]] = []
-    for leaf in fuel_leaves:
-        positions = []
-        for pos in range(1, n_dims + 1):
-            if pos == fuel_pos:
-                positions.append(str(leaf["memberId"]))
-            else:
-                positions.append(str(fixed[pos]))
-        positions += ["0"] * (10 - n_dims)
-        coords.append((".".join(positions), map_fuel(leaf["memberNameEn"])))
+    for vm in vehicle_members:
+        for leaf in fuel_leaves:
+            positions = []
+            for pos in range(1, n_dims + 1):
+                if pos == vehicle_pos:
+                    positions.append(str(vm["memberId"]))
+                elif pos == fuel_pos:
+                    positions.append(str(leaf["memberId"]))
+                else:
+                    positions.append(str(fixed[pos]))
+            positions += ["0"] * (10 - n_dims)
+            coords.append((".".join(positions), map_fuel(leaf["memberNameEn"])))
 
     return coords, "\n".join(summary_lines)
 
@@ -404,11 +428,11 @@ def main() -> None:
 
     selected = list(VARIANTS) if args.variant == "all" else [args.variant]
     for variant in selected:
-        vehicle_type = VARIANTS[variant]
+        vehicle_types = VARIANTS[variant]
         csv_path = variant_csv_path(variant)
-        print(f"\n=== variant {variant!r} (Vehicle type = {vehicle_type!r}) -> {csv_path} ===")
+        print(f"\n=== variant {variant!r} (Vehicle type = {vehicle_types}) -> {csv_path} ===")
 
-        coords, summary = build_coordinates(meta, vehicle_type)
+        coords, summary = build_coordinates(meta, vehicle_types)
         print("[plan] fixed dimensions and fuel leaves:")
         print(summary)
 
