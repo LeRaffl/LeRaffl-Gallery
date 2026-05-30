@@ -1,0 +1,73 @@
+name: Fetch Canada data (StatCan WDS)
+
+# Fetches new passenger-car registrations from Statistics Canada's Web Data
+# Service (cube 20-10-0024 "New motor vehicle registrations") and upserts the
+# latest quarters into data/Canada.csv (single variant: Whole). StatCan revises
+# recent quarters, so the script always re-fetches the latest N quarters; the
+# commit step is change-gated, making steady-state runs a no-op. When the CSV
+# changes, this workflow dispatches render-country.yml for Canada.
+#
+# See scripts/fetch_canada.py for the WDS coordinate/fuel mapping, and
+# docs/architecture/17-source-canada.md for the full pipeline context.
+
+on:
+  workflow_dispatch:
+    inputs:
+      vehicle_type:
+        description: 'StatCan Vehicle type member (default "Passenger cars")'
+        required: false
+        default: ''
+      latest_n:
+        description: 'Quarters to fetch per fuel (default 16)'
+        required: false
+        default: ''
+  schedule:
+    # Daily 1st-15th at 06:40 UTC. StatCan releases the cube quarterly with a
+    # lag; daily polling within the window catches a release whenever it lands,
+    # and the change-gated commit makes the other runs no-ops. 06:40 sits
+    # between fetch-netherlands (06:30) and the 08:00 crowd.
+    - cron: '40 6 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Canada.csv
+        run: |
+          python scripts/fetch_canada.py \
+            ${VEHICLE_TYPE:+--vehicle-type "$VEHICLE_TYPE"} \
+            ${LATEST_N:+--latest-n "$LATEST_N"}
+        env:
+          VEHICLE_TYPE: ${{ inputs.vehicle_type }}
+          LATEST_N: ${{ inputs.latest_n }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Canada.csv
+          message: 'chore: update Canada data from 150.statcan.gc.ca'
+          default_author: github_actions
+
+      - name: Trigger render for Canada
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Canada \
+            -f variant=Whole

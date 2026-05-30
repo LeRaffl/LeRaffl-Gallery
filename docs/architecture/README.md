@@ -28,6 +28,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 14 | [14-data-source-gaps.md](14-data-source-gaps.md) | Countries investigated but **not** added, and why (Argentina/Mexico/Colombia + the zemo-la aggregator). The "why isn't X on the map?" reference. |
 | 15 | [15-source-ireland.md](15-source-ireland.md) | Per-country source playbook for Ireland (stats.simi.ie SIMI/motorstats — Inertia.js session-filter flow, no public API). |
 | 16 | [16-source-portugal.md](16-source-portugal.md) | Per-country source playbook for Portugal (ACAP via motordata.pt — current-year POST endpoint, OTHERS residual). |
+| 17 | [17-source-canada.md](17-source-canada.md) | Per-country source playbook for Canada (StatCan WDS, cube 20-10-0024 — metadata-driven coordinates, quarterly→middle-month). |
 
 ## Big picture in one diagram
 
