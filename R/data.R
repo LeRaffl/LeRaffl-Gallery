@@ -33,47 +33,51 @@ load_country_csv <- function(path) {
   df
 }
 
-# Compute TTM (12-month rolling) share per fuel column, on monthly rows only.
-# Returns a long data frame: month (YYYY-MM), type (factor), value (share 0..1).
-# Stack order matches historical plot: Other, Petrol, Diesel, HEV, EREV, PHEV, BEV
-# (Other-most-bottom, BEV-most-top; same fill as the original viridis stack).
+# Compute TTM (trailing-12-month) share per fuel column. Works on the most
+# recent interval present: monthly (rolling 12 rows) or quarterly (rolling 4
+# rows = the same 12 months). Yearly-only series return NULL (a yearly point is
+# already 12 months). Returns a long data frame: month (YYYY-MM), type
+# (factor), value (share 0..1). Stack order matches the historical plot.
 compute_ttm_long <- function(df) {
-  m <- df[df$time_interval == "monthly", ]
+  df <- df[order(df$year), ]
+  if (nrow(df) == 0) return(NULL)
+  last_ti <- df$time_interval[nrow(df)]
+  window <- switch(last_ti, monthly = 12L, quarterly = 4L, NA_integer_)
+  if (is.na(window)) return(NULL)        # yearly / unknown: no rolling-12 TTM
+  m <- df[df$time_interval == last_ti, ]
   m <- m[order(m$year), ]
-  if (nrow(m) < 12) return(NULL)
-  # Mirror the historical script: drop the first calendar year of monthly data
-  # before rolling, so the displayed TTM series doesn't include partial-window
-  # noise at the left edge.
+  if (nrow(m) < window) return(NULL)
+  # Mirror the historical script: drop the first calendar year before rolling,
+  # so the displayed TTM series doesn't include partial-window noise at the
+  # left edge (monthly: 12 months; quarterly: 4 quarters).
   m <- m[m$year >= min(m$year) + 1, ]
-  if (nrow(m) < 12) return(NULL)
+  if (nrow(m) < window) return(NULL)
 
   fuel_cols <- c("BEV","PHEV","EREV","HEV","MHEV","PETROL","DIESEL","GAS","CNG","LPG","FLEXFUEL","ETHANOL","OTHERS","ICE")
   present <- fuel_cols[fuel_cols %in% names(m)]
   total <- as.numeric(m$TOTAL)
 
-  rolling12 <- function(x) {
+  # Rolling sum over the trailing `window` periods (= trailing 12 months for
+  # both monthly window=12 and quarterly window=4). strict=TRUE returns NA
+  # unless the whole window is non-NA, so stacked bars hit 100% from period 1.
+  rolling <- function(x, strict = FALSE) {
     n <- length(x); out <- rep(NA_real_, n)
-    for (i in 12:n) out[i] <- sum(x[(i-11):i], na.rm = TRUE)
-    out
-  }
-
-  total_ttm <- rolling12(total)
-  # Per-column rolling sum: only valid when the entire 12-month window is non-NA.
-  # This ensures stacked bars hit 100% from the very first plotted period.
-  rolling12_strict <- function(x) {
-    n <- length(x); out <- rep(NA_real_, n)
-    for (i in 12:n) {
-      w <- x[(i-11):i]
-      if (!any(is.na(w))) out[i] <- sum(w)
+    if (n < window) return(out)
+    for (i in window:n) {
+      w <- x[(i - window + 1):i]
+      if (strict) { if (!any(is.na(w))) out[i] <- sum(w) }
+      else out[i] <- sum(w, na.rm = TRUE)
     }
     out
   }
+
+  total_ttm <- rolling(total)
   ttm <- list()
   any_present <- rep(TRUE, nrow(m))
   for (col in present) {
     v <- as.numeric(m[[col]])
     if (all(is.na(v))) next
-    rs <- rolling12_strict(v)
+    rs <- rolling(v, strict = TRUE)
     ttm[[col]] <- rs / total_ttm
     any_present <- any_present & !is.na(rs)
   }
