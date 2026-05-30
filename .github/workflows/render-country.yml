@@ -35,6 +35,7 @@ on:
           - Private
           - Vans
           - Buses
+          - Non-Passenger
   workflow_call:
     inputs:
       country:
