@@ -357,10 +357,24 @@ def main() -> None:
                              "re-fetches the latest N quarters and is commit-gated downstream.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Parse and print, but do not write the CSV.")
+    parser.add_argument("--list-members", action="store_true",
+                        help="Print every dimension and all its members, then exit. Use this "
+                             "to see what the cube exposes (e.g. which Vehicle type members "
+                             "exist) without fetching data.")
     args = parser.parse_args()
 
     session = requests.Session()
     meta = get_cube_metadata(session, args.product_id)
+
+    if args.list_members:
+        for d in sorted(meta["dimension"], key=lambda x: x["dimensionPositionId"]):
+            print(f"\nDimension {d['dimensionPositionId']}: {d['dimensionNameEn']!r} "
+                  f"({len(d['member'])} members)")
+            for m in d["member"]:
+                indent = "    " if m.get("parentMemberId") else "  "
+                print(f"{indent}[{m['memberId']}] {m['memberNameEn']}")
+        return
+
     coords, summary = build_coordinates(meta, args.vehicle_type)
     print("[plan] fixed dimensions and fuel leaves:")
     print(summary)

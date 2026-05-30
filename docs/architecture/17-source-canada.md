@@ -68,6 +68,23 @@ small and DIESEL is ~0. The cube also exposes "Trucks" and "Total, new motor
 vehicles"; if a broader slice is ever wanted, pass `--vehicle-type` (and add a
 variant) rather than changing the default, to keep continuity with history.
 
+### No Vans / HDV / Buses variants (definition mismatch)
+
+The other multi-variant countries (Denmark, Finland, Ireland, Portugal,
+Netherlands) split commercial vehicles by **EU vehicle category**: `Vans` = N1
+(≤ 3.5 t), `HDV` = N2/N3 (> 3.5 t), `Buses` = M2/M3. StatCan's registration
+cube uses the **North American** split — Vehicle type is only `Passenger cars`
+vs `Trucks` (plus the `Total`). That "Trucks" bucket is a catch-all dominated
+by SUVs/pickups/minivans (which are M1 passenger vehicles in EU terms) lumped
+together with real LCVs, heavy trucks and buses; it cannot be separated into
+N1 / N2-N3 / M2-M3. So Canada **cannot** contribute `Vans`/`HDV`/`Buses`
+variants consistent with the other countries, and a raw `Trucks` variant would
+be definitionally misleading. Canada therefore stays **Whole-only**, like
+Sweden. (Confirm the live Vehicle type members with
+`python scripts/fetch_canada.py --list-members`.) The historical Google Sheet
+likewise carries only the whole passenger-car series, so there is no
+alternative variant source to fall back on for Canada.
+
 ## 4. Column mapping
 
 Only **leaf** fuel members are summed; aggregate members ("All fuel types",
@@ -153,6 +170,16 @@ The run prints the resolved dimensions and the fuel-leaf → column mapping
 before the per-quarter values, which is the fastest way to confirm StatCan
 hasn't changed member names.
 
+### List everything the cube exposes (e.g. to re-check Vehicle type granularity)
+
+```sh
+python scripts/fetch_canada.py --list-members
+```
+
+Prints every dimension and all its members (Vehicle type, Fuel type, …) and
+exits without fetching data — the definitive answer to "does StatCan offer more
+than Passenger cars?".
+
 ### Pull more history
 
 ```sh
@@ -176,7 +203,8 @@ Look for the `Fuel type`, `Vehicle type`, and `Geography` dimensions and their
 - Provincial/territorial breakdowns. `Geography` exposes provinces; we pin
   `Canada`.
 - Trucks / total new vehicles. We pin Vehicle type = `Passenger cars` to match
-  history (overridable via `--vehicle-type`).
+  history (overridable via `--vehicle-type`). See §3 for why the `Trucks`
+  bucket can't yield consistent Vans/HDV/Buses variants.
 - Monthly data. Cube 20-10-0024 is quarterly.
 - The separate ZEV cube **20-10-0025** (`pid=2010002501`, referenced in the
   legacy `source` column). 20-10-0024 already carries the BEV/PHEV/HEV split we
