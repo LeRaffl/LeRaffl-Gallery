@@ -86,6 +86,7 @@ always re-fetches the latest N quarters (StatCan revises recent quarters).
 import argparse
 import csv
 import os
+import re
 from datetime import date
 from pathlib import Path
 
@@ -313,6 +314,12 @@ def refper_to_period(ref_per: str) -> str:
     return f"{year}-{middle:02d}"
 
 
+def _norm_coord(coord: str) -> str:
+    """Drop trailing zero (padding) positions so request and echoed coordinates
+    compare equal regardless of how WDS pads them: '1.5.2.1.0.0.0.0.0.0' -> '1.5.2.1'."""
+    return re.sub(r"(?:\.0)+$", "", coord)
+
+
 def collect_rows(session: requests.Session, product_id: int,
                  coords: list[tuple[str, str]], latest_n: int,
                  variant: str) -> dict[str, dict]:
@@ -322,18 +329,32 @@ def collect_rows(session: requests.Session, product_id: int,
     ]
     results = get_data(session, payload)
 
+    # WDS does NOT guarantee the response array is in request order, so match
+    # each result back to its column via the coordinate it echoes — never by
+    # list position (that scrambles fuels across columns).
+    coord_to_col = {_norm_coord(coord): col for coord, col in coords}
+
     periods: dict[str, dict[str, float]] = {}
-    for (coord, col), item in zip(coords, results):
+    matched = 0
+    for item in results:
         if item.get("status") != "SUCCESS":
-            print(f"  WARNING coordinate {coord} ({col}): status={item.get('status')} "
-                  f"— skipping ({item.get('object')})")
+            print(f"  WARNING result status={item.get('status')} — skipping "
+                  f"({item.get('object')})")
             continue
-        for dp in item["object"].get("vectorDataPoint", []):
+        obj = item["object"]
+        col = coord_to_col.get(_norm_coord(str(obj.get("coordinate", ""))))
+        if col is None:
+            print(f"  WARNING unmatched coordinate {obj.get('coordinate')!r} — skipping")
+            continue
+        matched += 1
+        for dp in obj.get("vectorDataPoint", []):
             period = refper_to_period(dp["refPer"])
             val = dp.get("value")
             val = 0.0 if val in (None, "") else float(val)
             slot = periods.setdefault(period, {c: 0.0 for c in VALUE_COLUMNS})
             slot[col] += val
+    if matched != len(coords):
+        print(f"  WARNING matched {matched}/{len(coords)} coordinates by echoed key")
 
     rows: dict[str, dict] = {}
     for period, cols in periods.items():
