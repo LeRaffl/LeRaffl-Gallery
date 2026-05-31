@@ -1,11 +1,11 @@
 🇨🇦 Canada - December 25 - BEV Trajectory
-6.9% BEV
-5.4% PHEV
-87.7% ICE (of which 20.9%p were HEV)
+8.5% BEV
+4.9% PHEV
+86.6% ICE (of which 12.6%p were HEV)
 
 Trailing 12 months are:
-10.7% BEV
-2.6% PHEV
-86.7% ICE (of which 13.1%p were HEV)
+10.2% BEV
+4.2% PHEV
+85.6% ICE (of which 10.8%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
