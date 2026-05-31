@@ -120,6 +120,12 @@ Ireland M1.
 > (BEV share ~0.5% on both sides: 2016 = 0.51%, 2017-Q1 = 0.54%), so only the
 > absolute volumes/weights jump. `fit.R` handles the mixed yearly+quarterly
 > cadence natively. The world map / cross-country rankings use the M1 series.
+>
+> This caveat is also surfaced **on the chart itself**: `footnotes.csv`
+> (`country,variant,footnote`) carries a curated `Canada,Whole` note that
+> `render_country.R` appends as a second caption line on the Whole PNGs. It is
+> deliberately separate from the per-row `notes` CSV column, which is internal
+> and not display-safe.
 
 ### Pickups and Vans — Canada-specific, not EU Vans/HDV
 
