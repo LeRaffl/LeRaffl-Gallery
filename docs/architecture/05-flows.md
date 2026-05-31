@@ -28,6 +28,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | S | [Auto-ingest Sweden from SCB](#flow-s--scb-ingest) | Daily cron (1st–15th, 05:50 UTC) or manual dispatch | Updated `data/Sweden.csv` → Flow B for Sweden |
 | T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
 | U | [Auto-ingest Portugal from ACAP](#flow-u--acap-ingest) | Twice-daily cron (1st–5th, 17:30 & 20:30 UTC) or manual dispatch | Updated `data/Portugal.csv` → Flow B for Portugal |
+| V | [Auto-ingest Colombia from ANDI/FENALCO](#flow-v--andi-pdf-ingest) | Daily cron (5th–25th, 07:30 UTC) or manual dispatch | Updated `data/Colombia.csv` → Flow B for Colombia |
 
 ---
 
@@ -1265,6 +1266,47 @@ sequenceDiagram
 **Why twice-daily on the 1st–5th at 17:30 & 20:30 UTC:** ACAP publishes from ~17:00 Lisbon on the 1st; both UTC slots sit after publication in either DST season. Early-exit makes runs no-ops once the previous month is in.
 
 **Known fragility / December:** the endpoint only returns the current calendar year, so December (published Jan 1) can fall in a gap when the year rolls over — patch via `--sheet` (workflow `sheet=true` input). A renumbered core fuel code would be silently absorbed into the OTHERS residual; cross-check BEV/PHEV/HEV against the Google Sheet. Migration note: Portugal previously rendered via the legacy local R pipeline with an older 12-column CSV; this flow normalised it to 13 columns (FLEXFUEL uniformly empty).
+
+## Flow V — ANDI PDF ingest
+
+Colombia is fed from the joint **FENALCO + ANDI** *Informe del Sector Automotor* monthly PDF, published on ANDI's Cámara Automotriz page and sourced from **RUNT** (Colombia's official vehicle registry — the same source behind ANDEMOS's gated dashboards). This unblocks the earlier shelving in [14-data-source-gaps.md § Colombia](14-data-source-gaps.md) without needing RUNT credentials.
+
+```mermaid
+sequenceDiagram
+    participant Cron as GitHub Actions (cron / dispatch)
+    participant Job as fetch-colombia.yml job
+    participant Cam as ANDI Cámara Automotriz page
+    participant PDF as ANDI/FENALCO monthly PDF (Uploads/)
+    participant CSV as data/Colombia.csv
+    participant Render as render-country.yml
+
+    Cron->>Job: workflow_dispatch OR cron (5–25, 07:30 UTC)
+    Job->>Job: Early-exit if CSV already has previous-month row
+    Job->>Cam: GET /Home/Camara/4-automotriz
+    Cam-->>Job: HTML with PDF links "<N>. INFORME SECTOR AUTOMOTOR <MMM>_PRENSA-INDUSTRIA <YYYY>_<ticks>.pdf"
+    Job->>Job: regex-pick newest (year, month) link
+    Job->>PDF: GET <pdf_url>
+    PDF-->>Job: ~18-page PDF (Spanish thousands sep, narrative + bar charts)
+    Job->>Job: pdftotext -layout → batch-detect 3 monthly series<br/>(Pkw total / BEV / Híbridos), by (year, month) reset
+    Job->>Job: BEV ← eléctricos; HEV ← híbridos (combined); ICE = TOTAL − BEV − HEV;<br/>PHEV/PETROL/DIESEL/FLEXFUEL/OTHERS empty
+    Job->>CSV: Upsert
+    alt CSV changed
+        Job->>CSV: Commit data/Colombia.csv
+        Job->>Render: gh workflow run render-country.yml -f country=Colombia -f variant=Whole
+    else unchanged
+        Job-->>Cron: Exit cleanly (no-op)
+    end
+```
+
+**Where parsing lives:** [scripts/fetch_colombia.py](../../scripts/fetch_colombia.py). The discovery regex, the batch-detection parser, the Türkiye-style single-Hybrid convention, the Spanish number format and the known small parsing gap on early-2023 months live in [18-source-colombia.md](18-source-colombia.md).
+
+**Vehicle scope:** Passenger cars only (Whole). The PDF also has a *Vehículos de transporte de carga* monthly chart (HDV total) but **without** a fuel split — out of scope for our schema (no BEV share computable).
+
+**Why a "single Hybrid bucket":** the joint ANDI/FENALCO boletín does not split PHEV vs HEV — it publishes a combined *Híbridos* total. We follow the same Türkiye / Georgia convention: combined hybrids go in the `HEV` column and the post text labels them "Hybrid". ANDEMOS does have the split via its Looker dashboards, but those aren't machine-accessible — see [14-data-source-gaps.md § Colombia](14-data-source-gaps.md). If RUNT or ANDEMOS ever publishes a free, structured PHEV split, this flow can be extended.
+
+**Why daily 5th–25th at 07:30 UTC:** ANDI/FENALCO usually publishes the previous month's boletín within the first three weeks of the following month; the 21-day polling window covers it comfortably. The early-exit makes runs after capture no-ops. 07:30 UTC sits in a free slot.
+
+**Known fragility:** the PDF URL has a per-upload ticks hash, so we always scrape the listing for the freshest link. If ANDI restructures the page or PDF filename pattern, update `PDF_FILENAME_RE`. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — eyeball one month's values against the PDF narrative as a sanity check.
 
 ## See also
 
