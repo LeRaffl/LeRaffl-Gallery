@@ -51,7 +51,12 @@ plot_ttm_shares <- function(ttm_long, meta) {
     geom_hline(yintercept = c(0.25, 0.5, 0.75), color = "gray40", linetype = "dashed") +
     scale_x_discrete(
       breaks = unique(ttm_long$month[is_year_start]),
-      labels = function(x) format(as.Date(paste0(x, "-01")), "%b %Y")
+      # Label year boundaries as January of that calendar year. For monthly
+      # series the first period already IS "-01" (Jan); for quarterly series the
+      # first period is the Q1 mid-month ("2018-02"), so format from the year
+      # alone — otherwise the axis reads "Feb 2018" instead of "Jan 2018" and
+      # looks inconsistent with the monthly countries.
+      labels = function(x) format(as.Date(paste0(substr(x, 1, 4), "-01-01")), "%b %Y")
     ) +
     scale_y_continuous(labels = scales::percent_format(scale = 100), expand = c(0, 0),
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",
