@@ -49,7 +49,9 @@ jobs:
     permissions:
       contents: write
       actions: write
-
+    outputs:
+      changed_variants: ${{ steps.changed.outputs.variants }}
+      any_changed: ${{ steps.changed.outputs.any }}
     steps:
       - uses: actions/checkout@v4
 
@@ -84,12 +86,16 @@ jobs:
               touched+=("$variant")
             fi
           done
-          variants=$(IFS='|'; echo "${touched[*]}")
-          echo "variants=$variants" >> "$GITHUB_OUTPUT"
-          echo "Touched variants: ${variants:-<none>}"
+          # Emit a JSON array for the render matrix (e.g. ["Whole","Vans"]).
+          json="["; sep=""
+          for v in "${touched[@]}"; do json="$json$sep\"$v\""; sep=","; done
+          json="$json]"
+          echo "variants=$json" >> "$GITHUB_OUTPUT"
+          if [ ${#touched[@]} -gt 0 ]; then echo "any=true" >> "$GITHUB_OUTPUT"; else echo "any=false" >> "$GITHUB_OUTPUT"; fi
+          echo "Touched variants: $json"
 
       - name: Commit if changed
-        id: commit
+        if: steps.changed.outputs.any == 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: |
@@ -99,17 +105,22 @@ jobs:
           message: 'chore: update Canada data from 150.statcan.gc.ca'
           default_author: github_actions
 
-      - name: Trigger render per touched variant
-        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VARIANTS: ${{ steps.changed.outputs.variants }}
-        run: |
-          IFS='|' read -ra arr <<< "$VARIANTS"
-          for variant in "${arr[@]}"; do
-            echo "Dispatching render for variant: $variant"
-            gh workflow run render-country.yml \
-              --ref "${GITHUB_REF_NAME}" \
-              -f country=Canada \
-              -f variant="$variant"
-          done
+  # Render the touched variants STRICTLY one at a time (max-parallel: 1), the
+  # same reusable-workflow matrix fetch-acea.yml uses. Firing the renders
+  # concurrently (the old `gh workflow run` loop) raced on params.csv/weights.csv
+  # — each render appends/edits its own row, and the parallel rebases collided
+  # (the "Commit outputs" conflict seen on the Pickups render). Serialising them
+  # makes every render rebase cleanly onto the previous one's commit.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.any_changed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.changed_variants) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Canada
+      variant: ${{ matrix.variant }}
+    secrets: inherit
