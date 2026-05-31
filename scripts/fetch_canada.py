@@ -6,31 +6,30 @@ registrations"** (productId ``20100025``), and upsert ``data/Canada.csv``.
 
 Usage
 -----
-    python scripts/fetch_canada.py [--latest-n N] [--variant all|Whole|Non-Passenger]
+    python scripts/fetch_canada.py [--latest-n N] [--variant all|Whole|Pickups|Vans]
                                    [--product-id PID] [--list-members] [--dry-run]
 
 Output files / variants
 -----------------------
-    data/Canada.csv                <- variant=Whole          (Passenger cars)
-    data/Canada_Non-Passenger.csv  <- variant=Non-Passenger  (Pickup trucks +
-                                       Multi-purpose vehicles + Vans)
+    data/Canada.csv          <- variant=Whole    (Passenger cars + Multi-purpose
+                                vehicles = EU class M1)
+    data/Canada_Pickups.csv  <- variant=Pickups  (Pickup trucks)
+    data/Canada_Vans.csv     <- variant=Vans     (minivans + cargo vans)
 
 Cube 20-10-0025 is a LIGHT-vehicle cube; its Vehicle type members are
-``Total, vehicle type | Passenger cars | Pickup trucks | Multi-purpose vehicles
-| Vans`` (no heavy trucks, no buses). `Whole` is passenger cars (cars proper,
-which in Canada have collapsed to a ~45-65k/quarter minority as buyers moved to
-light trucks/SUVs — hence DIESEL is ~0, the diesel passenger car being
-near-extinct); this matches the historical data/Canada.csv. `Non-Passenger`
-sums the three non-car members — a catch-all for *everything that is not a
-passenger car* in this cube (personal-use light trucks/SUVs/minivans/vans). It
-is intentionally NOT named "Trucks"/"HDV"/"Vans" (which would imply a specific
-EU category); the mixed-bag nature is the point. See the VARIANTS map for the
-full rationale. Both variants are unauthenticated reads of the same cube.
+``Total, vehicle type | Passenger cars | Multi-purpose vehicles | Pickup trucks
+| Vans`` (no heavy trucks, no buses). `Whole` is harmonised to EU class M1 —
+Passenger cars + Multi-purpose vehicles (SUVs/crossovers) — so it matches how
+every other country in the gallery counts "passenger cars" (which include SUVs).
+`Pickups` and `Vans` are Canada-specific extra variants (see the VARIANTS map
+for the footnote definitions and why they don't map onto the gallery's EU
+Vans/HDV classes). All variants are unauthenticated reads of the same cube.
 
-Coverage note: the fuel-type split in this cube currently spans ~2017-Q1
-onward (older years and the most recent quarters may be absent). The upsert
-only adds/updates the quarters StatCan returns, so pre-2017 and any
-newer-than-cube rows already in data/Canada.csv are preserved untouched.
+Coverage / definition change: the Multi-purpose-vehicle fuel split is only
+available from ~2017-Q1, so the M1 Whole series starts there. Historically
+Canada's Whole was Passenger-cars-only; this pipeline redefines it as M1 and
+the pre-2017 passenger-cars-only rows are dropped (a one-time cleanup) to avoid
+a definition seam.
 
 Cadence
 -------
@@ -105,17 +104,35 @@ DEFAULT_LATEST_N = 16           # 4 years of quarters; StatCan revises recent on
 #   Multi-purpose vehicles | Vans
 # (no heavy trucks, no buses — so this is NOT the EU N1/N2/N3/M2/M3 split the
 # other countries use). We expose two variants:
-#   * Whole         = Passenger cars (cars proper) — matches the legacy series.
-#   * Non-Passenger = Pickup trucks + Multi-purpose vehicles + Vans, i.e.
-#                     *everything that is not a passenger car* in this cube
-#                     (personal-use light trucks/SUVs/minivans/vans). It is
-#                     deliberately NOT called "Trucks"/"HDV"/"Vans" — it is a
-#                     mixed catch-all. An orphan variant: it renders its own
-#                     trajectory but is not comparable to other countries'
-#                     HDV/Vans/Buses and is not in the Builder aggregation.
+# Variant -> the StatCan "Vehicle type" member(s) summed into it. Cube
+# 20-10-0025's Vehicle type members (with their StatCan footnote definitions):
+#   * Passenger cars          — cars proper (no footnote)
+#   * Multi-purpose vehicles  — "sport utility vehicles (SUVs) and Crossovers"
+#   * Pickup trucks           — "GVWR 0-14,000 lb (classes 1, 2 and 3)"
+#   * Vans                    — "all minivans and cargo vans"
+#
+# Whole is harmonised to EU class M1 ("passenger cars" as every other country in
+# the gallery counts them — which INCLUDES SUVs/crossovers): Passenger cars +
+# Multi-purpose vehicles. StatCan splits SUVs out as their own body type, so a
+# Passenger-cars-only series (the cube's narrow North-American "cars proper")
+# would exclude exactly the segment where Canada's BEVs sit and would not be
+# comparable to the M1 series the world map / rankings use.
+#
+# Pickups and Vans are exposed as their own Canada-specific variants. They do
+# NOT map cleanly onto the gallery's EU-anchored Vans(N1)/HDV(N2-N3): pickups
+# here run up to 14,000 lb (~6.35 t, into N2), and "Vans" mixes minivans (M1)
+# with cargo vans (N1). So they are documented as Canada-specific, not used in
+# cross-country Vans/HDV rankings.
+#
+# DEFINITION CHANGE: historically (legacy sheet / pre-automation) Canada's Whole
+# was Passenger cars ONLY. This pipeline redefines Whole as M1 (Passenger cars +
+# Multi-purpose vehicles). The MPV fuel split is only available from ~2017, so
+# the M1 Whole series starts there; pre-2017 passenger-cars-only rows are
+# dropped. See docs/architecture/17-source-canada.md.
 VARIANTS = {
-    "Whole": ["Passenger cars"],
-    "Non-Passenger": ["Pickup trucks", "Multi-purpose vehicles", "Vans"],
+    "Whole":   ["Passenger cars", "Multi-purpose vehicles"],   # EU M1
+    "Pickups": ["Pickup trucks"],                              # Canada-specific
+    "Vans":    ["Vans"],                                       # Canada-specific (minivans + cargo)
 }
 
 
@@ -241,8 +258,8 @@ def build_coordinates(meta: dict, vehicle_types: list[str]) -> tuple[list[tuple[
     Holds Geography=Canada and the total member of every dimension other than
     Vehicle type and Fuel type fixed, then emits one coordinate for each
     (vehicle member in ``vehicle_types``) x (fuel leaf). A variant that spans
-    several vehicle members (e.g. Non-Passenger = Pickup trucks + Multi-purpose
-    vehicles + Vans) therefore produces several coordinates per fuel column;
+    several vehicle members (e.g. Whole = Passenger cars + Multi-purpose
+    vehicles) therefore produces several coordinates per fuel column;
     ``collect_rows`` sums them into that column automatically.
     """
     dims = sorted(meta["dimension"], key=lambda d: d["dimensionPositionId"])

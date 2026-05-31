@@ -12,9 +12,10 @@ metadata call plus a data call, both unauthenticated JSON.
 Source:    150.statcan.gc.ca (StatCan WDS, cube 20-10-0025)
 Auth:      None required
 API:       POST getCubeMetadata + POST getDataFromCubePidCoordAndLatestNPeriods
-Variants:  Whole (Passenger cars) + Non-Passenger (Pickup trucks +
-           Multi-purpose vehicles + Vans = all non-cars in this light cube)
-Coverage:  fuel split ~2017-Q1 onward (no heavy trucks / buses in the cube)
+Variants:  Whole = Passenger cars + Multi-purpose vehicles (EU M1) ;
+           Pickups (Pickup trucks) ; Vans (minivans + cargo vans)
+Coverage:  M1 fuel split ~2017-Q1 onward; pre-2017 passenger-cars-only history
+           dropped (definition change — see §1/§3)
 Cadence:   Quarterly -> stored under the quarter's MIDDLE month (Q1→02, Q2→05,
            Q3→08, Q4→11); time_interval=quarterly
 HEV:       Reported natively (Hybrid electric, non-plug-in)
@@ -36,9 +37,12 @@ automated WDS fetcher and standardises on the **20-10-0025** cube — the
 based on (it is current through the latest quarter and carries the
 zero-emission detail). The older **20-10-0024** cube was tried first but lags
 (it ended at 2024-Q4) and reported a different hybrid breakdown, so it is not
-used. Historical values are unchanged except for routine StatCan revisions of
-the most recent quarters. The file is rewritten with LF line endings like every
-automated fetcher.
+used. The file is rewritten with LF line endings like every automated fetcher.
+
+This migration also **changes the `Whole` definition** from passenger-cars-only
+to EU **M1** (Passenger cars + Multi-purpose vehicles) and drops the pre-2017
+history — see §3. So historical `Whole` values *do* change (they grow to include
+SUVs/crossovers); this is intentional harmonisation, not a revision.
 
 ## 2. The API
 
@@ -62,51 +66,59 @@ members **by name**: Geography=`Canada`, Vehicle type=`Passenger cars`, the
 the Fuel type dimension. It then fires one data request per fuel leaf in a
 single batched POST.
 
-## 3. Variants
+## 3. Variants and the M1 definition change
 
-The cube is a **light-vehicle** cube. Its Vehicle type members (confirmed live
-via `--list-members`) are:
+The cube is a **light-vehicle** cube. Its Vehicle type members and their StatCan
+footnote definitions (confirmed live via `--list-members` and the table
+footnotes) are:
 
-```
-Total, vehicle type | Passenger cars | Pickup trucks | Multi-purpose vehicles | Vans
-```
-
-No heavy trucks, no buses. We map two variants:
-
-| Variant | File | Vehicle type member(s) summed |
+| StatCan member | Footnote definition | EU class |
 |---|---|---|
-| `Whole` | `data/Canada.csv` | `Passenger cars` |
-| `Non-Passenger` | `data/Canada_Non-Passenger.csv` | `Pickup trucks` + `Multi-purpose vehicles` + `Vans` |
+| `Passenger cars` | cars proper (no footnote) | M1 |
+| `Multi-purpose vehicles` | "sport utility vehicles (SUVs) and Crossovers" | M1 |
+| `Pickup trucks` | "GVWR 0–14,000 lb (classes 1, 2 and 3)" → up to ~6.35 t | N1 + part of N2 |
+| `Vans` | "all minivans and cargo vans" | M1 (minivans) + N1 (cargo) |
 
-Canadian "passenger cars" (cars proper) have collapsed to a ~45-65k/quarter
-minority as buyers moved to light trucks/SUVs — which is why the `Whole` totals
-look small and its DIESEL is ~0. `Non-Passenger` picks up that majority.
+No heavy trucks, no buses. We expose three variants:
 
-### Why "Non-Passenger" and not "HDV"/"Vans"/"Buses"
+| Variant | File | Vehicle type member(s) summed | Meaning |
+|---|---|---|---|
+| `Whole` | `data/Canada.csv` | `Passenger cars` + `Multi-purpose vehicles` | **EU M1** — comparable to every other country |
+| `Pickups` | `data/Canada_Pickups.csv` | `Pickup trucks` | Canada-specific |
+| `Vans` | `data/Canada_Vans.csv` | `Vans` | Canada-specific (minivans + cargo vans) |
 
-The other multi-variant countries (Denmark, Finland, Ireland, Portugal,
-Netherlands) split commercial vehicles by **EU vehicle category**: `Vans` = N1
-(≤ 3.5 t), `HDV` = N2/N3 (> 3.5 t), `Buses` = M2/M3. StatCan's cube has no such
-split — it's a North-American **light-vehicle body-type** split (cars, pickups,
-SUVs/crossovers, vans), all personal-use-dominated and all M1-ish in EU terms,
-with no heavy-goods or bus category at all. (Its `Vans` member is mostly
-minivans/personal vans, not EU N1 commercial vans.)
+### Whole = M1 (Passenger cars + Multi-purpose vehicles) — definition change
 
-So Canada cannot contribute `Vans`/`HDV`/`Buses` variants comparable to the
-other countries. We sum the three non-car body types into the deliberately
-neutral **`Non-Passenger`**, signalling a mixed catch-all of everything that
-isn't a passenger car. It is an **orphan variant**: it renders its own
-trajectory in the Gallery / Thresholds / Durations (the renderer is
-variant-name-agnostic, and bespoke names like India's `2-/3-/4-Wheelers`
-already exist), but it does **not** join any cross-country HDV/Vans/Buses
-ranking and is **not** in the Builder's weight-variant aggregation (the Builder
-falls back to passenger cars for variants it doesn't know — see the note in
-`index.html`). Re-confirm the live members anytime with
-`python scripts/fetch_canada.py --list-members`.
+The gallery's canonical `Whole` is **EU class M1** ("passenger cars" as every
+other country counts them, which **includes SUVs/crossovers** — a Tesla Model Y
+is an M1 passenger car in Germany/Norway/Japan/Ireland). StatCan uniquely splits
+SUVs/crossovers out as their own body type (`Multi-purpose vehicles`), so the
+cube's `Passenger cars` member is the *narrow* North-American "cars proper"
+(sedans/wagons) — which excludes exactly the segment where Canada's BEVs sit.
 
-The historical Google Sheet carries only the `Whole` passenger-car series, so
-`Non-Passenger` has no legacy values to migrate — its first run seeds the file
-from StatCan directly (use a large `--latest-n` once; see §9).
+So `Whole` sums **Passenger cars + Multi-purpose vehicles** to reconstruct M1.
+This is the same move Uruguay makes (`AUTOS + SUV`) and matches ACEA/Japan/
+Ireland M1.
+
+> ⚠️ **Definition change.** Historically (legacy sheet / pre-automation)
+> Canada's `Whole` was **Passenger-cars-only**. This pipeline redefines it as
+> **M1 = Passenger cars + Multi-purpose vehicles**. Because the MPV fuel split
+> only exists from ~2017-Q1, the M1 series starts there and the **pre-2017
+> passenger-cars-only rows were dropped** (one-time cleanup, commit on this
+> branch) to avoid a ~5× total jump at the seam. The world map / cross-country
+> rankings now use the M1 series.
+
+### Pickups and Vans — Canada-specific, not EU Vans/HDV
+
+`Pickups` and `Vans` are exposed because the data is there and useful, but they
+**do not** map onto the gallery's EU-anchored `Vans` (N1, ≤ 3.5 t) / `HDV`
+(N2/N3): StatCan pickups run up to 14,000 lb (~6.35 t, into N2), and StatCan
+`Vans` mixes minivans (M1) with cargo vans (N1). They are therefore documented
+as **Canada-specific orphan variants** — they render their own trajectories but
+do not join any cross-country `Vans`/`HDV` ranking and are not in the Builder
+aggregation (the renderer is variant-name-agnostic; bespoke names like India's
+`2-/3-/4-Wheelers` already exist). Re-confirm the live members and footnotes
+anytime with `python scripts/fetch_canada.py --list-members`.
 
 > **Why 20-10-0025 and not 20-10-0024 (the PHEV/HEV lesson).** The first live
 > run hit the **20-10-0024** cube and came back with PHEV and HEV *swapped*
@@ -174,7 +186,7 @@ flowchart TD
     Meta -->|"dimensions + members"| Fetch
     Fetch -->|"POST …LatestNPeriods (per fuel leaf)"| Data["150.statcan.gc.ca<br/>vectorDataPoint[]"]
     Data -->|"refPer + value"| Fetch
-    Fetch -->|"upsert per variant"| CSV["data/Canada.csv<br/>data/Canada_Non-Passenger.csv"]
+    Fetch -->|"upsert per variant"| CSV["data/Canada.csv (M1)<br/>data/Canada_Pickups.csv<br/>data/Canada_Vans.csv"]
     CSV -.->|"if changed"| GA["EndBug/add-and-commit"]
     GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Canada, once per touched variant)"]
     Dispatch --> Render["R/render_country.R<br/>(four PNGs + params.csv + weights.csv + post)"]
@@ -220,16 +232,17 @@ Prints every dimension and all its members (Vehicle type, Fuel type, …) and
 exits without fetching data — the definitive answer to "does StatCan offer more
 than Passenger cars?".
 
-### Pull more history / seed a new variant
+### Pull more history / seed the variants
 
 ```sh
-python scripts/fetch_canada.py --latest-n 60                    # both variants, ~15y
-python scripts/fetch_canada.py --variant Non-Passenger --latest-n 80   # seed one variant
+python scripts/fetch_canada.py --latest-n 80                 # all variants, full history
+python scripts/fetch_canada.py --variant Vans --latest-n 80  # just one variant
 ```
 
-The default `--latest-n 16` only touches recent quarters (so it never disturbs
-`Whole`'s fractional pre-2017 backfill rows — see §1). To seed `Non-Passenger`'s
-full history on first run, dispatch the workflow with a large `latest_n`.
+The default `--latest-n 16` only touches recent quarters; the M1 fuel split
+starts ~2017-Q1, so the full series is ~32 quarters. To seed all three variants
+(`Whole`/`Pickups`/`Vans`) on first run, dispatch the workflow with a large
+`latest_n`.
 
 ### Validate the metadata by hand
 
@@ -247,13 +260,11 @@ Look for the `Fuel type`, `Vehicle type`, and `Geography` dimensions and their
 - Authentication. WDS is open; no key.
 - Provincial/territorial breakdowns. `Geography` exposes provinces; we pin
   `Canada`.
-- `Total, vehicle type`. We fetch `Passenger cars` (Whole) and the three
-  non-car body types (Non-Passenger) separately; their sum is the total, so we
-  don't store a redundant Total variant. See §3 for why the non-car body types
-  are summed into the neutral `Non-Passenger` and can't yield consistent
-  Vans/HDV/Buses variants.
+- `Total, vehicle type`. `Whole` (M1) + `Pickups` + `Vans` already partition the
+  cube's light vehicles, so we don't store a redundant Total variant.
 - Heavy trucks and buses. They are **not in this cube** at all (it is
-  light-vehicle only) — so there is no HDV/Buses data to extract for Canada.
+  light-vehicle only) — so there is no EU `HDV`/`Buses` data to extract for
+  Canada, and `Pickups`/`Vans` are Canada-specific (not EU N1/N2/N3 — see §3).
 - Monthly data. Cube 20-10-0025 is quarterly.
 - The older **20-10-0024** cube (`pid=2010002401`). It lags (ended 2024-Q4) and
   reports a different hybrid split that did not match the legacy sheet, so we

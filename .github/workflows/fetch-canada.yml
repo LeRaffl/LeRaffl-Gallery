@@ -4,10 +4,11 @@ name: Fetch Canada data (StatCan WDS)
 # Service (cube 20-10-0025 "New motor vehicle registrations") and upserts the
 # latest quarters into per-variant CSVs:
 #
-#   * Whole          — Passenger cars                          -> data/Canada.csv
-#   * Non-Passenger  — Pickup trucks + Multi-purpose vehicles  -> data/Canada_Non-Passenger.csv
-#                      + Vans (this is a light-vehicle cube: all
-#                      non-passenger-car body types, no heavy trucks or buses)
+#   * Whole    — Passenger cars + Multi-purpose vehicles (= EU M1) -> data/Canada.csv
+#   * Pickups  — Pickup trucks                                     -> data/Canada_Pickups.csv
+#   * Vans     — minivans + cargo vans                             -> data/Canada_Vans.csv
+#   (light-vehicle cube — no heavy trucks or buses. See the script + doc for the
+#    M1 harmonisation and the definition change from passenger-cars-only.)
 #
 # StatCan revises recent quarters, so the script always re-fetches the latest N
 # quarters; the commit step is change-gated, making steady-state runs a no-op.
@@ -28,7 +29,8 @@ on:
         options:
           - all
           - Whole
-          - Non-Passenger
+          - Pickups
+          - Vans
       latest_n:
         description: 'Quarters to fetch per fuel (default 16; use e.g. 60 to seed a new variant)'
         required: false
@@ -72,7 +74,8 @@ jobs:
         run: |
           touched=()
           for pair in "Whole:data/Canada.csv" \
-                     "Non-Passenger:data/Canada_Non-Passenger.csv"; do
+                     "Pickups:data/Canada_Pickups.csv" \
+                     "Vans:data/Canada_Vans.csv"; do
             variant="${pair%%:*}"
             file="${pair##*:}"
             [ -f "$file" ] || continue
@@ -91,7 +94,8 @@ jobs:
         with:
           add: |
             data/Canada.csv
-            data/Canada_Non-Passenger.csv
+            data/Canada_Pickups.csv
+            data/Canada_Vans.csv
           message: 'chore: update Canada data from 150.statcan.gc.ca'
           default_author: github_actions
 
