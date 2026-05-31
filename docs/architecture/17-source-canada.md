@@ -14,8 +14,8 @@ Auth:      None required
 API:       POST getCubeMetadata + POST getDataFromCubePidCoordAndLatestNPeriods
 Variants:  Whole = Passenger cars + Multi-purpose vehicles (EU M1) ;
            Pickups (Pickup trucks) ; Vans (minivans + cargo vans)
-Coverage:  M1 fuel split ~2017-Q1 onward; pre-2017 passenger-cars-only history
-           dropped (definition change — see §1/§3)
+Coverage:  M1 (quarterly) from 2017-Q1; 2011-2016 kept as yearly rows
+           (passenger-cars-only, period YYYY-06 — definition seam, see §1/§3)
 Cadence:   Quarterly -> stored under the quarter's MIDDLE month (Q1→02, Q2→05,
            Q3→08, Q4→11); time_interval=quarterly
 HEV:       Reported natively (Hybrid electric, non-plug-in)
@@ -40,9 +40,14 @@ zero-emission detail). The older **20-10-0024** cube was tried first but lags
 used. The file is rewritten with LF line endings like every automated fetcher.
 
 This migration also **changes the `Whole` definition** from passenger-cars-only
-to EU **M1** (Passenger cars + Multi-purpose vehicles) and drops the pre-2017
-history — see §3. So historical `Whole` values *do* change (they grow to include
-SUVs/crossovers); this is intentional harmonisation, not a revision.
+to EU **M1** (Passenger cars + Multi-purpose vehicles) from 2017 onward — see §3.
+The pre-2017 history is kept as **yearly** rows (`time_interval=yearly`, period
+`YYYY-06`, the annual figure at mid-year): those years are **passenger-cars-only**
+(the M1/SUV split doesn't exist that far back) and carry a `notes` flag saying
+so. This is a deliberate scope seam, but it is invisible in the fitted *share*
+series — BEV share is ~0.5% on both sides of 2016→2017 (e.g. 2016 = 0.51%,
+2017-Q1 = 0.54%), so only the absolute totals/weights differ. `fit.R` natively
+mixes yearly + quarterly rows (it labels pre-`lastyearly` points "Yearly").
 
 ## 2. The API
 
@@ -102,11 +107,14 @@ Ireland M1.
 
 > ⚠️ **Definition change.** Historically (legacy sheet / pre-automation)
 > Canada's `Whole` was **Passenger-cars-only**. This pipeline redefines it as
-> **M1 = Passenger cars + Multi-purpose vehicles**. Because the MPV fuel split
-> only exists from ~2017-Q1, the M1 series starts there and the **pre-2017
-> passenger-cars-only rows were dropped** (one-time cleanup, commit on this
-> branch) to avoid a ~5× total jump at the seam. The world map / cross-country
-> rankings now use the M1 series.
+> **M1 = Passenger cars + Multi-purpose vehicles** from 2017-Q1 (where the MPV
+> fuel split begins). The **2011–2016 history is retained as yearly rows**
+> (period `YYYY-06`, annual figure at mid-year) but stays **passenger-cars-only**
+> (no MPV split that far back) — flagged in each row's `notes`. The resulting
+> 2016→2017 scope seam is invisible in the fitted *share* series (BEV share
+> ~0.5% on both sides), so only the absolute weights differ. `fit.R` handles the
+> mixed yearly+quarterly cadence natively. The world map / cross-country
+> rankings use the M1 series.
 
 ### Pickups and Vans — Canada-specific, not EU Vans/HDV
 

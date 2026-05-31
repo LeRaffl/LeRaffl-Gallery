@@ -1,4 +1,10 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2011-06,yearly,Whole,150.statcan.gc.ca,198,303,7469,643384,16488,0,667842,passenger cars only (pre-M1 history; annual figure at mid-year)
+2012-06,yearly,Whole,150.statcan.gc.ca,631,1343,18554,680080,18424,0,719032,passenger cars only (pre-M1 history; annual figure at mid-year)
+2013-06,yearly,Whole,150.statcan.gc.ca,1598,1548,18746,703415,19220,0,744527,passenger cars only (pre-M1 history; annual figure at mid-year)
+2014-06,yearly,Whole,150.statcan.gc.ca,2800,2508,17314,691924,20610,0,735156,passenger cars only (pre-M1 history; annual figure at mid-year)
+2015-06,yearly,Whole,150.statcan.gc.ca,3821,2536,15152,662009,14260,0,697778,passenger cars only (pre-M1 history; annual figure at mid-year)
+2016-06,yearly,Whole,150.statcan.gc.ca,3219,5932,13877,611309,1769,0,636106,passenger cars only (pre-M1 history; annual figure at mid-year)
 2017-02,quarterly,Whole,150.statcan.gc.ca,1664.0,1798.0,4034.0,298939.0,1237.0,0.0,307672.0,
 2017-05,quarterly,Whole,150.statcan.gc.ca,2197.0,2592.0,7121.0,429547.0,1447.0,0.0,442904.0,
 2017-08,quarterly,Whole,150.statcan.gc.ca,2401.0,2591.0,7217.0,390621.0,1667.0,0.0,404497.0,
