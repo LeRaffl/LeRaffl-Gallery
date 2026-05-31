@@ -42,9 +42,15 @@ QR_GAP_IN  <- 0.10   # gap between flag left edge and QR right edge
 # 1) TTM stacked bar plot
 plot_ttm_shares <- function(ttm_long, meta) {
   if (is.null(ttm_long) || nrow(ttm_long) == 0) return(NULL)
-  yr <- substr(ttm_long$month, 1, 4)
-  year_start_months <- unname(tapply(ttm_long$month, yr, min))
-  is_year_start <- ttm_long$month %in% year_start_months
+  # Year-boundary ticks: prefer real January periods (avoids "Dec 2018" and
+  # "Jan 2019" appearing side-by-side when the TTM series starts in December).
+  # Quarterly data never has a January, so fall back to first-of-year there.
+  if (any(substr(ttm_long$month, 6, 7) == "01")) {
+    is_year_start <- substr(ttm_long$month, 6, 7) == "01"
+  } else {
+    yr <- substr(ttm_long$month, 1, 4)
+    is_year_start <- ttm_long$month %in% unname(tapply(ttm_long$month, yr, min))
+  }
   ggplot(ttm_long, aes(x = month, y = value, fill = type)) +
     geom_bar(stat = "identity", position = "stack", width = 1) +
     geom_vline(
