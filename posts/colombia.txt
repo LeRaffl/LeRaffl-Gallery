@@ -1,11 +1,11 @@
 🌐 Colombia - December 25 - BEV Trajectory
-1.3% BEV
-3.3% Hybrid
-95.4% ICE
+10.7% BEV
+27.8% Hybrid
+61.5% ICE
 
 Trailing 12 months are:
-7.9% BEV
-14.2% Hybrid
-77.9% ICE
+7.8% BEV
+26.7% Hybrid
+65.5% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
