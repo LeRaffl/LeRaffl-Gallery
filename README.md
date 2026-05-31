@@ -51,6 +51,7 @@ Key files in the repository root:
 | **manifest.json** | Auto-generated list of all available charts, used by the Gallery to display images. |
 | **build_manifest.R** | Scans `images/` and generates `manifest.json`. |
 | **params.csv** | Contains the model parameters (v1, v2, t0, baseline year, last data month) for each market. Used for Thresholds & Durations. |
+| **footnotes.csv** | Optional curated per-country/variant chart footnotes (`country,variant,footnote`). `render_country.R` appends the matching note as a second caption line on the PNGs (e.g. Canada `Whole`'s pre-2017 passenger-cars-only scope). Separate from the CSVs' internal `notes` column. |
 | **log_params.R** | Produces and updates the parameter table (`params.csv`). |
 | **images/** | Contains all exported PNG files structured as `images/YYYY-MM/...`. GitHub Pages serves them directly. |
 | **.github/workflows/build-manifest.yml** | CI workflow ensuring that `manifest.json` always stays up to date. |

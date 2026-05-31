@@ -110,6 +110,24 @@ social_caption <- if (have_fonts) {
 }
 entire_caption <- paste0(social_caption, " | \t ", Sys.Date(), "  | \t    Source: ", source_str)
 
+# Optional curated footnote per country/variant, appended as a second caption
+# line (ggtext renders the <br>). Driven by footnotes.csv (columns:
+# country,variant,footnote) — kept separate from the per-row `notes` CSV column,
+# which is internal/not display-safe. Used e.g. to flag Canada's pre-2017
+# passenger-cars-only scope on the Whole charts.
+footnote <- ""
+if (file.exists("footnotes.csv")) {
+  fn <- tryCatch(read.csv("footnotes.csv", stringsAsFactors = FALSE), error = function(e) NULL)
+  if (!is.null(fn) && all(c("country", "variant", "footnote") %in% names(fn))) {
+    hit <- fn[fn$country == country & fn$variant == variant, , drop = FALSE]
+    if (nrow(hit) >= 1 && !is.na(hit$footnote[1]) && nzchar(hit$footnote[1])) {
+      footnote <- hit$footnote[1]
+      entire_caption <- paste0(entire_caption, "<br>", footnote)
+      cat(sprintf("[render] footnote: %s\n", footnote))
+    }
+  }
+}
+
 # Non-Whole variants get the variant appended in parens so the chart title
 # matches the gallery entry (e.g. "Denmark (Private)", "Netherlands (HDV)").
 country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
