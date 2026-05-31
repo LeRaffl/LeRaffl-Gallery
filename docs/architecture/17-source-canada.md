@@ -105,16 +105,21 @@ So `Whole` sums **Passenger cars + Multi-purpose vehicles** to reconstruct M1.
 This is the same move Uruguay makes (`AUTOS + SUV`) and matches ACEA/Japan/
 Ireland M1.
 
-> ⚠️ **Definition change.** Historically (legacy sheet / pre-automation)
-> Canada's `Whole` was **Passenger-cars-only**. This pipeline redefines it as
-> **M1 = Passenger cars + Multi-purpose vehicles** from 2017-Q1 (where the MPV
-> fuel split begins). The **2011–2016 history is retained as yearly rows**
-> (period `YYYY-06`, annual figure at mid-year) but stays **passenger-cars-only**
-> (no MPV split that far back) — flagged in each row's `notes`. The resulting
-> 2016→2017 scope seam is invisible in the fitted *share* series (BEV share
-> ~0.5% on both sides), so only the absolute weights differ. `fit.R` handles the
-> mixed yearly+quarterly cadence natively. The world map / cross-country
-> rankings use the M1 series.
+> ⚠️ **Definition change — SUVs counted from 2017 only.** Historically (legacy
+> sheet / pre-automation) Canada's `Whole` was **passenger cars only**. This
+> pipeline redefines it as **M1 = Passenger cars + Multi-purpose vehicles** from
+> 2017-Q1 (where the MPV fuel split begins).
+>
+> **So the two eras count different vehicles:**
+> - **2011–2016** (yearly rows, period `YYYY-06`): **passenger cars ONLY —
+>   SUVs/crossovers are NOT included** (StatCan has no MPV fuel split that far
+>   back). Each row's `notes` says so.
+> - **2017 onward** (quarterly): **M1 — passenger cars PLUS SUVs/crossovers.**
+>
+> The resulting 2016→2017 scope seam is invisible in the fitted *share* series
+> (BEV share ~0.5% on both sides: 2016 = 0.51%, 2017-Q1 = 0.54%), so only the
+> absolute volumes/weights jump. `fit.R` handles the mixed yearly+quarterly
+> cadence natively. The world map / cross-country rankings use the M1 series.
 
 ### Pickups and Vans — Canada-specific, not EU Vans/HDV
 
