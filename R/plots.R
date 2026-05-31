@@ -1,24 +1,24 @@
 # Plot constructors for the four country charts.
 # `meta` is expected to be a list with: country, country_label, flag_img,
-# entire_caption, social_caption.
+# qr_img (optional QR code), entire_caption, social_caption.
 # `fit` is the result of fit_history().
-# `df` is the full loaded data (with bev_share, ice_share, hybrid_share, year, overall).
+# `df` is the full loaded data.
+#
+# Flags and QR codes are NOT added inside these functions — they are composited
+# into the chart HEADER (title/subtitle row) by save_one() in render_country.R
+# via gtable manipulation, so they appear above the panel, not inside it.
 
 suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(ggtext); library(viridis)
 })
 
-# Palette aligned with the in-browser Fleet plot (index.html ~line 4078) so
-# the static PNGs and the live HTML chart read as one visual language.
-# Keys for TTM_FUEL_COLORS are the DISPLAY labels emitted by compute_ttm_long
-# (R/data.R `display_label`) — not the raw column names.
 TTM_FUEL_COLORS <- c(
   BEV      = "#00ff2c",
   PHEV     = "#00bdfe",
-  EREV     = "#1976d2",  # darker PHEV-cousin (subset of PHEV in some sources)
+  EREV     = "#1976d2",
   HEV      = "#ffd300",
-  MHEV     = "#c4a000",  # darker HEV-cousin
-  ICE      = "#692500",  # used when a source gives ICE as one bucket (China etc.)
+  MHEV     = "#c4a000",
+  ICE      = "#692500",
   Petrol   = "#502900",
   Diesel   = "#914700",
   Gas      = "#8a7253",
@@ -28,17 +28,20 @@ TTM_FUEL_COLORS <- c(
   Ethanol  = "#7a5530",
   Other    = "#3c2f2f"
 )
-# 3-curve plot uses the gallery-wide builder palette (top-level COLORS in
-# index.html ~line 1765): BEV green, PHEV blue, ICE brown.
 TRAJ_COLORS <- c(BEV = "#00ff2c", PHEV = "#00bdfe", ICE = "#692500")
 
-# 1) TTM stacked bar plot (uses long ttm frame from compute_ttm_long)
+# ── Flag / QR constants (used by save_one in render_country.R) ───────────────
+# Height is fixed so every flag fits the header row; width is computed per-flag
+# from the image's actual aspect ratio (so 2:3, 1:2, 1:1 flags all look right).
+FLAG_H_IN  <- 0.90   # flag height — sized to sit in the title+subtitle area
+FLAG_MAX_W <- 2.00   # cap for very wide flags
+FLAG_M_IN  <- 0.10   # margin from right edge of header
+QR_GAP_IN  <- 0.10   # gap between flag left edge and QR right edge
+# QR side = FLAG_H_IN (square, same height as flag) — computed in save_one
+
+# 1) TTM stacked bar plot
 plot_ttm_shares <- function(ttm_long, meta) {
   if (is.null(ttm_long) || nrow(ttm_long) == 0) return(NULL)
-  # Year-boundary periods = the first period of each calendar year present.
-  # For monthly data that's the "-01" month; for quarterly data the periods are
-  # the quarter mid-months (02/05/08/11), so detect the year's first period
-  # generically rather than hard-coding "01".
   yr <- substr(ttm_long$month, 1, 4)
   year_start_months <- unname(tapply(ttm_long$month, yr, min))
   is_year_start <- ttm_long$month %in% year_start_months
@@ -51,11 +54,6 @@ plot_ttm_shares <- function(ttm_long, meta) {
     geom_hline(yintercept = c(0.25, 0.5, 0.75), color = "gray40", linetype = "dashed") +
     scale_x_discrete(
       breaks = unique(ttm_long$month[is_year_start]),
-      # Label year boundaries as January of that calendar year. For monthly
-      # series the first period already IS "-01" (Jan); for quarterly series the
-      # first period is the Q1 mid-month ("2018-02"), so format from the year
-      # alone — otherwise the axis reads "Feb 2018" instead of "Jan 2018" and
-      # looks inconsistent with the monthly countries.
       labels = function(x) format(as.Date(paste0(substr(x, 1, 4), "-01-01")), "%b %Y")
     ) +
     scale_y_continuous(labels = scales::percent_format(scale = 100), expand = c(0, 0),
@@ -78,11 +76,8 @@ plot_ttm_shares <- function(ttm_long, meta) {
 plot_timer <- function(fit, meta) {
   ts <- fit$timer_short
   if (is.null(ts) || nrow(ts) == 0) return(NULL)
-  data_month <- (as.integer(((fit$BEV$x %% 1) * 12 + 1)[length(fit$BEV$x)]) + 1) %% 12
-  current_year <- as.numeric(format(Sys.Date(), "%Y"))
   ymax_top <- ts$BEV_time[length(ts$BEV_time)] * 2
-
-  p <- ggplot(ts, aes(x = year)) +
+  ggplot(ts, aes(x = year)) +
     geom_line(aes(y = BEV_time, col = "BEV share to rise from 20% to 80% market share"), lwd = 1) +
     geom_line(aes(y = ICE_time, col = "ICE share to fall from 80% to 20% market share"), lwd = 1) +
     scale_x_continuous(
@@ -104,15 +99,6 @@ plot_timer <- function(fit, meta) {
           legend.title = element_text(size = rel(1.1)), legend.text = element_text(size = rel(1)),
           legend.key.width = unit(0.6, "cm"), legend.key.height = unit(0.6, "cm"),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9)))
-
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(
-      grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE),
-      xmin = current_year + data_month / 12 - 1.5,
-      ymax = 0.3 * ymax_top, ymin = 0
-    )
-  }
-  p
 }
 
 # 3) BEV trajectory (single curve)
@@ -134,12 +120,15 @@ plot_bev_trajectory <- function(fit, meta) {
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
          caption = meta$entire_caption, x = " ", y = "BEV share") +
     theme_minimal() +
-    theme(legend.position = c(0.93, 0.60), legend.background = element_rect(fill = "gray99"),
-          plot.title = element_text(face = "bold", size = rel(1.5)),
-          plot.subtitle = element_text(size = rel(1.2)),
-          legend.text = element_text(size = rel(1)),
-          axis.text = element_text(size = rel(0.9)),
-          plot.caption = element_markdown(hjust = 0)) +
+    theme(
+      legend.position = c(0.97, 0.05), legend.justification = c("right", "bottom"),
+      legend.background = element_rect(fill = "gray99"),
+      plot.title = element_text(face = "bold", size = rel(1.5)),
+      plot.subtitle = element_text(size = rel(1.2)),
+      legend.text = element_text(size = rel(1)),
+      axis.text = element_text(size = rel(0.9)),
+      plot.caption = element_markdown(hjust = 0)
+    ) +
     scale_color_manual(values = c("#FF5733","#FFC300","#33FF3B","#33A1FF","#B633FF","#FF33E9"), name = "Color")
 
   p <- p + annotate("text", x = 2010, y = 1, label = "New Registration estimates in",
@@ -153,11 +142,6 @@ plot_bev_trajectory <- function(fit, meta) {
                       label = paste0("Jan ", 2025 + counter, ": ", round(row$BEV * 100, 1), "%"),
                       size = rel(5), hjust = 0, vjust = 1, col = "red")
     counter <- counter + 1
-  }
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE,
-                                                 width = unit(1 * 1920/1280, "in"), height = unit(1, "in")),
-                               xmin = min(fit$extrapol - 4, 2045 - 4), ymin = -0.9)
   }
   p
 }
@@ -193,7 +177,8 @@ plot_ice_bev_phev <- function(fit, df, meta) {
     theme(axis.title = element_text(size = rel(1.2)), axis.text = element_text(size = rel(0.9)),
           plot.title = element_text(face = "bold", size = rel(1.5)),
           plot.subtitle = element_text(size = rel(1.2)),
-          legend.position = c(0.93, 0.68), legend.background = element_rect(fill = "gray99"),
+          legend.position = c(0.97, 0.05), legend.justification = c("right", "bottom"),
+          legend.background = element_rect(fill = "gray99"),
           legend.title = element_text(size = rel(1)), legend.text = element_text(size = rel(0.9)),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9))) +
     scale_color_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
@@ -213,11 +198,6 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                       label = paste0("Jan ", 2024 + counter + 1, ": ", round(label_row$ICE * 100, 1), "%"),
                       size = rel(5), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
     counter <- counter + 1
-  }
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE,
-                                                 width = unit(1.5, "in"), height = unit(1, "in")),
-                               xmin = min(fit$extrapol - 4, 2045 - 4), ymin = -0.9)
   }
   p
 }
