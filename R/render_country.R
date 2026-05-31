@@ -171,10 +171,25 @@ if (file.exists(params_path)) {
 
 ttm_long <- compute_ttm_long(df)
 
+# Optional per-country/variant plot suppression, driven by skip_plots.csv
+# (columns: country,variant,skip — semi-colon-separated plot keys).
+# Valid keys: trajectory, icebev, time, ttm. Kept separate from footnotes.csv.
+skip_plots <- character(0)
+if (file.exists("skip_plots.csv")) {
+  sp <- tryCatch(read.csv("skip_plots.csv", stringsAsFactors = FALSE), error = function(e) NULL)
+  if (!is.null(sp) && all(c("country", "variant", "skip") %in% names(sp))) {
+    sp_hit <- sp[sp$country == country & sp$variant == variant, , drop = FALSE]
+    if (nrow(sp_hit) >= 1 && !is.na(sp_hit$skip[1]) && nzchar(sp_hit$skip[1])) {
+      skip_plots <- strsplit(sp_hit$skip[1], ";")[[1]]
+      cat(sprintf("[render] skip_plots: %s\n", paste(skip_plots, collapse = ", ")))
+    }
+  }
+}
+
 cat("[render] building plots ...\n")
-p_traj   <- plot_bev_trajectory(fit, meta)
-p_combo  <- plot_ice_bev_phev(fit, df, meta)
-p_timer  <- plot_timer(fit, meta)
+p_traj   <- if (!"trajectory" %in% skip_plots) plot_bev_trajectory(fit, meta) else NULL
+p_combo  <- if (!"icebev"     %in% skip_plots) plot_ice_bev_phev(fit, df, meta) else NULL
+p_timer  <- if (!"time"       %in% skip_plots) plot_timer(fit, meta) else NULL
 p_ttm    <- plot_ttm_shares(ttm_long, meta)
 
 out_dir <- file.path("images", period_folder)
