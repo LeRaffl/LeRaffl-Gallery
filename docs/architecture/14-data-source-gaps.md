@@ -112,19 +112,32 @@ originals it aggregates from.
   or EMA publishing a machine-readable series that includes a consistent total/
   ICE.
 
-### 🇨🇴 Colombia — good registry data behind a dashboard/login wall
+### 🇨🇴 Colombia — solved via ANDI/FENALCO (formerly shelved)
 
-- **Best data:** ANDEMOS, based on **RUNT** (Registro Único Nacional de
-  Tránsito — the official registry, so complete). Monthly, with BEV / PHEV /
-  HEV. Colombia's EV market is growing fast (electrified ~18 % of new
-  registrations in early 2026), so the data is genuinely interesting.
-- **Why it's shelved:** ANDEMOS surfaces it through **embedded Google Looker
-  Studio dashboards** (same scraping problem as zemo's Power BI — no clean
-  download/API on the public pages). The underlying RUNT portal is
-  **account-gated** (registration/login required), which is a technical hurdle
-  we don't want a public pipeline to depend on.
-- **What would change the decision:** a free, machine-readable ANDEMOS/RUNT
-  export (CSV/API) without the login wall.
+**Update:** Colombia is now ingested. See
+[18-source-colombia.md](18-source-colombia.md) and `scripts/fetch_colombia.py`.
+The original blockers (below) still apply to ANDEMOS/RUNT directly, but the
+joint **ANDI + FENALCO** *Informe del Sector Automotor* PDF — published monthly
+on the Cámara Automotriz page and sourced from the same RUNT registry — is a
+free, downloadable workaround. We accept its narrower granularity: PHEV and
+HEV are reported as a **single combined "híbridos" bucket** (handled with the
+Türkiye/Georgia *single Hybrid bucket* convention — see
+[09-glossary.md § Variant definitions](09-glossary.md)).
+
+The previous shelving rationale, kept for the record:
+
+- **Best data, conceptually:** ANDEMOS, based on **RUNT** (Registro Único
+  Nacional de Tránsito — the official registry, so complete). Monthly, with
+  BEV / PHEV / HEV split.
+- **Why ANDEMOS directly is unworkable:** ANDEMOS surfaces the data through
+  **embedded Google Looker Studio dashboards** (same scraping problem as zemo's
+  Power BI — no clean download/API on the public pages). The underlying RUNT
+  portal is **account-gated** (registration/login required), which is a
+  technical hurdle we don't want a public pipeline to depend on.
+- **What would change the decision again:** a free, machine-readable
+  ANDEMOS/RUNT export (CSV/API) without the login wall — at which point we
+  could replace the ANDI/FENALCO PDF parser with a clean API call **and**
+  recover the PHEV/HEV split.
 
 ## General principle (for the LLM being asked "why isn't X on the map?")
 

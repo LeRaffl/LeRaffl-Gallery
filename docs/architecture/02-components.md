@@ -241,6 +241,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | ANFAVEA Excel | `Whole` | Brazil | Monthly 10th 08:00 UTC |
 | [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | ANAC (Mercado + Cero y Bajas Emisiones) | `Whole` | Chile | Daily 08:00 UTC, 14th → EOM |
 | [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis | `Whole` (retail) + `Wholesale` to separate CSV | China | Daily 11:00 UTC, 1st → EOM |
+| [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | ANDI/FENALCO Boletín PDF (datos RUNT) | `Whole` (single Hybrid bucket — combined HEV+PHEV, like Türkiye) | Colombia | Daily 07:30 UTC, 5th → 25th |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | Denmark | Daily 05:15 UTC, 1st → 15th |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | Finland | Daily 04:40 UTC, 1st → 15th |
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
@@ -254,7 +255,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 
 Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, New Zealand, Singapore, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
 
-For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico, Colombia, where the free data is incomplete, paywalled, or login-walled) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question.
+For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico — paywalled or with structural undercount) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question. Colombia was originally shelved there and is now ingested via ANDI/FENALCO ([18-source-colombia.md](18-source-colombia.md)).
 
 Per-flow design notes, sequence diagrams, and validation tables live in [05-flows.md](05-flows.md) (Flows H–P). Cron schedules in one place: [08-deploy-ops.md § 8.11](08-deploy-ops.md#811-cron-schedule-overview).
 
