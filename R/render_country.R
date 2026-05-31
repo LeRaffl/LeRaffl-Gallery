@@ -213,17 +213,75 @@ p_ttm    <- plot_ttm_shares(ttm_long, meta)
 out_dir <- file.path("images", period_folder)
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-save_one <- function(plot, fname, w, h, units, dpi = 300) {
+# Add flag + QR code into the chart HEADER (title/subtitle rows of the gtable)
+# so they appear above the panel, at the same height as the title text, right-aligned.
+# show_qr: FALSE on ICE-BEV-PHEV (long title) and TTM (tight single-line header).
+add_header_overlays <- function(g, meta, show_qr = TRUE) {
+  if (is.null(meta$flag_img)) return(g)
+
+  # Locate the rows that contain the title and (optional) subtitle.
+  lay <- g$layout
+  title_row <- lay$t[lay$name == "title"]
+  sub_row   <- lay$t[lay$name == "subtitle"]
+  t_top <- min(c(title_row, sub_row))
+  t_bot <- max(c(title_row, sub_row))
+  # Span the full horizontal extent of those rows.
+  l_col <- min(lay$l[lay$name %in% c("title","subtitle")])
+  r_col <- max(lay$r[lay$name %in% c("title","subtitle")])
+
+  # Flag: right-aligned, centred vertically in the header rows.
+  fg <- rasterGrob(
+    as.raster(meta$flag_img), interpolate = TRUE,
+    x     = unit(1, "npc") - unit(FLAG_M_IN, "in"),
+    y     = unit(0.5, "npc"),
+    width = unit(FLAG_W_IN, "in"), height = unit(FLAG_H_IN, "in"),
+    just  = c("right", "center")
+  )
+  g <- gtable::gtable_add_grob(g, fg,
+    t = t_top, b = t_bot, l = l_col, r = r_col,
+    name = "flag-header", clip = "off"
+  )
+
+  # QR code: to the LEFT of the flag, same top alignment.
+  if (show_qr && SHOW_QR && !is.null(meta$qr_img)) {
+    qg <- rasterGrob(
+      as.raster(meta$qr_img), interpolate = TRUE,
+      x     = unit(1, "npc") - unit(FLAG_M_IN + FLAG_W_IN + QR_GAP_IN, "in"),
+      y     = unit(0.5, "npc"),
+      width = unit(QR_S_IN, "in"), height = unit(QR_S_IN, "in"),
+      just  = c("right", "center")
+    )
+    g <- gtable::gtable_add_grob(g, qg,
+      t = t_top, b = t_bot, l = l_col, r = r_col,
+      name = "qr-header", clip = "off"
+    )
+  }
+  g
+}
+
+save_one <- function(plot, fname, w, h, units, dpi = 300, show_qr = TRUE) {
   if (is.null(plot)) { cat("[render] skip ", fname, " (nothing to plot)\n"); return(invisible()) }
   path <- file.path(out_dir, fname)
-  ggsave(filename = path, plot = plot, width = w, height = h, units = units, dpi = dpi, bg = "white")
+
+  if (!is.null(meta$flag_img)) {
+    # Convert to gtable, composite header overlays, save via png/grid.draw.
+    g <- add_header_overlays(ggplotGrob(plot), meta, show_qr = show_qr)
+    w_in <- if (units == "px") w / dpi else w
+    h_in <- if (units == "px") h / dpi else h
+    png(path, width = w_in, height = h_in, units = "in", res = dpi, bg = "white")
+    grid.newpage()
+    grid.draw(g)
+    dev.off()
+  } else {
+    ggsave(filename = path, plot = plot, width = w, height = h, units = units, dpi = dpi, bg = "white")
+  }
   cat("[render] wrote ", path, "\n")
 }
 
-save_one(p_traj,  paste0(slug, "_", date_suffix, ".png"),            3840, 2160, "px")
-save_one(p_combo, paste0(slug, "_ICE_BEV_", date_suffix, ".png"),    12.80, 7.20, "in")
-save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20, "in")
-save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in")
+save_one(p_traj,  paste0(slug, "_", date_suffix, ".png"),            3840, 2160, "px",  show_qr = TRUE)
+save_one(p_combo, paste0(slug, "_ICE_BEV_", date_suffix, ".png"),    12.80, 7.20, "in", show_qr = FALSE)
+save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20, "in", show_qr = TRUE)
+save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in", show_qr = FALSE)
 
 # params.csv / weights.csv upsert
 data_per <- as_of_period
