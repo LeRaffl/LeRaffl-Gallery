@@ -216,8 +216,8 @@ dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 # Add flag + QR code into the chart HEADER (title/subtitle rows of the gtable)
 # so they appear above the panel, at the same height as the title text, right-aligned.
 # show_qr: FALSE on ICE-BEV-PHEV (long title) and TTM (tight single-line header).
-add_header_overlays <- function(g, meta, show_qr = TRUE) {
-  if (is.null(meta$flag_img)) return(g)
+add_header_overlays <- function(g, meta, show_flag = TRUE, show_qr = TRUE) {
+  if (is.null(meta$flag_img) || !show_flag) return(g)
 
   # Locate the rows that contain the title and (optional) subtitle.
   lay <- g$layout
@@ -267,13 +267,13 @@ add_header_overlays <- function(g, meta, show_qr = TRUE) {
   g
 }
 
-save_one <- function(plot, fname, w, h, units, dpi = 300, show_qr = TRUE) {
+save_one <- function(plot, fname, w, h, units, dpi = 300, show_flag = TRUE, show_qr = TRUE) {
   if (is.null(plot)) { cat("[render] skip ", fname, " (nothing to plot)\n"); return(invisible()) }
   path <- file.path(out_dir, fname)
 
-  if (!is.null(meta$flag_img)) {
+  if (!is.null(meta$flag_img) && show_flag) {
     # Convert to gtable, composite header overlays, save via png/grid.draw.
-    g <- add_header_overlays(ggplotGrob(plot), meta, show_qr = show_qr)
+    g <- add_header_overlays(ggplotGrob(plot), meta, show_flag = show_flag, show_qr = show_qr)
     w_in <- if (units == "px") w / dpi else w
     h_in <- if (units == "px") h / dpi else h
     png(path, width = w_in, height = h_in, units = "in", res = dpi, bg = "white")
@@ -286,10 +286,10 @@ save_one <- function(plot, fname, w, h, units, dpi = 300, show_qr = TRUE) {
   cat("[render] wrote ", path, "\n")
 }
 
-save_one(p_traj,  paste0(slug, "_", date_suffix, ".png"),            3840, 2160, "px",  show_qr = TRUE)
-save_one(p_combo, paste0(slug, "_ICE_BEV_", date_suffix, ".png"),    12.80, 7.20, "in", show_qr = FALSE)
-save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20, "in", show_qr = TRUE)
-save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in", show_qr = FALSE)
+save_one(p_traj,  paste0(slug, "_", date_suffix, ".png"),            3840, 2160, "px",  show_flag = TRUE,  show_qr = TRUE)
+save_one(p_combo, paste0(slug, "_ICE_BEV_", date_suffix, ".png"),    12.80, 7.20, "in", show_flag = TRUE,  show_qr = TRUE)
+save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20, "in", show_flag = TRUE,  show_qr = TRUE)
+save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in", show_flag = FALSE, show_qr = FALSE)
 
 # params.csv / weights.csv upsert
 data_per <- as_of_period
