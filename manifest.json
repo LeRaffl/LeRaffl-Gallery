@@ -123,6 +123,16 @@
     },
     {
       "country": "Colombia",
+      "type": "share",
+      "period": "2026-04",
+      "date": "2026-05-31",
+      "filename": "colombia_20260531.png",
+      "url": "images/2026-04/colombia_20260531.png",
+      "alt": "Colombia BEV trajectory",
+      "country_slug": "colombia"
+    },
+    {
+      "country": "Colombia",
       "type": "time",
       "period": "2025-12",
       "date": "2026-05-31",
