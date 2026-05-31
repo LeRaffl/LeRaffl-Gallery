@@ -312,16 +312,6 @@
       "country_slug": "portugal"
     },
     {
-      "country": "Portugal",
-      "type": "ttm_shares",
-      "period": "2026-04",
-      "date": "2026-05-29",
-      "filename": "portugal_ttm_shares_20260529.png",
-      "url": "images/2026-04/portugal_ttm_shares_20260529.png",
-      "alt": "Portugal TTM market split graph",
-      "country_slug": "portugal"
-    },
-    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-04",
