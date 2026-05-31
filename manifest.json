@@ -83,36 +83,6 @@
     },
     {
       "country": "Canada (Vans)",
-      "type": "ICE_BEV",
-      "period": "2025-12",
-      "date": "2026-05-31",
-      "filename": "canada_vans_ICE_BEV_20260531.png",
-      "url": "images/2025-12/canada_vans_ICE_BEV_20260531.png",
-      "alt": "Canada (Vans) ICE-BEV-Hybrid trajectory",
-      "country_slug": "canada_vans"
-    },
-    {
-      "country": "Canada (Vans)",
-      "type": "share",
-      "period": "2025-12",
-      "date": "2026-05-31",
-      "filename": "canada_vans_20260531.png",
-      "url": "images/2025-12/canada_vans_20260531.png",
-      "alt": "Canada (Vans) BEV trajectory",
-      "country_slug": "canada_vans"
-    },
-    {
-      "country": "Canada (Vans)",
-      "type": "time",
-      "period": "2025-12",
-      "date": "2026-05-31",
-      "filename": "canada_vans_time_20260531.png",
-      "url": "images/2025-12/canada_vans_time_20260531.png",
-      "alt": "Canada (Vans) Transition time curve",
-      "country_slug": "canada_vans"
-    },
-    {
-      "country": "Canada (Vans)",
       "type": "ttm_shares",
       "period": "2025-12",
       "date": "2026-05-31",
