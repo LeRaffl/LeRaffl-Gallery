@@ -83,8 +83,25 @@ slug_country <- function(country, variant) {
 slug <- slug_country(country, variant)
 
 # Flag (optional — falls back to no flag if missing).
+# All flags are PNG. To add a flag: place assets/flags/<slug>.png.
 flag_path <- file.path("assets", "flags", paste0(slug, ".png"))
 flag_img <- if (file.exists(flag_path)) readPNG(flag_path) else NULL
+
+# QR code pointing to the gallery — downloaded once per render run.
+# Set SHOW_QR=FALSE to disable globally, or remove the env var to enable.
+# Silently skipped if the download fails (no internet, rate limit, etc.).
+SHOW_QR <- !identical(Sys.getenv("SHOW_QR"), "FALSE")
+qr_img <- if (SHOW_QR) {
+  tryCatch({
+    qr_url <- paste0(
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=4&data=",
+      utils::URLencode("https://leraffl.github.io/LeRaffl-Gallery/#gallery", reserved = TRUE)
+    )
+    tmp <- tempfile(fileext = ".png")
+    utils::download.file(qr_url, tmp, quiet = TRUE, mode = "wb")
+    readPNG(tmp)
+  }, error = function(e) { cat("[render] QR code download skipped:", conditionMessage(e), "\n"); NULL })
+} else NULL
 
 # Caption: FA-icon caption requires showtext; if fonts missing we still produce
 # a readable plain caption so headless CI works.
@@ -135,6 +152,7 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 meta <- list(
   country = country, country_label = country_label,
   flag_img = flag_img,
+  qr_img  = qr_img,
   social_caption = social_caption,
   entire_caption = entire_caption
 )

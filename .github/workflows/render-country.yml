@@ -36,6 +36,7 @@ on:
           - Vans
           - Buses
           - Pickups
+          - Non-Passenger
   workflow_call:
     inputs:
       country:

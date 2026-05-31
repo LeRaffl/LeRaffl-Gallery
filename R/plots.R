@@ -1,6 +1,6 @@
 # Plot constructors for the four country charts.
 # `meta` is expected to be a list with: country, country_label, flag_img,
-# entire_caption, social_caption.
+# qr_img (optional QR code), entire_caption, social_caption.
 # `fit` is the result of fit_history().
 # `df` is the full loaded data (with bev_share, ice_share, hybrid_share, year, overall).
 
@@ -32,31 +32,67 @@ TTM_FUEL_COLORS <- c(
 # index.html ~line 1765): BEV green, PHEV blue, ICE brown.
 TRAJ_COLORS <- c(BEV = "#00ff2c", PHEV = "#00bdfe", ICE = "#692500")
 
+# ── Flag / QR overlay helpers ────────────────────────────────────────────────
+#
+# Flags are placed in the TOP-RIGHT corner of the ggplot panel at a consistent
+# physical size regardless of the country's data range.  We use
+# annotation_custom() with the default -Inf/Inf panel extent so the grob fills
+# the whole panel viewport, then position within that viewport using npc units.
+#
+# Physical dimensions (inches, at 300 dpi ggsave canvas):
+FLAG_W_IN  <- 1.50   # flag width  (3:2 aspect → most national flags)
+FLAG_H_IN  <- 1.00   # flag height
+FLAG_M_IN  <- 0.18   # margin from top-right corner of panel
+QR_S_IN    <- 0.85   # QR code side length (square)
+QR_GAP_IN  <- 0.12   # gap between QR code and flag
+
+# Build a rasterGrob positioned at the top-right of its containing viewport.
+flag_grob <- function(img) {
+  rasterGrob(
+    as.raster(img), interpolate = TRUE,
+    x      = unit(1, "npc") - unit(FLAG_M_IN, "in"),
+    y      = unit(1, "npc") - unit(FLAG_M_IN, "in"),
+    width  = unit(FLAG_W_IN, "in"),
+    height = unit(FLAG_H_IN, "in"),
+    just   = c("right", "top")
+  )
+}
+
+# QR code sits to the LEFT of the flag, aligned at the top.
+qr_grob <- function(img) {
+  rasterGrob(
+    as.raster(img), interpolate = TRUE,
+    x      = unit(1, "npc") - unit(FLAG_M_IN + FLAG_W_IN + QR_GAP_IN, "in"),
+    y      = unit(1, "npc") - unit(FLAG_M_IN, "in"),
+    width  = unit(QR_S_IN, "in"),
+    height = unit(QR_S_IN, "in"),
+    just   = c("right", "top")
+  )
+}
+
+# Add flag (and optionally QR) overlays to a ggplot.
+# show_qr = FALSE on charts where the title is too long to leave room.
+add_overlays <- function(p, meta, show_qr = TRUE) {
+  if (!is.null(meta$flag_img))
+    p <- p + annotation_custom(flag_grob(meta$flag_img))
+  if (show_qr && !is.null(meta$qr_img))
+    p <- p + annotation_custom(qr_grob(meta$qr_img))
+  p
+}
+
 # 1) TTM stacked bar plot (uses long ttm frame from compute_ttm_long)
 plot_ttm_shares <- function(ttm_long, meta) {
   if (is.null(ttm_long) || nrow(ttm_long) == 0) return(NULL)
-  # Year-boundary periods = the first period of each calendar year present.
-  # For monthly data that's the "-01" month; for quarterly data the periods are
-  # the quarter mid-months (02/05/08/11), so detect the year's first period
-  # generically rather than hard-coding "01".
-  yr <- substr(ttm_long$month, 1, 4)
-  year_start_months <- unname(tapply(ttm_long$month, yr, min))
-  is_year_start <- ttm_long$month %in% year_start_months
-  ggplot(ttm_long, aes(x = month, y = value, fill = type)) +
+  p <- ggplot(ttm_long, aes(x = month, y = value, fill = type)) +
     geom_bar(stat = "identity", position = "stack", width = 1) +
     geom_vline(
-      data = unique(ttm_long[is_year_start, ]),
+      data = ttm_long[substr(ttm_long$month, 6, 7) == "01", ] |> unique(),
       aes(xintercept = numeric_month - 0.5), color = "gray40", linetype = "dashed"
     ) +
     geom_hline(yintercept = c(0.25, 0.5, 0.75), color = "gray40", linetype = "dashed") +
     scale_x_discrete(
-      breaks = unique(ttm_long$month[is_year_start]),
-      # Label year boundaries as January of that calendar year. For monthly
-      # series the first period already IS "-01" (Jan); for quarterly series the
-      # first period is the Q1 mid-month ("2018-02"), so format from the year
-      # alone — otherwise the axis reads "Feb 2018" instead of "Jan 2018" and
-      # looks inconsistent with the monthly countries.
-      labels = function(x) format(as.Date(paste0(substr(x, 1, 4), "-01-01")), "%b %Y")
+      breaks = ttm_long$month[substr(ttm_long$month, 6, 7) == "01"],
+      labels = function(x) format(as.Date(paste0(x, "-01")), "%b %Y")
     ) +
     scale_y_continuous(labels = scales::percent_format(scale = 100), expand = c(0, 0),
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",
@@ -68,17 +104,19 @@ plot_ttm_shares <- function(ttm_long, meta) {
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.title.x = element_blank(),
           plot.title = element_text(size = 14, face = "bold"),
+          # Legend stays top-left; flag top-right — opposite corners, no overlap.
           legend.position = c(0.05, 0.95), legend.justification = c(0, 1),
           legend.background = element_rect(fill = "white", color = "gray90", size = 0.5),
           legend.key = element_rect(fill = NA, color = NA), legend.key.height = unit(0.2, "cm"),
           plot.caption = element_markdown(hjust = 0))
+  # Flag top-right; no QR on TTM (tight header).
+  add_overlays(p, meta, show_qr = FALSE)
 }
 
 # 2) Time-to-transition curve
 plot_timer <- function(fit, meta) {
   ts <- fit$timer_short
   if (is.null(ts) || nrow(ts) == 0) return(NULL)
-  data_month <- (as.integer(((fit$BEV$x %% 1) * 12 + 1)[length(fit$BEV$x)]) + 1) %% 12
   current_year <- as.numeric(format(Sys.Date(), "%Y"))
   ymax_top <- ts$BEV_time[length(ts$BEV_time)] * 2
 
@@ -105,14 +143,8 @@ plot_timer <- function(fit, meta) {
           legend.key.width = unit(0.6, "cm"), legend.key.height = unit(0.6, "cm"),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9)))
 
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(
-      grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE),
-      xmin = current_year + data_month / 12 - 1.5,
-      ymax = 0.3 * ymax_top, ymin = 0
-    )
-  }
-  p
+  # Flag + QR top-right; legend is at the bottom so no conflict.
+  add_overlays(p, meta, show_qr = TRUE)
 }
 
 # 3) BEV trajectory (single curve)
@@ -134,12 +166,16 @@ plot_bev_trajectory <- function(fit, meta) {
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
          caption = meta$entire_caption, x = " ", y = "BEV share") +
     theme_minimal() +
-    theme(legend.position = c(0.93, 0.60), legend.background = element_rect(fill = "gray99"),
-          plot.title = element_text(face = "bold", size = rel(1.5)),
-          plot.subtitle = element_text(size = rel(1.2)),
-          legend.text = element_text(size = rel(1)),
-          axis.text = element_text(size = rel(0.9)),
-          plot.caption = element_markdown(hjust = 0)) +
+    theme(
+      # Legend moved to bottom-right; flag + QR occupy the top-right corner.
+      legend.position = c(0.97, 0.05), legend.justification = c("right", "bottom"),
+      legend.background = element_rect(fill = "gray99"),
+      plot.title = element_text(face = "bold", size = rel(1.5)),
+      plot.subtitle = element_text(size = rel(1.2)),
+      legend.text = element_text(size = rel(1)),
+      axis.text = element_text(size = rel(0.9)),
+      plot.caption = element_markdown(hjust = 0)
+    ) +
     scale_color_manual(values = c("#FF5733","#FFC300","#33FF3B","#33A1FF","#B633FF","#FF33E9"), name = "Color")
 
   p <- p + annotate("text", x = 2010, y = 1, label = "New Registration estimates in",
@@ -154,12 +190,9 @@ plot_bev_trajectory <- function(fit, meta) {
                       size = rel(5), hjust = 0, vjust = 1, col = "red")
     counter <- counter + 1
   }
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE,
-                                                 width = unit(1 * 1920/1280, "in"), height = unit(1, "in")),
-                               xmin = min(fit$extrapol - 4, 2045 - 4), ymin = -0.9)
-  }
-  p
+
+  # Flag + QR top-right.
+  add_overlays(p, meta, show_qr = TRUE)
 }
 
 # 4) ICE / BEV / PHEV combined trajectory
@@ -193,7 +226,10 @@ plot_ice_bev_phev <- function(fit, df, meta) {
     theme(axis.title = element_text(size = rel(1.2)), axis.text = element_text(size = rel(0.9)),
           plot.title = element_text(face = "bold", size = rel(1.5)),
           plot.subtitle = element_text(size = rel(1.2)),
-          legend.position = c(0.93, 0.68), legend.background = element_rect(fill = "gray99"),
+          # Legend moved to bottom-right; flag now occupies the top-right.
+          # No QR on this chart — long title leaves too little room.
+          legend.position = c(0.97, 0.05), legend.justification = c("right", "bottom"),
+          legend.background = element_rect(fill = "gray99"),
           legend.title = element_text(size = rel(1)), legend.text = element_text(size = rel(0.9)),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9))) +
     scale_color_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
@@ -214,10 +250,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                       size = rel(5), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
     counter <- counter + 1
   }
-  if (!is.null(meta$flag_img)) {
-    p <- p + annotation_custom(grob = rasterGrob(as.raster(meta$flag_img), interpolate = TRUE,
-                                                 width = unit(1.5, "in"), height = unit(1, "in")),
-                               xmin = min(fit$extrapol - 4, 2045 - 4), ymin = -0.9)
-  }
-  p
+
+  # Flag top-right; no QR (long title).
+  add_overlays(p, meta, show_qr = FALSE)
 }
