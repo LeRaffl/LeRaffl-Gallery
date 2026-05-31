@@ -229,27 +229,35 @@ add_header_overlays <- function(g, meta, show_qr = TRUE) {
   l_col <- min(lay$l[lay$name %in% c("title","subtitle")])
   r_col <- max(lay$r[lay$name %in% c("title","subtitle")])
 
-  # Flag: right-aligned, centred vertically in the header rows.
+  # Flag width from actual image aspect ratio — every flag has different proportions.
+  # Height is fixed (FLAG_H_IN); width is computed so the flag isn't squashed.
+  img_asp <- ncol(meta$flag_img) / nrow(meta$flag_img)  # pixel width / height
+  flag_h  <- FLAG_H_IN
+  flag_w  <- min(flag_h * img_asp, FLAG_MAX_W)
+  qr_s    <- flag_h  # QR is square, same height as flag
+
+  # Anchor TOP of grob to TOP of title cell (y=1 npc, just="top") so the flag
+  # hangs DOWNWARD into the header — no canvas clipping at the top edge.
   fg <- rasterGrob(
     as.raster(meta$flag_img), interpolate = TRUE,
-    x     = unit(1, "npc") - unit(FLAG_M_IN, "in"),
-    y     = unit(0.5, "npc"),
-    width = unit(FLAG_W_IN, "in"), height = unit(FLAG_H_IN, "in"),
-    just  = c("right", "center")
+    x      = unit(1, "npc") - unit(FLAG_M_IN, "in"),
+    y      = unit(1, "npc"),
+    width  = unit(flag_w, "in"), height = unit(flag_h, "in"),
+    just   = c("right", "top")
   )
   g <- gtable::gtable_add_grob(g, fg,
     t = t_top, b = t_bot, l = l_col, r = r_col,
     name = "flag-header", clip = "off"
   )
 
-  # QR code: to the LEFT of the flag, same top alignment.
+  # QR code: square, same height as flag, to the LEFT of the flag.
   if (show_qr && SHOW_QR && !is.null(meta$qr_img)) {
     qg <- rasterGrob(
       as.raster(meta$qr_img), interpolate = TRUE,
-      x     = unit(1, "npc") - unit(FLAG_M_IN + FLAG_W_IN + QR_GAP_IN, "in"),
-      y     = unit(0.5, "npc"),
-      width = unit(QR_S_IN, "in"), height = unit(QR_S_IN, "in"),
-      just  = c("right", "center")
+      x      = unit(1, "npc") - unit(FLAG_M_IN + flag_w + QR_GAP_IN, "in"),
+      y      = unit(1, "npc"),
+      width  = unit(qr_s, "in"), height = unit(qr_s, "in"),
+      just   = c("right", "top")
     )
     g <- gtable::gtable_add_grob(g, qg,
       t = t_top, b = t_bot, l = l_col, r = r_col,

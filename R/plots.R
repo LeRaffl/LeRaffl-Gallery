@@ -31,11 +31,13 @@ TTM_FUEL_COLORS <- c(
 TRAJ_COLORS <- c(BEV = "#00ff2c", PHEV = "#00bdfe", ICE = "#692500")
 
 # ── Flag / QR constants (used by save_one in render_country.R) ───────────────
-FLAG_W_IN  <- 1.50   # flag width  (3:2 → most flags)
-FLAG_H_IN  <- 1.00   # flag height
-FLAG_M_IN  <- 0.12   # margin from right edge of header
-QR_S_IN    <- 0.85   # QR code side (square)
-QR_GAP_IN  <- 0.10   # gap between QR right edge and flag left edge
+# Height is fixed so every flag fits the header row; width is computed per-flag
+# from the image's actual aspect ratio (so 2:3, 1:2, 1:1 flags all look right).
+FLAG_H_IN  <- 0.90   # flag height — sized to sit in the title+subtitle area
+FLAG_MAX_W <- 2.00   # cap for very wide flags
+FLAG_M_IN  <- 0.10   # margin from right edge of header
+QR_GAP_IN  <- 0.10   # gap between flag left edge and QR right edge
+# QR side = FLAG_H_IN (square, same height as flag) — computed in save_one
 
 # 1) TTM stacked bar plot
 plot_ttm_shares <- function(ttm_long, meta) {
