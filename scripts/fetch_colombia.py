@@ -83,8 +83,13 @@ PDF_FILENAME_RE = re.compile(
 )
 
 # Matches lines like "ene-25        966" in pdftotext -layout output.
+# Restricted to NON-NEWLINE whitespace so we don't accidentally pair a month-
+# token with a value on a later line — different poppler versions break lines
+# slightly differently, and on some versions the YTD-cumulative labels (e.g.
+# "19.724  (Ene-dic 2025)") sit close enough to a month-token across a newline
+# to be mis-paired. Same-line-only is the safer invariant.
 MONTH_VALUE_RE = re.compile(
-    r'\b(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)-(\d{2})\s+([\d.]+)\b'
+    r'\b(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)-(\d{2})[ \t]+([\d.]+)\b'
 )
 
 
@@ -192,6 +197,16 @@ def assemble_rows(batches: list) -> dict:
     for period, total in pkw_m.items():
         b = bev_m.get(period, 0)
         h = hev_m.get(period, 0)
+        # Definitional invariant: BEV and Hybrid are subsets of TOTAL, so their
+        # sum cannot exceed it. If it does, the parser picked up a YTD label
+        # or some other non-monthly value — fail loud rather than publish a
+        # nonsense BEV-share.
+        if b + h > total:
+            raise RuntimeError(
+                f"[{period}] BEV+HEV ({b}+{h}={b+h}) exceeds TOTAL ({total}) — "
+                f"parser likely picked up a YTD label as a monthly value. "
+                f"Inspect the PDF text around {period}."
+            )
         ice = max(0, total - b - h)
         rows[(period, VARIANT)] = {
             "period": period, "time_interval": "monthly", "variant": VARIANT, "source": SOURCE,

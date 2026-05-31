@@ -13,13 +13,6 @@ name: Fetch Colombia data (ANDI/FENALCO Boletín)
 # See scripts/fetch_colombia.py and docs/architecture/18-source-colombia.md.
 
 on:
-  # TEMP: push trigger to bootstrap the workflow on this feature branch before
-  # merge. Remove together with the `push:` block once on master.
-  push:
-    branches: [feat/colombia-data-pipeline]
-    paths:
-      - '.github/workflows/fetch-colombia.yml'
-      - 'scripts/fetch_colombia.py'
   workflow_dispatch:
     inputs:
       pdf_url:
