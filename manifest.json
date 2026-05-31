@@ -2,6 +2,96 @@
   "updated": "2026-05-31",
   "images": [
     {
+      "country": "Canada",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_ICE_BEV_20260531.png",
+      "url": "images/2025-12/canada_ICE_BEV_20260531.png",
+      "alt": "Canada ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_20260531.png",
+      "url": "images/2025-12/canada_20260531.png",
+      "alt": "Canada BEV trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_time_20260531.png",
+      "url": "images/2025-12/canada_time_20260531.png",
+      "alt": "Canada Transition time curve",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_ttm_shares_20260531.png",
+      "url": "images/2025-12/canada_ttm_shares_20260531.png",
+      "alt": "Canada TTM market split graph",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_pickups_ICE_BEV_20260531.png",
+      "url": "images/2025-12/canada_pickups_ICE_BEV_20260531.png",
+      "alt": "Canada (Pickups) ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_pickups_20260531.png",
+      "url": "images/2025-12/canada_pickups_20260531.png",
+      "alt": "Canada (Pickups) BEV trajectory",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_pickups_time_20260531.png",
+      "url": "images/2025-12/canada_pickups_time_20260531.png",
+      "alt": "Canada (Pickups) Transition time curve",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_pickups_ttm_shares_20260531.png",
+      "url": "images/2025-12/canada_pickups_ttm_shares_20260531.png",
+      "alt": "Canada (Pickups) TTM market split graph",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Vans)",
+      "type": "ttm_shares",
+      "period": "2025-12",
+      "date": "2026-05-31",
+      "filename": "canada_vans_ttm_shares_20260531.png",
+      "url": "images/2025-12/canada_vans_ttm_shares_20260531.png",
+      "alt": "Canada (Vans) TTM market split graph",
+      "country_slug": "canada_vans"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-04",
@@ -53,6 +143,16 @@
     },
     {
       "country": "Canada",
+      "type": "ICE_BEV",
+      "period": "2025-12",
+      "date": "2026-05-30",
+      "filename": "canada_ICE_BEV_20260530.png",
+      "url": "images/2025-12/canada_ICE_BEV_20260530.png",
+      "alt": "Canada ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
       "type": "share",
       "period": "2025-11",
       "date": "2026-05-30",
@@ -63,11 +163,31 @@
     },
     {
       "country": "Canada",
+      "type": "share",
+      "period": "2025-12",
+      "date": "2026-05-30",
+      "filename": "canada_20260530.png",
+      "url": "images/2025-12/canada_20260530.png",
+      "alt": "Canada BEV trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
       "type": "time",
       "period": "2025-11",
       "date": "2026-05-30",
       "filename": "canada_time_20260530.png",
       "url": "images/2025-11/canada_time_20260530.png",
+      "alt": "Canada Transition time curve",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "time",
+      "period": "2025-12",
+      "date": "2026-05-30",
+      "filename": "canada_time_20260530.png",
+      "url": "images/2025-12/canada_time_20260530.png",
       "alt": "Canada Transition time curve",
       "country_slug": "canada"
     },

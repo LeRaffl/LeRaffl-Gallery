@@ -1,0 +1,11 @@
+🇨🇦 Canada (Pickups) - December 25 - BEV Trajectory
+3.4% BEV
+7.8% Hybrid
+88.8% ICE
+
+Trailing 12 months are:
+3.0% BEV
+0.0% PHEV
+97.0% ICE (of which 5.1%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -35,16 +35,28 @@ TRAJ_COLORS <- c(BEV = "#00ff2c", PHEV = "#00bdfe", ICE = "#692500")
 # 1) TTM stacked bar plot (uses long ttm frame from compute_ttm_long)
 plot_ttm_shares <- function(ttm_long, meta) {
   if (is.null(ttm_long) || nrow(ttm_long) == 0) return(NULL)
+  # Year-boundary periods = the first period of each calendar year present.
+  # For monthly data that's the "-01" month; for quarterly data the periods are
+  # the quarter mid-months (02/05/08/11), so detect the year's first period
+  # generically rather than hard-coding "01".
+  yr <- substr(ttm_long$month, 1, 4)
+  year_start_months <- unname(tapply(ttm_long$month, yr, min))
+  is_year_start <- ttm_long$month %in% year_start_months
   ggplot(ttm_long, aes(x = month, y = value, fill = type)) +
     geom_bar(stat = "identity", position = "stack", width = 1) +
     geom_vline(
-      data = ttm_long[substr(ttm_long$month, 6, 7) == "01", ] |> unique(),
+      data = unique(ttm_long[is_year_start, ]),
       aes(xintercept = numeric_month - 0.5), color = "gray40", linetype = "dashed"
     ) +
     geom_hline(yintercept = c(0.25, 0.5, 0.75), color = "gray40", linetype = "dashed") +
     scale_x_discrete(
-      breaks = ttm_long$month[substr(ttm_long$month, 6, 7) == "01"],
-      labels = function(x) format(as.Date(paste0(x, "-01")), "%b %Y")
+      breaks = unique(ttm_long$month[is_year_start]),
+      # Label year boundaries as January of that calendar year. For monthly
+      # series the first period already IS "-01" (Jan); for quarterly series the
+      # first period is the Q1 mid-month ("2018-02"), so format from the year
+      # alone — otherwise the axis reads "Feb 2018" instead of "Jan 2018" and
+      # looks inconsistent with the monthly countries.
+      labels = function(x) format(as.Date(paste0(substr(x, 1, 4), "-01-01")), "%b %Y")
     ) +
     scale_y_continuous(labels = scales::percent_format(scale = 100), expand = c(0, 0),
                        sec.axis = sec_axis(~ ., name = "Trailing 12 Months Market Share",

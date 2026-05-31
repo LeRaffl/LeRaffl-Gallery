@@ -40,9 +40,16 @@ if (nrow(df) == 0) stop("no rows for variant '", variant, "' in ", csv_path)
 source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
 if (is.na(source_str)) source_str <- ""
 
-# Period folder and filename suffix mirror the historical R script.
+# Period folder + post date use the "as of" period (data_per): for quarterly
+# data the CSV stores each quarter's MIDDLE month (so the regression dots sit in
+# the middle of the quarter and the fit behaves), but the outward-facing period
+# is the quarter's END month (Q4 → December), which is what params.csv/data_per
+# and the Thresholds/Durations tables already show. Keeping the image folder on
+# the middle month was the lone inconsistency. last_period (the raw CSV period)
+# is kept only for logging.
 last_period <- df$period[order(df$year)][nrow(df)]
-period_folder <- last_period
+as_of_period <- data_per_from_df(df)
+period_folder <- as_of_period
 date_suffix <- format(Sys.Date(), "%Y%m%d")
 
 # Country slug used in image filenames + flag lookup.
@@ -103,6 +110,24 @@ social_caption <- if (have_fonts) {
 }
 entire_caption <- paste0(social_caption, " | \t ", Sys.Date(), "  | \t    Source: ", source_str)
 
+# Optional curated footnote per country/variant, appended as a second caption
+# line (ggtext renders the <br>). Driven by footnotes.csv (columns:
+# country,variant,footnote) — kept separate from the per-row `notes` CSV column,
+# which is internal/not display-safe. Used e.g. to flag Canada's pre-2017
+# passenger-cars-only scope on the Whole charts.
+footnote <- ""
+if (file.exists("footnotes.csv")) {
+  fn <- tryCatch(read.csv("footnotes.csv", stringsAsFactors = FALSE), error = function(e) NULL)
+  if (!is.null(fn) && all(c("country", "variant", "footnote") %in% names(fn))) {
+    hit <- fn[fn$country == country & fn$variant == variant, , drop = FALSE]
+    if (nrow(hit) >= 1 && !is.na(hit$footnote[1]) && nzchar(hit$footnote[1])) {
+      footnote <- hit$footnote[1]
+      entire_caption <- paste0(entire_caption, "<br>", footnote)
+      cat(sprintf("[render] footnote: %s\n", footnote))
+    }
+  }
+}
+
 # Non-Whole variants get the variant appended in parens so the chart title
 # matches the gallery entry (e.g. "Denmark (Private)", "Netherlands (HDV)").
 country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
@@ -114,7 +139,8 @@ meta <- list(
   entire_caption = entire_caption
 )
 
-cat(sprintf("[render] %s / %s — %d rows, last period %s\n", country, variant, nrow(df), last_period))
+cat(sprintf("[render] %s / %s — %d rows, last period %s (as of %s)\n",
+            country, variant, nrow(df), last_period, as_of_period))
 
 cat("[render] fitting ...\n")
 fit <- fit_history(df)
@@ -145,10 +171,25 @@ if (file.exists(params_path)) {
 
 ttm_long <- compute_ttm_long(df)
 
+# Optional per-country/variant plot suppression, driven by skip_plots.csv
+# (columns: country,variant,skip — semi-colon-separated plot keys).
+# Valid keys: trajectory, icebev, time, ttm. Kept separate from footnotes.csv.
+skip_plots <- character(0)
+if (file.exists("skip_plots.csv")) {
+  sp <- tryCatch(read.csv("skip_plots.csv", stringsAsFactors = FALSE), error = function(e) NULL)
+  if (!is.null(sp) && all(c("country", "variant", "skip") %in% names(sp))) {
+    sp_hit <- sp[sp$country == country & sp$variant == variant, , drop = FALSE]
+    if (nrow(sp_hit) >= 1 && !is.na(sp_hit$skip[1]) && nzchar(sp_hit$skip[1])) {
+      skip_plots <- strsplit(sp_hit$skip[1], ";")[[1]]
+      cat(sprintf("[render] skip_plots: %s\n", paste(skip_plots, collapse = ", ")))
+    }
+  }
+}
+
 cat("[render] building plots ...\n")
-p_traj   <- plot_bev_trajectory(fit, meta)
-p_combo  <- plot_ice_bev_phev(fit, df, meta)
-p_timer  <- plot_timer(fit, meta)
+p_traj   <- if (!"trajectory" %in% skip_plots) plot_bev_trajectory(fit, meta) else NULL
+p_combo  <- if (!"icebev"     %in% skip_plots) plot_ice_bev_phev(fit, df, meta) else NULL
+p_timer  <- if (!"time"       %in% skip_plots) plot_timer(fit, meta) else NULL
 p_ttm    <- plot_ttm_shares(ttm_long, meta)
 
 out_dir <- file.path("images", period_folder)
@@ -167,7 +208,7 @@ save_one(p_timer, paste0(slug, "_time_", date_suffix, ".png"),       12.80, 7.20
 save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20, "in")
 
 # params.csv / weights.csv upsert
-data_per <- data_per_from_df(df)
+data_per <- as_of_period
 cat(sprintf("[upsert] params.csv  %s/%s  data_per=%s\n", country, variant, data_per))
 upsert_params("params.csv", country, variant, fit, data_per, source_str)
 weight <- compute_weight(df)
@@ -184,12 +225,12 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
-post_text <- build_post_text(df, country_label, last_period)
+post_text <- build_post_text(df, country_label, as_of_period)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
-  writeLines(post_text, file.path("posts", paste0(slug, "_", last_period, ".txt")), useBytes = TRUE)
-  cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, last_period))
+  writeLines(post_text, file.path("posts", paste0(slug, "_", as_of_period, ".txt")), useBytes = TRUE)
+  cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, as_of_period))
 }
 
 cat("[render] done.\n")
