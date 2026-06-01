@@ -82,6 +82,20 @@ compute_ttm_long <- function(df) {
     any_present <- any_present & !is.na(rs)
   }
 
+  # Recompute OTHERS as the TTM residual (TOTAL minus all other known fuels) so
+  # that stacked bars always sum to 100%. This corrects under-filled OTHERS in
+  # historical ACAP data where the breakdown was incomplete or quarterly-averaged.
+  if ("OTHERS" %in% names(ttm) && length(ttm) > 1) {
+    excl <- setdiff(names(ttm), "OTHERS")
+    excl_counts <- lapply(excl, function(c) {
+      v <- ttm[[c]] * total_ttm
+      v[is.na(v)] <- 0
+      v
+    })
+    excl_sum <- Reduce("+", excl_counts)
+    ttm[["OTHERS"]] <- pmax(0, total_ttm - excl_sum) / total_ttm
+  }
+
   # Keep only rows where every present column has a complete 12-month window.
   keep <- which(any_present)
   if (length(keep) == 0) return(NULL)
