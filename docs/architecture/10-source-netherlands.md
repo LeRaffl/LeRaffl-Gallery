@@ -277,6 +277,7 @@ change, mirror the change in plots.R.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
+| GitHub Actions runner can't reach the host (transient `Network is unreachable` / `errno 101`) | `requests.Session` retries the connection up to 3× with exponential backoff (2 s → 4 s → 8 s); if all retries fail the job fails visibly | Re-run the workflow manually once the network recovers, or wait for the next scheduled run. The most recent confirmed occurrence was 2026-06-01. |
 | Maintainer deletes a saved permalink in Swing | Scraper fails on that variant with `WsGuid not found in /viewer response` | Look at the failing variant's URL in the Action log; recreate the permalink in Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
 | Swing upgrades to a version with a different inline-JS shape | `WSGUID_RE` regex stops matching | Update the regex to match the new JS pattern (look at the raw HTML response) |
 | Swing changes the pivot JSON shape | Parser fails noisily; render aborts before commit | Inspect a fresh HAR; update `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
@@ -337,8 +338,10 @@ match, the template GUID is broken. If step 2 returns HTML (a 302 to
 - Authentication. JIVE_AUTH is a server-side anti-CSRF token, not a user
   credential. The whole flow works for any anonymous client. Do not commit
   the maintainer's logged-in cookies anywhere.
-- A non-Swing fallback. If Swing is down, there is no automatic switch to
-  CBS Statline or anywhere else. The scraper just fails the action.
+- A non-Swing fallback. If Swing is persistently unreachable, there is no
+  automatic switch to CBS Statline or anywhere else. Transient connection
+  errors are retried up to 3× with exponential backoff (see Known fragility
+  above); a failure that survives all retries still fails the action.
 - Real-time updates. The cron is daily, not hourly. There is no webhook
   from RDW or Swing.
 - Backfill for Used/HDV before 2018. The maintainer's sheet doesn't have
