@@ -122,6 +122,36 @@
       "country_slug": "ireland_vans"
     },
     {
+      "country": "Italy (Rental)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-02",
+      "filename": "italy_rental_ICE_BEV_20260602.png",
+      "url": "images/2026-05/italy_rental_ICE_BEV_20260602.png",
+      "alt": "Italy (Rental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-02",
+      "filename": "italy_rental_20260602.png",
+      "url": "images/2026-05/italy_rental_20260602.png",
+      "alt": "Italy (Rental) BEV trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-02",
+      "filename": "italy_rental_time_20260602.png",
+      "url": "images/2026-05/italy_rental_time_20260602.png",
+      "alt": "Italy (Rental) Transition time curve",
+      "country_slug": "italy_rental"
+    },
+    {
       "country": "Sweden",
       "type": "ICE_BEV",
       "period": "2026-05",
