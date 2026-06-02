@@ -1,0 +1,6 @@
+🇮🇹 Italy (Rental) - May 26 - BEV Trajectory
+4.6% BEV
+20.1% PHEV
+75.3% ICE (of which 41.4%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
