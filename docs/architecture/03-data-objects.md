@@ -184,6 +184,12 @@ Portugal has `Whole` (`data/Portugal.csv`) plus three **fetch-only** commercial 
 
 The full source-playbook — the motordata POST flow, the OTHERS-residual rationale, the December year-boundary caveat, the vehicle categories (HDV/Vans/Buses available but out of scope), fragility, maintenance recipes — lives in [16-source-portugal.md](16-source-portugal.md). Read that doc before changing anything in [scripts/fetch_portugal.py](../../scripts/fetch_portugal.py).
 
+### Colombia (single variant, combined Hybrid bucket)
+
+Colombia has a single `Whole` variant in `data/Colombia.csv`, sourced from the joint **FENALCO + ANDI** monthly *Informe del Sector Automotor* PDF (linked from ANDI's Cámara Automotriz page; underlying figures from **RUNT**, Colombia's official registry — same registry behind ANDEMOS's gated dashboards). The PDF is parsed with `pdftotext -layout` and three monthly series (Pkw total, BEV, Híbridos) are extracted by position. Colombia **does not split PHEV vs HEV** in this report — combined "híbridos" go in the `HEV` column with the *single Hybrid bucket* convention shared with Türkiye and Georgia (see [09-glossary.md § Variant definitions](09-glossary.md)). `ICE` is the residual `TOTAL − BEV − HEV`; `PHEV`, `PETROL`, `DIESEL`, `FLEXFUEL`, `OTHERS` are empty. Each PDF carries the previous ~3 years of monthly history (older history via the annual "INFORME A DICIEMBRE YYYY" PDFs on the same page).
+
+The full source-playbook — discovery, the batch-detection parser, the Spanish thousands separator, the small known parsing gap on a few early-2023 BEV cells, fragility, maintenance recipes — lives in [18-source-colombia.md](18-source-colombia.md). Read that doc before changing anything in [scripts/fetch_colombia.py](../../scripts/fetch_colombia.py).
+
 ---
 
 ## 3.2 Model Parameters

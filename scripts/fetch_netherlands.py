@@ -51,6 +51,8 @@ from datetime import date
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 BASE = "https://duurzamemobiliteit.databank.nl"
 
@@ -367,6 +369,13 @@ def main() -> None:
             return
 
     session = requests.Session()
+    # Retry up to 3 times on connection errors with exponential backoff (2s, 4s, 8s).
+    # Handles transient network-unreachable failures seen on GitHub Actions runners.
+    _retry = Retry(connect=3, read=2, backoff_factor=2, raise_on_status=False)
+    _adapter = HTTPAdapter(max_retries=_retry)
+    session.mount("https://", _adapter)
+    session.mount("http://", _adapter)
+
     for variant in targets:
         data = fetch_table(variant, session)
         print(f"[{variant}] caption: {data['caption']}")

@@ -1,0 +1,72 @@
+name: Fetch Colombia data (ANDI/FENALCO Boletín)
+
+# Fetches the joint FENALCO/ANDI monthly "Informe del Sector Automotor" PDF
+# (linked from ANDI's Cámara Automotriz page) and upserts data/Colombia.csv.
+# Underlying figures are sourced from RUNT (Colombia's official vehicle
+# registry — the same registry behind ANDEMOS's gated dashboards, just
+# delivered as a free public PDF here).
+#
+# Single variant (Whole, passenger cars). Colombia does not split PHEV vs HEV
+# in this report — combined "híbridos" go in the HEV column ("single Hybrid
+# bucket" convention shared with Türkiye and Georgia).
+#
+# See scripts/fetch_colombia.py and docs/architecture/18-source-colombia.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pdf_url:
+        description: 'Override: fetch this specific PDF URL instead of auto-discovering.'
+        required: false
+        default: ''
+        type: string
+  schedule:
+    # ANDI/FENALCO publishes the previous month's boletín somewhere in the
+    # first ~3 weeks of each month. Poll daily 5th–25th at 07:30 UTC (free
+    # slot); per-variant early-exit makes runs no-ops once the previous month
+    # is in the CSV.
+    - cron: '30 7 5-25 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          pip install requests
+
+      - name: Fetch & update Colombia.csv
+        run: |
+          python scripts/fetch_colombia.py ${PDF_URL:+--pdf-url "$PDF_URL"}
+        env:
+          PDF_URL: ${{ inputs.pdf_url }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Colombia.csv
+          message: 'chore: update Colombia data from ANDI/FENALCO (datos RUNT)'
+          default_author: github_actions
+
+      - name: Trigger render
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Colombia \
+            -f variant=Whole
