@@ -243,6 +243,8 @@ def upsert_window(csv_path: str, rows: dict[str, dict], force: bool) -> list[str
     for period, row in rows.items():
         old = existing.get(period)
         if old is None or force or not _row_unchanged(old, row):
+            if not row.get("notes") and old is not None:
+                row["notes"] = old.get("notes", "")
             existing[period] = row
             changed.append(period)
 

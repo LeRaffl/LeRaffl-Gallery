@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2015-01,quarterly,Whole,unrae.it,143.0,1877.524297,290.4757028,,,,132506.0,
-2015-02,quarterly,Whole,https://unrae.it/dati-statistici/immatricolazioni,115.0,1650.627911,255.3720892,,,,135559.0,
+2015-02,quarterly,Whole,unrae.it,115.0,1650.627911,255.3720892,,,,135559.0,
 2015-03,quarterly,Whole,unrae.it,327.0,2114.812885,327.1871154,,,,162369.0,
 2015-04,quarterly,Whole,unrae.it,91.0,1744.157719,269.8422811,,,,149054.0,
 2015-05,quarterly,Whole,unrae.it,92.0,1871.46218,289.53782,,,,147087.0,
@@ -135,3 +135,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-02,monthly,Whole,unrae.it,12572.0,13525.0,82315.0,32012.0,10278.0,8008.0,158710.0,
 2026-03,monthly,Whole,unrae.it,16137.0,16998.0,93652.0,37678.0,12150.0,10073.0,186688.0,
 2026-04,monthly,Whole,unrae.it,13238,14184,76808,31850,10718,9550,156348,https://unrae.it/dati-statistici/immatricolazioni/7623/struttura-del-mercato-aprile-2026
+2026-05,monthly,Whole,unrae.it,13305,15433,71392,30956,10046,10527,151659,

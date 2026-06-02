@@ -76,7 +76,16 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `OTHERS` | optional | numeric | Catch-all bucket — typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` when the source doesn't split them. ICE in the output charts. |
 | `ICE` | optional | numeric | Reported when source gives a single ICE total without petrol/diesel breakdown (China, USA, South Korea, Thailand, Chile). |
 | `TOTAL` | yes | numeric | Sum of everything for the period. |
-| `notes` | optional | string | Free text for the submitter or maintainer. |
+| `notes` | optional | string | Free text for the submitter or maintainer. Some fetchers store the source URL or provenance note here (e.g. Brazil, Japan, Türkiye). |
+
+**`notes` preservation contract:** Automated fetchers write `notes = ""` for new rows. On re-ingestion (e.g. `--force`), a fetcher must not silently clear an existing non-empty `notes` value. The correct pattern (implemented in all `fetch_*.py` scripts since June 2026) is:
+
+```python
+if not new_row["notes"] and old is not None:
+    new_row["notes"] = old.get("notes", "")
+```
+
+Scripts that build `new_row` with meaningful notes (Brazil, Netherlands, Japan, China — where `notes` carries provenance) always populate it explicitly, so the preservation guard is a no-op for them.
 
 ### Owner / lifecycle
 
