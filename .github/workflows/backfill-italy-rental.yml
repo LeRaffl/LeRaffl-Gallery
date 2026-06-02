@@ -1,0 +1,92 @@
+name: Backfill Italy Rental history (UNRAE)
+
+# One-shot workflow to populate data/Italy_Rental.csv with all historical
+# months that fetch-italy.yml never processed (it only ever fetches the
+# latest bulletin).
+#
+# Discovery: scrapes unrae.it/dati-statistici/immatricolazioni for every
+# struttura-del-mercato bulletin back to `from_year`, downloads each PDF
+# that is missing from Italy_Rental.csv, parses both 'Per alimentazione'
+# blocks, and writes Rental = Whole − (al netto del noleggio).
+#
+# PDFs published before UNRAE added the 'al netto del noleggio' section
+# (typically pre-2017) are skipped automatically.
+#
+# After the backfill commit, render-country.yml is dispatched for Italy/Rental
+# so the gallery charts and params.csv are regenerated immediately.
+#
+# See scripts/backfill_italy_rental.py and docs/architecture/18-source-italy.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_year:
+        description: 'Earliest year to attempt (default: 2017)'
+        required: false
+        default: '2017'
+        type: string
+      force:
+        description: 'Re-parse and overwrite periods already in the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+      dry_run:
+        description: 'List missing periods without downloading PDFs'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poppler (pdftotext)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Backfill Italy_Rental.csv
+        run: |
+          python scripts/backfill_italy_rental.py \
+            --from-year "$FROM_YEAR" \
+            ${FORCE:+--force} \
+            ${DRY_RUN:+--dry-run}
+        env:
+          FROM_YEAR: ${{ inputs.from_year || '2017' }}
+          FORCE:     ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN:   ${{ inputs.dry_run == true && '1' || '' }}
+
+      - name: Commit if changed
+        if: inputs.dry_run != true
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Italy_Rental.csv
+          message: 'data: Italy Rental historical backfill from UNRAE'
+          default_author: github_actions
+
+      - name: Trigger render for Italy/Rental
+        if: inputs.dry_run != true && steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Dispatching render for Italy/Rental"
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Italy \
+            -f variant=Rental
