@@ -1,0 +1,146 @@
+name: Fetch Italy data (UNRAE)
+
+# Scrapes UNRAE monthly bulletins and upserts three Italy CSV files:
+#
+#   data/Italy.csv          — PKW Whole (Struttura del mercato, inkl. Noleggio)
+#   data/Italy_Private.csv  — PKW Private (al netto del noleggio, fleet excluded)
+#   data/Italy_Vans.csv     — LCV Vans (Comunicato Stampa, derived from %×total)
+#
+# PKW (Whole + Private) comes from unrae.it/dati-statistici/immatricolazioni,
+# published around the 1st of each month.  Polled 4×/day on the 1st–3rd.
+#
+# Vans (LCV) comes from unrae.it/sala-stampa/veicoli-commerciali, published
+# around the 14th of each month.  Polled 3×/day on the 13th–16th.
+#
+# The script self-throttles per variant via the latest period already in each
+# CSV, so most invocations are no-ops.  When a CSV changes, render-country.yml
+# is dispatched for the affected variant.
+#
+# See scripts/fetch_italy.py and docs/architecture/18-source-italy.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - pkw
+          - Whole
+          - Rental
+          - Vans
+      pdf_url:
+        description: 'Direct PKW Struttura PDF URL (overrides discovery; requires year+month)'
+        required: false
+        default: ''
+      vans_pdf_url:
+        description: 'Direct LCV Comunicato Stampa PDF URL (overrides discovery; requires year+month)'
+        required: false
+        default: ''
+      year:
+        description: 'Target year (required with pdf_url / vans_pdf_url)'
+        required: false
+        default: ''
+      month:
+        description: 'Target month 1-12 (required with pdf_url / vans_pdf_url)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # PKW (Whole + Private): 06/10/14/18 UTC on 1st-3rd
+    # Covers UNRAE's typical release window (Italian morning of the 1st).
+    - cron: '0 6,10,14,18 1-3 * *'
+    # Vans (LCV): 10/14/18 UTC on 13th-16th
+    # LCV Comunicato Stampa is published around the 14th of each month.
+    - cron: '0 10,14,18 13-16 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poppler (pdftotext)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Fetch & update Italy CSVs
+        run: |
+          python scripts/fetch_italy.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${VANS_PDF_URL:+--vans-pdf-url "$VANS_PDF_URL"} \
+            ${YEAR:+--year "$YEAR"} \
+            ${MONTH:+--month "$MONTH"} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:      ${{ inputs.variant }}
+          PDF_URL:      ${{ inputs.pdf_url }}
+          VANS_PDF_URL: ${{ inputs.vans_pdf_url }}
+          YEAR:         ${{ inputs.year }}
+          MONTH:        ${{ inputs.month }}
+          FORCE:        ${{ inputs.force == true && '1' || '' }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/Italy.csv" \
+                      "Rental:data/Italy_Rental.csv" \
+                      "Vans:data/Italy_Vans.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Italy.csv
+            data/Italy_Rental.csv
+            data/Italy_Vans.csv
+          message: 'chore: update Italy data from UNRAE'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for Italy/$variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Italy \
+              -f variant="$variant"
+          done

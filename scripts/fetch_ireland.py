@@ -242,6 +242,8 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
                 if old_val > 100 and abs(new_val - old_val) / old_val > 0.5:
                     print(f"  WARNING {key[1]} {key[0]} {col}: existing={old_val:.0f}, "
                           f"new={new_val:.0f} — diff >50%, please verify")
+            if not new_row.get("notes"):
+                new_row["notes"] = old.get("notes", "")
             existing[key] = {**old, **new_row}
             updated += 1
 
