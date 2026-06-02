@@ -3,7 +3,7 @@ name: Fetch Italy data (UNRAE)
 # Scrapes UNRAE monthly bulletins and upserts three Italy CSV files:
 #
 #   data/Italy.csv          — PKW Whole (Struttura del mercato, inkl. Noleggio)
-#   data/Italy_Private.csv  — PKW Private (al netto del noleggio, fleet excluded)
+#   data/Italy_Rental.csv   — PKW Rental  (Whole − al netto del noleggio)
 #   data/Italy_Vans.csv     — LCV Vans (Comunicato Stampa, derived from %×total)
 #
 # PKW (Whole + Private) comes from unrae.it/dati-statistici/immatricolazioni,
