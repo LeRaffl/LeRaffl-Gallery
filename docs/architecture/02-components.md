@@ -251,9 +251,10 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | SCB PxWeb `PersBilarDrivMedel` (TAB3277) | `Whole` | Sweden | Daily 05:50 UTC, 1st → 15th |
 | [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | TÜİK press bulletin (PDF + OCR) | `Whole` | Türkiye | Daily 08:00 UTC, 15th → EOM (requires manual `press_id`) |
 | [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | ACAU "Compilado YYYY" xlsx | `Whole` (AUTOS + SUV aggregated) | Uruguay | Daily 08:00 UTC, 1st → EOM |
+| [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | transport.govt.nz fleet-statistics `/inner` AJAX endpoint (CKAN fallback) | `Whole` | New Zealand | Twice daily 06:00 & 14:00 UTC, 5th → 12th |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL Total Sales PDF | `Whole` (trailing 3-month window) | USA | Daily 10:00 UTC, 10th → EOM |
 
-Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, New Zealand, Singapore, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
+Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, Singapore, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
 
 For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico — paywalled or with structural undercount) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question. Colombia was originally shelved there and is now ingested via ANDI/FENALCO ([18-source-colombia.md](18-source-colombia.md)).
 
