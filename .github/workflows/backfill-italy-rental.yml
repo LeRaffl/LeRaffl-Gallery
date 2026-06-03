@@ -61,6 +61,8 @@ jobs:
         run: pip install requests
 
       - name: Backfill Italy_Rental.csv
+        id: backfill
+        continue-on-error: true
         run: |
           python scripts/backfill_italy_rental.py \
             --from-year "$FROM_YEAR" \
@@ -72,7 +74,7 @@ jobs:
           DRY_RUN:   ${{ inputs.dry_run == true && '1' || '' }}
 
       - name: Commit if changed
-        if: inputs.dry_run != true
+        if: inputs.dry_run != true && !cancelled()
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
