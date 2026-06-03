@@ -87,28 +87,30 @@ def pdf_to_text(pdf_path: Path) -> str:
 
 # ── Discovery ─────────────────────────────────────────────────────────────────
 
+# Match both absolute (https://unrae.it/...) and relative (/dati-statistici/...)
+# URLs — historical pages returned by ?anno= filters use relative hrefs.
 _STRUTTURA_LINK = re.compile(
-    r'href="(https://unrae\.it/dati-statistici/immatricolazioni/\d+/'
+    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
     r'struttura-del-mercato-([a-z]+)-(\d{4}))"',
     re.IGNORECASE,
 )
-_NEXT_PAGE = re.compile(
-    r'href="([^"]*(?:immatricolazioni)[^"]*[?&](?:page|p)=(\d+)[^"]*)"',
-    re.IGNORECASE,
-)
-# Year-filter pattern: ?anno=2019 or /anno/2019
-_YEAR_FILTER_LINK = re.compile(
-    r'href="([^"]*immatricolazioni[^"]*(?:[?&]anno=|/anno/)(\d{4})[^"]*)"',
+# Extract the highest page number from any pagination link on the index page.
+_MAX_PAGE = re.compile(
+    r'href="[^"]*(?:immatricolazioni)[^"]*[?&](?:page|p)=(\d+)[^"]*"',
     re.IGNORECASE,
 )
 
 
 def _parse_struttura_links(html: str) -> list[tuple[str, int, int]]:
-    """Return [(detail_url, year, month), ...] for all struttura links in html."""
+    """Return [(detail_url, year, month), ...] for all struttura links in html.
+    Relative URLs are normalized to absolute https://unrae.it/... form.
+    """
     results = []
     for url, mese, anno in _STRUTTURA_LINK.findall(html):
         m = IT_MONTHS.get(mese.lower())
         if m:
+            if url.startswith("/"):
+                url = "https://unrae.it" + url
             results.append((url, int(anno), m))
     return results
 
@@ -117,57 +119,36 @@ def discover_all_bulletins(from_year: int) -> list[tuple[str, int, int]]:
     """
     Return sorted list of (detail_url, year, month) for every struttura bulletin
     available on the UNRAE website, back to `from_year`.
+
+    Strategy: the UNRAE index paginates with ?page=N.  The first page reveals
+    the maximum page number via its pagination links (e.g. [...][182][183]).
+    We iterate ALL pages 1..max_page sequentially so nothing is missed.
+    Throttle: 0.5 s between page requests (light on UNRAE's server).
     """
     found: dict[tuple[int, int], str] = {}
 
     def _scrape(url: str) -> str:
-        print(f"  Fetching index: {url}")
         html = http_get(url)
         for detail_url, year, month in _parse_struttura_links(html):
             if year >= from_year:
                 found.setdefault((year, month), detail_url)
         return html
 
-    # 1. Main index page
-    html = _scrape(STRUTTURA_INDEX)
+    # Page 1 — also used to discover the total page count.
+    print(f"  Fetching page 1 …")
+    html1 = _scrape(STRUTTURA_INDEX)
 
-    # 2. Follow pagination if present
-    seen_pages = {STRUTTURA_INDEX}
-    for href, page_num in _NEXT_PAGE.findall(html):
-        if not href.startswith("http"):
-            href = "https://unrae.it" + href
-        if href not in seen_pages:
-            seen_pages.add(href)
-            _scrape(href)
+    max_page = max((int(n) for n in _MAX_PAGE.findall(html1)), default=1)
+    print(f"  Pagination: {max_page} page(s) total.")
 
-    # 3. Try year-filter links found on the page
-    for href, anno in _YEAR_FILTER_LINK.findall(html):
-        if int(anno) < from_year:
-            continue
-        if not href.startswith("http"):
-            href = "https://unrae.it" + href
-        if href not in seen_pages:
-            seen_pages.add(href)
-            _scrape(href)
+    for page in range(2, max_page + 1):
+        url = f"https://unrae.it/dati-statistici/immatricolazioni?page={page}"
+        print(f"  Fetching page {page}/{max_page} …", end="\r", flush=True)
+        _scrape(url)
+        time.sleep(0.5)
 
-    # 4. Probe year-filter URLs for years not yet covered, down to from_year
-    #    Pattern: /dati-statistici/immatricolazioni?anno=YYYY
-    covered_years = {y for (y, _) in found}
-    lowest_found  = min(covered_years) if covered_years else 9999
-    for yr in range(lowest_found - 1, from_year - 1, -1):
-        url = f"{STRUTTURA_INDEX}?anno={yr}"
-        if url not in seen_pages:
-            seen_pages.add(url)
-            try:
-                html2 = _scrape(url)
-                new_links = _parse_struttura_links(html2)
-                if not new_links:
-                    # No results for this year — stop probing further back
-                    print(f"  No bulletins found for {yr}; stopping year probe.")
-                    break
-            except requests.HTTPError as exc:
-                print(f"  Year probe {yr} returned {exc.response.status_code}; stopping.")
-                break
+    if max_page > 1:
+        print()  # newline after the \r progress line
 
     sorted_results = sorted(found.items())
     return [(url, year, month) for (year, month), url in sorted_results]
@@ -191,20 +172,29 @@ def _first_int(line: str) -> int:
 def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
     block = lines[start:end]
 
-    def find_value(prefix: str) -> int:
-        for ln in block:
-            if ln.lstrip().startswith(prefix):
-                return _first_int(ln)
-        raise RuntimeError(f"Row {prefix!r} not found in 'Per alimentazione' block.")
+    def find_value(*prefixes: str, required: bool = True) -> int:
+        for pfx in prefixes:
+            for ln in block:
+                if ln.lstrip().startswith(pfx):
+                    return _first_int(ln)
+        if required:
+            raise RuntimeError(
+                f"Row {prefixes[0]!r} not found in 'Per alimentazione' block."
+            )
+        return 0  # UNRAE omits rows with 0 registrations
 
+    # Older UNRAE PDFs (pre-2021) used different row labels.
+    # Primary names are current; fallbacks cover historical variants.
     return {
-        "BEV":    find_value("Elettriche (BEV)"),
-        "PHEV":   find_value("Ibride elettriche plug-in"),
-        "HEV":    find_value("Ibride elettriche (HEV)"),
+        "BEV":    find_value("Elettriche (BEV)", "Elettrici"),
+        "PHEV":   find_value("Ibride elettriche plug-in", "Plug-in"),
+        "HEV":    find_value("Ibride elettriche (HEV)", "Ibride elettriche", "Ibride"),
         "PETROL": find_value("Benzina"),
         "DIESEL": find_value("Diesel"),
-        "OTHERS": find_value("Gpl") + find_value("Metano") + find_value("Idrogeno (FCEV)"),
-        "TOTAL":  find_value("Totale mercato"),
+        "OTHERS": (find_value("Gpl", required=False)
+                   + find_value("Metano", required=False)
+                   + find_value("Idrogeno (FCEV)", required=False)),
+        "TOTAL":  find_value("Totale mercato", "Totale"),
     }
 
 
