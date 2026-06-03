@@ -1,5 +1,15 @@
 # 19 · Source: New Zealand (transport.govt.nz)
 
+> **Status (2026-06): auto-fetch disabled.** Both the primary `/inner`
+> endpoint and the `catalogue.data.govt.nz` CKAN fallback are now served
+> behind Imperva (Incapsula/Reese84). Plain `requests` from a GHA runner
+> receives a JS challenge stub / "Pardon Our Interruption" interstitial,
+> not data. The scheduled trigger in
+> `.github/workflows/fetch-new-zealand.yml` is commented out;
+> `workflow_dispatch` is retained for manual runs from an unblocked host.
+> An alternate ingestion path (Stats NZ API or NZTA open-data ArcGIS) is
+> the likely longer-term fix.
+
 The New Zealand Ministry of Transport (MoT) publishes monthly light motor
 vehicle registration statistics via an interactive fleet-statistics dashboard
 at `transport.govt.nz/statistics-and-insights/fleet-statistics`.
