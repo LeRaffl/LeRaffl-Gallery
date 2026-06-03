@@ -317,4 +317,14 @@ if (nzchar(post_text)) {
   cat(sprintf("[post]   wrote posts/%s.txt + posts/%s_%s.txt\n", slug, slug, as_of_period))
 }
 
+# TTM companion post — shape mirrors the TTM chart bands. The Gallery's
+# Copy-post button on the ttm_shares card fetches posts/<slug>_ttm.txt.
+ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period)
+if (nzchar(ttm_post_text)) {
+  dir.create("posts", showWarnings = FALSE)
+  writeLines(ttm_post_text, file.path("posts", paste0(slug, "_ttm.txt")), useBytes = TRUE)
+  writeLines(ttm_post_text, file.path("posts", paste0(slug, "_ttm_", as_of_period, ".txt")), useBytes = TRUE)
+  cat(sprintf("[post]   wrote posts/%s_ttm.txt + posts/%s_ttm_%s.txt\n", slug, slug, as_of_period))
+}
+
 cat("[render] done.\n")
