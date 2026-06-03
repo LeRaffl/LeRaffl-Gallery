@@ -18,10 +18,12 @@ Variants:
   Rental  data/Italy_Rental.csv PKW rental fleet = Whole − (al netto del noleggio), exact
   Vans    data/Italy_Vans.csv   LCV (veicoli commerciali leggeri) ⚠ pct-derived
 
-NOTE: Italy does NOT expose Private/Industry splits comparable to Denmark/Finland.
-  The PDF only provides Whole and "al netto del noleggio" fuel breakdowns.
-  'Rental' = noleggio a lungo + noleggio a breve + autoimm. uso noleggio.
-  A Private/Industry split by juridical person is not available per-fuel.
+NOTE: Italy exposes only Whole and "al netto del noleggio" fuel breakdowns.
+  Rental = NLT + NBT + autoimm.uso.noleggio ≈ 30–35 % of new registrations.
+  Whole − Rental ≠ "private persons": it is the full non-rental sector
+  (~53 % Privati + ~10 % Autoimmatricolazioni + ~5 % Società, all mixed).
+  No per-fuel breakdown for Privati alone is publicly available from MIT.
+  See § 1 for full channel breakdown and cross-checks.
 
 PKW source:  UNRAE struttura-del-mercato PDF (Whole + Rental from one download)
 Vans source: UNRAE LCV Comunicato Stampa PDF (separate page, separate schedule)
@@ -36,7 +38,77 @@ Scripts:     scripts/fetch_italy.py
 Workflow:    .github/workflows/fetch-italy.yml
 ```
 
-## 1. CSV schema note
+## 1. Variant semantics and market-channel structure
+
+### What the two variants represent
+
+| Variant | CSV | Definition |
+|---------|-----|------------|
+| **Whole** | `data/Italy.csv` | All new PKW registrations, **including** rental fleet |
+| **Rental** | `data/Italy_Rental.csv` | `Whole − (al netto del noleggio)` = registrations **for rental use only** |
+
+There is no "Private" variant. The "al netto del noleggio" PDF section is not
+the same as "private persons" (see below).
+
+### The UNRAE market-channel breakdown (Per utilizzatore)
+
+Every Struttura PDF includes a *Per utilizzatore* table that breaks total
+registrations into five channels. Typical shares (based on 2026 monthly data):
+
+| Channel | Italian term | Typical share | Notes |
+|---------|--------------|---------------|-------|
+| Private individuals | Privati | ~53 % | Natural persons buying outright |
+| Long-term rental | Noleggio a Lungo Termine (NLT) | ~19–25 % | Contracts > 30 days, typically 24–48 months; full-service fleet |
+| Short-term rental | Noleggio a Breve Termine (NBT) | ~8–12 % | Classic rent-a-car; seasonal, airport-driven |
+| Dealer self-reg. | Autoimmatricolazioni | ~10 % | Includes a ~1 % "uso noleggio" sub-slice |
+| Direct corporate | Società ed Enti | ~5 % | Firms/public bodies buying without a rental contract |
+
+**Our "Rental" metric = NLT + NBT + autoimmatricolazioni "uso noleggio".**
+The "al netto del noleggio" section of the PDF is the Totale **excluding all
+three rental sub-channels**, so the subtraction captures exactly this combined
+rental market (typically **30–35 %** of total new registrations).
+
+Numerical cross-check (May 2026, verified against our CSV):
+
+```
+Whole TOTAL (our CSV):   151,659  ← matches UNRAE PDF "Totale mercato"
+Rental TOTAL (our CSV):   48,695  ← NLT+NBT reported by UNRAE: 47,056
+                                     difference ≈ 1,639 = autoimm. uso noleggio
+                                     (~1.1 % of total) — included in our metric
+```
+
+### Common misconceptions
+
+**"Rental = juristic persons, non-rental = private persons" — NOT correct.**
+
+- Approximately **14–15 % of NLT contracts are with private individuals** who
+  rent long-term instead of buying; they show up in *our Rental metric*, not in
+  the private-buyer segment.
+- Conversely, the non-rental sector (Whole − Rental = "al netto del noleggio")
+  is not exclusively private persons. It contains:
+  - Privati ~78 % of the non-rental total (≈ 53 % of the whole market)
+  - Autoimmatricolazioni "uso privato" ~15 % of non-rental
+  - Società ed Enti ~7 % of non-rental (direct corporate, no rental contract)
+
+**"Whole − Rental ≈ private persons" — APPROXIMATELY true but imprecise.**
+Private individuals (Privati) represent ~53 % of the whole market and ~78 % of
+the non-rental sector. The remaining ~22 % of non-rental are dealer
+self-registrations and direct-corporate purchases.
+
+### Why Italy has no "Private" variant
+
+Denmark and Finland publish "Private" as a distinct channel with per-fuel
+breakdowns. UNRAE's "Per alimentazione" fuel table exists only for:
+1. The full market (→ Whole)
+2. The market "al netto del noleggio" (→ used to derive Rental)
+
+There is no "Per alimentazione" table for Privati only. A Private variant would
+require raw microdata from MIT (Ministero delle Infrastrutture e dei Trasporti),
+which is not publicly available.
+
+---
+
+## 2. CSV schema note
 
 All three CSVs use the **12-column schema (no FLEXFUEL)**. Italy does not report
 ethanol/flexfuel registrations. The schema is preserved as-is by the scraper.
