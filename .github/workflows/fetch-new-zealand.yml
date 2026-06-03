@@ -14,6 +14,17 @@ name: Fetch New Zealand data (transport.govt.nz)
 # Per-variant early-exit makes most runs no-ops once the latest month is in.
 #
 # See scripts/fetch_new_zealand.py and docs/architecture/19-source-new-zealand.md.
+#
+# STATUS (2026-06): auto-fetch disabled. Both sources are now behind Imperva
+# (Incapsula/Reese84) anti-bot:
+#   - transport.govt.nz/.../inner returns a 212-byte Incapsula challenge stub
+#     instead of the chart JSON.
+#   - catalogue.data.govt.nz CKAN API returns an Imperva "Pardon Our
+#     Interruption" HTML interstitial instead of JSON.
+# Plain `requests` from a GHA runner cannot pass either. The scheduled trigger
+# is removed; workflow_dispatch is kept so the workflow can still be invoked
+# manually (e.g. from a non-blocked host) until an alternate source is wired
+# up (Stats NZ API or NZTA open-data ArcGIS are the likely candidates).
 
 on:
   workflow_dispatch:
@@ -38,11 +49,9 @@ on:
         required: false
         default: 'false'
         type: boolean
-  schedule:
-    # Transport.govt.nz publishes monthly data around the 5th–10th.
-    # Poll twice daily on the 5th–12th (06:00 and 14:00 UTC).
-    - cron: '0 6  5-12 * *'
-    - cron: '0 14 5-12 * *'
+  # schedule: disabled — both upstream sources are behind Imperva (see header).
+  #   - cron: '0 6  5-12 * *'
+  #   - cron: '0 14 5-12 * *'
 
 jobs:
   fetch:
