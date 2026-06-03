@@ -1,0 +1,12 @@
+🇩🇪 Germany - May 26 - TTM Market Split
+Jun 24–May 25  vs  Jun 25–May 26
+
++5.8pp  BEV   (15.8% → 21.6%)
++3.1pp  PHEV  (8.3% → 11.4%)
++0.4pp  HEV   (28.3% → 28.8%)
+−9.3pp  ICE   (47.5% → 38.2%)
+
+HEV peaked at 28.9% in 2025-09 (declining for 8 months).
+BEV would become the largest powertrain in 2027-08.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
