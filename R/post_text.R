@@ -170,15 +170,15 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 
 # Companion post for the TTM market-split chart. Different shape from the
 # main BEV-trajectory post:
-#   <flag> <Country> - <Month YY> - TTM Market Split
-#   <prior 12m window>  vs  <current 12m window>
+#   <flag> <Country> - TTM Market Split
 #                                                # blank line
+#   <prior 12m window>  vs  <current 12m window>
 #   <±X.Xpp>  <BAND>  (<prior%> → <current%>)    # one per band, padded
 #   ...
 #                                                # blank line (only if extras)
 #   <PHEV/HEV peaked at X% in YYYY-MM (declining for N months).>
-#   <BEV would overtake X in YYYY-MM.>
-#   <BEV would become the largest powertrain in YYYY-MM.>
+#   <If the changes from the last 6 months continued linearly, BEV would overtake X in YYYY-MM.>
+#   <If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in YYYY-MM.>
 #                                                # blank line
 #   Graphs are available in the Gallery: ...
 #
@@ -193,7 +193,7 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   old <- Sys.getlocale("LC_TIME")
   on.exit(Sys.setlocale("LC_TIME", old), add = TRUE)
   Sys.setlocale("LC_TIME", "C")
-  paste(format(d, "%b"), format(d, "%y"))
+  paste0(format(d, "%b"), format(d, "%y"))
 }
 
 .pt_add_months <- function(period, n) {
@@ -340,10 +340,10 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
           ymd <- .pt_add_months(periods[cur], c1$months)
           if (j == n_cross) {
             cross_lines <- c(cross_lines,
-                             sprintf("BEV would become the largest powertrain in %s.", ymd))
+                             sprintf("If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in %s.", ymd))
           } else if (largest_m - c1$months > 2L) {
             cross_lines <- c(cross_lines,
-                             sprintf("BEV would overtake %s in %s.", c1$label, ymd))
+                             sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
           }
         }
       } else {
@@ -351,7 +351,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
         for (c1 in crossings) {
           ymd <- .pt_add_months(periods[cur], c1$months)
           cross_lines <- c(cross_lines,
-                           sprintf("BEV would overtake %s in %s.", c1$label, ymd))
+                           sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
         }
       }
     }
@@ -359,13 +359,12 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
 
   # --- Compose ---
   flag <- .pt_flag(country_label)
-  header <- sprintf("%s %s - %s - TTM Market Split", flag, country_label,
-                    .pt_month_label(periods[cur]))
+  header <- sprintf("%s %s - TTM Market Split", flag, country_label)
   window_line <- sprintf("%s–%s  vs  %s–%s",
                          .pt_short_month(periods[pri - 11L]), .pt_short_month(periods[pri]),
                          .pt_short_month(periods[cur - 11L]), .pt_short_month(periods[cur]))
 
-  parts <- c(header, window_line, "", delta_lines)
+  parts <- c(header, "", window_line, delta_lines)
   extras <- c(peak_lines, cross_lines)
   if (length(extras) > 0L) parts <- c(parts, "", extras)
   parts <- c(parts, "", "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
