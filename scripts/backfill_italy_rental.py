@@ -87,8 +87,10 @@ def pdf_to_text(pdf_path: Path) -> str:
 
 # ── Discovery ─────────────────────────────────────────────────────────────────
 
+# Match both absolute (https://unrae.it/...) and relative (/dati-statistici/...)
+# URLs — historical pages returned by ?anno= filters use relative hrefs.
 _STRUTTURA_LINK = re.compile(
-    r'href="(https://unrae\.it/dati-statistici/immatricolazioni/\d+/'
+    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
     r'struttura-del-mercato-([a-z]+)-(\d{4}))"',
     re.IGNORECASE,
 )
@@ -104,11 +106,15 @@ _YEAR_FILTER_LINK = re.compile(
 
 
 def _parse_struttura_links(html: str) -> list[tuple[str, int, int]]:
-    """Return [(detail_url, year, month), ...] for all struttura links in html."""
+    """Return [(detail_url, year, month), ...] for all struttura links in html.
+    Relative URLs are normalized to absolute https://unrae.it/... form.
+    """
     results = []
     for url, mese, anno in _STRUTTURA_LINK.findall(html):
         m = IT_MONTHS.get(mese.lower())
         if m:
+            if url.startswith("/"):
+                url = "https://unrae.it" + url
             results.append((url, int(anno), m))
     return results
 
@@ -191,11 +197,13 @@ def _first_int(line: str) -> int:
 def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
     block = lines[start:end]
 
-    def find_value(prefix: str) -> int:
+    def find_value(prefix: str, required: bool = True) -> int:
         for ln in block:
             if ln.lstrip().startswith(prefix):
                 return _first_int(ln)
-        raise RuntimeError(f"Row {prefix!r} not found in 'Per alimentazione' block.")
+        if required:
+            raise RuntimeError(f"Row {prefix!r} not found in 'Per alimentazione' block.")
+        return 0  # UNRAE omits rows with 0 registrations
 
     return {
         "BEV":    find_value("Elettriche (BEV)"),
@@ -203,7 +211,9 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
         "HEV":    find_value("Ibride elettriche (HEV)"),
         "PETROL": find_value("Benzina"),
         "DIESEL": find_value("Diesel"),
-        "OTHERS": find_value("Gpl") + find_value("Metano") + find_value("Idrogeno (FCEV)"),
+        "OTHERS": (find_value("Gpl", required=False)
+                   + find_value("Metano", required=False)
+                   + find_value("Idrogeno (FCEV)", required=False)),
         "TOTAL":  find_value("Totale mercato"),
     }
 
