@@ -1,0 +1,94 @@
+name: Fetch New Zealand data (transport.govt.nz)
+
+# Fetches new light motor vehicle registrations from the Ministry of Transport
+# (transport.govt.nz fleet-statistics /inner endpoint) and upserts:
+#
+#   data/New Zealand.csv  — Whole  (all new light registrations by fuel type)
+#
+# Only the Whole variant is available (no Private/Rental/Industry split).
+# The dashboard covers light vehicles (GVM < 3,500 kg) — passenger cars and
+# light commercial vehicles combined.
+#
+# Transport.govt.nz publishes monthly data around the 5th–10th of the
+# following month. Poll twice daily on the 5th–12th to catch releases.
+# Per-variant early-exit makes most runs no-ops once the latest month is in.
+#
+# See scripts/fetch_new_zealand.py and docs/architecture/19-source-new-zealand.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      months:
+        description: 'Trailing months window to re-fetch (default: 3)'
+        required: false
+        default: '3'
+        type: string
+      since:
+        description: 'Backfill start YYYY-MM (overrides months; fetches through last month)'
+        required: false
+        default: ''
+        type: string
+      force:
+        description: 'Re-fetch and overwrite periods already in the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+      debug:
+        description: 'Print raw response details for troubleshooting'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # Transport.govt.nz publishes monthly data around the 5th–10th.
+    # Poll twice daily on the 5th–12th (06:00 and 14:00 UTC).
+    - cron: '0 6  5-12 * *'
+    - cron: '0 14 5-12 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Fetch & update New Zealand.csv
+        run: |
+          python scripts/fetch_new_zealand.py \
+            --months "$MONTHS" \
+            ${SINCE:+--since "$SINCE"} \
+            ${FORCE:+--force} \
+            ${DEBUG:+--debug}
+        env:
+          MONTHS: ${{ inputs.months || '3' }}
+          SINCE:  ${{ inputs.since }}
+          FORCE:  ${{ inputs.force == true && '1' || '' }}
+          DEBUG:  ${{ inputs.debug == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'data/New Zealand.csv'
+          message: 'chore: update New Zealand data from transport.govt.nz'
+          default_author: github_actions
+
+      - name: Trigger render for New Zealand/Whole
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Dispatching render for New Zealand/Whole"
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country="New Zealand" \
+            -f variant=Whole
