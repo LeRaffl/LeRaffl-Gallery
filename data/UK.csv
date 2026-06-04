@@ -135,3 +135,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-02,monthly,Whole,SMMT,21840.0,10438.0,11807.0,41935.0,4080.0,0.0,90100.0,
 2026-03,monthly,Whole,SMMT,86120.0,49671.0,60268.0,165997.0,18571.0,0.0,380627.0,
 2026-04,monthly,Whole,SMMT,39084,20597,19711,63541,6314,0,149247,https://www.smmt.co.uk/vehicle-data/car-registrations/
+2026-05,monthly,Whole,SMMT,43931,22167,20719,66223,7622,,160662,https://www.smmt.co.uk/new-car-market-grows-as-consumers-respond-to-choice-and-incentives/
