@@ -17,7 +17,7 @@ on:
         required: false
         default: ''
   schedule:
-    - cron: '0 8 10 * *'   # 10th of each month at 08:00 UTC
+    - cron: '50 8 10 * *'   # 10th of each month at 08:50 UTC (staggered to avoid 08:00 pile-up)
 
 jobs:
   fetch:
