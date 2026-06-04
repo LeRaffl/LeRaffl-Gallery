@@ -2,6 +2,46 @@
   "updated": "2026-06-04",
   "images": [
     {
+      "country": "Finland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-04",
+      "filename": "finland_hdv_ICE_BEV_20260604.png",
+      "url": "images/2026-05/finland_hdv_ICE_BEV_20260604.png",
+      "alt": "Finland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-04",
+      "filename": "finland_hdv_20260604.png",
+      "url": "images/2026-05/finland_hdv_20260604.png",
+      "alt": "Finland (HDV) BEV trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-04",
+      "filename": "finland_hdv_time_20260604.png",
+      "url": "images/2026-05/finland_hdv_time_20260604.png",
+      "alt": "Finland (HDV) Transition time curve",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-04",
+      "filename": "finland_hdv_ttm_shares_20260604.png",
+      "url": "images/2026-05/finland_hdv_ttm_shares_20260604.png",
+      "alt": "Finland (HDV) TTM market split graph",
+      "country_slug": "finland_hdv"
+    },
+    {
       "country": "Finland (Industry)",
       "type": "ICE_BEV",
       "period": "2026-05",
