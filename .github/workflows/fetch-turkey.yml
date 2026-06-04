@@ -41,7 +41,7 @@ on:
         default: 'false'
         type: boolean
   schedule:
-    - cron: '0 8 15-31 * *'   # daily at 08:00 UTC, from the 15th onward
+    - cron: '30 8 15-31 * *'   # daily at 08:30 UTC, from the 15th onward (staggered to avoid 08:00 pile-up)
 
 jobs:
   fetch:

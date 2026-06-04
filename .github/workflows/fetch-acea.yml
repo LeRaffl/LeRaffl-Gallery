@@ -47,7 +47,7 @@ on:
         default: 'false'
         type: boolean
   schedule:
-    - cron: '0 8 16-31 * *'   # 16th through end of month at 08:00 UTC
+    - cron: '40 8 16-31 * *'   # 16th through end of month at 08:40 UTC (staggered to avoid 08:00 pile-up)
 
 jobs:
   fetch:
