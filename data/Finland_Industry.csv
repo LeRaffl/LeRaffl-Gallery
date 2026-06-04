@@ -146,4 +146,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-01,monthly,Industry,pxdata.stat.fi (StatFin 121d),1150.0,444.0,,608.0,173.0,,0.0,2375.0,
 2026-02,monthly,Industry,pxdata.stat.fi (StatFin 121d),1085.0,433.0,,530.0,221.0,,0.0,2269.0,
 2026-03,monthly,Industry,pxdata.stat.fi (StatFin 121d),1706.0,421.0,,675.0,179.0,,0.0,2981.0,
-2026-04,monthly,Industry,pxdata.stat.fi (StatFin 121d),1301.0,337.0,,645.0,175.0,,0.0,2458.0,
+2026-04,monthly,Industry,pxdata.stat.fi (StatFin 121d),1302.0,337.0,,645.0,175.0,,0.0,2459.0,
+2026-05,monthly,Industry,pxdata.stat.fi (StatFin 121d),1571.0,455.0,,1311.0,182.0,,0.0,3519.0,
