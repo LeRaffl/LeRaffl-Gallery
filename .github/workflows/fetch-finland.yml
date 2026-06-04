@@ -45,6 +45,9 @@ jobs:
     permissions:
       contents: write
       actions: write
+    outputs:
+      variants_json: ${{ steps.changed.outputs.variants_json }}
+      any_changed: ${{ steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants_json != '[]' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -83,6 +86,14 @@ jobs:
           done
           variants=$(IFS='|'; echo "${touched[*]}")
           echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          # JSON array for the downstream matrix (max-parallel: 1 keeps render
+          # commits serial so they don't race on params.csv / weights.csv).
+          if [ "${#touched[@]}" -eq 0 ]; then
+            json='[]'
+          else
+            json=$(printf '%s\n' "${touched[@]}" | jq -R . | jq -sc .)
+          fi
+          echo "variants_json=$json" >> "$GITHUB_OUTPUT"
           echo "Touched variants: ${variants:-<none>}"
 
       - name: Commit if changed
@@ -99,17 +110,18 @@ jobs:
           message: 'chore: update Finland data from pxdata.stat.fi (StatFin 121d)'
           default_author: github_actions
 
-      - name: Trigger render per touched variant
-        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VARIANTS: ${{ steps.changed.outputs.variants }}
-        run: |
-          IFS='|' read -ra arr <<< "$VARIANTS"
-          for variant in "${arr[@]}"; do
-            echo "Dispatching render for variant: $variant"
-            gh workflow run render-country.yml \
-              --ref "${GITHUB_REF_NAME}" \
-              -f country=Finland \
-              -f variant="$variant"
-          done
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.any_changed == 'true'
+    strategy:
+      fail-fast: false
+      # Serial: each render commits images/, params.csv, weights.csv, posts/ —
+      # parallel variants race on the push and abort. Mirrors fetch-acea.yml.
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.variants_json) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Finland
+      variant: ${{ matrix.variant }}
+    secrets: inherit
