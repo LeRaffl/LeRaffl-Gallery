@@ -14,18 +14,19 @@ registration bulletins as PDFs. Two distinct publications are used:
 
 ```
 Variants:
-  Whole   data/Italy.csv        PKW whole market (inkl. Noleggio)
-  Rental  data/Italy_Rental.csv PKW rental fleet = Whole − (al netto del noleggio), exact
-  Vans    data/Italy_Vans.csv   LCV (veicoli commerciali leggeri) ⚠ pct-derived
+  Whole      data/Italy.csv           PKW whole market (inkl. Noleggio)
+  Rental     data/Italy_Rental.csv    PKW rental fleet = Whole − (al netto del noleggio), exact
+  NonRental  data/Italy_NonRental.csv PKW "al netto del noleggio" (second PDF block, exact)
+  Vans       data/Italy_Vans.csv      LCV (veicoli commerciali leggeri) ⚠ pct-derived
 
 NOTE: Italy exposes only Whole and "al netto del noleggio" fuel breakdowns.
-  Rental = NLT + NBT + autoimm.uso.noleggio ≈ 30–35 % of new registrations.
-  Whole − Rental ≠ "private persons": it is the full non-rental sector
-  (~53 % Privati + ~10 % Autoimmatricolazioni + ~5 % Società, all mixed).
+  Rental    = NLT + NBT + autoimm.uso.noleggio ≈ 30–35 % of new registrations.
+  NonRental ≠ "private persons": it is the full non-rental sector
+  (~78 % Privati + ~15 % Autoimm. uso privato + ~7 % Società, all mixed).
   No per-fuel breakdown for Privati alone is publicly available from MIT.
   See § 1 for full channel breakdown and cross-checks.
 
-PKW source:  UNRAE struttura-del-mercato PDF (Whole + Rental from one download)
+PKW source:  UNRAE struttura-del-mercato PDF (Whole + Rental + NonRental from one download)
 Vans source: UNRAE LCV Comunicato Stampa PDF (separate page, separate schedule)
 Auth:        None
 FLEXFUEL:    Not reported by Italy — column absent from all three CSVs
@@ -45,10 +46,14 @@ Workflow:    .github/workflows/fetch-italy.yml
 | Variant | CSV | Definition |
 |---------|-----|------------|
 | **Whole** | `data/Italy.csv` | All new PKW registrations, **including** rental fleet |
-| **Rental** | `data/Italy_Rental.csv` | `Whole − (al netto del noleggio)` = registrations **for rental use only** |
+| **Rental** | `data/Italy_Rental.csv` | `Whole − NonRental` = registrations **for rental use only** |
+| **NonRental** | `data/Italy_NonRental.csv` | Second PDF block "al netto del noleggio" read directly: Privati + Società + Autoimmatricolazioni (excl. uso noleggio) |
 
-There is no "Private" variant. The "al netto del noleggio" PDF section is not
-the same as "private persons" (see below).
+`Whole = Rental + NonRental` holds exactly because both NonRental and Whole are
+read directly from the same PDF and Rental is their difference.
+
+There is no "Private" variant. The "al netto del noleggio" PDF section
+(= NonRental) is not the same as "private persons" (see below).
 
 ### The UNRAE market-channel breakdown (Per utilizzatore)
 
@@ -90,9 +95,9 @@ Rental TOTAL (our CSV):   48,695  ← NLT+NBT reported by UNRAE: 47,056
   - Autoimmatricolazioni "uso privato" ~15 % of non-rental
   - Società ed Enti ~7 % of non-rental (direct corporate, no rental contract)
 
-**"Whole − Rental ≈ private persons" — APPROXIMATELY true but imprecise.**
+**"NonRental ≈ private persons" — APPROXIMATELY true but imprecise.**
 Private individuals (Privati) represent ~53 % of the whole market and ~78 % of
-the non-rental sector. The remaining ~22 % of non-rental are dealer
+the NonRental sector. The remaining ~22 % of NonRental are dealer
 self-registrations and direct-corporate purchases.
 
 ### Why Italy has no "Private" variant
@@ -139,7 +144,8 @@ Page 1 — whole market (including noleggio):
 
 Then — fleet-excluded section:
   LA STRUTTURA DEL MERCATO ITALIANO DELL'AUTOMOBILE AL NETTO DEL NOLEGGIO
-  Per alimentazione table →  subtracted from Whole → Rental
+  Per alimentazione table →  used for NonRental directly
+                              and subtracted from Whole → Rental
   Per segmento table      →  (ignored)
   Per area geografica     →  (ignored)
 ```
@@ -238,11 +244,12 @@ for LCV are not reported in the Comunicato Stampa text; they would be negligible
 
 ## 6. Schedule
 
-| Variant | Published    | Polled                        |
-|---------|--------------|-------------------------------|
-| Whole  | ~1st of month  | 06/10/14/18 UTC, days 1–3  |
-| Rental | same PDF       | same schedule               |
-| Vans   | ~14th of month | 10/14/18 UTC, days 13–16   |
+| Variant    | Published      | Polled                      |
+|------------|----------------|-----------------------------|
+| Whole      | ~1st of month  | 06/10/14/18 UTC, days 1–3   |
+| Rental     | same PDF       | same schedule               |
+| NonRental  | same PDF       | same schedule               |
+| Vans       | ~14th of month | 10/14/18 UTC, days 13–16    |
 
 All three scripts self-throttle: once the target period is in the CSV, runs are
 no-ops until the next month.

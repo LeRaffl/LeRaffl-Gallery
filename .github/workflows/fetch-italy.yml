@@ -2,9 +2,10 @@ name: Fetch Italy data (UNRAE)
 
 # Scrapes UNRAE monthly bulletins and upserts three Italy CSV files:
 #
-#   data/Italy.csv          — PKW Whole (Struttura del mercato, inkl. Noleggio)
-#   data/Italy_Rental.csv   — PKW Rental  (Whole − al netto del noleggio)
-#   data/Italy_Vans.csv     — LCV Vans (Comunicato Stampa, derived from %×total)
+#   data/Italy.csv             — PKW Whole (Struttura del mercato, inkl. Noleggio)
+#   data/Italy_Rental.csv      — PKW Rental  (Whole − al netto del noleggio)
+#   data/Italy_NonRental.csv   — PKW NonRental (al netto del noleggio block, direct)
+#   data/Italy_Vans.csv        — LCV Vans (Comunicato Stampa, derived from %×total)
 #
 # PKW (Whole + Private) comes from unrae.it/dati-statistici/immatricolazioni,
 # published around the 1st of each month.  Polled 4×/day on the 1st–3rd.
@@ -31,6 +32,7 @@ on:
           - pkw
           - Whole
           - Rental
+          - NonRental
           - Vans
       pdf_url:
         description: 'Direct PKW Struttura PDF URL (overrides discovery; requires year+month)'
@@ -106,6 +108,7 @@ jobs:
           touched=()
           for pair in "Whole:data/Italy.csv" \
                       "Rental:data/Italy_Rental.csv" \
+                      "NonRental:data/Italy_NonRental.csv" \
                       "Vans:data/Italy_Vans.csv"; do
             variant="${pair%%:*}"
             file="${pair##*:}"
@@ -126,6 +129,7 @@ jobs:
           add: |
             data/Italy.csv
             data/Italy_Rental.csv
+            data/Italy_NonRental.csv
             data/Italy_Vans.csv
           message: 'chore: update Italy data from UNRAE'
           default_author: github_actions
