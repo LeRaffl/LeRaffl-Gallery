@@ -1315,6 +1315,14 @@ a:focus-visible{
   border-color:rgba(255,140,60,.4);
 }
 
+/* No transition — curve doesn't form an S-shape (v2≤1) or its
+   peak adoption rate stays under MIN_TRANSITION_SLOPE. */
+.status-pill[data-tag="notrans"]{
+  color:#cbd2dd;
+  background:rgba(170,180,200,.12);
+  border-color:rgba(170,180,200,.35);
+}
+
 .country{
   font-size:14px;
 }
@@ -1660,6 +1668,7 @@ a:focus-visible{
     <span class="tab-group">
       <span class="tab-group-label">DIY Curves</span>
       <a href="#builder" class="tablink">Builder</a>
+      <a href="#compare" class="tablink">Compare</a>
       <a href="#fleet" class="tablink">Fleet</a>
     </span>
     <span class="tab-group">
@@ -2045,7 +2054,8 @@ a:focus-visible{
       <p class="small" style="max-width:740px">
         This view shows the projected time to progress from one market share threshold to another. 
         Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from 
-        <code>params.csv</code>. Durations longer than 200 years are shown as “no transition”. <br>
+        <code>params.csv</code>. Rows whose curve has no inflection (v2 ≤ 1) or whose peak adoption rate
+        stays under 1 percentage-point per year are flagged as <em>“shows no transition”</em>. <br>
         Indonesia’s fitted parameters round to almost zero in CSV precision, so the table
         reconstructs them on the fly by anchoring the model to the most recent observation —
         its entries can therefore be off by a few months in either direction.
@@ -2213,6 +2223,58 @@ a:focus-visible{
     <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
   </div>
   </section>
+
+  <!-- Compare TAB -->
+<section id="tab-compare" class="tab">
+  <div class="container">
+    <h2>Compare Curves</h2>
+    <div class="toolbar settings-strip">
+      <div class="field settings-block is-compact">
+        <label>Powertrain</label>
+        <div class="settings-actions">
+          <label class="chip"><input type="radio" name="comparePowertrain" value="BEV" checked> BEV</label>
+          <label class="chip"><input type="radio" name="comparePowertrain" value="ICE"> ICE</label>
+          <label class="chip"><input type="radio" name="comparePowertrain" value="PHEV"> PHEV</label>
+        </div>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Variant</label>
+        <select id="compareVariant">
+          <option value="whole" selected>New Cars</option>
+          <option value="hdv">HDV</option>
+          <option value="vans">Vans</option>
+        </select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 1 (required)</label>
+        <select id="compareSlot1" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 2</label>
+        <select id="compareSlot2" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 3 (optional)</label>
+        <select id="compareSlot3" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <div class="settings-actions">
+          <button id="compareBuild" class="btn primary">Compare</button>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <p class="small">
+        Side-by-side comparison of 2–3 curves. Each slot can be an individual country or an aggregated region
+        (e.g. EU, World), weighted by <code>weights.csv</code> like in Builder. The powertrain selector switches
+        all slots together — you can only compare BEV vs. BEV, ICE vs. ICE, or PHEV vs. PHEV (no mixing).
+      </p>
+    </div>
+    <div class="card builder-card">
+      <div id="comparePlot"></div>
+      <button class="btn chart-dl" onclick="downloadPlotlyChart('comparePlot','compare_chart.png')">↓ Download PNG</button>
+    </div>
+  </div>
+</section>
 
   <!-- Fleet TAB -->
 <section id="tab-fleet" class="tab">
@@ -3179,6 +3241,10 @@ function passesTagFilter(country, filters){
   const cats = Object.keys(filters);
   if (!cats.length) return true;
   const tags = window.__bevTagsByCountry && window.__bevTagsByCountry[country];
+  // No-transition rows bypass status/speed/timing filters: those categories
+  // are undefined for a curve that never takes off, so they shouldn't be
+  // filtered against. The dedicated 'notrans' pill makes them findable.
+  if (tags && tags.notrans) return true;
   for (const cat of cats){
     const allowed = filters[cat];
     // Timing has a designed middle band — missing tag means "mid".
@@ -3458,12 +3524,47 @@ function inv_x_years(y,v1,v2,t0){
     return{x:NaN,why:'v2=0'}; 
   if(v1n>=0)
     return{x:NaN,why:'v1 must be < 0'}; 
-  const num=Math.log(1-y)/v1n; 
+  const num=Math.log(1-y)/v1n;
   if(!(num>0))
-    return{x:NaN,why:'ln(1-y)/v1 ≤ 0'}; 
-  return{x:(t0n-1)+Math.pow(num,1/v2n),why:null}; 
+    return{x:NaN,why:'ln(1-y)/v1 ≤ 0'};
+  // CALENDAR-YEAR FIX (2026-06): return the calendar year of the crossing,
+  // i.e. t0 + delta — NOT the historical (t0-1) + delta.
+  //
+  // Why the -1 was there and why it was wrong: the R pipeline's
+  // period_to_year() maps "YYYY-MM" to (year-1)+(month-1)/12, so R fits and
+  // plots in an internal axis that is one less than the calendar year, and
+  // R re-adds the +1 only at label time (plots.R: labels = "Jan " + (x+1)).
+  // t0 (= verschiebung) is stored in that internal space. The canonical
+  // calendar share curve is therefore S(C) = 1 - exp(v1·(C - t0)^v2) — exactly
+  // the world-map "share" formula (z = calYear - t0). Its inverse is
+  // C = t0 + delta. The old (t0-1) returned R-internal units, which every
+  // ABSOLUTE-date consumer (Thresholds table, Time-Interval timeline,
+  // World-Map year mode, gallery status pills) then rendered verbatim as a
+  // calendar year → every date shown 1 year too early (e.g. Finland Buses
+  // "Past 80%" while the model only crosses 80% in 2027). Duration consumers
+  // (Durations tab, Time-Interval spans) subtract two of these, so the
+  // constant shift cancels and they are unaffected by this change.
+  return{x:t0n+Math.pow(num,1/v2n),why:null};
 }
 function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year), t0raw=(r.t0||'').trim(); let t0n=normNumber(t0raw); if(isFinite(t0n)&&t0n>=1800&&(isFinite(baseYear)||/^\d{4}-\d{2}-\d{2}$/.test(baseDate))){ const by=isFinite(baseYear)?Math.round(baseYear):(new Date(baseDate+'T00:00:00Z')).getUTCFullYear(); return (t0n-by)+1; } if(/^\d{4}-\d{2}-\d{2}$/.test(t0raw)){ const t0yf=isoDateToYearFrac(t0raw); const by=isFinite(baseYear)?baseYear:isoDateToYearFrac(baseDate); if(isFinite(by)&&isFinite(t0yf)) return (t0yf-by)+1; } return t0n; }
+
+// "No transition" = curve never enters a meaningful adoption regime.
+//   • v2 ≤ 1   → no inflection point, not an S-curve structurally.
+//   • slope at inflection < 1 %-point/yr → take-off too flat to matter
+//     (at this rate, 25→75% alone takes >50 years).
+// MIN_TRANSITION_SLOPE is the single tunable. Bumping it makes more
+// rows fall into "No transition"; lowering it admits slower curves.
+const MIN_TRANSITION_SLOPE = 0.01;
+function curveHasNoTransition(v1, v2){
+  const v1n = normNumber(v1), v2n = normNumber(v2);
+  if(!isFinite(v1n) || !isFinite(v2n)) return true;
+  if(v1n >= 0 || v2n <= 1) return true;
+  const invLambda = Math.pow(-v1n, 1/v2n);
+  const u = Math.pow((v2n - 1)/v2n, 1/v2n);
+  const slope = v2n * invLambda * Math.pow(u, v2n - 1) * Math.exp(-Math.pow(u, v2n));
+  if(!isFinite(slope)) return true;
+  return slope < MIN_TRANSITION_SLOPE;
+}
 function getDataPer(r){ const c=[r.data_per,r.latest_month,r.last_month,r.month_latest,r.data_month,r.latest_date,r.last_date,r.obs_last,r.data_asof].map(x=>String(x||'').trim()).filter(Boolean); for(const v of c){ const m=toYYYYMM(v); if(m) return m; } return ''; }
 function extractVariantParts(variant){
   const base = String(variant || '').trim();
@@ -3541,14 +3642,13 @@ function renderThresholds(csvText){
     function computeData(){
       const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
       const y = pct / 100;
-      const MAX_TS = Date.parse('2199-12-31');
-
       return rows.map(r => {
         const v1 = normNumber(r.v1);
         const v2 = normNumber(r.v2);
         const t0 = getT0Years(r);
         const baseDate = r.baseline_date || '';
         const baseYear = normNumber(r.baseline_year);
+        const noTransition = curveHasNoTransition(r.v1, r.v2);
 
         const r20 = inv_x_years(0.2, v1, v2, t0);
         const r50 = inv_x_years(0.5, v1, v2, t0);
@@ -3556,42 +3656,18 @@ function renderThresholds(csvText){
         const rc  = inv_x_years(y,   v1, v2, t0);
 
         function fmt(res){
-          if(!res || !isFinite(res.x)){
-            return {
-              text: '—',
-              val: Infinity
-            };
+          if(noTransition){
+            return { text: 'shows no transition', val: null };
           }
-
+          if(!res || !isFinite(res.x)){
+            return { text: '—', val: null };
+          }
           const dstr = yearsIndexToDate(res.x, baseDate, baseYear);
-
           if(dstr){
             const ts = Date.parse(dstr);
-
-            if(isFinite(ts) && ts > MAX_TS){
-              return {
-                text: 'shows no transition',
-                val: Infinity
-              };
-            }
-
-            return {
-              text: dstr,
-              val: ts
-            };
+            return { text: dstr, val: isFinite(ts) ? ts : null };
           }
-
-          if(res.x >= 3000){
-            return {
-              text: 'shows no transition',
-              val: Infinity
-            };
-          }
-
-          return {
-            text: res.x.toFixed(2),
-            val: Number(res.x)
-          };
+          return { text: res.x.toFixed(2), val: Number(res.x) };
         }
 
         const f20 = fmt(r20);
@@ -3649,7 +3725,11 @@ function renderThresholds(csvText){
       data.sort((a,b)=>{
         const va = isoOrValForSort(a,sortKey);
         const vb = isoOrValForSort(b,sortKey);
-
+        const aBad = (va == null) || (typeof va==='number' && !isFinite(va));
+        const bBad = (vb == null) || (typeof vb==='number' && !isFinite(vb));
+        if(aBad && bBad) return a.country.localeCompare(b.country);
+        if(aBad) return 1;
+        if(bBad) return -1;
         if(va < vb) return sortAsc ? -1 : 1;
         if(va > vb) return sortAsc ? 1 : -1;
         return a.country.localeCompare(b.country);
@@ -3675,7 +3755,7 @@ const RED_80_TS = Date.parse('2035-01-01');
 function tdWithClass(text, ts, is80 = false){
   let cls = '';
 
-  if(isFinite(ts)){
+  if(ts != null && isFinite(ts)){
     if(ts < TODAY_TS) cls = 'past';
     if(is80 && ts > RED_80_TS) cls = 'late';
   }
@@ -3788,7 +3868,6 @@ renderTable();
 
 // -------- DURATIONS --------
 (function(){
-  const CAP_YEARS = 100; // cutoff for "shows no transition"
   // D1(b): every resolve path goes through dedupeParamRows so the
   // Builder, Durations and aggregate callers all receive clean data.
   function loadParams(){ const urls=['./params.csv','params.csv']; return new Promise((resolve,reject)=>{ (function next(i){ if(i>=urls.length){ if(DEV_SAMPLE){ showSampleDataWarning('params.csv'); resolve(applyV1Recovery(dedupeParamRows(parseCSV(SAMPLE_PARAMS_CSV)))); return;} reject(new Error('Could not load params.csv.')); return;} fetch(urls[i],{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text();}).then(txt=>resolve(applyV1Recovery(dedupeParamRows(parseCSV(txt))))).catch(()=>next(i+1)); })(0); }); }
@@ -3808,15 +3887,15 @@ renderTable();
     return k*invLambda*Math.pow(u,k-1)*Math.exp(-Math.pow(u,k)); 
   }
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
-  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; if(Math.abs(dYears)>CAP_YEARS) return 'shows no transition'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}  
+  function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); }
-  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:Infinity}; if(Math.abs(d)>CAP_YEARS) return {text:'shows no transition',val:Infinity}; return {text:fmtYearsMonths(d),val:d}; } return rows.map(r=>{ const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:d2080.text,_d2080:d2080.val, d1090_text:d1090.text,_d1090:d1090.val, dC_text:dC.text,_dC:dC.val, speed_text:isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—', _speed:isFinite(sNum)?sNum:-Infinity, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
+  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.map(r=>{ const noTransition = curveHasNoTransition(r.v1, r.v2); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
     let data=computeDurations(rows); let sortKey='_d2080', sortAsc=true;
     function selected(){ return new Set(Array.from(sel.selectedOptions||[]).map(o=>o.value)); }
     function filtered(){ const s=selected(); if(s.size===0) return []; return data.filter(r=>s.has(r.variantBaseCanonical||'')); }
-    function sortNow(){ const arr=filtered(); arr.sort((a,b)=>{ const va=a[sortKey], vb=b[sortKey]; return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); return arr; }
+    function sortNow(){ const arr=filtered(); arr.sort((a,b)=>{ const va=a[sortKey], vb=b[sortKey]; const aBad=(va==null||(typeof va==='number'&&!isFinite(va))); const bBad=(vb==null||(typeof vb==='number'&&!isFinite(vb))); if(aBad&&bBad) return 0; if(aBad) return 1; if(bBad) return -1; return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); return arr; }
     function head(){ return `<thead><tr>
       <th class="num">#</th>
       <th class="sortable" data-k="country">Country</th>
@@ -3959,7 +4038,7 @@ renderTable();
       const yMid  =yx(r, midPct/100);
       const yEnd  =yx(r, toPct/100);
       if(!isFinite(yStart) || !isFinite(yEnd)) return;
-      if(yEnd - yStart > 200) return; // skip non-transitioning rows
+      if(curveHasNoTransition(r.v1, r.v2)) return; // unified no-transition criterion
       out.push({
         country: r.country||'',
         variant: r.variant||'',
@@ -4676,7 +4755,15 @@ big_markets: rows => {
       // row's own variant, not the first vSels entry. Keep the two
       // sites in sync to avoid the debug Total drifting from the plot.
       const w = weightForRow(r);
-      const x = year - by + 1;
+      // CALENDAR-YEAR FIX (2026-06): feed the calendar year directly.
+      // bevShareIndex/iceShareIndex are calendar-space (z = x - t0; same as the
+      // world-map share formula and the inverse in inv_x_years). The old
+      // "year - by + 1" was an index-time conversion that, because production
+      // params.csv has no baseline_year (so by = normNumber(undefined) = 0),
+      // collapsed to year + 1 and evaluated the curve one year ahead — the
+      // plotted Builder/Fleet/Compare curve reached every share 1 year too
+      // early. See the inv_x_years comment for the R period_to_year() origin.
+      const x = year;
       const y   = bevShareIndex(x, v1, v2, t0);
 
       if (showICE && hasICE) {
@@ -4803,6 +4890,276 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
 
     document.getElementById('buildCurve')
       .addEventListener('click', ()=>ensurePlotly().then(build));
+  });
+
+  // -------- Compare tab --------
+  // Reuses PARAM_ROWS / WEIGHTS / BUILDER_GROUPS from the Builder closure.
+  const COMPARE_PALETTE = ['#00ff15', '#1fa6d0', '#ffb44a'];
+
+  function initCompare(){
+    const slots = ['compareSlot1','compareSlot2','compareSlot3'].map(id => document.getElementById(id));
+    if(!slots[0]) return;
+    const countries = [...new Set(PARAM_ROWS.map(r=>r.country).filter(Boolean))].sort();
+    const groupLabels = {
+      world:'World', eu:'EU', g7:'G7',
+      western_europe:'Western Europe', northern_europe:'Northern Europe',
+      southern_europe:'Southern Europe', eastern_europe:'Eastern Europe',
+      north_america:'North America', south_america:'South America', americas:'Americas (all)',
+      asia:'Asia',
+      small_markets:'Small Markets (<50k/yr)', medium_markets:'Medium Markets (50k–1M/yr)', big_markets:'Big Markets (>1M/yr)'
+    };
+    slots.forEach((sel, i) => {
+      sel.innerHTML = '';
+      const noneOpt = document.createElement('option');
+      noneOpt.value = '';
+      noneOpt.textContent = i === 0 ? '— Choose region —' : '— None —';
+      sel.appendChild(noneOpt);
+
+      const grpAgg = document.createElement('optgroup');
+      grpAgg.label = 'Aggregates';
+      Object.keys(groupLabels).forEach(key => {
+        const o = document.createElement('option');
+        o.value = 'group:' + key;
+        o.textContent = groupLabels[key];
+        grpAgg.appendChild(o);
+      });
+      sel.appendChild(grpAgg);
+
+      const grpC = document.createElement('optgroup');
+      grpC.label = 'Countries';
+      countries.forEach(c => {
+        const o = document.createElement('option');
+        o.value = 'country:' + c;
+        o.textContent = c;
+        grpC.appendChild(o);
+      });
+      sel.appendChild(grpC);
+    });
+    // Sensible defaults so the first paint shows something.
+    slots[0].value = 'group:eu';
+    slots[1].value = 'group:asia';
+    slots[2].value = 'country:Norway';
+  }
+
+  function compareCountriesFor(slotValue){
+    if(!slotValue) return [];
+    if(slotValue.startsWith('country:')) return [slotValue.slice(8)];
+    if(slotValue.startsWith('group:')){
+      const key = slotValue.slice(6);
+      const fn = BUILDER_GROUPS[key];
+      return fn ? fn(PARAM_ROWS) : [];
+    }
+    return [];
+  }
+
+  function compareLabelFor(slotValue){
+    if(!slotValue) return '';
+    if(slotValue.startsWith('country:')) return slotValue.slice(8);
+    if(slotValue.startsWith('group:')){
+      const key = slotValue.slice(6);
+      const sel = document.getElementById('compareSlot1');
+      const opt = sel.querySelector(`option[value="group:${key}"]`);
+      return opt ? opt.textContent : key;
+    }
+    return '';
+  }
+
+  function weightForRowCompare(r){
+    const rowVariant = normalizeBase(r.variant);
+    const exact = WEIGHTS[`${r.country}|${rowVariant}`];
+    if (isFinite(exact)) return exact;
+    const whole = WEIGHTS[`${r.country}|whole`];
+    if (isFinite(whole)) return whole;
+    return 1;
+  }
+
+  function compareCurve(slotValue, variantCanon, powertrain){
+    const countriesList = compareCountriesFor(slotValue);
+    if(!countriesList.length) return null;
+    const countrySet = new Set(countriesList);
+    const rows = PARAM_ROWS.filter(r => countrySet.has(r.country) && normalizeBase(r.variant) === variantCanon);
+    if(!rows.length) return null;
+    const xs = [], ys = [];
+    for (let year = 2015; year <= 2050; year += 0.05){
+      let ySum = 0, wSum = 0;
+      rows.forEach(r => {
+        const v1 = normNumber(r.v1), v2 = normNumber(r.v2), t0 = getT0Years(r);
+        const by = baselineYearOf(r);
+        if(!isFinite(v1)||!isFinite(v2)||!isFinite(t0)||!isFinite(by)) return;
+        const w = weightForRowCompare(r);
+        if(!isFinite(w)) return;
+        // CALENDAR-YEAR FIX (2026-06): feed the calendar year directly.
+      // bevShareIndex/iceShareIndex are calendar-space (z = x - t0; same as the
+      // world-map share formula and the inverse in inv_x_years). The old
+      // "year - by + 1" was an index-time conversion that, because production
+      // params.csv has no baseline_year (so by = normNumber(undefined) = 0),
+      // collapsed to year + 1 and evaluated the curve one year ahead — the
+      // plotted Builder/Fleet/Compare curve reached every share 1 year too
+      // early. See the inv_x_years comment for the R period_to_year() origin.
+      const x = year;
+        let yVal;
+        if(powertrain === 'BEV'){
+          yVal = bevShareIndex(x, v1, v2, t0);
+        } else if(powertrain === 'ICE'){
+          const iv1 = normNumber(r.ice_v1), iv2 = normNumber(r.ice_v2);
+          const it0 = getT0Years({ ...r, t0: r.ice_t0 });
+          if(!isFinite(iv1)||!isFinite(iv2)||!isFinite(it0)) return;
+          yVal = iceShareIndex(x, iv1, iv2, it0);
+        } else { // PHEV
+          const bev = bevShareIndex(x, v1, v2, t0);
+          const iv1 = normNumber(r.ice_v1), iv2 = normNumber(r.ice_v2);
+          const it0 = getT0Years({ ...r, t0: r.ice_t0 });
+          if(!isFinite(iv1)||!isFinite(iv2)||!isFinite(it0)) return;
+          const ice = iceShareIndex(x, iv1, iv2, it0);
+          yVal = Math.max(0, 1 - bev - ice);
+        }
+        if(isFinite(yVal)){ ySum += w * yVal; wSum += w; }
+      });
+      xs.push(year);
+      ys.push(wSum > 0 ? 100 * ySum / wSum : null);
+    }
+    return { xs, ys };
+  }
+
+  // ---- Observed data points for the Compare overlay ----
+  // The fitted curves are volume-weighted least-squares fits to per-period
+  // BEV/ICE/PHEV shares (R/fit.R). To stay consistent with that — and to fold
+  // the heterogeneous reporting frequencies (monthly / quarterly / yearly, all
+  // stored in data/<Country>[_<Variant>].csv) into one comparable series — we
+  // aggregate observations to ANNUAL, volume-weighted shares:
+  //     share(year) = Σ numerator(rows in year) / Σ TOTAL(rows in year)
+  // For an aggregate slot (EU, World, …) the sums run across every member
+  // country — the same "add the counts, then divide" a real region-wide
+  // statistic uses. Per-period monthly points would be too noisy to compare
+  // (and ill-defined to merge across countries with different cadences), and
+  // the annual volume-weighted share is exactly the centre of mass the fit
+  // tracks. Each file is fetched once and cached.
+  const COMPARE_OBS_CACHE = {};                       // filename -> Promise<row[]>
+  const COMPARE_VARIANT_FILE = { whole:'', hdv:'_HDV', vans:'_Vans' };
+
+  function fetchCompareObs(country, variantCanon){
+    const suffix = COMPARE_VARIANT_FILE[variantCanon] || '';
+    const file = `data/${country}${suffix}.csv`;
+    if(!COMPARE_OBS_CACHE[file]){
+      COMPARE_OBS_CACHE[file] = fetch(file, { cache:'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP '+r.status)))
+        .then(txt => parseCSV(txt))
+        .catch(() => []);                             // missing file → no points, curve still shows
+    }
+    return COMPARE_OBS_CACHE[file];
+  }
+
+  // Counts for the selected powertrain, mirroring R's 3-curve rollup
+  // (EREV folds into PHEV; ICE = everything that is neither BEV nor PHEV).
+  function compareObsCounts(row, powertrain){
+    const bev = normNumber(row.BEV)||0, phev = normNumber(row.PHEV)||0,
+          erev = normNumber(row.EREV)||0, total = normNumber(row.TOTAL)||0;
+    if(!(total > 0)) return null;
+    if(powertrain === 'BEV')  return { num: bev,         den: total };
+    if(powertrain === 'PHEV') return { num: phev + erev, den: total };
+    return { num: Math.max(0, total - bev - phev - erev), den: total }; // ICE
+  }
+
+  async function compareObsPoints(slotValue, variantCanon, powertrain){
+    const members = compareCountriesFor(slotValue);
+    if(!members.length) return null;
+    const perCountry = await Promise.all(members.map(c => fetchCompareObs(c, variantCanon)));
+    const byYear = new Map();                          // year -> {num, den}
+    perCountry.forEach(rows => rows.forEach(row => {
+      const yr = parseInt(String(row.period||'').slice(0,4), 10);
+      if(!isFinite(yr)) return;
+      const c = compareObsCounts(row, powertrain);
+      if(!c) return;
+      const acc = byYear.get(yr) || { num:0, den:0 };
+      acc.num += c.num; acc.den += c.den;
+      byYear.set(yr, acc);
+    }));
+    const xs = [], ys = [], labels = [];
+    [...byYear.keys()].sort((a,b)=>a-b).forEach(yr => {
+      const { num, den } = byYear.get(yr);
+      if(den > 0){ xs.push(yr + 0.5); ys.push(100 * num / den); labels.push(String(yr)); }  // mid-year x
+    });
+    return xs.length ? { xs, ys, labels } : null;
+  }
+
+  async function runCompare(){
+    const variant = document.getElementById('compareVariant').value || 'whole';
+    const powertrain = (document.querySelector('input[name="comparePowertrain"]:checked')||{}).value || 'BEV';
+    const slotValues = ['compareSlot1','compareSlot2','compareSlot3']
+      .map(id => document.getElementById(id).value)
+      .filter(Boolean);
+    if(slotValues.length < 1) return;
+    const traces = [];
+    slotValues.forEach((sv, i) => {
+      const curve = compareCurve(sv, variant, powertrain);
+      if(!curve) return;
+      traces.push({
+        x: curve.xs,
+        y: curve.ys,
+        mode: 'lines',
+        line: { width: 3, color: COMPARE_PALETTE[i % COMPARE_PALETTE.length] },
+        name: `${compareLabelFor(sv)} – ${powertrain}`,
+        legendgroup: 'slot' + i,
+        customdata: curve.xs.map(yearFracToLabel),
+        hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+      });
+    });
+    const layout = {
+      margin: { t: 20, r: 20, b: 40, l: 50 },
+      paper_bgcolor: '#0b0c10',
+      plot_bgcolor: '#0f1525',
+      font: { color: '#e9eef2' },
+      xaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.06)', zeroline: false, linecolor: 'rgba(255,255,255,0.12)' },
+      yaxis: { title: `${powertrain} share (%)`, range: [0,100], dtick: 10, showgrid: true, gridcolor: 'rgba(255,255,255,0.06)', linecolor: 'rgba(255,255,255,0.12)' },
+      legend: { orientation: 'h', font: { color: '#cfd8e8' } },
+      annotations: [{ x: 0.995, y: 0.02, xref:'paper', yref:'paper', xanchor:'right', yanchor:'bottom', text:'@LeRaffl', showarrow:false, font:{ size:11, color:'rgba(159,179,209,0.55)' } }]
+    };
+    Plotly.newPlot('comparePlot', traces, layout, { responsive: true });
+
+    // Overlay observed annual points per slot. Drawn after the curves so the
+    // lines appear instantly while the (cached) CSV fetches resolve. Markers
+    // share the slot's colour and legendgroup, so toggling the curve in the
+    // legend hides its points too. Aggregate slots (e.g. World) fetch every
+    // member file once — subsequent runs are served from COMPARE_OBS_CACHE.
+    const reqToken = (runCompare._token = (runCompare._token || 0) + 1);
+    const pointTraces = [];
+    await Promise.all(slotValues.map(async (sv, i) => {
+      const pts = await compareObsPoints(sv, variant, powertrain);
+      if(!pts) return;
+      pointTraces.push({
+        x: pts.xs, y: pts.ys,
+        mode: 'markers',
+        marker: { color: COMPARE_PALETTE[i % COMPARE_PALETTE.length], size: 6, opacity: 0.45 },
+        name: `${compareLabelFor(sv)} – observed`,
+        legendgroup: 'slot' + i,
+        showlegend: false,
+        customdata: pts.labels,
+        hovertemplate: '%{customdata}<br>%{y:.1f}% observed<extra></extra>'
+      });
+    }));
+    // Ignore if a newer run started while we were fetching.
+    const plot = document.getElementById('comparePlot');
+    if(reqToken === runCompare._token && pointTraces.length && plot && plot.data){
+      Plotly.addTraces('comparePlot', pointTraces);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('compareBuild');
+    if(!btn) return;
+    const trigger = () => ensurePlotly().then(() => {
+      if(!PARAM_ROWS || !PARAM_ROWS.length) return;
+      if(!document.getElementById('compareSlot1').options.length) initCompare();
+      runCompare();
+    });
+    btn.addEventListener('click', trigger);
+    // Initialise slot options once params are loaded.
+    const waitForRows = setInterval(() => {
+      if(PARAM_ROWS && PARAM_ROWS.length){
+        clearInterval(waitForRows);
+        initCompare();
+      }
+    }, 200);
   });
 })();
 
@@ -5239,7 +5596,11 @@ function modeledBevShareForYear(country, year){
 
   if(!isFinite(v1) || !isFinite(v2) || !isFinite(t0) || !isFinite(by)) return NaN;
 
-  const x = year - by + 1;
+  // CALENDAR-YEAR FIX (2026-06): feed the calendar year directly — see the
+  // identical note in the Builder loop and the inv_x_years comment. The old
+  // "year - by + 1" collapsed to year + 1 (by = 0, no baseline_year) and ran
+  // the Fleet projection's modeled share one year ahead.
+  const x = year;
   return clamp01(bevShareIndex(x, v1, v2, t0));
 }
 
@@ -5258,7 +5619,11 @@ function modeledIceShareForYear(country, year){
 
   if(!isFinite(t0) || !isFinite(by)) return NaN;
 
-  const x = year - by + 1;
+  // CALENDAR-YEAR FIX (2026-06): feed the calendar year directly — see the
+  // identical note in the Builder loop and the inv_x_years comment. The old
+  // "year - by + 1" collapsed to year + 1 (by = 0, no baseline_year) and ran
+  // the Fleet projection's modeled share one year ahead.
+  const x = year;
   return clamp01(iceShareIndex(x, v1, v2, t0));
 }
 
@@ -7864,6 +8229,11 @@ document.addEventListener('click', (e) => {
       const rows = parseCSV(await r.text());
 
       // Phase 1 — enrich every row with t80, t10, speed.
+      // inv_x_years now returns the calendar year of the crossing directly
+      // (see its CALENDAR-YEAR FIX comment), so t80/t10 can be compared to
+      // "today" without any further offset — this is what makes the gallery
+      // status pills (Past 80% / On track / Late) line up with the plotted
+      // crossing year instead of firing one year early.
       const enriched = rows.map(row => {
         const variant = String(row.variant || '').trim();
         const key = (!variant || variant.toLowerCase() === 'whole')
@@ -7873,24 +8243,35 @@ document.addEventListener('click', (e) => {
         const t10res = inv_x_years(0.10,           row.v1, row.v2, row.t0);
         return {
           key,
-          t80:   t80res && isFinite(t80res.x) ? t80res.x : NaN,
-          t10:   t10res && isFinite(t10res.x) ? t10res.x : NaN,
+          noTrans: curveHasNoTransition(row.v1, row.v2),
+          t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
+          t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
           speed: slopeAtInflection(row.v1, row.v2),
         };
       });
 
-      // Phase 2 — speed quartiles across all rows with a finite speed.
-      const speeds = enriched.map(e => e.speed).filter(isFinite).sort((a, b) => a - b);
+      // Phase 2 — speed quartiles across rows that actually transition.
+      const speeds = enriched
+        .filter(e => !e.noTrans)
+        .map(e => e.speed)
+        .filter(isFinite)
+        .sort((a, b) => a - b);
       const p25 = quantile(speeds, 0.25);
       const p75 = quantile(speeds, 0.75);
 
       // Phase 3 — assemble the tag set per row.
+      // No-transition rows get a single dedicated pill; status/speed/timing
+      // are meaningless on a curve that never takes off, so we drop them.
       const acc = {};
       for (const e of enriched){
         const tags = {};
-        const s = statusTag(e.t80);   if (s) tags.status = s;
-        const sp = speedTag(e.speed, p25, p75); if (sp) tags.speed = sp;
-        const tm = timingTag(e.t10);  if (tm) tags.timing = tm;
+        if (e.noTrans) {
+          tags.notrans = { v: 'notrans', label: 'No transition' };
+        } else {
+          const s = statusTag(e.t80);   if (s) tags.status = s;
+          const sp = speedTag(e.speed, p25, p75); if (sp) tags.speed = sp;
+          const tm = timingTag(e.t10);  if (tm) tags.timing = tm;
+        }
         if (Object.keys(tags).length) acc[e.key] = tags;
       }
       byCountry = acc;
@@ -7901,7 +8282,7 @@ document.addEventListener('click', (e) => {
 
   function paint(){
     if (!byCountry) return;
-    const order = ['status', 'speed', 'timing'];
+    const order = ['notrans', 'status', 'speed', 'timing'];
     document.querySelectorAll('.tag-stack[data-tag-country]').forEach(el => {
       const c = el.dataset.tagCountry;
       const tags = byCountry[c];

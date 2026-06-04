@@ -38,10 +38,20 @@ Faithfulness to the in-page Builder
 -----------------------------------
 The in-page Builder relies on a JavaScript quirk: `Number('') === 0`, so when
 the CSV has no `baseline_year` column at all (which is the case in the live
-`params.csv`), `baselineYearOf()` silently returns 0, `getT0Years()` returns
-`t0_raw + 1`, and the loop iterates `x = year + 1`. The math collapses to
-`share(year) = 1 - exp(v1 * (year - t0_raw)^v2)`. We mirror this by making
-`norm_number('') -> 0.0` instead of the more idiomatic NaN.
+`params.csv`), `baseline_year_of()` returns 0.0 (mirror of JS `Number('') === 0`).
+
+CALENDAR-YEAR FIX (2026-06): The curve is evaluated at the calendar year
+directly (`x = year`). The canonical share formula is
+`S(C) = 1 - exp(v1 * (C - t0)^v2)` where C is the calendar year and t0 is
+a calendar-year integer (R's `verschiebung` = `floor(min(data$year_calendar))`
+= first calendar year of data). `bev_share_index(x, v1, v2, t0)` computes
+`1 - exp(v1 * (x - t0)^v2)`, so feeding `x = year` (calendar year) is correct.
+
+Before the 2026-06 fix, index.html's Builder used `x = year - by + 1` where
+`by = baseline_year_of(r) = 0` (absent column), so `x = year + 1`, which
+evaluated the curve one calendar year ahead of where it should be. This script
+previously mirrored that bug intentionally. After the fix both index.html and
+this script feed the calendar year directly.
 """
 
 from __future__ import annotations
@@ -461,7 +471,9 @@ def compute_group_curve(countries: list[str],
             if not math.isfinite(w):
                 continue
 
-            x = year - by + 1
+            # CALENDAR-YEAR FIX (2026-06): feed the calendar year directly.
+            # See the module docstring and the inv_x_years comment in index.html.
+            x = year
             y_bev = bev_share_index(x, v1, v2, t0)
 
             if math.isfinite(y_bev):
