@@ -1,0 +1,12 @@
+🇬🇧 UK - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++3.1pp  BEV   (21.6% → 24.7%)
++2.9pp  PHEV  (9.5% → 12.5%)
++1.3pp  HEV   (14.1% → 15.4%)
+−7.3pp  ICE   (54.8% → 47.5%)
+
+HEV peaked at 15.5% in 2025-11 (declining for 6 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-10.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
