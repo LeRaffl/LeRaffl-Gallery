@@ -1,0 +1,9 @@
+🇫🇮 Finland (Vans) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++1.3pp  BEV   (15.7% → 17.0%)
++3.0pp  PHEV  (1.8% → 4.9%)
++0.0pp  HEV   (0.0% → 0.0%)
+−4.3pp  ICE   (82.5% → 78.2%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
