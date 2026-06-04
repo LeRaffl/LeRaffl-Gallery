@@ -3549,19 +3549,37 @@ function inv_x_years(y,v1,v2,t0){
 function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(r.baseline_year), t0raw=(r.t0||'').trim(); let t0n=normNumber(t0raw); if(isFinite(t0n)&&t0n>=1800&&(isFinite(baseYear)||/^\d{4}-\d{2}-\d{2}$/.test(baseDate))){ const by=isFinite(baseYear)?Math.round(baseYear):(new Date(baseDate+'T00:00:00Z')).getUTCFullYear(); return (t0n-by)+1; } if(/^\d{4}-\d{2}-\d{2}$/.test(t0raw)){ const t0yf=isoDateToYearFrac(t0raw); const by=isFinite(baseYear)?baseYear:isoDateToYearFrac(baseDate); if(isFinite(by)&&isFinite(t0yf)) return (t0yf-by)+1; } return t0n; }
 
 // "No transition" = curve never enters a meaningful adoption regime.
-//   • v2 ≤ 1   → no inflection point, not an S-curve structurally.
-//   • slope at inflection < 1 %-point/yr → take-off too flat to matter
-//     (at this rate, 25→75% alone takes >50 years).
-// MIN_TRANSITION_SLOPE is the single tunable. Bumping it makes more
-// rows fall into "No transition"; lowering it admits slower curves.
+//   • v2 > 1  → S-curve: use slope at the inflection point.
+//   • v2 ≤ 1  → concave curve (no inflection): slope is infinite at t0 and
+//               decelerates immediately. Use the slope at data_per instead,
+//               which reflects how fast the curve is actually moving at the
+//               most recent observation. Malta (v2=0.886, ~5pp/yr at data_per)
+//               is correctly flagged as a real transition; Croatia/Italy
+//               (~0.1pp/yr) are correctly flagged as no-transition.
+// In both cases the threshold is MIN_TRANSITION_SLOPE (1pp/yr).
 const MIN_TRANSITION_SLOPE = 0.01;
-function curveHasNoTransition(v1, v2){
-  const v1n = normNumber(v1), v2n = normNumber(v2);
+// Full row-level check — use this everywhere a params row is available.
+function rowHasNoTransition(r){
+  const v1n = normNumber(r.v1), v2n = normNumber(r.v2);
   if(!isFinite(v1n) || !isFinite(v2n)) return true;
-  if(v1n >= 0 || v2n <= 1) return true;
-  const invLambda = Math.pow(-v1n, 1/v2n);
-  const u = Math.pow((v2n - 1)/v2n, 1/v2n);
-  const slope = v2n * invLambda * Math.pow(u, v2n - 1) * Math.exp(-Math.pow(u, v2n));
+  if(v1n >= 0) return true;
+  if(v2n > 1){
+    const invLambda = Math.pow(-v1n, 1/v2n);
+    const u = Math.pow((v2n - 1)/v2n, 1/v2n);
+    const slope = v2n * invLambda * Math.pow(u, v2n - 1) * Math.exp(-Math.pow(u, v2n));
+    if(!isFinite(slope)) return true;
+    return slope < MIN_TRANSITION_SLOPE;
+  }
+  // v2 ≤ 1: use slope at data_per (calendar year)
+  const dp = getDataPer(r);
+  const dpMatch = dp.match(/^(\d{4})-(\d{2})$/);
+  if(!dpMatch) return true;
+  const calYear = Number(dpMatch[1]) + (Number(dpMatch[2]) - 1) / 12;
+  const t0n = normNumber(r.t0);
+  if(!isFinite(t0n)) return true;
+  const z = calYear - t0n;
+  if(z <= 0) return true;
+  const slope = Math.abs(v1n) * v2n * Math.pow(z, v2n - 1) * Math.exp(v1n * Math.pow(z, v2n));
   if(!isFinite(slope)) return true;
   return slope < MIN_TRANSITION_SLOPE;
 }
@@ -3648,7 +3666,7 @@ function renderThresholds(csvText){
         const t0 = getT0Years(r);
         const baseDate = r.baseline_date || '';
         const baseYear = normNumber(r.baseline_year);
-        const noTransition = curveHasNoTransition(r.v1, r.v2);
+        const noTransition = rowHasNoTransition(r);
 
         const r20 = inv_x_years(0.2, v1, v2, t0);
         const r50 = inv_x_years(0.5, v1, v2, t0);
@@ -3889,7 +3907,7 @@ renderTable();
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); }
-  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.map(r=>{ const noTransition = curveHasNoTransition(r.v1, r.v2); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
+  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
     let data=computeDurations(rows); let sortKey='_d2080', sortAsc=true;
@@ -4038,7 +4056,7 @@ renderTable();
       const yMid  =yx(r, midPct/100);
       const yEnd  =yx(r, toPct/100);
       if(!isFinite(yStart) || !isFinite(yEnd)) return;
-      if(curveHasNoTransition(r.v1, r.v2)) return; // unified no-transition criterion
+      if(rowHasNoTransition(r)) return; // unified no-transition criterion
       out.push({
         country: r.country||'',
         variant: r.variant||'',
@@ -8243,7 +8261,7 @@ document.addEventListener('click', (e) => {
         const t10res = inv_x_years(0.10,           row.v1, row.v2, row.t0);
         return {
           key,
-          noTrans: curveHasNoTransition(row.v1, row.v2),
+          noTrans: rowHasNoTransition(row),
           t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
           t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
           speed: slopeAtInflection(row.v1, row.v2),
