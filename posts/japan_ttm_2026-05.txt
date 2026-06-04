@@ -1,0 +1,13 @@
+🇯🇵 Japan - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++1.3pp  BEV   (1.3% → 2.6%)
+−0.0pp  PHEV  (1.6% → 1.6%)
+−0.1pp  HEV   (60.4% → 60.4%)
+−1.2pp  ICE   (36.6% → 35.4%)
+
+PHEV peaked at 1.9% in 2024-06 (declining for 23 months).
+HEV peaked at 61.1% in 2024-12 (declining for 17 months).
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2032-07.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
