@@ -208,7 +208,7 @@ Germany,Whole,-1.050261627753e-4,2.898020288277,2011,2026-04,2026-05-08,KBA,,-3.
 | Column | Meaning |
 |---|---|
 | `country, variant` | Composite key |
-| `v1, v2, t0` | BEV-curve regression parameters: `share(t) = 1 - exp(v1 * (t - (t0-1))^v2)` |
+| `v1, v2, t0` | BEV-curve regression parameters. Calendar-year form: `S(C) = 1 − exp(v1 × (C − t0)^v2)` where `C` is the fractional calendar year and `t0` is the first calendar year of data. Crossing year: `C = t0 + (ln(1−y)/v1)^(1/v2)`. See the `verschiebung` / `period_to_year` note in the glossary for the R-internal −1 offset. |
 | `ice_v1, ice_v2, ice_t0` | ICE-curve regression parameters (analogous form) |
 | `data_per` | Latest data period this fit was based on (`YYYY-MM`) |
 | `model_date` | When the fit was last run (`YYYY-MM-DD`) |
