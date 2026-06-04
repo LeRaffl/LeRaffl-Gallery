@@ -167,3 +167,206 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   parts <- c(parts, "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
   paste(parts, collapse = "\n")
 }
+
+# Companion post for the TTM market-split chart. Different shape from the
+# main BEV-trajectory post:
+#   <flag> <Country> - TTM Market Split
+#                                                # blank line
+#   <prior 12m window>  vs  <current 12m window>
+#   <±X.Xpp>  <BAND>  (<prior%> → <current%>)    # one per band, padded
+#   ...
+#                                                # blank line (only if extras)
+#   <PHEV/HEV peaked at X% in YYYY-MM (declining for N months).>
+#   <If the changes from the last 6 months continued linearly, BEV would overtake X in YYYY-MM.>
+#   <If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in YYYY-MM.>
+#                                                # blank line
+#   Graphs are available in the Gallery: ...
+#
+# Bands sum to 100%: BEV + PHEV + HEV + ICE (pure ICE, i.e. ICE minus HEV).
+# Hybrid-only countries (no PHEV/HEV split) collapse to BEV / Hybrid / ICE.
+
+.pt_short_month <- function(period) {
+  if (is.null(period) || !is.character(period) || !nzchar(period) ||
+      !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
+  d <- as.Date(paste0(period, "-01"))
+  if (is.na(d)) return(period)
+  old <- Sys.getlocale("LC_TIME")
+  on.exit(Sys.setlocale("LC_TIME", old), add = TRUE)
+  Sys.setlocale("LC_TIME", "C")
+  paste0(format(d, "%b"), format(d, "%y"))
+}
+
+.pt_add_months <- function(period, n) {
+  d <- as.Date(paste0(period, "-01"))
+  y <- as.integer(format(d, "%Y"))
+  m <- as.integer(format(d, "%m"))
+  total <- (y * 12L) + (m - 1L) + as.integer(n)
+  ny <- total %/% 12L
+  nm <- (total %% 12L) + 1L
+  sprintf("%04d-%02d", ny, nm)
+}
+
+build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
+  monthly <- df[df$time_interval == "monthly", , drop = FALSE]
+  if (nrow(monthly) < 24) return("")
+  monthly <- monthly[order(monthly$year), , drop = FALSE]
+
+  num <- function(name) {
+    if (!(name %in% names(monthly))) return(rep(0, nrow(monthly)))
+    v <- suppressWarnings(as.numeric(monthly[[name]]))
+    v[is.na(v)] <- 0
+    v
+  }
+  bev_m  <- num("BEV"); phev_m <- num("PHEV"); hev_m <- num("HEV"); tot_m <- num("TOTAL")
+  periods <- monthly$period
+  N <- nrow(monthly)
+
+  # Rolling 12-month sums, indexed by the LAST month included. Defined for i>=12.
+  roll <- function(v) {
+    out <- rep(NA_real_, N)
+    cs <- cumsum(v)
+    for (i in 12:N) out[i] <- cs[i] - (if (i == 12) 0 else cs[i - 12])
+    out
+  }
+  bev_r <- roll(bev_m); phev_r <- roll(phev_m); hev_r <- roll(hev_m); tot_r <- roll(tot_m)
+  safe_div <- function(a, b) ifelse(is.finite(b) & b > 0, a / b, NA_real_)
+  bev_s  <- safe_div(bev_r,  tot_r)
+  phev_s <- safe_div(phev_r, tot_r)
+  hev_s  <- safe_div(hev_r,  tot_r)
+  ice_s  <- pmax(0, 1 - bev_s - phev_s - hev_s)
+
+  cur <- N; pri <- N - 12L
+  if (!isTRUE(is.finite(bev_s[cur])) || !isTRUE(is.finite(bev_s[pri]))) return("")
+
+  use_phev <- any(phev_m > 0)
+
+  fmt_pct <- function(s) sprintf("%.1f%%", s * 100)
+  fmt_pp  <- function(d) {
+    s <- if (is.na(d) || d >= 0) "+" else "−"  # Unicode minus
+    sprintf("%s%.1fpp", s, abs(d * 100))
+  }
+
+  # --- Bands ---
+  if (use_phev) {
+    bands <- list(
+      list(label = "BEV",  cur = bev_s[cur],  pri = bev_s[pri]),
+      list(label = "PHEV", cur = phev_s[cur], pri = phev_s[pri]),
+      list(label = "HEV",  cur = hev_s[cur],  pri = hev_s[pri]),
+      list(label = "ICE",  cur = ice_s[cur],  pri = ice_s[pri])
+    )
+  } else {
+    # Hybrid-only: redefine ICE = 1 - BEV - HEV (no PHEV band).
+    hyb_cur_ice <- pmax(0, 1 - bev_s - hev_s)
+    bands <- list(
+      list(label = "BEV",    cur = bev_s[cur],     pri = bev_s[pri]),
+      list(label = "Hybrid", cur = hev_s[cur],     pri = hev_s[pri]),
+      list(label = "ICE",    cur = hyb_cur_ice[cur], pri = hyb_cur_ice[pri])
+    )
+  }
+
+  label_w <- max(nchar(vapply(bands, function(b) b$label, character(1))))
+  delta_lines <- vapply(bands, function(b) {
+    padded <- sprintf(paste0("%-", label_w + 1L, "s"), b$label)
+    sprintf("%s  %s (%s → %s)", fmt_pp(b$cur - b$pri), padded,
+            fmt_pct(b$pri), fmt_pct(b$cur))
+  }, character(1))
+
+  # --- Peak detection (PHEV/HEV only; ≥6 months since peak, peak within 24M) ---
+  peak_lines <- character(0)
+  peak_for <- function(series, label) {
+    win_start <- max(13L, cur - 23L)
+    idx <- win_start:cur
+    vals <- series[idx]
+    if (!any(is.finite(vals))) return(NULL)
+    pk_local <- which.max(vals)
+    pk_i <- idx[pk_local]
+    months_since <- cur - pk_i
+    if (months_since < 6L) return(NULL)
+    if (!isTRUE(series[cur] < series[pk_i])) return(NULL)
+    sprintf("%s peaked at %s in %s (declining for %d months).",
+            label, fmt_pct(series[pk_i]), periods[pk_i], months_since)
+  }
+  peak_targets <- if (use_phev) {
+    list(list(s = phev_s, l = "PHEV"), list(s = hev_s, l = "HEV"))
+  } else {
+    list(list(s = hev_s, l = "Hybrid"))
+  }
+  for (p in peak_targets) {
+    line <- peak_for(p$s, p$l)
+    if (!is.null(line)) peak_lines <- c(peak_lines, line)
+  }
+
+  # --- Crossover predictions (6-month linear TTM trend) ---
+  cross_lines <- character(0)
+  trend <- function(series) {
+    if (cur < 6L) return(NULL)
+    idx <- (cur - 5L):cur
+    x <- 0:5
+    y <- series[idx]
+    if (any(!is.finite(y))) return(NULL)
+    m <- sum((x - mean(x)) * (y - mean(y))) / sum((x - mean(x))^2)
+    list(slope = m, level = y[length(y)])
+  }
+  bev_t <- trend(bev_s)
+  if (!is.null(bev_t) && isTRUE(bev_t$slope > 0)) {
+    if (use_phev) {
+      others <- list(list(l = "PHEV", s = phev_s), list(l = "HEV", s = hev_s),
+                     list(l = "ICE",  s = ice_s))
+    } else {
+      hyb_ice <- pmax(0, 1 - bev_s - hev_s)
+      others <- list(list(l = "Hybrid", s = hev_s), list(l = "ICE", s = hyb_ice))
+    }
+    crossings <- list()
+    unreachable <- FALSE  # any band BEV won't catch within 120 months
+    for (o in others) {
+      ot <- trend(o$s)
+      if (is.null(ot)) { unreachable <- TRUE; next }
+      if (bev_t$level >= ot$level) next  # already at/above this band
+      ds <- bev_t$slope - ot$slope
+      if (!isTRUE(ds > 0)) { unreachable <- TRUE; next }
+      m_ahead <- ceiling((ot$level - bev_t$level) / ds)
+      if (m_ahead > 120L) { unreachable <- TRUE; next }
+      crossings[[length(crossings) + 1L]] <- list(label = o$l, months = max(1L, m_ahead))
+    }
+    if (length(crossings) > 0L) {
+      crossings <- crossings[order(vapply(crossings, function(x) x$months, numeric(1)))]
+      if (!unreachable) {
+        # BEV catches every band → label the last crossover as "becomes largest"
+        # and skip near-tie overtakes (same event, different framing).
+        n_cross <- length(crossings)
+        largest_m <- crossings[[n_cross]]$months
+        for (j in seq_along(crossings)) {
+          c1 <- crossings[[j]]
+          ymd <- .pt_add_months(periods[cur], c1$months)
+          if (j == n_cross) {
+            cross_lines <- c(cross_lines,
+                             sprintf("If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in %s.", ymd))
+          } else if (largest_m - c1$months > 2L) {
+            cross_lines <- c(cross_lines,
+                             sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
+          }
+        }
+      } else {
+        # Some band will outpace BEV → no "becomes largest", only individual overtakes.
+        for (c1 in crossings) {
+          ymd <- .pt_add_months(periods[cur], c1$months)
+          cross_lines <- c(cross_lines,
+                           sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
+        }
+      }
+    }
+  }
+
+  # --- Compose ---
+  flag <- .pt_flag(country_label)
+  header <- sprintf("%s %s - TTM Market Split", flag, country_label)
+  window_line <- sprintf("%s–%s  vs  %s–%s",
+                         .pt_short_month(periods[pri - 11L]), .pt_short_month(periods[pri]),
+                         .pt_short_month(periods[cur - 11L]), .pt_short_month(periods[cur]))
+
+  parts <- c(header, "", window_line, delta_lines)
+  extras <- c(peak_lines, cross_lines)
+  if (length(extras) > 0L) parts <- c(parts, "", extras)
+  parts <- c(parts, "", "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
+  paste(parts, collapse = "\n")
+}

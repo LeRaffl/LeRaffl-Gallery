@@ -1,0 +1,12 @@
+🇫🇮 Finland (Private) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++9.8pp  BEV   (29.9% → 39.8%)
+−2.5pp  PHEV  (17.5% → 15.0%)
++0.0pp  HEV   (0.0% → 0.0%)
+−7.4pp  ICE   (52.6% → 45.2%)
+
+PHEV peaked at 19.0% in 2025-08 (declining for 9 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -4,14 +4,17 @@ Fetch Italy new registration data from UNRAE and upsert CSV files.
 
 Variants
 --------
-  Whole   data/Italy.csv        — PKW whole market (inkl. Noleggio)
-  Rental  data/Italy_Rental.csv — PKW rental fleet = Whole − (al netto del noleggio)
-  Vans    data/Italy_Vans.csv   — LCV (veicoli commerciali leggeri)
+  Whole      data/Italy.csv           — PKW whole market (inkl. Noleggio)
+  Rental     data/Italy_Rental.csv    — PKW rental fleet = Whole − (al netto del noleggio)
+  NonRental  data/Italy_NonRental.csv — PKW al netto del noleggio (Privati + Soc. + Autoimm.)
+  Vans       data/Italy_Vans.csv      — LCV (veicoli commerciali leggeri)
 
-Whole + Rental come from the same PKW "Struttura del mercato" PDF, published on
-unrae.it/dati-statistici/immatricolazioni around the 1st of each month.
-The PDF contains two 'Per alimentazione' tables: the first (whole market) and the
-second (al netto del noleggio = fleet excluded). Rental = Whole − second block.
+Whole + Rental + NonRental all come from the same PKW "Struttura del mercato" PDF,
+published on unrae.it/dati-statistici/immatricolazioni around the 1st of each
+month. The PDF contains two 'Per alimentazione' tables: the first (whole market)
+and the second (al netto del noleggio = fleet excluded).
+  NonRental = second block (read directly).
+  Rental    = Whole − NonRental (exact).
 
 NOTE on Private/Industry: Italy's PDF does NOT expose a Private/Industry split
 comparable to Denmark/Finland.  The only available sub-market split is
@@ -82,9 +85,10 @@ SOURCE          = "unrae.it"
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
 
 VARIANT_CONFIG: dict[str, dict] = {
-    "Whole":  {"csv": "data/Italy.csv",        "pkw": True},
-    "Rental": {"csv": "data/Italy_Rental.csv", "pkw": True},
-    "Vans":   {"csv": "data/Italy_Vans.csv",   "pkw": False},
+    "Whole":     {"csv": "data/Italy.csv",           "pkw": True},
+    "Rental":    {"csv": "data/Italy_Rental.csv",    "pkw": True},
+    "NonRental": {"csv": "data/Italy_NonRental.csv", "pkw": True},
+    "Vans":      {"csv": "data/Italy_Vans.csv",      "pkw": False},
 }
 
 IT_MONTHS = {
@@ -219,12 +223,14 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
     }
 
 
-def parse_pkw(text: str) -> tuple[dict, dict]:
-    """Parse the PKW Struttura del mercato PDF and return (whole_cols, rental_cols).
+def parse_pkw(text: str) -> tuple[dict, dict, dict]:
+    """Parse the PKW Struttura del mercato PDF and return (whole, rental, nonrental).
 
-      whole_cols  = first 'Per alimentazione' block (whole market, inkl. Noleggio)
-      rental_cols = Whole − (al netto del noleggio) = rental fleet only
-                    (noleggio a lungo termine + noleggio a breve + autoimm. uso noleggio)
+      whole     = first 'Per alimentazione' block (whole market, inkl. Noleggio)
+      nonrental = second block = "al netto del noleggio" (Privati + Società + Autoimm.,
+                  read directly from the PDF)
+      rental    = Whole − NonRental = rental fleet only
+                  (noleggio a lungo termine + noleggio a breve + autoimm. uso noleggio)
 
     Rental is exact — zero rounding error — because both source blocks come from
     the same table.
@@ -246,10 +252,10 @@ def parse_pkw(text: str) -> tuple[dict, dict]:
                 return j
         return len(lines)
 
-    whole_cols       = _parse_alimentazione_block(lines, alim_starts[0], block_end(alim_starts[0]))
-    netto_nol_cols   = _parse_alimentazione_block(lines, alim_starts[1], block_end(alim_starts[1]))
-    rental_cols      = {k: whole_cols[k] - netto_nol_cols[k] for k in whole_cols}
-    return whole_cols, rental_cols
+    whole_cols     = _parse_alimentazione_block(lines, alim_starts[0], block_end(alim_starts[0]))
+    nonrental_cols = _parse_alimentazione_block(lines, alim_starts[1], block_end(alim_starts[1]))
+    rental_cols    = {k: whole_cols[k] - nonrental_cols[k] for k in whole_cols}
+    return whole_cols, rental_cols, nonrental_cols
 
 
 # ── LCV discovery ─────────────────────────────────────────────────────────
@@ -463,8 +469,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
         "--variant", default="all",
-        help="Variants to fetch: all | pkw | Whole | Private | Vans  (default: all). "
-             "'pkw' is an alias for Whole+Private.",
+        help="Variants to fetch: all | pkw | Whole | Rental | NonRental | Vans  (default: all). "
+             "'pkw' is an alias for Whole+Rental+NonRental.",
     )
     ap.add_argument("--force", action="store_true",
                     help="Re-process even if the target period already exists.")
@@ -476,7 +482,10 @@ def main() -> None:
     ap.add_argument("--month", type=int, help="Target month (required with --pdf-url / --vans-pdf-url).")
     args = ap.parse_args()
 
-    alias_map = {"all": ["Whole", "Rental", "Vans"], "pkw": ["Whole", "Rental"]}
+    alias_map = {
+        "all": ["Whole", "Rental", "NonRental", "Vans"],
+        "pkw": ["Whole", "Rental", "NonRental"],
+    }
     variants  = alias_map.get(args.variant, [args.variant])
     for v in variants:
         if v not in VARIANT_CONFIG:
@@ -521,9 +530,13 @@ def main() -> None:
                     download_pdf(pkw_pdf_url, pdf_path)
                     text = pdf_to_text(pdf_path)
 
-                whole_cols, rental_cols = parse_pkw(text)
+                whole_cols, rental_cols, nonrental_cols = parse_pkw(text)
 
-                for v, cols in [("Whole", whole_cols), ("Rental", rental_cols)]:
+                for v, cols in [
+                    ("Whole",     whole_cols),
+                    ("Rental",    rental_cols),
+                    ("NonRental", nonrental_cols),
+                ]:
                     if v not in pkw_variants:
                         continue
                     if not args.force and csv_has_period(VARIANT_CONFIG[v]["csv"], period, v):

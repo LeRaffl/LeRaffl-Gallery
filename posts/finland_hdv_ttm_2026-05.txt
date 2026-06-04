@@ -1,0 +1,11 @@
+🇫🇮 Finland (HDV) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++0.6pp  BEV   (2.5% → 3.0%)
++0.0pp  PHEV  (0.0% → 0.0%)
++0.0pp  HEV   (0.0% → 0.0%)
+−0.6pp  ICE   (97.5% → 97.0%)
+
+PHEV peaked at 0.1% in 2024-10 (declining for 19 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
