@@ -5,6 +5,8 @@ on:
     paths:
       - 'images/**'                 # triggert bei neuen/gelöschten/verschobenen Dateien in images/
       - 'build_manifest.R'          # falls du den Builder änderst
+      - 'R/render_schedule.R'       # falls der Schedule-Renderer geändert wird
+      - '.github/workflows/fetch-*.yml'  # cron-Änderungen → Kalender neu bauen
   workflow_dispatch: {}             # optional: manuell auslösbar
   schedule:
     - cron: '17 3 * * *'            # optional: einmal täglich als Fallback (03:17 UTC)
@@ -26,14 +28,22 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          packages: jsonlite, stringr, dplyr, lubridate, purrr, fs, tibble
+          packages: jsonlite, stringr, dplyr, lubridate, purrr, fs, tibble, yaml
 
       - name: Build manifest
         run: |
           Rscript -e "source('build_manifest.R'); build_manifest(root='images', base_url='images/')"
 
-      - name: Commit manifest.json
+      - name: Render schedule
+        run: |
+          Rscript -e "source('R/render_schedule.R'); build_schedule()"
+
+      - name: Commit manifest + schedule
         uses: EndBug/add-and-commit@v9
         with:
-          add: "manifest.json"
-          message: "chore: update manifest.json (CI)"
+          add: |
+            manifest.json
+            schedule.html
+            schedule-*.html
+            schedule.ics
+          message: "chore: update manifest + schedule (CI)"
