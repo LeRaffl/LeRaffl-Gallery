@@ -1668,6 +1668,7 @@ a:focus-visible{
     <span class="tab-group">
       <span class="tab-group-label">DIY Curves</span>
       <a href="#builder" class="tablink">Builder</a>
+      <a href="#compare" class="tablink">Compare</a>
       <a href="#fleet" class="tablink">Fleet</a>
     </span>
     <span class="tab-group">
@@ -2222,6 +2223,58 @@ a:focus-visible{
     <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
   </div>
   </section>
+
+  <!-- Compare TAB -->
+<section id="tab-compare" class="tab">
+  <div class="container">
+    <h2>Compare Curves</h2>
+    <div class="toolbar settings-strip">
+      <div class="field settings-block is-compact">
+        <label>Powertrain</label>
+        <div class="settings-actions">
+          <label class="chip"><input type="radio" name="comparePowertrain" value="BEV" checked> BEV</label>
+          <label class="chip"><input type="radio" name="comparePowertrain" value="ICE"> ICE</label>
+          <label class="chip"><input type="radio" name="comparePowertrain" value="PHEV"> PHEV</label>
+        </div>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Variant</label>
+        <select id="compareVariant">
+          <option value="whole" selected>New Cars</option>
+          <option value="hdv">HDV</option>
+          <option value="vans">Vans</option>
+        </select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 1 (required)</label>
+        <select id="compareSlot1" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 2</label>
+        <select id="compareSlot2" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label>Slot 3 (optional)</label>
+        <select id="compareSlot3" class="compare-slot"></select>
+      </div>
+      <div class="field settings-block is-compact">
+        <div class="settings-actions">
+          <button id="compareBuild" class="btn primary">Compare</button>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <p class="small">
+        Side-by-side comparison of 2–3 curves. Each slot can be an individual country or an aggregated region
+        (e.g. EU, World), weighted by <code>weights.csv</code> like in Builder. The powertrain selector switches
+        all slots together — you can only compare BEV vs. BEV, ICE vs. ICE, or PHEV vs. PHEV (no mixing).
+      </p>
+    </div>
+    <div class="card builder-card">
+      <div id="comparePlot"></div>
+      <button class="btn chart-dl" onclick="downloadPlotlyChart('comparePlot','compare_chart.png')">↓ Download PNG</button>
+    </div>
+  </div>
+</section>
 
   <!-- Fleet TAB -->
 <section id="tab-fleet" class="tab">
@@ -4837,6 +4890,276 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
 
     document.getElementById('buildCurve')
       .addEventListener('click', ()=>ensurePlotly().then(build));
+  });
+
+  // -------- Compare tab --------
+  // Reuses PARAM_ROWS / WEIGHTS / BUILDER_GROUPS from the Builder closure.
+  const COMPARE_PALETTE = ['#00ff15', '#1fa6d0', '#ffb44a'];
+
+  function initCompare(){
+    const slots = ['compareSlot1','compareSlot2','compareSlot3'].map(id => document.getElementById(id));
+    if(!slots[0]) return;
+    const countries = [...new Set(PARAM_ROWS.map(r=>r.country).filter(Boolean))].sort();
+    const groupLabels = {
+      world:'World', eu:'EU', g7:'G7',
+      western_europe:'Western Europe', northern_europe:'Northern Europe',
+      southern_europe:'Southern Europe', eastern_europe:'Eastern Europe',
+      north_america:'North America', south_america:'South America', americas:'Americas (all)',
+      asia:'Asia',
+      small_markets:'Small Markets (<50k/yr)', medium_markets:'Medium Markets (50k–1M/yr)', big_markets:'Big Markets (>1M/yr)'
+    };
+    slots.forEach((sel, i) => {
+      sel.innerHTML = '';
+      const noneOpt = document.createElement('option');
+      noneOpt.value = '';
+      noneOpt.textContent = i === 0 ? '— Choose region —' : '— None —';
+      sel.appendChild(noneOpt);
+
+      const grpAgg = document.createElement('optgroup');
+      grpAgg.label = 'Aggregates';
+      Object.keys(groupLabels).forEach(key => {
+        const o = document.createElement('option');
+        o.value = 'group:' + key;
+        o.textContent = groupLabels[key];
+        grpAgg.appendChild(o);
+      });
+      sel.appendChild(grpAgg);
+
+      const grpC = document.createElement('optgroup');
+      grpC.label = 'Countries';
+      countries.forEach(c => {
+        const o = document.createElement('option');
+        o.value = 'country:' + c;
+        o.textContent = c;
+        grpC.appendChild(o);
+      });
+      sel.appendChild(grpC);
+    });
+    // Sensible defaults so the first paint shows something.
+    slots[0].value = 'group:eu';
+    slots[1].value = 'group:asia';
+    slots[2].value = 'country:Norway';
+  }
+
+  function compareCountriesFor(slotValue){
+    if(!slotValue) return [];
+    if(slotValue.startsWith('country:')) return [slotValue.slice(8)];
+    if(slotValue.startsWith('group:')){
+      const key = slotValue.slice(6);
+      const fn = BUILDER_GROUPS[key];
+      return fn ? fn(PARAM_ROWS) : [];
+    }
+    return [];
+  }
+
+  function compareLabelFor(slotValue){
+    if(!slotValue) return '';
+    if(slotValue.startsWith('country:')) return slotValue.slice(8);
+    if(slotValue.startsWith('group:')){
+      const key = slotValue.slice(6);
+      const sel = document.getElementById('compareSlot1');
+      const opt = sel.querySelector(`option[value="group:${key}"]`);
+      return opt ? opt.textContent : key;
+    }
+    return '';
+  }
+
+  function weightForRowCompare(r){
+    const rowVariant = normalizeBase(r.variant);
+    const exact = WEIGHTS[`${r.country}|${rowVariant}`];
+    if (isFinite(exact)) return exact;
+    const whole = WEIGHTS[`${r.country}|whole`];
+    if (isFinite(whole)) return whole;
+    return 1;
+  }
+
+  function compareCurve(slotValue, variantCanon, powertrain){
+    const countriesList = compareCountriesFor(slotValue);
+    if(!countriesList.length) return null;
+    const countrySet = new Set(countriesList);
+    const rows = PARAM_ROWS.filter(r => countrySet.has(r.country) && normalizeBase(r.variant) === variantCanon);
+    if(!rows.length) return null;
+    const xs = [], ys = [];
+    for (let year = 2015; year <= 2050; year += 0.05){
+      let ySum = 0, wSum = 0;
+      rows.forEach(r => {
+        const v1 = normNumber(r.v1), v2 = normNumber(r.v2), t0 = getT0Years(r);
+        const by = baselineYearOf(r);
+        if(!isFinite(v1)||!isFinite(v2)||!isFinite(t0)||!isFinite(by)) return;
+        const w = weightForRowCompare(r);
+        if(!isFinite(w)) return;
+        // CALENDAR-YEAR FIX (2026-06): feed the calendar year directly.
+      // bevShareIndex/iceShareIndex are calendar-space (z = x - t0; same as the
+      // world-map share formula and the inverse in inv_x_years). The old
+      // "year - by + 1" was an index-time conversion that, because production
+      // params.csv has no baseline_year (so by = normNumber(undefined) = 0),
+      // collapsed to year + 1 and evaluated the curve one year ahead — the
+      // plotted Builder/Fleet/Compare curve reached every share 1 year too
+      // early. See the inv_x_years comment for the R period_to_year() origin.
+      const x = year;
+        let yVal;
+        if(powertrain === 'BEV'){
+          yVal = bevShareIndex(x, v1, v2, t0);
+        } else if(powertrain === 'ICE'){
+          const iv1 = normNumber(r.ice_v1), iv2 = normNumber(r.ice_v2);
+          const it0 = getT0Years({ ...r, t0: r.ice_t0 });
+          if(!isFinite(iv1)||!isFinite(iv2)||!isFinite(it0)) return;
+          yVal = iceShareIndex(x, iv1, iv2, it0);
+        } else { // PHEV
+          const bev = bevShareIndex(x, v1, v2, t0);
+          const iv1 = normNumber(r.ice_v1), iv2 = normNumber(r.ice_v2);
+          const it0 = getT0Years({ ...r, t0: r.ice_t0 });
+          if(!isFinite(iv1)||!isFinite(iv2)||!isFinite(it0)) return;
+          const ice = iceShareIndex(x, iv1, iv2, it0);
+          yVal = Math.max(0, 1 - bev - ice);
+        }
+        if(isFinite(yVal)){ ySum += w * yVal; wSum += w; }
+      });
+      xs.push(year);
+      ys.push(wSum > 0 ? 100 * ySum / wSum : null);
+    }
+    return { xs, ys };
+  }
+
+  // ---- Observed data points for the Compare overlay ----
+  // The fitted curves are volume-weighted least-squares fits to per-period
+  // BEV/ICE/PHEV shares (R/fit.R). To stay consistent with that — and to fold
+  // the heterogeneous reporting frequencies (monthly / quarterly / yearly, all
+  // stored in data/<Country>[_<Variant>].csv) into one comparable series — we
+  // aggregate observations to ANNUAL, volume-weighted shares:
+  //     share(year) = Σ numerator(rows in year) / Σ TOTAL(rows in year)
+  // For an aggregate slot (EU, World, …) the sums run across every member
+  // country — the same "add the counts, then divide" a real region-wide
+  // statistic uses. Per-period monthly points would be too noisy to compare
+  // (and ill-defined to merge across countries with different cadences), and
+  // the annual volume-weighted share is exactly the centre of mass the fit
+  // tracks. Each file is fetched once and cached.
+  const COMPARE_OBS_CACHE = {};                       // filename -> Promise<row[]>
+  const COMPARE_VARIANT_FILE = { whole:'', hdv:'_HDV', vans:'_Vans' };
+
+  function fetchCompareObs(country, variantCanon){
+    const suffix = COMPARE_VARIANT_FILE[variantCanon] || '';
+    const file = `data/${country}${suffix}.csv`;
+    if(!COMPARE_OBS_CACHE[file]){
+      COMPARE_OBS_CACHE[file] = fetch(file, { cache:'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP '+r.status)))
+        .then(txt => parseCSV(txt))
+        .catch(() => []);                             // missing file → no points, curve still shows
+    }
+    return COMPARE_OBS_CACHE[file];
+  }
+
+  // Counts for the selected powertrain, mirroring R's 3-curve rollup
+  // (EREV folds into PHEV; ICE = everything that is neither BEV nor PHEV).
+  function compareObsCounts(row, powertrain){
+    const bev = normNumber(row.BEV)||0, phev = normNumber(row.PHEV)||0,
+          erev = normNumber(row.EREV)||0, total = normNumber(row.TOTAL)||0;
+    if(!(total > 0)) return null;
+    if(powertrain === 'BEV')  return { num: bev,         den: total };
+    if(powertrain === 'PHEV') return { num: phev + erev, den: total };
+    return { num: Math.max(0, total - bev - phev - erev), den: total }; // ICE
+  }
+
+  async function compareObsPoints(slotValue, variantCanon, powertrain){
+    const members = compareCountriesFor(slotValue);
+    if(!members.length) return null;
+    const perCountry = await Promise.all(members.map(c => fetchCompareObs(c, variantCanon)));
+    const byYear = new Map();                          // year -> {num, den}
+    perCountry.forEach(rows => rows.forEach(row => {
+      const yr = parseInt(String(row.period||'').slice(0,4), 10);
+      if(!isFinite(yr)) return;
+      const c = compareObsCounts(row, powertrain);
+      if(!c) return;
+      const acc = byYear.get(yr) || { num:0, den:0 };
+      acc.num += c.num; acc.den += c.den;
+      byYear.set(yr, acc);
+    }));
+    const xs = [], ys = [], labels = [];
+    [...byYear.keys()].sort((a,b)=>a-b).forEach(yr => {
+      const { num, den } = byYear.get(yr);
+      if(den > 0){ xs.push(yr + 0.5); ys.push(100 * num / den); labels.push(String(yr)); }  // mid-year x
+    });
+    return xs.length ? { xs, ys, labels } : null;
+  }
+
+  async function runCompare(){
+    const variant = document.getElementById('compareVariant').value || 'whole';
+    const powertrain = (document.querySelector('input[name="comparePowertrain"]:checked')||{}).value || 'BEV';
+    const slotValues = ['compareSlot1','compareSlot2','compareSlot3']
+      .map(id => document.getElementById(id).value)
+      .filter(Boolean);
+    if(slotValues.length < 1) return;
+    const traces = [];
+    slotValues.forEach((sv, i) => {
+      const curve = compareCurve(sv, variant, powertrain);
+      if(!curve) return;
+      traces.push({
+        x: curve.xs,
+        y: curve.ys,
+        mode: 'lines',
+        line: { width: 3, color: COMPARE_PALETTE[i % COMPARE_PALETTE.length] },
+        name: `${compareLabelFor(sv)} – ${powertrain}`,
+        legendgroup: 'slot' + i,
+        customdata: curve.xs.map(yearFracToLabel),
+        hovertemplate: '%{customdata}<br>%{y:.1f}%<extra></extra>'
+      });
+    });
+    const layout = {
+      margin: { t: 20, r: 20, b: 40, l: 50 },
+      paper_bgcolor: '#0b0c10',
+      plot_bgcolor: '#0f1525',
+      font: { color: '#e9eef2' },
+      xaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.06)', zeroline: false, linecolor: 'rgba(255,255,255,0.12)' },
+      yaxis: { title: `${powertrain} share (%)`, range: [0,100], dtick: 10, showgrid: true, gridcolor: 'rgba(255,255,255,0.06)', linecolor: 'rgba(255,255,255,0.12)' },
+      legend: { orientation: 'h', font: { color: '#cfd8e8' } },
+      annotations: [{ x: 0.995, y: 0.02, xref:'paper', yref:'paper', xanchor:'right', yanchor:'bottom', text:'@LeRaffl', showarrow:false, font:{ size:11, color:'rgba(159,179,209,0.55)' } }]
+    };
+    Plotly.newPlot('comparePlot', traces, layout, { responsive: true });
+
+    // Overlay observed annual points per slot. Drawn after the curves so the
+    // lines appear instantly while the (cached) CSV fetches resolve. Markers
+    // share the slot's colour and legendgroup, so toggling the curve in the
+    // legend hides its points too. Aggregate slots (e.g. World) fetch every
+    // member file once — subsequent runs are served from COMPARE_OBS_CACHE.
+    const reqToken = (runCompare._token = (runCompare._token || 0) + 1);
+    const pointTraces = [];
+    await Promise.all(slotValues.map(async (sv, i) => {
+      const pts = await compareObsPoints(sv, variant, powertrain);
+      if(!pts) return;
+      pointTraces.push({
+        x: pts.xs, y: pts.ys,
+        mode: 'markers',
+        marker: { color: COMPARE_PALETTE[i % COMPARE_PALETTE.length], size: 6, opacity: 0.45 },
+        name: `${compareLabelFor(sv)} – observed`,
+        legendgroup: 'slot' + i,
+        showlegend: false,
+        customdata: pts.labels,
+        hovertemplate: '%{customdata}<br>%{y:.1f}% observed<extra></extra>'
+      });
+    }));
+    // Ignore if a newer run started while we were fetching.
+    const plot = document.getElementById('comparePlot');
+    if(reqToken === runCompare._token && pointTraces.length && plot && plot.data){
+      Plotly.addTraces('comparePlot', pointTraces);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('compareBuild');
+    if(!btn) return;
+    const trigger = () => ensurePlotly().then(() => {
+      if(!PARAM_ROWS || !PARAM_ROWS.length) return;
+      if(!document.getElementById('compareSlot1').options.length) initCompare();
+      runCompare();
+    });
+    btn.addEventListener('click', trigger);
+    // Initialise slot options once params are loaded.
+    const waitForRows = setInterval(() => {
+      if(PARAM_ROWS && PARAM_ROWS.length){
+        clearInterval(waitForRows);
+        initCompare();
+      }
+    }, 200);
   });
 })();
 
