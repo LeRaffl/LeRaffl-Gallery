@@ -8,13 +8,22 @@ Usage
     python scripts/fetch_austria.py [--variant {whole,hdv,vans,all}]
                                     [--year YYYY] [--force]
 
-Network / proxy
----------------
+Network / reaching the source
+-----------------------------
 Statistik Austria blocks datacenter/Azure IP ranges, so GitHub-hosted runners
-cannot reach www.statistik.at or the OGD host directly (connections time out).
-Set the ``AUSTRIA_PROXY`` env/secret to an http(s):// or socks5:// proxy URL to
-route requests through a non-blocked IP. See ``_configure_proxy``. Locally, on
-an unblocked network, no proxy is needed.
+cannot reach www.statistik.at directly (connections time out). Two ways to
+route around it (see ``_configure_network``):
+
+  * ``AUSTRIA_FETCH_RELAY`` — base URL of a fetch relay that prepends to the
+    target, e.g. the project's Cloudflare Worker:
+    ``https://<worker-host>/fetch?url=``. The runner then talks only to
+    Cloudflare (a non-blocked IP), which fetches the .ods on its behalf and
+    streams the raw bytes back. ``AUSTRIA_RELAY_TOKEN`` (if set) is sent as the
+    ``X-Relay-Token`` header. Preferred — reuses existing infra, no extra cost.
+  * ``AUSTRIA_PROXY`` — a real http(s):// or socks5:// proxy URL. Fallback for
+    when the relay's egress IP is also blocked.
+
+Locally, on an unblocked network, neither is needed.
 
 Output files
 ------------
@@ -92,6 +101,8 @@ import xml.etree.ElementTree as ET
 import zipfile
 from datetime import date
 from pathlib import Path
+
+from urllib.parse import quote
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -225,7 +236,7 @@ def discover_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
     keep, per year, the file covering the most months (highest URL month);
     DE3-annual yields one entry per year.
     """
-    r = session.get(LISTING_URL, timeout=(20, 60))
+    r = _get(session, LISTING_URL, timeout=(20, 60))
     r.raise_for_status()
     text = r.text
 
@@ -265,7 +276,7 @@ def fetch_ods(url: str, session: requests.Session, cache: dict) -> bytes:
     if url in cache:
         return cache[url]
     print(f"[fetch] {url}")
-    r = session.get(url, timeout=(20, 120))
+    r = _get(session, url, timeout=(20, 120))
     r.raise_for_status()
     cache[url] = r.content
     return r.content
@@ -621,30 +632,57 @@ def run_variant(variant: str, urls: dict, session: requests.Session,
     return total_added, total_updated
 
 
-def _configure_proxy(session: requests.Session) -> None:
-    """Route requests through a proxy when one is configured.
+def _configure_network(session: requests.Session) -> None:
+    """Configure how the session reaches Statistik Austria.
 
-    GitHub-hosted runners are blocked by Statistik Austria (both www.statistik.at
-    and the OGD host data.statistik.gv.at silently drop connections from
-    datacenter/Azure IP ranges), so CI must reach the source through a proxy.
+    Statistik Austria silently drops connections from datacenter/Azure IP
+    ranges, so GitHub-hosted runners can't reach www.statistik.at directly.
+    Precedence:
 
-    Set the ``AUSTRIA_PROXY`` secret/env var to an ``http(s)://`` or
-    ``socks5://`` proxy URL (credentials may be embedded as
-    ``scheme://user:pass@host:port``). The standard ``HTTPS_PROXY`` /
-    ``https_proxy`` env vars are also honoured by requests automatically if
-    ``AUSTRIA_PROXY`` is unset.
+    1. ``AUSTRIA_FETCH_RELAY`` — a fetch-relay base URL that the target gets
+       appended to (url-encoded), e.g. the project's Cloudflare Worker
+       ``https://<worker-host>/fetch?url=``. Requests then go to Cloudflare
+       (a non-blocked IP), which fetches the .ods and streams raw bytes back.
+       ``AUSTRIA_RELAY_TOKEN`` (optional) is sent as the ``X-Relay-Token``
+       header so the relay isn't an open proxy. ``relay_base`` is stashed on
+       the session and applied by ``_get``.
+    2. ``AUSTRIA_PROXY`` — a real ``http(s)://`` / ``socks5://`` proxy URL
+       (credentials allowed as ``scheme://user:pass@host:port``). Used when a
+       relay's egress IP is also blocked.
+    3. Neither set → direct connection (works only on unblocked networks).
     """
+    session.relay_base = None  # type: ignore[attr-defined]
+
+    relay = os.environ.get("AUSTRIA_FETCH_RELAY", "").strip()
+    if relay:
+        session.relay_base = relay  # type: ignore[attr-defined]
+        token = os.environ.get("AUSTRIA_RELAY_TOKEN", "").strip()
+        if token:
+            session.headers["X-Relay-Token"] = token
+        masked = re.sub(r"//[^/]+", "//<host>", relay, count=1)
+        print(f"[net] routing via AUSTRIA_FETCH_RELAY = {masked}"
+              f" (token {'set' if token else 'not set'})")
+        return
+
     proxy = os.environ.get("AUSTRIA_PROXY", "").strip()
     if proxy:
         session.proxies.update({"http": proxy, "https": proxy})
         masked = re.sub(r"//[^@/]+@", "//***@", proxy)
-        print(f"[proxy] routing requests via AUSTRIA_PROXY = {masked}")
+        print(f"[net] routing via AUSTRIA_PROXY = {masked}")
     elif os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy"):
-        print("[proxy] using HTTPS_PROXY from environment")
+        print("[net] using HTTPS_PROXY from environment")
     else:
-        print("[proxy] WARNING: no proxy set; connecting directly. This will "
-              "fail on networks blocked by Statistik Austria (e.g. GitHub-"
-              "hosted runners). Set the AUSTRIA_PROXY secret to fix.")
+        print("[net] WARNING: no relay/proxy set; connecting directly. This "
+              "will fail on networks blocked by Statistik Austria (e.g. GitHub-"
+              "hosted runners). Set AUSTRIA_FETCH_RELAY or AUSTRIA_PROXY.")
+
+
+def _get(session: requests.Session, url: str, **kwargs):
+    """session.get that routes through the relay base when one is configured."""
+    base = getattr(session, "relay_base", None)
+    if base:
+        url = base + quote(url, safe="")
+    return session.get(url, **kwargs)
 
 
 def main() -> None:
@@ -680,7 +718,7 @@ def main() -> None:
 
     session = requests.Session()
     session.headers.update({"User-Agent": "LeRaffl-Gallery/austria-fetch"})
-    _configure_proxy(session)
+    _configure_network(session)
     _retry = Retry(
         total=5,
         connect=5,

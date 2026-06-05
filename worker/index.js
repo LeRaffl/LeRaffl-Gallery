@@ -290,6 +290,10 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders(origin) });
     }
 
+    if (url.pathname === '/fetch' && method === 'GET') {
+      return handleRelay(request, env);
+    }
+
     if (url.pathname === '/issues') {
       if (method === 'GET')  return handleGet(request, env, ctx);
       if (method === 'POST') return handlePost(request, env, ctx);
@@ -302,6 +306,56 @@ export default {
     return new Response('Not found', { status: 404, headers: corsHeaders(origin) });
   },
 };
+
+// ── GET /fetch — host-allowlisted fetch relay ────────────────────────────────
+// Statistik Austria silently drops connections from GitHub's datacenter/Azure
+// IP ranges, so the Austria fetcher (scripts/fetch_austria.py) can't reach
+// www.statistik.at from a hosted runner. It instead calls this endpoint, which
+// egresses from Cloudflare (a non-blocked IP), fetches the target, and streams
+// the raw bytes back unchanged (so binary .ods files survive intact).
+//
+// Locked down two ways so it can't be abused as an open proxy:
+//   * host allow-list (Statistik Austria only), and
+//   * optional shared secret AUSTRIA_RELAY_TOKEN (set via
+//     `wrangler secret put AUSTRIA_RELAY_TOKEN`); the caller sends it as the
+//     X-Relay-Token header. If the secret is unset the endpoint still works
+//     (allow-list only) — setting it is recommended.
+const RELAY_ALLOW_HOSTS = new Set(['www.statistik.at', 'data.statistik.gv.at']);
+
+async function handleRelay(request, env) {
+  if (env.AUSTRIA_RELAY_TOKEN &&
+      request.headers.get('X-Relay-Token') !== env.AUSTRIA_RELAY_TOKEN) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const target = new URL(request.url).searchParams.get('url');
+  if (!target) return new Response('missing url param', { status: 400 });
+
+  let t;
+  try { t = new URL(target); } catch (_) { return new Response('bad url', { status: 400 }); }
+  if (t.protocol !== 'https:' || !RELAY_ALLOW_HOSTS.has(t.hostname)) {
+    return new Response(`host not allowed: ${t.hostname}`, { status: 403 });
+  }
+
+  let upstream;
+  try {
+    upstream = await fetch(t.toString(), {
+      headers: { 'User-Agent': 'LeRaffl-Gallery-Relay/1.0', 'Accept': '*/*' },
+      cf: { cacheTtl: 300, cacheEverything: true },
+    });
+  } catch (e) {
+    return new Response(`relay upstream error: ${e}`, { status: 502 });
+  }
+
+  // Pass the body through verbatim with the upstream content type.
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: {
+      'Content-Type':  upstream.headers.get('Content-Type') || 'application/octet-stream',
+      'Cache-Control': 'public, max-age=300',
+    },
+  });
+}
 
 // ── POST /submissions ────────────────────────────────────────────────────────
 // Body shape:
