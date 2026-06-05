@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""TEMPORARY discovery probe v2 for Austria open data.
+"""TEMPORARY discovery probe v3 for Austria open data.
 
-Finding so far: GitHub Actions can reach www.data.gv.at but NOT
-data.statistik.gv.at / www.statistik.at (both connect-timeout / blocked).
-This probe checks which hosts are reachable and where the new-registration
-dataset's actual CSV bytes can be downloaded from. Throwaway.
+Confirmed: www.statistik.at AND data.statistik.gv.at are both blocked from the
+GitHub Actions network (connect timeout). Catalog portals (data.gv.at,
+data.europa.eu) are reachable but only hold metadata. This probe checks:
+  (a) whether a public fetch relay can pull the OGD CSV from the runner, and
+  (b) where data.europa.eu's distribution/download URLs actually point.
+Throwaway.
 """
 import json
 import socket
 import sys
+import urllib.parse as up
 
 import requests
 
@@ -16,70 +19,61 @@ _orig = socket.getaddrinfo
 socket.getaddrinfo = lambda h, p, f=0, t=0, pr=0, fl=0: _orig(h, p, socket.AF_INET, t, pr, fl)
 
 S = requests.Session()
-S.headers.update({"User-Agent": "LeRaffl-Gallery/austria-ogd-probe"})
+S.headers.update({"User-Agent": "Mozilla/5.0 (LeRaffl-Gallery austria probe)"})
 
-DATASET = "OGD_fkfzul0759_OD_PkwNZL_1"
+TARGET = "https://data.statistik.gv.at/data/OGD_fkfzul0759_OD_PkwNZL_1.csv"
 
 
-def reach(url, method="GET"):
-    print(f"\n>>> {method} {url}", flush=True)
+def get(url, **kw):
+    print(f"\n>>> GET {url[:140]}", flush=True)
     try:
-        r = S.request(method, url, timeout=12, allow_redirects=False)
-        loc = r.headers.get("Location", "")
-        ct = r.headers.get("Content-Type", "")
-        print(f"    HTTP {r.status_code}  type={ct}  len={len(r.content)}"
-              + (f"  ->Location: {loc}" if loc else ""), flush=True)
+        r = S.get(url, timeout=25, **kw)
+        body = r.content
+        looks_csv = (b";" in body[:2000]) and (b"OGD" in body[:200] or b"C-" in body[:400]
+                                               or b"F-" in body[:400])
+        print(f"    HTTP {r.status_code}  type={r.headers.get('Content-Type','')}  "
+              f"len={len(body)}  looks_like_ogd_csv={looks_csv}", flush=True)
+        if looks_csv or (r.ok and len(body) < 1500):
+            print("    head:", body[:300], flush=True)
         return r
     except Exception as e:
         print(f"    !! {type(e).__name__}: {str(e)[:160]}", flush=True)
         return None
 
 
-def show_json(r, max_chars=1500):
-    if r is None:
-        return None
-    try:
-        data = r.json()
-        print("    JSON:", json.dumps(data, ensure_ascii=False)[:max_chars], flush=True)
-        return data
-    except Exception as e:
-        print(f"    (not json: {e}); body[:300]={r.text[:300]!r}", flush=True)
-        return None
-
-
 print("Python:", sys.version, flush=True)
 
-# 1) Host reachability matrix.
-print("\n===== HOST REACHABILITY =====", flush=True)
-reach("https://www.data.gv.at/", "HEAD")
-reach("https://data.europa.eu/en", "HEAD")
-reach("https://data.statistik.gv.at/data/" + DATASET + ".csv", "HEAD")
+# (a) Public relays — can any pull the blocked OGD CSV from the runner?
+print("\n===== PUBLIC RELAYS =====", flush=True)
+enc = up.quote(TARGET, safe="")
+get("https://api.allorigins.win/raw?url=" + enc)
+get("https://corsproxy.io/?url=" + enc)
+get("https://r.jina.ai/" + TARGET)
+get("https://thingproxy.freeboard.io/fetch/" + TARGET)
 
-# 2) data.gv.at catalog API candidates (find dataset + resource URLs).
-print("\n===== data.gv.at CKAN search =====", flush=True)
-for base in [
-    "https://www.data.gv.at/katalog/api/3/action/package_search?q=Kfz-Neuzulassungen+Kraftstoff&rows=20",
-    "https://www.data.gv.at/api/3/action/package_search?q=Kfz-Neuzulassungen+Kraftstoff&rows=20",
-    "https://www.data.gv.at/api/hub/search/datasets?query=Neuzulassungen&limit=20",
-]:
-    d = show_json(reach(base))
-    if d and d.get("success") and d.get("result", {}).get("results"):
-        for ds in d["result"]["results"]:
-            print(f"      DS {ds.get('name')} | {ds.get('title')}", flush=True)
-            for res in ds.get("resources", []):
-                print(f"          [{res.get('format')}] {res.get('url')}", flush=True)
-        break
+# (b) data.europa.eu: find the fuel dataset and inspect its distribution hosts.
+print("\n===== data.europa.eu distributions =====", flush=True)
+r = get("https://data.europa.eu/api/hub/search/search?q=OGD_fkfzul0759&limit=5")
+try:
+    res = r.json()["result"]["results"]
+    for d in res:
+        print("  dataset:", d.get("id"), "|", json.dumps(d.get("title", {}), ensure_ascii=False)[:120], flush=True)
+        for dist in d.get("distributions", []):
+            url = (dist.get("access_url") or dist.get("download_url") or
+                   dist.get("accessURL") or dist.get("downloadURL"))
+            fmt = dist.get("format", {})
+            print("     dist:", (fmt.get("label") if isinstance(fmt, dict) else fmt), "->", url, flush=True)
+except Exception as e:
+    print("  parse failed:", repr(e), flush=True)
 
-# 3) data.europa.eu search (mirrors member-state OGD; may host distributions).
-print("\n===== data.europa.eu search =====", flush=True)
-show_json(reach(
-    "https://data.europa.eu/api/hub/search/search?q=" + DATASET + "&limit=5"))
-show_json(reach(
-    "https://data.europa.eu/api/hub/search/search?q=Kfz-Neuzulassungen%20Kraftstoff&limit=5"))
+# Also dump the raw distribution section for the first hit for full visibility.
+print("\n===== europa raw first-result distributions (verbatim) =====", flush=True)
+try:
+    res = S.get("https://data.europa.eu/api/hub/search/search?q=OGD_fkfzul0759&limit=2",
+                timeout=25).json()
+    print(json.dumps(res["result"]["results"][0].get("distributions", []),
+                     ensure_ascii=False)[:2000], flush=True)
+except Exception as e:
+    print("  failed:", repr(e), flush=True)
 
-# 4) Does data.gv.at proxy/serve the raw file, or only redirect to statistik?
-print("\n===== data.gv.at dataset page (look for resource links) =====", flush=True)
-reach("https://www.data.gv.at/katalog/api/3/action/package_show?id=" + DATASET.lower())
-reach("https://www.data.gv.at/katalog/api/3/action/package_show?id=" + DATASET)
-
-print("\n[probe v2] done.", flush=True)
+print("\n[probe v3] done.", flush=True)
