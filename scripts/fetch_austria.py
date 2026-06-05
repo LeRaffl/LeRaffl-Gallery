@@ -8,6 +8,14 @@ Usage
     python scripts/fetch_austria.py [--variant {whole,hdv,vans,all}]
                                     [--year YYYY] [--force]
 
+Network / proxy
+---------------
+Statistik Austria blocks datacenter/Azure IP ranges, so GitHub-hosted runners
+cannot reach www.statistik.at or the OGD host directly (connections time out).
+Set the ``AUSTRIA_PROXY`` env/secret to an http(s):// or socks5:// proxy URL to
+route requests through a non-blocked IP. See ``_configure_proxy``. Locally, on
+an unblocked network, no proxy is needed.
+
 Output files
 ------------
     data/Austria.csv          <- variant=Whole (Pkw Klasse M1)
@@ -217,7 +225,7 @@ def discover_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
     keep, per year, the file covering the most months (highest URL month);
     DE3-annual yields one entry per year.
     """
-    r = session.get(LISTING_URL, timeout=60)
+    r = session.get(LISTING_URL, timeout=(20, 60))
     r.raise_for_status()
     text = r.text
 
@@ -257,7 +265,7 @@ def fetch_ods(url: str, session: requests.Session, cache: dict) -> bytes:
     if url in cache:
         return cache[url]
     print(f"[fetch] {url}")
-    r = session.get(url, timeout=120)
+    r = session.get(url, timeout=(20, 120))
     r.raise_for_status()
     cache[url] = r.content
     return r.content
@@ -613,6 +621,32 @@ def run_variant(variant: str, urls: dict, session: requests.Session,
     return total_added, total_updated
 
 
+def _configure_proxy(session: requests.Session) -> None:
+    """Route requests through a proxy when one is configured.
+
+    GitHub-hosted runners are blocked by Statistik Austria (both www.statistik.at
+    and the OGD host data.statistik.gv.at silently drop connections from
+    datacenter/Azure IP ranges), so CI must reach the source through a proxy.
+
+    Set the ``AUSTRIA_PROXY`` secret/env var to an ``http(s)://`` or
+    ``socks5://`` proxy URL (credentials may be embedded as
+    ``scheme://user:pass@host:port``). The standard ``HTTPS_PROXY`` /
+    ``https_proxy`` env vars are also honoured by requests automatically if
+    ``AUSTRIA_PROXY`` is unset.
+    """
+    proxy = os.environ.get("AUSTRIA_PROXY", "").strip()
+    if proxy:
+        session.proxies.update({"http": proxy, "https": proxy})
+        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
+        print(f"[proxy] routing requests via AUSTRIA_PROXY = {masked}")
+    elif os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy"):
+        print("[proxy] using HTTPS_PROXY from environment")
+    else:
+        print("[proxy] WARNING: no proxy set; connecting directly. This will "
+              "fail on networks blocked by Statistik Austria (e.g. GitHub-"
+              "hosted runners). Set the AUSTRIA_PROXY secret to fix.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -646,6 +680,7 @@ def main() -> None:
 
     session = requests.Session()
     session.headers.update({"User-Agent": "LeRaffl-Gallery/austria-fetch"})
+    _configure_proxy(session)
     _retry = Retry(
         total=5,
         connect=5,

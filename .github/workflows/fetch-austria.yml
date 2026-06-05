@@ -61,9 +61,14 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        # requests[socks] so AUSTRIA_PROXY may be a socks5:// URL as well as http(s)://.
+        run: pip install "requests[socks]"
 
       - name: Fetch & update Austria CSVs
+        # Statistik Austria blocks GitHub's datacenter IPs, so requests are
+        # routed through the AUSTRIA_PROXY secret (an http(s):// or socks5://
+        # proxy on a non-blocked IP). Without the secret the fetch fails fast
+        # with a clear "no proxy set" message.
         run: |
           python scripts/fetch_austria.py \
             ${VARIANT:+--variant "$VARIANT"} \
@@ -73,6 +78,7 @@ jobs:
           VARIANT: ${{ inputs.variant }}
           YEAR: ${{ inputs.year }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          AUSTRIA_PROXY: ${{ secrets.AUSTRIA_PROXY }}
 
       - name: Detect which CSVs changed
         id: changed
