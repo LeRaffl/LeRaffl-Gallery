@@ -1620,6 +1620,30 @@ a:focus-visible{
   .tablink{padding:13px 6px 12px}
   .footer{grid-template-columns:1fr 1fr}
 }
+
+/* About / Landing tab */
+.about-wrap{max-width:900px;margin:0 auto;padding:40px 20px 60px}
+.about-hero{text-align:center;padding:48px 0 32px}
+.about-title{font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-0.02em;margin:0 0 12px;background:linear-gradient(135deg,#e9eef2 40%,#7aadda);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.about-sub{font-size:clamp(15px,2vw,19px);color:#9fb3d1;margin:0 0 28px;line-height:1.5}
+.about-intro{max-width:680px;margin:0 auto 40px;text-align:center;color:#c0cde0;line-height:1.7;font-size:15px}
+.about-section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4a6a8a;margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid #1f2a44}
+.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:40px}
+@media(max-width:1000px){.about-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.about-grid{grid-template-columns:1fr}}
+.about-card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
+.about-card:hover{border-color:#2e4268}
+.about-card-group{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4da3ff;opacity:.7}
+.about-card h3{margin:0;font-size:15px;font-weight:700;color:#e9eef2}
+.about-card p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.6}
+.about-model{display:flex;flex-direction:column;margin-bottom:40px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.about-model-item{padding:20px 24px;border-bottom:1px solid #1f2a44}
+.about-model-item:last-child{border-bottom:none}
+.about-model-head{font-size:14px;font-weight:700;color:#e9eef2;margin-bottom:6px}
+.about-model-item p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.65}
+.about-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 24px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;font-size:13px;color:#9fb3d1;flex-wrap:wrap}
+.about-footer strong{color:#e9eef2}
+.about-gh{font-size:13px;padding:7px 14px;white-space:nowrap}
 </style>
   
 
@@ -1632,7 +1656,7 @@ a:focus-visible{
 <body>
   <header>
     <div class="bar">
-      <h1>BEV Trajectories • Gallery</h1>
+      <h1><a href="#about" style="color:inherit;text-decoration:none">BEV Trajectories • Gallery</a></h1>
       <div id="stats" class="small"></div>
     </div>
   </header>
@@ -1656,7 +1680,7 @@ a:focus-visible{
   <nav class="tabs" aria-label="Main sections">
     <span class="tab-group">
       <span class="tab-group-label">Browse</span>
-      <a href="#gallery" class="tablink active">Gallery</a>
+      <a href="#gallery" class="tablink">Gallery</a>
       <a href="#worldmap" class="tablink">World Map</a>
     </span>
     <span class="tab-group">
@@ -1673,11 +1697,86 @@ a:focus-visible{
     </span>
     <span class="tab-group">
       <span class="tab-group-label">Project</span>
+      <a href="#about" class="tablink active">About</a>
       <a href="#faq" class="tablink">FAQ</a>
       <a href="#submit" class="tablink">Submit Data</a>
       <a href="#feedback" class="tablink">Feedback</a>
     </span>
   </nav>
+
+<!-- ABOUT / LANDING TAB -->
+<section id="tab-about" class="tab active">
+  <div class="about-wrap">
+
+    <div class="about-hero">
+      <h2 class="about-title">BEV Trajectories</h2>
+      <p class="about-sub">Tracking the electric vehicle transition — country by country, month by month.</p>
+      <a href="#gallery" class="btn primary">Open Gallery</a>
+    </div>
+
+    <p class="about-intro">For each market, monthly new-car registration data is fitted to a generalized S-curve model. The result describes how far along a country is in its BEV transition — not a forecast, but a real-time snapshot of the transition as it stands today.</p>
+
+    <div class="about-section-label">What you can do here</div>
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-group">Browse</div>
+        <h3>Gallery</h3>
+        <p>Filter charts by country, date, and type. Click any chart to zoom. "Latest only" shows the current state of each market without historical clutter.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-group">Browse</div>
+        <h3>World Map</h3>
+        <p>See BEV share geographically. Color-coded by transition stage — useful for spotting regional patterns at a glance.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-group">Rankings</div>
+        <h3>Thresholds</h3>
+        <p>When does a market cross 20%, 50%, or 80% BEV share? Computed from the fitted curve, sortable and exportable.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-group">Rankings</div>
+        <h3>Durations</h3>
+        <p>How long does it take to move from one share level to another — e.g. 20% → 80%? Comparable across all markets.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-group">DIY Curves</div>
+        <h3>Builder</h3>
+        <p>Aggregate curves for custom country groups — by region, weight class, or any selection. The global bottom-up trajectory lives here.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-card-group">DIY Curves</div>
+        <h3>Compare</h3>
+        <p>Put multiple countries side by side on the same chart. Useful for spotting which markets lead, lag, or have stalled.</p>
+      </div>
+    </div>
+
+    <div class="about-section-label">The model</div>
+    <div class="about-model">
+      <div class="about-model-item">
+        <div class="about-model-head">S-curves, not noise</div>
+        <p>BEV adoption follows a structured transition: slow start, acceleration once a tipping point is passed, then gradual stabilisation toward 100%. An S-shape fits this pattern consistently — and breaks visibly when the data doesn't support a transition.</p>
+      </div>
+      <div class="about-model-item">
+        <div class="about-model-head">Weibull formulation</div>
+        <p>The model uses a generalized Weibull-style logistic curve with two free parameters — enough flexibility to capture asymmetric transitions (early-heavy vs. late-heavy) without overfitting. Market size is used as a weight so large-volume months aren't dominated by small-market outliers.</p>
+      </div>
+      <div class="about-model-item">
+        <div class="about-model-head">Not a forecast</div>
+        <p>The curve represents the best fit to today's data. When new registrations arrive, the curve updates. This is a description of what has happened so far — "if things simply continued from here" — not a statement about the future.</p>
+      </div>
+    </div>
+
+    <div class="about-footer">
+      <span>By <strong>@LeRaffl</strong> · Open source, open data, open use. Take the charts, the tables, the parameters — use them for your own models, validations, publications, whatever. Sharing is not just allowed, it's the point. A mention is appreciated not for legal reasons, but because I'm curious what you do with it.</span>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <a href="https://x.com/leRaffl" class="btn about-gh" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@LeRaffl</a>
+        <a href="https://bsky.app/profile/leraffl.bsky.social" class="btn about-gh" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0173-2.9357-1.1937.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.109 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>@leraffl.bsky.social</a>
+        <a href="https://github.com/LeRaffl/LeRaffl-Gallery" class="btn about-gh" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.562 21.8 24 17.302 24 12 24 5.373 18.627 0 12 0z"/></svg>GitHub</a>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <!-- FAQ TAB -->
 <section id="tab-faq" class="tab">
@@ -1874,7 +1973,7 @@ a:focus-visible{
 </button>
 
   <!-- GALLERY TAB -->
-  <section id="tab-gallery" class="tab active">
+  <section id="tab-gallery" class="tab">
     <div class="page">
       <aside class="side" data-collapsed="true">
         <h2 class="side-toggle">
@@ -2904,13 +3003,13 @@ Singapore,Whole,-3.7,3.0,2025-09-10,2019,2025-08`;
 
 // -------- Tabs --------
 function activateTabByHash(){
-  const hash = location.hash || '#gallery';
+  const hash = location.hash || '#about';
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tablink').forEach(a => a.classList.remove('active'));
   const id = hash.replace('#','');
-  const tab = document.getElementById('tab-' + id) || document.getElementById('tab-gallery');
+  const tab = document.getElementById('tab-' + id) || document.getElementById('tab-about');
   if (tab) tab.classList.add('active');
-  const link = document.querySelector('.tablink[href="' + (tab ? '#' + id : '#gallery') + '"]');
+  const link = document.querySelector('.tablink[href="' + (tab ? '#' + id : '#about') + '"]');
   if (link) link.classList.add('active');
 }
 window.addEventListener('hashchange', activateTabByHash);
