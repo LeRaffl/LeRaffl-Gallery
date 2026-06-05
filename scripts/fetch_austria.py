@@ -79,12 +79,27 @@ import csv
 import io
 import os
 import re
+import socket
 import xml.etree.ElementTree as ET
 import zipfile
 from datetime import date
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# GitHub Actions runners sometimes lack IPv6 routing even though the OS has
+# AAAA records, causing immediate "Network is unreachable" (ENETUNREACH).
+# Force IPv4 globally so urllib3 never attempts an IPv6 socket.
+_orig_getaddrinfo = socket.getaddrinfo
+
+
+def _ipv4_only(host, port, family=0, type=0, proto=0, flags=0):
+    return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+
+
+socket.getaddrinfo = _ipv4_only
 
 LISTING_URL = (
     "https://www.statistik.at/statistiken/tourismus-und-verkehr/"
@@ -631,6 +646,17 @@ def main() -> None:
 
     session = requests.Session()
     session.headers.update({"User-Agent": "LeRaffl-Gallery/austria-fetch"})
+    _retry = Retry(
+        total=5,
+        connect=5,
+        read=3,
+        backoff_factor=3,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )
+    _adapter = HTTPAdapter(max_retries=_retry)
+    session.mount("https://", _adapter)
+    session.mount("http://", _adapter)
     urls = discover_file_urls(session)
     if not urls:
         raise RuntimeError("No source files found on listing page.")
