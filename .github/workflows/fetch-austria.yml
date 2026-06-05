@@ -1,23 +1,9 @@
 name: Fetch Austria data (Statistik Austria DE2 / DE3)
 
-# Fetches Statistik Austria's monthly cumulative ODS publications and upserts
-# three per-variant CSVs:
-#
-#   * Whole — Pkw Klasse M1 (data/Austria.csv), from DE2 Tabelle 2 with the
-#             "darunter Plug-In" rows that let us split PHEV vs HEV.
-#   * HDV   — Lkw N2 + N3 + Sattelzugfahrzeuge (data/Austria_HDV.csv), from
-#             DE3 vehicle-class × fuel matrix; PHEV blank, HEV holds combined
-#             Plug-In + full hybrid (source lumps them at Lkw row level).
-#   * Vans  — Lkw N1, ≤ 3.5 t (data/Austria_Vans.csv), same DE3 layout as HDV.
-#
-# See scripts/fetch_austria.py for the file URLs, label mappings, and the
-# per-variant backfill envelope (HDV/Vans monthly only from 2025-01 onward;
-# 2024 is annual; pre-2024 not published).
-#
-# Statistik Austria publishes the prior-month cumulative file around the
-# 10th–14th of the month at 07–09 UTC (verified from last-modified headers).
-# The 09:25 UTC schedule sits just after that window; per-variant early-exit
-# in the script makes subsequent daily runs cheap no-ops.
+# TEMPORARY: this workflow is diverted to the OGD discovery probe on the
+# claude/austria-data-fetch-error-5We96 branch. Dispatch it with that ref to
+# verify data.statistik.gv.at reachability from the runner and dump the OGD
+# dataset structure. The real fetch steps are restored after the migration.
 
 on:
   workflow_dispatch:
@@ -42,8 +28,6 @@ on:
         default: false
         type: boolean
   schedule:
-    # Daily 8th–22nd at 09:25 UTC. Window covers the typical mid-month
-    # publication slot with buffer for early/late releases.
     - cron: '25 9 8-22 * *'
 
 jobs:
@@ -63,58 +47,5 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Fetch & update Austria CSVs
-        run: |
-          python scripts/fetch_austria.py \
-            ${VARIANT:+--variant "$VARIANT"} \
-            ${YEAR:+--year "$YEAR"} \
-            ${FORCE:+--force}
-        env:
-          VARIANT: ${{ inputs.variant }}
-          YEAR: ${{ inputs.year }}
-          FORCE: ${{ inputs.force == true && '1' || '' }}
-
-      - name: Detect which CSVs changed
-        id: changed
-        run: |
-          touched=()
-          for pair in "Whole:data/Austria.csv" \
-                     "HDV:data/Austria_HDV.csv" \
-                     "Vans:data/Austria_Vans.csv"; do
-            variant="${pair%%:*}"
-            file="${pair##*:}"
-            [ -f "$file" ] || continue
-            git add -N "$file" 2>/dev/null || true
-            if ! git diff --quiet -- "$file"; then
-              touched+=("$variant")
-            fi
-          done
-          variants=$(IFS='|'; echo "${touched[*]}")
-          echo "variants=$variants" >> "$GITHUB_OUTPUT"
-          echo "Touched variants: ${variants:-<none>}"
-
-      - name: Commit if changed
-        id: commit
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: |
-            data/Austria.csv
-            data/Austria_HDV.csv
-            data/Austria_Vans.csv
-          message: 'chore: update Austria data from Statistik Austria (DE2/DE3)'
-          default_author: github_actions
-
-      - name: Trigger render per touched variant
-        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VARIANTS: ${{ steps.changed.outputs.variants }}
-        run: |
-          IFS='|' read -ra arr <<< "$VARIANTS"
-          for variant in "${arr[@]}"; do
-            echo "Dispatching render for variant: $variant"
-            gh workflow run render-country.yml \
-              --ref "${GITHUB_REF_NAME}" \
-              -f country=Austria \
-              -f variant="$variant"
-          done
+      - name: OGD discovery probe (TEMP)
+        run: python scripts/_austria_ogd_probe.py
