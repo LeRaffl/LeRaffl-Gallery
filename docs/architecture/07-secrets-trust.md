@@ -48,6 +48,10 @@ The five trust boundaries to reason about:
 | Cloudflare API token | OAuth | macOS Keychain (via `npx wrangler login`) | Full account; covers Workers, KV, Pages | When `wrangler login` is re-run |
 | Git push credentials | OAuth | macOS Keychain | The maintainer's GitHub identity (personal write) | When user revokes from GitHub Settings → Applications |
 | Google Sheets OAuth | OAuth | Local R session, stored in `~/.cache/gargle` | Read-only access to specific sheets | Auto-refreshes; revoke from Google Account |
+| `AUSTRIA_RELAY_TOKEN` (Worker) | Shared secret | Cloudflare Worker secret (`npx wrangler secret put AUSTRIA_RELAY_TOKEN`) | Gates the `GET /fetch` Austria relay; any random string. Low blast radius — `/fetch` is host-allowlisted to Statistik Austria (public open data) regardless | Manual; re-`wrangler secret put` and update the GH secret to match |
+| `AUSTRIA_RELAY_TOKEN` (GH Actions) | Shared secret | GitHub Actions repo secret | Sent as `X-Relay-Token` by `fetch-austria.yml`; must equal the Worker's value | Same as above |
+| `AUSTRIA_FETCH_RELAY` (GH Actions) | URL (not sensitive) | GitHub Actions repo secret | Relay base URL `https://<worker-host>/fetch?url=`. Stored as a secret only to keep the worker host out of the public repo | Update if the Worker host changes |
+| `AUSTRIA_PROXY` (GH Actions, optional) | Proxy URL w/ creds | GitHub Actions repo secret | Fallback `http(s)://`/`socks5://` proxy if the relay egress is also blocked; may embed credentials | Rotate at the proxy provider |
 
 **Tokens and IDs are never committed to the repo.** The `GITHUB_TOKEN` value lives only in Cloudflare's secret store; even the maintainer's local machine doesn't keep a long-lived copy after `wrangler secret put`. The Cloudflare account ID and KV namespace ID are in `wrangler.toml` but those are not secrets — they're public-bound identifiers, useless without the API token.
 

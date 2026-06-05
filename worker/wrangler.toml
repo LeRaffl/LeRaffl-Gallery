@@ -23,3 +23,9 @@ id      = "88b72d5db6444ed2860f0ce5787c0836"
 #   Issues: Read+Write, Contents: Read+Write, Pull requests: Read+Write,
 #   Metadata: Read.
 # Set with: npx wrangler@latest secret put GITHUB_TOKEN
+
+# Secret: AUSTRIA_RELAY_TOKEN (optional) — shared secret gating GET /fetch, the
+#   host-allowlisted fetch relay the Austria fetcher uses to reach Statistik
+#   Austria (which blocks GitHub's IPs). The fetch-austria.yml workflow sends it
+#   as the X-Relay-Token header. Use the same value for the GH Actions secret
+#   AUSTRIA_RELAY_TOKEN. Set with: npx wrangler@latest secret put AUSTRIA_RELAY_TOKEN

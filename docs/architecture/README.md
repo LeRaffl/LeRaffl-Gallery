@@ -30,6 +30,8 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 16 | [16-source-portugal.md](16-source-portugal.md) | Per-country source playbook for Portugal (ACAP via motordata.pt — current-year POST endpoint, OTHERS residual). |
 | 17 | [17-source-canada.md](17-source-canada.md) | Per-country source playbook for Canada (StatCan WDS, cube 20-10-0024 — metadata-driven coordinates, quarterly→middle-month). |
 | 18 | [18-source-colombia.md](18-source-colombia.md) | Per-country source playbook for Colombia (ANDI/FENALCO Boletín PDF — RUNT-sourced, single Hybrid bucket). |
+| 19 | [19-source-new-zealand.md](19-source-new-zealand.md) | Per-country source playbook for New Zealand (transport.govt.nz). |
+| 20 | [20-source-austria.md](20-source-austria.md) | Per-country source playbook for Austria (Statistik Austria DE2/DE3 .ods). **Source blocks GitHub IPs** → fetched via the Cloudflare Worker `/fetch` relay. |
 
 ## Big picture in one diagram
 

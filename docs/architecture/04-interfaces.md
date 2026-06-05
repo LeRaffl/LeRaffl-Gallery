@@ -12,6 +12,9 @@ flowchart LR
     Browser --> Raw["GitHub raw.githubusercontent.com"]
     Browser --> Pages["GitHub Pages static fetch"]
 
+    AustriaAction["fetch-austria.yml"] --> WF["Worker GET /fetch"]
+    WF --> StatAT["www.statistik.at .ods"]
+
     Worker --> GHI["GitHub Issues API"]
     Worker --> GHC["GitHub Contents API"]
     Worker --> GHR["GitHub Git Refs API"]
@@ -290,7 +293,40 @@ Standard relative-URL fetches for `manifest.json`, `params.csv`, `weights.csv`, 
 
 Neither Action needs an outbound secret — workflow-scoped GITHUB_TOKEN is auto-injected by GitHub.
 
+## 4.8 Worker GET /fetch (Austria fetch relay)
+
+### Purpose
+
+Host-allowlisted fetch relay so the Austria fetcher can reach Statistik Austria,
+which blocks GitHub Actions' datacenter IPs. The Worker egresses from a
+non-blocked IP, fetches the target, and streams the raw bytes back unchanged.
+See [20-source-austria.md](20-source-austria.md) for the full story.
+
+### Request
+
+```
+GET /fetch?url=<url-encoded target>
+X-Relay-Token: <AUSTRIA_RELAY_TOKEN>     # required only if the secret is set on the Worker
+```
+
+Called server-to-server by `.github/workflows/fetch-austria.yml` (not the
+browser). `fetch_austria.py` builds the URL via `_get()`.
+
+### Response
+
+- `200` + the upstream body **verbatim** (original `Content-Type`; binary `.ods`
+  preserved), `Cache-Control: public, max-age=300`.
+- Errors: `400` missing/bad `url`; `401` token mismatch; `403` host not in the
+  allow-list (`www.statistik.at`, `data.statistik.gv.at`); `502` upstream error.
+
+### Guardrails
+
+- **Host allow-list** — only Statistik Austria hosts; not an open proxy.
+- **Shared secret** — optional `AUSTRIA_RELAY_TOKEN`; when set the caller must
+  send a matching `X-Relay-Token`.
+
 ## See also
 
 - [05-flows.md](05-flows.md) — sequence diagrams that show these endpoints in context
 - [07-secrets-trust.md](07-secrets-trust.md) — what the PAT can/can't do
+- [20-source-austria.md](20-source-austria.md) — why the `/fetch` relay exists

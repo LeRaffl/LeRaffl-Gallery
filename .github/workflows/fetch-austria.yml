@@ -61,9 +61,16 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        # requests[socks] so AUSTRIA_PROXY may be a socks5:// URL as well as http(s)://.
+        run: pip install "requests[socks]"
 
       - name: Fetch & update Austria CSVs
+        # Statistik Austria blocks GitHub's datacenter IPs. Requests are routed
+        # through the Cloudflare Worker fetch relay (AUSTRIA_FETCH_RELAY, e.g.
+        # https://<worker-host>/fetch?url=, gated by AUSTRIA_RELAY_TOKEN), which
+        # egresses from a non-blocked IP. AUSTRIA_PROXY is an optional fallback
+        # (a real http(s):///socks5:// proxy) if the relay egress is also
+        # blocked. With none set the fetch fails fast with a clear message.
         run: |
           python scripts/fetch_austria.py \
             ${VARIANT:+--variant "$VARIANT"} \
@@ -73,6 +80,9 @@ jobs:
           VARIANT: ${{ inputs.variant }}
           YEAR: ${{ inputs.year }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          AUSTRIA_FETCH_RELAY: ${{ secrets.AUSTRIA_FETCH_RELAY }}
+          AUSTRIA_RELAY_TOKEN: ${{ secrets.AUSTRIA_RELAY_TOKEN }}
+          AUSTRIA_PROXY: ${{ secrets.AUSTRIA_PROXY }}
 
       - name: Detect which CSVs changed
         id: changed
