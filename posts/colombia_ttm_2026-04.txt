@@ -1,0 +1,11 @@
+🌐 Colombia - TTM Market Split
+
+May24–Apr25  vs  May25–Apr26
++3.8pp  BEV     (5.9% → 9.7%)
++5.7pp  Hybrid  (21.9% → 27.6%)
+−9.5pp  ICE     (72.1% → 62.6%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-06.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2031-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
