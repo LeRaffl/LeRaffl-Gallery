@@ -133,9 +133,16 @@ def main() -> None:
                 rows.append(row)
                 seen_periods.add((row.get("variant", ""), row["period"]))
 
+    skipped_neg = 0
     for p in todo:
-        new_row = derive_row(whole[p], rental[p], p)
-        rows.append(new_row)
+        try:
+            new_row = derive_row(whole[p], rental[p], p)
+            rows.append(new_row)
+        except RuntimeError as exc:
+            # Skip months where Rental > Whole for any fuel type (COVID-era
+            # data revisions between UNRAE publications can cause this).
+            print(f"  WARNING skip {p}: {exc}")
+            skipped_neg += 1
 
     rows.sort(key=lambda r: (r.get("variant", ""), r["period"]))
 
@@ -145,7 +152,9 @@ def main() -> None:
         w.writeheader()
         w.writerows(rows)
 
-    print(f"Wrote {len(todo)} row(s) to {NONRENTAL_CSV}.")
+    written = len(todo) - skipped_neg
+    print(f"Wrote {written} row(s) to {NONRENTAL_CSV}"
+          + (f" ({skipped_neg} skipped — negative derived value)." if skipped_neg else "."))
 
 
 if __name__ == "__main__":
