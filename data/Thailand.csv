@@ -96,4 +96,6 @@ period,time_interval,variant,source,BEV,PHEV,HEV,OTHERS,ICE,TOTAL,notes
 2025-11,monthly,Whole,data.thaiauto.or.th,10674.0,1067.0,10733.0,0.0,21732.0,44206.0,
 2025-12,monthly,Whole,data.thaiauto.or.th,14591.0,861.0,8219.0,0.0,19028.0,42700.0,
 2026-01,monthly,Whole,data.thaiauto.or.th,42209.0,1978.0,17174.0,0.0,31142.0,92503.0,
-2026-02,monthly,Whole,data.thaiauto.or.th,4830.0,1024.0,14569.0,,28511.0,48934.0,
+2026-02,monthly,Whole,data.thaiauto.or.th,4830,1021,14569,3,28511,48934,plus Robbie check
+2026-03,monthly,Whole,data.thaiauto.or.th,10130,1172,16118,5,32171,59596,plus Robbie check
+2026-04,monthly,Whole,data.thaiauto.or.th,10030,1280,12641,16,25140,49107,plus Robbie check
