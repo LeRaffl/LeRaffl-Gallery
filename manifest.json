@@ -2,6 +2,46 @@
   "updated": "2026-06-06",
   "images": [
     {
+      "country": "Italy (Nonrental)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-06",
+      "filename": "italy_nonrental_ICE_BEV_20260606.png",
+      "url": "images/2026-05/italy_nonrental_ICE_BEV_20260606.png",
+      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (Nonrental)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-06",
+      "filename": "italy_nonrental_20260606.png",
+      "url": "images/2026-05/italy_nonrental_20260606.png",
+      "alt": "Italy (Nonrental) BEV trajectory",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (Nonrental)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-06",
+      "filename": "italy_nonrental_time_20260606.png",
+      "url": "images/2026-05/italy_nonrental_time_20260606.png",
+      "alt": "Italy (Nonrental) Transition time curve",
+      "country_slug": "italy_nonrental"
+    },
+    {
+      "country": "Italy (Nonrental)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-06",
+      "filename": "italy_nonrental_ttm_shares_20260606.png",
+      "url": "images/2026-05/italy_nonrental_ttm_shares_20260606.png",
+      "alt": "Italy (Nonrental) TTM market split graph",
+      "country_slug": "italy_nonrental"
+    },
+    {
       "country": "Thailand",
       "type": "ICE_BEV",
       "period": "2026-04",
