@@ -1,0 +1,11 @@
+🇮🇹 Italy (NonRental) - May 26 - BEV Trajectory
+10.8% BEV
+5.5% PHEV
+83.8% ICE (of which 49.8%p were HEV)
+
+Trailing 12 months are:
+8.6% BEV
+5.0% PHEV
+86.4% ICE (of which 47.8%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
