@@ -172,11 +172,11 @@ def _first_int(line: str) -> int:
 def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
     block = lines[start:end]
 
-    def find_value(*prefixes: str, required: bool = True) -> int:
+    def find_value(*prefixes: str, required: bool = True, last: bool = False) -> int:
         for pfx in prefixes:
-            for ln in block:
-                if ln.lstrip().startswith(pfx):
-                    return _first_int(ln)
+            matches = [ln for ln in block if ln.lstrip().startswith(pfx)]
+            if matches:
+                return _first_int(matches[-1] if last else matches[0])
         if required:
             raise RuntimeError(
                 f"Row {prefixes[0]!r} not found in 'Per alimentazione' block."
@@ -185,8 +185,10 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
 
     # Older UNRAE PDFs (pre-2021) used different row labels.
     # Primary names are current; fallbacks cover historical variants.
+    # 2019 PDFs used "Elettriche" (no BEV suffix); 2020 grand-total row is
+    # "Totale" not "Totale mercato" — use last=True to skip sub-total rows.
     return {
-        "BEV":    find_value("Elettriche (BEV)", "Elettrici"),
+        "BEV":    find_value("Elettriche (BEV)", "Elettriche", "Elettrici"),
         "PHEV":   find_value("Ibride elettriche plug-in", "Plug-in"),
         "HEV":    find_value("Ibride elettriche (HEV)", "Ibride elettriche", "Ibride"),
         "PETROL": find_value("Benzina"),
@@ -194,7 +196,7 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
         "OTHERS": (find_value("Gpl", required=False)
                    + find_value("Metano", required=False)
                    + find_value("Idrogeno (FCEV)", required=False)),
-        "TOTAL":  find_value("Totale mercato", "Totale"),
+        "TOTAL":  find_value("Totale mercato", "Totale", last=True),
     }
 
 
