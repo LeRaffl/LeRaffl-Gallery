@@ -183,10 +183,10 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
             )
         return 0  # UNRAE omits rows with 0 registrations
 
-    # Older UNRAE PDFs (pre-2021) used different row labels.
-    # Primary names are current; fallbacks cover historical variants.
-    # 2019 PDFs used "Elettriche" (no BEV suffix); 2020 grand-total row is
-    # "Totale" not "Totale mercato" — use last=True to skip sub-total rows.
+    # Label evolution across UNRAE PDF vintages:
+    # - 2019     BEV: "Elettriche"  (no suffix)
+    # - 2019-20  TOTAL: lowercase "totale"; 2020-07+ also has "Totale ECV" sub-total
+    # - 2021+    BEV: "Elettriche (BEV)"; TOTAL: "Totale mercato"
     return {
         "BEV":    find_value("Elettriche (BEV)", "Elettriche", "Elettrici"),
         "PHEV":   find_value("Ibride elettriche plug-in", "Plug-in"),
@@ -196,7 +196,9 @@ def _parse_alimentazione_block(lines: list[str], start: int, end: int) -> dict:
         "OTHERS": (find_value("Gpl", required=False)
                    + find_value("Metano", required=False)
                    + find_value("Idrogeno (FCEV)", required=False)),
-        "TOTAL":  find_value("Totale mercato", "Totale", last=True),
+        # "totale" (lowercase) is the 2019-2020 grand total; must come before
+        # "Totale" to avoid matching the "Totale ECV" sub-total in 2020-07+ PDFs.
+        "TOTAL":  find_value("Totale mercato", "totale", "Totale", last=True),
     }
 
 
