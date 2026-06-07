@@ -46,6 +46,7 @@ STRUTTURA_INDEX = "https://unrae.it/dati-statistici/immatricolazioni"
 SOURCE          = "unrae.it"
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
 RENTAL_CSV      = "data/Italy_Rental.csv"
+WHOLE_CSV       = "data/Italy.csv"
 THROTTLE_S      = 2.0  # seconds between PDF downloads
 
 IT_MONTHS = {
@@ -263,6 +264,37 @@ def _load_existing_periods(csv_path: str) -> set[str]:
         return {r["period"] for r in csv.DictReader(f) if r.get("variant") == "Rental"}
 
 
+def _load_whole(csv_path: str) -> dict[str, dict]:
+    """Load Whole rows from Italy.csv, keyed by period, for cross-validation."""
+    if not os.path.exists(csv_path):
+        return {}
+    out: dict[str, dict] = {}
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if r.get("variant") == "Whole":
+                out[r["period"]] = r
+    return out
+
+
+def _whole_to_int(s: str) -> int:
+    s = (s or "").strip()
+    if s == "":
+        return 0
+    if "." in s or "," in s:
+        return int(round(float(s.replace(",", "."))))
+    return int(s)
+
+
+def _exceeds_whole(rental: dict, whole_row: dict) -> list[str]:
+    """Return list of fuel columns where Rental > Whole (impossible: data
+    revision anomaly, e.g. April 2020 COVID lockdown month). Empty if clean."""
+    bad = []
+    for c in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"):
+        if rental[c] > _whole_to_int(whole_row.get(c, "")):
+            bad.append(f"{c}: Rental={rental[c]} > Whole={_whole_to_int(whole_row.get(c, ''))}")
+    return bad
+
+
 def _upsert(csv_path: str, period: str, cols: dict) -> str:
     rows: list[dict] = []
     old = None
@@ -321,6 +353,7 @@ def main() -> None:
     print(f"Found {len(bulletins)} bulletin(s) on UNRAE website.")
 
     existing = _load_existing_periods(args.csv)
+    whole = _load_whole(WHOLE_CSV)
     to_process = [
         (detail_url, year, month)
         for detail_url, year, month in bulletins
@@ -365,6 +398,17 @@ def main() -> None:
 
             whole_cols, rental_cols = result
             _sanity_check(rental_cols, period)
+
+            # Cross-check against Italy.csv (Whole). If the PDF-derived rental
+            # exceeds the recorded whole-market figure for any fuel type the
+            # month is a data-revision anomaly (e.g. 2020-04 COVID lockdown);
+            # skip it rather than write an unreliable row.
+            if period in whole:
+                bad = _exceeds_whole(rental_cols, whole[period])
+                if bad:
+                    print(f"  SKIP {period}: Rental exceeds Whole — {'; '.join(bad)}")
+                    skipped += 1
+                    continue
 
             print(f"  Rental {period}: BEV={rental_cols['BEV']}  "
                   f"PHEV={rental_cols['PHEV']}  HEV={rental_cols['HEV']}  "
