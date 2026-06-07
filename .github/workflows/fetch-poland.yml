@@ -1,0 +1,92 @@
+name: Fetch Poland data (PZPM eRegistrations)
+
+# Fetches new registrations from PZPM's monthly eRegistrations workbook (CEP)
+# and upserts per-variant CSVs:
+#   * Whole — OSOBOWE (passenger cars)                       -> auto-render
+#   * Vans  — SAMOCHODY DOSTAWCZE (LCV <=3.5t)               -> fetch only
+#   * HDV   — SAMOCHODY CIĘŻAROWE POW. 3,5T (trucks >3.5t)   -> fetch only
+#   * Buses — AUTOBUSY                                       -> fetch only
+#
+# PZPM owns the Whole row (source := "PZPM"); it is the CEP-based upstream behind
+# ACEA's Poland numbers, so Poland was removed from scripts/fetch_acea.py.
+#
+# IMPORTANT: only Whole is auto-rendered on schedule. The commercial variants
+# are fetched and committed (so their history accumulates — the workbook only
+# carries the current month, no history) but NOT auto-rendered, because their
+# history is still very thin (started 2026). Render them on demand via
+# render-country.yml once enough months have accumulated.
+#
+# See scripts/fetch_poland.py and docs/architecture/22-source-poland.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Re-fetch even if the latest period is already present'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+  schedule:
+    # PZPM publishes the previous month around the 7th. Poll on the 6th–10th at
+    # 09:30 and 13:30 UTC; the per-variant early-exit makes runs no-ops once the
+    # latest published month is in each CSV.
+    - cron: '30 9 6-10 * *'
+    - cron: '30 13 6-10 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch & update Poland CSVs (all variants)
+        run: |
+          python scripts/fetch_poland.py ${FORCE:+--force}
+        env:
+          FORCE: ${{ inputs.force == 'true' && '1' || '' }}
+
+      - name: Detect whether Whole changed
+        id: changed
+        run: |
+          # Only the Whole variant is auto-rendered. Commercials are committed
+          # but not rendered on schedule (thin history).
+          git add -N data/Poland.csv 2>/dev/null || true
+          if git diff --quiet -- data/Poland.csv; then
+            echo "whole=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "whole=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Poland.csv
+            data/Poland_Vans.csv
+            data/Poland_HDV.csv
+            data/Poland_Buses.csv
+          message: 'chore: update Poland data from PZPM (eRegistrations)'
+          default_author: github_actions
+
+      - name: Trigger render (Whole only)
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.whole == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Poland \
+            -f variant=Whole

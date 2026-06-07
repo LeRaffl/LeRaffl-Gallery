@@ -82,13 +82,15 @@ The maintainer enumerated two lists:
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Poland, Spain, Switzerland
+    Luxembourg, Norway, Spain, Switzerland
 
-Denmark, Finland, Netherlands and Sweden appear on ACEA's PDF but are
+Denmark, Finland, Netherlands, Poland and Sweden appear on ACEA's PDF but are
 intentionally out of scope here — the maintainer pulls those from national
 databases that also carry variants ACEA doesn't expose (Private / Industry /
-Used / HDV). Sweden additionally has a non-standard CSV schema (FLEXFUEL
-column).
+Used / HDV / Vans / Buses). Poland comes from PZPM's CEP-based eRegistrations
+workbook (scripts/fetch_poland.py), which is the upstream source behind ACEA's
+Poland numbers and additionally carries Vans/HDV/Buses. Sweden additionally has
+a non-standard CSV schema (FLEXFUEL column).
 
 For the prior-year correction (e.g. the March 2025 column of a March 2026
 file) the rule from the maintainer is identical to the conditional rule
@@ -121,14 +123,15 @@ ALWAYS_COUNTRIES = [
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
-    "Luxembourg", "Norway", "Poland", "Spain", "Switzerland",
+    "Luxembourg", "Norway", "Spain", "Switzerland",
 ]
-# Intentionally NOT in scope: Denmark, Finland, Netherlands, Sweden. The
-# maintainer pulls those from national databases that also carry variants
-# ACEA doesn't expose (Private / Industry / Used / HDV), so the database
-# pipeline is the preferred source and ACEA would only muddy the water.
-# Sweden additionally has a non-standard schema (FLEXFUEL column) that ACEA
-# can't fill. These four are handled by a separate workflow to be built later.
+# Intentionally NOT in scope: Denmark, Finland, Netherlands, Poland, Sweden.
+# The maintainer pulls those from national databases that also carry variants
+# ACEA doesn't expose (Private / Industry / Used / HDV / Vans / Buses), so the
+# national pipeline is the preferred source and ACEA would only muddy the water.
+# Poland: PZPM eRegistrations (scripts/fetch_poland.py) — the CEP-based upstream
+# behind ACEA's Poland numbers. Sweden additionally has a non-standard schema
+# (FLEXFUEL column) that ACEA can't fill. Each is handled by its own workflow.
 ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
 
 ENGLISH_MONTHS = [
