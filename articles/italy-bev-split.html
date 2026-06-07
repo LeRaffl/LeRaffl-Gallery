@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Italy's Slow BEV Transition Is Really Two Stories — LeRaffl</title>
+<meta name="description" content="Split the data and you see it's not the people of Italy — it's the rental market. By LeRaffl, June 2026.">
+<meta name="theme-color" content="#0a0d10">
+<meta property="og:title" content="Italy's Slow BEV Transition Is Really Two Stories">
+<meta property="og:description" content="Split the data and you see it's not the people of Italy — it's the rental market.">
+<meta property="og:type" content="article">
+<script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
+a{color:#4da3ff;text-decoration:none}
+a:hover{text-decoration:underline}
+
+header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
+header .bar{max-width:900px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+header .back{display:inline-flex;align-items:center;gap:6px;color:#9fb3d1;font-size:14px;text-decoration:none;transition:color .15s}
+header .back:hover{color:#e9eef2;text-decoration:none}
+header .back svg{opacity:.7}
+header .site{font-size:14px;color:#4a6a8a}
+
+.article{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+
+.article-header{margin-bottom:40px}
+.article-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4da3ff;margin-bottom:14px}
+h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;color:#e9eef2}
+.article-sub{font-size:clamp(16px,2.2vw,20px);color:#9fb3d1;margin:0 0 24px;line-height:1.45;font-weight:400}
+.byline{font-size:13px;color:#4a6a8a;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.byline strong{color:#9fb3d1}
+.byline a{color:#4a6a8a}
+.byline a:hover{color:#9fb3d1}
+
+.article-body{font-size:16px;line-height:1.75;color:#c0cde0}
+.article-body p{margin:0 0 1.4em}
+.article-body h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
+.article-body ul{margin:0 0 1.4em;padding-left:1.4em}
+.article-body li{margin-bottom:0.6em}
+.article-body strong{color:#e9eef2;font-weight:600}
+
+.chart-block{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.chart-block img{width:100%;height:auto;display:block}
+.chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+
+.live-chart-block{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.live-chart-block .chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+#liveChart{width:100%;height:420px}
+
+.article-footer{margin-top:48px;padding-top:24px;border-top:1px solid #1f2a44;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.article-footer-left{font-size:13px;color:#4a6a8a;line-height:1.6}
+.article-footer-left strong{color:#9fb3d1}
+.social-links{display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #1f2a44;background:#101a33;color:#e9eef2;font-size:13px;font-weight:500;text-decoration:none;transition:border-color .15s,background .15s}
+.btn:hover{border-color:#3a4a72;background:#162235;text-decoration:none}
+
+@media(max-width:600px){
+  .article{padding:32px 16px 60px}
+  .article-footer{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="../#about" class="back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Gallery
+    </a>
+    <span class="site">BEV Trajectories</span>
+  </div>
+</header>
+
+<main class="article">
+
+  <div class="article-header">
+    <div class="article-label">Analysis · June 2026</div>
+    <h1>Italy's Slow BEV Transition Is Really Two Stories</h1>
+    <p class="article-sub">Split the data and you see it's not the people of Italy</p>
+    <div class="byline">
+      <span>By <strong>@LeRaffl</strong></span>
+      <span>·</span>
+      <span>Data: <a href="https://www.unrae.it" target="_blank" rel="noopener">unrae.it</a></span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>Italy is one of Europe's slowest BEV markets. In my <a href="../#gallery">BEV Trajectory Gallery</a>, the whole-market curve needs around 25 years to climb from 20% to 80% BEV share, which is bottom-tier territory, down with Slovakia and Lithuania. But that single number turns out to be a picture that has room for a deep dive, and I only had to do one thing to do that dive: split Italy's UNRAE registrations into rental fleets and everything else.</p>
+
+    <p>A quick word on the split, because it isn't the obvious one. My Rental segment combines long-term rental (NLT), short-term rental (NBT), and rental-flagged dealer registrations (together about a third of all Italian registrations). NonRental is the rest, mostly private buyers, plus some direct corporate purchases and private leases. It's a split by registration channel, not by "person versus company", although it is not too far off.</p>
+
+    <h2>The observation</h2>
+
+    <p>Here's the whole market — the number everyone quotes:</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/italy_20260601.png" alt="Italy BEV share trajectory — all registrations" loading="lazy">
+      <div class="chart-caption">Italy, all registrations: ~25 years from 20% to 80%.</div>
+    </div>
+
+    <p>Now everything except rental fleets:</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/italy_nonrental_20260607.png" alt="Italy BEV share trajectory — non-rental" loading="lazy">
+      <div class="chart-caption">Italy, non-rental: ~17.5 years.</div>
+    </div>
+
+    <p>And rental fleets alone:</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/italy_rental_20260603.png" alt="Italy BEV share trajectory — rental only" loading="lazy">
+      <div class="chart-caption">Italy, rental only: ~85 years.</div>
+    </div>
+
+    <div class="live-chart-block">
+      <div id="liveChart"></div>
+      <div class="chart-caption">All three curves together — the divergence at a glance. Live from the Gallery's fitted parameters.</div>
+    </div>
+
+    <p>That's the whole story in three pictures. Strip out the rental fleets and Italy's transition time drops from ~25 years to ~17, which still not fast, but a completely different league as it is Spain / Romania / South Korea territory: unspectacular, but clearly moving. The ~25 year blended figure, by contrast, sits in a much slower group. And the rental curve on its own? Effectively frozen.</p>
+
+    <p>Since rental is roughly a third of Italian registrations, that frozen segment is heavy enough to drag the national average down into laggard territory. So the headline "Italy is slow" is real, but the diagnosis hidden behind it is the interesting part: The people of Italy are adopting BEVs at a fairly ordinary pace. The rental market is what's stuck. And if anything, the pure-private slice is probably a little faster still than the ~17 year NonRental figure, since NonRental also contains corporate and self-registration channels.</p>
+
+    <h2>Why the rental market specifically</h2>
+
+    <p>Once you see it as a rental problem, the mechanism is fairly intuitive. A private buyer chooses a BEV: they read up on it, they know where they'll charge, they accept the early-adopter quirks because they opted in. A rental customer does none of that. They land at an airport, they're handed whatever's on the lot (often a brand they've never driven) and they drive off immediately. There's no research phase, no adaptation window. The car has to just work, from minute one, for someone who knows nothing about charging in Italy.</p>
+
+    <p>And that's exactly where Italy's charging network lets them down. Take Tuscany. In a town like Lucca there's some charging, though not much and not cheap. Drive out into the hills and the rural interior where a huge part of the appeal of the region is, and there's essentially nothing. The coastal resort strips are sometimes better, but a tourist in a rented BEV doesn't know in advance which of those worlds they're driving into, and they have no way to plan around it. One bad experience, be it a dead battery in the hills, or a charger that bills some absurd ad-hoc rate with no warning, and that's their whole opinion of EVs, on Italy and on the rental company formed.</p>
+
+    <p>A Tesla driver sidesteps all of this: type the destination, the car routes through Superchargers, it always works, you don't have to know anything. That's the standard the rest of the market has to match, but in Italy it doesn't. Tesla doesn't dominate here, people and the rental companies want other brands as well, and those brands rely on whoever happens to operate the local chargers and sell the electricity. Right now that patchwork simply doesn't deliver a Tesla-grade experience. The rental operator, sitting in the middle, carries all the risk: hand a tourist a BEV that strands them, and the complaint lands on the rental company, not on the customer's own choice. So they keep buying Diesel.</p>
+
+    <h2>Why this matters more than one slow segment</h2>
+
+    <p>It would be easy to file this under "one channel lags, no big deal". I think that undersells it, because of what Italy is. Italy isn't going to win the car-manufacturing race. Me saying that should surprise no one. A brand like Fiat isn't going to win the Italian BEV market race while globally everything is consolidating hard around Tesla, BYD and a handful of other brands mostly from Asia. No, what Italy is, overwhelmingly, is a tourism country.</p>
+
+    <p>The rest of the world is electrifying. Within a few years, the visitors arriving in Italy will increasingly be BEV drivers by default, that's simply what they'll have at home and what they'll expect to rent. For a while they'll tolerate being handed a combustion car in Italy, because "that's just how Italy is". But that tolerance has a shelf life. A visitor who has a frustrating BEV experience in Tuscany and a smooth one in Spain or France draws the obvious conclusion about where to go next time. The frozen rental curve isn't a charging statistic but an early warning sign about the competitiveness of Italy's single most important industry.</p>
+
+    <h2>What would actually move it</h2>
+
+    <p>The encouraging flip side: a structural problem is a fixable problem. A few levers exist, none of which require a technological breakthrough.</p>
+
+    <ul>
+      <li><strong>Build a real national fast-charging backbone.</strong> Italy specifically needs DC coverage. I'm an AC charging fan in general, but tourists need speed more than they do an overnight trickle. Think of Deutschlandnetz or the Supercharger network: dense enough that you never have to think about it, including the rural and interior routes, not just cities and motorways.</li>
+      <li><strong>Cap the surprises.</strong> Tourists don't arrive with charging subscriptions and RFID cards, they get a car and charge ad hoc. So ad-hoc pricing needs an upper bound and has to be shown clearly before you plug in. That's not central planning, it's consumer protection. Ideally cost per kWh would be such that things end up cheaper than with fossil cars, but having a cap before prices get ridiculous is the minimum.</li>
+      <li><strong>Subsidise charging where visitors already are.</strong> Incentives for Airbnb hosts and hotels to install wallboxes, support for supermarket and restaurant charging (the Lidl model in other countries is the obvious template). Let private operators build it and the government just helps out. A host who wants happy guests and a restaurant chain that wants to feed footfall fans will do the rest.</li>
+      <li><strong>Use fleet quotas if needed.</strong> A minimum BEV share for rental and leasing fleets would move a third of the market on a defined timeline while giving the industry some certainty, but it only works if the charging exists first. Network before mandate, otherwise you're forcing operators into the exact trap that froze the curve.</li>
+    </ul>
+
+    <p>Coordination is needed, mostly from the government, because no single rental operator can or should be expected to wire up the country.</p>
+
+    <h2>The part that travels</h2>
+
+    <p>The reason I find this worth writing up is that the method generalizes, even if Italy's specifics don't. The principle underneath is that infrastructure and adoption have to grow together. When BEVs on the road get ahead of a charging network that's reliable, affordable and widespread, the strain shows up first in whoever didn't choose the car. In Italy that's rental tourists. Elsewhere it could be mandated company fleets, apartment-dwellers with no home charging, or an outlier region. Same failure mode, different costume.</p>
+
+    <p>Spain is the obvious next place to look, comparable tourism, comparable geography, quite possibly the same hidden split. I don't have the data on that yet, but I think general advice can be given:</p>
+
+    <ul>
+      <li>Find the drivers who didn't opt in, they're an early-warning indicator.</li>
+      <li>For a tourism economy, prioritise DC coverage where people drive, rather than where your population lives.</li>
+      <li>Cap ad-hoc prices somehow.</li>
+      <li>Build the network before scaling purchase incentives or mandates.</li>
+    </ul>
+
+    <p>Italy's headline says "laggard". The split says something both more accurate and more actionable: The people are fine. Worry about your Tourism. Improve your country!</p>
+
+  </div>
+
+  <div class="article-footer">
+    <div class="article-footer-left">
+      By <strong>@LeRaffl</strong> · Data: <a href="https://www.unrae.it" target="_blank" rel="noopener">unrae.it</a><br>
+      Charts from <a href="../#gallery">BEV Trajectory Gallery</a>
+    </div>
+    <div class="social-links">
+      <a href="https://x.com/leRaffl" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @LeRaffl
+      </a>
+      <a href="https://bsky.app/profile/leraffl.bsky.social" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0173-2.9357-1.1937.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.109 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>
+        Bluesky
+      </a>
+      <a href="../#gallery" class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Gallery
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(function(){
+  function parseCSV(text){
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+      const vals = line.split(',');
+      const row = {};
+      headers.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
+      return row;
+    });
+  }
+
+  function bevShare(year, v1, v2, t0){
+    const z = year - t0;
+    if(z <= 0) return 0;
+    return Math.max(0, Math.min(100, 100 * (1 - Math.exp(v1 * Math.pow(z, v2)))));
+  }
+
+  function yearToLabel(y){
+    const yr = Math.floor(y + 1e-9);
+    const mo = Math.round(((y - yr) + 1e-9) * 12) + 1;
+    return yr + '-' + String(mo).padStart(2, '0');
+  }
+
+  function makeCurve(v1, v2, t0){
+    const xs = [], ys = [], labels = [];
+    for(let m = 2015 * 12; m <= 2050 * 12; m++){
+      const y = m / 12;
+      xs.push(y);
+      ys.push(bevShare(y, v1, v2, t0));
+      labels.push(yearToLabel(y));
+    }
+    return { xs, ys, labels };
+  }
+
+  const SLOTS = [
+    { key: 'Whole',     label: 'Italy — all',     color: '#4da3ff' },
+    { key: 'NonRental', label: 'Italy — non-rental', color: '#f5a623' },
+    { key: 'Rental',    label: 'Italy — rental',  color: '#7ed4a4' },
+  ];
+
+  async function render(){
+    const el = document.getElementById('liveChart');
+    if(!el || typeof Plotly === 'undefined') return;
+
+    let rows;
+    try {
+      const r = await fetch('../params.csv', { cache: 'no-store' });
+      rows = parseCSV(await r.text());
+    } catch(e) { return; }
+
+    const traces = SLOTS.map(slot => {
+      const row = rows.find(r =>
+        r.country === 'Italy' &&
+        (r.variant || 'Whole').toLowerCase() === slot.key.toLowerCase()
+      );
+      if(!row) return null;
+      const v1 = parseFloat(row.v1), v2 = parseFloat(row.v2), t0 = parseFloat(row.t0);
+      if(!isFinite(v1) || !isFinite(v2) || !isFinite(t0)) return null;
+      const { xs, ys, labels } = makeCurve(v1, v2, t0);
+      return {
+        x: xs, y: ys, customdata: labels, mode: 'lines', name: slot.label,
+        line: { color: slot.color, width: 2.5 },
+        hovertemplate: '%{customdata}: %{y:.1f}%<extra>' + slot.label + '</extra>'
+      };
+    }).filter(Boolean);
+
+    if(!traces.length) return;
+
+    const caption = el.closest('.live-chart-block').querySelector('.chart-caption');
+    if(caption){
+      const dates = SLOTS.map(slot => {
+        const row = rows.find(r =>
+          r.country === 'Italy' &&
+          (r.variant || 'Whole').toLowerCase() === slot.key.toLowerCase()
+        );
+        return row ? `${slot.label}: ${row.model_date}` : null;
+      }).filter(Boolean);
+      caption.textContent = `Live from the Gallery's fitted parameters — ${dates.join(' · ')}`;
+    }
+
+    Plotly.newPlot(el, traces, {
+      paper_bgcolor: '#0f1525',
+      plot_bgcolor:  '#0f1525',
+      font: { color: '#9fb3d1', family: 'system-ui, sans-serif', size: 12 },
+      margin: { t: 24, r: 24, b: 48, l: 44 },
+      xaxis: {
+        range: [2015, 2050],
+        gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44',
+        tickfont: { color: '#4a6a8a' }
+      },
+      yaxis: {
+        range: [0, 100], ticksuffix: '%',
+        gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44',
+        tickfont: { color: '#4a6a8a' }
+      },
+      legend: {
+        bgcolor: 'rgba(15,21,37,0.85)',
+        bordercolor: '#1f2a44', borderwidth: 1,
+        font: { color: '#c0cde0' },
+        x: 0.02, y: 0.98
+      },
+      hovermode: 'closest',
+      hoverlabel: { bgcolor: '#0f1525', bordercolor: '#1f2a44', font: { color: '#e9eef2' } }
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    // Plotly might not be ready yet (defer); wait for it
+    const wait = setInterval(() => {
+      if(typeof Plotly !== 'undefined'){ clearInterval(wait); render(); }
+    }, 50);
+  }
+})();
+</script>
+</body>
+</html>
