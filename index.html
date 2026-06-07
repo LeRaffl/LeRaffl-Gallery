@@ -2337,7 +2337,7 @@ a:focus-visible{
         </div>
       </div>
       <div class="field settings-block is-compact">
-        <label>Variant</label>
+        <label>Variant <span style="opacity:.65;font-size:.85em">(groups)</span></label>
         <select id="compareVariant">
           <option value="whole" selected>New Cars</option>
           <option value="hdv">HDV</option>
@@ -2363,9 +2363,11 @@ a:focus-visible{
       </div>
       <div class="spacer"></div>
       <p class="small">
-        Side-by-side comparison of 2–3 curves. Each slot can be an individual country or an aggregated region
-        (e.g. EU, World), weighted by <code>weights.csv</code> like in Builder. The powertrain selector switches
-        all slots together — you can only compare BEV vs. BEV, ICE vs. ICE, or PHEV vs. PHEV (no mixing).
+        Side-by-side comparison of 2–3 curves. Each slot can be an individual country (including a specific
+        variant like Italy · Rental) or an aggregated region (e.g. EU, World), weighted by <code>weights.csv</code>
+        like in Builder. The powertrain selector switches all slots together — you can only compare BEV vs. BEV,
+        ICE vs. ICE, or PHEV vs. PHEV (no mixing). The <em>Variant (groups)</em> selector applies only to
+        aggregate slots; individual country slots carry their own variant.
       </p>
     </div>
     <div class="card builder-card">
@@ -5016,7 +5018,39 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
   function initCompare(){
     const slots = ['compareSlot1','compareSlot2','compareSlot3'].map(id => document.getElementById(id));
     if(!slots[0]) return;
-    const countries = [...new Set(PARAM_ROWS.map(r=>r.country).filter(Boolean))].sort();
+
+    // Build ordered country → [variant, …] map from params.csv rows.
+    // Whole (canonical) is always listed first; others follow in insertion order.
+    const cvMap = new Map(); // country -> variant[]
+    PARAM_ROWS.forEach(r => {
+      if(!r.country) return;
+      if(!cvMap.has(r.country)) cvMap.set(r.country, []);
+      const arr = cvMap.get(r.country);
+      if(!arr.includes(r.variant)) arr.push(r.variant);
+    });
+    // Sort countries alphabetically; within each country put Whole first.
+    const sortedCountries = [...cvMap.keys()].sort();
+    sortedCountries.forEach(c => {
+      const arr = cvMap.get(c);
+      arr.sort((a, b) => {
+        const aw = normalizeBase(a) === 'whole', bw = normalizeBase(b) === 'whole';
+        if(aw && !bw) return -1;
+        if(!aw && bw) return 1;
+        return a.localeCompare(b);
+      });
+    });
+
+    // Build variant-suffix lookup from what PARAM_ROWS actually contains.
+    // Used by fetchCompareObs to derive the data file path.
+    VARIANT_SUFFIX_MAP = {};
+    PARAM_ROWS.forEach(r => {
+      if(!r.variant) return;
+      const canon = normalizeBase(r.variant);
+      if(!(canon in VARIANT_SUFFIX_MAP)){
+        VARIANT_SUFFIX_MAP[canon] = canon === 'whole' ? '' : '_' + r.variant;
+      }
+    });
+
     const groupLabels = {
       world:'World', eu:'EU', g7:'G7',
       western_europe:'Western Europe', northern_europe:'Northern Europe',
@@ -5044,23 +5078,35 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
 
       const grpC = document.createElement('optgroup');
       grpC.label = 'Countries';
-      countries.forEach(c => {
-        const o = document.createElement('option');
-        o.value = 'country:' + c;
-        o.textContent = c;
-        grpC.appendChild(o);
+      sortedCountries.forEach(c => {
+        const variants = cvMap.get(c);
+        const multi = variants.length > 1;
+        variants.forEach(v => {
+          const o = document.createElement('option');
+          o.value = 'country:' + c + ':' + v;
+          // Single-variant country → just the country name.
+          // Multi-variant Whole → "Country · Whole"; others → "Country · Variant".
+          o.textContent = multi ? c + ' · ' + v : c;
+          grpC.appendChild(o);
+        });
       });
       sel.appendChild(grpC);
     });
     // Sensible defaults so the first paint shows something.
     slots[0].value = 'group:eu';
     slots[1].value = 'group:asia';
-    slots[2].value = 'country:Norway';
+    slots[2].value = 'country:Norway:' + (cvMap.get('Norway')?.[0] || 'Whole');
   }
 
+  // Parse slot value: country:Name:Variant  or  group:key
+  // Returns the country name (for country slots) or [] (for group slots).
   function compareCountriesFor(slotValue){
     if(!slotValue) return [];
-    if(slotValue.startsWith('country:')) return [slotValue.slice(8)];
+    if(slotValue.startsWith('country:')){
+      const rest = slotValue.slice(8);            // "Name:Variant"
+      const colon = rest.indexOf(':');
+      return [colon === -1 ? rest : rest.slice(0, colon)];
+    }
     if(slotValue.startsWith('group:')){
       const key = slotValue.slice(6);
       const fn = BUILDER_GROUPS[key];
@@ -5069,9 +5115,28 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
     return [];
   }
 
+  // Returns the canonical variant for a slot:
+  //   - country slot → variant embedded in slot value
+  //   - group  slot  → fallback (from the global "Variant (groups)" dropdown)
+  function slotVariantCanon(slotValue, fallback){
+    if(slotValue && slotValue.startsWith('country:')){
+      const rest = slotValue.slice(8);
+      const colon = rest.indexOf(':');
+      return colon === -1 ? 'whole' : normalizeBase(rest.slice(colon + 1));
+    }
+    return fallback;
+  }
+
   function compareLabelFor(slotValue){
     if(!slotValue) return '';
-    if(slotValue.startsWith('country:')) return slotValue.slice(8);
+    if(slotValue.startsWith('country:')){
+      const rest = slotValue.slice(8);
+      const colon = rest.indexOf(':');
+      if(colon === -1) return rest;
+      const country = rest.slice(0, colon);
+      const variant = rest.slice(colon + 1);
+      return normalizeBase(variant) === 'whole' ? country : country + ' · ' + variant;
+    }
     if(slotValue.startsWith('group:')){
       const key = slotValue.slice(6);
       const sel = document.getElementById('compareSlot1');
@@ -5090,11 +5155,12 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
     return 1;
   }
 
-  function compareCurve(slotValue, variantCanon, powertrain){
+  function compareCurve(slotValue, groupVariantCanon, powertrain){
+    const vc = slotVariantCanon(slotValue, groupVariantCanon);
     const countriesList = compareCountriesFor(slotValue);
     if(!countriesList.length) return null;
     const countrySet = new Set(countriesList);
-    const rows = PARAM_ROWS.filter(r => countrySet.has(r.country) && normalizeBase(r.variant) === variantCanon);
+    const rows = PARAM_ROWS.filter(r => countrySet.has(r.country) && normalizeBase(r.variant) === vc);
     if(!rows.length) return null;
     const xs = [], ys = [];
     for (let year = 2015; year <= 2050; year += 0.05){
@@ -5152,10 +5218,11 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
   // the annual volume-weighted share is exactly the centre of mass the fit
   // tracks. Each file is fetched once and cached.
   const COMPARE_OBS_CACHE = {};                       // filename -> Promise<row[]>
-  const COMPARE_VARIANT_FILE = { whole:'', hdv:'_HDV', vans:'_Vans' };
+  // VARIANT_SUFFIX_MAP is populated lazily by initCompare() from PARAM_ROWS.
+  let VARIANT_SUFFIX_MAP = {};
 
   function fetchCompareObs(country, variantCanon){
-    const suffix = COMPARE_VARIANT_FILE[variantCanon] || '';
+    const suffix = VARIANT_SUFFIX_MAP[variantCanon] ?? '';
     const file = `data/${country}${suffix}.csv`;
     if(!COMPARE_OBS_CACHE[file]){
       COMPARE_OBS_CACHE[file] = fetch(file, { cache:'no-store' })
@@ -5177,10 +5244,11 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
     return { num: Math.max(0, total - bev - phev - erev), den: total }; // ICE
   }
 
-  async function compareObsPoints(slotValue, variantCanon, powertrain){
+  async function compareObsPoints(slotValue, groupVariantCanon, powertrain){
+    const vc = slotVariantCanon(slotValue, groupVariantCanon);
     const members = compareCountriesFor(slotValue);
     if(!members.length) return null;
-    const perCountry = await Promise.all(members.map(c => fetchCompareObs(c, variantCanon)));
+    const perCountry = await Promise.all(members.map(c => fetchCompareObs(c, vc)));
     const byYear = new Map();                          // year -> {num, den}
     perCountry.forEach(rows => rows.forEach(row => {
       const yr = parseInt(String(row.period||'').slice(0,4), 10);
