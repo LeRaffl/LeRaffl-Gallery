@@ -131,6 +131,22 @@ The renderer is unaffected: it always filters TTM/recent calculations on
 rows are intentionally left as-is rather than corrected, to signal their lower
 resolution. Do not re-label them `monthly`.
 
+### Rental / NonRental history & provenance
+
+| Period | Rental / NonRental source | notes column |
+|---|---|---|
+| 2019-06 → present | **Real.** UNRAE "al netto del noleggio" block; `Rental = Whole − netto`, `NonRental = Whole − Rental` (exact). | empty |
+| 2015-01 → 2019-05 | **Estimated.** No rental block exists in pre-2019-06 UNRAE PDFs, so `Rental = round(Whole × per-fuel rental share)` using the 2019-H2 actual shares; `NonRental = Whole − Rental`. | `est: Whole x rental-share(2019-H2); …` |
+| 2020-04 | **Omitted** from Rental & NonRental — COVID-lockdown data-revision anomaly (PDF rental BEV > recorded Whole BEV). | — |
+
+The 2019-H2 reference shares (BEV 39.8 %, PHEV 42.4 %, HEV 18.5 %, PETROL
+11.8 %, DIESEL 33.4 %, OTHERS 8.4 %, TOTAL 20.3 %) are the earliest *real*
+rental data, pre-COVID and closest in time to the estimated span. Estimated
+rows satisfy `Rental + NonRental == Whole` exactly. The 2015–2016 estimates
+inherit the lower resolution of the underlying quarterly Whole rows (only
+BEV/PHEV/HEV + TOTAL populated). Regenerate with
+`scripts/estimate_italy_rental_history.py` (pure CSV arithmetic, no network).
+
 ## 2. PKW flow (Whole + Rental)
 
 UNRAE has no public data API. The PKW bulletin is a two-page PDF:
@@ -277,3 +293,9 @@ Dispatch `fetch-italy.yml` with manual inputs to bypass discovery:
 - **PKW PDF layout dependency.** If UNRAE restructures the Struttura del
   mercato (column order, section headings, fuel naming), the strict sanity
   check guards against silent misparses.
+- **Pre-2019-06 Rental/NonRental are estimates.** UNRAE PDFs before 2019-06
+  carry no rental breakdown; those rows are modelled from Whole × 2019-H2
+  rental shares and flagged in the `notes` column (see §2). They assume a
+  flat rental share back through 2015 — adequate for fitting the long-run
+  adoption curve, but not month-accurate, and 2015–2016 inherit the
+  quarterly-approximation resolution of their Whole source.
