@@ -98,7 +98,9 @@ one line. Current example: Italy's `Rental`/`NonRental` split before `2019-06`
 [18-source-italy.md § Rental/NonRental history](18-source-italy.md) and
 `scripts/estimate_italy_rental_history.py`). Estimated rows still satisfy every
 structural invariant (here `Rental + NonRental == Whole`); only their origin
-differs. An empty `notes` therefore means "directly from the source".
+differs. An empty `notes` means "directly from the source" **for rows written
+or reviewed under this convention (June 2026 onward)**; legacy rows predating
+it may also carry empty `notes` simply because the convention didn't exist yet.
 
 ### Owner / lifecycle
 
