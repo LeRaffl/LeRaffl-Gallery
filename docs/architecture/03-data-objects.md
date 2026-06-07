@@ -87,6 +87,19 @@ if not new_row["notes"] and old is not None:
 
 Scripts that build `new_row` with meaningful notes (Brazil, Netherlands, Japan, China — where `notes` carries provenance) always populate it explicitly, so the preservation guard is a no-op for them.
 
+**Estimated-value convention.** When a row's figures are **modelled rather than
+observed** (a real source value is unavailable for that period), the row is
+written with a short provenance phrase in `notes` so the estimate is never
+mistaken for ground truth. The phrase states *how* the estimate was derived, in
+one line. Current example: Italy's `Rental`/`NonRental` split before `2019-06`
+— UNRAE PDFs carry no rental breakdown that far back, so those rows are
+`Whole × 2019-H2 rental share` and tagged
+`est: Whole x rental-share(2019-H2); …` (see
+[18-source-italy.md § Rental/NonRental history](18-source-italy.md) and
+`scripts/estimate_italy_rental_history.py`). Estimated rows still satisfy every
+structural invariant (here `Rental + NonRental == Whole`); only their origin
+differs. An empty `notes` therefore means "directly from the source".
+
 ### Owner / lifecycle
 
 - **Author**: Maintainer (when transcribing from source) or Public Visitor (via Submit Data form, then merged after review).

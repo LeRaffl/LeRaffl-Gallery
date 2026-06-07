@@ -54,6 +54,16 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | `Vans` | **Light commercial** goods vehicles (vans, pickups). | **N1** (≤ 3.5 t) | |
 | `HDV` | **Heavy goods** vehicles (lorries / trucks — freight, not people). | **N2 + N3** (> 3.5 t) | See the cross-country deviation note below. |
 | `Buses` | **Buses & coaches.** | **M2 + M3** | Very low volume in most countries → lumpy, batch-driven fleet orders make the TTM share swing hard (this is real, not a bug — see e.g. Ireland Buses). |
+| `Rental` | Passenger cars registered to the **short-/long-term rental channel** ("noleggio"). | M1 | Italy only. `Rental = Whole − (al netto del noleggio)` from the UNRAE PDF. Real from `2019-06`; **estimated before that** (flagged in `notes`). `Rental + NonRental = Whole`. |
+| `NonRental` | Passenger cars registered **outside** the rental channel (private + company + self-registration). | M1 | Italy only. The UNRAE "al netto del noleggio" block; derived as `Whole − Rental`. Same real/estimated cutover as `Rental`. |
+
+> **Italy estimated history.** Both `Rental` and `NonRental` are *real* from
+> `2019-06` (first UNRAE bulletin with the rental block) and **modelled** for
+> `2015-01 … 2019-05` by applying the 2019-H2 per-fuel rental share to `Whole`.
+> Every estimated row is flagged in its `notes` column; `2020-04` is omitted
+> from both (COVID-lockdown data anomaly). See
+> [18-source-italy.md](18-source-italy.md) and
+> [03-data-objects.md § Estimated-value convention](03-data-objects.md).
 
 ### Per-country variant → source category
 
@@ -99,7 +109,7 @@ The HDV intent is "heavy goods vehicles > 3.5 t = N2 + N3". Most sources expose 
 |---|---|---|
 | **slug** | Lowercase form of country (and optionally variant) with non-alphanumerics replaced by `_`. Used in image filenames and post filenames. | `germany`, `new_zealand`, `denmark_hdv` |
 | **country** | The display name of the country | `Germany`, `Türkiye`, `New Zealand` |
-| **variant** | A within-country slice | `Whole` (default — labelled "New Cars" in the UI), `Custom`, `HDV`, `Vans`, `Private`, `Industry`, `2-Wheelers`, `3-Wheelers`, `4-Wheelers`, `Used`, `Used Imports`, `Fleet` |
+| **variant** | A within-country slice | `Whole` (default — labelled "New Cars" in the UI), `Custom`, `HDV`, `Vans`, `Private`, `Industry`, `Rental`, `NonRental`, `2-Wheelers`, `3-Wheelers`, `4-Wheelers`, `Used`, `Used Imports`, `Fleet` |
 | **type** (in chart filenames) | One of the four canonical chart types | empty (BEV trajectory), `ICE_BEV`, `time`, `ttm_shares` |
 
 ## Model parameters
