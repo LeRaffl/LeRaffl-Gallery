@@ -1,4 +1,57 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2015-01,quarterly,NonRental,unrae.it,86,1081,236,,,,105612,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-02,quarterly,NonRental,unrae.it,69,950,208,,,,108045,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-03,quarterly,NonRental,unrae.it,197,1217,267,,,,129414,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-04,quarterly,NonRental,unrae.it,55,1004,220,,,,118801,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-05,quarterly,NonRental,unrae.it,55,1077,236,,,,117233,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-06,quarterly,NonRental,unrae.it,91,1153,253,,,,117187,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-07,quarterly,NonRental,unrae.it,54,832,182,,,,105412,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-08,quarterly,NonRental,unrae.it,26,416,91,,,,47468,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-09,quarterly,NonRental,unrae.it,48,1310,287,,,,104453,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-10,quarterly,NonRental,unrae.it,54,1207,265,,,,106809,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-11,quarterly,NonRental,unrae.it,53,1221,267,,,,107805,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2015-12,quarterly,NonRental,unrae.it,69,1181,259,,,,89322,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-01,quarterly,NonRental,unrae.it,69,1650,361,,,,125608,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-02,quarterly,NonRental,unrae.it,56,1787,391,,,,139304,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-03,quarterly,NonRental,unrae.it,120,1671,366,,,,153780,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-04,quarterly,NonRental,unrae.it,58,1515,332,,,,135414,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-05,quarterly,NonRental,unrae.it,56,1820,399,,,,151443,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-06,quarterly,NonRental,unrae.it,51,1563,342,,,,133271,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-07,quarterly,NonRental,unrae.it,43,1354,297,,,,110490,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-08,quarterly,NonRental,unrae.it,29,775,170,,,,57933,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-09,quarterly,NonRental,unrae.it,87,1996,438,,,,124508,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-10,quarterly,NonRental,unrae.it,88,1739,381,,,,119098,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-11,quarterly,NonRental,unrae.it,65,1769,388,,,,119282,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2016-12,quarterly,NonRental,unrae.it,118,1767,387,,,,102786,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-01,monthly,NonRental,unrae.it,113,2360,517,,,,138072,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-02,monthly,NonRental,unrae.it,72,85,4296,54496,69374,13095,141418,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-03,monthly,NonRental,unrae.it,138,100,4626,66889,85661,15943,173357,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-04,monthly,NonRental,unrae.it,75,92,3716,44772,62939,10740,122334,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-05,monthly,NonRental,unrae.it,90,128,5451,60316,76662,14186,156833,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-06,monthly,NonRental,unrae.it,117,235,4847,49505,74479,14170,143353,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-07,monthly,NonRental,unrae.it,87,154,4168,40258,55066,12338,112071,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-08,monthly,NonRental,unrae.it,59,88,2294,22031,32530,7021,64023,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-09,monthly,NonRental,unrae.it,110,198,4639,45866,65209,11916,127938,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-10,monthly,NonRental,unrae.it,141,173,5243,44345,59411,12928,122241,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-11,monthly,NonRental,unrae.it,93,144,5389,41953,59812,13318,120709,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2017-12,monthly,NonRental,unrae.it,119,131,3877,32712,47841,9992,94672,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-01,monthly,NonRental,unrae.it,155,179,5642,51538,66224,13251,136989,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-02,monthly,NonRental,unrae.it,148,141,5094,51543,68724,13588,139238,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-03,monthly,NonRental,unrae.it,250,208,5832,64254,77973,15549,164066,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-04,monthly,NonRental,unrae.it,146,107,5732,52035,60583,13561,132164,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-05,monthly,NonRental,unrae.it,357,177,6072,62166,68931,16374,154077,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-06,monthly,NonRental,unrae.it,265,400,5896,51225,61824,15166,134776,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-07,monthly,NonRental,unrae.it,386,371,5922,44799,52187,14459,118124,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-08,monthly,NonRental,unrae.it,114,217,3053,23724,34551,8506,70165,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-09,monthly,NonRental,unrae.it,294,189,6037,42999,40238,7874,97631,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-10,monthly,NonRental,unrae.it,353,315,6675,54339,43357,10759,115798,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-11,monthly,NonRental,unrae.it,278,220,6232,53135,44501,11449,115815,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2018-12,monthly,NonRental,unrae.it,229,93,4485,51284,34713,8380,99184,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2019-01,monthly,NonRental,unrae.it,170,204,6715,65995,45551,12747,131382,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2019-02,monthly,NonRental,unrae.it,152,155,7489,66986,53688,11339,139809,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2019-03,monthly,NonRental,unrae.it,374,264,8066,70826,58830,14315,152675,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2019-04,monthly,NonRental,unrae.it,718,311,7316,69277,47452,13874,138948,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
+2019-05,monthly,NonRental,unrae.it,705,276,8325,76387,55468,15472,156633,est: Whole x rental-share(2019-H2); no pre-2019-06 UNRAE rental data
 2019-06,monthly,NonRental,unrae.it,1044,290,7428,60900,44233,14293,128188,
 2019-07,monthly,NonRental,unrae.it,582,212,6698,61892,40512,16563,126459,
 2019-08,monthly,NonRental,unrae.it,352,152,3246,35184,25983,10524,75441,
