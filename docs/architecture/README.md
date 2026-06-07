@@ -32,6 +32,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 18 | [18-source-colombia.md](18-source-colombia.md) | Per-country source playbook for Colombia (ANDI/FENALCO Boletín PDF — RUNT-sourced, single Hybrid bucket). |
 | 19 | [19-source-new-zealand.md](19-source-new-zealand.md) | Per-country source playbook for New Zealand (transport.govt.nz). |
 | 20 | [20-source-austria.md](20-source-austria.md) | Per-country source playbook for Austria (Statistik Austria DE2/DE3 .ods). **Source blocks GitHub IPs** → fetched via the Cloudflare Worker `/fetch` relay. |
+| 21 | [21-source-luxembourg.md](21-source-luxembourg.md) | Per-country source playbook for Luxembourg (lustat.statec.lu SDMX, dataflow DF_D6122). Clean SDMX-CSV; Whole/Vans/HDV variants. Template for other .Stat Suite sources. |
 
 ## Big picture in one diagram
 

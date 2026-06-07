@@ -172,26 +172,27 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2024-03,monthly,Whole,ACEA / lustat.statec.lu,1245.0,343.0,915.0,1476.0,601.0,5.0,4585.0,
 2024-04,monthly,Whole,ACEA / lustat.statec.lu,1254.0,301.0,829.0,1435.0,593.0,2.0,4414.0,
 2024-05,monthly,Whole,ACEA / lustat.statec.lu,990.0,284.0,788.0,1287.0,492.0,6.0,3847.0,
-2024-06,monthly,Whole,ACEA / lustat.statec.lu,1226.0,307.0,895.0,1346.0,540.0,10.0,4324.0,
-2024-07,monthly,Whole,ACEA / lustat.statec.lu,1252.0,361.0,895.0,1240.0,515.0,12.0,4275.0,
-2024-08,monthly,Whole,ACEA / lustat.statec.lu,873.0,249.0,720.0,761.0,296.0,11.0,2910.0,
-2024-09,monthly,Whole,ACEA / lustat.statec.lu,1116.0,279.0,847.0,973.0,398.0,7.0,3620.0,
+2024-06,monthly,Whole,lustat.statec.lu,1226.0,307.0,895.0,1346.0,540.0,9.0,4323.0,DF_D6122 OPERATION=N
+2024-07,monthly,Whole,lustat.statec.lu,1252.0,361.0,895.0,1240.0,515.0,9.0,4272.0,DF_D6122 OPERATION=N
+2024-08,monthly,Whole,lustat.statec.lu,873.0,249.0,720.0,761.0,296.0,8.0,2907.0,DF_D6122 OPERATION=N
+2024-09,monthly,Whole,lustat.statec.lu,1116.0,279.0,847.0,973.0,398.0,5.0,3618.0,DF_D6122 OPERATION=N
 2024-10,monthly,Whole,ACEA / lustat.statec.lu,1308.0,358.0,1008.0,1045.0,447.0,9.0,4175.0,
-2024-11,monthly,Whole,ACEA / lustat.statec.lu,912.0,310.0,918.0,912.0,400.0,3.0,3455.0,
-2024-12,monthly,Whole,ACEA / lustat.statec.lu,880.0,254.0,754.0,904.0,319.0,4.0,3115.0,
+2024-11,monthly,Whole,lustat.statec.lu,912.0,310.0,918.0,912.0,400.0,2.0,3454.0,DF_D6122 OPERATION=N
+2024-12,monthly,Whole,lustat.statec.lu,880.0,254.0,754.0,904.0,319.0,3.0,3114.0,DF_D6122 OPERATION=N
 2025-01,monthly,Whole,ACEA / lustat.statec.lu,1168.0,319.0,957.0,867.0,409.0,0.0,3720.0,
 2025-02,monthly,Whole,ACEA / lustat.statec.lu,1134.0,291.0,1196.0,1051.0,436.0,3.0,4111.0,
 2025-03,monthly,Whole,ACEA / lustat.statec.lu,1432.0,386.0,1314.0,1189.0,514.0,5.0,4840.0,
 2025-04,monthly,Whole,ACEA / lustat.statec.lu,999.0,410.0,1339.0,1176.0,437.0,2.0,4363.0,
 2025-05,monthly,Whole,ACEA / lustat.statec.lu,888.0,380.0,1259.0,1114.0,418.0,0.0,4059.0,
-2025-06,monthly,Whole,ACEA / lustat.statec.lu,939.0,342.0,1322.0,1129.0,433.0,4.0,4169.0,
+2025-06,monthly,Whole,lustat.statec.lu,939.0,342.0,1322.0,1129.0,433.0,2.0,4167.0,DF_D6122 OPERATION=N
 2025-07,monthly,Whole,ACEA / lustat.statec.lu,877.0,386.0,1476.0,1276.0,494.0,6.0,4515.0,
-2025-08,monthly,Whole,ACEA / lustat.statec.lu,715.0,218.0,900.0,853.0,251.0,4.0,2941.0,
+2025-08,monthly,Whole,lustat.statec.lu,715.0,218.0,900.0,853.0,251.0,3.0,2940.0,DF_D6122 OPERATION=N
 2025-09,monthly,Whole,ACEA / lustat.statec.lu,1245.0,276.0,1140.0,816.0,295.0,4.0,3776.0,
-2025-10,monthly,Whole,ACEA / lustat.statec.lu,922.0,305.0,1145.0,1067.0,359.0,3.0,3801.0,
+2025-10,monthly,Whole,lustat.statec.lu,922.0,305.0,1145.0,1067.0,359.0,2.0,3800.0,DF_D6122 OPERATION=N
 2025-11,monthly,Whole,ACEA / lustat.statec.lu,1130.0,210.0,890.0,935.0,311.0,6.0,3482.0,
 2025-12,monthly,Whole,ACEA / lustat.statec.lu,1215.0,195.0,880.0,775.0,319.0,0.0,3384.0,
 2026-01,monthly,Whole,ACEA / lustat.statec.lu,975.0,201.0,1076.0,720.0,367.0,0.0,3339.0,
-2026-02,monthly,Whole,ACEA / lustat.statec.lu,1022.0,272.0,1564.0,1067.0,475.0,0.0,4400.0,
-2026-03,monthly,Whole,ACEA / lustat.statec.lu,1384.0,234.0,1578.0,1194.0,409.0,0.0,4799.0,
-2026-04,monthly,Whole,ACEA,1533.0,272.0,1557.0,1165.0,395.0,0.0,4922.0,data/Press_release_car_registrations_April_2026.pdf
+2026-02,monthly,Whole,lustat.statec.lu,1022.0,272.0,1564.0,1066.0,484.0,1.0,4409.0,DF_D6122 OPERATION=N
+2026-03,monthly,Whole,lustat.statec.lu,1384.0,234.0,1568.0,1183.0,415.0,21.0,4805.0,DF_D6122 OPERATION=N
+2026-04,monthly,Whole,lustat.statec.lu,1533.0,272.0,1553.0,1157.0,397.0,12.0,4924.0,DF_D6122 OPERATION=N
+2026-05,monthly,Whole,lustat.statec.lu,1248.0,235.0,1349.0,833.0,243.0,31.0,3939.0,DF_D6122 OPERATION=N
