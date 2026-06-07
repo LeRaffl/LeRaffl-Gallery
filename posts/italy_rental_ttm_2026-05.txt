@@ -1,0 +1,9 @@
+🇮🇹 Italy (Rental) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.5pp  BEV   (6.0% → 5.5%)
++9.2pp  PHEV  (7.5% → 16.7%)
++2.0pp  HEV   (43.5% → 45.5%)
+−10.7pp  ICE   (43.0% → 32.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
