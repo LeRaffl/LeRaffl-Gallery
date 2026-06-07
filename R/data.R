@@ -103,8 +103,18 @@ compute_ttm_long <- function(df) {
   out <- data.frame(month = months, stringsAsFactors = FALSE)
   for (col in names(ttm)) out[[col]] <- ttm[[col]][keep]
 
+  # Some sources report a single combined hybrid figure (PHEV + HEV + MHEV
+  # lumped together) which the pipeline parks in the HEV column with PHEV/EREV/
+  # MHEV left empty (e.g. Colombia, Türkiye, Georgia). There "HEV" is a misnomer
+  # — the bucket is all hybrids — so label it "Hybrid", matching the post text
+  # (.pt_triplet_lines). When PHEV/EREV/MHEV carry their own data the HEV column
+  # is genuine full-hybrid and keeps its label.
+  hev_combined <- ("HEV" %in% names(out)) &&
+    !any(c("PHEV", "EREV", "MHEV") %in% names(out))
+
   # Display labels: title-case for ICE-fuel families, keep acronyms as-is.
   display_label <- function(c) {
+    if (c == "HEV" && hev_combined) return("Hybrid")
     if (c %in% c("BEV","PHEV","EREV","HEV","MHEV","CNG","LPG","ICE")) return(c)
     if (c == "OTHERS") return("Other")
     paste0(toupper(substr(c, 1, 1)), tolower(substr(c, 2, nchar(c))))
