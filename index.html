@@ -1641,6 +1641,12 @@ a:focus-visible{
 .about-model-item:last-child{border-bottom:none}
 .about-model-head{font-size:14px;font-weight:700;color:#e9eef2;margin-bottom:6px}
 .about-model-item p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.65}
+.about-article-card{display:flex;flex-direction:column;gap:8px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:20px 24px;text-decoration:none;transition:border-color .15s}
+.about-article-card:hover{border-color:#2e4268}
+.about-article-card .article-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4da3ff;opacity:.8}
+.about-article-card h3{margin:0;font-size:16px;font-weight:700;color:#e9eef2;line-height:1.3}
+.about-article-card p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.6}
+.about-article-card .article-arrow{margin-top:4px;font-size:13px;color:#4da3ff}
 .about-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 24px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;font-size:13px;color:#9fb3d1;flex-wrap:wrap}
 .about-footer strong{color:#e9eef2}
 .about-gh{font-size:13px;padding:7px 14px;white-space:nowrap}
@@ -1765,6 +1771,14 @@ a:focus-visible{
         <p>The curve represents the best fit to today's data. When new registrations arrive, the curve updates. This is a description of what has happened so far — "if things simply continued from here" — not a statement about the future.</p>
       </div>
     </div>
+
+    <div class="about-section-label">Articles</div>
+    <a href="articles/italy-bev-split.html" class="about-article-card">
+      <div class="article-label">Analysis · June 2026 · Italy</div>
+      <h3>Italy's Slow BEV Transition Is Really Two Stories</h3>
+      <p>Split the data and you see it's not the people of Italy. Strip out the rental fleets and the transition time drops from ~25 years to ~17 — Spain/Korea territory. The rental market is effectively frozen, and the reason is infrastructure tourists can't work around.</p>
+      <div class="article-arrow">Read article →</div>
+    </a>
 
     <div class="about-footer">
       <span>By <strong>@LeRaffl</strong> · Open source, open data, open use. Take the charts, the tables, the parameters — use them for your own models, validations, publications, whatever. Sharing is not just allowed, it's the point. A mention is appreciated not for legal reasons, but because I'm curious what you do with it.</span>
