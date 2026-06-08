@@ -2,6 +2,46 @@
   "updated": "2026-06-08",
   "images": [
     {
+      "country": "Luxembourg",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_ICE_BEV_20260608.png",
+      "url": "images/2026-05/luxembourg_ICE_BEV_20260608.png",
+      "alt": "Luxembourg ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_20260608.png",
+      "url": "images/2026-05/luxembourg_20260608.png",
+      "alt": "Luxembourg BEV trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_time_20260608.png",
+      "url": "images/2026-05/luxembourg_time_20260608.png",
+      "alt": "Luxembourg Transition time curve",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_ttm_shares_20260608.png",
+      "url": "images/2026-05/luxembourg_ttm_shares_20260608.png",
+      "alt": "Luxembourg TTM market split graph",
+      "country_slug": "luxembourg"
+    },
+    {
       "country": "Italy (Nonrental)",
       "type": "ICE_BEV",
       "period": "2026-05",
