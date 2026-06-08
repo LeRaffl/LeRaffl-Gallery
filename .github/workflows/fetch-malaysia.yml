@@ -1,0 +1,64 @@
+name: Fetch Malaysia data (data.gov.my)
+
+# Downloads annual parquet files from Malaysia's open data portal
+# (data.gov.my) and upserts data/Malaysia.csv. One parquet per calendar
+# year, one row per registration event. Runs monthly once the previous
+# month's data is typically available (data.gov.my updates within ~2 weeks
+# of month-end).
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Calendar year to (re-)fetch (leave empty for current + previous)'
+        required: false
+      force:
+        description: 'Re-process even if previous month already exists'
+        required: false
+        default: 'false'
+        type: boolean
+
+  schedule:
+    - cron: '0 7 15-31 * *'   # daily at 07:00 UTC from the 15th onward (staggered)
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pandas pyarrow
+
+      - name: Fetch Malaysia data
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.year }}" ]; then ARGS="$ARGS --year ${{ inputs.year }}"; fi
+          if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          python scripts/fetch_malaysia.py $ARGS
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Malaysia.csv
+          message: 'chore: update Malaysia data from data.gov.my'
+          default_author: github_actions
+
+      - name: Trigger render for Malaysia
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Malaysia \
+            -f variant=Whole
