@@ -141,41 +141,53 @@ To re-pull a specific month once OCR is fixed/CPCA republished:
 `fetch_china.py --force --id <NNNN>` (or via the workflow's `workflow_dispatch`
 inputs `detail_id` + `force`).
 
-## 5. Rendering & the post % bands (known quirk)
+## 5. Rendering & the post % bands (EREV ⊆ PHEV)
 
 `render-country.yml` → `R/render_country.R China Whole` fits the Weibull model,
 updates the `China` rows in `params.csv` + `weights.csv`, writes four PNGs under
 `images/<period>/`, and generates `posts/china.txt` (+ periodised
 `posts/china_<period>.txt`).
 
-The post's three bands are computed in `R/post_text.R`
-(`.pt_triplet_lines`), **not** as naive column/TOTAL ratios:
+EREV is a **special case of PHEV** (a range-extender is a plug-in hybrid),
+exactly as HEV is a special case of ICE. The CSV stores EREV in its **own
+additive column** — `BEV + PHEV(narrow) + EREV + ICE = TOTAL`, and the China
+source label notes "PHEV excludes EREV from 2025-01" — so anything that reports
+a PHEV figure must **add EREV back in** to get the broad PHEV. The canonical
+rollup lives in `R/data.R` (drives the BEV/PHEV/ICE plot):
+
+```r
+phev_share <- (phev + erev) / total              # EREV folded into PHEV
+ice_share  <- (total - bev - phev - erev) / total  # EREV kept OUT of ICE
+```
+
+The post bands (`R/post_text.R` `.pt_triplet_lines`) follow the same rule:
 
 ```
-bev  = BEV  / TOTAL
-phev = PHEV / TOTAL            # narrow PHEV column (excludes EREV)
-ice  = 1 - bev - phev         # EREV is NOT subtracted here
-line2 = "<phev>% PHEV (of which <erev>%p were EREV)"
+bev        = BEV / TOTAL
+phev_broad = (PHEV + EREV) / TOTAL
+ice        = 1 - bev - phev_broad
+line2      = "<phev_broad>% PHEV (of which <EREV/TOTAL>%p were EREV)"
 ```
 
-**Quirk worth knowing:** because EREV is its own CSV column (PHEV excludes it
-from 2025-01) but `post_text.R` only subtracts BEV and *narrow* PHEV, the EREV
-share is implicitly folded into the displayed **"ICE"** remainder — while also
-being annotated on the PHEV line. So the post's `ICE %` is **higher** than the
-CSV's `ICE/TOTAL`. Worked example with the corrected May 2026 row
-(BEV 637k, PHEV 228k, EREV 85k, ICE 560k, TOTAL 1,510k):
+So the corrected May 2026 row (BEV 637k, PHEV 228k, EREV 85k, ICE 560k,
+TOTAL 1,510k) renders as:
 
-| | CSV column / TOTAL | Post band |
-|---|---|---|
-| BEV | 42.2 % | **42.2 % BEV** |
-| PHEV (narrow) | 15.1 % | **15.1 % PHEV** (of which 5.6 %p EREV) |
-| EREV | 5.6 % | *(folded into ICE)* |
-| ICE | 37.1 % | **42.7 % ICE** (= 100 − 42.2 − 15.1) |
+```
+42.2% BEV
+20.7% PHEV (of which 5.6%p were EREV)
+37.1% ICE
+```
 
-This is a **downstream rendering convention**, independent of the fetch
-pipeline — flagged here so a future `41.5% ICE`-vs-`37% ICE` head-scratch
-resolves fast. (The stale on-disk `posts/china_2026-05.txt` still shows the
-*old* 41.2 % BEV numbers; it refreshes on the next render — see §7.)
+— bands sum to 100 %, and the post `ICE %` equals the CSV `ICE/TOTAL` (37.1 %).
+
+> **History / regression note.** Before the May-2026 fix, `post_text.R` used the
+> *narrow* PHEV column and `ice = 1 - bev - phev`, which silently left the EREV
+> share inside the displayed **ICE** band (e.g. the stale on-disk
+> `posts/china_2026-05.txt` shows `17.3% PHEV` + `41.5% ICE` instead of
+> `21.7% PHEV` + `37.1% ICE`). EREV is non-zero **only for China**, so this bug
+> was China-only; every other country has `EREV = 0`, where `phev_broad == phev`
+> and nothing changes. Fixed alongside the OCR work. The stale post refreshes on
+> the next render — see §7.
 
 ## 6. Postmortem — the May 2026 "42.2 % BEV" incident
 
@@ -220,7 +232,9 @@ relative to wholesale is the tell to check the fetch log.
 - **Silent fallback.** "Nothing to commit" on a forced re-run does **not** by
   itself prove OCR worked — `preserve_split` keeps a good row stable even when
   the run fell back. Confirm via the `OCR matched …` log line. (§4, §6)
-- **Post ICE % ≠ CSV ICE %** by the EREV share, by rendering design. (§5)
+- **EREV ⊆ PHEV in the post.** The PHEV band is the broad figure (narrow PHEV +
+  EREV); EREV must never leak into the ICE band. This was a China-only bug until
+  the May-2026 fix — guard it if you touch `R/post_text.R`. (§5)
 - **Schedule/manifest noise.** Dispatching `fetch-china.yml` on a feature
   branch can trigger downstream workflows that auto-commit `schedule.ics` /
   `schedule*.html` (`build-manifest.yml`). Those don't belong in a China PR —
