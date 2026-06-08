@@ -1,0 +1,9 @@
+🇱🇺 Luxembourg (Vans) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−3.7pp  BEV   (11.0% → 7.2%)
++1.0pp  PHEV  (0.0% → 1.0%)
++0.5pp  HEV   (0.1% → 0.5%)
++2.3pp  ICE   (88.9% → 91.2%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

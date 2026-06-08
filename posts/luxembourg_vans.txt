@@ -1,0 +1,11 @@
+🇱🇺 Luxembourg (Vans) - May 26 - BEV Trajectory
+7.5% BEV
+1.0% PHEV
+91.5% ICE (of which 0.8%p were HEV)
+
+Trailing 12 months are:
+7.2% BEV
+1.0% PHEV
+91.8% ICE (of which 0.5%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
