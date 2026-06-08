@@ -3,6 +3,10 @@
 Fetch China vehicle sales data from CPCA and update data/China.csv plus
 data/China_Wholesale.csv.
 
+See docs/architecture/24-source-china.md for the high-level playbook (tracks,
+the OCR pipeline, the ws-proportional fallback, manual overrides, and the
+May-2026 mis-OCR postmortem). This docstring covers the low-level parsing.
+
 Usage
 -----
     python scripts/fetch_china.py [--year YEAR] [--month MONTH] \\
