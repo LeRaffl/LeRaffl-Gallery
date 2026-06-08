@@ -1,0 +1,113 @@
+name: Fetch Luxembourg data (STATEC lustat)
+
+# Fetches new-vehicle registration data from lustat.statec.lu (STATEC's .Stat
+# Suite SDMX endpoint, dataflow DF_D6122 "Number of new road vehicles
+# registrations by type of vehicle and fuel") and upserts new monthly rows into
+# three per-variant CSVs:
+#
+#   * Whole — VEHICLE_TYPE=CAR                  -> data/Luxembourg.csv
+#   * Vans  — VEHICLE_TYPE=VAN                  -> data/Luxembourg_Vans.csv
+#   * HDV   — VEHICLE_TYPE=TRUCK+BUS+ROADTRAC   -> data/Luxembourg_HDV.csv
+#
+# All three are OPERATION=N (new registration). See the docstring in
+# scripts/fetch_luxembourg.py and docs/architecture/21-source-luxembourg.md for
+# the SDMX key layout, the MOTOR_ENERGY hierarchy trap, and why Used Imports is
+# not available in the gallery's fuel-split format. If a CSV changed, this
+# workflow dispatches render-country.yml once per touched variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - whole
+          - vans
+          - hdv
+  schedule:
+    # Daily 1st–15th at 06:45 UTC. STATEC publishes around the 6th of the
+    # following month, so we poll daily until the previous month's row
+    # materialises in each CSV, then idempotent re-fetches produce no diff (no
+    # commit, no render trigger). 06:45 UTC keeps us clear of the Netherlands
+    # (06:30) and Brazil (08:00) slots.
+    - cron: '45 6 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Luxembourg CSVs
+        run: |
+          python scripts/fetch_luxembourg.py \
+            ${VARIANT:+--variant "$VARIANT"}
+        env:
+          VARIANT: ${{ inputs.variant }}
+        # The script retries connection errors up to 3× with backoff. A failure
+        # here means lustat.statec.lu was unreachable — re-run manually once the
+        # site is back, or wait for the next scheduled run.
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          # For each per-variant CSV, check if git sees changes. `git add -N`
+          # makes `git diff` include untracked new files (needed the very first
+          # time each file is created). Emit a pipe-separated list of variant
+          # names so we trigger render only for those.
+          touched=()
+          for pair in "Whole:data/Luxembourg.csv" \
+                     "Vans:data/Luxembourg_Vans.csv" \
+                     "HDV:data/Luxembourg_HDV.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Luxembourg.csv
+            data/Luxembourg_Vans.csv
+            data/Luxembourg_HDV.csv
+          message: 'chore: update Luxembourg data from lustat.statec.lu'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Luxembourg \
+              -f variant="$variant"
+          done
