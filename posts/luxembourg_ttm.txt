@@ -1,0 +1,12 @@
+🇱🇺 Luxembourg - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.3pp  BEV   (28.1% → 27.8%)
+−1.7pp  PHEV  (8.3% → 6.6%)
++5.5pp  HEV   (25.8% → 31.3%)
+−3.6pp  ICE   (37.8% → 34.3%)
+
+PHEV peaked at 8.9% in 2024-06 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2027-07.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
