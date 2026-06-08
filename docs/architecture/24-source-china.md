@@ -235,6 +235,12 @@ relative to wholesale is the tell to check the fetch log.
 - **EREV ⊆ PHEV in the post.** The PHEV band is the broad figure (narrow PHEV +
   EREV); EREV must never leak into the ICE band. This was a China-only bug until
   the May-2026 fix — guard it if you touch `R/post_text.R`. (§5)
+- **EREV TTM coverage.** CPCA only began reporting the EREV split in **2024-01**;
+  earlier `China.csv` rows carry `EREV = 0.0` placeholders (those vehicles were
+  inside PHEV). `compute_ttm_long` (`R/data.R`) therefore holds the EREV band at
+  0 — folding its mass back into PHEV — until the trailing 12-month window is
+  **fully** within the split era (first shown 2024-12), so the band doesn't look
+  like it "grew" when it was really just data coverage ramping in.
 - **Schedule/manifest noise.** Dispatching `fetch-china.yml` on a feature
   branch can trigger downstream workflows that auto-commit `schedule.ics` /
   `schedule*.html` (`build-manifest.yml`). Those don't belong in a China PR —
