@@ -34,6 +34,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 20 | [20-source-austria.md](20-source-austria.md) | Per-country source playbook for Austria (Statistik Austria DE2/DE3 .ods). **Source blocks GitHub IPs** → fetched via the Cloudflare Worker `/fetch` relay. |
 | 21 | [21-source-luxembourg.md](21-source-luxembourg.md) | Per-country source playbook for Luxembourg (lustat.statec.lu SDMX, dataflow DF_D6122). Clean SDMX-CSV; Whole/Vans/HDV variants. Template for other .Stat Suite sources. |
 | 22 | [22-source-poland.md](22-source-poland.md) | Per-country source playbook for Poland (PZPM eRegistrations XLSX from CEP). Page-scraped workbook, "Ogółem" sheet only; Whole/Vans/HDV/Buses; OTHERS residual. Takes Poland over from ACEA. |
+| 23 | [23-source-malaysia.md](23-source-malaysia.md) | Per-country source playbook for Malaysia (data.gov.my parquet, individual registration events, combined hybrid bucket). |
 
 ## Big picture in one diagram
 
