@@ -17,6 +17,7 @@ TTM_FUEL_COLORS <- c(
   PHEV     = "#00bdfe",
   EREV     = "#1976d2",
   HEV      = "#ffd300",
+  Hybrid   = "#ffd300",   # combined PHEV+HEV+MHEV bucket (see compute_ttm_long)
   MHEV     = "#c4a000",
   ICE      = "#692500",
   Petrol   = "#502900",
