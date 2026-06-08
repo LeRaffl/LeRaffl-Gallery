@@ -9,7 +9,7 @@ FLAG <- c(
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4",
   denmark="\U0001F1E9\U0001F1F0", finland="\U0001F1EB\U0001F1EE", ireland="\U0001F1EE\U0001F1EA",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
-  netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
+  luxembourg="\U0001F1F1\U0001F1FA", netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
   portugal="\U0001F1F5\U0001F1F9", sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7",
   uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
 )
@@ -17,7 +17,8 @@ FLAG <- c(
 LABEL <- c(
   austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
   colombia="Colombia", denmark="Denmark", finland="Finland", ireland="Ireland",
-  italy="Italy", italy_rental="Italy (Rental)", japan="Japan", netherlands="Netherlands",
+  italy="Italy", italy_rental="Italy (Rental)", japan="Japan", luxembourg="Luxembourg",
+  netherlands="Netherlands",
   `new-zealand`="New Zealand", portugal="Portugal", sweden="Sweden", turkey="Turkey",
   uruguay="Uruguay", usa="USA", acea="ACEA (EU)"
 )
