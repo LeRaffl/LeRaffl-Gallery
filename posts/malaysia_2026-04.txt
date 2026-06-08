@@ -1,0 +1,11 @@
+🇲🇾 Malaysia - April 26 - BEV Trajectory
+7.6% BEV
+6.4% Hybrid
+86.1% ICE
+
+Trailing 12 months are:
+6.3% BEV
+4.0% Hybrid
+89.7% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
