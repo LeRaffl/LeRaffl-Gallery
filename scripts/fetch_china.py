@@ -217,10 +217,14 @@ def _grab(pat: re.Pattern, text: str) -> float | None:
 # DOES NOT restate the retail BEV/PHEV/EREV split, so this table is our only
 # direct source for those values.
 #
-# We OCR each candidate image (with `tesseract -l eng`) — the column headers
-# and data are Latin/numeric, so the Chinese language pack is not required.
-# Decimal points are sometimes dropped by OCR ("57.9" → "579"); we recover
-# them by enforcing BEV+PHEV+EREV ≈ NEV on the matched row.
+# We OCR each candidate image with the Simplified-Chinese model
+# (`tesseract -l chi_sim+eng`) at a 6× upscale: although the data cells are
+# Latin/numeric, pure `-l eng` mis-segments this teal-banded table and garbles
+# the digits (63.7/22.8/8.5/95.0 → "3 45 55.6 7"). The Chinese model anchors
+# the table structure so the numbers come out clean. See OCR_CONFIGS for the
+# full retry ladder. Decimal points are sometimes dropped by OCR ("57.9" →
+# "579"); we recover them by enforcing BEV+PHEV+EREV ≈ NEV on the matched row,
+# which also validates that a given OCR config read the right table.
 # ----------------------------------------------------------------------
 
 def _have_tesseract() -> bool:
@@ -243,18 +247,36 @@ def collect_image_urls(html: str, base_url: str | None = None) -> list[str]:
     return urls
 
 
-def _ocr_image_bytes(jpg_bytes: bytes) -> str:
+# OCR configs tried (in order) per slide image until the retail row validates
+# against the article NEV total. CPCA's NEV-market table is a teal-banded
+# 960×540 JPEG; pure `eng` mis-segments the digit cells and garbles the row
+# (e.g. 63.7/22.8/8.5/95.0 → "3 45 55.6 7"). Loading the Simplified-Chinese
+# model (chi_sim+eng) lets tesseract segment the table correctly, and a 6×
+# upscale gives the small digits enough resolution. We keep 4× chi_sim and the
+# legacy 4× eng as cheaper fallbacks; the NEV cross-check rejects any config
+# whose output doesn't reconcile, so trying several is safe.
+OCR_CONFIGS = [
+    (6, "chi_sim+eng"),
+    (5, "chi_sim+eng"),
+    (4, "chi_sim+eng"),
+    (4, "eng"),
+]
+
+
+def _ocr_image_bytes(jpg_bytes: bytes, scale: int = 6, lang: str = "chi_sim+eng") -> str:
     """Run tesseract on a JPG byte string and return the OCR text.
 
-    The image is 4× upscaled before OCR; CPCA's slides are 960×540 JPEGs
-    and the small digits OCR much more cleanly at 4×.
+    `scale` upsamples the 960×540 slide before OCR (small digits read far more
+    reliably enlarged); `lang` selects the tesseract model(s). Defaults match
+    OCR_CONFIGS[0] — the configuration that reads CPCA's NEV table cleanly.
+    Returns "" if the requested language pack is missing or tesseract fails.
     """
     from PIL import Image  # lazy import — only needed when OCR runs
     from io import BytesIO
 
     with tempfile.TemporaryDirectory() as tmp:
         img = Image.open(BytesIO(jpg_bytes))
-        big = img.resize((img.width * 4, img.height * 4), Image.LANCZOS)
+        big = img.resize((img.width * scale, img.height * scale), Image.LANCZOS)
         png_path = Path(tmp) / "page.png"
         out_path = Path(tmp) / "ocr"
         big.save(png_path)
@@ -262,7 +284,7 @@ def _ocr_image_bytes(jpg_bytes: bytes) -> str:
             subprocess.run(
                 [
                     "tesseract", str(png_path), str(out_path),
-                    "-l", "eng", "--psm", "6",
+                    "-l", lang, "--psm", "6",
                     "-c", "preserve_interword_spaces=1",
                 ],
                 check=True,
@@ -392,10 +414,13 @@ def _extract_retail_from_ocr(text: str, month: int, nev_target_wan: float) -> tu
         if len(tokens) >= 5 and tokens[4] == str(month):
             tokens = tokens[:4] + tokens[5:]
         if len(tokens) < 8:
+            print(f"  DEBUG OCR: month label matched but only {len(tokens)} tokens: {tokens}")
             continue
         recovered = _recover_decimal(tokens[:4], nev_target_wan)
-        if recovered is not None:
-            return recovered, line
+        if recovered is None:
+            print(f"  DEBUG OCR: decimal recovery failed — tokens={tokens[:4]}, nev_target={nev_target_wan}")
+            continue
+        return recovered, line
     return None
 
 
@@ -423,22 +448,28 @@ def parse_retail_table(
             resp.raise_for_status()
         except requests.RequestException:
             continue
-        text = _ocr_image_bytes(resp.content)
-        if not text:
-            continue
 
-        # The headers ("BEV PHEV EREV NEV") are rendered as styled white text
-        # on a teal band and survive OCR poorly with -l eng. Skip the header
-        # check; the NEV-target validation in _recover_decimal is sufficient
-        # to reject wrong tables.
-
-        result = _extract_retail_from_ocr(text, month, nev_target_wan)
+        # Try each OCR config until one yields a row that reconciles against
+        # the article NEV total. The headers ("BEV PHEV EREV NEV") are styled
+        # white-on-teal and OCR poorly regardless, so we rely solely on the
+        # NEV cross-check in _recover_decimal to confirm we read the right
+        # table — that also makes trying multiple configs safe.
+        result = None
+        for scale, lang in OCR_CONFIGS:
+            text = _ocr_image_bytes(resp.content, scale=scale, lang=lang)
+            if not text:
+                continue
+            result = _extract_retail_from_ocr(text, month, nev_target_wan)
+            if result is not None:
+                ocr_cfg = f"{scale}x {lang}"
+                break
         if result is None:
             continue
         recovered, line = result
         bev_wan, phev_wan, erev_wan, nev_wan = recovered
         print(
-            f"OCR matched {url.rsplit('/', 1)[-1]} row '{line.strip()[:60]}' → "
+            f"OCR matched {url.rsplit('/', 1)[-1]} [{ocr_cfg}] "
+            f"row '{line.strip()[:60]}' → "
             f"retail BEV={bev_wan} PHEV={phev_wan} EREV={erev_wan} NEV={nev_wan} (万)"
         )
         return {
@@ -764,10 +795,16 @@ def main() -> None:
         if args.image_dir:
             # OCR each local JPG until one matches the article NEV target.
             for path in sorted(Path(args.image_dir).glob("*.jp*g")):
-                text = _ocr_image_bytes(path.read_bytes())
-                if not text:
-                    continue
-                result = _extract_retail_from_ocr(text, target_month, nev_target_wan)
+                img_bytes = path.read_bytes()
+                result = None
+                for scale, lang in OCR_CONFIGS:
+                    text = _ocr_image_bytes(img_bytes, scale=scale, lang=lang)
+                    if not text:
+                        continue
+                    result = _extract_retail_from_ocr(text, target_month, nev_target_wan)
+                    if result is not None:
+                        ocr_cfg = f"{scale}x {lang}"
+                        break
                 if result is None:
                     continue
                 recovered, line = result
@@ -780,7 +817,7 @@ def main() -> None:
                     "source_image": f"file://{path}",
                 }
                 print(
-                    f"OCR matched {path.name} row '{line.strip()[:60]}' → "
+                    f"OCR matched {path.name} [{ocr_cfg}] row '{line.strip()[:60]}' → "
                     f"retail BEV={bev_wan} PHEV={phev_wan} EREV={erev_wan} NEV={nev_wan} (万)"
                 )
                 break
