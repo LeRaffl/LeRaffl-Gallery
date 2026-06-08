@@ -82,6 +82,27 @@ compute_ttm_long <- function(df) {
     any_present <- any_present & !is.na(rs)
   }
 
+  # EREV: don't break it out of PHEV in the TTM until a FULL trailing window of
+  # genuine split data exists. Before a source starts reporting the
+  # BEV/PHEV/EREV split, EREV sales sit inside PHEV (the CSV carries 0.0
+  # placeholders, e.g. China pre-2024-01); a partial trailing window would
+  # otherwise render a misleading "growing" EREV band that is really just data
+  # coverage ramping in. So fold the partial-window EREV mass back into PHEV and
+  # hold the EREV band at 0 until the window post-dates the first reported EREV.
+  # (The same coverage caveat applies to other fuel types; only EREV for now.)
+  if ("EREV" %in% names(ttm) && "PHEV" %in% names(ttm)) {
+    ev_raw <- as.numeric(m[["EREV"]]); ev_raw[is.na(ev_raw)] <- 0
+    first_erev <- which(ev_raw > 0)
+    if (length(first_erev) > 0) {
+      full <- (seq_len(nrow(m)) - window + 1) >= first_erev[1]
+      erev_ct <- ttm[["EREV"]] * total_ttm; erev_ct[is.na(erev_ct)] <- 0
+      phev_ct <- ttm[["PHEV"]] * total_ttm
+      phev_ct[!full] <- phev_ct[!full] + erev_ct[!full]
+      ttm[["PHEV"]] <- phev_ct / total_ttm
+      ttm[["EREV"]][!full] <- 0
+    }
+  }
+
   # Recompute OTHERS as the TTM residual (TOTAL minus all other known fuels) so
   # that stacked bars always sum to 100%. This corrects under-filled OTHERS in
   # historical ACAP data where the breakdown was incomplete or quarterly-averaged.
