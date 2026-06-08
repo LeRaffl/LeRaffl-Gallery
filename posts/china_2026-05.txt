@@ -1,11 +1,11 @@
 🇨🇳 China - May 26 - BEV Trajectory
-41.2% BEV
-17.3% PHEV (of which 4.4%p were EREV)
-41.5% ICE
+42.2% BEV
+20.7% PHEV (of which 5.6%p were EREV)
+37.1% ICE
 
 Trailing 12 months are:
-34.5% BEV
-15.5% PHEV (of which 5.2%p were EREV)
-50.0% ICE
+34.6% BEV
+20.6% PHEV (of which 5.3%p were EREV)
+44.8% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
