@@ -82,6 +82,46 @@
       "country_slug": "luxembourg_hdv"
     },
     {
+      "country": "Luxembourg (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_vans_ICE_BEV_20260608.png",
+      "url": "images/2026-05/luxembourg_vans_ICE_BEV_20260608.png",
+      "alt": "Luxembourg (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_vans_20260608.png",
+      "url": "images/2026-05/luxembourg_vans_20260608.png",
+      "alt": "Luxembourg (Vans) BEV trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_vans_time_20260608.png",
+      "url": "images/2026-05/luxembourg_vans_time_20260608.png",
+      "alt": "Luxembourg (Vans) Transition time curve",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-08",
+      "filename": "luxembourg_vans_ttm_shares_20260608.png",
+      "url": "images/2026-05/luxembourg_vans_ttm_shares_20260608.png",
+      "alt": "Luxembourg (Vans) TTM market split graph",
+      "country_slug": "luxembourg_vans"
+    },
+    {
       "country": "Italy (Nonrental)",
       "type": "ICE_BEV",
       "period": "2026-05",
