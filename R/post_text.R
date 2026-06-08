@@ -95,15 +95,28 @@
   # Second-line: prefer PHEV if reported (column exists and value > 0).
   # If PHEV is missing/zero AND HEV is present, treat HEV as the country's
   # single "Hybrid" total and label accordingly (no parens).
-  use_phev   <- !is.na(phev) && is.finite(phev) && phev > 0
+  bev0  <- if (is.na(bev) || !is.finite(bev)) 0 else bev
+  phev0 <- if (is.na(phev) || !is.finite(phev)) 0 else phev
+  erev0 <- if (is.na(erev) || !is.finite(erev)) 0 else erev
+
+  # EREV is a special case of PHEV (a range-extender is a plug-in hybrid), so
+  # the reported PHEV is the BROAD figure = narrow PHEV column + EREV column,
+  # annotated "(of which X%p were EREV)". This mirrors the (phev + erev) rollup
+  # in R/data.R that drives the BEV/PHEV/ICE plot, and keeps EREV OUT of the ICE
+  # remainder. Almost everywhere EREV is 0 (only China breaks it out), so
+  # phev_broad == phev and nothing changes; for China it moves the EREV share
+  # from the ICE band into PHEV where it belongs.
+  phev_broad <- phev0 + erev0
+
+  use_phev   <- phev_broad > 0
   use_hybrid <- !use_phev && !is.na(hev) && is.finite(hev) && hev > 0
 
-  bev_line <- sprintf("%s BEV", .pt_pct(if (is.na(bev)) 0 else bev))
+  bev_line <- sprintf("%s BEV", .pt_pct(bev0))
 
   if (use_phev) {
-    second_line <- .pt_pp_if("PHEV", phev, "EREV", erev)
-    # ICE = remainder after BEV + PHEV; HEV (if present) goes in parens.
-    ice <- max(0, 1 - (if (is.na(bev)) 0 else bev) - phev)
+    second_line <- .pt_pp_if("PHEV", phev_broad, "EREV", erev)
+    # ICE = remainder after BEV + broad PHEV; HEV (if present) goes in parens.
+    ice <- max(0, 1 - bev0 - phev_broad)
     ice_line <- .pt_pp_if("ICE", ice, "HEV", hev)
   } else if (use_hybrid) {
     second_line <- sprintf("%s Hybrid", .pt_pct(hev))

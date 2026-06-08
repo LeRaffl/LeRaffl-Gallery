@@ -35,6 +35,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 21 | [21-source-luxembourg.md](21-source-luxembourg.md) | Per-country source playbook for Luxembourg (lustat.statec.lu SDMX, dataflow DF_D6122). Clean SDMX-CSV; Whole/Vans/HDV variants. Template for other .Stat Suite sources. |
 | 22 | [22-source-poland.md](22-source-poland.md) | Per-country source playbook for Poland (PZPM eRegistrations XLSX from CEP). Page-scraped workbook, "Ogółem" sheet only; Whole/Vans/HDV/Buses; OTHERS residual. Takes Poland over from ACEA. |
 | 23 | [23-source-malaysia.md](23-source-malaysia.md) | Per-country source playbook for Malaysia (data.gov.my parquet, individual registration events, combined hybrid bucket). |
+| 24 | [24-source-china.md](24-source-china.md) | Per-country source playbook for China (CPCA monthly analysis). The only **OCR-dependent** source: the retail BEV/PHEV/EREV split is read from a slide image via `tesseract -l chi_sim+eng`, with a ws-proportional fallback. Includes the May-2026 mis-OCR postmortem and the post-band ICE% quirk. |
 
 ## Big picture in one diagram
 

@@ -55,12 +55,13 @@ jobs:
 
       - name: Install system OCR tools
         # tesseract reads the embedded NEV-market slide JPG for the direct
-        # retail BEV/PHEV/EREV split (the article narrative has only the
-        # NEV aggregate). The eng pack is enough — the table data is Latin
-        # digits; Chinese headers aren't needed for parsing.
+        # retail BEV/PHEV/EREV split (the article narrative has only the NEV
+        # aggregate). The Simplified-Chinese pack (chi_sim) is required: pure
+        # eng mis-segments the teal-banded table and garbles the digits — the
+        # Chinese model anchors the table so the numbers read cleanly.
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends tesseract-ocr
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-chi-sim
 
       - name: Install Python dependencies
         run: pip install requests beautifulsoup4 Pillow

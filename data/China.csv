@@ -195,4 +195,4 @@ period,time_interval,variant,source,BEV,PHEV,EREV,OTHERS,ICE,TOTAL,notes
 2026-02,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),278000.0,134000.0,52000.0,0.0,570000.0,1034000.0,https://www.cpcaauto.com/newslist.php?types=csjd&id=4151
 2026-03,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),568000.0,204000.0,76000.0,0.0,800000.0,1648000.0,https://www.cpcaauto.com/newslist.php?types=csjd&id=4179
 2026-04,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),579000.0,192000.0,79000.0,0.0,530000.0,1384000.0,https://www.cpcaauto.com/newslist.php?types=csjd&id=4207
-2026-05,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently) [BEV/PHEV/EREV: ws-proportional],622099.0391722099,261197.33924611972,66703.62158167036,0.0,560000.0,1510000.0,https://www.cpcaauto.com/newslist.php?types=csjd&id=4235
+2026-05,monthly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),637000.0,228000.0,85000.0,0.0,560000.0,1510000.0,https://www.cpcaauto.com/newslist.php?types=csjd&id=4235
