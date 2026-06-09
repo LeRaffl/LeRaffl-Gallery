@@ -68,6 +68,8 @@ from pathlib import Path
 
 import openpyxl
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 PAGE_URL = "https://www.pzpm.org.pl/en/Electromobility/eRegistrations"
 HOST = "https://www.pzpm.org.pl"
@@ -110,7 +112,7 @@ def fold(s: str) -> str:
 
 def find_xlsx(session: requests.Session) -> tuple[str, str]:
     """Scrape the eRegistrations page -> (absolute xlsx url, period 'YYYY-MM')."""
-    r = session.get(PAGE_URL, timeout=30)
+    r = session.get(PAGE_URL, timeout=60)
     r.raise_for_status()
     m = re.search(r'href="([^"]*tabele[^"]*\.xlsx)"', r.text, re.IGNORECASE)
     if not m:
@@ -252,6 +254,11 @@ def main() -> None:
     else:
         session = requests.Session()
         session.headers.update({"User-Agent": UA})
+        _retry = Retry(total=4, read=4, connect=4, backoff_factor=2,
+                       status_forcelist=[500, 502, 503, 504], raise_on_status=False)
+        _adapter = HTTPAdapter(max_retries=_retry)
+        session.mount("https://", _adapter)
+        session.mount("http://", _adapter)
         url, period = find_xlsx(session)
         print(f"Latest PZPM workbook: {period}  ({url})")
         if not args.force:
