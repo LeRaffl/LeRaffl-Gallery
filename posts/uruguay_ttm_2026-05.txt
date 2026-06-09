@@ -1,0 +1,11 @@
+🇺🇾 Uruguay - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++19.1pp  BEV   (17.5% → 36.6%)
++2.2pp  PHEV  (0.5% → 2.8%)
++0.5pp  HEV   (8.4% → 8.9%)
+−21.9pp  ICE   (73.5% → 51.6%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-10.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
