@@ -1,0 +1,12 @@
+🇵🇱 Poland - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++3.9pp  BEV   (3.6% → 7.5%)
++3.7pp  PHEV  (3.5% → 7.2%)
+−0.2pp  HEV   (46.2% → 46.0%)
+−7.4pp  ICE   (46.6% → 39.2%)
+
+HEV peaked at 46.6% in 2025-11 (declining for 6 months).
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2032-03.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
