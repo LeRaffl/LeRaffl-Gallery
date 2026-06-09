@@ -1,11 +1,11 @@
 name: Fetch Uruguay data (ACAU)
 
-# Scrapes the latest ACAU "Compilado <year>" xlsx (AUTOS + SUV sheets) and
-# upserts new months into data/Uruguay.csv. Runs daily from the 1st of each
+# Scrapes the latest ACAU "Compilado <year>" xlsx and upserts new months into
+# the per-variant CSVs (Whole/Vans/HDV/Buses). Runs daily from the 1st of each
 # month — the script self-throttles via the latest period already present
-# in the CSV, so most invocations are a no-op until ACAU publishes the
+# in each CSV, so most invocations are a no-op until ACAU publishes the
 # previous month's data inside the Compilado workbook.
-# When the CSV changes, render-country.yml is dispatched for Uruguay.
+# When any CSV changes, render-country.yml is dispatched for each changed variant.
 
 on:
   workflow_dispatch:
@@ -16,6 +16,10 @@ on:
         default: ''
       url:
         description: 'Direct Compilado xlsx URL or local path (leave empty to auto-discover)'
+        required: false
+        default: ''
+      variant:
+        description: 'Variant to fetch: whole, vans, hdv, buses, all (default: all)'
         required: false
         default: ''
       force:
@@ -43,31 +47,43 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4 openpyxl
 
-      - name: Fetch & update Uruguay.csv
+      - name: Fetch & update Uruguay CSVs
         run: |
           python scripts/fetch_uruguay.py \
             ${YEAR:+--year "$YEAR"} \
             ${URL:+--url "$URL"} \
+            ${VARIANT:+--variant "$VARIANT"} \
             ${FORCE:+--force}
         env:
           YEAR: ${{ inputs.year }}
           URL: ${{ inputs.url }}
+          VARIANT: ${{ inputs.variant }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Uruguay.csv
+          add: >
+            data/Uruguay.csv
+            data/Uruguay_Vans.csv
+            data/Uruguay_HDV.csv
+            data/Uruguay_Buses.csv
           message: 'chore: update Uruguay data from ACAU'
           default_author: github_actions
 
-      - name: Trigger render for Uruguay
+      - name: Trigger renders for changed variants
         if: steps.commit.outputs.committed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Uruguay \
-            -f variant=Whole
+          for vdef in "Whole:data/Uruguay.csv" "Vans:data/Uruguay_Vans.csv" "HDV:data/Uruguay_HDV.csv" "Buses:data/Uruguay_Buses.csv"; do
+            variant="${vdef%%:*}"
+            file="${vdef##*:}"
+            if git show --stat HEAD | grep -qF "$file"; then
+              gh workflow run render-country.yml \
+                --ref "${GITHUB_REF_NAME}" \
+                -f country=Uruguay \
+                -f variant="$variant"
+            fi
+          done
