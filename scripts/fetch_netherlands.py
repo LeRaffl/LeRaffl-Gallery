@@ -422,16 +422,25 @@ def main() -> None:
     session.mount("https://", _adapter)
     session.mount("http://", _adapter)
 
-    # Optional Cloudflare relay — bypasses GitHub Actions IP blocks on the RDW
-    # Swing endpoint. Set NL_FETCH_RELAY to the relay base URL (same worker as
-    # Austria: secrets.AUSTRIA_FETCH_RELAY) and NL_RELAY_TOKEN to the shared
-    # secret (secrets.AUSTRIA_RELAY_TOKEN).
-    relay_base = os.environ.get("NL_FETCH_RELAY")
-    if relay_base:
-        session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
-        session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
-        session.relay_cookies: dict = {}
-        print(f"Relay active: {relay_base}")
+    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
+    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
+    # nor the CF relay works from a hosted runner.
+    # Precedence:
+    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
+    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
+    #   3. Neither → direct (only works on unblocked networks)
+    proxy = os.environ.get("NL_PROXY", "").strip()
+    if proxy:
+        session.proxies.update({"http": proxy, "https": proxy})
+        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
+        print(f"[net] routing via NL_PROXY = {masked}")
+    else:
+        relay_base = os.environ.get("NL_FETCH_RELAY")
+        if relay_base:
+            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
+            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
+            session.relay_cookies: dict = {}
+            print(f"[net] routing via relay: {relay_base}")
 
     for variant in targets:
         data = fetch_table(variant, session)
