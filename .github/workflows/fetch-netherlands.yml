@@ -57,9 +57,8 @@ jobs:
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
-        # The script retries connection errors up to 3× with backoff. A failure
-        # here means the RDW endpoint was unreachable for >~14 s — re-run manually
-        # once the site is back, or wait for the next scheduled run.
+          NL_FETCH_RELAY: ${{ secrets.AUSTRIA_FETCH_RELAY }}
+          NL_RELAY_TOKEN: ${{ secrets.AUSTRIA_RELAY_TOKEN }}
 
       - name: Detect which CSVs changed
         id: changed
