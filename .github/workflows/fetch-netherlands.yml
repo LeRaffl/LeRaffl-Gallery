@@ -58,9 +58,12 @@ jobs:
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
-          NL_PROXY: ${{ secrets.AUSTRIA_PROXY }}
-          NL_FETCH_RELAY: ${{ secrets.AUSTRIA_FETCH_RELAY }}
-          NL_RELAY_TOKEN: ${{ secrets.AUSTRIA_RELAY_TOKEN }}
+          # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;
+          # falls back to the Austria CF relay — which duurzamemobiliteit
+          # 403s, so set NL_FETCH_RELAY/NL_RELAY_TOKEN for this to work.
+          NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
+          NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
+          NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
 
       - name: Detect which CSVs changed
         id: changed
