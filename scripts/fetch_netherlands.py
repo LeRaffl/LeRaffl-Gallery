@@ -49,6 +49,7 @@ import sys
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote as urlquote
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -108,6 +109,51 @@ WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 
+def _get(session: requests.Session, url: str,
+         headers: dict | None = None, **kwargs) -> requests.Response:
+    """session.get that routes through the CF relay when relay_base is set.
+
+    If ``session.relay_base`` is set (monkey-patched in main()), every request
+    is forwarded via the Cloudflare Worker relay so the runner's Azure IP is
+    not the one hitting duurzamemobiliteit.databank.nl.  Cookies from upstream
+    Set-Cookie headers are harvested into ``session.relay_cookies`` and
+    re-forwarded on subsequent requests via X-Fwd-Cookie.
+    """
+    relay_base = getattr(session, "relay_base", None)
+    merged_headers = {**HTTP_HEADERS, **(headers or {})}
+
+    if not relay_base:
+        return session.get(url, headers=merged_headers, **kwargs)
+
+    relay_token = getattr(session, "relay_token", "")
+    relay_cookies: dict = getattr(session, "relay_cookies", {})
+
+    fwd = {
+        "X-Relay-Token":          relay_token,
+        "X-Fwd-User-Agent":       HTTP_HEADERS["User-Agent"],
+        "X-Fwd-Accept-Language":  HTTP_HEADERS["Accept-Language"],
+    }
+    if relay_cookies:
+        fwd["X-Fwd-Cookie"] = "; ".join(f"{k}={v}" for k, v in relay_cookies.items())
+    if merged_headers.get("Referer"):
+        fwd["X-Fwd-Referer"] = merged_headers["Referer"]
+
+    relay_url = relay_base + urlquote(url, safe="")
+    resp = session.get(relay_url, headers=fwd, **kwargs)
+
+    # Harvest upstream Set-Cookie into the manual cookie jar.
+    for raw in resp.headers.get("X-Upstream-Set-Cookie", "").split("\n"):
+        raw = raw.strip()
+        if not raw:
+            continue
+        kv = raw.split(";")[0].strip()
+        if "=" in kv:
+            name, _, value = kv.partition("=")
+            relay_cookies[name.strip()] = value.strip()
+
+    return resp
+
+
 def parse_nl_number(s: str) -> float:
     """'6.863' -> 6863.0; '&nbsp;' / '' -> 0.0. NL uses '.' as thousands sep."""
     if not s or s == "&nbsp;":
@@ -138,7 +184,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
     template_guid = TEMPLATES[variant]
     init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
     print(f"[{variant}] init: {init_url}")
-    r = session.get(init_url, headers=HTTP_HEADERS, timeout=30)
+    r = _get(session, init_url, timeout=30)
     r.raise_for_status()
     m = WSGUID_RE.search(r.text)
     if not m:
@@ -153,7 +199,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
         f"{BASE}/viewer/Presentation/GetTableStart"
         f"?workspaceGuid={wsguid}&_={int(time.time() * 1000)}"
     )
-    r = session.get(start_url, headers={**HTTP_HEADERS, **referer}, timeout=30)
+    r = _get(session, start_url, headers=referer, timeout=30)
     r.raise_for_status()
     data = r.json()
 
@@ -168,7 +214,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
             f"&numRows={total_rows - have_rows}&numCols={total_cols}"
             f"&tableId=0&_={int(time.time() * 1000)}"
         )
-        r = session.get(more_url, headers={**HTTP_HEADERS, **referer}, timeout=30)
+        r = _get(session, more_url, headers=referer, timeout=30)
         r.raise_for_status()
         chunk = r.json().get("rowData", [])
         if not chunk:
@@ -375,6 +421,17 @@ def main() -> None:
     _adapter = HTTPAdapter(max_retries=_retry)
     session.mount("https://", _adapter)
     session.mount("http://", _adapter)
+
+    # Optional Cloudflare relay — bypasses GitHub Actions IP blocks on the RDW
+    # Swing endpoint. Set NL_FETCH_RELAY to the relay base URL (same worker as
+    # Austria: secrets.AUSTRIA_FETCH_RELAY) and NL_RELAY_TOKEN to the shared
+    # secret (secrets.AUSTRIA_RELAY_TOKEN).
+    relay_base = os.environ.get("NL_FETCH_RELAY")
+    if relay_base:
+        session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
+        session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
+        session.relay_cookies: dict = {}
+        print(f"Relay active: {relay_base}")
 
     for variant in targets:
         data = fetch_table(variant, session)
