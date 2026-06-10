@@ -48,46 +48,64 @@ jobs:
         with:
           python-version: '3.12'
 
-      # ------------------------------------------------------------------
-      # TEMPORARY DIAGNOSTICS for the persistent errno-101 failures since
-      # 2026-06-01 — branch-only change, will be reverted before merge.
-      # ------------------------------------------------------------------
-      - name: DNS resolution
-        run: |
-          echo "=== getent ahosts ==="
-          getent ahosts duurzamemobiliteit.databank.nl || echo "getent rc=$?"
-          echo "=== python getaddrinfo (order as urllib3 sees it) ==="
-          python3 -c "
-          import socket
-          for fam, typ, proto, cname, addr in socket.getaddrinfo('duurzamemobiliteit.databank.nl', 443, type=socket.SOCK_STREAM):
-              print(socket.AddressFamily(fam).name, addr)
-          "
+      - name: Install dependencies
+        run: pip install requests
 
-      - name: Runner IPv6 connectivity
+      - name: Fetch & update Netherlands.csv
         run: |
-          ip -6 addr show scope global || true
-          ip -6 route show default || echo "NO IPv6 DEFAULT ROUTE"
+          python scripts/fetch_netherlands.py \
+            ${VARIANT:+--variant "$VARIANT"}
+        env:
+          VARIANT: ${{ inputs.variant }}
+        # The script retries connection errors up to 3× with backoff. A failure
+        # here means the RDW endpoint was unreachable for >~14 s — re-run manually
+        # once the site is back, or wait for the next scheduled run.
 
-      - name: curl IPv4 only
+      - name: Detect which CSVs changed
+        id: changed
         run: |
-          curl -4 -sv --max-time 25 https://duurzamemobiliteit.databank.nl/ -o /dev/null 2>&1 | tail -25 || echo "curl -4 rc=$?"
+          # For each of the 3 per-variant CSVs, check if git sees changes.
+          # `git add -N` makes `git diff` include untracked new files (needed
+          # the very first time each file is created). Emit a pipe-separated
+          # list of variant names so we trigger render only for those.
+          touched=()
+          for pair in "Whole:data/Netherlands.csv" \
+                     "Used:data/Netherlands_Used.csv" \
+                     "HDV:data/Netherlands_HDV.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
 
-      - name: curl IPv6 only
-        run: |
-          curl -6 -sv --max-time 25 https://duurzamemobiliteit.databank.nl/ -o /dev/null 2>&1 | tail -15 || echo "curl -6 rc=$?"
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Netherlands.csv
+            data/Netherlands_Used.csv
+            data/Netherlands_HDV.csv
+          message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
+          default_author: github_actions
 
-      - name: curl default
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
         run: |
-          curl -sv --max-time 25 "https://duurzamemobiliteit.databank.nl/viewer?workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba" -o /dev/null 2>&1 | tail -25 || echo "curl rc=$?"
-
-      - name: python requests (same code path as fetch script)
-        run: |
-          pip install requests --quiet
-          python3 -c "
-          import requests
-          try:
-              r = requests.get('https://duurzamemobiliteit.databank.nl/', timeout=25)
-              print('OK', r.status_code, len(r.content), 'bytes')
-          except Exception as e:
-              print('FAIL:', type(e).__name__, e)
-          "
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Netherlands \
+              -f variant="$variant"
+          done
