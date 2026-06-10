@@ -1,0 +1,8 @@
+🇩🇰 Denmark (HDV) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++6.7pp  BEV     (20.4% → 27.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−6.7pp  ICE     (79.6% → 72.9%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
