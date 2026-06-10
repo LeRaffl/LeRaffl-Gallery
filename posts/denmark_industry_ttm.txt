@@ -1,0 +1,12 @@
+🇩🇰 Denmark (Industry) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++10.1pp  BEV   (36.2% → 46.3%)
+−1.9pp  PHEV  (3.9% → 1.9%)
++0.0pp  HEV   (0.0% → 0.0%)
+−8.2pp  ICE   (60.0% → 51.8%)
+
+PHEV peaked at 7.9% in 2024-06 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
