@@ -42,6 +42,86 @@
       "country_slug": "austria"
     },
     {
+      "country": "Denmark (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_hdv_ICE_BEV_20260610.png",
+      "url": "images/2026-05/denmark_hdv_ICE_BEV_20260610.png",
+      "alt": "Denmark (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_hdv_20260610.png",
+      "url": "images/2026-05/denmark_hdv_20260610.png",
+      "alt": "Denmark (HDV) BEV trajectory",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_hdv_time_20260610.png",
+      "url": "images/2026-05/denmark_hdv_time_20260610.png",
+      "alt": "Denmark (HDV) Transition time curve",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_hdv_ttm_shares_20260610.png",
+      "url": "images/2026-05/denmark_hdv_ttm_shares_20260610.png",
+      "alt": "Denmark (HDV) TTM market split graph",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_private_ICE_BEV_20260610.png",
+      "url": "images/2026-05/denmark_private_ICE_BEV_20260610.png",
+      "alt": "Denmark (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_private_20260610.png",
+      "url": "images/2026-05/denmark_private_20260610.png",
+      "alt": "Denmark (Private) BEV trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_private_time_20260610.png",
+      "url": "images/2026-05/denmark_private_time_20260610.png",
+      "alt": "Denmark (Private) Transition time curve",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-10",
+      "filename": "denmark_private_ttm_shares_20260610.png",
+      "url": "images/2026-05/denmark_private_ttm_shares_20260610.png",
+      "alt": "Denmark (Private) TTM market split graph",
+      "country_slug": "denmark_private"
+    },
+    {
       "country": "Poland",
       "type": "ICE_BEV",
       "period": "2026-05",
