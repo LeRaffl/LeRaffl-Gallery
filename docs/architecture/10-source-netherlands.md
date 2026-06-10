@@ -25,6 +25,12 @@ Schedule:  Daily cron 1st–15th, early-exit per variant once last month is in
 Scripts:   scripts/fetch_netherlands.py   (monthly scraper)
            scripts/backfill_netherlands_pre2018.py  (one-off)
 Workflow:  .github/workflows/fetch-netherlands.yml
+IP block:  duurzamemobiliteit.databank.nl blocks GitHub Actions Azure IPs
+           (TCP-drop, errno 101) AND Cloudflare egress IPs (HTTP 403).
+           Fix: route via a Deno Deploy relay (Google Cloud egress). See §13.
+Secrets:   NL_FETCH_RELAY  — https://<project>.deno.dev/fetch?url=
+           NL_RELAY_TOKEN  — shared secret set in Deno env + GitHub secret
+           NL_PROXY        — optional socks5/http proxy (overrides relay)
 ```
 
 ## 1. Why this is hard
@@ -277,7 +283,9 @@ change, mirror the change in plots.R.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
-| GitHub Actions runner can't reach the host (transient `Network is unreachable` / `errno 101`) | `requests.Session` retries the connection up to 3× with exponential backoff (2 s → 4 s → 8 s); if all retries fail the job fails visibly | Re-run the workflow manually once the network recovers, or wait for the next scheduled run. The most recent confirmed occurrence was 2026-06-01. |
+| **Persistent** Azure IP block (`errno 101` / TCP connection drop) | All three fetch attempts fail; job fails after retry sequence | Confirmed as persistent from 2026-06-01. Fix: relay via Deno Deploy (§13). Not a transient network blip — the host silently drops TCP from GitHub's Azure ranges. |
+| Relay also blocked (403 from Cloudflare egress IPs) | `_get()` returns a 403 from the relay; job fails | The Austria CF Worker relay returns 403 in ~400 ms — the host blocks Cloudflare IP ranges too. Use the Deno Deploy relay (Google Cloud egress) or `NL_PROXY` instead. |
+| Deno Deploy relay unavailable or misconfigured | `_get()` raises a connection error against the Deno URL | Check `NL_FETCH_RELAY`/`NL_RELAY_TOKEN` secrets. Re-deploy `worker/deno-relay.ts` at dash.deno.com. See §13. |
 | Maintainer deletes a saved permalink in Swing | Scraper fails on that variant with `WsGuid not found in /viewer response` | Look at the failing variant's URL in the Action log; recreate the permalink in Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
 | Swing upgrades to a version with a different inline-JS shape | `WSGUID_RE` regex stops matching | Update the regex to match the new JS pattern (look at the raw HTML response) |
 | Swing changes the pivot JSON shape | Parser fails noisily; render aborts before commit | Inspect a fresh HAR; update `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
@@ -306,6 +314,15 @@ change, mirror the change in plots.R.
 4. Add the variant name to the `render-country.yml` choice list.
 5. Add a flag asset at `assets/flags/netherlands_<lowercase variant>.png`.
 6. Update this doc's variant table.
+
+### Re-deploy the Deno relay after expiry or rotation
+
+1. Generate a new random token: `python3 -c "import secrets; print(secrets.token_hex(32))"`.
+2. Update `RELAY_TOKEN` in Deno Deploy project settings.
+3. Update the `NL_RELAY_TOKEN` GitHub secret to match.
+4. No code change needed; the relay reads the token from the env at request time.
+
+If the project URL changed (e.g. new deployment), also update `NL_FETCH_RELAY`.
 
 ### Force-refetch an older month (RDW restated something)
 
@@ -339,11 +356,89 @@ match, the template GUID is broken. If step 2 returns HTML (a 302 to
   credential. The whole flow works for any anonymous client. Do not commit
   the maintainer's logged-in cookies anywhere.
 - A non-Swing fallback. If Swing is persistently unreachable, there is no
-  automatic switch to CBS Statline or anywhere else. Transient connection
-  errors are retried up to 3× with exponential backoff (see Known fragility
-  above); a failure that survives all retries still fails the action.
+  automatic switch to CBS Statline or anywhere else. Connection errors are
+  retried; a failure that survives all retries fails the action. If the
+  relay is also blocked, the maintainer must fix the routing (see §13).
 - Real-time updates. The cron is daily, not hourly. There is no webhook
   from RDW or Swing.
 - Backfill for Used/HDV before 2018. The maintainer's sheet doesn't have
   those slices that far back. They start 2018-01 in both the sheet and
   Swing.
+
+## 13. IP routing and relay architecture
+
+### The blocking problem (observed 2026-06-01)
+
+`duurzamemobiliteit.databank.nl` (hosted in the Netherlands) began silently
+dropping TCP connections from GitHub Actions (Azure) IP ranges on or around
+2026-06-01, producing `[Errno 101] Network is unreachable` after a ~25 s
+IPv4 connect timeout. Nine consecutive daily runs failed before diagnosis.
+
+Investigation showed:
+- **GitHub Actions Azure IPs**: TCP-dropped (errno 101).
+- **Cloudflare egress IPs** (CF Worker relay used for Austria): HTTP 403
+  returned in ~400 ms. The host blocks Cloudflare CDN ranges too.
+- **Anthropic API infrastructure**: HTTP 403 (same block list).
+- **Google Cloud egress** (Deno Deploy): not (yet) blocked — confirmed by
+  successful test fetches.
+
+### Solution: Deno Deploy relay (`worker/deno-relay.ts`)
+
+`worker/deno-relay.ts` is a Deno Deploy serverless function that speaks the
+same `/fetch?url=<encoded>` contract as the Austria CF Worker
+(`worker/index.js`). Because Deno Deploy's free tier egresses from **Google
+Cloud** IP ranges rather than Cloudflare or Azure, it is not caught by the
+current block.
+
+The relay is session-aware (required for Swing's JIVE_AUTH cookie flow):
+
+| Header from client → relay | Forwarded upstream as |
+|---|---|
+| `X-Relay-Token` | auth check against `RELAY_TOKEN` env var |
+| `X-Fwd-User-Agent` | `User-Agent` |
+| `X-Fwd-Cookie` | `Cookie` |
+| `X-Fwd-Referer` | `Referer` |
+| `X-Fwd-Accept-Language` | `Accept-Language` |
+| ← `X-Upstream-Set-Cookie` | upstream `Set-Cookie` headers, `\n`-joined |
+
+`scripts/fetch_netherlands.py::_get()` transparently uses the relay when
+`session.relay_base` is set, accumulating upstream cookies in
+`session.relay_cookies` across the bootstrap → GetTableStart → GetTableRows
+call sequence.
+
+### Priority order for routing
+
+```
+1. NL_PROXY (socks5:// or http://)        — highest priority; set if you have
+                                             a self-hosted proxy with NL egress
+2. NL_FETCH_RELAY + NL_RELAY_TOKEN        — Deno Deploy relay (preferred)
+3. AUSTRIA_FETCH_RELAY + AUSTRIA_RELAY_TOKEN  — CF Worker fallback (will 403
+                                               for this host, kept as last-resort)
+4. Direct connection                       — fails for GitHub Actions runners
+```
+
+The workflow maps these in priority order via `${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}` etc.
+
+### Setting up the Deno Deploy relay
+
+1. Go to [dash.deno.com](https://dash.deno.com) → sign in with GitHub → **New Playground**.
+2. Paste `worker/deno-relay.ts`, click **Save & Deploy**.
+3. In the project's **Settings → Environment Variables**, add:
+   `RELAY_TOKEN` = `<a long random string>`.
+4. Note the deployed URL, e.g. `https://purple-whale-12.deno.dev`.
+5. In GitHub repo Settings → Secrets → Actions, add:
+   - `NL_FETCH_RELAY` = `https://purple-whale-12.deno.dev/fetch?url=`
+   - `NL_RELAY_TOKEN` = same random string from step 3.
+
+The relay is free and needs no credit card. Deno Deploy's free tier allows
+1 000 000 requests/month; the Netherlands workflow runs at most ~45 × 3 requests/month.
+
+### If Deno Deploy is also blocked in the future
+
+Options in order of effort:
+1. Deploy a second Deno project (new outbound IP pool — may differ).
+2. Deploy to Fly.io / Render / Railway / another free PaaS with different IP
+   ranges. The relay contract is simple enough to port in <50 lines.
+3. Set `NL_PROXY` to a residential or datacenter proxy URL (`socks5://user:pass@host:port`).
+4. Run a one-off local fetch and commit the result manually:
+   `python scripts/fetch_netherlands.py --force && git add data/ && git commit -m "chore: manual Netherlands update"`
