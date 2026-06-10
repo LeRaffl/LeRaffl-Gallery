@@ -49,7 +49,8 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        # requests[socks] so NL_PROXY may be a socks5:// URL as well as http(s)://.
+        run: pip install "requests[socks]"
 
       - name: Fetch & update Netherlands.csv
         run: |
@@ -57,9 +58,12 @@ jobs:
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
-        # The script retries connection errors up to 3× with backoff. A failure
-        # here means the RDW endpoint was unreachable for >~14 s — re-run manually
-        # once the site is back, or wait for the next scheduled run.
+          # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;
+          # falls back to the Austria CF relay — which duurzamemobiliteit
+          # 403s, so set NL_FETCH_RELAY/NL_RELAY_TOKEN for this to work.
+          NL_PROXY: ${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}
+          NL_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY || secrets.AUSTRIA_FETCH_RELAY }}
+          NL_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN || secrets.AUSTRIA_RELAY_TOKEN }}
 
       - name: Detect which CSVs changed
         id: changed

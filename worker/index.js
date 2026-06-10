@@ -315,12 +315,26 @@ export default {
 // the raw bytes back unchanged (so binary .ods files survive intact).
 //
 // Locked down two ways so it can't be abused as an open proxy:
-//   * host allow-list (Statistik Austria only), and
+//   * host allow-list, and
 //   * optional shared secret AUSTRIA_RELAY_TOKEN (set via
 //     `wrangler secret put AUSTRIA_RELAY_TOKEN`); the caller sends it as the
 //     X-Relay-Token header. If the secret is unset the endpoint still works
 //     (allow-list only) — setting it is recommended.
-const RELAY_ALLOW_HOSTS = new Set(['www.statistik.at', 'data.statistik.gv.at']);
+//
+// Session-aware hosts (duurzamemobiliteit.databank.nl): the caller may send
+//   X-Fwd-Cookie          → forwarded as Cookie to the upstream
+//   X-Fwd-Referer         → forwarded as Referer to the upstream
+//   X-Fwd-Accept-Language → forwarded as Accept-Language to the upstream
+//   X-Fwd-User-Agent      → overrides the default relay User-Agent upstream
+// The upstream's Set-Cookie headers are returned as X-Upstream-Set-Cookie
+// (newline-separated) so the caller can maintain the cookie jar itself.
+// Responses for these hosts are never cached (live session data).
+const RELAY_ALLOW_HOSTS = new Set([
+  'www.statistik.at', 'data.statistik.gv.at',  // Austria
+  'duurzamemobiliteit.databank.nl',              // Netherlands (RDW via Swing)
+]);
+// Hosts that use server-side sessions: disable CF caching, forward cookies.
+const RELAY_SESSION_HOSTS = new Set(['duurzamemobiliteit.databank.nl']);
 
 async function handleRelay(request, env) {
   if (env.AUSTRIA_RELAY_TOKEN &&
@@ -337,24 +351,47 @@ async function handleRelay(request, env) {
     return new Response(`host not allowed: ${t.hostname}`, { status: 403 });
   }
 
+  const isSession = RELAY_SESSION_HOSTS.has(t.hostname);
+
+  const upstreamHeaders = {
+    'User-Agent': request.headers.get('X-Fwd-User-Agent') || 'LeRaffl-Gallery-Relay/1.0',
+    'Accept': '*/*',
+  };
+  if (isSession) {
+    const fwdCookie = request.headers.get('X-Fwd-Cookie');
+    const fwdReferer = request.headers.get('X-Fwd-Referer');
+    const fwdLang = request.headers.get('X-Fwd-Accept-Language');
+    if (fwdCookie) upstreamHeaders['Cookie'] = fwdCookie;
+    if (fwdReferer) upstreamHeaders['Referer'] = fwdReferer;
+    if (fwdLang) upstreamHeaders['Accept-Language'] = fwdLang;
+  }
+
   let upstream;
   try {
     upstream = await fetch(t.toString(), {
-      headers: { 'User-Agent': 'LeRaffl-Gallery-Relay/1.0', 'Accept': '*/*' },
-      cf: { cacheTtl: 300, cacheEverything: true },
+      headers: upstreamHeaders,
+      cf: isSession ? { cacheTtl: 0 } : { cacheTtl: 300, cacheEverything: true },
     });
   } catch (e) {
     return new Response(`relay upstream error: ${e}`, { status: 502 });
   }
 
+  const responseHeaders = {
+    'Content-Type':  upstream.headers.get('Content-Type') || 'application/octet-stream',
+    'Cache-Control': isSession ? 'no-store' : 'public, max-age=300',
+  };
+
+  // Return upstream Set-Cookie headers to the caller so it can manage its own jar.
+  if (isSession) {
+    const setCookies = [];
+    upstream.headers.forEach((value, name) => {
+      if (name.toLowerCase() === 'set-cookie') setCookies.push(value);
+    });
+    if (setCookies.length > 0) responseHeaders['X-Upstream-Set-Cookie'] = setCookies.join('\n');
+  }
+
   // Pass the body through verbatim with the upstream content type.
-  return new Response(upstream.body, {
-    status: upstream.status,
-    headers: {
-      'Content-Type':  upstream.headers.get('Content-Type') || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=300',
-    },
-  });
+  return new Response(upstream.body, { status: upstream.status, headers: responseHeaders });
 }
 
 // ── POST /submissions ────────────────────────────────────────────────────────
