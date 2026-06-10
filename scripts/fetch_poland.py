@@ -17,7 +17,7 @@ Output files (one per PZPM vehicle category; all parsed from the "Ogółem" shee
 
 Source
 ------
-PZPM (Polski Związek Przemysłu Motoryzacyjnego) publishes a monthly
+PZPM (Polski Związek Przemysłu Motoryzacyjowego) publishes a monthly
 eRegistrations workbook on https://www.pzpm.org.pl/en/Electromobility/eRegistrations
 around the 7th of the following month, based on the Central Register of Vehicles
 (CEP). The page links a single XLSX ("PZPM_eRejestracje - tabele MM.YYYY.xlsx")
@@ -114,7 +114,7 @@ def find_xlsx(session: requests.Session) -> tuple[str, str]:
     """Scrape the eRegistrations page -> (absolute xlsx url, period 'YYYY-MM')."""
     r = session.get(PAGE_URL, timeout=60)
     r.raise_for_status()
-    m = re.search(r'href="([^"]*tabele[^"]*\.xlsx)"', r.text, re.IGNORECASE)
+    m = re.search(r'href="([^"]*tabele[^"]*.xlsx)"', r.text, re.IGNORECASE)
     if not m:
         sys.exit("Could not find the 'tabele ...xlsx' download link on the PZPM page.")
     href = m.group(1).replace("&amp;", "&")
