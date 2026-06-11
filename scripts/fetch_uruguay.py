@@ -4,7 +4,7 @@ Fetch Uruguay vehicle registration data from ACAU and update per-variant CSVs.
 
 Usage
 -----
-    python scripts/fetch_uruguay.py [--year YEAR] [--url URL_OR_PATH] \\
+    python scripts/fetch_uruguay.py [--year YEAR] [--url URL_OR_PATH] \
         [--variant {whole,vans,hdv,buses,all}] [--force]
 
 * --year     Year to fetch (default: current calendar year).
@@ -464,13 +464,17 @@ def main() -> int:
     aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
     targets = list(VARIANT_CONFIG) if args.variant == "all" else [aliases[args.variant]]
 
-    # Target period drives the self-throttle: we only run when the previous
-    # calendar month is not yet in the CSV (matching the maintainer's
-    # "schauen ob der Vormonat von Heute noch nicht in den Daten is").
+    # target_period drives the self-throttle and the publication gate.
+    # We derive the month from "previous calendar month" but use the *fetched
+    # year* (args.year if given, otherwise today's previous-month year) so that
+    # --year 2025 checks for "2025-05" rather than "2026-05" — without this,
+    # --year for a past year would silently no-op because the self-throttle
+    # would see a 2026 row already present, and the gate would fail to find a
+    # 2026 period in a 2025 workbook.
     today = date.today()
-    target_year, target_month = previous_month(today)
-    target_period = f"{target_year}-{target_month:02d}"
-    year = args.year or target_year
+    _default_year, target_month = previous_month(today)
+    year = args.year or _default_year
+    target_period = f"{year}-{target_month:02d}"
     print(f"Today: {today}. Target month: {target_period}. Fetching Compilado {year}.")
 
     if not args.force:
@@ -502,6 +506,7 @@ def main() -> int:
     # entire calendar year with zeros and overwrites month-by-month, so if the
     # canonical passenger-car data isn't published for target_period yet, the
     # commercial sheets won't be either.
+    gate_rows: dict | None = None
     if not args.force:
         gate_rows = parse_workbook(xlsx_bytes, year, "Whole")
         if not gate_rows:
@@ -514,7 +519,9 @@ def main() -> int:
             return 0
 
     for variant in targets:
-        new_rows = parse_workbook(xlsx_bytes, year, variant)
+        # Reuse the gate parse for Whole to avoid parsing AUTOS+SUV twice.
+        new_rows = gate_rows if (variant == "Whole" and gate_rows is not None) \
+            else parse_workbook(xlsx_bytes, year, variant)
         if not new_rows:
             print(f"[{variant}] No published months found; skipping.")
             continue

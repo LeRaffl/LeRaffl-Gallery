@@ -19,9 +19,16 @@ on:
         required: false
         default: ''
       variant:
-        description: 'Variant to fetch: whole, vans, hdv, buses, all (default: all)'
+        description: 'Variant to fetch (default: all)'
         required: false
-        default: ''
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - whole
+          - vans
+          - hdv
+          - buses
       force:
         description: 'Re-process months that already exist in the CSV'
         required: false
@@ -60,6 +67,29 @@ jobs:
           VARIANT: ${{ inputs.variant }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
 
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          # Capture per-variant change state before the commit so render dispatch
+          # is independent of what add-and-commit chooses to include. Uses the
+          # same git add -N + git diff pattern as fetch-netherlands.yml.
+          touched=()
+          for pair in "Whole:data/Uruguay.csv" \
+                     "Vans:data/Uruguay_Vans.csv" \
+                     "HDV:data/Uruguay_HDV.csv" \
+                     "Buses:data/Uruguay_Buses.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
@@ -73,17 +103,16 @@ jobs:
           default_author: github_actions
 
       - name: Trigger renders for changed variants
-        if: steps.commit.outputs.committed == 'true'
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
         run: |
-          for vdef in "Whole:data/Uruguay.csv" "Vans:data/Uruguay_Vans.csv" "HDV:data/Uruguay_HDV.csv" "Buses:data/Uruguay_Buses.csv"; do
-            variant="${vdef%%:*}"
-            file="${vdef##*:}"
-            if git show --stat HEAD | grep -qF "$file"; then
-              gh workflow run render-country.yml \
-                --ref "${GITHUB_REF_NAME}" \
-                -f country=Uruguay \
-                -f variant="$variant"
-            fi
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Uruguay \
+              -f variant="$variant"
           done
