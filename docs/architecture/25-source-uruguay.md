@@ -60,14 +60,26 @@ row 9+: data rows (one per model)
 last:   "TOTAL" row with monthly totals (used as per-sheet sanity check)
 ```
 
+### Sheet layout differences — 2024 format
+
+| Aspect | 2026+ | 2024 |
+|---|---|---|
+| Year header | `"COMPILADO YYYY"` in one cell (row 5) | `"Informe Compilado"` (row 4) + `" Año YYYY"` (row 5) — separate cells |
+| Month names | Full: `Enero` … `Diciembre` | Abbreviated: `Ene` … `Dic` (`Set` = Sep) |
+| Vans sheet | `UTILITARIO` | `UTILITARIOS` (plural) |
+| Per-brand subtotals | Not present | Rows with `J:Total:` and empty Combustible — silently skipped |
+| Grand total row | `A:TOTAL` | `J:Totales:` |
+| PHEV | Present | Absent (all fuel codes: E, H, N, D only) |
+
+The parser handles both layouts automatically. When the Vans sheet is missing under its 2026 name (`UTILITARIO`), it falls back to `UTILITARIOS`. Month names are matched case-insensitively from an index that includes both full and abbreviated forms.
+
 The parser locates the header row dynamically by searching for the cell value
 `"Combustible"`, so minor row-shifts survive. Month columns are matched against
-the 12 Spanish month names and fail loudly if any are missing.
+the known Spanish month names (full or abbreviated) and fail loudly if any are missing.
 
-> **Pre-2026 files have a different layout** — sheet named `"MINI"` instead of
-> `"MINIBUSES"`, per-brand subtotal rows, abbreviated month headers `"Ene"/"Feb"`/…,
-> and no PHEV split. The current parser targets the 2026+ layout exclusively.
-> Back-filling 2025 and earlier commercial variants would require a separate parser.
+> **2025** was not tested directly but is expected to share the 2024 layout (abbreviated months, no PHEV). If parsing fails on a 2025 file, check for unexpected month abbreviations or a new sheet name variant.
+>
+> **Pre-2024 files** (2023 and earlier) may have yet another layout (sheet named `"MINI"` instead of `"MINIBUSES"` etc.) and have not been tested — they are out of scope.
 
 ## 2. Fuel mapping
 
@@ -223,10 +235,11 @@ gh workflow run fetch-uruguay.yml \
 - **Timestamp-based filenames.** Never hard-code the Compilado URL — always
   scrape the homepage.
 
-- **Pre-2026 layout is incompatible.** Do not run this parser against a 2025 or
-  earlier Compilado; it will fail with missing month headers or wrong sheet names.
-  Backfilling pre-2026 commercial data requires a separate parser targeting the
-  2025 layout.
+- **2024 layout is supported; 2025 is probably fine; pre-2024 is untested.**
+  The parser automatically handles 2024's abbreviated month names (`Ene`/`Dic`),
+  separate year-header rows, `UTILITARIOS` sheet name, and `J:Totales:` grand total.
+  2025 was not tested directly but is expected to share the 2024 layout. Files from
+  2023 and earlier have not been tested and may require a different approach.
 
 - **`--year` sets `target_period` relative to the fetched year, not today.**
   `--year 2026` in December 2027 gives `target_period = "2026-11"`. The

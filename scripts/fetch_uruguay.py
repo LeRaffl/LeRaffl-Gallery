@@ -156,6 +156,24 @@ SPANISH_MONTHS = [
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ]
 
+# Abbreviated month headers used in pre-2026 Compilado files (2024, probably 2025).
+# "Set" = Septiembre; note there is no "Sep" variant in ACAU files observed so far.
+_MONTH_ABBREVS = [
+    "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+    "Jul", "Ago", "Set", "Oct", "Nov", "Dic",
+]
+
+# Map any recognised month token (full or abbreviated, case-insensitive) → 0-based index.
+_MONTH_INDEX: dict[str, int] = {
+    **{m.lower(): i for i, m in enumerate(SPANISH_MONTHS)},
+    **{m.lower(): i for i, m in enumerate(_MONTH_ABBREVS)},
+}
+
+# Sheet-name aliases for backward-compat with pre-2026 layout (resolved at parse time).
+_SHEET_ALIASES: dict[str, list[str]] = {
+    "UTILITARIO": ["UTILITARIOS"],  # 2024 used the plural form
+}
+
 
 def find_compilado_url(year: int) -> str:
     """Scrape the ACAU homepage and return the Compilado xlsx URL for `year`.
@@ -239,12 +257,15 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     except StopIteration:
         raise RuntimeError(f"'Combustible' column not found in header of '{ws.title}'")
 
-    # Month columns: locate every Spanish month name in the header.
-    month_to_col: dict[str, int] = {}
+    # Month columns: build a 12-element list (index 0=Jan … 11=Dec) of spreadsheet
+    # column indices. Accepts both full names (2026+) and abbreviated forms (pre-2026).
+    month_cols: list[int | None] = [None] * 12
     for i, c in enumerate(header):
-        if isinstance(c, str) and c.strip() in SPANISH_MONTHS:
-            month_to_col[c.strip()] = i
-    missing = [m for m in SPANISH_MONTHS if m not in month_to_col]
+        if isinstance(c, str):
+            idx = _MONTH_INDEX.get(c.strip().lower())
+            if idx is not None:
+                month_cols[idx] = i
+    missing = [SPANISH_MONTHS[i] for i, col in enumerate(month_cols) if col is None]
     if missing:
         raise RuntimeError(
             f"Sheet '{ws.title}' header is missing month columns {missing}. "
@@ -260,8 +281,16 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
 
     for row in rows[hdr_idx + 1:]:
         first = row[0]
-        # End-of-sheet TOTAL row.
+        # End-of-sheet grand total row — two layouts:
+        #   2026: "TOTAL" in column A
+        #   2024: "Totales:" somewhere in the row (column J / P.B.T position)
+        # Per-brand subtotals in 2024 use "Total:" (no trailing S) and are skipped
+        # below via the empty-Combustible guard — do NOT break on those.
         if isinstance(first, str) and first.strip().upper() == "TOTAL":
+            total_row = row
+            break
+        if any(isinstance(c, str) and c.strip().lower() == "totales:"
+               for c in row if c is not None):
             total_row = row
             break
 
@@ -276,8 +305,8 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
             unknown_codes.add(code)
             csv_col = "OTHERS"
 
-        for j, month in enumerate(SPANISH_MONTHS):
-            col = month_to_col[month]
+        for j in range(12):
+            col = month_cols[j]
             v = row[col] if col < len(row) else None
             if isinstance(v, (int, float)):
                 fuel_totals[csv_col][j] += float(v)
@@ -290,8 +319,8 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     total_per_month = None
     if total_row is not None:
         total_per_month = []
-        for month in SPANISH_MONTHS:
-            col = month_to_col[month]
+        for j in range(12):
+            col = month_cols[j]
             v = total_row[col] if col < len(total_row) else None
             total_per_month.append(float(v) if isinstance(v, (int, float)) else 0.0)
 
@@ -308,22 +337,33 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     target_sheets = VARIANT_CONFIG[variant]["sheets"]
     wb = openpyxl.load_workbook(io.BytesIO(wb_bytes), data_only=True)
 
-    # The "COMPILADO YYYY" cell lives near the top of every sheet; pick the
-    # first sheet we'll parse and validate the year matches the request.
-    first = wb[target_sheets[0]]
+    # Validate the workbook year. In the 2026+ layout "COMPILADO YYYY" appears in
+    # one cell; in the 2024 layout it's split across two adjacent rows ("Informe
+    # Compilado" + " Año 2024"). We therefore scan all cells in the first 10 rows
+    # for (a) a cell containing "COMPILADO" and (b) a cell containing a 4-digit year,
+    # independently — both must be present somewhere in those rows.
+    first_ws = wb[target_sheets[0]]
+    has_compilado = False
     year_cell = None
-    for row in first.iter_rows(values_only=True, max_row=10):
+    for row in first_ws.iter_rows(values_only=True, max_row=10):
         for c in row:
-            if isinstance(c, str) and "COMPILADO" in c.upper():
+            if not isinstance(c, str):
+                continue
+            if "COMPILADO" in c.upper():
+                has_compilado = True
+            if year_cell is None:
                 m = re.search(r"\b(20\d{2})\b", c)
                 if m:
                     year_cell = int(m.group(1))
-                    break
-        if year_cell:
-            break
+    if not has_compilado:
+        raise RuntimeError(
+            "Could not find 'COMPILADO' in the first 10 rows — "
+            "file may not be a Compilado xlsx"
+        )
     if year_cell is None:
         raise RuntimeError(
-            "Could not find 'COMPILADO YYYY' header — file may not be a Compilado xlsx"
+            "Could not find a year (20xx) in the workbook header — "
+            "file may not be a Compilado xlsx"
         )
     if year_cell != year:
         raise RuntimeError(
@@ -334,19 +374,27 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     # Sum all sheets for this variant (Whole sums AUTOS + SUV; others have one sheet each).
     combined: dict[str, list[float]] = {col: [0.0] * 12 for col in set(FUEL_MAP.values())}
     for sheet_name in target_sheets:
-        if sheet_name not in wb.sheetnames:
-            raise RuntimeError(
-                f"Workbook is missing required sheet '{sheet_name}'. "
-                f"Sheets present: {wb.sheetnames}"
-            )
-        ws = wb[sheet_name]
+        resolved = sheet_name
+        if resolved not in wb.sheetnames:
+            for alias in _SHEET_ALIASES.get(sheet_name, []):
+                if alias in wb.sheetnames:
+                    resolved = alias
+                    print(f"  NOTE: sheet '{sheet_name}' not found; using alias '{resolved}'")
+                    break
+            else:
+                raise RuntimeError(
+                    f"Workbook is missing required sheet '{sheet_name}' "
+                    f"(aliases tried: {_SHEET_ALIASES.get(sheet_name, [])}). "
+                    f"Sheets present: {wb.sheetnames}"
+                )
+        ws = wb[resolved]
         per_fuel, sheet_total = parse_sheet(ws)
 
         # Cross-check this sheet's per-fuel sum against its own TOTAL row.
         if sheet_total is not None:
             computed = [sum(per_fuel[f][j] for f in per_fuel) for j in range(12)]
             if computed != sheet_total:
-                diffs = [(SPANISH_MONTHS[j], computed[j], sheet_total[j])
+                diffs = [(SPANISH_MONTHS[j], computed[j], sheet_total[j])  # type: ignore[index]
                          for j in range(12) if computed[j] != sheet_total[j]]
                 raise RuntimeError(
                     f"Sheet '{sheet_name}' fuel sum != TOTAL row for months {diffs}. "
