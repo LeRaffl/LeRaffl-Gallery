@@ -1,4 +1,16 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2024-01,monthly,Vans,ACAU,7.0,0.0,0.0,1424.0,196.0,0.0,1627.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-02,monthly,Vans,ACAU,11.0,0.0,0.0,1382.0,369.0,0.0,1762.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-03,monthly,Vans,ACAU,88.0,0.0,0.0,1288.0,270.0,0.0,1646.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-04,monthly,Vans,ACAU,17.0,0.0,0.0,1263.0,314.0,0.0,1594.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-05,monthly,Vans,ACAU,21.0,0.0,0.0,1505.0,303.0,0.0,1829.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-06,monthly,Vans,ACAU,20.0,0.0,0.0,1019.0,258.0,0.0,1297.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-07,monthly,Vans,ACAU,43.0,0.0,6.0,1111.0,246.0,0.0,1406.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-08,monthly,Vans,ACAU,29.0,0.0,10.0,1505.0,355.0,0.0,1899.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-09,monthly,Vans,ACAU,26.0,0.0,15.0,1013.0,321.0,0.0,1375.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-10,monthly,Vans,ACAU,37.0,0.0,18.0,1843.0,328.0,0.0,2226.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-11,monthly,Vans,ACAU,27.0,0.0,41.0,1676.0,325.0,0.0,2069.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-12,monthly,Vans,ACAU,35.0,0.0,25.0,1396.0,329.0,0.0,1785.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
 2026-01,monthly,Vans,ACAU,81.0,11.0,7.0,1036.0,328.0,0.0,1463.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-02,monthly,Vans,ACAU,82.0,4.0,16.0,1026.0,248.0,0.0,1376.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-03,monthly,Vans,ACAU,71.0,2.0,38.0,1203.0,303.0,0.0,1617.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx

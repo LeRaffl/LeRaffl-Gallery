@@ -1,4 +1,15 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2024-02,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,2.0,0.0,2.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-03,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,11.0,0.0,11.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-04,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,8.0,0.0,8.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-05,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,19.0,0.0,19.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-06,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,17.0,0.0,17.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-07,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,4.0,0.0,4.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-08,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,5.0,0.0,5.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-09,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,8.0,0.0,8.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-10,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,22.0,0.0,22.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-11,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,11.0,0.0,11.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-12,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,9.0,0.0,9.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
 2026-01,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,1.0,0.0,1.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-02,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,4.0,0.0,4.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-03,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,4.0,0.0,4.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx

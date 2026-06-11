@@ -1,4 +1,16 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2024-01,monthly,HDV,ACAU,5.0,0.0,0.0,0.0,185.0,0.0,190.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-02,monthly,HDV,ACAU,1.0,0.0,0.0,2.0,176.0,0.0,179.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-03,monthly,HDV,ACAU,2.0,0.0,0.0,1.0,184.0,0.0,187.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-04,monthly,HDV,ACAU,9.0,0.0,0.0,3.0,204.0,0.0,216.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-05,monthly,HDV,ACAU,1.0,0.0,0.0,0.0,196.0,0.0,197.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-06,monthly,HDV,ACAU,3.0,0.0,0.0,5.0,195.0,0.0,203.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-07,monthly,HDV,ACAU,1.0,0.0,0.0,1.0,230.0,0.0,232.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-08,monthly,HDV,ACAU,3.0,0.0,0.0,10.0,239.0,0.0,252.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-09,monthly,HDV,ACAU,4.0,0.0,0.0,3.0,249.0,0.0,256.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-10,monthly,HDV,ACAU,0.0,0.0,0.0,0.0,279.0,0.0,279.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-11,monthly,HDV,ACAU,2.0,0.0,0.0,4.0,281.0,0.0,287.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
+2024-12,monthly,HDV,ACAU,3.0,0.0,0.0,5.0,361.0,0.0,369.0,https://www.acau.com.uy/panel/estadisticas/12_21_47ar1.xlsx
 2026-01,monthly,HDV,ACAU,4.0,0.0,0.0,0.0,237.0,0.0,241.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-02,monthly,HDV,ACAU,4.0,0.0,0.0,0.0,209.0,0.0,213.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
 2026-03,monthly,HDV,ACAU,15.0,0.0,0.0,0.0,228.0,0.0,243.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
