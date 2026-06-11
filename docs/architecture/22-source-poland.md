@@ -59,7 +59,7 @@ requires a browser `User-Agent` and a `Referer` of the page.
 
 The workbook has nine sheets, but **only `Ogółem` (Overall) is refreshed each
 month**. The brand/model ranking tabs (`Osobowe - rankingi`, `Samochody
-dostawcze`, …) and `Paliwa_Samochody osobowe` are **stale 2023 template tabs**
+Dostawcze`, …) and `Paliwa_Samochody osobowe` are **stale 2023 template tabs**
 (they still show Feb-2023 brand tables) and must NOT be parsed. The fetcher
 reads `Ogółem` exclusively.
 
@@ -134,3 +134,9 @@ Render them on demand via `render-country.yml` once enough months exist.
   yield Feb-2023 brand data. Don't.
 - **Combined van hybrids** inflate Vans `OTHERS`; this is intentional and
   documented above (no split is available upstream).
+- **Slow server / read timeouts.** `www.pzpm.org.pl` is a low-traffic association
+  site. A 30 s timeout produced `requests.exceptions.ReadTimeout` in CI (observed
+  2026-06-09). The fetcher now uses a 60 s read timeout and `urllib3.Retry(total=4,
+  read=4, connect=4, backoff_factor=2)` — up to four retries with waits of 2, 4,
+  8, 16 s before the job fails. If the site is down, the retry sequence takes ~30 s
+  before the final failure; the next scheduled run will pick it up.

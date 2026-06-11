@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """
-Fetch Uruguay vehicle registration data from ACAU and update data/Uruguay.csv.
+Fetch Uruguay vehicle registration data from ACAU and update per-variant CSVs.
 
 Usage
 -----
     python scripts/fetch_uruguay.py [--year YEAR] [--url URL_OR_PATH] \
-        [--csv PATH] [--force]
+        [--variant {whole,vans,hdv,buses,all}] [--force]
 
-* --year   Year to fetch (default: current calendar year).
-* --url    Direct Compilado xlsx URL or local file path; if omitted, the
-           ACAU homepage is scraped for the year's Compilado link.
-* --csv    Target CSV (default: data/Uruguay.csv).
-* --force  Re-process months even if already present in the CSV.
+* --year     Year to fetch (default: current calendar year).
+* --url      Direct Compilado xlsx URL or local file path; if omitted, the
+             ACAU homepage is scraped for the year's Compilado link.
+* --variant  Which variant(s) to fetch (default: all).
+* --force    Re-process months even if already present in the CSV.
+
+Output files
+------------
+    data/Uruguay.csv        <- Whole  AUTOS + SUV  (passenger cars, M1)
+    data/Uruguay_Vans.csv   <- Vans   UTILITARIO   (light commercial / pickups, N1)
+    data/Uruguay_HDV.csv    <- HDV    CAMIONES      (medium/heavy trucks, N2/N3)
+    data/Uruguay_Buses.csv  <- Buses  OMNIBUS       (buses, M2/M3)
 
 Invoked by .github/workflows/fetch-uruguay.yml on a daily cron from the 1st
-of each month onward, plus manual workflow_dispatch. When the CSV changes,
-the workflow commits data/Uruguay.csv and triggers render-country.yml for
-Uruguay.
+of each month onward, plus manual workflow_dispatch. When any CSV changes,
+the workflow commits the updated files and triggers render-country.yml for
+each changed variant.
 
 Data source
 -----------
@@ -36,14 +43,16 @@ the homepage to discover the current year's link rather than hard-coding it.
 
 Vehicle scope
 -------------
-AUTOS (turismos: sedans, hatchbacks, coupés) + SUV (utility vehicles). The
-ACAU spreadsheet uses these as two separate sheets but the maintainer wants
-them aggregated into a single passenger-car series. MINIBUSES, UTILITARIO
-(light commercial / pickups), CAMIONES (medium/heavy trucks) and OMNIBUS
-(buses) are explicitly out of scope — Uruguay has no HDV variant yet and
-the light-commercial / minibus categories don't map cleanly onto the
-project's existing CSV schemas. See docs/architecture/09-glossary.md
-§ Vehicle scope per source.
+The Compilado workbook has six sheets: AUTOS, SUV, MINIBUSES, UTILITARIO,
+CAMIONES, OMNIBUS. We ingest four of them:
+
+  Whole  = AUTOS + SUV (passenger cars, M1) — summed into one series
+  Vans   = UTILITARIO (light commercial / pickups, N1)
+  HDV    = CAMIONES (medium/heavy trucks, N2/N3)
+  Buses  = OMNIBUS (buses, M2/M3)
+
+MINIBUSES is excluded — its EU class (M1/M2 border) is ambiguous and volumes
+are negligible. See docs/architecture/09-glossary.md § Vehicle scope per source.
 
 Fuel mapping (ACAU code → CSV column)
 -------------------------------------
@@ -67,8 +76,8 @@ headers "Ene"/"Feb"/…) and didn't break out PHEV at all — the maintainer
 had to google models to classify them. This parser targets the 2026+ layout
 only; back-filling pre-2026 years would require a separate parser.
 
-CSV layout
-----------
+CSV layout (all variants share the same column set)
+----------------------------------------------------
     period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 
 Months without published data
@@ -123,8 +132,13 @@ CSV_COLUMNS = [
     "TOTAL", "notes",
 ]
 
-# AUTOS + SUV only — see docstring "Vehicle scope" for why.
-TARGET_SHEETS = ("AUTOS", "SUV")
+# Variant → (source sheets in the Compilado workbook, output CSV path).
+VARIANT_CONFIG = {
+    "Whole": {"sheets": ("AUTOS", "SUV"),  "csv": "data/Uruguay.csv"},
+    "Vans":  {"sheets": ("UTILITARIO",),   "csv": "data/Uruguay_Vans.csv"},
+    "HDV":   {"sheets": ("CAMIONES",),     "csv": "data/Uruguay_HDV.csv"},
+    "Buses": {"sheets": ("OMNIBUS",),      "csv": "data/Uruguay_Buses.csv"},
+}
 
 # Combustible code → CSV column. Lookup is case-insensitive (the source
 # mixes upper and lower case: 'N'/'n', 'D'/'d', etc.).
@@ -284,18 +298,19 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     return fuel_totals, total_per_month
 
 
-def parse_workbook(wb_bytes: bytes, year: int) -> dict[str, dict]:
-    """Parse AUTOS + SUV sheets into per-period CSV rows.
+def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[str, dict]:
+    """Parse the given variant's sheets into per-period CSV rows.
 
     Returns ``{period: row_dict}`` for every month that has at least one
     non-zero fuel value. The workbook's ``COMPILADO YYYY`` header is
     cross-checked against ``year`` — mismatch is a hard fail.
     """
+    target_sheets = VARIANT_CONFIG[variant]["sheets"]
     wb = openpyxl.load_workbook(io.BytesIO(wb_bytes), data_only=True)
 
     # The "COMPILADO YYYY" cell lives near the top of every sheet; pick the
     # first sheet we'll parse and validate the year matches the request.
-    first = wb[TARGET_SHEETS[0]]
+    first = wb[target_sheets[0]]
     year_cell = None
     for row in first.iter_rows(values_only=True, max_row=10):
         for c in row:
@@ -316,9 +331,9 @@ def parse_workbook(wb_bytes: bytes, year: int) -> dict[str, dict]:
             "Refusing to write mismatched data."
         )
 
-    # Sum AUTOS + SUV.
+    # Sum all sheets for this variant (Whole sums AUTOS + SUV; others have one sheet each).
     combined: dict[str, list[float]] = {col: [0.0] * 12 for col in set(FUEL_MAP.values())}
-    for sheet_name in TARGET_SHEETS:
+    for sheet_name in target_sheets:
         if sheet_name not in wb.sheetnames:
             raise RuntimeError(
                 f"Workbook is missing required sheet '{sheet_name}'. "
@@ -357,7 +372,7 @@ def parse_workbook(wb_bytes: bytes, year: int) -> dict[str, dict]:
         row = {
             "period": period,
             "time_interval": "monthly",
-            "variant": "Whole",
+            "variant": variant,
             "source": "ACAU",
             "BEV":    values.get("BEV",    0.0),
             "PHEV":   values.get("PHEV",   0.0),
@@ -440,24 +455,39 @@ def main() -> int:
     parser.add_argument("--year", type=int,
                         help="Compilado year to fetch (default: previous month's year)")
     parser.add_argument("--url", help="Direct Compilado xlsx URL or local path")
-    parser.add_argument("--csv", default="data/Uruguay.csv")
+    parser.add_argument("--variant", choices=["whole", "vans", "hdv", "buses", "all"],
+                        default="all", help="Which variant(s) to fetch (default: all).")
     parser.add_argument("--force", action="store_true",
                         help="Re-process periods that already exist in the CSV")
     args = parser.parse_args()
 
-    # Target period drives the self-throttle: we only run when the previous
-    # calendar month is not yet in the CSV (matching the maintainer's
-    # "schauen ob der Vormonat von Heute noch nicht in den Daten is").
+    aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
+    targets = list(VARIANT_CONFIG) if args.variant == "all" else [aliases[args.variant]]
+
+    # target_period drives the self-throttle and the publication gate.
+    # We derive the month from "previous calendar month" but use the *fetched
+    # year* (args.year if given, otherwise today's previous-month year) so that
+    # --year 2025 checks for "2025-05" rather than "2026-05" — without this,
+    # --year for a past year would silently no-op because the self-throttle
+    # would see a 2026 row already present, and the gate would fail to find a
+    # 2026 period in a 2025 workbook.
     today = date.today()
-    target_year, target_month = previous_month(today)
-    target_period = f"{target_year}-{target_month:02d}"
-    year = args.year or target_year
+    _default_year, target_month = previous_month(today)
+    year = args.year or _default_year
+    target_period = f"{year}-{target_month:02d}"
     print(f"Today: {today}. Target month: {target_period}. Fetching Compilado {year}.")
 
     if not args.force:
-        latest = latest_period(args.csv)
-        if latest and latest >= target_period:
-            print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
+        pending = []
+        for v in targets:
+            latest = latest_period(VARIANT_CONFIG[v]["csv"])
+            if latest and latest >= target_period:
+                print(f"[{v}] Latest period in CSV is {latest} ≥ {target_period} — skipping.")
+            else:
+                pending.append(v)
+        targets = pending
+        if not targets:
+            print("All requested variants are current; nothing to do.")
             return 0
 
     url = args.url
@@ -471,23 +501,34 @@ def main() -> int:
             return 0
 
     xlsx_bytes = load_bytes(url)
-    new_rows = parse_workbook(xlsx_bytes, year)
-    if not new_rows:
-        print("No published months found in the workbook (all-zero or empty). "
-              "Will retry on next scheduled run.")
-        return 0
-    print(f"Parsed {len(new_rows)} months: {sorted(new_rows.keys())}")
 
-    if target_period not in new_rows and not args.force:
-        # The Compilado file is published but hasn't been refreshed yet
-        # with the previous month's data. Bail without writing — we'll
-        # retry tomorrow.
-        print(f"Target month {target_period} not yet present in the file "
-              f"(latest published: {max(new_rows.keys())}). Will retry tomorrow.")
-        return 0
+    # Use the Whole (AUTOS+SUV) series as the publication gate: ACAU pre-fills the
+    # entire calendar year with zeros and overwrites month-by-month, so if the
+    # canonical passenger-car data isn't published for target_period yet, the
+    # commercial sheets won't be either.
+    gate_rows: dict | None = None
+    if not args.force:
+        gate_rows = parse_workbook(xlsx_bytes, year, "Whole")
+        if not gate_rows:
+            print("No published months found in the workbook (all-zero). "
+                  "Will retry on next scheduled run.")
+            return 0
+        if target_period not in gate_rows:
+            print(f"Target month {target_period} not yet present in the file "
+                  f"(latest published: {max(gate_rows.keys())}). Will retry tomorrow.")
+            return 0
 
-    added, updated = upsert_csv(args.csv, new_rows, url, args.force)
-    print(f"\nDone: {added} rows added, {updated} rows updated → {args.csv}")
+    for variant in targets:
+        # Reuse the gate parse for Whole to avoid parsing AUTOS+SUV twice.
+        new_rows = gate_rows if (variant == "Whole" and gate_rows is not None) \
+            else parse_workbook(xlsx_bytes, year, variant)
+        if not new_rows:
+            print(f"[{variant}] No published months found; skipping.")
+            continue
+        cfg = VARIANT_CONFIG[variant]
+        added, updated = upsert_csv(cfg["csv"], new_rows, url, args.force)
+        print(f"[{variant}] {added} added, {updated} updated → {cfg['csv']}")
+
     return 0
 
 
