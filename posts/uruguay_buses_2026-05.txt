@@ -1,0 +1,6 @@
+🇺🇾 Uruguay (Buses) - May 26 - BEV Trajectory
+0.0% BEV
+0.0% PHEV
+100.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
