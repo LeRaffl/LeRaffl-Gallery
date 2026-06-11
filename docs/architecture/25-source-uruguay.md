@@ -104,7 +104,7 @@ Future months in the workbook are pre-filled with zeros. Any month where **all**
 fuel values across the variant's combined sheets are zero is skipped — this
 means the script can run mid-year without writing fake all-zero rows.
 
-## 4. Variants and self-throttle
+## 4. Variants, self-throttle, and publication gate
 
 ```
 VARIANT_CONFIG = {
@@ -115,17 +115,48 @@ VARIANT_CONFIG = {
 }
 ```
 
-The self-throttle checks each variant's CSV independently:
-- If the latest period in the CSV is already ≥ the previous calendar month,
-  that variant is skipped without downloading the workbook at all.
-- The workbook is downloaded **once** and parsed for all pending variants.
+### target_period
 
-**Whole as publication gate.** Before processing commercial variants, the script
-parses the Whole (AUTOS+SUV) result and checks that `target_period` is present
-with non-zero values. ACAU pre-fills the entire year with zeros and overwrites
-month-by-month, so if Whole is still zero for the target month, none of the
-commercial sheets will have data either. This avoids writing empty rows for
-months not yet published.
+Every run computes a **target period** — the month the script is trying to
+fetch. It is always `"{year}-{prev_month:02d}"` where:
+
+- `prev_month` = the previous calendar month (relative to today)
+- `year` = the year being fetched: `--year` if given, otherwise the year
+  of the previous calendar month
+
+Examples (assuming today is 2026-06-10):
+
+| Invocation | year | target_period |
+|---|---|---|
+| `(cron / no flags)` | 2026 | `2026-05` |
+| `--year 2026` | 2026 | `2026-05` |
+| `--year 2025` | 2025 | `2025-05` |
+
+The target period is used for two things: the self-throttle check and the
+publication gate check. It does **not** limit which months get written —
+the script always upserts every non-zero month it finds in the workbook.
+
+### Self-throttle
+
+For each requested variant, the script reads the latest period already in
+that variant's CSV. If `latest >= target_period`, the variant is skipped
+and the workbook is not downloaded. Once all variants are current, the
+run exits in under a second.
+
+`--force` bypasses the self-throttle — every requested variant is
+processed regardless of what's in the CSVs.
+
+### Whole as publication gate
+
+Before writing any commercial variant (Vans/HDV/Buses), the script parses
+the Whole (AUTOS+SUV) result and checks that `target_period` is present
+with non-zero values. ACAU pre-fills the entire calendar year with zeros
+and overwrites month-by-month, so if Whole is still zero for the target
+month, none of the commercial sheets will have data either. This avoids
+writing empty rows for months not yet published.
+
+`--force` also bypasses the gate — commercial variants are written even
+if Whole is missing or zero for that month. Use with care.
 
 ## 5. Workflow
 
@@ -134,32 +165,91 @@ months not yet published.
 - **Daily from the 1st of each month** (`cron: '10 8 1-31 * *'`, 08:10 UTC,
   staggered from the 08:00 pile-up). Idempotent — the self-throttle makes all
   subsequent same-month runs a sub-second no-op once data is in the CSVs.
-- The workflow commits all four CSVs (`data/Uruguay.csv`, `_Vans`, `_HDV`,
-  `_Buses`) in one commit and then dispatches `render-country.yml` for each
-  variant whose CSV appears in the commit diff.
+- Detects which of the four CSVs actually changed (pre-commit `git diff`)
+  and dispatches `render-country.yml` only for those variants.
 
-Manual run:
+### CLI reference
+
+```
+python scripts/fetch_uruguay.py [--year YEAR] [--url URL_OR_PATH]
+                                [--variant {whole,vans,hdv,buses,all}]
+                                [--force]
+```
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--year` | year of previous calendar month | Which Compilado workbook to fetch / parse |
+| `--url` | scraped from ACAU homepage | Direct xlsx URL or local file path (skips scrape) |
+| `--variant` | `all` | Limit to one variant; `all` runs Whole + Vans + HDV + Buses |
+| `--force` | off | Bypass self-throttle and publication gate; overwrite existing rows |
+
+### Common operations
+
 ```sh
-python scripts/fetch_uruguay.py --variant all
-# or force a re-parse of already-present periods:
+# Normal: fetch latest data for all variants (same as the cron job)
+python scripts/fetch_uruguay.py
+
+# Fetch only one variant
+python scripts/fetch_uruguay.py --variant vans
+
+# Backfill a year where the commercial CSVs don't have data yet
+# (--force not needed — the self-throttle only skips if target_period
+# is already in the CSV, and new variant CSVs start empty)
+python scripts/fetch_uruguay.py --year 2026 --variant vans
+
+# Re-parse periods that are already in the CSV (overwrite):
 python scripts/fetch_uruguay.py --variant hdv --force
-# or point at a local file (useful when testing against an archived workbook):
+
+# Test against a local copy without hitting ACAU's server:
 python scripts/fetch_uruguay.py --url /tmp/compilado_2026.xlsx --year 2026
+
+# Force re-parse of a specific year + variant (overwrites existing rows):
+python scripts/fetch_uruguay.py --year 2026 --variant whole --force
+```
+
+### Workflow dispatch inputs
+
+The GitHub Actions workflow exposes the same flags as a `workflow_dispatch`
+form with a `type: choice` dropdown for `variant` (options: `all`, `whole`,
+`vans`, `hdv`, `buses`). Use the GitHub Actions UI or:
+
+```sh
+gh workflow run fetch-uruguay.yml \
+  -f year=2026 -f variant=vans -f force=true
 ```
 
 ## 6. Gotchas
 
 - **Timestamp-based filenames.** Never hard-code the Compilado URL — always
   scrape the homepage.
+
 - **Pre-2026 layout is incompatible.** Do not run this parser against a 2025 or
-  earlier Compilado; it will fail on the missing month headers or wrong sheet names.
+  earlier Compilado; it will fail with missing month headers or wrong sheet names.
+  Backfilling pre-2026 commercial data requires a separate parser targeting the
+  2025 layout.
+
+- **`--year` sets `target_period` relative to the fetched year, not today.**
+  `--year 2026` in December 2027 gives `target_period = "2026-11"`. The
+  self-throttle then checks whether `"2026-11"` is in the CSV; the gate checks
+  whether `"2026-11"` is in the 2026 workbook. All months through November 2026
+  are upserted (not just November). Use `--force` if you also need to overwrite
+  months that are already in the CSV.
+
+- **`--force` bypasses both the self-throttle and the publication gate.**
+  It will overwrite existing rows and write commercial data even if Whole is
+  missing for that month. Only use it when you know the workbook has correct
+  data and you deliberately want to overwrite what's on disk.
+
+- **First run after merge creates new CSV files.**
+  `data/Uruguay_Vans.csv`, `data/Uruguay_HDV.csv`, `data/Uruguay_Buses.csv`
+  don't exist on `master` yet. The first cron run after merging this PR creates
+  them. The workflow's `git add -N` step covers untracked new files so render
+  dispatch fires correctly on first creation.
+
 - **MINIBUSES excluded.** The `MINIBUSES` sheet exists but is not ingested.
   Its EU-class ambiguity (M1/M2 boundary) and negligible volume make it not
   worth the complexity of deciding where it belongs in cross-country comparisons.
+
 - **CRLF line endings.** `data/Uruguay.csv` was originally created with CRLF.
   The upsert function detects the on-disk line-ending convention and preserves
-  it, so the diff stays clean.
-- **Historical commercial data (pre-2026) is absent.** The 2026+ parser can't
-  parse older files, and the maintainer did not bulk-import those years. Vans/HDV/
-  Buses start from 2026-01. Backfilling earlier years would require a second
-  parser targeting the 2025 layout.
+  it, so the diff stays clean. New CSVs are written with LF.
