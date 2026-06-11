@@ -342,7 +342,13 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     # Compilado" + " Año 2024"). We therefore scan all cells in the first 10 rows
     # for (a) a cell containing "COMPILADO" and (b) a cell containing a 4-digit year,
     # independently — both must be present somewhere in those rows.
-    first_ws = wb[target_sheets[0]]
+    first_sheet_name = target_sheets[0]
+    if first_sheet_name not in wb.sheetnames:
+        for alias in _SHEET_ALIASES.get(first_sheet_name, []):
+            if alias in wb.sheetnames:
+                first_sheet_name = alias
+                break
+    first_ws = wb[first_sheet_name]
     has_compilado = False
     year_cell = None
     for row in first_ws.iter_rows(values_only=True, max_row=10):
