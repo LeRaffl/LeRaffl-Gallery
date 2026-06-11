@@ -1,0 +1,11 @@
+🇺🇾 Uruguay (HDV) - May 26 - BEV Trajectory
+5.2% BEV
+0.0% PHEV
+94.8% ICE
+
+Trailing 12 months are:
+1.8% BEV
+0.0% PHEV
+98.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
