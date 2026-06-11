@@ -72,6 +72,36 @@
       "country_slug": "uruguay_buses"
     },
     {
+      "country": "Uruguay (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-11",
+      "filename": "uruguay_hdv_ICE_BEV_20260611.png",
+      "url": "images/2026-05/uruguay_hdv_ICE_BEV_20260611.png",
+      "alt": "Uruguay (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-11",
+      "filename": "uruguay_hdv_20260611.png",
+      "url": "images/2026-05/uruguay_hdv_20260611.png",
+      "alt": "Uruguay (HDV) BEV trajectory",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-11",
+      "filename": "uruguay_hdv_time_20260611.png",
+      "url": "images/2026-05/uruguay_hdv_time_20260611.png",
+      "alt": "Uruguay (HDV) Transition time curve",
+      "country_slug": "uruguay_hdv"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-05",
