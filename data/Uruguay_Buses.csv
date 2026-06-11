@@ -1,0 +1,6 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2026-01,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,1.0,0.0,1.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-02,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,4.0,0.0,4.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-03,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,4.0,0.0,4.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-04,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,3.0,0.0,3.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-05,monthly,Buses,ACAU,0.0,0.0,0.0,0.0,8.0,0.0,8.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx

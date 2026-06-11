@@ -1,0 +1,6 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2026-01,monthly,Vans,ACAU,81.0,11.0,7.0,1036.0,328.0,0.0,1463.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-02,monthly,Vans,ACAU,82.0,4.0,16.0,1026.0,248.0,0.0,1376.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-03,monthly,Vans,ACAU,71.0,2.0,38.0,1203.0,303.0,0.0,1617.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-04,monthly,Vans,ACAU,113.0,24.0,11.0,1137.0,238.0,0.0,1523.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
+2026-05,monthly,Vans,ACAU,135.0,15.0,37.0,854.0,295.0,0.0,1336.0,https://www.acau.com.uy/panel/estadisticas/16_25_12ar1.xlsx
