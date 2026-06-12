@@ -76,7 +76,8 @@
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
   if (quarterly) {
-    q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
+    # Middle-month (Canada: 02/05/08/11) and end-of-quarter (03/06/09/12) both accepted.
+    q <- c("02"="Q1","03"="Q1","05"="Q2","06"="Q2","08"="Q3","09"="Q3","11"="Q4","12"="Q4")[format(d, "%m")]
     return(sprintf("%s %s", if (is.na(q)) "Q?" else q, format(d, "%Y")))
   }
   old <- Sys.getlocale("LC_TIME")
@@ -225,12 +226,12 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 }
 
 .pt_short_quarter <- function(period) {
-  # "2026-03" → "Q1'26"
+  # "2026-02" → "Q1'26". Middle-month (02/05/08/11) and end-of-quarter (03/06/09/12) accepted.
   if (is.null(period) || !is.character(period) || !nzchar(period) ||
       !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
-  q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
+  q <- c("02"="Q1","03"="Q1","05"="Q2","06"="Q2","08"="Q3","09"="Q3","11"="Q4","12"="Q4")[format(d, "%m")]
   sprintf("%s'%s", if (is.na(q)) "Q?" else q, format(d, "%y"))
 }
 
