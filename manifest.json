@@ -2,6 +2,46 @@
   "updated": "2026-06-12",
   "images": [
     {
+      "country": "Canada",
+      "type": "ICE_BEV",
+      "period": "2026-03",
+      "date": "2026-06-12",
+      "filename": "canada_ICE_BEV_20260612.png",
+      "url": "images/2026-03/canada_ICE_BEV_20260612.png",
+      "alt": "Canada ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "share",
+      "period": "2026-03",
+      "date": "2026-06-12",
+      "filename": "canada_20260612.png",
+      "url": "images/2026-03/canada_20260612.png",
+      "alt": "Canada BEV trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "time",
+      "period": "2026-03",
+      "date": "2026-06-12",
+      "filename": "canada_time_20260612.png",
+      "url": "images/2026-03/canada_time_20260612.png",
+      "alt": "Canada Transition time curve",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "ttm_shares",
+      "period": "2026-03",
+      "date": "2026-06-12",
+      "filename": "canada_ttm_shares_20260612.png",
+      "url": "images/2026-03/canada_ttm_shares_20260612.png",
+      "alt": "Canada TTM market split graph",
+      "country_slug": "canada"
+    },
+    {
       "country": "Uruguay",
       "type": "ICE_BEV",
       "period": "2026-05",
