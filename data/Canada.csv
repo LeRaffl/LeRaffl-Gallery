@@ -5,40 +5,40 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2014-06,yearly,Whole,150.statcan.gc.ca,2800,2508,17314,691924,20610,0,735156,passenger cars only — excludes SUVs/MPVs (M1 incl. SUVs from 2017); annual figure at mid-year
 2015-06,yearly,Whole,150.statcan.gc.ca,3821,2536,15152,662009,14260,0,697778,passenger cars only — excludes SUVs/MPVs (M1 incl. SUVs from 2017); annual figure at mid-year
 2016-06,yearly,Whole,150.statcan.gc.ca,3219,5932,13877,611309,1769,0,636106,passenger cars only — excludes SUVs/MPVs (M1 incl. SUVs from 2017); annual figure at mid-year
-2017-02,quarterly,Whole,150.statcan.gc.ca,1664.0,1798.0,4034.0,298939.0,1237.0,0.0,307672.0,
-2017-05,quarterly,Whole,150.statcan.gc.ca,2197.0,2592.0,7121.0,429547.0,1447.0,0.0,442904.0,
-2017-08,quarterly,Whole,150.statcan.gc.ca,2401.0,2591.0,7217.0,390621.0,1667.0,0.0,404497.0,
-2017-11,quarterly,Whole,150.statcan.gc.ca,2824.0,2787.0,5439.0,320531.0,1596.0,0.0,333177.0,
-2018-02,quarterly,Whole,150.statcan.gc.ca,2639.0,3878.0,4368.0,285488.0,1556.0,0.0,297929.0,
-2018-05,quarterly,Whole,150.statcan.gc.ca,7401.0,6918.0,8011.0,426560.0,2224.0,0.0,451114.0,
-2018-08,quarterly,Whole,150.statcan.gc.ca,6558.0,5645.0,6933.0,379199.0,2227.0,0.0,400562.0,
-2018-11,quarterly,Whole,150.statcan.gc.ca,5984.0,3857.0,6499.0,301608.0,1601.0,1.0,319550.0,
-2019-02,quarterly,Whole,150.statcan.gc.ca,5282.0,2847.0,6596.0,280976.0,1007.0,17.0,296725.0,
-2019-05,quarterly,Whole,150.statcan.gc.ca,12371.0,6764.0,13057.0,393758.0,857.0,44.0,426851.0,
-2019-08,quarterly,Whole,150.statcan.gc.ca,10139.0,5970.0,10350.0,362758.0,721.0,10.0,389948.0,
-2019-11,quarterly,Whole,150.statcan.gc.ca,7758.0,4252.0,8613.0,292983.0,439.0,13.0,314058.0,
-2020-02,quarterly,Whole,150.statcan.gc.ca,8021.0,3367.0,7725.0,218732.0,312.0,0.0,238157.0,
-2020-05,quarterly,Whole,150.statcan.gc.ca,6207.0,2958.0,6395.0,194830.0,230.0,7.0,210627.0,
-2020-08,quarterly,Whole,150.statcan.gc.ca,12855.0,4517.0,14407.0,333291.0,496.0,2.0,365568.0,
-2020-11,quarterly,Whole,150.statcan.gc.ca,11963.0,3749.0,12236.0,260543.0,446.0,16.0,288953.0,
-2021-02,quarterly,Whole,150.statcan.gc.ca,12760.0,4308.0,11495.0,238199.0,523.0,1.0,267286.0,
-2021-05,quarterly,Whole,150.statcan.gc.ca,16275.0,7497.0,21493.0,327503.0,964.0,0.0,373732.0,
-2021-08,quarterly,Whole,150.statcan.gc.ca,15851.0,7666.0,18700.0,306688.0,991.0,0.0,349896.0,
-2021-11,quarterly,Whole,150.statcan.gc.ca,14247.0,6646.0,10666.0,215945.0,626.0,0.0,248130.0,
-2022-02,quarterly,Whole,150.statcan.gc.ca,19635.0,5392.0,11389.0,214256.0,886.0,1.0,251559.0,
-2022-05,quarterly,Whole,150.statcan.gc.ca,21307.0,7479.0,21458.0,268455.0,929.0,12.0,319640.0,
-2022-08,quarterly,Whole,150.statcan.gc.ca,27886.0,4469.0,16956.0,242734.0,669.0,5.0,292719.0,
-2022-11,quarterly,Whole,150.statcan.gc.ca,26434.0,5440.0,13425.0,206729.0,684.0,0.0,252712.0,
-2023-02,quarterly,Whole,150.statcan.gc.ca,22399.0,6385.0,19362.0,207186.0,878.0,6.0,256216.0,
-2023-05,quarterly,Whole,150.statcan.gc.ca,33722.0,11280.0,34285.0,275117.0,1499.0,5.0,355908.0,
-2023-08,quarterly,Whole,150.statcan.gc.ca,41225.0,13295.0,34569.0,253548.0,1287.0,3.0,343927.0,
-2023-11,quarterly,Whole,150.statcan.gc.ca,37657.0,12307.0,30956.0,243785.0,1478.0,2.0,326185.0,
-2024-02,quarterly,Whole,150.statcan.gc.ca,33882.0,12452.0,29560.0,243846.0,1256.0,2.0,320998.0,
-2024-05,quarterly,Whole,150.statcan.gc.ca,45530.0,16892.0,32800.0,293481.0,1302.0,11.0,390016.0,
-2024-08,quarterly,Whole,150.statcan.gc.ca,51555.0,19239.0,37218.0,257814.0,1507.0,3.0,367336.0,
-2024-11,quarterly,Whole,150.statcan.gc.ca,55847.0,19215.0,39684.0,224956.0,921.0,4.0,340627.0,
-2025-02,quarterly,Whole,150.statcan.gc.ca,22679.0,10668.0,45613.0,242631.0,232.0,8.0,321831.0,
-2025-05,quarterly,Whole,150.statcan.gc.ca,25360.0,16727.0,53364.0,316264.0,814.0,0.0,412529.0,
-2025-08,quarterly,Whole,150.statcan.gc.ca,24090.0,18416.0,47608.0,274145.0,1161.0,6.0,365426.0,
-2025-11,quarterly,Whole,150.statcan.gc.ca,27794.0,15539.0,39653.0,232058.0,1199.0,19.0,316262.0,
-2026-02,quarterly,Whole,150.statcan.gc.ca,27193.0,13166.0,43848.0,216798.0,867.0,0.0,301872.0,
+2017-02,quarterly,Whole,150.statcan.gc.ca,1664.0,1798.0,4034.0,298939.0,1237.0,0.0,307672.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2017-05,quarterly,Whole,150.statcan.gc.ca,2197.0,2592.0,7121.0,429547.0,1447.0,0.0,442904.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2017-08,quarterly,Whole,150.statcan.gc.ca,2401.0,2591.0,7217.0,390621.0,1667.0,0.0,404497.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2017-11,quarterly,Whole,150.statcan.gc.ca,2824.0,2787.0,5439.0,320531.0,1596.0,0.0,333177.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2018-02,quarterly,Whole,150.statcan.gc.ca,2639.0,3878.0,4368.0,285488.0,1556.0,0.0,297929.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2018-05,quarterly,Whole,150.statcan.gc.ca,7401.0,6918.0,8011.0,426560.0,2224.0,0.0,451114.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2018-08,quarterly,Whole,150.statcan.gc.ca,6558.0,5645.0,6933.0,379199.0,2227.0,0.0,400562.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2018-11,quarterly,Whole,150.statcan.gc.ca,5984.0,3857.0,6499.0,301608.0,1601.0,1.0,319550.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2019-02,quarterly,Whole,150.statcan.gc.ca,5282.0,2847.0,6596.0,280976.0,1007.0,17.0,296725.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2019-05,quarterly,Whole,150.statcan.gc.ca,12371.0,6764.0,13057.0,393758.0,857.0,44.0,426851.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2019-08,quarterly,Whole,150.statcan.gc.ca,10139.0,5970.0,10350.0,362758.0,721.0,10.0,389948.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2019-11,quarterly,Whole,150.statcan.gc.ca,7758.0,4252.0,8613.0,292983.0,439.0,13.0,314058.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2020-02,quarterly,Whole,150.statcan.gc.ca,8021.0,3367.0,7725.0,218732.0,312.0,0.0,238157.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2020-05,quarterly,Whole,150.statcan.gc.ca,6207.0,2958.0,6395.0,194830.0,230.0,7.0,210627.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2020-08,quarterly,Whole,150.statcan.gc.ca,12855.0,4517.0,14407.0,333291.0,496.0,2.0,365568.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2020-11,quarterly,Whole,150.statcan.gc.ca,11963.0,3749.0,12236.0,260543.0,446.0,16.0,288953.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2021-02,quarterly,Whole,150.statcan.gc.ca,12760.0,4308.0,11495.0,238199.0,523.0,1.0,267286.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2021-05,quarterly,Whole,150.statcan.gc.ca,16275.0,7497.0,21493.0,327503.0,964.0,0.0,373732.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2021-08,quarterly,Whole,150.statcan.gc.ca,15851.0,7666.0,18700.0,306688.0,991.0,0.0,349896.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2021-11,quarterly,Whole,150.statcan.gc.ca,14247.0,6646.0,10666.0,215945.0,626.0,0.0,248130.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2022-02,quarterly,Whole,150.statcan.gc.ca,19635.0,5392.0,11389.0,214256.0,886.0,1.0,251559.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2022-05,quarterly,Whole,150.statcan.gc.ca,21307.0,7479.0,21458.0,268455.0,929.0,12.0,319640.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2022-08,quarterly,Whole,150.statcan.gc.ca,27886.0,4469.0,16956.0,242734.0,669.0,5.0,292719.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2022-11,quarterly,Whole,150.statcan.gc.ca,26434.0,5440.0,13425.0,206729.0,684.0,0.0,252712.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2023-02,quarterly,Whole,150.statcan.gc.ca,22399.0,6385.0,19362.0,207186.0,878.0,6.0,256216.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2023-05,quarterly,Whole,150.statcan.gc.ca,33722.0,11280.0,34285.0,275117.0,1499.0,5.0,355908.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2023-08,quarterly,Whole,150.statcan.gc.ca,41225.0,13295.0,34569.0,253548.0,1287.0,3.0,343927.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2023-11,quarterly,Whole,150.statcan.gc.ca,37657.0,12307.0,30956.0,243785.0,1478.0,2.0,326185.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2024-02,quarterly,Whole,150.statcan.gc.ca,33882.0,12452.0,29560.0,243846.0,1256.0,2.0,320998.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2024-05,quarterly,Whole,150.statcan.gc.ca,45530.0,16892.0,32800.0,293481.0,1302.0,11.0,390016.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2024-08,quarterly,Whole,150.statcan.gc.ca,51555.0,19239.0,37218.0,257814.0,1507.0,3.0,367336.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2024-11,quarterly,Whole,150.statcan.gc.ca,55847.0,19215.0,39684.0,224956.0,921.0,4.0,340627.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2025-02,quarterly,Whole,150.statcan.gc.ca,22679.0,10668.0,45613.0,242631.0,232.0,8.0,321831.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2025-05,quarterly,Whole,150.statcan.gc.ca,25360.0,16727.0,53364.0,316264.0,814.0,0.0,412529.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2025-08,quarterly,Whole,150.statcan.gc.ca,24090.0,18416.0,47608.0,274145.0,1161.0,6.0,365426.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2025-11,quarterly,Whole,150.statcan.gc.ca,27794.0,15539.0,39653.0,232058.0,1199.0,19.0,316262.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
+2026-02,quarterly,Whole,150.statcan.gc.ca,27193.0,13166.0,43848.0,216798.0,867.0,0.0,301872.0,Passenger cars + Multi-purpose vehicles (SUVs/crossovers) = EU M1 (StatCan cube 20-10-0025)
