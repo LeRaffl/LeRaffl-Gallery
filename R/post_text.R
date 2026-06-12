@@ -69,12 +69,16 @@
   if (is.null(flag)) "\U0001F310" else flag
 }
 
-.pt_month_label <- function(period) {
-  # period like "2026-03" → "March 26". Defensive: garbage in → garbage out.
+.pt_month_label <- function(period, quarterly = FALSE) {
+  # period like "2026-03" → "March 26", or "Q1 2026" when quarterly = TRUE.
   if (is.null(period) || !is.character(period) || !nzchar(period) ||
       !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
+  if (quarterly) {
+    q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
+    return(sprintf("%s %s", if (is.na(q)) "Q?" else q, format(d, "%Y")))
+  }
   old <- Sys.getlocale("LC_TIME")
   on.exit(Sys.setlocale("LC_TIME", old), add = TRUE)
   Sys.setlocale("LC_TIME", "C")
@@ -133,15 +137,21 @@
 # Public entry. Returns the post text as a single string with \n separators.
 # `last_period` is optional — if NULL/empty, it is derived from the data.
 build_post_text <- function(df, country_label, last_period = NULL) {
-  monthly <- df[df$time_interval == "monthly", , drop = FALSE]
-  if (nrow(monthly) == 0) {
-    # Some countries are quarterly/yearly only — fall back to last available row.
-    monthly <- df[order(df$year), , drop = FALSE]
+  is_quarterly <- any(df$time_interval == "quarterly")
+
+  if (is_quarterly) {
+    periodic <- df[df$time_interval == "quarterly", , drop = FALSE]
   } else {
-    monthly <- monthly[order(monthly$year), , drop = FALSE]
+    periodic <- df[df$time_interval == "monthly", , drop = FALSE]
   }
-  if (nrow(monthly) == 0) return("")
-  last <- monthly[nrow(monthly), , drop = FALSE]
+  if (nrow(periodic) == 0) {
+    # Some countries are yearly only — fall back to last available row.
+    periodic <- df[order(df$year), , drop = FALSE]
+  } else {
+    periodic <- periodic[order(periodic$year), , drop = FALSE]
+  }
+  if (nrow(periodic) == 0) return("")
+  last <- periodic[nrow(periodic), , drop = FALSE]
   if (is.null(last_period) || !nzchar(last_period)) {
     last_period <- last$period[1]
   }
@@ -149,17 +159,20 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   pick <- function(name) {
     if (name %in% names(last)) suppressWarnings(as.numeric(last[[name]][1])) else NA_real_
   }
-  monthly_vals <- c(BEV = pick("BEV"), PHEV = pick("PHEV"), EREV = pick("EREV"),
-                    HEV = pick("HEV"), TOTAL = pick("TOTAL"))
-  monthly_lines <- .pt_triplet_lines(monthly_vals)
+  period_vals <- c(BEV = pick("BEV"), PHEV = pick("PHEV"), EREV = pick("EREV"),
+                   HEV = pick("HEV"), TOTAL = pick("TOTAL"))
+  period_lines <- .pt_triplet_lines(period_vals)
 
-  # TTM: rolling 12-month sums on the most recent 12 monthly rows.
-  ttm_lines <- NULL
-  if (nrow(monthly) >= 12) {
-    last12 <- monthly[(nrow(monthly) - 11):nrow(monthly), , drop = FALSE]
+  # TTM: 4-quarter rolling window for quarterly countries, 12-month for monthly.
+  ttm_lines  <- NULL
+  ttm_window <- if (is_quarterly) 4L else 12L
+  ttm_label  <- if (is_quarterly) "Trailing 4 quarters are:" else "Trailing 12 months are:"
+
+  if (nrow(periodic) >= ttm_window) {
+    last_n <- periodic[(nrow(periodic) - ttm_window + 1L):nrow(periodic), , drop = FALSE]
     sum_col <- function(name) {
-      if (!(name %in% names(last12))) return(NA_real_)
-      v <- suppressWarnings(as.numeric(last12[[name]]))
+      if (!(name %in% names(last_n))) return(NA_real_)
+      v <- suppressWarnings(as.numeric(last_n[[name]]))
       v[is.na(v)] <- 0
       sum(v)
     }
@@ -171,11 +184,12 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   }
 
   flag <- .pt_flag(country_label)
-  header <- sprintf("%s %s - %s - BEV Trajectory", flag, country_label, .pt_month_label(last_period))
+  header <- sprintf("%s %s - %s - BEV Trajectory", flag, country_label,
+                    .pt_month_label(last_period, quarterly = is_quarterly))
 
-  parts <- c(header, monthly_lines, "")
+  parts <- c(header, period_lines, "")
   if (!is.null(ttm_lines)) {
-    parts <- c(parts, "Trailing 12 months are:", ttm_lines, "")
+    parts <- c(parts, ttm_label, ttm_lines, "")
   }
   parts <- c(parts, "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
   paste(parts, collapse = "\n")
@@ -185,7 +199,7 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 # main BEV-trajectory post:
 #   <flag> <Country> - TTM Market Split
 #                                                # blank line
-#   <prior 12m window>  vs  <current 12m window>
+#   <prior window>  vs  <current window>
 #   <±X.Xpp>  <BAND>  (<prior%> → <current%>)    # one per band, padded
 #   ...
 #                                                # blank line (only if extras)
@@ -197,6 +211,7 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 #
 # Bands sum to 100%: BEV + PHEV + HEV + ICE (pure ICE, i.e. ICE minus HEV).
 # Hybrid-only countries (no PHEV/HEV split) collapse to BEV / Hybrid / ICE.
+# Quarterly countries (e.g. Canada) use a 4-quarter rolling window.
 
 .pt_short_month <- function(period) {
   if (is.null(period) || !is.character(period) || !nzchar(period) ||
@@ -207,6 +222,16 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   on.exit(Sys.setlocale("LC_TIME", old), add = TRUE)
   Sys.setlocale("LC_TIME", "C")
   paste0(format(d, "%b"), format(d, "%y"))
+}
+
+.pt_short_quarter <- function(period) {
+  # "2026-03" → "Q1'26"
+  if (is.null(period) || !is.character(period) || !nzchar(period) ||
+      !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
+  d <- as.Date(paste0(period, "-01"))
+  if (is.na(d)) return(period)
+  q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
+  sprintf("%s'%s", if (is.na(q)) "Q?" else q, format(d, "%y"))
 }
 
 .pt_add_months <- function(period, n) {
@@ -220,25 +245,33 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 }
 
 build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
-  monthly <- df[df$time_interval == "monthly", , drop = FALSE]
-  if (nrow(monthly) < 24) return("")
-  monthly <- monthly[order(monthly$year), , drop = FALSE]
+  is_quarterly <- any(df$time_interval == "quarterly")
+  window <- if (is_quarterly) 4L else 12L
+
+  if (is_quarterly) {
+    periodic <- df[df$time_interval == "quarterly", , drop = FALSE]
+  } else {
+    periodic <- df[df$time_interval == "monthly", , drop = FALSE]
+  }
+  # Need at least 2 full windows to compute prior vs current.
+  if (nrow(periodic) < 2L * window) return("")
+  periodic <- periodic[order(periodic$year), , drop = FALSE]
 
   num <- function(name) {
-    if (!(name %in% names(monthly))) return(rep(0, nrow(monthly)))
-    v <- suppressWarnings(as.numeric(monthly[[name]]))
+    if (!(name %in% names(periodic))) return(rep(0, nrow(periodic)))
+    v <- suppressWarnings(as.numeric(periodic[[name]]))
     v[is.na(v)] <- 0
     v
   }
   bev_m  <- num("BEV"); phev_m <- num("PHEV"); hev_m <- num("HEV"); tot_m <- num("TOTAL")
-  periods <- monthly$period
-  N <- nrow(monthly)
+  periods <- periodic$period
+  N <- nrow(periodic)
 
-  # Rolling 12-month sums, indexed by the LAST month included. Defined for i>=12.
+  # Rolling window sums, indexed by the LAST period included. Defined for i >= window.
   roll <- function(v) {
     out <- rep(NA_real_, N)
     cs <- cumsum(v)
-    for (i in 12:N) out[i] <- cs[i] - (if (i == 12) 0 else cs[i - 12])
+    for (i in window:N) out[i] <- cs[i] - (if (i == window) 0 else cs[i - window])
     out
   }
   bev_r <- roll(bev_m); phev_r <- roll(phev_m); hev_r <- roll(hev_m); tot_r <- roll(tot_m)
@@ -248,7 +281,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
   hev_s  <- safe_div(hev_r,  tot_r)
   ice_s  <- pmax(0, 1 - bev_s - phev_s - hev_s)
 
-  cur <- N; pri <- N - 12L
+  cur <- N; pri <- N - window
   if (!isTRUE(is.finite(bev_s[cur])) || !isTRUE(is.finite(bev_s[pri]))) return("")
 
   use_phev <- any(phev_m > 0)
@@ -271,8 +304,8 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
     # Hybrid-only: redefine ICE = 1 - BEV - HEV (no PHEV band).
     hyb_cur_ice <- pmax(0, 1 - bev_s - hev_s)
     bands <- list(
-      list(label = "BEV",    cur = bev_s[cur],     pri = bev_s[pri]),
-      list(label = "Hybrid", cur = hev_s[cur],     pri = hev_s[pri]),
+      list(label = "BEV",    cur = bev_s[cur],       pri = bev_s[pri]),
+      list(label = "Hybrid", cur = hev_s[cur],       pri = hev_s[pri]),
       list(label = "ICE",    cur = hyb_cur_ice[cur], pri = hyb_cur_ice[pri])
     )
   }
@@ -284,20 +317,24 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
             fmt_pct(b$pri), fmt_pct(b$cur))
   }, character(1))
 
-  # --- Peak detection (PHEV/HEV only; ≥6 months since peak, peak within 24M) ---
+  # --- Peak detection (PHEV/HEV only; ≥ peak_min_lag periods since peak, within 2 windows) ---
+  peak_min_lag  <- if (is_quarterly) 2L else 6L
+  peak_lookback <- 2L * window  # 8 quarters or 24 months
+
   peak_lines <- character(0)
   peak_for <- function(series, label) {
-    win_start <- max(13L, cur - 23L)
+    win_start <- max(window + 1L, cur - (peak_lookback - 1L))
     idx <- win_start:cur
     vals <- series[idx]
     if (!any(is.finite(vals))) return(NULL)
     pk_local <- which.max(vals)
     pk_i <- idx[pk_local]
-    months_since <- cur - pk_i
-    if (months_since < 6L) return(NULL)
+    since <- cur - pk_i
+    if (since < peak_min_lag) return(NULL)
     if (!isTRUE(series[cur] < series[pk_i])) return(NULL)
-    sprintf("%s peaked at %s in %s (declining for %d months).",
-            label, fmt_pct(series[pk_i]), periods[pk_i], months_since)
+    pk_label  <- if (is_quarterly) .pt_short_quarter(periods[pk_i]) else periods[pk_i]
+    lag_label <- if (is_quarterly) sprintf("%d quarters", since) else sprintf("%d months", since)
+    sprintf("%s peaked at %s in %s (declining for %s).", label, fmt_pct(series[pk_i]), pk_label, lag_label)
   }
   peak_targets <- if (use_phev) {
     list(list(s = phev_s, l = "PHEV"), list(s = hev_s, l = "HEV"))
@@ -309,7 +346,10 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
     if (!is.null(line)) peak_lines <- c(peak_lines, line)
   }
 
-  # --- Crossover predictions (6-month linear TTM trend) ---
+  # --- Crossover predictions (6-period linear TTM trend) ---
+  cross_horizon     <- if (is_quarterly) 40L else 120L  # 10 years in either unit
+  trend_period_word <- if (is_quarterly) "quarters" else "months"
+
   cross_lines <- character(0)
   trend <- function(series) {
     if (cur < 6L) return(NULL)
@@ -330,52 +370,58 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
       others <- list(list(l = "Hybrid", s = hev_s), list(l = "ICE", s = hyb_ice))
     }
     crossings <- list()
-    unreachable <- FALSE  # any band BEV won't catch within 120 months
+    unreachable <- FALSE
     for (o in others) {
       ot <- trend(o$s)
       if (is.null(ot)) { unreachable <- TRUE; next }
-      if (bev_t$level >= ot$level) next  # already at/above this band
+      if (bev_t$level >= ot$level) next
       ds <- bev_t$slope - ot$slope
       if (!isTRUE(ds > 0)) { unreachable <- TRUE; next }
-      m_ahead <- ceiling((ot$level - bev_t$level) / ds)
-      if (m_ahead > 120L) { unreachable <- TRUE; next }
-      crossings[[length(crossings) + 1L]] <- list(label = o$l, months = max(1L, m_ahead))
+      p_ahead <- ceiling((ot$level - bev_t$level) / ds)
+      if (p_ahead > cross_horizon) { unreachable <- TRUE; next }
+      crossings[[length(crossings) + 1L]] <- list(label = o$l, periods = max(1L, p_ahead))
+    }
+    # Format a future period label from periods[cur] + n steps forward.
+    fmt_future <- function(n) {
+      raw <- .pt_add_months(periods[cur], if (is_quarterly) n * 3L else n)
+      if (is_quarterly) .pt_month_label(raw, quarterly = TRUE) else raw
     }
     if (length(crossings) > 0L) {
-      crossings <- crossings[order(vapply(crossings, function(x) x$months, numeric(1)))]
+      crossings <- crossings[order(vapply(crossings, function(x) x$periods, numeric(1)))]
       if (!unreachable) {
-        # BEV catches every band → label the last crossover as "becomes largest"
-        # and skip near-tie overtakes (same event, different framing).
         n_cross <- length(crossings)
-        largest_m <- crossings[[n_cross]]$months
+        largest_p <- crossings[[n_cross]]$periods
         for (j in seq_along(crossings)) {
           c1 <- crossings[[j]]
-          ymd <- .pt_add_months(periods[cur], c1$months)
+          ymd <- fmt_future(c1$periods)
           if (j == n_cross) {
             cross_lines <- c(cross_lines,
-                             sprintf("If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in %s.", ymd))
-          } else if (largest_m - c1$months > 2L) {
+                             sprintf("If the changes from the last 6 %s continued linearly, BEV would become the largest powertrain in %s.",
+                                     trend_period_word, ymd))
+          } else if (largest_p - c1$periods > 2L) {
             cross_lines <- c(cross_lines,
-                             sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
+                             sprintf("If the changes from the last 6 %s continued linearly, BEV would overtake %s in %s.",
+                                     trend_period_word, c1$label, ymd))
           }
         }
       } else {
-        # Some band will outpace BEV → no "becomes largest", only individual overtakes.
         for (c1 in crossings) {
-          ymd <- .pt_add_months(periods[cur], c1$months)
+          ymd <- fmt_future(c1$periods)
           cross_lines <- c(cross_lines,
-                           sprintf("If the changes from the last 6 months continued linearly, BEV would overtake %s in %s.", c1$label, ymd))
+                           sprintf("If the changes from the last 6 %s continued linearly, BEV would overtake %s in %s.",
+                                   trend_period_word, c1$label, ymd))
         }
       }
     }
   }
 
   # --- Compose ---
-  flag <- .pt_flag(country_label)
+  fmt_period <- if (is_quarterly) .pt_short_quarter else .pt_short_month
+  flag   <- .pt_flag(country_label)
   header <- sprintf("%s %s - TTM Market Split", flag, country_label)
   window_line <- sprintf("%s–%s  vs  %s–%s",
-                         .pt_short_month(periods[pri - 11L]), .pt_short_month(periods[pri]),
-                         .pt_short_month(periods[cur - 11L]), .pt_short_month(periods[cur]))
+                         fmt_period(periods[pri - window + 1L]), fmt_period(periods[pri]),
+                         fmt_period(periods[cur - window + 1L]), fmt_period(periods[cur]))
 
   parts <- c(header, "", window_line, delta_lines)
   extras <- c(peak_lines, cross_lines)
