@@ -40,4 +40,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-02,quarterly,Whole,150.statcan.gc.ca,22679.0,10668.0,45613.0,242631.0,232.0,8.0,321831.0,
 2025-05,quarterly,Whole,150.statcan.gc.ca,25360.0,16727.0,53364.0,316264.0,814.0,0.0,412529.0,
 2025-08,quarterly,Whole,150.statcan.gc.ca,24090.0,18416.0,47608.0,274145.0,1161.0,6.0,365426.0,
-2025-11,quarterly,Whole,150.statcan.gc.ca,26776.0,15523.0,39648.0,232026.0,1199.0,19.0,315191.0,
+2025-11,quarterly,Whole,150.statcan.gc.ca,27794.0,15539.0,39653.0,232058.0,1199.0,19.0,316262.0,
+2026-02,quarterly,Whole,150.statcan.gc.ca,27193.0,13166.0,43848.0,216798.0,867.0,0.0,301872.0,

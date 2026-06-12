@@ -34,4 +34,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-02,quarterly,Vans,150.statcan.gc.ca,670.0,159.0,2910.0,11901.0,1576.0,0.0,17216.0,
 2025-05,quarterly,Vans,150.statcan.gc.ca,650.0,150.0,4860.0,16909.0,1246.0,0.0,23815.0,
 2025-08,quarterly,Vans,150.statcan.gc.ca,989.0,158.0,4720.0,16224.0,1158.0,0.0,23249.0,
-2025-11,quarterly,Vans,150.statcan.gc.ca,1058.0,183.0,4732.0,11253.0,1098.0,0.0,18324.0,
+2025-11,quarterly,Vans,150.statcan.gc.ca,1058.0,183.0,4734.0,11257.0,1098.0,0.0,18330.0,
+2026-02,quarterly,Vans,150.statcan.gc.ca,980.0,139.0,2995.0,12989.0,883.0,0.0,17986.0,
