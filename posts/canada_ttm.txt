@@ -1,0 +1,9 @@
+🇨🇦 Canada - TTM Market Split
+
+Q2'24–Q1'25  vs  Q2'25–Q1'26
+−4.9pp  BEV   (12.4% → 7.5%)
+−0.1pp  PHEV  (4.6% → 4.6%)
++2.3pp  HEV   (10.9% → 13.2%)
++2.7pp  ICE   (72.0% → 74.7%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

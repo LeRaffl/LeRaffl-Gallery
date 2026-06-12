@@ -1,11 +1,11 @@
-🇨🇦 Canada - March 26 - BEV Trajectory
+🇨🇦 Canada - Q1 2026 - BEV Trajectory
 9.0% BEV
 4.4% PHEV
 86.6% ICE (of which 14.5%p were HEV)
 
-Trailing 12 months are:
-10.2% BEV
-4.3% PHEV
-85.4% ICE (of which 11.3%p were HEV)
+Trailing 4 quarters are:
+7.5% BEV
+4.6% PHEV
+87.9% ICE (of which 13.2%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
