@@ -48,6 +48,8 @@ jobs:
         run: pip install requests
 
       - name: Fetch Albania data
+        env:
+          ALBANIA_DEBUG: ${{ inputs.dry_run == true && '1' || '0' }}
         run: |
           YEAR=$(date +%Y)
           ARGS=""

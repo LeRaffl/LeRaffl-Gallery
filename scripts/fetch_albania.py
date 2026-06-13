@@ -62,6 +62,8 @@ from pathlib import Path
 
 import requests
 
+DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
+
 # ── Looker Studio report constants ──────────────────────────────────────────
 REPORT_ID       = "407ce08b-d3ce-478e-9bc7-a50125f875f3"
 PAGE_ID_URL     = "VPWqB"      # visible in browser address bar
@@ -174,6 +176,23 @@ def _get_session() -> tuple[requests.Session, str | None]:
     resp = session.get(REPORT_PAGE_URL, timeout=60, allow_redirects=True)
     print(f"[albania] page load HTTP {resp.status_code}")
     resp.raise_for_status()
+
+    if DEBUG:
+        print(f"[albania][debug] final URL: {resp.url}")
+        print(f"[albania][debug] page length: {len(resp.text)} chars")
+        print(f"[albania][debug] cookies: {list(session.cookies.keys())}")
+        # Show context around any case-insensitive 'xsrf' occurrence
+        low = resp.text.lower()
+        idx, shown = 0, 0
+        while shown < 5:
+            j = low.find("xsrf", idx)
+            if j == -1:
+                break
+            snippet = resp.text[max(0, j - 40): j + 80].replace("\n", " ")
+            print(f"[albania][debug] xsrf@{j}: …{snippet}…")
+            idx, shown = j + 4, shown + 1
+        if shown == 0:
+            print("[albania][debug] no 'xsrf' substring in page at all")
 
     # 1. Cookie (set for authenticated Google sessions)
     xsrf = session.cookies.get("RAP_XSRF_TOKEN")
@@ -433,6 +452,10 @@ def main() -> None:
     if xsrf:
         api_headers["X-RAP-XSRF-TOKEN"] = xsrf
 
+    if DEBUG:
+        print("[albania][debug] request payload:")
+        print(json.dumps(payload, ensure_ascii=False)[:2000])
+
     print(f"[albania] POST {API_URL}")
     resp = session.post(
         API_URL, json=payload, headers=api_headers, timeout=120
@@ -444,6 +467,10 @@ def main() -> None:
     text = resp.text
     if text.startswith(")]}'"):
         text = text[4:].lstrip("\n")
+
+    if DEBUG:
+        print("[albania][debug] raw response body (post-XSSI-strip):")
+        print(text[:3000])
 
     data = json.loads(text)
     rows = _parse_response(data)
