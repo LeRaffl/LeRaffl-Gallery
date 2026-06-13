@@ -229,6 +229,30 @@ def probe_singstat(session: requests.Session, rid: str) -> None:
               f"ncols={len(cols)} latest_keys={latest}")
 
 
+def pdf_dump(session: requests.Session, url: str) -> None:
+    """Download a PDF and print its extracted text + first-page tables, to see
+    which LTA file holds new car registrations by fuel type."""
+    import io
+    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
+    print(f"[pdf] GET {url} -> HTTP {r.status_code} ({len(r.content)} bytes, "
+          f"ctype={r.headers.get('content-type')})")
+    r.raise_for_status()
+    try:
+        import pdfplumber
+    except ImportError:
+        raise SystemExit("pdfplumber required: pip install pdfplumber")
+    with pdfplumber.open(io.BytesIO(r.content)) as pdf:
+        print(f"[pdf] {len(pdf.pages)} pages")
+        for i, page in enumerate(pdf.pages[:2]):
+            text = (page.extract_text() or "")[:1800]
+            print(f"----- page {i+1} text -----\n{text}")
+            tables = page.extract_tables()
+            if tables:
+                print(f"----- page {i+1}: {len(tables)} table(s), first table head -----")
+                for row in tables[0][:6]:
+                    print("   " + " | ".join("" if c is None else str(c) for c in row))
+
+
 def scrape_links(session: requests.Session, url: str) -> None:
     """Fetch a page and print all links to data files / relevant pages, to map
     the lta.gov.sg statistics download structure.
@@ -404,6 +428,8 @@ def main() -> None:
                     help="Search data.gov.sg for datasets matching QUERY and print each "
                          "datastore resource's latest month + fields, then exit. Use to "
                          "locate the live resource if the default id goes stale.")
+    ap.add_argument("--pdf-dump", metavar="URL", default=None,
+                    help="Download a PDF and print its text + first-page tables, then exit.")
     ap.add_argument("--scrape", metavar="URL", default=None,
                     help="Fetch URL and print data-file links + inline data paths, then "
                          "exit. Used to map the lta.gov.sg statistics download structure.")
@@ -422,6 +448,10 @@ def main() -> None:
 
     if args.discover:
         discover(session, args.discover)
+        return
+
+    if args.pdf_dump:
+        pdf_dump(session, args.pdf_dump)
         return
 
     if args.scrape:

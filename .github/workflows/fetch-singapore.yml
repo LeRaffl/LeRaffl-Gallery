@@ -46,15 +46,20 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pdfplumber
 
       # TEMP validation path (push event): print the live taxonomy and a dry-run
       # diff, write nothing. Remove with the push trigger before merge.
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
         run: |
-          echo "===== scrape LTA statistics page ====="
-          python scripts/fetch_singapore.py --scrape "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html"
+          B=https://www.lta.gov.sg/content/dam/ltagov/who_we_are/statistics_and_publications/statistics/pdf
+          echo "########## M09-Vehs_by_Fuel_Type ##########"
+          python scripts/fetch_singapore.py --pdf-dump "$B/M09-Vehs_by_Fuel_Type.pdf" || true
+          echo "########## M02-New_Reg_by_Quota ##########"
+          python scripts/fetch_singapore.py --pdf-dump "$B/M02-New_Reg_by_Quota.pdf" || true
+          echo "########## M03-Car_Regn_by_make ##########"
+          python scripts/fetch_singapore.py --pdf-dump "$B/M03-Car_Regn_by_make.pdf" || true
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'
