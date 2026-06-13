@@ -1,56 +1,43 @@
 #!/usr/bin/env python3
 """
-Fetch Singapore new-car registration data from **data.gov.sg** (the official
-open-data portal that republishes Land Transport Authority / LTA figures) and
+Fetch Singapore new-car registration data from the Land Transport Authority
+(LTA) monthly statistics PDF **M03 "New Registration of Cars by Make"** and
 upsert ``data/Singapore.csv``.
 
 Usage
 -----
-    python scripts/fetch_singapore.py [--resource-id ID] [--since YYYY-MM]
-                                      [--dry-run] [--list-categories]
+    python scripts/fetch_singapore.py [--dry-run] [--since YYYY-MM] [--url URL]
 
 Source
 ------
-data.gov.sg CKAN datastore. The dataset is "New Registration of Cars by Fuel
-Type" (monthly), resource id ``d_d3f4d708e1d0a37b4365414e2fad3a07`` — the same
-id already cited in the legacy hand-maintained ``data/Singapore.csv``. The
-SingStat Table Builder series M650281 and newautomotive's tracker both rest on
-this same LTA data; data.gov.sg exposes it through a clean JSON REST API, so we
-read it directly.
+https://www.lta.gov.sg/.../statistics/pdf/M03-Car_Regn_by_make.pdf
 
-    GET https://data.gov.sg/api/action/datastore_search
-        ?resource_id=<id>&limit=<n>&offset=<m>
+This is the official primary source. LTA publishes a single rolling PDF that
+covers the current half-year (e.g. Jan–Jun), one row per
+``Make × Importer Type × Fuel Type``, with per-month sub-columns
+``HB SDN MPV STW SUV Conv Total``. We sum each month's per-row **Total** column
+across all makes, grouped by Fuel Type, into the gallery's wide schema.
 
-The datastore is LONG format — one record per (month, fuel_type) with a numeric
-count. We page through every record, classify each fuel_type into a gallery
-column, and sum per month into the wide schema.
-
-Fuel classification (ordered substring rules)
---------------------------------------------
-The LTA taxonomy has shifted over the years and uses labels such as
-``Petrol``, ``Diesel``, ``Petrol-Electric`` (a non-plug-in hybrid),
-``Electric`` (BEV) and ``Petrol-Electric (Plug-In)`` (PHEV). The rules below
-also tolerate the alternative ``Battery electric`` / ``Plugin hybrid`` /
-``Non-plugin hybrid`` wording. Order matters: plug-in is tested before the
-generic ``electric``/``hybrid`` checks, and pure ``Electric`` before the
-``-Electric`` hybrids.
-
-    contains "plug"               → PHEV
-    contains "battery electric"   → BEV
-    equals   "electric"           → BEV
-    contains "hybrid"             → HEV   (non-plug-in hybrid)
-    contains "electric"           → HEV   (Petrol-Electric, Diesel-Electric)
-    contains "cng"                → OTHERS
-    contains "diesel"             → DIESEL
-    contains "petrol"             → PETROL
-    <everything else>             → OTHERS  (printed as a WARNING so a new
-                                             category can't vanish silently)
-
-Note on history: the LTA fuel split only resolves BEV/PHEV/HEV from ~2022-07.
-Earlier months report electrified cars inside a coarse "Others"/"Petrol-Electric"
-bucket, so a clean fetch yields empty BEV/PHEV/HEV for those months (unlike the
-legacy file, which spread an annual EV estimate across the year). See
+Why not a cleaner API: data.gov.sg's "cars by make/fuel" datastore is frozen at
+2025-05; SingStat M650281 has no fuel split. The LTA PDF is the only current,
+official source that breaks new car registrations down by fuel type. (Robbie
+Andrew's widely-used CSV is this same data, pre-parsed.) See
 docs/architecture/26-source-singapore.md.
+
+Coverage / cadence
+------------------
+The PDF is a rolling current half-year, so one fetch yields up to ~6 recent
+months; the upsert is keyed on ``(period, variant)`` so older months already in
+the CSV are left untouched. ``time_interval`` is ``monthly``.
+
+Fuel classification (the PDF's Fuel Type values)
+-----------------------------------------------
+    Electric                      → BEV
+    Petrol-Electric (Plug-In)     → PHEV    (also Diesel-Electric (Plug-In))
+    Petrol-Electric               → HEV     (also Diesel-Electric)
+    Petrol                        → PETROL
+    Diesel                        → DIESEL
+    CNG / Petrol-CNG / Others     → OTHERS
 
 Invoked by ``.github/workflows/fetch-singapore.yml``. The commit step is
 change-gated, so steady-state runs are a no-op.
@@ -63,14 +50,11 @@ from pathlib import Path
 
 import requests
 
-SOURCE = "data.gov.sg"
+SOURCE = "lta.gov.sg"
 CSV_PATH = "data/Singapore.csv"
 VARIANT = "Whole"
-# "New Registration of Cars by Fuel Type, Monthly" — id cited in the legacy CSV.
-DEFAULT_RESOURCE_ID = "d_d3f4d708e1d0a37b4365414e2fad3a07"
-DATASTORE_URL = "https://data.gov.sg/api/action/datastore_search"
-DATASETS_V2_URL = "https://api-production.data.gov.sg/v2/public/api/datasets"
-PAGE_SIZE = 5000
+M03_URL = ("https://www.lta.gov.sg/content/dam/ltagov/who_we_are/"
+           "statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf")
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -78,21 +62,30 @@ CSV_COLUMNS = [
 ]
 VALUE_COLUMNS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
-HEADERS = {
-    "User-Agent": "LeRaffl-Gallery fetch_singapore (+https://github.com/leraffl/leraffl-gallery)",
-}
+HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; LeRaffl-Gallery fetch_singapore)"}
 
-# Ordered (test, column). The test gets the lowercased, stripped fuel label.
+# Fuel Type strings as they appear in M03, longest first so a suffix match picks
+# the most specific (…(Plug-In) before plain …-Electric, which classify_fuel
+# then maps to the right column).
+_FUEL_PHRASES = [
+    "petrol-electric (plug-in)", "diesel-electric (plug-in)",
+    "petrol-electric", "diesel-electric",
+    "petrol-cng", "electric", "petrol", "diesel", "cng", "others",
+]
+_BODY_TOKENS = {"HB", "SDN", "MPV", "STW", "SUV", "Conv", "Total"}
+
+# Ordered (test, column) on the lowercased fuel string. Order matters:
+# plug-in (but not "non-plug") before generic electric/hybrid; pure "electric"
+# (BEV) before the "-electric" hybrids.
 FUEL_RULES = [
-    # "plug" but not "non-plug(in)" — "Non-plugin hybrid" is an HEV, not a PHEV.
-    (lambda s: "plug" in s and "non-plug" not in s and "non plug" not in s, "PHEV"),
-    (lambda s: "battery electric" in s, "BEV"),
-    (lambda s: s == "electric",         "BEV"),
-    (lambda s: "hybrid" in s,           "HEV"),
-    (lambda s: "electric" in s,         "HEV"),
-    (lambda s: "cng" in s,              "OTHERS"),
-    (lambda s: "diesel" in s,           "DIESEL"),
-    (lambda s: "petrol" in s,           "PETROL"),
+    (lambda s: "plug" in s and "non-plug" not in s, "PHEV"),
+    (lambda s: "battery electric" in s,             "BEV"),
+    (lambda s: s == "electric",                     "BEV"),
+    (lambda s: "hybrid" in s,                       "HEV"),
+    (lambda s: "electric" in s,                     "HEV"),
+    (lambda s: "cng" in s,                          "OTHERS"),
+    (lambda s: "diesel" in s,                       "DIESEL"),
+    (lambda s: "petrol" in s,                       "PETROL"),
 ]
 
 
@@ -105,145 +98,8 @@ def classify_fuel(label: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
-# data.gov.sg CKAN datastore
+# M03 PDF parsing
 # --------------------------------------------------------------------------- #
-def fetch_records(session: requests.Session, resource_id: str) -> list[dict]:
-    """Page through the whole datastore resource and return all records."""
-    records: list[dict] = []
-    offset = 0
-    total = None
-    while True:
-        params = {"resource_id": resource_id, "limit": PAGE_SIZE, "offset": offset}
-        r = session.get(DATASTORE_URL, params=params, headers=HEADERS, timeout=120)
-        r.raise_for_status()
-        payload = r.json()
-        if not payload.get("success"):
-            raise RuntimeError(f"datastore_search returned success=false: {payload}")
-        result = payload["result"]
-        if total is None:
-            total = result.get("total")
-            field_ids = [f.get("id") for f in result.get("fields", [])]
-            print(f"[meta] resource={resource_id} total={total} fields={field_ids}")
-        batch = result.get("records", [])
-        records.extend(batch)
-        offset += len(batch)
-        if not batch or (total is not None and offset >= int(total)):
-            break
-    print(f"[data] fetched {len(records)} records")
-    return records
-
-
-def _probe_latest(session: requests.Session, rid: str) -> tuple[str | None, list | None]:
-    """Return (latest_month, fields) for a datastore resource, or (None, None)."""
-    for params in ({"resource_id": rid, "limit": 1, "sort": "month desc"},
-                   {"resource_id": rid, "limit": 1}):
-        try:
-            pr = session.get(DATASTORE_URL, params=params, headers=HEADERS, timeout=60)
-            body = pr.json()
-            if pr.ok and body.get("success"):
-                res = body["result"]
-                fields = [f["id"] for f in res.get("fields", []) if f["id"] != "_id"]
-                recs = res.get("records", [])
-                if recs:
-                    rec = recs[0]
-                    latest = rec.get("month") or rec.get("year_month") or rec.get("period")
-                    return latest, fields
-                return None, fields
-        except Exception:  # noqa: BLE001
-            continue
-    return None, None
-
-
-def discover(session: requests.Session, query: str) -> None:
-    """Page data.gov.sg's v2 dataset catalogue, keep datasets whose name matches
-    `query` (any whitespace-separated term, case-insensitive), and print each
-    candidate's latest month + datastore fields. Locates the live monthly "cars
-    by fuel type" resource when an id goes stale.
-    """
-    terms = [t.lower() for t in query.split()]
-    page = 1
-    pages = None
-    candidates: list[tuple[str, str]] = []
-    while True:
-        r = session.get(DATASETS_V2_URL, params={"page": page}, headers=HEADERS, timeout=120)
-        r.raise_for_status()
-        data = r.json().get("data", {})
-        if pages is None:
-            pages = data.get("pages")
-            print(f"[discover] scanning {pages} catalogue pages for terms {terms}")
-        for ds in data.get("datasets", []):
-            name = ds.get("name") or ""
-            nl = name.lower()
-            if all(t in nl for t in terms):
-                candidates.append((ds.get("datasetId"), name))
-        page += 1
-        if not pages or page > pages:
-            break
-
-    print(f"[discover] {len(candidates)} name matches")
-    for rid, name in candidates:
-        latest, fields = _probe_latest(session, rid)
-        has_fuel = bool(fields) and any("fuel" in f for f in fields)
-        print(f"  {name[:60]:60s} rid={rid} latest={latest} fuel={has_fuel} fields={fields}")
-
-
-SINGSTAT_URL = "https://tablebuilder.singstat.gov.sg/api/table/tabledata/{rid}"
-SINGSTAT_SEARCH_URL = "https://tablebuilder.singstat.gov.sg/api/table/resourceid"
-
-
-def singstat_search(session: requests.Session, keyword: str) -> None:
-    """List SingStat Table Builder tables matching `keyword` (id + title)."""
-    r = session.get(SINGSTAT_SEARCH_URL, params={"keyword": keyword},
-                    headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
-    print(f"[singstat-search] GET keyword={keyword!r} -> HTTP {r.status_code}")
-    r.raise_for_status()
-    body = r.json()
-    data = body.get("Data", body.get("data", body))
-    records = data.get("records") if isinstance(data, dict) else None
-    if records is None and isinstance(body, dict):
-        records = body.get("records")
-    print(f"[singstat-search] {len(records or [])} records")
-    for rec in records or []:
-        rid = rec.get("id") or rec.get("seriesNo") or rec.get("resourceId")
-        title = rec.get("title") or rec.get("tableTitle") or rec.get("name")
-        print(f"  id={rid} title={title!r}")
-
-
-def probe_singstat(session: requests.Session, rid: str) -> None:
-    """Print a SingStat Table Builder series' row labels + latest periods, to
-    check it as an alternative source when data.gov.sg goes stale.
-    """
-    url = SINGSTAT_URL.format(rid=rid)
-    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
-    print(f"[singstat] GET {url} -> HTTP {r.status_code}")
-    r.raise_for_status()
-    body = r.json()
-    data = body.get("Data", body.get("data", {}))
-    rows = data.get("row", []) if isinstance(data, dict) else []
-    print(f"[singstat] title={data.get('title') if isinstance(data, dict) else None!r} rows={len(rows)}")
-    for row in rows:
-        cols = row.get("columns", [])
-        keys = [c.get("key") for c in cols]
-        latest = keys[-3:] if keys else []
-        print(f"  row={row.get('rowText')!r} uom={row.get('uoM')!r} "
-              f"ncols={len(cols)} latest_keys={latest}")
-
-
-# LTA "New Registration of Cars by Make" — monthly PDF, current rolling half-year,
-# rows = Make x Importer x Fuel Type, per-month sub-columns HB/SDN/MPV/STW/SUV/Conv/Total.
-M03_URL = ("https://www.lta.gov.sg/content/dam/ltagov/who_we_are/"
-           "statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf")
-
-# Fuel phrases as they appear in the PDF's Fuel Type column, longest first so a
-# suffix match picks the most specific (…(Plug-In) before plain …-Electric).
-_FUEL_PHRASES = [
-    "petrol-electric (plug-in)", "diesel-electric (plug-in)",
-    "petrol-electric", "diesel-electric",
-    "petrol-cng", "electric", "petrol", "diesel", "cng", "others",
-]
-_BODY_TOKENS = {"HB", "SDN", "MPV", "STW", "SUV", "Conv", "Total"}
-
-
 def _cluster_lines(words: list, tol: float = 3.0) -> list:
     """Group extracted words into lines by their vertical position."""
     rows: list = []
@@ -261,15 +117,14 @@ def _num(text: str):
 
 
 def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
-    """Parse the M03 PDF into {period: {VALUE_COL: total}} plus a stats dict.
+    """Parse the M03 PDF into ({period: {VALUE_COL: total}}, stats).
 
-    Strategy (positional, robust to the PDF's zero-suppressed text):
-      * Per page, the sub-header line containing HB/SDN/.../Total gives the
-        x-centre of every body column; grouped in 7s, the 7th ("Total") of each
-        block is that month's total column. Month labels (YYYY-MM) order blocks.
-      * Each data row's fuel is the suffix of its label (Make Importer Fuel);
-        each numeric cell is assigned to the nearest column centre, and the
-        month-Total columns are summed per fuel.
+    Positional strategy (robust to the PDF's zero-suppressed text): per page the
+    sub-header line carrying HB/SDN/.../Total gives every body column's x-centre;
+    grouped in 7s the 7th ("Total") of each block is that month's total column,
+    ordered by the YYYY-MM labels. Each data row's fuel is the suffix of its
+    label; every numeric cell is assigned to its nearest column, and only the
+    month-Total columns are summed (per fuel).
     """
     import io
     import pdfplumber
@@ -283,17 +138,15 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
             words = page.extract_words(keep_blank_chars=False, use_text_flow=False)
             lines = _cluster_lines(words)
 
-            # Month labels (ordered left→right).
-            month_words = [w for w in words if re.fullmatch(r"20\d{2}-\d{2}", w["text"])]
-            month_words.sort(key=lambda w: w["x0"])
+            month_words = sorted(
+                (w for w in words if re.fullmatch(r"20\d{2}-\d{2}", w["text"])),
+                key=lambda w: w["x0"])
             months = [w["text"] for w in month_words]
             if not months:
                 continue
 
-            # Sub-header line: the one carrying the body-column tokens.
             sub = max(lines, key=lambda ln: sum(1 for w in ln if w["text"] in _BODY_TOKENS))
             cols = [w for w in sub if w["text"] in _BODY_TOKENS]
-            # Expect 7 columns per month block.
             if len(cols) < 7 or len(cols) % 7 != 0:
                 if debug:
                     print(f"  [m03] page skipped: {len(cols)} body cols, months={months}")
@@ -301,9 +154,9 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
             n_blocks = len(cols) // 7
             block_months = months[:n_blocks]
             col_centers = [(w["x0"] + w["x1"]) / 2 for w in cols]
-            label_left = min(col_centers) - 5  # labels sit left of the first column
-
+            label_left = min(col_centers) - 5
             sub_top = sub[0]["top"]
+
             for ln in lines:
                 if ln[0]["top"] <= sub_top + 3:
                     continue  # header region
@@ -313,15 +166,12 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
                     continue
                 fuel = next((p for p in _FUEL_PHRASES if label.endswith(p)), None)
                 if fuel is None:
-                    # Some labels carry a trailing car-type note; try substring.
                     fuel = next((p for p in _FUEL_PHRASES if p in label), None)
                 if fuel is None:
                     unmapped.add(label)
                     continue
                 col = classify_fuel(fuel)
 
-                # Assign each numeric to its nearest column; keep only those whose
-                # nearest column is a month "Total" (index 6,13,20,… within blocks).
                 row_assigned = 0
                 for w in ln:
                     val = _num(w["text"])
@@ -334,153 +184,21 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
                     m = block_months[ci // 7]
                     periods.setdefault(m, {c: 0.0 for c in VALUE_COLUMNS})[col] += val
                     row_assigned += val
-                if row_assigned:
-                    rows_ok += 1
-                else:
-                    rows_bad += 1
+                rows_ok += 1 if row_assigned else 0
+                rows_bad += 0 if row_assigned else 1
 
-    stats = {"rows_ok": rows_ok, "rows_bad": rows_bad, "unmapped": sorted(unmapped),
-             "periods": sorted(periods)}
+    stats = {"rows_ok": rows_ok, "rows_bad": rows_bad,
+             "unmapped": sorted(unmapped), "periods": sorted(periods)}
     return periods, stats
 
 
-def pdf_dump(session: requests.Session, url: str) -> None:
-    """Download a PDF and print its extracted text + first-page tables, to see
-    which LTA file holds new car registrations by fuel type."""
-    import io
-    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
-    print(f"[pdf] GET {url} -> HTTP {r.status_code} ({len(r.content)} bytes, "
-          f"ctype={r.headers.get('content-type')})")
-    r.raise_for_status()
-    try:
-        import pdfplumber
-    except ImportError:
-        raise SystemExit("pdfplumber required: pip install pdfplumber")
-    with pdfplumber.open(io.BytesIO(r.content)) as pdf:
-        print(f"[pdf] {len(pdf.pages)} pages")
-        for i, page in enumerate(pdf.pages[:2]):
-            text = (page.extract_text() or "")[:1800]
-            print(f"----- page {i+1} text -----\n{text}")
-            tables = page.extract_tables()
-            if tables:
-                print(f"----- page {i+1}: {len(tables)} table(s), first table head -----")
-                for row in tables[0][:6]:
-                    print("   " + " | ".join("" if c is None else str(c) for c in row))
-
-
-def scrape_links(session: requests.Session, url: str) -> None:
-    """Fetch a page and print all links to data files / relevant pages, to map
-    the lta.gov.sg statistics download structure.
-    """
-    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
-    print(f"[scrape] GET {url} -> HTTP {r.status_code} ({len(r.text)} bytes, "
-          f"ctype={r.headers.get('content-type')})")
-    r.raise_for_status()
-    html = r.text
-    from urllib.parse import urljoin
-    hrefs = re.findall(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', html, flags=re.I)
-    seen = set()
-    DATA_EXT = re.compile(r"\.(csv|xlsx?|ashx|pdf|zip|json)(\?|$)", re.I)
-    KEYWORDS = re.compile(r"regist|fuel|\bcar|vehicle|statistic", re.I)
-    print(f"[scrape] {len(hrefs)} raw links; data-file / relevant ones:")
-    for h in hrefs:
-        absu = urljoin(url, h)
-        if absu in seen:
-            continue
-        if DATA_EXT.search(h) or KEYWORDS.search(h):
-            seen.add(absu)
-            print(f"  {absu}")
-    # Also surface any inline JSON/data endpoints the page might call.
-    apis = re.findall(r'["\'](/[^"\']*(?:api|data|statistics)[^"\']*)["\']', html, flags=re.I)
-    if apis:
-        print(f"[scrape] {len(set(apis))} inline path-like strings (api/data/statistics):")
-        for p in sorted(set(apis))[:40]:
-            print(f"    {p}")
-
-
-def _detect_fields(records: list[dict]) -> tuple[str, str, str]:
-    """Find the (month, fuel_type, number) field names. Prefer the canonical
-    names but fall back to structural detection so a renamed column is tolerated.
-    """
-    sample = records[0]
-    keys = [k for k in sample.keys() if k != "_id"]
-
-    def pick(preferred, predicate):
-        for name in preferred:
-            if name in sample:
-                return name
-        for k in keys:
-            if predicate(k, sample[k]):
-                return k
-        return None
-
-    month_field = pick(
-        ["month", "year_month", "period", "date"],
-        lambda k, v: bool(re.match(r"^\d{4}-\d{2}", str(v))),
-    )
-    number_field = pick(
-        ["number", "count", "value", "qty", "quantity"],
-        lambda k, v: str(v).replace(".", "", 1).replace("-", "", 1).isdigit(),
-    )
-    fuel_field = pick(
-        ["fuel_type", "fuel", "type", "category"],
-        lambda k, v: k not in (month_field, number_field) and not str(v).replace(".", "", 1).isdigit(),
-    )
-    if not (month_field and fuel_field and number_field):
-        raise RuntimeError(
-            f"could not detect fields from keys {keys!r} "
-            f"(month={month_field}, fuel={fuel_field}, number={number_field})"
-        )
-    print(f"[fields] month={month_field!r} fuel={fuel_field!r} number={number_field!r}")
-    return month_field, fuel_field, number_field
-
-
-def _norm_period(raw: str) -> str | None:
-    """'2024-01' / '2024-01-01' / '2024' → 'YYYY-MM' (None if no month)."""
-    m = re.match(r"^(\d{4})-(\d{2})", str(raw))
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    return None
-
-
-def aggregate(records: list[dict], since: str | None) -> tuple[dict, dict]:
-    """Return ({(period, variant): row}, {raw_label: gallery_col}) for monthly sums."""
-    month_field, fuel_field, number_field = _detect_fields(records)
-
-    periods: dict[str, dict[str, float]] = {}
-    seen_labels: dict[str, str] = {}
-    unmapped: set[str] = set()
-
-    for rec in records:
-        period = _norm_period(rec.get(month_field, ""))
-        if period is None:
-            continue
-        if since and period < since:
-            continue
-        label = str(rec.get(fuel_field, "")).strip()
-        col = classify_fuel(label)
-        seen_labels[label] = col
-        if col == "OTHERS" and not any(
-            t(label.lower()) for t, _ in FUEL_RULES
-        ) and label and "other" not in label.lower():
-            unmapped.add(label)
-
-        raw_val = rec.get(number_field, 0)
-        try:
-            val = float(raw_val)
-        except (TypeError, ValueError):
-            val = 0.0
-        slot = periods.setdefault(period, {c: 0.0 for c in VALUE_COLUMNS})
-        slot[col] += val
-
-    if unmapped:
-        print(f"  WARNING unmapped fuel labels dumped into OTHERS: {sorted(unmapped)} "
-              f"— add a rule to FUEL_RULES if any belong elsewhere.")
-
+def build_rows(periods: dict, since: str | None) -> dict:
     rows: dict = {}
     for period, cols in periods.items():
+        if since and period < since:
+            continue
         total = sum(cols.values())
-        if total == 0.0:
+        if total == 0:
             continue
         rows[(period, VARIANT)] = {
             "period":        period,
@@ -491,7 +209,7 @@ def aggregate(records: list[dict], since: str | None) -> tuple[dict, dict]:
             "TOTAL":         float(total),
             "notes":         "",
         }
-    return rows, seen_labels
+    return rows
 
 
 # --------------------------------------------------------------------------- #
@@ -529,102 +247,37 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--resource-id", default=DEFAULT_RESOURCE_ID,
-                    help=f"data.gov.sg datastore resource id (default {DEFAULT_RESOURCE_ID}).")
+    ap.add_argument("--url", default=M03_URL, help="Override the M03 PDF URL.")
     ap.add_argument("--since", default=None,
-                    help="Only upsert months >= this YYYY-MM (default: all months "
-                         "the dataset returns).")
+                    help="Only upsert months >= this YYYY-MM (default: all the PDF holds).")
     ap.add_argument("--dry-run", action="store_true",
-                    help="Fetch and print, but do not write the CSV.")
-    ap.add_argument("--list-categories", action="store_true",
-                    help="Print every distinct fuel label and its mapped column, then exit. "
-                         "Use this on the first run to confirm the live taxonomy.")
-    ap.add_argument("--discover", metavar="QUERY", default=None,
-                    help="Search data.gov.sg for datasets matching QUERY and print each "
-                         "datastore resource's latest month + fields, then exit. Use to "
-                         "locate the live resource if the default id goes stale.")
-    ap.add_argument("--m03-dry", metavar="URL", nargs="?", const="default", default=None,
-                    help="Download the LTA M03 cars-by-make PDF (or URL), parse it, and "
-                         "print monthly fuel totals without writing. For validation.")
-    ap.add_argument("--pdf-dump", metavar="URL", default=None,
-                    help="Download a PDF and print its text + first-page tables, then exit.")
-    ap.add_argument("--scrape", metavar="URL", default=None,
-                    help="Fetch URL and print data-file links + inline data paths, then "
-                         "exit. Used to map the lta.gov.sg statistics download structure.")
-    ap.add_argument("--singstat-search", metavar="KEYWORD", default=None,
-                    help="Search the SingStat Table Builder catalogue for KEYWORD and "
-                         "print matching table ids + titles, then exit.")
-    ap.add_argument("--probe-singstat", metavar="ID", default=None,
-                    help="Probe a SingStat Table Builder series (e.g. M650281) and print "
-                         "its row labels + latest periods, then exit.")
+                    help="Fetch and parse, print the monthly totals, but do not write.")
+    ap.add_argument("--debug", action="store_true", help="Verbose parsing diagnostics.")
     ap.add_argument("--force", action="store_true",
-                    help="Accepted for parity with other fetchers (this fetcher is "
-                         "commit-gated downstream and always re-fetches).")
+                    help="Accepted for parity with other fetchers (commit-gated downstream).")
     args = ap.parse_args()
 
     session = requests.Session()
+    r = session.get(args.url, headers=HEADERS, timeout=120)
+    print(f"[m03] GET {args.url} -> HTTP {r.status_code} ({len(r.content)} bytes)")
+    r.raise_for_status()
 
-    if args.discover:
-        discover(session, args.discover)
-        return
+    periods, stats = parse_m03(r.content, debug=args.debug)
+    print(f"[m03] rows_ok={stats['rows_ok']} rows_bad={stats['rows_bad']} "
+          f"periods={stats['periods']}")
+    if stats["unmapped"]:
+        print(f"[m03] WARNING unmapped fuel labels (skipped): {stats['unmapped'][:20]}")
 
-    if args.m03_dry:
-        url = args.m03_dry if args.m03_dry.startswith("http") else M03_URL
-        r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
-        print(f"[m03] GET {url} -> HTTP {r.status_code} ({len(r.content)} bytes)")
-        r.raise_for_status()
-        periods, stats = parse_m03(r.content, debug=True)
-        print(f"[m03] rows_ok={stats['rows_ok']} rows_bad={stats['rows_bad']} "
-              f"periods={stats['periods']}")
-        if stats["unmapped"]:
-            print(f"[m03] WARNING unmapped fuel labels: {stats['unmapped'][:20]}")
-        for m in sorted(periods):
-            c = periods[m]
-            tot = sum(c.values())
-            print(f"  {m}  " + "  ".join(f"{k}={c[k]:.0f}" for k in VALUE_COLUMNS)
-                  + f"  TOTAL={tot:.0f}")
-        return
-
-    if args.pdf_dump:
-        pdf_dump(session, args.pdf_dump)
-        return
-
-    if args.scrape:
-        scrape_links(session, args.scrape)
-        return
-
-    if args.singstat_search:
-        singstat_search(session, args.singstat_search)
-        return
-
-    if args.probe_singstat:
-        probe_singstat(session, args.probe_singstat)
-        return
-
-    records = fetch_records(session, args.resource_id)
-    if not records:
-        print("no records returned")
-        return
-
-    rows, seen_labels = aggregate(records, args.since)
-
-    if args.list_categories:
-        print("\nDistinct fuel labels → gallery column:")
-        for label in sorted(seen_labels):
-            print(f"  {label!r:40s} → {seen_labels[label]}")
-        return
-
+    rows = build_rows(periods, args.since)
     if not rows:
         print("no non-zero months parsed")
         return
-    periods = sorted(p for p, _ in rows)
-    print(f"parsed {len(rows)} months ({periods[0]} .. {periods[-1]})")
+    for key in sorted(rows):
+        c = rows[key]
+        print(f"  {key[0]}  " + "  ".join(f"{col}={c[col]}" for col in VALUE_COLUMNS)
+              + f"  TOTAL={c['TOTAL']:.0f}")
 
     if args.dry_run:
-        for key in sorted(rows):
-            r = rows[key]
-            print(f"  {key[0]}  " + "  ".join(
-                f"{c}={r[c]}" for c in VALUE_COLUMNS) + f"  TOTAL={r['TOTAL']:.0f}")
         print("(dry-run: CSV not written)")
         return
 

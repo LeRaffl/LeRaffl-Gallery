@@ -1,14 +1,14 @@
-name: Fetch Singapore data (data.gov.sg)
+name: Fetch Singapore data (lta.gov.sg)
 
-# Pulls "New Registration of Cars by Fuel Type" (monthly) from the data.gov.sg
-# CKAN datastore — the official portal that republishes LTA figures — and
-# upserts data/Singapore.csv. LTA typically publishes the previous month within
-# the first weeks of the month, so this runs daily from mid-month onward
-# (staggered with the other fetchers). The commit step is change-gated.
+# Parses LTA's monthly "New Registration of Cars by Make" PDF (M03) — the
+# official primary source, broken down by fuel type — and upserts
+# data/Singapore.csv. The PDF is a rolling current half-year, so each run
+# refreshes the recent months. Runs daily from mid-month onward (staggered with
+# the other fetchers). The commit step is change-gated.
 
 on:
-  # TEMP: validation-only trigger on the feature branch. Runs --list-categories
-  # + --dry-run (no commit, no render). Remove before merge to master.
+  # TEMP: validation-only trigger on the feature branch. Runs the real fetch in
+  # --dry-run (no commit, no render). Remove with this push trigger before merge.
   push:
     branches: [claude/singapore-fetch]
 
@@ -17,11 +17,6 @@ on:
       since:
         description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
         required: false
-      list_categories:
-        description: 'Just print the live fuel taxonomy and exit'
-        required: false
-        default: 'false'
-        type: boolean
       dry_run:
         description: 'Fetch and print, but do not write the CSV'
         required: false
@@ -48,20 +43,16 @@ jobs:
       - name: Install dependencies
         run: pip install requests pdfplumber
 
-      # TEMP validation path (push event): print the live taxonomy and a dry-run
-      # diff, write nothing. Remove with the push trigger before merge.
+      # TEMP validation path (push event): real fetch in dry-run, writes nothing.
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
-        run: |
-          echo "===== parse M03 cars-by-make PDF (dry) ====="
-          python scripts/fetch_singapore.py --m03-dry
+        run: python scripts/fetch_singapore.py --dry-run
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'
         run: |
           ARGS=""
           if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
-          if [ "${{ inputs.list_categories }}" = "true" ]; then ARGS="$ARGS --list-categories"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_singapore.py $ARGS
 
@@ -71,7 +62,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: data/Singapore.csv
-          message: 'chore: update Singapore data from data.gov.sg'
+          message: 'chore: update Singapore data from lta.gov.sg (M03)'
           default_author: github_actions
 
       - name: Trigger render for Singapore
