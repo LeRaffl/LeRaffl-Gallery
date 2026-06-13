@@ -1,0 +1,70 @@
+name: Fetch Singapore data (data.gov.sg)
+
+# Pulls "New Registration of Cars by Fuel Type" (monthly) from the data.gov.sg
+# CKAN datastore — the official portal that republishes LTA figures — and
+# upserts data/Singapore.csv. LTA typically publishes the previous month within
+# the first weeks of the month, so this runs daily from mid-month onward
+# (staggered with the other fetchers). The commit step is change-gated.
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
+        required: false
+      list_categories:
+        description: 'Just print the live fuel taxonomy and exit'
+        required: false
+        default: 'false'
+        type: boolean
+      dry_run:
+        description: 'Fetch and print, but do not write the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+
+  schedule:
+    - cron: '0 8 15-31 * *'   # daily at 08:00 UTC from the 15th onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch Singapore data
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
+          if [ "${{ inputs.list_categories }}" = "true" ]; then ARGS="$ARGS --list-categories"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          python scripts/fetch_singapore.py $ARGS
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Singapore.csv
+          message: 'chore: update Singapore data from data.gov.sg'
+          default_author: github_actions
+
+      - name: Trigger render for Singapore
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Singapore \
+            -f variant=Whole
