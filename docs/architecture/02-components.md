@@ -255,7 +255,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | transport.govt.nz fleet-statistics `/inner` AJAX endpoint (CKAN fallback) | `Whole` | New Zealand | Twice daily 06:00 & 14:00 UTC, 5th → 12th |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL Total Sales PDF | `Whole` (trailing 3-month window) | USA | Daily 10:00 UTC, 10th → EOM |
 
-Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, Singapore, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
+Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
 
 For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico — paywalled or with structural undercount) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question. Colombia was originally shelved there and is now ingested via ANDI/FENALCO ([18-source-colombia.md](18-source-colombia.md)).
 

@@ -91,3 +91,38 @@ If LTA changes the M03 layout and parsing breaks, the data.gov.sg datastore (for
 Keyed on `(period, variant)`, mirroring `fetch_malaysia.py`. The workflow's
 commit step is change-gated, so steady-state daily runs are a no-op once the
 latest month is present. `--since YYYY-MM` limits the upsert to recent months.
+
+## 5. Source attribution & footnote
+
+* **`source` column** (`data/Singapore.csv`): `lta.gov.sg` for every row. This is
+  what `render_country.R` prints as **"Source: lta.gov.sg"** on the rendered
+  chart. (Earlier rows historically carried a mixed `data.gov.sg / lta.gov.sg /
+  robbieandrew` string; normalised to the single primary host for consistency.)
+* **`footnotes.csv`** (`Singapore,Whole`): rendered as a second caption line on
+  the image —
+  > Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier
+  > electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
+
+  This is where **R. Andrew** is credited (he compiled the pre-automation
+  monthly series this gallery still uses for the older months) and where the
+  main data caveat lives.
+
+## 6. Peculiarities to know about
+
+* **Fuel split starts ~2022-07.** Before that LTA's microdata had no
+  BEV/PHEV/HEV breakdown, so early months show electrified cars inside
+  `OTHERS`/`PETROL`/`DIESEL` and the BEV share reads ~0. Don't mistake this for
+  a real "no EVs" period. (Mirrored in the footnote above.)
+* **Rolling half-year file.** M03 only ever holds the current half-year, so a
+  single fetch refreshes ~6 months. There is **no archive URL** for older
+  half-years on the statistics page; historical months already in the CSV are
+  the record and are never overwritten by old data.
+* **"All cars" definition.** LTA's figures include COE- and tax-exempted cars
+  but **exclude taxis** (per the PDF footnote). No body-type or
+  passenger/commercial sub-split is applied — variant is `Whole`.
+* **PDF, not data.** This is the gallery's only PDF-table-parsed source; see §3
+  for the brittleness guards and the `--dry-run` check to run after any LTA
+  layout change.
+* **Dead-end sources** (don't re-investigate without reading this): data.gov.sg
+  `d_d3f4d708…` is frozen at 2025-05; SingStat **M650281** is VQS categories
+  only (no fuel split). See §1.

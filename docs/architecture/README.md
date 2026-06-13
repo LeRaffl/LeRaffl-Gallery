@@ -36,6 +36,8 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 22 | [22-source-poland.md](22-source-poland.md) | Per-country source playbook for Poland (PZPM eRegistrations XLSX from CEP). Page-scraped workbook, "Ogółem" sheet only; Whole/Vans/HDV/Buses; OTHERS residual. Takes Poland over from ACEA. |
 | 23 | [23-source-malaysia.md](23-source-malaysia.md) | Per-country source playbook for Malaysia (data.gov.my parquet, individual registration events, combined hybrid bucket). |
 | 24 | [24-source-china.md](24-source-china.md) | Per-country source playbook for China (CPCA monthly analysis). The only **OCR-dependent** source: the retail BEV/PHEV/EREV split is read from a slide image via `tesseract -l chi_sim+eng`, with a ws-proportional fallback. Includes the May-2026 mis-OCR postmortem and the post-band ICE% quirk. |
+| 25 | [25-source-uruguay.md](25-source-uruguay.md) | Per-country source playbook for Uruguay (ACAU Compilado XLSX). Whole/Vans/HDV/Buses; documents the 2024-vs-2026 workbook-layout differences. |
+| 26 | [26-source-singapore.md](26-source-singapore.md) | Per-country source playbook for Singapore (lta.gov.sg **M03 PDF**, "New Registration of Cars by Make"). The only **PDF-table-parsed** source: positional `pdfplumber` extraction summed per fuel type. Documents the data.gov.sg (frozen 2025-05) / SingStat (no fuel split) dead-ends and the R. Andrew credit. |
 
 ## Big picture in one diagram
 

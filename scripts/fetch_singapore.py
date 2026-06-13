@@ -50,7 +50,7 @@ from pathlib import Path
 
 import requests
 
-SOURCE = "lta.gov.sg"
+SOURCE = "lta.gov.sg"   # rendered as "Source: lta.gov.sg"; R. Andrew credited in footnotes.csv
 CSV_PATH = "data/Singapore.csv"
 VARIANT = "Whole"
 M03_URL = ("https://www.lta.gov.sg/content/dam/ltagov/who_we_are/"
