@@ -520,6 +520,24 @@ def _parse_fuel_counts(data: dict, quiet: bool = False) -> dict:
             null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
             null_count   = set(cols[count_idx  ].get("nullIndex", []))
 
+            if DEBUG and not quiet:
+                print(f"[albania][debug] qualifying subset: size={size} "
+                      f"cols={len(cols)} vehicle_idx={vehicle_idx} "
+                      f"fuel_idx={fuel_idx} count_idx={count_idx}")
+                # Show every unique fuel label that appears in Autoveturë rows
+                car_fuel: dict[str, int] = {}
+                for i in range(size):
+                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                    if veh != VEHICLE_FILTER_VALUE:
+                        continue
+                    fv = fuel_vals[i] if i < len(fuel_vals) else ""
+                    cnt = (int(count_vals[i])
+                           if (i not in null_count and i < len(count_vals)) else 0)
+                    car_fuel[fv] = car_fuel.get(fv, 0) + cnt
+                for fv, cnt in sorted(car_fuel.items()):
+                    print(f"[albania][debug]   car fuel {fv!r} → "
+                          f"{_fuel_col(fv)} count={cnt}")
+
             local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
                 if i in null_vehicle or i in null_fuel:
