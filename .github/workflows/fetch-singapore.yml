@@ -1,0 +1,64 @@
+name: Fetch Singapore data (lta.gov.sg)
+
+# Parses LTA's monthly "New Registration of Cars by Make" PDF (M03) — the
+# official primary source, broken down by fuel type — and upserts
+# data/Singapore.csv. The PDF is a rolling current half-year, so each run
+# refreshes the recent months. Runs daily from mid-month onward (staggered with
+# the other fetchers). The commit step is change-gated.
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
+        required: false
+      dry_run:
+        description: 'Fetch and print, but do not write the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+
+  schedule:
+    - cron: '0 8 15-31 * *'   # daily at 08:00 UTC from the 15th onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pdfplumber
+
+      - name: Fetch Singapore data
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          python scripts/fetch_singapore.py $ARGS
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Singapore.csv
+          message: 'chore: update Singapore data from lta.gov.sg (M03)'
+          default_author: github_actions
+
+      - name: Trigger render for Singapore
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Singapore \
+            -f variant=Whole
