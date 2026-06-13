@@ -251,12 +251,13 @@ def _build_payload(year_from: int, year_to: int) -> dict:
 # ── Session via headless browser ──────────────────────────────────────────────
 
 def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
-    """Load the public Looker report in headless Chromium, capture the XSRF
-    token + cookies from the first batchedDataV2 request the page makes, then
-    replay those credentials with our custom (month × fuel) payload."""
+    """Load the public Looker report in headless Chromium, wait for the page's
+    own batchedDataV2 requests to establish a live session, then issue our
+    custom (month × fuel) payload *from within the browser* via JavaScript
+    fetch().  Running the POST inside the browser context means it carries all
+    cookies, XSRF tokens, and session headers automatically — no external
+    extraction needed."""
     from playwright.sync_api import sync_playwright
-
-    intercepted: dict = {}   # headers from the first outgoing batchedDataV2
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -274,84 +275,67 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         )
         page = context.new_page()
 
-        def on_request(request):
-            if "batchedDataV2" in request.url and not intercepted:
-                intercepted["headers"] = dict(request.headers)
-                intercepted["url"]     = request.url
+        # Track when the page's own batchedDataV2 requests fire so we know
+        # the session is fully established before we POST our custom payload.
+        session_ready: list[str] = []
+
+        def on_request(req):
+            if "batchedDataV2" in req.url and not session_ready:
+                session_ready.append(req.url)
+                if DEBUG:
+                    print(f"[albania][debug] page issued batchedDataV2: {req.url}")
 
         page.on("request", on_request)
 
         print(f"[albania] browser → {REPORT_PAGE_URL}")
-        page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded", timeout=90_000)
+        # networkidle waits until no network activity for 500ms — by then the
+        # page's own data requests (and session setup) have completed.
+        page.goto(REPORT_PAGE_URL, wait_until="networkidle", timeout=90_000)
 
-        # Wait up to 30 s for the first batchedDataV2 request
-        for _ in range(30):
-            if intercepted:
-                break
-            page.wait_for_timeout(1_000)
-
-        if not intercepted:
+        if not session_ready:
+            # Scroll to trigger lazy-loaded components and their XHRs
             page.mouse.wheel(0, 2000)
-            page.wait_for_timeout(5_000)
+            page.wait_for_timeout(8_000)
 
-        cookies_raw = context.cookies()
-        browser.close()
+        if DEBUG:
+            print(f"[albania][debug] session_ready: {bool(session_ready)}")
+            cookies = context.cookies()
+            print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
 
-    if not intercepted:
-        raise RuntimeError(
-            "No batchedDataV2 request seen during page load — "
-            "the report URL may have changed or Google blocked the browser. "
-            "Check docs/architecture/27-source-albania.md §8."
+        # Build our custom payload and issue the POST from *inside* the browser
+        # using window.fetch().  The browser supplies all auth headers.
+        payload = _build_payload(year_from, year_to)
+        api_url = (session_ready[0] if session_ready
+                   else API_URL_TEMPLATE.format("20260607_0101"))
+
+        if DEBUG:
+            print(f"[albania][debug] in-browser fetch → {api_url}")
+            print(f"[albania][debug] payload (first 500 chars): "
+                  f"{json.dumps(payload, ensure_ascii=False)[:500]}")
+
+        result = page.evaluate(
+            """async ([url, payload]) => {
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {'content-type': 'application/json'},
+                    body: JSON.stringify(payload),
+                });
+                return await resp.text();
+            }""",
+            [api_url, payload],
         )
 
-    hdrs = intercepted["headers"]
-    xsrf = hdrs.get("x-rap-xsrf-token", "")
+        browser.close()
+
+    print(f"[albania] in-browser POST → {len(result)} chars")
     if DEBUG:
-        print(f"[albania][debug] intercepted XSRF: {xsrf[:20] if xsrf else '(none)'}...")
-        print(f"[albania][debug] cookies from context: "
-              f"{[c['name'] for c in cookies_raw]}")
+        print(f"[albania][debug] raw result (first 3000 chars):")
+        print(result[:3000])
 
-    # Re-assemble cookie header for datastudio / lookerstudio domains
-    cookie_str = "; ".join(
-        f"{c['name']}={c['value']}" for c in cookies_raw
-        if any(d in c.get("domain", "")
-               for d in ("google.com", "lookerstudio.google.com",
-                         "datastudio.google.com"))
-    )
-
-    # Use the intercepted URL's appVersion to stay in sync
-    api_url = intercepted.get("url", API_URL_TEMPLATE.format("20260607_0101"))
-
-    payload = _build_payload(year_from, year_to)
-
-    post_headers = {
-        "content-type":    "application/json",
-        "accept":          "application/json, text/plain, */*",
-        "accept-language": "en-US,en;q=0.9",
-        "cache-control":   "no-cache",
-        "origin":          "https://lookerstudio.google.com",
-        "referer":         REPORT_PAGE_URL,
-        "cookie":          cookie_str,
-    }
-    if xsrf:
-        post_headers["x-rap-xsrf-token"] = xsrf
-
-    if DEBUG:
-        print(f"[albania][debug] POST payload (first 1000 chars):")
-        print(json.dumps(payload, ensure_ascii=False)[:1000])
-
-    print(f"[albania] POST {api_url}")
-    resp = requests.post(api_url, json=payload, headers=post_headers, timeout=120)
-    print(f"[albania] HTTP {resp.status_code} ({len(resp.content)} bytes)")
-    resp.raise_for_status()
-
-    text = resp.text
+    text = result
     if text.startswith(")]}'"):
         text = text[4:].lstrip("\n")
-
-    if DEBUG:
-        print(f"[albania][debug] raw response body (first 3000 chars):")
-        print(text[:3000])
 
     return json.loads(text)
 
