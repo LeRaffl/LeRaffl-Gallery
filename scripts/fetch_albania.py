@@ -251,17 +251,51 @@ def _build_payload(year_from: int, year_to: int) -> dict:
 # ── Session via headless browser ──────────────────────────────────────────────
 
 def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
-    """Load the public Looker report in headless Chromium, wait for the page's
-    own batchedDataV2 requests to establish a live session, then issue our
-    custom (month × fuel) payload *from within the browser* via JavaScript
-    fetch().  Running the POST inside the browser context means it carries all
-    cookies, XSRF tokens, and session headers automatically — no external
-    extraction needed.
+    """Load the public Looker report in headless Chromium, intercept the
+    page's first batchedDataV2 request, and replay it with our custom
+    (month × fuel) payload via route.fetch().
 
-    Looker Studio never reaches 'networkidle' (continuous background polling),
-    so we use domcontentloaded + expect_request to unblock as soon as the first
-    batchedDataV2 request fires — at that point the session is established."""
+    Why route.fetch() instead of page.evaluate() + fetch():
+    - page.evaluate() fetch() only carries cookies (credentials:'include')
+      but Looker Studio requires an x-rap-xsrf-token REQUEST HEADER that
+      is set by Google's JS and is NOT accessible as a cookie.
+    - route.fetch() replays the intercepted request with ALL of its original
+      headers (including x-rap-xsrf-token), but with a replacement body.
+      This passes Google's PREFETCH_VALIDATION.
+
+    Looker Studio never reaches 'networkidle' (continuous polling), so we
+    use domcontentloaded + page.route() to intercept the first batchedDataV2
+    before the page fully loads."""
     from playwright.sync_api import sync_playwright
+
+    custom_result: list[str | None]    = [None]
+    custom_error:  list[Exception | None] = [None]
+
+    def handle_route(route):
+        if "batchedDataV2" in route.request.url and custom_result[0] is None:
+            if DEBUG:
+                hdrs = route.request.all_headers()
+                print(f"[albania][debug] intercepted batchedDataV2: "
+                      f"{route.request.url}")
+                print(f"[albania][debug] request headers: "
+                      f"{list(hdrs.keys())}")
+            try:
+                # Replay the request with our custom body; all original
+                # headers (incl. x-rap-xsrf-token) are preserved by default.
+                resp = route.fetch(
+                    post_data=json.dumps(_build_payload(year_from, year_to)),
+                )
+                custom_result[0] = resp.text()
+                if DEBUG:
+                    print(f"[albania][debug] route.fetch → "
+                          f"{len(custom_result[0])} chars")
+                # Fulfil the page request so the page doesn't stall
+                route.fulfill(response=resp)
+            except Exception as exc:
+                custom_error[0] = exc
+                route.continue_()
+        else:
+            route.continue_()
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -281,52 +315,37 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
 
         print(f"[albania] browser → {REPORT_PAGE_URL}")
 
-        # expect_request blocks until the page fires its first batchedDataV2
-        # request (signals session is established).  We start the waiter before
-        # goto so we can't miss the request if it fires during page load.
-        with page.expect_request("**/batchedDataV2**", timeout=90_000) as req_ctx:
+        # Register route handler BEFORE goto so no request is missed.
+        page.route("**/*", handle_route)
+
+        # expect_request unblocks as soon as the first batchedDataV2 fires
+        # (domcontentloaded is enough — networkidle never fires on Looker Studio).
+        with page.expect_request("**/batchedDataV2**", timeout=90_000):
             page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded",
                       timeout=60_000)
 
-        api_url = req_ctx.value.url
         if DEBUG:
-            print(f"[albania][debug] page issued batchedDataV2: {api_url}")
             cookies = context.cookies()
             print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
 
-        # Short pause — let additional session-auth XHRs settle before we POST
-        page.wait_for_timeout(3_000)
-
-        # Build our custom payload and issue the POST from *inside* the browser
-        # using window.fetch().  The browser supplies all auth headers.
-        payload = _build_payload(year_from, year_to)
-
-        if DEBUG:
-            print(f"[albania][debug] in-browser fetch → {api_url}")
-            print(f"[albania][debug] payload (first 500 chars): "
-                  f"{json.dumps(payload, ensure_ascii=False)[:500]}")
-
-        result = page.evaluate(
-            """async ([url, payload]) => {
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {'content-type': 'application/json'},
-                    body: JSON.stringify(payload),
-                });
-                return await resp.text();
-            }""",
-            [api_url, payload],
-        )
-
         browser.close()
 
-    print(f"[albania] in-browser POST → {len(result)} chars")
+    if custom_error[0]:
+        raise RuntimeError(
+            f"[albania] route.fetch() failed: {custom_error[0]}"
+        )
+    if custom_result[0] is None:
+        raise RuntimeError(
+            "[albania] batchedDataV2 was not intercepted — page may not have "
+            "fired any requests within the timeout"
+        )
+
+    text = custom_result[0]
+    print(f"[albania] route.fetch() result → {len(text)} chars")
     if DEBUG:
         print(f"[albania][debug] raw result (first 3000 chars):")
-        print(result[:3000])
+        print(text[:3000])
 
-    text = result
     if text.startswith(")]}'"):
         text = text[4:].lstrip("\n")
 
