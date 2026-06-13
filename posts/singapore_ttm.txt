@@ -1,0 +1,8 @@
+🇸🇬 Singapore - TTM Market Split
+
+Q?'20–Q?'20  vs  Q3'20–Q4'20
+−0.0pp  BEV     (0.1% → 0.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.0pp  ICE     (99.9% → 99.9%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
