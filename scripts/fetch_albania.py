@@ -278,89 +278,57 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
     from playwright.sync_api import sync_playwright
     import time as _time
 
-    custom_result: list[str | None]       = [None]
-    custom_error:  list[Exception | None] = [None]
+    # Capture mode: forward EVERY batchedDataV2 request unchanged and record
+    # the response.  Custom queries are impossible — the server only accepts
+    # queries whose fingerprint it pre-registered when the report loaded
+    # (PREFETCH_VALIDATION otherwise, regardless of displayType).  So we harvest
+    # the page's OWN component responses and parse whichever carries month-level
+    # fuel data.
+    #   captured[i] = {"component", "displayType", "datasourceId", "body", "text"}
+    captured: list[dict] = []
+    capture_error: list[Exception | None] = [None]
+
+    _re_component   = re.compile(r'"componentId":"([^"]+)"')
+    _re_displaytype = re.compile(r'"displayType":"([^"]+)"')
+    _re_datasource  = re.compile(r'"datasourceId":"([^"]+)"')
 
     def handle_route(route):
         req = route.request
-        referer  = req.headers.get("referer", "")
         is_batched = "batchedDataV2" in req.url
+        if not is_batched:
+            try:
+                route.continue_()
+            except Exception:
+                pass
+            return
 
-        if is_batched and custom_result[0] is None:
-            body = req.post_data or ""
-            # Only capture our specific component's request from VPWqB context.
-            # Do NOT replace the body — replacing it with a different displayType
-            # or queryFields triggers PREFETCH_VALIDATION even from VPWqB.
-            # The page's own pivot-table query for cd-p9hqinijec returns the
-            # same underlying data; we parse the original response instead.
-            is_our_component = COMPONENT_ID in body
-            vpwqb_in_referer = PAGE_ID_URL in referer
+        body = req.post_data or ""
+        m_comp = _re_component.search(body)
+        m_disp = _re_displaytype.search(body)
+        m_ds   = _re_datasource.search(body)
+        component   = m_comp.group(1) if m_comp else ""
+        displaytype = m_disp.group(1) if m_disp else ""
+        datasource  = m_ds.group(1)   if m_ds   else ""
 
-            if DEBUG:
-                print(f"[albania][debug] batchedDataV2 intercepted:")
-                print(f"  url={req.url}")
-                print(f"  referer={referer!r}")
-                print(f"  body_len={len(body)} "
-                      f"our_component={is_our_component} "
-                      f"vpwqb_referer={vpwqb_in_referer}")
-                print(f"  body[:300]: {body[:300]!r}")
-
-            if is_our_component and vpwqb_in_referer:
+        try:
+            resp = route.fetch()              # forward unchanged
+            text = resp.text()
+            # Only record requests against OUR datasource (the vehicle data).
+            if datasource == DATASOURCE_ID:
+                captured.append({
+                    "component":    component,
+                    "displayType":  displaytype,
+                    "datasourceId": datasource,
+                    "body":         body,
+                    "text":         text,
+                })
                 if DEBUG:
-                    print(f"[albania][debug] --> two-pass: original then custom")
-                    print(f"[albania][debug] FULL original body ({len(body)} chars): {body!r}")
-                try:
-                    # Pass 1: forward original body unchanged.  This lets the
-                    # concurrent VPWqB requests (dimension-filters, pie-chart,
-                    # etc.) establish the full VPWqB session context on the
-                    # server alongside this request.  The original pivot-table
-                    # query may fail (SNAPSHOT_WITH_NON_REAGGREGATABLE) — that's
-                    # expected; we just need the context establishment.
-                    resp1 = route.fetch()
-                    text1 = resp1.text()
-                    if DEBUG:
-                        print(f"[albania][debug] pass-1 original → "
-                              f"{len(text1)} chars")
-                        print(f"[albania][debug] pass-1 response[:300]: "
-                              f"{text1[:300]!r}")
-
-                    has_error = '"errorStatus"' in text1 and '"code":' in text1
-                    if not has_error:
-                        # Original succeeded — use it directly.
-                        custom_result[0] = text1
-                        route.fulfill(response=resp1)
-                    else:
-                        # Pass 2: now that VPWqB context is established by the
-                        # concurrent requests, retry with our custom flat-table
-                        # payload (Month × Fuel type × Record count, Autoveturë).
-                        # A flat-table query avoids the pivot reaggregation that
-                        # triggers SNAPSHOT_WITH_NON_REAGGREGATABLE.
-                        if DEBUG:
-                            print(f"[albania][debug] pass-1 has error; "
-                                  f"pass-2 with custom payload")
-                        resp2 = route.fetch(
-                            post_data=json.dumps(_build_payload(year_from, year_to)),
-                        )
-                        text2 = resp2.text()
-                        if DEBUG:
-                            print(f"[albania][debug] pass-2 custom → "
-                                  f"{len(text2)} chars")
-                            print(f"[albania][debug] pass-2 response[:300]: "
-                                  f"{text2[:300]!r}")
-                        custom_result[0] = text2
-                        route.fulfill(response=resp2)
-                except Exception as exc:
-                    custom_error[0] = exc
-                    try:
-                        route.continue_()
-                    except Exception:
-                        pass
-            else:
-                try:
-                    route.continue_()
-                except Exception:
-                    pass
-        else:
+                    print(f"[albania][debug] captured component={component} "
+                          f"displayType={displaytype} body_len={len(body)} "
+                          f"resp_len={len(text)}")
+            route.fulfill(response=resp)
+        except Exception as exc:
+            capture_error[0] = exc
             try:
                 route.continue_()
             except Exception:
@@ -413,11 +381,11 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
             cookies = context.cookies()
             print(f"[albania][debug] phase-2 cookies: {[c['name'] for c in cookies]}")
 
-        # Poll until handle_route captures a result; wait_for_timeout() keeps
-        # the Playwright event loop ticking so route events are delivered.
-        deadline = _time.time() + 180
-        while (custom_result[0] is None and custom_error[0] is None
-               and _time.time() < deadline):
+        # Collect responses for a fixed window; wait_for_timeout() keeps the
+        # Playwright event loop ticking so route events are delivered.  We let
+        # the page settle so all VPWqB components fire and re-fire.
+        deadline = _time.time() + 45
+        while _time.time() < deadline:
             page.wait_for_timeout(500)
 
         try:
@@ -427,26 +395,41 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
 
         browser.close()
 
-    if custom_result[0] is None and custom_error[0]:
-        raise RuntimeError(
-            f"[albania] route.fetch() failed: {custom_error[0]}"
-        )
-    if custom_result[0] is None:
-        raise RuntimeError(
-            "[albania] batchedDataV2 was not intercepted — page may not have "
-            "fired any requests within the timeout"
-        )
+    if capture_error[0]:
+        print(f"[albania] WARNING route.fetch() error during capture: "
+              f"{capture_error[0]}")
 
-    text = custom_result[0]
-    print(f"[albania] route.fetch() result → {len(text)} chars")
+    print(f"[albania] captured {len(captured)} responses on datasource "
+          f"{DATASOURCE_ID}")
+
+    # Dump every captured component so we can see which carries month-level data.
     if DEBUG:
-        print(f"[albania][debug] raw result (first 3000 chars):")
-        print(text[:3000])
+        for idx, cap in enumerate(captured):
+            print(f"[albania][debug] ── capture #{idx}: component="
+                  f"{cap['component']} displayType={cap['displayType']}")
+            print(f"[albania][debug]    FULL body: {cap['body']!r}")
+            print(f"[albania][debug]    FULL resp[:4000]: {cap['text'][:4000]!r}")
 
-    if text.startswith(")]}'"):
-        text = text[4:].lstrip("\n")
+    # Merge: parse every captured response; the data-bearing ones contribute
+    # rows, error/empty ones are skipped by _parse_response.
+    merged: dict = {"dataResponse": []}
+    for cap in captured:
+        text = cap["text"]
+        if text.startswith(")]}'"):
+            text = text[4:].lstrip("\n")
+        try:
+            obj = json.loads(text)
+        except Exception:
+            continue
+        merged["dataResponse"].extend(obj.get("dataResponse", []))
 
-    return json.loads(text)
+    if not captured:
+        raise RuntimeError(
+            "[albania] no batchedDataV2 responses captured on datasource "
+            f"{DATASOURCE_ID} — page may not have fired requests in time"
+        )
+
+    return merged
 
 
 # ── Response parsing ─────────────────────────────────────────────────────────
