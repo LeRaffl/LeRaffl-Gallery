@@ -242,6 +242,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | ANFAVEA Excel | `Whole` | Brazil | Monthly 10th 08:00 UTC |
 | [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | ANAC (Mercado + Cero y Bajas Emisiones) | `Whole` | Chile | Daily 08:00 UTC, 14th → EOM |
 | [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis | `Whole` (retail) + `Wholesale` to separate CSV | China | Daily 11:00 UTC, 1st → EOM |
+| [`fetch-albania.yml`](../../.github/workflows/fetch-albania.yml) | dpshtrr.al via R. Andrew CSV mirror (`robbieandrew.github.io`) | `Whole` (new + imported-used first registrations) | Albania | Daily 07:00 UTC, 10th → 28th |
 | [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | ANDI/FENALCO Boletín PDF (datos RUNT) | `Whole` (single Hybrid bucket — combined HEV+PHEV, like Türkiye) | Colombia | Daily 07:30 UTC, 5th → 25th |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | Denmark | Daily 05:15 UTC, 1st → 15th |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | Finland | Daily 04:40 UTC, 1st → 15th |
