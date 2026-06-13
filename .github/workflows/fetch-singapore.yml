@@ -53,13 +53,8 @@ jobs:
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
         run: |
-          B=https://www.lta.gov.sg/content/dam/ltagov/who_we_are/statistics_and_publications/statistics/pdf
-          echo "########## M09-Vehs_by_Fuel_Type ##########"
-          python scripts/fetch_singapore.py --pdf-dump "$B/M09-Vehs_by_Fuel_Type.pdf" || true
-          echo "########## M02-New_Reg_by_Quota ##########"
-          python scripts/fetch_singapore.py --pdf-dump "$B/M02-New_Reg_by_Quota.pdf" || true
-          echo "########## M03-Car_Regn_by_make ##########"
-          python scripts/fetch_singapore.py --pdf-dump "$B/M03-Car_Regn_by_make.pdf" || true
+          echo "===== parse M03 cars-by-make PDF (dry) ====="
+          python scripts/fetch_singapore.py --m03-dry
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'

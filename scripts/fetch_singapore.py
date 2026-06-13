@@ -229,6 +229,121 @@ def probe_singstat(session: requests.Session, rid: str) -> None:
               f"ncols={len(cols)} latest_keys={latest}")
 
 
+# LTA "New Registration of Cars by Make" — monthly PDF, current rolling half-year,
+# rows = Make x Importer x Fuel Type, per-month sub-columns HB/SDN/MPV/STW/SUV/Conv/Total.
+M03_URL = ("https://www.lta.gov.sg/content/dam/ltagov/who_we_are/"
+           "statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf")
+
+# Fuel phrases as they appear in the PDF's Fuel Type column, longest first so a
+# suffix match picks the most specific (…(Plug-In) before plain …-Electric).
+_FUEL_PHRASES = [
+    "petrol-electric (plug-in)", "diesel-electric (plug-in)",
+    "petrol-electric", "diesel-electric",
+    "petrol-cng", "electric", "petrol", "diesel", "cng", "others",
+]
+_BODY_TOKENS = {"HB", "SDN", "MPV", "STW", "SUV", "Conv", "Total"}
+
+
+def _cluster_lines(words: list, tol: float = 3.0) -> list:
+    """Group extracted words into lines by their vertical position."""
+    rows: list = []
+    for w in sorted(words, key=lambda x: (round(x["top"]), x["x0"])):
+        if rows and abs(w["top"] - rows[-1][0]) <= tol:
+            rows[-1][1].append(w)
+        else:
+            rows.append((w["top"], [w]))
+    return [sorted(ws, key=lambda x: x["x0"]) for _, ws in rows]
+
+
+def _num(text: str):
+    t = (text or "").replace(",", "").strip()
+    return int(t) if re.fullmatch(r"\d+", t) else None
+
+
+def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
+    """Parse the M03 PDF into {period: {VALUE_COL: total}} plus a stats dict.
+
+    Strategy (positional, robust to the PDF's zero-suppressed text):
+      * Per page, the sub-header line containing HB/SDN/.../Total gives the
+        x-centre of every body column; grouped in 7s, the 7th ("Total") of each
+        block is that month's total column. Month labels (YYYY-MM) order blocks.
+      * Each data row's fuel is the suffix of its label (Make Importer Fuel);
+        each numeric cell is assigned to the nearest column centre, and the
+        month-Total columns are summed per fuel.
+    """
+    import io
+    import pdfplumber
+
+    periods: dict[str, dict[str, float]] = {}
+    rows_ok = rows_bad = 0
+    unmapped: set[str] = set()
+
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        for page in pdf.pages:
+            words = page.extract_words(keep_blank_chars=False, use_text_flow=False)
+            lines = _cluster_lines(words)
+
+            # Month labels (ordered left→right).
+            month_words = [w for w in words if re.fullmatch(r"20\d{2}-\d{2}", w["text"])]
+            month_words.sort(key=lambda w: w["x0"])
+            months = [w["text"] for w in month_words]
+            if not months:
+                continue
+
+            # Sub-header line: the one carrying the body-column tokens.
+            sub = max(lines, key=lambda ln: sum(1 for w in ln if w["text"] in _BODY_TOKENS))
+            cols = [w for w in sub if w["text"] in _BODY_TOKENS]
+            # Expect 7 columns per month block.
+            if len(cols) < 7 or len(cols) % 7 != 0:
+                if debug:
+                    print(f"  [m03] page skipped: {len(cols)} body cols, months={months}")
+                continue
+            n_blocks = len(cols) // 7
+            block_months = months[:n_blocks]
+            col_centers = [(w["x0"] + w["x1"]) / 2 for w in cols]
+            label_left = min(col_centers) - 5  # labels sit left of the first column
+
+            sub_top = sub[0]["top"]
+            for ln in lines:
+                if ln[0]["top"] <= sub_top + 3:
+                    continue  # header region
+                label_words = [w for w in ln if (w["x0"] + w["x1"]) / 2 < label_left]
+                label = " ".join(w["text"] for w in label_words).strip().lower()
+                if not label or label.startswith(("total", "period", "make", "new registration")):
+                    continue
+                fuel = next((p for p in _FUEL_PHRASES if label.endswith(p)), None)
+                if fuel is None:
+                    # Some labels carry a trailing car-type note; try substring.
+                    fuel = next((p for p in _FUEL_PHRASES if p in label), None)
+                if fuel is None:
+                    unmapped.add(label)
+                    continue
+                col = classify_fuel(fuel)
+
+                # Assign each numeric to its nearest column; keep only those whose
+                # nearest column is a month "Total" (index 6,13,20,… within blocks).
+                row_assigned = 0
+                for w in ln:
+                    val = _num(w["text"])
+                    if val is None:
+                        continue
+                    cx = (w["x0"] + w["x1"]) / 2
+                    ci = min(range(len(col_centers)), key=lambda i: abs(col_centers[i] - cx))
+                    if ci % 7 != 6:
+                        continue  # a body sub-column, not the month total
+                    m = block_months[ci // 7]
+                    periods.setdefault(m, {c: 0.0 for c in VALUE_COLUMNS})[col] += val
+                    row_assigned += val
+                if row_assigned:
+                    rows_ok += 1
+                else:
+                    rows_bad += 1
+
+    stats = {"rows_ok": rows_ok, "rows_bad": rows_bad, "unmapped": sorted(unmapped),
+             "periods": sorted(periods)}
+    return periods, stats
+
+
 def pdf_dump(session: requests.Session, url: str) -> None:
     """Download a PDF and print its extracted text + first-page tables, to see
     which LTA file holds new car registrations by fuel type."""
@@ -428,6 +543,9 @@ def main() -> None:
                     help="Search data.gov.sg for datasets matching QUERY and print each "
                          "datastore resource's latest month + fields, then exit. Use to "
                          "locate the live resource if the default id goes stale.")
+    ap.add_argument("--m03-dry", metavar="URL", nargs="?", const="default", default=None,
+                    help="Download the LTA M03 cars-by-make PDF (or URL), parse it, and "
+                         "print monthly fuel totals without writing. For validation.")
     ap.add_argument("--pdf-dump", metavar="URL", default=None,
                     help="Download a PDF and print its text + first-page tables, then exit.")
     ap.add_argument("--scrape", metavar="URL", default=None,
@@ -448,6 +566,23 @@ def main() -> None:
 
     if args.discover:
         discover(session, args.discover)
+        return
+
+    if args.m03_dry:
+        url = args.m03_dry if args.m03_dry.startswith("http") else M03_URL
+        r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
+        print(f"[m03] GET {url} -> HTTP {r.status_code} ({len(r.content)} bytes)")
+        r.raise_for_status()
+        periods, stats = parse_m03(r.content, debug=True)
+        print(f"[m03] rows_ok={stats['rows_ok']} rows_bad={stats['rows_bad']} "
+              f"periods={stats['periods']}")
+        if stats["unmapped"]:
+            print(f"[m03] WARNING unmapped fuel labels: {stats['unmapped'][:20]}")
+        for m in sorted(periods):
+            c = periods[m]
+            tot = sum(c.values())
+            print(f"  {m}  " + "  ".join(f"{k}={c[k]:.0f}" for k in VALUE_COLUMNS)
+                  + f"  TOTAL={tot:.0f}")
         return
 
     if args.pdf_dump:
