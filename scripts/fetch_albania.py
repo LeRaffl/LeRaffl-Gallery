@@ -332,6 +332,40 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                     pass
             return False
 
+        # JS that locates a month row by its "<Mon> <YYYY>" label and tags that
+        # row's "only" single-select link with data-alb-only="1" so Playwright can
+        # force-click it.  We MUST use "only" (not a plain row click): the Muaji
+        # control is a multi-select list with every month ON by default, so a plain
+        # click merely toggles ONE month OFF (yielding the complement set, not a
+        # single month).  The "only" link deselects all other months, isolating one.
+        # Returns the row's outerHTML (truncated) for diagnostics, or an error tag.
+        _JS_TAG_ONLY = r"""
+(monthLabel) => {
+    document.querySelectorAll('[data-alb-only]').forEach(
+        e => e.removeAttribute('data-alb-only'));
+    const cands = Array.from(document.querySelectorAll('span,div,a,label'));
+    const label = cands.find(
+        e => !e.closest('svg') && e.textContent.trim() === monthLabel);
+    if (!label) return 'ERR:no-label';
+    let row = label;
+    for (let i = 0; i < 6 && row.parentElement; i++) {
+        row = row.parentElement;
+        if (row.closest('svg')) break;
+        const only = Array.from(row.querySelectorAll('*')).find(
+            e => e.childElementCount === 0 && !e.closest('svg') &&
+                 e.textContent.trim().toLowerCase() === 'only');
+        if (only) {
+            only.setAttribute('data-alb-only', '1');
+            // reveal in case the link is hover-gated (opacity/visibility)
+            row.dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));
+            only.dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));
+            return 'OK:' + row.outerHTML.substring(0, 300);
+        }
+    }
+    return 'ERR:no-only:' + row.outerHTML.substring(0, 300);
+}
+"""
+
         for year in range(year_from, year_to + 1):
             months_to_try = [
                 (f"{abbr} {year}", f"{year}-{num}") for abbr, num in _MONTH_ABBR
@@ -401,28 +435,29 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                             print("[albania][debug] could not re-open Muaji popup")
                         break
 
-                # Try to click the month row.  Prefer the row's "only" link
-                # (single-select); fall back to the row label itself.
+                # Tag this month's "only" single-select link, then force-click it.
+                # force=True bypasses the ".popup-backdrop intercepts pointer
+                # events" actionability error (the link sits behind the backdrop).
+                tag_result = page.evaluate(_JS_TAG_ONLY, month_label)
+                if month_label == months_to_try[0][0] and DEBUG:
+                    print(f"[albania][debug] {month_label!r} tag → {tag_result[:320]}")
+
+                if not tag_result.startswith("OK:"):
+                    if DEBUG and not tag_result.startswith("ERR:no-label"):
+                        print(f"[albania][debug] {month_label!r} → {tag_result[:200]}")
+                    continue  # month not present in the popup
+
                 clicked = False
-                for target in (
-                    page.get_by_text(month_label, exact=True),
-                    page.get_by_text(month_label, exact=False),
-                ):
-                    try:
-                        loc = target.first
-                        if loc.count() == 0:
-                            continue
-                        loc.click(timeout=3000, force=True)
-                        clicked = True
-                        break
-                    except Exception as exc:
-                        if DEBUG:
-                            print(f"[albania][debug] click {month_label!r} "
-                                  f"failed: {str(exc)[:120]}")
+                try:
+                    page.locator("[data-alb-only='1']").first.click(
+                        timeout=3000, force=True)
+                    clicked = True
+                except Exception as exc:
+                    if DEBUG:
+                        print(f"[albania][debug] 'only' click {month_label!r} "
+                              f"failed: {str(exc)[:120]}")
 
                 if not clicked:
-                    if DEBUG:
-                        print(f"[albania][debug] {month_label!r} not clickable")
                     continue
 
                 # Wait up to 15 s for a fresh batchedDataV2 response.
