@@ -26,12 +26,26 @@ We therefore:
      report page, which lets Google establish the session and fires the page's
      OWN batchedDataV2 requests.
   2. **Intercept** (route.fetch → forward unchanged, record response) every
-     batchedDataV2 request that targets datasource ``013d0728-…``.
-  3. **Iterate the Muaji (Month) filter**: click each month option in the
-     dropdown, wait for the updated batchedDataV2 response, and record the
-     (period, response) pair.
+     batchedDataV2 request that targets datasource ``013d0728-…``.  The page's
+     cd-p9hqinijec component returns a vehicle_type × fuel_type × count table
+     for whatever the Muaji (Month) filter currently has selected.
+  3. **Drive the Muaji filter by differencing.**  The Muaji control is a
+     multi-select checkbox list with every month selected by default (so the
+     initial load is the year-to-date total = our *baseline*).  Its per-row
+     "only" single-select link is display:none until a real CSS :hover and
+     cannot be force-clicked, so instead we toggle each month OFF one at a time
+     in ascending order, capturing the report after each toggle.  Each capture
+     is the *complement* (sum of the months still selected):
+         after toggling m_i off →  A_i = sum(months > m_i)
+     The true single-month value is the telescoping difference
+         m_i = A_{i-1} − A_i,   with A_0 = baseline, A_last = 0
+     computed per fuel column (see ``_difference_to_rows``).
   4. **Parse** each captured response: vehicle_type × fuel_type × count flat
      table; keep only ``Autoveturë`` rows; aggregate by fuel type.
+
+This was cross-checked against an authoritative monthly car-sales reference:
+the differenced 2026 months (Jan 5673, Feb 5905, Mar 6103, Apr 6732, May 6358)
+matched it exactly, confirming the toggle semantics and the fuel mapping.
 
 Note: the English DPSHTRR report (407ce08b-…) cannot be used — its
 batchedDataV2 responses fail with SNAPSHOT_WITH_NON_REAGGREGATABLE because the
@@ -222,8 +236,6 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             merged["dataResponse"].extend(obj.get("dataResponse", []))
         return merged
 
-    result_pairs: list[tuple[str, dict]] = []
-
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
@@ -290,210 +302,135 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                       f"resp_len={len(cap['text'])}")
                 print(f"[albania][debug]   resp[:2000]: {cap['text'][:2000]!r}")
 
-        # ── Muaji (Month) filter iteration ────────────────────────────────────
+        # ── Muaji (Month) filter: collect baseline + per-month complements ──────
         #
-        # The Muaji control is a Looker "list" filter.  Clicking its title opens a
-        # popup (CANVAS-CONTROL-EDITOR) whose rows are labelled "<Mon> <YYYY>" in
-        # the browser locale (en-US → "Jan 2026", "Feb 2026", … "May 2026"), each
-        # with an "only" single-select link and a Record Count.
+        # The Muaji control is an AngularJS Material *multi-select* checkbox list
+        # (class "item item-multi selected"; md-checkbox ng-click="toggleItem")
+        # with EVERY month selected by default.  A plain row click toggles ONE
+        # month OFF.  The per-row "only" single-select link is display:none until a
+        # real CSS :hover and cannot be force-clicked (dispatchEvent can't trigger
+        # :hover), so single-selecting a month directly is not possible.
         #
-        # We select one month at a time using the row's "only" link (single-select,
-        # so no need to clear a previous selection), then wait for cd-p9hqinijec to
-        # re-fire with that month's vehicle×fuel×count data.
+        # Instead we read the months from the popup and toggle them OFF one at a
+        # time in ascending order, capturing the report's vehicle×fuel×count after
+        # each toggle.  Each capture is the COMPLEMENT (months still selected):
+        #     after toggling m_i off →  A_i = sum(months > m_i)
+        # True single-month values are recovered by differencing in
+        # _difference_to_rows:  m_i = A_{i-1} − A_i, with A_0 = baseline (all on).
         #
-        # Clicking is done with force=True: the option text resolves to an element
-        # behind the .popup-backdrop, which otherwise makes Playwright report
-        # "popup-backdrop intercepts pointer events".  force=True skips that
-        # actionability check (we know the element is the intended target).
+        # Toggling uses Playwright force-click on the visible "<Mon> <YYYY>" label
+        # (proven to fire batchedDataV2; force bypasses the ".popup-backdrop
+        # intercepts pointer events" actionability error).
 
-        # English abbreviated month labels as rendered by the en-US canvas control.
-        _MONTH_ABBR = [
-            ("Jan", "01"), ("Feb", "02"), ("Mar", "03"), ("Apr", "04"),
-            ("May", "05"), ("Jun", "06"), ("Jul", "07"), ("Aug", "08"),
-            ("Sep", "09"), ("Oct", "10"), ("Nov", "11"), ("Dec", "12"),
-        ]
+        _MONTH_NUM = {
+            "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+            "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+            "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12",
+        }
 
         def _open_muaji() -> bool:
             """Click the Muaji control title to open its month-list popup."""
-            for selector in (
-                "text=Muaji",
-                "[aria-label*='Muaji']",
-                "[title*='Muaji']",
-            ):
+            for selector in ("text=Muaji", "[aria-label*='Muaji']",
+                             "[title*='Muaji']"):
                 try:
                     el = page.locator(selector).first
                     if el.is_visible(timeout=2000):
                         el.click(timeout=5000)
-                        page.wait_for_timeout(1500)
-                        if DEBUG:
-                            print(f"[albania][debug] opened Muaji via {selector!r}")
+                        page.wait_for_timeout(1200)
                         return True
                 except Exception:
                     pass
             return False
 
-        # JS that locates a month row by its "<Mon> <YYYY>" label and tags that
-        # row's "only" single-select link with data-alb-only="1" so Playwright can
-        # force-click it.  We MUST use "only" (not a plain row click): the Muaji
-        # control is a multi-select list with every month ON by default, so a plain
-        # click merely toggles ONE month OFF (yielding the complement set, not a
-        # single month).  The "only" link deselects all other months, isolating one.
-        # Returns the row's outerHTML (truncated) for diagnostics, or an error tag.
-        _JS_TAG_ONLY = r"""
-(monthLabel) => {
-    document.querySelectorAll('[data-alb-only]').forEach(
-        e => e.removeAttribute('data-alb-only'));
-    const cands = Array.from(document.querySelectorAll('span,div,a,label'));
-    const label = cands.find(
-        e => !e.closest('svg') && e.textContent.trim() === monthLabel);
-    if (!label) return 'ERR:no-label';
-    let row = label;
-    for (let i = 0; i < 6 && row.parentElement; i++) {
-        row = row.parentElement;
-        if (row.closest('svg')) break;
-        const only = Array.from(row.querySelectorAll('*')).find(
-            e => e.childElementCount === 0 && !e.closest('svg') &&
-                 e.textContent.trim().toLowerCase() === 'only');
-        if (only) {
-            only.setAttribute('data-alb-only', '1');
-            // reveal in case the link is hover-gated (opacity/visibility)
-            row.dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));
-            only.dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));
-            return 'OK:' + row.outerHTML.substring(0, 300);
-        }
+        _JS_MONTH_LABELS = r"""
+() => {
+    const re = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (20\d\d)$/;
+    const out = []; const seen = new Set();
+    for (const e of document.querySelectorAll('span,div,label')) {
+        if (e.closest('svg')) continue;
+        const t = e.textContent.trim();
+        if (re.test(t) && !seen.has(t)) { seen.add(t); out.push(t); }
     }
-    return 'ERR:no-only:' + row.outerHTML.substring(0, 300);
+    return JSON.stringify(out);
 }
 """
 
-        for year in range(year_from, year_to + 1):
-            months_to_try = [
-                (f"{abbr} {year}", f"{year}-{num}") for abbr, num in _MONTH_ABBR
-            ]
+        def _label_to_period(label: str) -> str | None:
+            try:
+                abbr, yr = label.split()
+            except ValueError:
+                return None
+            num = _MONTH_NUM.get(abbr)
+            return f"{yr}-{num}" if num else None
 
-            if not _open_muaji():
-                if DEBUG:
-                    print("[albania][debug] Muaji control not found")
-                    try:
-                        page.screenshot(path="/tmp/albania_no_muaji.png")
-                    except Exception:
-                        pass
-                ytd = _merge_slice(initial_start)
-                if ytd["dataResponse"]:
-                    fallback_period = datetime.now().strftime("%Y-%m")
-                    result_pairs.append((fallback_period, ytd))
-                    print(f"[albania] WARNING: Muaji control not found; "
-                          f"using YTD data as period={fallback_period}")
-                continue
+        # Baseline = the all-months-selected state from the initial page load.
+        baseline_merged = _merge_slice(initial_start)
 
+        if not _open_muaji():
             if DEBUG:
-                # Dump the Muaji popup's clickable month rows so we can see the
-                # exact markup (tag/class/role/text) and refine selectors.
                 try:
-                    rows = page.evaluate(r"""
-                        () => {
-                            const out = [];
-                            const re = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+20\d\d\b/;
-                            const all = document.querySelectorAll(
-                                'canvas-control-editor *, .popup-backdrop ~ * *'
-                            );
-                            for (const e of all) {
-                                if (e.closest('svg')) continue;
-                                const own = Array.from(e.childNodes)
-                                    .filter(n => n.nodeType === 3)
-                                    .map(n => n.textContent).join('').trim();
-                                if (re.test(own)) {
-                                    out.push({
-                                        tag: e.tagName,
-                                        cls: (e.className||'').toString().substring(0,60),
-                                        role: e.getAttribute('role') || '',
-                                        text: own.substring(0, 40)
-                                    });
-                                }
-                                if (out.length >= 25) break;
-                            }
-                            return JSON.stringify(out);
-                        }
-                    """)
-                    print(f"[albania][debug] muaji rows: {rows[:2000]}")
-                except Exception as exc:
-                    print(f"[albania][debug] muaji row dump failed: {exc}")
-                try:
-                    page.screenshot(path="/tmp/albania_muaji_open.png")
+                    page.screenshot(path="/tmp/albania_no_muaji.png")
                 except Exception:
                     pass
+            browser.close()
+            raise RuntimeError(
+                "[albania] Muaji month control not found on the report page")
 
-            months_found = 0
+        try:
+            present_labels = json.loads(page.evaluate(_JS_MONTH_LABELS))
+        except Exception:
+            present_labels = []
+        if DEBUG:
+            print(f"[albania][debug] present month labels: {present_labels}")
 
-            for month_label, period in months_to_try:
-                cap_before = len(captured)
+        # (label, period) within the requested year range, ascending by period.
+        present: list[tuple[str, str]] = []
+        for lbl in present_labels:
+            p = _label_to_period(lbl)
+            if p and year_from <= int(p[:4]) <= year_to:
+                present.append((lbl, p))
+        present.sort(key=lambda x: x[1])
+        present_periods = [p for _, p in present]
+        print(f"[albania] Muaji months present: {present_periods}")
 
-                # Make sure the popup is open before each selection.
-                if month_label != months_to_try[0][0]:
-                    if not _open_muaji():
-                        if DEBUG:
-                            print("[albania][debug] could not re-open Muaji popup")
-                        break
+        if not present:
+            browser.close()
+            raise RuntimeError(
+                "[albania] no month labels found in the Muaji popup")
 
-                # Tag this month's "only" single-select link, then force-click it.
-                # force=True bypasses the ".popup-backdrop intercepts pointer
-                # events" actionability error (the link sits behind the backdrop).
-                tag_result = page.evaluate(_JS_TAG_ONLY, month_label)
-                if month_label == months_to_try[0][0] and DEBUG:
-                    print(f"[albania][debug] {month_label!r} tag → {tag_result[:320]}")
-
-                if not tag_result.startswith("OK:"):
-                    if DEBUG and not tag_result.startswith("ERR:no-label"):
-                        print(f"[albania][debug] {month_label!r} → {tag_result[:200]}")
-                    continue  # month not present in the popup
-
-                clicked = False
-                try:
-                    page.locator("[data-alb-only='1']").first.click(
-                        timeout=3000, force=True)
-                    clicked = True
-                except Exception as exc:
-                    if DEBUG:
-                        print(f"[albania][debug] 'only' click {month_label!r} "
-                              f"failed: {str(exc)[:120]}")
-
-                if not clicked:
-                    continue
-
-                # Wait up to 15 s for a fresh batchedDataV2 response.
-                got_data = False
-                wait_deadline = _time.time() + 15
-                while _time.time() < wait_deadline:
-                    page.wait_for_timeout(500)
-                    if len(captured) > cap_before:
-                        page.wait_for_timeout(2000)   # let batch complete
-                        got_data = True
-                        break
-
-                if got_data:
-                    merged = _merge_slice(cap_before)
-                    result_pairs.append((period, merged))
-                    months_found += 1
-                    print(f"[albania] month {month_label} → {period} "
-                          f"({len(captured) - cap_before} new responses)")
-                elif DEBUG:
-                    print(f"[albania][debug] no data after clicking {month_label!r}")
-
-            if months_found == 0:
+        # Toggle each present month OFF (ascending) and capture the complement.
+        complements: list[tuple[str, dict]] = []
+        for lbl, period in present:
+            if not _open_muaji():
                 if DEBUG:
-                    print("[albania][debug] no month options clicked; YTD fallback")
-                    try:
-                        page.screenshot(path="/tmp/albania_no_months.png")
-                    except Exception:
-                        pass
-                ytd = _merge_slice(initial_start)
-                if ytd["dataResponse"]:
-                    fallback_period = datetime.now().strftime("%Y-%m")
-                    result_pairs.append((fallback_period, ytd))
-                    print(f"[albania] WARNING: no month options clicked; "
-                          f"using YTD data as period={fallback_period}")
-            else:
-                print(f"[albania] month iteration: {months_found} months for {year}")
+                    print("[albania][debug] could not re-open Muaji popup")
+            cap_before = len(captured)
+            try:
+                page.get_by_text(lbl, exact=True).first.click(
+                    timeout=3000, force=True)
+            except Exception as exc:
+                if DEBUG:
+                    print(f"[albania][debug] toggle {lbl!r} failed: "
+                          f"{str(exc)[:120]}")
+                continue
+
+            got = False
+            wait_deadline = _time.time() + 15
+            while _time.time() < wait_deadline:
+                page.wait_for_timeout(500)
+                if len(captured) > cap_before:
+                    page.wait_for_timeout(2000)   # let the batch complete
+                    got = True
+                    break
+
+            if got:
+                complements.append((period, _merge_slice(cap_before)))
+                print(f"[albania] toggled {lbl} off → complement after {period} "
+                      f"({len(captured) - cap_before} responses)")
+            elif DEBUG:
+                # Expected for the last (earliest-remaining) month: toggling it
+                # empties the selection so the report fires nothing.
+                print(f"[albania][debug] no data after toggling {lbl!r}")
 
         try:
             page.unroute("**/*", handle_route)
@@ -504,122 +441,157 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
     if capture_error[0]:
         print(f"[albania] WARNING route.fetch() error: {capture_error[0]}")
 
-    print(f"[albania] captured {len(captured)} total batchedDataV2 responses "
-          f"on {DATASOURCE_ID}")
+    print(f"[albania] captured {len(captured)} total batchedDataV2 responses on "
+          f"{DATASOURCE_ID}; {len(complements)} month complements")
 
-    if not result_pairs:
-        raise RuntimeError(
-            "[albania] no data collected — page may not have loaded correctly, "
-            f"or datasource {DATASOURCE_ID} is not reachable from this network"
-        )
-
-    return result_pairs
+    return {
+        "baseline":         baseline_merged,
+        "complements":      complements,
+        "present_periods":  present_periods,
+    }
 
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _parse_response(data: dict, period: str) -> dict:
-    """Parse a single batchedDataV2 response captured while month ``period``
-    was active in the Muaji filter.
+def _parse_fuel_counts(data: dict) -> dict:
+    """Aggregate Autoveturë (passenger-car) registrations by gallery fuel column
+    from the first qualifying vehicle×fuel×count subset of a batchedDataV2
+    response.
 
-    The Albanian cd-p9hqinijec 'main' sub-response returns a flat table:
-        vehicle_type (string) × fuel_type (string) × count (long)
-
-    Column order is not fixed — we detect each column by sampling its string
-    values against known vehicle / fuel type sets.  Only rows where
-    vehicle_type == ``VEHICLE_FILTER_VALUE`` (Autoveturë) are kept.
+    The cd-p9hqinijec 'main' sub-response is a flat table whose three columns are
+    vehicle_type (string), fuel_type (string) and Record Count (long).  Column
+    order is not fixed, so we detect each by sampling values against known
+    vehicle / fuel type sets.  Returns ``{col: int}`` over VALUE_COLS (zeros if
+    no qualifying subset is found, e.g. an empty or error response).
     """
-    rows: dict = {}
+    counts = {c: 0 for c in VALUE_COLS}
 
     for dr in data.get("dataResponse", []):
         err = dr.get("errorStatus")
         if err:
-            code    = err.get("code", "?")
-            reason  = err.get("reasonStr", "?")
-            cat     = err.get("errorCategoryStr", "?")
-            print(f"[albania] API error: code={code} reason={reason} "
-                  f"category={cat}")
+            if DEBUG:
+                print(f"[albania][debug] API error in response: "
+                      f"{err.get('reasonStr', '?')}")
             continue
 
         for subset in dr.get("dataSubset", []):
             tds  = subset.get("dataset", {}).get("tableDataset", {})
             cols = tds.get("column", [])
             size = tds.get("size", 0)
-
-            if size == 0 or len(cols) < 2:
+            if size == 0 or len(cols) < 3:
                 continue
 
-            # ── Detect column roles by sampling values ──────────────────────
-            vehicle_idx = None
-            fuel_idx    = None
-            count_idx   = None
-
+            vehicle_idx = fuel_idx = count_idx = None
             for idx, col in enumerate(cols):
                 str_vals = col.get("stringColumn", {}).get("values", [])
                 lng_vals = col.get("longColumn",   {}).get("values", [])
-
                 if lng_vals and count_idx is None:
                     count_idx = idx
                     continue
-
-                sample = set(str_vals[:20])
+                sample = set(str_vals[:25])
                 if sample & _VEHICLE_TYPE_HINTS and vehicle_idx is None:
                     vehicle_idx = idx
                 elif sample & _FUEL_TYPE_HINTS and fuel_idx is None:
                     fuel_idx = idx
 
-            if DEBUG:
-                col_info = tds.get("columnInfo", [])
-                names = [c.get("name") for c in col_info]
-                print(f"[albania][debug] subset size={size} cols={names} "
-                      f"vehicle_idx={vehicle_idx} fuel_idx={fuel_idx} "
-                      f"count_idx={count_idx}")
-
             if vehicle_idx is None or fuel_idx is None or count_idx is None:
-                if DEBUG:
-                    print("[albania][debug]   skipped (column roles not detected)")
                 continue
 
             vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
             fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
             count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
-
             null_vehicle = set(cols[vehicle_idx].get("nullIndex", []))
             null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
             null_count   = set(cols[count_idx  ].get("nullIndex", []))
 
+            local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
                 if i in null_vehicle or i in null_fuel:
                     continue
-                vehicle = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                if vehicle != VEHICLE_FILTER_VALUE:
+                if (vehicle_vals[i] if i < len(vehicle_vals) else "") != \
+                        VEHICLE_FILTER_VALUE:
                     continue
-
                 fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
                 count = (int(count_vals[i])
-                         if (i not in null_count and i < len(count_vals))
-                         else 0)
-                col_name = _fuel_col(fuel)
-                key = (period, VARIANT)
+                         if (i not in null_count and i < len(count_vals)) else 0)
+                local[_fuel_col(fuel)] += count
 
-                if key not in rows:
-                    rows[key] = {
-                        "period":        period,
-                        "time_interval": "monthly",
-                        "variant":       VARIANT,
-                        "source":        SOURCE,
-                        "BEV":    0.0, "PHEV":   0.0, "HEV":   0.0,
-                        "PETROL": 0.0, "DIESEL": 0.0, "OTHERS": 0.0,
-                        "TOTAL":  0.0, "notes":  "",
-                    }
-                rows[key][col_name] = rows[key].get(col_name, 0.0) + count
+            if DEBUG:
+                print(f"[albania][debug] fuel counts (subset size={size}): "
+                      f"{local} total={sum(local.values())}")
+            return local   # first qualifying vehicle×fuel×count subset wins
 
-    # Compute TOTAL; zero optional cols → empty string (gallery convention)
-    for row in rows.values():
-        row["TOTAL"] = sum(row[c] for c in VALUE_COLS)
-        for col in ["BEV", "PHEV", "HEV", "OTHERS"]:
-            if row[col] == 0.0:
+    return counts
+
+
+def _difference_to_rows(fetched: dict) -> dict:
+    """Recover true single-month gallery rows from the all-months baseline and
+    the per-month complement captures.
+
+    With months sorted ascending m_1 < … < m_k and A_i = the report total after
+    toggling m_i (and all earlier months) OFF — i.e. the sum over months still
+    selected (> m_i) — the single-month value is the telescoping difference
+        m_i = A_{i-1} − A_i,   where A_0 = baseline (all months on)
+    and A_k = 0 (toggling the last month empties the selection → no data).
+    This is done per fuel column.
+    """
+    baseline = _parse_fuel_counts(fetched["baseline"])
+    comp = {p: _parse_fuel_counts(m) for p, m in fetched["complements"]}
+    present = fetched["present_periods"]            # ascending YYYY-MM
+
+    if DEBUG:
+        print(f"[albania][debug] baseline (all months): {baseline} "
+              f"total={sum(baseline.values())}")
+        for p in present:
+            if p in comp:
+                print(f"[albania][debug] A[{p}] (after toggling {p} off): "
+                      f"{comp[p]} total={sum(comp[p].values())}")
+
+    # Guard: toggling the first month OFF must REDUCE the total — this proves the
+    # control defaulted to all-months-selected, which differencing relies on.
+    if present and present[0] in comp:
+        if sum(comp[present[0]].values()) >= sum(baseline.values()):
+            raise RuntimeError(
+                "[albania] Muaji filter is not all-months-selected by default "
+                f"(baseline total={sum(baseline.values())}, after toggling "
+                f"{present[0]} off={sum(comp[present[0]].values())}); the "
+                "differencing assumption is invalid — aborting to avoid bad data")
+
+    rows: dict = {}
+    prev = baseline
+    zero = {c: 0 for c in VALUE_COLS}
+    for i, p in enumerate(present):
+        a = comp.get(p)
+        if a is None:
+            if i == len(present) - 1:
+                a = zero            # last month: empty selection → no capture
+            else:
+                print(f"[albania] WARNING: missing complement for {p}; cannot "
+                      f"difference this and the following month reliably")
+                prev = None
+                continue
+        if prev is None:
+            prev = a
+            continue
+
+        month = {c: max(0, prev[c] - a[c]) for c in VALUE_COLS}
+        row = {
+            "period":        p,
+            "time_interval": "monthly",
+            "variant":       VARIANT,
+            "source":        SOURCE,
+            "BEV":    month["BEV"],    "PHEV":   month["PHEV"],
+            "HEV":    month["HEV"],    "PETROL": month["PETROL"],
+            "DIESEL": month["DIESEL"], "OTHERS": month["OTHERS"],
+            "TOTAL":  sum(month.values()),
+            "notes":  "",
+        }
+        # Zero optional cols → empty string (gallery convention).
+        for col in ("BEV", "PHEV", "HEV", "OTHERS"):
+            if row[col] == 0:
                 row[col] = ""
+        rows[(p, VARIANT)] = row
+        prev = a
 
     return rows
 
@@ -676,12 +648,8 @@ def main() -> None:
                     help="Accepted for parity (commit-gated downstream).")
     args = ap.parse_args()
 
-    month_pairs = _fetch_with_browser_session(args.year_from, args.year_to)
-
-    rows: dict = {}
-    for period, data in month_pairs:
-        period_rows = _parse_response(data, period)
-        rows.update(period_rows)
+    fetched = _fetch_with_browser_session(args.year_from, args.year_to)
+    rows = _difference_to_rows(fetched)
 
     if not rows:
         print("[albania] no data rows parsed — the report may not yet have "
