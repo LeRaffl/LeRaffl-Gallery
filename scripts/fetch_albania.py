@@ -252,36 +252,41 @@ def _build_payload(year_from: int, year_to: int) -> dict:
 
 def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
     """Load the public Looker report in headless Chromium, intercept the
-    page's first batchedDataV2 request, and replay it with our custom
-    (month × fuel) payload via route.fetch().
+    page's first batchedDataV2 request from page VPWqB, and replay it with
+    our custom (month × fuel) payload via route.fetch().
 
     Why route.fetch() instead of page.evaluate() + fetch():
-    - page.evaluate() fetch() only carries cookies (credentials:'include')
-      but Looker Studio requires an x-rap-xsrf-token REQUEST HEADER that
-      is set by Google's JS and is NOT accessible as a cookie.
     - route.fetch() replays the intercepted request with ALL of its original
-      headers (including x-rap-xsrf-token), but with a replacement body.
-      This passes Google's PREFETCH_VALIDATION.
+      headers, preserving the full browser session context that Google requires
+      to pass PREFETCH_VALIDATION.
+
+    Why we filter by referer:
+    - The ?s= sharing link may redirect to the report's default page (CU40B).
+      Our componentId lives on VPWqB; a batchedDataV2 sent from CU40B context
+      returns PREFETCH_VALIDATION even with valid session cookies.
+    - We skip any batchedDataV2 whose referer doesn't contain PAGE_ID_URL and
+      explicitly re-navigate to VPWqB if the initial load lands elsewhere.
 
     Looker Studio never reaches 'networkidle' (continuous polling), so we
-    use domcontentloaded + page.route() to intercept the first batchedDataV2
-    before the page fully loads."""
+    use domcontentloaded + page.route() to intercept batchedDataV2."""
     from playwright.sync_api import sync_playwright
 
-    custom_result: list[str | None]    = [None]
+    custom_result: list[str | None]       = [None]
     custom_error:  list[Exception | None] = [None]
 
     def handle_route(route):
-        if "batchedDataV2" in route.request.url and custom_result[0] is None:
+        req = route.request
+        referer = req.headers.get("referer", "")
+        is_batched = "batchedDataV2" in req.url
+        on_vpwqb   = PAGE_ID_URL in referer
+
+        if is_batched and on_vpwqb and custom_result[0] is None:
             if DEBUG:
-                hdrs = route.request.all_headers()
-                print(f"[albania][debug] intercepted batchedDataV2: "
-                      f"{route.request.url}")
+                print(f"[albania][debug] intercepted batchedDataV2: {req.url}")
+                print(f"[albania][debug] referer: {referer}")
                 print(f"[albania][debug] request headers: "
-                      f"{list(hdrs.keys())}")
+                      f"{list(req.all_headers().keys())}")
             try:
-                # Replay the request with our custom body; all original
-                # headers (incl. x-rap-xsrf-token) are preserved by default.
                 resp = route.fetch(
                     post_data=json.dumps(_build_payload(year_from, year_to)),
                 )
@@ -289,13 +294,25 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
                 if DEBUG:
                     print(f"[albania][debug] route.fetch → "
                           f"{len(custom_result[0])} chars")
-                # Fulfil the page request so the page doesn't stall
                 route.fulfill(response=resp)
             except Exception as exc:
                 custom_error[0] = exc
+                try:
+                    route.continue_()
+                except Exception:
+                    pass
+        elif is_batched and not on_vpwqb and DEBUG:
+            print(f"[albania][debug] skipping batchedDataV2 from non-VPWqB "
+                  f"referer: {referer!r}")
+            try:
                 route.continue_()
+            except Exception:
+                pass
         else:
-            route.continue_()
+            try:
+                route.continue_()
+            except Exception:
+                pass
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -313,13 +330,26 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         )
         page = context.new_page()
 
-        print(f"[albania] browser → {REPORT_PAGE_URL}")
-
-        # Register route handler BEFORE goto so no request is missed.
+        # Register route handler BEFORE first goto so no request is missed.
         page.route("**/*", handle_route)
 
-        # domcontentloaded is enough — networkidle never fires on Looker Studio.
+        print(f"[albania] browser → {REPORT_PAGE_URL}")
         page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded", timeout=60_000)
+
+        if DEBUG:
+            print(f"[albania][debug] landed on: {page.url}")
+
+        # The ?s= sharing link may redirect to the report default page instead
+        # of VPWqB.  Navigate directly to VPWqB if that happened.
+        if PAGE_ID_URL not in page.url:
+            direct_url = (
+                f"https://lookerstudio.google.com/reporting/{REPORT_ID}"
+                f"/page/{PAGE_ID_URL}"
+            )
+            print(f"[albania] not on VPWqB; navigating directly → {direct_url}")
+            page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
+            if DEBUG:
+                print(f"[albania][debug] now on: {page.url}")
 
         if DEBUG:
             cookies = context.cookies()
@@ -329,14 +359,21 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         # runs asynchronously relative to goto().  wait_for_timeout() keeps the
         # Playwright event loop ticking so route events can be delivered.
         import time as _time
-        deadline = _time.time() + 60
+        deadline = _time.time() + 90
         while (custom_result[0] is None and custom_error[0] is None
                and _time.time() < deadline):
             page.wait_for_timeout(500)
 
+        # Unregister handler before close to prevent in-flight route races.
+        try:
+            page.unroute("**/*", handle_route)
+        except Exception:
+            pass
+
         browser.close()
 
-    if custom_error[0]:
+    # Prefer a successfully captured result over a secondary cleanup error.
+    if custom_result[0] is None and custom_error[0]:
         raise RuntimeError(
             f"[albania] route.fetch() failed: {custom_error[0]}"
         )
