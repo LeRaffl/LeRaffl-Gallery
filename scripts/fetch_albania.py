@@ -307,18 +307,47 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
 
             if is_our_component and vpwqb_in_referer:
                 if DEBUG:
-                    print(f"[albania][debug] --> forwarding ORIGINAL request "
-                          f"(no body replacement)")
+                    print(f"[albania][debug] --> two-pass: original then custom")
                 try:
-                    # Forward the page's own request unchanged; capture response.
-                    resp = route.fetch()
-                    resp_text = resp.text()
+                    # Pass 1: forward original body unchanged.  This lets the
+                    # concurrent VPWqB requests (dimension-filters, pie-chart,
+                    # etc.) establish the full VPWqB session context on the
+                    # server alongside this request.  The original pivot-table
+                    # query may fail (SNAPSHOT_WITH_NON_REAGGREGATABLE) — that's
+                    # expected; we just need the context establishment.
+                    resp1 = route.fetch()
+                    text1 = resp1.text()
                     if DEBUG:
-                        print(f"[albania][debug] original route.fetch → "
-                              f"{len(resp_text)} chars")
-                        print(f"[albania][debug] response[:500]: {resp_text[:500]!r}")
-                    custom_result[0] = resp_text
-                    route.fulfill(response=resp)
+                        print(f"[albania][debug] pass-1 original → "
+                              f"{len(text1)} chars")
+                        print(f"[albania][debug] pass-1 response[:300]: "
+                              f"{text1[:300]!r}")
+
+                    has_error = '"errorStatus"' in text1 and '"code":' in text1
+                    if not has_error:
+                        # Original succeeded — use it directly.
+                        custom_result[0] = text1
+                        route.fulfill(response=resp1)
+                    else:
+                        # Pass 2: now that VPWqB context is established by the
+                        # concurrent requests, retry with our custom flat-table
+                        # payload (Month × Fuel type × Record count, Autoveturë).
+                        # A flat-table query avoids the pivot reaggregation that
+                        # triggers SNAPSHOT_WITH_NON_REAGGREGATABLE.
+                        if DEBUG:
+                            print(f"[albania][debug] pass-1 has error; "
+                                  f"pass-2 with custom payload")
+                        resp2 = route.fetch(
+                            post_data=json.dumps(_build_payload(year_from, year_to)),
+                        )
+                        text2 = resp2.text()
+                        if DEBUG:
+                            print(f"[albania][debug] pass-2 custom → "
+                                  f"{len(text2)} chars")
+                            print(f"[albania][debug] pass-2 response[:300]: "
+                                  f"{text2[:300]!r}")
+                        custom_result[0] = text2
+                        route.fulfill(response=resp2)
                 except Exception as exc:
                     custom_error[0] = exc
                     try:
