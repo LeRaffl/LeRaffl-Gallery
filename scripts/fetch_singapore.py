@@ -188,6 +188,25 @@ def discover(session: requests.Session, query: str) -> None:
 
 
 SINGSTAT_URL = "https://tablebuilder.singstat.gov.sg/api/table/tabledata/{rid}"
+SINGSTAT_SEARCH_URL = "https://tablebuilder.singstat.gov.sg/api/table/resourceid"
+
+
+def singstat_search(session: requests.Session, keyword: str) -> None:
+    """List SingStat Table Builder tables matching `keyword` (id + title)."""
+    r = session.get(SINGSTAT_SEARCH_URL, params={"keyword": keyword},
+                    headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
+    print(f"[singstat-search] GET keyword={keyword!r} -> HTTP {r.status_code}")
+    r.raise_for_status()
+    body = r.json()
+    data = body.get("Data", body.get("data", body))
+    records = data.get("records") if isinstance(data, dict) else None
+    if records is None and isinstance(body, dict):
+        records = body.get("records")
+    print(f"[singstat-search] {len(records or [])} records")
+    for rec in records or []:
+        rid = rec.get("id") or rec.get("seriesNo") or rec.get("resourceId")
+        title = rec.get("title") or rec.get("tableTitle") or rec.get("name")
+        print(f"  id={rid} title={title!r}")
 
 
 def probe_singstat(session: requests.Session, rid: str) -> None:
@@ -355,6 +374,9 @@ def main() -> None:
                     help="Search data.gov.sg for datasets matching QUERY and print each "
                          "datastore resource's latest month + fields, then exit. Use to "
                          "locate the live resource if the default id goes stale.")
+    ap.add_argument("--singstat-search", metavar="KEYWORD", default=None,
+                    help="Search the SingStat Table Builder catalogue for KEYWORD and "
+                         "print matching table ids + titles, then exit.")
     ap.add_argument("--probe-singstat", metavar="ID", default=None,
                     help="Probe a SingStat Table Builder series (e.g. M650281) and print "
                          "its row labels + latest periods, then exit.")
@@ -367,6 +389,10 @@ def main() -> None:
 
     if args.discover:
         discover(session, args.discover)
+        return
+
+    if args.singstat_search:
+        singstat_search(session, args.singstat_search)
         return
 
     if args.probe_singstat:

@@ -53,8 +53,10 @@ jobs:
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
         run: |
-          echo "===== probe SingStat M650281 ====="
-          python scripts/fetch_singapore.py --probe-singstat M650281
+          echo "===== search SingStat catalogue ====="
+          python scripts/fetch_singapore.py --singstat-search "car"
+          echo "----- fuel -----"
+          python scripts/fetch_singapore.py --singstat-search "fuel"
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'
