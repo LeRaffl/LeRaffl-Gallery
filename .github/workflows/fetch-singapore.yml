@@ -54,7 +54,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           echo "===== discover live resources ====="
-          python scripts/fetch_singapore.py --discover "registration of cars"
+          python scripts/fetch_singapore.py --discover "car"
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'

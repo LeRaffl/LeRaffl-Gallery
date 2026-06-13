@@ -69,7 +69,7 @@ VARIANT = "Whole"
 # "New Registration of Cars by Fuel Type, Monthly" — id cited in the legacy CSV.
 DEFAULT_RESOURCE_ID = "d_d3f4d708e1d0a37b4365414e2fad3a07"
 DATASTORE_URL = "https://data.gov.sg/api/action/datastore_search"
-PACKAGE_SEARCH_URL = "https://data.gov.sg/api/action/package_search"
+DATASETS_V2_URL = "https://api-production.data.gov.sg/v2/public/api/datasets"
 PAGE_SIZE = 5000
 
 CSV_COLUMNS = [
@@ -133,36 +133,58 @@ def fetch_records(session: requests.Session, resource_id: str) -> list[dict]:
     return records
 
 
+def _probe_latest(session: requests.Session, rid: str) -> tuple[str | None, list | None]:
+    """Return (latest_month, fields) for a datastore resource, or (None, None)."""
+    for params in ({"resource_id": rid, "limit": 1, "sort": "month desc"},
+                   {"resource_id": rid, "limit": 1}):
+        try:
+            pr = session.get(DATASTORE_URL, params=params, headers=HEADERS, timeout=60)
+            body = pr.json()
+            if pr.ok and body.get("success"):
+                res = body["result"]
+                fields = [f["id"] for f in res.get("fields", []) if f["id"] != "_id"]
+                recs = res.get("records", [])
+                if recs:
+                    rec = recs[0]
+                    latest = rec.get("month") or rec.get("year_month") or rec.get("period")
+                    return latest, fields
+                return None, fields
+        except Exception:  # noqa: BLE001
+            continue
+    return None, None
+
+
 def discover(session: requests.Session, query: str) -> None:
-    """Search data.gov.sg for datasets matching `query` and, for each datastore
-    resource, print its latest month + fields. Used to locate the live monthly
-    "cars by fuel type" resource when an id goes stale.
+    """Page data.gov.sg's v2 dataset catalogue, keep datasets whose name matches
+    `query` (any whitespace-separated term, case-insensitive), and print each
+    candidate's latest month + datastore fields. Locates the live monthly "cars
+    by fuel type" resource when an id goes stale.
     """
-    r = session.get(PACKAGE_SEARCH_URL, params={"q": query, "rows": 50},
-                    headers=HEADERS, timeout=120)
-    r.raise_for_status()
-    result = r.json().get("result", {})
-    print(f"[discover] {result.get('count')} datasets for {query!r}")
-    for ds in result.get("results", []):
-        title = (ds.get("title") or "")[:55]
-        for res in ds.get("resources", []):
-            rid = res.get("id")
-            latest = fields = None
-            try:
-                pr = session.get(DATASTORE_URL,
-                                 params={"resource_id": rid, "limit": 1, "sort": "month desc"},
-                                 headers=HEADERS, timeout=60)
-                body = pr.json()
-                if pr.ok and body.get("success"):
-                    res2 = body["result"]
-                    fields = [f["id"] for f in res2.get("fields", []) if f["id"] != "_id"]
-                    recs = res2.get("records", [])
-                    if recs:
-                        latest = recs[0].get("month") or recs[0].get("year_month")
-            except Exception as e:  # noqa: BLE401
-                latest = f"err:{type(e).__name__}"
-            has_fuel = bool(fields) and any("fuel" in f for f in fields)
-            print(f"  {title:55s} rid={rid} latest={latest} fuel={has_fuel} fields={fields}")
+    terms = [t.lower() for t in query.split()]
+    page = 1
+    pages = None
+    candidates: list[tuple[str, str]] = []
+    while True:
+        r = session.get(DATASETS_V2_URL, params={"page": page}, headers=HEADERS, timeout=120)
+        r.raise_for_status()
+        data = r.json().get("data", {})
+        if pages is None:
+            pages = data.get("pages")
+            print(f"[discover] scanning {pages} catalogue pages for terms {terms}")
+        for ds in data.get("datasets", []):
+            name = ds.get("name") or ""
+            nl = name.lower()
+            if all(t in nl for t in terms):
+                candidates.append((ds.get("datasetId"), name))
+        page += 1
+        if not pages or page > pages or page > 80:
+            break
+
+    print(f"[discover] {len(candidates)} name matches")
+    for rid, name in candidates:
+        latest, fields = _probe_latest(session, rid)
+        has_fuel = bool(fields) and any("fuel" in f for f in fields)
+        print(f"  {name[:60]:60s} rid={rid} latest={latest} fuel={has_fuel} fields={fields}")
 
 
 def _detect_fields(records: list[dict]) -> tuple[str, str, str]:
