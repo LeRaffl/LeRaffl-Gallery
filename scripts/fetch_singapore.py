@@ -69,6 +69,7 @@ VARIANT = "Whole"
 # "New Registration of Cars by Fuel Type, Monthly" — id cited in the legacy CSV.
 DEFAULT_RESOURCE_ID = "d_d3f4d708e1d0a37b4365414e2fad3a07"
 DATASTORE_URL = "https://data.gov.sg/api/action/datastore_search"
+PACKAGE_SEARCH_URL = "https://data.gov.sg/api/action/package_search"
 PAGE_SIZE = 5000
 
 CSV_COLUMNS = [
@@ -130,6 +131,38 @@ def fetch_records(session: requests.Session, resource_id: str) -> list[dict]:
             break
     print(f"[data] fetched {len(records)} records")
     return records
+
+
+def discover(session: requests.Session, query: str) -> None:
+    """Search data.gov.sg for datasets matching `query` and, for each datastore
+    resource, print its latest month + fields. Used to locate the live monthly
+    "cars by fuel type" resource when an id goes stale.
+    """
+    r = session.get(PACKAGE_SEARCH_URL, params={"q": query, "rows": 50},
+                    headers=HEADERS, timeout=120)
+    r.raise_for_status()
+    result = r.json().get("result", {})
+    print(f"[discover] {result.get('count')} datasets for {query!r}")
+    for ds in result.get("results", []):
+        title = (ds.get("title") or "")[:55]
+        for res in ds.get("resources", []):
+            rid = res.get("id")
+            latest = fields = None
+            try:
+                pr = session.get(DATASTORE_URL,
+                                 params={"resource_id": rid, "limit": 1, "sort": "month desc"},
+                                 headers=HEADERS, timeout=60)
+                body = pr.json()
+                if pr.ok and body.get("success"):
+                    res2 = body["result"]
+                    fields = [f["id"] for f in res2.get("fields", []) if f["id"] != "_id"]
+                    recs = res2.get("records", [])
+                    if recs:
+                        latest = recs[0].get("month") or recs[0].get("year_month")
+            except Exception as e:  # noqa: BLE401
+                latest = f"err:{type(e).__name__}"
+            has_fuel = bool(fields) and any("fuel" in f for f in fields)
+            print(f"  {title:55s} rid={rid} latest={latest} fuel={has_fuel} fields={fields}")
 
 
 def _detect_fields(records: list[dict]) -> tuple[str, str, str]:
@@ -273,12 +306,21 @@ def main() -> None:
     ap.add_argument("--list-categories", action="store_true",
                     help="Print every distinct fuel label and its mapped column, then exit. "
                          "Use this on the first run to confirm the live taxonomy.")
+    ap.add_argument("--discover", metavar="QUERY", default=None,
+                    help="Search data.gov.sg for datasets matching QUERY and print each "
+                         "datastore resource's latest month + fields, then exit. Use to "
+                         "locate the live resource if the default id goes stale.")
     ap.add_argument("--force", action="store_true",
                     help="Accepted for parity with other fetchers (this fetcher is "
                          "commit-gated downstream and always re-fetches).")
     args = ap.parse_args()
 
     session = requests.Session()
+
+    if args.discover:
+        discover(session, args.discover)
+        return
+
     records = fetch_records(session, args.resource_id)
     if not records:
         print("no records returned")

@@ -53,9 +53,8 @@ jobs:
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
         run: |
-          python scripts/fetch_singapore.py --list-categories
-          echo "----- dry-run -----"
-          python scripts/fetch_singapore.py --dry-run
+          echo "===== discover live resources ====="
+          python scripts/fetch_singapore.py --discover "registration of cars"
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'
