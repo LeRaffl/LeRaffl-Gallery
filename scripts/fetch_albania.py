@@ -220,22 +220,37 @@ def fetch_via_browser(report_url: str) -> list[dict]:
 
         print(f"[albania] browser → {report_url}")
         page.goto(report_url, wait_until="domcontentloaded", timeout=90_000)
+        page.wait_for_timeout(5_000)
 
-        # Let the report's data XHRs flow.  Poll until we have data-bearing
-        # responses (not just metadata) or the deadline passes.
-        deadline = 75  # seconds
-        waited = 0
-        while waited < deadline:
-            page.wait_for_timeout(3_000)
-            waited += 3
-            if _has_table_rows(captured):
-                # give a moment for any sibling tables to finish too
-                page.wait_for_timeout(2_000)
-                break
+        # Looker lazy-loads components as they scroll into view, so walk the
+        # whole page to trigger every chart's batchedDataV2 request.
+        for _ in range(14):
+            page.mouse.wheel(0, 1400)
+            page.wait_for_timeout(1_500)
+        page.keyboard.press("End")
+        page.wait_for_timeout(2_000)
 
+        # Settle: wait until no new responses arrive for ~6s (cap ~40s).
+        last, stable = len(captured), 0
+        for _ in range(20):
+            page.wait_for_timeout(2_000)
+            if len(captured) == last:
+                stable += 1
+                if stable >= 3 and last > 0:
+                    break
+            else:
+                last, stable = len(captured), 0
+
+        if DEBUG:
+            print(f"[albania][debug] final page url: {page.url}")
         browser.close()
 
     print(f"[albania] captured {len(captured)} batchedDataV2 response(s)")
+    if DEBUG:
+        for i, data in enumerate(captured, 1):
+            blob = json.dumps(data, ensure_ascii=False)
+            print(f"[albania][debug] ===== response #{i} raw ({len(blob)} chars) =====")
+            print(blob[:8000])
     return captured
 
 
