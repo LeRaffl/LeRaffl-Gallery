@@ -137,7 +137,8 @@
 # Public entry. Returns the post text as a single string with \n separators.
 # `last_period` is optional — if NULL/empty, it is derived from the data.
 build_post_text <- function(df, country_label, last_period = NULL) {
-  is_quarterly <- any(df$time_interval == "quarterly")
+  df_ord <- df[order(df$year), , drop = FALSE]
+  is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
 
   if (is_quarterly) {
     periodic <- df[df$time_interval == "quarterly", , drop = FALSE]
@@ -245,7 +246,8 @@ build_post_text <- function(df, country_label, last_period = NULL) {
 }
 
 build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
-  is_quarterly <- any(df$time_interval == "quarterly")
+  df_ord <- df[order(df$year), , drop = FALSE]
+  is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
   window <- if (is_quarterly) 4L else 12L
 
   if (is_quarterly) {

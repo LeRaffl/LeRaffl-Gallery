@@ -1,11 +1,11 @@
-🇸🇬 Singapore - Q? 2026 - BEV Trajectory
-0.1% BEV
-0.0% PHEV
-99.9% ICE
+🇸🇬 Singapore - May 26 - BEV Trajectory
+65.4% BEV
+2.7% PHEV
+31.9% ICE (of which 27.5%p were HEV)
 
-Trailing 4 quarters are:
-0.1% BEV
-0.0% PHEV
-99.9% ICE
+Trailing 12 months are:
+52.8% BEV
+2.2% PHEV
+44.9% ICE (of which 34.6%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

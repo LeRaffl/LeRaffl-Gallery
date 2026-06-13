@@ -1,8 +1,9 @@
 🇸🇬 Singapore - TTM Market Split
 
-Q?'20–Q?'20  vs  Q3'20–Q4'20
-−0.0pp  BEV     (0.1% → 0.1%)
-+0.0pp  Hybrid  (0.0% → 0.0%)
-+0.0pp  ICE     (99.9% → 99.9%)
+Jun24–May25  vs  Jun25–May26
++16.1pp  BEV   (36.7% → 52.8%)
++1.6pp   PHEV  (0.6% → 2.2%)
+−11.0pp  HEV   (45.6% → 34.6%)
+−6.7pp   ICE   (17.0% → 10.3%)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
