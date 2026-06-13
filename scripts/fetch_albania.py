@@ -34,12 +34,17 @@ We therefore:
      initial load is the year-to-date total = our *baseline*).  Its per-row
      "only" single-select link is display:none until a real CSS :hover and
      cannot be force-clicked, so instead we toggle each month OFF one at a time
-     in ascending order, capturing the report after each toggle.  Each capture
-     is the *complement* (sum of the months still selected):
-         after toggling m_i off →  A_i = sum(months > m_i)
+     in DESCENDING order (latest → earliest), capturing the report after each
+     toggle.  Each capture is the *complement* (sum of the months still selected):
+         after toggling m_i off →  A_i = sum(months < m_i)
      The true single-month value is the telescoping difference
          m_i = A_{i-1} − A_i,   with A_0 = baseline, A_last = 0
      computed per fuel column (see ``_difference_to_rows``).
+     Descending order is intentional: it avoids a Looker Studio pivot label
+     inconsistency where fuel-type strings differ across window sizes (e.g.
+     "Hybrid Benzinë/Elektrik" present in Jan-May but absent in Feb-May,
+     replaced by "Hybrid plug-in, Benzinë/Elektrik"), which causes negative
+     per-fuel diffs that get clipped to 0 and corrupt monthly TOTALS.
   4. **Parse** each captured response: vehicle_type × fuel_type × count flat
      table; keep only ``Autoveturë`` rows; aggregate by fuel type.
 
@@ -312,11 +317,14 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         # :hover), so single-selecting a month directly is not possible.
         #
         # Instead we read the months from the popup and toggle them OFF one at a
-        # time in ascending order, capturing the report's vehicle×fuel×count after
-        # each toggle.  Each capture is the COMPLEMENT (months still selected):
-        #     after toggling m_i off →  A_i = sum(months > m_i)
+        # time in DESCENDING order (latest→earliest), capturing the report's
+        # vehicle×fuel×count after each toggle.  Each capture is the COMPLEMENT
+        # (months still selected):
+        #     after toggling m_i off →  A_i = sum(months < m_i)
         # True single-month values are recovered by differencing in
         # _difference_to_rows:  m_i = A_{i-1} − A_i, with A_0 = baseline (all on).
+        # Descending avoids fuel-label inconsistencies in DPSHTRR's Looker pivot
+        # that corrupt TOTALS when computed as large-minus-large-window diffs.
         #
         # Toggling uses Playwright force-click on the visible "<Mon> <YYYY>" label
         # (proven to fire batchedDataV2; force bypasses the ".popup-backdrop
@@ -389,16 +397,16 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             p = _label_to_period(lbl)
             if p and year_from <= int(p[:4]) <= year_to:
                 present.append((lbl, p))
-        present.sort(key=lambda x: x[1])
+        present.sort(key=lambda x: x[1], reverse=True)  # descending: latest first
         present_periods = [p for _, p in present]
-        print(f"[albania] Muaji months present: {present_periods}")
+        print(f"[albania] Muaji months present (descending): {present_periods}")
 
         if not present:
             browser.close()
             raise RuntimeError(
                 "[albania] no month labels found in the Muaji popup")
 
-        # Toggle each present month OFF (ascending) and capture the complement.
+        # Toggle each present month OFF (descending: latest first) and capture the complement.
         complements: list[tuple[str, dict]] = []
         for lbl, period in present:
             if not _open_muaji():
@@ -440,10 +448,10 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                       f"= {sum(counts.values())} ({len(captured) - cap_before} "
                       f"responses)")
             elif DEBUG:
-                # Expected for the last (earliest-remaining) month: toggling it
+                # Expected for January (last in descending order): toggling it
                 # empties the selection so the report returns no Autoveturë rows.
                 print(f"[albania][debug] no vehicle×fuel data after toggling "
-                      f"{lbl!r} (expected only for the last month)")
+                      f"{lbl!r} (expected for January / final toggle)")
 
         try:
             page.unroute("**/*", handle_route)
@@ -562,16 +570,16 @@ def _difference_to_rows(fetched: dict) -> dict:
     """Recover true single-month gallery rows from the all-months baseline and
     the per-month complement captures.
 
-    With months sorted ascending m_1 < … < m_k and A_i = the report total after
-    toggling m_i (and all earlier months) OFF — i.e. the sum over months still
-    selected (> m_i) — the single-month value is the telescoping difference
+    With months sorted descending m_k > … > m_1 and A_i = the report total
+    after toggling m_i (and all later months) OFF — i.e. the sum over months
+    still selected (< m_i) — the single-month value is the telescoping diff
         m_i = A_{i-1} − A_i,   where A_0 = baseline (all months on)
-    and A_k = 0 (toggling the last month empties the selection → no data).
+    and A_1 = 0 (toggling January empties the selection → no data).
     This is done per fuel column.
     """
     baseline = _parse_fuel_counts(fetched["baseline"])
     comp = {p: _parse_fuel_counts(m) for p, m in fetched["complements"]}
-    present = fetched["present_periods"]            # ascending YYYY-MM
+    present = fetched["present_periods"]            # descending YYYY-MM
 
     if DEBUG:
         print(f"[albania][debug] baseline (all months): {baseline} "
@@ -581,8 +589,9 @@ def _difference_to_rows(fetched: dict) -> dict:
                 print(f"[albania][debug] A[{p}] (after toggling {p} off): "
                       f"{comp[p]} total={sum(comp[p].values())}")
 
-    # Guard: toggling the first month OFF must REDUCE the total — this proves the
-    # control defaulted to all-months-selected, which differencing relies on.
+    # Guard: toggling the first month (latest, in descending order) OFF must
+    # REDUCE the total — this proves the control defaulted to all-months-selected,
+    # which differencing relies on.
     if present and present[0] in comp:
         if sum(comp[present[0]].values()) >= sum(baseline.values()):
             raise RuntimeError(
@@ -598,7 +607,7 @@ def _difference_to_rows(fetched: dict) -> dict:
         a = comp.get(p)
         if a is None:
             if i == len(present) - 1:
-                a = zero            # last month: empty selection → no capture
+                a = zero            # earliest month (Jan): empty selection → no capture
             else:
                 print(f"[albania] WARNING: missing complement for {p}; cannot "
                       f"difference this and the following month reliably")
