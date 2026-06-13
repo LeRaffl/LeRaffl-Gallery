@@ -4,3 +4,5 @@ Türkiye,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split
 Georgia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Colombia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Malaysia,Whole,Source (data.gov.my) does not split PHEV from HEV: shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
+Singapore,Whole,Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
+Albania,Whole,Figures include first registrations of both new and imported used vehicles. Pre-automation series compiled by R. Andrew.
