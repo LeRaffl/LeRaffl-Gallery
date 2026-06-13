@@ -102,35 +102,6 @@ REPORT_PAGE_URL = (
 
 VEHICLE_FILTER_VALUE = "Autoveturë"   # passenger cars only
 
-# ── Albanian month names → ISO month number ──────────────────────────────────
-# The Muaji filter in the Albanian DPSHTRR Looker report uses these labels.
-# English abbreviations and full names are included as fallbacks in case the
-# browser locale causes Looker to render the filter in English.
-_MUAJI_NAMES: list[tuple[str, str]] = [
-    # Albanian (primary)
-    ("Janar",    "01"),
-    ("Shkurt",   "02"),
-    ("Mars",     "03"),
-    ("Prill",    "04"),
-    ("Maj",      "05"),
-    ("Qershor",  "06"),
-    ("Korrik",   "07"),
-    ("Gusht",    "08"),
-    ("Shtator",  "09"),
-    ("Tetor",    "10"),
-    ("Nëntor",   "11"),
-    ("Dhjetor",  "12"),
-    # English long
-    ("January",  "01"), ("February", "02"), ("March",    "03"),
-    ("April",    "04"), ("May",      "05"), ("June",     "06"),
-    ("July",     "07"), ("August",   "08"), ("September","09"),
-    ("October",  "10"), ("November", "11"), ("December", "12"),
-    # English short
-    ("Jan", "01"), ("Feb", "02"), ("Mar", "03"), ("Apr", "04"),
-    ("Jun", "06"), ("Jul", "07"), ("Aug", "08"), ("Sep", "09"),
-    ("Oct", "10"), ("Nov", "11"), ("Dec", "12"),
-]
-
 # ── Gallery schema ───────────────────────────────────────────────────────────
 SOURCE      = "dpshtrr.al"
 CSV_PATH    = "data/Albania.csv"
@@ -319,197 +290,142 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                       f"resp_len={len(cap['text'])}")
                 print(f"[albania][debug]   resp[:2000]: {cap['text'][:2000]!r}")
 
-        # ── Discover available months from dimension-filter response ─────────────
-        #
-        # The Muaji filter component (cd-7k4mmiu7ec, displayType=dimension-filter)
-        # fires during initial page load and returns the list of selectable month
-        # values.  Parse this to know which months are in the filter popup — both
-        # their display labels (used for clicking) and the corresponding periods.
-        dim_filter_months: list[str] = []
-        for cap in captured[initial_start:initial_end]:
-            if cap["displayType"] != "dimension-filter":
-                continue
-            txt = cap["text"]
-            if txt.startswith(")]}'"):
-                txt = txt[4:].lstrip("\n")
-            try:
-                obj = json.loads(txt)
-                for dr in obj.get("dataResponse", []):
-                    for subset in dr.get("dataSubset", []):
-                        tds = subset.get("dataset", {}).get("tableDataset", {})
-                        for col in tds.get("column", []):
-                            vals = col.get("stringColumn", {}).get("values", [])
-                            if vals:
-                                dim_filter_months = vals
-                                break
-                        if dim_filter_months:
-                            break
-                    if dim_filter_months:
-                        break
-            except Exception:
-                pass
-            if dim_filter_months:
-                break
-
-        if DEBUG:
-            print(f"[albania][debug] dimension-filter months: {dim_filter_months}")
-
         # ── Muaji (Month) filter iteration ────────────────────────────────────
         #
-        # Strategy:
-        # 1. Locate the "Muaji" filter widget and click it (opens a popup).
-        # 2. For each available month, use JavaScript dispatchEvent to click the
-        #    popup option — this bypasses Playwright's "popup-backdrop intercepts
-        #    pointer events" error that occurs when opt.click() resolves to an SVG
-        #    chart axis label (an <svg><text>…</text></svg> element rendered behind
-        #    the backdrop) instead of the popup list item.
-        #    The JS walker explicitly skips all SVG descendants so only the HTML
-        #    popup items (divs/spans) are matched.
-        # 3. Wait up to 15 s for a new batchedDataV2 capture, record the pair,
-        #    re-open the filter, and continue.
-        # 4. Fall back to the YTD aggregate when the filter cannot be used.
+        # The Muaji control is a Looker "list" filter.  Clicking its title opens a
+        # popup (CANVAS-CONTROL-EDITOR) whose rows are labelled "<Mon> <YYYY>" in
+        # the browser locale (en-US → "Jan 2026", "Feb 2026", … "May 2026"), each
+        # with an "only" single-select link and a Record Count.
+        #
+        # We select one month at a time using the row's "only" link (single-select,
+        # so no need to clear a previous selection), then wait for cd-p9hqinijec to
+        # re-fire with that month's vehicle×fuel×count data.
+        #
+        # Clicking is done with force=True: the option text resolves to an element
+        # behind the .popup-backdrop, which otherwise makes Playwright report
+        # "popup-backdrop intercepts pointer events".  force=True skips that
+        # actionability check (we know the element is the intended target).
 
-        # JavaScript that clicks the popup option for a given month name,
-        # skipping SVG elements (which are chart axis labels, not filter options).
-        _JS_CLICK_MONTH = """
-(monthName) => {
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
-    let node;
-    while ((node = walker.nextNode())) {
-        if (node.closest('svg')) continue;           // skip SVG subtree
-        if (node.childElementCount > 0) continue;    // only leaf elements
-        if (node.textContent.trim() !== monthName) continue;
-        node.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
-        return node.tagName + '/' + node.className.substring(0, 80);
-    }
-    return null;
-}
-"""
+        # English abbreviated month labels as rendered by the en-US canvas control.
+        _MONTH_ABBR = [
+            ("Jan", "01"), ("Feb", "02"), ("Mar", "03"), ("Apr", "04"),
+            ("May", "05"), ("Jun", "06"), ("Jul", "07"), ("Aug", "08"),
+            ("Sep", "09"), ("Oct", "10"), ("Nov", "11"), ("Dec", "12"),
+        ]
 
-        for year in range(year_from, year_to + 1):
-            # Build (display_label, period) pairs to try.
-            # Prefer month labels from the dimension-filter response; fall back to
-            # our hard-coded Albanian/English name table.
-            months_to_try: list[tuple[str, str]] = []
-            if dim_filter_months:
-                for label in dim_filter_months:
-                    period = None
-                    for name, num in _MUAJI_NAMES:
-                        if name in label:
-                            period = f"{year}-{num}"
-                            break
-                    if period:
-                        months_to_try.append((label, period))
-                    elif DEBUG:
-                        print(f"[albania][debug] unrecognised dim-filter label: "
-                              f"{label!r}")
-            if not months_to_try:
-                months_to_try = [
-                    (name, f"{year}-{num}") for name, num in _MUAJI_NAMES
-                ]
-
-            # Locate the Muaji filter control
-            muaji_el = None
-            for selector in [
+        def _open_muaji() -> bool:
+            """Click the Muaji control title to open its month-list popup."""
+            for selector in (
                 "text=Muaji",
                 "[aria-label*='Muaji']",
                 "[title*='Muaji']",
-                "label:has-text('Muaji')",
-                "[placeholder*='Muaji']",
-            ]:
+            ):
                 try:
                     el = page.locator(selector).first
                     if el.is_visible(timeout=2000):
-                        muaji_el = el
+                        el.click(timeout=5000)
+                        page.wait_for_timeout(1500)
                         if DEBUG:
-                            print(f"[albania][debug] Muaji filter via {selector!r}")
-                        break
+                            print(f"[albania][debug] opened Muaji via {selector!r}")
+                        return True
                 except Exception:
                     pass
+            return False
 
-            if muaji_el is None:
+        for year in range(year_from, year_to + 1):
+            months_to_try = [
+                (f"{abbr} {year}", f"{year}-{num}") for abbr, num in _MONTH_ABBR
+            ]
+
+            if not _open_muaji():
                 if DEBUG:
-                    print("[albania][debug] Muaji filter not found")
+                    print("[albania][debug] Muaji control not found")
                     try:
                         page.screenshot(path="/tmp/albania_no_muaji.png")
-                        print("[albania][debug] screenshot → /tmp/albania_no_muaji.png")
                     except Exception:
                         pass
                 ytd = _merge_slice(initial_start)
                 if ytd["dataResponse"]:
                     fallback_period = datetime.now().strftime("%Y-%m")
                     result_pairs.append((fallback_period, ytd))
-                    print(f"[albania] WARNING: Muaji filter not found; "
-                          f"using YTD data as period={fallback_period}")
-                continue
-
-            # Open the Muaji dropdown
-            try:
-                muaji_el.click(timeout=5000)
-                page.wait_for_timeout(1500)
-            except Exception as exc:
-                if DEBUG:
-                    print(f"[albania][debug] Muaji click failed: {exc}")
-                ytd = _merge_slice(initial_start)
-                if ytd["dataResponse"]:
-                    fallback_period = datetime.now().strftime("%Y-%m")
-                    result_pairs.append((fallback_period, ytd))
-                    print(f"[albania] WARNING: Muaji click failed; "
+                    print(f"[albania] WARNING: Muaji control not found; "
                           f"using YTD data as period={fallback_period}")
                 continue
 
             if DEBUG:
-                # Dump the popup structure so we know what elements are available.
+                # Dump the Muaji popup's clickable month rows so we can see the
+                # exact markup (tag/class/role/text) and refine selectors.
                 try:
-                    popup_info = page.evaluate("""
+                    rows = page.evaluate(r"""
                         () => {
-                            const bd = document.querySelector('.popup-backdrop');
-                            if (!bd) return JSON.stringify({err:'no backdrop'});
-                            const p = bd.parentElement;
-                            const children = [];
-                            for (const c of p.children) {
-                                if (c.classList.contains('popup-backdrop')) continue;
-                                children.push({
-                                    tag: c.tagName,
-                                    cls: c.className.substring(0, 80),
-                                    text: c.textContent.substring(0, 300).replace(/\\s+/g,' ')
-                                });
+                            const out = [];
+                            const re = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+20\d\d\b/;
+                            const all = document.querySelectorAll(
+                                'canvas-control-editor *, .popup-backdrop ~ * *'
+                            );
+                            for (const e of all) {
+                                if (e.closest('svg')) continue;
+                                const own = Array.from(e.childNodes)
+                                    .filter(n => n.nodeType === 3)
+                                    .map(n => n.textContent).join('').trim();
+                                if (re.test(own)) {
+                                    out.push({
+                                        tag: e.tagName,
+                                        cls: (e.className||'').toString().substring(0,60),
+                                        role: e.getAttribute('role') || '',
+                                        text: own.substring(0, 40)
+                                    });
+                                }
+                                if (out.length >= 25) break;
                             }
-                            return JSON.stringify({
-                                parent_tag: p.tagName,
-                                parent_cls: p.className.substring(0, 80),
-                                children: children
-                            });
+                            return JSON.stringify(out);
                         }
                     """)
-                    print(f"[albania][debug] popup structure: {popup_info[:1500]}")
+                    print(f"[albania][debug] muaji rows: {rows[:2000]}")
                 except Exception as exc:
-                    print(f"[albania][debug] popup inspect failed: {exc}")
+                    print(f"[albania][debug] muaji row dump failed: {exc}")
                 try:
                     page.screenshot(path="/tmp/albania_muaji_open.png")
-                    print("[albania][debug] screenshot → /tmp/albania_muaji_open.png")
                 except Exception:
                     pass
 
             months_found = 0
-            seen_periods: set[str] = set()
 
             for month_label, period in months_to_try:
-                if period in seen_periods:
+                cap_before = len(captured)
+
+                # Make sure the popup is open before each selection.
+                if month_label != months_to_try[0][0]:
+                    if not _open_muaji():
+                        if DEBUG:
+                            print("[albania][debug] could not re-open Muaji popup")
+                        break
+
+                # Try to click the month row.  Prefer the row's "only" link
+                # (single-select); fall back to the row label itself.
+                clicked = False
+                for target in (
+                    page.get_by_text(month_label, exact=True),
+                    page.get_by_text(month_label, exact=False),
+                ):
+                    try:
+                        loc = target.first
+                        if loc.count() == 0:
+                            continue
+                        loc.click(timeout=3000, force=True)
+                        clicked = True
+                        break
+                    except Exception as exc:
+                        if DEBUG:
+                            print(f"[albania][debug] click {month_label!r} "
+                                  f"failed: {str(exc)[:120]}")
+
+                if not clicked:
+                    if DEBUG:
+                        print(f"[albania][debug] {month_label!r} not clickable")
                     continue
 
-                cap_before = len(captured)
-                clicked_el = page.evaluate(_JS_CLICK_MONTH, month_label)
-
-                if DEBUG:
-                    print(f"[albania][debug] JS click {month_label!r} → {clicked_el!r}")
-
-                if not clicked_el:
-                    continue  # month label not found in DOM
-
-                seen_periods.add(period)
-
-                # Wait up to 15 s for a fresh batchedDataV2 response
+                # Wait up to 15 s for a fresh batchedDataV2 response.
                 got_data = False
                 wait_deadline = _time.time() + 15
                 while _time.time() < wait_deadline:
@@ -525,25 +441,14 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                     months_found += 1
                     print(f"[albania] month {month_label} → {period} "
                           f"({len(captured) - cap_before} new responses)")
-                else:
-                    if DEBUG:
-                        print(f"[albania][debug] no data after clicking "
-                              f"{month_label!r}")
-
-                # Re-open the Muaji dropdown for the next month
-                try:
-                    if muaji_el.is_visible(timeout=1000):
-                        muaji_el.click(timeout=3000)
-                        page.wait_for_timeout(1000)
-                except Exception:
-                    pass
+                elif DEBUG:
+                    print(f"[albania][debug] no data after clicking {month_label!r}")
 
             if months_found == 0:
                 if DEBUG:
-                    print("[albania][debug] no month options clicked; using YTD fallback")
+                    print("[albania][debug] no month options clicked; YTD fallback")
                     try:
                         page.screenshot(path="/tmp/albania_no_months.png")
-                        print("[albania][debug] screenshot → /tmp/albania_no_months.png")
                     except Exception:
                         pass
                 ytd = _merge_slice(initial_start)
