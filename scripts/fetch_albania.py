@@ -6,34 +6,35 @@ Looker Studio report and upsert ``data/Albania.csv``.
 Usage
 -----
     python scripts/fetch_albania.py [--dry-run] [--since YYYY-MM]
+                                    [--year-from YYYY] [--year-to YYYY]
 
-Primary source
---------------
+How it works
+------------
 Albania's General Directorate of Road Transport Services (DPSHTRR) publishes
 vehicle-registration data **only** through a public Looker Studio report:
 
-    https://www.dpshtrr.al/open-data-dpshtrr-english
-    https://datastudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3/page/VPWqB
+    https://lookerstudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3/page/VPWqB
 
-There is no raw CSV/XLSX export and the dpshtrr.al site blocks automated
-clients (403).  The Looker ``batchedDataV2`` JSON API that backs the report
-rejects anonymous plain-HTTP requests with an ``ACCESS / PREFETCH_VALIDATION``
-error — the data is gated behind a session that Google's front-end JavaScript
-establishes in a real browser.
+The Looker ``batchedDataV2`` API rejects anonymous plain-HTTP clients with
+``ACCESS / PREFETCH_VALIDATION``.  A real browser session is required because
+Google sets the ``RAP_XSRF_TOKEN`` only after JavaScript runs.
 
-We therefore drive a **headless Chromium (Playwright)**: it loads the public
-report exactly as a human visitor would, Google sets up the session, and we
-**intercept** the ``batchedDataV2`` responses the report itself issues.  This
-means we do *not* hand-craft the query (no field IDs, no revisionNumber, no
-componentId to keep in sync) — we read whatever the report's own table returns
-and pick out the (Month, Fuel type, Record count) figures for passenger cars
-(``Autoveturë``).
+We therefore:
+  1. Drive a **headless Chromium (Playwright)** to load the public report page,
+     which lets Google establish the session.
+  2. Intercept the XSRF token + cookies from the first ``batchedDataV2``
+     request the page issues.
+  3. **Replay** those auth credentials with our own custom payload that
+     requests ``(Month × Fuel type × Vehicle type, Record count)`` filtered
+     to ``Autoveturë`` (passenger cars).
 
-Note: DPSHTRR publish a fresh Looker report each calendar year (the current one
-is titled "year 2026").  Historical data (pre-2026) lives in the bootstrapped
-CSV rows and is not re-fetched.  When a new year starts, update ``REPORT_ID`` /
-``PAGE_ID_URL`` below.  See docs/architecture/27-source-albania.md for the full
-source playbook.
+The native report components only expose aggregated fuel-type breakdowns
+(no month dimension); the custom payload is what gives us month-level data.
+
+Note: DPSHTRR publishes a fresh Looker report each calendar year ("year 2026").
+Historical data (pre-2026) lives in the bootstrapped CSV rows.  When a new year
+starts, update ``REPORT_ID`` / ``PAGE_ID_URL`` below.
+See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
 ---------------------------------------------------
@@ -63,19 +64,34 @@ import json
 import os
 import re
 import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
+
+import requests
 
 DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
 
 # ── Looker Studio report constants ──────────────────────────────────────────
-REPORT_ID   = "407ce08b-d3ce-478e-9bc7-a50125f875f3"
-PAGE_ID_URL = "VPWqB"      # "Vehicles by type of fuel or power source"
+REPORT_ID       = "407ce08b-d3ce-478e-9bc7-a50125f875f3"
+PAGE_ID_URL     = "VPWqB"      # "Vehicles by type of fuel or power source"
+PAGE_ID_NUM     = "24871631"   # numeric ID used in the batchedDataV2 body
+COMPONENT_ID    = "cd-p9hqinijec"
+DATASOURCE_ID   = "7705f3ec-84aa-4432-bbed-d61775f98126"
+REVISION_NUMBER = 13
+
+# Internal field IDs (reverse-engineered 2026-06-13; bump REVISION_NUMBER if
+# DPSHTRR updates their data source and the workflow starts returning empty data)
+F_VEHICLE_TYPE = "_73515086_"
+F_FUEL_TYPE    = "_818800577_"
+F_RECORD_COUNT = "datastudio_record_count_system_field_id_98323387"
+F_DATE         = "_3076010_"
 
 REPORT_PAGE_URL = (
     f"https://lookerstudio.google.com/reporting/{REPORT_ID}/page/{PAGE_ID_URL}"
     f"?s=ntCeOqOLBog"
 )
+API_URL_TEMPLATE = "https://datastudio.google.com/batchedDataV2?appVersion={}"
 
 VEHICLE_FILTER_VALUE = "Autoveturë"   # passenger cars only
 
@@ -97,16 +113,6 @@ _HEV   = {"Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
 _PET   = {"Benzinë"}
 _DIE   = {"Naftë"}
 
-# All fuel labels we expect — used to recognise the "fuel" column heuristically.
-_ALL_FUEL = _BEV | _PHEV | _HEV | _PET | _DIE
-
-# Known vehicle-type labels — used to recognise the "vehicle type" column.
-_VEHICLE_TYPES = {
-    "Autoveturë", "Motoçikletë", "Kamion", "Autobus", "Rimorkio",
-    "Gjysmërimorkio", "Traktor", "Mjet pune", "Autoveture",
-}
-
-
 def _fuel_col(fuel: str) -> str:
     if fuel in _BEV:  return "BEV"
     if fuel in _PHEV: return "PHEV"
@@ -117,7 +123,6 @@ def _fuel_col(fuel: str) -> str:
 
 
 # ── Date-string parsing ──────────────────────────────────────────────────────
-# Looker returns dates in various locale-dependent string formats.
 _DE_MONTH = {
     "Jan": "01", "Feb": "02", "Mär": "03", "Apr": "04",
     "Mai": "05", "Jun": "06", "Jul": "07", "Aug": "08",
@@ -131,14 +136,13 @@ _EN_MONTH = {
     "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11",
     "Dec": "12",
 }
-
 _RE_DE  = re.compile(r'^(Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)\.?\s+(\d{4})$')
 _RE_EN  = re.compile(r'^(January|February|March|April|May|June|July|August|'
                      r'September|October|November|December|Jan|Feb|Mar|Apr|'
                      r'Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+(\d{4})$')
-_RE_ISO = re.compile(r'^(\d{4})-(\d{2})(?:-\d{2})?$')   # 2026-01-01 or 2026-01
-_RE_YMD = re.compile(r'^(\d{4})(\d{2})\d{2}$')          # 20260101
-_RE_YM  = re.compile(r'^(\d{4})(\d{2})$')               # 202601
+_RE_ISO = re.compile(r'^(\d{4})-(\d{2})(?:-\d{2})?$')
+_RE_YMD = re.compile(r'^(\d{4})(\d{2})\d{2}$')
+_RE_YM  = re.compile(r'^(\d{4})(\d{2})$')
 
 
 def _parse_period(s: str) -> str | None:
@@ -161,26 +165,98 @@ def _parse_period(s: str) -> str | None:
     return None
 
 
-# ── Headless-browser fetch (Playwright) ──────────────────────────────────────
+# ── batchedDataV2 payload ────────────────────────────────────────────────────
 
-def fetch_via_browser(report_url: str) -> list[dict]:
-    """Load the public report in headless Chromium and capture every
-    ``batchedDataV2`` response body it issues.  Returns the parsed JSON dicts."""
+def _build_payload(year_from: int, year_to: int) -> dict:
+    """Custom flat-table request: (Month × Fuel type) × Record count,
+    filtered to Autoveturë (passenger cars), date range year_from–year_to."""
+    req_id = f"fetch_albania_{uuid.uuid4().hex[:8]}"
+    return {
+        "dataRequest": [{
+            "requestContext": {
+                "reportContext": {
+                    "reportId":    REPORT_ID,
+                    "pageId":      PAGE_ID_NUM,
+                    "mode":        1,
+                    "componentId": COMPONENT_ID,
+                    "displayType": "table",
+                },
+                "requestMode": 0,
+            },
+            "datasetSpec": {
+                "dataset": [{
+                    "datasourceId":      DATASOURCE_ID,
+                    "revisionNumber":    REVISION_NUMBER,
+                    "parameterOverrides": [],
+                }],
+                "queryFields": [
+                    {
+                        "name": "qt_date",
+                        "datasetNs": "d0", "tableNs": "t0",
+                        "dataTransformation": {"sourceFieldName": F_DATE},
+                    },
+                    {
+                        "name": "qt_fuel",
+                        "datasetNs": "d0", "tableNs": "t0",
+                        "dataTransformation": {"sourceFieldName": F_FUEL_TYPE},
+                    },
+                    {
+                        "name": "qt_count",
+                        "datasetNs": "d0", "tableNs": "t0",
+                        "dataTransformation": {"sourceFieldName": F_RECORD_COUNT},
+                    },
+                ],
+                "sortData": [{"name": "qt_date", "sortDir": 1}],
+                "includeRowsCount": False,
+                "relatedDimensionMask": {
+                    "addDisplay": False, "addUniqueId": False, "addLatLong": False,
+                },
+                "dsFilterOverrides": [],
+                "filters": [{
+                    "filterInfo": {
+                        "type":        "INCLUDE",
+                        "operand":     "EQUALS",
+                        "expressions": [VEHICLE_FILTER_VALUE],
+                        "fieldName":   F_VEHICLE_TYPE,
+                    }
+                }],
+                "features": [],
+                "dateRanges": [{
+                    "start": f"{year_from}0101",
+                    "end":   f"{year_to}1231",
+                }],
+                "contextNsCount": 1,
+                "dateRangeDimensions": [{
+                    "name": "qt_ci4tkhro0d",
+                    "datasetNs": "d0", "tableNs": "t0",
+                    "dataTransformation": {"sourceFieldName": F_DATE},
+                }],
+                "calculatedField":       [],
+                "needGeocoding":         False,
+                "geoFieldMask":          [],
+                "multipleGeocodeFields": [],
+                "timezone":              "Europe/Vienna",
+            },
+            "role": "main",
+            "retryHints": {
+                "useClientControlledRetry": True,
+                "isLastRetry":  False,
+                "retryCount":   0,
+                "originalRequestId": req_id,
+            },
+        }]
+    }
+
+
+# ── Session via headless browser ──────────────────────────────────────────────
+
+def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
+    """Load the public Looker report in headless Chromium, capture the XSRF
+    token + cookies from the first batchedDataV2 request the page makes, then
+    replay those credentials with our custom (month × fuel) payload."""
     from playwright.sync_api import sync_playwright
 
-    captured: list[dict] = []
-
-    def _decode(body: bytes) -> dict | None:
-        try:
-            text = body.decode("utf-8", "replace")
-        except Exception:
-            return None
-        if text.startswith(")]}'"):
-            text = text[4:].lstrip("\n")
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            return None
+    intercepted: dict = {}   # headers from the first outgoing batchedDataV2
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -198,202 +274,156 @@ def fetch_via_browser(report_url: str) -> list[dict]:
         )
         page = context.new_page()
 
-        def on_response(response):
-            if "batchedDataV2" not in response.url:
-                return
-            try:
-                body = response.body()
-            except Exception:
-                return
-            data = _decode(body)
-            if data is None:
-                if DEBUG:
-                    print(f"[albania][debug] batchedDataV2 response "
-                          f"({len(body)} bytes) — could not decode JSON")
-                return
-            captured.append(data)
-            if DEBUG:
-                print(f"[albania][debug] captured batchedDataV2 response "
-                      f"#{len(captured)} ({len(body)} bytes)")
+        def on_request(request):
+            if "batchedDataV2" in request.url and not intercepted:
+                intercepted["headers"] = dict(request.headers)
+                intercepted["url"]     = request.url
 
-        page.on("response", on_response)
+        page.on("request", on_request)
 
-        print(f"[albania] browser → {report_url}")
-        page.goto(report_url, wait_until="domcontentloaded", timeout=90_000)
-        page.wait_for_timeout(5_000)
+        print(f"[albania] browser → {REPORT_PAGE_URL}")
+        page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded", timeout=90_000)
 
-        # Looker lazy-loads components as they scroll into view, so walk the
-        # whole page to trigger every chart's batchedDataV2 request.
-        for _ in range(14):
-            page.mouse.wheel(0, 1400)
-            page.wait_for_timeout(1_500)
-        page.keyboard.press("End")
-        page.wait_for_timeout(2_000)
+        # Wait up to 30 s for the first batchedDataV2 request
+        for _ in range(30):
+            if intercepted:
+                break
+            page.wait_for_timeout(1_000)
 
-        # Settle: wait until no new responses arrive for ~6s (cap ~40s).
-        last, stable = len(captured), 0
-        for _ in range(20):
-            page.wait_for_timeout(2_000)
-            if len(captured) == last:
-                stable += 1
-                if stable >= 3 and last > 0:
-                    break
-            else:
-                last, stable = len(captured), 0
+        if not intercepted:
+            page.mouse.wheel(0, 2000)
+            page.wait_for_timeout(5_000)
 
-        if DEBUG:
-            print(f"[albania][debug] final page url: {page.url}")
+        cookies_raw = context.cookies()
         browser.close()
 
-    print(f"[albania] captured {len(captured)} batchedDataV2 response(s)")
+    if not intercepted:
+        raise RuntimeError(
+            "No batchedDataV2 request seen during page load — "
+            "the report URL may have changed or Google blocked the browser. "
+            "Check docs/architecture/27-source-albania.md §8."
+        )
+
+    hdrs = intercepted["headers"]
+    xsrf = hdrs.get("x-rap-xsrf-token", "")
     if DEBUG:
-        for i, data in enumerate(captured, 1):
-            blob = json.dumps(data, ensure_ascii=False)
-            print(f"[albania][debug] ===== response #{i} raw ({len(blob)} chars) =====")
-            print(blob[:8000])
-    return captured
+        print(f"[albania][debug] intercepted XSRF: {xsrf[:20] if xsrf else '(none)'}...")
+        print(f"[albania][debug] cookies from context: "
+              f"{[c['name'] for c in cookies_raw]}")
 
+    # Re-assemble cookie header for datastudio / lookerstudio domains
+    cookie_str = "; ".join(
+        f"{c['name']}={c['value']}" for c in cookies_raw
+        if any(d in c.get("domain", "")
+               for d in ("google.com", "lookerstudio.google.com",
+                         "datastudio.google.com"))
+    )
 
-def _has_table_rows(captured: list[dict]) -> bool:
-    for data in captured:
-        for dr in data.get("dataResponse", []):
-            for subset in dr.get("dataSubset", []):
-                tds = subset.get("dataset", {}).get("tableDataset", {})
-                if tds.get("size", 0):
-                    return True
-    return False
+    # Use the intercepted URL's appVersion to stay in sync
+    api_url = intercepted.get("url", API_URL_TEMPLATE.format("20260607_0101"))
+
+    payload = _build_payload(year_from, year_to)
+
+    post_headers = {
+        "content-type":    "application/json",
+        "accept":          "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control":   "no-cache",
+        "origin":          "https://lookerstudio.google.com",
+        "referer":         REPORT_PAGE_URL,
+        "cookie":          cookie_str,
+    }
+    if xsrf:
+        post_headers["x-rap-xsrf-token"] = xsrf
+
+    if DEBUG:
+        print(f"[albania][debug] POST payload (first 1000 chars):")
+        print(json.dumps(payload, ensure_ascii=False)[:1000])
+
+    print(f"[albania] POST {api_url}")
+    resp = requests.post(api_url, json=payload, headers=post_headers, timeout=120)
+    print(f"[albania] HTTP {resp.status_code} ({len(resp.content)} bytes)")
+    resp.raise_for_status()
+
+    text = resp.text
+    if text.startswith(")]}'"):
+        text = text[4:].lstrip("\n")
+
+    if DEBUG:
+        print(f"[albania][debug] raw response body (first 3000 chars):")
+        print(text[:3000])
+
+    return json.loads(text)
 
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _col_values(col: dict) -> tuple[str, list]:
-    """Return (kind, values) for a batchedDataV2 column."""
-    if "stringColumn" in col:
-        return "string", col["stringColumn"].get("values", [])
-    if "longColumn" in col:
-        return "long", col["longColumn"].get("values", [])
-    if "doubleColumn" in col:
-        return "double", col["doubleColumn"].get("values", [])
-    if "nullIndex" in col and not (set(col) - {"nullIndex"}):
-        return "null", []
-    return "other", []
-
-
-def _classify_columns(parsed):
-    """Given a list of (kind, values, nulls) tuples, return indices for
-    (date_idx, fuel_idx, count_idx, vehicle_idx) — any may be None."""
-    date_idx = fuel_idx = count_idx = vehicle_idx = None
-
-    for i, (kind, vals, _nulls) in enumerate(parsed):
-        sample = [v for v in vals[:50] if v not in (None, "")]
-        if kind == "string":
-            # vehicle-type column?
-            if vehicle_idx is None and any(v in _VEHICLE_TYPES for v in sample):
-                vehicle_idx = i
-                continue
-            # fuel column?
-            if fuel_idx is None and any(v in _ALL_FUEL for v in sample):
-                fuel_idx = i
-                continue
-            # date column?
-            if date_idx is None and sample and \
-               sum(_parse_period(v) is not None for v in sample) >= max(1, len(sample) // 2):
-                date_idx = i
-                continue
-        elif kind in ("long", "double"):
-            if count_idx is None:
-                count_idx = i
-
-    return date_idx, fuel_idx, count_idx, vehicle_idx
-
-
-def parse_captured(captured: list[dict]) -> dict:
-    """Walk every captured batchedDataV2 response, find the table that carries
-    (Month, Fuel, Count) for passenger cars, and aggregate into gallery rows."""
+def _parse_response(data: dict) -> dict:
+    """Parse batchedDataV2 JSON → {(period, VARIANT): gallery_row_dict}."""
     rows: dict = {}
-    seen_any_table = False
 
-    for data in captured:
-        # Surface explicit Looker access/validation errors for diagnosis.
-        for dr in data.get("dataResponse", []):
-            err = dr.get("errorStatus")
-            if err and DEBUG:
-                print(f"[albania][debug] errorStatus: {json.dumps(err)}")
+    for dr in data.get("dataResponse", []):
+        err = dr.get("errorStatus")
+        if err:
+            print(f"[albania] API error: code={err.get('code')} "
+                  f"reason={err.get('reasonStr')} "
+                  f"category={err.get('errorCategoryStr')}")
+            continue
 
-            for subset in dr.get("dataSubset", []):
-                tds = subset.get("dataset", {}).get("tableDataset", {})
-                cols = tds.get("column", [])
-                size = tds.get("size", 0)
-                if not cols or not size:
+        for subset in dr.get("dataSubset", []):
+            tds = subset.get("dataset", {}).get("tableDataset", {})
+            cols = tds.get("column", [])
+            size = tds.get("size", 0)
+
+            if len(cols) < 3 or size == 0:
+                continue
+
+            date_col  = cols[0]
+            fuel_col  = cols[1]
+            count_col = cols[2]
+
+            null_date  = set(date_col.get("nullIndex",  []))
+            null_fuel  = set(fuel_col.get("nullIndex",  []))
+            null_count = set(count_col.get("nullIndex", []))
+
+            dates  = date_col.get("stringColumn",  {}).get("values", [])
+            fuels  = fuel_col.get("stringColumn",  {}).get("values", [])
+            counts = count_col.get("longColumn",   {}).get("values", [])
+
+            if DEBUG:
+                col_info = tds.get("columnInfo", [])
+                names = [c.get("name") for c in col_info]
+                print(f"[albania][debug] table: size={size} cols={names}")
+                print(f"[albania][debug]   dates[:3]={dates[:3]}")
+                print(f"[albania][debug]   fuels[:3]={fuels[:3]}")
+                print(f"[albania][debug]   counts[:3]={counts[:3]}")
+
+            for i in range(size):
+                if i in null_date or i in null_fuel:
                     continue
-                seen_any_table = True
+                period = _parse_period(dates[i] if i < len(dates) else "")
+                if not period:
+                    if DEBUG:
+                        print(f"[albania][debug]   unparseable date {dates[i]!r}, skip")
+                    continue
 
-                parsed = []
-                for c in cols:
-                    kind, vals = _col_values(c)
-                    parsed.append((kind, vals, set(c.get("nullIndex", []))))
+                fuel  = fuels[i] if i < len(fuels) else ""
+                count = int(counts[i]) if (i not in null_count and
+                                           i < len(counts)) else 0
+                col   = _fuel_col(fuel)
+                key   = (period, VARIANT)
 
-                date_idx, fuel_idx, count_idx, vehicle_idx = _classify_columns(parsed)
-
-                if DEBUG:
-                    info = tds.get("columnInfo", [])
-                    names = [ci.get("name") for ci in info]
-                    kinds = [k for k, _v, _n in parsed]
-                    print(f"[albania][debug] table size={size} "
-                          f"names={names} kinds={kinds} "
-                          f"→ date={date_idx} fuel={fuel_idx} "
-                          f"count={count_idx} vehicle={vehicle_idx}")
-                    for j, (k, v, _n) in enumerate(parsed):
-                        print(f"[albania][debug]   col{j} {k}: {v[:6]}")
-
-                if date_idx is None or fuel_idx is None or count_idx is None:
-                    continue   # not the table we want
-
-                dkind, dates, dnull = parsed[date_idx]
-                fkind, fuels, fnull = parsed[fuel_idx]
-                ckind, counts, cnull = parsed[count_idx]
-                if vehicle_idx is not None:
-                    _vk, vehicles, vnull = parsed[vehicle_idx]
-                else:
-                    vehicles, vnull = None, set()
-
-                for i in range(size):
-                    if i in dnull or i in fnull:
-                        continue
-                    if vehicles is not None:
-                        if i in vnull or i >= len(vehicles):
-                            continue
-                        if vehicles[i] != VEHICLE_FILTER_VALUE:
-                            continue
-                    if i >= len(dates) or i >= len(fuels):
-                        continue
-                    period = _parse_period(dates[i])
-                    if not period:
-                        continue
-                    fuel = fuels[i]
-                    count = 0
-                    if i not in cnull and i < len(counts):
-                        try:
-                            count = int(float(counts[i]))
-                        except (TypeError, ValueError):
-                            count = 0
-
-                    col = _fuel_col(fuel)
-                    key = (period, VARIANT)
-                    if key not in rows:
-                        rows[key] = {
-                            "period":        period,
-                            "time_interval": "monthly",
-                            "variant":       VARIANT,
-                            "source":        SOURCE,
-                            "BEV":    0.0, "PHEV":   0.0, "HEV":   0.0,
-                            "PETROL": 0.0, "DIESEL": 0.0, "OTHERS": 0.0,
-                            "TOTAL":  0.0, "notes":  "",
-                        }
-                    rows[key][col] = rows[key].get(col, 0.0) + count
-
-    if not seen_any_table:
-        print("[albania] no table data in any captured response.")
+                if key not in rows:
+                    rows[key] = {
+                        "period":        period,
+                        "time_interval": "monthly",
+                        "variant":       VARIANT,
+                        "source":        SOURCE,
+                        "BEV":    0.0, "PHEV":   0.0, "HEV":   0.0,
+                        "PETROL": 0.0, "DIESEL": 0.0, "OTHERS": 0.0,
+                        "TOTAL":  0.0, "notes":  "",
+                    }
+                rows[key][col] = rows[key].get(col, 0.0) + count
 
     # Compute TOTAL; zero optional cols → empty string (gallery convention)
     for row in rows.values():
@@ -447,22 +477,23 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--since", default=None,
                     help="Only upsert months >= YYYY-MM (default: all).")
+    ap.add_argument("--year-from", type=int, default=datetime.now().year,
+                    help="First calendar year to request (default: current year).")
+    ap.add_argument("--year-to", type=int, default=datetime.now().year,
+                    help="Last calendar year to request (default: current year).")
     ap.add_argument("--dry-run", action="store_true",
                     help="Fetch and parse; print monthly totals; do not write CSV.")
     ap.add_argument("--force", action="store_true",
                     help="Accepted for parity (commit-gated downstream).")
-    # Accepted for backward-compat with the workflow; ignored under interception.
-    ap.add_argument("--year-from", type=int, default=None, help=argparse.SUPPRESS)
-    ap.add_argument("--year-to", type=int, default=None, help=argparse.SUPPRESS)
     args = ap.parse_args()
 
-    captured = fetch_via_browser(REPORT_PAGE_URL)
-    rows = parse_captured(captured)
+    data = _fetch_with_browser_session(args.year_from, args.year_to)
+    rows = _parse_response(data)
 
     if not rows:
-        print("[albania] no data rows parsed — the report layout or share "
-              "token may have changed, or this year's report is not yet "
-              "published. Historical rows are kept from the existing CSV.",
+        print("[albania] no data rows parsed — the report may not yet have "
+              "data for the requested year, or an API field ID / revisionNumber "
+              "may need updating. See docs/architecture/27-source-albania.md §8.",
               file=sys.stderr)
         sys.exit(1)
 
