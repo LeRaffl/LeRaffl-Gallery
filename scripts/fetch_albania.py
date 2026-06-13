@@ -150,8 +150,15 @@ def _parse_period(s: str) -> str | None:
 
 # ── Session helpers ──────────────────────────────────────────────────────────
 
-def _get_session() -> tuple[requests.Session, str]:
-    """Load the public Looker Studio page to obtain an anonymous session cookie."""
+def _get_session() -> tuple[requests.Session, str | None]:
+    """Load the public Looker Studio page and try to obtain a session token.
+
+    For authenticated Google sessions the RAP_XSRF_TOKEN arrives as a cookie.
+    For anonymous sessions (GitHub Actions) it is absent from cookies but may
+    be embedded in the page HTML.  If neither source yields a token we proceed
+    without one — public Looker reports do not always require XSRF for
+    anonymous reads.  The API call will raise on 4xx if auth is needed.
+    """
     session = requests.Session()
     session.headers.update({
         "User-Agent": (
@@ -168,15 +175,28 @@ def _get_session() -> tuple[requests.Session, str]:
     print(f"[albania] page load HTTP {resp.status_code}")
     resp.raise_for_status()
 
+    # 1. Cookie (set for authenticated Google sessions)
     xsrf = session.cookies.get("RAP_XSRF_TOKEN")
-    if not xsrf:
-        raise RuntimeError(
-            "RAP_XSRF_TOKEN cookie not found after page load. "
-            "Looker Studio may have changed its auth flow. "
-            "Check docs/architecture/27-source-albania.md §6."
-        )
-    print(f"[albania] XSRF token obtained ({xsrf[:16]}...)")
-    return session, xsrf
+    if xsrf:
+        print(f"[albania] XSRF token from cookie ({xsrf[:16]}...)")
+        return session, xsrf
+
+    # 2. Embedded in page HTML / JavaScript (anonymous sessions)
+    for pattern in (
+        r'RAP_XSRF_TOKEN["\'][,\s:]+["\']([^"\']{10,})["\']',
+        r'"RAP_XSRF_TOKEN"\s*,\s*"([^"]{10,})"',
+        r"'RAP_XSRF_TOKEN'\s*,\s*'([^']{10,})'",
+    ):
+        m = re.search(pattern, resp.text)
+        if m:
+            xsrf = m.group(1)
+            print(f"[albania] XSRF token from page HTML ({xsrf[:16]}...)")
+            return session, xsrf
+
+    # 3. Not found — proceed without; let the API call fail naturally on 4xx
+    print("[albania] RAP_XSRF_TOKEN not found in cookie or page; "
+          "proceeding without XSRF header (public report may not require it).")
+    return session, None
 
 
 # ── batchedDataV2 payload ────────────────────────────────────────────────────
@@ -409,8 +429,9 @@ def main() -> None:
         "Origin":            "https://datastudio.google.com",
         "Pragma":            "no-cache",
         "Referer":           REPORT_PAGE_URL,
-        "X-RAP-XSRF-TOKEN":  xsrf,
     }
+    if xsrf:
+        api_headers["X-RAP-XSRF-TOKEN"] = xsrf
 
     print(f"[albania] POST {API_URL}")
     resp = session.post(
