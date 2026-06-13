@@ -252,62 +252,79 @@ def _build_payload(year_from: int, year_to: int) -> dict:
 
 def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
     """Load the public Looker report in headless Chromium, intercept the
-    page's first batchedDataV2 request from page VPWqB, and replay it with
-    our custom (month × fuel) payload via route.fetch().
+    page's first VPWqB batchedDataV2 request, and replay it with our custom
+    (month × fuel) payload via route.fetch().
 
     Why route.fetch() instead of page.evaluate() + fetch():
     - route.fetch() replays the intercepted request with ALL of its original
       headers, preserving the full browser session context that Google requires
       to pass PREFETCH_VALIDATION.
 
-    Why we filter by referer:
-    - The ?s= sharing link may redirect to the report's default page (CU40B).
-      Our componentId lives on VPWqB; a batchedDataV2 sent from CU40B context
-      returns PREFETCH_VALIDATION even with valid session cookies.
-    - We skip any batchedDataV2 whose referer doesn't contain PAGE_ID_URL and
-      explicitly re-navigate to VPWqB if the initial load lands elsewhere.
+    Navigation strategy (two-phase):
+    1. Load via the public sharing URL (lookerstudio.google.com/?s=…) to let
+       Google set session cookies.  This redirects to datastudio.google.com
+       but the SPA always initialises from the report's default page (CU40B)
+       first, regardless of the target page in the URL.
+    2. Navigate directly to datastudio.google.com/page/VPWqB (no sharing
+       token, session cookies already established).  This second load starts
+       the SPA in VPWqB context and triggers batchedDataV2 from VPWqB.
 
-    Looker Studio never reaches 'networkidle' (continuous polling), so we
-    use domcontentloaded + page.route() to intercept batchedDataV2."""
+    Intercept filter:
+    - Primary:   request body contains our COMPONENT_ID / PAGE_ID_NUM
+      (catches any request the SPA makes for VPWqB data)
+    - Secondary: referer header contains PAGE_ID_URL ("VPWqB")
+    Both conditions log all batchedDataV2 details in DEBUG mode so we can
+    diagnose which requests carry VPWqB component IDs."""
     from playwright.sync_api import sync_playwright
+    import time as _time
 
     custom_result: list[str | None]       = [None]
     custom_error:  list[Exception | None] = [None]
 
     def handle_route(route):
         req = route.request
-        referer = req.headers.get("referer", "")
+        referer  = req.headers.get("referer", "")
         is_batched = "batchedDataV2" in req.url
-        on_vpwqb   = PAGE_ID_URL in referer
 
-        if is_batched and on_vpwqb and custom_result[0] is None:
+        if is_batched and custom_result[0] is None:
+            body = req.post_data or ""
+            vpwqb_in_body    = COMPONENT_ID in body or PAGE_ID_NUM in body
+            vpwqb_in_referer = PAGE_ID_URL  in referer
+
             if DEBUG:
-                print(f"[albania][debug] intercepted batchedDataV2: {req.url}")
-                print(f"[albania][debug] referer: {referer}")
-                print(f"[albania][debug] request headers: "
-                      f"{list(req.all_headers().keys())}")
-            try:
-                resp = route.fetch(
-                    post_data=json.dumps(_build_payload(year_from, year_to)),
-                )
-                custom_result[0] = resp.text()
+                print(f"[albania][debug] batchedDataV2 intercepted:")
+                print(f"  url={req.url}")
+                print(f"  referer={referer!r}")
+                print(f"  body_len={len(body)} "
+                      f"vpwqb_in_body={vpwqb_in_body} "
+                      f"vpwqb_in_referer={vpwqb_in_referer}")
+                print(f"  body[:300]: {body[:300]!r}")
+
+            if vpwqb_in_body or vpwqb_in_referer:
                 if DEBUG:
-                    print(f"[albania][debug] route.fetch → "
-                          f"{len(custom_result[0])} chars")
-                route.fulfill(response=resp)
-            except Exception as exc:
-                custom_error[0] = exc
+                    print(f"[albania][debug] --> INTERCEPTING and replacing body")
+                try:
+                    resp = route.fetch(
+                        post_data=json.dumps(_build_payload(year_from, year_to)),
+                    )
+                    custom_result[0] = resp.text()
+                    if DEBUG:
+                        print(f"[albania][debug] route.fetch → "
+                              f"{len(custom_result[0])} chars")
+                    route.fulfill(response=resp)
+                except Exception as exc:
+                    custom_error[0] = exc
+                    try:
+                        route.continue_()
+                    except Exception:
+                        pass
+            else:
+                if DEBUG:
+                    print(f"[albania][debug] --> skipping (no VPWqB context)")
                 try:
                     route.continue_()
                 except Exception:
                     pass
-        elif is_batched and not on_vpwqb and DEBUG:
-            print(f"[albania][debug] skipping batchedDataV2 from non-VPWqB "
-                  f"referer: {referer!r}")
-            try:
-                route.continue_()
-            except Exception:
-                pass
         else:
             try:
                 route.continue_()
@@ -333,38 +350,41 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         # Register route handler BEFORE first goto so no request is missed.
         page.route("**/*", handle_route)
 
-        print(f"[albania] browser → {REPORT_PAGE_URL}")
-        page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded", timeout=60_000)
+        # Phase 1: load via sharing URL to establish the Google session cookies.
+        # The page redirects to datastudio.google.com.  We use wait_until="load"
+        # (not networkidle, which never fires) to give scripts time to run and
+        # set cookies.
+        print(f"[albania] phase-1 browser → {REPORT_PAGE_URL}")
+        page.goto(REPORT_PAGE_URL, wait_until="load", timeout=90_000)
 
         if DEBUG:
-            print(f"[albania][debug] landed on: {page.url}")
-
-        # The ?s= sharing link may redirect to the report default page instead
-        # of VPWqB.  Navigate directly to VPWqB if that happened.
-        if PAGE_ID_URL not in page.url:
-            direct_url = (
-                f"https://lookerstudio.google.com/reporting/{REPORT_ID}"
-                f"/page/{PAGE_ID_URL}"
-            )
-            print(f"[albania] not on VPWqB; navigating directly → {direct_url}")
-            page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
-            if DEBUG:
-                print(f"[albania][debug] now on: {page.url}")
-
-        if DEBUG:
+            print(f"[albania][debug] phase-1 landed: {page.url}")
             cookies = context.cookies()
-            print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
+            print(f"[albania][debug] phase-1 cookies: {[c['name'] for c in cookies]}")
 
-        # Poll until route.fetch() in handle_route completes — the route handler
-        # runs asynchronously relative to goto().  wait_for_timeout() keeps the
-        # Playwright event loop ticking so route events can be delivered.
-        import time as _time
-        deadline = _time.time() + 90
+        # Phase 2: navigate directly to the VPWqB page on datastudio.google.com
+        # (no sharing token — session is already established above).  This forces
+        # the SPA to initialise in VPWqB context so its batchedDataV2 requests
+        # carry VPWqB page/component IDs.
+        direct_url = (
+            f"https://datastudio.google.com/reporting/{REPORT_ID}"
+            f"/page/{PAGE_ID_URL}"
+        )
+        print(f"[albania] phase-2 → {direct_url}")
+        page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
+
+        if DEBUG:
+            print(f"[albania][debug] phase-2 landed: {page.url}")
+            cookies = context.cookies()
+            print(f"[albania][debug] phase-2 cookies: {[c['name'] for c in cookies]}")
+
+        # Poll until handle_route captures a result; wait_for_timeout() keeps
+        # the Playwright event loop ticking so route events are delivered.
+        deadline = _time.time() + 180
         while (custom_result[0] is None and custom_error[0] is None
                and _time.time() < deadline):
             page.wait_for_timeout(500)
 
-        # Unregister handler before close to prevent in-flight route races.
         try:
             page.unroute("**/*", handle_route)
         except Exception:
@@ -372,7 +392,6 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
 
         browser.close()
 
-    # Prefer a successfully captured result over a secondary cleanup error.
     if custom_result[0] is None and custom_error[0]:
         raise RuntimeError(
             f"[albania] route.fetch() failed: {custom_error[0]}"
