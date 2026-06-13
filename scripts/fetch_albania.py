@@ -179,7 +179,7 @@ def _build_payload(year_from: int, year_to: int) -> dict:
                     "pageId":      PAGE_ID_NUM,
                     "mode":        1,
                     "componentId": COMPONENT_ID,
-                    "displayType": "table",
+                    "displayType": "pivot-table",
                 },
                 "requestMode": 0,
             },
@@ -308,6 +308,7 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
             if is_our_component and vpwqb_in_referer:
                 if DEBUG:
                     print(f"[albania][debug] --> two-pass: original then custom")
+                    print(f"[albania][debug] FULL original body ({len(body)} chars): {body!r}")
                 try:
                     # Pass 1: forward original body unchanged.  This lets the
                     # concurrent VPWqB requests (dimension-filters, pie-chart,
