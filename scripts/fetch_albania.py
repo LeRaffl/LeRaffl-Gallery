@@ -256,7 +256,11 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
     custom (month × fuel) payload *from within the browser* via JavaScript
     fetch().  Running the POST inside the browser context means it carries all
     cookies, XSRF tokens, and session headers automatically — no external
-    extraction needed."""
+    extraction needed.
+
+    Looker Studio never reaches 'networkidle' (continuous background polling),
+    so we use domcontentloaded + expect_request to unblock as soon as the first
+    batchedDataV2 request fires — at that point the session is established."""
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
@@ -275,38 +279,27 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         )
         page = context.new_page()
 
-        # Track when the page's own batchedDataV2 requests fire so we know
-        # the session is fully established before we POST our custom payload.
-        session_ready: list[str] = []
-
-        def on_request(req):
-            if "batchedDataV2" in req.url and not session_ready:
-                session_ready.append(req.url)
-                if DEBUG:
-                    print(f"[albania][debug] page issued batchedDataV2: {req.url}")
-
-        page.on("request", on_request)
-
         print(f"[albania] browser → {REPORT_PAGE_URL}")
-        # networkidle waits until no network activity for 500ms — by then the
-        # page's own data requests (and session setup) have completed.
-        page.goto(REPORT_PAGE_URL, wait_until="networkidle", timeout=90_000)
 
-        if not session_ready:
-            # Scroll to trigger lazy-loaded components and their XHRs
-            page.mouse.wheel(0, 2000)
-            page.wait_for_timeout(8_000)
+        # expect_request blocks until the page fires its first batchedDataV2
+        # request (signals session is established).  We start the waiter before
+        # goto so we can't miss the request if it fires during page load.
+        with page.expect_request("**/batchedDataV2**", timeout=90_000) as req_ctx:
+            page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded",
+                      timeout=60_000)
 
+        api_url = req_ctx.value.url
         if DEBUG:
-            print(f"[albania][debug] session_ready: {bool(session_ready)}")
+            print(f"[albania][debug] page issued batchedDataV2: {api_url}")
             cookies = context.cookies()
             print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
+
+        # Short pause — let additional session-auth XHRs settle before we POST
+        page.wait_for_timeout(3_000)
 
         # Build our custom payload and issue the POST from *inside* the browser
         # using window.fetch().  The browser supplies all auth headers.
         payload = _build_payload(year_from, year_to)
-        api_url = (session_ready[0] if session_ready
-                   else API_URL_TEMPLATE.format("20260607_0101"))
 
         if DEBUG:
             print(f"[albania][debug] in-browser fetch → {api_url}")
