@@ -391,7 +391,18 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         if DEBUG:
             print(f"[albania][debug] present month labels: {present_labels}")
 
-        # (label, period) within the requested year range, ascending by period.
+        # Close the Muaji popup before the toggle loop.  _open_muaji() above
+        # opened it to make month labels visible for JS eval; if the toggle
+        # loop's first _open_muaji() finds it still open, it will CLOSE it
+        # (toggle), causing the subsequent month-label click to land on the
+        # wrong element (a chart label, not the filter checkbox) → no response.
+        try:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(800)
+        except Exception:
+            pass
+
+        # (label, period) within the requested year range, descending by period.
         present: list[tuple[str, str]] = []
         for lbl in present_labels:
             p = _label_to_period(lbl)
@@ -429,7 +440,7 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             # bug that zeroed Jan/Feb in run 22).  After it appears, wait a short
             # settle so any trailing subset is included, then re-check stability.
             got = False
-            wait_deadline = _time.time() + 40
+            wait_deadline = _time.time() + 22
             while _time.time() < wait_deadline:
                 page.wait_for_timeout(500)
                 if len(captured) <= cap_before:
