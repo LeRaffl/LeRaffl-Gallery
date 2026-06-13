@@ -318,15 +318,21 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
         # Register route handler BEFORE goto so no request is missed.
         page.route("**/*", handle_route)
 
-        # expect_request unblocks as soon as the first batchedDataV2 fires
-        # (domcontentloaded is enough — networkidle never fires on Looker Studio).
-        with page.expect_request("**/batchedDataV2**", timeout=90_000):
-            page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded",
-                      timeout=60_000)
+        # domcontentloaded is enough — networkidle never fires on Looker Studio.
+        page.goto(REPORT_PAGE_URL, wait_until="domcontentloaded", timeout=60_000)
 
         if DEBUG:
             cookies = context.cookies()
             print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
+
+        # Poll until route.fetch() in handle_route completes — the route handler
+        # runs asynchronously relative to goto().  wait_for_timeout() keeps the
+        # Playwright event loop ticking so route events can be delivered.
+        import time as _time
+        deadline = _time.time() + 60
+        while (custom_result[0] is None and custom_error[0] is None
+               and _time.time() < deadline):
+            page.wait_for_timeout(500)
 
         browser.close()
 
