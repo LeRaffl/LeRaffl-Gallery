@@ -1,76 +1,93 @@
-# 26 · Source: Singapore (data.gov.sg / LTA "Cars by Fuel Type")
+# 26 · Source: Singapore (lta.gov.sg / M03 "Cars by Make" PDF)
 
-Singapore's Land Transport Authority (LTA) publishes monthly new-car
-registrations by fuel type. The figures are republished on the national open
-data portal **data.gov.sg**, which exposes them through a clean CKAN datastore
-REST API. This is a database-fed country like Canada/Sweden: no PDF, no
-scraping — one unauthenticated JSON endpoint, paged.
+Singapore's Land Transport Authority (LTA) publishes new-car registrations in
+its **Monthly Vehicle Statistics** as PDFs. The file **M03 "New Registration of
+Cars by Make"** breaks registrations down by `Make × Importer Type × Fuel Type`
+and is the only current, official source with a fuel-type split. We parse it
+positionally and upsert `data/Singapore.csv`.
 
 ## TL;DR
 
 ```
-Source:    data.gov.sg (CKAN datastore; LTA "New Registration of Cars by
-           Fuel Type", monthly)
-Resource:  d_d3f4d708e1d0a37b4365414e2fad3a07  (cited in the legacy CSV)
-Auth:      None required
-API:       GET https://data.gov.sg/api/action/datastore_search
-              ?resource_id=<id>&limit=<n>&offset=<m>
-Variant:   Whole (all cars; Singapore reports a single car series)
-Layout:    LONG — one record per (month, fuel_type) with a numeric count;
-           summed per month into the wide gallery schema
-Coverage:  BEV/PHEV/HEV split resolves from ~2022-07; earlier months report
-           electrified cars inside a coarse Others bucket (see §2)
+Source:    lta.gov.sg — Monthly Vehicle Statistics, file M03
+URL:       https://www.lta.gov.sg/content/dam/ltagov/who_we_are/
+           statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf
+Auth:      None
+Format:    PDF table; rows = Make × Importer × Fuel Type, per-month sub-columns
+           HB / SDN / MPV / STW / SUV / Conv / Total
+Parse:     pdfplumber, positional — sum each month's per-row Total column across
+           all makes, grouped by Fuel Type (scripts/fetch_singapore.py)
+Variant:   Whole (all cars)
+Coverage:  Rolling current half-year (≈6 recent months per fetch); older months
+           stay in the CSV (upsert keyed on (period, variant))
 Cadence:   Monthly; time_interval=monthly
-HEV:       Reported natively ("Petrol-Electric" / "Non-plugin hybrid")
-Backfill:  None — the datastore serves the full history in one resource
 Schedule:  Daily days 15-31, 08:00 UTC; commit-gated
 Scripts:   scripts/fetch_singapore.py
 Workflow:  .github/workflows/fetch-singapore.yml
 ```
 
-The same LTA data also surfaces as SingStat Table Builder series **M650281** and
-inside newautomotive's global EV tracker. data.gov.sg is chosen as the
-canonical feed because it is official, has the cleanest JSON API, and is the id
-already referenced in the hand-maintained file.
+## 1. Why this source (and not a clean API)
 
-## 1. Fuel classification
+Investigated and rejected:
 
-The datastore's `fuel_type` labels have shifted over the years. The fetcher maps
-them with ordered substring rules (`FUEL_RULES`) that tolerate both the LTA
-wording (`Petrol-Electric`, `Petrol-Electric (Plug-In)`, `Electric`) and the
-alternative `Battery electric` / `Plugin hybrid` / `Non-plugin hybrid` wording:
+* **data.gov.sg** "New Registration of Cars by Make" (`d_d3f4d708…`) — has a
+  fuel-type column and a clean CKAN JSON API, but is **frozen at 2025-05**.
+  Useful only as a historical cross-check (it reproduces these figures exactly
+  for the overlap).
+* **SingStat Table Builder M650281** — current, but only the VQS categories
+  (A/B/C/D); **no fuel/BEV split**.
+* **Robbie Andrew's `singapore_carsales_monthly.csv`** — this same LTA data,
+  pre-parsed and current; a convenient third-party fallback, but not the
+  official primary.
+
+The LTA M03 PDF is the official primary source that is both current and
+fuel-typed.
+
+## 2. Parsing M03 (`parse_m03`)
+
+The PDF's text has zero-suppressed cells, so text parsing is ambiguous; we work
+positionally with `pdfplumber.extract_words`:
+
+1. The sub-header line carrying `HB SDN MPV STW SUV Conv Total` gives every body
+   column's x-centre. Grouped in 7s, the **7th ("Total") of each block** is that
+   month's total column; the `YYYY-MM` labels order the blocks.
+2. Each data row's **fuel** is the suffix of its label (`Make Importer Fuel`),
+   matched longest-first so `…(Plug-In)` wins over plain `…-Electric`.
+3. Every numeric cell is assigned to its **nearest column**; only cells landing
+   on a month-Total column are summed, per fuel, into the month.
+
+Fuel mapping (`classify_fuel`, ordered rules):
 
 ```
-contains "plug" (but not "non-plug")  → PHEV
-contains "battery electric"           → BEV
-equals   "electric"                   → BEV
-contains "hybrid"                     → HEV   (non-plug-in hybrid)
-contains "electric"                   → HEV   (Petrol-Electric, Diesel-Electric)
-contains "cng"                        → OTHERS
-contains "diesel"                     → DIESEL
-contains "petrol"                     → PETROL
-everything else                       → OTHERS (printed as a WARNING)
+Electric                    → BEV
+Petrol-Electric (Plug-In)   → PHEV   (also Diesel-Electric (Plug-In))
+Petrol-Electric             → HEV    (also Diesel-Electric; "plug" guarded
+                                      against "non-plug")
+Petrol                      → PETROL
+Diesel                      → DIESEL
+CNG / Petrol-CNG / Others   → OTHERS
 ```
 
-The `non-plug` guard matters: **"Non-plugin hybrid"** contains the substring
-"plugin" and must NOT be read as a plug-in. Run the workflow once with the
-`list_categories` input (or `--list-categories`) to print the live taxonomy and
-confirm every label maps where expected before trusting a steady-state run.
+Validation: the parser reproduces the known monthly fuel totals exactly, e.g.
+2026-05 = BEV 2930 / PHEV 121 / HEV 1230 / PETROL 196 / DIESEL 1 (rows_ok=125,
+rows_bad=0). Footnote/header lines are skipped (they carry no fuel suffix).
 
-## 2. History note: honest pre-2022 electrified figures
+## 3. Fragility & maintenance
 
-The legacy hand-maintained `data/Singapore.csv` spread an **annual** EV estimate
-evenly across each month (e.g. every 2017 month carried `BEV = 24.83`) and tagged
-those rows `yearly`/`quarterly`. The LTA source only resolves the BEV/PHEV/HEV
-split from ~2022-07; before that, electrified cars sit in a coarse Others/
-Petrol-Electric bucket. A clean fetch therefore yields **empty BEV/PHEV/HEV for
-pre-2022-07 months** and `time_interval=monthly` throughout — more honest than
-the spread estimate, but it changes those historical rows. This is expected;
-review the diff on first seeding.
+PDF layout parsing is inherently brittle. Guards in place:
 
-## 3. Upsert & idempotence
+* If a page's body-column count isn't a multiple of 7, that page is skipped
+  (logged under `--debug`) rather than mis-parsed.
+* `rows_bad` and any genuinely `unmapped` fuel labels are printed; watch these
+  in the workflow log after an LTA format change.
+* `--dry-run` prints the parsed monthly totals without writing — run it after
+  any suspected layout change to confirm before committing.
+
+If LTA changes the M03 layout and parsing breaks, the data.gov.sg datastore (for
+≤2025-05) and Robbie Andrew's CSV (current) remain as cross-checks/fallbacks.
+
+## 4. Upsert & idempotence
 
 Keyed on `(period, variant)`, mirroring `fetch_malaysia.py`. The workflow's
 commit step is change-gated, so steady-state daily runs are a no-op once the
-latest month is present. Use `--since YYYY-MM` to limit the upsert to recent
-months and leave curated history untouched; omit it to rebuild the full series.
+latest month is present. `--since YYYY-MM` limits the upsert to recent months.

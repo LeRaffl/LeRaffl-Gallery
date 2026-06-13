@@ -162,7 +162,10 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
                     continue  # header region
                 label_words = [w for w in ln if (w["x0"] + w["x1"]) / 2 < label_left]
                 label = " ".join(w["text"] for w in label_words).strip().lower()
-                if not label or label.startswith(("total", "period", "make", "new registration")):
+                # Skip headers, footnotes and notes (anything not a Make … Fuel row).
+                if (not label or label[0].isdigit()
+                        or label.startswith(("total", "period", "make", "new registration",
+                                             "note", "web/", "lta", "source", "figures"))):
                     continue
                 fuel = next((p for p in _FUEL_PHRASES if label.endswith(p)), None)
                 if fuel is None:
