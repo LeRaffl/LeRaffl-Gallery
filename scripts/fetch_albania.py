@@ -11,29 +11,36 @@ Usage
 How it works
 ------------
 Albania's General Directorate of Road Transport Services (DPSHTRR) publishes
-vehicle-registration data **only** through a public Looker Studio report:
+vehicle-registration data **only** through a public Looker Studio report (Shqip
+version):
 
-    https://lookerstudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3/page/VPWqB
+    https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB
 
-The Looker ``batchedDataV2`` API rejects anonymous plain-HTTP clients with
-``ACCESS / PREFETCH_VALIDATION``.  A real browser session is required because
-Google sets the ``RAP_XSRF_TOKEN`` only after JavaScript runs.
+The report's ``batchedDataV2`` API rejects anonymous plain-HTTP clients with
+``ACCESS / PREFETCH_VALIDATION`` and also rejects any custom payload whose
+query fingerprint was not pre-registered by the page during load
+(``PREFETCH_VALIDATION``).  Custom queries are fundamentally impossible.
 
 We therefore:
-  1. Drive a **headless Chromium (Playwright)** to load the public report page,
-     which lets Google establish the session.
-  2. Intercept the XSRF token + cookies from the first ``batchedDataV2``
-     request the page issues.
-  3. **Replay** those auth credentials with our own custom payload that
-     requests ``(Month × Fuel type × Vehicle type, Record count)`` filtered
-     to ``Autoveturë`` (passenger cars).
+  1. Drive a **headless Chromium (Playwright)** to load the Albanian DPSHTRR
+     report page, which lets Google establish the session and fires the page's
+     OWN batchedDataV2 requests.
+  2. **Intercept** (route.fetch → forward unchanged, record response) every
+     batchedDataV2 request that targets datasource ``013d0728-…``.
+  3. **Iterate the Muaji (Month) filter**: click each month option in the
+     dropdown, wait for the updated batchedDataV2 response, and record the
+     (period, response) pair.
+  4. **Parse** each captured response: vehicle_type × fuel_type × count flat
+     table; keep only ``Autoveturë`` rows; aggregate by fuel type.
 
-The native report components only expose aggregated fuel-type breakdowns
-(no month dimension); the custom payload is what gives us month-level data.
+Note: the English DPSHTRR report (407ce08b-…) cannot be used — its
+batchedDataV2 responses fail with SNAPSHOT_WITH_NON_REAGGREGATABLE because the
+component body sets ``createSnapshot:true``.  The Albanian report (233df2cc-…)
+does NOT set that flag and works correctly.
 
 Note: DPSHTRR publishes a fresh Looker report each calendar year ("year 2026").
 Historical data (pre-2026) lives in the bootstrapped CSV rows.  When a new year
-starts, update ``REPORT_ID`` / ``PAGE_ID_URL`` below.
+starts, update ``REPORT_ID`` / ``REVISION_NUMBER`` below.
 See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
@@ -64,21 +71,22 @@ import json
 import os
 import re
 import sys
-import uuid
 from datetime import datetime
 from pathlib import Path
-
-import requests
 
 DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
 
 # ── Looker Studio report constants ──────────────────────────────────────────
-REPORT_ID       = "407ce08b-d3ce-478e-9bc7-a50125f875f3"
-PAGE_ID_URL     = "VPWqB"      # "Vehicles by type of fuel or power source"
-PAGE_ID_NUM     = "24871631"   # numeric ID used in the batchedDataV2 body
+# Albanian report (Shqip) at dpshtrr.al — "Mjete sipas Lëndës Djegëse" page.
+# Unlike the English report, this one does NOT use createSnapshot:true, so
+# batchedDataV2 responses succeed without SNAPSHOT_WITH_NON_REAGGREGATABLE.
+# The Muaji (Month) dimension filter lets us iterate month-by-month.
+REPORT_ID       = "233df2cc-6bd4-45fc-bf9b-e8ee4f83293e"
+PAGE_ID_URL     = "VPWqB"      # "Mjete sipas Lëndës Djegëse"
+PAGE_ID_NUM     = "24871631"   # numeric pageId in batchedDataV2 body
 COMPONENT_ID    = "cd-p9hqinijec"
-DATASOURCE_ID   = "7705f3ec-84aa-4432-bbed-d61775f98126"
-REVISION_NUMBER = 13
+DATASOURCE_ID   = "013d0728-f5d3-4599-8899-cfb3f02fa77e"
+REVISION_NUMBER = 16
 
 # Internal field IDs (reverse-engineered 2026-06-13; bump REVISION_NUMBER if
 # DPSHTRR updates their data source and the workflow starts returning empty data)
@@ -87,13 +95,41 @@ F_FUEL_TYPE    = "_818800577_"
 F_RECORD_COUNT = "datastudio_record_count_system_field_id_98323387"
 F_DATE         = "_3076010_"
 
+# Direct URL — no sharing token needed for the Albanian public report
 REPORT_PAGE_URL = (
     f"https://lookerstudio.google.com/reporting/{REPORT_ID}/page/{PAGE_ID_URL}"
-    f"?s=ntCeOqOLBog"
 )
-API_URL_TEMPLATE = "https://datastudio.google.com/batchedDataV2?appVersion={}"
 
 VEHICLE_FILTER_VALUE = "Autoveturë"   # passenger cars only
+
+# ── Albanian month names → ISO month number ──────────────────────────────────
+# The Muaji filter in the Albanian DPSHTRR Looker report uses these labels.
+# English abbreviations and full names are included as fallbacks in case the
+# browser locale causes Looker to render the filter in English.
+_MUAJI_NAMES: list[tuple[str, str]] = [
+    # Albanian (primary)
+    ("Janar",    "01"),
+    ("Shkurt",   "02"),
+    ("Mars",     "03"),
+    ("Prill",    "04"),
+    ("Maj",      "05"),
+    ("Qershor",  "06"),
+    ("Korrik",   "07"),
+    ("Gusht",    "08"),
+    ("Shtator",  "09"),
+    ("Tetor",    "10"),
+    ("Nëntor",   "11"),
+    ("Dhjetor",  "12"),
+    # English long
+    ("January",  "01"), ("February", "02"), ("March",    "03"),
+    ("April",    "04"), ("May",      "05"), ("June",     "06"),
+    ("July",     "07"), ("August",   "08"), ("September","09"),
+    ("October",  "10"), ("November", "11"), ("December", "12"),
+    # English short
+    ("Jan", "01"), ("Feb", "02"), ("Mar", "03"), ("Apr", "04"),
+    ("Jun", "06"), ("Jul", "07"), ("Aug", "08"), ("Sep", "09"),
+    ("Oct", "10"), ("Nov", "11"), ("Dec", "12"),
+]
 
 # ── Gallery schema ───────────────────────────────────────────────────────────
 SOURCE      = "dpshtrr.al"
@@ -122,180 +158,48 @@ def _fuel_col(fuel: str) -> str:
     return "OTHERS"
 
 
-# ── Date-string parsing ──────────────────────────────────────────────────────
-_DE_MONTH = {
-    "Jan": "01", "Feb": "02", "Mär": "03", "Apr": "04",
-    "Mai": "05", "Jun": "06", "Jul": "07", "Aug": "08",
-    "Sep": "09", "Okt": "10", "Nov": "11", "Dez": "12",
+# ── Known vehicle types (used for column-type detection) ─────────────────────
+_VEHICLE_TYPE_HINTS = {
+    "Autoveturë", "Kamion", "Autobus", "Motoçikletë", "Rimorkio",
+    "Traktor", "Çikëlomotor", "Miniautobuz",
 }
-_EN_MONTH = {
-    "January": "01", "February": "02", "March": "03", "April": "04",
-    "May": "05", "June": "06", "July": "07", "August": "08",
-    "September": "09", "October": "10", "November": "11", "December": "12",
-    "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "Jun": "06",
-    "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11",
-    "Dec": "12",
+# Known fuel types (used for column-type detection)
+_FUEL_TYPE_HINTS = {
+    "Elektrik", "Benzinë", "Naftë", "Hybrid Benzinë/Elektrik",
+    "Hybrid Naftë/Elektrik", "Hybrid plug-in, Benzinë/Elektrik",
+    "Hybrid plug-in, Naftë/Elektrik", "Hybrid Benzinë/Gaz/Elektrik",
 }
-_RE_DE  = re.compile(r'^(Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)\.?\s+(\d{4})$')
-_RE_EN  = re.compile(r'^(January|February|March|April|May|June|July|August|'
-                     r'September|October|November|December|Jan|Feb|Mar|Apr|'
-                     r'Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+(\d{4})$')
-_RE_ISO = re.compile(r'^(\d{4})-(\d{2})(?:-\d{2})?$')
-_RE_YMD = re.compile(r'^(\d{4})(\d{2})\d{2}$')
-_RE_YM  = re.compile(r'^(\d{4})(\d{2})$')
-
-
-def _parse_period(s: str) -> str | None:
-    s = (s or "").strip()
-    m = _RE_DE.match(s)
-    if m:
-        return f"{m.group(2)}-{_DE_MONTH[m.group(1)]}"
-    m = _RE_EN.match(s)
-    if m:
-        return f"{m.group(2)}-{_EN_MONTH[m.group(1)]}"
-    m = _RE_ISO.match(s)
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    m = _RE_YMD.match(s)
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    m = _RE_YM.match(s)
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    return None
-
-
-# ── batchedDataV2 payload ────────────────────────────────────────────────────
-
-def _build_payload(year_from: int, year_to: int) -> dict:
-    """Custom flat-table request: (Month × Fuel type) × Record count,
-    filtered to Autoveturë (passenger cars), date range year_from–year_to."""
-    req_id = f"fetch_albania_{uuid.uuid4().hex[:8]}"
-    return {
-        "dataRequest": [{
-            "requestContext": {
-                "reportContext": {
-                    "reportId":    REPORT_ID,
-                    "pageId":      PAGE_ID_NUM,
-                    "mode":        1,
-                    "componentId": COMPONENT_ID,
-                    "displayType": "pivot-table",
-                },
-                "requestMode": 0,
-            },
-            "datasetSpec": {
-                "dataset": [{
-                    "datasourceId":      DATASOURCE_ID,
-                    "revisionNumber":    REVISION_NUMBER,
-                    "parameterOverrides": [],
-                }],
-                "queryFields": [
-                    {
-                        "name": "qt_date",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_DATE},
-                    },
-                    {
-                        "name": "qt_fuel",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_FUEL_TYPE},
-                    },
-                    {
-                        "name": "qt_count",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_RECORD_COUNT},
-                    },
-                ],
-                "sortData": [{"name": "qt_date", "sortDir": 1}],
-                "includeRowsCount": False,
-                "relatedDimensionMask": {
-                    "addDisplay": False, "addUniqueId": False, "addLatLong": False,
-                },
-                "dsFilterOverrides": [],
-                "filters": [{
-                    "filterInfo": {
-                        "type":        "INCLUDE",
-                        "operand":     "EQUALS",
-                        "expressions": [VEHICLE_FILTER_VALUE],
-                        "fieldName":   F_VEHICLE_TYPE,
-                    }
-                }],
-                "features": [],
-                "dateRanges": [{
-                    "start": f"{year_from}0101",
-                    "end":   f"{year_to}1231",
-                }],
-                "contextNsCount": 1,
-                "dateRangeDimensions": [{
-                    "name": "qt_ci4tkhro0d",
-                    "datasetNs": "d0", "tableNs": "t0",
-                    "dataTransformation": {"sourceFieldName": F_DATE},
-                }],
-                "calculatedField":       [],
-                "needGeocoding":         False,
-                "geoFieldMask":          [],
-                "multipleGeocodeFields": [],
-                "timezone":              "Europe/Vienna",
-            },
-            "role": "main",
-            "retryHints": {
-                "useClientControlledRetry": True,
-                "isLastRetry":  False,
-                "retryCount":   0,
-                "originalRequestId": req_id,
-            },
-        }]
-    }
 
 
 # ── Session via headless browser ──────────────────────────────────────────────
 
-def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
-    """Load the public Looker report in headless Chromium, intercept the
-    page's first VPWqB batchedDataV2 request, and replay it with our custom
-    (month × fuel) payload via route.fetch().
+def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str, dict]]:
+    """
+    Load the Albanian DPSHTRR Looker Studio report in headless Chromium,
+    intercept every batchedDataV2 response on datasource ``DATASOURCE_ID``,
+    and iterate the Muaji (Month) filter to collect per-month data.
 
-    Why route.fetch() instead of page.evaluate() + fetch():
-    - route.fetch() replays the intercepted request with ALL of its original
-      headers, preserving the full browser session context that Google requires
-      to pass PREFETCH_VALIDATION.
+    Returns a list of ``(period, merged_data_dict)`` pairs, where
+    ``period`` is YYYY-MM and ``merged_data_dict`` is a batchedDataV2
+    response JSON object (with ``dataResponse`` list) collected while
+    that month's filter was active.
 
-    Navigation strategy (two-phase):
-    1. Load via the public sharing URL (lookerstudio.google.com/?s=…) to let
-       Google set session cookies.  This redirects to datastudio.google.com
-       but the SPA always initialises from the report's default page (CU40B)
-       first, regardless of the target page in the URL.
-    2. Navigate directly to datastudio.google.com/page/VPWqB (no sharing
-       token, session cookies already established).  This second load starts
-       the SPA in VPWqB context and triggers batchedDataV2 from VPWqB.
-
-    Intercept filter:
-    - Primary:   request body contains our COMPONENT_ID / PAGE_ID_NUM
-      (catches any request the SPA makes for VPWqB data)
-    - Secondary: referer header contains PAGE_ID_URL ("VPWqB")
-    Both conditions log all batchedDataV2 details in DEBUG mode so we can
-    diagnose which requests carry VPWqB component IDs."""
+    Falls back to returning the initial YTD aggregate (assigned to the
+    current calendar month) when the Muaji filter cannot be located.
+    """
     from playwright.sync_api import sync_playwright
     import time as _time
 
-    # Capture mode: forward EVERY batchedDataV2 request unchanged and record
-    # the response.  Custom queries are impossible — the server only accepts
-    # queries whose fingerprint it pre-registered when the report loaded
-    # (PREFETCH_VALIDATION otherwise, regardless of displayType).  So we harvest
-    # the page's OWN component responses and parse whichever carries month-level
-    # fuel data.
-    #   captured[i] = {"component", "displayType", "datasourceId", "body", "text"}
     captured: list[dict] = []
     capture_error: list[Exception | None] = [None]
 
-    _re_component   = re.compile(r'"componentId":"([^"]+)"')
-    _re_displaytype = re.compile(r'"displayType":"([^"]+)"')
-    _re_datasource  = re.compile(r'"datasourceId":"([^"]+)"')
+    _re_datasource = re.compile(r'"datasourceId":"([^"]+)"')
+    _re_component  = re.compile(r'"componentId":"([^"]+)"')
+    _re_display    = re.compile(r'"displayType":"([^"]+)"')
 
     def handle_route(route):
         req = route.request
-        is_batched = "batchedDataV2" in req.url
-        if not is_batched:
+        if "batchedDataV2" not in req.url:
             try:
                 route.continue_()
             except Exception:
@@ -303,17 +207,16 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
             return
 
         body = req.post_data or ""
-        m_comp = _re_component.search(body)
-        m_disp = _re_displaytype.search(body)
         m_ds   = _re_datasource.search(body)
+        m_comp = _re_component.search(body)
+        m_disp = _re_display.search(body)
+        datasource  = m_ds.group(1)   if m_ds   else ""
         component   = m_comp.group(1) if m_comp else ""
         displaytype = m_disp.group(1) if m_disp else ""
-        datasource  = m_ds.group(1)   if m_ds   else ""
 
         try:
-            resp = route.fetch()              # forward unchanged
+            resp = route.fetch()
             text = resp.text()
-            # Only record requests against OUR datasource (the vehicle data).
             if datasource == DATASOURCE_ID:
                 captured.append({
                     "component":    component,
@@ -334,6 +237,22 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
             except Exception:
                 pass
 
+    def _merge_slice(start_idx: int) -> dict:
+        """Merge captured[start_idx:] into one dataResponse dict."""
+        merged: dict = {"dataResponse": []}
+        for cap in captured[start_idx:]:
+            text = cap["text"]
+            if text.startswith(")]}'"):
+                text = text[4:].lstrip("\n")
+            try:
+                obj = json.loads(text)
+            except Exception:
+                continue
+            merged["dataResponse"].extend(obj.get("dataResponse", []))
+        return merged
+
+    result_pairs: list[tuple[str, dict]] = []
+
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
@@ -349,145 +268,338 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
             ),
         )
         page = context.new_page()
-
-        # Register route handler BEFORE first goto so no request is missed.
         page.route("**/*", handle_route)
 
-        # Phase 1: load via sharing URL to establish the Google session cookies.
-        # The page redirects to datastudio.google.com.  We use wait_until="load"
-        # (not networkidle, which never fires) to give scripts time to run and
-        # set cookies.
-        print(f"[albania] phase-1 browser → {REPORT_PAGE_URL}")
+        # Phase 1: direct navigation to Albanian report page
+        print(f"[albania] browser → {REPORT_PAGE_URL}")
         page.goto(REPORT_PAGE_URL, wait_until="load", timeout=90_000)
 
         if DEBUG:
             print(f"[albania][debug] phase-1 landed: {page.url}")
             cookies = context.cookies()
-            print(f"[albania][debug] phase-1 cookies: {[c['name'] for c in cookies]}")
+            print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
 
-        # Phase 2: navigate directly to the VPWqB page on datastudio.google.com
-        # (no sharing token — session is already established above).  This forces
-        # the SPA to initialise in VPWqB context so its batchedDataV2 requests
-        # carry VPWqB page/component IDs.
-        direct_url = (
-            f"https://datastudio.google.com/reporting/{REPORT_ID}"
-            f"/page/{PAGE_ID_URL}"
-        )
-        print(f"[albania] phase-2 → {direct_url}")
-        page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
+        # Phase 2: navigate to datastudio.google.com domain if still on
+        # lookerstudio.google.com (redirect may not happen automatically)
+        current_url = page.url
+        if PAGE_ID_URL not in current_url:
+            direct_url = (
+                f"https://datastudio.google.com/reporting/{REPORT_ID}"
+                f"/page/{PAGE_ID_URL}"
+            )
+            print(f"[albania] phase-2 → {direct_url}")
+            page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
+            if DEBUG:
+                print(f"[albania][debug] phase-2 landed: {page.url}")
 
-        if DEBUG:
-            print(f"[albania][debug] phase-2 landed: {page.url}")
-            cookies = context.cookies()
-            print(f"[albania][debug] phase-2 cookies: {[c['name'] for c in cookies]}")
-
-        # Collect responses for a fixed window; wait_for_timeout() keeps the
-        # Playwright event loop ticking so route events are delivered.  We let
-        # the page settle so all VPWqB components fire and re-fire.
-        deadline = _time.time() + 45
+        # Wait for initial page load + batchedDataV2 responses
+        print("[albania] waiting 35s for initial load…")
+        initial_start = len(captured)
+        deadline = _time.time() + 35
         while _time.time() < deadline:
             page.wait_for_timeout(500)
+
+        initial_end = len(captured)
+        print(f"[albania] initial capture: {initial_end - initial_start} "
+              f"responses on {DATASOURCE_ID}")
+
+        if DEBUG:
+            print(f"[albania][debug] page title: {page.title()!r}")
+            print(f"[albania][debug] page url:   {page.url!r}")
+            try:
+                page.screenshot(path="/tmp/albania_initial.png")
+                print("[albania][debug] screenshot → /tmp/albania_initial.png")
+            except Exception:
+                pass
+            for idx, cap in enumerate(captured):
+                print(f"[albania][debug] capture #{idx}: "
+                      f"component={cap['component']} "
+                      f"displayType={cap['displayType']} "
+                      f"body_len={len(cap['body'])} "
+                      f"resp_len={len(cap['text'])}")
+                print(f"[albania][debug]   resp[:2000]: {cap['text'][:2000]!r}")
+
+        # ── Muaji (Month) filter iteration ────────────────────────────────────
+        #
+        # Strategy: locate the "Muaji" filter widget, click it to open the
+        # dropdown, then click each month option in turn.  After each click we
+        # wait up to 15 s for a new batchedDataV2 capture to appear, then
+        # record (period, merged_response) and re-open the filter for the next
+        # month.  If the filter cannot be found we fall back to the YTD
+        # aggregate captured during initial load.
+
+        for year in range(year_from, year_to + 1):
+            months_for_year = [
+                (name, f"{year}-{num}") for name, num in _MUAJI_NAMES
+            ]
+
+            # Locate the Muaji filter control
+            muaji_el = None
+            for selector in [
+                "text=Muaji",
+                "[aria-label*='Muaji']",
+                "[title*='Muaji']",
+                "label:has-text('Muaji')",
+                "[placeholder*='Muaji']",
+            ]:
+                try:
+                    el = page.locator(selector).first
+                    if el.is_visible(timeout=2000):
+                        muaji_el = el
+                        if DEBUG:
+                            print(f"[albania][debug] Muaji filter via {selector!r}")
+                        break
+                except Exception:
+                    pass
+
+            if muaji_el is None:
+                if DEBUG:
+                    print("[albania][debug] Muaji filter not found; "
+                          "dumping interactive elements")
+                    for el in page.locator(
+                        "button, [role='button'], [role='combobox'], "
+                        "[role='listbox'], [role='option']"
+                    ).all()[:20]:
+                        try:
+                            txt = el.inner_text(timeout=500)
+                            if txt.strip():
+                                print(f"[albania][debug]   element: {txt[:80]!r}")
+                        except Exception:
+                            pass
+                    try:
+                        page.screenshot(path="/tmp/albania_no_muaji.png")
+                        print("[albania][debug] screenshot → /tmp/albania_no_muaji.png")
+                    except Exception:
+                        pass
+
+                # Fallback: YTD data from initial load
+                ytd = _merge_slice(initial_start)
+                if ytd["dataResponse"]:
+                    fallback_period = datetime.now().strftime("%Y-%m")
+                    result_pairs.append((fallback_period, ytd))
+                    print(f"[albania] WARNING: Muaji filter not found; "
+                          f"using YTD data as period={fallback_period}")
+                continue
+
+            # Open the Muaji dropdown
+            try:
+                muaji_el.click(timeout=5000)
+                page.wait_for_timeout(1500)
+            except Exception as exc:
+                if DEBUG:
+                    print(f"[albania][debug] Muaji click failed: {exc}")
+                ytd = _merge_slice(initial_start)
+                if ytd["dataResponse"]:
+                    fallback_period = datetime.now().strftime("%Y-%m")
+                    result_pairs.append((fallback_period, ytd))
+                    print(f"[albania] WARNING: Muaji click failed; "
+                          f"using YTD data as period={fallback_period}")
+                continue
+
+            if DEBUG:
+                try:
+                    page.screenshot(path="/tmp/albania_muaji_open.png")
+                    print("[albania][debug] screenshot → /tmp/albania_muaji_open.png")
+                except Exception:
+                    pass
+
+            months_found = 0
+            seen_periods: set[str] = set()
+
+            for month_name, period in months_for_year:
+                if period in seen_periods:
+                    continue  # Albanian and English names both map to same period
+
+                # Look for the month option in the open dropdown
+                opt = None
+                for loc_str in [
+                    f"[role='option']:has-text('{month_name}')",
+                    f"[role='listitem']:has-text('{month_name}')",
+                    f"li:has-text('{month_name}')",
+                    f"[role='menuitem']:has-text('{month_name}')",
+                ]:
+                    try:
+                        el = page.locator(loc_str).first
+                        if el.is_visible(timeout=500):
+                            opt = el
+                            break
+                    except Exception:
+                        pass
+
+                # Broader fallback: any visible element with exact text
+                if opt is None:
+                    try:
+                        el = page.get_by_text(month_name, exact=True).first
+                        if el.is_visible(timeout=500):
+                            opt = el
+                    except Exception:
+                        pass
+
+                if opt is None:
+                    continue  # this month not available in the filter
+
+                seen_periods.add(period)
+                cap_before = len(captured)
+                try:
+                    opt.click(timeout=3000)
+                except Exception as exc:
+                    if DEBUG:
+                        print(f"[albania][debug] click {month_name!r} failed: {exc}")
+                    continue
+
+                # Wait up to 15 s for a fresh batchedDataV2 response
+                got_data = False
+                wait_deadline = _time.time() + 15
+                while _time.time() < wait_deadline:
+                    page.wait_for_timeout(500)
+                    if len(captured) > cap_before:
+                        page.wait_for_timeout(2000)   # let batch complete
+                        got_data = True
+                        break
+
+                if got_data:
+                    merged = _merge_slice(cap_before)
+                    result_pairs.append((period, merged))
+                    months_found += 1
+                    print(f"[albania] month {month_name} → {period} "
+                          f"({len(captured) - cap_before} new responses)")
+                else:
+                    if DEBUG:
+                        print(f"[albania][debug] no data after clicking {month_name!r}")
+
+                # Re-open the Muaji dropdown for next iteration
+                try:
+                    if muaji_el.is_visible(timeout=1000):
+                        muaji_el.click(timeout=3000)
+                        page.wait_for_timeout(1000)
+                except Exception:
+                    # Dropdown may still be open — continue anyway
+                    pass
+
+            if months_found == 0:
+                if DEBUG:
+                    print("[albania][debug] no month options found in dropdown; "
+                          "using YTD fallback")
+                    try:
+                        page.screenshot(path="/tmp/albania_no_months.png")
+                        print("[albania][debug] screenshot → /tmp/albania_no_months.png")
+                    except Exception:
+                        pass
+                ytd = _merge_slice(initial_start)
+                if ytd["dataResponse"]:
+                    fallback_period = datetime.now().strftime("%Y-%m")
+                    result_pairs.append((fallback_period, ytd))
+                    print(f"[albania] WARNING: no month options found; "
+                          f"using YTD data as period={fallback_period}")
+            else:
+                print(f"[albania] month iteration: {months_found} months for {year}")
 
         try:
             page.unroute("**/*", handle_route)
         except Exception:
             pass
-
         browser.close()
 
     if capture_error[0]:
-        print(f"[albania] WARNING route.fetch() error during capture: "
-              f"{capture_error[0]}")
+        print(f"[albania] WARNING route.fetch() error: {capture_error[0]}")
 
-    print(f"[albania] captured {len(captured)} responses on datasource "
-          f"{DATASOURCE_ID}")
+    print(f"[albania] captured {len(captured)} total batchedDataV2 responses "
+          f"on {DATASOURCE_ID}")
 
-    # Dump every captured component so we can see which carries month-level data.
-    if DEBUG:
-        for idx, cap in enumerate(captured):
-            print(f"[albania][debug] ── capture #{idx}: component="
-                  f"{cap['component']} displayType={cap['displayType']}")
-            print(f"[albania][debug]    FULL body: {cap['body']!r}")
-            print(f"[albania][debug]    FULL resp[:4000]: {cap['text'][:4000]!r}")
-
-    # Merge: parse every captured response; the data-bearing ones contribute
-    # rows, error/empty ones are skipped by _parse_response.
-    merged: dict = {"dataResponse": []}
-    for cap in captured:
-        text = cap["text"]
-        if text.startswith(")]}'"):
-            text = text[4:].lstrip("\n")
-        try:
-            obj = json.loads(text)
-        except Exception:
-            continue
-        merged["dataResponse"].extend(obj.get("dataResponse", []))
-
-    if not captured:
+    if not result_pairs:
         raise RuntimeError(
-            "[albania] no batchedDataV2 responses captured on datasource "
-            f"{DATASOURCE_ID} — page may not have fired requests in time"
+            "[albania] no data collected — page may not have loaded correctly, "
+            f"or datasource {DATASOURCE_ID} is not reachable from this network"
         )
 
-    return merged
+    return result_pairs
 
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _parse_response(data: dict) -> dict:
-    """Parse batchedDataV2 JSON → {(period, VARIANT): gallery_row_dict}."""
+def _parse_response(data: dict, period: str) -> dict:
+    """Parse a single batchedDataV2 response captured while month ``period``
+    was active in the Muaji filter.
+
+    The Albanian cd-p9hqinijec 'main' sub-response returns a flat table:
+        vehicle_type (string) × fuel_type (string) × count (long)
+
+    Column order is not fixed — we detect each column by sampling its string
+    values against known vehicle / fuel type sets.  Only rows where
+    vehicle_type == ``VEHICLE_FILTER_VALUE`` (Autoveturë) are kept.
+    """
     rows: dict = {}
 
     for dr in data.get("dataResponse", []):
         err = dr.get("errorStatus")
         if err:
-            print(f"[albania] API error: code={err.get('code')} "
-                  f"reason={err.get('reasonStr')} "
-                  f"category={err.get('errorCategoryStr')}")
+            code    = err.get("code", "?")
+            reason  = err.get("reasonStr", "?")
+            cat     = err.get("errorCategoryStr", "?")
+            print(f"[albania] API error: code={code} reason={reason} "
+                  f"category={cat}")
             continue
 
         for subset in dr.get("dataSubset", []):
-            tds = subset.get("dataset", {}).get("tableDataset", {})
+            tds  = subset.get("dataset", {}).get("tableDataset", {})
             cols = tds.get("column", [])
             size = tds.get("size", 0)
 
-            if len(cols) < 3 or size == 0:
+            if size == 0 or len(cols) < 2:
                 continue
 
-            date_col  = cols[0]
-            fuel_col  = cols[1]
-            count_col = cols[2]
+            # ── Detect column roles by sampling values ──────────────────────
+            vehicle_idx = None
+            fuel_idx    = None
+            count_idx   = None
 
-            null_date  = set(date_col.get("nullIndex",  []))
-            null_fuel  = set(fuel_col.get("nullIndex",  []))
-            null_count = set(count_col.get("nullIndex", []))
+            for idx, col in enumerate(cols):
+                str_vals = col.get("stringColumn", {}).get("values", [])
+                lng_vals = col.get("longColumn",   {}).get("values", [])
 
-            dates  = date_col.get("stringColumn",  {}).get("values", [])
-            fuels  = fuel_col.get("stringColumn",  {}).get("values", [])
-            counts = count_col.get("longColumn",   {}).get("values", [])
+                if lng_vals and count_idx is None:
+                    count_idx = idx
+                    continue
+
+                sample = set(str_vals[:20])
+                if sample & _VEHICLE_TYPE_HINTS and vehicle_idx is None:
+                    vehicle_idx = idx
+                elif sample & _FUEL_TYPE_HINTS and fuel_idx is None:
+                    fuel_idx = idx
 
             if DEBUG:
                 col_info = tds.get("columnInfo", [])
                 names = [c.get("name") for c in col_info]
-                print(f"[albania][debug] table: size={size} cols={names}")
-                print(f"[albania][debug]   dates[:3]={dates[:3]}")
-                print(f"[albania][debug]   fuels[:3]={fuels[:3]}")
-                print(f"[albania][debug]   counts[:3]={counts[:3]}")
+                print(f"[albania][debug] subset size={size} cols={names} "
+                      f"vehicle_idx={vehicle_idx} fuel_idx={fuel_idx} "
+                      f"count_idx={count_idx}")
+
+            if vehicle_idx is None or fuel_idx is None or count_idx is None:
+                if DEBUG:
+                    print("[albania][debug]   skipped (column roles not detected)")
+                continue
+
+            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
+            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
+            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
+
+            null_vehicle = set(cols[vehicle_idx].get("nullIndex", []))
+            null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
+            null_count   = set(cols[count_idx  ].get("nullIndex", []))
 
             for i in range(size):
-                if i in null_date or i in null_fuel:
+                if i in null_vehicle or i in null_fuel:
                     continue
-                period = _parse_period(dates[i] if i < len(dates) else "")
-                if not period:
-                    if DEBUG:
-                        print(f"[albania][debug]   unparseable date {dates[i]!r}, skip")
+                vehicle = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                if vehicle != VEHICLE_FILTER_VALUE:
                     continue
 
-                fuel  = fuels[i] if i < len(fuels) else ""
-                count = int(counts[i]) if (i not in null_count and
-                                           i < len(counts)) else 0
-                col   = _fuel_col(fuel)
-                key   = (period, VARIANT)
+                fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
+                count = (int(count_vals[i])
+                         if (i not in null_count and i < len(count_vals))
+                         else 0)
+                col_name = _fuel_col(fuel)
+                key = (period, VARIANT)
 
                 if key not in rows:
                     rows[key] = {
@@ -499,7 +611,7 @@ def _parse_response(data: dict) -> dict:
                         "PETROL": 0.0, "DIESEL": 0.0, "OTHERS": 0.0,
                         "TOTAL":  0.0, "notes":  "",
                     }
-                rows[key][col] = rows[key].get(col, 0.0) + count
+                rows[key][col_name] = rows[key].get(col_name, 0.0) + count
 
     # Compute TOTAL; zero optional cols → empty string (gallery convention)
     for row in rows.values():
@@ -563,8 +675,12 @@ def main() -> None:
                     help="Accepted for parity (commit-gated downstream).")
     args = ap.parse_args()
 
-    data = _fetch_with_browser_session(args.year_from, args.year_to)
-    rows = _parse_response(data)
+    month_pairs = _fetch_with_browser_session(args.year_from, args.year_to)
+
+    rows: dict = {}
+    for period, data in month_pairs:
+        period_rows = _parse_response(data, period)
+        rows.update(period_rows)
 
     if not rows:
         print("[albania] no data rows parsed — the report may not yet have "
