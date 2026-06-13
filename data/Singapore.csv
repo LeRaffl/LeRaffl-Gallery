@@ -111,4 +111,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,lta.gov.sg,2355.0,106.0,1548.0,257.0,0.0,0.0,4266.0,
 2026-02,monthly,Whole,lta.gov.sg,2237.0,75.0,1369.0,326.0,0.0,0.0,4007.0,
 2026-03,monthly,Whole,lta.gov.sg,3087.0,84.0,1583.0,295.0,0.0,0.0,5049.0,
-2026-04,monthly,Whole,lta.gov.sg,2982,97,1243,230,1,0,4553,
+2026-04,monthly,Whole,lta.gov.sg,2982.0,97.0,1243.0,230.0,1.0,,4553.0,
+2026-05,monthly,Whole,lta.gov.sg,2930.0,121.0,1230.0,196.0,1.0,,4478.0,
