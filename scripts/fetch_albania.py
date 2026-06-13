@@ -319,19 +319,94 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                       f"resp_len={len(cap['text'])}")
                 print(f"[albania][debug]   resp[:2000]: {cap['text'][:2000]!r}")
 
+        # ── Discover available months from dimension-filter response ─────────────
+        #
+        # The Muaji filter component (cd-7k4mmiu7ec, displayType=dimension-filter)
+        # fires during initial page load and returns the list of selectable month
+        # values.  Parse this to know which months are in the filter popup — both
+        # their display labels (used for clicking) and the corresponding periods.
+        dim_filter_months: list[str] = []
+        for cap in captured[initial_start:initial_end]:
+            if cap["displayType"] != "dimension-filter":
+                continue
+            txt = cap["text"]
+            if txt.startswith(")]}'"):
+                txt = txt[4:].lstrip("\n")
+            try:
+                obj = json.loads(txt)
+                for dr in obj.get("dataResponse", []):
+                    for subset in dr.get("dataSubset", []):
+                        tds = subset.get("dataset", {}).get("tableDataset", {})
+                        for col in tds.get("column", []):
+                            vals = col.get("stringColumn", {}).get("values", [])
+                            if vals:
+                                dim_filter_months = vals
+                                break
+                        if dim_filter_months:
+                            break
+                    if dim_filter_months:
+                        break
+            except Exception:
+                pass
+            if dim_filter_months:
+                break
+
+        if DEBUG:
+            print(f"[albania][debug] dimension-filter months: {dim_filter_months}")
+
         # ── Muaji (Month) filter iteration ────────────────────────────────────
         #
-        # Strategy: locate the "Muaji" filter widget, click it to open the
-        # dropdown, then click each month option in turn.  After each click we
-        # wait up to 15 s for a new batchedDataV2 capture to appear, then
-        # record (period, merged_response) and re-open the filter for the next
-        # month.  If the filter cannot be found we fall back to the YTD
-        # aggregate captured during initial load.
+        # Strategy:
+        # 1. Locate the "Muaji" filter widget and click it (opens a popup).
+        # 2. For each available month, use JavaScript dispatchEvent to click the
+        #    popup option — this bypasses Playwright's "popup-backdrop intercepts
+        #    pointer events" error that occurs when opt.click() resolves to an SVG
+        #    chart axis label (an <svg><text>…</text></svg> element rendered behind
+        #    the backdrop) instead of the popup list item.
+        #    The JS walker explicitly skips all SVG descendants so only the HTML
+        #    popup items (divs/spans) are matched.
+        # 3. Wait up to 15 s for a new batchedDataV2 capture, record the pair,
+        #    re-open the filter, and continue.
+        # 4. Fall back to the YTD aggregate when the filter cannot be used.
+
+        # JavaScript that clicks the popup option for a given month name,
+        # skipping SVG elements (which are chart axis labels, not filter options).
+        _JS_CLICK_MONTH = """
+(monthName) => {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+    let node;
+    while ((node = walker.nextNode())) {
+        if (node.closest('svg')) continue;           // skip SVG subtree
+        if (node.childElementCount > 0) continue;    // only leaf elements
+        if (node.textContent.trim() !== monthName) continue;
+        node.dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));
+        return node.tagName + '/' + node.className.substring(0, 80);
+    }
+    return null;
+}
+"""
 
         for year in range(year_from, year_to + 1):
-            months_for_year = [
-                (name, f"{year}-{num}") for name, num in _MUAJI_NAMES
-            ]
+            # Build (display_label, period) pairs to try.
+            # Prefer month labels from the dimension-filter response; fall back to
+            # our hard-coded Albanian/English name table.
+            months_to_try: list[tuple[str, str]] = []
+            if dim_filter_months:
+                for label in dim_filter_months:
+                    period = None
+                    for name, num in _MUAJI_NAMES:
+                        if name in label:
+                            period = f"{year}-{num}"
+                            break
+                    if period:
+                        months_to_try.append((label, period))
+                    elif DEBUG:
+                        print(f"[albania][debug] unrecognised dim-filter label: "
+                              f"{label!r}")
+            if not months_to_try:
+                months_to_try = [
+                    (name, f"{year}-{num}") for name, num in _MUAJI_NAMES
+                ]
 
             # Locate the Muaji filter control
             muaji_el = None
@@ -354,25 +429,12 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
 
             if muaji_el is None:
                 if DEBUG:
-                    print("[albania][debug] Muaji filter not found; "
-                          "dumping interactive elements")
-                    for el in page.locator(
-                        "button, [role='button'], [role='combobox'], "
-                        "[role='listbox'], [role='option']"
-                    ).all()[:20]:
-                        try:
-                            txt = el.inner_text(timeout=500)
-                            if txt.strip():
-                                print(f"[albania][debug]   element: {txt[:80]!r}")
-                        except Exception:
-                            pass
+                    print("[albania][debug] Muaji filter not found")
                     try:
                         page.screenshot(path="/tmp/albania_no_muaji.png")
                         print("[albania][debug] screenshot → /tmp/albania_no_muaji.png")
                     except Exception:
                         pass
-
-                # Fallback: YTD data from initial load
                 ytd = _merge_slice(initial_start)
                 if ytd["dataResponse"]:
                     fallback_period = datetime.now().strftime("%Y-%m")
@@ -397,6 +459,32 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                 continue
 
             if DEBUG:
+                # Dump the popup structure so we know what elements are available.
+                try:
+                    popup_info = page.evaluate("""
+                        () => {
+                            const bd = document.querySelector('.popup-backdrop');
+                            if (!bd) return JSON.stringify({err:'no backdrop'});
+                            const p = bd.parentElement;
+                            const children = [];
+                            for (const c of p.children) {
+                                if (c.classList.contains('popup-backdrop')) continue;
+                                children.push({
+                                    tag: c.tagName,
+                                    cls: c.className.substring(0, 80),
+                                    text: c.textContent.substring(0, 300).replace(/\\s+/g,' ')
+                                });
+                            }
+                            return JSON.stringify({
+                                parent_tag: p.tagName,
+                                parent_cls: p.className.substring(0, 80),
+                                children: children
+                            });
+                        }
+                    """)
+                    print(f"[albania][debug] popup structure: {popup_info[:1500]}")
+                except Exception as exc:
+                    print(f"[albania][debug] popup inspect failed: {exc}")
                 try:
                     page.screenshot(path="/tmp/albania_muaji_open.png")
                     print("[albania][debug] screenshot → /tmp/albania_muaji_open.png")
@@ -406,46 +494,20 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             months_found = 0
             seen_periods: set[str] = set()
 
-            for month_name, period in months_for_year:
+            for month_label, period in months_to_try:
                 if period in seen_periods:
-                    continue  # Albanian and English names both map to same period
+                    continue
 
-                # Look for the month option in the open dropdown
-                opt = None
-                for loc_str in [
-                    f"[role='option']:has-text('{month_name}')",
-                    f"[role='listitem']:has-text('{month_name}')",
-                    f"li:has-text('{month_name}')",
-                    f"[role='menuitem']:has-text('{month_name}')",
-                ]:
-                    try:
-                        el = page.locator(loc_str).first
-                        if el.is_visible(timeout=500):
-                            opt = el
-                            break
-                    except Exception:
-                        pass
+                cap_before = len(captured)
+                clicked_el = page.evaluate(_JS_CLICK_MONTH, month_label)
 
-                # Broader fallback: any visible element with exact text
-                if opt is None:
-                    try:
-                        el = page.get_by_text(month_name, exact=True).first
-                        if el.is_visible(timeout=500):
-                            opt = el
-                    except Exception:
-                        pass
+                if DEBUG:
+                    print(f"[albania][debug] JS click {month_label!r} → {clicked_el!r}")
 
-                if opt is None:
-                    continue  # this month not available in the filter
+                if not clicked_el:
+                    continue  # month label not found in DOM
 
                 seen_periods.add(period)
-                cap_before = len(captured)
-                try:
-                    opt.click(timeout=3000)
-                except Exception as exc:
-                    if DEBUG:
-                        print(f"[albania][debug] click {month_name!r} failed: {exc}")
-                    continue
 
                 # Wait up to 15 s for a fresh batchedDataV2 response
                 got_data = False
@@ -461,25 +523,24 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                     merged = _merge_slice(cap_before)
                     result_pairs.append((period, merged))
                     months_found += 1
-                    print(f"[albania] month {month_name} → {period} "
+                    print(f"[albania] month {month_label} → {period} "
                           f"({len(captured) - cap_before} new responses)")
                 else:
                     if DEBUG:
-                        print(f"[albania][debug] no data after clicking {month_name!r}")
+                        print(f"[albania][debug] no data after clicking "
+                              f"{month_label!r}")
 
-                # Re-open the Muaji dropdown for next iteration
+                # Re-open the Muaji dropdown for the next month
                 try:
                     if muaji_el.is_visible(timeout=1000):
                         muaji_el.click(timeout=3000)
                         page.wait_for_timeout(1000)
                 except Exception:
-                    # Dropdown may still be open — continue anyway
                     pass
 
             if months_found == 0:
                 if DEBUG:
-                    print("[albania][debug] no month options found in dropdown; "
-                          "using YTD fallback")
+                    print("[albania][debug] no month options clicked; using YTD fallback")
                     try:
                         page.screenshot(path="/tmp/albania_no_months.png")
                         print("[albania][debug] screenshot → /tmp/albania_no_months.png")
@@ -489,7 +550,7 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                 if ytd["dataResponse"]:
                     fallback_period = datetime.now().strftime("%Y-%m")
                     result_pairs.append((fallback_period, ytd))
-                    print(f"[albania] WARNING: no month options found; "
+                    print(f"[albania] WARNING: no month options clicked; "
                           f"using YTD data as period={fallback_period}")
             else:
                 print(f"[albania] month iteration: {months_found} months for {year}")
