@@ -53,10 +53,8 @@ jobs:
       - name: Validate fetch (push only)
         if: github.event_name == 'push'
         run: |
-          echo "===== search SingStat catalogue ====="
-          python scripts/fetch_singapore.py --singstat-search "car"
-          echo "----- fuel -----"
-          python scripts/fetch_singapore.py --singstat-search "fuel"
+          echo "===== scrape LTA statistics page ====="
+          python scripts/fetch_singapore.py --scrape "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html"
 
       - name: Fetch Singapore data
         if: github.event_name != 'push'

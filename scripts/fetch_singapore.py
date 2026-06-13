@@ -229,6 +229,36 @@ def probe_singstat(session: requests.Session, rid: str) -> None:
               f"ncols={len(cols)} latest_keys={latest}")
 
 
+def scrape_links(session: requests.Session, url: str) -> None:
+    """Fetch a page and print all links to data files / relevant pages, to map
+    the lta.gov.sg statistics download structure.
+    """
+    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
+    print(f"[scrape] GET {url} -> HTTP {r.status_code} ({len(r.text)} bytes, "
+          f"ctype={r.headers.get('content-type')})")
+    r.raise_for_status()
+    html = r.text
+    from urllib.parse import urljoin
+    hrefs = re.findall(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', html, flags=re.I)
+    seen = set()
+    DATA_EXT = re.compile(r"\.(csv|xlsx?|ashx|pdf|zip|json)(\?|$)", re.I)
+    KEYWORDS = re.compile(r"regist|fuel|\bcar|vehicle|statistic", re.I)
+    print(f"[scrape] {len(hrefs)} raw links; data-file / relevant ones:")
+    for h in hrefs:
+        absu = urljoin(url, h)
+        if absu in seen:
+            continue
+        if DATA_EXT.search(h) or KEYWORDS.search(h):
+            seen.add(absu)
+            print(f"  {absu}")
+    # Also surface any inline JSON/data endpoints the page might call.
+    apis = re.findall(r'["\'](/[^"\']*(?:api|data|statistics)[^"\']*)["\']', html, flags=re.I)
+    if apis:
+        print(f"[scrape] {len(set(apis))} inline path-like strings (api/data/statistics):")
+        for p in sorted(set(apis))[:40]:
+            print(f"    {p}")
+
+
 def _detect_fields(records: list[dict]) -> tuple[str, str, str]:
     """Find the (month, fuel_type, number) field names. Prefer the canonical
     names but fall back to structural detection so a renamed column is tolerated.
@@ -374,6 +404,9 @@ def main() -> None:
                     help="Search data.gov.sg for datasets matching QUERY and print each "
                          "datastore resource's latest month + fields, then exit. Use to "
                          "locate the live resource if the default id goes stale.")
+    ap.add_argument("--scrape", metavar="URL", default=None,
+                    help="Fetch URL and print data-file links + inline data paths, then "
+                         "exit. Used to map the lta.gov.sg statistics download structure.")
     ap.add_argument("--singstat-search", metavar="KEYWORD", default=None,
                     help="Search the SingStat Table Builder catalogue for KEYWORD and "
                          "print matching table ids + titles, then exit.")
@@ -389,6 +422,10 @@ def main() -> None:
 
     if args.discover:
         discover(session, args.discover)
+        return
+
+    if args.scrape:
+        scrape_links(session, args.scrape)
         return
 
     if args.singstat_search:
