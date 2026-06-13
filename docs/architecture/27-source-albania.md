@@ -128,6 +128,8 @@ window where labels are consistent.
 
 **Toggle mechanism.**  Playwright `page.get_by_text("Mon YYYY", exact=True).first.click(force=True)` bypasses the `.popup-backdrop intercepts pointer events` actionability error.
 
+**Popup close before toggle loop.**  The code opens the Muaji popup once (to read month labels via JS) and then calls `_open_muaji()` again at the start of every loop iteration.  If the popup is still open from the label-read step when the first `_open_muaji()` fires, clicking the header *closes* it instead of opening it — so the subsequent "May 2026" click lands on a chart label in the report body (not the filter checkbox), fires no `batchedDataV2`, and the first month's complement is never captured.  Fix: press `Escape` after reading labels so the popup is cleanly closed before the loop starts.
+
 **Timing.**  After each toggle, we poll until `_parse_fuel_counts(slice).total > 0`.  The vehicle×fuel "main" subset (`cd-p9hqinijec`) arrives several seconds after the barchart and row-0 sub-responses.  Recording too early captures an incomplete merge and gives zeros.  After the main subset appears, we wait an additional 2.5 s for trailing subsets to settle.
 
 ## 5. Fuel-type mapping (Lënda Djegëse → gallery schema)
@@ -217,6 +219,7 @@ ranges.
 | Fuel-label inconsistency | DPSHTRR pivot emits different label strings for different window sizes (see §4); descending toggle order is required |
 | Timing race | The vehicle×fuel subset arrives seconds after other sub-responses; poll `_parse_fuel_counts(...).total > 0` before recording |
 | Ascending toggle = wrong TOTALS | Jan/Feb TOTAL wrong by ~500 cars due to label inconsistency in large-window diffs; descending fixes this |
+| Muaji popup double-open | `_open_muaji()` called twice in sequence (label-read + first toggle) closes instead of opens the popup; first month click lands on chart body → press Escape after label-read |
 | LPG is large | Albania has high LPG adoption; `OTHERS` column will be non-trivial |
 | Year-scoped report | DPSHTRR publishes a new Looker report each calendar year; `REPORT_ID` et al. must be updated annually |
 | revisionNumber | Hard-coded to `16` (2026-06-13); if workflow returns empty data or 4xx, bump it after checking DevTools |
