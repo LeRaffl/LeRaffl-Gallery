@@ -288,29 +288,36 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
 
         if is_batched and custom_result[0] is None:
             body = req.post_data or ""
-            vpwqb_in_body    = COMPONENT_ID in body or PAGE_ID_NUM in body
-            vpwqb_in_referer = PAGE_ID_URL  in referer
+            # Only capture our specific component's request from VPWqB context.
+            # Do NOT replace the body — replacing it with a different displayType
+            # or queryFields triggers PREFETCH_VALIDATION even from VPWqB.
+            # The page's own pivot-table query for cd-p9hqinijec returns the
+            # same underlying data; we parse the original response instead.
+            is_our_component = COMPONENT_ID in body
+            vpwqb_in_referer = PAGE_ID_URL in referer
 
             if DEBUG:
                 print(f"[albania][debug] batchedDataV2 intercepted:")
                 print(f"  url={req.url}")
                 print(f"  referer={referer!r}")
                 print(f"  body_len={len(body)} "
-                      f"vpwqb_in_body={vpwqb_in_body} "
-                      f"vpwqb_in_referer={vpwqb_in_referer}")
+                      f"our_component={is_our_component} "
+                      f"vpwqb_referer={vpwqb_in_referer}")
                 print(f"  body[:300]: {body[:300]!r}")
 
-            if vpwqb_in_body or vpwqb_in_referer:
+            if is_our_component and vpwqb_in_referer:
                 if DEBUG:
-                    print(f"[albania][debug] --> INTERCEPTING and replacing body")
+                    print(f"[albania][debug] --> forwarding ORIGINAL request "
+                          f"(no body replacement)")
                 try:
-                    resp = route.fetch(
-                        post_data=json.dumps(_build_payload(year_from, year_to)),
-                    )
-                    custom_result[0] = resp.text()
+                    # Forward the page's own request unchanged; capture response.
+                    resp = route.fetch()
+                    resp_text = resp.text()
                     if DEBUG:
-                        print(f"[albania][debug] route.fetch → "
-                              f"{len(custom_result[0])} chars")
+                        print(f"[albania][debug] original route.fetch → "
+                              f"{len(resp_text)} chars")
+                        print(f"[albania][debug] response[:500]: {resp_text[:500]!r}")
+                    custom_result[0] = resp_text
                     route.fulfill(response=resp)
                 except Exception as exc:
                     custom_error[0] = exc
@@ -319,8 +326,6 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> dict:
                     except Exception:
                         pass
             else:
-                if DEBUG:
-                    print(f"[albania][debug] --> skipping (no VPWqB context)")
                 try:
                     route.continue_()
                 except Exception:
