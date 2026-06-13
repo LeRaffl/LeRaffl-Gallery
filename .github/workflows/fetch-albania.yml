@@ -1,0 +1,62 @@
+name: Fetch Albania data (dpshtrr.al via R. Andrew)
+
+# Fetches Robbie Andrew's pre-parsed Albania monthly vehicle-registration CSV
+# (which mirrors DPSHTRR open data) and upserts data/Albania.csv. Runs daily
+# from the 10th onward; commit-gated so steady-state runs are a no-op.
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
+        required: false
+      dry_run:
+        description: 'Fetch and print, but do not write the CSV'
+        required: false
+        default: 'false'
+        type: boolean
+
+  schedule:
+    - cron: '0 7 10-28 * *'   # daily at 07:00 UTC from the 10th onward
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch Albania data
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          python scripts/fetch_albania.py $ARGS
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Albania.csv
+          message: 'chore: update Albania data from dpshtrr.al (via R. Andrew)'
+          default_author: github_actions
+
+      - name: Trigger render for Albania
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Albania \
+            -f variant=Whole

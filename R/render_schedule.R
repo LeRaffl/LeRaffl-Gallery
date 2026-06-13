@@ -5,7 +5,7 @@ suppressPackageStartupMessages({
 })
 
 FLAG <- c(
-  austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
+  albania="\U0001F1E6\U0001F1F1", austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4",
   denmark="\U0001F1E9\U0001F1F0", finland="\U0001F1EB\U0001F1EE", ireland="\U0001F1EE\U0001F1EA",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
@@ -17,7 +17,7 @@ FLAG <- c(
 )
 
 LABEL <- c(
-  austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
+  albania="Albania", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
   colombia="Colombia", denmark="Denmark", finland="Finland", ireland="Ireland",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia",
