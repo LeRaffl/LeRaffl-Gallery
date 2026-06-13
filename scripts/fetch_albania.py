@@ -429,7 +429,7 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             # bug that zeroed Jan/Feb in run 22).  After it appears, wait a short
             # settle so any trailing subset is included, then re-check stability.
             got = False
-            wait_deadline = _time.time() + 22
+            wait_deadline = _time.time() + 40
             while _time.time() < wait_deadline:
                 page.wait_for_timeout(500)
                 if len(captured) <= cap_before:
