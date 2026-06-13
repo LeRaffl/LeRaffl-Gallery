@@ -187,6 +187,29 @@ def discover(session: requests.Session, query: str) -> None:
         print(f"  {name[:60]:60s} rid={rid} latest={latest} fuel={has_fuel} fields={fields}")
 
 
+SINGSTAT_URL = "https://tablebuilder.singstat.gov.sg/api/table/tabledata/{rid}"
+
+
+def probe_singstat(session: requests.Session, rid: str) -> None:
+    """Print a SingStat Table Builder series' row labels + latest periods, to
+    check it as an alternative source when data.gov.sg goes stale.
+    """
+    url = SINGSTAT_URL.format(rid=rid)
+    r = session.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=120)
+    print(f"[singstat] GET {url} -> HTTP {r.status_code}")
+    r.raise_for_status()
+    body = r.json()
+    data = body.get("Data", body.get("data", {}))
+    rows = data.get("row", []) if isinstance(data, dict) else []
+    print(f"[singstat] title={data.get('title') if isinstance(data, dict) else None!r} rows={len(rows)}")
+    for row in rows:
+        cols = row.get("columns", [])
+        keys = [c.get("key") for c in cols]
+        latest = keys[-3:] if keys else []
+        print(f"  row={row.get('rowText')!r} uom={row.get('uoM')!r} "
+              f"ncols={len(cols)} latest_keys={latest}")
+
+
 def _detect_fields(records: list[dict]) -> tuple[str, str, str]:
     """Find the (month, fuel_type, number) field names. Prefer the canonical
     names but fall back to structural detection so a renamed column is tolerated.
@@ -332,6 +355,9 @@ def main() -> None:
                     help="Search data.gov.sg for datasets matching QUERY and print each "
                          "datastore resource's latest month + fields, then exit. Use to "
                          "locate the live resource if the default id goes stale.")
+    ap.add_argument("--probe-singstat", metavar="ID", default=None,
+                    help="Probe a SingStat Table Builder series (e.g. M650281) and print "
+                         "its row labels + latest periods, then exit.")
     ap.add_argument("--force", action="store_true",
                     help="Accepted for parity with other fetchers (this fetcher is "
                          "commit-gated downstream and always re-fetches).")
@@ -341,6 +367,10 @@ def main() -> None:
 
     if args.discover:
         discover(session, args.discover)
+        return
+
+    if args.probe_singstat:
+        probe_singstat(session, args.probe_singstat)
         return
 
     records = fetch_records(session, args.resource_id)
