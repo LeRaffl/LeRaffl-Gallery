@@ -414,23 +414,36 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                           f"{str(exc)[:120]}")
                 continue
 
+            # Poll until the cd-p9hqinijec vehicle×fuel×count subset for this
+            # complement actually arrives — NOT merely until the first response.
+            # The "main" sub-request often lands a few seconds after the row0/
+            # barchart responses; recording too early gives an empty parse (the
+            # bug that zeroed Jan/Feb in run 22).  After it appears, wait a short
+            # settle so any trailing subset is included, then re-check stability.
             got = False
-            wait_deadline = _time.time() + 15
+            wait_deadline = _time.time() + 22
             while _time.time() < wait_deadline:
                 page.wait_for_timeout(500)
-                if len(captured) > cap_before:
-                    page.wait_for_timeout(2000)   # let the batch complete
+                if len(captured) <= cap_before:
+                    continue
+                total = sum(_parse_fuel_counts(
+                    _merge_slice(cap_before), quiet=True).values())
+                if total > 0:
+                    page.wait_for_timeout(2500)   # let trailing subsets settle
                     got = True
                     break
 
             if got:
                 complements.append((period, _merge_slice(cap_before)))
+                counts = _parse_fuel_counts(_merge_slice(cap_before), quiet=True)
                 print(f"[albania] toggled {lbl} off → complement after {period} "
-                      f"({len(captured) - cap_before} responses)")
+                      f"= {sum(counts.values())} ({len(captured) - cap_before} "
+                      f"responses)")
             elif DEBUG:
                 # Expected for the last (earliest-remaining) month: toggling it
-                # empties the selection so the report fires nothing.
-                print(f"[albania][debug] no data after toggling {lbl!r}")
+                # empties the selection so the report returns no Autoveturë rows.
+                print(f"[albania][debug] no vehicle×fuel data after toggling "
+                      f"{lbl!r} (expected only for the last month)")
 
         try:
             page.unroute("**/*", handle_route)
@@ -453,7 +466,7 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _parse_fuel_counts(data: dict) -> dict:
+def _parse_fuel_counts(data: dict, quiet: bool = False) -> dict:
     """Aggregate Autoveturë (passenger-car) registrations by gallery fuel column
     from the first qualifying vehicle×fuel×count subset of a batchedDataV2
     response.
@@ -463,13 +476,16 @@ def _parse_fuel_counts(data: dict) -> dict:
     order is not fixed, so we detect each by sampling values against known
     vehicle / fuel type sets.  Returns ``{col: int}`` over VALUE_COLS (zeros if
     no qualifying subset is found, e.g. an empty or error response).
+
+    ``quiet`` suppresses debug logging — used while polling for the subset's
+    arrival so the log isn't spammed.
     """
     counts = {c: 0 for c in VALUE_COLS}
 
     for dr in data.get("dataResponse", []):
         err = dr.get("errorStatus")
         if err:
-            if DEBUG:
+            if DEBUG and not quiet:
                 print(f"[albania][debug] API error in response: "
                       f"{err.get('reasonStr', '?')}")
             continue
@@ -516,7 +532,7 @@ def _parse_fuel_counts(data: dict) -> dict:
                          if (i not in null_count and i < len(count_vals)) else 0)
                 local[_fuel_col(fuel)] += count
 
-            if DEBUG:
+            if DEBUG and not quiet:
                 print(f"[albania][debug] fuel counts (subset size={size}): "
                       f"{local} total={sum(local.values())}")
             return local   # first qualifying vehicle×fuel×count subset wins
