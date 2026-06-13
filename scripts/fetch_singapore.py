@@ -177,7 +177,7 @@ def discover(session: requests.Session, query: str) -> None:
             if all(t in nl for t in terms):
                 candidates.append((ds.get("datasetId"), name))
         page += 1
-        if not pages or page > pages or page > 80:
+        if not pages or page > pages:
             break
 
     print(f"[discover] {len(candidates)} name matches")
