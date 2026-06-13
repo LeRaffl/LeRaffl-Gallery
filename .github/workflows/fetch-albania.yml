@@ -1,14 +1,25 @@
-name: Fetch Albania data (dpshtrr.al via R. Andrew)
+name: Fetch Albania data (dpshtrr.al Looker Studio API)
 
-# Fetches Robbie Andrew's pre-parsed Albania monthly vehicle-registration CSV
-# (which mirrors DPSHTRR open data) and upserts data/Albania.csv. Runs daily
-# from the 10th onward; commit-gated so steady-state runs are a no-op.
+# Queries the DPSHTRR public Looker Studio report directly via the
+# batchedDataV2 API (no Google account required) and upserts
+# data/Albania.csv.  Runs daily from the 10th onward; commit-gated
+# so steady-state runs are a no-op.
+#
+# Report: datastudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3
+# Page:   VPWqB  (Vehicles by type of fuel or power source)
+# Source playbook: docs/architecture/27-source-albania.md
 
 on:
   workflow_dispatch:
     inputs:
+      year_from:
+        description: 'First year to request from the API (default: current year; use 2019 for full backfill)'
+        required: false
+      year_to:
+        description: 'Last year to request from the API (default: current year)'
+        required: false
       since:
-        description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
+        description: 'Only upsert months >= this YYYY-MM (leave empty for all within year range)'
         required: false
       dry_run:
         description: 'Fetch and print, but do not write the CSV'
@@ -38,7 +49,18 @@ jobs:
 
       - name: Fetch Albania data
         run: |
+          YEAR=$(date +%Y)
           ARGS=""
+          if [ -n "${{ inputs.year_from }}" ]; then
+            ARGS="$ARGS --year-from ${{ inputs.year_from }}"
+          else
+            ARGS="$ARGS --year-from $YEAR"
+          fi
+          if [ -n "${{ inputs.year_to }}" ]; then
+            ARGS="$ARGS --year-to ${{ inputs.year_to }}"
+          else
+            ARGS="$ARGS --year-to $YEAR"
+          fi
           if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_albania.py $ARGS
@@ -48,7 +70,7 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: data/Albania.csv
-          message: 'chore: update Albania data from dpshtrr.al (via R. Andrew)'
+          message: 'chore: update Albania data from dpshtrr.al'
           default_author: github_actions
 
       - name: Trigger render for Albania
