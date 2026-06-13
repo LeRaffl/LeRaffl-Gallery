@@ -41,7 +41,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install playwright
+          pip install requests playwright
           python -m playwright install --with-deps chromium
 
       - name: Fetch Albania data
