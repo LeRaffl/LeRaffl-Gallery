@@ -57,9 +57,14 @@ batchedDataV2 responses fail with SNAPSHOT_WITH_NON_REAGGREGATABLE because the
 component body sets ``createSnapshot:true``.  The Albanian report (233df2cc-…)
 does NOT set that flag and works correctly.
 
-Note: DPSHTRR publishes a fresh Looker report each calendar year ("year 2026").
-Historical data (pre-2026) lives in the bootstrapped CSV rows.  When a new year
-starts, update ``REPORT_ID`` / ``REVISION_NUMBER`` below.
+Note: DPSHTRR publishes a *separate* Looker report each calendar year, each with
+its own report ID, datasource ID and revision.  These live in the ``YEAR_REPORTS``
+registry below; only the report ID and page slug are needed per year (datasource,
+component and revision are auto-detected from the page's own intercepted
+requests).  When a new year starts, add one ``{year: (report_id, slug)}`` entry.
+Pre-2026 Whole rows are bootstrapped from Andrew's mirror; HDV/Buses/2-Wheelers
+were backfilled directly from the per-year reports (2020–2024; 2025 excluded —
+its snapshots are corrupt, see docs §11).
 See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
@@ -76,10 +81,15 @@ Fuel-type mapping (Lenda Djegese → gallery schema)
 
 Vehicle variants produced (EU class in parentheses)
 ----------------------------------------------------
-    Whole       Autoveturë              M1  passenger cars
+    Whole       Autoveturë              M1     passenger cars
     HDV         Kamion                  N2+N3  trucks / lorries
-    Buses       Autobus + Miniautobuz   M2+M3  buses & coaches
-    2-Wheelers  Motoçikletë + Çikëlomotor  L  motorcycles & mopeds
+    Buses       Autobus                 M2+M3  buses & coaches
+    2-Wheelers  Motor + Ciklomotorr …   L      motorcycles & mopeds
+The actual DPSHTRR pivot uses "Motor"/"MOTORË" (not the textbook
+"Motoçikletë") and "Ciklomotorr …" (not "Çikëlomotor"); see VARIANTS below
+for the full L-category string set.  There is NO dedicated N1 (van) category
+in the pivot, so the gallery's Vans variant is not produced.  Reports ≤2022
+use ALL CAPS labels, ≥2023 use mixed case; VARIANTS carries both forms.
 TOTAL = BEV + PHEV + HEV + PETROL + DIESEL + OTHERS.
 
 All registrations (new AND first registrations of imported used vehicles) are

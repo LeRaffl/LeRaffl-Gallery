@@ -6,3 +6,6 @@ Colombia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split
 Malaysia,Whole,Source (data.gov.my) does not split PHEV from HEV: shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Singapore,Whole,Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
 Albania,Whole,Figures include first registrations of both new and imported used vehicles. Historical series (pre-2026) compiled by R. Andrew from DPSHTRR open data.
+Albania,HDV,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,Buses,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,2-Wheelers,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.

@@ -11,16 +11,19 @@ by driving a headless Chromium (Playwright) session, intercepting the
 
 ```
 Source:        dpshtrr.al  (DPSHTRR Open Data, Looker Studio)
-Report:        Albanian (Shqip) report — 233df2cc-6bd4-45fc-bf9b-e8ee4f83293e
-Page (URL):    VPWqB   ("Mjete sipas Lëndës Djegëse")
-Page (numeric):24871631
-datasourceId:  013d0728-f5d3-4599-8899-cfb3f02fa77e
-revisionNumber:16  (captured 2026-06-13; bump if responses go empty)
+Report:        Albanian (Shqip) report, one per calendar year — see YEAR_REPORTS
+               (current year 2026 = 233df2cc-6bd4-45fc-bf9b-e8ee4f83293e)
+Page (URL):    VPWqB   ("Mjete sipas Lëndës Djegëse")  — same slug every year
+datasourceId:  NOT hardcoded; intercept captures all batchedDataV2 and selects
+               the qualifying pivot subset structurally (per-year IDs differ)
 Auth:          Real browser session required; plain-HTTP is PREFETCH_VALIDATION-blocked
 Approach:      Headless Playwright → intercept batchedDataV2 → Muaji filter differencing
-Filter:        Autoveturë (passenger cars only)
-Variant:       Whole (all first registrations, new + imported used)
-Coverage:      Current-year months via Playwright; pre-2026 from bootstrapped CSV
+Variants:      Whole (M1, Autoveturë) · HDV (N2+N3, Kamion) ·
+               Buses (M2+M3, Autobus) · 2-Wheelers (L, Motor + Ciklomotorr …)
+Counts:        All first registrations (new + imported used)
+Coverage:      Whole 2019→ (bootstrapped pre-2026 + live current year);
+               HDV/Buses/2-Wheelers backfilled 2020–2024 + live current year.
+               2025 non-Whole NOT fetched — source snapshots are corrupt (§11).
 Cadence:       Monthly; time_interval=monthly
 Schedule:      Daily days 10-28, 07:00 UTC; commit-gated
 Scripts:       scripts/fetch_albania.py
@@ -49,14 +52,14 @@ data correctly.  We must use the Albanian report, not the English one.
 
 ```
 1. Launch headless Chromium (Playwright), install route intercept on **/*
-2. Navigate to the Albanian report page (lookerstudio.google.com/reporting/233df2cc…)
+2. Navigate to that year's Albanian report page (report ID from YEAR_REPORTS)
 3. Wait 35 s for the initial batchedDataV2 responses (baseline = all months selected)
 4. Locate and open the "Muaji" (Month) multi-select filter popup
 5. Toggle each month OFF in DESCENDING order (latest first), capturing the
    batchedDataV2 complement response after each toggle
 6. Recover single-month counts by differencing consecutive complements
-7. Parse vehicle×fuel×count table, keep Autoveturë rows, map to gallery schema
-8. Upsert data/Albania.csv
+7. Parse vehicle×fuel×count table; sum rows per VARIANT (all four in one pass)
+8. Upsert data/Albania.csv (optionally filtered by --variants)
 ```
 
 ## 3. Report internals (reverse-engineered 2026-06-13)
@@ -64,15 +67,36 @@ data correctly.  We must use the Albanian report, not the English one.
 IDs obtained by loading the Albanian report in a browser and inspecting
 intercepted `batchedDataV2` network requests.
 
-| Item | Value |
-|---|---|
-| Report ID (Albanian / Shqip) | `233df2cc-6bd4-45fc-bf9b-e8ee4f83293e` |
-| Report ID (English — **do not use**, see §1) | `407ce08b-d3ce-478e-9bc7-a50125f875f3` |
-| Page ID (URL slug) | `VPWqB` |
-| Page ID (numeric, in API body) | `24871631` |
-| Component ID | `cd-p9hqinijec` |
-| datasourceId | `013d0728-f5d3-4599-8899-cfb3f02fa77e` |
-| revisionNumber | `16` |
+**Per-year report registry.** DPSHTRR publishes a *separate* Looker report for
+each calendar year, each with its own report ID, datasource ID, component ID
+and revision number. The script holds these in the `YEAR_REPORTS` dict
+(`{year: (report_id, page_slug)}`). Every year uses the **same page slug
+`VPWqB`** ("Mjete sipas Lëndës Djegëse", the vehicle×fuel pivot with the Muaji
+month multiselect). 2019 is deliberately **omitted** — its report has a
+different layout with no Muaji multiselect, so the differencing approach does
+not apply.
+
+| Year | Report ID (Albanian / Shqip) | Page |
+|---|---|---|
+| 2020 | `70f605d5-f454-4776-af73-fdbbcd757bbb` | VPWqB |
+| 2021 | `3c73a68e-3df5-4ad4-b210-274b9d274d36` | VPWqB |
+| 2022 | `bb9de550-a4cd-45ce-84d5-ec9fa5af028f` | VPWqB |
+| 2023 | `78d2f17c-8f62-4b3a-872e-141c0ffecd53` | VPWqB |
+| 2024 | `5d405a90-3508-4e91-abec-85ea46cd9426` | VPWqB |
+| 2025 | `8d58f55d-117f-4c4e-939a-2b42188966f4` | VPWqB (snapshots corrupt, §11) |
+| 2026 | `233df2cc-6bd4-45fc-bf9b-e8ee4f83293e` | VPWqB |
+| English (**do not use**, see §1) | `407ce08b-d3ce-478e-9bc7-a50125f875f3` | — |
+
+**`datasourceId` is NOT hardcoded.** Because it differs per year, the intercept
+captures *every* `batchedDataV2` response and `_parse_fuel_counts` selects the
+qualifying vehicle×fuel pivot subset by structure (a 3-column subset whose
+columns sample as vehicle-type / fuel-type / count), not by datasource ID.
+`revisionNumber` is likewise read from the page's own requests rather than
+pinned.
+
+For reference, the **2026** report's internals were:
+`datasourceId 013d0728-f5d3-4599-8899-cfb3f02fa77e`, component `cd-p9hqinijec`,
+page numeric `24871631`, revision `16`.
 
 Internal field IDs referenced in the intercepted request bodies:
 
@@ -134,19 +158,29 @@ window where labels are consistent.
 
 ## 5. Fuel-type mapping (Lënda Djegëse → gallery schema)
 
-Derived from DPSHTRR Looker pivot output, Autoveturë rows only.
+Derived from DPSHTRR Looker pivot output (applies to every variant's rows).
 
-| DPSHTRR Lënda Djegëse | Gallery column | Notes |
-|---|---|---|
-| Elektrik | BEV | |
-| Hybrid plug-in, Benzinë/Elektrik | PHEV | petrol PHEV |
-| Hybrid plug-in, Naftë/Elektrik | PHEV | diesel PHEV |
-| Hybrid Benzinë/Elektrik | HEV | |
-| Hybrid Naftë/Elektrik | HEV | mild-hybrid diesel |
-| Hybrid Benzinë/Gaz/Elektrik | HEV | gas-electric hybrid |
-| Benzinë | PETROL | |
-| Naftë | DIESEL | |
-| everything else (Benzinë/Gaz, Gaz, Metan, Naftë/Gaz, LPG, `-`, …) | OTHERS | LPG / CNG / gas |
+**Two label dialects.** Reports **≥2023** use mixed-case labels with slash/word
+separators (`Naftë`, `Hybrid Benzinë/Elektrik`). Reports **≤2022** use ALL CAPS
+with `+` separators (`NAFTË`, `BENZINË+ELEKTRIK`). Both forms are carried in the
+mapping sets so one code path covers all years.
+
+| DPSHTRR Lënda Djegëse (≥2023) | ≤2022 ALL-CAPS form | Gallery column | Notes |
+|---|---|---|---|
+| Elektrik | ELEKTRIK | BEV | |
+| Hybrid plug-in, Benzinë/Elektrik | BENZINË+ELEKTRIK+HYBRID | PHEV | petrol PHEV |
+| Hybrid plug-in, Naftë/Elektrik | NAFTË+ELEKTRIK+HYBRID | PHEV | diesel PHEV |
+| Hybrid Benzinë/Elektrik | BENZINË+ELEKTRIK | HEV | |
+| Hybrid Naftë/Elektrik | NAFTË+ELEKTRIK | HEV | mild-hybrid diesel |
+| Hybrid Benzinë/Gaz/Elektrik | BENZINË+GAZ+ELEKTRIK | HEV | gas-electric hybrid |
+| Benzinë | BENZINË | PETROL | |
+| Naftë | NAFTË | DIESEL | |
+| everything else (Benzinë/Gaz, Gaz, Metan, LPG, `-`, …) | BENZINË+GAZ, GAZ, NUK KA | OTHERS | LPG / CNG / gas |
+
+Note the ≤2022 `+ELEKTRIK` vs `+ELEKTRIK+HYBRID` distinction: the bare
+`+ELEKTRIK` form is the *non-plug-in* hybrid (→ HEV), the `+HYBRID`-suffixed
+form is the plug-in (→ PHEV). Getting this backwards swaps HEV/PHEV in the
+older years.
 
 This mapping is ACEA-congruent: BEV, PHEV, HEV, PETROL, DIESEL, OTHERS.
 LPG folds into OTHERS (consistent with ACEA practice).  If `OTHERS` looks high,
@@ -169,8 +203,32 @@ from Western Europe and, increasingly, China), so headline monthly totals
 (~5,000–8,000 in 2025–2026) are considerably larger than a new-car-only count
 would show.
 
-Variant is `Whole`.  No body-type or passenger/commercial sub-split is available
-from DPSHTRR.
+### Variants & EU category mapping
+
+The same vehicle×fuel pivot carries *all* vehicle types, so every variant is
+extracted in **one** browser session (no extra round-trips) — `VARIANTS` maps a
+gallery variant to the set of Albanian vehicle-type strings whose rows it sums.
+
+| Gallery variant | EU class | DPSHTRR vehicle-type string(s) |
+|---|---|---|
+| Whole | M1 | `Autoveturë` / `AUTOVETURË` |
+| HDV | N2+N3 | `Kamion` / `KAMION` |
+| Buses | M2+M3 | `Autobus` / `AUTOBUS` |
+| 2-Wheelers | L | `Motor`/`MOTORË`, `Motor me kosh`, `Motor me tre rrota, simetrike`, `Motor me katër rrota, i lehtë`, `Motor me katër rrota, jo i lehtë`, `Ciklomotorr me dy rrota`, `Ciklomotorr me tre rrota` |
+
+Discovery notes (these cost real time to pin down):
+
+* The motorcycle bulk row is **`Motor`** (`MOTORË` in old reports), *not* the
+  textbook Albanian `Motoçikletë` — that string never appears in the pivot.
+  Likewise mopeds are **`Ciklomotorr`** (double-r), not `Çikëlomotor`.
+* Buses are a single `Autobus` row; there is no separate `Miniautobuz`.
+* **No N1 (Vans).** DPSHTRR has no dedicated van/light-commercial category in
+  this pivot, so the gallery's Vans variant is **not** produced. The closest
+  row is `Automjet për transport të përzier` (~300/month) but its EU mapping is
+  ambiguous, so it is left in OTHERS-of-nothing (i.e. unmapped, not emitted).
+* The `--variants` flag filters only what gets **written**; parsing/printing
+  always covers all four. This let the non-Whole backfill run without touching
+  the existing Whole rows.
 
 **Sanity reference:** `robbieandrew.github.io/carsales/albania_carsales_monthly.csv`
 (Robbie Andrew's mirror of the same DPSHTRR source, with a different column
@@ -181,19 +239,32 @@ and minor retroactive corrections appear in the source.  Large deviations
 
 ## 7. Historical data (pre-2026)
 
-The DPSHTRR Looker report is scoped to a single calendar year ("year 2026").
-Historical years (2019–2025) were bootstrapped into `data/Albania.csv` from
-Robbie Andrew's pre-parsed mirror of the same DPSHTRR figures.  Attribution for
-all rows is `dpshtrr.al`.
+Each DPSHTRR Looker report is scoped to a single calendar year, but a separate
+report exists per year (see the `YEAR_REPORTS` registry, §3). The same
+Playwright + Muaji-differencing pipeline therefore works on any listed year.
+
+* **Whole (M1):** bootstrapped 2019→2025 into `data/Albania.csv` from Robbie
+  Andrew's pre-parsed mirror of the same DPSHTRR figures, then kept current by
+  the live fetch. These rows were left untouched by the multi-variant work.
+* **HDV / Buses / 2-Wheelers:** these variants do not exist in Andrew's mirror,
+  so they were **backfilled directly** from the per-year DPSHTRR reports for
+  **2020–2024** (one-off dispatch:
+  `year_from=2020 year_to=2024 variants=HDV,Buses,2-Wheelers`), and are kept
+  current by the live fetch. **2019** is excluded (different report layout, no
+  Muaji control); **2025** non-Whole is excluded because that year's report
+  serves corrupt snapshots (see §11).
 
 **When a new calendar year begins:** DPSHTRR publishes a fresh Looker report.
 
 1. Open the new Albanian (Shqip) report page in a browser.
-2. Go to the "Mjete sipas Lëndës Djegëse" page (same URL slug `VPWqB` may or may not persist).
-3. Inspect a `batchedDataV2` network request and extract `REPORT_ID`,
-   `PAGE_ID_NUM`, `COMPONENT_ID`, `DATASOURCE_ID`, `REVISION_NUMBER`.
-4. Update those constants in `scripts/fetch_albania.py`.
-5. Dispatch the workflow with `--year-from <new_year>` to bootstrap the new year.
+2. Go to the "Mjete sipas Lëndës Djegëse" page (page slug `VPWqB` has persisted
+   across every year so far, but verify it).
+3. Inspect a `batchedDataV2` network request and extract the new `REPORT_ID`.
+   The datasource ID, component ID and revision number are auto-detected (§3),
+   so only the report ID and page slug are needed.
+4. Add the `{year: (report_id, page_slug)}` entry to `YEAR_REPORTS` in
+   `scripts/fetch_albania.py`.
+5. Dispatch the workflow with `year_from=<new_year>` to bootstrap the new year.
 
 ## 8. Upsert & idempotence
 
@@ -205,9 +276,12 @@ ranges.
 ## 9. Source attribution & footnote
 
 * **`source` column** (`data/Albania.csv`): `dpshtrr.al` for every row.
-* **`footnotes.csv`** (`Albania, Whole`):
-  > Figures include first registrations of both new and imported used vehicles.
-  > Historical series (pre-2026) compiled by R. Andrew from DPSHTRR open data.
+* **`footnotes.csv`** — one entry per variant:
+  * `Albania, Whole`: pre-2026 historical compiled by R. Andrew from DPSHTRR.
+  * `Albania, HDV` / `Buses` / `2-Wheelers`: pre-2026 fetched directly from
+    DPSHTRR open data (2020–2024); 2019 and 2025 unavailable.
+  * All four note: *figures include first registrations of both new and
+    imported used vehicles.*
 
 ## 10. Known quirks and hard-won discoveries
 
@@ -221,6 +295,42 @@ ranges.
 | Ascending toggle = wrong TOTALS | Jan/Feb TOTAL wrong by ~500 cars due to label inconsistency in large-window diffs; descending fixes this |
 | Muaji popup double-open | `_open_muaji()` called twice in sequence (label-read + first toggle) closes instead of opens the popup; first month click lands on chart body → press Escape after label-read |
 | LPG is large | Albania has high LPG adoption; `OTHERS` column will be non-trivial |
-| Year-scoped report | DPSHTRR publishes a new Looker report each calendar year; `REPORT_ID` et al. must be updated annually |
-| revisionNumber | Hard-coded to `16` (2026-06-13); if workflow returns empty data or 4xx, bump it after checking DevTools |
-| Data starts 2019-01 | No DPSHTRR open data before 2019 |
+| Year-scoped reports | A separate Looker report per calendar year; new years are added to `YEAR_REPORTS` (only report ID + page slug needed) |
+| Per-year datasource IDs | datasource/component/revision differ per year and are auto-detected structurally, NOT hardcoded |
+| ALL-CAPS labels ≤2022 | Reports ≤2022 emit `AUTOVETURË`/`NAFTË`/`BENZINË+ELEKTRIK` etc.; ≥2023 use mixed case. Both forms are in the mapping sets |
+| `Motor` not `Motoçikletë` | The pivot's motorcycle row is `Motor`/`MOTORË`; mopeds are `Ciklomotorr` (double-r). Textbook spellings never appear |
+| No N1 / Vans | DPSHTRR has no van category in the pivot; the gallery Vans variant cannot be produced |
+| 2025 snapshots corrupt | The 2025 report serves frozen Looker snapshots (every call logs `SNAPSHOT_WITH_NON_REAGGREGATABLE`) that were cached under inconsistent column schemas → fuel columns flip mid-year; 2025 non-Whole is not fetched (§11) |
+| Data starts 2019-01 | No DPSHTRR open data before 2019; 2019 report is also un-differenceable (no Muaji) |
+
+## 11. The corrupt 2025 report (why 2025 non-Whole is skipped)
+
+The 2025 report (`8d58f55d-…`) returns internally inconsistent data and is
+**deliberately excluded** from the non-Whole backfill. Symptoms, from a debug
+dry-run (`ALBANIA_DEBUG=1`):
+
+* **Every** `batchedDataV2` response for 2025 carries an API error
+  `SNAPSHOT_WITH_NON_REAGGREGATABLE` — i.e. Looker is serving *pre-computed
+  frozen snapshots* rather than re-aggregating live. (This is the same flag
+  that makes the English report unusable, §1, but here it appears on the
+  Albanian 2025 report's own page requests.)
+* Those snapshots were cached at different times under **different column
+  schemas**, so the fuel mapping flips mid-year. Cumulative Whole snapshots:
+  `A[2025-02]` = `{DIESEL: 4442, BEV: 0}` (plausible Albanian diesel fleet),
+  but `A[2025-03]…A[2025-10]` show `BEV` in the tens of thousands and `DIESEL`
+  near zero (implausible), then `A[2025-11]/A[2025-12]` snap back to
+  diesel-dominant. The same flip corrupts HDV/Buses/2-Wheelers (e.g. HDV shows
+  `BEV` dominating from March — impossible for trucks).
+* The telescoping difference across the flip boundary produces garbage, e.g.
+  `Whole 2025-10 DIESEL=54315` (≈ the whole year's total in one month).
+
+The column-detection and fuel-mapping code is **correct** — the debug log shows
+`vehicle_idx=0 fuel_idx=1 count_idx=2` and clean `Naftë→DIESEL`,
+`Elektrik→BEV` mappings on every call. The defect is purely server-side in
+DPSHTRR's cached snapshots; there is nothing to fix in the script.
+
+**Decision:** leave the existing bootstrapped 2025 **Whole** rows (from Andrew's
+mirror) in place and do **not** fetch 2025 HDV/Buses/2-Wheelers. Re-attempt only
+if DPSHTRR refreshes the 2025 snapshots (re-run the debug dry-run and confirm
+the `SNAPSHOT_WITH_NON_REAGGREGATABLE` errors are gone and the cumulative
+columns are monotonic before writing).
