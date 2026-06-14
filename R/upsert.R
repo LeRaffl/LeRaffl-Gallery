@@ -49,13 +49,16 @@ format_num <- function(x) {
 }
 
 # Line-level upsert: only the matching country+variant row is touched.
-upsert_params <- function(path, country, variant, fit, data_per, source_str) {
-  header <- "country,variant,v1,v2,t0,data_per,model_date,source,baseline_date,ice_v1,ice_v2,ice_t0"
+upsert_params <- function(path, country, variant, fit, data_per, source_str,
+                          ttm_bev_share = NA_real_) {
+  header <- "country,variant,v1,v2,t0,data_per,model_date,source,baseline_date,ice_v1,ice_v2,ice_t0,ttm_bev_share"
+  bev_str <- if (is.finite(ttm_bev_share)) format_num(ttm_bev_share) else ""
   new_line <- paste(
     country, variant,
     format_num(fit$v1), format_num(fit$v2), format_num(fit$t0),
     data_per, format(Sys.Date(), "%Y-%m-%d"), source_str, "",
     format_num(fit$ice_v1), format_num(fit$ice_v2), format_num(fit$ice_t0),
+    bev_str,
     sep = ","
   )
 
@@ -66,6 +69,8 @@ upsert_params <- function(path, country, variant, fit, data_per, source_str) {
   lines <- readLines(path, encoding = "UTF-8", warn = FALSE)
   if (length(lines) == 0 || !startsWith(lines[1], "country,")) {
     lines <- c(header, lines)
+  } else if (!grepl("ttm_bev_share", lines[1], fixed = TRUE)) {
+    lines[1] <- header
   }
 
   prefix <- paste0(country, ",", variant, ",")

@@ -189,6 +189,13 @@ if (file.exists(params_path)) {
 
 ttm_long <- compute_ttm_long(df)
 
+# Latest TTM BEV share — written to params.csv for the frontend's < 1% no-transition check.
+ttm_bev_share <- NA_real_
+if (!is.null(ttm_long)) {
+  bev_rows <- ttm_long[as.character(ttm_long$type) == "BEV", , drop = FALSE]
+  if (nrow(bev_rows) > 0) ttm_bev_share <- bev_rows$value[nrow(bev_rows)]
+}
+
 # Optional per-country/variant plot suppression, driven by skip_plots.csv
 # (columns: country,variant,skip — semi-colon-separated plot keys).
 # Valid keys: trajectory, icebev, time, ttm. Kept separate from footnotes.csv.
@@ -293,8 +300,10 @@ save_one(p_ttm,   paste0(slug, "_ttm_shares_", date_suffix, ".png"), 12.80, 7.20
 
 # params.csv / weights.csv upsert
 data_per <- as_of_period
-cat(sprintf("[upsert] params.csv  %s/%s  data_per=%s\n", country, variant, data_per))
-upsert_params("params.csv", country, variant, fit, data_per, source_str)
+cat(sprintf("[upsert] params.csv  %s/%s  data_per=%s  ttm_bev=%.2f%%\n",
+            country, variant, data_per,
+            if (is.finite(ttm_bev_share)) ttm_bev_share * 100 else NA_real_))
+upsert_params("params.csv", country, variant, fit, data_per, source_str, ttm_bev_share)
 weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
