@@ -559,6 +559,18 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                 print(f"[albania][debug] qualifying subset: size={size} "
                       f"cols={len(cols)} vehicle_idx={vehicle_idx} "
                       f"fuel_idx={fuel_idx} count_idx={count_idx}")
+                # Dump ALL vehicle types present (incl. unknowns like N1/Vans)
+                all_vt: dict[str, int] = {}
+                for i in range(size):
+                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                    cnt = (int(count_vals[i])
+                           if (i not in null_count and i < len(count_vals)) else 0)
+                    all_vt[veh] = all_vt.get(veh, 0) + cnt
+                known = set().union(*VARIANTS.values())
+                for veh, cnt in sorted(all_vt.items(), key=lambda x: -x[1]):
+                    tag = "" if veh in known else "  ← UNKNOWN"
+                    print(f"[albania][debug]   vehicle {veh!r} total={cnt}{tag}")
+                # Per-fuel breakdown for the requested vehicle_types
                 vt_fuel: dict[str, int] = {}
                 for i in range(size):
                     veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
