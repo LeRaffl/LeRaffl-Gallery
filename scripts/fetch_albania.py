@@ -130,9 +130,17 @@ REPORT_PAGE_URL = (
 # All variants are extracted from the same batchedDataV2 intercepts in one run.
 VARIANTS: dict[str, set[str]] = {
     "Whole":      {"Autoveturë"},                       # M1
-    "HDV":        {"Kamion"},                           # N2+N3
-    "Buses":      {"Autobus", "Miniautobuz"},           # M2+M3
-    "2-Wheelers": {"Motoçikletë", "Çikëlomotor"},      # L
+    "HDV":        {"Kamion"},                           # N2+N3 rigid trucks only
+    "Buses":      {"Autobus"},                          # M2+M3 (Miniautobuz absent in pivot)
+    "2-Wheelers": {                                     # L-category
+        "Motor",                                        # L3/L4 motorcycles (bulk)
+        "Motor me kosh",                                # L4 with sidecar
+        "Motor me tre rrota, simetrike",                # L5 symmetric tricycle
+        "Motor me katër rrota, i lehtë",               # L6e light quadricycle
+        "Motor me katër rrota, jo i lehtë",            # L7e heavy quadricycle
+        "Ciklomotorr me dy rrota",                      # L1/L2 moped 2-wheel
+        "Ciklomotorr me tre rrota",                     # L2e moped 3-wheel
+    },
 }
 
 # ── Gallery schema ───────────────────────────────────────────────────────────
@@ -162,9 +170,19 @@ def _fuel_col(fuel: str) -> str:
 
 
 # ── Known vehicle types (used for column-type detection) ─────────────────────
+# These are the actual strings that appear in the DPSHTRR Looker pivot.
+# Note: "Motoçikletë"/"Çikëlomotor" (textbook Albanian) do NOT appear;
+# DPSHTRR uses "Motor" and "Ciklomotorr …" instead.
 _VEHICLE_TYPE_HINTS = {
-    "Autoveturë", "Kamion", "Autobus", "Motoçikletë", "Rimorkio",
-    "Traktor", "Çikëlomotor", "Miniautobuz",
+    "Autoveturë", "Kamion", "Autobus",
+    "Motor", "Motor me kosh", "Motor me tre rrota, simetrike",
+    "Motor me katër rrota, i lehtë", "Motor me katër rrota, jo i lehtë",
+    "Ciklomotorr me dy rrota", "Ciklomotorr me tre rrota",
+    "Tërheqës", "Gjysëmrimorkio",
+    "Automjet për transport të përzier",
+    "Automjet për transport të veçantë",
+    "Automjet për përdorim të veçantë",
+    "Traktor bujqësor, me rrota",
 }
 # Known fuel types (used for column-type detection)
 _FUEL_TYPE_HINTS = {
