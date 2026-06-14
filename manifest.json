@@ -82,6 +82,36 @@
       "country_slug": "albania_2_wheelers"
     },
     {
+      "country": "Albania (Buses)",
+      "type": "ICE_BEV",
+      "period": "2024-12",
+      "date": "2026-06-14",
+      "filename": "albania_buses_ICE_BEV_20260614.png",
+      "url": "images/2024-12/albania_buses_ICE_BEV_20260614.png",
+      "alt": "Albania (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "share",
+      "period": "2024-12",
+      "date": "2026-06-14",
+      "filename": "albania_buses_20260614.png",
+      "url": "images/2024-12/albania_buses_20260614.png",
+      "alt": "Albania (Buses) BEV trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "time",
+      "period": "2024-12",
+      "date": "2026-06-14",
+      "filename": "albania_buses_time_20260614.png",
+      "url": "images/2024-12/albania_buses_time_20260614.png",
+      "alt": "Albania (Buses) Transition time curve",
+      "country_slug": "albania_buses"
+    },
+    {
       "country": "Albania (HDV)",
       "type": "ICE_BEV",
       "period": "2024-12",
