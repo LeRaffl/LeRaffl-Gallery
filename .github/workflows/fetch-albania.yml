@@ -19,6 +19,9 @@ on:
       year_to:
         description: 'Last year to fetch (default: current year). Set same as year_from for one year.'
         required: false
+      variants:
+        description: 'Comma-separated variants to WRITE (default: all). For backfill use HDV,Buses,2-Wheelers to leave Whole untouched.'
+        required: false
       since:
         description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
         required: false
@@ -57,6 +60,7 @@ jobs:
           ARGS=""
           if [ -n "${{ inputs.year_from }}" ]; then ARGS="$ARGS --year-from ${{ inputs.year_from }}"; fi
           if [ -n "${{ inputs.year_to }}"   ]; then ARGS="$ARGS --year-to   ${{ inputs.year_to }}"; fi
+          if [ -n "${{ inputs.variants }}"  ]; then ARGS="$ARGS --variants ${{ inputs.variants }}"; fi
           if [ -n "${{ inputs.since }}"     ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_albania.py $ARGS

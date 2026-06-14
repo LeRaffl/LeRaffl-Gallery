@@ -769,9 +769,24 @@ def main() -> None:
                     help="Last calendar year to request (default: current year).")
     ap.add_argument("--dry-run", action="store_true",
                     help="Fetch and parse; print monthly totals; do not write CSV.")
+    ap.add_argument("--variants", default=None,
+                    help="Comma-separated variants to UPSERT (default: all). "
+                         "Parsing/printing still covers all; this only filters "
+                         "what gets written. Use e.g. 'HDV,Buses,2-Wheelers' to "
+                         "backfill non-Whole variants without touching existing "
+                         "Whole rows.")
     ap.add_argument("--force", action="store_true",
                     help="Accepted for parity (commit-gated downstream).")
     args = ap.parse_args()
+
+    write_variants: set[str] | None = None
+    if args.variants:
+        write_variants = {v.strip() for v in args.variants.split(",") if v.strip()}
+        unknown_v = write_variants - set(VARIANTS)
+        if unknown_v:
+            print(f"[albania] ERROR: unknown variant(s) {sorted(unknown_v)}; "
+                  f"known: {sorted(VARIANTS)}", file=sys.stderr)
+            sys.exit(1)
 
     years = range(args.year_from, args.year_to + 1)
     unknown_years = [y for y in years if y not in YEAR_REPORTS]
@@ -811,7 +826,13 @@ def main() -> None:
         print("(dry-run: CSV not written)")
         return
 
-    added, updated = upsert_csv(CSV_PATH, all_rows, args.since)
+    write_rows = all_rows
+    if write_variants is not None:
+        write_rows = {k: v for k, v in all_rows.items() if k[1] in write_variants}
+        print(f"[albania] writing only variants {sorted(write_variants)}: "
+              f"{len(write_rows)} of {len(all_rows)} rows")
+
+    added, updated = upsert_csv(CSV_PATH, write_rows, args.since)
     print(f"{added} added, {updated} updated -> {CSV_PATH}")
 
 
