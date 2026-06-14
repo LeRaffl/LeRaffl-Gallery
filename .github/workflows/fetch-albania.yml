@@ -66,7 +66,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Albania \
-            -f variant=Whole
+          for variant in Whole HDV Buses 2-Wheelers; do
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Albania \
+              -f variant=$variant
+          done

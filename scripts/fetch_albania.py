@@ -46,7 +46,7 @@ We therefore:
      replaced by "Hybrid plug-in, Benzinë/Elektrik"), which causes negative
      per-fuel diffs that get clipped to 0 and corrupt monthly TOTALS.
   4. **Parse** each captured response: vehicle_type × fuel_type × count flat
-     table; keep only ``Autoveturë`` rows; aggregate by fuel type.
+     table; aggregate by fuel type for every registered VARIANT in one pass.
 
 This was cross-checked against an authoritative monthly car-sales reference:
 the differenced 2026 months (Jan 5673, Feb 5905, Mar 6103, Apr 6732, May 6358)
@@ -74,7 +74,12 @@ Fuel-type mapping (Lenda Djegese → gallery schema)
     Naftë                               → DIESEL
     everything else (LPG, Gas, CNG, …)  → OTHERS
 
-Only Autoveturë (passenger cars) rows are included.
+Vehicle variants produced (EU class in parentheses)
+----------------------------------------------------
+    Whole       Autoveturë              M1  passenger cars
+    HDV         Kamion                  N2+N3  trucks / lorries
+    Buses       Autobus + Miniautobuz   M2+M3  buses & coaches
+    2-Wheelers  Motoçikletë + Çikëlomotor  L  motorcycles & mopeds
 TOTAL = BEV + PHEV + HEV + PETROL + DIESEL + OTHERS.
 
 All registrations (new AND first registrations of imported used vehicles) are
@@ -119,12 +124,20 @@ REPORT_PAGE_URL = (
     f"https://lookerstudio.google.com/reporting/{REPORT_ID}/page/{PAGE_ID_URL}"
 )
 
-VEHICLE_FILTER_VALUE = "Autoveturë"   # passenger cars only
+# ── Variant → Albanian vehicle-type mapping (EU class) ───────────────────────
+# Each gallery variant maps to one or more Albanian vehicle-type strings that
+# appear in the vehicle_type column of the cd-p9hqinijec pivot response.
+# All variants are extracted from the same batchedDataV2 intercepts in one run.
+VARIANTS: dict[str, set[str]] = {
+    "Whole":      {"Autoveturë"},                       # M1
+    "HDV":        {"Kamion"},                           # N2+N3
+    "Buses":      {"Autobus", "Miniautobuz"},           # M2+M3
+    "2-Wheelers": {"Motoçikletë", "Çikëlomotor"},      # L
+}
 
 # ── Gallery schema ───────────────────────────────────────────────────────────
 SOURCE      = "dpshtrr.al"
 CSV_PATH    = "data/Albania.csv"
-VARIANT     = "Whole"
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes",
@@ -446,7 +459,8 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
                 if len(captured) <= cap_before:
                     continue
                 total = sum(_parse_fuel_counts(
-                    _merge_slice(cap_before), quiet=True).values())
+                    _merge_slice(cap_before), VARIANTS["Whole"],
+                    quiet=True).values())
                 if total > 0:
                     page.wait_for_timeout(2500)   # let trailing subsets settle
                     got = True
@@ -454,7 +468,8 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
 
             if got:
                 complements.append((period, _merge_slice(cap_before)))
-                counts = _parse_fuel_counts(_merge_slice(cap_before), quiet=True)
+                counts = _parse_fuel_counts(
+                    _merge_slice(cap_before), VARIANTS["Whole"], quiet=True)
                 print(f"[albania] toggled {lbl} off → complement after {period} "
                       f"= {sum(counts.values())} ({len(captured) - cap_before} "
                       f"responses)")
@@ -485,8 +500,9 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _parse_fuel_counts(data: dict, quiet: bool = False) -> dict:
-    """Aggregate Autoveturë (passenger-car) registrations by gallery fuel column
+def _parse_fuel_counts(data: dict, vehicle_types: set[str],
+                       quiet: bool = False) -> dict:
+    """Aggregate registrations for the given vehicle_types by gallery fuel column
     from the first qualifying vehicle×fuel×count subset of a batchedDataV2
     response.
 
@@ -543,26 +559,25 @@ def _parse_fuel_counts(data: dict, quiet: bool = False) -> dict:
                 print(f"[albania][debug] qualifying subset: size={size} "
                       f"cols={len(cols)} vehicle_idx={vehicle_idx} "
                       f"fuel_idx={fuel_idx} count_idx={count_idx}")
-                # Show every unique fuel label that appears in Autoveturë rows
-                car_fuel: dict[str, int] = {}
+                vt_fuel: dict[str, int] = {}
                 for i in range(size):
                     veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                    if veh != VEHICLE_FILTER_VALUE:
+                    if veh not in vehicle_types:
                         continue
                     fv = fuel_vals[i] if i < len(fuel_vals) else ""
                     cnt = (int(count_vals[i])
                            if (i not in null_count and i < len(count_vals)) else 0)
-                    car_fuel[fv] = car_fuel.get(fv, 0) + cnt
-                for fv, cnt in sorted(car_fuel.items()):
-                    print(f"[albania][debug]   car fuel {fv!r} → "
+                    vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
+                for fv, cnt in sorted(vt_fuel.items()):
+                    print(f"[albania][debug]   fuel {fv!r} → "
                           f"{_fuel_col(fv)} count={cnt}")
 
             local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
                 if i in null_vehicle or i in null_fuel:
                     continue
-                if (vehicle_vals[i] if i < len(vehicle_vals) else "") != \
-                        VEHICLE_FILTER_VALUE:
+                if (vehicle_vals[i] if i < len(vehicle_vals) else "") not in \
+                        vehicle_types:
                     continue
                 fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
                 count = (int(count_vals[i])
@@ -578,74 +593,82 @@ def _parse_fuel_counts(data: dict, quiet: bool = False) -> dict:
 
 
 def _difference_to_rows(fetched: dict) -> dict:
-    """Recover true single-month gallery rows from the all-months baseline and
-    the per-month complement captures.
+    """Recover true single-month gallery rows for every VARIANT from the
+    all-months baseline and the per-month complement captures.
 
     With months sorted descending m_k > … > m_1 and A_i = the report total
     after toggling m_i (and all later months) OFF — i.e. the sum over months
     still selected (< m_i) — the single-month value is the telescoping diff
         m_i = A_{i-1} − A_i,   where A_0 = baseline (all months on)
     and A_1 = 0 (toggling January empties the selection → no data).
-    This is done per fuel column.
+    This is done per fuel column, for each variant independently.
     """
-    baseline = _parse_fuel_counts(fetched["baseline"])
-    comp = {p: _parse_fuel_counts(m) for p, m in fetched["complements"]}
     present = fetched["present_periods"]            # descending YYYY-MM
+    zero    = {c: 0 for c in VALUE_COLS}
 
-    if DEBUG:
-        print(f"[albania][debug] baseline (all months): {baseline} "
-              f"total={sum(baseline.values())}")
-        for p in present:
-            if p in comp:
-                print(f"[albania][debug] A[{p}] (after toggling {p} off): "
-                      f"{comp[p]} total={sum(comp[p].values())}")
-
-    # Guard: toggling the first month (latest, in descending order) OFF must
-    # REDUCE the total — this proves the control defaulted to all-months-selected,
-    # which differencing relies on.
-    if present and present[0] in comp:
-        if sum(comp[present[0]].values()) >= sum(baseline.values()):
+    # Guard (on Whole / Autoveturë): toggling the first month OFF must REDUCE the
+    # total — proves the control defaulted to all-months-selected.
+    _whole_vt  = VARIANTS["Whole"]
+    _base_w    = _parse_fuel_counts(fetched["baseline"], _whole_vt)
+    _comp_w0   = (_parse_fuel_counts(fetched["complements"][0][1], _whole_vt)
+                  if fetched["complements"] else None)
+    if _comp_w0 is not None and present:
+        if sum(_comp_w0.values()) >= sum(_base_w.values()):
             raise RuntimeError(
                 "[albania] Muaji filter is not all-months-selected by default "
-                f"(baseline total={sum(baseline.values())}, after toggling "
-                f"{present[0]} off={sum(comp[present[0]].values())}); the "
+                f"(baseline total={sum(_base_w.values())}, after toggling "
+                f"{present[0]} off={sum(_comp_w0.values())}); the "
                 "differencing assumption is invalid — aborting to avoid bad data")
 
     rows: dict = {}
-    prev = baseline
-    zero = {c: 0 for c in VALUE_COLS}
-    for i, p in enumerate(present):
-        a = comp.get(p)
-        if a is None:
-            if i == len(present) - 1:
-                a = zero            # earliest month (Jan): empty selection → no capture
-            else:
-                print(f"[albania] WARNING: missing complement for {p}; cannot "
-                      f"difference this and the following month reliably")
-                prev = None
-                continue
-        if prev is None:
-            prev = a
-            continue
 
-        month = {c: max(0, prev[c] - a[c]) for c in VALUE_COLS}
-        row = {
-            "period":        p,
-            "time_interval": "monthly",
-            "variant":       VARIANT,
-            "source":        SOURCE,
-            "BEV":    month["BEV"],    "PHEV":   month["PHEV"],
-            "HEV":    month["HEV"],    "PETROL": month["PETROL"],
-            "DIESEL": month["DIESEL"], "OTHERS": month["OTHERS"],
-            "TOTAL":  sum(month.values()),
-            "notes":  "",
-        }
-        # Zero optional cols → empty string (gallery convention).
-        for col in ("BEV", "PHEV", "HEV", "OTHERS"):
-            if row[col] == 0:
-                row[col] = ""
-        rows[(p, VARIANT)] = row
-        prev = a
+    for variant, vt in VARIANTS.items():
+        baseline = _parse_fuel_counts(fetched["baseline"], vt)
+        comp     = {p: _parse_fuel_counts(m, vt)
+                    for p, m in fetched["complements"]}
+
+        if DEBUG:
+            print(f"[albania][debug] [{variant}] baseline: {baseline} "
+                  f"total={sum(baseline.values())}")
+            for p in present:
+                if p in comp:
+                    print(f"[albania][debug] [{variant}] A[{p}]: "
+                          f"{comp[p]} total={sum(comp[p].values())}")
+
+        prev = baseline
+        for i, p in enumerate(present):
+            a = comp.get(p)
+            if a is None:
+                if i == len(present) - 1:
+                    a = zero        # earliest month (Jan): empty selection → no capture
+                else:
+                    print(f"[albania] WARNING [{variant}]: missing complement "
+                          f"for {p}; cannot difference this and the following "
+                          f"month reliably")
+                    prev = None
+                    continue
+            if prev is None:
+                prev = a
+                continue
+
+            month = {c: max(0, prev[c] - a[c]) for c in VALUE_COLS}
+            row = {
+                "period":        p,
+                "time_interval": "monthly",
+                "variant":       variant,
+                "source":        SOURCE,
+                "BEV":    month["BEV"],    "PHEV":   month["PHEV"],
+                "HEV":    month["HEV"],    "PETROL": month["PETROL"],
+                "DIESEL": month["DIESEL"], "OTHERS": month["OTHERS"],
+                "TOTAL":  sum(month.values()),
+                "notes":  "",
+            }
+            # Zero optional cols → empty string (gallery convention).
+            for col in ("BEV", "PHEV", "HEV", "OTHERS"):
+                if row[col] == 0:
+                    row[col] = ""
+            rows[(p, variant)] = row
+            prev = a
 
     return rows
 
