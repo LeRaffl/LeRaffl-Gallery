@@ -607,6 +607,20 @@ def _dump_all_subsets(data: dict, vehicle_types: set[str]) -> None:
             print(f"[albania][dump] subset #{s_idx} (dr={dr_i},sub={sub_i}) size={size} "
                   f"ncols={len(cols)} qualifies={qualifies} "
                   f"v_idx={vehicle_idx} f_idx={fuel_idx} c_idx={count_idx}")
+            # Show the distinct string values of every string column (capped) so we
+            # can identify what each column is (vehicle / fuel / emission / brand).
+            for ci, col in enumerate(cols):
+                sv = col.get("stringColumn", {}).get("values", [])
+                lv = col.get("longColumn",   {}).get("values", [])
+                if sv:
+                    distinct = sorted(set(sv))
+                    print(f"[albania][dump]   col{ci} STRING distinct={len(distinct)}: "
+                          f"{distinct[:40]!r}")
+                elif lv:
+                    print(f"[albania][dump]   col{ci} LONG nvals={len(lv)} "
+                          f"sample={lv[:6]!r}")
+                else:
+                    print(f"[albania][dump]   col{ci} EMPTY keys={list(col.keys())!r}")
             s_idx += 1
             if not qualifies:
                 continue
