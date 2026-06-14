@@ -1,0 +1,8 @@
+🇦🇱 Albania (HDV) - TTM Market Split
+
+Jan23–Dec23  vs  Jan24–Dec24
++0.2pp  BEV     (0.0% → 0.2%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.2pp  ICE     (100.0% → 99.8%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
