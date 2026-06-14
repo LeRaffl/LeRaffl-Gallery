@@ -70,17 +70,15 @@ See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
 ---------------------------------------------------
-    Elektrik                             → BEV
-    Hybrid plug-in, Benzinë/Elektrik     → PHEV
-    Hybrid plug-in, Naftë/Elektrik       → PHEV  (diesel PHEV)
-    Hybrid Benzinë/Elektrik              → HEV
-    Hybrid Naftë/Elektrik                → HEV   (mild-hybrid diesel)
-    Hybrid Benzinë/Gaz/Elektrik          → HEV
-    Benzinë                              → PETROL
-    Naftë                                → DIESEL
-    everything else (LPG, Gas, CNG, …)   → OTHERS
-Each of the above also accepts the ASCII-ified form without "ë" (Benzine, Nafte)
-since the batchedDataV2 API sometimes strips Albanian diacritics from fuel labels.
+    Elektrik                            → BEV
+    Hybrid plug-in, Benzinë/Elektrik    → PHEV
+    Hybrid plug-in, Naftë/Elektrik      → PHEV  (diesel PHEV)
+    Hybrid Benzinë/Elektrik             → HEV
+    Hybrid Naftë/Elektrik               → HEV   (mild-hybrid diesel)
+    Hybrid Benzinë/Gaz/Elektrik         → HEV
+    Benzinë                             → PETROL
+    Naftë                               → DIESEL
+    everything else (LPG, Gas, CNG, …)  → OTHERS
 
 Vehicle variants produced (EU class in parentheses)
 ----------------------------------------------------
@@ -171,26 +169,19 @@ VALUE_COLS  = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 # Matching is case-INSENSITIVE: DPSHTRR is inconsistent even within mixed case
 # (e.g. "Hybrid plug-in, naftë/Elektrik" with a lowercase n appears alongside
 # the capitalised form), so all comparisons casefold both sides.
-# Additionally, the batchedDataV2 API has been observed returning ASCII-ified
-# labels (Benzine/Nafte without ë) while the report UI shows the correct Albanian
-# diacritic — both forms are included in every set so PHEVs/HEVs cannot slip into
-# OTHERS due to encoding mismatches.
 _BEV  = {"Elektrik",  "ELEKTRIK"}
 _PHEV = {
-    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023 with ë
-    "Hybrid plug-in, Benzine/Elektrik", "Hybrid plug-in, Nafte/Elektrik",   # ≥2023 without ë (API may ASCII-ify)
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023
     "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # legacy
 }
 _HEV  = {
-    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023 with ë
-    "Hybrid Benzine/Elektrik", "Hybrid Nafte/Elektrik",                      # ≥2023 without ë
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023
     "Hybrid Benzinë/Gaz/Elektrik",                                            # ≥2023
-    "Hybrid Benzine/Gaz/Elektrik",                                            # without ë
     "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # legacy
     "BENZINË+GAZ+ELEKTRIK",                                                   # legacy
 }
-_PET  = {"Benzinë",   "BENZINË",  "Benzine"}                                 # without ë defensive
-_DIE  = {"Naftë",     "NAFTË",    "Nafte"}                                   # without ë defensive
+_PET  = {"Benzinë",   "BENZINË"}
+_DIE  = {"Naftë",     "NAFTË"}
 # Everything else → OTHERS: LPG (Benzinë/GPL, Gaz i lëngshëm, BENZINË+GAZ, GAZ),
 # CNG (Metan), NUK KA, unknown.
 
@@ -223,12 +214,9 @@ _VEHICLE_TYPE_HINTS = {
 # Known fuel types (used for column-type detection); both ≥2023 and ≤2022 forms.
 _FUEL_TYPE_HINTS = {
     "Elektrik", "Benzinë", "Naftë",
-    "Benzine", "Nafte",                                                       # without ë
     "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
-    "Hybrid Benzine/Elektrik", "Hybrid Nafte/Elektrik",                      # without ë
     "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",
-    "Hybrid plug-in, Benzine/Elektrik", "Hybrid plug-in, Nafte/Elektrik",   # without ë
-    "Hybrid Benzinë/Gaz/Elektrik", "Hybrid Benzine/Gaz/Elektrik",
+    "Hybrid Benzinë/Gaz/Elektrik",
     "ELEKTRIK", "BENZINË", "NAFTË",
     "BENZINË+ELEKTRIK", "NAFTË+ELEKTRIK", "BENZINË+GAZ+ELEKTRIK",
     "BENZINË+GAZ", "GAZ", "NUK KA",
@@ -593,80 +581,6 @@ def _decode_column(col: dict, size: int) -> list:
     return out
 
 
-_SUBSET_DUMPED = False
-
-def _dump_all_subsets(data: dict, vehicle_types: set[str]) -> None:
-    """DEBUG one-shot: enumerate EVERY qualifying (vehicle,fuel,count) subset in a
-    merged batchedDataV2 response and print its per-fuel breakdown for the given
-    vehicle_types.  Used to diagnose which subset separates the petrol plug-in
-    hybrid (Hybrid plug-in, Benzinë/Elektrik) from Elektrik — _parse_fuel_counts
-    only reads the FIRST qualifying subset, which may fold PHEVs into BEV."""
-    global _SUBSET_DUMPED
-    if _SUBSET_DUMPED:
-        return
-    _SUBSET_DUMPED = True
-    print("[albania][dump] ===== enumerating ALL qualifying subsets =====")
-    s_idx = 0
-    for dr_i, dr in enumerate(data.get("dataResponse", [])):
-        if dr.get("errorStatus"):
-            continue
-        for sub_i, subset in enumerate(dr.get("dataSubset", [])):
-            tds  = subset.get("dataset", {}).get("tableDataset", {})
-            cols = tds.get("column", [])
-            size = tds.get("size", 0)
-            if size == 0 or len(cols) < 3:
-                continue
-            vehicle_idx = fuel_idx = count_idx = None
-            for idx, col in enumerate(cols):
-                str_vals = col.get("stringColumn", {}).get("values", [])
-                lng_vals = col.get("longColumn",   {}).get("values", [])
-                if lng_vals and count_idx is None:
-                    count_idx = idx
-                    continue
-                sample = set(str_vals[:25])
-                if sample & _VEHICLE_TYPE_HINTS and vehicle_idx is None:
-                    vehicle_idx = idx
-                elif sample & _FUEL_TYPE_HINTS and fuel_idx is None:
-                    fuel_idx = idx
-            qualifies = not (vehicle_idx is None or fuel_idx is None or count_idx is None)
-            print(f"[albania][dump] subset #{s_idx} (dr={dr_i},sub={sub_i}) size={size} "
-                  f"ncols={len(cols)} qualifies={qualifies} "
-                  f"v_idx={vehicle_idx} f_idx={fuel_idx} c_idx={count_idx}")
-            # Show distinct string values + value-array length + nullIndex count
-            # per column, so misalignment between packed values and `size` is visible.
-            for ci, col in enumerate(cols):
-                sv = col.get("stringColumn", {}).get("values", [])
-                lv = col.get("longColumn",   {}).get("values", [])
-                nidx = col.get("nullIndex", [])
-                if sv:
-                    distinct = sorted(set(sv))
-                    print(f"[albania][dump]   col{ci} STRING nvals={len(sv)} "
-                          f"nulls={len(nidx)} distinct={len(distinct)}: {distinct[:40]!r}")
-                elif lv:
-                    print(f"[albania][dump]   col{ci} LONG nvals={len(lv)} "
-                          f"nulls={len(nidx)} sample={lv[:6]!r}")
-                else:
-                    print(f"[albania][dump]   col{ci} EMPTY keys={list(col.keys())!r}")
-            s_idx += 1
-            if not qualifies:
-                continue
-            # Row-aligned decode (the actual fix) — compare against naive indexing.
-            vehicle_vals = _decode_column(cols[vehicle_idx], size)
-            fuel_vals    = _decode_column(cols[fuel_idx],    size)
-            count_vals   = _decode_column(cols[count_idx],   size)
-            vt_fuel: dict[str, int] = {}
-            for i in range(size):
-                if vehicle_vals[i] not in vehicle_types:
-                    continue
-                fv = fuel_vals[i] if fuel_vals[i] is not None else ""
-                cnt = int(count_vals[i]) if count_vals[i] is not None else 0
-                vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
-            for fv, cnt in sorted(vt_fuel.items()):
-                print(f"[albania][dump]     fuel {fv!r} → {_fuel_col(fv)} count={cnt}")
-            print(f"[albania][dump]     subset #{s_idx-1} Autoveturë total={sum(vt_fuel.values())} (row-aligned decode)")
-    print("[albania][dump] ===== end subset enumeration =====")
-
-
 def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                        quiet: bool = False) -> dict:
     """Aggregate registrations for the given vehicle_types by gallery fuel column
@@ -683,9 +597,6 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
     arrival so the log isn't spammed.
     """
     counts = {c: 0 for c in VALUE_COLS}
-
-    if DEBUG and not quiet and ("Autoveturë" in vehicle_types):
-        _dump_all_subsets(data, vehicle_types)
 
     for dr in data.get("dataResponse", []):
         err = dr.get("errorStatus")
