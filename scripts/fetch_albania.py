@@ -568,6 +568,67 @@ def _fetch_with_browser_session(year: int) -> dict:
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
+_SUBSET_DUMPED = False
+
+def _dump_all_subsets(data: dict, vehicle_types: set[str]) -> None:
+    """DEBUG one-shot: enumerate EVERY qualifying (vehicle,fuel,count) subset in a
+    merged batchedDataV2 response and print its per-fuel breakdown for the given
+    vehicle_types.  Used to diagnose which subset separates the petrol plug-in
+    hybrid (Hybrid plug-in, Benzinë/Elektrik) from Elektrik — _parse_fuel_counts
+    only reads the FIRST qualifying subset, which may fold PHEVs into BEV."""
+    global _SUBSET_DUMPED
+    if _SUBSET_DUMPED:
+        return
+    _SUBSET_DUMPED = True
+    print("[albania][dump] ===== enumerating ALL qualifying subsets =====")
+    s_idx = 0
+    for dr_i, dr in enumerate(data.get("dataResponse", [])):
+        if dr.get("errorStatus"):
+            continue
+        for sub_i, subset in enumerate(dr.get("dataSubset", [])):
+            tds  = subset.get("dataset", {}).get("tableDataset", {})
+            cols = tds.get("column", [])
+            size = tds.get("size", 0)
+            if size == 0 or len(cols) < 3:
+                continue
+            vehicle_idx = fuel_idx = count_idx = None
+            for idx, col in enumerate(cols):
+                str_vals = col.get("stringColumn", {}).get("values", [])
+                lng_vals = col.get("longColumn",   {}).get("values", [])
+                if lng_vals and count_idx is None:
+                    count_idx = idx
+                    continue
+                sample = set(str_vals[:25])
+                if sample & _VEHICLE_TYPE_HINTS and vehicle_idx is None:
+                    vehicle_idx = idx
+                elif sample & _FUEL_TYPE_HINTS and fuel_idx is None:
+                    fuel_idx = idx
+            qualifies = not (vehicle_idx is None or fuel_idx is None or count_idx is None)
+            print(f"[albania][dump] subset #{s_idx} (dr={dr_i},sub={sub_i}) size={size} "
+                  f"ncols={len(cols)} qualifies={qualifies} "
+                  f"v_idx={vehicle_idx} f_idx={fuel_idx} c_idx={count_idx}")
+            s_idx += 1
+            if not qualifies:
+                continue
+            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
+            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
+            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
+            null_count   = set(cols[count_idx].get("nullIndex", []))
+            vt_fuel: dict[str, int] = {}
+            for i in range(size):
+                veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                if veh not in vehicle_types:
+                    continue
+                fv = fuel_vals[i] if i < len(fuel_vals) else ""
+                cnt = (int(count_vals[i])
+                       if (i not in null_count and i < len(count_vals)) else 0)
+                vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
+            for fv, cnt in sorted(vt_fuel.items()):
+                print(f"[albania][dump]     fuel {fv!r} → {_fuel_col(fv)} count={cnt}")
+            print(f"[albania][dump]     subset #{s_idx-1} Autoveturë total={sum(vt_fuel.values())}")
+    print("[albania][dump] ===== end subset enumeration =====")
+
+
 def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                        quiet: bool = False) -> dict:
     """Aggregate registrations for the given vehicle_types by gallery fuel column
@@ -584,6 +645,9 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
     arrival so the log isn't spammed.
     """
     counts = {c: 0 for c in VALUE_COLS}
+
+    if DEBUG and not quiet and ("Autoveturë" in vehicle_types):
+        _dump_all_subsets(data, vehicle_types)
 
     for dr in data.get("dataResponse", []):
         err = dr.get("errorStatus")
