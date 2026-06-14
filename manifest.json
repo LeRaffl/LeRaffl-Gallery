@@ -142,6 +142,16 @@
       "country_slug": "albania_hdv"
     },
     {
+      "country": "Albania (HDV)",
+      "type": "ttm_shares",
+      "period": "2024-12",
+      "date": "2026-06-14",
+      "filename": "albania_hdv_ttm_shares_20260614.png",
+      "url": "images/2024-12/albania_hdv_ttm_shares_20260614.png",
+      "alt": "Albania (HDV) TTM market split graph",
+      "country_slug": "albania_hdv"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
