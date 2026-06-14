@@ -1,11 +1,11 @@
 🇦🇱 Albania - May 26 - BEV Trajectory
-11.7% BEV
-4.0% Hybrid
-84.3% ICE
+11.4% BEV
+0.3% PHEV
+88.3% ICE (of which 4.0%p were HEV)
 
 Trailing 12 months are:
-11.0% BEV
-0.1% PHEV
+10.9% BEV
+0.2% PHEV
 88.9% ICE (of which 2.8%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
