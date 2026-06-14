@@ -100,29 +100,23 @@ from pathlib import Path
 
 DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
 
-# ── Looker Studio report constants ──────────────────────────────────────────
-# Albanian report (Shqip) at dpshtrr.al — "Mjete sipas Lëndës Djegëse" page.
-# Unlike the English report, this one does NOT use createSnapshot:true, so
-# batchedDataV2 responses succeed without SNAPSHOT_WITH_NON_REAGGREGATABLE.
-# The Muaji (Month) dimension filter lets us iterate month-by-month.
-REPORT_ID       = "233df2cc-6bd4-45fc-bf9b-e8ee4f83293e"
-PAGE_ID_URL     = "VPWqB"      # "Mjete sipas Lëndës Djegëse"
-PAGE_ID_NUM     = "24871631"   # numeric pageId in batchedDataV2 body
-COMPONENT_ID    = "cd-p9hqinijec"
-DATASOURCE_ID   = "013d0728-f5d3-4599-8899-cfb3f02fa77e"
-REVISION_NUMBER = 16
-
-# Internal field IDs (reverse-engineered 2026-06-13; bump REVISION_NUMBER if
-# DPSHTRR updates their data source and the workflow starts returning empty data)
-F_VEHICLE_TYPE = "_73515086_"
-F_FUEL_TYPE    = "_818800577_"
-F_RECORD_COUNT = "datastudio_record_count_system_field_id_98323387"
-F_DATE         = "_3076010_"
-
-# Direct URL — no sharing token needed for the Albanian public report
-REPORT_PAGE_URL = (
-    f"https://lookerstudio.google.com/reporting/{REPORT_ID}/page/{PAGE_ID_URL}"
-)
+# ── Per-year Looker Studio report registry ───────────────────────────────────
+# DPSHTRR publishes a new Looker report each calendar year.  Each entry is
+# (report_id, page_id_url) for the Albanian Shqip report's vehicle-fuel page.
+# 2020 uses a different page slug (XTGtB) than all other years (CU40B/VPWqB).
+# DATASOURCE_ID is NOT hardcoded here: the intercept captures all batchedDataV2
+# and relies on _parse_fuel_counts structural validation to select the right one.
+YEAR_REPORTS: dict[int, tuple[str, str]] = {
+    2019: ("9d3905e3-6c6e-446e-934e-d7a296158dd5", "CU40B"),
+    2020: ("70f605d5-f454-4776-af73-fdbbcd757bbb", "XTGtB"),
+    2021: ("3c73a68e-3df5-4ad4-b210-274b9d274d36", "CU40B"),
+    2022: ("bb9de550-a4cd-45ce-84d5-ec9fa5af028f", "CU40B"),
+    2023: ("78d2f17c-8f62-4b3a-872e-141c0ffecd53", "CU40B"),
+    2024: ("5d405a90-3508-4e91-abec-85ea46cd9426", "CU40B"),
+    2025: ("8d58f55d-117f-4c4e-939a-2b42188966f4", "CU40B"),
+    2026: ("233df2cc-6bd4-45fc-bf9b-e8ee4f83293e", "VPWqB"),
+    # When a new year starts: add an entry here; REVISION_NUMBER bumps are no longer needed.
+}
 
 # ── Variant → Albanian vehicle-type mapping (EU class) ───────────────────────
 # Each gallery variant maps to one or more Albanian vehicle-type strings that
@@ -194,20 +188,26 @@ _FUEL_TYPE_HINTS = {
 
 # ── Session via headless browser ──────────────────────────────────────────────
 
-def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str, dict]]:
+def _fetch_with_browser_session(year: int) -> dict:
     """
-    Load the Albanian DPSHTRR Looker Studio report in headless Chromium,
-    intercept every batchedDataV2 response on datasource ``DATASOURCE_ID``,
-    and iterate the Muaji (Month) filter to collect per-month data.
+    Load the year-specific Albanian DPSHTRR Looker Studio report in headless
+    Chromium, intercept all batchedDataV2 responses, and iterate the Muaji
+    (Month) filter to collect per-month vehicle×fuel pivot data.
 
-    Returns a list of ``(period, merged_data_dict)`` pairs, where
-    ``period`` is YYYY-MM and ``merged_data_dict`` is a batchedDataV2
-    response JSON object (with ``dataResponse`` list) collected while
-    that month's filter was active.
+    All batchedDataV2 responses are captured (no datasource-ID filter); the
+    structural check in _parse_fuel_counts selects the qualifying pivot subset.
 
-    Falls back to returning the initial YTD aggregate (assigned to the
-    current calendar month) when the Muaji filter cannot be located.
+    Returns ``{"baseline": …, "complements": […], "present_periods": […]}``.
     """
+    if year not in YEAR_REPORTS:
+        raise ValueError(
+            f"[albania] no report registered for year {year}; "
+            f"add an entry to YEAR_REPORTS. Known years: {sorted(YEAR_REPORTS)}")
+    report_id, page_id_url = YEAR_REPORTS[year]
+    report_url = (
+        f"https://lookerstudio.google.com/reporting/{report_id}/page/{page_id_url}"
+    )
+
     from playwright.sync_api import sync_playwright
     import time as _time
 
@@ -238,18 +238,19 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         try:
             resp = route.fetch()
             text = resp.text()
-            if datasource == DATASOURCE_ID:
-                captured.append({
-                    "component":    component,
-                    "displayType":  displaytype,
-                    "datasourceId": datasource,
-                    "body":         body,
-                    "text":         text,
-                })
-                if DEBUG:
-                    print(f"[albania][debug] captured component={component} "
-                          f"displayType={displaytype} body_len={len(body)} "
-                          f"resp_len={len(text)}")
+            # Capture ALL batchedDataV2 responses — datasource ID varies per year
+            # and is not hardcoded.  _parse_fuel_counts validates structure.
+            captured.append({
+                "component":    component,
+                "displayType":  displaytype,
+                "datasourceId": datasource,
+                "body":         body,
+                "text":         text,
+            })
+            if DEBUG:
+                print(f"[albania][debug] captured ds={datasource[:16]}… "
+                      f"component={component} displayType={displaytype} "
+                      f"body_len={len(body)} resp_len={len(text)}")
             route.fulfill(response=resp)
         except Exception as exc:
             capture_error[0] = exc
@@ -289,9 +290,9 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         page = context.new_page()
         page.route("**/*", handle_route)
 
-        # Phase 1: direct navigation to Albanian report page
-        print(f"[albania] browser → {REPORT_PAGE_URL}")
-        page.goto(REPORT_PAGE_URL, wait_until="load", timeout=90_000)
+        # Phase 1: direct navigation to year-specific Albanian report page
+        print(f"[albania] [{year}] browser → {report_url}")
+        page.goto(report_url, wait_until="load", timeout=90_000)
 
         if DEBUG:
             print(f"[albania][debug] phase-1 landed: {page.url}")
@@ -301,12 +302,12 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         # Phase 2: navigate to datastudio.google.com domain if still on
         # lookerstudio.google.com (redirect may not happen automatically)
         current_url = page.url
-        if PAGE_ID_URL not in current_url:
+        if page_id_url not in current_url:
             direct_url = (
-                f"https://datastudio.google.com/reporting/{REPORT_ID}"
-                f"/page/{PAGE_ID_URL}"
+                f"https://datastudio.google.com/reporting/{report_id}"
+                f"/page/{page_id_url}"
             )
-            print(f"[albania] phase-2 → {direct_url}")
+            print(f"[albania] [{year}] phase-2 → {direct_url}")
             page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
             if DEBUG:
                 print(f"[albania][debug] phase-2 landed: {page.url}")
@@ -319,8 +320,8 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
             page.wait_for_timeout(500)
 
         initial_end = len(captured)
-        print(f"[albania] initial capture: {initial_end - initial_start} "
-              f"responses on {DATASOURCE_ID}")
+        print(f"[albania] [{year}] initial capture: {initial_end - initial_start} "
+              f"batchedDataV2 responses")
 
         if DEBUG:
             print(f"[albania][debug] page title: {page.title()!r}")
@@ -437,11 +438,11 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
         present: list[tuple[str, str]] = []
         for lbl in present_labels:
             p = _label_to_period(lbl)
-            if p and year_from <= int(p[:4]) <= year_to:
+            if p and int(p[:4]) == year:
                 present.append((lbl, p))
         present.sort(key=lambda x: x[1], reverse=True)  # descending: latest first
         present_periods = [p for _, p in present]
-        print(f"[albania] Muaji months present (descending): {present_periods}")
+        print(f"[albania] [{year}] Muaji months present (descending): {present_periods}")
 
         if not present:
             browser.close()
@@ -506,8 +507,8 @@ def _fetch_with_browser_session(year_from: int, year_to: int) -> list[tuple[str,
     if capture_error[0]:
         print(f"[albania] WARNING route.fetch() error: {capture_error[0]}")
 
-    print(f"[albania] captured {len(captured)} total batchedDataV2 responses on "
-          f"{DATASOURCE_ID}; {len(complements)} month complements")
+    print(f"[albania] [{year}] captured {len(captured)} total batchedDataV2 "
+          f"responses; {len(complements)} month complements")
 
     return {
         "baseline":         baseline_merged,
@@ -755,33 +756,45 @@ def main() -> None:
                     help="Accepted for parity (commit-gated downstream).")
     args = ap.parse_args()
 
-    fetched = _fetch_with_browser_session(args.year_from, args.year_to)
-    rows = _difference_to_rows(fetched)
-
-    if not rows:
-        print("[albania] no data rows parsed — the report may not yet have "
-              "data for the requested year, or an API field ID / revisionNumber "
-              "may need updating. See docs/architecture/27-source-albania.md §8.",
-              file=sys.stderr)
+    years = range(args.year_from, args.year_to + 1)
+    unknown_years = [y for y in years if y not in YEAR_REPORTS]
+    if unknown_years:
+        print(f"[albania] ERROR: no report registered for year(s) {unknown_years}. "
+              f"Add entries to YEAR_REPORTS in the script.", file=sys.stderr)
         sys.exit(1)
 
-    print(f"[albania] parsed {len(rows)} month-variant rows")
-    for key in sorted(rows):
-        r = rows[key]
+    all_rows: dict = {}
+    for year in years:
+        print(f"\n[albania] ── year {year} ──")
+        fetched = _fetch_with_browser_session(year)
+        rows = _difference_to_rows(fetched)
+        if not rows:
+            print(f"[albania] WARNING: no rows parsed for {year} — "
+                  f"check report URL / Muaji filter / vehicle-type strings.")
+        all_rows.update(rows)
+
+    if not all_rows:
+        print("[albania] no data rows parsed at all.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"\n[albania] parsed {len(all_rows)} month-variant rows total")
+    for key in sorted(all_rows):
+        r = all_rows[key]
         bev  = r["BEV"]  or 0
         phev = r["PHEV"] or 0
         hev  = r["HEV"]  or 0
         print(
-            f"  {key[0]}  BEV={bev:.0f}  PHEV={phev:.0f}  HEV={hev:.0f}"
-            f"  PETROL={r['PETROL']:.0f}  DIESEL={r['DIESEL']:.0f}"
-            f"  OTHERS={r['OTHERS'] or 0:.0f}  TOTAL={r['TOTAL']:.0f}"
+            f"  {key[1]:12s} {key[0]}  BEV={bev:.0f}  PHEV={phev:.0f}"
+            f"  HEV={hev:.0f}  PETROL={r['PETROL']:.0f}"
+            f"  DIESEL={r['DIESEL']:.0f}  OTHERS={r['OTHERS'] or 0:.0f}"
+            f"  TOTAL={r['TOTAL']:.0f}"
         )
 
     if args.dry_run:
         print("(dry-run: CSV not written)")
         return
 
-    added, updated = upsert_csv(CSV_PATH, rows, args.since)
+    added, updated = upsert_csv(CSV_PATH, all_rows, args.since)
     print(f"{added} added, {updated} updated -> {CSV_PATH}")
 
 

@@ -13,6 +13,12 @@ name: Fetch Albania data (dpshtrr.al Looker Studio report)
 on:
   workflow_dispatch:
     inputs:
+      year_from:
+        description: 'First year to fetch (default: current year). Use 2019-2025 for backfill.'
+        required: false
+      year_to:
+        description: 'Last year to fetch (default: current year). Set same as year_from for one year.'
+        required: false
       since:
         description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
         required: false
@@ -49,7 +55,9 @@ jobs:
           ALBANIA_DEBUG: ${{ inputs.dry_run == true && '1' || '0' }}
         run: |
           ARGS=""
-          if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
+          if [ -n "${{ inputs.year_from }}" ]; then ARGS="$ARGS --year-from ${{ inputs.year_from }}"; fi
+          if [ -n "${{ inputs.year_to }}"   ]; then ARGS="$ARGS --year-to   ${{ inputs.year_to }}"; fi
+          if [ -n "${{ inputs.since }}"     ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_albania.py $ARGS
 
