@@ -1,0 +1,8 @@
+🇦🇱 Albania (2-Wheelers) - TTM Market Split
+
+Jan23–Dec23  vs  Jan24–Dec24
+−0.6pp  BEV     (1.6% → 1.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.6pp  ICE     (98.4% → 98.9%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,36 +1,74 @@
 #!/usr/bin/env python3
 """
-Fetch Albania monthly vehicle-registration data directly from DPSHTRR via the
-Looker Studio batchedDataV2 API and upsert ``data/Albania.csv``.
+Fetch Albania monthly vehicle-registration data directly from DPSHTRR's public
+Looker Studio report and upsert ``data/Albania.csv``.
 
 Usage
 -----
     python scripts/fetch_albania.py [--dry-run] [--since YYYY-MM]
                                     [--year-from YYYY] [--year-to YYYY]
 
-Primary source
---------------
+How it works
+------------
 Albania's General Directorate of Road Transport Services (DPSHTRR) publishes
-vehicle registration data via a public Looker Studio report at
+vehicle-registration data **only** through a public Looker Studio report (Shqip
+version):
 
-    https://www.dpshtrr.al/open-data-dpshtrr-english
-    https://datastudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3/page/VPWqB
+    https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB
 
-We query the Looker Studio batchedDataV2 API directly (no Google account
-required for public reports).  The report is a public resource; we obtain an
-anonymous session cookie (RAP_XSRF_TOKEN) from the initial page load and use
-it for the POST.
+The report's ``batchedDataV2`` API rejects anonymous plain-HTTP clients with
+``ACCESS / PREFETCH_VALIDATION`` and also rejects any custom payload whose
+query fingerprint was not pre-registered by the page during load
+(``PREFETCH_VALIDATION``).  Custom queries are fundamentally impossible.
 
-Note: The report title is "year 2026".  DPSHTRR appear to publish a fresh
-report each calendar year (same datasourceId, but a new Looker report for each
-year).  Historical data (pre-2026) therefore lives in the bootstrapped CSV
-rows and is not re-fetched.  See docs/architecture/27-source-albania.md for
-the full source playbook.
+We therefore:
+  1. Drive a **headless Chromium (Playwright)** to load the Albanian DPSHTRR
+     report page, which lets Google establish the session and fires the page's
+     OWN batchedDataV2 requests.
+  2. **Intercept** (route.fetch → forward unchanged, record response) every
+     batchedDataV2 request that targets datasource ``013d0728-…``.  The page's
+     cd-p9hqinijec component returns a vehicle_type × fuel_type × count table
+     for whatever the Muaji (Month) filter currently has selected.
+  3. **Drive the Muaji filter by differencing.**  The Muaji control is a
+     multi-select checkbox list with every month selected by default (so the
+     initial load is the year-to-date total = our *baseline*).  Its per-row
+     "only" single-select link is display:none until a real CSS :hover and
+     cannot be force-clicked, so instead we toggle each month OFF one at a time
+     in DESCENDING order (latest → earliest), capturing the report after each
+     toggle.  Each capture is the *complement* (sum of the months still selected):
+         after toggling m_i off →  A_i = sum(months < m_i)
+     The true single-month value is the telescoping difference
+         m_i = A_{i-1} − A_i,   with A_0 = baseline, A_last = 0
+     computed per fuel column (see ``_difference_to_rows``).
+     Descending order is intentional: it avoids a Looker Studio pivot label
+     inconsistency where fuel-type strings differ across window sizes (e.g.
+     "Hybrid Benzinë/Elektrik" present in Jan-May but absent in Feb-May,
+     replaced by "Hybrid plug-in, Benzinë/Elektrik"), which causes negative
+     per-fuel diffs that get clipped to 0 and corrupt monthly TOTALS.
+  4. **Parse** each captured response: vehicle_type × fuel_type × count flat
+     table; aggregate by fuel type for every registered VARIANT in one pass.
+
+This was cross-checked against an authoritative monthly car-sales reference:
+the differenced 2026 months (Jan 5673, Feb 5905, Mar 6103, Apr 6732, May 6358)
+matched it exactly, confirming the toggle semantics and the fuel mapping.
+
+Note: the English DPSHTRR report (407ce08b-…) cannot be used — its
+batchedDataV2 responses fail with SNAPSHOT_WITH_NON_REAGGREGATABLE because the
+component body sets ``createSnapshot:true``.  The Albanian report (233df2cc-…)
+does NOT set that flag and works correctly.
+
+Note: DPSHTRR publishes a *separate* Looker report each calendar year, each with
+its own report ID, datasource ID and revision.  These live in the ``YEAR_REPORTS``
+registry below; only the report ID and page slug are needed per year (datasource,
+component and revision are auto-detected from the page's own intercepted
+requests).  When a new year starts, add one ``{year: (report_id, slug)}`` entry.
+Pre-2026 Whole rows are bootstrapped from Andrew's mirror; HDV/Buses/2-Wheelers
+were backfilled directly from the per-year reports (2020–2024; 2025 excluded —
+its snapshots are corrupt, see docs §11).
+See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
 ---------------------------------------------------
-Derived from the DPSHTRR Looker table export (Jan–May 2026):
-
     Elektrik                            → BEV
     Hybrid plug-in, Benzinë/Elektrik    → PHEV
     Hybrid plug-in, Naftë/Elektrik      → PHEV  (diesel PHEV)
@@ -41,12 +79,22 @@ Derived from the DPSHTRR Looker table export (Jan–May 2026):
     Naftë                               → DIESEL
     everything else (LPG, Gas, CNG, …)  → OTHERS
 
-Only Autoveturë (passenger cars) rows are included.
+Vehicle variants produced (EU class in parentheses)
+----------------------------------------------------
+    Whole       Autoveturë              M1     passenger cars
+    HDV         Kamion                  N2+N3  trucks / lorries
+    Buses       Autobus                 M2+M3  buses & coaches
+    2-Wheelers  Motor + Ciklomotorr …   L      motorcycles & mopeds
+The actual DPSHTRR pivot uses "Motor"/"MOTORË" (not the textbook
+"Motoçikletë") and "Ciklomotorr …" (not "Çikëlomotor"); see VARIANTS below
+for the full L-category string set.  There is NO dedicated N1 (van) category
+in the pivot, so the gallery's Vans variant is not produced.  Reports ≤2022
+use ALL CAPS labels, ≥2023 use mixed case; VARIANTS carries both forms.
 TOTAL = BEV + PHEV + HEV + PETROL + DIESEL + OTHERS.
 
-All registrations (new AND first registrations of imported used vehicles)
-are counted.  Albania has a significant used-car import market so headline
-figures differ from new-car-only sources.
+All registrations (new AND first registrations of imported used vehicles) are
+counted.  Albania has a significant used-car import market so headline figures
+differ from new-car-only sources.
 
 Invoked by ``.github/workflows/fetch-albania.yml``. Commit step is
 change-gated, so steady-state runs are a no-op.
@@ -56,38 +104,55 @@ import csv
 import json
 import os
 import re
-import uuid
+import sys
 from datetime import datetime
 from pathlib import Path
 
-import requests
+DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
 
-# ── Looker Studio report constants ──────────────────────────────────────────
-REPORT_ID       = "407ce08b-d3ce-478e-9bc7-a50125f875f3"
-PAGE_ID_URL     = "VPWqB"      # visible in browser address bar
-PAGE_ID_NUM     = "24871631"   # numeric ID used inside batchedDataV2 body
-COMPONENT_ID    = "cd-p9hqinijec"
-DATASOURCE_ID   = "7705f3ec-84aa-4432-bbed-d61775f98126"
-REVISION_NUMBER = 13           # revision of DPSHTRR's Looker data source
+# ── Per-year Looker Studio report registry ───────────────────────────────────
+# DPSHTRR publishes a new Looker report each calendar year.  Each entry is
+# (report_id, page_id_url) for the Albanian Shqip report's vehicle-fuel page.
+# All years use page slug VPWqB ("Mjete sipas Lëndës Djegëse").
+# DATASOURCE_ID is NOT hardcoded here: the intercept captures all batchedDataV2
+# and relies on _parse_fuel_counts structural validation to select the right one.
+# 2019 is omitted: its report has a different layout with no Muaji multiselect.
+YEAR_REPORTS: dict[int, tuple[str, str]] = {
+    2020: ("70f605d5-f454-4776-af73-fdbbcd757bbb", "VPWqB"),
+    2021: ("3c73a68e-3df5-4ad4-b210-274b9d274d36", "VPWqB"),
+    2022: ("bb9de550-a4cd-45ce-84d5-ec9fa5af028f", "VPWqB"),
+    2023: ("78d2f17c-8f62-4b3a-872e-141c0ffecd53", "VPWqB"),
+    2024: ("5d405a90-3508-4e91-abec-85ea46cd9426", "VPWqB"),
+    2025: ("8d58f55d-117f-4c4e-939a-2b42188966f4", "VPWqB"),
+    2026: ("233df2cc-6bd4-45fc-bf9b-e8ee4f83293e", "VPWqB"),
+    # When a new year starts: add an entry here.
+}
 
-# Internal field IDs reverse-engineered from batchedDataV2 capture (2026-06-13)
-F_VEHICLE_TYPE = "_73515086_"                                        # Lloji
-F_FUEL_TYPE    = "_818800577_"                                       # Lenda Djegese
-F_RECORD_COUNT = "datastudio_record_count_system_field_id_98323387"  # count
-F_DATE         = "_3076010_"                                         # Month
-
-REPORT_PAGE_URL = (
-    f"https://datastudio.google.com/reporting/{REPORT_ID}/page/{PAGE_ID_URL}"
-    f"?s=ntCeOqOLBog"
-)
-API_URL = "https://datastudio.google.com/batchedDataV2?appVersion=20260607_0101"
-
-VEHICLE_FILTER_VALUE = "Autoveturë"   # passenger cars only
+# ── Variant → Albanian vehicle-type mapping (EU class) ───────────────────────
+# Each gallery variant maps to one or more Albanian vehicle-type strings that
+# appear in the vehicle_type column of the pivot response.
+# The VPWqB pivot uses MIXED-CASE labels (Autoveturë, Kamion, Motor) for every
+# year 2020-2026 — confirmed in the 2020-2024 backfill.  The ALL-CAPS forms
+# (AUTOVETURË …) were only seen on the abandoned overview page and are kept
+# defensively in case a future report reverts.
+VARIANTS: dict[str, set[str]] = {
+    "Whole": {"Autoveturë", "AUTOVETURË"},                 # M1
+    "HDV":   {"Kamion",     "KAMION"},                     # N2+N3 rigid trucks
+    "Buses": {"Autobus",    "AUTOBUS"},                    # M2+M3
+    "2-Wheelers": {                                        # L-category
+        "Motor",        "MOTORË",                          # L3/L4 motorcycles (bulk)
+        "Motor me kosh",                                   # L4 with sidecar
+        "Motor me tre rrota, simetrike",                   # L5 symmetric tricycle
+        "Motor me katër rrota, i lehtë",                   # L6e light quadricycle
+        "Motor me katër rrota, jo i lehtë",               # L7e heavy quadricycle
+        "Ciklomotorr me dy rrota",                         # L1/L2 moped 2-wheel
+        "Ciklomotorr me tre rrota",                        # L2e moped 3-wheel
+    },
+}
 
 # ── Gallery schema ───────────────────────────────────────────────────────────
 SOURCE      = "dpshtrr.al"
 CSV_PATH    = "data/Albania.csv"
-VARIANT     = "Whole"
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes",
@@ -95,257 +160,589 @@ CSV_COLUMNS = [
 VALUE_COLS  = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 # ── Fuel-type → gallery-column mapping ──────────────────────────────────────
-_BEV   = {"Elektrik"}
-_PHEV  = {"Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik"}
-_HEV   = {"Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
-           "Hybrid Benzinë/Gaz/Elektrik"}
-_PET   = {"Benzinë"}
-_DIE   = {"Naftë"}
+# The VPWqB pivot for every year 2020-2026 uses MIXED-CASE labels
+# (Naftë, Benzinë, Elektrik, Hybrid Benzinë/Elektrik) — verified across the
+# 2020-2024 backfill dry-run.  The ALL-CAPS forms (NAFTË, BENZINË+ELEKTRIK …)
+# were only ever seen on the abandoned overview page (CU40B), never in this
+# pivot; they are retained defensively in case a future report reverts.
+# Matching is case-INSENSITIVE: DPSHTRR is inconsistent even within mixed case
+# (e.g. "Hybrid plug-in, naftë/Elektrik" with a lowercase n appears alongside
+# the capitalised form), so all comparisons casefold both sides.
+_BEV  = {"Elektrik",  "ELEKTRIK"}
+_PHEV = {
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023
+    "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # legacy
+}
+_HEV  = {
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023
+    "Hybrid Benzinë/Gaz/Elektrik",                                            # ≥2023
+    "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # legacy
+    "BENZINË+GAZ+ELEKTRIK",                                                   # legacy
+}
+_PET  = {"Benzinë",   "BENZINË"}
+_DIE  = {"Naftë",     "NAFTË"}
+# Everything else → OTHERS: LPG (Benzinë/GPL, Gaz i lëngshëm, BENZINË+GAZ, GAZ),
+# CNG (Metan), NUK KA, unknown.
+
+# Casefolded lookup tables (built once) so casing inconsistencies map correctly.
+_FUEL_COL_BY_CF = {f.casefold(): col for col, s in (
+    ("BEV", _BEV), ("PHEV", _PHEV), ("HEV", _HEV), ("PETROL", _PET), ("DIESEL", _DIE),
+) for f in s}
 
 def _fuel_col(fuel: str) -> str:
-    if fuel in _BEV:  return "BEV"
-    if fuel in _PHEV: return "PHEV"
-    if fuel in _HEV:  return "HEV"
-    if fuel in _PET:  return "PETROL"
-    if fuel in _DIE:  return "DIESEL"
-    return "OTHERS"
+    return _FUEL_COL_BY_CF.get(fuel.casefold(), "OTHERS")
 
 
-# ── Date-string parsing ──────────────────────────────────────────────────────
-# Looker Studio returns dates in various locale-dependent string formats.
-_DE_MONTH = {
-    "Jan": "01", "Feb": "02", "Mär": "03", "Apr": "04",
-    "Mai": "05", "Jun": "06", "Jul": "07", "Aug": "08",
-    "Sep": "09", "Okt": "10", "Nov": "11", "Dez": "12",
+# ── Known vehicle types (used for column-type detection) ─────────────────────
+# Includes both ALL CAPS (≤2022) and mixed-case (≥2023) forms.
+_VEHICLE_TYPE_HINTS = {
+    "Autoveturë", "AUTOVETURË",
+    "Kamion",     "KAMION",
+    "Autobus",    "AUTOBUS",
+    "Motor",      "MOTORË",
+    "Motor me kosh", "Motor me tre rrota, simetrike",
+    "Motor me katër rrota, i lehtë", "Motor me katër rrota, jo i lehtë",
+    "Ciklomotorr me dy rrota", "Ciklomotorr me tre rrota",
+    "Tërheqës",   "TËRHEQËS",
+    "Gjysëmrimorkio", "GJYSËM RIMORKIO",
+    "Automjet për transport të përzier",  "AUTOMJET PËR TRANSPORT TË P...",
+    "Automjet për transport të veçantë",
+    "Automjet për përdorim të veçantë",
+    "Traktor bujqësor, me rrota",         "MAKINA BUJQËSORE",
 }
-_EN_MONTH = {
-    "January": "01", "February": "02", "March": "03", "April": "04",
-    "May": "05", "June": "06", "July": "07", "August": "08",
-    "September": "09", "October": "10", "November": "11", "December": "12",
+# Known fuel types (used for column-type detection); both ≥2023 and ≤2022 forms.
+_FUEL_TYPE_HINTS = {
+    "Elektrik", "Benzinë", "Naftë",
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",
+    "Hybrid Benzinë/Gaz/Elektrik",
+    "ELEKTRIK", "BENZINË", "NAFTË",
+    "BENZINË+ELEKTRIK", "NAFTË+ELEKTRIK", "BENZINË+GAZ+ELEKTRIK",
+    "BENZINË+GAZ", "GAZ", "NUK KA",
 }
 
-_RE_DE   = re.compile(r'^(Jan|Feb|Mär|Apr|Mai|Jun|Jul|Aug|Sep|Okt|Nov|Dez)\.?\s+(\d{4})$')
-_RE_EN   = re.compile(r'^(January|February|March|April|May|June|July|August|'
-                       r'September|October|November|December)\s+(\d{4})$')
-_RE_ISO  = re.compile(r'^(\d{4})-(\d{2})-\d{2}$')   # 2026-01-01
-_RE_YM   = re.compile(r'^(\d{4})(\d{2})$')            # 202601
 
+# ── Session via headless browser ──────────────────────────────────────────────
 
-def _parse_period(s: str) -> str | None:
-    s = s.strip()
-    m = _RE_DE.match(s)
-    if m:
-        return f"{m.group(2)}-{_DE_MONTH[m.group(1)]}"
-    m = _RE_EN.match(s)
-    if m:
-        return f"{m.group(2)}-{_EN_MONTH[m.group(1)]}"
-    m = _RE_ISO.match(s)
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    m = _RE_YM.match(s)
-    if m:
-        return f"{m.group(1)}-{m.group(2)}"
-    return None
+def _fetch_with_browser_session(year: int) -> dict:
+    """
+    Load the year-specific Albanian DPSHTRR Looker Studio report in headless
+    Chromium, intercept all batchedDataV2 responses, and iterate the Muaji
+    (Month) filter to collect per-month vehicle×fuel pivot data.
 
+    All batchedDataV2 responses are captured (no datasource-ID filter); the
+    structural check in _parse_fuel_counts selects the qualifying pivot subset.
 
-# ── Session helpers ──────────────────────────────────────────────────────────
+    Returns ``{"baseline": …, "complements": […], "present_periods": […]}``.
+    """
+    if year not in YEAR_REPORTS:
+        raise ValueError(
+            f"[albania] no report registered for year {year}; "
+            f"add an entry to YEAR_REPORTS. Known years: {sorted(YEAR_REPORTS)}")
+    report_id, page_id_url = YEAR_REPORTS[year]
+    report_url = (
+        f"https://lookerstudio.google.com/reporting/{report_id}/page/{page_id_url}"
+    )
 
-def _get_session() -> tuple[requests.Session, str]:
-    """Load the public Looker Studio page to obtain an anonymous session cookie."""
-    session = requests.Session()
-    session.headers.update({
-        "User-Agent": (
-            "Mozilla/5.0 (compatible; LeRaffl-Gallery fetch_albania; "
-            "+https://leraffl.github.io/LeRaffl-Gallery/)"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "de-DE,de;q=0.9",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-    })
-    print(f"[albania] GET {REPORT_PAGE_URL}")
-    resp = session.get(REPORT_PAGE_URL, timeout=60, allow_redirects=True)
-    print(f"[albania] page load HTTP {resp.status_code}")
-    resp.raise_for_status()
+    from playwright.sync_api import sync_playwright
+    import time as _time
 
-    xsrf = session.cookies.get("RAP_XSRF_TOKEN")
-    if not xsrf:
-        raise RuntimeError(
-            "RAP_XSRF_TOKEN cookie not found after page load. "
-            "Looker Studio may have changed its auth flow. "
-            "Check docs/architecture/27-source-albania.md §6."
+    captured: list[dict] = []
+    capture_error: list[Exception | None] = [None]
+
+    _re_datasource = re.compile(r'"datasourceId":"([^"]+)"')
+    _re_component  = re.compile(r'"componentId":"([^"]+)"')
+    _re_display    = re.compile(r'"displayType":"([^"]+)"')
+
+    def handle_route(route):
+        req = route.request
+        if "batchedDataV2" not in req.url:
+            try:
+                route.continue_()
+            except Exception:
+                pass
+            return
+
+        body = req.post_data or ""
+        m_ds   = _re_datasource.search(body)
+        m_comp = _re_component.search(body)
+        m_disp = _re_display.search(body)
+        datasource  = m_ds.group(1)   if m_ds   else ""
+        component   = m_comp.group(1) if m_comp else ""
+        displaytype = m_disp.group(1) if m_disp else ""
+
+        try:
+            resp = route.fetch()
+            text = resp.text()
+            # Capture ALL batchedDataV2 responses — datasource ID varies per year
+            # and is not hardcoded.  _parse_fuel_counts validates structure.
+            captured.append({
+                "component":    component,
+                "displayType":  displaytype,
+                "datasourceId": datasource,
+                "body":         body,
+                "text":         text,
+            })
+            if DEBUG:
+                print(f"[albania][debug] captured ds={datasource[:16]}… "
+                      f"component={component} displayType={displaytype} "
+                      f"body_len={len(body)} resp_len={len(text)}")
+            route.fulfill(response=resp)
+        except Exception as exc:
+            capture_error[0] = exc
+            try:
+                route.continue_()
+            except Exception:
+                pass
+
+    def _merge_slice(start_idx: int) -> dict:
+        """Merge captured[start_idx:] into one dataResponse dict."""
+        merged: dict = {"dataResponse": []}
+        for cap in captured[start_idx:]:
+            text = cap["text"]
+            if text.startswith(")]}'"):
+                text = text[4:].lstrip("\n")
+            try:
+                obj = json.loads(text)
+            except Exception:
+                continue
+            merged["dataResponse"].extend(obj.get("dataResponse", []))
+        return merged
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage"],
         )
-    print(f"[albania] XSRF token obtained ({xsrf[:16]}...)")
-    return session, xsrf
+        context = browser.new_context(
+            locale="en-US",
+            timezone_id="Europe/Vienna",
+            viewport={"width": 1600, "height": 1200},
+            user_agent=(
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            ),
+        )
+        page = context.new_page()
+        page.route("**/*", handle_route)
 
+        # Phase 1: direct navigation to year-specific Albanian report page
+        print(f"[albania] [{year}] browser → {report_url}")
+        page.goto(report_url, wait_until="load", timeout=90_000)
 
-# ── batchedDataV2 payload ────────────────────────────────────────────────────
+        if DEBUG:
+            print(f"[albania][debug] phase-1 landed: {page.url}")
+            cookies = context.cookies()
+            print(f"[albania][debug] cookies: {[c['name'] for c in cookies]}")
 
-def _build_payload(year_from: int, year_to: int) -> dict:
-    """
-    Build a flat-table batchedDataV2 request for:
-      (Month, Fuel type) × Record Count
-    filtered to Autoveturë (passenger cars).
-    Date range: year_from-01-01 … year_to-12-31.
-    """
-    req_id = f"fetch_albania_{uuid.uuid4().hex[:8]}"
+        # Phase 2: navigate to datastudio.google.com domain if still on
+        # lookerstudio.google.com (redirect may not happen automatically)
+        current_url = page.url
+        if page_id_url not in current_url:
+            direct_url = (
+                f"https://datastudio.google.com/reporting/{report_id}"
+                f"/page/{page_id_url}"
+            )
+            print(f"[albania] [{year}] phase-2 → {direct_url}")
+            page.goto(direct_url, wait_until="domcontentloaded", timeout=60_000)
+            if DEBUG:
+                print(f"[albania][debug] phase-2 landed: {page.url}")
+
+        # Wait for initial page load + batchedDataV2 responses
+        print("[albania] waiting 35s for initial load…")
+        initial_start = len(captured)
+        deadline = _time.time() + 35
+        while _time.time() < deadline:
+            page.wait_for_timeout(500)
+
+        initial_end = len(captured)
+        print(f"[albania] [{year}] initial capture: {initial_end - initial_start} "
+              f"batchedDataV2 responses")
+
+        if DEBUG:
+            print(f"[albania][debug] page title: {page.title()!r}")
+            print(f"[albania][debug] page url:   {page.url!r}")
+            try:
+                page.screenshot(path="/tmp/albania_initial.png")
+                print("[albania][debug] screenshot → /tmp/albania_initial.png")
+            except Exception:
+                pass
+            for idx, cap in enumerate(captured):
+                print(f"[albania][debug] capture #{idx}: "
+                      f"component={cap['component']} "
+                      f"displayType={cap['displayType']} "
+                      f"body_len={len(cap['body'])} "
+                      f"resp_len={len(cap['text'])}")
+                print(f"[albania][debug]   resp[:2000]: {cap['text'][:2000]!r}")
+
+        # ── Muaji (Month) filter: collect baseline + per-month complements ──────
+        #
+        # The Muaji control is an AngularJS Material *multi-select* checkbox list
+        # (class "item item-multi selected"; md-checkbox ng-click="toggleItem")
+        # with EVERY month selected by default.  A plain row click toggles ONE
+        # month OFF.  The per-row "only" single-select link is display:none until a
+        # real CSS :hover and cannot be force-clicked (dispatchEvent can't trigger
+        # :hover), so single-selecting a month directly is not possible.
+        #
+        # Instead we read the months from the popup and toggle them OFF one at a
+        # time in DESCENDING order (latest→earliest), capturing the report's
+        # vehicle×fuel×count after each toggle.  Each capture is the COMPLEMENT
+        # (months still selected):
+        #     after toggling m_i off →  A_i = sum(months < m_i)
+        # True single-month values are recovered by differencing in
+        # _difference_to_rows:  m_i = A_{i-1} − A_i, with A_0 = baseline (all on).
+        # Descending avoids fuel-label inconsistencies in DPSHTRR's Looker pivot
+        # that corrupt TOTALS when computed as large-minus-large-window diffs.
+        #
+        # Toggling uses Playwright force-click on the visible "<Mon> <YYYY>" label
+        # (proven to fire batchedDataV2; force bypasses the ".popup-backdrop
+        # intercepts pointer events" actionability error).
+
+        _MONTH_NUM = {
+            "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
+            "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
+            "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12",
+        }
+
+        def _open_muaji() -> bool:
+            """Click the Muaji control title to open its month-list popup."""
+            for selector in ("text=Muaji", "[aria-label*='Muaji']",
+                             "[title*='Muaji']"):
+                try:
+                    el = page.locator(selector).first
+                    if el.is_visible(timeout=2000):
+                        el.click(timeout=5000)
+                        page.wait_for_timeout(1200)
+                        return True
+                except Exception:
+                    pass
+            return False
+
+        _JS_MONTH_LABELS = r"""
+() => {
+    const re = /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (20\d\d)$/;
+    const out = []; const seen = new Set();
+    for (const e of document.querySelectorAll('span,div,label')) {
+        if (e.closest('svg')) continue;
+        const t = e.textContent.trim();
+        if (re.test(t) && !seen.has(t)) { seen.add(t); out.push(t); }
+    }
+    return JSON.stringify(out);
+}
+"""
+
+        def _label_to_period(label: str) -> str | None:
+            try:
+                abbr, yr = label.split()
+            except ValueError:
+                return None
+            num = _MONTH_NUM.get(abbr)
+            return f"{yr}-{num}" if num else None
+
+        # Baseline = the all-months-selected state from the initial page load.
+        baseline_merged = _merge_slice(initial_start)
+
+        if not _open_muaji():
+            if DEBUG:
+                try:
+                    page.screenshot(path="/tmp/albania_no_muaji.png")
+                except Exception:
+                    pass
+            browser.close()
+            raise RuntimeError(
+                "[albania] Muaji month control not found on the report page")
+
+        try:
+            present_labels = json.loads(page.evaluate(_JS_MONTH_LABELS))
+        except Exception:
+            present_labels = []
+        if DEBUG:
+            print(f"[albania][debug] present month labels: {present_labels}")
+
+        # Close the Muaji popup before the toggle loop.  _open_muaji() above
+        # opened it to make month labels visible for JS eval; if the toggle
+        # loop's first _open_muaji() finds it still open, it will CLOSE it
+        # (toggle), causing the subsequent month-label click to land on the
+        # wrong element (a chart label, not the filter checkbox) → no response.
+        try:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(800)
+        except Exception:
+            pass
+
+        # (label, period) within the requested year range, descending by period.
+        present: list[tuple[str, str]] = []
+        for lbl in present_labels:
+            p = _label_to_period(lbl)
+            if p and int(p[:4]) == year:
+                present.append((lbl, p))
+        present.sort(key=lambda x: x[1], reverse=True)  # descending: latest first
+        present_periods = [p for _, p in present]
+        print(f"[albania] [{year}] Muaji months present (descending): {present_periods}")
+
+        if not present:
+            browser.close()
+            raise RuntimeError(
+                "[albania] no month labels found in the Muaji popup")
+
+        # Toggle each present month OFF (descending: latest first) and capture the complement.
+        complements: list[tuple[str, dict]] = []
+        for lbl, period in present:
+            if not _open_muaji():
+                if DEBUG:
+                    print("[albania][debug] could not re-open Muaji popup")
+            cap_before = len(captured)
+            try:
+                page.get_by_text(lbl, exact=True).first.click(
+                    timeout=3000, force=True)
+            except Exception as exc:
+                if DEBUG:
+                    print(f"[albania][debug] toggle {lbl!r} failed: "
+                          f"{str(exc)[:120]}")
+                continue
+
+            # Poll until the cd-p9hqinijec vehicle×fuel×count subset for this
+            # complement actually arrives — NOT merely until the first response.
+            # The "main" sub-request often lands a few seconds after the row0/
+            # barchart responses; recording too early gives an empty parse (the
+            # bug that zeroed Jan/Feb in run 22).  After it appears, wait a short
+            # settle so any trailing subset is included, then re-check stability.
+            got = False
+            wait_deadline = _time.time() + 22
+            while _time.time() < wait_deadline:
+                page.wait_for_timeout(500)
+                if len(captured) <= cap_before:
+                    continue
+                total = sum(_parse_fuel_counts(
+                    _merge_slice(cap_before), VARIANTS["Whole"],
+                    quiet=True).values())
+                if total > 0:
+                    page.wait_for_timeout(2500)   # let trailing subsets settle
+                    got = True
+                    break
+
+            if got:
+                complements.append((period, _merge_slice(cap_before)))
+                counts = _parse_fuel_counts(
+                    _merge_slice(cap_before), VARIANTS["Whole"], quiet=True)
+                print(f"[albania] toggled {lbl} off → complement after {period} "
+                      f"= {sum(counts.values())} ({len(captured) - cap_before} "
+                      f"responses)")
+            elif DEBUG:
+                # Expected for January (last in descending order): toggling it
+                # empties the selection so the report returns no Autoveturë rows.
+                print(f"[albania][debug] no vehicle×fuel data after toggling "
+                      f"{lbl!r} (expected for January / final toggle)")
+
+        try:
+            page.unroute("**/*", handle_route)
+        except Exception:
+            pass
+        browser.close()
+
+    if capture_error[0]:
+        print(f"[albania] WARNING route.fetch() error: {capture_error[0]}")
+
+    print(f"[albania] [{year}] captured {len(captured)} total batchedDataV2 "
+          f"responses; {len(complements)} month complements")
+
     return {
-        "dataRequest": [{
-            "requestContext": {
-                "reportContext": {
-                    "reportId":    REPORT_ID,
-                    "pageId":      PAGE_ID_NUM,
-                    "mode":        1,
-                    "componentId": COMPONENT_ID,
-                    "displayType": "table",
-                },
-                "requestMode": 0,
-            },
-            "datasetSpec": {
-                "dataset": [{
-                    "datasourceId":      DATASOURCE_ID,
-                    "revisionNumber":    REVISION_NUMBER,
-                    "parameterOverrides": [],
-                }],
-                "queryFields": [
-                    {
-                        "name": "qt_date",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_DATE},
-                    },
-                    {
-                        "name": "qt_fuel",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_FUEL_TYPE},
-                    },
-                    {
-                        "name": "qt_count",
-                        "datasetNs": "d0", "tableNs": "t0",
-                        "dataTransformation": {"sourceFieldName": F_RECORD_COUNT},
-                    },
-                ],
-                "sortData": [{"name": "qt_date", "sortDir": 1}],
-                "includeRowsCount": False,
-                "relatedDimensionMask": {
-                    "addDisplay": False, "addUniqueId": False, "addLatLong": False,
-                },
-                "dsFilterOverrides": [],
-                "filters": [
-                    {
-                        "filterInfo": {
-                            "type":        "INCLUDE",
-                            "operand":     "EQUALS",
-                            "expressions": [VEHICLE_FILTER_VALUE],
-                            "fieldName":   F_VEHICLE_TYPE,
-                        }
-                    }
-                ],
-                "features": [],
-                "dateRanges": [{
-                    "start": f"{year_from}0101",
-                    "end":   f"{year_to}1231",
-                }],
-                "contextNsCount": 1,
-                "dateRangeDimensions": [{
-                    "name": "qt_ci4tkhro0d",
-                    "datasetNs": "d0", "tableNs": "t0",
-                    "dataTransformation": {"sourceFieldName": F_DATE},
-                }],
-                "calculatedField":       [],
-                "needGeocoding":         False,
-                "geoFieldMask":          [],
-                "multipleGeocodeFields": [],
-                "timezone":              "Europe/Vienna",
-            },
-            "role": "main",
-            "retryHints": {
-                "useClientControlledRetry": True,
-                "isLastRetry":  False,
-                "retryCount":   0,
-                "originalRequestId": req_id,
-            },
-        }]
+        "baseline":         baseline_merged,
+        "complements":      complements,
+        "present_periods":  present_periods,
     }
 
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
-def _parse_response(data: dict) -> dict:
-    """
-    Parse batchedDataV2 JSON → {(period, VARIANT): gallery_row_dict}.
+def _parse_fuel_counts(data: dict, vehicle_types: set[str],
+                       quiet: bool = False) -> dict:
+    """Aggregate registrations for the given vehicle_types by gallery fuel column
+    from the first qualifying vehicle×fuel×count subset of a batchedDataV2
+    response.
 
-    The response has three column arrays (date strings, fuel strings, counts).
-    Null entries are tracked via ``nullIndex`` integer arrays.
+    The cd-p9hqinijec 'main' sub-response is a flat table whose three columns are
+    vehicle_type (string), fuel_type (string) and Record Count (long).  Column
+    order is not fixed, so we detect each by sampling values against known
+    vehicle / fuel type sets.  Returns ``{col: int}`` over VALUE_COLS (zeros if
+    no qualifying subset is found, e.g. an empty or error response).
+
+    ``quiet`` suppresses debug logging — used while polling for the subset's
+    arrival so the log isn't spammed.
     """
-    rows: dict = {}
+    counts = {c: 0 for c in VALUE_COLS}
 
     for dr in data.get("dataResponse", []):
+        err = dr.get("errorStatus")
+        if err:
+            if DEBUG and not quiet:
+                print(f"[albania][debug] API error in response: "
+                      f"{err.get('reasonStr', '?')}")
+            continue
+
         for subset in dr.get("dataSubset", []):
-            tds = subset.get("dataset", {}).get("tableDataset", {})
+            tds  = subset.get("dataset", {}).get("tableDataset", {})
             cols = tds.get("column", [])
-            col_info = tds.get("columnInfo", [])
             size = tds.get("size", 0)
-
-            col_names = [c.get("name") for c in col_info]
-            print(f"[albania] response subset: cols={col_names}, size={size}")
-
-            if len(cols) < 3 or size == 0:
-                print("[albania] empty or malformed subset, skipping")
+            if size == 0 or len(cols) < 3:
                 continue
 
-            date_col  = cols[0]
-            fuel_col  = cols[1]
-            count_col = cols[2]
+            vehicle_idx = fuel_idx = count_idx = None
+            for idx, col in enumerate(cols):
+                str_vals = col.get("stringColumn", {}).get("values", [])
+                lng_vals = col.get("longColumn",   {}).get("values", [])
+                if lng_vals and count_idx is None:
+                    count_idx = idx
+                    continue
+                sample = set(str_vals[:25])
+                if sample & _VEHICLE_TYPE_HINTS and vehicle_idx is None:
+                    vehicle_idx = idx
+                elif sample & _FUEL_TYPE_HINTS and fuel_idx is None:
+                    fuel_idx = idx
 
-            null_date  = set(date_col.get("nullIndex",  []))
-            null_fuel  = set(fuel_col.get("nullIndex",  []))
-            null_count = set(count_col.get("nullIndex", []))
+            if vehicle_idx is None or fuel_idx is None or count_idx is None:
+                continue
 
-            dates  = date_col.get("stringColumn",  {}).get("values", [])
-            fuels  = fuel_col.get("stringColumn",  {}).get("values", [])
-            counts = count_col.get("longColumn",   {}).get("values", [])
+            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
+            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
+            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
+            null_vehicle = set(cols[vehicle_idx].get("nullIndex", []))
+            null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
+            null_count   = set(cols[count_idx  ].get("nullIndex", []))
 
+            if DEBUG and not quiet:
+                print(f"[albania][debug] qualifying subset: size={size} "
+                      f"cols={len(cols)} vehicle_idx={vehicle_idx} "
+                      f"fuel_idx={fuel_idx} count_idx={count_idx}")
+                # Dump ALL vehicle types present (incl. unknowns like N1/Vans)
+                all_vt: dict[str, int] = {}
+                for i in range(size):
+                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                    cnt = (int(count_vals[i])
+                           if (i not in null_count and i < len(count_vals)) else 0)
+                    all_vt[veh] = all_vt.get(veh, 0) + cnt
+                known = set().union(*VARIANTS.values())
+                for veh, cnt in sorted(all_vt.items(), key=lambda x: -x[1]):
+                    tag = "" if veh in known else "  ← UNKNOWN"
+                    print(f"[albania][debug]   vehicle {veh!r} total={cnt}{tag}")
+                # Per-fuel breakdown for the requested vehicle_types
+                vt_fuel: dict[str, int] = {}
+                for i in range(size):
+                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                    if veh not in vehicle_types:
+                        continue
+                    fv = fuel_vals[i] if i < len(fuel_vals) else ""
+                    cnt = (int(count_vals[i])
+                           if (i not in null_count and i < len(count_vals)) else 0)
+                    vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
+                for fv, cnt in sorted(vt_fuel.items()):
+                    print(f"[albania][debug]   fuel {fv!r} → "
+                          f"{_fuel_col(fv)} count={cnt}")
+
+            local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
-                if i in null_date or i in null_fuel:
+                if i in null_vehicle or i in null_fuel:
                     continue
-                period = _parse_period(dates[i])
-                if not period:
-                    print(f"[albania]   unparseable date {dates[i]!r}, skip")
+                if (vehicle_vals[i] if i < len(vehicle_vals) else "") not in \
+                        vehicle_types:
                     continue
+                fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
+                count = (int(count_vals[i])
+                         if (i not in null_count and i < len(count_vals)) else 0)
+                local[_fuel_col(fuel)] += count
 
-                fuel  = fuels[i]
-                count = int(counts[i]) if i not in null_count else 0
-                col   = _fuel_col(fuel)
-                key   = (period, VARIANT)
+            if DEBUG and not quiet:
+                print(f"[albania][debug] fuel counts (subset size={size}): "
+                      f"{local} total={sum(local.values())}")
+            return local   # first qualifying vehicle×fuel×count subset wins
 
-                if key not in rows:
-                    rows[key] = {
-                        "period":        period,
-                        "time_interval": "monthly",
-                        "variant":       VARIANT,
-                        "source":        SOURCE,
-                        "BEV":    0.0, "PHEV":   0.0, "HEV":   0.0,
-                        "PETROL": 0.0, "DIESEL": 0.0, "OTHERS": 0.0,
-                        "TOTAL":  0.0,
-                        "notes":  "",
-                    }
-                rows[key][col] = rows[key].get(col, 0.0) + count
+    return counts
 
-    # Compute TOTAL; zero optional cols → empty string (gallery convention)
-    for row in rows.values():
-        row["TOTAL"] = sum(row[c] for c in VALUE_COLS)
-        for col in ["BEV", "PHEV", "HEV", "OTHERS"]:
-            if row[col] == 0.0:
-                row[col] = ""
+
+def _difference_to_rows(fetched: dict) -> dict:
+    """Recover true single-month gallery rows for every VARIANT from the
+    all-months baseline and the per-month complement captures.
+
+    With months sorted descending m_k > … > m_1 and A_i = the report total
+    after toggling m_i (and all later months) OFF — i.e. the sum over months
+    still selected (< m_i) — the single-month value is the telescoping diff
+        m_i = A_{i-1} − A_i,   where A_0 = baseline (all months on)
+    and A_1 = 0 (toggling January empties the selection → no data).
+    This is done per fuel column, for each variant independently.
+    """
+    present = fetched["present_periods"]            # descending YYYY-MM
+    zero    = {c: 0 for c in VALUE_COLS}
+
+    # Guard (on Whole / Autoveturë): toggling the first month OFF must REDUCE the
+    # total — proves the control defaulted to all-months-selected.
+    _whole_vt  = VARIANTS["Whole"]
+    _base_w    = _parse_fuel_counts(fetched["baseline"], _whole_vt)
+    _comp_w0   = (_parse_fuel_counts(fetched["complements"][0][1], _whole_vt)
+                  if fetched["complements"] else None)
+    if _comp_w0 is not None and present:
+        if sum(_comp_w0.values()) >= sum(_base_w.values()):
+            raise RuntimeError(
+                "[albania] Muaji filter is not all-months-selected by default "
+                f"(baseline total={sum(_base_w.values())}, after toggling "
+                f"{present[0]} off={sum(_comp_w0.values())}); the "
+                "differencing assumption is invalid — aborting to avoid bad data")
+
+    rows: dict = {}
+
+    for variant, vt in VARIANTS.items():
+        baseline = _parse_fuel_counts(fetched["baseline"], vt)
+        comp     = {p: _parse_fuel_counts(m, vt)
+                    for p, m in fetched["complements"]}
+
+        if DEBUG:
+            print(f"[albania][debug] [{variant}] baseline: {baseline} "
+                  f"total={sum(baseline.values())}")
+            for p in present:
+                if p in comp:
+                    print(f"[albania][debug] [{variant}] A[{p}]: "
+                          f"{comp[p]} total={sum(comp[p].values())}")
+
+        prev = baseline
+        for i, p in enumerate(present):
+            a = comp.get(p)
+            if a is None:
+                if i == len(present) - 1:
+                    a = zero        # earliest month (Jan): empty selection → no capture
+                else:
+                    print(f"[albania] WARNING [{variant}]: missing complement "
+                          f"for {p}; cannot difference this and the following "
+                          f"month reliably")
+                    prev = None
+                    continue
+            if prev is None:
+                prev = a
+                continue
+
+            month = {c: max(0, prev[c] - a[c]) for c in VALUE_COLS}
+            row = {
+                "period":        p,
+                "time_interval": "monthly",
+                "variant":       variant,
+                "source":        SOURCE,
+                "BEV":    month["BEV"],    "PHEV":   month["PHEV"],
+                "HEV":    month["HEV"],    "PETROL": month["PETROL"],
+                "DIESEL": month["DIESEL"], "OTHERS": month["OTHERS"],
+                "TOTAL":  sum(month.values()),
+                "notes":  "",
+            }
+            # Zero optional cols → empty string (gallery convention).
+            for col in ("BEV", "PHEV", "HEV", "OTHERS"):
+                if row[col] == 0:
+                    row[col] = ""
+            rows[(p, variant)] = row
+            prev = a
 
     return rows
 
 
 # ── CSV upsert ───────────────────────────────────────────────────────────────
 
-def upsert_csv(
-    csv_path: str, new_rows: dict, since: str | None
-) -> tuple[int, int]:
+def upsert_csv(csv_path: str, new_rows: dict, since: str | None) -> tuple[int, int]:
     existing: dict = {}
     if os.path.exists(csv_path):
         with open(csv_path, newline="", encoding="utf-8") as f:
@@ -386,70 +783,75 @@ def main() -> None:
     ap.add_argument("--since", default=None,
                     help="Only upsert months >= YYYY-MM (default: all).")
     ap.add_argument("--year-from", type=int, default=datetime.now().year,
-                    help="First calendar year to request from the API "
-                         "(default: current year). Use 2019 for a full backfill.")
+                    help="First calendar year to request (default: current year).")
     ap.add_argument("--year-to", type=int, default=datetime.now().year,
-                    help="Last calendar year to request from the API "
-                         "(default: current year).")
+                    help="Last calendar year to request (default: current year).")
     ap.add_argument("--dry-run", action="store_true",
                     help="Fetch and parse; print monthly totals; do not write CSV.")
+    ap.add_argument("--variants", default=None,
+                    help="Comma-separated variants to UPSERT (default: all). "
+                         "Parsing/printing still covers all; this only filters "
+                         "what gets written. Use e.g. 'HDV,Buses,2-Wheelers' to "
+                         "backfill non-Whole variants without touching existing "
+                         "Whole rows.")
     ap.add_argument("--force", action="store_true",
                     help="Accepted for parity (commit-gated downstream).")
     args = ap.parse_args()
 
-    session, xsrf = _get_session()
+    write_variants: set[str] | None = None
+    if args.variants:
+        write_variants = {v.strip() for v in args.variants.split(",") if v.strip()}
+        unknown_v = write_variants - set(VARIANTS)
+        if unknown_v:
+            print(f"[albania] ERROR: unknown variant(s) {sorted(unknown_v)}; "
+                  f"known: {sorted(VARIANTS)}", file=sys.stderr)
+            sys.exit(1)
 
-    payload = _build_payload(args.year_from, args.year_to)
-    api_headers = {
-        "Content-Type":      "application/json",
-        "Accept":            "application/json, text/plain, */*",
-        "Accept-Encoding":   "gzip, deflate, br",
-        "Accept-Language":   "de-DE,de;q=0.9",
-        "Cache-Control":     "no-cache",
-        "Origin":            "https://datastudio.google.com",
-        "Pragma":            "no-cache",
-        "Referer":           REPORT_PAGE_URL,
-        "X-RAP-XSRF-TOKEN":  xsrf,
-    }
+    years = range(args.year_from, args.year_to + 1)
+    unknown_years = [y for y in years if y not in YEAR_REPORTS]
+    if unknown_years:
+        print(f"[albania] ERROR: no report registered for year(s) {unknown_years}. "
+              f"Add entries to YEAR_REPORTS in the script.", file=sys.stderr)
+        sys.exit(1)
 
-    print(f"[albania] POST {API_URL}")
-    resp = session.post(
-        API_URL, json=payload, headers=api_headers, timeout=120
-    )
-    print(f"[albania] HTTP {resp.status_code} ({len(resp.content)} bytes)")
-    resp.raise_for_status()
+    all_rows: dict = {}
+    for year in years:
+        print(f"\n[albania] ── year {year} ──")
+        fetched = _fetch_with_browser_session(year)
+        rows = _difference_to_rows(fetched)
+        if not rows:
+            print(f"[albania] WARNING: no rows parsed for {year} — "
+                  f"check report URL / Muaji filter / vehicle-type strings.")
+        all_rows.update(rows)
 
-    # Strip the Looker Studio XSSI prefix )]}'\\n
-    text = resp.text
-    if text.startswith(")]}'"):
-        text = text[4:].lstrip("\n")
+    if not all_rows:
+        print("[albania] no data rows parsed at all.", file=sys.stderr)
+        sys.exit(1)
 
-    data = json.loads(text)
-    rows = _parse_response(data)
-
-    if not rows:
-        print("[albania] no data rows in response — "
-              "the report may only expose current-year data. "
-              "Historical rows (pre-current-year) are kept from the bootstrapped CSV.")
-        return
-
-    print(f"[albania] parsed {len(rows)} month-variant rows")
-    for key in sorted(rows):
-        r = rows[key]
+    print(f"\n[albania] parsed {len(all_rows)} month-variant rows total")
+    for key in sorted(all_rows):
+        r = all_rows[key]
         bev  = r["BEV"]  or 0
         phev = r["PHEV"] or 0
         hev  = r["HEV"]  or 0
         print(
-            f"  {key[0]}  BEV={bev:.0f}  PHEV={phev:.0f}  HEV={hev:.0f}"
-            f"  PETROL={r['PETROL']:.0f}  DIESEL={r['DIESEL']:.0f}"
-            f"  OTHERS={r['OTHERS'] or 0:.0f}  TOTAL={r['TOTAL']:.0f}"
+            f"  {key[1]:12s} {key[0]}  BEV={bev:.0f}  PHEV={phev:.0f}"
+            f"  HEV={hev:.0f}  PETROL={r['PETROL']:.0f}"
+            f"  DIESEL={r['DIESEL']:.0f}  OTHERS={r['OTHERS'] or 0:.0f}"
+            f"  TOTAL={r['TOTAL']:.0f}"
         )
 
     if args.dry_run:
         print("(dry-run: CSV not written)")
         return
 
-    added, updated = upsert_csv(CSV_PATH, rows, args.since)
+    write_rows = all_rows
+    if write_variants is not None:
+        write_rows = {k: v for k, v in all_rows.items() if k[1] in write_variants}
+        print(f"[albania] writing only variants {sorted(write_variants)}: "
+              f"{len(write_rows)} of {len(all_rows)} rows")
+
+    added, updated = upsert_csv(CSV_PATH, write_rows, args.since)
     print(f"{added} added, {updated} updated -> {CSV_PATH}")
 
 

@@ -1,11 +1,12 @@
-name: Fetch Albania data (dpshtrr.al Looker Studio API)
+name: Fetch Albania data (dpshtrr.al Looker Studio report)
 
-# Queries the DPSHTRR public Looker Studio report directly via the
-# batchedDataV2 API (no Google account required) and upserts
-# data/Albania.csv.  Runs daily from the 10th onward; commit-gated
-# so steady-state runs are a no-op.
+# Drives a headless Chromium (Playwright) to load the DPSHTRR public Looker
+# Studio report as a visitor would, then intercepts the batchedDataV2 responses
+# the report itself issues and upserts data/Albania.csv.  The plain-HTTP API is
+# access-gated (PREFETCH_VALIDATION); a real browser session is required.
+# Runs daily from the 10th onward; commit-gated so steady-state runs are a no-op.
 #
-# Report: datastudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3
+# Report: lookerstudio.google.com/reporting/407ce08b-d3ce-478e-9bc7-a50125f875f3
 # Page:   VPWqB  (Vehicles by type of fuel or power source)
 # Source playbook: docs/architecture/27-source-albania.md
 
@@ -13,13 +14,16 @@ on:
   workflow_dispatch:
     inputs:
       year_from:
-        description: 'First year to request from the API (default: current year; use 2019 for full backfill)'
+        description: 'First year to fetch (default: current year). Use 2019-2025 for backfill.'
         required: false
       year_to:
-        description: 'Last year to request from the API (default: current year)'
+        description: 'Last year to fetch (default: current year). Set same as year_from for one year.'
+        required: false
+      variants:
+        description: 'Comma-separated variants to WRITE (default: all). For backfill use HDV,Buses,2-Wheelers to leave Whole untouched.'
         required: false
       since:
-        description: 'Only upsert months >= this YYYY-MM (leave empty for all within year range)'
+        description: 'Only upsert months >= this YYYY-MM (leave empty for all)'
         required: false
       dry_run:
         description: 'Fetch and print, but do not write the CSV'
@@ -35,7 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+      variants_json: ${{ steps.variants.outputs.variants_json }}
 
     steps:
       - uses: actions/checkout@v4
@@ -45,23 +51,19 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests playwright
+          python -m playwright install --with-deps chromium
 
       - name: Fetch Albania data
+        env:
+          ALBANIA_DEBUG: ${{ inputs.dry_run == true && '1' || '0' }}
         run: |
-          YEAR=$(date +%Y)
           ARGS=""
-          if [ -n "${{ inputs.year_from }}" ]; then
-            ARGS="$ARGS --year-from ${{ inputs.year_from }}"
-          else
-            ARGS="$ARGS --year-from $YEAR"
-          fi
-          if [ -n "${{ inputs.year_to }}" ]; then
-            ARGS="$ARGS --year-to ${{ inputs.year_to }}"
-          else
-            ARGS="$ARGS --year-to $YEAR"
-          fi
-          if [ -n "${{ inputs.since }}" ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
+          if [ -n "${{ inputs.year_from }}" ]; then ARGS="$ARGS --year-from ${{ inputs.year_from }}"; fi
+          if [ -n "${{ inputs.year_to }}"   ]; then ARGS="$ARGS --year-to   ${{ inputs.year_to }}"; fi
+          if [ -n "${{ inputs.variants }}"  ]; then ARGS="$ARGS --variants ${{ inputs.variants }}"; fi
+          if [ -n "${{ inputs.since }}"     ]; then ARGS="$ARGS --since ${{ inputs.since }}"; fi
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_albania.py $ARGS
 
@@ -73,12 +75,34 @@ jobs:
           message: 'chore: update Albania data from dpshtrr.al'
           default_author: github_actions
 
-      - name: Trigger render for Albania
-        if: steps.commit.outputs.committed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # Which variants to render: the explicit --variants subset if given,
+      # else all four. Emitted as a JSON array for the render matrix below.
+      - name: Determine variants to render
+        id: variants
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Albania \
-            -f variant=Whole
+          if [ -n "${{ inputs.variants }}" ]; then
+            IFS=',' read -ra arr <<< "${{ inputs.variants }}"
+          else
+            arr=(Whole HDV Buses 2-Wheelers)
+          fi
+          json=$(printf '%s\n' "${arr[@]}" | jq -R . | jq -cs .)
+          echo "variants_json=$json" >> "$GITHUB_OUTPUT"
+          echo "Will render: $json"
+
+  # Render the touched variants SERIALLY. Each render commits the shared
+  # params.csv / weights.csv (plus images/ and posts/), so parallel variants
+  # race on the rebase-push and abort with "conflicting files". max-parallel: 1
+  # mirrors fetch-finland.yml / fetch-acea.yml.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.variants_json) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Albania
+      variant: ${{ matrix.variant }}
+    secrets: inherit

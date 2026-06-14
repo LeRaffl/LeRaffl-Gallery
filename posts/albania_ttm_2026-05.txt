@@ -1,0 +1,12 @@
+🇦🇱 Albania - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++6.7pp  BEV   (4.3% → 11.0%)
++0.0pp  PHEV  (0.0% → 0.1%)
++0.2pp  HEV   (2.6% → 2.8%)
+−7.0pp  ICE   (93.1% → 86.1%)
+
+PHEV peaked at 0.3% in 2024-06 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2030-02.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
