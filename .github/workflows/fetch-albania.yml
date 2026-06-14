@@ -39,7 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+      variants_json: ${{ steps.variants.outputs.variants_json }}
 
     steps:
       - uses: actions/checkout@v4
@@ -73,14 +75,34 @@ jobs:
           message: 'chore: update Albania data from dpshtrr.al'
           default_author: github_actions
 
-      - name: Trigger render for Albania
-        if: steps.commit.outputs.committed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # Which variants to render: the explicit --variants subset if given,
+      # else all four. Emitted as a JSON array for the render matrix below.
+      - name: Determine variants to render
+        id: variants
         run: |
-          for variant in Whole HDV Buses 2-Wheelers; do
-            gh workflow run render-country.yml \
-              --ref "${GITHUB_REF_NAME}" \
-              -f country=Albania \
-              -f variant=$variant
-          done
+          if [ -n "${{ inputs.variants }}" ]; then
+            IFS=',' read -ra arr <<< "${{ inputs.variants }}"
+          else
+            arr=(Whole HDV Buses 2-Wheelers)
+          fi
+          json=$(printf '%s\n' "${arr[@]}" | jq -R . | jq -cs .)
+          echo "variants_json=$json" >> "$GITHUB_OUTPUT"
+          echo "Will render: $json"
+
+  # Render the touched variants SERIALLY. Each render commits the shared
+  # params.csv / weights.csv (plus images/ and posts/), so parallel variants
+  # race on the rebase-push and abort with "conflicting files". max-parallel: 1
+  # mirrors fetch-finland.yml / fetch-acea.yml.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.variants_json) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Albania
+      variant: ${{ matrix.variant }}
+    secrets: inherit
