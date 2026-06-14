@@ -131,8 +131,10 @@ YEAR_REPORTS: dict[int, tuple[str, str]] = {
 # ── Variant → Albanian vehicle-type mapping (EU class) ───────────────────────
 # Each gallery variant maps to one or more Albanian vehicle-type strings that
 # appear in the vehicle_type column of the pivot response.
-# Reports ≤2022 use ALL CAPS labels (AUTOVETURË); ≥2023 use mixed case.
-# Both forms are included so the same VARIANTS dict covers all years.
+# The VPWqB pivot uses MIXED-CASE labels (Autoveturë, Kamion, Motor) for every
+# year 2020-2026 — confirmed in the 2020-2024 backfill.  The ALL-CAPS forms
+# (AUTOVETURË …) were only seen on the abandoned overview page and are kept
+# defensively in case a future report reverts.
 VARIANTS: dict[str, set[str]] = {
     "Whole": {"Autoveturë", "AUTOVETURË"},                 # M1
     "HDV":   {"Kamion",     "KAMION"},                     # N2+N3 rigid trucks
@@ -158,30 +160,37 @@ CSV_COLUMNS = [
 VALUE_COLS  = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 # ── Fuel-type → gallery-column mapping ──────────────────────────────────────
-# Reports ≤2022 use ALL CAPS with + separators (BENZINË+ELEKTRIK).
-# Reports ≥2023 use mixed case with slash/word separators (Hybrid Benzinë/Elektrik).
+# The VPWqB pivot for every year 2020-2026 uses MIXED-CASE labels
+# (Naftë, Benzinë, Elektrik, Hybrid Benzinë/Elektrik) — verified across the
+# 2020-2024 backfill dry-run.  The ALL-CAPS forms (NAFTË, BENZINË+ELEKTRIK …)
+# were only ever seen on the abandoned overview page (CU40B), never in this
+# pivot; they are retained defensively in case a future report reverts.
+# Matching is case-INSENSITIVE: DPSHTRR is inconsistent even within mixed case
+# (e.g. "Hybrid plug-in, naftë/Elektrik" with a lowercase n appears alongside
+# the capitalised form), so all comparisons casefold both sides.
 _BEV  = {"Elektrik",  "ELEKTRIK"}
 _PHEV = {
     "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023
-    "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # ≤2022
+    "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # legacy
 }
 _HEV  = {
     "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023
     "Hybrid Benzinë/Gaz/Elektrik",                                            # ≥2023
-    "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # ≤2022
-    "BENZINË+GAZ+ELEKTRIK",                                                   # ≤2022
+    "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # legacy
+    "BENZINË+GAZ+ELEKTRIK",                                                   # legacy
 }
 _PET  = {"Benzinë",   "BENZINË"}
 _DIE  = {"Naftë",     "NAFTË"}
-# Everything else → OTHERS: LPG (BENZINË+GAZ, GAZ), NUK KA, unknown
+# Everything else → OTHERS: LPG (Benzinë/GPL, Gaz i lëngshëm, BENZINË+GAZ, GAZ),
+# CNG (Metan), NUK KA, unknown.
+
+# Casefolded lookup tables (built once) so casing inconsistencies map correctly.
+_FUEL_COL_BY_CF = {f.casefold(): col for col, s in (
+    ("BEV", _BEV), ("PHEV", _PHEV), ("HEV", _HEV), ("PETROL", _PET), ("DIESEL", _DIE),
+) for f in s}
 
 def _fuel_col(fuel: str) -> str:
-    if fuel in _BEV:  return "BEV"
-    if fuel in _PHEV: return "PHEV"
-    if fuel in _HEV:  return "HEV"
-    if fuel in _PET:  return "PETROL"
-    if fuel in _DIE:  return "DIESEL"
-    return "OTHERS"
+    return _FUEL_COL_BY_CF.get(fuel.casefold(), "OTHERS")
 
 
 # ── Known vehicle types (used for column-type detection) ─────────────────────

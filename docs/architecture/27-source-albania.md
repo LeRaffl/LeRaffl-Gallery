@@ -160,27 +160,32 @@ window where labels are consistent.
 
 Derived from DPSHTRR Looker pivot output (applies to every variant's rows).
 
-**Two label dialects.** Reports **≥2023** use mixed-case labels with slash/word
-separators (`Naftë`, `Hybrid Benzinë/Elektrik`). Reports **≤2022** use ALL CAPS
-with `+` separators (`NAFTË`, `BENZINË+ELEKTRIK`). Both forms are carried in the
-mapping sets so one code path covers all years.
+**Labels are mixed-case for every year.** Contrary to an early hypothesis,
+the VPWqB pivot uses mixed-case slash/word labels (`Naftë`, `Benzinë`,
+`Hybrid Benzinë/Elektrik`) for **all** years 2020–2026 — verified across the
+2020–2024 backfill dry-run, where **zero** ALL-CAPS strings appeared. The
+ALL-CAPS forms (`NAFTË`, `BENZINË+ELEKTRIK`) were only ever seen on the
+*abandoned overview page* (`CU40B`), never in this pivot; they remain in the
+mapping sets defensively but are not exercised.
 
-| DPSHTRR Lënda Djegëse (≥2023) | ≤2022 ALL-CAPS form | Gallery column | Notes |
-|---|---|---|---|
-| Elektrik | ELEKTRIK | BEV | |
-| Hybrid plug-in, Benzinë/Elektrik | BENZINË+ELEKTRIK+HYBRID | PHEV | petrol PHEV |
-| Hybrid plug-in, Naftë/Elektrik | NAFTË+ELEKTRIK+HYBRID | PHEV | diesel PHEV |
-| Hybrid Benzinë/Elektrik | BENZINË+ELEKTRIK | HEV | |
-| Hybrid Naftë/Elektrik | NAFTË+ELEKTRIK | HEV | mild-hybrid diesel |
-| Hybrid Benzinë/Gaz/Elektrik | BENZINË+GAZ+ELEKTRIK | HEV | gas-electric hybrid |
-| Benzinë | BENZINË | PETROL | |
-| Naftë | NAFTË | DIESEL | |
-| everything else (Benzinë/Gaz, Gaz, Metan, LPG, `-`, …) | BENZINË+GAZ, GAZ, NUK KA | OTHERS | LPG / CNG / gas |
+**Matching is case-insensitive.** DPSHTRR is inconsistent even within mixed
+case — e.g. `Hybrid plug-in, naftë/Elektrik` (lowercase `n`) appears alongside
+the capitalised form. `_fuel_col` casefolds both sides, so such variants map
+correctly instead of leaking into OTHERS. (The lowercase diesel-PHEV leak was
+~37 vehicles total across 2020–2024, all in Whole; the fix matters mainly for
+the live current year.)
 
-Note the ≤2022 `+ELEKTRIK` vs `+ELEKTRIK+HYBRID` distinction: the bare
-`+ELEKTRIK` form is the *non-plug-in* hybrid (→ HEV), the `+HYBRID`-suffixed
-form is the plug-in (→ PHEV). Getting this backwards swaps HEV/PHEV in the
-older years.
+| DPSHTRR Lënda Djegëse | Gallery column | Notes |
+|---|---|---|
+| Elektrik | BEV | |
+| Hybrid plug-in, Benzinë/Elektrik | PHEV | petrol PHEV |
+| Hybrid plug-in, Naftë/Elektrik | PHEV | diesel PHEV (also seen lowercase `naftë`) |
+| Hybrid Benzinë/Elektrik | HEV | |
+| Hybrid Naftë/Elektrik | HEV | mild-hybrid diesel |
+| Hybrid Benzinë/Gaz/Elektrik | HEV | gas-electric hybrid |
+| Benzinë | PETROL | |
+| Naftë | DIESEL | |
+| everything else (Benzinë/GPL, Gaz i lëngshëm, Metan, Naftë/GPL, `-`, …) | OTHERS | LPG / CNG / gas |
 
 This mapping is ACEA-congruent: BEV, PHEV, HEV, PETROL, DIESEL, OTHERS.
 LPG folds into OTHERS (consistent with ACEA practice).  If `OTHERS` looks high,
@@ -297,9 +302,10 @@ ranges.
 | LPG is large | Albania has high LPG adoption; `OTHERS` column will be non-trivial |
 | Year-scoped reports | A separate Looker report per calendar year; new years are added to `YEAR_REPORTS` (only report ID + page slug needed) |
 | Per-year datasource IDs | datasource/component/revision differ per year and are auto-detected structurally, NOT hardcoded |
-| ALL-CAPS labels ≤2022 | Reports ≤2022 emit `AUTOVETURË`/`NAFTË`/`BENZINË+ELEKTRIK` etc.; ≥2023 use mixed case. Both forms are in the mapping sets |
-| `Motor` not `Motoçikletë` | The pivot's motorcycle row is `Motor`/`MOTORË`; mopeds are `Ciklomotorr` (double-r). Textbook spellings never appear |
+| Labels mixed-case all years | VPWqB pivot uses `Naftë`/`Benzinë`/`Elektrik` for every year 2020-2026; the ALL-CAPS forms only existed on the abandoned overview page. Matching is case-insensitive (casefold) to absorb `naftë`-vs-`Naftë` inconsistencies |
+| `Motor` not `Motoçikletë` | The pivot's motorcycle row is `Motor`; mopeds are `Ciklomotorr` (double-r). Textbook spellings never appear |
 | No N1 / Vans | DPSHTRR has no van category in the pivot; the gallery Vans variant cannot be produced |
+| HDV = Kamion only | Road-tractor units (`Tërheqës`, articulated-lorry prime movers) are technically N3 but excluded; HDV is scoped to rigid trucks (`Kamion`). Possible future refinement |
 | 2025 snapshots corrupt | The 2025 report serves frozen Looker snapshots (every call logs `SNAPSHOT_WITH_NON_REAGGREGATABLE`) that were cached under inconsistent column schemas → fuel columns flip mid-year; 2025 non-Whole is not fetched (§11) |
 | Data starts 2019-01 | No DPSHTRR open data before 2019; 2019 report is also un-differenceable (no Muaji) |
 
