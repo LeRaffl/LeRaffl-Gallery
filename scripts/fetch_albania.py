@@ -568,6 +568,31 @@ def _fetch_with_browser_session(year: int) -> dict:
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
+def _decode_column(col: dict, size: int) -> list:
+    """Decode one Looker ``batchedDataV2`` columnar column into a full
+    ``size``-length, row-aligned list (None at null positions).
+
+    Looker packs ONLY the non-null cell values into ``stringColumn.values`` /
+    ``longColumn.values`` (in row order) and records the null ROW indices
+    separately in ``nullIndex``.  So ``values[i]`` is the i-th *non-null* cell,
+    NOT the value of row i: once any earlier row is null, every later row is
+    shifted.  Indexing ``values[i]`` directly (as the original parser did)
+    therefore mis-pairs vehicle/fuel/count for every row after the first null,
+    which silently drops the rare trailing fuels — e.g. it folded the petrol
+    plug-in hybrid (``Hybrid plug-in, Benzinë/Elektrik``) out of Autoveturë's
+    PHEV tally.  Rebuilding the row-aligned array fixes that class of bug for
+    every column at once."""
+    null_idx = set(col.get("nullIndex", []))
+    svals = col.get("stringColumn", {}).get("values", [])
+    lvals = col.get("longColumn",   {}).get("values", [])
+    packed = svals if svals else lvals
+    out: list = []
+    it = iter(packed)
+    for i in range(size):
+        out.append(None if i in null_idx else next(it, None))
+    return out
+
+
 _SUBSET_DUMPED = False
 
 def _dump_all_subsets(data: dict, vehicle_types: set[str]) -> None:
@@ -607,39 +632,38 @@ def _dump_all_subsets(data: dict, vehicle_types: set[str]) -> None:
             print(f"[albania][dump] subset #{s_idx} (dr={dr_i},sub={sub_i}) size={size} "
                   f"ncols={len(cols)} qualifies={qualifies} "
                   f"v_idx={vehicle_idx} f_idx={fuel_idx} c_idx={count_idx}")
-            # Show the distinct string values of every string column (capped) so we
-            # can identify what each column is (vehicle / fuel / emission / brand).
+            # Show distinct string values + value-array length + nullIndex count
+            # per column, so misalignment between packed values and `size` is visible.
             for ci, col in enumerate(cols):
                 sv = col.get("stringColumn", {}).get("values", [])
                 lv = col.get("longColumn",   {}).get("values", [])
+                nidx = col.get("nullIndex", [])
                 if sv:
                     distinct = sorted(set(sv))
-                    print(f"[albania][dump]   col{ci} STRING distinct={len(distinct)}: "
-                          f"{distinct[:40]!r}")
+                    print(f"[albania][dump]   col{ci} STRING nvals={len(sv)} "
+                          f"nulls={len(nidx)} distinct={len(distinct)}: {distinct[:40]!r}")
                 elif lv:
                     print(f"[albania][dump]   col{ci} LONG nvals={len(lv)} "
-                          f"sample={lv[:6]!r}")
+                          f"nulls={len(nidx)} sample={lv[:6]!r}")
                 else:
                     print(f"[albania][dump]   col{ci} EMPTY keys={list(col.keys())!r}")
             s_idx += 1
             if not qualifies:
                 continue
-            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
-            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
-            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
-            null_count   = set(cols[count_idx].get("nullIndex", []))
+            # Row-aligned decode (the actual fix) — compare against naive indexing.
+            vehicle_vals = _decode_column(cols[vehicle_idx], size)
+            fuel_vals    = _decode_column(cols[fuel_idx],    size)
+            count_vals   = _decode_column(cols[count_idx],   size)
             vt_fuel: dict[str, int] = {}
             for i in range(size):
-                veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                if veh not in vehicle_types:
+                if vehicle_vals[i] not in vehicle_types:
                     continue
-                fv = fuel_vals[i] if i < len(fuel_vals) else ""
-                cnt = (int(count_vals[i])
-                       if (i not in null_count and i < len(count_vals)) else 0)
+                fv = fuel_vals[i] if fuel_vals[i] is not None else ""
+                cnt = int(count_vals[i]) if count_vals[i] is not None else 0
                 vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
             for fv, cnt in sorted(vt_fuel.items()):
                 print(f"[albania][dump]     fuel {fv!r} → {_fuel_col(fv)} count={cnt}")
-            print(f"[albania][dump]     subset #{s_idx-1} Autoveturë total={sum(vt_fuel.values())}")
+            print(f"[albania][dump]     subset #{s_idx-1} Autoveturë total={sum(vt_fuel.values())} (row-aligned decode)")
     print("[albania][dump] ===== end subset enumeration =====")
 
 
@@ -694,12 +718,10 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
             if vehicle_idx is None or fuel_idx is None or count_idx is None:
                 continue
 
-            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
-            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
-            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
-            null_vehicle = set(cols[vehicle_idx].get("nullIndex", []))
-            null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
-            null_count   = set(cols[count_idx  ].get("nullIndex", []))
+            # Row-aligned decode (honours nullIndex — see _decode_column).
+            vehicle_vals = _decode_column(cols[vehicle_idx], size)
+            fuel_vals    = _decode_column(cols[fuel_idx],    size)
+            count_vals   = _decode_column(cols[count_idx],   size)
 
             if DEBUG and not quiet:
                 print(f"[albania][debug] qualifying subset: size={size} "
@@ -708,9 +730,8 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                 # Dump ALL vehicle types present (incl. unknowns like N1/Vans)
                 all_vt: dict[str, int] = {}
                 for i in range(size):
-                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                    cnt = (int(count_vals[i])
-                           if (i not in null_count and i < len(count_vals)) else 0)
+                    veh = vehicle_vals[i] if vehicle_vals[i] is not None else ""
+                    cnt = int(count_vals[i]) if count_vals[i] is not None else 0
                     all_vt[veh] = all_vt.get(veh, 0) + cnt
                 known = set().union(*VARIANTS.values())
                 for veh, cnt in sorted(all_vt.items(), key=lambda x: -x[1]):
@@ -719,12 +740,10 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                 # Per-fuel breakdown for the requested vehicle_types
                 vt_fuel: dict[str, int] = {}
                 for i in range(size):
-                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                    if veh not in vehicle_types:
+                    if vehicle_vals[i] not in vehicle_types:
                         continue
-                    fv = fuel_vals[i] if i < len(fuel_vals) else ""
-                    cnt = (int(count_vals[i])
-                           if (i not in null_count and i < len(count_vals)) else 0)
+                    fv = fuel_vals[i] if fuel_vals[i] is not None else ""
+                    cnt = int(count_vals[i]) if count_vals[i] is not None else 0
                     vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
                 for fv, cnt in sorted(vt_fuel.items()):
                     print(f"[albania][debug]   fuel {fv!r} → "
@@ -732,15 +751,12 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
 
             local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
-                if i in null_vehicle or i in null_fuel:
+                if vehicle_vals[i] is None or fuel_vals[i] is None:
                     continue
-                if (vehicle_vals[i] if i < len(vehicle_vals) else "") not in \
-                        vehicle_types:
+                if vehicle_vals[i] not in vehicle_types:
                     continue
-                fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
-                count = (int(count_vals[i])
-                         if (i not in null_count and i < len(count_vals)) else 0)
-                local[_fuel_col(fuel)] += count
+                count = int(count_vals[i]) if count_vals[i] is not None else 0
+                local[_fuel_col(fuel_vals[i])] += count
 
             if DEBUG and not quiet:
                 print(f"[albania][debug] fuel counts (subset size={size}): "
