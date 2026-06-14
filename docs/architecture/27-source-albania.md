@@ -271,12 +271,32 @@ Playwright + Muaji-differencing pipeline therefore works on any listed year.
    `scripts/fetch_albania.py`.
 5. Dispatch the workflow with `year_from=<new_year>` to bootstrap the new year.
 
-## 8. Upsert & idempotence
+## 8. Upsert, per-variant CSVs & idempotence
 
-Keyed on `(period, variant)`.  The commit step is change-gated; steady-state
-daily runs after a month is already in the CSV are a no-op.  The `--since`
-flag (and `--year-from` / `--year-to` arguments) can scope re-runs to specific
-ranges.
+**One CSV per variant** (gallery convention — `R/render_country.R` reads
+`data/<Country>_<Variant>.csv` first):
+
+| Variant | File |
+|---|---|
+| Whole | `data/Albania.csv` |
+| HDV | `data/Albania_HDV.csv` |
+| Buses | `data/Albania_Buses.csv` |
+| 2-Wheelers | `data/Albania_2-Wheelers.csv` |
+
+`variant_csv_path()` maps each variant to its file; `main()` groups the parsed
+rows by variant and upserts each file separately. Keyed on `(period, variant)`.
+The commit step is change-gated; steady-state daily runs after a month is
+already present are a no-op. `--since` / `--year-from` / `--year-to` scope
+re-runs.
+
+**Zeros are written as `0`, never blank — this matters.** The TTM renderer
+(`compute_ttm_long`) uses a *strict* rolling window: it drops any month whose
+trailing-12 window touches a blank (`NA`) cell in an otherwise-populated fuel
+column. Because Albania's PHEV column is reported in some months and silent in
+others, blanking the silent months collapsed the Whole chart to a ~2-year
+stub. `_normalize_zero_cells` therefore fills every *active* column (any
+non-zero value in the file) with explicit `0`s, while leaving *entirely-zero*
+columns blank so the renderer skips them (e.g. PHEV/HEV for trucks). See §10.
 
 ## 9. Source attribution & footnote
 
@@ -307,6 +327,8 @@ ranges.
 | No N1 / Vans | DPSHTRR has no van category in the pivot; the gallery Vans variant cannot be produced |
 | HDV = Kamion only | Road-tractor units (`Tërheqës`, articulated-lorry prime movers) are technically N3 but excluded; HDV is scoped to rigid trucks (`Kamion`). Possible future refinement |
 | 2025 snapshots corrupt | The 2025 report serves frozen Looker snapshots (every call logs `SNAPSHOT_WITH_NON_REAGGREGATABLE`) that were cached under inconsistent column schemas → fuel columns flip mid-year; 2025 non-Whole is not fetched (§11) |
+| Blank ≠ zero in TTM | A *partially*-reported fuel column (e.g. PHEV) must carry explicit `0`s in quiet months; strict TTM rolling drops blank-touching windows and silently truncates the chart. `_normalize_zero_cells` 0-fills active columns, blanks all-zero ones |
+| Per-variant CSVs | Non-Whole variants live in `data/Albania_<Variant>.csv`, NOT a variant column in `data/Albania.csv`; the latter is Whole-only |
 | Data starts 2019-01 | No DPSHTRR open data before 2019; 2019 report is also un-differenceable (no Muaji) |
 
 ## 11. The corrupt 2025 report (why 2025 non-Whole is skipped)

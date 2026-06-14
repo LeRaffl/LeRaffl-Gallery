@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Fetch Albania monthly vehicle-registration data directly from DPSHTRR's public
-Looker Studio report and upsert ``data/Albania.csv``.
+Looker Studio report and upsert one CSV per variant: Whole →
+``data/Albania.csv``, others → ``data/Albania_<Variant>.csv``.
 
 Usage
 -----
@@ -730,10 +731,13 @@ def _difference_to_rows(fetched: dict) -> dict:
                 "TOTAL":  sum(month.values()),
                 "notes":  "",
             }
-            # Zero optional cols → empty string (gallery convention).
-            for col in ("BEV", "PHEV", "HEV", "OTHERS"):
-                if row[col] == 0:
-                    row[col] = ""
+            # NOTE: zeros are written as 0, NOT blanked. A fuel column that is
+            # *sometimes* reported (e.g. PHEV) must carry explicit 0s in its
+            # quiet months — the TTM renderer uses strict rolling and DROPS any
+            # month whose trailing-12 window touches a blank cell, which would
+            # silently truncate the chart. Columns that are *never* non-zero for
+            # a variant are blanked once, at write time, by _normalize_zero_cells
+            # (so the renderer skips them, matching the per-variant CSV convention).
             rows[(p, variant)] = row
             prev = a
 
@@ -742,7 +746,45 @@ def _difference_to_rows(fetched: dict) -> dict:
 
 # ── CSV upsert ───────────────────────────────────────────────────────────────
 
+def variant_csv_path(variant: str) -> str:
+    """Per-variant CSV layout (gallery convention): Whole lives in the bare
+    data/Albania.csv; every other variant has its own data/Albania_<Variant>.csv
+    (read directly by R/render_country.R via variant_filename())."""
+    if variant == "Whole":
+        return CSV_PATH
+    base = os.path.splitext(CSV_PATH)[0]          # data/Albania
+    return f"{base}_{variant}.csv"                # data/Albania_HDV.csv, …
+
+
+def _num_or_none(v) -> float | None:
+    s = str(v).strip()
+    if s in ("", "na", "nan", "NA"):
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def _normalize_zero_cells(rows: list[dict]) -> None:
+    """In-place per-file cleanup of the fuel columns.
+
+    A column that is non-zero in *any* row of the file is "active": its blank
+    cells are filled with 0 so the column is a complete numeric series (the TTM
+    renderer's strict rolling drops months whose trailing-12 window contains a
+    blank, which truncates the chart). A column that is zero/blank in *every*
+    row is left blank everywhere, so R/render_country.R skips it entirely
+    (matches the per-variant CSV convention, e.g. PHEV/HEV for trucks)."""
+    for col in VALUE_COLS:
+        vals = [_num_or_none(r.get(col, "")) for r in rows]
+        active = any(v is not None and v != 0 for v in vals)
+        for r, v in zip(rows, vals):
+            r[col] = ("" if not active else ("0" if v is None else r[col]))
+
+
 def upsert_csv(csv_path: str, new_rows: dict, since: str | None) -> tuple[int, int]:
+    """Upsert ``new_rows`` (keyed by (period, variant)) into ``csv_path``.
+    All rows are expected to share one variant (the per-variant file)."""
     existing: dict = {}
     if os.path.exists(csv_path):
         with open(csv_path, newline="", encoding="utf-8") as f:
@@ -758,7 +800,7 @@ def upsert_csv(csv_path: str, new_rows: dict, since: str | None) -> tuple[int, i
         if since and key[0] < since:
             continue
         if key not in existing:
-            existing[key] = new_row
+            existing[key] = dict(new_row)
             added += 1
             print(f"  + {key[1]} {key[0]}")
         else:
@@ -767,12 +809,15 @@ def upsert_csv(csv_path: str, new_rows: dict, since: str | None) -> tuple[int, i
             existing[key] = {**existing[key], **new_row}
             updated += 1
 
+    ordered = [existing[k] for k in sorted(existing.keys(), key=lambda k: (k[1], k[0]))]
+    _normalize_zero_cells(ordered)
+
     Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=CSV_COLUMNS, lineterminator="\n")
         w.writeheader()
-        for key in sorted(existing.keys(), key=lambda k: (k[1], k[0])):
-            w.writerow(existing[key])
+        for row in ordered:
+            w.writerow(row)
     return added, updated
 
 
@@ -851,8 +896,20 @@ def main() -> None:
         print(f"[albania] writing only variants {sorted(write_variants)}: "
               f"{len(write_rows)} of {len(all_rows)} rows")
 
-    added, updated = upsert_csv(CSV_PATH, write_rows, args.since)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+    # One CSV per variant: Whole → data/Albania.csv, others → data/Albania_<V>.csv.
+    by_variant: dict[str, dict] = {}
+    for key, row in write_rows.items():
+        by_variant.setdefault(key[1], {})[key] = row
+
+    tot_added = tot_updated = 0
+    for variant in sorted(by_variant):
+        path = variant_csv_path(variant)
+        added, updated = upsert_csv(path, by_variant[variant], args.since)
+        tot_added += added
+        tot_updated += updated
+        print(f"{added} added, {updated} updated -> {path}")
+    print(f"[albania] total {tot_added} added, {tot_updated} updated across "
+          f"{len(by_variant)} variant file(s)")
 
 
 if __name__ == "__main__":
