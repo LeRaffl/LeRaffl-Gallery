@@ -103,37 +103,38 @@ DEBUG = os.environ.get("ALBANIA_DEBUG") == "1"
 # ── Per-year Looker Studio report registry ───────────────────────────────────
 # DPSHTRR publishes a new Looker report each calendar year.  Each entry is
 # (report_id, page_id_url) for the Albanian Shqip report's vehicle-fuel page.
-# 2020 uses a different page slug (XTGtB) than all other years (CU40B/VPWqB).
+# All years use page slug VPWqB ("Mjete sipas Lëndës Djegëse").
 # DATASOURCE_ID is NOT hardcoded here: the intercept captures all batchedDataV2
 # and relies on _parse_fuel_counts structural validation to select the right one.
+# 2019 is omitted: its report has a different layout with no Muaji multiselect.
 YEAR_REPORTS: dict[int, tuple[str, str]] = {
-    2019: ("9d3905e3-6c6e-446e-934e-d7a296158dd5", "CU40B"),
-    2020: ("70f605d5-f454-4776-af73-fdbbcd757bbb", "XTGtB"),
-    2021: ("3c73a68e-3df5-4ad4-b210-274b9d274d36", "CU40B"),
-    2022: ("bb9de550-a4cd-45ce-84d5-ec9fa5af028f", "CU40B"),
-    2023: ("78d2f17c-8f62-4b3a-872e-141c0ffecd53", "CU40B"),
-    2024: ("5d405a90-3508-4e91-abec-85ea46cd9426", "CU40B"),
-    2025: ("8d58f55d-117f-4c4e-939a-2b42188966f4", "CU40B"),
+    2020: ("70f605d5-f454-4776-af73-fdbbcd757bbb", "VPWqB"),
+    2021: ("3c73a68e-3df5-4ad4-b210-274b9d274d36", "VPWqB"),
+    2022: ("bb9de550-a4cd-45ce-84d5-ec9fa5af028f", "VPWqB"),
+    2023: ("78d2f17c-8f62-4b3a-872e-141c0ffecd53", "VPWqB"),
+    2024: ("5d405a90-3508-4e91-abec-85ea46cd9426", "VPWqB"),
+    2025: ("8d58f55d-117f-4c4e-939a-2b42188966f4", "VPWqB"),
     2026: ("233df2cc-6bd4-45fc-bf9b-e8ee4f83293e", "VPWqB"),
-    # When a new year starts: add an entry here; REVISION_NUMBER bumps are no longer needed.
+    # When a new year starts: add an entry here.
 }
 
 # ── Variant → Albanian vehicle-type mapping (EU class) ───────────────────────
 # Each gallery variant maps to one or more Albanian vehicle-type strings that
-# appear in the vehicle_type column of the cd-p9hqinijec pivot response.
-# All variants are extracted from the same batchedDataV2 intercepts in one run.
+# appear in the vehicle_type column of the pivot response.
+# Reports ≤2022 use ALL CAPS labels (AUTOVETURË); ≥2023 use mixed case.
+# Both forms are included so the same VARIANTS dict covers all years.
 VARIANTS: dict[str, set[str]] = {
-    "Whole":      {"Autoveturë"},                       # M1
-    "HDV":        {"Kamion"},                           # N2+N3 rigid trucks only
-    "Buses":      {"Autobus"},                          # M2+M3 (Miniautobuz absent in pivot)
-    "2-Wheelers": {                                     # L-category
-        "Motor",                                        # L3/L4 motorcycles (bulk)
-        "Motor me kosh",                                # L4 with sidecar
-        "Motor me tre rrota, simetrike",                # L5 symmetric tricycle
-        "Motor me katër rrota, i lehtë",               # L6e light quadricycle
-        "Motor me katër rrota, jo i lehtë",            # L7e heavy quadricycle
-        "Ciklomotorr me dy rrota",                      # L1/L2 moped 2-wheel
-        "Ciklomotorr me tre rrota",                     # L2e moped 3-wheel
+    "Whole": {"Autoveturë", "AUTOVETURË"},                 # M1
+    "HDV":   {"Kamion",     "KAMION"},                     # N2+N3 rigid trucks
+    "Buses": {"Autobus",    "AUTOBUS"},                    # M2+M3
+    "2-Wheelers": {                                        # L-category
+        "Motor",        "MOTORË",                          # L3/L4 motorcycles (bulk)
+        "Motor me kosh",                                   # L4 with sidecar
+        "Motor me tre rrota, simetrike",                   # L5 symmetric tricycle
+        "Motor me katër rrota, i lehtë",                   # L6e light quadricycle
+        "Motor me katër rrota, jo i lehtë",               # L7e heavy quadricycle
+        "Ciklomotorr me dy rrota",                         # L1/L2 moped 2-wheel
+        "Ciklomotorr me tre rrota",                        # L2e moped 3-wheel
     },
 }
 
@@ -147,12 +148,22 @@ CSV_COLUMNS = [
 VALUE_COLS  = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 # ── Fuel-type → gallery-column mapping ──────────────────────────────────────
-_BEV   = {"Elektrik"}
-_PHEV  = {"Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik"}
-_HEV   = {"Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
-           "Hybrid Benzinë/Gaz/Elektrik"}
-_PET   = {"Benzinë"}
-_DIE   = {"Naftë"}
+# Reports ≤2022 use ALL CAPS with + separators (BENZINË+ELEKTRIK).
+# Reports ≥2023 use mixed case with slash/word separators (Hybrid Benzinë/Elektrik).
+_BEV  = {"Elektrik",  "ELEKTRIK"}
+_PHEV = {
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023
+    "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # ≤2022
+}
+_HEV  = {
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023
+    "Hybrid Benzinë/Gaz/Elektrik",                                            # ≥2023
+    "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # ≤2022
+    "BENZINË+GAZ+ELEKTRIK",                                                   # ≤2022
+}
+_PET  = {"Benzinë",   "BENZINË"}
+_DIE  = {"Naftë",     "NAFTË"}
+# Everything else → OTHERS: LPG (BENZINË+GAZ, GAZ), NUK KA, unknown
 
 def _fuel_col(fuel: str) -> str:
     if fuel in _BEV:  return "BEV"
@@ -164,25 +175,31 @@ def _fuel_col(fuel: str) -> str:
 
 
 # ── Known vehicle types (used for column-type detection) ─────────────────────
-# These are the actual strings that appear in the DPSHTRR Looker pivot.
-# Note: "Motoçikletë"/"Çikëlomotor" (textbook Albanian) do NOT appear;
-# DPSHTRR uses "Motor" and "Ciklomotorr …" instead.
+# Includes both ALL CAPS (≤2022) and mixed-case (≥2023) forms.
 _VEHICLE_TYPE_HINTS = {
-    "Autoveturë", "Kamion", "Autobus",
-    "Motor", "Motor me kosh", "Motor me tre rrota, simetrike",
+    "Autoveturë", "AUTOVETURË",
+    "Kamion",     "KAMION",
+    "Autobus",    "AUTOBUS",
+    "Motor",      "MOTORË",
+    "Motor me kosh", "Motor me tre rrota, simetrike",
     "Motor me katër rrota, i lehtë", "Motor me katër rrota, jo i lehtë",
     "Ciklomotorr me dy rrota", "Ciklomotorr me tre rrota",
-    "Tërheqës", "Gjysëmrimorkio",
-    "Automjet për transport të përzier",
+    "Tërheqës",   "TËRHEQËS",
+    "Gjysëmrimorkio", "GJYSËM RIMORKIO",
+    "Automjet për transport të përzier",  "AUTOMJET PËR TRANSPORT TË P...",
     "Automjet për transport të veçantë",
     "Automjet për përdorim të veçantë",
-    "Traktor bujqësor, me rrota",
+    "Traktor bujqësor, me rrota",         "MAKINA BUJQËSORE",
 }
-# Known fuel types (used for column-type detection)
+# Known fuel types (used for column-type detection); both ≥2023 and ≤2022 forms.
 _FUEL_TYPE_HINTS = {
-    "Elektrik", "Benzinë", "Naftë", "Hybrid Benzinë/Elektrik",
-    "Hybrid Naftë/Elektrik", "Hybrid plug-in, Benzinë/Elektrik",
-    "Hybrid plug-in, Naftë/Elektrik", "Hybrid Benzinë/Gaz/Elektrik",
+    "Elektrik", "Benzinë", "Naftë",
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",
+    "Hybrid Benzinë/Gaz/Elektrik",
+    "ELEKTRIK", "BENZINË", "NAFTË",
+    "BENZINË+ELEKTRIK", "NAFTË+ELEKTRIK", "BENZINË+GAZ+ELEKTRIK",
+    "BENZINË+GAZ", "GAZ", "NUK KA",
 }
 
 
