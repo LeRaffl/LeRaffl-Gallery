@@ -31,12 +31,13 @@ on:
           - Whole
           - Used
           - HDV
+          - Buses
+          - 2-Wheelers
           - Industry
           - Private
           - Rental
           - NonRental
           - Vans
-          - Buses
           - Pickups
           - Non-Passenger
   workflow_call:
