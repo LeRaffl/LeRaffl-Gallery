@@ -316,6 +316,7 @@ columns blank so the renderer skips them (e.g. PHEV/HEV for trucks). See §10.
 | PREFETCH_VALIDATION | Plain-HTTP `batchedDataV2` POST is rejected; must use real browser session |
 | Muaji "only" link | Per-row single-select is `display:none` / `:hover`-gated; force-clicking the label text works |
 | Fuel-label inconsistency | DPSHTRR pivot emits different label strings for different window sizes (see §4); descending toggle order is required |
+| Null-compacted columns | `batchedDataV2` packs only **non-null** cells into each column's `values` array and lists null row-indices in `nullIndex`; `values[i]` is the i-th non-null cell, NOT row i. Naive `values[i]` indexing mis-pairs vehicle/fuel/count after the first null and silently drops rare trailing fuels — it folded `Hybrid plug-in, Benzinë/Elektrik` (petrol PHEV) out of Autoveturë's PHEV tally into BEV. `_decode_column` rebuilds a row-aligned array (None at null positions) before pairing |
 | Timing race | The vehicle×fuel subset arrives seconds after other sub-responses; poll `_parse_fuel_counts(...).total > 0` before recording |
 | Ascending toggle = wrong TOTALS | Jan/Feb TOTAL wrong by ~500 cars due to label inconsistency in large-window diffs; descending fixes this |
 | Muaji popup double-open | `_open_muaji()` called twice in sequence (label-read + first toggle) closes instead of opens the popup; first month click lands on chart body → press Escape after label-read |
