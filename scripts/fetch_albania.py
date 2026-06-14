@@ -70,15 +70,17 @@ See docs/architecture/27-source-albania.md for the full source playbook.
 
 Fuel-type mapping (Lenda Djegese → gallery schema)
 ---------------------------------------------------
-    Elektrik                            → BEV
-    Hybrid plug-in, Benzinë/Elektrik    → PHEV
-    Hybrid plug-in, Naftë/Elektrik      → PHEV  (diesel PHEV)
-    Hybrid Benzinë/Elektrik             → HEV
-    Hybrid Naftë/Elektrik               → HEV   (mild-hybrid diesel)
-    Hybrid Benzinë/Gaz/Elektrik         → HEV
-    Benzinë                             → PETROL
-    Naftë                               → DIESEL
-    everything else (LPG, Gas, CNG, …)  → OTHERS
+    Elektrik                             → BEV
+    Hybrid plug-in, Benzinë/Elektrik     → PHEV
+    Hybrid plug-in, Naftë/Elektrik       → PHEV  (diesel PHEV)
+    Hybrid Benzinë/Elektrik              → HEV
+    Hybrid Naftë/Elektrik                → HEV   (mild-hybrid diesel)
+    Hybrid Benzinë/Gaz/Elektrik          → HEV
+    Benzinë                              → PETROL
+    Naftë                                → DIESEL
+    everything else (LPG, Gas, CNG, …)   → OTHERS
+Each of the above also accepts the ASCII-ified form without "ë" (Benzine, Nafte)
+since the batchedDataV2 API sometimes strips Albanian diacritics from fuel labels.
 
 Vehicle variants produced (EU class in parentheses)
 ----------------------------------------------------
@@ -169,19 +171,26 @@ VALUE_COLS  = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 # Matching is case-INSENSITIVE: DPSHTRR is inconsistent even within mixed case
 # (e.g. "Hybrid plug-in, naftë/Elektrik" with a lowercase n appears alongside
 # the capitalised form), so all comparisons casefold both sides.
+# Additionally, the batchedDataV2 API has been observed returning ASCII-ified
+# labels (Benzine/Nafte without ë) while the report UI shows the correct Albanian
+# diacritic — both forms are included in every set so PHEVs/HEVs cannot slip into
+# OTHERS due to encoding mismatches.
 _BEV  = {"Elektrik",  "ELEKTRIK"}
 _PHEV = {
-    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023
+    "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",   # ≥2023 with ë
+    "Hybrid plug-in, Benzine/Elektrik", "Hybrid plug-in, Nafte/Elektrik",   # ≥2023 without ë (API may ASCII-ify)
     "BENZINË+ELEKTRIK+HYBRID",          "NAFTË+ELEKTRIK+HYBRID",             # legacy
 }
 _HEV  = {
-    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023
+    "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",                      # ≥2023 with ë
+    "Hybrid Benzine/Elektrik", "Hybrid Nafte/Elektrik",                      # ≥2023 without ë
     "Hybrid Benzinë/Gaz/Elektrik",                                            # ≥2023
+    "Hybrid Benzine/Gaz/Elektrik",                                            # without ë
     "BENZINË+ELEKTRIK",        "NAFTË+ELEKTRIK",                             # legacy
     "BENZINË+GAZ+ELEKTRIK",                                                   # legacy
 }
-_PET  = {"Benzinë",   "BENZINË"}
-_DIE  = {"Naftë",     "NAFTË"}
+_PET  = {"Benzinë",   "BENZINË",  "Benzine"}                                 # without ë defensive
+_DIE  = {"Naftë",     "NAFTË",    "Nafte"}                                   # without ë defensive
 # Everything else → OTHERS: LPG (Benzinë/GPL, Gaz i lëngshëm, BENZINË+GAZ, GAZ),
 # CNG (Metan), NUK KA, unknown.
 
@@ -214,9 +223,12 @@ _VEHICLE_TYPE_HINTS = {
 # Known fuel types (used for column-type detection); both ≥2023 and ≤2022 forms.
 _FUEL_TYPE_HINTS = {
     "Elektrik", "Benzinë", "Naftë",
+    "Benzine", "Nafte",                                                       # without ë
     "Hybrid Benzinë/Elektrik", "Hybrid Naftë/Elektrik",
+    "Hybrid Benzine/Elektrik", "Hybrid Nafte/Elektrik",                      # without ë
     "Hybrid plug-in, Benzinë/Elektrik", "Hybrid plug-in, Naftë/Elektrik",
-    "Hybrid Benzinë/Gaz/Elektrik",
+    "Hybrid plug-in, Benzine/Elektrik", "Hybrid plug-in, Nafte/Elektrik",   # without ë
+    "Hybrid Benzinë/Gaz/Elektrik", "Hybrid Benzine/Gaz/Elektrik",
     "ELEKTRIK", "BENZINË", "NAFTË",
     "BENZINË+ELEKTRIK", "NAFTË+ELEKTRIK", "BENZINË+GAZ+ELEKTRIK",
     "BENZINË+GAZ", "GAZ", "NUK KA",

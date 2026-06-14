@@ -2167,8 +2167,8 @@ a:focus-visible{
       <p class="small" style="max-width:740px">
         This view shows the projected time to progress from one market share threshold to another. 
         Columns include 20→80%, 10→90%, a user‑defined X→Y%, and the model’s numerical speed at the inflection point (slope of the tangent). Values are computed client‑side from 
-        <code>params.csv</code>. Rows whose curve has no inflection (v2 ≤ 1) or whose peak adoption rate
-        stays under 1 percentage-point per year are flagged as <em>“shows no transition”</em>. <br>
+        <code>params.csv</code>. Rows with a trailing-12-month BEV share below 1%, or whose curve has no inflection (v2 ≤ 1) or whose peak adoption rate
+        stays under 1 percentage-point per year, are flagged as <em>”shows no transition”</em>. <br>
         Indonesia’s fitted parameters round to almost zero in CSV precision, so the table
         reconstructs them on the fly by anchoring the model to the most recent observation —
         its entries can therefore be off by a few months in either direction.
@@ -3675,6 +3675,8 @@ function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(
 const MIN_TRANSITION_SLOPE = 0.01;
 // Full row-level check — use this everywhere a params row is available.
 function rowHasNoTransition(r){
+  const ttmBev = normNumber(r.ttm_bev_share);
+  if (isFinite(ttmBev) && ttmBev < 0.01) return true;
   const v1n = normNumber(r.v1), v2n = normNumber(r.v2);
   if(!isFinite(v1n) || !isFinite(v2n)) return true;
   if(v1n >= 0) return true;
