@@ -238,8 +238,37 @@ async function handlePost(request, env, ctx) {
 
   // ── Sanitise strings ──
   const safeTitle  = title.trim().slice(0, 200);
-  const safeBody   = body.trim().slice(0, 5000);
+  let   safeBody   = body.trim().slice(0, 5000);
   const safeAuthor = (author || 'Anonymous').trim().slice(0, 60) || 'Anonymous';
+
+  // ── Optional screenshot upload ──
+  const { image_base64, image_ext } = payload;
+  if (image_base64 && image_ext) {
+    const ALLOWED_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp']);
+    const ext = String(image_ext).toLowerCase().replace(/[^a-z]/g, '');
+    if (ALLOWED_EXTS.has(ext) && typeof image_base64 === 'string' && image_base64.length <= 3_000_000) {
+      try {
+        const now   = new Date();
+        const ym    = `${now.getUTCFullYear()}${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
+        const ts    = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        const rand  = Math.random().toString(36).slice(2, 6);
+        const path  = `uploads/feedback/${ym}/${ts}-${rand}.${ext}`;
+        const token = env.GITHUB_TOKEN;
+        const putRes = await ghFetch(`/contents/${path}`, token, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: 'feedback: upload screenshot',
+            content: image_base64,
+          }),
+        });
+        if (putRes.ok) {
+          const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/master/${path}`;
+          safeBody += `\n\n---\n**Screenshot:**\n![screenshot](${rawUrl})`;
+        }
+      } catch (_) { /* image upload failure is non-fatal */ }
+    }
+  }
 
   // ── Build GitHub issue body ──
   const contextBlock  = context  ? `\n<!-- context:${JSON.stringify(context)}-->` : '';
