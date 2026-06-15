@@ -2,6 +2,86 @@
   "updated": "2026-06-15",
   "images": [
     {
+      "country": "Albania (2 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_2_wheelers_ICE_BEV_20260615.png",
+      "url": "images/2024-12/albania_2_wheelers_ICE_BEV_20260615.png",
+      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "share",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_2_wheelers_20260615.png",
+      "url": "images/2024-12/albania_2_wheelers_20260615.png",
+      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "time",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_2_wheelers_time_20260615.png",
+      "url": "images/2024-12/albania_2_wheelers_time_20260615.png",
+      "alt": "Albania (2 Wheelers) Transition time curve",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_2_wheelers_ttm_shares_20260615.png",
+      "url": "images/2024-12/albania_2_wheelers_ttm_shares_20260615.png",
+      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "ICE_BEV",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_buses_ICE_BEV_20260615.png",
+      "url": "images/2024-12/albania_buses_ICE_BEV_20260615.png",
+      "alt": "Albania (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "share",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_buses_20260615.png",
+      "url": "images/2024-12/albania_buses_20260615.png",
+      "alt": "Albania (Buses) BEV trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "time",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_buses_time_20260615.png",
+      "url": "images/2024-12/albania_buses_time_20260615.png",
+      "alt": "Albania (Buses) Transition time curve",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "ttm_shares",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_buses_ttm_shares_20260615.png",
+      "url": "images/2024-12/albania_buses_ttm_shares_20260615.png",
+      "alt": "Albania (Buses) TTM market split graph",
+      "country_slug": "albania_buses"
+    },
+    {
       "country": "Albania (HDV)",
       "type": "ICE_BEV",
       "period": "2024-12",
