@@ -568,6 +568,23 @@ def _fetch_with_browser_session(year: int) -> dict:
 
 # ── Response parsing ─────────────────────────────────────────────────────────
 
+def _decode_column(col: dict, size: int) -> list:
+    """Decode one Looker batchedDataV2 columnar column into a full
+    size-length, row-aligned list (None at null positions).
+    Looker packs ONLY the non-null cell values into stringColumn.values /
+    longColumn.values and records the null ROW indices separately in nullIndex.
+    So values[i] is the i-th *non-null* cell, NOT the value of row i."""
+    null_idx = set(col.get("nullIndex", []))
+    svals = col.get("stringColumn", {}).get("values", [])
+    lvals = col.get("longColumn",   {}).get("values", [])
+    packed = svals if svals else lvals
+    out: list = []
+    it = iter(packed)
+    for i in range(size):
+        out.append(None if i in null_idx else next(it, None))
+    return out
+
+
 def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                        quiet: bool = False) -> dict:
     """Aggregate registrations for the given vehicle_types by gallery fuel column
@@ -616,12 +633,10 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
             if vehicle_idx is None or fuel_idx is None or count_idx is None:
                 continue
 
-            vehicle_vals = cols[vehicle_idx].get("stringColumn", {}).get("values", [])
-            fuel_vals    = cols[fuel_idx   ].get("stringColumn", {}).get("values", [])
-            count_vals   = cols[count_idx  ].get("longColumn",   {}).get("values", [])
-            null_vehicle = set(cols[vehicle_idx].get("nullIndex", []))
-            null_fuel    = set(cols[fuel_idx   ].get("nullIndex", []))
-            null_count   = set(cols[count_idx  ].get("nullIndex", []))
+            # Row-aligned decode (honours nullIndex — see _decode_column).
+            vehicle_vals = _decode_column(cols[vehicle_idx], size)
+            fuel_vals    = _decode_column(cols[fuel_idx],    size)
+            count_vals   = _decode_column(cols[count_idx],   size)
 
             if DEBUG and not quiet:
                 print(f"[albania][debug] qualifying subset: size={size} "
@@ -630,9 +645,8 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                 # Dump ALL vehicle types present (incl. unknowns like N1/Vans)
                 all_vt: dict[str, int] = {}
                 for i in range(size):
-                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
-                    cnt = (int(count_vals[i])
-                           if (i not in null_count and i < len(count_vals)) else 0)
+                    veh = vehicle_vals[i] or ""
+                    cnt = int(count_vals[i]) if count_vals[i] is not None else 0
                     all_vt[veh] = all_vt.get(veh, 0) + cnt
                 known = set().union(*VARIANTS.values())
                 for veh, cnt in sorted(all_vt.items(), key=lambda x: -x[1]):
@@ -641,12 +655,11 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
                 # Per-fuel breakdown for the requested vehicle_types
                 vt_fuel: dict[str, int] = {}
                 for i in range(size):
-                    veh = vehicle_vals[i] if i < len(vehicle_vals) else ""
+                    veh = vehicle_vals[i] or ""
                     if veh not in vehicle_types:
                         continue
-                    fv = fuel_vals[i] if i < len(fuel_vals) else ""
-                    cnt = (int(count_vals[i])
-                           if (i not in null_count and i < len(count_vals)) else 0)
+                    fv  = fuel_vals[i] or ""
+                    cnt = int(count_vals[i]) if count_vals[i] is not None else 0
                     vt_fuel[fv] = vt_fuel.get(fv, 0) + cnt
                 for fv, cnt in sorted(vt_fuel.items()):
                     print(f"[albania][debug]   fuel {fv!r} → "
@@ -654,15 +667,12 @@ def _parse_fuel_counts(data: dict, vehicle_types: set[str],
 
             local = {c: 0 for c in VALUE_COLS}
             for i in range(size):
-                if i in null_vehicle or i in null_fuel:
+                if vehicle_vals[i] is None or fuel_vals[i] is None:
                     continue
-                if (vehicle_vals[i] if i < len(vehicle_vals) else "") not in \
-                        vehicle_types:
+                if vehicle_vals[i] not in vehicle_types:
                     continue
-                fuel  = fuel_vals[i] if i < len(fuel_vals) else ""
-                count = (int(count_vals[i])
-                         if (i not in null_count and i < len(count_vals)) else 0)
-                local[_fuel_col(fuel)] += count
+                count = int(count_vals[i]) if count_vals[i] is not None else 0
+                local[_fuel_col(fuel_vals[i])] += count
 
             if DEBUG and not quiet:
                 print(f"[albania][debug] fuel counts (subset size={size}): "
