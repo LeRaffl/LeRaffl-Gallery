@@ -659,6 +659,18 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 
 .fb-privacy{font-size:11px;opacity:.7;margin:10px 0;padding:8px 10px;background:#2a2005;border:1px solid #4a3500;border-radius:8px;color:#ffe9a3;line-height:1.5}
 .fb-privacy strong{color:#ffd787}
+.fb-image-drop{position:relative;border:2px dashed #2a3654;border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.fb-image-drop:hover,.fb-image-drop.drag-over{border-color:#4a8cff;background:#0d1a35}
+.fb-image-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.fb-image-drop-hint{font-size:12px;color:#6b7fa3;pointer-events:none}
+.fb-image-drop-hint svg{display:inline-block;vertical-align:middle;margin-right:5px;opacity:.6}
+.fb-image-preview{margin-top:8px;display:flex;align-items:center;gap:10px;background:#0b1324;border:1px solid #2a3654;border-radius:8px;padding:8px 10px}
+.fb-image-preview img{max-height:80px;max-width:120px;border-radius:6px;object-fit:contain;background:#111}
+.fb-image-preview-name{flex:1;font-size:12px;color:#8fa3c8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fb-image-remove{background:none;border:none;color:#6b7fa3;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
+.fb-image-remove:hover{color:#ff5f5f;background:#1a0808}
+.fb-inline-img{display:block;max-width:100%;max-height:400px;border-radius:8px;margin-top:8px;object-fit:contain;background:#0b1324;border:1px solid #2a3654}
+.fb-hr{border:none;border-top:1px solid #2a3654;margin:10px 0}
 
 .fb-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #1f2a44}
 .fb-modal-actions .btn-cancel{padding:10px 16px;background:#0b1324;border:1px solid #2a3654;color:#cfd8e8;border-radius:10px;cursor:pointer;font-weight:600}
@@ -1935,6 +1947,19 @@ a:focus-visible{
       <label for="fbBody">Description</label>
       <textarea id="fbBody" name="body" maxlength="4000" required placeholder="What did you see? What did you expect? The more specific, the faster I can help."></textarea>
       <span class="hint">Markdown supported. Max. 4,000 characters.</span>
+    </div>
+
+    <div class="fb-field">
+      <label>Screenshot (optional)</label>
+      <div class="fb-image-drop" id="fbImageDrop">
+        <input type="file" id="fbImageInput" name="image" accept="image/png,image/jpeg,image/gif,image/webp" tabindex="-1">
+        <div class="fb-image-drop-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Drag &amp; drop or click to attach (PNG, JPG, GIF, WebP · max 2 MB)</div>
+      </div>
+      <div class="fb-image-preview" id="fbImagePreview" hidden>
+        <img id="fbImagePreviewImg" alt="">
+        <span class="fb-image-preview-name" id="fbImagePreviewName"></span>
+        <button type="button" class="fb-image-remove" id="fbImageRemove" aria-label="Remove image">✕</button>
+      </div>
     </div>
 
     <div class="fb-field">
@@ -7511,7 +7536,8 @@ const FB_STATE = {
   sort: 'newest',
   loaded: false,
   captchaAnswer: null,
-  prefillContext: null
+  prefillContext: null,
+  image: null   // { base64: string, ext: string, name: string } or null
 };
 const FB_CATS = {
   bug:      { icon: '🐛', label: 'Bug' },
@@ -7527,11 +7553,33 @@ function fbEscape(s){
 }
 // Tiny markdown: escape-first, then bold / inline-code / linebreaks. Enough
 // for reply bodies — no tables, no links, no injection surface.
+const _FB_IMG_HOSTS = /^https:\/\/(raw\.githubusercontent\.com|user-images\.githubusercontent\.com|i\.imgur\.com)\//;
 function fbMd(s){
-  return fbEscape(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>');
+  // Process images BEFORE escaping so we can capture raw URLs.
+  // Only allow known safe image hosts to prevent XSS.
+  const parts = [];
+  let remaining = s;
+  const imgRe = /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g;
+  let last = 0, m;
+  imgRe.lastIndex = 0;
+  while ((m = imgRe.exec(s)) !== null) {
+    parts.push({ type: 'text', val: s.slice(last, m.index) });
+    const url = m[2];
+    parts.push(_FB_IMG_HOSTS.test(url)
+      ? { type: 'img', url, alt: m[1] }
+      : { type: 'text', val: m[0] });
+    last = m.index + m[0].length;
+  }
+  parts.push({ type: 'text', val: s.slice(last) });
+
+  return parts.map(p => {
+    if (p.type === 'img') return `<img class="fb-inline-img" src="${p.url}" alt="${fbEscape(p.alt)}" loading="lazy">`;
+    return fbEscape(p.val)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/---/g, '<hr class="fb-hr">')
+      .replace(/\n/g, '<br>');
+  }).join('');
 }
 function fbRelTime(iso){
   const t = new Date(iso); if (isNaN(t)) return '';
@@ -7780,9 +7828,18 @@ function fbOpenModal(prefill){
   else dlg.setAttribute('open', '');
   setTimeout(() => document.getElementById('fbTitle').focus(), 50);
 }
+function fbClearImage(){
+  FB_STATE.image = null;
+  const inp = document.getElementById('fbImageInput');
+  if (inp) inp.value = '';
+  const preview = document.getElementById('fbImagePreview');
+  if (preview) preview.hidden = true;
+}
+
 function fbCloseModal(){
   const dlg = document.getElementById('feedbackModal');
   if (dlg?.close) dlg.close(); else dlg?.removeAttribute('open');
+  fbClearImage();
 }
 
 // Similar-issue suggestions: naive token-intersection scoring. Good enough
@@ -7823,6 +7880,10 @@ async function fbPostIssue(payload){
     math_expected: FB_STATE.captchaAnswer,
     _hp:           payload.website || ''
   };
+  if (FB_STATE.image) {
+    body.image_base64 = FB_STATE.image.base64;
+    body.image_ext    = FB_STATE.image.ext;
+  }
   const res = await fetch(`${FB_API}/issues`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -7930,6 +7991,49 @@ function fbWireEvents(){
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.label || 'Submit'; }
     }
   });
+
+  // Image upload field
+  function fbHandleImageFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    if (file.size > 2 * 1024 * 1024) {
+      document.getElementById('fbError').textContent = 'Image must be under 2 MB.';
+      return;
+    }
+    const ext = file.name.split('.').pop().toLowerCase() || 'png';
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      const base64 = dataUrl.split(',')[1];
+      FB_STATE.image = { base64, ext, name: file.name };
+      const preview = document.getElementById('fbImagePreview');
+      const img     = document.getElementById('fbImagePreviewImg');
+      const name    = document.getElementById('fbImagePreviewName');
+      if (img) img.src = dataUrl;
+      if (name) name.textContent = file.name;
+      if (preview) preview.hidden = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('fbImageInput')?.addEventListener('change', e => {
+    fbHandleImageFile(e.target.files?.[0]);
+  });
+  document.getElementById('fbImageRemove')?.addEventListener('click', () => {
+    fbClearImage();
+    document.getElementById('fbError').textContent = '';
+  });
+
+  // Drag & drop on the drop zone
+  const drop = document.getElementById('fbImageDrop');
+  if (drop) {
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.classList.remove('drag-over');
+      fbHandleImageFile(e.dataTransfer?.files?.[0]);
+    });
+  }
 }
 
 // Preload mock data once on boot so the modal's similar-issue hint works
