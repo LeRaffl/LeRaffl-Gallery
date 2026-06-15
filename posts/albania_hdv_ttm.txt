@@ -1,8 +1,10 @@
 🇦🇱 Albania (HDV) - TTM Market Split
 
 Jun23–May24  vs  Jun24–May26
-+0.4pp  BEV     (0.0% → 0.4%)
++2.3pp  BEV     (0.0% → 2.3%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
-−0.4pp  ICE     (100.0% → 99.6%)
+−2.3pp  ICE     (100.0% → 97.7%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2034-05.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

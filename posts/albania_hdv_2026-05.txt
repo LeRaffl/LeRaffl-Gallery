@@ -1,11 +1,11 @@
 🇦🇱 Albania (HDV) - May 26 - BEV Trajectory
-1.9% BEV
+0.0% BEV
 0.0% PHEV
-98.1% ICE
+100.0% ICE
 
 Trailing 12 months are:
-0.4% BEV
+2.3% BEV
 0.0% PHEV
-99.6% ICE
+97.7% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
