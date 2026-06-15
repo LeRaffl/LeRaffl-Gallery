@@ -669,6 +669,8 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 .fb-image-preview-name{flex:1;font-size:12px;color:#8fa3c8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fb-image-remove{background:none;border:none;color:#6b7fa3;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px}
 .fb-image-remove:hover{color:#ff5f5f;background:#1a0808}
+.fb-inline-img{display:block;max-width:100%;max-height:400px;border-radius:8px;margin-top:8px;object-fit:contain;background:#0b1324;border:1px solid #2a3654}
+.fb-hr{border:none;border-top:1px solid #2a3654;margin:10px 0}
 
 .fb-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid #1f2a44}
 .fb-modal-actions .btn-cancel{padding:10px 16px;background:#0b1324;border:1px solid #2a3654;color:#cfd8e8;border-radius:10px;cursor:pointer;font-weight:600}
@@ -7551,11 +7553,33 @@ function fbEscape(s){
 }
 // Tiny markdown: escape-first, then bold / inline-code / linebreaks. Enough
 // for reply bodies — no tables, no links, no injection surface.
+const _FB_IMG_HOSTS = /^https:\/\/(raw\.githubusercontent\.com|user-images\.githubusercontent\.com|i\.imgur\.com)\//;
 function fbMd(s){
-  return fbEscape(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>');
+  // Process images BEFORE escaping so we can capture raw URLs.
+  // Only allow known safe image hosts to prevent XSS.
+  const parts = [];
+  let remaining = s;
+  const imgRe = /!\[([^\]]*)\]\((https?:\/\/[^)]+)\)/g;
+  let last = 0, m;
+  imgRe.lastIndex = 0;
+  while ((m = imgRe.exec(s)) !== null) {
+    parts.push({ type: 'text', val: s.slice(last, m.index) });
+    const url = m[2];
+    parts.push(_FB_IMG_HOSTS.test(url)
+      ? { type: 'img', url, alt: m[1] }
+      : { type: 'text', val: m[0] });
+    last = m.index + m[0].length;
+  }
+  parts.push({ type: 'text', val: s.slice(last) });
+
+  return parts.map(p => {
+    if (p.type === 'img') return `<img class="fb-inline-img" src="${p.url}" alt="${fbEscape(p.alt)}" loading="lazy">`;
+    return fbEscape(p.val)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/---/g, '<hr class="fb-hr">')
+      .replace(/\n/g, '<br>');
+  }).join('');
 }
 function fbRelTime(iso){
   const t = new Date(iso); if (isNaN(t)) return '';
