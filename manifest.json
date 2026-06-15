@@ -1,6 +1,46 @@
 {
-  "updated": "2026-06-14",
+  "updated": "2026-06-15",
   "images": [
+    {
+      "country": "Albania (HDV)",
+      "type": "ICE_BEV",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_hdv_ICE_BEV_20260615.png",
+      "url": "images/2024-12/albania_hdv_ICE_BEV_20260615.png",
+      "alt": "Albania (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "share",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_hdv_20260615.png",
+      "url": "images/2024-12/albania_hdv_20260615.png",
+      "alt": "Albania (HDV) BEV trajectory",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "time",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_hdv_time_20260615.png",
+      "url": "images/2024-12/albania_hdv_time_20260615.png",
+      "alt": "Albania (HDV) Transition time curve",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "ttm_shares",
+      "period": "2024-12",
+      "date": "2026-06-15",
+      "filename": "albania_hdv_ttm_shares_20260615.png",
+      "url": "images/2024-12/albania_hdv_ttm_shares_20260615.png",
+      "alt": "Albania (HDV) TTM market split graph",
+      "country_slug": "albania_hdv"
+    },
     {
       "country": "Albania",
       "type": "ICE_BEV",
