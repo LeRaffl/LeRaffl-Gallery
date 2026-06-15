@@ -162,6 +162,36 @@
       "country_slug": "albania_hdv"
     },
     {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-15",
+      "filename": "malaysia_ICE_BEV_20260615.png",
+      "url": "images/2026-05/malaysia_ICE_BEV_20260615.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-15",
+      "filename": "malaysia_20260615.png",
+      "url": "images/2026-05/malaysia_20260615.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-15",
+      "filename": "malaysia_time_20260615.png",
+      "url": "images/2026-05/malaysia_time_20260615.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
