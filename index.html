@@ -3675,6 +3675,12 @@ function getT0Years(r){ const baseDate=r.baseline_date||'', baseYear=normNumber(
 const MIN_TRANSITION_SLOPE = 0.01;
 // Full row-level check — use this everywhere a params row is available.
 function rowHasNoTransition(r){
+  // Treat empty/missing ttm_bev_share as unknown (NaN), not 0.
+  // normNumber('') returns 0 which would wrongly trigger the <1% check.
+  const ttmRaw = String(r.ttm_bev_share ?? '').trim();
+  const ttmBev = ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN;
+  if (isFinite(ttmBev) && ttmBev < 0.01) return true;   // < 1% BEV → clearly no transition
+  if (isFinite(ttmBev) && ttmBev >= 0.05) return false;  // ≥ 5% BEV → clearly in transition
   const v1n = normNumber(r.v1), v2n = normNumber(r.v2);
   if(!isFinite(v1n) || !isFinite(v2n)) return true;
   if(v1n >= 0) return true;
