@@ -248,8 +248,17 @@ def parse_emisiones(text: str) -> dict[str, int]:
 
     missing = set(EMISIONES_LABELS.values()) - set(result.keys())
     if missing:
+        # Dump extracted text so CI logs show exactly what changed in the PDF.
+        char_count = len(text)
+        snippet = text[:3000] if char_count > 0 else "(empty — PDF may be image-based)"
+        print(
+            f"\n=== Emisiones PDF text dump ({char_count} chars) ===\n"
+            f"{snippet}\n"
+            f"=== end dump ===\n"
+        )
         raise RuntimeError(
-            f"Could not extract {sorted(missing)} from Cero y Bajas Emisiones PDF"
+            f"Could not extract {sorted(missing)} from Cero y Bajas Emisiones PDF. "
+            f"See text dump above to diagnose format change."
         )
     return result
 
