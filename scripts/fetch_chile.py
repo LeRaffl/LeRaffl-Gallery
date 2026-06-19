@@ -115,11 +115,23 @@ SPANISH_MONTHS = {
     9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
 }
 
-# Labels in the emisiones summary table → CSV column
+# Labels in the emisiones summary table → CSV column.
+# ANAC periodically renames rows; list all known variants so the parser
+# survives minor label changes.  The first match per csv_key wins.
 EMISIONES_LABELS = {
+    # Original labels (pre-2026)
     "Eléctricos": "BEV",
     "Híbrido Enchufables": "PHEV",
     "Híbrido Convencional": "HEV",
+    # Observed variants / typos
+    "Eléctrico": "BEV",
+    "Electricos": "BEV",
+    "Híbrido Enchufable": "PHEV",
+    "Hibrido Enchufables": "PHEV",
+    "Hibrido Enchufable": "PHEV",
+    "Híbrido Convencionales": "HEV",
+    "Hibrido Convencional": "HEV",
+    "Hibrido Convencionales": "HEV",
 }
 
 # Row pattern after stripping the label: <int> <pct>% <int> <pct>%
@@ -226,12 +238,45 @@ def parse_mercado_total(text: str) -> int:
     return int(m.group(1).replace(".", ""))
 
 
-def parse_emisiones(text: str) -> dict[str, int]:
+# Fallback: YTD-cumulative figures from the narrative intro of the new PDF format.
+# ANAC removed the summary table in mid-2026; the numbers now appear only in prose.
+# PHEV_raw + EREV_raw are summed into the single "PHEV" CSV column because earlier
+# data combined both categories under "Híbrido Enchufables".
+_NARRATIVE_RE: dict[str, re.Pattern] = {
+    "BEV":      re.compile(r"con ([\d.]+) unidades vendidas a \w+", re.IGNORECASE),
+    "PHEV_raw": re.compile(r"h[íi]bridos? enchufables? sumaron ([\d.]+) unidades", re.IGNORECASE),
+    "EREV_raw": re.compile(r"el[eé]ctricos? de rango extendido enchufables? contabilizaron ([\d.]+) unidades", re.IGNORECASE),
+    "HEV":      re.compile(r"h[íi]bridos? convencionales? acumularon ([\d.]+) unidades", re.IGNORECASE),
+}
+
+
+def _ytd_from_csv(csv_path: str, year: str, before_period: str) -> dict[str, int]:
+    """Sum BEV/PHEV/HEV for months in `year` that come before `before_period`."""
+    totals: dict[str, int] = {"BEV": 0, "PHEV": 0, "HEV": 0}
+    if not Path(csv_path).exists():
+        return totals
+    with open(csv_path, newline="", encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            p = row.get("period", "")
+            if p.startswith(year) and p < before_period:
+                for col in ("BEV", "PHEV", "HEV"):
+                    try:
+                        totals[col] += int(float(row.get(col) or 0))
+                    except (ValueError, TypeError):
+                        pass
+    return totals
+
+
+def parse_emisiones(text: str, period: str = "", csv_path: str = "") -> dict[str, int]:
     """Extract BEV/PHEV/HEV monthly counts from Cero y Bajas Emisiones PDF.
 
-    Looks for lines that begin (after whitespace strip) with one of the
-    fuel-type labels, then extracts the 2nd integer (= monthly column)
-    from the trailing `<int> <pct>% <int> <pct>%` pattern.
+    Primary: looks for table rows beginning with one of EMISIONES_LABELS, extracts
+    the 2nd integer (= monthly column) from the trailing <int> <pct>% <int> <pct>%
+    pattern.
+
+    Fallback (new PDF format from mid-2026): the summary table was removed; extracts
+    YTD-cumulative figures from the narrative intro prose and subtracts the previous
+    months' totals read from the CSV file.
     """
     result: dict[str, int] = {}
     for line in text.split("\n"):
@@ -247,11 +292,48 @@ def parse_emisiones(text: str) -> dict[str, int]:
                     break
 
     missing = set(EMISIONES_LABELS.values()) - set(result.keys())
-    if missing:
-        raise RuntimeError(
-            f"Could not extract {sorted(missing)} from Cero y Bajas Emisiones PDF"
-        )
-    return result
+    if not missing:
+        return result
+
+    # --- Narrative fallback ---
+    if period and csv_path:
+        cum: dict[str, int] = {}
+        for key, pat in _NARRATIVE_RE.items():
+            m = pat.search(text)
+            if m:
+                cum[key] = int(m.group(1).replace(".", ""))
+        # PHEV+EREV → single "PHEV" column for CSV backwards-compat
+        if "PHEV_raw" in cum:
+            cum["PHEV"] = cum.pop("PHEV_raw") + cum.pop("EREV_raw", 0)
+        if {"BEV", "PHEV", "HEV"} <= cum.keys():
+            year = period[:4]
+            prev = _ytd_from_csv(csv_path, year, period)
+            monthly = {k: max(0, cum[k] - prev[k]) for k in ("BEV", "PHEV", "HEV")}
+            print(f"  (narrative fallback) YTD cumulative from PDF: {cum}")
+            print(f"  (narrative fallback) YTD cumulative Jan–prev from CSV: {prev}")
+            print(f"  (narrative fallback) Monthly = {monthly}")
+            return monthly
+
+    # --- Give up: dump text for diagnosis ---
+    char_count = len(text)
+    if char_count == 0:
+        snippet = "(empty — PDF may be image-based)"
+    else:
+        step = max(1, char_count // 4)
+        windows = []
+        for start in [0, step, step * 2, step * 3]:
+            end = min(start + 3000, char_count)
+            windows.append(f"[chars {start}–{end}]:\n{text[start:end]}")
+        snippet = "\n\n".join(windows)
+    print(
+        f"\n=== Emisiones PDF text dump ({char_count} chars) ===\n"
+        f"{snippet}\n"
+        f"=== end dump ===\n"
+    )
+    raise RuntimeError(
+        f"Could not extract {sorted(missing)} from Cero y Bajas Emisiones PDF. "
+        f"See text dump above to diagnose format change."
+    )
 
 
 def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
@@ -354,7 +436,7 @@ def main() -> int:
     print(f"Parsed TOTAL: {total}")
 
     emisiones_text = pdf_text(load_pdf_bytes(emisiones_url))
-    fuels = parse_emisiones(emisiones_text)
+    fuels = parse_emisiones(emisiones_text, period=target_period, csv_path=args.csv)
     print(f"Parsed fuels: BEV={fuels['BEV']}, PHEV={fuels['PHEV']}, HEV={fuels['HEV']}")
 
     # Sanity: ICE must be non-negative
