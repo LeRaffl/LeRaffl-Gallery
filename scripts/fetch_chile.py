@@ -115,11 +115,22 @@ SPANISH_MONTHS = {
     9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre",
 }
 
-# Labels in the emisiones summary table → CSV column
+# Labels in the emisiones summary table → CSV column.
+# ANAC periodically renames rows; list all known variants so the parser
+# survives minor label changes.  The first match per csv_key wins.
 EMISIONES_LABELS = {
+    # Original labels (pre-2026)
     "Eléctricos": "BEV",
     "Híbrido Enchufables": "PHEV",
     "Híbrido Convencional": "HEV",
+    # Variants seen / anticipated from May-2026 report narrative
+    "100% Eléctricos": "BEV",
+    "Eléctrico Puro": "BEV",
+    "Eléctrico": "BEV",
+    "Híbridos Enchufables": "PHEV",
+    "Híbrido Enchufable": "PHEV",
+    "Híbridos Convencionales": "HEV",
+    "Híbrido Convencionales": "HEV",
 }
 
 # Row pattern after stripping the label: <int> <pct>% <int> <pct>%
@@ -248,9 +259,17 @@ def parse_emisiones(text: str) -> dict[str, int]:
 
     missing = set(EMISIONES_LABELS.values()) - set(result.keys())
     if missing:
-        # Dump extracted text so CI logs show exactly what changed in the PDF.
         char_count = len(text)
-        snippet = text[:3000] if char_count > 0 else "(empty — PDF may be image-based)"
+        if char_count == 0:
+            snippet = "(empty — PDF may be image-based)"
+        else:
+            # Dump 4 evenly-spaced windows so CI logs cover the full document.
+            step = max(1, char_count // 4)
+            windows = []
+            for start in [0, step, step * 2, step * 3]:
+                end = min(start + 3000, char_count)
+                windows.append(f"[chars {start}–{end}]:\n{text[start:end]}")
+            snippet = "\n\n".join(windows)
         print(
             f"\n=== Emisiones PDF text dump ({char_count} chars) ===\n"
             f"{snippet}\n"
