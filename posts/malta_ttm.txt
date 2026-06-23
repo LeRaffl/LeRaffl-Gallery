@@ -1,0 +1,12 @@
+🇲🇹 Malta - TTM Market Split
+
+Aug23–Jul24  vs  Aug24–May26
++3.0pp  BEV   (29.8% → 32.8%)
+−2.4pp  PHEV  (9.1% → 6.8%)
++3.3pp  HEV   (19.7% → 23.0%)
+−3.9pp  ICE   (41.4% → 37.5%)
+
+PHEV peaked at 15.5% in 2023-08 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
