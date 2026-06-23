@@ -1,0 +1,9 @@
+🇱🇻 Latvia - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.3pp  BEV   (7.2% → 7.0%)
++3.4pp  PHEV  (8.2% → 11.6%)
++0.0pp  HEV   (0.0% → 0.0%)
+−3.1pp  ICE   (84.6% → 81.5%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
