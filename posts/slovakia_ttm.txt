@@ -1,0 +1,11 @@
+🇸🇰 Slovakia - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++2.3pp  BEV   (3.0% → 5.3%)
++1.3pp  PHEV  (3.1% → 4.4%)
++5.3pp  HEV   (30.8% → 36.1%)
+−8.8pp  ICE   (63.1% → 54.3%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2034-04.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
