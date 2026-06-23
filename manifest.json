@@ -362,6 +362,46 @@
       "country_slug": "hungary"
     },
     {
+      "country": "Iceland",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "iceland_ICE_BEV_20260623.png",
+      "url": "images/2026-05/iceland_ICE_BEV_20260623.png",
+      "alt": "Iceland ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "iceland_20260623.png",
+      "url": "images/2026-05/iceland_20260623.png",
+      "alt": "Iceland BEV trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "iceland_time_20260623.png",
+      "url": "images/2026-05/iceland_time_20260623.png",
+      "alt": "Iceland Transition time curve",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "iceland_ttm_shares_20260623.png",
+      "url": "images/2026-05/iceland_ttm_shares_20260623.png",
+      "alt": "Iceland TTM market split graph",
+      "country_slug": "iceland"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
