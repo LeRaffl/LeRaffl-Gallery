@@ -282,6 +282,46 @@
       "country_slug": "france"
     },
     {
+      "country": "Greece",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "greece_ICE_BEV_20260623.png",
+      "url": "images/2026-05/greece_ICE_BEV_20260623.png",
+      "alt": "Greece ICE-BEV-Hybrid trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "greece_20260623.png",
+      "url": "images/2026-05/greece_20260623.png",
+      "alt": "Greece BEV trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "greece_time_20260623.png",
+      "url": "images/2026-05/greece_time_20260623.png",
+      "alt": "Greece Transition time curve",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "greece_ttm_shares_20260623.png",
+      "url": "images/2026-05/greece_ttm_shares_20260623.png",
+      "alt": "Greece TTM market split graph",
+      "country_slug": "greece"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
