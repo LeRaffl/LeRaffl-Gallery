@@ -1,0 +1,12 @@
+🇳🇴 Norway - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++6.9pp  BEV   (90.7% → 97.6%)
+−2.0pp  PHEV  (2.8% → 0.8%)
+−3.4pp  HEV   (4.0% → 0.6%)
+−1.5pp  ICE   (2.5% → 1.0%)
+
+PHEV peaked at 6.2% in 2024-06 (declining for 23 months).
+HEV peaked at 7.4% in 2024-06 (declining for 23 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
