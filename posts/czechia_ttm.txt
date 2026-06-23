@@ -1,0 +1,9 @@
+🇨🇿 Czechia - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.0pp  BEV   (5.9% → 5.9%)
++1.8pp  PHEV  (3.0% → 4.8%)
++2.4pp  HEV   (21.5% → 23.9%)
+−4.1pp  ICE   (69.6% → 65.5%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
