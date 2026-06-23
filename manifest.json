@@ -562,6 +562,46 @@
       "country_slug": "romania"
     },
     {
+      "country": "Slovakia",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "slovakia_ICE_BEV_20260623.png",
+      "url": "images/2026-05/slovakia_ICE_BEV_20260623.png",
+      "alt": "Slovakia ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "slovakia_20260623.png",
+      "url": "images/2026-05/slovakia_20260623.png",
+      "alt": "Slovakia BEV trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "slovakia_time_20260623.png",
+      "url": "images/2026-05/slovakia_time_20260623.png",
+      "alt": "Slovakia Transition time curve",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "slovakia_ttm_shares_20260623.png",
+      "url": "images/2026-05/slovakia_ttm_shares_20260623.png",
+      "alt": "Slovakia TTM market split graph",
+      "country_slug": "slovakia"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
