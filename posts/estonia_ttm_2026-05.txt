@@ -1,0 +1,9 @@
+🇪🇪 Estonia - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++0.7pp  BEV   (5.3% → 6.0%)
++3.4pp  PHEV  (6.6% → 10.0%)
++6.8pp  HEV   (48.0% → 54.8%)
+−10.9pp  ICE   (40.1% → 29.2%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
