@@ -1,0 +1,11 @@
+🇨🇾 Cyprus - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++2.7pp  BEV   (9.1% → 11.8%)
++0.9pp  PHEV  (4.8% → 5.7%)
++6.8pp  HEV   (42.5% → 49.4%)
+−10.4pp  ICE   (43.6% → 33.2%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2027-11.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
