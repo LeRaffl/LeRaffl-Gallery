@@ -107,3 +107,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-02,monthly,Whole,ACEA,934.0,0.0,5085.0,1495.0,772.0,679.0,8965.0,
 2026-03,monthly,Whole,ACEA,679.0,0.0,6013.0,2118.0,711.0,862.0,10383.0,
 2026-04,monthly,Whole,ACEA,641.0,0.0,6227.0,2037.0,581.0,719.0,10205.0,data/Press_release_car_registrations_April_2026.pdf
+2026-05,monthly,Whole,ACEA,798.0,0.0,6843.0,1787.0,724.0,1098.0,11250.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf

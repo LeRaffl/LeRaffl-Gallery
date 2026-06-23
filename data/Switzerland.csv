@@ -195,3 +195,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-02,monthly,Whole,pxweb.bfs.admin.ch / ACEA,3133.0,1829.0,6009.0,3812.0,933.0,1.0,15697.0,
 2026-03,monthly,Whole,pxweb.bfs.admin.ch / ACEA,5388.0,2894.0,8884.0,4894.0,1198.0,0.0,23258.0,
 2026-04,monthly,Whole,ACEA,4683.0,2299.0,6611.0,4040.0,984.0,1.0,18618.0,data/Press_release_car_registrations_April_2026.pdf
+2026-05,monthly,Whole,ACEA,5140.0,2293.0,6818.0,4466.0,1022.0,2.0,19741.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf

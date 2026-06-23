@@ -87,7 +87,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-02,monthly,Whole,ACEA,13040.0,3070.0,5383.0,17280.0,1121.0,267.0,40161.0,
 2025-03,monthly,Whole,ACEA,13650.0,3399.0,4455.0,17056.0,1275.0,349.0,40184.0,
 2025-04,monthly,Whole,ACEA,12469.0,3443.0,4161.0,16121.0,1227.0,391.0,37812.0,data/Press_release_car_registrations_April_2026.pdf
-2025-05,monthly,Whole,ACEA,11347.0,3142.0,3856.0,14406.0,1250.0,337.0,34338.0,
+2025-05,monthly,Whole,ACEA,11347.0,3411.0,3587.0,14406.0,1250.0,337.0,34338.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
 2025-06,monthly,Whole,ACEA,12762.0,3497.0,4573.0,18667.0,1685.0,343.0,41527.0,
 2025-07,monthly,Whole,ACEA,10195.0,3543.0,3571.0,12864.0,1150.0,290.0,31613.0,
 2025-08,monthly,Whole,ACEA,9080.0,2870.0,2585.0,10641.0,768.0,176.0,26120.0,
@@ -99,3 +99,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-02,monthly,Whole,ACEA,11677.0,1965.0,5058.0,17528.0,734.0,113.0,37075.0,
 2026-03,monthly,Whole,ACEA,15661.0,2417.0,5221.0,18908.0,1103.0,423.0,43733.0,
 2026-04,monthly,Whole,ACEA,13971.0,1830.0,4506.0,15888.0,1236.0,371.0,37802.0,data/Press_release_car_registrations_April_2026.pdf
+2026-05,monthly,Whole,ACEA,12586.0,1596.0,4130.0,13765.0,1063.0,485.0,33625.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
