@@ -482,6 +482,46 @@
       "country_slug": "lithuania"
     },
     {
+      "country": "Malta",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "malta_ICE_BEV_20260623.png",
+      "url": "images/2026-05/malta_ICE_BEV_20260623.png",
+      "alt": "Malta ICE-BEV-Hybrid trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "malta_20260623.png",
+      "url": "images/2026-05/malta_20260623.png",
+      "alt": "Malta BEV trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "malta_time_20260623.png",
+      "url": "images/2026-05/malta_time_20260623.png",
+      "alt": "Malta Transition time curve",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-06-23",
+      "filename": "malta_ttm_shares_20260623.png",
+      "url": "images/2026-05/malta_ttm_shares_20260623.png",
+      "alt": "Malta TTM market split graph",
+      "country_slug": "malta"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-05",
