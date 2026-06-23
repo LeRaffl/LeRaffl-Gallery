@@ -1,0 +1,12 @@
+🇬🇷 Greece - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.5pp  BEV   (7.0% → 6.5%)
++1.7pp  PHEV  (6.4% → 8.1%)
++7.5pp  HEV   (47.1% → 54.6%)
+−8.8pp  ICE   (39.6% → 30.8%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2028-10.
+If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2030-10.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
