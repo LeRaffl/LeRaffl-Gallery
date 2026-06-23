@@ -1,0 +1,11 @@
+🇭🇺 Hungary - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++2.7pp  BEV   (7.0% → 9.7%)
++2.9pp  PHEV  (4.4% → 7.3%)
++1.4pp  HEV   (48.5% → 49.9%)
+−7.0pp  ICE   (40.1% → 33.2%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-04.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
