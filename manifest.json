@@ -242,6 +242,86 @@
       "country_slug": "ireland_vans"
     },
     {
+      "country": "Italy",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_ICE_BEV_20260701.png",
+      "url": "images/2026-06/italy_ICE_BEV_20260701.png",
+      "alt": "Italy ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_20260701.png",
+      "url": "images/2026-06/italy_20260701.png",
+      "alt": "Italy BEV trajectory",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_time_20260701.png",
+      "url": "images/2026-06/italy_time_20260701.png",
+      "alt": "Italy Transition time curve",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_ttm_shares_20260701.png",
+      "url": "images/2026-06/italy_ttm_shares_20260701.png",
+      "alt": "Italy TTM market split graph",
+      "country_slug": "italy"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_rental_ICE_BEV_20260701.png",
+      "url": "images/2026-06/italy_rental_ICE_BEV_20260701.png",
+      "alt": "Italy (Rental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_rental_20260701.png",
+      "url": "images/2026-06/italy_rental_20260701.png",
+      "alt": "Italy (Rental) BEV trajectory",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_rental_time_20260701.png",
+      "url": "images/2026-06/italy_rental_time_20260701.png",
+      "alt": "Italy (Rental) Transition time curve",
+      "country_slug": "italy_rental"
+    },
+    {
+      "country": "Italy (Rental)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "italy_rental_ttm_shares_20260701.png",
+      "url": "images/2026-06/italy_rental_ttm_shares_20260701.png",
+      "alt": "Italy (Rental) TTM market split graph",
+      "country_slug": "italy_rental"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2026-05",
