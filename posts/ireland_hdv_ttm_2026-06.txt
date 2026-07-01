@@ -1,0 +1,10 @@
+🇮🇪 Ireland (HDV) - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
+−0.2pp  BEV     (0.5% → 0.3%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.2pp  ICE     (99.5% → 99.7%)
+
+Hybrid peaked at 0.0% in 2025-05 (declining for 13 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
