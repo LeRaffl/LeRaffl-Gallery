@@ -13,11 +13,31 @@
     },
     {
       "country": "Ireland",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "ireland_ICE_BEV_20260701.png",
+      "url": "images/2026-06/ireland_ICE_BEV_20260701.png",
+      "alt": "Ireland ICE-BEV-Hybrid trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
       "type": "share",
       "period": "2026-05",
       "date": "2026-07-01",
       "filename": "ireland_20260701.png",
       "url": "images/2026-05/ireland_20260701.png",
+      "alt": "Ireland BEV trajectory",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "ireland_20260701.png",
+      "url": "images/2026-06/ireland_20260701.png",
       "alt": "Ireland BEV trajectory",
       "country_slug": "ireland"
     },
@@ -33,11 +53,31 @@
     },
     {
       "country": "Ireland",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "ireland_time_20260701.png",
+      "url": "images/2026-06/ireland_time_20260701.png",
+      "alt": "Ireland Transition time curve",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-07-01",
       "filename": "ireland_ttm_shares_20260701.png",
       "url": "images/2026-05/ireland_ttm_shares_20260701.png",
+      "alt": "Ireland TTM market split graph",
+      "country_slug": "ireland"
+    },
+    {
+      "country": "Ireland",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-01",
+      "filename": "ireland_ttm_shares_20260701.png",
+      "url": "images/2026-06/ireland_ttm_shares_20260701.png",
       "alt": "Ireland TTM market split graph",
       "country_slug": "ireland"
     },
