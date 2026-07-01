@@ -1,0 +1,12 @@
+🇮🇪 Ireland (Buses) - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++1.0pp  BEV   (7.3% → 8.3%)
++0.0pp  PHEV  (0.0% → 0.0%)
++0.0pp  HEV   (0.0% → 0.0%)
+−1.0pp  ICE   (92.7% → 91.7%)
+
+HEV peaked at 0.2% in 2024-07 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2031-12.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
