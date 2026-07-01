@@ -1,0 +1,11 @@
+🇮🇪 Ireland - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++7.4pp  BEV   (16.1% → 23.5%)
++1.4pp  PHEV  (13.6% → 15.0%)
++1.6pp  HEV   (24.3% → 25.9%)
+−10.4pp  ICE   (46.1% → 35.6%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-11.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
