@@ -1,0 +1,11 @@
+🇵🇹 Portugal - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++4.1pp  BEV   (21.9% → 26.0%)
++2.0pp  PHEV  (13.9% → 15.9%)
++3.5pp  HEV   (21.4% → 24.9%)
+−9.7pp  ICE   (42.9% → 33.2%)
+
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-12.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
