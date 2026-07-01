@@ -1,0 +1,9 @@
+🇮🇪 Ireland (Vans) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++1.7pp  BEV   (4.4% → 6.1%)
++1.8pp  PHEV  (0.8% → 2.6%)
++0.2pp  HEV   (0.5% → 0.7%)
+−3.6pp  ICE   (94.3% → 90.7%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
