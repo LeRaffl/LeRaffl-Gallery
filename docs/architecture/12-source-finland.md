@@ -172,6 +172,9 @@ run 2014-01 onwards with no backfill step (unlike Denmark/Netherlands, which
 have pre-API Google-Sheet history). The Weibull `t0 = floor(min(year))` is
 therefore 2013 (floor of 2014).
 
+For the 2026-06-08 StatFin PxWeb restructure that broke and then re-fixed the
+fetch, see the change log in §12.
+
 ## 6. Schedule and idempotency
 
 `fetch-finland.yml` runs **daily on the 1st–15th at 04:40 UTC**
@@ -225,8 +228,10 @@ at once; every other day the early-exit makes the dispatch set empty or tiny.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
-| Statistics Finland renames table 121d or changes its dimension codes | POST returns 4xx, or the parser sees unfamiliar dimension IDs | Hit the GET metadata URL, compare to `DRIV_TO_COL` / `VARIANT_CONFIG`, update |
-| New driving-power code (e.g. a hydrogen split) | Script raises `RuntimeError("unmapped driving-power code …")` and aborts before commit | Add the code to `DRIV_TO_COL` (most go under `OTHERS`; a real HEV split goes to a new `HEV` mapping) |
+| StatFin restructures the PxWeb databases (as on **2026-06-08**: table identifiers shortened `statfin_merek_pxt_121d.px`→`121d.px`, and variable *names* replaced by short variable *codes* as the API identifier) | **Every** request — GET metadata and POST query — returns `400 Bad Request` with a bare, non-PxWeb body until `API_URL` uses the short id | `API_URL` now uses the short `121d.px`; variable codes are resolved at runtime from metadata via `resolve_dimension_codes` / `_DIM_ROLE_KEYS` (matched by english label). If a role stops matching, read the `[meta]` variable dump in the run log and extend `_DIM_ROLE_KEYS` |
+| Statistics Finland renames table 121d or changes its dimension codes | POST returns 4xx; the fetcher now prints PxWeb's error body (which names the offending dimension/value) before raising | Read the logged body, hit the GET metadata URL, compare to `DRIV_TO_COL` / `VARIANT_CONFIG`, update |
+| A **driving-power** code is removed or renamed | Self-heals: the fetcher GETs table metadata first and requests only codes the table still exposes, so a vanished code no longer 400s the pull. A dropped mapped code logs a `WARNING`; a renamed/new code logs a `NOTE` | If a `NOTE` names a real (non-Total) fuel code, add it to `DRIV_TO_COL` so its registrations are counted |
+| New driving-power code (e.g. a hydrogen split) | Not requested (absent from `DRIV_TO_COL`), so no crash; the metadata pre-flight logs a `NOTE` and the fuel is left uncounted until mapped | Add the code to `DRIV_TO_COL` (most go under `OTHERS`; a real HEV split goes to a new `HEV` mapping) |
 | PxWeb cell-limit error on a query | POST returns an error payload | Chunk the `Kuukausi` selection (e.g. fetch in 5-year blocks) |
 | Statistics Finland restates an older month >50% | Upsert prints `WARNING` to the log but still commits | Verify and revert with a CSV edit if not real |
 | Region taxonomy changes (MA1 renamed/split) | Query returns empty or errors | Re-check `Maakunta` values via the metadata endpoint |
@@ -278,3 +283,68 @@ the table viewer at
 - Pre-2014 history. The table starts 2014M01 and there's no maintainer
   backfill, so no backfill script (unlike Denmark/Netherlands).
 - Sub-monthly data. 121d is monthly.
+
+## 12. Change log — 2026-06-08 StatFin PxWeb restructure
+
+**One-line answer if someone asks:** Statistics Finland restructured its PxWeb
+databases on **2026-06-08**; that silently broke our API query, the daily fetch
+started failing with `400 Bad Request` from **1 July 2026**, and we fixed it by
+pointing at the new short table id and resolving the (now renamed) variable
+identifiers from live metadata instead of hardcoding them.
+
+### What Statistics Finland changed (upstream)
+
+Their [migration notice](https://stat.fi/en/news/Changes-to-interface-use-of-PxWeb-databases-on-8-June-change-interface-queries-as-instructed)
+announced two changes to the API surface (the browser UI was unaffected):
+
+1. **Table identifiers were shortened.** The `.px` file name lost its
+   `statfin_<db>_pxt_` prefix:
+   `statfin_merek_pxt_121d.px` → **`121d.px`**.
+2. **Variable *names* were replaced by variable *codes* as the API identifier.**
+   Previously the query addressed each dimension by its Finnish name; now every
+   variable has a short code that must be used instead. For table 121d:
+
+   | Role | Before (name) | After (code, from live metadata) |
+   |---|---|---|
+   | Vehicle class | `Ajoneuvoluokka` | `ajoneuvolaji_2_20190101` |
+   | Region | `Maakunta` | `maakunta_26_20190101` |
+   | Driving power | `Käyttövoima` | `kayttovoimat_2_20180403` |
+   | Purpose of use | `Käyttötarkoitus` | `kayttotarkoitus_2_20171107` |
+   | Possessor | `haltija` | `ajoneuvolaji_4_20190101` |
+   | Month | `Kuukausi` | `timeperiod_m` |
+
+   The **value** codes were left unchanged (vehicle class `01`, region `MA1`,
+   driving-power `01/02/04/39/44/…/Y`, possessor `00/01`, purpose `YH`), so the
+   `DRIV_TO_COL` mapping and the pinned selections still hold. Note the
+   driving-power Total value is `YH` (not fetched — we sum the per-fuel cells).
+
+### Why it surfaced only on 1 July
+
+The change landed 2026-06-08, but the fetcher had already stored May in early
+June and the per-variant early-exit made every later June run a no-op (no HTTP
+call). The **first real query after the change** was the 1 July scheduled run —
+which 400'd. Even a bare metadata `GET` to the old URL returned a terse,
+non-PxWeb `Bad Request`, which is what pinned it to an endpoint/identifier change
+rather than a bad dimension value. (An intermediate User-Agent theory was tested
+and ruled out — a browser UA still 400'd the old URL.)
+
+### What we changed (this repo)
+
+In `scripts/fetch_finland.py`:
+
+- `API_URL` now targets the short id `…/StatFin/merek/121d.px`.
+- On startup the script GETs the table metadata, **dumps every variable and its
+  value codes to the run log**, and resolves each dimension role to its current
+  variable code by matching the english label (`resolve_dimension_codes` /
+  `_DIM_ROLE_KEYS`). So the next time StatFin renames an identifier the pull
+  keeps working, and if a *label* ever stops matching, the `[meta]` dump in the
+  log shows exactly what to add to `_DIM_ROLE_KEYS`.
+- The driving-power **value** selection is filtered against live metadata
+  (a removed/renamed fuel code drops out with a `WARNING` instead of 400-ing the
+  whole pull), and any HTTP error now prints the API response body.
+
+Verified by a manual `workflow_dispatch` run on 2026-07-02: all six variants
+resolved and parsed `2014-01 .. 2026-05`, re-fetched values were byte-identical
+to the committed CSVs (so the migrated API returns the same numbers), and June
+2026 will be picked up automatically once StatFin publishes it (~5–8 July).
+See §9 for the ongoing failure-mode table.

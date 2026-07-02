@@ -22,8 +22,11 @@ API
 ---
 Statistics Finland's PxWeb API is documented at https://pxdata.stat.fi/api1.html.
 We POST a JSON query to the table's .px endpoint and request JSON-stat2 output.
-The endpoint is public, no auth, stable. Dimension codes were verified against the
-table's GET metadata response (the same URL without a body):
+The endpoint is public, no auth, stable. Before querying, we GET the table's
+metadata (the same URL without a body) and intersect our driving-power codes
+with those the table currently exposes — so a code Statistics Finland removes or
+renames drops out of the query instead of 400-ing the whole pull. Dimension
+codes were verified against that metadata response:
 
     Ajoneuvoluokka  Vehicle class   00 All automobiles, 01 Passenger cars,
                                     02 Vans, 03 Lorries > 3.5 t, 04 Buses & coaches
@@ -68,10 +71,24 @@ from pathlib import Path
 
 import requests
 
-API_URL = (
-    "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d.px"
-)
+# Statistics Finland restructured the PxWeb databases on 2026-06-08: table
+# identifiers were shortened (statfin_merek_pxt_121d.px -> 121d.px) and every
+# variable got a short code that now replaces the old variable *name* as the API
+# identifier. The pre-change URL and query 400 with a bare "Bad Request". See
+# the migration notice and docs/architecture/12-source-finland.md §9.
+API_URL = "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px"
 SOURCE = "pxdata.stat.fi (StatFin 121d)"
+
+# A browser-like User-Agent — harmless hygiene against edge/WAF UA filtering.
+REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/126.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en,fi;q=0.8",
+}
 
 # Dimension variable codes (exact, incl. non-ASCII — the PxWeb table uses Finnish
 # variable codes even on the English endpoint).
@@ -124,12 +141,125 @@ CSV_COLUMNS = [
 ]
 
 
-def fetch_dataset(vclass: str, possessors: list[str], session: requests.Session) -> dict:
+def _check_response(r: requests.Response, context: str) -> None:
+    """raise_for_status, but surface PxWeb's error body — it names the offending
+    dimension/value on a 400, which the bare HTTPError hides. See docs §9."""
+    if r.ok:
+        return
+    body = (r.text or "").strip()
+    snippet = body[:800] + ("…" if len(body) > 800 else "")
+    raise RuntimeError(
+        f"{context}: HTTP {r.status_code} from {r.url}\n"
+        f"PxWeb response body: {snippet or '<empty>'}"
+    )
+
+
+# Role -> substrings that identify the variable in table metadata by its english
+# label or its legacy Finnish code. StatFin's 2026-06-08 restructure replaced
+# variable *names* with short *codes* as the API identifier, so we resolve the
+# codes at runtime instead of hardcoding them.
+_DIM_ROLE_KEYS = {
+    "class":     ("ajoneuvoluokka", "vehicle class", "vehicle"),
+    "region":    ("maakunta", "region", "area"),
+    "driv":      ("käyttövoima", "driving power", "motive power"),
+    "purpose":   ("käyttötarkoitus", "purpose of use", "purpose"),
+    "possessor": ("haltija", "possessor", "owner"),
+    "month":     ("kuukausi", "month"),
+}
+
+
+def fetch_metadata(session: requests.Session) -> dict:
+    """GET the table metadata, print a full dump of every variable and its value
+    codes (so a StatFin restructure is legible straight from the run log), and
+    return the raw metadata JSON."""
+    print(f"[meta] GET {API_URL}")
+    r = session.get(API_URL, timeout=120)
+    _check_response(r, "metadata GET")
+    meta = r.json()
+    print(f"[meta] title: {meta.get('title')!r}")
+    for var in meta.get("variables", []):
+        values = var.get("values", [])
+        labels = var.get("valueTexts", values)
+        print(f"[meta] variable code={var.get('code')!r} text={var.get('text')!r} "
+              f"({len(values)} values)")
+        pairs = ", ".join(f"{v}={l!r}" for v, l in list(zip(values, labels))[:40])
+        print(f"         values: {pairs}{' …' if len(values) > 40 else ''}")
+    return meta
+
+
+def resolve_dimension_codes(meta: dict) -> dict[str, str]:
+    """Map each dimension role to the table's current variable *code* by matching
+    the english label (and the legacy Finnish code), so the 2026 variable-code
+    rename is handled without hardcoding the new identifiers."""
+    variables = meta.get("variables", [])
+    resolved: dict[str, str] = {}
+    for role, keys in _DIM_ROLE_KEYS.items():
+        match = next(
+            (v.get("code") for v in variables
+             if any(k in f"{v.get('code') or ''}\n{v.get('text') or ''}".lower()
+                    for k in keys)),
+            None,
+        )
+        if match is None:
+            raise RuntimeError(
+                f"could not identify the {role!r} dimension in table metadata; "
+                f"variables present: "
+                f"{[(v.get('code'), v.get('text')) for v in variables]} — "
+                "update _DIM_ROLE_KEYS (docs §9)."
+            )
+        resolved[role] = match
+    print(f"[meta] resolved dimension codes: {resolved}")
+    return resolved
+
+
+def driving_power_values(meta: dict, driv_code: str) -> dict[str, str]:
+    """Return {value-code: label} for the driving-power variable."""
+    for var in meta.get("variables", []):
+        if var.get("code") == driv_code:
+            values = var.get("values", [])
+            return dict(zip(values, var.get("valueTexts", values)))
+    raise RuntimeError(f"driving-power variable {driv_code!r} vanished from metadata")
+
+
+def resolve_driv_codes(available: dict[str, str]) -> list[str]:
+    """Intersect our mapped driving-power codes with those the table exposes.
+    Warn (don't crash) about mapped codes that vanished and about codes the
+    table exposes that we don't map."""
+    requested = [c for c in DRIV_CODES if c in available]
+    for c in DRIV_CODES:
+        if c not in available:
+            print(
+                f"  WARNING mapped driving-power code {c!r} ({DRIV_TO_COL[c]}) "
+                f"no longer in table 121d — dropped from the query."
+            )
+    for c in available:
+        if c not in DRIV_TO_COL:
+            print(
+                f"  NOTE table exposes driving-power code {c!r} "
+                f"(label: {available[c]!r}) not in DRIV_TO_COL. Expected for the "
+                f"table's Total/aggregate code; if it is a distinct fuel type its "
+                f"registrations are NOT counted — add it to DRIV_TO_COL."
+            )
+    if not requested:
+        raise RuntimeError(
+            "no mapped driving-power codes remain after filtering against table "
+            f"metadata (table exposes: {sorted(available)}); the driving-power "
+            "classification has changed — reconcile DRIV_TO_COL with docs §4/§9."
+        )
+    return requested
+
+
+def fetch_dataset(
+    vclass: str,
+    possessors: list[str],
+    driv_codes: list[str],
+    session: requests.Session,
+) -> dict:
     body = {
         "query": [
             {"code": DIM_CLASS,     "selection": {"filter": "item", "values": [vclass]}},
             {"code": DIM_REGION,    "selection": {"filter": "item", "values": [REGION_MAINLAND]}},
-            {"code": DIM_DRIV,      "selection": {"filter": "item", "values": DRIV_CODES}},
+            {"code": DIM_DRIV,      "selection": {"filter": "item", "values": driv_codes}},
             {"code": DIM_PURPOSE,   "selection": {"filter": "item", "values": [PURPOSE_TOTAL]}},
             {"code": DIM_POSSESSOR, "selection": {"filter": "item", "values": possessors}},
             {"code": DIM_MONTH,     "selection": {"filter": "all",  "values": ["*"]}},
@@ -138,7 +268,7 @@ def fetch_dataset(vclass: str, possessors: list[str], session: requests.Session)
     }
     print(f"[fetch] class={vclass} possessors={possessors} months=all")
     r = session.post(API_URL, json=body, timeout=120)
-    r.raise_for_status()
+    _check_response(r, f"data POST (class={vclass}, possessors={possessors})")
     return r.json()
 
 
@@ -207,17 +337,21 @@ def parse_possessor(dataset: dict, possessor_code: str) -> dict[str, dict[str, f
     return out
 
 
-def parsed_for_variant(variant: str, session: requests.Session) -> dict[str, dict[str, float]]:
+def parsed_for_variant(
+    variant: str, driv_codes: list[str], session: requests.Session
+) -> dict[str, dict[str, float]]:
     cfg = VARIANT_CONFIG[variant]
     mode = cfg["possessor"]
     if mode == "total":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL], session)
+        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL], driv_codes, session)
         return parse_possessor(ds, POSSESSOR_TOTAL)
     if mode == "private":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_PRIVATE], session)
+        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_PRIVATE], driv_codes, session)
         return parse_possessor(ds, POSSESSOR_PRIVATE)
     if mode == "industry":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL, POSSESSOR_PRIVATE], session)
+        ds = fetch_dataset(
+            cfg["vclass"], [POSSESSOR_TOTAL, POSSESSOR_PRIVATE], driv_codes, session
+        )
         total = parse_possessor(ds, POSSESSOR_TOTAL)
         private = parse_possessor(ds, POSSESSOR_PRIVATE)
         out: dict[str, dict[str, float]] = {}
@@ -343,8 +477,21 @@ def main() -> None:
             return
 
     session = requests.Session()
+    session.headers.update(REQUEST_HEADERS)
+    # Fetch table metadata once and adapt to StatFin's 2026 restructure: resolve
+    # the current variable codes (names were replaced by codes) and filter the
+    # driving-power selection to codes the table still exposes, so a removed or
+    # renamed code drops out of the query instead of 400-ing every variant.
+    meta = fetch_metadata(session)
+    dims = resolve_dimension_codes(meta)
+    global DIM_CLASS, DIM_REGION, DIM_DRIV, DIM_PURPOSE, DIM_POSSESSOR, DIM_MONTH
+    DIM_CLASS, DIM_REGION, DIM_DRIV = dims["class"], dims["region"], dims["driv"]
+    DIM_PURPOSE, DIM_POSSESSOR, DIM_MONTH = (
+        dims["purpose"], dims["possessor"], dims["month"],
+    )
+    driv_codes = resolve_driv_codes(driving_power_values(meta, DIM_DRIV))
     for variant in targets:
-        parsed = parsed_for_variant(variant, session)
+        parsed = parsed_for_variant(variant, driv_codes, session)
         rows = to_csv_rows(parsed, variant)
         if not rows:
             print(f"[{variant}] no non-zero months in response")
