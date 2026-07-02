@@ -225,6 +225,7 @@ at once; every other day the early-exit makes the dispatch set empty or tiny.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
+| pxdata.stat.fi's edge/WAF layer rejects the client (mid-2026: it began 400-ing the default `python-requests` User-Agent) | **Every** request — GET metadata and POST query — returns `400 Bad Request` with a bare, non-PxWeb body; nothing about a dimension/value | The fetcher sends a browser-like `User-Agent` (see `REQUEST_HEADERS`). If it recurs, open the API URL in a browser: JSON back ⇒ tighten the UA/headers; error page back ⇒ the endpoint moved |
 | Statistics Finland renames table 121d or changes its dimension codes | POST returns 4xx; the fetcher now prints PxWeb's error body (which names the offending dimension/value) before raising | Read the logged body, hit the GET metadata URL, compare to `DRIV_TO_COL` / `VARIANT_CONFIG`, update |
 | A **driving-power** code is removed or renamed | Self-heals: the fetcher GETs table metadata first and requests only codes the table still exposes, so a vanished code no longer 400s the pull. A dropped mapped code logs a `WARNING`; a renamed/new code logs a `NOTE` | If a `NOTE` names a real (non-Total) fuel code, add it to `DRIV_TO_COL` so its registrations are counted |
 | New driving-power code (e.g. a hydrogen split) | Not requested (absent from `DRIV_TO_COL`), so no crash; the metadata pre-flight logs a `NOTE` and the fuel is left uncounted until mapped | Add the code to `DRIV_TO_COL` (most go under `OTHERS`; a real HEV split goes to a new `HEV` mapping) |

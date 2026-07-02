@@ -76,6 +76,20 @@ API_URL = (
 )
 SOURCE = "pxdata.stat.fi (StatFin 121d)"
 
+# pxdata.stat.fi's edge layer began rejecting the default python-requests
+# User-Agent in mid-2026: every request — GET metadata and POST query alike —
+# came back "400 Bad Request" with a bare (non-PxWeb) body. A browser-like
+# User-Agent restores access. See docs/architecture/12-source-finland.md §9.
+REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/126.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en,fi;q=0.8",
+}
+
 # Dimension variable codes (exact, incl. non-ASCII — the PxWeb table uses Finnish
 # variable codes even on the English endpoint).
 DIM_CLASS = "Ajoneuvoluokka"
@@ -415,6 +429,7 @@ def main() -> None:
             return
 
     session = requests.Session()
+    session.headers.update(REQUEST_HEADERS)
     # Resolve the driving-power selection against live table metadata once, so a
     # code Statistics Finland removed/renamed drops out instead of 400-ing every
     # query (docs §9). New/unmapped codes are surfaced as warnings.
