@@ -225,8 +225,9 @@ at once; every other day the early-exit makes the dispatch set empty or tiny.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
-| Statistics Finland renames table 121d or changes its dimension codes | POST returns 4xx, or the parser sees unfamiliar dimension IDs | Hit the GET metadata URL, compare to `DRIV_TO_COL` / `VARIANT_CONFIG`, update |
-| New driving-power code (e.g. a hydrogen split) | Script raises `RuntimeError("unmapped driving-power code …")` and aborts before commit | Add the code to `DRIV_TO_COL` (most go under `OTHERS`; a real HEV split goes to a new `HEV` mapping) |
+| Statistics Finland renames table 121d or changes its dimension codes | POST returns 4xx; the fetcher now prints PxWeb's error body (which names the offending dimension/value) before raising | Read the logged body, hit the GET metadata URL, compare to `DRIV_TO_COL` / `VARIANT_CONFIG`, update |
+| A **driving-power** code is removed or renamed | Self-heals: the fetcher GETs table metadata first and requests only codes the table still exposes, so a vanished code no longer 400s the pull. A dropped mapped code logs a `WARNING`; a renamed/new code logs a `NOTE` | If a `NOTE` names a real (non-Total) fuel code, add it to `DRIV_TO_COL` so its registrations are counted |
+| New driving-power code (e.g. a hydrogen split) | Not requested (absent from `DRIV_TO_COL`), so no crash; the metadata pre-flight logs a `NOTE` and the fuel is left uncounted until mapped | Add the code to `DRIV_TO_COL` (most go under `OTHERS`; a real HEV split goes to a new `HEV` mapping) |
 | PxWeb cell-limit error on a query | POST returns an error payload | Chunk the `Kuukausi` selection (e.g. fetch in 5-year blocks) |
 | Statistics Finland restates an older month >50% | Upsert prints `WARNING` to the log but still commits | Verify and revert with a CSV edit if not real |
 | Region taxonomy changes (MA1 renamed/split) | Query returns empty or errors | Re-check `Maakunta` values via the metadata endpoint |

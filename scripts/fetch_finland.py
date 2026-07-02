@@ -22,8 +22,11 @@ API
 ---
 Statistics Finland's PxWeb API is documented at https://pxdata.stat.fi/api1.html.
 We POST a JSON query to the table's .px endpoint and request JSON-stat2 output.
-The endpoint is public, no auth, stable. Dimension codes were verified against the
-table's GET metadata response (the same URL without a body):
+The endpoint is public, no auth, stable. Before querying, we GET the table's
+metadata (the same URL without a body) and intersect our driving-power codes
+with those the table currently exposes — so a code Statistics Finland removes or
+renames drops out of the query instead of 400-ing the whole pull. Dimension
+codes were verified against that metadata response:
 
     Ajoneuvoluokka  Vehicle class   00 All automobiles, 01 Passenger cars,
                                     02 Vans, 03 Lorries > 3.5 t, 04 Buses & coaches
@@ -124,12 +127,77 @@ CSV_COLUMNS = [
 ]
 
 
-def fetch_dataset(vclass: str, possessors: list[str], session: requests.Session) -> dict:
+def _check_response(r: requests.Response, context: str) -> None:
+    """raise_for_status, but surface PxWeb's error body — it names the offending
+    dimension/value on a 400, which the bare HTTPError hides. See docs §9."""
+    if r.ok:
+        return
+    body = (r.text or "").strip()
+    snippet = body[:800] + ("…" if len(body) > 800 else "")
+    raise RuntimeError(
+        f"{context}: HTTP {r.status_code} from {r.url}\n"
+        f"PxWeb response body: {snippet or '<empty>'}"
+    )
+
+
+def fetch_driving_power_codes(session: requests.Session) -> dict[str, str]:
+    """GET the table metadata and return {code: label} for the driving-power
+    variable. Lets the fetcher request only the codes the table currently
+    exposes, so a single removed/renamed code no longer 400s the whole pull."""
+    print(f"[meta] GET {API_URL}")
+    r = session.get(API_URL, timeout=120)
+    _check_response(r, "metadata GET")
+    meta = r.json()
+    for var in meta.get("variables", []):
+        if var.get("code") == DIM_DRIV:
+            codes = var.get("values", [])
+            labels = var.get("valueTexts", codes)
+            return dict(zip(codes, labels))
+    raise RuntimeError(
+        f"driving-power variable {DIM_DRIV!r} not found in table metadata; "
+        f"variables present: {[v.get('code') for v in meta.get('variables', [])]}"
+    )
+
+
+def resolve_driv_codes(available: dict[str, str]) -> list[str]:
+    """Intersect our mapped driving-power codes with those the table exposes.
+    Warn (don't crash) about mapped codes that vanished and about codes the
+    table exposes that we don't map."""
+    requested = [c for c in DRIV_CODES if c in available]
+    for c in DRIV_CODES:
+        if c not in available:
+            print(
+                f"  WARNING mapped driving-power code {c!r} ({DRIV_TO_COL[c]}) "
+                f"no longer in table 121d — dropped from the query."
+            )
+    for c in available:
+        if c not in DRIV_TO_COL:
+            print(
+                f"  NOTE table exposes driving-power code {c!r} "
+                f"(label: {available[c]!r}) not in DRIV_TO_COL. Expected for the "
+                f"table's Total/aggregate code; if it is a distinct fuel type its "
+                f"registrations are NOT counted — add it to DRIV_TO_COL."
+            )
+    if not requested:
+        raise RuntimeError(
+            "no mapped driving-power codes remain after filtering against table "
+            f"metadata (table exposes: {sorted(available)}); the driving-power "
+            "classification has changed — reconcile DRIV_TO_COL with docs §4/§9."
+        )
+    return requested
+
+
+def fetch_dataset(
+    vclass: str,
+    possessors: list[str],
+    driv_codes: list[str],
+    session: requests.Session,
+) -> dict:
     body = {
         "query": [
             {"code": DIM_CLASS,     "selection": {"filter": "item", "values": [vclass]}},
             {"code": DIM_REGION,    "selection": {"filter": "item", "values": [REGION_MAINLAND]}},
-            {"code": DIM_DRIV,      "selection": {"filter": "item", "values": DRIV_CODES}},
+            {"code": DIM_DRIV,      "selection": {"filter": "item", "values": driv_codes}},
             {"code": DIM_PURPOSE,   "selection": {"filter": "item", "values": [PURPOSE_TOTAL]}},
             {"code": DIM_POSSESSOR, "selection": {"filter": "item", "values": possessors}},
             {"code": DIM_MONTH,     "selection": {"filter": "all",  "values": ["*"]}},
@@ -138,7 +206,7 @@ def fetch_dataset(vclass: str, possessors: list[str], session: requests.Session)
     }
     print(f"[fetch] class={vclass} possessors={possessors} months=all")
     r = session.post(API_URL, json=body, timeout=120)
-    r.raise_for_status()
+    _check_response(r, f"data POST (class={vclass}, possessors={possessors})")
     return r.json()
 
 
@@ -207,17 +275,21 @@ def parse_possessor(dataset: dict, possessor_code: str) -> dict[str, dict[str, f
     return out
 
 
-def parsed_for_variant(variant: str, session: requests.Session) -> dict[str, dict[str, float]]:
+def parsed_for_variant(
+    variant: str, driv_codes: list[str], session: requests.Session
+) -> dict[str, dict[str, float]]:
     cfg = VARIANT_CONFIG[variant]
     mode = cfg["possessor"]
     if mode == "total":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL], session)
+        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL], driv_codes, session)
         return parse_possessor(ds, POSSESSOR_TOTAL)
     if mode == "private":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_PRIVATE], session)
+        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_PRIVATE], driv_codes, session)
         return parse_possessor(ds, POSSESSOR_PRIVATE)
     if mode == "industry":
-        ds = fetch_dataset(cfg["vclass"], [POSSESSOR_TOTAL, POSSESSOR_PRIVATE], session)
+        ds = fetch_dataset(
+            cfg["vclass"], [POSSESSOR_TOTAL, POSSESSOR_PRIVATE], driv_codes, session
+        )
         total = parse_possessor(ds, POSSESSOR_TOTAL)
         private = parse_possessor(ds, POSSESSOR_PRIVATE)
         out: dict[str, dict[str, float]] = {}
@@ -343,8 +415,12 @@ def main() -> None:
             return
 
     session = requests.Session()
+    # Resolve the driving-power selection against live table metadata once, so a
+    # code Statistics Finland removed/renamed drops out instead of 400-ing every
+    # query (docs §9). New/unmapped codes are surfaced as warnings.
+    driv_codes = resolve_driv_codes(fetch_driving_power_codes(session))
     for variant in targets:
-        parsed = parsed_for_variant(variant, session)
+        parsed = parsed_for_variant(variant, driv_codes, session)
         rows = to_csv_rows(parsed, variant)
         if not rows:
             print(f"[{variant}] no non-zero months in response")
