@@ -71,15 +71,15 @@ from pathlib import Path
 
 import requests
 
-API_URL = (
-    "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d.px"
-)
+# Statistics Finland restructured the PxWeb databases on 2026-06-08: table
+# identifiers were shortened (statfin_merek_pxt_121d.px -> 121d.px) and every
+# variable got a short code that now replaces the old variable *name* as the API
+# identifier. The pre-change URL and query 400 with a bare "Bad Request". See
+# the migration notice and docs/architecture/12-source-finland.md §9.
+API_URL = "https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px"
 SOURCE = "pxdata.stat.fi (StatFin 121d)"
 
-# pxdata.stat.fi's edge layer began rejecting the default python-requests
-# User-Agent in mid-2026: every request — GET metadata and POST query alike —
-# came back "400 Bad Request" with a bare (non-PxWeb) body. A browser-like
-# User-Agent restores access. See docs/architecture/12-source-finland.md §9.
+# A browser-like User-Agent — harmless hygiene against edge/WAF UA filtering.
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -154,23 +154,71 @@ def _check_response(r: requests.Response, context: str) -> None:
     )
 
 
-def fetch_driving_power_codes(session: requests.Session) -> dict[str, str]:
-    """GET the table metadata and return {code: label} for the driving-power
-    variable. Lets the fetcher request only the codes the table currently
-    exposes, so a single removed/renamed code no longer 400s the whole pull."""
+# Role -> substrings that identify the variable in table metadata by its english
+# label or its legacy Finnish code. StatFin's 2026-06-08 restructure replaced
+# variable *names* with short *codes* as the API identifier, so we resolve the
+# codes at runtime instead of hardcoding them.
+_DIM_ROLE_KEYS = {
+    "class":     ("ajoneuvoluokka", "vehicle class", "vehicle"),
+    "region":    ("maakunta", "region", "area"),
+    "driv":      ("käyttövoima", "driving power", "motive power"),
+    "purpose":   ("käyttötarkoitus", "purpose of use", "purpose"),
+    "possessor": ("haltija", "possessor", "owner"),
+    "month":     ("kuukausi", "month"),
+}
+
+
+def fetch_metadata(session: requests.Session) -> dict:
+    """GET the table metadata, print a full dump of every variable and its value
+    codes (so a StatFin restructure is legible straight from the run log), and
+    return the raw metadata JSON."""
     print(f"[meta] GET {API_URL}")
     r = session.get(API_URL, timeout=120)
     _check_response(r, "metadata GET")
     meta = r.json()
+    print(f"[meta] title: {meta.get('title')!r}")
     for var in meta.get("variables", []):
-        if var.get("code") == DIM_DRIV:
-            codes = var.get("values", [])
-            labels = var.get("valueTexts", codes)
-            return dict(zip(codes, labels))
-    raise RuntimeError(
-        f"driving-power variable {DIM_DRIV!r} not found in table metadata; "
-        f"variables present: {[v.get('code') for v in meta.get('variables', [])]}"
-    )
+        values = var.get("values", [])
+        labels = var.get("valueTexts", values)
+        print(f"[meta] variable code={var.get('code')!r} text={var.get('text')!r} "
+              f"({len(values)} values)")
+        pairs = ", ".join(f"{v}={l!r}" for v, l in list(zip(values, labels))[:40])
+        print(f"         values: {pairs}{' …' if len(values) > 40 else ''}")
+    return meta
+
+
+def resolve_dimension_codes(meta: dict) -> dict[str, str]:
+    """Map each dimension role to the table's current variable *code* by matching
+    the english label (and the legacy Finnish code), so the 2026 variable-code
+    rename is handled without hardcoding the new identifiers."""
+    variables = meta.get("variables", [])
+    resolved: dict[str, str] = {}
+    for role, keys in _DIM_ROLE_KEYS.items():
+        match = next(
+            (v.get("code") for v in variables
+             if any(k in f"{v.get('code') or ''}\n{v.get('text') or ''}".lower()
+                    for k in keys)),
+            None,
+        )
+        if match is None:
+            raise RuntimeError(
+                f"could not identify the {role!r} dimension in table metadata; "
+                f"variables present: "
+                f"{[(v.get('code'), v.get('text')) for v in variables]} — "
+                "update _DIM_ROLE_KEYS (docs §9)."
+            )
+        resolved[role] = match
+    print(f"[meta] resolved dimension codes: {resolved}")
+    return resolved
+
+
+def driving_power_values(meta: dict, driv_code: str) -> dict[str, str]:
+    """Return {value-code: label} for the driving-power variable."""
+    for var in meta.get("variables", []):
+        if var.get("code") == driv_code:
+            values = var.get("values", [])
+            return dict(zip(values, var.get("valueTexts", values)))
+    raise RuntimeError(f"driving-power variable {driv_code!r} vanished from metadata")
 
 
 def resolve_driv_codes(available: dict[str, str]) -> list[str]:
@@ -430,10 +478,18 @@ def main() -> None:
 
     session = requests.Session()
     session.headers.update(REQUEST_HEADERS)
-    # Resolve the driving-power selection against live table metadata once, so a
-    # code Statistics Finland removed/renamed drops out instead of 400-ing every
-    # query (docs §9). New/unmapped codes are surfaced as warnings.
-    driv_codes = resolve_driv_codes(fetch_driving_power_codes(session))
+    # Fetch table metadata once and adapt to StatFin's 2026 restructure: resolve
+    # the current variable codes (names were replaced by codes) and filter the
+    # driving-power selection to codes the table still exposes, so a removed or
+    # renamed code drops out of the query instead of 400-ing every variant.
+    meta = fetch_metadata(session)
+    dims = resolve_dimension_codes(meta)
+    global DIM_CLASS, DIM_REGION, DIM_DRIV, DIM_PURPOSE, DIM_POSSESSOR, DIM_MONTH
+    DIM_CLASS, DIM_REGION, DIM_DRIV = dims["class"], dims["region"], dims["driv"]
+    DIM_PURPOSE, DIM_POSSESSOR, DIM_MONTH = (
+        dims["purpose"], dims["possessor"], dims["month"],
+    )
+    driv_codes = resolve_driv_codes(driving_power_values(meta, DIM_DRIV))
     for variant in targets:
         parsed = parsed_for_variant(variant, driv_codes, session)
         rows = to_csv_rows(parsed, variant)
