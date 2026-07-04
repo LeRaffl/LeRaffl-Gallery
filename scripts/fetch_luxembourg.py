@@ -60,9 +60,20 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# SDMX data endpoint. dimensionAtObservation=AllDimensions => flat one-row-per-obs
+# SDMX endpoint. dimensionAtObservation=AllDimensions => flat one-row-per-obs
 # SDMX-CSV; labels=id keeps machine codes (LU, ELC, ...) instead of localised text.
-BASE = "https://lustat.statec.lu/rest/data/LU1,DF_D6122,1.1/"
+HOST = "https://lustat.statec.lu"
+AGENCY = "LU1"
+DATAFLOW = "DF_D6122"
+# STATEC bumps dataflow versions on republish; a hardcoded version 422s once the
+# old one is retired, so we resolve the newest published version at runtime and
+# only fall back to this if the structure probe fails. See docs §11.
+FALLBACK_VERSION = "1.1"
+
+
+def data_url(version: str, key: str) -> str:
+    return (f"{HOST}/rest/data/{AGENCY},{DATAFLOW},{version}/{key}"
+            f"?dimensionAtObservation=AllDimensions")
 
 # DSD_VEH dimension order. The data key is these 13 fields joined by ".".
 DIMENSIONS = [
@@ -109,9 +120,89 @@ HTTP_HEADERS = {
     "User-Agent": "LeRaffl-Gallery/1.0 (BEV trajectory gallery; lustat fetcher)",
 }
 
+STRUCTURE_HEADERS = {
+    "Accept": "application/vnd.sdmx.structure+json;version=1.0",
+    "User-Agent": HTTP_HEADERS["User-Agent"],
+}
 
-def build_key(vehicle_types: list[str]) -> str:
-    """Build the SDMX data key for the given VEHICLE_TYPE code(s).
+
+def _check_response(r: requests.Response, context: str) -> None:
+    """raise_for_status, but surface the SDMX error body — .Stat Suite explains
+    an invalid query (bad code, retired version) in the body, which the bare
+    HTTPError hides. See docs §11."""
+    if r.ok:
+        return
+    body = (r.text or "").strip()
+    snippet = body[:800] + ("…" if len(body) > 800 else "")
+    raise RuntimeError(
+        f"{context}: HTTP {r.status_code} for {r.url}\n"
+        f"SDMX response body: {snippet or '<empty>'}"
+    )
+
+
+def _version_key(v: str) -> list:
+    return [int(p) if p.isdigit() else p for p in str(v).split(".")]
+
+
+def resolve_version(session: requests.Session) -> str:
+    """Return DF_D6122's newest published version. STATEC bumps the version on
+    republish (e.g. 1.1 -> a later one), which 422s the hardcoded key; listing
+    versions from the structure API and taking the newest keeps the pull working.
+    Best-effort: any failure falls back to FALLBACK_VERSION."""
+    url = f"{HOST}/rest/dataflow/{AGENCY}/{DATAFLOW}/all"
+    try:
+        r = session.get(url, headers=STRUCTURE_HEADERS, timeout=60)
+        _check_response(r, "dataflow structure GET")
+        flows = r.json().get("data", {}).get("dataflows", [])
+        versions = [f.get("version") for f in flows if f.get("version")]
+        print(f"[meta] {DATAFLOW} published versions: {versions or '<none found>'}")
+        if versions:
+            best = max(versions, key=_version_key)
+            print(f"[meta] using {DATAFLOW} version {best}")
+            return best
+    except Exception as exc:  # noqa: BLE001 — never let the probe block the pull
+        print(f"[meta] version probe failed ({exc!r}); "
+              f"falling back to {FALLBACK_VERSION}")
+    return FALLBACK_VERSION
+
+
+def resolve_dimensions(session: requests.Session, version: str) -> list[str]:
+    """Return the DSD's ordered (non-time) dimension IDs so the data key has the
+    right arity. STATEC added a 14th dimension to DSD_VEH in 2026 — the old
+    13-field key 422s with 'expecting 14 got 13'. Building the key from the live
+    dimension order absorbs added/removed/reordered dimensions (a newly added one
+    is `_Z` for existing rows, so an empty slot returns the same data).
+    Best-effort: any failure falls back to the hardcoded DIMENSIONS."""
+    url = (f"{HOST}/rest/dataflow/{AGENCY}/{DATAFLOW}/{version}"
+           f"?references=all&detail=full")
+    try:
+        r = session.get(url, headers=STRUCTURE_HEADERS, timeout=90)
+        _check_response(r, "DSD structure GET")
+        for dsd in r.json().get("data", {}).get("dataStructures", []):
+            dims = (dsd.get("dataStructureComponents", {})
+                       .get("dimensionList", {})
+                       .get("dimensions", []))
+            ids = [d.get("id") for d in
+                   sorted(dims, key=lambda d: d.get("position", 0)) if d.get("id")]
+            if ids:
+                print(f"[meta] DSD {dsd.get('id')!r} key dimensions "
+                      f"({len(ids)}): {ids}")
+                added = [d for d in ids if d not in DIMENSIONS]
+                if added:
+                    print(f"[meta] NOTE new dimension(s) since this script was "
+                          f"written: {added} — left open (all values). If one "
+                          f"carries a total/aggregate this could double-count; "
+                          f"verify the re-fetched history matches the CSV.")
+                return ids
+        print("[meta] no dimensions found in structure; using fallback")
+    except Exception as exc:  # noqa: BLE001 — never let the probe block the pull
+        print(f"[meta] dimension probe failed ({exc!r}); using fallback")
+    return list(DIMENSIONS)
+
+
+def build_key(vehicle_types: list[str], dimensions: list[str]) -> str:
+    """Build the SDMX data key for the given VEHICLE_TYPE code(s), ordered to
+    match the live DSD dimension list.
 
     Multiple vehicle types (HDV) are combined with '+' in the one dimension
     position; the API returns a separate observation row per type, which the
@@ -125,16 +216,17 @@ def build_key(vehicle_types: list[str]) -> str:
         "MOTOR_ENERGY": "+".join(MOTOR_ENERGY_LEAVES),
         "OPERATION": "N",
     }
-    return ".".join(fixed.get(d, "") for d in DIMENSIONS)
+    return ".".join(fixed.get(d, "") for d in dimensions)
 
 
-def fetch_variant(variant: str, session: requests.Session) -> list[dict]:
+def fetch_variant(variant: str, version: str, dimensions: list[str],
+                  session: requests.Session) -> list[dict]:
     """Return the full SDMX-CSV observation rows (one dict per observation)."""
-    key = build_key(VARIANTS[variant]["vehicle_types"])
-    url = f"{BASE}{key}?dimensionAtObservation=AllDimensions"
+    key = build_key(VARIANTS[variant]["vehicle_types"], dimensions)
+    url = data_url(version, key)
     print(f"[{variant}] GET {url}")
     r = session.get(url, headers=HTTP_HEADERS, timeout=60)
-    r.raise_for_status()
+    _check_response(r, f"data GET [{variant}]")
     return list(csv.DictReader(r.text.splitlines()))
 
 
@@ -288,8 +380,10 @@ def main() -> None:
     adapter = HTTPAdapter(max_retries=retry)
     session.mount("https://", adapter)
 
+    version = resolve_version(session)
+    dimensions = resolve_dimensions(session, version)
     for variant in targets:
-        rows = parse_rows(fetch_variant(variant, session), variant)
+        rows = parse_rows(fetch_variant(variant, version, dimensions, session), variant)
         print(f"[{variant}] parsed {len(rows)} non-zero months "
               f"({min(rows, default='—')} .. {max(rows, default='—')})")
         if not rows:

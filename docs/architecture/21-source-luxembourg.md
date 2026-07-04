@@ -174,3 +174,18 @@ curl -H "Accept: application/vnd.sdmx.data+csv;labels=id" \
   we pin `REF_AREA=LU` (national total only).
 * **Mass / engine-size / brand / colour splits** — available in DF_D6122 and
   sibling dataflows, but out of scope for the BEV trajectory.
+
+## 11. Known fragility
+
+| Failure mode | What happens | Diagnostic / fix |
+|---|---|---|
+| **STATEC bumps the dataflow version** (republish retires the old version) | The hardcoded `…,DF_D6122,1.1,…` key returns **`422 Unprocessable Entity`** | Self-heals: `resolve_version` lists `rest/dataflow/LU1/DF_D6122/all` and uses the newest published version, falling back to `FALLBACK_VERSION` only if the probe fails. The `[meta]` log line shows the versions found |
+| A `MOTOR_ENERGY` leaf / `MEASURE` / `OPERATION` code is renamed or removed | `422` (bad code) or an unmapped-code `WARNING` in `parse_rows` | The fetcher now prints the SDMX error body (via `_check_response`), which names the offending code; reconcile `MOTOR_ENERGY_LEAVES` / the fuel mapping (§3) against the codelist |
+| The DSD gains/loses a dimension | `422` (key arity no longer matches `DIMENSIONS`) | Re-check the DSD (`…/rest/dataflow/LU1/DF_D6122/latest?references=all&detail=full`) and update `DIMENSIONS` / `build_key` |
+| lustat restates an older month by >50% | `upsert_csv` prints a `WARNING` but still writes | Verify and, if wrong, correct with a CSV edit |
+
+> **2026-07 note:** the daily fetch began failing with `422` from ~1 July 2026
+> (first real query after the mid-June early-exit window). Root cause is on
+> STATEC's side (see the version/code rows above); the fixes here make the pull
+> resolve the live version and surface the SDMX error body so the exact cause is
+> visible in the run log.
