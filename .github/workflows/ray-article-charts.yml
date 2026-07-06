@@ -1,0 +1,41 @@
+name: Ray article charts
+
+# Regenerates exports/ray_article/*.png from the current params.csv,
+# weights.csv and data/ CSVs. Run manually after data updates land
+# (e.g. once the June numbers / the Thailand backfill are in).
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            ggplot2
+            scales
+
+      - name: Render charts
+        run: Rscript scripts/ray_domestic_bev_chart.R
+
+      - name: Commit updated charts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add exports/ray_article
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore(ray-article): regenerate charts"
+          git push
