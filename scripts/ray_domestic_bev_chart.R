@@ -71,6 +71,7 @@ comb <- merge(subset(obs, cal <= common_end), w, by = "country")
 comb <- aggregate(cbind(bev_w = bev * weight, weight) ~ cal, comb, FUN = sum)
 comb$bev <- comb$bev_w / comb$weight
 comb <- comb[comb$cal >= 2014, ]
+comb$country <- "AvgW"
 
 # Weighted average over the full fitted curves (incl. extrapolation horizon),
 # for the "with avg" variants of the extrapolated charts.
@@ -126,7 +127,7 @@ save_png <- function(p, name) {
   cat("wrote", file.path("exports/ray_article", name), "\n")
 }
 
-title_main <- "BEV share of new vehicle sales in home markets by vehicle-exporting country"
+title_main <- "BEV share of new registrations in home markets by vehicle-exporting country"
 
 # 1) Main: observed fit range, 2014 -> latest data
 p1 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 1.6, title_main)
@@ -170,12 +171,10 @@ p2c <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main,
 save_png(p2c, "domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png")
 
 # 3) Main + volume-weighted combined line of the six markets
-p3 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 3.1, title_main) +
-  geom_line(data = comb, aes(cal, bev), color = FG, linewidth = 1.6, linetype = "42",
-            inherit.aes = FALSE) +
-  annotate("text", x = max(comb$cal) + 0.15, y = comb$bev[which.max(comb$cal)] - 0.045,
-           label = "6-market avg\n(vol. weighted)", hjust = 0, size = 4.5,
-           fontface = "bold", color = FG, lineheight = 0.9)
+p3 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 1.6, title_main,
+                ends = rbind(line_ends,
+                             comb[which.max(comb$cal), c("country", "cal", "bev")])) +
+  geom_line(data = comb, linetype = "42", linewidth = 1.6)
 save_png(p3, "domestic_bev_share_with_weighted_avg.png")
 
 # ── Absolute BEV registrations (history only, no extrapolation) ──────────────
@@ -189,7 +188,7 @@ abs_raw <- do.call(rbind, lapply(countries, function(c) {
 }))
 abs_raw$yr <- as.integer(substr(abs_raw$period, 1, 4))
 
-title_abs <- "BEV sales in home markets by vehicle-exporting country"
+title_abs <- "BEV registrations in home markets by vehicle-exporting country"
 caption_abs <- paste0("Data: CPCA, JADA/JAMA, KBA, molit.go.kr, ANL, data.thaiauto.or.th",
                       "  ·  Chart @LeRaffl ",
                       paste0(format(Sys.Date(), "%d"), month.abb[as.integer(format(Sys.Date(), "%m"))],
@@ -199,15 +198,15 @@ abs_theme_add <- list(
                                     angle = 90, margin = margin(r = 8)))
 )
 
-abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks) {
-  ends$y_lab <- spread_labels(ends$bev / 1e6, gap = max(dat$bev) / 1e6 * 0.05)
+abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max) {
+  ends$y_lab <- spread_labels(ends$bev / 1e6, gap = y_max * 0.05)
   ggplot(dat, aes(x, bev / 1e6, color = country)) +
     geom_line(linewidth = 2) +
     geom_text(data = ends, aes(x, y_lab, label = labels[country]),
               hjust = 0, nudge_x = diff(c(x_min, x_max)) * 0.012,
               size = 6, fontface = "bold") +
     scale_color_manual(values = cols) +
-    scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.05))) +
+    scale_y_continuous(limits = c(0, y_max), expand = expansion(mult = c(0, 0.05))) +
     scale_x_continuous(breaks = xbreaks, limits = c(x_min, x_max), expand = c(0.01, 0)) +
     coord_cartesian(clip = "off") +
     labs(title = title, subtitle = caption_abs, y = "MILLIONS") +
@@ -219,16 +218,17 @@ cur_year <- as.integer(format(Sys.Date(), "%Y"))
 yearly <- aggregate(bev ~ country + yr, subset(abs_raw, yr >= 2014 & yr < cur_year), sum)
 yearly$x <- yearly$yr
 y_ends <- do.call(rbind, lapply(split(yearly, yearly$country), function(d) d[which.max(d$x), ]))
+y_tot <- aggregate(bev ~ x, yearly, sum); y_tot$country <- "Total"
+y_max_annual <- max(y_tot$bev) / 1e6   # shared y axis for the with/without pair
 p4 <- abs_plot(yearly, y_ends, 2014, max(yearly$x) + 1.4,
-               paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1))
+               paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1), y_max_annual)
 save_png(p4, "domestic_bev_absolute_annual.png")
 
 # 4b) Annual + summed total of the six markets
-y_tot <- aggregate(bev ~ x, yearly, sum); y_tot$country <- "Total"
 p4b <- abs_plot(yearly, rbind(y_ends[, c("country", "x", "bev")],
                               y_tot[which.max(y_tot$x), c("country", "x", "bev")]),
                 2014, max(yearly$x) + 1.4,
-                paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1)) +
+                paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1), y_max_annual) +
   geom_line(data = y_tot, linetype = "42", linewidth = 1.6)
 save_png(p4b, "domestic_bev_absolute_annual_with_total.png")
 
@@ -243,16 +243,17 @@ ttm <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
 }))
 ttm <- subset(ttm, x >= 2014)
 t_ends <- do.call(rbind, lapply(split(ttm, ttm$country), function(d) d[which.max(d$x), ]))
+t_common <- min(tapply(ttm$x, ttm$country, max))
+t_tot <- aggregate(bev ~ x, subset(ttm, x <= t_common), sum); t_tot$country <- "Total"
+y_max_ttm <- max(t_tot$bev) / 1e6      # shared y axis for the with/without pair
 p5 <- abs_plot(ttm, t_ends, 2014, max(ttm$x) + 1.6,
-               paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2))
+               paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2), y_max_ttm)
 save_png(p5, "domestic_bev_absolute_ttm_monthly.png")
 
 # 5b) TTM + summed total, capped at the last month all six countries cover
-t_common <- min(tapply(ttm$x, ttm$country, max))
-t_tot <- aggregate(bev ~ x, subset(ttm, x <= t_common), sum); t_tot$country <- "Total"
 p5b <- abs_plot(ttm, rbind(t_ends[, c("country", "x", "bev")],
                            t_tot[which.max(t_tot$x), c("country", "x", "bev")]),
                 2014, max(ttm$x) + 1.6,
-                paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2)) +
+                paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2), y_max_ttm) +
   geom_line(data = t_tot, linetype = "42", linewidth = 1.6)
 save_png(p5b, "domestic_bev_absolute_ttm_monthly_with_total.png")
