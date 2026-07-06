@@ -14,10 +14,13 @@ dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
 
 countries <- c("China", "Japan", "Germany", "South Korea", "USA", "Thailand")
 labels    <- c(China = "China", Japan = "Japan", Germany = "Germany",
-               `South Korea` = "South Korea", USA = "US", Thailand = "Thailand")
+               `South Korea` = "South Korea", USA = "US", Thailand = "Thailand",
+               AvgW = "6-market avg", Total = "6-market total")
 # Palette matches Ray's export chart; Thailand (new line) gets orange.
+# AvgW/Total are the combined grey-white lines (weighted share / summed units).
 cols <- c(China = "#FF0000", Japan = "#9E1B1B", Germany = "#FFD300",
-          `South Korea` = "#A427E8", USA = "#29ABE2", Thailand = "#FF8C00")
+          `South Korea` = "#A427E8", USA = "#29ABE2", Thailand = "#FF8C00",
+          AvgW = "#EDEBE0", Total = "#EDEBE0")
 
 p6 <- subset(params, country %in% countries & variant == "Whole")
 stopifnot(nrow(p6) == 6)
@@ -50,6 +53,15 @@ ext <- subset(ext_full, cal <= 2031)
 line_ends <- do.call(rbind, lapply(split(obs, obs$country),
                                    function(d) d[which.max(d$cal), ]))
 
+# Push overlapping right-edge labels apart (order-preserving, min gap in y units)
+spread_labels <- function(y, gap) {
+  o <- order(y)
+  ys <- y[o]
+  for (i in 2:length(ys)) if (ys[i] - ys[i - 1] < gap) ys[i] <- ys[i - 1] + gap
+  y[o] <- ys
+  y
+}
+
 # Volume-weighted combined line (weights.csv, same weighting as the gallery)
 w <- read.csv(file.path(repo, "weights.csv"), stringsAsFactors = FALSE)
 w <- subset(w, country %in% countries & variant == "Whole")[, c("country", "weight")]
@@ -60,8 +72,17 @@ comb <- aggregate(cbind(bev_w = bev * weight, weight) ~ cal, comb, FUN = sum)
 comb$bev <- comb$bev_w / comb$weight
 comb <- comb[comb$cal >= 2014, ]
 
+# Weighted average over the full fitted curves (incl. extrapolation horizon),
+# for the "with avg" variants of the extrapolated charts.
+fullc <- do.call(rbind, lapply(seq_len(nrow(p6)), function(i) curve_df(p6[i, ], 2034)))
+avgc <- merge(fullc, w, by = "country")
+avgc <- aggregate(cbind(bev_w = bev * weight, weight) ~ cal, avgc, FUN = sum)
+avgc$bev <- avgc$bev_w / avgc$weight
+avgc$country <- "AvgW"
+avgc <- avgc[avgc$cal >= 2014, c("country", "cal", "bev")]
+
 caption_txt <- paste0("Data: CPCA, JADA/JAMA, KBA, molit.go.kr, ANL, data.thaiauto.or.th",
-                      "  ·  Fitted trajectories · Chart @LeRafll ",
+                      "  ·  Fitted trajectories · Chart @LeRaffl ",
                       paste0(format(Sys.Date(), "%d"), month.abb[as.integer(format(Sys.Date(), "%m"))],
                              format(Sys.Date(), "%Y")))
 
@@ -78,16 +99,17 @@ ray_theme <- theme_minimal(base_size = 16) +
     axis.text = element_text(color = FG, face = "bold", size = rel(1.2)),
     plot.title = element_text(color = FG, face = "bold", size = rel(1.15), hjust = 0.5),
     plot.subtitle = element_text(color = FG, size = rel(0.85), hjust = 0.5),
-    plot.margin = margin(15, 130, 10, 15),
+    plot.margin = margin(15, 150, 10, 15),
     axis.title = element_blank(),
     legend.position = "none"
   )
 
 base_plot <- function(dat, x_min, x_max, title, ends = line_ends) {
+  ends$y_lab <- spread_labels(ends$bev, gap = 0.045 * max(c(dat$bev, ends$bev)))
   ggplot(dat, aes(cal, bev, color = country)) +
     geom_line(linewidth = 2) +
-    geom_text(data = ends, aes(label = labels[country]),
-              hjust = 0, nudge_x = 0.15, size = 6, fontface = "bold") +
+    geom_text(data = ends, aes(y = y_lab, label = labels[country]),
+              hjust = 0, nudge_x = 0.15, size = 6, fontface = "bold", lineheight = 0.9) +
     scale_color_manual(values = cols) +
     scale_y_continuous(labels = percent_format(accuracy = 1),
                        breaks = seq(0, 1, 0.2), limits = c(0, NA),
@@ -127,6 +149,26 @@ p2b <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main, ends = ext3
                      expand = expansion(mult = c(0, 0.03)))
 save_png(p2b, "domestic_bev_share_extrapolated_2035_full_scale.png")
 
+# 2a-avg / 2b-avg) Extrapolated variants incl. the weighted-average line
+avg_end <- function(x_cut) {
+  d <- avgc[avgc$cal <= x_cut, ]
+  d[which.max(d$cal), ]
+}
+p2a <- base_plot(subset(obs, cal >= 2014), 2014, 2031.2, title_main,
+                 ends = rbind(ext_ends, avg_end(2031))) +
+  geom_line(data = ext, linetype = "22", linewidth = 1.4) +
+  geom_line(data = subset(avgc, cal <= 2031), linetype = "42", linewidth = 1.6)
+save_png(p2a, "domestic_bev_share_extrapolated_2031_with_weighted_avg.png")
+
+p2c <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main,
+                 ends = rbind(ext35_ends, avg_end(2035))) +
+  geom_line(data = ext_full, linetype = "22", linewidth = 1.4) +
+  geom_line(data = avgc, linetype = "42", linewidth = 1.6) +
+  scale_y_continuous(labels = percent_format(accuracy = 1),
+                     breaks = seq(0, 1, 0.2), limits = c(0, 1),
+                     expand = expansion(mult = c(0, 0.03)))
+save_png(p2c, "domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png")
+
 # 3) Main + volume-weighted combined line of the six markets
 p3 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 3.1, title_main) +
   geom_line(data = comb, aes(cal, bev), color = FG, linewidth = 1.6, linetype = "42",
@@ -149,18 +191,9 @@ abs_raw$yr <- as.integer(substr(abs_raw$period, 1, 4))
 
 title_abs <- "BEV sales in home markets by vehicle-exporting country"
 caption_abs <- paste0("Data: CPCA, JADA/JAMA, KBA, molit.go.kr, ANL, data.thaiauto.or.th",
-                      "  ·  Chart @LeRafll ",
+                      "  ·  Chart @LeRaffl ",
                       paste0(format(Sys.Date(), "%d"), month.abb[as.integer(format(Sys.Date(), "%m"))],
                              format(Sys.Date(), "%Y")))
-
-# Push overlapping right-edge labels apart (order-preserving, min gap in y units)
-spread_labels <- function(y, gap) {
-  o <- order(y)
-  ys <- y[o]
-  for (i in 2:length(ys)) if (ys[i] - ys[i - 1] < gap) ys[i] <- ys[i - 1] + gap
-  y[o] <- ys
-  y
-}
 abs_theme_add <- list(
   theme(axis.title.y = element_text(color = FG, face = "bold", size = rel(0.8),
                                     angle = 90, margin = margin(r = 8)))
@@ -190,6 +223,15 @@ p4 <- abs_plot(yearly, y_ends, 2014, max(yearly$x) + 1.4,
                paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1))
 save_png(p4, "domestic_bev_absolute_annual.png")
 
+# 4b) Annual + summed total of the six markets
+y_tot <- aggregate(bev ~ x, yearly, sum); y_tot$country <- "Total"
+p4b <- abs_plot(yearly, rbind(y_ends[, c("country", "x", "bev")],
+                              y_tot[which.max(y_tot$x), c("country", "x", "bev")]),
+                2014, max(yearly$x) + 1.4,
+                paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1)) +
+  geom_line(data = y_tot, linetype = "42", linewidth = 1.6)
+save_png(p4b, "domestic_bev_absolute_annual_with_total.png")
+
 # 5) Trailing-12-month BEV sales, monthly resolution up to the latest data
 ttm <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
   d <- d[order(d$period), ]
@@ -204,3 +246,13 @@ t_ends <- do.call(rbind, lapply(split(ttm, ttm$country), function(d) d[which.max
 p5 <- abs_plot(ttm, t_ends, 2014, max(ttm$x) + 1.6,
                paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2))
 save_png(p5, "domestic_bev_absolute_ttm_monthly.png")
+
+# 5b) TTM + summed total, capped at the last month all six countries cover
+t_common <- min(tapply(ttm$x, ttm$country, max))
+t_tot <- aggregate(bev ~ x, subset(ttm, x <= t_common), sum); t_tot$country <- "Total"
+p5b <- abs_plot(ttm, rbind(t_ends[, c("country", "x", "bev")],
+                           t_tot[which.max(t_tot$x), c("country", "x", "bev")]),
+                2014, max(ttm$x) + 1.6,
+                paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2)) +
+  geom_line(data = t_tot, linetype = "42", linewidth = 1.6)
+save_png(p5b, "domestic_bev_absolute_ttm_monthly_with_total.png")

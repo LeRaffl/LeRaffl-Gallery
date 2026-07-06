@@ -15,11 +15,15 @@ or via the manual GitHub Action **Ray article charts** after new data lands.
 | File | Content |
 |---|---|
 | `domestic_bev_share_2014_now.png` | Fitted BEV share, 2014 → latest data |
-| `domestic_bev_share_extrapolated_2031.png` | + dashed extrapolation to 2031 |
-| `domestic_bev_share_extrapolated_2035_full_scale.png` | extrapolation to 2035, 0–100% scale |
 | `domestic_bev_share_with_weighted_avg.png` | + volume-weighted 6-market average |
+| `domestic_bev_share_extrapolated_2031.png` | + dashed extrapolation to 2031 |
+| `domestic_bev_share_extrapolated_2031_with_weighted_avg.png` | dito + weighted average |
+| `domestic_bev_share_extrapolated_2035_full_scale.png` | extrapolation to 2035, 0–100% scale |
+| `domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png` | dito + weighted average |
 | `domestic_bev_absolute_annual.png` | absolute BEV units per calendar year (full years, raw data) |
+| `domestic_bev_absolute_annual_with_total.png` | dito + summed 6-market total |
 | `domestic_bev_absolute_ttm_monthly.png` | absolute BEV units, trailing 12 months (raw data) |
+| `domestic_bev_absolute_ttm_monthly_with_total.png` | dito + summed 6-market total |
 
 Notes: shares are pure BEV (no PHEV/EREV/NEV). Absolute charts use raw CSV
 counts, history only.
