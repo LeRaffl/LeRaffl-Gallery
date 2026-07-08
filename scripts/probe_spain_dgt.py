@@ -349,6 +349,8 @@ def aggregate(lines, loc: dict[str, tuple[int, int]], period: str) -> dict:
         "fuel_turismo_new": collections.Counter(),   # tipo=turismo/todoterreno, new
         "fuel_m1_new_ord": collections.Counter(),    # + clase matrícula ordinaria
         "fuel_turismo_new_inmonth": collections.Counter(),  # C + FEC_MATRICULA in target month
+        "fuel_tipo40_new": collections.Counter(),    # tipo 40 (turismo) only, new
+        "fuel_tipo25_new": collections.Counter(),    # tipo 25 (todo terreno) only, new
         # within the Filter-C population, where does the ACEA excess live?
         "turismo_clave": collections.Counter(),      # clave_tramite distribution
         "turismo_clave_diesel": collections.Counter(),  # …diesel-only
@@ -391,6 +393,7 @@ def aggregate(lines, loc: dict[str, tuple[int, int]], period: str) -> dict:
                 agg["fuel_m1_new_ord"][fuel] += 1
         if is_new and turismo_re.match(tipo or ""):
             agg["fuel_turismo_new"][fuel] += 1
+            agg["fuel_tipo40_new" if tipo == "40" else "fuel_tipo25_new"][fuel] += 1
             agg["turismo_clave"][clave] += 1
             if fuel == "DIESEL":
                 agg["turismo_clave_diesel"][clave] += 1
@@ -578,6 +581,11 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
         ("Filter C — tipo turismo/todoterreno, new", agg["fuel_turismo_new"]),
         ("Filter D — C + FEC_MATRICULA in target month",
          agg["fuel_turismo_new_inmonth"]),
+        ("Filter E — tipo 40 (turismo) only, new — tests whether ANFAC's "
+         "market is tipo 40 alone despite the 'y todoterrenos' label",
+         agg["fuel_tipo40_new"]),
+        ("(info) tipo 25 (todo terreno) only, new — the C−E complement",
+         agg["fuel_tipo25_new"]),
     ]:
         split = gallery_split(counter)
         reev = counter.get("REEV", 0)
