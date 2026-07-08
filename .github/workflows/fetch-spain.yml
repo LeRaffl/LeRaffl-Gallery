@@ -1,0 +1,107 @@
+name: Fetch Spain data (DGT microdata)
+
+# Fetches DGT monthly matriculaciones microdata and upserts data/Spain.csv
+# (variant Whole, gallery schema with EREV column — EREV folds into PHEV in
+# the 3-curve plot and gets its own TTM band, same as China).
+#
+# Market definition: registry-side "turismos y todoterrenos" (COD_TIPO 40/25,
+# new). Deliberately ~2% above ANFAC/ACEA (M1 people movers included) — see
+# docs/architecture/28-source-spain.md §4 and footnotes.csv.
+#
+# Bootstrap: when data/Spain.csv does not exist, the script walks months
+# descending from the previous month to 2015-01, stops where the MATRABA
+# layout era ends, and splices the remaining history from
+# data/Spain_legacy.csv (the prior curated series).
+#
+# DGT publishes the monthly file in the first days of the following month;
+# polled daily on the 1st–7th. The script self-throttles via the CSV.
+#
+# See scripts/fetch_spain.py and docs/architecture/28-source-spain.md.
+
+on:
+  # TEMPORARY push trigger (same pattern as probe-spain.yml):
+  # workflow_dispatch only becomes available once this file is on the
+  # default branch, so on the working branch the fetcher runs on pushes
+  # touching its own files. The very first run bootstraps the backfill
+  # (data/Spain.csv absent); later pushes are cheap no-ops. Drop this
+  # block when merging to master.
+  push:
+    branches:
+      - claude/spain-data-automation-9jml5p
+    paths:
+      - scripts/fetch_spain.py
+      - .github/workflows/fetch-spain.yml
+  workflow_dispatch:
+    inputs:
+      period:
+        description: 'Specific month YYYY-MM (default: previous month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Walk months descending to backfill_from'
+        required: false
+        default: false
+        type: boolean
+      backfill_from:
+        description: 'Oldest month for the backfill walk'
+        required: false
+        default: '2015-01'
+      force:
+        description: 'Overwrite rows regardless of source string'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Daily on the 1st–7th, 06:30 UTC — DGT publishes the consolidated
+    # monthly file in the first days of the following month.
+    - cron: '30 6 1-7 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Fetch & update Spain CSV
+        id: fetch
+        run: |
+          python scripts/fetch_spain.py \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${BACKFILL_FROM:+--backfill-from "$BACKFILL_FROM"} \
+            ${FORCE:+--force}
+        env:
+          PERIOD:        ${{ inputs.period }}
+          BACKFILL:      ${{ inputs.backfill == true && '1' || '' }}
+          BACKFILL_FROM: ${{ inputs.backfill_from }}
+          FORCE:         ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Spain.csv
+          message: 'chore: update Spain data from DGT'
+          default_author: github_actions
+
+      - name: Trigger render
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Dispatching render for Spain/Whole"
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Spain \
+            -f variant=Whole

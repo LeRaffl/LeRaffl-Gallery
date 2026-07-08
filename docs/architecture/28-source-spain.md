@@ -1,10 +1,13 @@
 # 28 · Source: Spain (DGT microdata — investigation & automation plan)
 
-**Status: INVESTIGATION — probe complete, awaiting the §4b market-definition
-decision.** Spain is live on the gallery, but its pipeline is only
-half-automated (see §1). This document records the plan to put Spain on its
-own DGT-based fetcher, what the probe verified (probe runs #1–#7,
-2026-07-08), and the one open decision. The verification vehicle is
+**Status: LIVE (bootstrap pending render check).** The maintainer decided
+§4b **option 1** on 2026-07-08: DGT is canonical, the series is rebuilt from
+the microdata under one definition, the previous curated series is parked as
+`data/Spain_legacy.csv` (kept for quick rollback and for the pre-layout-era
+splice), and the ACEA deviation is explained in `footnotes.csv`. Fetcher:
+`scripts/fetch_spain.py` + `.github/workflows/fetch-spain.yml`. This
+document records what the probe verified (runs #1–#7, 2026-07-08) and why
+the definition is what it is. The verification vehicle was
 `.github/workflows/probe-spain.yml` / `scripts/probe_spain_dgt.py`, which must
 run from GitHub Actions because the Claude sandbox's egress proxy denies
 CONNECT to every Spanish host involved (`www.dgt.es`, `sedeapl.dgt.gob.es`,
@@ -168,25 +171,30 @@ Bucket conventions confirmed: REEV → BEV (~60–210/month, reported
 separately by the probe), FCEV → OTHERS (single digits), HEV covers
 full+mild in both sources (that's why it matches to ~zero).
 
-## 4b. The open decision — two honest end states
+## 4b. The decision (taken 2026-07-08): DGT-C canonical, full backfill
 
-1. **DGT-C becomes canonical, full history backfill (recommended).**
-   Rebuild `Spain.csv` 2015-01→ from the monthly microdata under Filter C,
-   fetch new months from DGT in the first days of the month, demote ACEA to
-   a plausibility cross-check (warn if |Δ TOTAL| > ~3 %). One definition
-   end-to-end, registry-direct, weeks earlier than ACEA, and the same
-   pipeline feeds every variant in §5. Cost: the published Spain series
-   changes by ~+2 % TOTAL / +0.1–0.3 pp BEV share; the diesel curve sits
-   visibly higher than ANFAC's (worth a footnote). Requires layout checks on
-   the older files (record length ≠ 714 → transcribe that year's design).
-2. **ACEA stays canonical for Whole; DGT feeds only the new variants**
-   (Vans/HDV/Buses/Used/Rental…). No definitional step, zero risk to the
-   existing series — but the headline Spain number stays ~3 weeks late,
-   which was the original complaint.
+The maintainer picked option 1 with three explicit calls:
 
-A hybrid ("DGT early, overwrite with ACEA when it lands") would mix two
-definitions inside single rows over time and is rejected on principle —
-the gallery never publishes a number it later silently redefines.
+1. **M1 people movers stay in Whole.** ID.Buzz/Multivan/V-Class are
+   passenger cars in the registry sense; ANFAC's model-based reclassification
+   into light commercials is *their* convention, not ours. The deviation is
+   surfaced where people will look for it (`footnotes.csv`, this doc) because
+   most readers compare against ACEA.
+2. **REEV → `EREV` column** (not BEV): the renderer folds EREV into the PHEV
+   curve in the BEV/PHEV/ICE trajectory and shows it as its own band in the
+   TTM fuel mix — exactly the China convention (see `R/data.R`'s EREV
+   partial-window guard and `R/post_text.R`'s "(of which X %p were EREV)").
+3. **The old series is parked, not deleted:** `data/Spain.csv` →
+   `data/Spain_legacy.csv` (inert — the gallery is driven by params/manifest,
+   not by a data/ glob). Quick rollback = rename it back. Months older than
+   the current MATRABA layout era are spliced from it into the new CSV with
+   their original source string, so the fit window stays populated and the
+   seam is visible in the `source` column.
+
+The rejected alternatives, for the record: ACEA-stays-canonical (keeps the
+3-week lag that started this) and the hybrid "DGT early, ACEA overwrites
+later" (mixes two definitions inside single rows over time — the gallery
+never publishes a number it later silently redefines).
 
 ## 5. Variant opportunities (why DGT is worth the effort)
 
