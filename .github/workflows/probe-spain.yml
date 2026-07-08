@@ -22,6 +22,16 @@ name: Probe Spain data (DGT microdata)
 # what to do with the results.
 
 on:
+  # TEMPORARY push trigger: workflow_dispatch is only offered by GitHub once
+  # the workflow file exists on the default branch, so on the investigation
+  # branch the probe self-triggers on pushes touching its own files instead.
+  # Drop this block (keep workflow_dispatch) when merging to master.
+  push:
+    branches:
+      - claude/spain-data-automation-9jml5p
+    paths:
+      - scripts/probe_spain_dgt.py
+      - .github/workflows/probe-spain.yml
   workflow_dispatch:
     inputs:
       periods:
@@ -58,6 +68,8 @@ jobs:
 
       - name: Run probe
         run: |
+          # inputs.* are empty on push-triggered runs — fall back to defaults.
+          PERIODS="${PERIODS:-2026-04 2026-05}"
           period_flags=""
           for p in $PERIODS; do period_flags="$period_flags --period $p"; done
           python scripts/probe_spain_dgt.py $period_flags \
