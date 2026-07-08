@@ -1,0 +1,11 @@
+🇺🇾 Uruguay (Vans) - June 26 - BEV Trajectory
+8.6% BEV
+1.3% PHEV
+90.0% ICE (of which 2.0%p were HEV)
+
+Trailing 12 months are:
+4.2% BEV
+0.4% PHEV
+95.4% ICE (of which 1.3%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
