@@ -261,7 +261,9 @@ def aggregate_whole(txt_bytes: bytes, period: str) -> dict[str, int]:
             f"with these offsets. Extend MATRABA_LAYOUT for that era first."
         )
     counts["TOTAL"] = sum(counts[k] for k in FUEL_COLUMNS)
-    if counts["TOTAL"] < 20_000:
+    # Corruption guard only — must stay below genuine market collapses:
+    # April 2020 (full COVID lockdown) is a real 4,586.
+    if counts["TOTAL"] < 2_000:
         raise RuntimeError(f"{period}: implausibly small market "
                            f"({counts['TOTAL']}); refusing to write.")
     return counts
