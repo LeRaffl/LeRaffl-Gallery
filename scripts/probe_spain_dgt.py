@@ -75,8 +75,10 @@ import requests
 # fallbacks in case of zero-padding or naming drift. {y}=year, {m}=2-digit
 # month, {ym}=YYYYMM.
 ZIP_URL_CANDIDATES = [
-    "https://www.dgt.es/microdatos/salida/{y}/{m}/vehiculos/matriculaciones/export_mensual_mat_{ym}.zip",
+    # Verified by probe run #1 (2026-07-08): month directory is NOT
+    # zero-padded ("2026/4/", not "2026/04/"); the zero-padded variant 404s.
     "https://www.dgt.es/microdatos/salida/{y}/{m_nopad}/vehiculos/matriculaciones/export_mensual_mat_{ym}.zip",
+    "https://www.dgt.es/microdatos/salida/{y}/{m}/vehiculos/matriculaciones/export_mensual_mat_{ym}.zip",
     "https://www.dgt.es/microdatos/salida/{y}/{m}/vehiculos/matriculaciones/export_mensual_mat_{ym}.txt.gz",
 ]
 
@@ -431,6 +433,10 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
                            encoding="latin-1", errors="replace")
     report.append(f"First {args.keep_sample} records saved to `{sample_path.name}` "
                   "(artifact) for manual layout verification.\n")
+    report.append("Two raw records inline (for log-only debugging):\n\n```")
+    for l in all_lines[:2]:
+        report.append(l)
+    report.append("```\n")
 
     # 3. layout
     if not args.fields:
@@ -539,6 +545,15 @@ def main() -> int:
             report.append("\n**⚠ Design PDF downloaded but auto-parse found "
                           "<10 field rows.** Raw text dumped to "
                           "`design_pdftotext.txt` — transcribe manually.\n")
+            # Inline dump so the layout is fixable from the job log alone
+            # (the Claude sandbox cannot download Actions artifacts).
+            dump = (report_dir / "design_pdftotext.txt").read_text(
+                encoding="utf-8", errors="replace")
+            lines = [l for l in dump.splitlines() if l.strip()]
+            report.append("<details><summary>pdftotext output, first 250 "
+                          "non-empty lines</summary>\n\n```")
+            report.extend(lines[:250])
+            report.append("```\n</details>\n")
     else:
         report.append("\n**✗ Design PDF unreachable** — layout unknown, "
                       "aggregation will be skipped.\n")
