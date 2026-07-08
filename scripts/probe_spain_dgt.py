@@ -351,6 +351,10 @@ def aggregate(lines, loc: dict[str, tuple[int, int]], period: str) -> dict:
         "fuel_turismo_new_inmonth": collections.Counter(),  # C + FEC_MATRICULA in target month
         "fuel_tipo40_new": collections.Counter(),    # tipo 40 (turismo) only, new
         "fuel_tipo25_new": collections.Counter(),    # tipo 25 (todo terreno) only, new
+        # fuel split per clasificación-reglamento value within Filter C —
+        # candidate home of the diesel excess: autocaravanas (motorhomes)
+        # are M1/tipo 40 but not part of ANFAC's turismo market.
+        "clasif_fuel": collections.defaultdict(collections.Counter),
         # within the Filter-C population, where does the ACEA excess live?
         "turismo_clave": collections.Counter(),      # clave_tramite distribution
         "turismo_clave_diesel": collections.Counter(),  # …diesel-only
@@ -394,6 +398,9 @@ def aggregate(lines, loc: dict[str, tuple[int, int]], period: str) -> dict:
         if is_new and turismo_re.match(tipo or ""):
             agg["fuel_turismo_new"][fuel] += 1
             agg["fuel_tipo40_new" if tipo == "40" else "fuel_tipo25_new"][fuel] += 1
+            clasif = (field(line, loc["clasificacion_reglamento"])
+                      if "clasificacion_reglamento" in loc else "")
+            agg["clasif_fuel"][clasif][fuel] += 1
             agg["turismo_clave"][clave] += 1
             if fuel == "DIESEL":
                 agg["turismo_clave_diesel"][clave] += 1
@@ -566,6 +573,21 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
     report.extend(counter_table(
         "FEC_MATRICULA month within Filter C (monthly file carries "
         "out-of-month trámites)", agg["turismo_fecmonth"], top=8))
+
+    report.append("**Fuel split per clasificación reglamento within Filter C** "
+                  "(top 12 by size — looking for the diesel-heavy "
+                  "autocaravana class ANFAC excludes)\n")
+    report.append("| clasif | BEV | PHEV | HEV | PETROL | DIESEL | OTHERS | total |")
+    report.append("|---|---|---|---|---|---|---|---|")
+    ranked = sorted(agg["clasif_fuel"].items(),
+                    key=lambda kv: -sum(kv[1].values()))
+    for clasif, cnt in ranked[:12]:
+        row_total = sum(cnt.values())
+        g = gallery_split(cnt)
+        report.append(f"| `{clasif or '(empty)'}` | {g['BEV']:,} | {g['PHEV']:,} "
+                      f"| {g['HEV']:,} | {g['PETROL']:,} | {g['DIESEL']:,} "
+                      f"| {g['OTHERS']:,} | {row_total:,} |")
+    report.append("")
 
     # 5. ACEA consistency check under each candidate filter
     acea_row = spain_csv_row(period)
