@@ -170,6 +170,7 @@ FIELD_PATTERNS = {
     "categoria_homologacion": r"CATEGORIA.?HOMOLOGACION",
     "categoria_electrico":    r"CATEGORIA.?VEHICULO.?ELECTRICO",
     "clasificacion_reglamento": r"CLASIFICACION.?REGLAMENTO",
+    "clave_tramite": r"CLAVE.?TRAMITE",
 }
 
 GALLERY_FUELS = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL")
@@ -323,8 +324,15 @@ def classify_fuel(cat_elec: str, propulsion: str) -> str:
     return "OTHERS"
 
 
-def aggregate(lines, loc: dict[str, tuple[int, int]]) -> dict:
-    """One pass over all records collecting every distribution the probe needs."""
+def aggregate(lines, loc: dict[str, tuple[int, int]], period: str) -> dict:
+    """One pass over all records collecting every distribution the probe needs.
+
+    `period` (YYYY-MM) buckets FEC_MATRICULA (DDMMYYYY) into in-month vs
+    out-of-month — the monthly file also carries trámites processed this
+    month for registrations dated earlier (and re-registrations, temporal→
+    definitiva conversions etc., distinguished by CLAVE_TRAMITE).
+    """
+    target_mmyyyy = period[5:7] + period[0:4]
     agg = {
         "n_total": 0,
         "clase_mat": collections.Counter(),
@@ -335,10 +343,16 @@ def aggregate(lines, loc: dict[str, tuple[int, int]]) -> dict:
         "renting": collections.Counter(),
         "cat_electrico": collections.Counter(),
         "propulsion": collections.Counter(),
+        "clave_tramite": collections.Counter(),
         # fuel split under candidate "turismos" filters:
         "fuel_m1_new": collections.Counter(),        # M1 homologation, new
         "fuel_turismo_new": collections.Counter(),   # tipo=turismo/todoterreno, new
         "fuel_m1_new_ord": collections.Counter(),    # + clase matrícula ordinaria
+        "fuel_turismo_new_inmonth": collections.Counter(),  # C + FEC_MATRICULA in target month
+        # within the Filter-C population, where does the ACEA excess live?
+        "turismo_clave": collections.Counter(),      # clave_tramite distribution
+        "turismo_clave_diesel": collections.Counter(),  # …diesel-only
+        "turismo_fecmonth": collections.Counter(),   # in-month vs out-month
     }
     # COD_TIPO 40 = turismo; 25 = todo terreno (verified against raw records:
     # Range Rover Evoque carries 25 + clasificación 2500, Corolla 40 + 1000).
@@ -355,8 +369,12 @@ def aggregate(lines, loc: dict[str, tuple[int, int]]) -> dict:
         rent = field(line, loc["renting"]) if "renting" in loc else ""
         ce = field(line, loc["categoria_electrico"]) if "categoria_electrico" in loc else ""
         prop = field(line, loc["propulsion"]) if "propulsion" in loc else ""
+        clave = field(line, loc["clave_tramite"]) if "clave_tramite" in loc else ""
+        fec = field(line, loc["fec_matricula"]) if "fec_matricula" in loc else ""
+        in_month = fec[2:10] == target_mmyyyy  # DDMMYYYY → MMYYYY
 
         agg["clase_mat"][clase] += 1
+        agg["clave_tramite"][clave] += 1
         agg["cod_tipo"][tipo] += 1
         agg["cat_homologacion"][cathom] += 1
         agg["nuevo_usado"][nu] += 1
@@ -373,6 +391,13 @@ def aggregate(lines, loc: dict[str, tuple[int, int]]) -> dict:
                 agg["fuel_m1_new_ord"][fuel] += 1
         if is_new and turismo_re.match(tipo or ""):
             agg["fuel_turismo_new"][fuel] += 1
+            agg["turismo_clave"][clave] += 1
+            if fuel == "DIESEL":
+                agg["turismo_clave_diesel"][clave] += 1
+            agg["turismo_fecmonth"]["in-month" if in_month else
+                                    f"out-of-month ({fec[4:8]}-{fec[2:4]})"] += 1
+            if in_month:
+                agg["fuel_turismo_new_inmonth"][fuel] += 1
     return agg
 
 
@@ -515,7 +540,7 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
                       "the corresponding distributions below will be empty.\n")
 
     # 4. aggregate + report
-    agg = aggregate(all_lines, loc)
+    agg = aggregate(all_lines, loc, period)
     report.append(f"\n### Distributions ({agg['n_total']:,} records)\n")
     report.extend(counter_table("Clase matrícula", agg["clase_mat"]))
     report.extend(counter_table("Tipo vehículo", agg["cod_tipo"]))
@@ -528,6 +553,16 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
     report.extend(counter_table("Renting", agg["renting"]))
     report.extend(counter_table("Categoría vehículo eléctrico", agg["cat_electrico"]))
     report.extend(counter_table("Propulsión", agg["propulsion"]))
+    report.extend(counter_table("Clave trámite (whole file)", agg["clave_tramite"]))
+    report.extend(counter_table(
+        "Clave trámite within Filter C (turismo/todoterreno, new)",
+        agg["turismo_clave"]))
+    report.extend(counter_table(
+        "Clave trámite within Filter C, DIESEL only — where the ACEA "
+        "diesel excess lives", agg["turismo_clave_diesel"]))
+    report.extend(counter_table(
+        "FEC_MATRICULA month within Filter C (monthly file carries "
+        "out-of-month trámites)", agg["turismo_fecmonth"], top=8))
 
     # 5. ACEA consistency check under each candidate filter
     acea_row = spain_csv_row(period)
@@ -541,6 +576,8 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
         ("Filter A — homologation M1, new", agg["fuel_m1_new"]),
         ("Filter B — M1, new, clase matrícula ordinaria", agg["fuel_m1_new_ord"]),
         ("Filter C — tipo turismo/todoterreno, new", agg["fuel_turismo_new"]),
+        ("Filter D — C + FEC_MATRICULA in target month",
+         agg["fuel_turismo_new_inmonth"]),
     ]:
         split = gallery_split(counter)
         reev = counter.get("REEV", 0)
@@ -612,7 +649,8 @@ def main() -> int:
                 encoding="utf-8", errors="replace")
             lines = dump.splitlines()
             for heading, n_lines in [("1.3.5", 25), ("1.3.3", 30),
-                                     ("1.3.4", 80), ("1.3.11", 25)]:
+                                     ("1.3.4", 80), ("1.3.8", 25),
+                                     ("1.3.11", 25)]:
                 starts = [i for i, l in enumerate(lines)
                           if l.strip().startswith(heading + " ")]
                 if not starts:
