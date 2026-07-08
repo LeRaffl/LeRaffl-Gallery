@@ -39,6 +39,7 @@ It is **not** a tutorial. It documents what exists, why it was built that way, a
 | 25 | [25-source-uruguay.md](25-source-uruguay.md) | Per-country source playbook for Uruguay (ACAU Compilado XLSX). Whole/Vans/HDV/Buses; documents the 2024-vs-2026 workbook-layout differences. |
 | 26 | [26-source-singapore.md](26-source-singapore.md) | Per-country source playbook for Singapore (lta.gov.sg **M03 PDF**, "New Registration of Cars by Make"). The only **PDF-table-parsed** source: positional `pdfplumber` extraction summed per fuel type. Documents the data.gov.sg (frozen 2025-05) / SingStat (no fuel split) dead-ends and the R. Andrew credit. |
 | 27 | [27-source-albania.md](27-source-albania.md) | Per-country source playbook for Albania (dpshtrr.al Open Data, fetched via R. Andrew's pre-parsed CSV mirror). Documents the DPSHTRR Looker Studio dead-end, the new+used-registration caveat, and the LPG-into-OTHERS bucketing. |
+| 28 | [28-source-spain.md](28-source-spain.md) | **Investigation** playbook for Spain (DGT monthly matriculaciones microdata). Plan to replace the late ACEA appender with a registry-direct fetcher; probe workflow (`probe-spain.yml`) verifies download/layout and runs the ACEA consistency gate; variant options (Vans/HDV/Buses/Used imports/Rental); Asier Lizarraga attribution. |
 
 ## Big picture in one diagram
 
