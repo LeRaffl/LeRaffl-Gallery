@@ -1,8 +1,8 @@
 name: Fetch Uruguay data (ACAU)
 
-# TEMPORARILY converted into a diagnostic on this branch: downloads the
-# current ACAU 2026 workbooks and commits them into debug_acau/ so they can
-# be inspected from an offline sandbox. Will be restored before merge.
+# TEMPORARILY converted into a dry-run test on this branch: runs the fixed
+# parser against the snapshotted July 2026 workbook (debug_acau/) and prints
+# the resulting CSV diff without committing. Will be restored before merge.
 
 on:
   workflow_dispatch:
@@ -10,8 +10,6 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -20,46 +18,16 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: pip install requests beautifulsoup4 openpyxl
 
-      - name: Download ACAU 2026 workbooks
+      - name: Dry-run parser against snapshot workbook
         run: |
-          mkdir -p debug_acau
-          python - <<'EOF'
-          import re, requests
-          from bs4 import BeautifulSoup
-
-          HEADERS = {
-              "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                             "AppleWebKit/537.36 (KHTML, like Gecko) "
-                             "Chrome/120.0.0.0 Safari/537.36"),
-              "Accept-Language": "es-UY,es;q=0.9,en;q=0.8",
-          }
-          HOME = "https://www.acau.com.uy/"
-          resp = requests.get(HOME, headers=HEADERS, timeout=30)
-          resp.raise_for_status()
-          open("debug_acau/home.html", "w", encoding="utf-8").write(resp.text)
-          soup = BeautifulSoup(resp.text, "html.parser")
-
-          for a in soup.find_all("a", href=True):
-              href = a["href"]
-              if not href.lower().endswith(".xlsx"):
-                  continue
-              text = a.get_text(" ", strip=True)
-              if not re.search(r"\b(Compilado|Mercado)\s+2026\b", text, re.I):
-                  continue
-              url = href if href.startswith("http") \
-                  else "https://www.acau.com.uy/" + href.lstrip("./")
-              label = re.sub(r"\s+", "_", text.strip())
-              print(f"Downloading {text!r} -> {url}")
-              data = requests.get(url, headers=HEADERS, timeout=60).content
-              open(f"debug_acau/{label}.xlsx", "wb").write(data)
-          EOF
-          ls -la debug_acau
-
-      - name: Commit workbooks to branch
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: debug_acau
-          message: 'chore: snapshot ACAU 2026 workbooks for parser debugging'
-          default_author: github_actions
+          python scripts/fetch_uruguay.py \
+            --url debug_acau/Compilado_2026.xlsx --year 2026
+          echo "=== git diff --stat ==="
+          git diff --stat
+          echo "=== per-CSV tails ==="
+          for f in data/Uruguay.csv data/Uruguay_Vans.csv data/Uruguay_HDV.csv data/Uruguay_Buses.csv; do
+            echo "--- $f"
+            tail -3 "$f"
+          done
