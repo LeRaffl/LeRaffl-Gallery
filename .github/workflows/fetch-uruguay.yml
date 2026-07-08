@@ -1,8 +1,8 @@
 name: Fetch Uruguay data (ACAU)
 
-# TEMPORARILY converted into a diagnostic on this branch: dumps the ACAU
-# homepage xlsx links and the structure of the current 2026 workbooks so the
-# parser can be adapted to the new layout. Will be restored before merge.
+# TEMPORARILY converted into a diagnostic on this branch: downloads the
+# current ACAU 2026 workbooks and commits them into debug_acau/ so they can
+# be inspected from an offline sandbox. Will be restored before merge.
 
 on:
   workflow_dispatch:
@@ -10,20 +10,24 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 openpyxl
+        run: pip install requests beautifulsoup4
 
-      - name: Dump ACAU homepage links and workbook structure
+      - name: Download ACAU 2026 workbooks
         run: |
+          mkdir -p debug_acau
           python - <<'EOF'
-          import io, re, requests
+          import re, requests
           from bs4 import BeautifulSoup
-          import openpyxl
 
           HEADERS = {
               "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -34,57 +38,28 @@ jobs:
           HOME = "https://www.acau.com.uy/"
           resp = requests.get(HOME, headers=HEADERS, timeout=30)
           resp.raise_for_status()
-          open("home.html", "w", encoding="utf-8").write(resp.text)
+          open("debug_acau/home.html", "w", encoding="utf-8").write(resp.text)
           soup = BeautifulSoup(resp.text, "html.parser")
 
-          print("=== ALL xlsx/xls/pdf ANCHORS ===")
-          candidates = []
           for a in soup.find_all("a", href=True):
               href = a["href"]
-              if re.search(r"\.(xlsx?|pdf)(\?|$)", href.lower()):
-                  text = a.get_text(" ", strip=True)
-                  print(f"  text={text!r}  href={href!r}")
-                  if href.lower().endswith(".xlsx"):
-                      candidates.append((text, href))
-
-          print()
-          print("=== item_estadistica BLOCKS ===")
-          for div in soup.select("div.item_estadistica"):
-              print("  " + " | ".join(div.stripped_strings))
-
-          def resolve(href):
-              if href.startswith("http"):
-                  return href
-              return "https://www.acau.com.uy/" + href.lstrip("./")
-
-          for text, href in candidates:
-              if "2026" not in text and "2026" not in href:
+              if not href.lower().endswith(".xlsx"):
                   continue
-              url = resolve(href)
-              print()
-              print(f"=== WORKBOOK {text!r} -> {url} ===")
-              try:
-                  data = requests.get(url, headers=HEADERS, timeout=60).content
-                  fname = re.sub(r"[^A-Za-z0-9_.-]", "_", href.split("/")[-1])
-                  open(fname, "wb").write(data)
-                  wb = openpyxl.load_workbook(io.BytesIO(data), data_only=True)
-                  print(f"  sheets: {wb.sheetnames}")
-                  for sheet in wb.sheetnames:
-                      ws = wb[sheet]
-                      print(f"  --- sheet {sheet!r} first 15 rows (first 20 cols) ---")
-                      for i, row in enumerate(ws.iter_rows(values_only=True, max_row=15)):
-                          cells = ["" if c is None else str(c) for c in row[:20]]
-                          print(f"    r{i+1}: {cells}")
-              except Exception as e:
-                  print(f"  ERROR: {type(e).__name__}: {e}")
+              text = a.get_text(" ", strip=True)
+              if not re.search(r"\b(Compilado|Mercado)\s+2026\b", text, re.I):
+                  continue
+              url = href if href.startswith("http") \
+                  else "https://www.acau.com.uy/" + href.lstrip("./")
+              label = re.sub(r"\s+", "_", text.strip())
+              print(f"Downloading {text!r} -> {url}")
+              data = requests.get(url, headers=HEADERS, timeout=60).content
+              open(f"debug_acau/{label}.xlsx", "wb").write(data)
           EOF
+          ls -la debug_acau
 
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Commit workbooks to branch
+        uses: EndBug/add-and-commit@v9
         with:
-          name: acau-debug
-          path: |
-            home.html
-            *.xlsx
-          if-no-files-found: warn
+          add: debug_acau
+          message: 'chore: snapshot ACAU 2026 workbooks for parser debugging'
+          default_author: github_actions
