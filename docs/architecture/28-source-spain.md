@@ -1,9 +1,10 @@
 # 28 · Source: Spain (DGT microdata — investigation & automation plan)
 
-**Status: INVESTIGATION.** Spain is live on the gallery, but its pipeline is
-only half-automated (see §1). This document records the plan to put Spain on
-its own DGT-based fetcher, what has been verified so far, and — critically —
-what has *not*. The verification vehicle is
+**Status: INVESTIGATION — probe complete, awaiting the §4b market-definition
+decision.** Spain is live on the gallery, but its pipeline is only
+half-automated (see §1). This document records the plan to put Spain on its
+own DGT-based fetcher, what the probe verified (probe runs #1–#7,
+2026-07-08), and the one open decision. The verification vehicle is
 `.github/workflows/probe-spain.yml` / `scripts/probe_spain_dgt.py`, which must
 run from GitHub Actions because the Claude sandbox's egress proxy denies
 CONNECT to every Spanish host involved (`www.dgt.es`, `sedeapl.dgt.gob.es`,
@@ -106,75 +107,107 @@ IEST help):
   certificate — that service is for bulk consumers and is **not** the path
   we use; the plain HTTPS file download is.)
 
-**Assumed until the probe confirms** (all encoded as candidates/diagnostics
-in `probe_spain_dgt.py`, not as hard-wired truths):
+**Verified by probe runs #1–#7 (2026-07-08, months 2026-01…05):**
 
-| Assumption | Risk if wrong | Probe behaviour |
-|---|---|---|
-| Zip URL pattern `…/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mensual_mat_{YYYYMM}.zip` | 404s | tries 3 pattern variants, logs each status; `--zip-url` override |
-| dgt.es WAF tolerates Actions runners with browser headers (ACEA-style warmup) | 403s | logs status + explains 403-vs-404 diagnosis |
-| Design PDF auto-parses into (name, position, length) rows via `pdftotext -layout` | layout unknown | dumps raw pdftotext text as artifact for manual transcription |
-| Encoding latin-1 | mojibake in labels | decodes with `errors="replace"`, keeps a raw sample artifact |
-| Field semantics (codes for clase matrícula, tipo vehículo, servicio) | filter definitions off | prints full value distributions instead of hiding them behind filters |
-| Exact publication day-of-month | cron window wrong | run the probe on the 1st–5th for the just-ended month and observe |
+| Fact | Detail |
+|---|---|
+| Zip URL | `https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mensual_mat_{YYYYMM}.zip` — month directory **not zero-padded** (`2026/4/`, the padded variant 404s). ~16–17 MB, one `.txt` inside. |
+| Access | Anonymous HTTP 200 from a GitHub Actions runner with browser headers + dgt.es warmup GET. No WAF trouble observed. Design PDF also downloads (910 KB, `/export/sites/web-DGT/.galleries/downloads/dgt-en-cifras/matraba/MATRICULACIONES_MATRABA.pdf`). |
+| Layout | 714-char fixed-width records, 69 fields; the design table gives (name, CHAR length) with **no position column** — positions are cumulative lengths, and they tile to exactly 714. Transcribed as `MATRABA_LAYOUT` in `probe_spain_dgt.py`, spot-verified against real records (INE municipality code, tipo/clasificación/categoría at computed offsets). ~180–190k records/month. Banner line present in the monthly file (the design doc claims it's daily-only — outdated). Encoding latin-1. |
+| Trámite mix | The monthly file is 96–97 % clave trámite `1` (matriculación); `9` (re-matriculación, ≈ clase 7 histórica) and `B` are excluded by the new+turismo filters anyway. FEC_MATRICULA is ≈100 % in-month — no cut-off drift vs ANFAC. |
+| Key code tables (Anexo I) | COD_PROPULSION: 0 gasolina, 1 diésel, 2 eléctrico, 6 GLP, 7 GNC, 8 GNL, 9 H2, B etanol, C biodiésel. COD_SERVICIO/SERVICIO: `B00` particular (~75 %), `A01` alquiler sin conductor (~34–35k/month!), `A00` público, … CATEGORIA_VEHICULO_ELECTRICO: BEV/REEV/PHEV/HEV (+FCEV, single digits). COD_TIPO: 40 turismo, 25 todo terreno, 20 furgoneta, 30 autobús… |
 
-## 4. Consistency check (the go/no-go gate)
+Still unverified: the exact publication day-of-month (observe live; both
+probed months were long since available) and layout stability across older
+years (matters only for a history backfill — check record lengths per year).
+
+## 4. Consistency check — results (runs #3–#7, months 2026-01/02/03/05)
 
 "Was auch immer wir ziehen, es müsste mit ACEA konsistent sein." The probe
-aggregates the gallery fuel split under **three candidate market filters** and
-prints per-fuel deltas against the ACEA rows already in `Spain.csv`:
+compared five candidate market filters against the `Spain.csv` rows. The
+winner on fuel-split fidelity is **Filter C = COD_TIPO ∈ {40 turismo,
+25 todo terreno}, IND_NUEVO_USADO = N** — exactly ANFAC's "turismos y
+todoterrenos" wording. Its deltas vs the CSV, stable across all four months:
 
-- **Filter A** — EU homologation category `M1`, new vehicles.
-- **Filter B** — A + clase matrícula *ordinaria* (excludes diplomatic,
-  temporary, historic plates).
-- **Filter C** — DGT vehicle *type* turismo/todoterreno, new vehicles
-  (ANFAC's own market wording is "turismos y todoterrenos").
+| Fuel | Δ DGT-C vs CSV | Verdict |
+|---|---|---|
+| HEV | **−0.04 % … +0.17 %** (2026-05: ±0 *to the unit*) | identical bucket |
+| PETROL | +0.8 … +1.7 % | ≈ identical |
+| OTHERS | +1.5 … +3.5 % (small base) | ≈ identical |
+| PHEV | +1.6 … +3.2 % | small systematic surplus |
+| BEV | +3.1 … +3.6 % | small systematic surplus |
+| DIESEL | **+29 … +39 %** (+1.0 … +1.5 k units) | definitional, see below |
+| TOTAL | +1.9 … +2.5 % | — |
 
-Acceptance: the filter whose TOTAL and per-fuel deltas sit consistently
-within **~±1–2 %** of ACEA across several probed months becomes the
-`fetch_spain.py` market definition. Expected wrinkles, to be documented
-rather than tuned away:
+In BEV-share terms (the gallery's headline metric) DGT-C sits **+0.05 to
++0.28 pp** above the CSV series — e.g. 2026-05: 10.86 % vs 10.77 %.
 
-- **HEV**: ACEA's "hybrid electric" bucket includes mild hybrids. If DGT's
-  `HEV` category is materially narrower/wider, the delta will be systematic —
-  that's a bucket-definition difference, not noise. If it's large, the
-  honest options are (a) accept and footnote it, or (b) keep HEV from ACEA.
-- **REEV**: folded into BEV for comparison (ACEA counts extended-range EVs
-  as battery-electric); the probe reports the REEV count separately so the
-  fold is auditable.
-- **FCEV/HICEV** → OTHERS (matches ACEA, where hydrogen sits outside the
-  battery-electric column). Counts are near-zero either way.
-- **Autocaravanas/motorhomes** are homologated M1 but are not "turismos y
-  todoterrenos" — comparing Filter A vs C exposes whether this matters at
-  ACEA-reconciliation scale.
-- **Month cut-off**: microdata records carry both fecha de matriculación and
-  fecha de trámite; late-processed registrations can shift a few hundred
-  units between months depending on which date ANFAC cuts on.
+**What the residual is (and is not).** The probe falsified, in order: trámite
+contamination (99.9 % of Filter C is plain clave `1`), month-cut-off effects
+(≈100 % in-month), tipo-25 scope (only ~1.7 k units, almost all PHEV/HEV —
+removing them *hurts* the HEV match), clase-matrícula scope (Filter B ≈ A),
+and autocaravanas (the diesel excess is 94 % inside clasificación `1000`,
+plain turismo). What remains is a segment of ~2.4 k units/month with a
+signature of ~55 % diesel, ~10 % BEV, ~10 % PHEV, ~10 % petrol and **zero
+HEV** — the profile of M1-homologated people movers / van-derived passenger
+vehicles (Multivan, V-Class, Vito Tourer, ID.Buzz, …), which DGT types as
+`40` but Ideauto/ANFAC segments into *light commercials* on a per-model
+basis. A model-list segmentation cannot be replicated from DGT attributes,
+so this residual is the irreducible definitional difference between
+"registry M1 passenger cars" and "ANFAC's turismo market".
 
-If **no** filter reconciles, Spain stays on the ACEA appender and this doc
-gains a postmortem section — same policy as
-[14-data-source-gaps.md](14-data-source-gaps.md): no consistency, no switch.
+**Important discovery about the existing history:** the blend rows
+(2026-01…03, source `ACEA / DGT / asierlizarraga`) show *the same* deltas as
+the pure-ACEA rows — the curated history follows the ANFAC market
+definition, not raw DGT-C. Switching the series to DGT-C therefore
+introduces a one-time definitional step (+~2 % TOTAL, +~30 % diesel,
++~0.1–0.3 pp BEV share) unless the history is backfilled from DGT microdata
+under the same Filter-C definition (see §4b).
+
+Bucket conventions confirmed: REEV → BEV (~60–210/month, reported
+separately by the probe), FCEV → OTHERS (single digits), HEV covers
+full+mild in both sources (that's why it matches to ~zero).
+
+## 4b. The open decision — two honest end states
+
+1. **DGT-C becomes canonical, full history backfill (recommended).**
+   Rebuild `Spain.csv` 2015-01→ from the monthly microdata under Filter C,
+   fetch new months from DGT in the first days of the month, demote ACEA to
+   a plausibility cross-check (warn if |Δ TOTAL| > ~3 %). One definition
+   end-to-end, registry-direct, weeks earlier than ACEA, and the same
+   pipeline feeds every variant in §5. Cost: the published Spain series
+   changes by ~+2 % TOTAL / +0.1–0.3 pp BEV share; the diesel curve sits
+   visibly higher than ANFAC's (worth a footnote). Requires layout checks on
+   the older files (record length ≠ 714 → transcribe that year's design).
+2. **ACEA stays canonical for Whole; DGT feeds only the new variants**
+   (Vans/HDV/Buses/Used/Rental…). No definitional step, zero risk to the
+   existing series — but the headline Spain number stays ~3 weeks late,
+   which was the original complaint.
+
+A hybrid ("DGT early, overwrite with ACEA when it lands") would mix two
+definitions inside single rows over time and is rejected on principle —
+the gallery never publishes a number it later silently redefines.
 
 ## 5. Variant opportunities (why DGT is worth the effort)
 
 All from the *same* monthly file, i.e. one fetcher run populates every CSV:
 
-| Variant | Filter | Precedent |
-|---|---|---|
-| `Whole` | winning filter from §4, `IND_NUEVO_USADO = N` | — |
-| `Vans` | homologation `N1`, new | Italy_Vans, Luxembourg, Poland |
-| `HDV` | `N2` + `N3`, new | Denmark_HDV, Finland_HDV, Poland |
-| `Buses` | `M2` + `M3`, new | Finland_Buses, Ireland_Buses, Uruguay |
-| `2-Wheelers` | category `L`, new | Albania_2-Wheelers |
-| `Used` (imports) | winning filter, `IND_NUEVO_USADO = U` — first Spanish registration of a used (imported) vehicle | Netherlands/Denmark Used discussions; **new axis for southern Europe** |
-| `Rental` / `NonRental` | `SERVICIO` = alquiler sin conductor (short-term rental); `RENTING` flag = leasing/renting | Italy_Rental / Italy_NonRental |
-| `Private` / `Industry` | `PERSONA_FISICA_JURIDICA` (natural vs. legal person) | Denmark, Finland |
+| Variant | Filter | Size (2026-05, whole file) | Precedent |
+|---|---|---|---|
+| `Whole` | Filter C (§4), `IND_NUEVO_USADO = N` | ~114 k | — |
+| `Vans` | homologation `N1` (+`N1G`), new | ~13.9 k | Italy_Vans, Luxembourg, Poland |
+| `HDV` | `N2` + `N3`, new | ~2.6 k (N3 2.5 k) | Denmark_HDV, Finland_HDV, Poland |
+| `Buses` | `M2` + `M3`, new | sub-500 (check exact) | Finland_Buses, Ireland_Buses, Uruguay |
+| `2-Wheelers` | category `L*` / tipo 50, new | ~27 k tipo-50 | Albania_2-Wheelers |
+| `Used` (imports) | Filter C, `IND_NUEVO_USADO = U` | ~21.7 k U overall | **new axis for southern Europe** |
+| `Rental` / `NonRental` | `SERVICIO = A01` (alquiler sin conductor) | **~35 k A01/month** — Spain's rental channel rivals Italy's noleggio | Italy_Rental / Italy_NonRental |
+| `Renting` (leasing) | `RENTING = S` | ~34 k | — |
+| `Private` / `Industry` | `PERSONA_FISICA_JURIDICA` (D/X) | not yet tabulated | Denmark, Finland |
 
-The probe prints the full distributions of every one of these fields, so the
-first successful run doubles as the sizing study (are Spanish rental-channel
-registrations big enough to matter, like Italy's noleggio? how many used
-imports per month?). Decide which variants to actually publish *after*
-seeing the numbers — each extra CSV costs render time and gallery space.
+Sizes are per-month from the probe's distribution tables (whole file — the
+per-variant fuel splits need the variant filters applied, a fetcher-side
+detail). Rental and Used are clearly big enough to be worth publishing;
+Buses is borderline. Each extra CSV costs render time and gallery space.
 
 Note on the ACEA interplay once `fetch_spain.py` exists: the moment DGT rows
 are written with a non-`ACEA` source string (e.g. `DGT`), `fetch_acea.py`'s
@@ -222,20 +255,19 @@ Recorded so the next session doesn't rediscover them:
 
 ## 8. Next steps
 
-1. **Run the probe** (Actions → "Probe Spain data (DGT microdata)" →
-   defaults probe 2026-04 + 2026-05, both of which have pure-ACEA rows to
-   compare against). Cost: one manual click, ~2 minutes.
-2. Read the job summary: download OK? design parsed? which filter
-   reconciles? variant sizes?
-3. If the layout auto-parse failed, transcribe positions from the
-   `design_pdftotext.txt` artifact into the future fetcher (one-time,
-   ~15 min).
-4. Build `scripts/fetch_spain.py` + `fetch-spain.yml` on the verified
-   ground: winning filter, upsert semantics as in `fetch_italy.py`,
-   source `DGT`, sanity check (components ≈ TOTAL), cron in the first week
-   of the month, commit-gated render dispatch. Decide the variant lineup
-   from the probe's distribution tables.
-5. Update [05-flows.md](05-flows.md) (Spain leaves the "practically never
+1. ~~Run the probe~~ **Done** (runs #1–#7, 2026-07-08; results in §3–§5.
+   Note: on this branch the probe fires on pushes touching its own files —
+   the `workflow_dispatch` path only appears once the file reaches master.
+   Drop the temporary `push` trigger when merging).
+2. **Maintainer decision on §4b** (DGT-C canonical + backfill vs. ACEA-keep
+   + variants-only).
+3. Build `scripts/fetch_spain.py` + `fetch-spain.yml` accordingly: Filter C,
+   upsert semantics as in `fetch_italy.py`, source `DGT`, sanity check
+   (components ≈ TOTAL), cron in the first week of the month, commit-gated
+   render dispatch, ACEA cross-check warning. If §4b-option-1: a backfill
+   script à la `backfill_italy_rental.py` over the historical monthly zips
+   (verify per-year record lengths before trusting offsets).
+4. Update [05-flows.md](05-flows.md) (Spain leaves the "practically never
    written" conditional-list note), this doc (from INVESTIGATION to live
    playbook), and the gallery's source/footnote surface (DGT + Asier
    credit).
