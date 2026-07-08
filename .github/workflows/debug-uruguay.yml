@@ -1,0 +1,90 @@
+name: Debug Uruguay ACAU source (temporary)
+
+# Temporary diagnostic: dumps the ACAU homepage xlsx links and the structure
+# of the current "Compilado 2026" workbook so we can adapt the parser to the
+# new layout. Delete once fetch_uruguay.py is fixed.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 openpyxl
+
+      - name: Dump ACAU homepage links and workbook structure
+        run: |
+          python - <<'EOF'
+          import io, re, requests
+          from bs4 import BeautifulSoup
+          import openpyxl
+
+          HEADERS = {
+              "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                             "AppleWebKit/537.36 (KHTML, like Gecko) "
+                             "Chrome/120.0.0.0 Safari/537.36"),
+              "Accept-Language": "es-UY,es;q=0.9,en;q=0.8",
+          }
+          HOME = "https://www.acau.com.uy/"
+          resp = requests.get(HOME, headers=HEADERS, timeout=30)
+          resp.raise_for_status()
+          open("home.html", "w", encoding="utf-8").write(resp.text)
+          soup = BeautifulSoup(resp.text, "html.parser")
+
+          print("=== ALL xlsx/xls/pdf ANCHORS ===")
+          candidates = []
+          for a in soup.find_all("a", href=True):
+              href = a["href"]
+              if re.search(r"\.(xlsx?|pdf)(\?|$)", href.lower()):
+                  text = a.get_text(" ", strip=True)
+                  print(f"  text={text!r}  href={href!r}")
+                  if href.lower().endswith(".xlsx"):
+                      candidates.append((text, href))
+
+          print()
+          print("=== item_estadistica BLOCKS ===")
+          for div in soup.select("div.item_estadistica"):
+              print("  " + " | ".join(div.stripped_strings))
+
+          def resolve(href):
+              if href.startswith("http"):
+                  return href
+              return "https://www.acau.com.uy/" + href.lstrip("./")
+
+          for text, href in candidates:
+              if "2026" not in text and "2026" not in href:
+                  continue
+              url = resolve(href)
+              print()
+              print(f"=== WORKBOOK {text!r} -> {url} ===")
+              try:
+                  data = requests.get(url, headers=HEADERS, timeout=60).content
+                  fname = re.sub(r"[^A-Za-z0-9_.-]", "_", href.split("/")[-1])
+                  open(fname, "wb").write(data)
+                  wb = openpyxl.load_workbook(io.BytesIO(data), data_only=True)
+                  print(f"  sheets: {wb.sheetnames}")
+                  for sheet in wb.sheetnames:
+                      ws = wb[sheet]
+                      print(f"  --- sheet {sheet!r} first 15 rows (first 20 cols) ---")
+                      for i, row in enumerate(ws.iter_rows(values_only=True, max_row=15)):
+                          cells = ["" if c is None else str(c) for c in row[:20]]
+                          print(f"    r{i+1}: {cells}")
+              except Exception as e:
+                  print(f"  ERROR: {type(e).__name__}: {e}")
+          EOF
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acau-debug
+          path: |
+            home.html
+            *.xlsx
+          if-no-files-found: warn
