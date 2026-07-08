@@ -76,6 +76,11 @@ headers "Ene"/"Feb"/…) and didn't break out PHEV at all — the maintainer
 had to google models to classify them. This parser targets the 2026+ layout
 only; back-filling pre-2026 years would require a separate parser.
 
+In July 2026 ACAU revised the workbook again ("Reporte Mensual Ventas
+Unificada YYYY" title instead of "COMPILADO YYYY", sheet "UTIL" instead of
+"UTILITARIO"); columns and fuel codes are unchanged. Both 2026 revisions
+are handled.
+
 CSV layout (all variants share the same column set)
 ----------------------------------------------------
     period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
@@ -169,10 +174,18 @@ _MONTH_INDEX: dict[str, int] = {
     **{m.lower(): i for i, m in enumerate(_MONTH_ABBREVS)},
 }
 
-# Sheet-name aliases for backward-compat with pre-2026 layout (resolved at parse time).
+# Sheet-name aliases for backward/forward-compat (resolved at parse time).
 _SHEET_ALIASES: dict[str, list[str]] = {
-    "UTILITARIO": ["UTILITARIOS"],  # 2024 used the plural form
+    # 2024 used the plural form; the mid-2026 workbook revision ("Reporte
+    # Mensual Ventas Unificada") abbreviates to "UTIL".
+    "UTILITARIO": ["UTILITARIOS", "UTIL"],
 }
+
+# Title markers that identify a workbook as the per-model Compilado (as
+# opposed to e.g. the per-manufacturer Mercado file). The workbook revision
+# published July 2026 dropped the "COMPILADO YYYY" header in favour of
+# "Reporte Mensual Ventas Unificada YYYY" — same sheets, same columns.
+_TITLE_MARKERS = ("COMPILADO", "VENTAS UNIFICADA")
 
 
 def find_compilado_url(year: int) -> str:
@@ -225,14 +238,13 @@ def parse_sheet(ws) -> tuple[dict[str, list[float]], list[float] | None]:
     bottom "TOTAL" row (in calendar-month order Enero..Diciembre) when one
     is present, used by the caller as a sanity check.
 
-    Layout assumption (2026):
-        row 5: "COMPILADO YYYY"            (year header — checked by caller)
-        row 6: sheet kind ("AUTOMOVILES" / "S.U.V.")
-        row 7: blank
-        row 8: column headers — first cell is "Nombre_Socio", contains
-               "Combustible" plus 12 month names "Enero" … "Diciembre"
-        row 9+: data rows; one per model
-        last:  "TOTAL" in column A with monthly totals (used as sanity check)
+    Layout assumption (2026; exact row numbers vary between revisions —
+    the July 2026 revision moved the title to row 4/5 and renamed it):
+        row ~5: workbook title (checked by caller against _TITLE_MARKERS)
+        row ~6: column headers — first cell is "Nombre_Socio", contains
+                "Combustible" plus 12 month names "Enero" … "Diciembre"
+        below:  data rows; one per model
+        last:   "TOTAL" in column A with monthly totals (used as sanity check)
 
     The header row is located dynamically by looking for the cell value
     "Combustible" so the parser tolerates small column shuffles. Month
@@ -337,10 +349,11 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     target_sheets = VARIANT_CONFIG[variant]["sheets"]
     wb = openpyxl.load_workbook(io.BytesIO(wb_bytes), data_only=True)
 
-    # Validate the workbook year. In the 2026+ layout "COMPILADO YYYY" appears in
-    # one cell; in the 2024 layout it's split across two adjacent rows ("Informe
-    # Compilado" + " Año 2024"). We therefore scan all cells in the first 10 rows
-    # for (a) a cell containing "COMPILADO" and (b) a cell containing a 4-digit year,
+    # Validate the workbook year. Layouts seen so far: "COMPILADO YYYY" in one
+    # cell (early 2026), "Informe Compilado" + " Año 2024" split across two rows
+    # (2024), and "Reporte Mensual Ventas Unificada YYYY" (since July 2026).
+    # We therefore scan all cells in the first 10 rows for (a) a cell containing
+    # any known title marker and (b) a cell containing a 4-digit year,
     # independently — both must be present somewhere in those rows.
     first_sheet_name = target_sheets[0]
     if first_sheet_name not in wb.sheetnames:
@@ -349,21 +362,21 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
                 first_sheet_name = alias
                 break
     first_ws = wb[first_sheet_name]
-    has_compilado = False
+    has_title = False
     year_cell = None
     for row in first_ws.iter_rows(values_only=True, max_row=10):
         for c in row:
             if not isinstance(c, str):
                 continue
-            if "COMPILADO" in c.upper():
-                has_compilado = True
+            if any(marker in c.upper() for marker in _TITLE_MARKERS):
+                has_title = True
             if year_cell is None:
                 m = re.search(r"\b(20\d{2})\b", c)
                 if m:
                     year_cell = int(m.group(1))
-    if not has_compilado:
+    if not has_title:
         raise RuntimeError(
-            "Could not find 'COMPILADO' in the first 10 rows — "
+            f"Could not find any of {_TITLE_MARKERS} in the first 10 rows — "
             "file may not be a Compilado xlsx"
         )
     if year_cell is None:
