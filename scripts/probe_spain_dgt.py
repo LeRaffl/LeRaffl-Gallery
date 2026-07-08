@@ -90,6 +90,55 @@ DESIGN_PDF_CANDIDATES = [
 
 SPAIN_CSV = Path("data/Spain.csv")
 
+# The MATRABA record layout, transcribed from MATRICULACIONES_MATRABA.pdf
+# (Tabla 1, "Contenidos de los ficheros") via probe run #2. The design table
+# has no position column — positions are the cumulative sum of the CHAR
+# lengths, in field order. The lengths below sum to exactly 714, which
+# matches the uniform record length observed in export_mensual_mat_202604/
+# 202605 (probe run #1), and spot-checks against raw records line up
+# (FEC_MATRICULA at [0:8], COD_TIPO 40/25 after the bastidor block,
+# CATEGORIA_VEHICULO_ELECTRICO showing "HEV " on a Toyota Corolla record).
+MATRABA_LAYOUT: list[tuple[str, int]] = [
+    ("FEC_MATRICULA", 8), ("COD_CLASE_MAT", 1), ("FEC_TRAMITACION", 8),
+    ("MARCA_ITV", 30), ("MODELO_ITV", 22), ("COD_PROCEDENCIA_ITV", 1),
+    ("BASTIDOR_ITV", 21), ("COD_TIPO", 2), ("COD_PROPULSION_ITV", 1),
+    ("CILINDRADA_ITV", 5), ("POTENCIA_ITV", 6), ("TARA", 6),
+    ("PESO_MAX", 6), ("NUM_PLAZAS", 3), ("IND_PRECINTO", 2),
+    ("IND_EMBARGO", 2), ("NUM_TRANSMISIONES", 2), ("NUM_TITULARES", 2),
+    ("LOCALIDAD_VEHICULO", 24), ("COD_PROVINCIA_VEH", 2),
+    ("COD_PROVINCIA_MAT", 2), ("CLAVE_TRAMITE", 1), ("FEC_TRAMITE", 8),
+    ("CODIGO_POSTAL", 5), ("FEC_PRIM_MATRICULACION", 8),
+    ("IND_NUEVO_USADO", 1), ("PERSONA_FISICA_JURIDICA", 1),
+    ("CODIGO_ITV", 9), ("SERVICIO", 3), ("COD_MUNICIPIO_INE_VEH", 5),
+    ("MUNICIPIO", 30), ("KW_ITV", 7), ("NUM_PLAZAS_MAX", 3),
+    ("CO2_ITV", 5), ("RENTING", 1), ("COD_TUTELA", 1), ("COD_POSESION", 1),
+    ("IND_BAJA_DEF", 1), ("IND_BAJA_TEMP", 1), ("IND_SUSTRACCION", 1),
+    ("BAJA_TELEMATICA", 11), ("TIPO_ITV", 25), ("VARIANTE_ITV", 25),
+    ("VERSION_ITV", 35), ("FABRICANTE_ITV", 70),
+    ("MASA_ORDEN_MARCHA_ITV", 6), ("MASA_MAXIMA_TECNICA_ADMISIBLE_ITV", 6),
+    ("CATEGORIA_HOMOLOGACION_EUROPEA_ITV", 4), ("CARROCERIA", 4),
+    ("PLAZAS_PIE", 3), ("NIVEL_EMISIONES_EURO_ITV", 8),
+    ("CONSUMO_WH_KM_ITV", 4), ("CLASIFICACION_REGLAMENTO_VEHICULOS_ITV", 4),
+    ("CATEGORIA_VEHICULO_ELECTRICO", 4), ("AUTONOMIA_VEHICULO_ELECTRICO", 6),
+    ("MARCA_VEHICULO_BASE", 30), ("FABRICANTE_VEHICULO_BASE", 50),
+    ("TIPO_VEHICULO_BASE", 35), ("VARIANTE_VEHICULO_BASE", 25),
+    ("VERSION_VEHICULO_BASE", 35), ("DISTANCIA_EJES_12_ITV", 4),
+    ("VIA_ANTERIOR_ITV", 4), ("VIA_POSTERIOR_ITV", 4),
+    ("TIPO_ALIMENTACION_ITV", 1), ("CONTRASENA_HOMOLOGACION_ITV", 25),
+    ("ECO_INNOVACION_ITV", 1), ("REDUCCION_ECO_ITV", 4),
+    ("CODIGO_ECO_ITV", 25), ("FEC_PROCESO", 8),
+]
+MATRABA_RECORD_LEN = sum(l for _, l in MATRABA_LAYOUT)  # = 714
+
+
+def matraba_fields() -> list[tuple[str, int, int]]:
+    """Hardcoded layout → (name, start_1based, length) rows, cumulative."""
+    fields, pos = [], 1
+    for name, length in MATRABA_LAYOUT:
+        fields.append((name, pos, length))
+        pos += length
+    return fields
+
 # dgt.es sits behind a WAF that 403s non-browser clients (same class of
 # problem as ACEA, see scripts/fetch_acea.py). Full browser header set +
 # a homepage warmup GET on the same session.
@@ -291,7 +340,10 @@ def aggregate(lines, loc: dict[str, tuple[int, int]]) -> dict:
         "fuel_turismo_new": collections.Counter(),   # tipo=turismo/todoterreno, new
         "fuel_m1_new_ord": collections.Counter(),    # + clase matrícula ordinaria
     }
-    turismo_re = re.compile(r"^(40|TURISMO|TODO.?TERRENO)", re.IGNORECASE)
+    # COD_TIPO 40 = turismo; 25 = todo terreno (verified against raw records:
+    # Range Rover Evoque carries 25 + clasificación 2500, Corolla 40 + 1000).
+    # Together they mirror ANFAC's "turismos y todoterrenos" market.
+    turismo_re = re.compile(r"^(40|25)$")
 
     for line in lines:
         agg["n_total"] += 1
@@ -426,6 +478,13 @@ def probe_period(session, period: str, args, report: list[str]) -> None:
     lengths = collections.Counter(len(l) for l in all_lines)
     report.append(f"Extracted `{inner_name}`: {len(all_lines):,} data records; "
                   f"record lengths {dict(lengths.most_common(3))}\n")
+    dominant_len = lengths.most_common(1)[0][0]
+    if dominant_len != MATRABA_RECORD_LEN:
+        report.append(f"**⚠ Record length {dominant_len} ≠ layout total "
+                      f"{MATRABA_RECORD_LEN}** — the MATRABA layout has "
+                      "drifted; field offsets below are unreliable. Compare "
+                      "the design dump against the transcription before "
+                      "trusting any aggregate.\n")
     report.append(f"Banner line: `{first[0][:120] if first else '?'}`\n")
 
     sample_path = Path(args.report_dir) / f"sample_{ym}.txt"
@@ -531,32 +590,45 @@ def main() -> int:
         report.append("## Design PDF download\n")
         report.extend(attempts)
 
-    args.fields = []
+    # Layout: the hardcoded MATRABA transcription is the primary source
+    # (verified against real records, run #2). The PDF is still fetched for
+    # the Anexo I code tables (COD_PROPULSION / SERVICIO / COD_TIPO /
+    # CATEGORIA_VEHICULO_ELECTRICO), which we excerpt into the report so the
+    # code semantics are readable from the job log.
+    args.fields = matraba_fields()
+    report.append(f"\nLayout: hardcoded MATRABA transcription, "
+                  f"{len(args.fields)} fields, record length "
+                  f"{MATRABA_RECORD_LEN} (must match the observed record "
+                  "length below).\n")
     if design_ok:
-        args.fields = parse_design_pdf(design_path,
-                                       report_dir / "design_pdftotext.txt")
-        if args.fields:
-            report.append(f"\n**✓ Design parsed:** {len(args.fields)} fields. "
-                          "Full list in `design_fields.txt` (artifact).\n")
-            (report_dir / "design_fields.txt").write_text(
-                "\n".join(f"{n}\tstart={a}\tlen={b}" for n, a, b in args.fields),
-                encoding="utf-8")
-        else:
-            report.append("\n**⚠ Design PDF downloaded but auto-parse found "
-                          "<10 field rows.** Raw text dumped to "
-                          "`design_pdftotext.txt` — transcribe manually.\n")
-            # Inline dump so the layout is fixable from the job log alone
-            # (the Claude sandbox cannot download Actions artifacts).
+        (report_dir / "design_fields.txt").write_text(
+            "\n".join(f"{n}\tstart={a}\tlen={b}" for n, a, b in args.fields),
+            encoding="utf-8")
+        try:
+            subprocess.run(["pdftotext", "-layout", str(design_path),
+                            str(report_dir / "design_pdftotext.txt")],
+                           check=True, capture_output=True)
             dump = (report_dir / "design_pdftotext.txt").read_text(
                 encoding="utf-8", errors="replace")
-            lines = [l for l in dump.splitlines() if l.strip()]
-            report.append("<details><summary>pdftotext output, first 250 "
-                          "non-empty lines</summary>\n\n```")
-            report.extend(lines[:250])
-            report.append("```\n</details>\n")
+            lines = dump.splitlines()
+            for heading, n_lines in [("1.3.5", 25), ("1.3.3", 30),
+                                     ("1.3.4", 80), ("1.3.11", 25)]:
+                starts = [i for i, l in enumerate(lines)
+                          if l.strip().startswith(heading + " ")]
+                if not starts:
+                    continue
+                start = starts[-1]  # last occurrence = section body, not TOC
+                report.append(f"<details><summary>Design Anexo "
+                              f"{lines[start].strip()}</summary>\n\n```")
+                report.extend(l for l in lines[start:start + n_lines]
+                              if l.strip())
+                report.append("```\n</details>\n")
+        except subprocess.CalledProcessError as e:
+            report.append(f"(pdftotext on design PDF failed: {e})\n")
     else:
-        report.append("\n**✗ Design PDF unreachable** — layout unknown, "
-                      "aggregation will be skipped.\n")
+        report.append("(Design PDF unreachable — Anexo code tables not "
+                      "excerpted; aggregation proceeds on the hardcoded "
+                      "layout regardless.)\n")
 
     for period in args.period:
         if not re.fullmatch(r"\d{4}-\d{2}", period):
