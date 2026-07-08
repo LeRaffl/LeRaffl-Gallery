@@ -69,7 +69,10 @@ jobs:
       - name: Run probe
         run: |
           # inputs.* are empty on push-triggered runs — fall back to defaults.
-          PERIODS="${PERIODS:-2026-04 2026-05}"
+          # 2026-01..03 are blend months (source ACEA/DGT/asierlizarraga):
+          # they test whether Filter C is continuous with the existing
+          # DGT-based history; 2026-05 keeps the pure-ACEA comparison.
+          PERIODS="${PERIODS:-2026-01 2026-02 2026-03 2026-05}"
           period_flags=""
           for p in $PERIODS; do period_flags="$period_flags --period $p"; done
           python scripts/probe_spain_dgt.py $period_flags \
