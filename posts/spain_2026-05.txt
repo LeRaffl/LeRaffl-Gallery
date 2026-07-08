@@ -1,11 +1,11 @@
 🇪🇸 Spain - May 26 - BEV Trajectory
 10.8% BEV
-12.3% PHEV
-77.0% ICE (of which 47.7%p were HEV)
+12.5% PHEV (of which 0.1%p were EREV)
+76.7% ICE (of which 46.7%p were HEV)
 
 Trailing 12 months are:
 9.8% BEV
-12.2% PHEV
-78.0% ICE (of which 44.5%p were HEV)
+12.3% PHEV (of which 0.1%p were EREV)
+77.9% ICE (of which 43.5%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
