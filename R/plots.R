@@ -168,7 +168,13 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                size = default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall)) +
     geom_ribbon(aes(ymin = Hybrid_lower, ymax = Hybrid_upper), fill = TRAJ_COLORS[["PHEV"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = Hybrid, color = "PHEV", shape = "PHEV"), lwd = 1) +
-    geom_point(data = df, aes(x = year, y = hybrid_share, color = "PHEV", shape = "PHEV"),
+    # data MUST be fit$Hybrid (like the BEV/ICE point layers use fit$BEV /
+    # fit$ICE): the size vector below is computed from fit$Hybrid, and
+    # fit_history() drops rows the raw df keeps (historically: year == NA on
+    # Austria's annual Vans/HDV rows) — mixing frames made ggplot abort with
+    # "Aesthetics must be either length 1 or the same as the data".
+    # fit$Hybrid$y == 1 − BEV − ICE == the same phev+erev share df carries.
+    geom_point(data = fit$Hybrid, aes(x = x, y = y, color = "PHEV", shape = "PHEV"),
                size = default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall)) +
     ylim(0, 1.1) +
     scale_x_continuous(breaks = seq(2006, fit$extrapol, ifelse(fit$extrapol > 2045, 4, 2)),

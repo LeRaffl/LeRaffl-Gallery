@@ -13,7 +13,7 @@ name: Fetch Ireland data (SIMI motorstats)
 # Inertia partial carsByEngineType) per variant. See scripts/fetch_ireland.py
 # and docs/architecture/15-source-ireland.md. Each run re-fetches a trailing
 # window per variant (revisions), with per-variant early-exit. When a CSV
-# changes, this workflow dispatches render-country.yml once per touched variant.
+# changes, the touched variants render via a serial render-country.yml matrix.
 
 on:
   workflow_dispatch:
@@ -33,6 +33,9 @@ on:
 
 jobs:
   fetch:
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+      variants_json: ${{ steps.changed.outputs.variants_json }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -73,6 +76,13 @@ jobs:
           done
           variants=$(IFS='|'; echo "${touched[*]}")
           echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          # JSON array for the serial render matrix below
+          if [ ${#touched[@]} -eq 0 ]; then
+            json="[]"
+          else
+            json=$(printf '"%s",' "${touched[@]}"); json="[${json%,}]"
+          fi
+          echo "variants_json=$json" >> "$GITHUB_OUTPUT"
           echo "Touched variants: ${variants:-<none>}"
 
       - name: Commit if changed
@@ -87,17 +97,24 @@ jobs:
           message: 'chore: update Ireland data from stats.simi.ie'
           default_author: github_actions
 
-      - name: Trigger render per touched variant
-        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VARIANTS: ${{ steps.changed.outputs.variants }}
-        run: |
-          IFS='|' read -ra arr <<< "$VARIANTS"
-          for variant in "${arr[@]}"; do
-            echo "Dispatching render for variant: $variant"
-            gh workflow run render-country.yml \
-              --ref "${GITHUB_REF_NAME}" \
-              -f country=Ireland \
-              -f variant="$variant"
-          done
+  # Strictly serial render chain over the touched variants (fetch-acea.yml /
+  # fetch-spain.yml pattern). The previous `gh workflow run` loop dispatched
+  # all variant renders in PARALLEL; their commit steps then raced on
+  # params.csv / weights.csv, whose per-variant rows are adjacent lines, so
+  # the `pull: --rebase --autostash` in render-country.yml hit real conflicts
+  # ("There are 2 conflicting files") and renders failed intermittently.
+  # max-parallel=1 renders one variant at a time; fail-fast=false lets the
+  # remaining variants render even if one chart crashes.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.variants_json != '[]'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.variants_json) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Ireland
+      variant: ${{ matrix.variant }}
+    secrets: inherit

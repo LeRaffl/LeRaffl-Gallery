@@ -12,7 +12,7 @@ FLAG <- c(
   luxembourg="\U0001F1F1\U0001F1FA", malaysia="\U0001F1F2\U0001F1FE",
   netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
-  sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7",
+  spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7",
   uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
 )
 
@@ -22,9 +22,20 @@ LABEL <- c(
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia",
   netherlands="Netherlands", `new-zealand`="New Zealand", poland="Poland",
-  portugal="Portugal", singapore="Singapore", sweden="Sweden", turkey="Turkey",
-  uruguay="Uruguay", usa="USA", acea="ACEA (EU)"
+  portugal="Portugal", singapore="Singapore", spain="Spain", sweden="Sweden",
+  turkey="Turkey", uruguay="Uruguay", usa="USA", acea="ACEA (EU)"
 )
+
+# Fallback-sicherer Lookup: LABEL/FLAG sind atomare benannte Vektoren, bei
+# denen `x[["fehlt"]]` HART fehlschlägt ("subscript out of bounds") — ein
+# `%||%` dahinter greift nie. Genau das hat nach dem Spain-Merge jeden
+# build-manifest-Lauf gekillt, weil fetch-spain.yml einen neuen Slug in
+# read_schedules() einführte, der hier fehlte. Ein unbekannter Slug darf den
+# Schedule-Build nie wieder stoppen: er degradiert zu Slug-Text / "?".
+lookup <- function(tbl, key, default) {
+  v <- unname(tbl[key])
+  if (length(v) == 0 || is.na(v)) default else v
+}
 
 # italy_rental erbt italy's cron-schedule, hat aber eigene Manifest-Einträge
 SHARED_SCHEDULE <- list(italy_rental = "italy")
@@ -173,7 +184,7 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
              if (day_date > today) "future")
     show_time <- length(chips) <= 4
     chip_html <- if (length(chips) == 0) "" else paste(map_chr(chips, function(c) {
-      label <- LABEL[[c$slug]]; flag <- FLAG[[c$slug]] %||% "?"
+      label <- lookup(LABEL, c$slug, c$slug); flag <- lookup(FLAG, c$slug, "?")
       time_label <- sprintf("%02d:%02d", c$hour, c$minute)
       badge <- if (c$slug == "italy_rental") '<span class="rb">R</span>' else ""
       time_span <- if (show_time) sprintf('<span class="t">%s</span>', time_label) else ""
@@ -309,7 +320,7 @@ render_ics <- function(year, month, schedules, n_months = 3) {
             paste0("DTSTAMP:", format(Sys.time(), tz="UTC", "%Y%m%dT%H%M%SZ")),
             paste0("DTSTART:", dt),
             paste0("DURATION:PT15M"),
-            paste0("SUMMARY:", LABEL[[slug]] %||% slug, " fetch"),
+            paste0("SUMMARY:", lookup(LABEL, slug, slug), " fetch"),
             "END:VEVENT"
           )
         }
