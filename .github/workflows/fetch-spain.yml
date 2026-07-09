@@ -52,9 +52,10 @@ on:
         default: false
         type: boolean
   schedule:
-    # Daily on the 1st–7th, 06:30 UTC — DGT publishes the consolidated
-    # monthly file in the first days of the following month.
-    - cron: '30 6 1-7 * *'
+    # Daily on the 1st–16th, 06:30 UTC. Empirically the consolidated monthly
+    # file is NOT out by the 8th (2026-06 was still 404 on 2026-07-08), so
+    # the window stays wide; the script self-throttles once the month is in.
+    - cron: '30 6 1-16 * *'
 
 jobs:
   fetch:
