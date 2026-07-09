@@ -1,0 +1,11 @@
+🇦🇹 Austria (Vans) - June 26 - BEV Trajectory
+14.9% BEV
+2.4% Hybrid
+82.6% ICE
+
+Trailing 12 months are:
+12.1% BEV
+3.0% Hybrid
+84.9% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
