@@ -1,43 +1,45 @@
-# 28 · Source: Spain (DGT microdata — investigation & automation plan)
+# 28 · Source: Spain (DGT matriculaciones microdata)
 
-**Status: LIVE (bootstrap pending render check).** The maintainer decided
-§4b **option 1** on 2026-07-08: DGT is canonical, the series is rebuilt from
-the microdata under one definition, the previous curated series is parked as
-`data/Spain_legacy.csv` (kept for quick rollback and for the pre-layout-era
-splice), and the ACEA deviation is explained in `footnotes.csv`. Fetcher:
-`scripts/fetch_spain.py` + `.github/workflows/fetch-spain.yml`. This
-document records what the probe verified (runs #1–#7, 2026-07-08) and why
-the definition is what it is. The verification vehicle was
-`.github/workflows/probe-spain.yml` / `scripts/probe_spain_dgt.py`, which must
-run from GitHub Actions because the Claude sandbox's egress proxy denies
-CONNECT to every Spanish host involved (`www.dgt.es`, `sedeapl.dgt.gob.es`,
-`datos.gob.es` — and `public.tableau.com`, see §6).
+**Status: LIVE.** DGT is the canonical source. The series is rebuilt from the
+microdata under one definition (§4b, decided 2026-07-08); the previous
+curated series is parked as `data/Spain_legacy.csv` (quick rollback + the
+pre-layout-era splice); the deviation vs ANFAC/ACEA is explained in
+`footnotes.csv`; and Spain has been **removed from `fetch_acea.py` entirely**
+so an ACEA-sourced (ANFAC-defined) row can never mix into the DGT series.
+Fetcher: `scripts/fetch_spain.py` + `.github/workflows/fetch-spain.yml`.
+
+The facts below were established by a temporary probe workflow
+(`probe-spain.yml` / `probe_spain_dgt.py`, runs #1–#7 on 2026-07-08),
+**since removed** — it had to run from GitHub Actions because the Claude
+sandbox's egress proxy denies CONNECT to every Spanish host involved
+(`www.dgt.es`, `sedeapl.dgt.gob.es`, `datos.gob.es` — and
+`public.tableau.com`, see §6). To re-verify layout/consistency later,
+resurrect it from git history (last present on branch
+`claude/spain-data-automation-9jml5p`).
 
 ## TL;DR
 
 ```
-Today:         data/Spain.csv history 2015-01…2026-03 = manual blend,
-               source "ACEA / DGT / asierlizarraga"; new months appended by
-               fetch_acea.py (conditional-list "no row exists" branch),
-               source "ACEA" — arrives late (~22nd-25th of the next month)
-Target:        DGT monthly matriculaciones microdata (raw registry, free,
-               no login) → scripts/fetch_spain.py, ACEA demoted to fallback
+Source:        DGT monthly matriculaciones microdata (raw registry, free,
+               no login) → scripts/fetch_spain.py. Canonical; ACEA no longer
+               writes Spain at all.
+Publishes:     first half of the following month — weeks before ACEA.
 Zip URL:       https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/
-               matriculaciones/export_mensual_mat_{YYYYMM}.zip   [UNVERIFIED]
-Format:        fixed-width .txt, NO header row (line 1 is an informational
-               banner), layout from MATRICULACIONES_MATRABA.pdf design doc
-Fuel fields:   CATEGORIA_VEHICULO_ELECTRICO ∈ {BEV, REEV, PHEV, HEV, FCEV,
-               HICEV} + COD_PROPULSION_ITV (gasolina/diésel/GLP/GNC/H2/…)
-Variants:      one file carries Whole (M1) · Vans (N1) · HDV (N2+N3) ·
-               Buses (M2+M3) · 2-Wheelers (L) · Used Imports (IND_NUEVO_USADO)
-               · Rental/NonRental (SERVICIO + RENTING) · Private/Company
-Gate:          probe-spain.yml consistency report vs ACEA rows must reconcile
-               (~±1-2% on TOTAL) before any fetcher lands
+               matriculaciones/export_mensual_mat_{YYYYMM}.zip
+               ({M} NOT zero-padded — the padded variant 404s)
+Format:        714-char fixed-width .txt, NO header row (line 1 is an
+               informational banner), 69-field layout from
+               MATRICULACIONES_MATRABA.pdf (hardcoded in fetch_spain.py)
+Market (Whole):COD_TIPO ∈ {40 turismo, 25 todo terreno}, new; registry-side
+               "turismos y todoterrenos" — ~2% above ACEA (§4)
+Fuel fields:   CATEGORIA_VEHICULO_ELECTRICO ∈ {BEV, REEV→EREV, PHEV, HEV,
+               FCEV} + COD_PROPULSION_ITV (gasolina/diésel/GLP/GNC/H2/…);
+               EREV folds into PHEV in the 3-curve plot, own TTM band (China)
+Variants:      one download → Whole · Rental · NonRental · Used · Vans ·
+               HDV · Buses · 2-Wheelers  (definitions in §5/§5b)
 Attribution:   DGT as raw source; Asier Lizarraga Oroquieta credited for the
-               curated history (like Ray Willis / Australia, R. Andrew /
-               Singapore). His Tableau viz is NOT scraped (§6).
-Scripts:       scripts/probe_spain_dgt.py           (probe, read-only)
-Workflow:      .github/workflows/probe-spain.yml    (workflow_dispatch only)
+               pre-Oct-2015 curated history (like Ray Willis / Australia,
+               R. Andrew / Singapore). His Tableau viz is NOT scraped (§6).
 ```
 
 ## 1. Where Spain stands today
@@ -116,7 +118,7 @@ IEST help):
 |---|---|
 | Zip URL | `https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mensual_mat_{YYYYMM}.zip` — month directory **not zero-padded** (`2026/4/`, the padded variant 404s). ~16–17 MB, one `.txt` inside. |
 | Access | Anonymous HTTP 200 from a GitHub Actions runner with browser headers + dgt.es warmup GET. No WAF trouble observed. Design PDF also downloads (910 KB, `/export/sites/web-DGT/.galleries/downloads/dgt-en-cifras/matraba/MATRICULACIONES_MATRABA.pdf`). |
-| Layout | 714-char fixed-width records, 69 fields; the design table gives (name, CHAR length) with **no position column** — positions are cumulative lengths, and they tile to exactly 714. Transcribed as `MATRABA_LAYOUT` in `probe_spain_dgt.py`, spot-verified against real records (INE municipality code, tipo/clasificación/categoría at computed offsets). ~180–190k records/month. Banner line present in the monthly file (the design doc claims it's daily-only — outdated). Encoding latin-1. |
+| Layout | 714-char fixed-width records, 69 fields; the design table gives (name, CHAR length) with **no position column** — positions are cumulative lengths, and they tile to exactly 714. Transcribed as `MATRABA_LAYOUT` in `fetch_spain.py`, spot-verified against real records (INE municipality code, tipo/clasificación/categoría at computed offsets). ~180–190k records/month. Banner line present in the monthly file (the design doc claims it's daily-only — outdated). Encoding latin-1. |
 | Trámite mix | The monthly file is 96–97 % clave trámite `1` (matriculación); `9` (re-matriculación, ≈ clase 7 histórica) and `B` are excluded by the new+turismo filters anyway. FEC_MATRICULA is ≈100 % in-month — no cut-off drift vs ANFAC. |
 | Key code tables (Anexo I) | COD_PROPULSION: 0 gasolina, 1 diésel, 2 eléctrico, 6 GLP, 7 GNC, 8 GNL, 9 H2, B etanol, C biodiésel. COD_SERVICIO/SERVICIO: `B00` particular (~75 %), `A01` alquiler sin conductor (~34–35k/month!), `A00` público, … CATEGORIA_VEHICULO_ELECTRICO: BEV/REEV/PHEV/HEV (+FCEV, single digits). COD_TIPO: 40 turismo, 25 todo terreno, 20 furgoneta, 30 autobús… |
 
@@ -294,27 +296,31 @@ Recorded so the next session doesn't rediscover them:
   `public.tableau.com`. Server-side WebFetch reaches them but gets
   HTTP 403 from the DGT/Akamai WAF (non-browser client). Consequence:
   **nothing DGT-side is verifiable from a sandbox session** — hence the
-  probe workflow, which runs where `fetch_acea.py` already proved WAF-laden
-  sources are workable (browser headers + homepage warmup session).
-- GitHub Actions egress is unrestricted; if dgt.es turns out to block GitHub
+  investigation ran through a GitHub Actions probe, where `fetch_acea.py`
+  had already proved WAF-laden sources are workable (browser headers +
+  homepage warmup session). `fetch_spain.py` reuses that approach.
+- GitHub Actions egress is unrestricted; if dgt.es ever blocks GitHub
   runner IPs outright (Austria precedent), the fallback is the same one
   Austria uses: relay through the Cloudflare Worker `/fetch`
   ([20-source-austria.md](20-source-austria.md)).
 
-## 8. Next steps
+## 8. Status & possible follow-ups
 
-1. ~~Run the probe~~ **Done** (runs #1–#7, 2026-07-08; results in §3–§5.
-   The temporary branch `push` triggers used during the investigation have
-   been removed again — probe and fetcher are dispatch/cron only).
-2. **Maintainer decision on §4b** (DGT-C canonical + backfill vs. ACEA-keep
-   + variants-only).
-3. Build `scripts/fetch_spain.py` + `fetch-spain.yml` accordingly: Filter C,
-   upsert semantics as in `fetch_italy.py`, source `DGT`, sanity check
-   (components ≈ TOTAL), cron in the first week of the month, commit-gated
-   render dispatch, ACEA cross-check warning. If §4b-option-1: a backfill
-   script à la `backfill_italy_rental.py` over the historical monthly zips
-   (verify per-year record lengths before trusting offsets).
-4. Update [05-flows.md](05-flows.md) (Spain leaves the "practically never
-   written" conditional-list note), this doc (from INVESTIGATION to live
-   playbook), and the gallery's source/footnote surface (DGT + Asier
-   credit).
+Live since 2026-07 (§4b option 1). Done: bootstrap backfill (2015-01→,
+DGT from 2015-10 with the pre-layout months spliced from the legacy file),
+all eight variants, ACEA removed from Spain, footnotes, renders. The
+temporary probe scaffolding was removed after use (recover from git history
+on branch `claude/spain-data-automation-9jml5p` if a re-verification is
+ever needed).
+
+Possible later work, none blocking:
+
+- `Private`/`Industry` split via `PERSONA_FISICA_JURIDICA` (D/X) — the one
+  obvious variant axis not yet built.
+- A per-year MATRABA layout table if the backfill is ever pushed before
+  2015-10 (older files have a different record length; `fetch_spain.py`
+  stops at the first length mismatch rather than misread offsets).
+- Attribute-level refinement toward the ANFAC market definition is
+  **not** pursued on purpose — the ~2% people-mover difference is a
+  model-list segmentation ANFAC does that DGT attributes can't reproduce;
+  it is documented, not tuned away (§4).

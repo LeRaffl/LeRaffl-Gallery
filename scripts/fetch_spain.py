@@ -14,7 +14,8 @@ registered vehicle, monthly, free, no login:
 The month directory is NOT zero-padded ("2026/4/", the padded variant 404s).
 Records are 714 chars over 69 fields per the MATRICULACIONES_MATRABA.pdf
 record design; the layout below was transcribed and verified against real
-records by scripts/probe_spain_dgt.py (probe runs #1–#7, 2026-07-08). The
+records by a temporary probe workflow (runs #1–#7, 2026-07-08; since
+removed — see docs/architecture/28-source-spain.md). The
 first line of the file is an informational banner, not data.
 
 Variants — one download, one pass, every CSV
