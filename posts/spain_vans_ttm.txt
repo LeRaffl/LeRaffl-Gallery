@@ -1,0 +1,11 @@
+🇪🇸 Spain (Vans) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++2.5pp  BEV   (3.9% → 6.4%)
++1.9pp  PHEV  (0.8% → 2.7%)
+−0.1pp  HEV   (0.8% → 0.7%)
+−4.4pp  ICE   (94.6% → 90.2%)
+
+HEV peaked at 2.0% in 2024-06 (declining for 23 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

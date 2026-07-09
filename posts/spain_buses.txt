@@ -1,0 +1,11 @@
+🇪🇸 Spain (Buses) - May 26 - BEV Trajectory
+5.4% BEV
+18.1% Hybrid
+76.5% ICE
+
+Trailing 12 months are:
+10.6% BEV
+16.4% Hybrid
+73.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
