@@ -71,10 +71,11 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
     new_A$Quarter <- ifelse(new_A$x %% 1 < 0.668, "Q3", new_A$Quarter)
     new_A$Quarter <- ifelse(new_A$x %% 1 < 0.418, "Q2", new_A$Quarter)
     new_A$Quarter <- ifelse(new_A$x %% 1 < 0.168, "Q1", new_A$Quarter)
-    lastyearly <- ceiling(max(subset(df_loop, df_loop$time_interval == "yearly")$year, default = -Inf))
-    if (is.finite(lastyearly)) {
-      new_A$Quarter <- ifelse(new_A$x <= lastyearly, "Yearly", new_A$Quarter)
-    }
+    # new_A rows map 1:1 onto df_loop rows, so label yearly points directly
+    # from time_interval. The old heuristic ("everything up to the last
+    # yearly x") additionally swallowed the first monthly point of the
+    # following year once annual rows are anchored mid-year (data.R).
+    new_A$Quarter <- ifelse(df_loop$time_interval %in% "yearly", "Yearly", new_A$Quarter)
     new_A$overall <- df_loop$overall
     new_A$time_interval <- df_loop$time_interval
 
