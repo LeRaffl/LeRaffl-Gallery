@@ -1,0 +1,12 @@
+🇪🇸 Spain (NonRental) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++4.3pp  BEV   (8.7% → 13.0%)
++6.1pp  PHEV  (7.4% → 13.4%)
++0.6pp  HEV   (42.8% → 43.3%)
+−10.9pp  ICE   (41.2% → 30.3%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2027-04.
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2027-08.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
