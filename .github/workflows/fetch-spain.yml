@@ -19,18 +19,6 @@ name: Fetch Spain data (DGT microdata)
 # See scripts/fetch_spain.py and docs/architecture/28-source-spain.md.
 
 on:
-  # TEMPORARY push trigger (same pattern as probe-spain.yml):
-  # workflow_dispatch only becomes available once this file is on the
-  # default branch, so on the working branch the fetcher runs on pushes
-  # touching its own files. The very first run bootstraps the backfill
-  # (data/Spain.csv absent); later pushes are cheap no-ops. Drop this
-  # block when merging to master.
-  push:
-    branches:
-      - claude/spain-data-automation-9jml5p
-    paths:
-      - scripts/fetch_spain.py
-      - .github/workflows/fetch-spain.yml
   workflow_dispatch:
     inputs:
       period:

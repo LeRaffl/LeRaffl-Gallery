@@ -264,9 +264,8 @@ Recorded so the next session doesn't rediscover them:
 ## 8. Next steps
 
 1. ~~Run the probe~~ **Done** (runs #1–#7, 2026-07-08; results in §3–§5.
-   Note: on this branch the probe fires on pushes touching its own files —
-   the `workflow_dispatch` path only appears once the file reaches master.
-   Drop the temporary `push` trigger when merging).
+   The temporary branch `push` triggers used during the investigation have
+   been removed again — probe and fetcher are dispatch/cron only).
 2. **Maintainer decision on §4b** (DGT-C canonical + backfill vs. ACEA-keep
    + variants-only).
 3. Build `scripts/fetch_spain.py` + `fetch-spain.yml` accordingly: Filter C,
