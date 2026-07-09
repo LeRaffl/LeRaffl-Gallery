@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Fetch Spain new-registration data from DGT monthly matriculaciones microdata
-and upsert data/Spain.csv.
+and upsert data/Spain*.csv (Whole + variants).
 
 Source
 ------
@@ -17,19 +17,67 @@ record design; the layout below was transcribed and verified against real
 records by scripts/probe_spain_dgt.py (probe runs #1–#7, 2026-07-08). The
 first line of the file is an informational banner, not data.
 
-Market definition ("Filter C" from the probe)
----------------------------------------------
-    COD_TIPO ∈ {40 turismo, 25 todo terreno}  AND  IND_NUEVO_USADO = N
+Variants — one download, one pass, every CSV
+--------------------------------------------
+All variants are attribute filters over the same microdata records. The
+user-facing definitions (what's in, what's not — pickups, trucks, tractors,
+motorhomes, …) live in docs/architecture/28-source-spain.md §5b; keep the
+two in sync. In code terms:
 
-This is the registry-side reading of "turismos y todoterrenos". It is
-deliberately NOT identical to ANFAC/ACEA's market: ANFAC segments M1 people
-movers (Multivan, V-Class, ID.Buzz, …) into light commercials on a per-model
-basis, which cannot be replicated from DGT attributes. Expected steady-state
-deltas vs ACEA (measured on 2026-01/02/03/05): TOTAL ≈ +2 %, DIESEL ≈ +30 %,
-BEV/PHEV ≈ +3 %, HEV/PETROL ≈ identical. This is a definitional difference,
-not an error — documented in footnotes.csv and
-docs/architecture/28-source-spain.md §4. Consistency with the ACEA series
-was gate-checked by the probe before this fetcher was built.
+  Whole       data/Spain.csv             COD_TIPO ∈ {40 turismo, 25 todo
+                                         terreno}, IND_NUEVO_USADO = N.
+                                         The registry-side "turismos y
+                                         todoterrenos"; M1 people movers
+                                         (ID.Buzz, Multivan, …) deliberately
+                                         included — see the ACEA note below.
+  Rental      data/Spain_Rental.csv      Whole ∧ (SERVICIO = A01 alquiler
+                                         sin conductor ∨ RENTING = S).
+                                         Rent-a-car + renting/leasing, i.e.
+                                         the closest analogue of Italy's
+                                         noleggio (short + long term).
+  NonRental   data/Spain_NonRental.csv   Whole ∧ NOT Rental. Exact
+                                         complement; Rental+NonRental=Whole.
+  Used        data/Spain_Used.csv        COD_TIPO ∈ {40,25},
+                                         IND_NUEVO_USADO = U,
+                                         CLAVE_TRAMITE = 1: used cars at
+                                         their FIRST Spanish registration —
+                                         overwhelmingly used imports.
+                                         Re-registrations (clave 9, mostly
+                                         historic plates) excluded; domestic
+                                         ownership transfers are a different
+                                         DGT dataset (transferencias) and
+                                         are NOT in the matriculaciones
+                                         files at all.
+  Vans        data/Spain_Vans.csv        EU homologation N1* (incl. N1G),
+                                         new. Vans, car-derived vans and
+                                         pickups ≤3.5 t.
+  HDV         data/Spain_HDV.csv         EU homologation N2*/N3*, new.
+                                         Trucks >3.5 t incl. road-tractor
+                                         units. Agricultural tractors are
+                                         EU category T and NOT included.
+  Buses       data/Spain_Buses.csv       EU homologation M2*/M3*, new.
+                                         Low volume (~400–600/month).
+  2-Wheelers  data/Spain_2-Wheelers.csv  COD_TIPO ∈ {50 motocicleta,
+                                         90 ciclomotor}, new. Motorcycles +
+                                         mopeds; trikes/quads have their own
+                                         tipos and are excluded. Tipo-based
+                                         because the EU L-homologation field
+                                         is sparsely populated for two-
+                                         wheelers (national *0x codes).
+
+Not covered by any variant (by design): motorhomes/autocaravanas, quads &
+trikes, ambulances/hearses, trailers (O), agricultural & construction
+machinery, and anything with a non-ordinary matrícula that fails the
+filters above.
+
+ACEA consistency note (Whole)
+-----------------------------
+Whole is deliberately NOT identical to ANFAC/ACEA's turismo market: ANFAC
+segments M1 people movers into light commercials on a per-model basis,
+which cannot be replicated from DGT attributes. Measured steady-state
+deltas vs ACEA (2026-01/02/03/05): TOTAL ≈ +2 %, DIESEL ≈ +30 %, BEV/PHEV
+≈ +3 %, HEV/PETROL ≈ identical. Documented in footnotes.csv and
+docs/architecture/28-source-spain.md §4.
 
 Fuel mapping (gallery schema with EREV column, China-style)
 -----------------------------------------------------------
@@ -40,7 +88,7 @@ Fuel mapping (gallery schema with EREV column, China-style)
                                    HEV → HEV     FCEV/HICEV → OTHERS
     else COD_PROPULSION_ITV:       0 → PETROL    1 → DIESEL
                                    2 → BEV (electric propulsion without a
-                                       category label; 0–1 per month)
+                                       category label; rare)
                                    anything else (GLP/GNC/GNL/H2/…) → OTHERS
 
 Components sum to TOTAL exactly (single-pass count over the same records);
@@ -48,17 +96,15 @@ the sanity check is therefore an exact assertion, not a tolerance.
 
 Modes
 -----
-* Monthly (default): fetch the previous calendar month, upsert one row.
-  Self-throttles via the latest period already in the CSV.
-* Bootstrap/backfill (--backfill, or automatically when data/Spain.csv does
-  not exist): walk months DESCENDING from the previous month down to
-  --backfill-from (default 2015-01). Stops at the first month whose download
-  404s or whose record length ≠ 714 (older MATRABA layout era — extend the
-  layout table before trusting offsets there). Afterwards, any period still
-  missing is spliced from data/Spain_legacy.csv (the pre-DGT curated series,
-  source "ACEA / DGT / asierlizarraga"), keeping its original source string,
-  so the gallery's fit window stays fully populated. The seam is visible in
-  the source column and documented.
+* Monthly (default): fetch the previous calendar month, upsert one row per
+  variant. Self-throttles via the latest DGT row already in every CSV.
+* Bootstrap/backfill (--backfill, or automatically when any selected CSV
+  does not exist): walk months DESCENDING from the previous month down to
+  --backfill-from (default 2015-01). Stops at the first month whose
+  download 404s or whose record length ≠ 714 (older MATRABA layout era).
+  Afterwards Whole gets any still-missing period spliced from
+  data/Spain_legacy.csv (the pre-DGT curated series), keeping its original
+  source string; variants have no pre-DGT history to splice.
 
 Overwrite rule (mirrors the fetch_acea.py courtesy rule): a row is
 overwritten only if it doesn't exist or its source is exactly "DGT" or
@@ -66,17 +112,18 @@ overwritten only if it doesn't exist or its source is exactly "DGT" or
 
 Usage
 -----
-    python scripts/fetch_spain.py                      # monthly
-    python scripts/fetch_spain.py --backfill           # explicit bootstrap
-    python scripts/fetch_spain.py --period 2026-05     # one specific month
-    python scripts/fetch_spain.py --backfill --backfill-from 2018-01
-    [--csv data/Spain.csv] [--legacy data/Spain_legacy.csv] [--force]
+    python scripts/fetch_spain.py                       # monthly, all variants
+    python scripts/fetch_spain.py --variant Whole       # single variant
+    python scripts/fetch_spain.py --backfill            # explicit bootstrap
+    python scripts/fetch_spain.py --period 2026-05      # one specific month
+    [--backfill-from 2018-01] [--force]
 
 See docs/architecture/28-source-spain.md for the full investigation record.
 """
 import argparse
 import csv
 import io
+import json
 import os
 import sys
 import zipfile
@@ -85,10 +132,20 @@ from pathlib import Path
 
 import requests
 
-CSV_PATH_DEFAULT = "data/Spain.csv"
-LEGACY_PATH_DEFAULT = "data/Spain_legacy.csv"
+LEGACY_PATH = "data/Spain_legacy.csv"
 SOURCE = "DGT"
 BACKFILL_FROM_DEFAULT = "2015-01"
+
+VARIANT_CONFIG: dict[str, str] = {  # variant name → CSV path
+    "Whole":      "data/Spain.csv",
+    "Rental":     "data/Spain_Rental.csv",
+    "NonRental":  "data/Spain_NonRental.csv",
+    "Used":       "data/Spain_Used.csv",
+    "Vans":       "data/Spain_Vans.csv",
+    "HDV":        "data/Spain_HDV.csv",
+    "Buses":      "data/Spain_Buses.csv",
+    "2-Wheelers": "data/Spain_2-Wheelers.csv",
+}
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -167,8 +224,13 @@ SL_TIPO = _slice("COD_TIPO")
 SL_PROPULSION = _slice("COD_PROPULSION_ITV")
 SL_NUEVO_USADO = _slice("IND_NUEVO_USADO")
 SL_CAT_ELECTRICO = _slice("CATEGORIA_VEHICULO_ELECTRICO")
+SL_CLAVE = _slice("CLAVE_TRAMITE")
+SL_SERVICIO = _slice("SERVICIO")
+SL_RENTING = _slice("RENTING")
+SL_HOMOLOGACION = _slice("CATEGORIA_HOMOLOGACION_EUROPEA_ITV")
 
 TURISMO_TIPOS = {"40", "25"}
+TWO_WHEELER_TIPOS = {"50", "90"}
 
 
 class LayoutMismatch(RuntimeError):
@@ -210,9 +272,62 @@ def download_month(session: requests.Session, period: str) -> tuple[bytes, str]:
                        f"(last HTTP {last_status})")
 
 
-def aggregate_whole(txt_bytes: bytes, period: str) -> dict[str, int]:
-    """One pass: gallery fuel split for tipo 40/25, new. Exact by design."""
-    counts = {k: 0 for k in FUEL_COLUMNS}
+def classify_fuel(line: str) -> str:
+    cat = line[SL_CAT_ELECTRICO[0]:SL_CAT_ELECTRICO[1]].strip().upper()
+    if cat == "BEV":
+        return "BEV"
+    if cat == "REEV":
+        return "EREV"
+    if cat == "PHEV":
+        return "PHEV"
+    if cat == "HEV":
+        return "HEV"
+    if cat in ("FCEV", "HICEV"):
+        return "OTHERS"
+    prop = line[SL_PROPULSION[0]:SL_PROPULSION[1]]
+    if prop == "0":
+        return "PETROL"
+    if prop == "1":
+        return "DIESEL"
+    if prop == "2":
+        return "BEV"  # electric propulsion without a category label
+    return "OTHERS"
+
+
+def record_variants(line: str) -> list[str]:
+    """Variant memberships of one record — keep in sync with the module
+    docstring and 28-source-spain.md §5b."""
+    tipo = line[SL_TIPO[0]:SL_TIPO[1]].strip()
+    nu = line[SL_NUEVO_USADO[0]:SL_NUEVO_USADO[1]]
+    out: list[str] = []
+    if tipo in TURISMO_TIPOS:
+        if nu == "N":
+            out.append("Whole")
+            rental = (line[SL_SERVICIO[0]:SL_SERVICIO[1]].strip() == "A01"
+                      or line[SL_RENTING[0]:SL_RENTING[1]] == "S")
+            out.append("Rental" if rental else "NonRental")
+        elif nu == "U" and line[SL_CLAVE[0]:SL_CLAVE[1]] == "1":
+            out.append("Used")
+        return out
+    if nu != "N":
+        return out
+    if tipo in TWO_WHEELER_TIPOS:
+        out.append("2-Wheelers")
+        return out
+    hom = line[SL_HOMOLOGACION[0]:SL_HOMOLOGACION[1]].strip().upper()
+    if hom.startswith("N1"):
+        out.append("Vans")
+    elif hom.startswith(("N2", "N3")):
+        out.append("HDV")
+    elif hom.startswith(("M2", "M3")):
+        out.append("Buses")
+    return out
+
+
+def aggregate(txt_bytes: bytes, period: str,
+              variants: list[str]) -> dict[str, dict[str, int]]:
+    """One pass over all records: per-variant gallery fuel splits."""
+    counts = {v: {k: 0 for k in FUEL_COLUMNS} for v in variants}
     n_records = 0
     bad_len = 0
     stream = io.TextIOWrapper(io.BytesIO(txt_bytes), encoding="latin-1")
@@ -226,31 +341,13 @@ def aggregate_whole(txt_bytes: bytes, period: str) -> dict[str, int]:
         if len(line) != RECORD_LEN:
             bad_len += 1
             continue
-        if line[SL_TIPO[0]:SL_TIPO[1]].strip() not in TURISMO_TIPOS:
+        membership = record_variants(line)
+        if not membership:
             continue
-        if line[SL_NUEVO_USADO[0]:SL_NUEVO_USADO[1]] != "N":
-            continue
-        cat = line[SL_CAT_ELECTRICO[0]:SL_CAT_ELECTRICO[1]].strip().upper()
-        if cat == "BEV":
-            counts["BEV"] += 1
-        elif cat == "REEV":
-            counts["EREV"] += 1
-        elif cat == "PHEV":
-            counts["PHEV"] += 1
-        elif cat == "HEV":
-            counts["HEV"] += 1
-        elif cat in ("FCEV", "HICEV"):
-            counts["OTHERS"] += 1
-        else:
-            prop = line[SL_PROPULSION[0]:SL_PROPULSION[1]]
-            if prop == "0":
-                counts["PETROL"] += 1
-            elif prop == "1":
-                counts["DIESEL"] += 1
-            elif prop == "2":
-                counts["BEV"] += 1  # electric propulsion w/o category label
-            else:
-                counts["OTHERS"] += 1
+        fuel = classify_fuel(line)
+        for v in membership:
+            if v in counts:
+                counts[v][fuel] += 1
 
     if n_records == 0:
         raise RuntimeError(f"{period}: file contained no data records.")
@@ -260,12 +357,13 @@ def aggregate_whole(txt_bytes: bytes, period: str) -> dict[str, int]:
             f"{RECORD_LEN} — older MATRABA layout era; refusing to aggregate "
             f"with these offsets. Extend MATRABA_LAYOUT for that era first."
         )
-    counts["TOTAL"] = sum(counts[k] for k in FUEL_COLUMNS)
-    # Corruption guard only — must stay below genuine market collapses:
-    # April 2020 (full COVID lockdown) is a real 4,586.
-    if counts["TOTAL"] < 2_000:
+    for v in variants:
+        counts[v]["TOTAL"] = sum(counts[v][k] for k in FUEL_COLUMNS)
+    # Corruption guard on the headline market only — must stay below genuine
+    # collapses: April 2020 (full COVID lockdown) is a real 4,586.
+    if "Whole" in counts and counts["Whole"]["TOTAL"] < 2_000:
         raise RuntimeError(f"{period}: implausibly small market "
-                           f"({counts['TOTAL']}); refusing to write.")
+                           f"({counts['Whole']['TOTAL']}); refusing to write.")
     return counts
 
 
@@ -295,16 +393,16 @@ def may_overwrite(existing: dict | None, force: bool) -> bool:
     return src in ("DGT", "ACEA")
 
 
-def upsert(rows: list[dict], period: str, counts: dict[str, int],
-           zip_url: str, force: bool) -> str:
+def upsert(rows: list[dict], period: str, variant: str,
+           counts: dict[str, int], zip_url: str, force: bool) -> str:
     """Returns 'added' | 'updated' | 'unchanged' | 'skipped'."""
     existing = next((r for r in rows
                      if r["period"] == period
-                     and (r.get("variant") or "Whole") == "Whole"), None)
+                     and (r.get("variant") or "Whole") == variant), None)
     if not may_overwrite(existing, force):
         return "skipped"
     new_row = {
-        "period": period, "time_interval": "monthly", "variant": "Whole",
+        "period": period, "time_interval": "monthly", "variant": variant,
         "source": SOURCE, "notes": zip_url,
         **{k: f"{counts[k]:.1f}" for k in FUEL_COLUMNS + ["TOTAL"]},
     }
@@ -321,10 +419,10 @@ def upsert(rows: list[dict], period: str, counts: dict[str, int],
 
 
 def splice_legacy(rows: list[dict], legacy_path: Path) -> int:
-    """Copy legacy rows for periods the DGT series doesn't cover (pre-layout
-    era / gaps), preserving their original source string. EREV stays empty —
-    the renderer treats absent EREV as zero, and the TTM partial-window guard
-    keeps the EREV band flat until real coverage starts."""
+    """Whole only: copy legacy rows for periods the DGT series doesn't cover
+    (pre-layout era / gaps), preserving their original source string. EREV
+    stays empty — the renderer treats absent EREV as zero, and the TTM
+    partial-window guard keeps the EREV band flat until coverage starts."""
     if not legacy_path.exists():
         print(f"  legacy file {legacy_path} not found — no splice.")
         return 0
@@ -361,48 +459,56 @@ def month_range_desc(newest: str, oldest: str) -> list[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--csv", default=CSV_PATH_DEFAULT)
-    ap.add_argument("--legacy", default=LEGACY_PATH_DEFAULT)
+    ap.add_argument("--variant", default="all",
+                    help=f"all | {' | '.join(VARIANT_CONFIG)}  (default: all)")
     ap.add_argument("--period", default="",
                     help="Specific month YYYY-MM (default: previous month).")
     ap.add_argument("--backfill", action="store_true",
                     help="Walk months descending to --backfill-from. Implied "
-                         "when the CSV does not exist yet (bootstrap).")
+                         "when any selected CSV does not exist (bootstrap).")
     ap.add_argument("--backfill-from", default=BACKFILL_FROM_DEFAULT)
     ap.add_argument("--force", action="store_true",
                     help="Overwrite rows regardless of their source string.")
     ap.add_argument("--github-output",
                     default=os.environ.get("GITHUB_OUTPUT"),
-                    help="Write `changed=true|false` for the workflow.")
+                    help="Write changed=… and changed_variants=… outputs.")
     args = ap.parse_args()
 
-    csv_path = Path(args.csv)
-    rows = load_rows(csv_path)
-    bootstrap = not csv_path.exists()
-    backfill = args.backfill or bootstrap
-    if bootstrap:
-        print(f"{csv_path} does not exist — bootstrap backfill from "
+    variants = (list(VARIANT_CONFIG) if args.variant == "all"
+                else [args.variant])
+    for v in variants:
+        if v not in VARIANT_CONFIG:
+            sys.exit(f"Unknown variant {v!r}. Valid: "
+                     f"{list(VARIANT_CONFIG)} plus 'all'.")
+
+    rows_by_variant = {v: load_rows(Path(VARIANT_CONFIG[v])) for v in variants}
+    missing = [v for v in variants if not Path(VARIANT_CONFIG[v]).exists()]
+    backfill = args.backfill or bool(missing)
+    if missing:
+        print(f"CSV missing for {missing} — bootstrap backfill from "
               f"{args.backfill_from}.")
 
     newest = args.period or previous_month(date.today())
     periods = (month_range_desc(newest, args.backfill_from)
                if backfill else [newest])
 
-    # Monthly self-throttle: skip HTTP entirely if the row is already there.
+    # Monthly self-throttle: skip HTTP entirely if every selected variant
+    # already carries the target month from DGT.
     if not backfill and not args.force:
-        if any(r["period"] == newest and (r.get("source") or "") == SOURCE
-               for r in rows):
-            print(f"{newest} already fetched from DGT; nothing to do.")
-            return emit(args, False)
+        if all(any(r["period"] == newest and (r.get("source") or "") == SOURCE
+                   for r in rows_by_variant[v]) for v in variants):
+            print(f"{newest} already fetched from DGT for {variants}; "
+                  "nothing to do.")
+            return emit(args, set())
 
     session = make_session()
-    changed = False
+    changed: set[str] = set()
     stopped_at: str | None = None
 
     for period in periods:
         try:
             txt, url = download_month(session, period)
-            counts = aggregate_whole(txt, period)
+            counts = aggregate(txt, period, variants)
         except NotPublished as e:
             if backfill and period != newest:
                 print(f"  {e} — stopping the walk here.")
@@ -414,31 +520,36 @@ def main() -> int:
             print(f"  {e}")
             stopped_at = period
             break
-        status = upsert(rows, period, counts, url, args.force)
-        if status in ("added", "updated"):
-            changed = True
-        print(f"{period}: {status}  "
-              + " ".join(f"{k}={counts[k]:,}" for k in FUEL_COLUMNS + ["TOTAL"]))
+        for v in variants:
+            status = upsert(rows_by_variant[v], period, v, counts[v],
+                            url, args.force)
+            if status in ("added", "updated"):
+                changed.add(v)
+            if v == "Whole" or status != "unchanged":
+                print(f"{period} {v}: {status}  "
+                      + " ".join(f"{k}={counts[v][k]:,}"
+                                 for k in FUEL_COLUMNS + ["TOTAL"]))
 
-    if backfill:
-        n = splice_legacy(rows, Path(args.legacy))
+    if backfill and "Whole" in variants:
+        n = splice_legacy(rows_by_variant["Whole"], Path(LEGACY_PATH))
         if n:
-            changed = True
-        print(f"Legacy splice: {n} rows copied from {args.legacy}"
+            changed.add("Whole")
+        print(f"Legacy splice (Whole): {n} rows copied from {LEGACY_PATH}"
               + (f" (DGT walk stopped at {stopped_at})" if stopped_at else ""))
 
-    if changed:
-        write_rows(csv_path, rows)
-        print(f"Wrote {csv_path} ({len(rows)} rows).")
-    else:
+    for v in sorted(changed):
+        write_rows(Path(VARIANT_CONFIG[v]), rows_by_variant[v])
+        print(f"Wrote {VARIANT_CONFIG[v]} ({len(rows_by_variant[v])} rows).")
+    if not changed:
         print("No changes.")
     return emit(args, changed)
 
 
-def emit(args, changed: bool) -> int:
+def emit(args, changed: set[str]) -> int:
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as f:
             f.write(f"changed={'true' if changed else 'false'}\n")
+            f.write(f"changed_variants={json.dumps(sorted(changed))}\n")
     return 0
 
 

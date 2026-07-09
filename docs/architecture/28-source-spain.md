@@ -200,22 +200,62 @@ never publishes a number it later silently redefines).
 
 All from the *same* monthly file, i.e. one fetcher run populates every CSV:
 
-| Variant | Filter | Size (2026-05, whole file) | Precedent |
-|---|---|---|---|
-| `Whole` | Filter C (§4), `IND_NUEVO_USADO = N` | ~114 k | — |
-| `Vans` | homologation `N1` (+`N1G`), new | ~13.9 k | Italy_Vans, Luxembourg, Poland |
-| `HDV` | `N2` + `N3`, new | ~2.6 k (N3 2.5 k) | Denmark_HDV, Finland_HDV, Poland |
-| `Buses` | `M2` + `M3`, new | sub-500 (check exact) | Finland_Buses, Ireland_Buses, Uruguay |
-| `2-Wheelers` | category `L*` / tipo 50, new | ~27 k tipo-50 | Albania_2-Wheelers |
-| `Used` (imports) | Filter C, `IND_NUEVO_USADO = U` | ~21.7 k U overall | **new axis for southern Europe** |
-| `Rental` / `NonRental` | `SERVICIO = A01` (alquiler sin conductor) | **~35 k A01/month** — Spain's rental channel rivals Italy's noleggio | Italy_Rental / Italy_NonRental |
-| `Renting` (leasing) | `RENTING = S` | ~34 k | — |
-| `Private` / `Industry` | `PERSONA_FISICA_JURIDICA` (D/X) | not yet tabulated | Denmark, Finland |
+All variants are attribute filters over the same monthly file — one
+download feeds every CSV (`scripts/fetch_spain.py`, one pass). Implemented
+lineup and DGT-term definitions:
 
-Sizes are per-month from the probe's distribution tables (whole file — the
-per-variant fuel splits need the variant filters applied, a fetcher-side
-detail). Rental and Used are clearly big enough to be worth publishing;
-Buses is borderline. Each extra CSV costs render time and gallery space.
+| Variant | CSV | Definition (DGT fields) | ~Size/month |
+|---|---|---|---|
+| `Whole` | `Spain.csv` | `COD_TIPO ∈ {40 turismo, 25 todo terreno}`, `IND_NUEVO_USADO = N` | ~110–130 k |
+| `Rental` | `Spain_Rental.csv` | Whole ∧ (`SERVICIO = A01` alquiler sin conductor ∨ `RENTING = S`) | ~35–40 k |
+| `NonRental` | `Spain_NonRental.csv` | Whole ∧ ¬Rental (exact complement: Rental + NonRental = Whole) | ~75–90 k |
+| `Used` | `Spain_Used.csv` | `COD_TIPO ∈ {40,25}`, `IND_NUEVO_USADO = U`, `CLAVE_TRAMITE = 1` | ~18–20 k |
+| `Vans` | `Spain_Vans.csv` | EU homologation `N1*` (incl. `N1G`), new | ~13–14 k |
+| `HDV` | `Spain_HDV.csv` | EU homologation `N2*`/`N3*`, new | ~2.5–3 k |
+| `Buses` | `Spain_Buses.csv` | EU homologation `M2*`/`M3*`, new | ~0.4–0.6 k |
+| `2-Wheelers` | `Spain_2-Wheelers.csv` | `COD_TIPO ∈ {50 motocicleta, 90 ciclomotor}`, new | ~25–29 k |
+
+Precedents: Italy_Rental/NonRental, Denmark/Finland HDV, Ireland Buses,
+Albania 2-Wheelers. `Private`/`Industry` (via `PERSONA_FISICA_JURIDICA`)
+would be possible but is not implemented.
+
+## 5b. "What is in which variant?" — the idiot-proof reference
+
+The question users will actually ask. Keep this table in sync with
+`record_variants()` in `scripts/fetch_spain.py`.
+
+| Vehicle | Lands in | Why |
+|---|---|---|
+| Normal car, SUV, crossover | **Whole** (+Rental or NonRental) | tipo 40; modern SUVs are tipo 40, not 25 |
+| Old-school off-roader (Jimny, Land Cruiser as M1) | **Whole** | tipo 25 "todo terreno" |
+| M1 people mover — ID.Buzz, Multivan, V-Class, Vito Tourer | **Whole** | tipo 40/25; **this is the deliberate difference vs ANFAC/ACEA**, who count these as light commercials (§4) |
+| Taxi, driving-school car, ambulance-service *car* | **Whole** | servicio codes don't exclude from Whole; only A01/renting routes to Rental |
+| Rent-a-car registration | **Whole + Rental** | `SERVICIO = A01` (alquiler sin conductor) |
+| Renting/leasing registration | **Whole + Rental** | `RENTING = S`; note "Rental" = rent-a-car **plus** leasing, the closest analogue to Italy's noleggio |
+| Company car bought outright | **Whole + NonRental** | juridical owner but neither A01 nor renting flag |
+| Used car imported from abroad (first Spanish plate) | **Used** | `IND_NUEVO_USADO = U`, clave 1; Used is *not* part of Whole |
+| Used car sold within Spain | **nowhere** | domestic ownership transfers are DGT's *transferencias* dataset, not matriculaciones |
+| Historic-plate re-registration | **nowhere** | clave 9 rematriculación, excluded from Used on purpose |
+| Panel van, car-derived van (Caddy cargo, Kangoo…) | **Vans** | homologation N1 |
+| **Pickup** (Hilux, Ranger, …) | **Vans** | pickups are homologated N1 (heavy ones N1G) — not Whole, not HDV |
+| Truck >3.5 t, rigid or articulated | **HDV** | N2 (3.5–12 t) / N3 (>12 t) |
+| Road tractor unit (Sattelzugmaschine) | **HDV** | N3 |
+| **Agricultural tractor**, harvester | **nowhere** | EU category T/agrícola — deliberately no variant |
+| Construction machinery, forklifts | **nowhere** | special tipos/homologations, fail every filter |
+| City bus, coach, minibus >8 seats | **Buses** | M2/M3 |
+| Motorcycle | **2-Wheelers** | tipo 50 |
+| Moped/scooter ≤50 cc | **2-Wheelers** | tipo 90 (ciclomotor) |
+| Trike, quad/ATV | **nowhere** | own tipos, deliberately excluded from 2-Wheelers |
+| **Motorhome/autocaravana** | **nowhere** | own tipo/clasificación; neither tipo 40/25 nor N1 |
+| Trailer, semi-trailer | **nowhere** | category O |
+| Used van/truck/motorcycle import | **nowhere** | Used covers turismos/todoterrenos only; all other variants are new-only |
+
+Rules of thumb: everything except `Used` is **new registrations only**;
+`Used` is **first Spanish registrations of used turismos/todoterrenos**
+(overwhelmingly imports) and is disjoint from Whole; `Rental + NonRental =
+Whole` exactly; and the 2-Wheelers filter is tipo-based because the EU
+L-homologation field is sparsely populated for two-wheelers (national `*0x`
+codes instead).
 
 Note on the ACEA interplay once `fetch_spain.py` exists: the moment DGT rows
 are written with a non-`ACEA` source string (e.g. `DGT`), `fetch_acea.py`'s
