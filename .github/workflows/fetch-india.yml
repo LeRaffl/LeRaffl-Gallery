@@ -6,6 +6,13 @@ name: Fetch India data (Vahan) — probe
 
 on:
   workflow_dispatch:
+  # DEV: temporary trigger so the probe runs while the fetcher is developed
+  # on the expansion branch; remove before merging.
+  push:
+    branches: [claude/portfolio-country-expansion-95a8bb]
+    paths:
+      - 'scripts/fetch_india.py'
+      - '.github/workflows/fetch-india.yml'
 
 jobs:
   probe:
