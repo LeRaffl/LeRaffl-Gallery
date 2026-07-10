@@ -6,41 +6,60 @@ Transport's open vehicle registry on data.gov.il and upsert data/Israel.csv.
 Usage
 -----
     python scripts/fetch_israel.py --probe
-        Explore the datastore: list the dataset's resources, dump field
-        schemas + a sample record, distinct values of fuel/scope-ish fields,
-        and per-month record counts. Used to develop/verify the mapping from
-        CI (the source is not reachable from every dev sandbox).
+        Explore the datastore: distinct propulsion-technology values in the
+        WLTP model catalogue, P/M scope counts per month vs I-VIA reference
+        figures. Used to develop/verify the mapping from CI (the source is
+        not reachable from every dev sandbox).
 
-    python scripts/fetch_israel.py [--start YYYY-MM] [--end YYYY-MM] [--force]
+    python scripts/fetch_israel.py [--start YYYY-MM] [--end YYYY-MM] [--dry-run]
         Aggregate monthly new registrations by fuel type and upsert
-        data/Israel.csv. Default window: last 3 months (recent months are
-        re-counted because late registrations/corrections trickle in).
+        data/Israel.csv. Default window: last 3 months (the registry is a
+        living snapshot; recent months are re-counted on every run).
 
 Source
 ------
 https://data.gov.il/dataset/private-and-commercial-vehicles
 ("מספרי רישוי של כלי רכב פרטיים ומסחריים", Ministry of Transport licensing DB)
-CKAN datastore API. The dataset is a *stock snapshot* of currently-registered
-vehicles; monthly new registrations are derived by grouping on the
-road-entry date (moed_aliya_lakvish). Deregistered vehicles drop out of the
-snapshot over time, so deep history undercounts slightly — recent months are
-effectively exact.
+CKAN datastore API, resource מאגר מספרי רישוי של כלי רכב (~4.15M records =
+all currently-registered private & light-commercial vehicles). The second
+resource of the dataset ("… - המשך") holds EXTRA COLUMNS for the same
+vehicles (tyre codes etc.), NOT extra rows — never aggregate over it.
 
-Fuel mapping (sug_delek_nm) — VERIFY VIA --probe BEFORE TRUSTING
-----------------------------------------------------------------
+Monthly new registrations are derived by grouping on the road-entry month
+(`moed_aliya_lakvish`). Quirks verified by probe (2026-07):
+
+- `moed_aliya_lakvish` is UNPADDED: "2016-3", "2025-12" — query values must
+  drop the leading zero of the month; CSV periods stay zero-padded.
+- The dataset is a *stock snapshot* of currently-registered vehicles;
+  deregistered vehicles (scrapped/exported) drop out over time, so deep
+  history undercounts slightly. Recent months are effectively exact.
+- Scope: `sug_degem` = "P" (private passenger cars) is the gallery `Whole`;
+  "M" (light commercial ≤3.5t) is excluded (potential future Vans variant).
+- No motorcycles / heavy trucks / buses in this dataset.
+
+Fuel mapping (sug_delek_nm; 6 values verified by probe)
+-------------------------------------------------------
     חשמל          → BEV
-    חשמל/בנזין    → HEV   (combined HEV+PHEV unless a plug-in split exists)
-    חשמל/דיזל     → HEV
     בנזין         → PETROL
     דיזל          → DIESEL
-    גפ"מ / other  → OTHERS
-Unmapped values are a hard error so CI surfaces schema drift immediately.
+    גפ"מ          → OTHERS  (LPG)
+    חשמל/בנזין    → HEV or PHEV via WLTP model-catalogue join
+    חשמל/דיזל     → HEV or PHEV via WLTP model-catalogue join
+
+The registry itself does not separate PHEV from HEV. The model catalogue
+(dataset degem-rechev-wltp, "תוצרים ודגמים של כלי רכב פרטי ומסחרי") carries
+`technologiat_hanaa_nm` (propulsion technology) per
+(tozeret_cd, degem_cd, shnat_yitzur); hybrid registry rows are classified by
+joining on that triple. Hybrids that find no catalogue match (mostly old
+model-years predating the WLTP catalogue, when PHEVs were negligible in
+Israel) default to HEV; the unmatched share is printed for every month.
+
+Unmapped fuel values are a hard error so CI surfaces schema drift.
 """
 import argparse
 import csv
 import json
 import os
-import re
 import sys
 import time
 from datetime import date
@@ -50,15 +69,16 @@ import requests
 
 API = "https://data.gov.il/api/3/action"
 DATASET_ID = "private-and-commercial-vehicles"
-# Known datastore resource of the registry snapshot; probe/package_show is the
-# authority — this is only the fallback if package_show is unavailable.
-FALLBACK_RESOURCE_IDS = ["053cea08-09bc-40ec-8f7a-156f0677aff3"]
+REGISTRY_RESOURCE = "053cea08-09bc-40ec-8f7a-156f0677aff3"   # מאגר מספרי רישוי של כלי רכב
+WLTP_RESOURCE = "142afde2-6228-49f9-8a29-9b6c3a0cbe40"       # תוצרים ודגמים של כלי רכב WLTP
 
 SOURCE = "data.gov.il (Ministry of Transport registry)"
 CSV_PATH = "data/Israel.csv"
 VARIANT = "Whole"
 DATE_FIELD = "moed_aliya_lakvish"
 FUEL_FIELD = "sug_delek_nm"
+SCOPE_FIELD = "sug_degem"          # P = private passenger car (= Whole)
+SCOPE_VALUE = "P"
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -67,13 +87,15 @@ CSV_COLUMNS = [
 
 FUEL_MAP = {
     "חשמל": "BEV",
-    "חשמל/בנזין": "HEV",
-    "חשמל/דיזל": "HEV",
     "בנזין": "PETROL",
     "דיזל": "DIESEL",
+    "גפ\"מ": "OTHERS",
 }
-# Values that are known and deliberately bucketed into OTHERS.
-FUEL_OTHERS = {"גפ\"מ", "גז", "גז טבעי דחוס", "מימן"}
+HYBRID_VALUES = {"חשמל/בנזין", "חשמל/דיזל"}
+
+# technologiat_hanaa_nm values that mean plug-in hybrid. Verified via probe;
+# substring match on "פלאג" (plug) keeps us robust to phrasing variants.
+PLUGIN_MARKERS = ("פלאג", "plug")
 
 session = requests.Session()
 # data.gov.il rejects default python user agents.
@@ -81,11 +103,10 @@ session.headers.update({"User-Agent": "Mozilla/5.0 (compatible; LeRaffl-Gallery/
 
 
 def api_get(action: str, **params) -> dict:
-    """GET a CKAN action; params values are passed as query params."""
     url = f"{API}/{action}"
     for attempt in range(4):
         try:
-            r = session.get(url, params=params, timeout=90)
+            r = session.get(url, params=params, timeout=120)
             r.raise_for_status()
             payload = r.json()
             if not payload.get("success"):
@@ -99,28 +120,18 @@ def api_get(action: str, **params) -> dict:
             time.sleep(wait)
 
 
-def datastore_resources() -> list[dict]:
-    """All datastore-active resources of the registry dataset."""
-    try:
-        pkg = api_get("package_show", id=DATASET_ID)
-    except Exception as e:
-        print(f"  ! package_show failed ({e}); using fallback resource ids")
-        return [{"id": rid, "name": "(fallback)"} for rid in FALLBACK_RESOURCE_IDS]
-    res = [r for r in pkg.get("resources", []) if r.get("datastore_active")]
-    return res or [{"id": rid, "name": "(fallback)"} for rid in FALLBACK_RESOURCE_IDS]
-
-
 def ds_search(resource_id: str, **params) -> dict:
     return api_get("datastore_search", resource_id=resource_id, **params)
 
 
-def month_records(resource_id: str, period: str, fields: list[str]) -> list[dict]:
-    """All records of one YYYY-MM month from one resource (paged)."""
+def ds_all_records(resource_id: str, fields: list[str], filters: dict | None = None) -> list[dict]:
+    """Page through a datastore query and return all records."""
     out, offset = [], 0
-    filters = json.dumps({DATE_FIELD: period}, ensure_ascii=False)
+    kw = {"fields": ",".join(fields), "limit": 32000}
+    if filters:
+        kw["filters"] = json.dumps(filters, ensure_ascii=False)
     while True:
-        res = ds_search(resource_id, filters=filters, fields=",".join(fields),
-                        limit=32000, offset=offset)
+        res = ds_search(resource_id, offset=offset, **kw)
         recs = res.get("records", [])
         out.extend(recs)
         total = res.get("total", len(out))
@@ -129,104 +140,11 @@ def month_records(resource_id: str, period: str, fields: list[str]) -> list[dict
             return out
 
 
-# ---------------------------------------------------------------- probe mode
+def unpadded(period: str) -> str:
+    """'2026-05' -> '2026-5' (the registry stores months unpadded)."""
+    y, m = period.split("-")
+    return f"{y}-{int(m)}"
 
-def probe() -> None:
-    print("=== PROBE: data.gov.il vehicle registry ===", flush=True)
-
-    print("\n--- package_show:", DATASET_ID)
-    resources = datastore_resources()
-    for r in resources:
-        print(f"  resource: id={r['id']} name={r.get('name')!r} "
-              f"last_modified={r.get('last_modified')}")
-
-    interesting = re.compile(r"delek|hanaa|technolog|moed|aliya|degem|merkav|sug|mishkal|kvutza", re.I)
-
-    for r in resources:
-        rid = r["id"]
-        print(f"\n--- resource {rid} ({r.get('name')!r})")
-        res = ds_search(rid, limit=1)
-        total = res.get("total")
-        fields = [f["id"] for f in res.get("fields", [])]
-        print(f"  total records: {total}")
-        print(f"  fields: {fields}")
-        for rec in res.get("records", []):
-            print("  sample record:")
-            print("   ", json.dumps(rec, ensure_ascii=False, default=str))
-
-        # Distinct values of candidate categorical fields
-        for f in fields:
-            if f == "_id" or not interesting.search(f):
-                continue
-            if any(k in f.lower() for k in ("delek", "hanaa", "technolog", "merkav", "sug_degem", "kvutza")):
-                try:
-                    dv = ds_search(rid, distinct="true", fields=f, limit=60)
-                    vals = [rec.get(f) for rec in dv.get("records", [])]
-                    print(f"  distinct {f} ({len(vals)}): {json.dumps(vals, ensure_ascii=False, default=str)}")
-                except Exception as e:
-                    print(f"  distinct {f}: FAILED ({e})")
-
-        # Date-field mechanics: filter on the sample's own value, then on
-        # recent YYYY-MM strings.
-        recs = res.get("records", [])
-        if recs and DATE_FIELD in recs[0]:
-            sample_val = recs[0][DATE_FIELD]
-            print(f"  {DATE_FIELD} sample value: {sample_val!r}")
-            for probe_val in {str(sample_val), "2026-05", "2026-04", "2025-12"}:
-                try:
-                    c = ds_search(rid, filters=json.dumps({DATE_FIELD: probe_val}),
-                                  fields="_id", limit=1)
-                    print(f"  count where {DATE_FIELD}={probe_val!r}: {c.get('total')}")
-                except Exception as e:
-                    print(f"  count where {DATE_FIELD}={probe_val!r}: FAILED ({e})")
-
-        # Fuel × recent-month cross-tab (only if both fields exist)
-        if recs and FUEL_FIELD in recs[0] and DATE_FIELD in recs[0]:
-            try:
-                dv = ds_search(rid, distinct="true", fields=FUEL_FIELD, limit=60)
-                fuel_vals = [x.get(FUEL_FIELD) for x in dv.get("records", [])]
-                for period in ("2026-05", "2025-06"):
-                    line = {}
-                    for fv in fuel_vals:
-                        c = ds_search(rid, filters=json.dumps({DATE_FIELD: period, FUEL_FIELD: fv}, ensure_ascii=False),
-                                      fields="_id", limit=1)
-                        line[str(fv)] = c.get("total")
-                    print(f"  {period} × {FUEL_FIELD}: {json.dumps(line, ensure_ascii=False)}")
-            except Exception as e:
-                print(f"  cross-tab failed: {e}")
-
-    # Hunt for the vehicle-models dataset (possible PHEV/HEV disambiguator)
-    print("\n--- package_search: model/degem datasets")
-    try:
-        found = api_get("package_search", q="דגמי רכב", rows=15)
-        for pkg in found.get("results", []):
-            print(f"  dataset: {pkg['name']}  title={pkg.get('title')!r}")
-            for rr in pkg.get("resources", []):
-                if rr.get("datastore_active"):
-                    print(f"    resource: {rr['id']} name={rr.get('name')!r}")
-        # Sample any resource whose dataset name hints at model specs
-        for pkg in found.get("results", []):
-            if any(k in (pkg.get("title") or "") + pkg["name"] for k in ("דגמ", "degem", "models")):
-                for rr in pkg.get("resources", []):
-                    if not rr.get("datastore_active"):
-                        continue
-                    try:
-                        s = ds_search(rr["id"], limit=1)
-                        flds = [f["id"] for f in s.get("fields", [])]
-                        tech = [f for f in flds if re.search(r"hanaa|technolog|delek", f, re.I)]
-                        if tech:
-                            print(f"    >> {pkg['name']} / {rr['id']} fields={flds}")
-                            for rec in s.get("records", []):
-                                print("       sample:", json.dumps(rec, ensure_ascii=False, default=str))
-                    except Exception:
-                        pass
-    except Exception as e:
-        print(f"  package_search failed: {e}")
-
-    print("\n=== PROBE DONE ===")
-
-
-# ---------------------------------------------------------------- fetch mode
 
 def month_range(start: str, end: str) -> list[str]:
     y0, m0 = map(int, start.split("-"))
@@ -243,38 +161,121 @@ def month_range(start: str, end: str) -> list[str]:
 
 def default_window() -> tuple[str, str]:
     t = date.today()
-    end_y, end_m = (t.year, t.month - 1) if t.month > 1 else (t.year - 1, 12)
-    start_m, start_y = end_m - 2, end_y
-    if start_m < 1:
-        start_m += 12
-        start_y -= 1
-    return f"{start_y}-{start_m:02d}", f"{end_y}-{end_m:02d}"
+    months = []
+    y, m = t.year, t.month
+    for _ in range(3):
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+        months.append(f"{y}-{m:02d}")
+    return months[-1], months[0]
 
 
-def aggregate_month(resources: list[dict], period: str) -> dict | None:
+# ------------------------------------------------------- WLTP model lookup
+
+def load_wltp_lookup() -> dict:
+    """
+    (tozeret_cd, degem_cd, shnat_yitzur) -> technologiat_hanaa_nm
+    for hybrid-relevant rows of the model catalogue.
+    """
+    print("Loading WLTP model catalogue …", flush=True)
+    recs = ds_all_records(
+        WLTP_RESOURCE,
+        ["tozeret_cd", "degem_cd", "shnat_yitzur", "technologiat_hanaa_nm"],
+    )
+    lookup = {}
+    for r in recs:
+        key = (r.get("tozeret_cd"), r.get("degem_cd"), r.get("shnat_yitzur"))
+        tech = (r.get("technologiat_hanaa_nm") or "").strip()
+        if not tech:
+            continue
+        prev = lookup.get(key)
+        # Prefer a plug-in verdict on key collisions (conservative: a triple
+        # that maps to any plug-in trim is counted as PHEV).
+        if prev is None or (is_plugin(tech) and not is_plugin(prev)):
+            lookup[key] = tech
+    print(f"  {len(recs):,} catalogue rows -> {len(lookup):,} model keys", flush=True)
+    return lookup
+
+
+def is_plugin(tech: str) -> bool:
+    t = tech.lower()
+    return any(marker in t for marker in PLUGIN_MARKERS)
+
+
+# ---------------------------------------------------------------- probe mode
+
+def probe() -> None:
+    print("=== PROBE v2 ===", flush=True)
+
+    print("\n--- WLTP catalogue: distinct technologiat_hanaa_nm")
+    dv = ds_search(WLTP_RESOURCE, distinct="true", fields="technologiat_hanaa_nm", limit=60)
+    vals = [r.get("technologiat_hanaa_nm") for r in dv.get("records", [])]
+    print(f"  {json.dumps(vals, ensure_ascii=False)}")
+    total = ds_search(WLTP_RESOURCE, fields="_id", limit=1).get("total")
+    print(f"  catalogue total records: {total}")
+
+    print("\n--- Registry: monthly totals, P-scope vs all (I-VIA ref: 2026-04=19,339 / 2026-05=29,456 passenger cars)")
+    for period in ("2026-06", "2026-05", "2026-04", "2026-03", "2025-12", "2019-01", "2017-01"):
+        q = unpadded(period)
+        all_n = ds_search(REGISTRY_RESOURCE, filters=json.dumps({DATE_FIELD: q}),
+                          fields="_id", limit=1).get("total")
+        p_n = ds_search(REGISTRY_RESOURCE,
+                        filters=json.dumps({DATE_FIELD: q, SCOPE_FIELD: SCOPE_VALUE}),
+                        fields="_id", limit=1).get("total")
+        print(f"  {period}: all={all_n}  P={p_n}  M={all_n - p_n}")
+
+    print("\n--- Trial aggregation (with WLTP hybrid split): 2026-04 .. 2026-05")
+    lookup = load_wltp_lookup()
+    for period in ("2026-04", "2026-05"):
+        row = aggregate_month(period, lookup)
+        print(f"  -> {json.dumps(row, ensure_ascii=False)}")
+
+    print("\n=== PROBE DONE ===")
+
+
+# ---------------------------------------------------------------- fetch mode
+
+def aggregate_month(period: str, wltp_lookup: dict) -> dict | None:
+    """One CSV row for period (YYYY-MM, padded) or None if no data yet."""
+    recs = ds_all_records(
+        REGISTRY_RESOURCE,
+        [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur"],
+        filters={DATE_FIELD: unpadded(period), SCOPE_FIELD: SCOPE_VALUE},
+    )
+    if not recs:
+        return None
+
     counts = {c: 0 for c in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")}
     unmapped: dict = {}
-    n = 0
-    for r in resources:
-        recs = month_records(r["id"], period, [FUEL_FIELD])
-        n += len(recs)
-        for rec in recs:
-            fuel = (rec.get(FUEL_FIELD) or "").strip()
-            col = FUEL_MAP.get(fuel)
-            if col is None:
-                if fuel in FUEL_OTHERS or fuel == "":
-                    col = "OTHERS"
-                else:
-                    unmapped[fuel] = unmapped.get(fuel, 0) + 1
-                    col = "OTHERS"
-            counts[col] += 1
+    hybrids = matched = 0
+    for rec in recs:
+        fuel = (rec.get(FUEL_FIELD) or "").strip()
+        if fuel in HYBRID_VALUES:
+            hybrids += 1
+            key = (rec.get("tozeret_cd"), rec.get("degem_cd"), rec.get("shnat_yitzur"))
+            tech = wltp_lookup.get(key)
+            if tech is not None:
+                matched += 1
+                counts["PHEV" if is_plugin(tech) else "HEV"] += 1
+            else:
+                counts["HEV"] += 1   # unmatched hybrids default to HEV
+        elif fuel in FUEL_MAP:
+            counts[FUEL_MAP[fuel]] += 1
+        elif fuel == "":
+            counts["OTHERS"] += 1
+        else:
+            unmapped[fuel] = unmapped.get(fuel, 0) + 1
+
     if unmapped:
         raise SystemExit(f"Unmapped {FUEL_FIELD} values in {period}: {unmapped} — "
-                         f"extend FUEL_MAP/FUEL_OTHERS deliberately.")
-    if n == 0:
-        return None
+                         f"extend FUEL_MAP deliberately.")
+
     total = sum(counts.values())
-    print(f"  {period}: {total} registrations {counts}")
+    unmatched = hybrids - matched
+    pct = 100 * unmatched / hybrids if hybrids else 0.0
+    print(f"  {period}: total={total} {counts} | hybrids={hybrids}, "
+          f"no catalogue match={unmatched} ({pct:.1f}%, defaulted to HEV)", flush=True)
     return {
         "period": period, "time_interval": "monthly", "variant": VARIANT,
         "source": SOURCE,
@@ -313,7 +314,7 @@ def main() -> None:
     ap.add_argument("--probe", action="store_true", help="Explore the datastore schema and exit.")
     ap.add_argument("--start", help="First month to (re-)count, YYYY-MM.")
     ap.add_argument("--end", help="Last month to (re-)count, YYYY-MM.")
-    ap.add_argument("--force", action="store_true", help="(reserved) skip freshness early-exit")
+    ap.add_argument("--dry-run", action="store_true", help="Aggregate and print but do not write the CSV.")
     args = ap.parse_args()
 
     if args.probe:
@@ -325,18 +326,20 @@ def main() -> None:
     end = args.end or end
     print(f"Fetching Israel registrations {start} .. {end}")
 
-    resources = datastore_resources()
-    print(f"Registry resources: {[r['id'] for r in resources]}")
+    wltp_lookup = load_wltp_lookup()
 
     new_rows = {}
     for period in month_range(start, end):
-        row = aggregate_month(resources, period)
+        row = aggregate_month(period, wltp_lookup)
         if row:
             new_rows[(period, VARIANT)] = row
 
     if not new_rows:
         print("No rows extracted.")
         sys.exit(1)
+    if args.dry_run:
+        print(f"[dry-run] {len(new_rows)} months aggregated; CSV untouched.")
+        return
     added, updated = upsert_csv(CSV_PATH, new_rows)
     print(f"{added} added, {updated} updated -> {CSV_PATH}")
 
