@@ -323,10 +323,14 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
     if unmatched_pct > 5:
         print(f"  ! {period}: catalogue join unmatched share {unmatched_pct:.1f}% > 5% — "
               f"HEV undercount likely, investigate before trusting this month.", flush=True)
+    # Zeros are written as literal 0.0, NOT "" — every fuel is genuinely
+    # counted here, and R's compute_ttm_long treats "" as NA and drops every
+    # TTM window touching it (Israel has OTHERS=0 in most recent months,
+    # which silently truncated the TTM chart at mid-2024 on first render).
     return {
         "period": period, "time_interval": "monthly", "variant": VARIANT,
         "source": SOURCE,
-        **{c: (float(v) if v else "") for c, v in counts.items()},
+        **{c: float(v) for c, v in counts.items()},
         "TOTAL": float(total), "notes": "",
     }
 
