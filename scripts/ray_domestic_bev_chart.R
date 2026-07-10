@@ -98,9 +98,12 @@ ray_theme <- theme_minimal(base_size = 16) +
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_line(color = GRID, linewidth = 0.3),
     text = element_text(color = FG, face = "bold"),
-    axis.text = element_text(color = FG, face = "bold", size = rel(1.2)),
-    plot.title = element_text(color = FG, face = "bold", size = rel(1.15), hjust = 0.5),
-    plot.subtitle = element_text(color = FG, size = rel(0.85), hjust = 0.5),
+    axis.text = element_text(color = FG, face = "bold", size = rel(1.05)),
+    # centre title/subtitle on the full device (not the panel) and keep them
+    # small enough that CI font metrics can't clip them at the edges
+    plot.title.position = "plot",
+    plot.title = element_text(color = FG, face = "bold", size = rel(1.0), hjust = 0.5),
+    plot.subtitle = element_text(color = FG, size = rel(0.7), hjust = 0.5, lineheight = 1.2),
     plot.margin = margin(15, 150, 10, 15),
     axis.title = element_blank(),
     legend.position = "none"
@@ -121,7 +124,7 @@ base_plot <- function(dat, x_min, x_max, title, ends = line_ends,
                        limits = c(x_min, x_max), expand = c(0.01, 0)) +
     coord_cartesian(clip = "off") +
     labs(title = title,
-         subtitle = if (is.null(note)) caption_txt else paste0(caption_txt, "  ·  ", note)) +
+         subtitle = if (is.null(note)) caption_txt else paste0(caption_txt, "\n", note)) +
     ray_theme
 }
 
@@ -220,7 +223,7 @@ abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max, note = NULL
     scale_x_continuous(breaks = xbreaks, limits = c(x_min, x_max), expand = c(0.01, 0)) +
     coord_cartesian(clip = "off") +
     labs(title = title, y = "MILLIONS",
-         subtitle = if (is.null(note)) caption_abs else paste0(caption_abs, "  ·  ", note)) +
+         subtitle = if (is.null(note)) caption_abs else paste0(caption_abs, "\n", note)) +
     ray_theme + abs_theme_add
 }
 
