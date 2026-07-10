@@ -37,16 +37,19 @@ OGD_DATASET = "76192d23-59ba-4be8-9ccb-a469e83dc552"
 # sample key's global health apart from per-resource restrictions.
 OGD_DEMO = "9ef84268-d588-465a-a308-a864a43d0070"
 
+# Probe v1 (2026-07-10): vahan.parivahan.gov.in resets foreign connections.
+# Probe v2 (2026-07-10): data.gov.in sample key globally dead (403 on their
+# own demo resource); IndiaDataPortal CKAN is OPEN with datastore-active
+# VAHAN resources. Probe v3 characterises those.
+IDP = "https://ckan.indiadataportal.com/api/3/action"
+IDP_RESOURCES = {
+    "by Fuel Type": "c9d109c7-8190-4a67-8166-0be1487db419",
+    "by Vehicle Category": "f9381a4d-7fc9-4a13-8e11-31e5790c2bc7",
+    "by Vehicle Class": "cc32d3e2-7ea3-4b6b-94ab-85e57f6a0a3a",
+}
+
 TARGETS = [
-    # Probe v1 results (2026-07-10): vahan.parivahan.gov.in resets foreign
-    # connections; api.data.gov.in reachable but sample key 403 on the Vahan
-    # dataset. Probe v2 hunts key-less routes.
-    ("OGD sample key vs demo resource", f"https://api.data.gov.in/resource/{OGD_DEMO}?api-key={OGD_SAMPLE_KEY}&format=json&limit=2"),
-    ("OGD vahan dataset keyless", f"https://api.data.gov.in/resource/{OGD_DATASET}?format=json&limit=2"),
-    ("OGD vahan dataset page (download links)", f"https://www.data.gov.in/apis/{OGD_DATASET}"),
-    ("data.gov.in backend resource meta", f"https://www.data.gov.in/backend/dmspublic/v1/resources?filters%5Bid%5D={OGD_DATASET}"),
-    ("IndiaDataPortal CKAN search", "https://ckan.indiadataportal.com/api/3/action/package_search?q=vahan+fuel&rows=8"),
-    ("ICED NITI transport", "https://iced.niti.gov.in/transport/electric-mobility/ev-sales"),
+    ("IDP dataset meta", f"{IDP}/package_show?id=vehicle-registrations"),
 ]
 
 
@@ -80,6 +83,37 @@ def probe() -> None:
                     pass
         except requests.RequestException as e:
             print(f"\n[{name}] {url}\n  FAILED: {e}", flush=True)
+
+    # --- IndiaDataPortal datastore deep-dive
+    for label, rid in IDP_RESOURCES.items():
+        print(f"\n--- IDP resource {label} ({rid})", flush=True)
+        try:
+            r = s.get(f"{IDP}/datastore_search", params={"resource_id": rid, "limit": 3}, timeout=60)
+            j = r.json().get("result", {})
+            fields = [f["id"] for f in j.get("fields", [])]
+            print(f"  total={j.get('total')} fields={fields}")
+            for rec in j.get("records", []):
+                print(f"  rec: {json.dumps(rec, ensure_ascii=False)[:300]}")
+            # distinct values of the categorical fields + freshest month
+            for f in fields:
+                fl = f.lower()
+                if any(k in fl for k in ("fuel", "category", "class", "norm", "state")):
+                    dv = s.get(f"{IDP}/datastore_search",
+                               params={"resource_id": rid, "distinct": "true",
+                                       "fields": f, "limit": 60}, timeout=60).json()
+                    vals = [x.get(f) for x in dv.get("result", {}).get("records", [])]
+                    print(f"  distinct {f} ({len(vals)}): {json.dumps(vals[:40], ensure_ascii=False)}")
+            # date range: sort desc on the first date-ish field
+            datef = next((f for f in fields if any(k in f.lower() for k in ("date", "month", "year"))), None)
+            if datef:
+                for direction in ("desc", "asc"):
+                    sr = s.get(f"{IDP}/datastore_search",
+                               params={"resource_id": rid, "sort": f"{datef} {direction}",
+                                       "fields": datef, "limit": 1}, timeout=60).json()
+                    recs = sr.get("result", {}).get("records", [])
+                    print(f"  {datef} {direction}: {recs}")
+        except Exception as e:
+            print(f"  FAILED: {e}")
     print("\n=== PROBE DONE ===")
 
 
