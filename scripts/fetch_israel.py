@@ -327,50 +327,79 @@ def crosscheck() -> None:
     import io as _io
     body = "\n".join(l for l in lines if not l.startswith("#"))
     rdr = csv.DictReader(_io.StringIO(body))
-    cols = {c.lower().strip(): c for c in (rdr.fieldnames or [])}
-    def col(*names):
-        for n in names:
-            if n in cols:
-                return cols[n]
+    fields = rdr.fieldnames or []
+    print(f"columns: {fields}")
+    # R. Andrew's format (verified 2026-07):
+    #   "YYYYMM","ICE","Non-plugin hybrid","Plugin hybrid","Battery electric"
+    # Fractional values — his series is derived, not raw counts.
+    def find(pred):
+        for c in fields:
+            if pred(c.lower()):
+                return c
         return None
-    c_date = col("month", "date", "period", "yyyymm") or (rdr.fieldnames or [None])[0]
-    c_bev = col("bev", "electric", "ev")
-    c_tot = col("total", "sum", "all")
-    print(f"columns: {rdr.fieldnames}")
+    c_date = find(lambda c: c in ("yyyymm", "month", "date", "period")) or fields[0]
+    c_bev = find(lambda c: "battery" in c or c == "bev")
+    c_hev = find(lambda c: "non-plugin" in c or "non plugin" in c)
+    c_phev = find(lambda c: ("plugin" in c or "plug-in" in c) and "non" not in c)
+    numeric_cols = [c for c in fields if c != c_date]
+
     theirs = {}
     for row in rdr:
-        raw = (row.get(c_date) or "").strip()
-        # normalise 2024M01 / 2024-01 / 2024-01-01 to YYYY-MM
-        raw = raw.replace("M", "-")
-        p = raw[:7]
-        if len(p) == 7 and p[4] == "-":
-            def num(c):
-                try:
-                    return float((row.get(c) or "").replace(",", "") or 0)
-                except ValueError:
-                    return 0.0
-            theirs[p] = (num(c_bev) if c_bev else None,
-                         num(c_tot) if c_tot else None)
+        raw = (row.get(c_date) or "").strip().replace("M", "-")
+        if len(raw) == 6 and raw.isdigit():          # YYYYMM
+            p = f"{raw[:4]}-{raw[4:6]}"
+        elif len(raw) >= 7 and raw[4] == "-":
+            p = raw[:7]
+        else:
+            continue
+        def num(c):
+            try:
+                return float((row.get(c) or "").replace(",", "") or 0)
+            except ValueError:
+                return 0.0
+        tot = sum(num(c) for c in numeric_cols)
+        theirs[p] = {"BEV": num(c_bev) if c_bev else 0.0,
+                     "PHEV": num(c_phev) if c_phev else 0.0,
+                     "HEV": num(c_hev) if c_hev else 0.0,
+                     "TOTAL": tot}
 
     ours = {}
     with open(CSV_PATH, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             if row["variant"] == VARIANT:
-                ours[row["period"]] = (float(row["BEV"] or 0), float(row["TOTAL"] or 0))
+                ours[row["period"]] = {c: float(row[c] or 0)
+                                       for c in ("BEV", "PHEV", "HEV", "TOTAL")}
 
     common = sorted(set(theirs) & set(ours))
-    print(f"\ncommon months: {len(common)} ({common[0]} .. {common[-1]})" if common
-          else "\nno overlapping months!")
-    print(f"{'month':8} {'TOT ours':>9} {'TOT RA':>9} {'dTOT%':>7}  "
-          f"{'BEV ours':>9} {'BEV RA':>9} {'share ours':>10} {'share RA':>9}")
-    for p in common[-30:]:
-        ob, ot = ours[p]
-        tb, tt = theirs[p]
-        dt = f"{100*(ot-tt)/tt:+.1f}%" if tt else "n/a"
-        so = f"{100*ob/ot:.1f}%" if ot else ""
-        sr = f"{100*tb/tt:.1f}%" if (tt and tb is not None) else "n/a"
-        print(f"{p:8} {ot:9.0f} {tt if tt is not None else float('nan'):9.0f} {dt:>7}  "
-              f"{ob:9.0f} {tb if tb is not None else float('nan'):9.0f} {so:>10} {sr:>9}")
+    if not common:
+        print("\nno overlapping months!")
+        return
+    print(f"\ncommon months: {len(common)} ({common[0]} .. {common[-1]})")
+
+    print("\nYearly sums (ours vs R. Andrew):")
+    print(f"{'year':6} {'TOT ours':>9} {'TOT RA':>9} {'dTOT%':>7} "
+          f"{'BEV ours':>8} {'BEV RA':>8} {'PHEV ours':>9} {'PHEV RA':>8} "
+          f"{'HEV ours':>8} {'HEV RA':>8}")
+    years = sorted({p[:4] for p in common})
+    for y in years:
+        ms = [p for p in common if p.startswith(y)]
+        def agg(d, c):
+            return sum(d[p][c] for p in ms)
+        ot, tt = agg(ours, "TOTAL"), agg(theirs, "TOTAL")
+        print(f"{y:4}({len(ms):2}) {ot:9.0f} {tt:9.0f} {100*(ot-tt)/tt:+6.1f}% "
+              f"{agg(ours,'BEV'):8.0f} {agg(theirs,'BEV'):8.0f} "
+              f"{agg(ours,'PHEV'):9.0f} {agg(theirs,'PHEV'):8.0f} "
+              f"{agg(ours,'HEV'):8.0f} {agg(theirs,'HEV'):8.0f}")
+
+    print("\nLast 18 common months:")
+    print(f"{'month':8} {'TOT ours':>9} {'TOT RA':>9} {'dTOT%':>7} "
+          f"{'BEVsh ours':>10} {'BEVsh RA':>9} {'PHEVsh ours':>11} {'PHEVsh RA':>10}")
+    for p in common[-18:]:
+        o, t = ours[p], theirs[p]
+        print(f"{p:8} {o['TOTAL']:9.0f} {t['TOTAL']:9.0f} "
+              f"{100*(o['TOTAL']-t['TOTAL'])/t['TOTAL']:+6.1f}% "
+              f"{100*o['BEV']/o['TOTAL']:9.1f}% {100*t['BEV']/t['TOTAL']:8.1f}% "
+              f"{100*o['PHEV']/o['TOTAL']:10.1f}% {100*t['PHEV']/t['TOTAL']:9.1f}%")
 
 
 # ---------------------------------------------------------------- fetch mode
