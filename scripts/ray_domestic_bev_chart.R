@@ -227,24 +227,23 @@ abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max, note = NULL
     ray_theme + abs_theme_add
 }
 
-# 4) Annual BEV sales: full calendar years, plus a current-year full-year
-# estimate = YTD x (full prior year / same months of prior year) per country,
-# so the actual-data chart ends at 2026 as one clean endpoint. The final
-# segment is dashed (dashed = estimate, same convention as the share charts).
+# 4) Annual BEV sales: full calendar years, plus a current-year estimate =
+# each country's trailing-12-month pace at its latest data month, so the
+# actual-data chart ends at 2026 as one clean endpoint that matches the
+# endpoint of the TTM charts. Seasonality-free (every month counted once),
+# and robust to single-month spikes. The final segment is dashed
+# (dashed = estimate, same convention as the share charts).
 cur_year <- as.integer(format(Sys.Date(), "%Y"))
 yearly <- aggregate(bev ~ country + yr, subset(abs_raw, yr >= 2015 & yr < cur_year), sum)
 yearly$x <- yearly$yr
 
 est26 <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
-  ytd <- d[d$yr == cur_year, ]
-  if (nrow(ytd) == 0) return(NULL)
-  mo_max <- max(as.integer(substr(ytd$period, 6, 7)))
-  prev <- d[d$yr == cur_year - 1, ]
-  prev_same <- prev[as.integer(substr(prev$period, 6, 7)) <= mo_max, ]
+  d <- d[order(d$period), ]
+  if (nrow(d) < 12 || !any(d$yr == cur_year)) return(NULL)
   data.frame(country = d$country[1], x = cur_year,
-             bev = sum(ytd$bev) * sum(prev$bev) / sum(prev_same$bev))
+             bev = sum(tail(d$bev, 12)))
 }))
-cat(sprintf("%d full-year estimates (millions): %s\n", cur_year,
+cat(sprintf("%d full-year estimates, trailing-12-month pace (millions): %s\n", cur_year,
             paste(sprintf("%s %.2f", est26$country, est26$bev / 1e6), collapse = ", ")))
 
 seg26 <- rbind(yearly[yearly$yr == cur_year - 1, c("country", "x", "bev")],
@@ -253,7 +252,7 @@ y_ends <- est26[, c("country", "x", "bev")]
 y_tot <- aggregate(bev ~ x, yearly, sum); y_tot$country <- "Total"
 tot26 <- data.frame(x = cur_year, bev = sum(est26$bev), country = "Total")
 tot_seg26 <- rbind(y_tot[y_tot$x == cur_year - 1, ], tot26)
-note_abs <- sprintf("dashed = %d estimate from year-to-date", cur_year)
+note_abs <- sprintf("dashed = %d estimate: trailing-12-month pace", cur_year)
 y_max_annual <- max(y_tot$bev, tot26$bev) / 1e6   # shared y axis for the with/without pair
 p4 <- abs_plot(yearly, y_ends, 2015, cur_year + 1.4,
                paste0("Annual ", title_abs), seq(2015, cur_year, 1), y_max_annual,

@@ -29,7 +29,8 @@ Per Ray's feedback (July 2026), all charts start at 2015, the projection
 charts carry 2030/2035 on the axis, and the actual-data charts end cleanly at
 2026: the share charts continue each country's fitted curve (dashed) from its
 last data month to Dec 2026, and the annual chart adds a dashed current-year
-estimate = YTD × (full prior year / same months of prior year).
+estimate = each country's trailing-12-month pace at its latest data month
+(seasonality-free, and identical to the endpoint of the TTM charts).
 
 Notes: shares are pure BEV (no PHEV/EREV/NEV). Absolute charts use raw CSV
 counts; history plus the current-year estimate only, no model extrapolation.
