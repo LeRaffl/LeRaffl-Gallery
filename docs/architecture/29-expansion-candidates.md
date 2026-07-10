@@ -20,6 +20,12 @@ for the market, (c) machine-accessible without paywalls or identity checks.**
 
 ### 🇮🇱 Israel — two complementary routes, both free
 
+> **Status: BUILT (2026-07).** Route A implemented as `scripts/fetch_israel.py`
+> — see [30-source-israel.md](30-source-israel.md). The PHEV/HEV question
+> resolved unexpectedly: the registry hides regular HEVs inside the petrol
+> value; the model-catalogue join recovers them (and the PHEV split) with
+> 100% coverage back to 2017.
+
 **Route A (registry, preferred): data.gov.il vehicle registry.**
 The Ministry of Transport's licensing database is published as an open dataset
 — "מספרי רישוי של כלי רכב פרטיים ומסחריים" (private & commercial vehicles),
