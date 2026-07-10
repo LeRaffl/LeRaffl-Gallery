@@ -102,7 +102,7 @@ ray_theme <- theme_minimal(base_size = 16) +
     # centre title/subtitle on the full device (not the panel) and keep them
     # small enough that CI font metrics can't clip them at the edges
     plot.title.position = "plot",
-    plot.title = element_text(color = FG, face = "bold", size = rel(1.0), hjust = 0.5),
+    plot.title = element_text(color = FG, face = "bold", size = rel(0.9), hjust = 0.5),
     plot.subtitle = element_text(color = FG, size = rel(0.7), hjust = 0.5, lineheight = 1.2),
     plot.margin = margin(15, 150, 10, 15),
     axis.title = element_blank(),
@@ -282,6 +282,9 @@ ttm <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
 }))
 ttm <- subset(ttm, x >= 2015)
 t_ends <- do.call(rbind, lapply(split(ttm, ttm$country), function(d) d[which.max(d$x), ]))
+# align all right-edge labels at the common right edge so they don't sit on
+# top of other countries' line ends (the series end in different months)
+t_ends$x <- max(ttm$x)
 t_common <- min(tapply(ttm$x, ttm$country, max))
 t_tot <- aggregate(bev ~ x, subset(ttm, x <= t_common), sum); t_tot$country <- "Total"
 y_max_ttm <- max(t_tot$bev) / 1e6      # shared y axis for the with/without pair
@@ -290,8 +293,9 @@ p5 <- abs_plot(ttm, t_ends, 2015, max(ttm$x) + 1.6,
 save_png(p5, "domestic_bev_absolute_ttm_monthly.png")
 
 # 5b) TTM + summed total, capped at the last month all six countries cover
-p5b <- abs_plot(ttm, rbind(t_ends[, c("country", "x", "bev")],
-                           t_tot[which.max(t_tot$x), c("country", "x", "bev")]),
+t_tot_end <- t_tot[which.max(t_tot$x), c("country", "x", "bev")]
+t_tot_end$x <- max(ttm$x)
+p5b <- abs_plot(ttm, rbind(t_ends[, c("country", "x", "bev")], t_tot_end),
                 2015, max(ttm$x) + 1.6,
                 paste0("Trailing 12-month ", title_abs), seq(2015, 2027, 2), y_max_ttm) +
   geom_line(data = t_tot, linetype = "42", linewidth = 1.6)
