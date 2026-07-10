@@ -231,27 +231,44 @@ def classify_hybrid(rec: dict, exact: dict, votes: dict) -> tuple[str, str]:
 # ---------------------------------------------------------------- probe mode
 
 def probe() -> None:
-    print("=== PROBE v3 ===", flush=True)
+    """Cross-tab registry fuel value × catalogue propulsion technology.
 
-    print("\n--- WLTP catalogue: rows per technologiat_hanaa_nm")
-    dv = ds_search(WLTP_RESOURCE, distinct="true", fields="technologiat_hanaa_nm", limit=60)
-    for r in dv.get("records", []):
-        tech = r.get("technologiat_hanaa_nm")
-        n = ds_search(WLTP_RESOURCE, filters=json.dumps({"technologiat_hanaa_nm": tech}, ensure_ascii=False),
-                      fields="_id", limit=1).get("total")
-        print(f"  {tech!r}: {n}")
-
+    Working hypothesis (probe v3): registry sug_delek_nm codes regular HEVs
+    as plain בנזין and reserves חשמל/בנזין for plug-ins. The cross-tab
+    verifies this and measures catalogue join coverage per era.
+    """
+    print("=== PROBE v4: fuel × technologiat cross-tab ===", flush=True)
     exact, votes = load_wltp_lookup()
+    # Rebuild a tech-name lookup (not just the plug-in bool) for the cross-tab
+    recs = ds_all_records(
+        WLTP_RESOURCE,
+        ["tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur", "technologiat_hanaa_nm"],
+    )
+    tech_exact = {}
+    for r in recs:
+        tech = (r.get("technologiat_hanaa_nm") or "").strip()
+        if tech:
+            key = (r.get("tozeret_cd"), r.get("degem_cd"), r.get("shnat_yitzur"),
+                   (r.get("ramat_gimur") or "").strip())
+            tech_exact[key] = tech
 
-    print("\n--- Trial aggregation (trim-level hybrid split): 2025-06, 2026-01 .. 2026-05")
-    print("    I-VIA Q4-2025 reference shares: petrol 36.4%, hybrid 26.2%, PHEV 11.5%")
-    for period in ("2025-06", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05"):
-        row = aggregate_month(period, (exact, votes))
-        if row:
-            t = row["TOTAL"]
-            shares = {c: f"{100 * float(row[c] or 0) / t:.1f}%" for c in
-                      ("BEV", "PHEV", "HEV", "PETROL", "DIESEL")}
-            print(f"  -> {period} shares: {shares}")
+    for period in ("2026-04", "2025-06", "2022-06", "2019-06", "2017-06"):
+        rows = ds_all_records(
+            REGISTRY_RESOURCE,
+            [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur"],
+            filters={DATE_FIELD: unpadded(period), SCOPE_FIELD: SCOPE_VALUE},
+        )
+        xt: dict = {}
+        for rec in rows:
+            fuel = (rec.get(FUEL_FIELD) or "").strip()
+            key = (rec.get("tozeret_cd"), rec.get("degem_cd"), rec.get("shnat_yitzur"),
+                   (rec.get("ramat_gimur") or "").strip())
+            tech = tech_exact.get(key, "<no catalogue match>")
+            xt.setdefault(fuel, {})
+            xt[fuel][tech] = xt[fuel].get(tech, 0) + 1
+        print(f"\n  {period} (n={len(rows)}):")
+        for fuel in sorted(xt):
+            print(f"    {fuel!r}: {json.dumps(xt[fuel], ensure_ascii=False)}")
 
     print("\n=== PROBE DONE ===")
 
