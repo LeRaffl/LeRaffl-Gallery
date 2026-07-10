@@ -1,6 +1,7 @@
 country,variant,footnote
 Canada,Whole,Pre-2017 figures are passenger cars only; SUVs/crossovers included from 2017 (EU M1).
 Israel,Whole,MoT registry snapshot of currently-registered private cars: older months slightly undercount (deregistered vehicles drop out). HEV/PHEV split via the official model-catalogue join.
+Israel,Vans,MoT registry snapshot; sug_degem M = light commercial vehicles up to 3.5t. Same snapshot/undercount and catalogue-join caveats as Whole. Low volume (roughly 500-1100/month).
 Türkiye,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Georgia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Colombia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.

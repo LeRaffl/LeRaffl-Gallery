@@ -78,12 +78,19 @@ REGISTRY_RESOURCE = "053cea08-09bc-40ec-8f7a-156f0677aff3"   # מאגר מספר
 WLTP_RESOURCE = "142afde2-6228-49f9-8a29-9b6c3a0cbe40"       # תוצרים ודגמים של כלי רכב WLTP
 
 SOURCE = "data.gov.il (Ministry of Transport registry)"
-CSV_PATH = "data/Israel.csv"
+CSV_PATH = "data/Israel.csv"       # Whole; variants live in data/Israel_<Variant>.csv
 VARIANT = "Whole"
 DATE_FIELD = "moed_aliya_lakvish"
 FUEL_FIELD = "sug_delek_nm"
-SCOPE_FIELD = "sug_degem"          # P = private passenger car (= Whole)
+SCOPE_FIELD = "sug_degem"
 SCOPE_VALUE = "P"
+
+# variant -> (sug_degem value, csv path). "M" = מסחרי, light commercial
+# vehicles ≤3.5t (vans/pickups) — the registry's only other degem type.
+VARIANTS = {
+    "Whole": ("P", "data/Israel.csv"),
+    "Vans": ("M", "data/Israel_Vans.csv"),
+}
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -404,13 +411,15 @@ def crosscheck() -> None:
 
 # ---------------------------------------------------------------- fetch mode
 
-def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
+def aggregate_month(period: str, wltp_lookup: tuple[dict, dict],
+                    variant: str = "Whole") -> dict | None:
     """One CSV row for period (YYYY-MM, padded) or None if no data yet."""
     exact, votes = wltp_lookup
+    scope_value, _ = VARIANTS[variant]
     recs = ds_all_records(
         REGISTRY_RESOURCE,
         [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur"],
-        filters={DATE_FIELD: unpadded(period), SCOPE_FIELD: SCOPE_VALUE},
+        filters={DATE_FIELD: unpadded(period), SCOPE_FIELD: scope_value},
     )
     if not recs:
         return None
@@ -445,7 +454,7 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
 
     total = sum(counts.values())
     unmatched_pct = 100 * join_stats["unmatched"] / total if total else 0.0
-    print(f"  {period}: total={total} {counts} | HEVs recovered from petrol/diesel: "
+    print(f"  {variant} {period}: total={total} {counts} | HEVs recovered from petrol/diesel: "
           f"{hev_recovered} | join: {join_stats} ({unmatched_pct:.1f}% unmatched)", flush=True)
     if unmatched_pct > 5:
         print(f"  ! {period}: catalogue join unmatched share {unmatched_pct:.1f}% > 5% — "
@@ -455,7 +464,7 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
     # TTM window touching it (Israel has OTHERS=0 in most recent months,
     # which silently truncated the TTM chart at mid-2024 on first render).
     return {
-        "period": period, "time_interval": "monthly", "variant": VARIANT,
+        "period": period, "time_interval": "monthly", "variant": variant,
         "source": SOURCE,
         **{c: float(v) for c, v in counts.items()},
         "TOTAL": float(total), "notes": "",
@@ -497,6 +506,8 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="Aggregate and print but do not write the CSV.")
     ap.add_argument("--force", action="store_true",
                     help="Skip the 'previous month already present' early-exit.")
+    ap.add_argument("--variants", default="Whole,Vans",
+                    help="Comma-separated variants to fetch (Whole, Vans).")
     args = ap.parse_args()
 
     if args.probe:
@@ -518,24 +529,29 @@ def main() -> None:
                 print(f"CSV already has {end}; nothing to do (use --force to re-count).")
                 return
 
-    print(f"Fetching Israel registrations {start} .. {end}")
+    variants = [v.strip() for v in args.variants.split(",") if v.strip()]
+    unknown = [v for v in variants if v not in VARIANTS]
+    if unknown:
+        raise SystemExit(f"Unknown variants {unknown}; known: {list(VARIANTS)}")
+    print(f"Fetching Israel registrations {start} .. {end} ({', '.join(variants)})")
 
     wltp_lookup = load_wltp_lookup()
 
-    new_rows = {}
-    for period in month_range(start, end):
-        row = aggregate_month(period, wltp_lookup)
-        if row:
-            new_rows[(period, VARIANT)] = row
-
-    if not new_rows:
-        print("No rows extracted.")
-        sys.exit(1)
-    if args.dry_run:
-        print(f"[dry-run] {len(new_rows)} months aggregated; CSV untouched.")
-        return
-    added, updated = upsert_csv(CSV_PATH, new_rows)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+    for variant in variants:
+        _, csv_path = VARIANTS[variant]
+        new_rows = {}
+        for period in month_range(start, end):
+            row = aggregate_month(period, wltp_lookup, variant)
+            if row:
+                new_rows[(period, variant)] = row
+        if not new_rows:
+            print(f"{variant}: no rows extracted.")
+            sys.exit(1)
+        if args.dry_run:
+            print(f"[dry-run] {variant}: {len(new_rows)} months aggregated; CSV untouched.")
+            continue
+        added, updated = upsert_csv(csv_path, new_rows)
+        print(f"{variant}: {added} added, {updated} updated -> {csv_path}")
 
 
 if __name__ == "__main__":

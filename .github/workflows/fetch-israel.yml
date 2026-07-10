@@ -41,6 +41,9 @@ jobs:
     permissions:
       contents: write
       actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+      changed_variants: ${{ steps.changed.outputs.variants }}
 
     steps:
       - uses: actions/checkout@v4
@@ -70,16 +73,35 @@ jobs:
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Israel.csv
+          add: 'data/Israel.csv data/Israel_Vans.csv'
           message: 'chore: update Israel data from data.gov.il'
           default_author: github_actions
 
-      - name: Trigger render for Israel
+      - name: Determine changed variants
+        id: changed
         if: steps.commit.outputs.committed == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Israel \
-            -f variant=Whole
+          FILES=$(git show --name-only --format= HEAD)
+          V="["
+          if echo "$FILES" | grep -q '^data/Israel.csv$';      then V="$V\"Whole\","; fi
+          if echo "$FILES" | grep -q '^data/Israel_Vans.csv$'; then V="$V\"Vans\","; fi
+          V="${V%,}]"
+          echo "variants=$V" >> "$GITHUB_OUTPUT"
+          echo "changed variants: $V"
+
+  # Strictly serial render chain over the touched variants (fetch-spain.yml
+  # pattern): reusable-workflow matrix with max-parallel=1, so the two Israel
+  # renders never commit concurrently.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.changed_variants) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Israel
+      variant: ${{ matrix.variant }}
+    secrets: inherit
