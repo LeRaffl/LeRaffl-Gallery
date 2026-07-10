@@ -33,14 +33,20 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
 # data.gov.in's public documentation sample key (rate-limited, fine for probing)
 OGD_SAMPLE_KEY = "579b464db66ec23bdd0000018c1e5ba53de4104f4f8b4d7cbd7ecc06"
 OGD_DATASET = "76192d23-59ba-4be8-9ccb-a469e83dc552"
+# The mandi-prices resource every data.gov.in docs example uses — tells the
+# sample key's global health apart from per-resource restrictions.
+OGD_DEMO = "9ef84268-d588-465a-a308-a864a43d0070"
 
 TARGETS = [
-    ("vahan4 dashboard", "https://vahan.parivahan.gov.in/vahan4dashboard/"),
-    ("vahan4 reportview", "https://vahan.parivahan.gov.in/vahan4dashboard/vahan/view/reportview.xhtml"),
-    ("analytics", "https://analytics.parivahan.gov.in/analytics/publicdashboard"),
-    ("parivahan root", "https://parivahan.gov.in/"),
-    ("data.gov.in root", "https://www.data.gov.in/"),
-    ("OGD API sample", f"https://api.data.gov.in/resource/{OGD_DATASET}?api-key={OGD_SAMPLE_KEY}&format=json&limit=3"),
+    # Probe v1 results (2026-07-10): vahan.parivahan.gov.in resets foreign
+    # connections; api.data.gov.in reachable but sample key 403 on the Vahan
+    # dataset. Probe v2 hunts key-less routes.
+    ("OGD sample key vs demo resource", f"https://api.data.gov.in/resource/{OGD_DEMO}?api-key={OGD_SAMPLE_KEY}&format=json&limit=2"),
+    ("OGD vahan dataset keyless", f"https://api.data.gov.in/resource/{OGD_DATASET}?format=json&limit=2"),
+    ("OGD vahan dataset page (download links)", f"https://www.data.gov.in/apis/{OGD_DATASET}"),
+    ("data.gov.in backend resource meta", f"https://www.data.gov.in/backend/dmspublic/v1/resources?filters%5Bid%5D={OGD_DATASET}"),
+    ("IndiaDataPortal CKAN search", "https://ckan.indiadataportal.com/api/3/action/package_search?q=vahan+fuel&rows=8"),
+    ("ICED NITI transport", "https://iced.niti.gov.in/transport/electric-mobility/ev-sales"),
 ]
 
 
@@ -53,13 +59,23 @@ def probe() -> None:
             r = s.get(url, timeout=45, allow_redirects=True)
             body = r.text[:400].replace("\n", " ")
             print(f"\n[{name}] {url}\n  HTTP {r.status_code}  final={r.url}\n  head: {body}", flush=True)
-            if "api.data.gov.in" in url and r.ok:
+            if r.ok and ("api.data.gov.in" in url or "ckan" in url or "/backend/" in url):
                 try:
                     j = r.json()
-                    print(f"  OGD: total={j.get('total')} updated={j.get('updated_date')} "
-                          f"fields={[f.get('id') for f in j.get('field', [])]}")
-                    for rec in j.get("records", [])[:3]:
-                        print(f"  rec: {json.dumps(rec, ensure_ascii=False)[:300]}")
+                    if "ckan" in url:
+                        res = j.get("result", {})
+                        print(f"  CKAN: count={res.get('count')}")
+                        for pkg in res.get("results", [])[:8]:
+                            print(f"    dataset: {pkg.get('name')}  title={pkg.get('title')!r}")
+                            for rr in pkg.get("resources", [])[:6]:
+                                print(f"      resource: {rr.get('id')} fmt={rr.get('format')} "
+                                      f"datastore={rr.get('datastore_active')} name={rr.get('name')!r}")
+                    else:
+                        print(f"  JSON keys: {list(j)[:12]}")
+                        print(f"  total={j.get('total')} updated={j.get('updated_date')} "
+                              f"fields={[f.get('id') for f in j.get('field', [])]}")
+                        for rec in j.get("records", [])[:3]:
+                            print(f"  rec: {json.dumps(rec, ensure_ascii=False)[:300]}")
                 except ValueError:
                     pass
         except requests.RequestException as e:
