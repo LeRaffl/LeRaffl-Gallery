@@ -275,6 +275,105 @@ def probe() -> None:
     print("\n=== PROBE DONE ===")
 
 
+# ----------------------------------------------------------- crosscheck mode
+
+def crosscheck() -> None:
+    """Compare data/Israel.csv against R. Andrew's carsales mirror.
+
+    His Albania/Singapore mirrors live at
+    robbieandrew.github.io/carsales/<country>_carsales_monthly.csv; try the
+    same pattern for Israel, print his file's metadata (source attribution
+    lines), and diff TOTAL / BEV / BEV-share month by month.
+    """
+    candidates = [
+        "https://robbieandrew.github.io/carsales/israel_carsales_monthly.csv",
+        "https://robbieandrew.github.io/carsales/Israel_carsales_monthly.csv",
+    ]
+    text = None
+    for url in candidates:
+        r = session.get(url, timeout=60)
+        print(f"GET {url} -> {r.status_code}")
+        if r.ok:
+            text = r.text
+            break
+    if text is None:
+        # Hunt for the actual link on his index page
+        r = session.get("https://robbieandrew.github.io/carsales/", timeout=60)
+        print(f"GET index -> {r.status_code}")
+        import re as _re
+        hits = sorted(set(_re.findall(r'href="([^"]*israel[^"]*)"', r.text, _re.I)))
+        print(f"israel links on index: {hits}")
+        if not hits:
+            print("No Israel series in R. Andrew's carsales collection.")
+            return
+        url = hits[0] if hits[0].startswith("http") else \
+            "https://robbieandrew.github.io/carsales/" + hits[0].lstrip("/")
+        r = session.get(url, timeout=60)
+        print(f"GET {url} -> {r.status_code}")
+        if not (r.ok and "," in r.text):
+            print("Linked resource is not a CSV; manual inspection needed.")
+            return
+        text = r.text
+
+    lines = text.splitlines()
+    meta = [l for l in lines[:15] if l.startswith("#") or "ource" in l]
+    print("--- mirror file head ---")
+    for l in lines[:6]:
+        print(f"  {l}")
+    if meta:
+        print("--- metadata/source lines ---")
+        for l in meta:
+            print(f"  {l}")
+
+    import io as _io
+    body = "\n".join(l for l in lines if not l.startswith("#"))
+    rdr = csv.DictReader(_io.StringIO(body))
+    cols = {c.lower().strip(): c for c in (rdr.fieldnames or [])}
+    def col(*names):
+        for n in names:
+            if n in cols:
+                return cols[n]
+        return None
+    c_date = col("month", "date", "period", "yyyymm") or (rdr.fieldnames or [None])[0]
+    c_bev = col("bev", "electric", "ev")
+    c_tot = col("total", "sum", "all")
+    print(f"columns: {rdr.fieldnames}")
+    theirs = {}
+    for row in rdr:
+        raw = (row.get(c_date) or "").strip()
+        # normalise 2024M01 / 2024-01 / 2024-01-01 to YYYY-MM
+        raw = raw.replace("M", "-")
+        p = raw[:7]
+        if len(p) == 7 and p[4] == "-":
+            def num(c):
+                try:
+                    return float((row.get(c) or "").replace(",", "") or 0)
+                except ValueError:
+                    return 0.0
+            theirs[p] = (num(c_bev) if c_bev else None,
+                         num(c_tot) if c_tot else None)
+
+    ours = {}
+    with open(CSV_PATH, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if row["variant"] == VARIANT:
+                ours[row["period"]] = (float(row["BEV"] or 0), float(row["TOTAL"] or 0))
+
+    common = sorted(set(theirs) & set(ours))
+    print(f"\ncommon months: {len(common)} ({common[0]} .. {common[-1]})" if common
+          else "\nno overlapping months!")
+    print(f"{'month':8} {'TOT ours':>9} {'TOT RA':>9} {'dTOT%':>7}  "
+          f"{'BEV ours':>9} {'BEV RA':>9} {'share ours':>10} {'share RA':>9}")
+    for p in common[-30:]:
+        ob, ot = ours[p]
+        tb, tt = theirs[p]
+        dt = f"{100*(ot-tt)/tt:+.1f}%" if tt else "n/a"
+        so = f"{100*ob/ot:.1f}%" if ot else ""
+        sr = f"{100*tb/tt:.1f}%" if (tt and tb is not None) else "n/a"
+        print(f"{p:8} {ot:9.0f} {tt if tt is not None else float('nan'):9.0f} {dt:>7}  "
+              f"{ob:9.0f} {tb if tb is not None else float('nan'):9.0f} {so:>10} {sr:>9}")
+
+
 # ---------------------------------------------------------------- fetch mode
 
 def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
@@ -363,6 +462,8 @@ def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--probe", action="store_true", help="Explore the datastore schema and exit.")
+    ap.add_argument("--crosscheck", action="store_true",
+                    help="Diff data/Israel.csv against R. Andrew's carsales mirror and exit.")
     ap.add_argument("--start", help="First month to (re-)count, YYYY-MM.")
     ap.add_argument("--end", help="Last month to (re-)count, YYYY-MM.")
     ap.add_argument("--dry-run", action="store_true", help="Aggregate and print but do not write the CSV.")
@@ -372,6 +473,9 @@ def main() -> None:
 
     if args.probe:
         probe()
+        return
+    if args.crosscheck:
+        crosscheck()
         return
 
     start, end = default_window()

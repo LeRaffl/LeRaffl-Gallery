@@ -19,7 +19,7 @@ on:
         required: false
         default: 'fetch'
         type: choice
-        options: [fetch, probe]
+        options: [fetch, probe, crosscheck]
       start:
         description: 'First month to (re-)count (YYYY-MM; empty = last 3 months)'
         required: false
@@ -56,6 +56,8 @@ jobs:
         run: |
           if [ "${{ inputs.mode }}" = "probe" ]; then
             python scripts/fetch_israel.py --probe
+          elif [ "${{ inputs.mode }}" = "crosscheck" ]; then
+            python scripts/fetch_israel.py --crosscheck
           else
             ARGS=""
             if [ -n "${{ inputs.start }}" ]; then ARGS="$ARGS --start ${{ inputs.start }}"; fi
