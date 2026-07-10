@@ -14,16 +14,22 @@ or via the manual GitHub Action **Ray article charts** after new data lands.
 
 | File | Content |
 |---|---|
-| `domestic_bev_share_2014_now.png` | Fitted BEV share, 2014 → latest data |
+| `domestic_bev_share_2015_now.png` | Fitted BEV share, 2015 → end-2026 (dashed tail = estimate) |
 | `domestic_bev_share_with_weighted_avg.png` | + volume-weighted 6-market average |
 | `domestic_bev_share_extrapolated_2031.png` | + dashed extrapolation to 2031 |
 | `domestic_bev_share_extrapolated_2031_with_weighted_avg.png` | dito + weighted average |
 | `domestic_bev_share_extrapolated_2035_full_scale.png` | extrapolation to 2035, 0–100% scale |
 | `domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png` | dito + weighted average |
-| `domestic_bev_absolute_annual.png` | absolute BEV units per calendar year (full years, raw data) |
+| `domestic_bev_absolute_annual.png` | absolute BEV units per calendar year + current-year estimate |
 | `domestic_bev_absolute_annual_with_total.png` | dito + summed 6-market total |
 | `domestic_bev_absolute_ttm_monthly.png` | absolute BEV units, trailing 12 months (raw data) |
 | `domestic_bev_absolute_ttm_monthly_with_total.png` | dito + summed 6-market total |
 
+Per Ray's feedback (July 2026), all charts start at 2015, the projection
+charts carry 2030/2035 on the axis, and the actual-data charts end cleanly at
+2026: the share charts continue each country's fitted curve (dashed) from its
+last data month to Dec 2026, and the annual chart adds a dashed current-year
+estimate = YTD × (full prior year / same months of prior year).
+
 Notes: shares are pure BEV (no PHEV/EREV/NEV). Absolute charts use raw CSV
-counts, history only.
+counts; history plus the current-year estimate only, no model extrapolation.

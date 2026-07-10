@@ -1,7 +1,7 @@
 # Domestic BEV conversion chart for Ray Wills' article — mirror of his
 # export-share chart. Reads fitted Weibull params from params.csv (no refit),
 # draws the smoothed BEV-share trajectories for the six export countries in
-# Ray's dark chart style. Produces three variants into exports/ray_article/.
+# Ray's dark chart style. Produces the chart set in exports/ray_article/.
 #
 # Run from repo root:  Rscript scripts/ray_domestic_bev_chart.R
 
@@ -49,9 +49,16 @@ ext_full <- do.call(rbind, lapply(seq_len(nrow(p6)), function(i) {
   d[d$cal >= max(obs$cal[obs$country == p6$country[i]]), ]
 }))
 ext <- subset(ext_full, cal <= 2031)
+# Short fitted continuation to Dec 2026: unifies the ragged per-country data
+# ends (currently Jun/May/Apr 2026) into one clean "actual + 2026 estimate"
+# endpoint for the non-projection charts.
+x_end26 <- 2026 + 11 / 12
+ext26 <- subset(ext_full, cal <= x_end26)
 
 line_ends <- do.call(rbind, lapply(split(obs, obs$country),
                                    function(d) d[which.max(d$cal), ]))
+ends26 <- do.call(rbind, lapply(split(ext26, ext26$country),
+                                function(d) d[which.max(d$cal), ]))
 
 # Push overlapping right-edge labels apart (order-preserving, min gap in y units)
 spread_labels <- function(y, gap) {
@@ -65,22 +72,16 @@ spread_labels <- function(y, gap) {
 # Volume-weighted combined line (weights.csv, same weighting as the gallery)
 w <- read.csv(file.path(repo, "weights.csv"), stringsAsFactors = FALSE)
 w <- subset(w, country %in% countries & variant == "Whole")[, c("country", "weight")]
-# cap at the last month covered by all six countries, so the weight set is constant
-common_end <- min(tapply(obs$cal, obs$country, max))
-comb <- merge(subset(obs, cal <= common_end), w, by = "country")
-comb <- aggregate(cbind(bev_w = bev * weight, weight) ~ cal, comb, FUN = sum)
-comb$bev <- comb$bev_w / comb$weight
-comb <- comb[comb$cal >= 2014, ]
-comb$country <- "AvgW"
 
-# Weighted average over the full fitted curves (incl. extrapolation horizon),
-# for the "with avg" variants of the extrapolated charts.
+# Weighted average over the full fitted curves (incl. extrapolation horizon).
+# Used both for the "with avg" variants of the extrapolated charts and, cut at
+# Dec 2026, as the avg line of the actual-data chart.
 fullc <- do.call(rbind, lapply(seq_len(nrow(p6)), function(i) curve_df(p6[i, ], 2034)))
 avgc <- merge(fullc, w, by = "country")
 avgc <- aggregate(cbind(bev_w = bev * weight, weight) ~ cal, avgc, FUN = sum)
 avgc$bev <- avgc$bev_w / avgc$weight
 avgc$country <- "AvgW"
-avgc <- avgc[avgc$cal >= 2014, c("country", "cal", "bev")]
+avgc <- avgc[avgc$cal >= 2015, c("country", "cal", "bev")]
 
 caption_txt <- paste0("Data: CPCA, JADA/JAMA, KBA, molit.go.kr, ANL, data.thaiauto.or.th",
                       "  ·  Fitted trajectories · Chart @LeRaffl ",
@@ -105,7 +106,8 @@ ray_theme <- theme_minimal(base_size = 16) +
     legend.position = "none"
   )
 
-base_plot <- function(dat, x_min, x_max, title, ends = line_ends) {
+base_plot <- function(dat, x_min, x_max, title, ends = line_ends,
+                      xbreaks = seq(2015, 2027, 2), note = NULL) {
   ends$y_lab <- spread_labels(ends$bev, gap = 0.045 * max(c(dat$bev, ends$bev)))
   ggplot(dat, aes(cal, bev, color = country)) +
     geom_line(linewidth = 2) +
@@ -115,10 +117,11 @@ base_plot <- function(dat, x_min, x_max, title, ends = line_ends) {
     scale_y_continuous(labels = percent_format(accuracy = 1),
                        breaks = seq(0, 1, 0.2), limits = c(0, NA),
                        expand = expansion(mult = c(0, 0.05))) +
-    scale_x_continuous(breaks = seq(2010, 2036, 2),
+    scale_x_continuous(breaks = xbreaks,
                        limits = c(x_min, x_max), expand = c(0.01, 0)) +
     coord_cartesian(clip = "off") +
-    labs(title = title, subtitle = caption_txt) +
+    labs(title = title,
+         subtitle = if (is.null(note)) caption_txt else paste0(caption_txt, "  ·  ", note)) +
     ray_theme
 }
 
@@ -129,21 +132,27 @@ save_png <- function(p, name) {
 
 title_main <- "BEV share of new registrations in home markets by vehicle-exporting country"
 
-# 1) Main: observed fit range, 2014 -> latest data
-p1 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 1.6, title_main)
-save_png(p1, "domestic_bev_share_2014_now.png")
+# 1) Main: observed fit range from 2015, dashed estimate to end-2026
+note26 <- "dashed = estimate to end of 2026"
+p1 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 1.6, title_main,
+                ends = ends26, note = note26) +
+  geom_line(data = ext26, linetype = "22", linewidth = 1.4)
+save_png(p1, "domestic_bev_share_2015_now.png")
 
 # 2) With dashed extrapolation to 2031 (labels move to the dashed line ends)
+proj_breaks <- seq(2015, 2035, 5)   # puts 2030 / 2035 on the projection axes
 ext_ends <- do.call(rbind, lapply(split(ext, ext$country),
                                   function(d) d[which.max(d$cal), ]))
-p2 <- base_plot(subset(obs, cal >= 2014), 2014, 2031.2, title_main, ends = ext_ends) +
+p2 <- base_plot(subset(obs, cal >= 2015), 2015, 2031.2, title_main,
+                ends = ext_ends, xbreaks = proj_breaks) +
   geom_line(data = ext, linetype = "22", linewidth = 1.4)
 save_png(p2, "domestic_bev_share_extrapolated_2031.png")
 
 # 2b) Zoomed out: extrapolation to 2035 on a full 0-100% scale
 ext35_ends <- do.call(rbind, lapply(split(ext_full, ext_full$country),
                                     function(d) d[which.max(d$cal), ]))
-p2b <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main, ends = ext35_ends) +
+p2b <- base_plot(subset(obs, cal >= 2015), 2015, 2035.2, title_main,
+                 ends = ext35_ends, xbreaks = proj_breaks) +
   geom_line(data = ext_full, linetype = "22", linewidth = 1.4) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
                      breaks = seq(0, 1, 0.2), limits = c(0, 1),
@@ -155,14 +164,14 @@ avg_end <- function(x_cut) {
   d <- avgc[avgc$cal <= x_cut, ]
   d[which.max(d$cal), ]
 }
-p2a <- base_plot(subset(obs, cal >= 2014), 2014, 2031.2, title_main,
-                 ends = rbind(ext_ends, avg_end(2031))) +
+p2a <- base_plot(subset(obs, cal >= 2015), 2015, 2031.2, title_main,
+                 ends = rbind(ext_ends, avg_end(2031)), xbreaks = proj_breaks) +
   geom_line(data = ext, linetype = "22", linewidth = 1.4) +
   geom_line(data = subset(avgc, cal <= 2031), linetype = "42", linewidth = 1.6)
 save_png(p2a, "domestic_bev_share_extrapolated_2031_with_weighted_avg.png")
 
-p2c <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main,
-                 ends = rbind(ext35_ends, avg_end(2035))) +
+p2c <- base_plot(subset(obs, cal >= 2015), 2015, 2035.2, title_main,
+                 ends = rbind(ext35_ends, avg_end(2035)), xbreaks = proj_breaks) +
   geom_line(data = ext_full, linetype = "22", linewidth = 1.4) +
   geom_line(data = avgc, linetype = "42", linewidth = 1.6) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
@@ -170,14 +179,15 @@ p2c <- base_plot(subset(obs, cal >= 2014), 2014, 2035.2, title_main,
                      expand = expansion(mult = c(0, 0.03)))
 save_png(p2c, "domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png")
 
-# 3) Main + volume-weighted combined line of the six markets
-p3 <- base_plot(subset(obs, cal >= 2014), 2014, max(obs$cal) + 1.6, title_main,
-                ends = rbind(line_ends,
-                             comb[which.max(comb$cal), c("country", "cal", "bev")])) +
-  geom_line(data = comb, linetype = "42", linewidth = 1.6)
+# 3) Main + volume-weighted combined line of the six markets (the avg line is
+# the fitted weighted average, cut at the same end-2026 estimate endpoint)
+p3 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 1.6, title_main,
+                ends = rbind(ends26, avg_end(x_end26)), note = note26) +
+  geom_line(data = ext26, linetype = "22", linewidth = 1.4) +
+  geom_line(data = subset(avgc, cal <= x_end26), linetype = "42", linewidth = 1.6)
 save_png(p3, "domestic_bev_share_with_weighted_avg.png")
 
-# ── Absolute BEV registrations (history only, no extrapolation) ──────────────
+# ── Absolute BEV registrations (history + current-year estimate) ─────────────
 # Yearly/quarterly source rows are stored evenly spread over monthly rows, so
 # calendar-year sums and rolling 12-month sums work uniformly across countries.
 abs_raw <- do.call(rbind, lapply(countries, function(c) {
@@ -198,7 +208,7 @@ abs_theme_add <- list(
                                     angle = 90, margin = margin(r = 8)))
 )
 
-abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max) {
+abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max, note = NULL) {
   ends$y_lab <- spread_labels(ends$bev / 1e6, gap = y_max * 0.05)
   ggplot(dat, aes(x, bev / 1e6, color = country)) +
     geom_line(linewidth = 2) +
@@ -209,27 +219,53 @@ abs_plot <- function(dat, ends, x_min, x_max, title, xbreaks, y_max) {
     scale_y_continuous(limits = c(0, y_max), expand = expansion(mult = c(0, 0.05))) +
     scale_x_continuous(breaks = xbreaks, limits = c(x_min, x_max), expand = c(0.01, 0)) +
     coord_cartesian(clip = "off") +
-    labs(title = title, subtitle = caption_abs, y = "MILLIONS") +
+    labs(title = title, y = "MILLIONS",
+         subtitle = if (is.null(note)) caption_abs else paste0(caption_abs, "  ·  ", note)) +
     ray_theme + abs_theme_add
 }
 
-# 4) Annual BEV sales, full calendar years only
+# 4) Annual BEV sales: full calendar years, plus a current-year full-year
+# estimate = YTD x (full prior year / same months of prior year) per country,
+# so the actual-data chart ends at 2026 as one clean endpoint. The final
+# segment is dashed (dashed = estimate, same convention as the share charts).
 cur_year <- as.integer(format(Sys.Date(), "%Y"))
-yearly <- aggregate(bev ~ country + yr, subset(abs_raw, yr >= 2014 & yr < cur_year), sum)
+yearly <- aggregate(bev ~ country + yr, subset(abs_raw, yr >= 2015 & yr < cur_year), sum)
 yearly$x <- yearly$yr
-y_ends <- do.call(rbind, lapply(split(yearly, yearly$country), function(d) d[which.max(d$x), ]))
+
+est26 <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
+  ytd <- d[d$yr == cur_year, ]
+  if (nrow(ytd) == 0) return(NULL)
+  mo_max <- max(as.integer(substr(ytd$period, 6, 7)))
+  prev <- d[d$yr == cur_year - 1, ]
+  prev_same <- prev[as.integer(substr(prev$period, 6, 7)) <= mo_max, ]
+  data.frame(country = d$country[1], x = cur_year,
+             bev = sum(ytd$bev) * sum(prev$bev) / sum(prev_same$bev))
+}))
+cat(sprintf("%d full-year estimates (millions): %s\n", cur_year,
+            paste(sprintf("%s %.2f", est26$country, est26$bev / 1e6), collapse = ", ")))
+
+seg26 <- rbind(yearly[yearly$yr == cur_year - 1, c("country", "x", "bev")],
+               est26[, c("country", "x", "bev")])
+y_ends <- est26[, c("country", "x", "bev")]
 y_tot <- aggregate(bev ~ x, yearly, sum); y_tot$country <- "Total"
-y_max_annual <- max(y_tot$bev) / 1e6   # shared y axis for the with/without pair
-p4 <- abs_plot(yearly, y_ends, 2014, max(yearly$x) + 1.4,
-               paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1), y_max_annual)
+tot26 <- data.frame(x = cur_year, bev = sum(est26$bev), country = "Total")
+tot_seg26 <- rbind(y_tot[y_tot$x == cur_year - 1, ], tot26)
+note_abs <- sprintf("dashed = %d estimate from year-to-date", cur_year)
+y_max_annual <- max(y_tot$bev, tot26$bev) / 1e6   # shared y axis for the with/without pair
+p4 <- abs_plot(yearly, y_ends, 2015, cur_year + 1.4,
+               paste0("Annual ", title_abs), seq(2015, cur_year, 1), y_max_annual,
+               note = note_abs) +
+  geom_line(data = seg26, linetype = "22", linewidth = 2)
 save_png(p4, "domestic_bev_absolute_annual.png")
 
 # 4b) Annual + summed total of the six markets
-p4b <- abs_plot(yearly, rbind(y_ends[, c("country", "x", "bev")],
-                              y_tot[which.max(y_tot$x), c("country", "x", "bev")]),
-                2014, max(yearly$x) + 1.4,
-                paste0("Annual ", title_abs), seq(2014, max(yearly$x), 1), y_max_annual) +
-  geom_line(data = y_tot, linetype = "42", linewidth = 1.6)
+p4b <- abs_plot(yearly, rbind(y_ends, tot26[, c("country", "x", "bev")]),
+                2015, cur_year + 1.4,
+                paste0("Annual ", title_abs), seq(2015, cur_year, 1), y_max_annual,
+                note = note_abs) +
+  geom_line(data = y_tot, linetype = "42", linewidth = 1.6) +
+  geom_line(data = seg26, linetype = "22", linewidth = 2) +
+  geom_line(data = tot_seg26, linetype = "22", linewidth = 1.6)
 save_png(p4b, "domestic_bev_absolute_annual_with_total.png")
 
 # 5) Trailing-12-month BEV sales, monthly resolution up to the latest data
@@ -241,19 +277,19 @@ ttm <- do.call(rbind, lapply(split(abs_raw, abs_raw$country), function(d) {
   out <- data.frame(country = d$country, x = yr + (mo - 1) / 12, bev = as.numeric(s))
   out[!is.na(out$bev), ]
 }))
-ttm <- subset(ttm, x >= 2014)
+ttm <- subset(ttm, x >= 2015)
 t_ends <- do.call(rbind, lapply(split(ttm, ttm$country), function(d) d[which.max(d$x), ]))
 t_common <- min(tapply(ttm$x, ttm$country, max))
 t_tot <- aggregate(bev ~ x, subset(ttm, x <= t_common), sum); t_tot$country <- "Total"
 y_max_ttm <- max(t_tot$bev) / 1e6      # shared y axis for the with/without pair
-p5 <- abs_plot(ttm, t_ends, 2014, max(ttm$x) + 1.6,
-               paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2), y_max_ttm)
+p5 <- abs_plot(ttm, t_ends, 2015, max(ttm$x) + 1.6,
+               paste0("Trailing 12-month ", title_abs), seq(2015, 2027, 2), y_max_ttm)
 save_png(p5, "domestic_bev_absolute_ttm_monthly.png")
 
 # 5b) TTM + summed total, capped at the last month all six countries cover
 p5b <- abs_plot(ttm, rbind(t_ends[, c("country", "x", "bev")],
                            t_tot[which.max(t_tot$x), c("country", "x", "bev")]),
-                2014, max(ttm$x) + 1.6,
-                paste0("Trailing 12-month ", title_abs), seq(2014, 2028, 2), y_max_ttm) +
+                2015, max(ttm$x) + 1.6,
+                paste0("Trailing 12-month ", title_abs), seq(2015, 2027, 2), y_max_ttm) +
   geom_line(data = t_tot, linetype = "42", linewidth = 1.6)
 save_png(p5b, "domestic_bev_absolute_ttm_monthly_with_total.png")
