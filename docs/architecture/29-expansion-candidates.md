@@ -65,6 +65,17 @@ the gallery split: PURE EV → BEV, PLUG-IN HYBRID EV → PHEV, STRONG HYBRID
 EV → HEV, PETROL, DIESEL, CNG/LPG/others → OTHERS. Registry-based, so no
 BYD-style completeness hole.
 
+> **Status update (2026-07-10, CI reachability probe — `scripts/fetch_india.py --probe`):**
+> `vahan.parivahan.gov.in` **resets connections from GitHub runners** (geo/WAF
+> block — matches the maintainer's own need for a VPN), so route 2 below is
+> dead for an automated pipeline, and a Cloudflare-relay workaround wouldn't
+> help (also foreign egress). `api.data.gov.in` **is reachable** and answers
+> (403 "Key not authorised" with the docs' sample key) — route 1 works as soon
+> as a free personal API key is added as the `DATA_GOV_IN_API_KEY` repo
+> secret. The maintainer's historical Vahan Excel extract (2010-01…2026-04,
+> LMV + 2W/3W wheeler groups) has header/data vintage misalignment in its raw
+> sheets and is therefore a **cross-check reference only**, not a bootstrap.
+
 Access routes, in order of preference:
 
 1. **data.gov.in OGD API** — dataset "All India Level Year, Month, Vehicle
@@ -75,7 +86,7 @@ Access routes, in order of preference:
 2. **Scrape the Vahan analytics dashboard** — it's a JSF/PrimeFaces app
    (POST-back, viewstate), scrapeable but brittle; several public mirrors
    (India Data Portal CKAN, dataful.in) do exactly this and can serve as
-   parsing references.
+   parsing references. **Ruled out 2026-07: geo-blocked from CI (see above).**
 
 Caveats:
 

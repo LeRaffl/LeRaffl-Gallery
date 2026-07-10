@@ -26,8 +26,11 @@ region survey).
 
 The registry is a **stock snapshot**, not an events feed. Monthly new
 registrations = count of rows per road-entry month (`moed_aliya_lakvish`),
-scope-filtered to `sug_degem = "P"` (private passenger cars = gallery
-`Whole`; `"M"` is light-commercial ≤3.5t, a potential future Vans variant).
+scope-filtered on `sug_degem`: `"P"` (private passenger cars) = gallery
+`Whole`, `"M"` (light commercial ≤3.5t) = the `Vans` variant
+(`data/Israel_Vans.csv`, ~500–1,100/month, diesel-dominated with BEV
+climbing from ~0% to ~8% by mid-2026). Both variants share one fetcher run;
+the workflow's changed-variants detector renders only what moved.
 
 Quirks (all verified by the probe runs, 2026-07):
 
