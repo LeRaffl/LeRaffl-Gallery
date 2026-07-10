@@ -65,16 +65,29 @@ the gallery split: PURE EV → BEV, PLUG-IN HYBRID EV → PHEV, STRONG HYBRID
 EV → HEV, PETROL, DIESEL, CNG/LPG/others → OTHERS. Registry-based, so no
 BYD-style completeness hole.
 
-> **Status update (2026-07-10, CI reachability probe — `scripts/fetch_india.py --probe`):**
-> `vahan.parivahan.gov.in` **resets connections from GitHub runners** (geo/WAF
-> block — matches the maintainer's own need for a VPN), so route 2 below is
-> dead for an automated pipeline, and a Cloudflare-relay workaround wouldn't
-> help (also foreign egress). `api.data.gov.in` **is reachable** and answers
-> (403 "Key not authorised" with the docs' sample key) — route 1 works as soon
-> as a free personal API key is added as the `DATA_GOV_IN_API_KEY` repo
-> secret. The maintainer's historical Vahan Excel extract (2010-01…2026-04,
-> LMV + 2W/3W wheeler groups) has header/data vintage misalignment in its raw
-> sheets and is therefore a **cross-check reference only**, not a bootstrap.
+> **Status updates (2026-07-10, CI probes v1–v3 — `scripts/fetch_india.py --probe`):**
+> - `vahan.parivahan.gov.in` **resets connections from GitHub runners** (geo/WAF
+>   block — matches the maintainer's own need for a VPN). Dashboard scraping
+>   from CI is dead; a Cloudflare relay wouldn't help (also foreign egress).
+> - `api.data.gov.in` is reachable, but the docs' public sample key is
+>   **globally dead** (403 even on their own demo resource) and keyless calls
+>   get 400 — a personal key is mandatory, and **foreign registration is
+>   broken** (SMS verification never arrives on non-Indian numbers).
+> - **IndiaDataPortal CKAN** (`ckan.indiadataportal.com`) is open and keyless
+>   with Vahan mirrors at RTO-office granularity — but the fuel-type resource
+>   has **no vehicle-category dimension** (all vehicle types lumped, 2W
+>   dominate) and the mirror is **stale: 2019-01…2024-05**. Unusable as
+>   primary; useful as a historical plausibility reference at most.
+> - The maintainer's historical Vahan Excel extract (2010-01…2026-04, LMV +
+>   2W/3W wheeler groups) has header/data vintage misalignment in its raw
+>   sheets and is a **cross-check reference only**, not a bootstrap.
+>
+> **Net:** no route is simultaneously automated, key-less, current, and
+> fuel×category-crossed. Pragmatic plan: **semi-automated ingestion** — the
+> maintainer pulls the Vahan reportview XLSX exports via VPN (the workflow
+> they already have), a converter script validates alignment and builds the
+> gallery CSVs (Türkiye/Georgia-style manual cadence). Full automation
+> unlocks if a data.gov.in key is ever obtained.
 
 Access routes, in order of preference:
 
