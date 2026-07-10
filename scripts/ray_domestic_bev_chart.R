@@ -137,7 +137,7 @@ title_main <- "BEV share of new registrations in home markets by vehicle-exporti
 
 # 1) Main: observed fit range from 2015, dashed estimate to end-2026
 note26 <- "dashed = estimate to end of 2026"
-p1 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 1.6, title_main,
+p1 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 0.3, title_main,
                 ends = ends26, note = note26) +
   geom_line(data = ext26, linetype = "22", linewidth = 1.4)
 save_png(p1, "domestic_bev_share_2015_now.png")
@@ -184,7 +184,7 @@ save_png(p2c, "domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg
 
 # 3) Main + volume-weighted combined line of the six markets (the avg line is
 # the fitted weighted average, cut at the same end-2026 estimate endpoint)
-p3 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 1.6, title_main,
+p3 <- base_plot(subset(obs, cal >= 2015), 2015, x_end26 + 0.3, title_main,
                 ends = rbind(ends26, avg_end(x_end26)), note = note26) +
   geom_line(data = ext26, linetype = "22", linewidth = 1.4) +
   geom_line(data = subset(avgc, cal <= x_end26), linetype = "42", linewidth = 1.6)
