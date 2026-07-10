@@ -73,6 +73,20 @@ prints per-month join statistics and warns if the unmatched share exceeds
   [car-importers.org.il/Monthly_reviews](https://www.car-importers.org.il/Monthly_reviews)
   — passenger-car totals + powertrain shares; used to validate the fetcher.
 - CBS publishes registry-based vehicle statistics with a lag.
+- **R. Andrew's carsales mirror**
+  (`robbieandrew.github.io/carsales/data/israel_carsales_monthly.csv`,
+  columns YYYYMM / ICE / Non-plugin hybrid / Plugin hybrid / Battery
+  electric, fractional values ⇒ a derived series, not raw counts). The
+  fetcher's `--crosscheck` mode diffs against it. Result (2026-07): in the
+  mature overlap **2023–2025 the two independent pipelines agree within
+  1–4% on yearly totals and ~1pp on monthly BEV shares** (BEV 2024:
+  67,556 vs 67,171; 2025: 57,961 vs 58,166). Deviations concentrate in
+  three explainable zones: (a) **his 2026 months carry Plugin hybrid = 0**
+  and his totals ≈ ours − PHEV — a gap in his series, not ours (ours match
+  I-VIA); (b) his pre-2023 coverage looks partial (his 2021 total 212,580
+  vs our 272,912 — 2021 was Israel's record year, our figure matches the
+  known market size); (c) single-month splits differ a few pp where
+  delivery-vs-registration timing diverges (war months especially).
 
 ## Cadence & workflow
 
