@@ -1,0 +1,75 @@
+name: Fetch Israel data (data.gov.il)
+
+# Aggregates monthly new registrations by fuel type from the Ministry of
+# Transport's open vehicle registry on data.gov.il (CKAN datastore) and
+# upserts data/Israel.csv.
+#
+# DEV NOTE: the `push` trigger below is temporary scaffolding for developing
+# the fetcher on the expansion branch (the dev sandbox cannot reach
+# data.gov.il, so schema probing runs here). Remove it before merging.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'probe = dump datastore schema only; fetch = update CSV'
+        required: false
+        default: 'probe'
+        type: choice
+        options: [probe, fetch]
+      start:
+        description: 'First month to (re-)count (YYYY-MM, fetch mode)'
+        required: false
+      end:
+        description: 'Last month to (re-)count (YYYY-MM, fetch mode)'
+        required: false
+      commit:
+        description: 'Commit data/Israel.csv if changed'
+        required: false
+        default: 'false'
+        type: boolean
+
+  push:
+    branches: [claude/portfolio-country-expansion-95a8bb]
+    paths:
+      - 'scripts/fetch_israel.py'
+      - '.github/workflows/fetch-israel.yml'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run fetcher
+        run: |
+          MODE="${{ inputs.mode }}"
+          # push-trigger (dev) runs default to probe
+          if [ -z "$MODE" ]; then MODE="probe"; fi
+          if [ "$MODE" = "probe" ]; then
+            python scripts/fetch_israel.py --probe
+          else
+            ARGS=""
+            if [ -n "${{ inputs.start }}" ]; then ARGS="$ARGS --start ${{ inputs.start }}"; fi
+            if [ -n "${{ inputs.end }}" ]; then ARGS="$ARGS --end ${{ inputs.end }}"; fi
+            python scripts/fetch_israel.py $ARGS
+          fi
+
+      - name: Commit if changed
+        if: inputs.commit == true
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/Israel.csv
+          message: 'chore: update Israel data from data.gov.il'
+          default_author: github_actions
