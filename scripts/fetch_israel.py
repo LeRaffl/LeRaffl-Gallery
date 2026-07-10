@@ -39,25 +39,27 @@ Monthly new registrations are derived by grouping on the road-entry month
 
 Fuel mapping (sug_delek_nm; 6 values verified by probe)
 -------------------------------------------------------
-    חשמל          → BEV
-    בנזין         → PETROL
-    דיזל          → DIESEL
-    גפ"מ          → OTHERS  (LPG)
-    חשמל/בנזין    → HEV or PHEV via WLTP model-catalogue join
-    חשמל/דיזל     → HEV or PHEV via WLTP model-catalogue join
+THE TRAP (verified by cross-tab probe, 2026-07): the registry codes regular
+HEVs as plain **בנזין** — `חשמל/בנזין` / `חשמל/דיזל` are reserved for
+PLUG-INs only. A naive fuel-column mapping therefore hides the entire HEV
+segment (~25% of the market) inside PETROL. The fix: every petrol/diesel/
+hybrid row is joined against the model catalogue (dataset degem-rechev-wltp,
+"תוצרים ודגמים של כלי רכב פרטי ומסחרי"), whose `technologiat_hanaa_nm` says
+PLUG IN / היברידי רגיל / רכב חשמלי / הנעה רגילה per
+(tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur), with a majority vote over
+the model's trims when the exact trim is missing. Cross-tab coverage was
+100% back to 2017; I-VIA Q3-2025 shares reproduce within ~2pp.
 
-The registry itself does not separate PHEV from HEV. The model catalogue
-(dataset degem-rechev-wltp, "תוצרים ודגמים של כלי רכב פרטי ומסחרי") carries
-`technologiat_hanaa_nm` (propulsion technology: PLUG IN / היברידי רגיל /
-רכב חשמלי / הנעה רגילה). Hybrid registry rows are classified by joining on
-(tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur) — the trim level is part
-of the key because one model code + year can carry both HEV and PHEV trims —
-with a majority vote over the model's trims as fallback when the exact trim
-is missing. Hybrids with no catalogue match at all default to HEV (PHEVs
-were negligible in the pre-WLTP-catalogue years); per-month join statistics
-are printed on every run.
+    חשמל                     → BEV   (catalogue: רכב חשמלי, 100%)
+    בנזין  + catalogue hybrid → HEV   (the hidden-HEV recovery)
+    בנזין  + catalogue plug-in→ PHEV  (rare fuel-column miscoding)
+    בנזין  otherwise          → PETROL
+    דיזל   (same pattern)     → HEV / PHEV / DIESEL
+    חשמל/בנזין, חשמל/דיזל     → PHEV unless catalogue says regular hybrid
+    גפ"מ                      → OTHERS (LPG)
 
-Unmapped fuel values are a hard error so CI surfaces schema drift.
+Unmapped fuel values are a hard error so CI surfaces schema drift; per-month
+join statistics (incl. unmatched rows) are printed on every run.
 """
 import argparse
 import csv
@@ -88,16 +90,15 @@ CSV_COLUMNS = [
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes",
 ]
 
-FUEL_MAP = {
-    "חשמל": "BEV",
-    "בנזין": "PETROL",
-    "דיזל": "DIESEL",
-    "גפ\"מ": "OTHERS",
-}
-HYBRID_VALUES = {"חשמל/בנזין", "חשמל/דיזל"}
+# Registry fuel values that need the catalogue join (HEVs hide in petrol,
+# and the chargeable-hybrid buckets need the plug-in/regular verdict).
+JOINED_FUELS = {"בנזין": "PETROL", "דיזל": "DIESEL",
+                "חשמל/בנזין": "PHEV", "חשמל/דיזל": "PHEV"}
+DIRECT_FUELS = {"חשמל": "BEV", "גפ\"מ": "OTHERS"}
 
-# technologiat_hanaa_nm values that mean plug-in hybrid. Verified via probe;
-# substring match on "פלאג" (plug) keeps us robust to phrasing variants.
+REGULAR_HYBRID = "היברידי רגיל"
+# technologiat_hanaa_nm values that mean plug-in hybrid. Verified via probe
+# ("PLUG IN"); substring match keeps us robust to phrasing variants.
 PLUGIN_MARKERS = ("פלאג", "plug")
 
 session = requests.Session()
@@ -176,15 +177,23 @@ def default_window() -> tuple[str, str]:
 
 # ------------------------------------------------------- WLTP model lookup
 
+def tech_category(tech: str) -> str:
+    """Catalogue technologiat_hanaa_nm -> PHEV / HEV / OTHER."""
+    t = tech.lower()
+    if any(marker in t for marker in PLUGIN_MARKERS):
+        return "PHEV"
+    if tech == REGULAR_HYBRID:
+        return "HEV"
+    return "OTHER"   # הנעה רגילה, רכב חשמלי
+
+
 def load_wltp_lookup() -> tuple[dict, dict]:
     """
     Two lookups from the model catalogue:
-      exact:  (tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur) -> is_plugin
-      votes:  (tozeret_cd, degem_cd, shnat_yitzur) -> {False: n, True: m}
-    The trim level (ramat_gimur) matters: the same model code + year can
-    carry both an HEV and a PHEV trim, so a triple-only join with a
-    "prefer plug-in" tie-break misclassifies entire model families
-    (verified 2026-07: it turned every April-2026 hybrid into a PHEV).
+      exact:  (tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur) -> category
+      votes:  (tozeret_cd, degem_cd, shnat_yitzur) -> {category: n}
+    The trim level (ramat_gimur) is part of the exact key because the same
+    model code + year can carry trims with different powertrains.
     """
     print("Loading WLTP model catalogue …", flush=True)
     recs = ds_all_records(
@@ -197,35 +206,28 @@ def load_wltp_lookup() -> tuple[dict, dict]:
         tech = (r.get("technologiat_hanaa_nm") or "").strip()
         if not tech:
             continue
-        plugin = is_plugin(tech)
+        cat = tech_category(tech)
         triple = (r.get("tozeret_cd"), r.get("degem_cd"), r.get("shnat_yitzur"))
         trim = (r.get("ramat_gimur") or "").strip()
-        exact[triple + (trim,)] = plugin
-        votes.setdefault(triple, {False: 0, True: 0})[plugin] += 1
-    mixed = sum(1 for v in votes.values() if v[False] and v[True])
+        exact[triple + (trim,)] = cat
+        votes.setdefault(triple, {})
+        votes[triple][cat] = votes[triple].get(cat, 0) + 1
     print(f"  {len(recs):,} catalogue rows -> {len(exact):,} trim keys, "
-          f"{len(votes):,} model triples ({mixed:,} with mixed HEV/PHEV trims)", flush=True)
+          f"{len(votes):,} model triples", flush=True)
     return exact, votes
 
 
-def is_plugin(tech: str) -> bool:
-    t = tech.lower()
-    return any(marker in t for marker in PLUGIN_MARKERS)
-
-
-def classify_hybrid(rec: dict, exact: dict, votes: dict) -> tuple[str, str]:
-    """-> (column, how) where column is PHEV/HEV and how tags the join level."""
+def classify(rec: dict, exact: dict, votes: dict) -> tuple[str | None, str]:
+    """-> (category or None if unmatched, join level for stats)."""
     triple = (rec.get("tozeret_cd"), rec.get("degem_cd"), rec.get("shnat_yitzur"))
     trim = (rec.get("ramat_gimur") or "").strip()
     hit = exact.get(triple + (trim,))
     if hit is not None:
-        return ("PHEV" if hit else "HEV"), "trim"
+        return hit, "trim"
     v = votes.get(triple)
     if v:
-        # Majority vote across the model's trims; ties break to HEV (the
-        # larger bucket in Israel, so the smaller expected error).
-        return ("PHEV" if v[True] > v[False] else "HEV"), "majority"
-    return "HEV", "unmatched"
+        return max(v, key=v.get), "majority"
+    return None, "unmatched"
 
 
 # ---------------------------------------------------------------- probe mode
@@ -289,14 +291,22 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
     counts = {c: 0 for c in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")}
     unmapped: dict = {}
     join_stats = {"trim": 0, "majority": 0, "unmatched": 0}
+    hev_recovered = 0
     for rec in recs:
         fuel = (rec.get(FUEL_FIELD) or "").strip()
-        if fuel in HYBRID_VALUES:
-            col, how = classify_hybrid(rec, exact, votes)
-            counts[col] += 1
+        if fuel in JOINED_FUELS:
+            cat, how = classify(rec, exact, votes)
             join_stats[how] += 1
-        elif fuel in FUEL_MAP:
-            counts[FUEL_MAP[fuel]] += 1
+            if cat in ("PHEV", "HEV"):
+                counts[cat] += 1
+                if cat == "HEV" and fuel in ("בנזין", "דיזל"):
+                    hev_recovered += 1
+            else:
+                # OTHER (regular drive / electric) or unmatched: trust the
+                # registry fuel column's default bucket.
+                counts[JOINED_FUELS[fuel]] += 1
+        elif fuel in DIRECT_FUELS:
+            counts[DIRECT_FUELS[fuel]] += 1
         elif fuel == "":
             counts["OTHERS"] += 1
         else:
@@ -304,10 +314,15 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
 
     if unmapped:
         raise SystemExit(f"Unmapped {FUEL_FIELD} values in {period}: {unmapped} — "
-                         f"extend FUEL_MAP deliberately.")
+                         f"extend the fuel maps deliberately.")
 
     total = sum(counts.values())
-    print(f"  {period}: total={total} {counts} | hybrid join: {join_stats}", flush=True)
+    unmatched_pct = 100 * join_stats["unmatched"] / total if total else 0.0
+    print(f"  {period}: total={total} {counts} | HEVs recovered from petrol/diesel: "
+          f"{hev_recovered} | join: {join_stats} ({unmatched_pct:.1f}% unmatched)", flush=True)
+    if unmatched_pct > 5:
+        print(f"  ! {period}: catalogue join unmatched share {unmatched_pct:.1f}% > 5% — "
+              f"HEV undercount likely, investigate before trusting this month.", flush=True)
     return {
         "period": period, "time_interval": "monthly", "variant": VARIANT,
         "source": SOURCE,
@@ -347,6 +362,8 @@ def main() -> None:
     ap.add_argument("--start", help="First month to (re-)count, YYYY-MM.")
     ap.add_argument("--end", help="Last month to (re-)count, YYYY-MM.")
     ap.add_argument("--dry-run", action="store_true", help="Aggregate and print but do not write the CSV.")
+    ap.add_argument("--force", action="store_true",
+                    help="Skip the 'previous month already present' early-exit.")
     args = ap.parse_args()
 
     if args.probe:
@@ -356,6 +373,15 @@ def main() -> None:
     start, end = default_window()
     start = args.start or start
     end = args.end or end
+
+    if (not args.force and not args.start and not args.end
+            and os.path.exists(CSV_PATH)):
+        with open(CSV_PATH, newline="", encoding="utf-8") as f:
+            if any(r["period"] == end and r["variant"] == VARIANT
+                   for r in csv.DictReader(f)):
+                print(f"CSV already has {end}; nothing to do (use --force to re-count).")
+                return
+
     print(f"Fetching Israel registrations {start} .. {end}")
 
     wltp_lookup = load_wltp_lookup()
