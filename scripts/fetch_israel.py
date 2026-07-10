@@ -48,11 +48,14 @@ Fuel mapping (sug_delek_nm; 6 values verified by probe)
 
 The registry itself does not separate PHEV from HEV. The model catalogue
 (dataset degem-rechev-wltp, "תוצרים ודגמים של כלי רכב פרטי ומסחרי") carries
-`technologiat_hanaa_nm` (propulsion technology) per
-(tozeret_cd, degem_cd, shnat_yitzur); hybrid registry rows are classified by
-joining on that triple. Hybrids that find no catalogue match (mostly old
-model-years predating the WLTP catalogue, when PHEVs were negligible in
-Israel) default to HEV; the unmatched share is printed for every month.
+`technologiat_hanaa_nm` (propulsion technology: PLUG IN / היברידי רגיל /
+רכב חשמלי / הנעה רגילה). Hybrid registry rows are classified by joining on
+(tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur) — the trim level is part
+of the key because one model code + year can carry both HEV and PHEV trims —
+with a majority vote over the model's trims as fallback when the exact trim
+is missing. Hybrids with no catalogue match at all default to HEV (PHEVs
+were negligible in the pre-WLTP-catalogue years); per-month join statistics
+are printed on every run.
 
 Unmapped fuel values are a hard error so CI surfaces schema drift.
 """
@@ -173,29 +176,36 @@ def default_window() -> tuple[str, str]:
 
 # ------------------------------------------------------- WLTP model lookup
 
-def load_wltp_lookup() -> dict:
+def load_wltp_lookup() -> tuple[dict, dict]:
     """
-    (tozeret_cd, degem_cd, shnat_yitzur) -> technologiat_hanaa_nm
-    for hybrid-relevant rows of the model catalogue.
+    Two lookups from the model catalogue:
+      exact:  (tozeret_cd, degem_cd, shnat_yitzur, ramat_gimur) -> is_plugin
+      votes:  (tozeret_cd, degem_cd, shnat_yitzur) -> {False: n, True: m}
+    The trim level (ramat_gimur) matters: the same model code + year can
+    carry both an HEV and a PHEV trim, so a triple-only join with a
+    "prefer plug-in" tie-break misclassifies entire model families
+    (verified 2026-07: it turned every April-2026 hybrid into a PHEV).
     """
     print("Loading WLTP model catalogue …", flush=True)
     recs = ds_all_records(
         WLTP_RESOURCE,
-        ["tozeret_cd", "degem_cd", "shnat_yitzur", "technologiat_hanaa_nm"],
+        ["tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur", "technologiat_hanaa_nm"],
     )
-    lookup = {}
+    exact: dict = {}
+    votes: dict = {}
     for r in recs:
-        key = (r.get("tozeret_cd"), r.get("degem_cd"), r.get("shnat_yitzur"))
         tech = (r.get("technologiat_hanaa_nm") or "").strip()
         if not tech:
             continue
-        prev = lookup.get(key)
-        # Prefer a plug-in verdict on key collisions (conservative: a triple
-        # that maps to any plug-in trim is counted as PHEV).
-        if prev is None or (is_plugin(tech) and not is_plugin(prev)):
-            lookup[key] = tech
-    print(f"  {len(recs):,} catalogue rows -> {len(lookup):,} model keys", flush=True)
-    return lookup
+        plugin = is_plugin(tech)
+        triple = (r.get("tozeret_cd"), r.get("degem_cd"), r.get("shnat_yitzur"))
+        trim = (r.get("ramat_gimur") or "").strip()
+        exact[triple + (trim,)] = plugin
+        votes.setdefault(triple, {False: 0, True: 0})[plugin] += 1
+    mixed = sum(1 for v in votes.values() if v[False] and v[True])
+    print(f"  {len(recs):,} catalogue rows -> {len(exact):,} trim keys, "
+          f"{len(votes):,} model triples ({mixed:,} with mixed HEV/PHEV trims)", flush=True)
+    return exact, votes
 
 
 def is_plugin(tech: str) -> bool:
@@ -203,44 +213,57 @@ def is_plugin(tech: str) -> bool:
     return any(marker in t for marker in PLUGIN_MARKERS)
 
 
+def classify_hybrid(rec: dict, exact: dict, votes: dict) -> tuple[str, str]:
+    """-> (column, how) where column is PHEV/HEV and how tags the join level."""
+    triple = (rec.get("tozeret_cd"), rec.get("degem_cd"), rec.get("shnat_yitzur"))
+    trim = (rec.get("ramat_gimur") or "").strip()
+    hit = exact.get(triple + (trim,))
+    if hit is not None:
+        return ("PHEV" if hit else "HEV"), "trim"
+    v = votes.get(triple)
+    if v:
+        # Majority vote across the model's trims; ties break to HEV (the
+        # larger bucket in Israel, so the smaller expected error).
+        return ("PHEV" if v[True] > v[False] else "HEV"), "majority"
+    return "HEV", "unmatched"
+
+
 # ---------------------------------------------------------------- probe mode
 
 def probe() -> None:
-    print("=== PROBE v2 ===", flush=True)
+    print("=== PROBE v3 ===", flush=True)
 
-    print("\n--- WLTP catalogue: distinct technologiat_hanaa_nm")
+    print("\n--- WLTP catalogue: rows per technologiat_hanaa_nm")
     dv = ds_search(WLTP_RESOURCE, distinct="true", fields="technologiat_hanaa_nm", limit=60)
-    vals = [r.get("technologiat_hanaa_nm") for r in dv.get("records", [])]
-    print(f"  {json.dumps(vals, ensure_ascii=False)}")
-    total = ds_search(WLTP_RESOURCE, fields="_id", limit=1).get("total")
-    print(f"  catalogue total records: {total}")
+    for r in dv.get("records", []):
+        tech = r.get("technologiat_hanaa_nm")
+        n = ds_search(WLTP_RESOURCE, filters=json.dumps({"technologiat_hanaa_nm": tech}, ensure_ascii=False),
+                      fields="_id", limit=1).get("total")
+        print(f"  {tech!r}: {n}")
 
-    print("\n--- Registry: monthly totals, P-scope vs all (I-VIA ref: 2026-04=19,339 / 2026-05=29,456 passenger cars)")
-    for period in ("2026-06", "2026-05", "2026-04", "2026-03", "2025-12", "2019-01", "2017-01"):
-        q = unpadded(period)
-        all_n = ds_search(REGISTRY_RESOURCE, filters=json.dumps({DATE_FIELD: q}),
-                          fields="_id", limit=1).get("total")
-        p_n = ds_search(REGISTRY_RESOURCE,
-                        filters=json.dumps({DATE_FIELD: q, SCOPE_FIELD: SCOPE_VALUE}),
-                        fields="_id", limit=1).get("total")
-        print(f"  {period}: all={all_n}  P={p_n}  M={all_n - p_n}")
+    exact, votes = load_wltp_lookup()
 
-    print("\n--- Trial aggregation (with WLTP hybrid split): 2026-04 .. 2026-05")
-    lookup = load_wltp_lookup()
-    for period in ("2026-04", "2026-05"):
-        row = aggregate_month(period, lookup)
-        print(f"  -> {json.dumps(row, ensure_ascii=False)}")
+    print("\n--- Trial aggregation (trim-level hybrid split): 2025-06, 2026-01 .. 2026-05")
+    print("    I-VIA Q4-2025 reference shares: petrol 36.4%, hybrid 26.2%, PHEV 11.5%")
+    for period in ("2025-06", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05"):
+        row = aggregate_month(period, (exact, votes))
+        if row:
+            t = row["TOTAL"]
+            shares = {c: f"{100 * float(row[c] or 0) / t:.1f}%" for c in
+                      ("BEV", "PHEV", "HEV", "PETROL", "DIESEL")}
+            print(f"  -> {period} shares: {shares}")
 
     print("\n=== PROBE DONE ===")
 
 
 # ---------------------------------------------------------------- fetch mode
 
-def aggregate_month(period: str, wltp_lookup: dict) -> dict | None:
+def aggregate_month(period: str, wltp_lookup: tuple[dict, dict]) -> dict | None:
     """One CSV row for period (YYYY-MM, padded) or None if no data yet."""
+    exact, votes = wltp_lookup
     recs = ds_all_records(
         REGISTRY_RESOURCE,
-        [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur"],
+        [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur"],
         filters={DATE_FIELD: unpadded(period), SCOPE_FIELD: SCOPE_VALUE},
     )
     if not recs:
@@ -248,18 +271,13 @@ def aggregate_month(period: str, wltp_lookup: dict) -> dict | None:
 
     counts = {c: 0 for c in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")}
     unmapped: dict = {}
-    hybrids = matched = 0
+    join_stats = {"trim": 0, "majority": 0, "unmatched": 0}
     for rec in recs:
         fuel = (rec.get(FUEL_FIELD) or "").strip()
         if fuel in HYBRID_VALUES:
-            hybrids += 1
-            key = (rec.get("tozeret_cd"), rec.get("degem_cd"), rec.get("shnat_yitzur"))
-            tech = wltp_lookup.get(key)
-            if tech is not None:
-                matched += 1
-                counts["PHEV" if is_plugin(tech) else "HEV"] += 1
-            else:
-                counts["HEV"] += 1   # unmatched hybrids default to HEV
+            col, how = classify_hybrid(rec, exact, votes)
+            counts[col] += 1
+            join_stats[how] += 1
         elif fuel in FUEL_MAP:
             counts[FUEL_MAP[fuel]] += 1
         elif fuel == "":
@@ -272,10 +290,7 @@ def aggregate_month(period: str, wltp_lookup: dict) -> dict | None:
                          f"extend FUEL_MAP deliberately.")
 
     total = sum(counts.values())
-    unmatched = hybrids - matched
-    pct = 100 * unmatched / hybrids if hybrids else 0.0
-    print(f"  {period}: total={total} {counts} | hybrids={hybrids}, "
-          f"no catalogue match={unmatched} ({pct:.1f}%, defaulted to HEV)", flush=True)
+    print(f"  {period}: total={total} {counts} | hybrid join: {join_stats}", flush=True)
     return {
         "period": period, "time_interval": "monthly", "variant": VARIANT,
         "source": SOURCE,
