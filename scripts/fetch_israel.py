@@ -286,8 +286,7 @@ def crosscheck() -> None:
     lines), and diff TOTAL / BEV / BEV-share month by month.
     """
     candidates = [
-        "https://robbieandrew.github.io/carsales/israel_carsales_monthly.csv",
-        "https://robbieandrew.github.io/carsales/Israel_carsales_monthly.csv",
+        "https://robbieandrew.github.io/carsales/data/israel_carsales_monthly.csv",
     ]
     text = None
     for url in candidates:
