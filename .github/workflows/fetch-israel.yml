@@ -76,6 +76,10 @@ jobs:
           add: 'data/Israel.csv data/Israel_Vans.csv'
           message: 'chore: update Israel data from data.gov.il'
           default_author: github_actions
+          # The full backfill runs ~15 min; rebase over anything (manifest CI,
+          # doc pushes) that landed on the branch meanwhile instead of failing
+          # the push with non-fast-forward.
+          pull: '--rebase --autostash'
 
       - name: Determine changed variants
         id: changed
