@@ -202,6 +202,36 @@
       "country_slug": "brazil"
     },
     {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_ICE_BEV_20260710.png",
+      "url": "images/2026-06/malaysia_ICE_BEV_20260710.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_20260710.png",
+      "url": "images/2026-06/malaysia_20260710.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_time_20260710.png",
+      "url": "images/2026-06/malaysia_time_20260710.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-06",
