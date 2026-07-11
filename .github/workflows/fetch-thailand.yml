@@ -2,7 +2,12 @@ name: Fetch Thailand data (TAI/AIU portal)
 
 # Fetches Thailand new-vehicle registrations by fuel type from the AIU member
 # portal's JSON API (taiapi.thaiauto.or.th:3000) and upserts new monthly rows
-# into data/Thailand.csv (variant "Whole" = "Passenger Car and Pickup Truck").
+# into four per-variant CSVs (one API call per year serves all of them):
+#
+#   * Whole      — "Passenger Car and Pickup Truck"  -> data/Thailand.csv
+#   * HDV        — "Truck"                            -> data/Thailand_HDV.csv
+#   * Buses      — "Bus"                              -> data/Thailand_Buses.csv
+#   * 3-Wheelers — "Three Wheelers"                   -> data/Thailand_3-Wheelers.csv
 #
 # See scripts/fetch_thailand.py for the auth flow, the API request shape, and
 # the fuel-column mapping. Credentials come from repository secrets:
@@ -11,8 +16,8 @@ name: Fetch Thailand data (TAI/AIU portal)
 #
 # The API listens on port 3000. GitHub-hosted runners reach it directly; if a
 # runner's egress IP is ever blocked, set repository secret THAILAND_HTTPS_PROXY
-# to a permissive proxy. When the CSV changes, this workflow dispatches
-# render-country.yml for the Whole variant.
+# to a permissive proxy. When a CSV changes, this workflow dispatches
+# render-country.yml once per touched variant.
 
 on:
   workflow_dispatch:
@@ -63,33 +68,49 @@ jobs:
           THAILAND_AIU_THAIAUTO_PW: ${{ secrets.THAILAND_AIU_THAIAUTO_PW }}
           THAILAND_HTTPS_PROXY: ${{ secrets.THAILAND_HTTPS_PROXY }}
 
-      - name: Detect whether the CSV changed
+      - name: Detect which CSVs changed
         id: changed
         run: |
-          git add -N data/Thailand.csv 2>/dev/null || true
-          if git diff --quiet -- data/Thailand.csv; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No change to data/Thailand.csv"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "data/Thailand.csv changed"
-          fi
+          touched=()
+          for pair in "Whole:data/Thailand.csv" \
+                      "HDV:data/Thailand_HDV.csv" \
+                      "Buses:data/Thailand_Buses.csv" \
+                      "3-Wheelers:data/Thailand_3-Wheelers.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
 
       - name: Commit if changed
         id: commit
-        if: steps.changed.outputs.changed == 'true'
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Thailand.csv
+          add: |
+            data/Thailand.csv
+            data/Thailand_HDV.csv
+            data/Thailand_Buses.csv
+            data/Thailand_3-Wheelers.csv
           message: 'chore: update Thailand data from aiu.thaiauto.or.th (veh_reg_fuel)'
           default_author: github_actions
 
-      - name: Trigger render for Whole
-        if: steps.commit.outputs.committed == 'true'
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
         run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Thailand \
-            -f variant=Whole
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Thailand \
+              -f variant="$variant"
+          done

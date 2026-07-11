@@ -63,16 +63,24 @@ from urllib3.util.retry import Retry
 
 API_BASE = os.environ.get("THAILAND_AIU_API", "https://taiapi.thaiauto.or.th:3000").rstrip("/")
 SOURCE = "aiu.thaiauto.or.th"
-CSV_PATH = "data/Thailand.csv"
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "OTHERS", "ICE", "TOTAL", "notes",
 ]
 
-# Vehicle-type category that our "Whole" series tracks. Matched as a
-# case-insensitive substring against the report's type label so minor label
-# punctuation/spacing changes don't break the mapping.
-WHOLE_TYPE_MATCH = "passenger"
+# Our variants map 1:1 onto the report's vehicle-type categories. Matched by
+# exact ``type_label`` — a substring match would fold "Passenger Car and Pickup
+# Truck" into the "Truck" (HDV) bucket. HDV excludes buses here, matching the
+# repo convention (countries that carry both HDV and Buses treat them apart).
+VARIANTS: dict[str, dict] = {
+    "Whole":      {"labels": ("Passenger Car and Pickup Truck",), "csv": "data/Thailand.csv"},
+    "HDV":        {"labels": ("Truck",),                          "csv": "data/Thailand_HDV.csv"},
+    "Buses":      {"labels": ("Bus",),                            "csv": "data/Thailand_Buses.csv"},
+    "3-Wheelers": {"labels": ("Three Wheelers",),                 "csv": "data/Thailand_3-Wheelers.csv"},
+}
+VARIANT_ALIASES = {"whole": "Whole", "hdv": "HDV", "buses": "Buses",
+                   "3-wheelers": "3-Wheelers"}
+CSV_PATH = VARIANTS["Whole"]["csv"]  # used for the "already current" early-exit
 
 USER_ENV = "THAILAND_AIU_THAIAUTO_USER"
 PW_ENV = "THAILAND_AIU_THAIAUTO_PW"
@@ -232,12 +240,13 @@ def _type_label(row: dict) -> str:
                or row.get("type_code") or "")
 
 
-def report_rows_to_monthly(rows: list, year: int,
-                           type_match: str = WHOLE_TYPE_MATCH) -> dict:
-    """Sum the matching vehicle-type rows per month -> our column schema."""
+def report_rows_to_monthly(rows: list, year: int, labels) -> dict:
+    """Sum the rows whose exact type_label is in ``labels`` per month, mapped to
+    our column schema."""
+    wanted = {str(l).strip() for l in labels}
     out: dict[str, dict] = {}
     for row in rows:
-        if type_match.lower() not in _type_label(row).lower():
+        if _type_label(row).strip() not in wanted:
             continue
         mo = _month_no(row)
         if not mo:
@@ -360,15 +369,22 @@ def main() -> None:
              "(default: current year).",
     )
     parser.add_argument(
+        "--variant", default="all",
+        choices=["all", "whole", "hdv", "buses", "3-wheelers"],
+        help="Which variant(s) to write (default: all).",
+    )
+    parser.add_argument(
         "--force", action="store_true",
         help="Skip the 'already current' early-exit check.",
     )
     args = parser.parse_args()
 
     years = parse_years(args.years)
+    targets = (list(VARIANTS) if args.variant == "all"
+               else [VARIANT_ALIASES[args.variant]])
     single_current = len(years) == 1 and years[0] == date.today().year
 
-    if not args.force and single_current:
+    if not args.force and single_current and "Whole" in targets:
         prev = previous_month_period()
         if prev.startswith(str(years[0])) and csv_has_period(CSV_PATH, prev, "Whole"):
             print(f"CSV already has {prev} for Whole; nothing to do "
@@ -380,24 +396,27 @@ def main() -> None:
     print(f"[auth] website_id={website_id}")
     login(session, website_id)
 
-    all_rows: dict = {}
+    by_variant: dict[str, dict] = {v: {} for v in targets}
     for year in years:
         report = fetch_report(session, year)
-        monthly = report_rows_to_monthly(report, year)
-        rows = to_csv_rows(monthly)
-        if rows:
-            print(f"[{year}] parsed {len(rows)} months "
-                  f"({min(rows)} .. {max(rows)})")
-        else:
-            print(f"[{year}] no non-zero '{WHOLE_TYPE_MATCH}' months in response")
-        all_rows.update(rows)
+        for variant in targets:
+            monthly = report_rows_to_monthly(report, year, VARIANTS[variant]["labels"])
+            by_variant[variant].update(to_csv_rows(monthly, variant))
 
-    if not all_rows:
-        print("No rows fetched; leaving CSV unchanged.")
-        return
+    touched = 0
+    for variant in targets:
+        rows = by_variant[variant]
+        if not rows:
+            print(f"[{variant}] no months in response; leaving CSV unchanged")
+            continue
+        print(f"[{variant}] {len(rows)} months ({min(rows)} .. {max(rows)})")
+        added, updated = upsert_csv(VARIANTS[variant]["csv"], rows)
+        print(f"[{variant}] {added} added, {updated} updated "
+              f"-> {VARIANTS[variant]['csv']}")
+        touched += added + updated
 
-    added, updated = upsert_csv(CSV_PATH, all_rows)
-    print(f"{added} added, {updated} updated -> {CSV_PATH}")
+    if not touched:
+        print("No rows fetched; CSVs unchanged.")
 
 
 if __name__ == "__main__":
