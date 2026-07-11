@@ -20,6 +20,10 @@ name: Fetch Thailand data (TAI/AIU portal)
 # render-country.yml once per touched variant.
 
 on:
+  # TEMPORARY: backfill the new variants' full history on this branch.
+  push:
+    branches: [claude/thailand-auto-registration-updates-gq9ocw]
+    paths: ['.github/workflows/fetch-thailand.yml']
   workflow_dispatch:
     inputs:
       years:
@@ -58,9 +62,10 @@ jobs:
 
       - name: Fetch & update Thailand CSV
         run: |
-          python scripts/fetch_thailand.py \
-            ${YEARS:+--years "$YEARS"} \
-            ${FORCE:+--force}
+          # TEMPORARY backfill of the three new variants' full history.
+          for v in hdv buses 3-wheelers; do
+            python scripts/fetch_thailand.py --years 2018-2026 --variant "$v"
+          done
         env:
           YEARS: ${{ inputs.years }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
