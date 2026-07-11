@@ -2,6 +2,126 @@
   "updated": "2026-07-11",
   "images": [
     {
+      "country": "Luxembourg",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_ICE_BEV_20260711.png",
+      "alt": "Luxembourg ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_20260711.png",
+      "url": "images/2026-06/luxembourg_20260711.png",
+      "alt": "Luxembourg BEV trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_time_20260711.png",
+      "url": "images/2026-06/luxembourg_time_20260711.png",
+      "alt": "Luxembourg Transition time curve",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_ttm_shares_20260711.png",
+      "alt": "Luxembourg TTM market split graph",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_ICE_BEV_20260711.png",
+      "alt": "Luxembourg (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_20260711.png",
+      "alt": "Luxembourg (HDV) BEV trajectory",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_time_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_time_20260711.png",
+      "alt": "Luxembourg (HDV) Transition time curve",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_ttm_shares_20260711.png",
+      "alt": "Luxembourg (HDV) TTM market split graph",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_ICE_BEV_20260711.png",
+      "alt": "Luxembourg (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_20260711.png",
+      "alt": "Luxembourg (Vans) BEV trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_time_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_time_20260711.png",
+      "alt": "Luxembourg (Vans) Transition time curve",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_ttm_shares_20260711.png",
+      "alt": "Luxembourg (Vans) TTM market split graph",
+      "country_slug": "luxembourg_vans"
+    },
+    {
       "country": "Albania",
       "type": "ICE_BEV",
       "period": "2026-06",
