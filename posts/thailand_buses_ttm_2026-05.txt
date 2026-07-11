@@ -1,0 +1,8 @@
+🇹🇭 Thailand (Buses) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.3pp  BEV     (5.5% → 5.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.3pp  ICE     (94.5% → 94.9%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
