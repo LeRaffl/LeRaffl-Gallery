@@ -112,17 +112,24 @@ def make_session() -> requests.Session:
     return s
 
 
+_ROW_KEYS = ("raw_rows", "data", "result", "rows", "records", "items",
+             "report", "list", "series", "table")
+
+
 def _as_rows(payload) -> list:
-    """Unwrap the various envelope shapes an endpoint might return into a list."""
+    """Unwrap the various envelope shapes an endpoint might return into a list.
+
+    The veh_reg_fuel/report body is a dict whose row array lives under
+    ``raw_rows`` (the field the portal's own dashboard reads)."""
     if isinstance(payload, list):
         return payload
     if isinstance(payload, dict):
-        for k in ("data", "result", "rows", "items", "records"):
+        for k in _ROW_KEYS:
             v = payload.get(k)
             if isinstance(v, list):
                 return v
             if isinstance(v, dict):
-                for k2 in ("rows", "data", "items", "records"):
+                for k2 in _ROW_KEYS:
                     if isinstance(v.get(k2), list):
                         return v[k2]
     return []
@@ -183,13 +190,17 @@ def fetch_report(session: requests.Session, year: int) -> list:
         timeout=(20, 120),
     )
     r.raise_for_status()
-    rows = _as_rows(r.json())
+    body = r.json()
+    rows = _as_rows(body)
     if rows:
         sample = {k: rows[0].get(k) for k in list(rows[0])[:12]} if isinstance(rows[0], dict) else rows[0]
         print(f"[{year}] report: {len(rows)} rows; first-row keys sample: {sample}")
     else:
         print(f"[{year}] report returned no rows (payload keys: "
-              f"{list(r.json())[:8] if isinstance(r.json(), dict) else 'list'})")
+              f"{list(body)[:12] if isinstance(body, dict) else 'list'})")
+        if os.environ.get("THAILAND_DEBUG"):
+            import json as _json
+            print(f"[{year}] DEBUG body: {_json.dumps(body, ensure_ascii=False)[:2500]}")
     return rows
 
 
