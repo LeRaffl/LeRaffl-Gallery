@@ -1,0 +1,12 @@
+🇧🇷 Brazil - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++2.6pp  BEV   (2.4% → 5.1%)
++1.6pp  PHEV  (3.1% → 4.7%)
++2.4pp  HEV   (2.9% → 5.2%)
+−6.6pp  ICE   (91.7% → 85.0%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2026-07.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2032-12.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

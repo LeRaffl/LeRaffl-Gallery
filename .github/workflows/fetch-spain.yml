@@ -1,0 +1,144 @@
+name: Fetch Spain data (DGT microdata)
+
+# Fetches DGT monthly matriculaciones microdata and upserts the Spain CSVs
+# (gallery schema with EREV column — EREV folds into PHEV in the 3-curve
+# plot and gets its own TTM band, same as China). One download feeds every
+# variant:
+#
+#   data/Spain.csv             Whole      turismos+todoterrenos (tipo 40/25), new
+#   data/Spain_Rental.csv      Rental     Whole ∧ (alquiler sin conductor ∨ renting)
+#   data/Spain_NonRental.csv   NonRental  Whole ∧ ¬Rental (exact complement)
+#   data/Spain_Used.csv        Used       used cars at first Spanish registration
+#   data/Spain_Vans.csv        Vans       EU N1 (vans & pickups ≤3.5t), new
+#   data/Spain_HDV.csv         HDV        EU N2+N3 (trucks incl. tractor units), new
+#   data/Spain_Buses.csv       Buses      EU M2+M3, new
+#   data/Spain_2-Wheelers.csv  2-Wheelers motorcycles+mopeds (tipo 50/90), new
+#
+# Full user-facing definitions: docs/architecture/28-source-spain.md §5b.
+# Whole is deliberately ~2% above ANFAC/ACEA (M1 people movers included) —
+# see §4 there and footnotes.csv.
+#
+# Bootstrap: when a selected CSV does not exist, the script walks months
+# descending to 2015-01, stops where the MATRABA layout era ends, and (for
+# Whole) splices the remaining history from data/Spain_legacy.csv.
+#
+# Rendering: matrix over the touched variants calling render-country.yml as
+# a reusable workflow with max-parallel=1 — strictly one render at a time,
+# same serial-chain pattern as fetch-acea.yml, so variants never race each
+# other on the render commit.
+#
+# DGT publishes the monthly file in the first half of the following month;
+# polled daily on the 1st–16th. The script self-throttles via the CSVs.
+#
+# See scripts/fetch_spain.py and docs/architecture/28-source-spain.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Rental
+          - NonRental
+          - Used
+          - Vans
+          - HDV
+          - Buses
+          - 2-Wheelers
+      period:
+        description: 'Specific month YYYY-MM (default: previous month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Walk months descending to backfill_from'
+        required: false
+        default: false
+        type: boolean
+      backfill_from:
+        description: 'Oldest month for the backfill walk'
+        required: false
+        default: '2015-01'
+      force:
+        description: 'Overwrite rows regardless of source string'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Daily on the 1st–16th, 06:30 UTC. Empirically the consolidated monthly
+    # file is NOT out by the 8th (2026-06 was still 404 on 2026-07-08), so
+    # the window stays wide; the script self-throttles once the month is in.
+    - cron: '30 6 1-16 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Fetch & update Spain CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_spain.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${BACKFILL_FROM:+--backfill-from "$BACKFILL_FROM"} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:       ${{ inputs.variant }}
+          PERIOD:        ${{ inputs.period }}
+          BACKFILL:      ${{ inputs.backfill == true && '1' || '' }}
+          BACKFILL_FROM: ${{ inputs.backfill_from }}
+          FORCE:         ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Spain.csv
+            data/Spain_Rental.csv
+            data/Spain_NonRental.csv
+            data/Spain_Used.csv
+            data/Spain_Vans.csv
+            data/Spain_HDV.csv
+            data/Spain_Buses.csv
+            data/Spain_2-Wheelers.csv
+          message: 'chore: update Spain data from DGT'
+          default_author: github_actions
+
+  # Strictly serial render chain over the touched variants (fetch-acea.yml
+  # pattern): reusable-workflow matrix with max-parallel=1, so no two Spain
+  # renders ever commit concurrently.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: ${{ fromJson(needs.fetch.outputs.changed_variants) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Spain
+      variant: ${{ matrix.variant }}
+    secrets: inherit

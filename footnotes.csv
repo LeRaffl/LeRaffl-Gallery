@@ -9,3 +9,11 @@ Albania,Whole,Figures include first registrations of both new and imported used 
 Albania,HDV,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
 Albania,Buses,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
 Albania,2-Wheelers,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Spain,Whole,DGT registry data; includes M1 people movers (ID.Buzz / Multivan ...) that ANFAC/ACEA count as vans; totals ~2% above ACEA. Pre-Oct-2015 series by Asier Lizarraga.
+Spain,Rental,DGT registry data; new turismos & todoterrenos registered to short-term rental (alquiler sin conductor) or flagged as renting/leasing. Rental + NonRental = Whole.
+Spain,NonRental,DGT registry data; new turismos & todoterrenos excluding the rental & leasing channel. Rental + NonRental = Whole.
+Spain,Used,DGT registry data; used turismos & todoterrenos at their first Spanish registration (mostly used imports). Domestic ownership transfers not included.
+Spain,Vans,DGT registry data; EU category N1 - vans and pickups up to 3.5t, new registrations only.
+Spain,HDV,DGT registry data; EU categories N2+N3 - trucks above 3.5t incl. tractor units, new only. Agricultural tractors (EU cat. T) not included.
+Spain,Buses,DGT registry data; EU categories M2+M3 - buses & coaches, new only. Low volume (roughly 500/month).
+Spain,2-Wheelers,DGT registry data; motorcycles and mopeds (DGT tipo 50/90), new only. Trikes and quads not included.

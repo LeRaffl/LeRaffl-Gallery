@@ -1,0 +1,9 @@
+🇪🇸 Spain (Rental) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++0.6pp  BEV   (3.7% → 4.3%)
++3.7pp  PHEV  (6.4% → 10.0%)
++7.1pp  HEV   (36.9% → 43.9%)
+−11.4pp  ICE   (53.1% → 41.7%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

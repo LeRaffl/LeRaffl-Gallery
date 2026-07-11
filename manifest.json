@@ -1,6 +1,1526 @@
 {
-  "updated": "2026-07-05",
+  "updated": "2026-07-11",
   "images": [
+    {
+      "country": "Luxembourg",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_ICE_BEV_20260711.png",
+      "alt": "Luxembourg ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_20260711.png",
+      "url": "images/2026-06/luxembourg_20260711.png",
+      "alt": "Luxembourg BEV trajectory",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_time_20260711.png",
+      "url": "images/2026-06/luxembourg_time_20260711.png",
+      "alt": "Luxembourg Transition time curve",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_ttm_shares_20260711.png",
+      "alt": "Luxembourg TTM market split graph",
+      "country_slug": "luxembourg"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_ICE_BEV_20260711.png",
+      "alt": "Luxembourg (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_20260711.png",
+      "alt": "Luxembourg (HDV) BEV trajectory",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_time_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_time_20260711.png",
+      "alt": "Luxembourg (HDV) Transition time curve",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_hdv_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_hdv_ttm_shares_20260711.png",
+      "alt": "Luxembourg (HDV) TTM market split graph",
+      "country_slug": "luxembourg_hdv"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_ICE_BEV_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_ICE_BEV_20260711.png",
+      "alt": "Luxembourg (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_20260711.png",
+      "alt": "Luxembourg (Vans) BEV trajectory",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_time_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_time_20260711.png",
+      "alt": "Luxembourg (Vans) Transition time curve",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Luxembourg (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-11",
+      "filename": "luxembourg_vans_ttm_shares_20260711.png",
+      "url": "images/2026-06/luxembourg_vans_ttm_shares_20260711.png",
+      "alt": "Luxembourg (Vans) TTM market split graph",
+      "country_slug": "luxembourg_vans"
+    },
+    {
+      "country": "Albania",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_ICE_BEV_20260710.png",
+      "url": "images/2026-06/albania_ICE_BEV_20260710.png",
+      "alt": "Albania ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_20260710.png",
+      "url": "images/2026-06/albania_20260710.png",
+      "alt": "Albania BEV trajectory",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_time_20260710.png",
+      "url": "images/2026-06/albania_time_20260710.png",
+      "alt": "Albania Transition time curve",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_ttm_shares_20260710.png",
+      "url": "images/2026-06/albania_ttm_shares_20260710.png",
+      "alt": "Albania TTM market split graph",
+      "country_slug": "albania"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_2_wheelers_ICE_BEV_20260710.png",
+      "url": "images/2026-06/albania_2_wheelers_ICE_BEV_20260710.png",
+      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_2_wheelers_20260710.png",
+      "url": "images/2026-06/albania_2_wheelers_20260710.png",
+      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_2_wheelers_time_20260710.png",
+      "url": "images/2026-06/albania_2_wheelers_time_20260710.png",
+      "alt": "Albania (2 Wheelers) Transition time curve",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (2 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_2_wheelers_ttm_shares_20260710.png",
+      "url": "images/2026-06/albania_2_wheelers_ttm_shares_20260710.png",
+      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "country_slug": "albania_2_wheelers"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_buses_ICE_BEV_20260710.png",
+      "url": "images/2026-06/albania_buses_ICE_BEV_20260710.png",
+      "alt": "Albania (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_buses_20260710.png",
+      "url": "images/2026-06/albania_buses_20260710.png",
+      "alt": "Albania (Buses) BEV trajectory",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_buses_time_20260710.png",
+      "url": "images/2026-06/albania_buses_time_20260710.png",
+      "alt": "Albania (Buses) Transition time curve",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_buses_ttm_shares_20260710.png",
+      "url": "images/2026-06/albania_buses_ttm_shares_20260710.png",
+      "alt": "Albania (Buses) TTM market split graph",
+      "country_slug": "albania_buses"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_hdv_ICE_BEV_20260710.png",
+      "url": "images/2026-06/albania_hdv_ICE_BEV_20260710.png",
+      "alt": "Albania (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_hdv_20260710.png",
+      "url": "images/2026-06/albania_hdv_20260710.png",
+      "alt": "Albania (HDV) BEV trajectory",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_hdv_time_20260710.png",
+      "url": "images/2026-06/albania_hdv_time_20260710.png",
+      "alt": "Albania (HDV) Transition time curve",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Albania (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "albania_hdv_ttm_shares_20260710.png",
+      "url": "images/2026-06/albania_hdv_ttm_shares_20260710.png",
+      "alt": "Albania (HDV) TTM market split graph",
+      "country_slug": "albania_hdv"
+    },
+    {
+      "country": "Brazil",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "brazil_ICE_BEV_20260710.png",
+      "url": "images/2026-06/brazil_ICE_BEV_20260710.png",
+      "alt": "Brazil ICE-BEV-Hybrid trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "brazil_20260710.png",
+      "url": "images/2026-06/brazil_20260710.png",
+      "alt": "Brazil BEV trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "brazil_time_20260710.png",
+      "url": "images/2026-06/brazil_time_20260710.png",
+      "alt": "Brazil Transition time curve",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "brazil_ttm_shares_20260710.png",
+      "url": "images/2026-06/brazil_ttm_shares_20260710.png",
+      "alt": "Brazil TTM market split graph",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Denmark",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_ICE_BEV_20260710.png",
+      "url": "images/2026-06/denmark_ICE_BEV_20260710.png",
+      "alt": "Denmark ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_20260710.png",
+      "url": "images/2026-06/denmark_20260710.png",
+      "alt": "Denmark BEV trajectory",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_time_20260710.png",
+      "url": "images/2026-06/denmark_time_20260710.png",
+      "alt": "Denmark Transition time curve",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_ttm_shares_20260710.png",
+      "url": "images/2026-06/denmark_ttm_shares_20260710.png",
+      "alt": "Denmark TTM market split graph",
+      "country_slug": "denmark"
+    },
+    {
+      "country": "Denmark (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_industry_ICE_BEV_20260710.png",
+      "url": "images/2026-06/denmark_industry_ICE_BEV_20260710.png",
+      "alt": "Denmark (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_industry"
+    },
+    {
+      "country": "Denmark (Industry)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_industry_20260710.png",
+      "url": "images/2026-06/denmark_industry_20260710.png",
+      "alt": "Denmark (Industry) BEV trajectory",
+      "country_slug": "denmark_industry"
+    },
+    {
+      "country": "Denmark (Industry)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_industry_time_20260710.png",
+      "url": "images/2026-06/denmark_industry_time_20260710.png",
+      "alt": "Denmark (Industry) Transition time curve",
+      "country_slug": "denmark_industry"
+    },
+    {
+      "country": "Denmark (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "denmark_industry_ttm_shares_20260710.png",
+      "url": "images/2026-06/denmark_industry_ttm_shares_20260710.png",
+      "alt": "Denmark (Industry) TTM market split graph",
+      "country_slug": "denmark_industry"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_ICE_BEV_20260710.png",
+      "url": "images/2026-06/malaysia_ICE_BEV_20260710.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_20260710.png",
+      "url": "images/2026-06/malaysia_20260710.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-10",
+      "filename": "malaysia_time_20260710.png",
+      "url": "images/2026-06/malaysia_time_20260710.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_ICE_BEV_20260709.png",
+      "url": "images/2026-06/austria_ICE_BEV_20260709.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_20260709.png",
+      "url": "images/2026-06/austria_20260709.png",
+      "alt": "Austria BEV trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_time_20260709.png",
+      "url": "images/2026-06/austria_time_20260709.png",
+      "alt": "Austria Transition time curve",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_ttm_shares_20260709.png",
+      "url": "images/2026-06/austria_ttm_shares_20260709.png",
+      "alt": "Austria TTM market split graph",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_vans_ICE_BEV_20260709.png",
+      "url": "images/2026-06/austria_vans_ICE_BEV_20260709.png",
+      "alt": "Austria (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_vans_20260709.png",
+      "url": "images/2026-06/austria_vans_20260709.png",
+      "alt": "Austria (Vans) BEV trajectory",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "austria_vans_time_20260709.png",
+      "url": "images/2026-06/austria_vans_time_20260709.png",
+      "alt": "Austria (Vans) Transition time curve",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_hdv_ICE_BEV_20260709.png",
+      "url": "images/2026-06/denmark_hdv_ICE_BEV_20260709.png",
+      "alt": "Denmark (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_hdv_20260709.png",
+      "url": "images/2026-06/denmark_hdv_20260709.png",
+      "alt": "Denmark (HDV) BEV trajectory",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_hdv_time_20260709.png",
+      "url": "images/2026-06/denmark_hdv_time_20260709.png",
+      "alt": "Denmark (HDV) Transition time curve",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_hdv_ttm_shares_20260709.png",
+      "url": "images/2026-06/denmark_hdv_ttm_shares_20260709.png",
+      "alt": "Denmark (HDV) TTM market split graph",
+      "country_slug": "denmark_hdv"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_private_ICE_BEV_20260709.png",
+      "url": "images/2026-06/denmark_private_ICE_BEV_20260709.png",
+      "alt": "Denmark (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_private_20260709.png",
+      "url": "images/2026-06/denmark_private_20260709.png",
+      "alt": "Denmark (Private) BEV trajectory",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_private_time_20260709.png",
+      "url": "images/2026-06/denmark_private_time_20260709.png",
+      "alt": "Denmark (Private) Transition time curve",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Denmark (Private)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-09",
+      "filename": "denmark_private_ttm_shares_20260709.png",
+      "url": "images/2026-06/denmark_private_ttm_shares_20260709.png",
+      "alt": "Denmark (Private) TTM market split graph",
+      "country_slug": "denmark_private"
+    },
+    {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_ICE_BEV_20260709.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_20260709.png",
+      "url": "images/2026-05/spain_20260709.png",
+      "alt": "Spain BEV trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_time_20260709.png",
+      "url": "images/2026-05/spain_time_20260709.png",
+      "alt": "Spain Transition time curve",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_ttm_shares_20260709.png",
+      "alt": "Spain TTM market split graph",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_2_wheelers_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_2_wheelers_ICE_BEV_20260709.png",
+      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_2_wheelers_20260709.png",
+      "url": "images/2026-05/spain_2_wheelers_20260709.png",
+      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_2_wheelers_time_20260709.png",
+      "url": "images/2026-05/spain_2_wheelers_time_20260709.png",
+      "alt": "Spain (2 Wheelers) Transition time curve",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_2_wheelers_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_2_wheelers_ttm_shares_20260709.png",
+      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_buses_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_buses_ICE_BEV_20260709.png",
+      "alt": "Spain (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_buses_20260709.png",
+      "url": "images/2026-05/spain_buses_20260709.png",
+      "alt": "Spain (Buses) BEV trajectory",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_buses_time_20260709.png",
+      "url": "images/2026-05/spain_buses_time_20260709.png",
+      "alt": "Spain (Buses) Transition time curve",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_buses_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_buses_ttm_shares_20260709.png",
+      "alt": "Spain (Buses) TTM market split graph",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_hdv_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_hdv_ICE_BEV_20260709.png",
+      "alt": "Spain (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_hdv_20260709.png",
+      "url": "images/2026-05/spain_hdv_20260709.png",
+      "alt": "Spain (HDV) BEV trajectory",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_hdv_time_20260709.png",
+      "url": "images/2026-05/spain_hdv_time_20260709.png",
+      "alt": "Spain (HDV) Transition time curve",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_hdv_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_hdv_ttm_shares_20260709.png",
+      "alt": "Spain (HDV) TTM market split graph",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (Nonrental)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_nonrental_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_nonrental_ICE_BEV_20260709.png",
+      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_nonrental"
+    },
+    {
+      "country": "Spain (Nonrental)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_nonrental_20260709.png",
+      "url": "images/2026-05/spain_nonrental_20260709.png",
+      "alt": "Spain (Nonrental) BEV trajectory",
+      "country_slug": "spain_nonrental"
+    },
+    {
+      "country": "Spain (Nonrental)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_nonrental_time_20260709.png",
+      "url": "images/2026-05/spain_nonrental_time_20260709.png",
+      "alt": "Spain (Nonrental) Transition time curve",
+      "country_slug": "spain_nonrental"
+    },
+    {
+      "country": "Spain (Nonrental)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_nonrental_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_nonrental_ttm_shares_20260709.png",
+      "alt": "Spain (Nonrental) TTM market split graph",
+      "country_slug": "spain_nonrental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_rental_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_rental_ICE_BEV_20260709.png",
+      "alt": "Spain (Rental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_rental_20260709.png",
+      "url": "images/2026-05/spain_rental_20260709.png",
+      "alt": "Spain (Rental) BEV trajectory",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_rental_time_20260709.png",
+      "url": "images/2026-05/spain_rental_time_20260709.png",
+      "alt": "Spain (Rental) Transition time curve",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_rental_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_rental_ttm_shares_20260709.png",
+      "alt": "Spain (Rental) TTM market split graph",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_used_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_used_ICE_BEV_20260709.png",
+      "alt": "Spain (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_used_20260709.png",
+      "url": "images/2026-05/spain_used_20260709.png",
+      "alt": "Spain (Used) BEV trajectory",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_used_time_20260709.png",
+      "url": "images/2026-05/spain_used_time_20260709.png",
+      "alt": "Spain (Used) Transition time curve",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_used_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_used_ttm_shares_20260709.png",
+      "alt": "Spain (Used) TTM market split graph",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_vans_ICE_BEV_20260709.png",
+      "url": "images/2026-05/spain_vans_ICE_BEV_20260709.png",
+      "alt": "Spain (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_vans"
+    },
+    {
+      "country": "Spain (Vans)",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_vans_20260709.png",
+      "url": "images/2026-05/spain_vans_20260709.png",
+      "alt": "Spain (Vans) BEV trajectory",
+      "country_slug": "spain_vans"
+    },
+    {
+      "country": "Spain (Vans)",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_vans_time_20260709.png",
+      "url": "images/2026-05/spain_vans_time_20260709.png",
+      "alt": "Spain (Vans) Transition time curve",
+      "country_slug": "spain_vans"
+    },
+    {
+      "country": "Spain (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-09",
+      "filename": "spain_vans_ttm_shares_20260709.png",
+      "url": "images/2026-05/spain_vans_ttm_shares_20260709.png",
+      "alt": "Spain (Vans) TTM market split graph",
+      "country_slug": "spain_vans"
+    },
+    {
+      "country": "Australia",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "australia_ICE_BEV_20260708.png",
+      "url": "images/2026-06/australia_ICE_BEV_20260708.png",
+      "alt": "Australia ICE-BEV-Hybrid trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "australia_20260708.png",
+      "url": "images/2026-06/australia_20260708.png",
+      "alt": "Australia BEV trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "australia_time_20260708.png",
+      "url": "images/2026-06/australia_time_20260708.png",
+      "alt": "Australia Transition time curve",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "australia_ttm_shares_20260708.png",
+      "url": "images/2026-06/australia_ttm_shares_20260708.png",
+      "alt": "Australia TTM market split graph",
+      "country_slug": "australia"
+    },
+    {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "china_ICE_BEV_20260708.png",
+      "url": "images/2026-06/china_ICE_BEV_20260708.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "china_20260708.png",
+      "url": "images/2026-06/china_20260708.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "china_time_20260708.png",
+      "url": "images/2026-06/china_time_20260708.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "china_ttm_shares_20260708.png",
+      "url": "images/2026-06/china_ttm_shares_20260708.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
+      "country": "New Zealand",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "new_zealand_ICE_BEV_20260708.png",
+      "url": "images/2026-06/new_zealand_ICE_BEV_20260708.png",
+      "alt": "New Zealand ICE-BEV-Hybrid trajectory",
+      "country_slug": "new_zealand"
+    },
+    {
+      "country": "New Zealand",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "new_zealand_20260708.png",
+      "url": "images/2026-06/new_zealand_20260708.png",
+      "alt": "New Zealand BEV trajectory",
+      "country_slug": "new_zealand"
+    },
+    {
+      "country": "New Zealand",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "new_zealand_time_20260708.png",
+      "url": "images/2026-06/new_zealand_time_20260708.png",
+      "alt": "New Zealand Transition time curve",
+      "country_slug": "new_zealand"
+    },
+    {
+      "country": "New Zealand",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "new_zealand_ttm_shares_20260708.png",
+      "url": "images/2026-06/new_zealand_ttm_shares_20260708.png",
+      "alt": "New Zealand TTM market split graph",
+      "country_slug": "new_zealand"
+    },
+    {
+      "country": "Spain",
+      "type": "ICE_BEV",
+      "period": "2026-05",
+      "date": "2026-07-08",
+      "filename": "spain_ICE_BEV_20260708.png",
+      "url": "images/2026-05/spain_ICE_BEV_20260708.png",
+      "alt": "Spain ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "share",
+      "period": "2026-05",
+      "date": "2026-07-08",
+      "filename": "spain_20260708.png",
+      "url": "images/2026-05/spain_20260708.png",
+      "alt": "Spain BEV trajectory",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "time",
+      "period": "2026-05",
+      "date": "2026-07-08",
+      "filename": "spain_time_20260708.png",
+      "url": "images/2026-05/spain_time_20260708.png",
+      "alt": "Spain Transition time curve",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Spain",
+      "type": "ttm_shares",
+      "period": "2026-05",
+      "date": "2026-07-08",
+      "filename": "spain_ttm_shares_20260708.png",
+      "url": "images/2026-05/spain_ttm_shares_20260708.png",
+      "alt": "Spain TTM market split graph",
+      "country_slug": "spain"
+    },
+    {
+      "country": "Uruguay",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_ICE_BEV_20260708.png",
+      "url": "images/2026-06/uruguay_ICE_BEV_20260708.png",
+      "alt": "Uruguay ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_20260708.png",
+      "url": "images/2026-06/uruguay_20260708.png",
+      "alt": "Uruguay BEV trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_time_20260708.png",
+      "url": "images/2026-06/uruguay_time_20260708.png",
+      "alt": "Uruguay Transition time curve",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_ttm_shares_20260708.png",
+      "url": "images/2026-06/uruguay_ttm_shares_20260708.png",
+      "alt": "Uruguay TTM market split graph",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_buses_ICE_BEV_20260708.png",
+      "url": "images/2026-06/uruguay_buses_ICE_BEV_20260708.png",
+      "alt": "Uruguay (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_buses_20260708.png",
+      "url": "images/2026-06/uruguay_buses_20260708.png",
+      "alt": "Uruguay (Buses) BEV trajectory",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_buses_time_20260708.png",
+      "url": "images/2026-06/uruguay_buses_time_20260708.png",
+      "alt": "Uruguay (Buses) Transition time curve",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_vans_ICE_BEV_20260708.png",
+      "url": "images/2026-06/uruguay_vans_ICE_BEV_20260708.png",
+      "alt": "Uruguay (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_vans_20260708.png",
+      "url": "images/2026-06/uruguay_vans_20260708.png",
+      "alt": "Uruguay (Vans) BEV trajectory",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-08",
+      "filename": "uruguay_vans_time_20260708.png",
+      "url": "images/2026-06/uruguay_vans_time_20260708.png",
+      "alt": "Uruguay (Vans) Transition time curve",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "poland_ICE_BEV_20260707.png",
+      "url": "images/2026-06/poland_ICE_BEV_20260707.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "poland_20260707.png",
+      "url": "images/2026-06/poland_20260707.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "poland_time_20260707.png",
+      "url": "images/2026-06/poland_time_20260707.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "poland_ttm_shares_20260707.png",
+      "url": "images/2026-06/poland_ttm_shares_20260707.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
+      "country": "UK",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "uk_ICE_BEV_20260707.png",
+      "url": "images/2026-06/uk_ICE_BEV_20260707.png",
+      "alt": "UK ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "uk_20260707.png",
+      "url": "images/2026-06/uk_20260707.png",
+      "alt": "UK BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "uk_time_20260707.png",
+      "url": "images/2026-06/uk_time_20260707.png",
+      "alt": "UK Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-07",
+      "filename": "uk_ttm_shares_20260707.png",
+      "url": "images/2026-06/uk_ttm_shares_20260707.png",
+      "alt": "UK TTM market split graph",
+      "country_slug": "uk"
+    },
+    {
+      "country": "Finland",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_ICE_BEV_20260706.png",
+      "alt": "Finland ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_20260706.png",
+      "url": "images/2026-06/finland_20260706.png",
+      "alt": "Finland BEV trajectory",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_time_20260706.png",
+      "url": "images/2026-06/finland_time_20260706.png",
+      "alt": "Finland Transition time curve",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_ttm_shares_20260706.png",
+      "alt": "Finland TTM market split graph",
+      "country_slug": "finland"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_buses_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_buses_ICE_BEV_20260706.png",
+      "alt": "Finland (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_buses_20260706.png",
+      "url": "images/2026-06/finland_buses_20260706.png",
+      "alt": "Finland (Buses) BEV trajectory",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_buses_time_20260706.png",
+      "url": "images/2026-06/finland_buses_time_20260706.png",
+      "alt": "Finland (Buses) Transition time curve",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_buses_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_buses_ttm_shares_20260706.png",
+      "alt": "Finland (Buses) TTM market split graph",
+      "country_slug": "finland_buses"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_hdv_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_hdv_ICE_BEV_20260706.png",
+      "alt": "Finland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_hdv_20260706.png",
+      "url": "images/2026-06/finland_hdv_20260706.png",
+      "alt": "Finland (HDV) BEV trajectory",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_hdv_time_20260706.png",
+      "url": "images/2026-06/finland_hdv_time_20260706.png",
+      "alt": "Finland (HDV) Transition time curve",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_hdv_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_hdv_ttm_shares_20260706.png",
+      "alt": "Finland (HDV) TTM market split graph",
+      "country_slug": "finland_hdv"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_industry_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_industry_ICE_BEV_20260706.png",
+      "alt": "Finland (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_industry_20260706.png",
+      "url": "images/2026-06/finland_industry_20260706.png",
+      "alt": "Finland (Industry) BEV trajectory",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_industry_time_20260706.png",
+      "url": "images/2026-06/finland_industry_time_20260706.png",
+      "alt": "Finland (Industry) Transition time curve",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_industry_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_industry_ttm_shares_20260706.png",
+      "alt": "Finland (Industry) TTM market split graph",
+      "country_slug": "finland_industry"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_private_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_private_ICE_BEV_20260706.png",
+      "alt": "Finland (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_private_20260706.png",
+      "url": "images/2026-06/finland_private_20260706.png",
+      "alt": "Finland (Private) BEV trajectory",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_private_time_20260706.png",
+      "url": "images/2026-06/finland_private_time_20260706.png",
+      "alt": "Finland (Private) Transition time curve",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Private)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_private_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_private_ttm_shares_20260706.png",
+      "alt": "Finland (Private) TTM market split graph",
+      "country_slug": "finland_private"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_vans_ICE_BEV_20260706.png",
+      "url": "images/2026-06/finland_vans_ICE_BEV_20260706.png",
+      "alt": "Finland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_vans_20260706.png",
+      "url": "images/2026-06/finland_vans_20260706.png",
+      "alt": "Finland (Vans) BEV trajectory",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_vans_time_20260706.png",
+      "url": "images/2026-06/finland_vans_time_20260706.png",
+      "alt": "Finland (Vans) Transition time curve",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "finland_vans_ttm_shares_20260706.png",
+      "url": "images/2026-06/finland_vans_ttm_shares_20260706.png",
+      "alt": "Finland (Vans) TTM market split graph",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Japan",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "japan_ICE_BEV_20260706.png",
+      "url": "images/2026-06/japan_ICE_BEV_20260706.png",
+      "alt": "Japan ICE-BEV-Hybrid trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "japan_20260706.png",
+      "url": "images/2026-06/japan_20260706.png",
+      "alt": "Japan BEV trajectory",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "japan_time_20260706.png",
+      "url": "images/2026-06/japan_time_20260706.png",
+      "alt": "Japan Transition time curve",
+      "country_slug": "japan"
+    },
+    {
+      "country": "Japan",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-06",
+      "filename": "japan_ttm_shares_20260706.png",
+      "url": "images/2026-06/japan_ttm_shares_20260706.png",
+      "alt": "Japan TTM market split graph",
+      "country_slug": "japan"
+    },
     {
       "country": "Colombia",
       "type": "ICE_BEV",

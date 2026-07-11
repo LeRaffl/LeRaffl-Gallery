@@ -1,0 +1,11 @@
+🇪🇸 Spain (2-Wheelers) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−0.4pp  BEV   (3.6% → 3.2%)
++0.0pp  PHEV  (0.0% → 0.0%)
+−0.0pp  HEV   (0.0% → 0.0%)
++0.4pp  ICE   (96.4% → 96.8%)
+
+HEV peaked at 0.0% in 2025-04 (declining for 13 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

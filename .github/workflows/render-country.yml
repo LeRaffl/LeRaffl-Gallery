@@ -56,6 +56,13 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
+    # A normal render (warm R cache) finishes in <10 min. This cap exists so
+    # a degraded runner or a cold-cache source compile can't hang forever —
+    # important for serial callers (fetch-acea.yml, fetch-spain.yml) whose
+    # matrix is max-parallel=1: without a timeout, one stuck entry stalls
+    # every variant queued behind it. fail-fast:false on those matrices means
+    # a timed-out entry fails alone and the rest still render.
+    timeout-minutes: 30
     permissions:
       contents: write
       actions: write

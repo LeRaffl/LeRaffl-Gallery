@@ -45,7 +45,7 @@ the link text `"Compilado YYYY"` rather than the URL.
 | Sheet | Variant | EU class | Notes |
 |---|---|---|---|
 | `AUTOS` + `SUV` | `Whole` | M1 | Summed together |
-| `UTILITARIO` | `Vans` | N1 | Light commercial, includes pickups |
+| `UTILITARIO` / `UTIL` | `Vans` | N1 | Light commercial, includes pickups |
 | `CAMIONES` | `HDV` | N2/N3 | Medium+heavy trucks |
 | `OMNIBUS` | `Buses` | M2/M3 | Coaches and city buses |
 | `MINIBUSES` | — | M1/M2 border | **Excluded** — ambiguous class, negligible volume |
@@ -53,20 +53,27 @@ the link text `"Compilado YYYY"` rather than the URL.
 ### Sheet layout (2026+ format)
 
 ```
-row 5:  "COMPILADO YYYY"          ← year header (cross-checked by parser)
-row 6:  sheet kind ("AUTOMOVILES" / "S.U.V." …)
-row 8:  column headers — includes "Combustible" and "Enero" … "Diciembre"
-row 9+: data rows (one per model)
+row ~5: workbook title             ← year header (cross-checked by parser)
+row ~6: column headers — includes "Combustible" and "Enero" … "Diciembre"
+below:  data rows (one per model)
 last:   "TOTAL" row with monthly totals (used as per-sheet sanity check)
 ```
+
+**July 2026 revision:** with the June 2026 publication ACAU revised the
+workbook: the title is now `"Reporte Mensual Ventas Unificada YYYY"` instead
+of `"COMPILADO YYYY"`, and the Vans sheet is named `UTIL` instead of
+`UTILITARIO`. Columns, month names, and fuel codes are unchanged. The parser
+accepts both title markers (`COMPILADO`, `VENTAS UNIFICADA`) and all three
+Vans sheet names (`UTILITARIO`, `UTILITARIOS`, `UTIL`). The homepage link
+text is still `"Compilado 2026"`.
 
 ### Sheet layout differences — 2024 format
 
 | Aspect | 2026+ | 2024 |
 |---|---|---|
-| Year header | `"COMPILADO YYYY"` in one cell (row 5) | `"Informe Compilado"` (row 4) + `" Año YYYY"` (row 5) — separate cells |
+| Year header | `"COMPILADO YYYY"` or `"Reporte Mensual Ventas Unificada YYYY"` in one cell | `"Informe Compilado"` (row 4) + `" Año YYYY"` (row 5) — separate cells |
 | Month names | Full: `Enero` … `Diciembre` | Abbreviated: `Ene` … `Dic` (`Set` = Sep) |
-| Vans sheet | `UTILITARIO` | `UTILITARIOS` (plural) |
+| Vans sheet | `UTILITARIO` (early 2026) / `UTIL` (since July 2026) | `UTILITARIOS` (plural) |
 | Per-brand subtotals | Not present | Rows with `J:Total:` and empty Combustible — silently skipped |
 | Grand total row | `A:TOTAL` | `J:Totales:` |
 | PHEV | Present | Absent (all fuel codes: E, H, N, D only) |

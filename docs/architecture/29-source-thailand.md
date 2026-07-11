@@ -1,4 +1,4 @@
-# 28 · Source: Thailand (TAI / AIU portal)
+# 29 · Source: Thailand (TAI / AIU portal)
 
 The Thailand Automotive Institute (TAI) publishes new-vehicle registrations by
 fuel type. The old public table at

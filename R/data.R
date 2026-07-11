@@ -4,6 +4,15 @@ period_to_year <- function(period) {
   parts <- strsplit(period, "-", fixed = TRUE)
   y <- as.integer(sapply(parts, `[`, 1))
   m <- as.integer(sapply(parts, `[`, 2))
+  # Bare-year periods ("2024" without a month — Austria's annual Vans/HDV
+  # rows) used to yield year = NA here. fit_history() then silently DROPPED
+  # those rows (NA fails its year >= verschiebung subset) while the plots
+  # still received them, so the fit-derived point-size vectors were shorter
+  # than the plotted data — ggplot aborted every Austria Vans/HDV render
+  # with "Aesthetics must be either length 1 or the same as the data".
+  # Anchor an annual total mid-year (July) instead: the value summarises the
+  # whole year, and July puts the marker at the year's centre of mass.
+  m[is.na(m)] <- 7L
   (y - 1) + (m - 1) / 12
 }
 
@@ -16,6 +25,9 @@ period_to_date <- function(period) {
 # Plus per-fuel TTM share columns (NA where <12 months of monthly history exist).
 load_country_csv <- function(path) {
   df <- read.csv(path, stringsAsFactors = FALSE, check.names = FALSE)
+  # Austria's Vans/HDV writer says "annual" where the rest of the repo says
+  # "yearly"; normalise here so fit.R/upsert.R yearly handling applies.
+  df$time_interval[df$time_interval %in% "annual"] <- "yearly"
   df$year <- period_to_year(df$period)
   df$overall <- as.numeric(df$TOTAL)
 
