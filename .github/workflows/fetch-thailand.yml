@@ -15,6 +15,10 @@ name: Fetch Thailand data (TAI/AIU portal)
 # render-country.yml for the Whole variant.
 
 on:
+  # TEMPORARY: validate the live login/fetch on this branch before merge.
+  push:
+    branches: [claude/thailand-auto-registration-updates-gq9ocw]
+    paths: ['scripts/fetch_thailand.py', '.github/workflows/fetch-thailand.yml']
   workflow_dispatch:
     inputs:
       years:
