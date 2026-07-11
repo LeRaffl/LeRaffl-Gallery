@@ -1,0 +1,8 @@
+🇹🇭 Thailand (3-Wheelers) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
+−5.8pp  BEV     (38.8% → 33.0%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++5.8pp  ICE     (61.2% → 67.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
