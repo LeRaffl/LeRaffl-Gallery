@@ -15,10 +15,6 @@ name: Fetch Thailand data (TAI/AIU portal)
 # render-country.yml for the Whole variant.
 
 on:
-  # TEMPORARY: validate the live login/fetch on this branch before merge.
-  push:
-    branches: [claude/thailand-auto-registration-updates-gq9ocw]
-    paths: ['scripts/fetch_thailand.py', '.github/workflows/fetch-thailand.yml']
   workflow_dispatch:
     inputs:
       years:
@@ -66,7 +62,6 @@ jobs:
           THAILAND_AIU_THAIAUTO_USER: ${{ secrets.THAILAND_AIU_THAIAUTO_USER || 'leraffl' }}
           THAILAND_AIU_THAIAUTO_PW: ${{ secrets.THAILAND_AIU_THAIAUTO_PW }}
           THAILAND_HTTPS_PROXY: ${{ secrets.THAILAND_HTTPS_PROXY }}
-          THAILAND_DEBUG: '1'
 
       - name: Detect whether the CSV changed
         id: changed
