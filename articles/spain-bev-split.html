@@ -52,6 +52,24 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
 .live-chart-block .chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
 #liveChart{width:100%;height:420px}
 
+.sim{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+#trapChart{width:100%;height:340px}
+.sim-controls{padding:16px 18px;border-top:1px solid #1f2a44;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 22px}
+.sim-row{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sim-row label{font-size:12px;color:#9fb3d1;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sim-row label .sim-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.sim-row label .dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.sim-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#1f2a44;outline:none;cursor:pointer;margin:0}
+.sim-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#e9eef2;border:0;cursor:pointer}
+.sim-row input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#e9eef2;border:0;cursor:pointer}
+.sim-foot{padding:12px 18px;border-top:1px solid #1f2a44;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sim-stats{font-size:12px;color:#9fb3d1;line-height:1.5}
+.sim-stats strong{color:#e9eef2;font-variant-numeric:tabular-nums}
+.sim-presets{display:flex;gap:8px;flex-wrap:wrap}
+.sim-btn{padding:6px 12px;border-radius:9px;border:1px solid #1f2a44;background:#101a33;color:#c0cde0;font-size:12px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s}
+.sim-btn:hover{border-color:#3a4a72;background:#162235}
+@media(max-width:600px){.sim-controls{grid-template-columns:1fr}}
+
 .sources{margin-top:40px;padding-top:8px}
 .sources h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
 .sources ol{margin:0;padding-left:1.6em;font-size:13px;line-height:1.7;color:#4a6a8a}
@@ -193,6 +211,41 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
     </div>
 
     <p>This is the real counterweight to Spain's acceleration — not the charging post. A 43%-of-market comfort zone that feels like progress can delay the actual switch for years; the bridge becomes the destination. If there's one number that decides which of Spain's two stories wins, it's whether the hybrid share has peaked. The early evidence from the buyers who choose freely is encouraging: among non-rental registrations, plug-in share (BEV plus PHEV) went from 16% to 27% in a single year. Where people opt in, the plug is winning ground quickly. The hybrid wall is being eaten from the private side.</p>
+
+    <h2>The trap, drawn out</h2>
+
+    <p>You don't actually need Spain's data to see how a hybrid trap forms — a back-of-envelope model is enough, and I <a href="https://x.com/leRaffl/status/1789681135129120986" target="_blank" rel="noopener">sketched this one out a while ago</a>. Picture a market that starts 100% combustion. Every year a fixed slice of ICE owners switch to a hybrid, a smaller slice jump straight to a BEV, and a slice of the people already in hybrids finally make the jump to a BEV. Three numbers, nothing else, applied year after year.</p>
+
+    <p>The trap lives in the gap between two of those numbers. If people move from combustion to hybrid faster than they move from hybrid to BEV, hybrids pile up in the middle — a bulge that can dominate the market for a decade before it drains. Drag the sliders below. The one that decides everything is <strong>Hybrid → BEV</strong>: choke it and the green BEV band is held back for years behind a fat amber wall; open it and the wall dissolves and the market flips to BEV in a handful of years.</p>
+
+    <div class="sim">
+      <div id="trapChart"></div>
+      <div class="sim-controls">
+        <div class="sim-row">
+          <label for="s_ih"><span><span class="dot" style="background:#f5a623"></span>ICE → Hybrid</span><span class="sim-val" id="v_ih">30%</span></label>
+          <input type="range" id="s_ih" min="0" max="50" step="1" value="30">
+        </div>
+        <div class="sim-row">
+          <label for="s_ib"><span><span class="dot" style="background:#7ed4a4"></span>ICE → BEV</span><span class="sim-val" id="v_ib">5%</span></label>
+          <input type="range" id="s_ib" min="0" max="50" step="1" value="5">
+        </div>
+        <div class="sim-row">
+          <label for="s_hb"><span><span class="dot" style="background:#7ed4a4"></span>Hybrid → BEV</span><span class="sim-val" id="v_hb">15%</span></label>
+          <input type="range" id="s_hb" min="0" max="50" step="1" value="15">
+        </div>
+      </div>
+      <div class="sim-foot">
+        <div class="sim-stats" id="simStats"></div>
+        <div class="sim-presets">
+          <button type="button" class="sim-btn" data-ih="30" data-ib="5" data-hb="15">My defaults</button>
+          <button type="button" class="sim-btn" data-ih="30" data-ib="5" data-hb="4">Hybrid trap</button>
+          <button type="button" class="sim-btn" data-ih="18" data-ib="14" data-hb="35">Fast flip</button>
+        </div>
+      </div>
+      <div class="chart-caption">Illustrative 3-state model (ICE → Hybrid → BEV), yearly transition rates. Not fitted to Spain — it's the shape that matters.</div>
+    </div>
+
+    <p>Spain is living in the fat part of that amber band right now: hybrids near their peak at 43%, plug-ins climbing underneath. Which way the next few years break comes down to exactly the rate the model makes you feel — how quickly today's hybrid buyer comes back for a BEV next time. And that's the useful reframe, because almost everything in the next section is really a lever on that one transition rate.</p>
 
     <h2>The levers Italy doesn't have</h2>
 
@@ -386,6 +439,98 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       if(typeof Plotly !== 'undefined'){ clearInterval(wait); render(); }
     }, 50);
   }
+})();
+
+// Hybrid-trap simulator: a 3-state ICE -> Hybrid -> BEV Markov model
+(function(){
+  const YEARS = 16;
+  const COL = { ice: '#4da3ff', hyb: '#f5a623', bev: '#7ed4a4' };
+
+  function runModel(p_ih, p_ib, p_hb){
+    let ice = 100, hyb = 0, bev = 0;
+    const t = [0], I = [100], H = [0], B = [0];
+    for(let y = 1; y <= YEARS; y++){
+      const toHyb = ice * p_ih, toBevI = ice * p_ib, toBevH = hyb * p_hb;
+      ice = ice - toHyb - toBevI;
+      hyb = hyb + toHyb - toBevH;
+      bev = bev + toBevI + toBevH;
+      t.push(y); I.push(ice); H.push(hyb); B.push(bev);
+    }
+    return { t, I, H, B };
+  }
+
+  function peakYear(a){ let m = 0, k = 0; a.forEach((v, i) => { if(v > m){ m = v; k = i; } }); return { year: k, val: m }; }
+  function crossYear(a, thr){ for(let i = 0; i < a.length; i++) if(a[i] >= thr) return i; return null; }
+
+  function area(name, x, y, color){
+    return {
+      x: x, y: y, name: name, mode: 'lines', stackgroup: 'one',
+      line: { width: 1.5, color: color }, fillcolor: color,
+      hovertemplate: '%{y:.0f}% ' + name + '<extra></extra>'
+    };
+  }
+
+  function draw(){
+    const el = document.getElementById('trapChart');
+    if(!el || typeof Plotly === 'undefined') return;
+    const ih = +document.getElementById('s_ih').value / 100;
+    const ib = +document.getElementById('s_ib').value / 100;
+    const hb = +document.getElementById('s_hb').value / 100;
+    document.getElementById('v_ih').textContent = document.getElementById('s_ih').value + '%';
+    document.getElementById('v_ib').textContent = document.getElementById('s_ib').value + '%';
+    document.getElementById('v_hb').textContent = document.getElementById('s_hb').value + '%';
+
+    const m = runModel(ih, ib, hb);
+    const traces = [
+      area('ICE', m.t, m.I, COL.ice),
+      area('Hybrid', m.t, m.H, COL.hyb),
+      area('BEV', m.t, m.B, COL.bev)
+    ];
+
+    const pk = peakYear(m.H);
+    const bev50 = crossYear(m.B, 50);
+    const stats = document.getElementById('simStats');
+    if(stats){
+      stats.innerHTML = 'Hybrids peak in <strong>year ' + pk.year + '</strong> at <strong>' +
+        pk.val.toFixed(0) + '%</strong> · BEV passes 50% ' +
+        (bev50 === null ? '<strong>not within ' + YEARS + ' yrs</strong>' : 'in <strong>year ' + bev50 + '</strong>');
+    }
+
+    Plotly.react(el, traces, {
+      paper_bgcolor: '#0f1525', plot_bgcolor: '#0f1525',
+      font: { color: '#9fb3d1', family: 'system-ui, sans-serif', size: 12 },
+      margin: { t: 16, r: 16, b: 40, l: 40 },
+      xaxis: { title: { text: 'years', font: { size: 11, color: '#4a6a8a' } },
+        range: [0, YEARS], gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44', tickfont: { color: '#4a6a8a' } },
+      yaxis: { range: [0, 100], ticksuffix: '%', gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44', tickfont: { color: '#4a6a8a' } },
+      legend: { orientation: 'h', bgcolor: 'rgba(0,0,0,0)', font: { color: '#c0cde0' }, x: 0.5, xanchor: 'center', y: 1.12 },
+      hovermode: 'x unified',
+      hoverlabel: { bgcolor: '#0f1525', bordercolor: '#1f2a44', font: { color: '#e9eef2' } }
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function wire(){
+    if(typeof Plotly === 'undefined'){ setTimeout(wire, 50); return; }
+    ['s_ih', 's_ib', 's_hb'].forEach(id => {
+      const s = document.getElementById(id);
+      if(s) s.addEventListener('input', draw);
+    });
+    document.querySelectorAll('.sim-presets .sim-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        document.getElementById('s_ih').value = b.dataset.ih;
+        document.getElementById('s_ib').value = b.dataset.ib;
+        document.getElementById('s_hb').value = b.dataset.hb;
+        draw();
+      });
+    });
+    draw();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wire);
+  } else { wire(); }
 })();
 </script>
 </body>
