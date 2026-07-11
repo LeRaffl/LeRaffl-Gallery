@@ -129,6 +129,8 @@ def _as_rows(payload) -> list:
 
 
 def resolve_website_id(session: requests.Session) -> int:
+    """Resolve the AIU website_id, mirroring the portal's own logic: match any
+    of site/name/title/url against "AIU" and take that entry's id."""
     override = os.environ.get("THAILAND_AIU_WEBSITE_ID", "").strip()
     if override.isdigit():
         return int(override)
@@ -136,22 +138,21 @@ def resolve_website_id(session: requests.Session) -> int:
     r.raise_for_status()
     sites = _as_rows(r.json())
     for w in sites:
-        dom = str(w.get("domain") or w.get("host") or w.get("website_url")
-                  or w.get("url") or "").lower()
-        key = str(w.get("website_key") or w.get("key") or "").upper()
-        if "aiu" in dom or key == "AIU":
-            wid = w.get("website_id") or w.get("id")
+        fields = [w.get(k) for k in ("site", "name", "title", "url",
+                                     "domain", "host", "website_key", "key")]
+        if any("AIU" in str(v).upper() for v in fields if v):
+            wid = w.get("id") or w.get("website_id")
             if wid:
                 return int(wid)
-    if sites:
-        wid = sites[0].get("website_id") or sites[0].get("id")
-        if wid:
-            print("[auth] WARNING: no AIU site matched by domain; using first entry")
-            return int(wid)
-    raise RuntimeError("could not resolve website_id from /websites")
+    labels = [str(w.get("site") or w.get("name") or w.get("title") or w.get("id"))
+              for w in sites]
+    raise RuntimeError(f"no AIU site in /websites; saw: {labels[:12]}")
 
 
-def login(session: requests.Session, website_id: int) -> str:
+def login(session: requests.Session, website_id: int) -> None:
+    """Authenticate. The portal is cookie-session based (there is no bearer
+    token); a successful login sets a session cookie on ``session`` that the
+    subsequent report calls ride on."""
     user = os.environ.get(USER_ENV, "").strip()
     pw = os.environ.get(PW_ENV, "")
     if not user or not pw:
@@ -160,38 +161,36 @@ def login(session: requests.Session, website_id: int) -> str:
                      json={"username": user, "password": pw, "website_id": website_id},
                      timeout=(20, 60))
     r.raise_for_status()
-    body = r.json()
-    token = _find_token(body)
-    if not token:
-        raise RuntimeError("login succeeded but no token found in response")
-    return token
+    try:
+        body = r.json()
+    except ValueError:
+        body = {}
+    uid = (body.get("user_id") or body.get("id")
+           or (body.get("user") or {}).get("id") if isinstance(body, dict) else None)
+    if uid:
+        print(f"[auth] logged in (user_id={uid})")
+    else:
+        keys = list(body)[:8] if isinstance(body, dict) else type(body).__name__
+        msg = body.get("message") or body.get("error") if isinstance(body, dict) else ""
+        print(f"[auth] WARNING: login response had no user_id "
+              f"(keys={keys}, message={msg!r}); relying on session cookies")
 
 
-def _find_token(body) -> str | None:
-    if not isinstance(body, dict):
-        return None
-    for k in ("token", "userToken", "access_token", "accessToken", "jwt"):
-        v = body.get(k)
-        if isinstance(v, str) and v:
-            return v
-    for nest in ("data", "result", "session", "user"):
-        v = body.get(nest)
-        if isinstance(v, dict):
-            t = _find_token(v)
-            if t:
-                return t
-    return None
-
-
-def fetch_report(session: requests.Session, token: str, year: int) -> list:
+def fetch_report(session: requests.Session, year: int) -> list:
     r = session.get(
         f"{API_BASE}/veh_reg_fuel/report",
         params={"period_mode": "year", "year": year, "type_code": "ALL"},
-        headers={"Authorization": f"Bearer {token}"},
         timeout=(20, 120),
     )
     r.raise_for_status()
-    return _as_rows(r.json())
+    rows = _as_rows(r.json())
+    if rows:
+        sample = {k: rows[0].get(k) for k in list(rows[0])[:12]} if isinstance(rows[0], dict) else rows[0]
+        print(f"[{year}] report: {len(rows)} rows; first-row keys sample: {sample}")
+    else:
+        print(f"[{year}] report returned no rows (payload keys: "
+              f"{list(r.json())[:8] if isinstance(r.json(), dict) else 'list'})")
+    return rows
 
 
 # ── parsing / mapping (pure, unit-testable) ──────────────────────────────────
@@ -368,12 +367,11 @@ def main() -> None:
     session = make_session()
     website_id = resolve_website_id(session)
     print(f"[auth] website_id={website_id}")
-    token = login(session, website_id)
-    print("[auth] logged in")
+    login(session, website_id)
 
     all_rows: dict = {}
     for year in years:
-        report = fetch_report(session, token, year)
+        report = fetch_report(session, year)
         monthly = report_rows_to_monthly(report, year)
         rows = to_csv_rows(monthly)
         if rows:
