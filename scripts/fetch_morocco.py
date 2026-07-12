@@ -121,19 +121,26 @@ def probe() -> None:
         print(f"  extracted endpoint candidates ({len(endpoints)}):")
         for e in sorted(endpoints)[:60]:
             print(f"    {e}")
-        # Try the most promising absolute URLs / api paths
-        tried = 0
-        for e in sorted(endpoints):
-            if tried >= 10:
-                break
-            url = e if e.startswith("http") else f"{PORTAL}/{e.lstrip('/')}"
-            if not any(k in url.lower() for k in ("api", "energie", "vente", "statisti")):
-                continue
-            tried += 1
+        # Probe v3 found the route table: base /api/v1/public|private/ and
+        # resources statistics/energy|general|brut|filters|press,
+        # segmentation/vp-vul. Hit the concrete combinations.
+        candidates = []
+        for base in ("api/v1/public", "api/v1/private", "api/v1"):
+            for res in ("statistics/filters", "statistics/energy",
+                        "statistics/general", "statistics/press/current",
+                        "segmentation/vp-vul", "statistics/segments",
+                        "statistics/cities", "statistics/brut", "marque"):
+                candidates.append(f"{PORTAL}/{base}/{res}")
+        for url in candidates:
             try:
                 ar = s.get(url, timeout=45)
-                print(f"  GET {url} -> {ar.status_code} "
-                      f"({ar.headers.get('content-type')}) head={ar.text[:200].replace(chr(10), ' ')}")
+                ct = ar.headers.get("content-type", "")
+                body = ar.text[:400].replace(chr(10), " ")
+                # only print interesting outcomes to keep the log readable
+                if ar.status_code != 404 or "json" not in ct:
+                    print(f"  GET {url} -> {ar.status_code} ({ct}) {body}")
+                else:
+                    print(f"  GET {url} -> 404")
             except requests.RequestException as ex:
                 print(f"  GET {url} -> FAILED {ex}")
     except requests.RequestException as e:
