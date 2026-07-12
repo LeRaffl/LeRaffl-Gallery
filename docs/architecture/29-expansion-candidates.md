@@ -132,10 +132,24 @@ appear to exist here.
 - Mapping per existing conventions: REEV → PHEV (EREV convention, see
   [09-glossary.md](09-glossary.md)), MHEV → OTHERS or PETROL (Uruguay maps
   MHEV → OTHERS; stay consistent).
-- **Verify first:** whether the monthly per-energy table is in AIVAM's own
-  downloadable PDFs (Documentation et études section) or only in the press
-  relays. If the latter, the fetcher target becomes fragile and the country
-  drops a tier.
+
+> **Status: SHELVED (2026-07-12, CI probes v1–v4 — `scripts/fetch_morocco.py --probe`).**
+> The open verification question resolved negatively:
+> - AIVAM's **monthly press PDF** is a one-pager (VP/VUL totals + brand
+>   table) and the **monthly "Statistiques des ventes … FP.xls"** is
+>   machine-readable but brand×VP/VUL only — **neither carries the energy
+>   split** the press quotes.
+> - The energy data lives in AIVAM's stats portal `statistique.aivam.ma`
+>   (Angular SPA): the API has an explicit `statistics/energy` resource, but
+>   only under **`/api/v1/private/` → 401 Unauthenticated** (role
+>   `read_statistics_energy`); `/api/v1/public/` has no statistics at all.
+>   Login-walled member portal = the Colombia/RUNT access failure mode.
+> - The annual "Bilan" deck has a *Focus NEV* section — yearly only.
+>
+> **What would change the decision:** AIVAM portal credentials (if
+> membership/registration is attainable, the fetcher authenticates with a
+> repo-secret token and Morocco becomes a clean JSON-API source), or AIVAM
+> starting to publish the energy table in the monthly XLS/PDF.
 
 ### 🇿🇦 South Africa — naamsa (quarterly granularity)
 
