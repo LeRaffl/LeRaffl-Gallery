@@ -24,11 +24,16 @@ import requests
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
 
+# Probe v1 (2026-07-12): naamsa.net open from CI, 244 PDFs on the
+# press-releases archive (back to 2017), flash reports parse cleanly with
+# pdfplumber — but carry NO NEV split, and /quarterly-review/ 404s. Probe v2
+# walks the WP sitemap for the quarterly business review's real home.
 PAGES = [
-    "https://naamsa.net/press-releases/",
-    "https://naamsa.net/quarterly-review/",
-    "https://naamsa.net/newsroom/",
+    "https://naamsa.net/wp-sitemap.xml",
+    "https://naamsa.net/sitemap.xml",
+    "https://naamsa.net/sitemap_index.xml",
 ]
+QUARTERLY_HINTS = ("quarterly", "business-review", "review-of-business", "nev")
 
 
 def probe() -> None:
@@ -36,17 +41,47 @@ def probe() -> None:
     s = requests.Session()
     s.headers.update(UA)
 
-    pdfs: list[str] = []
+    # 1) Walk the WP sitemaps for quarterly-review-ish page URLs
+    pages: list[str] = []
     for url in PAGES:
         try:
             r = s.get(url, timeout=60)
-            print(f"\n[{url}] HTTP {r.status_code} final={r.url} len={len(r.text)}", flush=True)
+            print(f"\n[{url}] HTTP {r.status_code} len={len(r.text)}", flush=True)
+            if not r.ok:
+                continue
+            locs = re.findall(r"<loc>([^<]+)</loc>", r.text)
+            print(f"  {len(locs)} loc entries")
+            subs = [l for l in locs if l.endswith(".xml")]
+            hits = [l for l in locs if any(h in l.lower() for h in QUARTERLY_HINTS)]
+            for sub in subs[:15]:
+                try:
+                    sr = s.get(sub, timeout=60)
+                    sl = re.findall(r"<loc>([^<]+)</loc>", sr.text)
+                    hits += [l for l in sl if any(h in l.lower() for h in QUARTERLY_HINTS)]
+                except requests.RequestException:
+                    pass
+            hits = sorted(set(hits))
+            print(f"  quarterly-ish URLs ({len(hits)}):")
+            for h in hits[:25]:
+                print(f"    {h}")
+            pages += hits
+            if hits:
+                break
+        except requests.RequestException as e:
+            print(f"\n[{url}] FAILED: {e}", flush=True)
+
+    # 2) Open the quarterly pages and collect their PDFs
+    pdfs: list[str] = []
+    for url in sorted(set(pages))[:6]:
+        try:
+            r = s.get(url, timeout=60)
+            print(f"\n[{url}] HTTP {r.status_code} len={len(r.text)}", flush=True)
             if not r.ok:
                 continue
             links = re.findall(r'href="([^"]+\.pdf)"', r.text, re.I)
             uniq = sorted(set(links))
             print(f"  pdf links ({len(uniq)}):")
-            for l in uniq[:30]:
+            for l in uniq[-20:]:
                 print(f"    {l}")
             for l in links:
                 full = l if l.startswith("http") else "https://naamsa.net" + l
@@ -60,14 +95,9 @@ def probe() -> None:
     except ImportError:
         raise SystemExit("pdfplumber required: pip install pdfplumber")
 
-    # Prefer one flash report + one quarterly review + one media release
-    picks = []
-    for kw in ("flash", "quarterly", "media"):
-        for u in pdfs:
-            if kw in u.lower():
-                picks.append(u)
-                break
-    for url in picks or pdfs[:3]:
+    # Newest quarterly PDFs first (WP uploads sort by /YYYY/MM/ path)
+    picks = sorted(pdfs, reverse=True)[:2]
+    for url in picks:
         print(f"\n=== PDF: {url}", flush=True)
         try:
             r = s.get(url, timeout=90)
