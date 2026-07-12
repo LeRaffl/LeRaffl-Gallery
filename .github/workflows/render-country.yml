@@ -77,7 +77,7 @@ jobs:
       # supposed to render. Pinning `ref` to the branch name pulls the
       # latest tip, which also lets sequential matrix entries see each
       # earlier render's commit and push fast-forwards cleanly.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
 
