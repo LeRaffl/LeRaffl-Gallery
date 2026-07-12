@@ -99,20 +99,43 @@ def probe() -> None:
     except requests.RequestException as e:
         print(f"  FAILED: {e}")
 
-    # --- The stats portal
+    # --- The stats portal: Angular SPA (probe v2) — mine the JS bundle for
+    # its REST endpoints, then try them.
     print(f"\n=== PORTAL: {PORTAL}", flush=True)
     try:
         r = s.get(PORTAL, timeout=60)
-        print(f"  HTTP {r.status_code} final={r.url} len={len(r.text)}")
-        body = r.text
-        for kw in ("login", "connexion", "password", "api", "energie", "énergie",
-                   "electrique", "électrique", "hybride", "csv", "export"):
-            if kw.lower() in body.lower():
-                print(f"  contains keyword: {kw}")
-        links = sorted(set(re.findall(r'(?:href|src|action)="([^"]+)"', body)))
-        print(f"  links/resources ({len(links)}):")
-        for l in links[:30]:
-            print(f"    {l}")
+        print(f"  HTTP {r.status_code} final={r.url}")
+        bundles = re.findall(r'src="((?:main|runtime|scripts)[^"]+\.js)"', r.text)
+        endpoints: set[str] = set()
+        for b in bundles:
+            burl = f"{PORTAL}/{b}"
+            jr = s.get(burl, timeout=60)
+            print(f"  bundle {b}: HTTP {jr.status_code}, {len(jr.text):,} chars")
+            if not jr.ok:
+                continue
+            js = jr.text
+            endpoints.update(re.findall(r'https?://[A-Za-z0-9._/-]*aivam[A-Za-z0-9._/-]*', js))
+            endpoints.update(re.findall(r'"(/?api/[A-Za-z0-9._/-]{2,60})"', js))
+            endpoints.update(re.findall(r"'(/?api/[A-Za-z0-9._/-]{2,60})'", js))
+            endpoints.update(re.findall(r'"([A-Za-z0-9._-]*(?:energie|marque|vente|statisti|segment)[A-Za-z0-9._/-]*)"', js, re.I))
+        print(f"  extracted endpoint candidates ({len(endpoints)}):")
+        for e in sorted(endpoints)[:60]:
+            print(f"    {e}")
+        # Try the most promising absolute URLs / api paths
+        tried = 0
+        for e in sorted(endpoints):
+            if tried >= 10:
+                break
+            url = e if e.startswith("http") else f"{PORTAL}/{e.lstrip('/')}"
+            if not any(k in url.lower() for k in ("api", "energie", "vente", "statisti")):
+                continue
+            tried += 1
+            try:
+                ar = s.get(url, timeout=45)
+                print(f"  GET {url} -> {ar.status_code} "
+                      f"({ar.headers.get('content-type')}) head={ar.text[:200].replace(chr(10), ' ')}")
+            except requests.RequestException as ex:
+                print(f"  GET {url} -> FAILED {ex}")
     except requests.RequestException as e:
         print(f"  FAILED: {e}")
 
