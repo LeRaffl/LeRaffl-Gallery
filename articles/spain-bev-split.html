@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spain's BEV Transition Is Two Stories — and the Gap Is Wider Than Italy's — LeRaffl</title>
+<meta name="description" content="The promised sequel to the Italy split: DGT registration microdata shows a Spanish private market moving at Korea speed — and a rental market frozen for fifty years. By LeRaffl, July 2026.">
+<meta name="theme-color" content="#0a0d10">
+<meta property="og:title" content="Spain's BEV Transition Is Two Stories — and the Gap Is Wider Than Italy's">
+<meta property="og:description" content="Split the DGT data and Spain's private market runs at Korea speed while the rental fleets stand still.">
+<meta property="og:type" content="article">
+<script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
+a{color:#4da3ff;text-decoration:none}
+a:hover{text-decoration:underline}
+
+header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
+header .bar{max-width:900px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+header .back{display:inline-flex;align-items:center;gap:6px;color:#9fb3d1;font-size:14px;text-decoration:none;transition:color .15s}
+header .back:hover{color:#e9eef2;text-decoration:none}
+header .back svg{opacity:.7}
+header .site{font-size:14px;color:#4a6a8a}
+
+.article{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+
+.article-header{margin-bottom:40px}
+.article-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4da3ff;margin-bottom:14px}
+h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;color:#e9eef2}
+.article-sub{font-size:clamp(16px,2.2vw,20px);color:#9fb3d1;margin:0 0 24px;line-height:1.45;font-weight:400}
+.byline{font-size:13px;color:#4a6a8a;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.byline strong{color:#9fb3d1}
+.byline a{color:#4a6a8a}
+.byline a:hover{color:#9fb3d1}
+
+.article-body{font-size:16px;line-height:1.75;color:#c0cde0}
+.article-body p{margin:0 0 1.4em}
+.article-body h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
+.article-body ul{margin:0 0 1.4em;padding-left:1.4em}
+.article-body li{margin-bottom:0.6em}
+.article-body strong{color:#e9eef2;font-weight:600}
+.article-body sup{font-size:11px;line-height:0}
+.article-body sup a{color:#4a6a8a}
+.article-body sup a:hover{color:#4da3ff}
+
+.chart-block{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.chart-block img{width:100%;height:auto;display:block}
+.chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+
+.live-chart-block{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.live-chart-block .chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+#liveChart{width:100%;height:420px}
+
+.sim{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+#trapChart{width:100%;height:340px}
+.sim-controls{padding:16px 18px;border-top:1px solid #1f2a44;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 22px}
+.sim-row{display:flex;flex-direction:column;gap:6px;min-width:0}
+.sim-row label{font-size:12px;color:#9fb3d1;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sim-row label .sim-val{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.sim-row label .dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.sim-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:3px;background:#1f2a44;outline:none;cursor:pointer;margin:0}
+.sim-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:#e9eef2;border:0;cursor:pointer}
+.sim-row input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#e9eef2;border:0;cursor:pointer}
+.sim-foot{padding:12px 18px;border-top:1px solid #1f2a44;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sim-stats{font-size:12px;color:#9fb3d1;line-height:1.5}
+.sim-stats strong{color:#e9eef2;font-variant-numeric:tabular-nums}
+.sim-presets{display:flex;gap:8px;flex-wrap:wrap}
+.sim-btn{padding:6px 12px;border-radius:9px;border:1px solid #1f2a44;background:#101a33;color:#c0cde0;font-size:12px;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s}
+.sim-btn:hover{border-color:#3a4a72;background:#162235}
+@media(max-width:600px){.sim-controls{grid-template-columns:1fr}}
+
+.sources{margin-top:40px;padding-top:8px}
+.sources h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
+.sources ol{margin:0;padding-left:1.6em;font-size:13px;line-height:1.7;color:#4a6a8a}
+.sources li{margin-bottom:0.5em}
+.sources a{color:#9fb3d1}
+.sources a:hover{color:#4da3ff}
+
+.article-footer{margin-top:48px;padding-top:24px;border-top:1px solid #1f2a44;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.article-footer-left{font-size:13px;color:#4a6a8a;line-height:1.6}
+.article-footer-left strong{color:#9fb3d1}
+.social-links{display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #1f2a44;background:#101a33;color:#e9eef2;font-size:13px;font-weight:500;text-decoration:none;transition:border-color .15s,background .15s}
+.btn:hover{border-color:#3a4a72;background:#162235;text-decoration:none}
+
+@media(max-width:600px){
+  .article{padding:32px 16px 60px}
+  .article-footer{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="../#about" class="back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Gallery
+    </a>
+    <span class="site">BEV Trajectories</span>
+  </div>
+</header>
+
+<main class="article">
+
+  <div class="article-header">
+    <div class="article-label">Analysis · July 2026</div>
+    <h1>BEV Transition: The Case of Spain is Twofold</h1>
+    <p class="article-sub">The promised sequel: split the market and ovserve Spain transition at two different paces at the same time</p>
+    <div class="byline">
+      <span>By <strong>@LeRaffl</strong></span>
+      <span>·</span>
+      <span>Data: <a href="https://www.dgt.es" target="_blank" rel="noopener">DGT</a></span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>When I wrote up <a href="italy-bev-split.html">Italy's rental split</a> last month, I ended with a prediction I couldn't check: <em>"Spain is the obvious next place to look — comparable tourism, comparable geography, quite possibly the same hidden split. I don't have the data on that yet."</em> Well, now I have the data. And it's quality data. 
+
+    <p>Before taking anything apart, though, let's establish what the headline view of Spain actually looks like. The Gallery draws four standard charts for every country, here they are for Spain, whole market, latest data as of 2026-07-11.</p>
+
+    <h2>The state of play — four charts, one country</h2>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_20260709.png" alt="Spain BEV share trajectory — all registrations" loading="lazy">
+      <div class="chart-caption">Spain, all passenger car registrations: BEV at just under 10% of the trailing twelve months.</div>
+    </div>
+
+    <p>First, the trajectory. Spain's BEV share sits just under 10% on a trailing-twelve-month basis, and the fitted curve implies roughly 15–16 years to climb from 20% to 80% BEV share. That's slow. Not as slow as countries like Bulgaria, Latvia, Estonia, Croatia or Japan, but a kind of "regular kind of slow" so to speak.</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_time_20260709.png" alt="Spain transition timer — years for BEV to rise 20 to 80 percent and ICE to fall 80 to 20" loading="lazy">
+      <div class="chart-caption">The transition timers: BEV rising 20%→80%, ICE falling 80%→20%.</div>
+    </div>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_ICE_BEV_20260709.png" alt="Spain ICE, BEV and PHEV share curves" loading="lazy">
+      <div class="chart-caption">ICE falling steadily, but the BEV curve isn't rising at the same rate. Something inbetween is absorbing the difference.</div>
+    </div>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_ttm_shares_20260709.png" alt="Spain trailing-twelve-month powertrain shares" loading="lazy">
+      <div class="chart-caption">The trailing-twelve-month powertrain split. The big band in the middle is hybrids.</div>
+    </div>
+
+    <p>And there it is, in the powertrain split: the thing absorbing Spain's combustion decline is not the battery car, it's the hybrid. Non-plug-in hybrids alone are <strong>43.5%</strong> of the last twelve months — add PHEV's 12% and more than half of everything registered in Spain now carries some kind of electric motor, while pure BEV is stuck under 10%. Petrol is down to 24%, diesel to under 6%.</p>
+
+    <p>The way this usually gets narrated, in Spanish and international coverage alike, is a story about obstacles: charging that's too sparse and too slow, sticker prices that are too high, subsidy programs strangled by bureaucracy, and a general suspicion that Spain, a country of apartment dwellers + long distances + rental cars, just isn't built for BEVs. And so hybrids are said to be the sensible compromise<sup><a href="#src-2">[2]</a></sup>. It's not a crazy story either at face value. But two things in these four charts don't really fit in there, so they? First, the hybrid share: 43% is not what "buyers held back by obstacles" looks like, is it? No, it's what a market in the middle of a very specific migration looks like, and it's worth asking what's driving it. More on this a bit later. Second, the trajectory is visibly bending upward right now, the monthly BEV share hit 10.8% in May 2026. If infrastructure and prices were really the binding constraint for everyone, who exactly is it that's buying all these BEVs?</p>
+
+    <p>So let's take the market apart. Same move as Italy, split the registrations by channel: rental versus everything else.</p>
+
+    <h2>The split</h2>
+
+    <p>A quick word on definitions. In the DGT microdata, my Rental segment is every registration flagged as rent-a-car service plus every registration flagged as renting/leasing, together that makes <strong>36% of the Spanish market</strong> over the last twelve months, even more weight than the roughly 1/3 rental carries in Italy. NonRental is the exact complement: mostly private buyers, plus direct corporate purchases. Rental + NonRental = Whole New Passenger Car Market <sup><a href="#src-1">[1]</a></sup>.</p>
+
+    <p>Here's everything except the rental channel:</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_nonrental_20260709.png" alt="Spain BEV share trajectory — non-rental registrations" loading="lazy">
+      <div class="chart-caption">Spain, non-rental: ~11.5 years from 20% to 80%, crossing 20% around 2028.</div>
+    </div>
+
+    <p>And the rental channel alone:</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_rental_20260709.png" alt="Spain BEV share trajectory — rental registrations only" loading="lazy">
+      <div class="chart-caption">Spain, rental only: ~50 years. Effectively frozen.</div>
+    </div>
+
+    <div class="live-chart-block">
+      <div id="liveChart"></div>
+      <div class="chart-caption">All three curves together — live from the Gallery's fitted parameters.</div>
+    </div>
+
+    <p>In Italy, the split turned a laggard into an ordinary market. In Spain, it does the same, except both parts are a bit faster. So strip out the rental fleets in Spain and the 20%→80% timer drops from ~15.6 years to <strong>~11.5 years</strong>, with the 20% line crossed around 2028. For calibration: The <em>entire</em> EU market averages at about 17 years on that timer timer on current data (mostly dragged down by Italy). Spain's non-rental buyers are outpacing it by far! (Not a perfectly fair comparison, a sub-segment against a whole market, but that's exactly the point: Spain's headline number is a blend, and the blend hides this.)</p>
+
+    <p>The distance between the two versions of Spain is remarkable. Over the last twelve months, non-rental BEV share is 13.0%; rental is 4.3%. That's a factor of 3, where Italy's gap is closer to 1.5. And it's even widening: in May 2026 the monthly figures were <strong>16.5% versus 3.1%</strong>. Five to one. Italy's was split into two speeds.</p>
+
+    <h2>Why the rental fleets specifically</h2>
+
+    <p>The mechanism is the one from the Italy piece, so I'll compress it: a private buyer opts in, they researched the car, they know where they'll charge. A rental customer opts into nothing. They land at an airport in a country whose charging network they don't know, get handed a car they didn't choose, and they drive off to god knows where. The car has to just work from minute one. And I don't mean that in a technology-sense, I mean that in a usability-sense. If it doesn't, the complaint lands on the rental company. So the rental company buys whatever cannot generate that complaint. In Spain that pressure is enormous, because Spain isn't just <em>a</em> tourism country, no, it's the second-most-visited country on Earth, and its rent-a-car fleet is one of Europe's largest.</p>
+
+    <p>You can watch this logic execute in the monthly data, almost like a lab experiment. Spanish rental registrations are fiercely seasonal: the fleets stock up in spring for the summer season with March as the biggest month of the year. About 62,000 rental registrations in March 2026 against 14,000 in sleepy August 2025. And precisely when the volume peaks, the rental BEV share collapses: 6.5% in quiet January 2026, then 4.0% in February, 2.8% in March, 2.6% in April. Meanwhile the hybrid share of those same spring purchases hit 48%. Same pattern the year before. Read that again: <strong>when Spain's rental fleets bought their 2026 tourist-season cars, they chose hybrids almost ten times as often as BEVs.</strong> That single procurement decision, repeated every spring across a third of the market, is a huge part of why Spain's headline number looks mediocre.</p>
+
+    <h2>The charging picture: two networks, two verdicts</h2>
+
+    <p>"But the charging!" ... *sigh* ... Yes, let's talk about the charging, because it also splits in two, and the two halves map exactly onto the two Spains.</p>
+
+    <p>The public network is the tourists' network, and it is the weak flank. Spain counted around 55,000 operational public charging points at the end of Q1 2026<sup><a href="#src-3">[3]</a></sup>, having passed 50,000 around New Year<sup><a href="#src-4">[4]</a></sup> (growing double-digit percent per year) with the fast segment growing fastest: points in the 50–250 kW class more than doubled during 2025, and points above 250 kW nearly did<sup><a href="#src-4">[4]</a></sup>. That's what momentum looks like. But the density is still below where it should be and a large share of the installed charging is slow AC clustered where Spaniards live (Catalonia, Madrid, Andalusia) and not along the route a tourist might improvise. A visitor in a rented BEV faces the Italy problem: they can't know in advance whether their particular corner of Spain is the well-served kind, and just one stranding in a BEV, or even the fear of it, writes their opinion of EVs permanently. And the rental company is the one taking the blame by customers, so of course they don't want BEVs.</p>
+
+    <p>The private side is a different world, and it's the part that the "Spain is a country of apartments" objection misses. Since 2014, Spanish electrotechnical regulation (ITC-BT-52) has required new buildings with parking to include pre-installation for vehicle charging<sup><a href="#src-5">[5]</a></sup>. Under the horizontal property law, an apartment owner who wants a wallbox on their own parking space doesn't need the homeowner association's permission — they only have to notify it<sup><a href="#src-6">[6]</a></sup>. The outgoing MOVES III program subsidised home charger installations at up to 70–80% of cost right through the end of 2025<sup><a href="#src-7">[7]</a></sup>. Spaniards without any parking space exist, plenty of them — but the addressable population with a garage or a workplace socket is far larger than the objection implies, and for them charging is a solved problem.</p>
+
+    <p>And here Spain holds a card almost nobody in this debate plays: the sun. Solar photovoltaics delivered a record 19.1% of peninsular generation in 2025 — 27.1% in June, the highest monthly share ever recorded — and Spain keeps installing at record pace<sup><a href="#src-8">[8]</a></sup>. On sunny days, midday wholesale electricity prices routinely fall to nearly zero, which has made Spanish household electricity among the cheapest in Western Europe<sup><a href="#src-9">[9]</a></sup>. A car that charges at home overnight or at work at noon plugs straight into that. Spain is arguably the best place in Europe to own a car you plug in — provided you have somewhere to plug it. Which is precisely the line that separates the resident from the tourist, the non-rental curve from the rental curve. The infrastructure objection isn't wrong. It's just aimed at the wrong segment.</p>
+
+    <h2>From diesel country to hybrid country</h2>
+
+    <p>That leaves the first anomaly: the 43% hybrid share, the highest of any market I chart. Where does that come from? Well, to be honest, history mostly. A decade ago Spain was a diesel country — <strong>63% of new registrations in 2015</strong> were diesel. Then Diesel's reputation and resale values collapsed (remember VW Dieselgate? Yeah, that...), and within ten years Diesel share fell to under 6%. Two-thirds of the market had to migrate SOMEWHERE.</p>
+
+    <p>For a buyer burned once by betting on the "wrong" technology, the full hybrid is a seductive landing spot: no plug, no new habits, no range questions, a familiar brand promising familiar reliability with a green sticker on top. It is genuinely practical and that makes it dangerous. The migration went diesel → hybrid, not diesel → BEV, and how could it even? BEVs weren't yet a mass market thing, that only came with the Tesla Model 3. So it went that way in <em>every</em> channel: hybrids sit at 43–44% among private buyers and rental fleets alike.</p>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_nonrental_ttm_shares_20260709.png" alt="Spain non-rental trailing-twelve-month powertrain shares" loading="lazy">
+      <div class="chart-caption">Non-rental powertrain split: hybrids dominate here too — but BEV and PHEV are eating in fast.</div>
+    </div>
+
+    <div class="chart-block">
+      <img src="../images/2026-05/spain_rental_ttm_shares_20260709.png" alt="Spain rental trailing-twelve-month powertrain shares" loading="lazy">
+      <div class="chart-caption">Rental powertrain split: the same hybrid wall, with BEV barely visible.</div>
+    </div>
+
+    <p>This is the real counterweight to Spain's acceleration (not the charging post). A 43%-of-market comfort zone that feels like progress can delay the actual switch for years. You could maybe call it "the bridge becomes the destination" or something like that? At least it'd feel like that for people. But the early data from the buyers who choose freely is encouraging: among non-rental registrations, plug-in share (BEV plus PHEV) went from 16% to 27% in a single year. Where people opt in, the plug is winning ground quickly. The hybrid wall is being eaten from the private side.</p>
+
+    <h2>The trap, drawn out</h2>
+
+    <p>You don't actually need Spain's data to see how a hybrid trap like theirs forms though — a back-of-envelope model is enough, and I <a href="https://x.com/leRaffl/status/1789681135129120986" target="_blank" rel="noopener">sketched this one out quite a while ago too</a>. Picture a market that starts 100% combustion. Now picture that every year a fixed slice of ICE owners switch to a hybrid, a smaller slice jump straight to a BEV, and a slice of the people already in hybrids finally make the jump to a BEV. Three numbers, nothing else, applied year after year.</p>
+
+    <p>That imaginary market would be 100% guaranteed to end up not with hybrids, but with BEVs. But thinking that we'd necessarily see BEV dominate no matter when we look at the market, that's a trap. The trap lives in the gap between two of those numbers. If people move from combustion to hybrid faster than they move from hybrid to BEV, hybrids pile up in the middle and a bulge that can dominate the market for a decade before it drains can emerge. Drag the sliders below and see what influence each of the transitions has. The one that decides things is <strong>Hybrid → BEV</strong>: choke it and the green BEV band is held back for years behind a fat amber wall, but open it and the wall dissolves and the market flips to BEV in a handful of years. That#s important to note for Spain especially, because that means that Spain has enormous potential to transition to BEV fast!</p>
+
+    <div class="sim">
+      <div id="trapChart"></div>
+      <div class="sim-controls">
+        <div class="sim-row">
+          <label for="s_ih"><span><span class="dot" style="background:#f5a623"></span>ICE → Hybrid</span><span class="sim-val" id="v_ih">30%</span></label>
+          <input type="range" id="s_ih" min="0" max="50" step="1" value="30">
+        </div>
+        <div class="sim-row">
+          <label for="s_ib"><span><span class="dot" style="background:#7ed4a4"></span>ICE → BEV</span><span class="sim-val" id="v_ib">5%</span></label>
+          <input type="range" id="s_ib" min="0" max="50" step="1" value="5">
+        </div>
+        <div class="sim-row">
+          <label for="s_hb"><span><span class="dot" style="background:#7ed4a4"></span>Hybrid → BEV</span><span class="sim-val" id="v_hb">15%</span></label>
+          <input type="range" id="s_hb" min="0" max="50" step="1" value="15">
+        </div>
+      </div>
+      <div class="sim-foot">
+        <div class="sim-stats" id="simStats"></div>
+        <div class="sim-presets">
+          <button type="button" class="sim-btn" data-ih="30" data-ib="5" data-hb="15">My defaults</button>
+          <button type="button" class="sim-btn" data-ih="30" data-ib="5" data-hb="4">Hybrid trap</button>
+          <button type="button" class="sim-btn" data-ih="18" data-ib="14" data-hb="35">Fast flip</button>
+        </div>
+      </div>
+      <div class="chart-caption">Illustrative 3-state model (ICE → Hybrid → BEV), yearly transition rates. Not fitted to Spain — it's the shape that matters.</div>
+    </div>
+
+    <p>Spain is living in the fat part of that amber band right now: hybrids near their peak at 43%, plug-ins climbing underneath. Which way the next few years break comes down to exactly the rate the model makes you feel — how quickly today's hybrid buyer comes back for a BEV next time. And that's the useful reframe, because almost everything in the next section is really a lever on that one transition rate.</p>
+
+    <h2>The levers Italy doesn't have</h2>
+
+    <p>Italy's article ended in frustration: the fixes existed, but nobody seemed to be reaching for them. Spain's position is better, for three reasons that hardly ever make it into the standard narrative.</p>
+
+    <ul>
+      <li><strong>Plan Auto+ launches this month.</strong> MOVES III, the old subsidy scheme, was notorious for its bureaucracy. Buyers fronted the full price and waited, sometimes years, for reimbursement from regional governments. Its successor, announced in December 2025 under the national Auto 2030 strategy<sup><a href="#src-10">[10]</a></sup>, flips the model and now the discount is applied by the dealer at the moment of purchase, funded centrally, retroactive to January 1, 2026, with the rules due in the official gazette in early July<sup><a href="#src-11">[11]</a></sup>. Up to €4,500 for a private BEV buyer without scrapping, up to €7,000 with a scrapped old car, on cars up to €45,000 before tax, and dealers must add at least €1,000 of their own<sup><a href="#src-12">[12]</a></sup>. There's a caveat to it though: the retroactivity means a large chunk of the €400 million budget is reportedly committed before the window even opens, and the pot may run dry in autumn<sup><a href="#src-13">[13]</a></sup>. Still, a purchase incentive that works directly at the till, in the same year the non-rental market is already accelerating on its own, is fuel on a fire that's already burning.</li>
+      <li><strong>The solar dividend.</strong> Covered above, but it belongs in this list: cheap midday electricity is a structural, permanent, widening advantage that no Northern European market can copy, and it compounds with every wallbox installed.</li>
+      <li><strong>A domestic car industry with skin in the game.</strong> Spain is one of Europe's largest car producers. Small electric cars are now rolling off Spanish lines (SEAT/Cupra in Martorell among them for example) and the Auto 2030 plan explicitly targets an "affordable Spanish electric car"<sup><a href="#src-10">[10]</a></sup>. Italy's transition threatens its tourism industry but Spain's transition (at least if done right) feeds its manufacturing industry. The political economy points the other way here.</li>
+    </ul>
+
+    <h2>The Italy checklist, applied</h2>
+
+    <p>The Italy article closed with four portable rules. Spain is the first market I get to test them on, so let's score it, shall we?</p>
+
+    <ul>
+      <li><strong>"Find the drivers who didn't opt in — they're an early-warning indicator."</strong> Yup, found them: 36% of the market, frozen on a fifty-year curve, buying hybrids by the tens of thousands every spring. The indicator is flashing.</li>
+      <li><strong>"For a tourism economy, prioritise DC coverage where people drive, not where your population lives."</strong> This one if half-happening. Fast charging is the fastest-growing segment of the network, but deployment still follows Spanish residents rather than tourist corridors and islands. Nothing in the current policy mix targets this directly. Doesn't get much clearer than this in terms of "What should we do?"</li>
+      <li><strong>"Cap ad-hoc prices."</strong> Yeah, nah. This one isn't happening. A tourist without a subscription app and any clue still faces surprise pricing at the post. Same gap as Italy. (Except Tesla of course, the Supercharger network works wonders, but you can't transition a country on one foreign produced manufacturer alone. Even if you tried, only a portion of customers would want that.)</li>
+      <li><strong>"Build the network before scaling purchase incentives or mandates."</strong> Spain is running the experiment in the opposite order: Auto+ scales purchase incentives now, while the tourist-facing network still lags. For the private market that's the right call. Their charging is solved at home. But the subsidy just accelerates what's already moving. For the rental third, Auto+ changes nothing: no fleet quota, no corridor build-out, no pricing rule. The frozen curve stays frozen by design. (Again: Tesla proved how to do this correctly a decade ago.)</li>
+    </ul>
+
+    <p>Score: Maybe two out of four? And with the two clear misses concentrated exactly where Spain's problem segment is. Spain has, probably by accident, built a policy mix that's excellent for the market that was already fast enough while being irrelevant for the market that's stuck.</p>
+
+    <h2>What happens next</h2>
+
+    <p>So Spain is not "a slow-ish BEV market with charging problems". It's a fast private market and a frozen rental market wearing a single trend line, with a forty-percent hybrid cushion muffling the whole thing. The blended headline number will keep looking mediocre for a while. That's just how numbers work. At least as long as a third of the market buys tourist hybrids every spring.</p>
+
+    <p>Three things to watch over the next 12–18 months, all of them visible in these exact charts as the Gallery updates monthly. First: does Plan Auto+ push the non-rental monthly BEV share past 20%? It was at 16.5% in May, before a single EUR of the new scheme was paid out, the fitted curve extrapolates to 2028, but I wouldn't be surprised to see it earlier. Second: does anything unfreeze the rental curve? Maybe a big fleet order, a quota, a corridor program? Until something does, treat every "Spain is slow" headline as a statement about rental procurement, not about Spaniards. Third: does the hybrid share finally peak? That's the number the whole transition hinges on because as you have seen Hybrid → BEV matters more for Spain than ICE → Hybrid or ICE → BEV and a Hybrid peak would finally mean that the Hybrid → BEV part becomes strong.</p>
+
+    <p>Italy's split ended with "the people are fine — worry about your tourism." Spain's version is a bit better: the people are in a good position as the sun is subsidising them daily, and the cavalry of cheap Spanish-built EVs plus at-the-till discounts is arriving. Now give the tourists somewhere to plug in, and Spain's two stories can finally become one. And a really goo one. Spain has unused potential.</p>
+
+  </div>
+
+  <div class="sources" id="sources">
+    <h2>Sources</h2>
+    <ol>
+      <li id="src-1">DGT (Dirección General de Tráfico), monthly vehicle registration microdata (matriculaciones). Segment definitions and processing are documented in the <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/28-source-spain.md" target="_blank" rel="noopener">Gallery's source notes for Spain</a>; all data and fitted parameters are in the repo.</li>
+      <li id="src-2">For a representative example of the mainstream framing, see Autovista24, <a href="https://autovista24.autovistagroup.com/news/can-the-new-auto-2030-plan-boost-spains-ev-market/" target="_blank" rel="noopener">"Can the new Auto 2030 Plan boost Spain's EV market?"</a>, and the European Alternative Fuels Observatory's <a href="https://alternative-fuels-observatory.ec.europa.eu/general-information/news/spains-transition-electric-mobility-bev-and-phev-market-overview-2025" target="_blank" rel="noopener">Spain market overview 2025</a>.</li>
+      <li id="src-3">ANFAC electromobility barometer, Q1 2026: 55,077 operational public charging points. Reported i.a. by <a href="https://www.car-revs-daily.com/2026/05/13/spain-reaches-55000-public-ev-charging-stations-as-ultrafast-charging-expands/" target="_blank" rel="noopener">Car Revs Daily (May 2026)</a>.</li>
+      <li id="src-4">AEDIVE / electrive, <a href="https://www.electrive.com/2026/01/13/spanish-charging-network-grows-to-50000-charging-points/" target="_blank" rel="noopener">"Spanish charging network grows to 50,000 charging points"</a> (January 2026), including growth rates by power class during 2025.</li>
+      <li id="src-5">Real Decreto 1053/2014 (ITC-BT-52), <a href="https://www.boe.es/buscar/doc.php?id=BOE-A-2014-13681" target="_blank" rel="noopener">BOE-A-2014-13681</a> — charging pre-installation requirements in new buildings with parking.</li>
+      <li id="src-6">Ley de Propiedad Horizontal, art. 17.5, <a href="https://www.boe.es/buscar/act.php?id=BOE-A-1960-10906" target="_blank" rel="noopener">consolidated text (BOE)</a> — installing a charging point on an owner's individual parking space requires only prior notification to the community.</li>
+      <li id="src-7">IDAE, <a href="https://www.idae.es/en/support-and-funding/mobility-and-vehicles/programa-moves-iii" target="_blank" rel="noopener">Programa MOVES III</a> — home charger subsidies of up to 70–80% of installation cost; program ended December 31, 2025.</li>
+      <li id="src-8">Red Eléctrica, <a href="https://www.ree.es/en/press-office/news/press-release/2026/03/the-spanish-electricity-system-in-2025-electricity-demand-generation-and-installed-power-capacity-increase" target="_blank" rel="noopener">"The Spanish Electricity System in 2025"</a> (March 2026): solar PV at a record 19.1% of peninsular generation in 2025; 27.1% share in June 2025.</li>
+      <li id="src-9">idealista/news, <a href="https://www.idealista.com/en/news/lifestyle-in-spain/2025/10/14/866969-spain-s-low-electricity-prices-in-2025-what-it-means-for-your-bill" target="_blank" rel="noopener">"Spain electricity prices 2025: green energy makes it among Europe's cheapest"</a> (October 2025).</li>
+      <li id="src-10">La Moncloa, <a href="https://www.lamoncloa.gob.es/lang/en/presidente/news/paginas/2025/20251203-spain-auto-2030-plan.aspx" target="_blank" rel="noopener">"Pedro Sánchez presents the Spain Auto 2030 Plan"</a> (December 3, 2025).</li>
+      <li id="src-11">electrive, <a href="https://www.electrive.com/2026/06/24/spains-new-ev-incentive-scheme-to-launch-in-july/" target="_blank" rel="noopener">"Spain's new EV incentive scheme to launch in July"</a> (June 24, 2026).</li>
+      <li id="src-12">coches.net, <a href="https://www.coches.net/noticias/programa-auto-plus-ayudas-comprar-coche" target="_blank" rel="noopener">"Programa Auto+: ayudas para comprar coche en 2026 a partir de julio"</a> — grant amounts and dealer-discount conditions.</li>
+      <li id="src-13">motor.es, <a href="https://www.motor.es/noticias/plan-auto-plus-apertura-julio-ayudas-coche-electrico-2026114867.html" target="_blank" rel="noopener">"El Plan Auto+ abrirá en julio con más de la mitad del presupuesto ya comprometido"</a>.</li>
+    </ol>
+  </div>
+
+  <div class="article-footer">
+    <div class="article-footer-left">
+      By <strong>@LeRaffl</strong> · Data: <a href="https://www.dgt.es" target="_blank" rel="noopener">DGT</a><br>
+      Charts from <a href="../#gallery">BEV Trajectory Gallery</a>
+    </div>
+    <div class="social-links">
+      <a href="https://x.com/leRaffl" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @LeRaffl
+      </a>
+      <a href="https://bsky.app/profile/leraffl.bsky.social" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0173-2.9357-1.1937.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.109 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>
+        Bluesky
+      </a>
+      <a href="../#gallery" class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Gallery
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+(function(){
+  function parseCSV(text){
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+      const vals = line.split(',');
+      const row = {};
+      headers.forEach((h, i) => { row[h] = (vals[i] || '').trim(); });
+      return row;
+    });
+  }
+
+  function bevShare(year, v1, v2, t0){
+    const z = year - t0;
+    if(z <= 0) return 0;
+    return Math.max(0, Math.min(100, 100 * (1 - Math.exp(v1 * Math.pow(z, v2)))));
+  }
+
+  function yearToLabel(y){
+    const yr = Math.floor(y + 1e-9);
+    const mo = Math.round(((y - yr) + 1e-9) * 12) + 1;
+    return yr + '-' + String(mo).padStart(2, '0');
+  }
+
+  function makeCurve(v1, v2, t0){
+    const xs = [], ys = [], labels = [];
+    for(let m = 2015 * 12; m <= 2050 * 12; m++){
+      const y = m / 12;
+      xs.push(y);
+      ys.push(bevShare(y, v1, v2, t0));
+      labels.push(yearToLabel(y));
+    }
+    return { xs, ys, labels };
+  }
+
+  const SLOTS = [
+    { key: 'Whole',     label: 'Spain — all',        color: '#4da3ff' },
+    { key: 'NonRental', label: 'Spain — non-rental', color: '#f5a623' },
+    { key: 'Rental',    label: 'Spain — rental',     color: '#7ed4a4' },
+  ];
+
+  async function render(){
+    const el = document.getElementById('liveChart');
+    if(!el || typeof Plotly === 'undefined') return;
+
+    let rows;
+    try {
+      const r = await fetch('../params.csv', { cache: 'no-store' });
+      rows = parseCSV(await r.text());
+    } catch(e) { return; }
+
+    const traces = SLOTS.map(slot => {
+      const row = rows.find(r =>
+        r.country === 'Spain' &&
+        (r.variant || 'Whole').toLowerCase() === slot.key.toLowerCase()
+      );
+      if(!row) return null;
+      const v1 = parseFloat(row.v1), v2 = parseFloat(row.v2), t0 = parseFloat(row.t0);
+      if(!isFinite(v1) || !isFinite(v2) || !isFinite(t0)) return null;
+      const { xs, ys, labels } = makeCurve(v1, v2, t0);
+      return {
+        x: xs, y: ys, customdata: labels, mode: 'lines', name: slot.label,
+        line: { color: slot.color, width: 2.5 },
+        hovertemplate: '%{customdata}: %{y:.1f}%<extra>' + slot.label + '</extra>'
+      };
+    }).filter(Boolean);
+
+    if(!traces.length) return;
+
+    const caption = el.closest('.live-chart-block').querySelector('.chart-caption');
+    if(caption){
+      const dates = SLOTS.map(slot => {
+        const row = rows.find(r =>
+          r.country === 'Spain' &&
+          (r.variant || 'Whole').toLowerCase() === slot.key.toLowerCase()
+        );
+        return row ? `${slot.label}: ${row.model_date}` : null;
+      }).filter(Boolean);
+      caption.textContent = `Live from the Gallery's fitted parameters — ${dates.join(' · ')}`;
+    }
+
+    Plotly.newPlot(el, traces, {
+      paper_bgcolor: '#0f1525',
+      plot_bgcolor:  '#0f1525',
+      font: { color: '#9fb3d1', family: 'system-ui, sans-serif', size: 12 },
+      margin: { t: 24, r: 24, b: 48, l: 44 },
+      xaxis: {
+        range: [2015, 2050],
+        gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44',
+        tickfont: { color: '#4a6a8a' }
+      },
+      yaxis: {
+        range: [0, 100], ticksuffix: '%',
+        gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44',
+        tickfont: { color: '#4a6a8a' }
+      },
+      legend: {
+        bgcolor: 'rgba(15,21,37,0.85)',
+        bordercolor: '#1f2a44', borderwidth: 1,
+        font: { color: '#c0cde0' },
+        x: 0.02, y: 0.98
+      },
+      hovermode: 'closest',
+      hoverlabel: { bgcolor: '#0f1525', bordercolor: '#1f2a44', font: { color: '#e9eef2' } }
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    const wait = setInterval(() => {
+      if(typeof Plotly !== 'undefined'){ clearInterval(wait); render(); }
+    }, 50);
+  }
+})();
+
+// Hybrid-trap simulator: a 3-state ICE -> Hybrid -> BEV Markov model
+(function(){
+  const YEARS = 16;
+  const COL = { ice: '#4da3ff', hyb: '#f5a623', bev: '#7ed4a4' };
+
+  function runModel(p_ih, p_ib, p_hb){
+    let ice = 100, hyb = 0, bev = 0;
+    const t = [0], I = [100], H = [0], B = [0];
+    for(let y = 1; y <= YEARS; y++){
+      const toHyb = ice * p_ih, toBevI = ice * p_ib, toBevH = hyb * p_hb;
+      ice = ice - toHyb - toBevI;
+      hyb = hyb + toHyb - toBevH;
+      bev = bev + toBevI + toBevH;
+      t.push(y); I.push(ice); H.push(hyb); B.push(bev);
+    }
+    return { t, I, H, B };
+  }
+
+  function peakYear(a){ let m = 0, k = 0; a.forEach((v, i) => { if(v > m){ m = v; k = i; } }); return { year: k, val: m }; }
+  function crossYear(a, thr){ for(let i = 0; i < a.length; i++) if(a[i] >= thr) return i; return null; }
+
+  function area(name, x, y, color){
+    return {
+      x: x, y: y, name: name, mode: 'lines', stackgroup: 'one',
+      line: { width: 1.5, color: color }, fillcolor: color,
+      hovertemplate: '%{y:.0f}% ' + name + '<extra></extra>'
+    };
+  }
+
+  function draw(){
+    const el = document.getElementById('trapChart');
+    if(!el || typeof Plotly === 'undefined') return;
+    const ih = +document.getElementById('s_ih').value / 100;
+    const ib = +document.getElementById('s_ib').value / 100;
+    const hb = +document.getElementById('s_hb').value / 100;
+    document.getElementById('v_ih').textContent = document.getElementById('s_ih').value + '%';
+    document.getElementById('v_ib').textContent = document.getElementById('s_ib').value + '%';
+    document.getElementById('v_hb').textContent = document.getElementById('s_hb').value + '%';
+
+    const m = runModel(ih, ib, hb);
+    const traces = [
+      area('ICE', m.t, m.I, COL.ice),
+      area('Hybrid', m.t, m.H, COL.hyb),
+      area('BEV', m.t, m.B, COL.bev)
+    ];
+
+    const pk = peakYear(m.H);
+    const bev50 = crossYear(m.B, 50);
+    const stats = document.getElementById('simStats');
+    if(stats){
+      stats.innerHTML = 'Hybrids peak in <strong>year ' + pk.year + '</strong> at <strong>' +
+        pk.val.toFixed(0) + '%</strong> · BEV passes 50% ' +
+        (bev50 === null ? '<strong>not within ' + YEARS + ' yrs</strong>' : 'in <strong>year ' + bev50 + '</strong>');
+    }
+
+    Plotly.react(el, traces, {
+      paper_bgcolor: '#0f1525', plot_bgcolor: '#0f1525',
+      font: { color: '#9fb3d1', family: 'system-ui, sans-serif', size: 12 },
+      margin: { t: 16, r: 16, b: 40, l: 40 },
+      xaxis: { title: { text: 'years', font: { size: 11, color: '#4a6a8a' } },
+        range: [0, YEARS], gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44', tickfont: { color: '#4a6a8a' } },
+      yaxis: { range: [0, 100], ticksuffix: '%', gridcolor: '#1f2a44', zerolinecolor: '#1f2a44',
+        tickcolor: '#1f2a44', linecolor: '#1f2a44', tickfont: { color: '#4a6a8a' } },
+      legend: { orientation: 'h', bgcolor: 'rgba(0,0,0,0)', font: { color: '#c0cde0' }, x: 0.5, xanchor: 'center', y: 1.12 },
+      hovermode: 'x unified',
+      hoverlabel: { bgcolor: '#0f1525', bordercolor: '#1f2a44', font: { color: '#e9eef2' } }
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function wire(){
+    if(typeof Plotly === 'undefined'){ setTimeout(wire, 50); return; }
+    ['s_ih', 's_ib', 's_hb'].forEach(id => {
+      const s = document.getElementById(id);
+      if(s) s.addEventListener('input', draw);
+    });
+    document.querySelectorAll('.sim-presets .sim-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        document.getElementById('s_ih').value = b.dataset.ih;
+        document.getElementById('s_ib').value = b.dataset.ib;
+        document.getElementById('s_hb').value = b.dataset.hb;
+        draw();
+      });
+    });
+    draw();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wire);
+  } else { wire(); }
+})();
+</script>
+</body>
+</html>
