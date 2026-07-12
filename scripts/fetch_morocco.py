@@ -26,12 +26,16 @@ import requests
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
       "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.7"}
 
+# Probe v1 (2026-07-12): docs page lists a 1-page monthly press PDF (brand
+# table only, NO energy split), the annual "Bilan" deck (has a "Focus NEV"
+# section), a monthly XLS ("Statistiques des ventes <Month> FP.xls") and a
+# separate stats portal at statistique.aivam.ma. Probe v2 opens the XLS and
+# the portal.
 PAGES = [
     "https://www.aivam.ma/fr/documentation-et-etudes",
-    "https://www.aivam.ma/fr/statistiques",
-    "https://www.aivam.ma/",
-    "https://aivam.ma/",
 ]
+XLS_URL = "https://www.aivam.ma/sites/default/files/2025-11/Statistiques%20des%20ventes%20Octobre%202025%20FP.xls"
+PORTAL = "https://statistique.aivam.ma"
 
 
 def probe() -> None:
@@ -63,31 +67,54 @@ def probe() -> None:
         except requests.RequestException as e:
             print(f"\n[{url}] FAILED: {e}", flush=True)
 
-    if not pdf_links:
-        print("\nNo PDFs found on the crawled pages.")
-        return
-
+    # --- The monthly XLS (the likely fetcher target)
+    print(f"\n=== XLS: {XLS_URL}", flush=True)
     try:
-        import pdfplumber
-    except ImportError:
-        raise SystemExit("pdfplumber required for the probe: pip install pdfplumber")
+        r = s.get(XLS_URL, timeout=90)
+        print(f"  HTTP {r.status_code}, {len(r.content):,} bytes, "
+              f"content-type={r.headers.get('content-type')}")
+        if r.ok:
+            head = r.content[:8]
+            print(f"  magic: {head!r}")
+            try:
+                import xlrd
+                wb = xlrd.open_workbook(file_contents=r.content)
+                for name in wb.sheet_names():
+                    sh = wb.sheet_by_name(name)
+                    print(f"  --- sheet {name!r}: {sh.nrows} rows x {sh.ncols} cols")
+                    for i in range(min(15, sh.nrows)):
+                        print(f"    {[sh.cell_value(i, j) for j in range(min(12, sh.ncols))]}")
+            except Exception as e:
+                print(f"  xlrd failed ({e}); trying openpyxl")
+                try:
+                    import openpyxl
+                    wb = openpyxl.load_workbook(io.BytesIO(r.content), data_only=True)
+                    for name in wb.sheetnames:
+                        ws = wb[name]
+                        print(f"  --- sheet {name!r}: {ws.max_row} rows x {ws.max_column} cols")
+                        for i, row in enumerate(ws.iter_rows(max_row=15, values_only=True)):
+                            print(f"    {list(row)[:12]}")
+                except Exception as e2:
+                    print(f"  openpyxl failed too: {e2}")
+    except requests.RequestException as e:
+        print(f"  FAILED: {e}")
 
-    # Dump the first few PDFs (most sites list newest first)
-    for url in pdf_links[:3]:
-        print(f"\n=== PDF: {url}", flush=True)
-        try:
-            r = s.get(url, timeout=90)
-            print(f"  HTTP {r.status_code}, {len(r.content):,} bytes")
-            if not r.ok:
-                continue
-            with pdfplumber.open(io.BytesIO(r.content)) as pdf:
-                print(f"  pages: {len(pdf.pages)}")
-                for i, page in enumerate(pdf.pages[:6]):
-                    text = (page.extract_text() or "").strip()
-                    print(f"  --- page {i+1} ---")
-                    print("  " + "\n  ".join(text.splitlines()[:40]))
-        except Exception as e:
-            print(f"  FAILED: {e}")
+    # --- The stats portal
+    print(f"\n=== PORTAL: {PORTAL}", flush=True)
+    try:
+        r = s.get(PORTAL, timeout=60)
+        print(f"  HTTP {r.status_code} final={r.url} len={len(r.text)}")
+        body = r.text
+        for kw in ("login", "connexion", "password", "api", "energie", "énergie",
+                   "electrique", "électrique", "hybride", "csv", "export"):
+            if kw.lower() in body.lower():
+                print(f"  contains keyword: {kw}")
+        links = sorted(set(re.findall(r'(?:href|src|action)="([^"]+)"', body)))
+        print(f"  links/resources ({len(links)}):")
+        for l in links[:30]:
+            print(f"    {l}")
+    except requests.RequestException as e:
+        print(f"  FAILED: {e}")
 
     print("\n=== PROBE DONE ===")
 

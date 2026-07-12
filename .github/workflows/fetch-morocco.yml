@@ -23,6 +23,6 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: pip install requests pdfplumber
+        run: pip install requests pdfplumber xlrd openpyxl
       - name: Probe
         run: python scripts/fetch_morocco.py --probe
