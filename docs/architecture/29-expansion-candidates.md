@@ -153,6 +153,21 @@ appear to exist here.
 
 ### 🇿🇦 South Africa — naamsa (quarterly granularity)
 
+> **Status: VERIFIED VIABLE (2026-07-12, CI probes — `scripts/fetch_southafrica.py --probe`).**
+> naamsa.net is open from CI, the press-release archive reaches back to 2017,
+> and the **Quarterly Business Review** (found via the WP sitemap; the
+> newest lives under `naamsa.net/wp-content/uploads/...Quarterly-Review...`)
+> parses cleanly with pdfplumber. Its NEV page carries the full drivetrain
+> table — Q1-2026 edition: Plug-in hybrid / Traditional hybrid / Electric /
+> Total NEVs with **yearly columns 2020–2025 plus quarterly columns**
+> (Q1:2025, Q1:2026) — i.e. one current PDF bootstraps the yearly history
+> for free, and the review archive backfills the quarters. Monthly flash
+> reports carry totals only (no NEV split).
+> Open design decision for the fetcher: the NEV table is all-vehicles
+> (no passenger/LCV split), so `Whole` should be the **total market** with a
+> footnote (mixing naamsa's passenger-only total with the all-vehicle NEV
+> count would repeat the Mexico two-universes mistake).
+
 naamsa, the Automotive Business Council
 ([naamsa.net/press-releases](https://naamsa.net/press-releases/)), publishes
 free monthly **flash reports** (total sales by segment, PDF) and a
