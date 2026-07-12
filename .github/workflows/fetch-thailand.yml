@@ -1,0 +1,116 @@
+name: Fetch Thailand data (TAI/AIU portal)
+
+# Fetches Thailand new-vehicle registrations by fuel type from the AIU member
+# portal's JSON API (taiapi.thaiauto.or.th:3000) and upserts new monthly rows
+# into four per-variant CSVs (one API call per year serves all of them):
+#
+#   * Whole      — "Passenger Car and Pickup Truck"  -> data/Thailand.csv
+#   * HDV        — "Truck"                            -> data/Thailand_HDV.csv
+#   * Buses      — "Bus"                              -> data/Thailand_Buses.csv
+#   * 3-Wheelers — "Three Wheelers"                   -> data/Thailand_3-Wheelers.csv
+#
+# See scripts/fetch_thailand.py for the auth flow, the API request shape, and
+# the fuel-column mapping. Credentials come from repository secrets:
+#   THAILAND_AIU_THAIAUTO_USER  (member username; defaults to "leraffl")
+#   THAILAND_AIU_THAIAUTO_PW    (member password)
+#
+# The API listens on port 3000. GitHub-hosted runners reach it directly; if a
+# runner's egress IP is ever blocked, set repository secret THAILAND_HTTPS_PROXY
+# to a permissive proxy. When a CSV changes, this workflow dispatches
+# render-country.yml once per touched variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "Year(s) to fetch: '2026', '2018-2026', or '2024,2025'"
+        required: false
+        default: ''
+      force:
+        description: 'Skip the "already current" early-exit check'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Daily 1st–20th at 04:40 UTC. The AIU portal publishes the previous month's
+    # figures partway through the following month; we poll daily until the row
+    # materialises, then the per-month early-exit makes subsequent runs no-ops
+    # (no diff, no commit, no render trigger). 04:40 UTC stays clear of
+    # fetch-denmark (05:15), fetch-netherlands (06:30) and fetch-acea (08:00).
+    - cron: '40 4 1-20 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch & update Thailand CSV
+        run: |
+          python scripts/fetch_thailand.py \
+            ${YEARS:+--years "$YEARS"} \
+            ${FORCE:+--force}
+        env:
+          YEARS: ${{ inputs.years }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+          THAILAND_AIU_THAIAUTO_USER: ${{ secrets.THAILAND_AIU_THAIAUTO_USER || 'leraffl' }}
+          THAILAND_AIU_THAIAUTO_PW: ${{ secrets.THAILAND_AIU_THAIAUTO_PW }}
+          THAILAND_HTTPS_PROXY: ${{ secrets.THAILAND_HTTPS_PROXY }}
+
+      - name: Detect which CSVs changed
+        id: changed
+        run: |
+          touched=()
+          for pair in "Whole:data/Thailand.csv" \
+                      "HDV:data/Thailand_HDV.csv" \
+                      "Buses:data/Thailand_Buses.csv" \
+                      "3-Wheelers:data/Thailand_3-Wheelers.csv"; do
+            variant="${pair%%:*}"
+            file="${pair##*:}"
+            [ -f "$file" ] || continue
+            git add -N "$file" 2>/dev/null || true
+            if ! git diff --quiet -- "$file"; then
+              touched+=("$variant")
+            fi
+          done
+          variants=$(IFS='|'; echo "${touched[*]}")
+          echo "variants=$variants" >> "$GITHUB_OUTPUT"
+          echo "Touched variants: ${variants:-<none>}"
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Thailand.csv
+            data/Thailand_HDV.csv
+            data/Thailand_Buses.csv
+            data/Thailand_3-Wheelers.csv
+          message: 'chore: update Thailand data from aiu.thaiauto.or.th (veh_reg_fuel)'
+          default_author: github_actions
+
+      - name: Trigger render per touched variant
+        if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VARIANTS: ${{ steps.changed.outputs.variants }}
+        run: |
+          IFS='|' read -ra arr <<< "$VARIANTS"
+          for variant in "${arr[@]}"; do
+            echo "Dispatching render for variant: $variant"
+            gh workflow run render-country.yml \
+              --ref "${GITHUB_REF_NAME}" \
+              -f country=Thailand \
+              -f variant="$variant"
+          done
