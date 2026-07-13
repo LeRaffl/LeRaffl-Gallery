@@ -86,6 +86,52 @@ plausible but untested.**
    incentives fail there, but because their corporate channel is unusually
    rental-heavy — they are special cases of H3, not counterexamples to H1/H2.
 
+## H4/H5: do incentives change the destination, or only the speed?
+
+Two follow-up hypotheses:
+
+- **H4 — Incentives only accelerate; the transition happens without them,
+  just slower.** Prediction: after a cut, every market recovers to and
+  eventually exceeds its pre-cut share, without the incentive coming back.
+- **H5 — Permanence depends on the stage at removal.** Cutting early in the
+  transition does lasting damage; cutting late (>~50–70% share) does little.
+
+Test: for each removal case, pre-cut TTM peak, post-cut trough, relative
+drop, and months back to the pre-cut peak (all own monthly data):
+
+| Country | Cut | Share at cut | Trough | Rel. drop | Back to peak |
+|---|---|---|---|---|---|
+| Denmark | 2016 (registration-tax phase-in) | 2.1% | 0.3% | **−85%** | +45 months |
+| New Zealand | Jan 2024 | 10.1% | 3.4% | **−66%** | not yet (30+ mo, now 6.7%) |
+| Germany | Jan 2024 (corporate already Sep 2023) | 20.5% | 13.5% | −34% | +27 months (now 22.6%) |
+| Sweden | Nov 2022 | 30.2% | ~no trough | −6% | immediate |
+| Iceland | Jan 2024 | 50.0% | 29.3% | −41% | not yet (now 45.4%, rising) |
+| Norway | 2023 (partial VAT, gradual) | 78.4% | 78.0% | ~0% | immediate (now 97.6%) |
+
+**H4 supported:** no market stays down. Even Denmark's near-death 2016–17
+market (−85%) resumed and sits at 76% today; Germany regained its peak in 27
+months **without a new purchase subsidy** and has moved past it. The
+transition direction appears irreversible; incentives buy time, not the
+destination. Caveats: Denmark's recovery coincided with the government
+postponing/softening the tax phase-in in 2018, so it is not a clean
+"no-policy-reversal" case — Germany is the cleanest one. New Zealand is the
+one market still far below peak after 2.5 years (and it added road-user
+charges for EVs on top, i.e. a negative incentive, not mere removal).
+
+**H5 supported with one amendment:** relative damage falls monotonically
+with the stage at removal (2% → −85%; 10% → −66%; 20% → −34%; 30% → −6%;
+78% → 0%) — **except Iceland** (50% → −41%). The Iceland outlier is
+explained by **dose**: it didn't remove one subsidy, it removed a blanket
+VAT exemption *and* introduced a per-km road charge simultaneously — the
+largest single-shock repricing in the sample. So the working model is:
+*lasting-ness of the transition ≈ f(stage); size of the shock ≈ f(dose).*
+And even Iceland is back to 45% and climbing within 2.5 years, consistent
+with H4.
+
+Rule of thumb for the article: **below ~20–30% market share, removing
+incentives costs years; above ~70%, it costs nothing.** The transition
+completes either way.
+
 ## Open questions / next steps
 
 - Belgium private-vs-corporate split from Statbel/FEBIAC to replace the
