@@ -132,6 +132,42 @@ Rule of thumb for the article: **below ~20–30% market share, removing
 incentives costs years; above ~70%, it costs nothing.** The transition
 completes either way.
 
+## Hong Kong: the missing datapoint, live
+
+Hong Kong is the case our sample lacked — an **abrupt, complete removal at
+very late stage** — and it also contains the most brutal early-stage case on
+record, so one city spans the whole H5 curve:
+
+- **2017, early stage:** full first-registration-tax waiver capped at
+  HK$97,500 in April 2017. Tesla registered 2,939 cars in March 2017 and
+  **32 in the remaining nine months** of the year. Consistent with the
+  early-stage end of the curve (DK 2016, NZ 2024).
+- **2026, late stage:** all FRT concessions (incl. One-for-One) ended
+  completely on 31 March 2026, with BEV penetration around 90%.
+
+Monthly BEV penetration of private-car registrations (via Roland Pircher,
+@piloly, from HK Transport Department data — treated as reliable):
+
+| Month | BEV share | Note |
+|---|---|---|
+| 2025-06 | 86.3% | baseline |
+| 2026-01 | 89.2% | |
+| 2026-03 | 95.0% | record — pull-forward before the 31 Mar deadline |
+| 2026-04 | 94.6% | first post-concession month |
+| 2026-05 | 89.2% | exactly at the January baseline |
+
+**No cliff.** After a complete, abrupt removal of a tax concession worth up
+to HK$172,500/€20k+ per car, the market shows a pull-forward spike of a few
+points and then returns to its pre-announcement baseline — compared with
+−41% relative at Iceland's 50% stage and −85% at Denmark's 2% stage. This is
+the strongest confirmation yet of H5: **past a high enough adoption level
+(~90% here), the transition no longer needs the incentive at all.**
+
+Caveats: only two post-cut months so far, and April/May registrations partly
+reflect orders placed before the deadline (registration lags purchase), so
+June–August 2026 are the real test months. Worth building `Hong Kong.csv`
+from TD monthly stats and tracking this through year-end.
+
 ## Open questions / next steps
 
 - Belgium private-vs-corporate split from Statbel/FEBIAC to replace the
