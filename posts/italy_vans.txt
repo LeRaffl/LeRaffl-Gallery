@@ -1,0 +1,6 @@
+🇮🇹 Italy (Vans) - June 26 - BEV Trajectory
+3.9% BEV
+1.0% PHEV
+95.1% ICE (of which 8.8%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
