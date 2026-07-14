@@ -60,8 +60,10 @@ Two .ods file families are used (paths under /fileadmin/pages/77/):
         Row labels differ slightly from DE2 ("Benzin inkl. Flex-Fuel" instead
         of "Benzin", footnote markers on the Plug-In rows), so GE2 rows are
         matched on normalised labels rather than exact strings.
-        Filenames:  (GE<n>_)?Gebrauchtzulassungen<...>JaennerBis<Month><YYYY>.ods
-                    kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods (legacy)
+        Filenames vary by publication era (see FILE_RE_GE2):
+                    kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods  (2019-21)
+                    GebrauchtzulassungenFahrzeugeJaennerBis<Month><YYYY>.ods (2022-23)
+                    KfzGebrauchtzulassungenJaennerBis<Month><YYYY>.ods       (2024-)
 
 Canonical-column mapping
 ------------------------
@@ -267,12 +269,18 @@ FILE_RE_DE3_ANNUAL = re.compile(
 )
 # GE2 used-registration cumulative files live on the kfz-gebrauchtzulassungen
 # page (a different /fileadmin/pages/<id>/ than 77, so the page id is not
-# pinned). Two spellings observed across publication eras: CamelCase mirroring
-# DE2 (e.g. GebrauchtzulassungenFahrzeugeJaennerBisJuni2026.ods) and legacy
-# snake_case (kfz-gebrauchtzulassungen_jaenner_bis_dezember_2021.ods).
+# pinned). Three spellings observed across publication eras:
+#   2019-2021: kfz-gebrauchtzulassungen_jaenner_bis_dezember_<yyyy>.ods (legacy)
+#   2022-2023: GebrauchtzulassungenFahrzeugeJaennerBis<Month><YYYY>.ods
+#   2024-    : KfzGebrauchtzulassungenJaennerBis<Month><YYYY>.ods
+#              (2025 even spells it "Jaennerbis" — lowercase b)
+# The page also lists a Bundesland × Kraftstoff matrix family
+# (Kfz-Gebrauchtzulassungen...Bundesland...Energiequelle...), which has a
+# different layout — the lookahead excludes it.
 FILE_RE_GE2 = re.compile(
     r"/fileadmin/pages/\d+/(?:GE\d+_)?"
-    r"Gebrauchtzulassungen[A-Za-z]*JaennerBis([A-Za-z]+)(\d{4})\.ods"
+    r"(?:Kfz-?)?Gebrauchtzulassungen(?![^/]*Bundesland)[A-Za-z]*"
+    r"Jaenner[Bb]is([A-Za-z]+)(\d{4})\.ods"
 )
 FILE_RE_GE2_LEGACY = re.compile(
     r"/fileadmin/pages/\d+/"

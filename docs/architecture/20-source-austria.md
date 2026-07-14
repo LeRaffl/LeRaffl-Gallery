@@ -285,10 +285,20 @@ and HEV holds the combined lump.
 **GE2 listing page:** unlike DE2/DE3 (both on the kfz-neuzulassungen page),
 GE2 files are discovered on
 `https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-gebrauchtzulassungen`.
-Both the CamelCase filenames (`Gebrauchtzulassungen…JaennerBis<Month><YYYY>.ods`)
-and the legacy snake_case ones
-(`kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods`) are matched; per
-year the file covering the most months wins.
+Filenames vary by publication era — all three are matched, and per year the
+file covering the most months wins:
+
+| Years | Filename pattern |
+|---|---|
+| 2019–2021 | `kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods` |
+| 2022–2023 | `GebrauchtzulassungenFahrzeugeJaennerBis<Month><YYYY>.ods` |
+| 2024– | `KfzGebrauchtzulassungenJaennerBis<Month><YYYY>.ods` (2025 spells it `Jaennerbis`) |
+
+The page also lists a Bundesland × Kraftstoff matrix family
+(`Kfz-Gebrauchtzulassungen…Bundesland…Energiequelle…`), which has a different
+layout and is deliberately excluded. Any Gebraucht-looking .ods link that no
+regex matches is printed as a `[discover] NOTE:` in the logs, so future
+renames surface instead of silently truncating year coverage.
 
 ### Column mapping
 
