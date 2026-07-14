@@ -2,12 +2,62 @@
   "updated": "2026-07-14",
   "images": [
     {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-14",
+      "filename": "austria_ICE_BEV_20260714.png",
+      "url": "images/2026-06/austria_ICE_BEV_20260714.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-14",
+      "filename": "austria_20260714.png",
+      "url": "images/2026-06/austria_20260714.png",
+      "alt": "Austria BEV trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-14",
+      "filename": "austria_time_20260714.png",
+      "url": "images/2026-06/austria_time_20260714.png",
+      "alt": "Austria Transition time curve",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-14",
+      "filename": "austria_ttm_shares_20260714.png",
+      "url": "images/2026-06/austria_ttm_shares_20260714.png",
+      "alt": "Austria TTM market split graph",
+      "country_slug": "austria"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2023-12",
       "date": "2026-07-14",
       "filename": "austria_used_ICE_BEV_20260714.png",
       "url": "images/2023-12/austria_used_ICE_BEV_20260714.png",
+      "alt": "Austria (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria_used"
+    },
+    {
+      "country": "Austria (Used)",
+      "type": "ICE_BEV",
+      "period": "2024-12",
+      "date": "2026-07-14",
+      "filename": "austria_used_ICE_BEV_20260714.png",
+      "url": "images/2024-12/austria_used_ICE_BEV_20260714.png",
       "alt": "Austria (Used) ICE-BEV-Hybrid trajectory",
       "country_slug": "austria_used"
     },
@@ -23,6 +73,16 @@
     },
     {
       "country": "Austria (Used)",
+      "type": "share",
+      "period": "2024-12",
+      "date": "2026-07-14",
+      "filename": "austria_used_20260714.png",
+      "url": "images/2024-12/austria_used_20260714.png",
+      "alt": "Austria (Used) BEV trajectory",
+      "country_slug": "austria_used"
+    },
+    {
+      "country": "Austria (Used)",
       "type": "time",
       "period": "2023-12",
       "date": "2026-07-14",
@@ -33,11 +93,31 @@
     },
     {
       "country": "Austria (Used)",
+      "type": "time",
+      "period": "2024-12",
+      "date": "2026-07-14",
+      "filename": "austria_used_time_20260714.png",
+      "url": "images/2024-12/austria_used_time_20260714.png",
+      "alt": "Austria (Used) Transition time curve",
+      "country_slug": "austria_used"
+    },
+    {
+      "country": "Austria (Used)",
       "type": "ttm_shares",
       "period": "2023-12",
       "date": "2026-07-14",
       "filename": "austria_used_ttm_shares_20260714.png",
       "url": "images/2023-12/austria_used_ttm_shares_20260714.png",
+      "alt": "Austria (Used) TTM market split graph",
+      "country_slug": "austria_used"
+    },
+    {
+      "country": "Austria (Used)",
+      "type": "ttm_shares",
+      "period": "2024-12",
+      "date": "2026-07-14",
+      "filename": "austria_used_ttm_shares_20260714.png",
+      "url": "images/2024-12/austria_used_ttm_shares_20260714.png",
       "alt": "Austria (Used) TTM market split graph",
       "country_slug": "austria_used"
     },
