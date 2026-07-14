@@ -60,7 +60,7 @@ Two .ods file families are used (paths under /fileadmin/pages/77/):
         Row labels differ slightly from DE2 ("Benzin inkl. Flex-Fuel" instead
         of "Benzin", footnote markers on the Plug-In rows), so GE2 rows are
         matched on normalised labels rather than exact strings.
-        Filenames:  (GE\d_)?Gebrauchtzulassungen<...>JaennerBis<Month><YYYY>.ods
+        Filenames:  (GE<n>_)?Gebrauchtzulassungen<...>JaennerBis<Month><YYYY>.ods
                     kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods (legacy)
 
 Canonical-column mapping
@@ -357,10 +357,22 @@ def discover_used_file_urls(session: requests.Session) -> dict[tuple[str, int], 
             if prev is None or idx > prev[0]:
                 best[year] = (idx, FILE_BASE + m.group(0))
 
+    # Diagnostic: surface any Gebraucht-looking .ods links the regexes did NOT
+    # match, so a renamed file family shows up in the logs instead of silently
+    # limiting the year coverage.
+    matched_paths = {url[len(FILE_BASE):] for _, url in best.values()}
+    all_ods = set(re.findall(r"/fileadmin/pages/\d+/[^\"'\s]+\.ods", text))
+    unmatched = sorted(
+        p for p in all_ods
+        if "ebraucht" in p.lower()
+        and p not in matched_paths
+        and not (FILE_RE_GE2.fullmatch(p) or FILE_RE_GE2_LEGACY.fullmatch(p))
+    )
+    if unmatched:
+        print(f"[discover] NOTE: unmatched Gebraucht .ods links: {unmatched}")
     if not best:
-        sample = re.findall(r"/fileadmin/pages/\d+/[^\"'\s]+\.ods", text)
         print("[discover] WARNING: no GE2 files matched on the used-registrations "
-              f"page; .ods links present: {sorted(set(sample))[:15]}")
+              f"page; .ods links present: {sorted(all_ods)[:20]}")
 
     return {("ge2", y): url for y, (_, url) in best.items()}
 
