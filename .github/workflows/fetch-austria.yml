@@ -1,7 +1,7 @@
-name: Fetch Austria data (Statistik Austria DE2 / DE3)
+name: Fetch Austria data (Statistik Austria DE2 / DE3 / GE2)
 
 # Fetches Statistik Austria's monthly cumulative ODS publications and upserts
-# three per-variant CSVs:
+# four per-variant CSVs:
 #
 #   * Whole — Pkw Klasse M1 (data/Austria.csv), from DE2 Tabelle 2 with the
 #             "darunter Plug-In" rows that let us split PHEV vs HEV.
@@ -9,6 +9,10 @@ name: Fetch Austria data (Statistik Austria DE2 / DE3)
 #             DE3 vehicle-class × fuel matrix; PHEV blank, HEV holds combined
 #             Plug-In + full hybrid (source lumps them at Lkw row level).
 #   * Vans  — Lkw N1, ≤ 3.5 t (data/Austria_Vans.csv), same DE3 layout as HDV.
+#   * Used  — Pkw used registrations / Gebrauchtzulassungen
+#             (data/Austria_Used.csv), from GE2 Tabelle 2 on the
+#             kfz-gebrauchtzulassungen listing page; same shape as DE2
+#             incl. the Plug-In rows, so PHEV/HEV are split.
 #
 # See scripts/fetch_austria.py for the file URLs, label mappings, and the
 # per-variant backfill envelope (HDV/Vans monthly only from 2025-01 onward;
@@ -32,6 +36,7 @@ on:
           - whole
           - hdv
           - vans
+          - used
       year:
         description: 'Year to refetch (optional)'
         required: false
@@ -93,7 +98,8 @@ jobs:
           touched=()
           for pair in "Whole:data/Austria.csv" \
                      "HDV:data/Austria_HDV.csv" \
-                     "Vans:data/Austria_Vans.csv"; do
+                     "Vans:data/Austria_Vans.csv" \
+                     "Used:data/Austria_Used.csv"; do
             variant="${pair%%:*}"
             file="${pair##*:}"
             [ -f "$file" ] || continue
@@ -121,7 +127,8 @@ jobs:
             data/Austria.csv
             data/Austria_HDV.csv
             data/Austria_Vans.csv
-          message: 'chore: update Austria data from Statistik Austria (DE2/DE3)'
+            data/Austria_Used.csv
+          message: 'chore: update Austria data from Statistik Austria (DE2/DE3/GE2)'
           default_author: github_actions
 
   # Strictly serial render chain over the touched variants (fetch-acea.yml /

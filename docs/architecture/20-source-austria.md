@@ -1,8 +1,9 @@
-# 20 · Source: Austria (Statistik Austria DE2 / DE3 .ods via Cloudflare relay)
+# 20 · Source: Austria (Statistik Austria DE2 / DE3 / GE2 .ods via Cloudflare relay)
 
-Statistik Austria publishes new-registration data as monthly **.ods**
-spreadsheets on `www.statistik.at`. Three variants are derived from two file
-families (DE2 for cars, DE3 for the vehicle-class × fuel matrix). Austria is the
+Statistik Austria publishes new- and used-registration data as monthly **.ods**
+spreadsheets on `www.statistik.at`. Four variants are derived from three file
+families (DE2 for new cars, DE3 for the vehicle-class × fuel matrix, GE2 for
+used cars). Austria is the
 only source in this repo that cannot be fetched directly from a GitHub Actions
 runner — **Statistik Austria silently blocks GitHub's datacenter IP ranges** —
 so every request goes through the project's Cloudflare Worker as a relay.
@@ -10,13 +11,17 @@ so every request goes through the project's Cloudflare Worker as a relay.
 ## TL;DR
 
 ```
-Source:    www.statistik.at .ods publications (DE2 + DE3), /fileadmin/pages/77/
+Source:    www.statistik.at .ods publications (DE2 + DE3 + GE2),
+           /fileadmin/pages/<id>/ (77 = Neuzulassungen; GE2 on the
+           kfz-gebrauchtzulassungen page)
 Auth:      None on the source — but the source BLOCKS datacenter IPs
 Reach:     Runner → Cloudflare Worker /fetch relay → www.statistik.at
            (relay egresses from a non-blocked IP; raw bytes streamed back)
 Variants:  Whole (Pkw M1) · HDV (Lkw N2+N3+Sattelzug) · Vans (Lkw N1)
-PHEV/HEV:  Split for Whole (DE2 "darunter Plug-In" rows); HDV/Vans lumped → HEV
+           · Used (Pkw Gebrauchtzulassungen)
+PHEV/HEV:  Split for Whole & Used ("darunter Plug-In" rows); HDV/Vans lumped → HEV
 Backfill:  Whole from 2012-01 · HDV/Vans 2024 annual + 2025-01 onward
+           · Used: every cumulative GE2 file on the listing page
 Schedule:  Daily cron 8th–22nd, 09:25 UTC; per-variant early-exit
 Script:    scripts/fetch_austria.py
 Workflow:  .github/workflows/fetch-austria.yml
@@ -263,31 +268,45 @@ required) or modify secrets.
 
 ---
 
-## 8. The three data variants
+## 8. The four data variants
 
 | Variant | Output file | Source file family | Vehicle classes |
 |---|---|---|---|
-| `Whole` | `data/Austria.csv` | DE2 — "Fahrzeug-Neuzulassungen" Tabelle 2 | Pkw Klasse M1 (passenger cars) |
+| `Whole` | `data/Austria.csv` | DE2 — "Fahrzeug-Neuzulassungen" Tabelle 2 | Pkw Klasse M1 (passenger cars, new) |
 | `HDV` | `data/Austria_HDV.csv` | DE3 — class × fuel matrix | Lkw N2 + N3 + Sattelzugfahrzeuge (heavy trucks) |
 | `Vans` | `data/Austria_Vans.csv` | DE3 — class × fuel matrix | Lkw N1, ≤ 3.5 t (light commercial vehicles) |
+| `Used` | `data/Austria_Used.csv` | GE2 — "Fahrzeug-Gebrauchtzulassungen" Tabelle 2 | Pkw (passenger cars, used registrations) |
 
-**PHEV/HEV split:** For `Whole`, DE2 has explicit "darunter Plug-In" rows that
-let us separate PHEV from HEV. For `HDV` and `Vans`, DE3 lumps all hybrids
-together in the Lkw rows — so PHEV is left blank and HEV holds the combined
-lump.
+**PHEV/HEV split:** For `Whole` and `Used`, the DE2/GE2 Tabelle 2 has explicit
+"darunter Plug-In" rows that let us separate PHEV from HEV. For `HDV` and
+`Vans`, DE3 lumps all hybrids together in the Lkw rows — so PHEV is left blank
+and HEV holds the combined lump.
+
+**GE2 listing page:** unlike DE2/DE3 (both on the kfz-neuzulassungen page),
+GE2 files are discovered on
+`https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-gebrauchtzulassungen`.
+Both the CamelCase filenames (`Gebrauchtzulassungen…JaennerBis<Month><YYYY>.ods`)
+and the legacy snake_case ones
+(`kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods`) are matched; per
+year the file covering the most months wins.
 
 ### Column mapping
 
-**Whole** (DE2 Pkw Tabelle 2):
+**Whole** (DE2 Pkw Tabelle 2) / **Used** (GE2 Pkw Tabelle 2):
 
 | CSV column | Source label |
 |---|---|
 | `BEV` | Elektro |
 | `PHEV` | "darunter Plug-In" (Benzin/Elektro) + (Diesel/Elektro) |
 | `HEV` | (Benzin/Elektro hybrid) − Plug-In + (Diesel/Elektro hybrid) − Plug-In |
-| `PETROL` | Benzin |
+| `PETROL` | Benzin (DE2) / Benzin inkl. Flex-Fuel (GE2) |
 | `DIESEL` | Diesel |
 | `OTHERS` | Pkw insgesamt − Σ above (sweeps Erdgas / LPG / Wasserstoff) |
+
+GE2 row labels are matched on a *normalised* form (whitespace stripped, dashes
+unified, trailing footnote markers removed, lowercased) because the used-car
+tables write "Benzin inkl. Flex-Fuel" and put footnote digits on the Plug-In
+rows. DE2 keeps its original exact-label matching.
 
 **HDV / Vans** (DE3 class × fuel matrix):
 
@@ -307,7 +326,7 @@ lump.
 
 ```mermaid
 flowchart TD
-    SA["🗄 www.statistik.at\n/fileadmin/pages/77/\nDE2_...ods (Pkw)\nDE3_...ods (Lkw×fuel)"]
+    SA["🗄 www.statistik.at\n/fileadmin/pages/<id>/\nDE2_...ods (Pkw new)\nDE3_...ods (Lkw×fuel)\nGebrauchtzulassungen...ods (Pkw used)"]
 
     subgraph relay["Cloudflare Worker (relay)"]
         R["/fetch?url= endpoint\ncheck token → check host\n→ stream raw .ods bytes"]
@@ -322,8 +341,9 @@ flowchart TD
     Script -->|"parse DE2 Tabelle 2"| CSV1["data/Austria.csv\n(Whole — Pkw M1)"]
     Script -->|"parse DE3 Lkw N2+N3+Sattel"| CSV2["data/Austria_HDV.csv\n(HDV — heavy trucks)"]
     Script -->|"parse DE3 Lkw N1"| CSV3["data/Austria_Vans.csv\n(Vans — ≤ 3.5 t)"]
+    Script -->|"parse GE2 Tabelle 2"| CSV4["data/Austria_Used.csv\n(Used — Pkw Gebrauchtzulassungen)"]
 
-    CSV1 & CSV2 & CSV3 -->|"git commit\n(if rows changed)"| Repo["📁 GitHub Repo"]
+    CSV1 & CSV2 & CSV3 & CSV4 -->|"git commit\n(if rows changed)"| Repo["📁 GitHub Repo"]
     Repo -->|"trigger per changed variant"| Render["render-country.yml\n→ R script → PNGs + post"]
 ```
 
@@ -353,7 +373,7 @@ GitHub → Actions → "Fetch Austria data" → Run workflow:
 | Field | Typical values |
 |---|---|
 | Branch | `master` (for production) |
-| variant | `whole` / `hdv` / `vans` / `all` |
+| variant | `whole` / `hdv` / `vans` / `used` / `all` |
 | year | leave blank for current year; set e.g. `2024` to re-fetch a specific year |
 | force | check to skip the "already current" early-exit |
 
@@ -385,6 +405,8 @@ allow-list. A `502` means the Worker reached the source but got an error.
 | `ConnectTimeout` directly (no relay) | `AUSTRIA_FETCH_RELAY` unset, direct fetch attempted | Set the secret |
 | `ConnectTimeout` via relay | Cloudflare's egress is also blocked (rare) | Set `AUSTRIA_PROXY` to a real EU proxy as fallback |
 | `RuntimeError: no .ods found` | Statistik Austria renamed the file | Update `FILE_RE_*` regexes in `fetch_austria.py` |
+| `WARNING: no GE2 files matched` (with a list of .ods links) | Used-registration filename pattern changed | The warning prints the .ods links actually on the page — adjust `FILE_RE_GE2` accordingly |
+| `[Used ...] WARNING: missing [...] (labels seen: ...)` | GE2 Tabelle-2 row labels changed | Extend `GE2_LABELS` with the new normalised label |
 | `Touched variants: <none>` | Data already up to date (normal most days) | Not a problem; re-run with `force: true` to confirm |
 
 ---
@@ -402,3 +424,8 @@ allow-list. A `502` means the Worker reached the source but got an error.
   unchanged.
 - **Pre-2024 HDV/Vans data.** Statistik Austria does not publish DE3 monthlies
   before 2024. Only annual 2024 and monthly 2025-01 onward are available.
+- **Used data beyond the listing page.** The Used backfill covers exactly the
+  cumulative GE2 files linked on the kfz-gebrauchtzulassungen page; years that
+  Statistik Austria has removed from the listing are not fetched.
+- **A Used split by vehicle class.** GE2's Tabelle 2 is Pkw only; there is no
+  used-registration equivalent of the DE3 class × fuel matrix.
