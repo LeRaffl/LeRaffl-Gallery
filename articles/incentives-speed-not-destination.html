@@ -7,7 +7,7 @@
 <meta name="description" content="What started as a check on the Italy and Spain rental splits ended as a rule about EV incentives: removal is brutal early, harmless late — and the transition completes either way. By LeRaffl, July 2026.">
 <meta name="theme-color" content="#0a0d10">
 <meta property="og:title" content="Incentives Buy Speed, Not the Destination">
-<meta property="og:description" content="Six countries cut their EV incentives. What happened next depends on one number: how far the transition had already come.">
+<meta property="og:description" content="A dozen countries cut their EV incentives. What happened next depends on two numbers: how big the price shock was, and how far the transition had already come.">
 <meta property="og:type" content="article">
 <script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
 <style>
@@ -93,7 +93,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
   <div class="article-header">
     <div class="article-label">Analysis · July 2026</div>
     <h1>Incentives Buy Speed, Not the Destination</h1>
-    <p class="article-sub">I went looking for a third country to split like Italy and Spain. I ended up with six natural experiments and a rule about EV incentives instead.</p>
+    <p class="article-sub">I went looking for a third country to split like Italy and Spain. I ended up with a dozen natural experiments and a field guide to EV incentives instead.</p>
     <div class="byline">
       <span>By <strong>@LeRaffl</strong></span>
       <span>·</span>
@@ -150,28 +150,34 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
 
     <p>At this point I had a suspicion that I want to state plainly before showing the test, because stating your hypothesis <em>before</em> looking is the whole game: <strong>(a)</strong> incentives only accelerate the transition — take them away and it still happens, just later; and <strong>(b)</strong> how much damage a cut does depends on how far the transition has already come. Cut early and you knock the market out for years. Cut late — somewhere past 70, 80, 90 percent — and nothing much should happen at all.</p>
 
-    <p>The removal cases above happened at very different points of the S-curve, which is exactly what's needed to test that. Add Denmark's early experiment — the 2016 decision to phase the registration tax back in, taken when BEVs were 2% of the market, which promptly killed 85% of it — and Norway's gradual, late trimming at 78%, and the sample spans the whole curve:</p>
+    <p>The removal cases above happened at very different points of the S-curve, which is exactly what's needed to test that. And once I started collecting cut events systematically, the sample grew well past the original four: Denmark's 2016 registration-tax phase-in (BEVs at 2% of the market — it killed 85% of them), the UK's quiet Plug-in Car Grant burial in June 2022<sup><a href="#src-11">[11]</a></sup>, France's step-wise bonus reductions, the US federal credit ending September 2025, the Netherlands' 2016 company-car tax change that erased 94% of its PHEV market, Norway's gradual late trimming at 78%. Every point is one cut:</p>
 
     <div class="live-chart-block">
       <div class="plot" id="stageChart"></div>
-      <div class="chart-caption">Each point is one incentive cut: BEV share when it happened vs. how much of the market disappeared (relative, TTM peak to trough). Iceland is the outlier that proves the second rule — see text.</div>
+      <div class="chart-caption">Each point is one incentive cut: BEV share when it happened vs. how much of the market disappeared (relative, TTM peak to trough). Bubble size is the dose — the price shock as a share of a typical BEV's price (estimates, see table). USA ’25 is still falling; NL ’16 is the PHEV market. Iceland and the UK are the outliers that reveal the dose rule — see text.</div>
     </div>
 
     <div class="table-scroll"><table>
-      <thead><tr><th>Country</th><th>Cut</th><th>Share at cut</th><th>Relative drop</th><th>Back to peak after</th></tr></thead>
+      <thead><tr><th>Country</th><th>Cut</th><th>Share at cut</th><th>Dose*</th><th>Relative drop</th><th>Back to peak after</th></tr></thead>
       <tbody>
-        <tr><td>Denmark</td><td>2016, tax phase-in</td><td>2%</td><td><strong>−85%</strong></td><td>45 months</td></tr>
-        <tr><td>New Zealand</td><td>Jan 2024</td><td>10%</td><td><strong>−66%</strong></td><td>not yet (30+ months)</td></tr>
-        <tr><td>Germany</td><td>Sep&nbsp;+&nbsp;Dec 2023</td><td>20%</td><td>−34%</td><td>27 months</td></tr>
-        <tr><td>Sweden</td><td>Nov 2022</td><td>30%</td><td>−6%</td><td>immediately</td></tr>
-        <tr><td>Iceland</td><td>Jan 2024</td><td>50%</td><td>−41%</td><td>not yet, rising</td></tr>
-        <tr><td>Norway</td><td>2023, partial &amp; gradual</td><td>78%</td><td>~0%</td><td>immediately</td></tr>
+        <tr><td>Netherlands (PHEV)</td><td>2016–17, company-car tax</td><td>9% (PHEV)</td><td>very high</td><td><strong>−94%</strong></td><td>70 months</td></tr>
+        <tr><td>Denmark</td><td>2016, tax phase-in</td><td>2%</td><td>~7–9%, rising</td><td><strong>−85%</strong></td><td>45 months</td></tr>
+        <tr><td>New Zealand</td><td>Jan 2024, + road charges</td><td>10%</td><td>~15–19%</td><td><strong>−66%</strong></td><td>not yet (30+ months)</td></tr>
+        <tr><td>USA</td><td>Oct 2025</td><td>8%</td><td>~16%</td><td>−17% so far</td><td>ongoing, still falling</td></tr>
+        <tr><td>Germany</td><td>Sep&nbsp;+&nbsp;Dec 2023</td><td>20%</td><td>~11%</td><td>−34%</td><td>27 months</td></tr>
+        <tr><td>France</td><td>2024–25, in steps</td><td>18%</td><td>~2% per step</td><td>−5%</td><td>9 months</td></tr>
+        <tr><td>UK</td><td>Jun 2022</td><td>15%</td><td>~2–5%</td><td><strong>−1% (none)</strong></td><td>immediately</td></tr>
+        <tr><td>Sweden</td><td>Nov 2022</td><td>30%</td><td>~10–14%</td><td>−6%</td><td>immediately</td></tr>
+        <tr><td>Iceland</td><td>Jan 2024, + km charge</td><td>50%</td><td>~20%+</td><td>−41%</td><td>not yet, rising</td></tr>
+        <tr><td>Norway</td><td>2023, partial &amp; gradual</td><td>78%</td><td>small per step</td><td>~0%</td><td>immediately</td></tr>
       </tbody>
     </table></div>
 
-    <p>Read the drop column against the share column and the pattern is almost embarrassingly clean: 2% → −85%, 10% → −66%, 20% → −34%, 30% → −6%, 78% → 0. The later you cut, the less it costs, monotonically — <em>except Iceland</em>, sitting at 50% with a drop that "should" be Sweden-sized and isn't.</p>
+    <p style="font-size:13px;color:#4a6a8a">*Dose = the price shock as a share of a typical BEV's purchase price in that market: purchase incentives, VAT and registration taxes, plus new recurring charges roughly as a four-year cost. Values marked ~ are estimated from the policy parameters (grant amounts, tax rates), not from computed transaction prices — treat them as order-of-magnitude. Market response columns are computed from the Gallery's registration data (trailing-twelve-month share, pre-cut peak to post-cut trough).</p>
 
-    <p>I like the Iceland outlier, because it forced a refinement instead of a retreat. Iceland didn't remove <em>a</em> subsidy. It removed the entire VAT exemption <strong>and introduced a per-kilometre road charge on EVs in the same month</strong><sup><a href="#src-5">[5]</a></sup> — the largest single repricing shock in this sample. New Zealand, the other over-performer on the damage scale, also added road-user charges on top of its subsidy cut. So the working model gets two dials instead of one: <strong>the size of the crater is set by the dose; how long the crater lasts is set by the stage.</strong></p>
+    <p>Read the drop column against the share column and the pattern is almost embarrassingly clean: 2% → −85%, 10% → −66%, 20% → −34%, 30% → −6%, 78% → 0. The later you cut, the less it costs, monotonically — <em>except Iceland</em>, sitting at 50% with a drop that "should" be Sweden-sized and isn't. And except the UK, which cut at 15% — right between New Zealand's disaster and Germany's crater — and felt <em>nothing</em>.</p>
+
+    <p>I like these outliers, because they forced a refinement instead of a retreat, and the refinement is in the dose column. The UK's final Plug-in Car Grant was £1,500, restricted to cars under £32,000<sup><a href="#src-11">[11]</a></sup> — a token, maybe 2–5% of a typical BEV's price, and the market shrugged. Iceland didn't remove <em>a</em> subsidy: it removed the entire VAT exemption <strong>and introduced a per-kilometre road charge in the same month</strong><sup><a href="#src-5">[5]</a></sup> — the largest single repricing shock in this sample, and it bought Iceland an Icelandic-sized crater at a share where Sweden's moderate cut cost nothing. New Zealand, the other over-performer on the damage scale, also stacked new road-user charges on top of its subsidy cut. And the Netherlands' company-car tax change — which roughly tripled the annual tax cost of a PHEV, the biggest effective dose here — produced the deepest, longest crater of all. So the working model gets two dials instead of one: <strong>the size of the crater is set by the dose; how long the crater lasts is set by the stage.</strong></p>
 
     <p>And the second half of the hypothesis — that the transition resumes regardless? It holds everywhere. Germany regained its pre-cut peak after 27 months <em>without the purchase subsidy coming back</em>, and now sits above it at 22.6%. Even Denmark's near-dead 2017 market stands at 76% today (with the honest caveat that Denmark also softened the tax phase-in along the way — Germany is the clean case). Iceland is back to 45% and climbing. Nobody stays down. The destination appears to be fixed; incentives negotiate the arrival time.</p>
 
@@ -199,7 +205,19 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       <li><strong>Rental fleets and the used market remain the exception</strong> — the channels where usage economics outweigh any incentive. That's the deeper reason the Italy and Spain curves look the way they do, and why the Netherlands' used-BEV share has been <em>falling</em> since 2022 while its new-BEV share soared: the domestic used market isn't absorbing the lease returns. That one deserves its own article.</li>
     </ul>
 
-    <p>For policymakers the translation is short: early in the transition, incentives are load-bearing — remove them abruptly and you lose years, stack removal with new charges and you lose more. Late in the transition they're scaffolding on a finished building. The interesting question was never <em>whether</em> to remove them, but <em>when</em>, and the data now brackets the answer: Sweden shrugged at 30%, Hong Kong shrugged at 90%, Iceland bled at 50% under a double dose. If you must cut mid-transition, cut one thing at a time.</p>
+    <h2>The field guide: what to expect, in numbers</h2>
+
+    <p>All of which condenses into something I didn't expect to be able to write when this started: a rough planning table for subsidy decisions. Every number below is bracketed by the historical cases above — nothing is modelled, everything can be checked against the table by hand.</p>
+
+    <ul>
+      <li><strong>How hard is the crash?</strong> Cut early (under ~10% share) with a big abrupt dose and you lose two-thirds to nearly all of the market (NZ −66%, DK −85%, NL-PHEV −94%). Cut mid-transition (15–30%) with a moderate dose (~10–15% of car price) and you lose 5–35% (SE, FR, DE). Cut late (past ~70%) and nothing measurable happens at any dose yet observed (NO, HK).</li>
+      <li><strong>How much time is lost?</strong> Early cuts: four to six years (DK 45 months, NL-PHEV 70, NZ still down after 30). Mid-stage: zero to ~27 months (SE ~0, FR 9, DE 27). Late: none. Each stage of maturity buys back roughly an order of magnitude of recovery time.</li>
+      <li><strong>When is removal safe?</strong> A single moderate incentive: from ~30% share (Sweden). Everything at once: only demonstrated past ~70–90% (Norway gradually, Hong Kong abruptly — so far). 50% is demonstrably <em>not</em> enough to absorb a full-dose double shock (Iceland).</li>
+      <li><strong>Which incentives can go first?</strong> Grants whose dose has shrunk below ~5% of the car's price — they've stopped being load-bearing (UK). And essentially anything, if removed as a pre-announced staircase of small steps: France's step-wise bonus cuts cost 5% and nine months; Israel has been raising its EV purchase tax in annual steps from 10% toward 48% through the middle of its transition without a visible crater; Norway trimmed gradually at the top. No staircase in the sample produced a cliff.</li>
+      <li><strong>What never to do:</strong> stack a subsidy removal with a new recurring charge in the same month mid-transition — that's the Iceland/New Zealand signature, and it roughly doubles the damage you'd expect from the subsidy cut alone. And remember the German lesson: a cut that targets one channel craters that channel on its own schedule — the corporate-only September cut broke the national series months before the general one did.</li>
+    </ul>
+
+    <p>For policymakers the translation is short: early in the transition, incentives are load-bearing — remove them abruptly and you lose years. Late in the transition they're scaffolding on a finished building. The interesting question was never <em>whether</em> to remove them, but <em>when</em> and <em>how</em>: past 30%, moderate single cuts are survivable; staircases are survivable almost everywhere; and if you must cut mid-transition, cut one thing at a time.</p>
 
     <p>And the next test is already scheduled: Hong Kong's April and May registrations still contain orders placed before the deadline, so June through August 2026 are the months that confirm or embarrass everything above. The Gallery will be watching. So, evidently, will Roland.</p>
 
@@ -214,10 +232,11 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       <li id="src-4">NZ Transport Agency Waka Kotahi, <a href="https://www.nzta.govt.nz/vehicles/clean-car-programme/clean-car-discount-ended-on-31-december-2023" target="_blank" rel="noopener">"Clean Car Discount ended on 31 December 2023"</a>; Newsroom, <a href="https://newsroom.co.nz/2024/02/07/ev-sales-plummet-after-clean-car-discount-scrapped/" target="_blank" rel="noopener">"EV sales plummet after Clean Car Discount scrapped"</a> (February 2024).</li>
       <li id="src-5">VATupdate, <a href="https://www.vatupdate.com/2023/11/30/iceland-removing-vat-reliefs-for-electric-vehicles/" target="_blank" rel="noopener">"Iceland removing VAT reliefs for electric vehicles"</a>; Ísland.is, <a href="https://island.is/en/electric-car-grants" target="_blank" rel="noopener">electric car grants</a> (the smaller capped scheme that replaced the exemption, alongside the new per-km charge, from January 2024).</li>
       <li id="src-6">KBA, <a href="https://www.kba.de/DE/Presse/Pressemitteilungen/Fahrzeugzulassungen/2026/pm01_2026_n_12_25_pm_komplett.html" target="_blank" rel="noopener">annual registration statistics</a>; dena, <a href="https://www.dena.de/fileadmin/dena/Publikationen/PDFs/2025/Monitoringbericht_2025.pdf" target="_blank" rel="noopener">Monitoringbericht 2025</a> — Umweltbonus end dates: 1 Sep 2023 (corporate), 17 Dec 2023 (all).</li>
-      <li id="src-7">Swedish government decision of 8 November 2022 ending the Klimatbonus for new orders; see e.g. the Gallery's Sweden source notes.</li>
+      <li id="src-7">Transportstyrelsen, <a href="https://www.transportstyrelsen.se/en/road/vehicles/taxes-and-fees/bonus/" target="_blank" rel="noopener">"Bonus — for low emission vehicles has ended"</a> — Klimatbonus abolished for vehicles ordered after 8 November 2022; final bonus levels 50,000–70,000 SEK for BEVs.</li>
       <li id="src-8">Roland Pircher (<a href="https://x.com/piloly" target="_blank" rel="noopener">@piloly</a>), monthly Hong Kong registration threads, from HK Transport Department data. Data points used: 2025-06 (86.3%), 2026-01 (89.2%), 2026-03 (95.0%), 2026-04 (94.6%), 2026-05 (89.2%).</li>
       <li id="src-9">HKSAR Government, <a href="https://www.info.gov.hk/gia/general/202602/25/P2026022500288.htm" target="_blank" rel="noopener">"First registration tax concession arrangement for electric vehicles"</a> (25 February 2026) — concessions, including the One-for-One scheme, ended 31 March 2026.</li>
       <li id="src-10">Quartz, <a href="https://qz.com/1676912/teslas-sales-never-recovered-after-hong-kong-cut-a-tax-break" target="_blank" rel="noopener">"Tesla's sales never recovered after Hong Kong cut a tax break"</a>; Electrek, <a href="https://electrek.co/2017/02/22/hong-kong-electric-vehicle-incentives-tesla/" target="_blank" rel="noopener">"Hong Kong cancels electric vehicle incentives"</a> (2017).</li>
+      <li id="src-11">GOV.UK, <a href="https://www.gov.uk/government/news/plug-in-grant-for-cars-to-end-as-focus-moves-to-improving-electric-vehicle-charging" target="_blank" rel="noopener">"Plug-in grant for cars to end"</a> (June 2022) — final grant £1,500, cars under £32,000 only. France, USA and Netherlands-PHEV market responses are computed from the Gallery's own datasets; the Dutch company-car ("bijtelling") rate changes for PHEVs (7% → 15/22% of list price, 2016–17) are summarised in <a href="https://en.wikipedia.org/wiki/Plug-in_electric_vehicles_in_the_Netherlands" target="_blank" rel="noopener">Plug-in electric vehicles in the Netherlands</a>; Israel's stepped purchase-tax increases (10% → 45–48%, 2023–26) via <a href="https://www.gov.il/en/pages/sa121125-1" target="_blank" rel="noopener">Israel Tax Authority</a>.</li>
     </ol>
   </div>
 
@@ -309,21 +328,29 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       ]
     }), CFG);
 
+    // size encodes the dose (price shock as % of car price, midpoints of the table's estimates)
     const pts = [
-      { c: 'Denmark ’16', x: 2.1, y: 85 },
-      { c: 'New Zealand ’24', x: 10.1, y: 66 },
-      { c: 'Germany ’23/24', x: 20.5, y: 34 },
-      { c: 'Sweden ’22', x: 30.2, y: 6 },
-      { c: 'Iceland ’24', x: 50.0, y: 41 },
-      { c: 'Norway ’23', x: 78.4, y: 0 },
-      { c: 'Hong Kong ’26', x: 90, y: 0 }
+      { c: 'NL PHEV ’16',      x: 9.2,  y: 94, dose: 30, pos: 'top left' },
+      { c: 'Denmark ’16',      x: 2.1,  y: 85, dose: 8,  pos: 'middle right' },
+      { c: 'New Zealand ’24',  x: 10.1, y: 66, dose: 17, pos: 'middle right' },
+      { c: 'USA ’25*',         x: 8.2,  y: 17, dose: 16, pos: 'middle right' },
+      { c: 'Germany ’23/24',   x: 20.5, y: 34, dose: 11, pos: 'middle right' },
+      { c: 'France ’24/25',    x: 17.8, y: 5,  dose: 2,  pos: 'bottom right' },
+      { c: 'UK ’22',           x: 15.1, y: 1,  dose: 3,  pos: 'middle left' },
+      { c: 'Sweden ’22',       x: 30.2, y: 6,  dose: 12, pos: 'top right' },
+      { c: 'Iceland ’24',      x: 50.0, y: 41, dose: 22, pos: 'middle right' },
+      { c: 'Norway ’23',       x: 78.4, y: 0,  dose: 3,  pos: 'bottom center' },
+      { c: 'Hong Kong ’26',    x: 90,   y: 0,  dose: 25, pos: 'top center' }
     ];
     Plotly.newPlot('stageChart', [{
       x: pts.map(p => p.x), y: pts.map(p => p.y), text: pts.map(p => p.c),
-      mode: 'markers+text', textposition: ['middle right','middle right','middle right','top right','middle right','bottom center','top center'],
-      textfont: { color: TEXT, size: 12 },
-      marker: { size: 11, color: [GREEN, RED, AMBER, GREEN, RED, GREEN, BLUE], line: { color: '#0b0c10', width: 1 } },
-      hovertemplate: '%{text}: cut at %{x:.0f}% share → −%{y:.0f}% relative drop<extra></extra>'
+      mode: 'markers+text', textposition: pts.map(p => p.pos),
+      textfont: { color: TEXT, size: 11 },
+      marker: { size: pts.map(p => 7 + p.dose * 0.55), sizemode: 'diameter',
+        color: [RED, GREEN, RED, AMBER, AMBER, GREEN, GREEN, GREEN, RED, GREEN, BLUE],
+        opacity: 0.9, line: { color: '#0b0c10', width: 1 } },
+      hovertext: pts.map(p => p.c + ': cut at ' + p.x.toFixed(0) + '% share, dose ~' + p.dose + '% of car price → −' + p.y.toFixed(0) + '% relative drop'),
+      hoverinfo: 'text'
     }], baseLayout({
       showlegend: false,
       xaxis: { title: { text: 'BEV share when the incentive was cut', font: { size: 11, color: TICK } }, range: [0, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
