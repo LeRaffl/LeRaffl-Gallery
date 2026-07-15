@@ -168,6 +168,65 @@ reflect orders placed before the deadline (registration lags purchase), so
 June–August 2026 are the real test months. Worth building `Hong Kong.csv`
 from TD monthly stats and tracking this through year-end.
 
+## Toward a field guide: the full event table (stage × dose)
+
+Goal: make subsidy effects *plannable* — "cut X% of price advantage at Y%
+market share and expect Z". Dose = change in effective price of the
+country's best-selling BEV at the event date, as % of its purchase price
+(purchase incentives, taxes, VAT; recurring charges as rough 4-year NPV).
+Doses marked ~ are estimates from policy parameters, not computed prices.
+Market response columns are computed from Gallery data (TTM, peak→trough)
+unless marked ext.
+
+| Event | Date | Share at cut | Dose (~% of car price) | Rel. drop | Time lost |
+|---|---|---|---|---|---|
+| Netherlands, PHEV bijtelling 7%→15/22% | 2016–17 | 9.2% (PHEV) | very high (company-car tax on list price doubled+) | **−94%** | 70 months |
+| Denmark, reg-tax phase-in | 2016 | 2.1% | ~7–9% in y1, rising by schedule | **−85%** | 45 months |
+| Hong Kong, FRT waiver capped | Apr 2017 | early | ~50%+ (luxury segment) | ~total (ext: Tesla 2,939→32) | reinstated 2018 instead |
+| New Zealand, CCD end + RUC | Jan 2024 | 10.1% | ~15–19% (rebate + new km charge) | −66% | 30+ months, ongoing |
+| USA, federal credit end | Oct 2025 | 8.2% | ~16% where eligible | −17% so far | ongoing (still falling, 2026-05) |
+| Germany, Umweltbonus end (2 steps) | Sep+Dec 2023 | 20.5% | ~11% | −34% | 27 months |
+| Sweden, Klimatbonus end | Nov 2022 | 30.2% | ~10–14% (50–70k SEK) | −6% | ~0 |
+| UK, Plug-in Car Grant end | Jun 2022 | 15.1% | ~2–5% (£1,500, only <£32k cars) | **−1% (none)** | 0 |
+| France, bonus reductions (steps) | 2024–25 | 17.8% | ~2% per step, staircase | −5% | 9 months |
+| Israel, purchase-tax staircase 10→45% | 2023–26 | ~20–25% | ~5–10% per step, annual | none visible (ext) | 0 |
+| Iceland, VAT exemption end + km charge | Jan 2024 | 50.0% | ~20%+ (double shock) | −41% | 30+ months, recovering |
+| Denmark, phase-in postponed (relief) | 2018 | ~0.4% | negative (price cut) | recovery begins | — |
+| Norway, partial VAT, gradual | 2023 | 78.4% | small per step | ~0 | 0 |
+| Hong Kong, all concessions end | Mar 2026 | ~90% | large | ~0 (2 months in) | 0 so far |
+
+n≈14 heterogeneous events — enough for a surface and rules of thumb, NOT
+for a regression. No elasticities; nearest-precedent lookup only.
+
+## The rules, quantified (current best estimates)
+
+1. **How hard is the typical crash?** Determined jointly by stage and dose.
+   Early (<10% share) + big abrupt dose: −66% to −94% of the market, i.e.
+   the market effectively resets. Mid-stage (15–30%) + moderate dose
+   (~10–15% of car price): −5% to −34%. Late (>70%): no measurable damage
+   at any dose observed so far.
+2. **How much time is lost?** Early cuts: 4–6 years (DK 45 mo, NL-PHEV 70
+   mo, NZ >30 mo and counting). Mid-stage cuts: 0–27 months (DE 27, FR 9,
+   SE ~0). Late cuts: none (NO, HK). Time lost shrinks roughly an order of
+   magnitude from early to mid stage.
+3. **Dose scaling at similar stage** (the UK–SE–DE–NZ column): ~2–5% dose →
+   no effect; ~10–14% → −6%; ~11% abrupt overnight → −34%; ~15–19% incl.
+   new charges → −66%. Abruptness and stacking (new charges in the same
+   month) visibly worsen the response beyond the raw dose.
+4. **When is removal safe?** A single moderate incentive can be removed
+   without lasting damage from ~30% share (Sweden). Full removal of all
+   support is only demonstrated safe at ≥~70–90% (Norway gradual, Hong Kong
+   abrupt). 50% is demonstrably NOT enough for a full-dose double shock
+   (Iceland).
+5. **Which incentives to cut first?** (a) Small per-unit grants whose dose
+   has shrunk below ~5% of car price — they're no longer load-bearing (UK).
+   (b) Anything, if cut as a pre-announced staircase of ≤~5–10% steps —
+   staircases show no crater at any tested stage (France, Israel, Norway).
+   (c) Never stack a removal with a new recurring charge mid-transition —
+   that's the Iceland/NZ signature. (d) Channel-specific cuts crater that
+   channel: Germany's September-2023 corporate-only cut broke the whole
+   series two months before the general cut did.
+
 ## Open questions / next steps
 
 - Belgium private-vs-corporate split from Statbel/FEBIAC to replace the
@@ -179,6 +238,12 @@ from TD monthly stats and tracking this through year-end.
 - Check whether the post-cut recovery speed (DE 2025: back to 19.1%) is
   price-parity driven — recovery without re-instated subsidies would bound
   how much of demand is still incentive-dependent.
+
+Next steps for the field-guide article: pin down the ~doses properly
+(reference-BEV price per country per event date), decide the scatter
+encoding (x=stage, y=rel. drop, size/color=dose), and build the
+nearest-precedent lookup ("countries that already tried this") instead of
+a fitted model.
 
 ## Data & sources
 
