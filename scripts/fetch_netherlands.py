@@ -59,12 +59,18 @@ from urllib3.util.retry import Retry
 BASE = "https://duurzamemobiliteit.databank.nl"
 
 # Saved Swing workspace templates (configured in the Swing UI via Share Permalink).
-# Each is pre-set to monthly granularity, all years 2018-current selected, and
-# the relevant Voertuigsoort / Aanvoertype dimension picks.
+# Each is pre-set to monthly granularity and the relevant Voertuigsoort /
+# Aanvoertype dimension picks. The period dimension uses Swing's dynamic
+# "last N months" option (N=36) rather than a fixed month list, so the views
+# auto-include new months as RDW publishes them — see docs/architecture/
+# 10-source-netherlands.md §3. (The old templates had a *static* month list
+# that silently capped at 2026-04; re-saved 2026-07 with the rolling window.)
+# The 36-month window always overlaps the CSV's existing tail, and upsert never
+# deletes rows, so the full 2018-→ history is preserved.
 TEMPLATES = {
-    "Whole": "a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba",  # Personenauto Nieuw
-    "Used":  "ffaf2d83-0174-4b36-92b9-f7bd96ad4d89",  # Personenauto Occasion import (>90 + <=90)
-    "HDV":   "992eb09a-0828-4ef9-97b4-1577ebba3a21",  # Zware bedrijfsvoertuigen Nieuw
+    "Whole": "29fcfefb-b82b-47cb-a601-b7c31ebd2901",  # Personenauto Nieuw
+    "Used":  "7f40022a-d4cf-4030-abaf-adf5edf412b3",  # Personenauto Occasion import (>90 + <=90)
+    "HDV":   "3ca8fa6f-52a6-4b29-8f43-7bae5200c74c",  # Zware bedrijfsvoertuigen Nieuw
 }
 
 # Each variant writes to its own CSV. Whole keeps the canonical filename
@@ -185,10 +191,12 @@ def parse_nl_period(label: str) -> str:
 def fetch_table(variant: str, session: requests.Session) -> dict:
     """Bootstrap a session-bound workspace and return its full pivot as JSON.
 
-    GetTableStart only returns the first ~70 rows; for longer tables (Whole and
-    HDV cover ~100 monthly periods) we follow up with GetTableRows to backfill
-    the remainder. Used Imports has only 6 rows (fuels-in-rows layout) so a
-    single GetTableStart suffices.
+    GetTableStart only returns the first ~70 rows; if the pivot is longer we
+    follow up with GetTableRows to backfill the remainder. With the current
+    rolling 36-month window Whole/HDV return 36 period rows (one page, no
+    backfill needed); the pagination loop stays for safety if the window is
+    ever widened. Used Imports has only 6 rows (fuels-in-rows layout) so a
+    single GetTableStart always suffices.
     """
     template_guid = TEMPLATES[variant]
     init_url = f"{BASE}/viewer?workspace_guid={template_guid}"

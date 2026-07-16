@@ -97,9 +97,20 @@ URL (the template) and the one used in every subsequent call (the session).
 
 | Variant | File | Display label | Swing pivot | Saved permalink |
 |---|---|---|---|---|
-| `Whole` | `data/Netherlands.csv` | Netherlands | Instroom Personenauto Nieuw | `a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba` |
-| `Used` | `data/Netherlands_Used.csv` | Netherlands (Used) | Personenauto Occasion import (sum of `> 90 dgn` and `<= 90 dgn`) | `ffaf2d83-0174-4b36-92b9-f7bd96ad4d89` |
-| `HDV` | `data/Netherlands_HDV.csv` | Netherlands (HDV) | Zware bedrijfsvoertuigen Nieuw | `992eb09a-0828-4ef9-97b4-1577ebba3a21` |
+| `Whole` | `data/Netherlands.csv` | Netherlands | Instroom Personenauto Nieuw | `29fcfefb-b82b-47cb-a601-b7c31ebd2901` |
+| `Used` | `data/Netherlands_Used.csv` | Netherlands (Used) | Personenauto Occasion import (sum of `> 90 dgn` and `<= 90 dgn`) | `7f40022a-d4cf-4030-abaf-adf5edf412b3` |
+| `HDV` | `data/Netherlands_HDV.csv` | Netherlands (HDV) | Zware bedrijfsvoertuigen Nieuw | `3ca8fa6f-52a6-4b29-8f43-7bae5200c74c` |
+
+> **Period dimension — use the rolling window, not a fixed month list.**
+> The original permalinks (`a7d36cf5…`, `ffaf2d83…`, `992eb09a…`) had a
+> *static* month selection that silently capped at 2026-04: the fetch kept
+> succeeding but never saw newer months, because opening the saved workspace
+> reproduces exactly the months that were ticked when it was saved. Re-saved
+> 2026-07 using Swing's **"last N months" option (N=36)**, which is dynamic —
+> new months appear automatically. If you ever re-save these, keep the rolling
+> window; don't tick individual months. The 36-month window always overlaps
+> the CSV's existing tail and `upsert` never deletes rows, so the pre-2018-→
+> history is untouched.
 
 ### Why three CSV files instead of one with a `variant` column
 
@@ -292,6 +303,7 @@ change, mirror the change in plots.R.
 | RDW retroactively restates a month with values that differ >50% from what's in the CSV | Upsert prints `WARNING` to the action log but still commits the new values | Decide whether the restatement is real and revert with a manual edit if not |
 | Google Sheet revoked from "anyone with the link" | Backfill script fails with a Google login HTML response | Re-share the sheet, or hardcode the pre-2018 history into a static CSV |
 | The maintainer reconfigures a saved Swing template (e.g. drops a year, changes Aandrijfcategorie selection) | Scraper succeeds but produces wrong-shaped data | The "Captured caption" line in the action log doesn't match `Instroom Personenauto Nieuw - Nederland`. Re-save the workspace with the correct configuration. |
+| **Silent period cap** — a saved workspace with a *static* month list stops at the last month that was ticked when saved | Scraper keeps succeeding (`committed: false`, render skipped) but the CSV never advances — looks exactly like "source hasn't published yet" | The `[Whole] parsed … (2018-01 .. YYYY-MM)` line in the log shows a max period that stops advancing while the portal (opened in a browser) has newer months. Fix: re-save the 3 workspaces with the **rolling "last N months"** option, not individual month ticks (see §3). This bit us 2026-07 — the fetch had silently capped at 2026-04 for months. |
 
 ## 11. Maintenance recipes
 
