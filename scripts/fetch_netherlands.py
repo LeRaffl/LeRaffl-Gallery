@@ -42,6 +42,7 @@ Brief recap (so the script reads on its own):
   The parser detects which case applies from the headRows labels.
 """
 import argparse
+import base64
 import csv
 import os
 import re
@@ -141,8 +142,16 @@ def _get(session: requests.Session, url: str,
     relay_url = relay_base + urlquote(url, safe="")
     resp = session.get(relay_url, headers=fwd, **kwargs)
 
-    # Harvest upstream Set-Cookie into the manual cookie jar.
-    for raw in resp.headers.get("X-Upstream-Set-Cookie", "").split("\n"):
+    # Harvest upstream Set-Cookie into the manual cookie jar. The Deno relay
+    # base64-encodes the \n-joined blob (X-Upstream-Set-Cookie-B64) because
+    # header values can't carry raw newlines and databank.nl returns 6 cookies.
+    # Fall back to the plain header for the CF worker / single-cookie hosts.
+    b64 = resp.headers.get("X-Upstream-Set-Cookie-B64", "")
+    if b64:
+        cookie_block = base64.b64decode(b64).decode("utf-8", "replace")
+    else:
+        cookie_block = resp.headers.get("X-Upstream-Set-Cookie", "")
+    for raw in cookie_block.split("\n"):
         raw = raw.strip()
         if not raw:
             continue

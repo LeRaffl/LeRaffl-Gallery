@@ -44,6 +44,16 @@ function readSetCookies(headers: Headers): string[] {
   return combined ? [combined] : [];
 }
 
+// Base64-encode a UTF-8 string. HTTP header values cannot contain newlines,
+// so the \n-joined Set-Cookie blob must be encoded before it goes into the
+// X-Upstream-Set-Cookie-B64 response header (databank.nl returns 6 cookies).
+function b64utf8(s: string): string {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
 Deno.serve(async (req: Request) => {
   // Wrap the whole handler so any unexpected throw becomes a readable message
   // instead of Deno's opaque "Internal Server Error" 500. The Python client
@@ -96,7 +106,8 @@ Deno.serve(async (req: Request) => {
     };
     const setCookies = readSetCookies(upstream.headers);
     if (setCookies.length > 0) {
-      responseHeaders["X-Upstream-Set-Cookie"] = setCookies.join("\n");
+      // \n-joined then base64'd: header values can't carry raw newlines.
+      responseHeaders["X-Upstream-Set-Cookie-B64"] = b64utf8(setCookies.join("\n"));
     }
 
     // Buffer the body rather than streaming upstream.body through. Streaming a
