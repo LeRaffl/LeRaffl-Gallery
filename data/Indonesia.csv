@@ -191,7 +191,9 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-10,monthly,Whole,robbieandrew.github.io / gaikindo.io,13899.0,481.0,5132.0,31170.0,4597.0,4.0,55283.0,
 2025-11,monthly,Whole,robbieandrew.github.io / gaikindo.io,13352.0,420.0,5775.0,30728.0,4463.0,3.0,54741.0,
 2025-12,monthly,Whole,robbieandrew.github.io / gaikindo.io,21819.0,1049.0,8622.0,23858.0,6388.0,1.0,61737.0,
-2026-01,monthly,Whole,robbieandrew.github.io / gaikindo.io,10211.0,502.0,4159.0,30798.0,4970.0,3.0,50643.0,
-2026-02,monthly,Whole,robbieandrew.github.io / gaikindo.io,12272.0,662.0,5770.0,34274.0,6710.0,11.0,59699.0,
-2026-03,monthly,Whole,robbieandrew.github.io / gaikindo.io,10558.0,347.0,6936.0,25131.0,3488.0,6.0,46466.0,
-2026-04,monthly,Whole,robbieandrew.github.io / gaikindo.io,14901,560,8123,29146,5626,11,58367,
+2026-01,monthly,Whole,GAIKINDO,10262,502,4184,30400,5345,1,50694,Wholesales Jan-Jun 2026
+2026-02,monthly,Whole,GAIKINDO,12298,662,5771,34286,6710,11,59738,Wholesales Jan-Jun 2026
+2026-03,monthly,Whole,GAIKINDO,10586,354,6938,25095,3488,5,46466,Wholesales Jan-Jun 2026
+2026-04,monthly,Whole,GAIKINDO,14901,560,8123,29151,5626,9,58370,Wholesales Jan-Jun 2026
+2026-05,monthly,Whole,GAIKINDO,9351,503,7507,27381,5985,7,50734,Wholesales Jan-Jun 2026
+2026-06,monthly,Whole,GAIKINDO,12695,2397,7882,30406,3017,11,56408,Wholesales Jan-Jun 2026

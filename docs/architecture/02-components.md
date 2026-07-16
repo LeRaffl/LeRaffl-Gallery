@@ -247,6 +247,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | Denmark | Daily 05:15 UTC, 1st → 15th |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | Finland | Daily 04:40 UTC, 1st → 15th |
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
+| [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | Indonesia | Daily 09:35 UTC, 10th → EOM |
 | [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA (XLSX preferred, PDF fallback) | `Whole` | Japan | Daily 08:00 UTC, 1st → EOM |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | `Whole` + `Used` + `HDV` | Netherlands | Daily 06:30 UTC, 1st → 15th |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | Portugal | Twice daily 17:30 & 20:30 UTC, 1st → 5th |
@@ -256,7 +257,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | transport.govt.nz fleet-statistics `/inner` AJAX endpoint (CKAN fallback) | `Whole` | New Zealand | Twice daily 06:00 & 14:00 UTC, 5th → 12th |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL Total Sales PDF | `Whole` (trailing 3-month window) | USA | Daily 10:00 UTC, 10th → EOM |
 
-Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Indonesia, Italy, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
+Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Italy, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
 
 For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico — paywalled or with structural undercount) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question. Colombia was originally shelved there and is now ingested via ANDI/FENALCO ([18-source-colombia.md](18-source-colombia.md)).
 
