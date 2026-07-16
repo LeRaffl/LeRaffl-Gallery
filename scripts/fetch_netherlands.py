@@ -42,6 +42,7 @@ Brief recap (so the script reads on its own):
   The parser detects which case applies from the headRows labels.
 """
 import argparse
+import base64
 import csv
 import os
 import re
@@ -141,8 +142,16 @@ def _get(session: requests.Session, url: str,
     relay_url = relay_base + urlquote(url, safe="")
     resp = session.get(relay_url, headers=fwd, **kwargs)
 
-    # Harvest upstream Set-Cookie into the manual cookie jar.
-    for raw in resp.headers.get("X-Upstream-Set-Cookie", "").split("\n"):
+    # Harvest upstream Set-Cookie into the manual cookie jar. The Deno relay
+    # base64-encodes the \n-joined blob (X-Upstream-Set-Cookie-B64) because
+    # header values can't carry raw newlines and databank.nl returns 6 cookies.
+    # Fall back to the plain header for the CF worker / single-cookie hosts.
+    b64 = resp.headers.get("X-Upstream-Set-Cookie-B64", "")
+    if b64:
+        cookie_block = base64.b64decode(b64).decode("utf-8", "replace")
+    else:
+        cookie_block = resp.headers.get("X-Upstream-Set-Cookie", "")
+    for raw in cookie_block.split("\n"):
         raw = raw.strip()
         if not raw:
             continue
@@ -185,6 +194,15 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
     init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
     print(f"[{variant}] init: {init_url}")
     r = _get(session, init_url, timeout=30)
+    if r.status_code != 200:
+        # DIAG: the relay passes the upstream body through unchanged, so r.text
+        # is whatever databank.nl actually returned (a real Swing/CBS error
+        # page) — or, if the Deno relay itself threw, a generic Deno 500 page.
+        # Printing status + headers + body snippet tells us which, and what the
+        # server complained about.
+        print(f"[{variant}] init HTTP {r.status_code}")
+        print(f"[{variant}] resp headers: {dict(r.headers)}")
+        print(f"[{variant}] body[:1500]: {r.text[:1500]!r}")
     r.raise_for_status()
     m = WSGUID_RE.search(r.text)
     if not m:
