@@ -185,6 +185,15 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
     init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
     print(f"[{variant}] init: {init_url}")
     r = _get(session, init_url, timeout=30)
+    if r.status_code != 200:
+        # DIAG: the relay passes the upstream body through unchanged, so r.text
+        # is whatever databank.nl actually returned (a real Swing/CBS error
+        # page) — or, if the Deno relay itself threw, a generic Deno 500 page.
+        # Printing status + headers + body snippet tells us which, and what the
+        # server complained about.
+        print(f"[{variant}] init HTTP {r.status_code}")
+        print(f"[{variant}] resp headers: {dict(r.headers)}")
+        print(f"[{variant}] body[:1500]: {r.text[:1500]!r}")
     r.raise_for_status()
     m = WSGUID_RE.search(r.text)
     if not m:
