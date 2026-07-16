@@ -86,7 +86,7 @@ import requests
 from bs4 import BeautifulSoup
 
 PORTAL = "https://files.gaikindo.or.id/"
-FILE_LIST_PAGES = ["manage-files.php", "my-files.php", "my_files.php"]
+FILE_LIST = "my_files/index.php"      # client file list (portal root redirects here)
 
 HTTP_HEADERS = {
     "User-Agent": (
@@ -516,18 +516,24 @@ def portal_login(sess):
         "username": user, "password": pw,
     })
     r.raise_for_status()
-    check = sess.get(PORTAL + FILE_LIST_PAGES[0], timeout=30)
+    check = sess.get(PORTAL, timeout=30)   # root redirects to my_files/ when authed
     if 'name="password"' in check.text and "csrf_token" in check.text:
         raise SystemExit("portal login failed (still seeing the login form)")
     print(f"logged in to {PORTAL} as {user}")
 
 
 def discover_wholesales(sess):
-    """Find the newest 'Wholesales Jan-XXX YYYY' file; returns (title, url)."""
+    """Find the newest 'Wholesales Jan-XXX YYYY' file; returns (title, url).
+
+    The client list (my_files/index.php) is date-sorted newest-first and
+    paginated; download links are process.php?do=download&id=N. Try the
+    server-side search first, then walk the first plain pages.
+    """
     title_re = re.compile(r"Wholesales\s+Jan\s*[-–]\s*([A-Za-z]{3})\s+(\d{4})")
     candidates = []
-    for page in FILE_LIST_PAGES:
-        r = sess.get(PORTAL + page, params={"search": "wholesales"}, timeout=30)
+    attempts = [{"search": "wholesales"}] + [{"page": p} for p in (1, 2, 3, 4, 5)]
+    for params in attempts:
+        r = sess.get(PORTAL + FILE_LIST, params=params, timeout=30)
         if r.status_code != 200:
             continue
         soup = BeautifulSoup(r.text, "html.parser")
@@ -536,17 +542,18 @@ def discover_wholesales(sess):
             if not m or m.group(1) not in TITLE_MONTHS:
                 continue
             link = next((a["href"] for a in tr.find_all("a", href=True)
-                         if "download" in a["href"].lower()), None)
+                         if "do=download" in a["href"]), None)
             if link:
                 title = f"Wholesales Jan-{m.group(1)} {m.group(2)}"
                 url = requests.compat.urljoin(PORTAL, link)
                 candidates.append(((int(m.group(2)), TITLE_MONTHS[m.group(1)]), title, url))
         if candidates:
-            print(f"file list via {page}: {len(candidates)} wholesales candidate(s)")
+            print(f"file list via {FILE_LIST} {params}: "
+                  f"{len(candidates)} wholesales candidate(s)")
             break
     if not candidates:
-        raise SystemExit("no 'Wholesales Jan-XXX YYYY' file found on the portal "
-                         f"(tried {', '.join(FILE_LIST_PAGES)})")
+        raise SystemExit(f"no 'Wholesales Jan-XXX YYYY' file found via {FILE_LIST} "
+                         "(searched + first 5 pages)")
     candidates.sort()
     (year, month), title, url = candidates[-1]
     return title, url, year, month

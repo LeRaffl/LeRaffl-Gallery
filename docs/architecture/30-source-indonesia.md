@@ -47,12 +47,15 @@ year-end stock pushes.
   `csrf_token` from the form), then POST to `index.php` with
   `{csrf_token, do=login, username, password}`. The reCAPTCHA strings in the
   page are inert translation bundles — the install has no captcha.
-* After login the fetcher tries `manage-files.php`, `my-files.php`,
-  `my_files.php` (template differs by ProjectSend role/version) with
-  `?search=wholesales`, and picks the newest title matching
-  `Wholesales Jan-<Mon> <Year>`. Month abbreviations appear in English *and*
-  Indonesian (`Mei`, `Agu`, `Okt`, `Des`) — both are mapped. The `Download`
-  link in the same table row is the file URL.
+* After login the portal root redirects to the client list
+  **`my_files/index.php`** (date-sorted newest-first, paginated; download
+  links are `process.php?do=download&id=N`). The fetcher tries
+  `?search=wholesales` first, then walks the first five plain pages, and
+  picks the newest title matching `Wholesales Jan-<Mon> <Year>`. Month
+  abbreviations appear in English *and* Indonesian (`Mei`, `Agu`, `Okt`,
+  `Des`) — both are mapped. (`manage-files.php` renders its rows
+  client-side and `list-files.php` carries no links even when logged in —
+  neither is scrapeable.)
 * `--download-url` (workflow input `download_url`) bypasses discovery if the
   portal layout shifts; `--pdf-path` bypasses the portal entirely (offline
   parse for testing).

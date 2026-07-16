@@ -21,37 +21,11 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4 pdfplumber
 
-      - name: Diagnose portal pages after login
-        run: |
-          python - <<'PY'
-          import os, re, sys
-          sys.path.insert(0, "scripts")
-          import requests
-          from fetch_indonesia import PORTAL, HTTP_HEADERS, portal_login
-
-          sess = requests.Session()
-          sess.headers.update(HTTP_HEADERS)
-          portal_login(sess)
-
-          pages = ["", "index.php", "my_files.php", "my-files.php",
-                   "manage-files.php", "files.php", "list-files.php",
-                   "manage-files.php?search=wholesales"]
-          for p in pages:
-              try:
-                  r = sess.get(PORTAL + p, timeout=30)
-              except Exception as e:
-                  print(f"== {p or '/'}: EXC {e}")
-                  continue
-              title = re.search(r"<title>([^<]*)</title>", r.text)
-              n_tr = r.text.count("<tr")
-              wholesales = r.text.count("Wholesales")
-              dl = re.findall(r'href="([^"]*download[^"]*)"', r.text)[:3]
-              pdfs = re.findall(r'href="([^"]*\.pdf[^"]*)"', r.text)[:3]
-              print(f"== {p or '/'}: {r.status_code} -> {r.url}")
-              print(f"   title={title.group(1).strip() if title else '?'} "
-                    f"tr={n_tr} wholesales={wholesales}")
-              print(f"   dl-hrefs={dl} pdf-hrefs={pdfs}")
-          PY
+      - name: Fetch Indonesia (full path, no commit)
+        run: python scripts/fetch_indonesia.py --force
         env:
           INDONESIA_GAIKINDO_USER: LeRaffl
           INDONESIA_GAIKINDO_PW: ${{ secrets.INDONESIA_GAIKINDO_PW }}
+
+      - name: Show resulting diff
+        run: git diff --stat && git status --short data/
