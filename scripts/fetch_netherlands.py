@@ -37,9 +37,13 @@ Brief recap (so the script reads on its own):
       FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
       split it; full hybrids fold into Benzine/Diesel upstream).
 * Dutch locale: "." is thousands separator (6.863 == 6863). "&nbsp;" == 0.
-* Two table orientations are possible (Whole/HDV return periods-in-rows;
-  Used returns fuels-in-rows with a 2-level period × sub-column header).
-  The parser detects which case applies from the headRows labels.
+* Table orientation varies by view. Whole/HDV return periods-in-rows with one
+  column per fuel. Used returns periods-in-rows too, but with fuels on the
+  OUTER column level, each spanning two sub-columns ("Occasion import > 90 dgn"
+  / "<= 90 dgn") which the parser sums. (An older Used template returned
+  fuels-in-rows; _parse_fuels_in_rows is kept for that shape.) The parser
+  picks the branch from the headRows labels and locates the fuel header level
+  by matching NL_FUELS.
 """
 import argparse
 import base64
@@ -260,11 +264,13 @@ def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
     Parse a Swing GetTableStart response into {period: {fuel: value}}.
 
     Two layouts are possible:
-      A. Periods in headRows, fuels in headCols   (Whole, HDV)
-      B. Fuels in headRows, periods in headCols   (Used Imports)
+      A. Periods in headRows, fuels in headCols   (Whole, HDV, Used)
+      B. Fuels in headRows, periods in headCols   (legacy Used template)
 
-    For layout B, Used Imports has a 2-level column header: each period spans
-    two sub-columns ("Occasion import > 90 dgn" and "<= 90 dgn") which we sum.
+    In layout A, Used carries the fuel names on the OUTER headCols level with
+    each fuel spanning two sub-columns ("> 90 dgn" / "<= 90 dgn") that get
+    summed; _parse_periods_in_rows handles both the one-column-per-fuel and the
+    sub-column shapes. Layout B is the older fuels-in-rows Used template.
     """
     row_first = data["headRows"][0][0]["d"]
     fuels_in_rows = row_first in NL_FUELS
@@ -275,17 +281,49 @@ def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
 
 
 def _parse_periods_in_rows(data: dict, variant: str) -> dict[str, dict[str, float]]:
-    """Layout A: periods are rows, fuels are columns (Whole, HDV)."""
-    fuel_labels = [hc["d"] for hc in data["headCols"][-1]]  # innermost level
+    """Layout A: periods are rows, fuels are columns.
+
+    Handles two column shapes with one code path:
+      * Whole/HDV — one column per fuel (single-level, or fuels at the
+        innermost level).
+      * Used — fuels on the OUTER header level, each spanning two sub-columns
+        ("Occasion import > 90 dgn" / "<= 90 dgn") which we sum. (Swing emits
+        this shape after the workspace was re-saved with the rolling window.)
+
+    We locate whichever headCols level actually carries fuel names, propagate
+    each fuel label across the sub-columns it spans (blank cell = span
+    continuation), then sum all columns belonging to the same fuel per period.
+    """
+    # Find the header level whose labels include recognisable fuel names.
+    fuel_level: list[str] | None = None
+    for level in data["headCols"]:
+        labels = [c.get("d", "") for c in level]
+        if any(lbl in NL_FUELS for lbl in labels):
+            fuel_level = labels
+            break
+    if fuel_level is None:
+        # No fuel header found → let the caller's 0-rows diagnostic dump fire.
+        return {}
+
+    # Propagate the fuel label across every column it spans.
+    fuel_per_col: list[str | None] = []
+    current: str | None = None
+    for lbl in fuel_level:
+        if lbl:
+            current = lbl
+        fuel_per_col.append(current)
+
     period_labels = [r[0]["d"] for r in data["headRows"]]
     out: dict[str, dict[str, float]] = {}
     for i, period_label in enumerate(period_labels):
         period = parse_nl_period(period_label)
         row_cells = data["rowData"][i]
-        out[period] = {
-            fuel_labels[j]: parse_nl_number(row_cells[j]["d"])
-            for j in range(len(fuel_labels))
-        }
+        acc: dict[str, float] = {}
+        for j, fuel in enumerate(fuel_per_col):
+            if fuel is None or j >= len(row_cells):
+                continue
+            acc[fuel] = acc.get(fuel, 0.0) + parse_nl_number(row_cells[j]["d"])
+        out[period] = acc
     return out
 
 
@@ -476,6 +514,25 @@ def main() -> None:
         print(f"[{variant}] parsed {len(rows)} non-zero months "
               f"({min(rows, default='—')} .. {max(rows, default='—')})")
         if not rows:
+            # A variant returning zero rows is NOT normal — it means the parser
+            # couldn't read the pivot (e.g. a re-saved workspace changed shape).
+            # Dump the raw header structure so the format change is diagnosable,
+            # then keep going so the other variants still update.
+            import json as _json
+            def _shape(x, depth=0):
+                if isinstance(x, list):
+                    head = x[:4]
+                    return [_shape(e, depth + 1) for e in head] + (
+                        ["…(+%d)" % (len(x) - 4)] if len(x) > 4 else [])
+                if isinstance(x, dict):
+                    return {k: _shape(v, depth + 1) for k, v in list(x.items())[:8]}
+                return x
+            print(f"[{variant}] WARNING: 0 rows parsed — pivot shape follows")
+            print(f"[{variant}]   caption : {data.get('caption')!r}")
+            print(f"[{variant}]   totalRows/Cols: {data.get('totalRows')}/{data.get('totalCols')}")
+            print(f"[{variant}]   headRows: {_json.dumps(_shape(data.get('headRows')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   headCols: {_json.dumps(_shape(data.get('headCols')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   rowData[0:2]: {_json.dumps(_shape(data.get('rowData'))[:2], ensure_ascii=False)[:800]}")
             continue
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)

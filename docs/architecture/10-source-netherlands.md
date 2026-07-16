@@ -193,14 +193,23 @@ Swing pivots can be returned in either orientation:
 
 | Orientation | Returned for | `headRows` contains | `headCols` contains |
 |---|---|---|---|
-| Periods-in-rows | Whole, HDV | Period labels (`"31 januari 2018"` …) | Fuel labels (one level) |
-| Fuels-in-rows | Used | Fuel labels (`BEV`, `FCEV`, `PHEV` …) | Period labels **and** sub-period categories (two levels — `> 90 dgn` and `<= 90 dgn` per period) |
+| Periods-in-rows, one col/fuel | Whole, HDV | Period labels (`"31 januari 2018"` …) | Fuel labels (one level) |
+| Periods-in-rows, fuel × sub-col | **Used (current)** | Period labels | Fuels on the **outer** level, each spanning two sub-columns (`Occasion import > 90 dgn` / `<= 90 dgn`) — summed |
+| Fuels-in-rows | Used (legacy template) | Fuel labels (`BEV`, `FCEV`, `PHEV` …) | Period labels + `> 90`/`<= 90` sub-categories (two levels) |
 
-`parse_table` detects which case applies by checking whether the first
-`headRows` entry is in the known fuel-label set (`NL_FUELS`). For the
-fuels-in-rows case it also walks the outer-level `headCols` propagating
-the period label forward across the sub-columns it spans, then sums the
-sub-columns per period.
+`parse_table` first checks whether the first `headRows` entry is a fuel
+(`NL_FUELS`) → fuels-in-rows (`_parse_fuels_in_rows`); otherwise
+periods-in-rows (`_parse_periods_in_rows`). The periods-in-rows parser finds
+whichever `headCols` level actually carries fuel names, propagates each fuel
+label across the sub-columns it spans (blank cell = span continuation), and
+sums columns per fuel — so it handles both Whole/HDV (one column per fuel)
+and Used (two `> 90`/`<= 90` sub-columns per fuel).
+
+> **Watch the Used orientation when re-saving.** Re-saving the Used workspace
+> with the rolling-36-month window (2026-07) flipped it from *fuels-in-rows*
+> to *periods-in-rows with fuel sub-columns*. The parser now handles that, but
+> it silently produced **0 rows** until fixed — see the "variant parses 0 rows"
+> diagnostic in `main()`, which dumps the pivot shape when this recurs.
 
 ## 6. Backfill: pre-2018 history
 
