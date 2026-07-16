@@ -286,6 +286,7 @@ change, mirror the change in plots.R.
 | **Persistent** Azure IP block (`errno 101` / TCP connection drop) | All three fetch attempts fail; job fails after retry sequence | Confirmed as persistent from 2026-06-01. Fix: relay via Deno Deploy (§13). Not a transient network blip — the host silently drops TCP from GitHub's Azure ranges. |
 | Relay also blocked (403 from Cloudflare egress IPs) | `_get()` returns a 403 from the relay; job fails | The Austria CF Worker relay returns 403 in ~400 ms — the host blocks Cloudflare IP ranges too. Use the Deno Deploy relay (Google Cloud egress) or `NL_PROXY` instead. |
 | Deno Deploy relay unavailable or misconfigured | `_get()` raises a connection error against the Deno URL | Check `NL_FETCH_RELAY`/`NL_RELAY_TOKEN` secrets. Re-deploy `worker/deno-relay.ts` at dash.deno.com. See §13. |
+| Relay reaches databank.nl but returns 500/512 | Fetch fails right after `[Whole] init:`; the Python side prints the relay response body | A crash *inside* the relay (not a block). A plain `Internal Server Error` body = Deno-runtime throw; a `relay handler error: …` body = caught with stack. Usually a `worker/deno-relay.ts` change that wasn't redeployed to the playground. See §13 "Two relay bugs". |
 | Maintainer deletes a saved permalink in Swing | Scraper fails on that variant with `WsGuid not found in /viewer response` | Look at the failing variant's URL in the Action log; recreate the permalink in Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
 | Swing upgrades to a version with a different inline-JS shape | `WSGUID_RE` regex stops matching | Update the regex to match the new JS pattern (look at the raw HTML response) |
 | Swing changes the pivot JSON shape | Parser fails noisily; render aborts before commit | Inspect a fresh HAR; update `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
@@ -399,12 +400,38 @@ The relay is session-aware (required for Swing's JIVE_AUTH cookie flow):
 | `X-Fwd-Cookie` | `Cookie` |
 | `X-Fwd-Referer` | `Referer` |
 | `X-Fwd-Accept-Language` | `Accept-Language` |
-| ← `X-Upstream-Set-Cookie` | upstream `Set-Cookie` headers, `\n`-joined |
+| ← `X-Upstream-Set-Cookie-B64` | upstream `Set-Cookie` headers, `\n`-joined **then base64-encoded** |
 
 `scripts/fetch_netherlands.py::_get()` transparently uses the relay when
 `session.relay_base` is set, accumulating upstream cookies in
 `session.relay_cookies` across the bootstrap → GetTableStart → GetTableRows
-call sequence.
+call sequence. It base64-decodes `X-Upstream-Set-Cookie-B64` (falling back to
+a plain `X-Upstream-Set-Cookie` header for the single-cookie CF-worker path).
+
+### Two relay bugs found on first live run (2026-07, fixed)
+
+The relay reached databank.nl on the first try but its *response handling*
+crashed, so the fetch still failed. Both bugs are fixed in `worker/deno-relay.ts`;
+recorded here because they're easy to reintroduce when porting the relay:
+
+1. **Opaque `500 Internal Server Error`.** `Headers.getSetCookie()` isn't
+   available in the Deno Deploy runtime; calling it threw a `TypeError` that
+   surfaced as a generic Deno 500. Fixed with a `readSetCookies()` helper
+   (uses `getSetCookie()` when present, else the combined header) and a
+   top-level `try/catch` that returns a readable `512` + stack instead of an
+   opaque 500. The Python side prints the relay response body on any non-200
+   init — that diagnostic is what made both bugs visible.
+2. **`TypeError: Invalid header value`.** databank.nl returns **6** session
+   cookies; the relay joined them with `\n` into one header, but HTTP header
+   values can't contain newlines. Austria only issues one cookie so it never
+   hit this. Fixed by base64-encoding the `\n`-joined blob (see the header
+   table above). This is why the response header is `X-Upstream-Set-Cookie-B64`,
+   not the older plain `X-Upstream-Set-Cookie`.
+
+The live relay is deployed at `perky-terrapin-5228.leraffl.deno.net`
+(Deno Deploy playground on the `leraffl` org). Note the domain is
+`.leraffl.deno.net`, not the older `<project>.deno.dev` form some examples
+below still show.
 
 ### Priority order for routing
 
