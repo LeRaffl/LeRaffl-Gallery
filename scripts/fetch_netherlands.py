@@ -476,6 +476,25 @@ def main() -> None:
         print(f"[{variant}] parsed {len(rows)} non-zero months "
               f"({min(rows, default='—')} .. {max(rows, default='—')})")
         if not rows:
+            # A variant returning zero rows is NOT normal — it means the parser
+            # couldn't read the pivot (e.g. a re-saved workspace changed shape).
+            # Dump the raw header structure so the format change is diagnosable,
+            # then keep going so the other variants still update.
+            import json as _json
+            def _shape(x, depth=0):
+                if isinstance(x, list):
+                    head = x[:4]
+                    return [_shape(e, depth + 1) for e in head] + (
+                        ["…(+%d)" % (len(x) - 4)] if len(x) > 4 else [])
+                if isinstance(x, dict):
+                    return {k: _shape(v, depth + 1) for k, v in list(x.items())[:8]}
+                return x
+            print(f"[{variant}] WARNING: 0 rows parsed — pivot shape follows")
+            print(f"[{variant}]   caption : {data.get('caption')!r}")
+            print(f"[{variant}]   totalRows/Cols: {data.get('totalRows')}/{data.get('totalCols')}")
+            print(f"[{variant}]   headRows: {_json.dumps(_shape(data.get('headRows')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   headCols: {_json.dumps(_shape(data.get('headCols')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   rowData[0:2]: {_json.dumps(_shape(data.get('rowData'))[:2], ensure_ascii=False)[:800]}")
             continue
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)
