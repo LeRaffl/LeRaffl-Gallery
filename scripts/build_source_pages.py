@@ -162,10 +162,16 @@ def build_definitions(fm: dict) -> str:
     if fm.get("scope_note"):
         row("Vehicle scope", esc(fm["scope_note"]))
 
-    hev = fm.get("hev_split")
-    row("HEV (full hybrids)",
-        "split into its own column" if hev
-        else "not split by the source — folds into the combustion totals")
+    # `hev_note` overrides the boolean-derived text for the cases where
+    # neither "split" nor "folds into combustion" is accurate (e.g. a
+    # single combined hybrid bucket parked in the HEV column).
+    hev_note = fm.get("hev_note")
+    if hev_note:
+        row("HEV (full hybrids)", esc(hev_note))
+    else:
+        row("HEV (full hybrids)",
+            "split into its own column" if fm.get("hev_split")
+            else "not split by the source — folds into the combustion totals")
 
     if fm.get("fcev"):
         row("FCEV", esc(fm["fcev"]))

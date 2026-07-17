@@ -1,3 +1,30 @@
+---
+country: Italy
+slug: italy
+status: live
+summary: >-
+  Passenger-car registrations for Italy from UNRAE, with rental / non-rental
+  splits and a separate light-commercial variant.
+source_name: "UNRAE — struttura del mercato PDF"
+source_url: "https://unrae.it/dati-statistici"
+underlying: "UNRAE / Ministero delle Infrastrutture e dei Trasporti"
+auth: none
+cadence: "passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th"
+variants: [Whole, Rental, NonRental, Vans]
+hev_split: true
+fcev: "counted in OTHERS (with LPG and CNG)"
+backfill: none
+scope_note: "Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private persons."
+caveats:
+  - "OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual."
+  - "NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists."
+  - "Vans are percentage-derived from a separate UNRAE LCV release."
+fetcher: "scripts/fetch_italy.py"
+workflow: ".github/workflows/fetch-italy.yml"
+fragility_doc: "docs/architecture/18-source-italy.md"
+data_file: "data/Italy.csv"
+---
+
 # 18 · Source: Italy (UNRAE)
 
 UNRAE (Unione Nazionale Rappresentanti Autoveicoli Esteri) publishes monthly

@@ -1,3 +1,28 @@
+---
+country: Luxembourg
+slug: luxembourg
+status: live
+summary: >-
+  New road-vehicle registrations for Luxembourg from STATEC's SDMX 2.1 feed
+  (dataflow DF_D6122).
+source_name: "lustat.statec.lu — STATEC SDMX 2.1 (DF_D6122)"
+source_url: "https://lustat.statec.lu/"
+underlying: "STATEC / SNCA"
+auth: none
+cadence: "monthly SDMX feed; one request per variant"
+variants: [Whole, Vans, HDV]
+hev_split: true
+backfill: none
+scope_note: "Whole = cars; Vans and HDV (truck + bus + road tractor) are separate variants."
+caveats:
+  - "Clean SDMX 2.1 REST feed — one GET per variant returns the full monthly history."
+  - "Used imports are not available in the gallery's fuel-split form."
+fetcher: "scripts/fetch_luxembourg.py"
+workflow: ".github/workflows/fetch-luxembourg.yml"
+fragility_doc: "docs/architecture/21-source-luxembourg.md"
+data_file: "data/Luxembourg.csv"
+---
+
 # 21 · Source: Luxembourg (lustat.statec.lu / STATEC SDMX)
 
 Per-country source playbook for Luxembourg. The fetcher lives in

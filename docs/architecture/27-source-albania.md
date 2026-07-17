@@ -1,3 +1,29 @@
+---
+country: Albania
+slug: albania
+status: live
+summary: >-
+  First vehicle registrations for Albania (new and imported used) from
+  DPSHTRR's open-data report.
+source_name: "dpshtrr.al — DPSHTRR Open Data (Looker Studio)"
+source_url: "https://dpshtrr.al/"
+underlying: "DPSHTRR — Albanian General Directorate of Road Transport Services"
+auth: "a real browser session is required (plain HTTP is blocked)"
+cadence: "daily 07:00 UTC, 10th–28th, commit-gated"
+variants: [Whole, HDV, Buses, 2-Wheelers]
+hev_split: true
+backfill: "Whole 2019+ bootstrapped; HDV/Buses/2-Wheelers backfilled 2020–2024 + live"
+scope_note: "First registrations incl. imported used; Whole = M1 (Autoveturë)."
+caveats:
+  - "Counts are first registrations, including imported used vehicles — not only new."
+  - "Data comes from a Looker Studio report that needs a headless-browser session."
+  - "2025 non-Whole snapshots are corrupt upstream and were not fetched."
+fetcher: "scripts/fetch_albania.py"
+workflow: ".github/workflows/fetch-albania.yml"
+fragility_doc: "docs/architecture/27-source-albania.md"
+data_file: "data/Albania.csv"
+---
+
 # 27 · Source: Albania (dpshtrr.al, Looker Studio via headless Chromium)
 
 Albania's General Directorate of Road Transport Services (DPSHTRR — *Drejtoria

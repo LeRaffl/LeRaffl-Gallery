@@ -1,3 +1,29 @@
+---
+country: Thailand
+slug: thailand
+status: live
+summary: >-
+  New-registration data for Thailand from the Thailand Automotive Institute's
+  AIU portal.
+source_name: "aiu.thaiauto.or.th — Thailand Automotive Institute API"
+source_url: "https://aiu.thaiauto.or.th/"
+underlying: "Thailand Automotive Institute (thaiauto)"
+auth: "member login (cookie session)"
+cadence: "daily 04:40 UTC, 1st–20th of the month"
+variants: [Whole, HDV, Buses, 3-Wheelers]
+hev_split: true
+backfill: none
+scope_note: "Whole = Passenger Car + Pickup Truck."
+caveats:
+  - "ICE is reported as an aggregate — there is no petrol/diesel split."
+  - "Access needs a member cookie session (login)."
+  - "A pre-rebase Whole series is archived as an inert legacy CSV."
+fetcher: "scripts/fetch_thailand.py"
+workflow: ".github/workflows/fetch-thailand.yml"
+fragility_doc: "docs/architecture/29-source-thailand.md"
+data_file: "data/Thailand.csv"
+---
+
 # 29 · Source: Thailand (TAI / AIU portal)
 
 The Thailand Automotive Institute (TAI) publishes new-vehicle registrations by

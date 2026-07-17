@@ -1,25 +1,26 @@
 # 31 · Proposal: public country source pages
 
-**Status:** Phase 1 built (2026-07). Written 2026-07.
+**Status:** Phases 1–2 built (2026-07). Written 2026-07.
 **Audience:** the maintainer + whoever implements this later.
 
 ## Implementation status
 
 - **Phase 1 — done.** Content model (Option 1: YAML front-matter), template,
-  and generator are live, proven on Netherlands, Denmark and China.
-  - Front-matter block added to `10-source-netherlands.md`,
-    `11-source-denmark.md`, `24-source-china.md`.
+  and generator are live.
   - Generator: [`scripts/build_source_pages.py`](../../scripts/build_source_pages.py)
     — reads the front-matter + `params.csv` (latest period, TTM BEV share) +
     the per-country CSV tail, fills one theme-aware template, and writes
     `sources/<slug>.html` plus a `sources/index.html` directory page. Re-run
     with `python3 scripts/build_source_pages.py`.
-- **Phase 2 — next.** Backfill front-matter into the other ~19 documented
-  source docs (the TL;DR blocks convert almost mechanically); the generator
-  picks each up automatically once its block exists.
-- **Phase 3 — later.** Author stubs for the ~18 undocumented countries;
+- **Phase 2 — done.** Front-matter now on all 21 documented source docs
+  (every `NN-source-*.md` except the gaps doc), so the generator produces 21
+  country pages + the directory index. The `hev_note` field was added to the
+  model for sources that park a single combined hybrid bucket in the HEV
+  column (Colombia, Malaysia) rather than splitting or folding it.
+- **Phase 3 — next.** Author stubs for the ~18 undocumented countries;
   gallery-card "ⓘ Source" links (section D); optional CI wiring so pages
-  regenerate on doc/CSV change (same trigger model as `render-country.yml`).
+  regenerate on doc/CSV change (same trigger model as `render-country.yml`);
+  and a CI check that every `NN-source-*.md` has valid front-matter.
 
 The rest of this document is the original proposal, kept for context.
 

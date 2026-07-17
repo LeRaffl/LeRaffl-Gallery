@@ -1,3 +1,29 @@
+---
+country: Portugal
+slug: portugal
+status: live
+summary: >-
+  Passenger-car registrations for Portugal from ACAP, via the motordata.pt /
+  autoinforma feed.
+source_name: "ACAP via motordata.pt / autoinforma"
+source_url: "https://motordata.pt/"
+underlying: "ACAP — Associação Automóvel de Portugal"
+auth: none
+cadence: "twice-daily cron, 1st–5th, 17:30 & 20:30 UTC"
+variants: [Whole]
+hev_split: true
+backfill: "existing CSV from 2010-01 retained; Google-Sheet patches on demand"
+scope_note: "Passenger cars (Ligeiros de Passageiros) only; LCV/HCV/Bus out of scope."
+caveats:
+  - "Full hybrids (HEV) are reported natively (petrol and diesel hybrids)."
+  - "Flexfuel is not reported — the column stays empty."
+  - "OTHERS is a residual (all-fuels total minus the named fuels)."
+fetcher: "scripts/fetch_portugal.py"
+workflow: ".github/workflows/fetch-portugal.yml"
+fragility_doc: "docs/architecture/16-source-portugal.md"
+data_file: "data/Portugal.csv"
+---
+
 # 16 · Source: Portugal (ACAP / motordata.pt)
 
 ACAP (Associação Automóvel de Portugal) publishes new-registration data on its
