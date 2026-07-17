@@ -1,3 +1,36 @@
+---
+country: Netherlands
+slug: netherlands
+status: live
+summary: >-
+  New-vehicle registrations for the Netherlands, sourced from RDW (the Dutch
+  vehicle authority) via the duurzamemobiliteit BI portal.
+source_name: "duurzamemobiliteit.databank.nl (Swing 7.1, ABF Research)"
+source_url: "https://duurzamemobiliteit.databank.nl/"
+underlying: "RDW — Rijksdienst voor het Wegverkeer"
+auth: none
+cadence: "daily cron, 1st–15th of the month"
+variants: [Whole, Used, HDV]
+hev_split: false
+fcev: "folded into OTHERS (~1 unit/month Whole, ~30/month Used)"
+backfill: "pre-2018 Whole rows from the maintainer's Google Sheet (one-off)"
+scope_note: "HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class."
+column_map:
+  BEV: BEV
+  PHEV: PHEV
+  Benzine: PETROL
+  Diesel: DIESEL
+  "Overig + FCEV": OTHERS
+caveats:
+  - "RDW doesn't split full hybrids; HEV lands in Petrol/Diesel."
+  - "Publication date varies within the first half of the month."
+  - "The portal blocks GitHub Actions and Cloudflare IPs; data is fetched via a Deno Deploy relay."
+fetcher: "scripts/fetch_netherlands.py"
+workflow: ".github/workflows/fetch-netherlands.yml"
+fragility_doc: "docs/architecture/10-source-netherlands.md"
+data_file: "data/Netherlands.csv"
+---
+
 # 10 · Source: Netherlands (duurzamemobiliteit.databank.nl / RDW)
 
 The Netherlands pipeline is more involved than most other countries because
