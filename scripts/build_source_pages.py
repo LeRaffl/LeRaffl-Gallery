@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import csv
 import html
+import json
 import sys
 from pathlib import Path
 
@@ -32,8 +33,13 @@ import yaml
 REPO = Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs" / "architecture"
 PARAMS = REPO / "params.csv"
+STUBS = DOCS / "country_source_stubs.yaml"
 OUT_DIR = REPO / "sources"
 GH_BLOB = "https://github.com/LeRaffl/LeRaffl-Gallery/blob/master"
+
+# Every entry (doc front-matter or stub) must carry these before it can
+# become a page — the --check mode enforces it in CI.
+REQUIRED_FIELDS = ("country", "slug", "source_name", "variants")
 
 STATUS_LABELS = {
     "live": "Live",
@@ -77,8 +83,10 @@ def load_params() -> dict[tuple[str, str], dict]:
 
 def latest_csv_row(data_file: str) -> dict | None:
     """Return the last data row of a per-country CSV (by file order)."""
+    if not data_file:
+        return None
     path = REPO / data_file
-    if not path.exists():
+    if not path.is_file():
         return None
     last = None
     with path.open(encoding="utf-8") as fh:
@@ -119,19 +127,29 @@ def gh_link(path: str) -> str:
 # --------------------------------------------------------------------------
 
 def build_flow(fm: dict) -> str:
-    """A simple top-to-bottom origin → gallery pipeline, per country."""
+    """A simple top-to-bottom origin → gallery pipeline, per country.
+
+    Nodes with no content are dropped, so a stub entry that only knows its
+    origin and source still renders a coherent (shorter) diagram.
+    """
     src_name = esc(fm.get("source_name", "Source"))
     src_url = fm.get("source_url", "")
     src_html = f'<a href="{esc(src_url)}">{src_name}</a>' if src_url else src_name
 
+    fetcher_html = ""
+    if fm.get("fetcher"):
+        fetcher_html = gh_link(fm["fetcher"]) + (
+            f' · {gh_link(fm["workflow"])}' if fm.get("workflow") else "")
+
     stages = [
-        ("Origin", esc(fm.get("underlying", "—"))),
-        ("Source / API", src_html),
-        ("Fetcher", gh_link(fm.get("fetcher", "")) + (
-            f' · {gh_link(fm.get("workflow", ""))}' if fm.get("workflow") else "")),
-        ("Store", gh_link(fm.get("data_file", ""))),
+        ("Origin", esc(fm["underlying"]) if fm.get("underlying") else ""),
+        ("Source / API", src_html if fm.get("source_name") else ""),
+        ("Fetcher", fetcher_html),
+        ("Store", gh_link(fm["data_file"]) if fm.get("data_file") else ""),
         ("Gallery", '<a href="../">BEV Trajectories gallery</a>'),
     ]
+    stages = [(t, s) for t, s in stages if s]
+
     nodes = []
     for i, (title, sub) in enumerate(stages):
         if i:
@@ -162,16 +180,23 @@ def build_definitions(fm: dict) -> str:
     if fm.get("scope_note"):
         row("Vehicle scope", esc(fm["scope_note"]))
 
-    hev = fm.get("hev_split")
-    row("HEV (full hybrids)",
-        "split into its own column" if hev
-        else "not split by the source — folds into the combustion totals")
+    # HEV handling. `hev_note` overrides the boolean-derived text for the
+    # cases where neither "split" nor "folds into combustion" is accurate
+    # (e.g. a single combined hybrid bucket parked in the HEV column). A
+    # stub with neither field simply omits the row rather than guessing.
+    if fm.get("hev_note"):
+        row("HEV (full hybrids)", esc(fm["hev_note"]))
+    elif "hev_split" in fm:
+        row("HEV (full hybrids)",
+            "split into its own column" if fm.get("hev_split")
+            else "not split by the source — folds into the combustion totals")
 
     if fm.get("fcev"):
         row("FCEV", esc(fm["fcev"]))
     if fm.get("backfill") and fm["backfill"] != "none":
         row("Backfill", esc(fm["backfill"]))
-    row("Auth", esc(fm.get("auth", "—")))
+    if fm.get("auth"):
+        row("Auth", esc(fm["auth"]))
 
     return '<table class="defs">' + "".join(rows) + "</table>"
 
@@ -184,7 +209,7 @@ def build_caveats(fm: dict) -> str:
     return f'<section><h2>Caveats</h2><ul class="caveats">{items}</ul></section>'
 
 
-def build_page(fm: dict, params: dict) -> str:
+def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     country = fm.get("country", "Unknown")
     whole = params.get((country, "Whole")) or {}
     latest_period = whole.get("data_per", "—")
@@ -201,10 +226,22 @@ def build_page(fm: dict, params: dict) -> str:
         f'{esc(fm.get("source_name", "source"))} ↗</a>' if src_url
         else esc(fm.get("source_name", "—")))
 
+    banner = ""
+    if is_stub:
+        banner = ('<div class="banner">Brief entry — a full source write-up is '
+                  'still to come. The figures below are live; use the source link '
+                  'to verify them.</div>')
+
+    # Only full (documented) entries carry a developer pipeline doc to link.
+    dev_note = (f'<p>Full pipeline notes (for developers): '
+                f'{gh_link(fm["fragility_doc"])}</p>'
+                if fm.get("fragility_doc") else "")
+
     return TEMPLATE.format(
         css=BASE_CSS,
         country=esc(country),
         status_chip=status_chip(fm.get("status", "")),
+        banner=banner,
         summary=esc(fm.get("summary", "")),
         latest_period=esc(latest_period),
         ttm=esc(ttm),
@@ -214,22 +251,25 @@ def build_page(fm: dict, params: dict) -> str:
         definitions=build_definitions(fm),
         caveats=build_caveats(fm),
         csv_period=esc(csv_period),
-        csv_source=esc(csv_source),
-        cadence=esc(fm.get("cadence", "—")),
-        fragility_link=gh_link(fm.get("fragility_doc", "")),
+        csv_source=esc(csv_source) or "—",
+        cadence=esc(fm.get("cadence") or "—"),
+        dev_note=dev_note,
     )
 
 
 def build_index(pages: list[dict]) -> str:
     cards = []
     for p in sorted(pages, key=lambda x: x["country"]):
+        brief = ' · brief' if p.get("is_stub") else ''
         cards.append(
             f'<a class="dir-card" href="{esc(p["slug"])}.html">'
             f'<div class="dir-top">{esc(p["country"])}{status_chip(p["status"])}</div>'
             f'<div class="dir-sub">{esc(p["summary"])}</div>'
             f'<div class="dir-meta">Latest {esc(p["latest_period"])}'
-            f' · TTM BEV {esc(p["ttm"])}</div></a>')
-    return INDEX_TEMPLATE.format(css=BASE_CSS, cards="".join(cards), n=len(pages))
+            f' · TTM BEV {esc(p["ttm"])}{brief}</div></a>')
+    n_full = sum(1 for p in pages if not p.get("is_stub"))
+    return INDEX_TEMPLATE.format(
+        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full)
 
 
 # --------------------------------------------------------------------------
@@ -269,7 +309,9 @@ h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);paddi
 .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
   font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent)}
 .chip--live{background:var(--ok-bg);color:var(--ok-tx)}
-.chip--stale,.chip--planned{background:var(--warn-bg);color:var(--warn-tx)}
+.chip--stale,.chip--planned,.chip--manual{background:var(--warn-bg);color:var(--warn-tx)}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
 .stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
   border-radius:12px;padding:14px 16px}
@@ -317,6 +359,7 @@ TEMPLATE = """<!doctype html>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
   <h1>{country} {status_chip}</h1>
+  {banner}
   <p class="lead">{summary}</p>
 
   <div class="stats">
@@ -341,7 +384,7 @@ TEMPLATE = """<!doctype html>
     <p><strong>Freshness.</strong> Latest period in our store: <code>{csv_period}</code>.
        Cadence: {cadence}.<br>
        Row source string: <code>{csv_source}</code></p>
-    <p>Full pipeline notes (for developers): {fragility_link}</p>
+    {dev_note}
   </div>
 </div>
 </body>
@@ -362,7 +405,8 @@ INDEX_TEMPLATE = """<!doctype html>
   <a class="back" href="../">← Back to gallery</a>
   <h1>Data sources</h1>
   <p class="lead">Where each country's numbers come from, what they count, and
-     what to be careful about. {n} of ~40 countries documented so far.</p>
+     what to be careful about. {n} countries listed — {n_full} with a full
+     write-up, the rest brief entries pending a fuller one.</p>
   <div class="dir-grid">{cards}</div>
 </div>
 </body>
@@ -374,18 +418,76 @@ INDEX_TEMPLATE = """<!doctype html>
 # Main
 # --------------------------------------------------------------------------
 
-def main() -> int:
-    params = load_params()
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+def load_stubs() -> list[dict]:
+    """Brief entries from the stub registry, if the file exists."""
+    if not STUBS.exists():
+        return []
+    data = yaml.safe_load(STUBS.read_text(encoding="utf-8")) or {}
+    stubs = data.get("stubs") or []
+    return [s for s in stubs if isinstance(s, dict)]
 
-    built = []
+
+def collect_entries() -> tuple[list[tuple[dict, bool]], list[str]]:
+    """Gather (front-matter, is_stub) entries and any validation problems.
+
+    Documented docs win over stubs on a slug clash, so a country can be
+    promoted from the registry to a full doc without a manual cleanup step.
+    """
+    problems: list[str] = []
+    entries: list[tuple[dict, bool]] = []
+    seen: dict[str, str] = {}  # slug -> where it came from
+
+    def check(fm: dict, where: str):
+        missing = [f for f in REQUIRED_FIELDS if not fm.get(f)]
+        if missing:
+            problems.append(f"{where}: missing {', '.join(missing)}")
+
     for doc in sorted(DOCS.glob("*-source-*.md")):
         fm = read_front_matter(doc)
         if not fm or not fm.get("slug"):
             continue
-        page = build_page(fm, params)
-        (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
+        check(fm, doc.name)
+        seen[fm["slug"]] = doc.name
+        entries.append((fm, False))
 
+    for stub in load_stubs():
+        where = f"country_source_stubs.yaml:{stub.get('slug', '?')}"
+        check(stub, where)
+        slug = stub.get("slug")
+        if slug in seen:
+            problems.append(
+                f"{where}: slug '{slug}' already documented in {seen[slug]} — "
+                f"remove the stub")
+            continue
+        if slug:
+            seen[slug] = where
+        entries.append((stub, True))
+
+    return entries, problems
+
+
+def main() -> int:
+    check_only = "--check" in sys.argv
+    params = load_params()
+    entries, problems = collect_entries()
+
+    if problems:
+        print("Front-matter / stub problems:", file=sys.stderr)
+        for p in problems:
+            print(f"  ! {p}", file=sys.stderr)
+        return 1
+    if not entries:
+        print("No entries found (no front-matter, no stubs).", file=sys.stderr)
+        return 1
+    if check_only:
+        print(f"OK — {len(entries)} valid entries.")
+        return 0
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    built = []
+    for fm, is_stub in entries:
+        page = build_page(fm, params, is_stub=is_stub)
+        (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
         built.append({
             "country": fm.get("country", "Unknown"),
@@ -394,15 +496,22 @@ def main() -> int:
             "summary": fm.get("summary", ""),
             "latest_period": whole.get("data_per", "—"),
             "ttm": pct(whole.get("ttm_bev_share")),
+            "is_stub": is_stub,
         })
-        print(f"  ✓ sources/{fm['slug']}.html  ({fm.get('country')})")
-
-    if not built:
-        print("No documented countries found (no front-matter).", file=sys.stderr)
-        return 1
 
     (OUT_DIR / "index.html").write_text(build_index(built), encoding="utf-8")
-    print(f"  ✓ sources/index.html  ({len(built)} countries)")
+
+    # A country → slug map the gallery loads to add "ⓘ Source" links to each
+    # country card. Keyed by the country name so index.html can look it up
+    # from a card's (variant-stripped) country label.
+    slug_map = {b["country"]: b["slug"] for b in built}
+    (OUT_DIR / "sources.json").write_text(
+        json.dumps(slug_map, ensure_ascii=False, indent=0, sort_keys=True),
+        encoding="utf-8")
+
+    n_full = sum(1 for b in built if not b["is_stub"])
+    print(f"  ✓ {len(built)} pages ({n_full} full, {len(built) - n_full} stub) "
+          f"+ sources/index.html + sources/sources.json")
     return 0
 
 

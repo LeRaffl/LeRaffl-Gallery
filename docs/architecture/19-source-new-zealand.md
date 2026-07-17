@@ -1,3 +1,29 @@
+---
+country: New Zealand
+slug: new-zealand
+status: live
+summary: >-
+  New light-vehicle registrations for New Zealand from the Ministry of
+  Transport's fleet statistics.
+source_name: "transport.govt.nz — fleet statistics"
+source_url: "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/"
+underlying: "NZ Ministry of Transport / Waka Kotahi"
+auth: none
+cadence: "twice daily 06:00 & 14:00 UTC, 5th–12th of the following month"
+variants: [Whole]
+hev_split: true
+backfill: none
+scope_note: "All new light registrations (GVM < 3,500 kg) — passenger cars and light commercials combined."
+caveats:
+  - "Cars and light commercials are not separated by this source."
+  - "Flexfuel is not reported; OTHERS (LPG etc.) is typically 0 in recent months."
+  - "A data.govt.nz CKAN dataset is used only as an EV/hybrid fallback."
+fetcher: "scripts/fetch_new_zealand.py"
+workflow: ".github/workflows/fetch-new-zealand.yml"
+fragility_doc: "docs/architecture/19-source-new-zealand.md"
+data_file: "data/New Zealand.csv"
+---
+
 # 19 · Source: New Zealand (transport.govt.nz)
 
 > **Status (2026-06): auto-fetch disabled.** Both the primary `/inner`

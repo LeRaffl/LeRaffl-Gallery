@@ -1,3 +1,29 @@
+---
+country: Canada
+slug: canada
+status: live
+summary: >-
+  Quarterly new-vehicle registrations for Canada from Statistics Canada's Web
+  Data Service (cube 20-10-0025).
+source_name: "150.statcan.gc.ca — StatCan WDS cube 20-10-0025"
+source_url: "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501"
+underlying: "Statistics Canada — cube 20-10-0025"
+auth: none
+cadence: "quarterly (Mar/Jun/Sep/Dec runs), commit-gated"
+variants: [Whole, Pickups, Vans]
+hev_split: true
+backfill: none
+scope_note: "Whole = passenger cars + multi-purpose vehicles (EU M1); stored at the quarter's middle month."
+caveats:
+  - "Quarterly data is stored under the quarter's middle month (Q1→02 … Q4→11)."
+  - "2011–2016 are kept as yearly passenger-cars-only rows — a definition seam vs the M1 quarterly series."
+  - "Diesel is near-zero for Canadian passenger cars."
+fetcher: "scripts/fetch_canada.py"
+workflow: ".github/workflows/fetch-canada.yml"
+fragility_doc: "docs/architecture/17-source-canada.md"
+data_file: "data/Canada.csv"
+---
+
 # 17 · Source: Canada (150.statcan.gc.ca / WDS cube 20-10-0025)
 
 Statistics Canada (StatCan) publishes new motor-vehicle registrations by fuel

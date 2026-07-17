@@ -1,3 +1,27 @@
+---
+country: Ireland
+slug: ireland
+status: live
+summary: >-
+  New-registration data for Ireland from SIMI's public motorstats dashboard.
+source_name: "stats.simi.ie — SIMI motorstats dashboard"
+source_url: "https://stats.simi.ie/"
+underlying: "SIMI — Society of the Irish Motor Industry"
+auth: none
+cadence: "twice-daily cron, 1st–5th of the month"
+variants: [Whole, Vans, HDV, Buses]
+hev_split: true
+backfill: "2010-01+ re-fetched from source; 2008–2009 remain legacy rows"
+scope_note: "Whole = passenger cars; Vans (LCV), HDV (HCV) and Buses are separate variants."
+caveats:
+  - "Full hybrids (HEV) are a large slice in Ireland and are reported natively."
+  - "Data comes from a session-filtered SPA — there is no public REST API."
+fetcher: "scripts/fetch_ireland.py"
+workflow: ".github/workflows/fetch-ireland.yml"
+fragility_doc: "docs/architecture/15-source-ireland.md"
+data_file: "data/Ireland.csv"
+---
+
 # 15 · Source: Ireland (stats.simi.ie / SIMI motorstats)
 
 The Society of the Irish Motor Industry (SIMI) publishes new-registration data

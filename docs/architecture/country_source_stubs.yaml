@@ -1,0 +1,359 @@
+# Brief "stub" entries for gallery countries that are live but don't yet have
+# a full docs/architecture/NN-source-*.md write-up. Each becomes a source page
+# marked as a brief entry. When a country gets a proper source doc with
+# front-matter, delete its stub here — the generator lets the doc win on a
+# slug clash and --check flags a leftover duplicate.
+#
+# Facts are grounded in params.csv's `source` column. source_url is set only
+# where the canonical page is known; where it isn't, the entry shows the source
+# name as plain text and says so, rather than link somewhere unverified.
+
+stubs:
+  # ---- ACEA monthly registration figures (association aggregate) ----
+  - country: Belgium
+    slug: belgium
+    status: live
+    summary: "New passenger-car registrations for Belgium, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Belgium.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Bulgaria
+    slug: bulgaria
+    status: live
+    summary: "New passenger-car registrations for Bulgaria, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Bulgaria.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Croatia
+    slug: croatia
+    status: live
+    summary: "New passenger-car registrations for Croatia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Croatia.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Cyprus
+    slug: cyprus
+    status: live
+    summary: "New passenger-car registrations for Cyprus, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Cyprus.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Czechia
+    slug: czechia
+    status: live
+    summary: "New passenger-car registrations for Czechia, via ACEA / the SDA-CIA importers' association."
+    source_name: "ACEA (also SDA-CIA)"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA / SDA-CIA (Czech car importers' association)"
+    variants: [Whole]
+    data_file: "data/Czechia.csv"
+    caveats:
+      - "Association aggregate: covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Estonia
+    slug: estonia
+    status: live
+    summary: "New passenger-car registrations for Estonia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Estonia.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: France
+    slug: france
+    status: live
+    summary: "New passenger-car registrations for France, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/France.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed (the French source of record is PFA/SDES)."
+
+  - country: Greece
+    slug: greece
+    status: live
+    summary: "New passenger-car registrations for Greece, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Greece.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Iceland
+    slug: iceland
+    status: live
+    summary: "New passenger-car registrations for Iceland, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Iceland.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Latvia
+    slug: latvia
+    status: live
+    summary: "New passenger-car registrations for Latvia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole, Used]
+    data_file: "data/Latvia.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Lithuania
+    slug: lithuania
+    status: live
+    summary: "New passenger-car registrations for Lithuania, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Lithuania.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Malta
+    slug: malta
+    status: live
+    summary: "New passenger-car registrations for Malta, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Malta.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Romania
+    slug: romania
+    status: live
+    summary: "New passenger-car registrations for Romania, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Romania.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Slovakia
+    slug: slovakia
+    status: live
+    summary: "New passenger-car registrations for Slovakia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Slovakia.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  - country: Slovenia
+    slug: slovenia
+    status: live
+    summary: "New passenger-car registrations for Slovenia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "ACEA — European Automobile Manufacturers' Association"
+    variants: [Whole]
+    data_file: "data/Slovenia.csv"
+    caveats:
+      - "Association aggregate (ACEA): covers member manufacturers and is published with a lag — not a direct national-registry feed."
+
+  # ---- National sources with a partial ACEA overlap ----
+  - country: Norway
+    slug: norway
+    status: live
+    summary: "New passenger-car registrations for Norway — the world's most electrified market — via OFV (with ACEA cross-check)."
+    source_name: "OFV (ofv.no), cross-checked against ACEA"
+    source_url: "https://ofv.no/"
+    underlying: "OFV — Opplysningsrådet for Veitrafikken"
+    variants: [Whole]
+    data_file: "data/Norway.csv"
+    caveats:
+      - "OFV is the Norwegian registration aggregator; ACEA is used only as a cross-check."
+
+  - country: Switzerland
+    slug: switzerland
+    status: live
+    summary: "New vehicle registrations for Switzerland from the Federal Statistical Office (BFS), with ACEA cross-check."
+    source_name: "pxweb.bfs.admin.ch, cross-checked against ACEA"
+    source_url: "https://www.bfs.admin.ch/"
+    underlying: "BFS — Swiss Federal Statistical Office"
+    variants: [Whole, HDV]
+    data_file: "data/Switzerland.csv"
+    caveats:
+      - "Whole comes from BFS; ACEA is used only as a cross-check."
+
+  # ---- Non-European national sources ----
+  - country: Australia
+    slug: australia
+    status: live
+    summary: "New light-vehicle sales for Australia from FCAI's VFACTS, with a curated historical series."
+    source_name: "VFACTS (FCAI); historical series curated by Prof. Ray Willis"
+    source_url: "https://www.fcai.com.au/"
+    underlying: "FCAI — Federal Chamber of Automotive Industries (VFACTS)"
+    variants: [Whole]
+    data_file: "data/Australia.csv"
+    caveats:
+      - "VFACTS is an industry sales report; the pre-modern history is a maintainer-curated series (Prof. Ray Willis)."
+
+  - country: Brazil
+    slug: brazil
+    status: live
+    summary: "New-vehicle registrations for Brazil from ANFAVEA, the manufacturers' association."
+    source_name: "ANFAVEA"
+    source_url: "https://www.anfavea.com.br/"
+    underlying: "ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores"
+    variants: [Whole]
+    data_file: "data/Brazil.csv"
+    caveats:
+      - "Association aggregate: ANFAVEA counts member brands, so a non-member EV brand can be under-counted."
+
+  - country: Chile
+    slug: chile
+    status: live
+    summary: "New-vehicle sales for Chile from ANAC, the national automotive association."
+    source_name: "ANAC"
+    source_url: "https://www.anac.cl/"
+    underlying: "ANAC — Asociación Nacional Automotriz de Chile"
+    variants: [Whole]
+    data_file: "data/Chile.csv"
+    caveats:
+      - "Association aggregate: ANAC counts member brands, so a non-member EV brand can be under-counted."
+
+  - country: Germany
+    slug: germany
+    status: live
+    summary: "New passenger-car registrations for Germany from the Kraftfahrt-Bundesamt (KBA)."
+    source_name: "KBA — Kraftfahrt-Bundesamt"
+    source_url: "https://www.kba.de/"
+    underlying: "KBA — the German federal motor-transport authority (registry)"
+    variants: [Whole]
+    data_file: "data/Germany.csv"
+    caveats:
+      - "KBA is the official registry, so coverage is complete; the gallery ingests the monthly fuel-split release."
+
+  - country: Georgia
+    slug: georgia
+    status: live
+    summary: "New-registration data for Georgia from the National Statistics Office (Geostat)."
+    source_name: "National Statistics Office of Georgia (Geostat)"
+    source_url: "https://www.geostat.ge/"
+    underlying: "Geostat — National Statistics Office of Georgia"
+    variants: [Whole]
+    data_file: "data/Georgia.csv"
+    caveats:
+      - "Publication cadence is less frequent than the monthly EU sources; expect a longer lag on the latest period."
+
+  - country: Japan
+    slug: japan
+    status: live
+    summary: "New-vehicle registrations for Japan from the dealers'/manufacturers' associations (JADA/JAMA)."
+    source_name: "JADA / JAMA"
+    source_url: "https://www.jada.or.jp/"
+    underlying: "JADA — Japan Automobile Dealers Association / JAMA"
+    variants: [Whole]
+    data_file: "data/Japan.csv"
+    caveats:
+      - "Association data; kei-car reporting and fuel granularity differ from EU-style registries."
+
+  - country: South Korea
+    slug: south-korea
+    status: live
+    summary: "New-vehicle registration data for South Korea from the transport ministry."
+    source_name: "South Korea — Ministry of Land, Infrastructure and Transport"
+    underlying: "MOLIT — Ministry of Land, Infrastructure and Transport"
+    variants: [Whole]
+    data_file: "data/South Korea.csv"
+    caveats:
+      - "The exact source URL is still to be confirmed for this entry."
+
+  - country: Türkiye
+    slug: turkiye
+    status: live
+    summary: "New-vehicle registration data for Türkiye from the national statistics institute (TÜİK)."
+    source_name: "data.tuik.gov.tr"
+    source_url: "https://data.tuik.gov.tr/"
+    underlying: "TÜİK — Turkish Statistical Institute"
+    variants: [Whole]
+    data_file: "data/Türkiye.csv"
+    caveats:
+      - "Hybrids are reported as a single combined bucket (Türkiye/Georgia convention), placed in the HEV column."
+
+  - country: UK
+    slug: uk
+    status: live
+    summary: "New-car registrations for the UK from SMMT, the motor manufacturers' and traders' society."
+    source_name: "SMMT"
+    source_url: "https://www.smmt.co.uk/"
+    underlying: "SMMT — Society of Motor Manufacturers and Traders"
+    variants: [Whole]
+    data_file: "data/UK.csv"
+    caveats:
+      - "SMMT compiles UK registrations from DVLA data; the monthly release is the gallery's source."
+
+  - country: USA
+    slug: usa
+    status: live
+    summary: "US light-duty EV/PHEV sales estimates from Argonne National Laboratory."
+    source_name: "Argonne National Laboratory (ANL)"
+    source_url: "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates"
+    underlying: "Argonne National Laboratory — monthly light-duty electric-drive sales updates"
+    variants: [Whole]
+    data_file: "data/USA.csv"
+    caveats:
+      - "Figures are modelled sales estimates, not a national registry; methodology differs from the EU registry sources."
+
+  # ---- Low-confidence / partial (source not fully documented) ----
+  - country: Hungary
+    slug: hungary
+    status: planned
+    summary: "New-registration data for Hungary — the upstream source is not yet documented."
+    source_name: "Hungary (national registrations)"
+    underlying: "Hungary — national registration data"
+    variants: [Whole]
+    data_file: "data/Hungary.csv"
+    caveats:
+      - "The precise upstream source for this series is not yet documented; treat provenance as provisional."
+
+  - country: India
+    slug: india
+    status: manual
+    summary: "Partial EV-registration data for India from the VAHAN dashboard (limited coverage)."
+    source_name: "VAHAN dashboard"
+    source_url: "https://vahan.parivahan.gov.in/vahan4dashboard/"
+    underlying: "VAHAN — Ministry of Road Transport & Highways (national register)"
+    variants: [Whole, 4-Wheelers, 3-Wheelers, 2-Wheelers]
+    caveats:
+      - "Coverage is partial and pulled manually; the latest period may lag well behind other countries."
