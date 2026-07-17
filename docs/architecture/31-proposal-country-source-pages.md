@@ -1,7 +1,27 @@
 # 31 · Proposal: public country source pages
 
-**Status:** proposal / plan (not yet built). Written 2026-07.
+**Status:** Phase 1 built (2026-07). Written 2026-07.
 **Audience:** the maintainer + whoever implements this later.
+
+## Implementation status
+
+- **Phase 1 — done.** Content model (Option 1: YAML front-matter), template,
+  and generator are live, proven on Netherlands, Denmark and China.
+  - Front-matter block added to `10-source-netherlands.md`,
+    `11-source-denmark.md`, `24-source-china.md`.
+  - Generator: [`scripts/build_source_pages.py`](../../scripts/build_source_pages.py)
+    — reads the front-matter + `params.csv` (latest period, TTM BEV share) +
+    the per-country CSV tail, fills one theme-aware template, and writes
+    `sources/<slug>.html` plus a `sources/index.html` directory page. Re-run
+    with `python3 scripts/build_source_pages.py`.
+- **Phase 2 — next.** Backfill front-matter into the other ~19 documented
+  source docs (the TL;DR blocks convert almost mechanically); the generator
+  picks each up automatically once its block exists.
+- **Phase 3 — later.** Author stubs for the ~18 undocumented countries;
+  gallery-card "ⓘ Source" links (section D); optional CI wiring so pages
+  regenerate on doc/CSV change (same trigger model as `render-country.yml`).
+
+The rest of this document is the original proposal, kept for context.
 
 ## The idea
 

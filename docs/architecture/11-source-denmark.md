@@ -1,3 +1,35 @@
+---
+country: Denmark
+slug: denmark
+status: live
+summary: >-
+  New-registration data for Denmark from Statistics Denmark's public StatBank
+  API (table BIL53), which draws on the national Motor Register.
+source_name: "api.statbank.dk — table BIL53"
+source_url: "https://www.statbank.dk/BIL53"
+underlying: "Danmarks Statistik / Motorregistret"
+auth: none
+cadence: "daily cron, 1st–15th, 05:15 UTC"
+variants: [Whole, Private, Industry, HDV, Vans]
+hev_split: false
+fcev: "folded into OTHERS"
+backfill: "pre-2018 Whole rows from the maintainer's Google Sheet (one-off)"
+scope_note: "Whole = all new registrations; Private / Industry split by terms of use."
+column_map:
+  BEV: BEV
+  PHEV: PHEV
+  Petrol: PETROL
+  Diesel: DIESEL
+  Other: OTHERS
+caveats:
+  - "StatBank doesn't split full hybrids; HEV folds into Petrol/Diesel."
+  - "Private / Industry / HDV / Vans have no pre-2018 backfill; they start at the API range."
+fetcher: "scripts/fetch_denmark.py"
+workflow: ".github/workflows/fetch-denmark.yml"
+fragility_doc: "docs/architecture/11-source-denmark.md"
+data_file: "data/Denmark.csv"
+---
+
 # 11 · Source: Denmark (api.statbank.dk / BIL53)
 
 Statistics Denmark (Danmarks Statistik) publishes new-registration data
