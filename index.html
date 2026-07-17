@@ -2948,28 +2948,32 @@ async function ensurePlotly() {
   const debug = document.getElementById("fleetDebugBox");
   if (typeof Plotly !== 'undefined') {
     if (debug) debug.textContent += "Plotly already loaded\n";
-    return;
+    return true;
   }
   if (debug) debug.textContent += "Waiting for Plotly.js ...\n";
   return new Promise((resolve) => {
     if (window.Plotly) {
-      resolve();
+      resolve(true);
       return;
     }
     const interval = setInterval(() => {
       if (window.Plotly) {
         clearInterval(interval);
+        clearTimeout(timeout);
         if (debug) debug.textContent += "Plotly loaded successfully\n";
-        resolve();
+        resolve(true);
       }
     }, 100);
-    // Hard timeout after 10 s: give up waiting for Plotly instead of
-    // polling forever. NOTE: we only stop the interval; the promise is
-    // left unresolved on purpose so the caller's fallback rendering
-    // (empty state + debug message) stays visible.
-    setTimeout(() => {
+    // Hard timeout after 10 s: give up waiting for Plotly and resolve
+    // `false` so callers can carry on without charts. Leaving the promise
+    // unresolved forever (the old behaviour) stalled every init chain
+    // awaiting it — most visibly the Fleet tab, whose country picker
+    // stayed empty whenever an ad-blocker or restrictive network kept
+    // the CDN script from loading (#117).
+    const timeout = setTimeout(() => {
       clearInterval(interval);
       if (debug) debug.textContent += "Plotly loading timeout – check <script src>!\n";
+      resolve(false);
     }, 10000);
   });
 }
@@ -6216,15 +6220,26 @@ function populateFleetCountries() {
   // as the default, so starting with the placeholder would clash.
   sel.appendChild(placeholder);
 
+  // Convert ISO country codes to full English names via the browser's
+  // Intl API — no manual lookup table needed. Build the formatter once
+  // (not per option), and tolerate engines that lack Intl.DisplayNames
+  // entirely (older Safari/WebViews): there the constructor throws, and
+  // without this guard the exception aborts the whole loop, leaving the
+  // picker empty — one of the causes behind the "can't see countries"
+  // report (#117). On failure we fall back to showing the raw codes.
+  let regionNames = null;
+  try {
+    regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  } catch { /* Intl.DisplayNames unavailable — use raw codes below */ }
+
   fleetState.countries.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
-    // Convert ISO country codes to the full English country name via
-    // the browser's Intl API — no manual lookup table needed. If the
-    // incoming value is not a 2-letter code (or the API cannot resolve
-    // it), we keep the raw string as a safe fallback.
-    const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-    opt.textContent = regionNames.of(c) || c;
+    let label = c;
+    if (regionNames) {
+      try { label = regionNames.of(c) || c; } catch { label = c; }
+    }
+    opt.textContent = label;
     // Pre-select Norway by default: it has the richest historical data
     // and produces a meaningful first plot without any user action.
     if (c === "NO" || c === "Norway") {
@@ -6293,6 +6308,21 @@ function buildFleetPlot() {
   const sel = document.getElementById("fleetCountries");
   const countries = [...(sel?.selectedOptions || [])].map(o => o.value).filter(Boolean);
   if (!countries.length) return;
+
+  // Plotly can be absent if its CDN script was blocked or timed out.
+  // The country picker and controls still work (ensurePlotly no longer
+  // stalls the init chain — #117); we just can't draw the chart, so show
+  // a clear message instead of throwing on Plotly.newPlot below.
+  if (typeof Plotly === 'undefined') {
+    const plot = document.getElementById("fleetPlot");
+    if (plot) {
+      plot.innerHTML = '<div style="padding:40px; text-align:center; color:#ff9999; font-size:15px;">'
+        + 'Charting library could not be loaded (likely blocked by the network '
+        + 'or an ad-blocker). The country list works, but the plot needs '
+        + '<code>cdn.plot.ly</code> to be reachable.</div>';
+    }
+    return;
+  }
 
   const mode = document.querySelector('input[name="fleetMode"]:checked')?.value || 'absolute';
   const projectionEnabled = document.getElementById('fleetEnableProjection')?.checked ?? true;
