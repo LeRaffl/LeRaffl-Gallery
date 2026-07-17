@@ -1,6 +1,7 @@
 # 31 · Proposal: public country source pages
 
-**Status:** Phases 1–2 built (2026-07). Written 2026-07.
+**Status:** Phases 1–3 built (2026-07); one item of Phase 3 (gallery-card
+links) still open. Written 2026-07.
 **Audience:** the maintainer + whoever implements this later.
 
 ## Implementation status
@@ -8,19 +9,27 @@
 - **Phase 1 — done.** Content model (Option 1: YAML front-matter), template,
   and generator are live.
   - Generator: [`scripts/build_source_pages.py`](../../scripts/build_source_pages.py)
-    — reads the front-matter + `params.csv` (latest period, TTM BEV share) +
-    the per-country CSV tail, fills one theme-aware template, and writes
-    `sources/<slug>.html` plus a `sources/index.html` directory page. Re-run
-    with `python3 scripts/build_source_pages.py`.
-- **Phase 2 — done.** Front-matter now on all 21 documented source docs
-  (every `NN-source-*.md` except the gaps doc), so the generator produces 21
-  country pages + the directory index. The `hev_note` field was added to the
-  model for sources that park a single combined hybrid bucket in the HEV
-  column (Colombia, Malaysia) rather than splitting or folding it.
-- **Phase 3 — next.** Author stubs for the ~18 undocumented countries;
-  gallery-card "ⓘ Source" links (section D); optional CI wiring so pages
-  regenerate on doc/CSV change (same trigger model as `render-country.yml`);
-  and a CI check that every `NN-source-*.md` has valid front-matter.
+    — reads the front-matter + stub registry + `params.csv` (latest period,
+    TTM BEV share) + the per-country CSV tail, fills one theme-aware template,
+    and writes `sources/<slug>.html` plus a `sources/index.html` directory
+    page. Re-run with `python3 scripts/build_source_pages.py`; validate with
+    `--check`.
+- **Phase 2 — done.** Front-matter on all 21 documented source docs (every
+  `NN-source-*.md` except the gaps doc). The `hev_note` field handles sources
+  that park a single combined hybrid bucket in the HEV column (Colombia,
+  Malaysia) rather than splitting or folding it.
+- **Phase 3 — mostly done.**
+  - **Stubs:** brief entries for the 29 remaining gallery countries live in
+    [`country_source_stubs.yaml`](country_source_stubs.yaml) (Option 2
+    registry, used for the low-content cases). They render as "brief entry"
+    pages; a doc wins over a stub on a slug clash so promotion is a delete.
+    Total coverage is now **50 countries** (21 full + 29 brief).
+  - **CI:** [`build-source-pages.yml`](../../.github/workflows/build-source-pages.yml)
+    rebuilds and commits `sources/` on changes to the docs / stub registry /
+    generator / `params.csv`, and runs `--check` on pull requests.
+  - **Still open:** the gallery-card "ⓘ Source" links (section D) — a
+    template change in `index.html` pointing each card at
+    `sources/<slug>.html`.
 
 The rest of this document is the original proposal, kept for context.
 

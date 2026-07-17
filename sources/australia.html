@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Italy — data source · BEV Trajectories</title>
-<meta name="description" content="Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate light-commercial variant.">
+<title>Australia — data source · BEV Trajectories</title>
+<meta name="description" content="New light-vehicle sales for Australia from FCAI&#x27;s VFACTS, with a curated historical series.">
 <style>
 :root{
   --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
@@ -77,33 +77,33 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>Italy <span class="chip chip--live">Live</span></h1>
-  
-  <p class="lead">Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate light-commercial variant.</p>
+  <h1>Australia <span class="chip chip--live">Live</span></h1>
+  <div class="banner">Brief entry — a full source write-up is still to come. The figures below are live; use the source link to verify them.</div>
+  <p class="lead">New light-vehicle sales for Australia from FCAI&#x27;s VFACTS, with a curated historical series.</p>
 
   <div class="stats">
     <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
-    <div class="stat"><div class="n">8.0%</div><div class="l">TTM BEV share (Whole)</div></div>
-    <div class="stat"><div class="n">4</div><div class="l">Variants</div></div>
+    <div class="stat"><div class="n">13.3%</div><div class="l">TTM BEV share (Whole)</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://unrae.it/dati-statistici">UNRAE — struttura del mercato PDF ↗</a></p>
+  <p><a class="source-btn" href="https://www.fcai.com.au/">VFACTS (FCAI); historical series curated by Prof. Ray Willis ↗</a></p>
 
   <h2>How the data flows</h2>
-  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">UNRAE / Ministero delle Infrastrutture e dei Trasporti</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://unrae.it/dati-statistici">UNRAE — struttura del mercato PDF</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_italy.py"><code>scripts/fetch_italy.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-italy.yml"><code>.github/workflows/fetch-italy.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy.csv"><code>data/Italy.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">FCAI — Federal Chamber of Automotive Industries (VFACTS)</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.fcai.com.au/">VFACTS (FCAI); historical series curated by Prof. Ray Willis</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Australia.csv"><code>data/Australia.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Variants</th><td>Whole, Rental, NonRental, Vans</td></tr><tr><th>Vehicle scope</th><td>Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private persons.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>FCEV</th><td>counted in OTHERS (with LPG and CNG)</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+  <table class="defs"><tr><th>Variants</th><td>Whole</td></tr></table>
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual.</li><li>NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists.</li><li>Vans are percentage-derived from a separate UNRAE LCV release.</li></ul></section>
+  <section><h2>Caveats</h2><ul class="caveats"><li>VFACTS is an industry sales report; the pre-modern history is a maintainer-curated series (Prof. Ray Willis).</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
-       Cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th.<br>
-       Row source string: <code>unrae.it</code></p>
-    <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/18-source-italy.md"><code>docs/architecture/18-source-italy.md</code></a></p>
+       Cadence: —.<br>
+       Row source string: <code>VFACTS &amp; Prof. Ray Willis</code></p>
+    
   </div>
 </div>
 </body>
