@@ -1662,6 +1662,76 @@ a:focus-visible{
 .about-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 24px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;font-size:13px;color:#9fb3d1;flex-wrap:wrap}
 .about-footer strong{color:#e9eef2}
 .about-gh{font-size:13px;padding:7px 14px;white-space:nowrap}
+
+/* ---- Sources tab ----
+   Reader-facing provenance page. Rows come from SOURCES_DATA (script block
+   near FAQ_DATA); each country row expands into a plain-language write-up. */
+.src-intro{max-width:78ch;font-size:14px;color:#c7d3e8;line-height:1.65;margin:0 0 10px}
+.src-intro b{color:#e9eef2}
+.src-terms{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+@media (max-width:980px){.src-terms{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.src-terms{grid-template-columns:1fr}}
+.src-term{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:12px 14px}
+.src-term b{display:block;font-size:13px;color:#4da3ff;margin-bottom:4px;letter-spacing:.02em}
+.src-term span{font-size:12px;color:#9fb3d1;line-height:1.55;display:block}
+.src-pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 22px}
+@media (max-width:980px){.src-pipeline{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.src-pipeline{grid-template-columns:1fr}}
+.src-step{position:relative;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:14px 16px}
+.src-step .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:999px;background:#11203d;border:1px solid #2e4268;color:#4da3ff;font-size:12px;font-weight:700;margin-bottom:8px}
+.src-step h4{margin:0 0 4px;font-size:13px;font-weight:700;color:#e9eef2}
+.src-step p{margin:0;font-size:12px;color:#9fb3d1;line-height:1.55}
+@media (min-width:981px){
+  .src-step:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:#4a6a8a;font-size:15px;z-index:1}
+}
+.src-section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4a6a8a;margin:26px 0 12px;padding-bottom:6px;border-bottom:1px solid #1f2a44}
+#srcTable{font-size:13.5px}
+#srcTable thead th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9fb3d1;text-align:left;white-space:nowrap}
+.src-row{cursor:pointer;transition:background .12s}
+.src-row:hover{background:rgba(77,163,255,0.05)!important}
+.src-row td{vertical-align:top}
+.src-row.open{background:rgba(77,163,255,0.07)!important}
+.src-country{display:flex;align-items:center;gap:10px;font-weight:700;white-space:nowrap}
+.src-country img{width:26px;height:26px;border-radius:999px;object-fit:cover;border:1px solid #2b364f;flex:none}
+.src-org b{display:block;color:#e9eef2;font-weight:600}
+.src-org span,.src-cell-sub{display:block;font-size:11.5px;color:#9fb3d1;margin-top:2px;line-height:1.45}
+.src-chipset{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.src-chip{font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid #2b364f;background:#0b1324;color:#9fb3d1;white-space:nowrap}
+.src-through{color:#7fd6a0}
+.src-caret{display:inline-block;transition:transform .15s;color:#4a6a8a;font-size:12px}
+.src-row.open .src-caret{transform:rotate(90deg)}
+.src-portal-btn{font-size:12px;padding:6px 10px;white-space:nowrap;display:inline-block}
+tr.src-detail>td{padding:0!important;background:#0b1120}
+/* The detail cell spans the full (possibly horizontally scrolling) table.
+   Pinning the panel with sticky/left keeps the write-up readable inside the
+   visible scrollport on narrow screens instead of hiding past the right edge. */
+.src-panel{padding:18px 20px 16px;border-left:2px solid #2e4268;position:sticky;left:0;box-sizing:border-box;max-width:calc(100vw - 22px)}
+.src-panel .src-label{font-size:10.5px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#4da3ff;opacity:.85;margin-bottom:8px}
+.src-panel p{margin:0 0 10px;font-size:13px;color:#c7d3e8;line-height:1.7;max-width:88ch}
+.src-panel p:last-child{margin-bottom:0}
+.src-panel ul,.src-panel ol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
+.src-panel li{font-size:12.5px;color:#9fb3d1;line-height:1.6}
+.src-panel li b{color:#e9eef2}
+.src-story{margin-bottom:16px}
+.src-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:880px){.src-cols{grid-template-columns:1fr}}
+.src-block{background:#0f1525;border:1px solid #1f2a44;border-radius:12px;padding:14px 16px;min-width:0}
+.src-block.src-verify{background:#0e1a34;border-color:#2e4268}
+.src-verify .btn{margin-top:12px;font-size:12.5px;display:inline-block}
+.src-map table{width:100%;border-collapse:collapse;font-size:12px}
+.src-map th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#4a6a8a;text-align:left;padding:0 8px 6px 0;font-weight:700}
+.src-map td{padding:4px 8px 4px 0;border-bottom:1px solid #182238;color:#9fb3d1}
+.src-map tr:last-child td{border-bottom:none}
+.src-map td:last-child{color:#e9eef2;font-weight:600;white-space:nowrap}
+.src-panel-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid #1f2a44;font-size:12px;color:#4a6a8a}
+.src-panel-foot a{color:#4da3ff;text-decoration:none}
+.src-panel-foot a:hover{text-decoration:underline}
+.src-footnote{max-width:82ch;margin-top:14px;line-height:1.6}
+.src-footnote a{color:#4da3ff;text-decoration:none}
+@media (max-width:700px){
+  #srcTable th:nth-child(4),#srcTable td:nth-child(4){display:none}
+  .src-panel{padding:14px 12px}
+}
 </style>
   
 
@@ -1716,6 +1786,7 @@ a:focus-visible{
     <span class="tab-group">
       <span class="tab-group-label">Project</span>
       <a href="#about" class="tablink active">About</a>
+      <a href="#sources" class="tablink">Sources</a>
       <a href="#faq" class="tablink">FAQ</a>
       <a href="#submit" class="tablink">Submit Data</a>
       <a href="#feedback" class="tablink">Feedback</a>
@@ -1807,6 +1878,89 @@ a:focus-visible{
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- SOURCES TAB
+     Reader-facing provenance: where each country's numbers come from, what
+     exactly they count, and how to verify them at the original source.
+     Country rows are rendered from SOURCES_DATA in the script block below
+     (same pattern as FAQ_DATA). Companion to the developer docs in
+     docs/architecture/NN-source-*.md — those stay the source of truth for
+     pipeline internals; this page is the plain-language public face. -->
+<section id="tab-sources" class="tab">
+  <div class="container">
+    <h2>Data Sources
+      <span class="fb-ctx-cluster" data-fb-context='{"section":"sources"}'>
+        <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+        <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+        <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+        <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+        <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+      </span>
+    </h2>
+
+    <p class="src-intro">
+      Every curve in this gallery starts as an official monthly count of
+      vehicles. This page shows where each count comes from, what exactly it
+      includes, and how to check it yourself at the original source — no
+      account, no paywall, usually three clicks. Click any country row for
+      the full story.
+    </p>
+    <p class="src-intro">
+      One term does most of the work here: a car is <b>registered</b> the
+      moment it receives its licence plate. Registration counts therefore
+      measure cars actually reaching the road — not orders, not factory
+      output — which makes them the most reliable public measure of what
+      people and companies really bought.
+    </p>
+
+    <div class="src-terms">
+      <div class="src-term"><b>BEV</b><span>Battery-electric: drives on battery only, charged from a plug. The share this whole project models.</span></div>
+      <div class="src-term"><b>PHEV</b><span>Plug-in hybrid: battery plus combustion engine; can be charged from a plug.</span></div>
+      <div class="src-term"><b>HEV</b><span>Full hybrid: engine plus a small self-charging battery, no plug. Many statistics offices do not report these separately.</span></div>
+      <div class="src-term"><b>Whole</b><span>This project&rsquo;s name for a country&rsquo;s main series: all new passenger cars, before any splits.</span></div>
+    </div>
+
+    <div class="src-section-label">How every number gets here</div>
+    <div class="src-pipeline">
+      <div class="src-step"><span class="n">1</span><h4>Official source publishes</h4><p>A statistics office, vehicle authority or industry body releases the month&rsquo;s registration figures.</p></div>
+      <div class="src-step"><span class="n">2</span><h4>A robot checks daily</h4><p>Around publication time, an automated script visits the source and picks up the new month the day it appears.</p></div>
+      <div class="src-step"><span class="n">3</span><h4>Open data file</h4><p>The numbers land in a public CSV file on GitHub. Every change is version-tracked, so anyone can audit which number arrived when, and from where.</p></div>
+      <div class="src-step"><span class="n">4</span><h4>Charts update</h4><p>The model refits and the charts re-render automatically. No manual typing anywhere in between.</p></div>
+    </div>
+
+    <div class="src-section-label">The sources, country by country</div>
+    <div class="tablecard" id="sourcesMount">
+      <table id="srcTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Country</th>
+            <th>Official source</th>
+            <th>What is counted</th>
+            <th>Updates</th>
+            <th>Coverage</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="srcTbody">
+          <tr><td colspan="7" style="padding:14px">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="src-footnote small">
+      These are the first six write-ups — the rest of the gallery&rsquo;s
+      countries are being added batch by batch. Until then, the source for
+      every country is named in its public data file in the
+      <a href="https://github.com/LeRaffl/LeRaffl-Gallery/tree/master/data" target="_blank" rel="noopener">data folder</a>
+      and in <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/params.csv" target="_blank" rel="noopener">params.csv</a>.
+      Deeper technical documentation for each pipeline lives in
+      <a href="https://github.com/LeRaffl/LeRaffl-Gallery/tree/master/docs/architecture" target="_blank" rel="noopener">docs/architecture</a>.
+      Spotted something that doesn&rsquo;t match the official source? Please say so in the
+      <a href="#feedback">Feedback tab</a> — data errors get fixed first.
+    </p>
   </div>
 </section>
 
@@ -6857,6 +7011,353 @@ function renderFaq(){
   `).join('');
 }
 renderFaq();
+
+// -------- Sources tab --------
+// Reader-facing provenance, one entry per documented country. Facts are
+// lifted from docs/architecture/NN-source-*.md and the fetch scripts —
+// keep those in sync when a pipeline changes. Strings may contain simple
+// HTML (<b>, <a>); everything here is maintainer-authored, not user input.
+const SRC_GH = 'https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/';
+
+const SOURCES_DATA = [
+  {
+    id: 'netherlands', country: 'Netherlands', flag: 'assets/flags/netherlands.png',
+    org: 'RDW — Netherlands Vehicle Authority',
+    registry: 'published via duurzamemobiliteit.databank.nl',
+    counted: 'New passenger cars, used imports, heavy trucks',
+    segments: ['Whole — new cars', 'Used — imported used cars', 'HDV — heavy trucks'],
+    cadence: 'Monthly', cadenceNote: 'appears in the first half of the month',
+    since: '2011', url: 'https://duurzamemobiliteit.databank.nl/',
+    urlLabel: 'duurzamemobiliteit.databank.nl',
+    story: [
+      'Every vehicle on Dutch roads is registered with RDW, the national vehicle authority — the agency that issues licence plates. RDW&rsquo;s counts are the definitive record of what enters the Dutch fleet. The monthly figures used here are published on duurzamemobiliteit.databank.nl, a public dashboard operated for the Dutch government&rsquo;s sustainable-mobility programme, broken down by drive type.',
+      'The dashboard has no download button a program can call directly, so the update script opens the same saved table views a human would use and copies the values out — every morning during the first half of the month, until the new month appears.'
+    ],
+    counts: [
+      '<b>Whole</b> — brand-new passenger cars registered in the Netherlands for the first time.',
+      '<b>Used</b> — used cars imported from abroad and receiving their first Dutch plate. The Netherlands imports a lot of used cars, so this segment gets its own curve.',
+      '<b>HDV</b> — heavy commercial vehicles, roughly: trucks above 3.5 tonnes. The Dutch category is &lsquo;zware bedrijfsvoertuigen&rsquo;; it is close to, but not exactly, the EU truck definition — buses, for example, are not included.'
+    ],
+    verify: [
+      'Open duurzamemobiliteit.databank.nl (Dutch only — your browser&rsquo;s translate function works well).',
+      'Find the table &lsquo;Instroom personenauto&rsquo;s&rsquo; — the inflow of new passenger cars — and pick a recent month.',
+      'Compare with the same month in the data file linked below. The numbers match to the unit.'
+    ],
+    caveats: [
+      '<b>No hybrid line:</b> RDW does not report full hybrids separately — they are counted inside petrol and diesel. So the Netherlands shows no HEV share here, and its petrol/diesel figures include hybrids.',
+      'Hydrogen cars are folded into &lsquo;Others&rsquo; — roughly one per month, invisible at chart scale.',
+      'The dashboard&rsquo;s history starts in 2018. The months 2011–2017 (main series only) were back-filled from RDW figures the maintainer had recorded over the years; those early rows carry only the electric and total columns, which is all the trajectory needs.',
+      'RDW&rsquo;s publication date wanders within the first half of the month — hence daily checking rather than a fixed date.'
+    ],
+    mapping: [
+      ['BEV', 'BEV'], ['PHEV', 'PHEV'],
+      ['Benzine — petrol, incl. full hybrids', 'PETROL'],
+      ['Diesel — incl. full hybrids', 'DIESEL'],
+      ['Overig + hydrogen', 'OTHERS']
+    ],
+    dataFiles: ['Netherlands.csv', 'Netherlands_Used.csv', 'Netherlands_HDV.csv'],
+    doc: 'docs/architecture/10-source-netherlands.md'
+  },
+  {
+    id: 'denmark', country: 'Denmark', flag: 'assets/flags/denmark.png',
+    org: 'Statistics Denmark (Danmarks Statistik)',
+    registry: 'StatBank table BIL53 — from the national motor register',
+    counted: 'New passenger cars by owner type, plus vans and trucks',
+    segments: ['Whole', 'Private — households', 'Industry — businesses', 'HDV — lorries', 'Vans'],
+    cadence: 'Monthly', cadenceNote: 'published around the 10th',
+    since: '2014',
+    url: 'https://www.statbank.dk/statbank5a/SelectVarVal/Define.asp?MainTable=BIL53',
+    urlLabel: 'statbank.dk — table BIL53',
+    story: [
+      'Denmark&rsquo;s numbers come from Statistics Denmark, the national statistics office, which publishes new registrations in its free public database StatBank (table BIL53). The counts originate in the Danish motor register — the official record behind every Danish licence plate — and are broken down by vehicle type, owner type and fuel.',
+      'This is a textbook open-data source: anyone can query the exact same table, in English, without an account, and get the exact same numbers this gallery uses.'
+    ],
+    counts: [
+      '<b>Whole</b> — all new passenger cars.',
+      '<b>Private</b> — new cars registered by households.',
+      '<b>Industry</b> — new cars registered by businesses. Private and Industry add up exactly to Whole, month for month — a built-in cross-check on the data.',
+      '<b>HDV</b> — lorries (heavy trucks). Tractor units for semi-trailers are a separate Danish category and are not included.',
+      '<b>Vans</b> — light commercial vehicles.'
+    ],
+    verify: [
+      'Open StatBank table BIL53 (link below) — English interface available.',
+      'Select propellant &lsquo;Electricity&rsquo; (that is the BEV count), a vehicle type and one or two months.',
+      'Click &lsquo;Show result&rsquo;. Same numbers as here, to the unit.'
+    ],
+    caveats: [
+      '<b>No full-hybrid line:</b> like most registers, Statistics Denmark counts non-plug-in hybrids inside petrol and diesel.',
+      'The fuel breakdown for trucks only exists from 2021 — before that, Denmark simply did not publish it, so the truck curve starts there.',
+      'StatBank&rsquo;s monthly detail starts in 2018. The years 2014–2017 (main series only) were assembled by hand from older Statistics Denmark releases and European industry (ACEA) publications — those rows are labelled as such in the data file.',
+      'Niche fuels — gas, hydrogen, ethanol — are grouped into &lsquo;Others&rsquo;.'
+    ],
+    mapping: [
+      ['Electricity', 'BEV'], ['Plug-in hybrid', 'PHEV'],
+      ['Petrol — incl. full hybrids', 'PETROL'],
+      ['Diesel — incl. full hybrids', 'DIESEL'],
+      ['LPG, gas, hydrogen, ethanol, other', 'OTHERS']
+    ],
+    dataFiles: ['Denmark.csv', 'Denmark_Private.csv', 'Denmark_Industry.csv', 'Denmark_HDV.csv', 'Denmark_Vans.csv'],
+    doc: 'docs/architecture/11-source-denmark.md'
+  },
+  {
+    id: 'china', country: 'China', flag: 'assets/flags/china.png',
+    org: 'CPCA — China Passenger Car Association',
+    registry: 'monthly market-analysis reports on cpcaauto.com',
+    counted: 'Retail deliveries of new passenger cars',
+    segments: ['Whole — retail deliveries'],
+    cadence: 'Monthly', cadenceNote: 'published around the 8th–11th',
+    since: '2010',
+    url: 'https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24',
+    urlLabel: 'cpcaauto.com — monthly analyses',
+    story: [
+      'China does not publish monthly registration statistics the way European statistics offices do. The standard reference — the series quoted by industry and financial press worldwide — is the monthly market analysis of the China Passenger Car Association (CPCA), an industry body. Its <b>retail</b> series counts cars actually delivered to end customers, which is the closest Chinese equivalent to a registration count.',
+      'CPCA also reports a <b>wholesale</b> series — factory shipments to dealers, which include exports and inventory build-up and therefore run 20–40% higher. The gallery deliberately uses retail, not wholesale, so China&rsquo;s curve measures the same thing as everyone else&rsquo;s: cars reaching customers on the home market.',
+      'Two quirks are worth knowing. First, CPCA publishes figures in units of ten thousand vehicles (万辆) — &lsquo;95.0万辆&rsquo; means 950,000 cars; the data file stores absolute counts. Second, the article text only states the total for new-energy vehicles; the split into battery-electric, plug-in hybrid and range-extender appears solely inside an image in CPCA&rsquo;s slide deck. The update program reads the numbers out of that image with text recognition — and accepts them only if the three parts add up to the total published in the text.'
+    ],
+    counts: [
+      '<b>Whole</b> — retail deliveries of new passenger cars in mainland China.',
+      '<b>EREV</b>, as its own column — range-extended EVs drive on electricity but carry a small petrol generator on board. China is the world&rsquo;s largest market for them; since January 2025 CPCA reports them separately from plug-in hybrids.'
+    ],
+    verify: [
+      'Open CPCA&rsquo;s monthly analysis listing (link below; Chinese only — browser translation handles it well).',
+      'Open the newest article titled &lsquo;…月份全国乘用车市场分析&rsquo; — the national passenger-car market analysis for that month.',
+      'The retail total and the new-energy total are stated in the opening paragraphs. Multiply the 万辆 figures by 10,000.'
+    ],
+    caveats: [
+      'Retail deliveries are a very close proxy for registrations, but not formally the same statistic.',
+      'Monthly detail exists from late 2016; earlier years (2010–2016) are based on annual figures and carry correspondingly less month-to-month information.',
+      'In the rare month where the slide image cannot be read reliably, the electric split is estimated from the wholesale mix — that row is explicitly labelled as an estimate in the data file&rsquo;s source column, and once a real reading is in the file it is never replaced by an estimate.'
+    ],
+    mapping: [
+      ['零售 — retail total', 'TOTAL'],
+      ['纯电动 — battery-electric', 'BEV'],
+      ['插电混动 — plug-in hybrid', 'PHEV'],
+      ['增程式 — range-extender', 'EREV']
+    ],
+    dataFiles: ['China.csv'],
+    doc: 'docs/architecture/24-source-china.md'
+  },
+  {
+    id: 'austria', country: 'Austria', flag: 'assets/flags/austria.png',
+    org: 'Statistik Austria',
+    registry: 'monthly registration spreadsheets on statistik.at',
+    counted: 'New passenger cars, trucks and vans',
+    segments: ['Whole', 'HDV — heavy trucks', 'Vans'],
+    cadence: 'Monthly', cadenceNote: 'published around mid-month',
+    since: '2012',
+    url: 'https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen',
+    urlLabel: 'statistik.at — Kfz-Neuzulassungen',
+    story: [
+      'Austria&rsquo;s numbers come straight from the federal statistics office, Statistik Austria, which publishes detailed new-registration spreadsheets every month. The underlying data is the official registration process — every vehicle that receives an Austrian plate is in there.',
+      'Austria is one of the more generous sources: for passenger cars it splits not only plug-in hybrids but also full hybrids into their own categories, so Austria&rsquo;s charts can show an HEV share that most other countries cannot.',
+      'One bit of plumbing, mentioned for transparency: statistik.at blocks downloads from large cloud data centres — which is where this project&rsquo;s update robot runs. The download therefore takes a short detour through a relay server. This affects only the route the bytes travel, never the numbers.'
+    ],
+    counts: [
+      '<b>Whole</b> — new passenger cars (EU vehicle class M1).',
+      '<b>HDV</b> — heavy trucks: EU classes N2 and N3, plus semi-trailer tractor units.',
+      '<b>Vans</b> — light commercial vehicles up to 3.5 tonnes (EU class N1).'
+    ],
+    verify: [
+      'Open the Kfz-Neuzulassungen page on statistik.at (link below; German — translation works).',
+      'Download the latest monthly release — a spreadsheet that opens in Excel or LibreOffice.',
+      'The passenger-car sheet lists registrations by fuel type; compare any month with the data file below.'
+    ],
+    caveats: [
+      'The full-hybrid split exists for passenger cars only; for trucks and vans, hybrid variants are published as one combined figure (shown under HEV here).',
+      'Passenger-car history reaches back to 2012; the truck and van series begin in 2024 (annual figure) and run monthly from 2025.',
+      'Publication timing varies around mid-month, so the robot checks daily from the 8th to the 22nd.'
+    ],
+    mapping: [
+      ['Elektro', 'BEV'],
+      ['Hybrid rows &lsquo;darunter Plug-In&rsquo;', 'PHEV'],
+      ['Benzin/Elektro + Diesel/Elektro hybrids, minus plug-ins', 'HEV'],
+      ['Benzin', 'PETROL'], ['Diesel', 'DIESEL'],
+      ['Gas, LPG, hydrogen, other', 'OTHERS']
+    ],
+    dataFiles: ['Austria.csv', 'Austria_HDV.csv', 'Austria_Vans.csv'],
+    doc: 'docs/architecture/20-source-austria.md'
+  },
+  {
+    id: 'sweden', country: 'Sweden', flag: 'assets/flags/sweden.png',
+    org: 'Statistics Sweden (SCB)',
+    registry: 'Statistical Database, table TK1001A',
+    counted: 'New passenger cars',
+    segments: ['Whole'],
+    cadence: 'Monthly', cadenceNote: 'checked daily early in the month',
+    since: '2006',
+    url: 'https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/',
+    urlLabel: 'statistikdatabasen.scb.se',
+    story: [
+      'Sweden&rsquo;s figures come from Statistics Sweden (SCB), the national statistics office, which publishes new passenger-car registrations by fuel type in its free Statistical Database — in English, back to 2006, no account needed.',
+      'It is the cleanest fuel breakdown in the gallery: SCB reports full hybrids and even ethanol/flexifuel cars as their own categories, instead of folding them into &lsquo;petrol&rsquo; as most registers do. The flexifuel column is a Swedish speciality — at the peak of the ethanol boom in 2008, more than one in four new Swedish cars ran on it.'
+    ],
+    counts: [
+      '<b>Whole</b> — all new passenger cars. This SCB table has no owner or truck split, so Sweden appears as a single series.'
+    ],
+    verify: [
+      'Open table TK1001A in SCB&rsquo;s Statistical Database (link below, English).',
+      'Pick fuel type &lsquo;electricity&rsquo; and a few months, then press Continue.',
+      'The result matches the data file below to the unit.'
+    ],
+    caveats: [
+      'SCB routinely revises the most recent month or two in later releases, so the newest data point can shift slightly after first publication. The robot picks up revisions automatically.',
+      'Because full hybrids are reported separately, Sweden&rsquo;s petrol and diesel columns are genuinely hybrid-free — keep that in mind when comparing with countries where they are not.',
+      'Ethanol/flexifuel cars keep their own column and count toward the combustion side of the transition charts.'
+    ],
+    mapping: [
+      ['Electricity', 'BEV'], ['Plug-in hybrid', 'PHEV'],
+      ['Electric hybrid — full hybrid', 'HEV'],
+      ['Petrol', 'PETROL'], ['Diesel', 'DIESEL'],
+      ['Ethanol / ethanol flexifuel', 'FLEXFUEL'],
+      ['Gas and other fuels', 'OTHERS']
+    ],
+    dataFiles: ['Sweden.csv'],
+    doc: 'docs/architecture/13-source-sweden.md'
+  },
+  {
+    id: 'finland', country: 'Finland', flag: 'assets/flags/finland.png',
+    org: 'Statistics Finland (Tilastokeskus)',
+    registry: 'StatFin table 121d — from the Traficom vehicle register',
+    counted: 'First registrations of cars by owner type, plus trucks, vans, buses',
+    segments: ['Whole', 'Private', 'Industry', 'HDV', 'Vans', 'Buses'],
+    cadence: 'Monthly', cadenceNote: 'checked daily early in the month',
+    since: '2014',
+    url: 'https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/',
+    urlLabel: 'pxdata.stat.fi — table 121d',
+    story: [
+      'Finland&rsquo;s numbers come from Statistics Finland, the national statistics office. Table 121d in its StatFin database records first registrations — the first time a vehicle ever receives a Finnish plate — drawing on the national vehicle register maintained by Traficom, the Finnish transport and communications agency.',
+      'Finland reports plug-in hybrids natively and offers unusually rich slicing: besides the whole market, the gallery tracks cars registered to private persons, the business remainder, plus trucks, vans and buses.'
+    ],
+    counts: [
+      '<b>Whole</b> — all first registrations of passenger cars.',
+      '<b>Private</b> — cars registered to private persons.',
+      '<b>Industry</b> — everything that is not a private person: companies, public bodies. The source has no direct &lsquo;business&rsquo; bucket, so this is computed as total minus private.',
+      '<b>HDV</b> — heavy trucks. <b>Vans</b> — light commercial vehicles. <b>Buses</b> — buses and coaches.'
+    ],
+    verify: [
+      'Open StatFin table 121d (link below) — English interface available.',
+      'Pick driving power &lsquo;Electricity&rsquo;, region &lsquo;Mainland Finland&rsquo; and a few months.',
+      'The result matches the data file below to the unit.'
+    ],
+    caveats: [
+      'Covers Mainland Finland; the autonomous Åland Islands are not part of this table (a very small share of the market).',
+      '<b>No full-hybrid category</b> — like Denmark and the Netherlands, full hybrids sit inside petrol and diesel.',
+      'The table starts in 2014, and there is no earlier back-fill for Finland.'
+    ],
+    mapping: [
+      ['Electricity', 'BEV'],
+      ['Petrol/Electricity + Diesel/Electricity — plug-in hybrids', 'PHEV'],
+      ['Petrol — incl. full hybrids', 'PETROL'],
+      ['Diesel — incl. full hybrids', 'DIESEL'],
+      ['Gas, LNG, ethanol, other', 'OTHERS']
+    ],
+    dataFiles: ['Finland.csv', 'Finland_Private.csv', 'Finland_Industry.csv', 'Finland_HDV.csv', 'Finland_Vans.csv', 'Finland_Buses.csv'],
+    doc: 'docs/architecture/12-source-finland.md'
+  }
+];
+
+function renderSources(){
+  const tbody = document.getElementById('srcTbody');
+  if (!tbody) return;
+  tbody.innerHTML = SOURCES_DATA.map(s => `
+    <tr class="src-row" data-src-id="${s.id}" tabindex="0" role="button"
+        aria-expanded="false" aria-controls="src-detail-${s.id}"
+        title="Show the full write-up for ${s.country}">
+      <td style="width:26px"><span class="src-caret">▶</span></td>
+      <td><span class="src-country"><img src="${s.flag}" alt="" loading="lazy">${s.country}</span></td>
+      <td class="src-org"><b>${s.org}</b><span>${s.registry}</span></td>
+      <td>${s.counted}
+        <span class="src-chipset">${s.segments.map(v => `<span class="src-chip">${v}</span>`).join('')}</span>
+      </td>
+      <td>${s.cadence}<span class="src-cell-sub">${s.cadenceNote}</span></td>
+      <td>since ${s.since}<span class="src-cell-sub">data through <span class="src-through" data-src-through="${s.id}">…</span></span></td>
+      <td style="text-align:right"><a class="btn src-portal-btn" href="${s.url}" target="_blank" rel="noopener" title="Open the official source in a new tab">Portal ↗</a></td>
+    </tr>
+    <tr class="src-detail" id="src-detail-${s.id}" hidden>
+      <td colspan="7">
+        <div class="src-panel">
+          <div class="src-story">
+            <div class="src-label">Where the numbers come from</div>
+            ${s.story.map(p => `<p>${p}</p>`).join('')}
+          </div>
+          <div class="src-cols">
+            <div class="src-block">
+              <div class="src-label">What exactly is counted</div>
+              <ul>${s.counts.map(c => `<li>${c}</li>`).join('')}</ul>
+            </div>
+            <div class="src-block src-verify">
+              <div class="src-label">Check it yourself</div>
+              <ol>${s.verify.map(v => `<li>${v}</li>`).join('')}</ol>
+              <a class="btn primary" href="${s.url}" target="_blank" rel="noopener">Open ${s.urlLabel} ↗</a>
+            </div>
+            <div class="src-block">
+              <div class="src-label">Worth knowing</div>
+              <ul>${s.caveats.map(c => `<li>${c}</li>`).join('')}</ul>
+            </div>
+            <div class="src-block src-map">
+              <div class="src-label">Their labels → our columns</div>
+              <table>
+                <thead><tr><th>Source label</th><th>Column here</th></tr></thead>
+                <tbody>${s.mapping.map(([from, to]) => `<tr><td>${from}</td><td>${to}</td></tr>`).join('')}</tbody>
+              </table>
+            </div>
+          </div>
+          <div class="src-panel-foot">
+            <span>Data file${s.dataFiles.length > 1 ? 's' : ''}:
+              ${s.dataFiles.map(f => `<a href="${SRC_GH}data/${f}" target="_blank" rel="noopener">${f}</a>`).join(' · ')}</span>
+            <span>·</span>
+            <a href="${SRC_GH}${s.doc}" target="_blank" rel="noopener">Technical documentation ↗</a>
+          </div>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  // Row click / keyboard toggles the detail row. Links inside the row
+  // (Portal button) keep their default behaviour.
+  tbody.addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    const row = e.target.closest('.src-row');
+    if (row) srcToggleRow(row);
+  });
+  tbody.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const row = e.target.closest('.src-row');
+    if (row){ e.preventDefault(); srcToggleRow(row); }
+  });
+}
+
+function srcToggleRow(row){
+  const detail = document.getElementById('src-detail-' + row.dataset.srcId);
+  if (!detail) return;
+  const open = detail.hidden;
+  detail.hidden = !open;
+  row.classList.toggle('open', open);
+  row.setAttribute('aria-expanded', String(open));
+}
+renderSources();
+
+// Freshness ("data through …") is read live from params.csv the first time
+// the Sources tab is opened. Purely decorative — the static table stands on
+// its own if the fetch fails, cells just keep showing "…".
+let srcFreshnessRequested = false;
+function loadSourcesFreshness(){
+  if (srcFreshnessRequested || location.hash !== '#sources') return;
+  srcFreshnessRequested = true;
+  fetch('params.csv', {cache: 'no-store'})
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(txt => {
+      const rows = parseCSV(txt);
+      SOURCES_DATA.forEach(s => {
+        const row = rows.find(r => r.country === s.country && (r.variant || 'Whole') === 'Whole');
+        const el = document.querySelector(`[data-src-through="${s.id}"]`);
+        if (row && row.data_per && el) el.textContent = row.data_per;
+      });
+    })
+    .catch(() => {});
+}
+window.addEventListener('hashchange', loadSourcesFreshness);
+window.addEventListener('DOMContentLoaded', loadSourcesFreshness);
 
 // FAQ search — debounced because every keystroke walks every card.
 const faqSearch = document.getElementById("faqSearch");
