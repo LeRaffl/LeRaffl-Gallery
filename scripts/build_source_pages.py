@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import csv
 import html
+import json
 import sys
 from pathlib import Path
 
@@ -499,9 +500,18 @@ def main() -> int:
         })
 
     (OUT_DIR / "index.html").write_text(build_index(built), encoding="utf-8")
+
+    # A country → slug map the gallery loads to add "ⓘ Source" links to each
+    # country card. Keyed by the country name so index.html can look it up
+    # from a card's (variant-stripped) country label.
+    slug_map = {b["country"]: b["slug"] for b in built}
+    (OUT_DIR / "sources.json").write_text(
+        json.dumps(slug_map, ensure_ascii=False, indent=0, sort_keys=True),
+        encoding="utf-8")
+
     n_full = sum(1 for b in built if not b["is_stub"])
     print(f"  ✓ {len(built)} pages ({n_full} full, {len(built) - n_full} stub) "
-          f"+ sources/index.html")
+          f"+ sources/index.html + sources/sources.json")
     return 0
 
 

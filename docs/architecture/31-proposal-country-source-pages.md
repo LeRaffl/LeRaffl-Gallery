@@ -1,7 +1,6 @@
 # 31 · Proposal: public country source pages
 
-**Status:** Phases 1–3 built (2026-07); one item of Phase 3 (gallery-card
-links) still open. Written 2026-07.
+**Status:** Phases 1–3 built (2026-07). Written 2026-07.
 **Audience:** the maintainer + whoever implements this later.
 
 ## Implementation status
@@ -27,9 +26,14 @@ links) still open. Written 2026-07.
   - **CI:** [`build-source-pages.yml`](../../.github/workflows/build-source-pages.yml)
     rebuilds and commits `sources/` on changes to the docs / stub registry /
     generator / `params.csv`, and runs `--check` on pull requests.
-  - **Still open:** the gallery-card "ⓘ Source" links (section D) — a
-    template change in `index.html` pointing each card at
-    `sources/<slug>.html`.
+  - **Gallery links (section D):** the generator emits `sources/sources.json`
+    (country → slug); `index.html` loads it and adds an "ⓘ Source" link to
+    each country card, keyed on the base country (variant suffix stripped) and
+    shown only when a page exists.
+
+Everything in the proposal below is now implemented. What remains is content
+work, not system work: promote high-traffic stubs to full source docs, and add
+front-matter for any new country as it joins the gallery.
 
 The rest of this document is the original proposal, kept for context.
 
