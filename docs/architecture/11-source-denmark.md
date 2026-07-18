@@ -2,6 +2,7 @@
 country: Denmark
 slug: denmark
 status: live
+method: api
 summary: >-
   New-registration data for Denmark from Statistics Denmark's public StatBank
   API (table BIL53), which draws on the national Motor Register.

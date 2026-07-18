@@ -2,6 +2,7 @@
 country: Canada
 slug: canada
 status: live
+method: api
 summary: >-
   Quarterly new-vehicle registrations for Canada from Statistics Canada's Web
   Data Service (cube 20-10-0025).

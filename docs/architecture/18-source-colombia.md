@@ -2,6 +2,7 @@
 country: Colombia
 slug: colombia
 status: live
+method: pdf
 summary: >-
   Passenger-car registrations for Colombia from the ANDI/FENALCO automotive
   bulletin, based on the official RUNT registry.

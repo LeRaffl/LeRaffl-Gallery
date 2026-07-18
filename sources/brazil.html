@@ -35,9 +35,15 @@ h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-w
 h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
 .lead{color:var(--muted);font-size:16px;margin:0 0 22px}
 .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
-  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent)}
-.chip--live{background:var(--ok-bg);color:var(--ok-tx)}
-.chip--stale,.chip--planned,.chip--manual{background:var(--warn-bg);color:var(--warn-tx)}
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
 .banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
   padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
@@ -77,8 +83,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>Brazil <span class="chip chip--live">Live</span></h1>
-  <div class="banner">Brief entry — a full source write-up is still to come. The figures below are live; use the source link to verify them.</div>
+  <h1>Brazil <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></h1>
+  
   <p class="lead">New-vehicle registrations for Brazil from ANFAVEA, the manufacturers&#x27; association.</p>
 
   <div class="stats">
@@ -87,17 +93,21 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
+  <section><h2>How it works</h2><p>Brazil&#x27;s figures come from ANFAVEA, the national manufacturers&#x27; association, published as one Excel workbook per year that our fetcher downloads and parses. It counts vehicles from ANFAVEA&#x27;s member brands.</p></section>
+
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://www.anfavea.com.br/">ANFAVEA ↗</a></p>
+  <p><a class="source-btn" href="https://www.anfavea.com.br/">ANFAVEA — yearly Excel workbook ↗</a></p>
 
   <h2>How the data flows</h2>
-  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.anfavea.com.br/">ANFAVEA</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Brazil.csv"><code>data/Brazil.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.anfavea.com.br/">ANFAVEA — yearly Excel workbook</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Brazil.csv"><code>data/Brazil.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Variants</th><td>Whole</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Variants</th><td>Whole</td></tr></table>
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>Association aggregate: ANFAVEA counts member brands, so a non-member EV brand can be under-counted.</li></ul></section>
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>Association aggregate: a non-member brand (historically BYD across Latin America) can be under-counted in the BEV figure.</li><li>Delivered as a yearly Excel workbook; mid-year revised editions are intentionally ignored.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.

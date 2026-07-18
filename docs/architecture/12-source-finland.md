@@ -2,6 +2,7 @@
 country: Finland
 slug: finland
 status: live
+method: api
 summary: >-
   New-registration data for Finland from Statistics Finland's StatFin database
   (table 121d), drawn from the Traficom vehicle register.

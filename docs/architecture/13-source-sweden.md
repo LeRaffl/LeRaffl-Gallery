@@ -2,6 +2,7 @@
 country: Sweden
 slug: sweden
 status: live
+method: api
 summary: >-
   Passenger-car new registrations for Sweden from Statistics Sweden's PxWeb
   database (table TK1001A).

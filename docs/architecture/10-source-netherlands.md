@@ -2,6 +2,7 @@
 country: Netherlands
 slug: netherlands
 status: live
+method: scrape
 summary: >-
   New-vehicle registrations for the Netherlands, sourced from RDW (the Dutch
   vehicle authority) via the duurzamemobiliteit BI portal.

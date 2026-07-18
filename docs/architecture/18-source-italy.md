@@ -2,6 +2,7 @@
 country: Italy
 slug: italy
 status: live
+method: pdf
 summary: >-
   Passenger-car registrations for Italy from UNRAE, with rental / non-rental
   splits and a separate light-commercial variant.

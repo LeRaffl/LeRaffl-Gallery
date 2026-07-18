@@ -2,6 +2,7 @@
 country: Singapore
 slug: singapore
 status: live
+method: pdf
 summary: >-
   New car registrations for Singapore from the LTA's monthly vehicle
   statistics (file M03).

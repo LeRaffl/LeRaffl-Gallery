@@ -2,6 +2,7 @@
 country: Luxembourg
 slug: luxembourg
 status: live
+method: api
 summary: >-
   New road-vehicle registrations for Luxembourg from STATEC's SDMX 2.1 feed
   (dataflow DF_D6122).

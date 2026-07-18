@@ -2,6 +2,7 @@
 country: Indonesia
 slug: indonesia
 status: live
+method: pdf
 summary: >-
   Wholesale (factory-to-dealer) figures for Indonesia from GAIKINDO's monthly
   "Wholesales" report.

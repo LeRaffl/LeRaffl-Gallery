@@ -2,6 +2,7 @@
 country: Austria
 slug: austria
 status: live
+method: file
 summary: >-
   New-registration data for Austria from Statistik Austria's monthly .ods
   publications.
