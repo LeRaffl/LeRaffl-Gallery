@@ -2,6 +2,7 @@
 country: Albania
 slug: albania
 status: live
+method: scrape
 summary: >-
   First vehicle registrations for Albania (new and imported used) from
   DPSHTRR's open-data report.

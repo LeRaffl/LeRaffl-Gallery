@@ -2,6 +2,7 @@
 country: Portugal
 slug: portugal
 status: live
+method: api
 summary: >-
   Passenger-car registrations for Portugal from ACAP, via the motordata.pt /
   autoinforma feed.

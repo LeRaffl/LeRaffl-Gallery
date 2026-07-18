@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UK — data source · BEV Trajectories</title>
-<meta name="description" content="New-car registrations for the UK from SMMT, the motor manufacturers&#x27; and traders&#x27; society.">
+<meta name="description" content="New-car registrations for the UK from SMMT, compiled from DVLA data.">
 <style>
 :root{
   --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
@@ -35,9 +35,15 @@ h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-w
 h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
 .lead{color:var(--muted);font-size:16px;margin:0 0 22px}
 .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
-  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent)}
-.chip--live{background:var(--ok-bg);color:var(--ok-tx)}
-.chip--stale,.chip--planned,.chip--manual{background:var(--warn-bg);color:var(--warn-tx)}
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
 .banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
   padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
@@ -77,9 +83,9 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>UK <span class="chip chip--live">Live</span></h1>
-  <div class="banner">Brief entry — a full source write-up is still to come. The figures below are live; use the source link to verify them.</div>
-  <p class="lead">New-car registrations for the UK from SMMT, the motor manufacturers&#x27; and traders&#x27; society.</p>
+  <h1>UK <span class="chip chip--manual" title="entered by hand from the published source">Manual</span></h1>
+  
+  <p class="lead">New-car registrations for the UK from SMMT, compiled from DVLA data.</p>
 
   <div class="stats">
     <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
@@ -87,17 +93,21 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
+  <section><h2>How it works</h2><p>The SMMT (Society of Motor Manufacturers and Traders) compiles the UK&#x27;s monthly new-car-registration figures from DVLA registration data and publishes them with a powertrain breakdown (BEV, PHEV, hybrid, petrol, diesel). It&#x27;s the standard UK market reference.</p><p>The UK is not pulled by the ACEA fetcher (which skips it); the monthly SMMT release is transcribed by hand.</p></section>
+
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://www.smmt.co.uk/">SMMT ↗</a></p>
+  <p><a class="source-btn" href="https://www.smmt.co.uk/vehicle-data/car-registrations/">SMMT — monthly registrations ↗</a></p>
 
   <h2>How the data flows</h2>
-  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">SMMT — Society of Motor Manufacturers and Traders</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.smmt.co.uk/">SMMT</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/UK.csv"><code>data/UK.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">SMMT — Society of Motor Manufacturers and Traders (from DVLA data)</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.smmt.co.uk/vehicle-data/car-registrations/">SMMT — monthly registrations</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/UK.csv"><code>data/UK.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Variants</th><td>Whole</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Variants</th><td>Whole</td></tr></table>
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>SMMT compiles UK registrations from DVLA data; the monthly release is the gallery&#x27;s source.</li></ul></section>
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>Compiled by SMMT from DVLA registrations — effectively complete for the UK market.</li><li>Maintained by hand; the latest month appears once it has been transcribed.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.

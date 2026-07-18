@@ -2,6 +2,7 @@
 country: Uruguay
 slug: uruguay
 status: live
+method: file
 summary: >-
   New-registration data for Uruguay from ACAU's yearly Compilado workbook.
 source_name: "ACAU — Compilado XLSX"

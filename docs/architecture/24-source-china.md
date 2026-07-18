@@ -2,6 +2,7 @@
 country: China
 slug: china
 status: live
+method: scrape
 summary: >-
   Monthly passenger-car market data for China from CPCA's market-analysis
   report; the retail track is the gallery's headline series.

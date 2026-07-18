@@ -2,6 +2,7 @@
 country: Spain
 slug: spain
 status: live
+method: file
 summary: >-
   New-registration data for Spain from DGT's raw matriculaciones microdata —
   the canonical registry source (ACEA no longer covers Spain).

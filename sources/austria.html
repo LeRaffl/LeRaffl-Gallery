@@ -35,9 +35,15 @@ h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-w
 h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
 .lead{color:var(--muted);font-size:16px;margin:0 0 22px}
 .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
-  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent)}
-.chip--live{background:var(--ok-bg);color:var(--ok-tx)}
-.chip--stale,.chip--planned,.chip--manual{background:var(--warn-bg);color:var(--warn-tx)}
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
 .banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
   padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
@@ -77,7 +83,7 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>Austria <span class="chip chip--live">Live</span></h1>
+  <h1>Austria <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></h1>
   
   <p class="lead">New-registration data for Austria from Statistik Austria&#x27;s monthly .ods publications.</p>
 
@@ -87,6 +93,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
     <div class="stat"><div class="n">3</div><div class="l">Variants</div></div>
   </div>
 
+  
+
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
   <p><a class="source-btn" href="https://www.statistik.at/">statistik.at — DE2/DE3 .ods publications ↗</a></p>
@@ -95,7 +103,9 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">Statistik Austria</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.statistik.at/">statistik.at — DE2/DE3 .ods publications</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_austria.py"><code>scripts/fetch_austria.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-austria.yml"><code>.github/workflows/fetch-austria.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Austria.csv"><code>data/Austria.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Variants</th><td>Whole, HDV, Vans</td></tr><tr><th>Vehicle scope</th><td>Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Backfill</th><td>Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward</td></tr><tr><th>Auth</th><td>none, but the source blocks datacenter IPs (fetched via a Cloudflare Worker relay)</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Variants</th><td>Whole, HDV, Vans</td></tr><tr><th>Vehicle scope</th><td>Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Backfill</th><td>Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward</td></tr><tr><th>Auth</th><td>none, but the source blocks datacenter IPs (fetched via a Cloudflare Worker relay)</td></tr></table>
+
+  
 
   <section><h2>Caveats</h2><ul class="caveats"><li>The source blocks datacenter IPs; data is routed through a Cloudflare Worker relay.</li><li>PHEV/HEV are split for Whole; for HDV and Vans hybrids are lumped into HEV.</li></ul></section>
 

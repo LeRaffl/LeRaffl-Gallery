@@ -2,6 +2,7 @@
 country: Malaysia
 slug: malaysia
 status: live
+method: file
 summary: >-
   Passenger-car registrations for Malaysia from the national open-data portal
   (data.gov.my).

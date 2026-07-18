@@ -31,6 +31,18 @@
     each country card, keyed on the base country (variant suffix stripped) and
     shown only when a page exists.
 
+- **Refinement (2026-07).** The headline chip is now the **acquisition
+  method**, not a live/planned status — one of `api` / `scrape` / `pdf` /
+  `file` / `manual` (a required field on every entry). This replaced the vague
+  "live/planned" ticker after an accuracy pass over the classifications:
+  - Germany, UK, Australia, Georgia, South Korea, India are **manual** (no
+    fetcher; their CSV `source` is the national body, not `ACEA`).
+  - Hungary, Norway, Switzerland and the EU cluster are **ACEA/PDF** — grouped
+    via `source_group: acea`, which injects one shared "About the ACEA figures"
+    explainer instead of repeating it ~18×.
+  - National stub sources (KBA, SMMT, ANFAVEA, ANAC, JADA, ANL, TÜİK, …) carry
+    a `notes` paragraph so they read as full pages, not one-liners.
+
 Everything in the proposal below is now implemented. What remains is content
 work, not system work: promote high-traffic stubs to full source docs, and add
 front-matter for any new country as it joins the gallery.

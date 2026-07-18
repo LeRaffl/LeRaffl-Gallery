@@ -39,13 +39,23 @@ GH_BLOB = "https://github.com/LeRaffl/LeRaffl-Gallery/blob/master"
 
 # Every entry (doc front-matter or stub) must carry these before it can
 # become a page — the --check mode enforces it in CI.
-REQUIRED_FIELDS = ("country", "slug", "source_name", "variants")
+REQUIRED_FIELDS = ("country", "slug", "source_name", "variants", "method")
 
-STATUS_LABELS = {
-    "live": "Live",
-    "stale": "Stale",
+# How the data is acquired — the page's headline label (replaces the old
+# live/planned status). One of these five buckets per country.
+METHOD_LABELS = {
+    "api": "API",
+    "scrape": "Scrape",
+    "pdf": "PDF",
+    "file": "File",
     "manual": "Manual",
-    "planned": "Planned",
+}
+METHOD_DESC = {
+    "api": "pulled from a structured API / query endpoint",
+    "scrape": "scraped from a web portal or dashboard",
+    "pdf": "parsed from a published PDF",
+    "file": "downloaded as a data file (XLSX / Parquet / ODS / zip)",
+    "manual": "entered by hand from the published source",
 }
 
 
@@ -111,9 +121,11 @@ def pct(value) -> str:
         return "—"
 
 
-def status_chip(status: str) -> str:
-    label = STATUS_LABELS.get(status, status or "—")
-    return f'<span class="chip chip--{esc(status)}">{esc(label)}</span>'
+def method_chip(method: str) -> str:
+    label = METHOD_LABELS.get(method, method or "—")
+    title = METHOD_DESC.get(method, "")
+    return (f'<span class="chip chip--{esc(method)}" title="{esc(title)}">'
+            f'{esc(label)}</span>')
 
 
 def gh_link(path: str) -> str:
@@ -166,6 +178,11 @@ def build_definitions(fm: dict) -> str:
     def row(label, value_html):
         rows.append(f"<tr><th>{esc(label)}</th><td>{value_html}</td></tr>")
 
+    method = fm.get("method")
+    if method:
+        row("Acquisition",
+            f'{esc(METHOD_LABELS.get(method, method))} — {esc(METHOD_DESC.get(method, ""))}')
+
     variants = fm.get("variants") or []
     row("Variants", ", ".join(esc(v) for v in variants) or "—")
 
@@ -209,6 +226,36 @@ def build_caveats(fm: dict) -> str:
     return f'<section><h2>Caveats</h2><ul class="caveats">{items}</ul></section>'
 
 
+def build_notes(fm: dict) -> str:
+    """Optional free prose ('How it works') for the expanded national entries."""
+    notes = fm.get("notes") or []
+    if isinstance(notes, str):
+        notes = [notes]
+    if not notes:
+        return ""
+    paras = "".join(f"<p>{esc(p)}</p>" for p in notes)
+    return f'<section><h2>How it works</h2>{paras}</section>'
+
+
+# One shared explainer for every ACEA-fed country, injected by the generator
+# so the ~18 ACEA pages don't repeat the same paragraph in the registry.
+ACEA_GROUP_NOTE = (
+    '<section><h2>About the ACEA figures</h2>'
+    "<p>This country's monthly total comes from ACEA's Europe-wide "
+    "<em>new-car-registrations</em> press release — one PDF covering the EU, "
+    "EFTA and the UK, parsed into per-country rows. It is an <strong>industry-"
+    "association aggregate</strong>, not a direct national-registry feed: it "
+    "counts registrations reported through ACEA, is published with a lag "
+    "(usually the third to fourth week of the following month), and carries only "
+    "the fuel split ACEA itself reports. Where a national registry is the richer "
+    "source of record (e.g. Norway's OFV, Switzerland's BFS), we still ingest the "
+    "ACEA figure here for consistency across the cluster.</p></section>")
+
+
+def build_group_note(fm: dict) -> str:
+    return ACEA_GROUP_NOTE if fm.get("source_group") == "acea" else ""
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     country = fm.get("country", "Unknown")
     whole = params.get((country, "Whole")) or {}
@@ -226,11 +273,13 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         f'{esc(fm.get("source_name", "source"))} ↗</a>' if src_url
         else esc(fm.get("source_name", "—")))
 
+    # A brief-entry banner only where the page really is thin — i.e. a stub
+    # with no expanded prose. Once a stub gets `notes`, it reads as a full
+    # page and the banner would be misleading.
     banner = ""
-    if is_stub:
-        banner = ('<div class="banner">Brief entry — a full source write-up is '
-                  'still to come. The figures below are live; use the source link '
-                  'to verify them.</div>')
+    if is_stub and not fm.get("notes") and fm.get("source_group") != "acea":
+        banner = ('<div class="banner">Brief entry — a fuller write-up is still '
+                  'to come. Use the source link to verify the figures.</div>')
 
     # Only full (documented) entries carry a developer pipeline doc to link.
     dev_note = (f'<p>Full pipeline notes (for developers): '
@@ -240,15 +289,17 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     return TEMPLATE.format(
         css=BASE_CSS,
         country=esc(country),
-        status_chip=status_chip(fm.get("status", "")),
+        method_chip=method_chip(fm.get("method", "")),
         banner=banner,
         summary=esc(fm.get("summary", "")),
         latest_period=esc(latest_period),
         ttm=esc(ttm),
         n_variants=len(variants),
         source_link=source_link,
+        notes=build_notes(fm),
         flow=build_flow(fm),
         definitions=build_definitions(fm),
+        group_note=build_group_note(fm),
         caveats=build_caveats(fm),
         csv_period=esc(csv_period),
         csv_source=esc(csv_source) or "—",
@@ -260,13 +311,12 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
 def build_index(pages: list[dict]) -> str:
     cards = []
     for p in sorted(pages, key=lambda x: x["country"]):
-        brief = ' · brief' if p.get("is_stub") else ''
         cards.append(
             f'<a class="dir-card" href="{esc(p["slug"])}.html">'
-            f'<div class="dir-top">{esc(p["country"])}{status_chip(p["status"])}</div>'
+            f'<div class="dir-top">{esc(p["country"])}{method_chip(p["method"])}</div>'
             f'<div class="dir-sub">{esc(p["summary"])}</div>'
             f'<div class="dir-meta">Latest {esc(p["latest_period"])}'
-            f' · TTM BEV {esc(p["ttm"])}{brief}</div></a>')
+            f' · TTM BEV {esc(p["ttm"])}</div></a>')
     n_full = sum(1 for p in pages if not p.get("is_stub"))
     return INDEX_TEMPLATE.format(
         css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full)
@@ -307,9 +357,15 @@ h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-w
 h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
 .lead{color:var(--muted);font-size:16px;margin:0 0 22px}
 .chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
-  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent)}
-.chip--live{background:var(--ok-bg);color:var(--ok-tx)}
-.chip--stale,.chip--planned,.chip--manual{background:var(--warn-bg);color:var(--warn-tx)}
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
 .banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
   padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
@@ -358,7 +414,7 @@ TEMPLATE = """<!doctype html>
 <body>
 <div class="wrap">
   <a class="back" href="./">← All sources</a>
-  <h1>{country} {status_chip}</h1>
+  <h1>{country} {method_chip}</h1>
   {banner}
   <p class="lead">{summary}</p>
 
@@ -367,6 +423,8 @@ TEMPLATE = """<!doctype html>
     <div class="stat"><div class="n">{ttm}</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">{n_variants}</div><div class="l">Variants</div></div>
   </div>
+
+  {notes}
 
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
@@ -377,6 +435,8 @@ TEMPLATE = """<!doctype html>
 
   <h2>Definitions &amp; scope</h2>
   {definitions}
+
+  {group_note}
 
   {caveats}
 
@@ -404,9 +464,9 @@ INDEX_TEMPLATE = """<!doctype html>
 <div class="wrap">
   <a class="back" href="../">← Back to gallery</a>
   <h1>Data sources</h1>
-  <p class="lead">Where each country's numbers come from, what they count, and
-     what to be careful about. {n} countries listed — {n_full} with a full
-     write-up, the rest brief entries pending a fuller one.</p>
+  <p class="lead">Where each country's numbers come from, how they're acquired,
+     what they count, and what to be careful about. {n} countries, each tagged by
+     acquisition method — API, Scrape, PDF, File or Manual.</p>
   <div class="dir-grid">{cards}</div>
 </div>
 </body>
@@ -492,7 +552,7 @@ def main() -> int:
         built.append({
             "country": fm.get("country", "Unknown"),
             "slug": fm["slug"],
-            "status": fm.get("status", ""),
+            "method": fm.get("method", ""),
             "summary": fm.get("summary", ""),
             "latest_period": whole.get("data_per", "—"),
             "ttm": pct(whole.get("ttm_bev_share")),

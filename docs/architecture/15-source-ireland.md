@@ -2,6 +2,7 @@
 country: Ireland
 slug: ireland
 status: live
+method: scrape
 summary: >-
   New-registration data for Ireland from SIMI's public motorstats dashboard.
 source_name: "stats.simi.ie — SIMI motorstats dashboard"

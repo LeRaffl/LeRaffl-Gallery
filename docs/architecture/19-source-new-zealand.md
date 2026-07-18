@@ -2,6 +2,7 @@
 country: New Zealand
 slug: new-zealand
 status: live
+method: api
 summary: >-
   New light-vehicle registrations for New Zealand from the Ministry of
   Transport's fleet statistics.

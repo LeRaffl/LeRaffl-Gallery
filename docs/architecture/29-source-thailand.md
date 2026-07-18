@@ -2,6 +2,7 @@
 country: Thailand
 slug: thailand
 status: live
+method: api
 summary: >-
   New-registration data for Thailand from the Thailand Automotive Institute's
   AIU portal.

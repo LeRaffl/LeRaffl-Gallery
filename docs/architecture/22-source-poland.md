@@ -2,6 +2,7 @@
 country: Poland
 slug: poland
 status: live
+method: file
 summary: >-
   New-registration data for Poland from PZPM's monthly eRegistrations
   workbook, sourced from the CEP central vehicle register.
