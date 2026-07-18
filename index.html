@@ -1655,6 +1655,8 @@ a:focus-visible{
 @media(max-width:600px){.about-grid{grid-template-columns:1fr}}
 .about-card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
 .about-card:hover{border-color:#2e4268}
+.about-card--link{text-decoration:none}
+.about-card--link:hover h3{color:#7cc4ff}
 .about-card-group{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4da3ff;opacity:.7}
 .about-card h3{margin:0;font-size:15px;font-weight:700;color:#e9eef2}
 .about-card p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.6}
@@ -1710,6 +1712,7 @@ a:focus-visible{
       <span class="tab-group-label">Browse</span>
       <a href="#gallery" class="tablink">Gallery</a>
       <a href="#worldmap" class="tablink">World Map</a>
+      <a href="sources/" class="tablink">Data sources</a>
     </span>
     <span class="tab-group">
       <span class="tab-group-label">Rankings</span>
@@ -1776,6 +1779,11 @@ a:focus-visible{
         <h3>Compare</h3>
         <p>Put multiple countries side by side on the same chart. Useful for spotting which markets lead, lag, or have stalled.</p>
       </div>
+      <a class="about-card about-card--link" href="sources/">
+        <div class="about-card-group">Browse</div>
+        <h3>Data sources ↗</h3>
+        <p>Where each country's numbers come from — the upstream registry or portal, what they count, and the caveats to watch. One page per country.</p>
+      </a>
     </div>
 
     <div class="about-section-label">The model</div>
