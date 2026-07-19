@@ -91,7 +91,11 @@ compute_ttm_long <- function(df) {
     if (all(is.na(v))) next
     rs <- rolling(v, strict = TRUE)
     ttm[[col]] <- rs / total_ttm
-    any_present <- any_present & !is.na(rs)
+    # OTHERS is recomputed below as the TTM residual, so its raw column must
+    # not gate row completeness: sources that report OTHERS only sporadically
+    # (Malaysia's occasional 1-unit months) would otherwise leave no complete
+    # window at all and silently kill the whole TTM series.
+    if (col != "OTHERS") any_present <- any_present & !is.na(rs)
   }
 
   # EREV: don't break it out of PHEV in the TTM until a FULL trailing window of
