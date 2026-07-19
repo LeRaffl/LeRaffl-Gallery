@@ -1,88 +1,114 @@
-# Domestic vs export BEV share — scatter/bubble methodology
+# Domestic vs export BEV share — scatter/trajectory methodology
 
-Data provenance and definitions for `export_scatter_production.png` and
-`export_scatter_gdp_per_capita.png`, produced by
-[`scripts/export_scatter_chart.R`](../../scripts/export_scatter_chart.R).
+Data provenance and definitions for the export-scatter chart set, produced by
+[`scripts/export_scatter_chart.R`](../../scripts/export_scatter_chart.R):
 
-One dot per vehicle-exporting country (China, Germany, Japan, South Korea, US,
-Thailand — the same six as the domestic BEV-share charts). Snapshot year: **2024**
-(latest full year with complete trade data).
+- `export_scatter_<year>_production.png` / `..._gdp_per_capita.png` — one scatter
+  per year, **2021–2024** (the years with complete cross-country trade data).
+- `export_trajectory_production.png` / `..._gdp_per_capita.png` — every country's
+  **2021 → latest** path with an arrowhead at the most recent point.
+
+Six vehicle-exporting countries (China, Germany, Japan, South Korea, US,
+Thailand — the same six as the domestic BEV-share charts).
 
 ## Axes
 
-### X — Domestic BEV share of new registrations (2024)
+### X — Domestic BEV share of new registrations (per year)
 - **What it is:** share of that country's *new vehicle registrations at home* that
-  are battery-electric (BEV only, excludes PHEV/HEV/ICE).
-- **Source:** raw observed data from this repository's country CSVs
-  (`data/<Country>.csv`) — **not** the fitted model. Underlying registration data:
-  CPCA (China), JADA/JAMA (Japan), KBA (Germany), molit.go.kr (South Korea),
-  ANL/StatCan (US), data.thaiauto.or.th (Thailand).
-- **How the number is taken:** `sum(BEV) / sum(TOTAL)` over the 2024 rows. Every
-  country reports 2024 as clean monthly data, so there is no interval overlap to
-  double-count. Actual figures, time-aligned with the 2024 export data on Y.
+  are battery-electric (BEV only; excludes PHEV/HEV/ICE).
+- **Source:** raw observed data from this repo's country CSVs (`data/<Country>.csv`)
+  — **not** the fitted model. Underlying registration data: CPCA (China),
+  JADA/JAMA (Japan), KBA (Germany), molit.go.kr (South Korea), ANL/StatCan (US),
+  data.thaiauto.or.th (Thailand).
+- **How:** `sum(BEV) / sum(TOTAL)` over that calendar year's rows. Every country
+  reports these years as clean 12-month monthly data, so there is no interval
+  overlap to double-count. Actual figures, not modelled.
 
-### Y — BEV share of car exports (2024)
+### Y — BEV share of car exports (per year)
 - **What it is:** share of that country's *passenger-car exports, by value*, that
-  are battery-electric. The export-side mirror of the X-axis.
+  are battery-electric. The export-side mirror of X.
 - **Definition:** `value(HS 870380) / value(HS 8703)`.
   - **HS 870380** = passenger cars propelled *solely* by electric motor (BEV).
-  - **HS 8703** = all passenger motor cars (BEV is a subheading of it, so the
-    ratio is a clean 0–1 fraction).
-- **Source:** UN Comtrade, public preview API
-  (`https://comtradeapi.un.org/public/v1/preview/C/A/HS`), export flow (`X`),
-  reporter → World (`partnerCode=0`), annual, 2024. No API key required.
-- **By value (USD), not units:** Comtrade quantity/unit data is patchier than
-  value; value share is the robust choice for a snapshot.
+  - **HS 8703** = all passenger motor cars (BEV is a subheading, so the ratio is a
+    clean 0–1 fraction).
+- **Source:** UN Comtrade public preview API
+  (`https://comtradeapi.un.org/public/v1/preview/C/A/HS`), export flow, reporter →
+  World, annual. No API key. Pulled once into the cache below by
+  [`scripts/fetch_export_shares.R`](../../scripts/fetch_export_shares.R); the chart
+  script reads the cache, so re-renders need no network.
+- **By value (USD), not units:** Comtrade quantity data is patchier than value.
 
-## Bubble size (two variants)
-- `export_scatter_production.png` — **total vehicle production 2024**, OICA
-  (oica.net, "By country/region 2024"). Hardcoded in the script from OICA's
-  published table.
-- `export_scatter_gdp_per_capita.png` — **GDP per capita (current US$) 2024**,
-  World Bank indicator `NY.GDP.PCAP.CD` via the World Bank API.
+**Cache:** [`comtrade_bev_export_shares.csv`](comtrade_bev_export_shares.csv) —
+`year, country, bev_exp_usd, car_exp_usd, ev_export_share`, 2021–2025.
 
-## The 2024 snapshot (for citation / reproducibility)
+## Bubble size (two variants, fixed per country)
+Bubble size is the same in every year/panel — it encodes **country scale**, not a
+time-varying value, so the eye tracks *position* (the story), not pulsing bubbles.
+Reference year 2024:
+- `*_production.png` — total vehicle production 2024, **OICA** (oica.net).
+- `*_gdp_per_capita.png` — GDP per capita (current US$) 2024, **World Bank**
+  (`NY.GDP.PCAP.CD`).
 
-| Country | Domestic BEV share | BEV export share | Production (OICA) | GDP/capita (WB) |
-|---|---|---|---|---|
-| China | 27.7% | 35.4% | 31,281,592 | $13,293 |
-| Germany | 13.5% | 23.3% | 4,069,222 | $56,104 |
-| South Korea | 8.7% | 14.8% | 4,127,252 | $36,239 |
-| Thailand | 10.9% | 3.0% | 1,468,997 | $7,387 |
-| US | 7.8% | 9.3% | 10,562,188 | $86,170 |
-| Japan | 1.3% | 6.3% | 8,234,681 | $33,797 |
+## Data coverage
+- **2021–2024:** complete for all six — used for the per-year scatters and the
+  trajectory body.
+- **2025:** domestic data complete (full 12 months, all six); export data filed by
+  Germany, Japan, South Korea and the US, but **not yet China or Thailand**. So
+  their trajectory paths end 2024 (marked with `*`) and there is no 2025 scatter.
 
-(Export shares recomputed live from Comtrade on each run; small revisions to
-Comtrade back-data can shift them slightly.)
+## BEV export share by country-year (for citation)
+
+| Country | 2021 | 2022 | 2023 | 2024 | 2025 |
+|---|---|---|---|---|---|
+| China | 35.2% | 45.0% | 44.0% | 35.4% | not filed |
+| Germany | 11.2% | 17.0% | 22.4% | 23.3% | 25.5% |
+| South Korea | 12.7% | 15.8% | 21.0% | 14.8% | 12.7% |
+| US | 8.5% | 10.0% | 11.5% | 9.3% | 7.0% |
+| Japan | 1.2% | 2.5% | 6.9% | 6.3% | 4.7% |
+| Thailand | 0.0% | 0.0% | 0.1% | 3.0% | not filed |
+
+Domestic BEV share 2024 (X on the 2024 panel): China 27.7%, Germany 13.5%,
+Thailand 10.9%, South Korea 8.7%, US 7.8%, Japan 1.3%.
 
 ## The 45° parity line
-The dashed diagonal is **`y = x` (parity)**, not a fitted trend line. It marks
+The dashed diagonal is **`y = x` (parity)**, not a fitted trend line — it marks
 where a country's *export* BEV mix equals its *home* BEV mix.
-- **On the line:** exports as electrified as the home market.
-- **Above (China, Germany, Korea, US, Japan):** exports *more* BEV-heavy than the
-  2024 home market — these car makers build BEVs partly for export.
-- **Below (Thailand):** exports *less* electrified than home — see caveat.
+- **Above:** exports more BEV-heavy than the home market (most car makers, most
+  years — they build BEVs partly for export).
+- **Below:** exports less electrified than home (Thailand).
 
-It is a reading aid, **not proof of the thesis**. Ray's thesis (domestic
-electrification predicts export competitiveness) shows up as the cloud sloping
-up-right; with n=6 a regression line would be statistically thin and is not drawn.
+It is a reading aid, **not proof of the thesis**. With n=6 a regression line would
+be statistically thin and is not drawn.
+
+## What the data actually shows (read before framing the thesis)
+The **cross-sectional** thesis holds: in any single year, high-domestic countries
+(China, Germany) sit top-right and laggards (Japan) bottom-left.
+
+The **temporal** picture is more nuanced and the trajectory makes it honest:
+- **Only Germany** rises cleanly on both axes (export share 11% → 26%).
+- **China, South Korea, US, Japan** all **peaked ~2023 and then fell back** on
+  export share, even as domestic BEV share kept climbing — because BEV export
+  *value* rose but total car exports rose too (ICE export booms, e.g. China to
+  Russia), and 2024–25 EV demand cooled. So "electrify at home ⇒ rising EV *export
+  share*" does **not** hold as a simple time trend for four of six.
+- **Thailand** moves right (domestic up) while staying near zero on exports.
+
+Framing implication: present the scatter as a **cross-sectional ordering**
+(leaders vs laggards), not as proof that domestic uptake mechanically drives a
+rising export share over time — the trajectory would contradict that stronger
+claim.
 
 ## Caveats
 - **Thailand is the structural outlier.** Its domestic BEV uptake is driven by
   *imported* Chinese BEVs and local assembly for the home market, while its export
-  base is still overwhelmingly ICE pickup trucks (the ASEAN/Australia hub). So it
-  electrifies at home but exports combustion — hence far below parity. Its BEV
-  export capacity (EV3.0/3.5 incentives) is being built now and will appear in
-  later years. Treat Thailand as a transition/lag case, not a counterexample.
-- **HS 870380 is only clean from ~2017/2018.** Before HS2017 revisions BEVs were
-  buried in the residual code 870390, so this method does not support a long
-  export time series — only recent snapshots.
-- **Re-exports** (transhipment hubs) can inflate some reporters; the six here are
-  primary producers, so the effect is minor, but worth a sanity check if the
-  country set grows.
+  base is still overwhelmingly ICE pickup trucks (the ASEAN/Australia hub). Its BEV
+  export capacity (EV3.0/3.5) is only ramping now. Treat it as a transition case.
+- **HS 870380 is only clean from ~2017/2018** (before HS2017, BEVs sat in the
+  residual code 870390) — so this method does not support a longer time series.
 - **Comtrade aggregate row must be forced** (`partner2Code=0&motCode=0&customsCode=C00`),
-  otherwise the API returns per-transport-mode sub-rows that double-count on
-  summation (raw Germany summed to a false ~$159B vs the true ~$40B aggregate).
-- **X and Y are both observed 2024** — X from registration CSVs, Y from Comtrade
-  trade records. Both are actual data, not modelled; the only slack is the usual
-  registration-vs-customs definitional difference between the two sources.
+  else the API returns per-transport-mode sub-rows that double-count on summation
+  (raw Germany summed to a false ~$159B vs the true ~$40B aggregate).
+- **Re-exports** (transhipment hubs) can inflate some reporters; the six here are
+  primary producers, so the effect is minor.
+- **X and Y come from different pipelines** (registration CSVs vs customs records);
+  both are observed data, with the usual registration-vs-customs definitional slack.
