@@ -409,6 +409,7 @@ TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{country} — data source · BEV Trajectories</title>
 <meta name="description" content="{summary}">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
 <style>{css}</style>
 </head>
 <body>
@@ -458,6 +459,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data sources — BEV Trajectories</title>
 <meta name="description" content="Where each country's BEV registration data comes from.">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
 <style>{css}</style>
 </head>
 <body>

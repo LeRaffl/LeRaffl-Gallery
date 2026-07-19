@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- BEV Trajectories favicon: the S-curve on the site's dark panel color -->
+  <rect width="64" height="64" rx="14" fill="#0b0c10"/>
+  <path d="M8 52 C 26 52, 24 14, 56 12"
+        fill="none" stroke="#29d398" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="41" cy="21.5" r="5" fill="#69b7ff"/>
+</svg>
