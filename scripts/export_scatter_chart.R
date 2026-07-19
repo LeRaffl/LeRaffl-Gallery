@@ -3,7 +3,7 @@
 # (Y). One dot per exporting country, sized two ways (vehicle production / GDP
 # per capita) so the article can pick whichever framing fits.
 #
-#   X: fitted domestic BEV share of new registrations (from params.csv)
+#   X: observed 2024 domestic BEV share of new registrations (raw country CSVs)
 #   Y: BEV export share = value(HS 870380) / value(HS 8703), UN Comtrade 2024
 #   Bubble: OICA 2024 total vehicle production  OR  World Bank GDP/capita 2024
 #
@@ -60,15 +60,18 @@ wb_gdp_pc <- function(iso3) {
 }
 meta$gdp_pc <- vapply(meta$iso3, wb_gdp_pc, numeric(1))
 
-# --- X-axis: fitted domestic BEV share at each country's latest data month ----
-params <- read.csv(file.path(repo, "params.csv"), stringsAsFactors = FALSE)
-p <- subset(params, country %in% meta$country & variant == "Whole")
-bev_curve <- function(v1, v2, t0, x) 1 - exp(v1 * (x - (t0 - 1))^v2)
-# Evaluate the fitted domestic share at mid-2024 so it matches the full-year
-# 2024 export data on the Y-axis (calendar year Y corresponds to internal x=Y-1).
-x_2024 <- (2024 + 0.5) - 1
-p$domestic_bev <- bev_curve(p$v1, p$v2, p$t0, x_2024)
-df <- merge(meta, p[, c("country", "domestic_bev")], by = "country")
+# --- X-axis: observed 2024 domestic BEV share from each country's CSV ---------
+# Raw data, not the fitted curve: BEV / TOTAL summed over the 2024 rows. Every
+# country reports 2024 as clean monthly data, so there is no interval overlap to
+# double-count. Time-aligned with the 2024 export data on the Y-axis.
+domestic_bev_2024 <- function(country) {
+  d <- read.csv(file.path(repo, "data", paste0(country, ".csv")),
+                stringsAsFactors = FALSE, check.names = FALSE)
+  d <- d[d$variant == "Whole" & substr(d$period, 1, 4) == "2024", ]
+  sum(as.numeric(d$BEV), na.rm = TRUE) / sum(as.numeric(d$TOTAL), na.rm = TRUE)
+}
+meta$domestic_bev <- vapply(meta$country, domestic_bev_2024, numeric(1))
+df <- meta
 
 cat("\n--- assembled data (", YEAR, ") ---\n", sep = "")
 print(df[, c("label", "domestic_bev", "ev_export_share", "production", "gdp_pc")],
@@ -76,7 +79,7 @@ print(df[, c("label", "domestic_bev", "ev_export_share", "production", "gdp_pc")
 
 # --- Ray-style dark theme ----------------------------------------------------
 BG <- "#3B3B3B"; FG <- "#EDEBE0"; GRID <- "#FFFFFF"
-caption_txt <- paste0("X: fitted domestic BEV share (CPCA/JADA/KBA/ANL/thaiauto) · ",
+caption_txt <- paste0("X: observed 2024 domestic BEV share (CPCA/JADA/KBA/ANL/thaiauto) · ",
                       "Y: BEV share of car exports (UN Comtrade HS 870380/8703, ", YEAR, ")",
                       "  ·  Chart @LeRaffl ",
                       format(Sys.Date(), "%d"), month.abb[as.integer(format(Sys.Date(), "%m"))],
