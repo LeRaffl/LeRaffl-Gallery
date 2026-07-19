@@ -12,6 +12,7 @@ Nepal integration is finalized — they never ship to master.
 
 Usage:
     python scripts/probe_nepal.py URL [URL ...]
+    python scripts/probe_nepal.py --urls-file scratch_nepal/probe_urls.txt
 """
 import hashlib
 import re
@@ -20,7 +21,7 @@ from pathlib import Path
 
 import requests
 
-OUT_DIR = Path("scratch_nepal")
+OUT_DIR = Path("scratch_nepal/dl")
 
 HEADERS = {
     "User-Agent": (
@@ -41,8 +42,13 @@ def safe_name(url: str) -> str:
 
 
 def main() -> int:
-    OUT_DIR.mkdir(exist_ok=True)
-    urls = sys.argv[1:]
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    args = sys.argv[1:]
+    if len(args) == 2 and args[0] == "--urls-file":
+        lines = Path(args[1]).read_text().splitlines()
+        urls = [l.strip() for l in lines if l.strip() and not l.strip().startswith("#")]
+    else:
+        urls = args
     if not urls:
         print("no URLs given")
         return 1

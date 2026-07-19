@@ -1,0 +1,7 @@
+# Round 1: discover the Department of Customs site structure (nav links on
+# the homepage) plus likely foreign-trade-statistics listing pages.
+https://www.customs.gov.np/
+https://www.customs.gov.np/en/monthlystatstics.html
+https://www.customs.gov.np/page/fts-current-fy
+https://customs.gov.np/content-category/foreign-trade-statistics
+https://www.dotm.gov.np/
