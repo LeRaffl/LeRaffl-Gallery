@@ -105,9 +105,9 @@ scatter <- function(size_var, size_title, size_labels, bubble_max) {
     # home; below = exports dirtier than home (Thailand), above = cleaner (Japan).
     geom_abline(slope = 1, intercept = 0, linetype = "dashed",
                 color = FG, linewidth = 0.4, alpha = 0.6) +
-    annotate("text", x = 0.40, y = 0.435, label = "parity: export mix = home mix",
+    annotate("text", x = 0.155, y = 0.155, label = "parity: export mix = home mix",
              color = FG, alpha = 0.7, size = 3.6, fontface = "italic",
-             angle = 45, hjust = 1) +
+             angle = 45, hjust = 1, vjust = -0.4) +
     geom_point(aes(size = .data[[size_var]]), alpha = 0.85) +
     geom_text(aes(label = label), color = FG, fontface = "bold", size = 5,
               vjust = -0.9, hjust = 0.5) +
