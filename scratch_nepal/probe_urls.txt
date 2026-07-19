@@ -1,6 +1,8 @@
-# Round 3: content pages inside the FY categories — expect the per-month FTS
-# file attachments here. Plus page-1 pagination of the current-FY category.
-https://www.customs.gov.np/content/10/statistics-a--and-2081-82/
-https://www.customs.gov.np/content/449/curssions-of-trade-revenue-2082-083/
-https://www.customs.gov.np/category/a-v-2082-043/?page=1
-https://www.customs.gov.np/category/fts-2080-081/?page=1
+# Round 4: the real current-FY FTS category (second "2082/083" nav entry),
+# three sample FTS workbooks from FY 2081/82 to learn the sheet layout, and
+# the Nepal flag PNG for assets/flags/.
+https://www.customs.gov.np/category/a-v-2042-063/
+https://giwmscdnone.gov.np/media/files/FTS_Annual_2081_82_twybrul.xlsx
+https://giwmscdnone.gov.np/media/files/FTS_Shrawan_2081_82_wanpuhh.xlsx
+https://giwmscdnone.gov.np/media/files/FTS_UptoJestha_8182_rj9juqq.xlsx
+https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/1000px-Flag_of_Nepal.svg.png
