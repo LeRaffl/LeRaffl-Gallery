@@ -1,5 +1,6 @@
-# Round 2: FTS category listing pages — current FY (irregular slug) and the
-# two previous FYs, to learn the per-month file listing + download URL pattern.
-https://www.customs.gov.np/category/a-v-2082-043/
-https://www.customs.gov.np/category/fts-2081-082/
-https://www.customs.gov.np/category/fts-2080-081/
+# Round 3: content pages inside the FY categories — expect the per-month FTS
+# file attachments here. Plus page-1 pagination of the current-FY category.
+https://www.customs.gov.np/content/10/statistics-a--and-2081-82/
+https://www.customs.gov.np/content/449/curssions-of-trade-revenue-2082-083/
+https://www.customs.gov.np/category/a-v-2082-043/?page=1
+https://www.customs.gov.np/category/fts-2080-081/?page=1
