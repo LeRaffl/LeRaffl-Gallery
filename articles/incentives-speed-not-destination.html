@@ -6,9 +6,16 @@
 <title>Incentives Buy Speed, Not the Destination — LeRaffl</title>
 <meta name="description" content="What started as a check on the Italy and Spain rental splits ended as a rule about EV incentives: removal is brutal early, harmless late — and the transition completes either way. By LeRaffl, July 2026.">
 <meta name="theme-color" content="#0a0d10">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
 <meta property="og:title" content="Incentives Buy Speed, Not the Destination">
 <meta property="og:description" content="A dozen countries cut their EV incentives. What happened next depends on two numbers: how big the price shock was, and how far the transition had already come.">
 <meta property="og:type" content="article">
+<meta property="og:url" content="https://leraffl.github.io/LeRaffl-Gallery/articles/incentives-speed-not-destination.html">
+<meta property="og:image" content="https://leraffl.github.io/LeRaffl-Gallery/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Incentives Buy Speed, Not the Destination">
+<meta name="twitter:description" content="A dozen countries cut their EV incentives. What happened next depends on two numbers: how big the price shock was, and how far the transition had already come.">
+<meta name="twitter:image" content="https://leraffl.github.io/LeRaffl-Gallery/assets/og-image.png">
 <script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
 <style>
 *{box-sizing:border-box}
@@ -126,10 +133,10 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
 
     <div class="live-chart-block">
       <div class="plot" id="fiChart"></div>
-      <div class="chart-caption">Finland, trailing-twelve-month BEV share by holder type. The curves cross in 2024 — right after the private purchase subsidy expired at the end of 2023, while company-car tax benefits continued.</div>
+      <div class="chart-caption">Finland, trailing-twelve-month BEV share by holder type. The curves cross in 2024 — right after the last subsidised private cars were registered (the application window had already closed at the end of 2022), while company-car tax benefits continued.</div>
     </div>
 
-    <p>What happened between those two dates? Finland's purchase subsidy for private BEV buyers expired at the end of 2023. The company-car tax advantage kept running. Within a year, the leading channel switched. Belgium, for calibration, is the extreme in the corporate direction: after its company-car tax reform, corporate registrations hit ~54% BEV against ~9% private in H1 2025<sup><a href="#src-2">[2]</a></sup>. EU-wide the corporate channel leads 25% to 17%<sup><a href="#src-3">[3]</a></sup> — but T&E's country work shows that lead is carried almost entirely by Belgium, the Netherlands and Luxembourg, while corporate channels in the big four markets underperform<sup><a href="#src-2">[2]</a></sup>.</p>
+    <p>What happened between those two dates? Finland's purchase subsidy for private BEV buyers wound down in two steps: applications closed at the end of 2022 — no funds were budgeted for 2023 — and the last subsidised cars worked through the delivery pipeline during 2023<sup><a href="#src-12">[12]</a></sup>. That pipeline is why the private curve kept climbing right up to its December 2023 peak before rolling over. The company-car tax advantage kept running. Within a year, the leading channel switched. Belgium, for calibration, is the extreme in the corporate direction: after its company-car tax reform, corporate registrations hit ~54% BEV against ~9% private in H1 2025<sup><a href="#src-2">[2]</a></sup>. EU-wide the corporate channel leads 25% to 17%<sup><a href="#src-3">[3]</a></sup> — but T&E's country work shows that lead is carried almost entirely by Belgium, the Netherlands and Luxembourg, while corporate channels in the big four markets underperform<sup><a href="#src-2">[2]</a></sup>.</p>
 
     <p>So there is no natural leader of the transition. Households first in Denmark, fleets first in Belgium, a photo finish in Finland with the leader decided by whichever subsidy died last. <strong>Who electrifies first is not a fact about people or firms. It's a fact about tax design.</strong> Italy and Spain don't contradict this — their corporate channels are unusually rental-heavy, and rental fleets, as both earlier articles showed, obey usage economics that no purchase incentive reaches. They're the exception that maps the rule's boundary.</p>
 
@@ -167,17 +174,17 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
         <tr><td>Germany</td><td>Sep&nbsp;+&nbsp;Dec 2023</td><td>20%</td><td>~11%</td><td>−34%</td><td>27 months</td></tr>
         <tr><td>France</td><td>2024–25, in steps</td><td>18%</td><td>~2% per step</td><td>−5%</td><td>9 months</td></tr>
         <tr><td>UK</td><td>Jun 2022</td><td>15%</td><td>~2–5%</td><td><strong>−1% (none)</strong></td><td>immediately</td></tr>
-        <tr><td>Sweden</td><td>Nov 2022</td><td>30%</td><td>~10–14%</td><td>−6%</td><td>immediately</td></tr>
+        <tr><td>Sweden†</td><td>Nov 2022</td><td>30%</td><td>~10–14%</td><td>−14%</td><td>never below pre-cut level</td></tr>
         <tr><td>Iceland</td><td>Jan 2024, + km charge</td><td>50%</td><td>~20%+</td><td>−41%</td><td>not yet, rising</td></tr>
         <tr><td>Norway</td><td>2023, partial &amp; gradual</td><td>78%</td><td>small per step</td><td>~0%</td><td>immediately</td></tr>
       </tbody>
     </table></div>
 
-    <p style="font-size:13px;color:#4a6a8a">*Dose = the price shock as a share of a typical BEV's purchase price in that market: purchase incentives, VAT and registration taxes, plus new recurring charges roughly as a four-year cost. Values marked ~ are estimated from the policy parameters (grant amounts, tax rates), not from computed transaction prices — treat them as order-of-magnitude. Market response columns are computed from the Gallery's registration data (trailing-twelve-month share, pre-cut peak to post-cut trough).</p>
+    <p style="font-size:13px;color:#4a6a8a">*Dose = the price shock as a share of a typical BEV's purchase price in that market: purchase incentives, VAT and registration taxes, plus new recurring charges roughly as a four-year cost. Values marked ~ are estimated from the policy parameters (grant amounts, tax rates), not from computed transaction prices — treat them as order-of-magnitude. Market response columns are computed from the Gallery's registration data (trailing-twelve-month share, peak to post-cut trough). "Share at cut" is the TTM share at the cut date; Germany uses the September corporate step, where its series peaked.<br>†Sweden's Klimatbonus applied to cars <em>ordered</em> by 8 November 2022, so deliveries kept the TTM series rising for almost a year after the cut. Its −14% is measured from that delivery-inflated peak (Oct 2023) to the trough (Nov 2024); the series never dropped below its level at the cut date itself.</p>
 
-    <p>Read the drop column against the share column and the pattern is almost embarrassingly clean: 2% → −85%, 10% → −66%, 20% → −34%, 30% → −6%, 78% → 0. The later you cut, the less it costs, monotonically — <em>except Iceland</em>, sitting at 50% with a drop that "should" be Sweden-sized and isn't. And except the UK, which cut at 15% — right between New Zealand's disaster and Germany's crater — and felt <em>nothing</em>.</p>
+    <p>Read the drop column against the share column and the pattern is almost embarrassingly clean: 2% → −85%, 10% → −66%, 20% → −34%, 30% → −14%, 78% → 0. The later you cut, the less it costs, monotonically — <em>except Iceland</em>, sitting at 50% with a drop that "should" be Sweden-sized and isn't. And except the UK, which cut at 15% — right between New Zealand's disaster and Germany's crater — and felt <em>nothing</em>.</p>
 
-    <p>I like these outliers, because they forced a refinement instead of a retreat, and the refinement is in the dose column. The UK's final Plug-in Car Grant was £1,500, restricted to cars under £32,000<sup><a href="#src-11">[11]</a></sup> — a token, maybe 2–5% of a typical BEV's price, and the market shrugged. Iceland didn't remove <em>a</em> subsidy: it removed the entire VAT exemption <strong>and introduced a per-kilometre road charge in the same month</strong><sup><a href="#src-5">[5]</a></sup> — the largest single repricing shock in this sample, and it bought Iceland an Icelandic-sized crater at a share where Sweden's moderate cut cost nothing. New Zealand, the other over-performer on the damage scale, also stacked new road-user charges on top of its subsidy cut. And the Netherlands' company-car tax change — which roughly tripled the annual tax cost of a PHEV, the biggest effective dose here — produced the deepest, longest crater of all. So the working model gets two dials instead of one: <strong>the size of the crater is set by the dose; how long the crater lasts is set by the stage.</strong></p>
+    <p>I like these outliers, because they forced a refinement instead of a retreat, and the refinement is in the dose column. The UK's final Plug-in Car Grant was £1,500, restricted to cars under £32,000<sup><a href="#src-11">[11]</a></sup> — a token, maybe 2–5% of a typical BEV's price, and the market shrugged. Iceland didn't remove <em>a</em> subsidy: it removed the entire VAT exemption <strong>and introduced a per-kilometre road charge in the same month</strong><sup><a href="#src-5">[5]</a></sup> — the largest single repricing shock in this sample, and it bought Iceland three times the damage Sweden took from a moderate cut twenty points <em>earlier</em> in the transition. New Zealand, the other over-performer on the damage scale, also stacked new road-user charges on top of its subsidy cut. And the Netherlands' company-car tax change — which roughly tripled the annual tax cost of a PHEV, the biggest effective dose here — produced the deepest, longest crater of all. So the working model gets two dials instead of one: <strong>the size of the crater is set by the dose; how long the crater lasts is set by the stage.</strong></p>
 
     <p>And the second half of the hypothesis — that the transition resumes regardless? It holds everywhere. Germany regained its pre-cut peak after 27 months <em>without the purchase subsidy coming back</em>, and now sits above it at 22.6%. Even Denmark's near-dead 2017 market stands at 76% today (with the honest caveat that Denmark also softened the tax phase-in along the way — Germany is the clean case). Iceland is back to 45% and climbing. Nobody stays down. The destination appears to be fixed; incentives negotiate the arrival time.</p>
 
@@ -202,7 +209,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       <li><strong>There is no natural first-mover.</strong> Private households lead where taxes punish private ICE purchases (Denmark), fleets lead where company-car taxation does the pushing (Belgium), and the leader flips when one incentive outlives the other (Finland, 2024). Any story that explains the gap with national character is fake until it has checked the tax code.</li>
       <li><strong>Incentive removal is instant and proportional to the dose.</strong> Spike, cliff, crater — visible within one month, in every case, and deepest where subsidies were cut and new charges added simultaneously (Iceland, New Zealand).</li>
       <li><strong>The damage is temporary, and its duration shrinks as the transition matures.</strong> −85% at a 2% market. −34% at 20%. Nothing at all at 90%. And every market, without exception, resumes course.</li>
-      <li><strong>Rental fleets and the used market remain the exception</strong> — the channels where usage economics outweigh any incentive. That's the deeper reason the Italy and Spain curves look the way they do, and why the Netherlands' used-BEV share has been <em>falling</em> since 2022 while its new-BEV share soared: the domestic used market isn't absorbing the lease returns. That one deserves its own article.</li>
+      <li><strong>Rental fleets and the used market remain the exception</strong> — the channels where usage economics outweigh any incentive. That's the deeper reason the Italy and Spain curves look the way they do, and why the Netherlands' used-BEV share <em>fell</em> from 2022 through 2025 — with only a first tentative uptick in 2026 — while its new-BEV share soared: the domestic used market isn't absorbing the lease returns. That one deserves its own article.</li>
     </ul>
 
     <h2>The field guide: what to expect, in numbers</h2>
@@ -237,6 +244,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       <li id="src-9">HKSAR Government, <a href="https://www.info.gov.hk/gia/general/202602/25/P2026022500288.htm" target="_blank" rel="noopener">"First registration tax concession arrangement for electric vehicles"</a> (25 February 2026) — concessions, including the One-for-One scheme, ended 31 March 2026.</li>
       <li id="src-10">Quartz, <a href="https://qz.com/1676912/teslas-sales-never-recovered-after-hong-kong-cut-a-tax-break" target="_blank" rel="noopener">"Tesla's sales never recovered after Hong Kong cut a tax break"</a>; Electrek, <a href="https://electrek.co/2017/02/22/hong-kong-electric-vehicle-incentives-tesla/" target="_blank" rel="noopener">"Hong Kong cancels electric vehicle incentives"</a> (2017).</li>
       <li id="src-11">GOV.UK, <a href="https://www.gov.uk/government/news/plug-in-grant-for-cars-to-end-as-focus-moves-to-improving-electric-vehicle-charging" target="_blank" rel="noopener">"Plug-in grant for cars to end"</a> (June 2022) — final grant £1,500, cars under £32,000 only. France, USA and Netherlands-PHEV market responses are computed from the Gallery's own datasets; the Dutch company-car ("bijtelling") rate changes for PHEVs (7% → 15/22% of list price, 2016–17) are summarised in <a href="https://en.wikipedia.org/wiki/Plug-in_electric_vehicles_in_the_Netherlands" target="_blank" rel="noopener">Plug-in electric vehicles in the Netherlands</a>; Israel's stepped purchase-tax increases (10% → 45–48%, 2023–26) via <a href="https://www.gov.il/en/pages/sa121125-1" target="_blank" rel="noopener">Israel Tax Authority</a>.</li>
+      <li id="src-12">Finnish Ministry of Transport and Communications, <a href="https://lvm.fi/en/-/changes-to-application-periods-in-the-purchase-subsidy-scheme-for-low-emission-vehicles-1891843" target="_blank" rel="noopener">"Changes to application periods in the purchase subsidy scheme for low-emission vehicles"</a> — the application window for the private BEV purchase subsidy closed 31 December 2022 (no appropriation for 2023); subsidised cars registered through 2023.</li>
     </ol>
   </div>
 
@@ -308,7 +316,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
     ], baseLayout({
       yaxis: { range: [0, 60], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
       shapes: [vline('2023-12')],
-      annotations: [{ x: '2023-12', y: 1, yref: 'paper', yanchor: 'bottom', text: 'private subsidy ends', showarrow: false, font: { size: 11, color: RED } }]
+      annotations: [{ x: '2023-12', y: 1, yref: 'paper', yanchor: 'bottom', text: 'last subsidised registrations', showarrow: false, font: { size: 11, color: RED } }]
     }), CFG);
 
     Plotly.newPlot('cliffChart', [
@@ -324,7 +332,8 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       annotations: [
         { x: '2022-11', y: 1, yref: 'paper', yanchor: 'bottom', text: 'SE', showarrow: false, font: { size: 11, color: GREEN } },
         { x: '2023-09', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'right', text: 'DE¹ ', showarrow: false, font: { size: 11, color: AMBER } },
-        { x: '2024-01', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'left', text: ' DE² · IS · NZ', showarrow: false, font: { size: 11, color: BLUE } }
+        { x: '2023-12', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'right', text: 'DE² ', showarrow: false, font: { size: 11, color: AMBER } },
+        { x: '2024-01', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'left', text: ' IS · NZ', showarrow: false, font: { size: 11, color: BLUE } }
       ]
     }), CFG);
 
@@ -337,7 +346,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       { c: 'Germany ’23/24',   x: 20.5, y: 34, dose: 11, pos: 'middle right' },
       { c: 'France ’24/25',    x: 17.8, y: 5,  dose: 2,  pos: 'bottom right' },
       { c: 'UK ’22',           x: 15.1, y: 1,  dose: 3,  pos: 'middle left' },
-      { c: 'Sweden ’22',       x: 30.2, y: 6,  dose: 12, pos: 'top right' },
+      { c: 'Sweden ’22',       x: 30.2, y: 14, dose: 12, pos: 'top right' },
       { c: 'Iceland ’24',      x: 50.0, y: 41, dose: 22, pos: 'middle right' },
       { c: 'Norway ’23',       x: 78.4, y: 0,  dose: 3,  pos: 'bottom center' },
       { c: 'Hong Kong ’26',    x: 90,   y: 0,  dose: 25, pos: 'top center' }
@@ -354,7 +363,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
     }], baseLayout({
       showlegend: false,
       xaxis: { title: { text: 'BEV share when the incentive was cut', font: { size: 11, color: TICK } }, range: [0, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
-      yaxis: { title: { text: 'relative market drop', font: { size: 11, color: TICK } }, range: [-6, 95], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } }
+      yaxis: { title: { text: 'relative market drop', font: { size: 11, color: TICK } }, range: [-6, 102], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } }
     }), CFG);
 
     const hk = [['2025-06', 86.3], ['2026-01', 89.2], ['2026-03', 95.0], ['2026-04', 94.6], ['2026-05', 89.2]];

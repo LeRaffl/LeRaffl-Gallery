@@ -104,7 +104,7 @@ drop, and months back to the pre-cut peak (all own monthly data):
 | Denmark | 2016 (registration-tax phase-in) | 2.1% | 0.3% | **−85%** | +45 months |
 | New Zealand | Jan 2024 | 10.1% | 3.4% | **−66%** | not yet (30+ mo, now 6.7%) |
 | Germany | Jan 2024 (corporate already Sep 2023) | 20.5% | 13.5% | −34% | +27 months (now 22.6%) |
-| Sweden | Nov 2022 | 30.2% | ~no trough | −6% | immediate |
+| Sweden | Nov 2022 | 30.2% | 34.1% (from 39.5% delivery peak) | −14% | never below pre-cut level |
 | Iceland | Jan 2024 | 50.0% | 29.3% | −41% | not yet (now 45.4%, rising) |
 | Norway | 2023 (partial VAT, gradual) | 78.4% | 78.0% | ~0% | immediate (now 97.6%) |
 
@@ -186,7 +186,7 @@ unless marked ext.
 | New Zealand, CCD end + RUC | Jan 2024 | 10.1% | ~15–19% (rebate + new km charge) | −66% | 30+ months, ongoing |
 | USA, federal credit end | Oct 2025 | 8.2% | ~16% where eligible | −17% so far | ongoing (still falling, 2026-05) |
 | Germany, Umweltbonus end (2 steps) | Sep+Dec 2023 | 20.5% | ~11% | −34% | 27 months |
-| Sweden, Klimatbonus end | Nov 2022 | 30.2% | ~10–14% (50–70k SEK) | −6% | ~0 |
+| Sweden, Klimatbonus end | Nov 2022 | 30.2% | ~10–14% (50–70k SEK) | −14% (from delivery peak) | ~0 (never below pre-cut level) |
 | UK, Plug-in Car Grant end | Jun 2022 | 15.1% | ~2–5% (£1,500, only <£32k cars) | **−1% (none)** | 0 |
 | France, bonus reductions (steps) | 2024–25 | 17.8% | ~2% per step, staircase | −5% | 9 months |
 | Israel, purchase-tax staircase 10→45% | 2023–26 | ~20–25% | ~5–10% per step, annual | none visible (ext) | 0 |
