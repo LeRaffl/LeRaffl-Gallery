@@ -221,7 +221,7 @@ async function handlePost(request, env, ctx) {
   if (!body || typeof body !== 'string' || body.trim().length < 10) {
     return err('Description must be at least 10 characters.', 400, origin);
   }
-  const validCategories = ['question', 'data', 'idea', 'bug'];
+  const validCategories = ['question', 'data', 'idea', 'bug', 'comment'];
   if (!validCategories.includes(category)) {
     return err('Invalid category.', 400, origin);
   }
@@ -533,7 +533,13 @@ async function handleSubmission(request, env, ctx) {
   let existing = null;   // { sha, content (utf8 string) }
   if (fileRes.status === 200) {
     const fileJson = await fileRes.json();
-    existing = { sha: fileJson.sha, content: atob((fileJson.content || '').replace(/\n/g, '')) };
+    // atob() alone yields a latin-1 byte string; the commit path UTF-8-encodes
+    // via btoa(unescape(encodeURIComponent(...))), so multibyte chars in the
+    // existing CSV (em-dashes in notes/source) would get double-encoded into
+    // mojibake on every upsert. Decode the raw bytes as UTF-8 instead.
+    const raw = atob((fileJson.content || '').replace(/\n/g, ''));
+    const bytes = Uint8Array.from(raw, ch => ch.charCodeAt(0));
+    existing = { sha: fileJson.sha, content: new TextDecoder('utf-8').decode(bytes) };
   } else if (fileRes.status !== 404) {
     return err(`Failed to read ${filename}`, 502, origin);
   }
