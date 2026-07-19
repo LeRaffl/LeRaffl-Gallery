@@ -54,7 +54,8 @@ caption_txt <- paste0("Data: lta.gov.sg, gaikindo.io, VFACTS, data.gov.my",
                       paste0(format(Sys.Date(), "%d"),
                              month.abb[as.integer(format(Sys.Date(), "%m"))],
                              format(Sys.Date(), "%Y")))
-note <- paste0(cur_year, " = year-to-date")
+note <- paste0("Excl. hybrids; only Singapore ≤2021 includes HEV (not split at source)  ·  ",
+               cur_year, " = year-to-date")
 
 BG <- "#3B3B3B"; FG <- "#EDEBE0"; GRID <- "#FFFFFF"
 
