@@ -97,9 +97,13 @@ save_png <- function(p, name) {
   cat("wrote exports/ray_article/", name, "\n", sep = "")
 }
 axis_x <- "Domestic BEV share of new registrations"
-axis_y <- "BEV share of car exports"
+axis_y <- "BEV share of passenger-car exports"
 cap <- paste0("X: observed domestic BEV share (CPCA/JADA/KBA/ANL/thaiauto) · ",
-              "Y: BEV share of car exports (UN Comtrade HS 870380/8703) · @LeRaffl ", datestamp)
+              "Y: BEV share of passenger-car exports (UN Comtrade HS 870380/8703) · @LeRaffl ", datestamp)
+# Honest-scope footnote: Y covers passenger cars only (pickups/LCVs are HS 8704
+# and excluded); US and Thailand home-market shares include light trucks/pickups.
+scope_note <- paste0("Y = passenger cars only, pickups/LCVs (HS 8704) excluded · ",
+                     "US & Thailand domestic shares incl. pickups/light trucks")
 
 # --- 1) one scatter per year (2021-2024, complete cross-sections) ------------
 for (yr in 2021:2024) {
@@ -115,7 +119,7 @@ for (yr in 2021:2024) {
       scale_y_continuous(labels = percent_format(accuracy = 1), limits = lim) +
       coord_fixed() +
       labs(title = paste0("Electrify at home, export EVs — ", yr),
-           subtitle = paste0(cap, "\nbubble size = ", b$title),
+           subtitle = paste0(cap, "\nbubble size = ", b$title, "  ·  ", scope_note),
            x = paste0(axis_x, " (", yr, ")"), y = paste0(axis_y, " (", yr, ")")) +
       ray_theme
     save_png(p, sprintf("export_scatter_%d_%s.png", yr, b$suffix))
@@ -145,7 +149,7 @@ for (b in bubble_variants) {
     labs(title = "Electrify at home, export EVs — trajectories 2021→latest",
          subtitle = paste0(cap, "\nbubble size = ", b$title,
                            "  ·  * export path ends 2024 (", starred,
-                           " not yet filed for 2025)"),
+                           " not yet filed for 2025)\n", scope_note),
          x = axis_x, y = axis_y) +
     ray_theme
   save_png(p, sprintf("export_trajectory_%s.png", b$suffix))

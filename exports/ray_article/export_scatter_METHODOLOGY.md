@@ -24,13 +24,18 @@ Thailand — the same six as the domestic BEV-share charts).
   reports these years as clean 12-month monthly data, so there is no interval
   overlap to double-count. Actual figures, not modelled.
 
-### Y — BEV share of car exports (per year)
+### Y — BEV share of passenger-car exports (per year)
 - **What it is:** share of that country's *passenger-car exports, by value*, that
   are battery-electric. The export-side mirror of X.
 - **Definition:** `value(HS 870380) / value(HS 8703)`.
   - **HS 870380** = passenger cars propelled *solely* by electric motor (BEV).
-  - **HS 8703** = all passenger motor cars (BEV is a subheading, so the ratio is a
+  - **HS 8703** = passenger motor cars (BEV is a subheading, so the ratio is a
     clean 0–1 fraction).
+- **⚠️ Pickups and LCVs are NOT included.** Goods vehicles — one-ton pickups,
+  vans, light trucks — are **HS 8704** and sit outside both numerator and
+  denominator. Y is strictly a *passenger-car* export mix. This matters most for
+  Thailand (whose export backbone is ICE pickups) and the US (pickup exports):
+  their *total* vehicle-export mix is even more ICE-heavy than Y shows.
 - **Source:** UN Comtrade public preview API
   (`https://comtradeapi.un.org/public/v1/preview/C/A/HS`), export flow, reporter →
   World, annual. No API key. Pulled once into the cache below by
@@ -91,6 +96,10 @@ The **temporal** picture is more nuanced and the trajectory makes it honest:
   *value* rose but total car exports rose too (ICE export booms, e.g. China to
   Russia), and 2024–25 EV demand cooled. So "electrify at home ⇒ rising EV *export
   share*" does **not** hold as a simple time trend for four of six.
+- **South Korea's fall (21% → 13%) is partly production offshoring, not EV
+  retreat:** Hyundai/Kia's US Metaplant replaced Korean-built EV exports to the US
+  with local production. An export-share drop can mean the EVs are now built
+  closer to the customer.
 - **Thailand** moves right (domestic up) while staying near zero on exports.
 
 Framing implication: present the scatter as a **cross-sectional ordering**
@@ -99,16 +108,37 @@ rising export share over time — the trajectory would contradict that stronger
 claim.
 
 ## Caveats
-- **Thailand is the structural outlier.** Its domestic BEV uptake is driven by
-  *imported* Chinese BEVs and local assembly for the home market, while its export
-  base is still overwhelmingly ICE pickup trucks (the ASEAN/Australia hub). Its BEV
-  export capacity (EV3.0/3.5) is only ramping now. Treat it as a transition case.
+- **Vehicle-scope mismatch between X and Y (the main caveat).** X covers each
+  country's *home-market registrations as reported by its source*: passenger cars
+  for China (CPCA) and Germany (KBA), but **light-duty vehicles including
+  pickups/light trucks for the US (ANL)** and **including pickups for Thailand**
+  (thaiauto — pickups are the majority of the Thai home market). Y covers
+  *passenger cars only* (HS 8703). Consequences:
+  - The **cross-sectional clustering is robust** (US and Japan are laggards on
+    both axes regardless of scope; China and Germany lead on both).
+  - The **parity reading is fragile for the US and Thailand**: a cars-only US
+    home share would be higher than 7.8% (light trucks are ~80% of the US market
+    and mostly ICE), which could move the US to or below parity. Do not build an
+    argument on the US's exact position relative to the line.
+  - All six countries are kept, with this caveat, rather than dropped — removing
+    the US or Thailand would gut the leaders/laggards comparison the charts exist
+    to show, and their *cluster* positions are scope-robust.
+- **Thailand is the structural outlier — precisely stated:** ~97% of its
+  *passenger-car* exports are still ICE, while its home market electrifies via
+  imported Chinese BEVs and local assembly. Its main export line — ICE one-ton
+  pickups — is HS 8704 and **not in Y at all**, so Thailand's total vehicle-export
+  mix is even more combustion-heavy than the chart shows; adding pickups would
+  push it further below parity, not less. Its BEV export capacity (EV3.0/3.5,
+  Chinese-brand plants exporting from 2024) is only ramping now: the 2023→2024
+  jump from 0.1% to 3.0% is that ramp starting. Treat it as a transition case.
 - **HS 870380 is only clean from ~2017/2018** (before HS2017, BEVs sat in the
   residual code 870390) — so this method does not support a longer time series.
 - **Comtrade aggregate row must be forced** (`partner2Code=0&motCode=0&customsCode=C00`),
   else the API returns per-transport-mode sub-rows that double-count on summation
   (raw Germany summed to a false ~$159B vs the true ~$40B aggregate).
 - **Re-exports** (transhipment hubs) can inflate some reporters; the six here are
-  primary producers, so the effect is minor.
+  primary producers, so the effect is minor. Comtrade also does not separate
+  new from used vehicles (relevant to Japan's large used-car exports, though by
+  *value* the effect is modest).
 - **X and Y come from different pipelines** (registration CSVs vs customs records);
   both are observed data, with the usual registration-vs-customs definitional slack.
