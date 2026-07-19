@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <title>Schedule &middot; May 2026</title>
 <style>
   :root { color-scheme: dark; }
@@ -12,9 +13,10 @@
   header { display:flex; align-items:center; justify-content:space-between;
            margin-bottom:12px; gap:12px; flex-wrap:wrap; }
   h1 { font-size:22px; margin:0; font-weight:600; }
-  .nav a { color:#aaa; text-decoration:none; padding:4px 10px;
+  .nav a, .nav .nav-off { color:#aaa; text-decoration:none; padding:4px 10px;
            border:1px solid #333; border-radius:6px; margin-left:4px; font-size:13px; }
   .nav a:hover { color:#fff; border-color:#666; }
+  .nav .nav-off { opacity:.35; }
   .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
   .dow { font-size:11px; text-transform:uppercase; color:#888;
          text-align:left; padding:4px 6px; letter-spacing:0.5px; }
@@ -52,7 +54,7 @@
 <header>
   <h1>May 2026</h1>
   <div class="nav">
-    <a href="schedule-2026-04.html">&larr; prev</a>
+    <span class="nav-off">&larr; prev</span>
     <a href="schedule.html">today</a>
     <a href="schedule-2026-06.html">next &rarr;</a>
     <a href="schedule.ics">.ics</a>

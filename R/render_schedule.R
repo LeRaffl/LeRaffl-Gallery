@@ -145,7 +145,8 @@ chip_status <- function(slug, day_date, hour, actual_fetches, today) {
 }
 
 # ---- HTML-Rendering --------------------------------------------------------
-render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date()) {
+render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date(),
+                        written = character(0)) {
   month_start <- as.Date(sprintf("%04d-%02d-01", year, month))
   days_n <- as.integer(format(month_start %m+% months(1) - days(1), "%d"))
   # Monday-first; ISO wday: Mon=1..Sun=7
@@ -211,11 +212,24 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
   nav_next <- sprintf("schedule-%04d-%02d.html",
                       as.integer(format(next_m, "%Y")), as.integer(format(next_m, "%m")))
 
+  # Only link months whose page exists (or is written in this run) — the
+  # oldest kept page and the newest (+1) page would otherwise carry dangling
+  # prev/next links (e.g. schedule-2026-05.html → schedule-2026-04.html, which
+  # predates the schedule feature and was never generated).
+  page_avail <- function(fn) file.exists(fn) || fn %in% written
+  nav_prev_html <- if (page_avail(nav_prev))
+    sprintf('<a href="%s">&larr; prev</a>', nav_prev)
+  else '<span class="nav-off">&larr; prev</span>'
+  nav_next_html <- if (page_avail(nav_next))
+    sprintf('<a href="%s">next &rarr;</a>', nav_next)
+  else '<span class="nav-off">next &rarr;</span>'
+
   sprintf('<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <title>Schedule &middot; %s</title>
 <style>
   :root { color-scheme: dark; }
@@ -225,9 +239,10 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
   header { display:flex; align-items:center; justify-content:space-between;
            margin-bottom:12px; gap:12px; flex-wrap:wrap; }
   h1 { font-size:22px; margin:0; font-weight:600; }
-  .nav a { color:#aaa; text-decoration:none; padding:4px 10px;
+  .nav a, .nav .nav-off { color:#aaa; text-decoration:none; padding:4px 10px;
            border:1px solid #333; border-radius:6px; margin-left:4px; font-size:13px; }
   .nav a:hover { color:#fff; border-color:#666; }
+  .nav .nav-off { opacity:.35; }
   .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
   .dow { font-size:11px; text-transform:uppercase; color:#888;
          text-align:left; padding:4px 6px; letter-spacing:0.5px; }
@@ -265,9 +280,9 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 <header>
   <h1>%s</h1>
   <div class="nav">
-    <a href="%s">&larr; prev</a>
+    %s
     <a href="schedule.html">today</a>
-    <a href="%s">next &rarr;</a>
+    %s
     <a href="schedule.ics">.ics</a>
   </div>
 </header>
@@ -285,7 +300,7 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
   <span style="margin-left:auto">generated %s UTC</span>
 </div>
 </body></html>',
-    month_name, month_name, nav_prev, nav_next, blanks, cells,
+    month_name, month_name, nav_prev_html, nav_next_html, blanks, cells,
     format(Sys.time(), tz = "UTC", "%Y-%m-%d %H:%M")
   )
 }
@@ -343,13 +358,19 @@ build_schedule <- function(out_html = "schedule.html", out_ics = "schedule.ics",
   actual    <- read_actual_fetches()
 
   # Aktuellen Monat als schedule.html, plus prev/curr/next als datierte Aliase
-  write(render_html(year, month, schedules, actual, today), out_html)
+  window <- vapply(-1:1, function(off) {
+    d <- as.Date(sprintf("%04d-%02d-01", year, month)) %m+% months(off)
+    sprintf("schedule-%04d-%02d.html",
+            as.integer(format(d, "%Y")), as.integer(format(d, "%m")))
+  }, character(1))
+
+  write(render_html(year, month, schedules, actual, today, written = window), out_html)
 
   for (off in -1:1) {
     d <- as.Date(sprintf("%04d-%02d-01", year, month)) %m+% months(off)
     y2 <- as.integer(format(d, "%Y")); m2 <- as.integer(format(d, "%m"))
     fn <- sprintf("schedule-%04d-%02d.html", y2, m2)
-    write(render_html(y2, m2, schedules, actual, today), fn)
+    write(render_html(y2, m2, schedules, actual, today, written = window), fn)
   }
 
   write(render_ics(year, month, schedules, n_months = 3), out_ics)
