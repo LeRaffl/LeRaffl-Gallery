@@ -72,15 +72,25 @@ ray_theme <- theme_minimal(base_size = 16) +
 parity_layer <- list(
   geom_abline(slope = 1, intercept = 0, linetype = "dashed",
               color = FG, linewidth = 0.4, alpha = 0.6),
-  annotate("text", x = 0.165, y = 0.165, label = "parity: export mix = home mix",
-           color = FG, alpha = 0.7, size = 3.6, fontface = "italic",
-           angle = 45, hjust = 1, vjust = -0.4))
+  # Label parked in the empty lower-right triangle (below the line), horizontal,
+  # so it never crosses the markers.
+  annotate("text", x = 0.475, y = 0.045, hjust = 1,
+           label = "dashed line = parity (export mix = home mix)",
+           color = FG, alpha = 0.65, size = 3.4, fontface = "italic"))
+
+# Repel labels clear of the (sometimes large) bubbles, with a thin leader line.
+repel_labels <- function(data = NULL, mapping = aes(label = label)) {
+  geom_text_repel(data = data, mapping = mapping, color = FG, fontface = "bold",
+                  size = 5, seed = 1, box.padding = 1.0, point.padding = 0.9,
+                  min.segment.length = 0, segment.color = FG, segment.alpha = 0.5,
+                  max.overlaps = Inf)
+}
 
 bubble_variants <- list(
   list(var = "production", title = "vehicle production (OICA 2024)",
-       labs = label_number(scale_cut = cut_short_scale()), max = 26, suffix = "production"),
+       labs = label_number(scale_cut = cut_short_scale()), max = 20, suffix = "production"),
   list(var = "gdp_pc", title = "GDP per capita (World Bank 2024)",
-       labs = label_dollar(scale_cut = cut_short_scale()), max = 22, suffix = "gdp_per_capita"))
+       labs = label_dollar(scale_cut = cut_short_scale()), max = 17, suffix = "gdp_per_capita"))
 
 save_png <- function(p, name) {
   ggsave(file.path(outdir, name), p, width = 12, height = 7.5, dpi = 200, bg = BG)
@@ -98,9 +108,7 @@ for (yr in 2021:2024) {
     p <- ggplot(dy, aes(domestic_bev, ev_export_share, color = country)) +
       parity_layer +
       geom_point(aes(size = .data[[b$var]]), alpha = 0.85) +
-      geom_text_repel(aes(label = label), color = FG, fontface = "bold", size = 5,
-                      seed = 1, box.padding = 0.6, min.segment.length = 0.3,
-                      segment.color = FG, segment.alpha = 0.4) +
+      repel_labels() +
       scale_color_manual(values = cols) +
       scale_size_area(max_size = b$max, guide = "none") +
       scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim) +
@@ -124,13 +132,11 @@ starred <- paste(sort(ends$label[ends$year < 2025]), collapse = ", ")
 for (b in bubble_variants) {
   p <- ggplot(df, aes(domestic_bev, ev_export_share, color = country)) +
     parity_layer +
+    geom_point(data = ends, aes(size = .data[[b$var]]), alpha = 0.85) +
+    geom_point(size = 1.6, alpha = 0.7) +
     geom_path(aes(group = country), linewidth = 1.1, alpha = 0.9,
               arrow = arrow(type = "closed", length = unit(0.28, "cm"))) +
-    geom_point(size = 1.6, alpha = 0.7) +
-    geom_point(data = ends, aes(size = .data[[b$var]]), alpha = 0.85) +
-    geom_text_repel(data = ends, aes(label = lab), color = FG, fontface = "bold",
-                    size = 5, seed = 1, box.padding = 0.7, min.segment.length = 0.3,
-                    segment.color = FG, segment.alpha = 0.4) +
+    repel_labels(data = ends, mapping = aes(label = lab)) +
     scale_color_manual(values = cols) +
     scale_size_area(max_size = b$max, guide = "none") +
     scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim) +
