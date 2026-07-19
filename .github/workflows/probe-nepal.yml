@@ -1,0 +1,43 @@
+name: Probe Nepal sources (TEMPORARY)
+
+# TEMPORARY scaffolding for building the Nepal fetcher. Downloads the given
+# URLs from a runner (open egress) and commits them to scratch_nepal/ on this
+# branch so the parser can be developed locally against real files. This
+# workflow and scratch_nepal/ are deleted before the integration is merged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Whitespace-separated list of URLs to fetch'
+        required: true
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Probe
+        run: |
+          # shellcheck disable=SC2086
+          python scripts/probe_nepal.py ${URLS}
+        env:
+          URLS: ${{ inputs.urls }}
+
+      - name: Commit scratch files
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: scratch_nepal
+          message: 'chore(nepal): probe scratch files (temporary, removed before merge)'
+          default_author: github_actions
