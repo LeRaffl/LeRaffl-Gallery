@@ -2386,7 +2386,7 @@ a:focus-visible{
           The builder defaults to passenger cars (= New Cars) (4-Wheelers = legacy for India) in case there are no parameters for a variant like HDV or Vans. <br>
           If the variant exists (for example in Thresholds or Durations Tab), then the Builder will create the variant curve. <br>
         </p>
-      <div class="card builder-card">
+      <div class="card builder-card" id="builderCard" hidden>
         <div id="builderPlot"></div>
         <button class="btn chart-dl" onclick="downloadPlotlyChart('builderPlot','builder_chart.png')">↓ Download PNG</button>
       </div>
@@ -2442,7 +2442,7 @@ a:focus-visible{
         aggregate slots; individual country slots carry their own variant.
       </p>
     </div>
-    <div class="card builder-card">
+    <div class="card builder-card" id="compareCard" hidden>
       <div id="comparePlot"></div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('comparePlot','compare_chart.png')">↓ Download PNG</button>
     </div>
@@ -5084,6 +5084,7 @@ const layout = {
 
 
 
+document.getElementById('builderCard').hidden = false;
 Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
 
 
@@ -5395,6 +5396,7 @@ Plotly.newPlot('builderPlot', traces, layout, { responsive: true });
       legend: { orientation: 'h', font: { color: '#cfd8e8' } },
       annotations: [{ x: 0.995, y: 0.02, xref:'paper', yref:'paper', xanchor:'right', yanchor:'bottom', text:'@LeRaffl', showarrow:false, font:{ size:11, color:'rgba(159,179,209,0.55)' } }]
     };
+    document.getElementById('compareCard').hidden = false;
     Plotly.newPlot('comparePlot', traces, layout, { responsive: true });
 
     // Overlay observed annual points per slot. Drawn after the curves so the
