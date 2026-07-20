@@ -17,3 +17,5 @@ Spain,Vans,DGT registry data; EU category N1 - vans and pickups up to 3.5t, new 
 Spain,HDV,DGT registry data; EU categories N2+N3 - trucks above 3.5t incl. tractor units, new only. Agricultural tractors (EU cat. T) not included.
 Spain,Buses,DGT registry data; EU categories M2+M3 - buses & coaches, new only. Low volume (roughly 500/month).
 Spain,2-Wheelers,DGT registry data; motorcycles and mopeds (DGT tipo 50/90), new only. Trikes and quads not included.
+Nepal,Whole,Customs imports (HS 8703 cars/jeeps/vans; no domestic production - import ~ market). Nepali-calendar months labelled by their Gregorian end month. Hybrids are one combined bucket.
+Nepal,3-Wheelers,Customs imports of passenger three-wheelers: petrol auto-rickshaws and electric e-rickshaws (HS 8703). Nepali-calendar months labelled by their Gregorian end month.
