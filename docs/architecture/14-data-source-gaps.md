@@ -139,6 +139,77 @@ The previous shelving rationale, kept for the record:
   could replace the ANDI/FENALCO PDF parser with a clean API call **and**
   recover the PHEV/HEV split.
 
+## Africa (used-import markets)
+
+No sub-Saharan African country is on the gallery yet, and the reasons are
+structural, not incidental. Three features recur across the region and each
+one collides with a different gallery assumption:
+
+- **Used-import dominance.** Most African car markets are 70–90 % *used*
+  imports (Ethiopia ~85 %, ~90 % of those Toyotas). The gallery models the
+  **flow of new registrations** as an organic S-curve; a market whose flow
+  is second-hand imports is a *different population* (only the Netherlands
+  `Used` variant touches this) and its BEV share moves for import-policy
+  reasons, not domestic adoption.
+- **No registration-statistics agency.** There is rarely a KBA/ACEA-style
+  body publishing a monthly registration series with a fuel split. What
+  exists is customs trade data (by HS code) and occasional ministry *stock*
+  estimates — not a clean monthly flow.
+- **Fragmented, unverified data.** Headline EV numbers routinely disagree by
+  multiples between the national ministry and outside trackers, so even when
+  a number exists it often can't be trusted as ground truth.
+
+The realistic near-term candidates are the two markets that *do* have an
+industry-association monthly series: **South Africa** (naamsa — genuine
+monthly new-vehicle sales with a drivetrain split; the most promising, under
+active investigation) and **Morocco** (AIVAM — monthly exists, but the
+energy split sits behind a login on `statistique.aivam.ma`, so shelved for
+now). Kenya, Nigeria and Egypt have manufacturer/importer associations but
+no freely machine-readable fuel-split series.
+
+### 🇪🇹 Ethiopia — a 100 % EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
+
+Ethiopia is the one African market people ask about, because in January 2024
+it became the first country in the world to **ban the import of
+internal-combustion passenger vehicles** (extended in 2025 to SKD/CKD kits
+and, in stages, to commercial vehicles). "Ethiopia is going 100 % electric"
+is the headline. It still fails the gallery's bar, for four compounding
+reasons:
+
+- **The market is used imports, so "new registrations" is the wrong lens.**
+  ~85 % of vehicle imports are second-hand, ~90 % of those Toyotas; genuine
+  new-car sales are a rounding error (excise up to 100 % on >1,800 cc under
+  Proclamation 1287/2023, plus 15 % VAT and surcharges push a new car's
+  landed cost past 5× its import value). The meaningful quantity for Ethiopia
+  is the BEV share of *all vehicle imports* (new **and** used together) — a
+  different population from every other country in the gallery.
+- **It's a policy step, not an organic transition.** The import ban forces
+  the BEV share of incoming vehicles toward 100 % by decree, independent of
+  demand. The Weibull/logistic model describes *organic* S-curves; a
+  mandated step-change either fits degenerately or breaks (the mirror image
+  of the Japan/Croatia "no transition" breakdown).
+- **Too little post-ban history.** Meaningful data only starts ~2023/24, so
+  there are ~2 years of a step — nowhere near enough shape for a stable fit.
+- **The data is fragmented and unverified.** There is no monthly
+  registration series with a fuel split. The candidate sources are:
+  - **Ethiopian Customs Commission (ERCA)** — the trade portal
+    (`customs.erca.gov.et/trade/`) would carry HS-8703 imports (the Nepal
+    pattern), but its machine-accessibility is unproven and the prevalence of
+    third-party customs-data resellers (Volza, TradeInt) suggests there is no
+    clean public export. It would also inherit the **same HS-8703.80
+    electric-code granularity problem documented for Nepal** ([32-source-nepal.md
+    § 7](32-source-nepal.md)).
+  - **Ministry of Transport & Logistics** — publishes only coarse
+    *cumulative stock* estimates, and they conflict badly: the ministry has
+    cited ~100,000 EVs while the US ITA estimates ~30,000 — a 3× disagreement
+    in the headline number.
+
+- **What would change the decision:** a free, machine-readable **ERCA monthly
+  import export with a BEV/ICE split** *and* enough post-ban history to fit.
+  Even then Ethiopia would be a documented special case — a policy-driven
+  *import flow* (new+used), explicitly flagged as a mandate, not a modelled
+  organic transition.
+
 ## General principle (for the LLM being asked "why isn't X on the map?")
 
 If someone points at one of these countries and says "but the data exists,
@@ -150,9 +221,16 @@ If someone points at one of these countries and says "but the data exists,
    (Colombia/RUNT).
 3. **Format/consistency** — only an aggregated dashboard (Power BI / Looker)
    with no full fuel split, or an EV-only segment with no total to compute ICE.
+4. **Wrong population / not an organic transition** — the market's *flow* is
+   used imports rather than new registrations (much of Africa), or the BEV
+   share is moving by government mandate (Ethiopia's ICE import ban) rather
+   than organic adoption, so even complete, accessible data doesn't describe
+   the S-curve the model is built for — and often there isn't yet enough of
+   it to fit anything stable.
 
 The gallery deliberately omits a country rather than publish a trajectory it
 knows is incomplete or misleading. If a better source appears (free, direct,
-complete, machine-readable), adding the country is a small job — it follows the
+complete, machine-readable) **and** the market fits the new-registration,
+organic-transition frame, adding the country is a small job — it follows the
 same fetcher + `render-country.yml` + manifest pattern as every other
 database-fed country.

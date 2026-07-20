@@ -249,6 +249,7 @@ A family of country-specific `fetch-<source>.yml` workflows that scrape national
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
 | [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | Indonesia | Daily 09:35 UTC, 10th → EOM |
 | [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA (XLSX preferred, PDF fallback) | `Whole` | Japan | Daily 08:00 UTC, 1st → EOM |
+| [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | Department of Customs FTS XLSX (`customs.gov.np`, HS 8703 imports — not registrations) | `Whole` + `3-Wheelers` | Nepal | Daily 07:50 UTC (cheap-skips until a new Nepali month publishes) |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | `Whole` + `Used` + `HDV` | Netherlands | Daily 06:30 UTC, 1st → 15th |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | Portugal | Twice daily 17:30 & 20:30 UTC, 1st → 5th |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | SCB PxWeb `PersBilarDrivMedel` (TAB3277) | `Whole` | Sweden | Daily 05:50 UTC, 1st → 15th |
