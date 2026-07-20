@@ -46,6 +46,8 @@ jobs:
     permissions:
       contents: write
       actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
 
     steps:
       - uses: actions/checkout@v5
@@ -68,12 +70,6 @@ jobs:
           # push trigger before merging)
           BACKFILL: ${{ (inputs.backfill == true || github.event_name == 'push') && '1' || '' }}
 
-      - name: Detect changed variants
-        id: detect
-        run: |
-          echo "whole=$(git status --porcelain data/Nepal.csv | wc -l)" >> "$GITHUB_OUTPUT"
-          echo "wheelers=$(git status --porcelain data/Nepal_3-Wheelers.csv | wc -l)" >> "$GITHUB_OUTPUT"
-
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
@@ -85,22 +81,19 @@ jobs:
           default_author: github_actions
           pull: '--rebase --autostash'
 
-      - name: Trigger render (Whole)
-        if: steps.commit.outputs.committed == 'true' && steps.detect.outputs.whole != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Nepal \
-            -f variant=Whole
-
-      - name: Trigger render (3-Wheelers)
-        if: steps.commit.outputs.committed == 'true' && steps.detect.outputs.wheelers != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
-            -f country=Nepal \
-            -f variant=3-Wheelers
+  # Serial render chain (fetch-acea pattern): both variants write
+  # params.csv/weights.csv, so parallel dispatches race each other's
+  # commits — max-parallel: 1 keeps them strictly sequential.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: [Whole, 3-Wheelers]
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Nepal
+      variant: ${{ matrix.variant }}
+    secrets: inherit
