@@ -13,7 +13,7 @@ auth: "none (public downloads)"
 cadence: "daily 07:50 UTC; cheap-skips until DoC publishes a new month"
 variants: [Whole, 3-Wheelers]
 hev_split: false
-backfill: "FY 2080/81 (2023-08) onward from the current site"
+backfill: "FY 2077/78 (2020-08) onward — older workbook layouts differ"
 scope_note: >-
   Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures
   are imports, not registrations — Nepal imports its entire vehicle market.
@@ -171,12 +171,20 @@ Cross-checks performed at build time (2026-07): FY 2080/81 Whole BEV
 
 ## 7. History & backfill
 
-The current site (a 2025/26 CMS migration) carries FTS workbooks for
-**FY 2080/81, 2081/82 and 2082/83** — i.e. monthly data from 2023-08
-onward. The pre-2080/81 fiscal-year categories exist in the nav but are
-empty; the old files live on `archive.customs.gov.np`, which currently
-serves a TLS certificate with a hostname mismatch, so extending the
-backfill further into the past is parked until that's resolved (or done
-manually). Given that Nepal's BEV share was already ~30-40 % by 2023 the
-three fiscal years anchor the fit's steep phase; the pre-2023 history
-would mostly add the early tail.
+The backfill covers **FY 2077/78 through 2082/83** — a gapless monthly
+series from **2020-08** onward, which spans Nepal's whole BEV take-off
+(calendar-year Whole BEV share: 0.6 % in 2020 → 6 % in 2021 → 24 % in
+2022 → 60 % in 2023 → ~75 % from 2024).
+
+The floor is a genuine workbook-format boundary, discovered automatically
+by the backfill's contiguous-suffix rule:
+
+* FY 2073/74–2076/77 files exist as .xlsx but use older layouts without a
+  `5_Imports_By_Commodity` sheet (`5_Comaprative_imports _HS`,
+  `Table 4 Imports by commo`, `Hswise_imports`, …) — a legacy-sheet parser
+  could extend the series to ~2016 if ever wanted;
+* FY ≤ 2070/71 content pages carry PDFs only.
+
+`archive.customs.gov.np` is gone for good — the hostname now serves an
+unrelated Provincial Assembly site (hence its TLS hostname-mismatch), so
+the current CMS is the only online source.
