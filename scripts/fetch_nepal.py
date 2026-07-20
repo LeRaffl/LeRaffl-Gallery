@@ -789,7 +789,12 @@ def run_backfill_annual(floor_fy: int, force: bool) -> int:
     print(f"monthly FYs available for validation: {monthly_fys}")
 
     # ---- validation pass: annual vs monthly-sum on every overlap ----
-    tol = 0  # exact match expected (annual == month-12 cumulative == Σ deltas)
+    # The CSV stores 2-decimal-rounded monthly values (and a few source
+    # quantities are fractional), so summing 12 months differs from the raw
+    # annual total by sub-vehicle rounding noise. A real discrepancy (a
+    # missing month, a mis-mapped code) is whole vehicles — orders of
+    # magnitude above this — so 1 unit cleanly separates the two.
+    tol = 1.0
     for fy in monthly_fys:
         content = find_fts_content_page(session, fy, categories[fy])
         picked = _pick_annual_workbook(session, content) if content else None
