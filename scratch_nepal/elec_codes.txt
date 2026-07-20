@@ -1,0 +1,21 @@
+
+===== FY 2076/77
+  Annual_FTS_207677_updated_Revised_ajx3jyu.xlsx
+    87038010  qty=   14935  'Parts for electric filament or discharge l  mps'
+    87038011  qty=     125  'Electric three wheelers vehicles unassembled condition'
+    87038019  qty=      83  'Electric three wheelers vehicles'
+    87038049  qty=       1  'Electric car, jeep & van  > 100KW to <=150KW'
+    87038090  qty=     574  'Other vehicles, with only electric motor for propulsion.'
+
+===== FY 2075/76
+  Annual%20Foreign%20Trade%20Statistics%2C%20207576%20(201820)_2019-08-29-22-17-57_cfwxrvg.xlsx
+    87038010  qty=    2575  'Other vehicles, with only electric motor for propulsion.'
+    87038090  qty=    2170  'Other vehicles, with only electric motor for propulsion.'
+
+===== FY 2074/75
+  (no annual)
+
+===== FY 2073/74
+  73_74_l7vsvdk.xlsx
+    87038010  qty=     586  'Other vehicles, with only electric motor for propulsion.'
+    87038090  qty=     711  'Other vehicles, with only electric motor for propulsion.'
