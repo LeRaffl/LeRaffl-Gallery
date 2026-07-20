@@ -13,7 +13,7 @@ auth: "none (public downloads)"
 cadence: "daily 07:50 UTC; cheap-skips until DoC publishes a new month"
 variants: [Whole, 3-Wheelers]
 hev_split: false
-backfill: "FY 2077/78 (2020-08) onward — older workbook layouts differ"
+backfill: "monthly from 2020-08; pre-2020 not splittable (see §7)"
 scope_note: >-
   Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures
   are imports, not registrations — Nepal imports its entire vehicle market.
@@ -169,22 +169,50 @@ Cross-checks performed at build time (2026-07): FY 2080/81 Whole BEV
 | New 8703 sub-codes appear (tariff revisions happen at FY boundaries) | `unknown sub-code` warning, values land in OTHERS | add the code to `PREFIX_BUCKET` (or fix the 3W regex) |
 | Cumulative value revised downward | negative-delta abort | inspect both files, decide manually, re-run with the fix |
 
-## 7. History & backfill
+## 7. History & backfill floor (2020-08)
 
-The backfill covers **FY 2077/78 through 2082/83** — a gapless monthly
-series from **2020-08** onward, which spans Nepal's whole BEV take-off
-(calendar-year Whole BEV share: 0.6 % in 2020 → 6 % in 2021 → 24 % in
-2022 → 60 % in 2023 → ~75 % from 2024).
+The series is a gapless **monthly** run from **2020-08** (FY 2077/78
+Shrawan) onward, spanning Nepal's whole BEV take-off (calendar-year Whole
+BEV share: 0.6 % in 2020 → 6 % in 2021 → 24 % in 2022 → 60 % in 2023 →
+~75 % from 2024). The floor is deliberate, not a parser limitation.
 
-The floor is a genuine workbook-format boundary, discovered automatically
-by the backfill's contiguous-suffix rule:
+### Why the pre-2020 tail is *not* backfilled (investigated & rejected)
 
-* FY 2073/74–2076/77 files exist as .xlsx but use older layouts without a
-  `5_Imports_By_Commodity` sheet (`5_Comaprative_imports _HS`,
-  `Table 4 Imports by commo`, `Hswise_imports`, …) — a legacy-sheet parser
-  could extend the series to ~2016 if ever wanted;
-* FY ≤ 2070/71 content pages carry PDFs only.
+The pre-2020 annual workbooks parse fine — the imports-by-commodity sheet
+exists in every FY back to ~2073/74 and an adaptive extractor reads all
+the layout variants. The blocker is **semantic, in the source's electric
+tariff codes**, and it breaks the `Whole` vs `3-Wheelers` split that the
+gallery is built on:
 
-`archive.customs.gov.np` is gone for good — the hostname now serves an
-unrelated Provincial Assembly site (hence its TLS hostname-mismatch), so
-the current CMS is the only online source.
+- From FY 2077/78 the tariff carries **eight** 8703.80 sub-codes that
+  cleanly separate the two series: `8703.80.11/.19` = *Electric three
+  wheelers* → `3-Wheelers`; `8703.80.21/.29/.59/.69/.79/.89` = *Electric
+  car/jeep/van* by motor kW → `Whole`.
+- Pre-2020 the tariff used a coarse **two-code** structure —
+  `8703.80.10` and `8703.80.90` — whose descriptions are the identical,
+  useless string *"Other vehicles, with only electric motor for
+  propulsion"* for **both** codes. There is no way to tell cars from
+  three-wheelers.
+- Worse, FY 2076/77's `8703.80.10` (14,935 units — the bulk of that
+  year's electric imports) carries a **corrupted description**, *"Parts
+  for electric filament or discharge lamps"* (a data-entry error in the
+  DoC spreadsheet). Those 14,935 units are almost certainly mostly
+  e-rickshaws (Nepal imported ~13–14 k e-rickshaws in 2019/20 vs a few
+  thousand electric cars), which the monthly era would file under
+  `3-Wheelers` — but the source gives no reliable way to split them.
+
+A naive parse dumps all of `8703.80.10` into `Whole` BEV, producing an
+inflated FY 2076/77 `Whole` BEV of ~15,500 that dwarfs and contradicts the
+monthly era right next to it. Publishing that would make the headline
+`Whole` curve wrong, so the pre-2020 annual points are **deliberately
+omitted**. (The analytical loss is negligible: the model already assumes a
+0 % start, and the monthly series already captures the take-off from
+< 1 % share.) The rejected approach — an adaptive annual parser plus a
+consistency-validation harness against the monthly overlap — lived on this
+branch during the investigation and was removed once the tariff-code
+ambiguity was confirmed.
+
+`archive.customs.gov.np` (which historically hosted the older files) is
+gone — the hostname now serves an unrelated Provincial Assembly site
+(hence its TLS hostname-mismatch) — so the current CMS is the only online
+source anyway.

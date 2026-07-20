@@ -174,8 +174,7 @@ ORDINAL_MONTH_COUNT = {
 }
 
 THREE_WHEELER_RE = re.compile(r"rik?shaw|three\s*wheel|3\s*wheel", re.I)
-# "electric" but not "non-electric"/"non electric" (fixed-width lookbehind).
-ELECTRIC_RE = re.compile(r"(?<!non[ -])electric", re.I)
+ELECTRIC_RE = re.compile(r"electric", re.I)
 
 # 6-digit HS prefix -> fuel bucket (within heading 8703).
 PREFIX_BUCKET = {
@@ -344,53 +343,43 @@ def parse_coverage(header: str) -> tuple[int, int]:
     raise ValueError(f"cannot parse coverage from header: {header!r}")
 
 
-# Sheet-name / header-label variants across FYs (all lower-cased for match):
-#   sheet:  "5_Imports_By_Commodity" (2077+), "4_Imports_By_Commodities" (2075/76),
-#           "7_Imports_By_Commodities" (2074/75), "5_imports_commodities" (2073/74)
-#   code header: "HSCode" / "HS Code" / "HS"
-#   unit cell:   "PCS" / "Pcs"
-CODE_HEADERS = {"hscode", "hs code", "hs"}
+def parse_workbook(data: bytes, origin: str) -> tuple[int, int, dict[str, dict[str, float]]]:
+    """Parse one FTS workbook.
 
-
-def _find_import_sheet(wb, origin):
-    """The single-country (non-Partner) imports-by-commodity sheet, any FY layout."""
-    for name in wb.sheetnames:
-        low = name.lower()
-        if "import" in low and "commodit" in low and "partner" not in low:
-            return wb[name]
-    raise ValueError(
-        f"{origin}: no imports-by-commodity sheet (sheets: {wb.sheetnames})"
-    )
-
-
-def _extract_8703(sheet, origin):
-    """Sum HS-8703 quantities into fuel buckets per variant, adaptively.
-
-    Returns (cum, title_text, warned, seen_codes):
-      cum        {"Whole": {bucket: qty}, "3-Wheelers": {...}} cumulative
-      title_text concatenation of the rows above the header (holds the
-                 "Based on …" coverage line when the file carries one)
-      seen_codes {8-digit code: (bucket, variant, qty)} for auditing
+    Returns (bs_fy_start, month_count, {"Whole": {bucket: cum_qty},
+    "3-Wheelers": {...}}) — cumulative FYTD quantities.
     """
-    cols = None            # {'code','desc','unit','qty'}
-    title_parts: list[str] = []
+    wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+    sheet = None
+    for name in wb.sheetnames:
+        if "Imports_By_Commodity" in name and "Partner" not in name:
+            sheet = wb[name]
+            break
+    if sheet is None:
+        raise ValueError(f"{origin}: no Imports_By_Commodity sheet (sheets: {wb.sheetnames})")
+
+    header_line = None
+    cols = None            # {'code': i, 'desc': i, 'unit': i, 'qty': i}
     cum = {v: dict.fromkeys(BUCKETS, 0.0) for v in VARIANT_CONFIG}
     warned: list[str] = []
-    seen: dict[str, tuple] = {}
 
     for row in sheet.iter_rows(values_only=True):
         if row is None:
             continue
         cells = ["" if c is None else str(c).strip() for c in row]
         if cols is None:
-            lower = [c.lower() for c in cells]
-            if any(c in CODE_HEADERS for c in lower) and "quantity" in lower \
-                    and "description" in lower and "unit" in lower:
-                code_i = next(i for i, c in enumerate(lower) if c in CODE_HEADERS)
-                cols = {"code": code_i, "desc": lower.index("description"),
-                        "unit": lower.index("unit"), "qty": lower.index("quantity")}
-            else:
-                title_parts.extend(c for c in cells if c)
+            if header_line is None:
+                joined = " ".join(cells)
+                if "based on" in joined.lower():
+                    header_line = joined
+            if cells and cells[0].lower() == "hscode":
+                lower = [c.lower() for c in cells]
+                cols = {
+                    "code": 0,
+                    "desc": lower.index("description"),
+                    "unit": lower.index("unit"),
+                    "qty": lower.index("quantity"),
+                }
             continue
         code = cells[cols["code"]]
         if code.endswith(".0"):  # numerically-typed cells stringify as '87038011.0'
@@ -411,50 +400,23 @@ def _extract_8703(sheet, origin):
 
         bucket = PREFIX_BUCKET.get(code[:6])
         if bucket is None:
-            warned.append(f"unknown sub-code {code} ({desc[:50]!r}) qty={qty:.0f} -> OTHERS")
+            warned.append(f"unknown sub-code {code} ({desc[:60]!r}) -> OTHERS")
             bucket = "OTHERS"
         # legacy files park electrics under 8703.90 before 8703.80 existed
         if bucket == "OTHERS" and ELECTRIC_RE.search(desc):
             bucket = "BEV"
         variant = "3-Wheelers" if THREE_WHEELER_RE.search(desc) else "Whole"
         cum[variant][bucket] += qty
-        prev = seen.get(code)
-        seen[code] = (bucket, variant, (prev[2] if prev else 0.0) + qty)
 
     if cols is None:
-        raise ValueError(f"{origin}: header row (HS Code / Description / Unit / Quantity) not found")
-    return cum, " ".join(title_parts), warned, seen
-
-
-def parse_workbook(data: bytes, origin: str) -> tuple[int, int, dict[str, dict[str, float]]]:
-    """Parse one monthly/cumulative FTS workbook.
-
-    Returns (bs_fy_start, month_count, {"Whole": {bucket: cum_qty},
-    "3-Wheelers": {...}}) — cumulative FYTD quantities.
-    """
-    wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=True)
-    sheet = _find_import_sheet(wb, origin)
-    cum, title, warned, _ = _extract_8703(sheet, origin)
-    for w in warned:
-        print(f"    WARNING {origin}: {w}")
-    if "based on" not in title.lower():
+        raise ValueError(f"{origin}: HSCode header row not found")
+    if header_line is None:
         raise ValueError(f"{origin}: coverage header line not found")
-    fy, months = parse_coverage(title)
-    return fy, months, cum
-
-
-def parse_annual_workbook(data: bytes, origin: str):
-    """Parse an annual FTS workbook (full-year totals; coverage is not read
-    from the sheet — older annuals omit a machine-readable coverage line).
-
-    Returns (cum, seen_codes). The caller supplies the fiscal year.
-    """
-    wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True, data_only=True)
-    sheet = _find_import_sheet(wb, origin)
-    cum, _, warned, seen = _extract_8703(sheet, origin)
     for w in warned:
         print(f"    WARNING {origin}: {w}")
-    return cum, seen
+
+    fy, months = parse_coverage(header_line)
+    return fy, months, cum
 
 
 # --------------------------------------------------------------------------
@@ -497,13 +459,11 @@ def fmt(x: float) -> str:
 
 
 def upsert_csv(path: Path, variant: str, per_period: dict[str, dict[str, float]],
-               force: bool, interval: str = "monthly") -> bool:
+               force: bool) -> bool:
     """Merge freshly computed periods into the CSV (keyed by period).
 
     Existing rows for other periods are preserved; rows for recomputed
-    periods are replaced. `interval` is the time_interval stamped on the
-    written rows ("monthly" for the cumulative-delta series, "yearly" for
-    the annual-workbook backfill). Returns True when the file content changed.
+    periods are replaced. Returns True when the file content changed.
     """
     rows: dict[str, dict[str, str]] = {}
     if path.exists():
@@ -514,12 +474,12 @@ def upsert_csv(path: Path, variant: str, per_period: dict[str, dict[str, float]]
     for period, buckets in per_period.items():
         total = sum(buckets.values())
         if total == 0:
-            # a published period with zero passenger-vehicle imports would be
+            # a published month with zero passenger-vehicle imports would be
             # extraordinary — refuse to write it silently
-            raise ValueError(f"{variant} {period}: all-zero period parsed")
+            raise ValueError(f"{variant} {period}: all-zero month parsed")
         rows[period] = {
             "period": period,
-            "time_interval": interval,
+            "time_interval": "monthly",
             "variant": variant,
             "source": SOURCE,
             "BEV": fmt(buckets["BEV"]),
@@ -703,156 +663,11 @@ def run_offline(from_dir: Path, force: bool) -> int:
     return 0
 
 
-# --------------------------------------------------------------------------
-# Annual (yearly-row) backfill for the pre-monthly tail
-# --------------------------------------------------------------------------
-
-# BS "वार्षिक" = annual; English "Annual"; some are "Final".
-ANNUAL_LABEL_RE = re.compile(r"वार्षिक|annual|final", re.I)
-
-
-def _pick_annual_workbook(session, content_url):
-    """Return (data, origin) for a FY's annual workbook, or None.
-
-    Prefers the file whose link label says 'annual/वार्षिक'; falls back to
-    the newest 12-month cumulative file when no label matches.
-    """
-    wbs = list_workbooks(session, content_url)
-    labelled = [(u, l) for u, l in wbs if ANNUAL_LABEL_RE.search(l)]
-    for url, label in labelled or wbs:
-        try:
-            r = session.get(url, timeout=180)
-            r.raise_for_status()
-        except Exception as exc:  # noqa: BLE001
-            print(f"    download failed ({label!r}): {exc}")
-            continue
-        if labelled:
-            return r.content, url.rsplit("/", 1)[-1]
-        # unlabelled fallback: accept only a genuine 12-month file
-        try:
-            fy, months, _ = parse_workbook(r.content, url.rsplit("/", 1)[-1])
-            if months == 12:
-                return r.content, url.rsplit("/", 1)[-1]
-        except ValueError:
-            continue
-    return None
-
-
-def _annual_buckets(data, origin):
-    """{'Whole': {...}, '3-Wheelers': {...}} from an annual workbook."""
-    cum, seen = parse_annual_workbook(data, origin)
-    # audit: list every 8703 code -> bucket (helps spot mis-mapped codes)
-    for code in sorted(seen):
-        bkt, var, qty = seen[code]
-        if qty:
-            print(f"      {code} {bkt:6s} {var:11s} {qty:.0f}")
-    return cum
-
-
-def _monthly_sum_from_csv(fy: int, variant: str):
-    """Sum the monthly CSV rows belonging to fiscal year `fy` (or None)."""
-    path = Path(VARIANT_CONFIG[variant])
-    if not path.exists():
-        return None
-    fy_periods = {period_for(fy, k) for k in range(1, 13)}
-    got = {b: 0.0 for b in BUCKETS}
-    n = 0
-    with path.open(newline="", encoding="utf-8") as fh:
-        for r in csv.DictReader(fh):
-            if r["period"] in fy_periods and r["time_interval"] == "monthly":
-                n += 1
-                for b in BUCKETS:
-                    got[b] += float(r[b] or 0)
-    return (got, n) if n == 12 else None
-
-
-def run_backfill_annual(floor_fy: int, force: bool) -> int:
-    """Add one yearly row per pre-monthly FY from its annual workbook.
-
-    Consistency gate: the adaptive annual parser is first validated against
-    every fully-monthly FY already in the CSV (annual buckets must equal the
-    sum of that FY's 12 monthly rows). Only if all overlaps agree are the
-    older (yearly-only) FYs written. See docs/architecture/32-source-nepal.md.
-    """
-    session = requests.Session()
-    session.headers.update(HTTP_HEADERS)
-    categories = discover_fy_categories(session)
-
-    # newest FY that already has a full monthly year in the CSV
-    monthly_fys = sorted(
-        y for y in categories
-        if _monthly_sum_from_csv(y, "Whole") is not None
-    )
-    if not monthly_fys:
-        print("no fully-monthly FY in the CSV to validate against — aborting")
-        return 1
-    print(f"monthly FYs available for validation: {monthly_fys}")
-
-    # ---- validation pass: annual vs monthly-sum on every overlap ----
-    # The CSV stores 2-decimal-rounded monthly values (and a few source
-    # quantities are fractional), so summing 12 months differs from the raw
-    # annual total by sub-vehicle rounding noise. A real discrepancy (a
-    # missing month, a mis-mapped code) is whole vehicles — orders of
-    # magnitude above this — so 1 unit cleanly separates the two.
-    tol = 1.0
-    for fy in monthly_fys:
-        content = find_fts_content_page(session, fy, categories[fy])
-        picked = _pick_annual_workbook(session, content) if content else None
-        if picked is None:
-            print(f"  FY {fy}: no annual workbook to validate — skipping check")
-            continue
-        print(f"== validate FY {fy}/{(fy+1)%100:02d} ({picked[1]})")
-        cum = _annual_buckets(*picked)
-        ok = True
-        for variant in VARIANT_CONFIG:
-            ref = _monthly_sum_from_csv(fy, variant)
-            if ref is None:
-                continue
-            got, _ = ref
-            for b in BUCKETS:
-                if abs(cum[variant][b] - got[b]) > tol:
-                    print(f"  MISMATCH {variant} {b}: annual={cum[variant][b]:.1f} "
-                          f"monthlyΣ={got[b]:.1f}")
-                    ok = False
-        if not ok:
-            print(f"consistency check FAILED on FY {fy} — not writing any yearly rows")
-            return 1
-        print(f"  ✓ FY {fy} annual matches monthly sum")
-
-    # ---- write yearly rows for FYs below the monthly floor ----
-    lowest_monthly = min(monthly_fys)
-    changed: set[str] = set()
-    for fy in sorted((y for y in categories if y < lowest_monthly), reverse=True):
-        if fy < floor_fy:
-            continue
-        content = find_fts_content_page(session, fy, categories[fy])
-        picked = _pick_annual_workbook(session, content) if content else None
-        if picked is None:
-            print(f"== FY {fy}/{(fy+1)%100:02d}: no annual workbook — stop (backfill floor)")
-            break
-        print(f"== FY {fy}/{(fy+1)%100:02d} annual ({picked[1]})")
-        cum = _annual_buckets(*picked)
-        period = period_for(fy, 12)  # FY-end month (Ashadh); yearly anchor
-        for variant, path in VARIANT_CONFIG.items():
-            if upsert_csv(Path(path), variant, {period: cum[variant]}, force,
-                          interval="yearly"):
-                changed.add(variant)
-        print(f"  wrote yearly {period} Whole={sum(cum['Whole'].values()):.0f} "
-              f"3W={sum(cum['3-Wheelers'].values()):.0f}")
-
-    print(f"changed variants: {sorted(changed)}" if changed else "no changes")
-    return 0
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--fy", type=int, help="process one specific FY (BS start year, e.g. 2081)")
     ap.add_argument("--backfill", action="store_true",
                     help="process every FY discoverable on the site")
-    ap.add_argument("--backfill-annual", type=int, metavar="FLOOR_FY", nargs="?",
-                    const=2073, default=None,
-                    help="add one yearly row per pre-monthly FY down to FLOOR_FY "
-                         "(BS start year, default 2073) from each FY's annual workbook")
     ap.add_argument("--from-dir", type=Path,
                     help="offline mode: parse local .xlsx files from this directory")
     ap.add_argument("--force", action="store_true",
@@ -861,8 +676,6 @@ def main() -> int:
 
     if args.from_dir:
         return run_offline(args.from_dir, args.force)
-    if args.backfill_annual is not None:
-        return run_backfill_annual(args.backfill_annual, args.force)
     return run_online(args.fy, args.backfill, args.force)
 
 
