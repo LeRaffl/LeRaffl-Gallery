@@ -299,7 +299,10 @@ def list_workbooks(session: requests.Session, content_url: str) -> list[tuple[st
 
 HEADER_FY_RE = re.compile(r"F\.?Y\.?\s*(\d{4})\s*[/-]", re.I)
 HEADER_ANNUAL_RE = re.compile(r"annual\s+data", re.I)
-HEADER_MONTHS_RE = re.compile(r"based\s+on\s+first\s+([a-z]+|\d{1,2})\s+months?", re.I)
+# "First Eleven Months (…)", "First 11 Months (…)", and the FY 2080/81
+# variant "First Eleven(Shrawan-Jestha)" — the word "Months" is optional.
+HEADER_MONTHS_RE = re.compile(r"based\s+on\s+first\s+([a-z]+|\d{1,2})\s*(?:months?)?\s*\(", re.I)
+HEADER_SINGLE_RE = re.compile(r"first\s+month\s*\(\s*([a-z]+)\s*\)", re.I)
 HEADER_RANGE_RE = re.compile(r"\(\s*[a-z]+\s*-\s*([a-z()]+)\s*\)", re.I)
 
 
@@ -311,6 +314,10 @@ def parse_coverage(header: str) -> tuple[int, int]:
     bs_fy_start = int(fy.group(1))
     if HEADER_ANNUAL_RE.search(header):
         return bs_fy_start, 12
+    # single-month file first — "First Month (Shrawan)" must not fall into
+    # the months-count regex (whose "Months" word is optional)
+    if HEADER_SINGLE_RE.search(header):
+        return bs_fy_start, 1
     m = HEADER_MONTHS_RE.search(header)
     if m:
         word = m.group(1).lower()
@@ -333,10 +340,6 @@ def parse_coverage(header: str) -> tuple[int, int]:
                     f"{end!r} (={end_idx}): {header!r}"
                 )
         return bs_fy_start, count
-    # single-month file: "Based on First Month (Shrawan) of FY ..."
-    single = re.search(r"first\s+month\s*\(\s*([a-z]+)\s*\)", header, re.I)
-    if single:
-        return bs_fy_start, 1
     raise ValueError(f"cannot parse coverage from header: {header!r}")
 
 
