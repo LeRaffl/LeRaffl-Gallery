@@ -1,6 +1,36 @@
 {
-  "updated": "2026-07-19",
+  "updated": "2026-07-20",
   "images": [
+    {
+      "country": "Nepal",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-20",
+      "filename": "nepal_ICE_BEV_20260720.png",
+      "url": "images/2026-06/nepal_ICE_BEV_20260720.png",
+      "alt": "Nepal ICE-BEV-Hybrid trajectory",
+      "country_slug": "nepal"
+    },
+    {
+      "country": "Nepal",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-20",
+      "filename": "nepal_20260720.png",
+      "url": "images/2026-06/nepal_20260720.png",
+      "alt": "Nepal BEV trajectory",
+      "country_slug": "nepal"
+    },
+    {
+      "country": "Nepal",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-20",
+      "filename": "nepal_time_20260720.png",
+      "url": "images/2026-06/nepal_time_20260720.png",
+      "alt": "Nepal Transition time curve",
+      "country_slug": "nepal"
+    },
     {
       "country": "Indonesia",
       "type": "ICE_BEV",
