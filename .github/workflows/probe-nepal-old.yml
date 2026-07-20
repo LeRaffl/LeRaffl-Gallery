@@ -1,0 +1,31 @@
+name: Probe Nepal electric codes (TEMPORARY)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/repo-inhalte-erweitern-lgthvs]
+    paths:
+      - 'scripts/probe_nepal_old.py'
+      - '.github/workflows/probe-nepal-old.yml'
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install requests openpyxl
+      - name: Probe
+        run: python scripts/probe_nepal_old.py
+      - name: Commit report
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: scratch_nepal/elec_codes.txt
+          message: 'chore(nepal): electric-code probe (temporary)'
+          default_author: github_actions
+          pull: '--rebase --autostash'
