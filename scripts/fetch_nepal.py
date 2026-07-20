@@ -256,7 +256,8 @@ def discover_fy_categories(session: requests.Session) -> dict[int, list[str]]:
     return out
 
 
-def find_fts_content_page(session: requests.Session, category_urls: list[str]) -> str | None:
+def find_fts_content_page(session: requests.Session, fy: int,
+                          category_urls: list[str]) -> str | None:
     """Return the FTS statistics content-page URL inside one of the FY's
     candidate categories, or None if the FY has no statistics item (empty
     category / revenue-summary-only category)."""
@@ -266,9 +267,18 @@ def find_fts_content_page(session: requests.Session, category_urls: list[str]) -
             title = anchor_text(raw)
             if "/content/" not in href or not title:
                 continue
-            # "तथ्याङ्क"/"तथ्यांक" = statistics (spelling varies); reject the
-            # revenue summary ("राजस्व") that shares the आ.व. title pattern.
-            if ("तथ्याङ्क" in title or "तथ्यांक" in title) and "राजस्व" not in title:
+            # reject the revenue summary, which shares the आ.व. title pattern
+            if "राजस्व" in title:
+                continue
+            # "तथ्याङ्क"/"तथ्यांक" = statistics (spelling varies). Some FY
+            # items are titled with the bare fiscal year only ("आ.व.२०८०/०८१"),
+            # so an आ.व. title whose year matches this category's FY counts
+            # too. A wrong pick still can't corrupt data: every workbook's
+            # header FY is verified against `fy` before parsing.
+            is_stats = "तथ्याङ्क" in title or "तथ्यांक" in title
+            m = FY_TITLE_RE.search(title)
+            is_fy_item = bool(m) and int(m.group(1).translate(DEVANAGARI_DIGITS)) == fy
+            if is_stats or is_fy_item:
                 url = href.strip()
                 return BASE + url if url.startswith("/") else url
     return None
@@ -369,6 +379,8 @@ def parse_workbook(data: bytes, origin: str) -> tuple[int, int, dict[str, dict[s
                 }
             continue
         code = cells[cols["code"]]
+        if code.endswith(".0"):  # numerically-typed cells stringify as '87038011.0'
+            code = code[:-2]
         if not code.startswith("8703") or not code.isdigit() or len(code) != 8:
             continue
         desc = cells[cols["desc"]]
@@ -536,7 +548,7 @@ def run_online(fy_filter: int | None, backfill: bool, force: bool) -> int:
     all_changed: set[str] = set()
     for fy in years:
         print(f"== FY {fy}/{(fy + 1) % 100:02d}")
-        content_url = find_fts_content_page(session, categories[fy])
+        content_url = find_fts_content_page(session, fy, categories[fy])
         if content_url is None:
             msg = f"    no FTS statistics item found for FY {fy} (empty/revenue-only category)"
             if backfill:
@@ -552,7 +564,7 @@ def run_online(fy_filter: int | None, backfill: bool, force: bool) -> int:
             if not prev:
                 return 1
             fy = prev[0]
-            content_url = find_fts_content_page(session, categories[fy])
+            content_url = find_fts_content_page(session, fy, categories[fy])
             if content_url is None:
                 print(f"    previous FY {fy} has no FTS item either — giving up")
                 return 1
