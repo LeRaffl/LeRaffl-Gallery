@@ -510,24 +510,38 @@ def upsert_csv(path: Path, variant: str, per_period: dict[str, dict[str, float]]
 # Drivers
 # --------------------------------------------------------------------------
 
-def process_snapshots(fy: int, raw: list[tuple[bytes, str]], force: bool) -> list[str]:
-    """Parse workbook blobs of one FY, rebuild its months, upsert CSVs.
+def build_fy_rows(fy: int, raw: list[tuple[bytes, str]]):
+    """Parse workbook blobs of one FY and rebuild its monthly rows.
 
-    Returns the list of variants whose CSV changed.
+    Individual files that don't parse as FTS workbooks are skipped with a
+    warning — old content pages carry extra attachments (e.g. FY 2076/77's
+    "Final Vehicle Import Data" xlsx). The contiguity check in
+    monthly_rows() still fails loudly if a *needed* month file was skipped.
     """
     snapshots: dict[int, dict] = {}
     for data, origin in raw:
-        got_fy, months, cum = parse_workbook(data, origin)
+        try:
+            got_fy, months, cum = parse_workbook(data, origin)
+        except ValueError as exc:
+            print(f"    WARNING: skipping {origin}: {exc}")
+            continue
         if got_fy != fy:
-            raise ValueError(f"{origin}: header says FY {got_fy}, expected {fy}")
+            print(f"    WARNING: skipping {origin}: header says FY {got_fy}, expected {fy}")
+            continue
         if months in snapshots:
-            # duplicate coverage (e.g. 'upto Ashadh' + annual): keep the
-            # later-listed file — pages list annual first, so keep first seen
+            # duplicate coverage (e.g. 'upto Ashadh' + annual): pages list
+            # the annual (final) file first, so keep the first seen
             print(f"    note: duplicate month-{months} snapshot ({origin}) ignored")
             continue
         snapshots[months] = cum
         print(f"    parsed {origin}: FY {fy}, months 1..{months}")
-    per_variant = monthly_rows(fy, snapshots)
+    if not snapshots:
+        raise ValueError(f"FY {fy}: no parsable FTS workbooks")
+    return monthly_rows(fy, snapshots)
+
+
+def upsert_all(per_variant, force: bool) -> list[str]:
+    """Upsert one FY's rebuilt rows into the CSVs; returns changed variants."""
     changed = []
     for variant, csv_path in VARIANT_CONFIG.items():
         if upsert_csv(Path(csv_path), variant, per_variant[variant], force):
@@ -548,30 +562,13 @@ def run_online(fy_filter: int | None, backfill: bool, force: bool) -> int:
     elif not backfill:
         years = years[:1]  # newest FY only (steady state)
 
-    all_changed: set[str] = set()
-    for fy in years:
-        print(f"== FY {fy}/{(fy + 1) % 100:02d}")
+    def fetch_fy_rows(fy: int):
+        """Discover, download and rebuild one FY. Raises on any problem."""
         content_url = find_fts_content_page(session, fy, categories[fy])
         if content_url is None:
-            msg = f"    no FTS statistics item found for FY {fy} (empty/revenue-only category)"
-            if backfill:
-                print(msg + " — skipped")
-                continue
-            if fy_filter:
-                print(msg)
-                return 1
-            # steady state at FY rollover: the new FY's category can exist
-            # before its first FTS file — fall back to the previous FY
-            print(msg + " — falling back to previous FY")
-            prev = [y for y in sorted(categories, reverse=True) if y < fy]
-            if not prev:
-                return 1
-            fy = prev[0]
-            content_url = find_fts_content_page(session, fy, categories[fy])
-            if content_url is None:
-                print(f"    previous FY {fy} has no FTS item either — giving up")
-                return 1
-            print(f"== FY {fy}/{(fy + 1) % 100:02d} (fallback)")
+            raise RuntimeError(
+                f"no FTS statistics item found for FY {fy} (empty/revenue-only category)"
+            )
         workbooks = list_workbooks(session, content_url)
         if not backfill and not fy_filter and not force:
             # cheap steady-state skip: the page lists one workbook per
@@ -586,14 +583,62 @@ def run_online(fy_filter: int | None, backfill: bool, force: bool) -> int:
             if have >= len(workbooks):
                 print(f"    {have} months of FY {fy} already in CSV, "
                       f"{len(workbooks)} files published — nothing new")
-                return 0
+                return None  # up to date
         raw = []
         for url, label in workbooks:
             print(f"    downloading {label!r}: {url.rsplit('/', 1)[-1][:70]}")
             r = session.get(url, timeout=180)
             r.raise_for_status()
             raw.append((r.content, url.rsplit("/", 1)[-1]))
-        all_changed |= set(process_snapshots(fy, raw, force))
+        return build_fy_rows(fy, raw)
+
+    all_changed: set[str] = set()
+
+    if backfill:
+        # Rebuild every FY, newest first, but only write the contiguous run
+        # of successes ending at the newest FY: writing a FY *behind* a
+        # failed one would leave a hole in the monthly series (TTM windows
+        # would silently span it).
+        results: dict[int, object] = {}
+        for fy in years:
+            print(f"== FY {fy}/{(fy + 1) % 100:02d}")
+            try:
+                results[fy] = fetch_fy_rows(fy)
+            except Exception as exc:  # noqa: BLE001 — per-FY isolation
+                print(f"    FY {fy} failed: {exc}")
+                results[fy] = None
+        wrote = []
+        for fy in sorted(results, reverse=True):
+            if results[fy] is None:
+                print(f"backfill floor: FY {fy} unusable — older FYs "
+                      f"({[y for y in sorted(results) if y < fy]}) not written")
+                break
+            all_changed |= set(upsert_all(results[fy], force))
+            wrote.append(fy)
+        if not wrote:
+            print("backfill produced nothing")
+            return 1
+        print(f"backfill wrote FYs {sorted(wrote)}")
+    else:
+        fy = years[0]
+        print(f"== FY {fy}/{(fy + 1) % 100:02d}")
+        try:
+            rows = fetch_fy_rows(fy)
+        except RuntimeError as exc:
+            if fy_filter:
+                print(f"    {exc}")
+                return 1
+            # steady state at FY rollover: the new FY's category can exist
+            # before its first FTS file — fall back to the previous FY
+            print(f"    {exc} — falling back to previous FY")
+            prev = [y for y in sorted(categories, reverse=True) if y < fy]
+            if not prev:
+                return 1
+            fy = prev[0]
+            print(f"== FY {fy}/{(fy + 1) % 100:02d} (fallback)")
+            rows = fetch_fy_rows(fy)
+        if rows is not None:
+            all_changed |= set(upsert_all(rows, force))
 
     if all_changed:
         print(f"changed variants: {sorted(all_changed)}")
@@ -613,7 +658,7 @@ def run_offline(from_dir: Path, force: bool) -> int:
     changed: set[str] = set()
     for fy, raw in sorted(by_fy.items()):
         print(f"== FY {fy} ({len(raw)} files)")
-        changed |= set(process_snapshots(fy, raw, force))
+        changed |= set(upsert_all(build_fy_rows(fy, raw), force))
     print(f"changed variants: {sorted(changed)}" if changed else "no changes")
     return 0
 
