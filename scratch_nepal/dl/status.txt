@@ -1,3 +1,0 @@
-404 https://archive.customs.gov.np/en/monthlystatstics.html -> https://archive.customs.gov.np/en/monthlystatstics.html [text/html; charset=UTF-8] 89823B
-200 https://archive.customs.gov.np/ -> https://archive.customs.gov.np/ [text/html; charset=UTF-8] 169882B
-200 https://www.customs.gov.np/search?q=FTS -> https://www.customs.gov.np/search/?q=FTS [text/html; charset=utf-8] 136674B

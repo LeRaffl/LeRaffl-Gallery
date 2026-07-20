@@ -31,14 +31,6 @@ on:
     # skips cheaply when the CSV already has every published month, and the
     # commit step is change-gated, so steady-state runs are no-ops.
     - cron: '50 7 * * *'
-  # DEV: temporary trigger so the fetcher (in --backfill mode) runs while it
-  # is developed on this branch; remove before merging. Same pattern as the
-  # India probe.
-  push:
-    branches: [claude/repo-inhalte-erweitern-lgthvs]
-    paths:
-      - 'scripts/fetch_nepal.py'
-      - '.github/workflows/fetch-nepal.yml'
 
 jobs:
   fetch:
@@ -66,9 +58,7 @@ jobs:
             ${BACKFILL:+--backfill}
         env:
           FY: ${{ inputs.fy }}
-          # push = DEV initial-fill runs on this branch (remove with the
-          # push trigger before merging)
-          BACKFILL: ${{ (inputs.backfill == true || github.event_name == 'push') && '1' || '' }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit
