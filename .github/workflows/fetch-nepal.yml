@@ -24,6 +24,11 @@ on:
         required: false
         default: false
         type: boolean
+      backfill_annual:
+        description: 'Add one yearly row per pre-monthly FY from its annual workbook (validated against the monthly overlap first).'
+        required: false
+        default: false
+        type: boolean
   schedule:
     # DoC publishes each Nepali month's cumulative workbook a few weeks
     # after the month ends (Nepali months end mid-Gregorian-month, but the
@@ -53,12 +58,15 @@ jobs:
 
       - name: Fetch & update Nepal CSVs
         run: |
-          python scripts/fetch_nepal.py \
-            ${FY:+--fy "$FY"} \
-            ${BACKFILL:+--backfill}
+          if [ -n "$BACKFILL_ANNUAL" ]; then
+            python scripts/fetch_nepal.py --backfill-annual
+          else
+            python scripts/fetch_nepal.py ${FY:+--fy "$FY"} ${BACKFILL:+--backfill}
+          fi
         env:
           FY: ${{ inputs.fy }}
           BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          BACKFILL_ANNUAL: ${{ inputs.backfill_annual == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit
