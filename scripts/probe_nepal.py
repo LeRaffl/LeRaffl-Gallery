@@ -56,9 +56,15 @@ def main() -> int:
     session.headers.update(HEADERS)
     status_lines = []
     for url in urls:
-        print(f"\n=== GET {url}")
+        # "INSECURE <url>" lines skip TLS verification — probe-only escape
+        # hatch for archive.customs.gov.np's hostname-mismatched cert.
+        verify = True
+        if url.startswith("INSECURE "):
+            url = url.split(None, 1)[1]
+            verify = False
+        print(f"\n=== GET {url} (verify={verify})")
         try:
-            r = session.get(url, timeout=90, allow_redirects=True)
+            r = session.get(url, timeout=90, allow_redirects=True, verify=verify)
         except Exception as exc:  # noqa: BLE001 - probe: report and continue
             print(f"    FAILED: {exc}")
             status_lines.append(f"FAILED {url} :: {exc}")
