@@ -54,15 +54,18 @@ def main() -> int:
         return 1
     session = requests.Session()
     session.headers.update(HEADERS)
+    status_lines = []
     for url in urls:
         print(f"\n=== GET {url}")
         try:
             r = session.get(url, timeout=90, allow_redirects=True)
         except Exception as exc:  # noqa: BLE001 - probe: report and continue
             print(f"    FAILED: {exc}")
+            status_lines.append(f"FAILED {url} :: {exc}")
             continue
         ct = r.headers.get("content-type", "?")
         print(f"    status={r.status_code} final={r.url} type={ct} bytes={len(r.content)}")
+        status_lines.append(f"{r.status_code} {url} -> {r.url} [{ct}] {len(r.content)}B")
         if r.status_code != 200:
             continue
         name = safe_name(url)
@@ -77,6 +80,7 @@ def main() -> int:
             print(f"    {len(links)} unique hrefs:")
             for l in links:
                 print(f"      {l}")
+    (OUT_DIR / "status.txt").write_text("\n".join(status_lines) + "\n")
     return 0
 
 

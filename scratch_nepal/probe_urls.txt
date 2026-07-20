@@ -1,7 +1,6 @@
-# Round 6: archive site (pre-2080/81 FTS files), plus sample workbooks from
-# FY 2082/83 (current) and FY 2080/81 to confirm layout stability.
+# Round 7: retry the archive site (older FTS files pre-2080/81) with status
+# reporting; also try http-scheme and the bare host variant.
 https://archive.customs.gov.np/
 https://archive.customs.gov.np/en/monthlystatstics.html
-https://giwmscdnone.gov.np/media/files/FTS_Upto_Jestha_82_83_ctvmaxh.xlsx
-https://giwmscdnone.gov.np/media/files/FTS_2080_81_06vgtkv.xlsx
-https://giwmscdnone.gov.np/media/files/FTS_Shrawan_2080_81_jvr6xlx.xlsx
+http://archive.customs.gov.np/en/monthlystatstics.html
+https://www.customs.gov.np/page/622
