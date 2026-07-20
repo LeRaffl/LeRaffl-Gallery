@@ -1,4 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
+2019-07,yearly,Whole,"customs.gov.np (Department of Customs FTS, HS 8703 imports)",4745.0,,0.0,11475.0,9846.0,3.0,26069.0,
+2020-07,yearly,Whole,"customs.gov.np (Department of Customs FTS, HS 8703 imports)",15510.0,,8.0,7672.0,2696.0,6.0,25892.0,
 2020-08,monthly,Whole,"customs.gov.np (Department of Customs FTS, HS 8703 imports)",0.0,,0.0,550.0,114.0,0.0,664.0,
 2020-09,monthly,Whole,"customs.gov.np (Department of Customs FTS, HS 8703 imports)",0.0,,3.0,538.0,94.0,0.0,635.0,
 2020-10,monthly,Whole,"customs.gov.np (Department of Customs FTS, HS 8703 imports)",0.0,,2.0,1887.0,396.0,0.0,2285.0,
