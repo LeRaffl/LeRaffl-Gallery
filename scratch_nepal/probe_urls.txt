@@ -1,13 +1,7 @@
-# Round 5: current-FY FTS content page (how many months published?), the
-# FY 2080/81 content page, older FY categories for backfill discovery, and
-# two candidate URLs for the Nepal flag PNG.
-https://www.customs.gov.np/content/450/foreign-trade-statistics-came-208-83/
-https://www.customs.gov.np/content/45/a-v-2080-041/
-https://www.customs.gov.np/category/fts-2079-080/
-https://www.customs.gov.np/category/fts-2078-079/
-https://www.customs.gov.np/category/fts-2077-078/
-https://www.customs.gov.np/category/fts-2076-077/
-https://www.customs.gov.np/category/fts-2075-076/
-https://www.customs.gov.np/category/fts-2074-075
-https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/512px-Flag_of_Nepal.svg.png
-https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Nepal.svg?width=1000
+# Round 6: archive site (pre-2080/81 FTS files), plus sample workbooks from
+# FY 2082/83 (current) and FY 2080/81 to confirm layout stability.
+https://archive.customs.gov.np/
+https://archive.customs.gov.np/en/monthlystatstics.html
+https://giwmscdnone.gov.np/media/files/FTS_Upto_Jestha_82_83_ctvmaxh.xlsx
+https://giwmscdnone.gov.np/media/files/FTS_2080_81_06vgtkv.xlsx
+https://giwmscdnone.gov.np/media/files/FTS_Shrawan_2080_81_jvr6xlx.xlsx
