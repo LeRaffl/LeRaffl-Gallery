@@ -47,3 +47,7 @@ jobs:
             schedule-*.html
             schedule.ics
           message: "chore: update manifest + schedule (CI)"
+          # Rebase onto the remote tip before pushing so a concurrent push
+          # (e.g. a data-fetch job committing at the same time) doesn't reject
+          # this one with a non-fast-forward error.
+          pull: '--rebase --autostash'

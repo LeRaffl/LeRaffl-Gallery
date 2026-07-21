@@ -109,6 +109,7 @@ import csv
 import io
 import re
 import sys
+import time
 import unicodedata
 from pathlib import Path
 
@@ -226,10 +227,27 @@ def anchor_text(raw: str) -> str:
     return re.sub(r"\s+", " ", txt).strip()
 
 
-def get(session: requests.Session, url: str) -> str:
-    r = session.get(url, timeout=90)
-    r.raise_for_status()
-    return r.text
+def get(session: requests.Session, url: str, *, retries: int = 4) -> str:
+    """GET a page, retrying transient failures (5xx / timeouts / connection
+    errors). customs.gov.np intermittently answers 503, which otherwise fails
+    the whole scheduled run for a purely temporary outage."""
+    last_exc: Exception | None = None
+    for attempt in range(retries):
+        try:
+            r = session.get(url, timeout=90)
+            r.raise_for_status()
+            return r.text
+        except (requests.HTTPError, requests.ConnectionError,
+                requests.Timeout) as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            # Don't retry genuine client errors (404 etc.) — only 5xx/network.
+            if status is not None and status < 500:
+                raise
+            last_exc = exc
+            if attempt < retries - 1:
+                time.sleep(2 ** attempt)  # 1s, 2s, 4s, 8s
+    assert last_exc is not None
+    raise last_exc
 
 
 def discover_fy_categories(session: requests.Session) -> dict[int, list[str]]:
