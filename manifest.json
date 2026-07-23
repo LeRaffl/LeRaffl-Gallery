@@ -562,6 +562,46 @@
       "country_slug": "nepal"
     },
     {
+      "country": "Nepal (3 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-07-23",
+      "filename": "nepal_3_wheelers_ICE_BEV_20260723.png",
+      "url": "images/2026-07/nepal_3_wheelers_ICE_BEV_20260723.png",
+      "alt": "Nepal (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "nepal_3_wheelers"
+    },
+    {
+      "country": "Nepal (3 Wheelers)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-07-23",
+      "filename": "nepal_3_wheelers_20260723.png",
+      "url": "images/2026-07/nepal_3_wheelers_20260723.png",
+      "alt": "Nepal (3 Wheelers) BEV trajectory",
+      "country_slug": "nepal_3_wheelers"
+    },
+    {
+      "country": "Nepal (3 Wheelers)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-07-23",
+      "filename": "nepal_3_wheelers_time_20260723.png",
+      "url": "images/2026-07/nepal_3_wheelers_time_20260723.png",
+      "alt": "Nepal (3 Wheelers) Transition time curve",
+      "country_slug": "nepal_3_wheelers"
+    },
+    {
+      "country": "Nepal (3 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-07-23",
+      "filename": "nepal_3_wheelers_ttm_shares_20260723.png",
+      "url": "images/2026-07/nepal_3_wheelers_ttm_shares_20260723.png",
+      "alt": "Nepal (3 Wheelers) TTM market split graph",
+      "country_slug": "nepal_3_wheelers"
+    },
+    {
       "country": "Norway",
       "type": "ICE_BEV",
       "period": "2026-06",
