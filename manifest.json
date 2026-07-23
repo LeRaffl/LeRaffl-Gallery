@@ -522,6 +522,46 @@
       "country_slug": "malta"
     },
     {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "norway_ICE_BEV_20260723.png",
+      "url": "images/2026-06/norway_ICE_BEV_20260723.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "norway_20260723.png",
+      "url": "images/2026-06/norway_20260723.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "norway_time_20260723.png",
+      "url": "images/2026-06/norway_time_20260723.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "norway_ttm_shares_20260723.png",
+      "url": "images/2026-06/norway_ttm_shares_20260723.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Romania",
       "type": "ICE_BEV",
       "period": "2026-06",
@@ -640,6 +680,46 @@
       "url": "images/2026-06/slovenia_ttm_shares_20260723.png",
       "alt": "Slovenia TTM market split graph",
       "country_slug": "slovenia"
+    },
+    {
+      "country": "Switzerland",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "switzerland_ICE_BEV_20260723.png",
+      "url": "images/2026-06/switzerland_ICE_BEV_20260723.png",
+      "alt": "Switzerland ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "switzerland_20260723.png",
+      "url": "images/2026-06/switzerland_20260723.png",
+      "alt": "Switzerland BEV trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "switzerland_time_20260723.png",
+      "url": "images/2026-06/switzerland_time_20260723.png",
+      "alt": "Switzerland Transition time curve",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-07-23",
+      "filename": "switzerland_ttm_shares_20260723.png",
+      "url": "images/2026-06/switzerland_ttm_shares_20260723.png",
+      "alt": "Switzerland TTM market split graph",
+      "country_slug": "switzerland"
     },
     {
       "country": "USA",
