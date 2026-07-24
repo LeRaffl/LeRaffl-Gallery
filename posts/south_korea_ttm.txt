@@ -1,0 +1,13 @@
+🇰🇷 South Korea - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++8.9pp  BEV   (10.2% → 19.1%)
+−0.1pp  PHEV  (0.8% → 0.7%)
+−0.0pp  HEV   (33.4% → 33.3%)
+−8.8pp  ICE   (55.6% → 46.8%)
+
+PHEV peaked at 0.8% in 2025-10 (declining for 8 months).
+HEV peaked at 34.3% in 2025-08 (declining for 10 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-07.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
