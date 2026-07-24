@@ -50,7 +50,10 @@ df <- df[order(df$country, df$year), ]
 
 # --- shared Ray-style dark theme ---------------------------------------------
 BG <- "#3B3B3B"; FG <- "#EDEBE0"; GRID <- "#FFFFFF"
-lim <- c(0, 0.48)   # equal axes so the y = x parity line is a true 45 degrees
+# coord_fixed keeps the y = x parity line a true 45 degrees; the x range runs
+# wider than y (Ray: axes square, x may be wider) so the panel fills the device
+lim_x <- c(0, 0.56)
+lim_y <- c(0, 0.45)
 datestamp <- paste0(format(Sys.Date(), "%d"),
                     month.abb[as.integer(format(Sys.Date(), "%m"))],
                     format(Sys.Date(), "%Y"))
@@ -74,7 +77,7 @@ parity_layer <- list(
               color = FG, linewidth = 0.4, alpha = 0.6),
   # Label parked in the empty lower-right triangle (below the line), horizontal,
   # so it never crosses the markers.
-  annotate("text", x = 0.475, y = 0.045, hjust = 1,
+  annotate("text", x = 0.55, y = 0.045, hjust = 1,
            label = "dashed line = parity (export mix = home mix)",
            color = FG, alpha = 0.65, size = 3.4, fontface = "italic"))
 
@@ -98,12 +101,11 @@ save_png <- function(p, name) {
 }
 axis_x <- "Domestic BEV share of new registrations"
 axis_y <- "BEV share of passenger-car exports"
-cap <- paste0("X: observed domestic BEV share (CPCA/JADA/KBA/ANL/thaiauto) · ",
-              "Y: BEV share of passenger-car exports (UN Comtrade HS 870380/8703) · @LeRaffl ", datestamp)
-# Honest-scope footnote: Y covers passenger cars only (pickups/LCVs are HS 8704
-# and excluded); US and Thailand home-market shares include light trucks/pickups.
-scope_note <- paste0("Y = passenger cars only, pickups/LCVs (HS 8704) excluded · ",
-                     "US & Thailand domestic shares incl. pickups/light trucks")
+# Simplified caption (Ray): sources compressed to one line; the honest-scope
+# caveat (passenger cars only; US/TH home shares incl. pickups) stays.
+cap <- paste0("Registrations: CPCA/JADA/KBA/molit/ANL/thaiauto · Exports: UN Comtrade",
+              " (passenger cars only, pickups/LCVs excluded) · @LeRaffl ", datestamp)
+scope_note <- "US & Thailand home shares incl. pickups/light trucks"
 
 # --- 1) one scatter per year (2021-2024, complete cross-sections) ------------
 for (yr in 2021:2024) {
@@ -115,12 +117,12 @@ for (yr in 2021:2024) {
       repel_labels() +
       scale_color_manual(values = cols) +
       scale_size_area(max_size = b$max, guide = "none") +
-      scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim) +
-      scale_y_continuous(labels = percent_format(accuracy = 1), limits = lim) +
+      scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim_x, breaks = seq(0, 1, 0.1)) +
+      scale_y_continuous(labels = percent_format(accuracy = 1), limits = lim_y, breaks = seq(0, 1, 0.1)) +
       coord_fixed() +
       labs(title = paste0("Electrify at home, export EVs — ", yr),
            subtitle = paste0(cap, "\nbubble size = ", b$title, "  ·  ", scope_note),
-           x = paste0(axis_x, " (", yr, ")"), y = paste0(axis_y, " (", yr, ")")) +
+           x = axis_x, y = axis_y) +
       ray_theme
     save_png(p, sprintf("export_scatter_%d_%s.png", yr, b$suffix))
   }
@@ -143,8 +145,8 @@ for (b in bubble_variants) {
     repel_labels(data = ends, mapping = aes(label = lab)) +
     scale_color_manual(values = cols) +
     scale_size_area(max_size = b$max, guide = "none") +
-    scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim) +
-    scale_y_continuous(labels = percent_format(accuracy = 1), limits = lim) +
+    scale_x_continuous(labels = percent_format(accuracy = 1), limits = lim_x, breaks = seq(0, 1, 0.1)) +
+    scale_y_continuous(labels = percent_format(accuracy = 1), limits = lim_y, breaks = seq(0, 1, 0.1)) +
     coord_fixed() +
     labs(title = "Electrify at home, export EVs — trajectories 2021→latest",
          subtitle = paste0(cap, "\nbubble size = ", b$title,
