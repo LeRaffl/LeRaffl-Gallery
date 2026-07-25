@@ -668,25 +668,37 @@ def main() -> int:
             print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
             return 0
 
-    # Decide PDF source. The auto-discovery story is documented in the module
-    # docstring; without one of these inputs we can't proceed.
+    # Decide PDF source. An explicit --pdf-path / --pdf-url / --press-id always
+    # wins; with none of them we try to auto-discover the bulletin for the
+    # target month (see scripts/tuik_discover.py for why that is not trivial).
     sources = [args.pdf_path, args.pdf_url, args.press_id]
-    if sum(1 for s in sources if s) == 0:
-        print(
-            "No --press-id, --pdf-url, or --pdf-path supplied. The Veri Portalı "
-            "is an SPA and we don't yet auto-discover bulletin IDs — dispatch "
-            "this workflow manually with the press_id input once TÜİK publishes "
-            "the new bulletin (footnoted in the previous one as "
-            "'Bu konu ile ilgili bir sonraki haber bülteninin yayımlanma tarihi …')."
-        )
-        return 0
     if sum(1 for s in sources if s) > 1:
         sys.exit("Pass only one of --press-id, --pdf-url, --pdf-path")
+
+    discovered = None
+    if sum(1 for s in sources if s) == 0:
+        import tuik_discover
+
+        discovered = tuik_discover.discover(target_year, target_month, verbose=True)
+        if not discovered or not (discovered.pdf_url or discovered.press_id):
+            # Not an error: most daily cron runs land here because the bulletin
+            # for the target month simply is not out yet. Dump the recon so a
+            # genuine portal change is diagnosable straight from the run log
+            # instead of needing a local repro (which the sandbox can't do —
+            # *.tuik.gov.tr is blocked by egress policy there).
+            print("Auto-discovery found no bulletin for "
+                  f"{MONTHS_TR_BY_NUM[target_month]} {target_year}.")
+            import requests
+            tuik_discover.recon(requests.Session(), target_year, target_month)
+            return 0
+        args.press_id = discovered.press_id
 
     if args.pdf_path:
         pdf_src = args.pdf_path
     elif args.pdf_url:
         pdf_src = args.pdf_url
+    elif discovered and discovered.pdf_url:
+        pdf_src = discovered.pdf_url
     else:
         pdf_src = TUIK_PRESS_URL.format(id=args.press_id)
 
