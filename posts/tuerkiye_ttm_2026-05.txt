@@ -1,0 +1,10 @@
+🇹🇷 Türkiye - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++5.5pp  BEV     (12.9% → 18.4%)
++5.7pp  Hybrid  (23.0% → 28.8%)
+−11.2pp  ICE     (64.1% → 52.9%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-05.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
