@@ -117,15 +117,35 @@ _PDF_HINT_RE = re.compile(r'"([^"]*(?:pdf|bulten|bulletin|download|dosya)[^"]*)"
 # form /Bulten/Index?p=Motorlu-Kara-Tasitlari-<Month>-<Year>-<id>. If it still
 # carries 2026 bulletins, discovery becomes plain HTML scraping and the whole
 # SPA problem goes away.
-LEGACY = "https://data.tuik.gov.tr"
+# Round 2 ruled out the legacy portal entirely: data.tuik.gov.tr now serves the
+# same 1947-byte SPA shell for both a search URL and a known-good 2025 bulletin,
+# so it has been folded into the SPA and is no longer scrapeable HTML.
+#
+# It did however pin down the API's shape. /api/* answers with a genuine
+# plaintext "Sayfa bulunamadı" 404 while /tr/* returns the SPA shell, i.e.
+# /api/* is a separate backend that knows its own routes — a 404 there means
+# "no such route", not "no API". Two real path literals came out of the lazily
+# loaded chunks, /api/tr/captcha/challenges and /api/tr/infographics, giving
+# the pattern /api/{lang}/{resource}. Round 2 probed /tr/api/press/<id> and
+# /api/press/<id> — both wrong against that pattern. /api/tr/press/<id> is the
+# obvious untried candidate, and /tr/press/<id>/metadata is a route the public
+# site is known to expose.
 FIXED_PROBES = [
-    BASE + "/sitemap.xml",
-    BASE + "/robots.txt",
-    BASE + f"/tr/api/press/{SEED_PRESS_ID}",
-    BASE + f"/api/press/{SEED_PRESS_ID}",
-    LEGACY + "/Search/Search?text=motorlu%20kara%20ta%C5%9F%C4%B1tlar%C4%B1",
-    LEGACY + "/Bulten/Index?p=Motorlu-Kara-Tasitlari-Mayis-2025-54041",
+    BASE + f"/api/tr/press/{SEED_PRESS_ID}",
+    BASE + f"/api/en/press/{SEED_PRESS_ID}",
+    BASE + f"/api/tr/press/{SEED_PRESS_ID}/metadata",
+    BASE + f"/api/tr/haberBulteni/{SEED_PRESS_ID}",
+    BASE + f"/api/tr/bulten/{SEED_PRESS_ID}",
+    BASE + "/api/tr/press?page=1&size=20",
+    BASE + f"/tr/press/{SEED_PRESS_ID}/metadata",
 ]
+
+# Printed in full rather than truncated: the round-2 probe showed robots.txt
+# naming AI crawler user-agents (anthropic-ai, ClaudeBot, GPTBot, …) but the
+# 300-char preview cut off before the Allow/Disallow that applies to them.
+# Whether this pipeline's browser-UA fetches are in scope is a call the
+# maintainer should make against the actual text, so show the actual text.
+FULL_PRINT = {BASE + "/robots.txt"}
 
 
 def _get(session, url, **kw):
@@ -230,7 +250,7 @@ def recon(session, year: int, month: int) -> None:
         print(f"      {h}")
 
     print("\n[7] probing fixed candidates + discovered paths")
-    probes: list[str] = list(FIXED_PROBES)
+    probes: list[str] = list(FIXED_PROBES) + [BASE + "/robots.txt"]
     for p in api_paths[:40]:
         if "{" in p or "$" in p:
             continue
@@ -243,7 +263,8 @@ def recon(session, year: int, month: int) -> None:
         except Exception as e:
             print(f"  {url}\n      !! {e}")
             continue
-        print(f"  {url}\n      {_describe(r, 300)}")
+        limit = 4000 if url in FULL_PRINT else 300
+        print(f"  {url}\n      {_describe(r, limit)}")
 
     print("\n" + "=" * 72)
     print("recon done — feed the interesting endpoints into discover()")
