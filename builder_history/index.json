@@ -462,7 +462,7 @@
       "groups": {
         "world": {
           "n_countries": 51,
-          "total_weight": 70602654,
+          "total_weight": 70592703,
           "latest_data_per": "2026-07"
         },
         "western_europe": {
@@ -527,7 +527,7 @@
         },
         "big_markets": {
           "n_countries": 14,
-          "total_weight": 63017122,
+          "total_weight": 63007171,
           "latest_data_per": "2026-06"
         }
       }
