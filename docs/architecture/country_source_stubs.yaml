@@ -277,22 +277,6 @@ stubs:
       - "Modelled sales estimates (Argonne), not a national registration count."
       - "Methodology differs from the EU registry sources; deep-history rows can be restated when Argonne revises them."
 
-  - country: Türkiye
-    slug: turkiye
-    method: pdf
-    summary: "New-vehicle registration data for Türkiye from the national statistics institute (TÜİK)."
-    source_name: "TÜİK — monthly press-release PDF"
-    source_url: "https://data.tuik.gov.tr/"
-    underlying: "TÜİK — Turkish Statistical Institute"
-    variants: [Whole]
-    data_file: "data/Türkiye.csv"
-    hev_note: "Hybrids are a single combined bucket, placed in the HEV column; PHEV is left empty."
-    notes:
-      - "Türkiye's figures come from TÜİK, the Turkish Statistical Institute, published as a monthly press-release PDF that our fetcher parses. TÜİK is the official statistics body, so coverage is complete."
-    caveats:
-      - "Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column."
-      - "Parsed from a monthly TÜİK press-release PDF."
-
   # ======================================================================
   # National sources — maintained by hand (no automated fetcher)
   # ======================================================================
