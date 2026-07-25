@@ -282,32 +282,78 @@ Every scheduled GitHub Action in the repo, in one place. All times are UTC (GitH
 
 These are the workflows that pull the previous month's data from each national source and commit the resulting CSV change. Each one self-throttles by re-reading the latest period from the target CSV before any HTTP work, so most invocations on empty days are free (no commit, no render trigger, no downstream fan-out).
 
-| Workflow | Cron expression | Human reading | Source | Country/Variant scope | Self-throttle |
-|---|---|---|---|---|---|
-| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | `0 8 16-31 * *` | Daily 08:00 UTC, 16th → EOM | ACEA monthly PDF | Always-list (16): Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia. Conditional-list (5): Luxembourg, Norway, Poland, Spain, Switzerland — written only if existing source is exactly `ACEA`. | `max(period)` across always-list ≥ target |
-| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | `0 8 10 * *` | Monthly 10th 08:00 UTC | ANFAVEA Excel | Brazil | (always fetches; idempotent on no-change) |
-| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | `0 8 14-31 * *` | Daily 08:00 UTC, 14th → EOM | ANAC (two PDFs) | Chile | `latest_period(Chile.csv) ≥ target` |
-| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | `0 11 1-31 * *` | Daily 11:00 UTC, 1st → EOM | CPCA monthly market analysis | China (retail → `China.csv`, wholesale → `China_Wholesale.csv`) | `latest_period` of both CSVs ≥ target |
-| [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | `15 5 1-15 * *` | Daily 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | Denmark — five variants: Whole, Private, Industry, HDV, Vans | Per-variant diff vs CSV (no commit if all five idempotent) |
-| [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | `40 4 1-15 * *` | Daily 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) | Finland — six variants: Whole, Private, Industry, HDV, Vans, Buses | Per-variant diff vs CSV (no commit if all six idempotent) |
-| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | `0 4 1-5 * *` + `0 13 1-5 * *` | Twice daily 04:00 & 13:00 UTC, 1st → 5th | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | Ireland — four variants: Whole, Vans, HDV, Buses | Per-variant diff vs CSV (trailing-window re-fetch for revisions) |
-| [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | `35 9 10-31 * *` | Daily 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | Indonesia — Whole (auto-render) + Pickups/HDV/Buses (fetch-only) | Newest portal title's last month already a `GAIKINDO`-sourced row in `Indonesia.csv` → no-op before download |
-| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | `0 8 1-31 * *` | Daily 08:00 UTC, 1st → EOM | JADA (XLSX preferred, PDF fallback) | Japan | `latest_period(Japan.csv) ≥ target` |
-| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | `30 6 1-15 * *` | Daily 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | Netherlands — three variants: Whole, Used Imports, HDV | Per-variant diff vs CSV (no commit if all three idempotent) |
-| [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | `30 17 1-5 * *` + `30 20 1-5 * *` | Twice daily 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`) | Portugal — Whole (auto-render) + Vans/HDV/Buses (fetch-only, no schedule render) | Per-variant diff vs CSV (current-year re-fetch for revisions) |
-| [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | `30 7 5-25 * *` | Daily 07:30 UTC, 5th → 25th | ANDI/FENALCO Boletín PDF (datos RUNT) | Colombia — single variant (Whole), combined Hybrid bucket | `latest_period(Colombia.csv) ≥ target` (each PDF carries ~3 yrs of monthly history) |
-| [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | `50 5 1-15 * *` | Daily 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (TAB3277) | Sweden — single variant (Whole) | `latest_period(Sweden.csv) ≥ target` |
-| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | `0 8 15-31 * *` | Daily 08:00 UTC, 15th → EOM | TÜİK press bulletin PDF + OCR | Türkiye | `latest_period(Türkiye.csv) ≥ target` — and requires manual `press_id` dispatch (no auto-discovery on SPA) |
-| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | `0 8 1-31 * *` | Daily 08:00 UTC, 1st → EOM | ACAU "Compilado YYYY" xlsx | Uruguay (AUTOS + SUV aggregated) | `latest_period(Uruguay.csv) ≥ target` |
-| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | `0 10 10-31 * *` | Daily 10:00 UTC, 10th → EOM | ANL Total Sales PDF | USA — trailing 3-month window (re-writes last 3 months on every run to absorb ANL revisions) | Change-detection on the 3-month window (no diff → no commit) |
+| Workflow | Human reading | Source | Country / variant scope | Self-throttle |
+|---|---|---|---|---|
+| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | 08:40 UTC, 16th → EOM | ACEA monthly PDF press release | Always-list (16): Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia. Conditional-list: Norway, Switzerland — written only if the existing source is exactly `ACEA` | `max(period)` across always-list ≥ target |
+| [`fetch-albania.yml`](../../.github/workflows/fetch-albania.yml) | 07:00 UTC, 10th → 28th | DPSHTRR Open Data via its public Looker Studio report (headless Chromium) | `Whole` + `HDV` + `Buses` + `2-Wheelers` — first registrations, new **and** imported used | change-gated commit |
+| [`fetch-austria.yml`](../../.github/workflows/fetch-austria.yml) | 09:25 UTC, 8th → 22nd | Statistik Austria DE2/DE3 `.ods` (via the Cloudflare Worker relay — the source blocks datacenter IPs) | `Whole` + `HDV` + `Vans` | per-variant early-exit |
+| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | 08:50 UTC, 10th | ANFAVEA yearly Excel workbook | `Whole` (cars + light commercials) | change-gated commit |
+| [`fetch-canada.yml`](../../.github/workflows/fetch-canada.yml) | 06:40 UTC, 8th → 20th of Mar/Jun/Sep/Dec | StatCan WDS cube 20-10-0025 | `Whole` (EU M1) + `Pickups` + `Vans` | change-gated commit (always re-fetches latest N quarters) |
+| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | 08:20 UTC, 14th → EOM | ANAC (Mercado Automotor + Cero y Bajas Emisiones PDFs) | `Whole` | `latest_period(Chile.csv) ≥ target` |
+| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | 11:00 UTC, 1st → EOM | CPCA monthly market analysis (article + OCR of the NEV slide) | `Whole` (retail) + `Wholesale` to a separate CSV | `latest_period` of both CSVs ≥ target |
+| [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | 07:30 UTC, 5th → 25th | ANDI/FENALCO Boletín PDF (datos RUNT) | `Whole` — single combined Hybrid bucket | `latest_period(Colombia.csv) ≥ target` |
+| [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | per-variant diff vs CSV |
+| [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV |
+| [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | newest portal file title already covered → no-op before download |
+| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | 04:00 & 13:00 UTC, 1st → 5th | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant diff vs CSV |
+| [`fetch-italy.yml`](../../.github/workflows/fetch-italy.yml) | 06:00/10:00/14:00/18:00 UTC, 1st → 3rd (passenger); 10:00/14:00/18:00 UTC, 13th → 16th (vans) | UNRAE «struttura del mercato» PDF; LCV from the separate Comunicato Stampa | `Whole` + `Rental` + `NonRental` + `Vans` | per-variant diff vs CSV |
+| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | 08:00 UTC, 1st → EOM | JADA monthly registrations file (XLSX preferred, PDF fallback) | `Whole` — 登録車 only, kei cars excluded | `latest_period(Japan.csv) ≥ target` |
+| [`fetch-luxembourg.yml`](../../.github/workflows/fetch-luxembourg.yml) | 06:45 UTC, 1st → 15th | STATEC SDMX 2.1, dataflow DF_D6122 (`lustat.statec.lu`) | `Whole` + `Vans` + `HDV` | per-variant early-exit |
+| [`fetch-malaysia.yml`](../../.github/workflows/fetch-malaysia.yml) | 07:00 UTC, 15th → EOM | data.gov.my cars dataset (Parquet) | `Whole` | change-gated commit |
+| [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | 07:50 UTC, daily | Department of Customs FTS XLSX (`customs.gov.np`) — HS 8703 **imports**, not registrations | `Whole` + `3-Wheelers` | cheap-skip when the CSV already covers every published workbook |
+| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`, Deno Deploy relay) | `Whole` + `Used` + `HDV` | per-variant diff vs CSV |
+| [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | **disabled** — cron commented out 2026-06 (Imperva); `workflow_dispatch` only, data entered by hand | transport.govt.nz `/inner` (CKAN fallback) | `Whole` | n/a |
+| [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | 09:30 & 13:30 UTC, 6th → 10th | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant early-exit |
+| [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
+| [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | 08:00 UTC, 15th → EOM | LTA Monthly Vehicle Statistics, file M03 (PDF) | `Whole` | change-gated commit (rolling ~6-month window) |
+| [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 06:30 UTC, 1st → 16th | DGT matriculaciones microdata (fixed-width, monthly zip) | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
+| [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
+| [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
+| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | 08:30 UTC, 15th → EOM | TÜİK «Motorlu Kara Taşıtları» bulletin (id auto-discovered; fuel table OCR'd) | `Whole` — otomobil only, combined Hybrid bucket | `latest_period(Türkiye.csv) ≥ target` |
+| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | 08:10 UTC, 1st → EOM | ACAU «Compilado YYYY» xlsx | `Whole` (AUTOS + SUV) + `Vans` + `HDV` + `Buses` | `latest_period` per variant ≥ target |
+| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | 10:30 UTC, 10th → EOM | ANL «Total Sales for Website» PDF | `Whole` — trailing 3-month window, re-written each run to absorb ANL revisions | change-detection on the window |
 
 Notes on the schedule shape:
-- **08:00 UTC is the most crowded slot.** Brazil/Chile/Japan/Türkiye/Uruguay/ACEA all share it on the days they're scheduled. They don't conflict (each writes a different CSV; ACEA's matrix render fan-out is serialised by `max-parallel: 1`), but a CI outage at 08:00 UTC affects all of them simultaneously.
-- **Ireland sits at 04:00 & 13:00 UTC** (twice daily, since SIMI publishes very early on the 1st), **Finland at 04:40 UTC**, **Denmark at 05:15 UTC**, **Sweden at 05:50 UTC** and **Netherlands at 06:30 UTC** to clear the 08:00 crowd; **Portugal at 17:30 & 20:30 UTC** (ACAP publishes from ~17:00 Lisbon on the 1st — the only evening slot); **China at 11:00 UTC** to clear it from the other side; **USA at 10:00 UTC** to avoid piling onto the 10th's Brazil window.
-- **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland, Sweden; Ireland and Portugal from the 1st too) rely entirely on the self-throttle to keep the empty days free — they fire 1-15 or 1-31 (Ireland/Portugal 1-5) times per month but only do real HTTP on the days the source publishes.
-- **Date-window starters** (USA 10+, Chile 14+, Türkiye 15+, Netherlands ≤15, Denmark ≤15, Finland ≤15, Sweden ≤15, Ireland ≤5, Portugal ≤5, ACEA 16+) reflect the earliest plausible publication day for the previous month from that source; cutting off the empty days saves a handful of self-throttle checks but doesn't change correctness.
+- **The 08:00 UTC pile-up was deliberately broken up.** It used to be the
+  crowded slot (Brazil, Chile, Türkiye, Uruguay and ACEA all fired at `0 8`);
+  those were staggered onto their own minutes — Uruguay `:10`, Chile `:20`,
+  Türkiye `:30`, ACEA `:40`, Brazil `:50` — so a stall in one no longer lands
+  on top of the others. Japan and Singapore are the only ones still on the
+  hour. They never conflicted (each writes a different CSV, and ACEA's render
+  fan-out is serialised by `max-parallel: 1`), but a CI outage at exactly
+  08:00 used to take all of them out together.
+- **The early band clears that window from below:** Ireland 04:00 & 13:00
+  (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
+  Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
+  06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
+  07:30, Nepal 07:50.
+- **And from above:** Austria 09:25, Poland 09:30 & 13:30, Indonesia 09:35,
+  USA 10:30 (off the 10th's Brazil window), China 11:00, Portugal 17:30 &
+  20:30 — the only evening slot, because ACAP publishes from ~17:00 Lisbon
+  on the 1st.
+- **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
+  Sweden, Spain, Thailand, Luxembourg; Ireland, Italy and Portugal from the
+  1st too) rely entirely on the self-throttle to keep the empty days free —
+  they fire many times a month but only do real HTTP on the days the source
+  publishes.
+- **Date-window starters** (Poland 6+, USA 10+, Indonesia 10+, Albania 10+,
+  Chile 14+, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, and the
+  matching upper cut-offs) reflect the earliest plausible publication day for
+  the previous month from that source. Cutting off the empty days saves a
+  handful of self-throttle checks; it doesn't change correctness.
+- **Canada is the odd one out:** its cube is quarterly, so the workflow only
+  runs in March, June, September and December (days 8–20).
+- **Nepal is the only unbounded daily cron** (`50 7 * * *`) — Nepali fiscal
+  months don't line up with Gregorian ones, so there is no useful day window.
+- **New Zealand has no cron at all** since 2026-06; both upstream endpoints
+  are behind Imperva and months are entered by hand.
 
-Country coverage of automated fetchers: **see also** [02-components.md](02-components.md#27-fetch-actions-overview) for which CSVs are auto-fed vs hand-maintained. Countries without an entry in the table above (Australia, Austria, Canada, Georgia, Germany, Italy, New Zealand, Singapore, South Korea, Thailand, UK — and all conditional-list ACEA countries until their source flips to pure `ACEA`) are maintained manually via the legacy local R pipeline or via public-submit PRs.
+Country coverage of automated fetchers: **see also**
+[02-components.md](02-components.md#27-fetch-actions-overview). Countries with
+a CSV but no automated fetcher — maintained via the legacy local R pipeline or
+public-submit PRs — are **Australia, Georgia, Germany, South Korea and the
+UK**, plus **India** (no committed CSV at all) and **New Zealand** (fetcher
+present, cron disabled).
 
 ### Infrastructure actions
 

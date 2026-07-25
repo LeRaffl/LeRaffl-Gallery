@@ -6,18 +6,28 @@ asked "why isn't \<country\> on the map? the data clearly exists, \<org\> posts
 it every month" — can find the honest answer instead of guessing.
 
 The short version: **the gallery only ingests sources that are (a) direct from
-the original registry/agency, (b) reasonably complete for the market, and
-(c) machine-accessible without paywalls or per-download identity checks.** A
-country can have abundant EV press coverage and still fail all three. When that
-happens we leave it off rather than publish a misleading trajectory.
+the original registry/agency or its recognised industry body, (b) reasonably
+complete for the market, and (c) obtainable without paying or handing over a
+personal identity document.** A country can have abundant EV press coverage and
+still fail all three. When that happens we leave it off rather than publish a
+misleading trajectory.
 
-See also the per-source playbooks for the countries that *did* clear the bar:
-[10-source-netherlands.md](10-source-netherlands.md),
-[11-source-denmark.md](11-source-denmark.md),
-[12-source-finland.md](12-source-finland.md),
-[13-source-sweden.md](13-source-sweden.md). Brazil, Chile and Uruguay are
-covered by their own fetchers (see [02-components.md](02-components.md) and
-[05-flows.md](05-flows.md)).
+> **The login bar moved, and this document has not always reflected it.** The
+> original rule was "no login-walled portals at all". In practice two countries
+> now run on a **free membership account held by the maintainer** — Thailand
+> (the TAI/AIU member portal) and Indonesia (GAIKINDO's ProjectSend) — because
+> the data exists nowhere else and the credential is free, personal to the
+> maintainer, and stored as a GitHub Actions secret. So the operative line
+> today is: **a free account is acceptable; paying money or submitting a
+> national ID number is not.** Several rejections below (Colombia's RUNT
+> portal, Morocco's AIVAM energy split) were made under the older, stricter
+> rule and are worth revisiting on that basis — that is a maintainer decision,
+> not a settled conclusion.
+
+See also the per-source playbooks for the countries that *did* clear the bar —
+there are now 22 of them, indexed in [README.md](README.md). Every gallery
+country, documented or not, also has a public source page under `sources/`
+generated from these docs.
 
 ## What "good enough" means here
 
@@ -130,10 +140,15 @@ The previous shelving rationale, kept for the record:
   Nacional de Tránsito — the official registry, so complete). Monthly, with
   BEV / PHEV / HEV split.
 - **Why ANDEMOS directly is unworkable:** ANDEMOS surfaces the data through
-  **embedded Google Looker Studio dashboards** (same scraping problem as zemo's
-  Power BI — no clean download/API on the public pages). The underlying RUNT
-  portal is **account-gated** (registration/login required), which is a
-  technical hurdle we don't want a public pipeline to depend on.
+  **embedded Google Looker Studio dashboards** (no clean download/API on the
+  public pages), and the underlying RUNT portal is **account-gated**.
+  Note two things have changed since this was written: Albania proved a public
+  Looker Studio report *can* be driven (headless Chromium intercepting the
+  report's own `batchedDataV2` calls — see
+  [27-source-albania.md](27-source-albania.md)), and a free account is no
+  longer an automatic disqualifier (see the note at the top). Neither has been
+  re-tried against ANDEMOS/RUNT; the ANDI/FENALCO PDF works and there has been
+  no reason to.
 - **What would change the decision again:** a free, machine-readable
   ANDEMOS/RUNT export (CSV/API) without the login wall — at which point we
   could replace the ANDI/FENALCO PDF parser with a clean API call **and**
@@ -162,9 +177,10 @@ one collides with a different gallery assumption:
 The realistic near-term candidates are the two markets that *do* have an
 industry-association monthly series: **South Africa** (naamsa — genuine
 monthly new-vehicle sales with a drivetrain split; the most promising, under
-active investigation) and **Morocco** (AIVAM — monthly exists, but the
-energy split sits behind a login on `statistique.aivam.ma`, so shelved for
-now). Kenya, Nigeria and Egypt have manufacturer/importer associations but
+active investigation) and **Morocco** (AIVAM — a monthly series exists, but the
+energy split sits behind a login on `statistique.aivam.ma`; shelved under the
+old no-login rule, so worth a second look now that Thailand and Indonesia set
+the free-account precedent). Kenya, Nigeria and Egypt have manufacturer/importer associations but
 no freely machine-readable fuel-split series.
 
 ### 🇪🇹 Ethiopia — a 100 % EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
