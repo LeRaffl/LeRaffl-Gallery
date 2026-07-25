@@ -349,7 +349,7 @@ stubs:
     method: manual
     summary: "New-registration data for Georgia from the National Statistics Office (Geostat)."
     source_name: "Geostat — National Statistics Office of Georgia"
-    source_url: "https://www.geostat.ge/en"
+    source_url: "https://automobile.geostat.ge/en/automobiles/rating"
     underlying: "Geostat — National Statistics Office of Georgia"
     variants: [Whole]
     data_file: "data/Georgia.csv"
