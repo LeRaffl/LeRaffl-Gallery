@@ -130,7 +130,7 @@ table.matrix th:first-child{white-space:nowrap}
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
-  <section><h2>How it works</h2><p>Türkiye&#x27;s figures come from TÜİK, the Turkish Statistical Institute, from its monthly «Motorlu Kara Taşıtları» press bulletin. TÜİK is the official statistics body, so coverage of registrations is complete.</p><p>The bulletin&#x27;s authoritative monthly and year-to-date totals are read from the narrative text; the per-fuel breakdown only exists as an image, so it is OCR&#x27;d. Three checks guard the result: narrative-vs-OCR total, a per-fuel sum check with a single-error repair via the published percentages, and a cross-check against the same month a year earlier.</p></section>
+  <section><h2>How it works</h2><p>Türkiye&#x27;s figures come from TÜİK, the Turkish Statistical Institute, from its monthly «Motorlu Kara Taşıtları» press bulletin. TÜİK is the official statistics body, so coverage of registrations is complete.</p><p>The bulletin&#x27;s authoritative monthly and year-to-date totals are read from the narrative text; the per-fuel breakdown only exists as an image, so it is OCR&#x27;d. Three checks guard the result: narrative-vs-OCR total, a per-fuel sum check with a single-error repair via the published percentages, and a cross-check against the same month a year earlier.</p><p>The Veri Portalı is a React SPA with no listing endpoint, so the bulletin for a given month is found by walking bulletin ids outward from the newest one already recorded in the CSV and matching on title and period. Nothing is hard-coded and the anchor re-derives itself each month.</p></section>
 
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://veriportali.tuik.gov.tr/">TÜİK Veri Portalı — Motorlu Kara Taşıtları bulletins ↗</a></p><p class="live-src">Newest stored month (<code>2026-06</code>) was read from <a href="https://veriportali.tuik.gov.tr/tr/press/58043">this exact document ↗</a>.</p>
 
@@ -148,7 +148,7 @@ table.matrix th:first-child{white-space:nowrap}
 
   
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column — PHEV and HEV cannot be separated.</li><li>The fuel table is OCR&#x27;d from an image in the PDF, not read from text.</li><li>Not fully automated: the Veri Portalı is a single-page app with no listable bulletin index, so the maintainer supplies each month&#x27;s bulletin id by hand. The daily cron is a no-op until then.</li></ul></section>
+  <section><h2>Caveats</h2><ul class="caveats"><li>Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column — PHEV and HEV cannot be separated.</li><li>The fuel table is an image in the bulletin, not markup, so the per-fuel numbers are OCR&#x27;d rather than read.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
