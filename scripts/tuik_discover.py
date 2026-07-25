@@ -48,9 +48,12 @@ a written row.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import sys
+from itertools import zip_longest
+from pathlib import Path
 from dataclasses import dataclass, field
 
 BASE = "https://veriportali.tuik.gov.tr"
@@ -67,6 +70,10 @@ PRESS_API = BASE + "/api/{lang}/press/{id}"
 # A bulletin id known to exist, used as the entry point for recon: we only
 # need *some* valid press page to get at the SPA bundle.
 SEED_PRESS_ID = 58042
+
+# How far either side of the anchor id the scan looks before giving up.
+SCAN_AHEAD = 14
+SCAN_BEHIND = 6
 
 HTTP_HEADERS = {
     "User-Agent": (
@@ -248,10 +255,25 @@ def recon(session, year: int, month: int) -> None:
         if data is None:
             print(f"  id={pid}: no JSON (endpoint or cookies wrong)")
             continue
-        keys = sorted(data.keys()) if isinstance(data, dict) else f"<{type(data).__name__}>"
-        print(f"  id={pid} keys: {keys}")
-        blob = json.dumps(data, ensure_ascii=False, indent=1)
-        print(f"  body ({len(blob)}B, first 2500):\n{blob[:2500]}")
+        rec = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(rec, dict):
+            print(f"  id={pid}: unexpected envelope {sorted(data)[:6]}")
+            continue
+        print(f"  id={pid}  title={rec.get('title')!r}  period={rec.get('period')!r}"
+              f"  date={rec.get('date')!r}  fields={sorted(rec)}")
+
+        # The decisive question: the PDF hides the fuel table in a raster image
+        # (hence the whole pdfimages+tesseract pipeline). If the API's HTML
+        # `content` carries it as real markup instead, OCR can go away entirely.
+        html = str(rec.get("content") or "")
+        stripped = re.sub(r'src="data:image/[^"]*"', 'src="[b64]"', html)
+        print(f"  content: {len(html)}B raw, {len(stripped)}B without base64")
+        for label in ("Benzin", "Hibrit", "Elektrik", "Dizel", "LPG"):
+            i = stripped.find(label)
+            print(f"    {label:9s} {'at %d' % i if i >= 0 else 'NOT FOUND'}")
+        i = stripped.find("Benzin")
+        if i >= 0:
+            print(f"  --- markup around 'Benzin' ---\n{stripped[max(0, i - 1200):i + 1800]}")
 
     print("\n[3] SPA module graph")
     got = fetch_bundle(session)
@@ -361,29 +383,73 @@ def discover(year: int, month: int, session=None, verbose: bool = False) -> Disc
     return None
 
 
-def _via_search_api(session, year, month, want_title, verbose):
-    """Query the portal's search endpoint for the series, match on exact title.
+def _via_id_scan(session, year, month, want_title, verbose):
+    """Scan a bounded window of bulletin ids and match on title + period.
 
-    Endpoint shape is confirmed by the recon pass; kept in one place so a
-    portal change is a one-line fix.
+    Every listing/search shape probed (/api/tr/press, .../list, /presses,
+    /search, /categories, /themes) answers 404, so there is no index to query —
+    but /api/tr/press/<id> returns `title` ("Motorlu Kara Taşıtları") and
+    `period` ("Haziran 2026") for any id, which is enough to identify a
+    bulletin exactly.
+
+    The scan is cheap because the series occupies a contiguous id block, just
+    not in date order within it: 58041=Mart, 58042=Nisan, 58043=Haziran,
+    58044=Mayıs, 58051=Ocak 2026 are all this same series. So anchoring on the
+    id already recorded in the CSV and walking outward finds the target in a
+    handful of requests. Match is on BOTH fields — period alone repeats across
+    series, title alone repeats across months.
     """
-    from urllib.parse import quote
-    url = f"{BASE}/api/search?q={quote(SERIES_TITLE)}&size=50"
-    resp = _get(session, url)
-    if resp.status_code != 200 or "json" not in resp.headers.get("content-type", ""):
+    want_period = f"{MONTHS_TR_BY_NUM[month]} {year}"
+    anchor = _anchor_id(session)
+    if anchor is None:
         if verbose:
-            print(f"[discover] search endpoint unusable: {_describe(resp, 200)}")
+            print("[discover] no anchor id available, cannot scan")
         return None
-    payload = resp.json()
-    for item in _iter_records(payload):
-        title = str(item.get("title") or item.get("baslik") or "")
-        if title.strip() != want_title:
+
+    # Outward from the anchor, nearest first: the next bulletin is usually
+    # within a couple of ids, and stopping early keeps the daily cron light
+    # (each record is ~340 KB because `content` embeds base64 chart images).
+    # zip() would silently truncate to the shorter side (SCAN_BEHIND), so
+    # interleave with zip_longest and drop the padding instead.
+    offsets = [d for pair in zip_longest(range(1, SCAN_AHEAD + 1),
+                                         range(-1, -SCAN_BEHIND - 1, -1))
+               for d in pair if d is not None]
+    for off in offsets:
+        pid = anchor + off
+        rec = press_json(session, pid)
+        if not rec:
             continue
-        pid = item.get("id") or item.get("pressId") or item.get("sayi")
-        return Discovery(press_id=int(pid) if pid else None,
-                         pdf_url=_pdf_url_from_record(item, pid),
-                         title=title)
+        data = rec.get("data") if isinstance(rec, dict) else None
+        if not isinstance(data, dict):
+            continue
+        title, period = str(data.get("title", "")), str(data.get("period", ""))
+        if verbose:
+            print(f"[discover]   id={pid}: {title!r} / {period!r}")
+        if title.strip() == SERIES_TITLE and period.strip() == want_period:
+            return Discovery(press_id=pid, pdf_url=None, title=want_title,
+                             notes=[f"matched by scan at offset {off:+d}"])
     return None
+
+
+def _anchor_id(session=None) -> int | None:
+    """Newest bulletin id already recorded in data/Türkiye.csv.
+
+    The CSV's `source` column carries the press URL of the row it came from
+    (…/tr/press/58042), so the scan re-anchors itself every month without any
+    hard-coded id drifting out of date.
+    """
+    path = Path("data/Türkiye.csv")
+    if not path.exists():
+        return None
+    best = None
+    with path.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            for field in (row.get("notes") or "", row.get("source") or ""):
+                m = re.search(r"/press/(\d+)", field)
+                if m:
+                    pid = int(m.group(1))
+                    best = pid if best is None else max(best, pid)
+    return best
 
 
 def _iter_records(payload):
@@ -416,7 +482,7 @@ def _pdf_url_from_record(item, pid):
     return None
 
 
-_SEARCH_STRATEGIES = [_via_search_api]
+_SEARCH_STRATEGIES = [_via_id_scan]
 
 
 def main() -> int:
