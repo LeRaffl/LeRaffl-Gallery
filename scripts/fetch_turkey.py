@@ -326,7 +326,7 @@ def ocr_tsv(image_path: Path, upscale: int = 4) -> list[dict]:
     return words
 
 
-def iter_fuel_table_images(image_paths: list[Path]):
+def iter_fuel_table_images(image_paths: list[Path], upscales=(4, 6, 8)):
     """Yield (path, words) for EVERY image whose OCR shows all six fuel labels.
 
     find_table_image() stops at the first hit, which is fine when there is only
@@ -335,18 +335,27 @@ def iter_fuel_table_images(image_paths: list[Path]):
     first-match can land on the wrong one and take the whole run down with it.
     Yielding all of them lets the caller keep the table whose Toplam agrees
     with the narrative monthly total.
+
+    Each image is offered at several upscale factors. A single factor is one
+    roll of the dice on a low-resolution source: the Haziran 2026 table OCR'd
+    at 4x produced a row sum that missed Toplam, and the repair heuristic then
+    tried to pin the difference on LPG (1155, implying 1.6% against an OCR'd
+    Pay% of 0.9%) — a misread elsewhere in the column, not in LPG. Re-reading
+    the same image larger is the cheapest way out, and validation downstream
+    decides which attempt was actually right.
     """
     needed = set(FUEL_TO_CSV.keys())
     for p in image_paths:
-        try:
-            words = ocr_tsv(p, upscale=4)
-        except subprocess.CalledProcessError:
-            continue
-        texts = {w["text"] for w in words}
-        seen = {c for c, aliases in LABEL_ALIASES.items()
-                if any(a in texts for a in aliases)}
-        if needed.issubset(seen):
-            yield p, words
+        for scale in upscales:
+            try:
+                words = ocr_tsv(p, upscale=scale)
+            except subprocess.CalledProcessError:
+                continue
+            texts = {w["text"] for w in words}
+            seen = {c for c, aliases in LABEL_ALIASES.items()
+                    if any(a in texts for a in aliases)}
+            if needed.issubset(seen):
+                yield f"{p.name}@{scale}x", words
 
 
 def find_table_image(image_paths: list[Path]) -> tuple[Path, list[dict]] | None:
@@ -807,9 +816,9 @@ def ingest_from_html(record: dict, args, target_year: int, target_month: int,
             imgs = extract_images_from_html(content, Path(td) / "imgs")
             print(f"[html] OCR fallback: {len(imgs)} inline image(s) "
                   f"({sum(p.stat().st_size for p in imgs) // 1024} KB)")
-            for path, words in iter_fuel_table_images(imgs):
-                print(f"[html]   {path.name} has all six fuel labels")
-                candidates.append((path.name, parse_table(words)))
+            for origin, words in iter_fuel_table_images(imgs):
+                print(f"[html]   {origin} has all six fuel labels")
+                candidates.append((origin, parse_table(words)))
 
         if not candidates:
             print("[html] no fuel table found in markup or images")
@@ -824,6 +833,8 @@ def ingest_from_html(record: dict, args, target_year: int, target_month: int,
                 fuels, repairs = validate_and_repair(table, narr["monthly_total"])
             except Exception as e:
                 print(f"[html] candidate {origin} rejected: {e}")
+                for label, (counts, pcts) in table.items():
+                    print(f"[html]     {label:9s} counts={counts} pcts={pcts}")
                 continue
             for label, before, after in repairs:
                 print(f"  REPAIR: {label} {before} → {after}")
