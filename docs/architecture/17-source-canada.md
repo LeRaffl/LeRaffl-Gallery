@@ -1,28 +1,33 @@
 ---
 country: Canada
 slug: canada
-status: live
 method: api
-summary: >-
-  Quarterly new-vehicle registrations for Canada from Statistics Canada's Web
-  Data Service (cube 20-10-0025).
-source_name: "150.statcan.gc.ca — StatCan WDS cube 20-10-0025"
-source_url: "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501"
-underlying: "Statistics Canada — cube 20-10-0025"
+summary: Quarterly new-vehicle registrations for Canada from Statistics Canada's Web Data Service (cube
+  20-10-0025).
+source_name: 150.statcan.gc.ca — StatCan WDS cube 20-10-0025
+source_url: https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501
+underlying: Statistics Canada — cube 20-10-0025
 auth: none
-cadence: "quarterly (Mar/Jun/Sep/Dec runs), commit-gated"
-variants: [Whole, Pickups, Vans]
+cadence: daily cron on the 8th–20th of Mar/Jun/Sep/Dec, 06:40 UTC — the cube is quarterly
+variants:
+- Whole
+- Pickups
+- Vans
+variant_notes:
+  Whole: Passenger cars + multi-purpose vehicles (SUVs/crossovers) = EU class M1.
+  Pickups: Pickup trucks, GVWR up to 14,000 lb — Canada-specific, not EU N1.
+  Vans: Minivans + cargo vans — Canada-specific, mixes M1 and N1.
 hev_split: true
 backfill: none
-scope_note: "Whole = passenger cars + multi-purpose vehicles (EU M1); stored at the quarter's middle month."
+scope_note: Whole = passenger cars + multi-purpose vehicles (EU M1); stored at the quarter's middle month.
 caveats:
-  - "Quarterly data is stored under the quarter's middle month (Q1→02 … Q4→11)."
-  - "2011–2016 are kept as yearly passenger-cars-only rows — a definition seam vs the M1 quarterly series."
-  - "Diesel is near-zero for Canadian passenger cars."
-fetcher: "scripts/fetch_canada.py"
-workflow: ".github/workflows/fetch-canada.yml"
-fragility_doc: "docs/architecture/17-source-canada.md"
-data_file: "data/Canada.csv"
+- Quarterly data is stored under the quarter's middle month (Q1→02 … Q4→11).
+- 2011–2016 are kept as yearly passenger-cars-only rows — a definition seam vs the M1 quarterly series.
+- Diesel is near-zero for Canadian passenger cars.
+fetcher: scripts/fetch_canada.py
+workflow: .github/workflows/fetch-canada.yml
+fragility_doc: docs/architecture/17-source-canada.md
+data_file: data/Canada.csv
 ---
 
 # 17 · Source: Canada (150.statcan.gc.ca / WDS cube 20-10-0025)
@@ -93,9 +98,11 @@ POST https://www150.statcan.gc.ca/t1/wds/rest/getDataFromCubePidCoordAndLatestNP
 Why metadata-first: a *coordinate* is ten member IDs in dimension-position
 order (unused trailing positions = `0`). Rather than hard-code numeric IDs that
 StatCan can renumber, `fetch_canada.py` reads the live metadata and resolves
-members **by name**: Geography=`Canada`, Vehicle type=`Passenger cars`, the
-"total"/"Units" member of every other dimension, and the **leaf** members of
-the Fuel type dimension. It then fires one data request per fuel leaf in a
+members **by name**: Geography=`Canada`, the Vehicle type member(s) for the
+requested variant (for `Whole` that is `Passenger cars` **and**
+`Multi-purpose vehicles`, summed — see §3), the "total"/"Units" member of
+every other dimension, and the **leaf** members of the Fuel type dimension.
+It then fires one data request per (vehicle type × fuel leaf) coordinate in a
 single batched POST.
 
 ## 3. Variants and the M1 definition change

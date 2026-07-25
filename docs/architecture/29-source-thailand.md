@@ -1,28 +1,39 @@
 ---
 country: Thailand
 slug: thailand
-status: live
 method: api
-summary: >-
-  New-registration data for Thailand from the Thailand Automotive Institute's
-  AIU portal.
-source_name: "aiu.thaiauto.or.th — Thailand Automotive Institute API"
-source_url: "https://aiu.thaiauto.or.th/"
-underlying: "Thailand Automotive Institute (thaiauto)"
-auth: "member login (cookie session)"
-cadence: "daily 04:40 UTC, 1st–20th of the month"
-variants: [Whole, HDV, Buses, 3-Wheelers]
+summary: New-registration data for Thailand from the Thailand Automotive Institute's AIU portal.
+source_name: AIU member portal (Thailand Automotive Institute)
+source_url: https://aiu.thaiauto.or.th/
+source_links:
+- label: data.thaiauto.or.th — the former public table
+  url: https://data.thaiauto.or.th/
+  note: froze in early 2026 and now sits behind the same member wall; kept here so the dead end is on
+    the record
+underlying: Thailand Automotive Institute (thaiauto)
+auth: member login (cookie session)
+cadence: daily 04:40 UTC, 1st–20th of the month
+variants:
+- Whole
+- HDV
+- Buses
+- 3-Wheelers
+variant_notes:
+  Whole: Passenger Car and Pickup Truck — the AIU category; pickups are bundled in and cannot be separated.
+  HDV: Truck category.
+  Buses: Bus category.
+  3-Wheelers: Three Wheelers category — tiny volumes, high BEV share.
 hev_split: true
 backfill: none
-scope_note: "Whole = Passenger Car + Pickup Truck."
+scope_note: Whole = Passenger Car + Pickup Truck.
 caveats:
-  - "ICE is reported as an aggregate — there is no petrol/diesel split."
-  - "Access needs a member cookie session (login)."
-  - "A pre-rebase Whole series is archived as an inert legacy CSV."
-fetcher: "scripts/fetch_thailand.py"
-workflow: ".github/workflows/fetch-thailand.yml"
-fragility_doc: "docs/architecture/29-source-thailand.md"
-data_file: "data/Thailand.csv"
+- ICE is reported as an aggregate — there is no petrol/diesel split.
+- Access needs a member cookie session (login).
+- A pre-rebase Whole series is archived as an inert legacy CSV.
+fetcher: scripts/fetch_thailand.py
+workflow: .github/workflows/fetch-thailand.yml
+fragility_doc: docs/architecture/29-source-thailand.md
+data_file: data/Thailand.csv
 ---
 
 # 29 · Source: Thailand (TAI / AIU portal)

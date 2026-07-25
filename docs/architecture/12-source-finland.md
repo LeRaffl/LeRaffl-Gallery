@@ -1,28 +1,39 @@
 ---
 country: Finland
 slug: finland
-status: live
 method: api
-summary: >-
-  New-registration data for Finland from Statistics Finland's StatFin database
-  (table 121d), drawn from the Traficom vehicle register.
-source_name: "pxdata.stat.fi — StatFin table 121d (PxWeb)"
-source_url: "https://pxdata.stat.fi/"
-underlying: "Tilastokeskus (Statistics Finland) / Traficom vehicle register"
+summary: New-registration data for Finland from Statistics Finland's StatFin database (table 121d), drawn
+  from the Traficom vehicle register.
+source_name: StatFin table 121d in the table viewer
+source_url: https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/
+underlying: Tilastokeskus (Statistics Finland) / Traficom vehicle register
 auth: none
-cadence: "daily cron, 1st–15th, 04:40 UTC"
-variants: [Whole, Private, Industry, HDV, Vans, Buses]
+cadence: daily cron, 1st–15th, 04:40 UTC
+variants:
+- Whole
+- Private
+- Industry
+- HDV
+- Vans
+- Buses
+variant_notes:
+  Whole: First registrations of passenger cars, all possessors (vehicle class 01).
+  Private: Passenger cars whose possessor is a private person.
+  Industry: Derived cell-by-cell as possessor Total minus Private person.
+  HDV: Lorries over 3.5 t (vehicle class 03).
+  Vans: Vans (vehicle class 02).
+  Buses: Buses and coaches (vehicle class 04) — very low volume.
 hev_split: false
 backfill: none
-scope_note: "Region MA1 (Mainland Finland); Åland is not in the table."
+scope_note: Region MA1 (Mainland Finland); Åland is not in the table.
 caveats:
-  - "No non-plug-in full-hybrid code upstream — full hybrids fold into Petrol, so the HEV column stays blank."
-  - "Industry is derived cell-by-cell as possessor Total minus Private person."
-  - "No pre-2014 history — the table starts 2014M01."
-fetcher: "scripts/fetch_finland.py"
-workflow: ".github/workflows/fetch-finland.yml"
-fragility_doc: "docs/architecture/12-source-finland.md"
-data_file: "data/Finland.csv"
+- No non-plug-in full-hybrid code upstream — full hybrids fold into Petrol, so the HEV column stays blank.
+- Industry is derived cell-by-cell as possessor Total minus Private person.
+- No pre-2014 history — the table starts 2014M01.
+fetcher: scripts/fetch_finland.py
+workflow: .github/workflows/fetch-finland.yml
+fragility_doc: docs/architecture/12-source-finland.md
+data_file: data/Finland.csv
 ---
 
 # 12 · Source: Finland (pxdata.stat.fi / StatFin 121d)

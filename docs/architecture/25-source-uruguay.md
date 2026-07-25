@@ -1,27 +1,34 @@
 ---
 country: Uruguay
 slug: uruguay
-status: live
 method: file
-summary: >-
-  New-registration data for Uruguay from ACAU's yearly Compilado workbook.
-source_name: "ACAU — Compilado XLSX"
-source_url: "https://www.acau.com.uy/"
-underlying: "ACAU — Asociación del Comercio Automotor del Uruguay"
+summary: New-registration data for Uruguay from ACAU's yearly Compilado workbook.
+source_name: ACAU — Compilado XLSX
+source_url: https://www.acau.com.uy/
+underlying: ACAU — Asociación del Comercio Automotor del Uruguay
 auth: none
-cadence: "daily from the 1st of the month, self-throttling per variant"
-variants: [Whole, Vans, HDV, Buses]
+cadence: daily from the 1st of the month, self-throttling per variant
+variants:
+- Whole
+- Vans
+- HDV
+- Buses
+variant_notes:
+  Whole: AUTOS + SUV worksheets combined.
+  Vans: UTILITARIO worksheet.
+  HDV: CAMIONES worksheet.
+  Buses: OMNIBUS worksheet.
 hev_split: true
-backfill: "pre-2026 Whole retained; commercial variants start 2026-01"
-scope_note: "Whole = AUTOS + SUV; Vans (UTILITARIO), HDV (CAMIONES) and Buses (OMNIBUS) are separate variants."
+backfill: pre-2026 Whole retained; commercial variants start 2026-01
+scope_note: Whole = AUTOS + SUV; Vans (UTILITARIO), HDV (CAMIONES) and Buses (OMNIBUS) are separate variants.
 caveats:
-  - "HEV and PHEV are reported natively from the 2026 layout."
-  - "Mild hybrids (MHEV) are placed in OTHERS by maintainer convention."
-  - "Pre-2026 history used a different worksheet layout and isn't in the commercial-variant CSVs."
-fetcher: "scripts/fetch_uruguay.py"
-workflow: ".github/workflows/fetch-uruguay.yml"
-fragility_doc: "docs/architecture/25-source-uruguay.md"
-data_file: "data/Uruguay.csv"
+- HEV and PHEV are reported natively from the 2026 layout.
+- Mild hybrids (MHEV) are placed in OTHERS by maintainer convention.
+- Pre-2026 history used a different worksheet layout and isn't in the commercial-variant CSVs.
+fetcher: scripts/fetch_uruguay.py
+workflow: .github/workflows/fetch-uruguay.yml
+fragility_doc: docs/architecture/25-source-uruguay.md
+data_file: data/Uruguay.csv
 ---
 
 # 25 · Source: Uruguay (ACAU Compilado xlsx)

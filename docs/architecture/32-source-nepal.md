@@ -1,31 +1,35 @@
 ---
 country: Nepal
 slug: nepal
-status: live
 method: file
-summary: >-
-  Vehicle-import figures for Nepal from the Department of Customs' monthly
-  cumulative Foreign Trade Statistics workbooks (HS 8703).
-source_name: "Department of Customs — customs.gov.np (FTS workbooks)"
-source_url: "https://www.customs.gov.np/"
-underlying: "Department of Customs, ASYCUDA World customs records"
-auth: "none (public downloads)"
-cadence: "daily 07:50 UTC; cheap-skips until DoC publishes a new month"
-variants: [Whole, 3-Wheelers]
+summary: Vehicle-import figures for Nepal from the Department of Customs' monthly cumulative Foreign Trade
+  Statistics workbooks (HS 8703).
+source_name: Department of Customs — customs.gov.np (FTS workbooks)
+source_url: https://www.customs.gov.np/
+underlying: Department of Customs, ASYCUDA World customs records
+auth: none (public downloads)
+cadence: daily 07:50 UTC; cheap-skips until DoC publishes a new month
+variants:
+- Whole
+- 3-Wheelers
+variant_notes:
+  Whole: HS 8703 imports — cars, jeeps and vans (approximately EU M1), excluding three-wheelers.
+  3-Wheelers: Passenger three-wheelers — petrol auto-rickshaws and electric e-rickshaws.
 hev_split: false
-backfill: "monthly from 2020-08; pre-2020 not splittable (see §7)"
-scope_note: >-
-  Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures
-  are imports, not registrations — Nepal imports its entire vehicle market.
+backfill: monthly from 2020-08; pre-2020 not splittable (see §7)
+scope_note: Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures are imports, not registrations
+  — Nepal imports its entire vehicle market.
 caveats:
-  - "Figures are customs imports, not registrations (no domestic car production; import ≈ market)."
-  - "Nepali-calendar months (mid-month to mid-month) are labelled by their Gregorian end month."
-  - "Hybrids are one combined bucket (PHEV/HEV boundary in the tariff codes is unreliable); tiny volumes either way."
-  - "Passenger three-wheelers (auto-/e-rickshaws) are split into their own 3-Wheelers series — they would otherwise dwarf the BEV car count."
-fetcher: "scripts/fetch_nepal.py"
-workflow: ".github/workflows/fetch-nepal.yml"
-fragility_doc: "docs/architecture/32-source-nepal.md"
-data_file: "data/Nepal.csv"
+- Figures are customs imports, not registrations (no domestic car production; import ≈ market).
+- Nepali-calendar months (mid-month to mid-month) are labelled by their Gregorian end month.
+- Hybrids are one combined bucket (PHEV/HEV boundary in the tariff codes is unreliable); tiny volumes
+  either way.
+- Passenger three-wheelers (auto-/e-rickshaws) are split into their own 3-Wheelers series — they would
+  otherwise dwarf the BEV car count.
+fetcher: scripts/fetch_nepal.py
+workflow: .github/workflows/fetch-nepal.yml
+fragility_doc: docs/architecture/32-source-nepal.md
+data_file: data/Nepal.csv
 ---
 
 # 32 · Source: Nepal (Department of Customs FTS workbooks)

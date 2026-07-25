@@ -1,29 +1,30 @@
 ---
 country: Colombia
 slug: colombia
-status: live
 method: pdf
-summary: >-
-  Passenger-car registrations for Colombia from the ANDI/FENALCO automotive
-  bulletin, based on the official RUNT registry.
-source_name: "ANDI Cámara Automotriz / FENALCO — Informe del Sector Automotor (PDF)"
-source_url: "https://www.andi.com.co/"
-underlying: "RUNT — official Colombian vehicle registry (via ANDI/FENALCO)"
+summary: Passenger-car registrations for Colombia from the ANDI/FENALCO automotive bulletin, based on
+  the official RUNT registry.
+source_name: ANDI Camara de la Industria Automotriz
+source_url: https://www.andi.com.co/Home/Camara/4-automotriz
+underlying: RUNT — official Colombian vehicle registry (via ANDI/FENALCO)
 auth: none
-cadence: "daily cron, 5th–25th, 07:30 UTC"
-variants: [Whole]
+cadence: daily cron, 5th–25th, 07:30 UTC
+variants:
+- Whole
+variant_notes:
+  Whole: New passenger cars (automóviles) from the ANDI/FENALCO bulletin.
 hev_split: false
-hev_note: "Combined hybrids (HEV + PHEV + MHEV) are reported in the HEV column; PHEV is left empty."
-backfill: "each PDF carries ~3 prior years; older history via annual PDFs / maintainer backfill"
-scope_note: "Passenger cars only; freight (vehículos de carga) has no fuel split and is out of scope."
+hev_note: Combined hybrids (HEV + PHEV + MHEV) are reported in the HEV column; PHEV is left empty.
+backfill: each PDF carries ~3 prior years; older history via annual PDFs / maintainer backfill
+scope_note: Passenger cars only; freight (vehículos de carga) has no fuel split and is out of scope.
 caveats:
-  - "Hybrids are a single combined bucket placed in the HEV column."
-  - "ICE is a derived residual (TOTAL − BEV − HEV); petrol and diesel are not split."
-  - "The source is a monthly PDF; the numbers ultimately come from RUNT."
-fetcher: "scripts/fetch_colombia.py"
-workflow: ".github/workflows/fetch-colombia.yml"
-fragility_doc: "docs/architecture/18-source-colombia.md"
-data_file: "data/Colombia.csv"
+- Hybrids are a single combined bucket placed in the HEV column.
+- ICE is a derived residual (TOTAL − BEV − HEV); petrol and diesel are not split.
+- The source is a monthly PDF; the numbers ultimately come from RUNT.
+fetcher: scripts/fetch_colombia.py
+workflow: .github/workflows/fetch-colombia.yml
+fragility_doc: docs/architecture/18-source-colombia.md
+data_file: data/Colombia.csv
 ---
 
 # 18 · Source: Colombia (ANDI/FENALCO Boletín — datos RUNT)
