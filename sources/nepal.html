@@ -78,6 +78,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 </style>
 </head>
 <body>
@@ -88,22 +125,26 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <p class="lead">Vehicle-import figures for Nepal from the Department of Customs&#x27; monthly cumulative Foreign Trade Statistics workbooks (HS 8703).</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">2026-07</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">2026-07</div><div class="l">Latest period held</div></div>
     <div class="stat"><div class="n">201900.0%</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">2</div><div class="l">Variants</div></div>
   </div>
 
   
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://www.customs.gov.np/">Department of Customs — customs.gov.np (FTS workbooks) ↗</a></p>
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://www.customs.gov.np/">Department of Customs — customs.gov.np (FTS workbooks) ↗</a></p><p class="dim">Access to the machine endpoint behind this page needs credentials — the developer doc at the foot of the page has the details.</p>
 
   <h2>How the data flows</h2>
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">Department of Customs, ASYCUDA World customs records</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.customs.gov.np/">Department of Customs — customs.gov.np (FTS workbooks)</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_nepal.py"><code>scripts/fetch_nepal.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-nepal.yml"><code>.github/workflows/fetch-nepal.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Nepal.csv"><code>data/Nepal.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Variants</th><td>Whole, 3-Wheelers</td></tr><tr><th>Vehicle scope</th><td>Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures are imports, not registrations — Nepal imports its entire vehicle market.</td></tr><tr><th>HEV (full hybrids)</th><td>not split by the source — folds into the combustion totals</td></tr><tr><th>Backfill</th><td>monthly from 2020-08; pre-2020 not splittable (see §7)</td></tr><tr><th>Auth</th><td>none (public downloads)</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Vehicle scope</th><td>Whole = HS 8703 cars/jeeps/vans (≈ EU M1) excl. three-wheelers; figures are imports, not registrations — Nepal imports its entire vehicle market.</td></tr><tr><th>HEV (full hybrids)</th><td>not split by the source — folds into the combustion totals</td></tr><tr><th>Backfill</th><td>monthly from 2020-08; pre-2020 not splittable (see §7)</td></tr><tr><th>Auth</th><td>none (public downloads)</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>—</td><td class="nowrap">2020-08 – 2026-07<br><span class="dim">72 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Nepal.csv"><code>data/Nepal.csv</code></a></td></tr><tr><th>3-Wheelers</th><td>—</td><td class="nowrap">2020-08 – 2026-07<br><span class="dim">72 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Nepal_3-Wheelers.csv"><code>data/Nepal_3-Wheelers.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 82" width="100%" height="82" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="78.4" y1="6" x2="78.4" y2="60"/><text class="cov-tick" x="78.4" y="76" text-anchor="middle">2020</text><line class="cov-grid" x1="146.3" y1="6" x2="146.3" y2="60"/><text class="cov-tick" x="146.3" y="76" text-anchor="middle">2021</text><line class="cov-grid" x1="214.3" y1="6" x2="214.3" y2="60"/><text class="cov-tick" x="214.3" y="76" text-anchor="middle">2022</text><line class="cov-grid" x1="282.2" y1="6" x2="282.2" y2="60"/><text class="cov-tick" x="282.2" y="76" text-anchor="middle">2023</text><line class="cov-grid" x1="350.2" y1="6" x2="350.2" y2="60"/><text class="cov-tick" x="350.2" y="76" text-anchor="middle">2024</text><line class="cov-grid" x1="418.1" y1="6" x2="418.1" y2="60"/><text class="cov-tick" x="418.1" y="76" text-anchor="middle">2025</text><line class="cov-grid" x1="486.1" y1="6" x2="486.1" y2="60"/><text class="cov-tick" x="486.1" y="76" text-anchor="middle">2026</text><line class="cov-grid" x1="554.0" y1="6" x2="554.0" y2="60"/><text class="cov-tick" x="554.0" y="76" text-anchor="middle">2027</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="407.7" height="12" rx="3"><title>Whole: 2020-08 → 2026-07</title></rect><text class="cov-meta" x="594" y="20">monthly</text><text class="cov-label" x="0" y="46">3-Wheelers</text><rect class="cov-bar" x="118.0" y="36" width="407.7" height="12" rx="3"><title>3-Wheelers: 2020-08 → 2026-07</title></rect><text class="cov-meta" x="594" y="46">monthly</text></svg><p class="fig-note">Whole 2020-08–2026-07 (72 rows), 3-Wheelers 2020-08–2026-07 (72 rows).</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--no" title="PHEV: no values in data/Nepal.csv"><span aria-hidden="true">·</span><span class="sr">not reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>3-Wheelers</th><td><span class="cell cell--yes" title="BEV: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--no" title="PHEV: no values in data/Nepal_3-Wheelers.csv"><span aria-hidden="true">·</span><span class="sr">not reported</span></span></td><td><span class="cell cell--zero" title="HEV: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 72 of 72 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="DIESEL: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--zero" title="OTHERS: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
 
   
 
@@ -111,7 +152,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-07</code>.
-       Cadence: daily 07:50 UTC; cheap-skips until DoC publishes a new month.<br>
+       Update cadence: daily 07:50 UTC; cheap-skips until DoC publishes a new month.<br>
+       
        Row source string: <code>customs.gov.np (Department of Customs FTS, HS 8703 imports)</code></p>
     <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/32-source-nepal.md"><code>docs/architecture/32-source-nepal.md</code></a></p>
   </div>

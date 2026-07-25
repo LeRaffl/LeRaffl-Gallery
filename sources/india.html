@@ -78,6 +78,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 </style>
 </head>
 <body>
@@ -88,22 +125,26 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <p class="lead">Partial EV-registration data for India from the VAHAN dashboard.</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">2026-03</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">2026-03</div><div class="l">Latest period held</div></div>
     <div class="stat"><div class="n">—</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">4</div><div class="l">Variants</div></div>
   </div>
 
   <section><h2>How it works</h2><p>India&#x27;s figures are pulled — partially and by hand — from the VAHAN dashboard (Ministry of Road Transport &amp; Highways), the national vehicle-registration system. Coverage is incomplete and updates are irregular, so treat India as provisional.</p></section>
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard ↗</a></p>
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard ↗</a></p>
 
   <h2>How the data flows</h2>
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">VAHAN — Ministry of Road Transport &amp; Highways (national register)</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Variants</th><td>Whole, 4-Wheelers, 3-Wheelers, 2-Wheelers</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr></table>
+
+  
+
+  
+
+  
 
   
 
@@ -111,7 +152,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-03</code>.
-       Cadence: —.<br>
+       Update cadence: —.<br>
+       
        Row source string: <code>VAHAN dashboard</code></p>
     
   </div>

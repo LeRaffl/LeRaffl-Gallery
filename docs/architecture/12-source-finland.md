@@ -75,19 +75,24 @@ PxWeb is the BI platform Statistics Finland (and many Nordic agencies) use.
 The data endpoint is the table's `.px` URL; you POST a JSON query and get
 back the format you ask for. We request `json-stat2`.
 
-```
-GET  https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d.px
-     → table metadata (all dimension codes + value labels)
+> ⚠️ The endpoint and the dimension identifiers below are the **post-2026-06-08**
+> ones. Statistics Finland restructured its PxWeb databases on that date; the
+> old long table id and the Finnish variable *names* now return a bare
+> `400 Bad Request`. Full story in §12.
 
-POST https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d.px
+```
+GET  https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px
+     → table metadata (all variable codes + value codes/labels)
+
+POST https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px
      {
        "query": [
-         {"code":"Ajoneuvoluokka",  "selection":{"filter":"item","values":["01"]}},
-         {"code":"Maakunta",        "selection":{"filter":"item","values":["MA1"]}},
-         {"code":"Käyttövoima",     "selection":{"filter":"item","values":["01","02","04","39","44", …]}},
-         {"code":"Käyttötarkoitus", "selection":{"filter":"item","values":["YH"]}},
-         {"code":"haltija",         "selection":{"filter":"item","values":["00"]}},
-         {"code":"Kuukausi",        "selection":{"filter":"all","values":["*"]}}
+         {"code":"ajoneuvolaji_2_20190101",  "selection":{"filter":"item","values":["01"]}},
+         {"code":"maakunta_26_20190101",     "selection":{"filter":"item","values":["MA1"]}},
+         {"code":"kayttovoimat_2_20180403",  "selection":{"filter":"item","values":["01","02","04","39","44", …]}},
+         {"code":"kayttotarkoitus_2_20171107","selection":{"filter":"item","values":["YH"]}},
+         {"code":"ajoneuvolaji_4_20190101",  "selection":{"filter":"item","values":["00"]}},
+         {"code":"timeperiod_m",             "selection":{"filter":"all","values":["*"]}}
        ],
        "response": {"format":"json-stat2"}
      }
@@ -96,11 +101,21 @@ POST https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d
 
 Notes:
 
-- **Variable codes are Finnish even on the `/en/` endpoint.** `Käyttövoima`
-  (driving power), `Käyttötarkoitus` (purpose of use), `haltija` (possessor),
-  `Ajoneuvoluokka` (vehicle class), `Maakunta` (region), `Kuukausi` (month).
-  They contain non-ASCII (`ä`); `requests.post(..., json=body)` encodes them
-  as UTF-8 automatically — don't URL-encode by hand.
+- **The variable codes are not hardcoded in the fetcher.** `fetch_finland.py`
+  GETs the metadata first and resolves each dimension *role* (vehicle class,
+  region, driving power, purpose, possessor, month) to its current variable
+  code by matching the English label (`resolve_dimension_codes` /
+  `_DIM_ROLE_KEYS`). The codes above are what that resolution returns today —
+  treat them as a snapshot, not a contract. Note that vehicle class and
+  possessor share the `ajoneuvolaji_*` prefix and differ only in the numeric
+  segment.
+- **Value codes were left unchanged by the restructure** — vehicle class `01`,
+  region `MA1`, driving power `01/02/04/39/44/…/Y`, possessor `00/01`, purpose
+  `YH`. So `DRIV_TO_COL` and the pinned selections survived the migration
+  untouched.
+- **The browser UI kept the old long path.** The table viewer still lives at
+  `…/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/` — only the
+  `/api/v1/` surface was renamed.
 - **json-stat2 layout** is row-major in `id` order with sizes in `size`.
   The parser computes strides from `size` and reads each `(driving, month)`
   cell for a fixed possessor index. The dimension category-index map (not the
@@ -284,15 +299,21 @@ python scripts/fetch_finland.py --variant whole --force
 ### Validate the API by hand
 
 ```sh
-curl -s -X POST 'https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/statfin_merek_pxt_121d.px' \
+# Step 1 — confirm the current variable codes (they are resolved from metadata,
+# not hardcoded, so always start here rather than trusting the snippet below).
+curl -s 'https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px' \
+  | python3 -m json.tool | head -60
+
+# Step 2 — query with the codes step 1 reported.
+curl -s -X POST 'https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px' \
   -H 'Content-Type: application/json' \
   -d '{"query":[
-    {"code":"Ajoneuvoluokka","selection":{"filter":"item","values":["01"]}},
-    {"code":"Maakunta","selection":{"filter":"item","values":["MA1"]}},
-    {"code":"Käyttövoima","selection":{"filter":"item","values":["04","39","44"]}},
-    {"code":"Käyttötarkoitus","selection":{"filter":"item","values":["YH"]}},
-    {"code":"haltija","selection":{"filter":"item","values":["00"]}},
-    {"code":"Kuukausi","selection":{"filter":"item","values":["2026M03","2026M04"]}}
+    {"code":"ajoneuvolaji_2_20190101","selection":{"filter":"item","values":["01"]}},
+    {"code":"maakunta_26_20190101","selection":{"filter":"item","values":["MA1"]}},
+    {"code":"kayttovoimat_2_20180403","selection":{"filter":"item","values":["04","39","44"]}},
+    {"code":"kayttotarkoitus_2_20171107","selection":{"filter":"item","values":["YH"]}},
+    {"code":"ajoneuvolaji_4_20190101","selection":{"filter":"item","values":["00"]}},
+    {"code":"timeperiod_m","selection":{"filter":"item","values":["2026M03","2026M04"]}}
   ],"response":{"format":"json-stat2"}}' | python3 -m json.tool | head -60
 ```
 
