@@ -65,16 +65,16 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `source` | yes | string | URL or short name (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |
 | `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia. |
-| `EREV` | optional | numeric | Extended-range EVs (subset of PHEV in some sources). Currently only China. |
+| `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale) and **Spain** (all eight variants). Folds into PHEV in the three-curve view. |
 | `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia), this column carries the total and the post-text labels it as "Hybrid". |
 | `MHEV` | optional | numeric | Mild hybrid. Reserved; not currently in any active CSV. Treated as a subset of HEV (which is a subset of ICE) in every output chart. |
 | `PETROL` | optional | numeric | Conceptually pure-petrol ICE. *Caveat:* a small number of source statistics today fold petrol-HEV variants into this column rather than the HEV column. Improving the upstream split is a known data-quality task; for now the headline ICE/BEV/PHEV trajectory is unaffected because all of it ends up in the ICE bucket either way. |
 | `DIESEL` | optional | numeric | Conceptually pure-diesel ICE. Same caveat as `PETROL` — a few sources fold diesel-HEV here. |
 | `GAS`, `CNG`, `LPG` | optional | numeric | Reserved for sources that split natural-gas variants. In practice most countries' source data folds these into `OTHERS`. Always counted as ICE in the output charts. |
-| `FLEXFUEL` | optional | numeric | Country-specific (Brazil-relevant; some Sweden rows). Counted as ICE in the output charts. |
+| `FLEXFUEL` | optional | numeric | Counted as ICE in the output charts. The column is in the schema for Brazil, Colombia, Denmark, Finland, Ireland, Netherlands, Portugal and Sweden, but only **Brazil, Ireland and Sweden** ever put values in it — everywhere else it is uniformly empty because the source doesn't report ethanol/flexifuel. That distinction matters: a uniformly-empty column is skipped by the TTM logic, whereas a *half*-filled one breaks the strict 12-month window (see [15-source-ireland.md § 6](15-source-ireland.md)). |
 | `ETHANOL` | optional | numeric | Reserved; mostly seen folded into `OTHERS` upstream. ICE in the output charts. |
 | `OTHERS` | optional | numeric | Catch-all bucket — typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` when the source doesn't split them. ICE in the output charts. |
-| `ICE` | optional | numeric | Reported when source gives a single ICE total without petrol/diesel breakdown (China, USA, South Korea, Thailand, Chile). |
+| `ICE` | optional | numeric | Used when the source gives a single combustion total with no petrol/diesel breakdown: **Chile, China, Colombia, South Korea, Thailand, USA**. Where it is present, `PETROL` and `DIESEL` stay empty. |
 | `TOTAL` | yes | numeric | Sum of everything for the period. |
 | `notes` | optional | string | Free text for the submitter or maintainer. Some fetchers store the source URL or provenance note here (e.g. Brazil, Japan, Türkiye). |
 
@@ -206,6 +206,16 @@ Colombia has a single `Whole` variant in `data/Colombia.csv`, sourced from the j
 The full source-playbook — discovery, the batch-detection parser, the Spanish thousands separator, the small known parsing gap on a few early-2023 BEV cells, fragility, maintenance recipes — lives in [18-source-colombia.md](18-source-colombia.md). Read that doc before changing anything in [scripts/fetch_colombia.py](../../scripts/fetch_colombia.py).
 
 ---
+
+> **Only seven countries have a subsection here.** These were written as each
+> database-fed source landed and were not continued; Canada, Austria, Italy,
+> Luxembourg, Poland, Malaysia, Singapore, Albania, Spain, Thailand, Indonesia,
+> Nepal and China have no entry above. They are not undocumented — each has a
+> full playbook at `docs/architecture/NN-source-<country>.md` covering the same
+> ground (variants, column mapping, history, quirks), and the canonical column
+> semantics are the table at the top of § 3.1, which applies to every country.
+> The generated source pages under `sources/` also show, per country and per
+> variant, exactly which of these columns carry values.
 
 ## 3.2 Model Parameters
 

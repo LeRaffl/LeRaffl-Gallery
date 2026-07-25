@@ -52,12 +52,12 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | `Whole` | The country's headline new-registration series — **passenger cars** (the default slice; UI label "New Cars"). | M1 | What `data/<Country>.csv` (no suffix) holds. The world map + cross-country rankings use this. |
 | `Private` | Passenger cars registered to **private persons / households**. | M1 | Subset of Whole. |
 | `Industry` | Passenger cars **not** registered to private persons (companies, state, etc.). | M1 | Defined as `Whole − Private` where the source has no direct "industry" bucket (Finland), or a direct "in industries" category (Denmark). `Private + Industry = Whole`. |
-| `Used` | **Used / second-hand** registrations (not new). | M1 | Netherlands only (used imports). A different population from all other variants (which are *new* registrations). |
+| `Used` | **Used / second-hand** registrations (not new). | M1 | **Netherlands** (used imports), **Spain** (used cars at their first Spanish registration — overwhelmingly imports) and **Latvia** (a legacy series with no CSV in this repo). A different population from every other variant, which are *new* registrations. |
 | `Vans` | **Light commercial** goods vehicles (vans, pickups). | **N1** (≤ 3.5 t) | |
 | `HDV` | **Heavy goods** vehicles (lorries / trucks — freight, not people). | **N2 + N3** (> 3.5 t) | See the cross-country deviation note below. |
 | `Buses` | **Buses & coaches.** | **M2 + M3** | Very low volume in most countries → lumpy, batch-driven fleet orders make the TTM share swing hard (this is real, not a bug — see e.g. Ireland Buses). |
-| `Rental` | Passenger cars registered to the **short-/long-term rental channel** ("noleggio"). | M1 | Italy only. `Rental = Whole − (al netto del noleggio)` from the UNRAE PDF. Real from `2019-06`; **estimated before that** (flagged in `notes`). `Rental + NonRental = Whole`. |
-| `NonRental` | Passenger cars registered **outside** the rental channel (private + company + self-registration). | M1 | Italy only. The UNRAE "al netto del noleggio" block; derived as `Whole − Rental`. Same real/estimated cutover as `Rental`. |
+| `Rental` | Passenger cars registered to the **short-/long-term rental channel**. | M1 | **Italy** ("noleggio": `Rental = Whole − al netto del noleggio` from the UNRAE PDF; real from `2019-06`, **estimated before that** and flagged in `notes`) and **Spain** (registry-side: `SERVICIO = A01 alquiler sin conductor` or `RENTING = S`). `Rental + NonRental = Whole` in both. |
+| `NonRental` | Passenger cars registered **outside** the rental channel (private + company + self-registration). | M1 | **Italy** (the UNRAE "al netto del noleggio" block, read directly — `Rental` is the derived complement) and **Spain** (the exact complement of `Rental`). Note this is *not* a private-persons slice: no per-fuel private-only split exists in either source. |
 
 > **Italy estimated history.** Both `Rental` and `NonRental` are *real* from
 > `2019-06` (first UNRAE bulletin with the rental block) and **modelled** for
@@ -71,15 +71,48 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 
 | Country | Whole | Private | Industry | Vans (N1) | HDV (N2/N3) | Buses (M2/M3) |
 |---|---|---|---|---|---|---|
-| Denmark | Passenger cars (BIL53) | terms of use = In households | terms of use = In industries | "Vans, total" | **"Lorries, total" — excludes Road tractors** | — |
-| Finland | Passenger cars (121d) | possessor = Private person | Total − Private person | "Vans" | "Lorries > 3.5 t" | "Buses & coaches" |
-| Netherlands | Personenauto Nieuw | — | — | — | "Zware bedrijfsvoertuigen" (≈ N-class ≥ 3500 kg) | — |
-| Ireland | Passenger Cars | — | — | Light Commercial | Heavy Commercial (**incl. articulated tractor units**) | Buses |
-| Portugal | Ligeiros de Passageiros | — | — | Ligeiros de Mercadorias | Pesados de Mercadorias (**incl. tractor units**) | Pesados de Passageiros |
-| Sweden | Passenger cars (TK1001A) | — | — | — | — | — |
-| Canada | **Passenger cars + Multi-purpose vehicles** (M1) | — | — | — | — | — |
+| Albania | First registrations of M1 passenger cars (Autovetura), new and imported used | — | — | — | First registrations of heavy goods vehicles | First registrations of buses |
+| Austria | New passenger cars, class M1 (Pkw) | — | — | Lorries N1, up to 3.5 t | Lorries N2 + N3 plus articulated tractors (Sattelzugfahrzeuge) | — |
+| Canada | Passenger cars + multi-purpose vehicles (SUVs/crossovers) = EU class M1 | — | — | Minivans + cargo vans — Canada-specific, mixes M1 and N1 | — | — |
+| China | Retail (零售) — passenger cars reaching end customers in mainland China | — | — | — | — | — |
+| Denmark | All new passenger-car registrations (BILTYPE 4000101002, all owners) | New passenger cars registered in households (BRUG 1100) | New passenger cars registered in industries (BRUG 1200) | New vans (BILTYPE 4000102000) | New lorries (BILTYPE 4000103000) | — |
+| Finland | First registrations of passenger cars, all possessors (vehicle class 01) | Passenger cars whose possessor is a private person | Derived cell-by-cell as possessor Total minus Private person | Vans (vehicle class 02) | Lorries over 3.5 t (vehicle class 03) | Buses and coaches (vehicle class 04) — very low volume |
+| India | All vehicle categories combined, from VAHAN | — | — | — | — | — |
+| Indonesia | GAIKINDO Passenger Car — Sedan + 4x2 + 4x4 + LCGC | — | — | — | Trucks of 5 t and above | Buses |
+| Ireland | New passenger-car registrations | — | — | New light commercial vehicles (SIMI LCV) | New heavy commercial vehicles (SIMI HCV) | New buses and coaches |
+| Italy | Passenger cars, whole market including rental | — | — | Light commercial vehicles, derived from published percentage shares | — | — |
+| Latvia | New passenger-car registrations, via ACEA | — | — | — | — | — |
+| Luxembourg | New car registrations (VEHICLE_TYPE = CAR) | — | — | New van registrations (VEHICLE_TYPE = VAN) | Trucks + buses + road tractors combined | — |
+| Nepal | HS 8703 imports — cars, jeeps and vans (approximately EU M1), excluding three-wheelers | — | — | — | — | — |
+| Netherlands | New passenger cars (Instroom Personenauto Nieuw) | — | — | — | New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3 | — |
+| Poland | New passenger cars (OSOBOWE, M1) | — | — | Light commercial vehicles up to 3.5 t (SAMOCHODY DOSTAWCZE, N1) | Trucks over 3.5 t (SAMOCHODY CIEZAROWE POW. 3,5T, N2/N3) | Buses (AUTOBUSY, M2/M3) |
+| Portugal | New passenger cars — Ligeiros de Passageiros (M1) | — | — | Light commercials — Ligeiros de Mercadorias (N1, ≤ 3.5 t) | Heavy goods vehicles incl. tractor units — Pesados de Mercadorias (N2/N3) | Buses and coaches — Pesados de Passageiros (M2/M3) |
+| Spain | New turismos + todoterrenos (registry-side passenger cars, incl. M1 people movers) | — | — | New EU N1 (incl. N1G) light commercials | New EU N2/N3 trucks | New EU M2/M3 buses and coaches |
+| Switzerland | New passenger-car registrations, via ACEA | — | — | — | Heavy commercial vehicles, taken from BFS directly (pxweb.bfs.admin.ch) — a legacy series whose CSV is not in this repo | — |
+| Thailand | Passenger Car and Pickup Truck — the AIU category; pickups are bundled in and cannot be separated | — | — | — | Truck category | Bus category |
+| Uruguay | AUTOS + SUV worksheets combined | — | — | UTILITARIO worksheet | CAMIONES worksheet | OMNIBUS worksheet |
 
-(Netherlands also has a `Used` variant; it is M1 used-imports, not a commercial class.)
+Single-variant countries (`Whole` only) are omitted. This table is generated
+from the same front-matter that drives the public source pages, so the two
+cannot drift apart.
+
+### Variants outside the EU core six
+
+Some countries expose slices that deliberately don't map onto M1/N1/N2/N3/M2/M3.
+They render their own trajectories but are **not** part of any cross-country
+`Vans`/`HDV`/`Buses` ranking:
+
+- **Albania** — `2-Wheelers` (First registrations of motorcycles and mopeds)
+- **Canada** — `Pickups` (Pickup trucks, GVWR up to 14,000 lb — Canada-specific, not EU N1)
+- **China** — `Wholesale` (Wholesale (批发) — manufacturer shipments to dealers, includes exports)
+- **India** — `4-Wheelers` (Cars and other four-wheelers); `3-Wheelers` (Auto-rickshaws and other three-wheelers); `2-Wheelers` (Motorcycles, scooters and mopeds — by far India's largest segment)
+- **Indonesia** — `Pickups` (Pick-ups under 5 t plus double cabins)
+- **Italy** — `Rental` (Rental fleet, derived exactly as Whole minus NonRental); `NonRental` (Passenger cars al netto del noleggio — private buyers, companies and self-registrations)
+- **Latvia** — `Used` (Used-import registrations — a legacy series rendered from the maintainer's local pipeline; the CSV is not in this repo and it is not ACEA-sourced)
+- **Nepal** — `3-Wheelers` (Passenger three-wheelers — petrol auto-rickshaws and electric e-rickshaws)
+- **Netherlands** — `Used` (Imported used passenger cars at first Dutch registration (Personenauto Occasion import))
+- **Spain** — `Rental` (Whole where the vehicle is rent-a-car or renting/leasing); `NonRental` (Whole minus Rental — the exact complement); `Used` (Used cars at their first Spanish registration — overwhelmingly used imports); `2-Wheelers` (New EU L-category motorcycles and mopeds)
+- **Thailand** — `3-Wheelers` (Three Wheelers category — tiny volumes, high BEV share)
 
 **Canada's `Whole` sums two StatCan body types** to reconstruct M1, because
 StatCan reports SUVs/crossovers (`Multi-purpose vehicles`) separately from
