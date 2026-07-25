@@ -130,7 +130,7 @@ table.matrix th:first-child{white-space:nowrap}
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
-  <section><h2>How it works</h2><p>Georgia&#x27;s figures come from the National Statistics Office (Geostat). Publication is less frequent than the monthly European sources, so the latest period tends to lag. Entered by hand.</p></section>
+  <section><h2>How it works</h2><p>Georgia&#x27;s figures come from the National Statistics Office (Geostat) and are entered by hand.</p><p>Geostat publishes quarterly, not monthly — each row carries `time_interval = quarterly`, so Georgia has far fewer points than the monthly countries and the latest period lags them.</p><p>PETROL combines Geostat&#x27;s Gasoline and Gasoline-gas categories.</p></section>
 
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://automobile.geostat.ge/en/automobiles/rating">Geostat — National Statistics Office of Georgia ↗</a></p>
 
@@ -138,9 +138,9 @@ table.matrix th:first-child{white-space:nowrap}
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">Geostat — National Statistics Office of Georgia</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://automobile.geostat.ge/en/automobiles/rating">Geostat — National Statistics Office of Georgia</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Georgia.csv"><code>data/Georgia.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>HEV (full hybrids)</th><td>Hybrids are a single combined bucket, placed in the HEV column; there is no PHEV column at all.</td></tr></table>
 
-  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>—</td><td class="nowrap">2017-02 – 2026-05<br><span class="dim">38 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Georgia.csv"><code>data/Georgia.csv</code></a></td></tr></table></div></section>
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>New vehicle registrations as published by Geostat.</td><td class="nowrap">2017-02 – 2026-05<br><span class="dim">38 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Georgia.csv"><code>data/Georgia.csv</code></a></td></tr></table></div></section>
 
   <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 56" width="100%" height="56" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="160.0" y1="6" x2="160.0" y2="34"/><text class="cov-tick" x="160.0" y="50" text-anchor="middle">2018</text><line class="cov-grid" x1="251.7" y1="6" x2="251.7" y2="34"/><text class="cov-tick" x="251.7" y="50" text-anchor="middle">2020</text><line class="cov-grid" x1="343.4" y1="6" x2="343.4" y2="34"/><text class="cov-tick" x="343.4" y="50" text-anchor="middle">2022</text><line class="cov-grid" x1="435.2" y1="6" x2="435.2" y2="34"/><text class="cov-tick" x="435.2" y="50" text-anchor="middle">2024</text><line class="cov-grid" x1="526.9" y1="6" x2="526.9" y2="34"/><text class="cov-tick" x="526.9" y="50" text-anchor="middle">2026</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="435.6" height="12" rx="3"><title>Whole: 2017-02 → 2026-05</title></rect><text class="cov-meta" x="594" y="20">quarterly</text></svg><p class="fig-note">Whole 2017-02–2026-05 (38 rows).</p></section>
 
@@ -148,11 +148,11 @@ table.matrix th:first-child{white-space:nowrap}
 
   
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>Publishes less frequently than the monthly EU sources; expect a longer lag on the latest period.</li><li>Maintained by hand.</li></ul></section>
+  <section><h2>Caveats</h2><ul class="caveats"><li>Quarterly, not monthly — expect a longer lag and a coarser series than the European sources.</li><li>Plug-in and full hybrids are not separated; both sit in the HEV column.</li><li>Maintained by hand.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-05</code>.
-       Update cadence: —.<br>
+       Update cadence: entered by hand; Geostat publishes quarterly, so expect a longer lag.<br>
        Curves in the gallery are fitted through <code>2026-06</code>.<br>
        Row source string: <code>https://automobile.geostat.ge/en/automobiles/rating</code></p>
     
