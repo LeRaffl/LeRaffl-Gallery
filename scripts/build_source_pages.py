@@ -285,10 +285,20 @@ def esc(value) -> str:
 
 
 def pct(value) -> str:
+    """Format a 0..1 share as a percentage, or "—" if it isn't one.
+
+    A share outside [0, 1] cannot be real, so it is suppressed rather than
+    published. This is not hypothetical: `params.csv` currently carries
+    `ttm_bev_share = 2019` for both Nepal variants — a stray year in the
+    share column — which would otherwise render as "201900.0%".
+    """
     try:
-        return f"{float(value) * 100:.1f}%"
+        share = float(value)
     except (TypeError, ValueError):
         return "—"
+    if not 0.0 <= share <= 1.0:
+        return "—"
+    return f"{share * 100:.1f}%"
 
 
 def method_chip(method: str) -> str:
