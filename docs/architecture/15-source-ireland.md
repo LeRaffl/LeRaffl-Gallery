@@ -56,7 +56,7 @@ Variants:  Whole (passenger), Vans (LCV /lcv), HDV (HCV /hcv), Buses (/bus) — 
 HEV:       Reported natively (Petrol/Diesel Electric (Hybrid)) — a large slice in Ireland
 FLEXFUEL:  Reported natively (Ethanol/Petrol, Ethanol/Diesel)
 Backfill:  Full history re-fetched from source (2010-01+); 2008-2009 remain legacy rows
-Schedule:  Twice-daily cron on the 1st–5th (SIMI publishes very early in the month)
+Schedule:  Twice-daily cron on the 1st–5th, 04:00 & 13:00 UTC (SIMI publishes very early in the month)
 Scripts:   scripts/fetch_ireland.py
 Workflow:  .github/workflows/fetch-ireland.yml
 ```

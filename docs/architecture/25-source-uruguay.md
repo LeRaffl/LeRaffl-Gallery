@@ -53,7 +53,7 @@ PHEV:      Reported as "PHEV" for all variants (2026+ layout)
 OTHERS:    MHEV (mild hybrid) by maintainer convention — see note below
 Backfill:  Pre-2026 history uses a different worksheet layout and wasn't
            bulk-imported; those rows are absent from the commercial CSVs
-Schedule:  Daily from the 1st of each month, self-throttle per variant
+Schedule:  Daily from the 1st of each month, 08:10 UTC; self-throttle per variant
 Scripts:   scripts/fetch_uruguay.py
 Workflow:  .github/workflows/fetch-uruguay.yml
 ```

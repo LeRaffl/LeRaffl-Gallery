@@ -329,6 +329,18 @@ lump.
 | `PETROL` | Benzin |
 | `DIESEL` | Diesel |
 | `OTHERS` | Erdgas + Flüssiggas + bivalent + Wasserstoff |
+
+> **The DE3 mapping matches on exact label strings**, so the literal keys
+> matter — they are `_DE3_FUEL_RAW` in `fetch_austria.py`:
+> `Benzin`, `Benzin inkl.Flex-Fuel`, `Benzin inkl. Flex-Fuel` (both spellings
+> are carried deliberately — Statistik Austria is inconsistent about the space
+> after the full stop), `Diesel`, `Elektro`, `Benzin/Elektro (hybrid)`,
+> `Diesel/Elektro (hybrid)`, `Erdgas`, `Flüssiggas`,
+> `Benzin/Erdgas (bivalent)`, `Benzin/Flüssiggas (bivalent)` and
+> `Wasserstoff (Brennstoffzelle)`. A third spelling variant, or a renamed
+> column, drops silently out of the sum rather than raising — if a month's
+> `TOTAL` looks light for HDV or Vans, diff the sheet's header row against
+> that list first.
 | `TOTAL` | sum of the above |
 
 ---

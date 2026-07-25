@@ -74,8 +74,8 @@ FLEXFUEL:    Not reported by Italy — column absent from all three CSVs
 HEV:         Reported natively as 'Ibride elettriche (HEV)' (full + mild sum)
 OTHERS (PKW): Gpl + Metano + Idrogeno (FCEV) — explicit, not a residual
 OTHERS (Vans): derived GPL count; unlisted fuels not separately extractable
-Schedule:    PKW  4×/day on the 1st–3rd  (06/10/14/18 UTC)
-             Vans 3×/day on the 13th–16th (10/14/18 UTC)
+Schedule:    PKW  4×/day on the 1st–3rd   (06:00/10:00/14:00/18:00 UTC)
+             Vans 3×/day on the 13th–16th (10:00/14:00/18:00 UTC)
 Scripts:     scripts/fetch_italy.py
 Workflow:    .github/workflows/fetch-italy.yml
 ```

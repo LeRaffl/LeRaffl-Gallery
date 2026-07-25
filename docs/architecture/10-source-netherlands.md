@@ -60,7 +60,7 @@ Variants:  Whole, Used, HDV   (three separate CSV files)
 HEV:       Not split by RDW (folded into Benzine/Diesel upstream); no HEV column
 FCEV:      Folded into OTHERS (~1 unit/month for Whole; ~30/month for Used)
 Backfill:  Pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
-Schedule:  Daily cron 1st–15th, early-exit per variant once last month is in
+Schedule:  Daily cron 1st–15th, 06:30 UTC; early-exit per variant once last month is in
 Scripts:   scripts/fetch_netherlands.py   (monthly scraper)
            scripts/backfill_netherlands_pre2018.py  (one-off)
 Workflow:  .github/workflows/fetch-netherlands.yml

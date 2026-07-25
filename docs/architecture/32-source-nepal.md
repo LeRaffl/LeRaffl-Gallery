@@ -65,7 +65,8 @@ Auth:      none
 Schema:    BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL (PHEV empty — single
            Hybrid bucket, see §4)
 Cadence:   cumulative FYTD file per Nepali month, published a few weeks
-           after the month ends; fetcher polls daily, cheap-skips
+           after the month ends; fetcher polls daily at 07:50 UTC and
+           cheap-skips when the CSV already covers every published file
 Scripts:   scripts/fetch_nepal.py
 Workflow:  .github/workflows/fetch-nepal.yml
 ```

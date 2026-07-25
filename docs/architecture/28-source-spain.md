@@ -72,6 +72,7 @@ Source:        DGT monthly matriculaciones microdata (raw registry, free,
                no login) → scripts/fetch_spain.py. Canonical; ACEA no longer
                writes Spain at all.
 Publishes:     first half of the following month — weeks before ACEA.
+Schedule:      daily cron 1st–16th, 06:30 UTC; per-variant early-exit.
 Zip URL:       https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/
                matriculaciones/export_mensual_mat_{YYYYMM}.zip
                ({M} NOT zero-padded — the padded variant 404s)
