@@ -56,6 +56,14 @@ from dataclasses import dataclass, field
 BASE = "https://veriportali.tuik.gov.tr"
 SHELL_URL = BASE + "/tr/press/{id}"
 
+# The bulletin JSON endpoint, confirmed from a browser DevTools capture:
+#   GET /api/tr/press/58043  ->  Accept: application/json
+# No Authorization header is involved; the request carries only cookies the
+# site itself sets (Google Analytics plus a NetScaler/WAF pair). We therefore
+# never hard-code a captured cookie — warm_session() fetches the press page
+# first so the same cookies are issued to us, exactly as a browser gets them.
+PRESS_API = BASE + "/api/{lang}/press/{id}"
+
 # A bulletin id known to exist, used as the entry point for recon: we only
 # need *some* valid press page to get at the SPA bundle.
 SEED_PRESS_ID = 58042
@@ -130,14 +138,18 @@ _PDF_HINT_RE = re.compile(r'"([^"]*(?:pdf|bulten|bulletin|download|dosya)[^"]*)"
 # /api/press/<id> — both wrong against that pattern. /api/tr/press/<id> is the
 # obvious untried candidate, and /tr/press/<id>/metadata is a route the public
 # site is known to expose.
+# /api/tr/press/<id> is confirmed and handled separately (see press_json).
+# What is still missing is the reverse direction: month -> id. These are the
+# listing/search shapes worth trying for that; whichever answers with JSON
+# becomes the basis of discovery.
 FIXED_PROBES = [
-    BASE + f"/api/tr/press/{SEED_PRESS_ID}",
-    BASE + f"/api/en/press/{SEED_PRESS_ID}",
-    BASE + f"/api/tr/press/{SEED_PRESS_ID}/metadata",
-    BASE + f"/api/tr/haberBulteni/{SEED_PRESS_ID}",
-    BASE + f"/api/tr/bulten/{SEED_PRESS_ID}",
     BASE + "/api/tr/press?page=1&size=20",
-    BASE + f"/tr/press/{SEED_PRESS_ID}/metadata",
+    BASE + "/api/tr/press/list?page=1&size=20",
+    BASE + "/api/tr/presses?page=1&size=20",
+    BASE + "/api/tr/search?q=Motorlu%20Kara%20Ta%C5%9F%C4%B1tlar%C4%B1",
+    BASE + f"/api/tr/press/{SEED_PRESS_ID}/metadata",
+    BASE + "/api/tr/categories",
+    BASE + "/api/tr/themes",
 ]
 
 # Printed in full rather than truncated: the round-2 probe showed robots.txt
@@ -152,6 +164,37 @@ def _get(session, url, **kw):
     kw.setdefault("headers", HTTP_HEADERS)
     kw.setdefault("timeout", 45)
     return session.get(url, **kw)
+
+
+def warm_session(session, press_id: int = SEED_PRESS_ID):
+    """Fetch the press page so the WAF/analytics cookies get issued to us.
+
+    The captured browser request carried NSC_ESNS (NetScaler) and a long hex
+    cookie alongside the GA ids. Rather than embedding someone's captured
+    session, do what the browser does: request the HTML page first and let the
+    cookie jar fill itself, then call the API from the same session.
+    """
+    try:
+        _get(session, SHELL_URL.format(id=press_id))
+    except Exception as e:
+        print(f"[warm] shell fetch failed ({e}) — continuing without cookies")
+    return session
+
+
+def press_json(session, press_id: int, lang: str = "tr"):
+    """GET /api/<lang>/press/<id>, returning parsed JSON or None."""
+    url = PRESS_API.format(lang=lang, id=press_id)
+    r = _get(session, url, headers={
+        **HTTP_HEADERS,
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": SHELL_URL.format(id=press_id),
+    })
+    if r.status_code != 200 or "json" not in r.headers.get("content-type", ""):
+        return None
+    try:
+        return r.json()
+    except ValueError:
+        return None
 
 
 def _describe(resp, limit: int = 400) -> str:
@@ -197,6 +240,18 @@ def recon(session, year: int, month: int) -> None:
     r2 = _get(session, SHELL_URL.format(id=SEED_PRESS_ID),
               headers={**HTTP_HEADERS, "Accept": "application/pdf"})
     print(f"      {_describe(r2)}")
+
+    print("\n[2b] confirmed bulletin endpoint /api/tr/press/<id>")
+    warm_session(session)
+    for pid in (58043, SEED_PRESS_ID):
+        data = press_json(session, pid)
+        if data is None:
+            print(f"  id={pid}: no JSON (endpoint or cookies wrong)")
+            continue
+        keys = sorted(data.keys()) if isinstance(data, dict) else f"<{type(data).__name__}>"
+        print(f"  id={pid} keys: {keys}")
+        blob = json.dumps(data, ensure_ascii=False, indent=1)
+        print(f"  body ({len(blob)}B, first 2500):\n{blob[:2500]}")
 
     print("\n[3] SPA module graph")
     got = fetch_bundle(session)
