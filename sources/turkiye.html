@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Türkiye — data source · BEV Trajectories</title>
-<meta name="description" content="New-vehicle registration data for Türkiye from the national statistics institute (TÜİK).">
+<meta name="description" content="New passenger-car registrations for Türkiye from TÜİK&#x27;s monthly &quot;Motorlu Kara Taşıtları&quot; bulletin.">
 <style>
 :root{
   --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
@@ -85,7 +85,7 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <a class="back" href="./">← All sources</a>
   <h1>Türkiye <span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></h1>
   
-  <p class="lead">New-vehicle registration data for Türkiye from the national statistics institute (TÜİK).</p>
+  <p class="lead">New passenger-car registrations for Türkiye from TÜİK&#x27;s monthly &quot;Motorlu Kara Taşıtları&quot; bulletin.</p>
 
   <div class="stats">
     <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
@@ -93,27 +93,27 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
-  <section><h2>How it works</h2><p>Türkiye&#x27;s figures come from TÜİK, the Turkish Statistical Institute, which publishes a monthly &quot;Motorlu Kara Taşıtları&quot; bulletin. TÜİK is the official statistics body, so coverage is complete.</p><p>Our fetcher reads the bulletin from the Veri Portalı&#x27;s JSON API and identifies the right one by its own title and period fields, so no bulletin number has to be supplied by hand. The monthly and year-to-date totals are taken from the bulletin&#x27;s prose; the fuel breakdown is published as a picture of a table rather than as text, so those five numbers are read off the image and then checked three ways before anything is written.</p></section>
+  <section><h2>How it works</h2><p>Türkiye&#x27;s figures come from TÜİK, the Turkish Statistical Institute. Every month TÜİK publishes a bulletin called &quot;Motorlu Kara Taşıtları&quot; (Motor Land Vehicles) reporting how many vehicles were newly registered, usually around the middle of the following month. As the country&#x27;s official statistics body, TÜİK counts every registration — this is a complete record, not a survey or an industry estimate.</p><p>The bulletin covers all vehicle types, from motorcycles to buses, but only passenger cars are broken down by fuel. That breakdown is what the gallery uses, which is why Türkiye&#x27;s chart counts cars only.</p><p>We read each new bulletin from TÜİK&#x27;s data portal as soon as it appears and match it by the month it reports on, so a bulletin is never mistaken for a different month. The headline totals are taken from the bulletin&#x27;s own text. The fuel breakdown, however, is published as a picture of a table rather than as text, so those five numbers have to be read off the image — and are then checked three separate ways before anything is saved.</p><p>Those three checks are: the fuel figures must add up to the total TÜİK states in the text; each fuel&#x27;s share must match the percentage TÜİK prints next to it; and the previous-year comparison column in the same table must match what we already hold for that month. If any check fails, the update stops and nothing is published — a missing month is better than a wrong one.</p></section>
 
   <h2>Raw source</h2>
   <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://veriportali.tuik.gov.tr/tr">TÜİK Veri Portalı — monthly bulletin API ↗</a></p>
+  <p><a class="source-btn" href="https://veriportali.tuik.gov.tr/tr">TÜİK — Motorlu Kara Taşıtları (monthly bulletin) ↗</a></p>
 
   <h2>How the data flows</h2>
-  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">TÜİK — Turkish Statistical Institute</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://veriportali.tuik.gov.tr/tr">TÜİK Veri Portalı — monthly bulletin API</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Türkiye.csv"><code>data/Türkiye.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">TÜİK — Türkiye İstatistik Kurumu (Turkish Statistical Institute)</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://veriportali.tuik.gov.tr/tr">TÜİK — Motorlu Kara Taşıtları (monthly bulletin)</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_turkey.py"><code>scripts/fetch_turkey.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-turkey.yml"><code>.github/workflows/fetch-turkey.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Türkiye.csv"><code>data/Türkiye.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>API — pulled from a structured API / query endpoint</td></tr><tr><th>Variants</th><td>Whole</td></tr><tr><th>HEV (full hybrids)</th><td>Hybrids are a single combined bucket, placed in the HEV column; PHEV is left empty.</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>API — pulled from a structured API / query endpoint</td></tr><tr><th>Variants</th><td>Whole</td></tr><tr><th>Column mapping</th><td><div class="map"><div class="map-pair"><code>Benzin</code><span class="map-arrow">→</span><code>PETROL</code></div><div class="map-pair"><code>Hibrit</code><span class="map-arrow">→</span><code>HEV</code></div><div class="map-pair"><code>Elektrik</code><span class="map-arrow">→</span><code>BEV</code></div><div class="map-pair"><code>Dizel</code><span class="map-arrow">→</span><code>DIESEL</code></div><div class="map-pair"><code>LPG</code><span class="map-arrow">→</span><code>OTHERS</code></div><div class="map-pair"><code>Toplam</code><span class="map-arrow">→</span><code>TOTAL</code></div></div></td></tr><tr><th>Vehicle scope</th><td>Passenger cars (otomobil) only — the one vehicle category TÜİK breaks down by fuel type.</td></tr><tr><th>HEV (full hybrids)</th><td>Hybrids are a single combined bucket, placed in the HEV column; PHEV is left empty.</td></tr><tr><th>Auth</th><td>none</td></tr></table>
 
   
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column.</li><li>The fuel split is transcribed from a table image, not read from structured data. A transcription that fails any of the three checks — total against the bulletin&#x27;s prose, the five fuels against that total, each fuel against its published percentage — stops the update rather than publishing an uncertain figure.</li><li>Only the most recent month is written, so a later TÜİK revision of an earlier month is not picked up.</li></ul></section>
+  <section><h2>Caveats</h2><ul class="caveats"><li>Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column. Plug-in hybrids cannot be separated out.</li><li>The fuel split is transcribed from an image of a table, not read from structured data. The three cross-checks above are what make that trustworthy; a transcription that fails any of them stops the update rather than publishing an uncertain figure.</li><li>Only the most recent month is written, so if TÜİK later revises an earlier month, that revision is not picked up.</li><li>Passenger cars only. Motorcycles, vans, trucks and buses are excluded, even though TÜİK reports them.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
-       Cadence: —.<br>
+       Cadence: daily 08:30 UTC, 15th–31st, commit-gated.<br>
        Row source string: <code>TUIK</code></p>
-    
+    <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/33-source-turkiye.md"><code>docs/architecture/33-source-turkiye.md</code></a></p>
   </div>
 </div>
 </body>

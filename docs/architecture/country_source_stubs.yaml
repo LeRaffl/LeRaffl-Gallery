@@ -277,24 +277,6 @@ stubs:
       - "Modelled sales estimates (Argonne), not a national registration count."
       - "Methodology differs from the EU registry sources; deep-history rows can be restated when Argonne revises them."
 
-  - country: Türkiye
-    slug: turkiye
-    method: api
-    summary: "New-vehicle registration data for Türkiye from the national statistics institute (TÜİK)."
-    source_name: "TÜİK Veri Portalı — monthly bulletin API"
-    source_url: "https://veriportali.tuik.gov.tr/tr"
-    underlying: "TÜİK — Turkish Statistical Institute"
-    variants: [Whole]
-    data_file: "data/Türkiye.csv"
-    hev_note: "Hybrids are a single combined bucket, placed in the HEV column; PHEV is left empty."
-    notes:
-      - "Türkiye's figures come from TÜİK, the Turkish Statistical Institute, which publishes a monthly \"Motorlu Kara Taşıtları\" bulletin. TÜİK is the official statistics body, so coverage is complete."
-      - "Our fetcher reads the bulletin from the Veri Portalı's JSON API and identifies the right one by its own title and period fields, so no bulletin number has to be supplied by hand. The monthly and year-to-date totals are taken from the bulletin's prose; the fuel breakdown is published as a picture of a table rather than as text, so those five numbers are read off the image and then checked three ways before anything is written."
-    caveats:
-      - "Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column."
-      - "The fuel split is transcribed from a table image, not read from structured data. A transcription that fails any of the three checks — total against the bulletin's prose, the five fuels against that total, each fuel against its published percentage — stops the update rather than publishing an uncertain figure."
-      - "Only the most recent month is written, so a later TÜİK revision of an earlier month is not picked up."
-
   # ======================================================================
   # National sources — maintained by hand (no automated fetcher)
   # ======================================================================
