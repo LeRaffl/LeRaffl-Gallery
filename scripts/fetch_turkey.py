@@ -326,6 +326,29 @@ def ocr_tsv(image_path: Path, upscale: int = 4) -> list[dict]:
     return words
 
 
+def iter_fuel_table_images(image_paths: list[Path]):
+    """Yield (path, words) for EVERY image whose OCR shows all six fuel labels.
+
+    find_table_image() stops at the first hit, which is fine when there is only
+    one such image. A bulletin has two — the month's registrations by fuel and
+    the registered stock at month end — and they carry identical row labels, so
+    first-match can land on the wrong one and take the whole run down with it.
+    Yielding all of them lets the caller keep the table whose Toplam agrees
+    with the narrative monthly total.
+    """
+    needed = set(FUEL_TO_CSV.keys())
+    for p in image_paths:
+        try:
+            words = ocr_tsv(p, upscale=4)
+        except subprocess.CalledProcessError:
+            continue
+        texts = {w["text"] for w in words}
+        seen = {c for c, aliases in LABEL_ALIASES.items()
+                if any(a in texts for a in aliases)}
+        if needed.issubset(seen):
+            yield p, words
+
+
 def find_table_image(image_paths: list[Path]) -> tuple[Path, list[dict]] | None:
     """Among a PDF's images, return the one that OCRs to contain all six fuel
     row labels (allowing for the OCR-alias variants in LABEL_ALIASES).
@@ -657,6 +680,40 @@ def html_to_text(content_html: str) -> str:
         _TAG_RE.sub(" ", _B64_RE.sub("", content_html))).split())
 
 
+_DATA_URI_RE = re.compile(r'src="data:image/[^;]+;base64,([^"]+)"')
+
+
+def extract_images_from_html(content_html: str, out_dir: Path) -> list[Path]:
+    """Decode every base64 data-URI image in the bulletin HTML to a file.
+
+    The fuel table is a raster image in the HTML exactly as it is in the PDF —
+    "Benzin" appears nowhere in the markup. But the HTML embeds those images
+    inline as data URIs, so the whole OCR pipeline can run without ever
+    downloading a PDF, and without needing an id->PDF mapping we do not have.
+
+    The declared mime type is not trustworthy (TÜİK labels JPEG payloads as
+    image/png), so the extension comes from the magic bytes instead.
+    """
+    import base64
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for i, blob in enumerate(_DATA_URI_RE.findall(content_html)):
+        try:
+            raw = base64.b64decode(blob, validate=False)
+        except Exception:
+            continue
+        if raw.startswith(b"\xff\xd8\xff"):
+            ext = ".jpg"
+        elif raw.startswith(b"\x89PNG"):
+            ext = ".png"
+        else:
+            ext = ".bin"
+        p = out_dir / f"html-img-{i:03d}{ext}"
+        p.write_bytes(raw)
+        paths.append(p)
+    return paths
+
+
 def parse_content_tables(content_html: str) -> list[dict[str, tuple[list[int], list[float]]]]:
     """Every table in the bulletin that carries all six fuel-row labels.
 
@@ -737,37 +794,47 @@ def ingest_from_html(record: dict, args, target_year: int, target_month: int,
                  f"but target month is {MONTHS_TR_BY_NUM[target_month]} "
                  f"({target_month}). Refusing to write.")
 
-    candidates = parse_content_tables(content)
+    # Candidate tables, cheapest source first. Markup would be ideal, but TÜİK
+    # ships the fuel table as a raster image in the HTML just as it does in the
+    # PDF ("Benzin" appears nowhere in the markup), so in practice the images
+    # carry it. They are inline data URIs, so this still needs no PDF.
+    candidates = [("markup", t) for t in parse_content_tables(content)]
     print(f"[html] narrative monthly_total={narr['monthly_total']}, "
-          f"{len(candidates)} candidate fuel table(s)")
-    if not candidates:
-        # Leave a trail for the next maintainer: show the markup we could not
-        # make sense of rather than failing mute.
-        i = content.find("Benzin")
-        if i >= 0:
-            print("[html] markup around 'Benzin':\n"
-                  + _B64_RE.sub('src=""', content)[max(0, i - 800):i + 1200])
-        return None
+          f"{len(candidates)} candidate table(s) from markup")
 
-    # A bulletin carries several fuel breakdowns (this month's registrations,
-    # and the registered stock at month end). Keep the one whose Toplam agrees
-    # with the narrative total; anything else is the wrong table.
-    for idx, table in enumerate(candidates):
-        try:
-            fuels, repairs = validate_and_repair(table, narr["monthly_total"])
-        except Exception as e:
-            print(f"[html] candidate {idx} rejected: {e}")
-            continue
-        for label, before, after in repairs:
-            print(f"  REPAIR: {label} {before} → {after}")
-        cross_check_prev_year(table, args.csv, target_year, target_month)
-        print("[html] accepted candidate %d: " % idx
-              + ", ".join(f"{l}={v}" for l, v in fuels.items()))
-        source_url = TUIK_PRESS_URL.format(id=args.press_id)
-        row = build_row(target_period, fuels, narr["monthly_total"], source_url)
-        if upsert_row(args.csv, target_period, row, args.force):
-            print(f"\nWrote {target_period} to {args.csv} (from HTML bulletin)")
-        return 0
+    with tempfile.TemporaryDirectory() as td:
+        if not candidates:
+            imgs = extract_images_from_html(content, Path(td) / "imgs")
+            print(f"[html] OCR fallback: {len(imgs)} inline image(s) "
+                  f"({sum(p.stat().st_size for p in imgs) // 1024} KB)")
+            for path, words in iter_fuel_table_images(imgs):
+                print(f"[html]   {path.name} has all six fuel labels")
+                candidates.append((path.name, parse_table(words)))
+
+        if not candidates:
+            print("[html] no fuel table found in markup or images")
+            return None
+
+        # A bulletin carries several fuel breakdowns (this month's
+        # registrations, and the registered stock at month end) under identical
+        # labels. Keep the one whose Toplam agrees with the narrative total;
+        # anything else is the wrong table and would look entirely plausible.
+        for origin, table in candidates:
+            try:
+                fuels, repairs = validate_and_repair(table, narr["monthly_total"])
+            except Exception as e:
+                print(f"[html] candidate {origin} rejected: {e}")
+                continue
+            for label, before, after in repairs:
+                print(f"  REPAIR: {label} {before} → {after}")
+            cross_check_prev_year(table, args.csv, target_year, target_month)
+            print(f"[html] accepted {origin}: "
+                  + ", ".join(f"{l}={v}" for l, v in fuels.items()))
+            source_url = TUIK_PRESS_URL.format(id=args.press_id)
+            row = build_row(target_period, fuels, narr["monthly_total"], source_url)
+            if upsert_row(args.csv, target_period, row, args.force):
+                print(f"\nWrote {target_period} to {args.csv} (from HTML bulletin)")
+            return 0
 
     print("[html] no candidate table matched the narrative total")
     return None
