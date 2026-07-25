@@ -455,7 +455,83 @@
           "latest_data_per": "2026-06"
         }
       }
+    },
+    {
+      "date": "2026-07-25",
+      "file": "2026-07-25.csv",
+      "groups": {
+        "world": {
+          "n_countries": 51,
+          "total_weight": 70602654,
+          "latest_data_per": "2026-07"
+        },
+        "western_europe": {
+          "n_countries": 9,
+          "total_weight": 8207883,
+          "latest_data_per": "2026-06"
+        },
+        "northern_europe": {
+          "n_countries": 5,
+          "total_weight": 745374,
+          "latest_data_per": "2026-06"
+        },
+        "southern_europe": {
+          "n_countries": 6,
+          "total_weight": 3244177,
+          "latest_data_per": "2026-06"
+        },
+        "eastern_europe": {
+          "n_countries": 11,
+          "total_weight": 1538947,
+          "latest_data_per": "2026-06"
+        },
+        "eu": {
+          "n_countries": 27,
+          "total_weight": 11189897,
+          "latest_data_per": "2026-06"
+        },
+        "g7": {
+          "n_countries": 7,
+          "total_weight": 28255592,
+          "latest_data_per": "2026-06"
+        },
+        "north_america": {
+          "n_countries": 2,
+          "total_weight": 17386807,
+          "latest_data_per": "2026-06"
+        },
+        "south_america": {
+          "n_countries": 4,
+          "total_weight": 3447286,
+          "latest_data_per": "2026-06"
+        },
+        "americas": {
+          "n_countries": 6,
+          "total_weight": 20834093,
+          "latest_data_per": "2026-06"
+        },
+        "asia": {
+          "n_countries": 8,
+          "total_weight": 33247526,
+          "latest_data_per": "2026-06"
+        },
+        "small_markets": {
+          "n_countries": 8,
+          "total_weight": 185370,
+          "latest_data_per": "2026-07"
+        },
+        "medium_markets": {
+          "n_countries": 29,
+          "total_weight": 7400162,
+          "latest_data_per": "2026-06"
+        },
+        "big_markets": {
+          "n_countries": 14,
+          "total_weight": 63017122,
+          "latest_data_per": "2026-06"
+        }
+      }
     }
   ],
-  "updated": "2026-07-01"
+  "updated": "2026-07-25"
 }
