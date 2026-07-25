@@ -103,6 +103,10 @@ class Discovery:
     pdf_url: str | None
     title: str = ""
     notes: list[str] = field(default_factory=list)
+    # The bulletin record straight from the API. `record["content"]` is the
+    # full bulletin HTML, which is what the caller parses instead of OCRing
+    # the PDF — see fetch_turkey.parse_content_html().
+    record: dict | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -427,7 +431,8 @@ def _via_id_scan(session, year, month, want_title, verbose):
             print(f"[discover]   id={pid}: {title!r} / {period!r}")
         if title.strip() == SERIES_TITLE and period.strip() == want_period:
             return Discovery(press_id=pid, pdf_url=None, title=want_title,
-                             notes=[f"matched by scan at offset {off:+d}"])
+                             notes=[f"matched by scan at offset {off:+d}"],
+                             record=data)
     return None
 
 

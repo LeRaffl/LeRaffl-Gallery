@@ -132,6 +132,7 @@ These are all installed in the fetch-turkey.yml workflow step.
 """
 import argparse
 import csv
+import os
 import re
 import subprocess
 import sys
@@ -617,6 +618,77 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
     return True
 
 
+# ---------------------------------------------------------------------------
+# HTML bulletin parsing (preferred over the PDF/OCR path)
+# ---------------------------------------------------------------------------
+#
+# The API record's `content` field is the complete bulletin as HTML. Where the
+# PDF ships the fuel table as a raster image — the sole reason this script ever
+# needed pdfimages + tesseract + a digit-level auto-repair heuristic — the HTML
+# carries it as real markup, so it can simply be read.
+#
+# The parser deliberately emits the SAME shape as parse_table(), namely
+# {label: (counts, pcts)} in column order, so every existing guard
+# (validate_and_repair, cross_check_prev_year, the narrative Toplam check)
+# applies unchanged to whichever path produced the numbers.
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_ROW_RE = re.compile(r"<tr[^>]*>(.*?)</tr>", re.I | re.S)
+_CELL_RE = re.compile(r"<t[dh][^>]*>(.*?)</t[dh]>", re.I | re.S)
+_B64_RE = re.compile(r'src="data:image/[^"]*"')
+# Turkish counts use a space or a dot as the thousands separator ("81 907",
+# "81.907"); percentages use a comma decimal ("34,6"). Keeping the two apart is
+# what lets a row be split into counts vs Pay(%) exactly like the OCR path.
+_INT_CELL_RE = re.compile(r"^\d{1,3}(?:[ . ]\d{3})*$|^\d+$")
+_PCT_CELL_RE = re.compile(r"^\d+,\d+$")
+
+
+def _cell_text(fragment: str) -> str:
+    """Strip tags/entities from one cell and normalise whitespace."""
+    import html as _html
+    text = _html.unescape(_TAG_RE.sub(" ", fragment))
+    return " ".join(text.replace(" ", " ").split())
+
+
+def html_to_text(content_html: str) -> str:
+    """De-tagged bulletin text, for the narrative regexes."""
+    import html as _html
+    return " ".join(_html.unescape(
+        _TAG_RE.sub(" ", _B64_RE.sub("", content_html))).split())
+
+
+def parse_content_tables(content_html: str) -> list[dict[str, tuple[list[int], list[float]]]]:
+    """Every table in the bulletin that carries all six fuel-row labels.
+
+    A bulletin contains more than one fuel breakdown — newly registered
+    vehicles for the month, and the total registered stock at month end — and
+    both use the same row labels. Rather than guess, return each candidate and
+    let the caller keep the one whose Toplam matches the narrative monthly
+    total; a wrong pick then fails loudly instead of writing plausible garbage.
+    """
+    stripped = _B64_RE.sub('src=""', content_html)
+    candidates = []
+    for table_html in re.findall(r"<table[^>]*>(.*?)</table>", stripped, re.I | re.S):
+        table: dict[str, tuple[list[int], list[float]]] = {}
+        for row_html in _ROW_RE.findall(table_html):
+            cells = [_cell_text(c) for c in _CELL_RE.findall(row_html)]
+            cells = [c for c in cells if c]
+            if not cells:
+                continue
+            label = next((canon for canon, aliases in LABEL_ALIASES.items()
+                          if cells[0] in aliases), None)
+            if label is None:
+                continue
+            counts = [int(c.replace(" ", "").replace(".", "").replace(" ", ""))
+                      for c in cells[1:] if _INT_CELL_RE.match(c)]
+            pcts = [float(c.replace(",", ".")) for c in cells[1:] if _PCT_CELL_RE.match(c)]
+            if counts:
+                table[label] = (counts, pcts)
+        if all(label in table for label in FUEL_TO_CSV):
+            candidates.append(table)
+    return candidates
+
+
 def build_row(period: str, fuels: dict[str, int], toplam: int,
               source_url: str) -> dict:
     return {
@@ -632,6 +704,73 @@ def build_row(period: str, fuels: dict[str, int], toplam: int,
         "TOTAL":  float(toplam),
         "notes":  source_url,
     }
+
+
+# Recon is a heavyweight diagnostic (crawls ~40 SPA chunks). It earns its keep
+# when the portal changes shape, but a discovery miss is the normal state of
+# every cron run before the bulletin is published, so keep it opt-in.
+RECON_ON_MISS = os.environ.get("TUIK_RECON") == "1"
+
+
+def ingest_from_html(record: dict, args, target_year: int, target_month: int,
+                     target_period: str) -> int | None:
+    """Write the CSV row straight from the API's HTML bulletin.
+
+    Returns an exit code when the HTML path reached a verdict, or None to let
+    the caller fall back to the PDF pipeline.
+    """
+    content = str(record.get("content") or "")
+    if not content:
+        return None
+
+    text = html_to_text(content)
+    narr = parse_narrative(text)
+    if not narr.get("month_num"):
+        print("[html] no narrative sentence found in the bulletin HTML")
+        return None
+
+    # Same gate as the PDF path: refuse to write if the bulletin is not the
+    # month we asked for. `period` already matched during discovery, so this
+    # is belt and braces against a record whose prose disagrees with its label.
+    if narr["month_num"] != target_month:
+        sys.exit(f"Bulletin month is {narr['month_name']} ({narr['month_num']}) "
+                 f"but target month is {MONTHS_TR_BY_NUM[target_month]} "
+                 f"({target_month}). Refusing to write.")
+
+    candidates = parse_content_tables(content)
+    print(f"[html] narrative monthly_total={narr['monthly_total']}, "
+          f"{len(candidates)} candidate fuel table(s)")
+    if not candidates:
+        # Leave a trail for the next maintainer: show the markup we could not
+        # make sense of rather than failing mute.
+        i = content.find("Benzin")
+        if i >= 0:
+            print("[html] markup around 'Benzin':\n"
+                  + _B64_RE.sub('src=""', content)[max(0, i - 800):i + 1200])
+        return None
+
+    # A bulletin carries several fuel breakdowns (this month's registrations,
+    # and the registered stock at month end). Keep the one whose Toplam agrees
+    # with the narrative total; anything else is the wrong table.
+    for idx, table in enumerate(candidates):
+        try:
+            fuels, repairs = validate_and_repair(table, narr["monthly_total"])
+        except Exception as e:
+            print(f"[html] candidate {idx} rejected: {e}")
+            continue
+        for label, before, after in repairs:
+            print(f"  REPAIR: {label} {before} → {after}")
+        cross_check_prev_year(table, args.csv, target_year, target_month)
+        print("[html] accepted candidate %d: " % idx
+              + ", ".join(f"{l}={v}" for l, v in fuels.items()))
+        source_url = TUIK_PRESS_URL.format(id=args.press_id)
+        row = build_row(target_period, fuels, narr["monthly_total"], source_url)
+        if upsert_row(args.csv, target_period, row, args.force):
+            print(f"\nWrote {target_period} to {args.csv} (from HTML bulletin)")
+        return 0
+
+    print("[html] no candidate table matched the narrative total")
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -688,10 +827,21 @@ def main() -> int:
             # *.tuik.gov.tr is blocked by egress policy there).
             print("Auto-discovery found no bulletin for "
                   f"{MONTHS_TR_BY_NUM[target_month]} {target_year}.")
-            import requests
-            tuik_discover.recon(requests.Session(), target_year, target_month)
+            if RECON_ON_MISS:
+                import requests
+                tuik_discover.recon(requests.Session(), target_year, target_month)
             return 0
         args.press_id = discovered.press_id
+
+        # Preferred path: the discovered record already carries the bulletin as
+        # HTML, so the numbers can be read directly — no PDF download, no
+        # pdfimages, no OCR, no digit-level repair heuristic.
+        if discovered.record:
+            rc = ingest_from_html(discovered.record, args, target_year,
+                                  target_month, target_period)
+            if rc is not None:
+                return rc
+            print("[html] could not use the HTML bulletin; falling back to PDF")
 
     if args.pdf_path:
         pdf_src = args.pdf_path
@@ -700,7 +850,19 @@ def main() -> int:
     elif discovered and discovered.pdf_url:
         pdf_src = discovered.pdf_url
     else:
-        pdf_src = TUIK_PRESS_URL.format(id=args.press_id)
+        # Long-standing bug, fixed here: this branch used to hand
+        # TUIK_PRESS_URL to load_pdf_bytes(). That URL serves the SPA shell,
+        # so pypdf got "<!doc" as its PDF header and died with
+        # PdfStreamError — meaning --press-id could never have worked on its
+        # own. It was never noticed because the workflow was only ever
+        # dispatched without an id. There is no id->PDF mapping known, so say
+        # so instead of downloading HTML and calling it a PDF.
+        sys.exit(
+            f"--press-id {args.press_id} alone cannot locate a PDF: "
+            f"{TUIK_PRESS_URL.format(id=args.press_id)} serves the SPA shell, "
+            "not the bulletin. Pass --pdf-url (or --pdf-path) for the PDF "
+            "route, or let auto-discovery use the HTML bulletin instead."
+        )
 
     # Materialise the PDF to a local file (pdfimages/pypdf both want a path).
     with tempfile.TemporaryDirectory() as td:
