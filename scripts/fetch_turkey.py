@@ -27,9 +27,10 @@ Veri Portalı *(Data Portal)*:
 
     https://veriportali.tuik.gov.tr/tr/press/<id>
 
-where <id> is a TÜİK-wide sequential bulletin number (e.g. 58041 = Mart 2026,
-58042 = Nisan 2026, ~32 days apart but with many other TÜİK bulletins in
-between). Each press release is a 5-page bulletin in Turkish, with the fuel
+where <id> identifies the bulletin. The ids are NOT chronological: observed
+values are 58041=Mart 2026, 58042=Nisan 2026, 58043=Haziran 2026,
+58044=Mayıs 2026, 58051=Ocak 2026 — one contiguous block for this series, in
+arbitrary order within it. Each press release is a 5-page bulletin in Turkish, with the fuel
 breakdown on page 4 ("Trafiğe kaydı yapılan otomobillerin yakıt cinslerine
 göre dağılımı, <Month> <Year>" — "Distribution of automobiles registered to
 traffic by fuel type, <Month> <Year>").
@@ -106,27 +107,40 @@ paragraphs, not the table cells. We therefore:
    data/Türkiye.csv. This catches column-shift bugs that would otherwise pass
    (a)-(c).
 
-Auto-discovery (intentionally not implemented yet)
---------------------------------------------------
-The Veri Portalı is a React SPA: the press page URL returns an empty
-``<div id="root"></div>`` shell and the data is hydrated client-side via an
-undocumented JSON API. Plain HTML scraping would only see the shell, and we
-haven't reverse-engineered the API. For now the workflow accepts the
-``press_id`` (or a direct ``pdf_url``) via workflow_dispatch and the script
-hard-requires one of them; the daily cron only does the self-throttle check
-and exits cleanly when no ID is supplied. The maintainer manually dispatches
-once per month when the new bulletin appears (footnoted in each bulletin:
-"Bu konu ile ilgili bir sonraki haber bülteninin yayımlanma tarihi ... 'dır").
+Auto-discovery
+--------------
+The Veri Portalı is a React SPA — the press page URL returns an empty
+``<div id="root"></div>`` shell — but it is backed by a JSON API:
+
+    GET /api/tr/press/<id>   ->  {"data": {"id", "number", "date", "title",
+                                           "period", "content"}, ...}
+
+`title` ("Motorlu Kara Taşıtları") and `period` ("Haziran 2026") identify a
+bulletin exactly. There is no listing endpoint to query — /api/tr/press,
+.../list, /presses, /search, /categories and /themes all 404 — so
+scripts/tuik_discover.py walks ids outward from the newest one recorded in the
+CSV's source column and matches on both fields. Since the series sits in one
+contiguous id block, the usual case costs a single request, and the anchor
+re-derives itself each month with no id hard-coded anywhere.
+
+`content` is the whole bulletin as HTML. The fuel table is a raster image
+there too ("Benzin" appears nowhere in the markup), but the images are inline
+data URIs, so they are decoded straight out of the JSON and OCR'd — no PDF is
+downloaded at any point on this path. parse_content_tables() still tries real
+markup first, in case TÜİK ever emits a table.
+
+There is no known id -> PDF mapping. --pdf-url / --pdf-path remain for feeding
+a PDF in by hand; --press-id on its own cannot reach one and says so.
 
 Following the project rule we only ever write the most recent month; older
 rows are never touched even if a later bulletin would adjust them.
 
 CI dependencies
 ---------------
-Beyond Python (pypdf), the script shells out to:
-    * pdfimages   (poppler-utils)  — extract embedded raster tables
-    * convert     (imagemagick)    — upscale 4× before OCR
+Beyond Python (pypdf, requests), the script shells out to:
+    * convert     (imagemagick)    — upscale 4/6/8× before OCR
     * tesseract   (+ tesseract-ocr-tur) — OCR the table image
+    * pdfimages   (poppler-utils)  — only for the --pdf-url/--pdf-path route
 
 These are all installed in the fetch-turkey.yml workflow step.
 """

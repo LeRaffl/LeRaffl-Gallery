@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Discover the TÜİK "Motorlu Kara Taşıtları" bulletin id + PDF URL for a month.
+Discover the TÜİK "Motorlu Kara Taşıtları" bulletin id for a given month.
 
 Why this exists
 ---------------
@@ -13,14 +13,28 @@ undocumented JSON API. That meant the daily cron was a no-op and a human had
 to dispatch the workflow with the id once a month. In practice nobody did:
 between 2026-05 and 2026-07 the gallery silently sat on Nisan 2026 data.
 
-Two separate unknowns have to be solved to remove the manual step:
+How it works
+------------
+`GET /api/tr/press/<id>` returns the bulletin as JSON, including `title`
+("Motorlu Kara Taşıtları") and `period` ("Haziran 2026") — together an exact
+identification — plus `content`, the full bulletin HTML that the caller parses.
 
-  1. (year, month) → bulletin id.  The ids are NOT chronological — observed:
-     58041=Mart 2026, 58042=Nisan 2026, 58043=Haziran 2026, 58044=Mayıs 2026,
-     58051=Ocak 2026. So "last id + 1" is actively wrong and would silently
-     fetch the wrong month. (`fetch_turkey.py`'s narrative month-check would
-     catch it and refuse to write, but only after a full OCR round-trip.)
-  2. bulletin id → PDF URL.  The `/tr/press/<id>` page is not the PDF.
+There is no index to query: /api/tr/press, .../list, /presses, /search,
+/categories and /themes all answer 404. So discover() walks ids outward from
+an anchor and matches on both fields. The ids are NOT chronological —
+58041=Mart 2026, 58042=Nisan 2026, 58043=Haziran 2026, 58044=Mayıs 2026,
+58051=Ocak 2026 — so "last id + 1" would be actively wrong, but they do form
+one contiguous block for this series, which keeps the walk short. The anchor
+comes from the newest press URL in data/Türkiye.csv, so nothing is hard-coded.
+
+Note there is no known id → PDF mapping; `/tr/press/<id>` serves the SPA
+shell, not the bulletin. The HTML in `content` is the route to the data.
+
+Possible future direction
+-------------------------
+The SPA bundle references https://nsiws.tuik.gov.tr/rest/dataflow/TR/all/latest
+— TÜİK's SDMX web service. If the registration series is published there, it
+would beat OCR-ing raster tables outright. Unexplored.
 
 Recon mode
 ----------
