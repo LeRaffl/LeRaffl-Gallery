@@ -97,11 +97,35 @@ class Discovery:
 # Vite emits <script type="module" crossorigin src="/assets/index-<hash>.js">
 _BUNDLE_RE = re.compile(r'src="(/assets/[^"]+\.js)"')
 
+# Round 1 of recon found the entry chunk is only ~31 KB and contains zero API
+# literals: it is a Vite loader, and the real code sits in lazily-imported
+# chunks it references by hash. So the crawl has to follow the module graph
+# rather than grep the entry chunk alone.
+_ASSET_REF_RE = re.compile(r'["\'(]([./]*assets/[A-Za-z0-9_.\-]+\.js)["\')]')
+
 # Path literals that look like an API route. Deliberately loose — recon output
 # is read by a human, so false positives are cheaper than misses.
 _APIISH_RE = re.compile(r'"(/(?:api|rest|service|data|v\d)[a-zA-Z0-9/_.\-]*)"')
-_TUIK_URL_RE = re.compile(r'"(https?://[a-zA-Z0-9.\-]*tuik\.gov\.tr[^"]*)"')
+_ABS_URL_RE = re.compile(r'"(https?://[a-zA-Z0-9.\-]+\.[a-z]{2,}[^"\s]{0,120})"')
 _PDF_HINT_RE = re.compile(r'"([^"]*(?:pdf|bulten|bulletin|download|dosya)[^"]*)"', re.I)
+
+# Fixed candidates worth a shot regardless of what the bundle says.
+#
+# The legacy portal data.tuik.gov.tr is the interesting one: it is server-
+# rendered (no SPA), it is what data/Türkiye.csv cited as `source` for every
+# row up to 2026-03, and Google has it indexed with per-bulletin slugs of the
+# form /Bulten/Index?p=Motorlu-Kara-Tasitlari-<Month>-<Year>-<id>. If it still
+# carries 2026 bulletins, discovery becomes plain HTML scraping and the whole
+# SPA problem goes away.
+LEGACY = "https://data.tuik.gov.tr"
+FIXED_PROBES = [
+    BASE + "/sitemap.xml",
+    BASE + "/robots.txt",
+    BASE + f"/tr/api/press/{SEED_PRESS_ID}",
+    BASE + f"/api/press/{SEED_PRESS_ID}",
+    LEGACY + "/Search/Search?text=motorlu%20kara%20ta%C5%9F%C4%B1tlar%C4%B1",
+    LEGACY + "/Bulten/Index?p=Motorlu-Kara-Tasitlari-Mayis-2025-54041",
+]
 
 
 def _get(session, url, **kw):
@@ -154,32 +178,59 @@ def recon(session, year: int, month: int) -> None:
               headers={**HTTP_HEADERS, "Accept": "application/pdf"})
     print(f"      {_describe(r2)}")
 
-    print("\n[3] SPA bundle")
+    print("\n[3] SPA module graph")
     got = fetch_bundle(session)
     if not got:
-        print("  !! could not retrieve bundle — recon cannot continue")
+        print("  !! could not retrieve entry chunk — recon cannot continue")
         return
-    bundle_url, js = got
-    print(f"  {bundle_url}  ({len(js)}B)")
+    bundle_url, entry_js = got
+    print(f"  entry {bundle_url}  ({len(entry_js)}B)")
+
+    # Breadth-first over the chunk graph. Two levels past the entry has been
+    # enough for every Vite build seen so far; the cap keeps a pathological
+    # graph from turning recon into a crawl of the whole site.
+    seen: dict[str, str] = {bundle_url: entry_js}
+    frontier = [bundle_url]
+    for depth in (1, 2):
+        nxt = []
+        for src in frontier:
+            for ref in set(_ASSET_REF_RE.findall(seen[src])):
+                url = BASE + "/" + ref.lstrip("./")
+                if url in seen or len(seen) >= 40:
+                    continue
+                try:
+                    r = _get(session, url)
+                except Exception as e:
+                    print(f"  L{depth} {url} !! {e}")
+                    continue
+                if r.status_code == 200:
+                    seen[url] = r.text
+                    nxt.append(url)
+        print(f"  level {depth}: +{len(nxt)} chunks (total {len(seen)})")
+        frontier = nxt
+
+    js = "\n".join(seen.values())
+    print(f"  crawled {len(seen)} chunks, {len(js)}B total")
 
     api_paths = sorted(set(_APIISH_RE.findall(js)))
-    tuik_urls = sorted(set(_TUIK_URL_RE.findall(js)))
+    abs_urls = sorted(set(u for u in _ABS_URL_RE.findall(js)
+                          if "w3.org" not in u and "schema.org" not in u))
     pdf_hints = sorted(set(h for h in _PDF_HINT_RE.findall(js) if len(h) < 120))
 
     print(f"\n[4] api-ish path literals ({len(api_paths)})")
     for p in api_paths[:80]:
         print(f"      {p}")
 
-    print(f"\n[5] absolute tuik.gov.tr literals ({len(tuik_urls)})")
-    for u in tuik_urls[:40]:
+    print(f"\n[5] absolute URL literals ({len(abs_urls)})")
+    for u in abs_urls[:60]:
         print(f"      {u}")
 
     print(f"\n[6] pdf/bulten/download hints ({len(pdf_hints)})")
     for h in pdf_hints[:60]:
         print(f"      {h}")
 
-    print("\n[7] probing api-ish paths against the seed id")
-    probes: list[str] = []
+    print("\n[7] probing fixed candidates + discovered paths")
+    probes: list[str] = list(FIXED_PROBES)
     for p in api_paths[:40]:
         if "{" in p or "$" in p:
             continue
