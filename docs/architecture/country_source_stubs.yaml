@@ -194,6 +194,7 @@ stubs:
     data_file: "data/Latvia.csv"
     caveats:
       - "The `Used` variant is legacy: its data was never committed here, so it updates on its own (irregular) schedule and is not covered by the ACEA fetcher."
+      - "Latvia is the one country in the ACEA cluster whose HEV column is zero in every row we hold (all 138 of them) — the column exists but has never carried a value. Read it as \"not reported for Latvia\", not as \"Latvia has no full hybrids\"; those cars are somewhere else in the split."
 
   - country: Lithuania
     slug: lithuania
@@ -321,6 +322,7 @@ stubs:
     source_url: "https://anfavea.com.br/site/edicoes-em-excel/"
     underlying: "ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores"
     variants: [Whole]
+    hev_split: true
     variant_notes:
       Whole: "Automóveis e Comerciais Leves — passenger cars and light commercials combined."
     scope_note: "Cars + light commercials (Automóveis e Comerciais Leves). Trucks and buses are in the workbook but not ingested."
@@ -344,6 +346,8 @@ stubs:
     source_url: "https://www.anac.cl/category/estudio-de-mercado/"
     underlying: "ANAC — Asociación Nacional Automotriz de Chile"
     variants: [Whole]
+    scope_note: "New light-vehicle sales as reported by ANAC. Petrol and diesel are not split — combustion is one aggregate ICE figure."
+    hev_split: true
     variant_notes:
       Whole: "New light-vehicle sales as reported by ANAC."
     cadence: "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out"
@@ -355,7 +359,7 @@ stubs:
       - "Combustion is reported as one aggregate ICE figure; petrol and diesel are not split, so those columns stay empty."
     caveats:
       - "Association aggregate: ANAC counts member brands."
-      - "No petrol/diesel split — combustion is a single ICE column."
+      - "Combustion is not reported at all: we derive ICE as TOTAL − BEV − PHEV − HEV − OTHERS. There is no petrol/diesel split, so those columns stay empty."
       - "The two monthly PDFs are not always published on the same day, so a month only appears once the second one lands."
 
   - country: Japan
@@ -366,6 +370,7 @@ stubs:
     source_url: "https://www.jada.or.jp/pages/342/"
     underlying: "JADA — Japan Automobile Dealers Association"
     variants: [Whole]
+    hev_split: true
     variant_notes:
       Whole: "Registered passenger cars (登録車) — kei cars are excluded."
     scope_note: "登録車 (registered passenger cars) only. Kei cars (軽自動車) are NOT included."
@@ -388,6 +393,7 @@ stubs:
     source_url: "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data"
     underlying: "Argonne National Laboratory — light-duty electric-drive sales updates"
     variants: [Whole]
+    hev_split: true
     variant_notes:
       Whole: "All light-duty vehicles — cars and light trucks combined."
     scope_note: "Light-duty vehicles (cars + light trucks), US sales."
@@ -400,7 +406,7 @@ stubs:
       - "Argonne publishes BEV, PHEV, HEV and the light-duty total. Combustion is therefore a residual — ICE = Total − BEV − PHEV − HEV — so there is no petrol/diesel split and OTHERS is always 0."
     caveats:
       - "Modelled sales estimates (Argonne), not a national registration count."
-      - "No petrol/diesel split: combustion is one derived ICE figure."
+      - "Combustion is not reported at all: we derive ICE as Total − BEV − PHEV − HEV. There is no petrol/diesel split, so those columns stay empty."
       - "Argonne revises the last ~2 months between releases. Each run re-reads a trailing window and corrects those months in place; rows older than the window are left as first recorded, so deep history can differ from a newer PDF."
 
   - country: Türkiye
@@ -438,6 +444,8 @@ stubs:
     source_url: "https://www.kba.de/"
     underlying: "KBA — Germany's federal motor-transport authority (the registry)"
     variants: [Whole]
+    scope_note: "New passenger-car registrations (Neuzulassungen, class M1) — the KBA is the registry itself, so coverage is every registered car."
+    hev_split: true
     variant_notes:
       Whole: "New passenger-car registrations (Neuzulassungen) as reported by the KBA."
     cadence: "transcribed by hand each month, once KBA publishes (typically the first week)"
@@ -457,6 +465,8 @@ stubs:
     source_url: "https://www.smmt.co.uk/vehicle-data/car-registrations/"
     underlying: "SMMT — Society of Motor Manufacturers and Traders (from DVLA data)"
     variants: [Whole]
+    scope_note: "New car registrations compiled by SMMT from DVLA data — passenger cars."
+    hev_split: true
     variant_notes:
       Whole: "New-car registrations as reported by SMMT."
     cadence: "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)"
@@ -476,6 +486,8 @@ stubs:
     source_url: "https://www.fcai.com.au/"
     underlying: "FCAI — Federal Chamber of Automotive Industries (VFACTS)"
     variants: [Whole]
+    scope_note: "New light vehicles as counted by VFACTS — passenger cars, SUVs and light commercials. These are sales/deliveries reported by participating brands, not registrations."
+    hev_split: true
     variant_notes:
       Whole: "New light-vehicle sales as reported by VFACTS — deliveries, not registrations."
     cadence: "transcribed by hand each month, once VFACTS publishes"
@@ -497,6 +509,7 @@ stubs:
     variants: [Whole]
     cadence: "entered by hand; Geostat publishes quarterly, so expect a longer lag"
     data_file: "data/Georgia.csv"
+    scope_note: "New vehicle registrations as published by Geostat, quarterly."
     variant_notes:
       Whole: "New vehicle registrations as published by Geostat."
     hev_note: "Hybrids are a single combined bucket, placed in the HEV column; there is no PHEV column at all."
@@ -518,6 +531,8 @@ stubs:
     variants: [Whole]
     cadence: "entered by hand each month"
     data_file: "data/South Korea.csv"
+    scope_note: "New vehicle registrations as published by the transport ministry. Petrol and diesel are not split — combustion is one aggregate ICE figure."
+    hev_split: true
     variant_notes:
       Whole: "New vehicle registrations as published by the transport ministry."
     notes:
@@ -526,7 +541,7 @@ stubs:
       - "The rows carry the source string `motir.go.kr`, but the exact upstream page for this series has not been re-confirmed, so no link is given here rather than a guessed one."
     caveats:
       - "No public source link yet — this is the one country page that cannot point you at the upstream document. Treat the figures as unverifiable from here until it is confirmed."
-      - "No petrol/diesel split — combustion is a single ICE column."
+      - "Combustion is stored as one aggregate ICE figure — there is no petrol/diesel split, so those columns stay empty."
       - "Maintained by hand."
 
   - country: India
@@ -538,6 +553,8 @@ stubs:
     underlying: "VAHAN — Ministry of Road Transport & Highways (national register)"
     cadence: "entered by hand and irregularly — the variants can sit months apart"
     variants: [Whole, 4-Wheelers, 3-Wheelers, 2-Wheelers]
+    scope_note: "All VAHAN vehicle categories, split into 2-, 3- and 4-Wheelers plus a combined Whole. Coverage is partial."
+    hev_note: "Unknown — with no committed CSV for India there is nothing here to describe. Treat the hybrid handling as unverified until the series is brought into this repo."
     variant_notes:
       Whole: "All vehicle categories combined, from VAHAN."
       4-Wheelers: "Cars and other four-wheelers."

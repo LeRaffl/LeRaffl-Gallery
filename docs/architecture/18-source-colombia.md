@@ -19,7 +19,8 @@ backfill: each PDF carries ~3 prior years; older history via annual PDFs / maint
 scope_note: Passenger cars only; freight (vehículos de carga) has no fuel split and is out of scope.
 caveats:
 - Hybrids are a single combined bucket placed in the HEV column.
-- ICE is a derived residual (TOTAL − BEV − HEV); petrol and diesel are not split.
+- 'Combustion is not reported at all: we derive ICE as TOTAL − BEV − HEV. There is no petrol/diesel split,
+  so those columns stay empty.'
 - The source is a monthly PDF; the numbers ultimately come from RUNT.
 fetcher: scripts/fetch_colombia.py
 workflow: .github/workflows/fetch-colombia.yml

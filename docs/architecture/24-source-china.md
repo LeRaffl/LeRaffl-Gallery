@@ -25,6 +25,11 @@ column_map:
   EREV: EREV
   ICE: combustion (not split into Petrol/Diesel)
 caveats:
+- The source reports combustion as one aggregate figure, so the ICE column is what it publishes — there
+  is no petrol/diesel split and those columns stay empty.
+- 'CPCA''s combustion bucket (常规燃油) includes full hybrids, so China has no HEV column at all. A like-for-like
+  BEV-share comparison with a country that splits HEV out is fine, but an ICE-share comparison is not:
+  China''s ICE includes hybrids that other countries report separately.'
 - The retail BEV/PHEV/EREV split comes from OCR of a slide; a wholesale-proportional proxy fills in if
   OCR fails.
 - From 2025-01 the PHEV column excludes EREV (EREV has its own column).

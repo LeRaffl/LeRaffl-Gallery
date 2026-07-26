@@ -27,7 +27,8 @@ hev_split: true
 backfill: none
 scope_note: Whole = Passenger Car + Pickup Truck.
 caveats:
-- ICE is reported as an aggregate — there is no petrol/diesel split.
+- The source reports combustion as one aggregate figure, so the ICE column is what it publishes — there
+  is no petrol/diesel split and those columns stay empty.
 - Access needs a member cookie session (login).
 - A pre-rebase Whole series is archived as an inert legacy CSV.
 fetcher: scripts/fetch_thailand.py

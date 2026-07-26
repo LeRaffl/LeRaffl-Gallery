@@ -138,7 +138,7 @@ table.matrix th:first-child{white-space:nowrap}
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">ANAC — Asociación Nacional Automotriz de Chile</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.anac.cl/category/estudio-de-mercado/">ANAC — estudios de mercado</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_chile.py"><code>scripts/fetch_chile.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-chile.yml"><code>.github/workflows/fetch-chile.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Chile.csv"><code>data/Chile.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr><tr><th>Vehicle scope</th><td>New light-vehicle sales as reported by ANAC. Petrol and diesel are not split — combustion is one aggregate ICE figure.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr></table>
 
   <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>New light-vehicle sales as reported by ANAC.</td><td class="nowrap">2015-01 – 2026-04<br><span class="dim">136 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Chile.csv"><code>data/Chile.csv</code></a></td></tr></table></div></section>
 
@@ -148,7 +148,7 @@ table.matrix th:first-child{white-space:nowrap}
 
   
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>Association aggregate: ANAC counts member brands.</li><li>No petrol/diesel split — combustion is a single ICE column.</li><li>The two monthly PDFs are not always published on the same day, so a month only appears once the second one lands.</li></ul></section>
+  <section><h2>Caveats</h2><ul class="caveats"><li>Association aggregate: ANAC counts member brands.</li><li>Combustion is not reported at all: we derive ICE as TOTAL − BEV − PHEV − HEV − OTHERS. There is no petrol/diesel split, so those columns stay empty.</li><li>The two monthly PDFs are not always published on the same day, so a month only appears once the second one lands.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-04</code>.

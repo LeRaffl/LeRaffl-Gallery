@@ -611,6 +611,41 @@ def build_group_note(fm: dict) -> str:
     return ACEA_GROUP_NOTE if fm.get("source_group") == "acea" else ""
 
 
+# Facts that are true of every ACEA-fed country because they are properties of
+# the press release itself, not of the country. Defaulted here rather than
+# copy-pasted into 18 registry entries — an entry can still override any of
+# them, and country-specific caveats are appended to (not replaced by) these.
+ACEA_GROUP_DEFAULTS = {
+    "scope_note": ("New passenger cars only. ACEA publishes a single figure per "
+                   "country per month — there is no van, truck or bus variant, "
+                   "and no private/company split."),
+    "hev_split": True,
+    "fcev": "not broken out — folded into ACEA's OTHERS column.",
+}
+
+ACEA_GROUP_CAVEATS = [
+    "An industry-association aggregate, not a national-registry feed — see the "
+    "note above for what that means for completeness and timing.",
+    "The six fuel columns are the ones ACEA itself prints (battery electric, "
+    "plug-in hybrid, hybrid electric, others, petrol, diesel). OTHERS is a "
+    "reported column, not a residual we compute, and it is where LPG, CNG and "
+    "hydrogen end up.",
+    "Each release also restates the same month a year earlier, so a prior-year "
+    "figure can be corrected retroactively.",
+]
+
+
+def apply_group_defaults(fm: dict) -> dict:
+    """Fill in the facts that follow from the source group, not the country."""
+    if fm.get("source_group") != "acea":
+        return fm
+    fm = dict(fm)
+    for key, value in ACEA_GROUP_DEFAULTS.items():
+        fm.setdefault(key, value)
+    fm["caveats"] = ACEA_GROUP_CAVEATS + list(fm.get("caveats") or [])
+    return fm
+
+
 URL_RE = re.compile(r"https?://[^\s|,]+")
 
 
@@ -679,6 +714,7 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 
 
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
+    fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
     whole = params.get((country, "Whole")) or {}
     latest_period = whole.get("data_per", "—")
