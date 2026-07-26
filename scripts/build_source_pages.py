@@ -413,9 +413,6 @@ def build_coverage(variant_facts: list[tuple[str, dict | None]]) -> str:
                 f'<title>{esc(variant)}: {esc(facts["first"])} → '
                 f'{esc(facts["last"])}</title></rect>')
         cadence = "/".join(facts["cadence"]) or "—"
-        others = [c for c in facts["labelled"] if c not in facts["cadence"]]
-        if others:
-            cadence += f" (+{'/'.join(others)} rows)"
         parts.append(
             f'<text class="cov-meta" x="{label_w + plot_w + 6}" '
             f'y="{y + bar_h - 2}">{esc(cadence)}</text>')
@@ -425,6 +422,15 @@ def build_coverage(variant_facts: list[tuple[str, dict | None]]) -> str:
     notes = ", ".join(
         f"{esc(v)} {esc(f['first'])}–{esc(f['last'])} ({f['rows']} rows)"
         for v, f in variant_facts)
+
+    # Where a CSV also carries other time_interval labels, say so in the
+    # caption rather than beside the bar, where it would overflow.
+    mixed = {c for _, f in variant_facts
+             for c in f["labelled"] if c not in f["cadence"]}
+    if mixed:
+        notes += (". Some rows additionally carry a <code>time_interval</code> of "
+                  + "/".join(f"<code>{esc(c)}</code>" for c in sorted(mixed))
+                  + "; the cadence shown is the spacing the periods actually have")
 
     return (
         '<section><h2>History we hold</h2>'
