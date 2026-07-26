@@ -1,0 +1,21 @@
+name: Fetch South Africa data (naamsa) — probe
+
+# Source-shape probe for South Africa/naamsa: crawls the press-release and
+# quarterly-review pages, downloads the newest flash report / quarterly
+# review PDFs and dumps their text (NEV pages in full). No data written yet.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install requests pdfplumber
+      - name: Probe
+        run: python scripts/fetch_southafrica.py --probe
