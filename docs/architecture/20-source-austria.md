@@ -1,3 +1,29 @@
+---
+country: Austria
+slug: austria
+status: live
+method: file
+summary: >-
+  New-registration data for Austria from Statistik Austria's monthly .ods
+  publications.
+source_name: "statistik.at — DE2/DE3 .ods publications"
+source_url: "https://www.statistik.at/"
+underlying: "Statistik Austria"
+auth: "none, but the source blocks datacenter IPs (fetched via a Cloudflare Worker relay)"
+cadence: "daily cron, 8th–22nd, 09:25 UTC"
+variants: [Whole, HDV, Vans]
+hev_split: true
+backfill: "Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward"
+scope_note: "Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1."
+caveats:
+  - "The source blocks datacenter IPs; data is routed through a Cloudflare Worker relay."
+  - "PHEV/HEV are split for Whole; for HDV and Vans hybrids are lumped into HEV."
+fetcher: "scripts/fetch_austria.py"
+workflow: ".github/workflows/fetch-austria.yml"
+fragility_doc: "docs/architecture/20-source-austria.md"
+data_file: "data/Austria.csv"
+---
+
 # 20 · Source: Austria (Statistik Austria DE2 / DE3 .ods via Cloudflare relay)
 
 Statistik Austria publishes new-registration data as monthly **.ods**

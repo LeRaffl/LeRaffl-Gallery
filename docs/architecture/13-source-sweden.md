@@ -1,3 +1,30 @@
+---
+country: Sweden
+slug: sweden
+status: live
+method: api
+summary: >-
+  Passenger-car new registrations for Sweden from Statistics Sweden's PxWeb
+  database (table TK1001A).
+source_name: "statistikdatabasen.scb.se — SCB PxWeb (TK1001A)"
+source_url: "https://www.statistikdatabasen.scb.se/"
+underlying: "SCB — Statistics Sweden"
+auth: none
+cadence: "daily cron, 1st–15th, 05:50 UTC"
+variants: [Whole]
+hev_split: true
+backfill: none
+scope_note: "Passenger cars only — no possessor or vehicle-class split."
+caveats:
+  - "Full hybrids (HEV) are reported natively (fuel code 130)."
+  - "Ethanol/flexifuel is reported natively and folds into ICE in the three-curve view."
+  - "No pre-2006 history — the table starts 2006M01."
+fetcher: "scripts/fetch_sweden.py"
+workflow: ".github/workflows/fetch-sweden.yml"
+fragility_doc: "docs/architecture/13-source-sweden.md"
+data_file: "data/Sweden.csv"
+---
+
 # 13 · Source: Sweden (statistikdatabasen.scb.se / PersBilarDrivMedel)
 
 Statistics Sweden (SCB) publishes new passenger-car registrations by fuel in

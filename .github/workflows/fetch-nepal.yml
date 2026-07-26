@@ -1,0 +1,87 @@
+name: Fetch Nepal data (Department of Customs FTS)
+
+# Fetches the Department of Customs' cumulative monthly Foreign Trade
+# Statistics workbooks (customs.gov.np, sheet 5_Imports_By_Commodity),
+# rebuilds every month of the processed fiscal year from consecutive-file
+# deltas (HS 8703 split: BEV / Hybrid / Petrol / Diesel / Others), and
+# upserts data/Nepal.csv (Whole = cars/jeeps/vans) plus
+# data/Nepal_3-Wheelers.csv (auto- & e-rickshaws).
+#
+# Figures are imports, not registrations (Nepal imports its entire vehicle
+# market). Hybrids use the single "Hybrid bucket" convention. See
+# scripts/fetch_nepal.py and docs/architecture/32-source-nepal.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      fy:
+        description: 'Process one BS fiscal start year (e.g. 2081). Empty = newest FY.'
+        required: false
+        default: ''
+        type: string
+      backfill:
+        description: 'Process every fiscal year discoverable on the site.'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # DoC publishes each Nepali month's cumulative workbook a few weeks
+    # after the month ends (Nepali months end mid-Gregorian-month, but the
+    # publication day is irregular). Poll daily at 07:50 UTC — the fetcher
+    # skips cheaply when the CSV already has every published month, and the
+    # commit step is change-gated, so steady-state runs are no-ops.
+    - cron: '50 7 * * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch & update Nepal CSVs
+        run: |
+          python scripts/fetch_nepal.py ${FY:+--fy "$FY"} ${BACKFILL:+--backfill}
+        env:
+          FY: ${{ inputs.fy }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Nepal.csv
+            data/Nepal_3-Wheelers.csv
+          message: 'chore: update Nepal data from customs.gov.np (FTS)'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  # Serial render chain (fetch-acea pattern): both variants write
+  # params.csv/weights.csv, so parallel dispatches race each other's
+  # commits — max-parallel: 1 keeps them strictly sequential.
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        variant: [Whole, 3-Wheelers]
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: Nepal
+      variant: ${{ matrix.variant }}
+    secrets: inherit

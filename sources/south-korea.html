@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>South Korea — data source · BEV Trajectories</title>
+<meta name="description" content="New-vehicle registration data for South Korea from the transport ministry.">
+<style>
+:root{
+  --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
+  --muted:#9fb3d1; --accent:#7cc4ff; --accent2:#00e5ff;
+  --ok-bg:rgba(60,180,120,.18); --ok-tx:#bff5d8;
+  --warn-bg:rgba(220,80,80,.18); --warn-tx:#ffb4b4;
+  --chip-bg:#101a33;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f5f7fb; --panel:#ffffff; --border:#d8e0ee; --text:#111827;
+    --muted:#51607a; --accent:#1763b8; --accent2:#0a7ea4;
+    --ok-bg:rgba(30,140,90,.14); --ok-tx:#0d5a38;
+    --warn-bg:rgba(200,60,60,.12); --warn-tx:#8a1f1f;
+    --chip-bg:#eef2fb;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+  line-height:1.55}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+.back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
+h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 22px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.source-btn{display:inline-block;margin:6px 0 4px;padding:10px 16px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);font-weight:600}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:8px 0}
+.flow-node{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px}
+.flow-title{font-weight:700;font-size:13px;color:var(--accent)}
+.flow-sub{font-size:14px;color:var(--text)}
+.flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
+table.defs{width:100%;border-collapse:collapse}
+table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
+  border-bottom:1px solid var(--border);font-size:15px}
+table.defs th{width:190px;color:var(--muted);font-weight:600}
+.map{display:flex;flex-direction:column;gap:4px}
+.map-pair{display:flex;align-items:center;gap:8px}
+.map-arrow{color:var(--muted)}
+.caveats{margin:0;padding-left:20px}
+.caveats li{margin:6px 0}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:14px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dir-card{display:block;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.dir-card:hover{border-color:var(--accent)}
+.dir-top{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
+.dir-sub{color:var(--muted);font-size:14px;min-height:40px}
+.dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">← All sources</a>
+  <h1>South Korea <span class="chip chip--manual" title="entered by hand from the published source">Manual</span></h1>
+  
+  <p class="lead">New-vehicle registration data for South Korea from the transport ministry.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">19.1%</div><div class="l">TTM BEV share (Whole)</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
+  </div>
+
+  <section><h2>How it works</h2><p>South Korea&#x27;s monthly registrations are taken from the transport ministry&#x27;s vehicle-registration statistics and entered by hand. The exact upstream URL for this series still needs to be confirmed and linked.</p></section>
+
+  <h2>Raw source</h2>
+  <p>Verify the numbers at the upstream:</p>
+  <p>South Korea — Ministry of Land, Infrastructure and Transport</p>
+
+  <h2>How the data flows</h2>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">MOLIT — Ministry of Land, Infrastructure and Transport</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub">South Korea — Ministry of Land, Infrastructure and Transport</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/South Korea.csv"><code>data/South Korea.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+
+  <h2>Definitions &amp; scope</h2>
+  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Variants</th><td>Whole</td></tr></table>
+
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>Maintained by hand.</li><li>The exact source URL is still to be confirmed.</li></ul></section>
+
+  <div class="footer">
+    <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
+       Cadence: —.<br>
+       Row source string: <code>motir.go.kr</code></p>
+    
+  </div>
+</div>
+</body>
+</html>

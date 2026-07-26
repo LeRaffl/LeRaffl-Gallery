@@ -20,7 +20,7 @@ jobs:
       group: manifest-${{ github.ref }}
       cancel-in-progress: true      # vermeidet parallele Läufe bei vielen kleinen Pushes
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -47,3 +47,7 @@ jobs:
             schedule-*.html
             schedule.ics
           message: "chore: update manifest + schedule (CI)"
+          # Rebase onto the remote tip before pushing so a concurrent push
+          # (e.g. a data-fetch job committing at the same time) doesn't reject
+          # this one with a non-fast-forward error.
+          pull: '--rebase --autostash'

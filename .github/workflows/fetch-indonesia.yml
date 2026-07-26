@@ -1,0 +1,71 @@
+name: Fetch Indonesia data (GAIKINDO)
+
+# Logs in to GAIKINDO's ProjectSend portal (files.gaikindo.or.id), downloads
+# the newest cumulative "Wholesales Jan-XXX YYYY" PDF and upserts all covered
+# months into data/Indonesia.csv (Whole = GAIKINDO passenger cars) plus the
+# Indonesia_Pickups / Indonesia_HDV / Indonesia_Buses variant CSVs.
+# Runs daily from the 10th of each month onward — GAIKINDO usually publishes
+# around the 10th-15th; the script self-throttles via the newest portal file
+# title, so runs are a cheap no-op until a new month lands.
+# When a CSV changes, render-country.yml is dispatched for Indonesia (Whole).
+
+on:
+  workflow_dispatch:
+    inputs:
+      download_url:
+        description: 'Direct portal download URL (leave empty to auto-discover)'
+        required: false
+        default: ''
+      force:
+        description: 'Re-process even if the newest period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '35 9 10-31 * *'   # 10th through end of month at 09:35 UTC (staggered to avoid 08:00 pile-up)
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 pdfplumber
+
+      - name: Fetch & update Indonesia CSVs
+        run: |
+          python scripts/fetch_indonesia.py \
+            ${DOWNLOAD_URL:+--download-url "$DOWNLOAD_URL"} \
+            ${FORCE:+--force}
+        env:
+          DOWNLOAD_URL: ${{ inputs.download_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+          INDONESIA_GAIKINDO_USER: LeRaffl
+          INDONESIA_GAIKINDO_PW: ${{ secrets.INDONESIA_GAIKINDO_PW }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'data/Indonesia.csv data/Indonesia_Pickups.csv data/Indonesia_HDV.csv data/Indonesia_Buses.csv'
+          message: 'chore: update Indonesia data from GAIKINDO'
+          default_author: github_actions
+
+      - name: Trigger render for Indonesia
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country=Indonesia \
+            -f variant=Whole

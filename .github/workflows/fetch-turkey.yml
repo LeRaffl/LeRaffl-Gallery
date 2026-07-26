@@ -1,18 +1,20 @@
 name: Fetch Türkiye data (TÜİK)
 
-# Scrapes a TÜİK "Motorlu Kara Taşıtları" monthly bulletin from the Veri
-# Portalı and upserts the previous calendar month into data/Türkiye.csv.
-# Runs daily from the 15th onward — the script self-throttles via the latest
-# period already present in the CSV, so most invocations are a no-op until
-# the new bulletin appears (TÜİK typically publishes ~mid-month, the exact
-# date is footnoted in the previous bulletin).
+# Reads a TÜİK "Motorlu Kara Taşıtları" monthly bulletin from the Veri Portalı
+# and upserts the previous calendar month into data/Türkiye.csv. Runs daily
+# from the 15th onward — the script self-throttles on the latest period already
+# in the CSV, so most invocations are a no-op until the new bulletin appears
+# (TÜİK publishes ~mid-month; the exact date is footnoted in the previous one).
 #
-# Auto-discovery of the bulletin ID is NOT implemented: the Veri Portalı is
-# a React SPA whose data API we haven't reverse-engineered. The daily cron
-# only does the self-throttle and exits when no press-id is supplied; the
-# maintainer dispatches the workflow with the press_id input once per month
-# when the new bulletin appears on
-# https://veriportali.tuik.gov.tr/tr/search?q=Motorlu+Kara+Ta%C5%9F%C4%B1tlar%C4%B1
+# The bulletin id is discovered automatically: the Veri Portalı SPA is backed
+# by a JSON API at /api/tr/press/<id> whose records carry `title` and `period`,
+# and scripts/tuik_discover.py walks ids outward from the newest one recorded
+# in the CSV to find the target month. No manual press_id dispatch is needed —
+# the inputs below remain for backfills and for overriding a bad read.
+#
+# Set recon=true to dump a reconnaissance pass (SPA chunk crawl + endpoint
+# probe) into the log; use it when the portal changes shape and discovery
+# starts missing.
 #
 # When the CSV changes, render-country.yml is dispatched for Türkiye.
 
@@ -40,6 +42,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      recon:
+        description: 'Dump the portal reconnaissance pass when discovery finds nothing'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
     - cron: '30 8 15-31 * *'   # daily at 08:30 UTC, from the 15th onward (staggered to avoid 08:00 pile-up)
 
@@ -51,9 +58,9 @@ jobs:
       actions: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -82,6 +89,7 @@ jobs:
           PRESS_ID: ${{ inputs.press_id }}
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          TUIK_RECON: ${{ inputs.recon == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit

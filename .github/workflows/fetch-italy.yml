@@ -74,9 +74,9 @@ jobs:
       actions: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -109,10 +109,11 @@ jobs:
         id: changed
         run: |
           touched=()
+          # Vans is fetched and committed but intentionally NOT rendered:
+          # the variant is excluded from params.csv/weights.csv for now.
           for pair in "Whole:data/Italy.csv" \
                       "Rental:data/Italy_Rental.csv" \
-                      "NonRental:data/Italy_NonRental.csv" \
-                      "Vans:data/Italy_Vans.csv"; do
+                      "NonRental:data/Italy_NonRental.csv"; do
             variant="${pair%%:*}"
             file="${pair##*:}"
             [ -f "$file" ] || continue

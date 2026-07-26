@@ -59,11 +59,14 @@ compute_ttm_long <- function(df) {
   m <- df[df$time_interval == last_ti, ]
   m <- m[order(m$year), ]
   if (nrow(m) < window) return(NULL)
-  # Mirror the historical script: drop the first calendar year before rolling,
-  # so the displayed TTM series doesn't include partial-window noise at the
-  # left edge (monthly: 12 months; quarterly: 4 quarters).
-  m <- m[m$year >= min(m$year) + 1, ]
-  if (nrow(m) < window) return(NULL)
+  # Hide the first calendar year of the series so the displayed TTM doesn't open
+  # with partial-window noise at the left edge (monthly: 12 months; quarterly:
+  # 4 quarters). This is a DISPLAY cut only: those periods must stay in `m` so
+  # the rolling window can still see them (a Jan point needs the prior 11
+  # months; a Q1 point needs the prior 3 quarters). Dropping them from `m` here
+  # instead would starve the next year's early windows, shifting the whole
+  # series one window to the right and mis-placing every year-start tick.
+  display_from <- min(m$year) + 1
 
   fuel_cols <- c("BEV","PHEV","EREV","HEV","MHEV","PETROL","DIESEL","GAS","CNG","LPG","FLEXFUEL","ETHANOL","OTHERS","ICE")
   present <- fuel_cols[fuel_cols %in% names(m)]
@@ -129,8 +132,9 @@ compute_ttm_long <- function(df) {
     ttm[["OTHERS"]] <- pmax(0, total_ttm - excl_sum) / total_ttm
   }
 
-  # Keep only rows where every present column has a complete 12-month window.
-  keep <- which(any_present)
+  # Keep only rows where every present column has a complete 12-month window,
+  # and drop the hidden first display year (see `display_from` above).
+  keep <- which(any_present & m$year >= display_from)
   if (length(keep) == 0) return(NULL)
   months <- substr(m$period[keep], 1, 7)
   out <- data.frame(month = months, stringsAsFactors = FALSE)

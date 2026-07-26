@@ -36,3 +36,4 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2025-08,quarterly,Whole,National Statistics Office of Georgia,2150.0,10829.0,28334.0,5049.0,180.0,46542.0,
 2025-11,quarterly,Whole,National Statistics Office of Georgia,1805.0,10088.0,24822.0,4847.0,157.0,41719.0,
 2026-02,quarterly,Whole,National Statistics Office of Georgia,2109.0,8191.0,20612.0,4265.0,123.0,35300.0,
+2026-05,quarterly,Whole,https://automobile.geostat.ge/en/automobiles/rating,3724,11092,23383,5093,157,43449,PETROL = Gasoline+Gasoline-gas

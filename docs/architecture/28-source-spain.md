@@ -1,3 +1,30 @@
+---
+country: Spain
+slug: spain
+status: live
+method: file
+summary: >-
+  New-registration data for Spain from DGT's raw matriculaciones microdata —
+  the canonical registry source (ACEA no longer covers Spain).
+source_name: "DGT — matriculaciones microdata"
+source_url: "https://www.dgt.es/"
+underlying: "DGT — Dirección General de Tráfico"
+auth: none
+cadence: "daily in the first half of the month (publishes weeks before ACEA)"
+variants: [Whole, Rental, NonRental, Used, Vans, HDV, Buses, 2-Wheelers]
+hev_split: true
+backfill: "pre-Oct-2015 curated history credited to Asier Lizarraga Oroquieta"
+scope_note: "Whole = turismos + todoterrenos (registry-side); one microdata download yields all variants."
+caveats:
+  - "Raw DGT registry microdata (fixed-width, no header row); ACEA no longer writes Spain."
+  - "EREV has its own column and folds into PHEV in the three-curve view."
+  - "Whole is ~2% above ACEA's market definition (registry vs association scope)."
+fetcher: "scripts/fetch_spain.py"
+workflow: ".github/workflows/fetch-spain.yml"
+fragility_doc: "docs/architecture/28-source-spain.md"
+data_file: "data/Spain.csv"
+---
+
 # 28 · Source: Spain (DGT matriculaciones microdata)
 
 **Status: LIVE.** DGT is the canonical source. The series is rebuilt from the

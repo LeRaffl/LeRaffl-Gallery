@@ -1,0 +1,10 @@
+🌐 Nepal - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
+−8.5pp  BEV     (74.2% → 65.7%)
+−0.2pp  Hybrid  (0.4% → 0.3%)
++8.7pp  ICE     (25.4% → 34.1%)
+
+Hybrid peaked at 0.5% in 2025-07 (declining for 11 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

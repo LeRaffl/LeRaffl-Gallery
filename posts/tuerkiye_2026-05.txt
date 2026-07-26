@@ -1,0 +1,11 @@
+🇹🇷 Türkiye - May 26 - BEV Trajectory
+17.5% BEV
+31.1% Hybrid
+51.3% ICE
+
+Trailing 12 months are:
+18.4% BEV
+28.8% Hybrid
+52.9% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

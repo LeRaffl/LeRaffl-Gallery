@@ -52,6 +52,7 @@ The five trust boundaries to reason about:
 | `AUSTRIA_RELAY_TOKEN` (GH Actions) | Shared secret | GitHub Actions repo secret | Sent as `X-Relay-Token` by `fetch-austria.yml`; must equal the Worker's value | Same as above |
 | `AUSTRIA_FETCH_RELAY` (GH Actions) | URL (not sensitive) | GitHub Actions repo secret | Relay base URL `https://<worker-host>/fetch?url=`. Stored as a secret only to keep the worker host out of the public repo | Update if the Worker host changes |
 | `AUSTRIA_PROXY` (GH Actions, optional) | Proxy URL w/ creds | GitHub Actions repo secret | Fallback `http(s)://`/`socks5://` proxy if the relay egress is also blocked; may embed credentials | Rotate at the proxy provider |
+| `INDONESIA_GAIKINDO_PW` (GH Actions) | Password | GitHub Actions repo secret | Client login on GAIKINDO's ProjectSend portal (`files.gaikindo.or.id`) used by `fetch-indonesia.yml`; the username is non-sensitive plain env (`INDONESIA_GAIKINDO_USER`, default `LeRaffl`). Read-only file-download account | Change the password on the portal, then update the secret |
 
 **Tokens and IDs are never committed to the repo.** The `GITHUB_TOKEN` value lives only in Cloudflare's secret store; even the maintainer's local machine doesn't keep a long-lived copy after `wrangler secret put`. The Cloudflare account ID and KV namespace ID are in `wrangler.toml` but those are not secrets — they're public-bound identifiers, useless without the API token.
 

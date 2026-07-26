@@ -1,0 +1,8 @@
+🌐 Nepal (3-Wheelers) - TTM Market Split
+
+Aug24–Jul25  vs  Aug25–Jul26
++0.8pp  BEV     (79.7% → 80.5%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.8pp  ICE     (20.3% → 19.5%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

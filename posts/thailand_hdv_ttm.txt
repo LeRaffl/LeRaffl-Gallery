@@ -1,0 +1,8 @@
+🇹🇭 Thailand (HDV) - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++0.5pp  BEV     (1.2% → 1.7%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.5pp  ICE     (98.8% → 98.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

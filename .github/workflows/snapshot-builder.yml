@@ -23,6 +23,11 @@ on:
 jobs:
   snapshot:
     runs-on: ubuntu-latest
+    # The snapshot script is CPU-bound over local CSVs and finishes in
+    # seconds; anything longer means a stuck runner or a hung step. Cap it so
+    # a hang fails fast and visibly instead of burning ~40 min then being
+    # cancelled (as happened on the 2026-07-25 scheduled run).
+    timeout-minutes: 10
     permissions:
       contents: write
     concurrency:
@@ -30,9 +35,9 @@ jobs:
       cancel-in-progress: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -48,3 +53,6 @@ jobs:
           add: builder_history
           message: 'chore: snapshot Builder curves (CI)'
           default_author: github_actions
+          # Rebase onto the remote tip before pushing so a concurrent push
+          # doesn't reject this one with a non-fast-forward error.
+          pull: '--rebase --autostash'
