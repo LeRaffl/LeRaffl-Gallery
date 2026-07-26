@@ -25,6 +25,7 @@ from __future__ import annotations
 import csv
 import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -107,6 +108,175 @@ def latest_csv_row(data_file: str) -> dict | None:
 
 
 # --------------------------------------------------------------------------
+# Reading the per-variant CSVs
+#
+# Everything below is derived from the committed CSVs at build time, never
+# hand-maintained: coverage spans, cadence, and which fuel columns a source
+# actually populates. That way the page cannot drift from the data it
+# describes — if the pipeline changes what it writes, the page changes with it.
+# --------------------------------------------------------------------------
+
+# Canonical fuel columns in display order. Not every country writes all of
+# them; the matrix below reports exactly which ones carry values.
+FUEL_COLUMNS = [
+    "BEV", "PHEV", "EREV", "HEV",
+    "PETROL", "DIESEL", "FLEXFUEL", "ICE", "OTHERS",
+]
+
+CADENCE_ORDER = {"monthly": 0, "quarterly": 1, "annual": 2, "yearly": 2}
+
+
+def variant_file(fm: dict, variant: str) -> str | None:
+    """Repo-relative CSV path for a variant, by the repo-wide naming rule.
+
+    `Whole` lives in the country's base file; every other variant is the same
+    path with `_<Variant>` before the extension (data/Canada_Pickups.csv,
+    data/Thailand_3-Wheelers.csv, …). Explicit `variant_files` entries in the
+    front-matter win, for anything that ever breaks the convention.
+    """
+    explicit = (fm.get("variant_files") or {}).get(variant)
+    if explicit:
+        return explicit
+    base = fm.get("data_file")
+    if not base or not base.endswith(".csv"):
+        return None
+    if variant == "Whole":
+        return base
+    return f"{base[:-4]}_{variant}.csv"
+
+
+def read_variant_facts(path: str | None) -> dict | None:
+    """Coverage, cadence and populated-column facts for one variant CSV."""
+    if not path:
+        return None
+    fp = REPO / path
+    if not fp.is_file():
+        return None
+
+    periods: list[str] = []
+    cadences: set[str] = set()
+    filled: dict[str, int] = {c: 0 for c in FUEL_COLUMNS}
+    nonzero: dict[str, int] = {c: 0 for c in FUEL_COLUMNS}
+    present: set[str] = set()
+
+    with fp.open(encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        present = {c for c in (reader.fieldnames or []) if c in FUEL_COLUMNS}
+        for row in reader:
+            period = (row.get("period") or "").strip()
+            if not period:
+                continue
+            periods.append(period)
+            cadences.add((row.get("time_interval") or "").strip().lower())
+            for col in present:
+                raw = (row.get(col) or "").strip()
+                if raw == "":
+                    continue
+                filled[col] += 1
+                try:
+                    if float(raw) != 0:
+                        nonzero[col] += 1
+                except ValueError:
+                    pass
+
+    if not periods:
+        return None
+
+    periods.sort()
+    labelled = sorted((c for c in cadences if c),
+                      key=lambda c: CADENCE_ORDER.get(c, 9))
+    observed, uniform = observed_cadence(periods)
+    return {
+        "path": path,
+        "periods": periods,
+        "first": periods[0],
+        "last": periods[-1],
+        "rows": len(periods),
+        # What the periods actually do, and what the rows claim. These
+        # disagree in a few CSVs (blocks of consecutive months carrying
+        # time_interval=quarterly), so the page reports the observed spacing
+        # and says when the label contradicts it, rather than repeating a
+        # label the data does not support.
+        "cadence": [observed] if observed else labelled,
+        "labelled": labelled,
+        # True when the rows claim a cadence the spacing does not support.
+        "cadence_mismatch": bool(
+            observed and uniform and set(labelled) - {observed}),
+        "present": present,
+        "filled": filled,
+        "nonzero": nonzero,
+    }
+
+
+def observed_cadence(periods: list[str]) -> tuple[str | None, bool]:
+    """(cadence, uniform) inferred from how the period labels are spaced.
+
+    `uniform` is True when nearly every step matches the dominant one — i.e.
+    the series really is one cadence throughout, so any *other* time_interval
+    label on its rows is a mislabel rather than a genuine cadence change.
+    """
+    xs = sorted({year_of(p) for p in periods})
+    if len(xs) < 2:
+        return None, False
+    gaps = [round((b - a) * 12) for a, b in zip(xs, xs[1:])]
+    dominant = max(set(gaps), key=gaps.count)
+    uniform = gaps.count(dominant) / len(gaps) >= 0.9
+    return {1: "monthly", 3: "quarterly", 12: "yearly"}.get(dominant), uniform
+
+
+def collect_variant_facts(fm: dict) -> list[tuple[str, dict | None]]:
+    """(variant, facts) in declared order; facts is None when there is no CSV.
+
+    A declared variant with no file under `data/` is not an error — a few
+    series (Latvia Used, Switzerland HDV, all of India) are still rendered
+    from the maintainer's local pipeline and were never committed. Carrying
+    the `None` through means the page can say that out loud instead of
+    quietly showing one fewer row than the variant count promises.
+    """
+    return [(v, read_variant_facts(variant_file(fm, v)))
+            for v in (fm.get("variants") or [])]
+
+
+def year_of(period: str) -> float:
+    """Fractional year for a period label (YYYY, YYYY-MM), for the timeline."""
+    try:
+        year = int(period[:4])
+    except (ValueError, TypeError):
+        return 0.0
+    if len(period) >= 7 and period[4] == "-":
+        try:
+            return year + (int(period[5:7]) - 1) / 12.0
+        except ValueError:
+            return float(year)
+    return float(year)
+
+
+def contiguous_runs(periods: list[str], cadence: list[str]) -> list[tuple[float, float]]:
+    """Group sorted periods into runs, splitting where the series has a gap.
+
+    A "gap" is a jump larger than ~2 expected steps, so a normal monthly or
+    quarterly rhythm stays one run while a real hole in the history (or a
+    cadence seam like Canada's yearly→quarterly switch) shows as a break.
+    """
+    if not periods:
+        return []
+    step = 1.0 if (cadence and cadence[0] in ("annual", "yearly")) else (
+        0.25 if (cadence and cadence[0] == "quarterly") else 1 / 12.0)
+    tol = step * 2.5
+
+    xs = [year_of(p) for p in periods]
+    runs: list[tuple[float, float]] = []
+    start = prev = xs[0]
+    for x in xs[1:]:
+        if x - prev > tol:
+            runs.append((start, prev + step))
+            start = x
+        prev = x
+    runs.append((start, prev + step))
+    return runs
+
+
+# --------------------------------------------------------------------------
 # Small rendering helpers
 # --------------------------------------------------------------------------
 
@@ -115,10 +285,20 @@ def esc(value) -> str:
 
 
 def pct(value) -> str:
+    """Format a 0..1 share as a percentage, or "—" if it isn't one.
+
+    A share outside [0, 1] cannot be real, so it is suppressed rather than
+    published. This is not hypothetical: `params.csv` currently carries
+    `ttm_bev_share = 2019` for both Nepal variants — a stray year in the
+    share column — which would otherwise render as "201900.0%".
+    """
     try:
-        return f"{float(value) * 100:.1f}%"
+        share = float(value)
     except (TypeError, ValueError):
         return "—"
+    if not 0.0 <= share <= 1.0:
+        return "—"
+    return f"{share * 100:.1f}%"
 
 
 def method_chip(method: str) -> str:
@@ -172,6 +352,190 @@ def build_flow(fm: dict) -> str:
     return '<div class="flow">' + "".join(nodes) + "</div>"
 
 
+def build_coverage(variant_facts: list[tuple[str, dict | None]]) -> str:
+    """Timeline of what history we actually hold, one row per variant.
+
+    Single-hue segmented bars on a shared year axis: the segments are the
+    contiguous runs, so a gap in the history reads as a gap in the bar. This
+    is the one thing about a source that prose consistently fails to convey —
+    "2014-01 onward" hides a hole, a bar does not.
+    """
+    variant_facts = [(v, f) for v, f in variant_facts if f]
+    if not variant_facts:
+        return ""
+
+    lo = min(year_of(f["first"]) for _, f in variant_facts)
+    hi = max(year_of(f["last"]) for _, f in variant_facts) + 1
+    if hi - lo < 1:
+        hi = lo + 1
+
+    label_w, right_pad, row_h, bar_h = 118, 58, 26, 12
+    plot_w = 470
+    height = len(variant_facts) * row_h + 30
+    width = label_w + plot_w + right_pad
+
+    def x_of(year: float) -> float:
+        return label_w + (year - lo) / (hi - lo) * plot_w
+
+    # Year gridlines at a readable density (never more than ~10 labels).
+    span = hi - lo
+    step = 1
+    for candidate in (1, 2, 5, 10, 20):
+        if span / candidate <= 10:
+            step = candidate
+            break
+    first_tick = int(lo) + ((-int(lo)) % step)
+
+    parts = [
+        f'<svg class="cov" viewBox="0 0 {width} {height}" width="100%" '
+        f'height="{height}" role="img" '
+        f'aria-label="History held per variant, by year">']
+
+    for tick in range(first_tick, int(hi) + 1, step):
+        x = x_of(tick)
+        parts.append(
+            f'<line class="cov-grid" x1="{x:.1f}" y1="6" x2="{x:.1f}" '
+            f'y2="{len(variant_facts) * row_h + 8}"/>')
+        parts.append(
+            f'<text class="cov-tick" x="{x:.1f}" '
+            f'y="{len(variant_facts) * row_h + 24}" '
+            f'text-anchor="middle">{tick}</text>')
+
+    for i, (variant, facts) in enumerate(variant_facts):
+        y = 10 + i * row_h
+        parts.append(
+            f'<text class="cov-label" x="0" y="{y + bar_h - 2}">{esc(variant)}</text>')
+        for a, b in contiguous_runs(facts["periods"], facts["cadence"]):
+            xa, xb = x_of(a), x_of(min(b, hi))
+            parts.append(
+                f'<rect class="cov-bar" x="{xa:.1f}" y="{y}" '
+                f'width="{max(xb - xa, 1.5):.1f}" height="{bar_h}" rx="3">'
+                f'<title>{esc(variant)}: {esc(facts["first"])} → '
+                f'{esc(facts["last"])}</title></rect>')
+        cadence = "/".join(facts["cadence"]) or "—"
+        parts.append(
+            f'<text class="cov-meta" x="{label_w + plot_w + 6}" '
+            f'y="{y + bar_h - 2}">{esc(cadence)}</text>')
+
+    parts.append("</svg>")
+
+    notes = ", ".join(
+        f"{esc(v)} {esc(f['first'])}–{esc(f['last'])} ({f['rows']} rows)"
+        for v, f in variant_facts)
+
+    # Where a CSV also carries other time_interval labels, say so in the
+    # caption rather than beside the bar, where it would overflow.
+    mixed = {c for _, f in variant_facts
+             for c in f["labelled"] if c not in f["cadence"]}
+    if mixed:
+        notes += (". Some rows additionally carry a <code>time_interval</code> of "
+                  + "/".join(f"<code>{esc(c)}</code>" for c in sorted(mixed))
+                  + "; the cadence shown is the spacing the periods actually have")
+
+    return (
+        '<section><h2>History we hold</h2>'
+        '<p class="fig-lead">Every bar is the span actually present in our '
+        'stored CSV — breaks in a bar are real gaps in the series, not '
+        'rendering. Cadence is shown on the right.</p>'
+        f'{"".join(parts)}'
+        f'<p class="fig-note">{notes}.</p></section>')
+
+
+# Glyphs for the fuel-column matrix. Labelled, never colour-alone.
+_CELL_FULL = ('<span class="cell cell--yes" title="{t}">'
+              '<span aria-hidden="true">●</span><span class="sr">reported</span></span>')
+_CELL_ZERO = ('<span class="cell cell--zero" title="{t}">'
+              '<span aria-hidden="true">◐</span><span class="sr">always zero</span></span>')
+_CELL_NONE = ('<span class="cell cell--no" title="{t}">'
+              '<span aria-hidden="true">·</span><span class="sr">not reported</span></span>')
+
+
+def build_column_matrix(variant_facts: list[tuple[str, dict | None]]) -> str:
+    """Which fuel columns each variant actually carries values for.
+
+    The single most misread thing about this dataset: a blank column does not
+    mean "no such cars", it means "this source does not split them out"
+    (Finland's full hybrids sit inside Petrol; Thailand reports one aggregate
+    ICE). Showing filled / always-zero / absent per column makes that legible
+    without reading the caveats.
+    """
+    variant_facts = [(v, f) for v, f in variant_facts if f]
+    if not variant_facts:
+        return ""
+
+    # Columns the CSV schema *offers*, not just the ones with values — a
+    # column that exists and stays empty (Finland's HEV) is precisely what a
+    # reader needs to see, so it must not be optimised away.
+    cols = [c for c in FUEL_COLUMNS
+            if any(c in f["present"] for _, f in variant_facts)]
+    if not cols:
+        return ""
+
+    head = "".join(f"<th>{esc(c)}</th>" for c in cols)
+    body = []
+    for variant, facts in variant_facts:
+        cells = []
+        for col in cols:
+            if col not in facts["present"] or not facts["filled"][col]:
+                cells.append(_CELL_NONE.format(
+                    t=f"{col}: no values in {facts['path']}"))
+            elif not facts["nonzero"][col]:
+                cells.append(_CELL_ZERO.format(
+                    t=f"{col}: present but zero in every row"))
+            else:
+                share = facts["filled"][col] / facts["rows"] * 100
+                cells.append(_CELL_FULL.format(
+                    t=f"{col}: values in {facts['filled'][col]} of "
+                      f"{facts['rows']} rows ({share:.0f}%)"))
+        body.append(f"<tr><th>{esc(variant)}</th>"
+                    + "".join(f"<td>{c}</td>" for c in cells) + "</tr>")
+
+    return (
+        '<section><h2>Which fuel columns this source fills</h2>'
+        '<p class="fig-lead">A blank column almost never means "no such cars" — '
+        'it means this source does not split them out, and those vehicles are '
+        'counted inside another column. Check the caveats for where they land.</p>'
+        f'<div class="scroll"><table class="matrix"><tr><th></th>{head}</tr>'
+        f'{"".join(body)}</table></div>'
+        '<p class="fig-note">'
+        '<span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; '
+        '<span class="cell cell--zero" aria-hidden="true">◐</span> column exists '
+        'but is zero in every row &nbsp; '
+        '<span class="cell cell--no" aria-hidden="true">·</span> not reported by '
+        'this source. Hover a cell for the row count.</p></section>')
+
+
+def build_variants_table(fm: dict, variant_facts: list[tuple[str, dict | None]]) -> str:
+    """One row per variant: what it counts, what we hold, and the raw CSV."""
+    if not variant_facts:
+        return ""
+    notes = fm.get("variant_notes") or {}
+    rows = []
+    for variant, facts in variant_facts:
+        if facts is None:
+            held = ('<span class="dim">not in this repo</span>')
+            raw = ('<span class="dim">rendered from the maintainer\'s local '
+                   'pipeline; the series was never committed here</span>')
+        else:
+            held = (f'{esc(facts["first"])} – {esc(facts["last"])}<br>'
+                    f'<span class="dim">{facts["rows"]} rows</span>')
+            raw = gh_link(facts["path"])
+        rows.append(
+            f'<tr><th>{esc(variant)}</th>'
+            f'<td>{esc(notes.get(variant, "—"))}</td>'
+            f'<td class="nowrap">{held}</td>'
+            f'<td>{raw}</td></tr>')
+    return (
+        '<section><h2>Variants</h2>'
+        '<p class="fig-lead">Each variant is its own series with its own CSV. '
+        'Not every variant is charted in the gallery — the CSV is the '
+        'authoritative record either way.</p>'
+        '<div class="scroll"><table class="vars">'
+        '<tr><th>Variant</th><th>What it counts</th><th>Held</th>'
+        '<th>Raw data</th></tr>'
+        f'{"".join(rows)}</table></div></section>')
+
+
 def build_definitions(fm: dict) -> str:
     rows = []
 
@@ -182,9 +546,6 @@ def build_definitions(fm: dict) -> str:
     if method:
         row("Acquisition",
             f'{esc(METHOD_LABELS.get(method, method))} — {esc(METHOD_DESC.get(method, ""))}')
-
-    variants = fm.get("variants") or []
-    row("Variants", ", ".join(esc(v) for v in variants) or "—")
 
     col_map = fm.get("column_map") or {}
     if col_map:
@@ -256,7 +617,110 @@ def build_group_note(fm: dict) -> str:
     return ACEA_GROUP_NOTE if fm.get("source_group") == "acea" else ""
 
 
+# Facts that are true of every ACEA-fed country because they are properties of
+# the press release itself, not of the country. Defaulted here rather than
+# copy-pasted into 18 registry entries — an entry can still override any of
+# them, and country-specific caveats are appended to (not replaced by) these.
+ACEA_GROUP_DEFAULTS = {
+    "scope_note": ("New passenger cars only. ACEA publishes a single figure per "
+                   "country per month — there is no van, truck or bus variant, "
+                   "and no private/company split."),
+    "hev_split": True,
+    "fcev": "not broken out — folded into ACEA's OTHERS column.",
+}
+
+ACEA_GROUP_CAVEATS = [
+    "An industry-association aggregate, not a national-registry feed — see the "
+    "note above for what that means for completeness and timing.",
+    "The six fuel columns are the ones ACEA itself prints (battery electric, "
+    "plug-in hybrid, hybrid electric, others, petrol, diesel). OTHERS is a "
+    "reported column, not a residual we compute, and it is where LPG, CNG and "
+    "hydrogen end up.",
+    "Each release also restates the same month a year earlier, so a prior-year "
+    "figure can be corrected retroactively.",
+]
+
+
+def apply_group_defaults(fm: dict) -> dict:
+    """Fill in the facts that follow from the source group, not the country."""
+    if fm.get("source_group") != "acea":
+        return fm
+    fm = dict(fm)
+    for key, value in ACEA_GROUP_DEFAULTS.items():
+        fm.setdefault(key, value)
+    fm["caveats"] = ACEA_GROUP_CAVEATS + list(fm.get("caveats") or [])
+    return fm
+
+
+URL_RE = re.compile(r"https?://[^\s|,]+")
+
+
+def build_sources_section(fm: dict, last_row: dict | None) -> str:
+    """Everything a reader needs to go and check the numbers themselves.
+
+    Three tiers, in decreasing directness:
+      1. the exact document the newest stored row came from, lifted straight
+         out of that row's `notes` (so it is never stale),
+      2. curated deep links from `source_links` — the publication page, the
+         dataset, the PDF, whatever a human can actually open,
+      3. the headline `source_url`.
+
+    Machine-only endpoints (APIs, login-walled portals, relays) deliberately
+    stay out of here — they live in the developer doc linked at the foot of
+    the page, because they are not something a reader can click and verify.
+    """
+    src_url = fm.get("source_url", "")
+    if src_url:
+        lead = "<p>Go and check the numbers yourself:</p>"
+        primary = (f'<a class="source-btn" href="{esc(src_url)}">'
+                   f'{esc(fm.get("source_name", "source"))} ↗</a>')
+    else:
+        # No link means no independent check is possible. That is worth
+        # saying out loud rather than rendering a button that does nothing.
+        lead = ('<p><strong>We cannot point you at a document for this '
+                'country.</strong> The figures are attributed to the source '
+                'below, but the exact published page has not been confirmed, '
+                'so this is the one country whose numbers you cannot verify '
+                'from here.</p>')
+        primary = (f'<span class="source-btn source-btn--dead">'
+                   f'{esc(fm.get("source_name", "—"))}</span>')
+
+    extra = []
+    for link in (fm.get("source_links") or []):
+        if not isinstance(link, dict) or not link.get("url"):
+            continue
+        note = f' <span class="dim">— {esc(link["note"])}</span>' if link.get("note") else ""
+        extra.append(
+            f'<li><a href="{esc(link["url"])}">{esc(link.get("label", link["url"]))}</a>'
+            f'{note}</li>')
+
+    # The per-row `notes` column carries the exact upstream document for many
+    # countries (the ACEA press release, the DGT zip, the CPCA article …).
+    # Surfacing it makes "where did June's number come from" a one-click answer.
+    live = ""
+    if last_row:
+        found = URL_RE.search(last_row.get("notes") or "")
+        if found:
+            url = found.group(0)
+            live = (
+                f'<p class="live-src">Newest stored month '
+                f'(<code>{esc(last_row.get("period", ""))}</code>) was read from '
+                f'<a href="{esc(url)}">this exact document ↗</a>.</p>')
+
+    extra_html = f'<ul class="srclist">{"".join(extra)}</ul>' if extra else ""
+    unauth = ('<p class="dim">Access to the machine endpoint behind this page '
+              'needs credentials — the developer doc at the foot of the page '
+              'has the details.</p>' if fm.get("auth") and fm["auth"] != "none"
+             else "")
+
+    return (
+        '<h2>Raw source</h2>'
+        f'{lead}'
+        f'<p>{primary}</p>{extra_html}{live}{unauth}')
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
+    fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
     whole = params.get((country, "Whole")) or {}
     latest_period = whole.get("data_per", "—")
@@ -267,11 +731,18 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     csv_period = last_row.get("period") if last_row else latest_period
     csv_source = last_row.get("source") if last_row else fm.get("source_name", "")
 
-    src_url = fm.get("source_url", "")
-    source_link = (
-        f'<a class="source-btn" href="{esc(src_url)}">'
-        f'{esc(fm.get("source_name", "source"))} ↗</a>' if src_url
-        else esc(fm.get("source_name", "—")))
+    variant_facts = collect_variant_facts(fm)
+
+    # With no CSV in the repo there is nothing "held" — the only period we
+    # know is the one the fitted model carries. Label it as such instead of
+    # claiming a store that doesn't exist (see India).
+    has_store = last_row is not None
+    period_label = "Latest period held" if has_store else "Latest period modelled"
+    freshness = (f'Latest period in our store: <code>{esc(csv_period)}</code>.'
+                 if has_store else
+                 'No data file for this country in the repository — the period '
+                 f'below is the one the fitted model carries: '
+                 f'<code>{esc(csv_period)}</code>.')
 
     # A brief-entry banner only where the page really is thin — i.e. a stub
     # with no expanded prose. Once a stub gets `notes`, it reads as a full
@@ -286,6 +757,14 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
                 f'{gh_link(fm["fragility_doc"])}</p>'
                 if fm.get("fragility_doc") else "")
 
+    # The stored data and the fitted model can be a step apart (a month
+    # arrives before the next render). Say so rather than showing one number
+    # and letting the reader assume it covers both.
+    model_note = ""
+    if has_store and latest_period and latest_period != "—" and latest_period != csv_period:
+        model_note = (f'Curves in the gallery are fitted through '
+                      f'<code>{esc(latest_period)}</code>.<br>')
+
     return TEMPLATE.format(
         css=BASE_CSS,
         country=esc(country),
@@ -295,15 +774,21 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         latest_period=esc(latest_period),
         ttm=esc(ttm),
         n_variants=len(variants),
-        source_link=source_link,
+        sources=build_sources_section(fm, last_row),
         notes=build_notes(fm),
         flow=build_flow(fm),
         definitions=build_definitions(fm),
+        variants_table=build_variants_table(fm, variant_facts),
+        coverage=build_coverage(variant_facts),
+        matrix=build_column_matrix(variant_facts),
         group_note=build_group_note(fm),
         caveats=build_caveats(fm),
         csv_period=esc(csv_period),
         csv_source=esc(csv_source) or "—",
         cadence=esc(fm.get("cadence") or "—"),
+        period_label=period_label,
+        freshness=freshness,
+        model_note=model_note,
         dev_note=dev_note,
     )
 
@@ -400,6 +885,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 """
 
 TEMPLATE = """<!doctype html>
@@ -419,16 +941,14 @@ TEMPLATE = """<!doctype html>
   <p class="lead">{summary}</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">{latest_period}</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">{csv_period}</div><div class="l">{period_label}</div></div>
     <div class="stat"><div class="n">{ttm}</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">{n_variants}</div><div class="l">Variants</div></div>
   </div>
 
   {notes}
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p>{source_link}</p>
+  {sources}
 
   <h2>How the data flows</h2>
   {flow}
@@ -436,13 +956,20 @@ TEMPLATE = """<!doctype html>
   <h2>Definitions &amp; scope</h2>
   {definitions}
 
+  {variants_table}
+
+  {coverage}
+
+  {matrix}
+
   {group_note}
 
   {caveats}
 
   <div class="footer">
-    <p><strong>Freshness.</strong> Latest period in our store: <code>{csv_period}</code>.
-       Cadence: {cadence}.<br>
+    <p><strong>Freshness.</strong> {freshness}
+       Update cadence: {cadence}.<br>
+       {model_note}
        Row source string: <code>{csv_source}</code></p>
     {dev_note}
   </div>
@@ -549,12 +1076,17 @@ def main() -> int:
         page = build_page(fm, params, is_stub=is_stub)
         (OUT_DIR / f"{fm['slug']}.html").write_text(page, encoding="utf-8")
         whole = params.get((fm.get("country"), "Whole")) or {}
+        # Same rule as the page itself: the directory card shows what we
+        # actually hold, falling back to the model's period only if the CSV
+        # is missing.
+        last_row = latest_csv_row(fm.get("data_file", ""))
         built.append({
             "country": fm.get("country", "Unknown"),
             "slug": fm["slug"],
             "method": fm.get("method", ""),
             "summary": fm.get("summary", ""),
-            "latest_period": whole.get("data_per", "—"),
+            "latest_period": (last_row or {}).get("period")
+                             or whole.get("data_per", "—"),
             "ttm": pct(whole.get("ttm_bev_share")),
             "is_stub": is_stub,
         })

@@ -78,9 +78,12 @@ An unmapped leaf raises (mirrors fetch_sweden.py's DRIV_TO_COL guard) so a new
 StatCan fuel category can't silently vanish — the error prints the exact
 member name to add to FUEL_RULES.
 
-Invoked by ``.github/workflows/fetch-canada.yml`` (daily 1st-15th). The commit
-step is change-gated, so steady-state runs are a no-op even though the script
-always re-fetches the latest N quarters (StatCan revises recent quarters).
+Invoked by ``.github/workflows/fetch-canada.yml``, which runs daily on days
+8-20 of March/June/September/December (``cron: '40 6 8-20 3,6,9,12 *'``) —
+StatCan releases this quarterly cube roughly 2.5 months after quarter-end, so
+there is nothing to poll for in the other eight months. The commit step is
+change-gated, so steady-state runs are a no-op even though the script always
+re-fetches the latest N quarters (StatCan revises recent quarters).
 """
 import argparse
 import csv

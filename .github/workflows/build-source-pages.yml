@@ -16,15 +16,19 @@ on:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/country_source_stubs.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/build_schedule.py'
       - 'params.csv'
+      - 'manifest.json'
+      - '.github/workflows/fetch-*.yml'
   pull_request:
     paths:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/country_source_stubs.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/build_schedule.py'
   workflow_dispatch: {}
   schedule:
-    - cron: '37 4 * * *'   # daily fallback so freshness tracks params.csv
+    - cron: '37 4 * * *'   # daily fallback so freshness tracks the data
 
 jobs:
   build:
@@ -52,6 +56,12 @@ jobs:
       - name: Build source pages
         if: github.event_name != 'pull_request'
         run: python3 scripts/build_source_pages.py
+
+      # Freshness data for the gallery's "Data freshness" tab. Depends on the
+      # fetch workflows' crons and on manifest.json, hence the extra triggers.
+      - name: Build schedule data
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/build_schedule.py
 
       - name: Commit regenerated pages
         if: github.event_name != 'pull_request'

@@ -43,6 +43,45 @@
   - National stub sources (KBA, SMMT, ANFAVEA, ANAC, JADA, ANL, TÜİK, …) carry
     a `notes` paragraph so they read as full pages, not one-liners.
 
+- **Data-derived sections (2026-07 cleanup).** The pages used to describe their
+  data in prose only, so a page could drift from the CSV it described. Three
+  sections are now computed from the committed CSVs at build time and cannot
+  go stale:
+  - **Variants table** — what each variant counts (`variant_notes`), the span
+    held, the row count, and a link to the raw CSV. Variant CSVs are resolved
+    by the repo-wide naming rule (`data/<Country>_<Variant>.csv`), with an
+    optional `variant_files` override.
+  - **"History we hold"** — a segmented coverage bar per variant on a shared
+    year axis. Gaps in a bar are real gaps in the series, and mixed-cadence
+    seams (Canada's yearly 2011–2016 before the quarterly M1 series) are
+    visible rather than buried in prose. The cadence shown is the **observed**
+    spacing of the periods; any other `time_interval` labels on the rows are
+    listed alongside rather than taken as fact, because 22 CSVs carry
+    quarterly/yearly labels on runs of consecutive months.
+  - **"Which fuel columns this source fills"** — reported / present-but-zero /
+    not-reported per variant, including columns the schema offers but the
+    source never populates. This is what makes Finland's empty HEV column read
+    as "this source does not split full hybrids" instead of "no hybrids here".
+
+- **Link fields (2026-07 cleanup).** `source_url` is the primary
+  human-openable entry point and should be the deepest **stable** page, not a
+  bare homepage; `source_links` carries additional curated links. Machine-only
+  endpoints (APIs, login-walled portals, relays) deliberately stay out of the
+  front-matter and live in the doc body — a reader cannot click them to check
+  anything. The generator additionally surfaces the exact upstream document
+  the newest stored row came from, lifted from that row's `notes` column, so
+  "where did June's number come from" is one click and never hand-maintained.
+
+  Two rules worth keeping: never invent a URL to fill the field (Nepal's
+  fiscal-year category slug changes annually, so the page describes the nav
+  path instead), and where no public document exists at all, say so — South
+  Korea's page states outright that its figures cannot be verified from there.
+
+- **Missing data is stated, not hidden.** A declared variant with no CSV in
+  the repo (Latvia `Used`, Switzerland `HDV`, all four of India) renders as
+  "not in this repo" with an explanation, and a country with no store at all
+  shows "latest period **modelled**" rather than claiming a store it lacks.
+
 Everything in the proposal below is now implemented. What remains is content
 work, not system work: promote high-traffic stubs to full source docs, and add
 front-matter for any new country as it joins the gallery.

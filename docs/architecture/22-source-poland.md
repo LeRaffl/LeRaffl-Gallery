@@ -1,28 +1,35 @@
 ---
 country: Poland
 slug: poland
-status: live
 method: file
-summary: >-
-  New-registration data for Poland from PZPM's monthly eRegistrations
-  workbook, sourced from the CEP central vehicle register.
-source_name: "PZPM eRegistrations workbook (XLSX)"
-source_url: "https://www.pzpm.org.pl/"
-underlying: "PZPM — Polish Automotive Industry Association (CEP register)"
+summary: New-registration data for Poland from PZPM's monthly eRegistrations workbook, sourced from the
+  CEP central vehicle register.
+source_name: PZPM eRegistrations — the monthly workbook
+source_url: https://www.pzpm.org.pl/en/Electromobility/eRegistrations
+underlying: PZPM — Polish Automotive Industry Association (CEP register)
 auth: none
-cadence: "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC"
-variants: [Whole, Vans, HDV, Buses]
+cadence: twice-daily cron, 6th–10th, 09:30 & 13:30 UTC
+variants:
+- Whole
+- Vans
+- HDV
+- Buses
+variant_notes:
+  Whole: New passenger cars (OSOBOWE, M1).
+  Vans: Light commercial vehicles up to 3.5 t (SAMOCHODY DOSTAWCZE, N1).
+  HDV: Trucks over 3.5 t (SAMOCHODY CIEZAROWE POW. 3,5T, N2/N3).
+  Buses: Buses (AUTOBUSY, M2/M3).
 hev_split: true
-backfill: "workbook holds the current month only; Whole history to 2010 retained from the prior ACEA pipeline"
-scope_note: "Whole = passenger (OSOBOWE); Vans, HDV (>3.5t) and Buses are separate variants."
+backfill: workbook holds the current month only; Whole history to 2010 retained from the prior ACEA pipeline
+scope_note: Whole = passenger (OSOBOWE); Vans, HDV (>3.5t) and Buses are separate variants.
 caveats:
-  - "Full hybrids (HEV) are reported natively for Whole and Buses."
-  - "Vans report a single combined hybrid bucket that lands in OTHERS; PHEV/HEV stay empty for Vans/HDV."
-  - "OTHERS is a residual capturing LPG, FCEV and CNG/LNG."
-fetcher: "scripts/fetch_poland.py"
-workflow: ".github/workflows/fetch-poland.yml"
-fragility_doc: "docs/architecture/22-source-poland.md"
-data_file: "data/Poland.csv"
+- Full hybrids (HEV) are reported natively for Whole and Buses.
+- Vans report a single combined hybrid bucket that lands in OTHERS; PHEV/HEV stay empty for Vans/HDV.
+- OTHERS is a residual capturing LPG, FCEV and CNG/LNG.
+fetcher: scripts/fetch_poland.py
+workflow: .github/workflows/fetch-poland.yml
+fragility_doc: docs/architecture/22-source-poland.md
+data_file: data/Poland.csv
 ---
 
 # 22 · Source: Poland (PZPM eRegistrations)

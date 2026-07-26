@@ -1,29 +1,42 @@
 ---
 country: Italy
 slug: italy
-status: live
 method: pdf
-summary: >-
-  Passenger-car registrations for Italy from UNRAE, with rental / non-rental
-  splits and a separate light-commercial variant.
-source_name: "UNRAE — struttura del mercato PDF"
-source_url: "https://unrae.it/dati-statistici"
-underlying: "UNRAE / Ministero delle Infrastrutture e dei Trasporti"
+summary: Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate
+  light-commercial variant.
+source_name: UNRAE — struttura del mercato PDF
+source_url: https://unrae.it/dati-statistici
+source_links:
+- label: UNRAE — immatricolazioni (passenger-car PDFs)
+  url: https://unrae.it/dati-statistici/immatricolazioni
+- label: UNRAE — veicoli commerciali (the LCV press release)
+  url: https://unrae.it/sala-stampa/veicoli-commerciali
+underlying: UNRAE / Ministero delle Infrastrutture e dei Trasporti
 auth: none
-cadence: "passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th"
-variants: [Whole, Rental, NonRental, Vans]
+cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th
+variants:
+- Whole
+- Rental
+- NonRental
+- Vans
+variant_notes:
+  Whole: Passenger cars, whole market including rental.
+  Rental: Rental fleet, derived exactly as Whole minus NonRental.
+  NonRental: Passenger cars al netto del noleggio — private buyers, companies and self-registrations.
+  Vans: Light commercial vehicles, derived from published percentage shares.
 hev_split: true
-fcev: "counted in OTHERS (with LPG and CNG)"
+fcev: counted in OTHERS (with LPG and CNG)
 backfill: none
-scope_note: "Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private persons."
+scope_note: Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private
+  persons.
 caveats:
-  - "OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual."
-  - "NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists."
-  - "Vans are percentage-derived from a separate UNRAE LCV release."
-fetcher: "scripts/fetch_italy.py"
-workflow: ".github/workflows/fetch-italy.yml"
-fragility_doc: "docs/architecture/18-source-italy.md"
-data_file: "data/Italy.csv"
+- OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual.
+- NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists.
+- Vans are percentage-derived from a separate UNRAE LCV release.
+fetcher: scripts/fetch_italy.py
+workflow: .github/workflows/fetch-italy.yml
+fragility_doc: docs/architecture/18-source-italy.md
+data_file: data/Italy.csv
 ---
 
 # 18 · Source: Italy (UNRAE)
@@ -61,8 +74,8 @@ FLEXFUEL:    Not reported by Italy — column absent from all three CSVs
 HEV:         Reported natively as 'Ibride elettriche (HEV)' (full + mild sum)
 OTHERS (PKW): Gpl + Metano + Idrogeno (FCEV) — explicit, not a residual
 OTHERS (Vans): derived GPL count; unlisted fuels not separately extractable
-Schedule:    PKW  4×/day on the 1st–3rd  (06/10/14/18 UTC)
-             Vans 3×/day on the 13th–16th (10/14/18 UTC)
+Schedule:    PKW  4×/day on the 1st–3rd   (06:00/10:00/14:00/18:00 UTC)
+             Vans 3×/day on the 13th–16th (10:00/14:00/18:00 UTC)
 Scripts:     scripts/fetch_italy.py
 Workflow:    .github/workflows/fetch-italy.yml
 ```

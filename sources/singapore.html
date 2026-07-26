@@ -78,6 +78,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 </style>
 </head>
 <body>
@@ -88,22 +125,26 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <p class="lead">New car registrations for Singapore from the LTA&#x27;s monthly vehicle statistics (file M03).</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">2026-06</div><div class="l">Latest period held</div></div>
     <div class="stat"><div class="n">45.0%</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
   
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html">lta.gov.sg — Monthly Vehicle Statistics (M03) ↗</a></p>
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html">lta.gov.sg — Monthly Vehicle Statistics (M03) ↗</a></p><ul class="srclist"><li><a href="https://www.lta.gov.sg/content/dam/ltagov/who_we_are/statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf">LTA M03 — New Registration of Cars by Make (PDF)</a> <span class="dim">— the exact file parsed each month</span></li></ul>
 
   <h2>How the data flows</h2>
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">LTA — Land Transport Authority</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html">lta.gov.sg — Monthly Vehicle Statistics (M03)</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_singapore.py"><code>scripts/fetch_singapore.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-singapore.yml"><code>.github/workflows/fetch-singapore.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Singapore.csv"><code>data/Singapore.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr><tr><th>Variants</th><td>Whole</td></tr><tr><th>Vehicle scope</th><td>All cars — the sum of per-make Totals grouped by fuel type.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr><tr><th>Vehicle scope</th><td>All cars — the sum of per-make Totals grouped by fuel type.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>All new car registrations, summed from the per-make totals by fuel type.</td><td class="nowrap">2016-01 – 2026-06<br><span class="dim">115 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Singapore.csv"><code>data/Singapore.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 56" width="100%" height="56" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="118.0" y1="6" x2="118.0" y2="34"/><text class="cov-tick" x="118.0" y="50" text-anchor="middle">2016</text><line class="cov-grid" x1="200.3" y1="6" x2="200.3" y2="34"/><text class="cov-tick" x="200.3" y="50" text-anchor="middle">2018</text><line class="cov-grid" x1="282.7" y1="6" x2="282.7" y2="34"/><text class="cov-tick" x="282.7" y="50" text-anchor="middle">2020</text><line class="cov-grid" x1="365.0" y1="6" x2="365.0" y2="34"/><text class="cov-tick" x="365.0" y="50" text-anchor="middle">2022</text><line class="cov-grid" x1="447.3" y1="6" x2="447.3" y2="34"/><text class="cov-tick" x="447.3" y="50" text-anchor="middle">2024</text><line class="cov-grid" x1="529.7" y1="6" x2="529.7" y2="34"/><text class="cov-tick" x="529.7" y="50" text-anchor="middle">2026</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="126.9" height="12" rx="3"><title>Whole: 2016-01 → 2026-06</title></rect><rect class="cov-bar" x="282.7" y="10" width="267.6" height="12" rx="3"><title>Whole: 2016-01 → 2026-06</title></rect><text class="cov-meta" x="594" y="20">monthly</text></svg><p class="fig-note">Whole 2016-01–2026-06 (115 rows). Some rows additionally carry a <code>time_interval</code> of <code>quarterly</code>/<code>yearly</code>; the cadence shown is the spacing the periods actually have.</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 115 of 115 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 115 of 115 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 115 of 115 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 115 of 115 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 112 of 115 rows (97%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 109 of 115 rows (95%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
 
   
 
@@ -111,7 +152,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
-       Cadence: daily 08:00 UTC, 15th–31st, commit-gated.<br>
+       Update cadence: daily 08:00 UTC, 15th–31st, commit-gated.<br>
+       
        Row source string: <code>lta.gov.sg</code></p>
     <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/26-source-singapore.md"><code>docs/architecture/26-source-singapore.md</code></a></p>
   </div>

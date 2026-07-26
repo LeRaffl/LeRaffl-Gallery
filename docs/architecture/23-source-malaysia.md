@@ -1,28 +1,29 @@
 ---
 country: Malaysia
 slug: malaysia
-status: live
 method: file
-summary: >-
-  Passenger-car registrations for Malaysia from the national open-data portal
-  (data.gov.my).
-source_name: "data.gov.my — cars open dataset (Parquet)"
-source_url: "https://data.gov.my/data-catalogue/cars"
-underlying: "data.gov.my (JPJ road-transport register)"
+summary: Passenger-car registrations for Malaysia from the national open-data portal (data.gov.my).
+source_name: data.gov.my — cars open dataset (Parquet)
+source_url: https://data.gov.my/data-catalogue/cars
+underlying: data.gov.my (JPJ road-transport register)
 auth: none
-cadence: "daily 07:00 UTC, 15th–31st of the month"
-variants: [Whole]
+cadence: daily 07:00 UTC, 15th–31st of the month
+variants:
+- Whole
+variant_notes:
+  Whole: New passenger-car registrations, from 2018-01.
 hev_split: false
-hev_note: "Combined hybrids are reported in the HEV column; PHEV is populated only from ~2024 where the source splits it."
+hev_note: Combined hybrids are reported in the HEV column; PHEV is populated only from ~2024 where the
+  source splits it.
 backfill: none
-scope_note: "Passenger cars only; history from 2018-01."
+scope_note: Passenger cars only; history from 2018-01.
 caveats:
-  - "Historical hybrids are a single combined bucket placed in the HEV column."
-  - "Plug-in hybrid fields exist from ~2024 and map to PHEV when present."
-fetcher: "scripts/fetch_malaysia.py"
-workflow: ".github/workflows/fetch-malaysia.yml"
-fragility_doc: "docs/architecture/23-source-malaysia.md"
-data_file: "data/Malaysia.csv"
+- Historical hybrids are a single combined bucket placed in the HEV column.
+- Plug-in hybrid fields exist from ~2024 and map to PHEV when present.
+fetcher: scripts/fetch_malaysia.py
+workflow: .github/workflows/fetch-malaysia.yml
+fragility_doc: docs/architecture/23-source-malaysia.md
+data_file: data/Malaysia.csv
 ---
 
 # 23 · Source: Malaysia (data.gov.my parquet)

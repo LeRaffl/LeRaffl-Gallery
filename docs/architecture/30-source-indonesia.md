@@ -1,28 +1,34 @@
 ---
 country: Indonesia
 slug: indonesia
-status: live
 method: pdf
-summary: >-
-  Wholesale (factory-to-dealer) figures for Indonesia from GAIKINDO's monthly
-  "Wholesales" report.
-source_name: "GAIKINDO — files.gaikindo.or.id (Wholesales PDF)"
-source_url: "https://www.gaikindo.or.id/"
-underlying: "GAIKINDO — Indonesian Automotive Industry Association"
-auth: "client login to GAIKINDO's ProjectSend"
-cadence: "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)"
-variants: [Whole, Pickups, HDV, Buses]
+summary: Wholesale (factory-to-dealer) figures for Indonesia from GAIKINDO's monthly "Wholesales" report.
+source_name: GAIKINDO — files.gaikindo.or.id (Wholesales PDF)
+source_url: https://www.gaikindo.or.id/
+underlying: GAIKINDO — Indonesian Automotive Industry Association
+auth: client login to GAIKINDO's ProjectSend
+cadence: daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)
+variants:
+- Whole
+- Pickups
+- HDV
+- Buses
+variant_notes:
+  Whole: GAIKINDO Passenger Car — Sedan + 4x2 + 4x4 + LCGC.
+  Pickups: Pick-ups under 5 t plus double cabins.
+  HDV: Trucks of 5 t and above.
+  Buses: Buses.
 hev_split: true
 backfill: none
-scope_note: "Whole = GAIKINDO Passenger Car (≈ EU M1); figures are wholesales, not registrations."
+scope_note: Whole = GAIKINDO Passenger Car (≈ EU M1); figures are wholesales, not registrations.
 caveats:
-  - "Figures are wholesales (manufacturer shipments), not registrations."
-  - "Access needs a client login to GAIKINDO's ProjectSend portal."
-  - "A full fuel split incl. Petrol and Diesel is available."
-fetcher: "scripts/fetch_indonesia.py"
-workflow: ".github/workflows/fetch-indonesia.yml"
-fragility_doc: "docs/architecture/30-source-indonesia.md"
-data_file: "data/Indonesia.csv"
+- Figures are wholesales (manufacturer shipments), not registrations.
+- Access needs a client login to GAIKINDO's ProjectSend portal.
+- A full fuel split incl. Petrol and Diesel is available.
+fetcher: scripts/fetch_indonesia.py
+workflow: .github/workflows/fetch-indonesia.yml
+fragility_doc: docs/architecture/30-source-indonesia.md
+data_file: data/Indonesia.csv
 ---
 
 # 30 · Source: Indonesia (GAIKINDO wholesales PDF)
