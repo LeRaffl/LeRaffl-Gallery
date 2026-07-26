@@ -1,5 +1,5 @@
 {
- "generated": "2026-07-26T12:24:29Z",
+ "generated": "2026-07-26T18:18:12Z",
  "today": "2026-07-26",
  "countries": [
   {
@@ -1670,6 +1670,74 @@
      "latest": "2026-06",
      "first": "2010-01",
      "rows": 185,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Israel",
+   "slug": "israel",
+   "method": "api",
+   "source_name": "data.gov.il — vehicle registry (CKAN datastore)",
+   "source_url": "https://data.gov.il/dataset/private-and-commercial-vehicles",
+   "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:00"
+    ],
+    "workflow": ".github/workflows/fetch-israel.yml"
+   },
+   "last_render": "2026-07-10",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2017-01",
+     "rows": 114,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2017-01",
+     "rows": 114,
      "cadence": "monthly",
      "in_repo": true
     }
