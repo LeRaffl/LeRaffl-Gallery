@@ -39,7 +39,7 @@ quarterly. The two failure modes that recur below:
 A secondary aggregator does not fix either problem — it inherits the
 completeness of whatever it scraped and adds its own lag/discrepancies.
 
-> **See also:** [29-expansion-candidates.md](29-expansion-candidates.md) — the
+> **See also:** [33-expansion-candidates.md](33-expansion-candidates.md) — the
 > July-2026 investigation into Africa / MENA / Israel / India. Its "Shelved"
 > section (Gulf states, Jordan, Egypt, Kenya/Ethiopia/Nigeria) is the same kind
 > of record as this file, kept there with the positive candidates for context.

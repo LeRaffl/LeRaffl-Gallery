@@ -1,4 +1,4 @@
-# 29 · Expansion candidates — Israel, India, Africa, MENA (July 2026 investigation)
+# 33 · Expansion candidates — Israel, India, Africa, MENA (July 2026 investigation)
 
 This document records a **desk investigation (2026-07)** into expanding the
 gallery's country portfolio into regions it currently doesn't cover at all:
@@ -21,7 +21,7 @@ for the market, (c) machine-accessible without paywalls or identity checks.**
 ### 🇮🇱 Israel — two complementary routes, both free
 
 > **Status: BUILT (2026-07).** Route A implemented as `scripts/fetch_israel.py`
-> — see [30-source-israel.md](30-source-israel.md). The PHEV/HEV question
+> — see [34-source-israel.md](34-source-israel.md). The PHEV/HEV question
 > resolved unexpectedly: the registry hides regular HEVs inside the petrol
 > value; the model-catalogue join recovers them (and the PHEV split) with
 > 100% coverage back to 2017.

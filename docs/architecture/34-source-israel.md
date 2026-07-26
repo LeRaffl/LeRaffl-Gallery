@@ -1,10 +1,77 @@
-# 30 · Source playbook — Israel (data.gov.il vehicle registry)
+---
+country: Israel
+slug: israel
+method: api
+summary: New-registration data for Israel derived from the Ministry of Transport's open vehicle registry
+  — registry-direct, counted from the licensing database itself.
+source_name: data.gov.il — vehicle registry (CKAN datastore)
+source_url: https://data.gov.il/dataset/private-and-commercial-vehicles
+source_links:
+- label: Registry resource (מאגר מספרי רישוי של כלי רכב)
+  url: https://data.gov.il/dataset/private-and-commercial-vehicles
+  note: ~4.15M currently-registered vehicles; the dataset's second resource holds extra columns for the
+    same vehicles, not extra rows
+- label: Model catalogue (degem-rechev-wltp)
+  url: https://data.gov.il/dataset/degem-rechev-wltp
+  note: propulsion technology per make/model/year/trim — the HEV/PHEV split comes from joining this
+- label: I-VIA monthly reviews (cross-check)
+  url: https://www.car-importers.org.il/Monthly_reviews
+underlying: Ministry of Transport and Road Safety — vehicle licensing database
+auth: none
+cadence: daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in
+variants:
+- Whole
+- Vans
+variant_notes:
+  Whole: New private passenger cars (registry `sug_degem` = P), from 2017-01.
+  Vans: New light commercial vehicles up to 3.5t (registry `sug_degem` = M); low volume, roughly
+    500–1,100 per month.
+hev_split: true
+hev_note: The registry codes regular hybrids as plain petrol and reserves its two electric/fuel values
+  for plug-ins; the real HEV and PHEV figures are recovered by joining the official model catalogue.
+backfill: none — the fetcher walks the registry back to 2017-01 itself
+scope_note: Registry-derived monthly counts; no motorcycles, no trucks above 3.5t, no buses in this
+  dataset.
+caveats:
+- The registry is a stock snapshot of currently-registered vehicles, so older months lose deregistered
+  vehicles and undercount slightly; recent months are effectively exact.
+- Regular hybrids are hidden inside the petrol fuel value — HEV/PHEV come from the model-catalogue join
+  (100% coverage back to 2017; the fetcher warns above 5% unmatched).
+- Counts slice by road-entry date, whereas the importers' association reports deliveries, so single
+  months can differ a few percent in either direction.
+fetcher: scripts/fetch_israel.py
+workflow: .github/workflows/fetch-israel.yml
+fragility_doc: docs/architecture/34-source-israel.md
+data_file: data/Israel.csv
+---
+
+# 34 · Source playbook — Israel (data.gov.il vehicle registry)
 
 First MENA-region country on the gallery. Registry-direct, CKAN datastore
 API, no auth, no scraping. Fetcher: `scripts/fetch_israel.py`, workflow:
 `.github/workflows/fetch-israel.yml`. Investigated & built 2026-07 (see
-[29-expansion-candidates.md](29-expansion-candidates.md) for the wider
+[33-expansion-candidates.md](33-expansion-candidates.md) for the wider
 region survey).
+
+## TL;DR
+
+```
+Source:    data.gov.il — Ministry of Transport vehicle registry (CKAN)
+           Dataset: private-and-commercial-vehicles
+Auth:      None — public CKAN datastore API, no key.
+Format:    JSON (datastore_search), 32k-row pages.
+Variants:  Whole (sug_degem=P, private cars) + Vans (sug_degem=M, LCV ≤3.5t).
+HEV split: YES, but NOT from the fuel column — the registry codes regular
+           hybrids as plain petrol (בנזין) and uses חשמל/בנזין only for
+           plug-ins. Every petrol/diesel/hybrid row is joined against the
+           WLTP model catalogue on (make, model code, model year, trim);
+           technologiat_hanaa_nm gives PLUG IN / regular hybrid / electric /
+           conventional. Join coverage: 100% back to 2017.
+History:   2017-01 onward (both variants).
+Schedule:  Daily 08:00 UTC, 10th–20th; early-exits once last month is in.
+Scripts:   scripts/fetch_israel.py  (--probe / --crosscheck modes included)
+Workflow:  .github/workflows/fetch-israel.yml
+```
 
 ## The source
 
