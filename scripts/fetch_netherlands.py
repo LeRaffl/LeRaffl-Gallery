@@ -122,13 +122,19 @@ DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 def _get(session: requests.Session, url: str,
          headers: dict | None = None, **kwargs) -> requests.Response:
-    """session.get that routes through the CF relay when relay_base is set.
+    """session.get that routes through the fetch relay when relay_base is set.
 
-    If ``session.relay_base`` is set (monkey-patched in main()), every request
-    is forwarded via the Cloudflare Worker relay so the runner's Azure IP is
-    not the one hitting duurzamemobiliteit.databank.nl.  Cookies from upstream
-    Set-Cookie headers are harvested into ``session.relay_cookies`` and
-    re-forwarded on subsequent requests via X-Fwd-Cookie.
+    If ``session.relay_base`` is set (monkey-patched in main() from
+    ``NL_FETCH_RELAY``), every request is forwarded via the relay so the
+    runner's Azure IP is not the one hitting duurzamemobiliteit.databank.nl.
+    Cookies from upstream Set-Cookie headers are harvested into
+    ``session.relay_cookies`` and re-forwarded on subsequent requests via
+    X-Fwd-Cookie.
+
+    For the Netherlands the relay must be the **Deno Deploy** one
+    (``worker/deno-relay.ts``) — duurzamemobiliteit 403s Cloudflare egress,
+    so the Austria Cloudflare Worker relay this protocol was first written
+    for does not work here. The wire format is identical either way.
     """
     relay_base = getattr(session, "relay_base", None)
     merged_headers = {**HTTP_HEADERS, **(headers or {})}

@@ -286,12 +286,59 @@ Standard relative-URL fetches for `manifest.json`, `params.csv`, `weights.csv`, 
 
 ## 4.7 GitHub Actions → external
 
+### Infrastructure
+
 | Action | Reaches out to | Purpose |
 |---|---|---|
 | Render-country | Posit Public Package Manager | Pull R package binaries (`use-public-rspm: true` for fast install) |
-| Render-country, Build-manifest | The repo itself (via the workflow-scoped token) | git push images, params, weights, posts, manifest.json |
+| Render-country, Build-manifest, every fetch action | The repo itself (via the workflow-scoped token) | git push images, params, weights, posts, manifest.json, data CSVs |
 
-Neither Action needs an outbound secret — workflow-scoped GITHUB_TOKEN is auto-injected by GitHub.
+These need no outbound secret — the workflow-scoped `GITHUB_TOKEN` is
+auto-injected by GitHub. **Four fetch actions do need one** (Austria's relay,
+the Netherlands relay, Indonesia's and Thailand's portal logins) — see
+[07-secrets-trust.md § Secret inventory](07-secrets-trust.md#secret-inventory).
+
+### Country data sources
+
+Every outbound endpoint a fetch action talks to. Read/anonymous unless the Auth
+column says otherwise. The per-country docs
+(`NN-source-<country>.md`) carry the request shape, the parameters and the
+failure modes; this table is the surface map.
+
+| Country | Endpoint / host | Kind | Auth |
+|---|---|---|---|
+| ACEA cluster | `acea.auto/files/Press_release_car_registrations_<Month>_<Year>.pdf` | PDF over HTTPS | none |
+| Albania | `lookerstudio.google.com/reporting/233df2cc-…` → the report's own `batchedDataV2` calls | Headless Chromium (Playwright), responses intercepted | none (a real browser session is required) |
+| Austria | `statistik.at/…/kfz-neuzulassungen` + the DE2/DE3 `.ods` files | File download **via relay** | relay token (source blocks datacenter IPs) |
+| Brazil | `anfavea.com.br/site/edicoes-em-excel/` → `siteautoveiculos<YEAR>.xlsx` | Page scrape + XLSX | none |
+| Canada | `www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata` and `…/getDataFromCubePidCoordAndLatestNPeriods` | JSON REST (POST) | none |
+| Chile | `anac.cl/category/estudio-de-mercado/` → two monthly PDFs | Page scrape + PDF | none |
+| China | `cpcaauto.com/news.php?types=csjd&anid=129&nid=24` → `newslist.php?types=csjd&id=<id>` + embedded slide JPGs | HTML scrape + OCR | none (403s bare requests — needs a desktop UA + Referer) |
+| Colombia | `andi.com.co/Home/Camara/4-automotriz` → monthly Boletín PDF | Page scrape + PDF | none |
+| Denmark | `api.statbank.dk/v1/data` (table `BIL53`) | JSON REST (POST) | none |
+| Finland | `pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px` | PxWeb JSON (GET metadata + POST query) | none |
+| Indonesia | `files.gaikindo.or.id/` (ProjectSend) → cumulative wholesales PDF | Login + file download | **client login** (`INDONESIA_GAIKINDO_USER`/`_PW`) |
+| Ireland | `stats.simi.ie` | Inertia.js session-filter flow (no public API) | none |
+| Italy | `unrae.it/dati-statistici/immatricolazioni`, `unrae.it/sala-stampa/veicoli-commerciali` | Page scrape + PDF | none |
+| Japan | `jada.or.jp/pages/342/` → monthly XLSX (PDF fallback) | Page scrape + file | none |
+| Luxembourg | `lustat.statec.lu/rest/data/LU1,DF_D6122,1.1/…` | SDMX 2.1 REST (SDMX-CSV) | none |
+| Malaysia | `storage.data.gov.my/transportation/cars_<YYYY>.parquet` | Parquet download | none |
+| Nepal | `customs.gov.np` — homepage nav → FY category → content page → monthly `.xlsx` | Three-hop page scrape + XLSX | none |
+| Netherlands | `duurzamemobiliteit.databank.nl/viewer` + `/viewer/Presentation/GetTableStart` | Swing BI session flow **via relay** | relay token (portal blocks GHA and Cloudflare egress) |
+| New Zealand | `transport.govt.nz/…/inner`; `catalogue.data.govt.nz` CKAN | JSON/AJAX | none — **both behind Imperva since 2026-06; the fetcher is disabled** |
+| Poland | `pzpm.org.pl/en/Electromobility/eRegistrations` → monthly XLSX | Page scrape + XLSX | none |
+| Portugal | `motordata.pt/autoinforma/chartdata_novo.php`, `…/charts1t.php` | Form POST | none |
+| Singapore | `lta.gov.sg/…/statistics/pdf/M03-Car_Regn_by_make.pdf` | PDF (stable URL) | none |
+| Spain | `dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mensual_mat_{YYYYMM}.zip` | Zipped fixed-width microdata | none |
+| Sweden | `api.scb.se/OV0104/v1/doris/en/ssd/START/TK/TK1001/TK1001A/PersBilarDrivMedel` | PxWeb JSON (POST) | none |
+| Thailand | `taiapi.thaiauto.or.th:3000` — `/websites`, `/login_with_website`, `/veh_reg_fuel/report` | JSON REST | **member login** (`THAILAND_AIU_THAIAUTO_USER`/`_PW`); note the non-standard **port 3000** |
+| Türkiye | `veriportali.tuik.gov.tr/api/tr/press/<id>` | JSON + OCR of inline data-URI images | none |
+| Uruguay | `acau.com.uy` → the year's `Compilado` xlsx (timestamped filename) | Page scrape + XLSX | none |
+| USA | `anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data` → "Total Sales" PDF | Page scrape + PDF | none |
+
+Two hosts are reached **through a relay** rather than directly, because they
+block datacenter egress: Statistik Austria (Cloudflare Worker, § 4.8) and
+duurzamemobiliteit (Deno Deploy — the Cloudflare relay is itself 403'd there).
 
 ## 4.8 Worker GET /fetch (Austria fetch relay)
 

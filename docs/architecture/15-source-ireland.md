@@ -1,26 +1,33 @@
 ---
 country: Ireland
 slug: ireland
-status: live
 method: scrape
-summary: >-
-  New-registration data for Ireland from SIMI's public motorstats dashboard.
-source_name: "stats.simi.ie — SIMI motorstats dashboard"
-source_url: "https://stats.simi.ie/"
-underlying: "SIMI — Society of the Irish Motor Industry"
+summary: New-registration data for Ireland from SIMI's public motorstats dashboard.
+source_name: SIMI motorstats — passenger registrations
+source_url: https://stats.simi.ie/filter/passenger
+underlying: SIMI — Society of the Irish Motor Industry
 auth: none
-cadence: "twice-daily cron, 1st–5th of the month"
-variants: [Whole, Vans, HDV, Buses]
+cadence: twice-daily cron, 1st–5th of the month
+variants:
+- Whole
+- Vans
+- HDV
+- Buses
+variant_notes:
+  Whole: New passenger-car registrations.
+  Vans: New light commercial vehicles (SIMI LCV).
+  HDV: New heavy commercial vehicles (SIMI HCV).
+  Buses: New buses and coaches.
 hev_split: true
-backfill: "2010-01+ re-fetched from source; 2008–2009 remain legacy rows"
-scope_note: "Whole = passenger cars; Vans (LCV), HDV (HCV) and Buses are separate variants."
+backfill: 2010-01+ re-fetched from source; 2008–2009 remain legacy rows
+scope_note: Whole = passenger cars; Vans (LCV), HDV (HCV) and Buses are separate variants.
 caveats:
-  - "Full hybrids (HEV) are a large slice in Ireland and are reported natively."
-  - "Data comes from a session-filtered SPA — there is no public REST API."
-fetcher: "scripts/fetch_ireland.py"
-workflow: ".github/workflows/fetch-ireland.yml"
-fragility_doc: "docs/architecture/15-source-ireland.md"
-data_file: "data/Ireland.csv"
+- Full hybrids (HEV) are a large slice in Ireland and are reported natively.
+- Data comes from a session-filtered SPA — there is no public REST API.
+fetcher: scripts/fetch_ireland.py
+workflow: .github/workflows/fetch-ireland.yml
+fragility_doc: docs/architecture/15-source-ireland.md
+data_file: data/Ireland.csv
 ---
 
 # 15 · Source: Ireland (stats.simi.ie / SIMI motorstats)
@@ -49,7 +56,7 @@ Variants:  Whole (passenger), Vans (LCV /lcv), HDV (HCV /hcv), Buses (/bus) — 
 HEV:       Reported natively (Petrol/Diesel Electric (Hybrid)) — a large slice in Ireland
 FLEXFUEL:  Reported natively (Ethanol/Petrol, Ethanol/Diesel)
 Backfill:  Full history re-fetched from source (2010-01+); 2008-2009 remain legacy rows
-Schedule:  Twice-daily cron on the 1st–5th (SIMI publishes very early in the month)
+Schedule:  Twice-daily cron on the 1st–5th, 04:00 & 13:00 UTC (SIMI publishes very early in the month)
 Scripts:   scripts/fetch_ireland.py
 Workflow:  .github/workflows/fetch-ireland.yml
 ```

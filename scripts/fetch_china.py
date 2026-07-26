@@ -70,17 +70,29 @@ The article reports:
 
 Retail BEV/PHEV/EREV split
 --------------------------
-CPCA does NOT publish a direct retail-side BEV/PHEV/EREV breakdown in the
-monthly analysis article — only the NEV aggregate. We derive the retail
-split by applying the wholesale BEV/PHEV/EREV mix to the retail NEV total:
+CPCA does NOT publish the retail-side BEV/PHEV/EREV breakdown in the article
+*text* — the narrative carries only the NEV aggregate. There are two paths,
+tried in this order:
 
-    retail_bev  = retail_nev * (ws_bev  / ws_nev)
-    retail_phev = retail_nev * (ws_phev / ws_nev)
-    retail_erev = retail_nev * (ws_erev / ws_nev)
+1. **OCR (primary).** The article embeds ~10 JPG slides; one of them carries a
+   structured NEV retail table with the per-month BEV/PHEV/EREV split. We OCR
+   the candidate images with ``tesseract -l chi_sim+eng`` at a 6x upscale and
+   validate the extracted row against the NEV aggregate from the narrative, so
+   a mis-read cannot be accepted silently. See the OCR_CONFIGS retry ladder.
 
-This matches the pattern observed in historical data/China.csv rows
-(including their non-integer values, e.g. PHEV=344083.04 / EREV=99916.95
-in 2024-08).
+2. **Wholesale-proportional (fallback).** If tesseract is unavailable or no
+   slide validates, apply the wholesale BEV/PHEV/EREV mix to the retail NEV
+   total:
+
+       retail_bev  = retail_nev * (ws_bev  / ws_nev)
+       retail_phev = retail_nev * (ws_phev / ws_nev)
+       retail_erev = retail_nev * (ws_erev / ws_nev)
+
+   This is what produces the non-integer values in historical rows (e.g.
+   PHEV=344083.04 / EREV=99916.95 in 2024-08).
+
+docs/architecture/24-source-china.md covers both paths, and the May-2026
+mis-OCR postmortem that motivated the validation step.
 
 CSV columns
 -----------

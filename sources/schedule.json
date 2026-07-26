@@ -1,0 +1,3547 @@
+{
+ "generated": "2026-07-26T12:21:25Z",
+ "today": "2026-07-26",
+ "countries": [
+  {
+   "country": "Albania",
+   "slug": "albania",
+   "method": "scrape",
+   "source_name": "DPSHTRR Open Data report (Looker Studio)",
+   "source_url": "https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB",
+   "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "07:00"
+    ],
+    "workflow": ".github/workflows/fetch-albania.yml"
+   },
+   "last_render": "2026-07-10",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2019-01",
+     "rows": 90,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2020-01",
+     "rows": 66,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2020-01",
+     "rows": 66,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "2-Wheelers",
+     "latest": "2026-06",
+     "first": "2020-01",
+     "rows": 66,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Australia",
+   "slug": "australia",
+   "method": "manual",
+   "source_name": "VFACTS (FCAI)",
+   "source_url": "https://www.fcai.com.au/",
+   "cadence_text": "transcribed by hand each month, once VFACTS publishes",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 0,
+   "status": "manual",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-07-08",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-06",
+     "rows": 77,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Austria",
+   "slug": "austria",
+   "method": "file",
+   "source_name": "Statistik Austria — Kfz-Neuzulassungen",
+   "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
+   "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "09:25"
+    ],
+    "workflow": ".github/workflows/fetch-austria.yml"
+   },
+   "last_render": "2026-07-09",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2012-01",
+     "rows": 174,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2024",
+     "rows": 19,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2024",
+     "rows": 19,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Belgium",
+   "slug": "belgium",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Brazil",
+   "slug": "brazil",
+   "method": "file",
+   "source_name": "ANFAVEA — edições em Excel",
+   "source_url": "https://anfavea.com.br/site/edicoes-em-excel/",
+   "cadence_text": "monthly cron on the 10th, 08:50 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:50"
+    ],
+    "workflow": ".github/workflows/fetch-brazil.yml"
+   },
+   "last_render": "2026-07-10",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2012-01",
+     "rows": 174,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Bulgaria",
+   "slug": "bulgaria",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Canada",
+   "slug": "canada",
+   "method": "api",
+   "source_name": "150.statcan.gc.ca — StatCan WDS cube 20-10-0025",
+   "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501",
+   "cadence_text": "daily cron on the 8th–20th of Mar/Jun/Sep/Dec, 06:40 UTC — the cube is quarterly",
+   "interval": "quarterly",
+   "latest_period": "2026-02",
+   "expected_period": "2026-02",
+   "behind": 0,
+   "behind_now": 4,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "months": [
+     3,
+     6,
+     9,
+     12
+    ],
+    "times": [
+     "06:40"
+    ],
+    "workflow": ".github/workflows/fetch-canada.yml"
+   },
+   "last_render": "2026-06-12",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-02",
+     "first": "2011-06",
+     "rows": 43,
+     "cadence": "quarterly",
+     "in_repo": true
+    },
+    {
+     "name": "Pickups",
+     "latest": "2026-02",
+     "first": "2017-02",
+     "rows": 37,
+     "cadence": "quarterly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-02",
+     "first": "2017-02",
+     "rows": 37,
+     "cadence": "quarterly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Chile",
+   "slug": "chile",
+   "method": "pdf",
+   "source_name": "ANAC — estudios de mercado",
+   "source_url": "https://www.anac.cl/category/estudio-de-mercado/",
+   "cadence_text": "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out",
+   "interval": "monthly",
+   "latest_period": "2026-04",
+   "expected_period": "2026-06",
+   "behind": 2,
+   "behind_now": 2,
+   "status": "late",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:20"
+    ],
+    "workflow": ".github/workflows/fetch-chile.yml"
+   },
+   "last_render": "2026-05-21",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-04",
+     "first": "2015-01",
+     "rows": 136,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "China",
+   "slug": "china",
+   "method": "scrape",
+   "source_name": "CPCA monthly market analysis (月度分析)",
+   "source_url": "https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24",
+   "cadence_text": "daily cron 11:00 UTC; CPCA publishes the prior month around the 8th–11th",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "11:00"
+    ],
+    "workflow": ".github/workflows/fetch-china.yml"
+   },
+   "last_render": "2026-07-08",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Wholesale",
+     "latest": "2026-06",
+     "first": "2024-09",
+     "rows": 22,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Colombia",
+   "slug": "colombia",
+   "method": "pdf",
+   "source_name": "ANDI Camara de la Industria Automotriz",
+   "source_url": "https://www.andi.com.co/Home/Camara/4-automotriz",
+   "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-05",
+   "expected_period": "2026-06",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "07:30"
+    ],
+    "workflow": ".github/workflows/fetch-colombia.yml"
+   },
+   "last_render": "2026-07-05",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-05",
+     "first": "2019-01",
+     "rows": 89,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Croatia",
+   "slug": "croatia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2019-10",
+     "rows": 81,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Cyprus",
+   "slug": "cyprus",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2020-01",
+     "rows": 78,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Czechia",
+   "slug": "czechia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2011-01",
+     "rows": 186,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Denmark",
+   "slug": "denmark",
+   "method": "api",
+   "source_name": "api.statbank.dk — table BIL53",
+   "source_url": "https://www.statbank.dk/BIL53",
+   "cadence_text": "daily cron, 1st–15th, 05:15 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "05:15"
+    ],
+    "workflow": ".github/workflows/fetch-denmark.yml"
+   },
+   "last_render": "2026-07-10",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2021-01",
+     "rows": 66,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Estonia",
+   "slug": "estonia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Finland",
+   "slug": "finland",
+   "method": "api",
+   "source_name": "StatFin table 121d in the table viewer",
+   "source_url": "https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/",
+   "cadence_text": "daily cron, 1st–15th, 04:40 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "04:40"
+    ],
+    "workflow": ".github/workflows/fetch-finland.yml"
+   },
+   "last_render": "2026-07-06",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2014-01",
+     "rows": 150,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "France",
+   "slug": "france",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 138,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Georgia",
+   "slug": "georgia",
+   "method": "manual",
+   "source_name": "Geostat — National Statistics Office of Georgia",
+   "source_url": "https://automobile.geostat.ge/en/automobiles/rating",
+   "cadence_text": "entered by hand; Geostat publishes quarterly, so expect a longer lag",
+   "interval": "quarterly",
+   "latest_period": "2026-05",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 1,
+   "status": "manual",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-07-25",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-05",
+     "first": "2017-02",
+     "rows": 38,
+     "cadence": "quarterly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Germany",
+   "slug": "germany",
+   "method": "manual",
+   "source_name": "KBA — Kraftfahrt-Bundesamt",
+   "source_url": "https://www.kba.de/",
+   "cadence_text": "transcribed by hand each month, once KBA publishes (typically the first week)",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 0,
+   "status": "manual",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-07-03",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2012-01",
+     "rows": 174,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Greece",
+   "slug": "greece",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-06",
+     "rows": 111,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Hungary",
+   "slug": "hungary",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Iceland",
+   "slug": "iceland",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "India",
+   "slug": "india",
+   "method": "manual",
+   "source_name": "VAHAN dashboard",
+   "source_url": "https://vahan.parivahan.gov.in/vahan4dashboard/",
+   "cadence_text": "entered by hand and irregularly — the variants can sit months apart",
+   "interval": "monthly",
+   "latest_period": null,
+   "expected_period": null,
+   "behind": null,
+   "behind_now": null,
+   "status": "unknown",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-05-03",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    },
+    {
+     "name": "4-Wheelers",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    },
+    {
+     "name": "3-Wheelers",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    },
+    {
+     "name": "2-Wheelers",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    }
+   ]
+  },
+  {
+   "country": "Indonesia",
+   "slug": "indonesia",
+   "method": "pdf",
+   "source_name": "GAIKINDO — files.gaikindo.or.id (Wholesales PDF)",
+   "source_url": "https://www.gaikindo.or.id/",
+   "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "09:35"
+    ],
+    "workflow": ".github/workflows/fetch-indonesia.yml"
+   },
+   "last_render": "2026-07-16",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Pickups",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Ireland",
+   "slug": "ireland",
+   "method": "scrape",
+   "source_name": "SIMI motorstats — passenger registrations",
+   "source_url": "https://stats.simi.ie/filter/passenger",
+   "cadence_text": "twice-daily cron, 1st–5th of the month",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "04:00",
+     "13:00"
+    ],
+    "workflow": ".github/workflows/fetch-ireland.yml"
+   },
+   "last_render": "2026-07-01",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2008-01",
+     "rows": 222,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 185,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Italy",
+   "slug": "italy",
+   "method": "pdf",
+   "source_name": "UNRAE — struttura del mercato PDF",
+   "source_url": "https://unrae.it/dati-statistici",
+   "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     13,
+     14,
+     15,
+     16
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:00",
+     "10:00",
+     "14:00",
+     "18:00"
+    ],
+    "workflow": ".github/workflows/fetch-italy.yml"
+   },
+   "last_render": "2026-07-01",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 138,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Rental",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 137,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "NonRental",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 137,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2026-04",
+     "rows": 2,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Japan",
+   "slug": "japan",
+   "method": "file",
+   "source_name": "JADA — 燃料別メーカー別登録台数（乗用車）",
+   "source_url": "https://www.jada.or.jp/pages/342/",
+   "cadence_text": "daily cron, 08:00 UTC — no-op until JADA publishes, usually the first business week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:00"
+    ],
+    "workflow": ".github/workflows/fetch-japan.yml"
+   },
+   "last_render": "2026-07-06",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2012-01",
+     "rows": 174,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Latvia",
+   "slug": "latvia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 138,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    }
+   ]
+  },
+  {
+   "country": "Lithuania",
+   "slug": "lithuania",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2017-01",
+     "rows": 114,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Luxembourg",
+   "slug": "luxembourg",
+   "method": "api",
+   "source_name": "lustat.statec.lu — STATEC SDMX 2.1 (DF_D6122)",
+   "source_url": "https://lustat.statec.lu/",
+   "cadence_text": "daily cron, 1st–15th, 06:45 UTC (STATEC publishes around the 6th)",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:45"
+    ],
+    "workflow": ".github/workflows/fetch-luxembourg.yml"
+   },
+   "last_render": "2026-07-11",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Malaysia",
+   "slug": "malaysia",
+   "method": "file",
+   "source_name": "data.gov.my — cars open dataset (Parquet)",
+   "source_url": "https://data.gov.my/data-catalogue/cars",
+   "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "07:00"
+    ],
+    "workflow": ".github/workflows/fetch-malaysia.yml"
+   },
+   "last_render": "2026-07-10",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Malta",
+   "slug": "malta",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2022-01",
+     "rows": 45,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Nepal",
+   "slug": "nepal",
+   "method": "file",
+   "source_name": "Department of Customs — customs.gov.np (FTS workbooks)",
+   "source_url": "https://www.customs.gov.np/",
+   "cadence_text": "daily 07:50 UTC; cheap-skips until DoC publishes a new month",
+   "interval": "monthly",
+   "latest_period": "2026-07",
+   "expected_period": "2026-06",
+   "behind": -1,
+   "behind_now": -1,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "07:50"
+    ],
+    "workflow": ".github/workflows/fetch-nepal.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-07",
+     "first": "2020-08",
+     "rows": 72,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "3-Wheelers",
+     "latest": "2026-07",
+     "first": "2020-08",
+     "rows": 72,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Netherlands",
+   "slug": "netherlands",
+   "method": "scrape",
+   "source_name": "duurzamemobiliteit.databank.nl (Swing 7.1, ABF Research)",
+   "source_url": "https://duurzamemobiliteit.databank.nl/",
+   "cadence_text": "daily cron, 1st–15th of the month",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:30"
+    ],
+    "workflow": ".github/workflows/fetch-netherlands.yml"
+   },
+   "last_render": "2026-07-16",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2011-01",
+     "rows": 186,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "New Zealand",
+   "slug": "new-zealand",
+   "method": "manual",
+   "source_name": "transport.govt.nz — fleet statistics",
+   "source_url": "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/",
+   "cadence_text": "entered by hand once the Ministry publishes, usually the 5th–10th of the following month",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 0,
+   "status": "manual",
+   "automated": false,
+   "schedule": {
+    "enabled": false,
+    "days": [
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:00",
+     "14:00"
+    ],
+    "workflow": ".github/workflows/fetch-new-zealand.yml"
+   },
+   "last_render": "2026-07-08",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2012-01",
+     "rows": 174,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Norway",
+   "slug": "norway",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2005-01",
+     "rows": 258,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Poland",
+   "slug": "poland",
+   "method": "file",
+   "source_name": "PZPM eRegistrations — the monthly workbook",
+   "source_url": "https://www.pzpm.org.pl/en/Electromobility/eRegistrations",
+   "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "09:30",
+     "13:30"
+    ],
+    "workflow": ".github/workflows/fetch-poland.yml"
+   },
+   "last_render": "2026-07-07",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2011-01",
+     "rows": 186,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2026-04",
+     "rows": 3,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2026-04",
+     "rows": 3,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2026-04",
+     "rows": 3,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Portugal",
+   "slug": "portugal",
+   "method": "api",
+   "source_name": "ACAP statistics portal",
+   "source_url": "https://www.acap.pt/pt/estatisticas/dados",
+   "cadence_text": "twice-daily cron, 1st–5th, 17:30 & 20:30 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "17:30",
+     "20:30"
+    ],
+    "workflow": ".github/workflows/fetch-portugal.yml"
+   },
+   "last_render": "2026-07-01",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2026-01",
+     "rows": 6,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Romania",
+   "slug": "romania",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-06",
+     "rows": 110,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Singapore",
+   "slug": "singapore",
+   "method": "pdf",
+   "source_name": "lta.gov.sg — Monthly Vehicle Statistics (M03)",
+   "source_url": "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html",
+   "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:00"
+    ],
+    "workflow": ".github/workflows/fetch-singapore.yml"
+   },
+   "last_render": "2026-07-24",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2016-01",
+     "rows": 115,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Slovakia",
+   "slug": "slovakia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2018-01",
+     "rows": 102,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Slovenia",
+   "slug": "slovenia",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-06",
+     "rows": 105,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "South Korea",
+   "slug": "south-korea",
+   "method": "manual",
+   "source_name": "South Korea — Ministry of Land, Infrastructure and Transport",
+   "source_url": null,
+   "cadence_text": "entered by hand each month",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 0,
+   "status": "manual",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-07-24",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2017-01",
+     "rows": 114,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Spain",
+   "slug": "spain",
+   "method": "file",
+   "source_name": "datos.gob.es — DGT matriculaciones microdata",
+   "source_url": "https://datos.gob.es/es/catalogo/e00130502-microdatos-de-matriculaciones-de-vehiculos-mensual",
+   "cadence_text": "daily in the first half of the month (publishes weeks before ACEA)",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:30"
+    ],
+    "workflow": ".github/workflows/fetch-spain.yml"
+   },
+   "last_render": "2026-07-15",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 138,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Rental",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "NonRental",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "2-Wheelers",
+     "latest": "2026-06",
+     "first": "2015-10",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Sweden",
+   "slug": "sweden",
+   "method": "api",
+   "source_name": "SCB table TK1001A in the statistics database",
+   "source_url": "https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/",
+   "cadence_text": "daily cron, 1st–15th, 05:50 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "05:50"
+    ],
+    "workflow": ".github/workflows/fetch-sweden.yml"
+   },
+   "last_render": "2026-07-02",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2006-01",
+     "rows": 246,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Switzerland",
+   "slug": "switzerland",
+   "method": "pdf",
+   "source_name": "ACEA — monthly registrations",
+   "source_url": "https://www.acea.auto/",
+   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40"
+    ],
+    "workflow": ".github/workflows/fetch-acea.yml"
+   },
+   "last_render": "2026-07-23",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2010-01",
+     "rows": 198,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": null,
+     "first": null,
+     "rows": 0,
+     "cadence": null,
+     "in_repo": false
+    }
+   ]
+  },
+  {
+   "country": "Thailand",
+   "slug": "thailand",
+   "method": "api",
+   "source_name": "AIU member portal (Thailand Automotive Institute)",
+   "source_url": "https://aiu.thaiauto.or.th/",
+   "cadence_text": "daily 04:40 UTC, 1st–20th of the month",
+   "interval": "monthly",
+   "latest_period": "2026-05",
+   "expected_period": "2026-06",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "04:40"
+    ],
+    "workflow": ".github/workflows/fetch-thailand.yml"
+   },
+   "last_render": "2026-07-11",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-05",
+     "first": "2018-01",
+     "rows": 101,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-05",
+     "first": "2018-01",
+     "rows": 101,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-05",
+     "first": "2018-01",
+     "rows": 101,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "3-Wheelers",
+     "latest": "2026-05",
+     "first": "2018-01",
+     "rows": 101,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Türkiye",
+   "slug": "turkiye",
+   "method": "pdf",
+   "source_name": "TÜİK Veri Portalı — Motorlu Kara Taşıtları bulletins",
+   "source_url": "https://veriportali.tuik.gov.tr/",
+   "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:30"
+    ],
+    "workflow": ".github/workflows/fetch-turkey.yml"
+   },
+   "last_render": "2026-07-25",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2016-01",
+     "rows": 126,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "UK",
+   "slug": "uk",
+   "method": "manual",
+   "source_name": "SMMT — monthly registrations",
+   "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
+   "cadence_text": "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": null,
+   "behind": null,
+   "behind_now": 0,
+   "status": "manual",
+   "automated": false,
+   "schedule": null,
+   "last_render": "2026-07-07",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2015-01",
+     "rows": 138,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "USA",
+   "slug": "usa",
+   "method": "pdf",
+   "source_name": "Argonne National Laboratory — monthly sales PDF",
+   "source_url": "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data",
+   "cadence_text": "daily cron from the 10th, 10:30 UTC",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "10:30"
+    ],
+    "workflow": ".github/workflows/fetch-usa.yml"
+   },
+   "last_render": "2026-07-21",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2011-01",
+     "rows": 186,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Uruguay",
+   "slug": "uruguay",
+   "method": "file",
+   "source_name": "ACAU — Compilado XLSX",
+   "source_url": "https://www.acau.com.uy/",
+   "cadence_text": "daily from the 1st of the month, self-throttling per variant",
+   "interval": "monthly",
+   "latest_period": "2026-06",
+   "expected_period": "2026-06",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:10"
+    ],
+    "workflow": ".github/workflows/fetch-uruguay.yml"
+   },
+   "last_render": "2026-07-08",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-06",
+     "first": "2021-06",
+     "rows": 44,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-06",
+     "first": "2024-01",
+     "rows": 18,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-06",
+     "first": "2024-01",
+     "rows": 18,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-06",
+     "first": "2024-02",
+     "rows": 17,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  }
+ ]
+}

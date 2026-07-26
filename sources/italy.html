@@ -78,6 +78,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 </style>
 </head>
 <body>
@@ -88,22 +125,26 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <p class="lead">Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate light-commercial variant.</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">2026-06</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">2026-06</div><div class="l">Latest period held</div></div>
     <div class="stat"><div class="n">8.0%</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">4</div><div class="l">Variants</div></div>
   </div>
 
   
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://unrae.it/dati-statistici">UNRAE — struttura del mercato PDF ↗</a></p>
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://unrae.it/dati-statistici">UNRAE — struttura del mercato PDF ↗</a></p><ul class="srclist"><li><a href="https://unrae.it/dati-statistici/immatricolazioni">UNRAE — immatricolazioni (passenger-car PDFs)</a></li><li><a href="https://unrae.it/sala-stampa/veicoli-commerciali">UNRAE — veicoli commerciali (the LCV press release)</a></li></ul>
 
   <h2>How the data flows</h2>
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">UNRAE / Ministero delle Infrastrutture e dei Trasporti</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://unrae.it/dati-statistici">UNRAE — struttura del mercato PDF</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_italy.py"><code>scripts/fetch_italy.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-italy.yml"><code>.github/workflows/fetch-italy.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy.csv"><code>data/Italy.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr><tr><th>Variants</th><td>Whole, Rental, NonRental, Vans</td></tr><tr><th>Vehicle scope</th><td>Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private persons.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>FCEV</th><td>counted in OTHERS (with LPG and CNG)</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>PDF — parsed from a published PDF</td></tr><tr><th>Vehicle scope</th><td>Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private persons.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>FCEV</th><td>counted in OTHERS (with LPG and CNG)</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>Passenger cars, whole market including rental.</td><td class="nowrap">2015-01 – 2026-06<br><span class="dim">138 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy.csv"><code>data/Italy.csv</code></a></td></tr><tr><th>Rental</th><td>Rental fleet, derived exactly as Whole minus NonRental.</td><td class="nowrap">2015-01 – 2026-06<br><span class="dim">137 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy_Rental.csv"><code>data/Italy_Rental.csv</code></a></td></tr><tr><th>NonRental</th><td>Passenger cars al netto del noleggio — private buyers, companies and self-registrations.</td><td class="nowrap">2015-01 – 2026-06<br><span class="dim">137 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy_NonRental.csv"><code>data/Italy_NonRental.csv</code></a></td></tr><tr><th>Vans</th><td>Light commercial vehicles, derived from published percentage shares.</td><td class="nowrap">2026-04 – 2026-06<br><span class="dim">2 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Italy_Vans.csv"><code>data/Italy_Vans.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 134" width="100%" height="134" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="155.9" y1="6" x2="155.9" y2="112"/><text class="cov-tick" x="155.9" y="128" text-anchor="middle">2016</text><line class="cov-grid" x1="231.6" y1="6" x2="231.6" y2="112"/><text class="cov-tick" x="231.6" y="128" text-anchor="middle">2018</text><line class="cov-grid" x1="307.3" y1="6" x2="307.3" y2="112"/><text class="cov-tick" x="307.3" y="128" text-anchor="middle">2020</text><line class="cov-grid" x1="383.0" y1="6" x2="383.0" y2="112"/><text class="cov-tick" x="383.0" y="128" text-anchor="middle">2022</text><line class="cov-grid" x1="458.7" y1="6" x2="458.7" y2="112"/><text class="cov-tick" x="458.7" y="128" text-anchor="middle">2024</text><line class="cov-grid" x1="534.4" y1="6" x2="534.4" y2="112"/><text class="cov-tick" x="534.4" y="128" text-anchor="middle">2026</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="435.3" height="12" rx="3"><title>Whole: 2015-01 → 2026-06</title></rect><text class="cov-meta" x="594" y="20">monthly</text><text class="cov-label" x="0" y="46">Rental</text><rect class="cov-bar" x="118.0" y="36" width="435.3" height="12" rx="3"><title>Rental: 2015-01 → 2026-06</title></rect><text class="cov-meta" x="594" y="46">monthly</text><text class="cov-label" x="0" y="72">NonRental</text><rect class="cov-bar" x="118.0" y="62" width="435.3" height="12" rx="3"><title>NonRental: 2015-01 → 2026-06</title></rect><text class="cov-meta" x="594" y="72">monthly</text><text class="cov-label" x="0" y="98">Vans</text><rect class="cov-bar" x="543.8" y="88" width="9.5" height="12" rx="3"><title>Vans: 2026-04 → 2026-06</title></rect><text class="cov-meta" x="594" y="98">monthly</text></svg><p class="fig-note">Whole 2015-01–2026-06 (138 rows), Rental 2015-01–2026-06 (137 rows), NonRental 2015-01–2026-06 (137 rows), Vans 2026-04–2026-06 (2 rows). Some rows additionally carry a <code>time_interval</code> of <code>quarterly</code>; the cadence shown is the spacing the periods actually have.</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 138 of 138 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 138 of 138 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 138 of 138 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 113 of 138 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 113 of 138 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 113 of 138 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>Rental</th><td><span class="cell cell--yes" title="BEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>NonRental</th><td><span class="cell cell--yes" title="BEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 137 of 137 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 112 of 137 rows (82%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>Vans</th><td><span class="cell cell--yes" title="BEV: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 2 of 2 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
 
   
 
@@ -111,7 +152,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-06</code>.
-       Cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th.<br>
+       Update cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th.<br>
+       
        Row source string: <code>unrae.it</code></p>
     <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/18-source-italy.md"><code>docs/architecture/18-source-italy.md</code></a></p>
   </div>

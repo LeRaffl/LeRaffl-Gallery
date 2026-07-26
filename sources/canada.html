@@ -78,6 +78,43 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
 </style>
 </head>
 <body>
@@ -88,22 +125,26 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   <p class="lead">Quarterly new-vehicle registrations for Canada from Statistics Canada&#x27;s Web Data Service (cube 20-10-0025).</p>
 
   <div class="stats">
-    <div class="stat"><div class="n">2026-03</div><div class="l">Latest month</div></div>
+    <div class="stat"><div class="n">2026-02</div><div class="l">Latest period held</div></div>
     <div class="stat"><div class="n">7.5%</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">3</div><div class="l">Variants</div></div>
   </div>
 
   
 
-  <h2>Raw source</h2>
-  <p>Verify the numbers at the upstream:</p>
-  <p><a class="source-btn" href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501">150.statcan.gc.ca — StatCan WDS cube 20-10-0025 ↗</a></p>
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501">150.statcan.gc.ca — StatCan WDS cube 20-10-0025 ↗</a></p>
 
   <h2>How the data flows</h2>
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">Statistics Canada — cube 20-10-0025</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501">150.statcan.gc.ca — StatCan WDS cube 20-10-0025</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_canada.py"><code>scripts/fetch_canada.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-canada.yml"><code>.github/workflows/fetch-canada.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Canada.csv"><code>data/Canada.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>API — pulled from a structured API / query endpoint</td></tr><tr><th>Variants</th><td>Whole, Pickups, Vans</td></tr><tr><th>Vehicle scope</th><td>Whole = passenger cars + multi-purpose vehicles (EU M1); stored at the quarter&#x27;s middle month.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>API — pulled from a structured API / query endpoint</td></tr><tr><th>Vehicle scope</th><td>Whole = passenger cars + multi-purpose vehicles (EU M1); stored at the quarter&#x27;s middle month.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>Passenger cars + multi-purpose vehicles (SUVs/crossovers) = EU class M1.</td><td class="nowrap">2011-06 – 2026-02<br><span class="dim">43 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Canada.csv"><code>data/Canada.csv</code></a></td></tr><tr><th>Pickups</th><td>Pickup trucks, GVWR up to 14,000 lb — Canada-specific, not EU N1.</td><td class="nowrap">2017-02 – 2026-02<br><span class="dim">37 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Canada_Pickups.csv"><code>data/Canada_Pickups.csv</code></a></td></tr><tr><th>Vans</th><td>Minivans + cargo vans — Canada-specific, mixes M1 and N1.</td><td class="nowrap">2017-02 – 2026-02<br><span class="dim">37 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Canada_Vans.csv"><code>data/Canada_Vans.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 108" width="100%" height="108" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="135.5" y1="6" x2="135.5" y2="86"/><text class="cov-tick" x="135.5" y="102" text-anchor="middle">2012</text><line class="cov-grid" x1="195.5" y1="6" x2="195.5" y2="86"/><text class="cov-tick" x="195.5" y="102" text-anchor="middle">2014</text><line class="cov-grid" x1="255.5" y1="6" x2="255.5" y2="86"/><text class="cov-tick" x="255.5" y="102" text-anchor="middle">2016</text><line class="cov-grid" x1="315.5" y1="6" x2="315.5" y2="86"/><text class="cov-tick" x="315.5" y="102" text-anchor="middle">2018</text><line class="cov-grid" x1="375.5" y1="6" x2="375.5" y2="86"/><text class="cov-tick" x="375.5" y="102" text-anchor="middle">2020</text><line class="cov-grid" x1="435.5" y1="6" x2="435.5" y2="86"/><text class="cov-tick" x="435.5" y="102" text-anchor="middle">2022</text><line class="cov-grid" x1="495.5" y1="6" x2="495.5" y2="86"/><text class="cov-tick" x="495.5" y="102" text-anchor="middle">2024</text><line class="cov-grid" x1="555.5" y1="6" x2="555.5" y2="86"/><text class="cov-tick" x="555.5" y="102" text-anchor="middle">2026</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="148.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="178.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="208.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="238.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="268.0" y="10" width="7.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><rect class="cov-bar" x="288.0" y="10" width="277.5" height="12" rx="3"><title>Whole: 2011-06 → 2026-02</title></rect><text class="cov-meta" x="594" y="20">quarterly</text><text class="cov-label" x="0" y="46">Pickups</text><rect class="cov-bar" x="288.0" y="36" width="277.5" height="12" rx="3"><title>Pickups: 2017-02 → 2026-02</title></rect><text class="cov-meta" x="594" y="46">quarterly</text><text class="cov-label" x="0" y="72">Vans</text><rect class="cov-bar" x="288.0" y="62" width="277.5" height="12" rx="3"><title>Vans: 2017-02 → 2026-02</title></rect><text class="cov-meta" x="594" y="72">quarterly</text></svg><p class="fig-note">Whole 2011-06–2026-02 (43 rows), Pickups 2017-02–2026-02 (37 rows), Vans 2017-02–2026-02 (37 rows). Some rows additionally carry a <code>time_interval</code> of <code>yearly</code>; the cadence shown is the spacing the periods actually have.</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 43 of 43 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>Pickups</th><td><span class="cell cell--yes" title="BEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr><tr><th>Vans</th><td><span class="cell cell--yes" title="BEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 37 of 37 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
 
   
 
@@ -111,7 +152,8 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
 
   <div class="footer">
     <p><strong>Freshness.</strong> Latest period in our store: <code>2026-02</code>.
-       Cadence: quarterly (Mar/Jun/Sep/Dec runs), commit-gated.<br>
+       Update cadence: daily cron on the 8th–20th of Mar/Jun/Sep/Dec, 06:40 UTC — the cube is quarterly.<br>
+       Curves in the gallery are fitted through <code>2026-03</code>.<br>
        Row source string: <code>150.statcan.gc.ca</code></p>
     <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/17-source-canada.md"><code>docs/architecture/17-source-canada.md</code></a></p>
   </div>

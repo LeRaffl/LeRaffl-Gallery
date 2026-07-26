@@ -236,29 +236,38 @@ Defensive — if a manual upload bypasses the Render action (legacy local R work
 
 A family of country-specific `fetch-<source>.yml` workflows that scrape national registration sources, upsert the new monthly row into the relevant `data/<Country>.csv`, and dispatch `render-country.yml` per touched country/variant when a CSV actually changed. Each follows the same shape (`workflow_dispatch` + `schedule`, Python script under `scripts/fetch_<source>.py`, EndBug commit, then `gh workflow run render-country.yml`) but the parser is intentionally country-local — every statistics agency has its own URL scheme, file layout, and quirks that don't justify a generic abstraction.
 
-| Workflow | Source | Variants written | Scope | Schedule |
-|---|---|---|---|---|
-| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | ACEA monthly PDF press release | `Whole` only | Up to 21 EU countries (16 always + 5 conditional, see [Flow K](05-flows.md#flow-k--acea-ingest)) | Daily 08:00 UTC, 16th → EOM |
-| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | ANFAVEA Excel | `Whole` | Brazil | Monthly 10th 08:00 UTC |
-| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | ANAC (Mercado + Cero y Bajas Emisiones) | `Whole` | Chile | Daily 08:00 UTC, 14th → EOM |
-| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis | `Whole` (retail) + `Wholesale` to separate CSV | China | Daily 11:00 UTC, 1st → EOM |
-| [`fetch-albania.yml`](../../.github/workflows/fetch-albania.yml) | dpshtrr.al via R. Andrew CSV mirror (`robbieandrew.github.io`) | `Whole` (new + imported-used first registrations) | Albania | Daily 07:00 UTC, 10th → 28th |
-| [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | ANDI/FENALCO Boletín PDF (datos RUNT) | `Whole` (single Hybrid bucket — combined HEV+PHEV, like Türkiye) | Colombia | Daily 07:30 UTC, 5th → 25th |
-| [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | Denmark | Daily 05:15 UTC, 1st → 15th |
-| [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | Finland | Daily 04:40 UTC, 1st → 15th |
-| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | Ireland | Twice daily 04:00 & 13:00 UTC, 1st → 5th |
-| [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | Indonesia | Daily 09:35 UTC, 10th → EOM |
-| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA (XLSX preferred, PDF fallback) | `Whole` | Japan | Daily 08:00 UTC, 1st → EOM |
-| [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | Department of Customs FTS XLSX (`customs.gov.np`, HS 8703 imports — not registrations) | `Whole` + `3-Wheelers` | Nepal | Daily 07:50 UTC (cheap-skips until a new Nepali month publishes) |
-| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`) | `Whole` + `Used` + `HDV` | Netherlands | Daily 06:30 UTC, 1st → 15th |
-| [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | Portugal | Twice daily 17:30 & 20:30 UTC, 1st → 5th |
-| [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | SCB PxWeb `PersBilarDrivMedel` (TAB3277) | `Whole` | Sweden | Daily 05:50 UTC, 1st → 15th |
-| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | TÜİK press bulletin (PDF + OCR) | `Whole` | Türkiye | Daily 08:00 UTC, 15th → EOM (requires manual `press_id`) |
-| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | ACAU "Compilado YYYY" xlsx | `Whole` (AUTOS + SUV aggregated) | Uruguay | Daily 08:00 UTC, 1st → EOM |
-| [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | transport.govt.nz fleet-statistics `/inner` AJAX endpoint (CKAN fallback) | `Whole` | New Zealand | Twice daily 06:00 & 14:00 UTC, 5th → 12th |
-| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL Total Sales PDF | `Whole` (trailing 3-month window) | USA | Daily 10:00 UTC, 10th → EOM |
+| Workflow | Source | Variants written | Schedule (UTC) |
+|---|---|---|---|
+| [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | ACEA monthly PDF press release | Always-list (16): Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia. Conditional-list: Norway, Switzerland — written only if the existing source is exactly `ACEA` | 08:40 UTC, 16th → EOM |
+| [`fetch-albania.yml`](../../.github/workflows/fetch-albania.yml) | DPSHTRR Open Data via its public Looker Studio report (headless Chromium) | `Whole` + `HDV` + `Buses` + `2-Wheelers` — first registrations, new **and** imported used | 07:00 UTC, 10th → 28th |
+| [`fetch-austria.yml`](../../.github/workflows/fetch-austria.yml) | Statistik Austria DE2/DE3 `.ods` (via the Cloudflare Worker relay — the source blocks datacenter IPs) | `Whole` + `HDV` + `Vans` | 09:25 UTC, 8th → 22nd |
+| [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | ANFAVEA yearly Excel workbook | `Whole` (cars + light commercials) | 08:50 UTC, 10th |
+| [`fetch-canada.yml`](../../.github/workflows/fetch-canada.yml) | StatCan WDS cube 20-10-0025 | `Whole` (EU M1) + `Pickups` + `Vans` | 06:40 UTC, 8th → 20th of Mar/Jun/Sep/Dec |
+| [`fetch-chile.yml`](../../.github/workflows/fetch-chile.yml) | ANAC (Mercado Automotor + Cero y Bajas Emisiones PDFs) | `Whole` | 08:20 UTC, 14th → EOM |
+| [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | CPCA monthly market analysis (article + OCR of the NEV slide) | `Whole` (retail) + `Wholesale` to a separate CSV | 11:00 UTC, 1st → EOM |
+| [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | ANDI/FENALCO Boletín PDF (datos RUNT) | `Whole` — single combined Hybrid bucket | 07:30 UTC, 5th → 25th |
+| [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | 05:15 UTC, 1st → 15th |
+| [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | 04:40 UTC, 1st → 15th |
+| [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | 09:35 UTC, 10th → EOM |
+| [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | 04:00 & 13:00 UTC, 1st → 5th |
+| [`fetch-italy.yml`](../../.github/workflows/fetch-italy.yml) | UNRAE «struttura del mercato» PDF; LCV from the separate Comunicato Stampa | `Whole` + `Rental` + `NonRental` + `Vans` | 06:00/10:00/14:00/18:00 UTC, 1st → 3rd (passenger); 10:00/14:00/18:00 UTC, 13th → 16th (vans) |
+| [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | JADA monthly registrations file (XLSX preferred, PDF fallback) | `Whole` — 登録車 only, kei cars excluded | 08:00 UTC, 1st → EOM |
+| [`fetch-luxembourg.yml`](../../.github/workflows/fetch-luxembourg.yml) | STATEC SDMX 2.1, dataflow DF_D6122 (`lustat.statec.lu`) | `Whole` + `Vans` + `HDV` | 06:45 UTC, 1st → 15th |
+| [`fetch-malaysia.yml`](../../.github/workflows/fetch-malaysia.yml) | data.gov.my cars dataset (Parquet) | `Whole` | 07:00 UTC, 15th → EOM |
+| [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | Department of Customs FTS XLSX (`customs.gov.np`) — HS 8703 **imports**, not registrations | `Whole` + `3-Wheelers` | 07:50 UTC, daily |
+| [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | RDW via Swing BI (`duurzamemobiliteit.databank.nl`, Deno Deploy relay) | `Whole` + `Used` + `HDV` | 06:30 UTC, 1st → 15th |
+| [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | transport.govt.nz `/inner` (CKAN fallback) | `Whole` | **disabled** — cron commented out 2026-06 (Imperva); `workflow_dispatch` only, data entered by hand |
+| [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | 09:30 & 13:30 UTC, 6th → 10th |
+| [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | 17:30 & 20:30 UTC, 1st → 5th |
+| [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | LTA Monthly Vehicle Statistics, file M03 (PDF) | `Whole` | 08:00 UTC, 15th → EOM |
+| [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | DGT matriculaciones microdata (fixed-width, monthly zip) | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | 06:30 UTC, 1st → 16th |
+| [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | 05:50 UTC, 1st → 15th |
+| [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | 04:40 UTC, 1st → 20th |
+| [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | TÜİK «Motorlu Kara Taşıtları» bulletin (id auto-discovered; fuel table OCR'd) | `Whole` — otomobil only, combined Hybrid bucket | 08:30 UTC, 15th → EOM |
+| [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | ACAU «Compilado YYYY» xlsx | `Whole` (AUTOS + SUV) + `Vans` + `HDV` + `Buses` | 08:10 UTC, 1st → EOM |
+| [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | ANL «Total Sales for Website» PDF | `Whole` — trailing 3-month window, re-written each run to absorb ANL revisions | 10:30 UTC, 10th → EOM |
 
-Countries with a `data/<Country>.csv` but **no** auto-fetcher rely on the legacy local R pipeline (§ 2.10) or on public-submit PRs: Australia, Austria, Canada, Georgia, Germany, Italy, South Korea, Thailand, UK. Same for ACEA's conditional-list countries (Luxembourg, Norway, Poland, Spain, Switzerland) until their existing source flips to pure `ACEA`.
+Countries with a `data/<Country>.csv` but **no** auto-fetcher are maintained by hand (legacy local R pipeline or public-submit PRs): **Australia, Georgia, Germany, South Korea, UK**, plus **India** (which has no committed CSV at all) and **New Zealand**, whose fetcher exists but whose cron is disabled — see its row above. ACEA's conditional-list countries (Norway, Switzerland) stay on ACEA until their source flips.
 
 For countries that were **investigated and deliberately not added** — and why (e.g. Argentina, Mexico — paywalled or with structural undercount) — see [14-data-source-gaps.md](14-data-source-gaps.md). That's the reference for the "why isn't \<country\> on the map?" question. Colombia was originally shelved there and is now ingested via ANDI/FENALCO ([18-source-colombia.md](18-source-colombia.md)).
 
