@@ -6,13 +6,6 @@ name: Fetch Morocco data (AIVAM) — probe
 
 on:
   workflow_dispatch:
-  # DEV: temporary trigger while the fetcher is developed on the expansion
-  # branch; remove before merging.
-  push:
-    branches: [claude/portfolio-country-expansion-95a8bb]
-    paths:
-      - 'scripts/fetch_morocco.py'
-      - '.github/workflows/fetch-morocco.yml'
 
 jobs:
   probe:

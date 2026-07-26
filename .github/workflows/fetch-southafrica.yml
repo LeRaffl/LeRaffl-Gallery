@@ -6,13 +6,6 @@ name: Fetch South Africa data (naamsa) — probe
 
 on:
   workflow_dispatch:
-  # DEV: temporary trigger while the fetcher is developed on the expansion
-  # branch; remove before merging.
-  push:
-    branches: [claude/portfolio-country-expansion-95a8bb]
-    paths:
-      - 'scripts/fetch_southafrica.py'
-      - '.github/workflows/fetch-southafrica.yml'
 
 jobs:
   probe:
