@@ -296,9 +296,14 @@ def parse_emisiones(text: str, period: str = "", csv_path: str = "") -> dict[str
 
     # --- Narrative fallback ---
     if period and csv_path:
+        # pypdf sprinkles line breaks and double spaces mid-sentence (e.g.
+        # "híbridos \nconvencionales acumularon", "sumaron 2.955 \nunidades"),
+        # which broke the single-space narrative patterns. Collapse every run of
+        # whitespace to one space before matching the prose.
+        norm = re.sub(r"\s+", " ", text)
         cum: dict[str, int] = {}
         for key, pat in _NARRATIVE_RE.items():
-            m = pat.search(text)
+            m = pat.search(norm)
             if m:
                 cum[key] = int(m.group(1).replace(".", ""))
         # PHEV+EREV → single "PHEV" column for CSV backwards-compat
