@@ -1,0 +1,9 @@
+🇨🇱 Chile - TTM Market Split
+
+Jun24–May25  vs  Jun25–May26
++0.6pp  BEV   (1.8% → 2.4%)
++1.4pp  PHEV  (0.5% → 1.9%)
++3.9pp  HEV   (2.5% → 6.4%)
+−5.9pp  ICE   (95.2% → 89.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
