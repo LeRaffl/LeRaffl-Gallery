@@ -214,6 +214,49 @@ so the next session doesn't redo the search.
 
 ---
 
+## Tier — Western Balkans / former Yugoslavia gap (2026-07)
+
+The gallery covers Croatia, Slovenia and Albania in the region but has a hole
+across the rest of former Yugoslavia (Serbia, Bosnia, North Macedonia,
+Montenegro, Kosovo). Desk investigation below; **web-research only, endpoints
+not yet exercised** — verify machine-access + the BEV/PHEV/HEV split before
+building.
+
+**On CEauto (Central European Automotive Report).** It surfaces Balkan car
+numbers (e.g. via Best Selling Cars Blog) but is a **paid B2B aggregator**, not
+a registry — fails the bar at (a) *secondary source* and (c) *subscription
+paywall*, and its public teasers carry only totals + brand ranking, no free
+6-way fuel split. **Do not build a fetcher on CEauto.** Its only use is as a
+cross-check (the role BSCB played for Albania) and as a pointer to each
+country's underlying primary source.
+
+| Country | Best primary source | Cadence | Fuel split | Scope | Verdict |
+|---|---|---|---|---|---|
+| 🇷🇸 Serbia | **Uvoznici vozila** (importers' assoc.; MoI first-reg data) — "Overview of the New Vehicle Market (M1/N1/L)" | monthly | Petrol/Diesel/Hybrid/BEV (**verify PHEV vs HEV**) | **New only, ACEA-style** | ⭐ **Build candidate #1** |
+| 🇧🇦 Bosnia | bhas.gov.ba monthly TRANSPORT bulletin (from IDDEEA) | monthly PDF | may lump "alternative fuel" (~3.6%) — **verify granularity** | first-reg **incl. imported used** (Albania-like) | Candidate — verify fuel split |
+| 🇲🇰 North Macedonia | stat.gov.mk | thin | thin | — | Weak (≈190 BEV total; signal too small) |
+| 🇲🇪 Montenegro | MONSTAT | ~annual | thin | — | Weak |
+| 🇽🇰 Kosovo | Kosovo Agency of Statistics | ~annual | thin | — | Weak |
+| all (backfill/cross-check) | **Eurostat `road_eqr_carpda`** + **UNECE** road-fleet PX tables | **annual only, ~1yr lag** | motor-energy, ACEA-congruent | new | annual backfill / cross-check, not a monthly primary |
+
+**ACEA-consistency caveat (matters for this region).** Only Serbia
+(importers' association) and the Eurostat/UNECE annuals are *new-car* series.
+The statistical-office / IDDEEA routes (Bosnia, and the same lens we already use
+for Albania) count **first registrations including imported used vehicles** —
+fine for the gallery's whole-flow view of a used-import-dominated market
+(§14 principle), but **not comparable to ACEA new-registration counts** and must
+carry a footnote saying so. Mixing the two reproduces the Albania-vs-CEauto
+denominator break (~5× on the total, BEV share 9% vs ~50%). Every
+incl.-imported-used country therefore needs the standard footnote already
+attached to Albania in `footnotes.csv`.
+
+**Order of attack:** Serbia first (biggest market, real industry body,
+ACEA-clean, growing EV signal) → Bosnia (only after confirming the bulletin
+separates BEV/PHEV/HEV) → skip North Macedonia / Montenegro / Kosovo for now
+(EV signal ≈ 0, monthly data too thin — same failure mode as the §14 rejects).
+
+---
+
 ## Alternative axis — variant leads for countries already on the gallery
 
 Unverified leads (training-knowledge level, no fetch performed — confirm the
