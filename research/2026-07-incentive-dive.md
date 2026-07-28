@@ -118,9 +118,13 @@ postponing/softening the tax phase-in in 2018, so it is not a clean
 one market still far below peak after 2.5 years (and it added road-user
 charges for EVs on top, i.e. a negative incentive, not mere removal).
 
-**H5 supported with one amendment:** relative damage falls monotonically
-with the stage at removal (2% → −85%; 10% → −66%; 20% → −34%; 30% → −6%;
-78% → 0%) — **except Iceland** (50% → −41%). The Iceland outlier is
+**H5 supported with one amendment:** relative damage falls broadly with the
+stage at removal (2% → −85%; 10% → −66%; 20% → −34%; 30% → −14%; 78% → 0%;
+90% → −18% [HK, abrupt] vs. 78% → 0% [NO, gradual]) — **except Iceland**
+(50% → −41%). Note the two late points aren't monotone: Hong Kong's abrupt
+full removal at 90% bit harder (−18%) than Norway's gradual one at 78%
+(~0%), which is the dose axis showing up, not a break in the stage rule.
+The Iceland outlier is
 explained by **dose**: it didn't remove one subsidy, it removed a blanket
 VAT exemption *and* introduced a per-km road charge simultaneously — the
 largest single-shock repricing in the sample. So the working model is:
@@ -154,18 +158,25 @@ Monthly BEV penetration of private-car registrations (via Roland Pircher,
 | 2026-01 | 89.2% | |
 | 2026-03 | 95.0% | record — pull-forward before the 31 Mar deadline |
 | 2026-04 | 94.6% | first post-concession month |
-| 2026-05 | 89.2% | exactly at the January baseline |
+| 2026-05 | 89.2% | back at the January baseline (still pre-deadline orders) |
+| 2026-06 | 73.4% | **first clean month** — orders mostly placed post-deadline; total mkt collapsed to ~1,900 cars |
 
-**No cliff.** After a complete, abrupt removal of a tax concession worth up
-to HK$172,500/€20k+ per car, the market shows a pull-forward spike of a few
-points and then returns to its pre-announcement baseline — compared with
-−41% relative at Iceland's 50% stage and −85% at Denmark's 2% stage. This is
-the strongest confirmation yet of H5: **past a high enough adoption level
-(~90% here), the transition no longer needs the incentive at all.**
+**A shallow dent, not a cliff — and not "nothing" either.** The earlier read
+(only through May) looked like a full return to baseline, i.e. zero damage.
+That was premature: April and May still cleared pre-deadline orders, exactly
+the caveat flagged below. June is the first month whose buyers mostly decided
+*after* the concessions were gone, and BEV share drops to 73.4% — a relative
+fall of ~18% vs. the ~89% baseline (~23% vs. the 95% spike). So the honest
+H5 result is: at ~90% stage, a full, abrupt removal (high dose) still bites,
+but only ~a fifth of the way — vs. −41% at Iceland's 50% (double dose) and
+−85% at Denmark's 2%. Stage still dominates; "no damage at all past 90%" was
+an overstatement of a real effect (shallow, high-baseline damage). Note the
+contrast with Norway (78%, gradual, low dose → ~0%): late stage *and* low
+dose is what buys zero — Hong Kong isolates the dose axis at the top.
 
-Caveats: only two post-cut months so far, and April/May registrations partly
-reflect orders placed before the deadline (registration lags purchase), so
-June–August 2026 are the real test months. Worth building `Hong Kong.csv`
+Caveats: June is a single month on tiny post-crash volume (~1,900 cars),
+so the point is noisy; July–August 2026 will show whether 73% is the floor
+or a way-station. Worth building `Hong Kong.csv`
 from TD monthly stats and tracking this through year-end.
 
 ## Toward a field guide: the full event table (stage × dose)
@@ -193,7 +204,7 @@ unless marked ext.
 | Iceland, VAT exemption end + km charge | Jan 2024 | 50.0% | ~20%+ (double shock) | −41% | 30+ months, recovering |
 | Denmark, phase-in postponed (relief) | 2018 | ~0.4% | negative (price cut) | recovery begins | — |
 | Norway, partial VAT, gradual | 2023 | 78.4% | small per step | ~0 | 0 |
-| Hong Kong, all concessions end | Mar 2026 | ~90% | large | ~0 (2 months in) | 0 so far |
+| Hong Kong, all concessions end | Mar 2026 | ~90% | large (~25%) | **−18%** (Jun, 1st clean mo) | ongoing |
 
 n≈14 heterogeneous events — enough for a surface and rules of thumb, NOT
 for a regression. No elasticities; nearest-precedent lookup only.
@@ -203,21 +214,26 @@ for a regression. No elasticities; nearest-precedent lookup only.
 1. **How hard is the typical crash?** Determined jointly by stage and dose.
    Early (<10% share) + big abrupt dose: −66% to −94% of the market, i.e.
    the market effectively resets. Mid-stage (15–30%) + moderate dose
-   (~10–15% of car price): −5% to −34%. Late (>70%): no measurable damage
-   at any dose observed so far.
+   (~10–15% of car price): −5% to −34%. Late (>70%): a gradual/low dose
+   costs ~0 (Norway); a full, abrupt dose still costs ~18% even at ~90%
+   (Hong Kong, Jun 2026, provisional) — shallow, and off a high baseline,
+   but not zero.
 2. **How much time is lost?** Early cuts: 4–6 years (DK 45 mo, NL-PHEV 70
    mo, NZ >30 mo and counting). Mid-stage cuts: 0–27 months (DE 27, FR 9,
-   SE ~0). Late cuts: none (NO, HK). Time lost shrinks roughly an order of
-   magnitude from early to mid stage.
+   SE ~0). Late gradual cut: none (NO); late abrupt cut: TBD (HK still in
+   its dip as of Jun 2026). Time lost shrinks roughly an order of magnitude
+   from early to mid stage.
 3. **Dose scaling at similar stage** (the UK–SE–DE–NZ column): ~2–5% dose →
-   no effect; ~10–14% → −6%; ~11% abrupt overnight → −34%; ~15–19% incl.
+   no effect; ~10–14% → −14% (Sweden, from delivery peak); ~11% abrupt overnight → −34%; ~15–19% incl.
    new charges → −66%. Abruptness and stacking (new charges in the same
    month) visibly worsen the response beyond the raw dose.
-4. **When is removal safe?** A single moderate incentive can be removed
-   without lasting damage from ~30% share (Sweden). Full removal of all
-   support is only demonstrated safe at ≥~70–90% (Norway gradual, Hong Kong
-   abrupt). 50% is demonstrably NOT enough for a full-dose double shock
-   (Iceland).
+4. **When is removal safe?** "Safe" = cheap, not free. A single moderate
+   incentive can be removed with little damage from ~30% share (Sweden).
+   Removing everything gradually is free even mid-high (Norway, 78%).
+   Removing everything abruptly still costs ~18% even at ~90% (Hong Kong) —
+   cheap relative to the level, not zero. 50% is demonstrably NOT enough for
+   a full-dose double shock (Iceland). No single safe threshold; price
+   sensitivity just keeps falling as stage rises.
 5. **Which incentives to cut first?** (a) Small per-unit grants whose dose
    has shrunk below ~5% of car price — they're no longer load-bearing (UK).
    (b) Anything, if cut as a pre-announced staircase of ≤~5–10% steps —

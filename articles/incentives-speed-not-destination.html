@@ -161,7 +161,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
 
     <div class="live-chart-block">
       <div class="plot" id="stageChart"></div>
-      <div class="chart-caption">Each point is one incentive cut: BEV share when it happened vs. how much of the market disappeared (relative, TTM peak to trough). Bubble size is the dose — the price shock as a share of a typical BEV's price (estimates, see table). USA ’25 is still falling; NL ’16 is the PHEV market. Iceland and the UK are the outliers that reveal the dose rule — see text.</div>
+      <div class="chart-caption">Each point is one incentive cut: BEV share when it happened vs. how much of the market disappeared (relative, TTM peak to trough). Bubble size is the dose — the price shock as a share of a typical BEV's price (estimates, see table). USA ’25 is still falling; Hong Kong ’26* is one month old and provisional; NL ’16 is the PHEV market. Iceland and the UK are the outliers that reveal the dose rule — see text.</div>
     </div>
 
     <div class="table-scroll"><table>
@@ -196,10 +196,12 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
 
     <div class="live-chart-block">
       <div class="plot" id="hkChart"></div>
-      <div class="chart-caption">Hong Kong, monthly BEV share of private-car registrations around the 31 March 2026 end of all FRT concessions. Data points via Roland Pircher (@piloly), from HK Transport Department statistics.</div>
+      <div class="chart-caption">Hong Kong, monthly BEV share of private-car registrations around the 31 March 2026 end of all FRT concessions. Data points via Roland Pircher (@piloly), from HK Transport Department statistics. June is the first month whose orders were largely placed <em>after</em> the deadline.</div>
     </div>
 
-    <p>March 2026, the last eligible month: a record <strong>95%</strong> — there's our familiar pull-forward spike. April: 94.6%. May: <strong>89.2%, exactly the January baseline.</strong> A tax break worth up to HK$172,500 per car vanished overnight, and the market's response was to return to trend. Compare that with what the same removal would have done at Iceland's stage, let alone Denmark 2016's, and the stage rule stops being a gut feeling.</p>
+    <p>March 2026, the last eligible month: a record <strong>95%</strong> — there's our familiar pull-forward spike. April: 94.6%. May: 89.2%, back at the January baseline. For a moment it looked like nothing had happened at all. But April and May registrations were still working through orders placed before the 31 March deadline — the article I first drafted said so, and flagged June through August as the real test months. June has now arrived, and it is the first month whose buyers mostly decided <em>after</em> the concessions were gone. BEV share: <strong>73.4%</strong> — down nearly sixteen points from May, on a total market that itself collapsed to about 1,900 cars as the pull-forward drained.<sup><a href="#src-8">[8]</a></sup></p>
+
+    <p>So there <em>is</em> a dent. Not a cliff — a dent. A tax break worth up to HK$172,500 per car vanished overnight, and roughly one buyer in six who would have gone electric now doesn't (yet). That is a relative drop of about 18–23% depending on whether you measure from the baseline or the spike — real, but a world away from the 41% Iceland suffered at half Hong Kong's adoption level, or the near-total wipeouts at the bottom of the curve. This is what the stage rule actually predicts once you stop rounding: a full-dose, abrupt removal at ~90% share does bite, but the bite is shallow and the market is starting from so high that it stays overwhelmingly electric anyway. One caveat in both directions: it is a single month on tiny post-crash volume, so the number is noisy, and July and August will tell us whether 73% is the floor or a way-station. I'll update this chart as Roland posts them.</p>
 
     <p>Hong Kong even brings its own early-stage control: in April 2017 the same city capped what was then a full tax waiver — at a point when BEVs were a sliver of the market — and Tesla went from 2,939 registrations in March to <strong>32 in the remaining nine months of the year</strong><sup><a href="#src-10">[10]</a></sup>. One city, two cuts, nine years apart, opposite outcomes. The only variable that changed is how far along the transition was.</p>
 
@@ -208,7 +210,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
     <ul>
       <li><strong>There is no natural first-mover.</strong> Private households lead where taxes punish private ICE purchases (Denmark), fleets lead where company-car taxation does the pushing (Belgium), and the leader flips when one incentive outlives the other (Finland, 2024). Any story that explains the gap with national character is fake until it has checked the tax code.</li>
       <li><strong>Incentive removal is instant and proportional to the dose.</strong> Spike, cliff, crater — visible within one month, in every case, and deepest where subsidies were cut and new charges added simultaneously (Iceland, New Zealand).</li>
-      <li><strong>The damage is temporary, and its duration shrinks as the transition matures.</strong> −85% at a 2% market. −34% at 20%. Nothing at all at 90%. And every market, without exception, resumes course.</li>
+      <li><strong>The damage is temporary, and both its depth and duration shrink as the transition matures.</strong> −85% at a 2% market. −34% at 20%. A shallow ~20% dip even at 90% under a full, abrupt cut (Hong Kong, first clean month). And every market, without exception, resumes course.</li>
       <li><strong>Rental fleets and the used market remain the exception</strong> — the channels where usage economics outweigh any incentive. That's the deeper reason the Italy and Spain curves look the way they do, and why the Netherlands' used-BEV share <em>fell</em> from 2022 through 2025 — with only a first tentative uptick in 2026 — while its new-BEV share soared: the domestic used market isn't absorbing the lease returns. That one deserves its own article.</li>
     </ul>
 
@@ -217,16 +219,16 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
     <p>All of which condenses into something I didn't expect to be able to write when this started: a rough planning table for subsidy decisions. Every number below is bracketed by the historical cases above — nothing is modelled, everything can be checked against the table by hand.</p>
 
     <ul>
-      <li><strong>How hard is the crash?</strong> Cut early (under ~10% share) with a big abrupt dose and you lose two-thirds to nearly all of the market (NZ −66%, DK −85%, NL-PHEV −94%). Cut mid-transition (15–30%) with a moderate dose (~10–15% of car price) and you lose 5–35% (SE, FR, DE). Cut late (past ~70%) and nothing measurable happens at any dose yet observed (NO, HK).</li>
+      <li><strong>How hard is the crash?</strong> Cut early (under ~10% share) with a big abrupt dose and you lose two-thirds to nearly all of the market (NZ −66%, DK −85%, NL-PHEV −94%). Cut mid-transition (15–30%) with a moderate dose (~10–15% of car price) and you lose 5–35% (SE, FR, DE). Cut late (past ~70%) and even a full, abrupt dose only shaves off ~20% (Hong Kong) — or nothing, if it's gradual (Norway).</li>
       <li><strong>How much time is lost?</strong> Early cuts: four to six years (DK 45 months, NL-PHEV 70, NZ still down after 30). Mid-stage: zero to ~27 months (SE ~0, FR 9, DE 27). Late: none. Each stage of maturity buys back roughly an order of magnitude of recovery time.</li>
-      <li><strong>When is removal safe?</strong> A single moderate incentive: from ~30% share (Sweden). Everything at once: only demonstrated past ~70–90% (Norway gradually, Hong Kong abruptly — so far). 50% is demonstrably <em>not</em> enough to absorb a full-dose double shock (Iceland).</li>
+      <li><strong>When is removal safe?</strong> "Safe" is really "cheap enough". A single moderate incentive removed at ~30% share never drives the market below its level at the cut date — it only shaves ~14% off the delivery-inflated peak (Sweden), i.e. it slows the climb without losing ground. Removing <em>everything</em> abruptly still costs a ~20% dip even at 90% (Hong Kong) — cheap relative to the level, but not free; do it gradually and it's free (Norway). 50% is demonstrably <em>not</em> enough to absorb a full-dose double shock (Iceland). The lesson isn't a single safe threshold — it's that price matters less and less the higher you are.</li>
       <li><strong>Which incentives can go first?</strong> Grants whose dose has shrunk below ~5% of the car's price — they've stopped being load-bearing (UK). And essentially anything, if removed as a pre-announced staircase of small steps: France's step-wise bonus cuts cost 5% and nine months; Israel has been raising its EV purchase tax in annual steps from 10% toward 48% through the middle of its transition without a visible crater; Norway trimmed gradually at the top. No staircase in the sample produced a cliff.</li>
       <li><strong>What never to do:</strong> stack a subsidy removal with a new recurring charge in the same month mid-transition — that's the Iceland/New Zealand signature, and it roughly doubles the damage you'd expect from the subsidy cut alone. And remember the German lesson: a cut that targets one channel craters that channel on its own schedule — the corporate-only September cut broke the national series months before the general one did.</li>
     </ul>
 
-    <p>For policymakers the translation is short: early in the transition, incentives are load-bearing — remove them abruptly and you lose years. Late in the transition they're scaffolding on a finished building. The interesting question was never <em>whether</em> to remove them, but <em>when</em> and <em>how</em>: past 30%, moderate single cuts are survivable; staircases are survivable almost everywhere; and if you must cut mid-transition, cut one thing at a time.</p>
+    <p>For policymakers the translation is short: early in the transition, incentives are load-bearing — remove them abruptly and you lose years. Late in the transition they're scaffolding on a finished building — pull it and you get a wobble, not a collapse. The interesting question was never <em>whether</em> to remove them, but <em>when</em> and <em>how</em>: past 30%, moderate single cuts are survivable; staircases are survivable almost everywhere; and if you must cut mid-transition, cut one thing at a time.</p>
 
-    <p>And the next test is already scheduled: Hong Kong's April and May registrations still contain orders placed before the deadline, so June through August 2026 are the months that confirm or embarrass everything above. The Gallery will be watching. So, evidently, will Roland.</p>
+    <p>And the test is now live rather than scheduled. When I first drafted this, Hong Kong's post-deadline months hadn't landed and April/May still looked suspiciously like "nothing happened". June landed while I was writing: a real dent, 73.4%, exactly the kind of shallow bite the stage rule predicts at ninety percent — but a dent, not the non-event the pre-deadline months implied. July and August will say whether that's the floor. It's a good reminder of what this whole exercise is: not a finished law of subsidies, but a set of rules-of-thumb that each new month gets to confirm or embarrass. The Gallery will be watching. So, evidently, will Roland.</p>
 
   </div>
 
@@ -240,7 +242,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       <li id="src-5">VATupdate, <a href="https://www.vatupdate.com/2023/11/30/iceland-removing-vat-reliefs-for-electric-vehicles/" target="_blank" rel="noopener">"Iceland removing VAT reliefs for electric vehicles"</a>; Ísland.is, <a href="https://island.is/en/electric-car-grants" target="_blank" rel="noopener">electric car grants</a> (the smaller capped scheme that replaced the exemption, alongside the new per-km charge, from January 2024).</li>
       <li id="src-6">KBA, <a href="https://www.kba.de/DE/Presse/Pressemitteilungen/Fahrzeugzulassungen/2026/pm01_2026_n_12_25_pm_komplett.html" target="_blank" rel="noopener">annual registration statistics</a>; dena, <a href="https://www.dena.de/fileadmin/dena/Publikationen/PDFs/2025/Monitoringbericht_2025.pdf" target="_blank" rel="noopener">Monitoringbericht 2025</a> — Umweltbonus end dates: 1 Sep 2023 (corporate), 17 Dec 2023 (all).</li>
       <li id="src-7">Transportstyrelsen, <a href="https://www.transportstyrelsen.se/en/road/vehicles/taxes-and-fees/bonus/" target="_blank" rel="noopener">"Bonus — for low emission vehicles has ended"</a> — Klimatbonus abolished for vehicles ordered after 8 November 2022; final bonus levels 50,000–70,000 SEK for BEVs.</li>
-      <li id="src-8">Roland Pircher (<a href="https://x.com/piloly" target="_blank" rel="noopener">@piloly</a>), monthly Hong Kong registration threads, from HK Transport Department data. Data points used: 2025-06 (86.3%), 2026-01 (89.2%), 2026-03 (95.0%), 2026-04 (94.6%), 2026-05 (89.2%).</li>
+      <li id="src-8">Roland Pircher (<a href="https://x.com/piloly" target="_blank" rel="noopener">@piloly</a>), monthly Hong Kong registration threads, from HK Transport Department data. Data points used: 2025-06 (86.3%), 2026-01 (89.2%), 2026-03 (95.0%), 2026-04 (94.6%), 2026-05 (89.2%), 2026-06 (73.4%, on ~1,900 total registrations).</li>
       <li id="src-9">HKSAR Government, <a href="https://www.info.gov.hk/gia/general/202602/25/P2026022500288.htm" target="_blank" rel="noopener">"First registration tax concession arrangement for electric vehicles"</a> (25 February 2026) — concessions, including the One-for-One scheme, ended 31 March 2026.</li>
       <li id="src-10">Quartz, <a href="https://qz.com/1676912/teslas-sales-never-recovered-after-hong-kong-cut-a-tax-break" target="_blank" rel="noopener">"Tesla's sales never recovered after Hong Kong cut a tax break"</a>; Electrek, <a href="https://electrek.co/2017/02/22/hong-kong-electric-vehicle-incentives-tesla/" target="_blank" rel="noopener">"Hong Kong cancels electric vehicle incentives"</a> (2017).</li>
       <li id="src-11">GOV.UK, <a href="https://www.gov.uk/government/news/plug-in-grant-for-cars-to-end-as-focus-moves-to-improving-electric-vehicle-charging" target="_blank" rel="noopener">"Plug-in grant for cars to end"</a> (June 2022) — final grant £1,500, cars under £32,000 only. France, USA and Netherlands-PHEV market responses are computed from the Gallery's own datasets; the Dutch company-car ("bijtelling") rate changes for PHEVs (7% → 15/22% of list price, 2016–17) are summarised in <a href="https://en.wikipedia.org/wiki/Plug-in_electric_vehicles_in_the_Netherlands" target="_blank" rel="noopener">Plug-in electric vehicles in the Netherlands</a>; Israel's stepped purchase-tax increases (10% → 45–48%, 2023–26) via <a href="https://www.gov.il/en/pages/sa121125-1" target="_blank" rel="noopener">Israel Tax Authority</a>.</li>
@@ -349,7 +351,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       { c: 'Sweden ’22',       x: 30.2, y: 14, dose: 12, pos: 'top right' },
       { c: 'Iceland ’24',      x: 50.0, y: 41, dose: 22, pos: 'middle right' },
       { c: 'Norway ’23',       x: 78.4, y: 0,  dose: 3,  pos: 'bottom center' },
-      { c: 'Hong Kong ’26',    x: 90,   y: 0,  dose: 25, pos: 'top center' }
+      { c: 'Hong Kong ’26*',   x: 90,   y: 20, dose: 25, pos: 'top center' }
     ];
     Plotly.newPlot('stageChart', [{
       x: pts.map(p => p.x), y: pts.map(p => p.y), text: pts.map(p => p.c),
@@ -366,7 +368,7 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       yaxis: { title: { text: 'relative market drop', font: { size: 11, color: TICK } }, range: [-6, 102], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } }
     }), CFG);
 
-    const hk = [['2025-06', 86.3], ['2026-01', 89.2], ['2026-03', 95.0], ['2026-04', 94.6], ['2026-05', 89.2]];
+    const hk = [['2025-06', 86.3], ['2026-01', 89.2], ['2026-03', 95.0], ['2026-04', 94.6], ['2026-05', 89.2], ['2026-06', 73.4]];
     Plotly.newPlot('hkChart', [{
       x: hk.map(d => d[0]), y: hk.map(d => d[1]), mode: 'lines+markers+text',
       text: hk.map(d => d[1].toFixed(1) + '%'), textposition: 'top center', textfont: { color: TEXT, size: 12 },
@@ -375,9 +377,12 @@ h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing
       hovertemplate: '%{x}: %{y:.1f}%<extra></extra>'
     }], baseLayout({
       showlegend: false,
-      yaxis: { range: [75, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      yaxis: { range: [65, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
       shapes: [vline('2026-03')],
-      annotations: [{ x: '2026-03', y: 0.03, yref: 'paper', yanchor: 'bottom', xanchor: 'left', text: ' all concessions end 31 Mar', showarrow: false, font: { size: 11, color: RED } }]
+      annotations: [
+        { x: '2026-03', y: 0.05, yref: 'paper', yanchor: 'bottom', xanchor: 'left', text: ' all concessions end 31 Mar', showarrow: false, font: { size: 11, color: RED } },
+        { x: '2026-06', y: 73.4, yanchor: 'top', xanchor: 'center', text: 'first clean month', showarrow: false, yshift: -18, font: { size: 11, color: RED } }
+      ]
     }), CFG);
 
     return true;
