@@ -149,8 +149,17 @@ if (file.exists("footnotes.csv")) {
 # matches the gallery entry (e.g. "Denmark (Private)", "Netherlands (HDV)").
 country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
 
+# Registration-type wording for the extrapolation plots. The Used variants
+# (Austria, Netherlands, Spain) chart used-car registrations, so labelling them
+# "new registrations" is simply wrong — flagged by Christian Peter on the
+# Austria (Used) projection. Only display strings vary; the internal
+# fit$extrap$Type factor level stays "New Registrations" for every variant.
+reg_word  <- if (variant == "Used") "used" else "new"
+reg_Word  <- if (variant == "Used") "Used" else "New"
+
 meta <- list(
   country = country, country_label = country_label,
+  reg_word = reg_word, reg_Word = reg_Word,
   flag_img = flag_img,
   qr_img  = qr_img,
   social_caption = social_caption,

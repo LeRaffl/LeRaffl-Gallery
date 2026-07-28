@@ -1,6 +1,8 @@
 # Plot constructors for the four country charts.
 # `meta` is expected to be a list with: country, country_label, flag_img,
-# qr_img (optional QR code), entire_caption, social_caption.
+# qr_img (optional QR code), entire_caption, social_caption, and
+# reg_word/reg_Word ("new" / "used" — the registration type the extrapolation
+# plots label; defaults to "new" when absent).
 # `fit` is the result of fit_history().
 # `df` is the full loaded data.
 #
@@ -11,6 +13,11 @@
 suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(ggtext); library(viridis)
 })
+
+# Registration-type wording, defaulting to "new" so a meta list built by any
+# other caller keeps the pre-Used-variant labels instead of rendering a blank.
+reg_word <- function(meta) if (is.null(meta$reg_word)) "new" else meta$reg_word
+reg_Word <- function(meta) if (is.null(meta$reg_Word)) "New" else meta$reg_Word
 
 TTM_FUEL_COLORS <- c(
   BEV      = "#00ff2c",
@@ -121,7 +128,7 @@ plot_bev_trajectory <- function(fit, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0("BEV share in new registrations in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0("BEV share in ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
          subtitle = paste0("expected time for BEV to rise from 20% to 80%: ",
                            floor(fit$time_20_to_80), " years ",
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
@@ -138,7 +145,7 @@ plot_bev_trajectory <- function(fit, meta) {
     ) +
     scale_color_manual(values = c("#FF5733","#FFC300","#33FF3B","#33A1FF","#B633FF","#FF33E9"), name = "Color")
 
-  p <- p + annotate("text", x = 2010, y = 1, label = "New Registration estimates in",
+  p <- p + annotate("text", x = 2010, y = 1, label = paste0(reg_Word(meta), " Registration estimates in"),
                     size = rel(6), hjust = 0, vjust = 1, col = "red")
   counter <- 0
   repeat {
@@ -181,11 +188,11 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0("BEV / ICE / PHEV share of new registrations in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0("BEV / ICE / PHEV share of ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
-         caption = meta$entire_caption, x = " ", y = "New Registration Share") +
+         caption = meta$entire_caption, x = " ", y = paste0(reg_Word(meta), " Registration Share")) +
     theme_minimal() +
     theme(axis.title = element_text(size = rel(1.2)), axis.text = element_text(size = rel(0.9)),
           plot.title = element_text(face = "bold", size = rel(1.5)),
@@ -199,7 +206,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
     scale_shape_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
                        values = c("ICE"=15,"BEV"=16,"PHEV"=23))
 
-  p <- p + annotate("text", x = 2010, y = 0.9, label = "New ICE in",
+  p <- p + annotate("text", x = 2010, y = 0.9, label = paste0(reg_Word(meta), " ICE in"),
                     size = rel(6), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
   counter <- 0
   repeat {
