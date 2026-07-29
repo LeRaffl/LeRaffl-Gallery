@@ -176,8 +176,39 @@ dose is what buys zero — Hong Kong isolates the dose axis at the top.
 
 Caveats: June is a single month on tiny post-crash volume (~1,900 cars),
 so the point is noisy; July–August 2026 will show whether 73% is the floor
-or a way-station. Worth building `Hong Kong.csv`
-from TD monthly stats and tracking this through year-end.
+or a way-station.
+
+**Seasonality check (raised by RW) — resolved, and it strengthens the case.**
+Monthly (not TTM) figures are seasonal, so the May→Jun drop could in principle
+be a calendar effect. Roland's full series (Jan 2022 – Jun 2026) settles it
+with HK's *own* data. The April→May step by year:
+
+| Year | Apr→May | FRT policy that spring |
+|---|---|---|
+| 2023 | **+6.8pp** | none (concession running) |
+| 2025 | **+6.4pp** | none (concession running) |
+| 2024 | **−33.1pp** | waiver cut 40% from 1 Apr 2024 |
+| 2026 | −5.4pp, then May→Jun −15.8pp | concession ended 31 Mar 2026 |
+| 2022 | −6.3pp | none — Omicron wave, market collapse, % noise |
+
+The spring dip appears **only in the two years the FRT was changed**; in the
+no-change years the spring share *rises*. So it's not a seasonal fade, it's a
+budget-cycle fingerprint (HK fiscal year ends 31 Mar; budget late Feb; FRT
+deadlines 31 Mar/1 Apr). Year-on-year also survives: Jun 2025 86.3% → Jun 2026
+73.4% = −15% rel., same calendar month.
+
+**Bonus: 2024 is a second, cleaner HK experiment.** The 40% waiver cut (partial
+dose) at ~91% share drove Apr 91.0% → May 57.9% (−33pp month-on-month, sharper
+than 2026 so far), then **recovered to >90% through 2025 without the waiver
+being restored** — H4 inside one city. And the dose/stage interaction shows:
+the *full* 2026 removal landed a *smaller* blow (−22pp from spike) than the
+*partial* 2024 cut (−33pp), because 2026 caught the market ~4pp higher up the
+curve. Three HK cuts total (2017 early → near-total; 2024 mid-high → sharp but
+recovered; 2026 top → shallow), damage shrinking with stage every time.
+
+Data: Roland Pircher (@piloly) monthly series, reproduced with permission —
+cited directly rather than rebuilt as `Hong Kong.csv` (his chart is the
+source; no official monthly TD series is machine-fetchable — all HK DBs 403).
 
 ## Toward a field guide: the full event table (stage × dose)
 
