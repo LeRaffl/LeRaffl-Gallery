@@ -5,7 +5,7 @@ publications and upsert per-variant CSVs under data/.
 
 Usage
 -----
-    python scripts/fetch_austria.py [--variant {whole,hdv,vans,all}]
+    python scripts/fetch_austria.py [--variant {whole,hdv,vans,used,all}]
                                     [--year YYYY] [--force]
 
 Network / reaching the source
@@ -27,14 +27,16 @@ Locally, on an unblocked network, neither is needed.
 
 Output files
 ------------
-    data/Austria.csv          <- variant=Whole (Pkw Klasse M1)
+    data/Austria.csv          <- variant=Whole (Pkw Klasse M1, new registrations)
     data/Austria_HDV.csv      <- variant=HDV   (Lkw N2 + N3 + Sattelzugfahrzeuge)
     data/Austria_Vans.csv     <- variant=Vans  (Lkw N1, ≤ 3.5 t)
+    data/Austria_Used.csv     <- variant=Used  (Pkw used/Gebrauchtzulassungen)
 
 Sources
 -------
-Listing page:
+Listing pages:
   https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen
+  https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-gebrauchtzulassungen
 
 Two .ods file families are used (paths under /fileadmin/pages/77/):
   DE2 — "Fahrzeug-Neuzulassungen", one sheet per month. Used for Whole only.
@@ -51,10 +53,22 @@ Two .ods file families are used (paths under /fileadmin/pages/77/):
                        monthly cumulative files appeared (only 2024 currently).
                        Filename: NeuzulassungenKraftfahrzeugeBundeslandKraftstoff
                                  artEnergiequelle<YYYY>.ods
+  GE2 — "Fahrzeug-Gebrauchtzulassungen" (used registrations), listed on the
+        kfz-gebrauchtzulassungen page. Same shape as DE2: one sheet per month,
+        Tabelle 2 = "Pkw-Gebrauchtzulassungen nach Kraftstoffart bzw.
+        Energiequelle" with explicit "darunter Plug-In" rows (PHEV/HEV split).
+        Row labels differ slightly from DE2 ("Benzin inkl. Flex-Fuel" instead
+        of "Benzin", footnote markers on the Plug-In rows), so GE2 rows are
+        matched on normalised labels rather than exact strings.
+        Filenames vary by publication era (see FILE_RE_GE2):
+                    kfz-gebrauchtzulassungen_jaenner_bis_<month>_<yyyy>.ods  (2019-21)
+                    GebrauchtzulassungenFahrzeugeJaennerBis<Month><YYYY>.ods (2022-23)
+                    KfzGebrauchtzulassungenJaennerBis<Month><YYYY>.ods       (2024-)
 
 Canonical-column mapping
 ------------------------
-Whole (DE2 Pkw Tabelle 2):
+Whole (DE2 Pkw Tabelle 2) / Used (GE2 Pkw Tabelle 2, same math on
+"Benzin inkl. Flex-Fuel" instead of "Benzin"):
     BEV     <- Elektro
     PHEV    <- "darunter Plug-In" (Benzin/Elektro) + (Diesel/Elektro)
     HEV     <- (Benzin/Elektro hybrid − Plug-In) + (Diesel/Elektro hybrid − Plug-In)
@@ -83,6 +97,9 @@ publication only exists from 2025-01 onward, so the backfill envelope is:
   2024            -> single annual row (time_interval=annual, period=2024)
   2025 / 2026 ... -> monthly rows
 Pre-2024 monthly LKW × fuel is not published.
+Used: no prior CSV. On the first run every cumulative GE2 file found on the
+kfz-gebrauchtzulassungen listing page is backfilled (monthly rows); thereafter
+only the current year is refreshed, same as HDV/Vans.
 
 Schedule
 --------
@@ -124,6 +141,10 @@ LISTING_URL = (
     "https://www.statistik.at/statistiken/tourismus-und-verkehr/"
     "fahrzeuge/kfz-neuzulassungen"
 )
+LISTING_URL_USED = (
+    "https://www.statistik.at/statistiken/tourismus-und-verkehr/"
+    "fahrzeuge/kfz-gebrauchtzulassungen"
+)
 FILE_BASE = "https://www.statistik.at"
 SOURCE = "Statistik Austria"
 
@@ -144,6 +165,28 @@ MONTH_NAMES = {
 URL_MONTH_NAMES = {
     "Jaenner": 1, "Februar": 2, "Maerz": 3, "April": 4, "Mai": 5, "Juni": 6,
     "Juli": 7, "August": 8, "September": 9, "Oktober": 10, "November": 11, "Dezember": 12,
+}
+
+# GE2 (used registrations) Tabelle-2 rows are matched on *normalised* labels:
+# whitespace stripped, dashes unified, trailing footnote markers removed,
+# lowercased. The source varies "Benzin" vs "Benzin inkl. Flex-Fuel" and tacks
+# footnote digits onto the Plug-In rows, so exact matching would be brittle.
+def _norm_label(s: str) -> str:
+    s = str(s).replace("–", "-").replace("—", "-")
+    s = re.sub(r"\s+", "", s).lower()
+    return re.sub(r"[0-9¹²³⁰-⁹]+$", "", s)
+
+
+# Canonical key -> accepted normalised GE2 row labels (first match wins).
+GE2_LABELS = {
+    "PETROL": ("benzininkl.flex-fuel", "benzin"),
+    "DIESEL": ("diesel",),
+    "BEV":    ("elektro",),
+    "HYB_B":  ("benzin/elektro(hybrid)",),
+    "PLG_B":  ("darunterbenzin/elektro(hybrid)-plug-in",),
+    "HYB_D":  ("diesel/elektro(hybrid)",),
+    "PLG_D":  ("darunterdiesel/elektro(hybrid)-plug-in",),
+    "TOTAL":  ("pkwinsgesamt",),
 }
 
 # DE2 Tabelle-2 row labels (exact, including en-dash U+2013 in "Plug-In" rows).
@@ -203,6 +246,11 @@ VARIANT_CONFIG = {
         "file_kinds": ["de3_monthly", "de3_annual"],
         "classes": frozenset({"Lastkraftwagen Klasse N1"}),
     },
+    "Used": {
+        "csv": "data/Austria_Used.csv",
+        "file_kinds": ["ge2"],
+        "classes": None,
+    },
 }
 
 # Filename regexes (all anchored under /fileadmin/pages/77/).
@@ -218,6 +266,25 @@ FILE_RE_DE3_MONTHLY = re.compile(
 FILE_RE_DE3_ANNUAL = re.compile(
     r"/fileadmin/pages/77/"
     r"NeuzulassungenKraftfahrzeugeBundeslandKraftstoffartEnergiequelle(\d{4})\.ods"
+)
+# GE2 used-registration cumulative files live on the kfz-gebrauchtzulassungen
+# page (a different /fileadmin/pages/<id>/ than 77, so the page id is not
+# pinned). Three spellings observed across publication eras:
+#   2019-2021: kfz-gebrauchtzulassungen_jaenner_bis_dezember_<yyyy>.ods (legacy)
+#   2022-2023: GebrauchtzulassungenFahrzeugeJaennerBis<Month><YYYY>.ods
+#   2024-    : KfzGebrauchtzulassungenJaennerBis<Month><YYYY>.ods
+#              (2025 even spells it "Jaennerbis" — lowercase b)
+# The page also lists a Bundesland × Kraftstoff matrix family
+# (Kfz-Gebrauchtzulassungen...Bundesland...Energiequelle...), which has a
+# different layout — the lookahead excludes it.
+FILE_RE_GE2 = re.compile(
+    r"/fileadmin/pages/\d+/(?:GE\d+_)?"
+    r"(?:Kfz-?)?Gebrauchtzulassungen(?![^/]*Bundesland)[A-Za-z]*"
+    r"Jaenner[Bb]is([A-Za-z]+)(\d{4})\.ods"
+)
+FILE_RE_GE2_LEGACY = re.compile(
+    r"/fileadmin/pages/\d+/"
+    r"kfz-gebrauchtzulassungen_jaenner_bis_([a-z]+)_(\d{4})\.ods"
 )
 
 TNS = "{urn:oasis:names:tc:opendocument:xmlns:table:1.0}"
@@ -270,6 +337,52 @@ def discover_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
         consider("de3_annual", int(m.group(1)), 0, m.group(0))
 
     return {k: url for k, (_, url) in best.items()}
+
+
+def discover_used_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
+    """Return {("ge2", year): absolute_url} from the used-registrations page.
+
+    Like DE2, GE2 files are cumulative ("Jänner bis <Month>"), so per year we
+    keep the file covering the most months. CamelCase and legacy snake_case
+    filenames are both considered.
+    """
+    r = _get(session, LISTING_URL_USED, timeout=(20, 60))
+    r.raise_for_status()
+    text = r.text
+
+    best: dict[int, tuple[int, str]] = {}
+    lower_months = {k.lower(): v for k, v in URL_MONTH_NAMES.items()}
+
+    for regex, months in ((FILE_RE_GE2, URL_MONTH_NAMES),
+                          (FILE_RE_GE2_LEGACY, lower_months)):
+        for m in regex.finditer(text):
+            idx = months.get(m.group(1))
+            if idx is None:
+                print(f"[discover] WARNING: unknown GE2 URL month {m.group(1)!r}")
+                continue
+            year = int(m.group(2))
+            prev = best.get(year)
+            if prev is None or idx > prev[0]:
+                best[year] = (idx, FILE_BASE + m.group(0))
+
+    # Diagnostic: surface any Gebraucht-looking .ods links the regexes did NOT
+    # match, so a renamed file family shows up in the logs instead of silently
+    # limiting the year coverage.
+    matched_paths = {url[len(FILE_BASE):] for _, url in best.values()}
+    all_ods = set(re.findall(r"/fileadmin/pages/\d+/[^\"'\s]+\.ods", text))
+    unmatched = sorted(
+        p for p in all_ods
+        if "ebraucht" in p.lower()
+        and p not in matched_paths
+        and not (FILE_RE_GE2.fullmatch(p) or FILE_RE_GE2_LEGACY.fullmatch(p))
+    )
+    if unmatched:
+        print(f"[discover] NOTE: unmatched Gebraucht .ods links: {unmatched}")
+    if not best:
+        print("[discover] WARNING: no GE2 files matched on the used-registrations "
+              f"page; .ods links present: {sorted(all_ods)[:20]}")
+
+    return {("ge2", y): url for y, (_, url) in best.items()}
 
 
 def fetch_ods(url: str, session: requests.Session, cache: dict) -> bytes:
@@ -388,6 +501,67 @@ def parse_de2(content: bytes, year: int) -> dict[str, dict[str, float]]:
             "PETROL": petrol, "DIESEL": diesel,
             "OTHERS": max(0.0, others), "TOTAL": total,
         }
+    return out
+
+
+# ---------------------------------------------------------------------------
+# GE2 parser (Used)
+# ---------------------------------------------------------------------------
+
+def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
+    """Parse a GE2 used-registrations cumulative-month .ods.
+
+    Same sheet layout as DE2 (one sheet per month, Tabelle 2 = Pkw by fuel,
+    column B = the month's count), but rows are matched on normalised labels
+    because the source writes "Benzin inkl. Flex-Fuel" and puts footnote
+    markers on the Plug-In rows. Returns {period: canonical-cols}.
+    """
+    root = _open_xml(content)
+    out: dict[str, dict[str, float]] = {}
+    seen_sheets: list[str] = []
+    for sheet in root.iter(f"{TNS}table"):
+        sheet_name = sheet.get(f"{TNS}name", "")
+        seen_sheets.append(sheet_name)
+        month = MONTH_NAMES.get(sheet_name)
+        if month is None:
+            continue  # cumulative / helper sheet
+        raw = _parse_de2_sheet_tab2(sheet)
+        if not raw:
+            print(f"[Used {year}-{month:02d}] WARNING: Tabelle 2 not found in {sheet_name!r}")
+            continue
+        norm = {_norm_label(k): v for k, v in raw.items()}
+
+        vals: dict[str, float] = {}
+        missing: list[str] = []
+        for key, candidates in GE2_LABELS.items():
+            for cand in candidates:
+                if cand in norm:
+                    vals[key] = norm[cand]
+                    break
+            else:
+                missing.append(key)
+        if missing:
+            print(f"[Used {year}-{month:02d}] WARNING: missing {missing} "
+                  f"(labels seen: {sorted(norm)}) — skipping")
+            continue
+
+        phev = vals["PLG_B"] + vals["PLG_D"]
+        hev = (vals["HYB_B"] - vals["PLG_B"]) + (vals["HYB_D"] - vals["PLG_D"])
+        others = (vals["TOTAL"] - vals["BEV"] - phev - hev
+                  - vals["PETROL"] - vals["DIESEL"])
+        if -0.5 < others < 0:
+            others = 0.0
+        if others < 0:
+            print(f"[Used {year}-{month:02d}] WARNING: OTHERS={others:.1f} < 0")
+
+        out[f"{year}-{month:02d}"] = {
+            "BEV": vals["BEV"], "PHEV": phev, "HEV": hev,
+            "PETROL": vals["PETROL"], "DIESEL": vals["DIESEL"],
+            "OTHERS": max(0.0, others), "TOTAL": vals["TOTAL"],
+        }
+    if not out:
+        print(f"[Used {year}] WARNING: no month sheets parsed; "
+              f"sheets in file: {seen_sheets}")
     return out
 
 
@@ -609,6 +783,9 @@ def run_variant(variant: str, urls: dict, session: requests.Session,
         if kind == "de2":
             parsed = parse_de2(content, year)
             interval = "monthly"
+        elif kind == "ge2":
+            parsed = parse_ge2(content, year)
+            interval = "monthly"
         elif kind == "de3_monthly":
             parsed = parse_de3_monthly(content, year, variant, classes)
             interval = "monthly"
@@ -688,7 +865,7 @@ def _get(session: requests.Session, url: str, **kwargs):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--variant", choices=["whole", "hdv", "vans", "all"], default="all",
+        "--variant", choices=["whole", "hdv", "vans", "used", "all"], default="all",
         help="Variant to fetch (default: all).",
     )
     parser.add_argument(
@@ -702,7 +879,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    aliases = {"whole": "Whole", "hdv": "HDV", "vans": "Vans"}
+    aliases = {"whole": "Whole", "hdv": "HDV", "vans": "Vans", "used": "Used"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
 
     if not args.force and args.year is None:
@@ -730,15 +907,21 @@ def main() -> None:
     _adapter = HTTPAdapter(max_retries=_retry)
     session.mount("https://", _adapter)
     session.mount("http://", _adapter)
-    urls = discover_file_urls(session)
+    # The new-registrations listing feeds Whole/HDV/Vans; the used-registrations
+    # listing feeds Used. Only fetch the pages the requested variants need.
+    urls: dict[tuple[str, int], str] = {}
+    if any(v != "Used" for v in targets):
+        urls.update(discover_file_urls(session))
+    if "Used" in targets:
+        urls.update(discover_used_file_urls(session))
     if not urls:
-        raise RuntimeError("No source files found on listing page.")
+        raise RuntimeError("No source files found on listing page(s).")
 
     # year_filter behaviour:
     #   --year given        -> only that year, for every variant
     #   default (no --year) -> current year for Whole (already-backfilled CSV);
-    #                          all available years for HDV/Vans the first time
-    #                          (subsequent runs early-exit). After first
+    #                          all available years for HDV/Vans/Used the first
+    #                          time (subsequent runs early-exit). After first
     #                          backfill, year_filter=current keeps reruns fast.
     cache: dict = {}
     current_year = date.today().year
@@ -748,7 +931,7 @@ def main() -> None:
         elif variant == "Whole":
             yf = current_year
         else:
-            # HDV/Vans: backfill all years on first run, current year thereafter.
+            # HDV/Vans/Used: backfill all years on first run, current year thereafter.
             csv_path = VARIANT_CONFIG[variant]["csv"]
             yf = None if not os.path.exists(csv_path) else current_year
         run_variant(variant, urls, session, cache, yf)

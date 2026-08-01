@@ -1,0 +1,12 @@
+🇦🇹 Austria (Used) - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++1.5pp  BEV   (3.8% → 5.3%)
++1.1pp  PHEV  (2.7% → 3.8%)
++1.7pp  HEV   (7.3% → 9.0%)
+−4.3pp  ICE   (86.3% → 81.9%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2029-11.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2035-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

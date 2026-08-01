@@ -1,0 +1,9 @@
+🇦🇹 Austria (Used) - TTM Market Split
+
+Jan24–Dec24  vs  Jan25–Dec25
++0.7pp  BEV   (3.5% → 4.2%)
++1.0pp  PHEV  (2.2% → 3.2%)
++1.7pp  HEV   (6.4% → 8.2%)
+−3.4pp  ICE   (87.9% → 84.4%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
