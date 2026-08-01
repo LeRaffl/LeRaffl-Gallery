@@ -6,18 +6,28 @@ asked "why isn't \<country\> on the map? the data clearly exists, \<org\> posts
 it every month" — can find the honest answer instead of guessing.
 
 The short version: **the gallery only ingests sources that are (a) direct from
-the original registry/agency, (b) reasonably complete for the market, and
-(c) machine-accessible without paywalls or per-download identity checks.** A
-country can have abundant EV press coverage and still fail all three. When that
-happens we leave it off rather than publish a misleading trajectory.
+the original registry/agency or its recognised industry body, (b) reasonably
+complete for the market, and (c) obtainable without paying or handing over a
+personal identity document.** A country can have abundant EV press coverage and
+still fail all three. When that happens we leave it off rather than publish a
+misleading trajectory.
 
-See also the per-source playbooks for the countries that *did* clear the bar:
-[10-source-netherlands.md](10-source-netherlands.md),
-[11-source-denmark.md](11-source-denmark.md),
-[12-source-finland.md](12-source-finland.md),
-[13-source-sweden.md](13-source-sweden.md). Brazil, Chile and Uruguay are
-covered by their own fetchers (see [02-components.md](02-components.md) and
-[05-flows.md](05-flows.md)).
+> **The login bar moved, and this document has not always reflected it.** The
+> original rule was "no login-walled portals at all". In practice two countries
+> now run on a **free membership account held by the maintainer** — Thailand
+> (the TAI/AIU member portal) and Indonesia (GAIKINDO's ProjectSend) — because
+> the data exists nowhere else and the credential is free, personal to the
+> maintainer, and stored as a GitHub Actions secret. So the operative line
+> today is: **a free account is acceptable; paying money or submitting a
+> national ID number is not.** Several rejections below (Colombia's RUNT
+> portal, Morocco's AIVAM energy split) were made under the older, stricter
+> rule and are worth revisiting on that basis — that is a maintainer decision,
+> not a settled conclusion.
+
+See also the per-source playbooks for the countries that *did* clear the bar —
+there are now 22 of them, indexed in [README.md](README.md). Every gallery
+country, documented or not, also has a public source page under `sources/`
+generated from these docs.
 
 ## What "good enough" means here
 
@@ -38,6 +48,11 @@ quarterly. The two failure modes that recur below:
 
 A secondary aggregator does not fix either problem — it inherits the
 completeness of whatever it scraped and adds its own lag/discrepancies.
+
+> **See also:** [33-expansion-candidates.md](33-expansion-candidates.md) — the
+> July-2026 investigation into Africa / MENA / Israel / India. Its "Shelved"
+> section (Gulf states, Jordan, Egypt, Kenya/Ethiopia/Nigeria) is the same kind
+> of record as this file, kept there with the positive candidates for context.
 
 ## Latin America (beyond Brazil / Chile / Uruguay)
 
@@ -130,14 +145,91 @@ The previous shelving rationale, kept for the record:
   Nacional de Tránsito — the official registry, so complete). Monthly, with
   BEV / PHEV / HEV split.
 - **Why ANDEMOS directly is unworkable:** ANDEMOS surfaces the data through
-  **embedded Google Looker Studio dashboards** (same scraping problem as zemo's
-  Power BI — no clean download/API on the public pages). The underlying RUNT
-  portal is **account-gated** (registration/login required), which is a
-  technical hurdle we don't want a public pipeline to depend on.
+  **embedded Google Looker Studio dashboards** (no clean download/API on the
+  public pages), and the underlying RUNT portal is **account-gated**.
+  Note two things have changed since this was written: Albania proved a public
+  Looker Studio report *can* be driven (headless Chromium intercepting the
+  report's own `batchedDataV2` calls — see
+  [27-source-albania.md](27-source-albania.md)), and a free account is no
+  longer an automatic disqualifier (see the note at the top). Neither has been
+  re-tried against ANDEMOS/RUNT; the ANDI/FENALCO PDF works and there has been
+  no reason to.
 - **What would change the decision again:** a free, machine-readable
   ANDEMOS/RUNT export (CSV/API) without the login wall — at which point we
   could replace the ANDI/FENALCO PDF parser with a clean API call **and**
   recover the PHEV/HEV split.
+
+## Africa (used-import markets)
+
+No sub-Saharan African country is on the gallery yet, and the reasons are
+structural, not incidental. Three features recur across the region and each
+one collides with a different gallery assumption:
+
+- **Used-import dominance.** Most African car markets are 70–90 % *used*
+  imports (Ethiopia ~85 %, ~90 % of those Toyotas). The gallery models the
+  **flow of new registrations** as an organic S-curve; a market whose flow
+  is second-hand imports is a *different population* (only the Netherlands
+  `Used` variant touches this) and its BEV share moves for import-policy
+  reasons, not domestic adoption.
+- **No registration-statistics agency.** There is rarely a KBA/ACEA-style
+  body publishing a monthly registration series with a fuel split. What
+  exists is customs trade data (by HS code) and occasional ministry *stock*
+  estimates — not a clean monthly flow.
+- **Fragmented, unverified data.** Headline EV numbers routinely disagree by
+  multiples between the national ministry and outside trackers, so even when
+  a number exists it often can't be trusted as ground truth.
+
+The realistic near-term candidates are the two markets that *do* have an
+industry-association monthly series: **South Africa** (naamsa — genuine
+monthly new-vehicle sales with a drivetrain split; the most promising, under
+active investigation) and **Morocco** (AIVAM — a monthly series exists, but the
+energy split sits behind a login on `statistique.aivam.ma`; shelved under the
+old no-login rule, so worth a second look now that Thailand and Indonesia set
+the free-account precedent). Kenya, Nigeria and Egypt have manufacturer/importer associations but
+no freely machine-readable fuel-split series.
+
+### 🇪🇹 Ethiopia — a 100 % EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
+
+Ethiopia is the one African market people ask about, because in January 2024
+it became the first country in the world to **ban the import of
+internal-combustion passenger vehicles** (extended in 2025 to SKD/CKD kits
+and, in stages, to commercial vehicles). "Ethiopia is going 100 % electric"
+is the headline. It still fails the gallery's bar, for four compounding
+reasons:
+
+- **The market is used imports, so "new registrations" is the wrong lens.**
+  ~85 % of vehicle imports are second-hand, ~90 % of those Toyotas; genuine
+  new-car sales are a rounding error (excise up to 100 % on >1,800 cc under
+  Proclamation 1287/2023, plus 15 % VAT and surcharges push a new car's
+  landed cost past 5× its import value). The meaningful quantity for Ethiopia
+  is the BEV share of *all vehicle imports* (new **and** used together) — a
+  different population from every other country in the gallery.
+- **It's a policy step, not an organic transition.** The import ban forces
+  the BEV share of incoming vehicles toward 100 % by decree, independent of
+  demand. The Weibull/logistic model describes *organic* S-curves; a
+  mandated step-change either fits degenerately or breaks (the mirror image
+  of the Japan/Croatia "no transition" breakdown).
+- **Too little post-ban history.** Meaningful data only starts ~2023/24, so
+  there are ~2 years of a step — nowhere near enough shape for a stable fit.
+- **The data is fragmented and unverified.** There is no monthly
+  registration series with a fuel split. The candidate sources are:
+  - **Ethiopian Customs Commission (ERCA)** — the trade portal
+    (`customs.erca.gov.et/trade/`) would carry HS-8703 imports (the Nepal
+    pattern), but its machine-accessibility is unproven and the prevalence of
+    third-party customs-data resellers (Volza, TradeInt) suggests there is no
+    clean public export. It would also inherit the **same HS-8703.80
+    electric-code granularity problem documented for Nepal** ([32-source-nepal.md
+    § 7](32-source-nepal.md)).
+  - **Ministry of Transport & Logistics** — publishes only coarse
+    *cumulative stock* estimates, and they conflict badly: the ministry has
+    cited ~100,000 EVs while the US ITA estimates ~30,000 — a 3× disagreement
+    in the headline number.
+
+- **What would change the decision:** a free, machine-readable **ERCA monthly
+  import export with a BEV/ICE split** *and* enough post-ban history to fit.
+  Even then Ethiopia would be a documented special case — a policy-driven
+  *import flow* (new+used), explicitly flagged as a mandate, not a modelled
+  organic transition.
 
 ## General principle (for the LLM being asked "why isn't X on the map?")
 
@@ -150,9 +242,16 @@ If someone points at one of these countries and says "but the data exists,
    (Colombia/RUNT).
 3. **Format/consistency** — only an aggregated dashboard (Power BI / Looker)
    with no full fuel split, or an EV-only segment with no total to compute ICE.
+4. **Wrong population / not an organic transition** — the market's *flow* is
+   used imports rather than new registrations (much of Africa), or the BEV
+   share is moving by government mandate (Ethiopia's ICE import ban) rather
+   than organic adoption, so even complete, accessible data doesn't describe
+   the S-curve the model is built for — and often there isn't yet enough of
+   it to fit anything stable.
 
 The gallery deliberately omits a country rather than publish a trajectory it
 knows is incomplete or misleading. If a better source appears (free, direct,
-complete, machine-readable), adding the country is a small job — it follows the
+complete, machine-readable) **and** the market fits the new-registration,
+organic-transition frame, adding the country is a small job — it follows the
 same fetcher + `render-country.yml` + manifest pattern as every other
 database-fed country.

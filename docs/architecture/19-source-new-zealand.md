@@ -1,14 +1,55 @@
+---
+country: New Zealand
+slug: new-zealand
+method: manual
+summary: New light-vehicle registrations for New Zealand from the Ministry of Transport's fleet statistics.
+source_name: transport.govt.nz — fleet statistics
+source_url: https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/
+source_links:
+- label: data.govt.nz vehicle fleet statistics dataset
+  url: https://catalogue.data.govt.nz/dataset/vehicle-fleet-statistics
+  note: the EV/hybrid fallback resource
+underlying: NZ Ministry of Transport / Waka Kotahi
+auth: none
+cadence: entered by hand once the Ministry publishes, usually the 5th–10th of the following month
+variants:
+- Whole
+variant_notes:
+  Whole: All new light-vehicle registrations, GVM under 3,500 kg — cars and light commercials combined.
+hev_split: true
+backfill: none
+scope_note: All new light registrations (GVM < 3,500 kg) — passenger cars and light commercials combined.
+caveats:
+- Automated fetching has been switched off since 2026-06 — both upstream endpoints now sit behind Imperva
+  anti-bot. Months are read off the published dashboard and entered by hand.
+- Cars and light commercials are not separated by this source.
+- Flexfuel is not reported; OTHERS (LPG etc.) is typically 0 in recent months.
+- The whole series before automation was compiled by Prof. Ray Willis.
+fetcher: scripts/fetch_new_zealand.py
+workflow: .github/workflows/fetch-new-zealand.yml
+fragility_doc: docs/architecture/19-source-new-zealand.md
+data_file: data/New Zealand.csv
+---
+
 # 19 · Source: New Zealand (transport.govt.nz)
 
-> **Status (2026-06): auto-fetch disabled.** Both the primary `/inner`
-> endpoint and the `catalogue.data.govt.nz` CKAN fallback are now served
-> behind Imperva (Incapsula/Reese84). Plain `requests` from a GHA runner
-> receives a JS challenge stub / "Pardon Our Interruption" interstitial,
-> not data. The scheduled trigger in
-> `.github/workflows/fetch-new-zealand.yml` is commented out;
+> ### ⚠️ Status (since 2026-06): **New Zealand is a manual source.**
+>
+> Both the primary `/inner` endpoint and the `catalogue.data.govt.nz` CKAN
+> fallback are now served behind Imperva (Incapsula/Reese84). Plain
+> `requests` from a GHA runner receives a JS challenge stub / "Pardon Our
+> Interruption" interstitial, not data. The scheduled trigger in
+> `.github/workflows/fetch-new-zealand.yml` is **commented out**;
 > `workflow_dispatch` is retained for manual runs from an unblocked host.
-> An alternate ingestion path (Stats NZ API or NZTA open-data ArcGIS) is
-> the likely longer-term fix.
+>
+> **In the meantime the maintainer reads the published dashboard and enters
+> each month by hand** — that is why rows through 2026-06 exist even though
+> nothing is fetching them. New rows keep the
+> `transport.govt.nz & Prof. Ray Willis` source string.
+>
+> Everything below §2 describes the *automated* path, which is dormant but
+> still the code in the repo. An alternate ingestion path (Stats NZ API or
+> NZTA open-data ArcGIS) is the likely longer-term fix.
 
 The New Zealand Ministry of Transport (MoT) publishes monthly light motor
 vehicle registration statistics via an interactive fleet-statistics dashboard
@@ -29,8 +70,9 @@ Fallback:  catalogue.data.govt.nz CKAN resource fc87b220 (EV/hybrid only)
 Auth:      None
 FLEXFUEL:  Not reported — column absent from the CSV
 OTHERS:    LPG and other minor fuels; typically 0 in recent months
-Schedule:  Twice daily 06:00 & 14:00 UTC, 5th–12th of the following month
-Scripts:   scripts/fetch_new_zealand.py
+Schedule:  NONE — cron disabled 2026-06 (Imperva). Manual entry; the dormant
+           cron was twice daily 06:00 & 14:00 UTC on the 5th–12th
+Scripts:   scripts/fetch_new_zealand.py   (dispatch-only)
 Workflow:  .github/workflows/fetch-new-zealand.yml
 ```
 
@@ -82,7 +124,12 @@ Fallback (when /inner is unreachable or returns unrecognised format):
 ## 3. Month publication schedule
 
 MoT typically publishes the previous month's data between the **5th and
-10th** of the following month. The workflow polls twice daily on the 5th–12th:
+10th** of the following month. That is when the maintainer currently reads
+the dashboard and enters the row.
+
+The workflow's cron is **disabled** (see the status banner). When it ran, it
+polled twice daily on the 5th–12th, and those two slots are still the ones
+to restore if an unblocked ingestion path is found:
 
 | Time slot | UTC | Rationale |
 |-----------|-----|-----------|
@@ -124,9 +171,12 @@ and skips that category. Add the new label to `FUEL_MAP` and re-run with `--forc
 - **CKAN fallback is EV/hybrid only.** The data.govt.nz CKAN resource
   (`fc87b220`) is named "Monthly electric and hybrid light vehicle registrations"
   and may not include petrol/diesel totals. Use only as a temporary fallback.
-- **IP restrictions.** transport.govt.nz and data.govt.nz use IP allowlists that
-  block some cloud environments. The workflow runs on `ubuntu-latest` (GitHub
-  Actions / Azure) which has not been blocked in practice.
+- **Anti-bot, and it is currently fatal.** As of 2026-06 both transport.govt.nz
+  and catalogue.data.govt.nz sit behind Imperva (Incapsula/Reese84). A GHA
+  runner gets a 212-byte JS challenge stub from `/inner` and a "Pardon Our
+  Interruption" HTML interstitial from the CKAN API — neither is JSON, and
+  plain `requests` cannot pass either. This is what took the cron down; see
+  the status banner at the top.
 
 ## 6. Manual override
 

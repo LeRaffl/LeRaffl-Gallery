@@ -1,0 +1,11 @@
+🌐 Israel (Vans) - June 26 - BEV Trajectory
+7.6% BEV
+0.1% PHEV
+92.3% ICE (of which 0.4%p were HEV)
+
+Trailing 12 months are:
+6.7% BEV
+0.2% PHEV
+93.1% ICE (of which 0.6%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -27,9 +27,10 @@ Veri Portalı *(Data Portal)*:
 
     https://veriportali.tuik.gov.tr/tr/press/<id>
 
-where <id> is a TÜİK-wide sequential bulletin number (e.g. 58041 = Mart 2026,
-58042 = Nisan 2026, ~32 days apart but with many other TÜİK bulletins in
-between). Each press release is a 5-page bulletin in Turkish, with the fuel
+where <id> identifies the bulletin. The ids are NOT chronological: observed
+values are 58041=Mart 2026, 58042=Nisan 2026, 58043=Haziran 2026,
+58044=Mayıs 2026, 58051=Ocak 2026 — one contiguous block for this series, in
+arbitrary order within it. Each press release is a 5-page bulletin in Turkish, with the fuel
 breakdown on page 4 ("Trafiğe kaydı yapılan otomobillerin yakıt cinslerine
 göre dağılımı, <Month> <Year>" — "Distribution of automobiles registered to
 traffic by fuel type, <Month> <Year>").
@@ -106,32 +107,46 @@ paragraphs, not the table cells. We therefore:
    data/Türkiye.csv. This catches column-shift bugs that would otherwise pass
    (a)-(c).
 
-Auto-discovery (intentionally not implemented yet)
---------------------------------------------------
-The Veri Portalı is a React SPA: the press page URL returns an empty
-``<div id="root"></div>`` shell and the data is hydrated client-side via an
-undocumented JSON API. Plain HTML scraping would only see the shell, and we
-haven't reverse-engineered the API. For now the workflow accepts the
-``press_id`` (or a direct ``pdf_url``) via workflow_dispatch and the script
-hard-requires one of them; the daily cron only does the self-throttle check
-and exits cleanly when no ID is supplied. The maintainer manually dispatches
-once per month when the new bulletin appears (footnoted in each bulletin:
-"Bu konu ile ilgili bir sonraki haber bülteninin yayımlanma tarihi ... 'dır").
+Auto-discovery
+--------------
+The Veri Portalı is a React SPA — the press page URL returns an empty
+``<div id="root"></div>`` shell — but it is backed by a JSON API:
+
+    GET /api/tr/press/<id>   ->  {"data": {"id", "number", "date", "title",
+                                           "period", "content"}, ...}
+
+`title` ("Motorlu Kara Taşıtları") and `period` ("Haziran 2026") identify a
+bulletin exactly. There is no listing endpoint to query — /api/tr/press,
+.../list, /presses, /search, /categories and /themes all 404 — so
+scripts/tuik_discover.py walks ids outward from the newest one recorded in the
+CSV's source column and matches on both fields. Since the series sits in one
+contiguous id block, the usual case costs a single request, and the anchor
+re-derives itself each month with no id hard-coded anywhere.
+
+`content` is the whole bulletin as HTML. The fuel table is a raster image
+there too ("Benzin" appears nowhere in the markup), but the images are inline
+data URIs, so they are decoded straight out of the JSON and OCR'd — no PDF is
+downloaded at any point on this path. parse_content_tables() still tries real
+markup first, in case TÜİK ever emits a table.
+
+There is no known id -> PDF mapping. --pdf-url / --pdf-path remain for feeding
+a PDF in by hand; --press-id on its own cannot reach one and says so.
 
 Following the project rule we only ever write the most recent month; older
 rows are never touched even if a later bulletin would adjust them.
 
 CI dependencies
 ---------------
-Beyond Python (pypdf), the script shells out to:
-    * pdfimages   (poppler-utils)  — extract embedded raster tables
-    * convert     (imagemagick)    — upscale 4× before OCR
+Beyond Python (pypdf, requests), the script shells out to:
+    * convert     (imagemagick)    — upscale 4/6/8× before OCR
     * tesseract   (+ tesseract-ocr-tur) — OCR the table image
+    * pdfimages   (poppler-utils)  — only for the --pdf-url/--pdf-path route
 
 These are all installed in the fetch-turkey.yml workflow step.
 """
 import argparse
 import csv
+import os
 import re
 import subprocess
 import sys
@@ -323,6 +338,38 @@ def ocr_tsv(image_path: Path, upscale: int = 4) -> list[dict]:
                     "conf": float(d["conf"]),
                 })
     return words
+
+
+def iter_fuel_table_images(image_paths: list[Path], upscales=(4, 6, 8)):
+    """Yield (path, words) for EVERY image whose OCR shows all six fuel labels.
+
+    find_table_image() stops at the first hit, which is fine when there is only
+    one such image. A bulletin has two — the month's registrations by fuel and
+    the registered stock at month end — and they carry identical row labels, so
+    first-match can land on the wrong one and take the whole run down with it.
+    Yielding all of them lets the caller keep the table whose Toplam agrees
+    with the narrative monthly total.
+
+    Each image is offered at several upscale factors. A single factor is one
+    roll of the dice on a low-resolution source: the Haziran 2026 table OCR'd
+    at 4x produced a row sum that missed Toplam, and the repair heuristic then
+    tried to pin the difference on LPG (1155, implying 1.6% against an OCR'd
+    Pay% of 0.9%) — a misread elsewhere in the column, not in LPG. Re-reading
+    the same image larger is the cheapest way out, and validation downstream
+    decides which attempt was actually right.
+    """
+    needed = set(FUEL_TO_CSV.keys())
+    for p in image_paths:
+        for scale in upscales:
+            try:
+                words = ocr_tsv(p, upscale=scale)
+            except subprocess.CalledProcessError:
+                continue
+            texts = {w["text"] for w in words}
+            seen = {c for c, aliases in LABEL_ALIASES.items()
+                    if any(a in texts for a in aliases)}
+            if needed.issubset(seen):
+                yield f"{p.name}@{scale}x", words
 
 
 def find_table_image(image_paths: list[Path]) -> tuple[Path, list[dict]] | None:
@@ -617,6 +664,111 @@ def upsert_row(csv_path: str, period: str, row: dict, force: bool) -> bool:
     return True
 
 
+# ---------------------------------------------------------------------------
+# HTML bulletin parsing (preferred over the PDF/OCR path)
+# ---------------------------------------------------------------------------
+#
+# The API record's `content` field is the complete bulletin as HTML. Where the
+# PDF ships the fuel table as a raster image — the sole reason this script ever
+# needed pdfimages + tesseract + a digit-level auto-repair heuristic — the HTML
+# carries it as real markup, so it can simply be read.
+#
+# The parser deliberately emits the SAME shape as parse_table(), namely
+# {label: (counts, pcts)} in column order, so every existing guard
+# (validate_and_repair, cross_check_prev_year, the narrative Toplam check)
+# applies unchanged to whichever path produced the numbers.
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_ROW_RE = re.compile(r"<tr[^>]*>(.*?)</tr>", re.I | re.S)
+_CELL_RE = re.compile(r"<t[dh][^>]*>(.*?)</t[dh]>", re.I | re.S)
+_B64_RE = re.compile(r'src="data:image/[^"]*"')
+# Turkish counts use a space or a dot as the thousands separator ("81 907",
+# "81.907"); percentages use a comma decimal ("34,6"). Keeping the two apart is
+# what lets a row be split into counts vs Pay(%) exactly like the OCR path.
+_INT_CELL_RE = re.compile(r"^\d{1,3}(?:[ . ]\d{3})*$|^\d+$")
+_PCT_CELL_RE = re.compile(r"^\d+,\d+$")
+
+
+def _cell_text(fragment: str) -> str:
+    """Strip tags/entities from one cell and normalise whitespace."""
+    import html as _html
+    text = _html.unescape(_TAG_RE.sub(" ", fragment))
+    return " ".join(text.replace(" ", " ").split())
+
+
+def html_to_text(content_html: str) -> str:
+    """De-tagged bulletin text, for the narrative regexes."""
+    import html as _html
+    return " ".join(_html.unescape(
+        _TAG_RE.sub(" ", _B64_RE.sub("", content_html))).split())
+
+
+_DATA_URI_RE = re.compile(r'src="data:image/[^;]+;base64,([^"]+)"')
+
+
+def extract_images_from_html(content_html: str, out_dir: Path) -> list[Path]:
+    """Decode every base64 data-URI image in the bulletin HTML to a file.
+
+    The fuel table is a raster image in the HTML exactly as it is in the PDF —
+    "Benzin" appears nowhere in the markup. But the HTML embeds those images
+    inline as data URIs, so the whole OCR pipeline can run without ever
+    downloading a PDF, and without needing an id->PDF mapping we do not have.
+
+    The declared mime type is not trustworthy (TÜİK labels JPEG payloads as
+    image/png), so the extension comes from the magic bytes instead.
+    """
+    import base64
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for i, blob in enumerate(_DATA_URI_RE.findall(content_html)):
+        try:
+            raw = base64.b64decode(blob, validate=False)
+        except Exception:
+            continue
+        if raw.startswith(b"\xff\xd8\xff"):
+            ext = ".jpg"
+        elif raw.startswith(b"\x89PNG"):
+            ext = ".png"
+        else:
+            ext = ".bin"
+        p = out_dir / f"html-img-{i:03d}{ext}"
+        p.write_bytes(raw)
+        paths.append(p)
+    return paths
+
+
+def parse_content_tables(content_html: str) -> list[dict[str, tuple[list[int], list[float]]]]:
+    """Every table in the bulletin that carries all six fuel-row labels.
+
+    A bulletin contains more than one fuel breakdown — newly registered
+    vehicles for the month, and the total registered stock at month end — and
+    both use the same row labels. Rather than guess, return each candidate and
+    let the caller keep the one whose Toplam matches the narrative monthly
+    total; a wrong pick then fails loudly instead of writing plausible garbage.
+    """
+    stripped = _B64_RE.sub('src=""', content_html)
+    candidates = []
+    for table_html in re.findall(r"<table[^>]*>(.*?)</table>", stripped, re.I | re.S):
+        table: dict[str, tuple[list[int], list[float]]] = {}
+        for row_html in _ROW_RE.findall(table_html):
+            cells = [_cell_text(c) for c in _CELL_RE.findall(row_html)]
+            cells = [c for c in cells if c]
+            if not cells:
+                continue
+            label = next((canon for canon, aliases in LABEL_ALIASES.items()
+                          if cells[0] in aliases), None)
+            if label is None:
+                continue
+            counts = [int(c.replace(" ", "").replace(".", "").replace(" ", ""))
+                      for c in cells[1:] if _INT_CELL_RE.match(c)]
+            pcts = [float(c.replace(",", ".")) for c in cells[1:] if _PCT_CELL_RE.match(c)]
+            if counts:
+                table[label] = (counts, pcts)
+        if all(label in table for label in FUEL_TO_CSV):
+            candidates.append(table)
+    return candidates
+
+
 def build_row(period: str, fuels: dict[str, int], toplam: int,
               source_url: str) -> dict:
     return {
@@ -632,6 +784,85 @@ def build_row(period: str, fuels: dict[str, int], toplam: int,
         "TOTAL":  float(toplam),
         "notes":  source_url,
     }
+
+
+# Recon is a heavyweight diagnostic (crawls ~40 SPA chunks). It earns its keep
+# when the portal changes shape, but a discovery miss is the normal state of
+# every cron run before the bulletin is published, so keep it opt-in.
+RECON_ON_MISS = os.environ.get("TUIK_RECON") == "1"
+
+
+def ingest_from_html(record: dict, args, target_year: int, target_month: int,
+                     target_period: str) -> int | None:
+    """Write the CSV row straight from the API's HTML bulletin.
+
+    Returns an exit code when the HTML path reached a verdict, or None to let
+    the caller fall back to the PDF pipeline.
+    """
+    content = str(record.get("content") or "")
+    if not content:
+        return None
+
+    text = html_to_text(content)
+    narr = parse_narrative(text)
+    if not narr.get("month_num"):
+        print("[html] no narrative sentence found in the bulletin HTML")
+        return None
+
+    # Same gate as the PDF path: refuse to write if the bulletin is not the
+    # month we asked for. `period` already matched during discovery, so this
+    # is belt and braces against a record whose prose disagrees with its label.
+    if narr["month_num"] != target_month:
+        sys.exit(f"Bulletin month is {narr['month_name']} ({narr['month_num']}) "
+                 f"but target month is {MONTHS_TR_BY_NUM[target_month]} "
+                 f"({target_month}). Refusing to write.")
+
+    # Candidate tables, cheapest source first. Markup would be ideal, but TÜİK
+    # ships the fuel table as a raster image in the HTML just as it does in the
+    # PDF ("Benzin" appears nowhere in the markup), so in practice the images
+    # carry it. They are inline data URIs, so this still needs no PDF.
+    candidates = [("markup", t) for t in parse_content_tables(content)]
+    print(f"[html] narrative monthly_total={narr['monthly_total']}, "
+          f"{len(candidates)} candidate table(s) from markup")
+
+    with tempfile.TemporaryDirectory() as td:
+        if not candidates:
+            imgs = extract_images_from_html(content, Path(td) / "imgs")
+            print(f"[html] OCR fallback: {len(imgs)} inline image(s) "
+                  f"({sum(p.stat().st_size for p in imgs) // 1024} KB)")
+            for origin, words in iter_fuel_table_images(imgs):
+                print(f"[html]   {origin} has all six fuel labels")
+                candidates.append((origin, parse_table(words)))
+
+        if not candidates:
+            print("[html] no fuel table found in markup or images")
+            return None
+
+        # A bulletin carries several fuel breakdowns (this month's
+        # registrations, and the registered stock at month end) under identical
+        # labels. Keep the one whose Toplam agrees with the narrative total;
+        # anything else is the wrong table and would look entirely plausible.
+        for origin, table in candidates:
+            try:
+                fuels, repairs = validate_and_repair(table, narr["monthly_total"])
+            except Exception as e:
+                print(f"[html] candidate {origin} rejected: {e}")
+                for label, (counts, pcts) in table.items():
+                    print(f"[html]     {label:9s} counts={counts} pcts={pcts}")
+                continue
+            for label, before, after in repairs:
+                print(f"  REPAIR: {label} {before} → {after}")
+            cross_check_prev_year(table, args.csv, target_year, target_month)
+            print(f"[html] accepted {origin}: "
+                  + ", ".join(f"{l}={v}" for l, v in fuels.items()))
+            source_url = TUIK_PRESS_URL.format(id=args.press_id)
+            row = build_row(target_period, fuels, narr["monthly_total"], source_url)
+            if upsert_row(args.csv, target_period, row, args.force):
+                print(f"\nWrote {target_period} to {args.csv} (from HTML bulletin)")
+            return 0
+
+    print("[html] no candidate table matched the narrative total")
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -668,27 +899,62 @@ def main() -> int:
             print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
             return 0
 
-    # Decide PDF source. The auto-discovery story is documented in the module
-    # docstring; without one of these inputs we can't proceed.
+    # Decide PDF source. An explicit --pdf-path / --pdf-url / --press-id always
+    # wins; with none of them we try to auto-discover the bulletin for the
+    # target month (see scripts/tuik_discover.py for why that is not trivial).
     sources = [args.pdf_path, args.pdf_url, args.press_id]
-    if sum(1 for s in sources if s) == 0:
-        print(
-            "No --press-id, --pdf-url, or --pdf-path supplied. The Veri Portalı "
-            "is an SPA and we don't yet auto-discover bulletin IDs — dispatch "
-            "this workflow manually with the press_id input once TÜİK publishes "
-            "the new bulletin (footnoted in the previous one as "
-            "'Bu konu ile ilgili bir sonraki haber bülteninin yayımlanma tarihi …')."
-        )
-        return 0
     if sum(1 for s in sources if s) > 1:
         sys.exit("Pass only one of --press-id, --pdf-url, --pdf-path")
+
+    discovered = None
+    if sum(1 for s in sources if s) == 0:
+        import tuik_discover
+
+        discovered = tuik_discover.discover(target_year, target_month, verbose=True)
+        if not discovered or not (discovered.pdf_url or discovered.press_id):
+            # Not an error: most daily cron runs land here because the bulletin
+            # for the target month simply is not out yet. Dump the recon so a
+            # genuine portal change is diagnosable straight from the run log
+            # instead of needing a local repro (which the sandbox can't do —
+            # *.tuik.gov.tr is blocked by egress policy there).
+            print("Auto-discovery found no bulletin for "
+                  f"{MONTHS_TR_BY_NUM[target_month]} {target_year}.")
+            if RECON_ON_MISS:
+                import requests
+                tuik_discover.recon(requests.Session(), target_year, target_month)
+            return 0
+        args.press_id = discovered.press_id
+
+        # Preferred path: the discovered record already carries the bulletin as
+        # HTML, so the numbers can be read directly — no PDF download, no
+        # pdfimages, no OCR, no digit-level repair heuristic.
+        if discovered.record:
+            rc = ingest_from_html(discovered.record, args, target_year,
+                                  target_month, target_period)
+            if rc is not None:
+                return rc
+            print("[html] could not use the HTML bulletin; falling back to PDF")
 
     if args.pdf_path:
         pdf_src = args.pdf_path
     elif args.pdf_url:
         pdf_src = args.pdf_url
+    elif discovered and discovered.pdf_url:
+        pdf_src = discovered.pdf_url
     else:
-        pdf_src = TUIK_PRESS_URL.format(id=args.press_id)
+        # Long-standing bug, fixed here: this branch used to hand
+        # TUIK_PRESS_URL to load_pdf_bytes(). That URL serves the SPA shell,
+        # so pypdf got "<!doc" as its PDF header and died with
+        # PdfStreamError — meaning --press-id could never have worked on its
+        # own. It was never noticed because the workflow was only ever
+        # dispatched without an id. There is no id->PDF mapping known, so say
+        # so instead of downloading HTML and calling it a PDF.
+        sys.exit(
+            f"--press-id {args.press_id} alone cannot locate a PDF: "
+            f"{TUIK_PRESS_URL.format(id=args.press_id)} serves the SPA shell, "
+            "not the bulletin. Pass --pdf-url (or --pdf-path) for the PDF "
+            "route, or let auto-discovery use the HTML bulletin instead."
+        )
 
     # Materialise the PDF to a local file (pdfimages/pypdf both want a path).
     with tempfile.TemporaryDirectory() as td:

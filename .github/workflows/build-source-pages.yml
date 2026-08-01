@@ -1,0 +1,72 @@
+name: Build source pages
+
+# Regenerates the public country source pages under sources/ whenever their
+# inputs change: a source doc's front-matter, the stub registry, the generator
+# itself, or params.csv (which carries the latest period + TTM BEV share shown
+# on each page). Commits the regenerated HTML back to the branch.
+#
+# The generated HTML lives in the repo because GitHub Pages serves it directly,
+# so it must be committed to go live. This workflow does NOT trigger on
+# sources/** changes, so its own commit can't retrigger it.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/architecture/*-source-*.md'
+      - 'docs/architecture/country_source_stubs.yaml'
+      - 'scripts/build_source_pages.py'
+      - 'scripts/build_schedule.py'
+      - 'params.csv'
+      - 'manifest.json'
+      - '.github/workflows/fetch-*.yml'
+  pull_request:
+    paths:
+      - 'docs/architecture/*-source-*.md'
+      - 'docs/architecture/country_source_stubs.yaml'
+      - 'scripts/build_source_pages.py'
+      - 'scripts/build_schedule.py'
+  workflow_dispatch: {}
+  schedule:
+    - cron: '37 4 * * *'   # daily fallback so freshness tracks the data
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: source-pages-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install pyyaml
+
+      # On pull requests, only validate the content model — never commit.
+      - name: Validate front-matter + stubs
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/build_source_pages.py --check
+
+      - name: Build source pages
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/build_source_pages.py
+
+      # Freshness data for the gallery's "Data freshness" tab. Depends on the
+      # fetch workflows' crons and on manifest.json, hence the extra triggers.
+      - name: Build schedule data
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/build_schedule.py
+
+      - name: Commit regenerated pages
+        if: github.event_name != 'pull_request'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'sources'
+          message: 'chore: rebuild source pages (CI)'
+          default_author: github_actions

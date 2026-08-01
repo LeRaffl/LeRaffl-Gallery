@@ -1,0 +1,11 @@
+🇳🇱 Netherlands (Used) - TTM Market Split
+
+May24–Apr25  vs  May25–Apr26
+−0.5pp  BEV   (4.9% → 4.5%)
++5.4pp  PHEV  (27.6% → 33.0%)
++0.0pp  HEV   (0.0% → 0.0%)
+−4.9pp  ICE   (67.5% → 62.5%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2034-12.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,3 +1,42 @@
+---
+country: Netherlands
+slug: netherlands
+method: scrape
+summary: New-vehicle registrations for the Netherlands, sourced from RDW (the Dutch vehicle authority)
+  via the duurzamemobiliteit BI portal.
+source_name: duurzamemobiliteit.databank.nl (Swing 7.1, ABF Research)
+source_url: https://duurzamemobiliteit.databank.nl/
+underlying: RDW — Rijksdienst voor het Wegverkeer
+auth: none
+cadence: daily cron, 1st–15th of the month
+variants:
+- Whole
+- Used
+- HDV
+variant_notes:
+  Whole: New passenger cars (Instroom Personenauto Nieuw).
+  Used: Imported used passenger cars at first Dutch registration (Personenauto Occasion import).
+  HDV: New heavy commercial vehicles (Zware bedrijfsvoertuigen) — broader than EU N2/N3.
+hev_split: false
+fcev: folded into OTHERS (~1 unit/month Whole, ~30/month Used)
+backfill: pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
+scope_note: HDV ≈ Zware bedrijfsvoertuigen, not a strict EU N-class.
+column_map:
+  BEV: BEV
+  PHEV: PHEV
+  Benzine: PETROL
+  Diesel: DIESEL
+  Overig + FCEV: OTHERS
+caveats:
+- RDW doesn't split full hybrids; HEV lands in Petrol/Diesel.
+- Publication date varies within the first half of the month.
+- The portal blocks GitHub Actions and Cloudflare IPs; data is fetched via a Deno Deploy relay.
+fetcher: scripts/fetch_netherlands.py
+workflow: .github/workflows/fetch-netherlands.yml
+fragility_doc: docs/architecture/10-source-netherlands.md
+data_file: data/Netherlands.csv
+---
+
 # 10 · Source: Netherlands (duurzamemobiliteit.databank.nl / RDW)
 
 The Netherlands pipeline is more involved than most other countries because
@@ -21,10 +60,16 @@ Variants:  Whole, Used, HDV   (three separate CSV files)
 HEV:       Not split by RDW (folded into Benzine/Diesel upstream); no HEV column
 FCEV:      Folded into OTHERS (~1 unit/month for Whole; ~30/month for Used)
 Backfill:  Pre-2018 Whole rows from the maintainer's Google Sheet (one-off)
-Schedule:  Daily cron 1st–15th, early-exit per variant once last month is in
+Schedule:  Daily cron 1st–15th, 06:30 UTC; early-exit per variant once last month is in
 Scripts:   scripts/fetch_netherlands.py   (monthly scraper)
            scripts/backfill_netherlands_pre2018.py  (one-off)
 Workflow:  .github/workflows/fetch-netherlands.yml
+IP block:  duurzamemobiliteit.databank.nl blocks GitHub Actions Azure IPs
+           (TCP-drop, errno 101) AND Cloudflare egress IPs (HTTP 403).
+           Fix: route via a Deno Deploy relay (Google Cloud egress). See §13.
+Secrets:   NL_FETCH_RELAY  — https://<project>.deno.dev/fetch?url=
+           NL_RELAY_TOKEN  — shared secret set in Deno env + GitHub secret
+           NL_PROXY        — optional socks5/http proxy (overrides relay)
 ```
 
 ## 1. Why this is hard
@@ -91,9 +136,20 @@ URL (the template) and the one used in every subsequent call (the session).
 
 | Variant | File | Display label | Swing pivot | Saved permalink |
 |---|---|---|---|---|
-| `Whole` | `data/Netherlands.csv` | Netherlands | Instroom Personenauto Nieuw | `a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba` |
-| `Used` | `data/Netherlands_Used.csv` | Netherlands (Used) | Personenauto Occasion import (sum of `> 90 dgn` and `<= 90 dgn`) | `ffaf2d83-0174-4b36-92b9-f7bd96ad4d89` |
-| `HDV` | `data/Netherlands_HDV.csv` | Netherlands (HDV) | Zware bedrijfsvoertuigen Nieuw | `992eb09a-0828-4ef9-97b4-1577ebba3a21` |
+| `Whole` | `data/Netherlands.csv` | Netherlands | Instroom Personenauto Nieuw | `29fcfefb-b82b-47cb-a601-b7c31ebd2901` |
+| `Used` | `data/Netherlands_Used.csv` | Netherlands (Used) | Personenauto Occasion import (sum of `> 90 dgn` and `<= 90 dgn`) | `7f40022a-d4cf-4030-abaf-adf5edf412b3` |
+| `HDV` | `data/Netherlands_HDV.csv` | Netherlands (HDV) | Zware bedrijfsvoertuigen Nieuw | `3ca8fa6f-52a6-4b29-8f43-7bae5200c74c` |
+
+> **Period dimension — use the rolling window, not a fixed month list.**
+> The original permalinks (`a7d36cf5…`, `ffaf2d83…`, `992eb09a…`) had a
+> *static* month selection that silently capped at 2026-04: the fetch kept
+> succeeding but never saw newer months, because opening the saved workspace
+> reproduces exactly the months that were ticked when it was saved. Re-saved
+> 2026-07 using Swing's **"last N months" option (N=36)**, which is dynamic —
+> new months appear automatically. If you ever re-save these, keep the rolling
+> window; don't tick individual months. The 36-month window always overlaps
+> the CSV's existing tail and `upsert` never deletes rows, so the pre-2018-→
+> history is untouched.
 
 ### Why three CSV files instead of one with a `variant` column
 
@@ -176,14 +232,23 @@ Swing pivots can be returned in either orientation:
 
 | Orientation | Returned for | `headRows` contains | `headCols` contains |
 |---|---|---|---|
-| Periods-in-rows | Whole, HDV | Period labels (`"31 januari 2018"` …) | Fuel labels (one level) |
-| Fuels-in-rows | Used | Fuel labels (`BEV`, `FCEV`, `PHEV` …) | Period labels **and** sub-period categories (two levels — `> 90 dgn` and `<= 90 dgn` per period) |
+| Periods-in-rows, one col/fuel | Whole, HDV | Period labels (`"31 januari 2018"` …) | Fuel labels (one level) |
+| Periods-in-rows, fuel × sub-col | **Used (current)** | Period labels | Fuels on the **outer** level, each spanning two sub-columns (`Occasion import > 90 dgn` / `<= 90 dgn`) — summed |
+| Fuels-in-rows | Used (legacy template) | Fuel labels (`BEV`, `FCEV`, `PHEV` …) | Period labels + `> 90`/`<= 90` sub-categories (two levels) |
 
-`parse_table` detects which case applies by checking whether the first
-`headRows` entry is in the known fuel-label set (`NL_FUELS`). For the
-fuels-in-rows case it also walks the outer-level `headCols` propagating
-the period label forward across the sub-columns it spans, then sums the
-sub-columns per period.
+`parse_table` first checks whether the first `headRows` entry is a fuel
+(`NL_FUELS`) → fuels-in-rows (`_parse_fuels_in_rows`); otherwise
+periods-in-rows (`_parse_periods_in_rows`). The periods-in-rows parser finds
+whichever `headCols` level actually carries fuel names, propagates each fuel
+label across the sub-columns it spans (blank cell = span continuation), and
+sums columns per fuel — so it handles both Whole/HDV (one column per fuel)
+and Used (two `> 90`/`<= 90` sub-columns per fuel).
+
+> **Watch the Used orientation when re-saving.** Re-saving the Used workspace
+> with the rolling-36-month window (2026-07) flipped it from *fuels-in-rows*
+> to *periods-in-rows with fuel sub-columns*. The parser now handles that, but
+> it silently produced **0 rows** until fixed — see the "variant parses 0 rows"
+> diagnostic in `main()`, which dumps the pivot shape when this recurs.
 
 ## 6. Backfill: pre-2018 history
 
@@ -277,13 +342,17 @@ change, mirror the change in plots.R.
 
 | Failure mode | What happens | Diagnostic |
 |---|---|---|
-| GitHub Actions runner can't reach the host (transient `Network is unreachable` / `errno 101`) | `requests.Session` retries the connection up to 3× with exponential backoff (2 s → 4 s → 8 s); if all retries fail the job fails visibly | Re-run the workflow manually once the network recovers, or wait for the next scheduled run. The most recent confirmed occurrence was 2026-06-01. |
+| **Persistent** Azure IP block (`errno 101` / TCP connection drop) | All three fetch attempts fail; job fails after retry sequence | Confirmed as persistent from 2026-06-01. Fix: relay via Deno Deploy (§13). Not a transient network blip — the host silently drops TCP from GitHub's Azure ranges. |
+| Relay also blocked (403 from Cloudflare egress IPs) | `_get()` returns a 403 from the relay; job fails | The Austria CF Worker relay returns 403 in ~400 ms — the host blocks Cloudflare IP ranges too. Use the Deno Deploy relay (Google Cloud egress) or `NL_PROXY` instead. |
+| Deno Deploy relay unavailable or misconfigured | `_get()` raises a connection error against the Deno URL | Check `NL_FETCH_RELAY`/`NL_RELAY_TOKEN` secrets. Re-deploy `worker/deno-relay.ts` at dash.deno.com. See §13. |
+| Relay reaches databank.nl but returns 500/512 | Fetch fails right after `[Whole] init:`; the Python side prints the relay response body | A crash *inside* the relay (not a block). A plain `Internal Server Error` body = Deno-runtime throw; a `relay handler error: …` body = caught with stack. Usually a `worker/deno-relay.ts` change that wasn't redeployed to the playground. See §13 "Two relay bugs". |
 | Maintainer deletes a saved permalink in Swing | Scraper fails on that variant with `WsGuid not found in /viewer response` | Look at the failing variant's URL in the Action log; recreate the permalink in Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
 | Swing upgrades to a version with a different inline-JS shape | `WSGUID_RE` regex stops matching | Update the regex to match the new JS pattern (look at the raw HTML response) |
 | Swing changes the pivot JSON shape | Parser fails noisily; render aborts before commit | Inspect a fresh HAR; update `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
 | RDW retroactively restates a month with values that differ >50% from what's in the CSV | Upsert prints `WARNING` to the action log but still commits the new values | Decide whether the restatement is real and revert with a manual edit if not |
 | Google Sheet revoked from "anyone with the link" | Backfill script fails with a Google login HTML response | Re-share the sheet, or hardcode the pre-2018 history into a static CSV |
 | The maintainer reconfigures a saved Swing template (e.g. drops a year, changes Aandrijfcategorie selection) | Scraper succeeds but produces wrong-shaped data | The "Captured caption" line in the action log doesn't match `Instroom Personenauto Nieuw - Nederland`. Re-save the workspace with the correct configuration. |
+| **Silent period cap** — a saved workspace with a *static* month list stops at the last month that was ticked when saved | Scraper keeps succeeding (`committed: false`, render skipped) but the CSV never advances — looks exactly like "source hasn't published yet" | The `[Whole] parsed … (2018-01 .. YYYY-MM)` line in the log shows a max period that stops advancing while the portal (opened in a browser) has newer months. Fix: re-save the 3 workspaces with the **rolling "last N months"** option, not individual month ticks (see §3). This bit us 2026-07 — the fetch had silently capped at 2026-04 for months. |
 
 ## 11. Maintenance recipes
 
@@ -306,6 +375,15 @@ change, mirror the change in plots.R.
 4. Add the variant name to the `render-country.yml` choice list.
 5. Add a flag asset at `assets/flags/netherlands_<lowercase variant>.png`.
 6. Update this doc's variant table.
+
+### Re-deploy the Deno relay after expiry or rotation
+
+1. Generate a new random token: `python3 -c "import secrets; print(secrets.token_hex(32))"`.
+2. Update `RELAY_TOKEN` in Deno Deploy project settings.
+3. Update the `NL_RELAY_TOKEN` GitHub secret to match.
+4. No code change needed; the relay reads the token from the env at request time.
+
+If the project URL changed (e.g. new deployment), also update `NL_FETCH_RELAY`.
 
 ### Force-refetch an older month (RDW restated something)
 
@@ -339,11 +417,115 @@ match, the template GUID is broken. If step 2 returns HTML (a 302 to
   credential. The whole flow works for any anonymous client. Do not commit
   the maintainer's logged-in cookies anywhere.
 - A non-Swing fallback. If Swing is persistently unreachable, there is no
-  automatic switch to CBS Statline or anywhere else. Transient connection
-  errors are retried up to 3× with exponential backoff (see Known fragility
-  above); a failure that survives all retries still fails the action.
+  automatic switch to CBS Statline or anywhere else. Connection errors are
+  retried; a failure that survives all retries fails the action. If the
+  relay is also blocked, the maintainer must fix the routing (see §13).
 - Real-time updates. The cron is daily, not hourly. There is no webhook
   from RDW or Swing.
 - Backfill for Used/HDV before 2018. The maintainer's sheet doesn't have
   those slices that far back. They start 2018-01 in both the sheet and
   Swing.
+
+## 13. IP routing and relay architecture
+
+### The blocking problem (observed 2026-06-01)
+
+`duurzamemobiliteit.databank.nl` (hosted in the Netherlands) began silently
+dropping TCP connections from GitHub Actions (Azure) IP ranges on or around
+2026-06-01, producing `[Errno 101] Network is unreachable` after a ~25 s
+IPv4 connect timeout. Nine consecutive daily runs failed before diagnosis.
+
+Investigation showed:
+- **GitHub Actions Azure IPs**: TCP-dropped (errno 101).
+- **Cloudflare egress IPs** (CF Worker relay used for Austria): HTTP 403
+  returned in ~400 ms. The host blocks Cloudflare CDN ranges too.
+- **Anthropic API infrastructure**: HTTP 403 (same block list).
+- **Google Cloud egress** (Deno Deploy): not (yet) blocked — confirmed by
+  successful test fetches.
+
+### Solution: Deno Deploy relay (`worker/deno-relay.ts`)
+
+`worker/deno-relay.ts` is a Deno Deploy serverless function that speaks the
+same `/fetch?url=<encoded>` contract as the Austria CF Worker
+(`worker/index.js`). Because Deno Deploy's free tier egresses from **Google
+Cloud** IP ranges rather than Cloudflare or Azure, it is not caught by the
+current block.
+
+The relay is session-aware (required for Swing's JIVE_AUTH cookie flow):
+
+| Header from client → relay | Forwarded upstream as |
+|---|---|
+| `X-Relay-Token` | auth check against `RELAY_TOKEN` env var |
+| `X-Fwd-User-Agent` | `User-Agent` |
+| `X-Fwd-Cookie` | `Cookie` |
+| `X-Fwd-Referer` | `Referer` |
+| `X-Fwd-Accept-Language` | `Accept-Language` |
+| ← `X-Upstream-Set-Cookie-B64` | upstream `Set-Cookie` headers, `\n`-joined **then base64-encoded** |
+
+`scripts/fetch_netherlands.py::_get()` transparently uses the relay when
+`session.relay_base` is set, accumulating upstream cookies in
+`session.relay_cookies` across the bootstrap → GetTableStart → GetTableRows
+call sequence. It base64-decodes `X-Upstream-Set-Cookie-B64` (falling back to
+a plain `X-Upstream-Set-Cookie` header for the single-cookie CF-worker path).
+
+### Two relay bugs found on first live run (2026-07, fixed)
+
+The relay reached databank.nl on the first try but its *response handling*
+crashed, so the fetch still failed. Both bugs are fixed in `worker/deno-relay.ts`;
+recorded here because they're easy to reintroduce when porting the relay:
+
+1. **Opaque `500 Internal Server Error`.** `Headers.getSetCookie()` isn't
+   available in the Deno Deploy runtime; calling it threw a `TypeError` that
+   surfaced as a generic Deno 500. Fixed with a `readSetCookies()` helper
+   (uses `getSetCookie()` when present, else the combined header) and a
+   top-level `try/catch` that returns a readable `512` + stack instead of an
+   opaque 500. The Python side prints the relay response body on any non-200
+   init — that diagnostic is what made both bugs visible.
+2. **`TypeError: Invalid header value`.** databank.nl returns **6** session
+   cookies; the relay joined them with `\n` into one header, but HTTP header
+   values can't contain newlines. Austria only issues one cookie so it never
+   hit this. Fixed by base64-encoding the `\n`-joined blob (see the header
+   table above). This is why the response header is `X-Upstream-Set-Cookie-B64`,
+   not the older plain `X-Upstream-Set-Cookie`.
+
+The live relay is deployed at `perky-terrapin-5228.leraffl.deno.net`
+(Deno Deploy playground on the `leraffl` org). Note the domain is
+`.leraffl.deno.net`, not the older `<project>.deno.dev` form some examples
+below still show.
+
+### Priority order for routing
+
+```
+1. NL_PROXY (socks5:// or http://)        — highest priority; set if you have
+                                             a self-hosted proxy with NL egress
+2. NL_FETCH_RELAY + NL_RELAY_TOKEN        — Deno Deploy relay (preferred)
+3. AUSTRIA_FETCH_RELAY + AUSTRIA_RELAY_TOKEN  — CF Worker fallback (will 403
+                                               for this host, kept as last-resort)
+4. Direct connection                       — fails for GitHub Actions runners
+```
+
+The workflow maps these in priority order via `${{ secrets.NL_PROXY || secrets.AUSTRIA_PROXY }}` etc.
+
+### Setting up the Deno Deploy relay
+
+1. Go to [dash.deno.com](https://dash.deno.com) → sign in with GitHub → **New Playground**.
+2. Paste `worker/deno-relay.ts`, click **Save & Deploy**.
+3. In the project's **Settings → Environment Variables**, add:
+   `RELAY_TOKEN` = `<a long random string>`.
+4. Note the deployed URL, e.g. `https://purple-whale-12.deno.dev`.
+5. In GitHub repo Settings → Secrets → Actions, add:
+   - `NL_FETCH_RELAY` = `https://purple-whale-12.deno.dev/fetch?url=`
+   - `NL_RELAY_TOKEN` = same random string from step 3.
+
+The relay is free and needs no credit card. Deno Deploy's free tier allows
+1 000 000 requests/month; the Netherlands workflow runs at most ~45 × 3 requests/month.
+
+### If Deno Deploy is also blocked in the future
+
+Options in order of effort:
+1. Deploy a second Deno project (new outbound IP pool — may differ).
+2. Deploy to Fly.io / Render / Railway / another free PaaS with different IP
+   ranges. The relay contract is simple enough to port in <50 lines.
+3. Set `NL_PROXY` to a residential or datacenter proxy URL (`socks5://user:pass@host:port`).
+4. Run a one-off local fetch and commit the result manually:
+   `python scripts/fetch_netherlands.py --force && git add data/ && git commit -m "chore: manual Netherlands update"`

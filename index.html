@@ -155,6 +155,35 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:12px;color:#9fb3d1}
 .tablepad{padding:12px}
+/* ---- Data freshness tab ------------------------------------------------ */
+/* Status is never colour-alone: every pill carries its word, and the table
+   repeats the reason in the "Why" column. */
+.sched-summary{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.sched-chip{display:flex;align-items:baseline;gap:8px;padding:9px 14px;border-radius:12px;
+  background:#0f1525;border:1px solid #1f2a44;cursor:pointer;font:inherit;color:inherit}
+.sched-chip:hover{border-color:#7cc4ff}
+.sched-chip[aria-pressed="true"]{border-color:#7cc4ff;background:#101f38}
+.sched-chip .n{font-size:20px;font-weight:700}
+.sched-chip .l{font-size:12px;color:#9fb3d1;text-transform:uppercase;letter-spacing:.05em}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  white-space:nowrap;border:1px solid transparent}
+.pill--current{background:rgba(60,180,120,.18);color:#bff5d8;border-color:rgba(60,180,120,.4)}
+.pill--due{background:rgba(210,160,50,.18);color:#f0d08a;border-color:rgba(210,160,50,.45)}
+.pill--late{background:rgba(220,80,80,.18);color:#ffb4b4;border-color:rgba(220,80,80,.45)}
+.pill--manual{background:#101a33;color:#9fb3d1;border-color:#1f2a44}
+.pill--unknown{background:#101a33;color:#9fb3d1;border-color:#1f2a44}
+.sched-country{font-weight:600}
+.sched-why{color:#9fb3d1;font-size:13px}
+.sched-vars{color:#9fb3d1;font-size:12px}
+.sched-cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:6px}
+.sched-day{background:#0f1525;border:1px solid #1f2a44;border-radius:12px;padding:10px 12px}
+.sched-day--today{border-color:#7cc4ff;box-shadow:0 0 0 1px rgba(124,196,255,.35)}
+.sched-day .d{font-weight:700;font-size:13px;color:#7cc4ff;margin-bottom:6px}
+.sched-day .who{font-size:13px;line-height:1.5}
+.sched-day a{color:#e9eef2;text-decoration:none;border-bottom:1px dotted #38507d}
+.sched-day a:hover{border-bottom-style:solid}
+@media (max-width:640px){ .sched-summary .sched-chip{flex:1 1 40%} }
+
 .tablecard{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:auto}
 .tablecard table{width:100%;border-collapse:collapse;min-width:100%}
 .tablecard thead th{background:#0e1a34}
@@ -1359,6 +1388,16 @@ a:focus-visible{
 .footer .btn{
   white-space:nowrap;
 }
+/* "ⓘ Source" link on each gallery card — a subtle accent so it reads as a
+   secondary action next to Download / Copy post. */
+.btn--source{
+  border-color:#2a4a6d;
+  color:#7cc4ff;
+}
+.btn--source:hover{
+  border-color:#3a6fad;
+  background:#132542;
+}
 
 .filename{
   display:none;
@@ -1645,6 +1684,8 @@ a:focus-visible{
 @media(max-width:600px){.about-grid{grid-template-columns:1fr}}
 .about-card{background:#0f1525;border:1px solid #1f2a44;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:border-color .15s}
 .about-card:hover{border-color:#2e4268}
+.about-card--link{text-decoration:none}
+.about-card--link:hover h3{color:#7cc4ff}
 .about-card-group{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#4da3ff;opacity:.7}
 .about-card h3{margin:0;font-size:15px;font-weight:700;color:#e9eef2}
 .about-card p{margin:0;font-size:13px;color:#9fb3d1;line-height:1.6}
@@ -1700,6 +1741,8 @@ a:focus-visible{
       <span class="tab-group-label">Browse</span>
       <a href="#gallery" class="tablink">Gallery</a>
       <a href="#worldmap" class="tablink">World Map</a>
+      <a href="sources/" class="tablink">Data sources</a>
+      <a href="#schedule" class="tablink">Data freshness</a>
     </span>
     <span class="tab-group">
       <span class="tab-group-label">Rankings</span>
@@ -1766,6 +1809,11 @@ a:focus-visible{
         <h3>Compare</h3>
         <p>Put multiple countries side by side on the same chart. Useful for spotting which markets lead, lag, or have stalled.</p>
       </div>
+      <a class="about-card about-card--link" href="sources/">
+        <div class="about-card-group">Browse</div>
+        <h3>Data sources ↗</h3>
+        <p>Where each country's numbers come from — the upstream registry or portal, what they count, and the caveats to watch. One page per country.</p>
+      </a>
     </div>
 
     <div class="about-section-label">The model</div>
@@ -2164,6 +2212,63 @@ a:focus-visible{
     </div>
     <div class="container tablepad">
       <div id="thresholdsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
+    </div>
+  </section>
+
+  <!-- DATA FRESHNESS TAB -->
+  <section id="tab-schedule" class="tab">
+    <div class="container">
+      <h2>Data freshness
+        <span class="fb-ctx-cluster" data-fb-context='{"section":"schedule"}'>
+          <button class="fb-ctx-btn" data-cat="data"     title="Report a data error">⚠️</button>
+          <button class="fb-ctx-btn" data-cat="bug"      title="Report a bug">🐛</button>
+          <button class="fb-ctx-btn" data-cat="question" title="Ask a question">❓</button>
+          <button class="fb-ctx-btn" data-cat="idea"     title="Suggest an idea">💡</button>
+          <button class="fb-ctx-btn" data-cat="comment"  title="Leave a comment">💬</button>
+        </span>
+      </h2>
+      <p class="small" style="max-width:820px">
+        Which month each country's data currently runs to, when it last arrived, and
+        when the next point is due. <strong>Due</strong> and <strong>late</strong> are
+        measured against the source's own publication window — the days our fetcher
+        polls — so a country is never flagged before its publisher has actually
+        released. Hand-maintained sources have no such window and are marked
+        <strong>by hand</strong> rather than judged.
+      </p>
+
+      <div id="schedSummary" class="sched-summary"></div>
+
+      <div class="toolbar">
+        <div class="field" style="min-width:240px">
+          <label for="schedSearch">Search country</label>
+          <input id="schedSearch" type="search" placeholder="e.g. Norway">
+        </div>
+        <div class="field">
+          <label for="schedSort">Sort by</label>
+          <select id="schedSort">
+            <option value="status">Needs attention first</option>
+            <option value="country">Country A–Z</option>
+            <option value="latest">Newest data first</option>
+            <option value="oldest">Oldest data first</option>
+            <option value="updated">Most recently updated</option>
+          </select>
+        </div>
+        <div class="spacer"></div>
+      </div>
+    </div>
+
+    <div class="container tablepad">
+      <div id="schedMount" class="tablecard"><div style="padding:14px">Loading <code>sources/schedule.json</code>…</div></div>
+    </div>
+
+    <div class="container">
+      <h3 style="margin-top:26px">Where the next points land <span id="schedCalMonth" class="small" style="font-weight:400"></span></h3>
+      <p class="small" style="max-width:820px">
+        The day of the month each source's publication window opens — the earliest a
+        new figure can appear. Fetchers keep polling after that until the data shows
+        up, so this marks the <em>start</em> of each window, not every polling day.
+      </p>
+      <div id="schedCalendar" class="sched-cal"></div>
     </div>
   </section>
 
@@ -2948,28 +3053,32 @@ async function ensurePlotly() {
   const debug = document.getElementById("fleetDebugBox");
   if (typeof Plotly !== 'undefined') {
     if (debug) debug.textContent += "Plotly already loaded\n";
-    return;
+    return true;
   }
   if (debug) debug.textContent += "Waiting for Plotly.js ...\n";
   return new Promise((resolve) => {
     if (window.Plotly) {
-      resolve();
+      resolve(true);
       return;
     }
     const interval = setInterval(() => {
       if (window.Plotly) {
         clearInterval(interval);
+        clearTimeout(timeout);
         if (debug) debug.textContent += "Plotly loaded successfully\n";
-        resolve();
+        resolve(true);
       }
     }, 100);
-    // Hard timeout after 10 s: give up waiting for Plotly instead of
-    // polling forever. NOTE: we only stop the interval; the promise is
-    // left unresolved on purpose so the caller's fallback rendering
-    // (empty state + debug message) stays visible.
-    setTimeout(() => {
+    // Hard timeout after 10 s: give up waiting for Plotly and resolve
+    // `false` so callers can carry on without charts. Leaving the promise
+    // unresolved forever (the old behaviour) stalled every init chain
+    // awaiting it — most visibly the Fleet tab, whose country picker
+    // stayed empty whenever an ad-blocker or restrictive network kept
+    // the CDN script from loading (#117).
+    const timeout = setTimeout(() => {
       clearInterval(interval);
       if (debug) debug.textContent += "Plotly loading timeout – check <script src>!\n";
+      resolve(false);
     }, 10000);
   });
 }
@@ -3061,6 +3170,197 @@ function activateTabByHash(){
 }
 window.addEventListener('hashchange', activateTabByHash);
 window.addEventListener('DOMContentLoaded', activateTabByHash);
+
+// -------- Data freshness tab --------
+// Reads sources/schedule.json (built by scripts/build_schedule.py from the
+// workflows, the data CSVs and manifest.json). Everything shown here is
+// derived — nothing about freshness is hand-maintained anywhere.
+(function(){
+  const MONTHS = ['January','February','March','April','May','June','July',
+                  'August','September','October','November','December'];
+  const STATUS_ORDER = { late:0, due:1, unknown:2, manual:3, current:4 };
+  const STATUS_LABEL = { current:'up to date', due:'due', late:'late',
+                         manual:'by hand', unknown:'no data file' };
+  let DATA = null, statusFilter = null;
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function prettyPeriod(p){
+    if(!p) return '—';
+    const [y,m] = p.split('-');
+    return m ? `${MONTHS[+m-1].slice(0,3)} ${y}` : p;
+  }
+
+  function daysAgo(iso, today){
+    if(!iso) return null;
+    return Math.round((Date.parse(today) - Date.parse(iso)) / 86400000);
+  }
+
+  // Plain-language reason, so the pill is never the only explanation.
+  function why(r){
+    if(r.status === 'unknown')
+      return 'No data file in the repository for this country.';
+    if(r.status === 'manual')
+      return r.behind_now > 0
+        ? `Entered by hand — newest point is ${r.behind_now} month${r.behind_now>1?'s':''} behind the month just ended.`
+        : 'Entered by hand — currently up to date.';
+    // For an up-to-date country the pill and the "Data runs to" column
+    // already say everything; repeating it on 40+ rows is just noise.
+    if(r.status === 'current') return '';
+    const n = r.behind;
+    const unit = r.interval === 'quarterly' ? 'quarter' : 'month';
+    const cnt = r.interval === 'quarterly' ? Math.round(n/3) : n;
+    return `${prettyPeriod(r.expected_period)} was expected but has not arrived — `
+         + `${cnt} ${unit}${cnt>1?'s':''} behind.`;
+  }
+
+  function windowText(r){
+    const s = r.schedule;
+    if(!s) return 'no scheduled fetch';
+    if(!s.enabled) return 'automatic fetch disabled';
+    const d = s.days, from = d[0], to = d[d.length-1];
+    const span = (from === 1 && to === 31) ? 'any day'
+               : (to === 31 ? `from the ${ord(from)}` : `${ord(from)}–${ord(to)}`);
+    const months = (s.months.length === 12) ? '' :
+      ' in ' + s.months.map(m => MONTHS[m-1].slice(0,3)).join('/');
+    return `${span}${months}, ${s.times.join(' & ')} UTC`;
+  }
+
+  const ord = n => n + (n%10===1&&n!==11?'st':n%10===2&&n!==12?'nd':n%10===3&&n!==13?'rd':'th');
+
+  function renderSummary(rows){
+    const counts = {};
+    rows.forEach(r => counts[r.status] = (counts[r.status]||0)+1);
+    const el = document.getElementById('schedSummary');
+    el.innerHTML = Object.keys(STATUS_ORDER)
+      .filter(k => counts[k])
+      .sort((a,b) => STATUS_ORDER[a]-STATUS_ORDER[b])
+      .map(k => `<button class="sched-chip" data-status="${k}" aria-pressed="${statusFilter===k}">`
+              + `<span class="n">${counts[k]}</span><span class="l">${STATUS_LABEL[k]}</span></button>`)
+      .join('');
+    el.querySelectorAll('.sched-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        statusFilter = (statusFilter === btn.dataset.status) ? null : btn.dataset.status;
+        render();
+      });
+    });
+  }
+
+  function renderTable(rows){
+    const today = DATA.today;
+    const body = rows.map(r => {
+      const ago = daysAgo(r.last_render, today);
+      const vars = r.variants.filter(v => v.in_repo);
+      const extra = vars.length > 1
+        ? `<div class="sched-vars">${vars.length} variants · `
+          + vars.map(v => `${esc(v.name)} → ${prettyPeriod(v.latest)}`).join(' · ') + '</div>'
+        : '';
+      return `<tr>
+        <td><a class="sched-country" href="sources/${esc(r.slug)}.html">${esc(r.country)}</a>${extra}</td>
+        <td><span class="pill pill--${r.status}">${STATUS_LABEL[r.status]}</span></td>
+        <td>${prettyPeriod(r.latest_period)}</td>
+        <td>${ago == null ? '—' : (ago === 0 ? 'today' : `${ago} day${ago>1?'s':''} ago`)}</td>
+        <td class="sched-why">${esc(why(r))}</td>
+        <td class="sched-why">${esc(windowText(r))}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('schedMount').innerHTML = rows.length ? `<table>
+      <thead><tr>
+        <th>Country</th><th>Status</th><th>Data runs to</th>
+        <th>Last arrived</th><th>Detail</th><th>Publication window</th>
+      </tr></thead><tbody>${body}</tbody></table>`
+      : '<div style="padding:14px">No countries match that filter.</div>';
+  }
+
+  // Compact calendar: one cell per day on which at least one source's
+  // publication window opens. Polling days in between are omitted on purpose —
+  // showing every one of them is what made the old calendar unreadable.
+  function renderCalendar(){
+    const byDay = {};
+    DATA.countries.forEach(r => {
+      const s = r.schedule;
+      if(!s || !s.enabled) return;
+      const d = s.days[0];
+      (byDay[d] = byDay[d] || []).push(r);
+    });
+    const today = new Date(DATA.today + 'T00:00:00Z');
+    const dom = today.getUTCDate();
+    const cells = Object.keys(byDay).map(Number).sort((a,b)=>a-b).map(d => {
+      const who = byDay[d]
+        .sort((a,b)=>a.country.localeCompare(b.country))
+        .map(r => `<a href="sources/${esc(r.slug)}.html">${esc(r.country)}</a>`)
+        .join(', ');
+      return `<div class="sched-day${d===dom?' sched-day--today':''}">
+        <div class="d">${ord(d)}${d===dom?' · today':''}</div>
+        <div class="who">${who}</div></div>`;
+    }).join('');
+    document.getElementById('schedCalendar').innerHTML = cells;
+    // Bare ordinals ("1st, 5th, 6th…") are ambiguous without the month.
+    const lbl = document.getElementById('schedCalMonth');
+    if(lbl) lbl.textContent = '— ' + MONTHS[today.getUTCMonth()] + ' ' + today.getUTCFullYear()
+          + ', and every month on the same days';
+  }
+
+  function render(){
+    if(!DATA) return;
+    const q = (document.getElementById('schedSearch').value || '').toLowerCase().trim();
+    const sort = document.getElementById('schedSort').value;
+    let rows = DATA.countries.slice();
+    if(statusFilter) rows = rows.filter(r => r.status === statusFilter);
+    if(q) rows = rows.filter(r => r.country.toLowerCase().includes(q));
+    const cmp = {
+      status: (a,b) => (STATUS_ORDER[a.status]-STATUS_ORDER[b.status]) || a.country.localeCompare(b.country),
+      country:(a,b) => a.country.localeCompare(b.country),
+      latest: (a,b) => String(b.latest_period||'').localeCompare(String(a.latest_period||'')) || a.country.localeCompare(b.country),
+      oldest: (a,b) => String(a.latest_period||'~').localeCompare(String(b.latest_period||'~')) || a.country.localeCompare(b.country),
+      updated:(a,b) => String(b.last_render||'').localeCompare(String(a.last_render||'')) || a.country.localeCompare(b.country)
+    }[sort];
+    rows.sort(cmp);
+    renderSummary(DATA.countries);
+    renderTable(rows);
+  }
+
+  // The page carries <base href="https://leraffl.github.io/LeRaffl-Gallery/">,
+  // so *every* relative URL — including root-absolute ones — resolves against
+  // the published site. Resolving against location.href explicitly bypasses
+  // that, which is what makes this work when serving the repo locally; the
+  // plain relative form is kept as a fallback and is what production uses.
+  async function loadSchedule(){
+    const candidates = [
+      new URL('sources/schedule.json', location.href).href,
+      'sources/schedule.json',
+    ];
+    for(const url of candidates){
+      try{
+        const r = await fetch(url, {cache:'no-store'});
+        if(r.ok) return await r.json();
+      }catch{ /* try next */ }
+    }
+    throw new Error('Could not load sources/schedule.json');
+  }
+
+  function init(){
+    if(DATA) return;
+    loadSchedule()
+      .then(j => {
+        DATA = j;
+        document.getElementById('schedSearch').addEventListener('input', render);
+        document.getElementById('schedSort').addEventListener('change', render);
+        render();
+        renderCalendar();
+      })
+      .catch(err => {
+        document.getElementById('schedMount').innerHTML =
+          '<div style="padding:14px">' + esc(err.message) + '</div>';
+      });
+  }
+
+  // Load lazily — the tab is one of several, and this file is not small.
+  const maybeInit = () => { if(location.hash === '#schedule') init(); };
+  window.addEventListener('hashchange', maybeInit);
+  window.addEventListener('DOMContentLoaded', maybeInit);
+})();
 
 function enhanceCountryMultiSelect(selectOrId, opts = {}){
   const sel = typeof selectOrId === 'string'
@@ -3367,7 +3667,7 @@ function renderColumns(items){
   const frag=document.createDocumentFragment();
   const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
   let visibleCount=0,totalCount=0,canLoadMore=false;
-  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button><span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
 function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
 // Tag filters — read chip state per category, return { cat: Set<value> } only for
 // categories where the user has unchecked something. Empty result = no filter.
@@ -3418,7 +3718,21 @@ loadManifest().then(({images})=>{
   // Tag-filter chips — same reset() flow as the type chips.
   document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
   sortField.value='created'; sortDir.value='desc'; update();
+  // Load the country→source-page map, then repaint so cards get their
+  // "ⓘ Source" links. Done after the first paint so a slow/missing
+  // sources.json never blocks the gallery from showing.
+  loadSourcePages().then(update);
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
+
+// country (base name) → source-page slug, populated from sources/sources.json.
+// Empty until loaded; renderColumns only adds a link when a country is present.
+let SOURCE_PAGES = {};
+function loadSourcePages(){
+  return fetch('sources/sources.json', {cache:'no-store'})
+    .then(r=>r.ok?r.json():{})
+    .then(m=>{ SOURCE_PAGES = m||{}; })
+    .catch(()=>{ SOURCE_PAGES = {}; });
+}
 
 // debug warning system
 function getWeight(country){
@@ -6216,15 +6530,26 @@ function populateFleetCountries() {
   // as the default, so starting with the placeholder would clash.
   sel.appendChild(placeholder);
 
+  // Convert ISO country codes to full English names via the browser's
+  // Intl API — no manual lookup table needed. Build the formatter once
+  // (not per option), and tolerate engines that lack Intl.DisplayNames
+  // entirely (older Safari/WebViews): there the constructor throws, and
+  // without this guard the exception aborts the whole loop, leaving the
+  // picker empty — one of the causes behind the "can't see countries"
+  // report (#117). On failure we fall back to showing the raw codes.
+  let regionNames = null;
+  try {
+    regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  } catch { /* Intl.DisplayNames unavailable — use raw codes below */ }
+
   fleetState.countries.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
-    // Convert ISO country codes to the full English country name via
-    // the browser's Intl API — no manual lookup table needed. If the
-    // incoming value is not a 2-letter code (or the API cannot resolve
-    // it), we keep the raw string as a safe fallback.
-    const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-    opt.textContent = regionNames.of(c) || c;
+    let label = c;
+    if (regionNames) {
+      try { label = regionNames.of(c) || c; } catch { label = c; }
+    }
+    opt.textContent = label;
     // Pre-select Norway by default: it has the richest historical data
     // and produces a meaningful first plot without any user action.
     if (c === "NO" || c === "Norway") {
@@ -6293,6 +6618,21 @@ function buildFleetPlot() {
   const sel = document.getElementById("fleetCountries");
   const countries = [...(sel?.selectedOptions || [])].map(o => o.value).filter(Boolean);
   if (!countries.length) return;
+
+  // Plotly can be absent if its CDN script was blocked or timed out.
+  // The country picker and controls still work (ensurePlotly no longer
+  // stalls the init chain — #117); we just can't draw the chart, so show
+  // a clear message instead of throwing on Plotly.newPlot below.
+  if (typeof Plotly === 'undefined') {
+    const plot = document.getElementById("fleetPlot");
+    if (plot) {
+      plot.innerHTML = '<div style="padding:40px; text-align:center; color:#ff9999; font-size:15px;">'
+        + 'Charting library could not be loaded (likely blocked by the network '
+        + 'or an ad-blocker). The country list works, but the plot needs '
+        + '<code>cdn.plot.ly</code> to be reachable.</div>';
+    }
+    return;
+  }
 
   const mode = document.querySelector('input[name="fleetMode"]:checked')?.value || 'absolute';
   const projectionEnabled = document.getElementById('fleetEnableProjection')?.checked ?? true;

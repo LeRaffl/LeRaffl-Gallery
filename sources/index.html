@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data sources — BEV Trajectories</title>
+<meta name="description" content="Where each country's BEV registration data comes from.">
+<style>
+:root{
+  --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
+  --muted:#9fb3d1; --accent:#7cc4ff; --accent2:#00e5ff;
+  --ok-bg:rgba(60,180,120,.18); --ok-tx:#bff5d8;
+  --warn-bg:rgba(220,80,80,.18); --warn-tx:#ffb4b4;
+  --chip-bg:#101a33;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f5f7fb; --panel:#ffffff; --border:#d8e0ee; --text:#111827;
+    --muted:#51607a; --accent:#1763b8; --accent2:#0a7ea4;
+    --ok-bg:rgba(30,140,90,.14); --ok-tx:#0d5a38;
+    --warn-bg:rgba(200,60,60,.12); --warn-tx:#8a1f1f;
+    --chip-bg:#eef2fb;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
+  line-height:1.55}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+.back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
+h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 22px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.source-btn{display:inline-block;margin:6px 0 4px;padding:10px 16px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);font-weight:600}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:8px 0}
+.flow-node{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px}
+.flow-title{font-weight:700;font-size:13px;color:var(--accent)}
+.flow-sub{font-size:14px;color:var(--text)}
+.flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
+table.defs{width:100%;border-collapse:collapse}
+table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
+  border-bottom:1px solid var(--border);font-size:15px}
+table.defs th{width:190px;color:var(--muted);font-weight:600}
+.map{display:flex;flex-direction:column;gap:4px}
+.map-pair{display:flex;align-items:center;gap:8px}
+.map-arrow{color:var(--muted)}
+.caveats{margin:0;padding-left:20px}
+.caveats li{margin:6px 0}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:14px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dir-card{display:block;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.dir-card:hover{border-color:var(--accent)}
+.dir-top{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
+.dir-sub{color:var(--muted);font-size:14px;min-height:40px}
+.dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+@media (prefers-color-scheme: light){
+  .cell--yes{color:#0d5a38}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Back to gallery</a>
+  <h1>Data sources</h1>
+  <p class="lead">Where each country's numbers come from, how they're acquired,
+     what they count, and what to be careful about. 52 countries, each tagged by
+     acquisition method — API, Scrape, PDF, File or Manual.</p>
+  <div class="dir-grid"><a class="dir-card" href="albania.html"><div class="dir-top">Albania<span class="chip chip--scrape" title="scraped from a web portal or dashboard">Scrape</span></div><div class="dir-sub">First vehicle registrations for Albania (new and imported used) from DPSHTRR&#x27;s open-data report.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 11.0%</div></a><a class="dir-card" href="australia.html"><div class="dir-top">Australia<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New light-vehicle sales for Australia from VFACTS, with a curated historical series.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 13.3%</div></a><a class="dir-card" href="austria.html"><div class="dir-top">Austria<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New-registration data for Austria from Statistik Austria&#x27;s monthly .ods publications.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 22.6%</div></a><a class="dir-card" href="belgium.html"><div class="dir-top">Belgium<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Belgium, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 36.5%</div></a><a class="dir-card" href="brazil.html"><div class="dir-top">Brazil<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New registrations of cars and light commercials for Brazil, from ANFAVEA.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 2.4%</div></a><a class="dir-card" href="bulgaria.html"><div class="dir-top">Bulgaria<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Bulgaria, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 6.8%</div></a><a class="dir-card" href="canada.html"><div class="dir-top">Canada<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">Quarterly new-vehicle registrations for Canada from Statistics Canada&#x27;s Web Data Service (cube 20-10-0025).</div><div class="dir-meta">Latest 2026-02 · TTM BEV 7.5%</div></a><a class="dir-card" href="chile.html"><div class="dir-top">Chile<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New-vehicle sales for Chile from ANAC, the national automotive association.</div><div class="dir-meta">Latest 2026-05 · TTM BEV —</div></a><a class="dir-card" href="china.html"><div class="dir-top">China<span class="chip chip--scrape" title="scraped from a web portal or dashboard">Scrape</span></div><div class="dir-sub">Monthly passenger-car market data for China from CPCA&#x27;s market-analysis report; the retail track is the gallery&#x27;s headline series.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 35.5%</div></a><a class="dir-card" href="colombia.html"><div class="dir-top">Colombia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">Passenger-car registrations for Colombia from the ANDI/FENALCO automotive bulletin, based on the official RUNT registry.</div><div class="dir-meta">Latest 2026-05 · TTM BEV 10.7%</div></a><a class="dir-card" href="croatia.html"><div class="dir-top">Croatia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Croatia, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 3.7%</div></a><a class="dir-card" href="cyprus.html"><div class="dir-top">Cyprus<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Cyprus, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 12.0%</div></a><a class="dir-card" href="czechia.html"><div class="dir-top">Czechia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Czechia, via ACEA (data compiled by SDA-CIA).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 6.1%</div></a><a class="dir-card" href="denmark.html"><div class="dir-top">Denmark<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">New-registration data for Denmark from Statistics Denmark&#x27;s public StatBank API (table BIL53), which draws on the national Motor Register.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 76.1%</div></a><a class="dir-card" href="estonia.html"><div class="dir-top">Estonia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Estonia, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 6.2%</div></a><a class="dir-card" href="finland.html"><div class="dir-top">Finland<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">New-registration data for Finland from Statistics Finland&#x27;s StatFin database (table 121d), drawn from the Traficom vehicle register.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 44.3%</div></a><a class="dir-card" href="france.html"><div class="dir-top">France<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for France, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 25.5%</div></a><a class="dir-card" href="georgia.html"><div class="dir-top">Georgia<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New-registration data for Georgia from the National Statistics Office (Geostat).</div><div class="dir-meta">Latest 2026-05 · TTM BEV 5.9%</div></a><a class="dir-card" href="germany.html"><div class="dir-top">Germany<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New passenger-car registrations for Germany from the Kraftfahrt-Bundesamt (KBA).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 22.6%</div></a><a class="dir-card" href="greece.html"><div class="dir-top">Greece<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Greece, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 6.6%</div></a><a class="dir-card" href="hungary.html"><div class="dir-top">Hungary<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Hungary, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 9.6%</div></a><a class="dir-card" href="iceland.html"><div class="dir-top">Iceland<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Iceland, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 48.6%</div></a><a class="dir-card" href="india.html"><div class="dir-top">India<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">Partial EV-registration data for India from the VAHAN dashboard.</div><div class="dir-meta">Latest 2026-03 · TTM BEV —</div></a><a class="dir-card" href="indonesia.html"><div class="dir-top">Indonesia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">Wholesale (factory-to-dealer) figures for Indonesia from GAIKINDO&#x27;s monthly &quot;Wholesales&quot; report.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 21.5%</div></a><a class="dir-card" href="ireland.html"><div class="dir-top">Ireland<span class="chip chip--scrape" title="scraped from a web portal or dashboard">Scrape</span></div><div class="dir-sub">New-registration data for Ireland from SIMI&#x27;s public motorstats dashboard.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 23.5%</div></a><a class="dir-card" href="israel.html"><div class="dir-top">Israel<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">New-registration data for Israel derived from the Ministry of Transport&#x27;s open vehicle registry — registry-direct, counted from the licensing database itself.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 17.1%</div></a><a class="dir-card" href="italy.html"><div class="dir-top">Italy<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">Passenger-car registrations for Italy from UNRAE, with rental / non-rental splits and a separate light-commercial variant.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 8.0%</div></a><a class="dir-card" href="japan.html"><div class="dir-top">Japan<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New-vehicle registrations for Japan from the dealers&#x27; association (JADA).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 2.9%</div></a><a class="dir-card" href="latvia.html"><div class="dir-top">Latvia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Latvia, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 7.5%</div></a><a class="dir-card" href="lithuania.html"><div class="dir-top">Lithuania<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Lithuania, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 8.4%</div></a><a class="dir-card" href="luxembourg.html"><div class="dir-top">Luxembourg<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">New road-vehicle registrations for Luxembourg from STATEC&#x27;s SDMX 2.1 feed (dataflow DF_D6122).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 28.6%</div></a><a class="dir-card" href="malaysia.html"><div class="dir-top">Malaysia<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">Passenger-car registrations for Malaysia from the national open-data portal (data.gov.my).</div><div class="dir-meta">Latest 2026-06 · TTM BEV —</div></a><a class="dir-card" href="malta.html"><div class="dir-top">Malta<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Malta, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 33.3%</div></a><a class="dir-card" href="nepal.html"><div class="dir-top">Nepal<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">Vehicle-import figures for Nepal from the Department of Customs&#x27; monthly cumulative Foreign Trade Statistics workbooks (HS 8703).</div><div class="dir-meta">Latest 2026-07 · TTM BEV —</div></a><a class="dir-card" href="netherlands.html"><div class="dir-top">Netherlands<span class="chip chip--scrape" title="scraped from a web portal or dashboard">Scrape</span></div><div class="dir-sub">New-vehicle registrations for the Netherlands, sourced from RDW (the Dutch vehicle authority) via the duurzamemobiliteit BI portal.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 41.7%</div></a><a class="dir-card" href="new-zealand.html"><div class="dir-top">New Zealand<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New light-vehicle registrations for New Zealand from the Ministry of Transport&#x27;s fleet statistics.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 5.5%</div></a><a class="dir-card" href="norway.html"><div class="dir-top">Norway<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Norway — the world&#x27;s most electrified market — via ACEA (national source: OFV).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 97.5%</div></a><a class="dir-card" href="poland.html"><div class="dir-top">Poland<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New-registration data for Poland from PZPM&#x27;s monthly eRegistrations workbook, sourced from the CEP central vehicle register.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 7.3%</div></a><a class="dir-card" href="portugal.html"><div class="dir-top">Portugal<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">Passenger-car registrations for Portugal from ACAP, via the motordata.pt / autoinforma feed.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 26.0%</div></a><a class="dir-card" href="romania.html"><div class="dir-top">Romania<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Romania, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 7.1%</div></a><a class="dir-card" href="singapore.html"><div class="dir-top">Singapore<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New car registrations for Singapore from the LTA&#x27;s monthly vehicle statistics (file M03).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 45.0%</div></a><a class="dir-card" href="slovakia.html"><div class="dir-top">Slovakia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Slovakia, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 5.5%</div></a><a class="dir-card" href="slovenia.html"><div class="dir-top">Slovenia<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New passenger-car registrations for Slovenia, via ACEA&#x27;s monthly figures.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 15.2%</div></a><a class="dir-card" href="south-korea.html"><div class="dir-top">South Korea<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New-vehicle registration data for South Korea from the transport ministry.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 19.1%</div></a><a class="dir-card" href="spain.html"><div class="dir-top">Spain<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New-registration data for Spain from DGT&#x27;s raw matriculaciones microdata — the canonical registry source (ACEA no longer covers Spain).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 10.0%</div></a><a class="dir-card" href="sweden.html"><div class="dir-top">Sweden<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">Passenger-car new registrations for Sweden from Statistics Sweden&#x27;s PxWeb database (table TK1001A).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 38.4%</div></a><a class="dir-card" href="switzerland.html"><div class="dir-top">Switzerland<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New vehicle registrations for Switzerland, via ACEA (national source: BFS).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 24.5%</div></a><a class="dir-card" href="thailand.html"><div class="dir-top">Thailand<span class="chip chip--api" title="pulled from a structured API / query endpoint">API</span></div><div class="dir-sub">New-registration data for Thailand from the Thailand Automotive Institute&#x27;s AIU portal.</div><div class="dir-meta">Latest 2026-05 · TTM BEV 25.2%</div></a><a class="dir-card" href="turkiye.html"><div class="dir-top">Türkiye<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">New-vehicle registration data for Türkiye from the national statistics institute (TÜİK).</div><div class="dir-meta">Latest 2026-06 · TTM BEV 17.4%</div></a><a class="dir-card" href="uk.html"><div class="dir-top">UK<span class="chip chip--manual" title="entered by hand from the published source">Manual</span></div><div class="dir-sub">New-car registrations for the UK from SMMT, compiled from DVLA data.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 24.2%</div></a><a class="dir-card" href="usa.html"><div class="dir-top">USA<span class="chip chip--pdf" title="parsed from a published PDF">PDF</span></div><div class="dir-sub">US light-duty EV/PHEV sales estimates from Argonne National Laboratory.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 8.1%</div></a><a class="dir-card" href="uruguay.html"><div class="dir-top">Uruguay<span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></div><div class="dir-sub">New-registration data for Uruguay from ACAU&#x27;s yearly Compilado workbook.</div><div class="dir-meta">Latest 2026-06 · TTM BEV 38.3%</div></a></div>
+</div>
+</body>
+</html>

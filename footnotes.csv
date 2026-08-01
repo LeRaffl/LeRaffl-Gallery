@@ -1,5 +1,7 @@
 country,variant,footnote
 Canada,Whole,Pre-2017 figures are passenger cars only; SUVs/crossovers included from 2017 (EU M1).
+Israel,Whole,MoT registry snapshot of currently-registered private cars: older months slightly undercount (deregistered vehicles drop out). HEV/PHEV split via the official model-catalogue join.
+Israel,Vans,MoT registry snapshot; sug_degem M = light commercial vehicles up to 3.5t. Same snapshot/undercount and catalogue-join caveats as Whole. Low volume (roughly 500-1100/month).
 Türkiye,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Georgia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Colombia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
@@ -17,3 +19,5 @@ Spain,Vans,DGT registry data; EU category N1 - vans and pickups up to 3.5t, new 
 Spain,HDV,DGT registry data; EU categories N2+N3 - trucks above 3.5t incl. tractor units, new only. Agricultural tractors (EU cat. T) not included.
 Spain,Buses,DGT registry data; EU categories M2+M3 - buses & coaches, new only. Low volume (roughly 500/month).
 Spain,2-Wheelers,DGT registry data; motorcycles and mopeds (DGT tipo 50/90), new only. Trikes and quads not included.
+Nepal,Whole,Customs imports (HS 8703 cars/jeeps/vans; no domestic production - import ~ market). Nepali-calendar months labelled by their Gregorian end month. Hybrids are one combined bucket.
+Nepal,3-Wheelers,Customs imports of passenger three-wheelers: petrol auto-rickshaws and electric e-rickshaws (HS 8703). Nepali-calendar months labelled by their Gregorian end month.

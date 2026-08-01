@@ -52,6 +52,20 @@ The five trust boundaries to reason about:
 | `AUSTRIA_RELAY_TOKEN` (GH Actions) | Shared secret | GitHub Actions repo secret | Sent as `X-Relay-Token` by `fetch-austria.yml`; must equal the Worker's value | Same as above |
 | `AUSTRIA_FETCH_RELAY` (GH Actions) | URL (not sensitive) | GitHub Actions repo secret | Relay base URL `https://<worker-host>/fetch?url=`. Stored as a secret only to keep the worker host out of the public repo | Update if the Worker host changes |
 | `AUSTRIA_PROXY` (GH Actions, optional) | Proxy URL w/ creds | GitHub Actions repo secret | Fallback `http(s)://`/`socks5://` proxy if the relay egress is also blocked; may embed credentials | Rotate at the proxy provider |
+| `INDONESIA_GAIKINDO_PW` (GH Actions) | Password | GitHub Actions repo secret | Client login on GAIKINDO's ProjectSend portal (`files.gaikindo.or.id`) used by `fetch-indonesia.yml`; the username is non-sensitive plain env (`INDONESIA_GAIKINDO_USER`, default `LeRaffl`). Read-only file-download account | Change the password on the portal, then update the secret |
+| `THAILAND_AIU_THAIAUTO_USER` / `_PW` (GH Actions) | Username + password | GitHub Actions repo secrets | Member login on the TAI **AIU portal** (`aiu.thaiauto.or.th`) used by `fetch-thailand.yml`; exchanged for a session token against `taiapi.thaiauto.or.th:3000`. Read-only reporting account. Unlike Indonesia the **username is also a secret** here | Change on the portal, then update both secrets |
+| `THAILAND_HTTPS_PROXY` (GH Actions, optional) | Proxy URL w/ creds | GitHub Actions repo secret | Only needed if a runner's egress can't reach the API's non-standard **port 3000**. GitHub-hosted runners reach it directly, so this is normally unset | Rotate at the proxy provider |
+| `NL_FETCH_RELAY` (GH Actions) | URL (not sensitive) | GitHub Actions repo secret | Relay base URL for the Netherlands fetch, `https://<relay-host>/fetch?url=`. Must be the **Deno Deploy** relay (`worker/deno-relay.ts`) — duurzamemobiliteit 403s Cloudflare egress, so falling back to `AUSTRIA_FETCH_RELAY` does not work. Stored as a secret only to keep the host out of the public repo | Update if the relay host changes |
+| `NL_RELAY_TOKEN` (GH Actions) | Shared secret | GitHub Actions repo secret | Sent as `X-Relay-Token` by `fetch-netherlands.yml`; must equal the relay's configured value | Rotate at the relay, then update the secret |
+| `NL_PROXY` (GH Actions, optional) | Proxy URL w/ creds | GitHub Actions repo secret | Fallback `http(s)://` / `socks5://` proxy if the relay egress is also blocked | Rotate at the proxy provider |
+
+**Non-secret env knobs.** A few environment variables look like secrets in the
+fetchers but are not, and are deliberately absent from the table above:
+`INDONESIA_GAIKINDO_USER` (plain username, defaults to `LeRaffl`),
+`THAILAND_AIU_API` / `THAILAND_AIU_WEBSITE_ID` (endpoint overrides for when the
+portal moves), and the debug switches `ALBANIA_DEBUG`, `THAILAND_DEBUG`,
+`TUIK_RECON` (each dumps extra diagnostics into the run log). None of them
+grant access to anything.
 
 **Tokens and IDs are never committed to the repo.** The `GITHUB_TOKEN` value lives only in Cloudflare's secret store; even the maintainer's local machine doesn't keep a long-lived copy after `wrangler secret put`. The Cloudflare account ID and KV namespace ID are in `wrangler.toml` but those are not secrets — they're public-bound identifiers, useless without the API token.
 

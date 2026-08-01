@@ -13,14 +13,14 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | E | [Auto-rebuild manifest](#flow-e--manifest-rebuild) | Push to images/** or daily cron | Updated manifest.json |
 | F | [Visitor reads gallery](#flow-f--gallery-read) | Page load on leraffl.github.io | Manifest + images displayed |
 | G | [Copy post text](#flow-g--copy-post) | Click "📋 Copy post" or run Apple Shortcut | Text in clipboard |
-| H | [Auto-ingest Brazil from ANFAVEA](#flow-h--anfavea-ingest) | Monthly cron (10th, 08:00 UTC) or manual dispatch | Updated `data/Brazil.csv` → triggers Flow B for Brazil |
-| I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:00 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
+| H | [Auto-ingest Brazil from ANFAVEA](#flow-h--anfavea-ingest) | Monthly cron (10th, 08:50 UTC) or manual dispatch | Updated `data/Brazil.csv` → triggers Flow B for Brazil |
+| I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:20 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
-| K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:00 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
+| K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:40 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
 | L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
-| L₂ | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
-| M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:00 UTC) or manual dispatch with `press_id` | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
-| N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:00 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
+| L₂ | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:10 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
+| M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:30 UTC) or manual dispatch | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
+| N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:30 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
 | O | [Auto-ingest Netherlands from RDW/Swing](#flow-o--rdw-swing-ingest) | Daily cron (1st–15th, 06:30 UTC) or manual dispatch | Updated `data/Netherlands.csv` / `Netherlands_Used.csv` / `Netherlands_HDV.csv` → per-variant Flow B |
 | P | [Auto-ingest China from CPCA](#flow-p--cpca-ingest) | Daily cron (1st–end of month, 11:00 UTC) or manual dispatch | Updated `data/China.csv` (+ `China_Wholesale.csv`) → triggers Flow B for China |
 | Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
@@ -29,6 +29,19 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
 | U | [Auto-ingest Portugal from ACAP](#flow-u--acap-ingest) | Twice-daily cron (1st–5th, 17:30 & 20:30 UTC) or manual dispatch | Updated `data/Portugal.csv` → Flow B for Portugal |
 | V | [Auto-ingest Colombia from ANDI/FENALCO](#flow-v--andi-pdf-ingest) | Daily cron (5th–25th, 07:30 UTC) or manual dispatch | Updated `data/Colombia.csv` → Flow B for Colombia |
+
+> **Not every fetcher has a lettered flow here.** Flows H–V were written as
+> each of the first ingest pipelines landed; the later ones — Austria, Canada,
+> Italy, Luxembourg, Poland, Malaysia, Singapore, Spain, Thailand, Indonesia,
+> Nepal, Albania and New Zealand — never got one. They are not undocumented:
+> each has a **workflow data-flow diagram in its own source doc**
+> (`docs/architecture/NN-source-<country>.md`), which is the authority for
+> that country, and every fetcher's schedule and scope is listed in
+> [02-components.md § 2.7](02-components.md#27-fetch-actions-overview) and
+> [08-deploy-ops.md § 8.11](08-deploy-ops.md#811-cron-schedule-overview).
+> They all follow the same shape as Flow H: cron → self-throttle → fetch →
+> parse → upsert → change-gated commit → dispatch `render-country.yml` per
+> touched variant.
 
 ---
 
@@ -342,7 +355,7 @@ sequenceDiagram
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_chile.py](../../scripts/fetch_chile.py). The module docstring documents the regex patterns, the MHEV-into-ICE convention, and the no-partial-writes rule.
+**Where parsing lives:** [scripts/fetch_chile.py](../../scripts/fetch_chile.py). The module docstring documents the regex patterns, the narrative-prose fallback (used when the summary table can't be matched), the MHEV-into-ICE convention, and the no-partial-writes rule.
 
 **Vehicle scope:** ANAC's "livianos y medianos" covers passenger cars + SUVs + pickups + light commercial vehicles up to 3.860 kg GVWR per DS N°241/2014 (light <2.7 t, medium 2.7–3.86 t). Camiones and buses are excluded. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source) for the cross-country table.
 
@@ -353,6 +366,8 @@ sequenceDiagram
 ### Issues hit in production
 
 1. **ANAC hrefs sometimes carry a leading newline.** The April 2026 cron failed three days in a row with `requests.exceptions.ConnectionError: HTTPSConnectionPool(host='www.anac.cl%0ahttps', …)`. Root cause: on the category listing page, ANAC's CMS emits some `<a href>` values as `"\nhttps://www.anac.cl/wp-content/uploads/…pdf"` (literal leading newline). The discovery loop's `href.startswith("http")` returned False on the unstripped value, so the script prepended the host — producing `"https://www.anac.cl\nhttps://www.anac.cl/…"`. `requests` URL-encoded the newline (`%0a`) into the hostname and the connection bombed before any PDF was touched. Fix: `href = a["href"].strip()` before the prefix check. The earlier months (Enero/Febrero/Marzo 2026) were ingested manually as part of the bootstrap, so the bug only surfaced once the cron tried to discover its first month live. Pre-existing pattern: see the same `host_not_allowed` and User-Agent stories in Flow J / ACEA — ANAC's WordPress in particular is whitespace-loose in its emitted HTML and we should treat any href we don't control as needing `.strip()` before structural checks.
+
+2. **Mid-2026 Cero y Bajas Emisiones layout change froze the CSV at 2026-04.** From the Mayo-2026 report ANAC restyled the alternative-drivetrain summary: each table row gained a parenthetical drivetrain tag (`Eléctricos (BEV) 4.168 96,8 % 870 97,3%`, `Híbrido Enchufable (PHEV) …`) and the plug-in extended-range line (`Eléct. de Rango Ext. Enchufable (P-REEV)`) was split out. The primary table parser keys off a label *immediately* followed by digits, so the inserted `(BEV)`/`(PHEV)` broke every row match and parsing fell through to the narrative-prose fallback (`_NARRATIVE_RE` — reads the YTD-cumulative figures from the intro paragraphs and subtracts the prior months already in the CSV). That fallback then *also* missed PHEV and HEV, because `pypdf` sprinkles line breaks and double spaces mid-sentence (`"híbridos \nconvencionales acumularon"`, `"sumaron 2.955 \nunidades"`) and the single-space patterns didn't match — so the run raised `RuntimeError` and the daily cron went red from the 2026-06-30 attempt onward. Fix: collapse all whitespace (`re.sub(r"\s+", " ", text)`) before applying the narrative patterns. Verified against the Mayo-2026 report: BEV=870, PHEV=709 (512 PHEV + 197 P-REEV, folded into one column per the EREV→PHEV convention), HEV=1337 — the derived monthlies cross-check exactly against the report's own restyled summary table. **Backfill caveat:** the schedule only ever targets the *previous* calendar month, so a month that fails is never retried automatically once the cron moves on — 2026-05 had to be backfilled with a manual `workflow_dispatch` (`year=2026, month=5`) after the fix landed.
 
 ## Flow J — JADA ingest
 
@@ -719,7 +734,7 @@ The `Mercado YYYY` sibling xlsx (manufacturer-per-month totals) is *not* ingeste
 
 ## Flow M — TÜİK ingest
 
-Türkiye follows the same `fetch-<country>` shape as Brazil / Chile / Japan / Uruguay, but with two structural twists: (1) the TÜİK Veri Portalı is a React SPA so there is no scrapeable index page — auto-discovery of the bulletin Sayı is deferred and the maintainer dispatches the workflow with a `press_id` input once per month when the new bulletin appears; (2) the bulletin's fuel-breakdown table is embedded as a raster image, not text, so the parser shells out to `pdfimages` + `imagemagick` + `tesseract-ocr-tur` and uses three independent validation layers (narrative-vs-OCR Toplam, sum check with single-error auto-repair via Pay % cross-check, previous-year-same-month column cross-check) to guarantee byte-exact ingestion despite OCR noise.
+Türkiye follows the same `fetch-<country>` shape as Brazil / Chile / Japan / Uruguay, but with two structural twists: (1) the TÜİK Veri Portalı is a React SPA with no listing endpoint, so `scripts/tuik_discover.py` finds the bulletin by walking ids outward from the newest one recorded in the CSV and matching on title + period — no `press_id` dispatch is needed, though the input remains as an override; (2) the bulletin's fuel-breakdown table is embedded as a raster image, not text, so the parser shells out to `pdfimages` + `imagemagick` + `tesseract-ocr-tur` and uses three independent validation layers (narrative-vs-OCR Toplam, sum check with single-error auto-repair via Pay % cross-check, previous-year-same-month column cross-check) to guarantee byte-exact ingestion despite OCR noise.
 
 ```mermaid
 sequenceDiagram
@@ -729,12 +744,12 @@ sequenceDiagram
     participant CSV as data/Türkiye.csv
     participant Render as render-country.yml
 
-    Cron->>Job: workflow_dispatch (with press_id) OR cron (daily 15–31, 08:00 UTC)
+    Cron->>Job: cron (daily 15–31, 08:30 UTC) OR workflow_dispatch (press_id optional override)
     Job->>CSV: read latest period
     alt Latest period ≥ target month
         Job-->>Cron: Exit cleanly (no-op)
-    else No press_id supplied AND no auto-discovery
-        Job-->>Cron: Exit cleanly with "dispatch manually with press_id" message
+    else Auto-discovery finds no matching bulletin
+        Job-->>Cron: Exit cleanly (bulletin not published yet)
     else Target month missing AND press_id supplied
         Job->>TUIK: GET /tr/press/<press_id> (browser UA)
         TUIK-->>Job: 5-page PDF bulletin

@@ -1,0 +1,21 @@
+name: Fetch India data (Vahan) — probe
+
+# Reachability/shape probe for the India (Vahan) sources. The maintainer's
+# manual pulls needed a VPN, so whether GitHub runners can reach Vahan at
+# all decides the fetcher design. No data is written yet.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Probe
+        run: python scripts/fetch_india.py --probe

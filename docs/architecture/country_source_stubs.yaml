@@ -1,0 +1,569 @@
+# Registry entries for gallery countries that don't have a full
+# docs/architecture/NN-source-*.md write-up. Two kinds live here:
+#
+#   * source_group: acea  — countries whose figures come from ACEA's monthly
+#     press-release PDF. They stay lean; the generator injects one shared
+#     "About the ACEA figures" explainer, so the paragraph isn't repeated ~18×.
+#   * national sources    — Germany, UK, Brazil, … — expanded with a `notes`
+#     paragraph so each reads as a proper page.
+#
+# `method` (required) is how the data is acquired: api | scrape | pdf | file |
+# manual. Facts are grounded in params.csv's `source` column and the fetchers.
+# When a country gets a full source doc, delete its entry here (the doc wins on
+# a slug clash and --check flags a leftover duplicate).
+
+stubs:
+  # ======================================================================
+  # ACEA-fed (fetch_acea.py parses ACEA's Europe-wide registrations PDF)
+  # ======================================================================
+  - country: Belgium
+    slug: belgium
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Belgium, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Belgium.csv"
+
+  - country: Bulgaria
+    slug: bulgaria
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Bulgaria, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Bulgaria.csv"
+
+  - country: Croatia
+    slug: croatia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Croatia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Croatia.csv"
+
+  - country: Cyprus
+    slug: cyprus
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Cyprus, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Cyprus.csv"
+
+  - country: Czechia
+    slug: czechia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Czechia, via ACEA (data compiled by SDA-CIA)."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "SDA-CIA (Czech importers' association), aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Czechia.csv"
+
+  - country: Estonia
+    slug: estonia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Estonia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Estonia.csv"
+
+  - country: France
+    slug: france
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for France, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations (PFA/SDES), aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/France.csv"
+
+  - country: Greece
+    slug: greece
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Greece, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Greece.csv"
+
+  - country: Hungary
+    slug: hungary
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Hungary, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Hungary.csv"
+
+  - country: Iceland
+    slug: iceland
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Iceland, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Iceland.csv"
+
+  - country: Latvia
+    slug: latvia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Latvia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole, Used]
+    variant_notes:
+      Whole: "New passenger-car registrations, via ACEA."
+      Used: "Used-import registrations — a legacy series rendered from the maintainer's local pipeline; the CSV is not in this repo and it is not ACEA-sourced."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Latvia.csv"
+    caveats:
+      - "The `Used` variant is legacy: its data was never committed here, so it updates on its own (irregular) schedule and is not covered by the ACEA fetcher."
+      - "Latvia is the one country in the ACEA cluster whose HEV column is zero in every row we hold (all 138 of them) — the column exists but has never carried a value. Read it as \"not reported for Latvia\", not as \"Latvia has no full hybrids\"; those cars are somewhere else in the split."
+
+  - country: Lithuania
+    slug: lithuania
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Lithuania, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Lithuania.csv"
+
+  - country: Malta
+    slug: malta
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Malta, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Malta.csv"
+
+  - country: Romania
+    slug: romania
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Romania, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Romania.csv"
+
+  - country: Slovakia
+    slug: slovakia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Slovakia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Slovakia.csv"
+
+  - country: Slovenia
+    slug: slovenia
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Slovenia, via ACEA's monthly figures."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "National registrations, aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Slovenia.csv"
+
+  - country: Norway
+    slug: norway
+    method: pdf
+    source_group: acea
+    summary: "New passenger-car registrations for Norway — the world's most electrified market — via ACEA (national source: OFV)."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "OFV (Opplysningsrådet for Veitrafikken), aggregated by ACEA"
+    variants: [Whole]
+    variant_notes:
+      Whole: "New passenger-car registrations as reported by ACEA."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Norway.csv"
+
+  - country: Switzerland
+    slug: switzerland
+    method: pdf
+    source_group: acea
+    summary: "New vehicle registrations for Switzerland, via ACEA (national source: BFS)."
+    source_name: "ACEA — monthly registrations"
+    source_url: "https://www.acea.auto/"
+    underlying: "BFS (Swiss Federal Statistical Office), aggregated by ACEA"
+    variants: [Whole, HDV]
+    variant_notes:
+      Whole: "New passenger-car registrations, via ACEA."
+      HDV: "Heavy commercial vehicles, taken from BFS directly (pxweb.bfs.admin.ch) — a legacy series whose CSV is not in this repo."
+    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
+    fetcher: "scripts/fetch_acea.py"
+    workflow: ".github/workflows/fetch-acea.yml"
+    data_file: "data/Switzerland.csv"
+    caveats:
+      - "The `HDV` variant does not come from ACEA — it is a separate BFS series rendered from the maintainer's local pipeline, and it lags the Whole series."
+
+  # ======================================================================
+  # National sources — automated fetchers (their own pipeline, no doc yet)
+  # ======================================================================
+  - country: Brazil
+    slug: brazil
+    method: file
+    summary: "New registrations of cars and light commercials for Brazil, from ANFAVEA."
+    source_name: "ANFAVEA — edições em Excel"
+    source_url: "https://anfavea.com.br/site/edicoes-em-excel/"
+    underlying: "ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores"
+    variants: [Whole]
+    hev_split: true
+    variant_notes:
+      Whole: "Automóveis e Comerciais Leves — passenger cars and light commercials combined."
+    scope_note: "Cars + light commercials (Automóveis e Comerciais Leves). Trucks and buses are in the workbook but not ingested."
+    cadence: "monthly cron on the 10th, 08:50 UTC"
+    fetcher: "scripts/fetch_brazil.py"
+    workflow: ".github/workflows/fetch-brazil.yml"
+    data_file: "data/Brazil.csv"
+    notes:
+      - "Brazil's figures come from ANFAVEA, the national manufacturers' association, published as one Excel workbook per year that our fetcher downloads and parses — sheet «III. Emplacamento Combustível», the Unidades table for Automóveis e Comerciais Leves."
+      - "Brazil is the one country where FLEXFUEL is its own column and the largest one: most Brazilian cars run on any petrol/ethanol blend. It counts as combustion in the three-curve view, not as an alternative fuel."
+    caveats:
+      - "Cars and light commercials are combined — this is not a passenger-car-only series like most of the gallery."
+      - "Association aggregate: a non-member brand (historically BYD across Latin America) can be under-counted in the BEV figure."
+      - "Delivered as a yearly Excel workbook; mid-year revised editions (the `-N` suffixed files) are intentionally ignored."
+
+  - country: Chile
+    slug: chile
+    method: pdf
+    summary: "New-vehicle sales for Chile from ANAC, the national automotive association."
+    source_name: "ANAC — estudios de mercado"
+    source_url: "https://www.anac.cl/category/estudio-de-mercado/"
+    underlying: "ANAC — Asociación Nacional Automotriz de Chile"
+    variants: [Whole]
+    scope_note: "New light-vehicle sales as reported by ANAC. Petrol and diesel are not split — combustion is one aggregate ICE figure."
+    hev_split: true
+    variant_notes:
+      Whole: "New light-vehicle sales as reported by ANAC."
+    cadence: "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out"
+    fetcher: "scripts/fetch_chile.py"
+    workflow: ".github/workflows/fetch-chile.yml"
+    data_file: "data/Chile.csv"
+    notes:
+      - "Chile's figures come from ANAC, which publishes two monthly PDFs — «Mercado Automotor» (the overall market) and «Informe Cero y Bajas Emisiones» (the zero-/low-emission detail). The fetcher takes the total from the first and the BEV/PHEV/HEV split from the second, and only writes a month once both are out."
+      - "Combustion is reported as one aggregate ICE figure; petrol and diesel are not split, so those columns stay empty."
+    caveats:
+      - "Association aggregate: ANAC counts member brands."
+      - "Combustion is not reported at all: we derive ICE as TOTAL − BEV − PHEV − HEV − OTHERS. There is no petrol/diesel split, so those columns stay empty."
+      - "The two monthly PDFs are not always published on the same day, so a month only appears once the second one lands."
+
+  - country: Japan
+    slug: japan
+    method: file
+    summary: "New-vehicle registrations for Japan from the dealers' association (JADA)."
+    source_name: "JADA — 燃料別メーカー別登録台数（乗用車）"
+    source_url: "https://www.jada.or.jp/pages/342/"
+    underlying: "JADA — Japan Automobile Dealers Association"
+    variants: [Whole]
+    hev_split: true
+    variant_notes:
+      Whole: "Registered passenger cars (登録車) — kei cars are excluded."
+    scope_note: "登録車 (registered passenger cars) only. Kei cars (軽自動車) are NOT included."
+    cadence: "daily cron, 08:00 UTC — no-op until JADA publishes, usually the first business week"
+    fetcher: "scripts/fetch_japan.py"
+    workflow: ".github/workflows/fetch-japan.yml"
+    data_file: "data/Japan.csv"
+    notes:
+      - "Japan's registrations come from JADA (Japan Automobile Dealers Association), which publishes a monthly 燃料別メーカー別登録台数（乗用車） file — registrations by fuel type and manufacturer. Each publication is a rolling four-month rollup; we take the newest month. The XLSX is parsed by preference, the PDF is a fallback layout carrying the same data."
+      - "Fuel-cell vehicles (ＦＣＶ) and その他 are summed into OTHERS."
+    caveats:
+      - "Kei cars (軽自動車) are excluded — the file's own footer says so (「軽自動車は含みません」). Kei cars are roughly a third of the Japanese light-vehicle market, so this is NOT the whole Japanese car market and its BEV share is not comparable with a kei-inclusive figure."
+      - "Delivered as a monthly Excel workbook (PDF fallback)."
+
+  - country: USA
+    slug: usa
+    method: pdf
+    summary: "US light-duty EV/PHEV sales estimates from Argonne National Laboratory."
+    source_name: "Argonne National Laboratory — monthly sales PDF"
+    source_url: "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data"
+    underlying: "Argonne National Laboratory — light-duty electric-drive sales updates"
+    variants: [Whole]
+    hev_split: true
+    variant_notes:
+      Whole: "All light-duty vehicles — cars and light trucks combined."
+    scope_note: "Light-duty vehicles (cars + light trucks), US sales."
+    cadence: "daily cron from the 10th, 10:30 UTC"
+    fetcher: "scripts/fetch_usa.py"
+    workflow: ".github/workflows/fetch-usa.yml"
+    data_file: "data/USA.csv"
+    notes:
+      - "The US has no single federal new-registration feed, so the gallery uses Argonne National Laboratory's monthly light-duty electric-drive vehicle sales updates, published as a «Total Sales for Website» PDF that our fetcher parses. These are modelled sales estimates rather than a registry count."
+      - "Argonne publishes BEV, PHEV, HEV and the light-duty total. Combustion is therefore a residual — ICE = Total − BEV − PHEV − HEV — so there is no petrol/diesel split and OTHERS is always 0."
+    caveats:
+      - "Modelled sales estimates (Argonne), not a national registration count."
+      - "Combustion is not reported at all: we derive ICE as Total − BEV − PHEV − HEV. There is no petrol/diesel split, so those columns stay empty."
+      - "Argonne revises the last ~2 months between releases. Each run re-reads a trailing window and corrects those months in place; rows older than the window are left as first recorded, so deep history can differ from a newer PDF."
+
+  - country: Türkiye
+    slug: turkiye
+    method: pdf
+    summary: "New-vehicle registration data for Türkiye from the national statistics institute (TÜİK)."
+    source_name: "TÜİK Veri Portalı — Motorlu Kara Taşıtları bulletins"
+    source_url: "https://veriportali.tuik.gov.tr/"
+    underlying: "TÜİK — Turkish Statistical Institute"
+    variants: [Whole]
+    variant_notes:
+      Whole: "Otomobil (passenger cars) only — the one category TÜİK breaks down by fuel."
+    scope_note: "Otomobil (passenger cars). The bulletin covers eight vehicle categories but only otomobil carries a fuel split."
+    cadence: "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id"
+    fetcher: "scripts/fetch_turkey.py"
+    workflow: ".github/workflows/fetch-turkey.yml"
+    data_file: "data/Türkiye.csv"
+    hev_note: "Hybrids are a single combined bucket, placed in the HEV column; PHEV is left empty."
+    notes:
+      - "Türkiye's figures come from TÜİK, the Turkish Statistical Institute, from its monthly «Motorlu Kara Taşıtları» press bulletin. TÜİK is the official statistics body, so coverage of registrations is complete."
+      - "The bulletin's authoritative monthly and year-to-date totals are read from the narrative text; the per-fuel breakdown only exists as an image, so it is OCR'd. Three checks guard the result: narrative-vs-OCR total, a per-fuel sum check with a single-error repair via the published percentages, and a cross-check against the same month a year earlier."
+      - "The Veri Portalı is a React SPA with no listing endpoint, so the bulletin for a given month is found by walking bulletin ids outward from the newest one already recorded in the CSV and matching on title and period. Nothing is hard-coded and the anchor re-derives itself each month."
+    caveats:
+      - "Hybrids are reported as one combined bucket (the Türkiye/Georgia convention), placed in the HEV column — PHEV and HEV cannot be separated."
+      - "The fuel table is an image in the bulletin, not markup, so the per-fuel numbers are OCR'd rather than read."
+
+  # ======================================================================
+  # National sources — maintained by hand (no automated fetcher)
+  # ======================================================================
+  - country: Germany
+    slug: germany
+    method: manual
+    summary: "New passenger-car registrations for Germany from the Kraftfahrt-Bundesamt (KBA)."
+    source_name: "KBA — Kraftfahrt-Bundesamt"
+    source_url: "https://www.kba.de/"
+    underlying: "KBA — Germany's federal motor-transport authority (the registry)"
+    variants: [Whole]
+    scope_note: "New passenger-car registrations (Neuzulassungen, class M1) — the KBA is the registry itself, so coverage is every registered car."
+    hev_split: true
+    variant_notes:
+      Whole: "New passenger-car registrations (Neuzulassungen) as reported by the KBA."
+    cadence: "transcribed by hand each month, once KBA publishes (typically the first week)"
+    data_file: "data/Germany.csv"
+    notes:
+      - "The KBA (Kraftfahrt-Bundesamt) is Germany's federal motor-transport authority and the official vehicle register. It publishes monthly new-registration counts (Neuzulassungen) broken down by fuel type. Because it's the registry itself, coverage is complete — every registered car, not an association sample."
+      - "Germany is not pulled by the ACEA fetcher (which skips it); the monthly KBA figures are transcribed by hand."
+    caveats:
+      - "Official registry — complete coverage, not an association sample."
+      - "Maintained by hand; the latest month appears once it has been transcribed."
+
+  - country: UK
+    slug: uk
+    method: manual
+    summary: "New-car registrations for the UK from SMMT, compiled from DVLA data."
+    source_name: "SMMT — monthly registrations"
+    source_url: "https://www.smmt.co.uk/vehicle-data/car-registrations/"
+    underlying: "SMMT — Society of Motor Manufacturers and Traders (from DVLA data)"
+    variants: [Whole]
+    scope_note: "New car registrations compiled by SMMT from DVLA data — passenger cars."
+    hev_split: true
+    variant_notes:
+      Whole: "New-car registrations as reported by SMMT."
+    cadence: "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)"
+    data_file: "data/UK.csv"
+    notes:
+      - "The SMMT (Society of Motor Manufacturers and Traders) compiles the UK's monthly new-car-registration figures from DVLA registration data and publishes them with a powertrain breakdown (BEV, PHEV, hybrid, petrol, diesel). It's the standard UK market reference."
+      - "The UK is not pulled by the ACEA fetcher (which skips it); the monthly SMMT release is transcribed by hand."
+    caveats:
+      - "Compiled by SMMT from DVLA registrations — effectively complete for the UK market."
+      - "Maintained by hand; the latest month appears once it has been transcribed."
+
+  - country: Australia
+    slug: australia
+    method: manual
+    summary: "New light-vehicle sales for Australia from VFACTS, with a curated historical series."
+    source_name: "VFACTS (FCAI)"
+    source_url: "https://www.fcai.com.au/"
+    underlying: "FCAI — Federal Chamber of Automotive Industries (VFACTS)"
+    variants: [Whole]
+    scope_note: "New light vehicles as counted by VFACTS — passenger cars, SUVs and light commercials. These are sales/deliveries reported by participating brands, not registrations."
+    hev_split: true
+    variant_notes:
+      Whole: "New light-vehicle sales as reported by VFACTS — deliveries, not registrations."
+    cadence: "transcribed by hand each month, once VFACTS publishes"
+    data_file: "data/Australia.csv"
+    notes:
+      - "Australia's monthly figures come from VFACTS, the industry sales report administered by the FCAI (Federal Chamber of Automotive Industries), with a longer historical series curated by Prof. Ray Willis. Entered by hand."
+    caveats:
+      - "VFACTS reports sales/deliveries of participating brands, not registrations."
+      - "The pre-modern history is a maintainer-curated series (Prof. Ray Willis)."
+      - "Maintained by hand."
+
+  - country: Georgia
+    slug: georgia
+    method: manual
+    summary: "New-registration data for Georgia from the National Statistics Office (Geostat)."
+    source_name: "Geostat — National Statistics Office of Georgia"
+    source_url: "https://automobile.geostat.ge/en/automobiles/rating"
+    underlying: "Geostat — National Statistics Office of Georgia"
+    variants: [Whole]
+    cadence: "entered by hand; Geostat publishes quarterly, so expect a longer lag"
+    data_file: "data/Georgia.csv"
+    scope_note: "New vehicle registrations as published by Geostat, quarterly."
+    variant_notes:
+      Whole: "New vehicle registrations as published by Geostat."
+    hev_note: "Hybrids are a single combined bucket, placed in the HEV column; there is no PHEV column at all."
+    notes:
+      - "Georgia's figures come from the National Statistics Office (Geostat) and are entered by hand."
+      - "Geostat publishes quarterly, not monthly — each row carries `time_interval = quarterly`, so Georgia has far fewer points than the monthly countries and the latest period lags them."
+      - "PETROL combines Geostat's Gasoline and Gasoline-gas categories."
+    caveats:
+      - "Quarterly, not monthly — expect a longer lag and a coarser series than the European sources."
+      - "Plug-in and full hybrids are not separated; both sit in the HEV column."
+      - "Maintained by hand."
+
+  - country: South Korea
+    slug: south-korea
+    method: manual
+    summary: "New-vehicle registration data for South Korea from the transport ministry."
+    source_name: "South Korea — Ministry of Land, Infrastructure and Transport"
+    underlying: "MOLIT — Ministry of Land, Infrastructure and Transport"
+    variants: [Whole]
+    cadence: "entered by hand each month"
+    data_file: "data/South Korea.csv"
+    scope_note: "New vehicle registrations as published by the transport ministry. Petrol and diesel are not split — combustion is one aggregate ICE figure."
+    hev_split: true
+    variant_notes:
+      Whole: "New vehicle registrations as published by the transport ministry."
+    notes:
+      - "South Korea's monthly registrations are taken from the transport ministry's vehicle-registration statistics and entered by hand."
+      - "Combustion is stored as one aggregate ICE figure — petrol and diesel are not split — so those columns stay empty."
+      - "The rows carry the source string `motir.go.kr`, but the exact upstream page for this series has not been re-confirmed, so no link is given here rather than a guessed one."
+    caveats:
+      - "No public source link yet — this is the one country page that cannot point you at the upstream document. Treat the figures as unverifiable from here until it is confirmed."
+      - "Combustion is stored as one aggregate ICE figure — there is no petrol/diesel split, so those columns stay empty."
+      - "Maintained by hand."
+
+  - country: India
+    slug: india
+    method: manual
+    summary: "Partial EV-registration data for India from the VAHAN dashboard."
+    source_name: "VAHAN dashboard"
+    source_url: "https://vahan.parivahan.gov.in/vahan4dashboard/"
+    underlying: "VAHAN — Ministry of Road Transport & Highways (national register)"
+    cadence: "entered by hand and irregularly — the variants can sit months apart"
+    variants: [Whole, 4-Wheelers, 3-Wheelers, 2-Wheelers]
+    scope_note: "All VAHAN vehicle categories, split into 2-, 3- and 4-Wheelers plus a combined Whole. Coverage is partial."
+    hev_note: "Unknown — with no committed CSV for India there is nothing here to describe. Treat the hybrid handling as unverified until the series is brought into this repo."
+    variant_notes:
+      Whole: "All vehicle categories combined, from VAHAN."
+      4-Wheelers: "Cars and other four-wheelers."
+      3-Wheelers: "Auto-rickshaws and other three-wheelers."
+      2-Wheelers: "Motorcycles, scooters and mopeds — by far India's largest segment."
+    notes:
+      - "India's figures are pulled — partially and by hand — from the VAHAN dashboard (Ministry of Road Transport & Highways), the national vehicle-registration system. Coverage is incomplete and updates are irregular, so treat India as provisional."
+      - "India is the one gallery country with no CSV in this repo: all four variants are still rendered from the maintainer's local pipeline, so there is no raw file to link and no build-time freshness check behind this page. Every other country's numbers can be traced to a committed CSV; India's cannot."
+    caveats:
+      - "No committed data file — the series lives outside this repository, so nothing on this page is derived from data you can inspect here."
+      - "Coverage is partial and updated by hand; the variants can sit months apart and lag well behind other countries."
+      - "VAHAN registration timing and state coverage differ from the other national sources."

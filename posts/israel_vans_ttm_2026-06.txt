@@ -1,0 +1,9 @@
+🌐 Israel (Vans) - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++3.6pp  BEV   (3.1% → 6.7%)
++0.1pp  PHEV  (0.0% → 0.2%)
+−0.2pp  HEV   (0.8% → 0.6%)
+−3.5pp  ICE   (96.0% → 92.5%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

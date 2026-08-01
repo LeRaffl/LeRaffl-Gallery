@@ -10,6 +10,8 @@ FLAG <- c(
   denmark="\U0001F1E9\U0001F1F0", finland="\U0001F1EB\U0001F1EE", ireland="\U0001F1EE\U0001F1EA",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
   luxembourg="\U0001F1F1\U0001F1FA", malaysia="\U0001F1F2\U0001F1FE",
+  nepal="\U0001F1F3\U0001F1F5", indonesia="\U0001F1EE\U0001F1E9",
+  thailand="\U0001F1F9\U0001F1ED",
   netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
   spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7",
@@ -20,10 +22,11 @@ LABEL <- c(
   albania="Albania", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
   colombia="Colombia", denmark="Denmark", finland="Finland", ireland="Ireland",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
-  luxembourg="Luxembourg", malaysia="Malaysia",
+  luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", poland="Poland",
   portugal="Portugal", singapore="Singapore", spain="Spain", sweden="Sweden",
-  turkey="Turkey", uruguay="Uruguay", usa="USA", acea="ACEA (EU)"
+  turkey="T\u00fcrkiye", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
+  indonesia="Indonesia", thailand="Thailand"
 )
 
 # Fallback-sicherer Lookup: LABEL/FLAG sind atomare benannte Vektoren, bei

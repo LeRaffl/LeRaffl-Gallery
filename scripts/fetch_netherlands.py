@@ -37,11 +37,16 @@ Brief recap (so the script reads on its own):
       FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
       split it; full hybrids fold into Benzine/Diesel upstream).
 * Dutch locale: "." is thousands separator (6.863 == 6863). "&nbsp;" == 0.
-* Two table orientations are possible (Whole/HDV return periods-in-rows;
-  Used returns fuels-in-rows with a 2-level period × sub-column header).
-  The parser detects which case applies from the headRows labels.
+* Table orientation varies by view. Whole/HDV return periods-in-rows with one
+  column per fuel. Used returns periods-in-rows too, but with fuels on the
+  OUTER column level, each spanning two sub-columns ("Occasion import > 90 dgn"
+  / "<= 90 dgn") which the parser sums. (An older Used template returned
+  fuels-in-rows; _parse_fuels_in_rows is kept for that shape.) The parser
+  picks the branch from the headRows labels and locates the fuel header level
+  by matching NL_FUELS.
 """
 import argparse
+import base64
 import csv
 import os
 import re
@@ -49,6 +54,7 @@ import sys
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote as urlquote
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -57,12 +63,18 @@ from urllib3.util.retry import Retry
 BASE = "https://duurzamemobiliteit.databank.nl"
 
 # Saved Swing workspace templates (configured in the Swing UI via Share Permalink).
-# Each is pre-set to monthly granularity, all years 2018-current selected, and
-# the relevant Voertuigsoort / Aanvoertype dimension picks.
+# Each is pre-set to monthly granularity and the relevant Voertuigsoort /
+# Aanvoertype dimension picks. The period dimension uses Swing's dynamic
+# "last N months" option (N=36) rather than a fixed month list, so the views
+# auto-include new months as RDW publishes them — see docs/architecture/
+# 10-source-netherlands.md §3. (The old templates had a *static* month list
+# that silently capped at 2026-04; re-saved 2026-07 with the rolling window.)
+# The 36-month window always overlaps the CSV's existing tail, and upsert never
+# deletes rows, so the full 2018-→ history is preserved.
 TEMPLATES = {
-    "Whole": "a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba",  # Personenauto Nieuw
-    "Used":  "ffaf2d83-0174-4b36-92b9-f7bd96ad4d89",  # Personenauto Occasion import (>90 + <=90)
-    "HDV":   "992eb09a-0828-4ef9-97b4-1577ebba3a21",  # Zware bedrijfsvoertuigen Nieuw
+    "Whole": "29fcfefb-b82b-47cb-a601-b7c31ebd2901",  # Personenauto Nieuw
+    "Used":  "7f40022a-d4cf-4030-abaf-adf5edf412b3",  # Personenauto Occasion import (>90 + <=90)
+    "HDV":   "3ca8fa6f-52a6-4b29-8f43-7bae5200c74c",  # Zware bedrijfsvoertuigen Nieuw
 }
 
 # Each variant writes to its own CSV. Whole keeps the canonical filename
@@ -108,6 +120,65 @@ WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 
+def _get(session: requests.Session, url: str,
+         headers: dict | None = None, **kwargs) -> requests.Response:
+    """session.get that routes through the fetch relay when relay_base is set.
+
+    If ``session.relay_base`` is set (monkey-patched in main() from
+    ``NL_FETCH_RELAY``), every request is forwarded via the relay so the
+    runner's Azure IP is not the one hitting duurzamemobiliteit.databank.nl.
+    Cookies from upstream Set-Cookie headers are harvested into
+    ``session.relay_cookies`` and re-forwarded on subsequent requests via
+    X-Fwd-Cookie.
+
+    For the Netherlands the relay must be the **Deno Deploy** one
+    (``worker/deno-relay.ts``) — duurzamemobiliteit 403s Cloudflare egress,
+    so the Austria Cloudflare Worker relay this protocol was first written
+    for does not work here. The wire format is identical either way.
+    """
+    relay_base = getattr(session, "relay_base", None)
+    merged_headers = {**HTTP_HEADERS, **(headers or {})}
+
+    if not relay_base:
+        return session.get(url, headers=merged_headers, **kwargs)
+
+    relay_token = getattr(session, "relay_token", "")
+    relay_cookies: dict = getattr(session, "relay_cookies", {})
+
+    fwd = {
+        "X-Relay-Token":          relay_token,
+        "X-Fwd-User-Agent":       HTTP_HEADERS["User-Agent"],
+        "X-Fwd-Accept-Language":  HTTP_HEADERS["Accept-Language"],
+    }
+    if relay_cookies:
+        fwd["X-Fwd-Cookie"] = "; ".join(f"{k}={v}" for k, v in relay_cookies.items())
+    if merged_headers.get("Referer"):
+        fwd["X-Fwd-Referer"] = merged_headers["Referer"]
+
+    relay_url = relay_base + urlquote(url, safe="")
+    resp = session.get(relay_url, headers=fwd, **kwargs)
+
+    # Harvest upstream Set-Cookie into the manual cookie jar. The Deno relay
+    # base64-encodes the \n-joined blob (X-Upstream-Set-Cookie-B64) because
+    # header values can't carry raw newlines and databank.nl returns 6 cookies.
+    # Fall back to the plain header for the CF worker / single-cookie hosts.
+    b64 = resp.headers.get("X-Upstream-Set-Cookie-B64", "")
+    if b64:
+        cookie_block = base64.b64decode(b64).decode("utf-8", "replace")
+    else:
+        cookie_block = resp.headers.get("X-Upstream-Set-Cookie", "")
+    for raw in cookie_block.split("\n"):
+        raw = raw.strip()
+        if not raw:
+            continue
+        kv = raw.split(";")[0].strip()
+        if "=" in kv:
+            name, _, value = kv.partition("=")
+            relay_cookies[name.strip()] = value.strip()
+
+    return resp
+
+
 def parse_nl_number(s: str) -> float:
     """'6.863' -> 6863.0; '&nbsp;' / '' -> 0.0. NL uses '.' as thousands sep."""
     if not s or s == "&nbsp;":
@@ -130,15 +201,26 @@ def parse_nl_period(label: str) -> str:
 def fetch_table(variant: str, session: requests.Session) -> dict:
     """Bootstrap a session-bound workspace and return its full pivot as JSON.
 
-    GetTableStart only returns the first ~70 rows; for longer tables (Whole and
-    HDV cover ~100 monthly periods) we follow up with GetTableRows to backfill
-    the remainder. Used Imports has only 6 rows (fuels-in-rows layout) so a
-    single GetTableStart suffices.
+    GetTableStart only returns the first ~70 rows; if the pivot is longer we
+    follow up with GetTableRows to backfill the remainder. With the current
+    rolling 36-month window Whole/HDV return 36 period rows (one page, no
+    backfill needed); the pagination loop stays for safety if the window is
+    ever widened. Used Imports has only 6 rows (fuels-in-rows layout) so a
+    single GetTableStart always suffices.
     """
     template_guid = TEMPLATES[variant]
     init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
     print(f"[{variant}] init: {init_url}")
-    r = session.get(init_url, headers=HTTP_HEADERS, timeout=30)
+    r = _get(session, init_url, timeout=30)
+    if r.status_code != 200:
+        # DIAG: the relay passes the upstream body through unchanged, so r.text
+        # is whatever databank.nl actually returned (a real Swing/CBS error
+        # page) — or, if the Deno relay itself threw, a generic Deno 500 page.
+        # Printing status + headers + body snippet tells us which, and what the
+        # server complained about.
+        print(f"[{variant}] init HTTP {r.status_code}")
+        print(f"[{variant}] resp headers: {dict(r.headers)}")
+        print(f"[{variant}] body[:1500]: {r.text[:1500]!r}")
     r.raise_for_status()
     m = WSGUID_RE.search(r.text)
     if not m:
@@ -153,7 +235,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
         f"{BASE}/viewer/Presentation/GetTableStart"
         f"?workspaceGuid={wsguid}&_={int(time.time() * 1000)}"
     )
-    r = session.get(start_url, headers={**HTTP_HEADERS, **referer}, timeout=30)
+    r = _get(session, start_url, headers=referer, timeout=30)
     r.raise_for_status()
     data = r.json()
 
@@ -168,7 +250,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
             f"&numRows={total_rows - have_rows}&numCols={total_cols}"
             f"&tableId=0&_={int(time.time() * 1000)}"
         )
-        r = session.get(more_url, headers={**HTTP_HEADERS, **referer}, timeout=30)
+        r = _get(session, more_url, headers=referer, timeout=30)
         r.raise_for_status()
         chunk = r.json().get("rowData", [])
         if not chunk:
@@ -188,11 +270,13 @@ def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
     Parse a Swing GetTableStart response into {period: {fuel: value}}.
 
     Two layouts are possible:
-      A. Periods in headRows, fuels in headCols   (Whole, HDV)
-      B. Fuels in headRows, periods in headCols   (Used Imports)
+      A. Periods in headRows, fuels in headCols   (Whole, HDV, Used)
+      B. Fuels in headRows, periods in headCols   (legacy Used template)
 
-    For layout B, Used Imports has a 2-level column header: each period spans
-    two sub-columns ("Occasion import > 90 dgn" and "<= 90 dgn") which we sum.
+    In layout A, Used carries the fuel names on the OUTER headCols level with
+    each fuel spanning two sub-columns ("> 90 dgn" / "<= 90 dgn") that get
+    summed; _parse_periods_in_rows handles both the one-column-per-fuel and the
+    sub-column shapes. Layout B is the older fuels-in-rows Used template.
     """
     row_first = data["headRows"][0][0]["d"]
     fuels_in_rows = row_first in NL_FUELS
@@ -203,17 +287,49 @@ def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
 
 
 def _parse_periods_in_rows(data: dict, variant: str) -> dict[str, dict[str, float]]:
-    """Layout A: periods are rows, fuels are columns (Whole, HDV)."""
-    fuel_labels = [hc["d"] for hc in data["headCols"][-1]]  # innermost level
+    """Layout A: periods are rows, fuels are columns.
+
+    Handles two column shapes with one code path:
+      * Whole/HDV — one column per fuel (single-level, or fuels at the
+        innermost level).
+      * Used — fuels on the OUTER header level, each spanning two sub-columns
+        ("Occasion import > 90 dgn" / "<= 90 dgn") which we sum. (Swing emits
+        this shape after the workspace was re-saved with the rolling window.)
+
+    We locate whichever headCols level actually carries fuel names, propagate
+    each fuel label across the sub-columns it spans (blank cell = span
+    continuation), then sum all columns belonging to the same fuel per period.
+    """
+    # Find the header level whose labels include recognisable fuel names.
+    fuel_level: list[str] | None = None
+    for level in data["headCols"]:
+        labels = [c.get("d", "") for c in level]
+        if any(lbl in NL_FUELS for lbl in labels):
+            fuel_level = labels
+            break
+    if fuel_level is None:
+        # No fuel header found → let the caller's 0-rows diagnostic dump fire.
+        return {}
+
+    # Propagate the fuel label across every column it spans.
+    fuel_per_col: list[str | None] = []
+    current: str | None = None
+    for lbl in fuel_level:
+        if lbl:
+            current = lbl
+        fuel_per_col.append(current)
+
     period_labels = [r[0]["d"] for r in data["headRows"]]
     out: dict[str, dict[str, float]] = {}
     for i, period_label in enumerate(period_labels):
         period = parse_nl_period(period_label)
         row_cells = data["rowData"][i]
-        out[period] = {
-            fuel_labels[j]: parse_nl_number(row_cells[j]["d"])
-            for j in range(len(fuel_labels))
-        }
+        acc: dict[str, float] = {}
+        for j, fuel in enumerate(fuel_per_col):
+            if fuel is None or j >= len(row_cells):
+                continue
+            acc[fuel] = acc.get(fuel, 0.0) + parse_nl_number(row_cells[j]["d"])
+        out[period] = acc
     return out
 
 
@@ -376,6 +492,26 @@ def main() -> None:
     session.mount("https://", _adapter)
     session.mount("http://", _adapter)
 
+    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
+    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
+    # nor the CF relay works from a hosted runner.
+    # Precedence:
+    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
+    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
+    #   3. Neither → direct (only works on unblocked networks)
+    proxy = os.environ.get("NL_PROXY", "").strip()
+    if proxy:
+        session.proxies.update({"http": proxy, "https": proxy})
+        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
+        print(f"[net] routing via NL_PROXY = {masked}")
+    else:
+        relay_base = os.environ.get("NL_FETCH_RELAY")
+        if relay_base:
+            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
+            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
+            session.relay_cookies: dict = {}
+            print(f"[net] routing via relay: {relay_base}")
+
     for variant in targets:
         data = fetch_table(variant, session)
         print(f"[{variant}] caption: {data['caption']}")
@@ -384,6 +520,25 @@ def main() -> None:
         print(f"[{variant}] parsed {len(rows)} non-zero months "
               f"({min(rows, default='—')} .. {max(rows, default='—')})")
         if not rows:
+            # A variant returning zero rows is NOT normal — it means the parser
+            # couldn't read the pivot (e.g. a re-saved workspace changed shape).
+            # Dump the raw header structure so the format change is diagnosable,
+            # then keep going so the other variants still update.
+            import json as _json
+            def _shape(x, depth=0):
+                if isinstance(x, list):
+                    head = x[:4]
+                    return [_shape(e, depth + 1) for e in head] + (
+                        ["…(+%d)" % (len(x) - 4)] if len(x) > 4 else [])
+                if isinstance(x, dict):
+                    return {k: _shape(v, depth + 1) for k, v in list(x.items())[:8]}
+                return x
+            print(f"[{variant}] WARNING: 0 rows parsed — pivot shape follows")
+            print(f"[{variant}]   caption : {data.get('caption')!r}")
+            print(f"[{variant}]   totalRows/Cols: {data.get('totalRows')}/{data.get('totalCols')}")
+            print(f"[{variant}]   headRows: {_json.dumps(_shape(data.get('headRows')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   headCols: {_json.dumps(_shape(data.get('headCols')), ensure_ascii=False)[:1200]}")
+            print(f"[{variant}]   rowData[0:2]: {_json.dumps(_shape(data.get('rowData'))[:2], ensure_ascii=False)[:800]}")
             continue
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)

@@ -1,3 +1,45 @@
+---
+country: China
+slug: china
+method: scrape
+summary: Monthly passenger-car market data for China from CPCA's market-analysis report; the retail track
+  is the gallery's headline series.
+source_name: CPCA monthly market analysis (月度分析)
+source_url: https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24
+underlying: 全国乘用车市场信息联席会 (China Passenger Car Association)
+auth: none, but the host 403s bare requests (needs a desktop UA + Referer)
+cadence: daily cron 11:00 UTC; CPCA publishes the prior month around the 8th–11th
+variants:
+- Whole
+- Wholesale
+variant_notes:
+  Whole: Retail (零售) — passenger cars reaching end customers in mainland China.
+  Wholesale: Wholesale (批发) — manufacturer shipments to dealers, includes exports.
+hev_split: false
+fcev: n/a — NEV = BEV + PHEV + EREV; OTHERS is always 0
+backfill: none
+scope_note: Passenger cars only. Whole = retail (零售); Wholesale = manufacturer shipments incl. exports.
+column_map:
+  BEV: BEV
+  PHEV: PHEV
+  EREV: EREV
+  ICE: combustion (not split into Petrol/Diesel)
+caveats:
+- The source reports combustion as one aggregate figure, so the ICE column is what it publishes — there
+  is no petrol/diesel split and those columns stay empty.
+- 'CPCA''s combustion bucket (常规燃油) includes full hybrids, so China has no HEV column at all. A like-for-like
+  BEV-share comparison with a country that splits HEV out is fine, but an ICE-share comparison is not:
+  China''s ICE includes hybrids that other countries report separately.'
+- The retail BEV/PHEV/EREV split comes from OCR of a slide; a wholesale-proportional proxy fills in if
+  OCR fails.
+- From 2025-01 the PHEV column excludes EREV (EREV has its own column).
+- Source values are in 万辆 (10,000s); the CSV stores absolute units.
+fetcher: scripts/fetch_china.py
+workflow: .github/workflows/fetch-china.yml
+fragility_doc: docs/architecture/24-source-china.md
+data_file: data/China.csv
+---
+
 # 24 · Source: China (CPCA)
 
 CPCA (*全国乘用车市场信息联席会*, the China Passenger Car Association) publishes a

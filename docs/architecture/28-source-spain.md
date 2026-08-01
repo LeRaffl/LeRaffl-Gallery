@@ -1,3 +1,51 @@
+---
+country: Spain
+slug: spain
+method: file
+summary: New-registration data for Spain from DGT's raw matriculaciones microdata — the canonical registry
+  source (ACEA no longer covers Spain).
+source_name: datos.gob.es — DGT matriculaciones microdata
+source_url: https://datos.gob.es/es/catalogo/e00130502-microdatos-de-matriculaciones-de-vehiculos-mensual
+source_links:
+- label: Direct monthly download (pattern)
+  url: https://www.dgt.es/microdatos/salida/2026/6/vehiculos/matriculaciones/export_mensual_mat_202606.zip
+  note: one zip per month; swap year / month / YYYYMM. The month folder is not zero-padded
+- label: DGT
+  url: https://www.dgt.es/
+underlying: DGT — Dirección General de Tráfico
+auth: none
+cadence: daily in the first half of the month (publishes weeks before ACEA)
+variants:
+- Whole
+- Rental
+- NonRental
+- Used
+- Vans
+- HDV
+- Buses
+- 2-Wheelers
+variant_notes:
+  Whole: New turismos + todoterrenos (registry-side passenger cars, incl. M1 people movers).
+  Rental: Whole where the vehicle is rent-a-car or renting/leasing.
+  NonRental: Whole minus Rental — the exact complement.
+  Used: Used cars at their first Spanish registration — overwhelmingly used imports.
+  Vans: New EU N1 (incl. N1G) light commercials.
+  HDV: New EU N2/N3 trucks.
+  Buses: New EU M2/M3 buses and coaches.
+  2-Wheelers: New EU L-category motorcycles and mopeds.
+hev_split: true
+backfill: pre-Oct-2015 curated history credited to Asier Lizarraga Oroquieta
+scope_note: Whole = turismos + todoterrenos (registry-side); one microdata download yields all variants.
+caveats:
+- Raw DGT registry microdata (fixed-width, no header row); ACEA no longer writes Spain.
+- EREV has its own column and folds into PHEV in the three-curve view.
+- Whole is ~2% above ACEA's market definition (registry vs association scope).
+fetcher: scripts/fetch_spain.py
+workflow: .github/workflows/fetch-spain.yml
+fragility_doc: docs/architecture/28-source-spain.md
+data_file: data/Spain.csv
+---
+
 # 28 · Source: Spain (DGT matriculaciones microdata)
 
 **Status: LIVE.** DGT is the canonical source. The series is rebuilt from the
@@ -24,6 +72,7 @@ Source:        DGT monthly matriculaciones microdata (raw registry, free,
                no login) → scripts/fetch_spain.py. Canonical; ACEA no longer
                writes Spain at all.
 Publishes:     first half of the following month — weeks before ACEA.
+Schedule:      daily cron 1st–16th, 06:30 UTC; per-variant early-exit.
 Zip URL:       https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/
                matriculaciones/export_mensual_mat_{YYYYMM}.zip
                ({M} NOT zero-padded — the padded variant 404s)

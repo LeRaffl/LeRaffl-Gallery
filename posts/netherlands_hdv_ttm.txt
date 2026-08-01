@@ -1,0 +1,11 @@
+🇳🇱 Netherlands (HDV) - TTM Market Split
+
+Jul24–Jun25  vs  Jul25–Jun26
++6.6pp  BEV   (4.2% → 10.9%)
+−0.1pp  PHEV  (0.1% → 0.1%)
++0.0pp  HEV   (0.0% → 0.0%)
+−6.6pp  ICE   (95.7% → 89.1%)
+
+PHEV peaked at 0.2% in 2024-07 (declining for 23 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,3 +1,33 @@
+---
+country: Singapore
+slug: singapore
+method: pdf
+summary: New car registrations for Singapore from the LTA's monthly vehicle statistics (file M03).
+source_name: lta.gov.sg — Monthly Vehicle Statistics (M03)
+source_url: https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html
+source_links:
+- label: LTA M03 — New Registration of Cars by Make (PDF)
+  url: https://www.lta.gov.sg/content/dam/ltagov/who_we_are/statistics_and_publications/statistics/pdf/M03-Car_Regn_by_make.pdf
+  note: the exact file parsed each month
+underlying: LTA — Land Transport Authority
+auth: none
+cadence: daily 08:00 UTC, 15th–31st, commit-gated
+variants:
+- Whole
+variant_notes:
+  Whole: All new car registrations, summed from the per-make totals by fuel type.
+hev_split: true
+backfill: none
+scope_note: All cars — the sum of per-make Totals grouped by fuel type.
+caveats:
+- Parsed positionally from a monthly PDF (Make × Importer × Fuel Type).
+- Each fetch reads a rolling ~6-month window; older months persist via upsert.
+fetcher: scripts/fetch_singapore.py
+workflow: .github/workflows/fetch-singapore.yml
+fragility_doc: docs/architecture/26-source-singapore.md
+data_file: data/Singapore.csv
+---
+
 # 26 · Source: Singapore (lta.gov.sg / M03 "Cars by Make" PDF)
 
 Singapore's Land Transport Authority (LTA) publishes new-car registrations in

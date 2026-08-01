@@ -104,7 +104,9 @@ ray_theme <- theme_minimal(base_size = 16) +
     plot.title.position = "plot",
     plot.title = element_text(color = FG, face = "bold", size = rel(0.9), hjust = 0.5),
     plot.subtitle = element_text(color = FG, size = rel(0.7), hjust = 0.5, lineheight = 1.2),
-    plot.margin = margin(15, 150, 10, 15),
+    # right margin sized to the country labels; keep as small as "South Korea"
+    # allows so the panel occupies the full chart width (Ray: stretch x-axis)
+    plot.margin = margin(15, 108, 10, 15),
     axis.title = element_blank(),
     legend.position = "none"
   )
@@ -118,7 +120,7 @@ base_plot <- function(dat, x_min, x_max, title, ends = line_ends,
               hjust = 0, nudge_x = 0.15, size = 6, fontface = "bold", lineheight = 0.9) +
     scale_color_manual(values = cols) +
     scale_y_continuous(labels = percent_format(accuracy = 1),
-                       breaks = seq(0, 1, 0.2), limits = c(0, NA),
+                       breaks = seq(0, 1, 0.1), limits = c(0, NA),
                        expand = expansion(mult = c(0, 0.05))) +
     scale_x_continuous(breaks = xbreaks,
                        limits = c(x_min, x_max), expand = c(0.01, 0)) +
@@ -158,7 +160,7 @@ p2b <- base_plot(subset(obs, cal >= 2015), 2015, 2035.2, title_main,
                  ends = ext35_ends, xbreaks = proj_breaks) +
   geom_line(data = ext_full, linetype = "22", linewidth = 1.4) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
-                     breaks = seq(0, 1, 0.2), limits = c(0, 1),
+                     breaks = seq(0, 1, 0.1), limits = c(0, 1),
                      expand = expansion(mult = c(0, 0.03)))
 save_png(p2b, "domestic_bev_share_extrapolated_2035_full_scale.png")
 
@@ -178,7 +180,7 @@ p2c <- base_plot(subset(obs, cal >= 2015), 2015, 2035.2, title_main,
   geom_line(data = ext_full, linetype = "22", linewidth = 1.4) +
   geom_line(data = avgc, linetype = "42", linewidth = 1.6) +
   scale_y_continuous(labels = percent_format(accuracy = 1),
-                     breaks = seq(0, 1, 0.2), limits = c(0, 1),
+                     breaks = seq(0, 1, 0.1), limits = c(0, 1),
                      expand = expansion(mult = c(0, 0.03)))
 save_png(p2c, "domestic_bev_share_extrapolated_2035_full_scale_with_weighted_avg.png")
 

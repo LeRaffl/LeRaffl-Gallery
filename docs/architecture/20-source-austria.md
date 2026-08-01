@@ -1,3 +1,36 @@
+---
+country: Austria
+slug: austria
+method: file
+summary: New- and used-registration data for Austria from Statistik Austria's monthly .ods publications.
+source_name: Statistik Austria — Kfz-Neuzulassungen / Kfz-Gebrauchtzulassungen
+source_url: https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen
+underlying: Statistik Austria
+auth: none, but the source blocks datacenter IPs (fetched via a Cloudflare Worker relay)
+cadence: daily cron, 8th–22nd, 09:25 UTC
+variants:
+- Whole
+- HDV
+- Vans
+- Used
+variant_notes:
+  Whole: New passenger cars, class M1 (Pkw).
+  HDV: Lorries N2 + N3 plus articulated tractors (Sattelzugfahrzeuge).
+  Vans: Lorries N1, up to 3.5 t.
+  Used: Used passenger-car registrations (Pkw Gebrauchtzulassungen).
+hev_split: true
+backfill: Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward; Used from 2019-01
+scope_note: Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1; Used = Pkw used registrations.
+caveats:
+- The source blocks datacenter IPs; data is routed through a Cloudflare Worker relay.
+- PHEV/HEV are split for Whole and Used; for HDV and Vans hybrids are lumped into HEV.
+- Used registrations come from a separate listing page (kfz-gebrauchtzulassungen) whose filenames changed twice across publication eras.
+fetcher: scripts/fetch_austria.py
+workflow: .github/workflows/fetch-austria.yml
+fragility_doc: docs/architecture/20-source-austria.md
+data_file: data/Austria.csv
+---
+
 # 20 · Source: Austria (Statistik Austria DE2 / DE3 / GE2 .ods via Cloudflare relay)
 
 Statistik Austria publishes new- and used-registration data as monthly **.ods**
@@ -328,6 +361,18 @@ rows. DE2 keeps its original exact-label matching.
 | `PETROL` | Benzin |
 | `DIESEL` | Diesel |
 | `OTHERS` | Erdgas + Flüssiggas + bivalent + Wasserstoff |
+
+> **The DE3 mapping matches on exact label strings**, so the literal keys
+> matter — they are `_DE3_FUEL_RAW` in `fetch_austria.py`:
+> `Benzin`, `Benzin inkl.Flex-Fuel`, `Benzin inkl. Flex-Fuel` (both spellings
+> are carried deliberately — Statistik Austria is inconsistent about the space
+> after the full stop), `Diesel`, `Elektro`, `Benzin/Elektro (hybrid)`,
+> `Diesel/Elektro (hybrid)`, `Erdgas`, `Flüssiggas`,
+> `Benzin/Erdgas (bivalent)`, `Benzin/Flüssiggas (bivalent)` and
+> `Wasserstoff (Brennstoffzelle)`. A third spelling variant, or a renamed
+> column, drops silently out of the sum rather than raising — if a month's
+> `TOTAL` looks light for HDV or Vans, diff the sheet's header row against
+> that list first.
 | `TOTAL` | sum of the above |
 
 ---

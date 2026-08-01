@@ -1,0 +1,11 @@
+🌐 Nepal - July 26 - BEV Trajectory
+64.6% BEV
+0.3% Hybrid
+35.1% ICE
+
+Trailing 12 months are:
+67.0% BEV
+0.2% Hybrid
+32.8% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
