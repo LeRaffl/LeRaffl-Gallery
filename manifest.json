@@ -122,6 +122,86 @@
       "country_slug": "ireland_vans"
     },
     {
+      "country": "Thailand",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_ICE_BEV_20260801.png",
+      "url": "images/2026-06/thailand_ICE_BEV_20260801.png",
+      "alt": "Thailand ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_20260801.png",
+      "url": "images/2026-06/thailand_20260801.png",
+      "alt": "Thailand BEV trajectory",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_time_20260801.png",
+      "url": "images/2026-06/thailand_time_20260801.png",
+      "alt": "Thailand Transition time curve",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_ttm_shares_20260801.png",
+      "url": "images/2026-06/thailand_ttm_shares_20260801.png",
+      "alt": "Thailand TTM market split graph",
+      "country_slug": "thailand"
+    },
+    {
+      "country": "Thailand (3 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_3_wheelers_ICE_BEV_20260801.png",
+      "url": "images/2026-06/thailand_3_wheelers_ICE_BEV_20260801.png",
+      "alt": "Thailand (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand_3_wheelers"
+    },
+    {
+      "country": "Thailand (3 Wheelers)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_3_wheelers_20260801.png",
+      "url": "images/2026-06/thailand_3_wheelers_20260801.png",
+      "alt": "Thailand (3 Wheelers) BEV trajectory",
+      "country_slug": "thailand_3_wheelers"
+    },
+    {
+      "country": "Thailand (3 Wheelers)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_3_wheelers_time_20260801.png",
+      "url": "images/2026-06/thailand_3_wheelers_time_20260801.png",
+      "alt": "Thailand (3 Wheelers) Transition time curve",
+      "country_slug": "thailand_3_wheelers"
+    },
+    {
+      "country": "Thailand (3 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-08-01",
+      "filename": "thailand_3_wheelers_ttm_shares_20260801.png",
+      "url": "images/2026-06/thailand_3_wheelers_ttm_shares_20260801.png",
+      "alt": "Thailand (3 Wheelers) TTM market split graph",
+      "country_slug": "thailand_3_wheelers"
+    },
+    {
       "country": "Chile",
       "type": "ICE_BEV",
       "period": "2026-05",
