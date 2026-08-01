@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-01T07:09:40Z",
+ "generated": "2026-08-01T12:19:57Z",
  "today": "2026-08-01",
  "countries": [
   {
@@ -125,7 +125,7 @@
    "country": "Austria",
    "slug": "austria",
    "method": "file",
-   "source_name": "Statistik Austria — Kfz-Neuzulassungen",
+   "source_name": "Statistik Austria — Kfz-Neuzulassungen / Kfz-Gebrauchtzulassungen",
    "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
@@ -173,7 +173,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-07-09",
+   "last_render": "2026-07-28",
    "variants": [
     {
      "name": "Whole",
@@ -196,6 +196,14 @@
      "latest": "2026-06",
      "first": "2024",
      "rows": 19,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-06",
+     "first": "2019-01",
+     "rows": 90,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3258,11 +3266,11 @@
    "source_url": "https://aiu.thaiauto.or.th/",
    "cadence_text": "daily 04:40 UTC, 1st–20th of the month",
    "interval": "monthly",
-   "latest_period": "2026-05",
+   "latest_period": "2026-06",
    "expected_period": "2026-07",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3307,37 +3315,37 @@
     ],
     "workflow": ".github/workflows/fetch-thailand.yml"
    },
-   "last_render": "2026-07-11",
+   "last_render": "2026-08-01",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-05",
+     "latest": "2026-06",
      "first": "2018-01",
-     "rows": 101,
+     "rows": 102,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-05",
+     "latest": "2026-06",
      "first": "2018-01",
-     "rows": 101,
+     "rows": 102,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-05",
+     "latest": "2026-06",
      "first": "2018-01",
-     "rows": 101,
+     "rows": 102,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-05",
+     "latest": "2026-06",
      "first": "2018-01",
-     "rows": 101,
+     "rows": 102,
      "cadence": "monthly",
      "in_repo": true
     }
