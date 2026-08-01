@@ -7,10 +7,10 @@ Georgia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split)
 Colombia,Whole,Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Malaysia,Whole,Source (data.gov.my) does not split PHEV from HEV: shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE/PHEV trajectory.
 Singapore,Whole,Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
-Albania,Whole,Figures include first registrations of both new and imported used vehicles. Historical series (pre-2026) compiled by R. Andrew from DPSHTRR open data.
-Albania,HDV,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
-Albania,Buses,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
-Albania,2-Wheelers,Figures include first registrations of both new and imported used vehicles. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,Whole,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Historical series (pre-2026) compiled by R. Andrew from DPSHTRR open data.
+Albania,HDV,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,Buses,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,2-Wheelers,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
 Spain,Whole,DGT registry data; includes M1 people movers (ID.Buzz / Multivan ...) that ANFAC/ACEA count as vans; totals ~2% above ACEA. Pre-Oct-2015 series by Asier Lizarraga.
 Spain,Rental,DGT registry data; new turismos & todoterrenos registered to short-term rental (alquiler sin conductor) or flagged as renting/leasing. Rental + NonRental = Whole.
 Spain,NonRental,DGT registry data; new turismos & todoterrenos excluding the rental & leasing channel. Rental + NonRental = Whole.

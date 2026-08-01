@@ -214,6 +214,110 @@ so the next session doesn't redo the search.
 
 ---
 
+## Tier — Western Balkans / former Yugoslavia gap (2026-07)
+
+The gallery covers Croatia, Slovenia and Albania in the region but has a hole
+across the rest of former Yugoslavia (Serbia, Bosnia, North Macedonia,
+Montenegro, Kosovo). Desk investigation below. Serbia's data model is now
+**confirmed from the actual published reports** (see the Serbia subsection); the
+other countries remain web-research only — verify machine-access + the
+BEV/PHEV/HEV split before building.
+
+**On CEauto (Central European Automotive Report).** It surfaces Balkan car
+numbers (e.g. via Best Selling Cars Blog) but is a **paid B2B aggregator**, not
+a registry — fails the bar at (a) *secondary source* and (c) *subscription
+paywall*, and its public teasers carry only totals + brand ranking, no free
+6-way fuel split. **Do not build a fetcher on CEauto.** Its only use is as a
+cross-check (the role BSCB played for Albania) and as a pointer to each
+country's underlying primary source.
+
+| Country | Best primary source | Cadence | Fuel split | Scope | Verdict |
+|---|---|---|---|---|---|
+| 🇷🇸 Serbia | **Uvoznici vozila** (importers' assoc.; MoI first-reg data) — "Overview of the New Vehicle Market (M1/N1/L)" | monthly totals; **fuel split only quarterly** | Petrol/Diesel/**Hybrid (combined)**/BEV/Other — *no* PHEV/HEV split (confirmed) | **New only, ACEA-style** | ⭐ **Build candidate #1** — see §Serbia below |
+| 🇧🇦 Bosnia | bhas.gov.ba monthly TRANSPORT bulletin (from IDDEEA) | monthly PDF | may lump "alternative fuel" (~3.6%) — **verify granularity** | first-reg **incl. imported used** (Albania-like) | Candidate — verify fuel split |
+| 🇲🇰 North Macedonia | stat.gov.mk | thin | thin | — | Weak (≈190 BEV total; signal too small) |
+| 🇲🇪 Montenegro | MONSTAT | ~annual | thin | — | Weak |
+| 🇽🇰 Kosovo | Kosovo Agency of Statistics | ~annual | thin | — | Weak |
+| all (backfill/cross-check) | **Eurostat `road_eqr_carpda`** + **UNECE** road-fleet PX tables | **annual only, ~1yr lag** | motor-energy, ACEA-congruent | new | annual backfill / cross-check, not a monthly primary |
+
+**🇧🇦 Bosnia — findings (2026-07, web-research only).** Primary source is the
+**BHAS** monthly *TRANSPORT* statistical bulletin (`bhas.gov.ba`, First Release
+series), which draws registered-vehicle data from **IDDEEA** (Agency for
+Identification Documents, Registers and Data Exchange). Free HTML/PDF, monthly.
+Two open risks before building: (1) the fuel breakdown seen is coarse —
+2024 registered-car stock split as **diesel 77.6% / petrol 18.9% / alternative
+fuel 3.6%**, i.e. "alternative fuel" is likely a **single lumped bucket** with no
+BEV/PHEV/HEV separation → verify the monthly *flow* table is finer before
+building; (2) figures are **first registrations incl. imported used** (March-2025
+≈ 630 new passenger cars, petrol 52.8% / diesel 35.3% — a used-import-heavy
+mix), so Bosnia is Albania-lens, **needs the incl.-imported-used footnote** and
+is not ACEA-new-car comparable. Verdict: candidate, but only after confirming the
+monthly fuel granularity — could fail the fuel-split bar the way it stands.
+
+**ACEA-consistency caveat (matters for this region).** Only Serbia
+(importers' association) and the Eurostat/UNECE annuals are *new-car* series.
+The statistical-office / IDDEEA routes (Bosnia, and the same lens we already use
+for Albania) count **first registrations including imported used vehicles** —
+fine for the gallery's whole-flow view of a used-import-dominated market
+(§14 principle), but **not comparable to ACEA new-registration counts** and must
+carry a footnote saying so. Mixing the two reproduces the Albania-vs-CEauto
+denominator break (~5× on the total, BEV share 9% vs ~50%). Every
+incl.-imported-used country therefore needs the standard footnote already
+attached to Albania in `footnotes.csv`.
+
+**Order of attack:** Serbia first (biggest market, real industry body,
+ACEA-clean, growing EV signal) → Bosnia (only after confirming the bulletin
+separates BEV/PHEV/HEV) → skip North Macedonia / Montenegro / Kosovo for now
+(EV signal ≈ 0, monthly data too thin — same failure mode as the §14 rejects).
+
+### 🇷🇸 Serbia — verification status (2026-07)
+
+> **Status: DATA MODEL CONFIRMED from published reports; BUILD DEFERRED.** The
+> candidate endpoint `uvoznicivozila.rs` was **egress-blocked** in the
+> investigating session, so the maintainer pulled three reports manually
+> (Q1-2025, H1-2025, H1-2026). Findings below are from those actual reports, not
+> speculation. The domains `uvoznicivozila.rs`, `ec.europa.eu`, `w3.unece.org`
+> have since been **added to the environment's Custom network allowlist** — a
+> *new* session can fetch and probe directly. Build is deferred to that session.
+
+Confirmed against the gallery bar and peer countries:
+
+| Criterion | Status | Finding (from the actual reports) |
+|---|---|---|
+| (a) Primary / de-facto industry body | ✅ | Serbian Association of Importers of Vehicles & Parts (Uvoznici vozila); source line reads *"Ministry of Internal Affairs of the Republic of Serbia, Cube Team"* → **MoI first-registration** data. Same class as AIVAM / naamsa |
+| Scope = new M1 passenger cars | ✅ | "first registrations of **new** passenger vehicles (M1)"; N1 (LCV) and L (moto/moped) reported separately → genuinely ACEA-equivalent, and a multi-variant lead (M1=Whole, N1=Vans, L=2-Wheelers) like Spain |
+| BEV separated | ✅ | "Electric" is its own line (H1-2025: 161 = 0.98%) |
+| **PHEV vs HEV split** | ❌ **NO — combined** | reported as **"Hybrids (all types)"** in one bucket (H1-2025: 6,039 = 36.66%). No PHEV/HEV separation. ⟹ Serbia is the **Türkiye / Georgia / Colombia / Malaysia pattern**: map to a single 'Hybrid'/HEV column, PHEV stays 0/blank, count within ICE in the BEV/ICE/PHEV trajectory, add the standard combined-hybrid footnote |
+| Fuel categories | ✅ (maps cleanly) | Petrol→PETROL, Diesel→DIESEL, Hybrids(all)→HEV(combined), Electric→BEV, Other→OTHERS (LPG/CNG) |
+| **Cadence of the fuel split** | ⚠ **QUARTERLY, not monthly** | the *drivetrain* breakdown is published only per **quarter / half-year**. Monthly figures exist but only as **totals in prose** (e.g. "In January 2025, 1,492 passenger cars…"), **not** a monthly fuel split. So Serbia is a **quarterly-fuel-split** source (South-Africa-style cadence), or monthly-total + quarterly-mix |
+| (c) Machine-access / format | ⚠ **HTML PROSE ONLY** | **no PDF / Excel / API.** Numbers are embedded in article body text + bullet lists. Fragile: each period is a new article with an **unstable slug** (no stable listing/data endpoint found). A monthly auto-fetcher that guesses URLs will break — needs a news-index crawl or search-driven article discovery, to be worked out with live access |
+| (b) Completeness — BYD / Chinese direct imports | ⚠ VERIFY | brand lists seen were Škoda/Toyota/VW/Hyundai/Renault/BMW; confirm BYD/Chinese EVs appear once EV volume grows (the §14 completeness hole) |
+| Fuel-split history depth | ⚠ VERIFY | reports show current + prior-year comparison; how far back the quarterly split runs is unknown |
+
+**Captured reference data** (for future cross-check / bootstrap — M1 passenger, first registrations):
+
+| Period | Petrol | Diesel | Hybrids (all) | Electric | Other | Total |
+|---|---|---|---|---|---|---|
+| H1 2024 | 7,326 | 2,960 | 4,438 | 116 | 318 | 15,158 |
+| H1 2025 | 7,836 | 2,105 | 6,039 | 161 | 332 | 16,473 |
+| H1 2026 (total only) | — | — | — | — | — | 19,515 |
+
+Monthly M1 totals seen in prose: Jan-2025 1,492 · Feb-2025 1,888 · Mar-2025 2,673 (Q1 6,053); Apr-2025 3,786 (peak, Belgrade Auto Show effect). N1 (LCV) H1-2025 drivetrain: Petrol 299 / Diesel 1,814 / Other 207.
+
+**Consistency verdict.** Serbia is a genuine ACEA-style *national* source (new
+M1, industry body, MoI data) and a better ACEA fit than Albania — but **not the
+clean monthly full-split source first hoped for**. Two real constraints shape the
+build: (1) **combined hybrids** → it joins the Türkiye/Georgia/Colombia/Malaysia
+combined-hybrid pattern with the standard footnote (still fully repo-consistent),
+and (2) **quarterly fuel split in HTML prose with unstable article URLs** → the
+fetcher is closer to a quarterly / manual-cadence parser (South Africa / Türkiye
+class) than a monthly API scrape, and article discovery must be solved with live
+access. **Next step (new session, domains now allowed):** load the news index,
+work out stable article discovery, decide monthly-total-vs-quarterly-mix cadence,
+then build `scripts/fetch_serbia.py` + a §-source doc on the Albania/Israel model.
+
+---
+
 ## Alternative axis — variant leads for countries already on the gallery
 
 Unverified leads (training-knowledge level, no fetch performed — confirm the
