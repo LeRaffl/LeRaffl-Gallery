@@ -1,7 +1,7 @@
 🇮🇪 Ireland - June 26 - BEV Trajectory
-51.0% BEV
+51.2% BEV
 13.3% PHEV
-35.7% ICE (of which 17.7%p were HEV)
+35.5% ICE (of which 17.8%p were HEV)
 
 Trailing 12 months are:
 23.5% BEV
