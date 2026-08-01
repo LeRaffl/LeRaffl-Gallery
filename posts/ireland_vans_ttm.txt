@@ -4,6 +4,6 @@ Jul24–Jun25  vs  Jul25–Jun26
 +0.2pp  BEV   (5.2% → 5.4%)
 +1.7pp  PHEV  (0.9% → 2.6%)
 +0.2pp  HEV   (0.5% → 0.7%)
-−2.1pp  ICE   (93.4% → 91.3%)
+−2.2pp  ICE   (93.4% → 91.3%)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

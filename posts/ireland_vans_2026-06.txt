@@ -1,7 +1,7 @@
 🇮🇪 Ireland (Vans) - June 26 - BEV Trajectory
 3.0% BEV
 5.5% PHEV
-91.5% ICE (of which 0.6%p were HEV)
+91.4% ICE (of which 0.6%p were HEV)
 
 Trailing 12 months are:
 5.4% BEV
