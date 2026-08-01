@@ -278,6 +278,21 @@ Andrew's series includes LPG as a separate column while we fold it into OTHERS,
 and minor retroactive corrections appear in the source.  Large deviations
 (hundreds of cars) indicate a parsing or filter regression.
 
+**Do NOT reconcile against CEauto / new-car trade figures (cross-checked
+2026-07).** CEauto (Central European Automotive Report, surfaced via Best
+Selling Cars Blog) publishes an Albania *passenger-car* series that is **~5×
+smaller** than ours and must never be treated as a discrepancy: it counts
+**new cars only**, whereas we count **all first registrations incl. imported
+used** (§6). H1-2026: CEauto ≈ **7,220** vs our Whole ≈ **38,716**. The gap is
+the used-import flow. CEauto's new-only total actually ≈ our electrified subset
+(BEV+PHEV+HEV) plus a small new-ICE tail — i.e. it *corroborates* our data as a
+subset rather than contradicting it. The denominator choice is the whole point:
+BEV share on our (whole-flow) total is ~9% (Jun-2026: 728/7,945), but ~50% on
+CEauto's new-only base — mixing the two, or "fixing" our numbers to match
+CEauto, would break the gallery's used-import-market lens (§14) and the
+cross-country comparison. If a future maintainer asks "why are our Albania
+numbers 5× the trade press?", this is the answer.
+
 ## 7. Historical data (pre-2026)
 
 Each DPSHTRR Looker report is scoped to a single calendar year, but a separate

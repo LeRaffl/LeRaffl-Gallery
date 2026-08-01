@@ -240,6 +240,20 @@ country's underlying primary source.
 | 🇽🇰 Kosovo | Kosovo Agency of Statistics | ~annual | thin | — | Weak |
 | all (backfill/cross-check) | **Eurostat `road_eqr_carpda`** + **UNECE** road-fleet PX tables | **annual only, ~1yr lag** | motor-energy, ACEA-congruent | new | annual backfill / cross-check, not a monthly primary |
 
+**🇧🇦 Bosnia — findings (2026-07, web-research only).** Primary source is the
+**BHAS** monthly *TRANSPORT* statistical bulletin (`bhas.gov.ba`, First Release
+series), which draws registered-vehicle data from **IDDEEA** (Agency for
+Identification Documents, Registers and Data Exchange). Free HTML/PDF, monthly.
+Two open risks before building: (1) the fuel breakdown seen is coarse —
+2024 registered-car stock split as **diesel 77.6% / petrol 18.9% / alternative
+fuel 3.6%**, i.e. "alternative fuel" is likely a **single lumped bucket** with no
+BEV/PHEV/HEV separation → verify the monthly *flow* table is finer before
+building; (2) figures are **first registrations incl. imported used** (March-2025
+≈ 630 new passenger cars, petrol 52.8% / diesel 35.3% — a used-import-heavy
+mix), so Bosnia is Albania-lens, **needs the incl.-imported-used footnote** and
+is not ACEA-new-car comparable. Verdict: candidate, but only after confirming the
+monthly fuel granularity — could fail the fuel-split bar the way it stands.
+
 **ACEA-consistency caveat (matters for this region).** Only Serbia
 (importers' association) and the Eurostat/UNECE annuals are *new-car* series.
 The statistical-office / IDDEEA routes (Bosnia, and the same lens we already use
