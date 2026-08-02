@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-01T12:19:57Z",
- "today": "2026-08-01",
+ "generated": "2026-08-02T07:14:25Z",
+ "today": "2026-08-02",
  "countries": [
   {
    "country": "Albania",
@@ -2641,11 +2641,11 @@
    "source_url": "https://www.acap.pt/pt/estatisticas/dados",
    "cadence_text": "twice-daily cron, 1st–5th, 17:30 & 20:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2676,37 +2676,37 @@
     ],
     "workflow": ".github/workflows/fetch-portugal.yml"
    },
-   "last_render": "2026-07-01",
+   "last_render": "2026-08-01",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 7,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 7,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 7,
      "cadence": "monthly",
      "in_repo": true
     }
