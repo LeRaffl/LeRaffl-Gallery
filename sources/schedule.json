@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-03T08:01:17Z",
- "today": "2026-08-03",
+ "generated": "2026-08-04T07:20:31Z",
+ "today": "2026-08-04",
  "countries": [
   {
    "country": "Albania",
@@ -1759,11 +1759,11 @@
    "source_url": "https://unrae.it/dati-statistici",
    "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1798,29 +1798,29 @@
     ],
     "workflow": ".github/workflows/fetch-italy.yml"
    },
-   "last_render": "2026-07-01",
+   "last_render": "2026-08-03",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
+     "first": "2015-01",
+     "rows": 139,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Rental",
+     "latest": "2026-07",
      "first": "2015-01",
      "rows": 138,
      "cadence": "monthly",
      "in_repo": true
     },
     {
-     "name": "Rental",
-     "latest": "2026-06",
-     "first": "2015-01",
-     "rows": 137,
-     "cadence": "monthly",
-     "in_repo": true
-    },
-    {
      "name": "NonRental",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2015-01",
-     "rows": 137,
+     "rows": 138,
      "cadence": "monthly",
      "in_repo": true
     },
