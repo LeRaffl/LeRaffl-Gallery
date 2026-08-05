@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-04T07:20:31Z",
- "today": "2026-08-04",
+ "generated": "2026-08-05T07:21:20Z",
+ "today": "2026-08-05",
  "countries": [
   {
    "country": "Albania",
@@ -623,10 +623,10 @@
    "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-05",
-   "expected_period": "2026-06",
-   "behind": 1,
+   "expected_period": "2026-07",
+   "behind": 2,
    "behind_now": 2,
-   "status": "due",
+   "status": "late",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1612,11 +1612,11 @@
    "source_url": "https://stats.simi.ie/filter/passenger",
    "cadence_text": "twice-daily cron, 1st–5th of the month",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1647,37 +1647,37 @@
     ],
     "workflow": ".github/workflows/fetch-ireland.yml"
    },
-   "last_render": "2026-08-01",
+   "last_render": "2026-08-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2008-01",
-     "rows": 222,
+     "rows": 223,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 185,
+     "rows": 186,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3129,11 +3129,11 @@
    "source_url": "https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/",
    "cadence_text": "daily cron, 1st–15th, 05:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3173,13 +3173,13 @@
     ],
     "workflow": ".github/workflows/fetch-sweden.yml"
    },
-   "last_render": "2026-07-02",
+   "last_render": "2026-08-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2006-01",
-     "rows": 246,
+     "rows": 247,
      "cadence": "monthly",
      "in_repo": true
     }
