@@ -242,6 +242,46 @@
       "country_slug": "finland_vans"
     },
     {
+      "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-06",
+      "filename": "germany_ICE_BEV_20260806.png",
+      "url": "images/2026-07/germany_ICE_BEV_20260806.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-06",
+      "filename": "germany_20260806.png",
+      "url": "images/2026-07/germany_20260806.png",
+      "alt": "Germany BEV trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-06",
+      "filename": "germany_time_20260806.png",
+      "url": "images/2026-07/germany_time_20260806.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-06",
+      "filename": "germany_ttm_shares_20260806.png",
+      "url": "images/2026-07/germany_ttm_shares_20260806.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
       "country": "Japan",
       "type": "ICE_BEV",
       "period": "2026-07",
