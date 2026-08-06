@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-06T07:22:56Z",
+ "generated": "2026-08-06T13:41:31Z",
  "today": "2026-08-06",
  "countries": [
   {
@@ -1244,20 +1244,20 @@
    "source_url": "https://www.kba.de/",
    "cadence_text": "transcribed by hand each month, once KBA publishes (typically the first week)",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-07-03",
+   "last_render": "2026-08-06",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2012-01",
-     "rows": 174,
+     "rows": 175,
      "cadence": "monthly",
      "in_repo": true
     }
