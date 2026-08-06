@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-05T07:21:20Z",
- "today": "2026-08-05",
+ "generated": "2026-08-06T07:22:56Z",
+ "today": "2026-08-06",
  "countries": [
   {
    "country": "Albania",
@@ -1048,11 +1048,11 @@
    "source_url": "https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/",
    "cadence_text": "daily cron, 1st–15th, 04:40 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1092,53 +1092,53 @@
     ],
     "workflow": ".github/workflows/fetch-finland.yml"
    },
-   "last_render": "2026-07-06",
+   "last_render": "2026-08-06",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1842,11 +1842,11 @@
    "source_url": "https://www.jada.or.jp/pages/342/",
    "cadence_text": "daily cron, 08:00 UTC — no-op until JADA publishes, usually the first business week",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1902,13 +1902,13 @@
     ],
     "workflow": ".github/workflows/fetch-japan.yml"
    },
-   "last_render": "2026-07-06",
+   "last_render": "2026-08-06",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2012-01",
-     "rows": 174,
+     "rows": 175,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2563,10 +2563,10 @@
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-06",
-   "expected_period": "2026-06",
-   "behind": 0,
+   "expected_period": "2026-07",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3425,20 +3425,20 @@
    "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
    "cadence_text": "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-07-07",
+   "last_render": "2026-08-05",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2015-01",
-     "rows": 138,
+     "rows": 139,
      "cadence": "monthly",
      "in_repo": true
     }
