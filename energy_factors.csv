@@ -1,0 +1,98 @@
+key,value,unit,basis,source
+# Energy factors for the primary-energy Sankey (R/energy_flows.R).
+# Accounting convention: IEA PHYSICAL ENERGY CONTENT method (the standard in
+# energy statistics). Wind/solar/hydro primary energy = the electricity they
+# generate; nuclear primary = heat at 33% conversion; fossil primary = fuel input
+# at plant efficiency. No substitution method, by decision — see methodology doc.
+#
+# Quote any source text containing commas.
+#
+# --- fuel energy content (lower heating value) ---
+lhv_petrol,8.94,kWh/l,measured,"JEC WTW v5 (JRC/EUCAR/Concawe) - 32.2 MJ/l"
+lhv_diesel,9.97,kWh/l,measured,"JEC WTW v5 - 35.9 MJ/l"
+#
+# --- well-to-tank: primary energy per unit delivered to the vehicle ---
+wtt_petrol,1.19,kWh_primary/kWh_fuel,literature,"JEC WTT v5 - crude extraction + refining + distribution, ~84% chain efficiency"
+wtt_diesel,1.16,kWh_primary/kWh_fuel,literature,"JEC WTT v5 - ~86% chain efficiency"
+grid_td_loss,0.08,share,measured,"IEA - transmission & distribution losses, world average"
+charging_loss,0.10,share,literature,"AC charging incl. onboard charger + battery losses"
+#
+# --- electricity generation mix (world, latest full year) ---
+# Used with the IEA physical method to derive primary energy per kWh generated.
+mix_coal,0.35,share,measured,"IEA Electricity - world generation mix"
+mix_gas,0.23,share,measured,"IEA Electricity - world generation mix"
+mix_nuclear,0.09,share,measured,"IEA Electricity - world generation mix"
+mix_hydro,0.14,share,measured,"IEA Electricity - world generation mix"
+mix_wind,0.08,share,measured,"IEA Electricity - world generation mix"
+mix_solar,0.07,share,measured,"IEA Electricity - world generation mix"
+mix_other,0.04,share,measured,"IEA Electricity - oil/biomass/geothermal residual"
+eff_coal_plant,0.38,share,literature,"average coal fleet efficiency"
+eff_gas_plant,0.50,share,literature,"mixed CCGT/OCGT fleet"
+eff_nuclear_iea,0.33,share,convention,"IEA physical method - nuclear heat to electricity"
+eff_other_plant,0.40,share,literature,"oil/biomass thermal average"
+#
+# --- real-world consumption (NOT type approval; the gap is large) ---
+cons_petrol,7.5,l/100km,literature,"ICCT real-world / Spritmonitor - EU fleet average"
+cons_diesel,6.5,l/100km,literature,"ICCT real-world / Spritmonitor"
+cons_hybrid,5.5,l/100km,literature,"ICCT real-world - full hybrid"
+cons_phev_fuel,5.9,l/100km,literature,"ICCT real-world - PHEV fuel share at observed utility factor"
+cons_phev_elec,6.0,kWh/100km,literature,"ICCT real-world - PHEV electric share"
+cons_bev,19.0,kWh/100km,literature,"real-world at the wall incl. charging losses"
+#
+# --- tank/battery-to-wheel efficiency ---
+ttw_ice,0.23,share,literature,"real-world average over mixed driving"
+ttw_hybrid,0.30,share,literature,"incl. recuperation and load-point shifting"
+ttw_bev,0.80,share,literature,"battery to wheel incl. drivetrain"
+#
+# --- annual mileage ---
+km_petrol,11000,km/yr,measured,"KBA Fahrleistungserhebung - petrol cars"
+km_diesel,17500,km/yr,measured,"KBA - diesel cars drive markedly more"
+km_hybrid,13000,km/yr,literature,"between petrol and diesel"
+km_phev,15000,km/yr,literature,"company-car skew"
+km_bev,14000,km/yr,literature,"KBA / real-world telematics"
+#
+# --- split of useful work at the wheel (softest layer, cycle dependent) ---
+res_air,0.37,share,literature,"mixed cycle mid-size car - aerodynamic drag"
+res_roll,0.33,share,literature,"mixed cycle - rolling resistance"
+res_brake,0.23,share,literature,"braking/inertia losses net of recuperation"
+res_aux,0.07,share,literature,"auxiliaries (excl. cabin heating in winter)"
+wtt_gasfuel,1.12,kWh_primary/kWh_fuel,literature,"JEC WTT v5 - LPG/CNG chain, ~89% efficiency"
+#
+# --- world reference: THE ONLY FIGURE HERE NOT FROM THIS REPO ---
+# Used solely to size the optional "rest of the world" context band, which is
+# off by default. It never feeds any country's stock or registrations.
+# Our country set covers roughly half the world passenger-car fleet. The rest
+# also burns primary energy; showing it keeps the electrification of our covered
+# half in proportion. Sized by CAR COUNT times our own average intensity — a
+# first-order estimate, flagged as such in the chart.
+world_cars_2018,1050000000,cars,literature,"world passenger-car fleet, approx."
+world_cars_2025,1230000000,cars,literature,"world passenger-car fleet ~1.23 bn (2025), excl. commercial vehicles"
+#
+# --- greenhouse-gas emissions (CO2 EQUIVALENT) ---
+# Feeds the emissions timeline in the energy view, NOT the primary-energy Sankey.
+# Scope: WELL-TO-WHEEL, use phase only. It counts the CO2e of getting the fuel or
+# electricity to the car and burning/using it. It deliberately does NOT count the
+# CO2e of building the car or its battery (a separate, embodied-emissions question).
+# Same convention on both sides so the comparison is fair: an upstream chain plus
+# the emissions at the point of use.
+#
+# Fuels: well-to-wheel CO2e per kWh of fuel at the tank (tailpipe combustion plus
+# the well-to-tank chain), from JEC WTW v5 - the same source family as the energy
+# well-to-tank factors above, kept consistent on purpose.
+ghg_petrol,0.320,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - petrol ~89 gCO2e/MJ WTW (tailpipe ~73 + well-to-tank ~16)"
+ghg_diesel,0.328,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - diesel ~91 gCO2e/MJ WTW"
+ghg_gasfuel,0.252,kgCO2e/kWh_fuel,literature,"JEC WTW v5 - LPG/CNG ~70 gCO2e/MJ WTW; less carbon per kWh than petrol"
+#
+# Electricity: grid CO2e intensity per kWh GENERATED, as a directly SOURCED value
+# with a decarbonisation trajectory. The emissions timeline offers two scenarios:
+#   "linear"   - linear from grid_co2_now (at grid_co2_base_year, the last actual
+#                grid figure) to grid_co2_target (at grid_co2_target_year), flat
+#                after. The realistic forward view.
+#   "constant" - today's grid held forever: the honest worst case for the
+#                electrified side, and the "keep today's grid mix" what-if.
+# One sourced value now, one sourced target - so the whole trajectory is citeable
+# and easy to swap for a different scenario (change the four rows below).
+grid_co2_now,0.480,kgCO2e/kWh_gen,measured,"Ember Global Electricity Review 2024 - world average ~480 gCO2/kWh (2023)"
+grid_co2_target,0.020,kgCO2e/kWh_gen,scenario,"IEA Net Zero by 2050 (NZE) - global electricity ~net-zero by 2040, ~20 gCO2/kWh residual"
+grid_co2_base_year,2023,year,measured,"data year for grid_co2_now (Ember)"
+grid_co2_target_year,2040,year,scenario,"IEA NZE - global electricity reaches ~net-zero"
