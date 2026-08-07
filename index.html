@@ -1703,6 +1703,65 @@ a:focus-visible{
 .about-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 24px;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;font-size:13px;color:#9fb3d1;flex-wrap:wrap}
 .about-footer strong{color:#e9eef2}
 .about-gh{font-size:13px;padding:7px 14px;white-space:nowrap}
+
+.fleet-subnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 10px}
+.fsub{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;
+ padding:6px 15px;font-weight:700;font-size:13px;cursor:pointer}
+.fsub.is-on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.fsub-hint{font-size:11.5px;color:var(--muted);margin-left:6px}
+.fe-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+ border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+@media(max-width:760px){.fe-kpis{grid-template-columns:1fr 1fr}}
+.fe-kpi{background:var(--surface);padding:13px 15px}
+.fe-k{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700;margin-bottom:3px}
+.fe-v{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.fe-s{font-size:11px;color:var(--muted);margin-top:2px}
+.fe-ok{color:var(--accent)}
+.fe-ctl{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.fe-year{font-size:26px;font-weight:700;min-width:74px}
+.fe-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;
+ border-radius:20px;border:1px solid rgba(41,211,152,.45);color:var(--accent)}
+.fe-badge.is-proj{color:var(--warn);border-color:rgba(240,179,90,.45)}
+#feSlider{flex:1;min-width:200px;accent-color:var(--accent);height:4px}
+.fe-legend{display:flex;flex-wrap:wrap;gap:13px;font-size:12px;color:var(--muted);margin-top:8px}
+.fe-legend span{display:inline-flex;align-items:center;gap:6px}
+.fe-legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.fe-expl{margin-top:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;
+ background:var(--surface);font-size:12.5px;color:var(--muted);line-height:1.6;min-height:62px}
+.fe-expl b{color:var(--text)} .fe-val{color:var(--accent);font-weight:700}
+.fe-hint{color:var(--muted);opacity:.7}
+.fe-rib{transition:fill-opacity .12s;cursor:pointer}
+.fe-rib:hover{fill-opacity:.75!important}
+.fe-node{cursor:pointer}
+.fe-nl{font-size:10px;font-weight:600;fill:var(--text);paint-order:stroke;stroke:var(--surface);
+ stroke-width:2.8px;stroke-linejoin:round}
+.fe-nv{fill:var(--muted);font-weight:500}
+.fe-hd{font-size:9px;letter-spacing:.09em;text-transform:uppercase;fill:var(--muted);font-weight:700}
+.fe-intro{margin-top:14px;line-height:1.65}
+.fe-intro code{font-size:.92em;opacity:.85}
+/* CO2e emissions timeline (hand-rolled SVG, same aesthetic as the Sankey) */
+.fe-co2{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.fe-co2-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.fe-co2-title{font-size:14px;font-weight:700;color:var(--text)}
+.fe-co2-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.fe-co2-now{text-align:right;line-height:1.15}
+.fe-co2-val{font-size:24px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.fe-co2-unit{font-size:11px;color:var(--muted);margin-left:4px}
+.fe-co2-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.fe-sub{font-size:.72em;vertical-align:-.15em}
+.fe-co2-scen{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:11.5px;color:var(--muted)}
+.fe-co2-scen-lbl{text-transform:uppercase;letter-spacing:.08em;font-weight:700;font-size:10px}
+.fe-co2-scen label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.fe-co2-scen input{accent-color:var(--accent);margin:0}
+#feCo2Chart{margin-top:10px}
+.fe-co2-grid{stroke:rgba(120,130,150,.18);stroke-width:1}
+.fe-co2-ax{font-size:10px;fill:var(--muted)}
+.fe-co2-div{stroke:rgba(255,255,255,.32);stroke-width:1.4;stroke-dasharray:3 3}
+.fe-co2-tag{font-size:9px;fill:var(--warn);font-weight:700;letter-spacing:.04em}
+.fe-co2-cur{stroke:var(--accent);stroke-width:1.5;opacity:.8}
+.fe-co2-dot{fill:var(--accent);stroke:var(--surface);stroke-width:1.5}
+.fe-co2-area{transition:fill-opacity .12s}
+#feCo2Chart svg{cursor:pointer}
 </style>
   
 
@@ -2854,8 +2913,83 @@ a:focus-visible{
 </div><!-- /Section 3: Hazard -->
 
 <div class="card" style="margin-top:8px;">
+
+<!-- ── Fleet sub-tabs: vehicles vs energy ───────────────────────── -->
+<div class="fleet-subnav" id="fleetSubnav">
+  <button class="fsub is-on" data-view="vehicles">Vehicles</button>
+  <button class="fsub" data-view="energy">Energy</button>
+  <span class="fsub-hint">Same countries, same projection settings &mdash; counted as cars, or as the energy they need.</span>
+</div>
+<div id="fleetPlotWrap">
   <div id="fleetPlot" style="height:520px;"></div>
   <button class="btn chart-dl" onclick="downloadPlotlyChart('fleetPlot','fleet_chart.png')">↓ Download PNG</button>
+</div>
+<div id="fleetEnergyView" hidden>
+  <div class="fe-kpis">
+    <div class="fe-kpi"><div class="fe-k">Primary energy</div><div class="fe-v" id="feK1">&mdash;</div><div class="fe-s">TWh per year</div></div>
+    <div class="fe-kpi"><div class="fe-k">Reaches the wheel</div><div class="fe-v fe-ok" id="feK2">&mdash;</div><div class="fe-s">the rest becomes heat</div></div>
+    <div class="fe-kpi"><div class="fe-k">Per car</div><div class="fe-v" id="feK3">&mdash;</div><div class="fe-s">kWh per car per year</div></div>
+    <div class="fe-kpi"><div class="fe-k">Fleet</div><div class="fe-v" id="feK4">&mdash;</div><div class="fe-s">million cars</div></div>
+  </div>
+  <div class="fe-ctl">
+    <span class="fe-year" id="feYear">&mdash;</span>
+    <span class="fe-badge" id="feBadge">observed</span>
+    <input type="range" id="feSlider" min="0" max="0" step="1" value="0" aria-label="Year">
+    <button class="btn" id="fePlay">&#9654; Play</button>
+  </div>
+  <div id="feSankey"></div>
+  <div id="feLegend" class="fe-legend"></div>
+  <div class="fe-expl" id="feExpl"></div>
+
+  <!-- ── Emissions on the timeline: CO2e per selected region ─────── -->
+  <div class="fe-co2">
+    <div class="fe-co2-head">
+      <div>
+        <div class="fe-co2-title">CO<span class="fe-sub">2</span>e emissions over time</div>
+        <div class="fe-co2-sub">well-to-wheel &middot; use phase &middot; same countries &amp; projection as above</div>
+      </div>
+      <div class="fe-co2-now">
+        <span class="fe-co2-val" id="feCo2Val">&mdash;</span>
+        <span class="fe-co2-unit">Mt CO<span class="fe-sub">2</span>e / yr</span>
+        <div class="fe-co2-meta" id="feCo2Meta">&mdash;</div>
+      </div>
+    </div>
+    <div class="fe-co2-scen" id="feGridScen">
+      <span class="fe-co2-scen-lbl">Power grid</span>
+      <label><input type="radio" name="feGridScen" value="linear" checked> decarbonises (IEA&nbsp;NZE &rarr; 2040)</label>
+      <label><input type="radio" name="feGridScen" value="constant"> today&#39;s grid held</label>
+    </div>
+    <div id="feCo2Chart"></div>
+    <div id="feCo2Legend" class="fe-legend"></div>
+  </div>
+
+  <p class="small fe-intro">
+    <b>What this shows.</b> The same fleet and the same projection as the Vehicles view,
+    converted into the energy it needs. Reading left to right: what comes out of the ground,
+    what reaches the tank or battery, which cars burn it, what actually arrives at the wheels,
+    and what that work is spent on. Losses branch off where they happen, so you can see that a
+    combustion car wastes roughly three quarters of its fuel before the wheels turn, while an
+    electric one wastes about a fifth &mdash; the single reason electrification changes the total.
+    <br><br>
+    <b>Nothing here is inferred behaviour.</b> Energy is conserved and every conversion step has a
+    measured efficiency, so the chart balances by construction. Accounting follows the
+    <b>IEA physical energy content</b> method. The grid mix is held constant, which credits the
+    power sector with no future improvement &mdash; electrified transport is therefore shown at
+    its worst. Factors and their sources live in <code>energy_factors.csv</code>; the method is
+    written up in <code>architecture/energy-view-methodology.md</code>.
+    <br><br>
+    <b>The emissions strip</b> reads the same fleet as CO<span class="fe-sub">2</span> equivalent,
+    <b>well-to-wheel</b>: the greenhouse gas of getting the fuel or electricity to the car and using it,
+    stacked by source across the years so you can watch it develop as the fleet electrifies. Fuels use JEC
+    well-to-wheel CO<span class="fe-sub">2</span>e. For the <b>power grid</b> you pick the scenario:
+    <b>decarbonises</b> &mdash; the grid falls linearly from today's world average (Ember, ~480&nbsp;gCO<span class="fe-sub">2</span>e/kWh)
+    to a net-zero target (IEA Net Zero by 2050, ~2040) &mdash; or <b>today's grid held</b>, the honest worst
+    case for the electrified side. Both endpoints are single sourced values in <code>energy_factors.csv</code>,
+    so the trajectory is easy to check or swap. It counts the <b>use phase only</b> &mdash; building the car or
+    its battery is a separate, embodied question.
+  </p>
+</div>
+
 </div>
 
 <p class="small" style="margin-top:12px;">
@@ -6614,6 +6748,391 @@ const container = document.getElementById('fleetCategoryContainer');
   });
 }
 
+
+/* ── Fleet energy view ────────────────────────────────────────────
+   A second lens on the SAME fleet model: buildFleetEnergy() reuses the
+   country selection, hazard settings and projection that buildFleetPlot()
+   already computed, then converts vehicles into energy. One model, two views —
+   so the two panels can never drift apart.                                  */
+const FE_F = {"lhv_petrol":8.94,"lhv_diesel":9.97,"wtt_petrol":1.19,"wtt_diesel":1.16,"grid_td_loss":0.08,"charging_loss":0.1,"mix_coal":0.35,"mix_gas":0.23,"mix_nuclear":0.09,"mix_hydro":0.14,"mix_wind":0.08,"mix_solar":0.07,"mix_other":0.04,"eff_coal_plant":0.38,"eff_gas_plant":0.5,"eff_nuclear_iea":0.33,"eff_other_plant":0.4,"cons_petrol":7.5,"cons_diesel":6.5,"cons_hybrid":5.5,"cons_phev_fuel":5.9,"cons_phev_elec":6.0,"cons_bev":19.0,"ttw_ice":0.23,"ttw_hybrid":0.3,"ttw_bev":0.8,"km_petrol":11000.0,"km_diesel":17500.0,"km_hybrid":13000.0,"km_phev":15000.0,"km_bev":14000.0,"res_air":0.37,"res_roll":0.33,"res_brake":0.23,"res_aux":0.07,"wtt_gasfuel":1.12,"world_cars_2018":1050000000.0,"world_cars_2025":1230000000.0,"ghg_petrol":0.32,"ghg_diesel":0.328,"ghg_gasfuel":0.252,"grid_co2_now":0.48,"grid_co2_target":0.02,"grid_co2_base_year":2023.0,"grid_co2_target_year":2040.0};
+const FE_KEYS = ['BEV','PHEV','HEV','DIESEL','PETROL','GASFUEL'];
+const FE_COLS = {"Crude oil":0,"Natural gas":0,"Coal":0,"Gas":0,"Nuclear":0,"Other":0,"Renewables":0,
+ "Petrol":1,"Diesel":1,"Gas fuel":1,"Electricity":1,"Supply loss":1,
+ "Petrol car":2,"Diesel car":2,"LPG/CNG":2,"Hybrid":2,"PHEV car":2,"BEV car":2,
+ "Work at the wheel":3,"Conversion loss":3,
+ "Air drag":4,"Rolling resistance":4,"Braking":4,"Auxiliaries":4};
+const FE_ORDER = ["Crude oil","Natural gas","Coal","Gas","Nuclear","Other","Renewables",
+ "Petrol","Diesel","Gas fuel","Electricity","Supply loss",
+ "Petrol car","Diesel car","LPG/CNG","Hybrid","PHEV car","BEV car",
+ "Work at the wheel","Conversion loss","Air drag","Rolling resistance","Braking","Auxiliaries"];
+const FE_C = {"Crude oil":"#8a7668","Natural gas":"#6f8299","Coal":"#5f6b73","Gas":"#7b8db0",
+ "Nuclear":"#a98ec2","Other":"#6b7a85","Renewables":"#29d398","Petrol":"#7b8db0","Diesel":"#9a8574",
+ "Gas fuel":"#6f8299","Electricity":"#3fb6c8","Petrol car":"#7b8db0","Diesel car":"#9a8574",
+ "LPG/CNG":"#6f8299","Hybrid":"#f0b35a","PHEV car":"#3fb6c8","BEV car":"#29d398",
+ "Work at the wheel":"#29d398","Supply loss":"#c25b4a","Conversion loss":"#c25b4a",
+ "Air drag":"#8fa3b8","Rolling resistance":"#8fa3b8","Braking":"#8fa3b8","Auxiliaries":"#8fa3b8"};
+const FE_LAB = {PETROL:"Petrol car",DIESEL:"Diesel car",HEV:"Hybrid",PHEV:"PHEV car",BEV:"BEV car",GASFUEL:"LPG/CNG"};
+const FE_KM  = {PETROL:"km_petrol",DIESEL:"km_diesel",HEV:"km_hybrid",PHEV:"km_phev",BEV:"km_bev",GASFUEL:"km_petrol"};
+/* CO2e timeline: stacked by primary source, coloured to match the Sankey's
+   primary column (oil brown, gas slate, electricity teal). Geometry shared with
+   the click-to-scrub handler below so a click maps back to the right year. */
+const FE_CO2_LAYERS = [
+ {key:'oil',  lab:'Oil (petrol + diesel)', c:'#9a8574'},
+ {key:'gas',  lab:'Gas fuel',              c:'#6f8299'},
+ {key:'elec', lab:'Electricity (grid)',    c:'#3fb6c8'}
+];
+const FE_CO2_W = 760, FE_CO2_H = 190, FE_CO2_PADL = 48, FE_CO2_PADR = 14;
+const feFmt = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+
+/* What every node means, in one sentence. Losses get the longest note because
+   they are the point of the chart and the least self-explanatory. */
+const FE_EXPL = {
+ "Crude oil":"Oil taken out of the ground to make the petrol and diesel below, including what the refinery itself burns.",
+ "Natural gas":"Gas feeding LPG/CNG cars.",
+ "Coal":"Coal burned in power stations for the electricity below.",
+ "Gas":"Gas burned in power stations.",
+ "Nuclear":"Nuclear heat. IEA convention counts the heat, not the electricity, so a third of it reaches the grid.",
+ "Other":"Oil, biomass and geothermal generation.",
+ "Renewables":"Hydro, wind and solar. Under the IEA physical method their primary energy IS the electricity they make, so nothing is lost here.",
+ "Petrol":"Petrol in the tank, after refining and distribution.",
+ "Diesel":"Diesel in the tank.",
+ "Gas fuel":"LPG/CNG in the tank.",
+ "Electricity":"Electricity in the battery, after grid losses and charging losses.",
+ "Supply loss":"Energy spent GETTING the fuel to the car — refining crude, burning coal or gas in a power station, grid transmission, charging losses. It is gone before the key is turned. For electricity this is the big one on a thermal grid: a coal plant throws away about 62% of the coal as waste heat at the chimney.",
+ "Conversion loss":"Energy the car itself wastes turning fuel into motion — almost all of it heat out of the engine and radiator. A combustion engine loses roughly three quarters of the fuel in the tank this way; an electric motor loses about a fifth. This single bar is why electrification changes the picture.",
+ "Work at the wheel":"What is left to actually move the car: the mechanical energy arriving at the wheels.",
+ "Air drag":"Pushing air aside. Dominates at motorway speed and rises with the cube of it.",
+ "Rolling resistance":"Tyres deforming against the road. Roughly constant per kilometre.",
+ "Braking":"Kinetic energy turned into heat when slowing down, net of what recuperation recovers.",
+ "Auxiliaries":"Lights, electronics, pumps, climate control."
+};
+FE_KEYS.forEach(k => { FE_EXPL[FE_LAB[k]] = "Energy entering cars of this type."; });
+
+function feGridFactor(){
+ const m = {coal:FE_F.mix_coal,gas:FE_F.mix_gas,nuclear:FE_F.mix_nuclear,other:FE_F.mix_other,
+            renew:FE_F.mix_hydro+FE_F.mix_wind+FE_F.mix_solar};
+ return {mix:m, factor: m.coal/FE_F.eff_coal_plant + m.gas/FE_F.eff_gas_plant
+   + m.nuclear/FE_F.eff_nuclear_iea + m.other/FE_F.eff_other_plant + m.renew};
+}
+/* Grid CO2e intensity in kgCO2e per kWh GENERATED, at `year`, under one of two
+   sourced scenarios (values in energy_factors.csv):
+     'linear'   — linear from grid_co2_now (the last actual grid figure, at
+                  grid_co2_base_year) to grid_co2_target at grid_co2_target_year,
+                  flat after. The realistic forward view.
+     'constant' — today's grid held forever: the worst case for the electrified
+                  side, and the "keep today's grid mix" what-if.
+   Applies to the emissions timeline only; the energy Sankey holds the mix
+   constant by design (see methodology). */
+function feGridCO2At(year, scenario){
+ const now = FE_F.grid_co2_now, tgt = FE_F.grid_co2_target;
+ if (scenario !== 'linear') return now;
+ const by = FE_F.grid_co2_base_year, ty = FE_F.grid_co2_target_year;
+ if (year <= by) return now;
+ if (year >= ty) return tgt;
+ return now + (tgt - now) * (year - by) / (ty - by);
+}
+/* Per-vehicle annual energy in kWh: carrier (at tank/wall), and useful work. */
+function fePerVehicle(pt){
+ const km = FE_F[FE_KM[pt]];
+ const fuel = (l100, lhv) => l100/100*km*lhv;
+ switch(pt){
+  case 'PETROL': { const c = fuel(FE_F.cons_petrol, FE_F.lhv_petrol);
+    return {carrierFuel:c, carrierElec:0, work:c*FE_F.ttw_ice, wtt:FE_F.wtt_petrol, src:'petrol', km}; }
+  case 'DIESEL': { const c = fuel(FE_F.cons_diesel, FE_F.lhv_diesel);
+    return {carrierFuel:c, carrierElec:0, work:c*FE_F.ttw_ice, wtt:FE_F.wtt_diesel, src:'diesel', km}; }
+  case 'HEV':    { const c = fuel(FE_F.cons_hybrid, FE_F.lhv_petrol);
+    return {carrierFuel:c, carrierElec:0, work:c*FE_F.ttw_hybrid, wtt:FE_F.wtt_petrol, src:'petrol', km}; }
+  case 'GASFUEL':{ const c = fuel(FE_F.cons_petrol, FE_F.lhv_petrol);
+    return {carrierFuel:c, carrierElec:0, work:c*FE_F.ttw_ice, wtt:FE_F.wtt_gasfuel, src:'gas', km}; }
+  case 'PHEV':   { const a = fuel(FE_F.cons_phev_fuel, FE_F.lhv_petrol);
+                   const b = FE_F.cons_phev_elec/100*km;
+    return {carrierFuel:a, carrierElec:b, work:a*FE_F.ttw_hybrid + b*FE_F.ttw_bev, wtt:FE_F.wtt_petrol, src:'petrol', km}; }
+  case 'BEV':    { const b = FE_F.cons_bev/100*km;
+    return {carrierFuel:0, carrierElec:b, work:b*FE_F.ttw_bev, wtt:1, src:'elec', km}; }
+ }
+ return null;
+}
+/* The fleet model reports seven categories; energy needs six, and two of them
+   are context-dependent. HYBRID is a lumped stand-in for HEV where a source has
+   no PHEV/HEV split. OTHERS means two different things: where PETROL and DIESEL
+   are absent it carries the ENTIRE combustion fleet (China holds 322M cars
+   there) and burns petrol; where they are present it is LPG/CNG and burns gas.
+   Dropping it silently cost three quarters of the Chinese fleet. */
+function feNormalise(row){
+ const g = k => safeNum(row[k], 0);
+ const petrol = g('PETROL'), diesel = g('DIESEL'), others = g('OTHERS');
+ const lumpedCombustion = petrol === 0 && diesel === 0 && others > 0;
+ const hev = (g('HYBRID') > 100 && g('HEV') === 0) ? g('HYBRID') : g('HEV');
+ return {
+  BEV: g('BEV'), PHEV: g('PHEV'), HEV: hev, DIESEL: diesel,
+  PETROL: petrol + (lumpedCombustion ? others : 0),
+  GASFUEL: lumpedCombustion ? 0 : others
+ };
+}
+
+/* A fleet row (cars by fuel) -> Sankey links in TWh/yr. Energy is conserved:
+   primary = work + supply loss + conversion loss, by construction.
+   `year` and `gridScen` only affect the CO2e figures (grid decarbonisation);
+   the energy chain itself is year-independent. */
+function feChain(row, year, gridScen){
+ const TWH = 1e9, L = [], add = (s,t,v) => { if (v > 1e6) L.push({s,t,v:v/TWH}); };
+ const G = feGridFactor();
+ let cp=0, cd=0, cg=0, ce=0, W=0, primary=0, cars=0;
+ FE_KEYS.forEach(pt => {
+  const n = safeNum(row[pt], 0); if (!n) return;
+  cars += n;
+  const e = fePerVehicle(pt), lab = FE_LAB[pt];
+  const cf = e.carrierFuel*n, cel = e.carrierElec*n, w = e.work*n;
+  if (cf > 0){
+   if (e.src === 'diesel'){ cd += cf; add('Diesel', lab, cf); }
+   else if (e.src === 'gas'){ cg += cf; add('Gas fuel', lab, cf); }
+   else { cp += cf; add('Petrol', lab, cf); }
+  }
+  if (cel > 0){ ce += cel; add('Electricity', lab, cel); }
+  W += w;
+  add(lab, 'Work at the wheel', w);
+  add(lab, 'Conversion loss', (cf + cel) - w);
+ });
+ const oil = cp*FE_F.wtt_petrol + cd*FE_F.wtt_diesel;
+ add('Crude oil','Petrol',cp); add('Crude oil','Diesel',cd); add('Crude oil','Supply loss', oil-cp-cd);
+ primary += oil;
+ if (cg > 0){ const g = cg*FE_F.wtt_gasfuel;
+  add('Natural gas','Gas fuel',cg); add('Natural gas','Supply loss', g-cg); primary += g; }
+ const gen = ce/(1-FE_F.grid_td_loss);
+ [['Coal','coal',FE_F.eff_coal_plant],['Gas','gas',FE_F.eff_gas_plant],
+  ['Nuclear','nuclear',FE_F.eff_nuclear_iea],['Other','other',FE_F.eff_other_plant],
+  ['Renewables','renew',1]].forEach(([lab,key,eff]) => {
+   const sh = G.mix[key], p = gen*sh/eff, dl = gen*sh*(1-FE_F.grid_td_loss);
+   add(lab,'Electricity',dl); add(lab,'Supply loss', p-dl); primary += p; });
+ [['res_air','Air drag'],['res_roll','Rolling resistance'],
+  ['res_brake','Braking'],['res_aux','Auxiliaries']].forEach(([k,lab]) =>
+   add('Work at the wheel', lab, W*FE_F[k]));
+ // Well-to-wheel CO2e in Mt/yr, split by primary source. Reuses the carrier
+ // totals already accumulated above; grid CO2 uses the same mix as the energy
+ // chain. Use-phase only — building the car or battery is out of scope.
+ const MT = 1e9; // kg -> Mt
+ const gco2 = feGridCO2At(year ?? FE_F.grid_co2_base_year, gridScen || 'constant');
+ const co2Oil  = (cp*FE_F.ghg_petrol + cd*FE_F.ghg_diesel) / MT;
+ const co2Gas  = (cg*FE_F.ghg_gasfuel) / MT;
+ const co2Elec = (gen*gco2) / MT;
+ return {links:L, primary:primary/TWH, work:W/TWH, cars,
+   co2:{oil:co2Oil, gas:co2Gas, elec:co2Elec, total:co2Oil+co2Gas+co2Elec}};
+}
+function feSvg(links, unit, W, H){
+ const tot={}, o={}, i={};
+ links.forEach(l => { o[l.s]=(o[l.s]||0)+l.v; i[l.t]=(i[l.t]||0)+l.v; });
+ new Set([...Object.keys(o), ...Object.keys(i)]).forEach(n => tot[n]=Math.max(o[n]||0, i[n]||0));
+ const nodes = FE_ORDER.filter(n => tot[n] > 0), bycol = {};
+ nodes.forEach(n => { (bycol[FE_COLS[n]] = bycol[FE_COLS[n]] || []).push(n); });
+ const padT=28, padB=10, nw=13, gap=9, xs=[16,258,500,742,916], pos={};
+ Object.keys(bycol).forEach(c => { const v = bycol[c];
+  const th = v.reduce((a,n) => a + tot[n]*unit, 0) + gap*(v.length-1);
+  let y = padT + ((H-padT-padB) - th)/2;
+  v.forEach(n => { const h = tot[n]*unit; pos[n]=[y,h,y,y]; y += h + gap; }); });
+ const f = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+ let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:${H}px">`;
+ links.forEach(l => { if (!pos[l.s] || !pos[l.t]) return;
+  const h = l.v*unit, xA = xs[FE_COLS[l.s]]+nw, xB = xs[FE_COLS[l.t]];
+  const ya = pos[l.s][2]; pos[l.s][2] += h; const yb = pos[l.t][3]; pos[l.t][3] += h;
+  const mx = (xA+xB)/2, loss = l.t === 'Supply loss' || l.t === 'Conversion loss';
+  s += `<path class="fe-rib" d="M${xA},${ya.toFixed(1)} C${mx},${ya.toFixed(1)} ${mx},${yb.toFixed(1)} ${xB},${yb.toFixed(1)} `
+     + `L${xB},${(yb+h).toFixed(1)} C${mx},${(yb+h).toFixed(1)} ${mx},${(ya+h).toFixed(1)} ${xA},${(ya+h).toFixed(1)} Z" `
+     + `fill="${loss ? FE_C[l.t] : FE_C[l.s]}" fill-opacity="${loss ? .34 : .26}" `
+     + `data-n="${l.s} &#8594; ${l.t}" data-v="${f(l.v)}"></path>`; });
+ nodes.forEach(n => { const [y,h] = pos[n], x = xs[FE_COLS[n]];
+  s += `<rect class="fe-node" x="${x}" y="${y.toFixed(1)}" width="${nw}" height="${Math.max(h,1.2).toFixed(1)}" `
+     + `rx="2" fill="${FE_C[n]}" data-n="${n}" data-v="${f(tot[n])}"></rect>`
+     + `<text class="fe-nl" x="${x+nw+6}" y="${(y+h/2+3.5).toFixed(1)}">${n}<tspan class="fe-nv"> ${f(tot[n])}</tspan></text>`; });
+ ['primary energy','carrier','powertrain','at the wheel','what moves the car']
+   .forEach((t,k) => { s += `<text class="fe-hd" x="${xs[k]}" y="13">${t}</text>`; });
+ return s + '</svg>';
+}
+let feSeries = [], feCo2Data = [], feTimer = null;
+function feRender(idx){
+ const r = feSeries[idx]; if (!r) return;
+ const ch = feChain(r.row);
+ document.getElementById('feYear').textContent = r.year;
+ const b = document.getElementById('feBadge');
+ b.textContent = r.projected ? 'modelled' : 'observed';
+ b.className = 'fe-badge' + (r.projected ? ' is-proj' : '');
+ let scale = 0;
+ feSeries.forEach(x => { const c = feChain(x.row), by = {};
+  c.links.forEach(l => { by[FE_COLS[l.s]] = (by[FE_COLS[l.s]]||0) + l.v; });
+  scale = Math.max(scale, ...Object.values(by)); });
+ const H = 430, unit = (H - 38 - 9*7)/Math.max(scale, 1e-9);
+ document.getElementById('feSankey').innerHTML = feSvg(ch.links, unit, 1020, H);
+ const f = v => v >= 10 ? Math.round(v).toLocaleString('de-DE') : v.toFixed(1).replace('.',',');
+ document.getElementById('feK1').textContent = f(ch.primary);
+ document.getElementById('feK2').textContent = Math.round(100*ch.work/ch.primary) + '%';
+ document.getElementById('feK3').textContent = f(ch.primary/(ch.cars/1e6)*1000);
+ document.getElementById('feK4').textContent = f(ch.cars/1e6);
+ feWireExpl();
+ feRenderCO2(idx);
+}
+function feWireExpl(){
+ const box = document.getElementById('feExpl');
+ const show = (name, val) => { const t = FE_EXPL[name];
+  box.innerHTML = '<b>' + name + '</b>' + (val ? ' &middot; <span class="fe-val">' + val + ' TWh/yr</span>' : '')
+                + (t ? '<br>' + t : ''); };
+ box.innerHTML = '<span class="fe-hint">Hover any bar or ribbon for what it means.</span>';
+ document.querySelectorAll('#feSankey .fe-node, #feSankey .fe-rib').forEach(el => {
+  el.addEventListener('mouseenter', () => show(el.dataset.n, el.dataset.v));
+  el.addEventListener('mouseleave', () => {
+   box.innerHTML = '<span class="fe-hint">Hover any bar or ribbon for what it means.</span>'; });
+ });
+}
+/* Stacked-area CO2e over the whole year range (feCo2Data). Observed years drawn
+   solid, projected years faded, with a dotted divider between them and a marker
+   at the current slider year, so the emissions trajectory reads at a glance while
+   the Sankey shows one year's flow. Hand-rolled SVG to match the Sankey and to
+   render correctly inside the hidden sub-tab (Plotly cannot size a hidden div). */
+function feCO2Svg(series, curIdx, W, H){
+ const padL=FE_CO2_PADL, padR=FE_CO2_PADR, padT=14, padB=26, n=series.length;
+ if (!n) return '';
+ const maxV = Math.max(1e-9, ...series.map(s => s.co2.total));
+ const x = i => padL + (n<=1 ? (W-padL-padR)/2 : i*(W-padL-padR)/(n-1));
+ const y = v => (H-padB) - v/maxV*(H-padT-padB);
+ let lastObs = 0; series.forEach((s,i) => { if (!s.projected) lastObs = i; });
+ // One layer's ribbon over [a,b]: top edge = cumulative through this layer,
+ // bottom edge = cumulative of the layers beneath it, traced back.
+ const layerPath = (key, a, b) => {
+  const below = FE_CO2_LAYERS.slice(0, FE_CO2_LAYERS.findIndex(l => l.key === key));
+  const bot = i => below.reduce((acc,l) => acc + series[i].co2[l.key], 0);
+  const top = i => bot(i) + series[i].co2[key];
+  let d = '';
+  for (let i=a;i<=b;i++) d += (i===a?'M':'L') + x(i).toFixed(1)+','+y(top(i)).toFixed(1)+' ';
+  for (let i=b;i>=a;i--) d += 'L'+x(i).toFixed(1)+','+y(bot(i)).toFixed(1)+' ';
+  return d+'Z';
+ };
+ let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-height:${H}px">`;
+ [0, maxV/2, maxV].forEach(v => {
+  s += `<line class="fe-co2-grid" x1="${padL}" y1="${y(v).toFixed(1)}" x2="${W-padR}" y2="${y(v).toFixed(1)}"></line>`
+     + `<text class="fe-co2-ax" x="${padL-6}" y="${(y(v)+3).toFixed(1)}" text-anchor="end">${feFmt(v)}</text>`;
+ });
+ FE_CO2_LAYERS.forEach(l => {
+  s += `<path class="fe-co2-area" d="${layerPath(l.key,0,lastObs)}" fill="${l.c}" fill-opacity="0.82"></path>`;
+  if (lastObs < n-1)
+   s += `<path class="fe-co2-area" d="${layerPath(l.key,lastObs,n-1)}" fill="${l.c}" fill-opacity="0.42"></path>`;
+ });
+ if (lastObs < n-1){
+  const xb = x(lastObs);
+  s += `<line class="fe-co2-div" x1="${xb.toFixed(1)}" y1="${padT}" x2="${xb.toFixed(1)}" y2="${H-padB}"></line>`
+     + `<text class="fe-co2-tag" x="${(xb+4).toFixed(1)}" y="${padT+8}">modelled &#8594;</text>`;
+ }
+ const cx = x(curIdx), ctot = series[curIdx].co2.total;
+ s += `<line class="fe-co2-cur" x1="${cx.toFixed(1)}" y1="${padT}" x2="${cx.toFixed(1)}" y2="${(H-padB).toFixed(1)}"></line>`
+    + `<circle class="fe-co2-dot" cx="${cx.toFixed(1)}" cy="${y(ctot).toFixed(1)}" r="3.5"></circle>`;
+ const xlab = (i,anchor) => `<text class="fe-co2-ax" x="${x(i).toFixed(1)}" y="${H-padB+16}" text-anchor="${anchor}">${series[i].year}</text>`;
+ s += xlab(0,'start');
+ if (curIdx > 0 && curIdx < n-1) s += xlab(curIdx,'middle');
+ s += xlab(n-1,'end');
+ return s + '</svg>';
+}
+/* Redraw the emissions chart and its headline for the selected year. Reads the
+   precomputed feCo2Data so a slider tick does not recompute every year's chain. */
+function feRenderCO2(idx){
+ const chart = document.getElementById('feCo2Chart');
+ if (!chart || !feCo2Data.length) return;
+ if (idx < 0 || idx >= feCo2Data.length) idx = feCo2Data.length - 1;
+ chart.innerHTML = feCO2Svg(feCo2Data, idx, FE_CO2_W, FE_CO2_H);
+ const cur = feCo2Data[idx];
+ document.getElementById('feCo2Val').textContent = feFmt(cur.co2.total);
+ const tPerCar = cur.cars > 0 ? cur.co2.total*1e9/cur.cars/1000 : 0; // Mt*1e9 kg / cars / 1000 = t/car
+ document.getElementById('feCo2Meta').innerHTML =
+  (tPerCar >= 10 ? Math.round(tPerCar).toString() : tPerCar.toFixed(1).replace('.',',')) +
+  ' t per car &middot; ' + cur.year + (cur.projected ? ' &middot; modelled' : '');
+}
+/* Which grid-emission scenario the emissions chart uses. Default: the grid
+   decarbonises (linear to the sourced target). The alternative holds today's
+   grid — the honest worst case for the electrified side. */
+function feGridScenario(){
+ return document.querySelector('input[name="feGridScen"]:checked')?.value || 'linear';
+}
+/* Recompute the emissions series (per year, under the chosen grid scenario) and
+   refresh the CO2 legend note. Cheap enough to call on every scenario switch. */
+function feBuildCo2(){
+ const scen = feGridScenario();
+ feCo2Data = feSeries.map(s => { const c = feChain(s.row, s.year, scen);
+   return {year: s.year, projected: s.projected, co2: c.co2, cars: c.cars}; });
+ const g = k => Math.round(FE_F[k]*1000);
+ const note = scen === 'linear'
+   ? `grid decarbonises ${g('grid_co2_now')} → ${g('grid_co2_target')} gCO2e/kWh by ${FE_F.grid_co2_target_year} (IEA NZE)`
+   : `today's grid held at ${g('grid_co2_now')} gCO2e/kWh (Ember)`;
+ const leg = document.getElementById('feCo2Legend');
+ if (leg) leg.innerHTML = FE_CO2_LAYERS
+   .map(l => `<span><i style="background:${l.c}"></i>${l.lab}</span>`).join('')
+   + `<span class="fe-hint">well-to-wheel CO2e &middot; Mt per year &middot; ${note}</span>`;
+}
+/* Called by buildFleetPlot with the same inputs it used itself. Normalises each
+   country's row BEFORE summing, because the OTHERS rule is per country. */
+function buildFleetEnergy(countries, commonYears, lastObservedYear, endYear, projectFn, options){
+ const add = (acc, row) => { FE_KEYS.forEach(k => acc[k] = (acc[k] || 0) + safeNum(row[k], 0)); return acc; };
+ const blank = () => Object.fromEntries(FE_KEYS.map(k => [k, 0]));
+ const byYear = new Map();
+ countries.forEach(c => {
+  commonYears.forEach(y => {
+   const r = getObservedRow(c, y); if (!r) return;
+   if (!byYear.has(y)) byYear.set(y, {row: blank(), projected: false});
+   add(byYear.get(y).row, feNormalise(r));
+  });
+  if (endYear > lastObservedYear){
+   (projectFn(c, lastObservedYear, endYear, options) || [])
+    .filter(r => r.year > lastObservedYear)
+    .forEach(r => {
+     if (!byYear.has(r.year)) byYear.set(r.year, {row: blank(), projected: true});
+     add(byYear.get(r.year).row, feNormalise(r));
+    });
+  }
+ });
+ feSeries = [...byYear.entries()].sort((a,b) => a[0]-b[0])
+   .map(([year, v]) => ({year, row: v.row, projected: v.projected}));
+ // Precompute the emissions series once per rebuild (under the current grid
+ // scenario) so the slider stays cheap.
+ feBuildCo2();
+ const sl = document.getElementById('feSlider');
+ sl.max = Math.max(0, feSeries.length - 1);
+ if (+sl.value > +sl.max) sl.value = sl.max;
+ const legend = document.getElementById('feLegend');
+ legend.innerHTML = ['Petrol car','Diesel car','Hybrid','PHEV car','BEV car','LPG/CNG',
+   'Supply loss','Conversion loss','Work at the wheel']
+   .map(n => `<span><i style="background:${FE_C[n]}"></i>${n}</span>`).join('')
+   + '<span class="fe-hint">energy in TWh per year &middot; 1 TWh = 1 billion kWh</span>';
+ feRender(+sl.value);
+}
+document.addEventListener('DOMContentLoaded', () => {
+ const nav = document.getElementById('fleetSubnav'); if (!nav) return;
+ nav.addEventListener('click', e => {
+  const b = e.target.closest('.fsub'); if (!b) return;
+  nav.querySelectorAll('.fsub').forEach(x => x.classList.toggle('is-on', x === b));
+  const energy = b.dataset.view === 'energy';
+  document.getElementById('fleetEnergyView').hidden = !energy;
+  const plot = document.getElementById('fleetPlot');
+  if (plot) plot.parentElement.hidden = energy;
+ });
+ const sl = document.getElementById('feSlider');
+ sl?.addEventListener('input', () => feRender(+sl.value));
+ // Grid-emission scenario: recompute the emissions series and redraw (Sankey
+ // and KPIs are unaffected — the grid trajectory is CO2-only).
+ document.getElementById('feGridScen')?.addEventListener('change', () => {
+  feBuildCo2(); feRenderCO2(+(document.getElementById('feSlider')?.value || 0));
+ });
+ // Click the emissions chart to jump the whole view (Sankey + slider) to that year.
+ document.getElementById('feCo2Chart')?.addEventListener('click', e => {
+  const svg = e.currentTarget.querySelector('svg'); if (!svg || !feSeries.length) return;
+  const rect = svg.getBoundingClientRect();
+  const relX = (e.clientX - rect.left) / rect.width * FE_CO2_W;
+  const frac = (relX - FE_CO2_PADL) / (FE_CO2_W - FE_CO2_PADL - FE_CO2_PADR);
+  const idx = Math.round(Math.min(1, Math.max(0, frac)) * (feSeries.length - 1));
+  const s = document.getElementById('feSlider'); s.value = idx; feRender(idx);
+ });
+ document.getElementById('fePlay')?.addEventListener('click', function(){
+  if (feTimer){ clearInterval(feTimer); feTimer = null; this.innerHTML = '&#9654; Play'; return; }
+  this.innerHTML = '&#9632; Stop';
+  feTimer = setInterval(() => { const s = document.getElementById('feSlider');
+   s.value = (+s.value + 1) % (+s.max + 1); feRender(+s.value); }, 500);
+ });
+});
+
 function buildFleetPlot() {
   const sel = document.getElementById("fleetCountries");
   const countries = [...(sel?.selectedOptions || [])].map(o => o.value).filter(Boolean);
@@ -6684,6 +7203,15 @@ function buildFleetPlot() {
     const agg = aggregateFleetSeries(countrySeries);
     projectedSeries = agg.filter(r => r.year > lastObservedYear);
   }
+  // Second lens on the same model — see buildFleetEnergy(). It needs the
+  // PER-COUNTRY rows, not the aggregate: whether OTHERS means "the whole
+  // combustion fleet" or "LPG/CNG" is only decidable per country, and the
+  // aggregate mixes both cases together.
+  try {
+    buildFleetEnergy(countries, commonYears, lastObservedYear,
+                     projectionEnabled && endYear > lastObservedYear ? endYear : lastObservedYear,
+                     projectFn, options);
+  } catch (e) { console.warn('energy view:', e); }
 
   const combined = [...historySeries, ...projectedSeries];
   const histYears = combined.filter(r => !r.projected).map(r => r.year);
