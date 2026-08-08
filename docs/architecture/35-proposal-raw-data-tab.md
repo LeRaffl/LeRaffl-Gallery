@@ -359,6 +359,8 @@ PRs, writes nothing):
 | Duplicate periods | fatal |
 | `TOTAL` missing or ≤ 0 while bands are populated | fatal |
 | `hev_note` present but `PHEV` column also populated | fatal — the metadata and the data disagree |
+| A band at exactly zero between two populated, non-trivial neighbours | recorded in `report.json` — § 4.3b |
+| Periods flagged as smeared (§ 3.1b) | recorded, and marked in the artifact |
 | Rows with a non-zero `Unreported` band | recorded in `report.json` |
 | `time_interval` contradicts observed spacing | recorded |
 | Runs shorter than 12 periods | recorded |
@@ -366,6 +368,32 @@ PRs, writes nothing):
 Fatal-by-default matches the fetchers (Indonesia's checksum abort, Türkiye's
 three validation layers). **France fails this gate today** and needs its
 petrol/diesel carry-forward fixed before it can render.
+
+### 4.3b A band can vanish without breaking any sum
+
+`data/Colombia.csv` carries `BEV = 0.0` for `2025-07`, between **1,143** in June
+and **1,647** in August. Colombia did not sell zero BEVs that month.
+
+What makes this worth its own check: **the row still closes to `TOTAL`
+perfectly**, because `ICE` is a residual that absorbed the missing cars. Every
+check in the table above passes. The stacked bar simply drops its green band for
+one month, and nothing anywhere says why.
+
+The detector is cheap — a band at exactly zero with populated, non-trivial
+neighbours on both sides. Across all 51 `Whole` files it finds **7 candidates**:
+
+```
+Belgium    OTHERS  2022-03     258 →  0 →   171
+Belgium    OTHERS  2023-02     281 →  0 →   403
+Belgium    OTHERS  2023-09     166 →  0 →   248
+Colombia   BEV     2020-04     110 →  0 →    51   (April lockdown — may be real)
+Colombia   BEV     2023-11     287 →  0 →   493
+Colombia   BEV     2025-07   1,143 →  0 → 1,647
+Singapore  HEV     2022-12     930 →  0 →   776
+```
+
+Not all are necessarily errors, which is why this is a `report.json` flag to
+review rather than a fatal check.
 
 ### 4.4 CI wiring
 
@@ -508,18 +536,39 @@ Settled with the maintainer, 2026-08.
 | 6 | **No seasonality warnings.** A definitions panel instead — fuel-type meanings, per-country quirks, collapse notices | § 5.4 |
 | 7 | **`Unreported` is an explicit band**, never merged into `OTHERS`, never normalised away | § 2.4 |
 | 8 | **Negative residuals fail the build**, they are not clamped at render time | § 2.5 |
+| 8b | **Smearing and zero-dropout detectors** added after the mockup — both catch conditions no sum check sees | § 3.1b, § 4.3b |
 | 9 | `series/` committed to Git | § 4.2 |
 | 10 | Aggregation deferred to after the tab ships | § 6 |
 
 ---
 
-## 8 · Open item
+## 8 · Open items
+
+**A clickable mockup exists** — the real CSVs run through a ~150-line prototype
+of § 2 and § 3, rendered as the tab would render them, with all eight demo
+countries and the findings below written up inline.
 
 **France does not pass the category contract.** 11 rows where petrol + diesel
 alone exceed `TOTAL`, and 32 of 102 petrol/diesel rows repeating the previous
 row verbatim — a coarser ACEA figure carried across months. Needs a data
 decision (drop the carried values to `null` and let them show as `Unreported`, or
 re-derive from a finer source) before France can render. Tracked as phase 1b.
+
+**Two data-quality checks were added by the mockup**, both catching things the
+original rules missed: smeared values (§ 3.1b) and zero-dropouts (§ 4.3b).
+Neither is a chart problem — they are pre-existing data conditions that a
+stacked bar makes visible for the first time.
+
+**The band palette does not survive a dark plot surface.** Against the
+`#0f1525` that Builder and Compare use, Petrol `#502900` sits at 1.44:1 and
+Other `#3c2f2f` at 1.42:1 — the combustion half of the stack disappears. The
+mockup solves it by keeping the plot panel light inside the dark chrome, which
+also matches the PNGs. Separately and on any background, `Petrol #502900` vs
+`Other #3c2f2f` measures ΔE 6.4 for normal colour vision against a threshold of
+15 — they are effectively one colour, **already true in every TTM PNG showing
+both**. Moving `Other` to a neutral (e.g. `#6b7280`, ΔE 34) fixes it in one
+value, but it changes the PNGs too, so it is a maintainer call. `TTM_FUEL_COLORS`
+is untouched.
 
 ---
 
