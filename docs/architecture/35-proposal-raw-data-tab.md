@@ -436,7 +436,9 @@ with the current country, and back.
 | Timeframe | **all bars** | all / 5y / 2y |
 | Units | absolute | Toggle to relative (100 % stacked) |
 | Aggregate | off | Sums selected countries into one stack; forces Comparable mode |
-| Export | — | PNG and CSV of exactly what is plotted, plus an optional QR of the settings URL rendered into the chart |
+| Export | — | PNG and CSV of exactly what is plotted, plus a QR of the settings URL (**on by default**) |
+| Presets | — | *All* / *None* / one per region, reusing `COUNTRY_REGION` from `index.html` rather than inventing a second mapping |
+| Axes | Per chart | *Same everywhere* forces one shared time range and, in absolute units, one shared y scale across the small multiples |
 
 ### 5.3 Rendering and state
 
@@ -493,6 +495,37 @@ paying.
 
 ---
 
+### 5.6 Layout at scale
+
+Selecting a region — or all 51 — is a supported action, so the layout has to
+survive it rather than assume two or three countries.
+
+- **A combined chart sits above the small multiples** whenever more than one
+  country is selected. It is the answer to "what does the whole selection look
+  like", and it means *All* is immediately useful instead of a wall to scroll.
+- **Membership of that combined chart is constant**, never per-period. Summing
+  "whoever reports this month" makes the total ramp with coverage rather than
+  with the market. Per-period strict membership is the obvious alternative and
+  it collapses: across all 51 series it yields **one bar**, because they start
+  and end at different months and quarterly countries' windows land on four
+  months a year. So the tab starts from the full selection and drops countries
+  only while the common span is shorter than 12 bars, each time removing the one
+  whose removal buys back the most periods — which is *not* the same as removing
+  the latest starter, because the binding constraint is as often an early last
+  month or a quarterly cadence. In practice: all 51 → 47 members; Europe → 33 of
+  34 (only Georgia, quarterly, drops out); a four-country pick keeps all four.
+  Whoever is left out is named in the footnote.
+- **Above six charts the small multiples go compact** — smaller cards, three or
+  four per row, no per-chart subtitle or legend, one shared legend above the
+  grid. 51 countries then read as a wall of shapes you can scan, which is the
+  point, rather than 51 full-dress charts.
+- **The QR is drawn inside the chart's header band**, beside the tag and
+  timestamp, never over the plotting area — the data is the subject, the QR is
+  provenance. Keeping it small is only possible because the payload is kept
+  short: the selection encodes as `*` for all, `@Europe` for a region, or a
+  base-36 bitmask over the country list beyond eight picks. Spelling out 51
+  names exceeds what a version-10 code holds at all.
+
 ## 6 · Phasing
 
 | Phase | Scope | Ships alone? |
@@ -523,6 +556,10 @@ Settled with the maintainer, 2026-08.
 | 8b | **Smearing and zero-dropout detectors** added after the mockup — both catch conditions no sum check sees | § 3.1b, § 4.3b |
 | 8c | **Granularity per period drives the window control** — divided smears keep their data at multiples, copied smears are dropped | § 3.1b |
 | 8d | **Fleet-tab palette**, re-stepped where adjacent bands were not tellable apart | § 5.3 |
+| 8e | **Combined chart above the small multiples**, constant membership, drop-by-most-recovered | § 5.6 |
+| 8f | **Compact small multiples above six charts**, shared legend | § 5.6 |
+| 8g | **QR on by default**, in the header band, with a compact selection encoding | § 5.6 |
+| 8h | **"Same axes everywhere"** — shared x range, shared y in absolute units; the combined chart keeps its own scale | § 5.2 |
 | 9 | `series/` committed to Git | § 4.2 |
 | 10 | Aggregation deferred to after the tab ships | § 6 |
 
