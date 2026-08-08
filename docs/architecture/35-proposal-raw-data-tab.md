@@ -132,42 +132,22 @@ column across members where half of them do not report one silently under-counts
 petrol and inflates the residual. This is the Fleet-chart failure mode, and the
 collapse rule is what prevents it.
 
-### 2.4 The residual: 16 % of rows do not close
+### 2.4 The residual: a period either adds up or is not served
 
-The measurement that decides the rest of the design. Across the 51 `Whole`
-files, summing each row's resolved bands and comparing to `TOTAL`:
+Across the 51 `Whole` files, summing each row's resolved bands and comparing to
+`TOTAL`: **5,779 of 6,849 rows close to within 0.5 %.** The rest are mostly
+early history where `BEV` was collected years before `PETROL`/`DIESEL` —
+`data/Germany.csv` 2012-07 sums to 0.4 % of `TOTAL`.
 
-**5 779 of 6 849 rows close to within 0.5 %. 1 070 do not.**
+An earlier draft gave the gap its own hatched `Unreported` band. **Dropped** —
+it put a validation artifact in front of a reader who came to look at
+registrations, and it is the kind of thing that makes a simple chart look
+complicated. A stacked bar has to add up; a period that cannot is not served.
 
-22 files have rows that do not close. The pattern is almost entirely
-**early history**: `BEV` was collected first, `PETROL`/`DIESEL` start years
-later. `data/Germany.csv` 2012-07 sums to 0.4 % of `TOTAL` — the row knows the
-BEV count and the market total and nothing in between. That is not a bug; it is
-operating principle 6 (wide-but-sparse CSVs, columns `NA` when not reported)
-working as designed.
-
-But it means a naive stacked bar for those periods draws a sliver of BEV and
-99 % of nothing, or — worse — normalises to the reported sum and shows Germany
-2012 as **100 % BEV**.
-
-Three candidate policies:
-
-1. Hide periods that don't close. Loses a decade of real BEV history.
-2. Normalise to the sum of reported bands. Assumes the unreported mix matches
-   the reported mix. For Germany 2012 that assumption produces 100 % BEV. Never.
-3. **Make the gap a band.**
-
-**Rule 4 — the stack always carries an explicit `Unreported` band, computed as
-`TOTAL − Σ resolved bands`, rendered hatched/grey, and never merged into
-`OTHERS`.** `OTHERS` is a *reported* category (LPG, CNG, fuel-cell); `Unreported`
-is the absence of a measurement. Merging them would be the same lie in a
-different colour.
-
-This turns the problem into a feature: absolute and relative stacks both close to
-`TOTAL` by construction, the sparse early history stays visible and honestly
-labelled, and where the row does close (the 84 % case) the band is zero and
-nothing changes. In relative mode the denominator is always `TOTAL` — never the
-sum of reported bands.
+**Rule 4 — a period whose bands fall short of, or exceed, `TOTAL` is not
+drawn.** The chart carries one quiet line instead: *"Germany shown from 2017-01;
+the CSV holds back to 2012-01 (60 periods not usable at this quality)."* The
+data stays in `data/` and on the source pages, where coverage belongs.
 
 ### 2.5 A negative residual is a data error, and one country has them
 
@@ -453,19 +433,23 @@ with the current country, and back.
 |---|---|---|
 | Country | Germany | Multi-select; a second selection engages Comparable mode (§ 2.3) |
 | Window `N` | 1 period | Slider 1–12 (quarterly countries: multiples of a quarter), presets `1 / 3 / 12` |
-| Timeframe | last 24 periods | 12 / 24 / 36 / 60 / all |
+| Timeframe | **all bars** | all / 5y / 2y |
 | Units | absolute | Toggle to relative (100 % stacked) |
 | Aggregate | off | Sums selected countries into one stack; forces Comparable mode |
-| Bands | all | Toggle individual bands off; hidden bands fold into `Unreported` rather than shrinking the bar |
+| Export | — | PNG and CSV of exactly what is plotted, plus an optional QR of the settings URL rendered into the chart |
 
 ### 5.3 Rendering and state
 
 - **Plotly** stacked bar (`barmode: 'stack'` / `'relative'`), via the existing
   `ensurePlotly()` + `hashchange` lazy-init pattern (`loadFleetWhenActive()` is
   the template). Dark layout object and `@LeRaffl` annotation from Compare.
-- **Band colours from `R/plots.R:TTM_FUEL_COLORS`**, so a bar on this tab and a
-  bar on the TTM PNG of the same country are the same colour. Two artifacts
-  showing the same data in different palettes is an own goal.
+- **Band colours from the Fleet tab's palette** (`FE_C` in `index.html`), which
+  is already built for the dark surface Builder and Compare use. Two pairs had
+  to be re-stepped to be tellable apart as adjacent bands — BEV↔PHEV measured
+  ΔE 12.5 and Diesel↔Petrol ΔE 9.1 against a threshold of 15. After re-stepping,
+  both band sets pass colour-vision separation, normal-vision separation and
+  contrast. `ICE` reuses the diesel brown: a country reports one or the other,
+  never both in the same stack.
 - **Run blocks** (§ 3.2) render as gaps in the category axis, not as bridged bars.
 - **Prefix sums per run**, so a window is two lookups and dragging the slider is
   O(1) per bar. Debounce with the existing helper.
@@ -534,9 +518,11 @@ Settled with the maintainer, 2026-08.
 | 4 | **Absolute and relative** both ship; aggregation optional | § 5.2 |
 | 5 | **Tab named "Raw Data"**, own tab, group renamed "DIY Curves" → "DIY Charts", Builder association via cross-links | § 5.1 |
 | 6 | **No seasonality warnings.** A definitions panel instead — fuel-type meanings, per-country quirks, collapse notices | § 5.4 |
-| 7 | **`Unreported` is an explicit band**, never merged into `OTHERS`, never normalised away | § 2.4 |
+| 7 | **A period that does not add up is not drawn**, and the chart says so in one line — no `Unreported` band, no validation UI in front of the reader | § 2.4 |
 | 8 | **Negative residuals fail the build**, they are not clamped at render time | § 2.5 |
 | 8b | **Smearing and zero-dropout detectors** added after the mockup — both catch conditions no sum check sees | § 3.1b, § 4.3b |
+| 8c | **Granularity per period drives the window control** — divided smears keep their data at multiples, copied smears are dropped | § 3.1b |
+| 8d | **Fleet-tab palette**, re-stepped where adjacent bands were not tellable apart | § 5.3 |
 | 9 | `series/` committed to Git | § 4.2 |
 | 10 | Aggregation deferred to after the tab ships | § 6 |
 
