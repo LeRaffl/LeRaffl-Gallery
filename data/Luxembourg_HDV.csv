@@ -197,3 +197,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-04,monthly,HDV,lustat.statec.lu,7.0,0.0,0.0,0.0,86.0,0.0,93.0,DF_D6122 OPERATION=N
 2026-05,monthly,HDV,lustat.statec.lu,2.0,0.0,0.0,0.0,98.0,0.0,100.0,DF_D6122 OPERATION=N
 2026-06,monthly,HDV,lustat.statec.lu,6.0,0.0,0.0,0.0,95.0,0.0,101.0,DF_D6122 OPERATION=N
+2026-07,monthly,HDV,lustat.statec.lu,18.0,0.0,0.0,0.0,102.0,0.0,120.0,DF_D6122 OPERATION=N
