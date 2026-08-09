@@ -610,6 +610,45 @@ usable months to 82 bars — those 5 rows cost 51 bars. This is the mechanism
 behind every "why is there a hole there" question, and it is worth saying in the
 footnote rather than leaving the reader to infer it.
 
+## 7c · Which rules earn their keep
+
+The rule set grew one case at a time, so it was worth checking empirically rather
+than by feel: each rule was switched off in turn and the output diffed against
+the full run.
+
+| Rule switched off | Effect |
+|---|---|
+| Materiality gate (repeat ≥ 1 % of `TOTAL`) | **−133 periods**, 28 countries |
+| Reconciliation tolerance 3 % → 0.5 % | **−73 periods**, 7 countries |
+| `OTHERS` > 80 % | +17 periods, all Japan — and all of them 99 % grey |
+| copied-vs-divided distinction | 0 periods, but **values change in 16 countries** (Belgium et al. come out 3× high) |
+| Band folding | 0 periods, but the definition cliff returns in 6 series |
+| Combined-hybrid relabel | 0 periods, but 5 sources stop saying their `HEV` also contains `PHEV` |
+| Snap to 3/12 instead of the raw run length | ±1 period — kept anyway, because it keeps granularity on real calendar cycles instead of inventing a 7-month one |
+| **EV-only rows (exact-zero combustion side)** | **no effect at all** |
+
+The last one is the interesting entry: the rule was written for Hungary 2021 Q1,
+and the maintainer has since corrected that data at source, so it now guards
+nothing. It is kept as insurance — the failure it catches (a bar reading ~100 %
+EV) is both plausible from a fetcher bug and invisible once rendered — but it
+should be understood as insurance, not as load-bearing.
+
+Four things were removed outright as provably dead, with the output verified
+byte-identical before and after:
+
+- **`hev_note` plumbing** — parsed out of ~40 source docs plus the stub registry
+  on every build, emitted into every series file, read by nothing. The
+  combined-hybrid case is already carried by the band label.
+- **The post-aggregation `TOTAL > 0` filter** — reconciliation guarantees
+  `Σ bands ≥ 0.97 · TOTAL > 0`, and `TOTAL` after aggregation *is* `Σ bands`, so
+  the branch could never fire.
+- **Two rejection counters** kept apart and then only ever added together.
+- **The `anchor` parameter** threaded through `bars()` and `combined()` — the
+  window-alignment test that read it was replaced by the cycle model and the
+  argument was never deleted.
+
+Net: 26 lines out of the generator, no behaviour change.
+
 ## 8 · Open items
 
 **A clickable mockup exists** — the real CSVs run through a ~150-line prototype
