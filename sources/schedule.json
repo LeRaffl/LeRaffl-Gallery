@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-08T05:23:17Z",
- "today": "2026-08-08",
+ "generated": "2026-08-09T05:31:36Z",
+ "today": "2026-08-09",
  "countries": [
   {
    "country": "Albania",
@@ -102,20 +102,20 @@
    "source_url": "https://www.fcai.com.au/",
    "cadence_text": "transcribed by hand each month, once VFACTS publishes",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-07-08",
+   "last_render": "2026-08-08",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2015-06",
-     "rows": 77,
+     "rows": 78,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2060,11 +2060,11 @@
    "source_url": "https://lustat.statec.lu/",
    "cadence_text": "daily cron, 1st–15th, 06:45 UTC (STATEC publishes around the 6th)",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2104,29 +2104,29 @@
     ],
     "workflow": ".github/workflows/fetch-luxembourg.yml"
    },
-   "last_render": "2026-07-11",
+   "last_render": "2026-08-08",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2439,10 +2439,10 @@
    "source_url": "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/",
    "cadence_text": "entered by hand once the Ministry publishes, usually the 5th–10th of the following month",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": {
@@ -2477,13 +2477,13 @@
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
-   "last_render": "2026-07-08",
+   "last_render": "2026-08-08",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2012-01",
-     "rows": 174,
+     "rows": 175,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3523,11 +3523,11 @@
    "source_url": "https://www.acau.com.uy/",
    "cadence_text": "daily from the 1st of the month, self-throttling per variant",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3583,37 +3583,37 @@
     ],
     "workflow": ".github/workflows/fetch-uruguay.yml"
    },
-   "last_render": "2026-07-08",
+   "last_render": "2026-08-08",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2021-06",
-     "rows": 44,
+     "rows": 45,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024-01",
-     "rows": 18,
+     "rows": 19,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024-01",
-     "rows": 18,
+     "rows": 19,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024-02",
-     "rows": 17,
+     "rows": 18,
      "cadence": "monthly",
      "in_repo": true
     }
