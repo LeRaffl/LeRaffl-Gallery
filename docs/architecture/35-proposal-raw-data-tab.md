@@ -90,6 +90,28 @@ aggregate-ICE and `PETROL`/`DIESEL`/`FLEXFUEL` are ignored. Otherwise the row is
 split-ICE. Both populated and non-zero in the same row is a validation error, not
 something to average over.
 
+### 2.1b A reported zero is a measurement, not a blank
+
+The CSVs are wide-but-sparse: an empty cell means "this source did not report
+this". A cell holding `0` means something different — the source reported, and
+the answer was none. Early PHEV years are full of honest zeros.
+
+Treating the two the same is the single most expensive mistake in this pipeline.
+It made a row look like it was **missing a category**, which blocks the residual
+rule of § 3.1bc: Denmark says `PHEV=0` for May 2014 and means it, and the month
+fell out of an otherwise continuous year. Distinguishing them recovered **48
+periods across 6 countries** — Portugal +24, Iceland +12, Austria +6, Poland +3 —
+and cut the total held back from 407 to 260.
+
+**Rule 1b — an explicit `0` in an electrified column is a value; only an empty
+cell is unreported.** The asymmetry is deliberate and it is not a hack: a zero in
+`BEV`, `PHEV`, `HEV` or `MHEV` is an ordinary observation for most of the last
+fifteen years, while a zero in `PETROL` or `DIESEL` never is — no market
+registered thousands of cars and none of them petrol. So combustion zeros stay
+"unreported" and let the residual rule fill them (Iceland 2018 writes
+`PETROL=0, DIESEL=0` against a `TOTAL` of 1,623 and plainly means "not broken
+out"), and electrified zeros are believed.
+
 ### 2.2 `HEV` does not mean the same thing everywhere
 
 Some sources report a **single combined hybrid bucket** — HEV + PHEV (+ MHEV)
@@ -211,6 +233,42 @@ bars simply stop and resume. Windows never span a gap: a window needs `N`
 consecutive periods within one run, otherwise it produces no bar.
 `build_source_pages.py:contiguous_runs()` already computes these runs for the
 source-page coverage bars; second consumer.
+
+### 3.2b A single row can already *be* a whole cycle
+
+§ 3.1b covers the annual figure spread across twelve rows. The same practice has
+a second shape, and it needs the opposite treatment: the annual figure written
+onto **one** row, with the rest of the year simply absent. Romania is one row per
+June from 2010 to 2017 inside an otherwise monthly file; Greece has a single 2015
+row; Uruguay two; Australia and Canada open the same way.
+
+Read as a month, that row is a spike of the wrong order of magnitude — Romania
+2017 landed at **106,873 a month against 10,910 either side, a factor of ten**,
+which is exactly the "Balkenhöhen kommen mir nicht richtig vor" the maintainer
+reported. Read as a hole, twelve years of Romania vanish.
+
+**Rule 8 — a row labelled `yearly` (or `quarterly`) that is the only row in its
+calendar year (quarter) stands for that whole cycle, and is drawn one cycle
+wide at the cycle's end.**
+
+The discriminator is the maintainer's own `time_interval` column, and it is the
+only signal here that needs no threshold. The two alternatives both fail on real
+data:
+
+- **Magnitude alone** ("a row 12× its neighbours is annual") flags Ireland's
+  every January/February/March/July and the UK's every March/September — real
+  plate-change peaks, not annual figures. A detector tuned to 2.2–4.5× and
+  7–18× returned 92 rows in 14 countries, and most of them were seasonality.
+- **Spacing alone** ("rows 12 months apart are annual") needs a run to establish
+  a cadence, so it misses Greece's single row and Uruguay's pair, and it cannot
+  tell a yearly stamp from a hole — Singapore's 2019 is one surviving month
+  inside a monthly file, not an annual figure.
+
+Trusting the label only when it is the *whole story for that cycle* is what keeps
+it safe. Singapore's 2018 is labelled `yearly` for twelve rows of genuinely
+monthly totals; 2019-01, its one surviving row, is labelled `monthly`. Neither
+is touched by this rule. It fires on **108 rows in 7 countries**, all verified
+against the files, and Romania and Greece go from 8 dropped periods each to zero.
 
 ### 3.3 Quarterly-native countries are in, at quarterly resolution
 
@@ -457,6 +515,13 @@ with the current country, and back.
   contrast. `ICE` reuses the diesel brown: a country reports one or the other,
   never both in the same stack.
 - **Run blocks** (§ 3.2) render as gaps in the category axis, not as bridged bars.
+- **A bar sits over the months it is drawn as wide as** — not over its end month.
+  Centring on the end period is correct for a monthly bar and wrong for every
+  coarse one: the mockup drew Romania's 2010 bar from mid-2010 to mid-2011, half
+  a cycle late, and the left-edge clamp then shoved it back on top of the 2011
+  bar so the two overlapped in a visible pale seam. Every yearly bar in the tab
+  was a half-year out of place, and every quarterly bar six weeks. The centre is
+  `to − (width_in_months − 1) / 2`, which is a no-op at monthly resolution.
 - **Prefix sums per run**, so a window is two lookups and dragging the slider is
   O(1) per bar. Debounce with the existing helper.
 - **`SERIES_CACHE`** keyed by slug, same shape as `COMPARE_OBS_CACHE`.
@@ -631,6 +696,9 @@ Settled with the maintainer, 2026-08.
 | 8f | **Compact small multiples above six charts**, shared legend | § 5.6 |
 | 8g | **QR on by default**, in the header band, with a compact selection encoding | § 5.6 |
 | 8h | **"Same axes everywhere"** — shared x range, shared y in absolute units; the combined chart keeps its own scale | § 5.2 |
+| 8i | **A reported `0` in an electrified column is a value**, an empty cell is not; combustion zeros stay unreported | § 2.1b |
+| 8j | **A row alone in its cycle and labelled `yearly`/`quarterly` IS that cycle**, drawn one cycle wide | § 3.2b |
+| 8k | **Bars are centred on the window they cover**, not on their end period | § 5.3 |
 | 9 | `series/` committed to Git | § 4.2 |
 | 10 | Aggregation deferred to after the tab ships | § 6 |
 
@@ -639,14 +707,15 @@ Settled with the maintainer, 2026-08.
 ## 7b · Why a chart has holes in it
 
 Worth writing down, because the gaps are the first thing anyone asks about and
-there are four unrelated causes behind them:
+there are five unrelated causes behind them:
 
 | Cause | Looks like | Examples |
 |---|---|---|
 | **`OTHERS` swallowing the market** — the source knows a few fuels and the total, and dumps the rest in the residual | a wall of one colour, or a hard gap once refused | Japan 2012–2019: `BEV`/`PHEV` as annual/12, petrol/diesel/HEV empty, **99.5 %** in `OTHERS` |
-| **Coarse columns** — a quarterly or annual figure spread across finer rows | a wide bar covering the cycle, labelled for it | Belgium, Bulgaria, Hungary, Romania, Poland — all now continuous |
+| **Coarse columns** — a quarterly or annual figure spread across finer rows, or written onto one row | a wide bar covering the cycle, labelled for it | Belgium, Bulgaria, Hungary, Poland (spread); Romania 2010–2017, Greece 2015, Australia, Canada, Uruguay (one row per cycle) — all now continuous |
 | **Components don't reconcile with `TOTAL`** | a hard gap at every window | Czechia 2016–2021: 2011–2015 reconciles 12/12 every year, 2016–2021 never (±1–2 %), 2022 onward clean again — and the `HEV` column is empty for exactly the broken span |
-| **Genuinely sparse or missing rows** | a hard gap | Türkiye pre-2020 (only `BEV` + `Hybrid`, no petrol/diesel), Portugal 2010–2016 (`BEV` only), Malta (no rows at all for 2025-07 … 2026-03), Romania (yearly until 2018) |
+| **Genuinely sparse or missing rows** | a hard gap | Türkiye pre-2020 (only `BEV` + `Hybrid`, no petrol/diesel), Malta (no rows at all for 2025-07 … 2026-03), Singapore 2019 (one row for the whole year), Australia 2020-01…06 (absent) |
+| **A category the source only started reporting later** | a hard gap that ends the month a column appears | France (`HEV` from 2021, `PETROL`/`DIESEL` from 2018), Uruguay (`HEV` from 2023) — the residual rule refuses rather than fold hybrids into ICE |
 
 `OTHERS` is a *reported* category ("none of the above" — LPG, CNG, fuel-cell),
 so it is drawn like any other band. But when it carries almost the whole market
@@ -710,11 +779,39 @@ Net: 26 lines out of the generator, no behaviour change.
 of § 2 and § 3, rendered as the tab would render them, with all eight demo
 countries and the findings below written up inline.
 
-**France does not pass the category contract.** 11 rows where petrol + diesel
-alone exceed `TOTAL`, and 32 of 102 petrol/diesel rows repeating the previous
-row verbatim — a coarser ACEA figure carried across months. Needs a data
-decision (drop the carried values to `null` and let them show as `Unreported`, or
-re-derive from a finer source) before France can render. Tracked as phase 1b.
+### 8.1 What the current data still holds back
+
+Rebuilt against master after the maintainer's cleanup: **51 countries, 5,843
+periods drawable, 260 held back, 222 coarser observations recovered at their own
+granularity.** 39 of 51 files now come out complete. What is left is data work,
+not chart work, and it is worth naming precisely because each item has a
+different answer.
+
+| Country | Held back | What is actually in the file |
+|---|---|---|
+| **Japan** | 96 | 2012–2019 reports `BEV`, `PHEV` and the market total and nothing else — 99.5 % lands in `OTHERS`. There is no mix to stack; the chart correctly starts at 2020-01. Only a finer source fixes this. |
+| **France** | 72 | Two distinct defects. 2015–2017 knows only `BEV`/`PHEV` (no combustion columns at all, and `HEV` appears in 2021, so the residual rule of § 3.1bc cannot fire without folding France's hybrid band away for the years that have one). 2018–2020 is worse: `PETROL`/`DIESEL`/`OTHERS` are **smoothly interpolated** against real monthly `TOTAL`s — 2018-03 misses by −22 %, 2018-01 by +13 %. Interpolation, unlike copying, defeats the equal-run detector of § 3.1b, so nothing recovers it. |
+| **Portugal** | 44 | Confirmed as the maintainer described: quarterly figures re-simulated as monthly. 2010–2017 now renders (the § 2.1b fix); 2018–2020 does not. |
+| **China** | 7 | 2020 `BEV`/`PHEV` are one figure spread over Jan and Mar–Sep, with February hand-corrected to the real COVID numbers. The correction breaks the equal run, so the year cannot be reassembled. Writing 2020 as twelve real monthly rows — or as one annual row — both work. |
+| Türkiye, Slovenia, Singapore, Poland, Lithuania, Croatia | 6 each | Mostly single seams; **Slovenia 2015–2017 is a genuine contradiction** — `PETROL + DIESEL` is 64,018 against a `TOTAL` of 53,367 for 2016, and 60,069 against 72,710 for 2015. One of the two series is measuring a different population. |
+| Iceland | 3 | 2019-03 and 2019-04 miss `TOTAL` by 3.3 % and 6.7 % — the synthesised HEV/petrol/diesel split does not tie out. |
+| Uruguay | 2 | 2021 and 2022 are annual rows carrying only `BEV`; `HEV` starts in 2023, so the residual rule holds off rather than fold two years of hybrids into ICE. |
+
+Two smaller items, both cosmetic in the file rather than in the chart:
+
+- **`Norway.csv` 2008-11 has `OTHERS = -1`.** It survives every check because it
+  is one unit; it should not exist.
+- **`Singapore.csv`'s `time_interval` is unreliable in both directions** — 2018
+  is labelled `yearly` for twelve rows of real monthly totals, 2020 `quarterly`
+  for twelve more. Nothing depends on it there (§ 3.2 reads spacing, not
+  labels), but § 3.2b now does trust the label in the one case where it is
+  alone in its cycle, so it is worth correcting. Separately, **2019 has exactly
+  one row** (2019-01); the other eleven months are absent.
+
+The audit that produced this list checks three things over the built series and
+now comes back clean on the first two: level continuity at every granularity
+seam (**0 suspicious seams**, down from 4), bands outside 0–100 % (**1**, the
+Norway unit above), and freshness (**48 of 51 current to 2026-06 or later**).
 
 **Two data-quality checks were added by the mockup**, both catching things the
 original rules missed: smeared values (§ 3.1b) and zero-dropouts (§ 4.3b).
