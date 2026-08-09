@@ -130,7 +130,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2021-09,monthly,Whole,ACEA / sda-cia.cz,221.0,270.0,,10018.0,3035.0,402.0,14165.0,
 2021-10,monthly,Whole,ACEA / sda-cia.cz,196.0,234.0,,8838.0,2780.0,472.0,12670.0,
 2021-11,monthly,Whole,ACEA / sda-cia.cz,292.0,214.0,,11059.0,4010.0,405.0,16174.0,
-2021-12,monthly,Whole,ACEA / sda-cia.cz,333.0,309.0,,10516.0,4054.0,482.0,16208.0,
+2021-12,monthly,Whole,SDA,333,309,,10860,4054,652,16208,petrol + el and diesel + el are both PHEV as per alternative fuel observatory https://www.sda-cia.cz/repository-volnedostupna?lang=CZ
 2022-01,monthly,Whole,ACEA / sda-cia.cz,187.0,271.0,2125.0,8505.0,4714.0,461.0,16263.0,
 2022-02,monthly,Whole,ACEA / sda-cia.cz,309.0,218.0,2108.0,7954.0,3246.0,390.0,14225.0,
 2022-03,monthly,Whole,ACEA / sda-cia.cz,289.0,213.0,2485.0,9749.0,3736.0,431.0,16903.0,
