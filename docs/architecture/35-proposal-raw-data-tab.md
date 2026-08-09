@@ -515,6 +515,13 @@ survive it rather than assume two or three countries.
   month or a quarterly cadence. In practice: all 51 → 47 members; Europe → 33 of
   34 (only Georgia, quarterly, drops out); a four-country pick keeps all four.
   Whoever is left out is named in the footnote.
+- **A window finer than the data still draws.** When `N` is smaller than an
+  observation's granularity, the tab does not leave a hole: it draws that
+  observation at its own size — one bar spanning the cycle, labelled for the year
+  or quarter rather than a month. In share mode that is exactly the cycle's mix;
+  in absolute mode the height is scaled to the window length so it stays
+  comparable to the monthly bars beside it, and the tooltip says so. This is what
+  makes T1M usable across the whole 51-country wall.
 - **Bar width comes from the spacing to the neighbouring bar**, not from a fixed
   step, so a bar standing for a whole year looks a year wide next to monthly bars
   a month wide. Without this a coarse stretch renders as hairlines with space
@@ -578,8 +585,7 @@ there are four unrelated causes behind them:
 | Cause | Looks like | Examples |
 |---|---|---|
 | **`OTHERS` swallowing the market** — the source knows a few fuels and the total, and dumps the rest in the residual | a wall of one colour, or a hard gap once refused | Japan 2012–2019: `BEV`/`PHEV` as annual/12, petrol/diesel/HEV empty, **99.5 %** in `OTHERS` |
-| **Whole-row duplicates** — a quarterly figure stamped into three monthly rows | history that only appears at T3M and above, drawn as widely spaced bars | Belgium, Bulgaria, Estonia, Slovakia |
-| **Partly-stale rows** — some columns frozen, others moving | a hard gap at every window | Hungary (45 rows), Portugal (54) |
+| **Coarse columns** — a quarterly or annual figure spread across finer rows | a wide bar covering the cycle, labelled for it | Belgium, Bulgaria, Hungary, Romania, Poland — all now continuous |
 | **Components don't reconcile with `TOTAL`** | a hard gap at every window | Czechia 2016–2021: 2011–2015 reconciles 12/12 every year, 2016–2021 never (±1–2 %), 2022 onward clean again — and the `HEV` column is empty for exactly the broken span |
 | **Genuinely sparse or missing rows** | a hard gap | Türkiye pre-2020 (only `BEV` + `Hybrid`, no petrol/diesel), Portugal 2010–2016 (`BEV` only), Malta (no rows at all for 2025-07 … 2026-03), Romania (yearly until 2018) |
 
