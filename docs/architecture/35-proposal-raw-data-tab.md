@@ -515,6 +515,11 @@ survive it rather than assume two or three countries.
   month or a quarterly cadence. In practice: all 51 → 47 members; Europe → 33 of
   34 (only Georgia, quarterly, drops out); a four-country pick keeps all four.
   Whoever is left out is named in the footnote.
+- **Bar width comes from the spacing to the neighbouring bar**, not from a fixed
+  step, so a bar standing for a whole year looks a year wide next to monthly bars
+  a month wide. Without this a coarse stretch renders as hairlines with space
+  between them and reads as *missing* data rather than *coarser* data — which is
+  exactly the wrong conclusion.
 - **Above six charts the small multiples go compact** — smaller cards, three or
   four per row, no per-chart subtitle or legend, one shared legend above the
   grid. 51 countries then read as a wall of shapes you can scan, which is the
@@ -572,10 +577,21 @@ there are four unrelated causes behind them:
 
 | Cause | Looks like | Examples |
 |---|---|---|
+| **`OTHERS` swallowing the market** — the source knows a few fuels and the total, and dumps the rest in the residual | a wall of one colour, or a hard gap once refused | Japan 2012–2019: `BEV`/`PHEV` as annual/12, petrol/diesel/HEV empty, **99.5 %** in `OTHERS` |
 | **Whole-row duplicates** — a quarterly figure stamped into three monthly rows | history that only appears at T3M and above, drawn as widely spaced bars | Belgium, Bulgaria, Estonia, Slovakia |
 | **Partly-stale rows** — some columns frozen, others moving | a hard gap at every window | Hungary (45 rows), Portugal (54) |
 | **Components don't reconcile with `TOTAL`** | a hard gap at every window | Czechia 2016–2021: 2011–2015 reconciles 12/12 every year, 2016–2021 never (±1–2 %), 2022 onward clean again — and the `HEV` column is empty for exactly the broken span |
 | **Genuinely sparse or missing rows** | a hard gap | Türkiye pre-2020 (only `BEV` + `Hybrid`, no petrol/diesel), Portugal 2010–2016 (`BEV` only), Malta (no rows at all for 2025-07 … 2026-03), Romania (yearly until 2018) |
+
+`OTHERS` is a *reported* category ("none of the above" — LPG, CNG, fuel-cell),
+so it is drawn like any other band. But when it carries almost the whole market
+it is not a fuel mix, it is everything the source did not break out, and a stack
+of 99 % "Other" is a faithful rendering of the file and a useless chart. **Rule:
+a period whose `OTHERS` exceeds 80 % of `TOTAL` is not served.** The threshold is
+deliberately far above the only other series that come near it — Singapore and
+Malta touch ~52 % in a handful of months and are plausible fuel mixes. Japan
+loses 41 periods to this and starts at 2020-01 instead of opening with eight
+years of grey.
 
 And one amplifier that makes any of them look far worse than it is: **at T12M a
 bar needs twelve consecutive usable months, so a single unusable row blanks a
