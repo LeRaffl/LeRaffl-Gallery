@@ -565,6 +565,25 @@ Settled with the maintainer, 2026-08.
 
 ---
 
+## 7b · Why a chart has holes in it
+
+Worth writing down, because the gaps are the first thing anyone asks about and
+there are four unrelated causes behind them:
+
+| Cause | Looks like | Examples |
+|---|---|---|
+| **Whole-row duplicates** — a quarterly figure stamped into three monthly rows | history that only appears at T3M and above, drawn as widely spaced bars | Belgium, Bulgaria, Estonia, Slovakia |
+| **Partly-stale rows** — some columns frozen, others moving | a hard gap at every window | Hungary (45 rows), Portugal (54) |
+| **Components don't reconcile with `TOTAL`** | a hard gap at every window | Czechia 2016–2021: 2011–2015 reconciles 12/12 every year, 2016–2021 never (±1–2 %), 2022 onward clean again — and the `HEV` column is empty for exactly the broken span |
+| **Genuinely sparse or missing rows** | a hard gap | Türkiye pre-2020 (only `BEV` + `Hybrid`, no petrol/diesel), Portugal 2010–2016 (`BEV` only), Malta (no rows at all for 2025-07 … 2026-03), Romania (yearly until 2018) |
+
+And one amplifier that makes any of them look far worse than it is: **at T12M a
+bar needs twelve consecutive usable months, so a single unusable row blanks a
+whole year of bars.** Latvia loses only 5 scattered rows and drops from 133
+usable months to 82 bars — those 5 rows cost 51 bars. This is the mechanism
+behind every "why is there a hole there" question, and it is worth saying in the
+footnote rather than leaving the reader to infer it.
+
 ## 8 · Open items
 
 **A clickable mockup exists** — the real CSVs run through a ~150-line prototype
