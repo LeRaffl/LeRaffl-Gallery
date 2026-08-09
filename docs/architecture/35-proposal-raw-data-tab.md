@@ -144,8 +144,12 @@ it put a validation artifact in front of a reader who came to look at
 registrations, and it is the kind of thing that makes a simple chart look
 complicated. A stacked bar has to add up; a period that cannot is not served.
 
-**Rule 4 — a period whose bands fall short of, or exceed, `TOTAL` is not
-drawn.** The chart carries one quiet line instead: *"Germany shown from 2017-01;
+**Rule 4 — a period whose bands miss `TOTAL` by more than 3 % is not drawn.**
+The tolerance is a rendering question, not an audit one: the stack is drawn *from
+the bands*, so what matters is whether the reported mix is complete enough to be
+a mix. A 1–2 % disagreement is invisible in a bar; a row missing whole categories
+still fails by a mile. At the original 0.5 % this rule alone cost Czechia its
+entire 2016–2021 stretch — 62 periods — for discrepancies no reader could see. The chart carries one quiet line instead: *"Germany shown from 2017-01;
 the CSV holds back to 2012-01 (60 periods not usable at this quality)."* The
 data stays in `data/` and on the source pages, where coverage belongs.
 
