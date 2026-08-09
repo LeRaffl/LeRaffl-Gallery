@@ -98,7 +98,7 @@ the answer was none. Early PHEV years are full of honest zeros.
 
 Treating the two the same is the single most expensive mistake in this pipeline.
 It made a row look like it was **missing a category**, which blocks the residual
-rule of § 3.1bc: Denmark says `PHEV=0` for May 2014 and means it, and the month
+rule of § 4.2 Stage 3: Denmark says `PHEV=0` for May 2014 and means it, and the month
 fell out of an otherwise continuous year. Distinguishing them recovered **48
 periods across 6 countries** — Portugal +24, Iceland +12, Austria +6, Poland +3 —
 and cut the total held back from 407 to 260.
@@ -236,7 +236,7 @@ source-page coverage bars; second consumer.
 
 ### 3.2b A single row can already *be* a whole cycle
 
-§ 3.1b covers the annual figure spread across twelve rows. The same practice has
+§ 4.2 Stage 4 covers the annual figure spread across twelve rows. The same practice has
 a second shape, and it needs the opposite treatment: the annual figure written
 onto **one** row, with the rest of the year simply absent. Romania is one row per
 June from 2010 to 2017 inside an otherwise monthly file; Greece has a single 2015
@@ -290,154 +290,313 @@ The Compare tab already fetches `data/<Country>.csv` client-side
 (`fetchCompareObs()`, `COMPARE_OBS_CACHE`), so this is a real option. The reason
 not to: **§ 2 and § 3 are the feature**, and they are not chart code.
 
-Per-row family resolution, the combined-hybrid-bucket lookup, cadence inference,
-contiguous runs, the residual computation and its sign check — that is a body of
-rules with documented exceptions per country. In the browser it would be a
-`switch` on country name inside a render path, re-run on every slider drag, with
-no test harness and no way to fail loudly. At build time it runs once, has a
-`--check` mode, and blocks a bad merge.
+Per-row family resolution, the combined-hybrid lookup, per-column granularity,
+cycle recovery, band folding and reconciliation are a body of rules with
+documented exceptions per country. In the browser that is a `switch` on country
+name inside a render path, re-run on every slider drag, with no test harness and
+no way to fail loudly. At build time it runs once, has a `--check` mode, and
+blocks a bad merge.
 
 `data/` is an editor-friendly *source* format (principle 6). This adds a serving
-format. It does not replace or duplicate the CSVs — it is a projection of them.
+format — a projection of the CSVs, not a replacement.
 
-### 4.2 The artifact: `series/`
-
-Committed to the repo like `manifest.json` and `sources/` (principle 1).
-
-```
-series/
-  index.json          # catalogue + per-country capabilities
-  <slug>.json         # one per country, 51 files
-  report.json         # validation output from the last build
-```
-
-**`series/index.json`** — enough to build the selector and the collapse logic
-without fetching a single series file:
-
-```json
-{
-  "generated": "2026-08-08",
-  "definitions": {
-    "BEV":    "Battery-electric. Plug-in, no combustion engine.",
-    "PHEV":   "Plug-in hybrid.",
-    "HEV":    "Full hybrid, not plug-in.",
-    "Hybrid": "Combined hybrid bucket — this source does not separate PHEV from HEV.",
-    "ICE":    "Combustion, not separable into petrol/diesel by this source.",
-    "OTHERS": "Reported, but none of the above — LPG, CNG, fuel-cell, …",
-    "Unreported": "TOTAL minus everything the source reported for this period. Not a fuel type."
-  },
-  "countries": [
-    {
-      "slug": "germany", "country": "Germany", "source": "KBA",
-      "source_page": "sources/germany.html",
-      "cadence": "monthly",
-      "runs": [["2015-01", "2026-07"]],
-      "bands": ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"],
-      "ice_split": true, "hybrid_combined": false,
-      "unreported_rows": 60
-    },
-    {
-      "slug": "colombia", "country": "Colombia", "source": "ANDI/FENALCO",
-      "cadence": "monthly",
-      "runs": [["2019-01", "2026-05"]],
-      "bands": ["BEV", "Hybrid", "ICE"],
-      "ice_split": false, "hybrid_combined": true,
-      "hev_note": "Combined hybrids (HEV + PHEV + MHEV) are reported in the HEV column; PHEV is left empty.",
-      "unreported_rows": 89
-    }
-  ]
-}
-```
-
-`ice_split` and `hybrid_combined` are what the frontend's collapse rule (§ 2.3)
-reads; `bands` is already the resolved set, so no client-side schema sniffing.
-`hev_note` is lifted verbatim from the source doc front-matter — one source of
-truth for that sentence, already rendered on the source pages.
-
-**`series/<slug>.json`** — column-major, aligned to one period vector:
-
-```json
-{
-  "slug": "germany",
-  "periods": ["2015-01", "…", "2026-07"],
-  "run":     [0, "…", 0],
-  "bands": {
-    "BEV":    [659, "…"],
-    "PHEV":   [1095.7, "…"],
-    "HEV":    [1566.98, "…"],
-    "PETROL": [null, "…"],
-    "DIESEL": [null, "…"],
-    "OTHERS": [0, "…"]
-  },
-  "unreported": [207415.3, "…"],
-  "TOTAL":      [211337, "…"]
-}
-```
-
-Bands are already family-resolved (§ 2.1) and hybrid-resolved (§ 2.2), so
-`Σ bands + unreported ≡ TOTAL` holds for every period in every file, by
-construction. The client stacks what it is given.
-
-### 4.3 The generator
+### 4.2 The generator, stage by stage
 
 `scripts/build_series.py`, alongside `build_schedule.py` and
 `build_source_pages.py`. Python because `observed_cadence()`, `contiguous_runs()`
-and the `hev_note` front-matter reader all already live there, and because no
-other build-time generator needs an R toolchain.
+and the `hev_note` front-matter reader already live there, and because no other
+build-time generator needs an R toolchain.
 
-**No cross-check against `params.csv`.** An earlier draft proposed pinning the
-generator's 12-period BEV share to `params.csv:ttm_bev_share`. That was model
-thinking leaking into a raw-data feature: this tab has no relationship to the
-fit, and a coupling to the fitted parameter file would make a raw-data build fail
-for a modelling reason. Dropped.
+The whole file is one function per country, run over `data/*.csv` filtered to
+names without an underscore (the `Whole` set; `Italy_Rental.csv` and friends are
+variants, § 3.1). **Order matters between every stage below** — several of them
+were wrong the first time precisely because they ran too early or too late, and
+each such case is recorded here so it is not re-broken.
 
-**Validation, `--check` mode** (mirrors `build_source_pages.py --check`, runs on
-PRs, writes nothing):
+---
+
+#### Stage 1 · Parse and establish the native step
+
+Keep rows whose `period` matches `YYYY` or `YYYY-MM`; sort by month index
+(`year*12 + month-1`, with a bare year sitting at July so it lands mid-cycle).
+Fewer than 3 usable rows → the country is skipped entirely.
+
+```python
+gaps = [b - a for a, b in zip(idx, idx[1:])]
+step = max(set(gaps), key=gaps.count)      # modal spacing, NOT time_interval
+if step not in (1, 3, 12): return None
+```
+
+**Why the modal spacing and not `time_interval`:** 22 of the files carry a label
+that contradicts their own row spacing (§ 3.2). Singapore labels twelve rows of
+real monthly totals `yearly` in 2018 and twelve more `quarterly` in 2020. The
+spacing is a fact about the file; the label is an annotation, and it is trusted
+in exactly one place (Stage 5b) under a condition that makes it self-checking.
+
+#### Stage 2 · Resolve bands per row
+
+```python
+if ICE is populated:  v["ICE"] = ICE            # PETROL/DIESEL/FLEXFUEL ignored
+else:                 PETROL, DIESEL → own bands
+                      FLEXFUEL, ETHANOL → FLEXFUEL
+                      GAS, CNG, LPG     → OTHERS
+if hybrid_combined:   v["Hybrid"] = HEV         # § 2.2
+else:                 PHEV, EREV, HEV, MHEV → own bands
+BEV → own band;  OTHERS → added to whatever the gas fuels already put there
+```
+
+`hybrid_combined` is decided **per file**, not per row: *any* `HEV` populated and
+*no* `PHEV` populated anywhere. Deciding it per row would flip the band set
+mid-series the first month a country starts reporting PHEV separately.
+
+**Exception, and it is load-bearing (§ 2.1b):** the population test is
+`is not None` for the electrified columns and truthiness for the combustion ones.
+A reported `0` in `BEV`/`PHEV`/`HEV`/`MHEV` is a measurement; a `0` in
+`PETROL`/`DIESEL` never is. Getting this wrong cost 48 periods across six
+countries and is invisible in every sum check, because a missing zero looks
+exactly like a missing column.
+
+#### Stage 3 · The unnamed remainder is combustion
+
+```python
+ev_cols  = electrified bands populated ANYWHERE in this file
+ice_cols = ("ICE", "PETROL", "DIESEL", "FLEXFUEL")
+for each row with TOTAL > 0:
+    if any ice_col already in the row:      skip   # never overwrite a split
+    if not every ev_col present in the row: skip   # the remainder is ambiguous
+    rest = TOTAL - Σ bands
+    if rest / TOTAL > 0.05: v["ICE"] = rest
+```
+
+Türkiye 2019 knows BEV, hybrids and the market total and nothing else; Germany
+2012–2016 knows BEV/PHEV/HEV and the total. What is left in such a row cannot be
+anything but petrol, diesel or LPG, because every electrified category is already
+named. Calling it `ICE` is a statement about what is missing and the only honest
+one available — the alternative is to serve nothing.
+
+**Both guards are necessary and both have a counter-example.** Without the first,
+a partially-reported split (petrol filled, diesel not) gets papered over.
+Without the second, France 2015–2017 — which knows only BEV and PHEV, with `HEV`
+appearing in 2021 — would have its hybrids silently folded into `ICE` for six
+years while the same file draws a separate hybrid band from 2021. That is the
+one place where refusing to draw is the correct answer, and it is why France
+still holds back 72 periods (§ 8.1).
+
+#### Stage 4 · Granularity is a property of the (column, period) pair
+
+The maintainer's own account of how these files were built: where one series had
+monthly numbers and another only annual, the annual one was divided by 12 (or
+the quarterly one by 3) and the monthly one left alone, because that suited the
+Weibull fit. So Hungary 2018 has a genuinely monthly `BEV` sitting next to a
+quarterly `PETROL` in the same row. **Assuming one granularity per row is what
+forced those rows to be thrown away wholesale.**
+
+`gcol[column][row]` holds a granularity in months, starting at `step`.
+
+```python
+for each column:
+    find maximal runs of EQUAL, non-zero values
+    if run length >= 3 and (value is non-integer or value >= 1% of TOTAL):
+        span = (12 if run >= 6 else 3) * step
+        gcol[col][every row in the run] = max(current, span)
+```
+
+Three details, each of which was wrong at some point:
+
+- **Always SUM the cycle**, never take the repeated value once. An earlier
+  version assumed a repeated integer was a quarterly total stamped into three
+  rows. The neighbour years disprove it: Slovakia 2018 (repeated) sums to
+  101,271 against 101,417 in 2019 (natively monthly), while take-once gives
+  33,757 — a 3× understatement. Belgium, Bulgaria, Estonia and Lithuania are the
+  same shape.
+- **The materiality gate earns its keep**: without it, small integers that repeat
+  by coincidence (a country with 2 BEVs three months running) are read as a
+  smear. Switching it off costs **133 periods across 28 countries**.
+- **Snap to 3 or 12**, not to the raw run length, so granularity always lands on
+  a real calendar cycle instead of an invented 7-month one. Worth ±1 period; kept
+  for the invariant, not the count.
+
+**Known blind spot.** This detector finds *copied* values, not *interpolated*
+ones. France 2018–2020 carries petrol/diesel that drift smoothly (177,040 /
+177,847 / 180,120) against real monthly totals, missing by up to 22 %. Nothing
+here recovers that, and nothing should guess at it — it is listed in
+`35b-raw-data-quality-todo.md` as data work.
+
+#### Stage 5b · A row alone in its cycle already IS that cycle
+
+The second shape of the same practice: the annual figure written onto **one**
+row, the rest of the year absent (§ 3.2b).
+
+```python
+lab = row.time_interval.lower()
+cyc = 12 if lab == "yearly" else 3 if lab == "quarterly" else 0
+if cyc > step and this is the ONLY row in that calendar cycle:
+    whole[row] = cyc
+    gcol[every column][row] = max(current, cyc)
+```
+
+This is the only place `time_interval` is trusted, and the "only row in its
+cycle" condition is what makes trusting it safe: Singapore's 2018 is labelled
+`yearly` for twelve rows and is therefore untouched, and its 2019-01 — the one
+surviving row of that year — is labelled `monthly` and stays a month.
+
+Neither of the two obvious alternatives works, and both were tried:
+
+| Approach | Fails on |
+|---|---|
+| Magnitude ("12× its neighbours ⇒ annual") | Ireland's every Jan/Feb/Mar/Jul and the UK's every Mar/Sep are real plate-change peaks. A detector tuned to 2.2–4.5× and 7–18× returned 92 rows in 14 countries, mostly seasonality. |
+| Spacing ("rows 12 months apart ⇒ annual") | Needs a run to establish a cadence, so it misses Greece's single 2015 row and Uruguay's pair — and it cannot tell a yearly stamp from a hole. |
+
+#### Stage 6 · Reconcile every ORIGINAL row, before aggregating anything
+
+A row that does not add up must not be folded into a cycle, or the cycle inherits
+the error silently. Four rejections, in this order:
+
+| Test | Rationale |
+|---|---|
+| `TOTAL` missing or ≤ 0 | nothing to render a share against |
+| EV-only row (combustion side **exactly** zero while neighbours carry thousands) | only the EV columns were filled and `TOTAL` computed from them. The test is the *exact* zero, not a collapsed total — April 2020 is a real lockdown trough in a dozen countries and must survive |
+| `OTHERS` > 80 % of `TOTAL` | the source broke out almost nothing; a stack of 99 % grey is a faithful rendering of the file and a useless chart. Japan 2012–2019 sits at 99.5 % |
+| \|Σ bands − TOTAL\| / TOTAL > **3 %** | the mix is not complete enough to *be* a mix |
+
+**The 3 % tolerance is a rendering decision, not an audit one.** The stack is
+drawn from the bands, so what matters is whether a reader could see the
+disagreement. At the original 0.5 % this rule alone cost Czechia its entire
+2016–2021 stretch — 62 periods — for discrepancies invisible in a bar. Tightening
+it back costs **73 periods across 7 countries**.
+
+**The `OTHERS` test must run HERE, before Stage 7.** Moving it after aggregation
+(where it also "works") changes which rows Stage 7 sees, and Japan then folds its
+hybrids away on the strength of eight pre-2020 years that never reach the chart.
+
+#### Stage 7 · One band set for the whole series
+
+A band that exists for only part of a series is a **definition change**, not a
+market change. Czechia has no `HEV` column before 2022; the hybrids were inside
+`PETROL`, and it shows — petrol runs 69.7 % of the market, drops to 55.0 % the
+month `HEV` appears, and folding `HEV` back gives 69.8 %. Drawn as two bands
+that is a cliff the reader has to be told to ignore. Colour cannot fix it: the
+step is in the geometry.
+
+```python
+for (child, parents) in (HEV→PETROL|ICE, MHEV→PETROL|ICE,
+                         FLEXFUEL→PETROL|ICE, EREV→PHEV):
+    if child missing from > 40 % of the DRAWABLE rows and >= 24 drawable rows:
+        fold child into the first available parent, for every row
+```
+
+**Decided on the drawable set, not the raw file** — that is the whole subtlety.
+Deciding on the raw file folds Japan's hybrids away because of eight undrawn
+pre-2020 years, and Norway's because of seventeen early months. Which means
+Stage 6 has to run first, and then run **again** after a fold, because folding
+changes the band set and therefore the sums. The prototype does exactly that:
+`reconcile() → apply_folds() → reconcile()`.
+
+#### Stage 8 · Aggregate to whole calendar cycles
+
+`G[row] = max(gcol[c][row] for c in cols)` — the coarsest granularity in the row
+governs the row, because a stack cannot mix resolutions.
+
+```python
+if G == step:            emit as-is, stamped at the CYCLE END
+elif whole[row]:         emit as-is, stamped at the cycle end, width = whole[row]
+else:                    collect the calendar cycle at granularity G;
+                         emit only if the cycle is COMPLETE; sum every column
+```
+
+- **Stamped at the cycle end** in all three branches. A quarterly file stamps its
+  rows on the middle month of the quarter (Canada, Georgia: Feb/May/Aug/Nov); if
+  the native branch keeps that stamp while the aggregated branch uses the cycle
+  end, a quarterly bar overlaps the yearly bar before it by one month.
+- **Completeness is `idx[last] − idx[first] + step == G` and
+  `idx[last] % G == G − step`** — a whole cycle, aligned to the calendar, not
+  just G months of rows. A partial cycle is dropped rather than drawn short,
+  because a half-year summed and drawn a year wide is a lie about the level.
+- The `whole[row]` branch is the exception to completeness: one row *is* the
+  cycle, so there is nothing to collect.
+
+#### Stage 9 · Emit
+
+```json
+{ "country": "Romania", "slug": "romania", "source": "ACEA",
+  "step": 1, "ice_split": true, "hybrid_combined": false,
+  "held_from": "2010-06", "held_to": "2026-06",
+  "dropped": 0, "coarse": 12, "residual_ice": 0, "folded": [],
+  "m": [24131, 24143, "…"],          // month index of each cycle END
+  "g": [12, 12, "…"],                // months the observation covers
+  "t": [309952.0, 176555.0, "…"],    // TOTAL, ≡ Σ bands by construction
+  "b": { "BEV": [...], "PETROL": [...], "DIESEL": [...], "OTHERS": [...] },
+  "why": { "2018-02": "bands miss TOTAL by +10.5%" } }
+```
+
+Two properties the client relies on and must never lose:
+
+1. **`t[i] ≡ Σ b[*][i]`** for every period. There is no `unreported` band — an
+   earlier draft had one and it was dropped (§ 2.4): it put a validation artifact
+   in front of a reader who came to look at registrations.
+2. **`m` is strictly increasing and `g` divides its own cycle**, so the client's
+   window walk (`m[j-1] === m[j] - g[j]`) is the only contiguity test it needs.
+
+`why` is what `35b-raw-data-quality-todo.md` is generated from — one line per
+held-back row, in the generator's own words, so the checklist can never drift
+from the code that produced it.
+
+### 4.3 The window function lives on the client, and why
+
+Everything above is per-period. The trailing window is per-*view* — it changes
+with a slider — so it runs in the browser over the emitted series. It is ~25
+lines and it is the other place subtle things happen:
+
+```js
+for i from the newest period backwards:
+  walk back accumulating g[] until >= N months
+  contiguity: m[j-1] === m[j] - g[j]        // never bridge a gap
+  emit a bar only if months === N and N % gmax === 0
+  else if N < g[i]: draw the coarse period, scaled by N/g[i]
+```
+
+- **Accumulate `g[j]`, not row counts.** Counting rows skips every recovered
+  quarterly stretch — Belgium showed nothing before 2022 until this was fixed.
+- **`N % gmax === 0`** is the rule the user asked for in his own words: a
+  quarterly stretch appears at T3M, T6M, T12M and not at T1M or T2M; a yearly
+  stretch only at multiples of 12.
+- **No alignment test against the series end.** An earlier version required
+  `(anchor − m[i]) % gmax === 0`, which rejected every calendar-year row in any
+  file that does not end in December (Japan). The cycle model already guarantees
+  alignment; the extra test was redundant and wrong.
+- **Rolling, not tiling.** One bar per period, each summing the N months behind
+  *it* — 2026-07+06 then 2026-06+05, not 2026-07+06 then 2026-05+04.
+
+### 4.4 Validation, `--check` mode
+
+Mirrors `build_source_pages.py --check`: runs on PRs, writes nothing, exits
+non-zero on a fatal.
 
 | Check | Severity |
 |---|---|
-| `Σ bands > TOTAL` (negative residual) | **fatal** — § 2.5, France today |
-| `ICE` and `PETROL`/`DIESEL` both populated non-zero in one row | **fatal** — § 2.1 |
-| Duplicate periods | fatal |
-| `TOTAL` missing or ≤ 0 while bands are populated | fatal |
-| `hev_note` present but `PHEV` column also populated | fatal — the metadata and the data disagree |
-| A band at exactly zero between two populated, non-trivial neighbours | recorded in `report.json` — § 4.3b |
-| Periods flagged as smeared (§ 3.1b) | recorded, and marked in the artifact |
-| Rows with a non-zero `Unreported` band | recorded in `report.json` |
+| Duplicate periods in one file | fatal |
+| `ICE` and `PETROL`/`DIESEL` both populated non-zero in one row | fatal — § 2.1 |
+| A negative value in any band column | fatal — see below |
+| `hev_note` present but `PHEV` also populated | fatal — metadata and data disagree |
+| Emitted `t[i] ≠ Σ b[*][i]` (within float epsilon) | fatal — the invariant the client assumes |
+| A band at exactly zero between two populated, non-trivial neighbours | recorded |
 | `time_interval` contradicts observed spacing | recorded |
-| Runs shorter than 12 periods | recorded |
+| Every held-back row, with its reason | recorded → `35b` |
 
-Fatal-by-default matches the fetchers (Indonesia's checksum abort, Türkiye's
-three validation layers). **France fails this gate today** and needs its
-petrol/diesel carry-forward fixed before it can render.
+**Negatives are fatal and nothing else catches them.** `Poland 2021-01` carries
+`OTHERS = −3,765.8`; Poland has seven such rows, Romania six, Norway one. They
+pass reconciliation because a negative band still lets the row sum to `TOTAL`,
+and they pass rendering because a zero-height rectangle is invisible. Only an
+explicit sign check finds them — which is the argument for `--check` existing at
+all.
 
-### 4.3b A band can vanish without breaking any sum
+**A zero band can vanish without breaking any sum.** `data/Colombia.csv` carries
+`BEV = 0.0` for 2025-07, between 1,143 in June and 1,647 in August, and the row
+still closes perfectly because `ICE` is a residual that absorbed the missing
+cars. Recorded rather than fatal — Colombia 2020-04 is the April lockdown and may
+be real.
 
-`data/Colombia.csv` carries `BEV = 0.0` for `2025-07`, between **1,143** in June
-and **1,647** in August. Colombia did not sell zero BEVs that month.
-
-What makes this worth its own check: **the row still closes to `TOTAL`
-perfectly**, because `ICE` is a residual that absorbed the missing cars. Every
-check in the table above passes. The stacked bar simply drops its green band for
-one month, and nothing anywhere says why.
-
-The detector is cheap — a band at exactly zero with populated, non-trivial
-neighbours on both sides. Across all 51 `Whole` files it finds **7 candidates**:
-
-```
-Belgium    OTHERS  2022-03     258 →  0 →   171
-Belgium    OTHERS  2023-02     281 →  0 →   403
-Belgium    OTHERS  2023-09     166 →  0 →   248
-Colombia   BEV     2020-04     110 →  0 →    51   (April lockdown — may be real)
-Colombia   BEV     2023-11     287 →  0 →   493
-Colombia   BEV     2025-07   1,143 →  0 → 1,647
-Singapore  HEV     2022-12     930 →  0 →   776
-```
-
-Not all are necessarily errors, which is why this is a `report.json` flag to
-review rather than a fatal check.
-
-### 4.4 CI wiring
+### 4.5 CI wiring
 
 New workflow `build-series.yml`:
 
@@ -445,24 +604,47 @@ New workflow `build-series.yml`:
   `workflow_dispatch`. One rule catches every writer — the 29 fetchers, manual
   commits, merged submission PRs — instead of chaining a dispatch into 29
   workflow files.
-- **Writes** `series/**` only; since the trigger filters on `data/**` its own
-  commit cannot re-trigger it.
-- **On PRs:** `--check` only. This is the useful part: a submission PR that
-  breaks the category contract is rejected before merge.
+- **Writes** `series/**` and `docs/architecture/35b-raw-data-quality-todo.md`.
+  Since the trigger filters on `data/**`, its own commit cannot re-trigger it.
+- **On PRs:** `--check` only. A submission PR that breaks the category contract
+  is rejected before merge.
 - Not folded into `build-manifest.yml`, which is keyed on `images/**`.
 
-### 4.5 What this does not add
+### 4.6 If you change one thing, check the other
+
+The rules interact, and the interactions are not obvious from the code. This is
+the table to read before editing `build_series.py`.
+
+| If you touch | Re-check | Because |
+|---|---|---|
+| Stage 2 population tests | Stage 3 residual, Denmark 2014-05 | a zero read as a blank makes a row look incomplete |
+| Stage 3 guards | France 2015–2020, Uruguay 2021–22 | loosening them folds hybrids into ICE for years that have no hybrid column |
+| Stage 4 thresholds | Slovakia 2018 vs 2019, Belgium 2018 | the sum-vs-take-once question, worth 3× |
+| Stage 5b label trust | Singapore 2018/2019, Ireland Jan, UK Mar | the discriminator is "alone in its cycle", not magnitude |
+| Stage 6 ordering | Japan hybrids, Norway 2008 | the `OTHERS` gate must precede the fold decision |
+| Stage 6 tolerance | Czechia 2016–2021 | 62 periods sit between 0.5 % and 3 % |
+| Stage 8 stamping | Canada/Georgia 2016→2017 seam | mid-quarter stamps overlap the yearly bar before them |
+| The client window fn | Belgium pre-2022, Japan's non-December year end | accumulate `g`, and do not re-add an alignment test |
+| The emitted schema | the `t ≡ Σ b` invariant, `35b` generation | the client stacks what it is given and never re-derives |
+
+The empirical method behind those numbers is worth keeping: every rule was
+switched off in turn and the output diffed against the full run (§ 7c). Two rules
+survive on judgement rather than counts, and are labelled as such — the EV-only
+detector (currently catches nothing, kept as insurance) and the snap-to-3/12.
+
+### 4.7 What this does not add
 
 No Worker, no API, no secret, no database, no frontend build step, no new CDN
 dependency (Plotly is already loaded). Operating principle 4 — static-first on
 the read path — holds.
 
-### 4.6 Size
+### 4.8 Size
 
-51 files, counts only, non-native periods dropped, gzipped by Pages. Well under
-the 1.4 MB the full `data/` tree occupies today. Per-country files so the tab
-fetches only what is selected and a single-country update invalidates one cache
-entry; mirrors `COMPARE_OBS_CACHE`.
+51 files, counts only, non-native periods dropped, gzipped by Pages. The full
+prototype payload is **319 KB uncompressed** for all 51 series including the
+`why` map; well under the 1.4 MB `data/` occupies today. Per-country files so the
+tab fetches only what is selected and a single-country update invalidates one
+cache entry; mirrors `COMPARE_OBS_CACHE`.
 
 ---
 
@@ -689,8 +871,8 @@ Settled with the maintainer, 2026-08.
 | 6 | **No seasonality warnings.** A definitions panel instead — fuel-type meanings, per-country quirks, collapse notices | § 5.4 |
 | 7 | **A period that does not add up is not drawn**, and the chart says so in one line — no `Unreported` band, no validation UI in front of the reader | § 2.4 |
 | 8 | **Negative residuals fail the build**, they are not clamped at render time | § 2.5 |
-| 8b | **Smearing and zero-dropout detectors** added after the mockup — both catch conditions no sum check sees | § 3.1b, § 4.3b |
-| 8c | **Granularity per period drives the window control** — divided smears keep their data at multiples, copied smears are dropped | § 3.1b |
+| 8b | **Smearing and zero-dropout detectors** added after the mockup — both catch conditions no sum check sees | § 4.2 Stage 4, § 4.4 |
+| 8c | **Granularity per period drives the window control** — divided smears keep their data at multiples, copied smears are dropped | § 4.2 Stage 4 |
 | 8d | **Fleet-tab palette**, re-stepped where adjacent bands were not tellable apart | § 5.3 |
 | 8e | **Combined chart above the small multiples**, constant membership, drop-by-most-recovered | § 5.6 |
 | 8f | **Compact small multiples above six charts**, shared legend | § 5.6 |
@@ -790,7 +972,7 @@ different answer.
 | Country | Held back | What is actually in the file |
 |---|---|---|
 | **Japan** | 96 | 2012–2019 reports `BEV`, `PHEV` and the market total and nothing else — 99.5 % lands in `OTHERS`. There is no mix to stack; the chart correctly starts at 2020-01. Only a finer source fixes this. |
-| **France** | 72 | Two distinct defects. 2015–2017 knows only `BEV`/`PHEV` (no combustion columns at all, and `HEV` appears in 2021, so the residual rule of § 3.1bc cannot fire without folding France's hybrid band away for the years that have one). 2018–2020 is worse: `PETROL`/`DIESEL`/`OTHERS` are **smoothly interpolated** against real monthly `TOTAL`s — 2018-03 misses by −22 %, 2018-01 by +13 %. Interpolation, unlike copying, defeats the equal-run detector of § 3.1b, so nothing recovers it. |
+| **France** | 72 | Two distinct defects. 2015–2017 knows only `BEV`/`PHEV` (no combustion columns at all, and `HEV` appears in 2021, so the residual rule of § 4.2 Stage 3 cannot fire without folding France's hybrid band away for the years that have one). 2018–2020 is worse: `PETROL`/`DIESEL`/`OTHERS` are **smoothly interpolated** against real monthly `TOTAL`s — 2018-03 misses by −22 %, 2018-01 by +13 %. Interpolation, unlike copying, defeats the equal-run detector of § 4.2 Stage 4, so nothing recovers it. |
 | **Portugal** | 44 | Confirmed as the maintainer described: quarterly figures re-simulated as monthly. 2010–2017 now renders (the § 2.1b fix); 2018–2020 does not. |
 | **China** | 7 | 2020 `BEV`/`PHEV` are one figure spread over Jan and Mar–Sep, with February hand-corrected to the real COVID numbers. The correction breaks the equal run, so the year cannot be reassembled. Writing 2020 as twelve real monthly rows — or as one annual row — both work. |
 | Türkiye, Slovenia, Singapore, Poland, Lithuania, Croatia | 6 each | Mostly single seams; **Slovenia 2015–2017 is a genuine contradiction** — `PETROL + DIESEL` is 64,018 against a `TOTAL` of 53,367 for 2016, and 60,069 against 72,710 for 2015. One of the two series is measuring a different population. |
@@ -814,7 +996,7 @@ seam (**0 suspicious seams**, down from 4), bands outside 0–100 % (**1**, the
 Norway unit above), and freshness (**48 of 51 current to 2026-06 or later**).
 
 **Two data-quality checks were added by the mockup**, both catching things the
-original rules missed: smeared values (§ 3.1b) and zero-dropouts (§ 4.3b).
+original rules missed: smeared values (§ 4.2 Stage 4) and zero-dropouts (§ 4.4).
 Neither is a chart problem — they are pre-existing data conditions that a
 stacked bar makes visible for the first time.
 
