@@ -571,6 +571,13 @@ survive it rather than assume two or three countries.
   in absolute mode the height is scaled to the window length so it stays
   comparable to the monthly bars beside it, and the tooltip says so. This is what
   makes T1M usable across the whole 51-country wall.
+- **The y-axis is measured in the units the bars are drawn in.** A coarse bar
+  carries its whole cycle — China 2016 is 28.4 M for the year — but is drawn
+  scaled to the window, 2.37 M at T1M. Taking the axis maximum from the raw
+  value put the top at 30 M and squashed every monthly bar to a hairline. It
+  showed up in exactly the three countries that carry yearly rows (China,
+  Germany, Poland) and nowhere else, which is what made it findable. The same
+  scaling applies to the shared maximum under *Same axes everywhere*.
 - **Bar width comes from the spacing to the neighbouring bar**, not from a fixed
   step, so a bar standing for a whole year looks a year wide next to monthly bars
   a month wide. The pixel cap that stops a lone monthly bar becoming a slab has
