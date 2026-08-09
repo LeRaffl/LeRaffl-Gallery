@@ -528,7 +528,10 @@ survive it rather than assume two or three countries.
   makes T1M usable across the whole 51-country wall.
 - **Bar width comes from the spacing to the neighbouring bar**, not from a fixed
   step, so a bar standing for a whole year looks a year wide next to monthly bars
-  a month wide. Without this a coarse stretch renders as hairlines with space
+  a month wide. The pixel cap that stops a lone monthly bar becoming a slab has
+  to scale with the span too, or a yearly bar gets clipped back to a sliver and
+  the run reads as a series of gaps — which is exactly what Romania's pre-2018
+  years looked like. Without this a coarse stretch renders as hairlines with space
   between them and reads as *missing* data rather than *coarser* data — which is
   exactly the wrong conclusion.
 - **Above six charts the small multiples go compact** — smaller cards, three or
