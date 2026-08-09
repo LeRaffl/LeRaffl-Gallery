@@ -499,6 +499,51 @@ paying.
 
 ---
 
+### 5.5b The default country is the visitor's own
+
+Asked for as a wish ("ideal wär fast Default = Land der abrufenden IP, aber das
+is viel zu viel verlangt"), and it is not too much: **no IP lookup is needed.**
+The browser already names the visitor's place —
+`Intl.DateTimeFormat().resolvedOptions().timeZone` returns `Europe/Vienna`, and
+an IANA zone maps to a country in a ~55-entry table. No request, no third-party
+service, no consent question, nothing to rate-limit, and it works offline.
+
+Zones we have no series for fall back to Germany. `Africa/Cairo` → Germany;
+`Europe/Vienna` → Austria, `Asia/Tokyo` → Japan, `America/Los_Angeles` → USA,
+`Pacific/Auckland` → New Zealand.
+
+Language (`navigator.language`) is the obvious alternative and is worse: a
+German-speaking visitor could be in Germany, Austria or Switzerland, and half the
+world browses in `en-US` regardless of where they are.
+
+### 5.7 What the aggregate is allowed to be made of
+
+A country whose file needed reconstruction to be drawable is fine on its own
+chart — the footnote underneath says so. Summed into an aggregate it silently
+lends that reconstruction to the total, and nobody reading a "world" line is
+going to go looking for which member contributed a divided-out annual figure.
+
+**The combined chart is therefore built only from series that came out of their
+CSV complete** — no discarded periods — and says so: *"35 of 51 selected, summed
+— complete data only"*, with *"15 left out as incomplete"* in the subtitle. A
+toggle switches to all selected for anyone who wants it.
+
+Two things make this better than the alternative of hand-picking a "perfect"
+list:
+
+- **It is derived, not curated.** The tier falls out of the same checks that
+  decide whether a period is drawable at all, so it cannot drift away from what
+  the charts show.
+- **It does not silently drop the big markets.** A fixed "only pristine sources"
+  list would have excluded Germany, the UK, Italy, Spain and the Netherlands —
+  an aggregate missing most of Europe's volume. Judging on *completeness after
+  recovery* keeps them in.
+
+It also, unexpectedly, produces a **longer** series: dropping the ragged members
+removes the constraints that were pinning the common span, so the complete-data
+aggregate spans 13 periods from 2023-02 where the all-members one manages 12
+from 2023-08.
+
 ### 5.6 Layout at scale
 
 Selecting a region — or all 51 — is a supported action, so the layout has to
