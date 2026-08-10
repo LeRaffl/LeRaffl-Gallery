@@ -599,8 +599,9 @@ impossible value from being merged. Making the master build fail as well would
 stop `series/` regenerating until an old defect is fixed, which serves a stale
 tab to every reader in order to punish a row nobody is looking at. The row
 itself is held back either way (§ 4.2 stage 6), so nothing wrong is ever drawn —
-the 14 negatives currently in the data cost Poland, Romania and Norway their
-affected cycles and cost the other 48 countries nothing.
+when the 14 negatives in the data were corrected against the ACEA quarterly
+tables, `--check` went green and the three affected countries gained 47 periods
+between them — Norway to zero held back, Poland 21 → 6, Romania 24 → 6.
 
 **A zero band can vanish without breaking any sum.** `data/Colombia.csv` carries
 `BEV = 0.0` for 2025-07, between 1,143 in June and 1,647 in August, and the row
@@ -888,7 +889,7 @@ survive it rather than assume two or three countries.
 | Phase | Scope | Ships alone? |
 |---|---|---|
 | **0 · Spike** | One country, client-side straight from `data/Germany.csv`. Throwaway; proves the stack reads well and the slider feels right before any backend exists. | not shipped |
-| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,835 drawable periods, 300 held back, 448 KB |
+| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,848 drawable periods, 266 held back, 448 KB |
 | **1b · Data** | Work the checklist in [35b](35b-raw-data-quality-todo.md) down. Nothing blocks the tab; each item buys back bars. | Ongoing, country by country |
 | **2 · The tab** | Single country, stacked bars, window, timeframe, absolute + relative, run blocks, definitions panel, deep links, group rename, cross-links, PNG + CSV export. | Yes — this is the feature |
 | **3 · Multi-country** | 2–5 countries, Comparable mode + collapse notices. | Yes |

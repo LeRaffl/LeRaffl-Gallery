@@ -448,8 +448,11 @@ def write_todo(built, raw_rows, noted):
         idx = [midx(r["period"]) for r in rows]
 
         for line in [x for x in noted if x.startswith(country + " ") and "drops to 0" in x]:
-            blocking[country].append(f"{line.split(': ', 1)[1]} — the row still closes "
-                                     f"to `TOTAL`, so no sum check sees it.")
+            # Keep the period: "OTHERS drops to 0 between 43 and 1420" is not
+            # something anyone can look up without knowing which month it is.
+            where, what = line.split(": ", 1)
+            blocking[country].append(f"`{where.split(' ', 1)[1]}` — {what}. The row still "
+                                     f"closes to `TOTAL`, so no sum check sees it.")
 
         # months the file genuinely says nothing about. A gap between rows is
         # not evidence: a yearly row covers the eleven months behind it.
