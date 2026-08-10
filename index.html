@@ -1475,8 +1475,9 @@ a:focus-visible{
 
 .country-picker__top{
   display:flex;
-  gap:8px;
+  gap:8px 8px;
   align-items:center;
+  flex-wrap:wrap;
 }
 
 .country-picker__top input{
@@ -1489,6 +1490,14 @@ a:focus-visible{
   color:var(--muted-2);
   font-size:12px;
   font-weight:700;
+}
+
+/* Wraps under the search box on a narrow sidebar rather than squeezing it. */
+.country-picker__hint{
+  flex:1 0 100%;
+  order:3;
+  color:var(--muted-2);
+  font-size:11px;
 }
 
 .country-picker__actions{
@@ -3496,11 +3505,70 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
   window.addEventListener('DOMContentLoaded', maybeInit);
 })();
 
+// A plain left-click toggles one option instead of replacing the whole
+// selection. Reported by @GonGonsior: in a native <select multiple> the only
+// ways to pick a set are ctrl+click, which nobody discovers, and dragging,
+// which can only ever grab alphabetically adjacent countries. Neither is
+// something a reader should have to know.
+//
+// shift+click still selects a block, but the range has to be computed here too.
+// The browser anchors a native shift-range on the last option IT selected, and
+// preventDefault means it never selects any — so falling through to the native
+// behaviour extends from a stale anchor and grabs the wrong countries. We track
+// the anchor ourselves: the last option a plain click switched on.
+//
+// Deliberately narrow otherwise:
+// - Mouse only. A touch list box already toggles on tap, and preventDefault on
+//   a synthesised pointer event there kills the list's own scrolling.
+// - ctrl/cmd+click keeps working, since toggling is what it already did.
+// - If the event does not resolve to an <option> — which is how a browser that
+//   renders the list box differently would show up — we return without
+//   preventing anything, and the control degrades to exactly today's behaviour.
+//   Never worse than before, on any engine.
+function makeMultiSelectToggle(sel){
+  if(!sel || !sel.multiple || sel.dataset.clickToggle === '1') return;
+  sel.dataset.clickToggle = '1';
+  let anchor = -1;
+  sel.addEventListener('pointerdown', e => {
+    if(e.pointerType && e.pointerType !== 'mouse') return;
+    if(e.button !== 0) return;
+    const opt = e.target && e.target.closest ? e.target.closest('option') : null;
+    if(!opt || opt.disabled || !sel.contains(opt)) return;
+    e.preventDefault();
+
+    const opts = [...sel.options];
+    const i = opts.indexOf(opt);
+    if(e.shiftKey && anchor >= 0){
+      const [a, b] = anchor <= i ? [anchor, i] : [i, anchor];
+      // Adds to the selection rather than replacing it — in a toggle model
+      // that is what "and also this block" means.
+      for(let k = a; k <= b; k++){
+        if(!opts[k].disabled && !opts[k].hidden) opts[k].selected = true;
+      }
+    } else {
+      opt.selected = !opt.selected;
+      anchor = opt.selected ? i : -1;
+    }
+    // preventDefault also skips the focus the click would have given, and the
+    // list has to stay keyboard-navigable after a mouse pick.
+    sel.focus({ preventScroll: true });
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+}
+
+// Every multi-select on the page, including the variant filters on Thresholds,
+// Durations and Speed — the friction is the same control everywhere. Bound once
+// on the <select>, so options added later by a tab's init are covered.
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('select[multiple]').forEach(makeMultiSelectToggle);
+});
+
 function enhanceCountryMultiSelect(selectOrId, opts = {}){
   const sel = typeof selectOrId === 'string'
     ? document.getElementById(selectOrId)
     : selectOrId;
   if(!sel || sel.dataset.enhancedCountryPicker === '1') return;
+  makeMultiSelectToggle(sel);
 
   sel.dataset.enhancedCountryPicker = '1';
 
@@ -3520,7 +3588,13 @@ function enhanceCountryMultiSelect(selectOrId, opts = {}){
   const count = document.createElement('span');
   count.className = 'country-picker__count';
 
-  top.append(search, count);
+  // The toggle behaviour is better than the native one but it is still
+  // invisible, and shift+click for a block is worth one line of text.
+  const hint = document.createElement('span');
+  hint.className = 'country-picker__hint';
+  hint.textContent = 'click to toggle · shift+click for a range';
+
+  top.append(search, count, hint);
 
   const actions = document.createElement('div');
   actions.className = 'country-picker__actions';
