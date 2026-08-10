@@ -895,7 +895,7 @@ survive it rather than assume two or three countries.
 | Phase | Scope | Ships alone? |
 |---|---|---|
 | **0 · Spike** | One country, client-side straight from `data/Germany.csv`. Throwaway; proves the stack reads well and the slider feels right before any backend exists. | not shipped |
-| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,858 drawable periods, 236 held back, 448 KB |
+| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,861 drawable periods, 236 held back, 448 KB |
 | **1b · Data** | Work the checklist in [35b](35b-raw-data-quality-todo.md) down. Nothing blocks the tab; each item buys back bars. | Ongoing, country by country |
 | **2 · The tab** | Single country, stacked bars, window, timeframe, absolute + relative, run blocks, definitions panel, deep links, group rename, cross-links, PNG + CSV export. | Yes — this is the feature |
 | **3 · Multi-country** | 2–5 countries, Comparable mode + collapse notices. | Yes |
