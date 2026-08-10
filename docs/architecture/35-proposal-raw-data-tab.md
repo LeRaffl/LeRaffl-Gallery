@@ -416,8 +416,14 @@ Three details, each of which was wrong at some point:
   by coincidence (a country with 2 BEVs three months running) are read as a
   smear. Switching it off costs **133 periods across 28 countries**.
 - **Snap to 3 or 12**, not to the raw run length, so granularity always lands on
-  a real calendar cycle instead of an invented 7-month one. Worth ±1 period; kept
-  for the invariant, not the count.
+  a real calendar cycle instead of an invented 7-month one. And **a twelve-month
+  cycle needs twelve identical rows** — the threshold was six, which is not an
+  annual figure and cost five countries their data. Romania showed it: correcting
+  five of its twelve 2019 rows against ACEA left a six-row remnant that then
+  claimed a whole year and could never complete it, so half of 2019 vanished.
+  Reading six-to-eleven identical rows as quarters is the smaller claim and it is
+  drawable. **+10 periods, −30 held back**, across China, Croatia, Lithuania,
+  Romania and Türkiye; no country loses anything.
 
 **Known blind spot.** This detector finds *copied* values, not *interpolated*
 ones. France 2018–2020 carries petrol/diesel that drift smoothly (177,040 /
@@ -889,7 +895,7 @@ survive it rather than assume two or three countries.
 | Phase | Scope | Ships alone? |
 |---|---|---|
 | **0 · Spike** | One country, client-side straight from `data/Germany.csv`. Throwaway; proves the stack reads well and the slider feels right before any backend exists. | not shipped |
-| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,848 drawable periods, 266 held back, 448 KB |
+| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,858 drawable periods, 236 held back, 448 KB |
 | **1b · Data** | Work the checklist in [35b](35b-raw-data-quality-todo.md) down. Nothing blocks the tab; each item buys back bars. | Ongoing, country by country |
 | **2 · The tab** | Single country, stacked bars, window, timeframe, absolute + relative, run blocks, definitions panel, deep links, group rename, cross-links, PNG + CSV export. | Yes — this is the feature |
 | **3 · Multi-country** | 2–5 countries, Comparable mode + collapse notices. | Yes |

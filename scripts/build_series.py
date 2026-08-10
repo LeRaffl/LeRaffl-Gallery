@@ -193,8 +193,15 @@ def build_country(country, rows):
                 material = (abs(xs[i] - round(xs[i])) > 1e-9
                             or xs[i] / max(total[i], 1.0) >= SMEAR_MIN_SHARE)
                 if material:
-                    # snap to a real calendar cycle rather than the raw run
-                    span = (12 if run >= 6 else 3) * step
+                    # Snap to a real calendar cycle rather than the raw run. A
+                    # TWELVE-month cycle needs twelve identical rows: six was
+                    # too eager and cost five countries their data. Romania's
+                    # 2019 lost half a year to it — correcting five of the
+                    # twelve rows against ACEA left a six-row remnant that then
+                    # claimed a whole year and could never complete it. Six to
+                    # eleven identical rows are not an annual figure; reading
+                    # them as quarters is the smaller claim and it is drawable.
+                    span = (12 if run >= 12 else 3) * step
                     for k in range(i, j + 1):
                         gcol[c][k] = max(gcol[c][k], span)
             i = j + 1

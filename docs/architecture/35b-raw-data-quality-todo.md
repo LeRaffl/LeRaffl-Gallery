@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 51 countries · 5,848 periods drawable · 266 held back · **33 of 51 files cost the chart nothing.**
+**Status:** 51 countries · 5,858 periods drawable · 236 held back · **36 of 51 files cost the chart nothing.**
 
 ---
 
@@ -35,11 +35,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **6 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (6 of 12 rows present)) · 2022-01…2022-06
 → *Symptom:* 2 visible gaps in the chart, 17 months (worst 2019-02…2020-12).
 
-### China  ·  costs 14 periods
-
-- [ ] **7 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (7 of 12 rows present)) · 2020-03…2020-09
-→ *Symptom:* 1 visible gap in the chart, 7 months (worst 2020-03…2020-10).
-
 ### Poland  ·  costs 12 periods
 
 - [ ] `2019-06` — OTHERS drops to 0 between 2040 and 1544.59. The row still closes to `TOTAL`, so no sum check sees it.
@@ -47,17 +42,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **4 rows whose bands do not add up to `TOTAL`** (worst 2018-02: bands miss TOTAL by +10.5%) · 2018-02…2018-03, 2018-05…2018-06
 - [ ] **2 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (1 of 3 rows present)) · 2018-01, 2018-04
 → *Symptom:* 1 visible gap in the chart, 6 months (worst 2018-01…2018-09).
-
-### Romania  ·  costs 12 periods
-
-- [ ] `2021-12` — OTHERS drops to 0 between 43 and 1420. The row still closes to `TOTAL`, so no sum check sees it.
-- [ ] **6 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (6 of 12 rows present)) · 2019-01…2019-06
-→ *Symptom:* 1 visible gap in the chart, 6 months (worst 2019-01…2019-07).
-
-### Türkiye  ·  costs 12 periods
-
-- [ ] **6 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (6 of 12 rows present)) · 2022-01…2022-06
-→ *Symptom:* 1 visible gap in the chart, 6 months (worst 2022-01…2022-07).
 
 ### Malta  ·  costs 9 periods
 
@@ -75,18 +59,15 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **No rows for 2020-01…2020-06** — 6 periods the CSV says nothing about.
 → *Symptom:* 1 visible gap in the chart, 6 months (worst 2020-01…2020-07).
 
-### Croatia  ·  costs 6 periods
-
-- [ ] **6 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (3 of 12 rows present)) · 2019-10…2020-03
-
 ### Iceland  ·  costs 6 periods
 
 - [ ] **3 rows whose bands do not add up to `TOTAL`** (worst 2019-01: bands miss TOTAL by +7.4%) · 2019-01, 2019-03…2019-04
 → *Symptom:* 2 visible gaps in the chart, 3 months (worst 2019-03…2019-05).
 
-### Lithuania  ·  costs 6 periods
+### China  ·  costs 2 periods
 
-- [ ] **6 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 12-month cycle (6 of 12 rows present)) · 2017-01…2017-06
+- [ ] **1 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (1 of 3 rows present)) · 2020-03
+→ *Symptom:* 1 visible gap in the chart, 1 months (worst 2020-03…2020-06).
 
 ### Uruguay  ·  costs 2 periods
 
@@ -106,6 +87,9 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 **Norway**
 - [ ] `2009-01` — BEV drops to 0 between 65 and 28. The row still closes to `TOTAL`, so no sum check sees it.
+
+**Romania**
+- [ ] `2021-12` — OTHERS drops to 0 between 43 and 1420. The row still closes to `TOTAL`, so no sum check sees it.
 
 ---
 
@@ -232,4 +216,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Austria, Brazil, Bulgaria, Canada, Chile, Cyprus, Czechia, Denmark, Estonia, Finland, Georgia, Germany, Greece, Hungary, Indonesia, Ireland, Israel, Italy, Latvia, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, UK, USA
+Albania, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, Georgia, Germany, Greece, Hungary, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
