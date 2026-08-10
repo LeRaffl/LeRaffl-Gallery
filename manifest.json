@@ -1,6 +1,156 @@
 {
-  "updated": "2026-08-09",
+  "updated": "2026-08-10",
   "images": [
+    {
+      "country": "Brazil",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "brazil_ICE_BEV_20260810.png",
+      "url": "images/2026-07/brazil_ICE_BEV_20260810.png",
+      "alt": "Brazil ICE-BEV-Hybrid trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "brazil_20260810.png",
+      "url": "images/2026-07/brazil_20260810.png",
+      "alt": "Brazil BEV trajectory",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "brazil_time_20260810.png",
+      "url": "images/2026-07/brazil_time_20260810.png",
+      "alt": "Brazil Transition time curve",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Brazil",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "brazil_ttm_shares_20260810.png",
+      "url": "images/2026-07/brazil_ttm_shares_20260810.png",
+      "alt": "Brazil TTM market split graph",
+      "country_slug": "brazil"
+    },
+    {
+      "country": "Israel",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_ICE_BEV_20260810.png",
+      "url": "images/2026-07/israel_ICE_BEV_20260810.png",
+      "alt": "Israel ICE-BEV-Hybrid trajectory",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_20260810.png",
+      "url": "images/2026-07/israel_20260810.png",
+      "alt": "Israel BEV trajectory",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_time_20260810.png",
+      "url": "images/2026-07/israel_time_20260810.png",
+      "alt": "Israel Transition time curve",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_ttm_shares_20260810.png",
+      "url": "images/2026-07/israel_ttm_shares_20260810.png",
+      "alt": "Israel TTM market split graph",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_vans_ICE_BEV_20260810.png",
+      "url": "images/2026-07/israel_vans_ICE_BEV_20260810.png",
+      "alt": "Israel (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "israel_vans"
+    },
+    {
+      "country": "Israel (Vans)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_vans_20260810.png",
+      "url": "images/2026-07/israel_vans_20260810.png",
+      "alt": "Israel (Vans) BEV trajectory",
+      "country_slug": "israel_vans"
+    },
+    {
+      "country": "Israel (Vans)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_vans_time_20260810.png",
+      "url": "images/2026-07/israel_vans_time_20260810.png",
+      "alt": "Israel (Vans) Transition time curve",
+      "country_slug": "israel_vans"
+    },
+    {
+      "country": "Israel (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_vans_ttm_shares_20260810.png",
+      "url": "images/2026-07/israel_vans_ttm_shares_20260810.png",
+      "alt": "Israel (Vans) TTM market split graph",
+      "country_slug": "israel_vans"
+    },
+    {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "malaysia_ICE_BEV_20260810.png",
+      "url": "images/2026-07/malaysia_ICE_BEV_20260810.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "malaysia_20260810.png",
+      "url": "images/2026-07/malaysia_20260810.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "malaysia_time_20260810.png",
+      "url": "images/2026-07/malaysia_time_20260810.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
     {
       "country": "Australia",
       "type": "ICE_BEV",
