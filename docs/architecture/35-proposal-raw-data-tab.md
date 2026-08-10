@@ -1,6 +1,9 @@
 # 35 · Proposal: the "Raw Data" tab
 
-**Status:** Concept, decisions locked (2026-08). Nothing built.
+**Status:** Backend built (2026-08) — `scripts/build_series.py`, `series/`,
+`build-series.yml` and the generated checklist in
+[35b](35b-raw-data-quality-todo.md) are in the repo. The tab itself is not; § 5
+is still the spec for it, and the clickable mockup is the reference render.
 **Audience:** the maintainer + whoever implements this later.
 **Origin:** an X thread with @AndreasMemmer — a static PNG of the German BEV
 share of new registrations over the last 24 months, and the reply *"sone
@@ -590,6 +593,15 @@ and they pass rendering because a zero-height rectangle is invisible. Only an
 explicit sign check finds them — which is the argument for `--check` existing at
 all.
 
+**`--check` fails, the build does not.** Both paths compute the same list; only
+`--check` exits non-zero. The gate belongs on the PR, where it stops a *new*
+impossible value from being merged. Making the master build fail as well would
+stop `series/` regenerating until an old defect is fixed, which serves a stale
+tab to every reader in order to punish a row nobody is looking at. The row
+itself is held back either way (§ 4.2 stage 6), so nothing wrong is ever drawn —
+the 14 negatives currently in the data cost Poland, Romania and Norway their
+affected cycles and cost the other 48 countries nothing.
+
 **A zero band can vanish without breaking any sum.** `data/Colombia.csv` carries
 `BEV = 0.0` for 2025-07, between 1,143 in June and 1,647 in August, and the row
 still closes perfectly because `ICE` is a residual that absorbed the missing
@@ -690,12 +702,23 @@ with the current country, and back.
   `ensurePlotly()` + `hashchange` lazy-init pattern (`loadFleetWhenActive()` is
   the template). Dark layout object and `@LeRaffl` annotation from Compare.
 - **Band colours from the Fleet tab's palette** (`FE_C` in `index.html`), which
-  is already built for the dark surface Builder and Compare use. Two pairs had
-  to be re-stepped to be tellable apart as adjacent bands — BEV↔PHEV measured
-  ΔE 12.5 and Diesel↔Petrol ΔE 9.1 against a threshold of 15. After re-stepping,
-  both band sets pass colour-vision separation, normal-vision separation and
-  contrast. `ICE` reuses the diesel brown: a country reports one or the other,
-  never both in the same stack.
+  is already built for the dark surface Builder and Compare use, re-stepped
+  where two adjacent bands were not tellable apart. Every pair now clears
+  ΔE2000 15 against its stack neighbours.
+- **`ICE` comes from the R TTM palette, not from Fleet** — `R/plots.R:
+  TTM_FUEL_COLORS` has an `ICE` entry, `FE_C` does not, and this tab draws the
+  same band the TTM PNGs draw. R's value is `#692500`, chosen for a white ggplot
+  panel where it measures 11.3:1; on `#0f1525` it measures **1.62:1** and the
+  largest band in the stack vanishes. The tab uses `#a65832` — the same hue and
+  chroma at L\*46, 3.52:1 on the dark surface and ΔE2000 17.6 from R's original,
+  which is close enough that a reader who knows the PNGs reads it as the same
+  brown.
+
+  Borrowing Fleet's `Petrol #7b8db0` for `ICE` was the other candidate and it
+  fails on the numbers: **ΔE2000 12.9 against `PHEV`**, which sits directly above
+  `ICE` in every aggregate-ICE stack. `ICE` and `DIESEL` staying different
+  colours is deliberate and costs nothing — a country reports one or the other,
+  never both in the same stack, and they mean different things.
 - **Run blocks** (§ 3.2) render as gaps in the category axis, not as bridged bars.
 - **A bar sits over the months it is drawn as wide as** — not over its end month.
   Centring on the end period is correct for a monthly bar and wrong for every
@@ -849,8 +872,8 @@ survive it rather than assume two or three countries.
 | Phase | Scope | Ships alone? |
 |---|---|---|
 | **0 · Spike** | One country, client-side straight from `data/Germany.csv`. Throwaway; proves the stack reads well and the slider feels right before any backend exists. | not shipped |
-| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, handbook entry. | Yes — a validated, category-resolved projection of the CSVs is useful on its own, and the PR gate catches bad submissions immediately |
-| **1b · France** | Fix the petrol/diesel carry-forward (§ 2.5) so France passes the gate. Separate issue, blocking only for France. | Yes |
+| **1 · Backend** | `build_series.py`, `series/`, `--check`, `build-series.yml`, the generated checklist. | **Done (2026-08).** 51 countries, 5,835 drawable periods, 300 held back, 448 KB |
+| **1b · Data** | Work the checklist in [35b](35b-raw-data-quality-todo.md) down. Nothing blocks the tab; each item buys back bars. | Ongoing, country by country |
 | **2 · The tab** | Single country, stacked bars, window, timeframe, absolute + relative, run blocks, definitions panel, deep links, group rename, cross-links, PNG + CSV export. | Yes — this is the feature |
 | **3 · Multi-country** | 2–5 countries, Comparable mode + collapse notices. | Yes |
 | **4 · Aggregation** | Sum across countries. **Strict membership**: a period is emitted only if every member reports it, otherwise the denominator jumps when one country publishes late. Show `n = 14/16 reporting`. | Yes |
@@ -1000,16 +1023,21 @@ original rules missed: smeared values (§ 4.2 Stage 4) and zero-dropouts (§ 4.4
 Neither is a chart problem — they are pre-existing data conditions that a
 stacked bar makes visible for the first time.
 
-**The band palette does not survive a dark plot surface.** Against the
-`#0f1525` that Builder and Compare use, Petrol `#502900` sits at 1.44:1 and
-Other `#3c2f2f` at 1.42:1 — the combustion half of the stack disappears. The
-mockup solves it by keeping the plot panel light inside the dark chrome, which
-also matches the PNGs. Separately and on any background, `Petrol #502900` vs
-`Other #3c2f2f` measures ΔE 6.4 for normal colour vision against a threshold of
-15 — they are effectively one colour, **already true in every TTM PNG showing
-both**. Moving `Other` to a neutral (e.g. `#6b7280`, ΔE 34) fixes it in one
-value, but it changes the PNGs too, so it is a maintainer call. `TTM_FUEL_COLORS`
-is untouched.
+**The R TTM palette cannot be used verbatim on a dark surface, and the reason
+is worth recording** — it is the whole combustion half, not one value. Against
+the `#0f1525` that Builder and Compare use: `ICE #692500` 1.62:1,
+`Petrol #502900` 1.44:1, `Diesel #914700` 2.69:1, `Other #3c2f2f` 1.42:1, all
+below the 3:1 a filled area needs. The electrified half is the mirror image —
+`BEV #00ff2c` measures 1.37:1 on white and works in the PNGs only because R
+draws black outlines around every bar. **The two palettes are each correct for
+their own background**, so this tab lifts R's hues rather than importing its
+values (§ 5.3), and `TTM_FUEL_COLORS` is untouched.
+
+One separation problem is real on *any* background and therefore exists in the
+PNGs today: `Petrol #502900` vs `Other #3c2f2f` measures ΔE 6.4 — they are
+effectively one colour wherever a TTM chart shows both. Moving `Other` to a
+neutral (e.g. `#6b7280`, ΔE 34) fixes it in one value, but it changes every
+rendered PNG, so it is a maintainer call and is not part of this proposal.
 
 ---
 

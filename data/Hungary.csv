@@ -35,9 +35,9 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2020-10,monthly,Whole,Hungary,291.0,261.0,3928.0,5105.0,2723.0,42.0,12350.0,
 2020-11,monthly,Whole,Hungary,349.0,324.0,3928.0,5105.0,2723.0,42.0,12471.0,
 2020-12,monthly,Whole,Hungary,597.0,658.0,3928.0,5105.0,2723.0,42.0,13053.0,
-2021-01,monthly,Whole,Hungary,179.0,254.0,4304,3863,2001,69,10670, bev and phev monthly, rest taken from quarterly
-2021-02,monthly,Whole,Hungary,157.0,245.0,4304,3863,2001,69,10639, bev and phev monthly, rest taken from quarterly
-2021-03,monthly,Whole,Hungary,263.0,354.0,4304,3863,2001,69,10854, bev and phev monthly, rest taken from quarterly
+2021-01,monthly,Whole,Hungary,179.0,254.0,4304,3863,2001,69,10670," bev and phev monthly, rest taken from quarterly"
+2021-02,monthly,Whole,Hungary,157.0,245.0,4304,3863,2001,69,10639," bev and phev monthly, rest taken from quarterly"
+2021-03,monthly,Whole,Hungary,263.0,354.0,4304,3863,2001,69,10854," bev and phev monthly, rest taken from quarterly"
 2021-04,monthly,Whole,Hungary,193.0,316.0,4213.0,4182.0,1854.0,18.0,10776.0,
 2021-05,monthly,Whole,Hungary,214.0,337.0,4213.0,4182.0,1854.0,18.0,10818.0,
 2021-06,monthly,Whole,Hungary,275.0,435.0,4213.0,4182.0,1854.0,18.0,10977.0,
