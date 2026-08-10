@@ -160,6 +160,7 @@ Monthly BEV penetration of private-car registrations (via Roland Pircher,
 | 2026-04 | 94.6% | first post-concession month |
 | 2026-05 | 89.2% | back at the January baseline (still pre-deadline orders) |
 | 2026-06 | 73.4% | **first clean month** — orders mostly placed post-deadline; total mkt collapsed to ~1,900 cars |
+| 2026-07 | 77.4% | **recovery begins** (+4pp), one month after trough — matches 2024 template; ~2,540 total |
 
 **A shallow dent, not a cliff — and not "nothing" either.** The earlier read
 (only through May) looked like a full return to baseline, i.e. zero damage.
@@ -175,8 +176,10 @@ contrast with Norway (78%, gradual, low dose → ~0%): late stage *and* low
 dose is what buys zero — Hong Kong isolates the dose axis at the top.
 
 Caveats: June is a single month on tiny post-crash volume (~1,900 cars),
-so the point is noisy; July–August 2026 will show whether 73% is the floor
-or a way-station.
+so the point is noisy. July 2026 has since landed at **77.4%** (+4pp, ~2,540
+cars) — recovery starting one month after the trough, exactly as in 2024.
+73% was a way-station, not a floor, as predicted; H4 now confirmed live in
+2026, not just retrospectively in 2024.
 
 **Seasonality check (raised by RW) — resolved, and it strengthens the case.**
 Monthly (not TTM) figures are seasonal, so the May→Jun drop could in principle
