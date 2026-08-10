@@ -1,0 +1,65 @@
+name: Build series
+
+# Regenerates series/ — the drawable projection of the country CSVs that the
+# Raw Data tab reads — plus the generated data-quality checklist in
+# docs/architecture/35b-raw-data-quality-todo.md.
+#
+# One path filter on data/** catches every writer: the 29 fetch workflows,
+# manual commits, and merged submission PRs. Chaining a dispatch into 29
+# workflow files would do the same job and rot the first time one is added.
+#
+# The artifact lives in the repo because GitHub Pages serves it directly, so it
+# must be committed to go live. This workflow does NOT trigger on series/**, so
+# its own commit cannot retrigger it.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'data/**'
+      - 'scripts/build_series.py'
+      - '.github/workflows/build-series.yml'
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'scripts/build_series.py'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: series-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # No dependencies: the generator is stdlib only, on purpose. A build that
+      # can break on a pip resolution is a build that stops running.
+
+      # On pull requests, validate and never commit. This is the useful half:
+      # a submission that introduces an impossible value — a negative count, a
+      # row that claims both ICE and PETROL — is rejected before merge.
+      - name: Check the category contract
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/build_series.py --check
+
+      - name: Build series
+        if: github.event_name != 'pull_request'
+        run: python3 scripts/build_series.py
+
+      - name: Commit regenerated series
+        if: github.event_name != 'pull_request'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            series
+            docs/architecture/35b-raw-data-quality-todo.md
+          message: 'chore: rebuild series + data-quality checklist (CI)'
+          default_author: github_actions
