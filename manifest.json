@@ -42,6 +42,46 @@
       "country_slug": "brazil"
     },
     {
+      "country": "Israel",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_ICE_BEV_20260810.png",
+      "url": "images/2026-07/israel_ICE_BEV_20260810.png",
+      "alt": "Israel ICE-BEV-Hybrid trajectory",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_20260810.png",
+      "url": "images/2026-07/israel_20260810.png",
+      "alt": "Israel BEV trajectory",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_time_20260810.png",
+      "url": "images/2026-07/israel_time_20260810.png",
+      "alt": "Israel Transition time curve",
+      "country_slug": "israel"
+    },
+    {
+      "country": "Israel",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-10",
+      "filename": "israel_ttm_shares_20260810.png",
+      "url": "images/2026-07/israel_ttm_shares_20260810.png",
+      "alt": "Israel TTM market split graph",
+      "country_slug": "israel"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2026-07",
