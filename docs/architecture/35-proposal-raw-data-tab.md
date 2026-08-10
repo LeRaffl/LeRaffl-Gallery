@@ -1,9 +1,9 @@
 # 35 · Proposal: the "Raw Data" tab
 
-**Status:** Backend built (2026-08) — `scripts/build_series.py`, `series/`,
-`build-series.yml` and the generated checklist in
-[35b](35b-raw-data-quality-todo.md) are in the repo. The tab itself is not; § 5
-is still the spec for it, and the clickable mockup is the reference render.
+**Status:** Built (2026-08). `scripts/build_series.py`, `series/`,
+`build-series.yml`, the generated checklist in
+[35b](35b-raw-data-quality-todo.md), and the tab itself in `index.html`
+(`#rawdata`). This document is the record of why it works the way it does.
 **Audience:** the maintainer + whoever implements this later.
 **Origin:** an X thread with @AndreasMemmer — a static PNG of the German BEV
 share of new registrations over the last 24 months, and the reply *"sone
@@ -698,9 +698,25 @@ with the current country, and back.
 
 ### 5.3 Rendering and state
 
-- **Plotly** stacked bar (`barmode: 'stack'` / `'relative'`), via the existing
-  `ensurePlotly()` + `hashchange` lazy-init pattern (`loadFleetWhenActive()` is
-  the template). Dark layout object and `@LeRaffl` annotation from Compare.
+- **Hand-drawn SVG, not Plotly.** This is the one place the tab differs from
+  Builder/Compare/Fleet, and the plan said Plotly. Four reasons it went the other
+  way, in order of weight:
+  1. It renders **up to 51 charts at once**, and 51 Plotly instances are not
+     fast. The SVG path draws all 51 in well under a second.
+  2. **The bar geometry is the feature.** Variable widths per granularity, a bar
+     centred on the window it covers rather than on its end period, cycle labels
+     thinned by pixel distance — every one of those was a bug at some point.
+     Owning the geometry is worth more here than owning a hover tooltip.
+  3. The `@LeRaffl` tag, the generation timestamp and the settings QR are **baked
+     into the image**, so a screenshot carries its own provenance. Inside a
+     Plotly layout that is annotation gymnastics.
+  4. It keeps ~1 MB of Plotly off a tab that needs none of it.
+
+  The cost is real and should be stated: no zoom, no pan, no modebar, and a
+  tooltip we maintain ourselves. For a chart whose whole job is "show me the
+  filed numbers", that trade is the right way round.
+- **Lazy init** on `hashchange`/`DOMContentLoaded`, the same deferred pattern as
+  `loadFleetWhenActive()`, so nothing is fetched until the tab is opened.
 - **Band colours from the Fleet tab's palette** (`FE_C` in `index.html`), which
   is already built for the dark surface Builder and Compare use, re-stepped
   where two adjacent bands were not tellable apart. Every pair now clears

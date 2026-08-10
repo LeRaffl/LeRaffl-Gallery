@@ -1467,6 +1467,64 @@ a:focus-visible{
   align-items:center;
 }
 
+/* ── Raw Data tab ────────────────────────────────────────────────────────────
+   Namespaced .rd-* throughout: the mockup used generic names (.toolbar, .card,
+   .plot) that already mean something else on this page. */
+.rd-toolbar{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end;background:#0f1117;
+  border:1px solid #1f2a44;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.rd-field{display:flex;flex-direction:column;gap:7px;min-width:0}
+.rd-field>label{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-2)}
+.rd-picker{position:relative}
+.rd-picksum{display:flex;align-items:center;gap:8px;border:1px solid #1f2a44;background:#0d1524;
+  border-radius:9px;padding:7px 11px;cursor:pointer;font-size:13.5px;min-width:270px}
+.rd-picksum .n{color:var(--muted-2);font-size:12px;margin-left:auto;font-family:var(--mono,ui-monospace,monospace)}
+.rd-pickbox{position:absolute;z-index:9;top:calc(100% + 6px);left:0;width:340px;max-height:330px;
+  overflow:auto;background:#0d1524;border:1px solid #1f2a44;border-radius:11px;padding:9px;
+  box-shadow:0 14px 40px rgba(0,0,0,.6);display:none}
+.rd-pickbox.on{display:block}
+.rd-pickbox input[type=search]{width:100%;background:#0b111d;border:1px solid #1f2a44;color:var(--text);
+  border-radius:7px;padding:6px 9px;font:inherit;font-size:13px;margin-bottom:8px}
+.rd-opt{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;cursor:pointer;font-size:13.5px}
+.rd-opt:hover{background:rgba(255,255,255,.05)}
+.rd-opt input{accent-color:var(--accent-2);margin:0;width:auto}
+.rd-opt small{margin-left:auto;color:var(--muted-2);font-size:11px;font-family:var(--mono,ui-monospace,monospace)}
+.rd-presets{display:flex;gap:5px;flex-wrap:wrap;padding:0 0 8px;margin-bottom:6px;border-bottom:1px solid #1f2a44}
+.rd-presets button{border:1px solid #1f2a44;background:#0b111d;color:var(--muted);border-radius:7px;
+  padding:3px 8px;font:inherit;font-size:11.5px;cursor:pointer}
+.rd-presets button:hover{border-color:#33507f;color:var(--text)}
+.rd-presets button.pri{color:#cfe6ff;border-color:rgba(105,183,255,.4)}
+.rd-win{display:flex;align-items:center;gap:12px}
+.rd-win input[type=range]{width:180px;accent-color:var(--accent-2);padding:0}
+.rd-winval{font-family:ui-monospace,monospace;font-size:13.5px;min-width:118px;font-variant-numeric:tabular-nums}
+.rd-seg{display:inline-flex;border:1px solid #1f2a44;border-radius:9px;overflow:hidden}
+.rd-seg button{border:0;background:#0d1524;color:var(--muted);font:inherit;font-size:13px;padding:7px 13px;cursor:pointer}
+.rd-seg button.on{background:rgba(105,183,255,.14);color:#cfe6ff;font-weight:600}
+.rd-seg button+button{border-left:1px solid #1f2a44}
+.rd-sumhead{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
+.rd-sumhead .l{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted-2)}
+.rd-sumhead .r{flex:1;height:1px;background:#1f2a44}
+.rd-legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;font-size:11.5px;color:var(--muted)}
+.rd-legend span{display:inline-flex;align-items:center;gap:6px}
+.rd-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.rd-plots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(460px,1fr))}
+.rd-plot{background:#0f1525;border-radius:11px;min-width:0;position:relative}
+.rd-plot svg{display:block;width:100%;height:auto}
+.rd-foot{margin:12px 2px 0;color:var(--muted-2);font-size:12px;line-height:1.5}
+.rd-foot b{color:var(--muted);font-weight:600}
+.rd-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.rd-tip{position:absolute;pointer-events:none;z-index:4;opacity:0;transition:opacity .08s;
+  background:#0b111dfa;border:1px solid #1f2a44;border-radius:9px;padding:9px 11px;
+  font-size:12px;min-width:190px;box-shadow:0 8px 26px rgba(0,0,0,.6)}
+.rd-tip.on{opacity:1}
+.rd-tip .h{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--muted);margin-bottom:6px}
+.rd-tip table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.rd-tip td{padding:1px 0}
+.rd-tip td.v{text-align:right;font-family:ui-monospace,monospace;padding-left:14px}
+.rd-tip td.k{display:flex;align-items:center;gap:6px}
+.rd-tip .sw{width:9px;height:9px;border-radius:2px;flex:none}
+.rd-tip tr.tot td{border-top:1px solid #1f2a44;padding-top:4px;color:var(--muted)}
+@media (max-width:760px){ .rd-plots{grid-template-columns:1fr} .rd-pickbox{width:min(340px,86vw)} }
+
 .country-picker{
   display:flex;
   flex-direction:column;
@@ -1822,6 +1880,7 @@ a:focus-visible{
       <span class="tab-group-label">DIY Curves</span>
       <a href="#builder" class="tablink">Builder</a>
       <a href="#compare" class="tablink">Compare</a>
+      <a href="#rawdata" class="tablink">Raw Data</a>
       <a href="#fleet" class="tablink">Fleet</a>
     </span>
     <span class="tab-group">
@@ -2595,6 +2654,78 @@ a:focus-visible{
   </div>
 </section>
 
+<!-- RAW DATA TAB -->
+<section id="tab-rawdata" class="tab">
+  <div class="container">
+    <h2>Raw Data</h2>
+    <p class="small" style="margin:-4px 0 14px;max-width:74ch">
+      The country CSVs, drawn. One bar per period, each summing the trailing
+      <em>N</em> months ending there — rolling, the way the TTM charts roll.
+      Nothing here is modelled: every number is a number that is in
+      <code>data/&lt;Country&gt;.csv</code>, or a sum of such numbers.
+    </p>
+
+    <div class="rd-toolbar">
+      <div class="rd-field"><label>Countries</label>
+        <div class="rd-picker">
+          <div class="rd-picksum" id="rdPickSum" tabindex="0" role="button" aria-expanded="false"></div>
+          <div class="rd-pickbox" id="rdPickBox">
+            <input type="search" id="rdPickQ" placeholder="Search countries…" aria-label="Search countries">
+            <div class="rd-presets" id="rdPresets"></div>
+            <div id="rdPickList"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rd-field"><label for="rdWin">Trailing window</label>
+        <div class="rd-win">
+          <input type="range" id="rdWin" min="1" max="24" value="12" aria-label="Months per bar">
+          <span class="rd-winval" id="rdWinVal"></span>
+        </div>
+      </div>
+      <div class="rd-field"><label>Units</label>
+        <div class="rd-seg" id="rdUnits"><button data-u="rel" class="on">Share</button><button data-u="abs">Absolute</button></div>
+      </div>
+      <div class="rd-field"><label>Show</label>
+        <div class="rd-seg" id="rdTf"><button data-t="0" class="on">All</button><button data-t="60">5y</button><button data-t="24">2y</button></div>
+      </div>
+      <div class="rd-field"><label>Combined from</label>
+        <div class="rd-seg" id="rdQual"><button data-q="1" class="on">Complete data</button><button data-q="0">All selected</button></div>
+      </div>
+      <div class="rd-field"><label>Axes</label>
+        <div class="rd-seg" id="rdAx"><button data-a="0" class="on">Per chart</button><button data-a="1">Same everywhere</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="rdSumWrap"></div>
+      <div class="rd-legend" id="rdLegend" hidden></div>
+      <div class="rd-plots" id="rdPlots"></div>
+      <p class="rd-foot" id="rdFoot"></p>
+      <div class="rd-actions">
+        <button class="btn" id="rdDlPng">↓ PNG</button>
+        <button class="btn" id="rdDlCsv">↓ CSV</button>
+        <button class="btn" id="rdQrBtn">QR: on</button>
+        <span style="color:var(--muted-2);font-size:12px;font-family:ui-monospace,monospace" id="rdStamp"></span>
+      </div>
+    </div>
+
+    <p class="small" style="margin-top:18px;max-width:78ch;color:var(--muted-2)">
+      <b>What the bands mean.</b> <b>BEV</b> is battery-electric; <b>PHEV</b> plug-in hybrid;
+      <b>HEV</b> a full hybrid that does not plug in; <b>Hybrid</b> a combined bucket where the
+      source does not separate those two; <b>ICE</b> combustion that the source does not split into
+      petrol and diesel; <b>Other</b> a category the source reports but does not name (LPG, CNG,
+      fuel-cell). Where a source only started splitting a category out partway through, the later
+      band is folded back into the one it used to be counted in — otherwise the chart shows a cliff
+      that is a change of definition, not of market. Selecting a second country collapses both to
+      whatever they can both fill; the footnote says which collapse was applied.
+      A period is drawn only where the window is a whole multiple of the coarsest observation inside
+      it, so a quarterly stretch appears at T3M, T6M and T12M but not at T1M.
+      Everything held back and why:
+      <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/35b-raw-data-quality-todo.md">the data-quality checklist</a>.
+    </p>
+  </div>
+</section>
+
   <!-- Fleet TAB -->
 <section id="tab-fleet" class="tab">
   <div class="container">
@@ -3305,11 +3436,21 @@ function activateTabByHash(){
   const hash = location.hash || '#about';
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tablink').forEach(a => a.classList.remove('active'));
-  const id = hash.replace('#','');
+  // A tab may carry state in a query string — `#rawdata?c=Germany&n=12`, which
+  // is what the Raw Data tab's share links and QR codes encode. Split it off
+  // before the id lookup; tabs without one are unaffected.
+  const id = hash.replace('#','').split('?')[0];
   const tab = document.getElementById('tab-' + id) || document.getElementById('tab-about');
   if (tab) tab.classList.add('active');
   const link = document.querySelector('.tablink[href="' + (tab ? '#' + id : '#about') + '"]');
-  if (link) link.classList.add('active');
+  if (link){
+    link.classList.add('active');
+    // The tab strip scrolls horizontally, so a link far enough right is simply
+    // not on screen when you arrive by deep link — the page then looks like it
+    // has no active tab.
+    if (typeof link.scrollIntoView === 'function')
+      link.scrollIntoView({block:'nearest', inline:'nearest'});
+  }
 }
 window.addEventListener('hashchange', activateTabByHash);
 window.addEventListener('DOMContentLoaded', activateTabByHash);
@@ -3674,6 +3815,1050 @@ window.addEventListener('DOMContentLoaded', () => {
   loadWorldMapWhenActive();
 });
   
+/* Minimal QR encoder — byte mode, EC level M, versions 1..10.
+   Enough for a settings URL; verified matrix-for-matrix against python-qrcode. */
+const QR = (() => {
+  // [data codewords, ec per block, [ [blocks, data cw], ... ] ]  — EC level M
+  const RS = {
+    1:[16,10,[[1,16]]], 2:[28,16,[[1,28]]], 3:[44,26,[[1,44]]],
+    4:[64,18,[[2,32]]], 5:[86,24,[[2,43]]], 6:[108,16,[[4,27]]],
+    7:[124,18,[[4,31]]], 8:[154,22,[[2,38],[2,39]]],
+    9:[182,22,[[3,36],[2,37]]], 10:[216,26,[[4,43],[1,44]]]
+  };
+  const ALIGN = {1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],
+                 7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+  const VERINFO = {7:0x07C94, 8:0x085BC, 9:0x09A99, 10:0x0A4D3};
+  const FORMAT_M = [0x5412,0x5125,0x5E7C,0x5B4B,0x45F9,0x40CE,0x4F97,0x4AA0];
+
+  // GF(256), primitive 0x11d
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11d; }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  const mul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+  function genPoly(n) {
+    let g = [1];
+    for (let i = 0; i < n; i++) {
+      const ng = new Array(g.length + 1).fill(0);
+      for (let j = 0; j < g.length; j++) {
+        ng[j] ^= g[j];                     // x * g(x)
+        ng[j + 1] ^= mul(g[j], EXP[i]);    // alpha^i * g(x)
+      }
+      g = ng;
+    }
+    return g;
+  }
+  function ecc(data, n) {
+    const g = genPoly(n), res = new Array(n).fill(0);
+    for (const d of data) {
+      const f = d ^ res[0];
+      res.shift(); res.push(0);
+      if (f) for (let i = 0; i < n; i++) res[i] ^= mul(g[i + 1], f);
+    }
+    return res;
+  }
+
+  function encode(str) {
+    const bytes = [...new TextEncoder().encode(str)];
+    let ver = 0;
+    for (let v = 1; v <= 10; v++) {
+      const need = 4 + (v < 10 ? 8 : 16) + 8 * bytes.length;
+      if (need <= RS[v][0] * 8) { ver = v; break; }
+    }
+    if (!ver) throw new Error('payload too long for version 10');
+
+    // ---- bit stream ----
+    const bits = [];
+    const push = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    push(4, 4);                                   // byte mode
+    push(bytes.length, ver < 10 ? 8 : 16);
+    bytes.forEach(b => push(b, 8));
+    const cap = RS[ver][0] * 8;
+    for (let i = 0; i < 4 && bits.length < cap; i++) bits.push(0);   // terminator
+    while (bits.length % 8) bits.push(0);
+    const dataCW = [];
+    for (let i = 0; i < bits.length; i += 8)
+      dataCW.push(bits.slice(i, i + 8).reduce((a, b) => (a << 1) | b, 0));
+    const PADS = [0xEC, 0x11];
+    for (let i = 0; dataCW.length < RS[ver][0]; i++) dataCW.push(PADS[i % 2]);
+
+    // ---- split into blocks, interleave with their ECC ----
+    const [, ecLen, groups] = RS[ver];
+    const dBlocks = [], eBlocks = [];
+    let p = 0;
+    for (const [count, size] of groups)
+      for (let i = 0; i < count; i++) {
+        const blk = dataCW.slice(p, p + size); p += size;
+        dBlocks.push(blk); eBlocks.push(ecc(blk, ecLen));
+      }
+    const out = [];
+    const maxD = Math.max(...dBlocks.map(b => b.length));
+    for (let i = 0; i < maxD; i++) for (const b of dBlocks) if (i < b.length) out.push(b[i]);
+    for (let i = 0; i < ecLen; i++) for (const b of eBlocks) out.push(b[i]);
+
+    // ---- matrix ----
+    const size = 17 + ver * 4;
+    const m = Array.from({ length: size }, () => new Array(size).fill(null));
+    const fn = Array.from({ length: size }, () => new Array(size).fill(false));
+    const set = (r, c, v) => { m[r][c] = v; fn[r][c] = true; };
+
+    const finder = (r0, c0) => {
+      for (let r = -1; r <= 7; r++) for (let c = -1; c <= 7; c++) {
+        const rr = r0 + r, cc = c0 + c;
+        if (rr < 0 || cc < 0 || rr >= size || cc >= size) continue;
+        const d = Math.max(Math.abs(r - 3), Math.abs(c - 3));
+        set(rr, cc, d !== 2 && d <= 3 ? 1 : 0);
+      }
+    };
+    finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+
+    for (let i = 8; i < size - 8; i++) {           // timing
+      const v = i % 2 === 0 ? 1 : 0;
+      set(6, i, v); set(i, 6, v);
+    }
+    for (const r of ALIGN[ver]) for (const c of ALIGN[ver]) {   // alignment
+      if ((r < 8 && c < 8) || (r < 8 && c > size - 9) || (r > size - 9 && c < 8)) continue;
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++)
+        set(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1 ? 1 : 0);
+    }
+    set(size - 8, 8, 1);                            // dark module
+    for (let i = 0; i < 9; i++) {                   // reserve format areas
+      if (!fn[8][i]) set(8, i, 0);
+      if (!fn[i][8]) set(i, 8, 0);
+    }
+    for (let i = 0; i < 8; i++) {
+      if (!fn[8][size - 1 - i]) set(8, size - 1 - i, 0);
+      if (!fn[size - 1 - i][8]) set(size - 1 - i, 8, 0);
+    }
+    if (ver >= 7) {                                 // version info
+      const vi = VERINFO[ver];
+      for (let i = 0; i < 18; i++) {
+        const b = (vi >> i) & 1;
+        set(Math.floor(i / 3), size - 11 + (i % 3), b);
+        set(size - 11 + (i % 3), Math.floor(i / 3), b);
+      }
+    }
+
+    // ---- data placement (zigzag, right to left, skipping column 6) ----
+    let bi = 0, up = true;
+    for (let c = size - 1; c >= 0; c -= 2) {
+      if (c === 6) c--;
+      for (let k = 0; k < size; k++) {
+        const r = up ? size - 1 - k : k;
+        for (const cc of [c, c - 1]) {
+          if (fn[r][cc]) continue;
+          const byte = out[bi >> 3];
+          m[r][cc] = byte === undefined ? 0 : (byte >> (7 - (bi & 7))) & 1;
+          bi++;
+        }
+      }
+      up = !up;
+    }
+
+    // ---- masking ----
+    const MASKS = [
+      (r, c) => (r + c) % 2 === 0,
+      (r, c) => r % 2 === 0,
+      (r, c) => c % 3 === 0,
+      (r, c) => (r + c) % 3 === 0,
+      (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+      (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0,
+      (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0,
+      (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0,
+    ];
+    const penalty = g => {
+      let p = 0;
+      const runs = line => {
+        let n = 1, s = 0;
+        for (let i = 1; i < line.length; i++) {
+          if (line[i] === line[i - 1]) n++;
+          else { if (n >= 5) s += n - 2; n = 1; }
+        }
+        if (n >= 5) s += n - 2;
+        return s;
+      };
+      for (let r = 0; r < size; r++) p += runs(g[r]);
+      for (let c = 0; c < size; c++) p += runs(g.map(row => row[c]));
+      for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++)
+        if (g[r][c] === g[r][c + 1] && g[r][c] === g[r + 1][c] && g[r][c] === g[r + 1][c + 1]) p += 3;
+      const PAT = [1,0,1,1,1,0,1,0,0,0,0], PAT2 = [0,0,0,0,1,0,1,1,1,0,1];
+      const scan = line => {
+        let s = 0;
+        for (let i = 0; i + 11 <= line.length; i++) {
+          const w = line.slice(i, i + 11);
+          if (PAT.every((v, j) => v === w[j]) || PAT2.every((v, j) => v === w[j])) s += 40;
+        }
+        return s;
+      };
+      for (let r = 0; r < size; r++) p += scan(g[r]);
+      for (let c = 0; c < size; c++) p += scan(g.map(row => row[c]));
+      let dark = 0;
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) dark += g[r][c];
+      p += Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5) * 10;
+      return p;
+    };
+
+    // Score each mask on the masked grid with the format strips still blank —
+    // format bits are the same 31 modules under every mask, and scoring them
+    // lets their run-lengths sway the choice. (Matches python-qrcode, which is
+    // what this encoder is verified against.)
+    let best = null, bestP = Infinity, bestMask = 0;
+    for (let k = 0; k < 8; k++) {
+      const g = m.map((row, r) => row.map((v, c) => fn[r][c] ? v : (MASKS[k](r, c) ? v ^ 1 : v)));
+      const p = penalty(g);
+      if (p < bestP) { bestP = p; best = g; bestMask = k; }
+    }
+    // Now stamp the winner's format information into both copies.
+    const f = FORMAT_M[bestMask];
+    for (let i = 0; i < 15; i++) {
+      const b = (f >> i) & 1;
+      if (i < 6) best[i][8] = b;
+      else if (i === 6) best[7][8] = b;
+      else if (i === 7) best[8][8] = b;
+      else if (i === 8) best[8][7] = b;
+      else best[8][14 - i] = b;
+      if (i < 8) best[8][size - 1 - i] = b;
+      else best[size - 15 + i][8] = b;
+    }
+    return { size, matrix: best, version: ver, mask: bestMask };
+  }
+  return { encode };
+})();
+
+
+/* ── Raw Data tab ────────────────────────────────────────────────────────────
+   Draws the country CSVs as stacked bars, each bar a rolling trailing window.
+   Spec: docs/architecture/35-proposal-raw-data-tab.md. The build-time half
+   lives in scripts/build_series.py and writes series/; nothing below re-derives
+   a category or a granularity, it only chooses what to show.
+
+   Hand-drawn SVG rather than Plotly, which is a deliberate deviation from § 5.3
+   of the proposal and the one place this tab differs from Builder/Compare/Fleet:
+   - it renders up to 51 charts at once, and 51 Plotly instances are not fast;
+   - the bar geometry is the whole feature here (variable widths per granularity,
+     cycle labels, a bar centred on the window it covers rather than on its end
+     month) and every one of those was a bug at some point — owning the geometry
+     is worth more than owning a hover tooltip;
+   - the @LeRaffl tag, the generation timestamp and the settings QR are baked
+     into the image so a screenshot carries its own provenance, which is awkward
+     to do inside a Plotly layout;
+   - and it keeps ~1 MB of Plotly off a tab that does not otherwise need it. */
+(function(){
+  const $ = id => document.getElementById(id);
+  let DATA = {};            // country -> full series, fetched on demand
+  let INDEX = null;         // series/index.json, fetched once
+  let NAMES = [];
+  const PENDING = new Map();
+
+  // The page carries <base href="https://leraffl.github.io/LeRaffl-Gallery/">, so
+  // a plain relative fetch resolves against the published site even when the
+  // repo is being served locally. Same two-candidate pattern the freshness tab
+  // uses: location.href first so a local checkout reads its own series/, the
+  // relative form second, which is what production actually takes.
+  async function getJSON(path){
+    for (const url of [new URL(path, location.href).href, path]){
+      try {
+        const r = await fetch(url);
+        if (r.ok) return await r.json();
+      } catch(e) { /* try the next candidate */ }
+    }
+    throw new Error(path + ' not reachable');
+  }
+
+  /* Band colours. BEV/PHEV/Hybrid/Petrol/Diesel/Other come from the Fleet tab's
+     palette (FE_C), re-stepped where two adjacent bands did not separate.
+     ICE comes from the R TTM palette instead — R/plots.R:TTM_FUEL_COLORS has an
+     ICE entry and FE_C does not, and this tab draws the same band the TTM PNGs
+     draw. R's #692500 is chosen for a white ggplot panel where it measures
+     11.3:1; on this tab's #0f1525 it measures 1.62:1 and the largest band in the
+     stack vanishes. #a65832 is the same hue and chroma at L*46 — 3.52:1 here,
+     ΔE2000 17.6 from R's value. Borrowing Fleet's Petrol was the alternative and
+     it fails: ΔE2000 12.9 against PHEV, which sits directly above ICE. */
+  const C = {BEV:'#29d398', PHEV:'#4f9fe0', EREV:'#2f6fb0', Hybrid:'#ffd166', HEV:'#ffd166',
+             MHEV:'#c9a544', ICE:'#a65832', PETROL:'#8fa0bd', DIESEL:'#c98f52',
+             FLEXFUEL:'#9b7a4e', OTHERS:'#5c6a78'};
+  const LAB = {BEV:'BEV', PHEV:'PHEV', EREV:'EREV', Hybrid:'Hybrid', HEV:'HEV', MHEV:'MHEV',
+               ICE:'ICE', PETROL:'Petrol', DIESEL:'Diesel', FLEXFUEL:'Flexfuel', OTHERS:'Other'};
+  // A band that absorbed another one says so, or the reader assumes "Petrol"
+  // means the same thing here as on the chart beside it.
+  const SHORT = {HEV:'hybrids', MHEV:'mild hybrids', FLEXFUEL:'flexfuel', EREV:'EREV'};
+  const ORDER = ['BEV','PHEV','EREV','Hybrid','HEV','MHEV','ICE','PETROL','DIESEL','FLEXFUEL','OTHERS'];
+  const INK='#e9eef2', MUT='#9fb3d1', GRID='rgba(255,255,255,.08)', SURF='#0f1525';
+
+  let S = {c:[], n:12, u:'rel', t:0, qr:true, ax:0, q:1};
+  let VIEW = [], SUM = null, CB = null, booted = false;
+
+  const STAMP = (() => {
+    const d = new Date(), p = x => String(x).padStart(2,'0');
+    return `${d.getUTCFullYear()}-${p(d.getUTCMonth()+1)}-${p(d.getUTCDate())} `
+         + `${p(d.getUTCHours())}:${p(d.getUTCMinutes())} UTC`;
+  })();
+
+  const pname = m => `${Math.floor(m/12)}-${String(m%12+1).padStart(2,'0')}`;
+  const plab  = m => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m%12]
+                     + " '" + String(Math.floor(m/12)).slice(2);
+  const nice  = v => Math.round(v).toLocaleString('en-US');
+  const fmt   = v => v>=1e6 ? (v/1e6).toFixed(v>=1e7?0:1)+'M' : v>=1000 ? Math.round(v/1000)+'k' : Math.round(v);
+  const esc   = s => String(s==null?'':s).replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function labelFor(k, cs){
+    const abs = [...new Set(cs.flatMap(c=>((DATA[c]||{}).folded||[])
+      .filter(f=>f.endsWith('into '+k)).map(f=>SHORT[f.split(' ')[0]]||f.split(' ')[0])))];
+    return abs.length ? `${LAB[k]} (incl. ${abs.join(', ')})` : LAB[k];
+  }
+
+  /* The visitor's own country is the one they want to see first. The browser
+     already knows it — no IP lookup, no request, no consent question: the IANA
+     timezone names a place. Falls back to Germany. */
+  const TZ_COUNTRY = {
+    'Europe/Tirane':'Albania','Europe/Vienna':'Austria','Europe/Brussels':'Belgium',
+    'Europe/Sofia':'Bulgaria','America/Santiago':'Chile','Asia/Shanghai':'China',
+    'America/Bogota':'Colombia','Europe/Zagreb':'Croatia','Asia/Nicosia':'Cyprus',
+    'Europe/Nicosia':'Cyprus','Europe/Prague':'Czechia','Europe/Copenhagen':'Denmark',
+    'Europe/Tallinn':'Estonia','Europe/Helsinki':'Finland','Europe/Paris':'France',
+    'Asia/Tbilisi':'Georgia','Europe/Berlin':'Germany','Europe/Busingen':'Germany',
+    'Europe/Athens':'Greece','Europe/Budapest':'Hungary','Atlantic/Reykjavik':'Iceland',
+    'Asia/Jakarta':'Indonesia','Asia/Makassar':'Indonesia','Europe/Dublin':'Ireland',
+    'Asia/Jerusalem':'Israel','Europe/Rome':'Italy','Asia/Tokyo':'Japan',
+    'Europe/Riga':'Latvia','Europe/Vilnius':'Lithuania','Europe/Luxembourg':'Luxembourg',
+    'Asia/Kuala_Lumpur':'Malaysia','Asia/Kuching':'Malaysia','Europe/Malta':'Malta',
+    'Asia/Kathmandu':'Nepal','Europe/Amsterdam':'Netherlands','Pacific/Auckland':'New Zealand',
+    'Europe/Oslo':'Norway','Europe/Warsaw':'Poland','Europe/Lisbon':'Portugal',
+    'Atlantic/Azores':'Portugal','Atlantic/Madeira':'Portugal','Europe/Bucharest':'Romania',
+    'Asia/Singapore':'Singapore','Europe/Bratislava':'Slovakia','Europe/Ljubljana':'Slovenia',
+    'Asia/Seoul':'South Korea','Europe/Madrid':'Spain','Atlantic/Canary':'Spain',
+    'Europe/Stockholm':'Sweden','Europe/Zurich':'Switzerland','Asia/Bangkok':'Thailand',
+    'Europe/Istanbul':'Türkiye','Europe/London':'UK','America/Montevideo':'Uruguay'
+  };
+  const TZ_PREFIX = [['Australia/','Australia'],['America/Toronto','Canada'],
+    ['America/Vancouver','Canada'],['America/Edmonton','Canada'],['America/Winnipeg','Canada'],
+    ['America/Halifax','Canada'],['America/St_Johns','Canada'],['America/Sao_Paulo','Brazil'],
+    ['America/Fortaleza','Brazil'],['America/Recife','Brazil'],['America/Manaus','Brazil'],
+    ['America/','USA'],['Pacific/Honolulu','USA']];
+  function homeCountry(){
+    let tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){}
+    let c = TZ_COUNTRY[tz];
+    if (!c) { const hit = TZ_PREFIX.find(([p])=>tz.startsWith(p)); if (hit) c = hit[1]; }
+    return (c && NAMES.includes(c)) ? c : (NAMES.includes('Germany') ? 'Germany' : NAMES[0]);
+  }
+
+  /* ---- fetching ---------------------------------------------------------- */
+  // Per-country files (§ 4.8), so picking one country costs one request and a
+  // single-country data update invalidates one cache entry. Mirrors
+  // COMPARE_OBS_CACHE's shape.
+  function slugOf(country){
+    const row = INDEX.countries.find(x=>x.country===country);
+    return row ? row.slug : country.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  }
+  function need(countries){
+    const want = countries.filter(c=>!DATA[c]);
+    return Promise.all(want.map(c=>{
+      if (PENDING.has(c)) return PENDING.get(c);
+      const pr = getJSON('series/' + slugOf(c) + '.json')
+        .then(j => { DATA[c] = j; PENDING.delete(c); })
+        .catch(e => { PENDING.delete(c); console.warn('series fetch failed:', c, e.message); });
+      PENDING.set(c, pr);
+      return pr;
+    }));
+  }
+  /* Band set: collapse to the coarsest granularity any selected country can fill.
+     Summing bands you already have is always safe; splitting back down is not. */
+  function plan(cs){
+    const d = cs.map(c=>DATA[c]);
+    return {ice: d.some(x=>!x.ice_split), hyb: d.some(x=>x.hybrid_combined)};
+  }
+  const mapBand = (b,p) => (p.ice && ['PETROL','DIESEL','FLEXFUEL'].includes(b)) ? 'ICE'
+                         : (p.hyb && ['PHEV','EREV','HEV','MHEV'].includes(b)) ? 'Hybrid' : b;
+
+  /* One bar per period, each the trailing N months ending there — rolling, the
+     way the TTM chart rolls. A bar exists only when the window is a whole number
+     of the coarsest observation inside it, so quarterly history appears at 3, 6,
+     9, 12 … and yearly history only at multiples of 12. */
+  function bars(c, N, p){
+    const s = DATA[c], out = [];
+    for (let i = s.m.length-1; i >= 0; i--){
+      // Walk back in MONTHS COVERED, not in rows: a row carries the granularity
+      // of the observation behind it, so one quarterly row covers three months.
+      let j = i, months = s.g[i], gmax = s.g[i], ok = true;
+      while (months < N){
+        if (j-1 < 0 || s.m[j-1] !== s.m[j] - s.g[j]) { ok = false; break; }
+        j--; months += s.g[j]; gmax = Math.max(gmax, s.g[j]);
+      }
+      let scale = 1, span = N;
+      if (ok && months === N && N % gmax === 0){
+        // exact: the window is a whole number of the coarsest observation in it
+      } else if (N < s.g[i]){
+        // The window is finer than the data. Rather than leave a hole, show the
+        // observation at its own size — one bar spanning the whole cycle, labelled
+        // for it. In share mode that is exactly the cycle's mix; in absolute mode
+        // it is scaled to the window length so its height stays comparable to the
+        // monthly bars beside it (a per-month average, not an invented month).
+        j = i; span = s.g[i]; gmax = s.g[i]; scale = N / s.g[i]; ok = true;
+      } else continue;
+      const v = {};
+      let tot = 0;
+      for (let x=j; x<=i; x++){
+        tot += s.t[x];
+        for (const q in s.b) { const kk = mapBand(q,p); v[kk] = (v[kk]||0) + s.b[q][x]; }
+      }
+      out.push({from:s.m[i]-span+1, to:s.m[i], span, tot, v, coarse:gmax>1, scale});
+    }
+    return out.reverse();
+  }
+
+  // How many months of the axis a bar occupies. Width comes from the spacing to
+  // the neighbouring bar, not from a fixed step: a bar standing for a whole year
+  // should look a year wide, next to monthly bars that look a month wide.
+  // Otherwise a yearly stretch renders as hairlines and reads as missing data
+  // rather than as coarser data. Lives outside drawPlot because the x domain has
+  // to know the left edge of the first bar before the scale exists.
+  function widthMonths(list, i, step){
+    const prev = i > 0 ? list[i].to - list[i-1].to : Infinity;
+    const next = i < list.length-1 ? list[i+1].to - list[i].to : Infinity;
+    const g = Math.min(prev, next, list[i].span > 1 ? list[i].span : Infinity);
+    return isFinite(g) ? g : (list[i].span || step);
+  }
+  // The domain a list of bars needs to be drawn INSIDE. Starting it at the first
+  // bar's end month cuts that bar in half and pushes its cycle label off the
+  // plot — the combined chart's leading T12M bar lost its "2021" that way, and
+  // the left clamp then squashed it against the axis.
+  function domOf(list, step){
+    return list.length ? [list[0].to - widthMonths(list, 0, step) + 1,
+                          list[list.length-1].to] : [0,1];
+  }
+
+  function drawPlot(el, o){
+    // o: {title, sub, list, compact, dom:[xmin,xmax], ymax, qr}
+    const list = o.list;
+    const compact = o.compact;
+    const W = Math.max(compact?260:460, Math.round(el.clientWidth)), H = compact ? 168 : 330;
+    const ML = compact?40:54, MR=16, MT = compact ? 26 : (S.qr ? 62 : 44), MB = compact?26:34;
+    const iw = W-ML-MR, ih = H-MT-MB;
+    if (!list.length){
+      el.innerHTML = `<div style="padding:${compact?14:26}px;color:${MUT};font-size:12.5px">
+        ${o.title} — nothing to draw at T${S.n}M.</div>`;
+      return;
+    }
+    const keys = ORDER.filter(k=>list.some(b=>(b.v[k]||0)>0.5));
+    const rel = S.u==='rel';
+    const nstep = v => { const e=Math.pow(10,Math.floor(Math.log10(v))), m=v/e; return (m<=1?1:m<=2?2:m<=5?5:10)*e; };
+    // The axis has to be measured in the same units the bars are DRAWN in. A
+    // coarse bar carries its whole cycle (China 2016: 28.4M for the year) but is
+    // drawn scaled to the window (2.37M at T1M). Measuring the axis on the raw
+    // value put the top at 30M and squashed every monthly bar to a hairline —
+    // exactly the countries with yearly rows: China, Germany, Poland.
+    const wf = b => rel ? 1 : (b.scale || 1);
+    const raw = o.ymax || Math.max(...list.map(b => b.tot * wf(b)));
+    const sv = nstep(raw/4), max = rel ? 1 : Math.ceil(raw/sv)*sv;
+
+    // x is a month-index domain, so charts can share one axis when asked to
+    const [x0,x1] = o.dom;
+    const span = Math.max(1, x1-x0+o.step);
+    const px = m => ML + ((m-x0)/span)*iw;
+    // Width comes from the spacing to the neighbouring bar, not from a fixed
+    // step: a bar standing for a whole year should look a year wide, next to
+    // monthly bars that look a month wide. Otherwise a yearly stretch renders as
+    // hairlines and reads as missing data rather than as coarser data.
+    const gapOf = i => widthMonths(list, i, o.step);
+    const bwOf = i => {
+      const months = gapOf(i);
+      const cap = (compact ? 26 : 48) * Math.max(1, months / o.step);
+      const full = (iw/span)*months;
+      // The 14 % gap that separates wide bars destroys a dense one. At 1-2 px a
+      // month, 14 % is a subpixel seam that the renderer turns into a grey wash,
+      // so a monthly stretch reads as a *duller colour* than the yearly bars
+      // beside it — Austria's 2012-2017 looked like a different palette from its
+      // 2018-2026. Below ~4 px a bar butts against its neighbour instead.
+      return Math.max(1, Math.min(cap, full < 4 ? full : full*0.86));
+    };
+    // A bar sits over the months it is drawn as wide as, not over its end month.
+    // Centring on `to` is right for a monthly bar and wrong for every coarse one:
+    // Romania's 2010 bar was drawn from mid-2010 to mid-2011, half a year late,
+    // and the left clamp then shoved it back on top of the 2011 bar.
+    const cx = i => px(list[i].to - (gapOf(i) - 1) / 2);
+
+    let g = `<rect x="0" y="0" width="${W}" height="${H}" fill="${SURF}" rx="11"/>`;
+    const ty = compact?15:22;
+    g += `<text x="${ML}" y="${ty}" font-size="${compact?11.5:14}" font-weight="650" fill="${INK}"
+           font-family="system-ui,sans-serif">${o.title}</text>`;
+    if (!compact){
+      // The stamp block is fixed width; the QR (when on) sits to the right of it,
+      // inside the header band — never over the plotting area.
+      const qw = S.qr ? 58 : 0;
+      const room = Math.floor((W - MR - ML - 160 - qw) / 6.15);
+      g += `<text x="${ML}" y="37" font-size="11" fill="${MUT}" font-family="ui-monospace,monospace">${
+            o.sub.length > room ? o.sub.slice(0, Math.max(8, room-1)) + '…' : o.sub}</text>`;
+      g += `<text x="${W-MR-qw}" y="${ty}" font-size="12" font-weight="650" fill="${MUT}" text-anchor="end"
+             font-family="system-ui,sans-serif">@LeRaffl</text>`;
+      g += `<text x="${W-MR-qw}" y="37" font-size="10" fill="#6d7f9c" text-anchor="end"
+             font-family="ui-monospace,monospace">${STAMP}</text>`;
+      if (S.qr && o.qr && typeof QR !== 'undefined'){
+        try{
+          const q = QR.encode(o.qr), s2 = 48, pxq = s2/q.size, ox = W-MR-s2, oy = 5;
+          g += `<rect x="${ox-3}" y="${oy-3}" width="${s2+6}" height="${s2+6}" fill="#fff" rx="2"/>`;
+          for (let r=0;r<q.size;r++) for (let c=0;c<q.size;c++) if (q.matrix[r][c])
+            g += `<rect x="${(ox+c*pxq).toFixed(2)}" y="${(oy+r*pxq).toFixed(2)}"
+                   width="${(pxq+.02).toFixed(2)}" height="${(pxq+.02).toFixed(2)}" fill="#000"/>`;
+        }catch(e){ console.error('QR failed:', e.message); }
+      }
+    }
+
+    const ticks = rel ? [0,.5,1] : (()=>{const a=[];for(let v=0;v<=max+1e-9;v+=sv)a.push(v);return a;})();
+    ticks.forEach(t=>{
+      const y = MT+ih-(t/max)*ih;
+      g += `<line x1="${ML}" x2="${W-MR}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${GRID}"/>`;
+      g += `<text x="${ML-6}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-size="${compact?9:10}" fill="${MUT}"
+             font-family="ui-monospace,monospace">${rel?Math.round(t*100)+'%':fmt(t)}</text>`;
+    });
+
+    list.forEach((b,i)=>{
+      const bw = bwOf(i);
+      const x = Math.min(Math.max(cx(i) - bw/2, ML), W - MR - bw);
+      const den = rel ? b.tot : max / (b.scale || 1);
+      let acc = 0;
+      const present = keys.filter(k=>(b.v[k]||0)>0);
+      present.forEach((k,idx)=>{
+        const h = ((b.v[k]||0)/den)*ih, y = MT+ih-acc-h, last = idx===present.length-1;
+        g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}"
+               height="${Math.max(0.5,h-(last||bw<4?0:1.5)).toFixed(1)}" fill="${C[k]}"
+               rx="${last&&bw>6?2:0}"/>`;
+        acc += h;
+      });
+      g += `<rect class="rd-hit" data-i="${i}" x="${(cx(i)-Math.max(bw,10)/2).toFixed(1)}" y="${MT}"
+             width="${Math.max(bw,10).toFixed(1)}" height="${ih}" fill="transparent"/>`;
+    });
+
+    // Label coarse bars with the cycle they stand for, thinned by pixel distance —
+    // a quarterly stretch has four labels a year and they collide into mush
+    // otherwise. Quarters fall back to just the year once space runs short.
+    const minGap = compact ? 40 : 52;
+    const coarseX = [];
+    let lastX = -1e9, lastYear = null;
+    list.forEach((b,i)=>{
+      if (!b.coarse) return;
+      const x = cx(i), year = Math.floor(b.to/12);
+      if (x - lastX < minGap) return;
+      const cyc = widthMonths(list, i, o.step);
+      const lab = cyc >= 12 || year !== lastYear ? String(year)
+                : 'Q' + (Math.floor((b.to%12)/3)+1);
+      g += `<text x="${x.toFixed(1)}" y="${MT+ih+(compact?12:15)}" text-anchor="middle"
+             font-size="${compact?8:9}" fill="#8fa4c4" font-family="ui-monospace,monospace">${lab}</text>`;
+      coarseX.push(x); lastX = x; lastYear = year;
+    });
+    const nlab = Math.max(2, Math.floor(iw/(compact?58:78)));
+    for (let i=0;i<=nlab;i++){
+      const m = Math.round(x0 + (span-o.step)*i/nlab);
+      const x = px(m);
+      if (x > W-MR-10) continue;
+      if (coarseX.some(cx=>Math.abs(cx-x) < minGap)) continue;   // don't collide with a cycle label
+      g += `<text x="${x.toFixed(1)}" y="${MT+ih+(compact?12:15)}" text-anchor="middle"
+             font-size="${compact?8.5:9.5}" fill="${MUT}" font-family="ui-monospace,monospace">${plab(m)}</text>`;
+    }
+
+    if (!compact){
+      let lx = ML;
+      keys.forEach(k=>{
+        g += `<rect x="${lx}" y="${H-14}" width="9" height="9" rx="2" fill="${C[k]}"/>`;
+        const lb = labelFor(k, S.c);
+        g += `<text x="${lx+13}" y="${H-6}" font-size="10.5" fill="${MUT}" font-family="system-ui,sans-serif">${lb}</text>`;
+        lx += 22 + lb.length*6.2;
+      });
+    }
+
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"
+                      aria-label="${esc(o.title)}">${g}</svg><div class="rd-tip"></div>`;
+    const tip = el.querySelector('.rd-tip');
+    el.querySelectorAll('.rd-hit').forEach(r=>{
+      r.addEventListener('mouseenter', ()=>{
+        const b = list[+r.dataset.i];
+        const head = b.span >= 3
+          ? `${pname(b.from)} … ${pname(b.to)} · ${b.span>=12?'yearly':'quarterly'} figure`
+            + (S.u==='abs' && b.scale!==1 ? ` · shown as a ${S.n}-month average` : '')
+          : (b.from===b.to?pname(b.to):pname(b.from)+' … '+pname(b.to));
+        tip.innerHTML = `<div class="h">${o.title} · ${head}</div><table>`
+          + keys.filter(k=>(b.v[k]||0)>0).reverse().map(k=>
+            `<tr><td class="k"><span class="sw" style="background:${C[k]}"></span>${labelFor(k, S.c)}</td>
+             <td class="v">${S.u==='rel'?((b.v[k]/b.tot)*100).toFixed(1)+' %':nice(b.v[k]*(S.u==='abs'?(b.scale||1):1))}</td></tr>`).join('')
+          + `<tr class="tot"><td>TOTAL</td><td class="v">${nice(b.tot*(S.u==='abs'?(b.scale||1):1))}</td></tr></table>`;
+        tip.classList.add('on');
+      });
+      r.addEventListener('mousemove', ev=>{
+        const box = el.getBoundingClientRect();
+        let x = ev.clientX-box.left+14;
+        if (x+215 > box.width) x = ev.clientX-box.left-215;
+        tip.style.left = Math.max(4,x)+'px';
+        tip.style.top  = Math.max(4, ev.clientY-box.top-10)+'px';
+      });
+      r.addEventListener('mouseleave', ()=>tip.classList.remove('on'));
+    });
+  }
+
+  // Keep the selection short enough to stay a small QR. Spelling out 51 country
+  // names blows past what a version-10 code can hold, and a longer payload means
+  // smaller modules at the same pixel size — the opposite of scannable.
+  function selToken(){
+    if (S.c.length === NAMES.length) return '*';
+    for (const r of REGION_NAMES){
+      const g = NAMES.filter(n=>REGIONS[n]===r);
+      if (g.length === S.c.length && g.every(n=>S.c.includes(n))) return '@'+r.replace(/ /g,'');
+    }
+    if (S.c.length > 8){                       // bitmask over the sorted list, base36
+      let bits = 0n;
+      NAMES.forEach((n,i)=>{ if (S.c.includes(n)) bits |= 1n << BigInt(i); });
+      return 'b' + bits.toString(36);
+    }
+    return S.c.map(encodeURIComponent).join(',');
+  }
+  function shareURL(){
+    // scheme dropped on purpose: shorter payload -> lower QR version -> larger
+    // modules at the same pixel size, which is what makes a 48px code scannable.
+    return 'leraffl.github.io/LeRaffl-Gallery/#rawdata?c='
+         + selToken() + `&n=${S.n}&u=${S.u}` + (S.t?`&t=${S.t}`:'') + (S.ax?'&ax=1':'');
+  }
+
+  /* Combined chart.
+     Per-period strict membership ("only draw where every country reports") is
+     the obvious rule and it collapses: across all 51 series it yields ONE bar,
+     because they start and end at different months. Summing whatever happens to
+     be present instead is worse — the total would ramp purely from coverage.
+     So membership is constant over the whole chart: pick the set of countries
+     and the span that together cover the most (countries x periods), sum exactly
+     that set everywhere, and say out loud who was left out. The denominator
+     never changes mid-chart, which is the property that makes the line mean
+     something. */
+  // How many bars the combined chart has to reach before it stops dropping
+  // members. 12 was too lenient: with 51 selected it stopped at 38 countries and
+  // 15 bars, whose first two were a YEAR apart because Romania is yearly until
+  // 2021 and monthly from 2022. That produced one bar three times the width of
+  // the rest and a twelve-month hole behind it. 24 costs four small members
+  // (Romania, Nepal, Australia, Cyprus) and buys a dead-regular quarterly
+  // cadence: 34 countries, 26 bars, every gap exactly 3 months. Going further is
+  // a bad trade — 36 costs Brazil, Canada, Austria, Belgium and seven more, and
+  // brings the uneven widths back with mixed 1- and 3-month gaps.
+  const MIN_BARS = 24;
+  function combined(cs, N, p){
+    // A country whose file needed reconstruction to be drawable is fine on its own
+    // chart — it says so underneath. Summed into an aggregate it silently lends
+    // that reconstruction to the total, so by default the combined chart is built
+    // only from series that came out of their CSV complete.
+    const pool = S.q ? cs.filter(c=>!DATA[c].dropped) : cs;
+    const skipped = cs.length - pool.length;
+    const per = pool.map(c=>({c, l:bars(c, N, p)})).filter(x=>x.l.length);
+    if (per.length < 2) return null;
+    const ends = new Map(per.map(x=>[x.c, new Set(x.l.map(b=>b.to))]));
+    const common = set => {
+      let n = 0, ref = ends.get(set[0]);
+      for (const e of ref) if (set.every(c=>ends.get(c).has(e))) n++;
+      return n;
+    };
+    // Start from EVERYTHING the user picked. Only drop a country when keeping it
+    // would leave the combined chart with almost no bars, and then drop the one
+    // that constrains it most — the latest starter. Optimising "countries x
+    // periods" instead silently threw away half a four-country selection.
+    let keep = per.map(x=>x.c);
+    while (keep.length > 2 && common(keep) < MIN_BARS){
+      // Drop whichever country buys the most bars back. "Latest start" is the
+      // intuitive pick and it is often wrong — the binding constraint can just as
+      // easily be a country that stops reporting early, or a quarterly one whose
+      // window ends only land on four months a year.
+      let best = null, bestN = -1;
+      for (const c of keep){
+        const n = common(keep.filter(x=>x!==c));
+        if (n > bestN){ bestN = n; best = c; }
+      }
+      keep = keep.filter(c=>c!==best);
+    }
+    if (common(keep) < 3) return null;
+    const map = new Map();
+    per.filter(x=>keep.includes(x.c)).forEach(x=>x.l.forEach(b=>{
+      const e = map.get(b.to) || {from:b.to-N+1, to:b.to, tot:0, v:{}, seen:0, coarse:false};
+      e.tot += b.tot; e.seen++; e.coarse = e.coarse || !!b.coarse;
+      for (const q in b.v) e.v[q] = (e.v[q]||0) + b.v[q];
+      map.set(b.to, e);
+    }));
+    const list = [...map.values()].filter(e=>e.seen===keep.length).sort((x,y)=>x.to-y.to);
+    return list.length ? {list, members:keep, skipped,
+                          excluded:cs.filter(c=>!keep.includes(c) && pool.includes(c))} : null;
+  }
+
+
+  /* ---- render ------------------------------------------------------------ */
+  function render(){
+    const plots = $('rdPlots'), sumwrap = $('rdSumWrap');
+    if (!plots) return;
+    plots.innerHTML = ''; sumwrap.innerHTML = '';
+    writeHash();
+    if (!S.c.length){
+      $('rdLegend').hidden = true;
+      plots.innerHTML = `<div class="rd-plot" style="padding:38px 22px;text-align:center;`
+        + `color:#9fb3d1;font-size:13.5px">No country selected — pick one above, `
+        + `or use a region preset.</div>`;
+      $('rdFoot').innerHTML = '';
+      $('rdWinVal').textContent = `T${S.n}M`;
+      VIEW = []; SUM = null; CB = null; return;
+    }
+    // A country still in flight is simply not drawn yet; need() re-renders.
+    const ready = S.c.filter(c=>DATA[c]);
+    if (!ready.length){
+      plots.innerHTML = `<div class="rd-plot" style="padding:38px 22px;text-align:center;`
+        + `color:#9fb3d1;font-size:13.5px">Loading…</div>`;
+      return;
+    }
+
+    const p = plan(ready);
+    // shared right edge, so the timeframe filter cuts every chart at the same month
+    const anchor = Math.min(...ready.map(c=>DATA[c].m[DATA[c].m.length-1]));
+    const cut = b => !S.t || b.to > anchor - S.t;
+
+    VIEW = ready.map(c=>({c, l: bars(c, S.n, p).filter(cut), step: DATA[c].step}));
+    CB = ready.length > 1 ? combined(ready, S.n, p) : null;
+    SUM = CB ? CB.list.filter(cut) : null;
+
+    const unit = ready.every(c=>DATA[c].step===3) ? 'quarter' : 'month';
+    $('rdWinVal').textContent =
+      `T${S.n}M` + (S.n===12?'  (TTM)':'') + (unit==='quarter'?`  · ${S.n/3} qtr`:'');
+
+    const compact = VIEW.length > 6;
+    plots.style.gridTemplateColumns = compact
+      ? 'repeat(auto-fit,minmax(300px,1fr))' : 'repeat(auto-fit,minmax(460px,1fr))';
+
+    const all = VIEW.flatMap(v=>v.l);
+    const doms = VIEW.map(v=>domOf(v.l, v.step));
+    const gdom = doms.length ? [Math.min(...doms.map(d=>d[0])), Math.max(...doms.map(d=>d[1]))] : [0,1];
+    const gmax = all.length
+      ? Math.max(...all.map(b => b.tot * (S.u === 'abs' ? (b.scale || 1) : 1))) : 1;
+
+    if (SUM && SUM.length){
+      const h = document.createElement('div');
+      h.className = 'rd-sumhead';
+      h.innerHTML = `<span class="l">${CB.members.length} of ${ready.length} selected, summed`
+        + `${S.q ? ' — complete data only' : ''}</span><span class="r"></span>`;
+      sumwrap.appendChild(h);
+      const el = document.createElement('div'); el.className = 'rd-plot'; sumwrap.appendChild(el);
+      const cstep = Math.min(...VIEW.map(v=>v.step));
+      drawPlot(el, {title:`${CB.members.length} countries combined`,
+        sub:`${CB.members.length} countries${CB.skipped?` · ${CB.skipped} left out as incomplete`:''}`
+            + ` · ${S.n===1?'per month':'trailing '+S.n+' months'}`
+            + ` · ${S.u==='rel'?'share of TOTAL':'registrations'}`,
+        list:SUM, compact:false, step:cstep,
+        // the combined chart keeps its own y scale — it is an order of magnitude
+        // above any single country and would flatten every one of them
+        dom:S.ax?gdom:domOf(SUM, cstep), ymax:0, qr:shareURL()});
+      const sp = document.createElement('div'); sp.style.height = '16px'; sumwrap.appendChild(sp);
+    }
+
+    const shl = $('rdLegend');
+    if (compact){
+      const keys = ORDER.filter(k=>all.some(b=>(b.v[k]||0)>0.5));
+      shl.hidden = false;
+      shl.innerHTML = keys.map(k=>`<span><i style="background:${C[k]}"></i>${esc(labelFor(k, ready))}</span>`).join('');
+    } else shl.hidden = true;
+
+    // Append every host first, then draw: measuring clientWidth before the grid
+    // has settled gives every chart the same wrong width.
+    const hosts = VIEW.map(()=>{ const e = document.createElement('div');
+      e.className = 'rd-plot'; plots.appendChild(e); return e; });
+    VIEW.forEach((v,i)=>{
+      const d = DATA[v.c];
+      drawPlot(hosts[i], {
+        title: v.c + (compact && d.step===3 ? '  (quarterly)' : ''),
+        sub: `${d.source} · ${S.n===1?'per month':'trailing '+S.n+' months'} · `
+           + (S.u==='rel'?'share of TOTAL':'registrations'),
+        list: v.l, compact, step: v.step,
+        dom: S.ax ? gdom : (v.l.length ? doms[i] : gdom),
+        ymax: S.ax ? gmax : 0,
+        qr: (!SUM && i === 0) ? shareURL() : null});
+    });
+
+    const notes = [];
+    VIEW.forEach(v=>{
+      const d = DATA[v.c];
+      if (!v.l.length){
+        notes.push(`<b>${esc(v.c)}</b> has no bar at T${S.n}M — ${d.step===3?'quarterly':'yearly'} `
+                 + `source, pick a multiple of ${d.step}.`);
+        return;
+      }
+      if (v.l[0].from > d.m[0] || d.dropped)
+        notes.push(`<b>${esc(v.c)}</b> from ${pname(v.l[0].from)}, CSV holds back to ${esc(d.held_from)}`
+          + (d.dropped?` (${d.dropped} periods unusable)`:'') + '.');
+    });
+    const short = notes.length > 4
+      ? notes.slice(0,3).concat(`…and ${notes.length-3} more series with held-back history.`)
+      : notes;
+    const foldNotes = [...new Set(ready.flatMap(c=>(DATA[c].folded||[])
+      .map(f=>`${c}: ${f.replace(' into ',' counted inside ')}`)))];
+    if (foldNotes.length) short.push('One band absorbed another where the source only split it out '
+      + 'partway through, so the definition holds for the whole series instead of stepping mid-chart — '
+      + esc(foldNotes.slice(0,3).join('; ')) + (foldNotes.length>3?', …':'') + '.');
+    if (p.ice && ready.some(c=>DATA[c].ice_split))
+      short.push('Petrol and Diesel merged into <b>ICE</b> — not every selected country splits them.');
+    if (p.hyb && ready.some(c=>!DATA[c].hybrid_combined))
+      short.push('PHEV and HEV merged into <b>Hybrid</b> — not every selected country splits them.');
+    if (!CB && ready.length > 1){
+      const held = ready.filter(c=>DATA[c].dropped);
+      short.unshift(S.q && held.length
+        ? `No combined chart: <b>${esc(held.slice(0,3).join(', '))}`
+          + `${held.length>3?', …':''}</b> ${held.length===1?'has':'have'} held-back periods, and `
+          + `<em>Combined from: complete data</em> keeps reconstructed series out of the total. `
+          + `Switch to <em>all selected</em> to include ${held.length===1?'it':'them'}.`
+        : `No combined chart: the selected series have too few periods in common at T${S.n}M.`);
+    }
+    if (CB && CB.excluded.length)
+      short.unshift(`Combined chart sums the <b>${CB.members.length}</b> countries covering `
+        + `${pname(SUM[0].from)} onwards; <b>${CB.excluded.length}</b> left out for shorter history `
+        + `(${esc(CB.excluded.slice(0,4).join(', '))}` + (CB.excluded.length>4?', …':'') + '). '
+        + 'Membership is constant, so the total never jumps.');
+    if (S.ax) short.push('<b>Same axes everywhere</b>: shared time range and, in absolute units, '
+      + 'one shared scale. The combined chart keeps its own.');
+    $('rdFoot').innerHTML = short.join(' ');
+  }
+
+  /* ---- downloads --------------------------------------------------------- */
+  function svgToDataURL(el){
+    // The markup already carries xmlns; adding a second one unconditionally
+    // makes it a duplicate attribute, which is an XML parse error, which an
+    // <img> reports as a plain load failure and nothing else. Explicit
+    // width/height too — an <img> fed a data: URL needs an intrinsic size, and
+    // viewBox alone is not one everywhere.
+    const [, , w, h] = el.getAttribute('viewBox').split(' ');
+    let s = el.outerHTML;
+    // Test the OPENING TAG only. `/\swidth=/` over the whole document matches
+    // the first <rect width=…> and silently skips the root size, which rasters
+    // the chart at the 300x150 default and exports a blurred PNG.
+    const open = s.slice(0, s.indexOf('>') + 1);
+    if (!/\sxmlns=/.test(open)) s = s.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+    if (!/\swidth=/.test(open)) s = s.replace('<svg ', `<svg width="${w}" height="${h}" `);
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(s)));
+  }
+  function downloadPNG(){
+    const svgs = [...document.querySelectorAll('#rdSumWrap svg, #rdPlots svg')];
+    if (!svgs.length) return;
+    const boxes = svgs.map(s=>s.getAttribute('viewBox').split(' ').map(Number));
+    const scale = 2, w = Math.max(...boxes.map(b=>b[2]));
+    const cv = document.createElement('canvas');
+    cv.width = w*scale;
+    cv.height = boxes.reduce((a,b)=>a+b[3],0)*scale + (svgs.length-1)*8*scale;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#0f1117'; ctx.fillRect(0,0,cv.width,cv.height);
+    let done = 0, y = 0;
+    const ys = boxes.map(b=>{ const cur = y; y += b[3]+8; return cur; });
+    svgs.forEach((s,i)=>{
+      const img = new Image();
+      img.onload = () => {
+        ctx.drawImage(img, 0, ys[i]*scale, boxes[i][2]*scale, boxes[i][3]*scale);
+        if (++done === svgs.length) cv.toBlob(b=>{
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = `rawdata_${S.c.length>3?S.c.length+'countries':S.c.join('-')}`
+                     + `_T${S.n}M_${STAMP.slice(0,10)}.png`;
+          a.click(); URL.revokeObjectURL(a.href);
+        });
+      };
+      img.onerror = () => { if (++done === svgs.length) console.error('[rawdata] PNG export failed'); };
+      img.src = svgToDataURL(s);
+    });
+  }
+  function downloadCSV(){
+    const rows = [];
+    const keys = ORDER.filter(k=>VIEW.some(v=>v.l.some(b=>(b.v[k]||0)>0))
+                              || (SUM||[]).some(b=>(b.v[k]||0)>0));
+    rows.push(['series','window_months','period_from','period_to',...keys,'TOTAL'].join(','));
+    const emit = (name,l)=>l.forEach(b=>rows.push(
+      [`"${name.replace(/"/g,'""')}"`, S.n, pname(b.from), pname(b.to),
+       ...keys.map(k=>Math.round((b.v[k]||0)*10)/10), Math.round(b.tot)].join(',')));
+    if (SUM && SUM.length) emit('COMBINED', SUM);
+    VIEW.forEach(v=>emit(v.c, v.l));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([rows.join('\n')], {type:'text/csv'}));
+    a.download = `rawdata_T${S.n}M_${STAMP.slice(0,10)}.csv`;
+    a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  /* ---- country picker ---------------------------------------------------- */
+  let REGIONS = {}, REGION_NAMES = [];
+  function setSel(list){
+    // "None" means none. Snapping back to a default made it impossible to clear
+    // the board before picking something else — every new selection arrived
+    // with Germany already in it.
+    S.c = list.filter(c=>NAMES.includes(c));
+    paintPicker();
+    render();
+    if (S.c.some(c=>!DATA[c])) need(S.c).then(render);
+  }
+  function paintPicker(){
+    const sum = $('rdPickSum');
+    sum.innerHTML = `<span>${!S.c.length ? 'none selected'
+                      : S.c.length>2 ? S.c.length+' countries' : esc(S.c.join(', '))}</span>`
+                  + `<span class="n">${NAMES.length} available</span>`;
+    $('rdPresets').innerHTML =
+      `<button type="button" class="pri" data-p="all">All ${NAMES.length}</button>`
+      + `<button type="button" data-p="none">None</button>`
+      + REGION_NAMES.map(r=>`<button type="button" data-p="${esc(r)}">${esc(r)} `
+        + `(${NAMES.filter(n=>REGIONS[n]===r).length})</button>`).join('');
+    $('rdPresets').querySelectorAll('button').forEach(b=>b.onclick = ()=>{
+      const k = b.dataset.p;
+      if (k==='all') setSel(NAMES);
+      else if (k==='none') setSel([]);
+      else setSel(NAMES.filter(n=>REGIONS[n]===k));
+    });
+    const q = ($('rdPickQ').value||'').toLowerCase();
+    const shown = NAMES.filter(n=>n.toLowerCase().includes(q));
+    $('rdPickList').innerHTML = shown.map(n=>{
+      const row = INDEX.countries.find(x=>x.country===n) || {};
+      return `<label class="rd-opt"><input type="checkbox" value="${esc(n)}" `
+           + `${S.c.includes(n)?'checked':''}>${esc(n)}`
+           + `<small>${row.step===3?'quarterly':''}</small></label>`;
+    }).join('');
+    $('rdPickList').querySelectorAll('input').forEach(i=>i.onchange = ()=>{
+      const sel = [...$('rdPickList').querySelectorAll('input:checked')].map(x=>x.value);
+      setSel([...new Set([...S.c.filter(c=>!shown.includes(c)), ...sel])]);
+    });
+  }
+
+  /* ---- URL state --------------------------------------------------------- */
+  // `#rawdata?c=Germany&n=12&u=rel` has to survive a paste into a reply — it is
+  // the use-case the whole tab started from, and it is what the QR encodes.
+  function readHash(){
+    const q = (location.hash.split('?')[1] || '');
+    if (!q) return false;
+    const P = new URLSearchParams(q);
+    const n = parseInt(P.get('n'), 10);
+    if (n >= 1 && n <= 24) S.n = n;
+    if (P.get('u') === 'abs' || P.get('u') === 'rel') S.u = P.get('u');
+    const t = parseInt(P.get('t'), 10); if ([0,24,60].includes(t)) S.t = t;
+    if (P.get('ax') === '1') S.ax = 1;
+    if (P.get('q') === '0') S.q = 0;
+    const c = P.get('c');
+    if (c === '*') S.c = NAMES.slice();
+    else if (c && c[0] === '@'){
+      const want = c.slice(1);
+      S.c = NAMES.filter(n2=>(REGIONS[n2]||'').replace(/ /g,'') === want);
+    } else if (c && c[0] === 'b'){
+      const bits = bigFromBase36(c.slice(1));
+      S.c = NAMES.filter((n2,i)=>((bits >> BigInt(i)) & 1n) === 1n);
+    } else if (c){
+      S.c = c.split(',').map(decodeURIComponent).filter(n2=>NAMES.includes(n2));
+    }
+    return !!c;
+  }
+  function bigFromBase36(s){
+    let v = 0n;
+    for (const ch of s.toLowerCase()) v = v * 36n + BigInt(parseInt(ch, 36));
+    return v;
+  }
+  let hashWriting = false;
+  function writeHash(){
+    const hash = '#rawdata?c=' + selToken() + `&n=${S.n}&u=${S.u}`
+               + (S.t?`&t=${S.t}`:'') + (S.ax?'&ax=1':'') + (S.q?'':'&q=0');
+    if (location.hash === hash) return;
+    hashWriting = true;
+    try {
+      // Built from location.href, NOT from the bare hash: a relative URL passed
+      // to replaceState resolves against the document base, and this page sets
+      // <base href="https://leraffl.github.io/…">. On the published site that
+      // happens to be the same origin; served locally it is not, and the call
+      // throws a SecurityError that takes the whole render down with it.
+      history.replaceState(null, '', location.href.split('#')[0] + hash);
+    } catch(e) {
+      location.hash = hash;   // last resort: adds a history entry, still works
+    }
+    setTimeout(()=>{ hashWriting = false; }, 0);
+  }
+
+  /* ---- controls ---------------------------------------------------------- */
+  function seg(id, attr, key, cast){
+    document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick = ()=>{
+      S[key] = cast(b.dataset[attr]);
+      document.querySelectorAll('#'+id+' button').forEach(x=>x.classList.toggle('on', x===b));
+      render();
+    });
+  }
+  function paintControls(){
+    document.querySelectorAll('#rdUnits button').forEach(b=>b.classList.toggle('on', b.dataset.u===S.u));
+    document.querySelectorAll('#rdTf button').forEach(b=>b.classList.toggle('on', +b.dataset.t===S.t));
+    document.querySelectorAll('#rdQual button').forEach(b=>b.classList.toggle('on', +b.dataset.q===S.q));
+    document.querySelectorAll('#rdAx button').forEach(b=>b.classList.toggle('on', +b.dataset.a===S.ax));
+    $('rdWin').value = S.n;
+    $('rdQrBtn').textContent = 'QR: ' + (S.qr?'on':'off');
+  }
+
+  function wire(){
+    const sum = $('rdPickSum'), box = $('rdPickBox');
+    sum.onclick = () => { box.classList.toggle('on');
+      sum.setAttribute('aria-expanded', box.classList.contains('on')); };
+    sum.onkeydown = e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); sum.onclick(); } };
+    $('rdPickQ').oninput = paintPicker;
+    // Capture phase on purpose. Ticking a country or hitting a region preset
+    // re-renders the list, so by the time a bubbling handler runs, the element
+    // that was clicked is already detached and `closest()` returns null — the
+    // picker would close on every single tick, which makes choosing a set of
+    // countries impossible. In the capture phase the target is still attached.
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.rd-picker')) box.classList.remove('on');
+    }, true);
+    $('rdWin').oninput = e => { S.n = +e.target.value; render(); };
+    seg('rdUnits', 'u', 'u',  v=>v);
+    seg('rdTf',    't', 't',  v=>+v);
+    seg('rdQual',  'q', 'q',  v=>+v);
+    seg('rdAx',    'a', 'ax', v=>+v);
+    $('rdDlPng').onclick = downloadPNG;
+    $('rdDlCsv').onclick = downloadCSV;
+    $('rdQrBtn').onclick = () => { S.qr = !S.qr; paintControls(); render(); };
+    window.addEventListener('resize', () => {
+      clearTimeout(window._rdResize);
+      window._rdResize = setTimeout(render, 150);
+    });
+    // A deep link pasted into an already-open tab has to take effect.
+    window.addEventListener('hashchange', () => {
+      if (hashWriting || !location.hash.startsWith('#rawdata')) return;
+      if (readHash()){ paintControls(); paintPicker(); need(S.c).then(render); }
+    });
+  }
+
+  /* ---- boot -------------------------------------------------------------- */
+  // Same deferred-init pattern as the Fleet and World Map tabs: nothing is
+  // fetched until the reader actually opens this tab.
+  function init(){
+    if (booted) return;
+    booted = true;
+    $('rdStamp').textContent = 'generated ' + STAMP;
+    getJSON('series/index.json')
+      .catch(e => {
+        booted = false;
+        const plots = $('rdPlots');
+        if (plots) plots.innerHTML = `<div class="rd-plot" style="padding:30px 22px;`
+          + `color:#ffb4b4;font-size:13.5px">Could not load <code>series/</code> — `
+          + `${esc(e.message)}.</div>`;
+        throw e;
+      })
+      .then(j => {
+        INDEX = j;
+        NAMES = j.countries.map(x=>x.country).sort();
+        // One region mapping for the whole page: the Fleet tab's COUNTRY_REGION,
+        // rather than a second list that drifts out of step with it.
+        REGIONS = {};
+        NAMES.forEach(n => { REGIONS[n] = (typeof COUNTRY_REGION !== 'undefined'
+          && COUNTRY_REGION[n]) || 'Other'; });
+        REGION_NAMES = [...new Set(Object.values(REGIONS))].sort();
+        wire();
+        if (!readHash()) S.c = [homeCountry()];
+        paintControls();
+        paintPicker();
+        render();
+        need(S.c).then(render);
+      })
+      .catch(e => { if (INDEX) console.error('[rawdata]', e); });
+  }
+
+  function loadWhenActive(){
+    if (location.hash.split('?')[0] === '#rawdata') init();
+  }
+  window.addEventListener('hashchange', loadWhenActive);
+  window.addEventListener('DOMContentLoaded', loadWhenActive);
+})();
+
 // -------- Plotly chart download helper --------
 // Returns "_YYYYMMDDHHMM" suffix for download filenames.
 function downloadTimestamp(){
@@ -4669,11 +5854,16 @@ renderTable();
     'Thailand':'Asia','Malaysia':'Asia','Indonesia':'Asia','Vietnam':'Asia',
     'Philippines':'Asia','Singapore':'Asia','Taiwan':'Asia','Hong Kong':'Asia',
     'Mongolia':'Asia','Israel':'Asia','UAE':'Asia','Saudi Arabia':'Asia',
+    'Nepal':'Asia',
     // Oceania
     'Australia':'Oceania','New Zealand':'Oceania',
     // Africa
     'South Africa':'Africa','Morocco':'Africa','Egypt':'Africa','Nigeria':'Africa','Kenya':'Africa'
   };
+  // Second consumer: the Raw Data tab's region presets. Exposed rather than
+  // duplicated, so a country added here shows up in both places at once.
+  window.COUNTRY_REGION = COUNTRY_REGION;
+
   function regionOf(country){
     if(!country) return 'Other';
     if(COUNTRY_REGION[country]) return COUNTRY_REGION[country];

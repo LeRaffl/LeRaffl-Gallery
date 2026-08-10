@@ -688,6 +688,16 @@ def main():
         return 0
 
     OUT_DIR.mkdir(exist_ok=True)
+    # `--country` writes that one series and nothing else. Rewriting the index
+    # from a single-country run would leave the tab with a one-entry catalogue
+    # and no way to notice — it fails silently and looks like a fetch problem.
+    if args.country:
+        s = next(iter(built.values()))
+        (OUT_DIR / f"{s['slug']}.json").write_text(
+            json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        print(f"  ✓ series/{s['slug']}.json (index and checklist left alone)")
+        return 0
+
     index = {
         "generated": __import__("datetime").date.today().isoformat(),
         "countries": [
@@ -705,11 +715,8 @@ def main():
         (OUT_DIR / f"{s['slug']}.json").write_text(
             json.dumps(s, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
-    if not args.country:
-        write_todo(built, raw_rows, noted)
-        print(f"  ✓ series/ ({len(built) + 1} files) + {TODO_PATH.relative_to(ROOT)}")
-    else:
-        print(f"  ✓ series/{next(iter(built.values()))['slug']}.json")
+    write_todo(built, raw_rows, noted)
+    print(f"  ✓ series/ ({len(built) + 1} files) + {TODO_PATH.relative_to(ROOT)}")
     return 0
 
 
