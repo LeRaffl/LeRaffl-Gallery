@@ -336,6 +336,17 @@ def discover_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
             continue
         consider("de3_annual", int(m.group(1)), 0, m.group(0))
 
+    # Diagnostic (mirrors discover_used_file_urls): surface every .ods link on
+    # the page that none of the three regexes claimed, so a renamed file family
+    # shows up in the logs instead of silently degrading to "no source files
+    # available for year <Y>".
+    matched_paths = {url[len(FILE_BASE):] for _, url in best.values()}
+    all_ods = set(re.findall(r"/fileadmin/pages/\d+/[^\"'\s]+\.ods", text))
+    unmatched = sorted(p for p in all_ods if p not in matched_paths)
+    print(f"[discover] matched: {sorted(best)}")
+    if unmatched:
+        print(f"[discover] NOTE: unmatched .ods links on {LISTING_URL}: {unmatched}")
+
     return {k: url for k, (_, url) in best.items()}
 
 
