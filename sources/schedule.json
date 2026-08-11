@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-11T05:39:38Z",
+ "generated": "2026-08-11T10:14:10Z",
  "today": "2026-08-11",
  "countries": [
   {
@@ -129,11 +129,11 @@
    "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -173,29 +173,29 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-07-28",
+   "last_render": "2026-08-11",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2012-01",
-     "rows": 174,
+     "rows": 175,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024",
-     "rows": 19,
+     "rows": 20,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024",
-     "rows": 19,
+     "rows": 20,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -534,11 +534,11 @@
    "source_url": "https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24",
    "cadence_text": "daily cron 11:00 UTC; CPCA publishes the prior month around the 8th–11th",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -594,21 +594,21 @@
     ],
     "workflow": ".github/workflows/fetch-china.yml"
    },
-   "last_render": "2026-07-08",
+   "last_render": "2026-08-11",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 199,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Wholesale",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2024-09",
-     "rows": 22,
+     "rows": 23,
      "cadence": "monthly",
      "in_repo": true
     }
