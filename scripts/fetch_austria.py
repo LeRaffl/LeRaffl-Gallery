@@ -254,17 +254,23 @@ VARIANT_CONFIG = {
 }
 
 # Filename regexes (all anchored under /fileadmin/pages/77/).
+#
+# The table-number prefix is optional and its separator is `_+`, not `_`:
+# the July 2026 DE2 upload is spelled "DE2__Neuzulassungen…" with a double
+# underscore. Pinning a single one silently dropped the whole 2026 DE2 family
+# (the listing only carries the newest cumulative file per year), so the Whole
+# variant reported "no source files available for year 2026".
 FILE_RE_DE2 = re.compile(
-    r"/fileadmin/pages/77/(?:DE\d+_)?"
+    r"/fileadmin/pages/77/(?:DE\d+_+)?"
     r"NeuzulassungenFahrzeugeJaennerBis([A-Za-z]+)(\d{4})\.ods"
 )
 FILE_RE_DE3_MONTHLY = re.compile(
-    r"/fileadmin/pages/77/(?:DE\d+_)?"
+    r"/fileadmin/pages/77/(?:DE\d+_+)?"
     r"NeuzulassungenKraftfahrzeugeBundeslandKraftstoffartEnergiequelle"
     r"JaennerBis([A-Za-z]+)(\d{4})\.ods"
 )
 FILE_RE_DE3_ANNUAL = re.compile(
-    r"/fileadmin/pages/77/"
+    r"/fileadmin/pages/77/(?:DE\d+_+)?"
     r"NeuzulassungenKraftfahrzeugeBundeslandKraftstoffartEnergiequelle(\d{4})\.ods"
 )
 # GE2 used-registration cumulative files live on the kfz-gebrauchtzulassungen
@@ -278,7 +284,7 @@ FILE_RE_DE3_ANNUAL = re.compile(
 # (Kfz-Gebrauchtzulassungen...Bundesland...Energiequelle...), which has a
 # different layout — the lookahead excludes it.
 FILE_RE_GE2 = re.compile(
-    r"/fileadmin/pages/\d+/(?:GE\d+_)?"
+    r"/fileadmin/pages/\d+/(?:GE\d+_+)?"
     r"(?:Kfz-?)?Gebrauchtzulassungen(?![^/]*Bundesland)[A-Za-z]*"
     r"Jaenner[Bb]is([A-Za-z]+)(\d{4})\.ods"
 )
@@ -335,6 +341,17 @@ def discover_file_urls(session: requests.Session) -> dict[tuple[str, int], str]:
         if FILE_RE_DE3_MONTHLY.fullmatch(m.group(0)):
             continue
         consider("de3_annual", int(m.group(1)), 0, m.group(0))
+
+    # Diagnostic (mirrors discover_used_file_urls): surface every .ods link on
+    # the page that none of the three regexes claimed, so a renamed file family
+    # shows up in the logs instead of silently degrading to "no source files
+    # available for year <Y>".
+    matched_paths = {url[len(FILE_BASE):] for _, url in best.values()}
+    all_ods = set(re.findall(r"/fileadmin/pages/\d+/[^\"'\s]+\.ods", text))
+    unmatched = sorted(p for p in all_ods if p not in matched_paths)
+    print(f"[discover] matched: {sorted(best)}")
+    if unmatched:
+        print(f"[discover] NOTE: unmatched .ods links on {LISTING_URL}: {unmatched}")
 
     return {k: url for k, (_, url) in best.items()}
 
