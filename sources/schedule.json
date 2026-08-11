@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-10T05:59:05Z",
- "today": "2026-08-10",
+ "generated": "2026-08-11T05:39:38Z",
+ "today": "2026-08-11",
  "countries": [
   {
    "country": "Albania",
@@ -282,11 +282,11 @@
    "source_url": "https://anfavea.com.br/site/edicoes-em-excel/",
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -312,13 +312,13 @@
     ],
     "workflow": ".github/workflows/fetch-brazil.yml"
    },
-   "last_render": "2026-07-10",
+   "last_render": "2026-08-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2012-01",
-     "rows": 174,
+     "rows": 175,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1691,11 +1691,11 @@
    "source_url": "https://data.gov.il/dataset/private-and-commercial-vehicles",
    "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1731,21 +1731,21 @@
     ],
     "workflow": ".github/workflows/fetch-israel.yml"
    },
-   "last_render": "2026-07-10",
+   "last_render": "2026-08-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2017-01",
-     "rows": 114,
+     "rows": 115,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2017-01",
-     "rows": 114,
+     "rows": 115,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2140,10 +2140,10 @@
    "source_url": "https://data.gov.my/data-catalogue/cars",
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-06",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2186,13 +2186,13 @@
     ],
     "workflow": ".github/workflows/fetch-malaysia.yml"
    },
-   "last_render": "2026-07-10",
+   "last_render": "2026-08-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     }
