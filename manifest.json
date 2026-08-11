@@ -82,6 +82,46 @@
       "country_slug": "austria_vans"
     },
     {
+      "country": "China",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-11",
+      "filename": "china_ICE_BEV_20260811.png",
+      "url": "images/2026-07/china_ICE_BEV_20260811.png",
+      "alt": "China ICE-BEV-Hybrid trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-11",
+      "filename": "china_20260811.png",
+      "url": "images/2026-07/china_20260811.png",
+      "alt": "China BEV trajectory",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-11",
+      "filename": "china_time_20260811.png",
+      "url": "images/2026-07/china_time_20260811.png",
+      "alt": "China Transition time curve",
+      "country_slug": "china"
+    },
+    {
+      "country": "China",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-11",
+      "filename": "china_ttm_shares_20260811.png",
+      "url": "images/2026-07/china_ttm_shares_20260811.png",
+      "alt": "China TTM market split graph",
+      "country_slug": "china"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2026-07",
