@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Incentives Buy Speed, Not the Destination — LeRaffl</title>
+<meta name="description" content="What started as a check on the Italy and Spain rental splits ended as a rule about EV incentives: removal is brutal early, harmless late — and the transition completes either way. By LeRaffl, July 2026.">
+<meta name="theme-color" content="#0a0d10">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta property="og:title" content="Incentives Buy Speed, Not the Destination">
+<meta property="og:description" content="A dozen countries cut their EV incentives. What happened next depends on two numbers: how big the price shock was, and how far the transition had already come.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://leraffl.github.io/LeRaffl-Gallery/articles/incentives-speed-not-destination.html">
+<meta property="og:image" content="https://leraffl.github.io/LeRaffl-Gallery/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Incentives Buy Speed, Not the Destination">
+<meta name="twitter:description" content="A dozen countries cut their EV incentives. What happened next depends on two numbers: how big the price shock was, and how far the transition had already come.">
+<meta name="twitter:image" content="https://leraffl.github.io/LeRaffl-Gallery/assets/og-image.png">
+<script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#0b0c10;color:#e9eef2}
+a{color:#4da3ff;text-decoration:none}
+a:hover{text-decoration:underline}
+
+header{position:sticky;top:0;z-index:5;background:#0f1117cc;backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #1c2333}
+header .bar{max-width:900px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px}
+header .back{display:inline-flex;align-items:center;gap:6px;color:#9fb3d1;font-size:14px;text-decoration:none;transition:color .15s}
+header .back:hover{color:#e9eef2;text-decoration:none}
+header .back svg{opacity:.7}
+header .site{font-size:14px;color:#4a6a8a}
+
+.article{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+
+.article-header{margin-bottom:40px}
+.article-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#4da3ff;margin-bottom:14px}
+h1{margin:0 0 14px;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;color:#e9eef2}
+.article-sub{font-size:clamp(16px,2.2vw,20px);color:#9fb3d1;margin:0 0 24px;line-height:1.45;font-weight:400}
+.byline{font-size:13px;color:#4a6a8a;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.byline strong{color:#9fb3d1}
+.byline a{color:#4a6a8a}
+.byline a:hover{color:#9fb3d1}
+
+.article-body{font-size:16px;line-height:1.75;color:#c0cde0}
+.article-body p{margin:0 0 1.4em}
+.article-body h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
+.article-body ul{margin:0 0 1.4em;padding-left:1.4em}
+.article-body li{margin-bottom:0.6em}
+.article-body strong{color:#e9eef2;font-weight:600}
+.article-body em{color:#d5dfec}
+.article-body sup{font-size:11px;line-height:0}
+.article-body sup a{color:#4a6a8a}
+.article-body sup a:hover{color:#4da3ff}
+.article-body table{width:100%;border-collapse:collapse;margin:0 0 1.4em;font-size:14px}
+.article-body th,.article-body td{padding:8px 10px;text-align:left;border-bottom:1px solid #1f2a44}
+.article-body th{color:#9fb3d1;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.article-body td strong{font-variant-numeric:tabular-nums}
+.table-scroll{overflow-x:auto;margin:0 0 1.4em}
+.table-scroll table{margin:0}
+
+.live-chart-block{margin:32px 0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.live-chart-block .chart-caption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+.live-chart-block .plot{width:100%;height:400px}
+.live-chart-block .plot.tall{height:460px}
+
+.embed-fig{margin:32px 0;padding:0;background:#0f1525;border:1px solid #1f2a44;border-radius:14px;overflow:hidden}
+.embed-fig img{width:100%;height:auto;display:block}
+.embed-fig figcaption{padding:10px 16px;font-size:12px;color:#4a6a8a;border-top:1px solid #1f2a44}
+.embed-fig figcaption strong{color:#9fb3d1}
+
+.sources{margin-top:40px;padding-top:8px}
+.sources h2{margin:2.2em 0 0.7em;font-size:20px;font-weight:700;color:#e9eef2;letter-spacing:-0.01em}
+.sources ol{margin:0;padding-left:1.6em;font-size:13px;line-height:1.7;color:#4a6a8a}
+.sources li{margin-bottom:0.5em}
+.sources a{color:#9fb3d1}
+.sources a:hover{color:#4da3ff}
+
+.article-footer{margin-top:48px;padding-top:24px;border-top:1px solid #1f2a44;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.article-footer-left{font-size:13px;color:#4a6a8a;line-height:1.6}
+.article-footer-left strong{color:#9fb3d1}
+.social-links{display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid #1f2a44;background:#101a33;color:#e9eef2;font-size:13px;font-weight:500;text-decoration:none;transition:border-color .15s,background .15s}
+.btn:hover{border-color:#3a4a72;background:#162235;text-decoration:none}
+
+@media(max-width:600px){
+  .article{padding:32px 16px 60px}
+  .article-footer{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a href="../#about" class="back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Gallery
+    </a>
+    <span class="site">BEV Trajectories</span>
+  </div>
+</header>
+
+<main class="article">
+
+  <div class="article-header">
+    <div class="article-label">Analysis · July 2026</div>
+    <h1>Incentives Buy Speed, Not the Destination</h1>
+    <p class="article-sub">I went looking for a third country to split like Italy and Spain. I ended up with a dozen natural experiments and a field guide to EV incentives instead.</p>
+    <div class="byline">
+      <span>By <strong>@LeRaffl</strong></span>
+      <span>·</span>
+      <span>Data: Gallery datasets, sources per country below</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>This article didn't start where it ends, and for once I want to show the seams. The <a href="italy-bev-split.html">Italy</a> and <a href="spain-bev-split.html">Spain</a> pieces both worked the same trick: take a mediocre-looking national BEV curve, split it along a line the headline number hides (rental vs. everything else), and watch one country fall apart into two completely different markets. Naturally the next question was: <em>where else does that trick work?</em></p>
+
+    <p>So I went through every disjoint split in the Gallery's datasets looking for a third candidate. And I found one — Denmark, where the private/corporate gap is enormous. But when I tried to write "Denmark: private buyers lead" the same way I wrote "Italy: rental drags", the story fell apart in my hands. Because two datasets to the right sat Finland, where the <em>corporate</em> channel leads. Same split, same years, opposite sign. One of these stories had to be fake — or both were symptoms of something else. This is the write-up of finding out what.</p>
+
+    <h2>Denmark: a market that finished without telling anyone</h2>
+
+    <p>First, the finding that started it. Split Danish registrations into private and corporate holders (Statistics Denmark publishes this cleanly<sup><a href="#src-1">[1]</a></sup>) and you get the largest gap of any split I chart: over the last twelve months, <strong>92% of private new-car registrations in Denmark were battery-electric</strong>. The Danish private market isn't transitioning anymore; it has, for all practical purposes, arrived. The national headline of 76% is pulled down entirely by the corporate channel, which sits under 50%.</p>
+
+    <div class="live-chart-block">
+      <div class="plot" id="dkChart"></div>
+      <div class="chart-caption">Denmark, trailing-twelve-month BEV share of new registrations by holder type. Source: Statistics Denmark (BIL53), Gallery dataset.</div>
+    </div>
+
+    <p>That's the mirror image of the usual European story, where company-car taxation makes fleets the spearhead. And it has a clean mechanical explanation: Denmark's registration tax (up to 150% on conventional cars) hits the private buyer with full force, while BEVs are heavily favoured. For a Danish household, a petrol car is no longer just worse, it's irrational. Fleets, which calculate in lease rates and residual values instead of sticker shock, respond more slowly.</p>
+
+    <p>Great story. Except.</p>
+
+    <h2>Finland ruins the story, then becomes the story</h2>
+
+    <p>Finland publishes the same private/corporate split, so it makes the natural control group. And in Finland the gap points the other way: the corporate channel leads. Worse — for my draft, better for the truth — it hasn't always. Finnish private buyers led until 2023 (+4.6&nbsp;pp), then the sign flipped, and by 2025 corporate led by 6.6&nbsp;pp.</p>
+
+    <div class="live-chart-block">
+      <div class="plot" id="fiChart"></div>
+      <div class="chart-caption">Finland, trailing-twelve-month BEV share by holder type. The curves cross in 2024 — right after the last subsidised private cars were registered (the application window had already closed at the end of 2022), while company-car tax benefits continued.</div>
+    </div>
+
+    <p>What happened between those two dates? Finland's purchase subsidy for private BEV buyers wound down in two steps: applications closed at the end of 2022 — no funds were budgeted for 2023 — and the last subsidised cars worked through the delivery pipeline during 2023<sup><a href="#src-12">[12]</a></sup>. That pipeline is why the private curve kept climbing right up to its December 2023 peak before rolling over. The company-car tax advantage kept running. Within a year, the leading channel switched. Belgium, for calibration, is the extreme in the corporate direction: after its company-car tax reform, corporate registrations hit ~54% BEV against ~9% private in H1 2025<sup><a href="#src-2">[2]</a></sup>. EU-wide the corporate channel leads 25% to 17%<sup><a href="#src-3">[3]</a></sup>, but T&E's country work shows that lead is carried almost entirely by Belgium, the Netherlands and Luxembourg, while corporate channels in the big four markets underperform<sup><a href="#src-2">[2]</a></sup>.</p>
+
+    <p>So there is no natural leader of the transition. Households first in Denmark, fleets first in Belgium, a photo finish in Finland with the leader decided by whichever subsidy died last. <strong>Who electrifies first is not a fact about people or firms. It's a fact about tax design.</strong> Italy and Spain don't contradict this. Their corporate channels are unusually rental-heavy, and rental fleets, as both earlier articles showed, obey usage economics that no purchase incentive reaches. They're the exception that maps the rule's boundary.</p>
+
+    <p>But if incentives really steer this hard, that's a testable claim, and it comes with a sharp prediction: <em>remove</em> an incentive and the registration series must break — visibly, and timed to the policy date, not vaguely "around then". So I went looking for countries I hadn't used to form the hypothesis and checked.</p>
+
+    <h2>Four countries cut. Four cliffs.</h2>
+
+    <div class="live-chart-block">
+      <div class="plot tall" id="cliffChart"></div>
+      <div class="chart-caption">Trailing-twelve-month BEV share; dashed lines mark the incentive cut. Germany gets two lines: corporate eligibility for the Umweltbonus ended Sep 2023, everything ended that December. Sources: Gallery datasets; policy dates per country [4–7].</div>
+    </div>
+
+    <p>New Zealand ended its Clean Car Discount on 31 December 2023<sup><a href="#src-4">[4]</a></sup>. Monthly BEV share: 20% in December, <strong>1% in January</strong>. Iceland ended its blanket VAT exemption the same week<sup><a href="#src-5">[5]</a></sup>: 86% in December, 37% in January, 13% by April. Germany's Umweltbonus died in two steps. Corporate buyers lost it on 1 September 2023, everyone else in a chaotic overnight stop that December<sup><a href="#src-6">[6]</a></sup>. And the German series breaks twice, once at each date: August 32%, September 14%; then 2024 lands at 13.5% after 2023's 18.4%. Sweden abolished its Klimatbonus in November 2022<sup><a href="#src-7">[7]</a></sup>: December spiked to 51% on pull-forward orders, January fell back to 28%.</p>
+
+    <p>Every single case shows the same signature — a spike in the last eligible month, a crater in the first ineligible one. And the counterfactual behaves too: the UK (mandate, no subsidy cut), France, Portugal, Norway and Belgium show no such dent at all. I don't get to run controlled experiments on car markets, but this is about as close as observational data comes.</p>
+
+    <h2>The gut-feeling hypothesis</h2>
+
+    <p>At this point I had a suspicion that I want to state plainly before showing the test, because stating your hypothesis <em>before</em> looking is the whole game: <strong>(a)</strong> incentives only accelerate the transition — take them away and it still happens, just later; and <strong>(b)</strong> how much damage a cut does depends on how far the transition has already come. Cut early and you knock the market out for years. Cut late — somewhere past 70, 80, 90 percent — and nothing much should happen at all.</p>
+
+    <p>The removal cases above happened at very different points of the S-curve, which is exactly what's needed to test that. And once I started collecting cut events systematically, the sample grew well past the original four: Denmark's 2016 registration-tax phase-in (BEVs at 2% of the market — it killed 85% of them), the UK's quiet Plug-in Car Grant burial in June 2022<sup><a href="#src-11">[11]</a></sup>, France's step-wise bonus reductions, the US federal credit ending September 2025, the Netherlands' 2016 company-car tax change that erased 94% of its PHEV market, Norway's gradual late trimming at 78%. Every point is one cut:</p>
+
+    <div class="live-chart-block">
+      <div class="plot" id="stageChart"></div>
+      <div class="chart-caption">Each point is one incentive cut: BEV share when it happened vs. how much of the market disappeared (relative, TTM peak to trough). Bubble size is the dose — the price shock as a share of a typical BEV's price (estimates, see table). USA ’25 is still falling; Hong Kong ’26* is one month old and provisional; NL ’16 is the PHEV market. Iceland and the UK are the outliers that reveal the dose rule — see text.</div>
+    </div>
+
+    <div class="table-scroll"><table>
+      <thead><tr><th>Country</th><th>Cut</th><th>Share at cut</th><th>Dose*</th><th>Relative drop</th><th>Back to peak after</th></tr></thead>
+      <tbody>
+        <tr><td>Netherlands (PHEV)</td><td>2016–17, company-car tax</td><td>9% (PHEV)</td><td>very high</td><td><strong>−94%</strong></td><td>70 months</td></tr>
+        <tr><td>Denmark</td><td>2016, tax phase-in</td><td>2%</td><td>~7–9%, rising</td><td><strong>−85%</strong></td><td>45 months</td></tr>
+        <tr><td>New Zealand</td><td>Jan 2024, + road charges</td><td>10%</td><td>~15–19%</td><td><strong>−66%</strong></td><td>not yet (30+ months)</td></tr>
+        <tr><td>USA</td><td>Oct 2025</td><td>8%</td><td>~16%</td><td>−17% so far</td><td>ongoing, still falling</td></tr>
+        <tr><td>Germany</td><td>Sep&nbsp;+&nbsp;Dec 2023</td><td>20%</td><td>~11%</td><td>−34%</td><td>27 months</td></tr>
+        <tr><td>France</td><td>2024–25, in steps</td><td>18%</td><td>~2% per step</td><td>−5%</td><td>9 months</td></tr>
+        <tr><td>UK</td><td>Jun 2022</td><td>15%</td><td>~2–5%</td><td><strong>−1% (none)</strong></td><td>immediately</td></tr>
+        <tr><td>Sweden†</td><td>Nov 2022</td><td>30%</td><td>~10–14%</td><td>−14%</td><td>never below pre-cut level</td></tr>
+        <tr><td>Iceland</td><td>Jan 2024, + km charge</td><td>50%</td><td>~20%+</td><td>−41%</td><td>not yet, rising</td></tr>
+        <tr><td>Norway</td><td>2023, partial &amp; gradual</td><td>78%</td><td>small per step</td><td>~0%</td><td>immediately</td></tr>
+      </tbody>
+    </table></div>
+
+    <p style="font-size:13px;color:#4a6a8a">*Dose = the price shock as a share of a typical BEV's purchase price in that market: purchase incentives, VAT and registration taxes, plus new recurring charges roughly as a four-year cost. Values marked ~ are estimated from the policy parameters (grant amounts, tax rates), not from computed transaction prices — treat them as order-of-magnitude. Market response columns are computed from the Gallery's registration data (trailing-twelve-month share, peak to post-cut trough). "Share at cut" is the TTM share at the cut date; Germany uses the September corporate step, where its series peaked.<br>†Sweden's Klimatbonus applied to cars <em>ordered</em> by 8 November 2022, so deliveries kept the TTM series rising for almost a year after the cut. Its −14% is measured from that delivery-inflated peak (Oct 2023) to the trough (Nov 2024); the series never dropped below its level at the cut date itself.</p>
+
+    <p>Read the drop column against the share column and the pattern is almost embarrassingly clean: 2% → −85%, 10% → −66%, 20% → −34%, 30% → −14%, 78% → 0. The later you cut, the less it costs, monotonically (<em>except Iceland</em>, sitting at 50% with a drop that "should" be Sweden-sized and isn't, and the UK, which cut at 15% — right between New Zealand's disaster and Germany's crater — and felt <em>nothing</em>).</p>
+
+    <p>I like these outliers, because they forced a refinement instead of a retreat, and the refinement is in the dose column. The UK's final Plug-in Car Grant was £1,500, restricted to cars under £32,000<sup><a href="#src-11">[11]</a></sup> — a token, maybe 2–5% of a typical BEV's price, and the market shrugged. Iceland didn't remove <em>a</em> subsidy: it removed the entire VAT exemption <strong>and introduced a per-kilometre road charge in the same month</strong><sup><a href="#src-5">[5]</a></sup> — the largest single repricing shock in this sample, and it bought Iceland three times the damage Sweden took from a moderate cut twenty points <em>earlier</em> in the transition. New Zealand, the other over-performer on the damage scale, also stacked new road-user charges on top of its subsidy cut. And the Netherlands' company-car tax change — which roughly tripled the annual tax cost of a PHEV, the biggest effective dose here — produced the deepest, longest crater of all. So the working model gets two dials instead of one: <strong>the size of the crater is set by the dose; how long the crater lasts is set by the stage.</strong></p>
+
+    <p>And the second half of the hypothesis — that the transition resumes regardless? It holds everywhere. Germany regained its pre-cut peak after 27 months <em>without the purchase subsidy coming back</em>, and now sits above it. Even Denmark's near-dead 2017 market stands at 76% today (with the honest caveat that Denmark also softened the tax phase-in along the way — Germany is the clean case). Iceland is back to 45% and climbing. Nobody stays down. The destination appears to be fixed; incentives negotiate only the arrival time.</p>
+
+    <h2>Hong Kong: the same experiment, run three times</h2>
+
+    <p>One cell of the matrix stayed empty, and it happens to be the one my whole late-stage claim rests on: an <em>abrupt, complete</em> removal at very high BEV share. Norway trimmed gradually. Denmark's big test is still years out. No country in the Gallery's datasets has ever done it.</p>
+
+    <p>One city has. Hong Kong. It's not in my datasets, but tracked monthly by Roland Pircher, whose Hong Kong series I've followed long enough to trust on a market I was deliberately testing blind<sup><a href="#src-8">[8]</a></sup>. The city ended <em>all</em> first-registration-tax (FRT) concessions for electric private cars on 31 March 2026, with BEV penetration around ninety percent<sup><a href="#src-9">[9]</a></sup>. That's the experiment the sample lacked. But when I looked at the past, it turned out Hong Kong hadn't run the experiment once, but three times, at three different points of the curve, and the earlier two tell you how to read the third.</p>
+
+    <figure class="embed-fig">
+      <img src="../assets/articles/hongkong_bev_adoption_piloly.png" alt="Hong Kong monthly BEV sales and adoption share, January 2022 to July 2026, by Roland Pircher (@piloly). The adoption line climbs from ~30% in 2022 to ~95% in early 2026, with sharp one-month dips in May 2024 (to 57.9%) and June 2026 (to 73.4%), each recovering within months — July 2026 already back to 77.4%." loading="lazy">
+      <figcaption class="chart-caption">Hong Kong monthly BEV sales (bars) and adoption share (line), Jan 2022 – Jul 2026. <strong>Chart: Roland Pircher (<a href="https://x.com/piloly/status/2086733390280102271" target="_blank" rel="noopener">@piloly</a> on X).</strong> The two sharp one-month dips in the adoption line, May 2024 and June 2026, line up exactly with the two times the FRT concession was changed, and both recover within months.</figcaption>
+    </figure>
+
+    <p>Look at the two cliffs in that chart, and then at what <em>doesn't</em> happen in between. The spring of 2024 drops from 91.0% in April to <strong>57.9% in May</strong> — a 33-point fall in one month. The spring of 2026 slides from 94.6% in April to 89.2% in May to <strong>73.4% in June</strong>. But the springs of 2023 and 2025? They <em>rise</em>: April→May of +6.8 and +6.4 points. Same calendar slot, opposite direction. The driver isn't the season.</p>
+
+    <p>It's the budget. Hong Kong's fiscal year ends 31 March, the budget lands in late February, and the FRT concessions always expired on 31 March / 1 April. In 2023 and 2025 the concession was simply running — no change, and the share drifted up as it had all along. In <strong>2024</strong> the February budget cut the FRT waiver by 40% (from HK$287,500 to HK$172,500) effective 1 April<sup><a href="#src-9">[9]</a></sup>; buyers pulled forward into March, and May fell off a cliff. In <strong>2026</strong> the budget ended the concession entirely on 31 March. Two policy changes, two dips, each timed to the exact month the price of an EV jumped. The one spring that looks like an exception — 2022, which also dipped — is the Omicron wave, when Hong Kong's whole car market briefly collapsed to a few hundred cars a month and the percentage is just noise.</p>
+
+    <p>So the "seasonal fade" I'd have to worry about turns out to be a policy fingerprint — and that hands us a second clean experiment for free. The 2024 cut is a smaller-dose rehearsal of 2026: a <em>partial</em> removal (−40% of the waiver) at ~91% share. Its immediate hit was actually sharper than 2026's so far (−33 points month-on-month vs. −22 from the spike), and then — this is the part that matters — <strong>it recovered without the waiver coming back.</strong> The waiver stayed cut. Yet share climbed off the 57.9% floor through the summer (71%, 69%, 78%…), was back to 80% by year-end, and above 90% through 2025. That's H4 playing out inside a single city: the incentive bought timing, not the destination. And it sharpens the stage rule too — the <em>bigger</em> dose in 2026 (full removal) landed a <em>smaller</em> blow than the partial 2024 cut, because 2026 caught the market four points higher up the curve and that much closer to price parity.</p>
+
+    <p>Which reframes the 2026 dip. Yes, June's 73.4% is a real drop — down from ~90%, and year-on-year from 86.3% in June 2025, so it survives any seasonal adjustment. But we've now watched Hong Kong take a comparable hit in 2024 and shrug it off entirely. The honest read on the live experiment is: exactly the shallow, recoverable bite the stage rule predicts at ninety percent — not the "nothing happened" the pre-deadline months teased, and not a cliff either. On the 2024 template, June's 73% should be a way-station, not a floor — and <strong>July, which landed as I was finishing this, came in at 77.4%</strong>, up four points, recovery starting exactly one month after the trough just as it did in 2024. The way-station call was right.</p>
+
+    <p>And Hong Kong brings its own early-stage control, to complete the curve: in April 2017 the same city capped what was then a full tax waiver — when BEVs were a sliver of the market — and Tesla went from 2,939 registrations in March to <strong>32 in the remaining nine months of the year</strong><sup><a href="#src-10">[10]</a></sup>. One city, three cuts — 2017 near zero, 2024 and 2026 near the top — and the damage shrinks every time the transition is further along. The whole thesis of this article, inside a single set of number plates.</p>
+
+    <h2>What I actually learned</h2>
+
+    <ul>
+      <li><strong>There is no natural first-mover.</strong> Private households lead where taxes punish private ICE purchases (Denmark), fleets lead where company-car taxation does the pushing (Belgium), and the leader flips when one incentive outlives the other (Finland, 2024). Any story that explains the gap with national character is fake until it has checked the tax code.</li>
+      <li><strong>Incentive removal is instant and proportional to the dose.</strong> Spike, cliff, crater — visible within one month, in every case, and deepest where subsidies were cut and new charges added simultaneously (Iceland, New Zealand).</li>
+      <li><strong>The damage is temporary, and both its depth and duration shrink as the transition matures.</strong> −85% at a 2% market. −34% at 20%. A shallow ~20% dip even at 90% under a full, abrupt cut (Hong Kong 2026) — and Hong Kong's own 2024 partial cut proves the recovery: it fell to 57.9% and climbed back above 90% with the waiver still cut. Every market, without exception, resumes course.</li>
+      <li><strong>Rental fleets and the used market remain the exception</strong> — the channels where usage economics outweigh any incentive. That's the deeper reason the Italy and Spain curves look the way they do, and why the Netherlands' used-BEV share <em>fell</em> from 2022 through 2025 — with only a first tentative uptick in 2026 — while its new-BEV share soared: the domestic used market isn't absorbing the lease returns. That one deserves its own article.</li>
+    </ul>
+
+    <h2>The field guide: what to expect, in numbers</h2>
+
+    <p>All of which condenses into something I didn't expect to be able to write when this started: a rough planning table for subsidy decisions. Every number below is bracketed by the historical cases above — nothing is modelled, everything can be checked against the table by hand.</p>
+
+    <ul>
+      <li><strong>How hard is the crash?</strong> Cut early (under ~10% share) with a big abrupt dose and you lose two-thirds to nearly all of the market (NZ −66%, DK −85%, NL-PHEV −94%). Cut mid-transition (15–30%) with a moderate dose (~10–15% of car price) and you lose 5–35% (SE, FR, DE). Cut late (past ~70%) and even a full, abrupt dose only shaves off ~20% (Hong Kong) — or nothing, if it's gradual (Norway).</li>
+      <li><strong>How much time is lost?</strong> Early cuts: four to six years (DK 45 months, NL-PHEV 70, NZ still down after 30). Mid-stage: zero to ~27 months (SE ~0, FR 9, DE 27). Late: none. Each stage of maturity buys back roughly an order of magnitude of recovery time.</li>
+      <li><strong>When is removal safe?</strong> "Safe" is really "cheap enough". A single moderate incentive removed at ~30% share never drives the market below its level at the cut date. It only shaves ~14% off the delivery-inflated peak (Sweden), i.e. it slows the climb without losing ground. Removing <em>everything</em> abruptly still costs a ~20% dip even at 90% (Hong Kong). That's cheap relative to the level, but not free; do it gradually and it's free (Norway). 50% is demonstrably <em>not</em> enough to absorb a full-dose double shock (Iceland). The lesson isn't a single safe threshold. It's that price matters less and less the higher you are.</li>
+      <li><strong>Which incentives can go first?</strong> Grants whose dose has shrunk below ~5% of the car's price can go. They've stopped being load-bearing (UK). Also essentially anything, if removed as a pre-announced staircase of small steps: France's step-wise bonus cuts cost 5% and nine months; Israel has been raising its EV purchase tax in annual steps from 10% toward 48% through the middle of its transition without a visible crater just because of that; Norway trimmed gradually at the top. No staircase in the sample produced a cliff.</li>
+      <li><strong>What never to do:</strong> stack a subsidy removal with a new recurring charge in the same month mid-transition — that's the Iceland/New Zealand signature, and it roughly doubles the damage you'd expect from the subsidy cut alone. And remember the German lesson: a cut that targets one channel craters that channel on its own schedule — the corporate-only September cut broke the national series months before the general one did.</li>
+    </ul>
+
+    <p>For policymakers the translation is short: early in the transition, incentives are load-bearing — remove them abruptly and you lose years. Late in the transition they're scaffolding on a mostly finished building. Pull it and you get a wobble, but not a collapse. The interesting question was never <em>whether</em> to remove them, but <em>when</em> and <em>how</em>: past 30%, moderate single cuts are survivable; staircases are survivable almost everywhere; and if you must cut mid-transition, cut one thing at a time.</p>
+
+    <p>And the test is now live rather than scheduled. When I first drafted this, Hong Kong's post-deadline months hadn't landed and April/May still looked suspicious. June landed while I was writing: a real dent, 73.4%, exactly the kind of shallow bite the stage rule predicts at ninety percent — but a dent, not the non-event the pre-deadline months implied. Then July landed before I could publish: 77.4%, already climbing back, right on the 2024 template. It's a good reminder of what this whole exercise is: not a finished law of subsidies, but a set of rules-of-thumb that each new month gets to confirm or embarrass — and this month, confirm. The Gallery will be watching.</p>
+
+  </div>
+
+  <div class="sources" id="sources">
+    <h2>Sources</h2>
+    <ol>
+      <li id="src-1">Statistics Denmark, <a href="https://www.statbank.dk/BIL53" target="_blank" rel="noopener">table BIL53</a> (new registrations by owner type and propulsion); Finland: Traficom/Statistics Finland. Both series, and all whole-market series used here, are in the <a href="https://github.com/LeRaffl/LeRaffl-Gallery" target="_blank" rel="noopener">Gallery repo</a> with per-country source notes.</li>
+      <li id="src-2">Transport &amp; Environment, <a href="https://www.transportenvironment.org/articles/how-corporate-fleets-can-boost-demand-for-made-in-eu-evs" target="_blank" rel="noopener">"How corporate fleets can boost demand for Made-in-EU EVs"</a> and <a href="https://www.transportenvironment.org/articles/which-eu-countries-incentivise-company-fleets-to-go-electric" target="_blank" rel="noopener">"Which EU countries incentivise company fleets to go electric?"</a> — Belgium corporate vs. private shares, and corporate tax treatment across the EU27.</li>
+      <li id="src-3">ICCT, <a href="https://theicct.org/publication/european-market-monitor-cars-and-vans-2025/" target="_blank" rel="noopener">European Market Monitor: Cars and Vans, January–December 2025</a> — EU corporate (25%) vs. private (17%) BEV shares.</li>
+      <li id="src-4">NZ Transport Agency Waka Kotahi, <a href="https://www.nzta.govt.nz/vehicles/clean-car-programme/clean-car-discount-ended-on-31-december-2023" target="_blank" rel="noopener">"Clean Car Discount ended on 31 December 2023"</a>; Newsroom, <a href="https://newsroom.co.nz/2024/02/07/ev-sales-plummet-after-clean-car-discount-scrapped/" target="_blank" rel="noopener">"EV sales plummet after Clean Car Discount scrapped"</a> (February 2024).</li>
+      <li id="src-5">VATupdate, <a href="https://www.vatupdate.com/2023/11/30/iceland-removing-vat-reliefs-for-electric-vehicles/" target="_blank" rel="noopener">"Iceland removing VAT reliefs for electric vehicles"</a>; Ísland.is, <a href="https://island.is/en/electric-car-grants" target="_blank" rel="noopener">electric car grants</a> (the smaller capped scheme that replaced the exemption, alongside the new per-km charge, from January 2024).</li>
+      <li id="src-6">KBA, <a href="https://www.kba.de/DE/Presse/Pressemitteilungen/Fahrzeugzulassungen/2026/pm01_2026_n_12_25_pm_komplett.html" target="_blank" rel="noopener">annual registration statistics</a>; dena, <a href="https://www.dena.de/fileadmin/dena/Publikationen/PDFs/2025/Monitoringbericht_2025.pdf" target="_blank" rel="noopener">Monitoringbericht 2025</a> — Umweltbonus end dates: 1 Sep 2023 (corporate), 17 Dec 2023 (all).</li>
+      <li id="src-7">Transportstyrelsen, <a href="https://www.transportstyrelsen.se/en/road/vehicles/taxes-and-fees/bonus/" target="_blank" rel="noopener">"Bonus — for low emission vehicles has ended"</a> — Klimatbonus abolished for vehicles ordered after 8 November 2022; final bonus levels 50,000–70,000 SEK for BEVs.</li>
+      <li id="src-8">Roland Pircher (<a href="https://x.com/piloly" target="_blank" rel="noopener">@piloly</a>), monthly Hong Kong car-market and BEV-adoption series (Jan 2022 – Jun 2026), compiled from HK Transport Department first-registration data; chart reproduced with permission. "BEV adoption" is the BEV share of newly registered private cars. Key points: Apr 2024 91.0% → May 2024 57.9%; Apr 2026 94.6% → May 89.2% → Jun 73.4% (June on ~1,900 total registrations) → Jul 77.4% (recovery begins; ~2,540 total). Note: a separate summary source quotes June 2026 at 54.1% on a wider denominator (all vehicles); this article uses Roland's private-car BEV series throughout for consistency.</li>
+      <li id="src-9">2026 removal: HKSAR Government, <a href="https://www.info.gov.hk/gia/general/202602/25/P2026022500288.htm" target="_blank" rel="noopener">"First registration tax concession arrangement for electric vehicles"</a> (25 Feb 2026) — all concessions, incl. One-for-One, ended 31 March 2026. 2024 cut: 2024–25 Budget, FRT concession extended two years but with the waiver reduced ~40% (e-private-car cap HK$97,500 → HK$58,500; One-for-One HK$287,500 → HK$172,500) from 1 April 2024, per <a href="https://www.info.gov.hk/gia/general/202402/28/P2024022800393.htm" target="_blank" rel="noopener">HKSAR Government (28 Feb 2024)</a>.</li>
+      <li id="src-10">Quartz, <a href="https://qz.com/1676912/teslas-sales-never-recovered-after-hong-kong-cut-a-tax-break" target="_blank" rel="noopener">"Tesla's sales never recovered after Hong Kong cut a tax break"</a>; Electrek, <a href="https://electrek.co/2017/02/22/hong-kong-electric-vehicle-incentives-tesla/" target="_blank" rel="noopener">"Hong Kong cancels electric vehicle incentives"</a> (2017).</li>
+      <li id="src-11">GOV.UK, <a href="https://www.gov.uk/government/news/plug-in-grant-for-cars-to-end-as-focus-moves-to-improving-electric-vehicle-charging" target="_blank" rel="noopener">"Plug-in grant for cars to end"</a> (June 2022) — final grant £1,500, cars under £32,000 only. France, USA and Netherlands-PHEV market responses are computed from the Gallery's own datasets; the Dutch company-car ("bijtelling") rate changes for PHEVs (7% → 15/22% of list price, 2016–17) are summarised in <a href="https://en.wikipedia.org/wiki/Plug-in_electric_vehicles_in_the_Netherlands" target="_blank" rel="noopener">Plug-in electric vehicles in the Netherlands</a>; Israel's stepped purchase-tax increases (10% → 45–48%, 2023–26) via <a href="https://www.gov.il/en/pages/sa121125-1" target="_blank" rel="noopener">Israel Tax Authority</a>.</li>
+      <li id="src-12">Finnish Ministry of Transport and Communications, <a href="https://lvm.fi/en/-/changes-to-application-periods-in-the-purchase-subsidy-scheme-for-low-emission-vehicles-1891843" target="_blank" rel="noopener">"Changes to application periods in the purchase subsidy scheme for low-emission vehicles"</a> — the application window for the private BEV purchase subsidy closed 31 December 2022 (no appropriation for 2023); subsidised cars registered through 2023.</li>
+    </ol>
+  </div>
+
+  <div class="article-footer">
+    <div class="article-footer-left">
+      By <strong>@LeRaffl</strong> · Data: Gallery datasets + sources above<br>
+      Charts from <a href="../#gallery">BEV Trajectory Gallery</a>
+    </div>
+    <div class="social-links">
+      <a href="https://x.com/leRaffl" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @LeRaffl
+      </a>
+      <a href="https://bsky.app/profile/leraffl.bsky.social" class="btn" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 600 530" fill="currentColor"><path d="m135.72 44.03c66.496 49.921 138.02 151.14 164.28 205.46 26.262-54.316 97.782-155.54 164.28-205.46 47.98-36.021 125.72-63.892 125.72 24.795 0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.3797-3.6904-10.832-3.7077-7.8964-0.0173-2.9357-1.1937.51669-3.7077 7.8964-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.109 11.421-142.55-7.4491-163.25-81.433-5.9562-21.282-16.111-152.36-16.111-170.07 0-88.687 77.742-60.816 125.72-24.795z"/></svg>
+        Bluesky
+      </a>
+      <a href="../#gallery" class="btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Gallery
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<script type="application/json" id="seriesData">{"dk_priv":[["2018-12",0.61],["2019-01",0.7],["2019-02",0.81],["2019-03",1.01],["2019-04",1.17],["2019-05",1.36],["2019-06",1.77],["2019-07",1.9],["2019-08",2.07],["2019-09",2.35],["2019-10",2.28],["2019-11",2.37],["2019-12",2.87],["2020-01",3.02],["2020-02",3.24],["2020-03",3.84],["2020-04",3.88],["2020-05",3.98],["2020-06",4.01],["2020-07",4.05],["2020-08",4.41],["2020-09",5.38],["2020-10",6.06],["2020-11",6.96],["2020-12",8.14],["2021-01",8.61],["2021-02",8.8],["2021-03",8.89],["2021-04",9.11],["2021-05",9.3],["2021-06",10.12],["2021-07",10.98],["2021-08",12.53],["2021-09",13.39],["2021-10",14.12],["2021-11",15.18],["2021-12",16.14],["2022-01",16.88],["2022-02",17.83],["2022-03",19.51],["2022-04",20.5],["2022-05",21.97],["2022-06",22.9],["2022-07",24.14],["2022-08",24.04],["2022-09",24.1],["2022-10",24.89],["2022-11",25.36],["2022-12",26.06],["2023-01",26.45],["2023-02",27.26],["2023-03",29.95],["2023-04",31.36],["2023-05",33.08],["2023-06",35.49],["2023-07",36.34],["2023-08",37.62],["2023-09",39.28],["2023-10",40.0],["2023-11",42.04],["2023-12",44.52],["2024-01",45.4],["2024-02",46.68],["2024-03",47.3],["2024-04",48.38],["2024-05",50.14],["2024-06",52.97],["2024-07",54.59],["2024-08",56.57],["2024-09",58.59],["2024-10",61.08],["2024-11",62.82],["2024-12",64.03],["2025-01",66.23],["2025-02",68.15],["2025-03",70.48],["2025-04",73.34],["2025-05",75.04],["2025-06",76.42],["2025-07",78.08],["2025-08",79.54],["2025-09",81.41],["2025-10",82.83],["2025-11",84.18],["2025-12",85.64],["2026-01",86.76],["2026-02",87.75],["2026-03",89.1],["2026-04",90.26],["2026-05",91.47],["2026-06",92.4]],"dk_ind":[["2018-12",0.86],["2019-01",0.96],["2019-02",0.98],["2019-03",1.05],["2019-04",1.2],["2019-05",1.36],["2019-06",1.43],["2019-07",1.48],["2019-08",1.45],["2019-09",1.56],["2019-10",1.79],["2019-11",1.84],["2019-12",1.83],["2020-01",1.99],["2020-02",2.09],["2020-03",2.28],["2020-04",2.33],["2020-05",2.41],["2020-06",2.6],["2020-07",2.71],["2020-08",3.06],["2020-09",3.59],["2020-10",3.74],["2020-11",4.12],["2020-12",5.47],["2021-01",5.61],["2021-02",5.65],["2021-03",5.97],["2021-04",5.94],["2021-05",6.11],["2021-06",6.47],["2021-07",6.89],["2021-08",7.41],["2021-09",7.67],["2021-10",8.24],["2021-11",8.87],["2021-12",9.49],["2022-01",10.03],["2022-02",10.45],["2022-03",10.8],["2022-04",11.22],["2022-05",11.63],["2022-06",12.33],["2022-07",12.73],["2022-08",12.97],["2022-09",13.09],["2022-10",13.26],["2022-11",13.68],["2022-12",15.07],["2023-01",15.07],["2023-02",15.66],["2023-03",16.84],["2023-04",17.64],["2023-05",18.63],["2023-06",19.54],["2023-07",20.0],["2023-08",21.07],["2023-09",22.43],["2023-10",23.43],["2023-11",24.44],["2023-12",24.59],["2024-01",25.33],["2024-02",26.15],["2024-03",26.58],["2024-04",27.14],["2024-05",27.86],["2024-06",28.08],["2024-07",28.68],["2024-08",29.39],["2024-09",29.75],["2024-10",30.95],["2024-11",31.55],["2024-12",32.37],["2025-01",33.04],["2025-02",33.77],["2025-03",35.49],["2025-04",36.06],["2025-05",36.16],["2025-06",37.42],["2025-07",37.77],["2025-08",38.23],["2025-09",39.06],["2025-10",38.83],["2025-11",39.49],["2025-12",41.05],["2026-01",42.28],["2026-02",42.86],["2026-03",43.33],["2026-04",44.72],["2026-05",46.27],["2026-06",48.57]],"fi_priv":[["2015-01",0.04],["2015-02",0.04],["2015-03",0.08],["2015-04",0.08],["2015-05",0.09],["2015-06",0.09],["2015-07",0.1],["2015-08",0.1],["2015-09",0.11],["2015-10",0.11],["2015-11",0.11],["2015-12",0.11],["2016-01",0.11],["2016-02",0.11],["2016-03",0.08],["2016-04",0.08],["2016-05",0.07],["2016-06",0.08],["2016-07",0.08],["2016-08",0.08],["2016-09",0.09],["2016-10",0.09],["2016-11",0.09],["2016-12",0.11],["2017-01",0.12],["2017-02",0.14],["2017-03",0.16],["2017-04",0.17],["2017-05",0.2],["2017-06",0.22],["2017-07",0.24],["2017-08",0.25],["2017-09",0.26],["2017-10",0.27],["2017-11",0.29],["2017-12",0.29],["2018-01",0.28],["2018-02",0.28],["2018-03",0.31],["2018-04",0.34],["2018-05",0.33],["2018-06",0.33],["2018-07",0.32],["2018-08",0.33],["2018-09",0.37],["2018-10",0.4],["2018-11",0.44],["2018-12",0.47],["2019-01",0.52],["2019-02",0.6],["2019-03",0.78],["2019-04",0.88],["2019-05",0.96],["2019-06",1.16],["2019-07",1.3],["2019-08",1.41],["2019-09",1.57],["2019-10",1.58],["2019-11",1.61],["2019-12",1.68],["2020-01",1.81],["2020-02",1.96],["2020-03",2.29],["2020-04",2.42],["2020-05",2.59],["2020-06",2.74],["2020-07",2.9],["2020-08",3.18],["2020-09",3.63],["2020-10",3.91],["2020-11",4.22],["2020-12",4.98],["2021-01",5.26],["2021-02",5.34],["2021-03",5.47],["2021-04",5.7],["2021-05",6.3],["2021-06",6.88],["2021-07",7.38],["2021-08",7.83],["2021-09",8.04],["2021-10",8.99],["2021-11",9.65],["2021-12",10.25],["2022-01",11.02],["2022-02",11.79],["2022-03",12.77],["2022-04",13.51],["2022-05",13.98],["2022-06",14.35],["2022-07",14.91],["2022-08",16.3],["2022-09",17.17],["2022-10",17.39],["2022-11",18.49],["2022-12",18.99],["2023-01",20.52],["2023-02",22.0],["2023-03",24.15],["2023-04",25.84],["2023-05",28.49],["2023-06",30.41],["2023-07",31.25],["2023-08",32.79],["2023-09",34.34],["2023-10",35.43],["2023-11",35.81],["2023-12",35.93],["2024-01",35.74],["2024-02",35.15],["2024-03",33.97],["2024-04",33.44],["2024-05",32.03],["2024-06",31.34],["2024-07",31.04],["2024-08",29.3],["2024-09",28.47],["2024-10",27.73],["2024-11",27.24],["2024-12",27.28],["2025-01",27.41],["2025-02",27.85],["2025-03",28.62],["2025-04",29.34],["2025-05",29.94],["2025-06",30.38],["2025-07",31.11],["2025-08",31.9],["2025-09",32.2],["2025-10",32.28],["2025-11",33.12],["2025-12",34.02],["2026-01",35.65],["2026-02",36.55],["2026-03",37.34],["2026-04",38.22],["2026-05",39.76],["2026-06",41.42]],"fi_ind":[["2015-01",0.43],["2015-02",0.42],["2015-03",0.43],["2015-04",0.42],["2015-05",0.42],["2015-06",0.45],["2015-07",0.48],["2015-08",0.49],["2015-09",0.5],["2015-10",0.46],["2015-11",0.47],["2015-12",0.44],["2016-01",0.44],["2016-02",0.5],["2016-03",0.51],["2016-04",0.51],["2016-05",0.47],["2016-06",0.43],["2016-07",0.38],["2016-08",0.37],["2016-09",0.33],["2016-10",0.33],["2016-11",0.32],["2016-12",0.34],["2017-01",0.39],["2017-02",0.35],["2017-03",0.38],["2017-04",0.42],["2017-05",0.47],["2017-06",0.52],["2017-07",0.54],["2017-08",0.57],["2017-09",0.61],["2017-10",0.61],["2017-11",0.65],["2017-12",0.68],["2018-01",0.65],["2018-02",0.68],["2018-03",0.74],["2018-04",0.72],["2018-05",0.72],["2018-06",0.74],["2018-07",0.76],["2018-08",0.79],["2018-09",0.83],["2018-10",0.87],["2018-11",0.93],["2018-12",0.99],["2019-01",1.08],["2019-02",1.17],["2019-03",1.21],["2019-04",1.36],["2019-05",1.38],["2019-06",1.47],["2019-07",1.56],["2019-08",1.66],["2019-09",1.74],["2019-10",1.71],["2019-11",1.66],["2019-12",1.63],["2020-01",1.63],["2020-02",1.61],["2020-03",1.7],["2020-04",1.68],["2020-05",1.76],["2020-06",1.76],["2020-07",1.67],["2020-08",1.67],["2020-09",2.06],["2020-10",2.22],["2020-11",2.31],["2020-12",3.5],["2021-01",3.7],["2021-02",3.93],["2021-03",4.32],["2021-04",4.67],["2021-05",5.21],["2021-06",5.94],["2021-07",6.69],["2021-08",7.39],["2021-09",7.56],["2021-10",8.67],["2021-11",9.57],["2021-12",10.41],["2022-01",11.28],["2022-02",11.8],["2022-03",12.53],["2022-04",12.74],["2022-05",12.9],["2022-06",13.61],["2022-07",13.95],["2022-08",14.67],["2022-09",15.47],["2022-10",15.54],["2022-11",16.02],["2022-12",16.29],["2023-01",17.18],["2023-02",18.42],["2023-03",20.17],["2023-04",21.86],["2023-05",23.81],["2023-06",25.4],["2023-07",25.96],["2023-08",26.73],["2023-09",28.23],["2023-10",29.4],["2023-11",30.54],["2023-12",31.36],["2024-01",31.41],["2024-02",31.42],["2024-03",31.17],["2024-04",31.01],["2024-05",31.2],["2024-06",30.82],["2024-07",31.18],["2024-08",31.66],["2024-09",31.73],["2024-10",31.81],["2024-11",31.75],["2024-12",31.96],["2025-01",32.67],["2025-02",33.39],["2025-03",34.49],["2025-04",35.44],["2025-05",35.86],["2025-06",36.42],["2025-07",37.25],["2025-08",37.74],["2025-09",38.26],["2025-10",38.83],["2025-11",39.04],["2025-12",40.63],["2026-01",41.71],["2026-02",42.39],["2026-03",43.55],["2026-04",44.68],["2026-05",46.06],["2026-06",47.51]],"de":[["2021-01",7.14],["2021-02",7.62],["2021-03",8.11],["2021-04",8.45],["2021-05",8.98],["2021-06",9.64],["2021-07",10.18],["2021-08",10.81],["2021-09",11.49],["2021-10",12.15],["2021-11",12.98],["2021-12",13.58],["2022-01",13.67],["2022-02",14.02],["2022-03",14.47],["2022-04",14.68],["2022-05",14.92],["2022-06",15.17],["2022-07",15.49],["2022-08",15.59],["2022-09",15.84],["2022-10",15.86],["2022-11",16.17],["2022-12",17.75],["2023-01",17.68],["2023-02",17.8],["2023-03",17.89],["2023-04",18.02],["2023-05",18.25],["2023-06",18.63],["2023-07",19.08],["2023-08",20.47],["2023-09",20.04],["2023-10",20.02],["2023-11",19.67],["2023-12",18.43],["2024-01",18.36],["2024-02",18.12],["2024-03",17.78],["2024-04",17.54],["2024-05",17.15],["2024-06",16.72],["2024-07",16.13],["2024-08",14.46],["2024-09",14.64],["2024-10",14.51],["2024-11",14.17],["2024-12",13.51],["2025-01",13.97],["2025-02",14.34],["2025-03",14.79],["2025-04",15.36],["2025-05",15.83],["2025-06",16.2],["2025-07",16.69],["2025-08",17.07],["2025-09",17.3],["2025-10",17.79],["2025-11",18.48],["2025-12",19.08],["2026-01",19.46],["2026-02",19.77],["2026-03",20.46],["2026-04",21.06],["2026-05",21.64],["2026-06",22.6]],"se":[["2020-01",4.39],["2020-02",4.55],["2020-03",4.84],["2020-04",4.9],["2020-05",5.02],["2020-06",5.13],["2020-07",5.22],["2020-08",5.64],["2020-09",6.2],["2020-10",6.7],["2020-11",7.3],["2020-12",9.27],["2021-01",9.12],["2021-02",9.08],["2021-03",8.41],["2021-04",9.48],["2021-05",10.16],["2021-06",11.81],["2021-07",12.37],["2021-08",13.36],["2021-09",14.74],["2021-10",15.81],["2021-11",16.95],["2021-12",18.42],["2022-01",19.77],["2022-02",21.18],["2022-03",24.8],["2022-04",25.02],["2022-05",25.72],["2022-06",26.52],["2022-07",27.25],["2022-08",27.58],["2022-09",27.79],["2022-10",28.75],["2022-11",30.19],["2022-12",32.14],["2023-01",32.41],["2023-02",32.98],["2023-03",34.02],["2023-04",34.72],["2023-05",36.29],["2023-06",36.97],["2023-07",37.66],["2023-08",38.58],["2023-09",39.38],["2023-10",39.52],["2023-11",39.3],["2023-12",37.83],["2024-01",37.76],["2024-02",37.41],["2024-03",36.78],["2024-04",36.57],["2024-05",35.62],["2024-06",35.35],["2024-07",35.14],["2024-08",34.68],["2024-09",34.63],["2024-10",34.41],["2024-11",34.09],["2024-12",34.2],["2025-01",34.12],["2025-02",34.61],["2025-03",34.57],["2025-04",34.88],["2025-05",35.46],["2025-06",35.74],["2025-07",35.78],["2025-08",35.63],["2025-09",35.01],["2025-10",35.05],["2025-11",35.3],["2025-12",35.43],["2026-01",36.26],["2026-02",36.56],["2026-03",37.1],["2026-04",37.56],["2026-05",37.95],["2026-06",38.4]],"nz":[["2021-01",1.73],["2021-02",1.74],["2021-03",1.81],["2021-04",1.81],["2021-05",1.87],["2021-06",1.87],["2021-07",2.2],["2021-08",2.31],["2021-09",2.73],["2021-10",2.86],["2021-11",3.07],["2021-12",3.36],["2022-01",3.43],["2022-02",3.63],["2022-03",3.92],["2022-04",4.17],["2022-05",4.44],["2022-06",4.72],["2022-07",4.75],["2022-08",5.45],["2022-09",5.82],["2022-10",6.1],["2022-11",6.78],["2022-12",7.27],["2023-01",7.67],["2023-02",7.82],["2023-03",8.82],["2023-04",8.92],["2023-05",9.01],["2023-06",9.04],["2023-07",9.33],["2023-08",8.85],["2023-09",8.9],["2023-10",9.38],["2023-11",9.5],["2023-12",10.13],["2024-01",9.62],["2024-02",9.4],["2024-03",8.62],["2024-04",8.27],["2024-05",8.0],["2024-06",7.82],["2024-07",7.42],["2024-08",7.17],["2024-09",6.52],["2024-10",5.79],["2024-11",4.86],["2024-12",3.4],["2025-01",3.64],["2025-02",3.77],["2025-03",3.86],["2025-04",4.02],["2025-05",4.1],["2025-06",4.34],["2025-07",4.38],["2025-08",4.35],["2025-09",4.25],["2025-10",4.22],["2025-11",4.22],["2025-12",4.17],["2026-01",4.25],["2026-02",4.3],["2026-03",5.21],["2026-04",5.47],["2026-05",5.99],["2026-06",6.72]],"is":[["2021-01",24.63],["2021-02",24.13],["2021-03",23.28],["2021-04",22.83],["2021-05",22.56],["2021-06",22.51],["2021-07",23.37],["2021-08",24.11],["2021-09",24.86],["2021-10",25.89],["2021-11",26.91],["2021-12",27.84],["2022-01",28.6],["2022-02",29.27],["2022-03",31.32],["2022-04",31.45],["2022-05",30.68],["2022-06",29.41],["2022-07",28.42],["2022-08",28.28],["2022-09",30.03],["2022-10",29.74],["2022-11",31.14],["2022-12",33.38],["2023-01",32.89],["2023-02",33.68],["2023-03",34.4],["2023-04",35.09],["2023-05",37.45],["2023-06",40.2],["2023-07",41.74],["2023-08",43.74],["2023-09",44.55],["2023-10",46.26],["2023-11",48.17],["2023-12",50.03],["2024-01",50.66],["2024-02",50.06],["2024-03",49.2],["2024-04",47.96],["2024-05",47.37],["2024-06",45.62],["2024-07",45.67],["2024-08",44.12],["2024-09",42.39],["2024-10",40.98],["2024-11",36.55],["2024-12",29.31],["2025-01",29.48],["2025-02",30.21],["2025-03",31.94],["2025-04",33.24],["2025-05",31.63],["2025-06",33.91],["2025-07",34.93],["2025-08",35.45],["2025-09",37.15],["2025-10",36.77],["2025-11",38.83],["2025-12",41.19],["2026-01",38.77],["2026-02",38.86],["2026-03",39.05],["2026-04",40.96],["2026-05",45.37]],"dk":[["2014-12",0.83],["2015-01",0.81],["2015-02",0.81],["2015-03",0.96],["2015-04",0.97],["2015-05",0.99],["2015-06",1.03],["2015-07",1.04],["2015-08",1.24],["2015-09",1.29],["2015-10",1.32],["2015-11",1.51],["2015-12",2.08],["2016-01",2.08],["2016-02",2.03],["2016-03",1.84],["2016-04",1.76],["2016-05",1.69],["2016-06",1.6],["2016-07",1.56],["2016-08",1.37],["2016-09",1.38],["2016-10",1.32],["2016-11",1.14],["2016-12",0.57],["2017-01",0.53],["2017-02",0.53],["2017-03",0.52],["2017-04",0.52],["2017-05",0.5],["2017-06",0.5],["2017-07",0.5],["2017-08",0.53],["2017-09",0.45],["2017-10",0.45],["2017-11",0.42],["2017-12",0.31],["2018-01",0.33],["2018-02",0.34],["2018-03",0.39],["2018-04",0.44],["2018-05",0.47],["2018-06",0.5],["2018-07",0.5],["2018-08",0.49],["2018-09",0.53],["2018-10",0.58],["2018-11",0.62],["2018-12",0.71],["2019-01",0.8],["2019-02",0.88],["2019-03",1.03],["2019-04",1.18],["2019-05",1.36],["2019-06",1.63],["2019-07",1.73],["2019-08",1.82],["2019-09",2.03],["2019-10",2.08],["2019-11",2.15],["2019-12",2.44],["2020-01",2.59],["2020-02",2.76],["2020-03",3.19],["2020-04",3.24],["2020-05",3.34],["2020-06",3.45],["2020-07",3.53],["2020-08",3.89],["2020-09",4.7],["2020-10",5.18],["2020-11",5.89],["2020-12",7.15],["2021-01",7.48],["2021-02",7.61],["2021-03",7.76],["2021-04",7.86],["2021-05",8.03],["2021-06",8.63],["2021-07",9.29],["2021-08",10.39],["2021-09",10.97],["2021-10",11.64],["2021-11",12.5],["2021-12",13.33],["2022-01",13.98],["2022-02",14.7],["2022-03",15.73],["2022-04",16.4],["2022-05",17.35],["2022-06",18.12],["2022-07",18.9],["2022-08",18.89],["2022-09",18.92],["2022-10",19.33],["2022-11",19.69],["2022-12",20.63],["2023-01",20.85],["2023-02",21.6],["2023-03",23.68],["2023-04",24.82],["2023-05",26.19],["2023-06",27.97],["2023-07",28.71],["2023-08",30.01],["2023-09",31.71],["2023-10",32.71],["2023-11",34.46],["2023-12",36.09],["2024-01",36.96],["2024-02",38.1],["2024-03",38.68],["2024-04",39.75],["2024-05",41.22],["2024-06",43.01],["2024-07",44.33],["2024-08",45.81],["2024-09",47.08],["2024-10",49.05],["2024-11",50.32],["2024-12",51.34],["2025-01",52.94],["2025-02",54.38],["2025-03",56.56],["2025-04",58.32],["2025-05",59.29],["2025-06",60.68],["2025-07",61.76],["2025-08",62.77],["2025-09",64.27],["2025-10",65.05],["2025-11",66.31],["2025-12",68.19],["2026-01",69.4],["2026-02",70.33],["2026-03",71.35],["2026-04",72.91],["2026-05",74.59],["2026-06",76.13]]}</script>
+<script>
+(function(){
+  const S = JSON.parse(document.getElementById('seriesData').textContent);
+  const GRID = '#1f2a44', PAPER = '#0f1525', TICK = '#4a6a8a';
+  const BLUE = '#4da3ff', AMBER = '#f5a623', GREEN = '#7ed4a4', RED = '#ff7a7a', TEXT = '#c0cde0';
+
+  function baseLayout(extra){
+    return Object.assign({
+      paper_bgcolor: PAPER, plot_bgcolor: PAPER,
+      font: { color: '#9fb3d1', family: 'system-ui, sans-serif', size: 12 },
+      margin: { t: 28, r: 20, b: 44, l: 44 },
+      xaxis: { gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      yaxis: { range: [0, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      legend: { bgcolor: 'rgba(15,21,37,0.85)', bordercolor: GRID, borderwidth: 1, font: { color: TEXT }, x: 0.02, y: 0.98 },
+      hovermode: 'closest',
+      hoverlabel: { bgcolor: PAPER, bordercolor: GRID, font: { color: '#e9eef2' } }
+    }, extra || {});
+  }
+  const CFG = { responsive: true, displayModeBar: false };
+  function line(key, name, color, dash){
+    return { x: S[key].map(d => d[0]), y: S[key].map(d => d[1]), mode: 'lines', name: name,
+      line: { color: color, width: 2.5, dash: dash || 'solid' },
+      hovertemplate: '%{x}: %{y:.1f}%<extra>' + name + '</extra>' };
+  }
+  function vline(x, color){
+    return { type: 'line', x0: x, x1: x, y0: 0, y1: 1, yref: 'paper',
+      line: { color: color || RED, width: 1.2, dash: 'dash' } };
+  }
+
+  function render(){
+    if(typeof Plotly === 'undefined') return false;
+
+    Plotly.newPlot('dkChart', [
+      line('dk_priv', 'Denmark — private', GREEN),
+      line('dk_ind', 'Denmark — corporate', AMBER),
+      line('dk', 'Denmark — all', BLUE)
+    ], baseLayout(), CFG);
+
+    Plotly.newPlot('fiChart', [
+      line('fi_priv', 'Finland — private', GREEN),
+      line('fi_ind', 'Finland — corporate', AMBER)
+    ], baseLayout({
+      yaxis: { range: [0, 60], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      shapes: [vline('2023-12')],
+      annotations: [{ x: '2023-12', y: 1, yref: 'paper', yanchor: 'bottom', text: 'last subsidised registrations', showarrow: false, font: { size: 11, color: RED } }]
+    }), CFG);
+
+    Plotly.newPlot('cliffChart', [
+      line('is', 'Iceland', BLUE),
+      line('se', 'Sweden', GREEN),
+      line('de', 'Germany', AMBER),
+      line('nz', 'New Zealand', RED)
+    ], baseLayout({
+      yaxis: { range: [0, 65], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      shapes: [
+        vline('2022-11', GREEN), vline('2023-09', AMBER), vline('2023-12', AMBER), vline('2024-01', BLUE)
+      ],
+      annotations: [
+        { x: '2022-11', y: 1, yref: 'paper', yanchor: 'bottom', text: 'SE', showarrow: false, font: { size: 11, color: GREEN } },
+        { x: '2023-09', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'right', text: 'DE¹ ', showarrow: false, font: { size: 11, color: AMBER } },
+        { x: '2023-12', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'right', text: 'DE² ', showarrow: false, font: { size: 11, color: AMBER } },
+        { x: '2024-01', y: 1, yref: 'paper', yanchor: 'bottom', xanchor: 'left', text: ' IS · NZ', showarrow: false, font: { size: 11, color: BLUE } }
+      ]
+    }), CFG);
+
+    // size encodes the dose (price shock as % of car price, midpoints of the table's estimates)
+    const pts = [
+      { c: 'NL PHEV ’16',      x: 9.2,  y: 94, dose: 30, pos: 'middle right' },
+      { c: 'Denmark ’16',      x: 2.1,  y: 85, dose: 8,  pos: 'middle right' },
+      { c: 'New Zealand ’24',  x: 10.1, y: 66, dose: 17, pos: 'middle right' },
+      { c: 'USA ’25*',         x: 8.2,  y: 17, dose: 16, pos: 'middle right' },
+      { c: 'Germany ’23/24',   x: 20.5, y: 34, dose: 11, pos: 'middle right' },
+      { c: 'France ’24/25',    x: 17.8, y: 5,  dose: 2,  pos: 'bottom right' },
+      { c: 'UK ’22',           x: 15.1, y: 1,  dose: 3,  pos: 'middle left' },
+      { c: 'Sweden ’22',       x: 30.2, y: 14, dose: 12, pos: 'top right' },
+      { c: 'Iceland ’24',      x: 50.0, y: 41, dose: 22, pos: 'middle right' },
+      { c: 'Norway ’23',       x: 78.4, y: 0,  dose: 3,  pos: 'bottom center' },
+      { c: 'Hong Kong ’26*',   x: 90,   y: 20, dose: 25, pos: 'top center' }
+    ];
+    Plotly.newPlot('stageChart', [{
+      x: pts.map(p => p.x), y: pts.map(p => p.y), text: pts.map(p => p.c),
+      mode: 'markers+text', textposition: pts.map(p => p.pos),
+      textfont: { color: TEXT, size: 11 },
+      marker: { size: pts.map(p => 7 + p.dose * 0.55), sizemode: 'diameter',
+        color: [RED, GREEN, RED, AMBER, AMBER, GREEN, GREEN, GREEN, RED, GREEN, BLUE],
+        opacity: 0.9, line: { color: '#0b0c10', width: 1 } },
+      hovertext: pts.map(p => p.c + ': cut at ' + p.x.toFixed(0) + '% share, dose ~' + p.dose + '% of car price → −' + p.y.toFixed(0) + '% relative drop'),
+      hoverinfo: 'text'
+    }], baseLayout({
+      showlegend: false,
+      xaxis: { title: { text: 'BEV share when the incentive was cut', font: { size: 11, color: TICK } }, range: [0, 100], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } },
+      yaxis: { title: { text: 'relative market drop', font: { size: 11, color: TICK } }, range: [-6, 102], ticksuffix: '%', gridcolor: GRID, zerolinecolor: GRID, tickcolor: GRID, linecolor: GRID, tickfont: { color: TICK } }
+    }), CFG);
+
+    return true;
+  }
+
+  function wire(){
+    if(render()) return;
+    const wait = setInterval(() => { if(render()) clearInterval(wait); }, 50);
+  }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', wire); } else { wire(); }
+})();
+</script>
+</body>
+</html>
