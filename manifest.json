@@ -162,6 +162,46 @@
       "country_slug": "denmark_private"
     },
     {
+      "country": "Denmark (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-12",
+      "filename": "denmark_vans_ICE_BEV_20260812.png",
+      "url": "images/2026-07/denmark_vans_ICE_BEV_20260812.png",
+      "alt": "Denmark (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "denmark_vans"
+    },
+    {
+      "country": "Denmark (Vans)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-12",
+      "filename": "denmark_vans_20260812.png",
+      "url": "images/2026-07/denmark_vans_20260812.png",
+      "alt": "Denmark (Vans) BEV trajectory",
+      "country_slug": "denmark_vans"
+    },
+    {
+      "country": "Denmark (Vans)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-12",
+      "filename": "denmark_vans_time_20260812.png",
+      "url": "images/2026-07/denmark_vans_time_20260812.png",
+      "alt": "Denmark (Vans) Transition time curve",
+      "country_slug": "denmark_vans"
+    },
+    {
+      "country": "Denmark (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-12",
+      "filename": "denmark_vans_ttm_shares_20260812.png",
+      "url": "images/2026-07/denmark_vans_ttm_shares_20260812.png",
+      "alt": "Denmark (Vans) TTM market split graph",
+      "country_slug": "denmark_vans"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-07",
