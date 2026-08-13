@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-12T06:03:10Z",
- "today": "2026-08-12",
+ "generated": "2026-08-13T06:04:21Z",
+ "today": "2026-08-13",
  "countries": [
   {
    "country": "Albania",
@@ -887,11 +887,11 @@
    "source_url": "https://www.statbank.dk/BIL53",
    "cadence_text": "daily cron, 1st–15th, 05:15 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -931,45 +931,45 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-07-10",
+   "last_render": "2026-08-12",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2014-01",
-     "rows": 150,
+     "rows": 151,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2021-01",
-     "rows": 66,
+     "rows": 67,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2785,10 +2785,10 @@
    "source_url": "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html",
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-06",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2831,13 +2831,13 @@
     ],
     "workflow": ".github/workflows/fetch-singapore.yml"
    },
-   "last_render": "2026-07-24",
+   "last_render": "2026-08-12",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2016-01",
-     "rows": 115,
+     "rows": 116,
      "cadence": "monthly",
      "in_repo": true
     }
