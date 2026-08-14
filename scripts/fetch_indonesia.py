@@ -240,6 +240,13 @@ def process_region(rows, key, parsed):
                                   f"-> {len(found)} month tokens {found}")
         if fuel_cx is None:
             detail.append("FUEL column not found")
+            # find_fuel_x wants a word whose text is exactly "FUEL". Show the
+            # header band's actual tokens so a renamed column is readable from
+            # the log instead of guessed at.
+            if hdr_top is not None:
+                for r in rows:
+                    if abs(r["top"] - hdr_top) <= 20:
+                        detail.append(f"header-band row {r['text'][:120]!r}")
         parsed.warnings.append(f"{key}: " + "; ".join(detail))
         return
 
