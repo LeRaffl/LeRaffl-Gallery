@@ -58,6 +58,8 @@ from datetime import date
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 CAMARA_URL = "https://www.andi.com.co/Home/Camara/4-automotriz"
 SOURCE = "andi.com.co + fenalco (datos RUNT)"
@@ -280,6 +282,18 @@ def main() -> None:
 
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+    # andi.com.co intermittently drops the connection mid-handshake, which
+    # surfaced as a hard `RemoteDisconnected` on the very first GET and failed
+    # the whole scheduled run. Retry connect/read errors and the usual
+    # transient status codes with backoff (same shape as fetch_austria.py).
+    session.mount("https://", HTTPAdapter(max_retries=Retry(
+        total=5,
+        connect=5,
+        read=3,
+        backoff_factor=3,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"],
+    )))
 
     if args.pdf_url:
         url, year, n = args.pdf_url, None, None

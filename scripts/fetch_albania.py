@@ -444,6 +444,22 @@ def _fetch_with_browser_session(year: int) -> dict:
 }
 """
 
+        # Diagnostic companion to _JS_MONTH_LABELS: every short leaf-ish text in
+        # the live DOM, so a changed month-label format shows up in the log.
+        _JS_POPUP_SAMPLE = r"""
+() => {
+    const out = []; const seen = new Set();
+    for (const e of document.querySelectorAll('span,div,label,li,td')) {
+        if (e.closest('svg')) continue;
+        const t = (e.textContent || '').trim();
+        if (!t || t.length > 40 || seen.has(t)) continue;
+        seen.add(t); out.push(t);
+        if (out.length >= 80) break;
+    }
+    return JSON.stringify(out);
+}
+"""
+
         def _label_to_period(label: str) -> str | None:
             try:
                 abbr, yr = label.split()
@@ -494,6 +510,15 @@ def _fetch_with_browser_session(year: int) -> dict:
         print(f"[albania] [{year}] Muaji months present (descending): {present_periods}")
 
         if not present:
+            # The popup opened but nothing matched "<Mon> <YYYY>". Dump what the
+            # popup actually contains before giving up — otherwise a relabelled
+            # or restructured filter is indistinguishable from a load timeout,
+            # and the run just fails with an opaque message every day.
+            try:
+                sample = json.loads(page.evaluate(_JS_POPUP_SAMPLE))
+            except Exception as exc:
+                sample = [f"<sample failed: {exc}>"]
+            print(f"[albania] [{year}] popup text sample ({len(sample)} items): {sample}")
             browser.close()
             raise RuntimeError(
                 "[albania] no month labels found in the Muaji popup")

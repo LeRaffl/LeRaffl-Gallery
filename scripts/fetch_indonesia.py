@@ -405,15 +405,19 @@ def validate(parsed):
         if seg_sum != sec:
             errors.append(f"PU_TRUCK segments {year}-{mi:02d}: {seg_sum} != section {sec}")
 
-    if errors:
-        for e in errors:
-            print(f"VALIDATION: {e}", file=sys.stderr)
-        raise SystemExit(f"PDF validation failed with {len(errors)} error(s)")
-
+    # Print the parser's own warnings *before* the validation verdict. They used
+    # to come after, so a failing run swallowed them — and they are exactly what
+    # explains the failure: "unmatched sheet title" names the heading GAIKINDO
+    # actually printed when a section goes missing.
     for w in parsed.warnings:
         print(f"warning: {w}")
     for tok, n in parsed.unknown_fuels.items():
         print(f"warning: unknown fuel type {tok!r} in {n} row(s) -> OTHERS")
+
+    if errors:
+        for e in errors:
+            print(f"VALIDATION: {e}", file=sys.stderr)
+        raise SystemExit(f"PDF validation failed with {len(errors)} error(s)")
 
 
 # ---------------------------------------------------------------- aggregation

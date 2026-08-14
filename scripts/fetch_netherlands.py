@@ -54,7 +54,7 @@ import sys
 import time
 from datetime import date
 from pathlib import Path
-from urllib.parse import quote as urlquote
+from urllib.parse import quote as urlquote, urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -119,6 +119,11 @@ NL_MONTHS = {
 WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
+# Relay redirect chain: followed client-side so the cookie jar in
+# session.relay_cookies travels with it (see _get / _relay_once).
+REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
+MAX_RELAY_REDIRECTS = 10
+
 
 def _get(session: requests.Session, url: str,
          headers: dict | None = None, **kwargs) -> requests.Response:
@@ -142,6 +147,30 @@ def _get(session: requests.Session, url: str,
     if not relay_base:
         return session.get(url, headers=merged_headers, **kwargs)
 
+    target = url
+    for hop in range(MAX_RELAY_REDIRECTS + 1):
+        resp = _relay_once(session, target, merged_headers, **kwargs)
+        if resp.status_code not in REDIRECT_STATUSES:
+            return resp
+        # No X-Upstream-Location means the deployed relay predates manual-
+        # redirect support and followed the chain itself; hand the response
+        # back rather than guessing where it wanted to go.
+        location = resp.headers.get("X-Upstream-Location")
+        if not location:
+            return resp
+        target = urljoin(target, location)
+        print(f"[net] relay redirect {resp.status_code} (hop {hop + 1}) -> {target}")
+
+    raise RuntimeError(
+        f"[net] more than {MAX_RELAY_REDIRECTS} relay redirects starting at {url} — "
+        f"upstream is looping; last target {target}"
+    )
+
+
+def _relay_once(session: requests.Session, url: str, merged_headers: dict,
+                **kwargs) -> requests.Response:
+    """One relay round-trip, harvesting upstream Set-Cookie into the jar."""
+    relay_base = session.relay_base  # type: ignore[attr-defined]
     relay_token = getattr(session, "relay_token", "")
     relay_cookies: dict = getattr(session, "relay_cookies", {})
 
@@ -149,6 +178,10 @@ def _get(session: requests.Session, url: str,
         "X-Relay-Token":          relay_token,
         "X-Fwd-User-Agent":       HTTP_HEADERS["User-Agent"],
         "X-Fwd-Accept-Language":  HTTP_HEADERS["Accept-Language"],
+        # Own the redirect chain here: the relay's own fetch has no cookie jar,
+        # so a session-cookie redirect loop on databank.nl exhausted its 20-hop
+        # limit and came back as a 502. See worker/deno-relay.ts.
+        "X-Relay-Redirect":       "manual",
     }
     if relay_cookies:
         fwd["X-Fwd-Cookie"] = "; ".join(f"{k}={v}" for k, v in relay_cookies.items())
