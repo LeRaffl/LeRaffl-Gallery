@@ -226,7 +226,21 @@ def process_region(rows, key, parsed):
     bands, hdr_top = find_month_bands(rows)
     fuel_cx = find_fuel_x(rows)
     if bands is None or fuel_cx is None:
-        parsed.warnings.append(f"{key}: month header or FUEL column not found")
+        # Say which of the two is missing, and — for the month header — which
+        # month tokens the sheet actually prints. find_month_bands insists on
+        # all 12; a sheet trimmed to the covered months would fail here with no
+        # way to tell that apart from a wholesale layout change.
+        detail = []
+        if bands is None:
+            detail.append("month header not found")
+            for r in rows:
+                found = [w["text"] for w in r["words"] if w["text"] in MONTH_NAMES]
+                if len(found) >= 2:
+                    detail.append(f"candidate header row {r['text'][:90]!r} "
+                                  f"-> {len(found)} month tokens {found}")
+        if fuel_cx is None:
+            detail.append("FUEL column not found")
+        parsed.warnings.append(f"{key}: " + "; ".join(detail))
         return
 
     fuel_rows, orphans, cumulative_tops = [], [], []
