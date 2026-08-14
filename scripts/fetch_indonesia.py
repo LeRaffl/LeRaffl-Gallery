@@ -219,6 +219,7 @@ class ParsedPdf:
         self.coverage = None     # (last covered month, year)
         self.unknown_fuels = defaultdict(int)
         self.warnings = []
+        self.sections_without_fuel_column = 0
 
 
 def process_region(rows, key, parsed):
@@ -230,6 +231,8 @@ def process_region(rows, key, parsed):
         # month tokens the sheet actually prints. find_month_bands insists on
         # all 12; a sheet trimmed to the covered months would fail here with no
         # way to tell that apart from a wholesale layout change.
+        if fuel_cx is None:
+            parsed.sections_without_fuel_column += 1
         detail = []
         if bands is None:
             detail.append("month header not found")
@@ -244,9 +247,12 @@ def process_region(rows, key, parsed):
             # header band's actual tokens so a renamed column is readable from
             # the log instead of guessed at.
             if hdr_top is not None:
-                for r in rows:
-                    if abs(r["top"] - hdr_top) <= 20:
-                        detail.append(f"header-band row {r['text'][:120]!r}")
+                # Just the header block: the rows immediately above the month
+                # row plus the unit line under it. A wider window drags in
+                # model rows and buries the answer.
+                band = [r for r in rows if hdr_top - 8 <= r["top"] <= hdr_top + 4]
+                for r in band[:5]:
+                    detail.append(f"header-band row {r['text'][:120]!r}")
         parsed.warnings.append(f"{key}: " + "; ".join(detail))
         return
 
@@ -378,6 +384,26 @@ def validate(parsed):
     """Cross-check every layer against the printed totals; exit on mismatch."""
     last_month, year = parsed.coverage
     errors = []
+
+    # Every sheet title matched but not one carried a FUEL column: that is the
+    # source dropping the fuel dimension, not the parser losing its place.
+    # Verified against GAIKINDO's Jan-Jul 2026 edition — its sheets run
+    # CATEGORY | BRAND | TYPE/MODEL | CC | TRANS | CO2 | ... | ORIGIN COUNTRY |
+    # JAN..DEC, with no FUEL column and no BEV/PHEV/HEV token anywhere in the
+    # document; the only fuel marker left is the [G/D] / [G] / [D] label on the
+    # category block, which describes a whole block rather than a row. The
+    # Jan-Jun edition still had the column. Nothing to parse, so say that
+    # plainly instead of emitting a wall of downstream validation noise.
+    if parsed.sections_without_fuel_column and not parsed.sections:
+        for w in parsed.warnings:
+            print(f"warning: {w}")
+        raise SystemExit(
+            f"GAIKINDO's Jan-{MONTH_NAMES[last_month - 1].title()} {year} sheets have no "
+            f"FUEL column ({parsed.sections_without_fuel_column} section(s) affected), so "
+            f"this edition carries no BEV/PHEV/HEV/petrol/diesel split. The fuel breakdown "
+            f"has to come back to the source before this can be parsed — check the portal "
+            f"for a corrected or separate fuel-split file."
+        )
 
     missing = ALL_SECTIONS - set(parsed.sections)
     if missing:
