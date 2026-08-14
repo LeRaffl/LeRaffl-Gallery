@@ -398,11 +398,13 @@ def validate(parsed):
         for w in parsed.warnings:
             print(f"warning: {w}")
         raise SystemExit(
-            f"GAIKINDO's Jan-{MONTH_NAMES[last_month - 1].title()} {year} sheets have no "
-            f"FUEL column ({parsed.sections_without_fuel_column} section(s) affected), so "
-            f"this edition carries no BEV/PHEV/HEV/petrol/diesel split. The fuel breakdown "
-            f"has to come back to the source before this can be parsed — check the portal "
-            f"for a corrected or separate fuel-split file."
+            f"GAIKINDO's Jan-{MONTH_NAMES[last_month - 1].title()} {year} wholesales sheets "
+            f"have no FUEL column ({parsed.sections_without_fuel_column} section(s) affected), "
+            f"so this edition carries no BEV/PHEV/HEV/petrol/diesel split and there is "
+            f"nothing to parse. Most likely a bad edition rather than a format change: the "
+            f"production, export and import files published alongside it still carry the "
+            f"column, and GAIKINDO does re-publish revisions. Wait for a corrected wholesales "
+            f"file, or re-run with --pdf-url pointing at one."
         )
 
     missing = ALL_SECTIONS - set(parsed.sections)
