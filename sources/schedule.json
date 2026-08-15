@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-14T06:03:35Z",
- "today": "2026-08-14",
+ "generated": "2026-08-15T05:00:18Z",
+ "today": "2026-08-15",
  "countries": [
   {
    "country": "Albania",
@@ -173,7 +173,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-08-11",
+   "last_render": "2026-08-14",
    "variants": [
     {
      "name": "Whole",
@@ -201,9 +201,9 @@
     },
     {
      "name": "Used",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2019-01",
-     "rows": 90,
+     "rows": 91,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2141,8 +2141,8 @@
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-06",
-   "behind": -1,
+   "expected_period": "2026-07",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -2786,8 +2786,8 @@
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-06",
-   "behind": -1,
+   "expected_period": "2026-07",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -3360,10 +3360,10 @@
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
    "latest_period": "2026-06",
-   "expected_period": "2026-06",
-   "behind": 0,
+   "expected_period": "2026-07",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
