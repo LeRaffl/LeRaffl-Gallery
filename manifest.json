@@ -2,6 +2,46 @@
   "updated": "2026-08-15",
   "images": [
     {
+      "country": "Spain (2 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_2_wheelers_ICE_BEV_20260815.png",
+      "url": "images/2026-07/spain_2_wheelers_ICE_BEV_20260815.png",
+      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_2_wheelers_20260815.png",
+      "url": "images/2026-07/spain_2_wheelers_20260815.png",
+      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_2_wheelers_time_20260815.png",
+      "url": "images/2026-07/spain_2_wheelers_time_20260815.png",
+      "alt": "Spain (2 Wheelers) Transition time curve",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
+      "country": "Spain (2 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_2_wheelers_ttm_shares_20260815.png",
+      "url": "images/2026-07/spain_2_wheelers_ttm_shares_20260815.png",
+      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "country_slug": "spain_2_wheelers"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2026-07",
