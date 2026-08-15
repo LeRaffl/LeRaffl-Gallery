@@ -162,6 +162,86 @@
       "country_slug": "spain_nonrental"
     },
     {
+      "country": "Spain (Rental)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_rental_ICE_BEV_20260815.png",
+      "url": "images/2026-07/spain_rental_ICE_BEV_20260815.png",
+      "alt": "Spain (Rental) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_rental_20260815.png",
+      "url": "images/2026-07/spain_rental_20260815.png",
+      "alt": "Spain (Rental) BEV trajectory",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_rental_time_20260815.png",
+      "url": "images/2026-07/spain_rental_time_20260815.png",
+      "alt": "Spain (Rental) Transition time curve",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Rental)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_rental_ttm_shares_20260815.png",
+      "url": "images/2026-07/spain_rental_ttm_shares_20260815.png",
+      "alt": "Spain (Rental) TTM market split graph",
+      "country_slug": "spain_rental"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_used_ICE_BEV_20260815.png",
+      "url": "images/2026-07/spain_used_ICE_BEV_20260815.png",
+      "alt": "Spain (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_used_20260815.png",
+      "url": "images/2026-07/spain_used_20260815.png",
+      "alt": "Spain (Used) BEV trajectory",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_used_time_20260815.png",
+      "url": "images/2026-07/spain_used_time_20260815.png",
+      "alt": "Spain (Used) Transition time curve",
+      "country_slug": "spain_used"
+    },
+    {
+      "country": "Spain (Used)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_used_ttm_shares_20260815.png",
+      "url": "images/2026-07/spain_used_ttm_shares_20260815.png",
+      "alt": "Spain (Used) TTM market split graph",
+      "country_slug": "spain_used"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2026-07",
