@@ -128,3 +128,4 @@ period,time_interval,variant,source,BEV,PHEV,EREV,HEV,PETROL,DIESEL,OTHERS,TOTAL
 2026-04,monthly,Vans,DGT,643.0,275.0,0.0,126.0,207.0,10020.0,44.0,11315.0,https://www.dgt.es/microdatos/salida/2026/4/vehiculos/matriculaciones/export_mensual_mat_202604.zip
 2026-05,monthly,Vans,DGT,725.0,256.0,0.0,90.0,190.0,10490.0,106.0,11857.0,https://www.dgt.es/microdatos/salida/2026/5/vehiculos/matriculaciones/export_mensual_mat_202605.zip
 2026-06,monthly,Vans,DGT,890.0,318.0,0.0,60.0,162.0,12242.0,63.0,13735.0,https://www.dgt.es/microdatos/salida/2026/6/vehiculos/matriculaciones/export_mensual_mat_202606.zip
+2026-07,monthly,Vans,DGT,730.0,363.0,0.0,44.0,213.0,10742.0,65.0,12157.0,https://www.dgt.es/microdatos/salida/2026/7/vehiculos/matriculaciones/export_mensual_mat_202607.zip

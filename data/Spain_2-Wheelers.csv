@@ -128,3 +128,4 @@ period,time_interval,variant,source,BEV,PHEV,EREV,HEV,PETROL,DIESEL,OTHERS,TOTAL
 2026-04,monthly,2-Wheelers,DGT,744.0,0.0,0.0,2.0,24181.0,25.0,0.0,24952.0,https://www.dgt.es/microdatos/salida/2026/4/vehiculos/matriculaciones/export_mensual_mat_202604.zip
 2026-05,monthly,2-Wheelers,DGT,1030.0,0.0,0.0,0.0,26829.0,20.0,1.0,27880.0,https://www.dgt.es/microdatos/salida/2026/5/vehiculos/matriculaciones/export_mensual_mat_202605.zip
 2026-06,monthly,2-Wheelers,DGT,947.0,0.0,0.0,3.0,32484.0,26.0,4.0,33464.0,https://www.dgt.es/microdatos/salida/2026/6/vehiculos/matriculaciones/export_mensual_mat_202606.zip
+2026-07,monthly,2-Wheelers,DGT,952.0,0.0,0.0,11.0,31502.0,19.0,0.0,32484.0,https://www.dgt.es/microdatos/salida/2026/7/vehiculos/matriculaciones/export_mensual_mat_202607.zip
