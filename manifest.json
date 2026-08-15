@@ -82,6 +82,46 @@
       "country_slug": "spain_buses"
     },
     {
+      "country": "Spain (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_hdv_ICE_BEV_20260815.png",
+      "url": "images/2026-07/spain_hdv_ICE_BEV_20260815.png",
+      "alt": "Spain (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_hdv_20260815.png",
+      "url": "images/2026-07/spain_hdv_20260815.png",
+      "alt": "Spain (HDV) BEV trajectory",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_hdv_time_20260815.png",
+      "url": "images/2026-07/spain_hdv_time_20260815.png",
+      "alt": "Spain (HDV) Transition time curve",
+      "country_slug": "spain_hdv"
+    },
+    {
+      "country": "Spain (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_hdv_ttm_shares_20260815.png",
+      "url": "images/2026-07/spain_hdv_ttm_shares_20260815.png",
+      "alt": "Spain (HDV) TTM market split graph",
+      "country_slug": "spain_hdv"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2026-07",
