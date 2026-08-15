@@ -42,6 +42,46 @@
       "country_slug": "spain_2_wheelers"
     },
     {
+      "country": "Spain (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_buses_ICE_BEV_20260815.png",
+      "url": "images/2026-07/spain_buses_ICE_BEV_20260815.png",
+      "alt": "Spain (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_buses_20260815.png",
+      "url": "images/2026-07/spain_buses_20260815.png",
+      "alt": "Spain (Buses) BEV trajectory",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_buses_time_20260815.png",
+      "url": "images/2026-07/spain_buses_time_20260815.png",
+      "alt": "Spain (Buses) Transition time curve",
+      "country_slug": "spain_buses"
+    },
+    {
+      "country": "Spain (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-08-15",
+      "filename": "spain_buses_ttm_shares_20260815.png",
+      "url": "images/2026-07/spain_buses_ttm_shares_20260815.png",
+      "alt": "Spain (Buses) TTM market split graph",
+      "country_slug": "spain_buses"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2026-07",
