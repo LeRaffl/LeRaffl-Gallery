@@ -219,6 +219,7 @@ class ParsedPdf:
         self.coverage = None     # (last covered month, year)
         self.unknown_fuels = defaultdict(int)
         self.warnings = []
+        self.sections_without_fuel_column = 0
 
 
 def process_region(rows, key, parsed):
@@ -226,7 +227,33 @@ def process_region(rows, key, parsed):
     bands, hdr_top = find_month_bands(rows)
     fuel_cx = find_fuel_x(rows)
     if bands is None or fuel_cx is None:
-        parsed.warnings.append(f"{key}: month header or FUEL column not found")
+        # Say which of the two is missing, and — for the month header — which
+        # month tokens the sheet actually prints. find_month_bands insists on
+        # all 12; a sheet trimmed to the covered months would fail here with no
+        # way to tell that apart from a wholesale layout change.
+        if fuel_cx is None:
+            parsed.sections_without_fuel_column += 1
+        detail = []
+        if bands is None:
+            detail.append("month header not found")
+            for r in rows:
+                found = [w["text"] for w in r["words"] if w["text"] in MONTH_NAMES]
+                if len(found) >= 2:
+                    detail.append(f"candidate header row {r['text'][:90]!r} "
+                                  f"-> {len(found)} month tokens {found}")
+        if fuel_cx is None:
+            detail.append("FUEL column not found")
+            # find_fuel_x wants a word whose text is exactly "FUEL". Show the
+            # header band's actual tokens so a renamed column is readable from
+            # the log instead of guessed at.
+            if hdr_top is not None:
+                # Just the header block: the rows immediately above the month
+                # row plus the unit line under it. A wider window drags in
+                # model rows and buries the answer.
+                band = [r for r in rows if hdr_top - 8 <= r["top"] <= hdr_top + 4]
+                for r in band[:5]:
+                    detail.append(f"header-band row {r['text'][:120]!r}")
+        parsed.warnings.append(f"{key}: " + "; ".join(detail))
         return
 
     fuel_rows, orphans, cumulative_tops = [], [], []
@@ -358,6 +385,28 @@ def validate(parsed):
     last_month, year = parsed.coverage
     errors = []
 
+    # Every sheet title matched but not one carried a FUEL column: that is the
+    # source dropping the fuel dimension, not the parser losing its place.
+    # Verified against GAIKINDO's Jan-Jul 2026 edition — its sheets run
+    # CATEGORY | BRAND | TYPE/MODEL | CC | TRANS | CO2 | ... | ORIGIN COUNTRY |
+    # JAN..DEC, with no FUEL column and no BEV/PHEV/HEV token anywhere in the
+    # document; the only fuel marker left is the [G/D] / [G] / [D] label on the
+    # category block, which describes a whole block rather than a row. The
+    # Jan-Jun edition still had the column. Nothing to parse, so say that
+    # plainly instead of emitting a wall of downstream validation noise.
+    if parsed.sections_without_fuel_column and not parsed.sections:
+        for w in parsed.warnings:
+            print(f"warning: {w}")
+        raise SystemExit(
+            f"GAIKINDO's Jan-{MONTH_NAMES[last_month - 1].title()} {year} wholesales sheets "
+            f"have no FUEL column ({parsed.sections_without_fuel_column} section(s) affected), "
+            f"so this edition carries no BEV/PHEV/HEV/petrol/diesel split and there is "
+            f"nothing to parse. Most likely a bad edition rather than a format change: the "
+            f"production, export and import files published alongside it still carry the "
+            f"column, and GAIKINDO does re-publish revisions. Wait for a corrected wholesales "
+            f"file, or re-run with --pdf-url pointing at one."
+        )
+
     missing = ALL_SECTIONS - set(parsed.sections)
     if missing:
         errors.append(f"sections missing from PDF: {sorted(missing)}")
@@ -405,15 +454,19 @@ def validate(parsed):
         if seg_sum != sec:
             errors.append(f"PU_TRUCK segments {year}-{mi:02d}: {seg_sum} != section {sec}")
 
-    if errors:
-        for e in errors:
-            print(f"VALIDATION: {e}", file=sys.stderr)
-        raise SystemExit(f"PDF validation failed with {len(errors)} error(s)")
-
+    # Print the parser's own warnings *before* the validation verdict. They used
+    # to come after, so a failing run swallowed them — and they are exactly what
+    # explains the failure: "unmatched sheet title" names the heading GAIKINDO
+    # actually printed when a section goes missing.
     for w in parsed.warnings:
         print(f"warning: {w}")
     for tok, n in parsed.unknown_fuels.items():
         print(f"warning: unknown fuel type {tok!r} in {n} row(s) -> OTHERS")
+
+    if errors:
+        for e in errors:
+            print(f"VALIDATION: {e}", file=sys.stderr)
+        raise SystemExit(f"PDF validation failed with {len(errors)} error(s)")
 
 
 # ---------------------------------------------------------------- aggregation

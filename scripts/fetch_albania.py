@@ -237,7 +237,31 @@ _FUEL_TYPE_HINTS = {
 
 # ── Session via headless browser ──────────────────────────────────────────────
 
-def _fetch_with_browser_session(year: int) -> dict:
+# Initial-load budget per attempt. The Looker report renders its Muaji filter
+# asynchronously and sometimes has not painted it when the first budget runs
+# out — the scrape then finds zero month labels and the whole run dies. That is
+# a slow load, not a changed report: the same code succeeds minutes later. Give
+# a stalled attempt progressively more room instead of failing the day.
+LOAD_ATTEMPT_WAITS = (35, 70, 110)
+
+
+def _fetch_year_with_retries(year: int) -> dict:
+    """Run the browser scrape, retrying with a longer load budget on failure."""
+    last_exc: Exception | None = None
+    for attempt, wait in enumerate(LOAD_ATTEMPT_WAITS, start=1):
+        try:
+            return _fetch_with_browser_session(year, initial_wait=wait)
+        except Exception as exc:
+            last_exc = exc
+            if attempt < len(LOAD_ATTEMPT_WAITS):
+                print(f"[albania] [{year}] attempt {attempt}/{len(LOAD_ATTEMPT_WAITS)} "
+                      f"failed ({exc}); retrying with a {LOAD_ATTEMPT_WAITS[attempt]}s "
+                      f"load budget")
+    assert last_exc is not None
+    raise last_exc
+
+
+def _fetch_with_browser_session(year: int, initial_wait: int = 35) -> dict:
     """
     Load the year-specific Albanian DPSHTRR Looker Studio report in headless
     Chromium, intercept all batchedDataV2 responses, and iterate the Muaji
@@ -362,9 +386,9 @@ def _fetch_with_browser_session(year: int) -> dict:
                 print(f"[albania][debug] phase-2 landed: {page.url}")
 
         # Wait for initial page load + batchedDataV2 responses
-        print("[albania] waiting 35s for initial load…")
+        print(f"[albania] waiting {initial_wait}s for initial load…")
         initial_start = len(captured)
-        deadline = _time.time() + 35
+        deadline = _time.time() + initial_wait
         while _time.time() < deadline:
             page.wait_for_timeout(500)
 
@@ -444,6 +468,22 @@ def _fetch_with_browser_session(year: int) -> dict:
 }
 """
 
+        # Diagnostic companion to _JS_MONTH_LABELS: every short leaf-ish text in
+        # the live DOM, so a changed month-label format shows up in the log.
+        _JS_POPUP_SAMPLE = r"""
+() => {
+    const out = []; const seen = new Set();
+    for (const e of document.querySelectorAll('span,div,label,li,td')) {
+        if (e.closest('svg')) continue;
+        const t = (e.textContent || '').trim();
+        if (!t || t.length > 40 || seen.has(t)) continue;
+        seen.add(t); out.push(t);
+        if (out.length >= 80) break;
+    }
+    return JSON.stringify(out);
+}
+"""
+
         def _label_to_period(label: str) -> str | None:
             try:
                 abbr, yr = label.split()
@@ -494,6 +534,15 @@ def _fetch_with_browser_session(year: int) -> dict:
         print(f"[albania] [{year}] Muaji months present (descending): {present_periods}")
 
         if not present:
+            # The popup opened but nothing matched "<Mon> <YYYY>". Dump what the
+            # popup actually contains before giving up — otherwise a relabelled
+            # or restructured filter is indistinguishable from a load timeout,
+            # and the run just fails with an opaque message every day.
+            try:
+                sample = json.loads(page.evaluate(_JS_POPUP_SAMPLE))
+            except Exception as exc:
+                sample = [f"<sample failed: {exc}>"]
+            print(f"[albania] [{year}] popup text sample ({len(sample)} items): {sample}")
             browser.close()
             raise RuntimeError(
                 "[albania] no month labels found in the Muaji popup")
@@ -884,7 +933,7 @@ def main() -> None:
     all_rows: dict = {}
     for year in years:
         print(f"\n[albania] ── year {year} ──")
-        fetched = _fetch_with_browser_session(year)
+        fetched = _fetch_year_with_retries(year)
         rows = _difference_to_rows(fetched)
         if not rows:
             print(f"[albania] WARNING: no rows parsed for {year} — "

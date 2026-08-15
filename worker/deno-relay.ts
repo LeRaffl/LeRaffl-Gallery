@@ -17,7 +17,11 @@
 //   X-Fwd-Cookie            → forwarded upstream as Cookie
 //   X-Fwd-Referer           → forwarded upstream as Referer
 //   X-Fwd-Accept-Language   → forwarded upstream as Accept-Language
+//   X-Relay-Redirect: manual → do NOT follow upstream redirects; return the
+//                              3xx as-is and put its Location into the
+//                              X-Upstream-Location response header
 //   response X-Upstream-Set-Cookie ← upstream Set-Cookie headers, \n-joined
+//   response X-Upstream-Location   ← upstream Location (manual redirect mode)
 
 const ALLOW_HOSTS = new Set([
   "duurzamemobiliteit.databank.nl", // Netherlands (RDW via Swing)
@@ -93,9 +97,21 @@ Deno.serve(async (req: Request) => {
     if (fwdReferer) upstreamHeaders["Referer"] = fwdReferer;
     if (fwdLang) upstreamHeaders["Accept-Language"] = fwdLang;
 
+    // Redirect handling. `fetch` follows redirects itself by default, but it
+    // carries no cookie jar across the hops — so a site that redirects until
+    // its session cookie comes back (Swing/databank.nl does exactly that)
+    // loops until the runtime aborts with "Maximum number of redirects (20)
+    // reached", surfacing here as a 502. In manual mode we hand the 3xx back
+    // to the client, which owns the cookie jar and re-enters the relay for the
+    // next hop. Opt-in so existing callers (Austria) keep the old behaviour.
+    const manualRedirect = req.headers.get("X-Relay-Redirect") === "manual";
+
     let upstream: Response;
     try {
-      upstream = await fetch(t.toString(), { headers: upstreamHeaders });
+      upstream = await fetch(t.toString(), {
+        headers: upstreamHeaders,
+        redirect: manualRedirect ? "manual" : "follow",
+      });
     } catch (e) {
       return new Response(`relay upstream error: ${e}`, { status: 502 });
     }
@@ -108,6 +124,13 @@ Deno.serve(async (req: Request) => {
     if (setCookies.length > 0) {
       // \n-joined then base64'd: header values can't carry raw newlines.
       responseHeaders["X-Upstream-Set-Cookie-B64"] = b64utf8(setCookies.join("\n"));
+    }
+    // Deliberately NOT re-emitted as a real `Location`: the client's requests
+    // session would follow it straight to the upstream host, bypassing the
+    // relay and hitting the block the relay exists to route around.
+    const upstreamLocation = upstream.headers.get("Location");
+    if (manualRedirect && upstreamLocation) {
+      responseHeaders["X-Upstream-Location"] = upstreamLocation;
     }
 
     // Buffer the body rather than streaming upstream.body through. Streaming a
