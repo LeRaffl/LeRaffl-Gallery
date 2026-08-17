@@ -1,6 +1,6 @@
 {
- "generated": "2026-08-16T05:04:19Z",
- "today": "2026-08-16",
+ "generated": "2026-08-17T05:19:05Z",
+ "today": "2026-08-17",
  "countries": [
   {
    "country": "Albania",
@@ -10,11 +10,11 @@
    "source_url": "https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB",
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -58,37 +58,37 @@
     ],
     "workflow": ".github/workflows/fetch-albania.yml"
    },
-   "last_render": "2026-07-10",
+   "last_render": "2026-08-16",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2019-01",
-     "rows": 90,
+     "rows": 91,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2020-01",
-     "rows": 66,
+     "rows": 67,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2020-01",
-     "rows": 66,
+     "rows": 67,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2020-01",
-     "rows": 66,
+     "rows": 67,
      "cadence": "monthly",
      "in_repo": true
     }
