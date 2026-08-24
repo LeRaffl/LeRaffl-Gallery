@@ -16,6 +16,11 @@ name: Fetch Türkiye data (TÜİK)
 # probe) into the log; use it when the portal changes shape and discovery
 # starts missing.
 #
+# Set dry_run=true with year+month to re-read a month that is already committed
+# and print what the parser makes of it today without touching the CSV. That is
+# the way to check a parser change against real bulletins rather than only
+# against fixtures.
+#
 # When the CSV changes, render-country.yml is dispatched for Türkiye.
 
 on:
@@ -39,6 +44,16 @@ on:
         default: ''
       force:
         description: 'Re-process even if target period already exists'
+        required: false
+        default: 'false'
+        type: boolean
+      dry_run:
+        description: 'Parse and validate but write nothing (use with year/month to re-read a committed month)'
+        required: false
+        default: 'false'
+        type: boolean
+      no_ytd_check:
+        description: 'Skip the year-to-date cross-check (only when TÜİK revised an already-committed month)'
         required: false
         default: 'false'
         type: boolean
@@ -75,6 +90,12 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests pypdf cryptography
 
+      # The parser's failure mode is a silently wrong number, so its regression
+      # tests gate the fetch rather than trailing it. They need no network and
+      # run in about a second; a red run here means do not trust today's read.
+      - name: Test the fuel-table parser
+        run: python scripts/test_fetch_turkey.py
+
       - name: Fetch & update Türkiye.csv
         run: |
           python scripts/fetch_turkey.py \
@@ -82,13 +103,17 @@ jobs:
             ${MONTH:+--month "$MONTH"} \
             ${PRESS_ID:+--press-id "$PRESS_ID"} \
             ${PDF_URL:+--pdf-url "$PDF_URL"} \
-            ${FORCE:+--force}
+            ${FORCE:+--force} \
+            ${DRY_RUN:+--dry-run} \
+            ${NO_YTD_CHECK:+--no-ytd-check}
         env:
           YEAR: ${{ inputs.year }}
           MONTH: ${{ inputs.month }}
           PRESS_ID: ${{ inputs.press_id }}
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+          NO_YTD_CHECK: ${{ inputs.no_ytd_check == true && '1' || '' }}
           TUIK_RECON: ${{ inputs.recon == true && '1' || '' }}
 
       - name: Commit if changed
