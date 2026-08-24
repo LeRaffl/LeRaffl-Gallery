@@ -1364,6 +1364,158 @@ a:focus-visible{
   border-color:rgba(170,180,200,.35);
 }
 
+/* Unsettled — the fit moves too much between re-fits to carry tags. */
+.status-pill[data-tag="unsettled"]{
+  color:#ffd9a8;
+  background:rgba(240,179,90,.14);
+  border-color:rgba(240,179,90,.45);
+}
+
+/* Provisional — tags are shown, but the projected crossing is still drifting.
+   Hollow instead of filled: at 9.5px a dashed 1px border alone is invisible,
+   whereas losing the fill is legible at a glance and matches the hollow-ring
+   ("projected") vs filled-dot ("observed") language in the glossary popover.
+   Colour still carries the category, so nothing is lost. */
+/* Selector carries [data-tag][data-value] purely for specificity: the
+   per-value rules above are (0,3,0) and would otherwise keep their fill. */
+.status-pill[data-tag][data-value][data-provisional="true"]{
+  background:transparent;
+  border-style:dashed;
+}
+
+/* ─── proposed: tag glossary popover — hovering a pill (or the matching
+   sidebar filter chip) explains what the tag means and where it sits on
+   its scale. Anchored with position:fixed so card/table overflow can't
+   clip it. ─── */
+.status-pill[data-tag]{ cursor:help }
+.status-pill[data-tag]:hover{ filter:brightness(1.25) }
+
+.tag-tip{
+  position:fixed;
+  top:0; left:0;
+  z-index:10000;
+  width:min(300px, calc(100vw - 24px));
+  padding:12px 14px 11px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface-2);
+  box-shadow:var(--shadow);
+  pointer-events:none;      /* purely informational — never steals the cursor */
+  opacity:0;
+  transform:translateY(-4px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+.tag-tip[data-open="true"]{ opacity:1; transform:none }
+
+/* Arrow — a rotated square borrowing the panel's border on the two sides
+   that stay visible. --tip-arrow tracks the anchor once the panel is
+   clamped against a viewport edge. */
+.tag-tip::after{
+  content:"";
+  position:absolute;
+  left:var(--tip-arrow, 50%);
+  width:9px; height:9px;
+  margin-left:-5px;
+  background:var(--surface-2);
+  border:1px solid var(--line);
+  transform:rotate(45deg);
+}
+.tag-tip[data-side="below"]::after{ top:-5px; border-right:0; border-bottom:0 }
+.tag-tip[data-side="above"]::after{ bottom:-5px; border-left:0; border-top:0 }
+
+.tag-tip-eyebrow{
+  font-size:9.5px;
+  font-weight:700;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.tag-tip-def{
+  margin:5px 0 0;
+  font-size:12.5px;
+  line-height:1.45;
+  color:var(--text);
+}
+.tag-tip-note{
+  margin:9px 0 0;
+  padding-top:8px;
+  border-top:1px solid var(--line-soft);
+  font-size:11px;
+  line-height:1.4;
+  color:var(--muted-2);
+}
+
+/* Basis row — does this tag rest on data the market has actually reached, or
+   on the fit extrapolating past it? Only shown for a pill (which knows its
+   country); the sidebar chips explain the category, not a single market. */
+.tag-tip-basis{
+  display:flex;
+  gap:7px;
+  margin:10px 0 0;
+  font-size:11.5px;
+  line-height:1.4;
+  color:var(--muted);
+}
+.tag-tip-basis::before{
+  content:"";
+  flex:0 0 auto;
+  width:7px; height:7px;
+  margin-top:4px;
+  border-radius:999px;
+}
+.tag-tip-basis[data-basis="observed"]::before{
+  background:var(--accent);
+  box-shadow:0 0 0 3px rgba(41,211,152,.16);
+}
+.tag-tip-basis[data-basis="projected"]::before{
+  background:transparent;
+  border:1px solid var(--warn);
+  box-shadow:0 0 0 3px rgba(240,179,90,.12);
+}
+.tag-tip-basis b{
+  color:var(--text);
+  font-weight:700;
+}
+
+/* Stability row — how far the projected crossing has drifted lately. */
+.tag-tip-stab{
+  margin:8px 0 0;
+  padding:7px 9px;
+  border-radius:7px;
+  border:1px solid rgba(240,179,90,.35);
+  background:rgba(240,179,90,.08);
+  font-size:11.5px;
+  line-height:1.4;
+  color:var(--muted);
+}
+.tag-tip-stab b{ color:#ffd9a8 }
+
+/* Scale — the category's bands in order, the current one lit up. Reuses the
+   pill styling above so the colours stay in one place. */
+.tag-tip-scale{ display:flex; gap:4px; margin-top:10px }
+.tag-tip-scale .status-pill{
+  flex:1 1 0;
+  text-align:center;
+  padding:3px 3px;
+  font-size:9px;
+  letter-spacing:.03em;
+  white-space:normal;
+  opacity:.3;
+}
+.tag-tip-scale .status-pill.is-on{ opacity:1 }
+.tag-tip-ticks{
+  position:relative;
+  height:13px;
+  margin-top:3px;
+  font-size:9.5px;
+  color:var(--muted-2);
+}
+.tag-tip-ticks span{
+  position:absolute;
+  transform:translateX(-50%);
+  white-space:nowrap;
+}
+
 .country{
   font-size:14px;
 }
@@ -8799,7 +8951,9 @@ const FAQ_DATA = [
       '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
       '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) across all rows in <code>params.csv</code>:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of countries by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
       '<b>Timing</b> \u2014 when the country crossed (or is projected to cross) <b>10 %</b> BEV share:<br>&nbsp;&nbsp;<b>Early starter</b> = before Jan 2023.<br>&nbsp;&nbsp;<b>Late starter</b> = after 2025.<br>&nbsp;&nbsp;If 10 % was/will be crossed between 2023 and 2025, no timing tag is shown.',
-      'All thresholds (80 %, 2035, 10 %, 2023, 2025) and the quartile breakpoints are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+      '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035, 2023 and 2025 are fixed calendar dates. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
+      '<b>Unsettled</b> \u2014 a market whose fit is still moving too much to carry tags at all. Every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). Move it more than 25 years \u2014 or stop producing a crossing in a quarter of them \u2014 and status, speed and timing would be noise, so a single <em>Unsettled</em> pill replaces them. Between 5 and 25 years the tags are still shown but drawn hollow, and the popover reports the drift. Under 5 years they are drawn solid. The chart itself is never affected, only the tags.',
+      'All thresholds (80 %, 2035, 10 %, 2023, 2025), the quartile breakpoints and the stability cut-offs are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What does this project do?',
     answers: ['It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.'] },
@@ -10629,6 +10783,14 @@ document.addEventListener('click', (e) => {
   const EARLY_BY       = 2023;  // timing: t10 before this → early starter
   const LATE_AFTER     = 2025;  // timing: t10 after this → late starter
 
+  // Refit stability gate. params.csv carries `refit_swing`: how many years the
+  // projected 80% crossing moved across the last ~12 re-fits (Inf = the fit
+  // stopped producing a crossing at all). All three tags are read off that one
+  // curve, so a curve that jumps by decades when one more month arrives cannot
+  // carry them. Rows in between keep their tags but are flagged provisional.
+  const UNSETTLED_SWING   = 25;  // > this many years → withhold the tags
+  const PROVISIONAL_SWING = 5;   // > this many years → tags shown, but flagged
+
   // Re-implementation of slopeAtInflection (the original lives in an IIFE).
   // Returns the dimensionless slope (dS/dz) at the inflection point of the
   // Weibull S-curve 1 − exp(v1 · z^v2).
@@ -10666,6 +10828,16 @@ document.addEventListener('click', (e) => {
     return                   { v: 'avg',  label: 'Avg speed' };
   }
 
+  // "Inf" (R's infinity), an empty cell, or anything unparseable all mean the
+  // same thing: we cannot vouch for this curve.
+  function parseSwing(raw){
+    const t = String(raw ?? '').trim();
+    if (t === '') return Infinity;
+    if (/^-?inf(inity)?$/i.test(t)) return Infinity;
+    const n = Number(t.replace(',', '.'));
+    return isFinite(n) ? n : Infinity;
+  }
+
   function timingTag(t10){
     if (!isFinite(t10)) return null;
     if (t10 < EARLY_BY)   return { v: 'early',      label: 'Early starter' };
@@ -10687,6 +10859,11 @@ document.addEventListener('click', (e) => {
       // "today" without any further offset — this is what makes the gallery
       // status pills (Past 80% / On track / Late) line up with the plotted
       // crossing year instead of firing one year early.
+      // The gate only engages once params.csv actually carries the column, so
+      // a gallery served alongside a not-yet-regenerated params.csv keeps
+      // behaving exactly as before instead of dropping every tag at once.
+      const hasSwing = rows.length > 0 && Object.prototype.hasOwnProperty.call(rows[0], 'refit_swing');
+
       const enriched = rows.map(row => {
         const variant = String(row.variant || '').trim();
         const key = (!variant || variant.toLowerCase() === 'whole')
@@ -10694,18 +10871,39 @@ document.addEventListener('click', (e) => {
           : `${row.country} (${variant})`;
         const t80res = inv_x_years(PAST_THRESHOLD, row.v1, row.v2, row.t0);
         const t10res = inv_x_years(0.10,           row.v1, row.v2, row.t0);
+        // Observed share now, so the glossary can say whether a threshold is
+        // something the data has actually reached or something the fit
+        // extrapolates to. Empty ttm_bev_share stays NaN ("unknown"), never 0.
+        const ttmRaw = String(row.ttm_bev_share ?? '').trim();
+        const v2n = Number(String(row.v2 ?? '').replace(',', '.'));
         return {
           key,
           noTrans: rowHasNoTransition(row),
           t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
           t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
           speed: slopeAtInflection(row.v1, row.v2),
+          // Guarded to a real share: a stray params.csv column shift can put a
+          // year (e.g. 2019) in this field, which would otherwise be rendered
+          // as "201900 %". Out-of-range means "unknown", so the glossary
+          // simply omits the observed/projected line.
+          obs: (() => {
+            const n = ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN;
+            return isFinite(n) && n >= 0 && n <= 1 ? n : NaN;
+          })(),
+          // Share at the curve's inflection point — the level the market has
+          // to reach before "speed" describes observed rather than projected
+          // behaviour. Only defined for S-shaped fits (v2 > 1).
+          inflShare: isFinite(v2n) && v2n > 1 ? 1 - Math.exp(-(v2n - 1) / v2n) : NaN,
+          swing: hasSwing ? parseSwing(row.refit_swing) : NaN,
         };
       });
 
       // Phase 2 — speed quartiles across rows that actually transition.
+      // Unsettled fits are left out of the pool as well: a degenerate curve
+      // (Albania Buses fitted v2 = 254, a near-vertical step) carries a huge
+      // inflection slope and would drag the "Fast" cut-off up with it.
       const speeds = enriched
-        .filter(e => !e.noTrans)
+        .filter(e => !e.noTrans && !(hasSwing && e.swing > UNSETTLED_SWING))
         .map(e => e.speed)
         .filter(isFinite)
         .sort((a, b) => a - b);
@@ -10718,12 +10916,26 @@ document.addEventListener('click', (e) => {
       const acc = {};
       for (const e of enriched){
         const tags = {};
+        const unsettled = hasSwing && e.swing > UNSETTLED_SWING;
+        const provisional = hasSwing && !unsettled && e.swing > PROVISIONAL_SWING;
         if (e.noTrans) {
           tags.notrans = { v: 'notrans', label: 'No transition' };
+        } else if (unsettled) {
+          // Status/speed/timing would all be noise here — one pill instead.
+          tags.unsettled = { v: 'unsettled', label: 'Unsettled', swing: e.swing };
         } else {
-          const s = statusTag(e.t80);   if (s) tags.status = s;
-          const sp = speedTag(e.speed, p25, p75); if (sp) tags.speed = sp;
-          const tm = timingTag(e.t10);  if (tm) tags.timing = tm;
+          // `level` = the share this tag is read off, `year` = the fit's
+          // crossing date, `obs` = where the data actually stands. The tag
+          // glossary turns those three into an "observed / projected" line.
+          const s = statusTag(e.t80);
+          if (s) { s.level = PAST_THRESHOLD; s.year = e.t80; s.obs = e.obs; tags.status = s; }
+          const sp = speedTag(e.speed, p25, p75);
+          if (sp) { sp.level = e.inflShare; sp.obs = e.obs; tags.speed = sp; }
+          const tm = timingTag(e.t10);
+          if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tags.timing = tm; }
+          if (provisional) {
+            for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.swing; }
+          }
         }
         if (Object.keys(tags).length) acc[e.key] = tags;
       }
@@ -10735,14 +10947,14 @@ document.addEventListener('click', (e) => {
 
   function paint(){
     if (!byCountry) return;
-    const order = ['notrans', 'status', 'speed', 'timing'];
+    const order = ['notrans', 'unsettled', 'status', 'speed', 'timing'];
     document.querySelectorAll('.tag-stack[data-tag-country]').forEach(el => {
       const c = el.dataset.tagCountry;
       const tags = byCountry[c];
       if (!tags) { el.innerHTML = ''; return; }
       el.innerHTML = order
         .filter(k => tags[k])
-        .map(k => `<span class="status-pill" data-tag="${k}" data-value="${tags[k].v}">${tags[k].label}</span>`)
+        .map(k => `<span class="status-pill" data-tag="${k}" data-value="${tags[k].v}"${tags[k].prov ? ' data-provisional="true"' : ''}>${tags[k].label}</span>`)
         .join('');
     });
   }
@@ -10756,6 +10968,250 @@ document.addEventListener('click', (e) => {
       if (el) new MutationObserver(paint).observe(el, { childList: true });
     });
   });
+})();
+</script>
+
+<!-- ─── proposed: tag glossary — hover (or tap) a status pill or a sidebar
+     filter chip to see what that tag means and where it sits on its scale ─── -->
+<script>
+(function(){
+  // What each tag means. Mirrors the constants of the tag script above
+  // (PAST_THRESHOLD 80 %, TARGET_YEAR 2035, EARLY_BY 2023, LATE_AFTER 2025)
+  // and the "What do the small tags on gallery cards mean?" FAQ entry — keep
+  // the three in sync when a threshold moves.
+  const CATS = {
+    status: {
+      name: 'Status',
+      order: ['past', 'ontrack', 'late'],
+      ticks: ['today', '2035'],
+      note: '80 % is a level of new registrations — something the data can reach. 2035 is a fixed calendar date. <b>Where the curve crosses 80 % is the model’s answer</b>, not an observation.',
+      values: {
+        past:    { label: 'Past 80%', def: 'Crossed 80 % BEV share before today.' },
+        ontrack: { label: 'On track', def: 'Crosses 80 % BEV share by the end of 2035.' },
+        late:    { label: 'Late',     def: 'Crosses 80 % BEV share only after 2035.' }
+      }
+    },
+    speed: {
+      name: 'Speed',
+      order: ['slow', 'avg', 'fast'],
+      ticks: ['25th pct', '75th pct'],
+      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts are recomputed across every fitted curve in the gallery, so they shift as other markets are refitted.',
+      values: {
+        slow: { label: 'Slow',       def: 'Bottom quarter of all fitted curves by inflection speed.' },
+        avg:  { label: 'Avg speed',  def: 'Middle half — a typical pace among the fitted curves.' },
+        fast: { label: 'Fast',       def: 'Top quarter of all fitted curves by inflection speed.' }
+      }
+    },
+    timing: {
+      name: 'Timing',
+      order: ['early', 'mid', 'late_start'],
+      ticks: ['2023', '2025'],
+      note: '10 % is a level of new registrations; 2023 and 2025 are fixed calendar dates. <b>The crossing year itself comes from the fit</b>. Cards carry no timing pill for the middle band.',
+      values: {
+        early:      { label: 'Early starter', def: 'Crossed 10 % BEV share before 2023.' },
+        mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share between 2023 and 2025.' },
+        late_start: { label: 'Late starter',  def: 'Crosses 10 % BEV share after 2025.' }
+      }
+    },
+    unsettled: {
+      name: 'Unsettled',
+      order: [],
+      ticks: [],
+      note: 'Status, speed and timing are all read off this one curve, so they are withheld rather than shown as noise. The chart itself is unchanged — only the tags are.',
+      values: {
+        unsettled: { label: 'Unsettled', def: 'One more month of data still moves this fit too much for the tags to mean anything.' }
+      }
+    },
+    notrans: {
+      name: 'No transition',
+      order: [],
+      ticks: [],
+      note: 'Status, speed and timing are left off — they carry no meaning for a curve that never takes off.',
+      values: {
+        notrans: { label: 'No transition', def: 'The fit never forms an S-curve, or its peak adoption rate stays negligible.' }
+      }
+    }
+  };
+
+  const tip = document.createElement('div');
+  tip.className = 'tag-tip';
+  tip.id = 'tagTip';
+  tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
+  document.body.appendChild(tip);
+
+  // Resolve an event target to the pill / chip it belongs to, plus its tag.
+  function anchorFor(node){
+    if (!node || !node.closest) return null;
+    const pill = node.closest('.status-pill[data-tag]');
+    if (pill && !pill.closest('.tag-tip')) {
+      const stack = pill.closest('.tag-stack[data-tag-country]');
+      return { el: pill, cat: pill.dataset.tag, value: pill.dataset.value,
+               country: stack ? stack.dataset.tagCountry : null };
+    }
+    const chip = node.closest('.tag-filter .tag-chip');
+    if (chip) {
+      const input = chip.querySelector('input[data-tag-value]');
+      const cat = chip.closest('.tag-filter').dataset.tagCat;
+      if (input && cat) return { el: chip, cat, value: input.dataset.tagValue, chip: true };
+    }
+    return null;
+  }
+
+  const pct = x => (x * 100).toFixed(1).replace(/\.0$/, '') + ' %';
+  const yr  = x => isFinite(x) ? String(Math.round(x)) : '—';
+
+  // "Is this tag standing on data, or on the fit reaching past it?" — answered
+  // for the one market the pill belongs to. Sidebar chips carry no country,
+  // so they explain the category and skip this row.
+  function basisRow(cat, country){
+    if (!country) return '';
+    const all = window.__bevTagsByCountry;
+    const t = all && all[country] && all[country][cat];
+    if (!t || !isFinite(t.obs) || !isFinite(t.level)) return '';
+    const observed = t.obs >= t.level;
+    let text;
+    if (cat === 'speed') {
+      text = observed
+        ? `<b>Observed</b> — the steepest stretch (around ${pct(t.level)} share) is already in the data.`
+        : `<b>Projected</b> — the steepest stretch (around ${pct(t.level)} share) is still ahead; registrations are at ${pct(t.obs)}.`;
+    } else {
+      text = observed
+        ? `<b>Observed</b> — registrations are at ${pct(t.obs)}, past the ${pct(t.level)} line. The fit dates the crossing to ${yr(t.year)}.`
+        : `<b>Projected</b> — registrations are at ${pct(t.obs)}. The ${pct(t.level)} crossing is extrapolated to ${yr(t.year)}.`;
+    }
+    return `<p class="tag-tip-basis" data-basis="${observed ? 'observed' : 'projected'}">${text}</p>`;
+  }
+
+  // How far the projected 80 % crossing has drifted across the recent re-fits.
+  // Shown on the Unsettled pill (why the tags are gone) and on provisional
+  // tags (why they should be read loosely).
+  function stabilityRow(cat, country){
+    if (!country) return '';
+    const all = window.__bevTagsByCountry;
+    const t = all && all[country] && all[country][cat];
+    if (!t || (cat !== 'unsettled' && !t.prov)) return '';
+    const s = t.swing;
+    const moved = !isFinite(s)
+      ? 'recent re-fits stopped putting the 80\u202f% crossing anywhere at all'
+      : `the projected 80\u202f% crossing moved <b>${Math.round(s)} years</b> across the last re-fits`;
+    const text = cat === 'unsettled'
+      ? moved.charAt(0).toUpperCase() + moved.slice(1) + '.'
+      : `<b>Provisional</b> \u2014 ${moved}.`;
+    return `<p class="tag-tip-stab">${text}</p>`;
+  }
+
+  function fill(cat, value, country){
+    const c = CATS[cat];
+    const v = c && c.values[value];
+    if (!v) return false;
+    const scale = c.order.length ? `
+      <div class="tag-tip-scale">${c.order.map(k =>
+        `<span class="status-pill${k === value ? ' is-on' : ''}" data-tag="${cat}" data-value="${k}">${c.values[k].label}</span>`
+      ).join('')}</div>
+      <div class="tag-tip-ticks">${c.ticks.map((t, i) =>
+        `<span style="left:${((i + 1) / c.order.length * 100).toFixed(2)}%">${t}</span>`
+      ).join('')}</div>` : '';
+    tip.innerHTML =
+      `<div class="tag-tip-eyebrow">${c.name}</div>` +
+      `<p class="tag-tip-def">${v.def}</p>${scale}` +
+      basisRow(cat, country) +
+      stabilityRow(cat, country) +
+      `<p class="tag-tip-note">${c.note}</p>`;
+    return true;
+  }
+
+  // Below the anchor by default; above when the panel would run past the
+  // bottom edge. Horizontally clamped, with the arrow following the anchor.
+  function place(el){
+    const r = el.getBoundingClientRect();
+    const M = 8, GAP = 10;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    const below = r.bottom + GAP + h <= window.innerHeight - M || r.top - GAP - h < M;
+    const centre = r.left + r.width / 2;
+    const left = Math.min(Math.max(M, centre - w / 2), window.innerWidth - w - M);
+    tip.style.top = Math.round(below ? r.bottom + GAP : r.top - GAP - h) + 'px';
+    tip.style.left = Math.round(left) + 'px';
+    tip.dataset.side = below ? 'below' : 'above';
+    tip.style.setProperty('--tip-arrow',
+      Math.round(Math.min(Math.max(14, centre - left), w - 14)) + 'px');
+  }
+
+  let current = null, described = null, showT = 0, hideT = 0, gcT = 0;
+
+  function show(a, delay){
+    clearTimeout(hideT); clearTimeout(showT); clearTimeout(gcT);
+    if (current === a.el) return;
+    showT = setTimeout(() => {
+      if (!fill(a.cat, a.value, a.country)) return;
+      current = a.el;
+      tip.hidden = false;
+      place(a.el);
+      requestAnimationFrame(() => { tip.dataset.open = 'true'; });
+    }, delay);
+  }
+
+  function hide(delay){
+    clearTimeout(showT); clearTimeout(hideT);
+    hideT = setTimeout(() => {
+      tip.dataset.open = 'false';
+      current = null;
+      if (described) { described.removeAttribute('aria-describedby'); described = null; }
+      // Keep it in the DOM until the fade is done, then out of layout again.
+      gcT = setTimeout(() => { if (tip.dataset.open !== 'true') tip.hidden = true; }, 140);
+    }, delay);
+  }
+
+  document.addEventListener('pointerover', e => {
+    if (e.pointerType && e.pointerType !== 'mouse') return;   // taps go through click
+    const a = anchorFor(e.target);
+    if (!a) { if (current) hide(60); return; }
+    if (a.el === current) { clearTimeout(hideT); return; }
+    show(a, 140);
+  });
+
+  // Touch, and mouse users who click instead of waiting out the hover delay.
+  // Chips own their click (they toggle a filter), so they only dismiss.
+  document.addEventListener('click', e => {
+    const a = anchorFor(e.target);
+    if (!a || a.chip) { if (current) hide(0); return; }
+    if (a.el === current) { hide(0); return; }
+    show(a, 0);
+  });
+
+  // Keyboard: the chip checkboxes are the focusable half of this pair.
+  document.addEventListener('focusin', e => {
+    const a = anchorFor(e.target);
+    if (!a) { if (current) hide(0); return; }
+    show(a, 0);
+    if (e.target.setAttribute) {
+      described = e.target;
+      described.setAttribute('aria-describedby', 'tagTip');
+    }
+  });
+
+  // Tabbing on lands on the next chip (focusin re-shows before this fires);
+  // tabbing away dismisses.
+  document.addEventListener('focusout', e => { if (described && e.target === described) hide(60); });
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && current) hide(0); });
+
+  // Follow the anchor rather than dismissing: focussing a chip by keyboard
+  // scrolls it into view, which would otherwise hide the tooltip the very
+  // moment it opened. Only drop it once the anchor has left the viewport.
+  let raf = 0;
+  function reposition(){
+    if (!current || raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      if (!current) return;
+      const r = current.getBoundingClientRect();
+      if (!current.isConnected || r.bottom < 0 || r.top > window.innerHeight) hide(0);
+      else place(current);
+    });
+  }
+  window.addEventListener('scroll', reposition, { capture: true, passive: true });
+  window.addEventListener('resize', reposition);
 })();
 </script>
 
