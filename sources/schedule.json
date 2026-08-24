@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-24T05:23:07Z",
+ "generated": "2026-08-24T10:03:57Z",
  "today": "2026-08-24",
  "countries": [
   {
@@ -3359,11 +3359,11 @@
    "source_url": "https://veriportali.tuik.gov.tr/",
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3405,13 +3405,13 @@
     ],
     "workflow": ".github/workflows/fetch-turkey.yml"
    },
-   "last_render": "2026-07-25",
+   "last_render": "2026-08-24",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2016-01",
-     "rows": 126,
+     "rows": 127,
      "cadence": "monthly",
      "in_repo": true
     }
