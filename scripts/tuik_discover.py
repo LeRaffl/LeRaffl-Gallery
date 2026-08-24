@@ -26,6 +26,9 @@ an anchor and matches on both fields. The ids are NOT chronological —
 58051=Ocak 2026 — so "last id + 1" would be actively wrong, but they do form
 one contiguous block for this series, which keeps the walk short. The anchor
 comes from the newest press URL in data/Türkiye.csv, so nothing is hard-coded.
+The walk includes the anchor id itself, last — a forward run can never want it,
+but a backfill of that exact month can, and omitting it turned such a run into
+a scan that never looked and still exited 0 (see _scan_offsets).
 
 Note there is no known id → PDF mapping; `/tr/press/<id>` serves the SPA
 shell, not the bulletin. The HTML in `content` is the route to the data.
@@ -401,6 +404,28 @@ def discover(year: int, month: int, session=None, verbose: bool = False) -> Disc
     return None
 
 
+def _scan_offsets() -> list[int]:
+    """Ids to try relative to the anchor, cheapest-first.
+
+    Outward from the anchor, nearest first: the next bulletin is usually within
+    a couple of ids, and stopping early keeps the daily cron light (each record
+    is ~340 KB because `content` embeds base64 chart images). zip() would
+    silently truncate to the shorter side (SCAN_BEHIND), so interleave with
+    zip_longest and drop the padding instead.
+
+    Offset 0 — the anchor itself — comes last. A forward run can never want it,
+    because the anchor is an id already in the CSV and the target month is by
+    definition not yet there, so trying it first would spend a request per cron
+    run on a guaranteed miss. But a backfill of exactly that month does want it,
+    and leaving it out entirely made such a run report "no bulletin found" and
+    exit 0: a scan that never looked, dressed up as a green run. Cheap for the
+    common case, correct for the rare one.
+    """
+    return [d for pair in zip_longest(range(1, SCAN_AHEAD + 1),
+                                      range(-1, -SCAN_BEHIND - 1, -1))
+            for d in pair if d is not None] + [0]
+
+
 def _via_id_scan(session, year, month, want_title, verbose):
     """Scan a bounded window of bulletin ids and match on title + period.
 
@@ -424,15 +449,7 @@ def _via_id_scan(session, year, month, want_title, verbose):
             print("[discover] no anchor id available, cannot scan")
         return None
 
-    # Outward from the anchor, nearest first: the next bulletin is usually
-    # within a couple of ids, and stopping early keeps the daily cron light
-    # (each record is ~340 KB because `content` embeds base64 chart images).
-    # zip() would silently truncate to the shorter side (SCAN_BEHIND), so
-    # interleave with zip_longest and drop the padding instead.
-    offsets = [d for pair in zip_longest(range(1, SCAN_AHEAD + 1),
-                                         range(-1, -SCAN_BEHIND - 1, -1))
-               for d in pair if d is not None]
-    for off in offsets:
+    for off in _scan_offsets():
         pid = anchor + off
         rec = press_json(session, pid)
         if not rec:

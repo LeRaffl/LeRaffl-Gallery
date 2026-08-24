@@ -28,6 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import fetch_turkey as ft  # noqa: E402
+import tuik_discover as td  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 CSV = REPO / "data" / "Türkiye.csv"
@@ -221,6 +222,23 @@ def test_ytd_cross_check_skips_an_incomplete_year():
 def test_prev_year_cross_check_reads_the_committed_row():
     table = ft.parse_table(build_words(TEMMUZ))
     ft.cross_check_prev_year(table, str(CSV), 2026, 7)   # raises if it disagrees
+
+
+def test_scan_covers_the_anchor_itself():
+    """A backfill of the anchor month must not be a scan that never looks.
+
+    Offset 0 is the id already recorded in the CSV. Leaving it out of the walk
+    made a dry run of exactly that month print "Auto-discovery found no
+    bulletin" and exit 0 — indistinguishable from a real miss. It has to be
+    reachable, and it has to be last so the daily cron does not pay a request
+    for an id it can never want.
+    """
+    offsets = td._scan_offsets()
+    assert 0 in offsets, offsets
+    assert offsets[-1] == 0, offsets[-5:]
+    assert offsets[:4] == [1, -1, 2, -2], offsets[:4]
+    assert len(set(offsets)) == len(offsets), "an id must not be probed twice"
+    assert set(offsets) == set(range(-td.SCAN_BEHIND, td.SCAN_AHEAD + 1))
 
 
 def test_markup_path_yields_aligned_columns():

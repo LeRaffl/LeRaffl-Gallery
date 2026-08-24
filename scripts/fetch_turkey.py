@@ -1130,8 +1130,10 @@ def main() -> int:
                              "the divergence has been checked by hand.")
     args = parser.parse_args()
 
-    # Target month: previous calendar month unless overridden.
-    if args.year and args.month:
+    # Target month: previous calendar month unless overridden. Whether it was
+    # named explicitly decides how loudly a discovery miss is reported below.
+    explicit_month = bool(args.year and args.month)
+    if explicit_month:
         target_year, target_month = args.year, args.month
     elif args.year or args.month:
         sys.exit("--year and --month must be given together")
@@ -1161,16 +1163,28 @@ def main() -> int:
 
         discovered = tuik_discover.discover(target_year, target_month, verbose=True)
         if not discovered or not (discovered.pdf_url or discovered.press_id):
-            # Not an error: most daily cron runs land here because the bulletin
-            # for the target month simply is not out yet. Dump the recon so a
-            # genuine portal change is diagnosable straight from the run log
-            # instead of needing a local repro (which the sandbox can't do —
-            # *.tuik.gov.tr is blocked by egress policy there).
+            # Dump the recon so a genuine portal change is diagnosable straight
+            # from the run log instead of needing a local repro (which the
+            # sandbox can't do — *.tuik.gov.tr is blocked by egress policy).
             print("Auto-discovery found no bulletin for "
                   f"{MONTHS_TR_BY_NUM[target_month]} {target_year}.")
             if RECON_ON_MISS:
                 import requests
                 tuik_discover.recon(requests.Session(), target_year, target_month)
+            # A miss means two different things. On the daily cron, targeting
+            # last month by default, it is the ordinary state before TÜİK
+            # publishes — exit 0 and try again tomorrow. But when a month was
+            # named explicitly, someone asked for that bulletin, and "could not
+            # find it" is a failure however calmly it prints. Exiting 0 there
+            # made a backfill that never looked at anything read as a green run.
+            if explicit_month:
+                sys.exit(
+                    f"No bulletin found for {MONTHS_TR_BY_NUM[target_month]} "
+                    f"{target_year}, which was requested explicitly. Discovery "
+                    "scans a bounded id window around the newest press id in "
+                    "the CSV; a month far outside that window needs --press-id "
+                    "or --pdf-url. Set recon=true for the portal dump."
+                )
             return 0
         args.press_id = discovered.press_id
 
