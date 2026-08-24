@@ -48,17 +48,33 @@ format_num <- function(x) {
   s
 }
 
+# Quote a free-text CSV field. Without this a source string containing a comma
+# ("customs.gov.np (Department of Customs FTS, HS 8703 imports)") shifts every
+# following column by one: Nepal's ttm_bev_share ended up reading as "2019",
+# which sailed straight through the frontend's no-transition check. Only
+# free-text fields go through here — country/variant stay bare because the
+# row-matching prefix below compares them literally.
+csv_field <- function(x) {
+  x <- if (is.null(x) || length(x) == 0 || is.na(x)) "" else as.character(x)
+  if (grepl('[",\r\n]', x)) paste0('"', gsub('"', '""', x), '"') else x
+}
+
 # Line-level upsert: only the matching country+variant row is touched.
 upsert_params <- function(path, country, variant, fit, data_per, source_str,
                           ttm_bev_share = NA_real_) {
-  header <- "country,variant,v1,v2,t0,data_per,model_date,source,baseline_date,ice_v1,ice_v2,ice_t0,ttm_bev_share"
+  header <- "country,variant,v1,v2,t0,data_per,model_date,source,baseline_date,ice_v1,ice_v2,ice_t0,ttm_bev_share,refit_swing"
   bev_str <- if (is.finite(ttm_bev_share)) format_num(ttm_bev_share) else ""
+  # Years the projected 80% crossing moves across the trailing re-fits; Inf
+  # means "not classifiable" (see fit.R). A missing value is treated the same
+  # way downstream, so an un-rendered row never looks more certain than it is.
+  swing <- if (is.null(fit$refit_swing)) NA_real_ else fit$refit_swing
+  swing_str <- if (is.finite(swing)) sprintf("%.2f", swing) else "Inf"
   new_line <- paste(
     country, variant,
     format_num(fit$v1), format_num(fit$v2), format_num(fit$t0),
-    data_per, format(Sys.Date(), "%Y-%m-%d"), source_str, "",
+    data_per, format(Sys.Date(), "%Y-%m-%d"), csv_field(source_str), "",
     format_num(fit$ice_v1), format_num(fit$ice_v2), format_num(fit$ice_t0),
-    bev_str,
+    bev_str, swing_str,
     sep = ","
   )
 
@@ -69,7 +85,7 @@ upsert_params <- function(path, country, variant, fit, data_per, source_str,
   lines <- readLines(path, encoding = "UTF-8", warn = FALSE)
   if (length(lines) == 0 || !startsWith(lines[1], "country,")) {
     lines <- c(header, lines)
-  } else if (!grepl("ttm_bev_share", lines[1], fixed = TRUE)) {
+  } else if (!grepl("refit_swing", lines[1], fixed = TRUE)) {
     lines[1] <- header
   }
 

@@ -24,6 +24,9 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
   }
 
   bev_time <- ice_time <- seq(0, 0, length = nrow(df))
+  # Per-prefix BEV parameters. The loop below already fits every prefix; we
+  # only keep what it throws away, so refit stability costs no extra optim().
+  refit_v1 <- refit_v2 <- rep(NA_real_, nrow(df))
   control <- list(maxit = 100000, reltol = 10^-30)
 
   res <- res_ice <- NULL
@@ -38,6 +41,7 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
       sum((residuals * df_loop$overall)^2)
     }
     res <- optim(par = c(-0.1, 4), fn = RSS, control = control)
+    refit_v1[i] <- res$par[1]; refit_v2[i] <- res$par[2]
     xg <- seq(verschiebung, extrapol, by = 1/12)
     yg <- reg(v = res$par, xg)
     B <- data.frame(x = xg, BEV = yg)
@@ -103,6 +107,34 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
     timer_short <- timer_df
   }
 
+  # ---- Refit stability -----------------------------------------------------
+  # How far the projected 80% crossing moves across the most recent re-fits.
+  # The gallery's status/speed/timing tags are all read off this one curve, so
+  # a curve whose 80% date jumps by decades when one more month of data arrives
+  # cannot support them. Prefixes that yield no crossing at all count as
+  # failures rather than being quietly dropped: once a quarter of the window
+  # fails, the estimate is reported as Inf ("not classifiable").
+  #
+  # Window = roughly the last year of re-estimates, in the series' own cadence.
+  year_at_share <- function(p, v1, v2, t0) {
+    if (!is.finite(v1) || v1 >= 0 || !is.finite(v2) || v2 == 0) return(NA_real_)
+    num <- log(1 - p) / v1
+    if (!is.finite(num) || num <= 0) return(NA_real_)
+    y <- t0 + num^(1 / v2)
+    if (!is.finite(y) || y > 1e6) return(NA_real_)   # "never" reads as no crossing
+    y
+  }
+  last_ti <- df$time_interval[nrow(df)]
+  refit_window <- switch(as.character(last_ti), monthly = 12L, quarterly = 4L, yearly = 3L, 12L)
+  idx <- tail(seq_len(nrow(df)), refit_window)
+  t80_hist <- vapply(idx, function(i) year_at_share(0.80, refit_v1[i], refit_v2[i], verschiebung),
+                     numeric(1))
+  ok <- is.finite(t80_hist)
+  refit_fail <- (length(t80_hist) - sum(ok)) / max(length(t80_hist), 1)
+  refit_swing <- if (refit_fail >= 0.25) Inf
+                 else if (sum(ok) >= 3) max(t80_hist[ok]) - min(t80_hist[ok])
+                 else Inf
+
   ICE <- data.frame(ICE, overall = df$overall)
   BEV <- data.frame(BEV, overall = df$overall)
   Hybrid <- data.frame(Hybrid, overall = df$overall)
@@ -112,5 +144,6 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
        v1 = res$par[1], v2 = res$par[2], t0 = verschiebung,
        ice_v1 = res_ice$par[1], ice_v2 = res_ice$par[2], ice_t0 = verschiebung,
        extrapol = extrapol, verschiebung = verschiebung,
-       time_20_to_80 = time_20_to_80, time_80_to_20 = time_80_to_20)
+       time_20_to_80 = time_20_to_80, time_80_to_20 = time_80_to_20,
+       refit_swing = refit_swing, refit_fail = refit_fail, refit_window = refit_window)
 }
