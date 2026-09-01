@@ -5,4 +5,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-04,monthly,Buses,ACAP,119.0,0.0,0.0,0.0,59.0,,0.0,178.0,
 2026-05,monthly,Buses,ACAP,83.0,0.0,0.0,0.0,28.0,,10.0,121.0,
 2026-06,monthly,Buses,ACAP,60.0,0.0,0.0,0.0,35.0,,0.0,95.0,
-2026-07,monthly,Buses,ACAP,81.0,0.0,0.0,0.0,43.0,,10.0,134.0,
+2026-07,monthly,Buses,ACAP,81.0,0.0,0.0,0.0,50.0,,10.0,141.0,
+2026-08,monthly,Buses,ACAP,45.0,0.0,0.0,0.0,28.0,,0.0,73.0,
