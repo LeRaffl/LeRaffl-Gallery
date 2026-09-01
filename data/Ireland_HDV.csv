@@ -197,4 +197,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-04,monthly,HDV,stats.simi.ie,0.0,0.0,0.0,0.0,218.0,0.0,3.0,221.0,
 2026-05,monthly,HDV,stats.simi.ie,0.0,0.0,0.0,0.0,263.0,0.0,1.0,264.0,
 2026-06,monthly,HDV,stats.simi.ie,0.0,0.0,0.0,0.0,94.0,0.0,2.0,96.0,
-2026-07,monthly,HDV,stats.simi.ie,1.0,0.0,0.0,0.0,431.0,0.0,1.0,433.0,
+2026-07,monthly,HDV,stats.simi.ie,1.0,0.0,0.0,0.0,428.0,0.0,1.0,430.0,
+2026-08,monthly,HDV,stats.simi.ie,0.0,0.0,0.0,0.0,223.0,0.0,0.0,223.0,
