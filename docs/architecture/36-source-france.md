@@ -28,7 +28,7 @@ only because each publisher applies a different **scope**, **adjustment**, and
 | **ACEA** (our `data/France.csv`) | **188 787** | — | raw registrations, aggregated from PFA |
 | **AAA-DATA** (press / the brand tables) | **188 787** | **±0** | raw registrations, the SIV processor — *same number as ACEA* |
 | **PFA / CCFA** ("Immatriculations mensuelles par énergie") | = AAA | ≈ 0 | raw registrations, the industry association ACEA aggregates |
-| **SDES — données brutes** | **188 500** | −0,15 % | raw registrations, registry statistics (rounded to the hundred) |
+| **SDES — données brutes** | **188 482** | −0,2 % | raw registrations, the detailed série file (the StatInfo headline rounds this to 188 500) |
 | **SDES — CVS-CJO** (the headline in most SDES/press write-ups) | **142 100** | −24,6 % | **seasonally- and working-day-adjusted** — *not a raw count* |
 
 Two independent exact matches prove the lineage: our stored ACEA figure equals
@@ -234,42 +234,85 @@ people-carriers = `Buses`. SUVs are the one people second-guess — they are
   association-membership completeness problem that shelves some other markets
   (see [14-data-source-gaps.md](14-data-source-gaps.md)).
 
-## 7. Migration plan (decided so far)
+## 7. Migration plan & status
 
-Direction chosen by the maintainer: **move France onto SDES** (registry-primary,
-via API), keeping `Whole` consistent with the ACEA target. Given §3f/§4, the
-concrete pick is **SDES Path 2 — the detailed "Motorisations des véhicules
-légers neufs" monthly file**, because it is the only SDES product that keeps a
-real **HEV** column (the gallery's focus is the fuel split).
+**Path 2 confirmed; `scripts/fetch_france.py` is built and validated** (parser +
+upsert) against the maintainer-provided workbook (June 2026 edition,
+`…/media/9508/download`). **Not yet switched live** — that is a separate,
+coordinated decision (bottom of section).
 
-Mapping (finer than ACEA, so it can be validated against the ACEA target):
+**The workbook.** One sheet, monthly rows **2011_01 → 2026_06**, footer
+`Source : SDES-RSVERO`. Header (row 3):
 
 ```
-BEV     ← électrique
-PHEV    ← hybride rechargeable (essence + gazole)
-HEV     ← essence hybride non rechargeable + gazole HNR
-PETROL  ← essence thermique
-DIESEL  ← gazole thermique
-OTHERS  ← gaz (GPL + GNV) + hydrogène/autres
-TOTAL   ← sum   (validate ≈ ACEA 188 787 for 2026-06, France entière, brut)
+Gazole (thermique) | Essence (thermique) |
+hybride gazole non rechargeable | hybride essence non rechargeable |
+gazole (y compris hybrides non rechargeables)  |  <- aggregate, IGNORED
+essence (y compris hybrides non rechargeables)  |  <- aggregate, IGNORED
+hybride rechargeable | Electrique | Gaz & ND | Total
 ```
 
-Bonus: the same product is *véhicules légers*, so **VUL (Vans, N1)** comes along;
-SDES separately publishes **PL (HDV, N2/N3)** and **TCP (Buses, M2/M3)** — so
-France can gain `Vans` / `HDV` / `Buses` variants natively (the Spain/Portugal
-pattern), which the current ACEA feed cannot provide.
+Two gotchas the fetcher handles: the sheet **tab is misnamed one month behind**
+(`2026_05` on a file whose last row is `2026_06`) → read the latest month from
+the period column, never the tab; and the two `(y compris …)` columns are
+convenience aggregates (= thermique + HNR) → never summed in. Column mapping:
 
-Open items before a `fetch_france.py` lands:
-- **Confirm Path 2** over the cleaner-but-HEV-less coarse API (Path 1).
-- **Obtain a sample** of the monthly xlsx (egress blocks download here, §8) to
-  build the parser against the real sheet layout, then validate the six-fuel
-  split against the ACEA reference figures.
-- On switch: use **France entière**, **données brutes**; give `fetch_france.py`
-  the ACEA-courtesy rule (only overwrite a row whose `source` is exactly `ACEA`
-  or already the new source string) so history is never silently redefined; add
-  a `footnotes.csv` line (done — see below) and, when live, convert this doc's
+```
+BEV ← Electrique              PHEV ← hybride rechargeable
+HEV ← hybride gazole NR + hybride essence NR
+PETROL ← Essence (thermique)  DIESEL ← Gazole (thermique)
+OTHERS ← Gaz & ND             TOTAL ← Total   (asserted == sum of the seven)
+```
+
+**Validated reconciliation (June 2026, SDES workbook vs. the ACEA row we hold):**
+
+| fuel | SDES | ACEA | Δ% | why |
+|---|---:|---:|---:|---|
+| BEV | 56 357 | 55 851 | +0,9 % | "Electrique" may carry a little H₂; provisional edge |
+| PHEV | 12 434 | 12 300 | +1,1 % | — |
+| HEV | 77 398 | 79 773 | −3,0 % | ACEA/PFA count 48 V MHEV as HEV; SDES as pure petrol |
+| PETROL | 29 809 | 28 807 | +3,5 % | mirror image of the HEV line |
+| DIESEL | 4 557 | 4 955 | −8,0 % | small base |
+| OTHERS | 7 927 | 7 101 | +11,6 % | SDES "Gaz & ND" carries the not-yet-coded **ND** bucket |
+| **TOTAL** | **188 482** | **188 787** | **−0,2 %** | provisoires/transit-temporaire + cut-off |
+
+Headline impact is negligible: **BEV share moves ≤ ±0,4 pp** on overlap months
+(2026-06: 29,90 % vs 29,58 %). The per-fuel step is a **one-time definitional
+change** (the Spain/DGT §4b precedent) — documented, not tuned away — and SDES's
+MHEV→petrol treatment is actually *closer* to this project's own MHEV→ICE
+glossary convention than ACEA's is.
+
+**Backfill bonus.** The workbook carries the **full split monthly from 2011-01**,
+where the old ACEA series was BEV/PHEV-only and quarterly-interpolated before
+~2025. Switching adds 48 clean months (2011–2014) and upgrades 2015–2024 from a
+sparse to a full split. The rebuilt series is contiguous 2011-01 → 2026-06
+(186 months), every row closing to `TOTAL`.
+
+**Bonus variants.** The product is *véhicules légers* (VP + VUL), and SDES
+separately publishes **PL (N2/N3)** and **TCP (M2/M3)** — so France can gain
+`Vans` / `HDV` / `Buses` natively later (the Spain/Portugal pattern), which the
+ACEA feed cannot provide.
+
+**Download — the one unvalidated part.** The workbook lives at
+`…/media/<id>/download` and the **id rotates every publication** (June = 9508),
+so `fetch_france.py` resolves the current link by scraping the SDES landing page
+[Immatriculation des véhicules routiers](https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers)
+for the `serie_vp_neuves_par_energie` anchor. That scrape **cannot be tested from
+the sandbox** (§8) — it is the single thing to confirm in the first GitHub
+Actions run; `--url` / `--file` overrides exist for manual runs meanwhile. (A
+stable data.gouv/DiDo resource carrying the same detailed split, if one exists,
+would be more robust than scraping a rotating média id — a follow-up to check.)
+
+**Remaining before France goes live on SDES** (a coordinated maintainer decision,
+not done yet):
+- **GHA-validate the média-link resolution** (or wire a data.gouv/DiDo resource).
+- **The live switch**: overwrite `data/France.csv` (`ACEA`→`SDES`; the
+  ACEA-courtesy rule is already in the fetcher — it only overwrites rows whose
+  source is exactly `ACEA` or `SDES`), **refit `params.csv`** for the new
+  history/definition, **remove France from `fetch_acea.py`** so ACEA can never
+  re-write it, add `.github/workflows/fetch-france.yml`, and convert this doc's
   frontmatter into a page-driving source doc + retire the France stub in
-  `country_source_stubs.yaml`.
+  `country_source_stubs.yaml`. A `footnotes.csv` line is already in place.
 
 ## 8. Sandbox / network constraints hit during this investigation
 
@@ -282,7 +325,9 @@ Recorded so the next session doesn't rediscover them:
   `www.acea.auto`). So **nothing France-side is fetchable or testable from a
   sandbox session.** Like Spain (§7 there), the fetcher must be built against a
   provided sample and validated from GitHub Actions (unrestricted egress), or
-  on the maintainer's machine.
+  on the maintainer's machine. That is what happened here: the maintainer
+  supplied the June-2026 workbook, the **parser + upsert are validated locally**
+  against it, and only the live média-link resolution (§7) remains for GHA.
 - `WebSearch` works (different path) and was the basis for the figures here;
   `WebFetch` is egress-blocked for these domains.
 
