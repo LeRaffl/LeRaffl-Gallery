@@ -284,11 +284,14 @@ narrowing to ~0 only in the freshest month.
 
 **What IS the reason (name these):**
 1. **Government count vs industry-association count — the bulk of it.** ACEA's
-   France number is the **car-industry association's** tally (PFA → AAA-DATA);
-   ours is the **government statistics office's** count (**SDES**). Both read the
-   **same SIV registry**, but SDES's *consolidated* count (late registrations
-   folded in, older months revised upward) runs **~1 % above** the association's
-   earlier published "marché" tally.
+   France number is the **car-industry association's** tally (CCFA/PFA →
+   **AAA-DATA**, which is CCFA's *own data subsidiary*); ours is the **government
+   statistics office's** count (**SDES**). Both read the **same SIV registry**,
+   and ACEA's own stated definition — *new cars, first registration, private +
+   business, previously-registered excluded* — is the **same universe** as
+   SDES's. But SDES's *consolidated* count (late registrations folded in, older
+   months revised upward) runs **~1 % above** the association's earlier published
+   "marché" tally. So this is a **publisher** gap, not a vehicle-scope one.
 2. **Hydrogen — the one clean definitional item.** SDES's bucket is *"électrique
    **et hydrogène**"*: it includes fuel-cell cars (FCEV). ACEA files FCEV under
    **"other,"** not BEV. France registered **529 hydrogen cars in *all* of 2024**
@@ -307,11 +310,22 @@ narrowing to ~0 only in the freshest month.
 
 Our rows **are** SDES's own published numbers (we parse SDES's file directly), so
 the only real gap a critic can point to is that ~1 % industry-vs-government
-difference — never a "you're counting the wrong cars." **Honest limit:** the
-split *within* that ~1 % (how much is consolidation timing vs a residual
-"marché"-vs-registry methodology difference) can't be pinned exactly from
-outside; both are named above, both are small, and neither changes the electric
-definition.
+difference — never a "you're counting the wrong cars."
+
+**Do we *know* the definitional delta to the last car? Only partly — and here is
+exactly the line.** The two *nameable, citable* definitional items are (2) the
+FCEV bucket and (3) the provisional/transit-temporary exclusion above. The
+residual ~1 % is a **stable structural gap** between the association's "marché"
+count and SDES's registry count — but **CCFA/AAA-DATA do not publish their exact
+perimeter or consolidation rules** (their methodology is not public; the answer
+to a direct query is "contact us"), so that residual **cannot be attributed to a
+single citable rule** from outside. To pin it definitively you would **ask
+CCFA/AAA-DATA or SDES directly**, or compare the two *published* monthly series
+at matched vintage — our stored ACEA rows equal the CCFA figure to the unit, so
+`data/France_legacy.csv` vs `data/France.csv` already *is* that comparison (a
+stable ~+1 % with a small age-slope → mostly structural, a little vintage).
+Certain regardless: **same SIV, same M1-VP universe, same CCFA data arm** — a
+publisher gap, never a difference in which cars count.
 
 ## 4. Technisch — how each product is accessed
 
