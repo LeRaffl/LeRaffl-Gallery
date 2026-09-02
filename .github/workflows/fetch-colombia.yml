@@ -10,6 +10,13 @@ name: Fetch Colombia data (ANDI/FENALCO Boletín)
 # in this report — combined "híbridos" go in the HEV column ("single Hybrid
 # bucket" convention shared with Türkiye and Georgia).
 #
+# Set dry_run=true to discover, download and parse the newest bulletin and
+# print what would change — plus the full `pdftotext -layout` output — without
+# writing the CSV. That is the way to check discovery or a parser change
+# against the real PDF from a branch (the ANDI host is not reachable from
+# every dev sandbox). The PDF and its text are also uploaded as a run
+# artifact ("colombia-bulletin") for a week.
+#
 # See scripts/fetch_colombia.py and docs/architecture/18-source-colombia.md.
 
 on:
@@ -20,6 +27,16 @@ on:
         required: false
         default: ''
         type: string
+      force:
+        description: 'Re-read the newest bulletin even if the previous month is already in the CSV.'
+        required: false
+        default: 'false'
+        type: boolean
+      dry_run:
+        description: 'Parse and report only — write nothing, commit nothing; dumps the PDF text into the log.'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
     # ANDI/FENALCO publishes the previous month's boletín somewhere in the
     # first ~3 weeks of each month. Poll daily 5th–25th at 07:30 UTC (free
@@ -49,12 +66,28 @@ jobs:
 
       - name: Fetch & update Colombia.csv
         run: |
-          python scripts/fetch_colombia.py ${PDF_URL:+--pdf-url "$PDF_URL"}
+          python scripts/fetch_colombia.py \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${FORCE:+--force} \
+            ${DRY_RUN:+--dry-run --dump-text} \
+            --debug-dir "$RUNNER_TEMP/colombia-bulletin"
         env:
           PDF_URL: ${{ inputs.pdf_url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+
+      - name: Upload bulletin PDF + text
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: colombia-bulletin
+          path: ${{ runner.temp }}/colombia-bulletin
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Commit if changed
         id: commit
+        if: ${{ inputs.dry_run != true }}
         uses: EndBug/add-and-commit@v9
         with:
           add: data/Colombia.csv
