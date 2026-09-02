@@ -100,7 +100,7 @@ MONTH_ABBR = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6,
 # "SET" is added explicitly).
 MONTH_NAME_RE = re.compile(
     r'(?<![A-Z])(ENERO|FEBRERO|MARZO|ABRIL|MAYO|JUNIO|JULIO|AGOSTO|SEPTIEMBRE|SETIEMBRE|'
-    r'OCTUBRE|NOVIEMBRE|DICIEMBRE|ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEP|SET|OCT|NOV|DIC)(?![A-Z])'
+    r'OCTUBRE|NOVIEMBRE|DICIEMBRE|ENE|FEB|MAR|ABR|MAY|JUN|JUL|AGO|SEPT|SEP|SET|OCT|NOV|DIC)(?![A-Z])'
 )
 YEAR_RE = re.compile(r'(?<!\d)(20\d{2})(?!\d)')
 NUM_PREFIX_RE = re.compile(r'^\s*(\d{1,2})\s*\.')
