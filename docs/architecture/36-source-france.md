@@ -64,7 +64,7 @@ only because each publisher applies a different **scope**, **adjustment**, and
 | **ACEA** (our `data/France.csv`) | **188 787** | — | raw registrations, aggregated from PFA |
 | **AAA-DATA** (press / the brand tables) | **188 787** | **±0** | raw registrations, the SIV processor — *same number as ACEA* |
 | **PFA / CCFA** ("Immatriculations mensuelles par énergie") | = AAA | ≈ 0 | raw registrations, the industry association ACEA aggregates |
-| **SDES — données brutes** | **188 482** | −0,2 % | raw registrations, the detailed série file (the StatInfo headline rounds this to 188 500) |
+| **SDES — données brutes** | **188 482** | −0,2 % | raw registrations, the detailed série file (StatInfo rounds to 188 500). June is the fresh-month exception — across 2024–2026 SDES usually runs **+1…3 %** vs ACEA (§3c/§3h) |
 | **SDES — CVS-CJO** (the headline in most SDES/press write-ups) | **142 100** | −24,6 % | **seasonally- and working-day-adjusted** — *not a raw count* |
 
 Two independent exact matches prove the lineage: our stored ACEA figure equals
@@ -155,19 +155,26 @@ entirely the adjustment.
 built on). Compare only against other **brut** figures (ACEA, AAA/PFA, SDES
 *données brutes*), never against CVS-CJO.
 
-### 3c. Provisional, transit-temporary, and consolidation (the small residual)
+### 3c. Provisional plates, cut-off, and consolidation
 
-The **188 787 (ACEA/AAA) vs. 188 500 (SDES brut)** gap is ≈ 0,15 % and comes
-from definitional edges, not error:
+June 2026 has SDES *brut* (188 482) a touch **below** ACEA/AAA (188 787), and an
+earlier draft of this doc over-generalised that into "SDES is ~0,15 % lower."
+**That was wrong** — June is the freshest month. Across **2024–2026 SDES runs
+mostly a bit *higher*** than the ACEA figure (+1 … +3 % on the total, a steady
+~+1,4 % on the electric count), because two forces pull opposite ways and
+consolidation usually wins:
 
-- SDES *données brutes* is explicitly **"hors immatriculations provisoires et
-  transit temporaire"** (excludes provisional plates and temporary/WW transit
-  registrations); AAA's market figure treats these slightly differently.
-- **Extraction cut-off**: SDES and AAA freeze the month on marginally different
-  dates; late-arriving registrations shift a few hundred units.
-- **Provisional → consolidated revisions**: an early monthly figure is revised
-  as late records land. This is a *correction over time*, not a discrepancy at
-  a point in time.
+- **Down:** SDES is explicitly **"hors immatriculations provisoires et transit
+  temporaire"** (excludes provisional and temporary/WW plates, and COM/abroad
+  residents); AAA/PFA keep more of them.
+- **Up (usually the larger force):** SDES's registry figure is **consolidated** —
+  late-arriving registrations are folded in and older months revised upward —
+  whereas the ACEA row is the association's earlier published tally. Only in the
+  very freshest month (not yet consolidated) does the "down" force win, which is
+  why June 2026 flips to SDES-lower.
+
+The full per-**count** decomposition vs ACEA — and how to defend it against "but
+ACEA says X electrics!" — is **§3h**.
 
 ### 3d. Métropole vs. France entière (DOM/COM)
 
@@ -225,6 +232,12 @@ some months a hair higher, some a hair lower:
 | Average (2024→, real ACEA months) | **−0.11 pp** — SDES a hair *lower* on average |
 | Examples | 2026-06: 29.90 % (SDES) vs 29.58 % (ACEA) = **+0.32** · 2025-12: 23.75 vs 24.41 = **−0.66** · 2026-01: 27.66 vs 28.28 = **−0.62** |
 
+> **Share vs count — don't confuse them.** This section is about the **share** (%),
+> which barely moves. The **count** of electric cars is a different question: it
+> runs *consistently* ~1,4 % **higher** under SDES (§3h). No contradiction — the
+> total is higher too, so a higher BEV count over a higher total leaves the
+> *percentage* almost unchanged.
+
 So the honest description is **"basically identical, if anything a touch lower."**
 
 **Why is there any difference at all?** Both ACEA and SDES count the *exact same
@@ -250,6 +263,55 @@ HEV, so vs the old series **HEV is ~3 % lower and PETROL ~3 % higher** (§3f). T
 reclassification happens **entirely inside the ICE bucket** — BEV, PHEV and total
 ICE are unchanged — so the headline BEV share, and the BEV/PHEV/ICE trajectory the
 model fits, are untouched by it.
+
+### 3h. The exact ACEA-vs-SDES delta on the electric count (defend the number)
+
+**The scenario:** someone says *"but ACEA says France registered X electric
+cars!"* and our number differs. Here is exactly why — and why ours is the more
+authoritative figure.
+
+**The measurement** (2024–2026, our SDES vs the old ACEA rows): our SDES electric
+count is **consistently ~1,4 % higher** than ACEA's — **every month**, +234 to
++811 cars (mean +379), never lower. The total is mostly ~1–2 % higher too,
+narrowing to ~0 only in the freshest month.
+
+**What is NOT the reason (rebut these):**
+- **Not a different "electric car."** Both count battery-electric M1 passenger cars.
+- **Not geography.** AAA/PFA (→ACEA) *and* SDES both cover **France entière incl.
+  the overseas DROM** — identical perimeter (so it is not a métropole-vs-DROM gap).
+- **Not brand coverage.** Both are registry-based (every brand), so neither
+  under-counts Tesla / BYD / etc.
+
+**What IS the reason (name these):**
+1. **Government count vs industry-association count — the bulk of it.** ACEA's
+   France number is the **car-industry association's** tally (PFA → AAA-DATA);
+   ours is the **government statistics office's** count (**SDES**). Both read the
+   **same SIV registry**, but SDES's *consolidated* count (late registrations
+   folded in, older months revised upward) runs **~1 % above** the association's
+   earlier published "marché" tally.
+2. **Hydrogen — the one clean definitional item.** SDES's bucket is *"électrique
+   **et hydrogène**"*: it includes fuel-cell cars (FCEV). ACEA files FCEV under
+   **"other,"** not BEV. France registered **529 hydrogen cars in *all* of 2024**
+   (~44/month, 0,03 %) — tiny, but a real, nameable definitional difference.
+3. **Provisional plates (counter-factor).** SDES *excludes* provisional / transit-
+   temporary (WW) registrations; AAA/PFA keep more. This pulls SDES *down* and is
+   why the freshest month can flip to SDES-lower (§3c).
+
+**Say this out loud:**
+> "That ACEA figure and ours are the **same cars from the same French registry
+> (the SIV).** ACEA's is the **industry association's** count; ours is the
+> **French government's** (SDES) — the consolidated registry count, which runs
+> about 1 % higher and also includes the ~40 hydrogen cars a month ACEA files
+> under 'other.' Ours is the official registry figure, checkable on
+> statistiques.developpement-durable.gouv.fr."
+
+Our rows **are** SDES's own published numbers (we parse SDES's file directly), so
+the only real gap a critic can point to is that ~1 % industry-vs-government
+difference — never a "you're counting the wrong cars." **Honest limit:** the
+split *within* that ~1 % (how much is consolidation timing vs a residual
+"marché"-vs-registry methodology difference) can't be pinned exactly from
+outside; both are named above, both are small, and neither changes the electric
+definition.
 
 ## 4. Technisch — how each product is accessed
 
@@ -359,7 +421,7 @@ OTHERS ← Gaz & ND             TOTAL ← Total   (asserted == sum of the seven)
 | PETROL | 29 809 | 28 807 | +3,5 % | mirror image of the HEV line |
 | DIESEL | 4 557 | 4 955 | −8,0 % | small base |
 | OTHERS | 7 927 | 7 101 | +11,6 % | SDES "Gaz & ND" carries the not-yet-coded **ND** bucket |
-| **TOTAL** | **188 482** | **188 787** | **−0,2 %** | provisoires/transit-temporaire + cut-off |
+| **TOTAL** | **188 482** | **188 787** | **−0,2 %** | fresh-month cut-off (provisoires excl.); *other* months SDES runs +1…2 % — §3c/§3h |
 
 Headline impact is negligible: the BEV **share** is essentially unchanged — a few
 tenths of a pp with **no consistent direction** (SDES a hair *lower* on average;
