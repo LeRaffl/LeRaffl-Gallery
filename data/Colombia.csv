@@ -88,3 +88,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,I
 2026-03,monthly,Whole,andi.com.co + fenalco (datos RUNT),5083.0,,7631.0,,,,,15428.0,28142.0,
 2026-04,monthly,Whole,andi.com.co + fenalco (datos RUNT),5192.0,,7476.0,,,,,14119.0,26787.0,
 2026-05,monthly,Whole,andi.com.co + fenalco (datos RUNT),5001.0,,8926.0,,,,,14209.0,28136.0,
+2026-06,monthly,Whole,andi.com.co + fenalco (datos RUNT),4935.0,,8441.0,,,,,15662.0,29038.0,
+2026-07,monthly,Whole,andi.com.co + fenalco (datos RUNT),4870.0,,9410.0,,,,,14353.0,28633.0,
