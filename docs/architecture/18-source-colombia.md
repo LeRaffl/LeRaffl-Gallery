@@ -179,11 +179,40 @@ Variación acumulada : 231,2%
 `_value_for_label` takes the first number to the right of the label on the
 same line, otherwise scans up to `VALUE_LOOKAHEAD_LINES` (12) lines below for
 a **number-only** line with a number **right of the label column**, stopping
-at the next month label or a form feed (page break = next chart). Column
-position is what keeps the distractors out: YTD totals (`29.347` above
-`(Ene-jul 2026)`) sit at column ~11, left of the labels at ~31; axis ticks
+at the next month label or a form feed (page break = next chart). Axis ticks
 only occur at the top of a chart, after the form feed; the `231,2%` line has
 letters and a `%` and is skipped.
+
+The year-to-date totals are the real trap, and the two layouts place them
+differently. In the 2026 files they sit at column ~11, left of the labels at
+~31, so the column rule excludes them. In the 2025 files they sit **right**
+of the labels, on the line straight after an orphan label, with the real bar
+value five lines further down:
+
+```
+                                          ene-24
+                                                                        186.222      ← YTD (Ene-dic 2023)
+
+
+
+                                                   11.581                            ← the bar
+                                                                     (Ene-dic 2023)
+```
+
+What identifies the YTD total in both layouts is its caption: `(Ene-dic
+2023)` / `(Ene-jul 2026)` appears a few lines *below* the number at (almost)
+the same column, because both live in the same text box. `_is_ytd_total`
+looks `YTD_CAPTION_LOOKAHEAD_LINES` (8) lines down for a `(Ene-` caption
+within `YTD_CAPTION_COLUMN_TOLERANCE` (8) columns and the candidate is
+skipped. As a layout-independent backstop, `_drop_outliers` then removes any
+month whose value exceeds `OUTLIER_FACTOR` (3×) the larger of its two
+neighbours — a YTD total is 6–12× a monthly bar, a genuine month-on-month
+jump in this market has never been 3× — and reports it as unknown.
+
+Both real bulletins are the acceptance test: the Jul-2026 file must yield
+4 × 31 months (2024-01 … 2026-07), the Dec-2025 file 4 × 36 months
+(2023-01 … 2025-12), each with every overlapping value equal to the CSV.
+`test_fetch_colombia.py` carries the verbatim snippets of both traps.
 
 ### Spanish number format
 
@@ -276,6 +305,7 @@ Single variant ⇒ no parallel-render push race.
 | ANDI keeps an old file as the newest link (or stops linking new ones) | Green run, `::warning:: Colombia discovery may be stale` when the page's newest bulletin is ≥ 2 months behind the CSV | Check the Cámara page by hand; `pdf_url` override if the file exists but is not linked |
 | The PDF layout reorders the three charts | "Chart order looks off" — the first batch must have the largest peak | Eyeball one month's values vs the PDF narrative; if reorder is needed, detect sections by header text instead of position |
 | A bar value drifts further than 12 lines from its label, or lands left of the label column | Month reported as "no value found" and treated as unknown; the run fails if it is the newest month, otherwise the existing CSV value stands / the month is skipped | `dry_run` + read the dump around the label; adjust `VALUE_LOOKAHEAD_LINES` or the column rule; add the snippet to `test_fetch_colombia.py` |
+| A YTD total lands next to an orphan label without its `(Ene-…)` caption aligned under it | The caption rule misses it; the outlier guard drops it ("is >3x its neighbours … treated as unknown") and the month falls back to the CSV value / is skipped. Only if both fail would a wrong number reach the merge, where the >50 % change warning and the BEV+HEV ≤ TOTAL check are the last line | `dry_run`, read the dump, extend `_is_ytd_total`; add the snippet to the tests |
 | ANDI/FENALCO add a separate PHEV split | combined Hybrid bucket understates the distinction | Extend mapping to write PHEV alongside HEV |
 | andi.com.co drops connections / 500s | Retried 5× with backoff by the session adapter; a run still fails if the host stays down | Nothing to do — the next daily run picks it up |
 | `poppler-utils` not installed (local run) | `pdftotext: command not found` | `brew install poppler` / `apt install poppler-utils` |

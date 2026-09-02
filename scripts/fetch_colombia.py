@@ -142,6 +142,17 @@ VALUE_LOOKAHEAD_LINES = 12
 # A line that carries nothing but numbers (a displaced bar value, an axis
 # tick, a YTD total) — no letters, no "%", no "(Ene-jul 2026)".
 _NUMBER_ONLY_RE = re.compile(r'^[\s\d.]+$')
+# The caption under a year-to-date total: "(Ene-dic 2023)", "(Ene-jul 2026)".
+# The YTD number sits a few lines above it in the same text box, i.e. at
+# (almost) the same column — that alignment is how a YTD total is told apart
+# from a displaced bar value when both are to the right of the label.
+_YTD_CAPTION_RE = re.compile(r'\(\s*Ene\s*-', re.IGNORECASE)
+YTD_CAPTION_LOOKAHEAD_LINES = 8
+YTD_CAPTION_COLUMN_TOLERANCE = 8
+# A month whose value is more than this many times its larger neighbour is
+# not a bar — it is a YTD total or a stray figure the look-ahead grabbed.
+# Registrations do not triple month to month in any of the three series.
+OUTLIER_FACTOR = 3.0
 
 
 def _basename(href: str) -> str:
@@ -230,9 +241,18 @@ def parse_value(s: str) -> int:
     return int(s.replace(".", ""))
 
 
-def _numbers_right_of(line: str, col: int) -> list[int]:
-    """Bar values on `line` that start to the right of column `col`, left to right."""
-    return [parse_value(m.group(1)) for m in NUM_RE.finditer(line) if m.start() > col]
+def _numbers_right_of(line: str, col: int) -> list[tuple[int, int]]:
+    """(column, value) of bar values on `line` that start right of column `col`, left to right."""
+    return [(m.start(), parse_value(m.group(1))) for m in NUM_RE.finditer(line) if m.start() > col]
+
+
+def _is_ytd_total(lines: list[str], j: int, col: int) -> bool:
+    """True if the number at lines[j][col] has an aligned "(Ene-…)" caption below it."""
+    for k in range(j + 1, min(j + 1 + YTD_CAPTION_LOOKAHEAD_LINES, len(lines))):
+        m = _YTD_CAPTION_RE.search(lines[k])
+        if m and abs(m.start() - col) <= YTD_CAPTION_COLUMN_TOLERANCE:
+            return True
+    return False
 
 
 def _value_for_label(lines: list[str], i: int, label_col: int, label_end: int) -> int | None:
@@ -243,23 +263,48 @@ def _value_for_label(lines: list[str], i: int, label_col: int, label_end: int) -
     several rows further down (blank lines and stray chart-title fragments in
     between), so fall back to the first number-only line below that carries a
     number right of the label column. Stop at the next month label or a form
-    feed (page break = next chart). Column position is what keeps the YTD
-    totals out: they sit at column ~11, left of the labels at ~31, while bar
-    values are always to the right of their label.
+    feed (page break = next chart).
+
+    Two distractors live in that window. Axis ticks only occur at the top of
+    a chart, after the form feed, so the stop rule handles them. Year-to-date
+    totals ("186.222" with "(Ene-dic 2023)" a few lines under it) sit left of
+    the labels in the 2026 layout but *right* of them in the 2025 layout, on
+    the line straight after an orphan label — they are recognised by the
+    caption aligned under them and skipped.
     """
     same_line = _numbers_right_of(lines[i], label_end)
     if same_line:
-        return same_line[0]
+        return same_line[0][1]
     for j in range(i + 1, min(i + 1 + VALUE_LOOKAHEAD_LINES, len(lines))):
         nxt = lines[j]
         if "\f" in nxt or LABEL_RE.search(nxt):
             return None
         if not nxt.strip() or not _NUMBER_ONLY_RE.match(nxt):
             continue
-        below = _numbers_right_of(nxt, label_col)
-        if below:
-            return below[0]
+        for col, val in _numbers_right_of(nxt, label_col):
+            if not _is_ytd_total(lines, j, col):
+                return val
     return None
+
+
+def _drop_outliers(batch: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
+    """Remove months whose value dwarfs both neighbours (a YTD total read as a bar).
+
+    Belt and braces for the caption rule above: whatever the layout does
+    next, a monthly count that is more than OUTLIER_FACTOR times the larger
+    of its neighbours is not a monthly count. The month becomes unknown.
+    """
+    if len(batch) < 3:
+        return batch
+    kept = []
+    for idx, (y, m, v) in enumerate(batch):
+        neighbours = [batch[k][2] for k in (idx - 1, idx + 1) if 0 <= k < len(batch)]
+        if v > OUTLIER_FACTOR * max(neighbours):
+            print(f"  WARNING {y}-{m:02d}: {v} is >{OUTLIER_FACTOR:g}x its neighbours {neighbours} — "
+                  f"not a monthly bar, treated as unknown")
+            continue
+        kept.append((y, m, v))
+    return kept
 
 
 def extract_series(text: str) -> list[list[tuple[int, int, int]]]:
@@ -296,7 +341,7 @@ def extract_series(text: str) -> list[list[tuple[int, int, int]]]:
         last = (ym[0], ym[1])
     if current:
         batches.append(current)
-    return batches
+    return [_drop_outliers(b) for b in batches]
 
 
 def assemble_rows(batches: list) -> dict:

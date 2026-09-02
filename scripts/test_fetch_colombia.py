@@ -191,6 +191,56 @@ def test_extract_series_value_below_label():
     assert b[1] == [(2024, 1, 1997)]            # page break starts the next chart
 
 
+# Verbatim shape of the Dec-2025 bulletin's total chart: here the YTD total
+# ("186.222" with "(Ene-dic 2023)" aligned under it) sits RIGHT of the label
+# column, on the line straight after an orphan label, and the real bar value
+# ("11.581") comes five lines later at a different column.
+TOTAL_CHART_2025 = (
+    "                                          nov-23                           18.497\n"
+    "                                           dic-23                            19.856\n"
+    "                                          ene-24\n"
+    "                                                                                                  186.222\n"
+    "\n"
+    "\n"
+    "\n"
+    "\n"
+    "                                                                11.581\n"
+    "                                                                                               (Ene-dic 2023)\n"
+    "\n"
+    "                                          feb-24                             15.597\n"
+    "                                          nov-25                                   23.791\n"
+    "                                           dic-25\n"
+    "                                                                                                                                                254.205\n"
+    "\n"
+    "\n"
+    "\n"
+    "\n"
+    "                                                                                                    30.135\n"
+    "                                                                                                                                              (Ene-dic 2025)\n"
+    "\f           BOLETÍN\n"
+)
+
+
+def test_extract_series_skips_ytd_total_right_of_label():
+    b = fc.extract_series(TOTAL_CHART_2025)
+    assert len(b) == 1, b
+    total = dict(((y, m), v) for y, m, v in b[0])
+    assert total[(2024, 1)] == 11581, total     # not the 186.222 YTD above it
+    assert total[(2025, 12)] == 30135, total    # not the 254.205 YTD above it
+    assert total[(2023, 11)] == 18497 and total[(2024, 2)] == 15597
+
+
+def test_outlier_month_becomes_unknown():
+    # a YTD total that slipped through the caption rule dwarfs its neighbours
+    batch = [(2023, 11, 18497), (2023, 12, 19856), (2024, 1, 186222), (2024, 2, 15597)]
+    assert fc._drop_outliers(batch) == [(2023, 11, 18497), (2023, 12, 19856), (2024, 2, 15597)]
+    # a genuine doubling (mar-26 BEV) is not an outlier
+    batch = [(2026, 1, 1758), (2026, 2, 2508), (2026, 3, 5083), (2026, 4, 5192)]
+    assert fc._drop_outliers(batch) == batch
+    # short batches are left alone
+    assert fc._drop_outliers([(2026, 1, 1), (2026, 2, 100)]) == [(2026, 1, 1), (2026, 2, 100)]
+
+
 def test_extract_series_orphan_is_left_out():
     text = (
         "                               jun-26        4.935\n"
