@@ -1,11 +1,47 @@
-# 36 · Source findings: France — why our numbers differ from other sources (and the SDES migration plan)
+---
+country: France
+slug: france
+method: file
+summary: New passenger-car registrations for France from the SDES registry série (voitures particulières neuves par énergie) — the national primary source that replaces the ACEA aggregate.
+source_name: SDES — Immatriculations mensuelles de VP neuves par motorisation
+source_url: https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers
+source_links:
+  - label: Landing page (série files)
+    url: https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers
+    note: lists the current "voitures particulières neuves par énergie" workbook
+  - label: June 2026 workbook
+    url: https://www.statistiques.developpement-durable.gouv.fr/media/9508/download
+    note: the média id rotates every publication — the fetcher resolves the current one
+underlying: SIV registry (Ministère de l'Intérieur), statistics by SDES-RSVERO
+auth: none
+cadence: monthly; SDES publishes the previous month ~3–4 weeks after month-end
+variants:
+  - Whole
+variant_notes:
+  Whole: New passenger cars (voitures particulières, EU M1) with the full énergie split incl. a real HEV column, monthly from 2011-01.
+hev_split: true
+scope_note: Whole = voitures particulières neuves (EU M1) — SUVs included; pickups, vans (N1), trucks (N2/N3) and buses (M2/M3) are separate categories (future variants).
+caveats:
+  - Raw (non-seasonally-adjusted) counts. The SDES/Insee CVS-CJO headline is seasonally & working-day adjusted and reads lower (e.g. June 2026 188 482 brut vs 142 100 CVS-CJO) — compare only against other raw figures.
+  - vs the former ACEA rows there is a one-time per-fuel definitional step (HEV −3% / PETROL +3.5% / OTHERS +12%) — SDES counts 48V mild-hybrids as pure petrol (not HEV) and its "Gaz & ND" carries a not-yet-coded bucket. Headline BEV share moves ≤ 0.4 pp.
+  - The média download id rotates each publication; the fetcher resolves the current file from the landing page.
+backfill: Full énergie split monthly back to 2011-01 (the former ACEA series was BEV/PHEV-only and quarterly-interpolated before ~2025). Previous series parked as data/France_legacy.csv.
+fetcher: scripts/fetch_france.py
+workflow: .github/workflows/fetch-france.yml
+fragility_doc: docs/architecture/36-source-france.md
+data_file: data/France.csv
+---
 
-**Status: INVESTIGATION / DECISION-PENDING.** France is still served by
-`fetch_acea.py` (stub `country_source_stubs.yaml`, `data/France.csv`,
-`source = ACEA`). This document records *why the French market prints
-different numbers in different places* — the answer people ask when they see
-our figure next to an SDES headline or an AAA press release — and the plan to
-move France onto a national primary source (SDES) without breaking the series.
+# 36 · Source findings: France — why our numbers differ from other sources (and the SDES migration)
+
+**Status: MIGRATION (in this PR).** France moves from the ACEA aggregate to the
+SDES registry série: `data/France.csv` is now `source = SDES` (old series parked
+as `data/France_legacy.csv`), France is removed from `fetch_acea.py`, and
+`scripts/fetch_france.py` + `.github/workflows/fetch-france.yml` keep it fresh.
+Verification (charts + CSV values vs prior months) is done on the branch before
+merge; params.csv/weights.csv + the four PNGs come from a `render-country.yml`
+run (see §9). This doc is both the **findings** (why the French market prints
+different numbers in different places) and the **playbook** for the switch.
 
 It is written to be the **ready answer** to two recurring questions:
 
@@ -238,8 +274,9 @@ people-carriers = `Buses`. SUVs are the one people second-guess — they are
 
 **Path 2 confirmed; `scripts/fetch_france.py` is built and validated** (parser +
 upsert) against the maintainer-provided workbook (June 2026 edition,
-`…/media/9508/download`). **Not yet switched live** — that is a separate,
-coordinated decision (bottom of section).
+`…/media/9508/download`). **The switch is wired in this PR** — the end-to-end
+pipeline and the rollout/verification steps are in §9; this section keeps the
+reconciliation and the exact mapping that justify it.
 
 **The workbook.** One sheet, monthly rows **2011_01 → 2026_06**, footer
 `Source : SDES-RSVERO`. Header (row 3):
@@ -303,16 +340,21 @@ Actions run; `--url` / `--file` overrides exist for manual runs meanwhile. (A
 stable data.gouv/DiDo resource carrying the same detailed split, if one exists,
 would be more robust than scraping a rotating média id — a follow-up to check.)
 
-**Remaining before France goes live on SDES** (a coordinated maintainer decision,
-not done yet):
-- **GHA-validate the média-link resolution** (or wire a data.gouv/DiDo resource).
-- **The live switch**: overwrite `data/France.csv` (`ACEA`→`SDES`; the
-  ACEA-courtesy rule is already in the fetcher — it only overwrites rows whose
-  source is exactly `ACEA` or `SDES`), **refit `params.csv`** for the new
-  history/definition, **remove France from `fetch_acea.py`** so ACEA can never
-  re-write it, add `.github/workflows/fetch-france.yml`, and convert this doc's
-  frontmatter into a page-driving source doc + retire the France stub in
-  `country_source_stubs.yaml`. A `footnotes.csv` line is already in place.
+**Done in this PR** (pipeline in §9): `data/France.csv` rewritten as
+`source = SDES` (old series parked as `data/France_legacy.csv`), France removed
+from `fetch_acea.py`, `fetch-france.yml` added, this doc converted to a
+page-driving source doc (+ France stub retired), and the `footnotes.csv` line
+updated.
+
+**Remaining** (maintainer):
+- **Render + verify on the branch**: dispatch `render-country.yml` (France,
+  Whole) → params/weights refit + the four PNGs; check charts and CSV values vs
+  prior months, then merge.
+- **GHA-validate the média-link resolution** on the first scheduled
+  `fetch-france.yml` run (or wire a stable data.gouv/DiDo resource instead of
+  scraping a rotating média id).
+- **Variants** (`Vans` / `HDV` / `Buses`) — fast-follow once the VUL/PL/TCP
+  séries are provided (§9).
 
 ## 8. Sandbox / network constraints hit during this investigation
 
@@ -330,6 +372,51 @@ Recorded so the next session doesn't rediscover them:
   against it, and only the live média-link resolution (§7) remains for GHA.
 - `WebSearch` works (different path) and was the basis for the figures here;
   `WebFetch` is egress-blocked for these domains.
+
+## 9. Pipeline & rollout (this migration)
+
+What the switch wires, end to end:
+
+```
+SDES landing page ──(resolve rotating média id)──► media/<id>/download (.xlsx)
+    │  scripts/fetch_france.py  (parse + map + upsert, ACEA-courtesy rule)
+    ▼
+data/France.csv  (source=SDES, Whole, 2011-01→latest)
+    │            └── data/France_legacy.csv  (old ACEA series, parked, inert)
+    │  .github/workflows/fetch-france.yml  (daily 18th–EOM; commit on change)
+    ▼
+render-country.yml (Whole) ──► refits params.csv + weights.csv, writes the four
+    │                          PNGs under images/<period>/, commits them
+    ▼
+build-source-pages.yml ──► regenerates sources/france.html from this doc's
+                           front-matter + params.csv
+```
+
+**What's in the data / what isn't:**
+- **IN:** new **M1 passenger cars** (voitures particulières), full énergie split
+  (BEV/PHEV/HEV/PETROL/DIESEL/OTHERS), monthly, France entière, **raw** counts,
+  2011-01 onward; every row closes to `TOTAL`.
+- **NOT in:** CVS-CJO (adjusted) figures; provisional / transit-temporary plates
+  (SDES excludes them → the ~0,15 % vs AAA/ACEA); vans (N1), trucks (N2/N3),
+  buses (M2/M3) — separate SDES séries (variants below); used registrations.
+- **Deltas & category definitions:** §3 (fachlich) and §5 ("what's in `Whole`").
+
+**Rollout / verification (agreed process):**
+1. On the branch: legacy parked, new `France.csv` written, ACEA unhooked, fetcher
+   + workflow added, this doc + the footnote updated — **this PR**.
+2. Maintainer dispatches `render-country.yml` (country=France, variant=Whole) on
+   the branch → params/weights refit + PNGs; checks charts + CSV values against
+   prior months.
+3. PR to master; maintainer merges after the check. The first scheduled
+   `fetch-france.yml` run then validates the live média-link resolution (§7).
+
+**Bonus variants (fast-follow, NOT in this PR).** SDES publishes the same
+detailed "par énergie" séries for **VUL (N1 → `Vans`)**, **PL (N2/N3 → `HDV`)**
+and **TCP (M2/M3 → `Buses`)**. Those are separate workbooks the VP file does not
+contain, so each needs its own download; once provided they wire exactly like
+`Whole` (variant rows in `fetch_france.py` + the workflow render matrix, and the
+`variants:` list in this doc's front-matter). "If `Whole` is right, they should
+be too" — same registry, same mapping.
 
 ## Sources
 

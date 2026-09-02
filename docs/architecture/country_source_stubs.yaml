@@ -112,21 +112,10 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Estonia.csv"
 
-  - country: France
-    slug: france
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for France, via ACEA's monthly figures."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "National registrations (PFA/SDES), aggregated by ACEA"
-    variants: [Whole]
-    variant_notes:
-      Whole: "New passenger-car registrations as reported by ACEA."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/France.csv"
+  # France: migrated off the ACEA stub to the SDES motorisations série — now
+  # driven by the front-matter in docs/architecture/36-source-france.md
+  # (scripts/fetch_france.py). Kept out of this stub registry so the doc is the
+  # single source of truth for the page (the Spain precedent).
 
   - country: Greece
     slug: greece
