@@ -1296,14 +1296,16 @@ sequenceDiagram
     Cron->>Job: workflow_dispatch OR cron (5–25, 07:30 UTC)
     Job->>Job: Early-exit if CSV already has previous-month row
     Job->>Cam: GET /Home/Camara/4-automotriz
-    Cam-->>Job: HTML with PDF links "<N>. INFORME SECTOR AUTOMOTOR <MMM>_PRENSA-INDUSTRIA <YYYY>_<ticks>.pdf"
-    Job->>Job: regex-pick newest (year, month) link
+    Cam-->>Job: HTML with PDF links "<N>. INFORME SECTOR AUTOMOTOR <MMM><YYYY>_PRENSA[_<ticks>].pdf"<br/>(shape changes yearly — 2025: "<MMM>_PRENSA-INDUSTRIA <YYYY>_<ticks>")
+    Job->>Job: every bulletin-named .pdf link → (year, month) from the name;<br/>pick newest, monthly before annual; warn if ≥2 months behind the CSV
     Job->>PDF: GET <pdf_url>
     PDF-->>Job: ~18-page PDF (Spanish thousands sep, narrative + bar charts)
-    Job->>Job: pdftotext -layout → batch-detect 3 monthly series<br/>(Pkw total / BEV / Híbridos), by (year, month) reset
-    Job->>Job: BEV ← eléctricos; HEV ← híbridos (combined); ICE = TOTAL − BEV − HEV;<br/>PHEV/PETROL/DIESEL/FLEXFUEL/OTHERS empty
-    Job->>CSV: Upsert
-    alt CSV changed
+    Job->>Job: pdftotext -layout → line-based label/value pairing<br/>(value on the label line, else look-ahead below) → batch-detect 3 monthly series<br/>(Pkw total / BEV / Híbridos), by (year, month) reset
+    Job->>Job: BEV ← eléctricos; HEV ← híbridos (combined); ICE = TOTAL − BEV − HEV;<br/>PHEV/PETROL/DIESEL/FLEXFUEL/OTHERS empty; unreadable cell = unknown (never 0)
+    Job->>CSV: Merge (existing value survives an unknown or a parsed 0; newest PDF month must be complete)
+    alt dry_run
+        Job-->>Cron: Print would-be changes + pdftotext dump, upload PDF/text artifact, write nothing
+    else CSV changed
         Job->>CSV: Commit data/Colombia.csv
         Job->>Render: gh workflow run render-country.yml -f country=Colombia -f variant=Whole
     else unchanged
@@ -1311,7 +1313,7 @@ sequenceDiagram
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_colombia.py](../../scripts/fetch_colombia.py). The discovery regex, the batch-detection parser, the Türkiye-style single-Hybrid convention, the Spanish number format and the known small parsing gap on early-2023 months live in [18-source-colombia.md](18-source-colombia.md).
+**Where parsing lives:** [scripts/fetch_colombia.py](../../scripts/fetch_colombia.py), with regression tests in [scripts/test_fetch_colombia.py](../../scripts/test_fetch_colombia.py). Discovery, the batch-detection parser and its below-the-label value look-ahead, the Türkiye-style single-Hybrid convention, the Spanish number format and the "unknown is not 0" merge rule live in [18-source-colombia.md](18-source-colombia.md).
 
 **Vehicle scope:** Passenger cars only (Whole). The PDF also has a *Vehículos de transporte de carga* monthly chart (HDV total) but **without** a fuel split — out of scope for our schema (no BEV share computable).
 
@@ -1319,7 +1321,7 @@ sequenceDiagram
 
 **Why daily 5th–25th at 07:30 UTC:** ANDI/FENALCO usually publishes the previous month's boletín within the first three weeks of the following month; the 21-day polling window covers it comfortably. The early-exit makes runs after capture no-ops. 07:30 UTC sits in a free slot.
 
-**Known fragility:** the PDF URL has a per-upload ticks hash, so we always scrape the listing for the freshest link. If ANDI restructures the page or PDF filename pattern, update `PDF_FILENAME_RE`. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — eyeball one month's values against the PDF narrative as a sanity check.
+**Known fragility:** the PDF URL often carries a per-upload ticks hash, so we always scrape the listing for the freshest link. ANDI has renamed the file every year (2021 `JUNIO 2021_PRENSA`, 2025 `DIC_PRENSA-INDUSTRIA 2025_<ticks>`, 2026 `FEB2026_PRENSA` / `JUL2026_PRENSA_<ticks>`); a strict template regex is what stalled the fetcher from January to September 2026 — green runs that re-read the Dec-2025 PDF daily — so discovery now only asks a link's basename for INFORME + SECTOR + AUTOMOTOR plus a Spanish month and a year, and emits a `::warning::` when the newest bulletin it sees is ≥ 2 months behind the CSV. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — the "Pkw is largest" check catches the obvious case; eyeball one month's values against the PDF narrative otherwise. `dry_run=true` on the workflow is the tool for both: it prints the candidate list, the parsed batches and the full pdftotext text without writing anything.
 
 ## See also
 
