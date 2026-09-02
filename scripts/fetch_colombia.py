@@ -55,20 +55,29 @@ Parser
 Uses `pdftotext -layout` (poppler) to extract the chart-by-chart monthly
 series. Each chart's bars are emitted as text lines like
     `ene-25                          966`
-and the three series (Pkw total, BEV, Hybrid) appear in order. The parser
-groups matches into batches by detecting (year, month) resets — each batch
-is one chart — and assigns Pkw / BEV / Hybrid by position. Numbers use
-Spanish formatting: `.` is the thousands separator (`14.558` → 14558).
+and the three series (Pkw total, BEV, Hybrid) appear in order, followed by
+a fourth (cargo) that is ignored. The parser groups matches into batches by
+detecting (year, month) resets — each batch is one chart — and assigns
+Pkw / BEV / Hybrid by position. Numbers use Spanish formatting: `.` is the
+thousands separator (`14.558` → 14558).
+
+For a few bars per chart pdftotext puts the value on its own line several
+rows *below* the month label (blank lines and chart-title fragments such as
+"eléctricos en unidades" or "Variación acumulada : 231,2%" in between). The
+old same-line-only regex silently dropped those months — including the
+newest one in the Jul-2026 bulletin. `_value_for_label` therefore looks up
+to VALUE_LOOKAHEAD_LINES lines down for a number-only line with a number to
+the right of the label column, stopping at the next label or a page break.
+Column position keeps the YTD totals ("3.178" under "(Ene-jul 2024)", at
+column ~11) and the axis ticks out.
 
 Missing values are missing, not zero
 ------------------------------------
-On some bars pdftotext puts the value on a different line from the month
-label, so a series can come back without a value for a month. Such a month
-is treated as *unknown* — it never overwrites a value already in the CSV
-(a scheduled run once reset two hand-corrected BEV cells to 0 that way), and
-a month that is not in the CSV yet is skipped with a warning instead of
-being written with BEV=0. The newest month in the PDF must be complete,
-otherwise the run fails loud.
+If a value still cannot be located, that month is *unknown* — it never
+overwrites a value already in the CSV (a scheduled run once reset two
+hand-corrected BEV cells to 0 that way), and a month that is not in the CSV
+yet is skipped with a warning instead of being written with BEV=0. The
+newest month in the PDF must be complete, otherwise the run fails loud.
 
 See docs/architecture/18-source-colombia.md for the full playbook.
 """
@@ -116,15 +125,23 @@ CSV_COLUMNS = [
 # hrefs are handled.
 HREF_PDF_RE = re.compile(r'''href\s*=\s*["']([^"']+?\.pdf)(?:[?#][^"']*)?["']''', re.IGNORECASE)
 
-# Matches lines like "ene-25        966" in pdftotext -layout output.
-# Restricted to NON-NEWLINE whitespace so we don't accidentally pair a month-
-# token with a value on a later line — different poppler versions break lines
-# slightly differently, and on some versions the YTD-cumulative labels (e.g.
-# "19.724  (Ene-dic 2025)") sit close enough to a month-token across a newline
-# to be mis-paired. Same-line-only is the safer invariant.
-MONTH_VALUE_RE = re.compile(
-    r'\b(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)-(\d{2})[ \t]+([\d.]+)\b'
+# A bar's month label in pdftotext -layout output: "ene-25". Not preceded or
+# followed by a letter/digit/hyphen, so "Ene-dic" (YTD labels) and dates don't
+# match.
+LABEL_RE = re.compile(
+    r'(?<![A-Za-z0-9-])(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)-(\d{2})(?![A-Za-z0-9-])',
+    re.IGNORECASE,
 )
+# A bar value: "966" or "14.558" (Spanish thousands separator). Not followed
+# by "%" (the "Variación acumulada : 231,2%" line) or more digits/separators.
+NUM_RE = re.compile(r'(?<![\d.,])(\d{1,3}(?:\.\d{3})+|\d+)(?![\d.,%])')
+# How many lines below an orphan month label to look for its value. In the
+# 2026 bulletins the displaced value sits 6 lines down (blank lines in
+# between); anything further is the next chart.
+VALUE_LOOKAHEAD_LINES = 12
+# A line that carries nothing but numbers (a displaced bar value, an axis
+# tick, a YTD total) — no letters, no "%", no "(Ene-jul 2026)".
+_NUMBER_ONLY_RE = re.compile(r'^[\s\d.]+$')
 
 
 def _basename(href: str) -> str:
@@ -213,18 +230,60 @@ def parse_value(s: str) -> int:
     return int(s.replace(".", ""))
 
 
+def _numbers_right_of(line: str, col: int) -> list[int]:
+    """Bar values on `line` that start to the right of column `col`, left to right."""
+    return [parse_value(m.group(1)) for m in NUM_RE.finditer(line) if m.start() > col]
+
+
+def _value_for_label(lines: list[str], i: int, label_col: int, label_end: int) -> int | None:
+    """The bar value belonging to the month label at lines[i][label_col:label_end].
+
+    Normally it is the first number to the right of the label on the same
+    line. For a few bars per chart pdftotext puts the value on its own line
+    several rows further down (blank lines and stray chart-title fragments in
+    between), so fall back to the first number-only line below that carries a
+    number right of the label column. Stop at the next month label or a form
+    feed (page break = next chart). Column position is what keeps the YTD
+    totals out: they sit at column ~11, left of the labels at ~31, while bar
+    values are always to the right of their label.
+    """
+    same_line = _numbers_right_of(lines[i], label_end)
+    if same_line:
+        return same_line[0]
+    for j in range(i + 1, min(i + 1 + VALUE_LOOKAHEAD_LINES, len(lines))):
+        nxt = lines[j]
+        if "\f" in nxt or LABEL_RE.search(nxt):
+            return None
+        if not nxt.strip() or not _NUMBER_ONLY_RE.match(nxt):
+            continue
+        below = _numbers_right_of(nxt, label_col)
+        if below:
+            return below[0]
+    return None
+
+
 def extract_series(text: str) -> list[list[tuple[int, int, int]]]:
     """Group (year, month, value) matches into batches by (year, month) reset.
 
     Each PDF chart emits its bars in chronological order; a new chart starts
     when the month-year decreases. Returns a list of batches in PDF order.
+    Month labels whose value cannot be located are reported and left out —
+    downstream they count as unknown, never as 0.
     """
+    lines = text.split("\n")
     matches = []
-    for m in MONTH_VALUE_RE.finditer(text):
-        year = 2000 + int(m.group(2))
-        month = MONTH_ABBR[m.group(1)]
-        val = parse_value(m.group(3))
-        matches.append((year, month, val))
+    orphans = []
+    for i, line in enumerate(lines):
+        for lm in LABEL_RE.finditer(line):
+            year = 2000 + int(lm.group(2))
+            month = MONTH_ABBR[lm.group(1).lower()]
+            val = _value_for_label(lines, i, lm.start(), lm.end())
+            if val is None:
+                orphans.append(f"{year}-{month:02d} (line {i + 1})")
+                continue
+            matches.append((year, month, val))
+    if orphans:
+        print(f"  WARNING no value found for month label(s): {', '.join(orphans)}")
 
     batches: list[list[tuple[int, int, int]]] = []
     current: list[tuple[int, int, int]] = []

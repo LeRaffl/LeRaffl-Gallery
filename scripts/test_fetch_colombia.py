@@ -140,6 +140,68 @@ def test_extract_series_batches_on_reset():
     assert b[0][0] == (2025, 1, 20000) and b[1][1] == (2025, 2, 966)
 
 
+# Verbatim shape of the Jul-2026 bulletin's BEV chart as pdftotext -layout
+# renders it: axis ticks first, YTD totals at column ~11 with their
+# "(Ene-jul YYYY)" caption, chart-title fragments far right, and two bars
+# (mar-25, jul-26) whose value sits six lines below the label.
+BEV_CHART_2026 = (
+    "\f                                        0\n"
+    "                                            1.000\n"
+    "                                                    2.000\n"
+    "                               ene-24        217\n"
+    "                               feb-24         395\n"
+    "           3.178\n"
+    "                                                                             Vehículos Nuevos\n"
+    "       (Ene-jul 2024)\n"
+    "                               mar-24         380\n"
+    "                               feb-25                       1.095\n"
+    "                               mar-25\n"
+    "                                                                    eléctricos en unidades\n"
+    "\n"
+    "\n"
+    "\n"
+    "\n"
+    "                                                               1.385\n"
+    "                               abr-25                         1.286\n"
+    "           29.347\n"
+    "                               may-26                                    5.001\n"
+    "        (Ene-jul 2026)\n"
+    "                               jun-26                                    4.935\n"
+    "                                jul-26\n"
+    "Variación acumulada : 231,2%\n"
+    "\n"
+    "\n"
+    "\n"
+    "\n"
+    "                                                                          4.870\n"
+    "\f                                        0\n"
+    "                              ene-24                        1.997\n"
+)
+
+
+def test_extract_series_value_below_label():
+    b = fc.extract_series(BEV_CHART_2026)
+    assert len(b) == 2, b
+    bev = dict(((y, m), v) for y, m, v in b[0])
+    assert bev[(2024, 1)] == 217 and bev[(2024, 3)] == 380
+    assert bev[(2025, 3)] == 1385, bev          # value 6 lines below the label
+    assert bev[(2026, 7)] == 4870, bev          # newest month, value after the "%" line
+    assert bev[(2026, 5)] == 5001 and bev[(2026, 6)] == 4935
+    assert 3178 not in bev.values() and 29347 not in bev.values()  # YTD totals stay out
+    assert b[1] == [(2024, 1, 1997)]            # page break starts the next chart
+
+
+def test_extract_series_orphan_is_left_out():
+    text = (
+        "                               jun-26        4.935\n"
+        "                                jul-26\n"
+        "Variación acumulada : 231,2%\n"
+        "                               ene-24        1.997\n"   # next label -> stop looking
+    )
+    b = fc.extract_series(text)
+    assert b == [[(2026, 6, 4935)], [(2024, 1, 1997)]], b
+
+
 def main() -> None:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
