@@ -23,7 +23,7 @@ hev_split: true
 scope_note: Whole = voitures particulières neuves (EU M1) — SUVs included; pickups, vans (N1), trucks (N2/N3) and buses (M2/M3) are separate categories (future variants).
 caveats:
   - Raw (non-seasonally-adjusted) counts. The SDES/Insee CVS-CJO headline is seasonally & working-day adjusted and reads lower (e.g. June 2026 188 482 brut vs 142 100 CVS-CJO) — compare only against other raw figures.
-  - vs the former ACEA rows there is a one-time per-fuel definitional step (HEV −3% / PETROL +3.5% / OTHERS +12%) — SDES counts 48V mild-hybrids as pure petrol (not HEV) and its "Gaz & ND" carries a not-yet-coded bucket. Headline BEV share moves ≤ 0.4 pp.
+  - vs the former ACEA rows there is a one-time per-fuel definitional step (HEV −3% / PETROL +3.5% / OTHERS +12%) — SDES counts 48V mild-hybrids as pure petrol (not HEV) and its "Gaz & ND" carries a not-yet-coded bucket. The headline BEV share is essentially unchanged vs ACEA — a few tenths of a pp with no consistent direction (see §3g).
   - The média download id rotates each publication; the fetcher resolves the current file from the landing page.
 backfill: Full énergie split monthly back to 2011-01 (the former ACEA series was BEV/PHEV-only and quarterly-interpolated before ~2025). Previous series parked as data/France_legacy.csv.
 fetcher: scripts/fetch_france.py
@@ -208,6 +208,49 @@ hundred units/yr); **GPL / GNV (gaz)** → OTHERS; **MHEV (mild hybrid)** → fo
 into PETROL/DIESEL (ICE) by everyone here, never its own line; **EREV** → not
 separately reported in France.
 
+### 3g. Is the BEV share the same as ACEA, higher, or lower? (the plain answer)
+
+**Short answer: the same.** Moving France to SDES does **not** move the BEV share
+in any meaningful way, and it is **not** a change in EV adoption. Do **not** say
+"SDES is higher" — that was one cherry-picked month.
+
+Month by month the SDES BEV % differs from the old ACEA number by only a few
+tenths of a percentage point, and **the difference has no consistent direction** —
+some months a hair higher, some a hair lower:
+
+| About the SDES-vs-ACEA BEV share | |
+|---|---|
+| Typical difference | a few tenths of a pp (at most ~0.7 pp, ever) |
+| Direction | **none** — it flips both ways month to month |
+| Average (2024→, real ACEA months) | **−0.11 pp** — SDES a hair *lower* on average |
+| Examples | 2026-06: 29.90 % (SDES) vs 29.58 % (ACEA) = **+0.32** · 2025-12: 23.75 vs 24.41 = **−0.66** · 2026-01: 27.66 vs 28.28 = **−0.62** |
+
+So the honest description is **"basically identical, if anything a touch lower."**
+
+**Why is there any difference at all?** Both ACEA and SDES count the *exact same
+thing* — new passenger cars (EU M1) registered in France — from the *same
+registry* (the SIV). Three small, boring reasons make the last decimal wobble:
+
+1. **Different snapshot dates.** Each publisher freezes a month on a different
+   day, and provisional registrations get revised afterwards. Our old ACEA rows
+   and the SDES file were captured months apart, so a few hundred late / revised
+   cars land differently in each.
+2. **Provisional / temporary (WW) plates.** SDES leaves them out; AAA/ACEA keep
+   them — that is the ~0,2 % gap in the monthly *total* (the denominator).
+3. **A pinch of rounding / hydrogen** (a few hundred FCEV sit inside SDES's
+   "Electrique").
+
+Each nudges the numerator (BEV) and the denominator (total) by a few hundred cars
+out of ~150 000, so the percentage shifts by a tenth or two — **randomly up or
+down**, never systematically. That is measurement noise, not a real difference.
+
+**What genuinely DID change — and it is NOT the BEV share:** the split *among the
+non-EV fuels*. SDES counts 48 V mild-hybrids as petrol; ACEA/PFA counted them as
+HEV, so vs the old series **HEV is ~3 % lower and PETROL ~3 % higher** (§3f). That
+reclassification happens **entirely inside the ICE bucket** — BEV, PHEV and total
+ICE are unchanged — so the headline BEV share, and the BEV/PHEV/ICE trajectory the
+model fits, are untouched by it.
+
 ## 4. Technisch — how each product is accessed
 
 | Product | Access | Format | HEV split? | Cadence / lag |
@@ -256,6 +299,11 @@ people-carriers = `Buses`. SUVs are the one people second-guess — they are
   doesn't — you compared our **raw** count to SDES's **CVS-CJO** (seasonally +
   working-day adjusted) headline. Against SDES *données brutes* the gap is
   ~0,15 % (provisional/transit-temporary + cut-off). See §3b/§3c.
+- **"Did the BEV share go up or down vs the old ACEA numbers?"** Neither — it is
+  **essentially the same** (a few tenths of a pp, no consistent direction; SDES a
+  hair *lower* on average). It is *not* a change in EV adoption — just cut-off /
+  provisional-plate noise between two views of the same registry. Full
+  plain-English breakdown: **§3g**.
 - **"Where are the SUVs?"** Inside `Whole`. SUVs/crossovers are M1 passenger
   cars; there is no separate SUV figure to add.
 - **"Where are pickups / trucks / vans?"** Not in `Whole`. Pickups and vans are
@@ -313,8 +361,10 @@ OTHERS ← Gaz & ND             TOTAL ← Total   (asserted == sum of the seven)
 | OTHERS | 7 927 | 7 101 | +11,6 % | SDES "Gaz & ND" carries the not-yet-coded **ND** bucket |
 | **TOTAL** | **188 482** | **188 787** | **−0,2 %** | provisoires/transit-temporaire + cut-off |
 
-Headline impact is negligible: **BEV share moves ≤ ±0,4 pp** on overlap months
-(2026-06: 29,90 % vs 29,58 %). The per-fuel step is a **one-time definitional
+Headline impact is negligible: the BEV **share** is essentially unchanged — a few
+tenths of a pp with **no consistent direction** (SDES a hair *lower* on average;
+the June table above is a single month — see **§3g** for the plain breakdown).
+The per-fuel step is a **one-time definitional
 change** (the Spain/DGT §4b precedent) — documented, not tuned away — and SDES's
 MHEV→petrol treatment is actually *closer* to this project's own MHEV→ICE
 glossary convention than ACEA's is.
