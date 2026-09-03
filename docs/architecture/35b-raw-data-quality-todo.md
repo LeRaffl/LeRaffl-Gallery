@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 51 countries · 5,873 periods drawable · 236 held back · **36 of 51 files cost the chart nothing.**
+**Status:** 51 countries · 6,005 periods drawable · 164 held back · **37 of 51 files cost the chart nothing.**
 
 ---
 
@@ -21,12 +21,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 - [ ] **31 rows whose bands do not add up to `TOTAL`** (worst 2018-01: bands miss TOTAL by +43.6%) · 2018-01, 2018-03…2018-04, 2018-06…2018-07 …
 - [ ] **13 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2017-08…2017-10, 2018-02, 2018-05 …
 → *Symptom:* 4 visible gaps in the chart, 44 months (worst 2018-01…2020-03).
-
-### France  ·  costs 72 periods
-
-- [ ] **65 rows whose bands do not add up to `TOTAL`** (worst 2020-04: bands miss TOTAL by +369.6%) · 2015-01…2017-10, 2018-01…2018-07, 2018-10…2018-11 …
-- [ ] **5 rows in an incomplete cycle** — the coarse figure they carry needs the whole cycle present to be summed back (incomplete 3-month cycle (2 of 3 rows present)) · 2018-08…2018-09, 2018-12, 2019-02 …
-- [ ] **2 rows with an exactly-zero combustion side** — only the EV columns were filled and `TOTAL` computed from them · 2017-11…2017-12
 
 ### Singapore  ·  costs 23 periods
 
@@ -127,11 +121,6 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 - A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `PETROL`, `DIESEL`, `OTHERS`, `TOTAL`** — up to 48 rows, 2018-01…2024-02. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
 - `time_interval` says **quarterly** on 48 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
 
-### France
-
-- A coarse figure is written across finer rows in **`PETROL`, `DIESEL`, `OTHERS`, `TOTAL`** — up to 48 rows, 2015-01…2021-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
-- `time_interval` says **quarterly** on 36 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
-
 ### Germany
 
 - A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`** — up to 26 rows, 2012-01…2014-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
@@ -214,4 +203,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, Georgia, Germany, Greece, Hungary, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
+Albania, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hungary, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
