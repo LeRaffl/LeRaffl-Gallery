@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-03T09:10:13Z",
+ "generated": "2026-09-03T12:34:25Z",
  "today": "2026-09-03",
  "countries": [
   {
@@ -1147,10 +1147,10 @@
   {
    "country": "France",
    "slug": "france",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "SDES — Immatriculations mensuelles de VP neuves par motorisation",
+   "source_url": "https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers",
+   "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
    "latest_period": "2026-06",
    "expected_period": "2026-07",
@@ -1161,8 +1161,6 @@
    "schedule": {
     "enabled": true,
     "days": [
-     16,
-     17,
      18,
      19,
      20,
@@ -1193,17 +1191,17 @@
      12
     ],
     "times": [
-     "08:40"
+     "07:40"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-07-23",
+   "last_render": "2026-09-02",
    "variants": [
     {
      "name": "Whole",
      "latest": "2026-06",
-     "first": "2015-01",
-     "rows": 138,
+     "first": "2011-01",
+     "rows": 186,
      "cadence": "monthly",
      "in_repo": true
     }

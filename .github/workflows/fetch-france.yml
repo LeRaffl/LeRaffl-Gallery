@@ -1,0 +1,73 @@
+name: Fetch France data (SDES motorisations)
+
+# Downloads the SDES "Immatriculations mensuelles de voitures neuves par
+# motorisation" workbook (série VP neuves par énergie) and upserts
+# data/France.csv (variant Whole). SDES is the registry-statistics branch of
+# the same SIV that ACEA/PFA sit on; the detailed série keeps a real HEV column
+# and the full énergie split back to 2011. Mapping, quirks and the ACEA
+# reconciliation: scripts/fetch_france.py and docs/architecture/36-source-france.md.
+#
+# The média download id rotates every publication, so the fetcher resolves the
+# current link from the SDES landing page. That resolution is validated HERE in
+# CI — the Claude sandbox egress denies every French host, so it could not be
+# tested at authoring time. Pass `url` on a manual run to override the scrape.
+# When data/France.csv changes, the Whole variant renders via render-country.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Optional exact média .xlsx URL (overrides landing-page resolution)'
+        required: false
+        type: string
+  schedule:
+    # Daily 18th–end of month at 07:40 UTC. SDES publishes the previous month's
+    # detailed série ~3–4 weeks after month-end (around ACEA's timing); poll
+    # until the new row lands, then no diff = no commit = no render. 07:40 keeps
+    # clear of fetch-denmark (05:15), fetch-netherlands/spain (06:30) and
+    # fetch-acea (08:00 / 03:17).
+    - cron: '40 7 18-31 * *'
+
+jobs:
+  fetch:
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch & update France CSV
+        run: |
+          python scripts/fetch_france.py ${URL:+--url "$URL"}
+        env:
+          URL: ${{ inputs.url }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data/France.csv
+          message: 'chore: update France data from SDES (motorisations série VP)'
+          default_author: github_actions
+
+  # Render the Whole chart + refit params.csv/weights.csv when the CSV changed
+  # (the fetch-denmark.yml / fetch-spain.yml pattern, single variant).
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: France
+      variant: Whole
+    secrets: inherit

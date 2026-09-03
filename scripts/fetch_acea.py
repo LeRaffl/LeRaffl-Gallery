@@ -77,16 +77,16 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece,
+    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, Greece,
     Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
     Luxembourg, Norway, Switzerland
 
-Denmark, Finland, Netherlands, Poland, Spain and Sweden appear on ACEA's PDF
-but are intentionally out of scope here — the maintainer pulls those from
-national databases/registries that also carry variants ACEA doesn't expose
+Denmark, Finland, France, Netherlands, Poland, Spain and Sweden appear on
+ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
+from national databases/registries that also carry variants ACEA doesn't expose
 (Private / Industry / Used / HDV / Vans / Buses). Poland comes from PZPM's
 CEP-based eRegistrations workbook (scripts/fetch_poland.py), the upstream
 source behind ACEA's Poland numbers, additionally carrying Vans/HDV/Buses.
@@ -94,7 +94,12 @@ Spain comes from DGT matriculaciones microdata (scripts/fetch_spain.py),
 which is registry-direct, publishes weeks before ACEA, and carries
 Rental/NonRental/Used/Vans/HDV/Buses/2-Wheelers; ACEA must not write Spain
 at all so the two definitions never mix in one series (see
-docs/architecture/28-source-spain.md §4). Sweden additionally has a
+docs/architecture/28-source-spain.md §4). France comes from the SDES
+motorisations série (scripts/fetch_france.py) — the registry-statistics branch
+of the same SIV behind the ACEA/PFA number — carrying the full énergie split
+incl. a real HEV column back to 2011, and (later) the VP/VUL/PL/TCP variants;
+ACEA must not write France so the ACEA and SDES definitions never mix (see
+docs/architecture/36-source-france.md). Sweden additionally has a
 non-standard CSV schema (FLEXFUEL column).
 
 For the prior-year correction (e.g. the March 2025 column of a March 2026
@@ -124,19 +129,22 @@ import requests
 
 ALWAYS_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "France", "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
+    "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
     "Luxembourg", "Norway", "Switzerland",
 ]
-# Intentionally NOT in scope: Denmark, Finland, Netherlands, Poland, Spain,
-# Sweden. The maintainer pulls those from national databases/registries that
-# also carry variants ACEA doesn't expose (Private / Industry / Used / HDV /
+# Intentionally NOT in scope: Denmark, Finland, France, Netherlands, Poland,
+# Spain, Sweden. The maintainer pulls those from national databases/registries
+# that also carry variants ACEA doesn't expose (Private / Industry / Used / HDV /
 # Vans / Buses), so the national pipeline is the preferred source and ACEA
 # would only muddy the water.
 # Poland: PZPM eRegistrations (scripts/fetch_poland.py) — the CEP-based upstream
 # behind ACEA's Poland numbers.
+# France: SDES motorisations série (scripts/fetch_france.py) — the registry-
+# statistics branch of the same SIV behind ACEA/PFA; full énergie split incl. a
+# real HEV column back to 2011 (see docs/architecture/36-source-france.md).
 # Spain: DGT matriculaciones microdata (scripts/fetch_spain.py) — registry-
 # direct, canonical, published weeks before ACEA. Removed from ACEA entirely
 # so an ACEA-sourced (ANFAC-defined) row can never land in the DGT series;
