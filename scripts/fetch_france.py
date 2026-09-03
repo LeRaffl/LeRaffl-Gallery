@@ -75,6 +75,7 @@ import csv
 import io
 import re
 import sys
+from html import unescape
 from pathlib import Path
 
 import requests
@@ -91,9 +92,14 @@ LANDING_PAGE = (
     "https://www.statistiques.developpement-durable.gouv.fr/"
     "immatriculation-des-vehicules-routiers"
 )
-# Anchor whose download filename identifies the "VP neuves par énergie" série.
-FILE_STEM_RE = re.compile(r"serie_vp_neuves_par_energie", re.I)
-MEDIA_RE = re.compile(r"/media/(\d+)/download", re.I)
+# SDES média download URLs are opaque — "/media/<id>/download" carries NO
+# filename — so the série is identified by the human-readable LABEL near the
+# link, not by the href. The média id rotates every publication.
+MEDIA_HREF_RE = re.compile(r'href="([^"]*?/media/(\d+)/download[^"]*)"', re.I)
+_VP_POS = ("particuli",)                         # voitures particulières (VP)
+_ENERGY_POS = ("énergie", "energie", "motorisation")
+_OTHER_NEG = ("utilitaire", "poids lourd", "autobus", "autocar", "deux-roues",
+              "deux roues", "cyclomoteur", "camion")  # the VUL/PL/bus/2-roues séries
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -207,21 +213,65 @@ def parse_workbook(data: bytes) -> list:
     return out
 
 
+def _clean(fragment: str) -> str:
+    """Strip HTML tags + entities from a fragment; collapse whitespace."""
+    return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
+
+
+# Block-level tags used to bound a link's label to its own list item / row /
+# card, so an adjacent série's keywords don't bleed into this link's score.
+# Row-level containers only — NOT <td>/<th>/<span>, so a table row's label cell
+# is kept with its download-link cell while neighbouring rows still don't bleed.
+_BLOCK = re.compile(
+    r"</?(?:li|ul|ol|tr|div|p|h[1-6]|section|article|dl|table|nav)\b[^>]*>", re.I)
+
+
+def _label_for(doc: str, a_start: int, a_end: int) -> str:
+    """The human-readable label of the anchor, bounded to its enclosing block."""
+    left_region = doc[max(0, a_start - 400): a_start]
+    bounds = list(_BLOCK.finditer(left_region))
+    left = (max(0, a_start - 400) + bounds[-1].end()) if bounds else max(0, a_start - 400)
+    tail = doc[a_end: a_end + 200]
+    nb = _BLOCK.search(tail)
+    right = a_end + (nb.start() if nb else 80)
+    return _clean(doc[left:right])
+
+
 def resolve_latest_url(session: requests.Session, page: str) -> str:
-    """Scrape the landing page for the current VP-énergie média download URL."""
+    """Find the current 'VP neuves par énergie' média download URL on the page.
+
+    SDES média URLs carry no filename, so each candidate is scored by the text of
+    its enclosing block (VP + énergie, minus the VUL/PL/bus séries). On failure the
+    error dumps every média link it saw (id + label) so the next fix is one-shot
+    rather than another blind guess.
+    """
     r = session.get(page, timeout=60)
     r.raise_for_status()
-    html = r.text
-    # Prefer an anchor whose href/filename identifies the série; fall back to the
-    # highest média id near the série label.
-    for m in re.finditer(r'href="([^"]*?/media/\d+/download[^"]*)"[^>]*>([^<]*)', html):
-        href, text = m.group(1), m.group(2)
-        if FILE_STEM_RE.search(href) or "par énergie" in _norm(text) or "par energie" in _norm(text):
-            return requests.compat.urljoin(page, href)
-    raise ValueError(
-        f"could not find the VP-énergie média link on {page} — "
-        f"the page layout may have changed (pass --url explicitly)"
-    )
+    doc = r.text
+    cands = []  # (score, media_id, absolute_url, label)
+    for m in MEDIA_HREF_RE.finditer(doc):
+        href, mid = m.group(1), int(m.group(2))
+        label = _label_for(doc, m.start(), m.end())
+        low = label.lower()
+        score = (2 * any(k in low for k in _VP_POS)
+                 + 2 * any(k in low for k in _ENERGY_POS)
+                 + ("neuv" in low)
+                 + ("serie" in low or "série" in low)
+                 - 4 * any(k in low for k in _OTHER_NEG))
+        cands.append((score, mid, requests.compat.urljoin(page, href), label))
+    cands.sort(key=lambda c: (c[0], c[1]), reverse=True)  # best label, then newest id
+    if cands and cands[0][0] >= 3:
+        print(f"[france] resolved média/{cands[0][1]} (score {cands[0][0]}): {cands[0][3][:120]}")
+        return cands[0][2]
+
+    if cands:
+        seen = " || ".join(f"[{s}] media/{mid}: {lab[:90]}" for s, mid, _u, lab in cands[:12])
+        detail = f"{len(cands)} média link(s) found, none scored as the VP-énergie série: {seen}"
+    else:
+        detail = (f"NO /media/<id>/download links in the {len(doc)}-byte page — the download "
+                  f"list is likely JavaScript-rendered (a static endpoint or headless fetch is needed)")
+    raise ValueError(f"could not identify the VP-énergie série link on {page}. {detail}. "
+                     f"Workaround: pass --url with the média URL explicitly.")
 
 
 def fetch_bytes(args, session: requests.Session) -> bytes:
