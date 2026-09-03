@@ -236,40 +236,78 @@ def _clean(fragment: str) -> str:
     return re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", fragment))).strip()
 
 
-# Block-level tags used to bound a link's label to its own list item / row /
-# card, so an adjacent série's keywords don't bleed into this link's score.
-# Row-level containers only — NOT <td>/<th>/<span>, so a table row's label cell
-# is kept with its download-link cell while neighbouring rows still don't bleed.
-_BLOCK = re.compile(
-    r"</?(?:li|ul|ol|tr|div|p|h[1-6]|section|article|dl|table|nav)\b[^>]*>", re.I)
-
-
 def _label_for(doc: str, a_start: int, a_end: int) -> str:
-    """The human-readable label of the anchor, bounded to its enclosing block."""
-    left_region = doc[max(0, a_start - 400): a_start]
-    bounds = list(_BLOCK.finditer(left_region))
-    left = (max(0, a_start - 400) + bounds[-1].end()) if bounds else max(0, a_start - 400)
-    tail = doc[a_end: a_end + 200]
-    nb = _BLOCK.search(tail)
-    right = a_end + (nb.start() if nb else 80)
-    return _clean(doc[left:right])
+    """Descriptive text of a /media/<id>/download reference.
+
+    The id sits INSIDE ``href="/media/<id>/download"``, so the anchor's own tag is
+    not the label. On these Drupal pages each download's title is the text that
+    precedes its button (a heading or field label) and does not run past the
+    previous download link. So bound the window to the gap since the previous
+    /download (capped ~500 chars), start it just after a tag boundary so no
+    partial tag leaks in, and extend the right edge through this anchor's own
+    inner text (to </a>) to catch a "… par énergie" that lives in the link text.
+    """
+    floor = max(0, a_start - 500)
+    prev = doc.rfind("/download", floor, a_start)
+    if prev != -1:                           # start past the PREVIOUS download's
+        pclose = doc.find("</a>", prev, a_start)   # own title, so it can't bleed
+        lo = max(floor, pclose + 4 if pclose != -1 else prev + len("/download"))
+    else:
+        lo = floor
+    gt = doc.find(">", lo, a_start)          # begin after a full tag, not mid-tag
+    if gt != -1:
+        lo = gt + 1
+    close = doc.find("</a>", a_end)          # extend through this link's own text
+    hi = close if (close != -1 and close - a_end < 220) else a_end + 100
+    return _clean(doc[lo:hi])
+
+
+# French month names as they appear in the SDES StatInfo slug (accents stripped
+# by Drupal pathauto: février -> fevrier, août -> aout, décembre -> decembre).
+_MONTHS_FR = ("janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet",
+              "aout", "septembre", "octobre", "novembre", "decembre")
+_STATINFO = "/immatriculations-de-voitures-particulieres-neuves-en-{month}-{year}"
+
+
+def _statinfo_slugs(n: int = 5) -> list:
+    """Recent monthly VP StatInfo page slugs, newest first.
+
+    The detailed "série" workbook (2011 → latest month, one file) is re-attached
+    to each monthly VP publication with a fresh média id, so the newest StatInfo
+    page carries the current série. Start from the previous month (the current
+    month is not published yet) and walk back n months; probe the pathauto "-0"
+    dedup variant as well as the base slug.
+    """
+    today = datetime.date.today()
+    y, m = today.year, today.month
+    slugs = []
+    for _ in range(n):
+        m -= 1
+        if m == 0:
+            m, y = 12, y - 1
+        base = _STATINFO.format(month=_MONTHS_FR[m - 1], year=y)
+        slugs += [base + "-0", base]
+    return slugs
 
 
 def _candidate_pages(page: str) -> list:
-    """The hub plus the per-year data pages that actually carry the média files.
+    """Pages to probe for the current série média link, in priority order.
 
-    The topic hub is a nav page (no attachments); the downloadable séries live on
-    "Données <YYYY> sur les immatriculations des véhicules". Probe the current and
-    previous year so resolution survives the New-Year rollover (the new year's
-    page may not exist yet in January).
+    1. the recent monthly VP StatInfo pages — where the continuous série is
+       re-attached each month (the happy path; probing stops at the first strong
+       match, so normally only the newest existing month is fetched);
+    2. the topic hub as given (a nav page, usually no attachments — cheap safety);
+    3. the per-year "Données <YYYY>" pages (annual tables; a last-resort fallback,
+       current + previous year to survive the New-Year rollover).
     """
     year = datetime.date.today().year
-    pages = [page]
+    seen, pages = set(), []
+    for path in _statinfo_slugs():
+        pages.append(requests.compat.urljoin(page, path))
+    pages.append(page)
     for y in (year, year - 1):
-        u = requests.compat.urljoin(page, _YEAR_PAGE.format(year=y))
-        if u not in pages:
-            pages.append(u)
-    return pages
+        pages.append(requests.compat.urljoin(page, _YEAR_PAGE.format(year=y)))
+    return [p for p in pages if not (p in seen or seen.add(p))]
 
 
 def _score_label(label: str) -> int:
@@ -310,7 +348,8 @@ def _scan_page(session: requests.Session, url: str) -> dict:
     for m in MEDIA_RE.finditer(doc):
         mid = int(m.group(1))
         label = _label_for(doc, m.start(), m.end())
-        cand = (_score_label(label), label, _eligible(label))
+        raw = re.sub(r"\s+", " ", doc[max(0, m.start() - 180): m.end() + 120])
+        cand = (_score_label(label), label, _eligible(label), raw)
         if mid not in best or cand[0] > best[mid][0]:
             best[mid] = cand
     return {
@@ -323,20 +362,24 @@ def _scan_page(session: requests.Session, url: str) -> dict:
 def resolve_latest_url(session: requests.Session, page: str) -> str:
     """Resolve the current 'VP neuves par énergie' série média URL.
 
-    Probes the hub and the per-year data pages; among every /media/<id>/download
-    found, picks the one whose enclosing-block label reads as the VP-énergie série
-    (VP + énergie, not the VUL/PL/bus/occasion séries), newest id winning ties. On
-    failure the error dumps, per page, what was found (média ids + labels) and the
-    page's structural markers, so the next fix is one-shot rather than a blind guess.
+    Probes the recent monthly StatInfo pages (then the hub and per-year pages);
+    among every /media/<id>/download found, picks the one whose surrounding label
+    reads as the VP-énergie série (VP + énergie, not the VUL/PL/bus/occasion
+    séries), newest id winning ties, and stops early on a strong match. On failure
+    the error dumps, per page, what was found (média ids + labels + raw markup) and
+    the page's structural markers, so the next fix is one-shot, not a blind guess.
     """
-    scans = [_scan_page(session, u) for u in _candidate_pages(page)]
-    winner = None  # (eligible, score, media_id, url, label)
-    for sc in scans:
-        for mid, (score, label, elig) in sc.get("media", {}).items():
+    scans, winner = [], None  # winner: (eligible, score, media_id, url, label)
+    for u in _candidate_pages(page):
+        sc = _scan_page(session, u)
+        scans.append(sc)
+        for mid, (score, label, elig, _raw) in sc.get("media", {}).items():
             url = requests.compat.urljoin(sc["url"], f"/media/{mid}/download")
             cand = (elig, score, mid, url, label)
             if winner is None or cand[:3] > winner[:3]:
                 winner = cand
+        if winner and winner[0] and winner[1] >= 5:  # strong match — stop probing
+            break
     if winner and winner[0] and winner[1] >= 3:
         print(f"[france] resolved {winner[3]} (score {winner[1]}): {winner[4][:120]}")
         return winner[3]
@@ -350,10 +393,11 @@ def resolve_latest_url(session: requests.Session, page: str) -> str:
         mk = " ".join(f"{k}={v}" for k, v in sc["markers"].items() if v)
         lines.append(f"  {sc['url']} [{sc['bytes']}B, {len(sc['media'])} média id(s)]  "
                      f"markers: {mk or 'none'}")
-        for mid, (score, label, elig) in sorted(sc["media"].items(),
-                                                 key=lambda kv: -kv[1][0])[:6]:
+        for mid, (score, label, elig, raw) in sorted(sc["media"].items(),
+                                                      key=lambda kv: -kv[1][0])[:10]:
             lines.append(f"      [{score}{'*' if elig else ' '}] media/{mid}: {label[:90]}")
-        if sc["scripts"]:
+            lines.append(f"          raw: …{raw[:200]}…")
+        if not sc["media"] and sc["scripts"]:
             lines.append(f"      scripts: {', '.join(s[:70] for s in sc['scripts'])}")
     raise ValueError("could not identify the VP-énergie série média link.\n"
                      + "\n".join(lines)
