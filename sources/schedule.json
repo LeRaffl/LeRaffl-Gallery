@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-02T08:59:48Z",
- "today": "2026-09-02",
+ "generated": "2026-09-03T09:10:13Z",
+ "today": "2026-09-03",
  "countries": [
   {
    "country": "Albania",
@@ -3129,11 +3129,11 @@
    "source_url": "https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/",
    "cadence_text": "daily cron, 1st–15th, 05:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3173,13 +3173,13 @@
     ],
     "workflow": ".github/workflows/fetch-sweden.yml"
    },
-   "last_render": "2026-08-04",
+   "last_render": "2026-09-02",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2006-01",
-     "rows": 247,
+     "rows": 248,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3266,11 +3266,11 @@
    "source_url": "https://aiu.thaiauto.or.th/",
    "cadence_text": "daily 04:40 UTC, 1st–20th of the month",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-08",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3315,37 +3315,37 @@
     ],
     "workflow": ".github/workflows/fetch-thailand.yml"
    },
-   "last_render": "2026-08-01",
+   "last_render": "2026-09-02",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 103,
      "cadence": "monthly",
      "in_repo": true
     }
