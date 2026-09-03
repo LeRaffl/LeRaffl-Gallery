@@ -62,16 +62,18 @@ Usage
     python scripts/fetch_france.py                       # resolve latest, then fetch
     #   optional: --out data/France.csv (default) · --dry-run · --page <hub url>
 
-The live download resolves the current `media/<id>/download` by scraping the
-SDES landing page (the id rotates every publication). That resolution is the
-one part that cannot be tested from the Claude sandbox (egress to every French
-host is policy-denied) — it must be validated from GitHub Actions. The parser
+The live download resolves the current `media/<id>/download` by probing the SDES
+hub and the per-year "Données <YYYY>" pages (the id rotates every publication)
+and scoring each média link by its label. That resolution is the one part that
+cannot be tested from the Claude sandbox (egress to every French host is
+policy-denied) — it is validated from GitHub Actions, and on failure the error
+dumps a per-page média/marker diagnostic so the next fix is one-shot. The parser
 and the upsert are fully validated locally against the published workbook.
-Invoked by `.github/workflows/fetch-france.yml` (added once the download path
-is confirmed).
+Invoked by `.github/workflows/fetch-france.yml`.
 """
 import argparse
 import csv
+import datetime
 import io
 import re
 import sys
@@ -94,12 +96,28 @@ LANDING_PAGE = (
 )
 # SDES média download URLs are opaque — "/media/<id>/download" carries NO
 # filename — so the série is identified by the human-readable LABEL near the
-# link, not by the href. The média id rotates every publication.
-MEDIA_HREF_RE = re.compile(r'href="([^"]*?/media/(\d+)/download[^"]*)"', re.I)
+# reference, not by the URL, and the média id rotates every publication. We
+# match "/media/<id>/download" in ANY context (tolerating JSON "\/" escaping),
+# so an id sitting in an inline JSON/state blob is found as well as a plain
+# href. The downloads do not live on the topic hub (a nav page with no
+# attachments) but on the per-year "Données <YYYY> sur les immatriculations des
+# véhicules" page, which resolve_latest_url derives from the hub and probes too.
+MEDIA_RE = re.compile(r"media[\\/]+(\d+)[\\/]+download", re.I)
+_YEAR_PAGE = "/donnees-{year}-sur-les-immatriculations-des-vehicules"
 _VP_POS = ("particuli",)                         # voitures particulières (VP)
 _ENERGY_POS = ("énergie", "energie", "motorisation")
-_OTHER_NEG = ("utilitaire", "poids lourd", "autobus", "autocar", "deux-roues",
-              "deux roues", "cyclomoteur", "camion")  # the VUL/PL/bus/2-roues séries
+# Wrong vehicle category or market — never our VP-neuves série (hard reject).
+_CAT_NEG = ("utilitaire", "poids lourd", "autobus", "autocar", "deux-roues",
+            "deux roues", "cyclomoteur", "camion", "occasion")
+# A different breakdown of VP-neuves (by brand, region, CO2 …) — soft penalty.
+_BREAKDOWN_NEG = ("marque", "région", "region", "départ", "depart", "commune",
+                  "co2", "bonus", "malus")
+# Markers that reveal a page's real data structure when no usable média id is
+# found — dumped in the failure diagnostic so the next fix is informed.
+_MARKERS = ("/media/", "download", "télécharg", "telecharg", ".xlsx", "dido",
+            "data.gouv", "application/json", "__nuxt", "__next", "window.__",
+            "data-drupal", "drupal-media")
+_SCRIPT_SRC = re.compile(r'<script[^>]+src="([^"]+)"', re.I)
 
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
@@ -237,41 +255,109 @@ def _label_for(doc: str, a_start: int, a_end: int) -> str:
     return _clean(doc[left:right])
 
 
-def resolve_latest_url(session: requests.Session, page: str) -> str:
-    """Find the current 'VP neuves par énergie' média download URL on the page.
+def _candidate_pages(page: str) -> list:
+    """The hub plus the per-year data pages that actually carry the média files.
 
-    SDES média URLs carry no filename, so each candidate is scored by the text of
-    its enclosing block (VP + énergie, minus the VUL/PL/bus séries). On failure the
-    error dumps every média link it saw (id + label) so the next fix is one-shot
-    rather than another blind guess.
+    The topic hub is a nav page (no attachments); the downloadable séries live on
+    "Données <YYYY> sur les immatriculations des véhicules". Probe the current and
+    previous year so resolution survives the New-Year rollover (the new year's
+    page may not exist yet in January).
     """
-    r = session.get(page, timeout=60)
-    r.raise_for_status()
-    doc = r.text
-    cands = []  # (score, media_id, absolute_url, label)
-    for m in MEDIA_HREF_RE.finditer(doc):
-        href, mid = m.group(1), int(m.group(2))
-        label = _label_for(doc, m.start(), m.end())
-        low = label.lower()
-        score = (2 * any(k in low for k in _VP_POS)
-                 + 2 * any(k in low for k in _ENERGY_POS)
-                 + ("neuv" in low)
-                 + ("serie" in low or "série" in low)
-                 - 4 * any(k in low for k in _OTHER_NEG))
-        cands.append((score, mid, requests.compat.urljoin(page, href), label))
-    cands.sort(key=lambda c: (c[0], c[1]), reverse=True)  # best label, then newest id
-    if cands and cands[0][0] >= 3:
-        print(f"[france] resolved média/{cands[0][1]} (score {cands[0][0]}): {cands[0][3][:120]}")
-        return cands[0][2]
+    year = datetime.date.today().year
+    pages = [page]
+    for y in (year, year - 1):
+        u = requests.compat.urljoin(page, _YEAR_PAGE.format(year=y))
+        if u not in pages:
+            pages.append(u)
+    return pages
 
-    if cands:
-        seen = " || ".join(f"[{s}] media/{mid}: {lab[:90]}" for s, mid, _u, lab in cands[:12])
-        detail = f"{len(cands)} média link(s) found, none scored as the VP-énergie série: {seen}"
-    else:
-        detail = (f"NO /media/<id>/download links in the {len(doc)}-byte page — the download "
-                  f"list is likely JavaScript-rendered (a static endpoint or headless fetch is needed)")
-    raise ValueError(f"could not identify the VP-énergie série link on {page}. {detail}. "
-                     f"Workaround: pass --url with the média URL explicitly.")
+
+def _score_label(label: str) -> int:
+    low = label.lower()
+    return (2 * any(k in low for k in _VP_POS)
+            + 2 * any(k in low for k in _ENERGY_POS)
+            + ("neuv" in low)
+            + ("serie" in low or "série" in low)
+            + ("xlsx" in low)
+            - 2 * any(k in low for k in _BREAKDOWN_NEG))
+
+
+def _eligible(label: str) -> bool:
+    """True only for the VP-énergie série: passenger cars (VP), split by énergie,
+    and not one of the other vehicle categories/markets (VUL/PL/bus/occasion)."""
+    low = label.lower()
+    return (any(k in low for k in _VP_POS)
+            and any(k in low for k in _ENERGY_POS)
+            and not any(k in low for k in _CAT_NEG))
+
+
+def _scan_page(session: requests.Session, url: str) -> dict:
+    """Fetch one page and collect every distinct /media/<id>/download it references.
+
+    Returns a diagnostics dict: byte size, média candidates (id -> best
+    (score, label, eligible)), marker counts and the first script srcs — enough to
+    tell, from a single CI run, whether the série link is present in the HTML or
+    the page is a JS shell that pulls it from elsewhere.
+    """
+    try:
+        r = session.get(url, timeout=60)
+        r.raise_for_status()
+    except Exception as exc:  # noqa: BLE001 - record and try the next candidate
+        return {"url": url, "error": str(exc)}
+    doc = r.text
+    low = doc.lower()
+    best: dict = {}
+    for m in MEDIA_RE.finditer(doc):
+        mid = int(m.group(1))
+        label = _label_for(doc, m.start(), m.end())
+        cand = (_score_label(label), label, _eligible(label))
+        if mid not in best or cand[0] > best[mid][0]:
+            best[mid] = cand
+    return {
+        "url": url, "bytes": len(doc), "media": best,
+        "markers": {k: low.count(k) for k in _MARKERS},
+        "scripts": _SCRIPT_SRC.findall(doc)[:6],
+    }
+
+
+def resolve_latest_url(session: requests.Session, page: str) -> str:
+    """Resolve the current 'VP neuves par énergie' série média URL.
+
+    Probes the hub and the per-year data pages; among every /media/<id>/download
+    found, picks the one whose enclosing-block label reads as the VP-énergie série
+    (VP + énergie, not the VUL/PL/bus/occasion séries), newest id winning ties. On
+    failure the error dumps, per page, what was found (média ids + labels) and the
+    page's structural markers, so the next fix is one-shot rather than a blind guess.
+    """
+    scans = [_scan_page(session, u) for u in _candidate_pages(page)]
+    winner = None  # (eligible, score, media_id, url, label)
+    for sc in scans:
+        for mid, (score, label, elig) in sc.get("media", {}).items():
+            url = requests.compat.urljoin(sc["url"], f"/media/{mid}/download")
+            cand = (elig, score, mid, url, label)
+            if winner is None or cand[:3] > winner[:3]:
+                winner = cand
+    if winner and winner[0] and winner[1] >= 3:
+        print(f"[france] resolved {winner[3]} (score {winner[1]}): {winner[4][:120]}")
+        return winner[3]
+
+    # ---- nothing usable: dump everything one CI run needs to see ----
+    lines = []
+    for sc in scans:
+        if "error" in sc:
+            lines.append(f"  {sc['url']} -> FETCH ERROR: {sc['error']}")
+            continue
+        mk = " ".join(f"{k}={v}" for k, v in sc["markers"].items() if v)
+        lines.append(f"  {sc['url']} [{sc['bytes']}B, {len(sc['media'])} média id(s)]  "
+                     f"markers: {mk or 'none'}")
+        for mid, (score, label, elig) in sorted(sc["media"].items(),
+                                                 key=lambda kv: -kv[1][0])[:6]:
+            lines.append(f"      [{score}{'*' if elig else ' '}] media/{mid}: {label[:90]}")
+        if sc["scripts"]:
+            lines.append(f"      scripts: {', '.join(s[:70] for s in sc['scripts'])}")
+    raise ValueError("could not identify the VP-énergie série média link.\n"
+                     + "\n".join(lines)
+                     + "\nWorkaround: pass --url with the média URL explicitly.")
 
 
 def fetch_bytes(args, session: requests.Session) -> bytes:
