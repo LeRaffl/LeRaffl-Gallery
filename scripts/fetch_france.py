@@ -197,14 +197,8 @@ def _num(x) -> float:
     return 0.0 if x in (None, "") else float(x)
 
 
-def parse_workbook(data: bytes) -> list:
-    """Parse the SDES workbook bytes -> list of canonical row dicts (period asc)."""
-    wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
-    ws = wb.active
-    rows = list(ws.iter_rows(values_only=True))
-    h_idx, header, period_col = _find_header_and_period_col(rows)
-    cols = _resolve_columns(header)
-
+def _rows_to_records(rows: list, h_idx: int, period_col: int, cols: dict) -> list:
+    """Turn the data rows below the header into canonical record dicts."""
     out = []
     for row in rows[h_idx + 1:]:
         m = PERIOD_RE.match(str(row[period_col] if period_col < len(row) else "" or ""))
@@ -234,9 +228,47 @@ def parse_workbook(data: bytes) -> list:
             "TOTAL": total,
             "notes": "",
         })
-    if not out:
-        raise ValueError("no data rows parsed")
     return out
+
+
+def _sheet_preview(rows: list, n: int = 5) -> str:
+    """A compact preview of a sheet's first rows for the failure diagnostic."""
+    out = []
+    for r in rows[:n]:
+        cells = [str(c)[:20] for c in (r or ()) if c not in (None, "")]
+        out.append(" | ".join(cells[:12]) if cells else "(empty)")
+    return " ;; ".join(out)
+
+
+def parse_workbook(data: bytes) -> list:
+    """Parse the SDES workbook bytes -> list of canonical row dicts (period asc).
+
+    The workbook may carry several sheets (one per vehicle category, a cover
+    sheet, …), so scan every sheet and use the first that exposes the motorisation
+    header (a 'Total' column plus the fuel columns). On total failure, dump each
+    sheet's name and first rows so the real layout is visible from one CI run.
+    """
+    wb = load_workbook(io.BytesIO(data), read_only=True, data_only=True)
+    problems = []
+    for ws in wb.worksheets:
+        rows = list(ws.iter_rows(values_only=True))
+        try:
+            h_idx, header, period_col = _find_header_and_period_col(rows)
+            cols = _resolve_columns(header)
+        except ValueError as exc:
+            problems.append(f"  sheet {ws.title!r} ({len(rows)} rows): {exc}\n"
+                            f"    head: {_sheet_preview(rows)}")
+            continue
+        out = _rows_to_records(rows, h_idx, period_col, cols)
+        if out:
+            if len(wb.worksheets) > 1:
+                print(f"[france] parsed sheet {ws.title!r} "
+                      f"(of {len(wb.worksheets)} in the workbook)")
+            return out
+        problems.append(f"  sheet {ws.title!r}: header found but no data rows\n"
+                        f"    head: {_sheet_preview(rows)}")
+    raise ValueError("no sheet matched the SDES motorisation série layout "
+                     "(Total + fuel columns):\n" + "\n".join(problems))
 
 
 def _clean(fragment: str) -> str:
