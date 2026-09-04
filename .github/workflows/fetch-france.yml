@@ -20,6 +20,11 @@ on:
         description: 'Optional exact média .xlsx URL (overrides landing-page resolution)'
         required: false
         type: string
+      diagnose:
+        description: 'Diagnostic: list every média on the StatInfo page (filename + sheets); no write'
+        required: false
+        type: boolean
+        default: false
   schedule:
     # Daily 18th–end of month at 07:40 UTC. SDES publishes the previous month's
     # detailed série ~3–4 weeks after month-end (around ACEA's timing); poll
@@ -49,9 +54,10 @@ jobs:
 
       - name: Fetch & update France CSV
         run: |
-          python scripts/fetch_france.py ${URL:+--url "$URL"}
+          python scripts/fetch_france.py ${DIAGNOSE:+--diagnose} ${URL:+--url "$URL"}
         env:
           URL: ${{ inputs.url }}
+          DIAGNOSE: ${{ inputs.diagnose == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit

@@ -467,6 +467,45 @@ def fetch_bytes(args, session: requests.Session) -> bytes:
     return r.content
 
 
+def diagnose(session: requests.Session, page: str) -> int:
+    """Download every média on the newest StatInfo page and report its identity.
+
+    Which of the page's downloads is the national VP-énergie série cannot be told
+    from the link label alone (the labels are generic and rotate ids), so pull each
+    file and print its Content-Disposition filename plus its sheet names — the file
+    named "…serie_vp_neuves_par_ener…" with a single month-tab sheet is the target.
+    Run via the workflow's `diagnose` input; it never writes the CSV.
+    """
+    for u in _candidate_pages(page):
+        sc = _scan_page(session, u)
+        media = sc.get("media", {})
+        if not media:
+            continue
+        print(f"[diag] {u} — {len(media)} média")
+        for mid in sorted(media):
+            label = media[mid][1]
+            url = requests.compat.urljoin(u, f"/media/{mid}/download")
+            try:
+                r = session.get(url, timeout=120)
+                r.raise_for_status()
+            except Exception as exc:  # noqa: BLE001
+                print(f"[diag]   media/{mid}: DOWNLOAD ERROR {exc}")
+                continue
+            cd = r.headers.get("Content-Disposition", "")
+            line = (f"[diag]   media/{mid} ({len(r.content)}B) label={label[:45]!r} "
+                    f"cd={cd[:120]!r}")
+            try:
+                wb = load_workbook(io.BytesIO(r.content), read_only=True, data_only=True)
+                first = list(wb[wb.sheetnames[0]].iter_rows(values_only=True))[:4]
+                line += f"\n[diag]       sheets={wb.sheetnames[:15]} head0={_sheet_preview(first)}"
+            except Exception as exc:  # noqa: BLE001 - not every média is an xlsx
+                line += f"  [not an xlsx: {exc}]"
+            print(line)
+        return 0
+    print("[diag] no candidate page exposed any média link")
+    return 1
+
+
 def upsert(out_path: Path, new_rows: list, *, dry_run: bool, src_url: str) -> None:
     """Write new_rows into out_path, honouring the ACEA-courtesy rule.
 
@@ -521,11 +560,20 @@ def main(argv=None) -> int:
     ap.add_argument("--page", default=LANDING_PAGE, help="landing page to resolve the média link")
     ap.add_argument("--out", default=str(OUT_DEFAULT), help="output CSV (default data/France.csv)")
     ap.add_argument("--dry-run", action="store_true", help="report changes, do not write")
+    ap.add_argument("--diagnose", action="store_true",
+                    help="download every média on the StatInfo page and report each "
+                         "file's filename + sheets (identify the série link); no write")
     args = ap.parse_args(argv)
 
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0 (LeRaffl-Gallery fetch_france)"})
     fetch_bytes.url = ""
+    if args.diagnose:
+        try:
+            return diagnose(session, args.page)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[france] ERROR: {exc}", file=sys.stderr)
+            return 1
     try:
         data = fetch_bytes(args, session)
         rows = parse_workbook(data)
