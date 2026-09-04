@@ -302,22 +302,26 @@ def _label_for(doc: str, a_start: int, a_end: int) -> str:
     return _clean(doc[lo:hi])
 
 
-# French month names as they appear in the SDES StatInfo slug (accents stripped
-# by Drupal pathauto: février -> fevrier, août -> aout, décembre -> decembre).
+# French month names as they appear in the SDES slug (accents stripped by Drupal
+# pathauto: février -> fevrier, août -> aout, décembre -> decembre).
 _MONTHS_FR = ("janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet",
               "aout", "septembre", "octobre", "novembre", "decembre")
-_STATINFO = "/immatriculations-de-voitures-particulieres-neuves-en-{month}-{year}"
+# The national VP-neuves-par-énergie "série" workbook is the "données" of the
+# monthly "Motorisations des véhicules légers neufs" publication (NOT the
+# "immatriculations-de-voitures-particulieres-neuves-en-…" page, which carries
+# only the regional/annual/methodology files — see docs/architecture/36).
+_MOTOR_PAGE = ("/motorisations-des-vehicules-legers-neufs-emissions-de-co2-"
+               "et-bonus-ecologique-{month}-{year}")
 
 
-def _statinfo_slugs(n: int = 5) -> list:
-    """Recent monthly VP StatInfo page slugs, newest first.
+def _statinfo_slugs(n: int = 6) -> list:
+    """Recent monthly "Motorisations" publication slugs, newest first.
 
-    The detailed "série" workbook (2011 → latest month, one file) is re-attached
-    to each monthly VP publication with a fresh média id, so the newest StatInfo
-    page carries the current série. Start from the previous month (the current
-    month is not published yet) and walk back n months; probe the pathauto "-0"
-    dedup variant as well as the base slug.
-    """
+    The série workbook (2011 → latest month, one file) is re-attached to each
+    monthly Motorisations publication with a fresh média id, so the newest page
+    carries the current série. This publication lags the headline immatriculations
+    note, so walk back n months; probe the base slug and the pathauto "-0" dedup
+    variant. Start one month back (the current month is not published yet)."""
     today = datetime.date.today()
     y, m = today.year, today.month
     slugs = []
@@ -325,8 +329,8 @@ def _statinfo_slugs(n: int = 5) -> list:
         m -= 1
         if m == 0:
             m, y = 12, y - 1
-        base = _STATINFO.format(month=_MONTHS_FR[m - 1], year=y)
-        slugs += [base + "-0", base]
+        base = _MOTOR_PAGE.format(month=_MONTHS_FR[m - 1], year=y)
+        slugs += [base, base + "-0"]
     return slugs
 
 
