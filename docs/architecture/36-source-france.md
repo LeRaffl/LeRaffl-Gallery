@@ -8,7 +8,7 @@ source_url: https://www.statistiques.developpement-durable.gouv.fr/immatriculati
 source_links:
   - label: Landing page (série files)
     url: https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers
-    note: lists the current "voitures particulières neuves par énergie" workbook
+    note: SDES topic landing — the monthly "Motorisations des véhicules légers neufs" publication carries the série workbook
   - label: June 2026 workbook
     url: https://www.statistiques.developpement-durable.gouv.fr/media/9508/download
     note: the média id rotates every publication — the fetcher resolves the current one
@@ -24,7 +24,7 @@ scope_note: Whole = voitures particulières neuves (EU M1) — SUVs included; pi
 caveats:
   - Raw (non-seasonally-adjusted) counts. The SDES/Insee CVS-CJO headline is seasonally & working-day adjusted and reads lower (e.g. June 2026 188 482 brut vs 142 100 CVS-CJO) — compare only against other raw figures.
   - vs the former ACEA rows there is a one-time per-fuel definitional step (HEV −3% / PETROL +3.5% / OTHERS +12%) — SDES counts 48V mild-hybrids as pure petrol (not HEV) and its "Gaz & ND" carries a not-yet-coded bucket. The headline BEV share is essentially unchanged vs ACEA — a few tenths of a pp with no consistent direction (see §3g).
-  - The média download id rotates each publication; the fetcher resolves the current file from the landing page.
+  - The média download id rotates each publication; the fetcher download-and-verifies the current file from the monthly "Motorisations des véhicules légers neufs" publication (the parser is the arbiter, not the link label).
 backfill: Full énergie split monthly back to 2011-01 (the former ACEA series was BEV/PHEV-only and quarterly-interpolated before ~2025). Previous series parked as data/France_legacy.csv.
 fetcher: scripts/fetch_france.py
 workflow: .github/workflows/fetch-france.yml
@@ -456,15 +456,24 @@ separately publishes **PL (N2/N3)** and **TCP (M2/M3)** — so France can gain
 `Vans` / `HDV` / `Buses` natively later (the Spain/Portugal pattern), which the
 ACEA feed cannot provide.
 
-**Download — the one unvalidated part.** The workbook lives at
-`…/media/<id>/download` and the **id rotates every publication** (June = 9508),
-so `fetch_france.py` resolves the current link by scraping the SDES landing page
-[Immatriculation des véhicules routiers](https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers)
-for the `serie_vp_neuves_par_energie` anchor. That scrape **cannot be tested from
-the sandbox** (§8) — it is the single thing to confirm in the first GitHub
-Actions run; `--url` / `--file` overrides exist for manual runs meanwhile. (A
-stable data.gouv/DiDo resource carrying the same detailed split, if one exists,
-would be more robust than scraping a rotating média id — a follow-up to check.)
+**Download — resolved & GHA-validated.** The workbook lives at
+`…/media/<id>/download`; the **id rotates every publication** (June = 9508,
+Aug = 9713) and the link label is generic ("Télécharger les données"), so
+`fetch_france.py` does **not** trust the label. It probes the monthly
+[Motorisations des véhicules légers neufs](https://www.statistiques.developpement-durable.gouv.fr/motorisations-des-vehicules-legers-neufs-emissions-de-co2-et-bonus-ecologique-juillet-2026)
+publication pages (newest first) and **download-and-verifies**: it downloads each
+candidate média (skipping the méthodologie PDF by label) and keeps the first
+workbook that actually **parses** as the motorisation série — the parser is the
+arbiter. This survives id rotation and the several look-alike downloads that
+tripped an earlier label/anchor scrape: the série is *not* on the headline
+`immatriculations-de-voitures-particulieres-neuves-en-…` page (that carries only
+the regional xlsx, an annual `.xls`, a small "complémentaires" CSV and a
+méthodologie PDF) but is the "données" xlsx of this *Motorisations* publication.
+Validated end-to-end from GitHub Actions on 2026-09-04 (resolved `media/9713`,
+appended 2026-07 and 2026-08). `--url` / `--file` overrides remain for manual
+runs, and `--diagnose` lists every média on the page with its filename + sheets.
+(§8: none of this is testable from the sandbox — egress to every French host is
+policy-denied.)
 
 **Done in this PR** (pipeline in §9): `data/France.csv` rewritten as
 `source = SDES` (old series parked as `data/France_legacy.csv`), France removed
@@ -475,10 +484,8 @@ updated.
 **Remaining** (maintainer):
 - **Render + verify on the branch**: dispatch `render-country.yml` (France,
   Whole) → params/weights refit + the four PNGs; check charts and CSV values vs
-  prior months, then merge.
-- **GHA-validate the média-link resolution** on the first scheduled
-  `fetch-france.yml` run (or wire a stable data.gouv/DiDo resource instead of
-  scraping a rotating média id).
+  prior months, then merge. (The `fetch-france.yml` cron already ran green on the
+  branch and appended 2026-07/08 — média-link resolution is confirmed.)
 - **Variants** (`Vans` / `HDV` / `Buses`) — fast-follow once the VUL/PL/TCP
   séries are provided (§9).
 
@@ -504,7 +511,7 @@ Recorded so the next session doesn't rediscover them:
 What the switch wires, end to end:
 
 ```
-SDES landing page ──(resolve rotating média id)──► media/<id>/download (.xlsx)
+Motorisations publication page ──(download-and-verify rotating média id)──► media/<id>/download (.xlsx)
     │  scripts/fetch_france.py  (parse + map + upsert, ACEA-courtesy rule)
     ▼
 data/France.csv  (source=SDES, Whole, 2011-01→latest)
@@ -533,8 +540,9 @@ build-source-pages.yml ──► regenerates sources/france.html from this doc's
 2. Maintainer dispatches `render-country.yml` (country=France, variant=Whole) on
    the branch → params/weights refit + PNGs; checks charts + CSV values against
    prior months.
-3. PR to master; maintainer merges after the check. The first scheduled
-   `fetch-france.yml` run then validates the live média-link resolution (§7).
+3. PR to master; maintainer merges after the check. The live média-link
+   resolution is already GHA-validated (§7) — a branch `fetch-france.yml` run
+   resolved `media/9713` and appended 2026-07/08.
 
 **Bonus variants (fast-follow, NOT in this PR).** SDES publishes the same
 detailed "par énergie" séries for **VUL (N1 → `Vans`)**, **PL (N2/N3 → `HDV`)**
