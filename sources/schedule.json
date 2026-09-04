@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-03T12:34:25Z",
- "today": "2026-09-03",
+ "generated": "2026-09-04T04:26:21Z",
+ "today": "2026-09-04",
  "countries": [
   {
    "country": "Albania",
@@ -1152,11 +1152,11 @@
    "source_url": "https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers",
    "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-08",
    "expected_period": "2026-07",
-   "behind": 1,
-   "behind_now": 2,
-   "status": "due",
+   "behind": -1,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1195,13 +1195,13 @@
     ],
     "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-09-02",
+   "last_render": "2026-09-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2011-01",
-     "rows": 186,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     }
