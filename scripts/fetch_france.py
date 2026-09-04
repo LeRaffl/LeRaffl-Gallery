@@ -106,12 +106,20 @@ MEDIA_RE = re.compile(r"media[\\/]+(\d+)[\\/]+download", re.I)
 _YEAR_PAGE = "/donnees-{year}-sur-les-immatriculations-des-vehicules"
 _VP_POS = ("particuli",)                         # voitures particulières (VP)
 _ENERGY_POS = ("énergie", "energie", "motorisation")
-# Wrong vehicle category or market — never our VP-neuves série (hard reject).
-_CAT_NEG = ("utilitaire", "poids lourd", "autobus", "autocar", "deux-roues",
-            "deux roues", "cyclomoteur", "camion", "occasion")
-# A different breakdown of VP-neuves (by brand, region, CO2 …) — soft penalty.
-_BREAKDOWN_NEG = ("marque", "région", "region", "départ", "depart", "commune",
-                  "co2", "bonus", "malus")
+# On the monthly VP publication the long-series workbook is labelled generically
+# as "…séries mensuelles des immatriculations" — the product name ("VP neuves par
+# énergie") lives only in the downloaded filename — so match that phrase, with the
+# VP context supplied by the page URL (voitures-particulieres-…).
+_SERIES_POS = ("séries mensuelles", "series mensuelles",
+               "série mensuelle", "serie mensuelle")
+# Anything that is NOT the monthly VP-énergie série: other categories/markets, the
+# annual "séries longues … par genre", the complementary/CO2/méthodologie files,
+# and the departmental/regional/marque breakdowns.
+_REJECT = ("utilitaire", "poids lourd", "autobus", "autocar", "deux-roues",
+           "deux roues", "cyclomoteur", "camion", "occasion",
+           "méthodolog", "methodolog", "longues", "annuel", "genre",
+           "complémentaire", "complementaire", "co2", "bonus", "malus",
+           "marque", "région", "region", "départ", "depart", "commune")
 # Markers that reveal a page's real data structure when no usable média id is
 # found — dumped in the failure diagnostic so the next fix is informed.
 _MARKERS = ("/media/", "download", "télécharg", "telecharg", ".xlsx", "dido",
@@ -310,23 +318,32 @@ def _candidate_pages(page: str) -> list:
     return [p for p in pages if not (p in seen or seen.add(p))]
 
 
-def _score_label(label: str) -> int:
-    low = label.lower()
-    return (2 * any(k in low for k in _VP_POS)
-            + 2 * any(k in low for k in _ENERGY_POS)
-            + ("neuv" in low)
-            + ("serie" in low or "série" in low)
-            + ("xlsx" in low)
-            - 2 * any(k in low for k in _BREAKDOWN_NEG))
+def _page_vp(url: str) -> bool:
+    """The page is a voitures-particulières publication — it supplies the VP
+    context for a generically-labelled "séries mensuelles" download."""
+    return "voitures-particulieres" in url.lower()
 
 
-def _eligible(label: str) -> bool:
-    """True only for the VP-énergie série: passenger cars (VP), split by énergie,
-    and not one of the other vehicle categories/markets (VUL/PL/bus/occasion)."""
+def _score_label(label: str, vp_ctx: bool = False) -> int:
     low = label.lower()
-    return (any(k in low for k in _VP_POS)
-            and any(k in low for k in _ENERGY_POS)
-            and not any(k in low for k in _CAT_NEG))
+    vp = vp_ctx or any(k in low for k in _VP_POS)
+    series = any(k in low for k in _SERIES_POS)
+    energy = any(k in low for k in _ENERGY_POS)
+    return (2 * vp + 3 * series + 2 * energy
+            + ("immatriculation" in low)
+            - 6 * any(k in low for k in _REJECT))
+
+
+def _eligible(label: str, vp_ctx: bool = False) -> bool:
+    """The monthly VP-énergie série: passenger-car context (from the label or the
+    page URL), a monthly-series or énergie signal, and none of the reject markers
+    (other categories, the annual/genre séries, méthodologie, CO2, the regional/
+    marque breakdowns)."""
+    low = label.lower()
+    vp = vp_ctx or any(k in low for k in _VP_POS)
+    signal = (any(k in low for k in _SERIES_POS)
+              or any(k in low for k in _ENERGY_POS))
+    return vp and signal and not any(k in low for k in _REJECT)
 
 
 def _scan_page(session: requests.Session, url: str) -> dict:
@@ -344,12 +361,13 @@ def _scan_page(session: requests.Session, url: str) -> dict:
         return {"url": url, "error": str(exc)}
     doc = r.text
     low = doc.lower()
+    vp_ctx = _page_vp(url)
     best: dict = {}
     for m in MEDIA_RE.finditer(doc):
         mid = int(m.group(1))
         label = _label_for(doc, m.start(), m.end())
         raw = re.sub(r"\s+", " ", doc[max(0, m.start() - 180): m.end() + 120])
-        cand = (_score_label(label), label, _eligible(label), raw)
+        cand = (_score_label(label, vp_ctx), label, _eligible(label, vp_ctx), raw)
         if mid not in best or cand[0] > best[mid][0]:
             best[mid] = cand
     return {
@@ -362,12 +380,14 @@ def _scan_page(session: requests.Session, url: str) -> dict:
 def resolve_latest_url(session: requests.Session, page: str) -> str:
     """Resolve the current 'VP neuves par énergie' série média URL.
 
-    Probes the recent monthly StatInfo pages (then the hub and per-year pages);
+    Probes the recent monthly VP StatInfo pages (then the hub and per-year pages);
     among every /media/<id>/download found, picks the one whose surrounding label
-    reads as the VP-énergie série (VP + énergie, not the VUL/PL/bus/occasion
-    séries), newest id winning ties, and stops early on a strong match. On failure
-    the error dumps, per page, what was found (média ids + labels + raw markup) and
-    the page's structural markers, so the next fix is one-shot, not a blind guess.
+    reads as the monthly VP série — "…séries mensuelles des immatriculations" on a
+    voitures-particulières page, or an explicit "…par énergie" — while rejecting
+    the annual/genre, méthodologie, complémentaire and regional/marque files.
+    Newest id wins ties; a strong match stops the probing early. On failure the
+    error dumps, per page, what was found (média ids + labels + raw markup) and the
+    page's structural markers, so the next fix is one-shot, not a blind guess.
     """
     scans, winner = [], None  # winner: (eligible, score, media_id, url, label)
     for u in _candidate_pages(page):
