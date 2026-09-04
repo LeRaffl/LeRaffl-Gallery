@@ -18,7 +18,9 @@ quarterly-interpolated before ~2025.
 
 Source workbook
 ---------------
-`https://www.statistiques.developpement-durable.gouv.fr/media/<id>/download`
+`https://www.statistiques.developpement-durable.gouv.fr/media/<id>/download` — the
+"données" download of the monthly "Motorisations des véhicules légers neufs"
+publication (filename `…donnees_motorisations_serie_vp_neuves_par_ener_YYYY_MM`).
 One .xlsx, one sheet, a monthly time series from 2011_01. Columns (row 3):
 
     Gazole (thermique) | Essence (thermique) |
@@ -60,15 +62,18 @@ Usage
     python scripts/fetch_france.py --file <local.xlsx>   # parse a local workbook
     python scripts/fetch_france.py --url  <media url>    # download one workbook
     python scripts/fetch_france.py                       # resolve latest, then fetch
+    python scripts/fetch_france.py --diagnose            # list a page's média (debug)
     #   optional: --out data/France.csv (default) · --dry-run · --page <hub url>
 
-The live download resolves the current `media/<id>/download` by probing the SDES
-hub and the per-year "Données <YYYY>" pages (the id rotates every publication)
-and scoring each média link by its label. That resolution is the one part that
-cannot be tested from the Claude sandbox (egress to every French host is
+The live download resolves the current `media/<id>/download` by probing the recent
+monthly "Motorisations des véhicules légers neufs" publications (the id rotates
+every publication and the link label is generic) and **download-and-verifying**:
+each candidate média is downloaded and the first workbook that actually parses as
+the motorisation série wins — the parser is the arbiter, not the label. That
+resolution cannot be tested from the Claude sandbox (egress to every French host is
 policy-denied) — it is validated from GitHub Actions, and on failure the error
-dumps a per-page média/marker diagnostic so the next fix is one-shot. The parser
-and the upsert are fully validated locally against the published workbook.
+dumps each page's média + raw markup so the next fix is one-shot. The parser and
+the upsert are fully validated locally against the published workbook.
 Invoked by `.github/workflows/fetch-france.yml`.
 """
 import argparse
@@ -469,13 +474,14 @@ def resolve_and_parse(session: requests.Session, page: str):
 
 
 def diagnose(session: requests.Session, page: str) -> int:
-    """Download every média on the newest StatInfo page and report its identity.
+    """Download every média on the first candidate page that has any, and report
+    each file's identity.
 
-    Which of the page's downloads is the national VP-énergie série cannot be told
-    from the link label alone (the labels are generic and rotate ids), so pull each
-    file and print its Content-Disposition filename plus its sheet names — the file
-    named "…serie_vp_neuves_par_ener…" with a single month-tab sheet is the target.
-    Run via the workflow's `diagnose` input; it never writes the CSV.
+    Which of a page's downloads is the national VP-énergie série cannot be told from
+    the link label alone (labels are generic and ids rotate), so pull each file and
+    print its Content-Disposition filename plus its sheet names — the file named
+    "…serie_vp_neuves_par_ener…" with a single month-tab sheet is the target. Run
+    via the workflow's `diagnose` input; it never writes the CSV.
     """
     for u in _candidate_pages(page):
         sc = _scan_page(session, u)
@@ -562,8 +568,8 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=str(OUT_DEFAULT), help="output CSV (default data/France.csv)")
     ap.add_argument("--dry-run", action="store_true", help="report changes, do not write")
     ap.add_argument("--diagnose", action="store_true",
-                    help="download every média on the StatInfo page and report each "
-                         "file's filename + sheets (identify the série link); no write")
+                    help="download every média on the first candidate page with any, "
+                         "and report each file's filename + sheets (debug); no write")
     args = ap.parse_args(argv)
 
     session = requests.Session()
