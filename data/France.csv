@@ -184,4 +184,6 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-03,monthly,Whole,SDES,49735.0,8216.0,81005.0,26213.0,4533.0,7013.0,176715.0,
 2026-04,monthly,Whole,SDES,36542.0,8420.0,62194.0,22984.0,3801.0,5676.0,139617.0,
 2026-05,monthly,Whole,SDES,37849.0,7714.0,53987.0,19656.0,3181.0,6358.0,128745.0,
-2026-06,monthly,Whole,SDES,56357.0,12434.0,77398.0,29809.0,4557.0,7927.0,188482.0,https://www.statistiques.developpement-durable.gouv.fr/media/9508/download
+2026-06,monthly,Whole,SDES,56357.0,12434.0,77398.0,29809.0,4557.0,7927.0,188482.0,
+2026-07,monthly,Whole,SDES,44831.0,7634.0,52001.0,14964.0,2569.0,5790.0,127789.0,
+2026-08,monthly,Whole,SDES,36594.0,6005.0,35752.0,11765.0,1790.0,3865.0,95771.0,https://www.statistiques.developpement-durable.gouv.fr/media/9713/download
