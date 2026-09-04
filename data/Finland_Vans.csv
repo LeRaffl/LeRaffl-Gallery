@@ -150,3 +150,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-05,monthly,Vans,pxdata.stat.fi (StatFin 121d),143.0,33.0,,7.0,780.0,,0.0,963.0,
 2026-06,monthly,Vans,pxdata.stat.fi (StatFin 121d),168.0,23.0,,4.0,705.0,,0.0,900.0,
 2026-07,monthly,Vans,pxdata.stat.fi (StatFin 121d),93.0,25.0,,4.0,357.0,,0.0,479.0,
+2026-08,monthly,Vans,pxdata.stat.fi (StatFin 121d),141.0,36.0,,6.0,475.0,,0.0,658.0,
