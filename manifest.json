@@ -53,11 +53,31 @@
     },
     {
       "country": "Germany",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "germany_ICE_BEV_20260904.png",
+      "url": "images/2026-08/germany_ICE_BEV_20260904.png",
+      "alt": "Germany ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "share",
       "period": "2026-07",
       "date": "2026-09-04",
       "filename": "germany_20260904.png",
       "url": "images/2026-07/germany_20260904.png",
+      "alt": "Germany BEV trajectory",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "germany_20260904.png",
+      "url": "images/2026-08/germany_20260904.png",
       "alt": "Germany BEV trajectory",
       "country_slug": "germany"
     },
@@ -73,6 +93,16 @@
     },
     {
       "country": "Germany",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "germany_time_20260904.png",
+      "url": "images/2026-08/germany_time_20260904.png",
+      "alt": "Germany Transition time curve",
+      "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-09-04",
@@ -80,6 +110,56 @@
       "url": "images/2026-07/germany_ttm_shares_20260904.png",
       "alt": "Germany TTM market split graph",
       "country_slug": "germany"
+    },
+    {
+      "country": "Germany",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "germany_ttm_shares_20260904.png",
+      "url": "images/2026-08/germany_ttm_shares_20260904.png",
+      "alt": "Germany TTM market split graph",
+      "country_slug": "germany"
+    },
+    {
+      "country": "UK",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "uk_ICE_BEV_20260904.png",
+      "url": "images/2026-08/uk_ICE_BEV_20260904.png",
+      "alt": "UK ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "uk_20260904.png",
+      "url": "images/2026-08/uk_20260904.png",
+      "alt": "UK BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "uk_time_20260904.png",
+      "url": "images/2026-08/uk_time_20260904.png",
+      "alt": "UK Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "uk_ttm_shares_20260904.png",
+      "url": "images/2026-08/uk_ttm_shares_20260904.png",
+      "alt": "UK TTM market split graph",
+      "country_slug": "uk"
     },
     {
       "country": "Colombia",
