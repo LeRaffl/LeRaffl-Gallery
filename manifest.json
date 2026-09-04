@@ -162,6 +162,46 @@
       "country_slug": "finland_private"
     },
     {
+      "country": "Finland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "finland_vans_ICE_BEV_20260904.png",
+      "url": "images/2026-08/finland_vans_ICE_BEV_20260904.png",
+      "alt": "Finland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "finland_vans_20260904.png",
+      "url": "images/2026-08/finland_vans_20260904.png",
+      "alt": "Finland (Vans) BEV trajectory",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "finland_vans_time_20260904.png",
+      "url": "images/2026-08/finland_vans_time_20260904.png",
+      "alt": "Finland (Vans) Transition time curve",
+      "country_slug": "finland_vans"
+    },
+    {
+      "country": "Finland (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-04",
+      "filename": "finland_vans_ttm_shares_20260904.png",
+      "url": "images/2026-08/finland_vans_ttm_shares_20260904.png",
+      "alt": "Finland (Vans) TTM market split graph",
+      "country_slug": "finland_vans"
+    },
+    {
       "country": "France",
       "type": "ICE_BEV",
       "period": "2026-08",
