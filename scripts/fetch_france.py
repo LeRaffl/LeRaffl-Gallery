@@ -95,13 +95,11 @@ LANDING_PAGE = (
     "immatriculation-des-vehicules-routiers"
 )
 # SDES média download URLs are opaque — "/media/<id>/download" carries NO
-# filename — so the série is identified by the human-readable LABEL near the
-# reference, not by the URL, and the média id rotates every publication. We
-# match "/media/<id>/download" in ANY context (tolerating JSON "\/" escaping),
-# so an id sitting in an inline JSON/state blob is found as well as a plain
-# href. The downloads do not live on the topic hub (a nav page with no
-# attachments) but on the per-year "Données <YYYY> sur les immatriculations des
-# véhicules" page, which resolve_latest_url derives from the hub and probes too.
+# filename — and the média id rotates every publication, so the série is found
+# by probing the monthly "Motorisations" publication page and download-and-
+# verifying its 'données' xlsx (labels are generic; the parser is the arbiter).
+# Match "/media/<id>/download" in ANY context (tolerating JSON "\/" escaping),
+# so an id in an inline JSON/state blob is found as well as a plain href.
 MEDIA_RE = re.compile(r"media[\\/]+(\d+)[\\/]+download", re.I)
 _YEAR_PAGE = "/donnees-{year}-sur-les-immatriculations-des-vehicules"
 _VP_POS = ("particuli",)                         # voitures particulières (VP)
@@ -335,14 +333,15 @@ def _statinfo_slugs(n: int = 6) -> list:
 
 
 def _candidate_pages(page: str) -> list:
-    """Pages to probe for the current série média link, in priority order.
+    """Pages to probe for the current série, in priority order.
 
-    1. the recent monthly VP StatInfo pages — where the continuous série is
-       re-attached each month (the happy path; probing stops at the first strong
-       match, so normally only the newest existing month is fetched);
+    1. the recent monthly "Motorisations des véhicules légers neufs" publications —
+       where the continuous série is re-attached each month (the happy path;
+       download-and-verify stops at the first month whose xlsx parses, so normally
+       only the newest existing month is fetched);
     2. the topic hub as given (a nav page, usually no attachments — cheap safety);
-    3. the per-year "Données <YYYY>" pages (annual tables; a last-resort fallback,
-       current + previous year to survive the New-Year rollover).
+    3. the per-year "Données <YYYY>" pages (a last-resort fallback, current +
+       previous year to survive the New-Year rollover).
     """
     year = datetime.date.today().year
     seen, pages = set(), []
@@ -354,41 +353,38 @@ def _candidate_pages(page: str) -> list:
     return [p for p in pages if not (p in seen or seen.add(p))]
 
 
-def _page_vp(url: str) -> bool:
-    """The page is a voitures-particulières publication — it supplies the VP
-    context for a generically-labelled "séries mensuelles" download."""
-    return "voitures-particulieres" in url.lower()
+def _page_motor(url: str) -> bool:
+    """The monthly 'Motorisations des véhicules légers neufs' publication — the page
+    that carries the national VP-neuves-par-énergie série as its 'données' xlsx."""
+    return "motorisations-des-vehicules-legers" in url.lower()
 
 
-def _score_label(label: str, vp_ctx: bool = False) -> int:
+_REJECT_SCORE = -100  # a média whose label is a known non-série (méthodo, annual …)
+
+
+def _score_label(label: str, url: str) -> int:
+    """Rank a média by how likely it is the VP-énergie série. A rejected label gets
+    a strongly-negative sentinel so download-and-verify skips it (no wasted PDF
+    downloads); the workbook parser is the final arbiter of what actually survives.
+    """
     low = label.lower()
-    vp = vp_ctx or any(k in low for k in _VP_POS)
-    series = any(k in low for k in _SERIES_POS)
-    energy = any(k in low for k in _ENERGY_POS)
-    return (2 * vp + 3 * series + 2 * energy
-            + ("immatriculation" in low)
-            - 6 * any(k in low for k in _REJECT))
-
-
-def _eligible(label: str, vp_ctx: bool = False) -> bool:
-    """The monthly VP-énergie série: passenger-car context (from the label or the
-    page URL), a monthly-series or énergie signal, and none of the reject markers
-    (other categories, the annual/genre séries, méthodologie, CO2, the regional/
-    marque breakdowns)."""
-    low = label.lower()
-    vp = vp_ctx or any(k in low for k in _VP_POS)
-    signal = (any(k in low for k in _SERIES_POS)
-              or any(k in low for k in _ENERGY_POS))
-    return vp and signal and not any(k in low for k in _REJECT)
+    if any(k in low for k in _REJECT):
+        return _REJECT_SCORE
+    score = 2 * any(k in low for k in _VP_POS)
+    score += 3 * any(k in low for k in _SERIES_POS)
+    score += 2 * any(k in low for k in _ENERGY_POS)
+    score += ("immatriculation" in low)
+    if _page_motor(url) and ("donn" in low or "xls" in low):
+        score += 4          # the sole data ('données') download on the Motorisations page
+    return score
 
 
 def _scan_page(session: requests.Session, url: str) -> dict:
     """Fetch one page and collect every distinct /media/<id>/download it references.
 
-    Returns a diagnostics dict: byte size, média candidates (id -> best
-    (score, label, eligible)), marker counts and the first script srcs — enough to
-    tell, from a single CI run, whether the série link is present in the HTML or
-    the page is a JS shell that pulls it from elsewhere.
+    Returns a diagnostics dict: byte size, média candidates (id -> (score, label,
+    raw-markup)), marker counts and the first script srcs — enough to tell, from one
+    CI run, whether the série link is present in the HTML or the page is a JS shell.
     """
     try:
         r = session.get(url, timeout=60)
@@ -397,13 +393,12 @@ def _scan_page(session: requests.Session, url: str) -> dict:
         return {"url": url, "error": str(exc)}
     doc = r.text
     low = doc.lower()
-    vp_ctx = _page_vp(url)
     best: dict = {}
     for m in MEDIA_RE.finditer(doc):
         mid = int(m.group(1))
         label = _label_for(doc, m.start(), m.end())
         raw = re.sub(r"\s+", " ", doc[max(0, m.start() - 180): m.end() + 120])
-        cand = (_score_label(label, vp_ctx), label, _eligible(label, vp_ctx), raw)
+        cand = (_score_label(label, url), label, raw)
         if mid not in best or cand[0] > best[mid][0]:
             best[mid] = cand
     return {
@@ -413,34 +408,14 @@ def _scan_page(session: requests.Session, url: str) -> dict:
     }
 
 
-def resolve_latest_url(session: requests.Session, page: str) -> str:
-    """Resolve the current 'VP neuves par énergie' série média URL.
+def _download(session: requests.Session, url: str) -> bytes:
+    r = session.get(url, timeout=120)
+    r.raise_for_status()
+    return r.content
 
-    Probes the recent monthly VP StatInfo pages (then the hub and per-year pages);
-    among every /media/<id>/download found, picks the one whose surrounding label
-    reads as the monthly VP série — "…séries mensuelles des immatriculations" on a
-    voitures-particulières page, or an explicit "…par énergie" — while rejecting
-    the annual/genre, méthodologie, complémentaire and regional/marque files.
-    Newest id wins ties; a strong match stops the probing early. On failure the
-    error dumps, per page, what was found (média ids + labels + raw markup) and the
-    page's structural markers, so the next fix is one-shot, not a blind guess.
-    """
-    scans, winner = [], None  # winner: (eligible, score, media_id, url, label)
-    for u in _candidate_pages(page):
-        sc = _scan_page(session, u)
-        scans.append(sc)
-        for mid, (score, label, elig, _raw) in sc.get("media", {}).items():
-            url = requests.compat.urljoin(sc["url"], f"/media/{mid}/download")
-            cand = (elig, score, mid, url, label)
-            if winner is None or cand[:3] > winner[:3]:
-                winner = cand
-        if winner and winner[0] and winner[1] >= 5:  # strong match — stop probing
-            break
-    if winner and winner[0] and winner[1] >= 3:
-        print(f"[france] resolved {winner[3]} (score {winner[1]}): {winner[4][:120]}")
-        return winner[3]
 
-    # ---- nothing usable: dump everything one CI run needs to see ----
+def _resolve_dump(scans: list) -> str:
+    """Per-page dump of what each candidate exposed, for the failure diagnostic."""
     lines = []
     for sc in scans:
         if "error" in sc:
@@ -449,26 +424,48 @@ def resolve_latest_url(session: requests.Session, page: str) -> str:
         mk = " ".join(f"{k}={v}" for k, v in sc["markers"].items() if v)
         lines.append(f"  {sc['url']} [{sc['bytes']}B, {len(sc['media'])} média id(s)]  "
                      f"markers: {mk or 'none'}")
-        for mid, (score, label, elig, raw) in sorted(sc["media"].items(),
-                                                      key=lambda kv: -kv[1][0])[:10]:
-            lines.append(f"      [{score}{'*' if elig else ' '}] media/{mid}: {label[:90]}")
+        for mid, (score, label, raw) in sorted(sc["media"].items(),
+                                               key=lambda kv: -kv[1][0])[:10]:
+            lines.append(f"      [{score}] media/{mid}: {label[:90]}")
             lines.append(f"          raw: …{raw[:200]}…")
         if not sc["media"] and sc["scripts"]:
             lines.append(f"      scripts: {', '.join(s[:70] for s in sc['scripts'])}")
-    raise ValueError("could not identify the VP-énergie série média link.\n"
-                     + "\n".join(lines)
-                     + "\nWorkaround: pass --url with the média URL explicitly.")
+    return "\n".join(lines)
 
 
-def fetch_bytes(args, session: requests.Session) -> bytes:
-    if args.file:
-        return Path(args.file).read_bytes()
-    url = args.url or resolve_latest_url(session, args.page)
-    print(f"[france] downloading {url}")
-    r = session.get(url, timeout=120)
-    r.raise_for_status()
-    fetch_bytes.url = url  # remember for the notes column
-    return r.content
+def resolve_and_parse(session: requests.Session, page: str):
+    """Find AND parse the current VP-énergie série; return (src_url, rows).
+
+    The série is the 'données' xlsx of the newest monthly Motorisations
+    publication, but link labels are generic and média ids rotate every
+    publication, so the label alone is not trusted: on each candidate page (newest
+    first) try the média best-label-first, skipping the known non-série labels
+    (méthodologie, annual, regional …), and return the first workbook that actually
+    parses as the motorisation série. The parser is the final arbiter. On failure
+    the error dumps each page's média + raw markup so the next fix is one-shot.
+    """
+    scans, tried = [], []
+    for u in _candidate_pages(page):
+        sc = _scan_page(session, u)
+        scans.append(sc)
+        ranked = sorted(((score, mid, label)
+                         for mid, (score, label, _raw) in sc.get("media", {}).items()
+                         if score > _REJECT_SCORE), reverse=True)
+        for _score, mid, label in ranked:
+            url = requests.compat.urljoin(sc["url"], f"/media/{mid}/download")
+            try:
+                rows = parse_workbook(_download(session, url))
+            except Exception as exc:  # noqa: BLE001 - not the série; try the next
+                tried.append(f"{url} [{label[:35]}]: {str(exc).splitlines()[0][:80]}")
+                continue
+            print(f"[france] resolved {url} ({len(rows)} months "
+                  f"{rows[0]['period']}..{rows[-1]['period']}): {label[:70]}")
+            return url, rows
+    raise ValueError(
+        "could not find a parseable VP-énergie série on any candidate page.\n"
+        + _resolve_dump(scans)
+        + ("\n  tried+failed: " + " || ".join(tried) if tried else "")
+        + "\nWorkaround: pass --url with the média URL explicitly.")
 
 
 def diagnose(session: requests.Session, page: str) -> int:
@@ -571,22 +568,28 @@ def main(argv=None) -> int:
 
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0 (LeRaffl-Gallery fetch_france)"})
-    fetch_bytes.url = ""
     if args.diagnose:
         try:
             return diagnose(session, args.page)
         except Exception as exc:  # noqa: BLE001
             print(f"[france] ERROR: {exc}", file=sys.stderr)
             return 1
+    src_url = ""
     try:
-        data = fetch_bytes(args, session)
-        rows = parse_workbook(data)
+        if args.file:
+            rows = parse_workbook(Path(args.file).read_bytes())
+        elif args.url:
+            src_url = args.url
+            print(f"[france] downloading {src_url}")
+            rows = parse_workbook(_download(session, src_url))
+        else:
+            src_url, rows = resolve_and_parse(session, args.page)
     except Exception as exc:  # noqa: BLE001 - surface a clean CI failure
         print(f"[france] ERROR: {exc}", file=sys.stderr)
         return 1
 
     print(f"[france] parsed {len(rows)} months: {rows[0]['period']} .. {rows[-1]['period']}")
-    upsert(Path(args.out), rows, dry_run=args.dry_run, src_url=getattr(fetch_bytes, "url", "") or (args.url or ""))
+    upsert(Path(args.out), rows, dry_run=args.dry_run, src_url=src_url)
     return 0
 
 
