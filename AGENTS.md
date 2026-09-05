@@ -1,14 +1,12 @@
 # AGENTS.md — LeRaffl BEV Trajectory Gallery
 
-Guidance for any AI/LLM working with this repository. It is tool-agnostic: this
-is the instruction file for non-Anthropic agents (GPT/Codex, Copilot, Gemini,
-Grok, …); Claude reads the same content via `CLAUDE.md`, which imports this file.
+Guidance for any AI/LLM working with this repository.
 
 **What this repo is.** A public, fully client-side static site (GitHub Pages,
 <https://leraffl.github.io/LeRaffl-Gallery/>) that models and visualises the
 BEV / PHEV / ICE share of new-vehicle registrations across ~40+ countries:
-per-country charts, a fitted logistic ("S-curve") model, and interactive tools
-(Builder, Thresholds, Durations, World Map, Fleet).
+per-country charts, a fitted generalized Weibull distribution ("S-curve") model,
+and interactive tools (Builder, Thresholds, Durations, World Map, Fleet).
 
 There are **two ways to use this file**. Read the part that fits your task:
 Part 1 if you're *answering a question about the data*, Part 2 if you're
@@ -60,10 +58,22 @@ MHEV, PETROL, DIESEL, GAS, CNG, LPG, FLEXFUEL, ETHANOL, OTHERS, TOTAL,` then
   (the default, no suffix), `Vans` = N1, `HDV` = N2+N3, `Buses` = M2+M3;
   `Private`/`Industry`/`Used`/`Rental`/`NonRental` are M1 sub-slices. Not every
   country has every variant — check the CSV and the `09-glossary.md` table.
+- **The EU-class anchoring is the *intent*, not a guarantee — country scopes
+  deviate, and the exceptions matter.** A source may exclude a segment (e.g.
+  Japan's kei cars), split off pickups into their own slice, or change coverage
+  over time (older history missing a body type). Never assume a variant means
+  exactly its EU class for a given country: the real per-country scope — and
+  every such caveat — is written up in that country's
+  `docs/architecture/NN-source-<country>.md`, the per-country scope table in
+  `09-glossary.md`, and `footnotes.csv`. Read those before comparing.
 - Where a source publishes **no petrol/diesel split**, `PETROL`/`DIESEL` are
   left **empty** and the combustion total sits in ICE/`TOTAL − electrified`.
   Empty ≠ 0.
 - `EREV` is a real column but folds into `PHEV` in the 3-curve plot.
+- `MHEV` (mild hybrids) is **not** classified consistently across sources:
+  depending on the country it's its own column, folded into `HEV`, or counted on
+  the combustion side (`ICE`, or `PETROL`/`DIESEL`). Don't assume `MHEV ⊂ HEV` —
+  check the country's `NN-source-<country>.md` for how that source treats it.
 - Rows whose value is **modelled/estimated** say so in their `notes` column.
 
 **Don't:** cite an image as data; assume a variant/country exists without
