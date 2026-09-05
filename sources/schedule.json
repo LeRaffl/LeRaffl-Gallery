@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05T08:33:36Z",
+ "generated": "2026-09-05T11:06:01Z",
  "today": "2026-09-05",
  "countries": [
   {
@@ -467,11 +467,11 @@
    "source_url": "https://www.anac.cl/category/estudio-de-mercado/",
    "cadence_text": "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out",
    "interval": "monthly",
-   "latest_period": "2026-05",
+   "latest_period": "2026-07",
    "expected_period": "2026-07",
-   "behind": 2,
-   "behind_now": 3,
-   "status": "late",
+   "behind": 0,
+   "behind_now": 1,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -514,13 +514,13 @@
     ],
     "workflow": ".github/workflows/fetch-chile.yml"
    },
-   "last_render": "2026-07-27",
+   "last_render": "2026-09-05",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-05",
+     "latest": "2026-07",
      "first": "2015-01",
-     "rows": 137,
+     "rows": 139,
      "cadence": "monthly",
      "in_repo": true
     }
