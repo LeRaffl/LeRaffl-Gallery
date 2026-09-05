@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-04T09:01:40Z",
- "today": "2026-09-04",
+ "generated": "2026-09-05T06:51:10Z",
+ "today": "2026-09-05",
  "countries": [
   {
    "country": "Albania",
@@ -102,10 +102,10 @@
    "source_url": "https://www.fcai.com.au/",
    "cadence_text": "transcribed by hand each month, once VFACTS publishes",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
@@ -113,9 +113,9 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2015-06",
-     "rows": 78,
+     "rows": 79,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -623,10 +623,10 @@
    "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1048,11 +1048,11 @@
    "source_url": "https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/",
    "cadence_text": "daily cron, 1st–15th, 04:40 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1092,53 +1092,53 @@
     ],
     "workflow": ".github/workflows/fetch-finland.yml"
    },
-   "last_render": "2026-08-06",
+   "last_render": "2026-09-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1242,20 +1242,20 @@
    "source_url": "https://www.kba.de/",
    "cadence_text": "transcribed by hand each month, once KBA publishes (typically the first week)",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-08-06",
+   "last_render": "2026-09-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2012-01",
-     "rows": 175,
+     "rows": 176,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1840,11 +1840,11 @@
    "source_url": "https://www.jada.or.jp/pages/342/",
    "cadence_text": "daily cron, 08:00 UTC — no-op until JADA publishes, usually the first business week",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1900,13 +1900,13 @@
     ],
     "workflow": ".github/workflows/fetch-japan.yml"
    },
-   "last_render": "2026-08-06",
+   "last_render": "2026-09-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2012-01",
-     "rows": 175,
+     "rows": 176,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3423,20 +3423,20 @@
    "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
    "cadence_text": "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-08-05",
+   "last_render": "2026-09-04",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2015-01",
-     "rows": 139,
+     "rows": 140,
      "cadence": "monthly",
      "in_repo": true
     }
