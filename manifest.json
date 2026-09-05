@@ -32,6 +32,16 @@
       "country_slug": "australia"
     },
     {
+      "country": "Australia",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-05",
+      "filename": "australia_ttm_shares_20260905.png",
+      "url": "images/2026-08/australia_ttm_shares_20260905.png",
+      "alt": "Australia TTM market split graph",
+      "country_slug": "australia"
+    },
+    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-08",
