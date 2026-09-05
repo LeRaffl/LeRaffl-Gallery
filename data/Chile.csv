@@ -127,14 +127,14 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,ICE,TOTAL,
 2025-06,monthly,Whole,ANAC,419.0,372.0,796.0,,,0.0,22694.0,24281.0,
 2025-07,monthly,Whole,ANAC,485.0,192.0,1007.0,,,0.0,25225.0,26909.0,
 2025-08,monthly,Whole,ANAC,389.0,392.0,1239.0,,,0.0,25442.0,27462.0,
-2025-09,monthly,Whole,ANAC,461.0,385.0,2298.0,0.0,0.0,0.0,28727.0,31871.0,
-2025-10,monthly,Whole,ANAC,392.0,366.0,2379.0,0.0,0.0,0.0,20394.0,23531.0,
-2025-11,monthly,Whole,ANAC,453.0,284.0,2908.0,0.0,0.0,0.0,21975.0,25620.0,
-2025-12,monthly,Whole,ANAC,795.0,398.0,3042.0,0.0,0.0,0.0,25342.0,29577.0,
-2026-01,monthly,Whole,ANAC,302.0,420.0,1076.0,0.0,0.0,0.0,23503.0,25301.0,
-2026-02,monthly,Whole,ANAC,492.0,424.0,777.0,0.0,0.0,0.0,20625.0,22318.0,
-2026-03,monthly,Whole,ANAC,1008.0,766.0,1812.0,0.0,0.0,0.0,23772.0,27358.0,
-2026-04,monthly,Whole,ANAC,1496.0,1315.0,1711.0,0.0,0.0,0.0,23050.0,27572.0,https://www.anac.cl/wp-content/uploads/2026/05/04-ANAC-Mercado-Automotor-Abril-202634.pdf | https://www.anac.cl/wp-content/uploads/2026/05/04-ANAC-Informe-Cero-y-Bajas-Emisiones-Abril-2026.pdf
-2026-05,monthly,Whole,ANAC,870.0,709.0,1337.0,0.0,0.0,0.0,21533.0,24449.0,https://www.anac.cl/wp-content/uploads/2026/06/05-ANAC-Mercado-Automotor-Mayo-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/06/05-ANAC-Informe-Cero-y-Bajas-Emisiones-Mayo-2026.pdf
-2026-06,monthly,Whole,ANAC,1257.0,919.0,1070.0,0.0,0.0,0.0,23330.0,26576.0,https://www.anac.cl/wp-content/uploads/2026/07/06-ANAC-Mercado-Automotor-Junio-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/07/06-ANAC-Informe-Cero-y-Bajas-Emisiones-Junio-2026.pdf
-2026-07,monthly,Whole,ANAC,781.0,654.0,1063.0,0.0,0.0,0.0,22224.0,24722.0,https://www.anac.cl/wp-content/uploads/2026/08/07-ANAC-Mercado-Automotor-Julio-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/08/07-ANAC-Informe-Cero-y-Bajas-Emisiones-Julio-2026.pdf
+2025-09,monthly,Whole,ANAC,461.0,385.0,2298.0,,,0.0,28727.0,31871.0,
+2025-10,monthly,Whole,ANAC,392.0,366.0,2379.0,,,0.0,20394.0,23531.0,
+2025-11,monthly,Whole,ANAC,453.0,284.0,2908.0,,,0.0,21975.0,25620.0,
+2025-12,monthly,Whole,ANAC,795.0,398.0,3042.0,,,0.0,25342.0,29577.0,
+2026-01,monthly,Whole,ANAC,302.0,420.0,1076.0,,,0.0,23503.0,25301.0,
+2026-02,monthly,Whole,ANAC,492.0,424.0,777.0,,,0.0,20625.0,22318.0,
+2026-03,monthly,Whole,ANAC,1008.0,766.0,1812.0,,,0.0,23772.0,27358.0,
+2026-04,monthly,Whole,ANAC,1496.0,1315.0,1711.0,,,0.0,23050.0,27572.0,https://www.anac.cl/wp-content/uploads/2026/05/04-ANAC-Mercado-Automotor-Abril-202634.pdf | https://www.anac.cl/wp-content/uploads/2026/05/04-ANAC-Informe-Cero-y-Bajas-Emisiones-Abril-2026.pdf
+2026-05,monthly,Whole,ANAC,870.0,709.0,1337.0,,,0.0,21533.0,24449.0,https://www.anac.cl/wp-content/uploads/2026/06/05-ANAC-Mercado-Automotor-Mayo-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/06/05-ANAC-Informe-Cero-y-Bajas-Emisiones-Mayo-2026.pdf
+2026-06,monthly,Whole,ANAC,1257.0,919.0,1070.0,,,0.0,23330.0,26576.0,https://www.anac.cl/wp-content/uploads/2026/07/06-ANAC-Mercado-Automotor-Junio-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/07/06-ANAC-Informe-Cero-y-Bajas-Emisiones-Junio-2026.pdf
+2026-07,monthly,Whole,ANAC,781.0,654.0,1063.0,,,0.0,22224.0,24722.0,https://www.anac.cl/wp-content/uploads/2026/08/07-ANAC-Mercado-Automotor-Julio-2026.pdf | https://www.anac.cl/wp-content/uploads/2026/08/07-ANAC-Informe-Cero-y-Bajas-Emisiones-Julio-2026.pdf
