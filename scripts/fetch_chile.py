@@ -144,6 +144,73 @@ _EMISIONES_ROW = re.compile(
 )
 
 
+# --- New Power-BI table format (seen from Julio-2026) -----------------------
+# ANAC rebuilt the report around Power BI exports. The old single summary table
+# is gone; the monthly numbers now live in per-technology "Tipo Tecnología" /
+# "Segmentos" tables whose rows carry a parenthetical technology code followed
+# by:  <acumulado> <var%acum>%  <mes> <var%mes>% . We key on the code — those
+# codes (BEV / PHEV / P-REEV) are far more stable than ANAC's ever-changing row
+# labels and narrative verbs — and requiring a digit right after the code skips
+# prose mentions such as "vehículos 100% eléctricos (BEV) sumaron 6.206 unidades".
+#
+#   Eléctricos (BEV) 6.206 105,4 % 781 61,0%
+#   Híbrido Enchufable (PHEV) 4.429 219,6 % 618 220,2%
+#   Eléct. de Rango Ext. Enchufable (P-REEV) 778 2.582,8 % 36
+#
+# The 3rd column (<mes>) is the monthly value. P-REEV is folded into PHEV to
+# match the historical "Híbrido Enchufables" definition (781+618+36 = 1.435,
+# the report's enchufables monthly total).
+_TECH_CODE_RE = re.compile(
+    r"\((BEV|PHEV|P-?REEV)\)\s+"          # technology code
+    r"\d{1,3}(?:\.\d{3})*\s+"             # acumulado (ignored)
+    r"-?[\d.]+(?:,\d+)?\s*%\s+"           # var% acumulado
+    r"(\d{1,3}(?:\.\d{3})*)"              # <mes> monthly value (captured)
+)
+
+# Grand-total of a Power-BI ranking table, e.g. the trailing column of
+# "Total 18 100,0% 1.004 100,0% 41 100,0% 1.063 100,0%" → 1.063. Anchored at
+# end of line so the last (grand-total) column wins; tolerant of the glued
+# "1.063100,0%" spacing pypdf sometimes emits.
+_GRAND_TOTAL_RE = re.compile(r"(\d{1,3}(?:\.\d{3})*)\s*100,0?\s*%\s*$")
+
+
+def _parse_tech_table(text: str) -> dict[str, int]:
+    """Extract monthly BEV / PHEV (incl. P-REEV) from the new per-technology
+    tables. Returns whatever it can find (may be empty)."""
+    found: dict[str, int] = {}
+    for m in _TECH_CODE_RE.finditer(text):
+        code = m.group(1).replace("-", "").upper()   # BEV / PHEV / PREEV
+        found.setdefault(code, int(m.group(2).replace(".", "")))
+    out: dict[str, int] = {}
+    if "BEV" in found:
+        out["BEV"] = found["BEV"]
+    if "PHEV" in found:
+        out["PHEV"] = found["PHEV"] + found.get("PREEV", 0)
+    return out
+
+
+def _parse_convencional_monthly(text: str) -> int | None:
+    """Extract the monthly HEV (+REEV) total from the Power-BI report.
+
+    The new format has no summary row for convencionales; the only clean
+    monthly figure is the grand total of the *monthly* per-brand ranking
+    "RANKING DE VENTAS POR MARCA - HÍBRIDOS CONVENCIONALES - <Month> <Year>"
+    (as opposed to its "... - ACUMULADO A <Month>" twin). We arm on that
+    header and read the next "Total …" grand-total row.
+    """
+    armed = False
+    for line in text.split("\n"):
+        s = line.strip()
+        u = s.upper()
+        if "POR MARCA" in u and "HÍBRIDOS CONVENCIONALES" in u:
+            armed = "ACUMULADO" not in u
+            continue
+        if armed and s.startswith("Total"):
+            m = _GRAND_TOTAL_RE.search(s)
+            return int(m.group(1).replace(".", "")) if m else None
+    return None
+
+
 def previous_month(today: date) -> tuple[int, int]:
     """Returns (year, month) of the calendar month before `today`."""
     if today.month == 1:
@@ -269,15 +336,23 @@ def _ytd_from_csv(csv_path: str, year: str, before_period: str) -> dict[str, int
 def parse_emisiones(text: str, period: str = "", csv_path: str = "") -> dict[str, int]:
     """Extract BEV/PHEV/HEV monthly counts from Cero y Bajas Emisiones PDF.
 
-    Primary: looks for table rows beginning with one of EMISIONES_LABELS, extracts
-    the 2nd integer (= monthly column) from the trailing <int> <pct>% <int> <pct>%
-    pattern.
+    Strategies are tried in order and their results merged, because ANAC keeps
+    reshaping the report:
 
-    Fallback (new PDF format from mid-2026): the summary table was removed; extracts
-    YTD-cumulative figures from the narrative intro prose and subtracts the previous
-    months' totals read from the CSV file.
+      1. Legacy summary table (pre-2026): rows beginning with an EMISIONES_LABELS
+         label, monthly value = 2nd integer of the <int> <pct>% <int> <pct>% tail.
+      2. New Power-BI tables (Julio-2026 onward): monthly BEV / PHEV(+P-REEV) from
+         the code-keyed "Tipo Tecnología" rows, and monthly HEV from the grand
+         total of the monthly "POR MARCA - HÍBRIDOS CONVENCIONALES" ranking.
+      3. Narrative fallback: YTD-cumulative figures from the intro prose minus the
+         previous months' totals read from the CSV file.
+
+    These are monthly-direct where possible (strategies 1–2) so a missing prior
+    month in the CSV does not corrupt the result the way the YTD subtraction can.
     """
     result: dict[str, int] = {}
+
+    # --- Strategy 1: legacy summary table ---
     for line in text.split("\n"):
         stripped = line.strip()
         for label, csv_key in EMISIONES_LABELS.items():
@@ -289,6 +364,15 @@ def parse_emisiones(text: str, period: str = "", csv_path: str = "") -> dict[str
                 if m:
                     result[csv_key] = int(m.group(2).replace(".", ""))
                     break
+
+    # --- Strategy 2: new Power-BI tables ---
+    if {"BEV", "PHEV"} - result.keys():
+        for k, v in _parse_tech_table(text).items():
+            result.setdefault(k, v)
+    if "HEV" not in result:
+        hev = _parse_convencional_monthly(text)
+        if hev is not None:
+            result["HEV"] = hev
 
     missing = set(EMISIONES_LABELS.values()) - set(result.keys())
     if not missing:
@@ -318,20 +402,14 @@ def parse_emisiones(text: str, period: str = "", csv_path: str = "") -> dict[str
             print(f"  (narrative fallback) Monthly = {monthly}")
             return monthly
 
-    # --- Give up: dump text for diagnosis ---
+    # --- Give up: dump the full text for diagnosis ---
+    # Print the whole extraction (not sampled windows) so the next format change
+    # can be diagnosed straight from the workflow log without re-fetching the PDF.
     char_count = len(text)
-    if char_count == 0:
-        snippet = "(empty — PDF may be image-based)"
-    else:
-        step = max(1, char_count // 4)
-        windows = []
-        for start in [0, step, step * 2, step * 3]:
-            end = min(start + 3000, char_count)
-            windows.append(f"[chars {start}–{end}]:\n{text[start:end]}")
-        snippet = "\n\n".join(windows)
+    body = text if char_count else "(empty — PDF may be image-based)"
     print(
         f"\n=== Emisiones PDF text dump ({char_count} chars) ===\n"
-        f"{snippet}\n"
+        f"{body}\n"
         f"=== end dump ===\n"
     )
     raise RuntimeError(
