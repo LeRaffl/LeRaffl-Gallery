@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-05T06:51:10Z",
+ "generated": "2026-09-05T08:33:36Z",
  "today": "2026-09-05",
  "countries": [
   {
@@ -109,7 +109,7 @@
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-08-08",
+   "last_render": "2026-09-05",
    "variants": [
     {
      "name": "Whole",
