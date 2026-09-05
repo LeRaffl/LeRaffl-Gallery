@@ -102,6 +102,16 @@
       "country_slug": "chile"
     },
     {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-09-05",
+      "filename": "chile_ttm_shares_20260905.png",
+      "url": "images/2026-07/chile_ttm_shares_20260905.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
       "country": "Finland",
       "type": "ICE_BEV",
       "period": "2026-08",
