@@ -372,6 +372,7 @@ stubs:
       - "Fuel-cell vehicles (ＦＣＶ) and その他 are summed into OTHERS."
     caveats:
       - "Kei cars (軽自動車) are excluded — the file's own footer says so (「軽自動車は含みません」). Kei cars are roughly a third of the Japanese light-vehicle market, so this is NOT the whole Japanese car market and its BEV share is not comparable with a kei-inclusive figure."
+      - "No kei series is charted, and Whole cannot simply be widened to include kei: kei four-wheelers are reported by a separate body (全国軽自動車協会連合会, Zenkeijikyo), whose monthly figures split only by body type (乗用/貨物), model and prefecture — not by powertrain. With no primary source for a monthly kei BEV/PHEV/HEV split, a kei series could only be approximated by tagging individual models (BEV plus an ICE residual, with no HEV) — below the standard of every other series here. Kei passenger cars are EU M1, the same class as Whole, so this is a coverage gap in Whole rather than a missing vehicle class; adding it properly would need a source publishing the monthly kei powertrain split."
       - "Delivered as a monthly Excel workbook (PDF fallback)."
 
   - country: USA
