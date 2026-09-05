@@ -399,7 +399,7 @@ flowchart TD
     Script -->|"parse GE2 Tabelle 2"| CSV4["data/Austria_Used.csv\n(Used — Pkw Gebrauchtzulassungen)"]
 
     CSV1 & CSV2 & CSV3 & CSV4 -->|"git commit\n(if rows changed)"| Repo["📁 GitHub Repo"]
-    Repo -->|"trigger per changed variant"| Render["render-country.yml\n→ R script → PNGs + post"]
+    Repo -->|"trigger once with the touched variants"| Render["render-country.yml\n→ R script per variant → PNGs + post"]
 ```
 
 ---

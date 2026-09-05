@@ -69,19 +69,26 @@ jobs:
           default_author: github_actions
           pull: '--rebase --autostash'
 
-  # Serial render chain (fetch-acea pattern): both variants write
-  # params.csv/weights.csv, so parallel dispatches race each other's
-  # commits — max-parallel: 1 keeps them strictly sequential.
+  # Render both Nepal variants as ONE top-level "Render: Nepal" run in the
+  # Render-country-charts workflow (visible in its own history, scannable from
+  # the mobile GitHub app) instead of a matrix nested inside this fetcher's run.
+  # render-country.yml renders Whole then 3-Wheelers serially in a single job
+  # and commits once, so the two variants never race on the shared
+  # params.csv/weights.csv commit (the reason the old design serialised them).
+  # As before, both variants render whenever anything committed.
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true'
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        variant: [Whole, 3-Wheelers]
-    uses: ./.github/workflows/render-country.yml
-    with:
-      country: Nepal
-      variant: ${{ matrix.variant }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Nepal
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Nepal \
+            -f variants="Whole|3-Wheelers"
