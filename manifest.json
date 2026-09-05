@@ -1,6 +1,36 @@
 {
-  "updated": "2026-09-04",
+  "updated": "2026-09-05",
   "images": [
+    {
+      "country": "Australia",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-05",
+      "filename": "australia_ICE_BEV_20260905.png",
+      "url": "images/2026-08/australia_ICE_BEV_20260905.png",
+      "alt": "Australia ICE-BEV-Hybrid trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-05",
+      "filename": "australia_20260905.png",
+      "url": "images/2026-08/australia_20260905.png",
+      "alt": "Australia BEV trajectory",
+      "country_slug": "australia"
+    },
+    {
+      "country": "Australia",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-05",
+      "filename": "australia_time_20260905.png",
+      "url": "images/2026-08/australia_time_20260905.png",
+      "alt": "Australia Transition time curve",
+      "country_slug": "australia"
+    },
     {
       "country": "Finland",
       "type": "ICE_BEV",
