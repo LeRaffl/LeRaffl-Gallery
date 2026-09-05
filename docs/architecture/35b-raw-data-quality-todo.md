@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 51 countries · 6,009 periods drawable · 164 held back · **37 of 51 files cost the chart nothing.**
+**Status:** 51 countries · 6,012 periods drawable · 164 held back · **37 of 51 files cost the chart nothing.**
 
 ---
 
