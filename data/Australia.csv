@@ -76,4 +76,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-04,monthly,Whole,VFACTS & Prof. Ray Willis,15459,9628,18162,25399,22414,,91062,Check again for consistency
 2026-05,monthly,Whole,VFACTS & Prof. Ray Willis,21303,9315,19024,28692,25191,,103525,
 2026-06,monthly,Whole,VFACTS & Prof. Ray Willis,32570,16068,20741,34177,31789,,135345,
-2026-07,monthly,Whole,VFACTS & Prof. Ray Willis,25310,18684,10359,27894,24773,,107020,
+2026-07,monthly,Whole,VFACTS & Prof. Ray Willis,25310,10359,18684,27894,24773,,107020,
+2026-08,monthly,Whole,VFACTS & Prof. Ray Willis,27028,10591,18662,25824,23608,0,105713,
