@@ -142,9 +142,9 @@ jobs:
           # Build the variant work-list. `variants` (pipe-separated) wins when a
           # multi-variant fetcher passes it; otherwise render the single
           # `variant` (manual UI runs, ACEA's workflow_call, and the
-          # single-variant fetchers all take this path). Passing inputs through
-          # env — not `${{ }}` interpolation into the script — keeps a stray
-          # character in an input from being interpreted as shell.
+          # single-variant fetchers all take this path). Inputs arrive via env
+          # rather than being interpolated straight into the script, so a stray
+          # character in an input can't be interpreted as shell.
           if [ -n "$VARIANTS" ]; then
             IFS='|' read -ra list <<< "$VARIANTS"
           else
