@@ -80,9 +80,10 @@ Existing data/Chile.csv columns:
 
 For new rows we set:
     BEV, PHEV, HEV  ← from emisiones PDF
-    PETROL, DIESEL, OTHERS  ← 0
+    PETROL, DIESEL  ← EMPTY (ANAC gives no split; all combustion is in ICE)
+    OTHERS  ← 0
     TOTAL  ← from mercado PDF
-    ICE    ← TOTAL − BEV − PHEV − HEV − OTHERS (captures gasoline+diesel+MHEV)
+    ICE    ← TOTAL − BEV − PHEV − HEV (captures gasoline+diesel+MHEV+others)
     notes  ← "<mercado_url> | <emisiones_url>"
 
 Per the user's rule we only ever write the most recent month; older rows are
@@ -517,8 +518,14 @@ def build_row(period: str, total: int, fuels: dict[str, int],
         "BEV": bev,
         "PHEV": phev,
         "HEV": hev,
-        "PETROL": 0.0,
-        "DIESEL": 0.0,
+        # ANAC gives no petrol/diesel split — all combustion sits in ICE — so
+        # these stay EMPTY (not 0.0), matching the pre-2025-09 history. Writing
+        # 0.0 asserts "zero petrol/diesel cars" (false) and, because it is a
+        # non-NA value, also breaks the TTM chart: compute_ttm_long only skips a
+        # fuel column that is entirely NA, so a column that is blank for years
+        # and then 0.0 has no complete 12-month window and drops every row.
+        "PETROL": "",
+        "DIESEL": "",
         "OTHERS": 0.0,
         "ICE": ice,
         "TOTAL": float(total),
