@@ -240,6 +240,40 @@ def latest_period(csv_path: str) -> str | None:
     return max(periods) if periods else None
 
 
+def canonical_urls(year: int, month: int) -> tuple[str, str]:
+    """Deterministic ANAC upload URLs for a month's two reports.
+
+    ANAC stores each report at a predictable path — a report for <Month> YEAR
+    is published the *following* calendar month:
+
+        /wp-content/uploads/<pub-year>/<pub-month>/<MM>-ANAC-<report>-<Month>-YEAR.pdf
+
+    e.g. Julio 2026 → /2026/08/07-ANAC-Mercado-Automotor-Julio-2026.pdf. Some
+    months carry a version suffix on the filename (…-Abril-202634.pdf) that this
+    canonical form doesn't reproduce, so these URLs are a *fallback* probed only
+    when the listing scrape comes up empty.
+    """
+    month_name = SPANISH_MONTHS[month]
+    pub_year, pub_month = (year + 1, 1) if month == 12 else (year, month + 1)
+    base = f"https://www.anac.cl/wp-content/uploads/{pub_year}/{pub_month:02d}"
+    mm = f"{month:02d}"
+    return (
+        f"{base}/{mm}-ANAC-Mercado-Automotor-{month_name}-{year}.pdf",
+        f"{base}/{mm}-ANAC-Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}.pdf",
+    )
+
+
+def _url_resolves(url: str) -> bool:
+    """True if url returns HTTP 200 and the body starts with the %PDF magic."""
+    try:
+        with requests.get(url, headers=HTTP_HEADERS, timeout=30, stream=True) as r:
+            if r.status_code != 200:
+                return False
+            return next(r.iter_content(5), b"")[:4] == b"%PDF"
+    except requests.RequestException:
+        return False
+
+
 def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
     """Returns (mercado_url, emisiones_url) for the given year/month, or None each."""
     month_name = SPANISH_MONTHS[month]
@@ -276,6 +310,19 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
             mercado_url = href if href.startswith("http") else "https://www.anac.cl" + href
         if emisiones_url is None and emisiones_re.search(href):
             emisiones_url = href if href.startswith("http") else "https://www.anac.cl" + href
+
+    # Fallback: the category listing sometimes lacks a direct PDF link for the
+    # newest report (seen for Julio-2026: Junio was listed with its PDF href,
+    # Julio's post only linked to the article page), so the file is live but the
+    # scrape misses it. Probe the deterministic upload URL for anything missing.
+    if mercado_url is None or emisiones_url is None:
+        cand_mercado, cand_emisiones = canonical_urls(year, month)
+        if mercado_url is None and _url_resolves(cand_mercado):
+            print(f"  (canonical fallback) Mercado:   {cand_mercado}")
+            mercado_url = cand_mercado
+        if emisiones_url is None and _url_resolves(cand_emisiones):
+            print(f"  (canonical fallback) Emisiones: {cand_emisiones}")
+            emisiones_url = cand_emisiones
 
     return mercado_url, emisiones_url
 
