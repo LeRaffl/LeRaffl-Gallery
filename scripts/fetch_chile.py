@@ -44,20 +44,34 @@ Parsing strategy
   total for livianos y medianos. ANAC's narrative phrasing varies between
   reports, so the bar-chart label is more stable.
 
-* Cero y Bajas Emisiones: the report contains a summary table
+* Cero y Bajas Emisiones: ANAC has reshaped this report repeatedly, so
+  parse_emisiones() layers three strategies and merges what each can find:
 
-      Tipo Vehículo              Acum <Month> YEAR    Var% Acum    <Month>    Var% Mes
-      Eléctricos                 1.802                61,3 %       1.008      168,8%
-      Híbrido Enchufables        1.610                318,2 %      766        410,7%
-      Híbrido Convencional       3.665                97,1 %       1.812      164,5%
-      Microhíbridos              4.833                74,1 %       2.307      97,9%
+  1. Legacy summary table (pre-2026): rows labelled by drivetrain, monthly
+     value = 3rd column of the <acum> <var%> <mes> <var%> tail:
 
-  For each labelled row we extract the 3rd column (monthly value):
-      Eléctricos          → BEV
-      Híbrido Enchufables → PHEV
-      Híbrido Convencional → HEV
-  Microhíbridos (MHEV) is NOT broken out — it falls into the ICE bucket via
-  the implicit subtraction TOTAL − BEV − PHEV − HEV − OTHERS.
+         Tipo Vehículo         Acum YEAR   Var% Acum   <Month>   Var% Mes
+         Eléctricos            1.802       61,3 %      1.008     168,8%
+         Híbrido Enchufables   1.610       318,2 %     766       410,7%
+         Híbrido Convencional  3.665       97,1 %      1.812     164,5%
+
+     Eléctricos → BEV, Híbrido Enchufables → PHEV, Híbrido Convencional → HEV.
+
+  2. Power-BI tables (Julio-2026 rebuild): the label table is gone. Monthly
+     BEV / PHEV(+P-REEV) come from the code-keyed "Tipo Tecnología" rows
+     (e.g. "Eléctricos (BEV) 6.206 105,4 % 781 61,0%" → 781); monthly HEV
+     from the grand total of the *monthly* "POR MARCA - HÍBRIDOS
+     CONVENCIONALES" ranking (its "ACUMULADO" twin is skipped).
+
+  3. Narrative fallback: YTD-cumulative figures from the intro prose minus
+     the prior months already in the CSV. Last resort — a missing prior
+     month makes it undercount, so strategies 1–2 (monthly-direct) win first.
+
+  P-REEV (extended-range plug-ins) is folded into PHEV to match the historical
+  "Híbrido Enchufables" definition. Microhíbridos (MHEV) is NOT broken out — it
+  falls into the ICE bucket via the implicit subtraction
+  TOTAL − BEV − PHEV − HEV − OTHERS. On total failure the full extracted text
+  is printed so the next format change is diagnosable from one workflow log.
 
 CSV layout
 ----------
