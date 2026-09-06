@@ -548,7 +548,8 @@ build-source-pages.yml ──► regenerates sources/france.html from this doc's
 detailed "par énergie" séries for **VUL (N1 → `Vans`)**, **PL (N2/N3 → `HDV`)**
 and **TCP (M2/M3 → `Buses`)**. Those are separate workbooks the VP file does not
 contain, so each needs its own download; once provided they wire exactly like
-`Whole` (variant rows in `fetch_france.py` + the workflow render matrix, and the
+`Whole` (variant rows in `fetch_france.py` + the fetcher's render dispatch would
+then pass them in its `variants` list to render-country.yml, plus the
 `variants:` list in this doc's front-matter). "If `Whole` is right, they should
 be too" — same registry, same mapping.
 

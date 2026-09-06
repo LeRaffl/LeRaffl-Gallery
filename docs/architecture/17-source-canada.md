@@ -241,7 +241,7 @@ flowchart TD
     Data -->|"refPer + value"| Fetch
     Fetch -->|"upsert per variant"| CSV["data/Canada.csv (M1)<br/>data/Canada_Pickups.csv<br/>data/Canada_Vans.csv"]
     CSV -.->|"if changed"| GA["EndBug/add-and-commit"]
-    GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Canada, once per touched variant)"]
+    GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Canada, once with the touched variants)"]
     Dispatch --> Render["R/render_country.R<br/>(four PNGs + params.csv + weights.csv + post)"]
 ```
 

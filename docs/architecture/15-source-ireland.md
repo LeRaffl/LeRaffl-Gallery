@@ -237,7 +237,7 @@ flowchart TD
     Data --> Fetch
     Fetch -->|"upsert (13-col)"| CSV["data/Ireland.csv"]
     CSV -.->|"if changed"| GA["EndBug/add-and-commit"]
-    GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Ireland, variant=Whole)"]
+    GA --> Dispatch["gh workflow run render-country.yml<br/>(country=Ireland, once with the touched variants)"]
     Dispatch --> Render["R/render_country.R"]
 ```
 

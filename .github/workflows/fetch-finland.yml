@@ -13,7 +13,7 @@ name: Fetch Finland data (StatFin 121d)
 # See scripts/fetch_finland.py for the PxWeb query shape and driving-power
 # mapping, and docs/architecture/12-source-finland.md for the full pipeline
 # context. When a CSV changes, this workflow dispatches render-country.yml
-# once per touched variant.
+# once with the touched variants (rendered serially in a single run).
 
 on:
   workflow_dispatch:
@@ -86,8 +86,9 @@ jobs:
           done
           variants=$(IFS='|'; echo "${touched[*]}")
           echo "variants=$variants" >> "$GITHUB_OUTPUT"
-          # JSON array for the downstream matrix (max-parallel: 1 keeps render
-          # commits serial so they don't race on params.csv / weights.csv).
+          # JSON array of the touched variants; the render job turns it into the
+          # pipe-separated list it dispatches to render-country.yml, which renders
+          # them serially in one run (no cross-variant commit race).
           if [ "${#touched[@]}" -eq 0 ]; then
             json='[]'
           else
@@ -110,18 +111,33 @@ jobs:
           message: 'chore: update Finland data from pxdata.stat.fi (StatFin 121d)'
           default_author: github_actions
 
+  # Render the touched variants as ONE top-level "Render: Finland" run in the
+  # Render-country-charts workflow, so it shows up in that workflow's own
+  # history (scannable from the mobile GitHub app) instead of a matrix nested
+  # inside this fetcher's run. We dispatch render-country.yml ONCE with the
+  # pipe-joined variant list; it renders them serially in a single job and
+  # commits once — so unlike the abandoned per-variant `gh workflow run`
+  # fan-out (parallel renders that raced on params.csv/weights.csv), there is
+  # only one render run and nothing races.
   render:
     needs: fetch
     if: needs.fetch.outputs.any_changed == 'true'
-    strategy:
-      fail-fast: false
-      # Serial: each render commits images/, params.csv, weights.csv, posts/ —
-      # parallel variants race on the push and abort. Mirrors fetch-acea.yml.
-      max-parallel: 1
-      matrix:
-        variant: ${{ fromJson(needs.fetch.outputs.variants_json) }}
-    uses: ./.github/workflows/render-country.yml
-    with:
-      country: Finland
-      variant: ${{ matrix.variant }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Finland
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.variants_json }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Finland \
+            -f variants="$variants"

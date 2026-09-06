@@ -40,8 +40,9 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 > [02-components.md § 2.7](02-components.md#27-fetch-actions-overview) and
 > [08-deploy-ops.md § 8.11](08-deploy-ops.md#811-cron-schedule-overview).
 > They all follow the same shape as Flow H: cron → self-throttle → fetch →
-> parse → upsert → change-gated commit → dispatch `render-country.yml` per
-> touched variant.
+> parse → upsert → change-gated commit → dispatch `render-country.yml` once
+> with the touched variants (which it renders serially in one run). ACEA is
+> the one multi-country exception — see Flow N.
 
 ---
 
@@ -550,6 +551,8 @@ The maintainer's preference is for the countries to render one after another rat
 * [render-country.yml](../../.github/workflows/render-country.yml) was extended with a `workflow_call` trigger (the existing `workflow_dispatch` trigger is unchanged — the maintainer still uses the Run-workflow UI button day-to-day).
 * [fetch-acea.yml](../../.github/workflows/fetch-acea.yml) declares a `render` job with `strategy.max-parallel: 1` whose matrix is built from the `changed_countries` JSON output of the fetch step. Each matrix entry `uses: ./.github/workflows/render-country.yml`.
 
+> **Note — ACEA is the only remaining `workflow_call` caller.** Its fan-out axis is *countries*, and render-country.yml renders one country per run, so it genuinely needs the serial matrix. The single-**country** multi-variant fetchers (fetch-finland.yml, fetch-spain.yml, …) took a different route: they dispatch render-country.yml *once* with a pipe-separated `variants` list, which it renders serially inside one run (a third option not in the table below — it needs neither a matrix nor parallel dispatches, and surfaces each fetcher's render as a scannable top-level "Render: `<Country>`" run). That option doesn't help ACEA, whose variants-of-one-run would have to be countries, losing the per-country run granularity.
+
 The downstream build-manifest dispatches from each render aren't an issue: `build-manifest.yml` uses `concurrency: manifest-${{ github.ref }}` with `cancel-in-progress: true`, so all but the last fan-in trigger gets cancelled and exactly one manifest build runs at the end. Deployment is therefore never blocked by the fan-out — the maintainer's explicit concern that "die anderen actions die dranhängen wie z.B. deployment sollten sich nicht aufhängen".
 
 **Alternatives considered:**
@@ -682,7 +685,7 @@ sequenceDiagram
             Job-->>Cron: Exit cleanly (no-op, retry tomorrow)
         else Target month present
             Job->>CSV: Upsert (new periods only, unless --force)
-            Job->>Render: gh workflow run render-country.yml -f country=Uruguay
+            Job->>Render: gh workflow run render-country.yml -f country=Uruguay -f variants=<touched list>
         end
     end
 ```
@@ -977,9 +980,8 @@ sequenceDiagram
     Job->>Job: git diff each CSV → touched=[variants that changed]
     alt any touched
         Job->>CSVs: Single commit for the touched files
-        loop per touched variant
-            Job->>Render: gh workflow run render-country.yml -f country=Netherlands -f variant=<v>
-        end
+        Job->>Render: gh workflow run render-country.yml -f country=Netherlands -f variants=<touched list>
+        Note over Render: renders the variants serially in one "Render: Netherlands" run
     else nothing touched
         Job-->>Cron: Exit cleanly (no-op, no commit)
     end
@@ -1085,9 +1087,8 @@ sequenceDiagram
     Job->>Job: git diff each CSV → touched=[variants that changed]
     alt any touched
         Job->>CSVs: Single commit for the touched files
-        loop per touched variant
-            Job->>Render: gh workflow run render-country.yml -f country=Denmark -f variant=<v>
-        end
+        Job->>Render: gh workflow run render-country.yml -f country=Denmark -f variants=<touched list>
+        Note over Render: renders the variants serially in one "Render: Denmark" run
     else nothing touched
         Job-->>Cron: Exit cleanly (no-op, no commit)
     end
@@ -1136,9 +1137,8 @@ sequenceDiagram
     Job->>Job: git diff each CSV → touched=[variants that changed]
     alt any touched
         Job->>CSVs: Single commit for the touched files
-        loop per touched variant
-            Job->>Render: gh workflow run render-country.yml -f country=Finland -f variant=<v>
-        end
+        Job->>Render: gh workflow run render-country.yml -f country=Finland -f variants=<touched list>
+        Note over Render: renders the variants serially in one "Render: Finland" run
     else nothing touched
         Job-->>Cron: Exit cleanly (no-op, no commit)
     end
@@ -1193,7 +1193,7 @@ sequenceDiagram
 
 **Why HEV and FLEXFUEL are special:** Sweden is the first database-fed country to report a native HEV code (`130` electric hybrid) and a native ethanol/flexifuel code (`150`). The renderer gives both their own slices in the TTM stacked-shares plot and folds them into the brown ICE line for the BEV/PHEV/ICE three-curve (ICE = all minus BEV and PHEV/EREV) — so ethanol counts as ICE in the headline trajectory while staying visible in the fuel mix. No renderer change needed.
 
-**Why no parallel-render push race:** only one variant means only one `render-country.yml` dispatch per run — the race Denmark and Finland hit (multiple variants pushing concurrently) cannot occur here.
+**Why no parallel-render push race:** only one variant means only one variant to render — the `params.csv`/`weights.csv` commit race that multiple concurrent variant renders would cause (which the multi-variant fetchers now avoid by rendering their variants serially inside one run) cannot arise here at all.
 
 **Why daily 1st–15th at 05:50 UTC:** SCB publishes the previous month early in the following month; daily polling catches it and the early-exit makes post-publication days free. 05:50 UTC sits between fetch-denmark (05:15) and fetch-netherlands (06:30).
 
@@ -1201,7 +1201,7 @@ sequenceDiagram
 
 ## Flow T — SIMI ingest
 
-Ireland is fed from the SIMI / motorstats public dashboard (`stats.simi.ie`). It is the **only** database-fed country with **no public API**: the dashboard is a Laravel + Inertia.js SPA, so the fetcher replays a **server-side session-filter flow** rather than calling an endpoint. Four variants — Whole (passenger), Vans (`/lcv`), HDV (`/hcv`), Buses (`/bus`) — all via the identical flow against different routes/components, dispatching a render per touched variant. A headless browser was used once to reverse-engineer the flow; the fetcher itself runs headless via `requests`.
+Ireland is fed from the SIMI / motorstats public dashboard (`stats.simi.ie`). It is the **only** database-fed country with **no public API**: the dashboard is a Laravel + Inertia.js SPA, so the fetcher replays a **server-side session-filter flow** rather than calling an endpoint. Four variants — Whole (passenger), Vans (`/lcv`), HDV (`/hcv`), Buses (`/bus`) — all via the identical flow against different routes/components, dispatching one render with the touched variants. A headless browser was used once to reverse-engineer the flow; the fetcher itself runs headless via `requests`.
 
 ```mermaid
 sequenceDiagram
@@ -1223,7 +1223,7 @@ sequenceDiagram
     Job->>CSV: Upsert (13-col schema)
     alt CSV changed
         Job->>CSV: Commit data/Ireland.csv
-        Job->>Render: gh workflow run render-country.yml -f country=Ireland -f variant=Whole
+        Job->>Render: gh workflow run render-country.yml -f country=Ireland -f variants=<touched list>
     else unchanged
         Job-->>Cron: Exit cleanly (no-op)
     end

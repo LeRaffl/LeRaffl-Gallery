@@ -324,7 +324,7 @@ flowchart TD
     W -.->|"if changed"| GA["EndBug/add-and-commit"]
     U -.->|"if changed"| GA
     H -.->|"if changed"| GA
-    GA --> Dispatch["gh workflow run render-country.yml<br/>(once per touched variant)"]
+    GA --> Dispatch["gh workflow run render-country.yml<br/>(once with the touched variants)"]
     Dispatch --> Render["R/render_country.R<br/>(four PNGs + params.csv + weights.csv + post)"]
 ```
 

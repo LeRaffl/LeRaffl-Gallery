@@ -165,9 +165,9 @@ fetch-luxembourg.yml (cron / dispatch)
        └─ GET lustat SDMX-CSV per variant → upsert per-variant CSV
   └─ detect changed CSVs (git diff, git add -N for new files)
   └─ commit changed CSVs
-  └─ for each touched variant: gh workflow run render-country.yml
-                                 -f country=Luxembourg -f variant=<V>
-       └─ render_country.R reads data/Luxembourg[_<V>].csv → PNGs + params.csv
+  └─ once with the touched variants: gh workflow run render-country.yml
+                                 -f country=Luxembourg -f variants=<list>
+       └─ render_country.R reads data/Luxembourg[_<V>].csv per variant → PNGs + params.csv
        └─ build-manifest.yml
 ```
 

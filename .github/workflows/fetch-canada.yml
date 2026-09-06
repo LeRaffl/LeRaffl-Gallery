@@ -105,22 +105,34 @@ jobs:
           message: 'chore: update Canada data from 150.statcan.gc.ca'
           default_author: github_actions
 
-  # Render the touched variants STRICTLY one at a time (max-parallel: 1), the
-  # same reusable-workflow matrix fetch-acea.yml uses. Firing the renders
-  # concurrently (the old `gh workflow run` loop) raced on params.csv/weights.csv
-  # — each render appends/edits its own row, and the parallel rebases collided
-  # (the "Commit outputs" conflict seen on the Pickups render). Serialising them
-  # makes every render rebase cleanly onto the previous one's commit.
+  # Render the touched variants as ONE top-level "Render: Canada" run in the
+  # Render-country-charts workflow, so it shows up in that workflow's own
+  # history (scannable from the mobile GitHub app) instead of a matrix nested
+  # inside this fetcher's run. We dispatch render-country.yml ONCE with the
+  # pipe-joined variant list; it renders them serially in a single job and
+  # commits once — so unlike the abandoned per-variant `gh workflow run`
+  # fan-out (parallel renders that raced on params.csv/weights.csv, the
+  # "Commit outputs" conflict once seen on the Pickups render), there is only
+  # one render run and nothing races.
   render:
     needs: fetch
     if: needs.fetch.outputs.any_changed == 'true'
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        variant: ${{ fromJson(needs.fetch.outputs.changed_variants) }}
-    uses: ./.github/workflows/render-country.yml
-    with:
-      country: Canada
-      variant: ${{ matrix.variant }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Canada
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Canada \
+            -f variants="$variants"

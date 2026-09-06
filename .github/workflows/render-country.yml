@@ -5,15 +5,31 @@ name: Render country charts
 # four PNGs + params.csv + weights.csv are regenerated and committed.
 # The Build manifest workflow is dispatched after the render commit.
 #
-# Also exposed as `workflow_call` so multi-country fetchers (fetch-acea.yml)
-# can fan it out via a matrix with `max-parallel: 1` for a strict serial
-# rendering chain across all changed countries.
+# Two ways to say WHICH variants to render:
+#   * `variant`  — a single variant (the Run-workflow UI dropdown; also how
+#     ACEA's workflow_call and the single-variant fetchers pass it).
+#   * `variants` — an OPTIONAL pipe-separated list ("Whole|Private|HDV"), used
+#     by the multi-variant single-country fetchers (fetch-finland.yml, …).
+#     When set it OVERRIDES `variant` and the run renders each entry serially
+#     in ONE job, committing once at the end. That keeps every fetcher's render
+#     as a single, top-level "Render: <Country>" run in this workflow's history
+#     (easy to scan from the mobile GitHub app) instead of a matrix of jobs
+#     nested inside the fetcher's own run. Serial-in-one-job also means the
+#     variants never race each other on the shared params.csv/weights.csv
+#     commit — which is exactly why the old design serialised them with a
+#     max-parallel:1 matrix.
+#
+# Also exposed as `workflow_call` so the genuinely multi-COUNTRY fetcher
+# (fetch-acea.yml) can still fan it out via a matrix with `max-parallel: 1`
+# for a strict serial rendering chain across all changed countries — that
+# caller passes a single `variant` per country and is unaffected by `variants`.
 
-# Stamp the country (and variant if non-default) into the run name so the
-# Actions UI lists "Render: Brazil" / "Render: Germany (Private)" instead
-# of 20 identical "Render country charts" entries.
+# Stamp the country into the run name so the Actions UI lists "Render: Brazil"
+# / "Render: Germany (Private)" instead of 20 identical "Render country charts"
+# entries. A multi-variant list renders under the plain "Render: <Country>"
+# name (the single-variant suffix only applies to a lone non-Whole variant).
 run-name: >-
-  Render: ${{ inputs.country }}${{ inputs.variant != '' && inputs.variant != 'Whole' && format(' ({0})', inputs.variant) || '' }}
+  Render: ${{ inputs.country }}${{ (inputs.variants == '' && inputs.variant != '' && inputs.variant != 'Whole') && format(' ({0})', inputs.variant) || '' }}
 
 on:
   workflow_dispatch:
@@ -41,6 +57,11 @@ on:
           - Vans
           - Pickups
           - Non-Passenger
+      variants:
+        description: 'Advanced: pipe-separated variant list, e.g. "Whole|Private|HDV". Overrides Variant when set; used by the multi-variant fetchers.'
+        required: false
+        default: ''
+        type: string
   workflow_call:
     inputs:
       country:
@@ -52,31 +73,45 @@ on:
         required: false
         default: 'Whole'
         type: string
+      variants:
+        description: 'Pipe-separated variant list; overrides `variant` when set'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   render:
     runs-on: ubuntu-latest
-    # A normal render (warm R cache) finishes in <10 min. This cap exists so
-    # a degraded runner or a cold-cache source compile can't hang forever —
-    # important for serial callers (fetch-acea.yml, fetch-spain.yml) whose
-    # matrix is max-parallel=1: without a timeout, one stuck entry stalls
-    # every variant queued behind it. fail-fast:false on those matrices means
-    # a timed-out entry fails alone and the rest still render.
-    timeout-minutes: 30
+    # A single warm render finishes in <10 min. This job now renders every
+    # touched variant of the country serially in one run, so the cap has to
+    # cover the widest fetcher: Spain fans out 8 variants. Budget ≈ one-off R
+    # package compile on a cold cache + 8 × a slow variant (HDV ~5 min). 75 min
+    # leaves headroom without letting a genuinely hung variant hang forever.
+    # (Setup-R runs ONCE per job, so the loop is cheaper than the old
+    # per-variant matrix which repeated setup for every entry.)
+    timeout-minutes: 75
     permissions:
       contents: write
       actions: write
+    # Keeps two renders of the same country+variant from overlapping (they'd
+    # race on that variant's images + the shared params.csv/weights.csv push).
+    # When a fetcher passes a `variants` list, those variants render serially
+    # WITHIN this single run, so they can't race each other regardless of the
+    # group. Kept per-variant (not per-country) on purpose: an existing
+    # per-variant dispatch fan-out (fetch-thailand.yml fires one run per
+    # variant) then still gets a distinct group per run, instead of GitHub's
+    # concurrency queue dropping all but the first two same-country runs.
     concurrency:
       group: render-${{ inputs.country }}-${{ inputs.variant }}
       cancel-in-progress: false
     steps:
       # When called from fetch-acea.yml (or any caller that committed to
-      # the branch between its dispatch and our matrix entry), the default
-      # checkout would grab the dispatch-time SHA — i.e. the branch state
-      # before the fetch job's data commit, missing exactly the rows we're
-      # supposed to render. Pinning `ref` to the branch name pulls the
-      # latest tip, which also lets sequential matrix entries see each
-      # earlier render's commit and push fast-forwards cleanly.
+      # the branch between its dispatch and our run), the default checkout
+      # would grab the dispatch-time SHA — i.e. the branch state before the
+      # fetch job's data commit, missing exactly the rows we're supposed to
+      # render. Pinning `ref` to the branch name pulls the latest tip, which
+      # also lets sequential ACEA matrix entries see each earlier render's
+      # commit and push fast-forwards cleanly.
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
@@ -99,8 +134,41 @@ jobs:
             glue
 
       - name: Render
+        env:
+          COUNTRY: ${{ inputs.country }}
+          VARIANT: ${{ inputs.variant }}
+          VARIANTS: ${{ inputs.variants }}
         run: |
-          Rscript R/render_country.R "${{ inputs.country }}" "${{ inputs.variant }}"
+          # Build the variant work-list. `variants` (pipe-separated) wins when a
+          # multi-variant fetcher passes it; otherwise render the single
+          # `variant` (manual UI runs, ACEA's workflow_call, and the
+          # single-variant fetchers all take this path). Inputs arrive via env
+          # rather than being interpolated straight into the script, so a stray
+          # character in an input can't be interpreted as shell.
+          if [ -n "$VARIANTS" ]; then
+            IFS='|' read -ra list <<< "$VARIANTS"
+          else
+            list=("$VARIANT")
+          fi
+
+          failed=""
+          for v in "${list[@]}"; do
+            [ -n "$v" ] || continue
+            echo "::group::Render $COUNTRY / $v"
+            if Rscript R/render_country.R "$COUNTRY" "$v"; then
+              echo "[ok] $COUNTRY / $v"
+            else
+              echo "::error title=Render failed::$COUNTRY / $v"
+              failed="${failed:+$failed }$v"
+            fi
+            echo "::endgroup::"
+          done
+
+          # Record failures for the final gate step but DON'T fail here — the
+          # variants that DID render still need to be committed and deployed.
+          # This mirrors the old fail-fast:false matrix, where a green leg
+          # committed its output even when a sibling leg went red.
+          echo "RENDER_FAILED=$failed" >> "$GITHUB_ENV"
 
       - name: Commit outputs
         uses: EndBug/add-and-commit@v9
@@ -110,7 +178,7 @@ jobs:
             params.csv
             weights.csv
             posts
-          message: "chore: render ${{ inputs.country }} (${{ inputs.variant }})"
+          message: "chore: render ${{ inputs.country }} (${{ inputs.variants != '' && inputs.variants || inputs.variant }})"
           default_author: github_actions
           pull: '--rebase --autostash'
 
@@ -119,3 +187,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run build-manifest.yml --ref "${GITHUB_REF_NAME}"
+
+      # Turn the run red if any variant failed, AFTER the successful ones have
+      # been committed and the manifest dispatched. A failed render is then
+      # visible as a red "Render: <Country>" entry in this workflow's history.
+      - name: Fail run if any variant failed to render
+        if: ${{ env.RENDER_FAILED != '' }}
+        run: |
+          echo "::error::Variants that failed to render for ${{ inputs.country }}: $RENDER_FAILED"
+          exit 1

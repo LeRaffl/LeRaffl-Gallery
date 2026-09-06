@@ -22,10 +22,10 @@ name: Fetch Spain data (DGT microdata)
 # descending to 2015-01, stops where the MATRABA layout era ends, and (for
 # Whole) splices the remaining history from data/Spain_legacy.csv.
 #
-# Rendering: matrix over the touched variants calling render-country.yml as
-# a reusable workflow with max-parallel=1 — strictly one render at a time,
-# same serial-chain pattern as fetch-acea.yml, so variants never race each
-# other on the render commit.
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list of
+# touched variants; it renders them serially in a single run (one "Render: Spain"
+# entry in the Render-country-charts workflow) and commits once, so variants
+# never race each other on the render commit.
 #
 # DGT publishes the monthly file in the first half of the following month;
 # polled daily on the 1st–16th. The script self-throttles via the CSVs.
@@ -126,19 +126,34 @@ jobs:
           message: 'chore: update Spain data from DGT'
           default_author: github_actions
 
-  # Strictly serial render chain over the touched variants (fetch-acea.yml
-  # pattern): reusable-workflow matrix with max-parallel=1, so no two Spain
-  # renders ever commit concurrently.
+  # Render the touched variants as ONE top-level "Render: Spain" run in the
+  # Render-country-charts workflow, so it shows up in that workflow's own
+  # history (scannable from the mobile GitHub app) instead of a matrix nested
+  # inside this fetcher's run. We dispatch render-country.yml ONCE with the
+  # pipe-joined variant list; it renders them serially in a single job and
+  # commits once — so unlike the abandoned per-variant `gh workflow run`
+  # fan-out (parallel renders that raced on params.csv/weights.csv), there is
+  # only one render run and nothing races. Spain has the widest fan-out (up to
+  # 8 variants); render-country.yml's timeout is sized for that.
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        variant: ${{ fromJson(needs.fetch.outputs.changed_variants) }}
-    uses: ./.github/workflows/render-country.yml
-    with:
-      country: Spain
-      variant: ${{ matrix.variant }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Spain
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Spain \
+            -f variants="$variants"

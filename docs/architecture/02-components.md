@@ -196,20 +196,29 @@ OUTPUT: manifest.json   (top-level, committed to repo)
 
 ### What it is
 
-A GitHub Action with `workflow_dispatch` only — it runs only when manually triggered from the Actions UI with `country` and `variant` inputs.
+A GitHub Action with two entry points and three inputs:
+
+- **`workflow_dispatch`** — the maintainer's Run-workflow UI button, with a `country` and a single `variant` (dropdown).
+- **`workflow_call`** — the reusable-workflow entry point, used only by the genuinely multi-**country** fetcher `fetch-acea.yml`, which fans it out one country at a time (`max-parallel: 1`) passing a single `variant` per country.
+- **`variants`** — an optional pipe-separated list (`"Whole|Private|HDV"`) accepted on both triggers. When set it **overrides** `variant`, and the run renders each entry serially in one job. This is how the single-country fetchers (fetch-finland.yml, …) ask for all their touched variants at once: they `gh workflow run render-country.yml -f country=X -f variants=…`, which produces one top-level **"Render: X"** run in this workflow's history rather than a matrix of jobs nested inside the fetcher's own run.
 
 ### What it does
 
-1. Checks out the repo
+1. Checks out the repo (pinned to the branch tip via `ref: github.ref_name`, so a fetcher's just-committed data rows are present)
 2. Sets up R via `r-lib/actions/setup-r`
 3. Installs the R package set (ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue) with apt prebuilds
-4. Runs `Rscript R/render_country.R <country> <variant>`
-5. Commits the resulting `images/<period>/*.png`, `params.csv` row update, `weights.csv` row update, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` via `EndBug/add-and-commit`
-6. Dispatches `build-manifest.yml` explicitly so the generated images are indexed immediately
+4. Builds the variant work-list (`variants` if set, else the single `variant`) and runs `Rscript R/render_country.R <country> <v>` for each entry **serially**, collecting any failures without aborting the rest (mirrors the old fail-fast:false matrix)
+5. Commits the resulting `images/<period>/*.png`, `params.csv` row updates, `weights.csv` row updates, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` **once** for all rendered variants via `EndBug/add-and-commit`
+6. Dispatches `build-manifest.yml` explicitly so the generated images are indexed immediately (one dispatch per run, not per variant)
+7. Fails the run at the end if any variant failed — so a broken render shows as a red **"Render: X"** entry in the Actions list, while the variants that did render are still committed and deployed
+
+### Why serial-in-one-run for multiple variants?
+
+Every render upserts the **shared** `params.csv`/`weights.csv` (and `heal_v1_zero_rows` rewrites them wholesale). Two renders for the same country running concurrently race on that commit — an earlier per-variant `gh workflow run` fan-out did exactly this and failed intermittently with "conflicting files". Rendering the variants serially inside a single run removes the race without a `max-parallel: 1` matrix, and keeps the whole country's refresh as one scannable run. The per-country `concurrency` group additionally prevents two runs for the *same* country from overlapping.
 
 ### Why manual trigger only and not on `data/` push?
 
-Submission PRs typically batch multiple corrections in one merge. Auto-rendering on every `data/` push would re-render before the maintainer's review of the merge result. Manual trigger keeps the maintainer in the loop and lets them choose which country to refresh.
+Submission PRs typically batch multiple corrections in one merge. Auto-rendering on every `data/` push would re-render before the maintainer's review of the merge result. Manual trigger (plus the fetchers' explicit dispatch) keeps the maintainer in the loop and lets them choose which country to refresh.
 
 ---
 
@@ -234,7 +243,9 @@ Defensive — if a manual upload bypasses the Render action (legacy local R work
 
 ## 2.7 Fetch Actions (overview)
 
-A family of country-specific `fetch-<source>.yml` workflows that scrape national registration sources, upsert the new monthly row into the relevant `data/<Country>.csv`, and dispatch `render-country.yml` per touched country/variant when a CSV actually changed. Each follows the same shape (`workflow_dispatch` + `schedule`, Python script under `scripts/fetch_<source>.py`, EndBug commit, then `gh workflow run render-country.yml`) but the parser is intentionally country-local — every statistics agency has its own URL scheme, file layout, and quirks that don't justify a generic abstraction.
+A family of country-specific `fetch-<source>.yml` workflows that scrape national registration sources, upsert the new monthly row into the relevant `data/<Country>.csv`, and — when a CSV actually changed — dispatch `render-country.yml` to redraw the charts. Each follows the same shape (`workflow_dispatch` + `schedule`, Python script under `scripts/fetch_<source>.py`, EndBug commit, then `gh workflow run render-country.yml`) but the parser is intentionally country-local — every statistics agency has its own URL scheme, file layout, and quirks that don't justify a generic abstraction.
+
+A single-country fetcher dispatches **once** with the pipe-separated list of its touched variants (`-f country=X -f variants="Whole|HDV|…"`); render-country.yml renders them serially in one run, so each fetcher's render is one top-level **"Render: X"** entry in the Render-country-charts history (easy to scan from the mobile GitHub app). The one exception is the multi-**country** fetcher `fetch-acea.yml`, which still calls render-country.yml as a reusable workflow via a `max-parallel: 1` matrix over the changed countries — see [05-flows.md § Flow N](05-flows.md).
 
 | Workflow | Source | Variants written | Schedule (UTC) |
 |---|---|---|---|
