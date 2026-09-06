@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-05T11:06:01Z",
- "today": "2026-09-05",
+ "generated": "2026-09-06T07:09:23Z",
+ "today": "2026-09-06",
  "countries": [
   {
    "country": "Albania",
@@ -2561,10 +2561,10 @@
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-06",
-   "expected_period": "2026-07",
-   "behind": 1,
+   "expected_period": "2026-08",
+   "behind": 2,
    "behind_now": 2,
-   "status": "due",
+   "status": "late",
    "automated": true,
    "schedule": {
     "enabled": true,
