@@ -361,6 +361,18 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
             if alias in wb.sheetnames:
                 first_sheet_name = alias
                 break
+        else:
+            # Fail loudly with the sheets present (same treatment as the
+            # per-sheet loop below) instead of an opaque openpyxl KeyError.
+            # The usual cause is passing the ACAU "Mercado" (per-manufacturer)
+            # workbook by mistake — it has no per-category sheets.
+            raise RuntimeError(
+                f"Workbook is missing required sheet '{first_sheet_name}' "
+                f"(aliases tried: {_SHEET_ALIASES.get(first_sheet_name, [])}). "
+                f"Sheets present: {wb.sheetnames}. This may be the ACAU 'Mercado' "
+                "(per-manufacturer) workbook rather than the 'Compilado' — pass the "
+                "Compilado xlsx URL, or omit --url to auto-discover it."
+            )
     first_ws = wb[first_sheet_name]
     has_title = False
     year_cell = None
