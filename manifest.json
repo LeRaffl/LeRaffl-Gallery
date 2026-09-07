@@ -32,6 +32,166 @@
       "country_slug": "malaysia"
     },
     {
+      "country": "Uruguay",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_ICE_BEV_20260907.png",
+      "url": "images/2026-08/uruguay_ICE_BEV_20260907.png",
+      "alt": "Uruguay ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_20260907.png",
+      "url": "images/2026-08/uruguay_20260907.png",
+      "alt": "Uruguay BEV trajectory",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_time_20260907.png",
+      "url": "images/2026-08/uruguay_time_20260907.png",
+      "alt": "Uruguay Transition time curve",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_ttm_shares_20260907.png",
+      "url": "images/2026-08/uruguay_ttm_shares_20260907.png",
+      "alt": "Uruguay TTM market split graph",
+      "country_slug": "uruguay"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_buses_ICE_BEV_20260907.png",
+      "url": "images/2026-08/uruguay_buses_ICE_BEV_20260907.png",
+      "alt": "Uruguay (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_buses_20260907.png",
+      "url": "images/2026-08/uruguay_buses_20260907.png",
+      "alt": "Uruguay (Buses) BEV trajectory",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_buses_time_20260907.png",
+      "url": "images/2026-08/uruguay_buses_time_20260907.png",
+      "alt": "Uruguay (Buses) Transition time curve",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_buses_ttm_shares_20260907.png",
+      "url": "images/2026-08/uruguay_buses_ttm_shares_20260907.png",
+      "alt": "Uruguay (Buses) TTM market split graph",
+      "country_slug": "uruguay_buses"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_hdv_ICE_BEV_20260907.png",
+      "url": "images/2026-08/uruguay_hdv_ICE_BEV_20260907.png",
+      "alt": "Uruguay (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_hdv_20260907.png",
+      "url": "images/2026-08/uruguay_hdv_20260907.png",
+      "alt": "Uruguay (HDV) BEV trajectory",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_hdv_time_20260907.png",
+      "url": "images/2026-08/uruguay_hdv_time_20260907.png",
+      "alt": "Uruguay (HDV) Transition time curve",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_hdv_ttm_shares_20260907.png",
+      "url": "images/2026-08/uruguay_hdv_ttm_shares_20260907.png",
+      "alt": "Uruguay (HDV) TTM market split graph",
+      "country_slug": "uruguay_hdv"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_vans_ICE_BEV_20260907.png",
+      "url": "images/2026-08/uruguay_vans_ICE_BEV_20260907.png",
+      "alt": "Uruguay (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_vans_20260907.png",
+      "url": "images/2026-08/uruguay_vans_20260907.png",
+      "alt": "Uruguay (Vans) BEV trajectory",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_vans_time_20260907.png",
+      "url": "images/2026-08/uruguay_vans_time_20260907.png",
+      "alt": "Uruguay (Vans) Transition time curve",
+      "country_slug": "uruguay_vans"
+    },
+    {
+      "country": "Uruguay (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-07",
+      "filename": "uruguay_vans_ttm_shares_20260907.png",
+      "url": "images/2026-08/uruguay_vans_ttm_shares_20260907.png",
+      "alt": "Uruguay (Vans) TTM market split graph",
+      "country_slug": "uruguay_vans"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2026-08",
