@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-06T08:52:13Z",
- "today": "2026-09-06",
+ "generated": "2026-09-07T09:41:02Z",
+ "today": "2026-09-07",
  "countries": [
   {
    "country": "Albania",
@@ -2184,7 +2184,7 @@
     ],
     "workflow": ".github/workflows/fetch-malaysia.yml"
    },
-   "last_render": "2026-08-10",
+   "last_render": "2026-09-07",
    "variants": [
     {
      "name": "Whole",
