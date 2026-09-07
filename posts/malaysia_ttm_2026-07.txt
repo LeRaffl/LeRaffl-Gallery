@@ -2,7 +2,7 @@
 
 Aug24–Jul25  vs  Aug25–Jul26
 +3.7pp  BEV     (3.5% → 7.2%)
-+1.7pp  Hybrid  (3.2% → 5.0%)
++1.7pp  Hybrid  (3.3% → 5.0%)
 −5.4pp  ICE     (93.3% → 87.8%)
 
 If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2035-01.
