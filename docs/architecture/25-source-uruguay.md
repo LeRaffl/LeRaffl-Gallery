@@ -92,26 +92,34 @@ below:  data rows (one per model)
 last:   "TOTAL" row with monthly totals (used as per-sheet sanity check)
 ```
 
-**July 2026 revision:** with the June 2026 publication ACAU revised the
-workbook: the title is now `"Reporte Mensual Ventas Unificada YYYY"` instead
-of `"COMPILADO YYYY"`, and the Vans sheet is named `UTIL` instead of
-`UTILITARIO`. Columns, month names, and fuel codes are unchanged. The parser
-accepts both title markers (`COMPILADO`, `VENTAS UNIFICADA`) and all three
-Vans sheet names (`UTILITARIO`, `UTILITARIOS`, `UTIL`). The homepage link
-text is still `"Compilado 2026"`.
+**2026 revisions:** ACAU re-titled and re-cased the workbook twice during 2026,
+each time leaving columns, month names, and fuel codes unchanged:
+
+- **July 2026:** title `"Reporte Mensual Ventas Unificada YYYY"` (instead of
+  `"COMPILADO YYYY"`), Vans sheet `UTIL` instead of `UTILITARIO`.
+- **Aug 2026:** title dropped the "Unificada" → `"Reporte Mensual Ventas YYYY"`,
+  and the sheet names moved to title case (`Autos`, `Suv`, `Minibus`, …).
+
+The parser accepts all three title markers (`COMPILADO`, `VENTAS UNIFICADA`,
+`REPORTE MENSUAL VENTAS`) and resolves sheet names **case-insensitively**
+(`_resolve_sheet`), falling through the alias list (`UTILITARIO` →
+`UTILITARIOS` → `UTIL`). The July figures produced from the Aug-2026 workbook
+reconcile exactly with those from the previous format, confirming the revision
+is cosmetic only. The homepage link text is still `"Compilado 2026"`.
 
 ### Sheet layout differences — 2024 format
 
 | Aspect | 2026+ | 2024 |
 |---|---|---|
-| Year header | `"COMPILADO YYYY"` or `"Reporte Mensual Ventas Unificada YYYY"` in one cell | `"Informe Compilado"` (row 4) + `" Año YYYY"` (row 5) — separate cells |
+| Year header | `"COMPILADO YYYY"`, `"Reporte Mensual Ventas Unificada YYYY"`, or `"Reporte Mensual Ventas YYYY"` in one cell | `"Informe Compilado"` (row 4) + `" Año YYYY"` (row 5) — separate cells |
 | Month names | Full: `Enero` … `Diciembre` | Abbreviated: `Ene` … `Dic` (`Set` = Sep) |
-| Vans sheet | `UTILITARIO` (early 2026) / `UTIL` (since July 2026) | `UTILITARIOS` (plural) |
+| Sheet case | `AUTOS`/`SUV`/… (early+July 2026) or `Autos`/`Suv`/… (since Aug 2026) — matched case-insensitively | `UTILITARIOS` (plural) |
+| Vans sheet | `UTILITARIO` (early 2026) / `UTIL` (July 2026) / `UTILITARIO` (Aug 2026) | `UTILITARIOS` (plural) |
 | Per-brand subtotals | Not present | Rows with `J:Total:` and empty Combustible — silently skipped |
 | Grand total row | `A:TOTAL` | `J:Totales:` |
 | PHEV | Present | Absent (all fuel codes: E, H, N, D only) |
 
-The parser handles both layouts automatically. When the Vans sheet is missing under its 2026 name (`UTILITARIO`), it falls back to `UTILITARIOS`. Month names are matched case-insensitively from an index that includes both full and abbreviated forms.
+The parser handles both layouts automatically. Sheet names are matched case-insensitively (`Autos` == `AUTOS`) and, when the Vans sheet is missing under its 2026 name (`UTILITARIO`), fall back through `UTILITARIOS` / `UTIL`. Month names are matched case-insensitively from an index that includes both full and abbreviated forms.
 
 The parser locates the header row dynamically by searching for the cell value
 `"Combustible"`, so minor row-shifts survive. Month columns are matched against

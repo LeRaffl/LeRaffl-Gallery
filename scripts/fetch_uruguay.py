@@ -76,10 +76,14 @@ headers "Ene"/"Feb"/…) and didn't break out PHEV at all — the maintainer
 had to google models to classify them. This parser targets the 2026+ layout
 only; back-filling pre-2026 years would require a separate parser.
 
-In July 2026 ACAU revised the workbook again ("Reporte Mensual Ventas
-Unificada YYYY" title instead of "COMPILADO YYYY", sheet "UTIL" instead of
-"UTILITARIO"); columns and fuel codes are unchanged. Both 2026 revisions
-are handled.
+ACAU revised the workbook twice more in 2026: the July revision retitled it
+"Reporte Mensual Ventas Unificada YYYY" (instead of "COMPILADO YYYY") with
+sheet "UTIL" instead of "UTILITARIO", and a later revision dropped the
+"Unificada" ("Reporte Mensual Ventas YYYY") and re-cased the sheet names to
+title case ("Autos", "SUV", "Minibus", …). Columns, month names and fuel codes
+are unchanged throughout. Sheet names are matched case-insensitively (see
+_resolve_sheet) and all three title markers are accepted, so every 2026
+revision is handled.
 
 CSV layout (all variants share the same column set)
 ----------------------------------------------------
@@ -182,10 +186,37 @@ _SHEET_ALIASES: dict[str, list[str]] = {
 }
 
 # Title markers that identify a workbook as the per-model Compilado (as
-# opposed to e.g. the per-manufacturer Mercado file). The workbook revision
-# published July 2026 dropped the "COMPILADO YYYY" header in favour of
-# "Reporte Mensual Ventas Unificada YYYY" — same sheets, same columns.
-_TITLE_MARKERS = ("COMPILADO", "VENTAS UNIFICADA")
+# opposed to e.g. the per-manufacturer Mercado file). ACAU has re-titled the
+# workbook twice in 2026: the July revision dropped "COMPILADO YYYY" for
+# "Reporte Mensual Ventas Unificada YYYY", and a later revision dropped the
+# "Unificada" too ("Reporte Mensual Ventas YYYY"). Matched case-insensitively.
+_TITLE_MARKERS = ("COMPILADO", "VENTAS UNIFICADA", "REPORTE MENSUAL VENTAS")
+
+
+def _resolve_sheet(wb, sheet_name: str) -> str:
+    """Return the actual worksheet whose name matches `sheet_name` (or one of
+    its aliases), comparing case-insensitively.
+
+    ACAU is inconsistent about sheet naming across workbook revisions — the
+    Whole sheet has appeared as both ``AUTOS`` and ``Autos``, and the Vans
+    sheet as ``UTILITARIO`` / ``UTILITARIOS`` / ``UTIL`` — so we match on the
+    upper-cased name and fall through the alias list. Raises a RuntimeError
+    naming the sheets present (usually the sign of the per-manufacturer
+    "Mercado" workbook, which has none of these) instead of an opaque
+    openpyxl KeyError.
+    """
+    by_upper = {name.upper(): name for name in wb.sheetnames}
+    for candidate in (sheet_name, *_SHEET_ALIASES.get(sheet_name, [])):
+        actual = by_upper.get(candidate.upper())
+        if actual is not None:
+            return actual
+    raise RuntimeError(
+        f"Workbook is missing required sheet '{sheet_name}' "
+        f"(aliases tried: {_SHEET_ALIASES.get(sheet_name, [])}). "
+        f"Sheets present: {wb.sheetnames}. This may be the ACAU 'Mercado' "
+        "(per-manufacturer) workbook rather than the 'Compilado' — pass the "
+        "Compilado xlsx URL, or omit --url to auto-discover it."
+    )
 
 
 def find_compilado_url(year: int) -> str:
@@ -355,25 +386,7 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     # We therefore scan all cells in the first 10 rows for (a) a cell containing
     # any known title marker and (b) a cell containing a 4-digit year,
     # independently — both must be present somewhere in those rows.
-    first_sheet_name = target_sheets[0]
-    if first_sheet_name not in wb.sheetnames:
-        for alias in _SHEET_ALIASES.get(first_sheet_name, []):
-            if alias in wb.sheetnames:
-                first_sheet_name = alias
-                break
-        else:
-            # Fail loudly with the sheets present (same treatment as the
-            # per-sheet loop below) instead of an opaque openpyxl KeyError.
-            # The usual cause is passing the ACAU "Mercado" (per-manufacturer)
-            # workbook by mistake — it has no per-category sheets.
-            raise RuntimeError(
-                f"Workbook is missing required sheet '{first_sheet_name}' "
-                f"(aliases tried: {_SHEET_ALIASES.get(first_sheet_name, [])}). "
-                f"Sheets present: {wb.sheetnames}. This may be the ACAU 'Mercado' "
-                "(per-manufacturer) workbook rather than the 'Compilado' — pass the "
-                "Compilado xlsx URL, or omit --url to auto-discover it."
-            )
-    first_ws = wb[first_sheet_name]
+    first_ws = wb[_resolve_sheet(wb, target_sheets[0])]
     has_title = False
     year_cell = None
     for row in first_ws.iter_rows(values_only=True, max_row=10):
@@ -405,19 +418,9 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     # Sum all sheets for this variant (Whole sums AUTOS + SUV; others have one sheet each).
     combined: dict[str, list[float]] = {col: [0.0] * 12 for col in set(FUEL_MAP.values())}
     for sheet_name in target_sheets:
-        resolved = sheet_name
-        if resolved not in wb.sheetnames:
-            for alias in _SHEET_ALIASES.get(sheet_name, []):
-                if alias in wb.sheetnames:
-                    resolved = alias
-                    print(f"  NOTE: sheet '{sheet_name}' not found; using alias '{resolved}'")
-                    break
-            else:
-                raise RuntimeError(
-                    f"Workbook is missing required sheet '{sheet_name}' "
-                    f"(aliases tried: {_SHEET_ALIASES.get(sheet_name, [])}). "
-                    f"Sheets present: {wb.sheetnames}"
-                )
+        resolved = _resolve_sheet(wb, sheet_name)
+        if resolved != sheet_name:
+            print(f"  NOTE: sheet '{sheet_name}' resolved to '{resolved}'")
         ws = wb[resolved]
         per_fuel, sheet_total = parse_sheet(ws)
 
