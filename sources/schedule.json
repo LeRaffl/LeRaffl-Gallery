@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-07T20:55:28Z",
- "today": "2026-09-07",
+ "generated": "2026-09-08T09:03:59Z",
+ "today": "2026-09-08",
  "countries": [
   {
    "country": "Albania",
@@ -130,10 +130,10 @@
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -398,10 +398,10 @@
    "cadence_text": "daily cron on the 8th–20th of Mar/Jun/Sep/Dec, 06:40 UTC — the cube is quarterly",
    "interval": "quarterly",
    "latest_period": "2026-02",
-   "expected_period": "2026-02",
-   "behind": 0,
+   "expected_period": "2026-05",
+   "behind": 3,
    "behind_now": 6,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3521,11 +3521,11 @@
    "source_url": "https://www.acau.com.uy/",
    "cadence_text": "daily from the 1st of the month, self-throttling per variant",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3581,37 +3581,37 @@
     ],
     "workflow": ".github/workflows/fetch-uruguay.yml"
    },
-   "last_render": "2026-08-08",
+   "last_render": "2026-09-07",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2021-06",
-     "rows": 45,
+     "rows": 46,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2024-01",
-     "rows": 19,
+     "rows": 20,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2024-01",
-     "rows": 19,
+     "rows": 20,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2024-02",
-     "rows": 18,
+     "rows": 19,
      "cadence": "monthly",
      "in_repo": true
     }
