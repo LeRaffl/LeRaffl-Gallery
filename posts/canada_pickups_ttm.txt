@@ -1,0 +1,11 @@
+🇨🇦 Canada (Pickups) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
+−1.8pp  BEV   (4.4% → 2.5%)
+−0.0pp  PHEV  (0.0% → 0.0%)
++2.6pp  HEV   (6.1% → 8.6%)
+−0.7pp  ICE   (89.6% → 88.8%)
+
+PHEV peaked at 0.0% in Q?'25 (declining for 2 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

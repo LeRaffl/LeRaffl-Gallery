@@ -1,0 +1,12 @@
+🇨🇦 Canada (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++1.8pp  BEV   (2.7% → 4.5%)
+−0.5pp  PHEV  (1.1% → 0.6%)
++3.6pp  HEV   (18.4% → 21.9%)
+−4.8pp  ICE   (77.8% → 73.0%)
+
+PHEV peaked at 1.9% in Q?'24 (declining for 7 quarters).
+If the changes from the last 6 quarters continued linearly, BEV would overtake ICE in Q? 2036.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
