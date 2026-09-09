@@ -7,8 +7,14 @@ name: Fetch Poland data (PZPM eRegistrations)
 #   * HDV   — SAMOCHODY CIĘŻAROWE POW. 3,5T (trucks >3.5t)   -> fetch only
 #   * Buses — AUTOBUSY                                       -> fetch only
 #
-# PZPM owns the Whole row (source := "PZPM"); it is the CEP-based upstream behind
-# ACEA's Poland numbers, so Poland was removed from scripts/fetch_acea.py.
+# PZPM is the PRIMARY source for the Whole row (source := "PZPM"); it is the
+# CEP-based upstream behind ACEA's Poland numbers. The tables now live on
+# www1.pzpm.org.pl and discovery is two-level (landing page + per-month
+# sub-pages); the reporting month is read from the workbook's "Ogółem" sheet,
+# not the URL/filename (PZPM mislabels those). When a month is PDF-only (no xlsx
+# table yet), this run is a clean no-op and ACEA (scripts/fetch_acea.py, Poland
+# on its conditional list) fills that month as a fallback WITHOUT overwriting a
+# PZPM row.
 #
 # IMPORTANT: only Whole is auto-rendered on schedule. The commercial variants
 # are fetched and committed (so their history accumulates — the workbook only

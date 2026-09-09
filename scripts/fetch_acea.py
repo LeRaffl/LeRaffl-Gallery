@@ -84,12 +84,18 @@ The maintainer enumerated two lists:
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
     Luxembourg, Norway, Switzerland
 
-Denmark, Finland, France, Netherlands, Poland, Spain and Sweden appear on
+Denmark, Finland, France, Netherlands, Spain and Sweden appear on
 ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
 from national databases/registries that also carry variants ACEA doesn't expose
-(Private / Industry / Used / HDV / Vans / Buses). Poland comes from PZPM's
-CEP-based eRegistrations workbook (scripts/fetch_poland.py), the upstream
-source behind ACEA's Poland numbers, additionally carrying Vans/HDV/Buses.
+(Private / Industry / Used / HDV / Vans / Buses).
+
+Poland is a special case: it is PZPM-primary (scripts/fetch_poland.py, the
+CEP-based upstream behind ACEA's Poland numbers, additionally carrying
+Vans/HDV/Buses), but PZPM curates its section by hand and sometimes ships a
+month only as a PDF (no .xlsx table). So Poland is on the CONDITIONAL list here
+as a *fallback*: ACEA fills a Poland month only when the row is missing or
+already ACEA-sourced, and never overwrites a PZPM row (ACEA Poland == PZPM
+OSOBOWE, verified to the unit, so the Whole series stays comparable).
 Spain comes from DGT matriculaciones microdata (scripts/fetch_spain.py),
 which is registry-direct, publishes weeks before ACEA, and carries
 Rental/NonRental/Used/Vans/HDV/Buses/2-Wheelers; ACEA must not write Spain
@@ -134,14 +140,23 @@ ALWAYS_COUNTRIES = [
 ]
 CONDITIONAL_COUNTRIES = [
     "Luxembourg", "Norway", "Switzerland",
+    # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
+    # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
+    # curates its eRegistrations section by hand and sometimes publishes a month
+    # only as a PDF infographic (no machine-readable .xlsx table). ACEA is the
+    # fallback for exactly those gaps: the conditional rule means ACEA fills a
+    # Poland month only if the row is missing or already ACEA-sourced, and NEVER
+    # overwrites a PZPM row. ACEA Poland == PZPM OSOBOWE (verified to the unit),
+    # so the two sources share one comparable Whole series.
+    "Poland",
 ]
-# Intentionally NOT in scope: Denmark, Finland, France, Netherlands, Poland,
+# Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
 # Spain, Sweden. The maintainer pulls those from national databases/registries
 # that also carry variants ACEA doesn't expose (Private / Industry / Used / HDV /
 # Vans / Buses), so the national pipeline is the preferred source and ACEA
 # would only muddy the water.
-# Poland: PZPM eRegistrations (scripts/fetch_poland.py) — the CEP-based upstream
-# behind ACEA's Poland numbers.
+# Poland: PZPM-primary (scripts/fetch_poland.py) but on the CONDITIONAL list
+# above as a fallback for PDF-only months — ACEA never overwrites a PZPM row.
 # France: SDES motorisations série (scripts/fetch_france.py) — the registry-
 # statistics branch of the same SIV behind ACEA/PFA; full énergie split incl. a
 # real HEV column back to 2011 (see docs/architecture/36-source-france.md).
