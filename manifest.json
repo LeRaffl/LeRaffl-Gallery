@@ -2,6 +2,126 @@
   "updated": "2026-09-09",
   "images": [
     {
+      "country": "Austria",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_ICE_BEV_20260909.png",
+      "url": "images/2026-08/austria_ICE_BEV_20260909.png",
+      "alt": "Austria ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_20260909.png",
+      "url": "images/2026-08/austria_20260909.png",
+      "alt": "Austria BEV trajectory",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_time_20260909.png",
+      "url": "images/2026-08/austria_time_20260909.png",
+      "alt": "Austria Transition time curve",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_ttm_shares_20260909.png",
+      "url": "images/2026-08/austria_ttm_shares_20260909.png",
+      "alt": "Austria TTM market split graph",
+      "country_slug": "austria"
+    },
+    {
+      "country": "Austria (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_hdv_ICE_BEV_20260909.png",
+      "url": "images/2026-08/austria_hdv_ICE_BEV_20260909.png",
+      "alt": "Austria (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria_hdv"
+    },
+    {
+      "country": "Austria (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_hdv_20260909.png",
+      "url": "images/2026-08/austria_hdv_20260909.png",
+      "alt": "Austria (HDV) BEV trajectory",
+      "country_slug": "austria_hdv"
+    },
+    {
+      "country": "Austria (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_hdv_time_20260909.png",
+      "url": "images/2026-08/austria_hdv_time_20260909.png",
+      "alt": "Austria (HDV) Transition time curve",
+      "country_slug": "austria_hdv"
+    },
+    {
+      "country": "Austria (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_hdv_ttm_shares_20260909.png",
+      "url": "images/2026-08/austria_hdv_ttm_shares_20260909.png",
+      "alt": "Austria (HDV) TTM market split graph",
+      "country_slug": "austria_hdv"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_vans_ICE_BEV_20260909.png",
+      "url": "images/2026-08/austria_vans_ICE_BEV_20260909.png",
+      "alt": "Austria (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_vans_20260909.png",
+      "url": "images/2026-08/austria_vans_20260909.png",
+      "alt": "Austria (Vans) BEV trajectory",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_vans_time_20260909.png",
+      "url": "images/2026-08/austria_vans_time_20260909.png",
+      "alt": "Austria (Vans) Transition time curve",
+      "country_slug": "austria_vans"
+    },
+    {
+      "country": "Austria (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-09",
+      "filename": "austria_vans_ttm_shares_20260909.png",
+      "url": "images/2026-08/austria_vans_ttm_shares_20260909.png",
+      "alt": "Austria (Vans) TTM market split graph",
+      "country_slug": "austria_vans"
+    },
+    {
       "country": "Denmark",
       "type": "ICE_BEV",
       "period": "2026-08",
