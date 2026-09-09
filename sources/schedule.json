@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-09T09:09:28Z",
+ "generated": "2026-09-09T15:03:51Z",
  "today": "2026-09-09",
  "countries": [
   {
@@ -129,11 +129,11 @@
    "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -173,29 +173,29 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-08-14",
+   "last_render": "2026-09-09",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2012-01",
-     "rows": 175,
+     "rows": 176,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2024",
-     "rows": 20,
+     "rows": 21,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2024",
-     "rows": 20,
+     "rows": 21,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -397,11 +397,11 @@
    "source_url": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=2010002501",
    "cadence_text": "daily cron on the 8th–20th of Mar/Jun/Sep/Dec, 06:40 UTC — the cube is quarterly",
    "interval": "quarterly",
-   "latest_period": "2026-02",
+   "latest_period": "2026-05",
    "expected_period": "2026-05",
-   "behind": 3,
-   "behind_now": 6,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 3,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -431,29 +431,29 @@
     ],
     "workflow": ".github/workflows/fetch-canada.yml"
    },
-   "last_render": "2026-06-12",
+   "last_render": "2026-09-09",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-02",
+     "latest": "2026-05",
      "first": "2011-06",
-     "rows": 43,
+     "rows": 44,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "Pickups",
-     "latest": "2026-02",
+     "latest": "2026-05",
      "first": "2017-02",
-     "rows": 37,
+     "rows": 38,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-02",
+     "latest": "2026-05",
      "first": "2017-02",
-     "rows": 37,
+     "rows": 38,
      "cadence": "quarterly",
      "in_repo": true
     }
@@ -887,11 +887,11 @@
    "source_url": "https://www.statbank.dk/BIL53",
    "cadence_text": "daily cron, 1st–15th, 05:15 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -931,45 +931,45 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-08-12",
+   "last_render": "2026-09-09",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2014-01",
-     "rows": 151,
+     "rows": 152,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2021-01",
-     "rows": 67,
+     "rows": 68,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2557,14 +2557,14 @@
    "slug": "poland",
    "method": "file",
    "source_name": "PZPM eRegistrations — the monthly workbook",
-   "source_url": "https://www.pzpm.org.pl/en/Electromobility/eRegistrations",
+   "source_url": "https://www1.pzpm.org.pl/pl/Elektromobilnosc/eRejestracje",
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-07",
    "expected_period": "2026-08",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2599,9 +2599,9 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2011-01",
-     "rows": 186,
+     "rows": 187,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -2609,23 +2609,23 @@
      "name": "Vans",
      "latest": "2026-06",
      "first": "2026-04",
-     "rows": 3,
+     "rows": 4,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2026-04",
-     "rows": 3,
+     "rows": 4,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-07",
      "first": "2026-04",
-     "rows": 3,
+     "rows": 4,
      "cadence": "monthly",
      "in_repo": true
     }
