@@ -122,6 +122,96 @@
       "country_slug": "austria_vans"
     },
     {
+      "country": "Canada",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_ICE_BEV_20260909.png",
+      "url": "images/2026-06/canada_ICE_BEV_20260909.png",
+      "alt": "Canada ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_20260909.png",
+      "url": "images/2026-06/canada_20260909.png",
+      "alt": "Canada BEV trajectory",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_time_20260909.png",
+      "url": "images/2026-06/canada_time_20260909.png",
+      "alt": "Canada Transition time curve",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_ttm_shares_20260909.png",
+      "url": "images/2026-06/canada_ttm_shares_20260909.png",
+      "alt": "Canada TTM market split graph",
+      "country_slug": "canada"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_pickups_ICE_BEV_20260909.png",
+      "url": "images/2026-06/canada_pickups_ICE_BEV_20260909.png",
+      "alt": "Canada (Pickups) ICE-BEV-Hybrid trajectory",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_pickups_20260909.png",
+      "url": "images/2026-06/canada_pickups_20260909.png",
+      "alt": "Canada (Pickups) BEV trajectory",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_pickups_time_20260909.png",
+      "url": "images/2026-06/canada_pickups_time_20260909.png",
+      "alt": "Canada (Pickups) Transition time curve",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Pickups)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_pickups_ttm_shares_20260909.png",
+      "url": "images/2026-06/canada_pickups_ttm_shares_20260909.png",
+      "alt": "Canada (Pickups) TTM market split graph",
+      "country_slug": "canada_pickups"
+    },
+    {
+      "country": "Canada (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-09",
+      "filename": "canada_vans_ttm_shares_20260909.png",
+      "url": "images/2026-06/canada_vans_ttm_shares_20260909.png",
+      "alt": "Canada (Vans) TTM market split graph",
+      "country_slug": "canada_vans"
+    },
+    {
       "country": "Denmark",
       "type": "ICE_BEV",
       "period": "2026-08",
