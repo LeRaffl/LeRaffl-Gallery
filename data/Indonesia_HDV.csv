@@ -5,3 +5,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-04,monthly,HDV,GAIKINDO,0,0,0,0,6737,0,6737,Wholesales Jan-Jun 2026
 2026-05,monthly,HDV,GAIKINDO,0,0,0,0,6068,0,6068,Wholesales Jan-Jun 2026
 2026-06,monthly,HDV,GAIKINDO,0,0,0,0,7984,0,7984,Wholesales Jan-Jun 2026
+2026-07,monthly,HDV,GAIKINDO,0,0,0,0,10029,2,10031,Wholesales Jan-Aug 2026
+2026-08,monthly,HDV,GAIKINDO,1,0,0,0,9526,1,9528,Wholesales Jan-Aug 2026
