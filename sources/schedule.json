@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-09T15:03:51Z",
- "today": "2026-09-09",
+ "generated": "2026-09-10T09:08:41Z",
+ "today": "2026-09-10",
  "countries": [
   {
    "country": "Albania",
@@ -11,10 +11,10 @@
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -283,10 +283,10 @@
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1516,10 +1516,10 @@
    "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
    "interval": "monthly",
    "latest_period": "2026-06",
-   "expected_period": "2026-07",
-   "behind": 1,
+   "expected_period": "2026-08",
+   "behind": 2,
    "behind_now": 2,
-   "status": "due",
+   "status": "late",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1690,10 +1690,10 @@
    "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2560,11 +2560,11 @@
    "source_url": "https://www1.pzpm.org.pl/pl/Elektromobilnosc/eRejestracje",
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2595,37 +2595,37 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-07-07",
+   "last_render": "2026-09-09",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2011-01",
-     "rows": 187,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2026-04",
-     "rows": 4,
+     "rows": 5,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2026-04",
-     "rows": 4,
+     "rows": 5,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2026-04",
-     "rows": 4,
+     "rows": 5,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3451,10 +3451,10 @@
    "cadence_text": "daily cron from the 10th, 10:30 UTC",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
