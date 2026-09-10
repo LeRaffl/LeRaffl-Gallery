@@ -66,3 +66,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-05,monthly,HDV,dpshtrr.al,0,,,0,102,0,102,
 2026-06,monthly,HDV,dpshtrr.al,3,,,0,74,0,77,
 2026-07,monthly,HDV,dpshtrr.al,3,,,1,53,1,58,
+2026-08,monthly,HDV,dpshtrr.al,4,,,1,42,0,47,
