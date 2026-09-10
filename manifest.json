@@ -282,6 +282,36 @@
       "country_slug": "israel_vans"
     },
     {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-10",
+      "filename": "malaysia_ICE_BEV_20260910.png",
+      "url": "images/2026-08/malaysia_ICE_BEV_20260910.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-10",
+      "filename": "malaysia_20260910.png",
+      "url": "images/2026-08/malaysia_20260910.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-10",
+      "filename": "malaysia_time_20260910.png",
+      "url": "images/2026-08/malaysia_time_20260910.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "New Zealand",
       "type": "ICE_BEV",
       "period": "2026-08",
