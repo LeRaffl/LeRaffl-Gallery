@@ -116,7 +116,13 @@ NL_MONTHS = {
     "december": 12,
 }
 
-WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
+# Session-bound workspace GUID embedded in the /viewer HTML. Swing 7.1's
+# server-rendered viewer exposed it as `WsGuid: "<guid>"`; the later SPA rewrite
+# renamed it to `Globals.workspaceId = "<guid>"`. Accept either so we survive
+# the platform change — GetTableStart takes this GUID as workspaceGuid.
+WSGUID_RE = re.compile(
+    r'(?:WsGuid\s*:|Globals\.workspaceId\s*=)\s*"([a-f0-9-]{36})"'
+)
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 # Relay redirect chain: followed client-side so the cookie jar in
