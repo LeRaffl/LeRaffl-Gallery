@@ -77,7 +77,7 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | China | Retail (零售) — passenger cars reaching end customers in mainland China | — | — | — | — | — |
 | Denmark | All new passenger-car registrations (BILTYPE 4000101002, all owners) | New passenger cars registered in households (BRUG 1100) | New passenger cars registered in industries (BRUG 1200) | New vans (BILTYPE 4000102000) | New lorries (BILTYPE 4000103000) | — |
 | Finland | First registrations of passenger cars, all possessors (vehicle class 01) | Passenger cars whose possessor is a private person | Derived cell-by-cell as possessor Total minus Private person | Vans (vehicle class 02) | Lorries over 3.5 t (vehicle class 03) | Buses and coaches (vehicle class 04) — very low volume |
-| India | All vehicle categories combined, from VAHAN | — | — | — | — | — |
+| India | New passenger cars = EU M1 (VAHAN Vehicle Class MOTOR CAR + MOTOR CAB + LUXURY CAB) | — | — | — | — | — |
 | Indonesia | GAIKINDO Passenger Car — Sedan + 4x2 + 4x4 + LCGC | — | — | — | Trucks of 5 t and above | Buses |
 | Ireland | New passenger-car registrations | — | — | New light commercial vehicles (SIMI LCV) | New heavy commercial vehicles (SIMI HCV) | New buses and coaches |
 | Italy | Passenger cars, whole market including rental | — | — | Light commercial vehicles, derived from published percentage shares | — | — |

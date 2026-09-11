@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>India — data source · BEV Trajectories</title>
-<meta name="description" content="Partial EV-registration data for India from the VAHAN dashboard.">
+<meta name="description" content="New passenger-car (EU M1) registrations for India from the VAHAN dashboard.">
 <style>
 :root{
   --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
@@ -122,15 +122,15 @@ table.matrix th:first-child{white-space:nowrap}
   <a class="back" href="./">← All sources</a>
   <h1>India <span class="chip chip--manual" title="entered by hand from the published source">Manual</span></h1>
   
-  <p class="lead">Partial EV-registration data for India from the VAHAN dashboard.</p>
+  <p class="lead">New passenger-car (EU M1) registrations for India from the VAHAN dashboard.</p>
 
   <div class="stats">
     <div class="stat"><div class="n">2026-03</div><div class="l">Latest period modelled</div></div>
     <div class="stat"><div class="n">—</div><div class="l">TTM BEV share (Whole)</div></div>
-    <div class="stat"><div class="n">4</div><div class="l">Variants</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
 
-  <section><h2>How it works</h2><p>India&#x27;s figures are pulled — partially and by hand — from the VAHAN dashboard (Ministry of Road Transport &amp; Highways), the national vehicle-registration system. Coverage is incomplete and updates are irregular, so treat India as provisional.</p><p>India is the one gallery country with no CSV in this repo: all four variants are still rendered from the maintainer&#x27;s local pipeline, so there is no raw file to link and no build-time freshness check behind this page. Every other country&#x27;s numbers can be traced to a committed CSV; India&#x27;s cannot.</p></section>
+  <section><h2>How it works</h2><p>India&#x27;s figures are exported by hand from the VAHAN dashboard (Ministry of Road Transport &amp; Highways) — VAHAN resets foreign connections so there is no automated fetch (scripts/fetch_india.py is probe-only). The maintainer pulls one Fuel x Month Wise Excel per calendar year, filtered to the M1 passenger-car vehicle classes; scripts/build_india.py turns those raw files (data/raw/india/) into data/India.csv.</p><p>Whole was redefined from the old &#x27;all vehicle categories combined&#x27; (and the non-standard 4-Wheelers/3-Wheelers/2-Wheelers split) to EU M1 passenger cars, so India&#x27;s headline series is comparable with every other country&#x27;s Whole. Historical values before this change are not directly comparable; the series was rebuilt from scratch under the new definition (2020 onward).</p><p>Commercial variants (Vans = N1, HDV = N2/N3, Buses = M2/M3) and the India-specific 2-/3-Wheelers are planned re-pulls under the same recipe; their filter definitions are documented in data/raw/india/README.md.</p></section>
 
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard ↗</a></p>
 
@@ -138,21 +138,21 @@ table.matrix th:first-child{white-space:nowrap}
   <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">VAHAN — Ministry of Road Transport &amp; Highways (national register)</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
-  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Vehicle scope</th><td>All VAHAN vehicle categories, split into 2-, 3- and 4-Wheelers plus a combined Whole. Coverage is partial.</td></tr><tr><th>HEV (full hybrids)</th><td>Unknown — with no committed CSV for India there is nothing here to describe. Treat the hybrid handling as unverified until the series is brought into this repo.</td></tr></table>
+  <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Vehicle scope</th><td>Whole = EU M1 passenger cars: VAHAN Vehicle Class MOTOR CAR + MOTOR CAB + LUXURY CAB (private cars incl. SUVs, plus passenger-car taxis). Pulled as the Fuel x Month Wise table, all states/RTOs, calendar year. The running month is dropped and the last two completed months are provisional (VAHAN backfills daily). The exact, reproducible pull recipe lives in data/raw/india/README.md.</td></tr><tr><th>HEV (full hybrids)</th><td>All hybrids fold into HEV (STRONG HYBRID EV plus every */HYBRID label). VAHAN has no consistent MHEV label, so the strong/mild split is not distinguished — treat HEV as unverified on that axis. BEV = ELECTRIC(BOV) + PURE EV; PHEV = PLUG-IN HYBRID EV.</td></tr></table>
 
-  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>All vehicle categories combined, from VAHAN.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr><tr><th>4-Wheelers</th><td>Cars and other four-wheelers.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr><tr><th>3-Wheelers</th><td>Auto-rickshaws and other three-wheelers.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr><tr><th>2-Wheelers</th><td>Motorcycles, scooters and mopeds — by far India&#x27;s largest segment.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr></table></div></section>
-
-  
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>EU M1 passenger cars (MOTOR CAR + MOTOR CAB + LUXURY CAB) from VAHAN, replacing the retired all-categories / 4-Wheelers definition.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr></table></div></section>
 
   
 
   
 
-  <section><h2>Caveats</h2><ul class="caveats"><li>No committed data file — the series lives outside this repository, so nothing on this page is derived from data you can inspect here.</li><li>Coverage is partial and updated by hand; the variants can sit months apart and lag well behind other countries.</li><li>VAHAN registration timing and state coverage differ from the other national sources.</li></ul></section>
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>VAHAN onboarded states over time, so older totals rise as coverage ramps in; the series converges forward and is not back-corrected.</li><li>The most recent one or two months are provisional — VAHAN keeps entering late registrations for weeks, so those months are revised upward on the next re-pull; the incomplete running month is excluded entirely.</li><li>VAHAN registration timing and state coverage differ from the other national sources; absolute volumes are not directly comparable across countries (scope differs).</li><li>VAHAN4 is scheduled for retirement (dashboard banner: after 15 August 2026). When it goes, the pull moves to the New Public Dashboard and the fuel/class labels must be re-verified.</li></ul></section>
 
   <div class="footer">
     <p><strong>Freshness.</strong> No data file for this country in the repository — the period below is the one the fitted model carries: <code>2026-03</code>.
-       Update cadence: entered by hand and irregularly — the variants can sit months apart.<br>
+       Update cadence: monthly, entered by hand from yearly VAHAN Excel exports (one file per calendar year).<br>
        
        Row source string: <code>VAHAN dashboard</code></p>
     
