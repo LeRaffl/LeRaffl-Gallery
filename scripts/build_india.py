@@ -51,9 +51,9 @@ RAW_DIR = os.path.join(REPO, "data", "raw", "india")
 OUT_CSV = os.path.join(REPO, "data", "India.csv")
 
 VARIANT = "Whole"
-_CLASS = "Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1"
-SOURCE_MONTHLY = f"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel x Month Wise; {_CLASS})"
-SOURCE_YEARLY = f"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel Wise Calendar Year; {_CLASS})"
+# Kept short: this string is the chart's on-image source line (see footnote length).
+SOURCE_MONTHLY = "vahan.parivahan.gov.in (VAHAN4; M1: MOTOR CAR/CAB/LUXURY CAB)"
+SOURCE_YEARLY = "vahan.parivahan.gov.in (VAHAN4 annual; M1: MOTOR CAR/CAB/LUXURY CAB)"
 
 # Number of trailing kept months flagged provisional (VAHAN daily backfill).
 PROVISIONAL_TAIL = 2
