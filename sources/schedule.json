@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-10T09:08:41Z",
- "today": "2026-09-10",
+ "generated": "2026-09-11T09:06:32Z",
+ "today": "2026-09-11",
  "countries": [
   {
    "country": "Albania",
@@ -10,11 +10,11 @@
    "source_url": "https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB",
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -58,37 +58,37 @@
     ],
     "workflow": ".github/workflows/fetch-albania.yml"
    },
-   "last_render": "2026-08-16",
+   "last_render": "2026-09-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-01",
-     "rows": 91,
+     "rows": 92,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2020-01",
-     "rows": 67,
+     "rows": 68,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2020-01",
-     "rows": 67,
+     "rows": 68,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2020-01",
-     "rows": 67,
+     "rows": 68,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1515,11 +1515,11 @@
    "source_url": "https://www.gaikindo.or.id/",
    "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1566,37 +1566,37 @@
     ],
     "workflow": ".github/workflows/fetch-indonesia.yml"
    },
-   "last_render": "2026-07-16",
+   "last_render": "2026-09-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2010-01",
-     "rows": 198,
+     "rows": 200,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Pickups",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 8,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 8,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2026-01",
-     "rows": 6,
+     "rows": 8,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1689,11 +1689,11 @@
    "source_url": "https://data.gov.il/dataset/private-and-commercial-vehicles",
    "cadence_text": "daily 08:00 UTC, 10th–20th of the month; self-throttles once the previous month is in",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1729,21 +1729,21 @@
     ],
     "workflow": ".github/workflows/fetch-israel.yml"
    },
-   "last_render": "2026-08-10",
+   "last_render": "2026-09-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2017-01",
-     "rows": 115,
+     "rows": 116,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2017-01",
-     "rows": 115,
+     "rows": 116,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2138,10 +2138,10 @@
    "source_url": "https://data.gov.my/data-catalogue/cars",
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-07",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2184,13 +2184,13 @@
     ],
     "workflow": ".github/workflows/fetch-malaysia.yml"
    },
-   "last_render": "2026-09-07",
+   "last_render": "2026-09-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2437,10 +2437,10 @@
    "source_url": "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/",
    "cadence_text": "entered by hand once the Ministry publishes, usually the 5th–10th of the following month",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": {
@@ -2475,13 +2475,13 @@
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
-   "last_render": "2026-08-08",
+   "last_render": "2026-09-10",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2012-01",
-     "rows": 175,
+     "rows": 176,
      "cadence": "monthly",
      "in_repo": true
     }
