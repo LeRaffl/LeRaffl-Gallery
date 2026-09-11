@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 51 countries · 6,028 periods drawable · 164 held back · **37 of 51 files cost the chart nothing.**
+**Status:** 52 countries · 6,111 periods drawable · 164 held back · **38 of 52 files cost the chart nothing.**
 
 ---
 
@@ -203,4 +203,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hungary, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
+Albania, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hungary, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
