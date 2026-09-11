@@ -1,0 +1,11 @@
+🇮🇳 India - August 26 - BEV Trajectory
+7.8% BEV
+0.0% PHEV
+92.2% ICE (of which 9.1%p were HEV)
+
+Trailing 12 months are:
+5.6% BEV
+0.0% PHEV
+94.4% ICE (of which 8.1%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

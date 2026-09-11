@@ -1,0 +1,13 @@
+🇮🇳 India - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++1.9pp  BEV   (3.7% → 5.6%)
+−0.0pp  PHEV  (0.0% → 0.0%)
+−0.2pp  HEV   (8.3% → 8.1%)
+−1.8pp  ICE   (88.0% → 86.3%)
+
+PHEV peaked at 0.0% in 2025-08 (declining for 12 months).
+HEV peaked at 8.5% in 2025-01 (declining for 19 months).
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2027-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
