@@ -257,6 +257,16 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
     r.raise_for_status()
     m = WSGUID_RE.search(r.text)
     if not m:
+        # DIAG: the /viewer bootstrap now bounces through /viewer/account/login
+        # (anonymous session mint) before returning here. If this final page has
+        # no WsGuid it's either still a login/consent page (session cookie didn't
+        # stick) or Swing changed its HTML shape. Dump status + final URL + a body
+        # snippet + which session cookies we carried so the next run is diagnosable.
+        print(f"[{variant}] WsGuid MISSING — final HTTP {r.status_code}, url {r.url}")
+        print(f"[{variant}] resp headers: {dict(r.headers)}")
+        print(f"[{variant}] carried cookies: "
+              f"{sorted(getattr(session, 'relay_cookies', {}).keys())}")
+        print(f"[{variant}] body[:2000]: {r.text[:2000]!r}")
         raise RuntimeError(
             f"[{variant}] WsGuid not found in /viewer response; the template GUID "
             f"may have been deleted or Swing changed its HTML shape."
