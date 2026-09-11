@@ -266,7 +266,19 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
         print(f"[{variant}] resp headers: {dict(r.headers)}")
         print(f"[{variant}] carried cookies: "
               f"{sorted(getattr(session, 'relay_cookies', {}).keys())}")
-        print(f"[{variant}] body[:2000]: {r.text[:2000]!r}")
+        print(f"[{variant}] body length: {len(r.text)}")
+        # Targeted scans of the full page: how does the new SPA viewer open a
+        # saved workspace? Print every line mentioning the template GUID,
+        # 'workspace', 'WsGuid'/'wsGuid', or a data-* bootstrap attribute, plus
+        # any inline JS config object, so we can see the new open mechanism
+        # without shipping the whole 130KB page back through the logs.
+        needles = [template_guid, "workspace", "WsGuid", "wsGuid", "wsguid",
+                   "GetTableStart", "data-workspace", "initialState", "__INITIAL"]
+        lines = r.text.splitlines()
+        for i, line in enumerate(lines):
+            low = line.lower()
+            if any(n.lower() in low for n in needles):
+                print(f"[{variant}] hit L{i}: {line.strip()[:400]!r}")
         raise RuntimeError(
             f"[{variant}] WsGuid not found in /viewer response; the template GUID "
             f"may have been deleted or Swing changed its HTML shape."
