@@ -1,4 +1,7 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,CNG,LPG,FLEXFUEL,OTHERS,TOTAL,notes
+2017-07,yearly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel Wise Calendar Year; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",1130.0,0.0,48486.0,1665975.0,1231930.0,228400.0,26801.0,1.0,5988.0,3208711.0,
+2018-07,yearly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel Wise Calendar Year; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",1704.0,0.0,71554.0,1730182.0,1198357.0,254352.0,23002.0,2.0,8016.0,3287169.0,
+2019-07,yearly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel Wise Calendar Year; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",2007.0,0.0,115856.0,1688802.0,1020561.0,246889.0,19267.0,0.0,5445.0,3098827.0,
 2020-01,monthly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel x Month Wise; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",318.0,0.0,7410.0,188680.0,99915.0,28369.0,1535.0,0.0,301.0,326528.0,
 2020-02,monthly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel x Month Wise; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",514.0,0.0,5979.0,149880.0,79710.0,19270.0,1418.0,0.0,161.0,256932.0,
 2020-03,monthly,Whole,"vahan.parivahan.gov.in (VAHAN4 dashboard, Fuel x Month Wise; Vehicle Class = MOTOR CAR + MOTOR CAB + LUXURY CAB = EU M1)",462.0,0.0,8362.0,142966.0,77976.0,15875.0,1154.0,0.0,172.0,246967.0,

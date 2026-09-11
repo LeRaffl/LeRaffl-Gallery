@@ -41,9 +41,19 @@ sheet title, not the filename, so minor name drift like
 `Whole_reportTable.2022xlsx.xlsx` is tolerated — but keep the `<Variant>_`
 prefix, it's how the builder assigns the variant).
 
-**Timeline:** currently **2020–present**. VAHAN's pre-2020 state coverage is thin
-(and BEV ≈ 0 anyway), so we start at 2020. Old years are stable — you never need
-to re-pull them. **Only re-pull the current year** on an update (see §4).
+**Timeline:** currently **2017–present**. **2020 onward** is pulled month-wise
+(one Excel per year, 12 monthly columns). **2017–2019** are only available as
+**annual totals** — VAHAN's month-wise view doesn't reach that far back — so
+those three are exported from the dashboard's *"Fuel Wise Calendar Year Data"*
+table instead (one value column headed by the year) and land as `yearly` rows
+(anchored mid-year, `YYYY-07`). The builder auto-detects which shape a file is.
+Old years are stable — you never need to re-pull them. **Only re-pull the
+current year** on an update (see §4).
+
+> To pull an **annual** year: same filters (§2), but the dashboard shows the
+> *Calendar Year* summary table (no month split). Export it as
+> `Whole_reportTable<YYYY>.xlsx` like the others — the builder reads the year
+> from the sheet and emits a single `yearly` row.
 
 ---
 
