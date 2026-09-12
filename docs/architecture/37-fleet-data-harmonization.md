@@ -324,7 +324,38 @@ row per snapshot date (`01.01/04/07/10.YYYY`), back to `01.07.2018`.
    (Jan-1 snapshot per year) or exploit the quarterly depth — annual keeps DE
    consistent with the other 11 countries and the annual fleet model; recommended.
 
-**Cron — yes for Germany.** Unlike the general "no cron" stance, Germany earns
+### ArcGIS Hub API — a cleaner source, pending one check
+
+KBA also runs an **ArcGIS Hub** (`das-kba-statistikportal.hub.arcgis.com`, app
+`experience.arcgis.com/experience/85fe6a72369a4700878c72bb9da8dfa6`). A Hub is a
+front-end over **ArcGIS Feature Services** with a real REST API — no xlsx
+parsing, stable URLs, JSON:
+
+- **Catalog feed** (enumerate everything + its service URLs):
+  `.../api/feed/dcat-us/1.1.json`.
+- **Feature-service query** (the data): each dataset →
+  `https://services-euN.arcgis.com/<orgId>/arcgis/rest/services/<Name>/FeatureServer/0/query?where=1=1&outFields=*&returnGeometry=false&f=json`,
+  paginated via `resultOffset`/`resultRecordCount`, server-side aggregation via
+  `outStatistics`.
+- **Direct CSV** per dataset:
+  `https://opendata.arcgis.com/api/v3/datasets/<id>/downloads/data?format=csv`.
+
+**Open check (needs open egress — the authoring session's org egress policy
+403-blocks arcgis.com and the hub).** The portal's *Bestand* datasets look
+region/segment/e-mobility oriented (`..._RegioStaR`, `...Regionen Gitterzellen`,
+`...ModellreihenSegment_Bestand`, Pkw-mit-Elektro-Antrieb by Bundesland/Gemeinde).
+**Confirm whether it also serves the national Pkw × Kraftstoffart × time series
+(the FZ 27.9 equivalent)** before preferring it over the xlsx. If yes, the fetcher
+queries JSON instead of parsing xlsx; if the portal only has regional snapshots,
+**FZ 27.9 xlsx stays the source** (already confirmed, works today). Verify on a
+CI runner or in-browser via the DCAT feed + one `/query` call.
+
+**Registrations bonus (out of scope, noted):** `FZ_Top50Modellreihen` /
+`FZ_Top3ModellreihenSegment` are monthly **Neuzulassungen** feature services.
+Germany currently has **no dedicated registration fetcher** (it rides ACEA) — a
+native KBA API could upgrade that later.
+
+### Cron — yes for Germany. Unlike the general "no cron" stance, Germany earns
 one: a stable overview page, predictable quarterly `fz27_YYYYMM.xlsx` files, one
 clean sheet, rich splits. Shape it like the existing `fetch-*.yml`:
 `scripts/fetch_fleet_germany.py` scrapes `fz27_b_uebersicht.html` for the newest
@@ -376,5 +407,7 @@ the browser). This is the natural pilot for the whole fleet-fetch pattern.
 - Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
 - Georgia: the actual publisher and its split capability.
 - ~~KBA~~ — **resolved**: FZ 27.9 confirmed, mapping in §4b.
+- KBA ArcGIS Hub: whether it serves the national Pkw×fuel×time series (FZ 27.9
+  equivalent) as a feature service — if so, prefer the JSON API over xlsx (§4b).
 
 These are the only gaps between this spec and a mechanical yearly refresh.
