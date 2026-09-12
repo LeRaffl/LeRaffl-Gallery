@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-12T08:48:47Z",
+ "generated": "2026-09-12T11:41:19Z",
  "today": "2026-09-12",
  "countries": [
   {
@@ -1237,10 +1237,10 @@
   {
    "country": "Germany",
    "slug": "germany",
-   "method": "manual",
+   "method": "file",
    "source_name": "KBA — Kraftfahrt-Bundesamt",
    "source_url": "https://www.kba.de/",
-   "cadence_text": "transcribed by hand each month, once KBA publishes (typically the first week)",
+   "cadence_text": "fetched monthly, once KBA publishes the press release (typically the first week)",
    "interval": "monthly",
    "latest_period": "2026-08",
    "expected_period": null,
