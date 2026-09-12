@@ -1,0 +1,225 @@
+---
+title: Fleet dataset — harmonized format, sources & category contract
+status: proposal / working spec
+summary: >
+  How the Fleet (stock / parc) dataset gets a harmonized schema, a per-country
+  source catalogue, and the same category contract the registration side already
+  uses (doc 35). Converges the hand-curated fleet/fleet_initial.csv onto
+  data/<Country>.csv conventions so a future annual "update the fleet" agent has
+  one format, one mapping table, and one set of definitions to work against.
+---
+
+# 37 · Fleet data — harmonization, sources & category contract
+
+**What this doc is.** The Fleet tab is fed by a hand-curated dataset
+(`fleet/fleet_initial.csv`, see `03-data-objects.md` §3.8) that today has **no
+fetcher, no source column, no per-row provenance, and a drivetrain taxonomy that
+diverges from the registration side.** This is the spec for pulling it onto a
+harmonized format so its yearly refresh (done by a maintainer + agent, **not** a
+cron — stock moves once a year) becomes a mechanical, well-defined task.
+
+It answers the six things that have to be nailed *before* any fetcher is written:
+**format, sources, mapping, extent, quality, definitions.**
+
+> Scope note: this doc specifies the target. The migration of the existing CSV
+> and the frontend parser (`index.html:loadFleetObserved`) is a follow-up, gated
+> on sign-off of §2. Nothing here has been applied to the data yet.
+
+---
+
+## 1 · Where we are today
+
+`fleet/fleet_initial.csv` — 12 countries, columns
+`country,year,BEV,PHEV,HEV,HYBRID,DIESEL,PETROL,OTHERS`:
+
+| Code | Country | Years | n | Hybrid encoding | ICE encoding |
+|---|---|---|---|---|---|
+| NZ | New Zealand | 2015–2025 | 11 | split `PHEV`+`HEV` | petrol/diesel |
+| CN | China | 2017–2025 | 9 | combined in `HYBRID` (really PHEV) | in `OTHERS` (aggregate) |
+| AT | Austria | 2000–2025 | 26 | combined in `HYBRID` | petrol/diesel |
+| IN | India | 2018–2024 | 7 | none | petrol/diesel |
+| GE | **Georgia** | 2017–2025 | 9 | combined in `HYBRID` | petrol/diesel |
+| UK | United Kingdom | 2014–2024 | 11 | split `PHEV`+`HEV` | petrol/diesel |
+| DE | Germany | 2016–2025 | 10 | combined in `HYBRID` | petrol/diesel |
+| NO | Norway | 2016–2025 | 10 | split `PHEV`+`HEV` | petrol/diesel |
+| FI | Finland | 1990–2025 | 36 | split `PHEV` (HEV folded) | petrol/diesel |
+| DK | Denmark | 1993–2025 | 33 | split `PHEV` (HEV folded) | petrol/diesel |
+| CA | Canada | 2017–2024 | 8 | split `PHEV`+`HEV` | petrol/diesel |
+| NL | Netherlands | 2018–2025 | 8 | split `PHEV` (HEV folded) | petrol/diesel |
+
+Four defects fall straight out of the table:
+
+1. **`HEV` and `HYBRID` are the same concept stored in two different columns.**
+   A source that can't separate plug-in from non-plug-in hybrids goes in
+   `HYBRID`; one that can, splits into `PHEV`+`HEV`. The registration side already
+   solved this — combined buckets live in `HEV` with a `hev_note`, **there is no
+   separate `HYBRID` column** (doc 35 §2.2). Fleet should not invent a second
+   convention.
+2. **No `source` column.** `data/<Country>.csv` carries per-row provenance; fleet
+   carries none. A yearly agent can't tell where 2024's number came from.
+3. **No `TOTAL`.** The registration contract validates every row against `TOTAL`
+   (doc 35 §2.4). Fleet has no residual check, so a miscoded row is invisible.
+4. **ISO codes, and `GE` = Georgia collides visually with `DE` = Germany.** The
+   rest of the repo keys on full country names (`data/Netherlands.csv`).
+
+The frontend parser (`index.html:loadFleetObserved`) already papers over #1 with a
+`hybrid > 100` heuristic to decide combined-vs-split per row. Harmonizing the data
+lets that heuristic be deleted in favour of the real contract.
+
+---
+
+## 2 · The harmonized format
+
+**Principle (the one the maintainer set): store at the finest granularity the
+source provides; never fold a category into the wrong parent; let a coarser
+common denominator always be *computed* by roll-up.** This is exactly the
+registration category contract (doc 35 §2) — Fleet adopts it verbatim rather than
+inventing its own, so the two datasets stay one taxonomy.
+
+### 2.1 Schema
+
+One row per `(country, variant, year)`. Columns mirror `data/<Country>.csv` as
+far as stock/annual data allows:
+
+```
+country, variant, year, source, BEV, PHEV, EREV, HEV, MHEV,
+PETROL, DIESEL, GAS, OTHERS, TOTAL, notes
+```
+
+- **`country`** — full name (`Netherlands`, `Norway`, `Georgia`, …), matching
+  `SD_COUNTRIES` in `index.html`. Migrate the 12 ISO codes.
+- **`variant`** — EU-class anchored, same as registrations (`09-glossary.md`):
+  `Whole` = M1 passenger cars = the default, no suffix. **`HDV`, `Vans`, `Buses`
+  come later** — the column exists now so the schema doesn't move when they do.
+- **`year`** — stock is a year-end (or Jan-1, source-dependent — record which in
+  `notes`) snapshot. No `period`/`time_interval` needed; annual by definition.
+- **`source`** — per-row provenance string, like `data/<Country>.csv`.
+- Fuel columns — the registration set, minus the ones no fleet source ever
+  reports at stock level (`CNG`/`LPG`/`FLEXFUEL`/`ETHANOL` fold into `GAS`/`OTHERS`
+  until a source needs them). **`EREV` folds into `PHEV` in the 3-curve view**, as
+  on the registration side.
+- **`TOTAL`** — the source's own total (its scope). Enables the residual check.
+- **`notes`** — the `hev_note`/scope/estimate text (see §3, §4).
+
+### 2.2 The category contract (inherited from doc 35 §2, restated for stock)
+
+- **Combined hybrid → `HEV`, `PHEV` empty, flagged by `hev_note`.** Retire the
+  `HYBRID` column. China/Austria/Germany/Georgia migrate their `HYBRID` figure
+  into `HEV` + a note. (China is special — see §4.)
+- **Aggregate-ICE → leave `PETROL`/`DIESEL` empty; the combustion total sits in
+  `TOTAL − electrified − OTHERS`.** Populating both an aggregate and the split in
+  one row is a validation error, not a merge.
+- **Empty ≠ 0** (AGENTS.md invariant 4). A blank means "not broken out"; a real
+  `0` means "measured zero of these". Only electrified zeros are believed.
+- **Roll-up / common denominator (doc 35 §3).** When the Fleet tab shows or
+  aggregates several countries, it collapses to the *coarsest granularity any
+  selected country can fill*: `PETROL+DIESEL → ICE` where any member is
+  aggregate-ICE; `PHEV+HEV → Hybrid` where any member has a combined bucket.
+  Collapsing is always safe (summing bands you already have); un-collapsing is
+  impossible. **This is the fix for the exact failure the maintainer flagged** —
+  summing a `PETROL` column across members where half don't report one
+  under-counts petrol and inflates the residual.
+- **Residual check (doc 35 §2.4).** A row whose populated leaves miss `TOTAL` by
+  more than ~3 % is suspect: either a category is folded into the wrong parent or
+  a leaf is missing. Flag, don't silently draw.
+
+### 2.3 The danger flags — the cases that are *not* safe to roll up
+
+The maintainer's rule has one sharp edge: roll-up only works when every category
+sits under its *correct* parent. Two miscodings break it and must be recorded as
+data-quality flags (in `notes`, and mirrored in this doc's §4 table), because they
+cannot be detected from the numbers alone:
+
+- **`hev_in_ice`** — full/mild hybrids counted on the combustion side
+  (petrol/diesel/ICE) instead of as `HEV`. Then "ICE" is overstated and "Hybrid"
+  understated, and no collapse recovers it. Affects **NL, DK, FI** (RDW/StatBank
+  don't split full HEVs) and is the single most common fleet-source trap.
+- **`ev_contaminated`** — hybrids (or PHEVs) counted inside `BEV`. Rare but fatal:
+  it inflates the headline BEV-share the whole site is about. No known current
+  case, but every new source is checked for it before ingest.
+
+A third, milder flag:
+
+- **`combined_hybrid`** — the honest combined bucket (→ `HEV` + `hev_note`). Safe
+  to roll up; only blocks the *split* view, never the aggregate.
+
+---
+
+## 3 · Definitions (what a fleet number means here)
+
+- **Fleet / stock / parc** = vehicles *registered and on the road* at the snapshot
+  date — a **stock**, not the **flow** of new registrations in `data/`. Different
+  unit, different model (hazard-rate retirement, doc 03 §3.8).
+- **Scope is the source's scope.** Like registrations, `BEV share = BEV / TOTAL`
+  where `TOTAL` is whatever the national register counts (licensed vs
+  ever-registered; M1 only vs light vehicles). Absolute stocks are **not**
+  cross-country comparable without reading the scope — record it per country (§4).
+- **Snapshot date varies** (Jan-1 for KBA, year-end for others). Recorded in
+  `notes`; matters when lining fleet up against year-end registration cumulatives.
+- **Variant = EU class**, as intent not guarantee (AGENTS.md, `09-glossary.md`) —
+  the per-country scope deviations in §4 are authoritative over the class label.
+
+---
+
+## 4 · Per-country source catalogue
+
+Columns: **Source** (authoritative publisher + access) · **Split** (what the
+source can separate) · **Extent** (coverage) · **Quality** · **Flags / scope**.
+
+Access identifiers marked **⚠ verify** still need one live call to the source to
+confirm the exact table/endpoint — the egress proxy in the authoring session
+blocked several national stats hosts, and the fetcher's CI runner (open egress)
+or the maintainer confirms them at build time.
+
+| Country | Source (publisher / access) | Split | Extent | Quality | Flags / scope |
+|---|---|---|---|---|---|
+| **Netherlands** | RDW (Rijksdienst voor het Wegverkeer). Open Data `opendata.rdw.nl` (Socrata) / CBS StatLine motorvoertuigenpark; the repo already hits RDW via `duurzamemobiliteit.databank.nl` (see `10-source-netherlands.md`), and `fleet_observed.csv` is RDW. | BEV, PHEV; **HEV not split** | 2018–2025 | **High** — open, authoritative | `hev_in_ice` (full HEV in petrol/diesel). M1 personenauto's. |
+| **Norway** | SSB StatBank **table 07849** "Registered vehicles by type of transport and type of fuel", PxWebApi (JSON-stat2), annual `data.ssb.no/api/v0/en/table/07849`. PHEV/HEV split from **OFV** *bilparken*. | BEV, petrol, diesel, "other" from SSB; PHEV/HEV from OFV | SSB 2008– (fleet rows 2016–2025) | **High** (SSB official); OFV medium (report-based, no open API) | SSB fuel dimension is coarse pre-recode — **⚠ verify** whether 07849 now carries plug-in/hybrid petrol+diesel leaves; if not, PHEV/HEV need OFV. M1. |
+| **Germany** | KBA **FZ 13** "Bestand an Kraftfahrzeugen nach Kraftstoffarten", annual **1 Jan**. PDF/CSV downloads, no clean API (`kba.de/.../FZ13`). | BEV, PHEV, HEV(+MHEV), petrol, diesel, gas, H₂ | 2016–2025 | **High** | KBA's "Hybrid gesamt" **includes plug-ins** — use the FZ 13 rows that separate PHEV, or PHEV double-counts. Migrate current `HYBRID`→`HEV`. M1 Pkw. Snapshot = Jan-1. |
+| **Austria** | Statistik Austria "Kfz-Bestand" (Kraftfahrzeuge – Bestand), annual. `statistik.at`. | Combined hybrid only (today) | 2000–2025 (long) | **High** | `combined_hybrid` → `HEV`+note. **⚠ verify** whether STAT now splits PHEV/HEV (recent years likely do). M1. |
+| **Denmark** | Danmarks Statistik StatBank, PxWeb API (`api.statbank.dk`). Reg uses **BIL53**; **stock table ⚠ verify** (BILA/BEST family — "Bestanden af køretøjer"). | BEV, PHEV; **HEV not split** | 1993–2025 (long) | **High** — open API | `hev_in_ice`. M1 personbiler. |
+| **Finland** | Traficom vehicle register / Tilastokeskus **StatFin**, PxWeb API. Reg uses table **121d**; **stock table ⚠ verify** (Traficom *Ajoneuvokanta* by *käyttövoima*). | BEV, PHEV; **HEV not split / =0** | 1990–2025 (**longest**) | **High** — open API | `hev_in_ice`. M1 henkilöautot. |
+| **United Kingdom** | DfT **VEH0105 / VEH0203** "Licensed vehicles by body type & fuel", quarterly ODS, GB + UK. `gov.uk/.../vehicle-licensing-statistics-data-tables`. | BEV, PHEV, HEV split | 2014–2024 | **High** — open, authoritative | "**Licensed**" excludes SORN (off-road) vehicles — a scope difference vs ever-registered registers. Cars = M1. |
+| **New Zealand** | Ministry of Transport / NZTA Waka Kotahi fleet statistics; open dataset on `data.govt.nz` (see `19-source-new-zealand.md`). | BEV, PHEV, HEV, petrol, diesel | 2015–2025 | **High** — open | Light passenger fleet. Cross-check the light/heavy cut against the reg variant. |
+| **Canada** | Statistics Canada. Reg uses cube **20-10-0025** (new regs). **Stock cube ⚠ verify** — 20-10-0025 is *registrations*, not parc; confirm a stock-by-fuel cube exists (else this stays estimate-flagged). | BEV, PHEV, HEV split | 2017–2024 | **Medium** — stock source unconfirmed | If no true stock cube, rows are derived/estimated → flag `estimated` in `notes`. Light vehicles; confirm M1 cut. |
+| **China** | CPCA / CAAM / MIIT / 公安部 (traffic-police NEV ownership releases); report-derived, no single clean table (cf. `24-source-china.md` for the reg CPCA scrape). | BEV, PHEV; HEV & ICE **not split** | 2017–2025 | **Medium** — multi-report | Current `HYBRID` column is actually **PHEV** (China NEV = BEV+PHEV) → migrate to `PHEV`, not `HEV`. Non-plug HEV + all ICE sit in `OTHERS` (aggregate) → flag. Scope = NEV定义; huge absolute base. |
+| **India** | VAHAN dashboard, MoRTH (`vahan.parivahan.gov.in`; see `33-expansion-candidates.md`). | BEV; petrol/diesel; **no PHEV/HEV** | 2018–2024 | **Medium** — coverage gaps | VAHAN historically **excludes some states** (e.g. Telangana, parts of MP) → under-counts stock; scope caveat in `notes`. Registered motor vehicles, M1 slice. |
+| **Georgia** | ⚠ **source unconfirmed** — likely Geostat (National Statistics Office of Georgia) or a customs/used-import-derived series. | Combined hybrid | 2017–2025 | **Low** — provenance unclear | `combined_hybrid`; heavily used-import-driven fleet. **Disambiguate: `Georgia` the country, not the US state; full-name migration removes the `GE`/`DE` collision.** Confirm publisher before the next refresh. |
+
+---
+
+## 5 · What to do next (in order)
+
+1. **Sign off §2** (schema + adopting the doc-35 contract, dropping `HYBRID`).
+2. **Migrate `fleet/fleet_initial.csv`** to the new schema: full names, `variant`,
+   `source`, `TOTAL`, `HYBRID`→`HEV`+note, China `HYBRID`→`PHEV`. A one-shot
+   rewrite is acceptable here (unlike `data/` line-upserts) because it's a schema
+   migration, but preserve every historical value (invariant 3 — don't rewrite the
+   past).
+3. **Update `index.html:loadFleetObserved`** to read the new columns and the
+   `hev_note`/collapse contract; delete the `hybrid > 100` heuristic.
+4. **Confirm the ⚠ verify sources** (one live call each) and write per-country
+   fetch helpers `scripts/fetch_fleet_<country>.py` — **no cron**; run on demand /
+   yearly with an agent. Line-upsert keyed on `(country, variant, year)`.
+5. **Backfill `source` and flags** for the 12 existing countries from §4.
+
+### When you change X, also update Y (fleet)
+
+- **This schema / the contract** → `index.html:loadFleetObserved`, `03-data-objects.md`
+  §3.8, and keep it consistent with the registration contract in `35-proposal-raw-data-tab.md` §2.
+- **A fleet source's logic** → `scripts/fetch_fleet_<c>.py` **and** this §4 row
+  **and** the country's `notes`/flags.
+- **A new fleet country / variant** → this §4 table, `SD_COUNTRIES` variants in
+  `index.html`, and `09-glossary.md` if the scope needs a note.
+
+---
+
+## 6 · Open verification points
+
+- SSB 07849 fuel-leaf granularity (does it split plug-in/hybrid, or only "other"?).
+- Denmark & Finland exact **stock** (not registration) table IDs.
+- Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
+- Georgia: the actual publisher and its split capability.
+- KBA FZ 13: confirm the row that isolates PHEV from the "Hybrid gesamt" total.
+
+These are the only gaps between this spec and a mechanical yearly refresh.
