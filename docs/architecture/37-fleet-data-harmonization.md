@@ -299,17 +299,26 @@ hand-entered `DE` rows. **FZ 27.9** ("Bestand an Personenkraftwagen nach
 Quartalen sowie nach ausgewählten Kraftstoffarten") is a quarterly matrix; one
 row per snapshot date (`01.01/04/07/10.YYYY`), back to `01.07.2018`.
 
-**Column → canonical mapping** (0-indexed A=0):
+**Column → canonical mapping** (verified against `fz27_202607.xlsx`; the date sits
+in **column B**, so data starts one column right of the visual layout — these are
+the true **0-based tuple indices** from `openpyxl` `values_only`):
 
-| Canonical | FZ 27.9 column | Header |
+| Canonical | FZ 27.9 index | Header |
 |---|---|---|
-| `TOTAL` | B | Anzahl insgesamt (all Pkw) |
-| `BEV` | **G** | Elektro (BEV) — **not** col E, which is BEV+FCEV+PHEV combined |
-| `PHEV` | I | Plug-in-Hybrid |
-| `HEV` | J | Hybrid (ohne Plug-in) — **incl. mild hybrids** → flag `mhev_in_hev` |
-| `GAS` | M | Gas insgesamt |
-| `OTHERS` | H + N | Brennstoffzelle (FCEV) + Wasserstoff |
-| `PETROL`/`DIESEL` | — | not split in 27.9; **leave empty**, ICE = `TOTAL − alt` residual (aggregate-ICE). Petrol/diesel split exists only in FZ 27.2/27.4 (per-Bundesland snapshot, awkward, not worth automating). |
+| (date) | 1 | e.g. `01.01.2026` — take only `01.01.` snapshots |
+| `TOTAL` | 2 | Anzahl insgesamt (all Pkw) |
+| `BEV` | **7** | Elektro (BEV) — **not** idx 5, which is BEV+FCEV+PHEV combined |
+| (FCEV) | 8 | Brennstoffzelle (Wasserstoff) → `OTHERS` |
+| `PHEV` | 9 | Plug-in-Hybrid |
+| `HEV` | 10 | Hybrid (ohne Plug-in) — **incl. mild hybrids** → flag `mhev_in_hev` |
+| `GAS` | 13 | Gas insgesamt |
+| (H₂) | 14 | Wasserstoff → `OTHERS` |
+| `OTHERS` | 8 + 14 | FCEV + Wasserstoff |
+| `PETROL`/`DIESEL` | — | **not split in 27.9.** Only the aggregate ICE = `TOTAL − (BEV+PHEV+HEV+GAS+OTHERS)` is derivable (≈ 42.7 M for 2025). The petrol/diesel split lives only in FZ 27.2/27.4 (per-Bundesland, current snapshot, no time series). See the open decision below. |
+
+Verified 2025 (snapshot `01.01.2026`): BEV 2,034,260 ✓ = hand data; GAS 350,851 ✓
+(= the old `OTHERS`); PHEV 1,122,958 + HEV 3,239,605 = 4,362,563 ✓ = the old
+combined `HYBRID`. ICE residual 42,737,230 ≈ hand petrol+diesel 42,729,394 (0.02 %).
 
 **Two things this settles:**
 
