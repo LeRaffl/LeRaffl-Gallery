@@ -185,7 +185,7 @@ or the maintainer confirms them at build time.
 |---|---|---|---|---|---|
 | **Netherlands** | RDW (Rijksdienst voor het Wegverkeer). Open Data `opendata.rdw.nl` (Socrata) / CBS StatLine motorvoertuigenpark; the repo already hits RDW via `duurzamemobiliteit.databank.nl` (see `10-source-netherlands.md`), and `fleet_observed.csv` is RDW. | BEV, PHEV; **HEV not split** | 2018–2025 | **High** — open, authoritative | `hev_in_ice` (full HEV in petrol/diesel). M1 personenauto's. |
 | **Norway** | SSB StatBank **table 07849** "Registered vehicles by type of transport and type of fuel", PxWebApi (JSON-stat2), annual `data.ssb.no/api/v0/en/table/07849`. PHEV/HEV split from **OFV** *bilparken*. | BEV, petrol, diesel, "other" from SSB; PHEV/HEV from OFV | SSB 2008– (fleet rows 2016–2025) | **High** (SSB official); OFV medium (report-based, no open API) | SSB fuel dimension is coarse pre-recode — **⚠ verify** whether 07849 now carries plug-in/hybrid petrol+diesel leaves; if not, PHEV/HEV need OFV. M1. |
-| **Germany** | KBA **FZ 13** "Bestand an Kraftfahrzeugen nach Kraftstoffarten", annual **1 Jan**. PDF/CSV downloads, no clean API (`kba.de/.../FZ13`). | BEV, PHEV, HEV(+MHEV), petrol, diesel, gas, H₂ | 2016–2025 | **High** | KBA's "Hybrid gesamt" **includes plug-ins** — use the FZ 13 rows that separate PHEV, or PHEV double-counts. Migrate current `HYBRID`→`HEV`. M1 Pkw. Snapshot = Jan-1. |
+| **Germany** ✅ **confirmed (§4b)** | KBA **FZ 27, sheet FZ 27.9** — Pkw stock by quarter & drivetrain, XLSX (`kba.de/.../FZ27/`). | BEV, PHEV, HEV(+MHEV), gas, FCEV/H₂; **petrol/diesel not split** (aggregate-ICE) | quarterly 2018-07 → now | **High** | Old `HYBRID` was PHEV+HEV lumped → now split. `mhev_in_hev`. Year `Y` = `01.01.(Y+1)` snapshot. **Cron candidate.** M1 Pkw. |
 | **Austria** | Statistik Austria "Kfz-Bestand" (Kraftfahrzeuge – Bestand), annual. `statistik.at`. | Combined hybrid only (today) | 2000–2025 (long) | **High** | `combined_hybrid` → `HEV`+note. **⚠ verify** whether STAT now splits PHEV/HEV (recent years likely do). M1. |
 | **Denmark** | Danmarks Statistik StatBank, PxWeb API (`api.statbank.dk`). Reg uses **BIL53**; **stock table ⚠ verify** (BILA/BEST family — "Bestanden af køretøjer"). | BEV, PHEV; **HEV not split** | 1993–2025 (long) | **High** — open API | `hev_in_ice`. M1 personbiler. |
 | **Finland** | Traficom vehicle register / Tilastokeskus **StatFin**, PxWeb API. Reg uses table **121d**; **stock table ⚠ verify** (Traficom *Ajoneuvokanta* by *käyttövoima*). | BEV, PHEV; **HEV not split / =0** | 1990–2025 (**longest**) | **High** — open API | `hev_in_ice`. M1 henkilöautot. |
@@ -223,13 +223,13 @@ breakdown offered · time = all available years**. `✅` = confirmed identifier;
   and "Hybrid petrol/diesel"** — if yes, SSB alone gives the full split; if only
   "Electricity / Other", take PHEV/HEV from **OFV** *bilparken* year-end reports.
 
-- **Germany — KBA FZ 13** ✅.
-  `kba.de` → Statistik → Fahrzeuge → Bestand → *"Bestand an Kraftfahrzeugen nach
-  Kraftstoffarten"* (FZ 13), one XLSX/PDF per year (snapshot **1 Jan**). Take the
-  **Pkw** rows. Columns: Benzin, Diesel, Gas(LPG/CNG), Elektro (BEV),
-  **Plug-in-Hybrid**, Hybrid (non-plug, incl. mild), Wasserstoff. Trap: KBA also
-  prints a "Hybrid **insgesamt**" that *includes* plug-ins — take the row that
-  isolates PHEV, don't sum the total or PHEV double-counts.
+- **Germany — KBA FZ 27, sheet FZ 27.9** ✅ **confirmed (see §4b).**
+  Overview `kba.de/.../FZ27/fz27_b_uebersicht.html`; files
+  `fz27_YYYYMM.xlsx` with `MM ∈ {01,04,07,10}` (quarterly snapshots
+  1 Jan/Apr/Jul/Oct). **Sheet FZ 27.9** = Pkw stock **by quarter** and drivetrain,
+  one clean time series back to **01.07.2018** — the automatable backbone.
+  (The older FZ 13 is the annual equivalent; 27.9 supersedes it with quarterly
+  depth and the same splits.)
 
 - **United Kingdom — DfT VEH0105** ✅ (or VEH0203).
   `gov.uk` → *"Vehicle licensing statistics data tables"* → **VEH0105**
@@ -286,8 +286,52 @@ breakdown offered · time = all available years**. `✅` = confirmed identifier;
 
 **Most useful files to send me first** (they resolve the open `⚠` points and let
 me test the migration against real columns before touching the frontend):
-**Netherlands, Germany, Norway, Denmark, Finland, Canada.** Raw as downloaded
-(CSV/ODS/XLSX) is perfect — I map them, I don't need them pre-cleaned.
+**Netherlands, Norway, Denmark, Finland, Canada** (Germany is now confirmed —
+§4b). Raw as downloaded (CSV/ODS/XLSX) is perfect — I map them, I don't need
+them pre-cleaned.
+
+---
+
+## 4b · Germany — confirmed source & mapping (KBA FZ 27.9)
+
+Verified against `fz27_202607.xlsx` and cross-checked against the existing
+hand-entered `DE` rows. **FZ 27.9** ("Bestand an Personenkraftwagen nach
+Quartalen sowie nach ausgewählten Kraftstoffarten") is a quarterly matrix; one
+row per snapshot date (`01.01/04/07/10.YYYY`), back to `01.07.2018`.
+
+**Column → canonical mapping** (0-indexed A=0):
+
+| Canonical | FZ 27.9 column | Header |
+|---|---|---|
+| `TOTAL` | B | Anzahl insgesamt (all Pkw) |
+| `BEV` | **G** | Elektro (BEV) — **not** col E, which is BEV+FCEV+PHEV combined |
+| `PHEV` | I | Plug-in-Hybrid |
+| `HEV` | J | Hybrid (ohne Plug-in) — **incl. mild hybrids** → flag `mhev_in_hev` |
+| `GAS` | M | Gas insgesamt |
+| `OTHERS` | H + N | Brennstoffzelle (FCEV) + Wasserstoff |
+| `PETROL`/`DIESEL` | — | not split in 27.9; **leave empty**, ICE = `TOTAL − alt` residual (aggregate-ICE). Petrol/diesel split exists only in FZ 27.2/27.4 (per-Bundesland snapshot, awkward, not worth automating). |
+
+**Two things this settles:**
+
+1. **Germany becomes fully split** — the old `HYBRID` column held KBA's
+   `PHEV(I)+HEV(J)` lumped together (verified: `2025` HYBRID 4,362,563 =
+   1,122,958 + 3,239,605 at 01.01.2026). Harmonized, DE fills `PHEV` **and**
+   `HEV` separately. No combined bucket needed.
+2. **Year convention** — the maintainer labels **year `Y` = the `01.01.(Y+1)`
+   snapshot** (stock at end of year `Y`): `DE 2025` BEV 2,034,260 = KBA
+   `01.01.2026` col G exactly. Keep this convention (don't rewrite the past) and
+   record the snapshot date in `notes`/`source`. *Open choice:* stay annual
+   (Jan-1 snapshot per year) or exploit the quarterly depth — annual keeps DE
+   consistent with the other 11 countries and the annual fleet model; recommended.
+
+**Cron — yes for Germany.** Unlike the general "no cron" stance, Germany earns
+one: a stable overview page, predictable quarterly `fz27_YYYYMM.xlsx` files, one
+clean sheet, rich splits. Shape it like the existing `fetch-*.yml`:
+`scripts/fetch_fleet_germany.py` scrapes `fz27_b_uebersicht.html` for the newest
+`fz27_*.xlsx` (the `?v=N` version param rules out a hard-coded URL), parses
+FZ 27.9, line-upserts the new snapshot into the fleet CSV; a self-throttling
+monthly cron + `workflow_dispatch`. **No render dispatch** (fleet is computed in
+the browser). This is the natural pilot for the whole fleet-fetch pattern.
 
 ---
 
@@ -331,6 +375,6 @@ me test the migration against real columns before touching the frontend):
 - Denmark & Finland exact **stock** (not registration) table IDs.
 - Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
 - Georgia: the actual publisher and its split capability.
-- KBA FZ 13: confirm the row that isolates PHEV from the "Hybrid gesamt" total.
+- ~~KBA~~ — **resolved**: FZ 27.9 confirmed, mapping in §4b.
 
 These are the only gaps between this spec and a mechanical yearly refresh.
