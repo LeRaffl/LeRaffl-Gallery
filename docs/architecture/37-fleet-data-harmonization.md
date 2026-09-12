@@ -386,8 +386,12 @@ registration totals either.
 
 **Registrations bonus (out of scope, noted):** `FZ_Top50Modellreihen` /
 `FZ_Top3ModellreihenSegment` are monthly **Neuzulassungen** feature services.
-Germany currently has **no dedicated registration fetcher** (it rides ACEA) — a
-native KBA API could upgrade that later.
+Germany now has a **dedicated registration fetcher** — `scripts/fetch_germany.py`
+(`.github/workflows/fetch-germany.yml`) parses the KBA monthly press-release
+`…_merkmale.xlsx` and upserts `data/Germany.csv` (Whole), replacing the old
+hand-entry / ACEA path. A native KBA ArcGIS API could upgrade the *source*
+later, but the top-model feature services above still don't give a clean
+national total, so the press-release workbook remains the source.
 
 ### Cron — yes for Germany. Unlike the general "no cron" stance, Germany earns
 one: a stable overview page, a predictable annual `fz13_YYYY.xlsx`, one clean
