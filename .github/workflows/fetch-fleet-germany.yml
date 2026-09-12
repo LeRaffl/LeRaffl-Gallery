@@ -1,0 +1,71 @@
+name: Fetch Germany fleet data (KBA FZ 13)
+
+# Fetches Germany's passenger-car FLEET (stock / Bestand) by drivetrain from the
+# Kraftfahrt-Bundesamt and upserts it into:
+#
+#   fleet/fleet_initial.csv   — country=Germany, variant=Whole (annual, 1 Jan)
+#
+# Source: KBA "Bestand an Kraftfahrzeugen nach Umwelt-Merkmalen" (FZ 13),
+# sheet FZ 13.2.1 — the annual Pkw-by-Kraftstoffart time series (full petrol/
+# diesel/LPG/CNG/BEV/PHEV/HEV split, back to 2010). See
+# scripts/fetch_fleet_germany.py and docs/architecture/37-fleet-data-harmonization.md §4b.
+#
+# This is a FLEET (stock) fetcher, not a registration one: it is annual, and it
+# does NOT trigger render-country.yml — fleet charts are computed in the browser
+# from the static CSV, so a data commit + Pages redeploy is the whole pipeline.
+#
+# KBA publishes the FZ 13 annual workbook around Feb–Mar (snapshot 1 January).
+# A monthly cron catches it; the fetcher is idempotent (same data -> no diff ->
+# no commit), so off-season runs are no-ops.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Override the FZ 13 xlsx URL (default: newest on the overview page)'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Parse and print rows without writing the CSV'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: '0 6 8 * *'   # 08th of each month, 06:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch & update Germany fleet rows
+        run: |
+          python scripts/fetch_fleet_germany.py \
+            ${URL:+--url "$URL"} \
+            ${DRY_RUN:+--dry-run}
+        env:
+          URL: ${{ inputs.url }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+          KBA_FETCH_RELAY: ${{ secrets.KBA_FETCH_RELAY }}
+          KBA_RELAY_TOKEN: ${{ secrets.KBA_RELAY_TOKEN }}
+          KBA_PROXY: ${{ secrets.KBA_PROXY }}
+
+      - name: Commit if changed
+        if: ${{ inputs.dry_run != true }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'fleet/fleet_initial.csv'
+          message: 'chore: update Germany fleet data from KBA FZ 13'
+          default_author: github_actions

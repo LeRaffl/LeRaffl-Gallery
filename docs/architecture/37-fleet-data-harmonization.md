@@ -223,13 +223,11 @@ breakdown offered · time = all available years**. `✅` = confirmed identifier;
   and "Hybrid petrol/diesel"** — if yes, SSB alone gives the full split; if only
   "Electricity / Other", take PHEV/HEV from **OFV** *bilparken* year-end reports.
 
-- **Germany — KBA FZ 27, sheet FZ 27.9** ✅ **confirmed (see §4b).**
-  Overview `kba.de/.../FZ27/fz27_b_uebersicht.html`; files
-  `fz27_YYYYMM.xlsx` with `MM ∈ {01,04,07,10}` (quarterly snapshots
-  1 Jan/Apr/Jul/Oct). **Sheet FZ 27.9** = Pkw stock **by quarter** and drivetrain,
-  one clean time series back to **01.07.2018** — the automatable backbone.
-  (The older FZ 13 is the annual equivalent; 27.9 supersedes it with quarterly
-  depth and the same splits.)
+- **Germany — KBA FZ 13, sheet FZ 13.2.1** ✅ **BUILT (see §4b).**
+  Overview `kba.de/.../fz13_b_uebersicht.html`; files `fz13_YYYY.xlsx` (annual,
+  snapshot 1 Jan). **Sheet FZ 13.2.1** = Pkw stock by fuel, annual **2010→now**,
+  full petrol/diesel/LPG/CNG/BEV/PHEV/HEV split; every row sums to TOTAL.
+  Automated by `scripts/fetch_fleet_germany.py` + `fetch-fleet-germany.yml`.
 
 - **United Kingdom — DfT VEH0105** ✅ (or VEH0203).
   `gov.uk` → *"Vehicle licensing statistics data tables"* → **VEH0105**
@@ -292,46 +290,63 @@ them pre-cleaned.
 
 ---
 
-## 4b · Germany — confirmed source & mapping (KBA FZ 27.9)
+## 4b · Germany — BUILT source & mapping (KBA FZ 13.2.1)
 
-Verified against `fz27_202607.xlsx` and cross-checked against the existing
-hand-entered `DE` rows. **FZ 27.9** ("Bestand an Personenkraftwagen nach
-Quartalen sowie nach ausgewählten Kraftstoffarten") is a quarterly matrix; one
-row per snapshot date (`01.01/04/07/10.YYYY`), back to `01.07.2018`.
+**Source chosen: FZ 13.2.1**, not FZ 27.9. FZ 27.9 is quarterly but gives ICE
+only as one aggregate (no petrol/diesel split — it would blow a 42 M-car hole in
+the chart or dump it all in `OTHERS`). **FZ 13.2.1** ("Bestand an
+Personenkraftwagen 2010 bis YYYY nach Kraftstoffarten", in the annual
+`fz13_YYYY.xlsx`) is annual (matches the schema's `year`), splits petrol/diesel
+**and** LPG/CNG, reaches back to 2010, and **every row sums exactly to TOTAL** —
+so the ICE question is moot. Implemented in `scripts/fetch_fleet_germany.py`.
 
-**Column → canonical mapping** (verified against `fz27_202607.xlsx`; the date sits
-in **column B**, so data starts one column right of the visual layout — these are
-the true **0-based tuple indices** from `openpyxl` `values_only`):
+**Column → canonical mapping** (verified against `fz13_2026.xlsx`; the year sits
+in spreadsheet **column B** — column A is blank — so these are 1-based cell
+columns):
 
-| Canonical | FZ 27.9 index | Header |
+| Canonical | FZ 13.2.1 col | Header |
 |---|---|---|
-| (date) | 1 | e.g. `01.01.2026` — take only `01.01.` snapshots |
-| `TOTAL` | 2 | Anzahl insgesamt (all Pkw) |
-| `BEV` | **7** | Elektro (BEV) — **not** idx 5, which is BEV+FCEV+PHEV combined |
-| (FCEV) | 8 | Brennstoffzelle (Wasserstoff) → `OTHERS` |
-| `PHEV` | 9 | Plug-in-Hybrid |
-| `HEV` | 10 | Hybrid (ohne Plug-in) — **incl. mild hybrids** → flag `mhev_in_hev` |
-| `GAS` | 13 | Gas insgesamt |
-| (H₂) | 14 | Wasserstoff → `OTHERS` |
-| `OTHERS` | 8 + 14 | FCEV + Wasserstoff |
-| `PETROL`/`DIESEL` | — | **not split in 27.9.** Only the aggregate ICE = `TOTAL − (BEV+PHEV+HEV+GAS+OTHERS)` is derivable (≈ 42.7 M for 2025). The petrol/diesel split lives only in FZ 27.2/27.4 (per-Bundesland, current snapshot, no time series). See the open decision below. |
+| (year) | 2 | Jahr — snapshot 1 Jan; **our year = Jahr − 1** |
+| `PETROL` | 3 | Benzin (from 2017 **excl. ethanol** → note on older rows) |
+| `DIESEL` | 4 | Diesel |
+| `LPG` | 5 | Flüssiggas (LPG) |
+| `CNG` | 6 | Erdgas (CNG) |
+| `BEV` | 7 | Elektro (BEV) |
+| `PHEV` | 9 | *darunter* Plug-in |
+| `HEV` | 8 − 9 | Hybrid insgesamt − Plug-in (**incl. mild** → `mhev_in_hev`) |
+| `OTHERS` | 10 | Sonstige (incl. FCEV/H₂) |
+| `TOTAL` | 11 | Insgesamt |
 
-Verified 2025 (snapshot `01.01.2026`): BEV 2,034,260 ✓ = hand data; GAS 350,851 ✓
-(= the old `OTHERS`); PHEV 1,122,958 + HEV 3,239,605 = 4,362,563 ✓ = the old
-combined `HYBRID`. ICE residual 42,737,230 ≈ hand petrol+diesel 42,729,394 (0.02 %).
+`GAS` is left empty (populate the finer `CNG`+`LPG` leaves instead). Pre-2011
+rows have Plug-in unavailable (`X`/`-`) → PHEV empty and the whole hybrid bucket
+kept as a combined `HEV` (noted).
+
+**Verified** (snapshot `01.01.2026` → our year 2025): BEV 2,034,260 ✓, PETROL
+29,343,732 ✓, DIESEL 13,385,662 ✓ (all = hand data); LPG 284,455 + CNG 66,396 =
+350,851 = the old `OTHERS`/gas ✓; PHEV 1,122,958 + HEV 3,239,605 = 4,362,563 =
+the old combined `HYBRID` ✓. All 17 rows (our years 2009–2025) close to TOTAL.
 
 **Two things this settles:**
 
-1. **Germany becomes fully split** — the old `HYBRID` column held KBA's
-   `PHEV(I)+HEV(J)` lumped together (verified: `2025` HYBRID 4,362,563 =
-   1,122,958 + 3,239,605 at 01.01.2026). Harmonized, DE fills `PHEV` **and**
-   `HEV` separately. No combined bucket needed.
-2. **Year convention** — the maintainer labels **year `Y` = the `01.01.(Y+1)`
-   snapshot** (stock at end of year `Y`): `DE 2025` BEV 2,034,260 = KBA
-   `01.01.2026` col G exactly. Keep this convention (don't rewrite the past) and
-   record the snapshot date in `notes`/`source`. *Open choice:* stay annual
-   (Jan-1 snapshot per year) or exploit the quarterly depth — annual keeps DE
-   consistent with the other 11 countries and the annual fleet model; recommended.
+1. **Germany is now fully split** — the old `HYBRID` column lumped `PHEV+HEV`.
+   FZ 13.2.1 separates them, so DE fills `PHEV` **and** `HEV`, extends the series
+   back to **2009**, and gains real `PETROL/DIESEL/LPG/CNG/TOTAL/source`.
+2. **Year convention** — year `Y` = the `01.01.(Y+1)` snapshot (stock at end of
+   `Y`); matches the maintainer's existing rows exactly. Snapshot date recorded
+   in `notes`/`source`. Stays **annual** (consistent with the other 11 countries
+   and the annual fleet model); FZ 27.9's quarterly depth is a future option.
+
+**Scope notes** (from the FZ 13.2.1 Hinweis): motorhomes/ambulances counted as
+Pkw since 2006; only currently-registered vehicles (no temporary de-registrations)
+since 2008; Benzin excludes ethanol from 2017.
+
+### FZ 27.9 (quarterly) — the alternative, not used
+
+FZ 27 sheet **FZ 27.9** carries the same drivetrain splits **by quarter** back to
+`01.07.2018` (verified indices: TOTAL=2, BEV=7, FCEV=8, PHEV=9, HEV=10, GAS=13,
+H₂=14), but **no petrol/diesel split** (aggregate ICE only). Kept on the shelf in
+case a future quarterly fleet view is wanted; FZ 13.2.1 is preferred for the
+annual series.
 
 ### ArcGIS Hub API — a cleaner source, pending one check
 
@@ -375,38 +390,41 @@ Germany currently has **no dedicated registration fetcher** (it rides ACEA) — 
 native KBA API could upgrade that later.
 
 ### Cron — yes for Germany. Unlike the general "no cron" stance, Germany earns
-one: a stable overview page, predictable quarterly `fz27_YYYYMM.xlsx` files, one
-clean sheet, rich splits. Shape it like the existing `fetch-*.yml`:
-`scripts/fetch_fleet_germany.py` scrapes `fz27_b_uebersicht.html` for the newest
-`fz27_*.xlsx` (the `?v=N` version param rules out a hard-coded URL), parses
-FZ 27.9, line-upserts the new snapshot into the fleet CSV; a self-throttling
-monthly cron + `workflow_dispatch`. **No render dispatch** (fleet is computed in
-the browser). This is the natural pilot for the whole fleet-fetch pattern.
+one: a stable overview page, a predictable annual `fz13_YYYY.xlsx`, one clean
+sheet. Built as `.github/workflows/fetch-fleet-germany.yml`:
+`scripts/fetch_fleet_germany.py` scrapes `fz13_b_uebersicht.html` for the newest
+`fz13_*.xlsx`, parses FZ 13.2.1, line-upserts the Germany/Whole rows into the
+fleet CSV; monthly `workflow_dispatch` + cron (idempotent, off-season runs
+no-op). **No render dispatch** (fleet is computed in the browser). This is the
+pilot for the whole fleet-fetch pattern.
 
 ---
 
-## 5 · What to do next (in order)
+## 5 · Status & what's next
 
-1. **Sign off §2** (schema + adopting the doc-35 contract, dropping `HYBRID`).
-2. **Migrate `fleet/fleet_initial.csv`** to the new schema: full names, `variant`,
-   `source`, `TOTAL`, `HYBRID`→`HEV`+note, China `HYBRID`→`PHEV`. A one-shot
-   rewrite is acceptable here (unlike `data/` line-upserts) because it's a schema
-   migration, but preserve every historical value (invariant 3 — don't rewrite the
-   past).
-3. **Update `index.html:loadFleetObserved`** to read the new columns and the
-   `hev_note`/collapse contract; delete the `hybrid > 100` heuristic; surface the
-   combined-hybrid label per §2.2.
-   **Don't break the tab: migrate data and parser in one change, or make the
-   parser dual-read first.** The parser currently keys on `country` codes,
-   `HYBRID`, and no `source`/`TOTAL`; renaming `NO→Norway` and dropping `HYBRID`
-   *before* the parser handles it blanks the Fleet tab. Safe order: (a) teach the
-   parser to accept **both** old and new schema (fall back `HYBRID`→`HEV`, code→
-   name), (b) migrate the CSV, (c) remove the old-schema branch. Verify locally
-   against the real downloaded files before pushing.
-4. **Confirm the ⚠ verify sources** (one live call each) and write per-country
-   fetch helpers `scripts/fetch_fleet_<country>.py` — **no cron**; run on demand /
-   yearly with an agent. Line-upsert keyed on `(country, variant, year)`.
-5. **Backfill `source` and flags** for the 12 existing countries from §4.
+**Done (the Germany pilot):**
+- ✅ Harmonized schema (§2.1) applied to `fleet/fleet_initial.csv` — full country
+  names, `variant`, `source`, `TOTAL`, `notes`, the fat fuel template; `HYBRID`
+  column retired (combined → `HEV`, China → `PHEV`). All rows preserved; DE
+  extended back to 2009.
+- ✅ `index.html:loadFleetObserved` reads the harmonized schema (dual-read, so it
+  also tolerates the old one), folds `EREV→PHEV`/`MHEV→HEV`/gas→`OTHERS`, and
+  resolves combined-vs-split by whether `PHEV` is populated (no more `>100`
+  heuristic). Combined buckets surface as a labelled "HYBRID (combined PHEV+HEV)"
+  band.
+- ✅ `scripts/fetch_fleet_germany.py` (FZ 13.2.1 parser + overview scrape +
+  line-upsert) and `.github/workflows/fetch-fleet-germany.yml` (monthly cron +
+  dispatch, `actionlint`-clean, no render). Parser verified against the real file.
+
+**Next:**
+1. **Roll the pattern out** to the other ⚠ countries: confirm each source (one
+   live call), add `scripts/fetch_fleet_<country>.py`. Cron only where it earns
+   it (like DE); otherwise on-demand/yearly with an agent.
+2. **Backfill `source` + flags** for the 11 not-yet-automated countries from §4
+   (they migrated with values intact but mostly empty `source`/`TOTAL`).
+3. **Later:** KBA Neuzulassungen via the ArcGIS API (§4b) to replace ACEA for
+   Germany registrations; fleet **variants** (HDV/Vans/Buses) from FZ 13.1/13.7/
+   13.9/13.10.
 
 ### When you change X, also update Y (fleet)
 
