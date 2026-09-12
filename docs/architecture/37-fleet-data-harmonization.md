@@ -340,15 +340,25 @@ parsing, stable URLs, JSON:
 - **Direct CSV** per dataset:
   `https://opendata.arcgis.com/api/v3/datasets/<id>/downloads/data?format=csv`.
 
-**Open check (needs open egress — the authoring session's org egress policy
-403-blocks arcgis.com and the hub).** The portal's *Bestand* datasets look
-region/segment/e-mobility oriented (`..._RegioStaR`, `...Regionen Gitterzellen`,
-`...ModellreihenSegment_Bestand`, Pkw-mit-Elektro-Antrieb by Bundesland/Gemeinde).
-**Confirm whether it also serves the national Pkw × Kraftstoffart × time series
-(the FZ 27.9 equivalent)** before preferring it over the xlsx. If yes, the fetcher
-queries JSON instead of parsing xlsx; if the portal only has regional snapshots,
-**FZ 27.9 xlsx stays the source** (already confirmed, works today). Verify on a
-CI runner or in-browser via the DCAT feed + one `/query` call.
+**Check done — the Hub does NOT carry the FZ 27.9 equivalent, so FZ 27.9 xlsx
+stays the source.** The DCAT feed (23 datasets, org `U09msXRZoxesNntH`,
+`services-eu1.arcgis.com`) was inspected. Its stock datasets are:
+
+- **`FZ Modellreihen Bestand`** (+ Top50/Top3 variants) — Pkw stock by
+  brand/model/segment *with* an "Antriebsarten" attribute, but **only Modellreihen
+  with >1,000 vehicles** (the long tail is dropped) and a snapshot, not a clean
+  national fuel×time series. Aggregating drivetrain over models would under-count.
+- **`FZ Pkw mit Elektro(-)antrieb {Bundesland,Gemeinde,Zulassungsbezirk,
+  Gitterzellen,RegioStaR,Regionen}`** — electric-drive Pkw only (BEV+PHEV),
+  regional. No petrol/diesel/HEV.
+
+None is the national Pkw × Kraftstoffart × time series. So the JSON API is **not**
+a drop-in for FZ 27.9. Two side-notes: the model-level Bestand service carries
+**Erstzulassungsdatum (from 1990)** per record — a future input for the fleet
+model's **age/vintage distribution** (hazard curve), not the headline series; and
+the Neuzulassungen services (`Top50Modellreihen`, `Top3ModellreihenSegment`) are
+likewise **capped at top models**, so they don't cleanly beat ACEA for national
+registration totals either.
 
 **Registrations bonus (out of scope, noted):** `FZ_Top50Modellreihen` /
 `FZ_Top3ModellreihenSegment` are monthly **Neuzulassungen** feature services.
@@ -407,7 +417,7 @@ the browser). This is the natural pilot for the whole fleet-fetch pattern.
 - Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
 - Georgia: the actual publisher and its split capability.
 - ~~KBA~~ — **resolved**: FZ 27.9 confirmed, mapping in §4b.
-- KBA ArcGIS Hub: whether it serves the national Pkw×fuel×time series (FZ 27.9
-  equivalent) as a feature service — if so, prefer the JSON API over xlsx (§4b).
+- ~~KBA ArcGIS Hub~~ — **resolved**: Hub has no national fuel×time series
+  (only capped model-level + regional e-mobility); FZ 27.9 xlsx stays the source.
 
 These are the only gaps between this spec and a mechanical yearly refresh.
