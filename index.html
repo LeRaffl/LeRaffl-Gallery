@@ -8230,36 +8230,49 @@ async function loadFleetObserved() {
     const rows = parseCSV(text);
     if (rows.length === 0) throw new Error("CSV empty or header only");
     fleetState.observed = rows.map(r => {
-      const bev    = Number(r.BEV)    || 0;
-      const phev   = Number(r.PHEV)   || 0;
-      const hev    = Number(r.HEV)    || 0;
-      const hybrid = Number(r.HYBRID) || 0;
-      const diesel = Number(r.DIESEL) || 0;
-      const petrol = Number(r.PETROL) || 0;
-      const others = Number(r.OTHERS) || Number(r.REST) || 0;
+      const n = k => Number(r[k]) || 0;
+      const bev    = n('BEV');
+      const phev   = n('PHEV') + n('EREV');   // EREV folds into PHEV
+      const hev    = n('HEV')  + n('MHEV');    // mild hybrids fold into HEV
+      const hybridOld = n('HYBRID');           // legacy combined column (gone in the harmonized schema)
+      const diesel = n('DIESEL');
+      const petrol = n('PETROL');
+      // Gas family (GAS/CNG/LPG/FLEXFUEL/ETHANOL) + hydrogen/unknown all fold
+      // into OTHERS for the vehicle plot, which has no dedicated gas band.
+      const others = n('OTHERS') + n('REST') + n('GAS') + n('CNG') + n('LPG')
+                   + n('FLEXFUEL') + n('ETHANOL');
 
-      // Decide how to represent hybrids for this row. Some national data
-      // sources expose a single "HYBRID" column (e.g. mild/full hybrid
-      // lumped together), others split it into "PHEV" and "HEV". We use
-      // whichever variant actually has meaningful numbers — the 100-unit
-      // threshold filters out ghost columns that are always 0 or single-
-      // digit placeholders. If neither variant has data, the row carries
-      // no hybrid category at all (as opposed to zero).
-      const hasHybrid = hybrid > 100;
-      const hasPhevHev = (phev > 100 || hev > 100);
+      // Combined-vs-split hybrid resolution (see docs/architecture/37 §2.2),
+      // backward compatible with the pre-harmonization schema:
+      //   * legacy schema: a populated "HYBRID" column IS the combined bucket.
+      //   * harmonized schema (no HYBRID column): if PHEV is populated the
+      //     source splits plug-in from non-plug-in, so show PHEV (+ HEV when
+      //     present); if only HEV is populated it is a combined bucket that the
+      //     source could not split, so surface it as a single "HYBRID" band.
+      // The 100-unit threshold skips ghost columns (always 0 / stray digits).
+      const hasHybridCol = hybridOld > 100;
+      const hasPhev = phev > 100;
+      const hasHev  = hev  > 100;
+      const combinedHybrid = !hasPhev && (hasHybridCol || hasHev);
 
       let drivetrain = { BEV: bev, DIESEL: diesel, PETROL: petrol, OTHERS: others };
 
-      if (hasHybrid) {
-        drivetrain.HYBRID = hybrid;  // use the combined HYBRID column
-      } else if (hasPhevHev) {
-        drivetrain.PHEV = phev;      // use the split PHEV + HEV columns
-        drivetrain.HEV = hev;
-      } // otherwise: this country has no hybrid data and none is added
+      if (hasHybridCol) {
+        drivetrain.HYBRID = hybridOld;         // legacy combined column
+      } else if (hasPhev) {
+        drivetrain.PHEV = phev;                // split: plug-in separated
+        if (hasHev) drivetrain.HEV = hev;      // ...and non-plug-in when reported
+      } else if (hasHev) {
+        drivetrain.HYBRID = hev;               // harmonized combined bucket (lives in HEV)
+      } // otherwise: this row carries no hybrid data (as opposed to zero)
 
       return {
         country: (r.country || '').trim(),
         year: Number(r.year) || 0,
+        // Kept so the UI can flag a combined bucket even after it is folded
+        // into a shared band (the maintainer's visibility requirement).
+        combinedHybrid,
+        hevNote: (r.notes || '').trim(),
         ...drivetrain
       };
     }).filter(r => r.country && r.year > 1900 && r.year < 2100);
@@ -8360,7 +8373,7 @@ const container = document.getElementById('fleetCategoryContainer');
 
   if (hasPhev) categories.push({ id: 'fleetShowPHEV', label: 'PHEV', checked: true });
   if (hasHev) categories.push({ id: 'fleetShowHEV', label: 'HEV', checked: true });
-  if (hasHybrid) categories.push({ id: 'fleetShowHYBRID', label: 'HYBRID', checked: true });
+  if (hasHybrid) categories.push({ id: 'fleetShowHYBRID', label: 'HYBRID (combined PHEV+HEV)', checked: true });
   if (hasDiesel) categories.push({ id: 'fleetShowDIESEL', label: 'DIESEL', checked: true });
   if (hasPetrol) categories.push({ id: 'fleetShowPETROL', label: 'PETROL', checked: true });
 

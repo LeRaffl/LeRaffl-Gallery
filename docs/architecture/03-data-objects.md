@@ -439,7 +439,7 @@ Different units (stock vs flow), different time-resolution (year-of-vintage coho
 
 ### Owner / lifecycle
 
-Maintainer-curated. No public submit path yet. No automatic render — fleet visualisations are computed in-browser from the static CSVs.
+Maintainer-curated, now partly automated. `fleet/fleet_initial.csv` uses the harmonized schema (`docs/architecture/37-fleet-data-harmonization.md`): `country,variant,year,source,` the full fuel template, `TOTAL,notes`. **Germany** is fetched automatically by `scripts/fetch_fleet_germany.py` + `.github/workflows/fetch-fleet-germany.yml` (KBA FZ 13.2.1, annual, monthly cron); the other 11 countries remain maintainer-curated for now. No public submit path yet. No automatic render — fleet visualisations are computed in-browser from the static CSVs.
 
 ---
 

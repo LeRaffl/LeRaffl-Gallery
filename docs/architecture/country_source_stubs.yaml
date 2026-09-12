@@ -428,7 +428,7 @@ stubs:
   # ======================================================================
   - country: Germany
     slug: germany
-    method: manual
+    method: file
     summary: "New passenger-car registrations for Germany from the Kraftfahrt-Bundesamt (KBA)."
     source_name: "KBA — Kraftfahrt-Bundesamt"
     source_url: "https://www.kba.de/"
@@ -438,14 +438,14 @@ stubs:
     hev_split: true
     variant_notes:
       Whole: "New passenger-car registrations (Neuzulassungen) as reported by the KBA."
-    cadence: "transcribed by hand each month, once KBA publishes (typically the first week)"
+    cadence: "fetched monthly, once KBA publishes the press release (typically the first week)"
     data_file: "data/Germany.csv"
     notes:
       - "The KBA (Kraftfahrt-Bundesamt) is Germany's federal motor-transport authority and the official vehicle register. It publishes monthly new-registration counts (Neuzulassungen) broken down by fuel type. Because it's the registry itself, coverage is complete — every registered car, not an association sample."
-      - "Germany is not pulled by the ACEA fetcher (which skips it); the monthly KBA figures are transcribed by hand."
+      - "Germany is not pulled by the ACEA fetcher (which skips it). Its monthly figures come from the KBA press-release '…_merkmale.xlsx' workbook via scripts/fetch_germany.py (workflow fetch-germany.yml); OTHERS is the residual TOTAL − BEV − PHEV − HEV − PETROL − DIESEL (LPG, CNG, hydrogen, fuel-cell and any unlisted 'Sonstige'). Early rows (pre-automation, quarterly/modelled decimals) are left as-is."
     caveats:
       - "Official registry — complete coverage, not an association sample."
-      - "Maintained by hand; the latest month appears once it has been transcribed."
+      - "Fetched from the KBA monthly press release; the latest month appears once KBA has published it."
 
   - country: UK
     slug: uk

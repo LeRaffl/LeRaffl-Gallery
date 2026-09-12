@@ -1,0 +1,94 @@
+name: Fetch Germany data (KBA press release)
+
+# Fetches Germany's monthly passenger-car FIRST REGISTRATIONS (Neuzulassungen)
+# by fuel type from the Kraftfahrt-Bundesamt monthly press release
+# ("…_merkmale.xlsx") and upserts the current month into:
+#
+#   data/Germany.csv   — variant=Whole (monthly)
+#
+# This is a REGISTRATION fetcher, so — unlike fetch-fleet-germany.yml — it
+# DOES dispatch render-country.yml for Germany/Whole after a data commit
+# (registration charts are rendered server-side; fleet charts are not).
+#
+# See scripts/fetch_germany.py and docs/architecture/NN-source-germany.md.
+#
+# KBA publishes the monthly registration press release early in the following
+# month (around the 3rd–6th). A daily cron over the 4th–9th catches it; the
+# fetcher early-exits once the previous month is in the CSV, so extra runs are
+# cheap no-ops.
+#
+# Network: KBA may drop datacenter IPs. The fetcher honours KBA_FETCH_RELAY
+# (+ KBA_RELAY_TOKEN) or KBA_PROXY repo secrets, falling back to a direct
+# connection (see scripts/fetch_germany.py and docs/architecture/07-secrets-trust.md).
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Override the …_merkmale.xlsx URL (default: newest on the listing page)'
+        required: false
+        default: ''
+        type: string
+      force:
+        description: 'Write even if the CSV already has the previous month'
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: 'Parse and print the row without writing the CSV'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: '0 6 4-9 * *'   # 4th–9th of each month, 06:00 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests openpyxl
+
+      - name: Fetch & update Germany.csv
+        run: |
+          python scripts/fetch_germany.py \
+            ${URL:+--url "$URL"} \
+            ${FORCE:+--force} \
+            ${DRY_RUN:+--dry-run}
+        env:
+          URL: ${{ inputs.url }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+          KBA_FETCH_RELAY: ${{ secrets.KBA_FETCH_RELAY }}
+          KBA_RELAY_TOKEN: ${{ secrets.KBA_RELAY_TOKEN }}
+          KBA_PROXY: ${{ secrets.KBA_PROXY }}
+
+      - name: Commit if changed
+        id: commit
+        if: ${{ inputs.dry_run != true }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'data/Germany.csv'
+          message: 'chore: update Germany data from KBA'
+          default_author: github_actions
+
+      - name: Trigger render for Germany/Whole
+        if: steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Dispatching render for Germany/Whole"
+          gh workflow run render-country.yml \
+            --ref "${GITHUB_REF_NAME}" \
+            -f country="Germany" \
+            -f variant=Whole
