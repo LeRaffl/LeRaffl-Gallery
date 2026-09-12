@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-11T09:06:32Z",
- "today": "2026-09-11",
+ "generated": "2026-09-12T08:48:47Z",
+ "today": "2026-09-12",
  "countries": [
   {
    "country": "Albania",
@@ -1462,7 +1462,7 @@
    "method": "manual",
    "source_name": "VAHAN dashboard",
    "source_url": "https://vahan.parivahan.gov.in/vahan4dashboard/",
-   "cadence_text": "entered by hand and irregularly — the variants can sit months apart",
+   "cadence_text": "monthly, entered by hand from yearly VAHAN Excel exports (one file per calendar year)",
    "interval": "monthly",
    "latest_period": null,
    "expected_period": null,
@@ -1471,34 +1471,10 @@
    "status": "unknown",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-05-03",
+   "last_render": "2026-09-11",
    "variants": [
     {
      "name": "Whole",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
-    },
-    {
-     "name": "4-Wheelers",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
-    },
-    {
-     "name": "3-Wheelers",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
-    },
-    {
-     "name": "2-Wheelers",
      "latest": null,
      "first": null,
      "rows": 0,
@@ -2058,11 +2034,11 @@
    "source_url": "https://lustat.statec.lu/",
    "cadence_text": "daily cron, 1st–15th, 06:45 UTC (STATEC publishes around the 6th)",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2102,29 +2078,29 @@
     ],
     "workflow": ".github/workflows/fetch-luxembourg.yml"
    },
-   "last_render": "2026-08-08",
+   "last_render": "2026-09-11",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2010-01",
-     "rows": 199,
+     "rows": 200,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2010-01",
-     "rows": 199,
+     "rows": 200,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2010-01",
-     "rows": 199,
+     "rows": 200,
      "cadence": "monthly",
      "in_repo": true
     }
