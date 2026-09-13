@@ -1,0 +1,11 @@
+🇿🇦 South Africa - Q2 2026 - BEV Trajectory
+0.9% BEV
+2.2% PHEV
+96.9% ICE (of which 2.6%p were HEV)
+
+Trailing 4 quarters are:
+0.4% BEV
+1.0% PHEV
+98.6% ICE (of which 2.2%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
