@@ -161,8 +161,10 @@ The previous shelving rationale, kept for the record:
 
 ## Africa (used-import markets)
 
-No sub-Saharan African country is on the gallery yet, and the reasons are
-structural, not incidental. Three features recur across the region and each
+No sub-Saharan African country was on the gallery until **South Africa**
+(naamsa) landed in 2026-09 — see
+[38-source-south-africa.md](38-source-south-africa.md). The rest of the
+region is still structural, not incidental. Three features recur and each
 one collides with a different gallery assumption:
 
 - **Used-import dominance.** Most African car markets are 70–90 % *used*
@@ -179,14 +181,13 @@ one collides with a different gallery assumption:
   multiples between the national ministry and outside trackers, so even when
   a number exists it often can't be trusted as ground truth.
 
-The realistic near-term candidates are the two markets that *do* have an
-industry-association monthly series: **South Africa** (naamsa — genuine
-monthly new-vehicle sales with a drivetrain split; the most promising, under
-active investigation) and **Morocco** (AIVAM — a monthly series exists, but the
-energy split sits behind a login on `statistique.aivam.ma`; shelved under the
-old no-login rule, so worth a second look now that Thailand and Indonesia set
-the free-account precedent). Kenya, Nigeria and Egypt have manufacturer/importer associations but
-no freely machine-readable fuel-split series.
+The remaining near-term candidate in the region is **Morocco** (AIVAM — a
+monthly series exists, but the energy split sits behind a login on
+`statistique.aivam.ma`; shelved under the old no-login rule, so worth a
+second look now that Thailand and Indonesia set the free-account
+precedent). **South Africa** is ingested. Kenya, Nigeria and Egypt have
+manufacturer/importer associations but no freely machine-readable
+fuel-split series.
 
 ### 🇪🇹 Ethiopia — a 100 % EV import *mandate*, but the signal is a policy step over a used-import market, not an adoption curve
 

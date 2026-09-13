@@ -306,6 +306,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | 09:30 & 13:30 UTC, 6th → 10th | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant early-exit |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
 | [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | 08:00 UTC, 15th → EOM | LTA Monthly Vehicle Statistics, file M03 (PDF) | `Whole` | change-gated commit (rolling ~6-month window) |
+| [`fetch-southafrica.yml`](../../.github/workflows/fetch-southafrica.yml) | 07:15 UTC, 15th–28th of Feb/May/Aug/Nov | naamsa Quarterly Review of Business Conditions + Industry Vehicle Sales PDFs | `Whole` — all-vehicle market | change-gated commit (always re-parses the archive) |
 | [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 06:30 UTC, 1st → 16th | DGT matriculaciones microdata (fixed-width, monthly zip) | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
@@ -326,7 +327,7 @@ Notes on the schedule shape:
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
-  07:30, Nepal 07:50.
+  07:30, Nepal 07:50, South Africa 07:15 (Feb/May/Aug/Nov only).
 - **And from above:** Austria 09:25, Poland 09:30 & 13:30, Indonesia 09:35,
   USA 10:30 (off the 10th's Brazil window), China 11:00, Portugal 17:30 &
   20:30 — the only evening slot, because ACAP publishes from ~17:00 Lisbon
@@ -341,8 +342,9 @@ Notes on the schedule shape:
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.
-- **Canada is the odd one out:** its cube is quarterly, so the workflow only
-  runs in March, June, September and December (days 8–20).
+- **Canada and South Africa are the quarterly odd ones:** Canada's cube
+  runs in March, June, September and December (days 8–20); South Africa's
+  naamsa QBR runs in February, May, August and November (days 15–28).
 - **Nepal is the only unbounded daily cron** (`50 7 * * *`) — Nepali fiscal
   months don't line up with Gregorian ones, so there is no useful day window.
 - **New Zealand has no cron at all** since 2026-06; both upstream endpoints

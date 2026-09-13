@@ -153,20 +153,12 @@ appear to exist here.
 
 ### 🇿🇦 South Africa — naamsa (quarterly granularity)
 
-> **Status: VERIFIED VIABLE (2026-07-12, CI probes — `scripts/fetch_southafrica.py --probe`).**
-> naamsa.net is open from CI, the press-release archive reaches back to 2017,
-> and the **Quarterly Business Review** (found via the WP sitemap; the
-> newest lives under `naamsa.net/wp-content/uploads/...Quarterly-Review...`)
-> parses cleanly with pdfplumber. Its NEV page carries the full drivetrain
-> table — Q1-2026 edition: Plug-in hybrid / Traditional hybrid / Electric /
-> Total NEVs with **yearly columns 2020–2025 plus quarterly columns**
-> (Q1:2025, Q1:2026) — i.e. one current PDF bootstraps the yearly history
-> for free, and the review archive backfills the quarters. Monthly flash
-> reports carry totals only (no NEV split).
-> Open design decision for the fetcher: the NEV table is all-vehicles
-> (no passenger/LCV split), so `Whole` should be the **total market** with a
-> footnote (mixing naamsa's passenger-only total with the all-vehicle NEV
-> count would repeat the Mexico two-universes mistake).
+> **Status: BUILT (2026-09).** Implemented as `scripts/fetch_southafrica.py`
+> — see [38-source-south-africa.md](38-source-south-africa.md). `Whole` is
+> the all-vehicle naamsa market (not M1). Yearly 2020–2023 + quarterly
+> from 2024-Q1. The Q4-2025 PHEV/HEV quarter-column swap is detected and
+> repaired. 2026 NEV coverage expanded as new reporters joined
+> naamsa/Lightstone (footnoted).
 
 naamsa, the Automotive Business Council
 ([naamsa.net/press-releases](https://naamsa.net/press-releases/)), publishes
@@ -334,9 +326,7 @@ publication + fuel split before building):
 
 ## Suggested order of attack
 
-1. **Israel** (CKAN API, known tech, complete registry) — highest
-   value-per-effort.
-2. **India** (data.gov.in API + Telangana footnote) — biggest market gap on
-   the gallery, plus 2W/3W variants.
-3. **Morocco** (after verifying AIVAM's own PDFs carry the energy table).
-4. **South Africa** (quarterly, Canada-pattern).
+1. **Israel** ✅ built.
+2. **India** (semi-automated; Vahan CI-blocked).
+3. **South Africa** ✅ built (2026-09).
+4. **Morocco** (shelved — energy table login-walled).
