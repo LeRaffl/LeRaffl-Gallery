@@ -271,6 +271,7 @@ A single-country fetcher dispatches **once** with the pipe-separated list of its
 | [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | 09:30 & 13:30 UTC, 6th → 10th |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | 17:30 & 20:30 UTC, 1st → 5th |
 | [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | LTA Monthly Vehicle Statistics, file M03 (PDF) | `Whole` | 08:00 UTC, 15th → EOM |
+| [`fetch-southafrica.yml`](../../.github/workflows/fetch-southafrica.yml) | naamsa Quarterly Review of Business Conditions (PDF) + Industry Vehicle Sales | `Whole` — all-vehicle market, quarterly | 07:15 UTC, 15th–28th of Feb/May/Aug/Nov |
 | [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | DGT matriculaciones microdata (fixed-width, monthly zip) | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | 06:30 UTC, 1st → 16th |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | 05:50 UTC, 1st → 15th |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | 04:40 UTC, 1st → 20th |

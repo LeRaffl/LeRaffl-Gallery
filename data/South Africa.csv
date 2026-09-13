@@ -1,0 +1,15 @@
+period,time_interval,variant,source,BEV,PHEV,HEV,ICE,TOTAL,notes
+2020-06,yearly,Whole,naamsa.net,92,77,155,379741,380065,annual figure at mid-year; naamsa all-vehicle market (not M1-only)
+2021-06,yearly,Whole,naamsa.net,218,51,627,463426,464322,annual figure at mid-year; naamsa all-vehicle market (not M1-only)
+2022-06,yearly,Whole,naamsa.net,502,122,4070,524641,529335,annual figure at mid-year; naamsa all-vehicle market (not M1-only)
+2023-06,yearly,Whole,naamsa.net,929,368,6485,523775,531557,annual figure at mid-year; naamsa all-vehicle market (not M1-only)
+2024-02,quarterly,Whole,naamsa.net,330,138,2574,127756,130798,naamsa all-vehicle market (passenger + commercial); not M1-only
+2024-05,quarterly,Whole,naamsa.net,419,160,3543,110833,114955,naamsa all-vehicle market (passenger + commercial); not M1-only
+2024-08,quarterly,Whole,naamsa.net,324,176,3330,128305,132135,naamsa all-vehicle market (passenger + commercial); not M1-only
+2024-11,quarterly,Whole,naamsa.net,184,261,4156,133481,138082,naamsa all-vehicle market (passenger + commercial); not M1-only
+2025-02,quarterly,Whole,naamsa.net,276,241,2970,140545,144032,naamsa all-vehicle market (passenger + commercial); not M1-only
+2025-05,quarterly,Whole,naamsa.net,294,547,2834,131184,134859,naamsa all-vehicle market (passenger + commercial); not M1-only
+2025-08,quarterly,Whole,naamsa.net,232,996,3559,153338,158125,naamsa all-vehicle market (passenger + commercial); not M1-only
+2025-11,quarterly,Whole,naamsa.net,286,1026,3452,155153,159917,naamsa all-vehicle market (passenger + commercial); not M1-only
+2026-02,quarterly,Whole,naamsa.net,544,1277,2764,157361,161946,2026 NEV coverage expanded as new reporters joined naamsa/Lightstone; all-vehicle market (not M1-only)
+2026-05,quarterly,Whole,naamsa.net,1353,3346,3912,144508,153119,2026 NEV coverage expanded as new reporters joined naamsa/Lightstone; all-vehicle market (not M1-only)

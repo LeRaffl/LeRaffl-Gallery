@@ -1,21 +1,98 @@
-name: Fetch South Africa data (naamsa) — probe
+name: Fetch South Africa data (naamsa)
 
-# Source-shape probe for South Africa/naamsa: crawls the press-release and
-# quarterly-review pages, downloads the newest flash report / quarterly
-# review PDFs and dumps their text (NEV pages in full). No data written yet.
+# Parses naamsa's Quarterly Review of Business Conditions (NEV drivetrain
+# table + passenger/commercial totals) and the companion Industry Vehicle
+# Sales PDF (yearly TOTAL AGGREGATE MARKET) and upserts
+# data/South Africa.csv. Quarterly, Canada-style middle-month rows.
+# See docs/architecture/38-source-south-africa.md.
 
 on:
   workflow_dispatch:
+    inputs:
+      qbr_url:
+        description: 'Override: parse only this QBR PDF URL (skip listing crawl)'
+        required: false
+        default: ''
+        type: string
+      industry_url:
+        description: 'Override: Industry Vehicle Sales PDF URL'
+        required: false
+        default: ''
+        type: string
+      dry_run:
+        description: 'Parse and report only — write nothing, commit nothing'
+        required: false
+        default: 'false'
+        type: boolean
+      force:
+        description: 'Accepted for parity; the fetcher always re-parses the archive'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    # QBR lands mid-month after quarter-end (Q1 late May, Q2 mid-August,
+    # Q3 mid-November, Q4 mid-February). Poll 15th–28th of those four
+    # months; change-gated commit makes empty days a no-op. 07:15 UTC
+    # sits just before Colombia (07:30) and Nepal (07:50).
+    - cron: '15 7 15-28 2,5,8,11 *'
 
 jobs:
-  probe:
+  fetch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+
       - name: Install dependencies
-        run: pip install requests pdfplumber
-      - name: Probe
-        run: python scripts/fetch_southafrica.py --probe
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+
+      - name: Fetch & update South Africa.csv
+        run: |
+          python scripts/fetch_southafrica.py \
+            ${QBR:+--qbr-url "$QBR"} \
+            ${INDUSTRY:+--industry-url "$INDUSTRY"} \
+            ${DRY_RUN:+--dry-run} \
+            ${FORCE:+--force}
+        env:
+          QBR: ${{ inputs.qbr_url }}
+          INDUSTRY: ${{ inputs.industry_url }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+          FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        if: ${{ inputs.dry_run != true }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'data/South Africa.csv'
+          message: 'chore: update South Africa data from naamsa'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for South Africa
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="South Africa" \
+            -f variants="Whole"
