@@ -2,6 +2,46 @@
   "updated": "2026-09-13",
   "images": [
     {
+      "country": "South Africa",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-13",
+      "filename": "south_africa_ICE_BEV_20260913.png",
+      "url": "images/2026-06/south_africa_ICE_BEV_20260913.png",
+      "alt": "South Africa ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-13",
+      "filename": "south_africa_20260913.png",
+      "url": "images/2026-06/south_africa_20260913.png",
+      "alt": "South Africa BEV trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-13",
+      "filename": "south_africa_time_20260913.png",
+      "url": "images/2026-06/south_africa_time_20260913.png",
+      "alt": "South Africa Transition time curve",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-13",
+      "filename": "south_africa_ttm_shares_20260913.png",
+      "url": "images/2026-06/south_africa_ttm_shares_20260913.png",
+      "alt": "South Africa TTM market split graph",
+      "country_slug": "south_africa"
+    },
+    {
       "country": "India",
       "type": "ICE_BEV",
       "period": "2026-08",
