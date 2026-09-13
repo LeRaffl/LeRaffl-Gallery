@@ -30,7 +30,8 @@ scope_note: All-vehicle new sales, not EU M1. Mixing a passenger-only total with
 caveats:
 - Manufacturer-reported; Geely, Dongfeng and some other importers do not report to naamsa.
 - 2026 NEV volumes include new reporters joining naamsa/Lightstone — a coverage step, not only demand.
-- The NEV table is not split by body type, so Whole is the total market with a footnote, not passenger cars.
+- The NEV table is not split by body type, so Whole is the total market, not passenger cars.
+- No petrol/diesel split of the ICE remainder (USA convention: ICE = TOTAL − BEV − PHEV − HEV).
 - naamsa's Q4-2025 drivetrain table prints the PHEV and HEV *quarter* columns swapped; the fetcher detects and repairs this against the yearly totals.
 fetcher: scripts/fetch_southafrica.py
 workflow: .github/workflows/fetch-southafrica.yml
@@ -106,7 +107,10 @@ The NEV table is **not** split into passenger / LCV / MCV. Using
 naamsa's passenger-car total as `TOTAL` and the all-vehicle NEV count as
 the numerator would understate the denominator and overstate BEV share —
 the Mexico two-universes failure mode. `Whole` is therefore the **total
-domestic new-vehicle market**, footnoted as not EU M1.
+domestic new-vehicle market**, footnoted as not EU M1. The PNG caption is
+the short form of that (plus manufacturer-reported / 2026 coverage); the
+full caveat list is this playbook and the generated source page — it does
+not fit on the chart.
 
 ## Completeness
 
