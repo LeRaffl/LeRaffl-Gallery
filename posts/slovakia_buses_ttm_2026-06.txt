@@ -1,0 +1,10 @@
+🇸🇰 Slovakia (Buses) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++12.4pp  EV      (0.0% → 12.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−12.4pp  ICE     (100.0% → 87.6%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2029.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
