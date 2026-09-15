@@ -1,0 +1,10 @@
+🇭🇺 Hungary (Buses) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++5.8pp  EV      (3.0% → 8.8%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−5.8pp  ICE     (97.0% → 91.2%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2034.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

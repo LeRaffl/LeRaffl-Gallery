@@ -1,0 +1,11 @@
+🇭🇺 Hungary (Buses) - Q2 2026 - EV Trajectory
+13.0% EV
+0.0% PHEV
+87.0% ICE
+
+Trailing 4 quarters are:
+8.8% EV
+0.0% PHEV
+91.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
