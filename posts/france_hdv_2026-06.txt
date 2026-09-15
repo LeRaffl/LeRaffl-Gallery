@@ -1,0 +1,11 @@
+🇫🇷 France (HDV) - Q2 2026 - EV Trajectory
+4.6% EV
+0.0% Hybrid
+95.4% ICE
+
+Trailing 4 quarters are:
+4.4% EV
+0.0% Hybrid
+95.6% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
