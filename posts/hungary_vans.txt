@@ -1,0 +1,11 @@
+🇭🇺 Hungary (Vans) - Q2 2026 - EV Trajectory
+13.4% EV
+7.6% Hybrid
+79.1% ICE
+
+Trailing 4 quarters are:
+13.3% EV
+3.2% Hybrid
+83.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
