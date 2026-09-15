@@ -76,6 +76,52 @@ A single ~6000-line HTML file with inline CSS and inline JavaScript. No build st
 - **Math captcha** on feedback submit (3 + 4 = ?), **honeypot** on both feedback and submit
 - **Lightbox** on chart click → larger image + Download link
 
+### Reconstructed rows (`v1 = 0` anchor recovery)
+
+`params.csv` stores `v1` at CSV precision. A curve whose real `v1` is small
+enough rounds to a literal `0` in the file, which is not a usable Weibull. The
+page does not drop those rows: `recoverV1FromAnchor()` / `applyV1Recovery()`
+reconstruct `v1` at load time by anchoring the model to the row's most recent
+observation, and every `params.csv` consumer on the page (Thresholds, Durations,
+Time Interval, Builder, World Map) then works off the recovered value.
+
+**Consequence worth knowing when quoting these rows:** a recovered curve is
+pinned to one observation rather than fitted across the series, so its dates can
+sit a few months either side of what a full re-fit would produce.
+
+**Where `v1 = 0` comes from** is documented in full in
+[08-deploy-ops.md § Indonesia v1=0 corruption](08-deploy-ops.md#indonesia-v10-corruption)
+— that section is canonical for the cause, the backend self-heal
+(`R/upsert.R::heal_v1_zero_rows()`) and why both layers are kept. Read it before
+changing anything here.
+
+**Do not hardcode a country list.** The trigger is `v1 == 0` *exactly*: a
+property of a row's rounding at a point in time, not of a country. It moves as
+parameters are re-fitted and as the corruption in §8.8 recurs. A note on the
+Thresholds tab used to name Indonesia; it was dropped in the 2026-09 redesign and
+had by then gone stale anyway — Indonesia's `v1` currently reads `-6.7e-17`, near
+zero but not *at* zero, so it is fitted normally. Note that this is **not** a
+permanent state: §8.8 describes the corruption as episodic, so Indonesia can
+re-enter the recovery path at any time. To see what is affected right now, read
+`params.csv` and select `float(v1) == 0`.
+
+**Known gap, as of 2026-09.** The two rows currently on `v1 = 0` are
+`Uruguay|Buses` and `Cyprus|HDV`, and neither is the §8.8 corruption pattern:
+both carry `v2 = 4.15` exactly — a round number where every genuine `optim()`
+output in the file is a long float — together with `ttm_bev_share = 0`. They look
+like placeholder rows for which no fit was ever produced, rather than clobbered
+ones. Two consequences follow:
+
+- `heal_v1_zero_rows()` will never touch them. Its fingerprint is
+  `abs(v1) < 1e-25 **AND v2 >= 10**`, and 4.15 fails the second test, so the
+  backend layer does not apply and they sit permanently on the frontend net.
+- `recoverV1FromAnchor()` anchors them at the `v2 < 10` branch, i.e. **50 % BEV
+  share at `data_per`** — for two rows whose measured TTM share is `0`. Whatever
+  those rows render is an artefact of that assumption, not a fit.
+
+Not fixed here because it is a data question rather than a frontend one, but do
+not quote either row until it is resolved.
+
 ### Why a single file with no build?
 
 - The maintainer runs the project solo and wants to be able to edit the page in any text editor without setting up Node/Webpack/etc.
@@ -325,8 +371,24 @@ OUTPUT: builder_history/<YYYY-MM-DD>.csv   (14 groups × 351 year-steps)
 
 ### Key invariants
 
-- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf` byte-for-byte, including the JS-only quirk that `Number('') === 0` (the in-page Builder relies on this when `params.csv` carries no `baseline_year` column — see the script's module docstring). **2026-06 calendar-year fix:** both `index.html` and this script now feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
-- Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()`. A v1=0 row from external CSV round-trip corruption produces the same recovered Weibull on the page and in the snapshot.
+- > ⚠️ **This mirror is currently broken — the script is one year behind the page.**
+  > Not a doc nit: it means `builder_history/` and the live Builder disagree.
+  > Tracked in [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219); read
+  > that before treating a snapshot and the page as comparable.
+  >
+  > The 2026-09 UI overhaul fixed `getT0Years()` in `index.html`: empty baseline
+  > fields no longer go through `normNumber()`, which returns `0` for both `''`
+  > and `undefined`. Production `params.csv` has **no `baseline_year` column** and
+  > an empty `baseline_date`, so the old code took the baseline branch with
+  > `by = 0` and returned `(t0 - 0) + 1` — one year too late, re-introducing the
+  > very offset the 2026-06 calendar-year fix removed. `snapshot_builder.py` still
+  > mirrors the pre-fix behaviour (`norm_number(None) == 0.0`), so for a
+  > production row it yields `2020.0` where the page now yields `2019`.
+  >
+  > The quirk below was therefore never an invariant worth preserving — it was the
+  > bug, written down as if intended.
+- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf`, historically byte-for-byte — **see the warning above for where that no longer holds.** The JS-only quirk that `Number('') === 0` is what the pre-fix in-page Builder leaned on when `params.csv` carries no `baseline_year` column (see the script's module docstring); the page no longer does. **2026-06 calendar-year fix:** both `index.html` and this script feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
+- Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()` (see *Reconstructed rows* under 2.1). A v1=0 row produces the same recovered Weibull on the page and in the snapshot — **this part of the mirror is genuinely still intact.** `applyV1Recovery()` passes the raw `r.t0` straight through on both sides and never calls `getT0Years()`, so the drift above cannot reach it. The recovery keeps R's own `verschiebung - 1` convention internally (`dt = year_model - (t0n - 1)`), which is why it is unaffected and must stay that way.
 - Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change.
 - No render trigger downstream — snapshots are pure read-only artefacts; the static page is not (yet) a consumer.
 
