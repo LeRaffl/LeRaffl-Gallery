@@ -1,0 +1,11 @@
+🇸🇮 Slovenia (HDV) - Q2 2026 - EV Trajectory
+0.1% EV
+0.0% PHEV
+99.9% ICE
+
+Trailing 4 quarters are:
+0.3% EV
+0.0% PHEV
+99.7% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
