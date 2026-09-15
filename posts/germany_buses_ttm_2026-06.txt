@@ -1,0 +1,10 @@
+🇩🇪 Germany (Buses) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
+−4.3pp  EV      (24.7% → 20.4%)
++5.1pp  Hybrid  (12.2% → 17.2%)
+−0.8pp  ICE     (63.2% → 62.4%)
+
+Hybrid peaked at 18.0% in Q?'24 (declining for 7 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
