@@ -1,0 +1,118 @@
+name: Fetch ACEA commercial-vehicle data (multi-country)
+
+# Scrapes ACEA's quarterly-cumulative Commercial Vehicle press releases and
+# reconstructs genuine Q1/Q2/Q3/Q4 rows (falling back to a single yearly row
+# only when no clean quarterly baseline exists yet) into
+# data/<Country>_<Variant>.csv for the ACEA multi-country roster
+# (scripts/fetch_acea_cv.py's TARGET_COUNTRIES — the same 19 EU/EFTA markets
+# fetch-acea.yml covers for passenger cars). Two passes per run:
+#
+#   1. fetch job — parses the checkpoint PDF and writes every changed CSV
+#      in one commit. The script self-throttles via a sentinel file (see
+#      already_have_checkpoint() in the script), so the cheapest run once a
+#      checkpoint has landed is "already have it, no HTTP".
+#
+#   2. render job — matrix over the changed (country, variant) pairs with
+#      max-parallel=1, so renders run strictly one after another (same
+#      reasoning as fetch-acea.yml: they share params.csv/weights.csv).
+#      Each entry calls render-country.yml as a reusable workflow.
+#
+# ACEA publishes four checkpoints a year, each covering a growing
+# cumulative window from Jan 1 — Q1 (~April), H1 (~July/August), Q1-Q3
+# (~October) and the full year (~January of the following year). See
+# scripts/fetch_acea_cv.py's module docstring for how genuine Q1/Q2/Q3/Q4
+# figures get reconstructed from those cumulative snapshots. One cron
+# window per checkpoint below; the script's own default_checkpoint_and_year()
+# picks the right one for whichever window is currently running, and the
+# self-throttle makes every other day in each window free.
+
+on:
+  workflow_dispatch:
+    inputs:
+      checkpoint:
+        description: 'Which checkpoint to fetch: Q1, H1, Q1-Q3 or FY (leave empty to infer from today''s date)'
+        required: false
+        default: ''
+      year:
+        description: 'Calendar year the checkpoint belongs to (leave empty to infer)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct ACEA PDF URL or path (leave empty to try the candidate URLs in scripts/fetch_acea_cv.py)'
+        required: false
+        default: ''
+      source_note_url:
+        description: 'URL recorded in the CSV notes column, if different from pdf_url (e.g. pdf_url is a local backfill copy)'
+        required: false
+        default: ''
+      force:
+        description: 'Skip the "already have this checkpoint" self-throttle'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '15 10 18-31 1 *'    # FY release: mid-late January
+    - cron: '15 10 15-30 4 *'    # Q1 release: mid-late April
+    - cron: '15 10 20-31 7 *'    # H1 release: late July
+    - cron: '15 10 1-10 8 *'     # H1 release spillover: early August
+    - cron: '15 10 20-31 10 *'   # Q1-Q3 release: late October
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    outputs:
+      changed_pairs: ${{ steps.fetch.outputs.changed_pairs }}
+      any_changed: ${{ steps.fetch.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pdfplumber
+
+      - name: Fetch & update ACEA commercial-vehicle CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_acea_cv.py \
+            ${CHECKPOINT:+--checkpoint "$CHECKPOINT"} \
+            ${YEAR:+--year "$YEAR"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${SOURCE_NOTE_URL:+--source-note-url "$SOURCE_NOTE_URL"} \
+            ${FORCE:+--force}
+        env:
+          CHECKPOINT: ${{ inputs.checkpoint }}
+          YEAR: ${{ inputs.year }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          SOURCE_NOTE_URL: ${{ inputs.source_note_url }}
+          # GitHub Actions sometimes hands workflow_dispatch booleans through
+          # as the strings 'true'/'false' rather than JSON booleans; accept
+          # either so a truthy-only check doesn't accidentally fire on 'false'.
+          FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
+
+      - name: Commit if changed
+        if: steps.fetch.outputs.any_changed == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data
+          message: 'chore: update ACEA commercial-vehicle data (multi-country)'
+          default_author: github_actions
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.any_changed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        pair: ${{ fromJson(needs.fetch.outputs.changed_pairs) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: ${{ matrix.pair.country }}
+      variant: ${{ matrix.pair.variant }}
+    secrets: inherit
