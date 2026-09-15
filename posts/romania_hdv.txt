@@ -1,0 +1,11 @@
+🇷🇴 Romania (HDV) - Q2 2025 - EV Trajectory
+0.9% EV
+0.0% PHEV
+99.1% ICE
+
+Trailing 4 quarters are:
+0.2% EV
+0.0% Hybrid
+99.8% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

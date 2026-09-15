@@ -1,0 +1,8 @@
+🇷🇴 Romania (HDV) - TTM Market Split
+
+Q?'23–Q?'24  vs  Q?'24–Q?'25
++0.1pp  EV      (0.1% → 0.2%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.1pp  ICE     (99.9% → 99.8%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
