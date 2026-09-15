@@ -373,11 +373,31 @@
     },
     {
       "country": "Germany (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_hdv_ICE_BEV_20260915.png",
+      "url": "images/2026-06/germany_hdv_ICE_BEV_20260915.png",
+      "alt": "Germany (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
       "type": "share",
       "period": "2026-03",
       "date": "2026-09-15",
       "filename": "germany_hdv_20260915.png",
       "url": "images/2026-03/germany_hdv_20260915.png",
+      "alt": "Germany (HDV) BEV trajectory",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_hdv_20260915.png",
+      "url": "images/2026-06/germany_hdv_20260915.png",
       "alt": "Germany (HDV) BEV trajectory",
       "country_slug": "germany_hdv"
     },
@@ -393,11 +413,31 @@
     },
     {
       "country": "Germany (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_hdv_time_20260915.png",
+      "url": "images/2026-06/germany_hdv_time_20260915.png",
+      "alt": "Germany (HDV) Transition time curve",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
       "type": "ttm_shares",
       "period": "2026-03",
       "date": "2026-09-15",
       "filename": "germany_hdv_ttm_shares_20260915.png",
       "url": "images/2026-03/germany_hdv_ttm_shares_20260915.png",
+      "alt": "Germany (HDV) TTM market split graph",
+      "country_slug": "germany_hdv"
+    },
+    {
+      "country": "Germany (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_hdv_ttm_shares_20260915.png",
+      "url": "images/2026-06/germany_hdv_ttm_shares_20260915.png",
       "alt": "Germany (HDV) TTM market split graph",
       "country_slug": "germany_hdv"
     },
