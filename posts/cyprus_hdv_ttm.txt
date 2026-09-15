@@ -1,0 +1,10 @@
+🇨🇾 Cyprus (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++0.0pp  EV      (0.0% → 0.0%)
++0.5pp  Hybrid  (0.0% → 0.5%)
+−0.5pp  ICE     (100.0% → 99.5%)
+
+Hybrid peaked at 0.5% in Q?'25 (declining for 2 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

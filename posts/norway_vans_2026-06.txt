@@ -1,11 +1,11 @@
-🇧🇬 Bulgaria (Vans) - Q2 2026 - EV Trajectory
-5.0% EV
+🇳🇴 Norway (Vans) - Q2 2026 - EV Trajectory
+56.9% EV
 0.0% PHEV
-95.0% ICE
+43.1% ICE
 
 Trailing 4 quarters are:
-3.7% EV
+50.3% EV
 0.0% PHEV
-96.3% ICE
+49.7% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
