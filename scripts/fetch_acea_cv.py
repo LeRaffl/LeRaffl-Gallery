@@ -115,17 +115,25 @@ the new era "Czechia" — normalised via NAME_ALIASES below.
 
 URL patterns
 ------------
-ACEA has changed this release's filename scheme at least twice (a cryptic
-date-prefixed name through ~2023, then a hyphen before the period tag for H1
-but an underscore for Q1-Q3 in the 2024+ releases — confirmed against real
-samples of both). There is no confirmed sample of the new-era filename for
-Q1 or the full-year checkpoint in this codebase yet —
-CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT lists the most plausible guesses per
-checkpoint, tried in order. When each checkpoint's live fetch first runs
-(from a network egress that can actually reach acea.auto — this repo's
-sandbox cannot, see the module's git history for confirmation), expect to
-need one `--pdf-url` correction the first time; that is normal bring-up, not
-a bug.
+ACEA does not use a stable filename scheme for this release: KNOWN_CHECKPOINT_URLS
+records a confirmed-real URL for every checkpoint from Q1 2023 through H1
+2026 (maintainer-supplied, sourced from each release's own article page
+under https://www.acea.auto/cv-registrations/), and no two of them share
+the same shape — hyphen vs underscore placement, "Q1-Q3" vs "Q3" vs
+"Q1-Q2", "vehicle" vs "vehicles", a cryptic YYYYMMDD-prefixed name through
+mid-2023, even a "fulll_year" typo on the FY 2025 release. A checkpoint in
+that dict is fetched directly, no guessing involved.
+For a checkpoint NOT yet in KNOWN_CHECKPOINT_URLS (i.e. anything after H1
+2026), CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT tries the handful of shapes
+seen so far, in order — but given the pattern above, don't expect a high
+hit rate. When it misses (this repo's sandbox can't reach acea.auto to
+check in advance — see the module's git history for confirmation), find the
+real URL from the release's own article page and re-run with `--pdf-url`;
+that is normal bring-up, not a bug. ACEA's release cadence note in the
+module docstring above ("~April/~July-August/~October/~January") says
+roughly when to expect each one; the article page's own text (usually
+titled "New commercial vehicle registrations ... in <window>") links
+straight to the PDF.
 
 Per-country write rule
 -----------------------
@@ -220,26 +228,64 @@ DASH_GLYPHS = ("ꟷ", "–", "—", "−", "─")
 
 ACEA_HOMEPAGE = "https://www.acea.auto/"
 
-# Candidate filename patterns per checkpoint, tried in order until one
-# returns HTTP 200. See "URL patterns" in the module docstring. Confirmed
-# against real samples: H1 uses a HYPHEN before the period tag, Q1-Q3 an
-# UNDERSCORE — ACEA is not consistent about this, hence trying both on
-# every checkpoint rather than trusting either pattern alone.
+# Confirmed real URLs (maintainer-supplied, verified against acea.auto's own
+# per-release article pages — see docs/architecture/38-source-acea-cv.md
+# § 6) for every checkpoint from Q1 2023 through H1 2026. checked by
+# fetch_checkpoint_pdf() before falling back to guessing, so a checkpoint in
+# this dict never needs a guessed URL — or a manual --pdf-url — again, even
+# on a from-scratch re-run of the historical backfill. Deliberately NOT
+# meant to be extrapolated into a template for future years: as the entries
+# below show, ACEA has used a different filename shape for nearly every
+# single release (hyphen vs underscore, "Q1-Q3" vs "Q3" vs "vehicles"
+# plural, even a "fulll_year" typo) — see CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT's
+# own comment for what that means for checkpoints NOT in this dict.
+KNOWN_CHECKPOINT_URLS: dict[tuple[str, int], str] = {
+    ("Q1", 2023): "https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf",
+    ("H1", 2023): "https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf",
+    ("Q1-Q3", 2023): "https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf",
+    ("FY", 2023): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf",
+    ("Q1", 2024): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf",
+    ("H1", 2024): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf",
+    ("Q1-Q3", 2024): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf",
+    ("FY", 2024): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2024.pdf",
+    ("Q1", 2025): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf",
+    ("H1", 2025): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf",
+    ("Q1-Q3", 2025): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf",
+    ("FY", 2025): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf",
+    ("Q1", 2026): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf",
+    ("H1", 2026): "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf",
+}
+
+# Fallback candidate filename patterns per checkpoint, tried in order (after
+# KNOWN_CHECKPOINT_URLS has no entry) until one returns a real PDF. See "URL
+# patterns" in the module docstring. ACEA has used a materially different
+# filename shape for nearly every release on record (see
+# KNOWN_CHECKPOINT_URLS above) — Q1-Q3 2023 even pluralised "vehicle" to
+# "vehicles" — so this list is *not* expected to have great odds for a
+# checkpoint it hasn't seen before; it exists so a future cron run has
+# *something* to try automatically before falling back to a human finding
+# the real URL (from the release's own article page under
+# https://www.acea.auto/cv-registrations/) and passing --pdf-url by hand.
 CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT = {
     "Q1": [
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-{year}.pdf",  # confirmed 2024, 2026
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-Q1_{year}.pdf",
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1_{year}.pdf",
     ],
     "H1": [
-        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_{year}.pdf",  # confirmed
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_{year}.pdf",  # confirmed 2026
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-{year}.pdf",  # confirmed 2024
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1_{year}.pdf",
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_{year}.pdf",  # confirmed 2025
     ],
     "Q1-Q3": [
-        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_{year}.pdf",  # confirmed
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_{year}.pdf",  # confirmed 2024
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-Q1-Q3_{year}.pdf",
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-{year}.pdf",  # confirmed 2025
+        "https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_{year}.pdf",  # confirmed 2023 ("vehicles")
     ],
     "FY": [
-        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_{year}.pdf",
+        "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_{year}.pdf",  # confirmed 2023, 2024
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-{year}.pdf",
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_FY_{year}.pdf",
         "https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-FY_{year}.pdf",
@@ -355,10 +401,14 @@ def load_pdf_bytes(url_or_path: str) -> bytes:
 
 def fetch_checkpoint_pdf(checkpoint: str, year: int, pdf_url: str | None) -> tuple[bytes, str]:
     """Returns (pdf_bytes, source_url_used). Tries --pdf-url verbatim if
-    given, otherwise walks CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT[checkpoint]
-    until one succeeds."""
+    given, then KNOWN_CHECKPOINT_URLS (a confirmed real URL for this exact
+    checkpoint/year, if we have one on record), otherwise walks
+    CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT[checkpoint] until one succeeds."""
     if pdf_url:
         return load_pdf_bytes(pdf_url), pdf_url
+    known_url = KNOWN_CHECKPOINT_URLS.get((checkpoint, year))
+    if known_url:
+        return load_pdf_bytes(known_url), known_url
     templates = CANDIDATE_URL_TEMPLATES_BY_CHECKPOINT[checkpoint]
     for tmpl in templates:
         url = tmpl.format(year=year)
