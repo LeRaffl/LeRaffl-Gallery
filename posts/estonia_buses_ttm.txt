@@ -1,0 +1,8 @@
+🇪🇪 Estonia (Buses) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++13.8pp  EV      (0.0% → 13.8%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−13.8pp  ICE     (100.0% → 86.2%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
