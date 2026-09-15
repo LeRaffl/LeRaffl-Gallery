@@ -1422,6 +1422,46 @@
       "country_slug": "slovakia_vans"
     },
     {
+      "country": "Slovenia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_buses_ICE_BEV_20260915.png",
+      "url": "images/2026-06/slovenia_buses_ICE_BEV_20260915.png",
+      "alt": "Slovenia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovenia_buses"
+    },
+    {
+      "country": "Slovenia (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_buses_20260915.png",
+      "url": "images/2026-06/slovenia_buses_20260915.png",
+      "alt": "Slovenia (Buses) BEV trajectory",
+      "country_slug": "slovenia_buses"
+    },
+    {
+      "country": "Slovenia (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_buses_time_20260915.png",
+      "url": "images/2026-06/slovenia_buses_time_20260915.png",
+      "alt": "Slovenia (Buses) Transition time curve",
+      "country_slug": "slovenia_buses"
+    },
+    {
+      "country": "Slovenia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_buses_ttm_shares_20260915.png",
+      "url": "images/2026-06/slovenia_buses_ttm_shares_20260915.png",
+      "alt": "Slovenia (Buses) TTM market split graph",
+      "country_slug": "slovenia_buses"
+    },
+    {
       "country": "Slovenia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-06",
