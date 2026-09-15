@@ -14,3 +14,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2022-11,quarterly,Buses,ACEA,357.0,,139.0,0.0,733.0,312.0,1541.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2025-02,quarterly,Buses,ACEA,146.0,,81.0,0.0,1000.0,217.0,1444.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
 2025-05,quarterly,Buses,ACEA,145.0,,73.0,0.0,855.0,285.0,1358.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
+2025-08,quarterly,Buses,ACEA,210.0,,90.0,0.0,1297.0,387.0,1984.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
