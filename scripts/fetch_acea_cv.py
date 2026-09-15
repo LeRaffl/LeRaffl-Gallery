@@ -476,7 +476,15 @@ def page_text(page) -> str:
 # --- New-era parsing (fuel-split, current+prior period pairs) -------------
 
 def _new_era_candidate_names() -> set[str]:
-    return set(TARGET_COUNTRIES) | {"Germany", "France", "Sweden", "United Kingdom"}
+    # Czechia/Slovakia's "Republic" spelling isn't just an old-era thing —
+    # the Q1 2023 new-era (fuel-split) release still spells it "Czech
+    # Republic", so both spellings must be tried here too, not only in
+    # _old_era_candidate_names(). _parse_new_era_page() runs every match
+    # through _normalise_country() so either spelling lands on the same
+    # TARGET_COUNTRIES key.
+    return (set(TARGET_COUNTRIES)
+            | {"Germany", "France", "Sweden", "United Kingdom",
+               "Czech Republic", "Slovak Republic"})
 
 
 def _parse_new_era_page(text: str) -> dict[str, tuple[int, ...]]:
@@ -493,7 +501,7 @@ def _parse_new_era_page(text: str) -> dict[str, tuple[int, ...]]:
                 continue
             ints = _tokenize_ints(line[len(name):], 12)  # 6 fuels x (curr, prev)
             if ints is not None:
-                countries[name] = tuple(ints)
+                countries[_normalise_country(name)] = tuple(ints)
             break
     return countries
 
