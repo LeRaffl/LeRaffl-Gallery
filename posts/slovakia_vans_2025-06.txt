@@ -1,0 +1,11 @@
+🇸🇰 Slovakia (Vans) - Q2 2025 - EV Trajectory
+6.2% EV
+2.8% Hybrid
+90.9% ICE
+
+Trailing 4 quarters are:
+3.3% EV
+0.9% Hybrid
+95.7% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

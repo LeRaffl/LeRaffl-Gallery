@@ -1,0 +1,8 @@
+🇸🇰 Slovakia (Vans) - TTM Market Split
+
+Q?'23–Q?'24  vs  Q?'24–Q?'25
++0.8pp  EV      (2.5% → 3.3%)
++0.9pp  Hybrid  (0.0% → 0.9%)
+−1.7pp  ICE     (97.5% → 95.7%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
