@@ -5,10 +5,11 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2022-02,quarterly,Vans,ACEA,24.0,,8.0,192.0,4023.0,11.0,4258.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
 2023-05,quarterly,Vans,ACEA,98.0,,11.0,399.0,4753.0,242.0,5503.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2022-05,quarterly,Vans,ACEA,152.0,,28.0,169.0,4679.0,15.0,5043.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2024-02,quarterly,Vans,ACEA,224.0,,2.0,172.0,4511.0,924.0,5833.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
+2024-02,quarterly,Vans,ACEA,224.0,,2.0,172.0,4505.0,925.0,5828.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
 2024-05,quarterly,Vans,ACEA,518.0,,13.0,222.0,6067.0,667.0,7487.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2024-08,quarterly,Vans,ACEA,209.0,,13.0,80.0,4404.0,367.0,5073.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
 2023-08,quarterly,Vans,ACEA,185.0,,14.0,228.0,3848.0,459.0,4734.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2022-08,quarterly,Vans,ACEA,214.0,,37.0,226.0,4261.0,11.0,4749.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2023-11,quarterly,Vans,ACEA,196.0,,26.0,249.0,4384.0,564.0,5419.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2022-11,quarterly,Vans,ACEA,178.0,,46.0,138.0,3221.0,19.0,3602.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
+2025-02,quarterly,Vans,ACEA,416.0,,198.0,135.0,5029.0,245.0,6023.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
