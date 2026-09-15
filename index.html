@@ -13011,6 +13011,11 @@ document.addEventListener('click', (e) => {
     if(!m) return p||'';
     return new Date(+m[1], +m[2]-1, 1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
   }
+  function monthShort(p){
+    var m=/^(\d{4})-(\d{2})$/.exec(p||'');
+    if(!m) return p||'';
+    return new Date(+m[1], +m[2]-1, 1).toLocaleDateString('en-US',{month:'short',year:'numeric'});
+  }
 
   function shareAt(row, x){
     if(row && row._agg && typeof window.__bevWeightedBevShare==='function' && row._members){
@@ -13181,12 +13186,22 @@ document.addEventListener('click', (e) => {
     }
     picks.sort(function(a,b){ return num(b.ttm_bev_share)-num(a.ttm_bev_share); });
 
+    /* Juengstes data_per unter den gezeigten Maerkten. Wird sowohl fuer die
+       Datenrand-Linie im Chart als auch fuer Titel und Fussnote gebraucht,
+       steht deshalb hier oben und nicht mehr erst nach dem Zeichnen. */
+    var pers=picks.map(function(r){return r.data_per;}).filter(Boolean).sort();
+    var latest=pers.length?pers[pers.length-1]:'';
+
     /* Unter ~620px traegt die zweizeilige Beschriftung am rechten Rand nicht
        mehr — 150px Rinne von 340px Gesamtbreite waere fast die halbe Grafik.
        Dort wandern die Namen unter den Chart in eine Legende. */
     var narrow = W < 620;
     var FS_AXIS=12, FS_NAME=13, FS_VAL=12;
-    var ML=narrow?32:38, MR=narrow?14:150, MT=12, MB=28;
+    /* MT traegt seit 2026-09-15 die Beschriftung der Datenrand-Linie. Sie
+       steht ueber der 100%-Gitterlinie, weil dort garantiert keine Kurve
+       liegt — im Plot selbst kollidiert sie je nach Land mal oben (Norwegen)
+       und mal unten (Indonesien). */
+    var ML=narrow?32:38, MR=narrow?14:150, MT=20, MB=28;
 
     /* Der Feedback-Knopf (.fb-fab) liegt fix unten rechts im Fenster und damit
        genau ueber der rechten Rinne, in der die Laendernamen stehen. Bei 924px
@@ -13239,6 +13254,41 @@ document.addEventListener('click', (e) => {
              'text-anchor="'+(t===X0?'start':t===X1?'end':'middle')+'" font-family="var(--font-ui)">'+t+'</text>');
     });
 
+    /* ------------------------------------------------------------------
+       KORREKTUR 2026-09-15 (Auftraggeber): die Treppen enden sichtbar
+       frueher als die durchgezogene Kurve. Das sah nach dem alten
+       Jahresversatz aus, ist aber keiner — es sind zwei verschiedene
+       Zeitkonventionen im selben Bild:
+
+         · Ein TTM-Wert ist ein Zwoelfmonatsmittel und liegt deshalb auf der
+           MITTE seines Fensters (ttmFromSeries). Das letzte volle Fenster
+           endet mit data_per, seine Mitte liegt ein halbes Jahr davor.
+         · Der Schnitt durchgezogen/gestrichelt liegt auf data_per selbst,
+           weil bis dorthin die Daten existieren, auf die gefittet wurde.
+
+       Beides ist fuer sich richtig: ein zentriertes gleitendes Mittel endet
+       immer ein halbes Fenster vor den Rohdaten. Falsch war nur, dass die
+       Grafik das nicht gesagt hat. Diese Linie markiert den Datenrand, der
+       Punkt am Treppenende (weiter unten) das letzte Messfenster, und die
+       Fussnote nennt die Konvention beim Namen.
+
+       Wer den TTM stattdessen auf das FENSTERENDE datiert, schliesst die
+       Luecke und handelt sich dafuer einen systematischen Rueckstand der
+       Messreihe gegenueber der Kurve ein — am letzten Punkt China -6,2 pp,
+       Deutschland -2,6 pp, weil das Zwoelfmonatsmittel in einem steigenden
+       Markt weit unter dem aktuellen Monat liegt (China 08/2026: Mittel
+       37,2 % gegen 45,2 % im Monat selbst). Genau das war der Zustand vor
+       2026-09-13. Nicht zurueckdrehen.
+       ------------------------------------------------------------------ */
+    var edgeX=perToYear(latest);
+    if(isFinite(edgeX) && edgeX>X0 && edgeX<X1){
+      var ex=sx(edgeX);
+      s.push('<line x1="'+ex.toFixed(1)+'" y1="'+MT+'" x2="'+ex.toFixed(1)+'" y2="'+(MT+ph)+
+             '" stroke="var(--muted-2)" stroke-width="1" stroke-dasharray="2 3"/>');
+      s.push('<text x="'+(ex-6).toFixed(1)+'" y="'+(MT-7)+'" font-size="11" fill="var(--muted)" '+
+             'text-anchor="end" font-family="var(--font-ui)">latest data · '+esc(monthShort(latest))+'</text>');
+    }
+
     var labels=[];
     picks.forEach(function(r,i){
       var col=SERIES[i%SERIES.length];
@@ -13257,10 +13307,24 @@ document.addEventListener('click', (e) => {
       var obsPts = (!r._agg && showSteps) ? OBS[r.country] : null;
       if(obsPts&&obsPts.length>1){
         var dPath=stepPath(obsPts, sx, sy);
-        if(dPath)
+        if(dPath){
           s.push('<path fill="none" stroke="'+col+'" stroke-width="'+(isHome?1.6:1.15)+
                  '" stroke-linejoin="miter" stroke-linecap="butt" opacity="'+(isHome?'.75':'.55')+
                  '" d="'+dPath+'"/>');
+          /* Das letzte Messfenster bekommt einen Punkt: ohne ihn sieht die
+             Treppe abgeschnitten aus, und genau dieser Eindruck hat den
+             Verdacht auf einen Jahresversatz ausgeloest. Der Punkt sagt
+             "hier endet die Messreihe", die gestrichelte Linie daneben
+             "hier enden die Daten" — der Abstand dazwischen ist das halbe
+             Zwoelfmonatsfenster (siehe Kommentar oben). */
+          var lastObs=null, oi;
+          for(oi=obsPts.length-1; oi>=0; oi--){
+            if(obsPts[oi].x>=X0 && obsPts[oi].x<=X1 && isFinite(obsPts[oi].y)){ lastObs=obsPts[oi]; break; }
+          }
+          if(lastObs)
+            s.push('<circle cx="'+sx(lastObs.x).toFixed(1)+'" cy="'+sy(lastObs.y).toFixed(1)+
+                   '" r="'+(isHome?3:2.4)+'" fill="'+col+'" opacity="'+(isHome?'.85':'.7')+'"/>');
+        }
       }
       var w = isHome ? 2.6 : (r._agg ? 2.1 : 1.7);
       if(solid.length>1)
@@ -13312,15 +13376,15 @@ document.addEventListener('click', (e) => {
     plot.innerHTML=s.join('');
 
     var title=document.getElementById('galHeroTitle');
-    var pers=picks.map(function(r){return r.data_per;}).filter(Boolean).sort();
-    var latest=pers.length?pers[pers.length-1]:'';
     var srcs=[];
     picks.forEach(function(r){
       var t=(r.source||'').split(/[(\\/&]/)[0].trim().replace(/[,;]$/,'');
       if(t&&srcs.indexOf(t)<0) srcs.push(t);
     });
     if(foot) foot.innerHTML=
-      '<b>Steps</b> observed trailing-twelve-month BEV share for Norway, China and your market. <b>Solid</b> fitted trajectory, <b>dashed</b> projection. '+
+      '<b>Steps</b> observed trailing-twelve-month BEV share for Norway, China and your market, each dated at the '+
+      '<b>centre</b> of its twelve-month window — which is why they end about half a year before the dotted '+
+      '&ldquo;latest data&rdquo; line. <b>Solid</b> fitted trajectory, <b>dashed</b> projection. '+
       'Sources: '+(srcs.length===1?esc(srcs[0]):'national ministries')+
       (latest?' · Data through '+esc(monthName(latest)):'')+
       ' · Generalized S-curve fit.';
