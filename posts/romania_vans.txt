@@ -1,0 +1,11 @@
+🇷🇴 Romania (Vans) - Q1 2025 - EV Trajectory
+14.0% EV
+1.3% Hybrid
+84.7% ICE
+
+Trailing 4 quarters are:
+5.7% EV
+0.4% Hybrid
+94.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

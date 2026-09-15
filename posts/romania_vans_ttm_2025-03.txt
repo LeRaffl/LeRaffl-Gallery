@@ -1,0 +1,10 @@
+🇷🇴 Romania (Vans) - TTM Market Split
+
+Q?'23–Q?'23  vs  Q?'24–Q?'25
++2.4pp  EV      (3.2% → 5.7%)
+−0.2pp  Hybrid  (0.6% → 0.4%)
+−2.2pp  ICE     (96.2% → 94.0%)
+
+Hybrid peaked at 0.9% in Q?'23 (declining for 7 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
