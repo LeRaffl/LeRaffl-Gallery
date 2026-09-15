@@ -1,0 +1,6 @@
+🇧🇬 Bulgaria (Vans) - Q1 2023 - EV Trajectory
+1.0% EV
+0.0% PHEV
+99.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
