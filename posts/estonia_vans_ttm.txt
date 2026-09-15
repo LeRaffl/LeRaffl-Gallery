@@ -1,0 +1,8 @@
+🇪🇪 Estonia (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++3.8pp  EV      (2.9% → 6.8%)
++0.8pp  Hybrid  (1.4% → 2.2%)
+−4.7pp  ICE     (95.7% → 91.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
