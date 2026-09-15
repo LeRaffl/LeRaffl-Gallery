@@ -1,0 +1,105 @@
+name: Fetch ACEA commercial-vehicle data (multi-country)
+
+# Scrapes ACEA's annual Commercial Vehicle press release (published each
+# January, covering the prior full calendar year) and upserts Vans / HDV /
+# Buses rows into data/<Country>_<Variant>.csv for the ACEA multi-country
+# roster (scripts/fetch_acea_cv.py's TARGET_COUNTRIES — the same 19 EU/EFTA
+# markets fetch-acea.yml covers for passenger cars). Two passes per run:
+#
+#   1. fetch job — parses the PDF and writes every changed CSV in one
+#      commit. The script self-throttles via the latest ACEA-sourced year
+#      on record, so the cheapest run is "already at target, no HTTP".
+#
+#   2. render job — matrix over the changed (country, variant) pairs with
+#      max-parallel=1, so renders run strictly one after another (same
+#      reasoning as fetch-acea.yml: they share params.csv/weights.csv).
+#      Each entry calls render-country.yml as a reusable workflow.
+#
+# ACEA publishes the prior year's commercial-vehicle wrap-up press release
+# between the 20th and 29th of January (see scripts/fetch_acea_cv.py's
+# module docstring for why this fetcher only ever ingests the full-year
+# checkpoint, never the in-year H1/Q1-Q3 partial-year releases). We cron
+# daily from the 18th through the end of January so the first publication
+# day is in range without hammering ACEA on the empty days; the
+# self-throttle makes every other day of the year free.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Target calendar year (leave empty for previous calendar year)'
+        required: false
+        default: ''
+      pdf_url:
+        description: 'Direct ACEA PDF URL or path (leave empty to try the candidate URLs in scripts/fetch_acea_cv.py)'
+        required: false
+        default: ''
+      source_note_url:
+        description: 'URL recorded in the CSV notes column, if different from pdf_url (e.g. pdf_url is a local backfill copy)'
+        required: false
+        default: ''
+      force:
+        description: 'Skip the latest-year self-throttle'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: '15 10 18-31 1 *'   # 18th-31st of January at 10:15 UTC
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    outputs:
+      changed_pairs: ${{ steps.fetch.outputs.changed_pairs }}
+      any_changed: ${{ steps.fetch.outputs.any_changed }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pdfplumber
+
+      - name: Fetch & update ACEA commercial-vehicle CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_acea_cv.py \
+            ${YEAR:+--year "$YEAR"} \
+            ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${SOURCE_NOTE_URL:+--source-note-url "$SOURCE_NOTE_URL"} \
+            ${FORCE:+--force}
+        env:
+          YEAR: ${{ inputs.year }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          SOURCE_NOTE_URL: ${{ inputs.source_note_url }}
+          # GitHub Actions sometimes hands workflow_dispatch booleans through
+          # as the strings 'true'/'false' rather than JSON booleans; accept
+          # either so a truthy-only check doesn't accidentally fire on 'false'.
+          FORCE: ${{ (inputs.force == true || inputs.force == 'true') && '1' || '' }}
+
+      - name: Commit if changed
+        if: steps.fetch.outputs.any_changed == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: data
+          message: 'chore: update ACEA commercial-vehicle data (multi-country)'
+          default_author: github_actions
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.any_changed == 'true'
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        pair: ${{ fromJson(needs.fetch.outputs.changed_pairs) }}
+    uses: ./.github/workflows/render-country.yml
+    with:
+      country: ${{ matrix.pair.country }}
+      variant: ${{ matrix.pair.variant }}
+    secrets: inherit

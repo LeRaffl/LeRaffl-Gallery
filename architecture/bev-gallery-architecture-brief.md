@@ -86,6 +86,7 @@
 - **`Snapshot Builder curves` (`.github/workflows/snapshot-builder.yml`):** Cron 25. jedes Monats 09:00 UTC plus `workflow_dispatch`. Dumpt die aggregierten Builder-Kurven nach `builder_history/<date>.csv`.
 - **Country Fetch Actions (Familie `.github/workflows/fetch-*.yml`):** Ein Workflow pro Datenquelle. Cron-getrieben, self-throttling über `latest_period(<CSV>) ≥ target`. Nach Schreib-Diff dispatcht ein Single-Country-Fetcher `render-country.yml` **einmal** mit der pipe-separierten Liste seiner betroffenen Varianten (ACEA als Multi-Country-Ausnahme fächert weiter per `workflow_call`-Matrix über die Länder auf). Aktueller Stand (Schedule in UTC):
   - `fetch-acea.yml` — täglich 08:00, 16.→EOM. Bis zu 21 EU-Länder (16 always + 5 conditional).
+  - `fetch-acea-cv.yml` — täglich 10:15, 18.→31. Januar (**nur** die jährliche Vollreport-Ausgabe; ACEA veröffentlicht seit ~2024 Q1/H1/Q1-Q3-Zwischenstände als kumulierte YTD-Zahlen, die dieser Fetcher bewusst nicht einliest, siehe [38-source-acea-cv.md](../docs/architecture/38-source-acea-cv.md)). Gleiches 19-Länder-ACEA-Roster, schreibt `Vans`/`HDV`/`Buses`.
   - `fetch-brazil.yml` — monatlich 10. 08:00. Brazil.
   - `fetch-chile.yml` — täglich 08:00, 14.→EOM. Chile.
   - `fetch-china.yml` — täglich 11:00, 1.→EOM. China (retail + wholesale).

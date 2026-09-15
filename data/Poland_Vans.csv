@@ -4,3 +4,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-06,monthly,Vans,PZPM,228.0,,,161.0,5700.0,151.0,6240.0,
 2026-07,monthly,Vans,PZPM,228.0,,,161.0,5700.0,151.0,6240.0,
 2026-08,monthly,Vans,PZPM,245.0,,,172.0,4681.0,111.0,5209.0,
+2021-07,yearly,Vans,ACEA,,,,,,,73926.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
+2022-07,yearly,Vans,ACEA,,,,,,,62238.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)

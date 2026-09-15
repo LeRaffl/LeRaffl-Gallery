@@ -94,6 +94,14 @@ Spain and Sweden, plus the ~16-country ACEA cluster
 (`scripts/fetch_acea.py`) and New Zealand, whose fetcher exists but whose cron
 is currently disabled.
 
+The same ACEA roster also gets `Vans` / `HDV` / `Buses` variants from a
+second, separate fetcher — `scripts/fetch_acea_cv.py`, ACEA's annual
+Commercial Vehicle press release — since ACEA publishes cars and commercial
+vehicles as two different reports. It only ever ingests the full calendar
+year (the January release); see
+[docs/architecture/38-source-acea-cv.md](docs/architecture/38-source-acea-cv.md)
+for why.
+
 For the complete, always-current picture — every fetcher, its source, the
 variants it writes and its schedule — see
 [docs/architecture/02-components.md § 2.7](docs/architecture/02-components.md#27-fetch-actions-overview)
