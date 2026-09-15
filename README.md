@@ -95,12 +95,15 @@ Spain and Sweden, plus the ~16-country ACEA cluster
 is currently disabled.
 
 The same ACEA roster also gets `Vans` / `HDV` / `Buses` variants from a
-second, separate fetcher — `scripts/fetch_acea_cv.py`, ACEA's annual
-Commercial Vehicle press release — since ACEA publishes cars and commercial
-vehicles as two different reports. It only ever ingests the full calendar
-year (the January release); see
+second, separate fetcher — `scripts/fetch_acea_cv.py`, ACEA's Commercial
+Vehicle press release — since ACEA publishes cars and commercial vehicles as
+two different reports. ACEA only publishes cumulative year-to-date
+checkpoints (Q1/H1/Q1-Q3/full-year) for commercial vehicles, so this fetcher
+reconstructs genuine `Q1`/`Q2`/`Q3`/`Q4` rows from them, falling back to a
+single yearly row only when no quarterly baseline exists yet for that
+country/variant/year; see
 [docs/architecture/38-source-acea-cv.md](docs/architecture/38-source-acea-cv.md)
-for why.
+for how.
 
 For the complete, always-current picture — every fetcher, its source, the
 variants it writes and its schedule — see

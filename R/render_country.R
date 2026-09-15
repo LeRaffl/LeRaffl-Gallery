@@ -40,6 +40,17 @@ if (nrow(df) == 0) stop("no rows for variant '", variant, "' in ", csv_path)
 source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
 if (is.na(source_str)) source_str <- ""
 
+# ACEA's Commercial Vehicle release (Vans/HDV/Buses only — NOT the
+# passenger-car "Whole" release scripts/fetch_acea.py feeds, which splits
+# BEV/PHEV properly) reports a combined "Electrically Chargeable Vehicle"
+# figure (BEV+PHEV together) into our BEV column — see
+# docs/architecture/38-source-acea-cv.md. Display it as "EV" for exactly
+# those variants instead of claiming a pure-BEV split this source doesn't
+# have. Both the source and the variant gate matter here: source == "ACEA"
+# alone would also catch the (properly split) passenger-car ACEA countries.
+bev_label_val <- if (identical(trimws(toupper(source_str)), "ACEA") &&
+                     variant %in% c("Vans", "HDV", "Buses")) "EV" else "BEV"
+
 # Period folder + post date use the "as of" period (data_per): for quarterly
 # data the CSV stores each quarter's MIDDLE month (so the regression dots sit in
 # the middle of the quarter and the fit behaves), but the outward-facing period
@@ -163,6 +174,7 @@ reg_word_uc <- if (variant == "Used") "Used" else "New"
 meta <- list(
   country = country, country_label = country_label,
   reg_word = reg_word_lc, reg_Word = reg_word_uc,
+  bev_label = bev_label_val,
   flag_img = flag_img,
   qr_img  = qr_img,
   social_caption = social_caption,
@@ -199,12 +211,14 @@ if (file.exists(params_path)) {
   }
 }
 
-ttm_long <- compute_ttm_long(df)
+ttm_long <- compute_ttm_long(df, bev_label = bev_label_val)
 
 # Latest TTM BEV share — written to params.csv for the frontend's < 1% no-transition check.
+# Matched against bev_label_val, not the literal "BEV", since compute_ttm_long()
+# renames the BEV band's `type` factor level to match (e.g. "EV" for ACEA CV).
 ttm_bev_share <- NA_real_
 if (!is.null(ttm_long)) {
-  bev_rows <- ttm_long[as.character(ttm_long$type) == "BEV", , drop = FALSE]
+  bev_rows <- ttm_long[as.character(ttm_long$type) == bev_label_val, , drop = FALSE]
   if (nrow(bev_rows) > 0) ttm_bev_share <- bev_rows$value[nrow(bev_rows)]
 }
 
@@ -330,7 +344,7 @@ heal_v1_zero_rows("params.csv", "weights.csv")
 # Build the social-media post text and write to posts/<slug>.txt (latest, what
 # the Gallery's Copy-post button + the Apple Shortcut fetch) plus a periodised
 # copy posts/<slug>_<period>.txt that stays around as a history record.
-post_text <- build_post_text(df, country_label, as_of_period)
+post_text <- build_post_text(df, country_label, as_of_period, bev_label = bev_label_val)
 if (nzchar(post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(post_text, file.path("posts", paste0(slug, ".txt")), useBytes = TRUE)
@@ -340,7 +354,7 @@ if (nzchar(post_text)) {
 
 # TTM companion post — shape mirrors the TTM chart bands. The Gallery's
 # Copy-post button on the ttm_shares card fetches posts/<slug>_ttm.txt.
-ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period)
+ttm_post_text <- build_ttm_post_text(df, country_label, as_of_period, bev_label = bev_label_val)
 if (nzchar(ttm_post_text)) {
   dir.create("posts", showWarnings = FALSE)
   writeLines(ttm_post_text, file.path("posts", paste0(slug, "_ttm.txt")), useBytes = TRUE)
