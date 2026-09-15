@@ -15,3 +15,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-02,quarterly,HDV,ACEA,3.0,,0.0,0.0,1079.0,0.0,1082.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
 2025-05,quarterly,HDV,ACEA,22.0,,0.0,0.0,1763.0,1.0,1786.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
 2025-08,quarterly,HDV,ACEA,11.0,,0.0,0.0,826.0,2.0,839.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
+2025-11,quarterly,HDV,ACEA,18.0,,0.0,0.0,1626.0,2.0,1646.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
+2024-11,quarterly,HDV,ACEA,6.0,,1.0,0.0,1050.0,1.0,1058.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
