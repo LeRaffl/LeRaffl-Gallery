@@ -1,0 +1,8 @@
+🇨🇿 Czechia (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++0.6pp  EV      (0.9% → 1.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.6pp  ICE     (99.1% → 98.6%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
