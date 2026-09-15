@@ -92,6 +92,36 @@
       "country_slug": "belgium_vans"
     },
     {
+      "country": "Bulgaria (Vans)",
+      "type": "ICE_BEV",
+      "period": "2023-03",
+      "date": "2026-09-15",
+      "filename": "bulgaria_vans_ICE_BEV_20260915.png",
+      "url": "images/2023-03/bulgaria_vans_ICE_BEV_20260915.png",
+      "alt": "Bulgaria (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "Bulgaria (Vans)",
+      "type": "share",
+      "period": "2023-03",
+      "date": "2026-09-15",
+      "filename": "bulgaria_vans_20260915.png",
+      "url": "images/2023-03/bulgaria_vans_20260915.png",
+      "alt": "Bulgaria (Vans) BEV trajectory",
+      "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "Bulgaria (Vans)",
+      "type": "time",
+      "period": "2023-03",
+      "date": "2026-09-15",
+      "filename": "bulgaria_vans_time_20260915.png",
+      "url": "images/2023-03/bulgaria_vans_time_20260915.png",
+      "alt": "Bulgaria (Vans) Transition time curve",
+      "country_slug": "bulgaria_vans"
+    },
+    {
       "country": "Austria (Used)",
       "type": "ICE_BEV",
       "period": "2026-08",
