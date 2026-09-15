@@ -642,6 +642,46 @@
       "country_slug": "hungary_buses"
     },
     {
+      "country": "Hungary (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "hungary_hdv_ICE_BEV_20260915.png",
+      "url": "images/2026-06/hungary_hdv_ICE_BEV_20260915.png",
+      "alt": "Hungary (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "hungary_hdv"
+    },
+    {
+      "country": "Hungary (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "hungary_hdv_20260915.png",
+      "url": "images/2026-06/hungary_hdv_20260915.png",
+      "alt": "Hungary (HDV) BEV trajectory",
+      "country_slug": "hungary_hdv"
+    },
+    {
+      "country": "Hungary (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "hungary_hdv_time_20260915.png",
+      "url": "images/2026-06/hungary_hdv_time_20260915.png",
+      "alt": "Hungary (HDV) Transition time curve",
+      "country_slug": "hungary_hdv"
+    },
+    {
+      "country": "Hungary (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "hungary_hdv_ttm_shares_20260915.png",
+      "url": "images/2026-06/hungary_hdv_ttm_shares_20260915.png",
+      "alt": "Hungary (HDV) TTM market split graph",
+      "country_slug": "hungary_hdv"
+    },
+    {
       "country": "Iceland (HDV)",
       "type": "ICE_BEV",
       "period": "2026-06",
