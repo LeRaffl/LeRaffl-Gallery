@@ -1,0 +1,11 @@
+🇩🇪 Germany (Vans) - Q2 2026 - EV Trajectory
+16.0% EV
+0.9% Hybrid
+83.1% ICE
+
+Trailing 4 quarters are:
+14.7% EV
+0.8% Hybrid
+84.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

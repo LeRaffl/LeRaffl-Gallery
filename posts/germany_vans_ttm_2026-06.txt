@@ -1,0 +1,10 @@
+🇩🇪 Germany (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++8.2pp  EV      (6.5% → 14.7%)
++0.2pp  Hybrid  (0.6% → 0.8%)
+−8.4pp  ICE     (92.9% → 84.5%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2031.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
