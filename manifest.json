@@ -242,6 +242,46 @@
       "country_slug": "cyprus_hdv"
     },
     {
+      "country": "Czechia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "czechia_buses_ICE_BEV_20260915.png",
+      "url": "images/2026-06/czechia_buses_ICE_BEV_20260915.png",
+      "alt": "Czechia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "czechia_buses_20260915.png",
+      "url": "images/2026-06/czechia_buses_20260915.png",
+      "alt": "Czechia (Buses) BEV trajectory",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "czechia_buses_time_20260915.png",
+      "url": "images/2026-06/czechia_buses_time_20260915.png",
+      "alt": "Czechia (Buses) Transition time curve",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "czechia_buses_ttm_shares_20260915.png",
+      "url": "images/2026-06/czechia_buses_ttm_shares_20260915.png",
+      "alt": "Czechia (Buses) TTM market split graph",
+      "country_slug": "czechia_buses"
+    },
+    {
       "country": "Czechia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-06",
