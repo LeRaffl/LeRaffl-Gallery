@@ -1,0 +1,10 @@
+🇳🇴 Norway (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++8.9pp  EV      (13.2% → 22.1%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−8.9pp  ICE     (86.8% → 77.9%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2030.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
