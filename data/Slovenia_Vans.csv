@@ -8,4 +8,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2024-02,quarterly,Vans,ACEA,18.0,,5.0,24.0,2224.0,3.0,2274.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
 2024-05,quarterly,Vans,ACEA,8.0,,0.0,39.0,2182.0,2.0,2231.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2024-08,quarterly,Vans,ACEA,23.0,,3.0,60.0,1595.0,2.0,1683.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2023-08,quarterly,Vans,ACEA,27.0,,9.0,44.0,1683.0,1.0,1764.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
+2023-08,quarterly,Vans,ACEA,27.0,,8.0,44.0,1683.0,1.0,1763.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
+2022-08,quarterly,Vans,ACEA,15.0,,8.0,37.0,1344.0,1.0,1405.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
