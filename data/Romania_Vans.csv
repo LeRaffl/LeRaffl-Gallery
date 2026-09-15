@@ -1,3 +1,5 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2021-07,yearly,Vans,ACEA,,,,,,,16168.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
 2022-07,yearly,Vans,ACEA,,,,,,,13583.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
+2023-02,quarterly,Vans,ACEA,77.0,,38.0,234.0,4061.0,8.0,4418.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
+2022-02,quarterly,Vans,ACEA,48.0,,21.0,113.0,3229.0,3.0,3414.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf

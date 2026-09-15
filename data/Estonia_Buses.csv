@@ -1,3 +1,5 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2021-07,yearly,Buses,ACEA,,,,,,,269.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
 2022-07,yearly,Buses,ACEA,,,,,,,306.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
+2023-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,13.0,2.0,15.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
+2022-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,12.0,99.0,111.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
