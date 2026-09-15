@@ -1,0 +1,11 @@
+🇬🇷 Greece (HDV) - Q2 2026 - EV Trajectory
+2.7% EV
+0.0% PHEV
+97.3% ICE
+
+Trailing 4 quarters are:
+7.7% EV
+0.0% PHEV
+92.3% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
