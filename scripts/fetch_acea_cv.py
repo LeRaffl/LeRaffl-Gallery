@@ -335,10 +335,17 @@ def load_pdf_bytes(url_or_path: str) -> bytes:
             # renders a normal HTML page, not a 404) — treat "200 but not a
             # PDF" the same as "not found" so the candidate-template loop in
             # fetch_checkpoint_pdf() falls through to the next guess instead
-            # of crashing later inside pdfplumber.
+            # of crashing later inside pdfplumber. Also observed on a
+            # confirmed-correct URL (a WAF soft-challenge page served with
+            # 200 instead of a hard 403) — the content-type/snippet here is
+            # what tells the two cases apart when debugging.
+            content_type = resp.headers.get("content-type", "n/a")
+            snippet = resp.content[:200].decode("utf-8", errors="replace")
             raise FileNotFoundError(
                 f"{url_or_path} returned HTTP 200 but the content isn't a "
-                f"PDF (no %PDF- header) — likely a wrong URL guess."
+                f"PDF (no %PDF- header) — either a wrong URL guess or a WAF "
+                f"soft-challenge page. content-type={content_type!r} "
+                f"body-snippet={snippet!r}"
             )
         return resp.content
     path = url_or_path.replace("file://", "")
