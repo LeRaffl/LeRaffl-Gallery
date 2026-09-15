@@ -260,6 +260,11 @@ HTTP_HEADERS = {
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": ACEA_HOMEPAGE,
+    "Sec-Ch-Ua": (
+        '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"'
+    ),
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
     "Sec-Fetch-Dest": "document",
     "Sec-Fetch-Mode": "navigate",
     "Sec-Fetch-Site": "same-origin",
