@@ -1,0 +1,11 @@
+🇸🇪 Sweden (Buses) - Q2 2026 - EV Trajectory
+45.2% EV
+0.0% PHEV
+54.8% ICE
+
+Trailing 4 quarters are:
+46.8% EV
+0.0% PHEV
+53.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

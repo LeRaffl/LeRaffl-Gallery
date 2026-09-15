@@ -1,0 +1,11 @@
+🇪🇪 Estonia (Vans) - Q2 2026 - EV Trajectory
+8.2% EV
+2.7% Hybrid
+89.2% ICE
+
+Trailing 4 quarters are:
+6.8% EV
+2.2% Hybrid
+91.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

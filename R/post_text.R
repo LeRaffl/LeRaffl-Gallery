@@ -19,6 +19,10 @@
 #     In our schema this means: PHEV column absent/zero, HEV column present.
 #   - If EREV column is absent or zero, no "(of which ...)" parens.
 #   - If HEV column is absent or zero, no "(of which ...)" parens on ICE.
+#   - Every literal "BEV" above is actually the `bev_label` parameter
+#     (default "BEV"); ACEA Commercial Vehicle variants (Vans/HDV/Buses,
+#     see docs/architecture/38-source-acea-cv.md) pass "EV" since their BEV
+#     column is really a combined BEV+PHEV figure.
 
 # Format helpers — match scales::percent(accuracy = 0.1) used in the original
 # (which produces "12.3%" — yes, the inner-parens form ends up "12.3%p", that
@@ -89,7 +93,7 @@
 # Build the share triplet (BEV / second / ICE) for either monthly row or TTM
 # rolling 12 sums. `vals` is a named numeric vector with keys BEV, PHEV, EREV,
 # HEV, TOTAL. Missing keys → NA.
-.pt_triplet_lines <- function(vals) {
+.pt_triplet_lines <- function(vals, bev_label = "BEV") {
   total <- vals[["TOTAL"]]
   bev   <- .pt_share(vals[["BEV"]],  total)
   phev  <- .pt_share(vals[["PHEV"]], total)
@@ -115,7 +119,7 @@
   use_phev   <- phev_broad > 0
   use_hybrid <- !use_phev && !is.na(hev) && is.finite(hev) && hev > 0
 
-  bev_line <- sprintf("%s BEV", .pt_pct(bev0))
+  bev_line <- sprintf("%s %s", .pt_pct(bev0), bev_label)
 
   if (use_phev) {
     second_line <- .pt_pp_if("PHEV", phev_broad, "EREV", erev)
@@ -136,7 +140,7 @@
 
 # Public entry. Returns the post text as a single string with \n separators.
 # `last_period` is optional — if NULL/empty, it is derived from the data.
-build_post_text <- function(df, country_label, last_period = NULL) {
+build_post_text <- function(df, country_label, last_period = NULL, bev_label = "BEV") {
   df_ord <- df[order(df$year), , drop = FALSE]
   is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
 
@@ -162,7 +166,7 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   }
   period_vals <- c(BEV = pick("BEV"), PHEV = pick("PHEV"), EREV = pick("EREV"),
                    HEV = pick("HEV"), TOTAL = pick("TOTAL"))
-  period_lines <- .pt_triplet_lines(period_vals)
+  period_lines <- .pt_triplet_lines(period_vals, bev_label = bev_label)
 
   # TTM: 4-quarter rolling window for quarterly countries, 12-month for monthly.
   ttm_lines  <- NULL
@@ -180,13 +184,13 @@ build_post_text <- function(df, country_label, last_period = NULL) {
     ttm_vals <- c(BEV = sum_col("BEV"), PHEV = sum_col("PHEV"), EREV = sum_col("EREV"),
                   HEV = sum_col("HEV"), TOTAL = sum_col("TOTAL"))
     if (is.finite(ttm_vals[["TOTAL"]]) && ttm_vals[["TOTAL"]] > 0) {
-      ttm_lines <- .pt_triplet_lines(ttm_vals)
+      ttm_lines <- .pt_triplet_lines(ttm_vals, bev_label = bev_label)
     }
   }
 
   flag <- .pt_flag(country_label)
-  header <- sprintf("%s %s - %s - BEV Trajectory", flag, country_label,
-                    .pt_month_label(last_period, quarterly = is_quarterly))
+  header <- sprintf("%s %s - %s - %s Trajectory", flag, country_label,
+                    .pt_month_label(last_period, quarterly = is_quarterly), bev_label)
 
   parts <- c(header, period_lines, "")
   if (!is.null(ttm_lines)) {
@@ -245,7 +249,7 @@ build_post_text <- function(df, country_label, last_period = NULL) {
   sprintf("%04d-%02d", ny, nm)
 }
 
-build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
+build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_label = "BEV") {
   df_ord <- df[order(df$year), , drop = FALSE]
   is_quarterly <- df_ord$time_interval[nrow(df_ord)] == "quarterly"
   window <- if (is_quarterly) 4L else 12L
@@ -297,7 +301,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
   # --- Bands ---
   if (use_phev) {
     bands <- list(
-      list(label = "BEV",  cur = bev_s[cur],  pri = bev_s[pri]),
+      list(label = bev_label, cur = bev_s[cur],  pri = bev_s[pri]),
       list(label = "PHEV", cur = phev_s[cur], pri = phev_s[pri]),
       list(label = "HEV",  cur = hev_s[cur],  pri = hev_s[pri]),
       list(label = "ICE",  cur = ice_s[cur],  pri = ice_s[pri])
@@ -306,7 +310,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
     # Hybrid-only: redefine ICE = 1 - BEV - HEV (no PHEV band).
     hyb_cur_ice <- pmax(0, 1 - bev_s - hev_s)
     bands <- list(
-      list(label = "BEV",    cur = bev_s[cur],       pri = bev_s[pri]),
+      list(label = bev_label, cur = bev_s[cur],       pri = bev_s[pri]),
       list(label = "Hybrid", cur = hev_s[cur],       pri = hev_s[pri]),
       list(label = "ICE",    cur = hyb_cur_ice[cur], pri = hyb_cur_ice[pri])
     )
@@ -398,20 +402,20 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL) {
           ymd <- fmt_future(c1$periods)
           if (j == n_cross) {
             cross_lines <- c(cross_lines,
-                             sprintf("If the changes from the last 6 %s continued linearly, BEV would become the largest powertrain in %s.",
-                                     trend_period_word, ymd))
+                             sprintf("If the changes from the last 6 %s continued linearly, %s would become the largest powertrain in %s.",
+                                     trend_period_word, bev_label, ymd))
           } else if (largest_p - c1$periods > 2L) {
             cross_lines <- c(cross_lines,
-                             sprintf("If the changes from the last 6 %s continued linearly, BEV would overtake %s in %s.",
-                                     trend_period_word, c1$label, ymd))
+                             sprintf("If the changes from the last 6 %s continued linearly, %s would overtake %s in %s.",
+                                     trend_period_word, bev_label, c1$label, ymd))
           }
         }
       } else {
         for (c1 in crossings) {
           ymd <- fmt_future(c1$periods)
           cross_lines <- c(cross_lines,
-                           sprintf("If the changes from the last 6 %s continued linearly, BEV would overtake %s in %s.",
-                                   trend_period_word, c1$label, ymd))
+                           sprintf("If the changes from the last 6 %s continued linearly, %s would overtake %s in %s.",
+                                   trend_period_word, bev_label, c1$label, ymd))
         }
       }
     }

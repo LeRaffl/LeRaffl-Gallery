@@ -1,0 +1,10 @@
+🇧🇪 Belgium (Buses) - TTM Market Split
+
+Q?'23–Q?'24  vs  Q?'24–Q?'25
++29.0pp  EV      (24.9% → 53.9%)
+−4.7pp  Hybrid  (5.3% → 0.6%)
+−24.3pp  ICE     (69.8% → 45.5%)
+
+Hybrid peaked at 5.3% in Q?'24 (declining for 3 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

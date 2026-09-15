@@ -1,0 +1,11 @@
+🇬🇷 Greece (Buses) - Q2 2025 - EV Trajectory
+1.4% EV
+0.0% PHEV
+98.6% ICE
+
+Trailing 4 quarters are:
+12.0% EV
+0.0% PHEV
+88.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -19,8 +19,17 @@ suppressPackageStartupMessages({
 reg_word <- function(meta) if (is.null(meta$reg_word)) "new" else meta$reg_word
 reg_Word <- function(meta) if (is.null(meta$reg_Word)) "New" else meta$reg_Word
 
+# Display label for the BEV column, defaulting to "BEV". Sources whose
+# BEV column actually combines BEV+PHEV (ACEA's Commercial Vehicle release —
+# see docs/architecture/38-source-acea-cv.md) set meta$bev_label = "EV" in
+# render_country.R so the chart doesn't claim a pure-BEV split it doesn't
+# have. The internal aes()/factor values driving the geoms stay "BEV"
+# everywhere — only the *displayed* text changes.
+bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_label
+
 TTM_FUEL_COLORS <- c(
   BEV      = "#00ff2c",
+  EV       = "#00ff2c",   # same green as BEV — ACEA CV's combined BEV+PHEV bucket, see bev_label()
   PHEV     = "#00bdfe",
   EREV     = "#1976d2",
   HEV      = "#ffd300",
@@ -92,7 +101,7 @@ plot_timer <- function(fit, meta) {
   if (is.null(ts) || nrow(ts) == 0) return(NULL)
   ymax_top <- ts$BEV_time[length(ts$BEV_time)] * 2
   ggplot(ts, aes(x = year)) +
-    geom_line(aes(y = BEV_time, col = "BEV share to rise from 20% to 80% market share"), lwd = 1) +
+    geom_line(aes(y = BEV_time, col = paste0(bev_label(meta), " share to rise from 20% to 80% market share")), lwd = 1) +
     geom_line(aes(y = ICE_time, col = "ICE share to fall from 80% to 20% market share"), lwd = 1) +
     scale_x_continuous(
       breaks = seq(fit$verschiebung, fit$extrapol, 1),
@@ -128,11 +137,11 @@ plot_bev_trajectory <- function(fit, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0("BEV share in ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
-         subtitle = paste0("expected time for BEV to rise from 20% to 80%: ",
+    labs(title = paste0(bev_label(meta), " share in ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
+         subtitle = paste0("expected time for ", bev_label(meta), " to rise from 20% to 80%: ",
                            floor(fit$time_20_to_80), " years ",
                            round(12 * (fit$time_20_to_80 - floor(fit$time_20_to_80)), 0), " months"),
-         caption = meta$entire_caption, x = " ", y = "BEV share") +
+         caption = meta$entire_caption, x = " ", y = paste0(bev_label(meta), " share")) +
     theme_minimal() +
     theme(
       legend.position = c(0.97, 0.05), legend.justification = c("right", "bottom"),
@@ -188,7 +197,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0("BEV / ICE / PHEV share of ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0(bev_label(meta), " / ICE / PHEV share of ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
@@ -202,8 +211,10 @@ plot_ice_bev_phev <- function(fit, df, meta) {
           legend.title = element_text(size = rel(1)), legend.text = element_text(size = rel(0.9)),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9))) +
     scale_color_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
+                       labels = c(ICE = "ICE", BEV = bev_label(meta), PHEV = "PHEV"),
                        values = TRAJ_COLORS) +
     scale_shape_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
+                       labels = c(ICE = "ICE", BEV = bev_label(meta), PHEV = "PHEV"),
                        values = c("ICE"=15,"BEV"=16,"PHEV"=23))
 
   p <- p + annotate("text", x = 2010, y = 0.9, label = paste0(reg_Word(meta), " ICE in"),

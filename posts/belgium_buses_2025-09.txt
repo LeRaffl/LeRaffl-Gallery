@@ -1,0 +1,11 @@
+🇧🇪 Belgium (Buses) - Q3 2025 - EV Trajectory
+37.9% EV
+0.0% PHEV
+62.1% ICE
+
+Trailing 4 quarters are:
+53.9% EV
+0.6% Hybrid
+45.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

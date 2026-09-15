@@ -50,7 +50,7 @@ load_country_csv <- function(path) {
 # rows = the same 12 months). Yearly-only series return NULL (a yearly point is
 # already 12 months). Returns a long data frame: month (YYYY-MM), type
 # (factor), value (share 0..1). Stack order matches the historical plot.
-compute_ttm_long <- function(df) {
+compute_ttm_long <- function(df, bev_label = "BEV") {
   df <- df[order(df$year), ]
   if (nrow(df) == 0) return(NULL)
   last_ti <- df$time_interval[nrow(df)]
@@ -152,7 +152,8 @@ compute_ttm_long <- function(df) {
   # Display labels: title-case for ICE-fuel families, keep acronyms as-is.
   display_label <- function(c) {
     if (c == "HEV" && hev_combined) return("Hybrid")
-    if (c %in% c("BEV","PHEV","EREV","HEV","MHEV","CNG","LPG","ICE")) return(c)
+    if (c == "BEV") return(bev_label)
+    if (c %in% c("PHEV","EREV","HEV","MHEV","CNG","LPG","ICE")) return(c)
     if (c == "OTHERS") return("Other")
     paste0(toupper(substr(c, 1, 1)), tolower(substr(c, 2, nchar(c))))
   }

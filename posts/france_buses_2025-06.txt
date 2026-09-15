@@ -1,0 +1,11 @@
+🇫🇷 France (Buses) - Q2 2025 - EV Trajectory
+10.7% EV
+5.4% Hybrid
+83.9% ICE
+
+Trailing 4 quarters are:
+10.6% EV
+9.0% Hybrid
+80.4% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

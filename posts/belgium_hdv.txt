@@ -1,0 +1,6 @@
+🇧🇪 Belgium (HDV) - Q1 2023 - EV Trajectory
+1.1% EV
+0.0% PHEV
+98.9% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

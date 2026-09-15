@@ -1,0 +1,6 @@
+🇧🇪 Belgium (Vans) - Q1 2023 - EV Trajectory
+3.4% EV
+0.0% Hybrid
+96.6% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

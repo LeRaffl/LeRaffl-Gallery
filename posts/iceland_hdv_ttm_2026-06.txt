@@ -1,0 +1,10 @@
+🇮🇸 Iceland (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++21.8pp  EV      (4.6% → 26.3%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−21.8pp  ICE     (95.4% → 73.7%)
+
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2027.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
