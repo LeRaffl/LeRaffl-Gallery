@@ -1,0 +1,11 @@
+🇨🇭 Switzerland (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++9.4pp  EV      (16.1% → 25.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−9.4pp  ICE     (83.9% → 74.6%)
+
+Hybrid peaked at 0.0% in Q?'24 (declining for 7 quarters).
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2029.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
