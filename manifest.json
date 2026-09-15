@@ -682,6 +682,36 @@
       "country_slug": "norway_vans"
     },
     {
+      "country": "Portugal (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-15",
+      "filename": "portugal_hdv_ICE_BEV_20260915.png",
+      "url": "images/2026-08/portugal_hdv_ICE_BEV_20260915.png",
+      "alt": "Portugal (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "portugal_hdv"
+    },
+    {
+      "country": "Portugal (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-15",
+      "filename": "portugal_hdv_20260915.png",
+      "url": "images/2026-08/portugal_hdv_20260915.png",
+      "alt": "Portugal (HDV) BEV trajectory",
+      "country_slug": "portugal_hdv"
+    },
+    {
+      "country": "Portugal (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-15",
+      "filename": "portugal_hdv_time_20260915.png",
+      "url": "images/2026-08/portugal_hdv_time_20260915.png",
+      "alt": "Portugal (HDV) Transition time curve",
+      "country_slug": "portugal_hdv"
+    },
+    {
       "country": "Romania (HDV)",
       "type": "ICE_BEV",
       "period": "2025-06",
