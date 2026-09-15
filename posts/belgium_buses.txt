@@ -1,0 +1,6 @@
+🇧🇪 Belgium (Buses) - Q1 2023 - EV Trajectory
+55.5% EV
+0.0% PHEV
+44.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
