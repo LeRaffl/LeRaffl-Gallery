@@ -3,3 +3,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2021-07,yearly,HDV,ACEA,,,,,,,78981.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
 2023-02,quarterly,HDV,ACEA,338.0,,0.0,4.0,23442.0,323.0,24107.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
 2022-02,quarterly,HDV,ACEA,57.0,,1.0,6.0,19454.0,416.0,19934.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
+2023-05,quarterly,HDV,ACEA,526.0,,2.0,6.0,23466.0,367.0,24367.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
+2022-05,quarterly,HDV,ACEA,142.0,,0.0,10.0,18469.0,292.0,18913.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
