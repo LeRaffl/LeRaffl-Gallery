@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-14T10:06:24Z",
- "today": "2026-09-14",
+ "generated": "2026-09-15T11:32:43Z",
+ "today": "2026-09-15",
  "countries": [
   {
    "country": "Albania",
@@ -173,7 +173,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-09-09",
+   "last_render": "2026-09-14",
    "variants": [
     {
      "name": "Whole",
@@ -201,9 +201,9 @@
     },
     {
      "name": "Used",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-01",
-     "rows": 91,
+     "rows": 92,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2115,8 +2115,8 @@
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-07",
-   "behind": -1,
+   "expected_period": "2026-08",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -2759,10 +2759,10 @@
    "source_url": "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html",
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-07",
-   "expected_period": "2026-07",
+   "latest_period": "2026-08",
+   "expected_period": "2026-08",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2805,13 +2805,13 @@
     ],
     "workflow": ".github/workflows/fetch-singapore.yml"
    },
-   "last_render": "2026-08-12",
+   "last_render": "2026-09-14",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2016-01",
-     "rows": 116,
+     "rows": 117,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3334,10 +3334,10 @@
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
    "latest_period": "2026-07",
-   "expected_period": "2026-07",
-   "behind": 0,
+   "expected_period": "2026-08",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
