@@ -1,0 +1,8 @@
+🇬🇷 Greece (Buses) - TTM Market Split
+
+Q?'23–Q?'24  vs  Q?'24–Q?'25
+−32.0pp  EV      (44.0% → 12.0%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++32.0pp  ICE     (56.0% → 88.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
