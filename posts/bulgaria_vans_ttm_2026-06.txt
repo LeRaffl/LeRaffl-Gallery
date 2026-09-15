@@ -1,0 +1,8 @@
+🇧🇬 Bulgaria (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++2.3pp  EV      (1.5% → 3.7%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−2.3pp  ICE     (98.5% → 96.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
