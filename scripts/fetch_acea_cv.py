@@ -329,6 +329,17 @@ def load_pdf_bytes(url_or_path: str) -> bytes:
                 f"browser and re-run with --pdf-url path/to/file.pdf."
             )
         resp.raise_for_status()
+        if not resp.content.startswith(b"%PDF-"):
+            # A wrong-but-plausible URL guess can still come back HTTP 200
+            # (observed against acea.auto: a non-existent /files/ path
+            # renders a normal HTML page, not a 404) — treat "200 but not a
+            # PDF" the same as "not found" so the candidate-template loop in
+            # fetch_checkpoint_pdf() falls through to the next guess instead
+            # of crashing later inside pdfplumber.
+            raise FileNotFoundError(
+                f"{url_or_path} returned HTTP 200 but the content isn't a "
+                f"PDF (no %PDF- header) — likely a wrong URL guess."
+            )
         return resp.content
     path = url_or_path.replace("file://", "")
     with open(path, "rb") as f:
