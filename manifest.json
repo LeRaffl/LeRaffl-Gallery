@@ -1142,6 +1142,46 @@
       "country_slug": "slovakia_vans"
     },
     {
+      "country": "Slovenia (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_hdv_ICE_BEV_20260915.png",
+      "url": "images/2026-06/slovenia_hdv_ICE_BEV_20260915.png",
+      "alt": "Slovenia (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovenia_hdv"
+    },
+    {
+      "country": "Slovenia (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_hdv_20260915.png",
+      "url": "images/2026-06/slovenia_hdv_20260915.png",
+      "alt": "Slovenia (HDV) BEV trajectory",
+      "country_slug": "slovenia_hdv"
+    },
+    {
+      "country": "Slovenia (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_hdv_time_20260915.png",
+      "url": "images/2026-06/slovenia_hdv_time_20260915.png",
+      "alt": "Slovenia (HDV) Transition time curve",
+      "country_slug": "slovenia_hdv"
+    },
+    {
+      "country": "Slovenia (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "slovenia_hdv_ttm_shares_20260915.png",
+      "url": "images/2026-06/slovenia_hdv_ttm_shares_20260915.png",
+      "alt": "Slovenia (HDV) TTM market split graph",
+      "country_slug": "slovenia_hdv"
+    },
+    {
       "country": "Spain",
       "type": "ICE_BEV",
       "period": "2026-08",
