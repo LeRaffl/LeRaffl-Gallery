@@ -1,0 +1,11 @@
+🇷🇴 Romania (Buses) - Q2 2026 - EV Trajectory
+92.1% EV
+0.0% PHEV
+7.9% ICE
+
+Trailing 4 quarters are:
+69.2% EV
+0.8% Hybrid
+30.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
