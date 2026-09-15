@@ -3,7 +3,7 @@
 > This doc intentionally carries **no YAML front-matter** block. Every other
 > `NN-source-<country>.md` doc's front-matter feeds `scripts/build_source_pages.py`,
 > which assumes one country per doc (`data_file` = one CSV, `variant_file()` derives
-> `data/<Country>_<Variant>.csv` from it). This fetcher covers 19 countries at once, so
+> `data/<Country>_<Variant>.csv` from it). This fetcher covers 21 countries at once, so
 > forcing it into that single-country schema would either crash the generator or produce a
 > nonsensical `sources/acea-cv.html` page. `build_source_pages.py`'s own docstring sanctions
 > this: "A doc with no front-matter is skipped." Each affected country's *own*
@@ -14,10 +14,11 @@
 press release for passenger cars (`Whole`). ACEA separately publishes a **Commercial Vehicle**
 press release — vans, trucks and buses — that fetcher deliberately does not touch (its own
 docstring: "Light commercial vehicles are published in a separate ACEA press release that we
-don't ingest"). This fetcher is that separate release, finally wired up, covering the same
-19-country ACEA roster (`fetch_acea.py`'s `ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES`) with
+don't ingest"). This fetcher is that separate release, finally wired up, with
 `Vans` / `HDV` / `Buses` variants — and reconstructing genuine `Q1`/`Q2`/`Q3`/`Q4` rows out of
 a source that only ever publishes cumulative running totals.
+
+**Its 21-country roster is not simply `fetch_acea.py`'s passenger-car list** — see § 1a.
 
 ## TL;DR
 
@@ -29,19 +30,20 @@ Cadence:   ACEA publishes four CUMULATIVE year-to-date checkpoints a year — Q1
            reconstructs genuine, non-overlapping Q1/Q2/Q3/Q4 quarters from them (see § 2)
            and falls back to a single yearly row only when no quarterly baseline exists
            yet for that (country, variant, year).
-Countries: The same 19 markets scripts/fetch_acea.py covers for passenger cars
-           (its ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES): Belgium, Bulgaria, Croatia,
-           Cyprus, Czechia, Estonia, Greece, Hungary, Iceland, Latvia, Lithuania,
-           Luxembourg, Malta, Norway, Poland, Romania, Slovakia, Slovenia, Switzerland.
+Countries: 21, maintainer-curated (2026-09) — NOT simply fetch_acea.py's passenger-car
+           roster. See § 1a for the full reasoning:
+           Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Germany, Greece,
+           Hungary, Iceland, Latvia, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
+           Slovenia, Sweden, Switzerland.
            (Malta is sometimes missing from a given release — "Data for Malta not
            available" — so its coverage is patchier than the rest.)
 Variants:  Vans (N1), HDV (N2+N3, i.e. medium+heavy trucks combined — already how the
            source reports "Total Truck"/"MHCV"), Buses (M2+M3).
 Write rule: Conditional for every country (not the always/conditional split fetch_acea.py
            uses for passenger cars): a (country, variant, period) row is written only if
-           no row exists yet, or the existing row's source is exactly "ACEA". This is what
-           lets the fetcher run over every target country without ever overwriting a
-           national HDV/Vans/Buses source (Austria, Luxembourg, Poland today all have one).
+           no row exists yet, or the existing row's source is exactly "ACEA". Poland
+           (the one in-scope country with a national HDV/Vans/Buses source, PZPM) relies
+           on exactly this rule to stay safely in scope — ACEA can never overwrite it.
 Eras:      Through ~2023, "old era" — TOTAL only, no fuel split (5 simple tables: LCV,
            HCV>=16t, MHCV>3.5t, MHBC, Total CV), and only ever usable as a yearly figure
            (see § 5). From ~2024, "new era" — full fuel split per variant, cumulative
@@ -65,12 +67,38 @@ Schedule:  Four cron windows, one per checkpoint — mid-late Jan (FY), mid-late
 `docs/architecture/05-flows.md` § Flow K already documents that ACEA's monthly car PDF
 covers ~25 markets but is deliberately scoped to passenger cars only — "Light commercial
 vehicles are published in a separate ACEA press release that we don't ingest." That gap is
-what this fetcher closes: most of the ACEA roster (Belgium, Bulgaria, Croatia, Cyprus,
-Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia, Norway, Switzerland, …) had
-**no** `Vans`/`HDV`/`Buses` data at all before this — those variants existed only for
-countries with a national commercial-vehicle source (Austria, Denmark, Finland, Ireland,
-Italy, Luxembourg, Netherlands, Poland, Portugal, Spain, Thailand, Uruguay, Albania,
-Indonesia, Canada).
+what this fetcher closes: most of the roster below had **no** `Vans`/`HDV`/`Buses` data at
+all before this — those variants existed only for countries with a national
+commercial-vehicle source (Austria, Denmark, Finland, Ireland, Italy, Luxembourg,
+Netherlands, Poland, Portugal, Spain, Thailand, Uruguay, Albania, Indonesia, Canada).
+
+## 1a. Why the roster isn't just fetch_acea.py's passenger-car list
+
+`scripts/fetch_acea.py` scopes its `ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES` to countries
+that have **no better national source for passenger cars**. That's the wrong test for
+commercial vehicles — a country can have an excellent national `Whole` feed and *still* have
+no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
+`scripts/fetch_acea_cv.py` is curated against the commercial-vehicle picture specifically
+(maintainer decision, 2026-09):
+
+- **Germany, France, Sweden are IN**, even though each has its own national passenger-car
+  source (KBA, SDES, SCB respectively) and is therefore *excluded* from `fetch_acea.py`.
+  None of the three has any national Vans/HDV/Buses feed, so ACEA is the only source for
+  those variants — the passenger-car sourcing question is simply irrelevant here.
+- **Austria, Denmark, Finland, Netherlands, Spain are OUT** — never in scope. Each already
+  has its own national Vans/HDV/Buses fetcher (`02-components.md` § 2.7), so an ACEA row
+  would only ever be redundant, and (since ACEA and a national registry rarely agree to the
+  unit) a needless source-quality downgrade if it ever *did* get written.
+- **Luxembourg is OUT**, deliberately, even though STATEC (its national source) covers only
+  `Whole`/`Vans`/`HDV` and has no `Buses` variant of its own. An earlier version of this
+  fetcher filled exactly that one gap with an ACEA-sourced `Luxembourg_Buses.csv`; the
+  maintainer chose to leave it unfilled instead, to keep every Luxembourg CSV attributable
+  to one source family rather than mixing STATEC and ACEA in the same country's file set.
+- **Poland stays IN**, as the one deliberate exception to "has a national source → excluded":
+  PZPM owns Poland's Vans/HDV/Buses rows, but instead of an exclusion list this fetcher
+  relies on its normal conditional-write rule (§ TL;DR) to guarantee ACEA can never
+  overwrite them. Kept in scope mainly so a future gap in PZPM's own coverage (it already
+  happens for `Whole`, see `22-source-poland.md`) has an ACEA fallback ready.
 
 ## 2. Reconstructing genuine quarters from cumulative checkpoints
 
@@ -141,7 +169,7 @@ now, since both are already-published historical releases — that back-fills re
 
 **A subtle but important consequence of using `period = YYYY-07` for the yearly fallback:**
 that string is identical to `YYYY-07` for a *monthly* July row. For a country whose
-HDV/Vans/Buses CSV already has genuine monthly coverage (Luxembourg's Vans/HDV today), the
+HDV/Vans/Buses CSV already has genuine monthly coverage (Poland's, via PZPM), the
 conditional write rule naturally protects against this: the existing July row's source isn't
 `ACEA`, so the yearly write is skipped — no collision, no silent misattribution, just no
 backfill for that file (which already has better data for that year anyway).

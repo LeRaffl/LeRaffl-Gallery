@@ -3,8 +3,10 @@
 Fetch ACEA's quarterly-cumulative Commercial Vehicle press release PDFs and
 reconstruct genuine Q1/Q2/Q3/Q4 rows (falling back to a single yearly row
 only when no clean quarterly baseline exists yet) into
-data/<Country>_<Variant>.csv for the ACEA multi-country roster (the same 19
-EU/EFTA markets scripts/fetch_acea.py covers for passenger cars).
+data/<Country>_<Variant>.csv for the ACEA multi-country roster — a
+maintainer-curated 21-country list, not simply scripts/fetch_acea.py's
+passenger-car roster (see TARGET_COUNTRIES for exactly why each country
+is, or isn't, in scope).
 
 Usage
 -----
@@ -130,10 +132,10 @@ Per-country write rule
 Every target country is "conditional" (unlike fetch_acea.py's always/
 conditional split for passenger cars): a (country, variant, period) row is
 only written if no row exists yet for that period, or the existing row's
-source is exactly "ACEA" (case-insensitive). This is what lets this fetcher
-run safely across every target country without ever clobbering a national
-HDV/Vans/Buses source that already exists for the same file (Austria,
-Luxembourg, Poland today) — see is_acea_source().
+source is exactly "ACEA" (case-insensitive). This is what lets Poland (the
+one in-scope country with its own national HDV/Vans/Buses source, PZPM)
+stay in TARGET_COUNTRIES safely — ACEA can never clobber its rows — without
+needing a separate exclusion list. See is_acea_source().
 """
 import argparse
 import csv
@@ -148,16 +150,29 @@ import requests
 
 # --- Constants ------------------------------------------------------------
 
-# The same 19-country ACEA roster scripts/fetch_acea.py maintains for
-# passenger cars (its ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES). Countries
-# with their own national HDV/Vans/Buses source (Austria, Luxembourg,
-# Poland today) are simply skipped by the per-file conditional-write rule
-# below — no separate exclusion list needed.
+# NOT simply scripts/fetch_acea.py's 19-country passenger-car roster —
+# maintainer-curated per the commercial-vehicle picture specifically
+# (2026-09 decision):
+#   + Germany, France, Sweden: excluded from fetch_acea.py because they
+#     have their own national *passenger-car* ("Whole") source, but they
+#     have NO national Vans/HDV/Buses source at all, so ACEA is the only
+#     option for those variants here.
+#   - Austria, Denmark, Finland, Netherlands, Spain: never in scope — each
+#     already has its own national Vans/HDV/Buses fetcher (see
+#     02-components.md § 2.7), so ACEA would only ever be redundant.
+#   - Luxembourg: deliberately excluded even though it has no Buses source
+#     of its own (STATEC covers Whole/Vans/HDV only) — maintainer chose to
+#     leave that one gap unfilled rather than mix an ACEA-sourced Buses
+#     variant into an otherwise all-STATEC file set.
+# Poland stays in scope as a conditional case: PZPM (STATEC-equivalent)
+# owns its Vans/HDV/Buses rows, and the per-file conditional-write rule
+# below (not a separate exclusion list) is what keeps ACEA from ever
+# overwriting them.
 TARGET_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
-    "Luxembourg", "Malta", "Norway", "Poland", "Romania",
-    "Slovakia", "Slovenia", "Switzerland",
+    "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
+    "Lithuania", "Malta", "Norway", "Poland", "Romania",
+    "Slovakia", "Slovenia", "Sweden", "Switzerland",
 ]
 
 # Old-era PDFs spell some countries differently than the new-era ones (and
