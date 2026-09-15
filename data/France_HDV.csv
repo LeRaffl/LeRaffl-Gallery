@@ -6,10 +6,11 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2023-05,quarterly,HDV,ACEA,-208.0,,0.0,0.0,13573.0,995.0,14360.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2022-05,quarterly,HDV,ACEA,70.0,,0.0,0.0,11753.0,706.0,12529.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
 2024-02,quarterly,HDV,ACEA,194.0,,0.0,0.0,12454.0,1112.0,13760.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
-2024-05,quarterly,HDV,ACEA,164.0,,0.0,4.0,14342.0,1352.0,15862.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
+2024-05,quarterly,HDV,ACEA,414.0,,0.0,4.0,13143.0,1209.0,14770.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
 2024-08,quarterly,HDV,ACEA,571.0,,0.0,0.0,8683.0,994.0,10248.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
 2023-08,quarterly,HDV,ACEA,107.0,,0.0,5.0,10810.0,719.0,11641.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2022-08,quarterly,HDV,ACEA,19.0,,0.0,0.0,8143.0,564.0,8726.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
 2023-11,quarterly,HDV,ACEA,293.0,,0.0,1.0,10302.0,718.0,11314.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2022-11,quarterly,HDV,ACEA,62.0,,1.0,0.0,10721.0,664.0,11448.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
 2025-02,quarterly,HDV,ACEA,332.0,,0.0,0.0,9752.0,1259.0,11343.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
+2025-05,quarterly,HDV,ACEA,436.0,,0.0,2.0,10240.0,1146.0,11824.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
