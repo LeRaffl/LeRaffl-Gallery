@@ -322,6 +322,46 @@
       "country_slug": "czechia_hdv"
     },
     {
+      "country": "Estonia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "estonia_buses_ICE_BEV_20260915.png",
+      "url": "images/2026-06/estonia_buses_ICE_BEV_20260915.png",
+      "alt": "Estonia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "estonia_buses"
+    },
+    {
+      "country": "Estonia (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "estonia_buses_20260915.png",
+      "url": "images/2026-06/estonia_buses_20260915.png",
+      "alt": "Estonia (Buses) BEV trajectory",
+      "country_slug": "estonia_buses"
+    },
+    {
+      "country": "Estonia (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "estonia_buses_time_20260915.png",
+      "url": "images/2026-06/estonia_buses_time_20260915.png",
+      "alt": "Estonia (Buses) Transition time curve",
+      "country_slug": "estonia_buses"
+    },
+    {
+      "country": "Estonia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "estonia_buses_ttm_shares_20260915.png",
+      "url": "images/2026-06/estonia_buses_ttm_shares_20260915.png",
+      "alt": "Estonia (Buses) TTM market split graph",
+      "country_slug": "estonia_buses"
+    },
+    {
       "country": "Estonia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-06",
