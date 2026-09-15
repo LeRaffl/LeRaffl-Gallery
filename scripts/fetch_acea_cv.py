@@ -523,12 +523,19 @@ def parse_new_era(pdf) -> tuple[dict[str, dict[str, dict[str, tuple[int, int]]]]
             if period_label is None:
                 # The column-header line reads e.g. "H1 2026 H1 2025
                 # % change ..." (partial year) or "2026 2025 % change ..."
-                # (a full year release carries no H1/Q1-Q3/FY prefix).
+                # (a full year release carries no H1/Q1-Q3/FY prefix). The
+                # H1 2023 release spells the half-year "Q1-Q2" instead of
+                # "H1" (matching its own URL, .../PRCV_Q1-Q2_2023.pdf) — not
+                # just a filename quirk, the PDF's own header text uses it
+                # too. "Q1-Q2" must come before the bare "Q1" alternative so
+                # it isn't shadowed by a partial match.
                 for line in text.split("\n"):
-                    m = re.match(r"^(H1|Q1-Q3|Q1|Q3|FY)?\s*(\d{4})\s+\1?\s*\d{4}\s+%\s*change",
+                    m = re.match(r"^(H1|Q1-Q2|Q1-Q3|Q1|Q3|FY)?\s*(\d{4})\s+\1?\s*\d{4}\s+%\s*change",
                                  line.strip(), re.IGNORECASE)
                     if m:
                         prefix = (m.group(1) or "").upper()
+                        if prefix == "Q1-Q2":
+                            prefix = "H1"  # our internal checkpoint name
                         period_label = f"{prefix} {m.group(2)}".strip()
                         break
             result[variant] = {
