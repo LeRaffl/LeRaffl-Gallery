@@ -482,6 +482,46 @@
       "country_slug": "france_hdv"
     },
     {
+      "country": "Germany (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_buses_ICE_BEV_20260915.png",
+      "url": "images/2026-06/germany_buses_ICE_BEV_20260915.png",
+      "alt": "Germany (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "germany_buses"
+    },
+    {
+      "country": "Germany (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_buses_20260915.png",
+      "url": "images/2026-06/germany_buses_20260915.png",
+      "alt": "Germany (Buses) BEV trajectory",
+      "country_slug": "germany_buses"
+    },
+    {
+      "country": "Germany (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_buses_time_20260915.png",
+      "url": "images/2026-06/germany_buses_time_20260915.png",
+      "alt": "Germany (Buses) Transition time curve",
+      "country_slug": "germany_buses"
+    },
+    {
+      "country": "Germany (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-15",
+      "filename": "germany_buses_ttm_shares_20260915.png",
+      "url": "images/2026-06/germany_buses_ttm_shares_20260915.png",
+      "alt": "Germany (Buses) TTM market split graph",
+      "country_slug": "germany_buses"
+    },
+    {
       "country": "Germany (HDV)",
       "type": "ICE_BEV",
       "period": "2026-03",
