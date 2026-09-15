@@ -1,0 +1,11 @@
+🇨🇿 Czechia (Buses) - Q2 2026 - EV Trajectory
+11.2% EV
+0.0% PHEV
+88.8% ICE
+
+Trailing 4 quarters are:
+7.4% EV
+0.0% PHEV
+92.6% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
