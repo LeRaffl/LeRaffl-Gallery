@@ -1,0 +1,8 @@
+🇱🇻 Latvia (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++4.0pp  EV      (3.7% → 7.7%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−4.0pp  ICE     (96.3% → 92.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

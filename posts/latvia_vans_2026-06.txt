@@ -1,0 +1,11 @@
+🇱🇻 Latvia (Vans) - Q2 2026 - EV Trajectory
+8.3% EV
+0.0% PHEV
+91.7% ICE
+
+Trailing 4 quarters are:
+7.7% EV
+0.0% PHEV
+92.3% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
