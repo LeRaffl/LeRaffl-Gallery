@@ -3,6 +3,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2022-07,yearly,Buses,ACEA,,,,,,,691.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
 2023-02,quarterly,Buses,ACEA,10.0,,0.0,0.0,169.0,7.0,186.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
 2022-02,quarterly,Buses,ACEA,4.0,,0.0,0.0,74.0,0.0,78.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,Buses,ACEA,43.0,,0.0,0.0,327.0,-7.0,363.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
+2023-05,quarterly,Buses,ACEA,50.0,,0.0,0.0,397.0,0.0,447.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
 2022-05,quarterly,Buses,ACEA,20.0,,0.0,0.0,72.0,0.0,92.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
 2024-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,110.0,0.0,110.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
+2024-05,quarterly,Buses,ACEA,0.0,,0.0,0.0,112.0,0.0,112.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
