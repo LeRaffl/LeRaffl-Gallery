@@ -1,0 +1,8 @@
+🇭🇺 Hungary (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++0.3pp  EV      (0.7% → 1.0%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.3pp  ICE     (99.3% → 99.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
