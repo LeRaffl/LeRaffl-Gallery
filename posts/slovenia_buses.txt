@@ -1,0 +1,11 @@
+🇸🇮 Slovenia (Buses) - Q2 2026 - EV Trajectory
+36.6% EV
+0.0% PHEV
+63.4% ICE
+
+Trailing 4 quarters are:
+14.8% EV
+0.0% PHEV
+85.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
