@@ -13,11 +13,31 @@
     },
     {
       "country": "Belgium (Buses)",
+      "type": "ICE_BEV",
+      "period": "2025-09",
+      "date": "2026-09-15",
+      "filename": "belgium_buses_ICE_BEV_20260915.png",
+      "url": "images/2025-09/belgium_buses_ICE_BEV_20260915.png",
+      "alt": "Belgium (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
       "type": "share",
       "period": "2023-03",
       "date": "2026-09-15",
       "filename": "belgium_buses_20260915.png",
       "url": "images/2023-03/belgium_buses_20260915.png",
+      "alt": "Belgium (Buses) BEV trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "share",
+      "period": "2025-09",
+      "date": "2026-09-15",
+      "filename": "belgium_buses_20260915.png",
+      "url": "images/2025-09/belgium_buses_20260915.png",
       "alt": "Belgium (Buses) BEV trajectory",
       "country_slug": "belgium_buses"
     },
@@ -29,6 +49,26 @@
       "filename": "belgium_buses_time_20260915.png",
       "url": "images/2023-03/belgium_buses_time_20260915.png",
       "alt": "Belgium (Buses) Transition time curve",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "time",
+      "period": "2025-09",
+      "date": "2026-09-15",
+      "filename": "belgium_buses_time_20260915.png",
+      "url": "images/2025-09/belgium_buses_time_20260915.png",
+      "alt": "Belgium (Buses) Transition time curve",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "ttm_shares",
+      "period": "2025-09",
+      "date": "2026-09-15",
+      "filename": "belgium_buses_ttm_shares_20260915.png",
+      "url": "images/2025-09/belgium_buses_ttm_shares_20260915.png",
+      "alt": "Belgium (Buses) TTM market split graph",
       "country_slug": "belgium_buses"
     },
     {
@@ -120,6 +160,206 @@
       "url": "images/2023-03/bulgaria_vans_time_20260915.png",
       "alt": "Bulgaria (Vans) Transition time curve",
       "country_slug": "bulgaria_vans"
+    },
+    {
+      "country": "France (Buses)",
+      "type": "ICE_BEV",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "france_buses_ICE_BEV_20260915.png",
+      "url": "images/2025-06/france_buses_ICE_BEV_20260915.png",
+      "alt": "France (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "france_buses"
+    },
+    {
+      "country": "France (Buses)",
+      "type": "share",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "france_buses_20260915.png",
+      "url": "images/2025-06/france_buses_20260915.png",
+      "alt": "France (Buses) BEV trajectory",
+      "country_slug": "france_buses"
+    },
+    {
+      "country": "France (Buses)",
+      "type": "time",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "france_buses_time_20260915.png",
+      "url": "images/2025-06/france_buses_time_20260915.png",
+      "alt": "France (Buses) Transition time curve",
+      "country_slug": "france_buses"
+    },
+    {
+      "country": "France (Buses)",
+      "type": "ttm_shares",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "france_buses_ttm_shares_20260915.png",
+      "url": "images/2025-06/france_buses_ttm_shares_20260915.png",
+      "alt": "France (Buses) TTM market split graph",
+      "country_slug": "france_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "ICE_BEV",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "greece_buses_ICE_BEV_20260915.png",
+      "url": "images/2025-06/greece_buses_ICE_BEV_20260915.png",
+      "alt": "Greece (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "share",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "greece_buses_20260915.png",
+      "url": "images/2025-06/greece_buses_20260915.png",
+      "alt": "Greece (Buses) BEV trajectory",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "time",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "greece_buses_time_20260915.png",
+      "url": "images/2025-06/greece_buses_time_20260915.png",
+      "alt": "Greece (Buses) Transition time curve",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Greece (Buses)",
+      "type": "ttm_shares",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "greece_buses_ttm_shares_20260915.png",
+      "url": "images/2025-06/greece_buses_ttm_shares_20260915.png",
+      "alt": "Greece (Buses) TTM market split graph",
+      "country_slug": "greece_buses"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "ICE_BEV",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "romania_hdv_ICE_BEV_20260915.png",
+      "url": "images/2025-06/romania_hdv_ICE_BEV_20260915.png",
+      "alt": "Romania (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "share",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "romania_hdv_20260915.png",
+      "url": "images/2025-06/romania_hdv_20260915.png",
+      "alt": "Romania (HDV) BEV trajectory",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "time",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "romania_hdv_time_20260915.png",
+      "url": "images/2025-06/romania_hdv_time_20260915.png",
+      "alt": "Romania (HDV) Transition time curve",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (HDV)",
+      "type": "ttm_shares",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "romania_hdv_ttm_shares_20260915.png",
+      "url": "images/2025-06/romania_hdv_ttm_shares_20260915.png",
+      "alt": "Romania (HDV) TTM market split graph",
+      "country_slug": "romania_hdv"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "ICE_BEV",
+      "period": "2025-03",
+      "date": "2026-09-15",
+      "filename": "romania_vans_ICE_BEV_20260915.png",
+      "url": "images/2025-03/romania_vans_ICE_BEV_20260915.png",
+      "alt": "Romania (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "share",
+      "period": "2025-03",
+      "date": "2026-09-15",
+      "filename": "romania_vans_20260915.png",
+      "url": "images/2025-03/romania_vans_20260915.png",
+      "alt": "Romania (Vans) BEV trajectory",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "time",
+      "period": "2025-03",
+      "date": "2026-09-15",
+      "filename": "romania_vans_time_20260915.png",
+      "url": "images/2025-03/romania_vans_time_20260915.png",
+      "alt": "Romania (Vans) Transition time curve",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Romania (Vans)",
+      "type": "ttm_shares",
+      "period": "2025-03",
+      "date": "2026-09-15",
+      "filename": "romania_vans_ttm_shares_20260915.png",
+      "url": "images/2025-03/romania_vans_ttm_shares_20260915.png",
+      "alt": "Romania (Vans) TTM market split graph",
+      "country_slug": "romania_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ICE_BEV",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "slovakia_vans_ICE_BEV_20260915.png",
+      "url": "images/2025-06/slovakia_vans_ICE_BEV_20260915.png",
+      "alt": "Slovakia (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "share",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "slovakia_vans_20260915.png",
+      "url": "images/2025-06/slovakia_vans_20260915.png",
+      "alt": "Slovakia (Vans) BEV trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "time",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "slovakia_vans_time_20260915.png",
+      "url": "images/2025-06/slovakia_vans_time_20260915.png",
+      "alt": "Slovakia (Vans) Transition time curve",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ttm_shares",
+      "period": "2025-06",
+      "date": "2026-09-15",
+      "filename": "slovakia_vans_ttm_shares_20260915.png",
+      "url": "images/2025-06/slovakia_vans_ttm_shares_20260915.png",
+      "alt": "Slovakia (Vans) TTM market split graph",
+      "country_slug": "slovakia_vans"
     },
     {
       "country": "Austria (Used)",
