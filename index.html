@@ -4013,6 +4013,7 @@ function tok(name, fallback){
       <div id="comparePlot"></div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('comparePlot','compare_chart.png')">↓ Download PNG</button>
     </div>
+    <div id="compareDebug" class="small" style="margin-top:10px;opacity:.85"></div>
   </div>
 </section>
 
@@ -6542,7 +6543,11 @@ function getWeight(country){
 // -------- Shared helpers for thresholds + durations --------
 function getSelectedWeightVariants(){
   const sel = document.getElementById('builderWeightVariant');
-  return [...sel.selectedOptions].map(o => normalizeBase(o.value));
+  const picked = sel ? [...sel.selectedOptions].map(o => normalizeBase(o.value)) : [];
+  // Deselecting every option (or the control not existing yet) used to yield
+  // an empty list, which silently emptied the market-size groups downstream.
+  // "New Cars" is the control's own default, so fall back to it.
+  return picked.length ? picked : ['whole'];
 }
 
 function fmtInt(n){
@@ -7903,6 +7908,64 @@ function loadWeights(){
 
 
   
+/* --- "the BEV column is really EV here" caveat ------------------------
+   The ACEA Commercial-Vehicle source publishes ONE combined "Electrically
+   Chargeable Vehicle" bucket (BEV+PHEV) from ~2024 on, so for those countries
+   the commercial variants (HDV / Vans / Buses) carry an EV count in the BEV
+   column. Builder and Compare only offer a chip labelled "BEV", which would
+   silently overstate pure-BEV uptake, so the affected countries get a * in the
+   country list under the chart and the caveat is spelled out beneath it.
+
+   The set is DERIVED from footnotes.csv (the canonical place that caveat is
+   written down) rather than hardcoded here, so it stays correct as countries
+   join or leave that source. Load failure degrades to "no marks", never to a
+   broken chart. */
+const EV_LABEL_MARKER = 'Electrically Chargeable Vehicle';
+let EV_LABEL_KEYS = null;              // Set of "Country|variantCanon"
+let EV_LABEL_PROMISE = null;
+function loadEvLabelKeys(){
+  if (EV_LABEL_PROMISE) return EV_LABEL_PROMISE;
+  EV_LABEL_PROMISE = fetch('footnotes.csv', { cache:'no-store' })
+    .then(r => r.ok ? r.text() : Promise.reject(new Error('HTTP '+r.status)))
+    .then(txt => {
+      const set = new Set();
+      parseCSV(txt).forEach(r => {
+        if (String(r.footnote || '').includes(EV_LABEL_MARKER) && r.country)
+          set.add(`${r.country}|${normalizeBase(r.variant || 'whole')}`);
+      });
+      EV_LABEL_KEYS = set;
+      return set;
+    })
+    .catch(() => (EV_LABEL_KEYS = new Set()));
+  return EV_LABEL_PROMISE;
+}
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"]/g,
+    ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
+}
+function hasEvLabel(country, variantCanon, powertrain){
+  // ICE is unaffected (see evLabelNote), so don't leave a * with no footnote.
+  if (powertrain === 'ICE') return false;
+  return !!(EV_LABEL_KEYS && EV_LABEL_KEYS.has(`${country}|${variantCanon}`));
+}
+/* Renders the shared "* …" caveat line, or '' when nothing is marked.
+   ICE is unaffected — the combined bucket only moves PHEVs from one
+   electrified column to the other, and ICE = TOTAL − BEV − PHEV either
+   way — so the note would be pure noise there. */
+function evLabelNote(marked, powertrain){
+  if (!marked || powertrain === 'ICE') return '';
+  const what = powertrain === 'PHEV'
+    ? `their plug-in hybrids sit inside that bucket instead of a PHEV column,
+       leaving the <strong>PHEV</strong> curve understated for them`
+    : `the curve is really an <strong>EV</strong> (BEV + PHEV) share for them,
+       not the pure <strong>BEV</strong> share the chip above promises`;
+  return `<div style="margin-top:8px;opacity:.75">
+      * From ~2024 on this source reports one combined
+      <em>Electrically Chargeable Vehicle</em> bucket for these series, so
+      ${what}. See <code>footnotes.csv</code> and the country’s source page.
+    </div>`;
+}
+
     // --- Predefined country groupings (Builder only) ---
 const SMALL_MARKET_LIMIT  = 50_000;
 const BIG_MARKET_LIMIT    = 1_000_000;
@@ -7955,57 +8018,36 @@ const BUILDER_GROUPS = {
     'Thailand','Malaysia','Indonesia',
     'Vietnam','Philippines','Singapore','Taiwan'
   ],
-small_markets: rows => {
-  const vars = getSelectedWeightVariants();
+/* Market-size buckets.
+   `vars` is the list of weight variants the size is measured on. The Builder
+   passes nothing and gets its own visible "Weights variant" picker; the
+   Compare tab passes MARKET_SIZE_VARIANTS explicitly, because it has no such
+   picker and must not depend on a control that lives on another tab. That
+   hidden coupling was the bug behind "Big Markets shows nothing on Compare":
+   with the Builder set to Vans and/or HDV, no country clears 1M units/year,
+   so the group resolved to the empty set for every variant and powertrain. */
+small_markets: (rows, vars) => marketBucket(rows, vars, w => w < SMALL_MARKET_LIMIT),
+medium_markets: (rows, vars) => marketBucket(rows, vars, w => w >= SMALL_MARKET_LIMIT && w < BIG_MARKET_LIMIT),
+big_markets: (rows, vars) => marketBucket(rows, vars, w => w >= BIG_MARKET_LIMIT)
+};
+
+// Compare classifies market size on the passenger-car market, always: a
+// "Big Market (>1M/yr)" is a property of the country, and measuring the
+// threshold on the compared slice instead would leave the bucket empty for
+// every commercial-vehicle variant.
+const MARKET_SIZE_VARIANTS = ['whole'];
+
+function marketBucket(rows, vars, test){
+  const vs = (vars && vars.length) ? vars : getSelectedWeightVariants();
   const out = new Set();
-
   rows.forEach(r => {
-    for (const v of vars) {
+    for (const v of vs) {
       const w = WEIGHTS[`${r.country}|${v}`];
-      if (isFinite(w) && w < SMALL_MARKET_LIMIT) {
-        out.add(r.country);
-        break;
-      }
-    }
-  });
-
-  return [...out];
-},
-
-medium_markets: rows => {
-  const vars = getSelectedWeightVariants();
-  const out = new Set();
-  rows.forEach(r => {
-    for (const v of vars) {
-      const w = WEIGHTS[`${r.country}|${v}`];
-      if (
-        isFinite(w) &&
-        w >= SMALL_MARKET_LIMIT &&
-        w < BIG_MARKET_LIMIT
-      ) {
-        out.add(r.country);
-        break;
-      }
-    }
-  });
-  return [...out];
-},
-big_markets: rows => {
-  const vars = getSelectedWeightVariants();
-  const out = new Set();
-
-  rows.forEach(r => {
-    for (const v of vars) {
-      const w = WEIGHTS[`${r.country}|${v}`];
-      if (isFinite(w) && w > BIG_MARKET_LIMIT) {
-        out.add(r.country);
-        break;
-      }
+      if (isFinite(w) && test(w)) { out.add(r.country); break; }
     }
   });
   return [...out];
 }
-};
 
 
 
@@ -8198,6 +8240,7 @@ big_markets: rows => {
 
   async function build(){
     const showICE = true;
+    await loadEvLabelKeys();   // cheap after the first call; only marks the list
     const sel = document.getElementById('builderCountries');
     const chosen = [...sel.selectedOptions].map(o=>o.value);
     if(!chosen.length) return;
@@ -8231,12 +8274,14 @@ big_markets: rows => {
     return 1;
   };
 
+  let evMarked = 0;
   const lines = sorted.map(r => {
     const w = weightForRow(r);
     if (isFinite(w)) total += w;
-    return `${r.country}: ${fmtInt(w)}`;
+    const star = hasEvLabel(r.country, normalizeBase(r.variant), 'BEV') ? (evMarked++, ' *') : '';
+    return `${r.country}${star}: ${fmtInt(w)}`;
   });
-    
+
   const WORLD_2024_REF = 87e6;
   const WORLD_2025_REF = 91.7e6;
   // HDV selected?
@@ -8266,6 +8311,7 @@ big_markets: rows => {
     <strong>Total:</strong> ${fmtInt(total)}
     <br>
     ${coverageLine}
+    ${evLabelNote(evMarked, 'BEV')}
   `;
     // -------- PLOT (restored) --------
   const grid = monthGrid(2015, 2050);
@@ -8502,7 +8548,12 @@ if (stepTraces.length){
       southern_europe:'Southern Europe', eastern_europe:'Eastern Europe',
       north_america:'North America', south_america:'South America', americas:'Americas (all)',
       asia:'Asia',
-      small_markets:'Small Markets (<50k/yr)', medium_markets:'Medium Markets (50k–1M/yr)', big_markets:'Big Markets (>1M/yr)'
+      // Thresholds always read the passenger-car market (MARKET_SIZE_VARIANTS),
+      // so the label says so — the bucket does not change with the Variant
+      // dropdown next to it.
+      small_markets:'Small Markets (<50k new cars/yr)',
+      medium_markets:'Medium Markets (50k–1M new cars/yr)',
+      big_markets:'Big Markets (>1M new cars/yr)'
     };
     slots.forEach((sel, i) => {
       sel.innerHTML = '';
@@ -8597,7 +8648,7 @@ if (stepTraces.length){
     if(slotValue.startsWith('group:')){
       const key = slotValue.slice(6);
       const fn = BUILDER_GROUPS[key];
-      return fn ? fn(PARAM_ROWS) : [];
+      return fn ? fn(PARAM_ROWS, MARKET_SIZE_VARIANTS) : [];
     }
     return [];
   }
@@ -8746,11 +8797,53 @@ if (stepTraces.length){
     return xs.length ? { xs, ys, labels } : null;
   }
 
+  /* Country list under the Compare chart — the Builder has had one since day
+     one and it is just as necessary here, where a single "Big Markets" or "EU"
+     line hides a dozen countries. One block per plotted series, each country
+     with the weight it contributes to that series' volume-weighted average,
+     and a * on the ones whose BEV column is really an EV count. */
+  function renderCompareDebug(slotValues, variant, powertrain){
+    const mount = document.getElementById('compareDebug');
+    if(!mount) return;
+    let evMarked = 0;
+    const blocks = slotValues.map(sv => {
+      const vc = slotVariantCanon(sv, variant);
+      const set = new Set(compareCountriesFor(sv));
+      const rows = PARAM_ROWS
+        .filter(r => set.has(r.country) && normalizeBase(r.variant) === vc)
+        .sort((a, b) => a.country.localeCompare(b.country));
+      if(!rows.length) return '';
+      let total = 0;
+      const lines = rows.map(r => {
+        const w = weightForRowCompare(r);
+        if (isFinite(w)) total += w;
+        const star = hasEvLabel(r.country, vc, powertrain) ? (evMarked++, ' *') : '';
+        return `<div>${escapeHtml(r.country)}${star}: ${fmtInt(w)}</div>`;
+      });
+      return `
+        <div style="margin-bottom:12px">
+          <strong>${escapeHtml(compareLabelFor(sv))}</strong>
+          <span style="opacity:.75">— ${rows.length} ${rows.length === 1 ? 'country' : 'countries'}, total ${fmtInt(total)}</span>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 16px;margin-top:6px">
+            ${lines.join('')}
+          </div>
+        </div>`;
+    }).filter(Boolean);
+    mount.innerHTML = blocks.length
+      ? blocks.join('') + evLabelNote(evMarked, powertrain)
+      : `<div style="opacity:.75">No fitted series for this combination —
+           none of the selected countries has a
+           <strong>${escapeHtml(document.getElementById('compareVariant')
+             ?.selectedOptions[0]?.textContent || variant)}</strong> series.</div>`;
+  }
+
   async function runCompare(){
     const variant = document.getElementById('compareVariant').value || 'whole';
     const powertrain = (document.querySelector('input[name="comparePowertrain"]:checked')||{}).value || 'BEV';
     const slotValues = allCompareValues();
     if(slotValues.length < 1) return;
+    await loadEvLabelKeys();   // cheap after the first call; only marks the list
+    renderCompareDebug(slotValues, variant, powertrain);
     const pinned = new Set(pinnedSlotValues());
     const crowded = slotValues.length > 3;
     const traces = [];
