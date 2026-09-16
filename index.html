@@ -3957,6 +3957,7 @@ function tok(name, fallback){
             <!-- <option value="4-wheelers" >4-Wheelers</option> -->
             <option value="hdv">HDV</option>
             <option value="vans">Vans</option>
+            <option value="buses">Buses</option>
           </select>
         </div>
         <button type="button" id="buildCurve" class="btn primary">Build curve</button>
@@ -3991,6 +3992,7 @@ function tok(name, fallback){
           <option value="whole" selected>New Cars</option>
           <option value="hdv">HDV</option>
           <option value="vans">Vans</option>
+          <option value="buses">Buses</option>
         </select>
       </div>
       <div class="field settings-block is-compact">
@@ -8284,14 +8286,17 @@ function marketBucket(rows, vars, test){
 
   const WORLD_2024_REF = 87e6;
   const WORLD_2025_REF = 91.7e6;
-  // HDV selected?
-  const hasHDV = vSels.includes('hdv');
+  // The ~91.7M reference is the world PASSENGER-CAR market, so the coverage
+  // line is only meaningful when the selection is passenger cars and nothing
+  // else. It used to test `hdv` alone, which printed a nonsensical "% of the
+  // world car market" for Vans (and would now do the same for Buses).
+  const carsOnly = vSels.length === 1 && vSels[0] === 'whole';
 
-  const coveragePct = (!hasHDV && WORLD_2025_REF > 0)
+  const coveragePct = (carsOnly && WORLD_2025_REF > 0)
     ? 100 * total / WORLD_2025_REF
     : NaN;
 
-  const coverageLine = (!hasHDV && isFinite(coveragePct))
+  const coverageLine = isFinite(coveragePct)
     ? `<span style="opacity:0.75">
          (worldwide ~${(WORLD_2025_REF / 1e6).toFixed(1)}M in 2025 –
           model reflects ~${coveragePct.toFixed(1)}% of the market)
