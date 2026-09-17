@@ -434,7 +434,11 @@ th.sortable.desc::after{content:" ↓"}
 #tab-thresholds .tablecard td:nth-child(1),
 #tab-durations .tablecard th:nth-child(1),
 #tab-durations .tablecard td:nth-child(1){
-  width:2.4rem;
+  width:3.2rem;
+  min-width:3.2rem;
+  font-variant-numeric:tabular-nums;
+  overflow:visible;
+  text-overflow:unset;
 }
 #tab-thresholds .tablecard th:nth-child(3),
 #tab-thresholds .tablecard th:nth-child(4),
