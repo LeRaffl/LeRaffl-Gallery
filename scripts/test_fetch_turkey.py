@@ -224,6 +224,50 @@ def test_prev_year_cross_check_reads_the_committed_row():
     ft.cross_check_prev_year(table, str(CSV), 2026, 7)   # raises if it disagrees
 
 
+def _table_with_prev_col(mutations):
+    """Copy TEMMUZ, overwriting COL_MONTH_PREV counts per {label: value}."""
+    table = {}
+    for label, (counts, pcts) in TEMMUZ.items():
+        counts = list(counts)
+        if label in mutations:
+            counts[ft.COL_MONTH_PREV] = mutations[label]
+        table[label] = (counts, list(pcts))
+    return table
+
+
+def test_prev_year_cross_check_tolerates_isolated_ocr_noise():
+    """One fuel off by an OCR digit, Toplam and the rest exact → not a layout
+    shift, so the current-month column (validated elsewhere) still writes.
+
+    This is the Ağustos 2026 failure: the @6x read had Hibrit's prev-year cell
+    as 23 686 instead of the committed 23 886, blocking an otherwise-consistent
+    month.
+    """
+    table = _table_with_prev_col({"Hibrit": 27191})  # committed is 27391
+    ft.cross_check_prev_year(table, str(CSV), 2026, 7)   # must not raise
+
+
+def test_prev_year_cross_check_still_fails_on_two_mismatches():
+    table = _table_with_prev_col({"Hibrit": 27191, "Dizel": 9000})
+    try:
+        ft.cross_check_prev_year(table, str(CSV), 2026, 7)
+    except RuntimeError as e:
+        assert "Hibrit" in str(e) and "Dizel" in str(e), e
+        return
+    raise AssertionError("two mismatched fuels must still be refused")
+
+
+def test_prev_year_cross_check_still_fails_when_total_is_off():
+    """A wrong Toplam anchor is the signature of a real column shift."""
+    table = _table_with_prev_col({"Toplam": 100000})
+    try:
+        ft.cross_check_prev_year(table, str(CSV), 2026, 7)
+    except RuntimeError as e:
+        assert "Toplam" in str(e), e
+        return
+    raise AssertionError("a mismatched Toplam anchor must still be refused")
+
+
 def test_scan_covers_the_anchor_itself():
     """A backfill of the anchor month must not be a scan that never looks.
 
