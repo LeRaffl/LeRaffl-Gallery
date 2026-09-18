@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-18T09:11:06Z",
+ "generated": "2026-09-18T11:28:06Z",
  "today": "2026-09-18",
  "countries": [
   {
@@ -3379,7 +3379,7 @@
     ],
     "workflow": ".github/workflows/fetch-turkey.yml"
    },
-   "last_render": "2026-08-24",
+   "last_render": "2026-09-18",
    "variants": [
     {
      "name": "Whole",
