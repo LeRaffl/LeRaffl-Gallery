@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-17T09:38:31Z",
- "today": "2026-09-17",
+ "generated": "2026-09-18T09:11:06Z",
+ "today": "2026-09-18",
  "countries": [
   {
    "country": "Albania",
@@ -1153,8 +1153,8 @@
    "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-07",
-   "behind": -1,
+   "expected_period": "2026-08",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -3426,11 +3426,11 @@
    "source_url": "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data",
    "cadence_text": "daily cron from the 10th, 10:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3477,13 +3477,13 @@
     ],
     "workflow": ".github/workflows/fetch-usa.yml"
    },
-   "last_render": "2026-09-02",
+   "last_render": "2026-09-17",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2011-01",
-     "rows": 187,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     }
