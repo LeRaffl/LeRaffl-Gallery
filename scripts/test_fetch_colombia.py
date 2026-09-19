@@ -10,6 +10,7 @@ Covers the two failure modes that cost the fetcher most of 2026:
   overwrites a value already in the CSV.
 """
 import sys
+from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -61,6 +62,69 @@ def test_discovery_picks_newest_monthly():
     url, year, month = fc.discover_latest_pdf(FakeSession())
     assert (year, month) == (2026, 7), (year, month)
     assert url == "https://www.andi.com.co/Uploads/07. INFORME SECTOR AUTOMOTOR JUL2026_PRENSA.pdf", url
+
+
+def test_monthly_url_candidates_lead_with_the_2026_shape():
+    urls = fc.monthly_url_candidates(2026, 8)
+    # The shape Feb–Aug 2026 are actually served under must be tried first.
+    assert urls[0] == ("https://www.andi.com.co/Uploads/"
+                       "08.%20INFORME%20SECTOR%20AUTOMOTOR%20AGO2026_PRENSA.pdf"), urls[0]
+    # and every candidate must classify back to the month we asked for
+    for u in urls:
+        assert fc.classify_pdf_name(fc._basename(u)) == (2026, 8, True), u
+
+
+class _FakeResponse:
+    def __init__(self, status, body):
+        self.status_code, self.content = status, body
+
+
+def test_find_unlisted_monthly_rejects_a_200_that_is_not_a_pdf():
+    # One live /Uploads/ URL answers 200 with an empty body; it must not win.
+    served = {fc.monthly_url_candidates(2026, 8)[0]: _FakeResponse(200, b""),
+              fc.monthly_url_candidates(2026, 8)[1]: _FakeResponse(200, b"%PDF-1.7 ...")}
+
+    class FakeSession:
+        def get(self, url, **_k):
+            return served.get(url, _FakeResponse(404, b"<html>"))
+
+    url, body = fc.find_unlisted_monthly(FakeSession(), 2026, 8)
+    assert url == fc.monthly_url_candidates(2026, 8)[1], url
+    # the verified body comes back so main() need not re-download it
+    assert body.startswith(b"%PDF"), body
+
+
+def test_find_unlisted_monthly_returns_none_when_nothing_is_published():
+    class FakeSession:
+        def get(self, *_a, **_k):
+            return _FakeResponse(404, b"<html>")
+
+    assert fc.find_unlisted_monthly(FakeSession(), 2026, 9) is None
+
+
+def test_target_month_reached_is_silent():
+    fc.require_target_month("2026-08", "2026-08", date(2026, 9, 25))  # must not raise
+
+
+def test_target_month_missing_early_in_the_window_exits_quietly():
+    # Day 9: ANDI simply has not published August yet. Not a failure.
+    try:
+        fc.require_target_month("2026-08", "2025-12", date(2026, 9, 9))
+    except SystemExit as exc:
+        assert exc.code == 0, exc.code
+    else:
+        raise AssertionError("expected a quiet SystemExit(0)")
+
+
+def test_target_month_missing_when_overdue_fails_loudly():
+    # Day 25: August is overdue, so the run must go red rather than green.
+    try:
+        fc.require_target_month("2026-08", "2025-12", date(2026, 9, 25))
+    except SystemExit as exc:
+        assert exc.code != 0, exc.code
+        assert "2026-08" in str(exc) and "overdue" in str(exc), exc
+    else:
+        raise AssertionError("expected a failing SystemExit")
 
 
 def test_annual_loses_tie_to_monthly():

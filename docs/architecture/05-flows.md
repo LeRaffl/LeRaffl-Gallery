@@ -1302,12 +1302,18 @@ sequenceDiagram
     Cron->>Job: workflow_dispatch OR cron (5–25, 07:30 UTC)
     Job->>Job: Early-exit if CSV already has previous-month row
     Job->>Cam: GET /Home/Camara/4-automotriz
-    Cam-->>Job: HTML with PDF links "<N>. INFORME SECTOR AUTOMOTOR <MMM><YYYY>_PRENSA[_<ticks>].pdf"<br/>(shape changes yearly — 2025: "<MMM>_PRENSA-INDUSTRIA <YYYY>_<ticks>")
-    Job->>Job: every bulletin-named .pdf link → (year, month) from the name;<br/>pick newest, monthly before annual; warn if ≥2 months behind the CSV
-    Job->>PDF: GET <pdf_url>
+    Cam-->>Job: HTML with PDF links "<N>. INFORME SECTOR AUTOMOTOR <MMM><YYYY>_PRENSA[_<ticks>].pdf"<br/>(shape changes yearly — 2025: "<MMM>_PRENSA-INDUSTRIA <YYYY>_<ticks>";<br/>since Sept 2026: year-end reports only, newest monthly = Dec-2025)
+    Job->>Job: every bulletin-named .pdf link → (year, month) from the name;<br/>pick newest, monthly before annual
+    alt newest listed month < month due
+        Job->>PDF: GET each rebuilt /Uploads/ candidate for the due month
+        PDF-->>Job: 200 + %PDF body (accept) / 404 or non-PDF body (try next shape)
+        Job->>Job: none matched → exit 0 before the 20th, FAIL after it
+    end
+    Job->>PDF: GET <pdf_url> (skipped if the candidate search already fetched it)
     PDF-->>Job: ~18-page PDF (Spanish thousands sep, narrative + bar charts)
     Job->>Job: pdftotext -layout → line-based label/value pairing<br/>(value on the label line, else look-ahead below) → batch-detect 3 monthly series<br/>(Pkw total / BEV / Híbridos), by (year, month) reset
     Job->>Job: BEV ← eléctricos; HEV ← híbridos (combined); ICE = TOTAL − BEV − HEV;<br/>PHEV/PETROL/DIESEL/FLEXFUEL/OTHERS empty; unreadable cell = unknown (never 0)
+    Job->>Job: a rebuilt URL must parse to the month it claims, else abort
     Job->>CSV: Merge (existing value survives an unknown or a parsed 0; newest PDF month must be complete)
     alt dry_run
         Job-->>Cron: Print would-be changes + pdftotext dump, upload PDF/text artifact, write nothing
@@ -1327,7 +1333,14 @@ sequenceDiagram
 
 **Why daily 5th–25th at 07:30 UTC:** ANDI/FENALCO usually publishes the previous month's boletín within the first three weeks of the following month; the 21-day polling window covers it comfortably. The early-exit makes runs after capture no-ops. 07:30 UTC sits in a free slot.
 
-**Known fragility:** the PDF URL often carries a per-upload ticks hash, so we always scrape the listing for the freshest link. ANDI has renamed the file every year (2021 `JUNIO 2021_PRENSA`, 2025 `DIC_PRENSA-INDUSTRIA 2025_<ticks>`, 2026 `FEB2026_PRENSA` / `JUL2026_PRENSA_<ticks>`); a strict template regex is what stalled the fetcher from January to September 2026 — green runs that re-read the Dec-2025 PDF daily — so discovery now only asks a link's basename for INFORME + SECTOR + AUTOMOTOR plus a Spanish month and a year, and emits a `::warning::` when the newest bulletin it sees is ≥ 2 months behind the CSV. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — the "Pkw is largest" check catches the obvious case; eyeball one month's values against the PDF narrative otherwise. `dry_run=true` on the workflow is the tool for both: it prints the candidate list, the parsed batches and the full pdftotext text without writing anything.
+**Known fragility:** ANDI has renamed the file every year (2021 `JUNIO 2021_PRENSA`, 2025 `DIC_PRENSA-INDUSTRIA 2025_<ticks>`, 2026 `FEB2026_PRENSA` / `JUL2026_PRENSA_<ticks>`); a strict template regex is what stalled the fetcher from January to September 2026 — green runs that re-read the Dec-2025 PDF daily — so discovery only asks a link's basename for INFORME + SECTOR + AUTOMOTOR plus a Spanish month and a year.
+
+In September 2026 the same silent-green failure returned by a different route: ANDI rewrote the bulletin tab into a year-end archive, leaving Dec-2025 as the newest *listed* monthly, and three more weeks passed unnoticed. Two changes came out of that, and both are load-bearing:
+
+- **Discovery has a second leg.** The monthly PDFs are still served at their `/Uploads/` addresses, so when the listing falls behind, the due month's URL is rebuilt from the shapes above. A candidate is accepted only if it answers 200 **and** its body starts with `%PDF` (one live URL returns an empty body), and a rebuilt URL must then parse to exactly the month claimed — otherwise the run aborts rather than file one month's numbers under another's.
+- **An unreachable month is no longer a warning.** The old `::warning::` fired daily and changed nothing, because a warning on a *passing* run reaches nobody. The rule is now stated against the month the run exists for: quiet before the 20th (ANDI publishes over the first ~3 weeks), a failed run after it. If you add a staleness check to another fetcher, make it exit non-zero.
+
+FENALCO mirrors the same report at `fenalco.com.co/blog/gremial-4` and still indexes every month, but its post pages serve the PDF behind `web/login` — useful to confirm by eye that a month has been published, not ingestible. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — the "Pkw is largest" check catches the obvious case; eyeball one month's values against the PDF narrative otherwise. `dry_run=true` on the workflow is the tool for both: it prints the candidate list, the parsed batches and the full pdftotext text without writing anything.
 
 ## See also
 

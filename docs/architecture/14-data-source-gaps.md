@@ -133,8 +133,11 @@ originals it aggregates from.
 [18-source-colombia.md](18-source-colombia.md) and `scripts/fetch_colombia.py`.
 The original blockers (below) still apply to ANDEMOS/RUNT directly, but the
 joint **ANDI + FENALCO** *Informe del Sector Automotor* PDF — published monthly
-on the Cámara Automotriz page and sourced from the same RUNT registry — is a
-free, downloadable workaround. We accept its narrower granularity: PHEV and
+by ANDI and sourced from the same RUNT registry — is a free, downloadable
+workaround. (Since September 2026 the Cámara Automotriz page lists only
+year-end reports, so the fetcher reads each month's PDF from its
+`andi.com.co/Uploads/` address instead; FENALCO's own monthly index is
+login-walled. See [18-source-colombia.md](18-source-colombia.md).) We accept its narrower granularity: PHEV and
 HEV are reported as a **single combined "híbridos" bucket** (handled with the
 Türkiye/Georgia *single Hybrid bucket* convention — see
 [09-glossary.md § Variant definitions](09-glossary.md)).

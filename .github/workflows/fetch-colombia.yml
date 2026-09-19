@@ -37,6 +37,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      dump_listing:
+        description: 'Also report what the Cámara Automotriz page contains, into the log (for discovery work).'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
     # ANDI/FENALCO publishes the previous month's boletín somewhere in the
     # first ~3 weeks of each month. Poll daily 5th–25th at 07:30 UTC (free
@@ -70,11 +75,13 @@ jobs:
             ${PDF_URL:+--pdf-url "$PDF_URL"} \
             ${FORCE:+--force} \
             ${DRY_RUN:+--dry-run --dump-text} \
+            ${DUMP_LISTING:+--dump-listing} \
             --debug-dir "$RUNNER_TEMP/colombia-bulletin"
         env:
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
           DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+          DUMP_LISTING: ${{ inputs.dump_listing == true && '1' || '' }}
 
       - name: Upload bulletin PDF + text
         if: always()
