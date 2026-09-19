@@ -22,6 +22,9 @@ caveats:
 - 'Combustion is not reported at all: we derive ICE as TOTAL − BEV − HEV. There is no petrol/diesel split,
   so those columns stay empty.'
 - The source is a monthly PDF; the numbers ultimately come from RUNT.
+- 'Since September 2026 the Cámara Automotriz page lists only year-end reports (2018–2025), so the
+  monthly bulletin behind recent months is not linked from it. ANDI still publishes each month''s PDF
+  at its usual andi.com.co/Uploads/ address and we read it there; the figures are unchanged.'
 fetcher: scripts/fetch_colombia.py
 workflow: .github/workflows/fetch-colombia.yml
 fragility_doc: docs/architecture/18-source-colombia.md
