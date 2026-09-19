@@ -188,16 +188,27 @@ def classify_pdf_name(name: str):
     return year, month, is_monthly
 
 
-def discover_latest_pdf(session: requests.Session) -> tuple[str, int, int]:
+def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
+                        debug_dir: str | None = None) -> tuple[str, int, int]:
     """Return (pdf_url, year, month_num) for the freshest 'Informe Sector Automotor' PDF."""
     r = session.get(CAMARA_URL, timeout=30)
     r.raise_for_status()
+    if debug_dir:
+        d = Path(debug_dir)
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "camara.html").write_text(r.text, encoding="utf-8")
+    if dump_listing:
+        print(f"----- BEGIN {CAMARA_URL} ({len(r.text)} chars) -----")
+        print(r.text)
+        print("----- END listing HTML -----")
     candidates = []
     seen = set()
+    rejected: list[str] = []
     for m in HREF_PDF_RE.finditer(r.text):
         href = m.group(1)
         info = classify_pdf_name(_basename(href))
         if info is None:
+            rejected.append(_basename(href))
             continue
         year, month, is_monthly = info
         url = urljoin(CAMARA_URL, html.unescape(href))
@@ -205,6 +216,14 @@ def discover_latest_pdf(session: requests.Session) -> tuple[str, int, int]:
             continue
         seen.add(url)
         candidates.append((year, month, is_monthly, url))
+    # A PDF that was on the page but did not classify is the single most
+    # useful thing in the log when discovery goes stale — "8 candidates,
+    # newest 2025-12" on its own never says whether the new bulletin was
+    # missing from the page or merely unrecognised. Print both sides.
+    if rejected:
+        print(f".pdf links on the page that are not bulletins ({len(rejected)}):")
+        for name in rejected[:20]:
+            print(f"  - {name}")
     if not candidates:
         raise RuntimeError(
             "No 'INFORME SECTOR AUTOMOTOR' PDF links found on the Cámara Automotriz "
@@ -531,6 +550,8 @@ def main() -> None:
                     help="Discover, download and parse, print what would change, but do not write the CSV.")
     ap.add_argument("--dump-text", action="store_true",
                     help="Print the full `pdftotext -layout` output to stdout (for parser work in CI logs).")
+    ap.add_argument("--dump-listing", action="store_true",
+                    help="Print the Cámara Automotriz page HTML to stdout (for discovery work in CI logs).")
     ap.add_argument("--debug-dir", default=None,
                     help="Save the downloaded PDF and its pdftotext output into this directory.")
     args = ap.parse_args()
@@ -561,7 +582,7 @@ def main() -> None:
         if info:
             year, n = info[0], info[1]
     else:
-        url, year, n = discover_latest_pdf(session)
+        url, year, n = discover_latest_pdf(session, args.dump_listing, args.debug_dir)
     print(f"Latest PDF: {year}-{n:02d} -> {url}" if year else f"PDF: {url}")
 
     periods = csv_periods(CSV_PATH)
