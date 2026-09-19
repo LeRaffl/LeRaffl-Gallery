@@ -38,7 +38,7 @@ on:
         default: 'false'
         type: boolean
       dump_listing:
-        description: 'Also dump the Cámara Automotriz page HTML into the log (for discovery work).'
+        description: 'Also report what the Cámara Automotriz page contains, into the log (for discovery work).'
         required: false
         default: 'false'
         type: boolean

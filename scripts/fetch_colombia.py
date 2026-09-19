@@ -188,6 +188,36 @@ def classify_pdf_name(name: str):
     return year, month, is_monthly
 
 
+ANY_HREF_RE = re.compile(r'''href\s*=\s*["']([^"']+)["']''', re.IGNORECASE)
+
+
+def report_listing(text: str) -> None:
+    """Print what the Cámara page actually contains, for discovery debugging.
+
+    Deliberately a report and not a raw HTML dump: the page is ~200 KB of
+    mostly-irrelevant chrome, and what matters when discovery goes stale is
+    (a) every href that mentions a PDF, however it is wrapped, and (b) every
+    place the page names a bulletin or a year, so a link that moved behind a
+    download handler or a script is still visible in the run log.
+    """
+    print(f"Cámara page: {len(text)} chars")
+    hrefs = ANY_HREF_RE.findall(text)
+    pdfish = [h for h in hrefs if ".pdf" in h.lower()]
+    print(f"  {len(hrefs)} hrefs, {len(pdfish)} of them mentioning .pdf:")
+    for h in pdfish[:40]:
+        print(f"    href={h}")
+    for label, pattern in (("INFORME", r"INFORME"), ("2026", r"20\d{2}")):
+        hits = []
+        for m in re.finditer(pattern, text, re.IGNORECASE):
+            s, e = max(0, m.start() - 140), min(len(text), m.start() + 240)
+            snippet = " ".join(text[s:e].split())
+            if snippet not in hits:
+                hits.append(snippet)
+        print(f"  '{label}' contexts ({len(hits)} distinct):")
+        for snippet in hits[:25]:
+            print(f"    …{snippet}…")
+
+
 def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
                         debug_dir: str | None = None) -> tuple[str, int, int]:
     """Return (pdf_url, year, month_num) for the freshest 'Informe Sector Automotor' PDF."""
@@ -198,9 +228,7 @@ def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
         d.mkdir(parents=True, exist_ok=True)
         (d / "camara.html").write_text(r.text, encoding="utf-8")
     if dump_listing:
-        print(f"----- BEGIN {CAMARA_URL} ({len(r.text)} chars) -----")
-        print(r.text)
-        print("----- END listing HTML -----")
+        report_listing(r.text)
     candidates = []
     seen = set()
     rejected: list[str] = []
@@ -551,7 +579,8 @@ def main() -> None:
     ap.add_argument("--dump-text", action="store_true",
                     help="Print the full `pdftotext -layout` output to stdout (for parser work in CI logs).")
     ap.add_argument("--dump-listing", action="store_true",
-                    help="Print the Cámara Automotriz page HTML to stdout (for discovery work in CI logs).")
+                    help="Report what the Cámara Automotriz page contains (PDF hrefs, bulletin/year "
+                         "mentions) — for discovery work in CI logs. The full HTML goes to --debug-dir.")
     ap.add_argument("--debug-dir", default=None,
                     help="Save the downloaded PDF and its pdftotext output into this directory.")
     args = ap.parse_args()
