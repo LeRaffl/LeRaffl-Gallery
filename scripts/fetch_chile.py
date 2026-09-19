@@ -241,27 +241,54 @@ def latest_period(csv_path: str) -> str | None:
     return max(periods) if periods else None
 
 
-def canonical_urls(year: int, month: int) -> tuple[str, str]:
+def canonical_urls(year: int, month: int) -> tuple[list[str], list[str]]:
     """Deterministic ANAC upload URLs for a month's two reports.
 
     ANAC stores each report at a predictable path — a report for <Month> YEAR
     is published the *following* calendar month:
 
-        /wp-content/uploads/<pub-year>/<pub-month>/<MM>-ANAC-<report>-<Month>-YEAR.pdf
+        /wp-content/uploads/<pub-year>/<pub-month>/<filename>.pdf
 
-    e.g. Julio 2026 → /2026/08/07-ANAC-Mercado-Automotor-Julio-2026.pdf. Some
-    months carry a version suffix on the filename (…-Abril-202634.pdf) that this
-    canonical form doesn't reproduce, so these URLs are a *fallback* probed only
-    when the listing scrape comes up empty.
+    e.g. Julio 2026 → /2026/08/07-ANAC-Mercado-Automotor-Julio-2026.pdf. The
+    filename convention is NOT stable, so each report returns a *list* of
+    candidate filenames (newest known form first) that the caller probes in
+    order until one resolves:
+
+    * Mercado Automotor keeps the historical "<MM>-ANAC-…" prefix.
+    * Cero y Bajas Emisiones was renamed for Agosto-2026: the "<MM>-ANAC-"
+      prefix was dropped and a trailing "_" added, e.g.
+      "Informe-Cero-y-Bajas-Emisiones-Agosto-2026_.pdf". We probe both the new
+      prefix-less forms and the legacy "<MM>-ANAC-…" form.
+
+    Some months also carry a numeric version suffix on the filename
+    (…-Abril-202634.pdf) that these canonical forms don't reproduce, so these
+    URLs are a *fallback* probed only when the listing scrape comes up empty.
     """
     month_name = SPANISH_MONTHS[month]
     pub_year, pub_month = (year + 1, 1) if month == 12 else (year, month + 1)
     base = f"https://www.anac.cl/wp-content/uploads/{pub_year}/{pub_month:02d}"
     mm = f"{month:02d}"
-    return (
+    mercado = [
         f"{base}/{mm}-ANAC-Mercado-Automotor-{month_name}-{year}.pdf",
+        f"{base}/Mercado-Automotor-{month_name}-{year}_.pdf",
+        f"{base}/Mercado-Automotor-{month_name}-{year}.pdf",
+    ]
+    emisiones = [
+        # New form (Agosto-2026 onward): no "<MM>-ANAC-" prefix, trailing "_".
+        f"{base}/Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}_.pdf",
+        f"{base}/Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}.pdf",
+        # Legacy form (pre Agosto-2026).
         f"{base}/{mm}-ANAC-Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}.pdf",
-    )
+    ]
+    return mercado, emisiones
+
+
+def _first_resolving(candidates: list[str]) -> str | None:
+    """Return the first candidate URL that resolves to a real PDF, or None."""
+    for url in candidates:
+        if _url_resolves(url):
+            return url
+    return None
 
 
 def _url_resolves(url: str) -> bool:
@@ -288,14 +315,16 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
     #   04-ANAC-Mercado-Automotor-Abril-202634.pdf          (with version suffix)
     #   03-ANAC-Informe-Cero-y-Bajas-Emisiones-Marzo-2026.pdf
     #   02-ANAC-Informe-Cero-y-Bajas-Emisiones-Febrero-202677.pdf
-    # The leading "NN-" is the month number; trailing "<digits>" after the
-    # year is a versioning quirk.
+    #   Informe-Cero-y-Bajas-Emisiones-Agosto-2026_.pdf     (Agosto-2026 rename)
+    # The leading "<MM>-ANAC-" prefix is optional — ANAC dropped it from the
+    # emisiones report in Agosto-2026 — and after the year a versioning quirk may
+    # add trailing digits and/or a trailing "_".
     mercado_re = re.compile(
-        rf"ANAC-Mercado-Automotor-{month_name}-{year}\d*\.pdf",
+        rf"(?:\d{{2}}-)?ANAC-Mercado-Automotor-{month_name}-{year}[\d_]*\.pdf",
         re.IGNORECASE,
     )
     emisiones_re = re.compile(
-        rf"ANAC-Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}\d*\.pdf",
+        rf"(?:\d{{2}}-ANAC-)?Informe-Cero-y-Bajas-Emisiones-{month_name}-{year}[\d_]*\.pdf",
         re.IGNORECASE,
     )
 
@@ -318,12 +347,16 @@ def discover_pdfs(year: int, month: int) -> tuple[str | None, str | None]:
     # scrape misses it. Probe the deterministic upload URL for anything missing.
     if mercado_url is None or emisiones_url is None:
         cand_mercado, cand_emisiones = canonical_urls(year, month)
-        if mercado_url is None and _url_resolves(cand_mercado):
-            print(f"  (canonical fallback) Mercado:   {cand_mercado}")
-            mercado_url = cand_mercado
-        if emisiones_url is None and _url_resolves(cand_emisiones):
-            print(f"  (canonical fallback) Emisiones: {cand_emisiones}")
-            emisiones_url = cand_emisiones
+        if mercado_url is None:
+            resolved = _first_resolving(cand_mercado)
+            if resolved:
+                print(f"  (canonical fallback) Mercado:   {resolved}")
+                mercado_url = resolved
+        if emisiones_url is None:
+            resolved = _first_resolving(cand_emisiones)
+            if resolved:
+                print(f"  (canonical fallback) Emisiones: {resolved}")
+                emisiones_url = resolved
 
     return mercado_url, emisiones_url
 
