@@ -2,6 +2,46 @@
   "updated": "2026-09-19",
   "images": [
     {
+      "country": "Chile",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-19",
+      "filename": "chile_ICE_BEV_20260919.png",
+      "url": "images/2026-08/chile_ICE_BEV_20260919.png",
+      "alt": "Chile ICE-BEV-Hybrid trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-19",
+      "filename": "chile_20260919.png",
+      "url": "images/2026-08/chile_20260919.png",
+      "alt": "Chile BEV trajectory",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-19",
+      "filename": "chile_time_20260919.png",
+      "url": "images/2026-08/chile_time_20260919.png",
+      "alt": "Chile Transition time curve",
+      "country_slug": "chile"
+    },
+    {
+      "country": "Chile",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-19",
+      "filename": "chile_ttm_shares_20260919.png",
+      "url": "images/2026-08/chile_ttm_shares_20260919.png",
+      "alt": "Chile TTM market split graph",
+      "country_slug": "chile"
+    },
+    {
       "country": "Türkiye",
       "type": "ICE_BEV",
       "period": "2026-08",
