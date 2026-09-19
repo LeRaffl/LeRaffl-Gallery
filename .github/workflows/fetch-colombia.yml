@@ -85,7 +85,7 @@ jobs:
 
       # TEMPORARY — remove once the monthly boletín's new home is known.
       - name: Probe alternative Colombia sources
-        if: ${{ inputs.dump_listing == true }}
+        if: ${{ always() && inputs.dump_listing == true }}
         run: python scripts/probe_colombia_sources.py
 
       - name: Upload bulletin PDF + text
