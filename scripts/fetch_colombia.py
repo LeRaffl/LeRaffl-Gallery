@@ -47,8 +47,29 @@ URL-decoded basename contains INFORME + SECTOR + AUTOMOTOR is a candidate,
 the month comes from the first Spanish month token (abbreviation or full
 name) and the year from the first standalone 4-digit year. Candidates are
 sorted by (year, month), with a "_PRENSA" monthly file preferred over an
-annual "A DICIEMBRE" one for the same month. The per-upload ticks hash makes
-URLs unguessable — always scrape the listing.
+annual "A DICIEMBRE" one for the same month.
+
+...and then the listing stopped carrying monthlies at all
+---------------------------------------------------------
+In September 2026 ANDI rewrote that tab into a year-end archive: eight links,
+"INFORME FINAL SECTOR AUTOMOTOR 2018…2025", and no monthly file newer than
+Dec-2025. The monthly PDFs were not withdrawn — Feb…Aug 2026 still answer 200
+at their original /Uploads/ paths — they are just not linked from anywhere.
+FENALCO keeps a monthly index (fenalco.com.co/blog/gremial-4) but serves its
+copy behind a login, so it identifies months without yielding files.
+
+So discovery has two legs (`resolve_bulletin`): scrape the listing, and if the
+newest thing on it is older than the month we came for, reconstruct that
+month's /Uploads/ URL from the filename shapes ANDI has actually used
+(`monthly_url_candidates`). Guessing is only safe because of what checks it:
+a candidate must answer 200 *and* begin with %PDF (one live URL returns an
+empty body), and a guessed URL must then parse to a series ending on exactly
+the month we asked for, or the run aborts rather than upsert the wrong month.
+
+If neither leg reaches the target month, `require_target_month` exits quietly
+before the 20th (ANDI publishes over the first ~3 weeks) and fails the run
+after it. A fetcher that reports success while fetching nothing is what hid
+the 2026 stall for eight months and this one for three weeks.
 
 Parser
 ------
@@ -89,7 +110,7 @@ import re
 import subprocess
 from datetime import date
 from pathlib import Path
-from urllib.parse import unquote, urljoin
+from urllib.parse import quote, unquote, urljoin
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -102,6 +123,20 @@ VARIANT = "Whole"
 
 MONTH_ABBR = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6,
               "jul": 7, "ago": 8, "sep": 9, "oct": 10, "nov": 11, "dic": 12}
+MONTH_ABBR_BY_NUM = {v: k.upper() for k, v in MONTH_ABBR.items()}
+MONTH_FULL_BY_NUM = {
+    1: "ENERO", 2: "FEBRERO", 3: "MARZO", 4: "ABRIL", 5: "MAYO", 6: "JUNIO",
+    7: "JULIO", 8: "AGOSTO", 9: "SEPTIEMBRE", 10: "OCTUBRE", 11: "NOVIEMBRE", 12: "DICIEMBRE",
+}
+
+# ANDI serves every boletín from /Uploads/, and keeps serving it after the page
+# stops linking it — see find_unlisted_monthly().
+UPLOADS_BASE = "https://www.andi.com.co/Uploads/"
+
+# Day of the month after which a missing boletín stops being "not published
+# yet" and becomes a problem worth failing over. ANDI/FENALCO publishes the
+# previous month within the first ~3 weeks; the cron polls the 5th–25th.
+PUBLICATION_GRACE_DAY = 20
 
 # Full Spanish month names as they appear in older filenames ("JUNIO 2021").
 # Looked up after stripping to the first three letters, which is unambiguous
@@ -267,6 +302,98 @@ def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
         print(f"  {year}-{month:02d} {'monthly' if is_monthly else 'annual '} {_basename(url)}")
     year, month, _, url = candidates[0]
     return url, year, month
+
+
+def monthly_url_candidates(year: int, month: int) -> list[str]:
+    """/Uploads/ names ANDI has used for one month's boletín, newest shape first."""
+    abbr, full = MONTH_ABBR_BY_NUM[month], MONTH_FULL_BY_NUM[month]
+    return [UPLOADS_BASE + quote(stem) for stem in (
+        # 2026 shape — the one Feb–Aug 2026 are actually served under
+        f"{month:02d}. INFORME SECTOR AUTOMOTOR {abbr}{year}_PRENSA.pdf",
+        f"{month:02d}. INFORME SECTOR AUTOMOTOR {abbr} {year}_PRENSA.pdf",
+        # 2021 shape — full month name
+        f"{month:02d}. INFORME SECTOR AUTOMOTOR {full} {year}_PRENSA.pdf",
+        f"{month:02d}. INFORME SECTOR AUTOMOTOR {full}{year}_PRENSA.pdf",
+        # 2025 shape — "_PRENSA-INDUSTRIA <year>"
+        f"{month:02d}. INFORME SECTOR AUTOMOTOR {abbr}_PRENSA-INDUSTRIA {year}.pdf",
+    )]
+
+
+def find_unlisted_monthly(session: requests.Session, year: int, month: int) -> str | None:
+    """Locate a monthly boletín ANDI still serves but no longer links.
+
+    In September 2026 ANDI rewrote the Cámara page's "BOLETINES DEL SECTOR
+    AUTOMOTOR" tab from a list of monthly PDFs into a year-end archive
+    (2018–2025). The monthly files were not withdrawn — Feb…Aug 2026 all still
+    answer 200 at their original /Uploads/ paths — they are simply unreachable
+    from any page. FENALCO still indexes the months but puts its own copy
+    behind a login, so scraping it buys nothing.
+
+    What makes guessing safe here is the verification, not the guess: a
+    candidate counts only if the body really begins with %PDF (one live URL
+    answers 200 with an empty body), and the caller additionally requires the
+    parsed series to end on the month we asked for. A wrong guess therefore
+    fails the run instead of publishing the wrong month's numbers.
+
+    Returns the URL of the first candidate that is genuinely that PDF.
+    """
+    print(f"Looking for an unlisted {year}-{month:02d} boletín under /Uploads/:")
+    for url in monthly_url_candidates(year, month):
+        try:
+            r = session.get(url, timeout=60)
+        except requests.RequestException as exc:
+            print(f"  {type(exc).__name__}: {_basename(url)}")
+            continue
+        if r.status_code == 200 and r.content.startswith(b"%PDF"):
+            print(f"  found ({len(r.content)} bytes): {_basename(url)}")
+            return url
+        why = f"HTTP {r.status_code}" if r.status_code != 200 else f"not a PDF ({len(r.content)} bytes)"
+        print(f"  no ({why}): {_basename(url)}")
+    return None
+
+
+def resolve_bulletin(session: requests.Session, wanted: str, dump_listing: bool = False,
+                     debug_dir: str | None = None) -> tuple[str, int, int, bool]:
+    """(url, year, month, was_guessed) for `wanted` (YYYY-MM), else the newest listed one.
+
+    `was_guessed` marks a URL that came from monthly_url_candidates() rather
+    than from a link on the page; the caller holds those to a stricter check.
+    """
+    url, year, month = discover_latest_pdf(session, dump_listing, debug_dir)
+    print(f"Latest listed PDF: {year}-{month:02d} -> {url}")
+    if f"{year}-{month:02d}" >= wanted:
+        return url, year, month, False
+    alt = find_unlisted_monthly(session, int(wanted[:4]), int(wanted[5:]))
+    if alt:
+        return alt, int(wanted[:4]), int(wanted[5:]), True
+    return url, year, month, False
+
+
+def require_target_month(wanted: str, got: str, today: date | None = None) -> None:
+    """Stop the run when nothing we can reach covers the month we came for.
+
+    Early in the publication window that is ordinary — ANDI/FENALCO publishes
+    the previous month over the first ~3 weeks — so the run exits quietly. Once
+    the month is overdue it is a real breakage and the run fails, because a
+    fetcher that reports success while fetching nothing is how Colombia lost
+    eight months in 2026 and another three weeks in September.
+    """
+    if got >= wanted:
+        return
+    today = today or date.today()
+    msg = (f"No boletín for {wanted} is reachable — the newest one we can get is {got}. "
+           f"The Cámara page no longer lists monthly bulletins and no known "
+           f"/Uploads/ filename shape for {wanted} answered with a PDF.")
+    if today.day < PUBLICATION_GRACE_DAY:
+        print(f"{msg}\nIt is only day {today.day} of the month, so this is most likely "
+              f"'not published yet'. Nothing to do.")
+        raise SystemExit(0)
+    print(f"::error title=Colombia boletín for {wanted} not reachable::{msg}")
+    raise SystemExit(
+        f"{msg}\nIt is day {today.day}; {wanted} is overdue, so this is a breakage, not a wait.\n"
+        f"Re-run with dump_listing=true to see what {CAMARA_URL} offers, then either\n"
+        f"add the new filename shape to monthly_url_candidates() or pass pdf_url= directly."
+    )
 
 
 def download_pdf(url: str, session: requests.Session) -> bytes:
@@ -553,37 +680,6 @@ def upsert_csv(csv_path: str, new_rows: dict, write: bool = True) -> tuple[int, 
     return added, updated, skipped
 
 
-def check_discovery_freshness(pdf_period: str, latest_csv: str) -> None:
-    """Fail the run when the newest bulletin on the page is well behind the CSV.
-
-    Normal between publications is "newest PDF == newest CSV month". One month
-    behind is survivable — a month hand-added to the CSV puts us there — so it
-    is only reported. Two or more means discovery is no longer reaching the
-    monthly boletín at all, and re-reading a bulletin that old cannot add
-    anything: every month in it is already in the CSV, the run commits nothing
-    and reports success. That silent-green failure is the one this fetcher
-    keeps hitting (eight months in 2026 on a pinned filename regex, three weeks
-    after ANDI replaced the monthly list with a year-end archive), so it is an
-    error, not a warning on a passing run.
-    """
-    if pdf_period >= latest_csv:
-        return
-    year, n = int(pdf_period[:4]), int(pdf_period[5:])
-    months_behind = (int(latest_csv[:4]) - year) * 12 + int(latest_csv[5:]) - n
-    msg = (f"Newest bulletin on the Cámara page is {pdf_period} but the CSV already "
-           f"runs to {latest_csv} ({months_behind} month(s) ahead)")
-    if months_behind < 2:
-        print(f"{msg} — re-reading it anyway (existing values are never downgraded).")
-        return
-    print(f"::error title=Colombia discovery is stale::{msg}")
-    raise SystemExit(
-        f"{msg}.\n"
-        f"The bulletin links on {CAMARA_URL} no longer reach the month we need.\n"
-        f"Re-run with dump_listing=true to see what the page offers, then either\n"
-        f"point discovery at the boletín's new home or pass pdf_url= directly."
-    )
-
-
 def previous_month_period() -> str:
     t = date.today()
     if t.month == 1:
@@ -639,23 +735,21 @@ def main() -> None:
         allowed_methods=["GET"],
     )))
 
+    wanted = previous_month_period()
+    guessed_url = False
     if args.pdf_url:
+        # Manual override: the operator chose this file, so neither the
+        # unlisted-URL search nor the target-month rule applies to it.
         url, year, n = args.pdf_url, None, None
         info = classify_pdf_name(_basename(url))
         if info:
             year, n = info[0], info[1]
+        print(f"PDF (override): {year}-{n:02d} -> {url}" if year else f"PDF (override): {url}")
     else:
-        url, year, n = discover_latest_pdf(session, args.dump_listing, args.debug_dir)
-    print(f"Latest PDF: {year}-{n:02d} -> {url}" if year else f"PDF: {url}")
-
-    periods = csv_periods(CSV_PATH)
-    if year and periods:
-        pdf_period = f"{year}-{n:02d}"
-        latest_csv = periods[-1]
-        # --pdf-url is the manual override: the operator chose that file, so the
-        # freshness rule does not apply to it.
-        if not args.pdf_url:
-            check_discovery_freshness(pdf_period, latest_csv)
+        url, year, n, guessed_url = resolve_bulletin(
+            session, wanted, args.dump_listing, args.debug_dir)
+        print(f"Using: {year}-{n:02d} -> {url}")
+        require_target_month(wanted, f"{year}-{n:02d}")
 
     pdf = download_pdf(url, session)
     text = pdf_to_text(pdf)
@@ -683,8 +777,19 @@ def main() -> None:
     parsed_periods = sorted(p for p, _ in rows)
     print(f"Total months: {len(rows)} ({parsed_periods[0]} .. {parsed_periods[-1]})")
     if year and parsed_periods[-1] != f"{year}-{n:02d}":
-        print(f"  WARNING newest month in the PDF text is {parsed_periods[-1]}, "
-              f"but the filename says {year}-{n:02d}")
+        mismatch = (f"newest month in the PDF text is {parsed_periods[-1]}, "
+                    f"but the filename says {year}-{n:02d}")
+        if guessed_url:
+            # This URL was constructed, not linked, so the filename is our
+            # assumption rather than ANDI's statement. If the contents disagree
+            # with it, we guessed wrong — publishing the wrong month's numbers
+            # under the right label would be far worse than fetching nothing.
+            print(f"::error title=Colombia constructed URL is not the month we asked for::{mismatch}")
+            raise SystemExit(
+                f"Constructed URL {url}\n  {mismatch}.\n"
+                f"Refusing to upsert: the guessed filename shape no longer identifies the month."
+            )
+        print(f"  WARNING {mismatch}")
 
     added, updated, skipped = upsert_csv(CSV_PATH, rows, write=not args.dry_run)
     verb = "would be" if args.dry_run else ""

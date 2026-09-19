@@ -83,11 +83,6 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
           DUMP_LISTING: ${{ inputs.dump_listing == true && '1' || '' }}
 
-      # TEMPORARY — remove once the monthly boletín's new home is known.
-      - name: Probe alternative Colombia sources
-        if: ${{ always() && inputs.dump_listing == true }}
-        run: python scripts/probe_colombia_sources.py
-
       - name: Upload bulletin PDF + text
         if: always()
         uses: actions/upload-artifact@v4
