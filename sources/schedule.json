@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-18T11:28:06Z",
- "today": "2026-09-18",
+ "generated": "2026-09-19T08:58:01Z",
+ "today": "2026-09-19",
  "countries": [
   {
    "country": "Albania",
@@ -3333,11 +3333,11 @@
    "source_url": "https://veriportali.tuik.gov.tr/",
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3383,9 +3383,9 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2016-01",
-     "rows": 127,
+     "rows": 128,
      "cadence": "monthly",
      "in_repo": true
     }
