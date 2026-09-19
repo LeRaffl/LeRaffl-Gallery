@@ -111,6 +111,10 @@ jobs:
             data/Uruguay_Buses.csv
           message: 'chore: update Uruguay data from ACAU'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
   # Render the touched variants as ONE top-level "Render: Uruguay" run in the
   # Render-country-charts workflow, so it shows up in that workflow's own

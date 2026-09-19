@@ -198,6 +198,18 @@ CI is slower (~30–120 s × 43 countries) but produces deterministic byte-outpu
    - **`Failed to install package 'showtext'` or similar** → CI cache miss + apt prebuild missing. Re-run; usually transient.
    - **`Error in optim(...)`** → degenerate input (all-zero column, single data point). Check the CSV for the period range.
 
+### A workflow's commit step failed with `non-fast-forward`
+
+The job did its work, built the commit, then lost a push race against another
+workflow committing to the same branch (`build-manifest`, `build-source-pages`,
+a render, another fetcher). The log shows `committed: true, pushed: false` and
+the commit is gone. Re-dispatching the workflow once the other run has settled
+is enough — these fetchers are idempotent.
+
+Every `EndBug/add-and-commit@v9` step in the repo carries
+`pull: '--rebase --autostash'` so this should not happen; if you see it, the
+step is missing that key. Add it rather than re-running forever.
+
 ### Indonesia v1=0 corruption
 
 #### Symptom

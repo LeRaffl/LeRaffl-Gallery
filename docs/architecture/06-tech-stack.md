@@ -87,7 +87,10 @@ id      = "<redacted>"
 - `actions/checkout@v4` — pull source
 - `r-lib/actions/setup-r@v2` (with `use-public-rspm: true` for fast package binaries on Ubuntu)
 - `r-lib/actions/setup-r-dependencies@v2` — install the package list with apt prebuilds
-- `EndBug/add-and-commit@v9` — commit and push outputs back
+- `EndBug/add-and-commit@v9` — commit and push outputs back. Every use of it in this repo sets
+  `pull: '--rebase --autostash'`: CI pushes its own commits (manifest, source pages, renders,
+  other fetchers) to the same branch, so a job that pushes without rebasing first can lose the
+  race and drop the commit it just built — see [05-flows.md § Issues hit in production](05-flows.md).
 
 ## Hosting / SaaS
 

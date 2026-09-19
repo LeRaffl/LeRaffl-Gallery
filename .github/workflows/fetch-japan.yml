@@ -75,6 +75,10 @@ jobs:
           add: data/Japan.csv
           message: 'chore: update Japan data from JADA'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render for Japan
         if: steps.commit.outputs.committed == 'true'

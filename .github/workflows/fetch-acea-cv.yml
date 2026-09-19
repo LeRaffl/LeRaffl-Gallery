@@ -102,6 +102,10 @@ jobs:
           add: data
           message: 'chore: update ACEA commercial-vehicle data (multi-country)'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
   render:
     needs: fetch
