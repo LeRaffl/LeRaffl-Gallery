@@ -553,6 +553,37 @@ def upsert_csv(csv_path: str, new_rows: dict, write: bool = True) -> tuple[int, 
     return added, updated, skipped
 
 
+def check_discovery_freshness(pdf_period: str, latest_csv: str) -> None:
+    """Fail the run when the newest bulletin on the page is well behind the CSV.
+
+    Normal between publications is "newest PDF == newest CSV month". One month
+    behind is survivable — a month hand-added to the CSV puts us there — so it
+    is only reported. Two or more means discovery is no longer reaching the
+    monthly boletín at all, and re-reading a bulletin that old cannot add
+    anything: every month in it is already in the CSV, the run commits nothing
+    and reports success. That silent-green failure is the one this fetcher
+    keeps hitting (eight months in 2026 on a pinned filename regex, three weeks
+    after ANDI replaced the monthly list with a year-end archive), so it is an
+    error, not a warning on a passing run.
+    """
+    if pdf_period >= latest_csv:
+        return
+    year, n = int(pdf_period[:4]), int(pdf_period[5:])
+    months_behind = (int(latest_csv[:4]) - year) * 12 + int(latest_csv[5:]) - n
+    msg = (f"Newest bulletin on the Cámara page is {pdf_period} but the CSV already "
+           f"runs to {latest_csv} ({months_behind} month(s) ahead)")
+    if months_behind < 2:
+        print(f"{msg} — re-reading it anyway (existing values are never downgraded).")
+        return
+    print(f"::error title=Colombia discovery is stale::{msg}")
+    raise SystemExit(
+        f"{msg}.\n"
+        f"The bulletin links on {CAMARA_URL} no longer reach the month we need.\n"
+        f"Re-run with dump_listing=true to see what the page offers, then either\n"
+        f"point discovery at the boletín's new home or pass pdf_url= directly."
+    )
+
+
 def previous_month_period() -> str:
     t = date.today()
     if t.month == 1:
@@ -621,16 +652,10 @@ def main() -> None:
     if year and periods:
         pdf_period = f"{year}-{n:02d}"
         latest_csv = periods[-1]
-        if pdf_period < latest_csv and not args.pdf_url:
-            # Normal between publications is "PDF == latest CSV month". Two or
-            # more months behind means discovery is probably picking a stale
-            # file — the exact failure this fetcher stalled on for months.
-            months_behind = (int(latest_csv[:4]) - year) * 12 + int(latest_csv[5:]) - n
-            msg = (f"Newest bulletin on the Cámara page is {pdf_period} but the CSV already "
-                   f"runs to {latest_csv} ({months_behind} month(s) ahead)")
-            if months_behind >= 2:
-                print(f"::warning title=Colombia discovery may be stale::{msg}")
-            print(f"{msg} — re-reading it anyway (existing values are never downgraded).")
+        # --pdf-url is the manual override: the operator chose that file, so the
+        # freshness rule does not apply to it.
+        if not args.pdf_url:
+            check_discovery_freshness(pdf_period, latest_csv)
 
     pdf = download_pdf(url, session)
     text = pdf_to_text(pdf)

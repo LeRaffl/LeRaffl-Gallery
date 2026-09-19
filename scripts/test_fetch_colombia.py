@@ -63,6 +63,36 @@ def test_discovery_picks_newest_monthly():
     assert url == "https://www.andi.com.co/Uploads/07. INFORME SECTOR AUTOMOTOR JUL2026_PRENSA.pdf", url
 
 
+def test_freshness_ok_when_page_is_current():
+    fc.check_discovery_freshness("2026-07", "2026-07")  # must not raise
+
+
+def test_freshness_tolerates_one_month_behind():
+    # A month hand-added to the CSV legitimately puts the page one behind.
+    fc.check_discovery_freshness("2026-06", "2026-07")  # must not raise
+
+
+def test_freshness_fails_when_discovery_is_stale():
+    # Sept 2026: ANDI replaced the monthly list with a year-end archive, so the
+    # newest bulletin on the page fell back to Dec-2025 while the CSV ran to
+    # 2026-07. The run must fail, not pass having committed nothing.
+    try:
+        fc.check_discovery_freshness("2025-12", "2026-07")
+    except SystemExit as exc:
+        assert "7 month(s) ahead" in str(exc), exc
+    else:
+        raise AssertionError("stale discovery must raise SystemExit")
+
+
+def test_freshness_counts_months_across_a_year_boundary():
+    try:
+        fc.check_discovery_freshness("2025-11", "2026-02")
+    except SystemExit as exc:
+        assert "3 month(s) ahead" in str(exc), exc
+    else:
+        raise AssertionError("stale discovery must raise SystemExit")
+
+
 def test_annual_loses_tie_to_monthly():
     cands = sorted([(2026, 12, False, "annual"), (2026, 12, True, "monthly")], reverse=True)
     assert cands[0][3] == "monthly"
