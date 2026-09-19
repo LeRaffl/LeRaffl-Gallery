@@ -200,22 +200,25 @@ def report_listing(text: str) -> None:
     place the page names a bulletin or a year, so a link that moved behind a
     download handler or a script is still visible in the run log.
     """
-    print(f"Cámara page: {len(text)} chars")
     hrefs = ANY_HREF_RE.findall(text)
     pdfish = [h for h in hrefs if ".pdf" in h.lower()]
-    print(f"  {len(hrefs)} hrefs, {len(pdfish)} of them mentioning .pdf:")
-    for h in pdfish[:40]:
+    automotor = [h for h in pdfish if "AUTOMOTOR" in unquote(html.unescape(h)).upper()]
+    print(f"Cámara page: {len(text)} chars, {len(hrefs)} hrefs, "
+          f"{len(pdfish)} .pdf, {len(automotor)} naming AUTOMOTOR")
+    for h in automotor:
         print(f"    href={h}")
-    for label, pattern in (("INFORME", r"INFORME"), ("2026", r"20\d{2}")):
-        hits = []
-        for m in re.finditer(pattern, text, re.IGNORECASE):
-            s, e = max(0, m.start() - 140), min(len(text), m.start() + 240)
-            snippet = " ".join(text[s:e].split())
-            if snippet not in hits:
-                hits.append(snippet)
-        print(f"  '{label}' contexts ({len(hits)} distinct):")
-        for snippet in hits[:25]:
-            print(f"    …{snippet}…")
+    # Every distinct place the page says AUTOMOTOR, linked or not. A bulletin
+    # that moved behind a download handler, a script or a sub-page still shows
+    # up here, which is what tells a vanished link apart from an unparsed one.
+    hits: list[str] = []
+    for m in re.finditer(r"AUTOMOTOR", text, re.IGNORECASE):
+        s, e = max(0, m.start() - 200), min(len(text), m.start() + 200)
+        snippet = " ".join(text[s:e].split())
+        if snippet not in hits:
+            hits.append(snippet)
+    print(f"  'AUTOMOTOR' contexts ({len(hits)} distinct):")
+    for snippet in hits:
+        print(f"    …{snippet}…")
 
 
 def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
@@ -250,7 +253,7 @@ def discover_latest_pdf(session: requests.Session, dump_listing: bool = False,
     # missing from the page or merely unrecognised. Print both sides.
     if rejected:
         print(f".pdf links on the page that are not bulletins ({len(rejected)}):")
-        for name in rejected[:20]:
+        for name in rejected:
             print(f"  - {name}")
     if not candidates:
         raise RuntimeError(
