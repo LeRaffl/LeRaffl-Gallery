@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-19T17:30:05Z",
+ "generated": "2026-09-19T18:54:11Z",
  "today": "2026-09-19",
  "countries": [
   {
@@ -622,11 +622,11 @@
    "source_url": "https://www.andi.com.co/Home/Camara/4-automotriz",
    "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -672,13 +672,13 @@
     ],
     "workflow": ".github/workflows/fetch-colombia.yml"
    },
-   "last_render": "2026-09-02",
+   "last_render": "2026-09-19",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-01",
-     "rows": 91,
+     "rows": 92,
      "cadence": "monthly",
      "in_repo": true
     }
