@@ -47,7 +47,8 @@ embedded dashboards to scrape, just a monthly PDF.
 Source:    ANDI Cámara Automotriz — joint with FENALCO, "Informe del Sector
            Automotor" PDF. Underlying data: RUNT (official Colombian registry).
 Auth:      None — public PDF download.
-API:       Discovery via the Cámara Automotriz HTML; PDF parsed with
+API:       Discovery via the Cámara Automotriz HTML, plus a reconstructed
+           /Uploads/ URL for monthlies the page no longer links; PDF parsed with
            `pdftotext -layout` (poppler).
 Variants:  Whole only (passenger cars). HDV ("vehículos de carga") is
            published as a single monthly total without fuel split — not
@@ -63,7 +64,8 @@ History:   Each PDF carries ~31 months of monthly series (the Jul-2026
            own backfill (the CSV runs from 2019-01).
 Schedule:  Daily cron 5th–25th, 07:30 UTC; early-exit once last month is in.
 Scripts:   scripts/fetch_colombia.py  (+ scripts/test_fetch_colombia.py)
-Workflow:  .github/workflows/fetch-colombia.yml  (inputs: pdf_url, force, dry_run)
+Workflow:  .github/workflows/fetch-colombia.yml
+           (inputs: pdf_url, force, dry_run, dump_listing)
 ```
 
 ## 1. Why ANDI/FENALCO (and not ANDEMOS or RUNT directly)
@@ -75,7 +77,8 @@ Workflow:  .github/workflows/fetch-colombia.yml  (inputs: pdf_url, force, dry_ru
 - **ANDI Cámara Automotriz** publishes a **joint FENALCO+ANDI boletín** as a
   free PDF every month, *also sourced from RUNT*. Same numbers, no wall.
   FENALCO mirrors the same report on `fenalco.com.co/blog/gremial-4/…`
-  (not used — ANDI's page is the one with the stable link list).
+  (not ingestible — its post pages serve the PDF behind `web/login`; useful
+  only as a human cross-check of whether a month has been published).
 
 The PDF carries less granularity than ANDEMOS's interactive dashboards
 (combined hybrids only), but it has enough for the gallery's BEV/Hybrid/ICE
@@ -96,7 +99,11 @@ There is no REST endpoint. We:
    token wins.
 4. Sort by (year, month) descending, a monthly `_PRENSA` file above an
    annual `A DICIEMBRE` file for the same month; pick the first.
-5. Download the PDF and run `pdftotext -layout` on it.
+5. If that first candidate is **older than the month we came for**, fall back
+   to reconstructing the month's `/Uploads/` URL — see "When the listing
+   stopped carrying monthlies" below. As of Sept 2026 this is the leg that
+   actually finds every monthly.
+6. Download the PDF and run `pdftotext -layout` on it.
 
 ### Filename shapes seen so far
 
@@ -112,8 +119,55 @@ ANDI renames the file more or less every year. Discovery deliberately does
 
 The `<ticks>` suffix is a per-upload .NET timestamp, present on some uploads
 and not others; hrefs come both `%20`-encoded and with literal spaces, and
-sometimes as absolute `https://andi.com.co/...` URLs. Always scrape the
-listing — URLs are not constructible.
+sometimes as absolute `https://andi.com.co/...` URLs.
+
+### When the listing stopped carrying monthlies (Sept 2026)
+
+Between 2026-09-02 and 2026-09-05 ANDI rewrote the
+`#boletinesdelsectorautomotor` tab from a monthly list into a **year-end
+archive**: eight links, `INFORME FINAL SECTOR AUTOMOTOR 2018…2025`, and
+nothing monthly newer than the Dec-2025 file (now relabelled as the 2025
+year-end report). The whole page carries 34 `.pdf` hrefs, of which exactly 8
+name AUTOMOTOR — all of them annual. Since we parse the raw HTML, every tab
+pane is already in view: nothing is hidden behind the tab UI, the monthlies
+are simply gone from the page.
+
+**The PDFs themselves were not withdrawn.** Every 2026 monthly still answers
+at its original `/Uploads/` path:
+
+| Month | Constructed URL (`08. INFORME SECTOR AUTOMOTOR AGO2026_PRENSA.pdf` shape) |
+|---|---|
+| Ene 2026 | 404 (uploaded under some other name) |
+| Feb–Jun 2026 | 200, ~1.40 MB each |
+| Jul 2026 | 200 but **0 bytes** — the real Jul file is the ticked one |
+| Ago 2026 | 200, 1,397,788 B |
+| Sep 2026 | 404 (not published yet — correct, it is due in October) |
+
+So discovery now has **two legs** (`resolve_bulletin`):
+
+1. scrape the listing as before (still the source for annuals/backfill, and
+   for monthlies if ANDI ever restores them);
+2. if the newest listed bulletin is older than the month we came for,
+   reconstruct that month's `/Uploads/` URL from the shapes above
+   (`monthly_url_candidates`, 2026 shape first) and take the first that is
+   really that PDF.
+
+URL construction is only safe because of what checks it, so do not weaken
+either guard:
+
+- a candidate counts only if it answers **200 and its body starts with
+  `%PDF`** — the Jul-2026 0-byte URL is exactly why a status check alone is
+  not enough;
+- a **guessed** URL must then parse to a series ending on exactly the month
+  requested, or the run aborts (`SystemExit`) rather than upsert one month's
+  numbers under another month's label. A linked URL only warns, because there
+  the filename is ANDI's claim rather than ours.
+
+FENALCO (`fenalco.com.co/blog/gremial-4`) still keeps a proper monthly index —
+`informe-del-sector-automotor-a-agosto-2026-9088` and so on — but every post
+page serves its PDF behind `web/login`, so it can tell you a month exists
+without giving you the file. It is a useful human cross-check for "has ANDI
+published yet?", not an ingestible source.
 
 ### The 2026 stall (postmortem)
 
@@ -129,10 +183,38 @@ change) daily. Two side effects made it worse than a plain failure:
   came back as BEV=0, and the upsert wrote the 0 over two cells the
   maintainer had corrected by hand (2023-11, 2025-07).
 
-Three guards now exist for this class of failure: discovery prints the full
-candidate list it found; a `::warning::` annotation fires when the newest
-bulletin on the page is two or more months behind the CSV; and the merge
-rule in § 4a never lets an unknown or a parsed 0 replace an existing value.
+Guards now exist for this class of failure: discovery prints both the
+candidate list it accepted **and** the `.pdf` links it rejected; the merge
+rule in § 4a never lets an unknown or a parsed 0 replace an existing value;
+and `require_target_month` (below) stops the run from reporting success
+when it did not reach the month it came for.
+
+### The September 2026 repeat (postmortem)
+
+The same silent-green shape, a different cause, and it went unnoticed for
+three weeks (2026-09-02 → 2026-09-19): the tab rewrite above left Dec-2025 as
+the newest listed bulletin, discovery duly picked it, re-read the 36 months it
+already had, committed nothing and exited **0**.
+
+The freshness guard added after the first stall did fire — every run printed
+`::warning:: Newest bulletin on the Cámara page is 2025-12 but the CSV already
+runs to 2026-07` — and it changed nothing, because a warning on a **passing**
+run is a warning nobody receives. The schedule looked healthy the whole time.
+
+So the rule is now stated in terms of the month the run exists for, and it
+fails:
+
+- `require_target_month(wanted, got)` compares the month we came for
+  (`previous_month_period()`) against the best month we could actually reach.
+- Before day `PUBLICATION_GRACE_DAY` (20) a miss is ordinary — ANDI publishes
+  over the first ~3 weeks — so the run exits 0 saying "probably not published
+  yet".
+- On or after day 20 the month is overdue, so the run **fails** with an
+  `::error::` naming the month and pointing at `dump_listing=true`.
+
+The lesson generalises beyond Colombia: a fetcher whose source has quietly
+moved must go red, not green-with-a-warning. If you add a staleness check to
+another fetcher, make it exit non-zero.
 
 ## 3. The PDF and what we extract
 

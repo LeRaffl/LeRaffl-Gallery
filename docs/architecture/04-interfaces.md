@@ -314,7 +314,7 @@ failure modes; this table is the surface map.
 | Canada | `www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata` and `…/getDataFromCubePidCoordAndLatestNPeriods` | JSON REST (POST) | none |
 | Chile | `anac.cl/category/estudio-de-mercado/` → two monthly PDFs | Page scrape + PDF | none |
 | China | `cpcaauto.com/news.php?types=csjd&anid=129&nid=24` → `newslist.php?types=csjd&id=<id>` + embedded slide JPGs | HTML scrape + OCR | none (403s bare requests — needs a desktop UA + Referer) |
-| Colombia | `andi.com.co/Home/Camara/4-automotriz` → monthly Boletín PDF | Page scrape + PDF | none |
+| Colombia | `andi.com.co/Home/Camara/4-automotriz` (annuals only since Sept 2026) → monthly Boletín PDF reconstructed under `andi.com.co/Uploads/` | Page scrape + constructed URL + PDF | none |
 | Denmark | `api.statbank.dk/v1/data` (table `BIL53`) | JSON REST (POST) | none |
 | Finland | `pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px` | PxWeb JSON (GET metadata + POST query) | none |
 | Indonesia | `files.gaikindo.or.id/` (ProjectSend) → cumulative wholesales PDF | Login + file download | **client login** (`INDONESIA_GAIKINDO_USER`/`_PW`) |
