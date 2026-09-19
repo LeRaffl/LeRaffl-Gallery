@@ -90,6 +90,10 @@ jobs:
           add: 'data/New Zealand.csv'
           message: 'chore: update New Zealand data from transport.govt.nz'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render for New Zealand/Whole
         if: steps.commit.outputs.committed == 'true'

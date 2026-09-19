@@ -78,6 +78,10 @@ jobs:
             data/Albania_2-Wheelers.csv
           message: 'chore: update Albania data from dpshtrr.al'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       # Which variants to render: the explicit --variants subset if given,
       # else all four. Emitted as a JSON array for the render matrix below.

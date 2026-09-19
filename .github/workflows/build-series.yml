@@ -63,3 +63,7 @@ jobs:
             docs/architecture/35b-raw-data-quality-todo.md
           message: 'chore: rebuild series + data-quality checklist (CI)'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'

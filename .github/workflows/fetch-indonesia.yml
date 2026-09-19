@@ -59,6 +59,10 @@ jobs:
           add: 'data/Indonesia.csv data/Indonesia_Pickups.csv data/Indonesia_HDV.csv data/Indonesia_Buses.csv'
           message: 'chore: update Indonesia data from GAIKINDO'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render for Indonesia
         if: steps.commit.outputs.committed == 'true'

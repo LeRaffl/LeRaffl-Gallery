@@ -77,6 +77,10 @@ jobs:
             data/Portugal_Buses.csv
           message: 'chore: update Portugal data from ACAP (motordata.pt)'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render (Whole only)
         if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.whole == 'true'

@@ -99,6 +99,10 @@ jobs:
             data/Thailand_3-Wheelers.csv
           message: 'chore: update Thailand data from aiu.thaiauto.or.th (veh_reg_fuel)'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render for Thailand
         if: steps.commit.outputs.committed == 'true' && steps.changed.outputs.variants != ''

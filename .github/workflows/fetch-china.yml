@@ -108,6 +108,10 @@ jobs:
             data/China_Wholesale.csv
           message: 'chore: update China data from CPCA'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
       - name: Trigger render for Whole
         # The Wholesale variant is captured into data/China_Wholesale.csv

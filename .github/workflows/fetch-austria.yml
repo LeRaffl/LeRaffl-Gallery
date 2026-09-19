@@ -130,6 +130,10 @@ jobs:
             data/Austria_Used.csv
           message: 'chore: update Austria data from Statistik Austria (DE2/DE3/GE2)'
           default_author: github_actions
+          # Rebase over anything (manifest/source-page CI, another fetcher, a
+          # doc push) that landed on the branch while this job ran, instead of
+          # failing the push with non-fast-forward and dropping the commit.
+          pull: '--rebase --autostash'
 
   # Render the touched variants as ONE top-level "Render: Austria" run in the
   # Render-country-charts workflow, so it shows up in that workflow's own
