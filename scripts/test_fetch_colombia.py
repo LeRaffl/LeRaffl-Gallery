@@ -88,7 +88,10 @@ def test_find_unlisted_monthly_rejects_a_200_that_is_not_a_pdf():
         def get(self, url, **_k):
             return served.get(url, _FakeResponse(404, b"<html>"))
 
-    assert fc.find_unlisted_monthly(FakeSession(), 2026, 8) == fc.monthly_url_candidates(2026, 8)[1]
+    url, body = fc.find_unlisted_monthly(FakeSession(), 2026, 8)
+    assert url == fc.monthly_url_candidates(2026, 8)[1], url
+    # the verified body comes back so main() need not re-download it
+    assert body.startswith(b"%PDF"), body
 
 
 def test_find_unlisted_monthly_returns_none_when_nothing_is_published():

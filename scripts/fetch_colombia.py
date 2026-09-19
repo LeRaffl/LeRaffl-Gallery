@@ -319,7 +319,8 @@ def monthly_url_candidates(year: int, month: int) -> list[str]:
     )]
 
 
-def find_unlisted_monthly(session: requests.Session, year: int, month: int) -> str | None:
+def find_unlisted_monthly(session: requests.Session, year: int,
+                          month: int) -> tuple[str, bytes] | None:
     """Locate a monthly boletín ANDI still serves but no longer links.
 
     In September 2026 ANDI rewrote the Cámara page's "BOLETINES DEL SECTOR
@@ -335,7 +336,9 @@ def find_unlisted_monthly(session: requests.Session, year: int, month: int) -> s
     parsed series to end on the month we asked for. A wrong guess therefore
     fails the run instead of publishing the wrong month's numbers.
 
-    Returns the URL of the first candidate that is genuinely that PDF.
+    Returns (url, pdf_bytes) for the first candidate that is genuinely that
+    PDF. The body comes back with it because verifying a candidate means
+    downloading it — re-fetching the same ~1.4 MB afterwards would be waste.
     """
     print(f"Looking for an unlisted {year}-{month:02d} boletín under /Uploads/:")
     for url in monthly_url_candidates(year, month):
@@ -346,27 +349,29 @@ def find_unlisted_monthly(session: requests.Session, year: int, month: int) -> s
             continue
         if r.status_code == 200 and r.content.startswith(b"%PDF"):
             print(f"  found ({len(r.content)} bytes): {_basename(url)}")
-            return url
+            return url, r.content
         why = f"HTTP {r.status_code}" if r.status_code != 200 else f"not a PDF ({len(r.content)} bytes)"
         print(f"  no ({why}): {_basename(url)}")
     return None
 
 
 def resolve_bulletin(session: requests.Session, wanted: str, dump_listing: bool = False,
-                     debug_dir: str | None = None) -> tuple[str, int, int, bool]:
-    """(url, year, month, was_guessed) for `wanted` (YYYY-MM), else the newest listed one.
+                     debug_dir: str | None = None) -> tuple[str, int, int, bool, bytes | None]:
+    """(url, year, month, was_guessed, pdf) for `wanted` (YYYY-MM), else the newest listed one.
 
     `was_guessed` marks a URL that came from monthly_url_candidates() rather
     than from a link on the page; the caller holds those to a stricter check.
+    `pdf` is the already-downloaded body when the search fetched it, else None.
     """
     url, year, month = discover_latest_pdf(session, dump_listing, debug_dir)
     print(f"Latest listed PDF: {year}-{month:02d} -> {url}")
     if f"{year}-{month:02d}" >= wanted:
-        return url, year, month, False
+        return url, year, month, False, None
     alt = find_unlisted_monthly(session, int(wanted[:4]), int(wanted[5:]))
     if alt:
-        return alt, int(wanted[:4]), int(wanted[5:]), True
-    return url, year, month, False
+        alt_url, pdf = alt
+        return alt_url, int(wanted[:4]), int(wanted[5:]), True, pdf
+    return url, year, month, False, None
 
 
 def require_target_month(wanted: str, got: str, today: date | None = None) -> None:
@@ -736,7 +741,7 @@ def main() -> None:
     )))
 
     wanted = previous_month_period()
-    guessed_url = False
+    guessed_url, pdf = False, None
     if args.pdf_url:
         # Manual override: the operator chose this file, so neither the
         # unlisted-URL search nor the target-month rule applies to it.
@@ -746,12 +751,13 @@ def main() -> None:
             year, n = info[0], info[1]
         print(f"PDF (override): {year}-{n:02d} -> {url}" if year else f"PDF (override): {url}")
     else:
-        url, year, n, guessed_url = resolve_bulletin(
+        url, year, n, guessed_url, pdf = resolve_bulletin(
             session, wanted, args.dump_listing, args.debug_dir)
         print(f"Using: {year}-{n:02d} -> {url}")
         require_target_month(wanted, f"{year}-{n:02d}")
 
-    pdf = download_pdf(url, session)
+    if pdf is None:  # not already fetched by the unlisted-URL search
+        pdf = download_pdf(url, session)
     text = pdf_to_text(pdf)
     if args.debug_dir:
         d = Path(args.debug_dir)
