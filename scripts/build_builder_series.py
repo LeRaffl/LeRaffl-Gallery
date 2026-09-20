@@ -29,6 +29,14 @@ Both are kept because they answer different questions, and the difference
 between them is itself the point: roughly half of the world curve's apparent
 movement over this series is the gallery gaining countries, not the market
 changing. See `builder_history/cohort/index.json`.
+
+NOTE: nothing renders this output any more. The Time-lapse reads the
+backtest (`scripts/build_backtest_series.py`), which reaches 2015 where
+`builder_history/` cannot start before the repository did in 2025-09.
+This module stays because it owns the grid/sampling/label helpers that
+the backtest builder imports -- sharing them is what keeps the two
+aggregations from drifting -- and because a `builder_history` pivot is
+still the right tool if that archive ever needs rendering again.
 """
 
 from __future__ import annotations

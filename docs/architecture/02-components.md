@@ -637,6 +637,9 @@ INPUT:  builder_history/<date>.csv          (all groups, one date)
         builder_history/cohort/<date>.csv
 OUTPUT: builder_history/series/<group>.json (one group, all dates, both sets)
         builder_history/series/index.json   (groups, dates, cohort list)
+
+        -- not currently written; nothing renders it. Kept because this module
+           owns the grid/sampling/label helpers the backtest builder imports.
 ```
 
 ### Why a separate artefact

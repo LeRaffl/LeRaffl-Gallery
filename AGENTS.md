@@ -148,7 +148,7 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
   generated `assets/theme.css` is what `sources/*.html` and `schedule*.html`
   link, so those two surfaces follow automatically and cannot drift
   (`build_theme.py --check` fails the build if the stylesheet is stale).
-- **The Builder aggregation or its groups** → `scripts/snapshot_builder.py` **and** `index.html`'s `BUILDER_GROUPS` (they mirror each other; `SPOTLIGHT_COUNTRIES` is deliberately *outside* that mirror), then re-run `scripts/build_builder_series.py` **and** `scripts/build_builder_gif.py` so the Time-lapse panel and its downloadable animation see the change. `builder_history/<date>.csv` is the archive; `builder_history/series/<group>.json` is what the browser actually reads.
+- **The Builder aggregation or its groups** → `scripts/snapshot_builder.py` **and** `index.html`'s `BUILDER_GROUPS` (they mirror each other; `SPOTLIGHT_COUNTRIES` is deliberately *outside* that mirror), then re-run `scripts/build_backtest_series.py` **and** `scripts/build_builder_gif.py` so the Time-lapse panel and its downloadable animation see the change. `backtest/series/<group>.json` is what the browser actually reads; `backtest/params|weights/<YYYY-MM>.csv` and `builder_history/<date>.csv` are the two archives behind it (invariant 7).
 - **Add a country** → follow `docs/architecture/08-deploy-ops.md` §8.3 (write `data/<Country>.csv`, add to `SD_COUNTRIES` in `index.html`, add `assets/flags/<slug>.png`, map the flag emoji in `R/post_text.R`, PR, then render) and give it a source doc or a `country_source_stubs.yaml` entry.
 - **Add/rename a variant** → the `09-glossary.md` variant table, the fetcher, and the country's `variants` list in `SD_COUNTRIES`.
 

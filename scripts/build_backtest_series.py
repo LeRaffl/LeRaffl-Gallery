@@ -7,8 +7,8 @@
 Reads the per-month `backtest/params/<YYYY-MM>.csv` and
 `backtest/weights/<YYYY-MM>.csv` written by `R/build_backtest.R`, runs them
 through the **same** aggregation `snapshot_builder.py` uses, and writes
-`backtest/series/<group>.json` in the same shape as
-`builder_history/series/<group>.json`.
+`backtest/series/<group>.json` -- the form the Time-lapse panel and
+`build_builder_gif.py` read.
 
 Sharing the aggregation is the point: a backtest curve and a snapshot curve
 have to be produced identically, or differences between them are differences

@@ -8837,11 +8837,18 @@ if (stepTraces.length){
   // Reuses publicationLayout / PLOTLY_PUB_CFG / ensurePlotly from this
   // closure rather than growing a second chart vocabulary.
   //
-  // Data: builder_history/series/<group>.json, one file per group carrying
-  // every snapshot date for both country sets (see
-  // scripts/build_builder_series.py). ~39 KB, fetched for the selected group
-  // only — the raw builder_history/*.csv archive is 5.8 MB and the wrong
-  // shape for a browser.
+  // Data: backtest/series/<group>.json, one file per group carrying every
+  // month for both country sets (see scripts/build_backtest_series.py).
+  // Fetched for the selected group only — the per-month CSVs behind it are
+  // the wrong shape for a browser.
+  //
+  // This is the BACKTEST, not builder_history/: the fit re-run against the
+  // data available at each month, which reaches 2015. builder_history/ is
+  // what the gallery actually estimated on a date, recovered from git, and
+  // cannot start before the repo did in 2025-09. Different quantities — see
+  // AGENTS.md invariant 7. Each frame carries its own `caveat`, printed
+  // under the chart: this truncates today's REVISED CSVs, so it is an upper
+  // bound on the model, not a clean out-of-sample test.
   const TL = {
     manifest: null,
     cache: new Map(),
