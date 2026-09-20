@@ -4586,8 +4586,11 @@ function tok(name, fallback){
       <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
       <p class="small" style="margin:4px 14px 10px; color:var(--muted-2);">
         Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
-        <b style="color:var(--accent)">Blue</b> = pioneers that have already reached the threshold.
-        <b style="color:#6b5ea8">Purple</b> = countries whose fitted model does not project a transition within a reasonable horizon.
+        The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
+        colour blindness — dark always means further along.
+        <b style="color:#c2701a">Amber</b> = pioneers that have already reached the threshold.
+        <b style="color:#6f6c64">Grey</b> = countries whose fitted model does not project a transition within a reasonable horizon.
+        Both sit outside the scale and carry a heavier outline, so they never read as just another step.
         Exact values always live in the hover tooltip.
       </p>
     </div>
@@ -4603,16 +4606,16 @@ function tok(name, fallback){
           <ol id="wmBottomList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:var(--accent); letter-spacing:0; text-transform:none;">Pioneers</h3>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#c2701a; letter-spacing:0; text-transform:none;">Pioneers</h3>
           <ul id="wmPioneerList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:#6b5ea8; letter-spacing:0; text-transform:none;">No transition</h3>
+          <h3 style="margin:0 0 10px; font-size:13px; color:#6f6c64; letter-spacing:0; text-transform:none;">No transition</h3>
           <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
       </div>
       <p class="small" style="margin:12px 0 0; color:var(--muted-2);">
-        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric. <b style="color:var(--accent)">Pioneers</b> have already reached the threshold at the time of the last data point. <b style="color:#6b5ea8">No transition</b> countries have a fitted Weibull that does not reach the threshold within a reasonable horizon — usually because v2 is very small (flat curve) or the model is still in its early phase.
+        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric. <b style="color:#c2701a">Pioneers</b> have already reached the threshold at the time of the last data point. <b style="color:#6f6c64">No transition</b> countries have a fitted Weibull that does not reach the threshold within a reasonable horizon — usually because v2 is very small (flat curve) or the model is still in its early phase.
       </p>
     </div>
 
@@ -10942,12 +10945,15 @@ document.addEventListener('keydown', (e) => {
 // re-parse the CSV for every click.
 //
 // Countries are painted as one of three categories:
-//   - "normal"   — continuous green → orange colorscale (P5..P95 clip)
+//   - "normal"   — continuous single-hue blue ramp, light → dark
+//                   (P5..P95 clip). Dark = further along, in every mode.
 //   - "pioneer"  — already past the threshold by the data_per date,
-//                   painted bright yellow to signal "in a different league"
+//                   painted amber to signal "in a different league"
 //   - "stalled"  — Weibull does not project a transition within a
-//                   reasonable horizon, painted purple to signal
-//                   "not slow, but different"
+//                   reasonable horizon, painted neutral grey to signal
+//                   "not slow, but absent"
+// The two exception categories also carry a heavier, darker outline: colour
+// alone cannot separate five ramp steps plus two categories (see #226).
 //
 // Plotly understands full country names when locationmode is set to
 // 'country names'. A small alias table handles the handful of names
@@ -11314,29 +11320,51 @@ function wmRender(){
 
   // Color scales: for share mode, reverse (red=low → green=high, higher share = better)
   // For year/duration: green=early/fast → red=late/slow
-  const greenOrange = [
-    [0,   '#1a9641'],
-    [0.25,'#72bf6a'],
-    [0.5, '#9a7b22'],
-    [0.75,'#a65832'],
-    [1,   '#b5451b']
+  /* COLORBLIND-SAFE MAP SCALE (#210 -> #226).
+     Vorher zwei Skalen, beide rot <-> gruen (shareScale rot->gruen,
+     greenOrange gruen->rot). Genau das Paar, das Protanopie und Deuteranopie
+     nicht trennen koennen — rund 8 % der maennlichen Leser. Der Validator des
+     dataviz-Skills misst fuer die alte Skala zwischen zwei benachbarten
+     Stufen (#a65832 / #b5451b) ΔE 1.9 unter Deuteranopie und ΔE 4.3 sogar
+     mit vollem Farbsehen: die Stufen waren fuer *niemanden* sauber trennbar.
+
+     Jetzt EINE sequentielle Rampe in einem Ton, hell -> dunkel. Das ist die
+     richtige Form fuer eine Groesse ohne bedeutungsvolle Mitte (BEV-Anteil,
+     Jahr, Dauer sind Magnituden, keine Divergenzen): eine monotone
+     Helligkeitsrampe bleibt unter *jeder* Farbfehlsichtigkeit lesbar, weil
+     Luminanz erhalten bleibt. Gemessen: L 0.833 -> 0.350, streng monoton,
+     Spanne 0.483.
+
+     Der Ton ist --accent (#1d4f91) mit --accent-2-pale und --accent-deep als
+     Nachbarstufen — die Phase-2-Entscheidung "genau EIN Akzent" bleibt damit
+     gewahrt, statt eine zweite Farbfamilie einzufuehren. */
+  const SEQ_BLUE = [
+    [0,   '#aecce9'],
+    [0.25,'#7fa9d6'],
+    [0.5, '#4f7fb8'],
+    [0.75,'#22579a'],
+    [1,   '#143a6b']
   ];
-  /* VISUAL REDESIGN (2026-09), Phase 3.
-     Beide Skalen waren RdYlGn. Das Gelb in der Mitte (#f7f76e) traegt auf
-     weissem Grund nicht — ein Land in der Mitte der Verteilung war vom
-     leeren Ozean kaum zu unterscheiden. Jetzt die Serienfarben aus Abschnitt 5
-     als Divergenz rot -> ocker -> gruen, alle drei dunkel genug fuer Weiss.
-     Die Semantik ist unveraendert. */
-  const shareScale = [
-    [0,   '#b5451b'],
-    [0.25,'#a65832'],
-    [0.5, '#9a7b22'],
-    [0.75,'#72bf6a'],
-    [1,   '#3f7d52']
-  ];
-  const colorscale = mode === 'share' ? shareScale : greenOrange;
+  const colorscale = SEQ_BLUE;
+  /* Dunkel heisst immer "weiter in der Transformation", in allen drei Modi.
+     Bei 'share' waechst der Wert damit (hoher Anteil = dunkel); bei 'year'
+     und 'duration' ist der *kleine* Wert der fortgeschrittene (frueheres
+     Jahr, kuerzere Dauer), die Rampe wird also gedreht. Das ersetzt die
+     frueheren zwei gegenlaeufigen Skalen durch eine plus ein Flag. */
+  const reverseScale = mode !== 'share';
 
   const markerLine = { color: '#cfc6b8', width: 0.6 };
+  /* Zweitkodierung fuer die beiden Ausnahme-Kategorien (#226, Kommentar des
+     Maintainers: "Those need colors more different from the entire color
+     scale"). Fuenf Rampenstufen plus zwei Kategorien sind mehr, als Farbe
+     allein sicher tragen kann — die Rampe belegt die ganze Helligkeitsachse.
+     Pioneer loest sich ueber den Farbton (Bernstein gegen Blau: ΔE 21–36 zu
+     *jeder* Rampenstufe, unter Normalsicht wie unter Protan/Deutan/Tritan).
+     Stalled ist unbunt, also per Definition nicht mit einer Blaustufe zu
+     verwechseln — liegt aber in der Helligkeit nahe der Rampenmitte, und
+     bekommt deshalb zusaetzlich eine deutlich staerkere, dunkle Kontur.
+     Identitaet haengt damit nie an der Farbe allein. */
+  const exceptionLine = { color: '#3a3833', width: 1.6 };
 
   const shareYr = mode === 'share' ? (document.getElementById('wmShareYear')?.value || '2026') : '';
   const colorbarTitle = mode === 'year'
@@ -11364,7 +11392,7 @@ function wmRender(){
     text: normal.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
     hovertemplate: '%{text}',
     colorscale: colorscale,
-    reversescale: false,
+    reversescale: reverseScale,
     zmin, zmax,
     marker: { line: markerLine },
     colorbar: {
@@ -11390,12 +11418,14 @@ function wmRender(){
     z: pioneer.map(() => 1),
     text: pioneer.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
     hovertemplate: '%{text}',
-    /* Phase 3: war #00e5ff (Neon-Cyan). Jetzt der Akzent — Pioniere sind die
-       Aussage der Karte, und der Akzent ist die Farbe, die Aussagen traegt. */
-    colorscale: [[0, '#1d4f91'], [1, '#1d4f91']],
+    /* #226: war der Akzent #1d4f91 — der ist jetzt die Rampe selbst, ein
+       Pionier waere darin verschwunden. Bernstein ist der Gegenpol zu Blau
+       und damit die eine Farbe, die unter jeder Farbfehlsichtigkeit sicher
+       gegen die ganze Rampe steht (ΔE 21–36 gegen jede Stufe). */
+    colorscale: [[0, '#c2701a'], [1, '#c2701a']],
     zmin: 0, zmax: 1,
     showscale: false,
-    marker: { line: markerLine }
+    marker: { line: exceptionLine }
   };
 
   const traceStalled = {
@@ -11404,12 +11434,15 @@ function wmRender(){
     z: stalled.map(() => 1),
     text: stalled.map(d => wmHover(d.r, mode, pct, pct2, d.v)),
     hovertemplate: '%{text}',
-    /* Phase 3: war #d65aff (Neon-Violett). Jetzt Serienfarbe 4 — bleibt
-       violett, also bleibt die Beschriftung "Purple" richtig. */
-    colorscale: [[0, '#6b5ea8'], [1, '#6b5ea8']],
+    /* #226: war Violett #6b5ea8 — zu nah an der alten wie an der neuen
+       Blau-Familie, genau der Punkt des Maintainer-Kommentars. Jetzt unbunt:
+       "kein projizierter Uebergang" ist eine Leerstelle, kein Extremwert, und
+       Grau sagt das auch. Die staerkere Kontur (exceptionLine) traegt die
+       Unterscheidung zur Rampenmitte, die in der Helligkeit nahe liegt. */
+    colorscale: [[0, '#8a877e'], [1, '#8a877e']],
     zmin: 0, zmax: 1,
     showscale: false,
-    marker: { line: markerLine }
+    marker: { line: exceptionLine }
   };
 
   const region = WM_REGIONS[wmCurrentRegion] || WM_REGIONS.world;
