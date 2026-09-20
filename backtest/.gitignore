@@ -1,0 +1,4 @@
+# Aggregated from backtest/params + backtest/weights by
+# scripts/build_backtest_series.py. Regenerated in full on every run, so the
+# intermediate state written during a partial backfill is not worth keeping.
+series/
