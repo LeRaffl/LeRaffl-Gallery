@@ -54,6 +54,14 @@ jobs:
         run: |
           python scripts/build_builder_series.py
 
+      # One GIF per group, overwritten in place. Not dated: each run is the
+      # same animation one frame longer, so keeping every vintage would store
+      # the same seconds of footage over and over.
+      - name: Render Time-lapse animations
+        run: |
+          pip install Pillow
+          python scripts/build_builder_gif.py
+
       - name: Commit if changed
         uses: EndBug/add-and-commit@v9
         with:

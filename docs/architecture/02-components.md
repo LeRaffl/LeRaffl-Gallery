@@ -521,7 +521,37 @@ Reads `builder_history/series/`, lazily — only when `#builder` is opened, and 
 - Behind the current frame, every other frame's BEV curve is drawn faint, so the movement reads as a shape and not only as motion.
 - Readout: date, data-through period, country count, weighted volume, and the interpolated BEV-50 % year (`null` when the curve never reaches it in range — "not in this window" is a real answer and is not faked with an endpoint).
 
+- **Download** — links the GIF the workflow already committed (see 2.16). Nothing is encoded in the browser, and the button hides itself if that group has no file yet.
+
 It is deliberately a **separate panel** rather than a mode of the Builder above: the archive holds fixed aggregate *groups*, not arbitrary country picks, so folding it into the country selector would promise a view the data cannot produce.
+
+## 2.16 Time-lapse GIF (`scripts/build_builder_gif.py`)
+
+### Responsibility
+
+Renders each group's series into `builder_history/series/<group>.gif` — one animated GIF per group, **overwritten in place** on every run.
+
+Not dated. Each rebuild is the same animation with one more frame on the end, so keeping `timelapse-2026-09.gif` beside `timelapse-2026-10.gif` would store the same seconds of footage over and over.
+
+### Why server-side, and why Pillow
+
+Encoding in the browser would ship a GIF encoder to every visitor for a button almost nobody presses, and this repo already generates and commits its images (`images/`, `posts/`). So `snapshot-builder.yml` renders it once and the page links to the file.
+
+Pillow rather than matplotlib: the chart is three polylines and a pair of axes. That costs one small dependency instead of matplotlib + numpy, and the frame uses the gallery's own palette instead of a plotting library's defaults.
+
+### Size
+
+`disposal=1` lets Pillow store only what changed between frames. The axes, grid and ghost fan are identical throughout, so this roughly halves the file — **248 KB → 107 KB** for `world`, **1.5 MB** for all fourteen groups. Verified rather than assumed: every decoded frame is pixel-identical to the source render, so the optimiser is emitting the erase regions the moving curves need.
+
+### Which country set
+
+The **cohort**. The "all countries as of each date" view is honest but mixes two effects, and a GIF travels without the panel's warning around it — so the shareable artefact is the one that does not need the warning. The frame says which set it is showing, and the download button repeats it.
+
+### Honesty in the frame
+
+A frame names only the series it actually has. `params.csv` carried no ICE fit before 2026-01, so the oldest frame is titled *"World — BEV share"* with a single legend entry and *"(ICE/PHEV not fitted in this snapshot)"*. A title promising three curves over a chart with one reads as "the other two are at zero" rather than "the other two were never computed".
+
+Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast`, because the still travels without the page around it.
 
 ## See also
 

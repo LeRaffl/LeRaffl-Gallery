@@ -520,6 +520,15 @@ th.sortable.desc::after{content:" ↓"}
   font-size: 13px;
   color: var(--muted);
 }
+.tl-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tl-foot #tlReadout { flex: 1 1 320px; min-width: 0; }
+.tl-foot .chart-dl { flex: 0 0 auto; }
 .tl-note { opacity: .85; }
 /* The composition warning is a correctness notice, not decoration: it says
    the curve is partly moving because the gallery grew. */
@@ -4052,7 +4061,14 @@ function tok(name, fallback){
         </div>
 
         <div id="tlPlot"></div>
-        <div id="tlReadout" class="small" style="margin-top:8px"></div>
+        <div class="tl-foot">
+          <div id="tlReadout" class="small"></div>
+          <!-- Points at the GIF the snapshot workflow already committed;
+               nothing is encoded in the browser. Hidden until a HEAD says
+               the file is really there, so a group without one shows no
+               dead button. -->
+          <a id="tlGif" class="btn chart-dl" hidden download>↓ Download animation</a>
+        </div>
         <p class="small tl-note" id="tlNote" style="margin-top:10px"></p>
       </div>
     </div>
@@ -8753,6 +8769,31 @@ if (stepTraces.length){
     return true;
   }
 
+  // The animation is rendered and committed by snapshot-builder.yml, one GIF
+  // per group, overwritten in place. The page only links to it — no encoder
+  // ships to the browser for a button most visitors never press.
+  //
+  // The stored GIF is always the fixed-cohort view, because that is the one
+  // that travels honestly without the page's warning around it. The label
+  // says so rather than letting someone assume it matches whatever the
+  // Countries selector happens to be on.
+  async function tlSyncGif(g){
+    const a = tlEl('tlGif');
+    if(!a) return;
+    const href = `builder_history/series/${g}.gif`;
+    a.hidden = true;
+    try{
+      const r = await fetch(new URL(href, location.href).href, { method:'HEAD' });
+      if(!r.ok) return;
+    }catch{ return; }
+    a.href = href;
+    a.setAttribute('download', `bev-timelapse-${g}.gif`);
+    const n = TL.doc && TL.doc.n_cohort;
+    a.textContent = n ? `↓ Download animation (${n}-country cohort)`
+                      : '↓ Download animation';
+    a.hidden = false;
+  }
+
   async function tlSelectGroup(g){
     tlStop();
     const ok = await tlLoadGroup(g);
@@ -8762,6 +8803,7 @@ if (stepTraces.length){
     }
     tlEl('tlSlider').max = String(TL.doc.frames.length - 1);
     tlGo(TL.doc.frames.length - 1);   // open on the newest estimate
+    tlSyncGif(g);
   }
 
   async function tlInit(){
