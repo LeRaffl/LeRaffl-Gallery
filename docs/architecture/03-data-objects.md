@@ -17,6 +17,7 @@ flowchart LR
         D5["posts/&lt;slug&gt;.txt<br/>posts/&lt;slug&gt;_&lt;period&gt;.txt<br/>(post text)"]
         D6["manifest.json<br/>(image index)"]
         D12["builder_history/&lt;date&gt;.csv<br/>(monthly aggregate snapshots)"]
+        D13["builder_history/series/&lt;group&gt;.json<br/>(pivoted for the Time-lapse UI)"]
     end
 
     subgraph Independent["Independent datasets"]
@@ -32,7 +33,7 @@ flowchart LR
 
     D1 --> D2 & D3 & D4 & D5
     D4 --> D6
-    D2 & D3 --> D12
+    D2 & D3 --> D12 --> D13
 ```
 
 ## 3.1 Country Raw Data
@@ -369,6 +370,21 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 - `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
 - `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`), each snapshot's x-`basis`, and a `basis_history` documenting where the basis changed.
+- `builder_history/cohort/<date>.csv` + `cohort/index.json` — the same snapshots restricted to the **44 countries present on every date**, written by `rebuild_builder_history.py --cohort`. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy).
+- `builder_history/series/<group>.json` + `series/index.json` — the archive pivoted per group for the Time-lapse panel, written by [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py). **This is the only form the browser reads.**
+
+### Two shapes, one dataset
+
+| | archive (`<date>.csv`) | pivoted (`series/<group>.json`) |
+|---|---|---|
+| grouped by | date | group |
+| resolution | 0.1 years (351 points) | 0.5 years (71 points) |
+| size | 197 KB per snapshot, 5.8 MB total | ~39 KB per group |
+| read by | scripts, `git` archaeology | the Time-lapse panel, one group at a time |
+
+The archive keeps full fidelity; the pivot is what makes the panel affordable. A reader looking at one group would otherwise pull all fourteen, fifteen times over.
+
+`series/<group>.json` carries both country sets per frame — `all` (coverage as of that date) and `cohort` (the fixed 44) — plus `n_countries`, `total_weight` and `data_per`. A share is `null` where the snapshot has none: `params.csv` had no ICE fit before 2026-01, so the oldest frame's `ice`/`phev` are entirely null and the chart draws a **gap**, not a zero line.
 
 ### Schema (`builder_history/<date>.csv`)
 

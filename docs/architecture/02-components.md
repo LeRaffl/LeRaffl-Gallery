@@ -471,6 +471,58 @@ A script that regenerates **any** past `builder_history/` snapshot from the `par
 
 The history now spans **2025-12-25 → 2026-09-09** (15 snapshots) instead of starting 2026-05-20, because the inputs existed in git long before anyone took the first snapshot. The world-aggregate 50 %-crossing estimate visibly drifts 2030.9 → 2032.0 → 2031.7 across that span, which is the "what did I estimate back then?" question [#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220) asks — now answerable for dates before the feature existed.
 
+### The cohort set (`--cohort`)
+
+`rebuild_builder_history.py --cohort` writes a **second** series into `builder_history/cohort/`, where every frame is restricted to the countries present on *all* snapshot dates (currently **44**).
+
+This exists because the `world` group grows from 44 to 52 countries across the series, so a naive time-lapse animates the gallery being built as much as the market moving. Measured on the 50 %-crossing:
+
+| | span across the 15 frames |
+|---|---|
+| all countries as of each date | 2030.87 → 2032.01 — **1.13 years** |
+| fixed 44-country cohort | 2030.87 → 2031.50 — **0.63 years** |
+
+So roughly **half** of the apparent drift is composition, not the model changing its mind. Both sets are kept; the difference between them is the finding.
+
+Countries are matched on **identity, not spelling**: `params.csv` carried `New Zealand` until 2026-01, `NewZealand` through 2026-03, then `New Zealand` again. A cohort built on raw strings silently drops it and reports 43.
+
+## 2.14 Time-lapse Series Builder (`scripts/build_builder_series.py`)
+
+### Responsibility
+
+Pivots `builder_history/` into the shape a browser wants: one file per group carrying **every** snapshot date for **both** country sets.
+
+```
+INPUT:  builder_history/<date>.csv          (all groups, one date)
+        builder_history/cohort/<date>.csv
+OUTPUT: builder_history/series/<group>.json (one group, all dates, both sets)
+        builder_history/series/index.json   (groups, dates, cohort list)
+```
+
+### Why a separate artefact
+
+The archive is 197 KB per snapshot and 5.8 MB in total. A reader looking at one group would otherwise download all fourteen, fifteen times over. The pivoted form is **~39 KB per group**, and the panel fetches only the group on screen.
+
+Resolution drops from 0.1-year to **0.5-year steps**. The stored curves are smooth fits; at animation speed the finer grid is invisible and costs five times the bytes.
+
+**Empty cells stay empty.** `params.csv` carried no ICE fit before 2026-01, so the oldest frame has no `ice_share`/`phev_share` at all. Those become `null` and the chart sets `connectgaps: false`, drawing a gap — a `0.0` there would assert "no combustion cars", the chart-level form of the no-split-column invariant in `AGENTS.md`.
+
+### Regeneration
+
+`.github/workflows/snapshot-builder.yml` runs it right after `snapshot_builder.py`, so a new snapshot reaches the panel in the same commit. Output is byte-identical on re-run.
+
+## 2.15 Time-lapse panel (`index.html`, Builder tab)
+
+Reads `builder_history/series/`, lazily — only when `#builder` is opened, and only the selected group.
+
+- **Group** — the 14 aggregate groups the archive carries.
+- **Countries** — `Fixed cohort` (default) or `All covered on each date`. Choosing the latter surfaces a marked warning naming the coverage growth, because that view genuinely mixes two effects.
+- **Transport** — play (one pass, resting on the newest frame), step, and a scrub slider.
+- Behind the current frame, every other frame's BEV curve is drawn faint, so the movement reads as a shape and not only as motion.
+- Readout: date, data-through period, country count, weighted volume, and the interpolated BEV-50 % year (`null` when the curve never reaches it in range — "not in this window" is a real answer and is not faked with an endpoint).
+
+It is deliberately a **separate panel** rather than a mode of the Builder above: the archive holds fixed aggregate *groups*, not arbitrary country picks, so folding it into the country selector would promise a view the data cannot produce.
+
 ## See also
 
 - [03-data-objects.md](03-data-objects.md) — what each component reads/writes

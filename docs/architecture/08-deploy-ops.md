@@ -271,6 +271,15 @@ The page's CSV-fetch fallback kicked in. Either:
 
 The Builder-tab aggregated curves are dumped to `builder_history/<date>.csv` automatically on the 25th of each month (cron in [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml)). The script is [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py); full design notes are in [Flow L](05-flows.md#flow-l--snapshot-builder).
 
+The same job then runs [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py), which pivots the archive into `builder_history/series/<group>.json` — the form the **Time-lapse panel** in the Builder tab actually reads ([2.14](02-components.md#214-time-lapse-series-builder-scriptsbuild_builder_seriespy)). Both land in one commit, so a new snapshot is never invisible to the page.
+
+**After backfilling or rebuilding snapshots by hand**, re-run the series builder too, or the panel keeps serving the previous set:
+
+```bash
+python3 scripts/rebuild_builder_history.py --cohort
+python3 scripts/build_builder_series.py
+```
+
 **Trigger manually (e.g. after a large `params.csv` correction):** Actions tab → "Snapshot Builder curves" → Run workflow. Optional `date` input lets you label a back-dated run.
 
 **Run locally to inspect or debug:**
@@ -373,7 +382,7 @@ present, cron disabled).
 | Workflow | Cron expression | Human reading | Purpose |
 |---|---|---|---|
 | [`build-manifest.yml`](../../.github/workflows/build-manifest.yml) | `17 3 * * *` | Daily 03:17 UTC | Self-healing fallback: rescans `images/` and rewrites `manifest.json` if anything drifted (also triggered on every push to `images/**` and on explicit dispatch from `render-country.yml`). |
-| [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv` for time-lapse purposes. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
+| [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv`, then runs `scripts/build_builder_series.py` so the new frame reaches the Time-lapse panel in the same commit. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
 | [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
 
 ### Reading a cron expression quickly
