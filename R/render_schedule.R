@@ -148,7 +148,8 @@ chip_status <- function(slug, day_date, hour, actual_fetches, today) {
 }
 
 # ---- HTML-Rendering --------------------------------------------------------
-render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date()) {
+render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date(),
+                        window = NULL) {
   month_start <- as.Date(sprintf("%04d-%02d-01", year, month))
   days_n <- as.integer(format(month_start %m+% months(1) - days(1), "%d"))
   # Monday-first; ISO wday: Mon=1..Sun=7
@@ -207,12 +208,21 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 
   month_name <- format(month_start, "%B %Y")
 
-  prev_m <- month_start %m-% months(1)
-  next_m <- month_start %m+% months(1)
-  nav_prev <- sprintf("schedule-%04d-%02d.html",
-                      as.integer(format(prev_m, "%Y")), as.integer(format(prev_m, "%m")))
-  nav_next <- sprintf("schedule-%04d-%02d.html",
-                      as.integer(format(next_m, "%Y")), as.integer(format(next_m, "%m")))
+  # Only link to a month this build actually writes. build_schedule() emits a
+  # three-month window (prev/curr/next), so an unconditional link walks the
+  # reader either into a 404 or into a stranded archive from an older run --
+  # both of which look like the site is broken. `window` is the list of months
+  # that exist; NULL keeps the old unconditional behaviour for other callers.
+  nav_link <- function(d, label, arrow_before) {
+    fn <- sprintf("schedule-%04d-%02d.html",
+                  as.integer(format(d, "%Y")), as.integer(format(d, "%m")))
+    text <- if (arrow_before) paste0("&larr; ", label) else paste0(label, " &rarr;")
+    in_window <- is.null(window) || format(d, "%Y-%m") %in% window
+    if (in_window) sprintf('<a href="%s">%s</a>', fn, text)
+    else sprintf('<span class="off">%s</span>', text)
+  }
+  nav_prev <- nav_link(month_start %m-% months(1), "prev", TRUE)
+  nav_next <- nav_link(month_start %m+% months(1), "next", FALSE)
 
   sprintf('<!doctype html>
 <html lang="en"><head>
@@ -235,6 +245,11 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
            border-radius:var(--radius); margin-left:4px; font-size:13px; }
   .nav a:hover { color:var(--accent); border-color:var(--accent);
                  text-decoration:none; }
+  /* Edge of the rendered window: shown so the control stays in place,
+     but not a link, because the target month is not built. */
+  .nav .off { color:var(--muted-2); padding:4px 10px;
+              border:1px solid var(--line); border-radius:var(--radius);
+              margin-left:4px; font-size:13px; opacity:0.45; }
   .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
   .dow { font-size:11px; text-transform:uppercase; color:var(--muted-2);
          text-align:left; padding:4px 6px; letter-spacing:0.5px; }
@@ -276,9 +291,9 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 <header>
   <h1>%s</h1>
   <div class="nav">
-    <a href="%s">&larr; prev</a>
+    %s
     <a href="schedule.html">today</a>
-    <a href="%s">next &rarr;</a>
+    %s
     <a href="schedule.ics">.ics</a>
   </div>
 </header>
@@ -353,14 +368,22 @@ build_schedule <- function(out_html = "schedule.html", out_ics = "schedule.ics",
   schedules <- read_schedules()
   actual    <- read_actual_fetches()
 
-  # Aktuellen Monat als schedule.html, plus prev/curr/next als datierte Aliase
-  write(render_html(year, month, schedules, actual, today), out_html)
+  # Aktuellen Monat als schedule.html, plus prev/curr/next als datierte Aliase.
+  # Das Fenster wird vorab berechnet, damit jede Seite weiss, welche Nachbarn
+  # es wirklich gibt, und nicht ins Leere verlinkt.
+  base_d  <- as.Date(sprintf("%04d-%02d-01", year, month))
+  offsets <- -1:1
+  window  <- vapply(offsets,
+                    function(off) format(base_d %m+% months(off), "%Y-%m"),
+                    character(1))
 
-  for (off in -1:1) {
-    d <- as.Date(sprintf("%04d-%02d-01", year, month)) %m+% months(off)
+  write(render_html(year, month, schedules, actual, today, window), out_html)
+
+  for (off in offsets) {
+    d <- base_d %m+% months(off)
     y2 <- as.integer(format(d, "%Y")); m2 <- as.integer(format(d, "%m"))
     fn <- sprintf("schedule-%04d-%02d.html", y2, m2)
-    write(render_html(y2, m2, schedules, actual, today), fn)
+    write(render_html(y2, m2, schedules, actual, today, window), fn)
   }
 
   write(render_ics(year, month, schedules, n_months = 3), out_ics)
