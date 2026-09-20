@@ -51,6 +51,27 @@ if (is.na(source_str)) source_str <- ""
 bev_label_val <- if (identical(trimws(toupper(source_str)), "ACEA") &&
                      variant %in% c("Vans", "HDV", "Buses")) "EV" else "BEV"
 
+# Does this source actually split plug-in hybrids out? Where it does not, the
+# pipeline parks the combined hybrid figure in HEV and leaves PHEV/EREV empty
+# (Türkiye / Georgia / Colombia / Malaysia; ACEA's CV release folds PHEV into
+# BEV instead). compute_shares() reads an empty column as 0, which made the
+# trajectory chart draw a PHEV curve pinned at a zero the source never
+# measured — see has_phev_split() in R/plots.R and issue #210.
+#
+# Derived from the data, deliberately not from a country list: which sources
+# split PHEV changes over time (data.gov.my gained plug_in_hybrid_petrol around
+# 2024), and a list would rot the first time one of them does. The moment a
+# real PHEV or EREV value lands in the CSV, the curve comes back on its own.
+#
+# NA-and-empty-safe: numeric columns read as all-NA, text columns as "".
+has_any_value <- function(col) {
+  if (!col %in% names(df)) return(FALSE)
+  v <- df[[col]]
+  if (is.character(v)) v <- suppressWarnings(as.numeric(trimws(v)))
+  any(!is.na(v))
+}
+has_phev_split_val <- has_any_value("PHEV") || has_any_value("EREV")
+
 # Period folder + post date use the "as of" period (data_per): for quarterly
 # data the CSV stores each quarter's MIDDLE month (so the regression dots sit in
 # the middle of the quarter and the fit behaves), but the outward-facing period
@@ -175,6 +196,7 @@ meta <- list(
   country = country, country_label = country_label,
   reg_word = reg_word_lc, reg_Word = reg_word_uc,
   bev_label = bev_label_val,
+  has_phev_split = has_phev_split_val,
   flag_img = flag_img,
   qr_img  = qr_img,
   social_caption = social_caption,

@@ -189,6 +189,11 @@ A set of small, focused R modules that turn `data/<Country>.csv` into the four c
 - `R/fit.R::fit_history` is **byte-for-byte the historical Germany script's regression code**, only renamed for country-agnostic use. Do not change the math without coordinating with the maintainer; threshold reproducibility for old runs depends on it.
 - `R/data.R::compute_ttm_long` only emits a row when **every present fuel column** has a complete 12-month non-NA window. This is what makes the TTM stack hit 100% from the very first plotted period.
 - `R/upsert.R::upsert_params` writes line-level — only the touched country/variant row changes. Previous attempts that round-tripped the whole CSV through `read.csv`/`write.table` caused noisy reformatting (scientific → decimal, trailing zero changes) and were reverted.
+- **A chart never claims a split its source does not publish.** Two flags in `render_country.R` carry this, both derived per country/variant and passed through `meta`:
+  - `bev_label` — `"EV"` instead of `"BEV"` where the source folds PHEV *into* the BEV column (ACEA's CV release; gated on source **and** variant).
+  - `has_phev_split` — `FALSE` where the source publishes a single combined hybrid figure, which the pipeline parks in `HEV` with `PHEV`/`EREV` left empty (Türkiye, Georgia, Colombia, Malaysia, and every ACEA CV variant). `compute_shares()` reads an empty column as `0`, so the trajectory plot used to draw a PHEV curve, ribbon, points and legend entry pinned at a zero the source never measured — the chart-level twin of the "leave empty, never `0.0`" CSV invariant ([#210](https://github.com/LeRaffl/LeRaffl-Gallery/issues/210)). When `FALSE`, `plot_ice_bev_phev()` omits the PHEV series and titles the chart `<BEV> / ICE`.
+
+  `has_phev_split` is read **from the data**, never from a country list: which sources split PHEV changes over time (`data.gov.my` gained `plug_in_hybrid_petrol` around 2024), so the curve returns by itself the moment a real value lands. Neither flag touches the fit — hybrids stay inside ICE, so `params.csv`, thresholds and durations are unchanged and countries stay comparable.
 
 ### Why split into so many files?
 

@@ -21,7 +21,7 @@ These are the *technical* definitions — what physically distinguishes one driv
 | **OTHERS** | Catch-all for anything the source doesn't put in a named bucket. Typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` and hydrogen fuel-cell (FCEV) where they appear. | `OTHERS` column. Counted as ICE in every output chart. |
 | **FCEV** | Fuel-Cell Electric Vehicle. Electric motor powered by a hydrogen fuel cell. We do not yet have a dedicated column — sources that report FCEV either fold it into `BEV` (rare, technically wrong but consistent with their definition) or into `OTHERS`. | No dedicated column today. |
 | **TOTAL** | All registrations in the period, summed across every drivetrain. | `TOTAL` column. Required. The denominator for every share computation. |
-| **Hybrid (capital, no qualifier)** | A source's single combined hybrid bucket — sources that don't split PHEV vs HEV (Türkiye `HYBRIDS`, Georgia `Hybrid`). | Mapped to the `HEV` column on ingest; the post text labels it as "Hybrid" without parentheses to flag the ambiguity. |
+| **Hybrid (capital, no qualifier)** | A source's single combined hybrid bucket — sources that don't split PHEV vs HEV (Türkiye `HYBRIDS`, Georgia `Hybrid`). | Mapped to the `HEV` column on ingest, with `PHEV`/`EREV` left **empty**; the post text labels it "Hybrid" without parentheses to flag the ambiguity. The TTM chart shows it as `Hybrid`; the BEV/ICE trajectory counts it inside ICE and **omits the PHEV curve entirely** rather than drawing a zero the source never measured ([#210](https://github.com/LeRaffl/LeRaffl-Gallery/issues/210) — see `has_phev_split` in `R/plots.R`). |
 
 ## Vehicle scope per source
 
