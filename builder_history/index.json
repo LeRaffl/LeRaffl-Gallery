@@ -1,8 +1,29 @@
 {
+  "basis_history": [
+    {
+      "basis": "calendar_year",
+      "through": "2026-05-31",
+      "note": "Correct calendar-year basis, by accident: the script evaluated the curve at x = year + 1 and get_t0_years() returned t0 + 1, so the two offsets cancelled. Comparable with the current basis."
+    },
+    {
+      "basis": "calendar_year_plus_1",
+      "from": "2026-06-25",
+      "through": "2026-09-09",
+      "issue": 219,
+      "note": "The 2026-06 calendar-year fix moved the script to x = year but left get_t0_years() reading an absent baseline_year as 0, so it still returned t0 + 1. These snapshots reach any given share one year LATER than the live Builder: ADD 1 to the year column of a calendar_year snapshot to compare it against one of these. They cannot be regenerated on the corrected basis without a historical parameter store (issue 220)."
+    },
+    {
+      "basis": "calendar_year",
+      "from": "2026-09-20",
+      "issue": 219,
+      "note": "x = year and get_t0_years() guards the absent baseline_year, agreeing with index.html::getT0Years()."
+    }
+  ],
   "snapshots": [
     {
       "date": "2026-05-20",
       "file": "2026-05-20.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {
           "n_countries": 48,
@@ -79,6 +100,7 @@
     {
       "date": "2026-05-21",
       "file": "2026-05-21.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {
           "n_countries": 48,
@@ -155,6 +177,7 @@
     {
       "date": "2026-05-25",
       "file": "2026-05-25.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {
           "n_countries": 48,
@@ -231,6 +254,7 @@
     {
       "date": "2026-05-31",
       "file": "2026-05-31.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {
           "n_countries": 50,
@@ -307,6 +331,7 @@
     {
       "date": "2026-06-25",
       "file": "2026-06-25.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 50,
@@ -383,6 +408,7 @@
     {
       "date": "2026-07-01",
       "file": "2026-07-01.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 50,
@@ -459,6 +485,7 @@
     {
       "date": "2026-07-25",
       "file": "2026-07-25.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 51,
@@ -535,6 +562,7 @@
     {
       "date": "2026-08-25",
       "file": "2026-08-25.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 52,
@@ -611,6 +639,7 @@
     {
       "date": "2026-09-04",
       "file": "2026-09-04.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 52,
@@ -687,6 +716,7 @@
     {
       "date": "2026-09-09",
       "file": "2026-09-09.csv",
+      "basis": "calendar_year_plus_1",
       "groups": {
         "world": {
           "n_countries": 52,
