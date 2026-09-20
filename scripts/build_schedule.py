@@ -45,6 +45,7 @@ from build_source_pages import (  # noqa: E402
 WORKFLOWS = REPO / ".github" / "workflows"
 MANIFEST = REPO / "manifest.json"
 OUT = REPO / "sources" / "schedule.json"
+RUNS_OUT = REPO / "sources" / "runs.json"
 
 
 # --------------------------------------------------------------------------
@@ -189,9 +190,83 @@ def manifest_last_render() -> dict[str, dict]:
     return best
 
 
-def build(today: date | None = None) -> dict:
+FLAG_R = REPO / "R" / "post_text.R"
+
+# Matches one `Name = "\U0001F1E6\U0001F1F1"` pair inside .pt_flag's list(),
+# with or without backticks around a multi-word name.
+_FLAG_PAIR = re.compile(
+    r'`?([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .\'-]*?)`?\s*=\s*"((?:\\U[0-9A-Fa-f]{8}){2})"'
+)
+
+
+def flag_emoji() -> dict[str, str]:
+    """country name -> flag emoji, parsed out of `R/post_text.R::.pt_flag`.
+
+    That R map is already the one place a country's flag is declared — adding
+    it is step 4 of the "add a new country" checklist in 08-deploy-ops.md §8.3.
+    Parsing it keeps that true instead of opening a second copy here that would
+    drift the first time somebody adds a country and updates only one of them.
+
+    A country the map does not cover simply gets no flag; the calendar falls
+    back to its name, so a missing entry degrades rather than breaks.
+    """
+    if not FLAG_R.is_file():
+        return {}
+    text = FLAG_R.read_text(encoding="utf-8")
+    start = text.find(".pt_flag")
+    if start == -1:
+        return {}
+    block = text[start:text.find("\n}", start)]
+    out: dict[str, str] = {}
+    for name, esc in _FLAG_PAIR.findall(block):
+        try:
+            out[name.strip()] = "".join(
+                chr(int(cp, 16)) for cp in re.findall(r"\\U([0-9A-Fa-f]{8})", esc)
+            )
+        except ValueError:
+            continue
+    return out
+
+
+def manifest_runs() -> list[dict]:
+    """Every date on which a country's charts were actually produced.
+
+    `last_render` above answers "is this current?". The calendar needs the
+    other question — "what landed, and when?" — so this returns one row per
+    (country, render date) rather than only the newest.
+
+    Deduped on that pair because a single drop writes ~4 chart types, and
+    variants stay separate rows: "Canada (Pickups)" arriving is its own event.
+    `period` is the data month that landed, which is what makes a cell read
+    "Chile · data through 2026-08" instead of just "Chile".
+    """
+    if not MANIFEST.is_file():
+        return []
+    images = json.loads(MANIFEST.read_text(encoding="utf-8")).get("images") or []
+    seen: dict[tuple[str, str], dict] = {}
+    for img in images:
+        d, label = img.get("date"), (img.get("country") or "").strip()
+        if not d or not label:
+            continue
+        key = (label, d)
+        if key not in seen:
+            seen[key] = {
+                "date": d,
+                "label": label,
+                "base": label.split(" (")[0].strip(),
+                "slug": img.get("country_slug") or "",
+                "period": img.get("period"),
+            }
+    return sorted(seen.values(), key=lambda r: (r["date"], r["label"]))
+
+
+def build(today: date | None = None) -> tuple[dict, dict]:
     today = today or datetime.now(timezone.utc).date()
     renders = manifest_last_render()
+    flags = flag_emoji()
+    runs = manifest_runs()
+    for r in runs:
+        r["flag"] = flags.get(r["base"], "")
     entries, problems = collect_entries()
     if problems:
         for p in problems:
@@ -262,26 +337,49 @@ def build(today: date | None = None) -> dict:
             "automated": automated,
             "schedule": sched,
             "last_render": (renders.get(fm["country"]) or {}).get("date"),
+            "flag": flags.get(fm["country"], ""),
             "variants": variants,
         })
 
     rows.sort(key=lambda r: r["country"])
-    return {
-        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    schedule = {
+        "generated": generated,
         "today": today.isoformat(),
         "countries": rows,
     }
+    # One row per (country, render date): what actually landed, and when.
+    # The calendar's past half is built from this; its future half comes from
+    # each country's `schedule` window. See manifest_runs().
+    #
+    # Kept in its OWN file rather than inside schedule.json, because the two
+    # have opposite lifecycles. `countries` is bounded — one row per dataset,
+    # forward-looking, and it is what the Data freshness table needs on every
+    # visit. `runs` is an append-only history that grows about 900 rows a year
+    # and is only ever read when someone opens the calendar. Embedding it made
+    # schedule.json 61 KB -> 147 KB for a payload most readers never use, and
+    # that gap widens every month.
+    runs_doc = {
+        "generated": generated,
+        "runs": runs,
+    }
+    return schedule, runs_doc
 
 
 def main() -> int:
-    data = build()
+    schedule, runs_doc = build()
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    OUT.write_text(json.dumps(schedule, ensure_ascii=False, indent=1), encoding="utf-8")
+    RUNS_OUT.write_text(
+        json.dumps(runs_doc, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     counts: dict[str, int] = {}
-    for r in data["countries"]:
+    for r in schedule["countries"]:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
     summary = ", ".join(f"{v} {k}" for k, v in sorted(counts.items()))
-    print(f"  ✓ sources/schedule.json — {len(data['countries'])} countries ({summary})")
+    print(f"  ✓ sources/schedule.json — {len(schedule['countries'])} countries ({summary})")
+    print(f"  ✓ sources/runs.json — {len(runs_doc['runs'])} arrivals")
     return 0
 
 

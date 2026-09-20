@@ -47,6 +47,21 @@ jobs:
         env:
           DATE: ${{ inputs.date }}
 
+      # The new snapshot has to reach the Time-lapse panel, which reads the
+      # compact per-group files rather than the 197 KB archival CSVs. Leaving
+      # this out would keep writing snapshots nobody can see.
+      - name: Rebuild Time-lapse series
+        run: |
+          python scripts/build_builder_series.py
+
+      # One GIF per group, overwritten in place. Not dated: each run is the
+      # same animation one frame longer, so keeping every vintage would store
+      # the same seconds of footage over and over.
+      - name: Render Time-lapse animations
+        run: |
+          pip install Pillow
+          python scripts/build_builder_gif.py
+
       - name: Commit if changed
         uses: EndBug/add-and-commit@v9
         with:

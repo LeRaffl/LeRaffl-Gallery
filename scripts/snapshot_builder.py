@@ -111,6 +111,32 @@ YEAR_STEP = 0.1  # 351 points; ~36-day resolution. Builder uses 0.05 for live
                  # plot smoothness; 0.1 is plenty for time-lapse frames and
                  # halves file size.
 
+# Single-country series for the Time-lapse spotlight.
+#
+# These are NOT part of BUILDER_GROUPS and must not be added to it: that dict
+# mirrors index.html, and a country is not a group there. They are written as
+# extra rows under a `country_<slug>` key, which cannot collide with a group
+# name and is safe as a filename.
+#
+# A country only belongs here if it is worth a single-case discussion AND is
+# present in every snapshot -- otherwise its time-lapse has holes. Check
+# `builder_history/cohort/index.json` before adding one.
+SPOTLIGHT_COUNTRIES = [
+    "Germany",    # largest EU market
+    "China",      # the volume story
+    "Norway",     # furthest along, the shape everyone else is walking into
+    "USA",        # large market, visibly slower
+    "Japan",      # large market, slower still
+    "France",     # second EU market, different policy mix
+]
+
+
+def country_key(name: str) -> str:
+    """`Germany` -> `country_germany`. Safe as a filename and a URL."""
+    slug = "".join(ch.lower() if ch.isalnum() else "_" for ch in name)
+    return f"country_{slug.strip('_')}"
+
+
 # Mirror index.html `BUILDER_GROUPS`. Weight-based groups (small/medium/big
 # markets) are computed dynamically from weights.csv.
 GROUPS_STATIC = {
@@ -448,6 +474,13 @@ def resolve_groups(param_rows: list[dict],
     groups["small_markets"] = small
     groups["medium_markets"] = medium
     groups["big_markets"] = big
+
+    # Spotlight countries: a group of one. Appended after the mirrored groups
+    # so nothing above this line changes meaning, and skipped silently when a
+    # country is not in this snapshot rather than writing an empty series.
+    for name in SPOTLIGHT_COUNTRIES:
+        if name in available:
+            groups[country_key(name)] = [name]
 
     return groups
 

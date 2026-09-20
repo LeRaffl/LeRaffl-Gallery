@@ -114,7 +114,8 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 
 1. `data/<Country>.csv` is the single source of truth. **Never hand-edit**
    `params.csv`, `weights.csv`, `manifest.json`, `images/`, `posts/`,
-   `sources/`, `series/`, `schedule*`, `assets/theme.css` — they are generated.
+   `sources/`, `series/`, `schedule*`, `assets/theme.css`,
+   `builder_history/` — they are generated.
 2. CSV writes are **line-level upserts** keyed on `(period, variant)`
    (`R/upsert.R`). Never round-trip a whole CSV through read/write — it
    reformats untouched numbers (scientific notation, trailing zeros) and
@@ -140,6 +141,7 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
   generated `assets/theme.css` is what `sources/*.html` and `schedule*.html`
   link, so those two surfaces follow automatically and cannot drift
   (`build_theme.py --check` fails the build if the stylesheet is stale).
+- **The Builder aggregation or its groups** → `scripts/snapshot_builder.py` **and** `index.html`'s `BUILDER_GROUPS` (they mirror each other; `SPOTLIGHT_COUNTRIES` is deliberately *outside* that mirror), then re-run `scripts/build_builder_series.py` **and** `scripts/build_builder_gif.py` so the Time-lapse panel and its downloadable animation see the change. `builder_history/<date>.csv` is the archive; `builder_history/series/<group>.json` is what the browser actually reads.
 - **Add a country** → follow `docs/architecture/08-deploy-ops.md` §8.3 (write `data/<Country>.csv`, add to `SD_COUNTRIES` in `index.html`, add `assets/flags/<slug>.png`, map the flag emoji in `R/post_text.R`, PR, then render) and give it a source doc or a `country_source_stubs.yaml` entry.
 - **Add/rename a variant** → the `09-glossary.md` variant table, the fetcher, and the country's `variants` list in `SD_COUNTRIES`.
 

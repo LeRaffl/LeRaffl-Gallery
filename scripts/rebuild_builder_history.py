@@ -109,51 +109,107 @@ def blob_at(commit: str, path: str) -> str:
     return git("show", f"{commit}:{path}")
 
 
-def rebuild_one(target: str, out_dir: Path, dry_run: bool = False) -> dict | None:
-    """Regenerate one snapshot from the params/weights git held on that date."""
-    if target < WEIGHTS_FLOOR:
-        print(f"  skip {target} — before weights.csv exists ({WEIGHTS_FLOOR})")
-        return None
+def norm_country(name: str) -> str:
+    """Key a country by identity rather than by spelling.
 
+    `params.csv` carried "New Zealand" until 2026-01, "NewZealand" through
+    2026-03, and "New Zealand" again after. A cohort built on the raw strings
+    therefore drops a country that was present the whole time, which is
+    exactly the kind of artefact the cohort exists to remove.
+    """
+    return "".join(name.split()).casefold()
+
+
+def load_at(target: str):
+    """params/weights as they stood on `target`, or None if either is missing."""
     pc = commit_for("params.csv", target)
     wc = commit_for("weights.csv", target)
     if not pc or not wc:
-        print(f"  skip {target} — params={pc or 'missing'} weights={wc or 'missing'}")
         return None
-
     with tempfile.TemporaryDirectory() as tmp:
         tmpd = Path(tmp)
         (tmpd / "params.csv").write_text(blob_at(pc, "params.csv"), encoding="utf-8")
         (tmpd / "weights.csv").write_text(blob_at(wc, "weights.csv"), encoding="utf-8")
-
         rows = sb.load_params(tmpd / "params.csv")
         weights = sb.load_weights(tmpd / "weights.csv")
-        groups = sb.resolve_groups(rows, weights)
+    return pc, wc, rows, weights
 
-        curves, meta = {}, {}
-        for name, countries in groups.items():
-            if not countries:
-                continue
-            xs, bev, ice, phev, m = sb.compute_group_curve(
-                countries, rows, weights, sb.DEFAULT_VARIANT)
-            if m["n_countries"] == 0:
-                continue
-            curves[name] = (xs, bev, ice, phev)
-            meta[name] = m
 
-        if not curves:
-            print(f"  skip {target} — no group produced rows")
-            return None
+def cohort_countries(dates: list[str]) -> list[str]:
+    """Countries carried by *every* snapshot date, matched on identity.
 
-        world = meta.get("world", {})
-        print(f"  {target}  params@{pc[:8]} weights@{wc[:8]}  "
-              f"{len(curves):2d} groups, world {world.get('n_countries')} countries, "
-              f"weight {world.get('total_weight'):,}, data_per {world.get('latest_data_per')}"
-              + ("  [dry-run]" if dry_run else ""))
+    The `world` group grows from 44 to 52 countries across the series, so a
+    naive time-lapse animates the gallery being built as much as the market
+    moving. Restricting every frame to the countries common to all of them
+    separates the two: what is left can only be data revision and new months.
+    """
+    seen: list[dict[str, str]] = []
+    for d in dates:
+        got = load_at(d)
+        if got is None:
+            continue
+        _, _, rows, weights = got
+        world = sb.resolve_groups(rows, weights)["world"]
+        # keep one real spelling per identity, preferring the newest seen
+        seen.append({norm_country(c): c for c in world})
+    if not seen:
+        return []
+    keys = set.intersection(*(set(m) for m in seen))
+    # Spell them as the most recent snapshot does.
+    return sorted(seen[-1][k] for k in keys)
 
-        if not dry_run:
-            sb.write_snapshot_csv(out_dir / f"{target}.csv", curves)
-        return meta
+
+def rebuild_one(target: str, out_dir: Path, dry_run: bool = False,
+                cohort: list[str] | None = None) -> dict | None:
+    """Regenerate one snapshot from the params/weights git held on that date.
+
+    With `cohort`, every group is intersected with that country set first, so
+    the frame answers "what did we estimate for *these* countries" rather than
+    "for whatever we happened to cover".
+    """
+    if target < WEIGHTS_FLOOR:
+        print(f"  skip {target} — before weights.csv exists ({WEIGHTS_FLOOR})")
+        return None
+
+    got = load_at(target)
+    if got is None:
+        pc = commit_for("params.csv", target)
+        wc = commit_for("weights.csv", target)
+        print(f"  skip {target} — params={pc or 'missing'} weights={wc or 'missing'}")
+        return None
+
+    pc, wc, rows, weights = got
+    groups = sb.resolve_groups(rows, weights)
+
+    if cohort is not None:
+        keep = {norm_country(c) for c in cohort}
+        groups = {n: [c for c in cs if norm_country(c) in keep]
+                  for n, cs in groups.items()}
+
+    curves, meta = {}, {}
+    for name, countries in groups.items():
+        if not countries:
+            continue
+        xs, bev, ice, phev, m = sb.compute_group_curve(
+            countries, rows, weights, sb.DEFAULT_VARIANT)
+        if m["n_countries"] == 0:
+            continue
+        curves[name] = (xs, bev, ice, phev)
+        meta[name] = m
+
+    if not curves:
+        print(f"  skip {target} — no group produced rows")
+        return None
+
+    world = meta.get("world", {})
+    print(f"  {target}  params@{pc[:8]} weights@{wc[:8]}  "
+          f"{len(curves):2d} groups, world {world.get('n_countries')} countries, "
+          f"weight {world.get('total_weight'):,}, data_per {world.get('latest_data_per')}"
+          + ("  [dry-run]" if dry_run else ""))
+
+    if not dry_run:
+        sb.write_snapshot_csv(out_dir / f"{target}.csv", curves)
+    return meta
 
 
 def main(argv=None) -> int:
@@ -165,6 +221,9 @@ def main(argv=None) -> int:
                    help="Resolve and compute, write nothing.")
     p.add_argument("--list", action="store_true",
                    help="Show the target dates and their resolved commits, then exit.")
+    p.add_argument("--cohort", action="store_true",
+                   help="Also write builder_history/cohort/, every frame "
+                        "restricted to the countries common to all dates.")
     args = p.parse_args(argv)
 
     targets = args.date or SNAPSHOT_DATES
@@ -221,6 +280,37 @@ def main(argv=None) -> int:
     print(f"\nWrote {len(snapshots)} snapshots + {index}")
     if snapshots:
         print(f"  span {snapshots[0]['date']} .. {snapshots[-1]['date']}")
+
+    if args.cohort:
+        cohort = cohort_countries(targets)
+        print(f"\nCohort: {len(cohort)} countries common to all {len(targets)} dates")
+        cdir = args.out / "cohort"
+        cdir.mkdir(parents=True, exist_ok=True)
+        cbuilt: dict[str, dict] = {}
+        for t in targets:
+            m = rebuild_one(t, cdir, cohort=cohort)
+            if m:
+                cbuilt[t] = m
+        (cdir / "index.json").write_text(json.dumps({
+            "basis": sb.CURVE_BASIS,
+            "cohort": cohort,
+            "n_cohort": len(cohort),
+            "note": (
+                "Every frame is restricted to the countries present in all "
+                "snapshot dates, so movement here is data revision and new "
+                "months only -- not the gallery gaining countries. Countries "
+                "are matched on identity, not spelling: params.csv carried "
+                "both 'New Zealand' and 'NewZealand' during 2026-01..03."
+            ),
+            "snapshots": [{
+                "date": d,
+                "file": f"{d}.csv",
+                "groups": cbuilt[d],
+            } for d in sorted(cbuilt)],
+            "updated": max(cbuilt) if cbuilt else None,
+        }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"Wrote {len(cbuilt)} cohort snapshots + {cdir / 'index.json'}")
+
     return 0
 
 

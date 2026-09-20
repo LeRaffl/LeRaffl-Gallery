@@ -206,13 +206,48 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .sched-country{font-weight:600}
 .sched-why{color:var(--muted);font-size:13px}
 .sched-vars{color:var(--muted);font-size:12px}
-.sched-cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:6px}
-.sched-day{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;padding:10px 12px}
+/* Month-grid calendar (#235). Seven columns, Monday first. Day cells stay a
+   fixed minimum height so the grid does not jump as months change length. */
+.sched-calbar{display:flex;align-items:center;gap:8px;margin:10px 0 8px;flex-wrap:wrap}
+.sched-navbtn{padding:4px 12px;font-size:13px;line-height:1.6}
+.sched-callegend{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
+.sched-chipk{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+.sched-chipk::before{content:"";width:12px;height:12px;border-radius:2px;display:inline-block}
+.sched-chipk--done::before{background:var(--ok-wash);border:1px solid var(--ok)}
+.sched-chipk--due::before{background:transparent;border:1px dashed var(--accent)}
+.sched-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
+.sched-dow{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-2);padding:4px 6px}
+.sched-day{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;
+  padding:6px;min-height:86px;display:flex;flex-direction:column;gap:4px;
+  text-align:left;font:inherit;color:inherit;cursor:pointer}
+.sched-day--blank{background:transparent;border:none;cursor:default;min-height:0}
+.sched-day--past{background:var(--bg-deep)}
 .sched-day--today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.sched-day .d{font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px}
-.sched-day .who{font-size:13px;line-height:1.5}
-.sched-day a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--line)}
-.sched-day a:hover{border-bottom-style:solid}
+.sched-day--sel{border-color:var(--accent-deep);box-shadow:0 0 0 2px var(--accent-deep)}
+.sched-day:hover:not(.sched-day--blank){border-color:var(--accent)}
+.sched-day .d{font-weight:600;font-size:12px;color:var(--muted-2)}
+.sched-day--today .d{color:var(--accent);font-weight:700}
+.sched-day .who{display:flex;flex-wrap:wrap;gap:2px;align-content:flex-start;line-height:1}
+/* The flag itself is the icon (#235 asked for icons over names); the country
+   name rides along in title/aria so it is never colour- or glyph-only. */
+.sched-fl{font-size:15px;line-height:1.25;padding:1px 2px;border-radius:2px;
+  border:1px solid transparent;background:none;cursor:pointer}
+.sched-fl--done{background:var(--ok-wash);border-color:var(--ok)}
+.sched-fl--due{border:1px dashed var(--accent);opacity:.75}
+.sched-fl:hover{border-color:var(--accent-deep);opacity:1}
+.sched-fl--more{font-size:10px;color:var(--muted);align-self:center;padding:0 2px}
+.sched-caldetail{margin-top:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:2px;padding:12px 14px;font-size:13px}
+.sched-caldetail h4{margin:0 0 8px;font-size:13px}
+.sched-caldetail ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.sched-caldetail li{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sched-caldetail .lbl{font-weight:600}
+.sched-caldetail .per{color:var(--muted)}
+.sched-caldetail a{color:var(--accent)}
+@media (max-width:640px){
+  .sched-day{min-height:62px;padding:4px}
+  .sched-fl{font-size:13px}
+}
 @media (max-width:640px){ .sched-summary .sched-chip{flex:1 1 40%} }
 
 .tablecard{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;overflow:auto}
@@ -492,6 +527,55 @@ th.sortable.desc::after{content:" ↓"}
   width: 100%;
   min-width: 0;
   min-height: 420px;
+}
+#tlPlot {
+  width: 100%;
+  min-width: 0;
+  min-height: 420px;
+}
+.tl-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+.tl-controls .field { margin: 0; }
+.tl-transport { display: flex; gap: 6px; }
+.tl-scrub {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.tl-scrub input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
+.tl-stamp {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--muted);
+}
+.tl-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tl-foot #tlReadout { flex: 1 1 320px; min-width: 0; }
+.tl-foot .chart-dl { flex: 0 0 auto; }
+.tl-note { opacity: .85; }
+/* The composition warning is a correctness notice, not decoration: it says
+   the curve is partly moving because the gallery grew. */
+.tl-note.warn {
+  border-left: 3px solid var(--accent-2, var(--accent));
+  padding-left: 10px;
+  opacity: 1;
+}
+@media (max-width: 620px) {
+  .tl-controls { gap: 10px; }
+  .tl-controls .field { flex: 1 1 100%; }
+  .tl-transport { flex: 1 1 100%; }
 }
 #comparePlot {
   width: 100%;
@@ -3776,13 +3860,26 @@ function tok(name, fallback){
     </div>
 
     <div class="container">
-      <h3 style="margin-top:26px">Where the next points land <span id="schedCalMonth" class="small" style="font-weight:400"></span></h3>
+      <h3 style="margin-top:26px">Calendar <span id="schedCalMonth" class="small" style="font-weight:400"></span></h3>
       <p class="small" style="max-width:820px">
-        The day of the month each source's publication window opens — the earliest a
-        new figure can appear. Fetchers keep polling after that until the data shows
-        up, so this marks the <em>start</em> of each window, not every polling day.
+        What actually landed, and what is due. Past days show the drops that really
+        happened — one flag per country whose charts were produced that day. Future
+        days mark where each source's publication window <em>opens</em>, the earliest
+        a new figure can appear; fetchers keep polling after that, so those are
+        possibilities rather than promises. Click a day for the detail, or a flag to
+        open that country's charts. The country filter above narrows this too.
       </p>
-      <div id="schedCalendar" class="sched-cal"></div>
+      <div class="sched-calbar">
+        <button type="button" class="btn sched-navbtn" id="schedCalPrev" aria-label="Previous month">‹</button>
+        <button type="button" class="btn sched-navbtn" id="schedCalToday">Today</button>
+        <button type="button" class="btn sched-navbtn" id="schedCalNext" aria-label="Next month">›</button>
+        <span class="sched-callegend">
+          <span class="sched-chipk sched-chipk--done">landed</span>
+          <span class="sched-chipk sched-chipk--due">window opens</span>
+        </span>
+      </div>
+      <div id="schedCalendar" class="sched-cal" role="grid" aria-label="Data arrival calendar"></div>
+      <div id="schedCalDetail" class="sched-caldetail" hidden></div>
     </div>
   </section>
 
@@ -3971,6 +4068,57 @@ function tok(name, fallback){
         <button class="btn chart-dl" onclick="downloadPlotlyChart('builderPlot','builder_chart.png')">↓ Download PNG</button>
       </div>
       <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
+
+      <!-- Time-lapse: how this estimate has moved over successive snapshots.
+           Deliberately a separate panel rather than a mode of the builder
+           above: the archive holds the fixed aggregate GROUPS, not arbitrary
+           country picks, so folding it into the country selector would
+           promise a view the data cannot produce. -->
+      <div class="card builder-card" id="tlCard" style="margin-top:18px">
+        <h3 style="margin:0 0 4px">Time-lapse — how this estimate has moved</h3>
+        <p class="small" style="margin:0 0 12px;opacity:.85">
+          Each frame is the curve this model produced on that date, rebuilt
+          from the <code>params.csv</code> and <code>weights.csv</code> git
+          held at the time. It is the model changing its mind as data arrives
+          — not a forecast of anything.
+        </p>
+
+        <div class="tl-controls">
+          <div class="field">
+            <label for="tlGroup">Group</label>
+            <select id="tlGroup"></select>
+          </div>
+          <div class="field">
+            <label for="tlCountrySet">Countries</label>
+            <select id="tlCountrySet">
+              <option value="cohort" selected>Fixed cohort (same every frame)</option>
+              <option value="all">All covered on each date</option>
+            </select>
+          </div>
+          <div class="field tl-transport">
+            <button type="button" class="btn" id="tlPlay" aria-label="Play">▶ Play</button>
+            <button type="button" class="btn" id="tlPrev" aria-label="Previous frame">◀</button>
+            <button type="button" class="btn" id="tlNext" aria-label="Next frame">▶</button>
+          </div>
+        </div>
+
+        <div class="tl-scrub">
+          <input type="range" id="tlSlider" min="0" max="0" value="0" step="1"
+                 aria-label="Snapshot date">
+          <output id="tlStamp" class="tl-stamp"></output>
+        </div>
+
+        <div id="tlPlot"></div>
+        <div class="tl-foot">
+          <div id="tlReadout" class="small"></div>
+          <!-- Points at the GIF the snapshot workflow already committed;
+               nothing is encoded in the browser. Hidden until a HEAD says
+               the file is really there, so a group without one shows no
+               dead button. -->
+          <a id="tlGif" class="btn chart-dl" hidden download>↓ Download animation</a>
+        </div>
+        <p class="small tl-note" id="tlNote" style="margin-top:10px"></p>
+      </div>
     </div>
   </section>
 
@@ -4818,6 +4966,11 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
   const STATUS_LABEL = { current:'up to date', due:'due', late:'late',
                          manual:'by hand', unknown:'no data file' };
   let DATA = null, statusFilter = null;
+  // Arrival history, fetched separately from sources/runs.json. It is only
+  // the calendar's *past* half, so the tab is fully usable before it lands
+  // and stays usable if it never does — the future half comes from
+  // DATA.countries. null = not here (yet); [] = here and empty.
+  let RUNS = null;
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -4909,33 +5062,159 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
       : '<div style="padding:14px">No countries match that filter.</div>';
   }
 
-  // Compact calendar: one cell per day on which at least one source's
-  // publication window opens. Polling days in between are omitted on purpose —
-  // showing every one of them is what made the old calendar unreadable.
-  function renderCalendar(){
-    const byDay = {};
-    DATA.countries.forEach(r => {
-      const s = r.schedule;
-      if(!s || !s.enabled) return;
-      const d = s.days[0];
-      (byDay[d] = byDay[d] || []).push(r);
+  /* ---- Month-grid calendar (#235) ---------------------------------------
+     Two halves, from two different sources, because they answer different
+     questions:
+
+       past   — DATA.runs, one row per (country, render date) out of
+                manifest.json. A real event: charts were produced, so data
+                genuinely landed. This is the "this dropped that day" half.
+       future — each country's `schedule.days[0]`, the day its publication
+                window opens. A possibility, not a promise, which is why those
+                chips are dashed and the copy says so.
+
+     Deliberately NOT every polling tick. build_schedule.py's own docstring
+     records why: most fetchers poll daily through a window, so a month of
+     ticks is ~460 chips for ~30 real arrivals, and that is what made the
+     previous calendar unreadable. */
+  const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const MAX_CHIPS = 6;              // beyond this a cell shows "+N" instead
+  let calYear = null, calMonth = null, selectedDay = null;
+
+  const ymd = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+  // Countries currently passing the search box, so the filter above narrows
+  // the calendar too rather than only the table.
+  function calFilter(){
+    const q = (document.getElementById('schedSearch').value || '').toLowerCase().trim();
+    return q ? (name => String(name||'').toLowerCase().includes(q)) : (() => true);
+  }
+
+  function dropsByDate(year, month, pass){
+    const past = {}, due = {};
+    (RUNS || []).forEach(r => {
+      if(!r.date || !r.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)) return;
+      if(!pass(r.label)) return;
+      (past[r.date] = past[r.date] || []).push(r);
     });
-    const today = new Date(DATA.today + 'T00:00:00Z');
-    const dom = today.getUTCDate();
-    const cells = Object.keys(byDay).map(Number).sort((a,b)=>a-b).map(d => {
-      const who = byDay[d]
-        .sort((a,b)=>a.country.localeCompare(b.country))
-        .map(r => `<a href="sources/${esc(r.slug)}.html">${esc(r.country)}</a>`)
-        .join(', ');
-      return `<div class="sched-day${d===dom?' sched-day--today':''}">
-        <div class="d">${ord(d)}${d===dom?' · today':''}</div>
-        <div class="who">${who}</div></div>`;
-    }).join('');
-    document.getElementById('schedCalendar').innerHTML = cells;
-    // Bare ordinals ("1st, 5th, 6th…") are ambiguous without the month.
+    // Future half: the window-opening day, projected into whatever month is
+    // being viewed. Clamped so the 31st of a 30-day month still shows.
+    const dim = new Date(Date.UTC(year, month+1, 0)).getUTCDate();
+    DATA.countries.forEach(c => {
+      const s = c.schedule;
+      if(!s || !s.enabled || !s.days || !s.days.length) return;
+      if(!pass(c.country)) return;
+      const key = ymd(year, month, Math.min(s.days[0], dim));
+      if(key <= DATA.today) return;          // the past half already has truth
+      (due[key] = due[key] || []).push(c);
+    });
+    return { past, due };
+  }
+
+  function chip(flag, label, cls, extra){
+    const glyph = flag || '🌐';
+    return `<button type="button" class="sched-fl ${cls}" data-jump="${esc(label)}"`
+         + ` title="${esc(label)}${extra ? ' · ' + esc(extra) : ''}"`
+         + ` aria-label="${esc(label)}${extra ? ', ' + esc(extra) : ''}">${glyph}</button>`;
+  }
+
+  function renderCalendar(){
+    if(calYear == null){
+      const t = new Date(DATA.today + 'T00:00:00Z');
+      calYear = t.getUTCFullYear(); calMonth = t.getUTCMonth();
+    }
+    const pass = calFilter();
+    const { past, due } = dropsByDate(calYear, calMonth, pass);
+    const first = new Date(Date.UTC(calYear, calMonth, 1));
+    const lead = (first.getUTCDay() + 6) % 7;          // Monday-first
+    const dim = new Date(Date.UTC(calYear, calMonth+1, 0)).getUTCDate();
+
+    let html = DOW.map(d => `<div class="sched-dow">${d}</div>`).join('');
+    for(let i=0;i<lead;i++) html += '<div class="sched-day sched-day--blank"></div>';
+    for(let d=1; d<=dim; d++){
+      const key = ymd(calYear, calMonth, d);
+      const landed = past[key] || [], coming = due[key] || [];
+      const isToday = key === DATA.today;
+      const isPast  = key < DATA.today;
+      let chips = landed.slice(0, MAX_CHIPS)
+        .map(r => chip(r.flag, r.label, 'sched-fl--done', 'data through ' + prettyPeriod(r.period))).join('');
+      let shown = landed.length;
+      if(shown < MAX_CHIPS){
+        chips += coming.slice(0, MAX_CHIPS - shown)
+          .map(c => chip(c.flag, c.country, 'sched-fl--due', 'window opens')).join('');
+      }
+      const total = landed.length + coming.length;
+      if(total > MAX_CHIPS) chips += `<span class="sched-fl--more">+${total - MAX_CHIPS}</span>`;
+      html += `<button type="button" class="sched-day${isToday?' sched-day--today':''}`
+            + `${isPast?' sched-day--past':''}${key===selectedDay?' sched-day--sel':''}"`
+            + ` data-day="${key}" aria-label="${key}, ${total} event${total===1?'':'s'}">`
+            + `<span class="d">${d}</span><span class="who">${chips}</span></button>`;
+    }
+    const mount = document.getElementById('schedCalendar');
+    mount.innerHTML = html;
+
     const lbl = document.getElementById('schedCalMonth');
-    if(lbl) lbl.textContent = '— ' + MONTHS[today.getUTCMonth()] + ' ' + today.getUTCFullYear()
-          + ', and every month on the same days';
+    if(lbl) lbl.textContent = '— ' + MONTHS[calMonth] + ' ' + calYear;
+
+    mount.querySelectorAll('[data-day]').forEach(el => {
+      el.addEventListener('click', ev => {
+        if(ev.target.closest('[data-jump]')) return;   // the flag handles itself
+        selectedDay = (selectedDay === el.dataset.day) ? null : el.dataset.day;
+        renderCalendar(); renderCalDetail();
+      });
+    });
+    mount.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', ev => { ev.stopPropagation(); jumpToCountry(el.dataset.jump); });
+    });
+    renderCalDetail();
+  }
+
+  function renderCalDetail(){
+    const box = document.getElementById('schedCalDetail');
+    if(!box) return;
+    if(!selectedDay){ box.hidden = true; box.innerHTML = ''; return; }
+    const pass = calFilter();
+    const { past, due } = dropsByDate(calYear, calMonth, pass);
+    const landed = past[selectedDay] || [], coming = due[selectedDay] || [];
+    const d = new Date(selectedDay + 'T00:00:00Z');
+    const head = `${DOW[(d.getUTCDay()+6)%7]} ${d.getUTCDate()} ${MONTHS[calMonth]} ${calYear}`;
+    let items = landed.map(r =>
+      `<li><span>${r.flag||'🌐'}</span><span class="lbl">${esc(r.label)}</span>`
+      + `<span class="per">data through ${esc(prettyPeriod(r.period))}</span>`
+      + `<a href="sources/${esc(r.slug)}.html">source</a>`
+      + `<a href="#gallery" data-jump="${esc(r.label)}">charts →</a></li>`).join('');
+    items += coming.map(c =>
+      `<li><span>${c.flag||'🌐'}</span><span class="lbl">${esc(c.country)}</span>`
+      + `<span class="per">window opens — expecting ${esc(prettyPeriod(c.expected_period))}</span>`
+      + `<a href="sources/${esc(c.slug)}.html">source</a></li>`).join('');
+    box.hidden = false;
+    box.innerHTML = `<h4>${esc(head)}</h4>`
+      + (items ? `<ul>${items}</ul>`
+               : '<div class="per">Nothing landed and nothing due on this day.</div>');
+    box.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', ev => { ev.preventDefault(); jumpToCountry(el.dataset.jump); });
+    });
+  }
+
+  // Same path the landing search uses: write the real gallery filter and fire
+  // its own 'input' event, so the existing applyFilters() runs rather than a
+  // second filter implementation living here.
+  function jumpToCountry(label){
+    const base = String(label||'').split(' (')[0].trim();
+    const target = document.getElementById('search');
+    if(target){
+      target.value = base;
+      target.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    location.hash = '#gallery';
+  }
+
+  function shiftMonth(delta){
+    const m = calMonth + delta;
+    calYear += Math.floor(m/12);
+    calMonth = ((m % 12) + 12) % 12;
+    selectedDay = null;
+    renderCalendar();
   }
 
   function render(){
@@ -4976,15 +5255,55 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
     throw new Error('Could not load sources/schedule.json');
   }
 
+  // Same two-candidate dance as loadSchedule(), but a failure here is not
+  // fatal: it costs the calendar its "landed" chips, not the tab.
+  async function loadRuns(){
+    const candidates = [
+      new URL('sources/runs.json', location.href).href,
+      'sources/runs.json',
+    ];
+    for(const url of candidates){
+      try{
+        const r = await fetch(url, {cache:'no-store'});
+        if(r.ok){ const j = await r.json(); return j.runs || []; }
+      }catch{ /* try next */ }
+    }
+    return null;
+  }
+
   function init(){
     if(DATA) return;
     loadSchedule()
       .then(j => {
         DATA = j;
-        document.getElementById('schedSearch').addEventListener('input', render);
+        // The search box filters the table and the calendar together — they
+        // are two views of the same question, so one narrowing them both is
+        // less surprising than two independent filters.
+        document.getElementById('schedSearch').addEventListener('input', () => {
+          render(); renderCalendar();
+        });
         document.getElementById('schedSort').addEventListener('change', render);
+        const on = (id, fn) => {
+          const el = document.getElementById(id);
+          if(el) el.addEventListener('click', fn);
+        };
+        on('schedCalPrev',  () => shiftMonth(-1));
+        on('schedCalNext',  () => shiftMonth(1));
+        on('schedCalToday', () => {
+          const t = new Date(DATA.today + 'T00:00:00Z');
+          calYear = t.getUTCFullYear(); calMonth = t.getUTCMonth();
+          selectedDay = DATA.today;
+          renderCalendar();
+        });
         render();
         renderCalendar();
+        // Arrival history lands second and only refills the calendar, so the
+        // table never waits on it.
+        loadRuns().then(runs => {
+          RUNS = runs || [];
+          renderCalendar();
+          if(selectedDay) renderCalDetail();
+        });
       })
       .catch(err => {
         document.getElementById('schedMount').innerHTML =
@@ -8495,6 +8814,275 @@ if (stepTraces.length){
       .addEventListener('click', ()=>ensurePlotly().then(build));
   });
 
+  // -------- Time-lapse --------
+  // Reuses publicationLayout / PLOTLY_PUB_CFG / ensurePlotly from this
+  // closure rather than growing a second chart vocabulary.
+  //
+  // Data: builder_history/series/<group>.json, one file per group carrying
+  // every snapshot date for both country sets (see
+  // scripts/build_builder_series.py). ~39 KB, fetched for the selected group
+  // only — the raw builder_history/*.csv archive is 5.8 MB and the wrong
+  // shape for a browser.
+  const TL = {
+    manifest: null,
+    cache: new Map(),
+    doc: null,
+    idx: 0,
+    timer: null,
+    booted: false,
+  };
+  // Display names come from the series files (`label`) and the manifest's
+  // `labels` map, so the spotlight-country list lives in exactly one place
+  // -- scripts/snapshot_builder.py -- instead of being mirrored here.
+  const tlLabel = key => (TL.manifest && TL.manifest.labels && TL.manifest.labels[key]) || key;
+
+  const tlEl = id => document.getElementById(id);
+
+  async function tlFetchJSON(path){
+    for(const url of [new URL(path, location.href).href, path]){
+      try{
+        const r = await fetch(url, {cache:'no-store'});
+        if(r.ok) return await r.json();
+      }catch{ /* try next */ }
+    }
+    return null;
+  }
+
+  function tlCountrySet(){ return tlEl('tlCountrySet').value; }
+
+  // Linear interpolation on the stored grid. Returns null when the curve
+  // never reaches `pct` inside the plotted range — "not in this window" is a
+  // real answer and must not be faked with an endpoint.
+  function tlCrossing(years, ys, pct){
+    for(let i=1;i<ys.length;i++){
+      const a = ys[i-1], b = ys[i];
+      if(a == null || b == null) continue;
+      if(a < pct && b >= pct){
+        return years[i-1] + (pct - a) * (years[i] - years[i-1]) / (b - a);
+      }
+    }
+    return null;
+  }
+
+  function tlFrameSeries(frame){
+    const set = tlCountrySet();
+    // A frame always has `all`; `cohort` exists only once the cohort set has
+    // been generated. Fall back rather than drawing nothing.
+    return (set === 'cohort' && frame.cohort) ? frame.cohort : frame.all;
+  }
+
+  function tlDraw(){
+    const doc = TL.doc;
+    if(!doc) return;
+    const years = doc.years;
+    const frame = doc.frames[TL.idx];
+    const cur = tlFrameSeries(frame);
+    const set = tlCountrySet();
+
+    // Ghost fan: the BEV curve of every *earlier* snapshot, faint, so the
+    // movement is visible as a shape and not only as motion.
+    //
+    // Only earlier ones. Drawing the whole fan on every frame would put
+    // September's estimate faintly behind December's — knowledge that did
+    // not exist on the date the frame is labelled with. It also means the
+    // trail builds up as the animation plays, which is what the effect
+    // looked like it was doing in the first place.
+    const ghosts = doc.frames.slice(0, TL.idx).map(f => {
+      const s = tlFrameSeries(f);
+      return {
+        x: years, y: s.bev,
+        mode: 'lines', type: 'scatter',
+        line: { width: 1, color: COLORS.BEV, simplify: false },
+        opacity: 0.16,
+        connectgaps: false,
+        hoverinfo: 'skip', showlegend: false,
+      };
+    });
+
+    const line = (ys, color, name) => ({
+      x: years, y: ys, mode:'lines', type:'scatter',
+      line:{ width:3.2, color, simplify:false },
+      connectgaps: false,            // 2025-12-25 has no ICE/PHEV fit at all
+      name, hovertemplate:'%{y:.1f}% fitted<extra></extra>',
+    });
+
+    const traces = ghosts.concat([
+      line(cur.bev,  COLORS.BEV,  'BEV'),
+      line(cur.ice,  COLORS.ICE,  'ICE'),
+      line(cur.phev, COLORS.PHEV, 'PHEV'),
+    ]);
+
+    const label = doc.label || tlLabel(doc.group);
+    // A spotlight country is a group of one, where "44-country cohort" would
+    // be nonsense.
+    const isCountry = String(doc.group).startsWith('country_');
+    const setLab = isCountry ? 'single market'
+      : (set === 'cohort' ? `fixed ${doc.n_cohort}-country cohort`
+                          : `${frame.n_countries} countries`);
+    const layout = publicationLayout(
+      `BEV, ICE & PHEV share — ${label} · as estimated ${frame.date}`,
+      { sources: `snapshot ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
+    );
+    Plotly.react('tlPlot', traces, layout, PLOTLY_PUB_CFG);
+
+    tlEl('tlStamp').textContent =
+      `${frame.date}  (${TL.idx+1}/${doc.frames.length})`;
+
+    const c50 = tlCrossing(years, cur.bev, 50);
+    const n = set === 'cohort' ? (frame.n_cohort ?? doc.n_cohort) : frame.n_countries;
+    const w = set === 'cohort' ? (frame.cohort_weight ?? null) : frame.total_weight;
+    const bits = [
+      `<b>${frame.date}</b>`,
+      frame.data_per ? `data through ${frame.data_per}` : null,
+      // "1 countries" for a single market is noise as well as bad grammar.
+      isCountry ? null : (n != null ? `${n} countries` : null),
+      w != null ? `${Number(w).toLocaleString()} vehicles/yr` : null,
+      c50 != null ? `BEV 50% at <b>${c50.toFixed(2)}</b>` : 'BEV 50% not reached by 2050',
+    ].filter(Boolean);
+    tlEl('tlReadout').innerHTML = bits.join(' &middot; ');
+
+    const note = tlEl('tlNote');
+    if(isCountry){
+      // Neither country-set note applies: there is one country either way,
+      // so nothing here is affected by changing coverage.
+      note.className = 'small tl-note';
+      note.innerHTML = `One market, so the Countries selector does not apply — `
+        + `everything that moves here is revised data and newly arrived months.`;
+    } else if(set === 'all'){
+      const lo = doc.frames[0].n_countries, hi = doc.frames.at(-1).n_countries;
+      note.className = 'small tl-note' + (lo !== hi ? ' warn' : '');
+      note.innerHTML = lo !== hi
+        ? `Coverage grows from <b>${lo}</b> to <b>${hi}</b> countries across these `
+          + `frames, so part of this movement is the gallery gaining countries, `
+          + `not the market changing. Switch to the fixed cohort to separate the two.`
+        : '';
+    } else {
+      note.className = 'small tl-note';
+      note.innerHTML = `Every frame uses the same <b>${doc.n_cohort}</b> countries — `
+        + `the ones present on all ${doc.frames.length} dates — so what moves here `
+        + `is revised data and newly arrived months, not changing coverage.`;
+    }
+  }
+
+  function tlStop(){
+    if(TL.timer){ clearInterval(TL.timer); TL.timer = null; }
+    tlEl('tlPlay').textContent = '▶ Play';
+  }
+
+  function tlGo(i){
+    if(!TL.doc) return;
+    const n = TL.doc.frames.length;
+    TL.idx = ((i % n) + n) % n;
+    tlEl('tlSlider').value = String(TL.idx);
+    tlDraw();
+  }
+
+  function tlPlay(){
+    if(TL.timer || !TL.doc) { tlStop(); return; }
+    const last = () => TL.doc.frames.length - 1;
+    // The panel opens parked on the newest frame, which is also where a pass
+    // ends. Pressing play there means "run it again", so rewind first --
+    // otherwise the tick below would stop on the spot.
+    if(TL.idx === last()) tlGo(0);
+    tlEl('tlPlay').textContent = '❚❚ Pause';
+    TL.timer = setInterval(() => {
+      if(TL.idx >= last()){ tlStop(); return; }   // one pass, resting on newest
+      tlGo(TL.idx + 1);
+    }, 650);
+  }
+
+  async function tlLoadGroup(g){
+    if(TL.cache.has(g)){ TL.doc = TL.cache.get(g); return true; }
+    const doc = await tlFetchJSON(`builder_history/series/${g}.json`);
+    if(!doc) return false;
+    TL.cache.set(g, doc);
+    TL.doc = doc;
+    return true;
+  }
+
+  // The animation is rendered and committed by snapshot-builder.yml, one GIF
+  // per group, overwritten in place. The page only links to it — no encoder
+  // ships to the browser for a button most visitors never press.
+  //
+  // The stored GIF is always the fixed-cohort view, because that is the one
+  // that travels honestly without the page's warning around it. The label
+  // says so rather than letting someone assume it matches whatever the
+  // Countries selector happens to be on.
+  async function tlSyncGif(g){
+    const a = tlEl('tlGif');
+    if(!a) return;
+    const href = `builder_history/series/${g}.gif`;
+    a.hidden = true;
+    try{
+      const r = await fetch(new URL(href, location.href).href, { method:'HEAD' });
+      if(!r.ok) return;
+    }catch{ return; }
+    a.href = href;
+    const bare = String(g).replace(/^country_/, '');
+    a.setAttribute('download', `bev-timelapse-${bare}.gif`);
+    const n = TL.doc && TL.doc.n_cohort;
+    a.textContent = String(g).startsWith('country_')
+      ? '↓ Download animation'
+      : (n ? `↓ Download animation (${n}-country cohort)` : '↓ Download animation');
+    a.hidden = false;
+  }
+
+  async function tlSelectGroup(g){
+    tlStop();
+    const ok = await tlLoadGroup(g);
+    if(!ok){
+      tlEl('tlReadout').textContent = `Could not load the ${g} time-lapse.`;
+      return;
+    }
+    tlEl('tlSlider').max = String(TL.doc.frames.length - 1);
+    tlGo(TL.doc.frames.length - 1);   // open on the newest estimate
+    tlSyncGif(g);
+  }
+
+  async function tlInit(){
+    if(TL.booted) return;
+    const card = tlEl('tlCard');
+    if(!card) return;
+    TL.booted = true;
+
+    TL.manifest = await tlFetchJSON('builder_history/series/index.json');
+    if(!TL.manifest || !TL.manifest.groups || !TL.manifest.groups.length){
+      // No archive published — say so and remove the control rather than
+      // leaving dead widgets behind.
+      card.innerHTML = '<p class="small">No snapshot history is published yet.</p>';
+      return;
+    }
+
+    const gsel = tlEl('tlGroup');
+    // Regions first, then the single-country spotlights, each alphabetical --
+    // a flat alphabetical list would bury "World" between two countries.
+    const isC = g => String(g).startsWith('country_');
+    const byLabel = (a, b) => tlLabel(a).localeCompare(tlLabel(b));
+    const regions = TL.manifest.groups.filter(g => !isC(g)).sort(byLabel);
+    const countries = TL.manifest.groups.filter(isC).sort(byLabel);
+    const opts = gs => gs.map(g => `<option value="${g}">${tlLabel(g)}</option>`).join('');
+    gsel.innerHTML =
+      (regions.length ? `<optgroup label="Regions">${opts(regions)}</optgroup>` : '')
+      + (countries.length ? `<optgroup label="Single markets">${opts(countries)}</optgroup>` : '');
+    gsel.value = TL.manifest.groups.includes('world') ? 'world' : TL.manifest.groups[0];
+
+    await ensurePlotly();
+    gsel.addEventListener('change', () => tlSelectGroup(gsel.value));
+    tlEl('tlCountrySet').addEventListener('change', () => { tlStop(); tlDraw(); });
+    tlEl('tlSlider').addEventListener('input', e => { tlStop(); tlGo(+e.target.value); });
+    tlEl('tlPrev').addEventListener('click', () => { tlStop(); tlGo(TL.idx - 1); });
+    tlEl('tlNext').addEventListener('click', () => { tlStop(); tlGo(TL.idx + 1); });
+    tlEl('tlPlay').addEventListener('click', tlPlay);
+
+    await tlSelectGroup(gsel.value);
+  }
+
+  // Only load when the Builder tab is actually opened — the archive is not
+  // on the first-paint path.
+  const tlMaybeInit = () => { if(location.hash.split('?')[0] === '#builder') tlInit(); };
+  window.addEventListener('hashchange', tlMaybeInit);
+  window.addEventListener('DOMContentLoaded', tlMaybeInit);
+
   // -------- Compare tab --------
   // Reuses PARAM_ROWS / WEIGHTS / BUILDER_GROUPS from the Builder closure.
   /* VISUAL REDESIGN (2026-09), Phase 3.
@@ -10688,6 +11276,14 @@ const FAQ_DATA = [
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035, 2023 and 2025 are fixed calendar dates. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
       '<b>Unsettled</b> \u2014 a market whose fit is still moving too much to carry tags at all. Every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). Move it more than 25 years \u2014 or stop producing a crossing in a quarter of them \u2014 and status, speed and timing would be noise, so a single <em>Unsettled</em> pill replaces them. Between 5 and 25 years the tags are still shown but drawn hollow, and the popover reports the drift. Under 5 years they are drawn solid. The chart itself is never affected, only the tags.',
       'All thresholds (80 %, 2035, 10 %, 2023, 2025), the quartile breakpoints and the stability cut-offs are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+    ] },
+  { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',
+    answers: [
+      'Dot size is <b>that month’s market size, relative to the same country’s other months</b>. A big dot is a month with relatively many registrations, a small dot a quiet month. It carries no information about BEV share — that is the dot’s position on the y-axis.',
+      'Precisely, the size is a z-transformation of the month’s total registrations:<br><code>size = 2 + (value − mean(value)) / sd(value)</code><br>where <code>value</code> is that month’s <code>TOTAL</code> and the mean and standard deviation are taken over the months plotted for that country.',
+      '<b>Sizes are only comparable within one chart.</b> Because the mean and standard deviation are computed per country, a large dot on a small market means "a busy month for that market", not "a big market". Do not read a Malta dot against a Germany dot.',
+      'It applies to the observed points on the <em>BEV trajectory</em> chart and to all three series on the <em>BEV / ICE / PHEV</em> chart.',
+      'The fit does use the same monthly total, but differently: the regression minimises <code>sum((residual × TOTAL)²)</code>, so a busy month pulls the curve harder. The marker you see is that same number z-transformed for display. So a big dot really does mean "this point counted for more", but the two transforms are not the same and the sizes are not the weights.'
     ] },
   { tag: 'general', label: 'General', q: 'What does this project do?',
     answers: ['It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.'] },
