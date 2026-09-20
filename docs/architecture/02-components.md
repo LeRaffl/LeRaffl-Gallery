@@ -223,6 +223,11 @@ A set of small, focused R modules that turn `data/<Country>.csv` into the four c
 - `R/fit.R::fit_history` is **byte-for-byte the historical Germany script's regression code**, only renamed for country-agnostic use. Do not change the math without coordinating with the maintainer; threshold reproducibility for old runs depends on it.
 - `R/data.R::compute_ttm_long` only emits a row when **every present fuel column** has a complete 12-month non-NA window. This is what makes the TTM stack hit 100% from the very first plotted period.
 - `R/upsert.R::upsert_params` writes line-level — only the touched country/variant row changes. Previous attempts that round-tripped the whole CSV through `read.csv`/`write.table` caused noisy reformatting (scientific → decimal, trailing zero changes) and were reverted.
+- **A chart never claims a split its source does not publish.** Two flags in `render_country.R` carry this, both derived per country/variant and passed through `meta`:
+  - `bev_label` — `"EV"` instead of `"BEV"` where the source folds PHEV *into* the BEV column (ACEA's CV release; gated on source **and** variant).
+  - `has_phev_split` — `FALSE` where the source publishes a single combined hybrid figure, which the pipeline parks in `HEV` with `PHEV`/`EREV` left empty (Türkiye, Georgia, Colombia, Malaysia, and every ACEA CV variant). `compute_shares()` reads an empty column as `0`, so the trajectory plot used to draw a PHEV curve, ribbon, points and legend entry pinned at a zero the source never measured — the chart-level twin of the "leave empty, never `0.0`" CSV invariant ([#210](https://github.com/LeRaffl/LeRaffl-Gallery/issues/210)). When `FALSE`, `plot_ice_bev_phev()` omits the PHEV series and titles the chart `<BEV> / ICE`.
+
+  `has_phev_split` is read **from the data**, never from a country list: which sources split PHEV changes over time (`data.gov.my` gained `plug_in_hybrid_petrol` around 2024), so the curve returns by itself the moment a real value lands. Neither flag touches the fit — hybrids stay inside ICE, so `params.csv`, thresholds and durations are unchanged and countries stay comparable.
 
 ### Why split into so many files?
 
@@ -405,25 +410,29 @@ OUTPUT: builder_history/<YYYY-MM-DD>.csv   (14 groups × 351 year-steps)
 
 ### Key invariants
 
-- > ⚠️ **This mirror is currently broken — the script is one year behind the page.**
-  > Not a doc nit: it means `builder_history/` and the live Builder disagree.
-  > Tracked in [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219); read
-  > that before treating a snapshot and the page as comparable.
+- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf` / `calendarYearOrNaN`. The JS quirk that `Number('') === 0` is **not** something either side leans on: both guard every calendar-year field through `calendarYearOrNaN` / `calendar_year_or_nan()`, so an absent `baseline_year` column reads as NaN rather than "baseline year 0". **2026-06 calendar-year fix:** both `index.html` and this script feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
+- `baseline_year_of()` returns NaN for a production row (no `baseline_year` column, empty `baseline_date`) and is **not** part of the finiteness gate in `compute_group_curve()` — `index.html` computes it and does not gate on it either. Gating on it would silently empty every snapshot.
+- > ℹ️ **`builder_history/` spans two x-bases; snapshots dated 2026-06-25 through 2026-09-09 are one year off.** Resolved in
+  > [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219); the seam is a
+  > closed band, not an open bug, but read this before comparing snapshots across it.
   >
-  > The 2026-09 UI overhaul fixed `getT0Years()` in `index.html`: empty baseline
-  > fields no longer go through `normNumber()`, which returns `0` for both `''`
-  > and `undefined`. Production `params.csv` has **no `baseline_year` column** and
-  > an empty `baseline_date`, so the old code took the baseline branch with
-  > `by = 0` and returned `(t0 - 0) + 1` — one year too late, re-introducing the
-  > very offset the 2026-06 calendar-year fix removed. `snapshot_builder.py` still
-  > mirrors the pre-fix behaviour (`norm_number(None) == 0.0`), so for a
-  > production row it yields `2020.0` where the page now yields `2019`.
+  > `get_t0_years()` used to read an absent `baseline_year` as `0` and return
+  > `(t0 - 0) + 1`. Before the 2026-06 calendar-year fix that cancelled against
+  > the `x = year + 1` the script also used, so `z = x - t0` came out right by
+  > accident. The 2026-06 fix removed the first offset and left the second
+  > exposed, putting those snapshots one year **late**; #219 removed the second.
+  > Measurable in the committed files: the world 50%-crossing jumps +1.08 years
+  > at 2026-06-25 against ~0.05 years of normal drift.
   >
-  > The quirk below was therefore never an invariant worth preserving — it was the
-  > bug, written down as if intended.
-- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf`, historically byte-for-byte — **see the warning above for where that no longer holds.** The JS-only quirk that `Number('') === 0` is what the pre-fix in-page Builder leaned on when `params.csv` carries no `baseline_year` column (see the script's module docstring); the page no longer does. **2026-06 calendar-year fix:** both `index.html` and this script feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
+  > **Those snapshots were rebuilt, not annotated**, so the series is on one
+  > basis end to end and no correction is needed to compare any two entries.
+  > #219 assumed the band could not be regenerated "without a historical
+  > parameter store ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220))";
+  > that premise was wrong — `params.csv` and `weights.csv` are versioned, so
+  > **git is that store**. See 2.13.
 - Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()` (see *Reconstructed rows* under 2.1). A v1=0 row produces the same recovered Weibull on the page and in the snapshot — **this part of the mirror is genuinely still intact.** `applyV1Recovery()` passes the raw `r.t0` straight through on both sides and never calls `getT0Years()`, so the drift above cannot reach it. The recovery keeps R's own `verschiebung - 1` convention internally (`dt = year_model - (t0n - 1)`), which is why it is unaffected and must stay that way.
-- Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change.
+- Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change. `update_index_json()` rewrites only `snapshots` and `updated`, leaving `basis_history` and any other top-level key intact.
+- Regression tests: [`scripts/test_snapshot_builder.py`](../../scripts/test_snapshot_builder.py) (`python scripts/test_snapshot_builder.py` — no network, no dependencies, not wired into CI). They pin the #219 fix, the baseline branches that must still work, and `baseline_year_of()` staying out of the finiteness gate.
 - No render trigger downstream — snapshots are pure read-only artefacts; the static page is not (yet) a consumer.
 
 ### Why a separate script instead of extending `R/render_country.R`?
@@ -498,6 +507,133 @@ Hand-porting the palette into each generator would have left three copies to dri
 ### Why not just give `index.html` the same `<link>`?
 
 It would make the single-file page depend on a second file and add a render-blocking request to the first paint — the one surface where that matters. `index.html` keeps its tokens inline and *exports* them; the secondary pages import. See § 2.1 *Why a single file with no build?*.
+## 2.13 Builder-History Rebuilder (`scripts/rebuild_builder_history.py`)
+
+### What it is
+
+A script that regenerates **any** past `builder_history/` snapshot from the `params.csv` / `weights.csv` that git holds for that date, by resolving the newest commit touching each file at or before the target date and re-running `snapshot_builder.py` over the recovered blobs.
+
+### Why it exists
+
+[#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219) offered two ways to handle the one-year basis error and ruled out the better one:
+
+> *"Cannot be regenerated without a historical parameter store, so this is blocked on #220."*
+
+**That premise was wrong. `params.csv` and `weights.csv` are versioned — git is the historical parameter store.** The snapshots were therefore repaired rather than merely labelled, and #220 is no longer a prerequisite for a correct history (it remains useful for other reasons, but not for this).
+
+### Evidence it reconstructs rather than approximates
+
+| check | result |
+|---|---|
+| Rebuild `2026-09-09` from that date's commit vs the committed file | identical to **0.0000 pp** once the known one-year shift is applied |
+| Rebuild the four May snapshots (already on the correct basis) | reproduced to within **0.008 years** — residual is params moving inside the snapshot day |
+| Rebuild the six offset snapshots | each moved by exactly **−1.000 years** |
+| Largest step between consecutive snapshots after the rebuild | **0.442 years**, i.e. ordinary drift — the +1.08-year seam is gone |
+
+### Key invariants
+
+- **The date list is explicit** (`SNAPSHOT_DATES`), not a resampling of git. The ten dates that were really taken are preserved — a snapshot records that a run happened, and renaming that is worse than correcting it — plus a monthly backfill on the 25th, the snapshot-builder cron day.
+- **`weights.csv` first exists 2025-12-22**, which is the hard floor for a *weighted* aggregate. Earlier params-only dates are skipped rather than aggregated unweighted, because an unweighted curve is a different quantity wearing the same name.
+- `params.csv` and `weights.csv` are resolved **independently**; they usually move in one commit but not always (2025-12-25, 2026-05-31 and 2026-08-25 each draw them from different commits).
+- Re-running is safe and idempotent: the output depends only on git history and the current `snapshot_builder.py`.
+
+### Consequence for the series
+
+The history now spans **2025-12-25 → 2026-09-09** (15 snapshots) instead of starting 2026-05-20, because the inputs existed in git long before anyone took the first snapshot. The world-aggregate 50 %-crossing estimate visibly drifts 2030.9 → 2032.0 → 2031.7 across that span, which is the "what did I estimate back then?" question [#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220) asks — now answerable for dates before the feature existed.
+
+### The cohort set (`--cohort`)
+
+`rebuild_builder_history.py --cohort` writes a **second** series into `builder_history/cohort/`, where every frame is restricted to the countries present on *all* snapshot dates (currently **44**).
+
+This exists because the `world` group grows from 44 to 52 countries across the series, so a naive time-lapse animates the gallery being built as much as the market moving. Measured on the 50 %-crossing:
+
+| | span across the 15 frames |
+|---|---|
+| all countries as of each date | 2030.87 → 2032.01 — **1.13 years** |
+| fixed 44-country cohort | 2030.87 → 2031.50 — **0.63 years** |
+
+So roughly **half** of the apparent drift is composition, not the model changing its mind. Both sets are kept; the difference between them is the finding.
+
+Countries are matched on **identity, not spelling**: `params.csv` carried `New Zealand` until 2026-01, `NewZealand` through 2026-03, then `New Zealand` again. A cohort built on raw strings silently drops it and reports 43.
+
+### Spotlight countries
+
+`snapshot_builder.py::SPOTLIGHT_COUNTRIES` adds a handful of single-country series — currently Germany, China, Norway, USA, Japan, France — written under a `country_<slug>` key.
+
+They are **not** added to `BUILDER_GROUPS`, which mirrors `index.html`; a country is not a group there. The separate key space keeps the mirror intact and cannot collide with a group name, and the slug is safe as a filename and a URL.
+
+A country belongs on the list only if it is worth a single-case discussion **and** appears in every snapshot — otherwise its time-lapse has holes. Check `builder_history/cohort/index.json` before adding one.
+
+## 2.14 Time-lapse Series Builder (`scripts/build_builder_series.py`)
+
+### Responsibility
+
+Pivots `builder_history/` into the shape a browser wants: one file per group carrying **every** snapshot date for **both** country sets.
+
+```
+INPUT:  builder_history/<date>.csv          (all groups, one date)
+        builder_history/cohort/<date>.csv
+OUTPUT: builder_history/series/<group>.json (one group, all dates, both sets)
+        builder_history/series/index.json   (groups, dates, cohort list)
+```
+
+### Why a separate artefact
+
+The archive is 197 KB per snapshot and 5.8 MB in total. A reader looking at one group would otherwise download all fourteen, fifteen times over. The pivoted form is **~39 KB per group**, and the panel fetches only the group on screen.
+
+Resolution drops from 0.1-year to **0.5-year steps**. The stored curves are smooth fits; at animation speed the finer grid is invisible and costs five times the bytes.
+
+**Empty cells stay empty.** `params.csv` carried no ICE fit before 2026-01, so the oldest frame has no `ice_share`/`phev_share` at all. Those become `null` and the chart sets `connectgaps: false`, drawing a gap — a `0.0` there would assert "no combustion cars", the chart-level form of the no-split-column invariant in `AGENTS.md`.
+
+### Regeneration
+
+`.github/workflows/snapshot-builder.yml` runs it right after `snapshot_builder.py`, so a new snapshot reaches the panel in the same commit. Output is byte-identical on re-run.
+
+## 2.15 Time-lapse panel (`index.html`, Builder tab)
+
+Reads `builder_history/series/`, lazily — only when `#builder` is opened, and only the selected group.
+
+- **Group** — the 14 aggregate groups, then the spotlight countries, in two `<optgroup>`s. Display names come from the series files, so the country list lives only in `snapshot_builder.py`.
+- **Countries** — `Fixed cohort` (default) or `All covered on each date`. Choosing the latter surfaces a marked warning naming the coverage growth, because that view genuinely mixes two effects.
+- **Transport** — play (one pass, resting on the newest frame), step, and a scrub slider.
+- Behind the current frame, the BEV curve of every **earlier** snapshot is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put September's estimate faintly behind December's — knowledge that did not exist on the date the frame is labelled with.
+- Readout: date, data-through period, country count, weighted volume, and the interpolated BEV-50 % year (`null` when the curve never reaches it in range — "not in this window" is a real answer and is not faked with an endpoint).
+
+- **Download** — links the GIF the workflow already committed (see 2.16). Nothing is encoded in the browser, and the button hides itself if that group has no file yet.
+
+It is deliberately a **separate panel** rather than a mode of the Builder above: the archive holds fixed aggregate *groups*, not arbitrary country picks, so folding it into the country selector would promise a view the data cannot produce.
+
+## 2.16 Time-lapse GIF (`scripts/build_builder_gif.py`)
+
+### Responsibility
+
+Renders each group's series into `builder_history/series/<group>.gif` — one animated GIF per group, **overwritten in place** on every run.
+
+Not dated. Each rebuild is the same animation with one more frame on the end, so keeping `timelapse-2026-09.gif` beside `timelapse-2026-10.gif` would store the same seconds of footage over and over.
+
+### Why server-side, and why Pillow
+
+Encoding in the browser would ship a GIF encoder to every visitor for a button almost nobody presses, and this repo already generates and commits its images (`images/`, `posts/`). So `snapshot-builder.yml` renders it once and the page links to the file.
+
+Pillow rather than matplotlib: the chart is three polylines and a pair of axes. That costs one small dependency instead of matplotlib + numpy, and the frame uses the gallery's own palette instead of a plotting library's defaults.
+
+### Size
+
+`disposal=1` lets Pillow store only what changed between frames. The axes, grid and ghost fan are identical throughout, so this roughly halves the file — **248 KB → 107 KB** for `world`, **1.5 MB** for all fourteen groups. Verified rather than assumed: every decoded frame is pixel-identical to the source render, so the optimiser is emitting the erase regions the moving curves need.
+
+### Which series get one
+
+`GIF_GROUPS` — a curated list, **not** every series. Four blocs (`world`, `eu`, `asia`, `north_america`) and the six spotlight countries: ten files, ~970 KB, rewritten monthly. Rendering all twenty would double that for an artefact whose job is to be shared rather than exhaustive. `--all` overrides it; the panel still scrubs and plays every series either way, and the download button hides itself for the ones without a file.
+
+### Which country set
+
+The **cohort**. The "all countries as of each date" view is honest but mixes two effects, and a GIF travels without the panel's warning around it — so the shareable artefact is the one that does not need the warning. The frame says which set it is showing, and the download button repeats it. A spotlight country is a group of one, where "44-country cohort" would be nonsense, so those frames read `single market` instead.
+
+### Honesty in the frame
+
+A frame names only the series it actually has. `params.csv` carried no ICE fit before 2026-01, so the oldest frame is titled *"World — BEV share"* with a single legend entry and *"(ICE/PHEV not fitted in this snapshot)"*. A title promising three curves over a chart with one reads as "the other two are at zero" rather than "the other two were never computed".
+
+Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast`, because the still travels without the page around it.
 
 ## See also
 

@@ -667,11 +667,13 @@ sequenceDiagram
     Job->>Repo: commit if changed
 ```
 
-**Where the math lives:** [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py). The module docstring documents the JS-quirk (Number('') === 0) that the in-page Builder relies on for missing `baseline_year` columns and that the Python script mirrors so the output is bit-equivalent to what the in-page Builder plots.
+**Where the math lives:** [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py), mirrored against `index.html` so the output reproduces what the in-page Builder plots. The module docstring documents the one place that mirror has slipped: `Number('') === 0` (and `norm_number('') == 0.0`) used to make an absent `baseline_year` column read as "baseline year 0" and shift the curve a year. Both sides now guard it (`calendarYearOrNaN` / `calendar_year_or_nan()`), but snapshots written between 2026-06-25 and 2026-09-09 carry the offset — see [3.7](03-data-objects.md#37-builder-history-snapshots) for the `basis` field that marks them and [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219).
 
 **Why monthly:** the underlying data (`params.csv`, `weights.csv`) is updated on a roughly monthly cadence per country. Daily snapshots would mostly duplicate themselves. Monthly snapshots match the natural update cadence and keep the repository footprint at ~200 KB per snapshot (~2.4 MB/year).
 
-**Why bit-equivalent to the in-page Builder:** the static page is the canonical surface area for the curves. Anyone comparing a snapshot to the live page (e.g. validating a time-lapse frame against today's view) should see identical numbers. The cross-check is mechanical: a Node port of `bevShareIndex` / `getT0Years` / `baselineYearOf` over the same `params.csv` matches the Python script to four decimal places.
+**Why bit-equivalent to the in-page Builder:** the static page is the canonical surface area for the curves. Anyone comparing a snapshot to the live page (e.g. validating a time-lapse frame against today's view) should see identical numbers. The cross-check is mechanical, and #219 is what happens when nobody runs it — extract `parseCSV` / `normNumber` / `calendarYearOrNaN` / `getT0Years` / `bevShareIndex` out of `index.html` verbatim, run them over `params.csv` under Node, and diff against the Python. Re-verified at the #219 fix across all 133 rows (`t0`, `ice_t0`, and six share points each): zero mismatches, worst absolute difference `1.1e-16` — float noise, not four decimals. Extract the functions rather than retyping them; a hand-written port with its own CSV splitter silently mis-parses the quoted `source` column and invents mismatches.
+
+`scripts/test_snapshot_builder.py` pins the same parity from the Python side (run `python scripts/test_snapshot_builder.py`; no network, no dependencies).
 
 **Why no render re-trigger:** snapshots are downstream of `params.csv` — they don't feed back into any chart, post-text, or manifest. The workflow only commits the new file; the page is not yet a consumer.
 
