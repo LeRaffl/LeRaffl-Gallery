@@ -1,0 +1,149 @@
+/* ---------------------------------------------------------------------------
+ * GENERATED FILE — DO NOT EDIT.
+ *
+ * Built from index.html's :root block by scripts/build_theme.py (#221).
+ * index.html is the single source of truth for the palette and the type stack;
+ * change it there and re-run:
+ *
+ *     python scripts/build_theme.py
+ *
+ * Linked by the generated standalone pages — sources/*.html
+ * (scripts/build_source_pages.py) and schedule*.html (R/render_schedule.R) —
+ * so they cannot drift away from the gallery's design.
+ * --------------------------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  /* VISUAL REDESIGN (2026-09), Phase 2. Palette komplett ersetzt.
+     Vorher: "Neo-Kinpaku" — Kinpaku-Gold auf warmem Lack, Verdigris-Patina fuer
+     aktive Zustaende. Warum sie weg ist: die Kombination dunkelbraun + gold wurde
+     als generisch KI-generiert gelesen, und das Publikum (Journalisten, Analysten,
+     EU-Ausschuss fuer Verkehr und Umwelt) erwartet eine Publikation, deren Zahlen
+     man zitieren kann — kein Produkt. Gold bleibt NICHT als Sekundaerfarbe
+     erhalten, das war eine bewusste Entscheidung und kein Versehen.
+     Jetzt: heller Grund, genau EIN Akzent (#1d4f91). --accent und --accent-2
+     sind absichtlich derselbe Wert — vorher trugen sie zwei konkurrierende
+     Farben (Gold fuer Marke, Patina fuer aktiv), und genau das las sich laut.
+     Wer hier wieder zwei Farben einsetzt, macht die Entscheidung rueckgaengig. */
+  --bg:#fdfdfc;            /* Papier — Seitengrund                              */
+  --bg-deep:#f5f4f1;       /* eine Stufe tiefer — Insets, Footer                */
+  --surface:#ffffff;       /* Flaeche — Panels, Karten                          */
+  --surface-2:#f7f6f3;     /* Eingabefelder, inaktive Kacheln                   */
+  --surface-3:#efeee9;     /* eine Stufe tiefer als surface-2                   */
+  --line:#e4e2dd;          /* Haarlinie — strukturelle Trennung                 */
+  /* VISUAL REDESIGN (2026-09), Phase 1.
+     --line-2 (#443d2b, 25x) und --line-3 (#353022, 34x) waren die beiden
+     haeufigsten hartkodierten Rahmenfarben im Stylesheet. Sie sind NICHT
+     identisch mit --line (#4b4536) und wurden deshalb bewusst NICHT mit ihm
+     zusammengefuehrt — das haette das Bild veraendert, und Phase 1 muss
+     pixelidentisch bleiben. Stattdessen zwei eigene Tokens: die drei Werte
+     bilden eine Rampe (hell -> dunkel: --line, --line-2, --line-3), die in
+     Phase 2 an einer Stelle getauscht werden kann.
+     Wer sie spaeter doch zusammenlegen will: das ist eine Design-, keine
+     Aufraeum-Entscheidung, und veraendert 59 Rahmen gleichzeitig. */
+  /* VISUAL REDESIGN (2026-09), Phase 2 — Achtung, die Rampe kippt.
+     Auf dunklem Grund war HELLER = mehr Kontrast, die Reihenfolge war also
+     --line (hellste, staerkste Linie) > --line-2 > --line-3 (dunkelste,
+     leiseste Linie). Auf hellem Grund ist es umgekehrt: DUNKLER = mehr
+     Kontrast. Die Hex-Werte sind deshalb NICHT einfach invertiert, sondern so
+     gewaehlt, dass die Rangfolge nach Kontrast erhalten bleibt — --line-3
+     bleibt die leiseste Linie, wird aber heller statt dunkler.
+     Wer hier "dunkel = dunkel" uebersetzt, dreht 59 Rahmen in ihrer
+     Gewichtung um und die Seite wird unruhig. */
+  --line-2:#e8e6e1;        /* eine Stufe leiser als --line                      */
+  --line-3:#ece9e3;        /* leiseste Stufe der Rampe                          */
+  --line-soft:rgba(26,26,24,.08);
+  --text:#1a1a18;          /* Tinte — Ueberschriften, Fliesstext                */
+  --muted:#55534c;         /* Metadaten, Bildunterschriften (4.5:1 auf --bg)    */
+  --muted-2:#8a877e;        /* leise Labels — NICHT fuer Fliesstext, ca. 3.1:1   */
+  --accent:#1d4f91;        /* DER Akzent — Marke, Links, Regeln, aktiv          */
+  --accent-deep:#143a6b;   /* Akzent tief — Hover, Rahmen                       */
+  --accent-2:#1d4f91;      /* bewusst identisch mit --accent, siehe oben        */
+  --accent-2-pale:#5a87bd; /* Akzent blass — nur Flaechen, nie Text             */
+
+  /* VISUAL REDESIGN (2026-09), Phase 3.
+     Fuenf neue Tokens. Sie sind kein neues Design, sie machen ein bestehendes
+     Muster benennbar: in der dunklen Palette war jeder "aktiv"- und
+     "Status"-Zustand eine eigene dunkle Flaeche mit eigenem hellen Text
+     (var(--accent-wash), var(--accent-wash), var(--ok-wash), var(--danger-wash), var(--warn-wash) …), 40 Einzelwerte fuer im
+     Grunde vier Rollen. Auf hellem Grund sind das vier Schleier.
+     --accent-wash traegt jeden aktiven/ausgewaehlten Zustand. Darauf steht
+     --accent als Text (7.0:1), nicht Weiss — Weiss auf einem Schleier waere
+     unlesbar, und genau das war vorher 7x der Fall.
+     --ok ist absichtlich der Gruenton der Serienpalette aus Abschnitt 5, nicht
+     ein sechster eigener Gruenton. */
+  --accent-wash:#eaf0f8;   /* Flaeche fuer aktiv/ausgewaehlt                     */
+  --ok:#3f7d52;            /* "gut" — identisch mit Serienfarbe 3                */
+  --ok-wash:#eef6f0;       /* Flaeche fuer Erfolg/geloest                        */
+  --danger-wash:#fdecec;   /* Flaeche fuer Fehler                                */
+  --warn-wash:#fbf6e8;     /* Flaeche fuer Hinweis                               */
+  --warn:#9a6a00;          /* Warnung                                           */
+  --danger:#b5451b;        /* Fehler, "late"                                    */
+  --shadow:none;
+  --radius:2px;
+  --radius-lg:2px;
+  --font-display:"Source Serif 4",Georgia,serif;
+  --font-ui:"Public Sans","Helvetica Neue",-apple-system,"Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"Roboto Mono",Consolas,monospace;
+  color-scheme:light;
+
+  /* ─── proposed: sticky chrome heights — one source of truth ─── */
+  --header-h:68px;
+  --tabs-h:58px;
+  --chrome-h:calc(var(--header-h) + var(--tabs-h));
+}
+
+/* Legacy token names used by sources/*.html, mapped onto the canonical ones
+   above so that generator's existing rules keep working. Prefer the canonical
+   names in anything new.
+
+   This list is exactly the four aliases build_source_pages.py still references
+   — not every name the old dark palette defined. An alias nothing uses is the
+   kind of thing that outlives its reason, so it is not carried over on spec. */
+:root {
+  --panel: var(--surface);
+  --border: var(--line);
+  --chip-bg: var(--accent-wash);
+  --ok-tx: var(--ok);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serifs in headings, never in running text — the redesign's type rule. */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text);
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+code, kbd, samp, pre { font-family: var(--mono); font-size: .9em; }
+
+hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+
+::selection { background: var(--accent-wash); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}

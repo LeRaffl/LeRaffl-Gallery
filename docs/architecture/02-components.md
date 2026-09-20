@@ -431,6 +431,40 @@ Still functional and the maintainer's preferred path for fast iteration during d
 - Google Sheets is still where the maintainer transcribes raw national data; until that flow moves to direct CSV editing, the local R is the bridge.
 - The new pipeline is the **authoritative** path (used by the Render Action and any public submission). The local R is the **convenience** path. Both write the same files; whichever wins last wins.
 
+---
+
+## 2.12 Theme Extractor (`scripts/build_theme.py`)
+
+### What it is
+
+A small, dependency-free Python script that lifts the design tokens out of `index.html` and writes them to `assets/theme.css`, the stylesheet the **generated standalone pages** link.
+
+### Inputs and outputs
+
+```
+INPUT:  index.html            (the :root block carrying --bg, + the Google Fonts <link>)
+OUTPUT: assets/theme.css      (generated — never hand-edit)
+```
+
+### Why it exists
+
+The 2026-09 redesign ([#218](https://github.com/LeRaffl/LeRaffl-Gallery/issues/218)) moved `index.html` to a light editorial theme. `sources/*.html` and `schedule*.html` did not follow — they carried a dark palette and a third, older one respectively. Since **"Data sources" is linked straight from the Tools nav**, a visitor went from the new design to the old one in a single click ([#221](https://github.com/LeRaffl/LeRaffl-Gallery/issues/221)).
+
+Hand-porting the palette into each generator would have left three copies to drift. Instead `index.html` **stays the single source of truth** and the other two surfaces link a stylesheet derived from it.
+
+### Key invariants
+
+- **`index.html` is the only place a colour or font is defined.** Change its `:root` block, re-run the script. Never edit `assets/theme.css`.
+- **A shared *file*, not a shared module, is the only option.** The two generators are in different languages — `scripts/build_source_pages.py` (Python) and `R/render_schedule.R` (R) — so a Python constant could not reach the R side.
+- **Extraction is strict and fails loudly.** The `:root` block is located by the `--bg:` token (there is an earlier, unrelated `:root` in `index.html`) and brace-matched, not lazy-regexed. If the block or the font `<link>` cannot be found, the script exits non-zero rather than emitting a stylesheet that quietly lost half the palette.
+- **`--check` proves the committed stylesheet matches `index.html`** without writing, so `build-source-pages.yml` fails a PR that changes the palette without regenerating.
+- **Legacy aliases are deliberate and minimal.** `sources/*.html` was written against an older vocabulary (`--panel`, `--border`, `--chip-bg`, `--ok-tx`); theme.css maps exactly those four onto canonical tokens so the port did not have to rewrite ~80 unrelated rules. Aliases nothing uses are not carried on spec. New rules should use the canonical names.
+- The schedule pages **link** the stylesheet rather than inlining it, so a palette change reaches them without a re-render.
+
+### Why not just give `index.html` the same `<link>`?
+
+It would make the single-file page depend on a second file and add a render-blocking request to the first paint — the one surface where that matters. `index.html` keeps its tokens inline and *exports* them; the secondary pages import. See § 2.1 *Why a single file with no build?*.
+
 ## See also
 
 - [03-data-objects.md](03-data-objects.md) — what each component reads/writes
