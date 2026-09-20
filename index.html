@@ -8853,6 +8853,18 @@ if (stepTraces.length){
 
   function tlCountrySet(){ return tlEl('tlCountrySet').value; }
 
+  // The shared publicationLayout() pins the x axis to `type: 'date'`, because
+  // the Builder above plots real monthly dates. The archive stores fractional
+  // calendar years, and Plotly cannot read `2015.5` as a date -- it drops every
+  // half-year point off the left edge, which drew the curves as horizontal
+  // bars. So convert to real dates instead of fighting the shared layout.
+  function tlYearToDate(y){
+    const yr = Math.floor(y);
+    const start = Date.UTC(yr, 0, 1);
+    const span = Date.UTC(yr + 1, 0, 1) - start;
+    return new Date(start + (y - yr) * span).toISOString().slice(0, 10);
+  }
+
   // Linear interpolation on the stored grid. Returns null when the curve
   // never reaches `pct` inside the plotted range — "not in this window" is a
   // real answer and must not be faked with an endpoint.
@@ -8877,7 +8889,8 @@ if (stepTraces.length){
   function tlDraw(){
     const doc = TL.doc;
     if(!doc) return;
-    const years = doc.years;
+    const years = doc.years;              // numeric, for the crossing maths
+    const xs = years.map(tlYearToDate);   // dates, for the shared date axis
     const frame = doc.frames[TL.idx];
     const cur = tlFrameSeries(frame);
     const set = tlCountrySet();
@@ -8893,7 +8906,7 @@ if (stepTraces.length){
     const ghosts = doc.frames.slice(0, TL.idx).map(f => {
       const s = tlFrameSeries(f);
       return {
-        x: years, y: s.bev,
+        x: xs, y: s.bev,
         mode: 'lines', type: 'scatter',
         line: { width: 1, color: COLORS.BEV, simplify: false },
         opacity: 0.16,
@@ -8903,7 +8916,7 @@ if (stepTraces.length){
     });
 
     const line = (ys, color, name) => ({
-      x: years, y: ys, mode:'lines', type:'scatter',
+      x: xs, y: ys, mode:'lines', type:'scatter',
       line:{ width:3.2, color, simplify:false },
       connectgaps: false,            // 2025-12-25 has no ICE/PHEV fit at all
       name, hovertemplate:'%{y:.1f}% fitted<extra></extra>',
@@ -8922,10 +8935,27 @@ if (stepTraces.length){
     const setLab = isCountry ? 'single market'
       : (set === 'cohort' ? `fixed ${doc.n_cohort}-country cohort`
                           : `${frame.n_countries} countries`);
+    // The snapshot date is deliberately NOT in the title: it already appears
+    // on the scrubber, in the readout below and in the chart's own source
+    // line, and a fourth copy is what pushed the title off the right edge on
+    // a phone.
     const layout = publicationLayout(
-      `BEV, ICE & PHEV share — ${label} · as estimated ${frame.date}`,
+      `BEV, ICE & PHEV share — ${label}`,
       { sources: `snapshot ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
     );
+    // Two departures from the shared layout, both because this panel plots a
+    // longer span than the Builder does:
+    //
+    //  * range — publicationLayout stops at 2040, but the readout quotes the
+    //    BEV-50% year and for the slower markets that lands later (North
+    //    America ~2044). A chart that cannot show its own headline number is
+    //    worse than a small inconsistency with the panel above.
+    //  * dtick — 'M12' labels every year. Over 35 years on a 360px phone that
+    //    collapses into an unreadable smear, so label every five.
+    layout.xaxis = Object.assign({}, layout.xaxis, {
+      range: [xs[0], xs[xs.length - 1]],
+      dtick: 'M60',
+    });
     Plotly.react('tlPlot', traces, layout, PLOTLY_PUB_CFG);
 
     tlEl('tlStamp').textContent =
