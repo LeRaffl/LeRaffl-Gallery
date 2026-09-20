@@ -11277,6 +11277,14 @@ const FAQ_DATA = [
       '<b>Unsettled</b> \u2014 a market whose fit is still moving too much to carry tags at all. Every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). Move it more than 25 years \u2014 or stop producing a crossing in a quarter of them \u2014 and status, speed and timing would be noise, so a single <em>Unsettled</em> pill replaces them. Between 5 and 25 years the tags are still shown but drawn hollow, and the popover reports the drift. Under 5 years they are drawn solid. The chart itself is never affected, only the tags.',
       'All thresholds (80 %, 2035, 10 %, 2023, 2025), the quartile breakpoints and the stability cut-offs are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
+  { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',
+    answers: [
+      'Dot size is <b>that month’s market size, relative to the same country’s other months</b>. A big dot is a month with relatively many registrations, a small dot a quiet month. It carries no information about BEV share — that is the dot’s position on the y-axis.',
+      'Precisely, the size is a z-transformation of the month’s total registrations:<br><code>size = 2 + (value − mean(value)) / sd(value)</code><br>where <code>value</code> is that month’s <code>TOTAL</code> and the mean and standard deviation are taken over the months plotted for that country.',
+      '<b>Sizes are only comparable within one chart.</b> Because the mean and standard deviation are computed per country, a large dot on a small market means "a busy month for that market", not "a big market". Do not read a Malta dot against a Germany dot.',
+      'It applies to the observed points on the <em>BEV trajectory</em> chart and to all three series on the <em>BEV / ICE / PHEV</em> chart.',
+      'The fit does use the same monthly total, but differently: the regression minimises <code>sum((residual × TOTAL)²)</code>, so a busy month pulls the curve harder. The marker you see is that same number z-transformed for display. So a big dot really does mean "this point counted for more", but the two transforms are not the same and the sizes are not the weights.'
+    ] },
   { tag: 'general', label: 'General', q: 'What does this project do?',
     answers: ['It visualizes and compares how countries transition from ICE-dominated new registrations to BEV-dominated new registrations.'] },
   { tag: 'general', label: 'General', q: 'What exactly is being modeled?',
