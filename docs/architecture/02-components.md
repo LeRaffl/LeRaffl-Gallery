@@ -51,7 +51,24 @@ flowchart TB
 
 ### What it is
 
-A single ~6000-line HTML file with inline CSS and inline JavaScript. No build step, no framework, no transpiler. Served verbatim from `master:index.html` by GitHub Pages.
+A single ~13,600-line HTML file with inline CSS and inline JavaScript. No build step, no framework, no transpiler. Served verbatim from `master:index.html` by GitHub Pages.
+
+### Navigation (2026-09 redesign)
+
+The flat tab strip was replaced by **four primary entries with a sub-nav**, each primary being a link to its family's first section:
+
+| Primary (`data-nav`) | Target | Sub-nav |
+|---|---|---|
+| Charts (`charts`) | `#gallery` | — (the landing surface; the page *is* the gallery) |
+| Map (`map`) | `#worldmap` | — |
+| Rankings (`rankings`) | `#thresholds` | Thresholds, Durations, Time Interval |
+| Tools (`tools`) | `#builder` | Builder, Compare, Raw Data, Fleet, Data freshness, Submit Data, Data sources |
+
+`.nav-sub` blocks are `hidden` and revealed only for the active family. FAQ and Feedback are deliberately **not** in the bar — FAQ is reached from About, Feedback via the FAB and the emoji cluster (both capture tab context).
+
+**All 14 sections and every `#hash` are unchanged.** That is the reason old links, bookmarks and the `context.hash` recorded in feedback issues still resolve after the redesign — treat it as an invariant, not an accident. The sections are `tab-about`, `tab-faq`, `tab-submit`, `tab-feedback`, `tab-gallery`, `tab-thresholds`, `tab-schedule`, `tab-durations`, `tab-speed`, `tab-builder`, `tab-compare`, `tab-rawdata`, `tab-fleet`, `tab-worldmap`.
+
+A small inline script measures the header and the (now wrapping, not scrolling) tab bar into `--header-h` / `--tabs-h`, so `--chrome-h` and the sticky offsets stay correct at every width.
 
 ### Tabs
 
@@ -61,20 +78,37 @@ A single ~6000-line HTML file with inline CSS and inline JavaScript. No build st
 | Thresholds | `params.csv` | When each country reaches 20%/50%/80% BEV under the current model |
 | Durations | `params.csv` | How many years each country needs to traverse 20→80% |
 | Time Interval | `params.csv` | Interval chart: horizontal bar per country from From%→To% BEV share, dot at Mid%; sortable by start/mid/end/duration, region encoded by color, variant (Whole / Private / Industry / HDV / Used / …) encoded by bar shape (solid / diagonal / cross-hatch / thick stripes / outline). Custom From/Mid/To inputs default to 20/50/80. PNG and SVG export with `@LeRaffl` tag, created timestamp (incl. time, UTC) and `data per <oldest> (<country>) – <newest>` footer. |
-| Builder | `params.csv` + `weights.csv` | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). |
-| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` | Side-by-side overlay of 2–3 curves (same powertrain, same variant) for individual countries or aggregated regions. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates). |
+| Builder | `params.csv` + `weights.csv` | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). Plots **real monthly dates** (`monthGrid(2015, 2050)`), not index time. ICE and PHEV always draw — the old "Show ICE & PHEV" toggle is gone (`showICE` is a `const true`). |
+| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` | Overlay of **any number** of curves (same powertrain, same variant) for individual countries or aggregated regions. The first three are pinned and keep their labels; past three only fitted curves draw (no monthly steps) and the extras are named on hover. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates) — it reads `data/*.csv` directly, *not* `series/`. |
+| Raw Data | `series/index.json` + `series/<slug>.json` | The country CSVs as stacked bars, one bar per rolling trailing window. Hand-drawn SVG, not Plotly — it renders up to 51 charts at once, and the bar geometry is the feature. Build-time half is `scripts/build_series.py`; spec in [35-proposal-raw-data-tab.md](35-proposal-raw-data-tab.md). |
 | Fleet | `fleet/*.csv`, `fleet_meta.json` | Bestand projection (separate from new-registrations data) |
+| Data freshness | `sources/schedule.json` | In-page render of the fetch schedule; `schedule.html` / `schedule-<YYYY-MM>.html` / `schedule.ics` are its generated standalone counterparts. All from `scripts/build_schedule.py`. |
 | World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share. **Colour scale is a single-hue blue ramp, light → dark** — the data is a magnitude with no meaningful midpoint, and a monotonic lightness ramp stays readable under every form of colour blindness because luminance is preserved. It replaced two opposed red↔green scales, the pair protanopes and deuteranopes cannot separate ([#226](https://github.com/LeRaffl/LeRaffl-Gallery/issues/226)); measured, the old scale put two adjacent steps at ΔE 1.9 under deuteranopia and 4.3 under *normal* vision. Dark always means further along, so `year`/`duration` set `reversescale` rather than carrying a second scale. The two off-scale categories — `pioneer` (amber) and `stalled` (neutral grey) — sit outside the ramp **and** carry a heavier outline, because five ramp steps plus two categories is more than colour alone can separate. |
+| About | inline | Landing section; the default active tab. |
 | FAQ | inline `FAQ_DATA` array | Searchable Q&A |
 | Submit Data | Worker `POST /submissions` | Form for new monthly data points + corrections |
 | Feedback & Questions | Worker `GET/POST /issues` | Public discussion thread mirrored from GitHub Issues |
 
 ### Notable in-page features
 
+- **Landing hero chart** (`#galHeroPlot`): a **hand-rolled inline SVG**, not Plotly — it is the first paint and must not wait on the plotting library. Its "home market" comes from the browser timezone (`Intl.DateTimeFormat().resolvedOptions().timeZone` against `TZ_COUNTRY` / `TZ_PREFIX`), falling back to Germany; **no IP lookup, no geolocation prompt.** `homeCountry()` is shared with Compare via `window.__bevHomeCountry` so the timezone table is maintained once. The chart fails soft: if `params.csv` is unavailable the figure hides itself and the rest of the page still works.
+- **Landing search** (`#heroSearch`): writes through to the real gallery filter (`#search`) and dispatches an `input` event there, so the existing `resetDebounced` → `applyFilters` path runs — not a second filter implementation. It shows a live match count and jumps to `#gallery` on **Enter**, deliberately not on first keystroke (a tab switch mid-typing would pull the field out from under the cursor).
 - **Copy-post button** on every Gallery card: fetches `posts/<slug>.txt` and writes to clipboard
 - **FAB** (floating action button) bottom-right: opens the feedback modal from any tab with the current tab's filters captured as context
 - **Math captcha** on feedback submit (3 + 4 = ?), **honeypot** on both feedback and submit
 - **Lightbox** on chart click → larger image + Download link
+
+### Runtime data dependencies
+
+Beyond `manifest.json` / `params.csv` / `weights.csv`, the page fetches **`series/index.json` once and `series/<slug>.json` per country on demand**. That is a runtime dependency on the output of [`scripts/build_series.py`](../../scripts/build_series.py) — a stale or missing `series/` directory degrades those surfaces, it does not merely age them. Per-country files mean picking one country costs one request and a single-country data update invalidates one cache entry.
+
+Two consumers, and it is worth keeping them straight:
+
+| Surface | Observations come from |
+|---|---|
+| Raw Data | `series/index.json` + `series/<slug>.json` |
+| Landing hero chart | `series/index.json` + `series/<slug>.json` (home market only) — so `series/` is on the **first-paint** path, not just behind a tab switch |
+| Compare | `data/<Country>[_<Variant>].csv`, fetched and parsed in the page (`fetchObsCsv`) |
 
 ### Reconstructed rows (`v1 = 0` anchor recovery)
 

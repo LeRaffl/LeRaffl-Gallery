@@ -375,6 +375,7 @@ present, cron disabled).
 | [`build-manifest.yml`](../../.github/workflows/build-manifest.yml) | `17 3 * * *` | Daily 03:17 UTC | Self-healing fallback: rescans `images/` and rewrites `manifest.json` if anything drifted (also triggered on every push to `images/**` and on explicit dispatch from `render-country.yml`). |
 | [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv` for time-lapse purposes. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
 | [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
+| [`build-series.yml`](../../.github/workflows/build-series.yml) | (no cron) | On push to `data/**` (one path filter catches all 29 fetchers, manual commits and merged submission PRs) | Regenerates `series/index.json` + `series/*.json` and the generated data-quality checklist. **Since the 2026-09 redesign this output is on the page's read path** — Raw Data *and the landing hero chart* fetch it at runtime (see [Flow F](05-flows.md#flow-f--gallery-read)), so a failure here degrades the live page rather than just aging a table. Does not trigger on `series/**`, so its own commit cannot retrigger it. |
 
 ### Reading a cron expression quickly
 

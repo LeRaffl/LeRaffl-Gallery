@@ -200,6 +200,8 @@ The HDV intent is "heavy goods vehicles > 3.5 t = N2 + N3". Most sources expose 
 | **PAT** | Personal Access Token. The Worker holds a fine-grained PAT scoped to this one repo. |
 | **KV** | Cloudflare KV, a key-value store. Used only for rate-limit counters. |
 | **Pages** | GitHub Pages, the static-site hosting that serves `index.html` and friends. |
+| **Builder** | The in-page tab that plots weighted aggregate BEV/ICE/PHEV curves over an arbitrary country set. Since the 2026-09 redesign it plots real monthly dates and **ICE and PHEV always draw** — the old "Show ICE & PHEV" toggle was removed (`showICE` is now a `const true`). Not to be confused with `scripts/snapshot_builder.py`, which freezes the same aggregation into `builder_history/`. |
+| **hero chart** | The inline-SVG chart on the landing section (`#galHeroPlot`). Hand-rolled rather than Plotly so first paint doesn't wait on the library; its country comes from the browser timezone, never an IP lookup. |
 | **manifest** | `manifest.json` at repo root, listing every PNG in `images/`. Built by `build_manifest.R`. |
 | **upsert** | Insert-or-update by key. `(country, variant)` for params/weights; `(period, variant)` for `data/<Country>.csv` rows. |
 | **honeypot** | A hidden form field that humans never fill but bots auto-populate. Submissions with a non-empty honeypot are silently dropped (response 200 to fool the bot). |
