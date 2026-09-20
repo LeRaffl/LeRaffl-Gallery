@@ -47,7 +47,7 @@ Key files in the repository root:
 
 | File | Purpose |
 |------|---------|
-| **index.html** | The full interactive UI (Gallery, Thresholds, Durations). Runs 100% in the browser. |
+| **index.html** | The full interactive UI, single file, no build step. Four primary nav entries — **Charts / Map / Rankings / Tools** — with a sub-nav, over 14 sections (Gallery, World Map, Thresholds, Durations, Time Interval, Builder, Compare, Raw Data, Fleet, Data freshness, Submit Data, About, FAQ, Feedback). Runs 100% in the browser. |
 | **manifest.json** | Auto-generated list of all available charts, used by the Gallery to display images. |
 | **build_manifest.R** | Scans `images/` and generates `manifest.json`. |
 | **params.csv** | Contains the model parameters (v1, v2, t0, baseline year, last data month) for each market. Used for Thresholds & Durations. |
@@ -127,7 +127,10 @@ When opening `index.html`, the browser loads:
 
 1. **manifest.json** — the full list of charts  
 2. **params.csv** — all relevant model parameters  
-3. Renders everything dynamically
+3. **series/index.json**, then **series/&lt;country&gt;.json** on demand — the observed monthly series behind Raw Data and the landing hero chart  
+4. Renders everything dynamically
+
+The landing section opens with a hand-rolled inline-SVG chart for your **home market**, picked from your browser's timezone — no IP lookup, no location prompt — and a search box that writes straight through to the gallery filter (press Enter to jump to the gallery).
 
 ### Gallery
 - Filter by country, date, chart type, filename  

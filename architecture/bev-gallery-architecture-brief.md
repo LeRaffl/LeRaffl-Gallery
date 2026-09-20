@@ -39,19 +39,26 @@
 
 ### 3.1 Static Web Frontend
 - **Name:** `LeRaffl-Gallery Page`
-- **Tech:** Single-File HTML/CSS/JS (`index.html`, ~5900 Zeilen), kein Build-Step, keine Frameworks
+- **Tech:** Single-File HTML/CSS/JS (`index.html`, ~13.600 Zeilen), kein Build-Step, keine Frameworks
 - **Hosted on:** GitHub Pages (`https://leraffl.github.io/LeRaffl-Gallery/`)
+- **Navigation** *(Redesign 2026-09, PR #218)*: vier Haupteinträge mit Unterzeile statt der früheren flachen Leiste — **Charts** (`#gallery`), **Map** (`#worldmap`), **Rankings** (Thresholds / Durations / Time Interval), **Tools** (Builder / Compare / Raw Data / Fleet / Data freshness / Submit Data / Data sources). FAQ und Feedback stehen bewusst nicht in der Leiste (FAQ über About, Feedback über FAB und Emoji-Cluster). **Alle 14 Sections und sämtliche `#hash`-Anker sind unverändert** — deshalb funktionieren alte Links und die in Feedback-Issues gespeicherten `context.hash` weiterhin.
 - **Tabs/Module:**
   - Gallery (rendert die PNGs aus `manifest.json`)
   - Thresholds (Tabelle: wann erreicht jedes Land 20%/50%/80% BEV-Anteil)
   - Durations (Tabelle: wie viele Jahre für Übergänge erwartet)
-  - Builder (interaktiver "What-if"-Modus)
+  - Time Interval (Intervall-Chart From%→To% je Land)
+  - Builder (interaktiver "What-if"-Modus; plottet echte Monatsdaten, ICE und PHEV zeichnen immer — der frühere "Show ICE & PHEV"-Schalter ist entfallen)
+  - Compare (beliebig viele Kurven; die ersten drei bleiben beschriftet, weitere nur als gefittete Kurve mit Namen im Hover)
+  - Raw Data (die Messreihen hinter einem Land als Tabelle)
   - Fleet (Bestand-Extrapolationen, eigener CSV-Datensatz unter `fleet/`)
-  - World Map (Choroplethe nach BEV-Anteil)
+  - Data freshness (In-Page-Ansicht des Fetch-Zeitplans)
+  - World Map (Choroplethe nach BEV-Anteil, **mit Variantenauswahl** — nicht mehr nur Whole-Market-Pkw)
+  - About (Landing-Section, Default-Tab)
   - FAQ
   - **Submit Data** *(neu in PR #12)*: Formular für neue Datenpunkte und Korrekturen
   - Feedback & Questions (Issue-basierter Diskussions-Thread)
-- **Entry Point:** `index.html` lädt `manifest.json` für Galerie, `params.csv` für Modell-Parameter, `weights.csv` für gewichtete Aggregate.
+- **Entry Point:** `index.html` lädt `manifest.json` für die Galerie, `params.csv` für Modell-Parameter, `weights.csv` für gewichtete Aggregate und seit dem Redesign zusätzlich **`series/index.json` sowie `series/<slug>.json` zur Laufzeit** (Raw Data und der Hero-Chart). Damit hängt der Lesepfad an der Ausgabe von `scripts/build_series.py`. Compare liest dagegen weiterhin `data/<Country>.csv` direkt.
+- **Landing/Hero:** handgeschriebener Inline-SVG-Chart (kein Plotly, damit der erste Paint nicht auf die Bibliothek wartet). Das „Heimatland" kommt aus der Browser-Zeitzone (`Intl.DateTimeFormat().resolvedOptions().timeZone`), Fallback Deutschland — **kein IP-Lookup, keine Standortabfrage**. Fällt `params.csv` aus, blendet sich die Figur aus und die Seite läuft weiter. Das Suchfeld daneben spiegelt in das echte Gallery-Filterfeld und springt bei Enter auf `#gallery`.
 
 ### 3.2 Cloudflare Worker — Edge-Vermittler
 - **Name:** `leraffl-gallery-feedback` (Endpoint: `https://leraffl-gallery-feedback.xgwvfz7nrb.workers.dev`)
