@@ -52,6 +52,29 @@ BT = REPO / "backtest"
 OUT = BT / "series"
 
 
+# The thresholds the gallery already speaks in (Thresholds tab, and the
+# 20->80 span in Durations). Precomputed here rather than in the browser so
+# the chart, the readout and any export agree by construction.
+THRESHOLDS = (20.0, 50.0, 80.0)
+
+
+def crossing(years: list[float], ys: list[float | None], pct: float):
+    """First year the curve reaches `pct`, linearly interpolated.
+
+    Returns None when it never does inside the plotted range. That is a real
+    answer -- in the early frames the model did not think 80% was reachable
+    by 2050 at all -- and must not be faked with an endpoint, or the chart
+    would show a threshold being met that the model never predicted.
+    """
+    for i in range(1, len(ys)):
+        a, b = ys[i - 1], ys[i]
+        if a is None or b is None:
+            continue
+        if a < pct <= b:
+            return round(years[i - 1] + (pct - a) * (years[i] - years[i - 1]) / (b - a), 2)
+    return None
+
+
 def norm(name: str) -> str:
     """Match a country by identity rather than spelling (see #219 / New Zealand)."""
     return "".join(str(name).split()).casefold()
@@ -158,6 +181,8 @@ def main(argv=None) -> int:
                         "ice": sample(as_map(ice), grid),
                         "phev": sample(as_map(phev), grid)},
             }
+            fr["cross_all"] = {str(int(t)): crossing(grid, fr["all"]["bev"], t)
+                               for t in THRESHOLDS}
             if g in frames_coh.get(mo, {}):
                 cxs, cbev, cice, cphev = frames_coh[mo][g]
                 cm = lambda ys: dict(zip(cxs, ys))  # noqa: E731
@@ -166,6 +191,8 @@ def main(argv=None) -> int:
                                 "phev": sample(cm(cphev), grid)}
                 fr["n_cohort"] = mc.get(g, {}).get("n_countries")
                 fr["cohort_weight"] = mc.get(g, {}).get("total_weight")
+                fr["cross_cohort"] = {str(int(t)): crossing(grid, fr["cohort"]["bev"], t)
+                                      for t in THRESHOLDS}
             frames.append(fr)
         if not frames:
             continue
@@ -181,6 +208,7 @@ def main(argv=None) -> int:
                        "-- read this as an upper bound, not a clean "
                        "out-of-sample test."),
             "years": grid,
+            "thresholds": [int(t) for t in THRESHOLDS],
             "n_cohort": len(cohort),
             "frames": frames,
         }

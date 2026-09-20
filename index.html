@@ -533,6 +533,11 @@ th.sortable.desc::after{content:" ↓"}
   min-width: 0;
   min-height: 420px;
 }
+#tlConv {
+  width: 100%;
+  min-width: 0;
+  min-height: 320px;
+}
 .tl-controls {
   display: flex;
   flex-wrap: wrap;
@@ -4075,13 +4080,23 @@ function tok(name, fallback){
            country picks, so folding it into the country selector would
            promise a view the data cannot produce. -->
       <div class="card builder-card" id="tlCard" style="margin-top:18px">
-        <h3 style="margin:0 0 4px">Time-lapse — how this estimate has moved</h3>
-        <p class="small" style="margin:0 0 12px;opacity:.85">
-          Each frame is the curve this model produced on that date, rebuilt
-          from the <code>params.csv</code> and <code>weights.csv</code> git
-          held at the time. It is the model changing its mind as data arrives
-          — not a forecast of anything.
+        <h3 style="margin:0 0 4px">Time-lapse — what the model said, as the data came in</h3>
+        <p class="small" style="margin:0 0 10px;opacity:.85">
+          Every frame re-runs the fit on the observations available at that
+          month, back to 2015. It shows the model changing its mind as data
+          arrives — it is not a forecast, and not a record of what the gallery
+          published at the time.
         </p>
+
+        <!-- The headline is the convergence chart, not the animation. The
+             question a reader actually has is "was it ever right?", and that
+             is one static picture: where each threshold was predicted to fall,
+             plotted against when the prediction was made. A flat line is a
+             model that had made up its mind; a wandering one had not. -->
+        <div id="tlConv"></div>
+        <p class="small tl-note" id="tlConvNote" style="margin:4px 0 16px"></p>
+
+        <h4 style="margin:18px 0 6px;font-size:15px">The curves behind it</h4>
 
         <div class="tl-controls">
           <div class="field">
@@ -4117,6 +4132,7 @@ function tok(name, fallback){
                dead button. -->
           <a id="tlGif" class="btn chart-dl" hidden download>↓ Download animation</a>
         </div>
+        <p class="small tl-note" id="tlCaveat" style="margin-top:10px"></p>
         <p class="small tl-note" id="tlNote" style="margin-top:10px"></p>
       </div>
     </div>
@@ -8903,7 +8919,14 @@ if (stepTraces.length){
     // not exist on the date the frame is labelled with. It also means the
     // trail builds up as the animation plays, which is what the effect
     // looked like it was doing in the first place.
-    const ghosts = doc.frames.slice(0, TL.idx).map(f => {
+    // Cap the fan. With 140 monthly frames, drawing every earlier curve is a
+    // green haze rather than a shape, and 140 traces get re-laid-out on every
+    // scrub. Sampling evenly preserves the envelope -- the fan's whole job --
+    // while keeping it readable and the interaction quick.
+    const MAX_GHOSTS = 24;
+    const earlier = doc.frames.slice(0, TL.idx);
+    const stride = Math.max(1, Math.ceil(earlier.length / MAX_GHOSTS));
+    const ghosts = earlier.filter((_, i) => i % stride === 0).map(f => {
       const s = tlFrameSeries(f);
       return {
         x: xs, y: s.bev,
@@ -8945,7 +8968,7 @@ if (stepTraces.length){
     // line, and a fourth copy is what pushed the title off the right edge on
     // a phone.
     const layout = publicationLayout(
-      `BEV, ICE & PHEV share — ${label}`,
+      `BEV, ICE & PHEV share — ${label} · using data through ${frame.date}`,
       { sources: `snapshot ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
     );
     // Two departures from the shared layout, both because this panel plots a
@@ -8961,10 +8984,40 @@ if (stepTraces.length){
       range: [xs[0], xs[xs.length - 1]],
       dtick: 'M60',
     });
+
+    // Thresholds. The horizontals never move -- they are scaffolding, so they
+    // are drawn once and faintly. All the information is in the verticals,
+    // which slide as the model revises, so those carry the weight and the
+    // year label.
+    //
+    // A threshold the model does not reach inside the range gets NO vertical
+    // and an explicit note instead. Dropping the line silently would read as
+    // "zero", when it means "never, as far as this model could see".
+    const cross = frame[tlCrossKey()] || frame.cross_all || {};
+    const faint = tok('--line', '#e4e2dd');
+    const shapes = [], annos = [], unmet = [];
+    (doc.thresholds || [20, 50, 80]).forEach(t => {
+      shapes.push({ type:'line', xref:'paper', x0:0, x1:1, yref:'y', y0:t, y1:t,
+                    line:{ color: faint, width:1 }, layer:'below' });
+      const yr = cross[String(t)];
+      if(yr == null){ unmet.push(t); return; }
+      const xd = tlYearToDate(yr);
+      shapes.push({ type:'line', x0:xd, x1:xd, yref:'y', y0:0, y1:t,
+                    line:{ color: TL_THRESH_COLOR[String(t)] || COLORS.BEV,
+                           width:1.4, dash:'dot' } });
+      annos.push({ x: xd, y: 0, yref:'y', yanchor:'top', yshift:-2,
+                   text: yr.toFixed(0), showarrow:false,
+                   font:{ size:11, color: TL_THRESH_COLOR[String(t)] || COLORS.BEV } });
+    });
+    layout.shapes = shapes;
+    layout.annotations = (layout.annotations || []).concat(annos);
+
     Plotly.react('tlPlot', traces, layout, PLOTLY_PUB_CFG);
+    tlDrawConvergence();
+    if(doc.caveat) tlEl('tlCaveat').textContent = doc.caveat;
 
     tlEl('tlStamp').textContent =
-      `${frame.date}  (${TL.idx+1}/${doc.frames.length})`;
+      `data through ${frame.date}  (${TL.idx+1}/${doc.frames.length})`;
 
     const c50 = tlCrossing(years, cur.bev, 50);
     const n = set === 'cohort' ? (frame.n_cohort ?? doc.n_cohort) : frame.n_countries;
@@ -8976,6 +9029,7 @@ if (stepTraces.length){
       isCountry ? null : (n != null ? `${n} countries` : null),
       w != null ? `${Number(w).toLocaleString()} vehicles/yr` : null,
       c50 != null ? `BEV 50% at <b>${c50.toFixed(2)}</b>` : 'BEV 50% not reached by 2050',
+      unmet.length ? `${unmet.join('% / ')}% not reached by ${Math.round(years[years.length-1])}` : null,
     ].filter(Boolean);
     tlEl('tlReadout').innerHTML = bits.join(' &middot; ');
 
@@ -9000,6 +9054,68 @@ if (stepTraces.length){
         + `the ones present on all ${doc.frames.length} dates — so what moves here `
         + `is revised data and newly arrived months, not changing coverage.`;
     }
+  }
+
+  // ---- Convergence chart -------------------------------------------------
+  // Predicted threshold year (y) against the month the prediction was made
+  // (x). One line per threshold. This is the headline: a line that flattens
+  // is a model that settled, one that wanders never did.
+  //
+  // A gap means the model did not reach that threshold inside the plotted
+  // range at all -- true of 80% in the early frames. Gaps are drawn as gaps
+  // (`connectgaps:false`), because bridging them would show a prediction
+  // that was never made.
+  const TL_THRESH_COLOR = { '20': COLORS.PHEV, '50': COLORS.BEV, '80': COLORS.ICE };
+
+  function tlCrossKey(){ return tlCountrySet() === 'cohort' ? 'cross_cohort' : 'cross_all'; }
+
+  function tlDrawConvergence(){
+    const doc = TL.doc;
+    if(!doc || !doc.frames.length) return;
+    const key = tlCrossKey();
+    const xs = doc.frames.map(f => f.date + '-01');
+    const thresholds = doc.thresholds || [20, 50, 80];
+
+    const traces = thresholds.map(t => {
+      const k = String(t);
+      const ys = doc.frames.map(f => ((f[key] || f.cross_all || {})[k] ?? null));
+      return {
+        x: xs, y: ys, mode:'lines', type:'scatter',
+        line:{ width:2.4, color: TL_THRESH_COLOR[k] || COLORS.BEV, simplify:false },
+        connectgaps: false,
+        name: `${t}% BEV`,
+        hovertemplate: `predicted ${t}%% in %{y:.1f}<extra>as of %{x|%Y-%m}</extra>`,
+      };
+    });
+
+    // Where the animation currently sits, so the two charts read as one.
+    const here = xs[TL.idx];
+    const layout = publicationLayout(
+      'When each threshold was predicted to fall',
+      { sources: 'refitted per month from data available at the time', dataPer: '' }
+    );
+    layout.xaxis = Object.assign({}, layout.xaxis, {
+      range: [xs[0], xs[xs.length - 1]], dtick: 'M24', title: { text: '' },
+    });
+    layout.yaxis = Object.assign({}, layout.yaxis, {
+      autorange: true, tickformat: 'd', ticksuffix: '',
+      title: { text: '' }, range: undefined,
+    });
+    layout.shapes = [{
+      type:'line', x0:here, x1:here, yref:'paper', y0:0, y1:1,
+      line:{ color: tok('--muted-2','#8a877e'), width:1, dash:'dot' },
+    }];
+    Plotly.react('tlConv', traces, layout, PLOTLY_PUB_CFG);
+
+    // Spell out the movement, because "the line wanders" is the finding.
+    const bits = thresholds.map(t => {
+      const v = doc.frames.map(f => ((f[key] || f.cross_all || {})[String(t)] ?? null))
+                          .filter(x => x != null);
+      if(!v.length) return `${t}%: never reached in range`;
+      const lo = Math.min(...v), hi = Math.max(...v);
+      return `${t}%: ${lo.toFixed(1)}–${hi.toFixed(1)} (${(hi-lo).toFixed(1)} yr of movement)`;
+    });
+    tlEl('tlConvNote').innerHTML = bits.join(' &middot; ');
   }
 
   function tlStop(){
@@ -9031,7 +9147,7 @@ if (stepTraces.length){
 
   async function tlLoadGroup(g){
     if(TL.cache.has(g)){ TL.doc = TL.cache.get(g); return true; }
-    const doc = await tlFetchJSON(`builder_history/series/${g}.json`);
+    const doc = await tlFetchJSON(`backtest/series/${g}.json`);
     if(!doc) return false;
     TL.cache.set(g, doc);
     TL.doc = doc;
@@ -9049,7 +9165,7 @@ if (stepTraces.length){
   async function tlSyncGif(g){
     const a = tlEl('tlGif');
     if(!a) return;
-    const href = `builder_history/series/${g}.gif`;
+    const href = `backtest/series/${g}.gif`;
     a.hidden = true;
     try{
       const r = await fetch(new URL(href, location.href).href, { method:'HEAD' });
@@ -9083,7 +9199,7 @@ if (stepTraces.length){
     if(!card) return;
     TL.booted = true;
 
-    TL.manifest = await tlFetchJSON('builder_history/series/index.json');
+    TL.manifest = await tlFetchJSON('backtest/series/index.json');
     if(!TL.manifest || !TL.manifest.groups || !TL.manifest.groups.length){
       // No archive published — say so and remove the control rather than
       // leaving dead widgets behind.
