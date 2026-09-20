@@ -271,7 +271,17 @@ The page's CSV-fetch fallback kicked in. Either:
 
 The Builder-tab aggregated curves are dumped to `builder_history/<date>.csv` automatically on the 25th of each month (cron in [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml)). The script is [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py); full design notes are in [Flow L](05-flows.md#flow-l--snapshot-builder).
 
-The same job then runs [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py), which pivots the archive into `builder_history/series/<group>.json` — the form the **Time-lapse panel** in the Builder tab actually reads ([2.14](02-components.md#214-time-lapse-series-builder-scriptsbuild_builder_seriespy)). It then renders each group's animation with [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py) ([2.16](02-components.md#216-time-lapse-gif-scriptsbuild_builder_gifpy)), overwriting `builder_history/series/<group>.gif` in place. All three land in one commit, so a new snapshot is never invisible to the page.
+The same job then does the **other** half, on a different question: [`R/build_backtest.R`](../../R/build_backtest.R) extends the backtest by whatever months have appeared since the last run (~95 fits, a couple of minutes), [`scripts/build_backtest_series.py`](../../scripts/build_backtest_series.py) pivots `backtest/` into `backtest/series/<group>.json` — the form the **Time-lapse panel** in the Builder tab actually reads ([2.14](02-components.md#214-time-lapse-series-builder-scriptsbuild_backtest_seriespy-scriptsbuild_builder_seriespy)) — and [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py) ([2.16](02-components.md#216-time-lapse-gif-scriptsbuild_builder_gifpy)) overwrites `backtest/series/<group>.gif` in place. All of it lands in one commit, so a new month is never invisible to the page.
+
+`builder_history/` and `backtest/` answer different questions and must never be mixed in one series; see [2.13b](02-components.md#213b-backtest-rbuild_backtestr).
+
+**Backfilling the backtest from scratch** (only needed if `backtest/` is lost, or the fit changes):
+
+```bash
+Rscript -e 'source("R/build_backtest.R"); build_backtest(from = "2015-01", cores = 4)'
+```
+
+~9,200 fits, roughly an hour on 4 cores. It writes per month and skips what exists, so an interrupted run resumes where it stopped — do not delete the partial output to "start clean".
 
 **After backfilling or rebuilding snapshots by hand**, re-run the series builder too, or the panel keeps serving the previous set:
 
@@ -383,7 +393,7 @@ present, cron disabled).
 | Workflow | Cron expression | Human reading | Purpose |
 |---|---|---|---|
 | [`build-manifest.yml`](../../.github/workflows/build-manifest.yml) | `17 3 * * *` | Daily 03:17 UTC | Self-healing fallback: rescans `images/` and rewrites `manifest.json` if anything drifted (also triggered on every push to `images/**` and on explicit dispatch from `render-country.yml`). |
-| [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv`, then runs `scripts/build_builder_series.py` and `scripts/build_builder_gif.py`, so the new frame reaches both the Time-lapse panel and its downloadable animation in the same commit. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
+| [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv`, **and** extends `backtest/` by the new month, then runs `scripts/build_backtest_series.py` and `scripts/build_builder_gif.py`, so the new frame reaches both the Time-lapse panel and its downloadable animation in the same commit. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
 | [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
 | [`build-series.yml`](../../.github/workflows/build-series.yml) | (no cron) | On push to `data/**` (one path filter catches all 29 fetchers, manual commits and merged submission PRs) | Regenerates `series/index.json` + `series/*.json` and the generated data-quality checklist. **Since the 2026-09 redesign this output is on the page's read path** — Raw Data *and the landing hero chart* fetch it at runtime (see [Flow F](05-flows.md#flow-f--gallery-read)), so a failure here degrades the live page rather than just aging a table. Does not trigger on `series/**`, so its own commit cannot retrigger it. |
 | [`build-source-pages.yml`](../../.github/workflows/build-source-pages.yml) | `37 4 * * *` | Daily 04:37 UTC (+ on push to a source doc, the stub registry, a generator, `index.html`, `params.csv`) | Regenerates `sources/*.html` and `assets/theme.css`, plus the schedule JSON. On a **pull request** it only validates: `build_source_pages.py --check` for the content model and `build_theme.py --check` for palette drift — a PR that changes `index.html`'s `:root` without regenerating the stylesheet fails here. |

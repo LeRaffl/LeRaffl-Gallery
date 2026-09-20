@@ -9065,7 +9065,14 @@ if (stepTraces.length){
   // range at all -- true of 80% in the early frames. Gaps are drawn as gaps
   // (`connectgaps:false`), because bridging them would show a prediction
   // that was never made.
-  const TL_THRESH_COLOR = { '20': COLORS.PHEV, '50': COLORS.BEV, '80': COLORS.ICE };
+  // Deliberately NOT the fuel palette. Every threshold here is a *BEV*
+  // crossing, so painting 20% in the PHEV blue and 80% in the ICE brown gives
+  // each marker the colour of a curve it has nothing to do with -- and on the
+  // main chart it draws a blue dotted line across the blue PHEV curve at 20%,
+  // and a brown one across the brown ICE curve exactly where ICE itself
+  // passes 80%. One ordered grey ramp instead: darker = higher threshold,
+  // which is also the order they fall in.
+  const TL_THRESH_COLOR = { '20': '#a8a49a', '50': '#7d7a72', '80': '#4a4844' };
 
   function tlCrossKey(){ return tlCountrySet() === 'cohort' ? 'cross_cohort' : 'cross_all'; }
 

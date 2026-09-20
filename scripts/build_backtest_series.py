@@ -44,7 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import snapshot_builder as sb  # noqa: E402
 from build_builder_series import (  # noqa: E402
-    GROUP_LABELS, grid_for, sample,
+    grid_for, label_for, sample,
 )
 
 REPO = Path(__file__).resolve().parent.parent
@@ -199,7 +199,7 @@ def main(argv=None) -> int:
 
         doc = {
             "group": g,
-            "label": GROUP_LABELS.get(g, g),
+            "label": label_for(g),
             "kind": "backtest",
             "headline": "What the model said using data through",
             "caveat": ("Re-fitted from today's revised CSVs truncated to each "
@@ -220,7 +220,7 @@ def main(argv=None) -> int:
     (args.out / "index.json").write_text(json.dumps({
         "kind": "backtest",
         "groups": [g for g, _ in written],
-        "labels": {g: GROUP_LABELS.get(g, g) for g, _ in written},
+        "labels": {g: label_for(g) for g, _ in written},
         "dates": months,
         "years": [grid[0], grid[-1]],
         "n_cohort": len(cohort),

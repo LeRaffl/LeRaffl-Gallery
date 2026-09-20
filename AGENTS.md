@@ -98,7 +98,7 @@ Use this when you (the owner, or a dev agent) are editing or extending the repo.
 | `index.html` | The entire single-file frontend (all tabs, JS, `SD_COUNTRIES`, `SD_FUEL_ORDER`). |
 | `worker/` | Cloudflare Worker: feedback issues + Submit-Data → opens a PR touching one `data/<Country>.csv`. |
 | `docs/architecture/` | **Canonical architecture docs** (numbered). The spec. |
-| `sources/`, `series/`, `schedule*.html/.ics`, `manifest.json`, `params.csv`, `weights.csv`, `images/`, `posts/`, `assets/theme.css` | **Generated** — do not hand-edit (see below). |
+| `sources/`, `series/`, `schedule*.html/.ics`, `manifest.json`, `params.csv`, `weights.csv`, `images/`, `posts/`, `assets/theme.css`, `builder_history/`, `backtest/` | **Generated** — do not hand-edit (see below). |
 | `assets/` | Flags, fonts, variant icons (embedded at render time), plus the generated `theme.css`. |
 
 ### The pipeline
@@ -115,7 +115,7 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 1. `data/<Country>.csv` is the single source of truth. **Never hand-edit**
    `params.csv`, `weights.csv`, `manifest.json`, `images/`, `posts/`,
    `sources/`, `series/`, `schedule*`, `assets/theme.css`,
-   `builder_history/` — they are generated.
+   `builder_history/`, `backtest/` — they are generated.
 2. CSV writes are **line-level upserts** keyed on `(period, variant)`
    (`R/upsert.R`). Never round-trip a whole CSV through read/write — it
    reformats untouched numbers (scientific notation, trailing zeros) and
@@ -128,6 +128,13 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 5. Variant definitions stay anchored to EU vehicle classes (`09-glossary.md`)
    so countries remain comparable.
 6. Estimated/modelled rows are flagged in their `notes` column.
+7. **`builder_history/` and `backtest/` are different quantities — never one
+   series.** `builder_history/` is what the gallery *actually estimated* on a
+   date, recovered from git, and cannot reach before 2025-09. `backtest/` is
+   what *this* model says re-fitted on data truncated to a date, and reaches
+   2015. Anything rendering the backtest must also carry its caveat: it
+   truncates today's **revised** CSVs, so it is an upper bound, not a clean
+   out-of-sample test. See `docs/architecture/03-data-objects.md` §3.7/§3.8.
 
 ### When you change X, also update Y
 

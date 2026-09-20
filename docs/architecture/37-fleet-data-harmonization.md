@@ -12,7 +12,7 @@ summary: >
 # 37 · Fleet data — harmonization, sources & category contract
 
 **What this doc is.** The Fleet tab is fed by a hand-curated dataset
-(`fleet/fleet_initial.csv`, see `03-data-objects.md` §3.8) that today has **no
+(`fleet/fleet_initial.csv`, see `03-data-objects.md` §3.9) that today has **no
 fetcher, no source column, no per-row provenance, and a drivetrain taxonomy that
 diverges from the registration side.** This is the spec for pulling it onto a
 harmonized format so its yearly refresh (done by a maintainer + agent, **not** a
@@ -159,7 +159,7 @@ A third, milder flag:
 
 - **Fleet / stock / parc** = vehicles *registered and on the road* at the snapshot
   date — a **stock**, not the **flow** of new registrations in `data/`. Different
-  unit, different model (hazard-rate retirement, doc 03 §3.8).
+  unit, different model (hazard-rate retirement, doc 03 §3.9).
 - **Scope is the source's scope.** Like registrations, `BEV share = BEV / TOTAL`
   where `TOTAL` is whatever the national register counts (licensed vs
   ever-registered; M1 only vs light vehicles). Absolute stocks are **not**
@@ -433,7 +433,7 @@ pilot for the whole fleet-fetch pattern.
 ### When you change X, also update Y (fleet)
 
 - **This schema / the contract** → `index.html:loadFleetObserved`, `03-data-objects.md`
-  §3.8, and keep it consistent with the registration contract in `35-proposal-raw-data-tab.md` §2.
+  §3.9, and keep it consistent with the registration contract in `35-proposal-raw-data-tab.md` §2.
 - **A fleet source's logic** → `scripts/fetch_fleet_<c>.py` **and** this §4 row
   **and** the country's `notes`/flags.
 - **A new fleet country / variant** → this §4 table, `SD_COUNTRIES` variants in

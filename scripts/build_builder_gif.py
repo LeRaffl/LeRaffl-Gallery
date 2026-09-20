@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
-"""Render `builder_history/series/<group>.json` into an animated GIF.
+"""Render `backtest/series/<group>.json` into an animated GIF.
 
     python3 scripts/build_builder_gif.py
     python3 scripts/build_builder_gif.py --group world --out /tmp
 
-One GIF per group, written to `builder_history/series/<group>.gif` and
+One GIF per group, written to `backtest/series/<group>.gif` and
 **overwritten in place** on every run. It is deliberately not dated: each
 rebuild is the same animation with one more frame on the end, so keeping
 `timelapse-2026-09.gif` next to `timelapse-2026-10.gif` would store the same
 seconds of footage again and again.
+
+Why the backtest and not `builder_history`
+------------------------------------------
+`builder_history/` cannot reach before the repository exists (2025-09), which
+is a dozen frames. The backtest re-fits from the CSVs and reaches 2015, which
+is ~140 — and the drift only reads as a story over that span. The two are
+different quantities and must never share an animation; this renders the
+backtest, and says so in the frame.
 
 Why server-side
 ---------------
@@ -41,7 +49,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = Path(__file__).resolve().parent.parent
-SERIES = REPO / "builder_history" / "series"
+SERIES = REPO / "backtest" / "series"
 
 W, H = 880, 520
 PAD_L, PAD_R, PAD_T, PAD_B = 62, 22, 84, 72
@@ -56,8 +64,27 @@ C_ICE   = (105, 37, 0)
 C_PHEV  = (58, 120, 181)
 
 Y_MAX = 100.0
-FRAME_MS = 650
-HOLD_MS = 1800          # linger on the newest frame before looping
+FRAME_MS = 280
+HOLD_MS = 2200          # linger on the newest frame before looping
+
+# The backtest is monthly, which is ~140 frames — at a readable frame rate
+# that is a minute and a half of footage for something meant to be glanced at.
+# Every third month keeps the drift continuous (the curve moves smoothly
+# between quarters) and lands the loop around 14 seconds.
+DEFAULT_STEP = 3
+
+# Deliberately NOT the fuel palette, and the same ramp the panel uses
+# (`TL_THRESH_COLOR` in index.html). Every threshold here is a *BEV*
+# crossing, so giving 20% the PHEV blue and 80% the ICE brown would paint
+# each marker in the colour of a curve it has nothing to do with — and put a
+# blue dotted line across the blue PHEV curve at 20%, and a brown one across
+# the brown ICE curve right where ICE itself passes 80%. Darker = higher
+# threshold, which is also the order they fall in.
+THRESH_COLOUR = {20: (168, 164, 154), 50: (125, 122, 114), 80: (74, 72, 68)}
+
+# Drawing all ~46 earlier curves turns the fan into a solid block and loses
+# the individual revisions. The same cap the panel uses.
+MAX_GHOSTS = 24
 
 FONT_PATHS = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -141,6 +168,22 @@ def polyline(draw, years, ys, px, py, colour, width):
         draw.line(run, fill=colour, width=width, joint="curve")
 
 
+def dotted(draw, pts, colour, dash: int = 3, gap: int = 3, width: int = 1):
+    """A dashed straight segment. Pillow has no dash option of its own."""
+    (x0, y0), (x1, y1) = pts
+    span = max(abs(x1 - x0), abs(y1 - y0))
+    if span <= 0:
+        return
+    step = (dash + gap) / span
+    t = 0.0
+    while t < 1.0:
+        u = min(1.0, t + dash / span)
+        draw.line([(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t),
+                   (x0 + (x1 - x0) * u, y0 + (y1 - y0) * u)],
+                  fill=colour, width=width)
+        t += step
+
+
 def render_frame(doc, idx: int, key: str) -> Image.Image:
     years = doc["years"]
     frames = doc["frames"]
@@ -185,9 +228,16 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
         set_txt = (f"fixed {n}-country cohort" if key == "cohort"
                    else f"{n} countries as of this date")
     per = pretty_period(frame.get("data_per"))
-    sub = f"as estimated {frame['date']}  ·  {set_txt}"
-    if per:
-        sub += f"  ·  data through {per}"
+    if doc.get("kind") == "backtest":
+        # In a backtest the estimate date and the data cutoff are the same
+        # month by construction, so "as estimated 2020-04 · data through Apr
+        # 2020" says one thing twice. The doc's own headline says it once.
+        head = doc.get("headline") or "What the model said using data through"
+        sub = f"{head} {per or frame['date']}  ·  {set_txt}"
+    else:
+        sub = f"as estimated {frame['date']}  ·  {set_txt}"
+        if per:
+            sub += f"  ·  data through {per}"
     d.text((PAD_L, 52), sub, font=f_sub, fill=MUTED)
 
     # Grid + y ticks
@@ -211,13 +261,54 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
     # estimate faintly behind December's -- knowledge that did not exist on
     # the date the frame is labelled with.
     ghost = tuple(round(c + (BG[i] - c) * 0.82) for i, c in enumerate(C_BEV))
-    for f in frames[:idx]:
+    earlier = frames[:idx]
+    stride = max(1, -(-len(earlier) // MAX_GHOSTS))
+    for f in earlier[::stride]:
         g = f.get(key) or f["all"]
         polyline(d, years, g["bev"], px, py, ghost, 1)
+
+    # Thresholds. The horizontals are scaffolding and never move, so they are
+    # faint; the verticals slide as the model revises, so they carry the
+    # colour and the year. A threshold the model never reaches inside the
+    # range gets no vertical at all — drawing one at the edge would show a
+    # crossing the model did not predict.
+    cross = (frame.get("cross_cohort") if (key == "cohort" and "cohort" in frame)
+             else frame.get("cross_all")) or {}
+    thresh_labels = []
+    for t in doc.get("thresholds") or (20, 50, 80):
+        yt = py(float(t))
+        d.line([(PAD_L, yt), (W - PAD_R, yt)], fill=GRID, width=1)
+        yr = cross.get(str(int(t)))
+        if yr is None:
+            continue
+        x = px(float(yr))
+        col = THRESH_COLOUR.get(int(t), THRESH_COLOUR[50])
+        # A corner, not a crosshair: the horizontal runs from the axis to the
+        # crossing and the vertical drops from there, so the two legs bracket
+        # exactly the region "below this threshold, before this year". Drawn
+        # dotted and in the threshold's colour, so it never reads as a fourth
+        # curve and so the 20/80 legs stay visible where they would otherwise
+        # sit invisibly on top of a gridline.
+        dotted(d, [(px(min(years)), yt), (x, yt)], col)
+        dotted(d, [(x, yt), (x, py(0))], col)
+        # At the top of the vertical, not on the axis: the x tick row already
+        # carries a number every five years and two numbers in one place read
+        # as one wrong number. Here it also sits where the information is.
+        # Deferred until after the curves -- the 20% corner is by definition
+        # on the BEV curve, so drawing it now would let the curve paint over
+        # the year.
+        thresh_labels.append(((x + 5, yt - 13), f"{int(round(yr))}", col))
 
     polyline(d, years, cur["ice"], px, py, C_ICE, 3)
     polyline(d, years, cur["phev"], px, py, C_PHEV, 3)
     polyline(d, years, cur["bev"], px, py, C_BEV, 3)
+
+    for pos, txt, col in thresh_labels:
+        # A halo, because the label lands on whatever the curve is doing
+        # there. Cheap, and it keeps the GIF palette small.
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            d.text((pos[0] + dx, pos[1] + dy), txt, font=f_tick, fill=BG)
+        d.text(pos, txt, font=f_tick, fill=col)
 
     # Legend — only what is on the chart, for the same reason as the title.
     colours = {"bev": C_BEV, "ice": C_ICE, "phev": C_PHEV}
@@ -236,11 +327,14 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
     d.text((W - PAD_R, ly), f"{idx + 1}/{len(frames)}",
            font=f_small, fill=MUTED, anchor="ra")
 
-    # Provenance. This is a model's own output, and the still travels
-    # without the page around it, so it has to say so.
-    d.text((PAD_L, H - 16),
-           "LeRaffl BEV Gallery · fitted model, not a forecast",
-           font=font(11), fill=MUTED)
+    # Provenance. This is a model's own output, and the still travels without
+    # the page (and its caveat paragraph) around it, so the one limitation a
+    # reader cannot recover on their own has to ride along: the past it was
+    # fitted on is today's revised past, which flatters it.
+    note = "LeRaffl BEV Gallery · fitted model, not a forecast"
+    if doc.get("kind") == "backtest":
+        note += " · re-fitted on revised data, not clean out-of-sample"
+    d.text((PAD_L, H - 16), note, font=font(11), fill=MUTED)
     return img
 
 
@@ -271,14 +365,20 @@ def main(argv=None) -> int:
                    help="Render every series, not just the curated list.")
     p.add_argument("--set", default="cohort", choices=("cohort", "all"),
                    help="Country set to animate. Default: cohort.")
-    p.add_argument("--out", type=Path, default=SERIES,
-                   help="Output directory. Default: builder_history/series/")
+    p.add_argument("--step", type=int, default=DEFAULT_STEP,
+                   help=f"Keep every Nth frame. Default: {DEFAULT_STEP}.")
+    p.add_argument("--src", type=Path, default=SERIES,
+                   help="Series directory. Default: backtest/series/")
+    p.add_argument("--out", type=Path, default=None,
+                   help="Output directory. Default: alongside --src.")
     args = p.parse_args(argv)
 
-    index_path = SERIES / "index.json"
+    if args.out is None:
+        args.out = args.src
+    index_path = args.src / "index.json"
     if not index_path.is_file():
-        print("  ! builder_history/series/index.json missing — "
-              "run scripts/build_builder_series.py first")
+        print(f"  ! {index_path} missing — "
+              "run scripts/build_backtest_series.py first")
         return 1
     index = json.loads(index_path.read_text(encoding="utf-8"))
     if args.group:
@@ -294,11 +394,19 @@ def main(argv=None) -> int:
     args.out.mkdir(parents=True, exist_ok=True)
     total = 0
     for g in groups:
-        src = SERIES / f"{g}.json"
+        src = args.src / f"{g}.json"
         if not src.is_file():
             print(f"  ! {g}: no series file, skipped")
             continue
         doc = json.loads(src.read_text(encoding="utf-8"))
+        if args.step > 1 and len(doc["frames"]) > args.step:
+            # Keep the newest frame whatever the stride lands on: the last
+            # thing the animation shows has to be the current estimate, not
+            # whichever month the arithmetic happened to end on.
+            kept = doc["frames"][::args.step]
+            if kept[-1] is not doc["frames"][-1]:
+                kept.append(doc["frames"][-1])
+            doc = dict(doc, frames=kept)
         size = build_gif(doc, args.out / f"{g}.gif", args.set)
         total += size
         print(f"  ✓ {g}.gif — {len(doc['frames'])} frames, {size/1024:.0f} KB")

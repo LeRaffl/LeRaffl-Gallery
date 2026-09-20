@@ -445,7 +445,16 @@ The render pipeline produces per-country PNGs and updates `params.csv` / `weight
 
 ### What it is
 
-A GitHub Action that runs `scripts/snapshot_builder.py` on the 25th of each month at 09:00 UTC (after the bulk of in-month country fetches has settled) and commits the resulting `builder_history/` changes back to master.
+A GitHub Action that runs on the 25th of each month at 09:00 UTC (after the bulk of in-month country fetches has settled), doing two separate jobs in one run and committing both back to master:
+
+1. `scripts/snapshot_builder.py` → `builder_history/<date>.csv`, freezing what the Builder tab shows **today**. Nothing renders it any more, but it is the only record of what was actually shown and cannot be reconstructed later.
+2. `R/build_backtest.R` → `backtest/params|weights/<YYYY-MM>.csv`, extending the backtest by the months that have appeared since the last run (~95 fits, a couple of minutes). Then `build_backtest_series.py` and `build_builder_gif.py`, so the new month reaches the **Time-lapse panel** and its animation in the same commit.
+
+The two are different quantities and must never be mixed in one series — see [2.13b](#213b-backtest-rbuild_backtestr).
+
+`timeout-minutes: 25` (raised from 10 when the backtest step was added): the snapshot itself finishes in seconds, and the budget is the fits plus R setup plus the GIF render. Still capped, so a hang fails fast and visibly instead of burning ~40 min then being cancelled — as happened on the 2026-07-25 scheduled run.
+
+`fit.R`/`data.R` are base R plus `parallel`, so the job needs `setup-r` but no `setup-r-dependencies` step and no package cache to restore.
 
 ### Triggers
 
@@ -564,9 +573,62 @@ They are **not** added to `BUILDER_GROUPS`, which mirrors `index.html`; a countr
 
 A country belongs on the list only if it is worth a single-case discussion **and** appears in every snapshot — otherwise its time-lapse has holes. Check `builder_history/cohort/index.json` before adding one.
 
-## 2.14 Time-lapse Series Builder (`scripts/build_builder_series.py`)
+## 2.13b Backtest (`R/build_backtest.R`)
 
 ### Responsibility
+
+Answers **"what would this model have said at date X, given the data available at date X"** by re-fitting every country series from `data/<Country>.csv` truncated to that month.
+
+```
+INPUT:  data/<Country>[_<Variant>].csv   (truncated to <= <month>)
+OUTPUT: backtest/params/<YYYY-MM>.csv    (same schema as params.csv)
+        backtest/weights/<YYYY-MM>.csv   (same schema as weights.csv)
+```
+
+### Why it exists alongside `builder_history/`
+
+They answer different questions and **must never share a series**:
+
+| | `builder_history/` ([2.13](#213-builder-history-rebuilder-scriptsrebuild_builder_historypy)) | `backtest/` |
+|---|---|---|
+| question | what the gallery *actually estimated* on date X | what *this* model would say given data to date X |
+| recovered from | git (`params.csv` at that commit) | today's CSVs, truncated |
+| earliest date | **2025-09** — the repo does not exist before it | **2015-01**, and only because that is where the flag is set |
+| carries | the coverage and the bugs we had that day | today's code throughout |
+
+The hard 2025-09 wall is why the Time-lapse shows the backtest: a dozen frames is not a time-lapse. `builder_history/` keeps being written anyway, because it is the only record of what was actually shown and it cannot be reconstructed later.
+
+### The limitation every consumer must state
+
+This truncates **today's** CSVs, which hold **revised** figures. The numbers as first published are not recoverable (they exist in git only from 2025-09 — the same wall). So the model is handed a corrected past, which flatters it: a real forecaster would have had the first-release numbers. It is an **upper bound** on how well the model would have done, not a clean out-of-sample test.
+
+Both consumers say so: the panel prints `doc.caveat` under the chart, and every GIF frame carries `re-fitted on revised data, not clean out-of-sample` in its footer.
+
+### Cost, and why the cron can afford it
+
+A fit is ~1.8 s and does **not** get cheaper with a smaller `extrapol` — the cost is the optimiser, not the projection. Monthly from 2015 is ~9,200 fits, about an hour across 4 cores, **once**. Each new month afterwards is only ~95 fits, roughly three minutes, which is what `snapshot-builder.yml` runs.
+
+Output is written per month and skipped when present, so an interrupted backfill resumes where it stopped and the monthly run is automatically incremental.
+
+`MIN_ROWS = 24`: a Weibull fit on a handful of points is noise wearing a curve's clothes. Twenty-four months is where the shape parameter stops swinging on one extra observation. Coverage therefore *grows* — 23 fittable series in 2015-01, ~95 by 2026 — which is exactly the composition problem the cohort answers (see 2.15).
+
+## 2.14 Time-lapse Series Builder (`scripts/build_backtest_series.py`, `scripts/build_builder_series.py`)
+
+### Responsibility
+
+Two scripts, one shape. [`build_backtest_series.py`](../../scripts/build_backtest_series.py) aggregates `backtest/` into `backtest/series/<group>.json` — **this is what the panel and the GIFs read**. [`build_builder_series.py`](../../scripts/build_builder_series.py) does the same for `builder_history/`; nothing renders its output today, but it still owns the grid/sampling/labelling helpers that the backtest builder imports, so the two aggregations cannot drift.
+
+```
+INPUT:  backtest/params/<YYYY-MM>.csv    backtest/weights/<YYYY-MM>.csv
+OUTPUT: backtest/series/<group>.json     (one group, all months, both sets)
+        backtest/series/index.json       (groups, months, cohort list)
+```
+
+The backtest builder deliberately imports `load_params` / `resolve_groups` / `compute_group_curve` from `snapshot_builder.py` rather than reimplementing them. A backtest curve and a snapshot curve have to be produced identically, or a difference between them is a difference in the code rather than in the model.
+
+**Thresholds are precomputed here**, not in the browser: each frame carries `cross_all` / `cross_cohort`, the linearly-interpolated year the BEV curve first reaches 20/50/80 %. `null` when it never does inside the range — in the early frames the model did not think 80 % was reachable by 2050 at all, and faking that with an endpoint would show a crossing nobody predicted.
+
+### The older path, for reference
 
 Pivots `builder_history/` into the shape a browser wants: one file per group carrying **every** snapshot date for **both** country sets.
 
@@ -587,27 +649,33 @@ Resolution drops from 0.1-year to **0.5-year steps**. The stored curves are smoo
 
 ### Regeneration
 
-`.github/workflows/snapshot-builder.yml` runs it right after `snapshot_builder.py`, so a new snapshot reaches the panel in the same commit. Output is byte-identical on re-run.
+`.github/workflows/snapshot-builder.yml` runs `build_backtest_series.py` right after extending the backtest, so a new month reaches the panel in the same commit. Output is byte-identical on re-run.
 
 ## 2.15 Time-lapse panel (`index.html`, Builder tab)
 
-Reads `builder_history/series/`, lazily — only when `#builder` is opened, and only the selected group.
+Reads `backtest/series/`, lazily — only when `#builder` is opened, and only the selected group. Titled *"Time-lapse — what the model said, as the data came in"*.
 
 - **Group** — the 14 aggregate groups, then the spotlight countries, in two `<optgroup>`s. Display names come from the series files, so the country list lives only in `snapshot_builder.py`.
 - **Countries** — `Fixed cohort` (default) or `All covered on each date`. Choosing the latter surfaces a marked warning naming the coverage growth, because that view genuinely mixes two effects.
 - **Transport** — play (one pass, resting on the newest frame), step, and a scrub slider.
-- Behind the current frame, the BEV curve of every **earlier** snapshot is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put September's estimate faintly behind December's — knowledge that did not exist on the date the frame is labelled with.
-- Readout: date, data-through period, country count, weighted volume, and the interpolated BEV-50 % year (`null` when the curve never reaches it in range — "not in this window" is a real answer and is not faked with an endpoint).
-
+- Behind the current frame, the BEV curve of **earlier** frames is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put a later estimate faintly behind an earlier one — knowledge that did not exist on the date the frame is labelled with. Capped at 24 ghosts (stride-sampled): ~140 monthly frames drawn in full turn the fan into a solid block and lose the individual revisions.
+- **Threshold corners.** At 20/50/80 % a dotted horizontal runs from the axis to the predicted crossing and a vertical drops from there, bracketing "below this threshold, before this year", with the year at the corner. The horizontals are scaffolding and never move; the verticals slide as the model revises, which is the whole point. A threshold the model never reaches in range gets **no vertical** and an explicit note — dropping the line silently would read as "zero" when it means "never, as far as this model could see".
+  - They are drawn in a neutral grey ramp (darker = higher threshold), **not** the fuel palette. These are all *BEV* crossings; giving 20 % the PHEV blue and 80 % the ICE brown would paint each marker in the colour of a curve it has nothing to do with — and put a blue line across the blue PHEV curve at 20 %, and a brown one across the brown ICE curve exactly where ICE itself passes 80 %.
+- **Convergence chart** (`#tlConv`) below the animation: predicted threshold year against the month of prediction, one line per threshold. The animation shows a curve moving; this shows *how far* it moved and whether it is settling. `connectgaps: false`, so a stretch where the model predicted no crossing is a gap, not a bridge across a prediction never made.
+- Readout: month, data-through period, country count, weighted volume, and the BEV-50 %/80 % years.
 - **Download** — links the GIF the workflow already committed (see 2.16). Nothing is encoded in the browser, and the button hides itself if that group has no file yet.
 
-It is deliberately a **separate panel** rather than a mode of the Builder above: the archive holds fixed aggregate *groups*, not arbitrary country picks, so folding it into the country selector would promise a view the data cannot produce.
+It is deliberately a **separate panel** rather than a mode of the Builder above: the series holds fixed aggregate *groups*, not arbitrary country picks, so folding it into the country selector would promise a view the data cannot produce.
+
+There is only **one** time-lapse. The backtest covers 2015 onward and carries strictly more information, so a second panel on `builder_history/` would be a shorter, weaker version of the same chart next to it — and two time-lapses that answer different questions invite exactly the mixing that 2.13b forbids.
 
 ## 2.16 Time-lapse GIF (`scripts/build_builder_gif.py`)
 
 ### Responsibility
 
-Renders each group's series into `builder_history/series/<group>.gif` — one animated GIF per group, **overwritten in place** on every run.
+Renders each group's series into `backtest/series/<group>.gif` — one animated GIF per group, **overwritten in place** on every run.
+
+**Subsampled.** The backtest is monthly, so ~140 frames — at a readable rate that is a minute and a half of footage for something meant to be glanced at. `--step` (default 3, i.e. quarterly) keeps the drift continuous and lands the loop around 14 s. The newest frame is always kept whatever the stride lands on: the last thing the animation shows has to be the current estimate.
 
 Not dated. Each rebuild is the same animation with one more frame on the end, so keeping `timelapse-2026-09.gif` beside `timelapse-2026-10.gif` would store the same seconds of footage over and over.
 
@@ -619,7 +687,9 @@ Pillow rather than matplotlib: the chart is three polylines and a pair of axes. 
 
 ### Size
 
-`disposal=1` lets Pillow store only what changed between frames. The axes, grid and ghost fan are identical throughout, so this roughly halves the file — **248 KB → 107 KB** for `world`, **1.5 MB** for all fourteen groups. Verified rather than assumed: every decoded frame is pixel-identical to the source render, so the optimiser is emitting the erase regions the moving curves need.
+`disposal=1` lets Pillow store only what changed between frames. The axes and grid are identical throughout, so this roughly halves the file. Verified rather than assumed: every decoded frame is pixel-identical to the source render, so the optimiser is emitting the erase regions the moving curves need.
+
+Against the backtest the per-file figure is ~200–260 KB for a quarterly 22-frame loop — higher than the `builder_history` era's 107 KB, because the ghost fan now accumulates across many more frames and so is no longer static between them.
 
 ### Which series get one
 
@@ -633,7 +703,9 @@ The **cohort**. The "all countries as of each date" view is honest but mixes two
 
 A frame names only the series it actually has. `params.csv` carried no ICE fit before 2026-01, so the oldest frame is titled *"World — BEV share"* with a single legend entry and *"(ICE/PHEV not fitted in this snapshot)"*. A title promising three curves over a chart with one reads as "the other two are at zero" rather than "the other two were never computed".
 
-Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast`, because the still travels without the page around it.
+Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast · re-fitted on revised data, not clean out-of-sample`, because the still travels without the page — and without the caveat paragraph — around it. That second clause is the one limitation a reader cannot recover on their own (see 2.13b).
+
+The subtitle reads *"What the model said using data through Apr 2020"*, taken from the series file's own `headline`. The `builder_history` wording (*"as estimated <date> · data through <period>"*) says one thing twice here: in a backtest the estimate date and the data cutoff are the same month by construction.
 
 ## See also
 
