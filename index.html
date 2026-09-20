@@ -8968,8 +8968,11 @@ if (stepTraces.length){
     // line, and a fourth copy is what pushed the title off the right edge on
     // a phone.
     const layout = publicationLayout(
-      `BEV, ICE & PHEV share — ${label} · using data through ${frame.date}`,
-      { sources: `snapshot ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
+      `BEV, ICE & PHEV share — ${label}`,
+      // "snapshot" was right when this read builder_history/. These frames
+      // are refits against data truncated to that month, so they are not
+      // snapshots of anything and must not be labelled as one.
+      { sources: `data through ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
     );
     // Two departures from the shared layout, both because this panel plots a
     // longer span than the Builder does:
