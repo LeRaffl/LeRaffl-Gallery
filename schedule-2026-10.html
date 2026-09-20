@@ -4,40 +4,53 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Schedule &middot; October 2026</title>
+<link rel="stylesheet" href="assets/theme.css">
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
-         background:#0c0c0e; color:#eaeaea; padding:16px; }
+  /* Palette and type come from assets/theme.css, generated out of
+     index.html by scripts/build_theme.py (#221). This page used to carry its
+     own dark theme — a third copy of the design, one click from the redesigned
+     gallery. Everything below is calendar layout only; add colours as tokens,
+     never as hex, or this drifts again. */
+  body { padding:16px; }
   header { display:flex; align-items:center; justify-content:space-between;
            margin-bottom:12px; gap:12px; flex-wrap:wrap; }
-  h1 { font-size:22px; margin:0; font-weight:600; }
-  .nav a { color:#aaa; text-decoration:none; padding:4px 10px;
-           border:1px solid #333; border-radius:6px; margin-left:4px; font-size:13px; }
-  .nav a:hover { color:#fff; border-color:#666; }
+  h1 { font-size:22px; margin:0; }
+  .nav a { color:var(--muted); padding:4px 10px; border:1px solid var(--line);
+           border-radius:var(--radius); margin-left:4px; font-size:13px; }
+  .nav a:hover { color:var(--accent); border-color:var(--accent);
+                 text-decoration:none; }
+  /* Edge of the rendered window: shown so the control stays in place,
+     but not a link, because the target month is not built. */
+  .nav .off { color:var(--muted-2); padding:4px 10px;
+              border:1px solid var(--line); border-radius:var(--radius);
+              margin-left:4px; font-size:13px; opacity:0.45; }
   .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-  .dow { font-size:11px; text-transform:uppercase; color:#888;
+  .dow { font-size:11px; text-transform:uppercase; color:var(--muted-2);
          text-align:left; padding:4px 6px; letter-spacing:0.5px; }
-  .day { background:#16161a; border:1px solid #222; border-radius:8px;
+  .day { background:var(--surface); border:1px solid var(--line);
+         border-radius:var(--radius);
          min-height:96px; padding:6px; display:flex; flex-direction:column; gap:4px; }
   .day.blank { background:transparent; border:none; }
   .day.past { opacity:0.85; }
-  .day.today { border-color:#d4a017; box-shadow:0 0 0 1px #d4a017; }
-  .dn { font-size:12px; color:#777; font-weight:500; }
-  .day.today .dn { color:#d4a017; }
+  .day.today { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .dn { font-size:12px; color:var(--muted-2); font-weight:500; }
+  .day.today .dn { color:var(--accent); font-weight:700; }
   .chips { display:flex; flex-wrap:wrap; gap:3px; align-content:flex-start; }
   .chip { display:inline-flex; align-items:center; gap:3px;
-          padding:1px 5px; border-radius:5px; font-size:13px; line-height:1.4;
+          padding:1px 5px; border-radius:var(--radius); font-size:13px; line-height:1.4;
           border:1px solid transparent; }
-  .chip .t { font-size:10px; color:#999; font-variant-numeric:tabular-nums; }
-  .chip .rb { font-size:8px; background:#444; color:#ddd; padding:0 3px;
-              border-radius:3px; margin-left:-2px; }
-  .s-done    { background:#1e3a24; border-color:#2d6b3a; }
-  .s-today   { background:transparent; border-color:#d4a017; border-style:dashed; }
-  .s-missed  { background:#3a1e1e; border-color:#6b2d2d; }
-  .s-skip    { background:transparent; opacity:0.35; }
-  .s-pending { background:transparent; border-color:#444; border-style:dashed; }
-  .legend { font-size:11px; color:#777; margin-top:14px; display:flex; gap:14px;
+  .chip .t { font-size:10px; color:var(--muted-2); font-variant-numeric:tabular-nums; }
+  .chip .rb { font-size:8px; background:var(--surface-3); color:var(--muted);
+              padding:0 3px; border-radius:var(--radius); margin-left:-2px; }
+  /* Status colours: washes carry dark text on the light ground, the same way
+     the threshold cells in the gallery do. (No apostrophes in here — this
+     whole template is a single-quoted R string.) */
+  .s-done    { background:var(--ok-wash);     border-color:var(--ok);     color:var(--ok); }
+  .s-today   { background:transparent;        border-color:var(--accent); border-style:dashed; }
+  .s-missed  { background:var(--danger-wash); border-color:var(--danger); color:var(--danger); }
+  .s-skip    { background:transparent; opacity:0.45; }
+  .s-pending { background:transparent;        border-color:var(--line-2); border-style:dashed; }
+  .legend { font-size:11px; color:var(--muted); margin-top:14px; display:flex; gap:14px;
             flex-wrap:wrap; }
   .legend .chip { font-size:11px; }
   @media (max-width:640px) {
@@ -54,7 +67,7 @@
   <div class="nav">
     <a href="schedule-2026-09.html">&larr; prev</a>
     <a href="schedule.html">today</a>
-    <a href="schedule-2026-11.html">next &rarr;</a>
+    <span class="off">next &rarr;</span>
     <a href="schedule.ics">.ics</a>
   </div>
 </header>
@@ -69,6 +82,6 @@
   <span><span class="chip s-pending">pending</span> upcoming</span>
   <span><span class="chip s-skip">skip</span> already fetched, slot would re-run</span>
   <span><span class="chip s-missed">missed</span> slot passed, no fetch</span>
-  <span style="margin-left:auto">generated 2026-09-19 18:56 UTC</span>
+  <span style="margin-left:auto">generated 2026-09-20 17:40 UTC</span>
 </div>
 </body></html>
