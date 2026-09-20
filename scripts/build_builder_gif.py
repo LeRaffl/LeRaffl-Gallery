@@ -174,6 +174,12 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
     # be nonsense. Say what it actually is.
     if doc["group"].startswith("country_"):
         set_txt = "single market"
+    elif key == "cohort" and "cohort" not in frame:
+        # The frame has no cohort counterpart, so `cur` fell back to the
+        # all-countries curve above. Say so rather than labelling someone
+        # else's data as the cohort -- that mislabel is exactly the
+        # composition artefact the cohort exists to remove.
+        set_txt = f"{frame.get('n_countries')} countries (no cohort frame)"
     else:
         n = frame.get("n_cohort") if key == "cohort" else frame.get("n_countries")
         set_txt = (f"fixed {n}-country cohort" if key == "cohort"

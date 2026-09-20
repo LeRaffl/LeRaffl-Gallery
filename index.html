@@ -8932,7 +8932,12 @@ if (stepTraces.length){
     // A spotlight country is a group of one, where "44-country cohort" would
     // be nonsense.
     const isCountry = String(doc.group).startsWith('country_');
+    // A frame with no cohort counterpart falls back to the all-countries
+    // curve in tlFrameSeries(); label it for what it is rather than passing
+    // it off as the cohort.
+    const noCohort = set === 'cohort' && !frame.cohort;
     const setLab = isCountry ? 'single market'
+      : noCohort ? `${frame.n_countries} countries (no cohort frame)`
       : (set === 'cohort' ? `fixed ${doc.n_cohort}-country cohort`
                           : `${frame.n_countries} countries`);
     // The snapshot date is deliberately NOT in the title: it already appears
