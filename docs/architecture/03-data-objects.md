@@ -17,6 +17,7 @@ flowchart LR
         D5["posts/&lt;slug&gt;.txt<br/>posts/&lt;slug&gt;_&lt;period&gt;.txt<br/>(post text)"]
         D6["manifest.json<br/>(image index)"]
         D12["builder_history/&lt;date&gt;.csv<br/>(monthly aggregate snapshots)"]
+        D13["builder_history/series/&lt;group&gt;.json<br/>(pivoted for the Time-lapse UI)"]
     end
 
     subgraph Independent["Independent datasets"]
@@ -32,7 +33,7 @@ flowchart LR
 
     D1 --> D2 & D3 & D4 & D5
     D4 --> D6
-    D2 & D3 --> D12
+    D2 & D3 --> D12 --> D13
 ```
 
 ## 3.1 Country Raw Data
@@ -368,14 +369,31 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 ### Where
 
 - `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
-- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`).
+- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`), each snapshot's x-`basis`, and a `basis_history` documenting where the basis changed.
+- `builder_history/cohort/<date>.csv` + `cohort/index.json` — the same snapshots restricted to the **44 countries present on every date**, written by `rebuild_builder_history.py --cohort`. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy).
+- `builder_history/series/<group>.json` + `series/index.json` — the archive pivoted per group for the Time-lapse panel, written by [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py). **This is the only form the browser reads.**
+- `builder_history/series/country_<slug>.json` — single-country series for the spotlight markets (`SPOTLIGHT_COUNTRIES` in `snapshot_builder.py`). Same schema; `label` carries the real spelling, and the cohort/all distinction is meaningless for one country.
+- `builder_history/series/<group>.gif` — the same series rendered as an animation by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py), for the panel's download button. **Overwritten in place, never dated** — each run is the same animation one frame longer. ~100 KB each, cohort country set only, and only for the curated `GIF_GROUPS` — ten of the twenty series, not all of them.
+
+### Two shapes, one dataset
+
+| | archive (`<date>.csv`) | pivoted (`series/<group>.json`) |
+|---|---|---|
+| grouped by | date | group |
+| resolution | 0.1 years (351 points) | 0.5 years (71 points) |
+| size | 197 KB per snapshot, 5.8 MB total | ~39 KB per group |
+| read by | scripts, `git` archaeology | the Time-lapse panel, one group at a time |
+
+The archive keeps full fidelity; the pivot is what makes the panel affordable. A reader looking at one group would otherwise pull all fourteen, fifteen times over.
+
+`series/<group>.json` carries both country sets per frame — `all` (coverage as of that date) and `cohort` (the fixed 44) — plus `n_countries`, `total_weight` and `data_per`. A share is `null` where the snapshot has none: `params.csv` had no ICE fit before 2026-01, so the oldest frame's `ice`/`phev` are entirely null and the chart draws a **gap**, not a zero line.
 
 ### Schema (`builder_history/<date>.csv`)
 
 | Column | Type | Notes |
 |---|---|---|
 | `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
-| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). |
+| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). **Which basis this is on is per-snapshot — read the entry's `basis` field before comparing two snapshots** (see below). |
 | `bev_share` | float | Weighted aggregate BEV share in `[0, 100]`. |
 | `ice_share` | float \| empty | Weighted aggregate ICE share in `[0, 100]`. Empty when no row in the group has ICE Weibull parameters. |
 | `phev_share` | float \| empty | Implied PHEV = `max(0, 100 - bev - ice)`, weighted. Empty when ICE is empty. |
@@ -384,21 +402,37 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 ```json
 {
-  "updated": "2026-05-20",
+  "basis_history": [
+    {"basis": "calendar_year", "from": "2025-12-25", "issue": 219, "note": "…"}
+  ],
   "snapshots": [
     {
       "date": "2026-05-20",
       "file": "2026-05-20.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {"n_countries": 48, "total_weight": 69682736, "latest_data_per": "2026-04"},
         "eu":    {"n_countries": 26, "total_weight": 10970870, "latest_data_per": "2026-04"}
       }
     }
-  ]
+  ],
+  "updated": "2026-05-20"
 }
 ```
 
 `updated` tracks the maximum snapshot `date` in the file (not the file's mtime) so a back-dated run doesn't make it go backwards.
+
+**`basis` / `basis_history` ([#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219)).** Every snapshot carries the x-basis its `year` column is on:
+
+| `basis` | Meaning |
+|---|---|
+| `calendar_year` | `z = year - t0`. Agrees with the live Builder. **Every snapshot in the series.** |
+
+The field is kept even though the answer is currently uniform — a consumer should not have to know that, and a future basis change should be readable from the data rather than from a changelog.
+
+Snapshots dated `2026-06-25`…`2026-09-09` were once on a `calendar_year_plus_1` basis (one year late). **They were rebuilt, not annotated**, by [`scripts/rebuild_builder_history.py`](../../scripts/rebuild_builder_history.py), which recovers each date's `params.csv` / `weights.csv` out of git and re-runs the snapshot builder over them — so no correction is needed to compare any two entries. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy) for the evidence that this reconstructs rather than approximates.
+
+That also extended the series backwards: it starts **2025-12-25**, the first date `weights.csv` exists, rather than 2026-05-20.
 
 ### Owner / lifecycle
 

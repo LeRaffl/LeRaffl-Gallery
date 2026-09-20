@@ -39,19 +39,26 @@
 
 ### 3.1 Static Web Frontend
 - **Name:** `LeRaffl-Gallery Page`
-- **Tech:** Single-File HTML/CSS/JS (`index.html`, ~5900 Zeilen), kein Build-Step, keine Frameworks
+- **Tech:** Single-File HTML/CSS/JS (`index.html`, ~13.600 Zeilen), kein Build-Step, keine Frameworks
 - **Hosted on:** GitHub Pages (`https://leraffl.github.io/LeRaffl-Gallery/`)
+- **Navigation** *(Redesign 2026-09, PR #218)*: vier Haupteinträge mit Unterzeile statt der früheren flachen Leiste — **Charts** (`#gallery`), **Map** (`#worldmap`), **Rankings** (Thresholds / Durations / Time Interval), **Tools** (Builder / Compare / Raw Data / Fleet / Data freshness / Submit Data / Data sources). FAQ und Feedback stehen bewusst nicht in der Leiste (FAQ über About, Feedback über FAB und Emoji-Cluster). **Alle 14 Sections und sämtliche `#hash`-Anker sind unverändert** — deshalb funktionieren alte Links und die in Feedback-Issues gespeicherten `context.hash` weiterhin.
 - **Tabs/Module:**
   - Gallery (rendert die PNGs aus `manifest.json`)
   - Thresholds (Tabelle: wann erreicht jedes Land 20%/50%/80% BEV-Anteil)
   - Durations (Tabelle: wie viele Jahre für Übergänge erwartet)
-  - Builder (interaktiver "What-if"-Modus)
+  - Time Interval (Intervall-Chart From%→To% je Land)
+  - Builder (interaktiver "What-if"-Modus; plottet echte Monatsdaten, ICE und PHEV zeichnen immer — der frühere "Show ICE & PHEV"-Schalter ist entfallen)
+  - Compare (beliebig viele Kurven; die ersten drei bleiben beschriftet, weitere nur als gefittete Kurve mit Namen im Hover)
+  - Raw Data (die Messreihen hinter einem Land als Tabelle)
   - Fleet (Bestand-Extrapolationen, eigener CSV-Datensatz unter `fleet/`)
-  - World Map (Choroplethe nach BEV-Anteil)
+  - Data freshness (In-Page-Ansicht des Fetch-Zeitplans)
+  - World Map (Choroplethe nach BEV-Anteil, **mit Variantenauswahl** — nicht mehr nur Whole-Market-Pkw)
+  - About (Landing-Section, Default-Tab)
   - FAQ
   - **Submit Data** *(neu in PR #12)*: Formular für neue Datenpunkte und Korrekturen
   - Feedback & Questions (Issue-basierter Diskussions-Thread)
-- **Entry Point:** `index.html` lädt `manifest.json` für Galerie, `params.csv` für Modell-Parameter, `weights.csv` für gewichtete Aggregate.
+- **Entry Point:** `index.html` lädt `manifest.json` für die Galerie, `params.csv` für Modell-Parameter, `weights.csv` für gewichtete Aggregate und seit dem Redesign zusätzlich **`series/index.json` sowie `series/<slug>.json` zur Laufzeit** (Raw Data und der Hero-Chart). Damit hängt der Lesepfad an der Ausgabe von `scripts/build_series.py`. Compare liest dagegen weiterhin `data/<Country>.csv` direkt.
+- **Landing/Hero:** handgeschriebener Inline-SVG-Chart (kein Plotly, damit der erste Paint nicht auf die Bibliothek wartet). Das „Heimatland" kommt aus der Browser-Zeitzone (`Intl.DateTimeFormat().resolvedOptions().timeZone`), Fallback Deutschland — **kein IP-Lookup, keine Standortabfrage**. Fällt `params.csv` aus, blendet sich die Figur aus und die Seite läuft weiter. Das Suchfeld daneben spiegelt in das echte Gallery-Filterfeld und springt bei Enter auf `#gallery`.
 
 ### 3.2 Cloudflare Worker — Edge-Vermittler
 - **Name:** `leraffl-gallery-feedback` (Endpoint: `https://leraffl-gallery-feedback.xgwvfz7nrb.workers.dev`)
@@ -83,7 +90,8 @@
 ### 3.5 GitHub Actions
 - **`Build manifest` (`.github/workflows/build-manifest.yml`):** Triggert auf Push zu `images/**` oder `build_manifest.R`. Installiert R, ruft `build_manifest.R`, committet `manifest.json`. Cron-Fallback täglich 03:17 UTC.
 - **`Render country charts` (`.github/workflows/render-country.yml`):** Manueller Trigger via Actions UI (`workflow_dispatch`) plus reusable `workflow_call`-Eintrittspunkt (nur noch vom Multi-**Country**-Fetcher ACEA genutzt). Inputs `country`, `variant` **und `variants`** (optionale pipe-separierte Liste — überschreibt `variant`; so schicken die Single-Country-Fetcher alle betroffenen Varianten in EINEM Dispatch). Installiert R + Pakete, rendert die Varianten der Liste **seriell in einem Lauf** (`R/render_country.R` je Variante), committet `images/`+`params.csv`+`weights.csv`+`posts/` einmal, dispatcht `build-manifest.yml` explizit und färbt den Lauf rot, falls eine Variante failt (erfolgreiche werden trotzdem committet). Jeder Fetcher-Render erscheint dadurch als ein eigener `Render: <Land>`-Lauf in der Actions-Historie (statt als verschachtelte Matrix im Fetcher-Lauf).
-- **`Snapshot Builder curves` (`.github/workflows/snapshot-builder.yml`):** Cron 25. jedes Monats 09:00 UTC plus `workflow_dispatch`. Dumpt die aggregierten Builder-Kurven nach `builder_history/<date>.csv`.
+- **`Build source pages` (`.github/workflows/build-source-pages.yml`):** Cron täglich 04:37 UTC plus Push auf Source-Docs, Stub-Registry, Generatoren, `index.html` oder `params.csv`. Baut `sources/*.html` und `assets/theme.css`. Letzteres wird von `scripts/build_theme.py` aus dem `:root`-Block von `index.html` extrahiert — die Page ist die einzige Quelle der Wahrheit für Palette und Schriftpaar, die generierten Standalone-Seiten (`sources/`, `schedule*.html`) verlinken die Datei und können deshalb nicht mehr auseinanderlaufen (Issue #221). Im Pull Request wird nur geprüft (`--check`), nie committet.
+- **`Snapshot Builder curves` (`.github/workflows/snapshot-builder.yml`):** Cron 25. jedes Monats 09:00 UTC plus `workflow_dispatch`. Dumpt die aggregierten Builder-Kurven nach `builder_history/<date>.csv` und baut anschliessend `builder_history/series/` neu, das die Time-lapse-Ansicht im Builder-Tab liest.
 - **Country Fetch Actions (Familie `.github/workflows/fetch-*.yml`):** Ein Workflow pro Datenquelle. Cron-getrieben, self-throttling über `latest_period(<CSV>) ≥ target`. Nach Schreib-Diff dispatcht ein Single-Country-Fetcher `render-country.yml` **einmal** mit der pipe-separierten Liste seiner betroffenen Varianten (ACEA als Multi-Country-Ausnahme fächert weiter per `workflow_call`-Matrix über die Länder auf). Aktueller Stand (Schedule in UTC):
   - `fetch-acea.yml` — täglich 08:00, 16.→EOM. Bis zu 21 EU-Länder (16 always + 5 conditional).
   - `fetch-acea-cv.yml` — täglich 10:15, vier Cron-Fenster (Jan/Apr/Jul-Aug/Okt), eins pro ACEA-Checkpoint. ACEA veröffentlicht seit ~2024 nur noch kumulierte YTD-Zwischenstände (Q1/H1/Q1-Q3/Volljahr); dieser Fetcher rekonstruiert daraus echte, nicht-überlappende Q1/Q2/Q3/Q4-Zeilen (Baseline = Summe der bereits erfassten Quartale in der CSV selbst — kein separates State-File nötig) und fällt nur auf eine jährliche Zeile zurück, wenn noch keine Quartals-Baseline existiert, siehe [38-source-acea-cv.md](../docs/architecture/38-source-acea-cv.md). Eigene, 21-Länder-Roster (nicht identisch mit `fetch-acea.yml`s Whole-Liste — z.B. Germany/France/Sweden zusätzlich rein, weil sie zwar eine eigene Whole-Quelle haben, aber keine für Vans/HDV/Buses; Austria/Denmark/Finland/Luxembourg/Netherlands/Spain raus, weil die schon eine eigene Vans/HDV/Buses-Quelle haben; siehe 38-source-acea-cv.md § 1a), schreibt `Vans`/`HDV`/`Buses`. Das kombinierte ACEA-Feld "Electrically Chargeable" (BEV+PHEV) landet in der BEV-Spalte, wird aber in Charts/Posts als "EV" statt "BEV" beschriftet (`bev_label` in R/plots.R, R/data.R, R/post_text.R, R/render_country.R).

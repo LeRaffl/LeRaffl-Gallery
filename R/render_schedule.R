@@ -148,7 +148,8 @@ chip_status <- function(slug, day_date, hour, actual_fetches, today) {
 }
 
 # ---- HTML-Rendering --------------------------------------------------------
-render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date()) {
+render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date(),
+                        window = NULL) {
   month_start <- as.Date(sprintf("%04d-%02d-01", year, month))
   days_n <- as.integer(format(month_start %m+% months(1) - days(1), "%d"))
   # Monday-first; ISO wday: Mon=1..Sun=7
@@ -207,12 +208,21 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 
   month_name <- format(month_start, "%B %Y")
 
-  prev_m <- month_start %m-% months(1)
-  next_m <- month_start %m+% months(1)
-  nav_prev <- sprintf("schedule-%04d-%02d.html",
-                      as.integer(format(prev_m, "%Y")), as.integer(format(prev_m, "%m")))
-  nav_next <- sprintf("schedule-%04d-%02d.html",
-                      as.integer(format(next_m, "%Y")), as.integer(format(next_m, "%m")))
+  # Only link to a month this build actually writes. build_schedule() emits a
+  # three-month window (prev/curr/next), so an unconditional link walks the
+  # reader either into a 404 or into a stranded archive from an older run --
+  # both of which look like the site is broken. `window` is the list of months
+  # that exist; NULL keeps the old unconditional behaviour for other callers.
+  nav_link <- function(d, label, arrow_before) {
+    fn <- sprintf("schedule-%04d-%02d.html",
+                  as.integer(format(d, "%Y")), as.integer(format(d, "%m")))
+    text <- if (arrow_before) paste0("&larr; ", label) else paste0(label, " &rarr;")
+    in_window <- is.null(window) || format(d, "%Y-%m") %in% window
+    if (in_window) sprintf('<a href="%s">%s</a>', fn, text)
+    else sprintf('<span class="off">%s</span>', text)
+  }
+  nav_prev <- nav_link(month_start %m-% months(1), "prev", TRUE)
+  nav_next <- nav_link(month_start %m+% months(1), "next", FALSE)
 
   sprintf('<!doctype html>
 <html lang="en"><head>
@@ -220,40 +230,53 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Schedule &middot; %s</title>
+<link rel="stylesheet" href="assets/theme.css">
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,sans-serif;
-         background:#0c0c0e; color:#eaeaea; padding:16px; }
+  /* Palette and type come from assets/theme.css, generated out of
+     index.html by scripts/build_theme.py (#221). This page used to carry its
+     own dark theme — a third copy of the design, one click from the redesigned
+     gallery. Everything below is calendar layout only; add colours as tokens,
+     never as hex, or this drifts again. */
+  body { padding:16px; }
   header { display:flex; align-items:center; justify-content:space-between;
            margin-bottom:12px; gap:12px; flex-wrap:wrap; }
-  h1 { font-size:22px; margin:0; font-weight:600; }
-  .nav a { color:#aaa; text-decoration:none; padding:4px 10px;
-           border:1px solid #333; border-radius:6px; margin-left:4px; font-size:13px; }
-  .nav a:hover { color:#fff; border-color:#666; }
+  h1 { font-size:22px; margin:0; }
+  .nav a { color:var(--muted); padding:4px 10px; border:1px solid var(--line);
+           border-radius:var(--radius); margin-left:4px; font-size:13px; }
+  .nav a:hover { color:var(--accent); border-color:var(--accent);
+                 text-decoration:none; }
+  /* Edge of the rendered window: shown so the control stays in place,
+     but not a link, because the target month is not built. */
+  .nav .off { color:var(--muted-2); padding:4px 10px;
+              border:1px solid var(--line); border-radius:var(--radius);
+              margin-left:4px; font-size:13px; opacity:0.45; }
   .grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
-  .dow { font-size:11px; text-transform:uppercase; color:#888;
+  .dow { font-size:11px; text-transform:uppercase; color:var(--muted-2);
          text-align:left; padding:4px 6px; letter-spacing:0.5px; }
-  .day { background:#16161a; border:1px solid #222; border-radius:8px;
+  .day { background:var(--surface); border:1px solid var(--line);
+         border-radius:var(--radius);
          min-height:96px; padding:6px; display:flex; flex-direction:column; gap:4px; }
   .day.blank { background:transparent; border:none; }
   .day.past { opacity:0.85; }
-  .day.today { border-color:#d4a017; box-shadow:0 0 0 1px #d4a017; }
-  .dn { font-size:12px; color:#777; font-weight:500; }
-  .day.today .dn { color:#d4a017; }
+  .day.today { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .dn { font-size:12px; color:var(--muted-2); font-weight:500; }
+  .day.today .dn { color:var(--accent); font-weight:700; }
   .chips { display:flex; flex-wrap:wrap; gap:3px; align-content:flex-start; }
   .chip { display:inline-flex; align-items:center; gap:3px;
-          padding:1px 5px; border-radius:5px; font-size:13px; line-height:1.4;
+          padding:1px 5px; border-radius:var(--radius); font-size:13px; line-height:1.4;
           border:1px solid transparent; }
-  .chip .t { font-size:10px; color:#999; font-variant-numeric:tabular-nums; }
-  .chip .rb { font-size:8px; background:#444; color:#ddd; padding:0 3px;
-              border-radius:3px; margin-left:-2px; }
-  .s-done    { background:#1e3a24; border-color:#2d6b3a; }
-  .s-today   { background:transparent; border-color:#d4a017; border-style:dashed; }
-  .s-missed  { background:#3a1e1e; border-color:#6b2d2d; }
-  .s-skip    { background:transparent; opacity:0.35; }
-  .s-pending { background:transparent; border-color:#444; border-style:dashed; }
-  .legend { font-size:11px; color:#777; margin-top:14px; display:flex; gap:14px;
+  .chip .t { font-size:10px; color:var(--muted-2); font-variant-numeric:tabular-nums; }
+  .chip .rb { font-size:8px; background:var(--surface-3); color:var(--muted);
+              padding:0 3px; border-radius:var(--radius); margin-left:-2px; }
+  /* Status colours: washes carry dark text on the light ground, the same way
+     the threshold cells in the gallery do. (No apostrophes in here — this
+     whole template is a single-quoted R string.) */
+  .s-done    { background:var(--ok-wash);     border-color:var(--ok);     color:var(--ok); }
+  .s-today   { background:transparent;        border-color:var(--accent); border-style:dashed; }
+  .s-missed  { background:var(--danger-wash); border-color:var(--danger); color:var(--danger); }
+  .s-skip    { background:transparent; opacity:0.45; }
+  .s-pending { background:transparent;        border-color:var(--line-2); border-style:dashed; }
+  .legend { font-size:11px; color:var(--muted); margin-top:14px; display:flex; gap:14px;
             flex-wrap:wrap; }
   .legend .chip { font-size:11px; }
   @media (max-width:640px) {
@@ -268,9 +291,9 @@ render_html <- function(year, month, schedules, actual_fetches, today = Sys.Date
 <header>
   <h1>%s</h1>
   <div class="nav">
-    <a href="%s">&larr; prev</a>
+    %s
     <a href="schedule.html">today</a>
-    <a href="%s">next &rarr;</a>
+    %s
     <a href="schedule.ics">.ics</a>
   </div>
 </header>
@@ -345,14 +368,22 @@ build_schedule <- function(out_html = "schedule.html", out_ics = "schedule.ics",
   schedules <- read_schedules()
   actual    <- read_actual_fetches()
 
-  # Aktuellen Monat als schedule.html, plus prev/curr/next als datierte Aliase
-  write(render_html(year, month, schedules, actual, today), out_html)
+  # Aktuellen Monat als schedule.html, plus prev/curr/next als datierte Aliase.
+  # Das Fenster wird vorab berechnet, damit jede Seite weiss, welche Nachbarn
+  # es wirklich gibt, und nicht ins Leere verlinkt.
+  base_d  <- as.Date(sprintf("%04d-%02d-01", year, month))
+  offsets <- -1:1
+  window  <- vapply(offsets,
+                    function(off) format(base_d %m+% months(off), "%Y-%m"),
+                    character(1))
 
-  for (off in -1:1) {
-    d <- as.Date(sprintf("%04d-%02d-01", year, month)) %m+% months(off)
+  write(render_html(year, month, schedules, actual, today, window), out_html)
+
+  for (off in offsets) {
+    d <- base_d %m+% months(off)
     y2 <- as.integer(format(d, "%Y")); m2 <- as.integer(format(d, "%m"))
     fn <- sprintf("schedule-%04d-%02d.html", y2, m2)
-    write(render_html(y2, m2, schedules, actual, today), fn)
+    write(render_html(y2, m2, schedules, actual, today, window), fn)
   }
 
   write(render_ics(year, month, schedules, n_months = 3), out_ics)
