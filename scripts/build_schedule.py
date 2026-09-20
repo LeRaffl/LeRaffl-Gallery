@@ -45,6 +45,7 @@ from build_source_pages import (  # noqa: E402
 WORKFLOWS = REPO / ".github" / "workflows"
 MANIFEST = REPO / "manifest.json"
 OUT = REPO / "sources" / "schedule.json"
+RUNS_OUT = REPO / "sources" / "runs.json"
 
 
 # --------------------------------------------------------------------------
@@ -259,7 +260,7 @@ def manifest_runs() -> list[dict]:
     return sorted(seen.values(), key=lambda r: (r["date"], r["label"]))
 
 
-def build(today: date | None = None) -> dict:
+def build(today: date | None = None) -> tuple[dict, dict]:
     today = today or datetime.now(timezone.utc).date()
     renders = manifest_last_render()
     flags = flag_emoji()
@@ -341,26 +342,44 @@ def build(today: date | None = None) -> dict:
         })
 
     rows.sort(key=lambda r: r["country"])
-    return {
-        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    schedule = {
+        "generated": generated,
         "today": today.isoformat(),
         "countries": rows,
-        # One row per (country, render date): what actually landed, and when.
-        # The calendar's past half is built from this; its future half comes
-        # from each country's `schedule` window. See manifest_runs().
+    }
+    # One row per (country, render date): what actually landed, and when.
+    # The calendar's past half is built from this; its future half comes from
+    # each country's `schedule` window. See manifest_runs().
+    #
+    # Kept in its OWN file rather than inside schedule.json, because the two
+    # have opposite lifecycles. `countries` is bounded — one row per dataset,
+    # forward-looking, and it is what the Data freshness table needs on every
+    # visit. `runs` is an append-only history that grows about 900 rows a year
+    # and is only ever read when someone opens the calendar. Embedding it made
+    # schedule.json 61 KB -> 147 KB for a payload most readers never use, and
+    # that gap widens every month.
+    runs_doc = {
+        "generated": generated,
         "runs": runs,
     }
+    return schedule, runs_doc
 
 
 def main() -> int:
-    data = build()
+    schedule, runs_doc = build()
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
+    OUT.write_text(json.dumps(schedule, ensure_ascii=False, indent=1), encoding="utf-8")
+    RUNS_OUT.write_text(
+        json.dumps(runs_doc, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     counts: dict[str, int] = {}
-    for r in data["countries"]:
+    for r in schedule["countries"]:
         counts[r["status"]] = counts.get(r["status"], 0) + 1
     summary = ", ".join(f"{v} {k}" for k, v in sorted(counts.items()))
-    print(f"  ✓ sources/schedule.json — {len(data['countries'])} countries ({summary})")
+    print(f"  ✓ sources/schedule.json — {len(schedule['countries'])} countries ({summary})")
+    print(f"  ✓ sources/runs.json — {len(runs_doc['runs'])} arrivals")
     return 0
 
 

@@ -4866,6 +4866,11 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
   const STATUS_LABEL = { current:'up to date', due:'due', late:'late',
                          manual:'by hand', unknown:'no data file' };
   let DATA = null, statusFilter = null;
+  // Arrival history, fetched separately from sources/runs.json. It is only
+  // the calendar's *past* half, so the tab is fully usable before it lands
+  // and stays usable if it never does — the future half comes from
+  // DATA.countries. null = not here (yet); [] = here and empty.
+  let RUNS = null;
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -4987,7 +4992,7 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
 
   function dropsByDate(year, month, pass){
     const past = {}, due = {};
-    (DATA.runs || []).forEach(r => {
+    (RUNS || []).forEach(r => {
       if(!r.date || !r.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)) return;
       if(!pass(r.label)) return;
       (past[r.date] = past[r.date] || []).push(r);
@@ -5150,6 +5155,22 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
     throw new Error('Could not load sources/schedule.json');
   }
 
+  // Same two-candidate dance as loadSchedule(), but a failure here is not
+  // fatal: it costs the calendar its "landed" chips, not the tab.
+  async function loadRuns(){
+    const candidates = [
+      new URL('sources/runs.json', location.href).href,
+      'sources/runs.json',
+    ];
+    for(const url of candidates){
+      try{
+        const r = await fetch(url, {cache:'no-store'});
+        if(r.ok){ const j = await r.json(); return j.runs || []; }
+      }catch{ /* try next */ }
+    }
+    return null;
+  }
+
   function init(){
     if(DATA) return;
     loadSchedule()
@@ -5176,6 +5197,13 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
         });
         render();
         renderCalendar();
+        // Arrival history lands second and only refills the calendar, so the
+        // table never waits on it.
+        loadRuns().then(runs => {
+          RUNS = runs || [];
+          renderCalendar();
+          if(selectedDay) renderCalDetail();
+        });
       })
       .catch(err => {
         document.getElementById('schedMount').innerHTML =
