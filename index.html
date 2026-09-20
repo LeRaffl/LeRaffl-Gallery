@@ -206,13 +206,48 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .sched-country{font-weight:600}
 .sched-why{color:var(--muted);font-size:13px}
 .sched-vars{color:var(--muted);font-size:12px}
-.sched-cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:6px}
-.sched-day{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;padding:10px 12px}
+/* Month-grid calendar (#235). Seven columns, Monday first. Day cells stay a
+   fixed minimum height so the grid does not jump as months change length. */
+.sched-calbar{display:flex;align-items:center;gap:8px;margin:10px 0 8px;flex-wrap:wrap}
+.sched-navbtn{padding:4px 12px;font-size:13px;line-height:1.6}
+.sched-callegend{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap}
+.sched-chipk{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:5px}
+.sched-chipk::before{content:"";width:12px;height:12px;border-radius:2px;display:inline-block}
+.sched-chipk--done::before{background:var(--ok-wash);border:1px solid var(--ok)}
+.sched-chipk--due::before{background:transparent;border:1px dashed var(--accent)}
+.sched-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
+.sched-dow{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted-2);padding:4px 6px}
+.sched-day{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;
+  padding:6px;min-height:86px;display:flex;flex-direction:column;gap:4px;
+  text-align:left;font:inherit;color:inherit;cursor:pointer}
+.sched-day--blank{background:transparent;border:none;cursor:default;min-height:0}
+.sched-day--past{background:var(--bg-deep)}
 .sched-day--today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.sched-day .d{font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px}
-.sched-day .who{font-size:13px;line-height:1.5}
-.sched-day a{color:var(--text);text-decoration:none;border-bottom:1px dotted var(--line)}
-.sched-day a:hover{border-bottom-style:solid}
+.sched-day--sel{border-color:var(--accent-deep);box-shadow:0 0 0 2px var(--accent-deep)}
+.sched-day:hover:not(.sched-day--blank){border-color:var(--accent)}
+.sched-day .d{font-weight:600;font-size:12px;color:var(--muted-2)}
+.sched-day--today .d{color:var(--accent);font-weight:700}
+.sched-day .who{display:flex;flex-wrap:wrap;gap:2px;align-content:flex-start;line-height:1}
+/* The flag itself is the icon (#235 asked for icons over names); the country
+   name rides along in title/aria so it is never colour- or glyph-only. */
+.sched-fl{font-size:15px;line-height:1.25;padding:1px 2px;border-radius:2px;
+  border:1px solid transparent;background:none;cursor:pointer}
+.sched-fl--done{background:var(--ok-wash);border-color:var(--ok)}
+.sched-fl--due{border:1px dashed var(--accent);opacity:.75}
+.sched-fl:hover{border-color:var(--accent-deep);opacity:1}
+.sched-fl--more{font-size:10px;color:var(--muted);align-self:center;padding:0 2px}
+.sched-caldetail{margin-top:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:2px;padding:12px 14px;font-size:13px}
+.sched-caldetail h4{margin:0 0 8px;font-size:13px}
+.sched-caldetail ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+.sched-caldetail li{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sched-caldetail .lbl{font-weight:600}
+.sched-caldetail .per{color:var(--muted)}
+.sched-caldetail a{color:var(--accent)}
+@media (max-width:640px){
+  .sched-day{min-height:62px;padding:4px}
+  .sched-fl{font-size:13px}
+}
 @media (max-width:640px){ .sched-summary .sched-chip{flex:1 1 40%} }
 
 .tablecard{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;overflow:auto}
@@ -3776,13 +3811,26 @@ function tok(name, fallback){
     </div>
 
     <div class="container">
-      <h3 style="margin-top:26px">Where the next points land <span id="schedCalMonth" class="small" style="font-weight:400"></span></h3>
+      <h3 style="margin-top:26px">Calendar <span id="schedCalMonth" class="small" style="font-weight:400"></span></h3>
       <p class="small" style="max-width:820px">
-        The day of the month each source's publication window opens — the earliest a
-        new figure can appear. Fetchers keep polling after that until the data shows
-        up, so this marks the <em>start</em> of each window, not every polling day.
+        What actually landed, and what is due. Past days show the drops that really
+        happened — one flag per country whose charts were produced that day. Future
+        days mark where each source's publication window <em>opens</em>, the earliest
+        a new figure can appear; fetchers keep polling after that, so those are
+        possibilities rather than promises. Click a day for the detail, or a flag to
+        open that country's charts. The country filter above narrows this too.
       </p>
-      <div id="schedCalendar" class="sched-cal"></div>
+      <div class="sched-calbar">
+        <button type="button" class="btn sched-navbtn" id="schedCalPrev" aria-label="Previous month">‹</button>
+        <button type="button" class="btn sched-navbtn" id="schedCalToday">Today</button>
+        <button type="button" class="btn sched-navbtn" id="schedCalNext" aria-label="Next month">›</button>
+        <span class="sched-callegend">
+          <span class="sched-chipk sched-chipk--done">landed</span>
+          <span class="sched-chipk sched-chipk--due">window opens</span>
+        </span>
+      </div>
+      <div id="schedCalendar" class="sched-cal" role="grid" aria-label="Data arrival calendar"></div>
+      <div id="schedCalDetail" class="sched-caldetail" hidden></div>
     </div>
   </section>
 
@@ -4909,33 +4957,159 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
       : '<div style="padding:14px">No countries match that filter.</div>';
   }
 
-  // Compact calendar: one cell per day on which at least one source's
-  // publication window opens. Polling days in between are omitted on purpose —
-  // showing every one of them is what made the old calendar unreadable.
-  function renderCalendar(){
-    const byDay = {};
-    DATA.countries.forEach(r => {
-      const s = r.schedule;
-      if(!s || !s.enabled) return;
-      const d = s.days[0];
-      (byDay[d] = byDay[d] || []).push(r);
+  /* ---- Month-grid calendar (#235) ---------------------------------------
+     Two halves, from two different sources, because they answer different
+     questions:
+
+       past   — DATA.runs, one row per (country, render date) out of
+                manifest.json. A real event: charts were produced, so data
+                genuinely landed. This is the "this dropped that day" half.
+       future — each country's `schedule.days[0]`, the day its publication
+                window opens. A possibility, not a promise, which is why those
+                chips are dashed and the copy says so.
+
+     Deliberately NOT every polling tick. build_schedule.py's own docstring
+     records why: most fetchers poll daily through a window, so a month of
+     ticks is ~460 chips for ~30 real arrivals, and that is what made the
+     previous calendar unreadable. */
+  const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const MAX_CHIPS = 6;              // beyond this a cell shows "+N" instead
+  let calYear = null, calMonth = null, selectedDay = null;
+
+  const ymd = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+  // Countries currently passing the search box, so the filter above narrows
+  // the calendar too rather than only the table.
+  function calFilter(){
+    const q = (document.getElementById('schedSearch').value || '').toLowerCase().trim();
+    return q ? (name => String(name||'').toLowerCase().includes(q)) : (() => true);
+  }
+
+  function dropsByDate(year, month, pass){
+    const past = {}, due = {};
+    (DATA.runs || []).forEach(r => {
+      if(!r.date || !r.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)) return;
+      if(!pass(r.label)) return;
+      (past[r.date] = past[r.date] || []).push(r);
     });
-    const today = new Date(DATA.today + 'T00:00:00Z');
-    const dom = today.getUTCDate();
-    const cells = Object.keys(byDay).map(Number).sort((a,b)=>a-b).map(d => {
-      const who = byDay[d]
-        .sort((a,b)=>a.country.localeCompare(b.country))
-        .map(r => `<a href="sources/${esc(r.slug)}.html">${esc(r.country)}</a>`)
-        .join(', ');
-      return `<div class="sched-day${d===dom?' sched-day--today':''}">
-        <div class="d">${ord(d)}${d===dom?' · today':''}</div>
-        <div class="who">${who}</div></div>`;
-    }).join('');
-    document.getElementById('schedCalendar').innerHTML = cells;
-    // Bare ordinals ("1st, 5th, 6th…") are ambiguous without the month.
+    // Future half: the window-opening day, projected into whatever month is
+    // being viewed. Clamped so the 31st of a 30-day month still shows.
+    const dim = new Date(Date.UTC(year, month+1, 0)).getUTCDate();
+    DATA.countries.forEach(c => {
+      const s = c.schedule;
+      if(!s || !s.enabled || !s.days || !s.days.length) return;
+      if(!pass(c.country)) return;
+      const key = ymd(year, month, Math.min(s.days[0], dim));
+      if(key <= DATA.today) return;          // the past half already has truth
+      (due[key] = due[key] || []).push(c);
+    });
+    return { past, due };
+  }
+
+  function chip(flag, label, cls, extra){
+    const glyph = flag || '🌐';
+    return `<button type="button" class="sched-fl ${cls}" data-jump="${esc(label)}"`
+         + ` title="${esc(label)}${extra ? ' · ' + esc(extra) : ''}"`
+         + ` aria-label="${esc(label)}${extra ? ', ' + esc(extra) : ''}">${glyph}</button>`;
+  }
+
+  function renderCalendar(){
+    if(calYear == null){
+      const t = new Date(DATA.today + 'T00:00:00Z');
+      calYear = t.getUTCFullYear(); calMonth = t.getUTCMonth();
+    }
+    const pass = calFilter();
+    const { past, due } = dropsByDate(calYear, calMonth, pass);
+    const first = new Date(Date.UTC(calYear, calMonth, 1));
+    const lead = (first.getUTCDay() + 6) % 7;          // Monday-first
+    const dim = new Date(Date.UTC(calYear, calMonth+1, 0)).getUTCDate();
+
+    let html = DOW.map(d => `<div class="sched-dow">${d}</div>`).join('');
+    for(let i=0;i<lead;i++) html += '<div class="sched-day sched-day--blank"></div>';
+    for(let d=1; d<=dim; d++){
+      const key = ymd(calYear, calMonth, d);
+      const landed = past[key] || [], coming = due[key] || [];
+      const isToday = key === DATA.today;
+      const isPast  = key < DATA.today;
+      let chips = landed.slice(0, MAX_CHIPS)
+        .map(r => chip(r.flag, r.label, 'sched-fl--done', 'data through ' + prettyPeriod(r.period))).join('');
+      let shown = landed.length;
+      if(shown < MAX_CHIPS){
+        chips += coming.slice(0, MAX_CHIPS - shown)
+          .map(c => chip(c.flag, c.country, 'sched-fl--due', 'window opens')).join('');
+      }
+      const total = landed.length + coming.length;
+      if(total > MAX_CHIPS) chips += `<span class="sched-fl--more">+${total - MAX_CHIPS}</span>`;
+      html += `<button type="button" class="sched-day${isToday?' sched-day--today':''}`
+            + `${isPast?' sched-day--past':''}${key===selectedDay?' sched-day--sel':''}"`
+            + ` data-day="${key}" aria-label="${key}, ${total} event${total===1?'':'s'}">`
+            + `<span class="d">${d}</span><span class="who">${chips}</span></button>`;
+    }
+    const mount = document.getElementById('schedCalendar');
+    mount.innerHTML = html;
+
     const lbl = document.getElementById('schedCalMonth');
-    if(lbl) lbl.textContent = '— ' + MONTHS[today.getUTCMonth()] + ' ' + today.getUTCFullYear()
-          + ', and every month on the same days';
+    if(lbl) lbl.textContent = '— ' + MONTHS[calMonth] + ' ' + calYear;
+
+    mount.querySelectorAll('[data-day]').forEach(el => {
+      el.addEventListener('click', ev => {
+        if(ev.target.closest('[data-jump]')) return;   // the flag handles itself
+        selectedDay = (selectedDay === el.dataset.day) ? null : el.dataset.day;
+        renderCalendar(); renderCalDetail();
+      });
+    });
+    mount.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', ev => { ev.stopPropagation(); jumpToCountry(el.dataset.jump); });
+    });
+    renderCalDetail();
+  }
+
+  function renderCalDetail(){
+    const box = document.getElementById('schedCalDetail');
+    if(!box) return;
+    if(!selectedDay){ box.hidden = true; box.innerHTML = ''; return; }
+    const pass = calFilter();
+    const { past, due } = dropsByDate(calYear, calMonth, pass);
+    const landed = past[selectedDay] || [], coming = due[selectedDay] || [];
+    const d = new Date(selectedDay + 'T00:00:00Z');
+    const head = `${DOW[(d.getUTCDay()+6)%7]} ${d.getUTCDate()} ${MONTHS[calMonth]} ${calYear}`;
+    let items = landed.map(r =>
+      `<li><span>${r.flag||'🌐'}</span><span class="lbl">${esc(r.label)}</span>`
+      + `<span class="per">data through ${esc(prettyPeriod(r.period))}</span>`
+      + `<a href="sources/${esc(r.slug)}.html">source</a>`
+      + `<a href="#gallery" data-jump="${esc(r.label)}">charts →</a></li>`).join('');
+    items += coming.map(c =>
+      `<li><span>${c.flag||'🌐'}</span><span class="lbl">${esc(c.country)}</span>`
+      + `<span class="per">window opens — expecting ${esc(prettyPeriod(c.expected_period))}</span>`
+      + `<a href="sources/${esc(c.slug)}.html">source</a></li>`).join('');
+    box.hidden = false;
+    box.innerHTML = `<h4>${esc(head)}</h4>`
+      + (items ? `<ul>${items}</ul>`
+               : '<div class="per">Nothing landed and nothing due on this day.</div>');
+    box.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', ev => { ev.preventDefault(); jumpToCountry(el.dataset.jump); });
+    });
+  }
+
+  // Same path the landing search uses: write the real gallery filter and fire
+  // its own 'input' event, so the existing applyFilters() runs rather than a
+  // second filter implementation living here.
+  function jumpToCountry(label){
+    const base = String(label||'').split(' (')[0].trim();
+    const target = document.getElementById('search');
+    if(target){
+      target.value = base;
+      target.dispatchEvent(new Event('input', {bubbles:true}));
+    }
+    location.hash = '#gallery';
+  }
+
+  function shiftMonth(delta){
+    const m = calMonth + delta;
+    calYear += Math.floor(m/12);
+    calMonth = ((m % 12) + 12) % 12;
+    selectedDay = null;
+    renderCalendar();
   }
 
   function render(){
@@ -4981,8 +5155,25 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
     loadSchedule()
       .then(j => {
         DATA = j;
-        document.getElementById('schedSearch').addEventListener('input', render);
+        // The search box filters the table and the calendar together — they
+        // are two views of the same question, so one narrowing them both is
+        // less surprising than two independent filters.
+        document.getElementById('schedSearch').addEventListener('input', () => {
+          render(); renderCalendar();
+        });
         document.getElementById('schedSort').addEventListener('change', render);
+        const on = (id, fn) => {
+          const el = document.getElementById(id);
+          if(el) el.addEventListener('click', fn);
+        };
+        on('schedCalPrev',  () => shiftMonth(-1));
+        on('schedCalNext',  () => shiftMonth(1));
+        on('schedCalToday', () => {
+          const t = new Date(DATA.today + 'T00:00:00Z');
+          calYear = t.getUTCFullYear(); calMonth = t.getUTCMonth();
+          selectedDay = DATA.today;
+          renderCalendar();
+        });
         render();
         renderCalendar();
       })

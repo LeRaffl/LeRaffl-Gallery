@@ -189,9 +189,83 @@ def manifest_last_render() -> dict[str, dict]:
     return best
 
 
+FLAG_R = REPO / "R" / "post_text.R"
+
+# Matches one `Name = "\U0001F1E6\U0001F1F1"` pair inside .pt_flag's list(),
+# with or without backticks around a multi-word name.
+_FLAG_PAIR = re.compile(
+    r'`?([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ .\'-]*?)`?\s*=\s*"((?:\\U[0-9A-Fa-f]{8}){2})"'
+)
+
+
+def flag_emoji() -> dict[str, str]:
+    """country name -> flag emoji, parsed out of `R/post_text.R::.pt_flag`.
+
+    That R map is already the one place a country's flag is declared — adding
+    it is step 4 of the "add a new country" checklist in 08-deploy-ops.md §8.3.
+    Parsing it keeps that true instead of opening a second copy here that would
+    drift the first time somebody adds a country and updates only one of them.
+
+    A country the map does not cover simply gets no flag; the calendar falls
+    back to its name, so a missing entry degrades rather than breaks.
+    """
+    if not FLAG_R.is_file():
+        return {}
+    text = FLAG_R.read_text(encoding="utf-8")
+    start = text.find(".pt_flag")
+    if start == -1:
+        return {}
+    block = text[start:text.find("\n}", start)]
+    out: dict[str, str] = {}
+    for name, esc in _FLAG_PAIR.findall(block):
+        try:
+            out[name.strip()] = "".join(
+                chr(int(cp, 16)) for cp in re.findall(r"\\U([0-9A-Fa-f]{8})", esc)
+            )
+        except ValueError:
+            continue
+    return out
+
+
+def manifest_runs() -> list[dict]:
+    """Every date on which a country's charts were actually produced.
+
+    `last_render` above answers "is this current?". The calendar needs the
+    other question — "what landed, and when?" — so this returns one row per
+    (country, render date) rather than only the newest.
+
+    Deduped on that pair because a single drop writes ~4 chart types, and
+    variants stay separate rows: "Canada (Pickups)" arriving is its own event.
+    `period` is the data month that landed, which is what makes a cell read
+    "Chile · data through 2026-08" instead of just "Chile".
+    """
+    if not MANIFEST.is_file():
+        return []
+    images = json.loads(MANIFEST.read_text(encoding="utf-8")).get("images") or []
+    seen: dict[tuple[str, str], dict] = {}
+    for img in images:
+        d, label = img.get("date"), (img.get("country") or "").strip()
+        if not d or not label:
+            continue
+        key = (label, d)
+        if key not in seen:
+            seen[key] = {
+                "date": d,
+                "label": label,
+                "base": label.split(" (")[0].strip(),
+                "slug": img.get("country_slug") or "",
+                "period": img.get("period"),
+            }
+    return sorted(seen.values(), key=lambda r: (r["date"], r["label"]))
+
+
 def build(today: date | None = None) -> dict:
     today = today or datetime.now(timezone.utc).date()
     renders = manifest_last_render()
+    flags = flag_emoji()
+    runs = manifest_runs()
+    for r in runs:
+        r["flag"] = flags.get(r["base"], "")
     entries, problems = collect_entries()
     if problems:
         for p in problems:
@@ -262,6 +336,7 @@ def build(today: date | None = None) -> dict:
             "automated": automated,
             "schedule": sched,
             "last_render": (renders.get(fm["country"]) or {}).get("date"),
+            "flag": flags.get(fm["country"], ""),
             "variants": variants,
         })
 
@@ -270,6 +345,10 @@ def build(today: date | None = None) -> dict:
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "today": today.isoformat(),
         "countries": rows,
+        # One row per (country, render date): what actually landed, and when.
+        # The calendar's past half is built from this; its future half comes
+        # from each country's `schedule` window. See manifest_runs().
+        "runs": runs,
     }
 
 
