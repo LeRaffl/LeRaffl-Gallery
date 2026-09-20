@@ -385,9 +385,7 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 ```json
 {
   "basis_history": [
-    {"basis": "calendar_year",        "through": "2026-05-31", "note": "…"},
-    {"basis": "calendar_year_plus_1", "from": "2026-06-25", "through": "2026-09-09", "issue": 219, "note": "…"},
-    {"basis": "calendar_year",        "from": "2026-09-20", "issue": 219, "note": "…"}
+    {"basis": "calendar_year", "from": "2025-12-25", "issue": 219, "note": "…"}
   ],
   "snapshots": [
     {
@@ -406,14 +404,17 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 `updated` tracks the maximum snapshot `date` in the file (not the file's mtime) so a back-dated run doesn't make it go backwards.
 
-**`basis` / `basis_history` ([#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219)).** The `year` column is not on one basis across the whole directory, so a consumer must not diff two snapshots without checking:
+**`basis` / `basis_history` ([#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219)).** Every snapshot carries the x-basis its `year` column is on:
 
-| `basis` | Meaning | Snapshots |
-|---|---|---|
-| `calendar_year` | `z = year - t0`. Agrees with the live Builder. | `2026-05-20` … `2026-05-31`, then `2026-09-20` onward |
-| `calendar_year_plus_1` | `z = year - t0 - 1`. Reaches any given share **one year later**. | `2026-06-25` … `2026-09-09` |
+| `basis` | Meaning |
+|---|---|
+| `calendar_year` | `z = year - t0`. Agrees with the live Builder. **Every snapshot in the series.** |
 
-Add 1 to the `year` column of a `calendar_year` snapshot to put it alongside a `calendar_year_plus_1` one. The offset band cannot be regenerated on the corrected basis without a historical parameter store ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220)) — see [2.9](02-components.md#29-builder-snapshot-script-scriptssnapshot_builderpy) for how the band opened and closed. `update_index_json()` stamps `basis` on every entry it writes and leaves `basis_history` (and any other top-level key) untouched.
+The field is kept even though the answer is currently uniform — a consumer should not have to know that, and a future basis change should be readable from the data rather than from a changelog.
+
+Snapshots dated `2026-06-25`…`2026-09-09` were once on a `calendar_year_plus_1` basis (one year late). **They were rebuilt, not annotated**, by [`scripts/rebuild_builder_history.py`](../../scripts/rebuild_builder_history.py), which recovers each date's `params.csv` / `weights.csv` out of git and re-runs the snapshot builder over them — so no correction is needed to compare any two entries. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy) for the evidence that this reconstructs rather than approximates.
+
+That also extended the series backwards: it starts **2025-12-25**, the first date `weights.csv` exists, rather than 2026-05-20.
 
 ### Owner / lifecycle
 

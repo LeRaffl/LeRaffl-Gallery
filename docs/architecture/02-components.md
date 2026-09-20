@@ -385,12 +385,12 @@ OUTPUT: builder_history/<YYYY-MM-DD>.csv   (14 groups × 351 year-steps)
   > Measurable in the committed files: the world 50%-crossing jumps +1.08 years
   > at 2026-06-25 against ~0.05 years of normal drift.
   >
-  > Every entry in `builder_history/index.json` carries a `basis` field
-  > (`calendar_year` / `calendar_year_plus_1`) and the top-level `basis_history`
-  > documents the seams. **Add 1** to the `year` column of a `calendar_year`
-  > snapshot to compare it against a `calendar_year_plus_1` one. The affected
-  > rows cannot be regenerated without a historical parameter store
-  > ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220)).
+  > **Those snapshots were rebuilt, not annotated**, so the series is on one
+  > basis end to end and no correction is needed to compare any two entries.
+  > #219 assumed the band could not be regenerated "without a historical
+  > parameter store ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220))";
+  > that premise was wrong — `params.csv` and `weights.csv` are versioned, so
+  > **git is that store**. See 2.13.
 - Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()` (see *Reconstructed rows* under 2.1). A v1=0 row produces the same recovered Weibull on the page and in the snapshot — **this part of the mirror is genuinely still intact.** `applyV1Recovery()` passes the raw `r.t0` straight through on both sides and never calls `getT0Years()`, so the drift above cannot reach it. The recovery keeps R's own `verschiebung - 1` convention internally (`dt = year_model - (t0n - 1)`), which is why it is unaffected and must stay that way.
 - Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change. `update_index_json()` rewrites only `snapshots` and `updated`, leaving `basis_history` and any other top-level key intact.
 - Regression tests: [`scripts/test_snapshot_builder.py`](../../scripts/test_snapshot_builder.py) (`python scripts/test_snapshot_builder.py` — no network, no dependencies, not wired into CI). They pin the #219 fix, the baseline branches that must still work, and `baseline_year_of()` staying out of the finiteness gate.
@@ -434,6 +434,42 @@ Still functional and the maintainer's preferred path for fast iteration during d
 - The maintainer can iterate in RStudio with breakpoints, `View(df)`, etc. — far faster than triggering CI.
 - Google Sheets is still where the maintainer transcribes raw national data; until that flow moves to direct CSV editing, the local R is the bridge.
 - The new pipeline is the **authoritative** path (used by the Render Action and any public submission). The local R is the **convenience** path. Both write the same files; whichever wins last wins.
+
+---
+
+## 2.13 Builder-History Rebuilder (`scripts/rebuild_builder_history.py`)
+
+### What it is
+
+A script that regenerates **any** past `builder_history/` snapshot from the `params.csv` / `weights.csv` that git holds for that date, by resolving the newest commit touching each file at or before the target date and re-running `snapshot_builder.py` over the recovered blobs.
+
+### Why it exists
+
+[#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219) offered two ways to handle the one-year basis error and ruled out the better one:
+
+> *"Cannot be regenerated without a historical parameter store, so this is blocked on #220."*
+
+**That premise was wrong. `params.csv` and `weights.csv` are versioned — git is the historical parameter store.** The snapshots were therefore repaired rather than merely labelled, and #220 is no longer a prerequisite for a correct history (it remains useful for other reasons, but not for this).
+
+### Evidence it reconstructs rather than approximates
+
+| check | result |
+|---|---|
+| Rebuild `2026-09-09` from that date's commit vs the committed file | identical to **0.0000 pp** once the known one-year shift is applied |
+| Rebuild the four May snapshots (already on the correct basis) | reproduced to within **0.008 years** — residual is params moving inside the snapshot day |
+| Rebuild the six offset snapshots | each moved by exactly **−1.000 years** |
+| Largest step between consecutive snapshots after the rebuild | **0.442 years**, i.e. ordinary drift — the +1.08-year seam is gone |
+
+### Key invariants
+
+- **The date list is explicit** (`SNAPSHOT_DATES`), not a resampling of git. The ten dates that were really taken are preserved — a snapshot records that a run happened, and renaming that is worse than correcting it — plus a monthly backfill on the 25th, the snapshot-builder cron day.
+- **`weights.csv` first exists 2025-12-22**, which is the hard floor for a *weighted* aggregate. Earlier params-only dates are skipped rather than aggregated unweighted, because an unweighted curve is a different quantity wearing the same name.
+- `params.csv` and `weights.csv` are resolved **independently**; they usually move in one commit but not always (2025-12-25, 2026-05-31 and 2026-08-25 each draw them from different commits).
+- Re-running is safe and idempotent: the output depends only on git history and the current `snapshot_builder.py`.
+
+### Consequence for the series
+
+The history now spans **2025-12-25 → 2026-09-09** (15 snapshots) instead of starting 2026-05-20, because the inputs existed in git long before anyone took the first snapshot. The world-aggregate 50 %-crossing estimate visibly drifts 2030.9 → 2032.0 → 2031.7 across that span, which is the "what did I estimate back then?" question [#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220) asks — now answerable for dates before the feature existed.
 
 ## See also
 

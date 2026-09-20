@@ -46,25 +46,31 @@ field. Without it the baseline branch fires with `by = 0` and returns
 
 BASELINE OFF-BY-ONE FIX (2026-09, #219): `index.html` gained that guard in the
 2026-09 UI overhaul (#218); this script mirrored the pre-fix behaviour until
-#219. The affected band is **narrower than #219 assumed** — it opens at the
+#219. The affected band was **narrower than #219 assumed** — it opened at the
 2026-06 calendar-year fix, not at #218:
 
   * up to 2026-05-31 — `x = year + 1` *and* `t0 + 1`. The two offsets cancel,
     so `z = x - t0 = year - t0`: the correct calendar basis, by accident.
   * 2026-06-25 … 2026-09-09 — the calendar-year fix moved this script to
     `x = year` and left `get_t0_years()` returning `t0 + 1`, so
-    `z = year - t0 - 1`. These snapshots reach a given share **one year later**
-    than the live Builder. Add 1 to the `year` column of a `calendar_year`
-    snapshot to compare it against one of these.
-  * from this fix onward — `x = year`, `t0` unshifted. Same basis as the first
-    era, so those four May snapshots stay directly comparable.
+    `z = year - t0 - 1`: one year late.
+  * from this fix onward — `x = year`, `t0` unshifted.
 
-That is measurable in the committed files: the world 50%-crossing jumps
-+1.08 years at 2026-06-25 against ~0.05 years of normal month-to-month drift,
-and the corrected script reproduces the May basis. Every snapshot entry in
-`builder_history/index.json` now carries a `basis` field, and the top-level
-`basis_history` records the seams. The 2026-06-25…2026-09-09 rows cannot be
-regenerated on the corrected basis without a historical parameter store (#220).
+**Those snapshots were rebuilt rather than annotated, so the whole series is
+now on one basis and needs no correction to compare any two entries.** #219
+assumed the band could not be regenerated "without a historical parameter
+store (#220)" — that premise was wrong: `params.csv` and `weights.csv` are
+versioned, so git *is* that store. `scripts/rebuild_builder_history.py`
+recovers each date's inputs with `git show` and re-runs this module over them.
+
+Proven before it was used: rebuilding 2026-09-09 from that date's commit
+reproduces the committed file to 0.0000 pp once the known one-year shift is
+applied, and rebuilding the four already-correct May snapshots reproduces them
+to within 0.008 years (params moving inside the snapshot day). The six offset
+snapshots moved by exactly -1.000 years each.
+
+The same mechanism extends the series **backwards**: it now starts 2025-12-25,
+the first date `weights.csv` exists, instead of 2026-05-20.
 
 Note that `baseline_year_of()` now returns NaN for a production row, as it does
 on the page. It is *not* part of the finiteness gate in `compute_group_curve()`
