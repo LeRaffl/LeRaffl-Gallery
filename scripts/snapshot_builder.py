@@ -36,9 +36,39 @@ contributed.
 
 Faithfulness to the in-page Builder
 -----------------------------------
-The in-page Builder relies on a JavaScript quirk: `Number('') === 0`, so when
-the CSV has no `baseline_year` column at all (which is the case in the live
-`params.csv`), `baseline_year_of()` returns 0.0 (mirror of JS `Number('') === 0`).
+`params.csv` in production has no `baseline_year` column and an empty
+`baseline_date`, so there is no baseline at all and `t0` is already a calendar
+year. Both sides therefore route every calendar-year field through a guard
+(`calendarYearOrNaN` in `index.html`, `calendar_year_or_nan()` here) that
+rejects the `0` which `Number('')` / `norm_number('')` yield for an absent
+field. Without it the baseline branch fires with `by = 0` and returns
+`(t0 - 0) + 1` — one year too late.
+
+BASELINE OFF-BY-ONE FIX (2026-09, #219): `index.html` gained that guard in the
+2026-09 UI overhaul (#218); this script mirrored the pre-fix behaviour until
+#219. The affected band is **narrower than #219 assumed** — it opens at the
+2026-06 calendar-year fix, not at #218:
+
+  * up to 2026-05-31 — `x = year + 1` *and* `t0 + 1`. The two offsets cancel,
+    so `z = x - t0 = year - t0`: the correct calendar basis, by accident.
+  * 2026-06-25 … 2026-09-09 — the calendar-year fix moved this script to
+    `x = year` and left `get_t0_years()` returning `t0 + 1`, so
+    `z = year - t0 - 1`. These snapshots reach a given share **one year later**
+    than the live Builder. Add 1 to the `year` column of a `calendar_year`
+    snapshot to compare it against one of these.
+  * from this fix onward — `x = year`, `t0` unshifted. Same basis as the first
+    era, so those four May snapshots stay directly comparable.
+
+That is measurable in the committed files: the world 50%-crossing jumps
++1.08 years at 2026-06-25 against ~0.05 years of normal month-to-month drift,
+and the corrected script reproduces the May basis. Every snapshot entry in
+`builder_history/index.json` now carries a `basis` field, and the top-level
+`basis_history` records the seams. The 2026-06-25…2026-09-09 rows cannot be
+regenerated on the corrected basis without a historical parameter store (#220).
+
+Note that `baseline_year_of()` now returns NaN for a production row, as it does
+on the page. It is *not* part of the finiteness gate in `compute_group_curve()`
+— `index.html` computes it and does not gate on it either.
 
 CALENDAR-YEAR FIX (2026-06): The curve is evaluated at the calendar year
 directly (`x = year`). The canonical share formula is
@@ -117,15 +147,25 @@ DEFAULT_VARIANT = "whole"  # the Builder default + what the issue context names
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 YEAR_MONTH_RE = re.compile(r"^(\d{4})-(\d{2})$")
 
+# Which x-basis the `year` column of a snapshot is on. Stamped onto every
+# snapshot entry in index.json so a consumer can tell the two eras apart
+# without knowing the date of the seam. See the module docstring and #219.
+#   calendar_year        — z = year - t0; agrees with the live Builder.
+#   calendar_year_plus_1 — z = year - t0 - 1; the 2026-06-25 … 2026-09-09 band,
+#                          which reaches any given share one year later.
+CURVE_BASIS = "calendar_year"
+LEGACY_CURVE_BASIS = "calendar_year_plus_1"
+
 
 # --- Number / variant helpers (mirror index.html) ----------------------------
 
 def norm_number(x) -> float:
     """Mirrors the JS `const normNumber = x => Number(String(x||'').trim().replace(',','.'))`.
 
-    Crucially returns 0.0 (NOT NaN) for empty/None inputs, because in JS
-    `Number('') === 0` and the in-page Builder math relies on that quirk to
-    treat missing baseline_year fields as 0.
+    Returns 0.0 (NOT NaN) for empty/None inputs, because in JS
+    `Number('') === 0`. Callers that read a *calendar year* out of a possibly
+    absent column must not use this directly — route them through
+    `calendar_year_or_nan()`, which rejects the 0 (see its docstring).
     """
     if x is None:
         return 0.0
@@ -139,6 +179,18 @@ def norm_number(x) -> float:
     return n if math.isfinite(n) else math.nan
 
 
+def calendar_year_or_nan(v) -> float:
+    """Mirror `calendarYearOrNaN` in index.html.
+
+    `norm_number('')` and `norm_number(None)` are 0.0 (the JS `Number('') === 0`
+    quirk). 0 is not a calendar year, so anything outside [1800, 3000) becomes
+    NaN. This is what keeps an absent `baseline_year` column from being read as
+    "baseline year 0" and shifting every curve a year — see #219.
+    """
+    n = norm_number(v)
+    return n if (math.isfinite(n) and 1800 <= n < 3000) else math.nan
+
+
 def normalize_base(s) -> str:
     k = str(s or "").strip().lower()
     if not k:
@@ -149,6 +201,8 @@ def normalize_base(s) -> str:
     if k in {"hdv", "heavy duty", "heavy-duty", "heavy duty vehicles",
              "trucks", "truck", "commercial heavy", "heavy vehicles"}:
         return "hdv"
+    if k in {"bus", "buses"}:
+        return "buses"
     return k
 
 
@@ -171,9 +225,10 @@ def iso_date_to_year_frac(iso: str) -> float:
 # --- Per-row model parameter extraction (mirror index.html) ------------------
 
 def baseline_year_of(r: dict) -> float:
-    """Mirror `baselineYearOf` in index.html. Returns 0.0 for absent fields
-    (matching the JS Number('') === 0 quirk that the in-page math depends on)."""
-    by = norm_number(r.get("baseline_year"))
+    """Mirror `baselineYearOf` in index.html. NaN when the row carries no
+    usable baseline — which is the production case, `params.csv` having no
+    `baseline_year` column and an empty `baseline_date`."""
+    by = calendar_year_or_nan(r.get("baseline_year"))
     if math.isfinite(by):
         return round(by)
     bd = str(r.get("baseline_date") or "")
@@ -185,21 +240,25 @@ def baseline_year_of(r: dict) -> float:
 def get_t0_years(r: dict, t0_key: str = "t0") -> float:
     """Mirror `getT0Years` in index.html."""
     base_date = str(r.get("baseline_date") or "")
-    base_year = norm_number(r.get("baseline_year"))
+    base_year = calendar_year_or_nan(r.get("baseline_year"))
     t0_raw = str(r.get(t0_key) or "").strip()
-    t0_n = norm_number(t0_raw)
+    t0_n = calendar_year_or_nan(t0_raw)
 
-    if math.isfinite(t0_n) and t0_n >= 1800 and (math.isfinite(base_year) or ISO_DATE_RE.match(base_date)):
+    # Production params.csv has no baseline: t0 is already a calendar year.
+    # An empty baseline_year must NOT parse as 0 (norm_number('') == 0.0) or we
+    # return (t0 - 0) + 1 and shift every curve by a year.
+    if math.isfinite(t0_n) and (math.isfinite(base_year) or ISO_DATE_RE.match(base_date)):
         if math.isfinite(base_year):
             by = round(base_year)
         else:
             by = int(base_date[:4])
-        return (t0_n - by) + 1
+        if math.isfinite(by) and by >= 1800:
+            return (t0_n - by) + 1
 
     if ISO_DATE_RE.match(t0_raw):
         t0_yf = iso_date_to_year_frac(t0_raw)
         by_frac = base_year if math.isfinite(base_year) else iso_date_to_year_frac(base_date)
-        if math.isfinite(by_frac) and math.isfinite(t0_yf):
+        if math.isfinite(by_frac) and by_frac >= 1800 and math.isfinite(t0_yf):
             return (t0_yf - by_frac) + 1
 
     return t0_n
@@ -458,8 +517,12 @@ def compute_group_curve(countries: list[str],
             v1 = norm_number(r.get("v1"))
             v2 = norm_number(r.get("v2"))
             t0 = get_t0_years(r, "t0")
-            by = baseline_year_of(r)
-            if any(not math.isfinite(x) for x in (v1, v2, t0, by)):
+            # Gate on v1/v2/t0 only — mirror of index.html's
+            # `if (!isFinite(v1) || !isFinite(v2) || !isFinite(t0)) return;`.
+            # A baseline year is NOT required: production params.csv has none,
+            # and `baseline_year_of()` correctly returns NaN there (#219).
+            # Gating on it would silently empty every snapshot.
+            if any(not math.isfinite(x) for x in (v1, v2, t0)):
                 continue
 
             ice_v1 = norm_number(r.get("ice_v1"))
@@ -541,11 +604,14 @@ def update_index_json(index_path: Path, snapshot_date: str,
     snapshots.append({
         "date": snapshot_date,
         "file": snapshot_file,
+        "basis": CURVE_BASIS,
         "groups": per_group_meta,
     })
     snapshots.sort(key=lambda s: s.get("date", ""))
     data["snapshots"] = snapshots
     data["updated"] = snapshots[-1]["date"] if snapshots else snapshot_date
+    # Any other top-level key already in the file (notably `basis_history`,
+    # which documents the #219 seam) is left untouched.
 
     index_path.parent.mkdir(parents=True, exist_ok=True)
     index_path.write_text(

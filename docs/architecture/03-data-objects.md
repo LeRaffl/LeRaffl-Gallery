@@ -368,14 +368,14 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 ### Where
 
 - `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
-- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`).
+- `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`), each snapshot's x-`basis`, and a `basis_history` documenting where the basis changed.
 
 ### Schema (`builder_history/<date>.csv`)
 
 | Column | Type | Notes |
 |---|---|---|
 | `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
-| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). |
+| `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). **Which basis this is on is per-snapshot — read the entry's `basis` field before comparing two snapshots** (see below). |
 | `bev_share` | float | Weighted aggregate BEV share in `[0, 100]`. |
 | `ice_share` | float \| empty | Weighted aggregate ICE share in `[0, 100]`. Empty when no row in the group has ICE Weibull parameters. |
 | `phev_share` | float \| empty | Implied PHEV = `max(0, 100 - bev - ice)`, weighted. Empty when ICE is empty. |
@@ -384,21 +384,36 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 
 ```json
 {
-  "updated": "2026-05-20",
+  "basis_history": [
+    {"basis": "calendar_year",        "through": "2026-05-31", "note": "…"},
+    {"basis": "calendar_year_plus_1", "from": "2026-06-25", "through": "2026-09-09", "issue": 219, "note": "…"},
+    {"basis": "calendar_year",        "from": "2026-09-20", "issue": 219, "note": "…"}
+  ],
   "snapshots": [
     {
       "date": "2026-05-20",
       "file": "2026-05-20.csv",
+      "basis": "calendar_year",
       "groups": {
         "world": {"n_countries": 48, "total_weight": 69682736, "latest_data_per": "2026-04"},
         "eu":    {"n_countries": 26, "total_weight": 10970870, "latest_data_per": "2026-04"}
       }
     }
-  ]
+  ],
+  "updated": "2026-05-20"
 }
 ```
 
 `updated` tracks the maximum snapshot `date` in the file (not the file's mtime) so a back-dated run doesn't make it go backwards.
+
+**`basis` / `basis_history` ([#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219)).** The `year` column is not on one basis across the whole directory, so a consumer must not diff two snapshots without checking:
+
+| `basis` | Meaning | Snapshots |
+|---|---|---|
+| `calendar_year` | `z = year - t0`. Agrees with the live Builder. | `2026-05-20` … `2026-05-31`, then `2026-09-20` onward |
+| `calendar_year_plus_1` | `z = year - t0 - 1`. Reaches any given share **one year later**. | `2026-06-25` … `2026-09-09` |
+
+Add 1 to the `year` column of a `calendar_year` snapshot to put it alongside a `calendar_year_plus_1` one. The offset band cannot be regenerated on the corrected basis without a historical parameter store ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220)) — see [2.9](02-components.md#29-builder-snapshot-script-scriptssnapshot_builderpy) for how the band opened and closed. `update_index_json()` stamps `basis` on every entry it writes and leaves `basis_history` (and any other top-level key) untouched.
 
 ### Owner / lifecycle
 

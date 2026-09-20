@@ -371,25 +371,29 @@ OUTPUT: builder_history/<YYYY-MM-DD>.csv   (14 groups × 351 year-steps)
 
 ### Key invariants
 
-- > ⚠️ **This mirror is currently broken — the script is one year behind the page.**
-  > Not a doc nit: it means `builder_history/` and the live Builder disagree.
-  > Tracked in [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219); read
-  > that before treating a snapshot and the page as comparable.
+- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf` / `calendarYearOrNaN`. The JS quirk that `Number('') === 0` is **not** something either side leans on: both guard every calendar-year field through `calendarYearOrNaN` / `calendar_year_or_nan()`, so an absent `baseline_year` column reads as NaN rather than "baseline year 0". **2026-06 calendar-year fix:** both `index.html` and this script feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
+- `baseline_year_of()` returns NaN for a production row (no `baseline_year` column, empty `baseline_date`) and is **not** part of the finiteness gate in `compute_group_curve()` — `index.html` computes it and does not gate on it either. Gating on it would silently empty every snapshot.
+- > ℹ️ **`builder_history/` spans two x-bases; snapshots dated 2026-06-25 through 2026-09-09 are one year off.** Resolved in
+  > [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219); the seam is a
+  > closed band, not an open bug, but read this before comparing snapshots across it.
   >
-  > The 2026-09 UI overhaul fixed `getT0Years()` in `index.html`: empty baseline
-  > fields no longer go through `normNumber()`, which returns `0` for both `''`
-  > and `undefined`. Production `params.csv` has **no `baseline_year` column** and
-  > an empty `baseline_date`, so the old code took the baseline branch with
-  > `by = 0` and returned `(t0 - 0) + 1` — one year too late, re-introducing the
-  > very offset the 2026-06 calendar-year fix removed. `snapshot_builder.py` still
-  > mirrors the pre-fix behaviour (`norm_number(None) == 0.0`), so for a
-  > production row it yields `2020.0` where the page now yields `2019`.
+  > `get_t0_years()` used to read an absent `baseline_year` as `0` and return
+  > `(t0 - 0) + 1`. Before the 2026-06 calendar-year fix that cancelled against
+  > the `x = year + 1` the script also used, so `z = x - t0` came out right by
+  > accident. The 2026-06 fix removed the first offset and left the second
+  > exposed, putting those snapshots one year **late**; #219 removed the second.
+  > Measurable in the committed files: the world 50%-crossing jumps +1.08 years
+  > at 2026-06-25 against ~0.05 years of normal drift.
   >
-  > The quirk below was therefore never an invariant worth preserving — it was the
-  > bug, written down as if intended.
-- Mirrors `index.html`'s `bevShareIndex` / `iceShareIndex` / `getT0Years` / `baselineYearOf`, historically byte-for-byte — **see the warning above for where that no longer holds.** The JS-only quirk that `Number('') === 0` is what the pre-fix in-page Builder leaned on when `params.csv` carries no `baseline_year` column (see the script's module docstring); the page no longer does. **2026-06 calendar-year fix:** both `index.html` and this script feed the calendar year directly (`x = year`) instead of `year + 1`; see the `verschiebung` glossary entry and `inv_x_years` comment in `index.html`.
+  > Every entry in `builder_history/index.json` carries a `basis` field
+  > (`calendar_year` / `calendar_year_plus_1`) and the top-level `basis_history`
+  > documents the seams. **Add 1** to the `year` column of a `calendar_year`
+  > snapshot to compare it against a `calendar_year_plus_1` one. The affected
+  > rows cannot be regenerated without a historical parameter store
+  > ([#220](https://github.com/LeRaffl/LeRaffl-Gallery/issues/220)).
 - Same v1=0 anchor recovery as `index.html::recoverV1FromAnchor()` (see *Reconstructed rows* under 2.1). A v1=0 row produces the same recovered Weibull on the page and in the snapshot — **this part of the mirror is genuinely still intact.** `applyV1Recovery()` passes the raw `r.t0` straight through on both sides and never calls `getT0Years()`, so the drift above cannot reach it. The recovery keeps R's own `verschiebung - 1` convention internally (`dt = year_model - (t0n - 1)`), which is why it is unaffected and must stay that way.
-- Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change.
+- Idempotent: running twice on the same `--date` overwrites the file; the workflow only commits on a content change. `update_index_json()` rewrites only `snapshots` and `updated`, leaving `basis_history` and any other top-level key intact.
+- Regression tests: [`scripts/test_snapshot_builder.py`](../../scripts/test_snapshot_builder.py) (`python scripts/test_snapshot_builder.py` — no network, no dependencies, not wired into CI). They pin the #219 fix, the baseline branches that must still work, and `baseline_year_of()` staying out of the finiteness gate.
 - No render trigger downstream — snapshots are pure read-only artefacts; the static page is not (yet) a consumer.
 
 ### Why a separate script instead of extending `R/render_country.R`?
