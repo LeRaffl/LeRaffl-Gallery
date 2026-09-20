@@ -11318,9 +11318,7 @@ function wmRender(){
   // For share mode, fixed 0-100% range; otherwise percentile clip
   const [zmin, zmax] = mode === 'share' ? [0, 100] : wmPercentileRange(normalVals);
 
-  // Color scales: for share mode, reverse (red=low → green=high, higher share = better)
-  // For year/duration: green=early/fast → red=late/slow
-  /* COLORBLIND-SAFE MAP SCALE (#210 -> #226).
+  /* COLORBLIND-SAFE MAP SCALE (#226).
      Vorher zwei Skalen, beide rot <-> gruen (shareScale rot->gruen,
      greenOrange gruen->rot). Genau das Paar, das Protanopie und Deuteranopie
      nicht trennen koennen — rund 8 % der maennlichen Leser. Der Validator des
