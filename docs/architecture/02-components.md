@@ -51,7 +51,24 @@ flowchart TB
 
 ### What it is
 
-A single ~6000-line HTML file with inline CSS and inline JavaScript. No build step, no framework, no transpiler. Served verbatim from `master:index.html` by GitHub Pages.
+A single ~13,600-line HTML file with inline CSS and inline JavaScript. No build step, no framework, no transpiler. Served verbatim from `master:index.html` by GitHub Pages.
+
+### Navigation (2026-09 redesign)
+
+The flat tab strip was replaced by **four primary entries with a sub-nav**, each primary being a link to its family's first section:
+
+| Primary (`data-nav`) | Target | Sub-nav |
+|---|---|---|
+| Charts (`charts`) | `#gallery` | — (the landing surface; the page *is* the gallery) |
+| Map (`map`) | `#worldmap` | — |
+| Rankings (`rankings`) | `#thresholds` | Thresholds, Durations, Time Interval |
+| Tools (`tools`) | `#builder` | Builder, Compare, Raw Data, Fleet, Data freshness, Submit Data, Data sources |
+
+`.nav-sub` blocks are `hidden` and revealed only for the active family. FAQ and Feedback are deliberately **not** in the bar — FAQ is reached from About, Feedback via the FAB and the emoji cluster (both capture tab context).
+
+**All 14 sections and every `#hash` are unchanged.** That is the reason old links, bookmarks and the `context.hash` recorded in feedback issues still resolve after the redesign — treat it as an invariant, not an accident. The sections are `tab-about`, `tab-faq`, `tab-submit`, `tab-feedback`, `tab-gallery`, `tab-thresholds`, `tab-schedule`, `tab-durations`, `tab-speed`, `tab-builder`, `tab-compare`, `tab-rawdata`, `tab-fleet`, `tab-worldmap`.
+
+A small inline script measures the header and the (now wrapping, not scrolling) tab bar into `--header-h` / `--tabs-h`, so `--chrome-h` and the sticky offsets stay correct at every width.
 
 ### Tabs
 
@@ -61,20 +78,37 @@ A single ~6000-line HTML file with inline CSS and inline JavaScript. No build st
 | Thresholds | `params.csv` | When each country reaches 20%/50%/80% BEV under the current model |
 | Durations | `params.csv` | How many years each country needs to traverse 20→80% |
 | Time Interval | `params.csv` | Interval chart: horizontal bar per country from From%→To% BEV share, dot at Mid%; sortable by start/mid/end/duration, region encoded by color, variant (Whole / Private / Industry / HDV / Used / …) encoded by bar shape (solid / diagonal / cross-hatch / thick stripes / outline). Custom From/Mid/To inputs default to 20/50/80. PNG and SVG export with `@LeRaffl` tag, created timestamp (incl. time, UTC) and `data per <oldest> (<country>) – <newest>` footer. |
-| Builder | `params.csv` + `weights.csv` | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). |
-| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` | Side-by-side overlay of 2–3 curves (same powertrain, same variant) for individual countries or aggregated regions. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates). |
+| Builder | `params.csv` + `weights.csv` | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). Plots **real monthly dates** (`monthGrid(2015, 2050)`), not index time. ICE and PHEV always draw — the old "Show ICE & PHEV" toggle is gone (`showICE` is a `const true`). |
+| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` | Overlay of **any number** of curves (same powertrain, same variant) for individual countries or aggregated regions. The first three are pinned and keep their labels; past three only fitted curves draw (no monthly steps) and the extras are named on hover. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates) — it reads `data/*.csv` directly, *not* `series/`. |
+| Raw Data | `series/index.json` + `series/<slug>.json` | The country CSVs as stacked bars, one bar per rolling trailing window. Hand-drawn SVG, not Plotly — it renders up to 51 charts at once, and the bar geometry is the feature. Build-time half is `scripts/build_series.py`; spec in [35-proposal-raw-data-tab.md](35-proposal-raw-data-tab.md). |
 | Fleet | `fleet/*.csv`, `fleet_meta.json` | Bestand projection (separate from new-registrations data) |
-| World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share |
+| Data freshness | `sources/schedule.json` | In-page render of the fetch schedule; `schedule.html` / `schedule-<YYYY-MM>.html` / `schedule.ics` are its generated standalone counterparts. All from `scripts/build_schedule.py`. |
+| World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share. Has a **variant selector** (`#wmVariant`, revealed once more than one variant is available) — no longer whole-market passenger cars only. |
+| About | inline | Landing section; the default active tab. |
 | FAQ | inline `FAQ_DATA` array | Searchable Q&A |
 | Submit Data | Worker `POST /submissions` | Form for new monthly data points + corrections |
 | Feedback & Questions | Worker `GET/POST /issues` | Public discussion thread mirrored from GitHub Issues |
 
 ### Notable in-page features
 
+- **Landing hero chart** (`#galHeroPlot`): a **hand-rolled inline SVG**, not Plotly — it is the first paint and must not wait on the plotting library. Its "home market" comes from the browser timezone (`Intl.DateTimeFormat().resolvedOptions().timeZone` against `TZ_COUNTRY` / `TZ_PREFIX`), falling back to Germany; **no IP lookup, no geolocation prompt.** `homeCountry()` is shared with Compare via `window.__bevHomeCountry` so the timezone table is maintained once. The chart fails soft: if `params.csv` is unavailable the figure hides itself and the rest of the page still works.
+- **Landing search** (`#heroSearch`): writes through to the real gallery filter (`#search`) and dispatches an `input` event there, so the existing `resetDebounced` → `applyFilters` path runs — not a second filter implementation. It shows a live match count and jumps to `#gallery` on **Enter**, deliberately not on first keystroke (a tab switch mid-typing would pull the field out from under the cursor).
 - **Copy-post button** on every Gallery card: fetches `posts/<slug>.txt` and writes to clipboard
 - **FAB** (floating action button) bottom-right: opens the feedback modal from any tab with the current tab's filters captured as context
 - **Math captcha** on feedback submit (3 + 4 = ?), **honeypot** on both feedback and submit
 - **Lightbox** on chart click → larger image + Download link
+
+### Runtime data dependencies
+
+Beyond `manifest.json` / `params.csv` / `weights.csv`, the page fetches **`series/index.json` once and `series/<slug>.json` per country on demand**. That is a runtime dependency on the output of [`scripts/build_series.py`](../../scripts/build_series.py) — a stale or missing `series/` directory degrades those surfaces, it does not merely age them. Per-country files mean picking one country costs one request and a single-country data update invalidates one cache entry.
+
+Two consumers, and it is worth keeping them straight:
+
+| Surface | Observations come from |
+|---|---|
+| Raw Data | `series/index.json` + `series/<slug>.json` |
+| Landing hero chart | `series/index.json` + `series/<slug>.json` (home market only) — so `series/` is on the **first-paint** path, not just behind a tab switch |
+| Compare | `data/<Country>[_<Variant>].csv`, fetched and parsed in the page (`fetchObsCsv`) |
 
 ### Reconstructed rows (`v1 = 0` anchor recovery)
 
@@ -437,6 +471,37 @@ Still functional and the maintainer's preferred path for fast iteration during d
 
 ---
 
+## 2.12 Theme Extractor (`scripts/build_theme.py`)
+
+### What it is
+
+A small, dependency-free Python script that lifts the design tokens out of `index.html` and writes them to `assets/theme.css`, the stylesheet the **generated standalone pages** link.
+
+### Inputs and outputs
+
+```
+INPUT:  index.html            (the :root block carrying --bg, + the Google Fonts <link>)
+OUTPUT: assets/theme.css      (generated — never hand-edit)
+```
+
+### Why it exists
+
+The 2026-09 redesign ([#218](https://github.com/LeRaffl/LeRaffl-Gallery/issues/218)) moved `index.html` to a light editorial theme. `sources/*.html` and `schedule*.html` did not follow — they carried a dark palette and a third, older one respectively. Since **"Data sources" is linked straight from the Tools nav**, a visitor went from the new design to the old one in a single click ([#221](https://github.com/LeRaffl/LeRaffl-Gallery/issues/221)).
+
+Hand-porting the palette into each generator would have left three copies to drift. Instead `index.html` **stays the single source of truth** and the other two surfaces link a stylesheet derived from it.
+
+### Key invariants
+
+- **`index.html` is the only place a colour or font is defined.** Change its `:root` block, re-run the script. Never edit `assets/theme.css`.
+- **A shared *file*, not a shared module, is the only option.** The two generators are in different languages — `scripts/build_source_pages.py` (Python) and `R/render_schedule.R` (R) — so a Python constant could not reach the R side.
+- **Extraction is strict and fails loudly.** The `:root` block is located by the `--bg:` token (there is an earlier, unrelated `:root` in `index.html`) and brace-matched, not lazy-regexed. If the block or the font `<link>` cannot be found, the script exits non-zero rather than emitting a stylesheet that quietly lost half the palette.
+- **`--check` proves the committed stylesheet matches `index.html`** without writing, so `build-source-pages.yml` fails a PR that changes the palette without regenerating.
+- **Legacy aliases are deliberate and minimal.** `sources/*.html` was written against an older vocabulary (`--panel`, `--border`, `--chip-bg`, `--ok-tx`); theme.css maps exactly those four onto canonical tokens so the port did not have to rewrite ~80 unrelated rules. Aliases nothing uses are not carried on spec. New rules should use the canonical names.
+- The schedule pages **link** the stylesheet rather than inlining it, so a palette change reaches them without a re-render.
+
+### Why not just give `index.html` the same `<link>`?
+
+It would make the single-file page depend on a second file and add a render-blocking request to the first paint — the one surface where that matters. `index.html` keeps its tokens inline and *exports* them; the secondary pages import. See § 2.1 *Why a single file with no build?*.
 ## 2.13 Builder-History Rebuilder (`scripts/rebuild_builder_history.py`)
 
 ### What it is

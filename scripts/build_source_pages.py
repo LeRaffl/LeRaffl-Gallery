@@ -766,6 +766,7 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
                       f'<code>{esc(latest_period)}</code>.<br>')
 
     return TEMPLATE.format(
+        theme_href=THEME_HREF,
         css=BASE_CSS,
         country=esc(country),
         method_chip=method_chip(fm.get("method", "")),
@@ -804,38 +805,29 @@ def build_index(pages: list[dict]) -> str:
             f' · TTM BEV {esc(p["ttm"])}</div></a>')
     n_full = sum(1 for p in pages if not p.get("is_stub"))
     return INDEX_TEMPLATE.format(
+        theme_href=THEME_HREF_INDEX,
         css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full)
 
 
 # --------------------------------------------------------------------------
-# Templates (theme-aware: dark to match the gallery, light override for
-# standalone viewing)
+# Templates
+#
+# The palette and the type stack are NOT defined here (#221). They come from
+# assets/theme.css, which scripts/build_theme.py extracts from index.html's
+# :root block — index.html is the single source of truth, so these pages cannot
+# drift away from the gallery's design the way the old hand-maintained dark
+# palette did. Everything below is page-specific layout only.
+#
+# Some rules still use the older token names (--panel, --border, --chip-bg,
+# --ok-bg/--ok-tx, --warn-bg/--warn-tx, --accent2); theme.css aliases those onto
+# the canonical tokens so this port did not have to touch every rule. Prefer the
+# canonical names in anything new.
 # --------------------------------------------------------------------------
 
+THEME_HREF = "../assets/theme.css"       # sources/<slug>.html → repo root
+THEME_HREF_INDEX = "../assets/theme.css"  # sources/index.html  → repo root
+
 BASE_CSS = """
-:root{
-  --bg:#0b0c10; --panel:#0f1525; --border:#1f2a44; --text:#e9eef2;
-  --muted:#9fb3d1; --accent:#7cc4ff; --accent2:#00e5ff;
-  --ok-bg:rgba(60,180,120,.18); --ok-tx:#bff5d8;
-  --warn-bg:rgba(220,80,80,.18); --warn-tx:#ffb4b4;
-  --chip-bg:#101a33;
-}
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f5f7fb; --panel:#ffffff; --border:#d8e0ee; --text:#111827;
-    --muted:#51607a; --accent:#1763b8; --accent2:#0a7ea4;
-    --ok-bg:rgba(30,140,90,.14); --ok-tx:#0d5a38;
-    --warn-bg:rgba(200,60,60,.12); --warn-tx:#8a1f1f;
-    --chip-bg:#eef2fb;
-  }
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;
-  line-height:1.55}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
 .wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
 .back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
 h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -916,12 +908,12 @@ table.vars th,table.matrix th{color:var(--muted);font-weight:600}
 table.matrix td{text-align:center}
 table.matrix th:first-child{white-space:nowrap}
 .cell{font-size:15px;line-height:1}
+/* The page is light-only now (index.html sets `color-scheme:light`), so the
+   old prefers-color-scheme override for this cell is gone — --ok-tx already
+   resolves to the light-theme green. */
 .cell--yes{color:var(--ok-tx)}
 .cell--zero{color:var(--muted)}
 .cell--no{color:var(--muted);opacity:.55}
-@media (prefers-color-scheme: light){
-  .cell--yes{color:#0d5a38}
-}
 """
 
 TEMPLATE = """<!doctype html>
@@ -931,6 +923,7 @@ TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{country} — data source · BEV Trajectories</title>
 <meta name="description" content="{summary}">
+<link rel="stylesheet" href="{theme_href}">
 <style>{css}</style>
 </head>
 <body>
@@ -985,6 +978,7 @@ INDEX_TEMPLATE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data sources — BEV Trajectories</title>
 <meta name="description" content="Where each country's BEV registration data comes from.">
+<link rel="stylesheet" href="{theme_href}">
 <style>{css}</style>
 </head>
 <body>

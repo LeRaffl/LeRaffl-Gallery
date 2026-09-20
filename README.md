@@ -47,7 +47,7 @@ Key files in the repository root:
 
 | File | Purpose |
 |------|---------|
-| **index.html** | The full interactive UI (Gallery, Thresholds, Durations). Runs 100% in the browser. |
+| **index.html** | The full interactive UI, single file, no build step. Four primary nav entries — **Charts / Map / Rankings / Tools** — with a sub-nav, over 14 sections (Gallery, World Map, Thresholds, Durations, Time Interval, Builder, Compare, Raw Data, Fleet, Data freshness, Submit Data, About, FAQ, Feedback). Runs 100% in the browser. |
 | **manifest.json** | Auto-generated list of all available charts, used by the Gallery to display images. |
 | **build_manifest.R** | Scans `images/` and generates `manifest.json`. |
 | **params.csv** | Contains the model parameters (v1, v2, t0, baseline year, last data month) for each market. Used for Thresholds & Durations. |
@@ -65,6 +65,7 @@ Key files in the repository root:
 | **.github/workflows/fetch-japan.yml** | Runs `fetch_japan.py` daily from the 1st of each month (08:00 UTC) and on manual dispatch — most runs are no-ops until JADA publishes the file for the previous month (typically the first business week). If `data/Japan.csv` changes, the workflow commits it and triggers `render-country.yml` with `country=Japan`. |
 | **scripts/fetch_indonesia.py** | Automated data ingestion for Indonesia. Logs into GAIKINDO's ProjectSend portal (`files.gaikindo.or.id`, csrf + password login, credentials via `INDONESIA_GAIKINDO_USER`/`_PW`), discovers the newest cumulative "Wholesales Jan-XXX YYYY" PDF (English *and* Indonesian month abbreviations) and parses its seven model-level Excel-paste sheets positionally with pdfplumber (1.56 pt font — tight tolerances, split-number reassembly, wrapped-row re-attachment). `Whole` = GAIKINDO Passenger Car (Sedan+4x2+4x4+LCGC, continues the R. Andrew series) → `data/Indonesia.csv`; plus `Pickups` (pick ups < 5 t + double cabins), `HDV` (trucks ≥ 5 t), `Buses`. Fuel split G/D/BEV/HEV/PHEV per model; rarities (CNG) → OTHERS. Every month is checksummed against the PDF's printed section totals and PC/CV/DOMESTIC summary rows — any mismatch aborts before writing. Each cumulative file rewrites all covered months (absorbs revisions). See [docs/architecture/30-source-indonesia.md](docs/architecture/30-source-indonesia.md). |
 | **.github/workflows/fetch-indonesia.yml** | Runs `fetch_indonesia.py` daily from the 10th of each month (09:35 UTC) and on manual dispatch (`download_url` override, `force`) — the script self-throttles via the newest portal file title, so runs are no-ops until GAIKINDO publishes a new month. If a CSV changes, the workflow commits the four Indonesia CSVs and triggers `render-country.yml` with `country=Indonesia` (variant `Whole`). |
+| **scripts/build_theme.py** | Extracts the design tokens (palette + type stack) from `index.html`'s `:root` block into `assets/theme.css`, which the generated standalone pages — `sources/*.html` and `schedule*.html` — link. `index.html` stays the single source of truth for the design, so those surfaces cannot drift away from the gallery the way they did before [#221](https://github.com/LeRaffl/LeRaffl-Gallery/issues/221). `--check` verifies the committed stylesheet still matches and fails CI if not. **`assets/theme.css` is generated — never hand-edit it.** |
 | **scripts/snapshot_builder.py** | Snapshots the Builder-tab aggregated BEV/ICE/PHEV curves (world + 13 regional/weight-based groups) to `builder_history/<date>.csv` plus a metadata entry in `builder_history/index.json`. Mirrors the in-page Builder math (including the v1=0 anchor recovery), so a snapshot reproduces what the page plots that day. Every snapshot is on one x-basis: the formerly one-year-late band was **rebuilt** from git rather than annotated; see [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219). Regression tests in `scripts/test_snapshot_builder.py`. |
 | **scripts/rebuild_builder_history.py** | Regenerates any past snapshot from the `params.csv` / `weights.csv` git holds for that date. `--cohort` additionally writes `builder_history/cohort/`, every frame restricted to the 44 countries present on all dates — which separates "the model changed its mind" from "the gallery gained countries". |
 | **scripts/build_builder_series.py** | Pivots `builder_history/` into `builder_history/series/<group>.json` — one group, all dates, both country sets, at half-year resolution. ~39 KB per group against 5.8 MB for the archive; this is the only form the browser reads. |
@@ -129,7 +130,10 @@ When opening `index.html`, the browser loads:
 
 1. **manifest.json** — the full list of charts  
 2. **params.csv** — all relevant model parameters  
-3. Renders everything dynamically
+3. **series/index.json**, then **series/&lt;country&gt;.json** on demand — the observed monthly series behind Raw Data and the landing hero chart  
+4. Renders everything dynamically
+
+The landing section opens with a hand-rolled inline-SVG chart for your **home market**, picked from your browser's timezone — no IP lookup, no location prompt — and a search box that writes straight through to the gallery filter (press Enter to jump to the gallery).
 
 ### Gallery
 - Filter by country, date, chart type, filename  
