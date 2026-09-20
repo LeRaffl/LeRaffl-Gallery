@@ -8881,20 +8881,6 @@ if (stepTraces.length){
     return new Date(start + (y - yr) * span).toISOString().slice(0, 10);
   }
 
-  // Linear interpolation on the stored grid. Returns null when the curve
-  // never reaches `pct` inside the plotted range — "not in this window" is a
-  // real answer and must not be faked with an endpoint.
-  function tlCrossing(years, ys, pct){
-    for(let i=1;i<ys.length;i++){
-      const a = ys[i-1], b = ys[i];
-      if(a == null || b == null) continue;
-      if(a < pct && b >= pct){
-        return years[i-1] + (pct - a) * (years[i] - years[i-1]) / (b - a);
-      }
-    }
-    return null;
-  }
-
   function tlFrameSeries(frame){
     const set = tlCountrySet();
     // A frame always has `all`; `cohort` exists only once the cohort set has
@@ -8963,16 +8949,16 @@ if (stepTraces.length){
       : noCohort ? `${frame.n_countries} countries (no cohort frame)`
       : (set === 'cohort' ? `fixed ${doc.n_cohort}-country cohort`
                           : `${frame.n_countries} countries`);
-    // The snapshot date is deliberately NOT in the title: it already appears
+    // The frame's date is deliberately NOT in the title: it already appears
     // on the scrubber, in the readout below and in the chart's own source
     // line, and a fourth copy is what pushed the title off the right edge on
-    // a phone.
+    // a phone (#240).
     const layout = publicationLayout(
       `BEV, ICE & PHEV share — ${label}`,
-      // "snapshot" was right when this read builder_history/. These frames
-      // are refits against data truncated to that month, so they are not
-      // snapshots of anything and must not be labelled as one.
-      { sources: `data through ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
+      // Country set only. publicationLayout already prints `dataPer` as
+      // "Data through <month>", so naming the month here too printed it
+      // twice in one caption.
+      { sources: setLab, dataPer: frame.data_per || frame.date }
     );
     // Two departures from the shared layout, both because this panel plots a
     // longer span than the Builder does:
@@ -9022,16 +9008,25 @@ if (stepTraces.length){
     tlEl('tlStamp').textContent =
       `data through ${frame.date}  (${TL.idx+1}/${doc.frames.length})`;
 
-    const c50 = tlCrossing(years, cur.bev, 50);
     const n = set === 'cohort' ? (frame.n_cohort ?? doc.n_cohort) : frame.n_countries;
     const w = set === 'cohort' ? (frame.cohort_weight ?? null) : frame.total_weight;
+    // The crossings come from `cross`, the same values the corners are drawn
+    // from -- reached ones first, then the unreached collected into one
+    // clause. Listing 50% under both ("BEV 50% not reached · 50% / 80% not
+    // reached") said the same thing twice.
+    const met = (doc.thresholds || [20, 50, 80])
+      .filter(t => cross[String(t)] != null)
+      .map(t => `${t}% at <b>${cross[String(t)].toFixed(2)}</b>`);
     const bits = [
-      `<b>${frame.date}</b>`,
-      frame.data_per ? `data through ${frame.data_per}` : null,
+      // In a backtest the frame's date and its data cutoff are the same month
+      // by construction, so printing both is the same string twice.
+      frame.data_per && frame.data_per !== frame.date
+        ? `<b>${frame.date}</b> &middot; data through ${frame.data_per}`
+        : `data through <b>${frame.date}</b>`,
       // "1 countries" for a single market is noise as well as bad grammar.
       isCountry ? null : (n != null ? `${n} countries` : null),
       w != null ? `${Number(w).toLocaleString()} vehicles/yr` : null,
-      c50 != null ? `BEV 50% at <b>${c50.toFixed(2)}</b>` : 'BEV 50% not reached by 2050',
+      met.length ? `BEV ${met.join(' &middot; ')}` : null,
       unmet.length ? `${unmet.join('% / ')}% not reached by ${Math.round(years[years.length-1])}` : null,
     ].filter(Boolean);
     tlEl('tlReadout').innerHTML = bits.join(' &middot; ');
