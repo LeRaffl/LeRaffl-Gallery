@@ -8612,14 +8612,10 @@ if (stepTraces.length){
     timer: null,
     booted: false,
   };
-  const TL_LABELS = {
-    world:'World', eu:'EU', g7:'G7', western_europe:'Western Europe',
-    northern_europe:'Northern Europe', southern_europe:'Southern Europe',
-    eastern_europe:'Eastern Europe', north_america:'North America',
-    south_america:'South America', americas:'Americas', asia:'Asia',
-    small_markets:'Small markets', medium_markets:'Medium markets',
-    big_markets:'Big markets'
-  };
+  // Display names come from the series files (`label`) and the manifest's
+  // `labels` map, so the spotlight-country list lives in exactly one place
+  // -- scripts/snapshot_builder.py -- instead of being mirrored here.
+  const tlLabel = key => (TL.manifest && TL.manifest.labels && TL.manifest.labels[key]) || key;
 
   const tlEl = id => document.getElementById(id);
 
@@ -8664,15 +8660,21 @@ if (stepTraces.length){
     const cur = tlFrameSeries(frame);
     const set = tlCountrySet();
 
-    // Ghost fan: every frame's BEV curve, faint, so the movement is visible
-    // as a shape and not only as motion.
-    const ghosts = doc.frames.map((f, i) => {
+    // Ghost fan: the BEV curve of every *earlier* snapshot, faint, so the
+    // movement is visible as a shape and not only as motion.
+    //
+    // Only earlier ones. Drawing the whole fan on every frame would put
+    // September's estimate faintly behind December's — knowledge that did
+    // not exist on the date the frame is labelled with. It also means the
+    // trail builds up as the animation plays, which is what the effect
+    // looked like it was doing in the first place.
+    const ghosts = doc.frames.slice(0, TL.idx).map(f => {
       const s = tlFrameSeries(f);
       return {
         x: years, y: s.bev,
         mode: 'lines', type: 'scatter',
         line: { width: 1, color: COLORS.BEV, simplify: false },
-        opacity: i === TL.idx ? 0 : 0.13,
+        opacity: 0.16,
         connectgaps: false,
         hoverinfo: 'skip', showlegend: false,
       };
@@ -8691,10 +8693,13 @@ if (stepTraces.length){
       line(cur.phev, COLORS.PHEV, 'PHEV'),
     ]);
 
-    const label = TL_LABELS[doc.group] || doc.group;
-    const setLab = set === 'cohort'
-      ? `fixed ${doc.n_cohort}-country cohort`
-      : `${frame.n_countries} countries`;
+    const label = doc.label || tlLabel(doc.group);
+    // A spotlight country is a group of one, where "44-country cohort" would
+    // be nonsense.
+    const isCountry = String(doc.group).startsWith('country_');
+    const setLab = isCountry ? 'single market'
+      : (set === 'cohort' ? `fixed ${doc.n_cohort}-country cohort`
+                          : `${frame.n_countries} countries`);
     const layout = publicationLayout(
       `BEV, ICE & PHEV share — ${label} · as estimated ${frame.date}`,
       { sources: `snapshot ${frame.date} · ${setLab}`, dataPer: frame.data_per || '' }
@@ -8710,14 +8715,21 @@ if (stepTraces.length){
     const bits = [
       `<b>${frame.date}</b>`,
       frame.data_per ? `data through ${frame.data_per}` : null,
-      n != null ? `${n} countries` : null,
+      // "1 countries" for a single market is noise as well as bad grammar.
+      isCountry ? null : (n != null ? `${n} countries` : null),
       w != null ? `${Number(w).toLocaleString()} vehicles/yr` : null,
       c50 != null ? `BEV 50% at <b>${c50.toFixed(2)}</b>` : 'BEV 50% not reached by 2050',
     ].filter(Boolean);
     tlEl('tlReadout').innerHTML = bits.join(' &middot; ');
 
     const note = tlEl('tlNote');
-    if(set === 'all'){
+    if(isCountry){
+      // Neither country-set note applies: there is one country either way,
+      // so nothing here is affected by changing coverage.
+      note.className = 'small tl-note';
+      note.innerHTML = `One market, so the Countries selector does not apply — `
+        + `everything that moves here is revised data and newly arrived months.`;
+    } else if(set === 'all'){
       const lo = doc.frames[0].n_countries, hi = doc.frames.at(-1).n_countries;
       note.className = 'small tl-note' + (lo !== hi ? ' warn' : '');
       note.innerHTML = lo !== hi
@@ -8787,10 +8799,12 @@ if (stepTraces.length){
       if(!r.ok) return;
     }catch{ return; }
     a.href = href;
-    a.setAttribute('download', `bev-timelapse-${g}.gif`);
+    const bare = String(g).replace(/^country_/, '');
+    a.setAttribute('download', `bev-timelapse-${bare}.gif`);
     const n = TL.doc && TL.doc.n_cohort;
-    a.textContent = n ? `↓ Download animation (${n}-country cohort)`
-                      : '↓ Download animation';
+    a.textContent = String(g).startsWith('country_')
+      ? '↓ Download animation'
+      : (n ? `↓ Download animation (${n}-country cohort)` : '↓ Download animation');
     a.hidden = false;
   }
 
@@ -8821,8 +8835,16 @@ if (stepTraces.length){
     }
 
     const gsel = tlEl('tlGroup');
-    gsel.innerHTML = TL.manifest.groups
-      .map(g => `<option value="${g}">${TL_LABELS[g] || g}</option>`).join('');
+    // Regions first, then the single-country spotlights, each alphabetical --
+    // a flat alphabetical list would bury "World" between two countries.
+    const isC = g => String(g).startsWith('country_');
+    const byLabel = (a, b) => tlLabel(a).localeCompare(tlLabel(b));
+    const regions = TL.manifest.groups.filter(g => !isC(g)).sort(byLabel);
+    const countries = TL.manifest.groups.filter(isC).sort(byLabel);
+    const opts = gs => gs.map(g => `<option value="${g}">${tlLabel(g)}</option>`).join('');
+    gsel.innerHTML =
+      (regions.length ? `<optgroup label="Regions">${opts(regions)}</optgroup>` : '')
+      + (countries.length ? `<optgroup label="Single markets">${opts(countries)}</optgroup>` : '');
     gsel.value = TL.manifest.groups.includes('world') ? 'world' : TL.manifest.groups[0];
 
     await ensurePlotly();

@@ -35,11 +35,39 @@ from __future__ import annotations
 
 import csv
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 REPO = Path(__file__).resolve().parent.parent
 HIST = REPO / "builder_history"
 OUT = HIST / "series"
+
+# Display names, written into each file as `label` so the browser and the GIF
+# renderer read one source instead of each keeping its own copy.
+GROUP_LABELS = {
+    "world": "World", "eu": "EU", "g7": "G7",
+    "western_europe": "Western Europe", "northern_europe": "Northern Europe",
+    "southern_europe": "Southern Europe", "eastern_europe": "Eastern Europe",
+    "north_america": "North America", "south_america": "South America",
+    "americas": "Americas", "asia": "Asia",
+    "small_markets": "Small markets", "medium_markets": "Medium markets",
+    "big_markets": "Big markets",
+}
+
+
+def label_for(key: str) -> str:
+    if key in GROUP_LABELS:
+        return GROUP_LABELS[key]
+    if key.startswith("country_"):
+        # Recover the real spelling from the spotlight list rather than
+        # un-slugging, which would turn `usa` into "Usa".
+        import snapshot_builder as sb
+        for name in sb.SPOTLIGHT_COUNTRIES:
+            if sb.country_key(name) == key:
+                return name
+    return key
 
 STEP = 0.5          # years between samples in the emitted grid
 DECIMALS = 2
@@ -151,6 +179,7 @@ def main() -> int:
 
         doc = {
             "group": g,
+            "label": label_for(g),
             "basis": index.get("basis_history", [{}])[0].get("basis", "calendar_year"),
             "years": grid,
             "n_cohort": (cohort_index or {}).get("n_cohort"),
@@ -163,6 +192,7 @@ def main() -> int:
 
     manifest = {
         "groups": [g for g, _ in written],
+        "labels": {g: label_for(g) for g, _ in written},
         "dates": dates,
         "years": [grid[0], grid[-1]],
         "step": STEP,

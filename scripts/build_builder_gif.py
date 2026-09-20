@@ -68,15 +68,25 @@ FONT_PATHS_BOLD = [
     "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
 ]
 
-LABELS = {
-    "world": "World", "eu": "EU", "g7": "G7",
-    "western_europe": "Western Europe", "northern_europe": "Northern Europe",
-    "southern_europe": "Southern Europe", "eastern_europe": "Eastern Europe",
-    "north_america": "North America", "south_america": "South America",
-    "americas": "Americas", "asia": "Asia",
-    "small_markets": "Small markets", "medium_markets": "Medium markets",
-    "big_markets": "Big markets",
-}
+# Which series get an animation. Deliberately NOT "all of them": every group
+# and spotlight country would be 20 files rewritten every month, for an
+# artefact whose job is to be shared, not to be exhaustive. A few blocs worth
+# arguing about, plus the countries that come up in single-case discussion.
+#
+# The panel still scrubs and plays every series -- this list only decides
+# which ones also get a downloadable file. `--all` overrides it.
+GIF_GROUPS = [
+    "world",
+    "eu",
+    "asia",
+    "north_america",
+    "country_germany",
+    "country_china",
+    "country_norway",
+    "country_usa",
+    "country_japan",
+    "country_france",
+]
 
 
 def font(size: int, bold: bool = False):
@@ -157,12 +167,17 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
     series_txt = (" & ".join([", ".join(shown[:-1]), shown[-1]])
                   if len(shown) > 1 else (shown[0] if shown else ""))
 
-    label = LABELS.get(doc["group"], doc["group"])
+    label = doc.get("label") or doc["group"]
     d.text((PAD_L, 22), f"{label} — {series_txt} share", font=f_title, fill=INK)
 
-    n = frame.get("n_cohort") if key == "cohort" else frame.get("n_countries")
-    set_txt = (f"fixed {n}-country cohort" if key == "cohort"
-               else f"{n} countries as of this date")
+    # A spotlight country is a group of one, where "44-country cohort" would
+    # be nonsense. Say what it actually is.
+    if doc["group"].startswith("country_"):
+        set_txt = "single market"
+    else:
+        n = frame.get("n_cohort") if key == "cohort" else frame.get("n_countries")
+        set_txt = (f"fixed {n}-country cohort" if key == "cohort"
+                   else f"{n} countries as of this date")
     per = pretty_period(frame.get("data_per"))
     sub = f"as estimated {frame['date']}  ·  {set_txt}"
     if per:
@@ -183,11 +198,14 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
         d.line([(x, PAD_T), (x, H - PAD_B)], fill=GRID, width=1)
         d.text((x, H - PAD_B + 8), str(yr), font=f_tick, fill=MUTED, anchor="ma")
 
-    # Ghost fan: every other frame's BEV, so the drift reads as a shape.
+    # Ghost fan: the BEV curve of every *earlier* snapshot, so the drift reads
+    # as a shape and the trail builds as the animation plays.
+    #
+    # Earlier only. Drawing the whole fan on every frame would put September's
+    # estimate faintly behind December's -- knowledge that did not exist on
+    # the date the frame is labelled with.
     ghost = tuple(round(c + (BG[i] - c) * 0.82) for i, c in enumerate(C_BEV))
-    for j, f in enumerate(frames):
-        if j == idx:
-            continue
+    for f in frames[:idx]:
         g = f.get(key) or f["all"]
         polyline(d, years, g["bev"], px, py, ghost, 1)
 
@@ -242,7 +260,9 @@ def build_gif(doc, out_path: Path, key: str) -> int:
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--group", action="append",
-                   help="Only this group (repeatable). Default: all.")
+                   help="Only this group (repeatable). Default: GIF_GROUPS.")
+    p.add_argument("--all", action="store_true",
+                   help="Render every series, not just the curated list.")
     p.add_argument("--set", default="cohort", choices=("cohort", "all"),
                    help="Country set to animate. Default: cohort.")
     p.add_argument("--out", type=Path, default=SERIES,
@@ -255,7 +275,15 @@ def main(argv=None) -> int:
               "run scripts/build_builder_series.py first")
         return 1
     index = json.loads(index_path.read_text(encoding="utf-8"))
-    groups = args.group or index["groups"]
+    if args.group:
+        groups = args.group
+    elif args.all:
+        groups = index["groups"]
+    else:
+        groups = [g for g in GIF_GROUPS if g in index["groups"]]
+        missing = [g for g in GIF_GROUPS if g not in index["groups"]]
+        for g in missing:
+            print(f"  ! {g}: in GIF_GROUPS but not in the archive, skipped")
 
     args.out.mkdir(parents=True, exist_ok=True)
     total = 0

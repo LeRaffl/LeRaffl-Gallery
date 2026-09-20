@@ -372,7 +372,8 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 - `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`), each snapshot's x-`basis`, and a `basis_history` documenting where the basis changed.
 - `builder_history/cohort/<date>.csv` + `cohort/index.json` — the same snapshots restricted to the **44 countries present on every date**, written by `rebuild_builder_history.py --cohort`. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy).
 - `builder_history/series/<group>.json` + `series/index.json` — the archive pivoted per group for the Time-lapse panel, written by [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py). **This is the only form the browser reads.**
-- `builder_history/series/<group>.gif` — the same series rendered as an animation by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py), for the panel's download button. **Overwritten in place, never dated** — each run is the same animation one frame longer. ~107 KB per group, cohort country set only.
+- `builder_history/series/country_<slug>.json` — single-country series for the spotlight markets (`SPOTLIGHT_COUNTRIES` in `snapshot_builder.py`). Same schema; `label` carries the real spelling, and the cohort/all distinction is meaningless for one country.
+- `builder_history/series/<group>.gif` — the same series rendered as an animation by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py), for the panel's download button. **Overwritten in place, never dated** — each run is the same animation one frame longer. ~100 KB each, cohort country set only, and only for the curated `GIF_GROUPS` — ten of the twenty series, not all of them.
 
 ### Two shapes, one dataset
 

@@ -486,6 +486,14 @@ So roughly **half** of the apparent drift is composition, not the model changing
 
 Countries are matched on **identity, not spelling**: `params.csv` carried `New Zealand` until 2026-01, `NewZealand` through 2026-03, then `New Zealand` again. A cohort built on raw strings silently drops it and reports 43.
 
+### Spotlight countries
+
+`snapshot_builder.py::SPOTLIGHT_COUNTRIES` adds a handful of single-country series — currently Germany, China, Norway, USA, Japan, France — written under a `country_<slug>` key.
+
+They are **not** added to `BUILDER_GROUPS`, which mirrors `index.html`; a country is not a group there. The separate key space keeps the mirror intact and cannot collide with a group name, and the slug is safe as a filename and a URL.
+
+A country belongs on the list only if it is worth a single-case discussion **and** appears in every snapshot — otherwise its time-lapse has holes. Check `builder_history/cohort/index.json` before adding one.
+
 ## 2.14 Time-lapse Series Builder (`scripts/build_builder_series.py`)
 
 ### Responsibility
@@ -515,10 +523,10 @@ Resolution drops from 0.1-year to **0.5-year steps**. The stored curves are smoo
 
 Reads `builder_history/series/`, lazily — only when `#builder` is opened, and only the selected group.
 
-- **Group** — the 14 aggregate groups the archive carries.
+- **Group** — the 14 aggregate groups, then the spotlight countries, in two `<optgroup>`s. Display names come from the series files, so the country list lives only in `snapshot_builder.py`.
 - **Countries** — `Fixed cohort` (default) or `All covered on each date`. Choosing the latter surfaces a marked warning naming the coverage growth, because that view genuinely mixes two effects.
 - **Transport** — play (one pass, resting on the newest frame), step, and a scrub slider.
-- Behind the current frame, every other frame's BEV curve is drawn faint, so the movement reads as a shape and not only as motion.
+- Behind the current frame, the BEV curve of every **earlier** snapshot is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put September's estimate faintly behind December's — knowledge that did not exist on the date the frame is labelled with.
 - Readout: date, data-through period, country count, weighted volume, and the interpolated BEV-50 % year (`null` when the curve never reaches it in range — "not in this window" is a real answer and is not faked with an endpoint).
 
 - **Download** — links the GIF the workflow already committed (see 2.16). Nothing is encoded in the browser, and the button hides itself if that group has no file yet.
@@ -543,9 +551,13 @@ Pillow rather than matplotlib: the chart is three polylines and a pair of axes. 
 
 `disposal=1` lets Pillow store only what changed between frames. The axes, grid and ghost fan are identical throughout, so this roughly halves the file — **248 KB → 107 KB** for `world`, **1.5 MB** for all fourteen groups. Verified rather than assumed: every decoded frame is pixel-identical to the source render, so the optimiser is emitting the erase regions the moving curves need.
 
+### Which series get one
+
+`GIF_GROUPS` — a curated list, **not** every series. Four blocs (`world`, `eu`, `asia`, `north_america`) and the six spotlight countries: ten files, ~970 KB, rewritten monthly. Rendering all twenty would double that for an artefact whose job is to be shared rather than exhaustive. `--all` overrides it; the panel still scrubs and plays every series either way, and the download button hides itself for the ones without a file.
+
 ### Which country set
 
-The **cohort**. The "all countries as of each date" view is honest but mixes two effects, and a GIF travels without the panel's warning around it — so the shareable artefact is the one that does not need the warning. The frame says which set it is showing, and the download button repeats it.
+The **cohort**. The "all countries as of each date" view is honest but mixes two effects, and a GIF travels without the panel's warning around it — so the shareable artefact is the one that does not need the warning. The frame says which set it is showing, and the download button repeats it. A spotlight country is a group of one, where "44-country cohort" would be nonsense, so those frames read `single market` instead.
 
 ### Honesty in the frame
 
