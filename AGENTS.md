@@ -98,7 +98,7 @@ Use this when you (the owner, or a dev agent) are editing or extending the repo.
 | `index.html` | The entire single-file frontend (all tabs, JS, `SD_COUNTRIES`, `SD_FUEL_ORDER`). |
 | `worker/` | Cloudflare Worker: feedback issues + Submit-Data → opens a PR touching one `data/<Country>.csv`. |
 | `docs/architecture/` | **Canonical architecture docs** (numbered). The spec. |
-| `sources/`, `series/`, `schedule*.html/.ics`, `manifest.json`, `params.csv`, `weights.csv`, `images/`, `posts/`, `assets/theme.css` | **Generated** — do not hand-edit (see below). |
+| `sources/`, `series/`, `schedule*.html/.ics`, `manifest.json`, `params.csv`, `weights.csv`, `images/`, `posts/`, `assets/theme.css`, `builder_history/`, `backtest/` | **Generated** — do not hand-edit (see below). |
 | `assets/` | Flags, fonts, variant icons (embedded at render time), plus the generated `theme.css`. |
 
 ### The pipeline
@@ -115,7 +115,7 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 1. `data/<Country>.csv` is the single source of truth. **Never hand-edit**
    `params.csv`, `weights.csv`, `manifest.json`, `images/`, `posts/`,
    `sources/`, `series/`, `schedule*`, `assets/theme.css`,
-   `builder_history/` — they are generated.
+   `builder_history/`, `backtest/` — they are generated.
 2. CSV writes are **line-level upserts** keyed on `(period, variant)`
    (`R/upsert.R`). Never round-trip a whole CSV through read/write — it
    reformats untouched numbers (scientific notation, trailing zeros) and
@@ -128,6 +128,13 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
 5. Variant definitions stay anchored to EU vehicle classes (`09-glossary.md`)
    so countries remain comparable.
 6. Estimated/modelled rows are flagged in their `notes` column.
+7. **`builder_history/` and `backtest/` are different quantities — never one
+   series.** `builder_history/` is what the gallery *actually estimated* on a
+   date, recovered from git, and cannot reach before 2025-09. `backtest/` is
+   what *this* model says re-fitted on data truncated to a date, and reaches
+   2015. Anything rendering the backtest must also carry its caveat: it
+   truncates today's **revised** CSVs, so it is an upper bound, not a clean
+   out-of-sample test. See `docs/architecture/03-data-objects.md` §3.7/§3.8.
 
 ### When you change X, also update Y
 
@@ -141,7 +148,7 @@ fetcher and fans render-country out via a `workflow_call` matrix instead.
   generated `assets/theme.css` is what `sources/*.html` and `schedule*.html`
   link, so those two surfaces follow automatically and cannot drift
   (`build_theme.py --check` fails the build if the stylesheet is stale).
-- **The Builder aggregation or its groups** → `scripts/snapshot_builder.py` **and** `index.html`'s `BUILDER_GROUPS` (they mirror each other; `SPOTLIGHT_COUNTRIES` is deliberately *outside* that mirror), then re-run `scripts/build_builder_series.py` **and** `scripts/build_builder_gif.py` so the Time-lapse panel and its downloadable animation see the change. `builder_history/<date>.csv` is the archive; `builder_history/series/<group>.json` is what the browser actually reads.
+- **The Builder aggregation or its groups** → `scripts/snapshot_builder.py` **and** `index.html`'s `BUILDER_GROUPS` (they mirror each other; `SPOTLIGHT_COUNTRIES` is deliberately *outside* that mirror), then re-run `scripts/build_backtest_series.py` **and** `scripts/build_builder_gif.py` so the Time-lapse panel and its downloadable animation see the change. `backtest/series/<group>.json` is what the browser actually reads; `backtest/params|weights/<YYYY-MM>.csv` and `builder_history/<date>.csv` are the two archives behind it (invariant 7).
 - **Add a country** → follow `docs/architecture/08-deploy-ops.md` §8.3 (write `data/<Country>.csv`, add to `SD_COUNTRIES` in `index.html`, add `assets/flags/<slug>.png`, map the flag emoji in `R/post_text.R`, PR, then render) and give it a source doc or a `country_source_stubs.yaml` entry.
 - **Add/rename a variant** → the `09-glossary.md` variant table, the fetcher, and the country's `variants` list in `SD_COUNTRIES`.
 

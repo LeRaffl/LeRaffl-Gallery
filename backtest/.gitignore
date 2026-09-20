@@ -1,0 +1,11 @@
+# Nothing ignored here any more.
+#
+# `series/` was ignored during the 2015-onward backfill, because it is
+# regenerated in full from params/ + weights/ and the intermediate state of a
+# partial backfill is not worth keeping. The backfill is complete, so the
+# series is now the artefact the page actually fetches and has to be
+# committed.
+#
+# Regenerating it monthly is cheap in git despite the file size: two versions
+# of the 368 KB world.json pack into 113 KB together, so an appended frame
+# deltas down to near nothing.

@@ -17,7 +17,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | I | [Auto-ingest Chile from ANAC](#flow-i--anac-ingest) | Daily cron (14th–end of month, 08:20 UTC) or manual dispatch | Updated `data/Chile.csv` → triggers Flow B for Chile |
 | J | [Auto-ingest Japan from JADA](#flow-j--jada-ingest) | Daily cron (1st–end of month, 08:00 UTC) or manual dispatch | Updated `data/Japan.csv` → triggers Flow B for Japan |
 | K | [Auto-ingest multi-country from ACEA](#flow-k--acea-ingest) | Daily cron (16th–end of month, 08:40 UTC) or manual dispatch | Updated `data/<Country>.csv` for ≤21 countries → sequential Flow B for each |
-| L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json` |
+| L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json`, **and** a new `backtest/` month with `backtest/series/` + GIFs rebuilt |
 | L₂ | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:10 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 | M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:30 UTC) or manual dispatch | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
 | N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:30 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
@@ -675,7 +675,36 @@ sequenceDiagram
 
 `scripts/test_snapshot_builder.py` pins the same parity from the Python side (run `python scripts/test_snapshot_builder.py`; no network, no dependencies).
 
-**Why no render re-trigger:** snapshots are downstream of `params.csv` — they don't feed back into any chart, post-text, or manifest. The workflow only commits the new file; the page is not yet a consumer.
+**Why no render re-trigger:** snapshots are downstream of `params.csv` — they don't feed back into any chart, post-text, or manifest. The workflow only commits the new file.
+
+### The second half of the same job: the backtest
+
+`builder_history/` answers *what the gallery actually estimated on date X*. Because it is recovered from git it cannot reach before the repository does — **2025-09** — which is a dozen frames, and a dozen frames is not a time-lapse.
+
+So the same workflow also runs [`R/build_backtest.R`](../../R/build_backtest.R), which answers a **different** question: *what would this model have said at date X, given the data available at date X*. It re-fits from `data/<Country>.csv` truncated to each month, so it reaches **2015** — 2005 for Norway, if the start were moved. That series, pivoted by `build_backtest_series.py` into `backtest/series/`, is what the Time-lapse panel and the GIFs show.
+
+```mermaid
+sequenceDiagram
+    participant Job as snapshot-builder.yml job
+    participant Data as data/&lt;Country&gt;.csv
+    participant BT as backtest/params|weights/&lt;YYYY-MM&gt;.csv
+    participant Ser as backtest/series/&lt;group&gt;.json + .gif
+
+    Job->>Data: load every (file, variant) once
+    loop per month not already on disk
+        Job->>Job: truncate to period &lt;= month, drop series under 24 rows
+        Job->>Job: fit_history() per series, mclapply over 4 cores
+        Job->>BT: write params + weights for that month
+    end
+    Job->>Ser: build_backtest_series.py (shared aggregation with snapshot_builder)
+    Job->>Ser: build_builder_gif.py (curated groups, quarterly subsample)
+```
+
+**The limitation that has to travel with it:** this truncates **today's** CSVs, which hold **revised** figures. The numbers as first published are not recoverable — they exist in git only from 2025-09, the same wall. So the model is handed a corrected past, which flatters it. It is an upper bound on how well the model would have done, not a clean out-of-sample test. The series file carries this as a `caveat` field, the panel prints it, and every GIF frame has it in the footer — a consumer should not be able to render this without having been handed the warning.
+
+**Why the cron can afford it:** a fit is ~1.8 s and does not get cheaper with a smaller `extrapol` — the cost is the optimiser, not the projection. The backfill from 2015 is ~9,200 fits, about an hour on 4 cores, **once**. Each new month is ~95 fits, roughly three minutes. Output is written per month and skipped when present, so the monthly run is automatically incremental and an interrupted backfill resumes.
+
+**Why the two must never share a chart:** they are different quantities. One carries the bugs and coverage we had on the day; the other carries today's code throughout. Plotted together they would look like one series with a discontinuity at 2025-09, and the discontinuity would be an artefact of the method, not the market.
 
 ## Flow L₂ — ACAU ingest
 

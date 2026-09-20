@@ -17,7 +17,8 @@ flowchart LR
         D5["posts/&lt;slug&gt;.txt<br/>posts/&lt;slug&gt;_&lt;period&gt;.txt<br/>(post text)"]
         D6["manifest.json<br/>(image index)"]
         D12["builder_history/&lt;date&gt;.csv<br/>(monthly aggregate snapshots)"]
-        D13["builder_history/series/&lt;group&gt;.json<br/>(pivoted for the Time-lapse UI)"]
+        D13["backtest/params|weights/&lt;YYYY-MM&gt;.csv<br/>(monthly refits from 2015)"]
+        D14["backtest/series/&lt;group&gt;.json + .gif<br/>(pivoted for the Time-lapse UI)"]
     end
 
     subgraph Independent["Independent datasets"]
@@ -371,22 +372,12 @@ Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE bre
 - `builder_history/<YYYY-MM-DD>.csv` — one file per snapshot run. Columns: `group, year, bev_share, ice_share, phev_share`.
 - `builder_history/index.json` — top-level index of all snapshots with per-group metadata (`n_countries`, `total_weight`, `latest_data_per`), each snapshot's x-`basis`, and a `basis_history` documenting where the basis changed.
 - `builder_history/cohort/<date>.csv` + `cohort/index.json` — the same snapshots restricted to the **44 countries present on every date**, written by `rebuild_builder_history.py --cohort`. See [2.13](02-components.md#213-builder-history-rebuilder-scriptsrebuild_builder_historypy).
-- `builder_history/series/<group>.json` + `series/index.json` — the archive pivoted per group for the Time-lapse panel, written by [`scripts/build_builder_series.py`](../../scripts/build_builder_series.py). **This is the only form the browser reads.**
-- `builder_history/series/country_<slug>.json` — single-country series for the spotlight markets (`SPOTLIGHT_COUNTRIES` in `snapshot_builder.py`). Same schema; `label` carries the real spelling, and the cohort/all distinction is meaningless for one country.
-- `builder_history/series/<group>.gif` — the same series rendered as an animation by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py), for the panel's download button. **Overwritten in place, never dated** — each run is the same animation one frame longer. ~100 KB each, cohort country set only, and only for the curated `GIF_GROUPS` — ten of the twenty series, not all of them.
 
-### Two shapes, one dataset
+> ℹ️ `builder_history/series/` no longer exists. The Time-lapse reads `backtest/series/` (see [3.8](#38-backtest)), which reaches 2015 where this archive cannot start before 2025-09. `builder_history/` itself is still written every month — it is the only record of what the page actually showed, and that cannot be reconstructed later.
 
-| | archive (`<date>.csv`) | pivoted (`series/<group>.json`) |
-|---|---|---|
-| grouped by | date | group |
-| resolution | 0.1 years (351 points) | 0.5 years (71 points) |
-| size | 197 KB per snapshot, 5.8 MB total | ~39 KB per group |
-| read by | scripts, `git` archaeology | the Time-lapse panel, one group at a time |
+### Shape
 
-The archive keeps full fidelity; the pivot is what makes the panel affordable. A reader looking at one group would otherwise pull all fourteen, fifteen times over.
-
-`series/<group>.json` carries both country sets per frame — `all` (coverage as of that date) and `cohort` (the fixed 44) — plus `n_countries`, `total_weight` and `data_per`. A share is `null` where the snapshot has none: `params.csv` had no ICE fit before 2026-01, so the oldest frame's `ice`/`phev` are entirely null and the chart draws a **gap**, not a zero line.
+The archive keeps full fidelity at 0.1-year resolution (351 points, 197 KB per snapshot, 5.8 MB in total), grouped by date. It is read by scripts and by `git` archaeology, not by the browser.
 
 ### Schema (`builder_history/<date>.csv`)
 
@@ -457,7 +448,40 @@ The in-page Builder shows all three when the ICE toggle is on, and the underlyin
 
 ---
 
-## 3.8 Fleet Dataset
+## 3.8 Backtest
+
+### Where
+
+- `backtest/params/<YYYY-MM>.csv` — one file per month, **same schema as `params.csv`** (`country, variant, v1, v2, t0, data_per, model_date, source, baseline_date, ice_*, ttm_bev_share, refit_swing`), with `source = backtest` and `model_date` = the month. Written by [`R/build_backtest.R`](../../R/build_backtest.R).
+- `backtest/weights/<YYYY-MM>.csv` — same schema as `weights.csv`; the trailing-twelve-month total **as of that month**, `NA` rows dropped because a partial window is a smaller quantity wearing the same name.
+- `backtest/series/<group>.json` + `series/index.json` — pivoted per group for the Time-lapse panel by [`scripts/build_backtest_series.py`](../../scripts/build_backtest_series.py). **This is the only form the browser reads.** Currently gitignored during a backfill and committed once complete.
+- `backtest/series/<group>.gif` — the animation, by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py). **Overwritten in place, never dated.** Cohort set, quarterly subsample, and only the curated `GIF_GROUPS` — ten of the twenty series.
+
+### What it is, and what it is not
+
+"What the model said using data through `<month>`" — the fit re-run against the observations available at that date. Because it re-fits from the CSVs rather than recovering stored parameters, it reaches **2015** (and could reach further), where `builder_history/` cannot start before the repository did in **2025-09**.
+
+Three things it is **not**, all of which a consumer has to state:
+
+1. It is **not** `builder_history/` ([3.7](#37-builder-history-snapshots)). That records what the gallery actually estimated at the time, bugs and coverage included. Different quantities; never one series.
+2. It is **not** clean out-of-sample. It truncates **today's revised** CSVs — the figures as first published are not recoverable — so the model is handed a corrected past, which flatters it. An upper bound, not a test.
+3. Its coverage **grows**: 23 fittable series in 2015-01, ~95 by 2026 (`MIN_ROWS = 24`). So a world aggregate moves partly because the gallery gained countries. The `cohort` set is the answer, exactly as in `builder_history`.
+
+### Per-frame shape (`series/<group>.json`)
+
+Each frame carries both country sets — `all` (coverage as of that month) and `cohort` (the fixed set present in *every* month) — plus `n_countries`, `total_weight`, `n_cohort`, `cohort_weight` and `data_per`. Years are a 0.5-year grid; a share is `null` where the model produced none, and the chart sets `connectgaps: false` so that draws a **gap**, not a zero line.
+
+`cross_all` / `cross_cohort` hold the interpolated year the BEV curve first reaches each of 20/50/80 %, or `null` where it never does inside the range. Precomputed server-side so the chart, the readout and the GIF agree by construction.
+
+The document also carries `kind: "backtest"`, a `headline` (*"What the model said using data through"*) and a `caveat` — the limitation above, in the file, so a consumer cannot render the series without having been handed the warning.
+
+### Cohort matching is on identity, not spelling
+
+`norm()` strips whitespace and case before comparing country names. `New Zealand` was once written `NewZealand`; matching on the raw string silently drops it from the cohort and reports 43 countries where there are 44. See [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219).
+
+---
+
+## 3.9 Fleet Dataset
 
 ### Where
 
@@ -477,7 +501,7 @@ Maintainer-curated, now partly automated. `fleet/fleet_initial.csv` uses the har
 
 ---
 
-## 3.9 Assets
+## 3.10 Assets
 
 ### Where
 
@@ -499,7 +523,7 @@ The maintainer originally bundled the full FA distribution (~24 MB). Only the OT
 
 ---
 
-## 3.10 Feedback Issues
+## 3.11 Feedback Issues
 
 ### Where
 
@@ -519,7 +543,7 @@ Free, integrated with maintainer's existing GitHub workflow, no extra moderation
 
 ---
 
-## 3.11 Submission PRs
+## 3.12 Submission PRs
 
 ### Where
 
@@ -538,7 +562,7 @@ Re-uses GitHub's review UI (rich diff, line comments, mobile app). Zero new infr
 
 ---
 
-## 3.12 Rate-Limit Counters
+## 3.13 Rate-Limit Counters
 
 ### Where
 
@@ -560,7 +584,7 @@ Counter granularity is per-IP-per-hour, eventual consistency is fine. KV is the 
 
 ---
 
-## 3.13 Freshness + Arrival Data (`sources/schedule.json`, `sources/runs.json`)
+## 3.14 Freshness + Arrival Data (`sources/schedule.json`, `sources/runs.json`)
 
 ### Where
 

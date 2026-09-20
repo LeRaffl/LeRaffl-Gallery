@@ -661,6 +661,82 @@ def update_index_json(index_path: Path, snapshot_date: str,
 
 # --- Entry point -------------------------------------------------------------
 
+def write_cohort_snapshot(out_dir: Path, snapshot_date: str, snapshot_file: str,
+                          param_rows: list[dict], weights: dict[str, float],
+                          groups: dict[str, list[str]], variant: str) -> dict | None:
+    """Also write the fixed-cohort frame, if a cohort has been established.
+
+    The cohort is the country set the Time-lapse panel and the GIFs default to.
+    It lives in `builder_history/cohort/index.json`, written by
+    `rebuild_builder_history.py --cohort`. Without this, a cron run adds an
+    all-countries frame with no cohort counterpart, and every consumer silently
+    falls back to the all-countries curve while still labelling it as the
+    cohort -- which injects exactly the composition artefact the cohort exists
+    to remove, into the newest frame.
+
+    The stored cohort list is used **as-is and never recomputed**. Recomputing
+    the intersection on each run would let the cohort drift, and two frames on
+    different country sets are not comparable -- which is the whole point.
+    """
+    cdir = out_dir / "cohort"
+    cindex = cdir / "index.json"
+    if not cindex.is_file():
+        print("  note: no cohort/index.json — skipping the cohort frame. "
+              "Run scripts/rebuild_builder_history.py --cohort to establish one.")
+        return None
+
+    doc = json.loads(cindex.read_text(encoding="utf-8"))
+    cohort = doc.get("cohort") or []
+    if not cohort:
+        print("  note: cohort/index.json carries no cohort list — skipping.")
+        return None
+
+    keep = {"".join(c.split()).casefold() for c in cohort}
+    present = {"".join(c.split()).casefold() for c in groups.get("world", [])}
+    missing = sorted(c for c in cohort
+                     if "".join(c.split()).casefold() not in present)
+    if missing:
+        # Loud on purpose: a cohort country that stops appearing makes every
+        # later frame quietly incomparable with the earlier ones.
+        print(f"  WARNING: {len(missing)} cohort countries absent from this "
+              f"snapshot: {', '.join(missing)}", file=sys.stderr)
+
+    curves: dict[str, tuple[list, list, list, list]] = {}
+    meta: dict[str, dict] = {}
+    for name, countries in groups.items():
+        members = [c for c in countries
+                   if "".join(c.split()).casefold() in keep]
+        if not members:
+            continue
+        xs, bev, ice, phev, m = compute_group_curve(
+            members, param_rows, weights, variant)
+        if m["n_countries"] == 0:
+            continue
+        curves[name] = (xs, bev, ice, phev)
+        meta[name] = m
+
+    if not curves:
+        print("  note: cohort produced no rows — skipping the cohort frame.")
+        return None
+
+    cdir.mkdir(parents=True, exist_ok=True)
+    write_snapshot_csv(cdir / snapshot_file, curves)
+
+    entry = {"date": snapshot_date, "file": snapshot_file, "groups": meta}
+    snaps = [e for e in doc.get("snapshots", []) if e.get("date") != snapshot_date]
+    snaps.append(entry)
+    snaps.sort(key=lambda e: e["date"])
+    doc["snapshots"] = snaps
+    doc["updated"] = max(e["date"] for e in snaps)
+    cindex.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n",
+                      encoding="utf-8")
+
+    w = meta.get("world", {})
+    print(f"Wrote {cdir / snapshot_file} "
+          f"({len(curves)} groups, cohort: {w.get('n_countries')} countries)")
+    return meta
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[1] if __doc__ else "")
     p.add_argument("--params", default="params.csv", type=Path,
@@ -712,6 +788,9 @@ def main(argv=None) -> int:
     snapshot_file = f"{snapshot_date}.csv"
     write_snapshot_csv(args.out / snapshot_file, per_group_curves)
     update_index_json(args.out / "index.json", snapshot_date, snapshot_file, per_group_meta)
+
+    write_cohort_snapshot(args.out, snapshot_date, snapshot_file,
+                          param_rows, weights, groups, normalize_base(args.variant))
 
     world_meta = per_group_meta.get("world", {})
     print(
