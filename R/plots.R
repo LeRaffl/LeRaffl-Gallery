@@ -27,6 +27,28 @@ reg_Word <- function(meta) if (is.null(meta$reg_Word)) "New" else meta$reg_Word
 # everywhere — only the *displayed* text changes.
 bev_label <- function(meta) if (is.null(meta$bev_label)) "BEV" else meta$bev_label
 
+# Does this country/variant's source actually split plug-in hybrids out?
+#
+# The same principle as bev_label() above, applied to the other end of the
+# chart. Where a source publishes a single combined hybrid figure, the pipeline
+# parks it in HEV and leaves PHEV/EREV empty (the Türkiye/Georgia/Colombia/
+# Malaysia convention; ACEA's CV release instead folds PHEV into BEV). compute_shares()
+# then reads that empty column as 0, so the trajectory plot drew a PHEV curve,
+# ribbon, points and legend entry pinned at exactly zero — presenting *absent*
+# data as a *measured* zero, which is the chart-level twin of the "no-split fuel
+# column → leave empty, never 0.0" invariant in AGENTS.md.
+#
+# When this is FALSE the PHEV series is omitted from plot_ice_bev_phev()
+# entirely and the title says "<BEV> / ICE" rather than "<BEV> / ICE / PHEV".
+# Nothing about the fit changes — hybrids stay inside ICE exactly as before, so
+# ICE/BEV parameters, thresholds and durations are untouched and countries stay
+# comparable. The footnote already on these charts explains where hybrids went.
+#
+# Set from the data in render_country.R, never from a country list: which
+# sources split PHEV changes over time (Malaysia's feed gained
+# plug_in_hybrid_petrol around 2024), and a hardcoded list would rot.
+has_phev_split <- function(meta) if (is.null(meta$has_phev_split)) TRUE else isTRUE(meta$has_phev_split)
+
 TTM_FUEL_COLORS <- c(
   BEV      = "#00ff2c",
   EV       = "#00ff2c",   # same green as BEV — ACEA CV's combined BEV+PHEV bucket, see bev_label()
@@ -173,6 +195,13 @@ plot_bev_trajectory <- function(fit, meta) {
 plot_ice_bev_phev <- function(fit, df, meta) {
   germany <- fit$extrap; default_size <- 2
 
+  # See has_phev_split() above: sources with no PHEV split get a two-curve
+  # chart instead of a third curve flat at a zero they never measured.
+  show_phev <- has_phev_split(meta)
+  traj_keys <- if (show_phev) c("ICE","BEV","PHEV") else c("ICE","BEV")
+  traj_labels <- c(ICE = "ICE", BEV = bev_label(meta), PHEV = "PHEV")
+  traj_shapes <- c("ICE" = 15, "BEV" = 16, "PHEV" = 23)
+
   p <- ggplot(germany, aes(x = x, y = BEV, color = Type)) +
     geom_ribbon(aes(ymin = BEV_lower, ymax = BEV_upper), fill = TRAJ_COLORS[["BEV"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = BEV, color = "BEV", shape = "BEV"), lwd = 1) +
@@ -181,23 +210,30 @@ plot_ice_bev_phev <- function(fit, df, meta) {
     geom_ribbon(aes(ymin = ICE_lower, ymax = ICE_upper), fill = TRAJ_COLORS[["ICE"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = ICE, color = "ICE", shape = "ICE"), lwd = 1) +
     geom_point(data = fit$ICE, aes(x = x, y = y, color = "ICE", shape = "ICE"),
-               size = default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall)) +
-    geom_ribbon(aes(ymin = Hybrid_lower, ymax = Hybrid_upper), fill = TRAJ_COLORS[["PHEV"]], alpha = 0.35, color = NA) +
-    geom_line(aes(y = Hybrid, color = "PHEV", shape = "PHEV"), lwd = 1) +
-    # data MUST be fit$Hybrid (like the BEV/ICE point layers use fit$BEV /
-    # fit$ICE): the size vector below is computed from fit$Hybrid, and
-    # fit_history() drops rows the raw df keeps (historically: year == NA on
-    # Austria's annual Vans/HDV rows) — mixing frames made ggplot abort with
-    # "Aesthetics must be either length 1 or the same as the data".
-    # fit$Hybrid$y == 1 − BEV − ICE == the same phev+erev share df carries.
-    geom_point(data = fit$Hybrid, aes(x = x, y = y, color = "PHEV", shape = "PHEV"),
-               size = default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall)) +
+               size = default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall))
+
+  if (show_phev) {
+    p <- p +
+      geom_ribbon(aes(ymin = Hybrid_lower, ymax = Hybrid_upper), fill = TRAJ_COLORS[["PHEV"]], alpha = 0.35, color = NA) +
+      geom_line(aes(y = Hybrid, color = "PHEV", shape = "PHEV"), lwd = 1) +
+      # data MUST be fit$Hybrid (like the BEV/ICE point layers use fit$BEV /
+      # fit$ICE): the size vector below is computed from fit$Hybrid, and
+      # fit_history() drops rows the raw df keeps (historically: year == NA on
+      # Austria's annual Vans/HDV rows) — mixing frames made ggplot abort with
+      # "Aesthetics must be either length 1 or the same as the data".
+      # fit$Hybrid$y == 1 − BEV − ICE == the same phev+erev share df carries.
+      geom_point(data = fit$Hybrid, aes(x = x, y = y, color = "PHEV", shape = "PHEV"),
+                 size = default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall))
+  }
+
+  p <- p +
     ylim(0, 1.1) +
     scale_x_continuous(breaks = seq(2006, fit$extrapol, ifelse(fit$extrapol > 2045, 4, 2)),
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
     scale_y_continuous(breaks = seq(0, 1, 0.1), labels = unit_format(unit = "%", scale = 1e2)) +
-    labs(title = paste0(bev_label(meta), " / ICE / PHEV share of ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
+    labs(title = paste0(bev_label(meta), if (show_phev) " / ICE / PHEV" else " / ICE",
+                        " share of ", reg_word(meta), " registrations in ", meta$country_label, " - an Extrapolation"),
          subtitle = paste0("expected time for ICE to drop from 80% to 20%: ",
                            floor(fit$time_80_to_20), " years ",
                            round(12 * (fit$time_80_to_20 - floor(fit$time_80_to_20)), 0), " months"),
@@ -210,12 +246,12 @@ plot_ice_bev_phev <- function(fit, df, meta) {
           legend.background = element_rect(fill = "gray99"),
           legend.title = element_text(size = rel(1)), legend.text = element_text(size = rel(0.9)),
           plot.caption = element_markdown(hjust = 0, size = rel(0.9))) +
-    scale_color_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
-                       labels = c(ICE = "ICE", BEV = bev_label(meta), PHEV = "PHEV"),
+    scale_color_manual(name = "Legend", breaks = traj_keys,
+                       labels = traj_labels[traj_keys],
                        values = TRAJ_COLORS) +
-    scale_shape_manual(name = "Legend", breaks = c("ICE","BEV","PHEV"),
-                       labels = c(ICE = "ICE", BEV = bev_label(meta), PHEV = "PHEV"),
-                       values = c("ICE"=15,"BEV"=16,"PHEV"=23))
+    scale_shape_manual(name = "Legend", breaks = traj_keys,
+                       labels = traj_labels[traj_keys],
+                       values = traj_shapes)
 
   p <- p + annotate("text", x = 2010, y = 0.9, label = paste0(reg_Word(meta), " ICE in"),
                     size = rel(6), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
