@@ -254,16 +254,24 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
         d.line([(x, PAD_T), (x, H - PAD_B)], fill=GRID, width=1)
         d.text((x, H - PAD_B + 8), str(yr), font=f_tick, fill=MUTED, anchor="ma")
 
-    # Ghost fan: the BEV curve of every *earlier* snapshot, so the drift reads
-    # as a shape and the trail builds as the animation plays.
+    # Ghost fan: the BEV curve of *earlier* frames, so the drift reads as a
+    # shape and the trail builds as the animation plays.
     #
-    # Earlier only. Drawing the whole fan on every frame would put September's
-    # estimate faintly behind December's -- knowledge that did not exist on
-    # the date the frame is labelled with.
+    # Earlier only. Drawing the whole fan on every frame would put a later
+    # estimate faintly behind an earlier one -- knowledge that did not exist
+    # on the date the frame is labelled with.
+    #
+    # The checkpoints are fixed positions in the series (every `step`-th
+    # frame), shown once the animation has passed them. Sampling `frames[:idx]`
+    # with a stride that grows with `idx` would instead swap the entire ghost
+    # set out on most frames, so the fan would reshuffle rather than
+    # accumulate -- the opposite of a trail. It buys nothing in file size
+    # either (measured: 494 KB vs 495 KB), because the three live curves move
+    # across the full plot width anyway and Pillow's optimiser works on one
+    # bounding box of changed pixels.
     ghost = tuple(round(c + (BG[i] - c) * 0.82) for i, c in enumerate(C_BEV))
-    earlier = frames[:idx]
-    stride = max(1, -(-len(earlier) // MAX_GHOSTS))
-    for f in earlier[::stride]:
+    step = max(1, -(-len(frames) // MAX_GHOSTS))
+    for f in [frames[i] for i in range(0, idx, step)]:
         g = f.get(key) or f["all"]
         polyline(d, years, g["bev"], px, py, ghost, 1)
 

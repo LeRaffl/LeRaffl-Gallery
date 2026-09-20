@@ -9001,7 +9001,11 @@ if (stepTraces.length){
       shapes.push({ type:'line', x0:xd, x1:xd, yref:'y', y0:0, y1:t,
                     line:{ color: TL_THRESH_COLOR[String(t)] || COLORS.BEV,
                            width:1.4, dash:'dot' } });
-      annos.push({ x: xd, y: 0, yref:'y', yanchor:'top', yshift:-2,
+      // At the corner, not on the axis. The x axis already labels every
+      // fifth year, so a year sitting on it lands on top of a tick -- at
+      // 2025 the panel printed "2025" twice, in the same place.
+      annos.push({ x: xd, y: t, yref:'y', yanchor:'bottom', xanchor:'left',
+                   xshift:4, yshift:2,
                    text: yr.toFixed(0), showarrow:false,
                    font:{ size:11, color: TL_THRESH_COLOR[String(t)] || COLORS.BEV } });
     });
