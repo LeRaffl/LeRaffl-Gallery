@@ -593,7 +593,7 @@ They answer different questions and **must never share a series**:
 |---|---|---|
 | question | what the gallery *actually estimated* on date X | what *this* model would say given data to date X |
 | recovered from | git (`params.csv` at that commit) | today's CSVs, truncated |
-| earliest date | **2025-09** — the repo does not exist before it | **2015-01**, and only because that is where the flag is set |
+| earliest date | **2025-09** — the repo does not exist before it | fits run from **2015-01**; the animation starts **2017-01** (see below) |
 | carries | the coverage and the bugs we had that day | today's code throughout |
 
 The hard 2025-09 wall is why the Time-lapse shows the backtest: a dozen frames is not a time-lapse. `builder_history/` keeps being written anyway, because it is the only record of what was actually shown and it cannot be reconstructed later.
@@ -611,6 +611,40 @@ A fit is ~1.8 s and does **not** get cheaper with a smaller `extrapol` — the c
 Output is written per month and skipped when present, so an interrupted backfill resumes where it stopped and the monthly run is automatically incremental.
 
 `MIN_ROWS = 24`: a Weibull fit on a handful of points is noise wearing a curve's clothes. Twenty-four months is where the shape parameter stops swinging on one extra observation. Coverage therefore *grows* — 23 fittable series in 2015-01, ~95 by 2026 — which is exactly the composition problem the cohort answers (see 2.15).
+
+### Where the animation starts, and why it is not where the fits start
+
+The fits run from **2015-01**. The animation starts **2017-01** (`DEFAULT_FROM` in `build_backtest_series.py`), and the earlier months stay on disk — filtered at series-build time rather than deleted, so the choice is reversible for the cost of a flag.
+
+The cohort is "countries fittable in *every* frame", so the earliest frame caps it. Measured over the full backfill:
+
+| start | frames | cohort |
+|---|---|---|
+| 2015-01 | 140 | 18 |
+| 2016-11 | 118 | 20 |
+| **2017-01** | **116** | **25** |
+| 2018-01 | 104 | 27 |
+| 2020-01 | 80 | 41 |
+
+2017-01 is a cliff edge: five more countries than two months earlier, and they include **Italy, Spain and the UK** — three major European markets whose absence from a curve labelled "World" is conspicuous. 2018-01 buys only Singapore and Türkiye for another year of history, which is the worse trade. Weight at the newest frame goes 50.2M → 55.8M vehicles/yr.
+
+### `ttm_bev_share` delegates to `compute_ttm_long()`
+
+The column mirrors the one `render_country.R` writes into `params.csv`, and it must mean the same thing in both files — a consumer reads them the same way.
+
+It did not, briefly: an earlier version wrote `tail(d$bev_share, 1)`, the most recent single period's share, under a name that says trailing-twelve-month. Seasonality makes that a different number entirely and all 87 comparable rows disagreed. A hand-rolled "sum(BEV)/sum(TOTAL) over the last 12 rows" is *also* not equivalent — `compute_ttm_long()` restricts the window to rows sharing the series' last `time_interval` (so a mixed yearly/monthly history does not blend the two) and sums each fuel strictly, returning NA rather than treating a missing month as zero. Calling it is the only way to be sure.
+
+Checked against `params.csv` at the matching `data_per`: **84 of 87 rows identical**, the other three (France, Spain, Thailand) within 0.03 and attributable to data revised after those countries were last rendered — which is this component's headline caveat, not a formula difference.
+
+### `obs_*_share`: what the Time-lapse actually plots
+
+Three more columns — `obs_bev_share`, `obs_phev_share`, `obs_ice_share` — carry the **observed** TTM shares of the 3-curve rollup. They are what the panel and the GIFs draw as data points, and they are deliberately *not* `compute_ttm_long()`.
+
+That function keeps a month only when **every** fuel column it found has a complete window. Correct for a stacked bar, which has to sum to 100 %; wrong here. Germany has 61 monthly rows by 2017-01 and still yields nothing, because a column it does not need lacks a full window — so China, Germany and Italy all had no observed point in 2017. Countries would drop in and out of the aggregate frame by frame, which is the composition artefact the cohort exists to remove, reintroduced in the observed series.
+
+`obs_shares()` uses instead the rollup `load_country_csv()` derives and `fit.R` actually fits: `bev_share`, `phev_share` (EREV folded in) and `ice_share` (the residual, hybrids included), summed over the trailing window weighted by `overall`. Each point is then compared against a curve fitted to the same quantity, and the three sum to 1 per country by construction — verified across all 116 frames of the world aggregate.
+
+**Reading them back needs care.** `norm_number("")` is `0.0`, not NaN — the same `Number('') === 0` trap as [#219](https://github.com/LeRaffl/LeRaffl-Gallery/issues/219). An empty cell means the country has no full trailing window yet, and counting it as a real zero is not a rounding error: China carries 28M of the cohort's weight, and reading its blank as 0 % ICE dragged the 2017 world aggregate from ~99 % down to 47 %. `build_backtest_series.py` checks the raw string before the number.
 
 ## 2.14 Time-lapse Series Builder (`scripts/build_backtest_series.py`, `scripts/build_builder_series.py`)
 
@@ -661,7 +695,8 @@ Reads `backtest/series/`, lazily — only when `#builder` is opened, and only th
 - **Group** — the 14 aggregate groups, then the spotlight countries, in two `<optgroup>`s. Display names come from the series files, so the country list lives only in `snapshot_builder.py`.
 - **Countries** — `Fixed cohort` (default) or `All covered on each date`. Choosing the latter surfaces a marked warning naming the coverage growth, because that view genuinely mixes two effects.
 - **Transport** — play (one pass, resting on the newest frame), step, and a scrub slider.
-- Behind the current frame, the BEV curve of **earlier** frames is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put a later estimate faintly behind an earlier one — knowledge that did not exist on the date the frame is labelled with. Capped at 24 ghosts (stride-sampled): ~140 monthly frames drawn in full turn the fan into a solid block and lose the individual revisions.
+- **Observed points.** BEV, ICE and PHEV as dots for every frame up to the current one, plotted at the month each belongs to, each series' last point ringed. The fitted lines run 2015–2050 whatever frame you are on, so without these nothing on screen says where the evidence stopped and the extrapolation began; the gap between a ring and the rest of that curve *is* the prediction. Drawn in a darker shade of each curve's colour — in the same colour they read as a second fitted line, and the page's convention everywhere else is points for what was measured and a line for what was modelled.
+- Behind the current frame, the BEV curve of **earlier** frames is drawn faint, so the movement reads as a shape and the trail builds as the animation plays. Earlier only: drawing the whole fan on every frame would put a later estimate faintly behind an earlier one — knowledge that did not exist on the date the frame is labelled with. Capped at 24 ghosts (stride-sampled): 116 monthly frames drawn in full turn the fan into a solid block and lose the individual revisions.
 - **Threshold corners.** At 20/50/80 % a dotted horizontal runs from the axis to the predicted crossing and a vertical drops from there, bracketing "below this threshold, before this year", with the year at the corner. The horizontals are scaffolding and never move; the verticals slide as the model revises, which is the whole point. A threshold the model never reaches in range gets **no vertical** and an explicit note — dropping the line silently would read as "zero" when it means "never, as far as this model could see".
   - They are drawn in a neutral grey ramp (darker = higher threshold), **not** the fuel palette. These are all *BEV* crossings; giving 20 % the PHEV blue and 80 % the ICE brown would paint each marker in the colour of a curve it has nothing to do with — and put a blue line across the blue PHEV curve at 20 %, and a brown one across the brown ICE curve exactly where ICE itself passes 80 %.
 - **Convergence chart** (`#tlConv`) below the animation: predicted threshold year against the month of prediction, one line per threshold. The animation shows a curve moving; this shows *how far* it moved and whether it is settling. `connectgaps: false`, so a stretch where the model predicted no crossing is a gap, not a bridge across a prediction never made.
@@ -678,7 +713,7 @@ There is only **one** time-lapse. The backtest covers 2015 onward and carries st
 
 Renders each group's series into `backtest/series/<group>.gif` — one animated GIF per group, **overwritten in place** on every run.
 
-**Subsampled.** The backtest is monthly, so ~140 frames — at a readable rate that is a minute and a half of footage for something meant to be glanced at. `--step` (default 3, i.e. quarterly) keeps the drift continuous and lands the loop around 14 s. The newest frame is always kept whatever the stride lands on: the last thing the animation shows has to be the current estimate.
+**Subsampled.** The backtest is monthly, so 116 frames — at a readable rate that is well over a minute of footage for something meant to be glanced at. `--step` (default 3, i.e. quarterly) keeps the drift continuous and lands the loop around 14 s. The newest frame is always kept whatever the stride lands on: the last thing the animation shows has to be the current estimate.
 
 Not dated. Each rebuild is the same animation with one more frame on the end, so keeping `timelapse-2026-09.gif` beside `timelapse-2026-10.gif` would store the same seconds of footage over and over.
 
@@ -705,6 +740,8 @@ The **cohort**. The "all countries as of each date" view is honest but mixes two
 ### Honesty in the frame
 
 A frame names only the series it actually has. `params.csv` carried no ICE fit before 2026-01, so the oldest frame is titled *"World — BEV share"* with a single legend entry and *"(ICE/PHEV not fitted in this snapshot)"*. A title promising three curves over a chart with one reads as "the other two are at zero" rather than "the other two were never computed".
+
+The frame also carries the observed points and their rings, for the same reason the panel does — more so, because a still has no scrubber or readout, so the rings are the only thing on the image saying where the data ended.
 
 Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast · re-fitted on revised data, not clean out-of-sample`, because the still travels without the page — and without the caveat paragraph — around it. That second clause is the one limitation a reader cannot recover on their own (see 2.13b).
 

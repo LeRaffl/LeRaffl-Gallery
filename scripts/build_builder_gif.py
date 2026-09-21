@@ -44,6 +44,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+from datetime import date
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -81,6 +83,14 @@ DEFAULT_STEP = 3
 # the brown ICE curve right where ICE itself passes 80%. Darker = higher
 # threshold, which is also the order they fall in.
 THRESH_COLOUR = {20: (168, 164, 154), 50: (125, 122, 114), 80: (74, 72, 68)}
+
+# Observed data points: a darker shade of each fitted curve's colour. Drawn
+# in the same colour they read as a second fitted line; the page's convention
+# is points for what was measured and a line for what was modelled. These
+# match the panel's OBS table in index.html.
+C_OBS_BEV  = (27, 94, 58)
+C_OBS_ICE  = (107, 36, 0)
+C_OBS_PHEV = (31, 79, 122)
 
 # Drawing all ~46 earlier curves turns the fan into a solid block and loses
 # the individual revisions. The same cap the panel uses.
@@ -166,6 +176,22 @@ def polyline(draw, years, ys, px, py, colour, width):
             run.append((px(yr), py(v)))
     if len(run) > 1:
         draw.line(run, fill=colour, width=width, joint="curve")
+
+
+def year_month(y: float) -> str:
+    """A decimal year as `YYYY-MM`, matching `tlYearLabel` in index.html.
+
+    Same convention as the panel: the fraction is days through the year, not
+    twelfths, so the label agrees with where the marker is actually drawn.
+    Every other surface in this project writes a period as YYYY-MM, and a
+    bare rounded year next to a readout showing the decimal reads as the two
+    being a year apart.
+    """
+    yr = int(math.floor(y))
+    start = date(yr, 1, 1).toordinal()
+    span = date(yr + 1, 1, 1).toordinal() - start
+    d = date.fromordinal(int(math.floor(start + (y - yr) * span)))
+    return f"{d.year:04d}-{d.month:02d}"
 
 
 def dotted(draw, pts, colour, dash: int = 3, gap: int = 3, width: int = 1):
@@ -305,15 +331,43 @@ def render_frame(doc, idx: int, key: str) -> Image.Image:
         # Deferred until after the curves -- the 20% corner is by definition
         # on the BEV curve, so drawing it now would let the curve paint over
         # the year.
-        thresh_labels.append(((x + 5, yt - 13), f"{int(round(yr))}", col))
+        thresh_labels.append(((x + 5, yt - 13), year_month(yr), col))
 
     polyline(d, years, cur["ice"], px, py, C_ICE, 3)
     polyline(d, years, cur["phev"], px, py, C_PHEV, 3)
     polyline(d, years, cur["bev"], px, py, C_BEV, 3)
 
+    # Observed shares for every frame up to this one, as dots, with the last
+    # of each ringed. Not model output: this is what the sources reported.
+    # It matters more here than in the panel, because a still travels without
+    # a scrubber or a readout -- the rings are the only thing on the image
+    # that says where the evidence stopped and the extrapolation started.
+    obs_key = ("obs_cohort" if (key == "cohort" and "cohort" in frame)
+               else "obs_all")
+    for series_key, colour in (("ice", C_OBS_ICE), ("phev", C_OBS_PHEV),
+                               ("bev", C_OBS_BEV)):
+        pts = []
+        for f in frames[:idx + 1]:
+            o = f.get(obs_key) or f.get("obs_all") or {}
+            v = o.get(series_key)
+            per = f.get("data_per") or f.get("date") or ""
+            if v is None or len(per) < 7:
+                continue
+            try:
+                yr, mo = int(per[:4]), int(per[5:7])
+            except ValueError:
+                continue
+            pts.append((px(yr + (mo - 1) / 12.0), py(float(v))))
+        for cx, cy in pts:
+            d.ellipse([cx - 1.6, cy - 1.6, cx + 1.6, cy + 1.6], fill=colour)
+        if pts:
+            cx, cy = pts[-1]
+            d.ellipse([cx - 5, cy - 5, cx + 5, cy + 5], outline=colour, width=2)
+
+    # Threshold year labels last, so nothing paints over them. The 20% corner
+    # sits on the BEV curve and now also in its observed dots, so each label
+    # gets a background halo to stay readable.
     for pos, txt, col in thresh_labels:
-        # A halo, because the label lands on whatever the curve is doing
-        # there. Cheap, and it keeps the GIF palette small.
         for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
             d.text((pos[0] + dx, pos[1] + dy), txt, font=f_tick, fill=BG)
         d.text(pos, txt, font=f_tick, fill=col)

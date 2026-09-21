@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -50,6 +51,28 @@ from build_builder_series import (  # noqa: E402
 REPO = Path(__file__).resolve().parent.parent
 BT = REPO / "backtest"
 OUT = BT / "series"
+
+# Where the animation starts. NOT where the fits start -- `R/build_backtest.R`
+# keeps writing from 2015-01, and those months stay on disk. Filtering here
+# rather than deleting them keeps the choice reversible for the cost of a
+# flag, because the trade-off is real in both directions.
+#
+# The cohort is "countries fittable in EVERY frame", so the earliest frame
+# caps it. Measured over the full backfill:
+#
+#     start      frames   cohort
+#     2015-01      140       18
+#     2016-11      118       20
+#     2017-01      116       25   <- here
+#     2018-01      104       27
+#     2020-01       80       41
+#
+# 2017-01 is a cliff edge: five more countries than two months earlier, and
+# they are Italy, Spain and the UK among them -- three major European markets
+# whose absence from a "World" curve is conspicuous. 2018-01 buys only
+# Singapore and Türkiye for another year of history, which is the worse
+# trade. Weight at the newest frame goes 50.2M -> 55.8M vehicles/yr.
+DEFAULT_FROM = "2017-01"
 
 
 # The thresholds the gallery already speaks in (Thresholds tab, and the
@@ -75,6 +98,56 @@ def crossing(years: list[float], ys: list[float | None], pct: float):
     return None
 
 
+def observed_shares(countries, rows, weights) -> dict | None:
+    """The group's OBSERVED trailing-12-month BEV/ICE/PHEV shares, in percent.
+
+    Not model output: these come from `ttm_*_share` in the backtest params,
+    which `R/build_backtest.R` takes from `compute_ttm_long()` -- what the
+    sources actually reported. Same 3-curve rollup as the fitted curves (EREV
+    folded into PHEV, ICE the residual), so a point sits on the curve it
+    belongs to.
+
+    The weight is that country's TTM total and the share is BEV_ttm/TOTAL_ttm,
+    so the weighted mean collapses to sum(BEV)/sum(TOTAL) across the group --
+    aggregated exactly the way the curves are.
+
+    This is what makes the truncation visible: the points stop where the data
+    the model was handed stopped, and the curves carry on alone from there.
+
+    Each series is accumulated independently and a country missing one of them
+    is skipped for that series only -- a zero would assert "none sold" and drag
+    the aggregate down. A series no country reports comes back None, never 0.
+    """
+    keep = set(countries)
+    acc = {k: [0.0, 0.0] for k in ("bev", "ice", "phev")}
+    for r in rows:
+        if r.get("country") not in keep:
+            continue
+        if sb.normalize_base(r.get("variant") or "") != sb.DEFAULT_VARIANT:
+            continue
+        w = sb.weight_for_row(r, weights)
+        if not math.isfinite(w) or w <= 0:
+            continue
+        for k in acc:
+            # `norm_number("")` is 0.0, not NaN -- the same `Number('') === 0`
+            # trap as #219. An empty cell here means the country has no full
+            # trailing window yet, and counting it as a real zero is not a
+            # rounding error: China carries 28M of the weight, and reading its
+            # blank as 0% ICE dragged the 2017 world aggregate from ~99% down
+            # to 47%. So the raw string decides, and only then the number.
+            raw = str(r.get(f"obs_{k}_share") or "").strip()
+            if not raw:
+                continue
+            share = sb.norm_number(raw)
+            if not math.isfinite(share):
+                continue
+            acc[k][0] += share * w
+            acc[k][1] += w
+    out = {k: (round(num / den * 100.0, 2) if den > 0 else None)
+           for k, (num, den) in acc.items()}
+    return out if any(v is not None for v in out.values()) else None
+
+
 def norm(name: str) -> str:
     """Match a country by identity rather than spelling (see #219 / New Zealand)."""
     return "".join(str(name).split()).casefold()
@@ -92,7 +165,7 @@ def months_available() -> list[str]:
 
 
 def curves_for(month: str, cohort: list[str] | None):
-    """Aggregate one month into {group: (xs, bev, ice, phev)} plus metadata."""
+    """Aggregate one month into {group: (xs, bev, ice, phev)}, metadata, observed."""
     rows = sb.load_params(BT / "params" / f"{month}.csv")
     weights = sb.load_weights(BT / "weights" / f"{month}.csv")
     groups = sb.resolve_groups(rows, weights)
@@ -101,7 +174,7 @@ def curves_for(month: str, cohort: list[str] | None):
         keep = {norm(c) for c in cohort}
         groups = {g: [c for c in cs if norm(c) in keep] for g, cs in groups.items()}
 
-    curves, meta = {}, {}
+    curves, meta, obs = {}, {}, {}
     for name, countries in groups.items():
         if not countries:
             continue
@@ -111,7 +184,8 @@ def curves_for(month: str, cohort: list[str] | None):
             continue
         curves[name] = (xs, bev, ice, phev)
         meta[name] = m
-    return curves, meta
+        obs[name] = observed_shares(countries, rows, weights)
+    return curves, meta, obs
 
 
 def cohort_from(months: list[str]) -> list[str]:
@@ -137,12 +211,24 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--step", type=int, default=1,
                    help="Keep every Nth month (1 = monthly, 3 = quarterly).")
+    p.add_argument("--from", dest="from_month", default=DEFAULT_FROM,
+                   help=f"First month to animate. Default: {DEFAULT_FROM}. "
+                        "Earlier fits stay on disk; this only filters.")
     p.add_argument("--out", type=Path, default=OUT)
     args = p.parse_args(argv)
 
     months = months_available()
     if not months:
         print("  ! no backtest/params/*.csv — run R/build_backtest.R first")
+        return 1
+    if args.from_month:
+        earlier = [m for m in months if m < args.from_month]
+        months = [m for m in months if m >= args.from_month]
+        if earlier:
+            print(f"  {len(earlier)} earlier month(s) on disk, not animated "
+                  f"({earlier[0]} .. {earlier[-1]})")
+    if not months:
+        print(f"  ! no months at or after {args.from_month}")
         return 1
     if args.step > 1:
         months = months[::args.step]
@@ -151,12 +237,13 @@ def main(argv=None) -> int:
     cohort = cohort_from(months)
     print(f"  cohort: {len(cohort)} countries present in every frame")
 
-    frames_all, frames_coh, metas = {}, {}, {}
+    frames_all, frames_coh, metas, obses = {}, {}, {}, {}
     for mo in months:
-        ca, ma = curves_for(mo, None)
-        cc, mc = curves_for(mo, cohort) if cohort else ({}, {})
+        ca, ma, oa = curves_for(mo, None)
+        cc, mc, oc = curves_for(mo, cohort) if cohort else ({}, {}, {})
         frames_all[mo], frames_coh[mo] = ca, cc
         metas[mo] = (ma, mc)
+        obses[mo] = (oa, oc)
 
     groups = sorted(frames_all[months[-1]].keys())
     grid_years = sorted(frames_all[months[-1]][groups[0]][0])
@@ -183,6 +270,10 @@ def main(argv=None) -> int:
             }
             fr["cross_all"] = {str(int(t)): crossing(grid, fr["all"]["bev"], t)
                                for t in THRESHOLDS}
+            oa, oc = obses[mo]
+            # The observed point for THIS month. Plotted at `data_per`, so the
+            # trail of them ends exactly where the model's information ended.
+            fr["obs_all"] = oa.get(g)
             if g in frames_coh.get(mo, {}):
                 cxs, cbev, cice, cphev = frames_coh[mo][g]
                 cm = lambda ys: dict(zip(cxs, ys))  # noqa: E731
@@ -193,6 +284,7 @@ def main(argv=None) -> int:
                 fr["cohort_weight"] = mc.get(g, {}).get("total_weight")
                 fr["cross_cohort"] = {str(int(t)): crossing(grid, fr["cohort"]["bev"], t)
                                       for t in THRESHOLDS}
+                fr["obs_cohort"] = oc.get(g)
             frames.append(fr)
         if not frames:
             continue
