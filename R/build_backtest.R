@@ -92,28 +92,102 @@ load_all_series <- function() {
 # Quarterly series carry a quarter per row, so four rows are also 12 months;
 # yearly series are one row. Returns NA when the window cannot be filled,
 # because a partial window is a smaller quantity wearing the same name.
-ttm_weight <- function(df, upto) {
+ttm_window <- function(df, upto) {
   d <- df[df$period <= upto, , drop = FALSE]
-  if (nrow(d) == 0) return(NA_real_)
+  if (nrow(d) == 0) return(NULL)
   d <- d[order(d$period), , drop = FALSE]
   iv <- tail(d$time_interval, 1)
   need <- if (identical(iv, "yearly")) 1L else if (identical(iv, "quarterly")) 4L else 12L
-  if (nrow(d) < need) return(NA_real_)
-  sum(as.numeric(tail(d$overall, need)), na.rm = TRUE)
+  if (nrow(d) < need) return(NULL)
+  tail(d, need)
 }
+
+ttm_weight <- function(df, upto) {
+  w <- ttm_window(df, upto)
+  if (is.null(w)) return(NA_real_)
+  sum(as.numeric(w$overall), na.rm = TRUE)
+}
+
+# Trailing-twelve-month BEV share as of `upto`.
+#
+# This delegates to `compute_ttm_long()` and takes its last BEV value, which
+# is exactly what `render_country.R` writes into params.csv. Sharing the
+# function is the point: the column is named `ttm_bev_share` in both files and
+# a consumer must be able to read them the same way.
+#
+# An earlier version here wrote `tail(d$bev_share, 1)` -- the most recent
+# single period's share -- under that name. Seasonality makes that a
+# different number entirely, and all 87 comparable rows disagreed with
+# params.csv.
+#
+# A hand-rolled "sum(BEV)/sum(TOTAL) over the last 12 rows" is also not
+# equivalent, which is why this does not do that either: compute_ttm_long()
+# restricts the window to rows sharing the series' LAST time_interval (so a
+# mixed yearly/monthly history does not blend the two) and sums each fuel
+# strictly (any NA in the window yields NA rather than being treated as
+# zero). Reimplementing that invites exactly the silent drift this column
+# already had once.
+#
+# OBSERVED trailing-twelve-month shares of the 3-curve rollup: what the
+# sources actually reported, for the Time-lapse's data points.
+#
+# Deliberately NOT compute_ttm_long(). That function keeps a month only when
+# EVERY fuel column it found has a complete window, which is right for a
+# stacked bar (the bars must sum to 100%) and wrong here: Germany has 61
+# monthly rows by 2017-01 and still yields nothing, because some column it
+# does not need lacks a full window. Countries would then drop in and out of
+# the aggregate frame by frame -- the composition artefact the cohort exists
+# to remove, reintroduced in the observed series.
+#
+# So this uses the rollup `load_country_csv()` already derives and `fit.R`
+# actually fits: bev_share, phev_share (EREV folded in) and ice_share (the
+# residual, hybrids included). Multiplying each by `overall` recovers the
+# counts, so the ratio of sums over the window is the honest TTM -- and the
+# points are then compared against a curve fitted to the same quantity.
+#
+# The shares inherit load_country_csv()'s NA-as-zero treatment of an absent
+# fuel column. That is a real choice, but it is the SAME choice the fitted
+# curve is built on, so point and curve cannot disagree about it.
+obs_shares <- function(df, upto) {
+  none <- c(bev = NA_real_, phev = NA_real_, ice = NA_real_)
+  w <- ttm_window(df, upto)
+  if (is.null(w)) return(none)
+  tot <- sum(as.numeric(w$overall), na.rm = TRUE)
+  if (!is.finite(tot) || tot <= 0) return(none)
+  wsum <- function(col) sum(as.numeric(w[[col]]) * as.numeric(w$overall),
+                            na.rm = TRUE) / tot
+  c(bev = wsum("bev_share"), phev = wsum("phev_share"), ice = wsum("ice_share"))
+}
+
+# `ttm_bev_share` keeps params.csv's definition -- compute_ttm_long()'s last
+# BEV value, exactly what render_country.R writes -- so the column means the
+# same thing in both files. It is NOT what the Time-lapse plots; that is
+# `obs_bev_share` above.
+ttm_bev_share <- function(df, upto) {
+  d <- df[df$period <= upto, , drop = FALSE]
+  if (nrow(d) == 0) return(NA_real_)
+  tl <- try(compute_ttm_long(d), silent = TRUE)
+  if (inherits(tl, "try-error") || is.null(tl)) return(NA_real_)
+  rows <- tl[as.character(tl$type) == "BEV", , drop = FALSE]
+  if (nrow(rows) == 0) return(NA_real_)
+  rows$value[nrow(rows)]
+}
+
+# NA rather than Inf/NaN/NULL in the CSV. Shared by fit_one and the writer.
+num <- function(x) if (is.null(x) || length(x) == 0 || !is.finite(x)) NA_real_ else x
 
 fit_one <- function(entry, upto) {
   d <- entry$df[entry$df$period <= upto, , drop = FALSE]
   if (nrow(d) < MIN_ROWS) return(NULL)
   f <- try(suppressWarnings(fit_history(d)), silent = TRUE)
   if (inherits(f, "try-error")) return(NULL)
-  num <- function(x) if (is.null(x) || !is.finite(x)) NA_real_ else x
   list(
     country = entry$country, variant = entry$variant,
     v1 = num(f$v1), v2 = num(f$v2), t0 = num(f$t0),
     ice_v1 = num(f$ice_v1), ice_v2 = num(f$ice_v2), ice_t0 = num(f$ice_t0),
     data_per = max(d$period),
-    ttm_bev_share = num(tail(d$bev_share, 1)),
+    ttm_bev_share = num(ttm_bev_share(entry$df, upto)),
+    obs = obs_shares(entry$df, upto),
     weight = ttm_weight(entry$df, upto),
     n_rows = nrow(d)
   )
@@ -154,7 +228,11 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
       data_per = r$data_per, model_date = mo, source = "backtest",
       baseline_date = "",
       ice_v1 = r$ice_v1, ice_v2 = r$ice_v2, ice_t0 = r$ice_t0,
-      ttm_bev_share = r$ttm_bev_share, refit_swing = NA_real_,
+      ttm_bev_share = r$ttm_bev_share,
+      obs_bev_share = num(r$obs[["bev"]]),
+      obs_phev_share = num(r$obs[["phev"]]),
+      obs_ice_share = num(r$obs[["ice"]]),
+      refit_swing = NA_real_,
       stringsAsFactors = FALSE)))
     write.csv(pr, pfile, row.names = FALSE, na = "")
 

@@ -8888,6 +8888,20 @@ if (stepTraces.length){
     return new Date(start + (y - yr) * span).toISOString().slice(0, 10);
   }
 
+  // A decimal year as YYYY-MM, the format every other surface in the page
+  // uses for a period. Built on tlYearToDate so the label and the vertical
+  // line it belongs to are derived from one conversion and cannot disagree.
+  //
+  // Decimals were doing real damage here, not just looking foreign: the
+  // readout said "2030.92" while the corner on the same chart said "2031",
+  // which reads as the two being a year apart. (They are not -- `t0` in
+  // backtest/params/2026-08.csv is bit-identical to params.csv across all 89
+  // shared rows, so there is no basis shift of the #219 kind. It was purely
+  // a display artefact of rounding one and truncating the other.)
+  function tlYearLabel(y){
+    return y == null ? '—' : tlYearToDate(y).slice(0, 7);
+  }
+
   function tlFrameSeries(frame){
     const set = tlCountrySet();
     // A frame always has `all`; `cohort` exists only once the cohort set has
@@ -8938,7 +8952,56 @@ if (stepTraces.length){
       name, hovertemplate:'%{y:.1f}% fitted<extra></extra>',
     });
 
-    const traces = ghosts.concat([
+    // Observed shares, every frame up to and including this one, plotted at
+    // the month each belongs to. Not model output: this is what the sources
+    // actually reported (trailing-twelve-month, same 3-curve rollup and the
+    // same weights as the curves, so a point sits on the curve it belongs to).
+    //
+    // They are the point of the panel as much as the curves are. The fitted
+    // lines run 2015-2050 whatever frame you are on, so nothing on screen
+    // otherwise says where the evidence stopped and the extrapolation began.
+    // Each trail ends at the data cutoff, and the gap between its last point
+    // and the rest of that curve IS the prediction.
+    const obsKey = tlCountrySet() === 'cohort' ? 'obs_cohort' : 'obs_all';
+    const seen = doc.frames.slice(0, TL.idx + 1);
+    // Darker than the fitted line it belongs to. In the same colour the dots
+    // read as a second fitted curve; the page's convention everywhere else is
+    // points for what was measured and a line for what was modelled.
+    const OBS = [
+      ['bev',  '#1b5e3a', 'BEV'],
+      ['ice',  '#6b2400', 'ICE'],
+      ['phev', '#1f4f7a', 'PHEV'],
+    ];
+    const observed = [];
+    OBS.forEach(([k, color, label]) => {
+      const ox = [], oy = [];
+      seen.forEach(f => {
+        const o = f[obsKey] || f.obs_all;
+        const v = o ? o[k] : null;
+        // null is "this series was not reported", not zero.
+        if(v == null) return;
+        ox.push((f.data_per || f.date) + '-01');
+        oy.push(v);
+      });
+      if(!oy.length) return;
+      observed.push({
+        x: ox, y: oy, mode:'markers', type:'scatter',
+        marker:{ size:3, color },
+        opacity: 0.9,
+        name: label + ' observed',
+        hovertemplate:'%{y:.1f}% observed<extra>%{x|%Y-%m}</extra>',
+      }, {
+        // The last observed month for this series, ringed. Without it the eye
+        // cannot find where the evidence stopped and the model took over.
+        x: [ox[ox.length-1]], y: [oy[oy.length-1]],
+        mode:'markers', type:'scatter',
+        marker:{ size:10, color:'rgba(0,0,0,0)', line:{ width:2, color } },
+        hovertemplate:`%{y:.1f}% — last observed ${label}<extra>%{x|%Y-%m}</extra>`,
+        showlegend: false,
+      });
+    });
+
+    const traces = ghosts.concat(observed, [
       line(cur.bev,  COLORS.BEV,  'BEV'),
       line(cur.ice,  COLORS.ICE,  'ICE'),
       line(cur.phev, COLORS.PHEV, 'PHEV'),
@@ -9006,7 +9069,7 @@ if (stepTraces.length){
       // 2025 the panel printed "2025" twice, in the same place.
       annos.push({ x: xd, y: t, yref:'y', yanchor:'bottom', xanchor:'left',
                    xshift:4, yshift:2,
-                   text: yr.toFixed(0), showarrow:false,
+                   text: tlYearLabel(yr), showarrow:false,
                    font:{ size:11, color: TL_THRESH_COLOR[String(t)] || COLORS.BEV } });
     });
     layout.shapes = shapes;
@@ -9027,7 +9090,7 @@ if (stepTraces.length){
     // reached") said the same thing twice.
     const met = (doc.thresholds || [20, 50, 80])
       .filter(t => cross[String(t)] != null)
-      .map(t => `${t}% at <b>${cross[String(t)].toFixed(2)}</b>`);
+      .map(t => `${t}% at <b>${tlYearLabel(cross[String(t)])}</b>`);
     const bits = [
       // In a backtest the frame's date and its data cutoff are the same month
       // by construction, so printing both is the same string twice.
@@ -9095,12 +9158,17 @@ if (stepTraces.length){
     const traces = thresholds.map(t => {
       const k = String(t);
       const ys = doc.frames.map(f => ((f[key] || f.cross_all || {})[k] ?? null));
+      // Pre-formatted, because Plotly's %{y} formatting cannot reach
+      // tlYearLabel -- and a hover reading "2030.92" beside a readout saying
+      // "2030-12" is the inconsistency this pass exists to remove.
+      const lab = ys.map(tlYearLabel);
       return {
+        text: lab,
         x: xs, y: ys, mode:'lines', type:'scatter',
         line:{ width:2.4, color: TL_THRESH_COLOR[k] || COLORS.BEV, simplify:false },
         connectgaps: false,
         name: `${t}% BEV`,
-        hovertemplate: `predicted ${t}%% in %{y:.1f}<extra>as of %{x|%Y-%m}</extra>`,
+        hovertemplate: `predicted ${t}%% in %{text}<extra>as of %{x|%Y-%m}</extra>`,
       };
     });
 
@@ -9129,7 +9197,7 @@ if (stepTraces.length){
                           .filter(x => x != null);
       if(!v.length) return `${t}%: never reached in range`;
       const lo = Math.min(...v), hi = Math.max(...v);
-      return `${t}%: ${lo.toFixed(1)}–${hi.toFixed(1)} (${(hi-lo).toFixed(1)} yr of movement)`;
+      return `${t}%: ${tlYearLabel(lo)}–${tlYearLabel(hi)} (${(hi-lo).toFixed(1)} yr of movement)`;
     });
     tlEl('tlConvNote').innerHTML = bits.join(' &middot; ');
   }

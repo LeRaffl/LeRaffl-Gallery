@@ -452,7 +452,9 @@ The in-page Builder shows all three when the ICE toggle is on, and the underlyin
 
 ### Where
 
-- `backtest/params/<YYYY-MM>.csv` — one file per month, **same schema as `params.csv`** (`country, variant, v1, v2, t0, data_per, model_date, source, baseline_date, ice_*, ttm_bev_share, refit_swing`), with `source = backtest` and `model_date` = the month. Written by [`R/build_backtest.R`](../../R/build_backtest.R).
+- `backtest/params/<YYYY-MM>.csv` — one file per month, **`params.csv`'s schema plus three observed columns**: `country, variant, v1, v2, t0, data_per, model_date, source, baseline_date, ice_*, ttm_bev_share, obs_bev_share, obs_phev_share, obs_ice_share, refit_swing`, with `source = backtest` and `model_date` = the month. Written by [`R/build_backtest.R`](../../R/build_backtest.R).
+  - `ttm_bev_share` keeps **params.csv's** definition — `compute_ttm_long()`'s last BEV value, exactly what `render_country.R` writes — so the column means the same thing in both files.
+  - `obs_*_share` are the **observed** trailing-twelve-month shares of the 3-curve rollup, and are what the Time-lapse plots as data points. They deliberately do *not* use `compute_ttm_long()`: that keeps a month only when every fuel column it found has a complete window, which is right for a stacked bar and wrong here — Germany has 61 monthly rows by 2017-01 and still yields nothing, so countries would drop in and out of the aggregate frame by frame, reintroducing the composition artefact the cohort exists to remove. Instead they use the rollup `load_country_csv()` derives and `fit.R` actually fits (EREV folded into PHEV, ICE the residual), so each point is compared against a curve fitted to the same quantity.
 - `backtest/weights/<YYYY-MM>.csv` — same schema as `weights.csv`; the trailing-twelve-month total **as of that month**, `NA` rows dropped because a partial window is a smaller quantity wearing the same name.
 - `backtest/series/<group>.json` + `series/index.json` — pivoted per group for the Time-lapse panel by [`scripts/build_backtest_series.py`](../../scripts/build_backtest_series.py). **This is the only form the browser reads.** Currently gitignored during a backfill and committed once complete.
 - `backtest/series/<group>.gif` — the animation, by [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py). **Overwritten in place, never dated.** Cohort set, quarterly subsample, and only the curated `GIF_GROUPS` — ten of the twenty series.
@@ -469,7 +471,9 @@ Three things it is **not**, all of which a consumer has to state:
 
 ### Per-frame shape (`series/<group>.json`)
 
-Each frame carries both country sets — `all` (coverage as of that month) and `cohort` (the fixed set present in *every* month) — plus `n_countries`, `total_weight`, `n_cohort`, `cohort_weight` and `data_per`. Years are a 0.5-year grid; a share is `null` where the model produced none, and the chart sets `connectgaps: false` so that draws a **gap**, not a zero line.
+Each frame carries both country sets — `all` (coverage as of that month) and `cohort` (the fixed set present in *every* month) — plus `n_countries`, `total_weight`, `n_cohort`, `cohort_weight` and `data_per`.
+
+`obs_all` / `obs_cohort` hold `{bev, ice, phev}`: the group's **observed** TTM shares for that month, aggregated with the same weights as the curves. Plotted as points up to the current frame, they are what makes the truncation visible — each trail ends at the data cutoff and the curves carry on alone from there. A series no country reports is `null`, never `0`. Years are a 0.5-year grid; a share is `null` where the model produced none, and the chart sets `connectgaps: false` so that draws a **gap**, not a zero line.
 
 `cross_all` / `cross_cohort` hold the interpolated year the BEV curve first reaches each of 20/50/80 %, or `null` where it never does inside the range. Precomputed server-side so the chart, the readout and the GIF agree by construction.
 
