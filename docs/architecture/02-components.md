@@ -449,9 +449,11 @@ The render pipeline produces per-country PNGs and updates `params.csv` / `weight
 A GitHub Action that runs on the 25th of each month at 09:00 UTC (after the bulk of in-month country fetches has settled), doing two separate jobs in one run and committing both back to master:
 
 1. `scripts/snapshot_builder.py` → `builder_history/<date>.csv`, freezing what the Builder tab shows **today**. Nothing renders it any more, but it is the only record of what was actually shown and cannot be reconstructed later.
-2. `R/build_backtest.R` → `backtest/params|weights/<YYYY-MM>.csv`, extending the backtest by the months that have appeared since the last run (~95 fits, a couple of minutes). Then `build_backtest_series.py` and `build_builder_gif.py`, so the new month reaches the **Time-lapse panel** and its animation in the same commit.
+2. `R/build_backtest.R` → `backtest/params|weights/<YYYY-MM>.csv`, extending the backtest by the months that have appeared since the last run (~95 fits, a couple of minutes), and backfilling any series that is in no month yet (a newly added country) into every existing month once. Then `build_backtest_series.py` and `build_builder_gif.py`, so the new month reaches the **Time-lapse panel** and its animation in the same commit.
 
 The two are different quantities and must never be mixed in one series — see [2.13b](#213b-backtest-rbuild_backtestr).
+
+Manual dispatch takes `date` (label a back-dated snapshot) and `backtest_only` (skip step 1 — use it to backfill a newly added country right away without writing an off-schedule `builder_history/` file).
 
 `timeout-minutes: 25` (raised from 10 when the backtest step was added): the snapshot itself finishes in seconds, and the budget is the fits plus R setup plus the GIF render. Still capped, so a hang fails fast and visibly instead of burning ~40 min then being cancelled — as happened on the 2026-07-25 scheduled run.
 
@@ -610,6 +612,8 @@ Both consumers say so: the panel prints `doc.caveat` under the chart, and every 
 A fit is ~1.8 s and does **not** get cheaper with a smaller `extrapol` — the cost is the optimiser, not the projection. Monthly from 2015 is ~9,200 fits, about an hour across 4 cores, **once**. Each new month afterwards is only ~95 fits, roughly three minutes, which is what `snapshot-builder.yml` runs.
 
 Output is written per month and skipped when present, so an interrupted backfill resumes where it stopped and the monthly run is automatically incremental.
+
+**New countries are backfilled once, automatically.** "Skip what exists" alone would mean a country added later never appears in the months already on disk. So each run first collects every `country|variant` present in *any* month file; a data series in *none* of them (a newly added country or variant) is fitted into every existing month where it has ≥ `MIN_ROWS` rows, and its rows are merged in as **pure line insertions** — existing lines stay byte-identical and in place, the new ones land next to their alphabetical neighbours. After that one run the series is known and the normal incremental path takes over. Series listed in `DATA_ONLY_SERIES` (currently `Argentina|Pickups`, which is fetched but never rendered) are left out of the backtest entirely. To backfill right after adding a country instead of waiting for the 25th, dispatch **Snapshot Builder curves** with `backtest_only = true` (skips the `builder_history/` snapshot, which should only come from the regular run).
 
 `MIN_ROWS = 24`: a Weibull fit on a handful of points is noise wearing a curve's clothes. Twenty-four months is where the shape parameter stops swinging on one extra observation. Coverage therefore *grows* — 23 fittable series in 2015-01, ~95 by 2026 — which is exactly the composition problem the cohort answers (see 2.15).
 

@@ -16,7 +16,11 @@ name: Snapshot Builder curves
 #
 # Cadence: 25th of each month at 09:00 UTC, after the bulk of the country
 # fetches in the first two weeks have settled. Manual dispatch supports an
-# optional --date override (useful for testing or labelling a back-dated run).
+# optional --date override (useful for testing or labelling a back-dated run)
+# and `backtest_only`, which skips the builder_history snapshot — use it to
+# backfill a newly added country into the backtest right away without writing
+# an off-schedule builder_history/<date>.csv (that file is a record of what the
+# gallery showed on the day, so it should only come from the regular run).
 
 on:
   workflow_dispatch:
@@ -25,6 +29,11 @@ on:
         description: 'Snapshot date YYYY-MM-DD (leave empty to use today UTC)'
         required: false
         default: ''
+      backtest_only:
+        description: 'Skip the builder_history snapshot; only extend/backfill the backtest (e.g. after adding a country)'
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: '0 9 25 * *'
 
@@ -51,6 +60,7 @@ jobs:
           python-version: '3.12'
 
       - name: Snapshot Builder curves
+        if: ${{ !inputs.backtest_only }}
         run: |
           python scripts/snapshot_builder.py ${DATE:+--date "$DATE"}
         env:
@@ -65,7 +75,9 @@ jobs:
       # Extend the backtest by the months that have appeared since the last
       # run. `build_backtest()` writes per month and skips what exists, so
       # this is ~95 fits (a couple of minutes) in the steady state — the
-      # ~9,200-fit backfill from 2015 happened once, by hand.
+      # ~9,200-fit backfill from 2015 happened once, by hand. A series that is
+      # in NO month yet (a newly added country/variant) is fitted into every
+      # existing month once, automatically (header of R/build_backtest.R).
       #
       # This is the series the Time-lapse actually shows: it re-fits from the
       # CSVs and so reaches 2015, where `builder_history/` cannot start before

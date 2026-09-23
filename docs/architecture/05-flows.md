@@ -696,13 +696,17 @@ sequenceDiagram
         Job->>Job: fit_history() per series, mclapply over 4 cores
         Job->>BT: write params + weights for that month
     end
+    loop per month already on disk, only if some series is in no month yet
+        Job->>Job: fit just the new series (e.g. a newly added country)
+        Job->>BT: insert their rows, existing lines untouched
+    end
     Job->>Ser: build_backtest_series.py (shared aggregation with snapshot_builder)
     Job->>Ser: build_builder_gif.py (curated groups, quarterly subsample)
 ```
 
 **The limitation that has to travel with it:** this truncates **today's** CSVs, which hold **revised** figures. The numbers as first published are not recoverable — they exist in git only from 2025-09, the same wall. So the model is handed a corrected past, which flatters it. It is an upper bound on how well the model would have done, not a clean out-of-sample test. The series file carries this as a `caveat` field, the panel prints it, and every GIF frame has it in the footer — a consumer should not be able to render this without having been handed the warning.
 
-**Why the cron can afford it:** a fit is ~1.8 s and does not get cheaper with a smaller `extrapol` — the cost is the optimiser, not the projection. The backfill from 2015 is ~9,200 fits, about an hour on 4 cores, **once**. Each new month is ~95 fits, roughly three minutes. Output is written per month and skipped when present, so the monthly run is automatically incremental and an interrupted backfill resumes.
+**Why the cron can afford it:** a fit is ~1.8 s and does not get cheaper with a smaller `extrapol` — the cost is the optimiser, not the projection. The backfill from 2015 is ~9,200 fits, about an hour on 4 cores, **once**. Each new month is ~95 fits, roughly three minutes. Output is written per month and skipped when present, so the monthly run is automatically incremental and an interrupted backfill resumes. A series that is in *no* month file yet — a newly added country — is fitted into every existing month once and inserted line by line (see [2.13b](02-components.md#213b-backtest-rbuild_backtestr)); dispatching with `backtest_only = true` does that immediately without an off-schedule `builder_history/` snapshot.
 
 **Why the two must never share a chart:** they are different quantities. One carries the bugs and coverage we had on the day; the other carries today's code throughout. Plotted together they would look like one series with a discontinuity at 2025-09, and the discontinuity would be an artefact of the method, not the market.
 

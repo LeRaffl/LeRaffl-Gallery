@@ -469,6 +469,8 @@ Three things it is **not**, all of which a consumer has to state:
 2. It is **not** clean out-of-sample. It truncates **today's revised** CSVs — the figures as first published are not recoverable — so the model is handed a corrected past, which flatters it. An upper bound, not a test.
 3. Its coverage **grows**: 23 fittable series in 2015-01, ~95 by 2026 (`MIN_ROWS = 24`). So a world aggregate moves partly because the gallery gained countries. The `cohort` set is the answer, exactly as in `builder_history`.
 
+**New countries are backfilled once, automatically.** "Skip what exists" alone would mean a country added later never appears in the months already on disk. So each run first collects every `country|variant` present in *any* month file; a data series in *none* of them (a newly added country or variant) is fitted into every existing month where it has ≥ `MIN_ROWS` rows, and its rows are merged in as **pure line insertions** — existing lines stay byte-identical and in place, the new ones land next to their alphabetical neighbours. After that one run the series is known and the normal incremental path takes over. Series listed in `DATA_ONLY_SERIES` (currently `Argentina|Pickups`, which is fetched but never rendered) are left out of the backtest entirely. To backfill right after adding a country instead of waiting for the 25th, dispatch **Snapshot Builder curves** with `backtest_only = true` (skips the `builder_history/` snapshot, which should only come from the regular run).
+
 ### Per-frame shape (`series/<group>.json`)
 
 Each frame carries both country sets — `all` (coverage as of that month) and `cohort` (the fixed set present in *every* month) — plus `n_countries`, `total_weight`, `n_cohort`, `cohort_weight` and `data_per`.
