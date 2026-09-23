@@ -355,6 +355,10 @@ def write_models_csv(rows: list[dict], path: Path = MODELS_CSV) -> bool:
     return write_if_changed(path, buf.getvalue())
 
 
+def _ranked(counter: collections.Counter, n: int) -> list:
+    return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
+
+
 def build_top(agg: Aggregator, target: str, variant: str = "Whole",
               top_brands: int = 10, top_models: int = 15) -> dict:
     """Generic top-brands/top-models summary (schema documented in
@@ -380,12 +384,14 @@ def build_top(agg: Aggregator, target: str, variant: str = "Whole",
         classes[cls] = {
             "units": cls_units,
             "share_of_market": round(cls_units / total, 5) if total else None,
+            # Ties are broken alphabetically so the file is byte-stable no
+            # matter in which order the records arrived (no spurious commits).
             "brands": [{"brand": b, "units": u,
                         "share_of_class": round(u / cls_units, 4)}
-                       for b, u in per_class[cls]["brands"].most_common(top_brands)],
+                       for b, u in _ranked(per_class[cls]["brands"], top_brands)],
             "models": [{"brand": b, "model": m, "units": u,
                         "share_of_class": round(u / cls_units, 4)}
-                       for (b, m), u in per_class[cls]["models"].most_common(top_models)],
+                       for (b, m), u in _ranked(per_class[cls]["models"], top_models)],
         }
     return {
         "country": "Argentina", "variant": variant, "source": SOURCE,

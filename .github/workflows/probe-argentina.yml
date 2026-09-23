@@ -1,6 +1,6 @@
 name: TEMPORARY probe Argentina (live check)
 
-# Temporary: proves the live fetch reproduces the committed data and
+# Temporary (run 2): proves the live fetch reproduces the committed data and
 # classification files byte-for-byte. Deleted in the next commit.
 
 on:

@@ -192,6 +192,21 @@ def test_mapping_top_and_review_outputs():
     assert "| ⚠️ | VOLVO" not in report                       # EX30 is BEV, not flagged
 
 
+def test_top_is_order_independent():
+    """Ties must not depend on record order (the live check caught this)."""
+    recs = [("2026-08", "RURAL 5 PUERTAS", "FORTHING", "S7 REEV", 1),
+            ("2026-08", "RURAL 5 PUERTAS", "CHANGAN", "DEEPAL S07 REEV", 1),
+            ("2026-08", "SEDAN 5 PUERTAS", "BYD", "DOLPHIN MINI EV GS", 5)]
+    tops = []
+    for order in (recs, list(reversed(recs))):
+        a = fa.Aggregator()
+        for p, tipo, b, m, n in order:
+            a.add(p, "INSCRIPCION INICIAL NACIONAL", tipo, b, m, "Física", n)
+        tops.append(fa.build_top(a, "2026-08"))
+    assert tops[0] == tops[1]
+    assert [x["brand"] for x in tops[0]["classes"]["EREV"]["models"]] == ["CHANGAN", "FORTHING"]
+
+
 def test_body_class():
     bad = [(t, w, fa.body_class(t)) for t, w in BODY_CASES.items()
            if fa.body_class(t) != w]
