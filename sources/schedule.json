@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T17:25:51Z",
+ "generated": "2026-09-23T21:17:43Z",
  "today": "2026-09-23",
  "countries": [
   {
@@ -366,9 +366,9 @@
   {
    "country": "Brazil",
    "slug": "brazil",
-   "method": "file",
-   "source_name": "ANFAVEA — edições em Excel",
-   "source_url": "https://anfavea.com.br/site/edicoes-em-excel/",
+   "method": "api",
+   "source_name": "ANFAVEA — Central de Dados",
+   "source_url": "https://anfavea.com.br/site/central-de-dados/",
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
    "latest_period": "2026-07",
@@ -898,7 +898,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-09-23",
    "flag": "🇨🇾",
    "variants": [
     {
