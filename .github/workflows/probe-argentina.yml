@@ -1,0 +1,27 @@
+name: TEMPORARY probe Argentina (live check)
+
+# Temporary: proves the live fetch reproduces the committed data and
+# classification files byte-for-byte. Deleted in the next commit.
+
+on:
+  push:
+    branches: [claude/argentina-gallery-implementation-3bs2w2]
+    paths: [.github/workflows/probe-argentina.yml]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - run: python scripts/test_fetch_argentina.py
+      - run: python scripts/fetch_argentina.py --period 2026-08 --force
+      - run: |
+          git status --porcelain data/ classification/
+          git diff --stat data/ classification/
+          if git diff --quiet data/ classification/; then echo "LIVE-CHECK: clean"; else echo "LIVE-CHECK: DIFF"; git diff data/ classification/ | head -80; fi
