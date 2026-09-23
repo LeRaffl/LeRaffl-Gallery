@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T15:05:46Z",
+ "generated": "2026-09-23T17:25:51Z",
  "today": "2026-09-23",
  "countries": [
   {
@@ -357,7 +357,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -474,7 +474,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -839,7 +839,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2019-10",
-     "rows": 82,
+     "rows": 83,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -905,7 +905,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2020-01",
-     "rows": 79,
+     "rows": 80,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -971,7 +971,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2011-01",
-     "rows": 187,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1134,7 +1134,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1425,7 +1425,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2015-06",
-     "rows": 112,
+     "rows": 113,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1491,7 +1491,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1557,7 +1557,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2061,7 +2061,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2015-01",
-     "rows": 139,
+     "rows": 140,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -2135,7 +2135,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2017-01",
-     "rows": 115,
+     "rows": 116,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2644,7 +2644,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2005-01",
-     "rows": 259,
+     "rows": 260,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2870,7 +2870,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2010-06",
-     "rows": 111,
+     "rows": 112,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3003,7 +3003,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3069,7 +3069,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2015-06",
-     "rows": 106,
+     "rows": 107,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3350,7 +3350,7 @@
      "name": "Whole",
      "latest": "2026-08",
      "first": "2010-01",
-     "rows": 199,
+     "rows": 200,
      "cadence": "monthly",
      "in_repo": true
     },
