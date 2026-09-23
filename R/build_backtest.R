@@ -35,6 +35,19 @@
 #
 # Output is written per month and skipped if present, so an interrupted run
 # resumes where it stopped.
+#
+# NEW COUNTRIES (one-off backfill, automatic)
+# -------------------------------------------
+# Skipping existing months means a country (or variant) added to data/ after
+# a month was built would never reach that month. So every run first looks
+# for series that appear in NO backtest month at all — i.e. genuinely new to
+# the repo — and fits exactly those into every existing month where they are
+# eligible, merging their rows into the month files as pure line insertions (existing
+# rows stay byte-identical and in place; new rows sit next to their
+# alphabetical neighbours). A series already present in some month is never re-fitted, so
+# fit failures and eligibility gaps are not retried forever. Cost: ~1.8 s per
+# fit, e.g. Argentina 2026-09: 3 series x ~80 months ~ 240 fits ~ 2 min on 4
+# cores. Data-only series (DATA_ONLY_SERIES) are never fitted at all.
 
 suppressPackageStartupMessages({
   library(parallel)
@@ -49,6 +62,12 @@ BACKTEST_DIR <- "backtest"
 # 24 months is the floor at which the shape parameter stops swinging wildly on
 # one extra observation.
 MIN_ROWS <- 24
+
+# Series kept as data only: the CSV exists and is maintained, but by owner
+# decision it must not appear anywhere in the gallery — not rendered, no
+# params.csv row, and not in the backtest either. "Country|Variant".
+# Mirror of RENDERED_VARIANTS in scripts/fetch_argentina.py.
+DATA_ONLY_SERIES <- c("Argentina|Pickups")
 
 # Months are stepped as YYYY-MM strings throughout; the data's own `period`
 # column is the same shape, so truncation is a plain string comparison.
@@ -82,6 +101,7 @@ load_all_series <- function() {
       sub_df <- df[df$variant == v, , drop = FALSE]
       if (nrow(sub_df) < MIN_ROWS) next
       key <- paste0(country, "|", v)
+      if (key %in% DATA_ONLY_SERIES) next
       out[[key]] <- list(country = country, variant = v, df = sub_df)
     }
   }
@@ -193,6 +213,68 @@ fit_one <- function(entry, upto) {
   )
 }
 
+# Every "Country|Variant" key present in any month file already written.
+backtest_keys <- function(out_dir) {
+  files <- list.files(file.path(out_dir, "params"), pattern = "\\.csv$",
+                      full.names = TRUE)
+  keys <- character(0)
+  for (f in files) {
+    p <- read.csv(f, stringsAsFactors = FALSE, colClasses = "character")
+    keys <- union(keys, paste0(p$country, "|", p$variant))
+  }
+  keys
+}
+
+# Merge freshly fitted rows into an existing month file as PURE INSERTIONS:
+# the existing lines are neither re-read as data nor re-written nor re-ordered
+# (re-writing would reformat their numbers; re-ordering would churn the diff,
+# and the row order of the existing files depends on the locale of the R that
+# built them). The new rows are rendered by write.csv exactly as a fresh build
+# would render them, and each is inserted before the first existing row whose
+# country sorts after it (case-insensitive), i.e. next to its alphabetical
+# neighbours. Readers key rows by (country, variant), never by position.
+merge_rows <- function(path, new_df) {
+  old <- readLines(path)
+  tc <- textConnection("new_lines", "w", local = TRUE)
+  write.csv(new_df, tc, row.names = FALSE, na = "")
+  close(tc)
+  if (!identical(old[1], new_lines[1])) {
+    stop(sprintf("merge_rows: header mismatch in %s", path))
+  }
+  country_of <- function(line) tolower(gsub('"', "", strsplit(line, ",", fixed = TRUE)[[1]][1]))
+  body <- old[-1]
+  for (ln in new_lines[-1]) {
+    c_new <- country_of(ln)
+    after <- which(vapply(body, country_of, character(1), USE.NAMES = FALSE) > c_new)
+    pos <- if (length(after)) after[1] - 1L else length(body)
+    body <- append(body, ln, after = pos)
+  }
+  writeLines(c(old[1], body), path)
+}
+
+params_frame <- function(res, mo) {
+  do.call(rbind, lapply(res, function(r) data.frame(
+    country = r$country, variant = r$variant,
+    v1 = r$v1, v2 = r$v2, t0 = r$t0,
+    data_per = r$data_per, model_date = mo, source = "backtest",
+    baseline_date = "",
+    ice_v1 = r$ice_v1, ice_v2 = r$ice_v2, ice_t0 = r$ice_t0,
+    ttm_bev_share = r$ttm_bev_share,
+    obs_bev_share = num(r$obs[["bev"]]),
+    obs_phev_share = num(r$obs[["phev"]]),
+    obs_ice_share = num(r$obs[["ice"]]),
+    refit_swing = NA_real_,
+    stringsAsFactors = FALSE)))
+}
+
+weights_frame <- function(res, mo) {
+  wr <- do.call(rbind, lapply(res, function(r) data.frame(
+    country = r$country, variant = r$variant,
+    weight = r$weight, data_per = r$data_per, model_date = mo,
+    stringsAsFactors = FALSE)))
+  wr[is.finite(wr$weight), , drop = FALSE]
+}
+
 build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
                            out_dir = BACKTEST_DIR) {
   series <- load_all_series()
@@ -209,10 +291,31 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
   dir.create(file.path(out_dir, "params"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(out_dir, "weights"), recursive = TRUE, showWarnings = FALSE)
 
+  # Series new to the repo since the backtest was built (see header).
+  known <- backtest_keys(out_dir)
+  new_keys <- if (length(known)) setdiff(names(series), known) else character(0)
+  if (length(new_keys)) {
+    cat(sprintf("[backtest] new series to backfill into existing months: %s\n",
+                paste(new_keys, collapse = ", ")))
+  }
+
   for (mo in months) {
     pfile <- file.path(out_dir, "params",  sprintf("%s.csv", mo))
     wfile <- file.path(out_dir, "weights", sprintf("%s.csv", mo))
-    if (file.exists(pfile) && file.exists(wfile)) next   # resume
+    if (file.exists(pfile) && file.exists(wfile)) {        # resume ...
+      if (!length(new_keys)) next
+      fresh <- Filter(function(s) sum(s$df$period <= mo) >= MIN_ROWS,
+                      series[new_keys])                    # ... or backfill new
+      if (!length(fresh)) next
+      res <- Filter(Negate(is.null), mclapply(fresh, fit_one, upto = mo,
+                                              mc.cores = cores))
+      if (!length(res)) next
+      merge_rows(pfile, params_frame(res, mo))
+      wr <- weights_frame(res, mo)
+      if (nrow(wr)) merge_rows(wfile, wr)
+      cat(sprintf("[backtest] %s  +%d new-series fits merged\n", mo, length(res)))
+      next
+    }
 
     eligible <- Filter(function(s) sum(s$df$period <= mo) >= MIN_ROWS, series)
     if (length(eligible) == 0) next
@@ -222,26 +325,8 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
     res <- Filter(Negate(is.null), res)
     if (length(res) == 0) next
 
-    pr <- do.call(rbind, lapply(res, function(r) data.frame(
-      country = r$country, variant = r$variant,
-      v1 = r$v1, v2 = r$v2, t0 = r$t0,
-      data_per = r$data_per, model_date = mo, source = "backtest",
-      baseline_date = "",
-      ice_v1 = r$ice_v1, ice_v2 = r$ice_v2, ice_t0 = r$ice_t0,
-      ttm_bev_share = r$ttm_bev_share,
-      obs_bev_share = num(r$obs[["bev"]]),
-      obs_phev_share = num(r$obs[["phev"]]),
-      obs_ice_share = num(r$obs[["ice"]]),
-      refit_swing = NA_real_,
-      stringsAsFactors = FALSE)))
-    write.csv(pr, pfile, row.names = FALSE, na = "")
-
-    wr <- do.call(rbind, lapply(res, function(r) data.frame(
-      country = r$country, variant = r$variant,
-      weight = r$weight, data_per = r$data_per, model_date = mo,
-      stringsAsFactors = FALSE)))
-    wr <- wr[is.finite(wr$weight), , drop = FALSE]
-    write.csv(wr, wfile, row.names = FALSE, na = "")
+    write.csv(params_frame(res, mo), pfile, row.names = FALSE, na = "")
+    write.csv(weights_frame(res, mo), wfile, row.names = FALSE, na = "")
 
     cat(sprintf("[backtest] %s  %3d fits  %5.1fs\n", mo, length(res),
                 as.numeric(difftime(Sys.time(), t0, units = "secs"))))

@@ -488,6 +488,12 @@ sequenceDiagram
   `render-country.yml` dispatch. Pickups is data only: a run that only changes
   `data/Argentina_Pickups.csv` or `classification/*` commits without rendering; the source page
   rebuilds via `build-source-pages.yml`.
+- **Time-lapse backtest:** Whole / Private / Industry were backfilled into
+  every existing `backtest/` month once, by the automatic new-series backfill
+  in `R/build_backtest.R` (from 2019-12, the first month with 24 rows since
+  2018-01); later months follow on the monthly `snapshot-builder.yml` run.
+  Pickups is listed in `DATA_ONLY_SERIES` there and never fitted. Argentina is
+  not in the Time-lapse *cohort* (that needs data in every frame from 2017).
 - **Offline:** `--from-agg <csv>` reads a pre-aggregated
   `(month, tramite, tipo, marca, modelo, persona, n)` file instead of
   downloading — how the classifier was developed from the sandbox.

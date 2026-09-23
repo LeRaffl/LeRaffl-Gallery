@@ -98,6 +98,7 @@ End-to-end, the cheapest path:
 4. **Update `R/post_text.R::.pt_flag`** to map the country name to its emoji flag (regional indicator pair).
 5. **Commit**, push, open PR.
 6. After merge, run § 8.2 to render.
+7. **Time-lapse backtest** — nothing to do by hand: the next **Snapshot Builder curves** run notices the country is in no `backtest/` month yet and fits it into every existing month once (§ 8.9). To have it right away, dispatch that workflow with `backtest_only = true`.
 
 ## 8.4 Rotate secrets
 
@@ -282,6 +283,8 @@ Rscript -e 'source("R/build_backtest.R"); build_backtest(from = "2015-01", cores
 ```
 
 ~9,200 fits, roughly an hour on 4 cores. It writes per month and skips what exists, so an interrupted run resumes where it stopped — do not delete the partial output to "start clean".
+
+**A newly added country** needs none of this: a series that is in no month file yet is backfilled into every existing month automatically on the next run (inserted line by line, existing rows untouched). Dispatch **Snapshot Builder curves** with `backtest_only = true` to do it immediately.
 
 **After backfilling or rebuilding snapshots by hand**, re-run the series builder too, or the panel keeps serving the previous set:
 
