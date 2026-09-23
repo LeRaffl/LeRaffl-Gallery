@@ -522,6 +522,46 @@
       "country_slug": "lithuania"
     },
     {
+      "country": "Malta",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "malta_ICE_BEV_20260923.png",
+      "url": "images/2026-08/malta_ICE_BEV_20260923.png",
+      "alt": "Malta ICE-BEV-Hybrid trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "malta_20260923.png",
+      "url": "images/2026-08/malta_20260923.png",
+      "alt": "Malta BEV trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "malta_time_20260923.png",
+      "url": "images/2026-08/malta_time_20260923.png",
+      "alt": "Malta Transition time curve",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "malta_ttm_shares_20260923.png",
+      "url": "images/2026-08/malta_ttm_shares_20260923.png",
+      "alt": "Malta TTM market split graph",
+      "country_slug": "malta"
+    },
+    {
       "country": "Nepal",
       "type": "ICE_BEV",
       "period": "2026-09",
@@ -600,6 +640,86 @@
       "url": "images/2026-09/nepal_3_wheelers_ttm_shares_20260923.png",
       "alt": "Nepal (3 Wheelers) TTM market split graph",
       "country_slug": "nepal_3_wheelers"
+    },
+    {
+      "country": "Romania",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "romania_ICE_BEV_20260923.png",
+      "url": "images/2026-08/romania_ICE_BEV_20260923.png",
+      "alt": "Romania ICE-BEV-Hybrid trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "romania_20260923.png",
+      "url": "images/2026-08/romania_20260923.png",
+      "alt": "Romania BEV trajectory",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "romania_time_20260923.png",
+      "url": "images/2026-08/romania_time_20260923.png",
+      "alt": "Romania Transition time curve",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Romania",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "romania_ttm_shares_20260923.png",
+      "url": "images/2026-08/romania_ttm_shares_20260923.png",
+      "alt": "Romania TTM market split graph",
+      "country_slug": "romania"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "slovakia_ICE_BEV_20260923.png",
+      "url": "images/2026-08/slovakia_ICE_BEV_20260923.png",
+      "alt": "Slovakia ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "slovakia_20260923.png",
+      "url": "images/2026-08/slovakia_20260923.png",
+      "alt": "Slovakia BEV trajectory",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "slovakia_time_20260923.png",
+      "url": "images/2026-08/slovakia_time_20260923.png",
+      "alt": "Slovakia Transition time curve",
+      "country_slug": "slovakia"
+    },
+    {
+      "country": "Slovakia",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-23",
+      "filename": "slovakia_ttm_shares_20260923.png",
+      "url": "images/2026-08/slovakia_ttm_shares_20260923.png",
+      "alt": "Slovakia TTM market split graph",
+      "country_slug": "slovakia"
     },
     {
       "country": "Chile",
