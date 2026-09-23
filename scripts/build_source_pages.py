@@ -719,6 +719,287 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
         f'<p>{primary}</p>{extra_html}{live}{unauth}')
 
 
+# --------------------------------------------------------------------------
+# Optional data-derived sections: market breakdown + powertrain classification
+# --------------------------------------------------------------------------
+#
+# Two generic, opt-in blocks for countries whose fuel split is DERIVED rather
+# than reported (first user: Argentina, doc 39). Both are driven by files the
+# country's fetcher writes; a front-matter key switches each section on:
+#
+#   market_breakdown: classification/<slug>_top.json
+#       {"variant", "as_of", "window": {"from","to","months"},
+#        "total_registrations", "unit",
+#        "classes": {"BEV": {"units","share_of_market",
+#                            "brands": [{"brand","units","share_of_class"}],
+#                            "models": [{"brand","model","units","share_of_class"}]},
+#                    "PHEV": {...}, ...}}
+#
+#   classification:
+#     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
+#                                                   kind,reason,evidence,
+#                                                   example_brand,example_model)
+#     mapping: classification/<slug>_models.csv   (brand,model,scope,class,rule,
+#                                                   units_total,units_last_12m,
+#                                                   first_seen,last_seen)
+#     intro:   [paragraph, …]                     plain-language method
+#
+# Neither file is hand-edited except the rules CSV (the classifier's source of
+# truth). Missing files degrade to a short "not generated yet" note, never an
+# error, so a page can declare the keys before the first fetch runs.
+
+CLASS_ORDER = ["BEV", "PHEV", "EREV", "HEV", "MHEV", "ICE"]
+CLASS_LABEL = {
+    "BEV": "Battery-electric", "PHEV": "Plug-in hybrid",
+    "EREV": "Range-extended EV (a plug-in; counted with PHEV in the curves)",
+    "HEV": "Full hybrid (no plug; counted as ICE in the curves)",
+    "MHEV": "Mild hybrid (counted as ICE)", "ICE": "Combustion only",
+}
+GH_RAW = "https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master"
+
+
+def _read_csv(rel: str | None) -> list[dict] | None:
+    if not rel:
+        return None
+    path = REPO / rel
+    if not path.is_file():
+        return None
+    with open(path, newline="", encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def cls_badge(cls: str) -> str:
+    c = (cls or "").upper()
+    return f'<span class="cls cls--{esc(c.lower())}">{esc(c)}</span>'
+
+
+def _num(v) -> str:
+    try:
+        return f"{int(float(v)):,}"
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _share(v) -> str:
+    try:
+        return f"{100 * float(v):.1f}%"
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _rank_table(rows: list[dict], cols: list[tuple[str, str]], caption: str) -> str:
+    head = "".join(f'<th class="num">{esc(h)}</th>' if k in ("#", "units", "share_of_class")
+                   else f"<th>{esc(h)}</th>" for h, k in cols)
+    body = []
+    for i, r in enumerate(rows, 1):
+        cells = []
+        for _, key in cols:
+            if key == "#":
+                cells.append(f'<td class="num">{i}</td>')
+            elif key in ("units",):
+                cells.append(f'<td class="num">{_num(r.get(key))}</td>')
+            elif key == "share_of_class":
+                cells.append(f'<td class="num">{_share(r.get(key))}</td>')
+            else:
+                cells.append(f"<td>{esc(r.get(key, ''))}</td>")
+        body.append("<tr>" + "".join(cells) + "</tr>")
+    return (f'<div class="scroll"><table class="rank"><caption>{esc(caption)}</caption>'
+            f'<tr>{head}</tr>{"".join(body)}</table></div>')
+
+
+def build_market_breakdown(fm: dict) -> str:
+    rel = fm.get("market_breakdown")
+    if not rel:
+        return ""
+    path = REPO / rel
+    if not path.is_file():
+        return ('<section><h2>Who sells the electrified cars</h2>'
+                '<p class="dim">Not generated yet — appears after the next fetch.</p></section>')
+    top = json.loads(path.read_text(encoding="utf-8"))
+    win = top.get("window") or {}
+    classes = top.get("classes") or {}
+    total = top.get("total_registrations")
+    lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · last '
+            f'{esc(win.get("months", 12))} months ({esc(win.get("from", ""))} → '
+            f'{esc(win.get("to", ""))}) · {_num(total)} new registrations in total. '
+            'Units are registrations; a "designation" is the exact model string '
+            'the registry records (trim levels are separate designations). '
+            'Powertrain as classified below.</p>')
+    tiles = []
+    for c in CLASS_ORDER:
+        if c in classes:
+            v = classes[c]
+            tiles.append(f'<div class="stat"><div class="n">{_share(v.get("share_of_market"))}</div>'
+                         f'<div class="l">{esc(c)} · {_num(v.get("units"))} units</div></div>')
+    parts = [f'<div class="stats">{"".join(tiles)}</div>'] if tiles else []
+    brand_cols = [("#", "#"), ("Brand", "brand"), ("Units", "units"), ("Share", "share_of_class")]
+    model_cols = [("#", "#"), ("Brand", "brand"), ("Designation", "model"),
+                  ("Units", "units"), ("Share", "share_of_class")]
+    for c, open_ in (("BEV", True), ("PHEV", True), ("EREV", False), ("HEV", False), ("MHEV", False)):
+        v = classes.get(c)
+        if not v:
+            continue
+        inner = ('<div class="pair">'
+                 + _rank_table(v.get("brands") or [], brand_cols, f"{c} — top brands (share of {c})")
+                 + _rank_table(v.get("models") or [], model_cols, f"{c} — top designations (share of {c})")
+                 + '</div>')
+        parts.append(f'<details{" open" if open_ else ""}><summary>{cls_badge(c)} '
+                     f'{esc(CLASS_LABEL[c])} — {_num(v.get("units"))} units</summary>{inner}</details>')
+    return ('<section id="market"><h2>Who sells the electrified cars</h2>'
+            + lead + "".join(parts) + '</section>')
+
+
+FILTER_JS = """<script>
+document.querySelectorAll('input[data-filter]').forEach(function(inp){
+  var tbl=document.getElementById(inp.getAttribute('data-filter'));
+  var out=document.getElementById(inp.getAttribute('data-count'));
+  function run(){
+    var q=inp.value.trim().toUpperCase(), n=0;
+    tbl.querySelectorAll('tr[data-row]').forEach(function(tr){
+      var hit=!q||tr.textContent.toUpperCase().indexOf(q)>=0;
+      tr.style.display=hit?'':'none'; if(hit)n++;
+    });
+    if(out)out.textContent=n;
+  }
+  inp.addEventListener('input',run); run();
+});
+</script>"""
+
+
+def build_classification(fm: dict) -> str:
+    spec = fm.get("classification")
+    if not isinstance(spec, dict):
+        return ""
+    rules = _read_csv(spec.get("rules")) or []
+    mapping = _read_csv(spec.get("mapping"))
+    intro = spec.get("intro") or []
+    if isinstance(intro, str):
+        intro = [intro]
+    parts = ['<section id="classification"><h2>How each registration gets its powertrain</h2>']
+    parts += [f"<p>{esc(p)}</p>" for p in intro]
+
+    decided = {}
+    if mapping:
+        for r in mapping:
+            decided.setdefault(r.get("rule", ""), [0, 0])
+            decided[r["rule"]][0] += 1
+            decided[r["rule"]][1] += int(float(r.get("units_total") or 0))
+        electrified = [r for r in mapping if r.get("class") != "ICE"]
+        kind_of = {r["id"]: r.get("kind", "") for r in rules}
+        el_units = sum(int(float(r.get("units_total") or 0)) for r in electrified)
+        by_token = sum(int(float(r.get("units_total") or 0)) for r in electrified
+                       if kind_of.get(r.get("rule")) == "token")
+        parts.append(
+            '<div class="stats">'
+            f'<div class="stat"><div class="n">{len(mapping):,}</div><div class="l">designations seen</div></div>'
+            f'<div class="stat"><div class="n">{len(electrified):,}</div><div class="l">classified electrified</div></div>'
+            f'<div class="stat"><div class="n">{len(rules)}</div><div class="l">rules</div></div>'
+            f'<div class="stat"><div class="n">{_share(by_token / el_units if el_units else None)}</div>'
+            '<div class="l">of electrified registrations say so in the designation (EV, PHEV, HEV …)</div></div>'
+            f'<div class="stat"><div class="n">{_share((el_units - by_token) / el_units if el_units else None)}</div>'
+            '<div class="l">decided by a brand- or model-specific rule</div></div>'
+            '</div>')
+
+    # 1. The rule table, in evaluation order.
+    if rules:
+        rows = []
+        for r in rules:
+            n_des, n_units = decided.get(r["id"], [0, 0])
+            brand = (f'<code>{esc(r["brand"])}</code>' if r.get("brand")
+                     else '<span class="dim">any brand</span>')
+            ex = (f'{esc(r["example_brand"])} · <code>{esc(r["example_model"])}</code>'
+                  if r.get("example_model") else '<span class="dim">none registered yet (anticipatory)</span>')
+            rows.append(
+                f'<tr id="rule-{esc(r["id"])}"><td class="num">{esc(r["order"])}</td>'
+                f'<td>{cls_badge(r["class"])}<div class="rid"><code>{esc(r["id"])}</code></div>'
+                f'<div class="dim">{esc(r.get("kind", ""))}</div></td>'
+                f'<td>{brand}<div class="pat"><code>{esc(r["pattern"])}</code></div></td>'
+                f'<td>{esc(r["reason"])}<div class="dim ev">Evidence: {esc(r.get("evidence", ""))}</div>'
+                f'<div class="ev">Example: {ex}</div></td>'
+                f'<td class="num">{n_units:,}<div class="dim">{n_des} desig.</div></td></tr>')
+        default = decided.get("default-ice", [0, 0])
+        rows.append(
+            f'<tr id="rule-default-ice"><td class="num">—</td><td>{cls_badge("ICE")}'
+            '<div class="rid"><code>default-ice</code></div></td>'
+            '<td><span class="dim">anything left</span></td>'
+            '<td>No rule matched: the designation carries no electrification marker and no '
+            'model-specific rule applies, so it is counted as a combustion car.</td>'
+            f'<td class="num">{default[1]:,}<div class="dim">{default[0]} desig.</div></td></tr>')
+        parts.append(
+            '<h3>The rules, in the order they are applied</h3>'
+            '<p class="fig-lead">Each designation is tested against the rules from top to '
+            'bottom; the <strong>first</strong> rule whose brand and pattern both match '
+            'decides the class. Patterns are regular expressions on the upper-cased, '
+            'accent-free designation. The last column counts the registrations (since the '
+            'start of the series) each rule decides.</p>'
+            '<div class="scroll"><table class="rules"><tr><th>#</th><th>Class · rule</th>'
+            '<th>Applies to · pattern</th><th>Why</th><th class="num">Decides</th></tr>'
+            + "".join(rows) + '</table></div>')
+
+    # 2. Every electrified designation, searchable.
+    if mapping is None:
+        parts.append('<p class="dim">The model mapping has not been generated yet — it '
+                     'appears after the next fetch.</p>')
+    else:
+        el = sorted((r for r in mapping if r.get("class") != "ICE"),
+                    key=lambda r: (CLASS_ORDER.index(r["class"]) if r["class"] in CLASS_ORDER else 9,
+                                   -int(float(r.get("units_total") or 0))))
+        trs = "".join(
+            f'<tr data-row><td>{cls_badge(r["class"])}</td><td>{esc(r["brand"])}</td>'
+            f'<td><code>{esc(r["model"])}</code></td><td>{esc(r.get("scope", ""))}</td>'
+            f'<td><a href="#rule-{esc(r["rule"])}"><code>{esc(r["rule"])}</code></a></td>'
+            f'<td class="num">{_num(r.get("units_total"))}</td>'
+            f'<td class="num">{_num(r.get("units_last_12m"))}</td>'
+            f'<td class="nowrap">{esc(r.get("first_seen", ""))} → {esc(r.get("last_seen", ""))}</td></tr>'
+            for r in el)
+        parts.append(
+            f'<h3>Every designation classified as electrified ({len(el):,})</h3>'
+            '<p class="fig-lead">The complete mapping, generated on every fetch. Click a '
+            'rule to see why. Type to filter (brand, designation, class or rule).</p>'
+            '<p><input type="search" class="filter" placeholder="Filter, e.g. BYD, PHEV, SHARK …" '
+            'data-filter="map-el" data-count="map-el-n" aria-label="Filter the mapping"> '
+            '<span class="dim"><span id="map-el-n"></span> shown</span></p>'
+            '<div class="scroll tall"><table class="mapping" id="map-el"><tr><th>Class</th>'
+            '<th>Brand</th><th>Designation</th><th>Scope</th><th>Rule</th><th class="num">Units</th>'
+            '<th class="num">Last 12 m</th><th>Registered</th></tr>' + trs + '</table></div>')
+
+        # 3. The ICE side of brands that also sell electrified cars.
+        el_brands = {r["brand"] for r in el}
+        ice = sorted((r for r in mapping if r.get("class") == "ICE"
+                      and r["brand"] in el_brands and int(float(r.get("units_last_12m") or 0)) > 0),
+                     key=lambda r: -int(float(r.get("units_last_12m") or 0)))[:40]
+        if ice:
+            trs = "".join(
+                f'<tr><td>{esc(r["brand"])}</td><td><code>{esc(r["model"])}</code></td>'
+                f'<td>{esc(r.get("scope", ""))}</td><td class="num">{_num(r.get("units_last_12m"))}</td>'
+                f'<td class="nowrap">{esc(r.get("first_seen", ""))}</td></tr>' for r in ice)
+            parts.append(
+                '<details><summary>What was left as combustion: the 40 largest ICE designations '
+                'of brands that also sell electrified cars (last 12 months)</summary>'
+                '<p class="fig-lead">This is where an electrified car hiding behind a '
+                'designation without any marker would show up. Every one of these was '
+                'checked when the rules were written; the fetcher re-lists them on '
+                'every run.</p>'
+                '<div class="scroll"><table class="mapping"><tr><th>Brand</th><th>Designation</th>'
+                '<th>Scope</th><th>Units 12 m</th><th>First seen</th></tr>' + trs
+                + '</table></div></details>')
+
+    links = []
+    for key, label in (("rules", "Rule table (CSV — the classifier's source of truth)"),
+                       ("mapping", "Full mapping of every designation incl. combustion (CSV)")):
+        if spec.get(key):
+            links.append(f'<li><a href="{GH_RAW}/{esc(spec[key])}">{esc(label)}</a> · '
+                         f'<a href="{GH_BLOB}/{esc(spec[key])}">view on GitHub</a></li>')
+    if links:
+        parts.append('<h3>Download &amp; report</h3><ul class="srclist">' + "".join(links)
+                     + '<li>Spotted a misclassified model? '
+                       '<a href="https://github.com/LeRaffl/LeRaffl-Gallery/issues/new">Open an issue</a> '
+                       'with the designation and a spec-sheet link.</li></ul>')
+    parts.append("</section>")
+    parts.append(FILTER_JS)
+    return "".join(parts)
+
+
 def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     fm = apply_group_defaults(fm)
     country = fm.get("country", "Unknown")
@@ -777,6 +1058,8 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         n_variants=len(variants),
         sources=build_sources_section(fm, last_row),
         notes=build_notes(fm),
+        market=build_market_breakdown(fm),
+        classification=build_classification(fm),
         flow=build_flow(fm),
         definitions=build_definitions(fm),
         variants_table=build_variants_table(fm, variant_facts),
@@ -914,6 +1197,42 @@ table.matrix th:first-child{white-space:nowrap}
 .cell--yes{color:var(--ok-tx)}
 .cell--zero{color:var(--muted)}
 .cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
+table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rank th,table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
 """
 
 TEMPLATE = """<!doctype html>
@@ -941,6 +1260,8 @@ TEMPLATE = """<!doctype html>
 
   {notes}
 
+  {market}
+
   {sources}
 
   <h2>How the data flows</h2>
@@ -954,6 +1275,8 @@ TEMPLATE = """<!doctype html>
   {coverage}
 
   {matrix}
+
+  {classification}
 
   {group_note}
 

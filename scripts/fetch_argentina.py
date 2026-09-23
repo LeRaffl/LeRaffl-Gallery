@@ -32,15 +32,23 @@ What the records do NOT carry: a fuel / propulsion field. The powertrain is
 recovered from the model designation (`automotor_modelo_descripcion`), which
 in Argentina spells out the drivetrain for almost every electrified car
 ("DOLPHIN MINI EV GS", "ATTO 2 DM-I GS", "COROLLA CROSS XEI HEV 1.8 ECVT",
-"TIGGO 7 PRO HYBRID 1.5T MHEV", …). `classify()` is a first-match rule table
-(`RULES`) of generic tokens plus brand-scoped rules for the designations
-that do not (Volvo "T8", BMW "330E", Lexus "300H", Leapmotor/BYD naming, …)
-and for the traps where a generic token lies ("HYBRID" on a 12 V Suzuki or a
-48 V Stellantis car is a mild hybrid, "PACK ELECTRICO" on a Hilux is electric
-windows, a DS "T8" is an 8-speed gearbox). The table is validated against
-ACARA's published electrified totals — see docs/architecture/39-source-
-argentina.md §4 — and every run prints the models of new-energy brands it
-left as ICE so a new designation is visible in the log the month it lands.
+"TIGGO 7 PRO HYBRID 1.5T MHEV", …). `classify_rule()` walks a first-match
+rule table that lives in DATA, not code — classification/argentina_rules.csv
+(one row per rule: id, class, brand scope, pattern, reason, evidence, a real
+example) — made of generic tokens plus brand-scoped rules for the
+designations that do not say it (Volvo "T8", BMW "330E", Toyota "HV", BYD
+naming, …) and for the traps where a generic token lies ("HYBRID" on a 12 V
+Suzuki, a 48 V Stellantis car or the Argentine Arkana is a mild hybrid,
+"PACK ELECTRICO" on a Hilux is electric windows, a DS "T8" is an 8-speed
+gearbox). Validated against ACARA's published electrified totals —
+docs/architecture/39-source-argentina.md §4–5.
+
+Every run also writes classification/argentina_models.csv (every
+designation ever registered in scope → class → deciding rule, units,
+first/last seen) and classification/argentina_top.json (top BEV/PHEV/…
+brands and designations, last 12 months); the source page renders both.
+New designations and ICE-classified designations of new-energy brands are
+reported in the log and the GitHub step summary (the new-vehicle net, §7).
 
 There is no petrol/diesel split to recover reliably from model strings, so
 the combustion remainder goes into the `ICE` column (Chile/Colombia
@@ -74,10 +82,11 @@ cannot be anchored to the EU classes (glossary invariant). Quadricycles
 (L6/L7: Coradir Tita, Sero, XEV Yoyo) are EU L-category and not in Whole.
 
 Writes are line-level upserts keyed on (period, variant): untouched lines
-stay byte-identical (invariant 2). Each run re-derives every month of the
-target's calendar year AND the previous one from the yearly zips (DNRPA
-re-uploads past years — the 2025 zip was refreshed in 2026-08), so registry
-corrections are picked up; only lines whose numbers changed are rewritten.
+stay byte-identical (invariant 2). Every real run re-derives the FULL history
+from the yearly zips (2018 →), so a rule change re-classifies every past
+month and DNRPA's corrections to any year land (it re-uploads past years —
+the 2025 zip was refreshed in 2026-08); only lines whose numbers changed are
+rewritten.
 
 Usage
 -----
@@ -164,110 +173,78 @@ def body_class(tipo: str) -> str | None:
 
 # ── powertrain classifier ──────────────────────────────────────────────────
 #
-# (fuel, brand regex or None, model regex). First match wins, so order
-# encodes precedence: range extenders, then plug-ins, then brand-scoped
-# exceptions, then mild hybrids, then full hybrids, then BEV. Anything that
-# matches nothing is ICE. Brand regexes match the normalised
-# automotor_marca_descripcion; model regexes the normalised modelo.
+# The rules are DATA, not code: classification/argentina_rules.csv, one row
+# per rule, evaluated top to bottom, first match wins. Columns:
+#
+#   order    evaluation order (must be 1..N, no gaps — the tests check it)
+#   id       stable slug; written into classification/argentina_models.csv
+#            next to every designation it decides, so "why is X a PHEV?" is
+#            always one lookup away
+#   class    BEV | PHEV | EREV | HEV | MHEV | ICE (ICE rows are explicit
+#            exclusions that must win over a later token rule)
+#   brand    regex on the normalised brand (automotor_marca_descripcion);
+#            empty = any brand
+#   pattern  regex on the normalised designation (automotor_modelo_descripcion)
+#   kind     exclusion | token | brand-code | model | brand-all (documentation
+#            only — see docs/architecture/39-source-argentina.md §4)
+#   reason / evidence   why the rule exists and how it was verified
+#   example_brand / example_model   a real designation this rule decides; the
+#            tests assert that it is classified by THIS rule (so a rule that
+#            gets shadowed by an earlier one fails CI). Empty for rules written
+#            ahead of the first registration ("anticipatory").
+#
+# "Normalised" = upper-case, accents stripped, whitespace collapsed (norm()).
+# Anything that matches no rule is ICE ("default-ice").
 
-_STELLANTIS = r"^(PEUGEOT|CITROEN|DS|OPEL|FIAT|JEEP|ALFA ROMEO|LANCIA)$"
+REPO = Path(__file__).resolve().parent.parent
+RULES_CSV = REPO / "classification" / "argentina_rules.csv"
+MODELS_CSV = REPO / "classification" / "argentina_models.csv"
+TOP_JSON = REPO / "classification" / "argentina_top.json"
+CLASSES = {"BEV", "PHEV", "EREV", "HEV", "MHEV", "ICE"}
+DEFAULT_RULE = "default-ice"
 
-RULES: list[tuple[str, str | None, str]] = [
-    # ---- range-extended EVs ------------------------------------------------
-    ("EREV", None, r"\b(REEV|EREV)\b|RANGE EXTEND"),
-    # ---- plug-in hybrids ---------------------------------------------------
-    ("PHEV", None, r"\bPHEV\b|PLUG-? ?IN|ENCHUFABLE"),
-    ("PHEV", None, r"\bDM-?[IP]\b|\bDMO\b|\bI-DM\b"),          # BYD, Jetour
-    ("PHEV", None, r"HYBRID4"),                                  # Peugeot
-    ("PHEV", r"^(PEUGEOT|CITROEN|DS|OPEL)$", r"HYBRID ?(180|225|300)\b"),
-    ("BEV",  r"^DS$", r"\bDS ?3\b.*E-TENSE"),                     # DS 3 E-Tense = BEV
-    ("PHEV", r"^DS$", r"E-TENSE"),                                # DS 4/7/9 E-Tense
-    ("PHEV", r"^PORSCHE$", r"HYBRID"),                            # every Porsche hybrid plugs in
-    ("PHEV", r"^VOLVO$", r"\bT[5-8] (TWIN ENGINE|RECHARGE)\b|\bT8\b|RECHARGE T\d"),
-    ("PHEV", r"^(BMW|MINI)$", r"\d{2,3} ?X?E\b|\bI8\b"),         # 330E, X1 XDRIVE25E
-    ("PHEV", r"^(LAND ROVER|JAGUAR)$", r"\bP\d{3}E\b"),
-    ("PHEV", r"^MERCEDES", r"\b\d{3} ?D?E\b|\bE PERFORMANCE\b"),  # C 300 E, GLE 350 DE
-    ("PHEV", r"^AUDI$", r"TFSI ?E\b"),
-    ("PHEV", r"^JEEP$", r"\b4XE\b"),
-    ("PHEV", r"^LEXUS$", r"\d{3}H\+"),                            # NX/RX 450H+
-    ("PHEV", r"^CHEVROLET$", r"\bVOLT\b"),
-    ("PHEV", r"^CHANGAN$", r"\bCS55 PLUS\b|\bIDD\b"),             # Argentine CS55 Plus = iDD PHEV only
-    ("PHEV", r"^DFSK$", r"^E5\b"),                                # every Argentine E5 plugs in
-    ("PHEV", r"^(SHINERAY|SWM)$", r"\bEDI\b"),                    # SWM G03F EDi
-    ("PHEV", r"^FERRARI$", r"\bSF90\b|\b296\b|\b849\b"),
-    # ---- mild hybrids (before HEV: their names say "HYBRID") ---------------
-    ("MHEV", None, r"\bMHEV\b|MILD ?-?HYBRID|\b48 ?V\b|MICRO ?-?HIBRID"),
-    ("MHEV", r"^SUZUKI$", r"HYBRID|SHVS"),                        # 12 V (Swift, Across)
-    ("MHEV", _STELLANTIS, r"HYBRID"),                             # 48 V / 12 V e-DCT etc.
-    ("MHEV", r"^VOLVO$", r"\bB[3-6]\b"),                          # Volvo B-engines, 48 V
-    # 3rd-gen Q5/SQ5 (AR from 2025-11): every version is 48 V; the old
-    # generation's designations carry "45 TFSI", so match the new ones exactly.
-    ("MHEV", r"^AUDI$", r"^(Q5( SPORTBACK)? (ADVANCED( PLUS)?|S LINE)|SQ5 SPORTBACK)$"),
-    # Renault: the Argentine Arkana "E-TECH HYBRID" is the 1.3 TCe 12 V
-    # mild hybrid (ACARA counts it as MHEV too); only "FULL HYBRID" is a HEV.
-    ("HEV",  r"^RENAULT$", r"FULL HYBRID"),
-    ("MHEV", r"^RENAULT$", r"HYBRID"),
-    # ---- full hybrids ------------------------------------------------------
-    ("HEV", None, r"(?<![PM])HEV\b|HYBRID|HIBRID|E-?POWER\b|E:HEV|SELF-?CHARG"),
-    ("HEV", r"^LEXUS$", r"\d{3}H\b"),                             # UX 250H, NX 350H
-    ("HEV", r"^TOYOTA$", r"\bPRIUS\b|\bHV\b"),
-    ("HEV", r"^BAIC$", r"\bBJ30"),                                # BJ30E = BJ30 Hybrid
-    # ---- battery-electric --------------------------------------------------
-    ("BEV", None, r"(?<!PACK )\bELECTRIC[OA]?\b|\(B?EV\)|\bB?EV\b|\bE-TRON\b|"
-                  r"\bZ\.?E\.?\b|\bTAYCAN\b|MACH-E|\bEQ[ABCEGSV]\b|\bEQ[ABCEGSV] ?\d"),
-    ("BEV", r"^RENAULT$", r"E-TECH|\bZOE\b|\bTWIZY\b"),           # after HEV: Arkana E-Tech Hybrid
-    ("BEV", r"^NISSAN$", r"\bLEAF\b|\bARIYA\b"),
-    ("BEV", r"^CHEVROLET$", r"\bBOLT\b|\bEUV\b|\bBLAZER EV|\bEQUINOX EV"),
-    ("BEV", r"^(TOYOTA|SUBARU|LEXUS)$", r"\bBZ ?4X\b|\bSOLTERRA\b|\bRZ ?\d"),
-    ("BEV", r"^BMW$", r"\bI[3-7]\b|\bIX\d?\b"),
-    ("BEV", r"^MINI$", r"\bACEMAN\b|\bCOOPER S?E\b|\bCOUNTRYMAN S?E\b"),
-    ("BEV", r"^VOLVO$", r"\bE[XCS] ?\d{2}\b|\bC40\b|\bP[68]\b|PURE ELECTRIC"),
-    ("BEV", _STELLANTIS, r"\bE-?(208|2008|3008|5008|308|C3|C4|PARTNER|BERLINGO|"
-                         r"EXPERT|JUMPY|DOBLO|SCUDO|DUCATO|AVENGER)\b|\b(500|600) ?E\b"),
-    ("BEV", r"^PORSCHE$", r"\bMACAN (4S?|ELECTRIC|TURBO ELECTRIC)\b"),
-    ("BEV", r"^JAGUAR$", r"\bI-?PACE\b"),
-    ("BEV", r"^HYUNDAI$", r"\bIONIQ ?[569]\b|IONIQ ELECTRIC|\bKONA (EV|ELECTRIC)|\bINSTER\b"),
-    ("BEV", r"^KIA$", r"\bEV ?\d\b|\bE-?NIRO\b|\bSOUL EV\b"),
-    ("BEV", r"^FORD$", r"\bE-?TRANSIT\b|TRANSIT .*\bBEV\b|LIGHTNING"),
-    ("BEV", r"^JAC$", r"\bI?EV\d*|\bE-?JS\d|\bE10X\b|\bE-?J7\b"),
-    ("BEV", r"^SUZUKI$", r"\bE ?-?VITARA\b"),
-    ("BEV", r"^GEELY$", r"\bEX ?\d\b|\bGEOMETRY\b|\bGALAXY E|\bE5\b"),
-    ("BEV", r"^(GREAT WALL|GWM|ORA)$", r"\bORA\b|\bGOOD CAT\b"),
-    ("BEV", r"^DONGFENG$", r"^BOX\b|\bNAMMI\b|\bE70\b|\bEX1\b"),
-    ("BEV", r"^CHANGAN$", r"\bDEEPAL\b|\bE-?STAR\b|\bLUMIN\b"),
-    ("BEV", r"^BAIC$", r"\bEU5\b|\bEX\d|ARCFOX"),
-    ("BEV", r"^DFSK$", r"\bEC3\d\b|\bSERES\b"),
-    ("BEV", r"^MAXUS$", r"\bE-?(TERRON|DELIVER|T90)|\bEUNIQ\b|\bMIFA\b"),
-    ("BEV", r"^HONGQI$", r"\bE-?(HS|QM)\d"),
-    ("BEV", r"^SMART$", r"#\d|\bEQ\b|FORTWO EQ"),
-    # Brands that sell nothing but BEVs in Argentina (any plug-in/REEV model
-    # of theirs was caught above). BYD: every non-DM model is a BEV.
-    ("BEV", r"^(BYD|TESLA|LEAPMOTOR|ZEEKR|NETA|XPENG|NIO|POLESTAR|AVATR|"
-            r"VOYAH|RIDDARA|SERO|CORADIR|XEV|FONIX|JMEV|ARCFOX|XIAOMI)$", r"."),
-]
 
-_RULES_C = [(f, re.compile(b) if b else None, re.compile(m)) for f, b, m in RULES]
+def load_rules(path: Path = RULES_CSV) -> list[dict]:
+    with open(path, newline="", encoding="utf-8") as fh:
+        rules = list(csv.DictReader(fh))
+    for r in rules:
+        if r["class"] not in CLASSES:
+            raise ValueError(f"rule {r['id']}: unknown class {r['class']!r}")
+        r["_brand"] = re.compile(r["brand"]) if r["brand"] else None
+        r["_pattern"] = re.compile(r["pattern"])
+    return rules
 
-# Brands with new-energy models: their ICE-classified designations are
-# listed in the run log so a new, un-ruled model string is seen immediately.
-# Chinese makers (most of Argentina's electrified imports under the 0 %-duty
-# quota) plus the premium brands whose plug-ins hide behind codes.
+
+RULES = load_rules()
+
+
+def classify_rule(marca: str, modelo: str) -> tuple[str, str]:
+    """(class, rule id) for one brand + designation."""
+    b, m = norm(marca), norm(modelo)
+    for r in RULES:
+        if r["_brand"] is not None and not r["_brand"].search(b):
+            continue
+        if r["_pattern"].search(m):
+            return r["class"], r["id"]
+    return "ICE", DEFAULT_RULE
+
+
+def classify(marca: str, modelo: str) -> str:
+    return classify_rule(marca, modelo)[0]
+
+
+# Safety net for new vehicles: ICE-classified designations of these brands
+# are listed in the run log and the GitHub step summary every run, so a new
+# electrified designation that no rule catches is visible the month it is
+# first registered. Chinese makers (most of Argentina's electrified imports
+# under the 0 %-duty quota) plus the premium brands whose plug-ins hide
+# behind codes. Extend freely — it only affects reporting, never the data.
 REVIEW_BRANDS = re.compile(
     r"^(CHERY|JAC|JETOUR|GEELY|GREAT WALL|HAVAL|GWM|TANK|CHANGAN|DONGFENG|"
     r"DFAC DONGFENG|BAIC|GAC|FORTHING|KAIYI|DFSK|SHINERAY|SWM|MG|HONGQI|"
     r"MAXUS|FOTON|JMC|KYC|OMODA|JAECOO|WULING|SOUEAST|EXEED|LYNK & CO|"
     r"VOLVO|BMW|MINI|MERCEDES BENZ|AUDI|PORSCHE|LAND ROVER|LEXUS|FERRARI|"
     r"MASERATI|LAMBORGHINI|MCLAREN|BENTLEY|ROLLS ROYCE|ACURA|GENESIS)$")
-
-
-def classify(marca: str, modelo: str) -> str:
-    b, m = norm(marca), norm(modelo)
-    for fuel, brand_re, model_re in _RULES_C:
-        if brand_re is not None and not brand_re.search(b):
-            continue
-        if model_re.search(m):
-            return fuel
-    return "ICE"
 
 
 # ── aggregation ────────────────────────────────────────────────────────────
@@ -281,9 +258,17 @@ class Aggregator:
         # period -> variant -> counts
         self.counts: dict[str, dict[str, dict[str, int]]] = \
             collections.defaultdict(lambda: collections.defaultdict(empty_counts))
-        # period -> Counter[(marca, modelo)] of ICE-classified review brands
-        self.review: dict[str, collections.Counter] = \
+        # (scope, brand, designation) -> period -> units, scope ∈ {Whole, Pickups}
+        self.designations: dict[tuple[str, str, str], collections.Counter] = \
             collections.defaultdict(collections.Counter)
+        self._cls_cache: dict[tuple[str, str], tuple[str, str]] = {}
+
+    def classify_cached(self, marca: str, modelo: str) -> tuple[str, str]:
+        key = (norm(marca), norm(modelo))
+        hit = self._cls_cache.get(key)
+        if hit is None:
+            hit = self._cls_cache[key] = classify_rule(*key)
+        return hit
 
     def add(self, period: str, tramite: str, tipo: str, marca: str,
             modelo: str, persona: str, n: int = 1) -> None:
@@ -292,7 +277,7 @@ class Aggregator:
         body = body_class(tipo)
         if body is None:
             return
-        fuel = classify(marca, modelo)
+        fuel, _ = self.classify_cached(marca, modelo)
         if body == "PICKUP":
             variants = ["Pickups"]
         else:
@@ -303,8 +288,7 @@ class Aggregator:
             c = self.counts[period][v]
             c[fuel] += n
             c["TOTAL"] += n
-        if fuel == "ICE" and REVIEW_BRANDS.match(norm(marca)):
-            self.review[period][(norm(marca), norm(modelo))] += n
+        self.designations[(variants[0], norm(marca), norm(modelo))][period] += n
 
     def add_csv(self, fh) -> int:
         k = 0
@@ -317,6 +301,141 @@ class Aggregator:
                      row.get("titular_tipo_persona") or "")
             k += 1
         return k
+
+
+# ── classification outputs (mapping table, top models, review) ─────────────
+
+MODELS_COLUMNS = ["brand", "model", "scope", "class", "rule", "units_total",
+                  "units_last_12m", "first_seen", "last_seen"]
+
+
+def month_window(target: str, months: int = 12) -> list[str]:
+    y, m = map(int, target.split("-"))
+    out = []
+    for _ in range(months):
+        out.append(f"{y}-{m:02d}")
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    return sorted(out)
+
+
+def build_models_rows(agg: Aggregator, target: str) -> list[dict]:
+    window = set(month_window(target))
+    rows = []
+    for (scope, brand, model), per in agg.designations.items():
+        periods = sorted(p for p in per if p <= target)
+        if not periods:
+            continue
+        cls, rule = agg.classify_cached(brand, model)
+        rows.append({
+            "brand": brand, "model": model, "scope": scope,
+            "class": cls, "rule": rule,
+            "units_total": sum(per[p] for p in periods),
+            "units_last_12m": sum(per[p] for p in periods if p in window),
+            "first_seen": periods[0], "last_seen": periods[-1],
+        })
+    rows.sort(key=lambda r: (r["brand"], r["model"], r["scope"]))
+    return rows
+
+
+def write_if_changed(path: Path, text: str) -> bool:
+    if path.exists() and path.read_text(encoding="utf-8") == text:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return True
+
+
+def write_models_csv(rows: list[dict], path: Path = MODELS_CSV) -> bool:
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=MODELS_COLUMNS, lineterminator="\n")
+    w.writeheader()
+    w.writerows(rows)
+    return write_if_changed(path, buf.getvalue())
+
+
+def build_top(agg: Aggregator, target: str, variant: str = "Whole",
+              top_brands: int = 10, top_models: int = 15) -> dict:
+    """Generic top-brands/top-models summary (schema documented in
+    docs/architecture/39-source-argentina.md §6 — reusable by any country)."""
+    window = month_window(target)
+    total = sum(agg.counts[p][variant]["TOTAL"] for p in window)
+    per_class = {c: {"brands": collections.Counter(),
+                     "models": collections.Counter()} for c in FUELS}
+    for (scope, brand, model), per in agg.designations.items():
+        if scope != variant:
+            continue
+        units = sum(per[p] for p in window)
+        if not units:
+            continue
+        cls, _ = agg.classify_cached(brand, model)
+        per_class[cls]["brands"][brand] += units
+        per_class[cls]["models"][(brand, model)] += units
+    classes = {}
+    for cls in FUELS:
+        cls_units = sum(per_class[cls]["brands"].values())
+        if cls == "ICE" or not cls_units:
+            continue
+        classes[cls] = {
+            "units": cls_units,
+            "share_of_market": round(cls_units / total, 5) if total else None,
+            "brands": [{"brand": b, "units": u,
+                        "share_of_class": round(u / cls_units, 4)}
+                       for b, u in per_class[cls]["brands"].most_common(top_brands)],
+            "models": [{"brand": b, "model": m, "units": u,
+                        "share_of_class": round(u / cls_units, 4)}
+                       for (b, m), u in per_class[cls]["models"].most_common(top_models)],
+        }
+    return {
+        "country": "Argentina", "variant": variant, "source": SOURCE,
+        "as_of": target, "window": {"from": window[0], "to": window[-1],
+                                    "months": len(window)},
+        "total_registrations": total,
+        "unit": "registrations (designation = exact DNRPA model string)",
+        "classes": classes,
+    }
+
+
+def write_top_json(top: dict, path: Path = TOP_JSON) -> bool:
+    return write_if_changed(path, json.dumps(top, ensure_ascii=False, indent=1) + "\n")
+
+
+def review_report(rows: list[dict], target: str, top: int = 25) -> str:
+    """Markdown for the log and $GITHUB_STEP_SUMMARY: the new-vehicle net."""
+    out = []
+    new = [r for r in rows if r["first_seen"] == target]
+    out.append(f"### New designations first registered in {target} ({len(new)})\n")
+    if new:
+        out.append("Every designation DNRPA had never registered before, with the "
+                   "class and the rule that decided it. **Check every ⚠️ row** "
+                   "(ICE from a brand with electrified models) against the "
+                   "importer's spec sheet; if it is electrified, add a rule "
+                   "(docs/architecture/39-source-argentina.md §7).\n")
+        out.append("| | brand | designation | scope | units | class | rule |")
+        out.append("|---|---|---|---|---:|---|---|")
+        for r in sorted(new, key=lambda r: (-int(r["units_total"]), r["brand"])):
+            flag = "⚠️" if (r["class"] == "ICE" and REVIEW_BRANDS.match(r["brand"])) else ""
+            out.append(f"| {flag} | {r['brand']} | {r['model']} | {r['scope']} | "
+                       f"{r['units_total']} | {r['class']} | `{r['rule']}` |")
+    else:
+        out.append("None.")
+    ice = sorted((r for r in rows if r["class"] == "ICE" and r["units_last_12m"]
+                  and REVIEW_BRANDS.match(r["brand"])),
+                 key=lambda r: -int(r["units_last_12m"]))[:top]
+    out.append(f"\n### Largest ICE-classified designations of new-energy brands "
+               f"(last 12 months, top {top})\n")
+    out.append("A hybrid or EV hiding behind a designation with no marker would "
+               "sit here.\n")
+    out.append("| brand | designation | scope | units 12m | first seen |")
+    out.append("|---|---|---|---:|---|")
+    for r in ice:
+        out.append(f"| {r['brand']} | {r['model']} | {r['scope']} | "
+                   f"{r['units_last_12m']} | {r['first_seen']} |")
+    unused = [r["id"] for r in RULES if not any(x["rule"] == r["id"] for x in rows)]
+    out.append(f"\n### Rules that decide no registration yet ({len(unused)})\n")
+    out.append(", ".join(f"`{u}`" for u in unused) or "None.")
+    return "\n".join(out) + "\n"
 
 
 # ── download ───────────────────────────────────────────────────────────────
@@ -463,19 +582,6 @@ def looks_incomplete(period: str, total: int, have: dict[str, dict]) -> bool:
     return total < MIN_MONTH_FRACTION * median
 
 
-def print_review(agg: Aggregator, periods: list[str], top: int = 25) -> None:
-    c = collections.Counter()
-    for p in periods:
-        c.update(agg.review.get(p, {}))
-    if not c:
-        return
-    print(f"\nReview — models of new-energy brands classified ICE "
-          f"({periods[0]}…{periods[-1]}, top {top}). A new electrified "
-          "designation that no rule catches shows up here:")
-    for (b, m), n in c.most_common(top):
-        print(f"  {n:6,d}  {b} | {m}")
-
-
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -484,16 +590,20 @@ def main() -> int:
     ap.add_argument("--period", default="",
                     help="Target month YYYY-MM (default: previous month).")
     ap.add_argument("--backfill", action="store_true",
-                    help="Re-derive every month from --backfill-from. Implied "
-                         "when a selected CSV does not exist yet.")
+                    help="Treat the run as a (re)build of history: skips the "
+                         "incomplete-month guard. Every real run re-derives "
+                         "the full history anyway. Implied when a selected "
+                         "CSV does not exist yet.")
     ap.add_argument("--backfill-from", default=BACKFILL_FROM_DEFAULT)
     ap.add_argument("--force", action="store_true",
                     help="Ignore the self-throttle, the completeness check "
-                         "and foreign source strings.")
+                         "and foreign source strings. Use after a rule change "
+                         "so the whole history is re-classified.")
     ap.add_argument("--from-agg", default="",
                     help="Offline: read a pre-aggregated CSV instead of "
                          "downloading (implies --backfill).")
     ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
+    ap.add_argument("--step-summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
     args = ap.parse_args()
 
     variants = list(VARIANT_CSV) if args.variant == "all" else [args.variant]
@@ -513,6 +623,10 @@ def main() -> int:
               "nothing to do.")
         return emit(args, set())
 
+    # Every real run re-derives the FULL history (2018 →): nine yearly zips,
+    # ~100 MB, a few minutes, once or twice a month. That keeps the CSVs, the
+    # mapping table and the rules consistent by construction — a rule added
+    # today re-classifies 2019 as well, and DNRPA corrections to any year land.
     agg = Aggregator()
     urls: list[str] = []
     if args.from_agg:
@@ -521,9 +635,7 @@ def main() -> int:
     else:
         session = make_session()
         resources = list_resources(session)
-        first_year = (int(args.backfill_from[:4]) if backfill
-                      else int(target[:4]) - 1)
-        for year in range(first_year, int(target[:4]) + 1):
+        for year in range(int(args.backfill_from[:4]), int(target[:4]) + 1):
             print(f"Year {year}:")
             url = ingest_year(session, resources, year, agg)
             if url:
@@ -540,8 +652,7 @@ def main() -> int:
               "retry on the next scheduled run.")
         return emit(args, set())
 
-    lo = args.backfill_from if backfill else f"{int(target[:4]) - 1}-01"
-    periods = sorted(p for p in agg.counts if lo <= p <= target)
+    periods = sorted(p for p in agg.counts if args.backfill_from <= p <= target)
 
     whole_total = agg.counts[target]["Whole"]["TOTAL"]
     if (not backfill and not args.force and "Whole" in variants
@@ -561,14 +672,33 @@ def main() -> int:
         if stats["added"] or stats["updated"]:
             changed.add(v)
 
+    # Classification outputs: the full designation → class → rule mapping and
+    # the top brands/models. Committed next to the data; the source page
+    # renders both (build_source_pages.py).
+    rows = build_models_rows(agg, target)
+    top = build_top(agg, target)
+    print(f"{MODELS_CSV.relative_to(REPO)}: "
+          f"{'updated' if write_models_csv(rows) else 'unchanged'} ({len(rows):,} designations)")
+    print(f"{TOP_JSON.relative_to(REPO)}: "
+          f"{'updated' if write_top_json(top) else 'unchanged'}")
+
     t = agg.counts[target]
+    lines = [f"## Argentina (DNRPA) — {target}\n",
+             "| variant | BEV | PHEV | EREV | HEV | MHEV | ICE | TOTAL | BEV share |",
+             "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for v in variants:
         c = t[v]
         tot = c["TOTAL"] or 1
         print(f"{target} {v:8s} " + " ".join(f"{k}={c[k]:,}" for k in FUELS)
               + f" TOTAL={c['TOTAL']:,}  BEV share {c['BEV'] / tot:.2%}")
-    print_review(agg, [p for p in periods if p >= f"{target[:4]}-01"])
-    print("\nSources: " + ", ".join(urls))
+        lines.append(f"| {v} | " + " | ".join(f"{c[k]:,}" for k in FUELS)
+                     + f" | {c['TOTAL']:,} | {c['BEV'] / tot:.2%} |")
+    report = "\n".join(lines) + "\n\n" + review_report(rows, target)
+    print("\n" + report)
+    if args.step_summary:
+        with open(args.step_summary, "a", encoding="utf-8") as fh:
+            fh.write(report)
+    print("Sources: " + ", ".join(urls))
     return emit(args, changed)
 
 

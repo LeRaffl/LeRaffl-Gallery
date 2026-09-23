@@ -10,15 +10,20 @@ name: Fetch Argentina data (DNRPA)
 #   data/Argentina_Pickups.csv   Pickups   all PICK-UP body types
 #
 # The records carry no fuel field: the powertrain is classified from the
-# model designation by a tested rule table (scripts/fetch_argentina.py,
-# validated against ACARA's electrified totals). Full definitions, the
-# validation and the caveats: docs/architecture/39-source-argentina.md.
+# model designation by the rule table classification/argentina_rules.csv
+# (hand-maintained; validated against ACARA's electrified totals). Each real
+# run also regenerates classification/argentina_models.csv (every designation
+# → class → deciding rule) and classification/argentina_top.json (top brands
+# and models), and writes the new-vehicle review (new designations, ⚠️ flags)
+# to the run's step summary — read it after every monthly run.
+# Full method, runbook and caveats: docs/architecture/39-source-argentina.md.
 #
 # DNRPA uploads month M around the 11th of M+1 (2026-08 landed 2026-09-11,
 # ~17:30 UTC). Polled twice daily on the 8th–25th; the script self-throttles
 # via the CSVs, so once the month is in, runs are a no-op without any HTTP.
-# Each real run re-derives the target year and the previous one from the
-# yearly zips, so DNRPA's corrections land too (line-level upserts only).
+# Each real run re-derives the FULL history (2018 →, ~100 MB, a few minutes)
+# so rule changes and DNRPA corrections reach every month (line-level upserts
+# only — unchanged lines stay byte-identical).
 #
 # Rendering: dispatches render-country.yml ONCE with the pipe-separated list
 # of touched variants (serial in one run, one commit — see fetch-spain.yml).
@@ -51,7 +56,7 @@ on:
         required: false
         default: '2018-01'
       force:
-        description: 'Ignore the self-throttle / completeness guard / foreign rows'
+        description: 'Ignore the self-throttle / completeness guard / foreign rows (use after editing classification/argentina_rules.csv)'
         required: false
         default: false
         type: boolean
@@ -110,6 +115,8 @@ jobs:
             data/Argentina_Private.csv
             data/Argentina_Industry.csv
             data/Argentina_Pickups.csv
+            classification/argentina_models.csv
+            classification/argentina_top.json
           message: 'chore: update Argentina data from DNRPA'
           default_author: github_actions
           # Rebase over anything that landed while this job ran instead of

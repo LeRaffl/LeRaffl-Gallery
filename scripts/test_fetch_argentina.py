@@ -46,6 +46,7 @@ CLASSIFY_CASES = {
     ("ARCFOX", "T1"): "BEV",
     ("BAIC", "EU5 ELECTRICO"): "BEV",
     ("CHANGAN", "DEEPAL S05"): "BEV",
+    ("DEEPAL", "L07"): "BEV",               # Deepal registered as its own brand
     # --- EREV (range extenders) ---
     ("LEAPMOTOR", "C10 REEV DESIGN"): "EREV",
     ("FORTHING", "FRIDAY REEV"): "EREV",
@@ -53,6 +54,7 @@ CLASSIFY_CASES = {
     # --- PHEV ---
     ("BYD", "ATTO 2 DM-I GS"): "PHEV",
     ("BYD", "SHARK DMO GS"): "PHEV",
+    ("BYD", "SHARK GS"): "PHEV",            # no DM marker — must not fall to "BYD = BEV"
     ("JETOUR", "T1 I-DM"): "PHEV",
     ("CHEVROLET", "CAPTIVA PHEV PREMIER"): "PHEV",
     ("CHERY", "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM"): "PHEV",
@@ -94,6 +96,7 @@ CLASSIFY_CASES = {
     ("FORD", "KUGA SE 2.5L HIBRIDO AT FWD"): "HEV",
     ("TOYOTA", "COROLLA CROSS SEG HEV 1.8 ECVT"): "HEV",
     ("TOYOTA", "PRIUS 1.8 CVT"): "HEV",
+    ("TOYOTA", "COROLLA HV 1.8 SEG ECVT"): "HEV",   # Toyota's older "HV" badge
     ("LEXUS", "UX 250H"): "HEV",
     ("BAIC", "BJ30E"): "HEV",
     ("NISSAN", "X-TRAIL EPOWER EXCLUSIVE CVT"): "HEV",
@@ -139,6 +142,54 @@ def test_classify():
     bad = [(k, want, fa.classify(*k)) for k, want in CLASSIFY_CASES.items()
            if fa.classify(*k) != want]
     assert not bad, "\n".join(f"{k}: want {w}, got {g}" for k, w, g in bad)
+
+
+def test_rules_table_is_well_formed():
+    ids = [r["id"] for r in fa.RULES]
+    assert len(ids) == len(set(ids)), "duplicate rule ids"
+    assert [int(r["order"]) for r in fa.RULES] == list(range(1, len(fa.RULES) + 1)), \
+        "order column must be 1..N with no gaps, in file order"
+    for r in fa.RULES:
+        assert r["class"] in fa.CLASSES, r["id"]
+        assert r["kind"] in {"exclusion", "token", "brand-code", "model", "brand-all"}, r["id"]
+        assert r["reason"].strip() and r["evidence"].strip(), f"{r['id']}: reason/evidence required"
+        assert fa.DEFAULT_RULE != r["id"]
+
+
+def test_every_rule_example_is_decided_by_its_own_rule():
+    """A rule whose example is caught by an EARLIER rule is shadowed (dead)."""
+    bad = []
+    for r in fa.RULES:
+        if not r["example_model"]:
+            continue                                    # anticipatory rule
+        got = fa.classify_rule(r["example_brand"], r["example_model"])
+        if got != (r["class"], r["id"]):
+            bad.append(f"{r['id']}: example {r['example_brand']} | {r['example_model']} -> {got}")
+    assert not bad, "\n".join(bad)
+
+
+def test_mapping_top_and_review_outputs():
+    a = fa.Aggregator()
+    add = lambda p, tipo, b, m, n: a.add(p, "INSCRIPCION INICIAL IMPORTADO", tipo, b, m, "Física", n)
+    add("2026-07", "SEDAN 5 PUERTAS", "BYD", "DOLPHIN MINI EV GS", 30)
+    add("2026-08", "SEDAN 5 PUERTAS", "BYD", "DOLPHIN MINI EV GS", 40)
+    add("2026-08", "RURAL 5 PUERTAS", "VOLVO", "EX30", 10)
+    add("2026-08", "RURAL 5 PUERTAS", "CHERY", "TIGGO 9 NEW 1.5T", 5)   # new, ICE, review brand
+    add("2024-01", "SEDAN 4 PUERTAS", "FIAT", "CRONOS DRIVE 1.3 GSE BZ", 100)
+    rows = fa.build_models_rows(a, "2026-08")
+    dolphin = next(r for r in rows if r["model"] == "DOLPHIN MINI EV GS")
+    assert (dolphin["class"], dolphin["rule"], dolphin["units_total"],
+            dolphin["first_seen"], dolphin["last_seen"]) == ("BEV", "bev-token", 70, "2026-07", "2026-08")
+    cronos = next(r for r in rows if r["brand"] == "FIAT")
+    assert cronos["units_last_12m"] == 0 and cronos["rule"] == fa.DEFAULT_RULE
+    top = fa.build_top(a, "2026-08")
+    assert top["total_registrations"] == 85, top["total_registrations"]
+    bev = top["classes"]["BEV"]
+    assert bev["units"] == 80 and bev["brands"][0] == {"brand": "BYD", "units": 70, "share_of_class": 0.875}
+    assert "ICE" not in top["classes"]
+    report = fa.review_report(rows, "2026-08")
+    assert "| ⚠️ | CHERY | TIGGO 9 NEW 1.5T |" in report, report
+    assert "| ⚠️ | VOLVO" not in report                       # EX30 is BEV, not flagged
 
 
 def test_body_class():
