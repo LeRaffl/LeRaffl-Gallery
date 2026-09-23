@@ -305,7 +305,7 @@ sequenceDiagram
 
 ## Flow H — ANFAVEA ingest
 
-Brazil is the first country with an automated, source-side ingestion. ANFAVEA publishes one Excel workbook per year (`siteautoveiculos<YEAR>.xlsx`) covering production, registrations, exports, and employment. We only consume sheet "III. Emplacamento Combustível" — the cars + light-commercial fuel-split table.
+Brazil is the first country with an automated, source-side ingestion. Until September 2026 ANFAVEA published one Excel workbook per year (`siteautoveiculos<YEAR>.xlsx`) and we parsed its sheet "III. Emplacamento Combustível". The site relaunch replaced the workbooks with an interactive **Central de Dados** (`/site/central-de-dados/`; the old `/site/edicoes-em-excel/` redirects there). Its front end POSTs every query to WordPress's `admin-ajax.php` and receives a rendered HTML table, so we send that same query: registrations (`tipo_dado=emplacamento`) by fuel (`dimensao_emplacamento=combustivel`) for `total_leves` (Automóveis + Comerciais Leves — the same scope as the old sheet), monthly.
 
 ```mermaid
 sequenceDiagram
@@ -315,15 +315,14 @@ sequenceDiagram
     participant CSV as data/Brazil.csv
     participant Render as render-country.yml
 
-    Cron->>Job: workflow_dispatch OR cron (10th 08:00 UTC)
-    Job->>Site: GET /site/edicoes-em-excel/ (browser UA)
-    Site-->>Job: HTML index
-    Job->>Job: regex match siteautoveiculos<year>(-N)?.xlsx
-    Job->>Site: GET /docs/siteautoveiculos<year>.xlsx
-    Site-->>Job: xlsx bytes
-    Job->>Job: Open sheet "III. Emplacamento Combustível"<br/>locate "Unidades" header → month row → fuel rows
-    Job->>Job: Map Portuguese fuel labels → CSV columns<br/>(Elétrico→BEV, Híbrido Plug-in→PHEV, Híbrido→HEV,<br/>Gasolina→PETROL, Diesel→DIESEL, Flex Fuel→FLEXFUEL)
-    Job->>Job: Skip months where all fuel values are 0
+    Cron->>Job: workflow_dispatch OR cron (10th 08:50 UTC)
+    Job->>Job: test_fetch_brazil.py (offline parser self-test)
+    Job->>Site: GET /site/central-de-dados/ (browser UA)
+    Site-->>Job: HTML with anfaveaData.nonce
+    Job->>Site: POST /site/wp-admin/admin-ajax.php<br/>action=anfavea_dashboard1, total_leves, combustivel, mensal, inicio…fim
+    Site-->>Job: {"success":true,"data":{"table_html":…}}
+    Job->>Job: Read raw ints from data-valor-export<br/>map ELÉTRICO→BEV, HÍBRIDO PLUG-IN→PHEV, HÍBRIDO→HEV,<br/>GASOLINA→PETROL, DIESEL→DIESEL, FLEX FUEL→FLEXFUEL, ETANOL→OTHERS
+    Job->>Job: Abort on unknown fuel label or sum ≠ ANFAVEA TOTAL
     Job->>CSV: Upsert by period; warn on >50% delta vs existing
     alt CSV changed
         Job->>Render: gh workflow run render-country.yml -f country=Brazil
@@ -332,11 +331,19 @@ sequenceDiagram
     end
 ```
 
-**Where parsing lives:** [scripts/fetch_brazil.py](../../scripts/fetch_brazil.py). The module docstring is the authoritative reference for the parsing rules, column map, and how the script handles partial-year data.
+**Where parsing lives:** [scripts/fetch_brazil.py](../../scripts/fetch_brazil.py). The module docstring is the authoritative reference for the request fields, column map and default window (the running year; in January/February also the previous year, so December and year-end revisions land). [scripts/test_fetch_brazil.py](../../scripts/test_fetch_brazil.py) pins the response markup.
 
-**Why a browser User-Agent:** ANFAVEA's Apache returns HTTP 406 for `python-requests/*`. We send a Chrome desktop UA + standard `Accept` / `Accept-Language` headers on both calls.
+**Why a browser User-Agent:** ANFAVEA's server rejects `python-requests/*`. We send a Chrome desktop UA + standard `Accept` / `Accept-Language` headers on both calls.
 
-**Why not the trucks/buses table:** sheet III has a second "Caminhões e Ônibus" block below the cars block. It uses a different fuel taxonomy (Elétrico/Gás/Diesel only) and isn't represented in `data/Brazil.csv`'s schema. The parser only walks the FIRST "Unidades" header and stops at the closing "Fonte:" marker, so the trucks table is naturally skipped.
+**Why the nonce scrape:** `admin-ajax.php` checks WordPress's anti-CSRF nonce. It is public (embedded in the page as `var anfaveaData = {…"nonce":"…"}`) but rotates, so every run reads it fresh from the dashboard page rather than hard-coding it.
+
+**Why overwrite the running year:** ANFAVEA revises recent months (the Central de Dados figures for early 2026 differ by a few hundred units between BEV/PHEV/HEV from the last workbook). Re-reading the window keeps the series on ANFAVEA's current numbers; older years are not re-fetched unless dispatched with `year` or `from`/`to` (invariant 3).
+
+**Why ETANOL → OTHERS:** the Central de Dados reports a small pure-ethanol category that the workbook didn't. Mapping it to the existing, previously always-zero `OTHERS` column keeps it on the combustion side without adding a column to all of `data/Brazil.csv`.
+
+**No brands / models:** the Central de Dados has registrations by company (`empresa`) and brand (`marca`), but only as totals — the brand dimension cannot be crossed with fuel, and there are no models. A `market/brazil_top.json` (the "who sells the electrified cars" section) is therefore not possible from this source.
+
+**Why not trucks/buses:** they are `total_pesados` in the dashboard, with a different fuel taxonomy (Diesel/Elétrico/Gasolina/Gás) that isn't represented in `data/Brazil.csv`'s schema, so we don't query them.
 
 **Adding more countries:** the pattern (`fetch-<country>.yml` → `scripts/fetch_<country>.py` → commit + dispatch render) is intentionally country-local rather than generic, because each statistics agency has its own URL scheme, file layout, and quirks. Duplicate and adapt rather than parameterise prematurely.
 

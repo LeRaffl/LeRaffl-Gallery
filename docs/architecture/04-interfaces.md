@@ -310,7 +310,7 @@ failure modes; this table is the surface map.
 | ACEA cluster | `acea.auto/files/Press_release_car_registrations_<Month>_<Year>.pdf` | PDF over HTTPS | none |
 | Albania | `lookerstudio.google.com/reporting/233df2cc-…` → the report's own `batchedDataV2` calls | Headless Chromium (Playwright), responses intercepted | none (a real browser session is required) |
 | Austria | `statistik.at/…/kfz-neuzulassungen` + the DE2/DE3 `.ods` files | File download **via relay** | relay token (source blocks datacenter IPs) |
-| Brazil | `anfavea.com.br/site/edicoes-em-excel/` → `siteautoveiculos<YEAR>.xlsx` | Page scrape + XLSX | none |
+| Brazil | `anfavea.com.br/site/central-de-dados/` (nonce) → `POST /site/wp-admin/admin-ajax.php` `action=anfavea_dashboard1` | Page scrape + WordPress AJAX (HTML table) | none (public nonce) |
 | Canada | `www150.statcan.gc.ca/t1/wds/rest/getCubeMetadata` and `…/getDataFromCubePidCoordAndLatestNPeriods` | JSON REST (POST) | none |
 | Chile | `anac.cl/category/estudio-de-mercado/` → two monthly PDFs | Page scrape + PDF | none |
 | China | `cpcaauto.com/news.php?types=csjd&anid=129&nid=24` → `newslist.php?types=csjd&id=<id>` + embedded slide JPGs | HTML scrape + OCR | none (403s bare requests — needs a desktop UA + Referer) |
