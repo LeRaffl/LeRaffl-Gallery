@@ -6,7 +6,7 @@ name: TEMP probe ANFAVEA site
 on:
   push:
     branches: [claude/anfavea-brazil-website-kkfb8n]
-    paths: [.github/workflows/probe-anfavea.yml, scripts/probe_anfavea.py]
+    paths: [.github/workflows/probe-anfavea.yml, scripts/fetch_brazil.py]
 
 jobs:
   probe:
@@ -16,10 +16,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: pip install requests beautifulsoup4 openpyxl xlrd
-      - run: python scripts/probe_anfavea.py
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: probe
-          path: probe_out/
+      - run: pip install requests beautifulsoup4
+      - run: python scripts/test_fetch_brazil.py
+      - run: |
+          cp data/Brazil.csv /tmp/b.csv
+          python scripts/fetch_brazil.py --csv /tmp/b.csv
+          diff data/Brazil.csv /tmp/b.csv || true
+          cp data/Brazil.csv /tmp/c.csv
+          python scripts/fetch_brazil.py --year 2025 --csv /tmp/c.csv
+          diff data/Brazil.csv /tmp/c.csv || true

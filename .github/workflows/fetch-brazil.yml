@@ -1,19 +1,24 @@
 name: Fetch Brazil data (ANFAVEA)
 
-# Fetches the latest ANFAVEA Excel file, parses the fuel-type registration
-# table for cars + light commercial vehicles, and upserts new monthly rows
-# into data/Brazil.csv. If the CSV changed, render-country.yml is triggered
+# Queries ANFAVEA's "Central de Dados" (admin-ajax.php, since the 2026-09 site
+# relaunch replaced the yearly Excel workbooks) for registrations of cars +
+# light commercial vehicles by fuel, and upserts the monthly rows into
+# data/Brazil.csv. If the CSV changed, render-country.yml is triggered
 # automatically for Brazil.
 
 on:
   workflow_dispatch:
     inputs:
-      url:
-        description: 'Direct Excel URL (leave empty to auto-discover from ANFAVEA page)'
+      year:
+        description: 'Year to fetch, Jan–Dec (leave empty for the running year)'
         required: false
         default: ''
-      year:
-        description: 'Year to fetch (leave empty for current year)'
+      from:
+        description: 'First month YYYY-MM (overrides year; leave empty for default)'
+        required: false
+        default: ''
+      to:
+        description: 'Last month YYYY-MM (overrides year; leave empty for default)'
         required: false
         default: ''
   schedule:
@@ -34,16 +39,21 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 openpyxl
+        run: pip install requests beautifulsoup4
+
+      - name: Parser self-test
+        run: python scripts/test_fetch_brazil.py
 
       - name: Fetch & update Brazil.csv
         run: |
           python scripts/fetch_brazil.py \
-            ${URL:+--url "$URL"} \
-            ${YEAR:+--year "$YEAR"}
+            ${YEAR:+--year "$YEAR"} \
+            ${FROM:+--from "$FROM"} \
+            ${TO:+--to "$TO"}
         env:
-          URL: ${{ inputs.url }}
           YEAR: ${{ inputs.year }}
+          FROM: ${{ inputs.from }}
+          TO: ${{ inputs.to }}
 
       - name: Commit if changed
         id: commit
