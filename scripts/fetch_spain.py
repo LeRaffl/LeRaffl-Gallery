@@ -398,9 +398,10 @@ def aggregate_models(txt_bytes: bytes) -> tuple[dict, int]:
         if len(line) != RECORD_LEN or "Whole" not in record_variants(line):
             continue
         total += 1
-        key = (classify_fuel(line),
-               market_top.clean(line[SL_MARCA[0]:SL_MARCA[1]]),
-               market_top.clean(line[SL_MODELO[0]:SL_MODELO[1]]))
+        brand = market_top.clean(line[SL_MARCA[0]:SL_MARCA[1]])
+        model = market_top.strip_brand(
+            brand, market_top.clean(line[SL_MODELO[0]:SL_MODELO[1]]))
+        key = (classify_fuel(line), brand, model)
         units[key] = units.get(key, 0) + 1
     return units, total
 

@@ -334,7 +334,7 @@ over those months.
 - **Failure:** a warning annotation; the data commit is unaffected. If a month
   of the window 404s, the file is simply not rebuilt that run.
 - **Strings:** DGT's own `MARCA_ITV` / `MODELO_ITV`, trimmed and upper-cased.
-  `MODELO_ITV` is the commercial model (e.g. `MODEL Y`), so trims are pooled.
+  `MODELO_ITV` is the commercial model (e.g. `MODEL Y`), so trims are mostly pooled; a leading repeat of the brand ("BYD DOLPHIN SURF") is dropped so one model is one row (`market_top.strip_brand`). It is cut at 22 characters by DGT ("5 E-TECH ELECT").
 
 Schema and shared builder: [03-data-objects §3.16](03-data-objects.md#316-top-brands--models-market).
 

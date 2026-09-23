@@ -129,6 +129,15 @@ def guarded(fn, *args) -> None:
               f"{type(e).__name__}: {e}")
 
 
+def strip_brand(brand: str, model: str) -> str:
+    """Drop a leading repeat of the brand from the model string (DGT writes
+    both "BYD DOLPHIN SURF" and "DOLPHIN SURF" for the same car), so one model
+    is one row. Only a whole-word prefix, and never down to an empty string."""
+    if brand and model.startswith(brand + " ") and len(model) > len(brand) + 1:
+        return model[len(brand) + 1:]
+    return model
+
+
 def clean(s) -> str:
     """Registry strings → display strings: trimmed, inner whitespace collapsed,
     upper-cased so the same model typed two ways counts once."""
