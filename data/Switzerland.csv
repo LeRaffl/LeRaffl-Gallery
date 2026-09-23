@@ -197,4 +197,5 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-04,monthly,Whole,ACEA,4683.0,2299.0,6611.0,4040.0,984.0,1.0,18618.0,data/Press_release_car_registrations_April_2026.pdf
 2026-05,monthly,Whole,ACEA,5140.0,2293.0,6818.0,4466.0,1022.0,2.0,19741.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
 2026-06,monthly,Whole,ACEA,6652.0,3432.0,8609.0,5037.0,1476.0,1.0,25207.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
+2026-07,monthly,Whole,ACEA,4879.0,2413.0,7132.0,3412.0,1138.0,0.0,18994.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); fuel columns sum 20 below TOTAL because the 2026-02 row fuels exceed its TOTAL by 20; Jan-Mar 2026 rows partly from BFS so fuel split may carry definition differences; https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
 2026-08,monthly,Whole,ACEA,4843.0,1903.0,5981.0,2566.0,754.0,0.0,16047.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
