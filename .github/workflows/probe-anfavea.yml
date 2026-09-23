@@ -1,0 +1,25 @@
+name: TEMP probe ANFAVEA site
+
+# Temporary diagnostic (removed before merge): dumps the new ANFAVEA
+# Excel page and the structure of every linked workbook.
+
+on:
+  push:
+    branches: [claude/anfavea-brazil-website-kkfb8n]
+    paths: [.github/workflows/probe-anfavea.yml, scripts/probe_anfavea.py]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install requests beautifulsoup4 openpyxl xlrd
+      - run: python scripts/probe_anfavea.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe
+          path: probe_out/
