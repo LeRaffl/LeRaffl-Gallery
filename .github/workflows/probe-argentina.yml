@@ -18,5 +18,5 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: pip install requests
+      - run: sudo apt-get install -y poppler-utils >/dev/null && pip install requests
       - run: python scripts/probe_argentina.py

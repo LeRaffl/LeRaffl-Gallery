@@ -1,50 +1,28 @@
 #!/usr/bin/env python3
 """TEMPORARY probe for the Argentina source investigation. Delete when done.
 
-Aggregates every DNRPA inscripciones-iniciales yearly zip to
-(month, tipo, marca, modelo, titular_tipo_persona, uso) counts and prints the
-result gzip+base64 so the dev sandbox (which cannot reach datos.jus.gob.ar)
-can rebuild it from the job log.
+v3: pull the SIOMAA/ACARA electromobility report PDFs (mirrored by the press)
+to audit the model→powertrain classifier against ACARA's own per-model tables.
 """
-import base64, collections, csv, gzip, io, zipfile
+import subprocess
 import requests
 
-S = requests.Session()
-S.headers["User-Agent"] = "Mozilla/5.0 (LeRaffl-Gallery probe)"
-PKG = "https://datos.jus.gob.ar/api/3/action/package_show?id=inscripciones-iniciales-de-autos"
-
-res = S.get(PKG, timeout=60).json()["result"]["resources"]
-agg = collections.Counter()
-for x in res:
-    url = x["url"]
-    if not url.endswith(".zip"):
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/126.0 Safari/537.36")
+URLS = [
+    "https://autoblog.com.ar/wp-content/uploads/2026/01/SIOMAA.-Informe-Electromovilidad.-20251.pdf",
+    "https://autoblog.com.ar/wp-content/uploads/2026/06/2026.05-ACARA.-Informe-de-Mercado-4W_Instit.pdf",
+]
+for u in URLS:
+    try:
+        r = requests.get(u, timeout=120, headers={"User-Agent": UA, "Referer": "https://autoblog.com.ar/"})
+    except Exception as e:  # noqa
+        print("ERR", u, e)
         continue
-    r = S.get(url, timeout=900)
-    print("GET", url, r.status_code, len(r.content), flush=True)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    for n in z.namelist():
-        if not n.endswith(".csv"):
-            continue
-        k = 0
-        for row in csv.DictReader(io.TextIOWrapper(z.open(n), encoding="utf-8-sig")):
-            k += 1
-            agg[((row.get("tramite_fecha") or "")[:7],
-                 row.get("tramite_tipo") or "",
-                 row.get("automotor_tipo_descripcion") or "",
-                 row.get("automotor_marca_descripcion") or "",
-                 row.get("automotor_modelo_descripcion") or "",
-                 (row.get("titular_tipo_persona") or "")[:1],
-                 (row.get("automotor_uso_descripcion") or "")[:3],
-                 row.get("automotor_anio_modelo") or "")] += 1
-        print("  member", n, k, "rows", flush=True)
-
-buf = io.StringIO()
-w = csv.writer(buf, lineterminator="\n")
-w.writerow(["month", "tramite", "tipo", "marca", "modelo", "persona", "uso", "anio", "n"])
-for key, n in sorted(agg.items()):
-    w.writerow(list(key) + [n])
-blob = base64.b64encode(gzip.compress(buf.getvalue().encode(), 9)).decode()
-print("AGG rows", len(agg), "b64 chars", len(blob), flush=True)
-for i in range(0, len(blob), 2000):
-    print("B64:" + blob[i:i + 2000])
-print("B64END")
+    print("GET", u, r.status_code, len(r.content), r.headers.get("content-type"), flush=True)
+    if r.ok and r.content[:4] == b"%PDF":
+        open("/tmp/p.pdf", "wb").write(r.content)
+        out = subprocess.run(["pdftotext", "-layout", "/tmp/p.pdf", "-"],
+                             capture_output=True, text=True).stdout
+        print("=" * 30, u)
+        print(out)
