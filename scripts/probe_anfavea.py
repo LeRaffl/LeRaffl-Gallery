@@ -41,4 +41,4 @@ for s in soup.find_all("script", src=True):
     if "central-de-dados" in s["src"] or "anfavea-theme" in s["src"]:
         js = requests.get(s["src"], headers=H, timeout=30).text
         print(f"\n=== JS {s['src']} len={len(js)}")
-        print(js[:20000])
+        print(js if "central-de-dados" in s["src"] else "")
