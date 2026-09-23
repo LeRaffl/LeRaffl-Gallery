@@ -207,6 +207,22 @@ def test_top_is_order_independent():
     assert [x["brand"] for x in tops[0]["classes"]["EREV"]["models"]] == ["CHANGAN", "FORTHING"]
 
 
+def test_pickups_is_fetch_only():
+    """Pickups is written and committed but never dispatched to the render."""
+    assert "Pickups" in fa.VARIANT_CSV
+    assert "Pickups" not in fa.RENDERED_VARIANTS
+    assert fa.render_list({"Pickups"}) == []
+    assert fa.render_list({"Whole", "Pickups", "Industry"}) == ["Industry", "Whole"]
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "out"
+
+        class A:
+            github_output = str(out)
+        fa.emit(A, {"Pickups"})
+        text = out.read_text()
+        assert "changed=true" in text and "changed_variants=[]" in text, text
+
+
 def test_body_class():
     bad = [(t, w, fa.body_class(t)) for t, w in BODY_CASES.items()
            if fa.body_class(t) != w]

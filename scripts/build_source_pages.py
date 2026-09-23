@@ -743,6 +743,11 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                                   units_total,units_last_12m,
 #                                                   first_seen,last_seen)
 #     intro:   [paragraph, …]                     plain-language method
+#     scopes:  [Whole, …]                         optional: only mapping rows
+#                                                 of these scopes are shown and
+#                                                 counted (data-only scopes such
+#                                                 as Argentina's Pickups stay in
+#                                                 the downloadable CSV only)
 #
 # Neither file is hand-edited except the rules CSV (the classifier's source of
 # truth). Missing files degrade to a short "not generated yet" note, never an
@@ -872,6 +877,9 @@ def build_classification(fm: dict) -> str:
         return ""
     rules = _read_csv(spec.get("rules")) or []
     mapping = _read_csv(spec.get("mapping"))
+    scopes = spec.get("scopes")
+    if mapping is not None and scopes:
+        mapping = [r for r in mapping if r.get("scope") in scopes]
     intro = spec.get("intro") or []
     if isinstance(intro, str):
         intro = [intro]
