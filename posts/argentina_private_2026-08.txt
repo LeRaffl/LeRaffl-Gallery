@@ -1,0 +1,11 @@
+🇦🇷 Argentina (Private) - August 26 - BEV Trajectory
+2.0% BEV
+6.5% PHEV (of which 0.4%p were EREV)
+91.4% ICE (of which 13.0%p were HEV)
+
+Trailing 12 months are:
+1.4% BEV
+3.5% PHEV (of which 0.0%p were EREV)
+95.1% ICE (of which 10.5%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
