@@ -6,7 +6,7 @@ name: TEMPORARY probe Argentina sources
 on:
   push:
     branches: [claude/argentina-gallery-implementation-3bs2w2]
-    paths: [.github/workflows/probe-argentina.yml, scripts/probe_argentina.py]
+    paths: [.github/workflows/probe-argentina.yml, scripts/probe_argentina.py, scripts/fetch_argentina.py]
 
 jobs:
   probe:
@@ -18,5 +18,5 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - run: sudo apt-get install -y poppler-utils >/dev/null && pip install requests
+      - run: pip install requests
       - run: python scripts/probe_argentina.py
