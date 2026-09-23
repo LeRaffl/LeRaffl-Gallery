@@ -1,0 +1,11 @@
+🇦🇷 Argentina (Industry) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++1.7pp  BEV   (0.6% → 2.2%)
++2.4pp  PHEV  (0.2% → 2.6%)
++4.8pp  HEV   (5.3% → 10.1%)
+−8.9pp  ICE   (93.9% → 85.1%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2032-04.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

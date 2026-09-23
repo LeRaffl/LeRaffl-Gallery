@@ -2,8 +2,9 @@ name: Build source pages
 
 # Regenerates the public country source pages under sources/ whenever their
 # inputs change: a source doc's front-matter, the stub registry, the generator
-# itself, or params.csv (which carries the latest period + TTM BEV share shown
-# on each page). Commits the regenerated HTML back to the branch.
+# itself, params.csv (which carries the latest period + TTM BEV share shown
+# on each page), or classification/** (the powertrain mapping + top-models
+# tables a page can embed — see docs/architecture/39-source-argentina.md §6). Commits the regenerated HTML back to the branch.
 #
 # The generated HTML lives in the repo because GitHub Pages serves it directly,
 # so it must be committed to go live. This workflow does NOT trigger on
@@ -22,6 +23,7 @@ on:
       - 'params.csv'
       - 'manifest.json'
       - '.github/workflows/fetch-*.yml'
+      - 'classification/**'          # powertrain mapping + top models (doc 39 §6)
   pull_request:
     paths:
       - 'docs/architecture/*-source-*.md'
@@ -30,6 +32,7 @@ on:
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'
+      - 'classification/**'
   workflow_dispatch: {}
   schedule:
     - cron: '37 4 * * *'   # daily fallback so freshness tracks the data

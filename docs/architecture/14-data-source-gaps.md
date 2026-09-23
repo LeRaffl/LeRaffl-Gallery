@@ -57,7 +57,9 @@ completeness of whatever it scraped and adds its own lag/discrepancies.
 ## Latin America (beyond Brazil / Chile / Uruguay)
 
 We have direct, working fetchers for Brazil (ANFAVEA), Chile (ANAC) and
-Uruguay (ACAU). The rest of the region was investigated in May 2026 and shelved.
+Uruguay (ACAU). The rest of the region was investigated in May 2026 and
+shelved; Colombia (ANDI/FENALCO, 2026) and Argentina (DNRPA open microdata,
+2026-09) have since been solved — their sections below say how.
 
 ### The zemo-la.com dashboard (regional aggregator) — not used
 
@@ -75,7 +77,23 @@ shop, but:
 Conclusion: a dashboard, not a data source. We always prefer the same national
 originals it aggregates from.
 
-### 🇦🇷 Argentina — registry data exists, but paywalled + ID-gated
+### 🇦🇷 Argentina — solved via DNRPA's open microdata (formerly shelved)
+
+**Update (2026-09):** Argentina is now ingested. See
+[39-source-argentina.md](39-source-argentina.md) and
+`scripts/fetch_argentina.py`. The registry itself — DNRPA, the Justice
+Ministry's motor-vehicle registry — publishes **every first registration as
+a record** on its free CKAN portal (`datos.jus.gob.ar`, *Inscripciones
+iniciales de autos*, monthly, since 2018): no payment, no login, no ID
+number, and complete by construction (BYD and every Chinese import are in
+it). The records carry no fuel field, so the powertrain is classified from
+the model designation, which in Argentina spells it out for almost every
+electrified car; the classifier is validated against ACARA's published
+electrified totals (BEV exact, HEV/PHEV within 0.4 % for H1 2026). That
+also answers the "what would change the decision" line below: the free,
+machine-readable DNRPA endpoint existed — it had not been looked for.
+
+The previous shelving rationale, kept for the record:
 
 - **Best data:** ACARA / SIOMMA "Informe de Electromovilidad". It's
   **registry-based** (patentamientos via DNRPA), so it's *complete* — BYD and
@@ -241,8 +259,10 @@ If someone points at one of these countries and says "but the data exists,
 
 1. **Completeness** — the freely-available source omits a dominant brand
    (BYD is the recurring culprit in LatAm), so the BEV share would be wrong.
-2. **Access** — it's paywalled, ID-gated (Argentina), or login-walled
-   (Colombia/RUNT).
+2. **Access** — it's paywalled, ID-gated (the ACARA electromobility report),
+   or login-walled (Colombia/RUNT). Check for the registry's own open-data
+   portal before concluding: Argentina's DNRPA publishes record-level
+   registrations for free and is how Argentina got on the map.
 3. **Format/consistency** — only an aggregated dashboard (Power BI / Looker)
    with no full fuel split, or an EV-only segment with no total to compute ICE.
 4. **Wrong population / not an organic transition** — the market's *flow* is

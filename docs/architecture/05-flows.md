@@ -33,7 +33,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 > **Not every fetcher has a lettered flow here.** Flows H–V were written as
 > each of the first ingest pipelines landed; the later ones — Austria, Canada,
 > Italy, Luxembourg, Poland, Malaysia, Singapore, Spain, Thailand, Indonesia,
-> Nepal, Albania and New Zealand — never got one. They are not undocumented:
+> Nepal, Albania, New Zealand and Argentina — never got one. They are not undocumented:
 > each has a **workflow data-flow diagram in its own source doc**
 > (`docs/architecture/NN-source-<country>.md`), which is the authority for
 > that country, and every fetcher's schedule and scope is listed in

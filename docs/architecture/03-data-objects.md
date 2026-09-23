@@ -67,16 +67,16 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `source` | yes | string | URL or short name (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |
 | `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia. |
-| `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale) and **Spain** (all eight variants). Folds into PHEV in the three-curve view. |
+| `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale), **Spain** (all eight variants) and **Argentina** (range-extender designations, e.g. `REEV`). Folds into PHEV in the three-curve view. |
 | `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia), this column carries the total and the post-text labels it as "Hybrid". |
-| `MHEV` | optional | numeric | Mild hybrid. Reserved; not currently in any active CSV. Treated as a subset of HEV (which is a subset of ICE) in every output chart. |
+| `MHEV` | optional | numeric | Mild hybrid. Only **Argentina** writes it (from explicit designations and verified model rules — a lower bound, see [39-source-argentina.md](39-source-argentina.md) § 4); elsewhere it is absent or folded upstream. Counted on the ICE side in every output chart. |
 | `PETROL` | optional | numeric | Conceptually pure-petrol ICE. *Caveat:* a small number of source statistics today fold petrol-HEV variants into this column rather than the HEV column. Improving the upstream split is a known data-quality task; for now the headline ICE/BEV/PHEV trajectory is unaffected because all of it ends up in the ICE bucket either way. |
 | `DIESEL` | optional | numeric | Conceptually pure-diesel ICE. Same caveat as `PETROL` — a few sources fold diesel-HEV here. |
 | `GAS`, `CNG`, `LPG` | optional | numeric | Reserved for sources that split natural-gas variants. In practice most countries' source data folds these into `OTHERS`. Always counted as ICE in the output charts. |
 | `FLEXFUEL` | optional | numeric | Counted as ICE in the output charts. The column is in the schema for Brazil, Colombia, Denmark, Finland, Ireland, Netherlands, Portugal and Sweden, but only **Brazil, Ireland and Sweden** ever put values in it — everywhere else it is uniformly empty because the source doesn't report ethanol/flexifuel. That distinction matters: a uniformly-empty column is skipped by the TTM logic, whereas a *half*-filled one breaks the strict 12-month window (see [15-source-ireland.md § 6](15-source-ireland.md)). |
 | `ETHANOL` | optional | numeric | Reserved; mostly seen folded into `OTHERS` upstream. ICE in the output charts. |
 | `OTHERS` | optional | numeric | Catch-all bucket — typically absorbs `GAS`/`CNG`/`LPG`/`ETHANOL` when the source doesn't split them. ICE in the output charts. |
-| `ICE` | optional | numeric | Used when the source gives a single combustion total with no petrol/diesel breakdown: **Chile, China, Colombia, South Korea, Thailand, USA**. Where it is present, `PETROL` and `DIESEL` stay empty. |
+| `ICE` | optional | numeric | Used when the source gives a single combustion total with no petrol/diesel breakdown: **Argentina, Chile, China, Colombia, South Korea, Thailand, USA**. Where it is present, `PETROL` and `DIESEL` stay empty. |
 | `TOTAL` | yes | numeric | Sum of everything for the period. |
 | `notes` | optional | string | Free text for the submitter or maintainer. Some fetchers store the source URL or provenance note here (e.g. Brazil, Japan, Türkiye). |
 
@@ -212,7 +212,7 @@ The full source-playbook — discovery (ANDI renames the bulletin file every yea
 > **Only seven countries have a subsection here.** These were written as each
 > database-fed source landed and were not continued; Canada, Austria, Italy,
 > Luxembourg, Poland, Malaysia, Singapore, Albania, Spain, Thailand, Indonesia,
-> Nepal and China have no entry above. They are not undocumented — each has a
+> Nepal, China and Argentina have no entry above. They are not undocumented — each has a
 > full playbook at `docs/architecture/NN-source-<country>.md` covering the same
 > ground (variants, column mapping, history, quirks), and the canonical column
 > semantics are the table at the top of § 3.1, which applies to every country.
@@ -643,6 +643,24 @@ Parsed out of `R/post_text.R::.pt_flag` at build time rather than duplicated her
 ### Known upstream wrinkle
 
 `manifest.json` currently carries a malformed label `India-Wheelers` alongside `India (4 Wheelers)` — a slug→label round-trip artefact of the same class as the `t_rkiye` → `T (Rkiye)` case documented in `R/render_country.R`. It has no flag and shows under that name. Fixing it belongs in `build_manifest.R`, not here.
+
+## 3.15 Powertrain Classification (`classification/`)
+
+For sources whose records carry **no fuel field** the gallery derives the
+powertrain from the model designation. Three files per such country (so far
+only Argentina — [39-source-argentina.md](39-source-argentina.md) §4–§7):
+
+| file | lifecycle | shape |
+|---|---|---|
+| `classification/<slug>_rules.csv` | **hand-edited source of truth**; validated by the country's tests | ordered first-match rules: `order, id, class, brand, pattern, kind, reason, evidence, example_brand, example_model` |
+| `classification/<slug>_models.csv` | generated by the fetcher on every real run (full re-derivation), committed with the data | one row per (brand, designation, scope): `class`, deciding `rule`, `units_total`, `units_last_12m`, `first_seen`, `last_seen` |
+| `classification/<slug>_top.json` | generated by the fetcher | top brands / designations per class over the trailing 12 months — **country-neutral schema** ([39](39-source-argentina.md) §5.3); any fetcher with model-level records may emit it |
+
+The source page renders them when the country's front-matter declares
+`market_breakdown:` (top JSON) and/or `classification: {rules, mapping,
+intro}` ([39](39-source-argentina.md) §6); `build-source-pages.yml` rebuilds on
+`classification/**`. The data CSV is still the single source of truth for the
+numbers; these files explain and audit how its fuel columns were derived.
 
 ## See also
 

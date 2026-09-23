@@ -319,6 +319,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-acea.yml`](../../.github/workflows/fetch-acea.yml) | 08:40 UTC, 16th → EOM | ACEA monthly PDF press release | Always-list (16): Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia. Conditional-list: Norway, Switzerland — written only if the existing source is exactly `ACEA` | `max(period)` across always-list ≥ target |
 | [`fetch-acea-cv.yml`](../../.github/workflows/fetch-acea-cv.yml) | 10:15 UTC — 18th-31st Jan (FY), 15th-30th Apr (Q1), 20th Jul-10th Aug (H1), 20th-31st Oct (Q1-Q3) | ACEA's quarterly-cumulative Commercial Vehicle PDF press releases ([38-source-acea-cv.md](38-source-acea-cv.md)) | `Vans` + `HDV` + `Buses` for a maintainer-curated 21-country roster (not fetch-acea.yml's list — see 38-source-acea-cv.md § 1a); conditional per (country, variant, period) row — skips any file whose existing source isn't `ACEA`. Reconstructs genuine Q1/Q2/Q3/Q4 rows from ACEA's cumulative checkpoints, yearly fallback only with no quarterly baseline yet | sentinel file (`already_have_checkpoint()`) already has this checkpoint's quarter (or a yearly row) recorded |
 | [`fetch-albania.yml`](../../.github/workflows/fetch-albania.yml) | 07:00 UTC, 10th → 28th | DPSHTRR Open Data via its public Looker Studio report (headless Chromium) | `Whole` + `HDV` + `Buses` + `2-Wheelers` — first registrations, new **and** imported used | change-gated commit |
+| [`fetch-argentina.yml`](../../.github/workflows/fetch-argentina.yml) | 09:15 & 21:15 UTC, 8th → 25th | DNRPA «Inscripciones iniciales» open microdata (`datos.jus.gob.ar` CKAN; yearly zips + newest-month CSV) — powertrain classified from the model designation ([39](39-source-argentina.md)) | `Whole` (≈M1) + `Private` + `Industry` + `Pickups` — one download, every variant | every CSV already has the target month from `DNRPA` → no HTTP |
 | [`fetch-austria.yml`](../../.github/workflows/fetch-austria.yml) | 09:25 UTC, 8th → 22nd | Statistik Austria DE2/DE3 `.ods` (via the Cloudflare Worker relay — the source blocks datacenter IPs) | `Whole` + `HDV` + `Vans` | per-variant early-exit |
 | [`fetch-brazil.yml`](../../.github/workflows/fetch-brazil.yml) | 08:50 UTC, 10th | ANFAVEA yearly Excel workbook | `Whole` (cars + light commercials) | change-gated commit |
 | [`fetch-canada.yml`](../../.github/workflows/fetch-canada.yml) | 06:40 UTC, 8th → 20th of Mar/Jun/Sep/Dec | StatCan WDS cube 20-10-0025 | `Whole` (EU M1) + `Pickups` + `Vans` | change-gated commit (always re-fetches latest N quarters) |
@@ -360,16 +361,17 @@ Notes on the schedule shape:
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
   07:30, Nepal 07:50.
-- **And from above:** Austria 09:25, Poland 09:30 & 13:30, Indonesia 09:35,
-  USA 10:30 (off the 10th's Brazil window), China 11:00, Portugal 17:30 &
-  20:30 — the only evening slot, because ACAP publishes from ~17:00 Lisbon
-  on the 1st.
+- **And from above:** Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
+  & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
+  11:00, Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
+  from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
+  afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
   Sweden, Spain, Thailand, Luxembourg; Ireland, Italy and Portugal from the
   1st too) rely entirely on the self-throttle to keep the empty days free —
   they fire many times a month but only do real HTTP on the days the source
   publishes.
-- **Date-window starters** (Poland 6+, USA 10+, Indonesia 10+, Albania 10+,
+- **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,
   Chile 14+, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, and the
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
