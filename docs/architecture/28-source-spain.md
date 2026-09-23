@@ -13,6 +13,7 @@ source_links:
 - label: DGT
   url: https://www.dgt.es/
 underlying: DGT — Dirección General de Tráfico
+market_breakdown: market/spain_top.json
 auth: none
 cadence: daily in the first half of the month (publishes weeks before ACEA)
 variants:
@@ -315,6 +316,27 @@ needed. Since DGT publishes weeks before ACEA, the DGT row will exist first
 in the steady state. Give `fetch_spain.py` the mirrored courtesy rule:
 overwrite an existing row only if its source is exactly `ACEA` (the fallback
 that beat us to it) or already `DGT`; never touch the blended history rows.
+
+## 5c. Top brands and models (`market/spain_top.json`)
+
+Every record carries `MARCA_ITV` and `MODELO_ITV`, so `fetch_spain.py` also
+keeps a trailing-twelve-month top-brands / top-models summary per
+electrified class for **Whole**, rendered on the source page as "Who sells
+the electrified cars". Class = exactly the fuel class the record gets in
+`data/Spain.csv` (`classify_fuel`), and the window total equals the CSV TOTAL
+over those months.
+
+- **When:** whenever the file is missing or its `as_of` is behind the newest
+  DGT month in `data/Spain.csv` — so once per new month, on the same run that
+  writes it, and on the first run after deployment (also from a throttled
+  no-op run).
+- **Cost:** twelve monthly zips, a few minutes. `--no-top` skips it.
+- **Failure:** a warning annotation; the data commit is unaffected. If a month
+  of the window 404s, the file is simply not rebuilt that run.
+- **Strings:** DGT's own `MARCA_ITV` / `MODELO_ITV`, trimmed and upper-cased.
+  `MODELO_ITV` is the commercial model (e.g. `MODEL Y`), so trims are mostly pooled; a leading repeat of the brand ("BYD DOLPHIN SURF") is dropped so one model is one row (`market_top.strip_brand`). It is cut at 22 characters by DGT ("5 E-TECH ELECT").
+
+Schema and shared builder: [03-data-objects §3.16](03-data-objects.md#316-top-brands--models-market).
 
 ## 6. Attribution, and why we don't scrape Asier's Tableau
 

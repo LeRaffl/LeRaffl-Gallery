@@ -5,6 +5,11 @@ name: Fetch Malaysia data (data.gov.my)
 # year, one row per registration event. Runs monthly once the previous
 # month's data is typically available (data.gov.my updates within ~2 weeks
 # of month-end).
+#
+# The same parquets carry maker + model, so the script also keeps
+# market/malaysia_top.json (trailing-12-month top brands and models per
+# electrified class) current. That file feeds only the source page: a change to
+# it alone is committed but does NOT dispatch a render (see "Detect data change").
 
 on:
   workflow_dispatch:
@@ -38,6 +43,10 @@ jobs:
       - name: Install dependencies
         run: pip install requests pandas pyarrow
 
+      # Offline; guards the top brands/models parsing (scripts/market_top.py).
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
       - name: Fetch Malaysia data
         run: |
           ARGS=""
@@ -45,11 +54,22 @@ jobs:
           if [ "${{ inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
           python scripts/fetch_malaysia.py $ARGS
 
+      - name: Detect data change
+        id: data
+        run: |
+          if git diff --quiet -- data/Malaysia.csv; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Malaysia.csv
+          add: |
+            data/Malaysia.csv
+            market/malaysia_top.json
           message: 'chore: update Malaysia data from data.gov.my'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a
@@ -58,7 +78,7 @@ jobs:
           pull: '--rebase --autostash'
 
       - name: Trigger render for Malaysia
-        if: steps.commit.outputs.committed == 'true'
+        if: steps.commit.outputs.committed == 'true' && steps.data.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

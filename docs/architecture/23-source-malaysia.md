@@ -23,6 +23,7 @@ caveats:
 fetcher: scripts/fetch_malaysia.py
 workflow: .github/workflows/fetch-malaysia.yml
 fragility_doc: docs/architecture/23-source-malaysia.md
+market_breakdown: market/malaysia_top.json
 data_file: data/Malaysia.csv
 ---
 
@@ -111,6 +112,24 @@ The fetcher (`scripts/fetch_malaysia.py`) downloads one or two parquet files
 (current year + previous year), groups by `(date_reg.year-month, fuel)`,
 applies the fuel mapping, and sums to monthly totals. The aggregation is
 simple: `groupby(["period", "gallery_col"]).size()`.
+
+## 4b. Top brands and models (`market/malaysia_top.json`)
+
+The parquet rows also carry `maker` and `model`, so each run keeps a
+trailing-twelve-month top-brands / top-models summary per electrified class
+current (source page: "Who sells the electrified cars"). The class is the same
+`FUEL_MAP` bucket the CSV uses, so the page's hybrid numbers carry the same
+caveat as the chart: before ~2024 plug-ins sit in the combined HEV bucket.
+
+- **Window:** twelve months ending at the last complete month (never the
+  running one). The current + previous yearly parquets always cover it.
+- **When:** whenever the file is missing or behind. A run that finds the CSV
+  already current still downloads, rebuilds the file and leaves the CSV alone.
+- **Render:** a change to the file alone commits without dispatching a render
+  (workflow step "Detect data change").
+- **Failure:** a warning annotation; the data fetch is unaffected.
+
+Schema and shared builder: [03-data-objects §3.16](03-data-objects.md#316-top-brands--models-market).
 
 ## 5. Schedule and publication cadence
 
