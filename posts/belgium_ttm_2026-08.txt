@@ -1,12 +1,12 @@
 🇧🇪 Belgium - TTM Market Split
 
-Aug24–Jul25  vs  Aug25–Aug26
-+4.0pp  BEV   (33.6% → 37.6%)
-−2.5pp  PHEV  (10.0% → 7.4%)
-+1.2pp  HEV   (10.5% → 11.7%)
-−2.6pp  ICE   (45.9% → 43.3%)
+Sep24–Aug25  vs  Sep25–Aug26
++4.5pp  BEV   (33.6% → 38.1%)
+−2.6pp  PHEV  (9.9% → 7.3%)
++0.9pp  HEV   (10.6% → 11.5%)
+−2.8pp  ICE   (45.9% → 43.2%)
 
-PHEV peaked at 17.9% in 2024-08 (declining for 23 months).
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-04.
+PHEV peaked at 17.6% in 2024-09 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-02.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
