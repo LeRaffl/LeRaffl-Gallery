@@ -305,27 +305,28 @@ stubs:
   # ======================================================================
   - country: Brazil
     slug: brazil
-    method: file
+    method: api
     summary: "New registrations of cars and light commercials for Brazil, from ANFAVEA."
-    source_name: "ANFAVEA — edições em Excel"
-    source_url: "https://anfavea.com.br/site/edicoes-em-excel/"
-    underlying: "ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores"
+    source_name: "ANFAVEA — Central de Dados"
+    source_url: "https://anfavea.com.br/site/central-de-dados/"
+    underlying: "Renavam / Senatran registrations, compiled by ANFAVEA — Associação Nacional dos Fabricantes de Veículos Automotores"
     variants: [Whole]
     hev_split: true
     variant_notes:
       Whole: "Automóveis e Comerciais Leves — passenger cars and light commercials combined."
-    scope_note: "Cars + light commercials (Automóveis e Comerciais Leves). Trucks and buses are in the workbook but not ingested."
+    scope_note: "Cars + light commercials (Automóveis e Comerciais Leves). Trucks and buses are in the database but not ingested."
     cadence: "monthly cron on the 10th, 08:50 UTC"
     fetcher: "scripts/fetch_brazil.py"
     workflow: ".github/workflows/fetch-brazil.yml"
     data_file: "data/Brazil.csv"
     notes:
-      - "Brazil's figures come from ANFAVEA, the national manufacturers' association, published as one Excel workbook per year that our fetcher downloads and parses — sheet «III. Emplacamento Combustível», the Unidades table for Automóveis e Comerciais Leves."
+      - "Brazil's figures come from ANFAVEA, the national manufacturers' association, which compiles them from the Renavam / Senatran registration records. Since ANFAVEA's September 2026 site relaunch our fetcher queries its interactive «Central de Dados» (registrations by fuel, Total Leves = Automóveis + Comerciais Leves, monthly); until then it parsed the yearly Excel workbook (sheet «III. Emplacamento Combustível»), which covered the same scope."
+      - "The Central de Dados also reports a small pure-ethanol (Etanol) category that the old workbook did not; it is stored in OTHERS (combustion side). Rows fetched before September 2026 carry OTHERS = 0."
       - "Brazil is the one country where FLEXFUEL is its own column and the largest one: most Brazilian cars run on any petrol/ethanol blend. It counts as combustion in the three-curve view, not as an alternative fuel."
     caveats:
       - "Cars and light commercials are combined — this is not a passenger-car-only series like most of the gallery."
-      - "Association aggregate: a non-member brand (historically BYD across Latin America) can be under-counted in the BEV figure."
-      - "Delivered as a yearly Excel workbook; mid-year revised editions (the `-N` suffixed files) are intentionally ignored."
+      - "ANFAVEA revises the running year; each run re-reads it and overwrites those months, so recent values can shift slightly between runs."
+      - "ANFAVEA publishes registrations by brand only as a total, not by fuel, and no models — so there is no «who sells the electrified cars» breakdown for Brazil."
 
   - country: Chile
     slug: chile
