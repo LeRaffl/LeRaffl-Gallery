@@ -1,11 +1,12 @@
 🇱🇻 Latvia - TTM Market Split
 
-Aug24–Jul25  vs  Aug25–Aug26
-+1.0pp  BEV   (7.3% → 8.2%)
-+2.7pp  PHEV  (9.7% → 12.4%)
+Sep24–Aug25  vs  Sep25–Aug26
++1.7pp  BEV   (7.3% → 8.9%)
++2.1pp  PHEV  (10.5% → 12.6%)
 +0.0pp  HEV   (0.0% → 0.0%)
-−3.7pp  ICE   (83.1% → 79.4%)
+−3.8pp  ICE   (82.3% → 78.4%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2028-11.
+If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2027-12.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2033-07.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
