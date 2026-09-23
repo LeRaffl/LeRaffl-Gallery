@@ -1,9 +1,6 @@
 """TEMP diagnostic for the ANFAVEA site relaunch — removed before merge."""
-import io
-import os
 import re
 
-import openpyxl
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,60 +10,35 @@ H = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
 }
-OUT = "probe_out"
-os.makedirs(OUT, exist_ok=True)
-PAGES = [
-    "https://anfavea.com.br/site/edicoes-em-excel/",
-    "https://anfavea.com.br/site/issues-in-excel/",
-    "https://anfavea.com.br/site/",
-    "https://anfavea.com.br/",
-]
-cands = []
-for i, url in enumerate(PAGES):
-    try:
-        r = requests.get(url, headers=H, timeout=30)
-    except Exception as e:
-        print("ERR", url, e)
-        continue
-    print(f"\n=== {url} -> {r.status_code} {r.url} len={len(r.text)}")
-    open(f"{OUT}/page{i}.html", "w").write(r.text)
-    soup = BeautifulSoup(r.text, "html.parser")
-    for tag in soup.find_all(True):
-        for attr in ("href", "src", "data-href", "data-url", "data-src", "action"):
-            v = tag.get(attr)
-            if v and re.search(r"xls|csv|zip|excel|estat|emplac|download|drive|sharepoint|onedrive|dados|\.pdf|api|json", v, re.I):
-                print(f"  <{tag.name} {attr}> {v}  | text={tag.get_text(' ', strip=True)[:60]!r}")
-                if re.search(r"\.xlsx?(\?|$)", v, re.I):
-                    cands.append(v if v.startswith("http") else "https://anfavea.com.br" + v)
-    for m in set(re.findall(r"https?://[^\s\"'<>]+?\.xlsx?", r.text, re.I)):
-        print("  RAW xls:", m)
-        cands.append(m)
-    # visible text around "Excel"/"2026"
-    txt = soup.get_text("\n", strip=True)
-    for line in txt.splitlines():
-        if re.search(r"2026|2025|excel|planilha|séries|series", line, re.I):
-            print("   txt:", line[:120])
+BASE = "https://anfavea.com.br/site/"
 
-seen = set()
-for u in cands:
-    if u in seen or not re.search(r"202[4-6]", u):
-        continue
-    seen.add(u)
-    print(f"\n##### {u}")
-    try:
-        r = requests.get(u, headers=H, timeout=60)
-        print("status", r.status_code, "bytes", len(r.content), r.headers.get("content-type"))
-        wb = openpyxl.load_workbook(io.BytesIO(r.content), data_only=True, read_only=True)
-    except Exception as e:
-        print("  ERR", e)
-        continue
-    for ws in wb.worksheets:
-        print(f"--- sheet {ws.title!r} dims={ws.max_row}x{ws.max_column}")
-        for j, row in enumerate(ws.iter_rows(values_only=True)):
-            if j >= 45:
-                break
-            cells = [str(c)[:18] for c in row[:16]]
-            while cells and cells[-1] == "None":
-                cells.pop()
-            if cells:
-                print(f"  {j:3d}|", " | ".join(cells))
+r = requests.get(BASE + "central-de-dados/", headers=H, timeout=30)
+soup = BeautifulSoup(r.text, "html.parser")
+print("=== inline scripts")
+for s in soup.find_all("script"):
+    if s.get("src"):
+        print("SRC", s["src"])
+    elif s.string and len(s.string.strip()) > 0:
+        t = s.string.strip()
+        if re.search(r"ajax|url|api|json|dados|nonce", t, re.I):
+            print("INLINE:", t[:1500])
+print("=== main content text (first 4000 chars)")
+main = soup.find("main") or soup.body
+print(main.get_text("\n", strip=True)[:4000])
+print("=== elements with data-* attrs in main")
+for tag in main.find_all(True):
+    d = {k: v for k, v in tag.attrs.items() if k.startswith("data-")}
+    if d:
+        print(tag.name, tag.get("id"), tag.get("class"), d)
+print("=== selects/options")
+for sel in main.find_all("select"):
+    print("SELECT", sel.attrs, [o.get("value") for o in sel.find_all("option")][:40])
+print("=== buttons/links in main")
+for a in main.find_all(["a", "button"]):
+    print(a.name, a.attrs, a.get_text(" ", strip=True)[:60])
+
+for s in soup.find_all("script", src=True):
+    if "central-de-dados" in s["src"] or "anfavea-theme" in s["src"]:
+        js = requests.get(s["src"], headers=H, timeout=30).text
+        print(f"\n=== JS {s['src']} len={len(js)}")
+        print(js[:20000])
