@@ -1,9 +1,9 @@
 🇮🇸 Iceland - TTM Market Split
 
-Aug24–Jul25  vs  Aug25–Aug26
-+16.0pp  BEV   (34.9% → 50.9%)
-−0.5pp  PHEV  (19.6% → 19.1%)
-−1.4pp  HEV   (21.8% → 20.5%)
-−14.2pp  ICE   (23.7% → 9.5%)
+Sep24–Aug25  vs  Sep25–Aug26
++15.7pp  BEV   (35.4% → 51.1%)
+−0.9pp  PHEV  (19.7% → 18.8%)
+−1.1pp  HEV   (21.5% → 20.4%)
+−13.8pp  ICE   (23.4% → 9.6%)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
