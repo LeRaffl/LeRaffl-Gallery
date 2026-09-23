@@ -30,6 +30,13 @@ name: Fetch Spain data (DGT microdata)
 # DGT publishes the monthly file in the first half of the following month;
 # polled daily on the 1st–16th. The script self-throttles via the CSVs.
 #
+# Top brands/models: the script also keeps market/spain_top.json (trailing-12-
+# month top brands and models per electrified class, Whole) current — rebuilt
+# once per new DGT month, or whenever it is missing, from twelve monthly
+# downloads. A change there is committed but never rendered (it only feeds the
+# source page, via build-source-pages.yml); a failure there is a warning, never
+# a failed fetch.
+#
 # See scripts/fetch_spain.py and docs/architecture/28-source-spain.md.
 
 on:
@@ -94,6 +101,10 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests
 
+      # Offline; guards the top brands/models parsing (scripts/market_top.py).
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
       - name: Fetch & update Spain CSVs
         id: fetch
         run: |
@@ -123,6 +134,7 @@ jobs:
             data/Spain_HDV.csv
             data/Spain_Buses.csv
             data/Spain_2-Wheelers.csv
+            market/spain_top.json
           message: 'chore: update Spain data from DGT'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

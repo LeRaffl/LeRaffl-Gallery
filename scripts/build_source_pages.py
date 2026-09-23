@@ -727,7 +727,8 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 # than reported (first user: Argentina, doc 39). Both are driven by files the
 # country's fetcher writes; a front-matter key switches each section on:
 #
-#   market_breakdown: classification/<slug>_top.json
+#   market_breakdown: market/<slug>_top.json   (Argentina: classification/…)
+#       written by the fetcher via scripts/market_top.py — Spain, Malaysia, …
 #       {"variant", "as_of", "window": {"from","to","months"},
 #        "total_registrations", "unit",
 #        "classes": {"BEV": {"units","share_of_market",
@@ -827,9 +828,12 @@ def build_market_breakdown(fm: dict) -> str:
     lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · last '
             f'{esc(win.get("months", 12))} months ({esc(win.get("from", ""))} → '
             f'{esc(win.get("to", ""))}) · {_num(total)} new registrations in total. '
-            'Units are registrations; a "designation" is the exact model string '
-            'the registry records (trim levels are separate designations). '
-            'Powertrain as classified below.</p>')
+            'Units are registrations; a "designation" is the model string exactly '
+            'as the source records it (where that includes the trim, trims are '
+            'separate designations). '
+            + ('Powertrain as classified below.' if fm.get("classification")
+               else "Powertrain as recorded by the source's own fuel field.")
+            + '</p>')
     tiles = []
     for c in CLASS_ORDER:
         if c in classes:

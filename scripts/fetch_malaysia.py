@@ -31,6 +31,16 @@ with PHEV/MHEV left empty. The TTM split chart labels this bucket "Hybrid".
 
 Convention (single-Hybrid-bucket style, matches Türkiye / Georgia / Colombia)
 
+Top brands / models (market/malaysia_top.json)
+-----------------------------------------------
+Every row also carries `maker` and `model`, so each run keeps the trailing-
+twelve-month top brands and models per electrified class current, in the
+country-neutral schema of scripts/market_top.py (the source page renders it).
+The window ends at the last complete month; the two yearly parquets always
+cover it. Rebuilt whenever missing or behind — including on runs that find
+the CSV already current, which then download but leave the CSV alone.
+--no-top skips it.
+
 See docs/architecture/23-source-malaysia.md for the full playbook.
 """
 import argparse
@@ -41,6 +51,10 @@ from datetime import date
 from pathlib import Path
 
 import requests
+
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 SOURCE = "data.gov.my"
 CSV_PATH = "data/Malaysia.csv"
@@ -64,6 +78,9 @@ FUEL_MAP = {
     "greendiesel":           "DIESEL",
 }
 # everything else → OTHERS
+
+TOP_PATH = market_top.MARKET_DIR / "malaysia_top.json"
+TOP_UNIT = "registrations (brand = maker, model = model as recorded by data.gov.my)"
 
 
 def download_parquet(year: int, session: requests.Session) -> "pd.DataFrame":
@@ -130,6 +147,42 @@ def aggregate_to_monthly(df) -> dict:
     return rows
 
 
+def build_top(frames: list, target: str) -> dict:
+    """Top brands/models over the twelve months ending at `target`."""
+    import pandas as pd
+
+    window = set(market_top.month_window(target))
+    df = pd.concat(frames, ignore_index=True)
+    period = pd.to_datetime(df["date_reg"], errors="coerce").dt.strftime("%Y-%m")
+    df = df[period.isin(window)]
+    cls = df["fuel"].str.lower().str.strip().map(FUEL_MAP).fillna("OTHERS")
+    brand = df["maker"].map(market_top.clean)
+    model = df["model"].map(market_top.clean)
+    counts = pd.DataFrame({"c": cls, "b": brand, "m": model}).value_counts()
+    units = {(c, b, m): int(n) for (c, b, m), n in counts.items()}
+    return market_top.build_top("Malaysia", SOURCE, target, units, len(df), TOP_UNIT)
+
+
+def refresh_top(frames: list) -> None:
+    import pandas as pd
+
+    periods = set()
+    for df in frames:
+        periods |= set(pd.to_datetime(df["date_reg"], errors="coerce")
+                       .dt.strftime("%Y-%m").dropna())
+    complete = sorted(p for p in periods if p <= previous_month_period())
+    if not complete:
+        return
+    top = build_top(frames, complete[-1])
+    wrote = market_top.write_top(top, TOP_PATH)
+    bev = top["classes"].get("BEV", {})
+    lead = (bev.get("brands") or [{}])[0]
+    print(f"{TOP_PATH.relative_to(market_top.REPO)}: "
+          f"{'updated' if wrote else 'unchanged'} ({complete[-1]}) — BEV "
+          f"{bev.get('units', 0):,} units, top brand {lead.get('brand')} "
+          f"{lead.get('share_of_class')}")
+
+
 def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
     existing: dict = {}
     if os.path.exists(csv_path):
@@ -181,9 +234,14 @@ def main() -> None:
                     help="Fetch only this calendar year (default: current + previous).")
     ap.add_argument("--force", action="store_true",
                     help="Skip the 'previous month already present' early-exit.")
+    ap.add_argument("--no-top", action="store_true",
+                    help="Skip the top brands/models refresh.")
     args = ap.parse_args()
 
-    if not args.force and csv_has_period(CSV_PATH, previous_month_period()):
+    want_top = (not args.no_top and not args.year
+                and market_top.top_as_of(TOP_PATH) != previous_month_period())
+    data_current = not args.force and csv_has_period(CSV_PATH, previous_month_period())
+    if data_current and not want_top:
         print(f"CSV already has {previous_month_period()}; nothing to do (use --force to refresh).")
         return
 
@@ -198,6 +256,7 @@ def main() -> None:
         years = sorted({today.year, today.year - 1})
 
     all_rows: dict = {}
+    frames: list = []
     for year in years:
         print(f"Downloading {year} parquet …")
         df = download_parquet(year, session)
@@ -205,9 +264,16 @@ def main() -> None:
             print(f"  {year}: not found (404) — skipping.")
             continue
         print(f"  {year}: {len(df):,} registration rows")
+        frames.append(df)
         rows = aggregate_to_monthly(df)
         all_rows.update(rows)
         print(f"  {year}: {len(rows)} months aggregated")
+
+    if want_top and frames:
+        market_top.guarded(refresh_top, frames)
+    if data_current:
+        print(f"CSV already has {previous_month_period()}; left untouched (top list only).")
+        return
 
     if not all_rows:
         print("No rows extracted.")

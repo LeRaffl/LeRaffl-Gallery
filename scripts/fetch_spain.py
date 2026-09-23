@@ -92,6 +92,15 @@ Fuel mapping (gallery schema with EREV column, China-style)
                                        category label; rare)
                                    anything else (GLP/GNC/GNL/H2/…) → OTHERS
 
+Top brands / models (market/spain_top.json)
+-------------------------------------------
+The records carry MARCA_ITV / MODELO_ITV, so every run also keeps the
+trailing-twelve-month top brands and models per electrified class (Whole
+only) current, in the country-neutral schema of scripts/market_top.py; the
+source page renders it. It is rebuilt whenever it is missing or its as_of is
+behind the newest DGT month in data/Spain.csv — i.e. once per new month, and
+automatically on the first run — which costs twelve downloads. --no-top skips it.
+
 Components sum to TOTAL exactly (single-pass count over the same records);
 the sanity check is therefore an exact assertion, not a tolerance.
 
@@ -132,6 +141,9 @@ from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 LEGACY_PATH = "data/Spain_legacy.csv"
 SOURCE = "DGT"
@@ -229,6 +241,11 @@ SL_CLAVE = _slice("CLAVE_TRAMITE")
 SL_SERVICIO = _slice("SERVICIO")
 SL_RENTING = _slice("RENTING")
 SL_HOMOLOGACION = _slice("CATEGORIA_HOMOLOGACION_EUROPEA_ITV")
+SL_MARCA = _slice("MARCA_ITV")
+SL_MODELO = _slice("MODELO_ITV")
+
+TOP_PATH = market_top.MARKET_DIR / "spain_top.json"
+TOP_UNIT = "registrations (model = DGT MODELO_ITV string, brand = MARCA_ITV)"
 
 TURISMO_TIPOS = {"40", "25"}
 TWO_WHEELER_TIPOS = {"50", "90"}
@@ -368,6 +385,69 @@ def aggregate(txt_bytes: bytes, period: str,
     return counts
 
 
+def aggregate_models(txt_bytes: bytes) -> tuple[dict, int]:
+    """Whole records of one month -> ({(class, brand, model): units}, total).
+    Same scope and fuel logic as aggregate(), so the total equals the CSV's."""
+    units: dict = {}
+    total = 0
+    stream = io.TextIOWrapper(io.BytesIO(txt_bytes), encoding="latin-1")
+    for i, line in enumerate(stream):
+        if i == 0 and not line[:1].isdigit():
+            continue
+        line = line.rstrip("\r\n")
+        if len(line) != RECORD_LEN or "Whole" not in record_variants(line):
+            continue
+        total += 1
+        key = (classify_fuel(line),
+               market_top.clean(line[SL_MARCA[0]:SL_MARCA[1]]),
+               market_top.clean(line[SL_MODELO[0]:SL_MODELO[1]]))
+        units[key] = units.get(key, 0) + 1
+    return units, total
+
+
+def latest_dgt_period(rows: list[dict]) -> str | None:
+    periods = [r["period"] for r in rows
+               if (r.get("source") or "") == SOURCE
+               and (r.get("variant") or "Whole") == "Whole"]
+    return max(periods) if periods else None
+
+
+def refresh_top(session: requests.Session | None) -> None:
+    """Rebuild market/spain_top.json if it is missing or behind the newest
+    DGT month in data/Spain.csv (twelve downloads; see module docstring)."""
+    target = latest_dgt_period(load_rows(Path(VARIANT_CONFIG["Whole"])))
+    if target is None:
+        return
+    have = market_top.top_as_of(TOP_PATH)
+    if have == target:
+        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
+        return
+    print(f"Top brands/models: {have or 'none'} -> {target}, "
+          "reading the trailing twelve months …")
+    session = session or make_session()
+    units: dict = {}
+    total = 0
+    for period in market_top.month_window(target):
+        try:
+            txt, _ = download_month(session, period)
+        except NotPublished as e:
+            print(f"  {e} — top list not rebuilt this run.")
+            return
+        u, t = aggregate_models(txt)
+        del txt
+        total += t
+        for k, n in u.items():
+            units[k] = units.get(k, 0) + n
+        print(f"  {period}: {t:,} Whole records")
+    top = market_top.build_top("Spain", SOURCE, target, units, total, TOP_UNIT)
+    wrote = market_top.write_top(top, TOP_PATH)
+    bev = top["classes"].get("BEV", {})
+    lead = (bev.get("brands") or [{}])[0]
+    print(f"{TOP_PATH.relative_to(market_top.REPO)}: "
+          f"{'updated' if wrote else 'unchanged'} — BEV {bev.get('units', 0):,} units, "
+          f"top brand {lead.get('brand')} {lead.get('share_of_class')}")
+
+
 # ── CSV handling ───────────────────────────────────────────────────────────
 
 def load_rows(path: Path) -> list[dict]:
@@ -470,6 +550,8 @@ def main() -> int:
     ap.add_argument("--backfill-from", default=BACKFILL_FROM_DEFAULT)
     ap.add_argument("--force", action="store_true",
                     help="Overwrite rows regardless of their source string.")
+    ap.add_argument("--no-top", action="store_true",
+                    help="Skip the top brands/models refresh.")
     ap.add_argument("--github-output",
                     default=os.environ.get("GITHUB_OUTPUT"),
                     help="Write changed=… and changed_variants=… outputs.")
@@ -500,6 +582,8 @@ def main() -> int:
                    for r in rows_by_variant[v]) for v in variants):
             print(f"{newest} already fetched from DGT for {variants}; "
                   "nothing to do.")
+            if not args.no_top:
+                market_top.guarded(refresh_top, None)
             return emit(args, set())
 
     session = make_session()
@@ -543,6 +627,8 @@ def main() -> int:
         print(f"Wrote {VARIANT_CONFIG[v]} ({len(rows_by_variant[v])} rows).")
     if not changed:
         print("No changes.")
+    if not args.no_top:
+        market_top.guarded(refresh_top, session)
     return emit(args, changed)
 
 

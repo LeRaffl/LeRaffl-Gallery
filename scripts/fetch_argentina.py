@@ -119,6 +119,10 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
+from market_top import month_window  # noqa: E402
+
 SOURCE = "DNRPA"
 PACKAGE_URL = ("https://datos.jus.gob.ar/api/3/action/package_show"
                "?id=inscripciones-iniciales-de-autos")
@@ -316,17 +320,6 @@ MODELS_COLUMNS = ["brand", "model", "scope", "class", "rule", "units_total",
                   "units_last_12m", "first_seen", "last_seen"]
 
 
-def month_window(target: str, months: int = 12) -> list[str]:
-    y, m = map(int, target.split("-"))
-    out = []
-    for _ in range(months):
-        out.append(f"{y}-{m:02d}")
-        m -= 1
-        if m == 0:
-            y, m = y - 1, 12
-    return sorted(out)
-
-
 def build_models_rows(agg: Aggregator, target: str) -> list[dict]:
     window = set(month_window(target))
     rows = []
@@ -362,56 +355,26 @@ def write_models_csv(rows: list[dict], path: Path = MODELS_CSV) -> bool:
     return write_if_changed(path, buf.getvalue())
 
 
-def _ranked(counter: collections.Counter, n: int) -> list:
-    return sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
-
-
-def build_top(agg: Aggregator, target: str, variant: str = "Whole",
-              top_brands: int = 10, top_models: int = 15) -> dict:
-    """Generic top-brands/top-models summary (schema documented in
-    docs/architecture/39-source-argentina.md §6 — reusable by any country)."""
+def build_top(agg: Aggregator, target: str, variant: str = "Whole") -> dict:
+    """Top-brands/top-models summary in the country-neutral schema shared
+    with every other country (scripts/market_top.py)."""
     window = month_window(target)
     total = sum(agg.counts[p][variant]["TOTAL"] for p in window)
-    per_class = {c: {"brands": collections.Counter(),
-                     "models": collections.Counter()} for c in FUELS}
+    units: dict[tuple[str, str, str], int] = collections.Counter()
     for (scope, brand, model), per in agg.designations.items():
         if scope != variant:
             continue
-        units = sum(per[p] for p in window)
-        if not units:
-            continue
-        cls, _ = agg.classify_cached(brand, model)
-        per_class[cls]["brands"][brand] += units
-        per_class[cls]["models"][(brand, model)] += units
-    classes = {}
-    for cls in FUELS:
-        cls_units = sum(per_class[cls]["brands"].values())
-        if cls == "ICE" or not cls_units:
-            continue
-        classes[cls] = {
-            "units": cls_units,
-            "share_of_market": round(cls_units / total, 5) if total else None,
-            # Ties are broken alphabetically so the file is byte-stable no
-            # matter in which order the records arrived (no spurious commits).
-            "brands": [{"brand": b, "units": u,
-                        "share_of_class": round(u / cls_units, 4)}
-                       for b, u in _ranked(per_class[cls]["brands"], top_brands)],
-            "models": [{"brand": b, "model": m, "units": u,
-                        "share_of_class": round(u / cls_units, 4)}
-                       for (b, m), u in _ranked(per_class[cls]["models"], top_models)],
-        }
-    return {
-        "country": "Argentina", "variant": variant, "source": SOURCE,
-        "as_of": target, "window": {"from": window[0], "to": window[-1],
-                                    "months": len(window)},
-        "total_registrations": total,
-        "unit": "registrations (designation = exact DNRPA model string)",
-        "classes": classes,
-    }
+        n = sum(per[p] for p in window)
+        if n:
+            cls, _ = agg.classify_cached(brand, model)
+            units[(cls, brand, model)] += n
+    return market_top.build_top(
+        "Argentina", SOURCE, target, units, total, variant=variant,
+        unit="registrations (designation = exact DNRPA model string)")
 
 
 def write_top_json(top: dict, path: Path = TOP_JSON) -> bool:
-    return write_if_changed(path, json.dumps(top, ensure_ascii=False, indent=1) + "\n")
+    return market_top.write_top(top, path)
 
 
 def review_report(rows: list[dict], target: str, top: int = 25) -> str:
