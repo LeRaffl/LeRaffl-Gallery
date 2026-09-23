@@ -82,46 +82,6 @@
       "country_slug": "argentina_industry"
     },
     {
-      "country": "Argentina (Pickups)",
-      "type": "ICE_BEV",
-      "period": "2026-08",
-      "date": "2026-09-23",
-      "filename": "argentina_pickups_ICE_BEV_20260923.png",
-      "url": "images/2026-08/argentina_pickups_ICE_BEV_20260923.png",
-      "alt": "Argentina (Pickups) ICE-BEV-Hybrid trajectory",
-      "country_slug": "argentina_pickups"
-    },
-    {
-      "country": "Argentina (Pickups)",
-      "type": "share",
-      "period": "2026-08",
-      "date": "2026-09-23",
-      "filename": "argentina_pickups_20260923.png",
-      "url": "images/2026-08/argentina_pickups_20260923.png",
-      "alt": "Argentina (Pickups) BEV trajectory",
-      "country_slug": "argentina_pickups"
-    },
-    {
-      "country": "Argentina (Pickups)",
-      "type": "time",
-      "period": "2026-08",
-      "date": "2026-09-23",
-      "filename": "argentina_pickups_time_20260923.png",
-      "url": "images/2026-08/argentina_pickups_time_20260923.png",
-      "alt": "Argentina (Pickups) Transition time curve",
-      "country_slug": "argentina_pickups"
-    },
-    {
-      "country": "Argentina (Pickups)",
-      "type": "ttm_shares",
-      "period": "2026-08",
-      "date": "2026-09-23",
-      "filename": "argentina_pickups_ttm_shares_20260923.png",
-      "url": "images/2026-08/argentina_pickups_ttm_shares_20260923.png",
-      "alt": "Argentina (Pickups) TTM market split graph",
-      "country_slug": "argentina_pickups"
-    },
-    {
       "country": "Argentina (Private)",
       "type": "ICE_BEV",
       "period": "2026-08",
