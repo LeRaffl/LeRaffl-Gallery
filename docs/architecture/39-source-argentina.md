@@ -163,6 +163,19 @@ hybrids that no designation marks are counted as ICE. That is the known
 limitation; it does not touch the BEV/PHEV curves (MHEV is ICE-side in every
 chart).
 
+**Reading the fitted curve.** Electrified registrations only took off with
+the 2025 zero-duty import quota (Decreto 49/2025: 50,000 electrified units a
+year): BEV was ≈0.1 % of Whole until mid-2025 and 2–3 % by mid-2026, PHEV 0 →
+~6 %. The first render (2026-08) therefore fits about a year of steep,
+policy-driven signal and extrapolates an ICE 80→20 % time of ~1 year, in the
+same aggressive range as the other early-stage markets (Uruguay 1.15 y,
+Indonesia 1.35 y). That is the model's documented early-stage volatility
+(README, "Uncertainty"), not a data defect, and it will settle as history
+builds. It also reflects a quota: if the quota is capped or ends, the
+curve describes a policy step rather than an organic S-curve (compare Ethiopia
+in [14](14-data-source-gaps.md)). If a fit ever degenerates, the lever is
+`skip_plots.csv`.
+
 **Known unresolved designations** (low volume, left ICE): Porsche `MACAN`
 (plain/T/S/GTS/Turbo are ICE or electric depending on generation; only
 `MACAN 4`/`4S`/`ELECTRIC` are ruled BEV), Acura `NSX`, new-gen Audi A5 (48 V
