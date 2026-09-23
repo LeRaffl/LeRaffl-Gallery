@@ -1,11 +1,11 @@
 🇨🇿 Czechia - TTM Market Split
 
-Aug24–Jul25  vs  Aug25–Aug26
-+0.5pp  BEV   (5.8% → 6.3%)
-+1.7pp  PHEV  (3.3% → 5.0%)
-+2.2pp  HEV   (22.1% → 24.3%)
-−4.3pp  ICE   (68.8% → 64.5%)
+Sep24–Aug25  vs  Sep25–Aug26
++0.7pp  BEV   (5.9% → 6.5%)
++1.5pp  PHEV  (3.5% → 5.0%)
++1.8pp  HEV   (22.5% → 24.2%)
+−3.9pp  ICE   (68.2% → 64.3%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2036-05.
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2035-10.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
