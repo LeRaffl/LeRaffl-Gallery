@@ -1,0 +1,22 @@
+name: TEMPORARY probe Argentina sources
+
+# Temporary investigation workflow (like the Spain probe, runs #1-#7): the
+# dev sandbox cannot reach Argentine hosts, the runners can. Deleted before merge.
+
+on:
+  push:
+    branches: [claude/argentina-gallery-implementation-3bs2w2]
+    paths: [.github/workflows/probe-argentina.yml, scripts/probe_argentina.py]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get install -y poppler-utils >/dev/null && pip install requests
+      - run: python scripts/probe_argentina.py
