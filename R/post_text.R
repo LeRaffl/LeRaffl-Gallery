@@ -50,7 +50,8 @@
 # Country → emoji flag. Falls back to a globe if unknown.
 .pt_flag <- function(country) {
   m <- list(
-    Albania = "\U0001F1E6\U0001F1F1", Australia = "\U0001F1E6\U0001F1FA", Austria = "\U0001F1E6\U0001F1F9",
+    Albania = "\U0001F1E6\U0001F1F1", Argentina = "\U0001F1E6\U0001F1F7",
+    Australia = "\U0001F1E6\U0001F1FA", Austria = "\U0001F1E6\U0001F1F9",
     Belgium = "\U0001F1E7\U0001F1EA", Brazil = "\U0001F1E7\U0001F1F7", Bulgaria = "\U0001F1E7\U0001F1EC",
     Canada = "\U0001F1E8\U0001F1E6", Chile = "\U0001F1E8\U0001F1F1", China = "\U0001F1E8\U0001F1F3",
     Colombia = "\U0001F1E8\U0001F1F4",

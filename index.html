@@ -5833,7 +5833,7 @@ const QR = (() => {
      already knows it — no IP lookup, no request, no consent question: the IANA
      timezone names a place. Falls back to Germany. */
   const TZ_COUNTRY = {
-    'Europe/Tirane':'Albania','Europe/Vienna':'Austria','Europe/Brussels':'Belgium',
+    'America/Buenos_Aires':'Argentina','Europe/Tirane':'Albania','Europe/Vienna':'Austria','Europe/Brussels':'Belgium',
     'Europe/Sofia':'Bulgaria','America/Santiago':'Chile','Asia/Shanghai':'China',
     'America/Bogota':'Colombia','Europe/Zagreb':'Croatia','Asia/Nicosia':'Cyprus',
     'Europe/Nicosia':'Cyprus','Europe/Prague':'Czechia','Europe/Copenhagen':'Denmark',
@@ -5856,6 +5856,7 @@ const QR = (() => {
     ['America/Vancouver','Canada'],['America/Edmonton','Canada'],['America/Winnipeg','Canada'],
     ['America/Halifax','Canada'],['America/St_Johns','Canada'],['America/Sao_Paulo','Brazil'],
     ['America/Fortaleza','Brazil'],['America/Recife','Brazil'],['America/Manaus','Brazil'],
+    ['America/Argentina/','Argentina'],
     ['America/','USA'],['Pacific/Honolulu','USA']];
   /* VISUAL REDESIGN (2026-09), Phase 5.
      Der Hero-Chart auf der Startseite braucht dasselbe "Heimatland" wie der
@@ -13026,6 +13027,7 @@ window.addEventListener('DOMContentLoaded', () => { fbWireEvents(); fbLoad(); })
 // Hardcoded for v1: only countries with a data/<Country>.csv that the render
 // pipeline can consume. Extend as more countries get a CSV.
 const SD_COUNTRIES = [
+  { country: 'Argentina',   variants: ['Whole'] },
   { country: 'Australia',   variants: ['Whole'] },
   { country: 'Austria',     variants: ['Whole'] },
   { country: 'Belgium',     variants: ['Whole'] },
