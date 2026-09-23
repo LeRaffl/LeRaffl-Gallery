@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 53 countries · 6,221 periods drawable · 164 held back · **39 of 53 files cost the chart nothing.**
+**Status:** 53 countries · 6,256 periods drawable · 164 held back · **38 of 53 files cost the chart nothing.**
 
 ---
 
@@ -39,8 +39,10 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 ### Malta  ·  costs 9 periods
 
-- [ ] **No rows for 2025-07…2026-03** — 9 periods the CSV says nothing about.
-→ *Symptom:* 1 visible gap in the chart, 9 months (worst 2025-07…2026-04).
+- [ ] **No rows for 2025-07…2025-07** — 1 periods the CSV says nothing about.
+- [ ] **No rows for 2025-09…2026-03** — 7 periods the CSV says nothing about.
+- [ ] **No rows for 2026-07…2026-07** — 1 periods the CSV says nothing about.
+→ *Symptom:* 3 visible gaps in the chart, 9 months (worst 2025-09…2026-04).
 
 ### Slovenia  ·  costs 9 periods
 
@@ -76,6 +78,9 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 **Colombia**
 - [ ] `2020-04` — BEV drops to 0 between 110 and 51. The row still closes to `TOTAL`, so no sum check sees it.
+
+**Hungary**
+- [ ] `2026-07` — OTHERS drops to 0 between 135 and 135. The row still closes to `TOTAL`, so no sum check sees it.
 
 **Norway**
 - [ ] `2009-01` — BEV drops to 0 between 65 and 28. The row still closes to `TOTAL`, so no sum check sees it.
@@ -203,4 +208,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Argentina, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hungary, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
+Albania, Argentina, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA
