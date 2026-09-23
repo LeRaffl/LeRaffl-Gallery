@@ -93,6 +93,42 @@ table.matrix th:first-child{white-space:nowrap}
 .cell--yes{color:var(--ok-tx)}
 .cell--zero{color:var(--muted)}
 .cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
+table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rank th,table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
 </style>
 </head>
 <body>
@@ -110,6 +146,8 @@ table.matrix th:first-child{white-space:nowrap}
 
   
 
+  
+
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://www.acea.auto/">ACEA — monthly registrations ↗</a></p><p class="live-src">Newest stored month (<code>2026-06</code>) was read from <a href="https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf">this exact document ↗</a>.</p>
 
   <h2>How the data flows</h2>
@@ -123,6 +161,8 @@ table.matrix th:first-child{white-space:nowrap}
   <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 56" width="100%" height="56" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="140.8" y1="6" x2="140.8" y2="34"/><text class="cov-tick" x="140.8" y="50" text-anchor="middle">2016</text><line class="cov-grid" x1="219.2" y1="6" x2="219.2" y2="34"/><text class="cov-tick" x="219.2" y="50" text-anchor="middle">2018</text><line class="cov-grid" x1="297.5" y1="6" x2="297.5" y2="34"/><text class="cov-tick" x="297.5" y="50" text-anchor="middle">2020</text><line class="cov-grid" x1="375.8" y1="6" x2="375.8" y2="34"/><text class="cov-tick" x="375.8" y="50" text-anchor="middle">2022</text><line class="cov-grid" x1="454.2" y1="6" x2="454.2" y2="34"/><text class="cov-tick" x="454.2" y="50" text-anchor="middle">2024</text><line class="cov-grid" x1="532.5" y1="6" x2="532.5" y2="34"/><text class="cov-tick" x="532.5" y="50" text-anchor="middle">2026</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="3.3" height="12" rx="3"><title>Whole: 2015-06 → 2026-06</title></rect><rect class="cov-bar" x="157.2" y="10" width="3.3" height="12" rx="3"><title>Whole: 2015-06 → 2026-06</title></rect><rect class="cov-bar" x="196.3" y="10" width="3.3" height="12" rx="3"><title>Whole: 2015-06 → 2026-06</title></rect><rect class="cov-bar" x="219.2" y="10" width="332.9" height="12" rx="3"><title>Whole: 2015-06 → 2026-06</title></rect><text class="cov-meta" x="594" y="20">monthly</text></svg><p class="fig-note">Whole 2015-06–2026-06 (105 rows). Some rows additionally carry a <code>time_interval</code> of <code>yearly</code>; the cadence shown is the spacing the periods actually have.</p></section>
 
   <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 105 of 105 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 105 of 105 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 105 of 105 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 57 of 105 rows (54%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 57 of 105 rows (54%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="OTHERS: values in 57 of 105 rows (54%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
+
+  
 
   <section><h2>About the ACEA figures</h2><p>This country's monthly total comes from ACEA's Europe-wide <em>new-car-registrations</em> press release — one PDF covering the EU, EFTA and the UK, parsed into per-country rows. It is an <strong>industry-association aggregate</strong>, not a direct national-registry feed: it counts registrations reported through ACEA, is published with a lag (usually the third to fourth week of the following month), and carries only the fuel split ACEA itself reports. Where a national registry is the richer source of record (e.g. Norway's OFV, Switzerland's BFS), we still ingest the ACEA figure here for consistency across the cluster.</p></section>
 

@@ -93,6 +93,42 @@ table.matrix th:first-child{white-space:nowrap}
 .cell--yes{color:var(--ok-tx)}
 .cell--zero{color:var(--muted)}
 .cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
+table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rank th,table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
 </style>
 </head>
 <body>
@@ -110,6 +146,8 @@ table.matrix th:first-child{white-space:nowrap}
 
   <section><h2>How it works</h2><p>India&#x27;s figures are exported by hand from the VAHAN dashboard (Ministry of Road Transport &amp; Highways) — VAHAN resets foreign connections so there is no automated fetch (scripts/fetch_india.py is probe-only). The maintainer pulls one Fuel x Month Wise Excel per calendar year, filtered to the M1 passenger-car vehicle classes; scripts/build_india.py turns those raw files (data/raw/india/) into data/India.csv.</p><p>Whole was redefined from the old &#x27;all vehicle categories combined&#x27; (and the non-standard 4-Wheelers/3-Wheelers/2-Wheelers split) to EU M1 passenger cars, so India&#x27;s headline series is comparable with every other country&#x27;s Whole. Historical values before this change are not directly comparable; the series was rebuilt from scratch under the new definition (2017 onward — 2020+ monthly, 2017-2019 as annual totals VAHAN only exposes yearly that far back).</p><p>Commercial variants (Vans = N1, HDV = N2/N3, Buses = M2/M3) and the India-specific 2-/3-Wheelers are planned re-pulls under the same recipe; their filter definitions are documented in data/raw/india/README.md.</p></section>
 
+  
+
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://vahan.parivahan.gov.in/vahan4dashboard/">VAHAN dashboard ↗</a></p>
 
   <h2>How the data flows</h2>
@@ -119,6 +157,8 @@ table.matrix th:first-child{white-space:nowrap}
   <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Vehicle scope</th><td>Whole = EU M1 passenger cars: VAHAN Vehicle Class MOTOR CAR + MOTOR CAB + LUXURY CAB (private cars incl. SUVs, plus passenger-car taxis). Pulled as the Fuel x Month Wise table, all states/RTOs, calendar year. The running month is dropped and the last two completed months are provisional (VAHAN backfills daily). The exact, reproducible pull recipe lives in data/raw/india/README.md.</td></tr><tr><th>HEV (full hybrids)</th><td>All hybrids fold into HEV (STRONG HYBRID EV plus every */HYBRID label). VAHAN has no consistent MHEV label, so the strong/mild split is not distinguished — treat HEV as unverified on that axis. BEV = ELECTRIC(BOV) + PURE EV; PHEV = PLUG-IN HYBRID EV.</td></tr></table>
 
   <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>EU M1 passenger cars (MOTOR CAR + MOTOR CAB + LUXURY CAB) from VAHAN, replacing the retired all-categories / 4-Wheelers definition.</td><td class="nowrap"><span class="dim">not in this repo</span></td><td><span class="dim">rendered from the maintainer's local pipeline; the series was never committed here</span></td></tr></table></div></section>
+
+  
 
   
 

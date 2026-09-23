@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-23T09:30:56Z",
+ "generated": "2026-09-23T12:33:14Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4568,6 +4568,38 @@
    "slug": "colombia",
    "period": "2026-08",
    "flag": "🇨🇴"
+  },
+  {
+   "date": "2026-09-23",
+   "label": "Argentina",
+   "base": "Argentina",
+   "slug": "argentina",
+   "period": "2026-08",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-09-23",
+   "label": "Argentina (Industry)",
+   "base": "Argentina",
+   "slug": "argentina_industry",
+   "period": "2026-08",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-09-23",
+   "label": "Argentina (Pickups)",
+   "base": "Argentina",
+   "slug": "argentina_pickups",
+   "period": "2026-08",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-09-23",
+   "label": "Argentina (Private)",
+   "base": "Argentina",
+   "slug": "argentina_private",
+   "period": "2026-08",
+   "flag": "🇦🇷"
   }
  ]
 }
