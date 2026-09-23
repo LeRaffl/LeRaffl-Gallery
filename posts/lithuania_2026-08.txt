@@ -4,8 +4,8 @@
 76.8% ICE (of which 52.5%p were HEV)
 
 Trailing 12 months are:
-8.4% BEV
-12.7% PHEV
-78.9% ICE (of which 48.5%p were HEV)
+8.6% BEV
+13.1% PHEV
+78.3% ICE (of which 48.9%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
