@@ -71,9 +71,12 @@ NACIONAL, INSCRIPCION INICIAL IMPORTADO}. Classic cars, auctioned vehicles
                                          person (Jurídica). Private+Industry
                                          = Whole exactly.
   Pickups   data/Argentina_Pickups.csv   every PICK-UP body type (simple,
-                                         doble, cabina y media, carrozada) —
-                                         Canada/Indonesia-style country
-                                         variant; overwhelmingly N1.
+                                         doble, cabina y media, carrozada),
+                                         overwhelmingly N1. DATA ONLY: fetched
+                                         and committed, never rendered (no
+                                         charts, no params/weights row, not in
+                                         the gallery or its tables) — same as
+                                         Indonesia's fetch-only variants.
 
 Vans / HDV / Buses are deliberately not produced: the records carry no
 gross weight or seat count, and the FURGÓN / CHASIS / TRANS. DE PASAJEROS
@@ -127,6 +130,10 @@ VARIANT_CSV = {
     "Industry": "data/Argentina_Industry.csv",
     "Pickups":  "data/Argentina_Pickups.csv",
 }
+# Variants that are rendered into the gallery. Anything in VARIANT_CSV but
+# not here is fetch-only: its CSV is kept up to date, but it is never passed
+# to render-country.yml (owner decision 2026-09: Pickups is data only).
+RENDERED_VARIANTS = ("Whole", "Private", "Industry")
 FUELS = ["BEV", "PHEV", "EREV", "HEV", "MHEV", "ICE"]
 CSV_COLUMNS = (["period", "time_interval", "variant", "source"]
                + FUELS + ["TOTAL", "notes"])
@@ -708,11 +715,18 @@ def main() -> int:
     return emit(args, changed)
 
 
+def render_list(changed: set[str]) -> list[str]:
+    """Changed variants that should be rendered (fetch-only ones dropped)."""
+    return sorted(v for v in changed if v in RENDERED_VARIANTS)
+
+
 def emit(args, changed: set[str]) -> int:
+    # `changed` gates the commit (a Pickups-only change is still committed);
+    # `changed_variants` is what the workflow hands to render-country.yml.
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as f:
             f.write(f"changed={'true' if changed else 'false'}\n")
-            f.write(f"changed_variants={json.dumps(sorted(changed))}\n")
+            f.write(f"changed_variants={json.dumps(render_list(changed))}\n")
     return 0
 
 

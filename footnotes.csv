@@ -90,4 +90,3 @@ Sweden,Buses,"ACEA Commercial Vehicle press release. ACEA publishes cumulative y
 Argentina,Whole,DNRPA registry: new passenger-car body types (~EU M1) of every brand. Records carry no fuel field - powertrain classified from the model name and checked against ACARA's electrified totals; MHEV is a lower bound; no petrol/diesel split.
 Argentina,Private,DNRPA registry: Whole where the first owner is a natural person (persona física). Private + Industry = Whole. Powertrain classified from the model name.
 Argentina,Industry,DNRPA registry: Whole where the first owner is a legal person (companies / state / fleets). Private + Industry = Whole. Powertrain classified from the model name.
-Argentina,Pickups,DNRPA registry: every new pick-up body type (mostly N1; the records carry no weight). Powertrain classified from the model name.

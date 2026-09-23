@@ -7,7 +7,8 @@ name: Fetch Argentina data (DNRPA)
 #   data/Argentina.csv           Whole     passenger-car body types (≈ EU M1)
 #   data/Argentina_Private.csv   Private   Whole ∧ natural-person first owner
 #   data/Argentina_Industry.csv  Industry  Whole ∧ legal-person first owner
-#   data/Argentina_Pickups.csv   Pickups   all PICK-UP body types
+#   data/Argentina_Pickups.csv   Pickups   all PICK-UP body types — DATA ONLY:
+#                                          fetched + committed, never rendered
 #
 # The records carry no fuel field: the powertrain is classified from the
 # model designation by the rule table classification/argentina_rules.csv
@@ -26,7 +27,9 @@ name: Fetch Argentina data (DNRPA)
 # only — unchanged lines stay byte-identical).
 #
 # Rendering: dispatches render-country.yml ONCE with the pipe-separated list
-# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+# of touched RENDERED variants (Whole/Private/Industry — serial in one run, one
+# commit, see fetch-spain.yml). Pickups is fetch-only: the script leaves it out
+# of changed_variants, so a Pickups-only change is committed but not rendered.
 
 on:
   workflow_dispatch:

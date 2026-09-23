@@ -20,12 +20,10 @@ variants:
 - Whole
 - Private
 - Industry
-- Pickups
 variant_notes:
   Whole: New passenger-car body types (sedán, rural/SUV, todo terreno, coupé, convertible, familiar) ≈ EU M1.
   Private: Whole where the first owner is a natural person (persona física).
   Industry: Whole where the first owner is a legal person (persona jurídica); Private + Industry = Whole.
-  Pickups: Every new PICK-UP body type (simple, doble, cabina y media, carrozada) — Argentina-specific, mostly N1.
 hev_split: true
 hev_note: HEV, PHEV, EREV and MHEV are separate columns, classified from the model designation.
 backfill: record-level microdata from 2018-01; nothing earlier carries models
@@ -35,13 +33,15 @@ caveats:
 - MHEV is a lower bound: a 48 V or 12 V system is only counted where the designation or a verified model rule says so. It sits on the ICE side of every chart either way.
 - No petrol/diesel split — the combustion remainder is one ICE column.
 - Vans, trucks and buses are not published: the records have no weight or seat count, so those body types cannot be mapped to EU classes.
+- Pick-ups are kept as a data-only file (data/Argentina_Pickups.csv) — fetched and classified every month, but not charted or used anywhere in the gallery.
 market_breakdown: classification/argentina_top.json
 classification:
   rules: classification/argentina_rules.csv
   mapping: classification/argentina_models.csv
+  scopes: [Whole]
   intro:
   - "Argentina's registry (DNRPA) records every new car with its brand and its exact model designation — but not its fuel. So we classify the powertrain ourselves, from the designation, and publish every step here so you can check it."
-  - "Step 1 — scope. Only true first registrations of new vehicles count (tramite 'Inscripción inicial nacional / importado'), and only passenger-car body types (Whole) or pick-ups (Pickups). Classic cars, auctions, vans, trucks, buses and quadricycles are left out."
+  - "Step 1 — scope. Only true first registrations of new vehicles count (tramite 'Inscripción inicial nacional / importado'), and only passenger-car body types (Whole; pick-ups are classified too but kept as a data-only file). Classic cars, auctions, vans, trucks, buses and quadricycles are left out."
   - "Step 2 — normalise. The designation is upper-cased, accents are removed and spaces collapsed, e.g. 'Híbrida' becomes 'HIBRIDA'."
   - "Step 3 — rules. The designation is tested against the rule table below, top to bottom. The first rule that matches both the brand and the pattern decides: battery-electric (BEV), plug-in hybrid (PHEV), range-extender (EREV), full hybrid (HEV), mild hybrid (MHEV) — or, if nothing matches, combustion (ICE). Most Argentine designations say it outright ('DOLPHIN MINI EV', 'ATTO 2 DM-I', 'COROLLA CROSS HEV', 'TIGGO 7 PRO HYBRID … MHEV'); the brand-specific rules cover the ones that don't (a Volvo 'T8' or a BMW '330e' is a plug-in; a Changan CS55 Plus sold here is always a plug-in) and the ones where the obvious word is misleading (Renault's Argentine Arkana 'E-Tech Hybrid', Suzuki's and Stellantis' 'Hybrid' are mild hybrids; a Hilux 'Pack Eléctrico' has electric windows, not an electric motor). Every model-specific rule was checked against the importer's Argentine spec sheet; the evidence is listed with the rule."
   - "Step 4 — check. The result is validated against ACARA, the dealers' association, which publishes electrified totals from the same registry: for January–June 2026 we count 3,877 BEV (ACARA 3,877), 23,226 HEV (23,222), 9,019 PHEV incl. range-extenders (8,979) and 6,316 MHEV (6,160); model-level figures such as the Ford Territory Hybrid (4,903) or the BAIC BJ30 (3,702) match exactly."
@@ -85,7 +85,8 @@ Fuel:      NOT in the records. Classified from the model designation by
            classification/argentina_rules.csv (§4); every designation's
            class + deciding rule in classification/argentina_models.csv.
            Validated against ACARA: BEV exact, HEV/PHEV within 0.4 %.
-Variants:  Whole (≈M1) · Private · Industry · Pickups.
+Variants:  Whole (≈M1) · Private · Industry — rendered.
+           Pickups — DATA ONLY (CSV kept current, never rendered).
 Not here:  Vans / HDV / Buses (no weight or seat count), quadricycles
            (EU L-category), classic cars, auctions.
 ```
@@ -125,7 +126,7 @@ overwritten without `--force`.
 | `Whole` | SEDAN 2/3/4/5 PUERTAS, RURAL (3/4/5 puertas), TODO TERRENO, COUPE, DESCAPOTABLE, CONVERTIBLE, CABRIOLET, ROADSTER, FAMILIAR, AUTOMOVIL, … | ≈ M1 |
 | `Private` | Whole ∧ `titular_tipo_persona = Física` | M1 sub-slice |
 | `Industry` | Whole ∧ `titular_tipo_persona = Jurídica` (companies, state, fleets) | M1 sub-slice; `Private + Industry = Whole` exactly |
-| `Pickups` | PICK-UP, PICK-UP CABINA SIMPLE / DOBLE / Y MEDIA, PICK-UP CARROZADA | Argentina-specific (Canada/Indonesia precedent); overwhelmingly N1 |
+| `Pickups` — **data only** | PICK-UP, PICK-UP CABINA SIMPLE / DOBLE / Y MEDIA, PICK-UP CARROZADA | overwhelmingly N1. **Fetched, classified and committed every month, but never rendered**: no charts, no `params.csv`/`weights.csv` row, not in the gallery, its tables or the source-page variant list (owner decision 2026-09, same pattern as Indonesia's fetch-only variants). The fetcher enforces it via `RENDERED_VARIANTS`; the one render of 2026-09-23 was removed. |
 
 **Deliberately not published.** `FURGON`, `FURGONETA`, `UTILITARIO`, `CHASIS
 …`, `CAMION`, `TRACTOR`, `TRANS.DE PASAJEROS`, `MINIBUS`, `MIDIBUS`: the records
@@ -365,7 +366,7 @@ on by front-matter keys (this doc's front-matter is the first user):
 * `market_breakdown: <path to top json>` → **"Who sells the electrified
   cars"**: share tiles per class, then for BEV and PHEV (open) and EREV / HEV
   / MHEV (collapsed) the top brands and top designations with units and share.
-* `classification: {rules, mapping, intro}` → **"How each registration gets
+* `classification: {rules, mapping, intro, scopes}` → **"How each registration gets
   its powertrain"**: the plain-language method (`intro` paragraphs), stat
   tiles, **the full rule table in evaluation order** (class, id, kind, brand
   scope, pattern, reason, evidence, example, registrations decided), a
@@ -374,6 +375,9 @@ on by front-matter keys (this doc's front-matter is the first user):
   electrified cars (collapsed — where a missed EV would hide), download links
   for both CSVs, and a "report a misclassification" link.
 
+`scopes:` (optional) limits the page's tables and counts to those mapping
+scopes — Argentina shows `Whole` only, because Pickups is data only; the
+downloadable mapping CSV still carries every scope.
 The page is regenerated by `build-source-pages.yml`, which now also triggers
 on `classification/**`. Missing files degrade to a "not generated yet" note.
 
@@ -464,7 +468,7 @@ sequenceDiagram
         Py->>CSV: line-level upserts (changed lines only)
         Py->>Cls: argentina_models.csv + argentina_top.json (if changed)
         Py-->>Cron: run report → step summary
-        Cron->>Render: once, variants="Whole|Private|Industry|Pickups" (touched only)
+        Cron->>Render: once, variants="Whole|Private|Industry" (touched only; Pickups is data only)
     end
 ```
 
@@ -480,8 +484,9 @@ sequenceDiagram
 - **Tests gate the fetch:** `test_fetch_argentina.py` runs first (rule table
   well-formed, every example decided by its own rule, ~100 pinned real
   designations, scope filter, owner split, upsert, mapping/top/report).
-- **Render:** touched variants → one `render-country.yml` dispatch. A run that
-  only changes `classification/*` commits without rendering; the source page
+- **Render:** touched *rendered* variants (Whole / Private / Industry) → one
+  `render-country.yml` dispatch. Pickups is data only: a run that only changes
+  `data/Argentina_Pickups.csv` or `classification/*` commits without rendering; the source page
   rebuilds via `build-source-pages.yml`.
 - **Offline:** `--from-agg <csv>` reads a pre-aggregated
   `(month, tramite, tipo, marca, modelo, persona, n)` file instead of
