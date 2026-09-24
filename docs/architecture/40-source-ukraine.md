@@ -215,6 +215,18 @@ whose cars reach the register through other procedures or later); no other
 first-registration code carries the missing units. We keep the register's
 definition — first registrations — and note the gap rather than patch it.
 
+## 6a. Reading the fit (first render, 2026-09-24)
+
+The new-car BEV share is not a smooth adoption curve yet: it climbs from
+0.5 % (2019) to ~15 % (2024), then **spikes** in H2 2025 — 52 % in
+December 2025 — as buyers pulled purchases ahead of the end of the EV-import
+VAT exemption, and **collapses** to 3–10 % in 2026. The generalized Weibull
+fit (20→80 % in ~7 years at first render) is pulled up by that spike and
+sits well above the 2026 points; expect it to flatten as post-exemption
+months accumulate. Same caveat, same reason, as Argentina's quota-driven
+early fit ([39](39-source-argentina.md)). The `Used` series (used imports)
+shows the same policy step and is the larger, steadier EV market.
+
 ## 7. Outputs
 
 - `data/Ukraine.csv`, `_Private`, `_Industry`, `_Used`, `_Vans` (monthly, 2018-09 →).
