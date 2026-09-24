@@ -1,0 +1,20 @@
+name: Probe Ukraine (temporary)
+
+# Temporary source probe for Ukraine (data.gov.ua MIA registrations).
+# Runs on pushes to the development branch only; removed before merge.
+
+on:
+  push:
+    branches: [claude/gallery-argentina-expansion-8la8aj]
+    paths: [scripts/probe_ukraine.py, .github/workflows/probe-ukraine.yml]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - run: python scripts/probe_ukraine.py
