@@ -1,0 +1,11 @@
+🇺🇦 Ukraine (Industry) - August 26 - BEV Trajectory
+5.9% BEV
+30.6% Hybrid
+63.4% ICE
+
+Trailing 12 months are:
+8.3% BEV
+26.2% Hybrid
+65.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,0 +1,10 @@
+🇺🇦 Ukraine (Vans) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
+−0.2pp  BEV     (3.3% → 3.1%)
+−0.0pp  Hybrid  (0.0% → 0.0%)
++0.2pp  ICE     (96.7% → 96.9%)
+
+Hybrid peaked at 0.0% in 2025-06 (declining for 14 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
