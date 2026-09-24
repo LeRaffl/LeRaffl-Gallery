@@ -109,7 +109,7 @@ dataset is what Ukrautoprom's monthly market releases are built from.
 
 | Set | Codes | Meaning |
 |---|---|---|
-| new | 105 | new vehicle bought from a dealer, imported (≈ 92 % of Whole) |
+| new | 105 | new vehicle bought from a dealer, imported (the bulk of Whole) |
 | | 99 | new vehicle bought from a dealer, made in Ukraine |
 | | 72 | new vehicle imported by the owner (customs declaration) |
 | | 180, 184, 185 | new vehicle first registered by a business (from 2025-11) |
@@ -144,7 +144,7 @@ CSV columns: `BEV, HEV, PETROL, DIESEL, OTHERS, TOTAL`; `source` =
 | `ЕЛЕКТРО АБО БЕНЗИН`, `ЕЛЕКТРО АБО ДИЗЕЛЬНЕ ПАЛИВО`, `БЕНЗИН, ГАЗ АБО ЕЛЕКТРО`, `ГАЗ ТА ЕЛЕКТРО` | HEV — **combined Hybrid** | the register has no plug-in flag; a RAV4 Hybrid, a Volvo XC90 T8 and a 48 V Audi Q8 TDI all carry "electric or …" |
 | `БЕНЗИН` | PETROL | |
 | `ДИЗЕЛЬНЕ ПАЛИВО` | DIESEL | |
-| `БЕНЗИН АБО ГАЗ`, `ГАЗ`, `ДИЗЕЛЬНЕ ПАЛИВО АБО ГАЗ`, `ВОДЕНЬ`, blank, `НЕ ВИЗНАЧЕНО` | OTHERS | LPG/CNG bi-fuel, hydrogen, unknown (Whole 2018-09 →: 6,100 of 512,000) |
+| `БЕНЗИН АБО ГАЗ`, `ГАЗ`, `ДИЗЕЛЬНЕ ПАЛИВО АБО ГАЗ`, `ВОДЕНЬ`, blank, `НЕ ВИЗНАЧЕНО` | OTHERS | LPG/CNG bi-fuel, hydrogen, unknown (Whole 2018-09 → 2026-08: 11,660 of 601,704 = 1.9 %) |
 
 This is the **Türkiye / Georgia / Colombia combined-hybrid convention**
 ([09](09-glossary.md) "Hybrid"): the HEV column holds every hybrid, there is no
@@ -175,7 +175,8 @@ away in `variants_for()` if that changes. Motorcycles/mopeds (`МОТОЦИКЛ`
 |---|---|
 | Required columns resolve (both header layouts: 2013–2025 `OPER_CODE`+`OPER_NAME`; 2026 merged op column, `POWER_KWT` added, `N_REG_NEW` dropped) | abort, nothing written |
 | Every yearly file in range yields records; > 0.1 % unparsable date/op | abort |
-| Target month fully covered by the file's newest record (cut at a month end) | "not published yet", retry next slot |
+| Target month covered: the extract's cut day (from the member name, e.g. `reestrtz31.08.2026` — **exclusive**, the file ends on 30 Aug) must be within 3 days of the month end | "not published yet", retry next slot |
+| A month whose newest record is before its last day | row written with a factual note in `notes` ("MIA extract has no records after …"); listed in the step summary |
 | Target Whole ≥ 40 % of the trailing-12 median | not written (`--force` overrides) |
 | Unknown `FUEL` strings ≤ 2 % of Whole (else schema drift) | abort; below that → OTHERS + listed in the report |
 | Private + Industry + blank-PERSON = Whole; fuels sum to TOTAL, every month | abort |
@@ -184,6 +185,15 @@ away in `variants_for()` if that changes. Motorcycles/mopeds (`МОТОЦИКЛ`
 
 The run's step summary also lists the month's top-10 new-car brands, so the
 Ukrautoprom cross-check (§6) takes a minute.
+
+**Holes in the published extract.** The closed yearly files miss a few
+month-end days: 2019-04-28…30, 2019-09-30, 2019-12-30/31, 2022-02-28 (the
+fifth day of the full-scale invasion, when service centres closed) and
+2025-12-31 (the 2025 file is cut "31.12.2025", exclusive — so the last day
+of the EV-import VAT exemption is not in it). Those rows carry the note; no
+value is imputed. For the current year the next monthly upload normally
+fills the last day (2026-08-31 arrives with the September extract) and the
+re-derived row loses its note.
 
 ## 6. Validation against Ukrautoprom
 
@@ -196,6 +206,7 @@ from the same register. July 2026 (their release of 2026-08-05 / -08-11):
 | New BEV passenger cars | 423 | 421 | −0.5 % |
 | Used-import BEV passenger cars | 3,333 | 3,361 | +0.8 % |
 | Jan–Jul 2026 new cars | ~38,800 | 37,677 | −2.9 % |
+| 2019 full year new cars | ~88,600 | 89,561 | +1.1 % |
 | Toyota / BMW / Hyundai / Mazda / Suzuki / Audi | 986 / 308 / 298 / 259 / 194 / 156 | 958 / 309 / 293 / 259 / 193 / 160 | ≤ 3 % |
 | Skoda | 693 | 584 | −16 % |
 

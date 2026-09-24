@@ -567,12 +567,16 @@ def complete_through(newest: date | None, cutoff: date | None = None) -> str | N
 
 
 def gap_note(period: str, agg: "Aggregator") -> str:
-    """Factual note for a month whose newest record is before its last day."""
+    """Factual note for a month whose newest record is before its last day.
+    For the current year the next upload usually fills the gap and the note
+    disappears (the row is re-derived every run); in closed yearly files it
+    records a hole in the published extract (2019-12-30/31, 2022-02-28 —
+    the first days of the full-scale invasion — 2025-12-31)."""
     last = agg.max_day.get(period)
     if last is None or last >= month_end(period):
         return ""
     return (f"MIA extract has no records after {last.isoformat()} "
-            f"(month ends {month_end(period).isoformat()}); re-derived on the next upload")
+            f"(month ends {month_end(period).isoformat()})")
 
 
 def looks_incomplete(period: str, total: int, have: dict[str, dict]) -> bool:
