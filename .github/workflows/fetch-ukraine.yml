@@ -1,0 +1,144 @@
+name: Fetch Ukraine data (MIA register)
+
+# Fetches the Ministry of Internal Affairs' open vehicle-registration register
+# (data.gov.ua CKAN — one record per registration operation, with fuel,
+# brand, model, kind, gross weight and owner type) and upserts the Ukraine
+# CSVs. One download feeds every variant:
+#
+#   data/Ukraine.csv           Whole     new passenger cars (KIND ЛЕГКОВИЙ, EU M1)
+#   data/Ukraine_Private.csv   Private   Whole ∧ natural-person owner (PERSON P)
+#   data/Ukraine_Industry.csv  Industry  Whole ∧ legal-person owner  (PERSON J)
+#   data/Ukraine_Used.csv      Used      used passenger-car imports at first
+#                                        Ukrainian registration
+#   data/Ukraine_Vans.csv      Vans      new goods vehicles ≤ 3,500 kg (EU N1)
+#
+# "New" and "used" are the MIA's own first-registration operation codes
+# (105/99/72/180/… vs 100/70/71/…); the series starts 2018-09, the first full
+# month of that code set. The register does not separate plug-in, full and
+# mild hybrids: they are one combined Hybrid bucket in the HEV column.
+# Also writes market/ukraine_top.json (top BEV / Hybrid brands and models).
+# Full method, governance checks and caveats: docs/architecture/40-source-ukraine.md.
+#
+# The MIA re-uploads the current year's zip at the start of each month, cut at
+# the previous month end (2026-08 landed 2026-09-01, ~11:00 UTC). Polled twice
+# daily on the 1st–15th; the script self-throttles via the CSVs, so once the
+# month is in, runs are a no-op without any HTTP. A normal run reads the
+# current and previous yearly file (~160 MB) so corrections to either land;
+# `backfill` re-derives everything from 2018-09.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Private
+          - Industry
+          - Used
+          - Vans
+      period:
+        description: 'Target month YYYY-MM (default: previous month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2018-09 (downloads every yearly file)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness guard / foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Twice daily on the 1st–15th, 08:40 and 20:40 UTC.
+    - cron: '40 8,20 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # Scope and fuel mapping fail silently when wrong, so the regression
+      # tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_ukraine.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Ukraine CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_ukraine.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Ukraine.csv
+            data/Ukraine_Private.csv
+            data/Ukraine_Industry.csv
+            data/Ukraine_Used.csv
+            data/Ukraine_Vans.csv
+            market/ukraine_top.json
+          message: 'chore: update Ukraine data from MIA register (data.gov.ua)'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Ukraine
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Ukraine \
+            -f variants="$variants"
