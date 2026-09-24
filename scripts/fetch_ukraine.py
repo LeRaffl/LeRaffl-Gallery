@@ -263,6 +263,7 @@ class Aggregator:
         self.unmapped_ops: collections.Counter = collections.Counter()   # (period, code, name, kind)
         self.blank_person: collections.Counter = collections.Counter()   # period
         self.op_names: dict[int, str] = {}
+        self.max_day: dict[str, date] = {}    # period -> newest record date seen
 
     def add(self, period: str | None, op: int | None, op_name: str, kind: str,
             wt: str, fuel: str, person: str, brand: str, model: str,
@@ -338,7 +339,10 @@ def add_rows(rows, agg: Aggregator) -> tuple[int, date | None, int]:
             continue
         if newest is None or day > newest:
             newest = day
-        agg.add(f"{day.year:04d}-{day.month:02d}", op, name, get("KIND"),
+        period = f"{day.year:04d}-{day.month:02d}"
+        if day > agg.max_day.get(period, date.min):
+            agg.max_day[period] = day
+        agg.add(period, op, name, get("KIND"),
                 weight_bucket(get("TOTAL_WEIGHT")), get("FUEL"), get("PERSON"),
                 get("BRAND"), get("MODEL"))
     return n, newest, bad
@@ -402,23 +406,28 @@ def list_year_urls(session: requests.Session) -> dict[int, str]:
     return {y: u for y, (_, u) in best.items()}
 
 
-def ingest_year(session, url: str, agg: Aggregator) -> tuple[int, date | None]:
+def ingest_year(session, url: str, agg: Aggregator) -> tuple[int, date | None, date | None]:
     r = session.get(url, timeout=1800)
     r.raise_for_status()
     z = zipfile.ZipFile(io.BytesIO(r.content))
     members = [i.filename for i in z.infolist() if not i.is_dir()]
     print(f"  {url.rsplit('/', 1)[-1]}: members {members}")
-    total, newest = 0, None
+    total, newest, cutoff = 0, None, None
     for name in members:
         k, last, bad = add_rows(iter_member(z, name), agg)
-        print(f"  {name}: {k:,} records, newest {last}, unparsed {bad:,}")
+        cutoff = cutoff_from_name(name) or cutoff
+        print(f"  {name}: {k:,} records, newest {last}, cut-off in name "
+              f"{cutoff_from_name(name)}, unparsed {bad:,}")
         if k and bad / k > 0.001:
             raise SystemExit(f"{name}: {bad:,} of {k:,} records have no parsable "
                              "date or op code — schema drift, not writing.")
         total += k
         if last and (newest is None or last > newest):
             newest = last
-    return total, newest
+    if cutoff and newest and newest > cutoff:
+        raise SystemExit(f"{url}: records dated {newest} after the cut-off "
+                         f"{cutoff} in the file name — not writing.")
+    return total, newest, cutoff
 
 
 def ingest_agg_file(path: str, agg: Aggregator) -> None:
@@ -508,19 +517,62 @@ def previous_month(today: date) -> str:
     return f"{today.year}-{today.month - 1:02d}"
 
 
-def complete_through(newest: date | None) -> str | None:
-    """Newest month fully covered by a file whose newest record is `newest`.
-    The MIA cuts files at a month end; anything else means the last month is
-    still partial."""
-    if newest is None:
+def cutoff_from_name(name: str) -> date | None:
+    """`reestrtz31.08.2026.csv` → 2026-08-31: the MIA names the current-year
+    member after the day the extract was cut."""
+    m = re.search(r"(\d\d)\.(\d\d)\.(\d{4})", name)
+    if not m:
         return None
-    nxt = date.fromordinal(newest.toordinal() + 1)
-    if nxt.month != newest.month:
-        return f"{newest.year:04d}-{newest.month:02d}"
-    y, m = newest.year, newest.month - 1
+    try:
+        return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
+    except ValueError:
+        return None
+
+
+# The name date is the day the extract was cut and is NOT included (the 2025
+# file "reestrtz31.12.2025" ends on 30 Dec; the 2026 file "31.08.2026" on 30
+# Aug). A month whose last day(s) are missing is still written — its row
+# carries a note — as long as no more than this many days are missing; the
+# next upload re-derives it and the note disappears.
+MONTH_END_SLACK_DAYS = 3
+
+
+def month_end(period: str) -> date:
+    y, m = int(period[:4]), int(period[5:7])
+    nxt = date(y + (m == 12), m % 12 + 1, 1)
+    return date.fromordinal(nxt.toordinal() - 1)
+
+
+def last_included_day(newest: date | None, cutoff: date | None) -> date | None:
+    if cutoff:
+        day_before = date.fromordinal(cutoff.toordinal() - 1)
+        # records dated ON the cut day would mean the date is inclusive
+        return max(day_before, newest) if newest else day_before
+    return newest
+
+
+def complete_through(newest: date | None, cutoff: date | None = None) -> str | None:
+    """Newest month the file covers up to at most MONTH_END_SLACK_DAYS before
+    its last day."""
+    d = last_included_day(newest, cutoff)
+    if d is None:
+        return None
+    period = f"{d.year:04d}-{d.month:02d}"
+    if (month_end(period) - d).days <= MONTH_END_SLACK_DAYS:
+        return period
+    y, m = d.year, d.month - 1
     if m == 0:
         y, m = y - 1, 12
     return f"{y:04d}-{m:02d}"
+
+
+def gap_note(period: str, agg: "Aggregator") -> str:
+    """Factual note for a month whose newest record is before its last day."""
+    last = agg.max_day.get(period)
+    if last is None or last >= month_end(period):
+        return ""
+    return (f"MIA extract has no records after {last.isoformat()} "
+            f"(month ends {month_end(period).isoformat()}); re-derived on the next upload")
 
 
 def looks_incomplete(period: str, total: int, have: dict[str, dict]) -> bool:
@@ -584,6 +636,10 @@ def report(agg: Aggregator, target: str, variants: list[str]) -> str:
                          for (_, code, name, kind), n in
                          sorted(ops.items(), key=lambda kv: -kv[1])) or "None.")
     out.append(f"\nRecords with blank PERSON in Whole: {agg.blank_person[target]:,}")
+    gaps = [(p, gap_note(p, agg)) for p in sorted(agg.max_day) if gap_note(p, agg)
+            and p >= agg.backfill_from]
+    out.append("\n### Months whose newest record is before the month end (row carries a note)\n")
+    out.append("\n".join(f"- {p}: {n}" for p, n in gaps) or "None.")
     return "\n".join(out) + "\n"
 
 
@@ -642,6 +698,7 @@ def main() -> int:
         print("Yearly files on the portal:", {y: u.rsplit('/', 1)[-1] for y, u in sorted(years.items())})
         first = int(args.backfill_from[:4]) if backfill else int(target[:4]) - 1
         newest_all: date | None = None
+        cutoff_all: date | None = None
         for year in range(first, int(target[:4]) + 1):
             if year not in years:
                 if year < int(target[:4]):
@@ -650,14 +707,14 @@ def main() -> int:
                 print(f"Year {year}: not on the portal yet.")
                 continue
             print(f"Year {year}:")
-            k, newest = ingest_year(session, years[year], agg)
+            k, newest, cutoff = ingest_year(session, years[year], agg)
             if k == 0:
                 sys.exit(f"Year {year}: zero records — broken upload, not writing.")
             urls.append(years[year])
             if newest and (newest_all is None or newest > newest_all):
-                newest_all = newest
-        covered = complete_through(newest_all)
-        print(f"Newest record {newest_all} → complete through {covered}")
+                newest_all, cutoff_all = newest, cutoff
+        covered = complete_through(newest_all, cutoff_all)
+        print(f"Newest record {newest_all}, cut-off {cutoff_all} → complete through {covered}")
 
     if covered is None or target > covered or target not in agg.counts:
         print(f"{target} is not fully published yet (file complete through "
@@ -686,7 +743,7 @@ def main() -> int:
 
     changed: set[str] = set()
     for v in variants:
-        updates = {(p, v): render_line(p, v, agg.counts[p][v])
+        updates = {(p, v): render_line(p, v, agg.counts[p][v], gap_note(p, agg))
                    for p in periods if agg.counts[p][v]["TOTAL"] > 0}
         stats = upsert_lines(paths[v], updates, args.force)
         print(f"{VARIANT_CSV[v]}: {stats}")

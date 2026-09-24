@@ -102,11 +102,33 @@ def test_parsers():
 
 
 def test_complete_through():
-    assert fu.complete_through(date(2026, 8, 31)) == "2026-08"
-    assert fu.complete_through(date(2026, 8, 29)) == "2026-07"    # partial August
-    assert fu.complete_through(date(2025, 12, 31)) == "2025-12"
+    # the file name's date is the cut day, NOT included
+    assert fu.cutoff_from_name("reestrtz31.08.2026.csv") == date(2026, 8, 31)
+    assert fu.cutoff_from_name("tz_opendata_z01012019_po01012020.ßsv") is None
+    assert fu.last_included_day(date(2026, 8, 30), date(2026, 8, 31)) == date(2026, 8, 30)
+    assert fu.complete_through(date(2026, 8, 30), date(2026, 8, 31)) == "2026-08"
+    assert fu.complete_through(date(2026, 9, 30), date(2026, 10, 1)) == "2026-09"
+    assert fu.complete_through(date(2026, 8, 19), date(2026, 8, 20)) == "2026-07"
+    # without a name date: newest record within 3 days of the month end
+    assert fu.complete_through(date(2025, 12, 30)) == "2025-12"
+    assert fu.complete_through(date(2026, 8, 28)) == "2026-08"
+    assert fu.complete_through(date(2026, 8, 27)) == "2026-07"
     assert fu.complete_through(date(2026, 1, 15)) == "2025-12"
     assert fu.complete_through(None) is None
+    assert fu.month_end("2024-02") == date(2024, 2, 29)
+    assert fu.month_end("2025-12") == date(2025, 12, 31)
+
+
+def test_gap_note_marks_a_short_month_and_clears():
+    agg = fu.Aggregator()
+    agg.max_day["2025-12"] = date(2025, 12, 30)
+    agg.max_day["2025-11"] = date(2025, 11, 30)
+    assert "2025-12-30" in fu.gap_note("2025-12", agg)
+    assert fu.gap_note("2025-11", agg) == ""
+    agg.max_day["2025-12"] = date(2025, 12, 31)              # next upload
+    assert fu.gap_note("2025-12", agg) == ""
+    c = {"BEV": 1, "HEV": 0, "PETROL": 0, "DIESEL": 0, "OTHERS": 0, "TOTAL": 1}
+    assert fu.render_line("2025-12", "Whole", c, "x, y").endswith(',"x, y"')
 
 
 def test_both_header_layouts_and_scope_end_to_end():
@@ -126,6 +148,7 @@ def test_both_header_layouts_and_scope_end_to_end():
     agg = fu.Aggregator()
     n, newest, bad = fu.add_rows(iter(rows25), agg)
     assert (n, bad) == (8, 0) and newest == date(2025, 8, 7)
+    assert agg.max_day["2025-08"] == date(2025, 8, 7)
     n, newest, bad = fu.add_rows(iter(rows26), agg)
     assert (n, bad, newest) == (2, 0, date(2026, 8, 31))
     a = agg.counts["2025-08"]
