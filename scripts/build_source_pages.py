@@ -728,6 +728,8 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 # country's fetcher writes; a front-matter key switches each section on:
 #
 #   market_breakdown: market/<slug>_top.json   (Argentina: classification/…)
+#   market_class_names:  {HEV: Hybrid}          optional short-name override
+#   market_class_labels: {HEV: "…"}             optional long-label override
 #       written by the fetcher via scripts/market_top.py — Spain, Malaysia, …
 #       {"variant", "as_of", "window": {"from","to","months"},
 #        "total_registrations", "unit",
@@ -834,12 +836,19 @@ def build_market_breakdown(fm: dict) -> str:
             + ('Powertrain as classified below.' if fm.get("classification")
                else "Powertrain as recorded by the source's own fuel field.")
             + '</p>')
+    # Optional per-country relabelling (front-matter `market_class_names` /
+    # `market_class_labels`), for a source whose class is broader than the
+    # gallery's name for its column — e.g. Ukraine's register has ONE combined
+    # hybrid value (plug-in + full + mild) that lives in the HEV column, so its
+    # page must say "Hybrid", not "Full hybrid".
+    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
+    labels = CLASS_LABEL | (fm.get("market_class_labels") or {})
     tiles = []
     for c in CLASS_ORDER:
         if c in classes:
             v = classes[c]
             tiles.append(f'<div class="stat"><div class="n">{_share(v.get("share_of_market"))}</div>'
-                         f'<div class="l">{esc(c)} · {_num(v.get("units"))} units</div></div>')
+                         f'<div class="l">{esc(names[c])} · {_num(v.get("units"))} units</div></div>')
     parts = [f'<div class="stats">{"".join(tiles)}</div>'] if tiles else []
     brand_cols = [("#", "#"), ("Brand", "brand"), ("Units", "units"), ("Share", "share_of_class")]
     model_cols = [("#", "#"), ("Brand", "brand"), ("Designation", "model"),
@@ -848,12 +857,13 @@ def build_market_breakdown(fm: dict) -> str:
         v = classes.get(c)
         if not v:
             continue
+        n = names[c]
         inner = ('<div class="pair">'
-                 + _rank_table(v.get("brands") or [], brand_cols, f"{c} — top brands (share of {c})")
-                 + _rank_table(v.get("models") or [], model_cols, f"{c} — top designations (share of {c})")
+                 + _rank_table(v.get("brands") or [], brand_cols, f"{n} — top brands (share of {n})")
+                 + _rank_table(v.get("models") or [], model_cols, f"{n} — top designations (share of {n})")
                  + '</div>')
         parts.append(f'<details{" open" if open_ else ""}><summary>{cls_badge(c)} '
-                     f'{esc(CLASS_LABEL[c])} — {_num(v.get("units"))} units</summary>{inner}</details>')
+                     f'{esc(labels[c])} — {_num(v.get("units"))} units</summary>{inner}</details>')
     return ('<section id="market"><h2>Who sells the electrified cars</h2>'
             + lead + "".join(parts) + '</section>')
 

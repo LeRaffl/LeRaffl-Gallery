@@ -347,6 +347,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
 | [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | 08:30 UTC, 15th → EOM | TÜİK «Motorlu Kara Taşıtları» bulletin (id auto-discovered; fuel table OCR'd) | `Whole` — otomobil only, combined Hybrid bucket | `latest_period(Türkiye.csv) ≥ target` |
+| [`fetch-ukraine.yml`](../../.github/workflows/fetch-ukraine.yml) | 08:40 & 20:40 UTC, 1st → 15th | MIA open vehicle register (`data.gov.ua` CKAN; yearly zips, current year re-uploaded ~the 1st) — fuel from the record, new/used from operation codes ([40](40-source-ukraine.md)) | `Whole` + `Private` + `Industry` + `Used` + `Vans` — one download, every variant; combined Hybrid bucket | every CSV already has the target month from `MIA HSC (data.gov.ua)` → no HTTP |
 | [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | 08:10 UTC, 1st → EOM | ACAU «Compilado YYYY» xlsx | `Whole` (AUTOS + SUV) + `Vans` + `HDV` + `Buses` | `latest_period` per variant ≥ target |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | 10:30 UTC, 10th → EOM | ANL «Total Sales for Website» PDF | `Whole` — trailing 3-month window, re-written each run to absorb ANL revisions | change-detection on the window |
 
@@ -364,13 +365,14 @@ Notes on the schedule shape:
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
   07:30, Nepal 07:50.
-- **And from above:** Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
+- **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
+  slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
   11:00, Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
   from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
   afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
-  Sweden, Spain, Thailand, Luxembourg; Ireland, Italy and Portugal from the
+  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy and Portugal from the
   1st too) rely entirely on the self-throttle to keep the empty days free —
   they fire many times a month but only do real HTTP on the days the source
   publishes.

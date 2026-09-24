@@ -187,6 +187,21 @@ significant EV importer is outside it**).
 
 ---
 
+## Built outside this list — 🇺🇦 Ukraine (2026-09)
+
+> **Status: BUILT (2026-09).** Not a candidate above because nobody had
+> looked: the Ministry of Internal Affairs publishes its whole vehicle
+> register — one record per registration operation, **with a fuel field**,
+> brand, model, kind, gross weight and owner type — on data.gov.ua (CKAN,
+> free, no key). New vs used comes from the register's own operation codes
+> (clean from 2018-09); hybrids are one combined bucket. Validated against
+> Ukrautoprom (BEV within 1 %). See [40-source-ukraine.md](40-source-ukraine.md).
+> The Serbia build below stayed deferred in the same session: its
+> importers' association publishes the fuel split only in irregular
+> quarter/half-year prose articles (Q1, H1, 9M), too thin for a monthly fit.
+
+---
+
 ## Shelved — investigated 2026-07, no viable source
 
 Same spirit as [14-data-source-gaps.md](14-data-source-gaps.md); listed here

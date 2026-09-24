@@ -1,0 +1,8 @@
+🇺🇦 Ukraine (Used) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++2.0pp  BEV     (21.9% → 23.9%)
++2.1pp  Hybrid  (4.9% → 6.9%)
+−4.1pp  ICE     (73.3% → 69.1%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

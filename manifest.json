@@ -2,6 +2,206 @@
   "updated": "2026-09-24",
   "images": [
     {
+      "country": "Ukraine",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_ICE_BEV_20260924.png",
+      "url": "images/2026-08/ukraine_ICE_BEV_20260924.png",
+      "alt": "Ukraine ICE-BEV-Hybrid trajectory",
+      "country_slug": "ukraine"
+    },
+    {
+      "country": "Ukraine",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_20260924.png",
+      "url": "images/2026-08/ukraine_20260924.png",
+      "alt": "Ukraine BEV trajectory",
+      "country_slug": "ukraine"
+    },
+    {
+      "country": "Ukraine",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_time_20260924.png",
+      "url": "images/2026-08/ukraine_time_20260924.png",
+      "alt": "Ukraine Transition time curve",
+      "country_slug": "ukraine"
+    },
+    {
+      "country": "Ukraine",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_ttm_shares_20260924.png",
+      "url": "images/2026-08/ukraine_ttm_shares_20260924.png",
+      "alt": "Ukraine TTM market split graph",
+      "country_slug": "ukraine"
+    },
+    {
+      "country": "Ukraine (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_industry_ICE_BEV_20260924.png",
+      "url": "images/2026-08/ukraine_industry_ICE_BEV_20260924.png",
+      "alt": "Ukraine (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ukraine_industry"
+    },
+    {
+      "country": "Ukraine (Industry)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_industry_20260924.png",
+      "url": "images/2026-08/ukraine_industry_20260924.png",
+      "alt": "Ukraine (Industry) BEV trajectory",
+      "country_slug": "ukraine_industry"
+    },
+    {
+      "country": "Ukraine (Industry)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_industry_time_20260924.png",
+      "url": "images/2026-08/ukraine_industry_time_20260924.png",
+      "alt": "Ukraine (Industry) Transition time curve",
+      "country_slug": "ukraine_industry"
+    },
+    {
+      "country": "Ukraine (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_industry_ttm_shares_20260924.png",
+      "url": "images/2026-08/ukraine_industry_ttm_shares_20260924.png",
+      "alt": "Ukraine (Industry) TTM market split graph",
+      "country_slug": "ukraine_industry"
+    },
+    {
+      "country": "Ukraine (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_private_ICE_BEV_20260924.png",
+      "url": "images/2026-08/ukraine_private_ICE_BEV_20260924.png",
+      "alt": "Ukraine (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ukraine_private"
+    },
+    {
+      "country": "Ukraine (Private)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_private_20260924.png",
+      "url": "images/2026-08/ukraine_private_20260924.png",
+      "alt": "Ukraine (Private) BEV trajectory",
+      "country_slug": "ukraine_private"
+    },
+    {
+      "country": "Ukraine (Private)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_private_time_20260924.png",
+      "url": "images/2026-08/ukraine_private_time_20260924.png",
+      "alt": "Ukraine (Private) Transition time curve",
+      "country_slug": "ukraine_private"
+    },
+    {
+      "country": "Ukraine (Private)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_private_ttm_shares_20260924.png",
+      "url": "images/2026-08/ukraine_private_ttm_shares_20260924.png",
+      "alt": "Ukraine (Private) TTM market split graph",
+      "country_slug": "ukraine_private"
+    },
+    {
+      "country": "Ukraine (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_used_ICE_BEV_20260924.png",
+      "url": "images/2026-08/ukraine_used_ICE_BEV_20260924.png",
+      "alt": "Ukraine (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ukraine_used"
+    },
+    {
+      "country": "Ukraine (Used)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_used_20260924.png",
+      "url": "images/2026-08/ukraine_used_20260924.png",
+      "alt": "Ukraine (Used) BEV trajectory",
+      "country_slug": "ukraine_used"
+    },
+    {
+      "country": "Ukraine (Used)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_used_time_20260924.png",
+      "url": "images/2026-08/ukraine_used_time_20260924.png",
+      "alt": "Ukraine (Used) Transition time curve",
+      "country_slug": "ukraine_used"
+    },
+    {
+      "country": "Ukraine (Used)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_used_ttm_shares_20260924.png",
+      "url": "images/2026-08/ukraine_used_ttm_shares_20260924.png",
+      "alt": "Ukraine (Used) TTM market split graph",
+      "country_slug": "ukraine_used"
+    },
+    {
+      "country": "Ukraine (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_vans_ICE_BEV_20260924.png",
+      "url": "images/2026-08/ukraine_vans_ICE_BEV_20260924.png",
+      "alt": "Ukraine (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ukraine_vans"
+    },
+    {
+      "country": "Ukraine (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_vans_20260924.png",
+      "url": "images/2026-08/ukraine_vans_20260924.png",
+      "alt": "Ukraine (Vans) BEV trajectory",
+      "country_slug": "ukraine_vans"
+    },
+    {
+      "country": "Ukraine (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_vans_time_20260924.png",
+      "url": "images/2026-08/ukraine_vans_time_20260924.png",
+      "alt": "Ukraine (Vans) Transition time curve",
+      "country_slug": "ukraine_vans"
+    },
+    {
+      "country": "Ukraine (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-24",
+      "filename": "ukraine_vans_ttm_shares_20260924.png",
+      "url": "images/2026-08/ukraine_vans_ttm_shares_20260924.png",
+      "alt": "Ukraine (Vans) TTM market split graph",
+      "country_slug": "ukraine_vans"
+    },
+    {
       "country": "Argentina",
       "type": "ICE_BEV",
       "period": "2026-08",

@@ -1,0 +1,11 @@
+🇺🇦 Ukraine - August 26 - BEV Trajectory
+10.5% BEV
+34.0% Hybrid
+55.5% ICE
+
+Trailing 12 months are:
+22.7% BEV
+25.3% Hybrid
+52.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

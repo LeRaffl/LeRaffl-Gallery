@@ -8,6 +8,7 @@ brands and models per electrified class (BEV / PHEV / EREV / HEV / MHEV).
 |---|---|
 | `spain_top.json` | `scripts/fetch_spain.py` (DGT `MARCA_ITV` / `MODELO_ITV`, Whole) |
 | `malaysia_top.json` | `scripts/fetch_malaysia.py` (data.gov.my `maker` / `model`) |
+| `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV + combined Hybrid) |
 
 Argentina's equivalent is `classification/argentina_top.json` (same schema).
 

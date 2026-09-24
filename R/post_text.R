@@ -70,6 +70,7 @@
     Slovakia = "\U0001F1F8\U0001F1F0", Slovenia = "\U0001F1F8\U0001F1EE", `South Korea` = "\U0001F1F0\U0001F1F7",
     Spain = "\U0001F1EA\U0001F1F8", Sweden = "\U0001F1F8\U0001F1EA", Switzerland = "\U0001F1E8\U0001F1ED",
     Thailand = "\U0001F1F9\U0001F1ED", Türkiye = "\U0001F1F9\U0001F1F7", UK = "\U0001F1EC\U0001F1E7",
+    Ukraine = "\U0001F1FA\U0001F1E6",
     Uruguay = "\U0001F1FA\U0001F1FE", USA = "\U0001F1FA\U0001F1F8"
   )
   base <- sub("\\s*\\(.*\\)\\s*", "", country)

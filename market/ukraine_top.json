@@ -1,0 +1,311 @@
+{
+ "country": "Ukraine",
+ "variant": "Whole",
+ "source": "MIA HSC (data.gov.ua)",
+ "as_of": "2026-08",
+ "window": {
+  "from": "2025-09",
+  "to": "2026-08",
+  "months": 12
+ },
+ "total_registrations": 75979,
+ "unit": "registrations (brand = BRAND, model = MODEL as recorded by the MIA register; Hybrid = the register's combined hybrid fuel value)",
+ "classes": {
+  "BEV": {
+   "units": 17275,
+   "share_of_market": 0.22737,
+   "brands": [
+    {
+     "brand": "BYD",
+     "units": 7533,
+     "share_of_class": 0.4361
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 2705,
+     "share_of_class": 0.1566
+    },
+    {
+     "brand": "ZEEKR",
+     "units": 2292,
+     "share_of_class": 0.1327
+    },
+    {
+     "brand": "HONDA",
+     "units": 1149,
+     "share_of_class": 0.0665
+    },
+    {
+     "brand": "AUDI",
+     "units": 616,
+     "share_of_class": 0.0357
+    },
+    {
+     "brand": "FCB",
+     "units": 535,
+     "share_of_class": 0.031
+    },
+    {
+     "brand": "MG",
+     "units": 313,
+     "share_of_class": 0.0181
+    },
+    {
+     "brand": "BMW",
+     "units": 298,
+     "share_of_class": 0.0173
+    },
+    {
+     "brand": "XIAOMI",
+     "units": 293,
+     "share_of_class": 0.017
+    },
+    {
+     "brand": "DENZA",
+     "units": 202,
+     "share_of_class": 0.0117
+    }
+   ],
+   "models": [
+    {
+     "brand": "ZEEKR",
+     "model": "7X",
+     "units": 1139,
+     "share_of_class": 0.0659
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "ID. UNYX",
+     "units": 1072,
+     "share_of_class": 0.0621
+    },
+    {
+     "brand": "BYD",
+     "model": "SEA LION 06",
+     "units": 1020,
+     "share_of_class": 0.059
+    },
+    {
+     "brand": "BYD",
+     "model": "SONG PLUS",
+     "units": 981,
+     "share_of_class": 0.0568
+    },
+    {
+     "brand": "BYD",
+     "model": "SEA LION 07",
+     "units": 878,
+     "share_of_class": 0.0508
+    },
+    {
+     "brand": "ZEEKR",
+     "model": "001",
+     "units": 851,
+     "share_of_class": 0.0493
+    },
+    {
+     "brand": "BYD",
+     "model": "YUAN UP",
+     "units": 711,
+     "share_of_class": 0.0412
+    },
+    {
+     "brand": "BYD",
+     "model": "LEOPARD 3",
+     "units": 523,
+     "share_of_class": 0.0303
+    },
+    {
+     "brand": "HONDA",
+     "model": "E NS1",
+     "units": 512,
+     "share_of_class": 0.0296
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "ID. UNYX 06",
+     "units": 455,
+     "share_of_class": 0.0263
+    },
+    {
+     "brand": "BYD",
+     "model": "SEA LION 05",
+     "units": 438,
+     "share_of_class": 0.0254
+    },
+    {
+     "brand": "BYD",
+     "model": "LEOPARD 3 TITANIUM",
+     "units": 415,
+     "share_of_class": 0.024
+    },
+    {
+     "brand": "HONDA",
+     "model": "E NP2",
+     "units": 407,
+     "share_of_class": 0.0236
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "ID. UNYX 06 ULTRA",
+     "units": 364,
+     "share_of_class": 0.0211
+    },
+    {
+     "brand": "BYD",
+     "model": "SEA LION 06 EV 605 PILOT PLUS EDITION",
+     "units": 342,
+     "share_of_class": 0.0198
+    }
+   ]
+  },
+  "HEV": {
+   "units": 19210,
+   "share_of_market": 0.25283,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 6380,
+     "share_of_class": 0.3321
+    },
+    {
+     "brand": "NISSAN",
+     "units": 1850,
+     "share_of_class": 0.0963
+    },
+    {
+     "brand": "BMW",
+     "units": 1659,
+     "share_of_class": 0.0864
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 1419,
+     "share_of_class": 0.0739
+    },
+    {
+     "brand": "AUDI",
+     "units": 1186,
+     "share_of_class": 0.0617
+    },
+    {
+     "brand": "LEXUS",
+     "units": 911,
+     "share_of_class": 0.0474
+    },
+    {
+     "brand": "LAND ROVER",
+     "units": 865,
+     "share_of_class": 0.045
+    },
+    {
+     "brand": "VOLVO",
+     "units": 794,
+     "share_of_class": 0.0413
+    },
+    {
+     "brand": "BYD",
+     "units": 755,
+     "share_of_class": 0.0393
+    },
+    {
+     "brand": "RENAULT",
+     "units": 523,
+     "share_of_class": 0.0272
+    }
+   ],
+   "models": [
+    {
+     "brand": "TOYOTA",
+     "model": "RAV-4 HYBRID",
+     "units": 2912,
+     "share_of_class": 0.1516
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "YARIS CROSS",
+     "units": 1146,
+     "share_of_class": 0.0597
+    },
+    {
+     "brand": "NISSAN",
+     "model": "QASHQAI",
+     "units": 991,
+     "share_of_class": 0.0516
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "RAV4",
+     "units": 973,
+     "share_of_class": 0.0507
+    },
+    {
+     "brand": "NISSAN",
+     "model": "X-TRAIL",
+     "units": 859,
+     "share_of_class": 0.0447
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "CAMRY",
+     "units": 610,
+     "share_of_class": 0.0318
+    },
+    {
+     "brand": "AUDI",
+     "model": "Q8",
+     "units": 555,
+     "share_of_class": 0.0289
+    },
+    {
+     "brand": "RENAULT",
+     "model": "DUSTER",
+     "units": 502,
+     "share_of_class": 0.0261
+    },
+    {
+     "brand": "VOLVO",
+     "model": "XC90",
+     "units": 451,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "BMW",
+     "model": "X5 XDRIVE 30D",
+     "units": 326,
+     "share_of_class": 0.017
+    },
+    {
+     "brand": "LEXUS",
+     "model": "NX 350H",
+     "units": 278,
+     "share_of_class": 0.0145
+    },
+    {
+     "brand": "LAND ROVER",
+     "model": "RANGE ROVER",
+     "units": 277,
+     "share_of_class": 0.0144
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "GLS 450 D",
+     "units": 259,
+     "share_of_class": 0.0135
+    },
+    {
+     "brand": "AUDI",
+     "model": "Q7",
+     "units": 248,
+     "share_of_class": 0.0129
+    },
+    {
+     "brand": "BYD",
+     "model": "SONG L DM-I",
+     "units": 243,
+     "share_of_class": 0.0126
+    }
+   ]
+  }
+ }
+}
