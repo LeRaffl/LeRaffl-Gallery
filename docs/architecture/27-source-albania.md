@@ -57,6 +57,9 @@ Approach:      Headless Playwright → intercept batchedDataV2 → Muaji filter 
 Variants:      Whole (M1, Autoveturë) · HDV (N2+N3, Kamion) ·
                Buses (M2+M3, Autobus) · 2-Wheelers (L, Motor + Ciklomotorr …)
 Counts:        All first registrations (new + imported used)
+               OPEN ITEM: Whole mixes new + used imports; split into
+               Albania_Used once a new/used or model-year field is
+               found (09-glossary.md, "the Albania exception")
 Coverage:      Whole 2019→ (bootstrapped pre-2026 + live current year);
                HDV/Buses/2-Wheelers backfilled 2020–2024 + live current year.
                2025 non-Whole NOT fetched — source snapshots are corrupt (§11).

@@ -54,7 +54,8 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | `Whole` | The country's headline new-registration series — **passenger cars** (the default slice; UI label "New Cars"). | M1 | What `data/<Country>.csv` (no suffix) holds. The world map + cross-country rankings use this. |
 | `Private` | Passenger cars registered to **private persons / households**. | M1 | Subset of Whole. |
 | `Industry` | Passenger cars **not** registered to private persons (companies, state, etc.). | M1 | Defined as `Whole − Private` where the source has no direct "industry" bucket (Finland), or a direct "in industries" category (Denmark). `Private + Industry = Whole`. |
-| `Used` | **Used / second-hand** registrations (not new). | M1 | **Netherlands** (used imports), **Spain** (used cars at their first Spanish registration — overwhelmingly imports), **Ukraine** (used imports at their first Ukrainian registration, by the register's operation codes) and **Latvia** (a legacy series with no CSV in this repo). A different population from every other variant, which are *new* registrations. |
+| `Used` | **Used vehicles at their first national registration** — in practice used **imports** (the car was registered abroad before). Changes of owner within the country are *not* `Used` (see `Resale`). | M1 | **Netherlands** (imported used cars at first Dutch registration), **Spain** (used cars at their first Spanish registration — overwhelmingly imports), **Ukraine** (used imports at their first Ukrainian registration, by the register's operation codes) and **Latvia** (a legacy series with no CSV in this repo — definition not re-verified against this rule). A different population from every other variant, which are *new* registrations. |
+| `Resale` | **Reserved, not built.** Used vehicles changing owner *within* the country (second or later national registration). | M1 | No country yet. Ukraine's register carries it (change-of-owner operation codes; IAR's August-2026 EV market of 9,074 = 504 new + 3,613 used imports + 4,957 resales). Kept separate from `Used` so a used-import series is never mixed with domestic turnover. |
 | `Vans` | **Light commercial** goods vehicles (vans, pickups). | **N1** (≤ 3.5 t) | |
 | `HDV` | **Heavy goods** vehicles (lorries / trucks — freight, not people). | **N2 + N3** (> 3.5 t) | See the cross-country deviation note below. |
 | `Buses` | **Buses & coaches.** | **M2 + M3** | Very low volume in most countries → lumpy, batch-driven fleet orders make the TTM share swing hard (this is real, not a bug — see e.g. Ireland Buses). |
@@ -68,6 +69,17 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > from both (COVID-lockdown data anomaly). See
 > [18-source-italy.md](18-source-italy.md) and
 > [03-data-objects.md § Estimated-value convention](03-data-objects.md).
+
+> **`Whole` that includes used imports — the Albania exception.** `Whole`
+> is meant to be *new* registrations. Albania's source (DPSHTRR open data)
+> publishes only *first registrations* with no new/used dimension (the
+> report exposes vehicle type, fuel and month only), so `Albania.csv` `Whole`
+> = new **+ imported used** — i.e. it overlaps what `Used` means elsewhere,
+> and is not comparable to new-only `Whole` series (~5× the new-car total,
+> [27-source-albania.md](27-source-albania.md)). **Open item:** split used
+> first registrations into `Albania_Used` (leaving a new-only `Whole`) if a
+> probe finds a model-year or new/used field in the report's datasource;
+> until then the footnote flags it.
 
 ### Per-country variant → source category
 
