@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-24T09:30:18Z",
+ "generated": "2026-09-24T15:49:48Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4752,6 +4752,46 @@
    "slug": "switzerland",
    "period": "2026-08",
    "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-09-24",
+   "label": "Ukraine",
+   "base": "Ukraine",
+   "slug": "ukraine",
+   "period": "2026-08",
+   "flag": "🇺🇦"
+  },
+  {
+   "date": "2026-09-24",
+   "label": "Ukraine (Industry)",
+   "base": "Ukraine",
+   "slug": "ukraine_industry",
+   "period": "2026-08",
+   "flag": "🇺🇦"
+  },
+  {
+   "date": "2026-09-24",
+   "label": "Ukraine (Private)",
+   "base": "Ukraine",
+   "slug": "ukraine_private",
+   "period": "2026-08",
+   "flag": "🇺🇦"
+  },
+  {
+   "date": "2026-09-24",
+   "label": "Ukraine (Used)",
+   "base": "Ukraine",
+   "slug": "ukraine_used",
+   "period": "2026-08",
+   "flag": "🇺🇦"
+  },
+  {
+   "date": "2026-09-24",
+   "label": "Ukraine (Vans)",
+   "base": "Ukraine",
+   "slug": "ukraine_vans",
+   "period": "2026-08",
+   "flag": "🇺🇦"
   }
  ]
 }

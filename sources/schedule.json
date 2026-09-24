@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-24T09:30:18Z",
+ "generated": "2026-09-24T15:49:48Z",
  "today": "2026-09-24",
  "countries": [
   {
@@ -3620,6 +3620,104 @@
      "latest": "2026-08",
      "first": "2011-01",
      "rows": 188,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Ukraine",
+   "slug": "ukraine",
+   "method": "file",
+   "source_name": "data.gov.ua — MIA «Відомості про транспортні засоби та їх власників»",
+   "source_url": "https://data.gov.ua/dataset/0ffd8b75-0628-48cc-952a-9302f9799ec0",
+   "cadence_text": "twice daily on the 1st–15th, 08:40 and 20:40 UTC — the MIA re-uploads the current year around the 1st of M+1",
+   "interval": "monthly",
+   "latest_period": "2026-08",
+   "expected_period": "2026-08",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "08:40",
+     "20:40"
+    ],
+    "workflow": ".github/workflows/fetch-ukraine.yml"
+   },
+   "last_render": "2026-09-24",
+   "flag": "🇺🇦",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-08",
+     "first": "2018-09",
+     "rows": 96,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-08",
+     "first": "2018-09",
+     "rows": 96,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-08",
+     "first": "2018-09",
+     "rows": 96,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-08",
+     "first": "2018-09",
+     "rows": 96,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-08",
+     "first": "2018-09",
+     "rows": 96,
      "cadence": "monthly",
      "in_repo": true
     }
