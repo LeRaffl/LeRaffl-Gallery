@@ -72,8 +72,9 @@ Governance (every real run)
 ---------------------------
 * required columns must resolve; a missing one aborts the run;
 * each month's file must parse (> 0.1 % unparsable rows aborts);
-* a month below 40 % of the trailing-12 median Whole is treated as a broken
-  upload and not written (--force overrides);
+* a month below 25 % of the trailing-12 median Whole is treated as a broken
+  upload and not written (--force overrides); below 50 % it is written with
+  a warning (tax deadlines move real months that far);
 * unknown fuel strings above 2 % of the month's Whole abort; unknown vehicle
   classes / statuses are listed in the report;
 * cross-check: for every month also in TD table 4.1(e), private-car counts by
@@ -202,7 +203,13 @@ HTTP_HEADERS = {
     "User-Agent": ("Mozilla/5.0 (compatible; LeRaffl-Gallery/1.0; "
                    "+https://leraffl.github.io/LeRaffl-Gallery/)"),
 }
-MIN_MONTH_FRACTION = 0.4
+# A new month far below the trailing median is treated as a broken upload.
+# Deliberately loose: TD publishes a month once it is complete, and the
+# EV-tax deadlines make real months swing hard (June 2026 = 49 % of the
+# trailing median after the April 2026 deadline). Below WARN it is written
+# but flagged in the log.
+MIN_MONTH_FRACTION = 0.25
+WARN_MONTH_FRACTION = 0.5
 MAX_UNKNOWN_FUEL_SHARE = 0.02
 MAX_BAD_ROW_SHARE = 0.001
 # Record files vs TD table 4.1(e): the two are cut from the register at
@@ -598,13 +605,19 @@ def existing_periods(path: Path) -> dict[str, dict[str, str]]:
 
 # ── checks & report ────────────────────────────────────────────────────────
 
-def looks_incomplete(period: str, total: int, have: dict[str, dict]) -> bool:
+def median_fraction(period: str, total: int, have: dict[str, dict]) -> float | None:
+    """`total` as a fraction of the trailing-12 median TOTAL (None if < 6 months)."""
     prior = sorted(p for p in have if p < period)[-12:]
     if len(prior) < 6:
-        return False
+        return None
     vals = sorted(float(have[p]["TOTAL"]) for p in prior)
     median = vals[len(vals) // 2]
-    return total < MIN_MONTH_FRACTION * median
+    return total / median if median else None
+
+
+def looks_incomplete(period: str, total: int, have: dict[str, dict]) -> bool:
+    f = median_fraction(period, total, have)
+    return f is not None and f < MIN_MONTH_FRACTION
 
 
 def check_sums(agg: Aggregator, periods: list[str]) -> list[str]:
@@ -801,6 +814,11 @@ def main() -> int:
               f"{MIN_MONTH_FRACTION:.0%} of the trailing median — looks like a broken "
               "upload; not writing. Re-run with --force if genuine.")
         return emit(args, set())
+    frac = median_fraction(target, whole_total, have.get("Whole", {}))
+    if frac is not None and frac < WARN_MONTH_FRACTION:
+        print(f"::warning title=Hong Kong {target} unusually low::Whole TOTAL "
+              f"{whole_total:,} = {frac:.0%} of the trailing-12 median — written; "
+              "check it is a real drop (tax deadline) and not a partial file.")
 
     changed: set[str] = set()
     for v in variants:

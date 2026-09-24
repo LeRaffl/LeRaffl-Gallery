@@ -217,7 +217,7 @@ dataset at all.
 | Required columns resolve (all three header layouts, §2) | abort, nothing written |
 | > 0.1 % of a file's rows short or without a vehicle class | abort |
 | A month file with zero records | abort (broken upload) |
-| Target Whole ≥ 40 % of the trailing-12 median | not written (`--force` overrides) |
+| Target Whole ≥ 25 % of the trailing-12 median (loose on purpose: after the April 2026 deadline June ran at 49 %) | not written (`--force` overrides); 25–50 % → written with a `::warning::` |
 | Unknown fuel strings ≤ 2 % of Whole | abort above; below → OTHERS, listed |
 | Unknown vehicle classes / statuses | listed in the step summary |
 | **Cross-check vs TD table 4.1(e)** — private cars by status A/B/C1/C2 and electric, every month the table has | ≤ 2 units or 0.5 % → reported; more → abort (`--force` overrides) |
@@ -324,7 +324,7 @@ sequenceDiagram
 | `Cross-check against TD table 4.1(e) failed` | records and TD's table disagree beyond 2 units | compare the named months by hand (both URLs are in the front-matter). A re-uploaded record file → re-run with `backfill`; a table revision the records don't have yet → wait a run; a genuine definition change → document it here, then `force` |
 | `unknown fuel strings … schema drift` | a new fuel value (> 2 % of Whole) | map it in `FUEL_MAP` with a test |
 | `is not published on the portal yet` | normal between the 1st and the upload day | nothing |
-| `below 40% of the trailing median` | a partial upload — or a real collapse (a tax deadline just passed) | check TD's table / press; re-run with `force` if genuine |
+| `below 25% of the trailing median` (not written) or the `unusually low` warning (written) | a partial upload — or a real collapse (a tax deadline just passed) | compare with TD's table 4.1(e) / press; if genuine and not written, re-run with `force` |
 | `months missing on the portal` warning | TD skipped or removed a month | the CSV keeps the old row; nothing is written for the gap |
 | commit step `non-fast-forward` | a concurrent commit | already rebased by the action; re-run |
 | render not dispatched | no CSV change, or the commit failed | see the `changed_variants` output of the fetch step |

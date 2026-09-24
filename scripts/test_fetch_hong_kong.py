@@ -256,6 +256,17 @@ def test_cross_check():
     assert fh.cross_check(agg, ["2026-08"], TABLE41E.format(c2=1))[0] == []
 
 
+def test_completeness_guard():
+    have = {f"2025-{m:02d}": {"TOTAL": "4000"} for m in range(1, 13)}
+    # June 2026 after the EV-tax deadline ran at ~49 % of the median: written
+    assert not fh.looks_incomplete("2026-01", 1910, have)
+    assert fh.median_fraction("2026-01", 1910, have) < fh.WARN_MONTH_FRACTION
+    # a quarter of a normal month: treated as a broken upload
+    assert fh.looks_incomplete("2026-01", 900, have)
+    # too little history to judge
+    assert not fh.looks_incomplete("2025-04", 10, have)
+
+
 def test_upsert_line_level():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "Hong Kong.csv"
