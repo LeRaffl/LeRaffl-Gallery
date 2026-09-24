@@ -66,9 +66,9 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `variant` | yes | string | Always `Whole` for top-level country files. Reserved for future per-CSV variants. |
 | `source` | yes | string | URL or short name (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |
-| `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia. |
+| `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia, Ukraine. |
 | `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale), **Spain** (all eight variants) and **Argentina** (range-extender designations, e.g. `REEV`). Folds into PHEV in the three-curve view. |
-| `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia), this column carries the total and the post-text labels it as "Hybrid". |
+| `HEV` | optional | numeric | Full hybrid. For countries that report a single "Hybrid" total without splitting (Türkiye, Georgia, Ukraine), this column carries the total and the post-text labels it as "Hybrid". |
 | `MHEV` | optional | numeric | Mild hybrid. Only **Argentina** writes it (from explicit designations and verified model rules — a lower bound, see [39-source-argentina.md](39-source-argentina.md) § 4); elsewhere it is absent or folded upstream. Counted on the ICE side in every output chart. |
 | `PETROL` | optional | numeric | Conceptually pure-petrol ICE. *Caveat:* a small number of source statistics today fold petrol-HEV variants into this column rather than the HEV column. Improving the upstream split is a known data-quality task; for now the headline ICE/BEV/PHEV trajectory is unaffected because all of it ends up in the ICE bucket either way. |
 | `DIESEL` | optional | numeric | Conceptually pure-diesel ICE. Same caveat as `PETROL` — a few sources fold diesel-HEV here. |
@@ -678,6 +678,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 |---|---|---|---|
 | Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
 | Malaysia | `fetch_malaysia.py` | data.gov.my `maker` / `model` | when missing or behind the last complete month — from the two yearly parquets the fetch reads anyway |
+| Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 
 ### Schema
 
