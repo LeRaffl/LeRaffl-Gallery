@@ -206,7 +206,6 @@ from the same register. July 2026 (their release of 2026-08-05 / -08-11):
 | New BEV passenger cars | 423 | 421 | −0.5 % |
 | Used-import BEV passenger cars | 3,333 | 3,361 | +0.8 % |
 | Jan–Jul 2026 new cars | ~38,800 | 37,677 | −2.9 % |
-| 2019 full year new cars | ~88,600 | 89,561 | +1.1 % |
 | Toyota / BMW / Hyundai / Mazda / Suzuki / Audi | 986 / 308 / 298 / 259 / 194 / 156 | 958 / 309 / 293 / 259 / 193 / 160 | ≤ 3 % |
 | Skoda | 693 | 584 | −16 % |
 
