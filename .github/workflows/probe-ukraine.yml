@@ -11,6 +11,8 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -18,3 +20,10 @@ jobs:
           python-version: '3.12'
       - run: pip install requests
       - run: python scripts/probe_ukraine.py
+      - name: Commit probe output
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: probe_out
+          message: 'chore: Ukraine probe output (temporary)'
+          default_author: github_actions
+          pull: '--rebase --autostash'

@@ -1,67 +1,119 @@
 #!/usr/bin/env python3
-"""TEMPORARY probe v2 for Ukraine (MIA/HSC registrations on data.gov.ua).
-Streams the 2025 + 2026 yearly zips and profiles operations / fuel / kind,
-new-passenger-car monthly counts by fuel, and electrified brands/models.
-Removed before merge."""
-import collections, csv, io, re, zipfile
+"""TEMPORARY probe v3 for Ukraine (MIA/HSC registrations on data.gov.ua).
+Streams every yearly zip (2013 →), keeps first registrations only and writes
+an aggregate (month, op, kind, wt, fuel, person, brand, model, age, n) to
+probe_out/ukraine_agg.csv.gz, plus a per-year op inventory. Also dumps
+Ukrautoprom's monthly market posts for a cross-check. Removed before merge."""
+import collections, csv, gzip, io, os, re, sys, zipfile
 import requests
 
 PKG = "https://data.gov.ua/api/3/action/package_show?id=0ffd8b75-0628-48cc-952a-9302f9799ec0"
 S = requests.Session()
 S.headers["User-Agent"] = "Mozilla/5.0 LeRaffl-Gallery probe"
-res = S.get(PKG, timeout=120).json()["result"]["resources"]
-urls = {}
-for r in res:
-    m = re.search(r"(20\d\d)", r.get("name", ""))
+csv.field_size_limit(10**7)
+
+def resources():
+    res = S.get(PKG, timeout=120).json()["result"]["resources"]
+    out = {}
+    for r in res:
+        m = re.search(r"(20\d\d)", r.get("name", "") or "")
+        if m:
+            out.setdefault(int(m.group(1)), []).append(((r.get("last_modified") or r.get("created") or ""), r["url"]))
+    return {y: sorted(v)[-1][1] for y, v in out.items()}
+
+def month_of(d):
+    d = d.strip()
+    m = re.match(r"(\d{4})-(\d\d)-\d\d", d)
+    if m: return f"{m.group(1)}-{m.group(2)}"
+    m = re.match(r"(\d\d)\.(\d\d)\.(\d{2,4})", d)
     if m:
-        urls.setdefault(m.group(1), []).append((r.get("last_modified") or r.get("created"), r["url"]))
+        y = m.group(3); y = ("20" + y) if len(y) == 2 else y
+        return f"{y}-{m.group(2)}"
+    return None
 
-def stream(url):
+agg = collections.Counter()
+inv = collections.Counter()           # (year, op_code, op_name, kind) all ops
+for year, url in sorted(resources().items()):
+    print(f"\n=== {year} {url}", flush=True)
     r = S.get(url, timeout=1800); r.raise_for_status()
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    print("zip", url.rsplit("/",1)[-1], [(i.filename, i.file_size) for i in z.infolist()], flush=True)
-    for name in z.namelist():
-        raw = z.open(name).read()
-        for enc in ("utf-8-sig", "cp1251"):
-            try: text = raw.decode(enc); break
-            except UnicodeDecodeError: pass
-        first = text[:2000].splitlines()[0]
+    z = zipfile.ZipFile(io.BytesIO(r.content)); del r
+    for info in z.infolist():
+        if not info.filename.lower().endswith(".csv"): continue
+        raw = z.read(info.filename)
+        try: text = raw.decode("utf-8-sig"); enc = "utf-8"
+        except UnicodeDecodeError: text = raw.decode("cp1251"); enc = "cp1251"
+        del raw
+        first = text[:3000].splitlines()[0]
         delim = ";" if first.count(";") > first.count(",") else ","
-        print("member", name, "enc", enc, "delim", repr(delim), "header", first, flush=True)
-        yield from csv.DictReader(io.StringIO(text), delimiter=delim)
+        print("member", info.filename, info.file_size, enc, repr(delim), first, flush=True)
+        rd = csv.reader(io.StringIO(text), delimiter=delim)
+        hdr = [h.strip().strip('"').upper() for h in next(rd)]
+        ix = {h: i for i, h in enumerate(hdr)}
+        opcol = next((h for h in hdr if "OPER" in h and "NAME" not in h and "CODE" in h), None)
+        namecol = "OPER_NAME" if "OPER_NAME" in ix else None
+        def get(row, k):
+            i = ix.get(k); return row[i].strip() if i is not None and i < len(row) else ""
+        n = 0; bad = 0
+        for row in rd:
+            n += 1
+            opraw = get(row, opcol) if opcol else ""
+            m = re.match(r"\s*(\d+)\s*(?:-\s*(.*))?$", opraw)
+            if not m: bad += 1; continue
+            code = int(m.group(1)); name = (m.group(2) or get(row, namecol) or "").strip()
+            kind = get(row, "KIND")
+            inv[(year, code, name[:90], kind)] += 1
+            first_reg = (code in (69,70,71,72,74,75,76,77,99,100,102,105,180,184,185)
+                         or "ПЕРВИН" in name.upper())
+            if not first_reg: continue
+            mon = month_of(get(row, "D_REG")) or "?"
+            try: tw = float(get(row, "TOTAL_WEIGHT") or 0)
+            except ValueError: tw = 0
+            wt = "?" if tw <= 0 else ("le3500" if tw <= 3500 else "gt3500")
+            try: my = int(get(row, "MAKE_YEAR"))
+            except ValueError: my = 0
+            age = "?" if not my else str(max(-1, min(int(mon[:4]) - my if mon[:4].isdigit() else 99, 30)))
+            agg[(mon, code, kind, wt, get(row, "BODY"), get(row, "FUEL"), get(row, "PERSON"),
+                 get(row, "BRAND"), get(row, "MODEL"), age)] += 1
+        del text
+        print(f"rows {n} unparsed-op {bad} agg-keys {len(agg)}", flush=True)
 
-for year in ("2025", "2026"):
-    url = sorted(urls[year])[-1][1]
-    ops = collections.Counter(); kinds = collections.Counter(); fuels = collections.Counter()
-    newops = collections.Counter(); months = collections.Counter()
-    nf = collections.defaultdict(collections.Counter)  # month -> fuel (new, ЛЕГКОВИЙ)
-    body = collections.Counter(); purpose = collections.Counter(); person = collections.Counter()
-    elb = collections.Counter(); elm = collections.Counter(); hyb = collections.Counter()
-    n = 0
-    for row in stream(url):
-        n += 1
-        R = {k.strip().upper(): (v or "").strip() for k, v in row.items() if k}
-        if n <= 3: print("ROW", R)
-        op = f"{R.get('OPER_CODE')} {R.get('OPER_NAME')}"
-        ops[op] += 1; kinds[R.get("KIND")] += 1; fuels[R.get("FUEL")] += 1
-        d = R.get("D_REG", ""); mon = d[:7] if re.match(r"\d{4}-", d) else (d[-4:] + "-" + d[3:5] if re.match(r"\d\d\.\d\d\.\d{4}", d) else d)
-        months[mon] += 1
-        if "НОВ" in (R.get("OPER_NAME") or "").upper():
-            newops[op] += 1
-            if R.get("KIND") == "ЛЕГКОВИЙ":
-                f = R.get("FUEL"); nf[mon][f] += 1
-                body[R.get("BODY")] += 1; purpose[R.get("PURPOSE")] += 1; person[R.get("PERSON")] += 1
-                if re.search(r"ЕЛЕКТР|ГІБРИД", f or "", re.I):
-                    elb[(f, R.get("BRAND"))] += 1; elm[(f, R.get("BRAND"), R.get("MODEL"))] += 1
-                if f and "АБО" in f: hyb[(f, R.get("BRAND"), R.get("MODEL"))] += 1
-    print(f"\n######## {year}: rows {n}")
-    for title, c, k in (("OPS", ops, 80), ("NEW OPS", newops, 40), ("KIND", kinds, 30), ("FUEL all", fuels, 40),
-                        ("MONTH", months, 30), ("new-car BODY", body, 25), ("new-car PURPOSE", purpose, 15),
-                        ("new-car PERSON", person, 5), ("new-car el (fuel,brand)", elb, 50),
-                        ("new-car el (fuel,brand,model)", elm, 70), ("new-car 'АБО' fuels (fuel,brand,model)", hyb, 40)):
-        print(f"\n-- {title} ({len(c)} distinct)")
-        for v, m in c.most_common(k): print(f"   {m:8d}  {v}")
-    print("\n-- NEW ЛЕГКОВИЙ by month x fuel")
-    for mon in sorted(nf):
-        tot = sum(nf[mon].values())
-        print(f"   {mon} total={tot}  " + "; ".join(f"{f}={v}" for f, v in nf[mon].most_common()))
+os.makedirs("probe_out", exist_ok=True)
+with gzip.open("probe_out/ukraine_agg.csv.gz", "wt", encoding="utf-8", newline="") as fh:
+    w = csv.writer(fh); w.writerow(["month","op","kind","wt","body","fuel","person","brand","model","age","n"])
+    for k, v in sorted(agg.items(), key=lambda kv: tuple(str(x) for x in kv[0])): w.writerow(list(k) + [v])
+with open("probe_out/ukraine_ops.csv", "w", encoding="utf-8", newline="") as fh:
+    w = csv.writer(fh); w.writerow(["year","op","name","kind","n"])
+    for k, v in sorted(inv.items(), key=lambda kv: tuple(str(x) for x in kv[0])): w.writerow(list(k) + [v])
+print("written", os.path.getsize("probe_out/ukraine_agg.csv.gz"), flush=True)
+
+# Ukrautoprom cross-check (best effort)
+try:
+    from html.parser import HTMLParser
+    class T(HTMLParser):
+        def __init__(s): super().__init__(); s.out=[]; s.links=[]; s.skip=0
+        def handle_starttag(s,t,a):
+            if t in("script","style"): s.skip+=1
+            if t=="a":
+                h=dict(a).get("href") or ""
+                s.links.append(h)
+        def handle_endtag(s,t):
+            if t in("script","style"): s.skip-=1
+        def handle_data(s,d):
+            if not s.skip and d.strip(): s.out.append(d.strip())
+    seen=set(); pages=["https://ukrautoprom.com.ua/"]+[f"https://ukrautoprom.com.ua/page/{i}/" for i in range(2,8)]
+    posts=[]
+    for p in pages:
+        rr=S.get(p,timeout=60); t=T(); t.feed(rr.text)
+        print("UAP", p, rr.status_code, len(rr.text))
+        for h in t.links:
+            if "ukrautoprom.com.ua" in h and h not in seen and re.search(r"\d{4}/\d\d|/[a-z0-9-]*(rynok|legkov|elektr|avto)", h, re.I):
+                seen.add(h); posts.append(h)
+    with open("probe_out/ukrautoprom.txt","w",encoding="utf-8") as fh:
+        for h in posts[:80]:
+            rr=S.get(h,timeout=60); t=T(); t.feed(rr.text)
+            body=" | ".join(t.out)
+            if re.search(r"легков|електро", body, re.I):
+                fh.write(f"\n##### {h}\n{body[:6000]}\n")
+    print("ukrautoprom posts", len(posts))
+except Exception as e:
+    print("UAP ERR", e)
