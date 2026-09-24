@@ -169,6 +169,12 @@ transfer.
 away in `variants_for()` if that changes. Motorcycles/mopeds (`МОТОЦИКЛ`,
 `МОПЕД`) are EU L-category.
 
+**Resales are not `Used`.** `Used` = used vehicles at their *first*
+Ukrainian registration (imports). Changes of owner within Ukraine (op codes
+3xx) are the reserved `Resale` variant ([09](09-glossary.md)) — not built.
+For scale: IAR's August-2026 EV market of 9,074 BEVs = 504 new (our Whole) +
+3,613 used imports (our Used, exact match) + 4,957 domestic resales.
+
 ## 5. Governance — what every run checks
 
 | Check | On failure |
