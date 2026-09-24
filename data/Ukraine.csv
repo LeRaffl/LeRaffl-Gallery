@@ -6,15 +6,15 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2019-01,monthly,Whole,MIA HSC (data.gov.ua),34.0,130.0,2784.0,2043.0,303.0,5294.0,
 2019-02,monthly,Whole,MIA HSC (data.gov.ua),15.0,220.0,3144.0,1959.0,372.0,5710.0,
 2019-03,monthly,Whole,MIA HSC (data.gov.ua),25.0,220.0,4042.0,2449.0,386.0,7122.0,
-2019-04,monthly,Whole,MIA HSC (data.gov.ua),37.0,241.0,3660.0,2263.0,350.0,6551.0,MIA extract has no records after 2019-04-27 (month ends 2019-04-30); re-derived on the next upload
+2019-04,monthly,Whole,MIA HSC (data.gov.ua),37.0,241.0,3660.0,2263.0,350.0,6551.0,MIA extract has no records after 2019-04-27 (month ends 2019-04-30)
 2019-05,monthly,Whole,MIA HSC (data.gov.ua),37.0,443.0,3640.0,2296.0,377.0,6793.0,
 2019-06,monthly,Whole,MIA HSC (data.gov.ua),34.0,290.0,3729.0,2192.0,453.0,6698.0,
 2019-07,monthly,Whole,MIA HSC (data.gov.ua),46.0,168.0,4555.0,2654.0,433.0,7856.0,
 2019-08,monthly,Whole,MIA HSC (data.gov.ua),43.0,316.0,4941.0,2769.0,466.0,8535.0,
-2019-09,monthly,Whole,MIA HSC (data.gov.ua),57.0,213.0,3910.0,2617.0,456.0,7253.0,MIA extract has no records after 2019-09-29 (month ends 2019-09-30); re-derived on the next upload
+2019-09,monthly,Whole,MIA HSC (data.gov.ua),57.0,213.0,3910.0,2617.0,456.0,7253.0,MIA extract has no records after 2019-09-29 (month ends 2019-09-30)
 2019-10,monthly,Whole,MIA HSC (data.gov.ua),44.0,340.0,4831.0,3201.0,825.0,9241.0,
 2019-11,monthly,Whole,MIA HSC (data.gov.ua),36.0,323.0,4683.0,3164.0,615.0,8821.0,
-2019-12,monthly,Whole,MIA HSC (data.gov.ua),40.0,377.0,5356.0,3370.0,544.0,9687.0,MIA extract has no records after 2019-12-29 (month ends 2019-12-31); re-derived on the next upload
+2019-12,monthly,Whole,MIA HSC (data.gov.ua),40.0,377.0,5356.0,3370.0,544.0,9687.0,MIA extract has no records after 2019-12-29 (month ends 2019-12-31)
 2020-01,monthly,Whole,MIA HSC (data.gov.ua),39.0,301.0,4668.0,2270.0,76.0,7354.0,
 2020-02,monthly,Whole,MIA HSC (data.gov.ua),28.0,279.0,4436.0,2095.0,102.0,6940.0,
 2020-03,monthly,Whole,MIA HSC (data.gov.ua),54.0,190.0,4136.0,2074.0,88.0,6542.0,
@@ -40,7 +40,7 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2021-11,monthly,Whole,MIA HSC (data.gov.ua),159.0,953.0,5573.0,2079.0,125.0,8889.0,
 2021-12,monthly,Whole,MIA HSC (data.gov.ua),167.0,1386.0,6264.0,2931.0,140.0,10888.0,
 2022-01,monthly,Whole,MIA HSC (data.gov.ua),130.0,564.0,3180.0,1451.0,87.0,5412.0,
-2022-02,monthly,Whole,MIA HSC (data.gov.ua),136.0,671.0,3143.0,1378.0,60.0,5388.0,MIA extract has no records after 2022-02-27 (month ends 2022-02-28); re-derived on the next upload
+2022-02,monthly,Whole,MIA HSC (data.gov.ua),136.0,671.0,3143.0,1378.0,60.0,5388.0,MIA extract has no records after 2022-02-27 (month ends 2022-02-28)
 2022-03,monthly,Whole,MIA HSC (data.gov.ua),16.0,75.0,304.0,165.0,1.0,561.0,
 2022-04,monthly,Whole,MIA HSC (data.gov.ua),51.0,171.0,634.0,413.0,4.0,1273.0,
 2022-05,monthly,Whole,MIA HSC (data.gov.ua),287.0,399.0,1337.0,592.0,16.0,2631.0,
@@ -86,7 +86,7 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2025-09,monthly,Whole,MIA HSC (data.gov.ua),2210.0,1343.0,2049.0,960.0,12.0,6574.0,
 2025-10,monthly,Whole,MIA HSC (data.gov.ua),2446.0,1622.0,2280.0,1361.0,19.0,7728.0,
 2025-11,monthly,Whole,MIA HSC (data.gov.ua),3162.0,1313.0,2161.0,1283.0,10.0,7929.0,
-2025-12,monthly,Whole,MIA HSC (data.gov.ua),5851.0,1680.0,2293.0,1450.0,5.0,11279.0,MIA extract has no records after 2025-12-30 (month ends 2025-12-31); re-derived on the next upload
+2025-12,monthly,Whole,MIA HSC (data.gov.ua),5851.0,1680.0,2293.0,1450.0,5.0,11279.0,MIA extract has no records after 2025-12-30 (month ends 2025-12-31)
 2026-01,monthly,Whole,MIA HSC (data.gov.ua),875.0,1203.0,1706.0,1116.0,13.0,4913.0,
 2026-02,monthly,Whole,MIA HSC (data.gov.ua),137.0,1336.0,1759.0,1103.0,8.0,4343.0,
 2026-03,monthly,Whole,MIA HSC (data.gov.ua),232.0,1873.0,2455.0,1281.0,6.0,5847.0,
@@ -94,4 +94,4 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2026-05,monthly,Whole,MIA HSC (data.gov.ua),497.0,1784.0,2317.0,1120.0,6.0,5724.0,
 2026-06,monthly,Whole,MIA HSC (data.gov.ua),402.0,1610.0,2092.0,1205.0,17.0,5326.0,
 2026-07,monthly,Whole,MIA HSC (data.gov.ua),421.0,1805.0,2108.0,1145.0,9.0,5488.0,
-2026-08,monthly,Whole,MIA HSC (data.gov.ua),504.0,1627.0,1765.0,879.0,17.0,4792.0,MIA extract has no records after 2026-08-30 (month ends 2026-08-31); re-derived on the next upload
+2026-08,monthly,Whole,MIA HSC (data.gov.ua),504.0,1627.0,1765.0,879.0,17.0,4792.0,MIA extract has no records after 2026-08-30 (month ends 2026-08-31)

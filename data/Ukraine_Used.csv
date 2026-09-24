@@ -6,15 +6,15 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2019-01,monthly,Used,MIA HSC (data.gov.ua),415.0,253.0,10304.0,39275.0,3912.0,54159.0,
 2019-02,monthly,Used,MIA HSC (data.gov.ua),355.0,289.0,16422.0,64527.0,7537.0,89130.0,
 2019-03,monthly,Used,MIA HSC (data.gov.ua),442.0,326.0,12244.0,32632.0,4885.0,50529.0,
-2019-04,monthly,Used,MIA HSC (data.gov.ua),463.0,330.0,8095.0,13138.0,2012.0,24038.0,MIA extract has no records after 2019-04-27 (month ends 2019-04-30); re-derived on the next upload
+2019-04,monthly,Used,MIA HSC (data.gov.ua),463.0,330.0,8095.0,13138.0,2012.0,24038.0,MIA extract has no records after 2019-04-27 (month ends 2019-04-30)
 2019-05,monthly,Used,MIA HSC (data.gov.ua),580.0,347.0,9505.0,13185.0,2148.0,25765.0,
 2019-06,monthly,Used,MIA HSC (data.gov.ua),554.0,335.0,8736.0,9254.0,1538.0,20417.0,
 2019-07,monthly,Used,MIA HSC (data.gov.ua),742.0,506.0,11338.0,10908.0,1832.0,25326.0,
 2019-08,monthly,Used,MIA HSC (data.gov.ua),663.0,498.0,11983.0,10553.0,1916.0,25613.0,
-2019-09,monthly,Used,MIA HSC (data.gov.ua),589.0,492.0,11470.0,9935.0,1832.0,24318.0,MIA extract has no records after 2019-09-29 (month ends 2019-09-30); re-derived on the next upload
+2019-09,monthly,Used,MIA HSC (data.gov.ua),589.0,492.0,11470.0,9935.0,1832.0,24318.0,MIA extract has no records after 2019-09-29 (month ends 2019-09-30)
 2019-10,monthly,Used,MIA HSC (data.gov.ua),671.0,528.0,13601.0,11339.0,2227.0,28366.0,
 2019-11,monthly,Used,MIA HSC (data.gov.ua),684.0,482.0,14441.0,12267.0,2440.0,30314.0,
-2019-12,monthly,Used,MIA HSC (data.gov.ua),575.0,508.0,16114.0,13301.0,2412.0,32910.0,MIA extract has no records after 2019-12-29 (month ends 2019-12-31); re-derived on the next upload
+2019-12,monthly,Used,MIA HSC (data.gov.ua),575.0,508.0,16114.0,13301.0,2412.0,32910.0,MIA extract has no records after 2019-12-29 (month ends 2019-12-31)
 2020-01,monthly,Used,MIA HSC (data.gov.ua),550.0,479.0,15139.0,11487.0,1567.0,29222.0,
 2020-02,monthly,Used,MIA HSC (data.gov.ua),598.0,501.0,17953.0,12948.0,2125.0,34125.0,
 2020-03,monthly,Used,MIA HSC (data.gov.ua),336.0,310.0,10537.0,7021.0,1264.0,19468.0,
@@ -40,7 +40,7 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2021-11,monthly,Used,MIA HSC (data.gov.ua),703.0,739.0,24548.0,29116.0,5188.0,60294.0,
 2021-12,monthly,Used,MIA HSC (data.gov.ua),761.0,875.0,25653.0,18431.0,3359.0,49079.0,
 2022-01,monthly,Used,MIA HSC (data.gov.ua),512.0,503.0,16477.0,12571.0,2352.0,32415.0,
-2022-02,monthly,Used,MIA HSC (data.gov.ua),588.0,583.0,15921.0,10692.0,2420.0,30204.0,MIA extract has no records after 2022-02-27 (month ends 2022-02-28); re-derived on the next upload
+2022-02,monthly,Used,MIA HSC (data.gov.ua),588.0,583.0,15921.0,10692.0,2420.0,30204.0,MIA extract has no records after 2022-02-27 (month ends 2022-02-28)
 2022-03,monthly,Used,MIA HSC (data.gov.ua),179.0,173.0,4265.0,3523.0,430.0,8570.0,
 2022-04,monthly,Used,MIA HSC (data.gov.ua),413.0,502.0,13138.0,17428.0,1451.0,32932.0,
 2022-05,monthly,Used,MIA HSC (data.gov.ua),710.0,727.0,23372.0,54702.0,3180.0,82691.0,
@@ -86,7 +86,7 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2025-09,monthly,Used,MIA HSC (data.gov.ua),6726.0,1247.0,10446.0,4518.0,723.0,23660.0,
 2025-10,monthly,Used,MIA HSC (data.gov.ua),7930.0,1426.0,11636.0,5003.0,788.0,26783.0,
 2025-11,monthly,Used,MIA HSC (data.gov.ua),7577.0,1278.0,10005.0,4265.0,667.0,23792.0,
-2025-12,monthly,Used,MIA HSC (data.gov.ua),25037.0,1269.0,10251.0,4457.0,695.0,41709.0,MIA extract has no records after 2025-12-30 (month ends 2025-12-31); re-derived on the next upload
+2025-12,monthly,Used,MIA HSC (data.gov.ua),25037.0,1269.0,10251.0,4457.0,695.0,41709.0,MIA extract has no records after 2025-12-30 (month ends 2025-12-31)
 2026-01,monthly,Used,MIA HSC (data.gov.ua),1414.0,1127.0,9717.0,4204.0,592.0,17054.0,
 2026-02,monthly,Used,MIA HSC (data.gov.ua),863.0,1203.0,8947.0,3562.0,528.0,15103.0,
 2026-03,monthly,Used,MIA HSC (data.gov.ua),1710.0,1452.0,10734.0,4255.0,691.0,18842.0,
@@ -94,4 +94,4 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2026-05,monthly,Used,MIA HSC (data.gov.ua),2408.0,1848.0,12196.0,4340.0,642.0,21434.0,
 2026-06,monthly,Used,MIA HSC (data.gov.ua),2645.0,1994.0,11756.0,4294.0,689.0,21378.0,
 2026-07,monthly,Used,MIA HSC (data.gov.ua),3361.0,2334.0,12418.0,4381.0,643.0,23137.0,
-2026-08,monthly,Used,MIA HSC (data.gov.ua),3613.0,2230.0,10896.0,3912.0,605.0,21256.0,MIA extract has no records after 2026-08-30 (month ends 2026-08-31); re-derived on the next upload
+2026-08,monthly,Used,MIA HSC (data.gov.ua),3613.0,2230.0,10896.0,3912.0,605.0,21256.0,MIA extract has no records after 2026-08-30 (month ends 2026-08-31)
