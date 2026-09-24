@@ -1,92 +1,67 @@
 #!/usr/bin/env python3
-"""TEMPORARY probe for Ukraine (MIA/HSC vehicle-registration open data on
-data.gov.ua). Run from CI; prints dataset/resource inventory and a
-value-count profile of the newest file. Removed before merge."""
-import collections, csv, io, json, re, sys, zipfile
+"""TEMPORARY probe v2 for Ukraine (MIA/HSC registrations on data.gov.ua).
+Streams the 2025 + 2026 yearly zips and profiles operations / fuel / kind,
+new-passenger-car monthly counts by fuel, and electrified brands/models.
+Removed before merge."""
+import collections, csv, io, re, zipfile
 import requests
 
-API = "https://data.gov.ua/api/3/action/"
+PKG = "https://data.gov.ua/api/3/action/package_show?id=0ffd8b75-0628-48cc-952a-9302f9799ec0"
 S = requests.Session()
 S.headers["User-Agent"] = "Mozilla/5.0 LeRaffl-Gallery probe"
+res = S.get(PKG, timeout=120).json()["result"]["resources"]
+urls = {}
+for r in res:
+    m = re.search(r"(20\d\d)", r.get("name", ""))
+    if m:
+        urls.setdefault(m.group(1), []).append((r.get("last_modified") or r.get("created"), r["url"]))
 
-def api(action, **params):
-    r = S.get(API + action, params=params, timeout=120)
-    print(f"[{action} {params}] HTTP {r.status_code}", flush=True)
-    r.raise_for_status()
-    return r.json()["result"]
+def stream(url):
+    r = S.get(url, timeout=1800); r.raise_for_status()
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    print("zip", url.rsplit("/",1)[-1], [(i.filename, i.file_size) for i in z.infolist()], flush=True)
+    for name in z.namelist():
+        raw = z.open(name).read()
+        for enc in ("utf-8-sig", "cp1251"):
+            try: text = raw.decode(enc); break
+            except UnicodeDecodeError: pass
+        first = text[:2000].splitlines()[0]
+        delim = ";" if first.count(";") > first.count(",") else ","
+        print("member", name, "enc", enc, "delim", repr(delim), "header", first, flush=True)
+        yield from csv.DictReader(io.StringIO(text), delimiter=delim)
 
-seen = {}
-for q in ["транспортні засоби реєстрація", "реєстрації транспортних засобів",
-          "Відомості про транспортні засоби та їх власників", "ГСЦ МВС"]:
-    try:
-        res = api("package_search", q=q, rows=20)
-    except Exception as e:
-        print("ERR", e); continue
-    for p in res["results"]:
-        if p["id"] in seen: continue
-        seen[p["id"]] = p
-        print(f"\nPKG {p['id']} name={p['name']} org={(p.get('organization') or {}).get('title')}")
-        print(f"    title={p['title']}  n_res={len(p.get('resources', []))}")
-
-# pick the registration-operations dataset
-cands = [p for p in seen.values() if re.search(r"транспортн.*власник|реєстраці", p["title"], re.I)]
-for p in cands:
-    print(f"\n=== RESOURCES of {p['name']} ({p['title']})")
-    for r in p.get("resources", []):
-        print(f"  {r.get('last_modified') or r.get('created')}  {r.get('size')}  {r.get('format')}  {r.get('name')}  {r.get('url')}")
-
-def profile(url, limit=None):
-    print(f"\n=== PROFILE {url}", flush=True)
-    r = S.get(url, timeout=900)
-    print("HTTP", r.status_code, "bytes", len(r.content), flush=True)
-    data = r.content
-    if data[:2] == b"PK":
-        z = zipfile.ZipFile(io.BytesIO(data))
-        print("zip members", z.namelist())
-        data = z.read(z.namelist()[0])
-    for enc in ("utf-8-sig", "cp1251"):
-        try:
-            text = data.decode(enc); break
-        except UnicodeDecodeError: continue
-    first = text.splitlines()[0]
-    delim = ";" if first.count(";") > first.count(",") else ","
-    rd = csv.DictReader(io.StringIO(text), delimiter=delim)
-    print("enc", enc, "delim", repr(delim), "header", rd.fieldnames)
-    cnt = {k: collections.Counter() for k in ("OPER_NAME", "FUEL", "KIND", "BODY", "PURPOSE", "month")}
-    newfuel = collections.Counter(); newbrand_el = collections.Counter(); newmodel = collections.Counter()
+for year in ("2025", "2026"):
+    url = sorted(urls[year])[-1][1]
+    ops = collections.Counter(); kinds = collections.Counter(); fuels = collections.Counter()
+    newops = collections.Counter(); months = collections.Counter()
+    nf = collections.defaultdict(collections.Counter)  # month -> fuel (new, ЛЕГКОВИЙ)
+    body = collections.Counter(); purpose = collections.Counter(); person = collections.Counter()
+    elb = collections.Counter(); elm = collections.Counter(); hyb = collections.Counter()
     n = 0
-    up = {f.upper(): f for f in rd.fieldnames}
-    g = lambda row, k: (row.get(up.get(k, k)) or "").strip()
-    for row in rd:
+    for row in stream(url):
         n += 1
-        op = g(row, "OPER_NAME"); cnt["OPER_NAME"][f"{g(row,'OPER_CODE')} {op}"] += 1
-        cnt["FUEL"][g(row, "FUEL")] += 1; cnt["KIND"][g(row, "KIND")] += 1
-        cnt["BODY"][g(row, "BODY")] += 1; cnt["PURPOSE"][g(row, "PURPOSE")] += 1
-        cnt["month"][g(row, "D_REG")[:7] or g(row, "D_REG")[-7:]] += 1
-        if "НОВ" in op.upper() and g(row, "KIND") == "ЛЕГКОВИЙ":
-            f = g(row, "FUEL"); newfuel[f] += 1
-            if "ЕЛЕКТ" in f.upper() or "ГІБРИД" in f.upper():
-                newbrand_el[(f, g(row, "BRAND"))] += 1
-                newmodel[(f, g(row, "BRAND"), g(row, "MODEL"))] += 1
-        if n <= 3: print("ROW", row)
-        if limit and n >= limit: break
-    print("rows", n)
-    for k, c in cnt.items():
-        print(f"\n-- {k} ({len(c)} distinct)")
-        for v, m in c.most_common(80): print(f"   {m:8d}  {v}")
-    print("\n-- NEW passenger by FUEL")
-    for v, m in newfuel.most_common(): print(f"   {m:8d}  {v}")
-    print("\n-- NEW passenger electrified by (FUEL, BRAND) top 60")
-    for v, m in newbrand_el.most_common(60): print(f"   {m:8d}  {v}")
-    print("\n-- NEW passenger electrified by (FUEL, BRAND, MODEL) top 80")
-    for v, m in newmodel.most_common(80): print(f"   {m:8d}  {v}")
-
-urls = []
-for p in cands:
-    for r in p.get("resources", []):
-        if (r.get("format") or "").lower() in ("csv", "zip") or r.get("url", "").lower().endswith((".csv", ".zip")):
-            urls.append((r.get("last_modified") or r.get("created") or "", r["url"], r.get("name")))
-urls.sort()
-print("\nCSV/ZIP resources:", len(urls))
-if urls:
-    profile(urls[-1][1])
+        R = {k.strip().upper(): (v or "").strip() for k, v in row.items() if k}
+        if n <= 3: print("ROW", R)
+        op = f"{R.get('OPER_CODE')} {R.get('OPER_NAME')}"
+        ops[op] += 1; kinds[R.get("KIND")] += 1; fuels[R.get("FUEL")] += 1
+        d = R.get("D_REG", ""); mon = d[:7] if re.match(r"\d{4}-", d) else (d[-4:] + "-" + d[3:5] if re.match(r"\d\d\.\d\d\.\d{4}", d) else d)
+        months[mon] += 1
+        if "НОВ" in (R.get("OPER_NAME") or "").upper():
+            newops[op] += 1
+            if R.get("KIND") == "ЛЕГКОВИЙ":
+                f = R.get("FUEL"); nf[mon][f] += 1
+                body[R.get("BODY")] += 1; purpose[R.get("PURPOSE")] += 1; person[R.get("PERSON")] += 1
+                if re.search(r"ЕЛЕКТР|ГІБРИД", f or "", re.I):
+                    elb[(f, R.get("BRAND"))] += 1; elm[(f, R.get("BRAND"), R.get("MODEL"))] += 1
+                if f and "АБО" in f: hyb[(f, R.get("BRAND"), R.get("MODEL"))] += 1
+    print(f"\n######## {year}: rows {n}")
+    for title, c, k in (("OPS", ops, 80), ("NEW OPS", newops, 40), ("KIND", kinds, 30), ("FUEL all", fuels, 40),
+                        ("MONTH", months, 30), ("new-car BODY", body, 25), ("new-car PURPOSE", purpose, 15),
+                        ("new-car PERSON", person, 5), ("new-car el (fuel,brand)", elb, 50),
+                        ("new-car el (fuel,brand,model)", elm, 70), ("new-car 'АБО' fuels (fuel,brand,model)", hyb, 40)):
+        print(f"\n-- {title} ({len(c)} distinct)")
+        for v, m in c.most_common(k): print(f"   {m:8d}  {v}")
+    print("\n-- NEW ЛЕГКОВИЙ by month x fuel")
+    for mon in sorted(nf):
+        tot = sum(nf[mon].values())
+        print(f"   {mon} total={tot}  " + "; ".join(f"{f}={v}" for f, v in nf[mon].most_common()))
