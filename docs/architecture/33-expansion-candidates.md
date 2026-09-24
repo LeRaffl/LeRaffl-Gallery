@@ -202,6 +202,36 @@ significant EV importer is outside it**).
 
 ---
 
+## Built outside this list — 🇭🇰 Hong Kong (2026-09)
+
+> **Status: BUILT (2026-09).** Found while looking for the largest markets
+> still missing (next section): the Transport Department publishes every
+> vehicle first registered in Hong Kong as one CSV row a month on
+> DATA.GOV.HK — make, model, fuel, TD's own new/used-import status, gross
+> weight — free, no key, from 2019-11. Whole / Used / Vans; BEV from the fuel
+> field, plug-ins from the model designation (the fuel field has no hybrid
+> value). Matches TD's own aggregate table exactly. Small market (~45,000 new
+> cars a year), very high BEV share (86 % in 2025). See
+> [41-source-hong-kong.md](41-source-hong-kong.md).
+
+## Investigated 2026-09 — large markets still missing
+
+The 2026-09 session set out to add the **largest** car market not yet on the
+gallery. Probes ran from GitHub runners on 2026-09-24 (the dev sandbox reaches
+almost nothing); "desk" means web research only.
+
+| Market (new cars/yr) | Best source | Finding | Verdict |
+|---|---|---|---|
+| 🇹🇼 Taiwan (~450k) | Highway Bureau (公路局) statistics query system `stat.thb.gov.tw` — 新車領牌數 by fuel (電能 / 油電混合 / 汽油 / 柴油) and by brand | **403 from GitHub runners** (Imperva/Incapsula bot wall). The open dataset on data.gov.tw (id 30202, `thb.gov.tw/Common/ThbOpenDataService.ashx?SN=517`) is reachable but carries only totals by vehicle type — **no fuel split**. Taipei City's portal has a fuel split for Taipei only. | **Blocked, not dead.** Retry through the Cloudflare Worker relay Austria already uses for a datacenter-IP block ([08](08-deploy-ops.md)), or find a THB open-data resource with the fuel dimension. Brand level only either way — no models. |
+| 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | unchanged — omits BYD ([14](14-data-source-gaps.md)) | shelved |
+| 🇷🇺 Russia (~1.5M) | Autostat | paid (desk) | shelved |
+| 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | shelved — same completeness failure as Mexico |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | still a candidate; not built this session |
+| 🇷🇸 Serbia (~35k) | data.gov.rs | the national portal's search returns **no MoI registration dataset** (only a municipal bus-fleet list) — the importers' quarterly prose remains the only fuel split (§ Serbia) | unchanged |
+| 🇵🇪 Peru (~180k) | datosabiertos.gob.pe | the portal is DKAN, the CKAN API path 404s; SUNARP's datasets are counts of registry services, not vehicles (desk) | not pursued |
+
+---
+
 ## Shelved — investigated 2026-07, no viable source
 
 Same spirit as [14-data-source-gaps.md](14-data-source-gaps.md); listed here

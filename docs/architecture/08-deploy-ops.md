@@ -331,6 +331,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | 07:30 UTC, 5th → 25th | ANDI/FENALCO Boletín PDF (datos RUNT) — page listing, else the month's `/Uploads/` URL rebuilt (see [18](18-source-colombia.md)) | `Whole` — single combined Hybrid bucket | `latest_period(Colombia.csv) ≥ target` |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | per-variant diff vs CSV |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV |
+| [`fetch-hong-kong.yml`](../../.github/workflows/fetch-hong-kong.yml) | 03:20 & 11:20 UTC, daily | Transport Department «Particulars of first registered vehicles» (`data.gov.hk` CKAN; one CSV per month, uploaded between the 13th and 28th of M+1) — fuel from the record, plug-ins from the model designation, cross-checked against TD table 4.1(e) ([41](41-source-hong-kong.md)) | `Whole` + `Used` + `Vans` — one set of files, every variant | newest portal month already in every CSV from TD → one JSON request, no download |
 | [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | newest portal file title already covered → no-op before download |
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | 04:00 & 13:00 UTC, 1st → 5th | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant diff vs CSV |
 | [`fetch-italy.yml`](../../.github/workflows/fetch-italy.yml) | 06:00/10:00/14:00/18:00 UTC, 1st → 3rd (passenger); 10:00/14:00/18:00 UTC, 13th → 16th (vans) | UNRAE «struttura del mercato» PDF; LCV from the separate Comunicato Stampa | `Whole` + `Rental` + `NonRental` + `Vans` | per-variant diff vs CSV |
@@ -360,7 +361,9 @@ Notes on the schedule shape:
   hour. They never conflicted (each writes a different CSV, and ACEA's render
   fan-out is serialised by `max-parallel: 1`), but a CI outage at exactly
   08:00 used to take all of them out together.
-- **The early band clears that window from below:** Ireland 04:00 & 13:00
+- **The early band clears that window from below:** Hong Kong 03:20 & 11:20
+  (HK office hours — TD's upload day is unpredictable, so it polls daily),
+  Ireland 04:00 & 13:00
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
@@ -383,8 +386,11 @@ Notes on the schedule shape:
   handful of self-throttle checks; it doesn't change correctness.
 - **Canada is the odd one out:** its cube is quarterly, so the workflow only
   runs in March, June, September and December (days 8–20).
-- **Nepal is the only unbounded daily cron** (`50 7 * * *`) — Nepali fiscal
-  months don't line up with Gregorian ones, so there is no useful day window.
+- **Nepal and Hong Kong are the only unbounded daily crons** (`50 7 * * *`,
+  `20 3,11 * * *`) — Nepali fiscal months don't line up with Gregorian ones,
+  and TD uploads Hong Kong's month anywhere from the 13th to the 28th (and
+  could slip past month end), so neither has a useful day window. Both
+  self-throttle before downloading anything.
 - **New Zealand has no cron at all** since 2026-06; both upstream endpoints
   are behind Imperva and months are entered by hand.
 

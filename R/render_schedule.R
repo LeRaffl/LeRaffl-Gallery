@@ -8,6 +8,7 @@ FLAG <- c(
   albania="\U0001F1E6\U0001F1F1", argentina="\U0001F1E6\U0001F1F7", austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4",
   denmark="\U0001F1E9\U0001F1F0", finland="\U0001F1EB\U0001F1EE", ireland="\U0001F1EE\U0001F1EA",
+  `hong-kong`="\U0001F1ED\U0001F1F0",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
   luxembourg="\U0001F1F1\U0001F1FA", malaysia="\U0001F1F2\U0001F1FE",
   nepal="\U0001F1F3\U0001F1F5", indonesia="\U0001F1EE\U0001F1E9",
@@ -20,7 +21,7 @@ FLAG <- c(
 
 LABEL <- c(
   albania="Albania", argentina="Argentina", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
-  colombia="Colombia", denmark="Denmark", finland="Finland", ireland="Ireland",
+  colombia="Colombia", denmark="Denmark", finland="Finland", `hong-kong`="Hong Kong", ireland="Ireland",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", poland="Poland",
@@ -134,6 +135,9 @@ expand_for_month <- function(schedules, year, month) {
 # Status-Codes: "done", "today", "missed", "skip", "pending"
 chip_status <- function(slug, day_date, hour, actual_fetches, today) {
   fetched_days <- actual_fetches[[slug]]
+  # Schedule-Slugs kommen aus Workflow-Dateinamen (fetch-new-zealand.yml →
+  # "new-zealand"), Manifest-Slugs aus dem Ländernamen ("new_zealand").
+  if (is.null(fetched_days)) fetched_days <- actual_fetches[[gsub("-", "_", slug)]]
   fetched_this_month <- !is.null(fetched_days) &&
     any(format(fetched_days, "%Y-%m") == format(day_date, "%Y-%m"))
   on_this_day <- !is.null(fetched_days) && day_date %in% fetched_days
