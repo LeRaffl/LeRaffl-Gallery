@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hong Kong — data source · BEV Trajectories</title>
+<meta name="description" content="New-car, used-import and van registration data for Hong Kong from the Transport Department&#x27;s record-level list of every vehicle first registered each month — with make, model, fuel, TD&#x27;s own first-registration status and gross weight.">
+<link rel="stylesheet" href="../assets/theme.css">
+<style>
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+.back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
+h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 22px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.source-btn{display:inline-block;margin:6px 0 4px;padding:10px 16px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);font-weight:600}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:8px 0}
+.flow-node{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px}
+.flow-title{font-weight:700;font-size:13px;color:var(--accent)}
+.flow-sub{font-size:14px;color:var(--text)}
+.flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
+table.defs{width:100%;border-collapse:collapse}
+table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
+  border-bottom:1px solid var(--border);font-size:15px}
+table.defs th{width:190px;color:var(--muted);font-weight:600}
+.map{display:flex;flex-direction:column;gap:4px}
+.map-pair{display:flex;align-items:center;gap:8px}
+.map-arrow{color:var(--muted)}
+.caveats{margin:0;padding-left:20px}
+.caveats li{margin:6px 0}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:14px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dir-card{display:block;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.dir-card:hover{border-color:var(--accent)}
+.dir-top{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
+.dir-sub{color:var(--muted);font-size:14px;min-height:40px}
+.dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+/* The page is light-only now (index.html sets `color-scheme:light`), so the
+   old prefers-color-scheme override for this cell is gone — --ok-tx already
+   resolves to the light-theme green. */
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
+@media (max-width:760px){.pair{grid-template-columns:1fr}}
+table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
+table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rank th,table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">← All sources</a>
+  <h1>Hong Kong <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></h1>
+  
+  <p class="lead">New-car, used-import and van registration data for Hong Kong from the Transport Department&#x27;s record-level list of every vehicle first registered each month — with make, model, fuel, TD&#x27;s own first-registration status and gross weight.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">2026-07</div><div class="l">Latest period held</div></div>
+    <div class="stat"><div class="n">—</div><div class="l">TTM BEV share (Whole)</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Variants</div></div>
+  </div>
+
+  
+
+  <section id="market"><h2>Who sells the electrified cars</h2><p class="fig-lead">Whole · last 12 months (2025-08 → 2026-07) · 57,547 new registrations in total. Units are registrations; a &quot;designation&quot; is TD&#x27;s model string with the brand prefix, chassis codes and trim words removed, so the trims of one model rank together (MODEL Y RWD and MODEL Y LONG RANGE → MODEL Y). BEV is TD&#x27;s own fuel value; PHEV and EREV are classified from the model designation (see the developer doc).</p><div class="stats"><div class="stat"><div class="n">90.0%</div><div class="l">BEV · 51,808 units</div></div><div class="stat"><div class="n">0.9%</div><div class="l">PHEV · 516 units</div></div><div class="stat"><div class="n">0.0%</div><div class="l">EREV · 8 units</div></div></div><details open><summary><span class="cls cls--bev">BEV</span> Battery-electric — 51,808 units</summary><div class="pair"><div class="scroll"><table class="rank"><caption>BEV — top brands (share of BEV)</caption><tr><th class="num">#</th><th>Brand</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>TESLA</td><td class="num">10,797</td><td class="num">20.8%</td></tr><tr><td class="num">2</td><td>BYD</td><td class="num">9,861</td><td class="num">19.0%</td></tr><tr><td class="num">3</td><td>ZEEKR</td><td class="num">5,121</td><td class="num">9.9%</td></tr><tr><td class="num">4</td><td>GAC AION</td><td class="num">4,791</td><td class="num">9.2%</td></tr><tr><td class="num">5</td><td>XPENG</td><td class="num">2,950</td><td class="num">5.7%</td></tr><tr><td class="num">6</td><td>DONGFENG</td><td class="num">2,066</td><td class="num">4.0%</td></tr><tr><td class="num">7</td><td>TOYOTA</td><td class="num">1,848</td><td class="num">3.6%</td></tr><tr><td class="num">8</td><td>SMART</td><td class="num">1,749</td><td class="num">3.4%</td></tr><tr><td class="num">9</td><td>BMW</td><td class="num">1,588</td><td class="num">3.1%</td></tr><tr><td class="num">10</td><td>DENZA</td><td class="num">1,382</td><td class="num">2.7%</td></tr></table></div><div class="scroll"><table class="rank"><caption>BEV — top designations (share of BEV)</caption><tr><th class="num">#</th><th>Brand</th><th>Designation</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>TESLA</td><td>MODEL Y</td><td class="num">5,326</td><td class="num">10.3%</td></tr><tr><td class="num">2</td><td>TESLA</td><td>MODEL 3</td><td class="num">5,113</td><td class="num">9.9%</td></tr><tr><td class="num">3</td><td>BYD</td><td>ATTO 2</td><td class="num">4,411</td><td class="num">8.5%</td></tr><tr><td class="num">4</td><td>ZEEKR</td><td>7X</td><td class="num">3,889</td><td class="num">7.5%</td></tr><tr><td class="num">5</td><td>BYD</td><td>SEALION 7</td><td class="num">3,749</td><td class="num">7.2%</td></tr><tr><td class="num">6</td><td>XPENG</td><td>G6</td><td class="num">2,225</td><td class="num">4.3%</td></tr><tr><td class="num">7</td><td>GAC AION</td><td>AION ES</td><td class="num">1,763</td><td class="num">3.4%</td></tr><tr><td class="num">8</td><td>TOYOTA</td><td>BZ3X</td><td class="num">1,697</td><td class="num">3.3%</td></tr><tr><td class="num">9</td><td>DONGFENG</td><td>NAMMI VIGO</td><td class="num">1,464</td><td class="num">2.8%</td></tr><tr><td class="num">10</td><td>DENZA</td><td>D9</td><td class="num">1,382</td><td class="num">2.7%</td></tr><tr><td class="num">11</td><td>GAC AION</td><td>AION UT</td><td class="num">1,199</td><td class="num">2.3%</td></tr><tr><td class="num">12</td><td>GAC AION</td><td>AION V</td><td class="num">1,139</td><td class="num">2.2%</td></tr><tr><td class="num">13</td><td>SMART</td><td>#5</td><td class="num">1,024</td><td class="num">2.0%</td></tr><tr><td class="num">14</td><td>ZEEKR</td><td>009</td><td class="num">1,023</td><td class="num">2.0%</td></tr><tr><td class="num">15</td><td>MAXUS</td><td>MIFA 7</td><td class="num">876</td><td class="num">1.7%</td></tr></table></div></div></details><details open><summary><span class="cls cls--phev">PHEV</span> Plug-in hybrid — 516 units</summary><div class="pair"><div class="scroll"><table class="rank"><caption>PHEV — top brands (share of PHEV)</caption><tr><th class="num">#</th><th>Brand</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>GAC</td><td class="num">334</td><td class="num">64.7%</td></tr><tr><td class="num">2</td><td>DENZA</td><td class="num">59</td><td class="num">11.4%</td></tr><tr><td class="num">3</td><td>BYD</td><td class="num">53</td><td class="num">10.3%</td></tr><tr><td class="num">4</td><td>MERCEDES-BENZ</td><td class="num">19</td><td class="num">3.7%</td></tr><tr><td class="num">5</td><td>LAMBORGHINI</td><td class="num">17</td><td class="num">3.3%</td></tr><tr><td class="num">6</td><td>FERRARI</td><td class="num">12</td><td class="num">2.3%</td></tr><tr><td class="num">7</td><td>JAECOO</td><td class="num">8</td><td class="num">1.6%</td></tr><tr><td class="num">8</td><td>LAND ROVER</td><td class="num">6</td><td class="num">1.2%</td></tr><tr><td class="num">9</td><td>MCLAREN</td><td class="num">4</td><td class="num">0.8%</td></tr><tr><td class="num">10</td><td>PORSCHE</td><td class="num">2</td><td class="num">0.4%</td></tr></table></div><div class="scroll"><table class="rank"><caption>PHEV — top designations (share of PHEV)</caption><tr><th class="num">#</th><th>Brand</th><th>Designation</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>GAC</td><td>E9</td><td class="num">334</td><td class="num">64.7%</td></tr><tr><td class="num">2</td><td>DENZA</td><td>B5</td><td class="num">59</td><td class="num">11.4%</td></tr><tr><td class="num">3</td><td>BYD</td><td>SEALION 6</td><td class="num">49</td><td class="num">9.5%</td></tr><tr><td class="num">4</td><td>MERCEDES-BENZ</td><td>AMG E 53 HYBRID</td><td class="num">18</td><td class="num">3.5%</td></tr><tr><td class="num">5</td><td>LAMBORGHINI</td><td>URUS</td><td class="num">15</td><td class="num">2.9%</td></tr><tr><td class="num">6</td><td>FERRARI</td><td>296 GTS</td><td class="num">9</td><td class="num">1.7%</td></tr><tr><td class="num">7</td><td>JAECOO</td><td>JAECOO7</td><td class="num">8</td><td class="num">1.6%</td></tr><tr><td class="num">8</td><td>LAND ROVER</td><td>RR EVOQUE</td><td class="num">4</td><td class="num">0.8%</td></tr><tr><td class="num">9</td><td>MCLAREN</td><td>ARTURA COUPE</td><td class="num">4</td><td class="num">0.8%</td></tr><tr><td class="num">10</td><td>BYD</td><td>SEAL U</td><td class="num">2</td><td class="num">0.4%</td></tr><tr><td class="num">11</td><td>LAMBORGHINI</td><td>REVUELTO</td><td class="num">2</td><td class="num">0.4%</td></tr><tr><td class="num">12</td><td>PORSCHE</td><td>CAYENNE E-HYBRID COUPE</td><td class="num">2</td><td class="num">0.4%</td></tr><tr><td class="num">13</td><td>BENTLEY</td><td>FLYING SPUR HYBRID</td><td class="num">1</td><td class="num">0.2%</td></tr><tr><td class="num">14</td><td>BMW</td><td>XM LABEL</td><td class="num">1</td><td class="num">0.2%</td></tr><tr><td class="num">15</td><td>BYD</td><td>SEAL 6</td><td class="num">1</td><td class="num">0.2%</td></tr></table></div></div></details><details><summary><span class="cls cls--erev">EREV</span> Range-extended EV (a plug-in; counted with PHEV in the curves) — 8 units</summary><div class="pair"><div class="scroll"><table class="rank"><caption>EREV — top brands (share of EREV)</caption><tr><th class="num">#</th><th>Brand</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>FORTHING</td><td class="num">8</td><td class="num">100.0%</td></tr></table></div><div class="scroll"><table class="rank"><caption>EREV — top designations (share of EREV)</caption><tr><th class="num">#</th><th>Brand</th><th>Designation</th><th class="num">Units</th><th class="num">Share</th></tr><tr><td class="num">1</td><td>FORTHING</td><td>FRIDAY</td><td class="num">8</td><td class="num">100.0%</td></tr></table></div></div></details></section>
+
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://data.gov.hk/en-data/dataset/hk-td-wcms_11-first-reg-vehicle">DATA.GOV.HK — Transport Department «Particulars of first registered vehicles» ↗</a></p><ul class="srclist"><li><a href="https://data.gov.hk/en-data/api/3/action/package_show?id=hk-td-wcms_11-first-reg-vehicle">CKAN API (resource discovery)</a> <span class="dim">— one CSV per month (English, Traditional and Simplified Chinese), from November 2019</span></li><li><a href="https://www.td.gov.hk/datagovhk_td/first-reg-vehicle/resources/en/dataspec/particulars_of_first_registered_vehicle_dataspec_eng.pdf">Data specification (field and status definitions)</a> <span class="dim">— defines the first-registration statuses A, B, C1, C2, D, E, F</span></li><li><a href="https://www.td.gov.hk/datagovhk_tis/mttd-csv/en/table41e_eng.csv">TD Monthly Traffic and Transport Digest, table 4.1(e) (cross-check)</a> <span class="dim">— TD&#x27;s own aggregate — first registration of private cars by make, status and fuel; checked against the records on every run</span></li></ul>
+
+  <h2>How the data flows</h2>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">Transport Department, HKSAR Government — vehicle registration and licensing records</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://data.gov.hk/en-data/dataset/hk-td-wcms_11-first-reg-vehicle">DATA.GOV.HK — Transport Department «Particulars of first registered vehicles»</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_hong_kong.py"><code>scripts/fetch_hong_kong.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-hong-kong.yml"><code>.github/workflows/fetch-hong-kong.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Hong Kong.csv"><code>data/Hong Kong.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+
+  <h2>Definitions &amp; scope</h2>
+  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Vehicle scope</th><td>First registrations in Hong Kong only (new, or used imports), by TD&#x27;s own first-registration status; taxis (their own vehicle class), own-use imports (status D) and government auctions (F) are in no variant.</td></tr><tr><th>HEV (full hybrids)</th><td>TD&#x27;s fuel field (Electric / Petrol / Diesel / LPG) has no hybrid value. Full and mild hybrids are counted in PETROL (inside ICE); plug-in hybrids are classified from the model designation into PHEV/EREV.</td></tr><tr><th>Backfill</th><td>record-level files from 2019-11; TD&#x27;s aggregate table reaches back to 2016-05 but with a different new/used definition before 2019, so it is not spliced on</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>New private cars — TD class &quot;Private Car&quot; with first-registration status A, B or C1 (never, or under 15 days, registered abroad) ≈ EU M1.</td><td class="nowrap">2019-11 – 2026-07<br><span class="dim">81 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Hong Kong.csv"><code>data/Hong Kong.csv</code></a></td></tr><tr><th>Used</th><td>Used-import private cars — status C2 (registered outside Hong Kong before import).</td><td class="nowrap">2019-11 – 2026-07<br><span class="dim">81 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Hong Kong_Used.csv"><code>data/Hong Kong_Used.csv</code></a></td></tr><tr><th>Vans</th><td>New light goods vehicles with a permitted gross weight ≤ 3.5 t (EU N1; status A/B/C1/E).</td><td class="nowrap">2019-11 – 2026-07<br><span class="dim">81 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/Hong Kong_Vans.csv"><code>data/Hong Kong_Vans.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 108" width="100%" height="108" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="66.9" y1="6" x2="66.9" y2="86"/><text class="cov-tick" x="66.9" y="102" text-anchor="middle">2019</text><line class="cov-grid" x1="128.2" y1="6" x2="128.2" y2="86"/><text class="cov-tick" x="128.2" y="102" text-anchor="middle">2020</text><line class="cov-grid" x1="189.5" y1="6" x2="189.5" y2="86"/><text class="cov-tick" x="189.5" y="102" text-anchor="middle">2021</text><line class="cov-grid" x1="250.8" y1="6" x2="250.8" y2="86"/><text class="cov-tick" x="250.8" y="102" text-anchor="middle">2022</text><line class="cov-grid" x1="312.1" y1="6" x2="312.1" y2="86"/><text class="cov-tick" x="312.1" y="102" text-anchor="middle">2023</text><line class="cov-grid" x1="373.4" y1="6" x2="373.4" y2="86"/><text class="cov-tick" x="373.4" y="102" text-anchor="middle">2024</text><line class="cov-grid" x1="434.7" y1="6" x2="434.7" y2="86"/><text class="cov-tick" x="434.7" y="102" text-anchor="middle">2025</text><line class="cov-grid" x1="496.0" y1="6" x2="496.0" y2="86"/><text class="cov-tick" x="496.0" y="102" text-anchor="middle">2026</text><line class="cov-grid" x1="557.3" y1="6" x2="557.3" y2="86"/><text class="cov-tick" x="557.3" y="102" text-anchor="middle">2027</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="413.8" height="12" rx="3"><title>Whole: 2019-11 → 2026-07</title></rect><text class="cov-meta" x="594" y="20">monthly</text><text class="cov-label" x="0" y="46">Used</text><rect class="cov-bar" x="118.0" y="36" width="413.8" height="12" rx="3"><title>Used: 2019-11 → 2026-07</title></rect><text class="cov-meta" x="594" y="46">monthly</text><text class="cov-label" x="0" y="72">Vans</text><rect class="cov-bar" x="118.0" y="62" width="413.8" height="12" rx="3"><title>Vans: 2019-11 → 2026-07</title></rect><text class="cov-meta" x="594" y="72">monthly</text></svg><p class="fig-note">Whole 2019-11–2026-07 (81 rows), Used 2019-11–2026-07 (81 rows), Vans 2019-11–2026-07 (81 rows).</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>EREV</th><th>PETROL</th><th>DIESEL</th><th>OTHERS</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="EREV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="DIESEL: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--zero" title="OTHERS: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td></tr><tr><th>Used</th><td><span class="cell cell--yes" title="BEV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="EREV: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="OTHERS: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td></tr><tr><th>Vans</th><td><span class="cell cell--yes" title="BEV: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="PHEV: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--zero" title="EREV: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td><td><span class="cell cell--yes" title="PETROL: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="DIESEL: values in 81 of 81 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--zero" title="OTHERS: present but zero in every row"><span aria-hidden="true">◐</span><span class="sr">always zero</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
+
+  
+
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>The fuel field has no hybrid value. Plug-in hybrids are recovered from the model designation (few — about 1 % of new cars in 2025–26); full and mild hybrids cannot be told apart and are counted as petrol.</li><li>The EV first-registration-tax concession was cut for applications from 1 April 2024 and ended for applications from 1 April 2026. Registrations spike in the months before each date and the BEV share steps down after it — a policy effect, not noise.</li><li>Private cars only; taxis (about 100 a month, mostly LPG hybrids and now BEVs) are a separate vehicle class and not in Whole.</li><li>The record files match TD&#x27;s own table 4.1(e) exactly for every month compared, except one used-import car in June 2020.</li><li>Used is a different population (used imports, dominated by Japanese-market Toyota and Honda MPVs) — read it next to Whole, not as part of it.</li></ul></section>
+
+  <div class="footer">
+    <p><strong>Freshness.</strong> Latest period in our store: <code>2026-07</code>.
+       Update cadence: twice daily, 03:20 and 11:20 UTC — TD uploads month M between the 13th and the 28th of M+1.<br>
+       
+       Row source string: <code>Transport Department (data.gov.hk)</code></p>
+    <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/41-source-hong-kong.md"><code>docs/architecture/41-source-hong-kong.md</code></a></p>
+  </div>
+</div>
+</body>
+</html>

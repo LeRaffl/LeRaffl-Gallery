@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-24T22:32:01Z",
- "today": "2026-09-24",
+ "generated": "2026-09-25T09:30:58Z",
+ "today": "2026-09-25",
  "countries": [
   {
    "country": "Albania",
@@ -1426,6 +1426,104 @@
      "latest": "2026-08",
      "first": "2015-06",
      "rows": 113,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Hong Kong",
+   "slug": "hong_kong",
+   "method": "file",
+   "source_name": "DATA.GOV.HK — Transport Department «Particulars of first registered vehicles»",
+   "source_url": "https://data.gov.hk/en-data/dataset/hk-td-wcms_11-first-reg-vehicle",
+   "cadence_text": "twice daily, 03:20 and 11:20 UTC — TD uploads month M between the 13th and the 28th of M+1",
+   "interval": "monthly",
+   "latest_period": "2026-07",
+   "expected_period": "2026-08",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "03:20",
+     "11:20"
+    ],
+    "workflow": ".github/workflows/fetch-hong-kong.yml"
+   },
+   "last_render": null,
+   "flag": "🇭🇰",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-07",
+     "first": "2019-11",
+     "rows": 81,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-07",
+     "first": "2019-11",
+     "rows": 81,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-07",
+     "first": "2019-11",
+     "rows": 81,
      "cadence": "monthly",
      "in_repo": true
     }
