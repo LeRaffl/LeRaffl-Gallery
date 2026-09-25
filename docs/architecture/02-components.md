@@ -793,6 +793,35 @@ Each frame also carries `LeRaffl BEV Gallery · fitted model, not a forecast · 
 
 The subtitle reads *"What the model said using data through Apr 2020"*, taken from the series file's own `headline`. The `builder_history` wording (*"as estimated <date> · data through <period>"*) says one thing twice here: in a backtest the estimate date and the data cutoff are the same month by construction.
 
+## 2.17 Render preview (`.github/workflows/preview-render.yml`, `scripts/build_render_preview.py`)
+
+Before/after chart renders for a pull request that changes `R/`, so a model or
+plot change can be looked at **before** it is merged. Nothing else renders on a
+PR: `render-country.yml` commits to the branch it runs on, so dispatching it on a
+PR branch would push generated files into the PR.
+
+- **Trigger:** `pull_request` touching `R/**`, the workflow or its script; or
+  `workflow_dispatch` on any branch (`series` = `"Country:Variant; …"`, `base` =
+  the branch whose `R/` is the "before" side, default `master`).
+- **Shape:** `plan` turns the series list (default: 24 series from settled —
+  Norway, Germany — to collapsed — Argentina, Belgium Vans, Slovenia Buses) into
+  a matrix. Each `render` job runs `R/render_country.R` **twice from the same
+  data**: once with the PR's `R/`, then `R/` is deleted and restored from the
+  base branch and it renders again. Deleting first matters — `git checkout
+  <base> -- R/` alone would keep files the PR *added* under `R/`. Between the
+  two renders `images/`, `params.csv`, `weights.csv` and `posts/` are reset.
+- **Output:** `collect` runs `build_render_preview.py`, which pairs the PNGs by
+  filename and writes `compare/<series>__<chart>.png` (base | PR side by side,
+  labelled, readable on a phone), `index.html` (everything, identical charts
+  dimmed, the `params.csv` row and the 10/50/80 % years before/after) and
+  `summary.md`. Uploaded as the `render-preview` artifact (30 days); the summary
+  also goes to the run summary and to **one** PR comment, found by the marker
+  `<!-- render-preview -->` and edited in place on each push.
+- **Read-only:** `contents: read`; only `collect` gets `pull-requests: write`, for
+  the comment, which is `continue-on-error` so a fork PR's read-only token does
+  not fail the run. No commit, no push, no dispatch of `render-country.yml` or
+  `build-manifest.yml` — production cannot change through it.
+
 ## See also
 
 - [03-data-objects.md](03-data-objects.md) — what each component reads/writes
