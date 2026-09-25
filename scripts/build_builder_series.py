@@ -59,7 +59,7 @@ GROUP_LABELS = {
     "western_europe": "Western Europe", "northern_europe": "Northern Europe",
     "southern_europe": "Southern Europe", "eastern_europe": "Eastern Europe",
     "north_america": "North America", "south_america": "South America",
-    "americas": "Americas", "asia": "Asia",
+    "americas": "Americas", "asia": "Asia", "oceania": "Oceania",
     "small_markets": "Small markets", "medium_markets": "Medium markets",
     "big_markets": "Big markets",
 }

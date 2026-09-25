@@ -1,0 +1,39 @@
+name: Check country integration
+
+# Fails a PR that adds or changes a country without wiring it into every
+# place the gallery needs it: Submit-Data list, flag files, post-text flag,
+# continent colour, a Builder region group (in BOTH mirrors), time zone,
+# source page, glossary, the fetch workflow's docs/schedule entries, and a
+# backtest history (Time-lapse panel + GIFs).
+# The checklist behind each check: docs/architecture/42-adding-a-country.md.
+# Pre-existing gaps are listed with a reason in KNOWN_GAPS inside the script;
+# a fixed gap left in that list also fails, so the list only shrinks.
+
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'index.html'
+      - 'footnotes.csv'
+      - 'assets/flags/**'
+      - 'R/post_text.R'
+      - 'R/render_schedule.R'
+      - 'scripts/snapshot_builder.py'
+      - 'scripts/check_country_integration.py'
+      - 'docs/architecture/**'
+      - 'backtest/params/**'
+      - '.github/workflows/fetch-*.yml'
+      - '.github/workflows/check-country-integration.yml'
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml
+      - name: Check every country is fully integrated
+        run: python scripts/check_country_integration.py
