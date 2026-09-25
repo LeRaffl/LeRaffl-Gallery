@@ -139,6 +139,42 @@ permanent state: §8.8 describes the corruption as episodic, so Indonesia can
 re-enter the recovery path at any time. To see what is affected right now, read
 `params.csv` and select `float(v1) == 0`.
 
+### Fit reliability gate (`fitReliability()`)
+
+Not every fitted curve can carry a ranking. One function in `index.html`,
+`fitReliability(row)` (next to `rowHasNoTransition`), classifies each
+`params.csv` row as `ok`, `provisional` or `excluded`, and **every** consumer
+reads that verdict: Thresholds, Durations, Time Interval, the World Map, the
+gallery tags and the speed-quartile pool behind the *Fast/Slow* tags. Keep it
+one function — a second, slightly different copy in one tab is how rankings and
+tags start to disagree.
+
+A row is **excluded** when any one of three tests fails:
+
+| Test | Rule | Why a separate test |
+|---|---|---|
+| unsettled | `refit_swing > FIT_UNSETTLED_SWING` (25 y), or `Inf` | The 80 % date still jumps with each new month. |
+| collapsed | shape `v2 ≤ 0`, or 10 %→80 % in `< FIT_COLLAPSE_SPAN` (3 y) while `ttm_bev_share < FIT_COLLAPSE_OBS` (10 %) | A near-vertical step the data has not reached. It can repeat identically on every refit (Argentina), so `refit_swing` alone does not catch it. The fastest *observed* transitions take 5–8 years. |
+| stale | `data_per` more than `FIT_STALE_MONTHS` (12) before today | The curve describes a market no longer observed (Belgium Vans ended 2023-03). |
+
+`provisional` = swing between `FIT_PROVISIONAL_SWING` (5 y) and the unsettled
+cut-off; tags stay, drawn hollow.
+
+What exclusion does: the row drops out of the three ranking tabs and the map (a
+note under each table names what was left out), its gallery cards carry a
+single *Unreliable fit* pill whose popover lists the failed tests, and the
+gallery's **Fit** filter can hide those charts. The chart PNGs themselves are
+never touched. Rows that already read "shows no transition" keep that label and
+stay in the tables: `rowIsUnreliableFit()` checks `rowHasNoTransition` first.
+The Builder is deliberately **not** gated — it aggregates by volume weight and
+mirrors `scripts/snapshot_builder.py`, and changing its inputs is a Builder
+change (see AGENTS.md).
+
+The gate is a browser-side reading of the fit, not a fix for it. Some collapses
+are optimizer failures in `R/fit.R` (Belgium Vans/HDV, Romania Vans, Slovakia
+HDV: Nelder-Mead from the single start `(-0.1, 4)` stops far from the
+least-squares minimum). Fixing that belongs in `R/fit.R` and needs review.
+
 **Known gap, as of 2026-09.** The two rows currently on `v1 = 0` are
 `Uruguay|Buses` and `Cyprus|HDV`, and neither is the §8.8 corruption pattern:
 both carry `v2 = 4.15` exactly — a round number where every genuine `optim()`
