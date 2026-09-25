@@ -1,0 +1,8 @@
+🇧🇪 Belgium (Vans) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++3.1pp  EV      (5.7% → 8.8%)
++1.0pp  Hybrid  (0.2% → 1.2%)
+−4.1pp  ICE     (94.0% → 90.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

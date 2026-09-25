@@ -1,0 +1,10 @@
+🇧🇪 Belgium (HDV) - TTM Market Split
+
+Q?'24–Q?'25  vs  Q?'25–Q?'26
++0.8pp  EV      (2.4% → 3.2%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.8pp  ICE     (97.6% → 96.8%)
+
+Hybrid peaked at 0.0% in Q?'25 (declining for 5 quarters).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
