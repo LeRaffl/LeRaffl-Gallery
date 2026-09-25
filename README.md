@@ -37,6 +37,7 @@ Outputs:
 
 - PNG charts for each country and month
 - A parameter table (`params.csv`) containing all fitted model parameters
+- Uncertainty bands per series (`bands/<slug>.json`: confidence, prediction and tolerance intervals)
 - A machine-generated gallery manifest (`manifest.json`)
 
 ---
@@ -51,6 +52,7 @@ Key files in the repository root:
 | **manifest.json** | Auto-generated list of all available charts, used by the Gallery to display images. |
 | **build_manifest.R** | Scans `images/` and generates `manifest.json`. |
 | **params.csv** | Contains the model parameters (v1, v2, t0, baseline year, last data month) for each market. Used for Thresholds & Durations. |
+| **bands/** | Generated per render by `R/bands.R`: one `<slug>.json` per series with the 95 % confidence, prediction and tolerance bands around the fitted curve, plus the 10/20/50/80/90 % crossing years with their confidence ranges. Frontend data only (the PNGs do not use it). What the bands mean and how to quote them: `docs/architecture/44-uncertainty-bands.md`. |
 | **footnotes.csv** | Optional curated per-country/variant chart footnotes (`country,variant,footnote`). `render_country.R` appends the matching note as a second caption line on the PNGs (e.g. Canada `Whole`'s pre-2017 passenger-cars-only scope). Separate from the CSVs' internal `notes` column. |
 | **log_params.R** | Produces and updates the parameter table (`params.csv`). |
 | **images/** | Contains all exported PNG files structured as `images/YYYY-MM/...`. GitHub Pages serves them directly. |

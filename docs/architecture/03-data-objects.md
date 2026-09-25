@@ -724,6 +724,23 @@ to the workflow's commit list (not to the render trigger), and add
 needs translation first (Israel's registry names manufacturers in Hebrew) are
 not "easy" and were left out on purpose.
 
+## 3.17 Uncertainty bands (`bands/`)
+
+`bands/<slug>.json`, one per rendered series, written by `R/render_country.R`
+through [`R/bands.R`](../../R/bands.R) on every render and committed with the
+PNGs. **Generated — never hand-edit.** Frontend data only; the PNGs do not use
+it, and `index.html` does not read it yet.
+
+It holds the 95 % confidence (CI), prediction (PI) and tolerance (TI, 95 / 95)
+bands around the fitted curve on a quarterly calendar-year grid to 2060, the
+fitted share, and the fit and CI range of the 10/20/50/80/90 % crossing years.
+All dates are **calendar** decimal years (R's internal axis + 1). A fit with no
+usable S-shape writes no file and removes a stale one. The random seed is fixed,
+so a re-render of unchanged data produces an identical file.
+
+Schema, maths, validation and how to quote the numbers:
+[44-uncertainty-bands.md](44-uncertainty-bands.md) — the canonical page.
+
 ## See also
 
 - [04-interfaces.md](04-interfaces.md) — exactly how the Worker reads/writes these

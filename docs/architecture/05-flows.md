@@ -115,7 +115,7 @@ sequenceDiagram
 
     Note over Runner: Inside the R script:<br/>1. load_country_csv(data/Germany.csv)<br/>2. fit_history(df) → params, history-loop<br/>3. build_post_text(df, "Germany")<br/>4. plot_bev_trajectory / plot_ice_bev_phev / plot_timer / plot_ttm_shares<br/>5. ggsave 4 PNGs to images/<period>/<br/>6. upsert_params, upsert_weights<br/>7. writeLines posts/<slug>.txt, posts/<slug>_<period>.txt
 
-    Runner->>Repo: git add images/ params.csv weights.csv posts/
+    Runner->>Repo: git add images/ params.csv weights.csv posts/ bands/
     Runner->>Repo: git commit -m "chore: render Germany (Whole)"
     Runner->>Repo: git push origin master
     Runner->>Repo: gh workflow run build-manifest.yml
@@ -1415,7 +1415,7 @@ sequenceDiagram
     PR->>Plan: pull_request event
     Plan->>R: matrix of "Country:Variant"
     R->>R: render_country.R with PR's R/
-    R->>R: reset images/, params.csv, weights.csv, posts/
+    R->>R: reset images/, params.csv, weights.csv, posts/, bands/
     R->>R: rm -rf R/ and restore base branch's R/, render again
     R->>C: artifact preview-<series> (base/, head/, params rows)
     C->>C: build_render_preview.py → compare/*.png, index.html, summary.md

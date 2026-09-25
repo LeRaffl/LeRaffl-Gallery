@@ -2,7 +2,7 @@ name: Render country charts
 
 # Manual trigger from the Actions UI. After data/<Country>.csv is updated
 # (typically via a merged Submit-Data PR), pick the country here and the
-# four PNGs + params.csv + weights.csv are regenerated and committed.
+# four PNGs + params.csv + weights.csv + bands/<slug>.json are regenerated and committed.
 # The Build manifest workflow is dispatched after the render commit.
 #
 # Two ways to say WHICH variants to render:
@@ -170,6 +170,8 @@ jobs:
           # committed its output even when a sibling leg went red.
           echo "RENDER_FAILED=$failed" >> "$GITHUB_ENV"
 
+      # bands/<slug>.json (CI / PI / TI for the frontend) is written by
+      # render_country.R next to the PNGs; see docs/architecture/44-uncertainty-bands.md.
       - name: Commit outputs
         uses: EndBug/add-and-commit@v9
         with:
@@ -178,6 +180,7 @@ jobs:
             params.csv
             weights.csv
             posts
+            bands
           message: "chore: render ${{ inputs.country }} (${{ inputs.variants != '' && inputs.variants || inputs.variant }})"
           default_author: github_actions
           pull: '--rebase --autostash'

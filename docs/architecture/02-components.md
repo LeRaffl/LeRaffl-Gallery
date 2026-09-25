@@ -205,7 +205,7 @@ The Worker is linked to this repository via **Cloudflare Workers Builds** (confi
 
 ### What it is
 
-A set of small, focused R modules that turn `data/<Country>.csv` into the four canonical PNGs for that country, plus a `params.csv` row, a `weights.csv` row, and a `posts/<slug>.txt` social-media text.
+A set of small, focused R modules that turn `data/<Country>.csv` into the four canonical PNGs for that country, plus a `params.csv` row, a `weights.csv` row, a `posts/<slug>.txt` social-media text, and `bands/<slug>.json` (the CI / PI / TI uncertainty bands for the frontend, [44](44-uncertainty-bands.md)).
 
 ### Files
 
@@ -216,6 +216,7 @@ A set of small, focused R modules that turn `data/<Country>.csv` into the four c
 | `R/plots.R` | The four ggplot2 plot constructors | `plot_bev_trajectory`, `plot_ice_bev_phev`, `plot_timer`, `plot_ttm_shares` |
 | `R/upsert.R` | Line-level upsert into `params.csv` and `weights.csv` | `upsert_params`, `upsert_weights`, `data_per_from_df`, `compute_weight` |
 | `R/post_text.R` | Build the social-media post text per country | `build_post_text(df, country, last_period = NULL)` |
+| `R/bands.R` | Confidence / prediction / tolerance bands around the fit, for the frontend only (never drawn on the PNGs). Canonical explanation: [44-uncertainty-bands.md](44-uncertainty-bands.md) | `compute_bands(df, fit)`, `write_bands_json(path, bands, country, variant, data_per)` |
 | `R/render_country.R` | Entry point: orchestrates everything | `Rscript R/render_country.R <Country> [<Variant>]` |
 
 ### Key invariants
@@ -293,7 +294,7 @@ A GitHub Action with two entry points and three inputs:
 2. Sets up R via `r-lib/actions/setup-r`
 3. Installs the R package set (ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue) with apt prebuilds
 4. Builds the variant work-list (`variants` if set, else the single `variant`) and runs `Rscript R/render_country.R <country> <v>` for each entry **serially**, collecting any failures without aborting the rest (mirrors the old fail-fast:false matrix)
-5. Commits the resulting `images/<period>/*.png`, `params.csv` row updates, `weights.csv` row updates, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` **once** for all rendered variants via `EndBug/add-and-commit`
+5. Commits the resulting `images/<period>/*.png`, `params.csv` row updates, `weights.csv` row updates, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` and `bands/<slug>.json` **once** for all rendered variants via `EndBug/add-and-commit`
 6. Dispatches `build-manifest.yml` explicitly so the generated images are indexed immediately (one dispatch per run, not per variant)
 7. Fails the run at the end if any variant failed — so a broken render shows as a red **"Render: X"** entry in the Actions list, while the variants that did render are still committed and deployed
 
@@ -392,6 +393,7 @@ The entire repo content is technically reachable, but the page only references:
 - `params.csv`, `weights.csv`
 - `images/<period>/*.png`
 - `posts/<slug>.txt`
+- `bands/<slug>.json` (not read by `index.html` yet)
 - `fleet/*.csv`, `fleet/fleet_meta.json`
 
 ### Caching
@@ -773,12 +775,13 @@ PR branch would push generated files into the PR.
   data**: once with the PR's `R/`, then `R/` is deleted and restored from the
   base branch and it renders again. Deleting first matters — `git checkout
   <base> -- R/` alone would keep files the PR *added* under `R/`. Between the
-  two renders `images/`, `params.csv`, `weights.csv` and `posts/` are reset.
+  two renders `images/`, `params.csv`, `weights.csv`, `posts/` and `bands/` are reset.
 - **Output:** `collect` runs `build_render_preview.py`, which pairs the PNGs by
   filename and writes `compare/<series>__<chart>.png` (base | PR side by side,
   labelled, readable on a phone), `index.html` (everything, identical charts
-  dimmed, the `params.csv` row and the 10/50/80 % years before/after) and
-  `summary.md`. Uploaded as the `render-preview` artifact (30 days); the summary
+  dimmed, the `params.csv` row, the 10/50/80 % years before/after and the 80 %
+  crossing with its CI from each render's `bands/<slug>.json`) and `summary.md`.
+  All years in the sheet are calendar years. Uploaded as the `render-preview` artifact (30 days); the summary
   also goes to the run summary and to **one** PR comment, found by the marker
   `<!-- render-preview -->` and edited in place on each push.
 - **Read-only:** `contents: read`; only `collect` gets `pull-requests: write`, for
