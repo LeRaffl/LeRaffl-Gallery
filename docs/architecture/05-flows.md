@@ -29,6 +29,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | T | [Auto-ingest Ireland from SIMI](#flow-t--simi-ingest) | Twice-daily cron (1st–5th, 04:00 & 13:00 UTC) or manual dispatch | Updated `data/Ireland.csv` → Flow B for Ireland |
 | U | [Auto-ingest Portugal from ACAP](#flow-u--acap-ingest) | Twice-daily cron (1st–5th, 17:30 & 20:30 UTC) or manual dispatch | Updated `data/Portugal.csv` → Flow B for Portugal |
 | V | [Auto-ingest Colombia from ANDI/FENALCO](#flow-v--andi-pdf-ingest) | Daily cron (5th–25th, 07:30 UTC) or manual dispatch | Updated `data/Colombia.csv` → Flow B for Colombia |
+| W | [Render preview](#flow-w--render-preview) | PR touching `R/**`, or manual dispatch | `render-preview` artifact (base vs PR charts) + one PR comment; nothing committed |
 
 > **Not every fetcher has a lettered flow here.** Flows H–V were written as
 > each of the first ingest pipelines landed; the later ones — Austria, Canada,
@@ -1402,6 +1403,28 @@ In September 2026 the same silent-green failure returned by a different route: A
 - **An unreachable month is no longer a warning.** The old `::warning::` fired daily and changed nothing, because a warning on a *passing* run reaches nobody. The rule is now stated against the month the run exists for: quiet before the 20th (ANDI publishes over the first ~3 weeks), a failed run after it. If you add a staleness check to another fetcher, make it exit non-zero.
 
 FENALCO mirrors the same report at `fenalco.com.co/blog/gremial-4` and still indexes every month, but its post pages serve the PDF behind `web/login` — useful to confirm by eye that a month has been published, not ingestible. If the chart order in the PDF ever changes, the position-based batch assignment (Pkw / BEV / Hybrid) would mis-attribute — the "Pkw is largest" check catches the obvious case; eyeball one month's values against the PDF narrative otherwise. `dry_run=true` on the workflow is the tool for both: it prints the candidate list, the parsed batches and the full pdftotext text without writing anything.
+
+## Flow W — Render preview
+
+```mermaid
+sequenceDiagram
+    participant PR as Pull request (touches R/)
+    participant Plan as plan job
+    participant R as render job (one per series)
+    participant C as collect job
+    PR->>Plan: pull_request event
+    Plan->>R: matrix of "Country:Variant"
+    R->>R: render_country.R with PR's R/
+    R->>R: reset images/, params.csv, weights.csv, posts/
+    R->>R: rm -rf R/ and restore base branch's R/, render again
+    R->>C: artifact preview-<series> (base/, head/, params rows)
+    C->>C: build_render_preview.py → compare/*.png, index.html, summary.md
+    C->>PR: artifact render-preview + one comment (edited in place)
+```
+
+Both renders of a series use the same data, so the only difference between
+them is the code under review. Nothing is committed and no other workflow is
+dispatched. Details: [02-components.md § 2.17](02-components.md#217-render-preview-githubworkflowspreview-renderyml-scriptsbuild_render_previewpy).
 
 ## See also
 

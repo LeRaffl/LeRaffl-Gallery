@@ -1,0 +1,236 @@
+name: Render preview
+
+# Before/after chart renders for a pull request that changes the R pipeline,
+# so a model or plot change can be looked at before it is merged.
+#
+# Each series in the list is rendered TWICE in the same job, from the same
+# data: once with the PR's R/ and once with the base branch's R/. The only
+# difference between the two sets of PNGs is therefore the code under review.
+#
+# Read-only by design. Nothing is committed or pushed, render-country.yml and
+# build-manifest.yml are not triggered, and params.csv / weights.csv / images/
+# only change inside the throwaway runner. The output is one workflow artifact
+# ("render-preview": side-by-side PNGs under compare/, an index.html, and the
+# params.csv row before/after for every series) plus one PR comment linking to
+# it, updated in place on each push.
+#
+# Triggers: automatically on PRs touching R/ (or this preview itself), or by
+# hand from the Actions tab on any branch — a manual run on the default branch
+# compares it with itself, so pick the PR branch in "Use workflow from".
+run-name: >-
+  Render preview: ${{ github.event.pull_request.title || github.ref_name }}
+
+on:
+  pull_request:
+    paths:
+      - 'R/**'
+      - '.github/workflows/preview-render.yml'
+      - 'scripts/build_render_preview.py'
+  workflow_dispatch:
+    inputs:
+      series:
+        description: 'Series to render, "Country:Variant" separated by ";" (blank = the default set below)'
+        required: false
+        default: ''
+        type: string
+      base:
+        description: 'Branch whose R/ is the "before" side'
+        required: false
+        default: 'master'
+        type: string
+
+permissions:
+  contents: read
+
+# A new push to the same PR makes the running preview obsolete.
+concurrency:
+  group: preview-render-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # From settled to collapsed on purpose: the reviewer needs to see what a
+  # change does to the easy curves AND to the ones it is meant to fix.
+  DEFAULT_SERIES: >-
+    Norway:Whole; Denmark:Whole; Germany:Whole; Italy:Whole; Japan:Whole;
+    China:Whole; USA:Whole; Bulgaria:Whole; Hungary:Whole; Malta:Whole;
+    Uruguay:Whole; Brazil:Whole; Indonesia:Whole; Argentina:Whole;
+    Argentina:Industry; Belgium:Vans; Belgium:HDV; Romania:Vans;
+    Slovakia:HDV; Slovenia:Buses; Albania:Buses; Iceland:HDV;
+    Spain:Vans; Austria:Vans
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - id: plan
+        env:
+          SERIES: ${{ inputs.series }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, re
+          raw = os.environ.get("SERIES", "").strip() or os.environ["DEFAULT_SERIES"]
+          items, seen = [], set()
+          for entry in re.split(r"[;\n]", raw):
+              entry = entry.strip()
+              if not entry:
+                  continue
+              country, _, variant = entry.partition(":")
+              country, variant = country.strip(), (variant.strip() or "Whole")
+              slug = re.sub(r"[^A-Za-z0-9]+", "_", f"{country}_{variant}").strip("_")
+              if slug in seen:
+                  continue
+              seen.add(slug)
+              items.append({"country": country, "variant": variant, "slug": slug})
+          if not items:
+              raise SystemExit("no series to render")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("matrix=" + json.dumps({"include": items}) + "\n")
+          print(f"{len(items)} series")
+          EOF
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    # Two renders of one series; a slow variant (HDV) takes ~5 min each.
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    name: ${{ matrix.country }} (${{ matrix.variant }})
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            ggplot2
+            scales
+            grid
+            png
+            ggtext
+            viridis
+            showtext
+            sysfonts
+            glue
+
+      - name: Render with PR code, then with base code
+        env:
+          COUNTRY: ${{ matrix.country }}
+          VARIANT: ${{ matrix.variant }}
+          SLUG: ${{ matrix.slug }}
+          BASE_REF: ${{ github.base_ref || inputs.base || 'master' }}
+        run: |
+          set -uo pipefail
+          out="out/$SLUG"
+          mkdir -p "$out/base" "$out/head"
+          printf '%s|%s\n' "$COUNTRY" "$VARIANT" > "$out/meta.txt"
+
+          # Render, keep what it produced, then put the checkout back so the
+          # second render starts from exactly the same files as the first.
+          render() {
+            side="$1"
+            echo "::group::Render $COUNTRY / $VARIANT with $side code"
+            if ! Rscript R/render_country.R "$COUNTRY" "$VARIANT"; then
+              echo "::warning title=Render failed::$COUNTRY / $VARIANT ($side code)"
+              touch "$out/${side}_failed"
+            fi
+            git ls-files --others --modified --exclude-standard -- images \
+              | while read -r f; do cp "$f" "$out/$side/"; done
+            { head -n 1 params.csv
+              awk -F, -v c="$COUNTRY" -v v="$VARIANT" '$1 == c && $2 == v' params.csv
+            } > "$out/${side}_params.csv"
+            git checkout -- images params.csv weights.csv posts 2>/dev/null || true
+            git clean -fdq -- images posts
+            echo "::endgroup::"
+          }
+
+          render head
+          # Replace R/ wholesale: `git checkout <ref> -- R/` alone would keep
+          # files the PR ADDED under R/, so the "base" render could still run
+          # PR code.
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          rm -rf R
+          git checkout FETCH_HEAD -- R/
+          render base
+          ls -R "$out"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: preview-${{ matrix.slug }}
+          path: out/
+          retention-days: 3
+
+  collect:
+    needs: [plan, render]
+    # Build the sheet from whatever rendered, even if some series failed.
+    if: ${{ always() && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts/build_render_preview.py
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: preview-*
+          path: preview
+          merge-multiple: true
+
+      - name: Build side-by-side sheet
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          pip install --quiet pillow
+          python3 scripts/build_render_preview.py preview \
+            --title "Render preview — ${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}" --run-url "$RUN_URL"
+          cat preview/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-preview
+          path: preview/
+          retention-days: 30
+
+      # One comment per PR, edited in place on every push. A PR from a fork
+      # gets a read-only token, so a failed comment must not fail the run —
+      # the artifact and the run summary still carry everything.
+      - name: Comment on the PR
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          marker='<!-- render-preview -->'
+          {
+            echo "$marker"
+            echo "### Render preview"
+            echo
+            echo "Each series rendered twice from the same data: base branch \`R/\` vs this PR's \`R/\`."
+            echo "Download: [render-preview]($ARTIFACT_URL) (\`compare/\` = side-by-side PNGs, \`index.html\` = everything) · [run]($RUN_URL)"
+            echo
+            cat preview/summary.md
+          } > comment.md
+          id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+                 --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | tail -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@comment.md >/dev/null
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F body=@comment.md >/dev/null
+          fi
