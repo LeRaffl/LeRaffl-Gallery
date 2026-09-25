@@ -2,6 +2,46 @@
   "updated": "2026-09-25",
   "images": [
     {
+      "country": "Hong Kong",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "hong_kong_ICE_BEV_20260925.png",
+      "url": "images/2026-07/hong_kong_ICE_BEV_20260925.png",
+      "alt": "Hong Kong ICE-BEV-Hybrid trajectory",
+      "country_slug": "hong_kong"
+    },
+    {
+      "country": "Hong Kong",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "hong_kong_20260925.png",
+      "url": "images/2026-07/hong_kong_20260925.png",
+      "alt": "Hong Kong BEV trajectory",
+      "country_slug": "hong_kong"
+    },
+    {
+      "country": "Hong Kong",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "hong_kong_time_20260925.png",
+      "url": "images/2026-07/hong_kong_time_20260925.png",
+      "alt": "Hong Kong Transition time curve",
+      "country_slug": "hong_kong"
+    },
+    {
+      "country": "Hong Kong",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "hong_kong_ttm_shares_20260925.png",
+      "url": "images/2026-07/hong_kong_ttm_shares_20260925.png",
+      "alt": "Hong Kong TTM market split graph",
+      "country_slug": "hong_kong"
+    },
+    {
       "country": "Ukraine",
       "type": "ICE_BEV",
       "period": "2026-08",
