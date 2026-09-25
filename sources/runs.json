@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T09:46:30Z",
+ "generated": "2026-09-25T11:23:18Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4792,6 +4792,14 @@
    "slug": "ukraine_vans",
    "period": "2026-08",
    "flag": "🇺🇦"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Hong Kong",
+   "base": "Hong Kong",
+   "slug": "hong_kong",
+   "period": "2026-07",
+   "flag": "🇭🇰"
   }
  ]
 }

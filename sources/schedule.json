@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T09:46:30Z",
+ "generated": "2026-09-25T11:23:18Z",
  "today": "2026-09-25",
  "countries": [
   {
@@ -1500,7 +1500,7 @@
     ],
     "workflow": ".github/workflows/fetch-hong-kong.yml"
    },
-   "last_render": null,
+   "last_render": "2026-09-25",
    "flag": "🇭🇰",
    "variants": [
     {
