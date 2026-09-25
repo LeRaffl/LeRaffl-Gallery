@@ -103,13 +103,15 @@ period,time_interval,variant,source,BEV,PHEV,HEV,OTHERS,ICE,TOTAL,notes
 2025-06,monthly,Whole,motir.go.kr,20314.0,1000.0,51239.0,161.0,73128.0,145842.0,
 2025-07,monthly,Whole,motir.go.kr,24366.0,1178.0,46762.0,1107.0,65090.0,138503.0,
 2025-08,monthly,Whole,motir.go.kr,24344.0,997.0,43809.0,1292.0,68382.0,138824.0,
-2025-09,monthly,Whole,motir.go.kr,28760.0,1218.0,41973.0,1285.0,84662.0,157898.0,
+2025-09,monthly,Whole,motir.go.kr,28783.0,1218.0,51973.0,1321.0,74603.0,157898.0,
 2025-10,monthly,Whole,motir.go.kr,19318.0,801.0,42857.0,687.0,63475.0,127138.0,
 2025-11,monthly,Whole,motir.go.kr,18166.0,988.0,51094.0,572.0,75421.0,146241.0,
 2025-12,monthly,Whole,motir.go.kr,9255.0,1150.0,56383.0,386.0,77708.0,144882.0,
 2026-01,monthly,Whole,motir.go.kr,10101.0,911.0,46488.0,119.0,63197.0,120816.0,
 2026-02,monthly,Whole,motir.go.kr,36332,870,38468,467,47138,123275,
-2026-03,monthly,Whole,motir.go.kr,41237,1031,54516,1120,66906,164810,"taken from Robbie, scraping yet to implement"
-2026-04,monthly,Whole,motir.go.kr,38927,951,50782,500,60533,151693,"taken from Robbie, scraping yet to implement"
+2026-03,monthly,Whole,motir.go.kr,41237,1031,54516,1120,66906,164810,
+2026-04,monthly,Whole,motir.go.kr,38927.0,951.0,50872.0,540.0,60403.0,151693.0,
 2026-05,monthly,Whole,motir.go.kr,35455,976,40387,462,50028,127308,
 2026-06,monthly,Whole,motir.go.kr,39031,1113,53578,500,65503,159725,
+2026-07,monthly,Whole,motir.go.kr,35936.0,1073.0,46092.0,1085.0,55045.0,139231.0,
+2026-08,monthly,Whole,motir.go.kr,31060.0,1334.0,36102.0,312.0,41112.0,109920.0,
