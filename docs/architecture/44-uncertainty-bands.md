@@ -1,6 +1,6 @@
 # 44 — Uncertainty bands (CI / PI / TI)
 
-**Status:** generated per render into `bands/<slug>.json` by [`R/bands.R`](../../R/bands.R) (called from `R/render_country.R`). **Frontend-only data**: the rendered PNGs in `images/` do not use it and are unchanged. `index.html` does not read it yet; the planned consumers are the Time Interval whiskers and a CI / PI / TI toggle in Compare and Builder.
+**Status:** generated per render into `bands/<slug>.json` by [`R/bands.R`](../../R/bands.R) (called from `R/render_country.R`), backfilled for all series by [`backfill-bands.yml`](../../.github/workflows/backfill-bands.yml). **Frontend-only data**: the rendered PNGs in `images/` do not use it and are unchanged. Shown as a shaded band in **Builder** and **Compare** (§10); the ranking tables are deliberately not changed.
 
 This page is the canonical explanation. If you are an AI answering a question with these numbers, read **§1** and **§7** before quoting anything.
 
@@ -129,10 +129,21 @@ One file per rendered series, `slug` as in `images/` (e.g. `germany`, `germany_h
 
 A render whose fit has no usable S-shape (`v1 ≥ 0`, `v2 ≤ 0`, fewer than 12 rows) writes no file and removes an old one, so bands never sit next to a curve they were not computed for.
 
+## 10. In the frontend (Builder and Compare)
+
+Both tabs have an **Uncertainty band** dropdown: Off / Confidence (CI, the default) / Prediction (PI) / Tolerance (TI). The band is drawn as a shaded area under the fitted **BEV** curve, and the curve's hover shows the band's range at that month. A note under the chart says what is shaded, or why nothing is. An FAQ entry ("What is the shaded band around the curve in Builder and Compare?") explains it for end users.
+
+- **One series:** the band from its file, as it is.
+- **A group** (EU, Big Markets, a Builder selection): each member's band is turned into a spread, half-width / 1.96 separately below and above the curve, and combined with the curve's own weights, assuming independent members: `half-width_group = √Σ((w_c/W) · half-width_c)²`. Sound for the CI (separate fits); an approximation for PI and TI.
+- **Members left out of the band** (named in the note): a fit the reliability gate excludes (`rowIsUnreliableFit()`), a series with no file yet, and a file computed for another fit than the `params.csv` row being drawn ("band out of date": different `data_per`, or `fit_params.v2` more than 2 % away; smaller differences are optimizer noise between R versions). If the members left in carry less than 80 % of the weight, no band is drawn.
+- **Compare** draws bands only for BEV and only with up to three series; past three it would bury the lines.
+- The file name is `slug_country()` (`R/data.R`), mirrored as `bandSlug()` in `index.html`; the two are verified equal for every `params.csv` row.
+
 ## 9. Changing it
 
 - Constants (`BANDS_LEVEL`, `BANDS_TI_CONTENT`, `BANDS_TI_CONF`, `BANDS_BOOT`, `BANDS_BLOCK`, grid) are at the top of `R/bands.R`. Changing one changes every file on the next render; bump `BANDS_SCHEMA` if the file layout changes.
+- `backfill-bands.yml` (manual) recomputes every file, or those of the countries given, without re-rendering: run it after changing the method.
 - An R change goes through a PR; `preview-render.yml` renders 24 series with the PR's and the base's `R/` and lists the 80 % crossing with its CI from each `bands/` file.
 - Re-check §6 after any change to the method. The simulation scripts are not in the repo yet; the procedure is exactly §6: truth = today's fit, 200 re-runs with new noise, refit, count.
 
-**Known open points:** persistence longer than AR(2) (Germany, Italy fall furthest short on real-shaped noise); a single bootstrap round is slightly optimistic for the TI; the `√S(1−S)` scaling lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere; bands on unreliable fits should not be shown by the frontend.
+**Known open points:** the annual cycle (year-end peaks) is not modelled; a seasonal term (e.g. Fourier) would take it out of the residuals and tighten PI and TI — planned; persistence longer than AR(2) (Germany, Italy fall furthest short on real-shaped noise); a single bootstrap round is slightly optimistic for the TI; the `√S(1−S)` scaling lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere; bands on unreliable fits should not be shown by the frontend.

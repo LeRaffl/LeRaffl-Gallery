@@ -95,23 +95,7 @@ date_suffix <- format(Sys.Date(), "%Y%m%d")
 # German-style expansion ü→ue / ö→oe / ä→ae plus a few Turkish letters that
 # have unambiguous ASCII equivalents. Apply that translit step first so the
 # slug-then-relabel round-trips cleanly.
-slug_country <- function(country, variant) {
-  translit <- function(s) {
-    pairs <- list(
-      c("ü","ue"), c("ö","oe"), c("ä","ae"), c("ß","ss"),
-      c("Ü","Ue"), c("Ö","Oe"), c("Ä","Ae"),
-      c("ı","i"),  c("İ","I"),
-      c("ş","s"),  c("Ş","S"),
-      c("ğ","g"),  c("Ğ","G"),
-      c("ç","c"),  c("Ç","C")
-    )
-    for (p in pairs) s <- gsub(p[1], p[2], s, fixed = TRUE)
-    s
-  }
-  base <- tolower(gsub("[^A-Za-z0-9]+", "_", translit(country)))
-  if (variant == "Whole") return(base)
-  paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", translit(variant))))
-}
+# slug_country() lives in R/data.R (shared with scripts/backfill_bands.R).
 slug <- slug_country(country, variant)
 
 # Flag (optional — falls back to no flag if missing).

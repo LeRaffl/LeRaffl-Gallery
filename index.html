@@ -3058,6 +3058,8 @@ h2 .fb-ctx-btn{
   margin:16px 0 8px;
 }
 .rank-lede code{font-size:.92em}
+.band-note{margin-top:6px;font-size:13px;line-height:1.5;color:var(--muted)}
+.band-info{text-decoration:none;font-weight:600}
 .rank-hidden-note{
   max-width:720px;
   margin:10px 0 0;
@@ -4085,6 +4087,15 @@ function tok(name, fallback){
             <option value="buses">Buses</option>
           </select>
         </div>
+        <div class="field settings-block is-compact">
+          <label for="builderBand">Uncertainty band <a class="band-info" href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener" title="What the confidence, prediction and tolerance bands mean">ⓘ</a></label>
+          <select id="builderBand" title="Shaded band around the fitted BEV curve">
+            <option value="off">Off</option>
+            <option value="ci" selected>Confidence (CI)</option>
+            <option value="pi">Prediction (PI)</option>
+            <option value="ti">Tolerance (TI)</option>
+          </select>
+        </div>
         <button type="button" id="buildCurve" class="btn primary">Build curve</button>
       </div>
       <div class="card builder-card">
@@ -4180,6 +4191,15 @@ function tok(name, fallback){
           <option value="hdv">HDV</option>
           <option value="vans">Vans</option>
           <option value="buses">Buses</option>
+        </select>
+      </div>
+      <div class="field settings-block is-compact">
+        <label for="compareBand">Uncertainty band <a class="band-info" href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener" title="What the confidence, prediction and tolerance bands mean">ⓘ</a></label>
+        <select id="compareBand" title="Shaded band around the fitted BEV curve">
+          <option value="off">Off</option>
+          <option value="ci" selected>Confidence (CI)</option>
+          <option value="pi">Prediction (PI)</option>
+          <option value="ti">Tolerance (TI)</option>
         </select>
       </div>
       <div class="field settings-block is-compact">
@@ -7332,6 +7352,139 @@ function renderHiddenFitsNote(el, rows, keep){
     hidden.map(k => k.replace(/&/g,'&amp;').replace(/</g,'&lt;')).join(', ') +
     '. Their charts stay in the gallery; see the FAQ on the <em>Unreliable fit</em> tag for the criteria.';
 }
+
+// ---- Uncertainty bands (bands/<slug>.json, written by R/bands.R) ----------
+// 95 % confidence (CI), prediction (PI) and tolerance (TI, 95/95) bands around
+// the fitted BEV curve, drawn as a shaded area in Builder and Compare.
+// docs/architecture/44-uncertainty-bands.md is the canonical explanation.
+// For one series the band is the file's own. For a weighted group (EU, …) each
+// member's band is turned into a spread (half-width / 1.96, separately below
+// and above the curve) and combined with the same weights as the curve,
+// assuming independent members: sigma_agg = sqrt(sum(((w_c/W) * sigma_c)^2)).
+// That is sound for the CI (separate fits) and an approximation for PI / TI.
+const BAND_MIN_COVERAGE = 0.8;   // members with a usable band must carry >= 80 % of the weight
+const BAND_LABELS = { ci: '95 % confidence band', pi: '95 % prediction band', ti: '95/95 tolerance band' };
+const BAND_SHORT  = { ci: 'CI', pi: 'PI', ti: 'TI' };
+const BAND_ALPHA  = { ci: 0.22, pi: 0.16, ti: 0.11 };
+const BAND_DOC_URL = 'https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md';
+// Mirror of slug_country() in R/render_country.R (verified equal for every params.csv row).
+function bandSlug(country, variant){
+  const PAIRS = [['ü','ue'],['ö','oe'],['ä','ae'],['ß','ss'],['Ü','Ue'],['Ö','Oe'],['Ä','Ae'],
+                 ['ı','i'],['İ','I'],['ş','s'],['Ş','S'],['ğ','g'],['Ğ','G'],['ç','c'],['Ç','C']];
+  const tr = s => PAIRS.reduce((acc, [a, b]) => acc.split(a).join(b), String(s || ''));
+  const part = s => tr(s).replace(/[^A-Za-z0-9]+/g, '_').toLowerCase();
+  const base = part(country);
+  return (!variant || variant === 'Whole') ? base : base + '_' + part(variant);
+}
+const BANDS_CACHE = new Map();
+function fetchBands(country, variant){
+  const slug = bandSlug(country, variant || 'Whole');
+  if (!BANDS_CACHE.has(slug)) {
+    BANDS_CACHE.set(slug, fetch('bands/' + encodeURIComponent(slug) + '.json', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(b => (b && b.schema === 1 && Array.isArray(b.t) && Array.isArray(b.fit)) ? b : null)
+      .catch(() => null));
+  }
+  return BANDS_CACHE.get(slug);
+}
+// Half-widths (share, 0-1) of band `kind` below / above the file's curve at
+// calendar year x, by linear interpolation. Before the first data year the
+// share is ~0 and the band is taken as zero-width; null = no value there.
+function bandHalfWidths(b, kind, x){
+  const t = b.t, band = b[kind];
+  if (!band || !Array.isArray(band[0])) return null;
+  if (!(x >= t[0])) return { lo: 0, hi: 0 };
+  let i = t.length - 2;
+  if (x < t[t.length - 1]) { let a = 0, z = t.length - 1; while (z - a > 1) { const m = (a + z) >> 1; if (t[m] <= x) a = m; else z = m; } i = a; }
+  const f = Math.min(1, Math.max(0, (x - t[i]) / (t[i + 1] - t[i])));
+  const at = arr => (arr[i] == null || arr[i + 1] == null) ? NaN : arr[i] + f * (arr[i + 1] - arr[i]);
+  const fit = at(b.fit), lo = at(band[0]), hi = at(band[1]);
+  if (!isFinite(fit) || !isFinite(lo) || !isFinite(hi)) return null;
+  return { lo: Math.max(0, fit - lo), hi: Math.max(0, hi - fit) };
+}
+// Band around an aggregate curve. rows = params rows of the curve, weightFn =
+// the curve's own weights, years = calendar years, curvePct = the curve (%).
+// Returns { ok, lo[], hi[], text[], excluded: [{label, why}], coverage, members }.
+async function aggregateBand(rows, weightFn, kind, years, curvePct){
+  const label = r => { const v = String(r.variant || '').trim(); return (!v || v.toLowerCase() === 'whole') ? r.country : `${r.country} (${v})`; };
+  const parts = await Promise.all(rows.map(async r => {
+    const w = weightFn(r);
+    if (!isFinite(w) || w <= 0) return null;
+    if (typeof rowIsUnreliableFit === 'function' && rowIsUnreliableFit(r)) return { r, w, b: null, why: 'unreliable fit' };
+    const b = await fetchBands(r.country, r.variant || 'Whole');
+    if (!b) return { r, w, b: null, why: 'no band yet' };
+    // A band computed for a different fit than the one drawn is not used: the
+    // file must come from the same data period as the params.csv row, and its
+    // shape parameter must agree within 2 % (tiny differences are optimizer
+    // noise between R versions; a real refit on new data changes data_per).
+    const v2file = Number(b.fit_params && b.fit_params.v2), v2row = normNumber(r.v2);
+    const samePeriod = String(b.data_per || '') === getDataPer(r);
+    if (!samePeriod || !(Math.abs(v2file - v2row) <= 0.02 * Math.abs(v2row))) return { r, w, b: null, why: 'band out of date' };
+    return { r, w, b, why: null };
+  }));
+  const used = parts.filter(Boolean);
+  const W = used.reduce((s, p) => s + p.w, 0);
+  const inc = used.filter(p => p.b);
+  const coverage = W > 0 ? inc.reduce((s, p) => s + p.w, 0) / W : 0;
+  const excluded = used.filter(p => !p.b).map(p => ({ label: label(p.r), why: p.why }));
+  if (!inc.length || coverage < BAND_MIN_COVERAGE) return { ok: false, excluded, coverage, members: used.length };
+  const single = used.length === 1;
+  const lo = [], hi = [], text = [];
+  years.forEach((x, k) => {
+    const c = curvePct[k];
+    if (!isFinite(c)) { lo.push(null); hi.push(null); text.push(''); return; }
+    let vlo = 0, vhi = 0, bad = false;
+    for (const p of inc) {
+      const hw = bandHalfWidths(p.b, kind, x);
+      if (!hw) { bad = true; break; }
+      const s = single ? 1 : p.w / W;
+      vlo += Math.pow(s * hw.lo, 2); vhi += Math.pow(s * hw.hi, 2);
+    }
+    if (bad) { lo.push(null); hi.push(null); text.push(''); return; }
+    // Single series: the file's half-width. Group: half-width = z * sigma_agg
+    // = z * sqrt(sum((w/W * h/z)^2)) = sqrt(sum((w/W * h)^2)); the z cancels.
+    const dlo = Math.sqrt(vlo), dhi = Math.sqrt(vhi);
+    const l = Math.max(0, c - 100 * dlo), h = Math.min(100, c + 100 * dhi);
+    lo.push(l); hi.push(h); text.push(`${BAND_SHORT[kind]} ${l.toFixed(1)}–${h.toFixed(1)} %`);
+  });
+  return { ok: true, lo, hi, text, excluded, coverage, members: used.length, single };
+}
+function bandHexToRgba(hex, a){
+  const m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hex || ''));
+  return m ? `rgba(${parseInt(m[1], 16)},${parseInt(m[2], 16)},${parseInt(m[3], 16)},${a})` : `rgba(46,139,87,${a})`;
+}
+// Plotly trace for a band (drawn under its curve; hover comes from the curve).
+function bandTrace(xs, band, color, kind, extra){
+  const X = [], Y = [];
+  xs.forEach((x, k) => { if (band.hi[k] != null) { X.push(x); Y.push(band.hi[k]); } });
+  for (let k = xs.length - 1; k >= 0; k--) if (band.lo[k] != null) { X.push(xs[k]); Y.push(band.lo[k]); }
+  return Object.assign({
+    x: X, y: Y, type: 'scatter', mode: 'lines', fill: 'toself',
+    fillcolor: bandHexToRgba(color, BAND_ALPHA[kind]), line: { width: 0 },
+    hoverinfo: 'skip', name: BAND_LABELS[kind]
+  }, extra || {});
+}
+// One line of HTML under a chart saying what the shading is, or why there is none.
+function bandNoteHtml(band, kind, prefix){
+  if (!kind || kind === 'off') return '';
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const link = ` <a href="${BAND_DOC_URL}" target="_blank" rel="noopener">What the bands mean</a>`;
+  const list = band && band.excluded && band.excluded.length
+    ? ' Not included: ' + band.excluded.map(e => `${esc(e.label)} (${e.why})`).join(', ') + '.' : '';
+  const who = prefix ? esc(prefix) + ': ' : '';
+  if (band && !band.ok && band.members === 1 && band.excluded.length === 1) {
+    const why = { 'unreliable fit': 'the fit is marked unreliable', 'no band yet': 'no band has been computed for this series yet',
+                  'band out of date': 'the band belongs to an older fit; it updates with the next render' }[band.excluded[0].why] || band.excluded[0].why;
+    return `<div class="band-note">${who}no ${BAND_LABELS[kind]} shown: ${why}.${link}</div>`;
+  }
+  if (!band || !band.ok) {
+    return `<div class="band-note">${who}no ${BAND_LABELS[kind]} shown` +
+      (band && band.members ? ` — series with a usable band carry ${Math.round(100 * (band.coverage || 0))} % of the weight (at least ${Math.round(100 * BAND_MIN_COVERAGE)} % needed).` : '.') +
+      list + link + '</div>';
+  }
+  const how = band.single ? '' : ' Combined from the member countries, treated as independent (approximate).';
+  return `<div class="band-note">${who}shaded: ${BAND_LABELS[kind]} around the fitted BEV curve.${how}${list}${link}</div>`;
+}
 function getDataPer(r){ const c=[r.data_per,r.latest_month,r.last_month,r.month_latest,r.data_month,r.latest_date,r.last_date,r.obs_last,r.data_asof].map(x=>String(x||'').trim()).filter(Boolean); for(const v of c){ const m=toYYYYMM(v); if(m) return m; } return ''; }
 function extractVariantParts(variant){
   const base = String(variant || '').trim();
@@ -8858,7 +9011,13 @@ function marketBucket(rows, vars, test){
 
   });
 
-  
+  // Uncertainty band around the BEV curve (bands/<slug>.json; see bandNoteHtml).
+  const bandKind = (document.getElementById('builderBand') || {}).value || 'off';
+  const band = bandKind === 'off' ? null
+    : await aggregateBand(rows, weightForRow, bandKind, grid.model, ys);
+  const bandOn = !!(band && band.ok);
+  document.getElementById('builderDebug').insertAdjacentHTML('beforeend', bandNoteHtml(band, bandKind));
+
 const traces = [{
   x: xs,
   y: ys,
@@ -8867,7 +9026,8 @@ const traces = [{
   name: 'BEV',
   legendgroup: 'BEV',
   customdata: grid.labels,
-  hovertemplate: '%{y:.1f}% fitted<extra></extra>'
+  text: bandOn ? band.text : undefined,
+  hovertemplate: bandOn ? '%{y:.1f}% fitted<br>%{text}<extra></extra>' : '%{y:.1f}% fitted<extra></extra>'
 }, {
   x: xs,
   y: sumICE,
@@ -8898,6 +9058,7 @@ const layout = publicationLayout(
   'BEV, ICE & PHEV share — ' + where + (vLab ? ' · ' + vLab : ''),
   { sources: formatSourceLine(rows), dataPer: maxDataPer(rows) }
 );
+if (bandOn) traces.unshift(bandTrace(xs, band, COLORS.BEV, bandKind, { legendgroup: 'BEV', showlegend: true }));
 await Plotly.newPlot('builderPlot', traces, layout, PLOTLY_PUB_CFG);
 
 const vc = vSels[0] || 'whole';
@@ -8958,6 +9119,12 @@ if (stepTraces.length){
 
     document.getElementById('buildCurve')
       .addEventListener('click', ()=>ensurePlotly().then(build));
+    // Switching the band redraws an existing chart; before the first build it
+    // only sets what the next build shows.
+    document.getElementById('builderBand')?.addEventListener('change', () => {
+      const p = document.getElementById('builderPlot');
+      if (p && p.data) ensurePlotly().then(build);
+    });
   });
 
   // -------- Time-lapse --------
@@ -9810,11 +9977,34 @@ if (stepTraces.length){
     const crowded = slotValues.length > 3;
     const traces = [];
     const endAnns = [];
+    // Uncertainty bands: BEV only (they are BEV bands) and only while the
+    // chart is not crowded — past three series the bands would bury the lines.
+    const bandKind = (document.getElementById('compareBand') || {}).value || 'off';
+    const wantBands = bandKind !== 'off' && powertrain === 'BEV' && !crowded;
+    const bandGrid = monthGrid(2015, 2050);
+    const bandsBySlot = wantBands ? await Promise.all(slotValues.map(sv => {
+      const curve = compareCurve(sv, variant, 'BEV');
+      if (!curve) return null;
+      const vc = slotVariantCanon(sv, variant);
+      const set = new Set(compareCountriesFor(sv));
+      const rows = PARAM_ROWS.filter(r => set.has(r.country) && normalizeBase(r.variant) === vc);
+      return aggregateBand(rows, weightForRowCompare, bandKind, bandGrid.model, curve.ys);
+    })) : [];
+    const bandTraces = [];
+    const debug = document.getElementById('compareDebug');
+    if (debug && bandKind !== 'off') {
+      debug.insertAdjacentHTML('beforeend', wantBands
+        ? slotValues.map((sv, i) => bandNoteHtml(bandsBySlot[i], bandKind, compareLabelFor(sv))).join('')
+        : `<div class="band-note">Uncertainty bands are shown for BEV with up to three series.</div>`);
+    }
     slotValues.forEach((sv, i) => {
       const curve = compareCurve(sv, variant, powertrain);
       if(!curve) return;
       const col = COMPARE_PALETTE[i % COMPARE_PALETTE.length];
       const pinnedOne = pinned.has(sv);
+      const band = bandsBySlot[i];
+      const bandOn = !!(band && band.ok);
+      if (bandOn) bandTraces.push(bandTrace(curve.xs, band, col, bandKind, { legendgroup: 'slot' + i, showlegend: false }));
       traces.push({
         x: curve.xs,
         y: curve.ys,
@@ -9824,7 +10014,10 @@ if (stepTraces.length){
         legendgroup: 'slot' + i,
         showlegend: !crowded,
         customdata: curve.labels,
-        hovertemplate: '<b>%{fullData.name}</b><br>%{y:.1f}% fitted<extra></extra>'
+        text: bandOn ? band.text : undefined,
+        hovertemplate: bandOn
+          ? '<b>%{fullData.name}</b><br>%{y:.1f}% fitted<br>%{text}<extra></extra>'
+          : '<b>%{fullData.name}</b><br>%{y:.1f}% fitted<extra></extra>'
       });
       if (crowded && pinnedOne) {
         let li = -1;
@@ -9859,7 +10052,7 @@ if (stepTraces.length){
       layout.margin = { ...layout.margin, r: 88 };
       layout.annotations = (layout.annotations || []).concat(endAnns);
     }
-    Plotly.newPlot('comparePlot', traces, layout, PLOTLY_PUB_CFG);
+    Plotly.newPlot('comparePlot', bandTraces.concat(traces), layout, PLOTLY_PUB_CFG);
 
     if (crowded) return;
 
@@ -9895,6 +10088,10 @@ if (stepTraces.length){
       runCompare();
     });
     btn.addEventListener('click', trigger);
+    document.getElementById('compareBand')?.addEventListener('change', () => {
+      const p = document.getElementById('comparePlot');
+      if (p && p.data) trigger();
+    });
     document.getElementById('compareAddSlot')?.addEventListener('click', () => {
       if(!COMPARE_SLOT_HTML && PARAM_ROWS && PARAM_ROWS.length) initCompare();
       addCompareExtra();
@@ -11641,6 +11838,15 @@ const FAQ_DATA = [
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035, 2023 and 2025 are fixed calendar dates. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
       '<b>Unreliable fit</b> \u2014 a market whose fitted curve cannot be trusted yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the World Map (a note under each table names what was left out). The chart itself stays in the gallery. Three tests, any one is enough:<br>&nbsp;&nbsp;<b>Unsettled</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
       'All thresholds (80 %, 2035, 10 %, 2023, 2025) and the quartile breakpoints are configurable constants at the top of the script that renders the tags; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+    ] },
+  { tag: 'general', label: 'General', q: 'What is the shaded band around the curve in Builder and Compare?',
+    answers: [
+      'An <b>uncertainty band</b> around the fitted BEV curve. The dropdown <em>Uncertainty band</em> switches between three kinds, or off. Each answers a different question; all three are 95 %.',
+      '<b>Confidence (CI, the default)</b> \u2014 where the <em>curve itself</em> could be. If the same transition could be re-run many times with new monthly data, the band from each re-run would contain the true curve 95 times in 100. This is the one to use for dates: a crossing year with its range.',
+      '<b>Prediction (PI)</b> \u2014 where <em>one more month</em> could land. Wider, because a single month scatters around the curve (year-end rushes, subsidy deadlines).',
+      '<b>Tolerance (TI)</b> \u2014 where <em>95 % of all months</em> land, with 95 % confidence. The widest of the three.',
+      'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape, and a fit the gallery marks as <em>Unreliable fit</em> gets no band. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
+      'The full explanation, the maths and how the bands were tested: <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener">docs/architecture/44-uncertainty-bands.md</a>.'
     ] },
   { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',
     answers: [

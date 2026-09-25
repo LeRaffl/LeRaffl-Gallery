@@ -729,7 +729,9 @@ not "easy" and were left out on purpose.
 `bands/<slug>.json`, one per rendered series, written by `R/render_country.R`
 through [`R/bands.R`](../../R/bands.R) on every render and committed with the
 PNGs. **Generated — never hand-edit.** Frontend data only; the PNGs do not use
-it, and `index.html` does not read it yet.
+it. `index.html` draws it as the **Uncertainty band** in Builder and Compare
+([44 §10](44-uncertainty-bands.md#10-in-the-frontend-builder-and-compare)).
+`backfill-bands.yml` (manual) recomputes every file without re-rendering.
 
 It holds the 95 % confidence (CI), prediction (PI) and tolerance (TI, 95 / 95)
 bands around the fitted curve on a quarterly calendar-year grid to 2060, the

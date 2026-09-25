@@ -173,3 +173,24 @@ compute_ttm_long <- function(df, bev_label = "BEV") {
   long$numeric_month <- as.numeric(as.factor(long$month))
   long
 }
+
+# File-name slug of a series: "Germany"/"Whole" -> "germany", "Germany"/"HDV" ->
+# "germany_hdv". Used for images/, posts/ and bands/; mirrored in index.html
+# (bandSlug) — keep the two identical.
+slug_country <- function(country, variant) {
+  translit <- function(s) {
+    pairs <- list(
+      c("ü","ue"), c("ö","oe"), c("ä","ae"), c("ß","ss"),
+      c("Ü","Ue"), c("Ö","Oe"), c("Ä","Ae"),
+      c("ı","i"),  c("İ","I"),
+      c("ş","s"),  c("Ş","S"),
+      c("ğ","g"),  c("Ğ","G"),
+      c("ç","c"),  c("Ç","C")
+    )
+    for (p in pairs) s <- gsub(p[1], p[2], s, fixed = TRUE)
+    s
+  }
+  base <- tolower(gsub("[^A-Za-z0-9]+", "_", translit(country)))
+  if (variant == "Whole") return(base)
+  paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", translit(variant))))
+}

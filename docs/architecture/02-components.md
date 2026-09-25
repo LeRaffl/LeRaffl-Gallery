@@ -78,8 +78,8 @@ A small inline script measures the header and the (now wrapping, not scrolling) 
 | Thresholds | `params.csv` | When each country reaches 20%/50%/80% BEV under the current model |
 | Durations | `params.csv` | How many years each country needs to traverse 20→80% |
 | Time Interval | `params.csv` | Interval chart: horizontal bar per country from From%→To% BEV share, dot at Mid%; sortable by start/mid/end/duration, region encoded by color, variant (Whole / Private / Industry / HDV / Used / …) encoded by bar shape (solid / diagonal / cross-hatch / thick stripes / outline). Custom From/Mid/To inputs default to 20/50/80. PNG and SVG export with `@LeRaffl` tag, created timestamp (incl. time, UTC) and `data per <oldest> (<country>) – <newest>` footer. |
-| Builder | `params.csv` + `weights.csv` | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). Plots **real monthly dates** (`monthGrid(2015, 2050)`), not index time. ICE and PHEV always draw — the old "Show ICE & PHEV" toggle is gone (`showICE` is a `const true`). |
-| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` | Overlay of **any number** of curves (same powertrain, same variant) for individual countries or aggregated regions. The first three are pinned and keep their labels; past three only fitted curves draw (no monthly steps) and the extras are named on hover. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates) — it reads `data/*.csv` directly, *not* `series/`. |
+| Builder | `params.csv` + `weights.csv` (+ `bands/<slug>.json` for the uncertainty band) | Weighted aggregate BEV/ICE/PHEV curves for arbitrary country sets or predefined groups (EU, World, …). Plots **real monthly dates** (`monthGrid(2015, 2050)`), not index time. ICE and PHEV always draw — the old "Show ICE & PHEV" toggle is gone (`showICE` is a `const true`). |
+| Compare | `params.csv` + `weights.csv` + `data/<Country>.csv` (+ `bands/<slug>.json` for the uncertainty band) | Overlay of **any number** of curves (same powertrain, same variant) for individual countries or aggregated regions. The first three are pinned and keep their labels; past three only fitted curves draw (no monthly steps) and the extras are named on hover. Overlays observed annual data points (volume-weighted share from raw CSVs, summed across member countries for aggregates) — it reads `data/*.csv` directly, *not* `series/`. |
 | Raw Data | `series/index.json` + `series/<slug>.json` | The country CSVs as stacked bars, one bar per rolling trailing window. Hand-drawn SVG, not Plotly — it renders up to 51 charts at once, and the bar geometry is the feature. Build-time half is `scripts/build_series.py`; spec in [35-proposal-raw-data-tab.md](35-proposal-raw-data-tab.md). |
 | Fleet | `fleet/*.csv`, `fleet_meta.json` | Bestand projection (separate from new-registrations data) |
 | Data freshness | `sources/schedule.json` | In-page render of the fetch schedule; `schedule.html` / `schedule-<YYYY-MM>.html` / `schedule.ics` are its generated standalone counterparts. All from `scripts/build_schedule.py`. |
@@ -429,7 +429,7 @@ The entire repo content is technically reachable, but the page only references:
 - `params.csv`, `weights.csv`
 - `images/<period>/*.png`
 - `posts/<slug>.txt`
-- `bands/<slug>.json` (not read by `index.html` yet)
+- `bands/<slug>.json` (the Builder / Compare uncertainty band)
 - `fleet/*.csv`, `fleet/fleet_meta.json`
 
 ### Caching
@@ -824,6 +824,16 @@ PR branch would push generated files into the PR.
   the comment, which is `continue-on-error` so a fork PR's read-only token does
   not fail the run. No commit, no push, no dispatch of `render-country.yml` or
   `build-manifest.yml` — production cannot change through it.
+
+## 2.18 Bands backfill (`.github/workflows/backfill-bands.yml`, `scripts/backfill_bands.R`)
+
+Manual only (`workflow_dispatch`, optional `countries` input, `;`-separated).
+Recomputes `bands/<slug>.json` for every `params.csv` series, or the given
+countries, with the render's own code path (`fit_history()` → `compute_bands()`
+→ `write_bands_json()`) and commits **only** `bands/` to the branch it runs on.
+No PNGs, no `params.csv` / `weights.csv` / `posts` changes. For the first fill
+after the bands feature lands and after a change to `R/bands.R`; renders keep
+the files current afterwards. See [44](44-uncertainty-bands.md).
 
 ## See also
 
