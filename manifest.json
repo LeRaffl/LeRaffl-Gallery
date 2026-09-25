@@ -2,6 +2,126 @@
   "updated": "2026-09-25",
   "images": [
     {
+      "country": "Belgium (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_buses_ICE_BEV_20260925.png",
+      "url": "images/2026-06/belgium_buses_ICE_BEV_20260925.png",
+      "alt": "Belgium (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_buses_20260925.png",
+      "url": "images/2026-06/belgium_buses_20260925.png",
+      "alt": "Belgium (Buses) BEV trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_buses_time_20260925.png",
+      "url": "images/2026-06/belgium_buses_time_20260925.png",
+      "alt": "Belgium (Buses) Transition time curve",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_buses_ttm_shares_20260925.png",
+      "url": "images/2026-06/belgium_buses_ttm_shares_20260925.png",
+      "alt": "Belgium (Buses) TTM market split graph",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_hdv_ICE_BEV_20260925.png",
+      "url": "images/2026-06/belgium_hdv_ICE_BEV_20260925.png",
+      "alt": "Belgium (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_hdv_20260925.png",
+      "url": "images/2026-06/belgium_hdv_20260925.png",
+      "alt": "Belgium (HDV) BEV trajectory",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_hdv_time_20260925.png",
+      "url": "images/2026-06/belgium_hdv_time_20260925.png",
+      "alt": "Belgium (HDV) Transition time curve",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_hdv_ttm_shares_20260925.png",
+      "url": "images/2026-06/belgium_hdv_ttm_shares_20260925.png",
+      "alt": "Belgium (HDV) TTM market split graph",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_vans_ICE_BEV_20260925.png",
+      "url": "images/2026-06/belgium_vans_ICE_BEV_20260925.png",
+      "alt": "Belgium (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_vans_20260925.png",
+      "url": "images/2026-06/belgium_vans_20260925.png",
+      "alt": "Belgium (Vans) BEV trajectory",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_vans_time_20260925.png",
+      "url": "images/2026-06/belgium_vans_time_20260925.png",
+      "alt": "Belgium (Vans) Transition time curve",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "belgium_vans_ttm_shares_20260925.png",
+      "url": "images/2026-06/belgium_vans_ttm_shares_20260925.png",
+      "alt": "Belgium (Vans) TTM market split graph",
+      "country_slug": "belgium_vans"
+    },
+    {
       "country": "Hong Kong",
       "type": "ICE_BEV",
       "period": "2026-07",
@@ -42,6 +162,86 @@
       "country_slug": "hong_kong"
     },
     {
+      "country": "Slovakia (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_hdv_ICE_BEV_20260925.png",
+      "url": "images/2026-06/slovakia_hdv_ICE_BEV_20260925.png",
+      "alt": "Slovakia (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia_hdv"
+    },
+    {
+      "country": "Slovakia (HDV)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_hdv_20260925.png",
+      "url": "images/2026-06/slovakia_hdv_20260925.png",
+      "alt": "Slovakia (HDV) BEV trajectory",
+      "country_slug": "slovakia_hdv"
+    },
+    {
+      "country": "Slovakia (HDV)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_hdv_time_20260925.png",
+      "url": "images/2026-06/slovakia_hdv_time_20260925.png",
+      "alt": "Slovakia (HDV) Transition time curve",
+      "country_slug": "slovakia_hdv"
+    },
+    {
+      "country": "Slovakia (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_hdv_ttm_shares_20260925.png",
+      "url": "images/2026-06/slovakia_hdv_ttm_shares_20260925.png",
+      "alt": "Slovakia (HDV) TTM market split graph",
+      "country_slug": "slovakia_hdv"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_vans_ICE_BEV_20260925.png",
+      "url": "images/2026-06/slovakia_vans_ICE_BEV_20260925.png",
+      "alt": "Slovakia (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_vans_20260925.png",
+      "url": "images/2026-06/slovakia_vans_20260925.png",
+      "alt": "Slovakia (Vans) BEV trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_vans_time_20260925.png",
+      "url": "images/2026-06/slovakia_vans_time_20260925.png",
+      "alt": "Slovakia (Vans) Transition time curve",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-09-25",
+      "filename": "slovakia_vans_ttm_shares_20260925.png",
+      "url": "images/2026-06/slovakia_vans_ttm_shares_20260925.png",
+      "alt": "Slovakia (Vans) TTM market split graph",
+      "country_slug": "slovakia_vans"
+    },
+    {
       "country": "South Korea",
       "type": "ICE_BEV",
       "period": "2026-08",
@@ -80,6 +280,46 @@
       "url": "images/2026-08/south_korea_ttm_shares_20260925.png",
       "alt": "South Korea TTM market split graph",
       "country_slug": "south_korea"
+    },
+    {
+      "country": "Thailand (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "thailand_hdv_ICE_BEV_20260925.png",
+      "url": "images/2026-07/thailand_hdv_ICE_BEV_20260925.png",
+      "alt": "Thailand (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (HDV)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "thailand_hdv_20260925.png",
+      "url": "images/2026-07/thailand_hdv_20260925.png",
+      "alt": "Thailand (HDV) BEV trajectory",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (HDV)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "thailand_hdv_time_20260925.png",
+      "url": "images/2026-07/thailand_hdv_time_20260925.png",
+      "alt": "Thailand (HDV) Transition time curve",
+      "country_slug": "thailand_hdv"
+    },
+    {
+      "country": "Thailand (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-09-25",
+      "filename": "thailand_hdv_ttm_shares_20260925.png",
+      "url": "images/2026-07/thailand_hdv_ttm_shares_20260925.png",
+      "alt": "Thailand (HDV) TTM market split graph",
+      "country_slug": "thailand_hdv"
     },
     {
       "country": "Ukraine",
