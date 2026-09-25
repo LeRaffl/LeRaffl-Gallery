@@ -29,6 +29,7 @@ caveats:
 - All vehicle types, not only passenger cars (EU M1) — trucks, vans and buses are in the total (the release does not state their share). Compare the level with M1-only countries with care.
 - Sales as reported by the makers' and importers' associations, not registry counts.
 - Imported hybrids include mild hybrids (KAIDA does not separate them before 2025 and MOTIR adds them together); domestic makers' mild hybrids are not in the hybrid figure.
+- Tesla is missing before 2024: KAIDA only counts Tesla from 2024 data on, so BEV and the total are too low up to 2023-12 (roughly 10 % of BEV in 2021–2023) — a step at 2024-01. BYD (from 2025) is included. See issue #257.
 - MOTIR revises the previous month in the following release; the series always holds the latest published figure.
 - 2017–2024 were entered by hand from the same releases and are not re-verified automatically; from 2025 every month is parsed and cross-checked (two transcription errors in the hand-entered rows were corrected: 2025-09 and 2026-04).
 fetcher: scripts/fetch_south_korea.py
@@ -124,6 +125,16 @@ Line-level upserts; a row whose numbers are unchanged is left byte-for-byte
   light trucks too). Documented deviation, like Chile's light + medium scope.
 - **Sales, not registrations**, as reported by KAMA (domestic makers) and
   KAIDA (imports) — imports are counted as KAIDA reports them.
+- **Import coverage — Tesla missing before 2024.** KAIDA counts its
+  members; Tesla was not in its statistics until it added Tesla (and Iveco)
+  with 2024 data. Check for 2023-08: KAMA five makers 106,591 + KAIDA
+  passenger imports «테슬라 미포함» 23,350 = 129,941 vs MOTIR 내수 130,667 —
+  the 726 residual is imported commercial vehicles, no room for Tesla. From
+  2024 the imports close: 2026-08 MOTIR imports 31,039 vs KAIDA passenger
+  imports 29,817 incl. Tesla 10,400 and BYD 3,002. So **BEV and TOTAL are
+  too low up to 2023-12** by Tesla's volume (≈ 12–18k a year 2020–2023, i.e.
+  ~10 % of BEV in 2021–2023, more in 2020) and the BEV share steps up at
+  2024-01. Left as published (invariant 3); backfill decision: issue #257.
 - **Hybrids**: KAIDA's hybrid count for imports includes **mild hybrids**
   (MOTIR footnote «수입차는 MHEV 포함»); domestic makers' mild hybrids are not
   counted as hybrids.
@@ -213,4 +224,7 @@ sequenceDiagram
   data.go.kr service key.
 - **A passenger-car (M1) registration series** from the KOTSA API
   (vehicle type 승용 × fuel), as a cross-check of the sales series and a
-  proper M1 `Whole` — same key requirement; it has no plug-in split.
+  proper M1 `Whole` — same key requirement; it has no plug-in split. Would
+  also remove imported mild hybrids from HEV and include Tesla throughout.
+  Tracked in issue #258 (brand/model tables too).
+- **Tesla before 2024** — backfill or leave; issue #257.
