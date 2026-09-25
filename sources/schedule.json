@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T12:27:23Z",
+ "generated": "2026-09-25T19:16:03Z",
  "today": "2026-09-25",
  "countries": [
   {
@@ -3225,7 +3225,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-korea.yml"
    },
-   "last_render": "2026-07-24",
+   "last_render": "2026-09-25",
    "flag": "🇰🇷",
    "variants": [
     {

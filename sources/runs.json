@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T12:27:23Z",
+ "generated": "2026-09-25T19:16:03Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4800,6 +4800,14 @@
    "slug": "hong_kong",
    "period": "2026-07",
    "flag": "🇭🇰"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "South Korea",
+   "base": "South Korea",
+   "slug": "south_korea",
+   "period": "2026-08",
+   "flag": "🇰🇷"
   }
  ]
 }
