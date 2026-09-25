@@ -87,227 +87,23 @@ gh run watch  # follow the latest run
 
 ## 8.3 Add a new country
 
-End-to-end, the cheapest path:
+**The complete checklist is [42-adding-a-country.md](42-adding-a-country.md)** —
+eleven phases from the first probe to the first render, each step naming the
+file it touches. `scripts/check_country_integration.py` verifies the result
+(CI: `check-country-integration.yml` on every PR). The steps people forget,
+in short:
 
-1. **Extract CSV from the source sheet.** The python extractor in past PRs is a good template — copy the loop, adjust `RENAME` if the country has unusual column names, write to `data/<Country>.csv`.
-2. **Add to `SD_COUNTRIES`** in `index.html` (alphabetical):
-   ```js
-   { country: 'NewLand', variants: ['Whole'] },
-   ```
-3. **Add a flag asset** at `assets/flags/<slug>.png` (lowercase, non-alphanumerics → `_`). Copy from the existing flag store or download from a flag asset library; keep at ~64×40 px or similar.
-4. **Update `R/post_text.R::.pt_flag`** to map the country name to its emoji flag (regional indicator pair).
-5. **Commit**, push, open PR.
-6. After merge, run § 8.2 to render.
-7. **Time-lapse backtest** — nothing to do by hand: the next **Snapshot Builder curves** run notices the country is in no `backtest/` month yet and fits it into every existing month once (§ 8.9). To have it right away, dispatch that workflow with `backtest_only = true`.
-
-## 8.4 Rotate secrets
-
-### Worker GITHUB_TOKEN
-
-If the value didn't leak, just edit the existing fine-grained PAT to extend permissions; the token value stays the same. No `wrangler secret put` needed.
-
-If the value did leak or you want to rotate proactively:
-1. <https://github.com/settings/personal-access-tokens> → find `leraffl-gallery-feedback-worker` → "Regenerate token" (or revoke + create new)
-2. Copy the new token
-3. ```bash
-   cd worker
-   npx wrangler@latest secret put GITHUB_TOKEN
-   # paste the new value when prompted
-   ```
-4. Verify by submitting a test feedback issue and a test data row, both should succeed.
-
-Required scopes (fine-grained PAT on `LeRaffl/LeRaffl-Gallery`):
-- Issues: Read and write
-- Contents: Read and write
-- Pull requests: Read and write
-- Metadata: Read
-
-### Cloudflare wrangler session
-
-```bash
-npx wrangler@latest login
-```
-Browser opens, OAuth flow, session is stored in macOS Keychain. Old session in Keychain is overwritten.
-
-## 8.5 Process a submission PR
-
-When a `submit/<country>-<variant>-<ts>` PR appears:
-
-1. Open the PR. Title is `data: <Country> (<Variant>) — <N> added, <M> corrected`.
-2. **Body lists each row** with before/after for corrections and added rows verbatim. Quick-check that the numbers look plausible against the cited source.
-3. **Look at the file diff** (Files changed tab). Should be exactly one file: `data/<Country>.csv`. If it touches anything else, that's a bug — close without merging and ping the developer.
-4. If the data looks right, click "Merge pull request" → squash recommended.
-5. Run § 8.2 with the country to refresh PNGs, params, weights, and posts.
-6. After the render commits land, the page auto-refreshes within ~1 minute.
-
-If the data looks wrong:
-- Comment on the PR explaining what's off.
-- Either close without merging, or push a correction commit to the same branch and merge that.
-
-## 8.6 Moderate feedback
-
-| Action | How |
-|---|---|
-| Hide a spam/abusive issue from the page | Add label `hidden` on the GitHub issue. The Worker filters it out of `GET /issues`. |
-| Pin an important issue | Add label `pinned`. The page sorts pinned issues to the top. |
-| Mark resolved | Close the issue. Page status flips to `resolved`. |
-| Mark answered | Comment on the issue as `LeRaffl`. Page derives `answered` status automatically. |
-| Wipe the cache so a change shows up faster | Trigger any new POST `/issues` or wait 60 s for the worker cache to expire. |
-
-## 8.7 Bulk re-render
-
-After a refactor that affects rendering for all countries (e.g. plot style change), you need to re-render every country. Two approaches:
-
-### Locally (fastest)
-```bash
-for c in data/*.csv; do
-  name=$(basename "$c" .csv)
-  Rscript R/render_country.R "$name"
-done
-git add images/ params.csv weights.csv posts/
-git commit -m "chore: bulk re-render after <reason>"
-git push
-```
-
-### Via CI (if you want CI to be the source of truth)
-```bash
-for c in Germany Austria France ...; do
-  gh workflow run render-country.yml -f country="$c" -f variant=Whole
-  sleep 60   # let each run finish to avoid concurrency throttling
-done
-```
-
-CI is slower (~30–120 s × 43 countries) but produces deterministic byte-output regardless of which Mac the maintainer happens to be on.
-
-## 8.8 Debugging
-
-### Worker isn't responding
-
-1. Cloudflare dashboard → Workers → `leraffl-gallery-feedback` → Logs (tail)
-2. Reproduce the failing request from the page
-3. Look for `console.error` lines — typical issues:
-   - `Branch create failed: 403 ...` → PAT missing Contents/Pulls scope. Re-extend (§ 8.4).
-   - `Failed to read data/<Country>.csv` → file doesn't exist on master yet. Either add the CSV first or wait for the submitter to be more patient.
-   - `Too many submissions` → working as intended, KV rate-limit fired.
-
-### Render Action failing
-
-1. Open the failed run in the Actions tab.
-2. Common failures:
-   - **`missing data file: data/<Country>.csv`** → the country isn't in the repo. Add it via § 8.3.
-   - **`no rows for variant 'X' in data/<Country>.csv`** → variant not present in the CSV. Either submit data for it or change the variant input.
-   - **`Failed to install package 'showtext'` or similar** → CI cache miss + apt prebuild missing. Re-run; usually transient.
-   - **`Error in optim(...)`** → degenerate input (all-zero column, single data point). Check the CSV for the period range.
-
-### A workflow's commit step failed with `non-fast-forward`
-
-The job did its work, built the commit, then lost a push race against another
-workflow committing to the same branch (`build-manifest`, `build-source-pages`,
-a render, another fetcher). The log shows `committed: true, pushed: false` and
-the commit is gone. Re-dispatching the workflow once the other run has settled
-is enough — these fetchers are idempotent.
-
-Every `EndBug/add-and-commit@v9` step in the repo carries
-`pull: '--rebase --autostash'` so this should not happen; if you see it, the
-step is missing that key. Add it rather than re-running forever.
-
-### Indonesia v1=0 corruption
-
-#### Symptom
-
-The Durations table on the page shows Indonesia's 20→80 transition as ~5 years (sometimes also Custom-pct or "Numerical speed" looking nonsensical) although a fresh R render via § 8.2 produces a 20→80 of ~2 years. Re-running § 8.2 for Indonesia "fixes" it for a while, then the bad values come back after some unrelated country has been rendered.
-
-#### Root cause
-
-1. The R fit (`R/fit.R::fit_history`) is mathematically stable for Indonesia. With current data it converges to `v1 = -6.114813777364e-20, v2 = 15.1628, t0 = 2009`. The 20→80 derived from these is ~2.25 years — correct.
-2. `R/upsert.R::upsert_params` writes `v1` to `params.csv` in scientific notation (`-6.114813777364e-20`). Standard R `read.csv` / `write.csv` round-trips this losslessly.
-3. The maintainer's **legacy local "auto-publish model" R script** (off-repo, runs from RStudio on the Mac, generates commits like `China: auto-publish model`) reads `params.csv` with code closer to `round(scale, 6)` / default `format()`. Both of those collapse anything below ~1e-7 to literal `0`. The script then writes the whole CSV back, so Indonesia's row goes from `…,-6.114813777364e-20,…` to `…,0,…` (sometimes `-0`).
-4. The page used to patch `v1 = 0 → -1e-24` inside `inv_x_years` so the math wouldn't divide by zero. With Indonesia's `v2 ≈ 15`, that constant pushes the entire Weibull ~20 years into the future: 20 % is reached around 2042, 80 % around 2047 → reported 20→80 ≈ 4.9 years. Other countries fit to smaller `v2` (≤ 7) and weren't visibly affected by the same constant.
-5. Re-running § 8.2 for Indonesia restores the precision, so the value flips back. Until the next time the legacy script touches `params.csv`.
-
-Confirmed in Git history: alternating commits like `chore: render Indonesia (Whole)` → tiny non-zero `v1`, followed by `China: auto-publish model` → `v1=0`, throughout May 2026.
-
-#### Defence in depth
-
-Two layers, both kept on purpose so either alone covers the bug while we keep the legacy script around:
-
-| Layer | File / function | What it does |
-|---|---|---|
-| **Frontend** | `index.html::recoverV1FromAnchor()` + `applyV1Recovery()` | At every CSV load (Thresholds, Durations, Builder, World Map, Fleet) every row with `v1 = 0` is rewritten on the fly. The Weibull is anchored at a v2-dependent BEV share at `data_per`: 28 % for `v2 ≥ 10` (the fast-adopter corruption pattern, calibrated against Indonesia's live fit), 50 % otherwise. The reported 20→80 duration lands within ~1 day of the truth for Indonesia and stays bounded for the hypothetical case of a future v2≥10 country whose data_per sits earlier in its rising flank (~40 days worst case). Page never reports the 4.9-year garbage value again, even if `params.csv` was just clobbered. |
-| **Backend** | `R/upsert.R::heal_v1_zero_rows()`, invoked from `R/render_country.R` | At the end of every CI render (regardless of which country was the trigger), scan `params.csv` for the corruption fingerprint (`abs(v1) < 1e-25` AND `v2 ≥ 10`). For each hit, re-fit from `data/<Country>.csv` and rewrite the row. Cheap when nothing is wrong; fully autonomous when something is. Means the very next CI render after a clobbered commit cleans the file. |
-
-Both layers stay in place on purpose:
-- The **backend self-heal** is the canonical fix — once it runs, params.csv carries the correct tiny-negative `v1` again. Schema unchanged.
-- The **frontend anchor recovery** is the user-facing safety net — it kicks in for the window between a corrupting local push and the next CI render touching the repo. The page never shows the garbage 4.9-year number to a visitor in that window.
-- Why no `bev_at_data_per` column? Considered and dropped: an explicit anchor column would give < 1 day accuracy unconditionally, but it would extend the public schema. External tools that don't know the new column would silently drop it on round-trip, costing accuracy for any row they touch. Keeping the recovery purely code-side means no external tool can accidentally undo it. The 28 %-anchor heuristic plus the backend self-heal already deliver the same user-visible accuracy in steady state.
-
-If you ever need to manually verify the heal works:
-
-```bash
-# Simulate corruption + run heal in isolation:
-sed -i.bak 's|^Indonesia,Whole,-[^,]*,|Indonesia,Whole,0,|' params.csv
-Rscript -e 'source("R/data.R"); source("R/fit.R"); source("R/upsert.R"); heal_v1_zero_rows()'
-grep '^Indonesia' params.csv     # should show -6.114e-20 again
-mv params.csv.bak params.csv     # roll back the simulated corruption
-```
-
-#### When the legacy script eventually retires
-
-Once the off-repo "auto-publish model" workflow is gone, the corruption source disappears. The recovery code can stay — it costs nothing on clean files and protects against any future tool that does the same thing. Removing it would only be safe if `params.csv` were strictly write-only-by-CI, which is a stronger guarantee than the project currently has.
-
-### Site shows stale data after a render
-
-1. Was the Render Action's commit pushed? `gh run view <id>` should show `chore: render <Country> ...` as the last commit.
-2. Did the Build-manifest action run after? Check Actions tab.
-3. Did Pages deploy? Settings → Pages → Recent deployments.
-4. Hard-refresh the page (`Cmd+Shift+R`) to bypass browser cache.
-
-### Submit form is showing all 14 fuel categories instead of the country's actual subset
-
-The page's CSV-fetch fallback kicked in. Either:
-- The branch with the country's CSV isn't merged yet (check master)
-- raw.githubusercontent.com had a transient 5xx (rare)
-
-## 8.9 Snapshot Builder curves
-
-The Builder-tab aggregated curves are dumped to `builder_history/<date>.csv` automatically on the 25th of each month (cron in [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml)). The script is [scripts/snapshot_builder.py](../../scripts/snapshot_builder.py); full design notes are in [Flow L](05-flows.md#flow-l--snapshot-builder).
-
-The same job then does the **other** half, on a different question: [`R/build_backtest.R`](../../R/build_backtest.R) extends the backtest by whatever months have appeared since the last run (~95 fits, a couple of minutes), [`scripts/build_backtest_series.py`](../../scripts/build_backtest_series.py) pivots `backtest/` into `backtest/series/<group>.json` — the form the **Time-lapse panel** in the Builder tab actually reads ([2.14](02-components.md#214-time-lapse-series-builder-scriptsbuild_backtest_seriespy-scriptsbuild_builder_seriespy)) — and [`scripts/build_builder_gif.py`](../../scripts/build_builder_gif.py) ([2.16](02-components.md#216-time-lapse-gif-scriptsbuild_builder_gifpy)) overwrites `backtest/series/<group>.gif` in place. All of it lands in one commit, so a new month is never invisible to the page.
-
-`builder_history/` and `backtest/` answer different questions and must never be mixed in one series; see [2.13b](02-components.md#213b-backtest-rbuild_backtestr).
-
-**Backfilling the backtest from scratch** (only needed if `backtest/` is lost, or the fit changes):
-
-```bash
-Rscript -e 'source("R/build_backtest.R"); build_backtest(from = "2015-01", cores = 4)'
-```
-
-~9,200 fits, roughly an hour on 4 cores. It writes per month and skips what exists, so an interrupted run resumes where it stopped — do not delete the partial output to "start clean".
-
-**A newly added country** needs none of this: a series that is in no month file yet is backfilled into every existing month automatically on the next run (inserted line by line, existing rows untouched). Dispatch **Snapshot Builder curves** with `backtest_only = true` to do it immediately.
-
-**After backfilling or rebuilding snapshots by hand**, re-run the series builder too, or the panel keeps serving the previous set:
-
-```bash
-python3 scripts/rebuild_builder_history.py --cohort
-python3 scripts/build_builder_series.py
-python3 scripts/build_builder_gif.py      # needs Pillow
-```
-
-**Trigger manually (e.g. after a large `params.csv` correction):** Actions tab → "Snapshot Builder curves" → Run workflow. Optional `date` input lets you label a back-dated run.
-
-**Run locally to inspect or debug:**
-
-```bash
-python scripts/snapshot_builder.py                  # uses today's date
-python scripts/snapshot_builder.py --date 2026-05-20
-```
-
-The script is zero-dependency (stdlib only) so no `pip install` is needed.
-
-**If a snapshot looks wrong:** the most likely culprit is `params.csv` or `weights.csv` having a row that the in-page Builder also misrenders. Validate by selecting "World" on the Builder tab in the browser and comparing the curve to the snapshot's `world` rows — if they disagree, the script has drifted from the page and the JS/Python parity has a bug; if they agree, the upstream data is the issue.
-
----
+1. **Builder groups** — add the country to its region group in *both*
+   `BUILDER_GROUPS` (`index.html`) and `GROUPS_STATIC`
+   (`scripts/snapshot_builder.py`); ask the owner when no group fits.
+2. **History** — dispatch `snapshot-builder.yml` on the PR branch with
+   `backtest_only = true`, so the country is fitted into every past month and
+   the Time-lapse series and GIFs include it before merge (§ 8.9).
+3. **Flag file name** — `assets/flags/<slug>.png` with the slug exactly as
+   `R/render_country.R` builds it (`hong_kong`, not `hongkong`).
+4. **Schedule labels** — `FLAG`/`LABEL` in `R/render_schedule.R`, keyed by the
+   workflow slug (`fetch-hong-kong.yml` → `hong-kong`).
+5. After merge, § 8.2 to render.
 
 ## 8.11 Cron schedule overview
 
@@ -409,6 +205,7 @@ present, cron disabled).
 | [`snapshot-builder.yml`](../../.github/workflows/snapshot-builder.yml) | `0 9 25 * *` | Monthly 25th 09:00 UTC | Dumps the aggregated Builder curves into `builder_history/<date>.csv`, **and** extends `backtest/` by the new month, then runs `scripts/build_backtest_series.py` and `scripts/build_builder_gif.py`, so the new frame reaches both the Time-lapse panel and its downloadable animation in the same commit. The 25th sits after the bulk of in-month country fetches has settled (Brazil 10th, USA 10+, ACEA 16+, ANAC/Türkiye 14–18, JADA varies) and before the next month's fetches start. |
 | [`render-country.yml`](../../.github/workflows/render-country.yml) | (no cron) | On `workflow_dispatch` or `workflow_call` only | Manual or fan-out trigger from a fetch workflow — never auto-runs on its own clock. |
 | [`build-series.yml`](../../.github/workflows/build-series.yml) | (no cron) | On push to `data/**` (one path filter catches all 29 fetchers, manual commits and merged submission PRs) | Regenerates `series/index.json` + `series/*.json` and the generated data-quality checklist. **Since the 2026-09 redesign this output is on the page's read path** — Raw Data *and the landing hero chart* fetch it at runtime (see [Flow F](05-flows.md#flow-f--gallery-read)), so a failure here degrades the live page rather than just aging a table. Does not trigger on `series/**`, so its own commit cannot retrigger it. |
+| [`check-country-integration.yml`](../../.github/workflows/check-country-integration.yml) | (no cron) | On pull requests touching data, `index.html`, R, flags, docs, `backtest/params` or a fetch workflow | Runs `scripts/check_country_integration.py`: fails a PR that leaves a country half-wired ([42](42-adding-a-country.md)). |
 | [`build-source-pages.yml`](../../.github/workflows/build-source-pages.yml) | `37 4 * * *` | Daily 04:37 UTC (+ on push to a source doc, the stub registry, a generator, `index.html`, `params.csv`) | Regenerates `sources/*.html` and `assets/theme.css`, plus the schedule JSON. On a **pull request** it only validates: `build_source_pages.py --check` for the content model and `build_theme.py --check` for palette drift — a PR that changes `index.html`'s `:root` without regenerating the stylesheet fails here. |
 
 ### Reading a cron expression quickly
