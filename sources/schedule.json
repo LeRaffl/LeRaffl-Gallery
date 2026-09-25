@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T11:23:18Z",
+ "generated": "2026-09-25T12:27:23Z",
  "today": "2026-09-25",
  "countries": [
   {
@@ -3176,26 +3176,63 @@
   {
    "country": "South Korea",
    "slug": "south-korea",
-   "method": "manual",
-   "source_name": "South Korea — Ministry of Land, Infrastructure and Transport",
-   "source_url": null,
-   "cadence_text": "entered by hand each month",
+   "method": "pdf",
+   "source_name": "MOTIR (산업통상부) — «자동차산업 동향» monthly press release",
+   "source_url": "https://www.motir.go.kr/kor/article/ATCL3f49a5a8c?searchCondition=1&searchKeyword=%EC%9E%90%EB%8F%99%EC%B0%A8%EC%82%B0%EC%97%85+%EB%8F%99%ED%96%A5",
+   "cadence_text": "twice daily on the 12th–25th, 03:35 and 09:35 UTC — MOTIR publishes around the 13th–20th of M+1 at 11:00 KST",
    "interval": "monthly",
-   "latest_period": "2026-06",
-   "expected_period": null,
-   "behind": null,
-   "behind_now": 2,
-   "status": "manual",
-   "automated": false,
-   "schedule": null,
+   "latest_period": "2026-08",
+   "expected_period": "2026-08",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "03:35",
+     "09:35"
+    ],
+    "workflow": ".github/workflows/fetch-south-korea.yml"
+   },
    "last_render": "2026-07-24",
    "flag": "🇰🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2017-01",
-     "rows": 114,
+     "rows": 116,
      "cadence": "monthly",
      "in_repo": true
     }
