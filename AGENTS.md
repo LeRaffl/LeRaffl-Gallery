@@ -80,8 +80,10 @@ MHEV, PETROL, DIESEL, GAS, CNG, LPG, FLEXFUEL, ETHANOL, OTHERS, TOTAL,` then
   questions. The **CI** is about the fitted *line* and is the only one with
   meaningful crossing years ("80 % in 2038, 95 % CI 2033–2052"). The **PI** is
   about one more *month*, and the **TI** about 95 % of all possible months.
-  Never quote a PI/TI as a range for a date. All three assume the S-curve shape
-  is right; a narrow band on an unreliable fit means nothing. Read §7 of
+  Never quote a PI/TI as a range for a date. A file with `quality.usable:
+  false` (too short a series, or a poor S-curve fit) must not be quoted at all.
+  All three assume the S-curve shape is right; a narrow band on an unreliable
+  fit means nothing. Read §7 of
   `docs/architecture/44-uncertainty-bands.md` before quoting any band.
 
 **Don't:** cite an image as data; assume a variant/country exists without

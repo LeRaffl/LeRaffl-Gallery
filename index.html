@@ -7363,6 +7363,11 @@ function renderHiddenFitsNote(el, rows, keep){
 // assuming independent members: sigma_agg = sqrt(sum(((w_c/W) * sigma_c)^2)).
 // That is sound for the CI (separate fits) and an approximation for PI / TI.
 const BAND_MIN_COVERAGE = 0.8;   // members with a usable band must carry >= 80 % of the weight
+// Whether a band may be shown at all is decided in R (R/bands.R, BANDS_MIN_ROWS
+// and BANDS_MAX_PERSIST) and written into each file as quality.usable, so the
+// rule lives in one place and a reader of bands/ sees it too: too few rows
+// (the CI misses its 95 % badly) or a poor fit (persistence >= 0.9: the data
+// keep deviating from the S-curve in one direction for years).
 const BAND_LABELS = { ci: '95 % confidence band', pi: '95 % prediction band', ti: '95/95 tolerance band' };
 const BAND_SHORT  = { ci: 'CI', pi: 'PI', ti: 'TI' };
 const BAND_ALPHA  = { ci: 0.22, pi: 0.16, ti: 0.11 };
@@ -7382,7 +7387,7 @@ function fetchBands(country, variant){
   if (!BANDS_CACHE.has(slug)) {
     BANDS_CACHE.set(slug, fetch('bands/' + encodeURIComponent(slug) + '.json', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
-      .then(b => (b && b.schema === 1 && Array.isArray(b.t) && Array.isArray(b.fit)) ? b : null)
+      .then(b => (b && b.schema === 2 && b.quality && Array.isArray(b.t) && Array.isArray(b.fit)) ? b : null)
       .catch(() => null));
   }
   return BANDS_CACHE.get(slug);
@@ -7420,6 +7425,7 @@ async function aggregateBand(rows, weightFn, kind, years, curvePct){
     const v2file = Number(b.fit_params && b.fit_params.v2), v2row = normNumber(r.v2);
     const samePeriod = String(b.data_per || '') === getDataPer(r);
     if (!samePeriod || !(Math.abs(v2file - v2row) <= 0.02 * Math.abs(v2row))) return { r, w, b: null, why: 'band out of date' };
+    if (!b.quality.usable) return { r, w, b: null, why: (b.quality.reasons || [])[0] || 'poor fit' };
     return { r, w, b, why: null };
   }));
   const used = parts.filter(Boolean);
@@ -7474,7 +7480,9 @@ function bandNoteHtml(band, kind, prefix){
   const who = prefix ? esc(prefix) + ': ' : '';
   if (band && !band.ok && band.members === 1 && band.excluded.length === 1) {
     const why = { 'unreliable fit': 'the fit is marked unreliable', 'no band yet': 'no band has been computed for this series yet',
-                  'band out of date': 'the band belongs to an older fit; it updates with the next render' }[band.excluded[0].why] || band.excluded[0].why;
+                  'band out of date': 'the band belongs to an older fit; it updates with the next render',
+                  'poor fit': 'the S-curve fits this series poorly — its data keep deviating from the curve in one direction for years, so any band would span almost everything',
+                  'too few rows': 'the series is too short for a reliable band (fewer than 48 data points)' }[band.excluded[0].why] || band.excluded[0].why;
     return `<div class="band-note">${who}no ${BAND_LABELS[kind]} shown: ${why}.${link}</div>`;
   }
   if (!band || !band.ok) {
@@ -11845,7 +11853,7 @@ const FAQ_DATA = [
       '<b>Confidence (CI, the default)</b> \u2014 where the <em>curve itself</em> could be. If the same transition could be re-run many times with new monthly data, the band from each re-run would contain the true curve 95 times in 100. This is the one to use for dates: a crossing year with its range.',
       '<b>Prediction (PI)</b> \u2014 where <em>one more month</em> could land. Wider, because a single month scatters around the curve (year-end rushes, subsidy deadlines).',
       '<b>Tolerance (TI)</b> \u2014 where <em>95 % of all months</em> land, with 95 % confidence. The widest of the three.',
-      'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape, and a fit the gallery marks as <em>Unreliable fit</em> gets no band. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
+      'All three assume the S-curve shape is right. They do not cover a policy shock or a stall that changes the shape. A fit the gallery marks as <em>Unreliable fit</em> gets no band, and neither does a series whose data keep deviating from the curve in one direction for years (a poor fit) or one that is too short (fewer than 48 data points) — the note under the chart says which. For a group (EU, Big Markets, \u2026) the members\u2019 bands are combined as if they were independent, which is exact for one country and an approximation for groups. The bands are shown for BEV only, and in Compare only with up to three series.',
       'The full explanation, the maths and how the bands were tested: <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/44-uncertainty-bands.md" target="_blank" rel="noopener">docs/architecture/44-uncertainty-bands.md</a>.'
     ] },
   { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',

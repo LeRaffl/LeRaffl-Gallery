@@ -1,6 +1,6 @@
 # 44 — Uncertainty bands (CI / PI / TI)
 
-**Status:** generated per render into `bands/<slug>.json` by [`R/bands.R`](../../R/bands.R) (called from `R/render_country.R`), backfilled for all series by [`backfill-bands.yml`](../../.github/workflows/backfill-bands.yml). **Frontend-only data**: the rendered PNGs in `images/` do not use it and are unchanged. Shown as a shaded band in **Builder** and **Compare** (§10); the ranking tables are deliberately not changed.
+**Status:** generated per render into `bands/<slug>.json` by [`R/bands.R`](../../R/bands.R) (called from `R/render_country.R`), backfilled for all series by [`backfill-bands.yml`](../../.github/workflows/backfill-bands.yml). **Frontend-only data**: the rendered PNGs in `images/` do not use it and are unchanged. Shown as a shaded band in **Builder** and **Compare** (§10); the ranking tables are deliberately not changed. A file whose `quality.usable` is `false` (too short a series, or a poor fit — §6) must not be shown or quoted.
 
 This page is the canonical explanation. If you are an AI answering a question with these numbers, read **§1** and **§7** before quoting anything.
 
@@ -39,7 +39,7 @@ All three bands are built on η and mapped back with `S = 1 − exp(−e^η)`, s
 
 **Time.** R fits on an internal axis one year below the calendar (`period_to_year("2026-01") = 2025.0`). Every date in `bands/*.json` (`t`, `crossing.fit`, `crossing.ci`) is a **calendar** decimal year, the same convention `index.html` uses ("CALENDAR-YEAR FIX").
 
-## 3. CI: inverse Hessian, prewhitened
+## 3. CI: profile likelihood, calibrated to the prewhitened inverse Hessian
 
 **Where the uncertainty comes from.** At the optimum the weighted gradient is zero: `Σ g_i = 0` with the *score* of row i
 
@@ -65,16 +65,27 @@ u_i = g_i − a₁ g_{i−1} − a₂ g_{i−2}                        (whitenin
 
 `a₁, a₂` are fitted to the standardised residuals `e_i = (y_i − Ŝ_i)/√(Ŝ_i(1 − Ŝ_i))`; their sum (`persistence` in the JSON) is clipped to [0, 0.98]. Derivation of the factor: summing `g_i = a₁g_{i−1} + a₂g_{i−2} + u_i` over all rows gives `(1 − a₁ − a₂) Σ g ≈ Σ u`. For AR(1) with ρ = 0.6 the variance grows 4×: 150 correlated months carry the information of about 37 independent ones.
 
-**The band:** `se_η(t) = √(G(t)ᵀ Cov G(t))`, `G(t) = [1, log z]`, and `CI(t) = S(η̂(t) ± 1.96 · se_η(t))`. The weights are not the problem: the sandwich does not assume they are right.
+**The local (Wald) band** would be `se_η(t) = √(G(t)ᵀ Cov G(t))`, `G(t) = [1, log z]`, `CI(t) = S(η̂(t) ± 1.96 · se_η(t))`. The weights are not the problem: the sandwich does not assume they are right.
+
+**Why it is not used as is.** A Wald band only knows the curvature of the fit error *at* the optimum. Where the curve is flat in share terms — near 0 % at the start of a series — moving the parameters barely changes the fitted shares there, so the Hessian concludes those months carry no information, and on the η scale the uncertainty grows as `log z` falls. Mapped back, the band flared to 20–100 % over years in which every observed month is near 0 % (34 of 99 shown series had flares above 10 points inside the 2015-to-data window; Estonia Buses reached 100 % in 2021 with the curve at 0.1 %). The observed months rule such shares out, but only a global look at the fit error sees that.
+
+**Profile likelihood.** Because η(t) is linear in the parameters, each date has a one-dimensional profile of the fit error:
+
+```
+RSS_p(e) = min_k RSS(a = e − k·log z_t, k)
+CI_η(t) = { e : RSS_p(e) − RSS_min ≤ q(t) },     q(t) = 1.96² · G(t)ᵀ Cov G(t) / G(t)ᵀ B⁻¹ G(t)
+```
+
+Near the optimum `RSS_p` is quadratic with curvature `1 / Gᵀ B⁻¹ G`, so this threshold reproduces the prewhitened Wald band exactly; away from it the real error surface decides. The result is asymmetric where it should be and never flares where the data pin the curve (Estonia Buses 2021: 0–6 % instead of 0–100 %; Germany near the data: unchanged). Edges are computed on the band grid plus yearly points to 2100 and interpolated for the crossing years. `CI(t) = S(CI_η(t))`.
 
 ## 4. PI: the line's uncertainty plus a real month
 
 ```
-y*(t) = S(η) + √(S(1 − S)) · e,     η ~ N(η̂(t), se_η(t)²),   e ~ empirical standardised residuals
+y*(t) = S(η) + √(S(1 − S)) · e,     η ~ split normal around η̂(t) with the CI's own edges,   e ~ empirical standardised residuals
 PI(t) = 2.5 % and 97.5 % quantiles of y*(t), clipped to [0, 1]
 ```
 
-The η part uses 100 quantile nodes of the normal; `e` is every standardised residual of the series, not a normal curve, so real heavy tails (year-end rushes) are in the band. Month scatter is **not** weighted by volume: across 18 large markets it does not shrink with monthly volume (median log-log slope +0.18; the fit's `TOTAL²` weights would imply −1).
+The η part uses 100 quantile nodes of a split normal whose lower / upper spread is the CI's lower / upper half-width on the η scale divided by 1.96, so PI and CI share one line uncertainty; `e` is every standardised residual of the series, not a normal curve, so real heavy tails (year-end rushes) are in the band. Month scatter is **not** weighted by volume: across 18 large markets it does not shrink with monthly volume (median log-log slope +0.18; the fit's `TOTAL²` weights would imply −1).
 
 **Reference period:** one row of the series' own cadence (a month for monthly series). A 12-month total scatters less, so this PI is wider than a band for TTM numbers would be.
 
@@ -88,16 +99,27 @@ No practical closed formula exists for a tolerance interval around a nonlinear c
 
 The random seed is fixed (`BANDS_SEED`), so re-rendering unchanged data writes an identical file.
 
-## 6. Validation
+## 6. Validation, and when a band is not usable
 
-The promise in §1 was tested directly: today's fitted curve is treated as the truth, and 200 re-runs generate brand-new months around it. Every re-run is fitted again and gets its own bands. Coverage = how often each band kept its promise at the data end, one year and five years ahead (target 95 %). Germany, Italy, France, Norway; September 2026 data.
+The promise in §1 was tested directly: today's fitted curve is treated as the truth, and 150–200 re-runs generate brand-new months around it. Every re-run is fitted again and gets its own band; coverage is how often the band from a re-run contains the true curve. Check points: half a year after the series start, the data end, one and five years ahead. Target 95 %. September 2026 data.
 
-| Noise in the re-runs | CI (true line) | PI (fresh month) | TI (≥ 95 % of months) |
-|---|---|---|---|
-| synthetic, correlated (AR(1), ρ = 0.6); nothing taken from real data | 90–98 % | 88–98 % | 74–95 % |
-| real residual shape, 12-month blocks | 79–94 % | 84–98 % | 76–94 % |
+**Long series (CI, profile):**
 
-For comparison, the plain Hessian sandwich (no prewhitening) reached 92–94 % with *independent* months but only 62–70 % with correlated ones. That shortfall is what the prewhitening is for.
+| Series (rows) | synthetic noise, AR(1) ρ = 0.6 | real residual shape, 12-month blocks |
+|---|---|---|
+| Germany (176) | 94–95 % | 80–91 % |
+| Italy (140) | 92–94 % | 79–87 % |
+| France (188) | 96 % | 91–94 % |
+| Norway (260) | 99–100 % | 96–98 % |
+| Australia (79), India (83), Hungary (104) | 87–98 % | 84–98 % |
+
+For comparison, a plain sandwich without prewhitening covered 62–70 % once months are correlated; the local Wald band covers about the same as the profile (the profile removes impossible flares, it does not narrow where the data are thin). PI and TI were validated with the local CI (PI 84–98 %, TI 74–95 % on the four large markets); the profile changes their line uncertainty only where the CI itself changes, far from the data.
+
+**Short series fail.** Series with 44 rows or fewer missed clearly on at least one noise type: Canada Whole (44 rows) 64–81 % on real-shaped noise, Georgia (38) 50–73 %, and on synthetic noise the quarterly commercial-vehicle series (20 rows) Germany HDV 73–78 %, France HDV 60–79 %, Norway Vans 73–78 %, Estonia Buses 45–73 %. Two points per parameter-year are not enough for any large-sample interval. The row counts have an empty gap from 48 to 59 (35 series have 17–24 rows, six have 36–47, the rest 60 or more), so the cut-off is **48 rows** (`BANDS_MIN_ROWS`).
+
+**Poor fits.** Persistence (`a₁ + a₂`) across the 132 series with a band runs continuously from 0 to 0.87, then the one gap in the upper range (0.87 → 0.91), then Japan 0.91, Netherlands Used 0.93, Brazil 0.95 — all visibly poor S-curve fits whose bands span almost everything. The cut-off is **0.9** (`BANDS_MAX_PERSIST`). Between 0.75 and 0.87 sit stable, well-fitting markets too (Denmark 0.78, Germany 0.81, Sweden 0.85): part of their persistence is the unmodelled annual cycle, which is why the gap is narrow. Re-derive it once the annual cycle is modelled; the plan is then to make "poor fit" a fourth test of the gallery's reliability gate with its own `params.csv` column.
+
+A file that fails either rule is still written, with `quality.usable = false` and the reason in `quality.reasons` (`"too few rows"`, `"poor fit"`).
 
 ## 7. How to read and quote the bands (for people and AIs)
 
@@ -105,7 +127,8 @@ For comparison, the plain Hessian sandwich (no prewhitening) reached 92–94 % w
 - **The CI is pointwise.** 95 % at each date is not 95 % for the whole curve at once.
 - **The CI is conditional on the S-curve shape being right.** It does not include the risk that the transition follows a different shape (a policy shock, a stall). It is not a forecast guarantee, and the curve is this project's model, not an official forecast.
 - **A narrow band on an unreliable fit means nothing.** A collapsed fit (a near-vertical step the data has not reached, e.g. Slovenia Buses) gets a very narrow CI. Check the gallery's reliability gate (`fitReliability()` in `index.html`, [02-components.md](02-components.md#fit-reliability-gate-fitreliability)) before quoting any band.
-- **A very wide band is information.** `persistence` near 1 (Brazil 0.95, Japan 0.91 in September 2026) means the data keep deviating from the curve in one direction for years. The CI then spans most of 0–100 %, which honestly says the fit does not pin the curve down.
+- **Check `quality.usable` first.** If it is `false`, do not quote or show the band: the series is too short for any reliable interval, or the S-curve fits it poorly (`quality.reasons`). Say that instead.
+- **High persistence means a poor fit.** `persistence` near 1 (Brazil 0.95, Japan 0.91 in September 2026) means the data keep deviating from the curve in one direction for years: the S-curve does not describe the series well. The CI then spans most of 0–100 %. From **0.9** the frontend shows no band, only a note saying the curve fits poorly (§10); treat such a series' crossing years as unsupported.
 - **Coverage is not exact.** On realistic noise the CI reaches roughly 80–94 % and the TI roughly 76–94 % instead of 95 % (§6). If a statement depends on the last few percent, say so.
 - **PI and TI are for one row of the series' cadence** (one month for monthly data), not for TTM or yearly totals.
 - `null` in the JSON means "not reached before 2100" (for an upper CI bound) or "not reached on the grid".
@@ -116,10 +139,11 @@ One file per rendered series, `slug` as in `images/` (e.g. `germany`, `germany_h
 
 | Key | Meaning |
 |---|---|
-| `schema` | format version (1) |
+| `schema` | format version (2: profile-likelihood CI, `quality`) |
 | `country`, `variant`, `data_per` | series and the "as of" period of its data (as in `params.csv`) |
 | `method` | levels and a short description of each band; `method.doc` points here; `ti.histories` = bootstrap histories that refitted successfully |
 | `fit_params` | `v1`, `v2`, `t0` exactly as in `params.csv` for this render |
+| `quality` | `usable` (bool), `reasons` (`"too few rows"`, `"poor fit"`), and the two cut-offs `min_rows`, `max_persistence` (§6). Never show or quote a band with `usable: false` |
 | `persistence` | `a₁ + a₂` of the prewhitening (0 = independent months, near 1 = very persistent) |
 | `rows` | data rows the fit used |
 | `time`, `t` | calendar decimal years of the grid: first data year to 2060, every 3 months |
@@ -129,16 +153,6 @@ One file per rendered series, `slug` as in `images/` (e.g. `germany`, `germany_h
 
 A render whose fit has no usable S-shape (`v1 ≥ 0`, `v2 ≤ 0`, fewer than 12 rows) writes no file and removes an old one, so bands never sit next to a curve they were not computed for.
 
-## 10. In the frontend (Builder and Compare)
-
-Both tabs have an **Uncertainty band** dropdown: Off / Confidence (CI, the default) / Prediction (PI) / Tolerance (TI). The band is drawn as a shaded area under the fitted **BEV** curve, and the curve's hover shows the band's range at that month. A note under the chart says what is shaded, or why nothing is. An FAQ entry ("What is the shaded band around the curve in Builder and Compare?") explains it for end users.
-
-- **One series:** the band from its file, as it is.
-- **A group** (EU, Big Markets, a Builder selection): each member's band is turned into a spread, half-width / 1.96 separately below and above the curve, and combined with the curve's own weights, assuming independent members: `half-width_group = √Σ((w_c/W) · half-width_c)²`. Sound for the CI (separate fits); an approximation for PI and TI.
-- **Members left out of the band** (named in the note): a fit the reliability gate excludes (`rowIsUnreliableFit()`), a series with no file yet, and a file computed for another fit than the `params.csv` row being drawn ("band out of date": different `data_per`, or `fit_params.v2` more than 2 % away; smaller differences are optimizer noise between R versions). If the members left in carry less than 80 % of the weight, no band is drawn.
-- **Compare** draws bands only for BEV and only with up to three series; past three it would bury the lines.
-- The file name is `slug_country()` (`R/data.R`), mirrored as `bandSlug()` in `index.html`; the two are verified equal for every `params.csv` row.
-
 ## 9. Changing it
 
 - Constants (`BANDS_LEVEL`, `BANDS_TI_CONTENT`, `BANDS_TI_CONF`, `BANDS_BOOT`, `BANDS_BLOCK`, grid) are at the top of `R/bands.R`. Changing one changes every file on the next render; bump `BANDS_SCHEMA` if the file layout changes.
@@ -146,4 +160,14 @@ Both tabs have an **Uncertainty band** dropdown: Off / Confidence (CI, the defau
 - An R change goes through a PR; `preview-render.yml` renders 24 series with the PR's and the base's `R/` and lists the 80 % crossing with its CI from each `bands/` file.
 - Re-check §6 after any change to the method. The simulation scripts are not in the repo yet; the procedure is exactly §6: truth = today's fit, 200 re-runs with new noise, refit, count.
 
-**Known open points:** the annual cycle (year-end peaks) is not modelled; a seasonal term (e.g. Fourier) would take it out of the residuals and tighten PI and TI — planned; persistence longer than AR(2) (Germany, Italy fall furthest short on real-shaped noise); a single bootstrap round is slightly optimistic for the TI; the `√S(1−S)` scaling lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere; bands on unreliable fits should not be shown by the frontend.
+**Known open points:** the annual cycle (year-end peaks) is not modelled; a seasonal term (e.g. Fourier) would take it out of the residuals and tighten PI and TI — planned; persistence longer than AR(2) (Germany, Italy fall furthest short on real-shaped noise); a single bootstrap round is slightly optimistic for the TI; the `√S(1−S)` scaling lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere; short series (< 48 rows, mostly the quarterly commercial-vehicle block) get no usable band at all.
+
+## 10. In the frontend (Builder and Compare)
+
+Both tabs have an **Uncertainty band** dropdown: Off / Confidence (CI, the default) / Prediction (PI) / Tolerance (TI). The band is drawn as a shaded area under the fitted **BEV** curve, and the curve's hover shows the band's range at that month. A note under the chart says what is shaded, or why nothing is. An FAQ entry ("What is the shaded band around the curve in Builder and Compare?") explains it for end users.
+
+- **One series:** the band from its file, as it is.
+- **A group** (EU, Big Markets, a Builder selection): each member's band is turned into a spread, half-width / 1.96 separately below and above the curve, and combined with the curve's own weights, assuming independent members: `half-width_group = √Σ((w_c/W) · half-width_c)²`. Sound for the CI (separate fits); an approximation for PI and TI.
+- **Members left out of the band** (named in the note): a fit the reliability gate excludes (`rowIsUnreliableFit()`), a file with `quality.usable = false` (too few rows, or a poor fit — decided in R, §6), a series with no file yet, and a file computed for another fit than the `params.csv` row being drawn ("band out of date": different `data_per`, or `fit_params.v2` more than 2 % away; smaller differences are optimizer noise between R versions). If the members left in carry less than 80 % of the weight, no band is drawn.
+- **Compare** draws bands only for BEV and only with up to three series; past three it would bury the lines.
+- The file name is `slug_country()` (`R/data.R`), mirrored as `bandSlug()` in `index.html`; the two are verified equal for every `params.csv` row.

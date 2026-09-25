@@ -7,9 +7,11 @@
 # maths, validation, caveats — is docs/architecture/44-uncertainty-bands.md;
 # read it before changing anything below.
 #
-#   CI  (95 %)      where the true curve is. Inverse-Hessian sandwich with the
-#                   scores prewhitened by an AR(2) and recoloured, so correlated
-#                   months do not make the band too narrow.
+#   CI  (95 %)      where the true curve is. Profile likelihood, calibrated so
+#                   that near the fit it equals the inverse-Hessian sandwich
+#                   with AR(2)-prewhitened scores (correlated months do not make
+#                   it too narrow), while far from the fit the real RSS surface
+#                   decides (no flare where the curve is flat near 0 %).
 #   PI  (95 %)      where one more month lands. The CI's uncertainty for the
 #                   line combined with the EMPIRICAL distribution of monthly
 #                   deviations (real tails, no normal assumption).
@@ -30,7 +32,14 @@ BANDS_NODES      <- 100L   # PI: quantile nodes for the line's uncertainty
 BANDS_SEED       <- 20260925L  # fixed: a re-render of unchanged data gives an identical file
 BANDS_GRID_TO    <- 2060   # last calendar year of the band grid
 BANDS_STEP       <- 3L     # grid step in months
-BANDS_SCHEMA     <- 1L
+BANDS_SCHEMA     <- 2L
+# Quality rules, validated by the rewind-and-rerun simulation (doc 44 §6):
+# below BANDS_MIN_ROWS rows the CI misses its 95 % badly (series with <= 44
+# rows: 50-89 %), and at BANDS_MAX_PERSIST the data deviate from the S-curve in
+# one direction for years (a poor fit). Such a file is still written, marked
+# quality.usable = false; the frontend shows no band for it.
+BANDS_MIN_ROWS    <- 48L
+BANDS_MAX_PERSIST <- 0.9
 
 # S on the internal axis for theta = (a, k), a = log(-v1), k = v2.
 .bands_S <- function(theta, z) 1 - exp(-exp(theta[1]) * z^theta[2])
@@ -65,14 +74,44 @@ BANDS_SCHEMA     <- 1L
   g <- Jw * r
   U <- g[3:n, , drop = FALSE] - a[1] * g[2:(n - 1), , drop = FALSE] - a[2] * g[1:(n - 2), , drop = FALSE]
   omega <- crossprod(U) * n / (n - 2) / (1 - s)^2
-  list(cov = Binv %*% omega %*% Binv, persistence = s, e = e)
+  list(cov = Binv %*% omega %*% Binv, Binv = Binv, persistence = s, e = e)
 }
 
-# eta = a + k log z and its standard error at positions z.
-.bands_eta <- function(theta, cov, z) {
-  G <- cbind(1, log(z))
-  list(eta = theta[1] + theta[2] * log(z),
-       se  = sqrt(pmax(rowSums((G %*% cov) * G), 0)))
+# CI edges on the eta scale by profile likelihood. eta(t) = a + k log z is
+# linear in theta, so for each date the profile is
+#   RSS_p(e) = min_k RSS(a = e - k log z, k)
+# and the CI is { e : RSS_p(e) - RSS_min <= q(t) } with
+#   q(t) = z_{0.975}^2 * g'Cov_rob g / g'B^-1 g,   g = (1, log z).
+# Near the optimum RSS_p is quadratic with curvature 1 / g'B^-1 g, so the band
+# equals the robust (prewhitened) Wald band; far from it the true RSS surface
+# decides, which is what keeps the band from flaring where the curve is flat
+# near 0 % (the observed months there rule out large shares).
+.bands_profile <- function(theta, z, y, w, cv, zt) {
+  ws <- w / mean(w)                                        # same scaling as B
+  rss <- function(a, k) sum(((y - (1 - exp(-exp(a) * z^k))) * ws)^2)
+  r0 <- rss(theta[1], theta[2]); lk0 <- log(theta[2])
+  z2 <- qnorm(1 - (1 - BANDS_LEVEL) / 2)^2
+  lo <- hi <- numeric(length(zt))
+  for (i in seq_along(zt)) {
+    L <- log(zt[i]); g <- c(1, L)
+    vr <- sum(g * (cv$cov %*% g)); vn <- sum(g * (cv$Binv %*% g))
+    q <- z2 * vr / vn
+    e0 <- theta[1] + theta[2] * L; se <- sqrt(vr)
+    prof <- function(e) optimize(function(lk) rss(e - exp(lk) * L, exp(lk)),
+                                 c(lk0 - 3, lk0 + 3), tol = 1e-6)$objective - r0 - q
+    edge <- function(sgn) {
+      if (prof(e0) > 0) return(e0)                        # numerically at the threshold
+      ev <- e0; step <- se
+      for (j in 1:24) {
+        nxt <- ev + sgn * step
+        if (prof(nxt) > 0) return(uniroot(prof, sort(c(ev, nxt)), tol = 1e-5)$root)
+        ev <- nxt; step <- step * 1.5
+      }
+      e0 + sgn * 12 * se                                   # never crossed: very wide
+    }
+    lo[i] <- edge(-1); hi[i] <- edge(1)
+  }
+  list(lo = lo, hi = hi)
 }
 
 # Refit from a known start (bootstrap histories). Same objective as fit.R.
@@ -117,9 +156,18 @@ compute_bands <- function(df, fit) {
   zg   <- cal - 1 - origin
   keep <- zg > 0; cal <- cal[keep]; zg <- zg[keep]
   fitg <- .bands_S(theta, zg)
-  es   <- .bands_eta(theta, cv$cov, zg)
   f    <- function(v) 1 - exp(-exp(v))
-  ci_lo <- f(es$eta - q * es$se); ci_hi <- f(es$eta + q * es$se)
+  # CI edges by profile likelihood on the band grid plus yearly points to 2100
+  # (for the crossing years); eta edges are smooth in t, so the fine monthly
+  # crossing grid below interpolates them.
+  cal_x <- c(cal, seq(ceiling(max(cal)) + 1, 2100, by = 1))
+  z_x <- cal_x - 1 - origin
+  pr <- .bands_profile(theta, z, y, w, cv, z_x)
+  eta_hat <- theta[1] + theta[2] * log(zg)
+  eta_lo <- pr$lo[seq_along(zg)]; eta_hi <- pr$hi[seq_along(zg)]
+  ci_lo <- f(eta_lo); ci_hi <- f(eta_hi)
+  # The PI draws the line from a split normal with the CI's own edges.
+  se_lo <- pmax(eta_hat - eta_lo, 0) / q; se_hi <- pmax(eta_hi - eta_hat, 0) / q
 
   # PI: quantiles of S(eta_j) + sqrt(S_j(1-S_j)) * e over nodes j and deviations e.
   nodes <- qnorm((seq_len(BANDS_NODES) - 0.5) / BANDS_NODES)
@@ -127,7 +175,7 @@ compute_bands <- function(df, fit) {
   pl <- (1 - BANDS_LEVEL) / 2
   pi_lo <- pi_hi <- numeric(length(zg))
   for (i in seq_along(zg)) {
-    Sj <- f(es$eta[i] + es$se[i] * nodes)
+    Sj <- f(eta_hat[i] + ifelse(nodes < 0, se_lo[i], se_hi[i]) * nodes)
     ys <- pmin(pmax(outer(Sj, rep(1, length(e))) + outer(sqrt(pmax(Sj * (1 - Sj), 0)), e), 0), 1)
     qq <- quantile(ys, c(pl, 1 - pl), names = FALSE, type = 7)
     pi_lo[i] <- qq[1]; pi_hi[i] <- qq[2]
@@ -170,15 +218,19 @@ compute_bands <- function(df, fit) {
   # Crossing years (fit and CI) on a fine monthly grid to 2100.
   calf <- seq(cal0, 2100, by = 1 / 12); zf <- calf - 1 - origin
   kf <- zf > 0; calf <- calf[kf]; zf <- zf[kf]
-  ef <- .bands_eta(theta, cv$cov, zf)
-  Sf <- .bands_S(theta, zf); lf <- f(ef$eta - q * ef$se); hf <- f(ef$eta + q * ef$se)
+  Sf <- .bands_S(theta, zf)
+  lf <- f(approx(cal_x, pr$lo, xout = calf, rule = 2)$y)
+  hf <- f(approx(cal_x, pr$hi, xout = calf, rule = 2)$y)
   crossing <- lapply(c(0.1, 0.2, 0.5, 0.8, 0.9), function(p) list(
     share = p, fit = .bands_cross(calf, Sf, p),
     ci = c(.bands_cross(calf, hf, p), .bands_cross(calf, lf, p))))
 
   list(t = cal, fit = fitg, ci = list(ci_lo, ci_hi), pi = list(pi_lo, pi_hi),
        ti = list(ti_lo, ti_hi), crossing = crossing, persistence = cv$persistence,
-       n = nrow(d), boot_ok = sum(ok), v1 = v1, v2 = v2, t0 = t0)
+       n = nrow(d), boot_ok = sum(ok), v1 = v1, v2 = v2, t0 = t0,
+       usable = nrow(d) >= BANDS_MIN_ROWS && cv$persistence < BANDS_MAX_PERSIST,
+       reasons = c(if (nrow(d) < BANDS_MIN_ROWS) "too few rows",
+                   if (cv$persistence >= BANDS_MAX_PERSIST) "poor fit"))
 }
 
 # Minimal JSON writer (base R only; the render workflow installs no jsonlite).
@@ -198,12 +250,15 @@ write_bands_json <- function(path, b, country, variant, data_per) {
     ',"country":', .json_str(country), ',"variant":', .json_str(variant),
     ',"data_per":', .json_str(data_per),
     ',"method":{"doc":"docs/architecture/44-uncertainty-bands.md",',
-    '"ci":{"level":', BANDS_LEVEL, ',"kind":"inverse-Hessian sandwich, AR(2)-prewhitened scores","pointwise":true},',
+    '"ci":{"level":', BANDS_LEVEL, ',"kind":"profile likelihood calibrated to the inverse-Hessian sandwich with AR(2)-prewhitened scores","pointwise":true},',
     '"pi":{"level":', BANDS_LEVEL, ',"kind":"CI line uncertainty + empirical monthly deviations","reference":"one row of the series cadence"},',
     '"ti":{"content":', BANDS_TI_CONTENT, ',"confidence":', BANDS_TI_CONF,
     ',"kind":"block bootstrap","histories":', b$boot_ok, ',"block":', BANDS_BLOCK, '}},',
     '"fit_params":{"v1":', trimws(formatC(b$v1, format = "e", digits = 12)),
     ',"v2":', trimws(.json_num(b$v2, 10)), ',"t0":', b$t0, '},',
+    '"quality":{"usable":', if (isTRUE(b$usable)) "true" else "false",
+    ',"reasons":[', paste(vapply(b$reasons, .json_str, character(1)), collapse = ","), ']',
+    ',"min_rows":', BANDS_MIN_ROWS, ',"max_persistence":', BANDS_MAX_PERSIST, '},',
     '"persistence":', trimws(.json_num(b$persistence, 3)), ',"rows":', b$n,
     ',"time":"calendar decimal year","t":', .json_arr(b$t, 4),
     ',"fit":', .json_arr(b$fit),
