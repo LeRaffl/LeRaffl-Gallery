@@ -100,7 +100,9 @@
   - `fetch-brazil.yml` — monatlich 10. 08:50. Brazil (ANFAVEA „Central de Dados“ via admin-ajax, seit dem Relaunch 2026-09 statt der Jahres-Excel).
   - `fetch-chile.yml` — täglich 08:00, 14.→EOM. Chile.
   - `fetch-china.yml` — täglich 11:00, 1.→EOM. China (retail + wholesale).
+  - `fetch-france.yml` — täglich 07:40, 18.→EOM. France (SDES „motorisations“ série VP neuves, Whole; Média-Link wird von der Landing-Page aufgelöst).
   - `fetch-hong-kong.yml` — täglich 03:20 & 11:20. Hong Kong (Transport Department, DATA.GOV.HK: eine CSV-Zeile pro erstzugelassenem Fahrzeug **mit Kraftstofffeld** und TD-Erstzulassungsstatus; Whole / Used / Vans; Plug-in-Hybride aus der Modellbezeichnung klassifiziert, jeder Lauf gegen TDs Tabelle 4.1(e) abgeglichen; `market/hong_kong_top.json`).
+  - `fetch-israel.yml` — täglich 08:00, 10.→20. Israel (MoT-Fahrzeugregister auf data.gov.il, Whole / Vans; HEV/PHEV über den Modellkatalog-Join).
   - `fetch-japan.yml` — täglich 08:00, 1.→EOM. Japan.
   - `fetch-netherlands.yml` — täglich 06:30, 1.→15. Netherlands (Whole / Used / HDV).
   - `fetch-turkey.yml` — täglich 08:00, 15.→EOM. Türkiye (benötigt manuelles `press_id`).

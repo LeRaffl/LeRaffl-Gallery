@@ -127,9 +127,11 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | 07:30 UTC, 5th → 25th | ANDI/FENALCO Boletín PDF (datos RUNT) — page listing, else the month's `/Uploads/` URL rebuilt (see [18](18-source-colombia.md)) | `Whole` — single combined Hybrid bucket | `latest_period(Colombia.csv) ≥ target` |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | per-variant diff vs CSV |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV |
+| [`fetch-france.yml`](../../.github/workflows/fetch-france.yml) | 07:40 UTC, 18th → EOM | SDES motorisations série VP workbook (média link resolved from the landing page; [36](36-source-france.md)) | `Whole` | change-gated commit — no new row, no diff, no render |
 | [`fetch-hong-kong.yml`](../../.github/workflows/fetch-hong-kong.yml) | 03:20 & 11:20 UTC, daily | Transport Department «Particulars of first registered vehicles» (`data.gov.hk` CKAN; one CSV per month, uploaded between the 13th and 28th of M+1) — fuel from the record, plug-ins from the model designation, cross-checked against TD table 4.1(e) ([41](41-source-hong-kong.md)) | `Whole` + `Used` + `Vans` — one set of files, every variant | newest portal month already in every CSV from TD → one JSON request, no download |
 | [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | newest portal file title already covered → no-op before download |
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | 04:00 & 13:00 UTC, 1st → 5th | SIMI motorstats (`stats.simi.ie`, Inertia SPA) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant diff vs CSV |
+| [`fetch-israel.yml`](../../.github/workflows/fetch-israel.yml) | 08:00 UTC, 10th → 20th | MoT vehicle registry on `data.gov.il` (CKAN datastore snapshot) + model-catalogue join for HEV/PHEV ([34](34-source-israel.md)) | `Whole` + `Vans` | early-exit once the previous month is present; real runs re-count the last 3 months |
 | [`fetch-italy.yml`](../../.github/workflows/fetch-italy.yml) | 06:00/10:00/14:00/18:00 UTC, 1st → 3rd (passenger); 10:00/14:00/18:00 UTC, 13th → 16th (vans) | UNRAE «struttura del mercato» PDF; LCV from the separate Comunicato Stampa | `Whole` + `Rental` + `NonRental` + `Vans` | per-variant diff vs CSV |
 | [`fetch-japan.yml`](../../.github/workflows/fetch-japan.yml) | 08:00 UTC, 1st → EOM | JADA monthly registrations file (XLSX preferred, PDF fallback) | `Whole` — 登録車 only, kei cars excluded | `latest_period(Japan.csv) ≥ target` |
 | [`fetch-luxembourg.yml`](../../.github/workflows/fetch-luxembourg.yml) | 06:45 UTC, 1st → 15th | STATEC SDMX 2.1, dataflow DF_D6122 (`lustat.statec.lu`) | `Whole` + `Vans` + `HDV` | per-variant early-exit |
@@ -153,8 +155,8 @@ Notes on the schedule shape:
   crowded slot (Brazil, Chile, Türkiye, Uruguay and ACEA all fired at `0 8`);
   those were staggered onto their own minutes — Uruguay `:10`, Chile `:20`,
   Türkiye `:30`, ACEA `:40`, Brazil `:50` — so a stall in one no longer lands
-  on top of the others. Japan and Singapore are the only ones still on the
-  hour. They never conflicted (each writes a different CSV, and ACEA's render
+  on top of the others. Japan, Singapore and Israel are the only ones still
+  on the hour. They never conflicted (each writes a different CSV, and ACEA's render
   fan-out is serialised by `max-parallel: 1`), but a CI outage at exactly
   08:00 used to take all of them out together.
 - **The early band clears that window from below:** Hong Kong 03:20 & 11:20
@@ -163,7 +165,7 @@ Notes on the schedule shape:
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
-  07:30, Nepal 07:50.
+  07:30, France 07:40, Nepal 07:50.
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
@@ -176,7 +178,7 @@ Notes on the schedule shape:
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,
-  Chile 14+, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, and the
+  Israel 10–20, Chile 14+, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.

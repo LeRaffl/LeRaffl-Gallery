@@ -108,6 +108,7 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | India | New passenger cars = EU M1 (VAHAN Vehicle Class MOTOR CAR + MOTOR CAB + LUXURY CAB) | — | — | — | — | — |
 | Indonesia | GAIKINDO Passenger Car — Sedan + 4x2 + 4x4 + LCGC | — | — | — | Trucks of 5 t and above | Buses |
 | Ireland | New passenger-car registrations | — | — | New light commercial vehicles (SIMI LCV) | New heavy commercial vehicles (SIMI HCV) | New buses and coaches |
+| Israel | New private passenger cars — MoT registry `sug_degem` = P, from 2017-01 | — | — | New light commercial vehicles up to 3.5 t — registry `sug_degem` = M (N1) | — | — |
 | Italy | Passenger cars, whole market including rental | — | — | Light commercial vehicles, derived from published percentage shares | — | — |
 | Latvia | New passenger-car registrations, via ACEA | — | — | New van registrations (N1, ≤ 3.5 t), via ACEA's Commercial Vehicle report | New truck registrations (N2+N3, > 3.5 t combined), via ACEA's Commercial Vehicle report | New bus & coach registrations (M2+M3), via ACEA's Commercial Vehicle report |
 | Lithuania | New passenger-car registrations, via ACEA | — | — | New van registrations (N1, ≤ 3.5 t), via ACEA's Commercial Vehicle report | New truck registrations (N2+N3, > 3.5 t combined), via ACEA's Commercial Vehicle report | New bus & coach registrations (M2+M3), via ACEA's Commercial Vehicle report |
