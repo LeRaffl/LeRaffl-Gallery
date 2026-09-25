@@ -149,7 +149,7 @@ GROUPS_STATIC = {
     "southern_europe": ["Spain", "Portugal", "Italy", "Greece", "Malta", "Cyprus"],
     "eastern_europe": [
         "Poland", "Czechia", "Slovakia", "Hungary", "Romania",
-        "Bulgaria", "Croatia", "Slovenia", "Latvia", "Lithuania", "Estonia",
+        "Bulgaria", "Croatia", "Slovenia", "Latvia", "Lithuania", "Estonia", "Ukraine",
     ],
     "eu": [
         "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark",
