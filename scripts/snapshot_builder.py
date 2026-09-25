@@ -167,7 +167,7 @@ GROUPS_STATIC = {
     "asia": [
         "China", "Japan", "South Korea", "India",
         "Thailand", "Malaysia", "Indonesia",
-        "Vietnam", "Philippines", "Singapore", "Taiwan",
+        "Vietnam", "Philippines", "Singapore", "Taiwan", "Hong Kong",
     ],
 }
 
