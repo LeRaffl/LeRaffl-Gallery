@@ -9,6 +9,7 @@ Input layout (one directory per rendered series, written by the matrix jobs):
     <root>/<slug>/base_params.csv   that series' params.csv row after the base render
     <root>/<slug>/head_params.csv   … after the PR render
     <root>/<slug>/{base,head}_failed  present when that render exited non-zero
+    <root>/<slug>/{base,head}_bands.json  bands/<slug>.json from that render, if written
 
 Output, written into <root>:
 
@@ -42,8 +43,27 @@ def read_params(path: Path) -> dict[str, str]:
     return rows[-1] if rows else {}
 
 
+def bands_80(path: Path) -> str:
+    """'2038.1 (95 % CI 2033.8–2052.7)' from a bands/<slug>.json, or '—'."""
+    import json
+    if not path.is_file():
+        return "—"
+    try:
+        b = json.loads(path.read_text(encoding="utf-8"))
+        c = next(c for c in b["crossing"] if abs(c["share"] - 0.8) < 1e-9)
+        f = lambda v: "—" if v is None else f"{v:.1f}"
+        hi = "2100+" if c["ci"][1] is None else f(c["ci"][1])
+        return f"{f(c['fit'])} (95 % CI {f(c['ci'][0])}–{hi})"
+    except Exception:
+        return "unreadable"
+
+
 def crossing_year(p: dict[str, str], share: float) -> float | None:
-    """Calendar year the fitted BEV curve reaches `share` (same maths as fit.R)."""
+    """Calendar year the fitted BEV curve reaches `share`.
+
+    fit.R works on an internal axis one year below the calendar; the calendar
+    curve is S(C) = 1 - exp(v1 * (C - t0)^v2), so the crossing is t0 + z
+    (the frontend's "CALENDAR-YEAR FIX" in index.html)."""
     import math
     try:
         v1, v2, t0 = float(p["v1"]), float(p["v2"]), float(p["t0"])
@@ -55,7 +75,7 @@ def crossing_year(p: dict[str, str], share: float) -> float | None:
         z = (math.log(1 - share) / v1) ** (1 / v2)
     except (OverflowError, ValueError, ZeroDivisionError):
         return None
-    y = (t0 - 1) + z
+    y = t0 + z
     return y if math.isfinite(y) and y < 1e5 else None
 
 
@@ -138,6 +158,9 @@ def main(argv: list[str] | None = None) -> int:
         prow = "".join(
             f"<tr><th>{c}</th><td>{html.escape(pb.get(c, ''))}</td><td>{html.escape(ph.get(c, ''))}</td></tr>"
             for c in PARAM_COLS
+        ) + (
+            f"<tr><th>80 % year, bands/</th><td>{html.escape(bands_80(d / 'base_bands.json'))}</td>"
+            f"<td>{html.escape(bands_80(d / 'head_bands.json'))}</td></tr>"
         ) + "".join(
             f"<tr><th>{int(s*100)} % year</th><td>{fmt_year(crossing_year(pb, s))}</td>"
             f"<td>{fmt_year(crossing_year(ph, s))}</td></tr>"
@@ -152,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         md_rows.append(
             f"| {label} | {status} | {fmt_year(crossing_year(pb, 0.8))} | {fmt_year(crossing_year(ph, 0.8))} "
-            f"| {pb.get('v2', '')[:6]} → {ph.get('v2', '')[:6]} |"
+            f"| {pb.get('v2', '')[:6]} → {ph.get('v2', '')[:6]} | {bands_80(d / 'head_bands.json')} |"
         )
 
     toc = "".join(f'<a href="#{html.escape(d.name)}">{html.escape(d.name)}</a> ' for d in series)
@@ -174,8 +197,8 @@ Charts that come out byte-identical are dimmed.</p><nav>{toc}</nav>{"".join(card
 """, encoding="utf-8")
 
     (root / "summary.md").write_text(
-        "| Series | Charts | 80 % year (base) | 80 % year (PR) | v2 base → PR |\n"
-        "|---|---|---|---|---|\n" + "\n".join(md_rows) + "\n",
+        "| Series | Charts | 80 % year (base) | 80 % year (PR) | v2 base → PR | 80 % from bands/ (PR) |\n"
+        "|---|---|---|---|---|---|\n" + "\n".join(md_rows) + "\n",
         encoding="utf-8",
     )
     print(f"wrote {root / 'index.html'} for {len(series)} series")

@@ -1,0 +1,65 @@
+name: Backfill uncertainty bands
+
+# Manual only. Computes bands/<slug>.json (CI / PI / TI for the frontend) for
+# every series in params.csv, or for the countries given, straight from data/ —
+# the same code path as a render (scripts/backfill_bands.R), but it writes ONLY
+# bands/: no PNGs, no params.csv / weights.csv / posts. Use it once after the
+# bands feature lands, or after a change to R/bands.R, instead of re-rendering
+# every country. Renders keep bands/ current afterwards.
+# See docs/architecture/44-uncertainty-bands.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      countries:
+        description: 'Countries, separated by ";" (blank = every series in params.csv)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-bands-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    # ~140 series x (fit ~5 s + bands ~2 s) plus R setup.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
+
+      # Base R only: data.R / fit.R / upsert.R / bands.R need no packages.
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Compute bands
+        env:
+          COUNTRIES: ${{ inputs.countries }}
+        run: |
+          # Inputs arrive via env, split on ";" so country names with spaces work.
+          if [ -n "$COUNTRIES" ]; then
+            IFS=';' read -ra list <<< "$COUNTRIES"
+            args=()
+            for c in "${list[@]}"; do
+              c="$(echo "$c" | sed 's/^ *//;s/ *$//')"
+              [ -n "$c" ] && args+=("$c")
+            done
+            Rscript scripts/backfill_bands.R "${args[@]}"
+          else
+            Rscript scripts/backfill_bands.R
+          fi
+
+      - name: Commit bands
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: bands
+          message: "chore: backfill uncertainty bands"
+          default_author: github_actions
+          pull: '--rebase --autostash'

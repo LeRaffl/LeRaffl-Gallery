@@ -10,8 +10,9 @@ name: Render preview
 # Read-only by design. Nothing is committed or pushed, render-country.yml and
 # build-manifest.yml are not triggered, and params.csv / weights.csv / images/
 # only change inside the throwaway runner. The output is one workflow artifact
-# ("render-preview": side-by-side PNGs under compare/, an index.html, and the
-# params.csv row before/after for every series) plus one PR comment linking to
+# ("render-preview": side-by-side PNGs under compare/, an index.html, the
+# params.csv row before/after and, where the render writes one, the
+# bands/<slug>.json summary for every series) plus one PR comment linking to
 # it, updated in place on each push.
 #
 # Triggers: automatically on PRs touching R/ (or this preview itself), or by
@@ -144,11 +145,15 @@ jobs:
             fi
             git ls-files --others --modified --exclude-standard -- images \
               | while read -r f; do cp "$f" "$out/$side/"; done
+            # Uncertainty bands (frontend data, not a chart): keep the JSON so the
+            # sheet can compare the confidence ranges base vs PR.
+            git ls-files --others --modified --exclude-standard -- bands \
+              | while read -r f; do cp "$f" "$out/${side}_bands.json"; done
             { head -n 1 params.csv
               awk -F, -v c="$COUNTRY" -v v="$VARIANT" '$1 == c && $2 == v' params.csv
             } > "$out/${side}_params.csv"
-            git checkout -- images params.csv weights.csv posts 2>/dev/null || true
-            git clean -fdq -- images posts
+            git checkout -- images params.csv weights.csv posts bands 2>/dev/null || true
+            git clean -fdq -- images posts bands
             echo "::endgroup::"
           }
 

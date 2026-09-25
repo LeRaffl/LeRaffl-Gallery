@@ -9,7 +9,7 @@ suppressPackageStartupMessages({
   library(ggplot2); library(scales); library(grid); library(png); library(ggtext)
 })
 
-source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R"); source("R/post_text.R")
+source("R/data.R"); source("R/fit.R"); source("R/plots.R"); source("R/upsert.R"); source("R/post_text.R"); source("R/bands.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 1) stop("usage: Rscript R/render_country.R <Country> [<Variant>]")
@@ -95,23 +95,7 @@ date_suffix <- format(Sys.Date(), "%Y%m%d")
 # German-style expansion ü→ue / ö→oe / ä→ae plus a few Turkish letters that
 # have unambiguous ASCII equivalents. Apply that translit step first so the
 # slug-then-relabel round-trips cleanly.
-slug_country <- function(country, variant) {
-  translit <- function(s) {
-    pairs <- list(
-      c("ü","ue"), c("ö","oe"), c("ä","ae"), c("ß","ss"),
-      c("Ü","Ue"), c("Ö","Oe"), c("Ä","Ae"),
-      c("ı","i"),  c("İ","I"),
-      c("ş","s"),  c("Ş","S"),
-      c("ğ","g"),  c("Ğ","G"),
-      c("ç","c"),  c("Ç","C")
-    )
-    for (p in pairs) s <- gsub(p[1], p[2], s, fixed = TRUE)
-    s
-  }
-  base <- tolower(gsub("[^A-Za-z0-9]+", "_", translit(country)))
-  if (variant == "Whole") return(base)
-  paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", translit(variant))))
-}
+# slug_country() lives in R/data.R (shared with scripts/backfill_bands.R).
 slug <- slug_country(country, variant)
 
 # Flag (optional — falls back to no flag if missing).
@@ -355,6 +339,21 @@ upsert_params("params.csv", country, variant, fit, data_per, source_str, ttm_bev
 weight <- compute_weight(df)
 cat(sprintf("[upsert] weights.csv %s/%s  weight=%s\n", country, variant, format(weight, big.mark = ",")))
 upsert_weights("weights.csv", country, variant, weight, data_per)
+
+# Uncertainty bands (CI / PI / TI) for the frontend — bands/<slug>.json. Read by
+# index.html only; the PNGs above never use them. A band failure must never
+# fail a render, and a fit with no usable S-shape removes a stale file rather
+# than leaving old bands next to a new curve. See docs/architecture/44-uncertainty-bands.md.
+bands_path <- file.path("bands", paste0(slug, ".json"))
+bands <- tryCatch(compute_bands(df, fit), error = function(e) {
+  cat("[bands] skipped:", conditionMessage(e), "\n"); NULL })
+if (is.null(bands)) {
+  if (file.exists(bands_path)) file.remove(bands_path)
+  cat("[bands] no bands for this fit\n")
+} else {
+  write_bands_json(bands_path, bands, country, variant, data_per)
+  cat(sprintf("[bands] %s  persistence=%.2f  histories=%d\n", bands_path, bands$persistence, bands$boot_ok))
+}
 
 # Self-heal any rows whose v1 was rounded to 0 by an external tool — see
 # heal_v1_zero_rows() in R/upsert.R for full context. Runs on every render so
