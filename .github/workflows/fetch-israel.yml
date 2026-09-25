@@ -8,7 +8,7 @@ name: Fetch Israel data (data.gov.il)
 # previous month is present), so the daily cron is a no-op most of the
 # month; real runs re-count the last 3 months to absorb late registrations.
 #
-# See docs/architecture/30-source-israel.md for the source playbook
+# See docs/architecture/34-source-israel.md for the source playbook
 # (unpadded month keys, P-scope, the HEV-hidden-in-petrol catalogue join).
 
 on:

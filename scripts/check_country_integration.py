@@ -55,23 +55,8 @@ ARCHIVE_VARIANTS = {"legacy"}
 # Do not add a new country here to make CI green without a reason a reviewer
 # would accept.
 KNOWN_GAPS: dict[str, dict[str, str]] = {
-    "New Zealand": {"flag_png": "open: flag stored as newzealand.png, render looks for new_zealand.png"},
-    "Israel": {"flag_png": "open: no assets/flags/israel.png",
-               "sd_countries": "open: not offered in Submit-Data",
-               "glossary": "open: Israel_Vans missing from the 09 glossary tables",
-               "workflow_docs": "open: fetch-israel.yml missing from 02/08 tables and render_schedule.R"},
-    "Nepal": {"sd_countries": "open: not offered in Submit-Data"},
-    "Albania": {"sd_countries": "open: not offered in Submit-Data"},
-    "South Korea": {"flag_png": "open: flag stored as southkorea.png, render looks for south_korea.png"},
-    "Malta": {"flag_png": "open: no assets/flags/malta.png"},
-    "France": {"workflow_docs": "open: fetch-france.yml missing from 02/08 tables and render_schedule.R"},
-    "India": {"sd_countries": "open: not offered in Submit-Data",
-              "timezone": "open: Asia/Kolkata not in TZ_COUNTRY"},
-    "Colombia": {"sd_countries": "open: not offered in Submit-Data"},
-    "Denmark": {"sd_countries": "open: not offered in Submit-Data"},
-    "Finland": {"sd_countries": "open: not offered in Submit-Data"},
-    "Malaysia": {"sd_countries": "open: not offered in Submit-Data"},
-    "Netherlands": {"sd_countries": "open: not offered in Submit-Data"},
+    # Empty since 2026-09-25: every country passes every check. Format when
+    # a gap has to be accepted: "Country": {"check": "open: why / what is missing"}
 }
 
 
