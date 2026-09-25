@@ -140,14 +140,27 @@ A country in no group silently never appears in any regional curve.
    identical, the checker compares them:
    - `index.html` → `BUILDER_GROUPS` (`western_europe`, `northern_europe`,
      `southern_europe`, `eastern_europe`, `north_america`, `south_america`,
-     `americas`, `asia`),
+     `americas`, `asia`, `oceania`),
    - `scripts/snapshot_builder.py` → `GROUPS_STATIC`.
    Political groups (`eu`, `g7`) only if it is a member. Size groups are
    computed from `weights.csv` — nothing to do.
-2. If no group fits (Oceania, Middle East, Caucasus …) or membership is a
-   judgement call, **ask the owner** and, until decided, record the gap in
-   `KNOWN_GAPS` in `scripts/check_country_integration.py` with the reason.
-3. Changing a group changes that group's aggregate curves and GIFs — Phase 8
+2. **Membership conventions** (decided 2026-09-25; follow them, the owner
+   changes them in a separate PR if wanted): Europe is split the way the
+   gallery already did it — post-communist Central/Eastern Europe, the
+   Balkans and the Caucasus go to `eastern_europe` (Croatia, Slovenia,
+   Bulgaria, Ukraine, Albania, Georgia); Mediterranean countries not in that
+   set go to `southern_europe` (Greece, Cyprus, Malta, Türkiye). Everything
+   `COUNTRY_REGION` files under Asia goes to `asia` — Israel and Nepal
+   included. Australia and New Zealand are `oceania`. A country that fits
+   none of these is the one case to ask the owner about; record it in
+   `KNOWN_GAPS` in `scripts/check_country_integration.py` meanwhile.
+3. **A new group** (as `oceania` was) needs five places: `BUILDER_GROUPS`,
+   `GROUPS_STATIC`, an `<option>` in `<select id="builderGroups">`,
+   `groupLabels` (index.html) and `GROUP_LABELS`
+   (`scripts/build_builder_series.py`). The checker's `[groups]` check
+   enforces the last three; `backtest/series/<group>.json` appears on the next
+   backtest run.
+4. Changing a group changes that group's aggregate curves and GIFs — Phase 8
    regenerates them.
 
 ## Phase 7 — Documentation

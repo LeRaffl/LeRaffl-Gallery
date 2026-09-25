@@ -42,7 +42,7 @@ sys.path.insert(0, str(REPO / "scripts"))
 # Groups in BUILDER_GROUPS that describe geography (the rest are political
 # or size-based: eu, g7, world, none, small/medium/big_markets).
 GEO_GROUPS = ("western_europe", "northern_europe", "southern_europe", "eastern_europe",
-              "north_america", "south_america", "americas", "asia")
+              "north_america", "south_america", "americas", "asia", "oceania")
 
 # Series a Weibull fit needs before the backtest fits it (R/build_backtest.R).
 MIN_ROWS = 24
@@ -55,23 +55,13 @@ ARCHIVE_VARIANTS = {"legacy"}
 # Do not add a new country here to make CI green without a reason a reviewer
 # would accept.
 KNOWN_GAPS: dict[str, dict[str, str]] = {
-    # Region groups: BUILDER_GROUPS has no Oceania / Middle East / Caucasus /
-    # South Asia group, and Türkiye and Albania were never assigned one.
-    # Each is an owner decision still open (2026-09-25).
-    "Australia": {"geo_group": "open: no Oceania group in BUILDER_GROUPS"},
-    "New Zealand": {"geo_group": "open: no Oceania group in BUILDER_GROUPS",
-                    "flag_png": "open: flag stored as newzealand.png, render looks for new_zealand.png"},
-    "Georgia": {"geo_group": "open: Caucasus — no fitting group"},
-    "Israel": {"geo_group": "open: no Middle-East group (COUNTRY_REGION files it under Asia)",
-               "flag_png": "open: no assets/flags/israel.png",
+    "New Zealand": {"flag_png": "open: flag stored as newzealand.png, render looks for new_zealand.png"},
+    "Israel": {"flag_png": "open: no assets/flags/israel.png",
                "sd_countries": "open: not offered in Submit-Data",
                "glossary": "open: Israel_Vans missing from the 09 glossary tables",
                "workflow_docs": "open: fetch-israel.yml missing from 02/08 tables and render_schedule.R"},
-    "Nepal": {"geo_group": "open: customs imports, not registrations — Asia membership undecided",
-              "sd_countries": "open: not offered in Submit-Data"},
-    "Türkiye": {"geo_group": "open: COUNTRY_REGION says Europe, but no Europe sub-group chosen"},
-    "Albania": {"geo_group": "open: Western Balkans — no Europe sub-group chosen",
-                "sd_countries": "open: not offered in Submit-Data"},
+    "Nepal": {"sd_countries": "open: not offered in Submit-Data"},
+    "Albania": {"sd_countries": "open: not offered in Submit-Data"},
     "South Korea": {"flag_png": "open: flag stored as southkorea.png, render looks for south_korea.png"},
     "Malta": {"flag_png": "open: no assets/flags/malta.png"},
     "France": {"workflow_docs": "open: fetch-france.yml missing from 02/08 tables and render_schedule.R"},
@@ -269,6 +259,25 @@ def run(only: str | None) -> int:
         elif (a is None) != (b is None) and g in GEO_GROUPS:
             errors.append(f"[mirror] BUILDER_GROUPS.{g} only in "
                           f"{'index.html' if b is None else 'snapshot_builder.py'}")
+
+    # Global: every static group is offered in the Builder's select and
+    # labelled in index.html (groupLabels) and scripts/build_builder_series.py
+    # (GROUP_LABELS — the Time-lapse / GIF titles).
+    from build_builder_series import GROUP_LABELS
+    i = html.find('<select id="builderGroups">')
+    select = html[i:html.find("</select>", i)] if i != -1 else ""
+    labels_js = html[html.index("const groupLabels = {"):]
+    labels_js = labels_js[:labels_js.index("};")]
+    for g in sorted(set(js_groups) - {"world", "none"}):
+        where = []
+        if f'value="{g}"' not in select:
+            where.append('index.html <select id="builderGroups">')
+        if not re.search(rf"\b{g}\s*:", labels_js):
+            where.append("index.html groupLabels")
+        if g not in GROUP_LABELS:
+            where.append("scripts/build_builder_series.py GROUP_LABELS")
+        if where:
+            errors.append(f"[groups] group `{g}` is missing from: " + ", ".join(where))
 
     countries = sorted(series) if not only else [only]
     if only and only not in series:

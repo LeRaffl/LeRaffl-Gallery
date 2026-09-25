@@ -4034,6 +4034,7 @@ function tok(name, fallback){
               <optgroup label="Global">
                 <option value="g7">G7</option>
                 <option value="asia">Asia</option>
+                <option value="oceania">Oceania</option>
               </optgroup>
               <optgroup label="Analytical">
                 <option value="small_markets">Small Markets  (&lt;50k units/year)</option>
@@ -8328,11 +8329,12 @@ const BUILDER_GROUPS = {
     'Norway','Sweden','Denmark','Finland','Iceland'
   ],
   southern_europe: rows => [
-    'Spain','Portugal','Italy','Greece','Malta','Cyprus'
+    'Spain','Portugal','Italy','Greece','Malta','Cyprus','Türkiye'
   ],
   eastern_europe: rows => [
     'Poland','Czechia','Slovakia','Hungary','Romania',
-    'Bulgaria','Croatia','Slovenia','Latvia','Lithuania','Estonia','Ukraine'
+    'Bulgaria','Croatia','Slovenia','Latvia','Lithuania','Estonia','Ukraine',
+    'Albania','Georgia'
   ],
   eu: rows => [
     'Austria','Belgium','Bulgaria','Croatia','Cyprus','Czechia','Denmark',
@@ -8362,7 +8364,12 @@ const BUILDER_GROUPS = {
   asia: rows => [
     'China','Japan','South Korea','India',
     'Thailand','Malaysia','Indonesia',
-    'Vietnam','Philippines','Singapore','Taiwan','Hong Kong'
+    'Vietnam','Philippines','Singapore','Taiwan','Hong Kong',
+    'Israel','Nepal'
+  ],
+  // ---- OCEANIA ----
+  oceania: rows => [
+    'Australia','New Zealand'
   ],
 /* Market-size buckets.
    `vars` is the list of weight variants the size is measured on. The Builder
@@ -9384,7 +9391,7 @@ if (stepTraces.length){
       western_europe:'Western Europe', northern_europe:'Northern Europe',
       southern_europe:'Southern Europe', eastern_europe:'Eastern Europe',
       north_america:'North America', south_america:'South America', americas:'Americas (all)',
-      asia:'Asia',
+      asia:'Asia', oceania:'Oceania',
       // Thresholds always read the passenger-car market (MARKET_SIZE_VARIANTS),
       // so the label says so — the bucket does not change with the Variant
       // dropdown next to it.

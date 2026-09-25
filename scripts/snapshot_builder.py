@@ -146,10 +146,11 @@ GROUPS_STATIC = {
         "Luxembourg", "Switzerland", "Ireland", "United Kingdom", "UK",
     ],
     "northern_europe": ["Norway", "Sweden", "Denmark", "Finland", "Iceland"],
-    "southern_europe": ["Spain", "Portugal", "Italy", "Greece", "Malta", "Cyprus"],
+    "southern_europe": ["Spain", "Portugal", "Italy", "Greece", "Malta", "Cyprus", "Türkiye"],
     "eastern_europe": [
         "Poland", "Czechia", "Slovakia", "Hungary", "Romania",
         "Bulgaria", "Croatia", "Slovenia", "Latvia", "Lithuania", "Estonia", "Ukraine",
+        "Albania", "Georgia",
     ],
     "eu": [
         "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Denmark",
@@ -168,7 +169,9 @@ GROUPS_STATIC = {
         "China", "Japan", "South Korea", "India",
         "Thailand", "Malaysia", "Indonesia",
         "Vietnam", "Philippines", "Singapore", "Taiwan", "Hong Kong",
+        "Israel", "Nepal",
     ],
+    "oceania": ["Australia", "New Zealand"],
 }
 
 SMALL_MARKET_LIMIT = 50_000

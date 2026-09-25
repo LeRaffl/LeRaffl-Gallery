@@ -383,7 +383,7 @@ The archive keeps full fidelity at 0.1-year resolution (351 points, 197 KB per s
 
 | Column | Type | Notes |
 |---|---|---|
-| `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
+| `group` | string | One of: `world`, `western_europe`, `northern_europe`, `southern_europe`, `eastern_europe`, `eu`, `g7`, `north_america`, `south_america`, `americas`, `asia`, `oceania` (from 2026-09-25), `small_markets`, `medium_markets`, `big_markets` (mirrors `BUILDER_GROUPS` in `index.html`). |
 | `year` | float | Fractional calendar year, `2015.0`–`2050.0` in 0.1-year steps (~36-day resolution). **Which basis this is on is per-snapshot — read the entry's `basis` field before comparing two snapshots** (see below). |
 | `bev_share` | float | Weighted aggregate BEV share in `[0, 100]`. |
 | `ice_share` | float \| empty | Weighted aggregate ICE share in `[0, 100]`. Empty when no row in the group has ICE Weibull parameters. |
