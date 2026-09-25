@@ -105,6 +105,7 @@
   - `fetch-israel.yml` — täglich 08:00, 10.→20. Israel (MoT-Fahrzeugregister auf data.gov.il, Whole / Vans; HEV/PHEV über den Modellkatalog-Join).
   - `fetch-japan.yml` — täglich 08:00, 1.→EOM. Japan.
   - `fetch-netherlands.yml` — täglich 06:30, 1.→15. Netherlands (Whole / Used / HDV).
+  - `fetch-south-korea.yml` — täglich 03:35 & 09:35, 12.→25. South Korea (MOTIR-Pressemitteilung «자동차산업 동향», PDF; Inlandsabsatz aller Fahrzeugarten nach Antrieb, Vormonat wird revidiert).
   - `fetch-turkey.yml` — täglich 08:00, 15.→EOM. Türkiye (benötigt manuelles `press_id`).
   - `fetch-ukraine.yml` — täglich 08:40 & 20:40, 1.→15. Ukraine (offenes MIA-Fahrzeugregister auf data.gov.ua, ein Datensatz pro Registrierungsvorgang **mit Kraftstofffeld**; Whole / Private / Industry / Used / Vans aus einem Download, neu/gebraucht über die Vorgangscodes des Registers, ab 2018-09; Hybride als ein kombinierter Hybrid-Topf ohne PHEV-Split; schreibt auch `market/ukraine_top.json` — siehe [40-source-ukraine.md](../docs/architecture/40-source-ukraine.md)).
   - `fetch-uruguay.yml` — täglich 08:00, 1.→EOM. Uruguay.

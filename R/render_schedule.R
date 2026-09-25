@@ -16,6 +16,7 @@ FLAG <- c(
   thailand="\U0001F1F9\U0001F1ED",
   netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
+  `south-korea`="\U0001F1F0\U0001F1F7",
   spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7", ukraine="\U0001F1FA\U0001F1E6",
   uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
 )
@@ -26,7 +27,7 @@ LABEL <- c(
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", poland="Poland",
-  portugal="Portugal", singapore="Singapore", spain="Spain", sweden="Sweden",
+  portugal="Portugal", singapore="Singapore", `south-korea`="South Korea", spain="Spain", sweden="Sweden",
   turkey="T\u00fcrkiye", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
   indonesia="Indonesia", thailand="Thailand"
 )

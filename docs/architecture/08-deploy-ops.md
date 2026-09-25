@@ -142,6 +142,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | 09:30 & 13:30 UTC, 6th → 10th | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant early-exit |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
 | [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | 08:00 UTC, 15th → EOM | LTA Monthly Vehicle Statistics, file M03 (PDF) | `Whole` | change-gated commit (rolling ~6-month window) |
+| [`fetch-south-korea.yml`](../../.github/workflows/fetch-south-korea.yml) | 03:35 & 09:35 UTC, 12th → 25th | MOTIR «자동차산업 동향» press-release PDF ([43](43-source-south-korea.md)) | `Whole` | newest release's month in the CSV and its previous month unchanged → no write |
 | [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 06:30 UTC, 1st → 16th | DGT matriculaciones microdata (fixed-width, monthly zip) + `market/spain_top.json` | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
@@ -165,7 +166,8 @@ Notes on the schedule shape:
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
   06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
-  07:30, France 07:40, Nepal 07:50.
+  07:30, France 07:40, Nepal 07:50; South Korea 03:35 & 09:35 (MOTIR releases
+  at 11:00 KST).
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
@@ -178,7 +180,7 @@ Notes on the schedule shape:
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,
-  Israel 10–20, Chile 14+, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
+  Israel 10–20, Chile 14+, South Korea 12–25, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.
@@ -195,8 +197,7 @@ Notes on the schedule shape:
 Country coverage of automated fetchers: **see also**
 [02-components.md](02-components.md#27-fetch-actions-overview). Countries with
 a CSV but no automated fetcher — maintained via the legacy local R pipeline or
-public-submit PRs — are **Australia, Georgia, Germany, South Korea and the
-UK**, plus **India** (no committed CSV at all) and **New Zealand** (fetcher
+public-submit PRs — are **Australia, Georgia, Germany and the UK**, plus **India** (no committed CSV at all) and **New Zealand** (fetcher
 present, cron disabled).
 
 ### Infrastructure actions

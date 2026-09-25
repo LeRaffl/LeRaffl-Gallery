@@ -513,28 +513,6 @@ stubs:
       - "Plug-in and full hybrids are not separated; both sit in the HEV column."
       - "Maintained by hand."
 
-  - country: South Korea
-    slug: south-korea
-    method: manual
-    summary: "New-vehicle registration data for South Korea from the transport ministry."
-    source_name: "South Korea — Ministry of Land, Infrastructure and Transport"
-    underlying: "MOLIT — Ministry of Land, Infrastructure and Transport"
-    variants: [Whole]
-    cadence: "entered by hand each month"
-    data_file: "data/South Korea.csv"
-    scope_note: "New vehicle registrations as published by the transport ministry. Petrol and diesel are not split — combustion is one aggregate ICE figure."
-    hev_split: true
-    variant_notes:
-      Whole: "New vehicle registrations as published by the transport ministry."
-    notes:
-      - "South Korea's monthly registrations are taken from the transport ministry's vehicle-registration statistics and entered by hand."
-      - "Combustion is stored as one aggregate ICE figure — petrol and diesel are not split — so those columns stay empty."
-      - "The rows carry the source string `motir.go.kr`, but the exact upstream page for this series has not been re-confirmed, so no link is given here rather than a guessed one."
-    caveats:
-      - "No public source link yet — this is the one country page that cannot point you at the upstream document. Treat the figures as unverifiable from here until it is confirmed."
-      - "Combustion is stored as one aggregate ICE figure — there is no petrol/diesel split, so those columns stay empty."
-      - "Maintained by hand."
-
   - country: India
     slug: india
     method: manual
