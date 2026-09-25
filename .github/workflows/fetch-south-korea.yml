@@ -1,0 +1,104 @@
+name: Fetch South Korea data (MOTIR 자동차산업 동향)
+
+# Reads the Ministry of Trade, Industry and Resources' monthly «자동차산업
+# 동향» press release (motir.go.kr board «보도·참고자료», PDF attachment) and
+# upserts data/South Korea.csv (variant Whole):
+#   TOTAL = 내수 판매량 (domestic sales, all vehicle types, incl. imports)
+#   BEV / PHEV / HEV / OTHERS (hydrogen) from the «친환경차 차종별 내수» table,
+#   ICE = TOTAL − eco-friendly cars (no petrol/diesel split published).
+# Each release carries three months (a year earlier, previous, current). The
+# current and the previous month are written — the previous one is MOTIR's
+# revision — so a month without a release of its own is filled by the next
+# one. The year-earlier column is only cross-checked and reported.
+# Full method, validation against the hand-entered history and a debugging
+# runbook: docs/architecture/43-source-south-korea.md.
+#
+# MOTIR publishes around the 13th–20th of M+1 at 11:00 KST (02:00 UTC). The
+# script self-throttles: when the newest release's month is already in the
+# CSV and its previous month is unchanged, the run ends after reading the
+# list and one PDF.
+
+on:
+  workflow_dispatch:
+    inputs:
+      releases:
+        description: 'How many of the newest releases to read (default 3)'
+        required: false
+        default: '3'
+      force:
+        description: 'Ignore the self-throttle / completeness guard / foreign rows'
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: 'Parse and report only; write nothing'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Daily on the 12th–25th, 03:35 and 09:35 UTC (12:35 / 18:35 KST).
+    - cron: '35 3,9 12-25 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests pdfplumber
+
+      # The parser fails silently when the table layout moves, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: python scripts/test_fetch_south_korea.py
+
+      - name: Fetch & update South Korea.csv
+        id: fetch
+        run: |
+          python scripts/fetch_south_korea.py \
+            ${RELEASES:+--releases "$RELEASES"} \
+            ${FORCE:+--force} \
+            ${DRY_RUN:+--dry-run}
+        env:
+          RELEASES: ${{ inputs.releases }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN:  ${{ inputs.dry_run == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        if: steps.fetch.outputs.changed == 'true'
+        uses: EndBug/add-and-commit@v9
+        with:
+          # A git pathspec glob, not a shell glob: the action splits this input
+          # on whitespace, so "data/South Korea.csv" would become two arguments.
+          add: 'data/South?Korea.csv'
+          message: 'chore: update South Korea data from MOTIR (자동차산업 동향)'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for South Korea
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="South Korea" \
+            -f variant=Whole
