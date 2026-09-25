@@ -160,7 +160,14 @@ A render whose fit has no usable S-shape (`v1 ≥ 0`, `v2 ≤ 0`, fewer than 12 
 - An R change goes through a PR; `preview-render.yml` renders 24 series with the PR's and the base's `R/` and lists the 80 % crossing with its CI from each `bands/` file.
 - Re-check §6 after any change to the method. The simulation scripts are not in the repo yet; the procedure is exactly §6: truth = today's fit, 200 re-runs with new noise, refit, count.
 
-**Known open points:** the annual cycle (year-end peaks) is not modelled; a seasonal term (e.g. Fourier) would take it out of the residuals and tighten PI and TI — planned; persistence longer than AR(2) (Germany, Italy fall furthest short on real-shaped noise); a single bootstrap round is slightly optimistic for the TI; the `√S(1−S)` scaling lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere; short series (< 48 rows, mostly the quarterly commercial-vehicle block) get no usable band at all.
+**Known open points:**
+
+- **Annual cycle** (year-end peaks) is not modelled. A seasonal term (e.g. Fourier) would take it out of the residuals and tighten PI and TI. Planned as the next method change; afterwards re-run §6 and re-derive the 0.9 persistence cut-off (§6).
+- **Persistence longer than AR(2)**: Germany and Italy fall furthest short on real-shaped noise.
+- **TI with a single bootstrap round** is slightly optimistic. A second, nested round (bootstrap-calibrated confidence) was considered and **deliberately not done** (September 2026): it needs about 200 × 200 refits per series instead of 200, turning seconds into hours per render, and the TI's shortfall on real-shaped noise (§6) comes mostly from the same unmodelled persistence and annual cycle as the CI's, which a second round does not fix. Revisit after the annual cycle is modelled, with a fresh §6 run.
+- **The `√S(1−S)` scaling** lets early low-share outlier months (Denmark before 2018) widen PI and TI everywhere.
+- **Short series** (< 48 rows, mostly the quarterly commercial-vehicle block) get no usable band at all.
+- **`params.csv` rows without a data series** (Canada Non-Passenger, Germany Custom, India 2-/3-/4-Wheelers, Latvia Used in September 2026) are kept on purpose as a historical record of past fits. They get no band file: `backfill_bands.R` needs the data to compute one.
 
 ## 10. In the frontend (Builder and Compare)
 
