@@ -1,0 +1,11 @@
+🇭🇰 Hong Kong - July 26 - BEV Trajectory
+77.3% BEV
+4.8% PHEV (of which 0.3%p were EREV)
+17.9% ICE
+
+Trailing 12 months are:
+90.0% BEV
+0.9% PHEV (of which 0.0%p were EREV)
+9.1% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
