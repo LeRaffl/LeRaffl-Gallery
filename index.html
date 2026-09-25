@@ -1709,7 +1709,7 @@ a:focus-visible{
   border-color:rgba(170,180,200,.35);
 }
 
-/* Unsettled — the fit moves too much between re-fits to carry tags. */
+/* Unreliable fit — unsettled, collapsed or stale; replaces the other tags. */
 .status-pill[data-tag="unsettled"]{
   color:var(--thr-late-txt);
   background:var(--warn-wash);
@@ -3058,6 +3058,14 @@ h2 .fb-ctx-btn{
   margin:16px 0 8px;
 }
 .rank-lede code{font-size:.92em}
+.rank-hidden-note{
+  max-width:720px;
+  margin:10px 0 0;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--muted);
+  text-wrap:pretty;
+}
 .rank-legend{
   display:flex;
   flex-wrap:wrap;
@@ -3706,7 +3714,7 @@ function tok(name, fallback){
         <select id="periodSelect" hidden><option value="">All months</option></select>
 
         <details class="side-more">
-          <summary>Status, speed &amp; timing</summary>
+          <summary>Status, speed, timing &amp; fit</summary>
           <label class="small">Status <span class="small">(fitted 80%)</span></label>
           <div class="chips tag-filter" data-tag-cat="status">
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="past"    checked/> Past 80%</label>
@@ -3728,6 +3736,13 @@ function tok(name, fallback){
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="early"      checked/> Early starter</label>
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="mid"        checked/> Mid</label>
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="late_start" checked/> Late starter</label>
+          </div>
+
+          <div style="height:10px"></div>
+          <label class="small">Fit <span class="small">(unsettled, collapsed or stale)</span></label>
+          <div class="chips tag-filter" data-tag-cat="fit">
+            <label class="chip tag-chip"><input type="checkbox" data-tag-value="reliable"   checked/> Reliable</label>
+            <label class="chip tag-chip"><input type="checkbox" data-tag-value="unreliable" checked/> Unreliable fit</label>
           </div>
         </details>
         <div style="height:14px"></div>
@@ -3815,6 +3830,7 @@ function tok(name, fallback){
     </div>
     <div class="container tablepad">
       <div id="thresholdsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
+      <p id="thresholdsHiddenNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -3938,6 +3954,7 @@ function tok(name, fallback){
     </div>
     <div class="container tablepad">
       <div id="durationsMount" class="tablecard"><div style="padding:14px">Loading <code>params.csv</code>…</div></div>
+      <p id="durationsHiddenNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -3990,6 +4007,7 @@ function tok(name, fallback){
       <div id="speedMount" class="tablecard" style="padding:0">
         <div style="padding:14px">Loading <code>params.csv</code>…</div>
       </div>
+      <p id="speedHiddenNote" class="rank-hidden-note" hidden></p>
     </div>
   </section>
 
@@ -6829,11 +6847,15 @@ function passesTagFilter(country, filters){
   const cats = Object.keys(filters);
   if (!cats.length) return true;
   const tags = window.__bevTagsByCountry && window.__bevTagsByCountry[country];
+  // Fit reliability applies to every chart, no-transition ones included. A
+  // chart with no params row at all has no verdict and counts as reliable.
+  if (filters.fit && !filters.fit.has(tags && tags.unsettled ? 'unreliable' : 'reliable')) return false;
   // No-transition rows bypass status/speed/timing filters: those categories
   // are undefined for a curve that never takes off, so they shouldn't be
   // filtered against. The dedicated 'notrans' pill makes them findable.
   if (tags && tags.notrans) return true;
   for (const cat of cats){
+    if (cat === 'fit') continue;
     const allowed = filters[cat];
     // Timing has a designed middle band — missing tag means "mid".
     // Status/Speed without a tag means we couldn't compute it; treat as 'unknown'
@@ -7224,6 +7246,92 @@ function rowHasNoTransition(r){
   if(!isFinite(slope)) return true;
   return slope < MIN_TRANSITION_SLOPE;
 }
+
+// Fit reliability — the one gate every ranking, table, map and tag reads.
+// A curve can be unusable for three different reasons, and each has its own
+// test:
+//   • unsettled — the projected 80 % crossing moved more than
+//     FIT_UNSETTLED_SWING years across the recent re-fits (`refit_swing` in
+//     params.csv; Inf = re-fits stopped producing a crossing at all).
+//   • collapsed — the fit is a near-vertical step: it claims 10 %→80 % in
+//     under FIT_COLLAPSE_SPAN years while the observed share has not even
+//     reached FIT_COLLAPSE_OBS, so the whole claimed rise is extrapolation.
+//     The fastest observed transitions (Norway ~8 y, Denmark ~5 y) are far
+//     slower. A collapse that repeats on every refit (Argentina) is *stable*,
+//     which is why refit_swing alone cannot catch it. A non-positive shape
+//     counts as collapsed too.
+//   • stale — the newest data point is more than FIT_STALE_MONTHS old, so the
+//     curve describes a market we no longer observe (Belgium Vans: 2023-03).
+// Excluded rows drop out of Thresholds, Durations, Time interval, the World
+// Map and the tag quartiles; the chart itself stays in the gallery.
+// Swing between FIT_PROVISIONAL_SWING and FIT_UNSETTLED_SWING keeps the row
+// but flags it provisional. Rows that show no transition are left to
+// rowHasNoTransition — callers check that first.
+const FIT_UNSETTLED_SWING   = 25;   // years
+const FIT_PROVISIONAL_SWING = 5;    // years
+const FIT_COLLAPSE_SPAN     = 3;    // years from 10 % to 80 %
+const FIT_COLLAPSE_OBS      = 0.10; // observed (TTM) BEV share
+const FIT_STALE_MONTHS      = 12;
+// "Inf" (R's infinity), an empty cell, or anything unparseable all mean the
+// same thing: we cannot vouch for this curve.
+function parseRefitSwing(raw){
+  const t = String(raw ?? '').trim();
+  if (t === '') return Infinity;
+  if (/^-?inf(inity)?$/i.test(t)) return Infinity;
+  const n = Number(t.replace(',', '.'));
+  return isFinite(n) ? n : Infinity;
+}
+// Fitted years from 10 % to 80 % share. Independent of t0: both crossings
+// share the same origin, so it cancels.
+function fitSpan10to80(v1, v2){
+  if (!(isFinite(v1) && v1 < 0 && isFinite(v2) && v2 > 0)) return NaN;
+  const z = p => Math.pow(Math.log(1 - p) / v1, 1 / v2);
+  return z(0.80) - z(0.10);
+}
+function fitReliability(r, now){
+  const v1 = normNumber(r.v1), v2 = normNumber(r.v2);
+  const ttmRaw = String(r.ttm_bev_share ?? '').trim();
+  const obs = ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN;
+  // The swing gate only engages once params.csv carries the column, so a
+  // gallery served alongside an older params.csv does not drop every row.
+  const swing = Object.prototype.hasOwnProperty.call(r, 'refit_swing')
+    ? parseRefitSwing(r.refit_swing) : NaN;
+  const span = fitSpan10to80(v1, v2);
+  const reasons = [];
+  if (swing > FIT_UNSETTLED_SWING) reasons.push('unsettled');
+  if (!(isFinite(v2) && v2 > 0) ||
+      (span < FIT_COLLAPSE_SPAN && !(obs >= FIT_COLLAPSE_OBS))) reasons.push('collapsed');
+  const dp = getDataPer(r).match(/^(\d{4})-(\d{2})$/);
+  let ageMonths = NaN;
+  if (dp) {
+    const d = now || new Date();
+    ageMonths = (d.getUTCFullYear() * 12 + d.getUTCMonth()) - (Number(dp[1]) * 12 + Number(dp[2]) - 1);
+    if (ageMonths > FIT_STALE_MONTHS) reasons.push('stale');
+  }
+  const status = reasons.length ? 'excluded'
+    : (swing > FIT_PROVISIONAL_SWING ? 'provisional' : 'ok');
+  return { status, reasons, swing, span, obs, ageMonths, dataPer: dp ? dp[0] : '' };
+}
+// True when a row must stay out of rankings and tables: unreliable and not
+// already covered by the "shows no transition" label, which those tables keep.
+function rowIsUnreliableFit(r){
+  return !rowHasNoTransition(r) && fitReliability(r).status === 'excluded';
+}
+function fitRowKey(r){
+  const v = String(r.variant || '').trim();
+  return (!v || v.toLowerCase() === 'whole') ? (r.country || '') : `${r.country} (${v})`;
+}
+// One line under a table naming what was left out, so a missing market reads
+// as a decision rather than a bug. `keep` limits it to the selected variants.
+function renderHiddenFitsNote(el, rows, keep){
+  if (!el) return;
+  const hidden = rows.filter(r => (!keep || keep(r)) && rowIsUnreliableFit(r)).map(fitRowKey).sort();
+  if (!hidden.length) { el.hidden = true; el.textContent = ''; return; }
+  el.hidden = false;
+  el.innerHTML = `<b>Left out — fit not reliable (${hidden.length}):</b> ` +
+    hidden.map(k => k.replace(/&/g,'&amp;').replace(/</g,'&lt;')).join(', ') +
+    '. Their charts stay in the gallery; see the FAQ on the <em>Unreliable fit</em> tag for the criteria.';
+}
 function getDataPer(r){ const c=[r.data_per,r.latest_month,r.last_month,r.month_latest,r.data_month,r.latest_date,r.last_date,r.obs_last,r.data_asof].map(x=>String(x||'').trim()).filter(Boolean); for(const v of c){ const m=toYYYYMM(v); if(m) return m; } return ''; }
 function extractVariantParts(variant){
   const base = String(variant || '').trim();
@@ -7351,7 +7459,7 @@ function renderThresholds(csvText){
     function computeData(){
       const pct = Math.max(1, Math.min(99, Number(customPctEl.value) || 90));
       const y = pct / 100;
-      return rows.map(r => {
+      return rows.filter(r => !rowIsUnreliableFit(r)).map(r => {
         const v1 = normNumber(r.v1);
         const v2 = normNumber(r.v2);
         const t0 = getT0Years(r);
@@ -7497,6 +7605,9 @@ function renderTable(){
 
   mount.classList.add('tablecard');
   mount.innerHTML = `<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`;
+  const selectedBases = new Set(getSelectedCanonicals());
+  renderHiddenFitsNote(document.getElementById('thresholdsHiddenNote'), rows,
+    r => selectedBases.has(normalizeBase(extractVariantParts(r.variant || '').base || '')));
 
   mount.querySelectorAll('th.sortable').forEach(th=>{
     th.classList.remove('asc','desc');
@@ -7599,7 +7710,7 @@ renderTable();
   function yx(r,y){ const v1=normNumber(r.v1), v2=normNumber(r.v2), t0=getT0Years(r); const res=inv_x_years(y,v1,v2,t0); return (res&&isFinite(res.x))?res.x:NaN; }
   function fmtYearsMonths(dYears){ if(!isFinite(dYears)) return '—'; const abs=Math.abs(dYears); const years=Math.floor(abs+1e-9); const months=Math.round((abs-years)*12); const parts=[]; if(years) parts.push(`${years}y`); if(months||!years) parts.push(`${months}m`); return parts.join(' ');}
   function makeVariantOptions(rows){ const rawBases=new Set(); rows.forEach(r=>{ const p=extractVariantParts(r.variant||''); if(p.base) rawBases.add(p.base); }); const sel=document.getElementById('variantMultiD'); sel.innerHTML=''; const seen=new Set(); [...rawBases].sort((a,b)=>a.localeCompare(b)).forEach(base=>{ const canon=normalizeBase(base); if(!canon||seen.has(canon)) return; seen.add(canon); const opt=document.createElement('option'); opt.value=canon; opt.textContent=displayLabelFromBase(base); if(canon==='whole') opt.selected=true; sel.appendChild(opt); }); enhanceMultiSelect(sel); }
-  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
+  function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
     let data=computeDurations(rows); let sortKey='_d2080', sortAsc=true;
@@ -7633,7 +7744,7 @@ renderTable();
         <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
       </tr>`;}).join('')}</tbody>`; 
     }
-    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
+    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); const sb=selected(); renderHiddenFitsNote(document.getElementById('durationsHiddenNote'), rows, r=>sb.has(normalizeBase(extractVariantParts(r.variant||'').base||''))); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
     document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
     ['customFrom','customTo'].forEach(id => document.getElementById(id).addEventListener('change', draw));
     // exports
@@ -7761,6 +7872,7 @@ renderTable();
       const yEnd  =yx(r, toPct/100);
       if(!isFinite(yStart) || !isFinite(yEnd)) return;
       if(rowHasNoTransition(r)) return; // unified no-transition criterion
+      if(rowIsUnreliableFit(r)) return; // collapsed / unsettled / stale fit
       out.push({
         country: r.country||'',
         variant: r.variant||'',
@@ -8113,7 +8225,13 @@ renderTable();
     loadParams().then(rows=>{
       makeVariantOptions(rows);
       enhanceMultiSelect(document.getElementById('speedVariantMulti'));
-      const redraw=()=>{ const o=currentOpts(); render(compute(rows,o.fromPct,o.midPct,o.toPct), o); };
+      const redraw=()=>{
+        const o=currentOpts(); render(compute(rows,o.fromPct,o.midPct,o.toPct), o);
+        const sel=document.getElementById('speedVariantMulti');
+        const sb=new Set(Array.from(sel?.selectedOptions||[]).map(x=>x.value));
+        renderHiddenFitsNote(document.getElementById('speedHiddenNote'), rows,
+          r=>!sb.size || sb.has(normalizeBase(extractVariantParts(r.variant||'').base||'')));
+      };
       document.getElementById('speedApplyBtn').addEventListener('click', redraw);
       document.getElementById('speedSort').addEventListener('change', redraw);
       document.getElementById('speedVariantMulti').addEventListener('change', redraw);
@@ -11521,8 +11639,8 @@ const FAQ_DATA = [
       '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) across all rows in <code>params.csv</code>:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of countries by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
       '<b>Timing</b> \u2014 when the country crossed (or is projected to cross) <b>10 %</b> BEV share:<br>&nbsp;&nbsp;<b>Early starter</b> = before Jan 2023.<br>&nbsp;&nbsp;<b>Late starter</b> = after 2025.<br>&nbsp;&nbsp;If 10 % was/will be crossed between 2023 and 2025, no timing tag is shown.',
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035, 2023 and 2025 are fixed calendar dates. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
-      '<b>Unsettled</b> \u2014 a market whose fit is still moving too much to carry tags at all. Every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). Move it more than 25 years \u2014 or stop producing a crossing in a quarter of them \u2014 and status, speed and timing would be noise, so a single <em>Unsettled</em> pill replaces them. Between 5 and 25 years the tags are still shown but drawn hollow, and the popover reports the drift. Under 5 years they are drawn solid. The chart itself is never affected, only the tags.',
-      'All thresholds (80 %, 2035, 10 %, 2023, 2025), the quartile breakpoints and the stability cut-offs are configurable constants at the top of the script that renders the tags. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+      '<b>Unreliable fit</b> \u2014 a market whose fitted curve cannot be trusted yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the World Map (a note under each table names what was left out). The chart itself stays in the gallery. Three tests, any one is enough:<br>&nbsp;&nbsp;<b>Unsettled</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
+      'All thresholds (80 %, 2035, 10 %, 2023, 2025) and the quartile breakpoints are configurable constants at the top of the script that renders the tags; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What do the different dot sizes on the charts mean?',
     answers: [
@@ -11926,6 +12044,9 @@ function wmBuildRows(csvRows, variantCanon){
 
   const out = [];
   for (const r of byCountry.values()){
+    // Collapsed / unsettled / stale fits leave the country unpainted, like a
+    // country we have no data for — a colour would claim a crossing year.
+    if (rowIsUnreliableFit(r)) continue;
     let v1 = normNumber(r.v1);
     // Defensive fallback only — applyV1Recovery() should already have
     // replaced v1=0 rows at load time with an anchor-reconstructed value.
@@ -13480,13 +13601,11 @@ document.addEventListener('click', (e) => {
   const EARLY_BY       = 2023;  // timing: t10 before this → early starter
   const LATE_AFTER     = 2025;  // timing: t10 after this → late starter
 
-  // Refit stability gate. params.csv carries `refit_swing`: how many years the
-  // projected 80% crossing moved across the last ~12 re-fits (Inf = the fit
-  // stopped producing a crossing at all). All three tags are read off that one
-  // curve, so a curve that jumps by decades when one more month arrives cannot
-  // carry them. Rows in between keep their tags but are flagged provisional.
-  const UNSETTLED_SWING   = 25;  // > this many years → withhold the tags
-  const PROVISIONAL_SWING = 5;   // > this many years → tags shown, but flagged
+  // Reliability gate: fitReliability() (next to rowHasNoTransition) decides,
+  // with the same cut-offs every table and the map use. All three tags are
+  // read off one curve, so an excluded fit (unsettled, collapsed or stale)
+  // carries a single "Unreliable fit" pill instead; a provisional one keeps
+  // its tags, drawn hollow.
 
   // Re-implementation of slopeAtInflection (the original lives in an IIFE).
   // Returns the dimensionless slope (dS/dz) at the inflection point of the
@@ -13525,16 +13644,6 @@ document.addEventListener('click', (e) => {
     return                   { v: 'avg',  label: 'Avg speed' };
   }
 
-  // "Inf" (R's infinity), an empty cell, or anything unparseable all mean the
-  // same thing: we cannot vouch for this curve.
-  function parseSwing(raw){
-    const t = String(raw ?? '').trim();
-    if (t === '') return Infinity;
-    if (/^-?inf(inity)?$/i.test(t)) return Infinity;
-    const n = Number(t.replace(',', '.'));
-    return isFinite(n) ? n : Infinity;
-  }
-
   function timingTag(t10){
     if (!isFinite(t10)) return null;
     if (t10 < EARLY_BY)   return { v: 'early',      label: 'Early starter' };
@@ -13556,11 +13665,6 @@ document.addEventListener('click', (e) => {
       // "today" without any further offset — this is what makes the gallery
       // status pills (Past 80% / On track / Late) line up with the plotted
       // crossing year instead of firing one year early.
-      // The gate only engages once params.csv actually carries the column, so
-      // a gallery served alongside a not-yet-regenerated params.csv keeps
-      // behaving exactly as before instead of dropping every tag at once.
-      const hasSwing = rows.length > 0 && Object.prototype.hasOwnProperty.call(rows[0], 'refit_swing');
-
       const enriched = rows.map(row => {
         const variant = String(row.variant || '').trim();
         const key = (!variant || variant.toLowerCase() === 'whole')
@@ -13591,16 +13695,16 @@ document.addEventListener('click', (e) => {
           // to reach before "speed" describes observed rather than projected
           // behaviour. Only defined for S-shaped fits (v2 > 1).
           inflShare: isFinite(v2n) && v2n > 1 ? 1 - Math.exp(-(v2n - 1) / v2n) : NaN,
-          swing: hasSwing ? parseSwing(row.refit_swing) : NaN,
+          rel: fitReliability(row),
         };
       });
 
       // Phase 2 — speed quartiles across rows that actually transition.
-      // Unsettled fits are left out of the pool as well: a degenerate curve
-      // (Albania Buses fitted v2 = 254, a near-vertical step) carries a huge
-      // inflection slope and would drag the "Fast" cut-off up with it.
+      // Excluded fits are left out of the pool as well: a collapsed curve
+      // (Albania Buses, a near-vertical step) carries a huge inflection slope
+      // and would drag the "Fast" cut-off up with it.
       const speeds = enriched
-        .filter(e => !e.noTrans && !(hasSwing && e.swing > UNSETTLED_SWING))
+        .filter(e => !e.noTrans && e.rel.status !== 'excluded')
         .map(e => e.speed)
         .filter(isFinite)
         .sort((a, b) => a - b);
@@ -13613,13 +13717,16 @@ document.addEventListener('click', (e) => {
       const acc = {};
       for (const e of enriched){
         const tags = {};
-        const unsettled = hasSwing && e.swing > UNSETTLED_SWING;
-        const provisional = hasSwing && !unsettled && e.swing > PROVISIONAL_SWING;
+        const unsettled = e.rel.status === 'excluded';
+        const provisional = e.rel.status === 'provisional';
         if (e.noTrans) {
           tags.notrans = { v: 'notrans', label: 'No transition' };
         } else if (unsettled) {
           // Status/speed/timing would all be noise here — one pill instead.
-          tags.unsettled = { v: 'unsettled', label: 'Unsettled', swing: e.swing };
+          // The glossary popover lists which of the three tests failed.
+          tags.unsettled = { v: 'unsettled', label: 'Unreliable fit', swing: e.rel.swing,
+                             reasons: e.rel.reasons, span: e.rel.span, obs: e.rel.obs,
+                             dataPer: e.rel.dataPer };
         } else {
           // `level` = the share this tag is read off, `year` = the fit's
           // crossing date, `obs` = where the data actually stands. The tag
@@ -13631,7 +13738,7 @@ document.addEventListener('click', (e) => {
           const tm = timingTag(e.t10);
           if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tags.timing = tm; }
           if (provisional) {
-            for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.swing; }
+            for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.rel.swing; }
           }
         }
         if (Object.keys(tags).length) acc[e.key] = tags;
@@ -13711,12 +13818,23 @@ document.addEventListener('click', (e) => {
       }
     },
     unsettled: {
-      name: 'Unsettled',
+      name: 'Unreliable fit',
       order: [],
       ticks: [],
-      note: 'Status, speed and timing are all read off this one curve, so they are withheld rather than shown as noise. The chart itself is unchanged — only the tags are.',
+      note: 'Status, speed and timing are all read off this one curve, so they are withheld rather than shown as noise. The market is also left out of Thresholds, Durations, Time interval and the World Map. The chart itself stays in the gallery.',
       values: {
-        unsettled: { label: 'Unsettled', def: 'One more month of data still moves this fit too much for the tags to mean anything.' }
+        unsettled: { label: 'Unreliable fit', def: 'The fitted curve cannot be trusted yet: it still moves with every new month, has collapsed into a near-vertical step, or rests on data that is no longer updated.' }
+      }
+    },
+    // Sidebar filter only — cards show the Unreliable fit pill above.
+    fit: {
+      name: 'Fit',
+      order: [],
+      ticks: [],
+      note: 'Unchecking <em>Unreliable fit</em> hides those charts from the gallery. They are always left out of Thresholds, Durations, Time interval and the World Map.',
+      values: {
+        reliable:   { label: 'Reliable',       def: 'The fit is settled, has a plausible S-shape and its data is current.' },
+        unreliable: { label: 'Unreliable fit', def: 'Unsettled (moves with every new month), collapsed (a near-vertical step the data has not reached) or stale (no data for over a year).' }
       }
     },
     notrans: {
@@ -13792,10 +13910,22 @@ document.addEventListener('click', (e) => {
     const moved = !isFinite(s)
       ? 'recent re-fits stopped putting the 80\u202f% crossing anywhere at all'
       : `the projected 80\u202f% crossing moved <b>${Math.round(s)} years</b> across the last re-fits`;
-    const text = cat === 'unsettled'
-      ? moved.charAt(0).toUpperCase() + moved.slice(1) + '.'
-      : `<b>Provisional</b> \u2014 ${moved}.`;
-    return `<p class="tag-tip-stab">${text}</p>`;
+    if (cat !== 'unsettled') return `<p class="tag-tip-stab"><b>Provisional</b> \u2014 ${moved}.</p>`;
+    // One line per failed test — a fit can fail several at once.
+    const reasons = t.reasons || ['unsettled'];
+    const lines = reasons.map(r => {
+      if (r === 'unsettled') return `<b>Unsettled</b> \u2014 ${moved}.`;
+      if (r === 'collapsed') {
+        const span = isFinite(t.span)
+          ? `claims 10\u202f%\u202f\u2192\u202f80\u202f% in <b>${t.span < 1 ? Math.round(t.span * 12) + ' months' : t.span.toFixed(1) + ' years'}</b>`
+          : 'has no usable S-shape';
+        const at = isFinite(t.obs) ? `, with registrations at ${pct(t.obs)}` : '';
+        return `<b>Collapsed</b> \u2014 the curve ${span}${at}: a near-vertical step, not a trend the data supports.`;
+      }
+      if (r === 'stale') return `<b>Stale</b> \u2014 the newest data point is ${t.dataPer || 'too old'}; the source has not been updated for over a year.`;
+      return '';
+    }).filter(Boolean);
+    return lines.map(l => `<p class="tag-tip-stab">${l}</p>`).join('');
   }
 
   function fill(cat, value, country){
