@@ -42,6 +42,46 @@
       "country_slug": "hong_kong"
     },
     {
+      "country": "South Korea",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-09-25",
+      "filename": "south_korea_ICE_BEV_20260925.png",
+      "url": "images/2026-08/south_korea_ICE_BEV_20260925.png",
+      "alt": "South Korea ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South Korea",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-09-25",
+      "filename": "south_korea_20260925.png",
+      "url": "images/2026-08/south_korea_20260925.png",
+      "alt": "South Korea BEV trajectory",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South Korea",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-09-25",
+      "filename": "south_korea_time_20260925.png",
+      "url": "images/2026-08/south_korea_time_20260925.png",
+      "alt": "South Korea Transition time curve",
+      "country_slug": "south_korea"
+    },
+    {
+      "country": "South Korea",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-09-25",
+      "filename": "south_korea_ttm_shares_20260925.png",
+      "url": "images/2026-08/south_korea_ttm_shares_20260925.png",
+      "alt": "South Korea TTM market split graph",
+      "country_slug": "south_korea"
+    },
+    {
       "country": "Ukraine",
       "type": "ICE_BEV",
       "period": "2026-08",
