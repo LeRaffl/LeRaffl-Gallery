@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-25T19:17:58Z",
+ "generated": "2026-09-26T09:30:45Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4795,6 +4795,30 @@
   },
   {
    "date": "2026-09-25",
+   "label": "Belgium (Buses)",
+   "base": "Belgium",
+   "slug": "belgium_buses",
+   "period": "2026-06",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Belgium (HDV)",
+   "base": "Belgium",
+   "slug": "belgium_hdv",
+   "period": "2026-06",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Belgium (Vans)",
+   "base": "Belgium",
+   "slug": "belgium_vans",
+   "period": "2026-06",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-09-25",
    "label": "Hong Kong",
    "base": "Hong Kong",
    "slug": "hong_kong",
@@ -4803,11 +4827,43 @@
   },
   {
    "date": "2026-09-25",
+   "label": "Romania (Vans)",
+   "base": "Romania",
+   "slug": "romania_vans",
+   "period": "2026-06",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Slovakia (HDV)",
+   "base": "Slovakia",
+   "slug": "slovakia_hdv",
+   "period": "2026-06",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Slovakia (Vans)",
+   "base": "Slovakia",
+   "slug": "slovakia_vans",
+   "period": "2026-06",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-09-25",
    "label": "South Korea",
    "base": "South Korea",
    "slug": "south_korea",
    "period": "2026-08",
    "flag": "🇰🇷"
+  },
+  {
+   "date": "2026-09-25",
+   "label": "Thailand (HDV)",
+   "base": "Thailand",
+   "slug": "thailand_hdv",
+   "period": "2026-07",
+   "flag": "🇹🇭"
   }
  ]
 }
