@@ -741,6 +741,9 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                               saying designations are raw source strings
 #   market_powertrain_note: "…"                 optional: replaces the "powertrain as
 #                                               recorded / classified" sentence
+#   market_window_note: "…"                     optional: replaces the "fewer than
+#                                               twelve months" note (a source whose
+#                                               headline is year-to-date by design)
 #
 #   classification:
 #     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
@@ -819,38 +822,21 @@ def _rank_table(rows: list[dict], cols: list[tuple[str, str]], caption: str) -> 
             f'<tr>{head}</tr>{"".join(body)}</table></div>')
 
 
-def build_market_breakdown(fm: dict) -> str:
-    rel = fm.get("market_breakdown")
-    if not rel:
-        return ""
-    path = REPO / rel
-    if not path.is_file():
-        return ('<section><h2>Who sells the electrified cars</h2>'
-                '<p class="dim">Not generated yet — appears after the next fetch.</p></section>')
-    top = json.loads(path.read_text(encoding="utf-8"))
-    win = top.get("window") or {}
-    classes = top.get("classes") or {}
-    total = top.get("total_registrations")
-    lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · last '
-            f'{esc(win.get("months", 12))} months ({esc(win.get("from", ""))} → '
-            f'{esc(win.get("to", ""))}) · {_num(total)} new registrations in total. '
-            'Units are registrations; '
-            + esc(fm.get("market_designation_note")
-                  or 'a "designation" is the model string exactly as the source '
-                     'records it (where that includes the trim, trims are separate '
-                     'designations).')
-            + ' '
-            + esc(fm.get("market_powertrain_note")
-                  or ('Powertrain as classified below.' if fm.get("classification")
-                      else "Powertrain as recorded by the source's own fuel field."))
-            + '</p>')
-    # Optional per-country relabelling (front-matter `market_class_names` /
-    # `market_class_labels`), for a source whose class is broader than the
-    # gallery's name for its column — e.g. Ukraine's register has ONE combined
-    # hybrid value (plug-in + full + mild) that lives in the HEV column, so its
-    # page must say "Hybrid", not "Full hybrid".
-    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
-    labels = CLASS_LABEL | (fm.get("market_class_labels") or {})
+MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July",
+               "August", "September", "October", "November", "December"]
+
+
+def _month_label(period: str) -> str:
+    try:
+        y, m = period.split("-")
+        return f"{MONTH_NAMES[int(m) - 1]} {y}"
+    except (ValueError, IndexError):
+        return period
+
+
+def _market_view(classes: dict, names: dict, labels: dict, open_first: bool) -> str:
+    """Share tiles + one collapsible block per electrified class (brand table,
+    and the designation table when the source has models)."""
     tiles = []
     for c in CLASS_ORDER:
         if c in classes:
@@ -866,14 +852,98 @@ def build_market_breakdown(fm: dict) -> str:
         if not v:
             continue
         n = names[c]
-        inner = ('<div class="pair">'
-                 + _rank_table(v.get("brands") or [], brand_cols, f"{n} — top brands (share of {n})")
-                 + _rank_table(v.get("models") or [], model_cols, f"{n} — top designations (share of {n})")
-                 + '</div>')
-        parts.append(f'<details{" open" if open_ else ""}><summary>{cls_badge(c)} '
+        brands = _rank_table(v.get("brands") or [], brand_cols, f"{n} — top brands (share of {n})")
+        if v.get("models"):
+            inner = ('<div class="pair">' + brands
+                     + _rank_table(v["models"], model_cols, f"{n} — top designations (share of {n})")
+                     + '</div>')
+        else:
+            inner = f'<div class="solo">{brands}</div>'
+        parts.append(f'<details{" open" if open_ and open_first else ""}><summary>{cls_badge(c)} '
                      f'{esc(labels[c])} — {_num(v.get("units"))} units</summary>{inner}</details>')
+    return "".join(parts)
+
+
+MARKET_PICK_JS = """<script>
+(function(){
+  var sel=document.getElementById('mkt-pick'); if(!sel) return;
+  var views=document.querySelectorAll('#market .mkt-view');
+  function show(){ views.forEach(function(v){ v.hidden=v.getAttribute('data-view')!==sel.value; }); }
+  sel.addEventListener('change',show); show();
+})();
+</script>"""
+
+
+def build_market_breakdown(fm: dict) -> str:
+    rel = fm.get("market_breakdown")
+    if not rel:
+        return ""
+    path = REPO / rel
+    if not path.is_file():
+        return ('<section><h2>Who sells the electrified cars</h2>'
+                '<p class="dim">Not generated yet — appears after the next fetch.</p></section>')
+    top = json.loads(path.read_text(encoding="utf-8"))
+    win = top.get("window") or {}
+    classes = top.get("classes") or {}
+    total = top.get("total_registrations")
+    n_months = win.get("months", 12)
+    months = top.get("months") or []
+    brand_only = not any((v.get("models") for v in classes.values()))
+    span = (f'last {esc(n_months)} months' if n_months != 1 else 'one month')
+    gaps = ''
+    if win.get("missing"):
+        gaps = (' (no data for ' + ", ".join(esc(_month_label(m)) for m in win["missing"])
+                + ')')
+    lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · {span} '
+            f'({esc(win.get("from", ""))} → {esc(win.get("to", ""))}){gaps} · '
+            f'{_num(total)} new registrations in total. '
+            'Units are registrations; '
+            + esc(fm.get("market_designation_note")
+                  or ('the source publishes brands only, no models.' if brand_only else
+                      'a "designation" is the model string exactly as the source '
+                      'records it (where that includes the trim, trims are separate '
+                      'designations).'))
+            + ' '
+            + esc(fm.get("market_powertrain_note")
+                  or ('Powertrain as classified below.' if fm.get("classification")
+                      else "Powertrain as recorded by the source's own fuel field."))
+            + '</p>')
+    if fm.get("market_window_note"):
+        lead += f'<p class="dim">{esc(fm["market_window_note"])}</p>'
+    elif n_months < 12:
+        lead += ('<p class="dim">The source does not reach back a full twelve months '
+                 'yet, so the headline view sums the months that exist; it grows to '
+                 'a trailing twelve months as new months arrive.</p>')
+    # Optional per-country relabelling (front-matter `market_class_names` /
+    # `market_class_labels`), for a source whose class is broader than the
+    # gallery's name for its column — e.g. Ukraine's register has ONE combined
+    # hybrid value (plug-in + full + mild) that lives in the HEV column, so its
+    # page must say "Hybrid", not "Full hybrid".
+    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
+    labels = CLASS_LABEL | (fm.get("market_class_labels") or {})
+    head = (f'Last {n_months} months' if n_months != 1 else 'Latest month')
+    views = [f'<div class="mkt-view" data-view="ttm">'
+             + _market_view(classes, names, labels, True) + '</div>']
+    if not months:
+        return ('<section id="market"><h2>Who sells the electrified cars</h2>'
+                + lead + "".join(views) + '</section>')
+    # Single months (newest first) behind a picker; the no-JS page shows the
+    # headline view only (every month is `hidden` until the script runs).
+    opts = [f'<option value="ttm">{esc(head)} ({esc(win.get("from", ""))} → '
+            f'{esc(win.get("to", ""))})</option>']
+    for m in months:
+        per = m.get("period", "")
+        opts.append(f'<option value="{esc(per)}">{esc(_month_label(per))}</option>')
+        views.append(f'<div class="mkt-view" data-view="{esc(per)}" hidden>'
+                     f'<p class="dim">{esc(_month_label(per))} · '
+                     f'{_num(m.get("total_registrations"))} new registrations. '
+                     'Single-month lists are shorter: top 10 brands and top 10 '
+                     'designations per class.</p>'
+                     + _market_view(m.get("classes") or {}, names, labels, True) + '</div>')
+    picker = ('<p class="mkt-pick"><label for="mkt-pick">Show: </label>'
+              f'<select id="mkt-pick">{"".join(opts)}</select></p>')
     return ('<section id="market"><h2>Who sells the electrified cars</h2>'
-            + lead + "".join(parts) + '</section>')
+            + lead + picker + "".join(views) + MARKET_PICK_JS + '</section>')
 
 
 FILTER_JS = """<script>
@@ -1107,19 +1177,59 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     )
 
 
+def _display_name(s: str) -> str:
+    """Registry strings are upper-case ("TESLA MODEL Y"); cards read better in
+    title case, but acronyms and codes stay as they are ("BYD", "ID.4", "EX30")."""
+    def word(w: str) -> str:
+        if len(w) <= 3 or any(ch.isdigit() or ch == "." for ch in w) or not w.isupper():
+            return w
+        return "-".join(p.capitalize() for p in w.split("-"))
+    return " ".join(word(w) for w in str(s).split())
+
+
+def market_summary(fm: dict) -> str:
+    """The best-selling BEV make (and model, where the source has models) of
+    the page's headline window, for the directory card — read from the
+    generated top file, so a card only ever shows a table that is on the page.
+    Pooled rows such as JADA's "IMPORTS (ALL BRANDS)" are skipped."""
+    rel = fm.get("market_breakdown")
+    path = REPO / rel if rel else None
+    if not path or not path.is_file():
+        return ""
+    try:
+        top = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return ""
+    bev = (top.get("classes") or {}).get("BEV") or {}
+    brands = bev.get("brands") or []
+    brand = next((b["brand"] for b in brands if "ALL BRANDS" not in b["brand"].upper()), None)
+    if not brand:
+        return ""
+    pooled_first = "ALL BRANDS" in brands[0]["brand"].upper()
+    out = ("Top BEV maker (imports pooled): " if pooled_first else "Top BEV: ") + _display_name(brand)
+    model = next(iter(bev.get("models") or []), None)
+    if model:
+        name = model["model"] if model["brand"] == brand else f'{model["brand"]} {model["model"]}'
+        out += " · model: " + _display_name(name)
+    return out
+
+
 def build_index(pages: list[dict]) -> str:
     cards = []
     for p in sorted(pages, key=lambda x: x["country"]):
+        mkt = (f'<div class="dir-mkt"><span class="mkt-chip">{esc(p["market"])}</span></div>'
+               if p.get("market") else "")
         cards.append(
             f'<a class="dir-card" href="{esc(p["slug"])}.html">'
             f'<div class="dir-top">{esc(p["country"])}{method_chip(p["method"])}</div>'
             f'<div class="dir-sub">{esc(p["summary"])}</div>'
             f'<div class="dir-meta">Latest {esc(p["latest_period"])}'
-            f' · TTM BEV {esc(p["ttm"])}</div></a>')
+            f' · TTM BEV {esc(p["ttm"])}</div>{mkt}</a>')
     n_full = sum(1 for p in pages if not p.get("is_stub"))
+    n_mkt = sum(1 for p in pages if p.get("market"))
     return INDEX_TEMPLATE.format(
         theme_href=THEME_HREF_INDEX,
-        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full)
+        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full, n_mkt=n_mkt)
 
 
 # --------------------------------------------------------------------------
@@ -1190,6 +1300,10 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+.dir-mkt{margin-top:8px}
+.mkt-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;
+  font-weight:600;background:var(--ok-wash);color:var(--ok-tx);
+  border:1px solid transparent}
 
 /* --- shared bits for the data-derived sections ------------------------- */
 .dim{color:var(--muted)}
@@ -1234,6 +1348,9 @@ details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
 details>summary{cursor:pointer;font-weight:600;padding:4px 0}
 .pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
 @media (max-width:760px){.pair{grid-template-columns:1fr}}
+.solo{max-width:520px;margin-top:8px}
+.mkt-pick select{padding:6px 8px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;background:var(--panel);color:var(--text)}
 table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
 table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
 table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
@@ -1350,7 +1467,10 @@ INDEX_TEMPLATE = """<!doctype html>
   <h1>Data sources</h1>
   <p class="lead">Where each country's numbers come from, how they're acquired,
      what they count, and what to be careful about. {n} countries, each tagged by
-     acquisition method — API, Scrape, PDF, File or Manual.</p>
+     acquisition method — API, Scrape, PDF, File or Manual. {n_mkt} of them also
+     show who sells the electrified cars (top brands, often models, per month
+     and over the last twelve); their card names the best-selling
+     battery-electric make and model.</p>
   <div class="dir-grid">{cards}</div>
 </div>
 </body>
@@ -1445,6 +1565,7 @@ def main() -> int:
             "latest_period": (last_row or {}).get("period")
                              or whole.get("data_per", "—"),
             "ttm": pct(whole.get("ttm_bev_share")),
+            "market": market_summary(fm),
             "is_stub": is_stub,
         })
 

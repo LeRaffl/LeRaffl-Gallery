@@ -359,17 +359,20 @@ def build_top(agg: Aggregator, target: str, variant: str = "Whole") -> dict:
     """Top-brands/top-models summary in the country-neutral schema shared
     with every other country (scripts/market_top.py)."""
     window = month_window(target)
-    total = sum(agg.counts[p][variant]["TOTAL"] for p in window)
-    units: dict[tuple[str, str, str], int] = collections.Counter()
+    units: dict[tuple[str, str, str, str], int] = collections.Counter()
     for (scope, brand, model), per in agg.designations.items():
         if scope != variant:
             continue
-        n = sum(per[p] for p in window)
-        if n:
-            cls, _ = agg.classify_cached(brand, model)
-            units[(cls, brand, model)] += n
-    return market_top.build_top(
-        "Argentina", SOURCE, target, units, total, variant=variant,
+        cls = None
+        for p in window:
+            if per[p]:
+                cls = cls or agg.classify_cached(brand, model)[0]
+                units[(p, cls, brand, model)] += per[p]
+    by_month = market_top.per_month(units)
+    monthly = {p: (by_month.get(p, {}), agg.counts[p][variant]["TOTAL"])
+               for p in window if agg.counts[p][variant]["TOTAL"]}
+    return market_top.build_top_monthly(
+        "Argentina", SOURCE, target, monthly, variant=variant,
         unit="registrations (designation = exact DNRPA model string)")
 
 

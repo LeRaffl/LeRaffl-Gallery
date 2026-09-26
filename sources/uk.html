@@ -56,6 +56,10 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+.dir-mkt{margin-top:8px}
+.mkt-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;
+  font-weight:600;background:var(--ok-wash);color:var(--ok-tx);
+  border:1px solid transparent}
 
 /* --- shared bits for the data-derived sections ------------------------- */
 .dim{color:var(--muted)}
@@ -100,6 +104,9 @@ details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
 details>summary{cursor:pointer;font-weight:600;padding:4px 0}
 .pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
 @media (max-width:760px){.pair{grid-template-columns:1fr}}
+.solo{max-width:520px;margin-top:8px}
+.mkt-pick select{padding:6px 8px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;background:var(--panel);color:var(--text)}
 table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
 table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
 table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{

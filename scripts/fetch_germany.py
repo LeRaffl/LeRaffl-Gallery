@@ -70,6 +70,11 @@ Usage
     python scripts/fetch_germany.py [--file PATH] [--url URL]
                                     [--listing URL] [--force] [--dry-run]
 
+Discovery: KBA retired the listing page in 2026 (it now 404s). The release
+page is then derived from the newest one recorded in the CSV's ``notes``
+column: KBA numbers its press releases per publication year, so the next
+month's page is one of the following pm numbers (``release_candidates``).
+
 ``--file`` parses a local "…_merkmale.xlsx" (offline / testing).
 ``--url``  downloads a specific xlsx, skipping discovery.
 ``--dry-run`` prints the parsed row and the diff without writing the CSV.
@@ -190,13 +195,86 @@ def _newest(matches):
     return max(matches, key=key)[0]
 
 
+def probe_links(html: str, where: str) -> None:
+    """Log-only probe for a future top-brands table (docs 03 §3.16): every
+    spreadsheet / PDF download and every link about makes or alternative
+    powertrains (KBA's monthly "… nach Marken und alternativen Antrieben"
+    release) on a page this fetch reads anyway. Never raises."""
+    try:
+        hrefs = sorted(set(re.findall(r'href="([^"]+)"', html)))
+        keep = [h for h in hrefs
+                if re.search(r"\.(xlsx?|csv|pdf)\b", h, re.I)
+                or re.search(r"antriebe|marke|fz10|fz 10", h, re.I)]
+        print(f"[probe] {where}: {len(keep)} relevant links")
+        for h in keep[:40]:
+            print(f"[probe]   {h.replace('&amp;', '&')[:200]}")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] link listing failed: {type(e).__name__}: {e}")
+
+
+_PM_RE = re.compile(r"/(\d{4})/pm(\d+)_(\d{4})_n_(\d{2})_(\d{2})_pm_komplett\.html")
+_RELEASE_URL = ("https://www.kba.de/DE/Presse/Pressemitteilungen/{kind}/{year}/"
+                "pm{nn:02d}_{year}_{slug}_{mm:02d}_{yy:02d}{tail}_komplett.html")
+
+
+def _last_release(csv_path: Path = None) -> tuple[int, int, str, str] | None:
+    """(publication year, pm number, period, url) of the newest release page
+    recorded in data/Germany.csv's notes column — the anchor for guessing the
+    next one when the listing page is unavailable."""
+    best = None
+    path = csv_path or GERMANY_CSV
+    if not path.exists():
+        return None
+    with open(path, newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            m = _PM_RE.search(r.get("notes") or "")
+            if m:
+                key = (r["period"], int(m.group(1)), int(m.group(2)))
+                if best is None or key > best[0]:
+                    best = (key, r["notes"].split("?")[0])
+    if best is None:
+        return None
+    (period, year, nn), url = best
+    return year, nn, period, url
+
+
+def release_candidates(period: str, anchor: tuple | None, kind: str = "Fahrzeugzulassungen",
+                       slug: str = "n", tail: str = "_pm", span: int = 14) -> list[str]:
+    """Likely URLs of the release page for `period` (YYYY-MM): KBA numbers its
+    press releases per publication year (pm01 … ), so the next one follows the
+    anchor's number; a January-published release restarts at pm01."""
+    y, m = map(int, period.split("-"))
+    pub_year = y + 1 if m == 12 else y
+    start = 1
+    if anchor and anchor[0] == pub_year:
+        start = anchor[1] + 1
+    return [_RELEASE_URL.format(kind=kind, year=pub_year, nn=nn, slug=slug, mm=m,
+                                yy=y % 100, tail=tail)
+            for nn in range(start, start + span)]
+
+
+def _first_ok(session, urls: list[str]) -> str | None:
+    for u in urls:
+        try:
+            r = _get(session, u)
+        except Exception:  # noqa: BLE001 — a dead candidate is just skipped
+            continue
+        if r.ok and "komplett" in r.url:
+            return u
+    return None
+
+
 def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
     """Find the newest "…_merkmale.xlsx". One hop if the listing links the xlsx
     directly; otherwise follow the newest "…_komplett.html" page and pull it
-    from there."""
+    from there. KBA retired the listing page in 2026 (404): then the release
+    page is found from the last one recorded in data/Germany.csv."""
     resp = _get(session, listing_url)
+    if resp.status_code == 404:
+        return discover_from_anchor(session)
     resp.raise_for_status()
     html = resp.text
+    probe_links(html, "listing")
 
     direct = _XLSX_RE.findall(html)
     if direct:
@@ -215,12 +293,75 @@ def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
     print(f"[discover] newest release page: {page_url}")
     presp = _get(session, page_url)
     presp.raise_for_status()
+    probe_links(presp.text, "release page")
     xhrefs = _XLSX_RE.findall(presp.text)
     if not xhrefs:
         raise RuntimeError(
             f"No '…_merkmale.xlsx' link on the release page {page_url}; the "
             "page layout may have changed.")
     return urljoin(KBA_BASE, _newest(xhrefs).replace("&amp;", "&"))
+
+
+def discover_from_anchor(session, period: str | None = None) -> str:
+    """Release page for `period` (default: the previous calendar month) —
+    the recorded page itself when it is that month, else the next pm numbers
+    after it — then its "…_merkmale.xlsx" link."""
+    period = period or _previous_month_period()
+    anchor = _last_release()
+    if anchor and anchor[2] == period:
+        page = anchor[3]
+    else:
+        page = _first_ok(session, release_candidates(period, anchor))
+    if page is None:
+        raise RuntimeError(f"No KBA release page found for {period} "
+                           f"(anchor {anchor}); not published yet?")
+    print(f"[discover] release page (from anchor): {page}")
+    presp = _get(session, page)
+    presp.raise_for_status()
+    probe_links(presp.text, "release page")
+    xhrefs = _XLSX_RE.findall(presp.text)
+    if not xhrefs:
+        raise RuntimeError(f"No '…_merkmale.xlsx' link on the release page {page}")
+    return urljoin(KBA_BASE, _newest(xhrefs).replace("&amp;", "&"))
+
+
+def probe_marken(session, merkmale_url: str) -> None:
+    """Log-only: the release's sibling "…_marken.xlsx" (same URL, `_marken`
+    for `_merkmale`) — every sheet's first rows, to wire a make × powertrain
+    table against the real layout (docs 03 §3.16). Never raises."""
+    try:
+        url = merkmale_url.replace("_merkmale.xlsx", "_marken.xlsx")
+        r = _get(session, url)
+        print(f"[probe] marken.xlsx: HTTP {r.status_code} {url}")
+        if not r.ok:
+            return
+        wb = openpyxl.load_workbook(io.BytesIO(r.content), data_only=True)
+        for ws in wb.worksheets:
+            print(f"[probe]   sheet {ws.title!r} {ws.max_row}x{ws.max_column}")
+            for i, row in enumerate(ws.iter_rows(values_only=True)):
+                cells = [str(c)[:22] for c in row if c is not None]
+                if cells:
+                    print(f"[probe]     r{i + 1}: {cells[:14]}")
+                if i >= 45:
+                    break
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] marken probe failed: {type(e).__name__}: {e}")
+
+
+def probe_antriebe(session, period: str) -> None:
+    """Log-only: find KBA's "… nach Marken und alternativen Antrieben" release
+    for `period` and list its downloads (docs 03 §3.16). Never raises."""
+    try:
+        anchor = _last_release()
+        urls = release_candidates(period, anchor and (anchor[0], anchor[1] - 4),
+                                  kind="AlternativeAntriebe", slug="Antriebe",
+                                  tail="", span=12)
+        page = _first_ok(session, urls)
+        print(f"[probe] Antriebe release for {period}: {page or 'not found'}")
+        if page:
+            probe_links(_get(session, page).text, "Antriebe release page")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] Antriebe probe failed: {type(e).__name__}: {e}")
 
 
 # --------------------------------------------------------------------------- #
@@ -438,6 +579,9 @@ def main() -> None:
             return
 
     if args.dry_run:
+        if not args.file:
+            probe_marken(session, src_url)
+            probe_antriebe(session, row["period"])
         print("[dry-run] not writing.")
         return
 

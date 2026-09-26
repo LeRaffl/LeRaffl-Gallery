@@ -29,6 +29,8 @@ fetcher: scripts/fetch_uruguay.py
 workflow: .github/workflows/fetch-uruguay.yml
 fragility_doc: docs/architecture/25-source-uruguay.md
 data_file: data/Uruguay.csv
+market_breakdown: market/uruguay_top.json
+market_class_labels: {MHEV: "Mild hybrid (OTHERS in the data file; counted as ICE in the curves)"}
 ---
 
 # 25 · Source: Uruguay (ACAU Compilado xlsx)
@@ -163,6 +165,21 @@ certainly missed rows due to a layout change.
 Future months in the workbook are pre-filled with zeros. Any month where **all**
 fuel values across the variant's combined sheets are zero is skipped — this
 means the script can run mid-year without writing fake all-zero rows.
+
+### 3.1 Top brands / models (`market/uruguay_top.json`)
+
+The Compilado is per-model, so `parse_models()` tallies AUTOS + SUV rows by
+`(month, class, brand, model)` — same Combustible codes as the CSV, except
+that MHEV is ranked as its own class (it sits in OTHERS in the data file; the
+page labels it so). The brand and model columns are located by header name
+(`MODEL_HEADERS`: `Marca`, `Modelo` and close variants); if either is missing
+the refresh stops and logs the header row, rather than guessing. Every month's
+rows must add up to that month's Whole TOTAL. A workbook only ever holds one
+calendar year, so months are kept in the month store
+`market/uruguay_months.json` and the twelve-month view grows across the year
+boundary ([03 §3.16](03-data-objects.md#316-top-brands--models-market)). The
+refresh runs after the CSVs are written, behind `market_top.guarded`; it also
+runs when the data is current but the top file is not (first run).
 
 ## 4. Variants, self-throttle, and publication gate
 

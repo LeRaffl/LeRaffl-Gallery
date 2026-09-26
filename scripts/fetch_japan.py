@@ -56,6 +56,18 @@ Sanity check: PETROL+HEV+PHEV+DIESEL+BEV+OTHERS must equal TOTAL.
 Per the project rule we only ever write the most recent month; older rows
 are never touched, even if a later JADA file would adjust them.
 
+Top brands (market/japan_top.json)
+----------------------------------
+The same workbook lists every maker's row above 乗用車計, one sheet per month
+of the 4-month rollup — a brand × fuel table "for free". parse_xlsx_makers()
+reads all of them (validated: the maker rows must add up to 乗用車計 per fuel),
+parse results go into the month store market/japan_months.json, and
+market/japan_top.json is rebuilt from it via scripts/market_top.py (trailing
+12 months + each single month; brands only — JADA names no models). JADA lumps
+every imported brand into ONE row, 輸入車, shown as "IMPORTS (ALL BRANDS)";
+トヨタ includes Lexus. Runs behind market_top.guarded, so it never blocks the
+data; XLSX only (the PDF fallback does not feed it).
+
 Auto-discovery
 --------------
 JADA's hosting blocks some cloud IP ranges with HTTP 403
@@ -68,10 +80,14 @@ import csv
 import io
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 JADA_PAGE = "https://www.jada.or.jp/pages/342/"
 JADA_HOST = "https://www.jada.or.jp"
@@ -289,6 +305,85 @@ def _xlsx_total_row_to_fuels(row: tuple) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Maker rows → top brands (market/japan_top.json)
+# ---------------------------------------------------------------------------
+
+TOP_SLUG = "japan"
+TOP_UNIT = ("registrations (brand = JADA maker row; imports are one row; "
+            "no models published)")
+# JADA's maker labels (full-width forms NFKC-normalised first). Anything not
+# listed is shown as JADA writes it, so a new row is visible, never dropped.
+MAKER_NAMES = {
+    "ダイハツ": "DAIHATSU", "ホンダ": "HONDA", "マツダ": "MAZDA",
+    "三菱": "MITSUBISHI", "日産": "NISSAN", "SUBARU": "SUBARU",
+    "スバル": "SUBARU", "スズキ": "SUZUKI", "トヨタ": "TOYOTA",
+    "レクサス": "LEXUS", "いすゞ": "ISUZU", "光岡": "MITSUOKA",
+    "輸入車": "IMPORTS (ALL BRANDS)",
+}
+# CSV column → market class (FCV and その他 both sit in OTHERS: not ranked).
+MAKER_CLASSES = {"BEV": "BEV", "PHEV": "PHEV", "HEV": "HEV",
+                 "PETROL": "PETROL", "DIESEL": "DIESEL", "OTHERS": "OTHERS"}
+
+
+def _maker_label(row: tuple) -> str | None:
+    for c in row[:3]:
+        if isinstance(c, str) and c.strip():
+            t = unicodedata.normalize("NFKC", c).strip()
+            return None if t in ("構成比", "合計") else t
+    return None
+
+
+def parse_xlsx_makers(xlsx_bytes: bytes) -> dict[str, tuple[dict, int]]:
+    """Every month sheet of the rollup → {period: ({(class, brand, ""): n},
+    TOTAL)}. Raises if a sheet's maker rows do not add up to its 乗用車計 row
+    (a layout change must not publish a wrong ranking)."""
+    from openpyxl import load_workbook
+
+    wb = load_workbook(io.BytesIO(xlsx_bytes), data_only=True)
+    out: dict[str, tuple[dict, int]] = {}
+    for ws in wb.worksheets:
+        period = None
+        makers: dict[str, dict] = {}
+        total_row = None
+        for row in ws.iter_rows(values_only=True):
+            if period is None:
+                for cell in row:
+                    m = TITLE_RE.search(cell) if isinstance(cell, str) else None
+                    if m:
+                        period = f"{int(m.group(1))}-{int(m.group(2)):02d}"
+                continue
+            if row and row[0] == TOTAL_ROW_LABEL:
+                total_row = _xlsx_total_row_to_fuels(row)
+                break
+            label = _maker_label(row)
+            if label is None or not any(isinstance(v, (int, float)) for v in row[3:18]):
+                continue
+            fuels = _xlsx_total_row_to_fuels(row)
+            brand = MAKER_NAMES.get(label, market_top.clean(label))
+            acc = makers.setdefault(brand, {k: 0 for k in fuels})
+            for k, v in fuels.items():
+                acc[k] += v
+        if period is None or total_row is None:
+            continue
+        for k, v in total_row.items():
+            got = sum(f[k] for f in makers.values())
+            if got != v:
+                raise RuntimeError(f"{period}: maker rows sum to {got} {k}, "
+                                   f"{TOTAL_ROW_LABEL} says {v} — layout changed?")
+        units = {(MAKER_CLASSES[k], b, ""): n
+                 for b, f in makers.items() for k, n in f.items()
+                 if k in MAKER_CLASSES and n}
+        out[period] = (units, total_row["TOTAL"])
+    return out
+
+
+def refresh_top(xlsx_bytes: bytes) -> None:
+    months = parse_xlsx_makers(xlsx_bytes)
+    print(f"Top brands: maker rows for {sorted(months)}")
+    market_top.refresh_from_store("Japan", "JADA", TOP_UNIT, TOP_SLUG, months)
+
+
+# ---------------------------------------------------------------------------
 # PDF parser (fallback)
 # ---------------------------------------------------------------------------
 
@@ -457,12 +552,16 @@ def main() -> int:
     target_period = f"{target_year}-{target_month:02d}"
     print(f"Target period: {target_period}")
 
-    # Self-throttle: skip if CSV is already at-or-past the target.
+    # Self-throttle: skip if CSV is already at-or-past the target — unless the
+    # top-brands summary still lags it (first run, or a failed refresh).
+    top_path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
     if not args.force:
         latest = latest_period(args.csv)
         if latest and latest >= target_period:
-            print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
-            return 0
+            if market_top.top_is_current(top_path, latest):
+                print(f"Latest period in CSV is {latest} ≥ {target_period} — nothing to do.")
+                return 0
+            print(f"CSV is current ({latest}); refreshing the top-brands summary only.")
 
     xlsx_src = args.xlsx_url
     pdf_src = args.pdf_url
@@ -486,7 +585,9 @@ def main() -> int:
 
     if xlsx_src:
         try:
-            fuels = parse_xlsx(load_bytes(xlsx_src), target_year, target_month)
+            xlsx_bytes = load_bytes(xlsx_src)
+            market_top.guarded(refresh_top, xlsx_bytes)
+            fuels = parse_xlsx(xlsx_bytes, target_year, target_month)
             if fuels is not None:
                 source_url = xlsx_src
         except Exception as e:

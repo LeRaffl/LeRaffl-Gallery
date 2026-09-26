@@ -24,6 +24,11 @@ on:
         default: 'all'
         type: choice
         options: [all, whole, vans, hdv, buses]
+      probe:
+        description: 'Only log the dashboard props / bundle names (top-brands probe); writes nothing'
+        required: false
+        default: false
+        type: boolean
   schedule:
     # SIMI publishes the new month very early — usually on the 1st. Poll twice
     # daily on the 1st–5th; per-variant early-exit makes runs no-ops once the
@@ -54,9 +59,11 @@ jobs:
       - name: Fetch & update Ireland CSVs
         run: |
           python scripts/fetch_ireland.py \
-            ${VARIANT:+--variant "$VARIANT"}
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PROBE:+--probe}
         env:
           VARIANT: ${{ inputs.variant }}
+          PROBE: ${{ inputs.probe == true && '1' || '' }}
 
       - name: Detect which CSVs changed
         id: changed
@@ -94,6 +101,7 @@ jobs:
             data/Ireland_Vans.csv
             data/Ireland_HDV.csv
             data/Ireland_Buses.csv
+            market/ireland_top.json
           message: 'chore: update Ireland data from stats.simi.ie'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

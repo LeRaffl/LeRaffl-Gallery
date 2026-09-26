@@ -34,6 +34,8 @@ fetcher: scripts/fetch_finland.py
 workflow: .github/workflows/fetch-finland.yml
 fragility_doc: docs/architecture/12-source-finland.md
 data_file: data/Finland.csv
+market_breakdown: market/finland_top.json
+market_designation_note: 'Brands come from Traficom''s make table, designations from its model-series table (BEV and plug-ins only); both are Traficom''s live register, so a month can differ from the chart''s StatFin figure by a few cars.'
 ---
 
 # 12 · Source: Finland (pxdata.stat.fi / StatFin 121d)
@@ -331,6 +333,31 @@ curl -s -X POST 'https://pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px' \
 Should return a `value` array (BEV + two PHEV codes × two months) matching
 the table viewer at
 <https://pxdata.stat.fi/PxWeb/pxweb/en/StatFin/StatFin__merek/statfin_merek_pxt_121d.px/>.
+
+## 10b. Top brands / models (`market/finland_top.json`)
+
+StatFin 121d has no make, but Traficom publishes the same register on its own
+PxWeb (`trafi2.stat.fi`, database `TraFi`, folder `Ensirekisteroinnit`):
+passenger-car first registrations by **make × driving power × month** and by
+**model series × driving power × month**. `refresh_top()` in the fetcher finds
+both tables by their Finnish titles (`merkki` / `mallisarja` + `käyttövoima` +
+`kuukausi`), resolves every variable and value from the metadata (the region is
+pinned to its "KOKO MAA"-style total or left out when eliminable; a year +
+month pair and a single `YYYYMmm` variable both work), queries one month at a
+time and builds the trailing-twelve-month + single-month rankings through
+`scripts/market_top.py` ([03 §3.16](03-data-objects.md#316-top-brands--models-market)).
+
+- Classes follow this CSV: `Sähkö` → BEV, `… (ladattava hybridi)` → PHEV;
+  non-plug hybrids stay on the combustion side, as in 121d.
+- **Scope guard:** each month's Traficom BEV count and total must match
+  `data/Finland.csv` within 5 % (live register vs StatFin's snapshot), or
+  nothing is published.
+- The model-series table only supplies designations: if it fails or its
+  BEV/PHEV sums disagree with the make table (> 2 %), the page keeps the brand
+  tables and a warning names the month.
+- Runs after the CSVs are written (or alone, when the data is current but the
+  top file is not), behind `market_top.guarded`; the file is committed with the
+  data but never triggers a render.
 
 ## 11. What is **not** in this pipeline
 
