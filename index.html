@@ -3409,8 +3409,10 @@ function tok(name, fallback){
   <!-- VISUAL REDESIGN (2026-09-13). Die Seite IST die Gallery; die Kacheln
        heißen deshalb Charts. Vier Ziele in der Leiste, Unterzeile nur in
        der Familie. Hashes und IDs unverändert — #durations usw. funktionieren.
-       FAQ / Feedback nicht in der Leiste: FAQ von About, Feedback per FAB
-       und Emoji-Cluster (Kontext-Capture). -->
+       FAQ nicht in der Leiste: FAQ von About. Neues Feedback per FAB und
+       Emoji-Cluster (Kontext-Capture) — die LISTE aller Meldungen (#feedback)
+       aber steht unter Tools: FAB und Emojis oeffnen nur das Formular, ohne
+       diesen Link war die Liste nach dem Redesign nirgends mehr erreichbar. -->
   <nav class="tabs" aria-label="Main sections">
     <div class="nav-primary">
       <a href="#gallery" class="tablink nav-primary-link" data-nav="charts">Charts</a>
@@ -3430,6 +3432,7 @@ function tok(name, fallback){
       <a href="#fleet" class="tablink">Fleet</a>
       <a href="#schedule" class="tablink">Data freshness</a>
       <a href="#submit" class="tablink">Submit Data</a>
+      <a href="#feedback" class="tablink">Feedback</a>
       <a href="sources/" class="tablink">Data sources</a>
     </div>
   </nav>
@@ -5140,7 +5143,7 @@ function activateTabByHash(){
     gallery:'charts', worldmap:'map',
     thresholds:'rankings', durations:'rankings', speed:'rankings',
     builder:'tools', compare:'tools', rawdata:'tools', fleet:'tools',
-    schedule:'tools', submit:'tools'
+    schedule:'tools', submit:'tools', feedback:'tools'
   };
   document.querySelectorAll('.nav-sub').forEach(s => { s.hidden = true; });
   const family = FAMILY[resolved];
