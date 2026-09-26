@@ -28,6 +28,8 @@ fetcher: scripts/fetch_ireland.py
 workflow: .github/workflows/fetch-ireland.yml
 fragility_doc: docs/architecture/15-source-ireland.md
 data_file: data/Ireland.csv
+market_breakdown: market/ireland_top.json
+market_designation_note: "Makes and models as SIMI's dashboard shows them, one engine-type filter per class; any make or model the dashboard does not list counts in the class total but is not ranked."
 ---
 
 # 15 · Source: Ireland (stats.simi.ie / SIMI motorstats)
@@ -277,6 +279,20 @@ The flow was reverse-engineered with a headless Playwright trace:
 2. Open the FILTERS panel, click "Apply Filters", capture the PATCH to
    `/filter/passenger` (method, body shape, 303 status).
 3. Replicate with `requests` (cookies + `X-XSRF-TOKEN` + Inertia headers).
+
+## 10b. Top makes / models (`market/ireland_top.json`)
+
+The passenger dashboard also serves `carsByMake` and `carsByModel` partials
+for the stored filter, and its `engineTypes` partial lists the engine-type
+filter values (`{"value": "03", "name": "Electric"}`, …). `refresh_top()`
+maps those names through `LABEL_TO_COL` (same classes as the CSV: BEV, PHEV,
+HEV), then per month of the trailing twelve stores the month plus one class's
+engine types and reloads both rankings. Class totals come from the unfiltered
+`carsByEngineType`; whatever the dashboard does not list is counted but not
+ranked (`market_top.REST`), and a list that exceeds its class total stops the
+refresh. ~50 filter round-trips per refresh; runs after a Whole update or when
+the top file lags, behind `market_top.guarded`. `--probe` (workflow input
+`probe`) logs the dashboard props and filter options without writing.
 
 ## 11. What is **not** in this pipeline
 

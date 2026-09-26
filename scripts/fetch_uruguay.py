@@ -104,6 +104,19 @@ The bottom "TOTAL" row of each sheet is read and cross-checked against
 our per-fuel sum — if they don't match for a published month, the parser
 fails loudly (likely indicates a layout change we haven't handled).
 
+Top brands / models (market/uruguay_top.json)
+---------------------------------------------
+The Compilado is per-model already: every AUTOS / SUV row names brand, model
+and Combustible. parse_models() tallies (month, class, brand, model) with the
+same fuel codes as the CSV (MHEV is ranked as its own class; in the CSV it
+sits in OTHERS) and checks each month against the Whole TOTAL. The brand /
+model columns are found by header name (MODEL_HEADERS); if they are missing
+the refresh stops with the header row in the log instead of guessing.
+Months go into the month store market/uruguay_months.json (a workbook only
+ever holds one calendar year) and market/uruguay_top.json is rebuilt from it
+via scripts/market_top.py. Runs behind market_top.guarded, so it never blocks
+the data.
+
 HTTP details
 ------------
 ACAU runs LiteSpeed and didn't reject python-requests with a default UA in
@@ -121,6 +134,9 @@ from pathlib import Path
 import openpyxl
 import requests
 from bs4 import BeautifulSoup
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 ACAU_HOME = "https://www.acau.com.uy/"
 ACAU_HOST = "https://www.acau.com.uy"
@@ -469,6 +485,82 @@ def parse_workbook(wb_bytes: bytes, year: int, variant: str = "Whole") -> dict[s
     return rows
 
 
+# Header names of the brand / model columns (compared lower-cased, accents and
+# spaces folded) and the market class of each Combustible code.
+MODEL_HEADERS = {
+    "brand": ("marca", "marcas", "nombre_marca"),
+    "model": ("modelo", "modelos", "nombre_modelo", "modelo_version"),
+}
+MARKET_CLASS = {"E": "BEV", "PHEV": "PHEV", "H": "HEV", "MHEV": "MHEV",
+                "N": "PETROL", "D": "DIESEL"}
+TOP_SLUG = "uruguay"
+TOP_UNIT = "registrations (brand / model = ACAU Compilado row, AUTOS + SUV)"
+
+
+def _fold(s) -> str:
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(s or "")).encode("ascii", "ignore").decode()
+    return "_".join(t.lower().split())
+
+
+def parse_models(wb_bytes: bytes, year: int) -> dict[str, tuple[dict, int]]:
+    """AUTOS + SUV rows → {period: ({(class, brand, model): n}, Whole TOTAL)}
+    for every published month. Raises when the brand/model columns cannot be
+    found or a month's rows do not add up to the Whole TOTAL."""
+    totals = {p: int(r["TOTAL"]) for p, r in parse_workbook(wb_bytes, year, "Whole").items()}
+    wb = openpyxl.load_workbook(io.BytesIO(wb_bytes), data_only=True)
+    units: dict = {}
+    for sheet in VARIANT_CONFIG["Whole"]["sheets"]:
+        rows = list(wb[_resolve_sheet(wb, sheet)].iter_rows(values_only=True))
+        hdr_idx = next((i for i, row in enumerate(rows[:25])
+                        if any(isinstance(c, str) and c.strip() == "Combustible" for c in row)),
+                       None)
+        if hdr_idx is None:
+            raise RuntimeError(f"{sheet}: no 'Combustible' header")
+        header = [_fold(c) for c in rows[hdr_idx]]
+        cols = {}
+        for key, names in MODEL_HEADERS.items():
+            cols[key] = next((i for i, h in enumerate(header) if h in names), None)
+        if None in cols.values():
+            raise RuntimeError(f"{sheet}: brand/model column not found in header "
+                               f"{[c for c in rows[hdr_idx] if c is not None]}")
+        fuel_col = header.index("combustible")
+        month_cols = {}
+        for i, c in enumerate(rows[hdr_idx]):
+            if isinstance(c, str) and c.strip().lower() in _MONTH_INDEX:
+                month_cols[_MONTH_INDEX[c.strip().lower()]] = i
+        for row in rows[hdr_idx + 1:]:
+            first = row[0]
+            if isinstance(first, str) and first.strip().upper() == "TOTAL":
+                break
+            code = row[fuel_col] if fuel_col < len(row) else None
+            if code is None or str(code).strip() == "":
+                continue
+            cls = MARKET_CLASS.get(str(code).strip().upper(), "OTHERS")
+            brand = market_top.clean(row[cols["brand"]])
+            model = market_top.strip_brand(brand, market_top.clean(row[cols["model"]]))
+            for j, ci in month_cols.items():
+                v = row[ci] if ci < len(row) else None
+                period = f"{year}-{j + 1:02d}"
+                if isinstance(v, (int, float)) and v and period in totals:
+                    key = (period, cls, brand, model)
+                    units[key] = units.get(key, 0) + int(v)
+    by_month = market_top.per_month(units)
+    out = {}
+    for p, t in totals.items():
+        got = sum(by_month.get(p, {}).values())
+        if got != t:
+            raise RuntimeError(f"{p}: model rows sum to {got}, Whole TOTAL is {t}")
+        out[p] = (by_month.get(p, {}), t)
+    return out
+
+
+def refresh_top(wb_bytes: bytes, year: int) -> None:
+    months = parse_models(wb_bytes, year)
+    print(f"Top brands/models: {len(months)} published months of {year}")
+    market_top.refresh_from_store("Uruguay", "ACAU", TOP_UNIT, TOP_SLUG, months)
+
+
 def upsert_csv(csv_path: str, new_rows: dict[str, dict], source_url: str,
                force: bool) -> tuple[int, int]:
     """Upsert new_rows by period. Returns (added, updated_with_force) counts.
@@ -568,9 +660,14 @@ def main() -> int:
             else:
                 pending.append(v)
         targets = pending
-        if not targets:
+        whole_latest = latest_period(VARIANT_CONFIG["Whole"]["csv"])
+        top_current = (whole_latest is None or market_top.top_is_current(
+            market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", whole_latest))
+        if not targets and top_current:
             print("All requested variants are current; nothing to do.")
             return 0
+        if not targets:
+            print("Data is current; refreshing the top brands/models only.")
 
     url = args.url
     if not url:
@@ -611,6 +708,7 @@ def main() -> int:
         added, updated = upsert_csv(cfg["csv"], new_rows, url, args.force)
         print(f"[{variant}] {added} added, {updated} updated → {cfg['csv']}")
 
+    market_top.guarded(refresh_top, xlsx_bytes, year)
     return 0
 
 

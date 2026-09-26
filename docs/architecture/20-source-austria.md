@@ -29,6 +29,9 @@ fetcher: scripts/fetch_austria.py
 workflow: .github/workflows/fetch-austria.yml
 fragility_doc: docs/architecture/20-source-austria.md
 data_file: data/Austria.csv
+market_breakdown: market/austria_top.json
+market_designation_note: "Statistik Austria publishes the top 10 battery-electric makes and types (make + model) per month and year to date; all other BEVs are counted in the class total but not ranked. Plug-ins and hybrids are not broken down by make."
+market_window_note: "The headline view is Statistik Austria's own January-to-date ranking (its Tabelle 14), not a sum of monthly top-10 lists, so it restarts every January; single months come from Tabelle 7."
 ---
 
 # 20 · Source: Austria (Statistik Austria DE2 / DE3 / GE2 .ods via Cloudflare relay)
@@ -376,6 +379,23 @@ rows. DE2 keeps its original exact-label matching.
 | `TOTAL` | sum of the above |
 
 ---
+
+## 8b. Top BEV makes and types (`market/austria_top.json`)
+
+Every DE2 month sheet also carries **Tabelle 7** "Pkw-Neuzulassungen nach TOP
+10 Marken und Typen mit Elektroantrieb" (that month) and **Tabelle 14** (the
+same, January to that month). Each has a "Marke" block and a "Marke/Type"
+block of ten rows, closed by "Sonstige Pkw mit Elektroantrieb" and "Pkw mit
+Elektroantrieb insgesamt" — which equals Tabelle 2's `Elektro`, i.e. the CSV's
+BEV (checked every month; a mismatch publishes nothing). `build_austria_top()`
+turns them into the shared schema ([03 §3.16](03-data-objects.md#316-top-brands--models-market)):
+single months from Tabelle 7, the headline from Tabelle 14 of the newest
+sheet — Statistik Austria's own year-to-date top 10, so it restarts every
+January (`market_window_note` says so on the page). "Sonstige" is counted in
+the class but never ranked (`market_top.REST`). Only BEV is published per make.
+Runs with the Whole parse of the newest DE2 file (or alone when the data is
+current but the top file is not), behind `market_top.guarded`; `--probe`
+lists the DE2 table titles without writing anything.
 
 ## 9. End-to-end data flow
 

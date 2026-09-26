@@ -38,6 +38,10 @@ jobs:
       - name: Install dependencies
         run: pip install requests pdfplumber
 
+      # Offline; guards the top brands builder (scripts/market_top.py).
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
       - name: Fetch Singapore data
         run: |
           ARGS=""
@@ -45,11 +49,23 @@ jobs:
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           python scripts/fetch_singapore.py $ARGS
 
+      - name: Detect data change
+        id: data
+        run: |
+          if git diff --quiet -- data/Singapore.csv; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Singapore.csv
+          add: |
+            data/Singapore.csv
+            market/singapore_top.json
+            market/singapore_months.json
           message: 'chore: update Singapore data from lta.gov.sg (M03)'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a
@@ -58,7 +74,7 @@ jobs:
           pull: '--rebase --autostash'
 
       - name: Trigger render for Singapore
-        if: steps.commit.outputs.committed == 'true'
+        if: steps.commit.outputs.committed == 'true' && steps.data.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

@@ -8,6 +8,8 @@ name: Fetch Japan data (JADA)
 # JADA has published the file for the target month (typically the first
 # business week of the following month).
 # When the CSV changes, render-country.yml is dispatched for Japan.
+# The same workbook's maker rows also refresh market/japan_top.json (+ its month
+# store market/japan_months.json) — committed, but never a render trigger.
 
 on:
   workflow_dispatch:
@@ -53,6 +55,10 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4 pypdf openpyxl cryptography
 
+      # Offline; guards the top brands builder (scripts/market_top.py).
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
       - name: Fetch & update Japan.csv
         run: |
           python scripts/fetch_japan.py \
@@ -68,11 +74,23 @@ jobs:
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
 
+      - name: Detect data change
+        id: data
+        run: |
+          if git diff --quiet -- data/Japan.csv; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Commit if changed
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: data/Japan.csv
+          add: |
+            data/Japan.csv
+            market/japan_top.json
+            market/japan_months.json
           message: 'chore: update Japan data from JADA'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a
@@ -81,7 +99,7 @@ jobs:
           pull: '--rebase --autostash'
 
       - name: Trigger render for Japan
-        if: steps.commit.outputs.committed == 'true'
+        if: steps.commit.outputs.committed == 'true' && steps.data.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

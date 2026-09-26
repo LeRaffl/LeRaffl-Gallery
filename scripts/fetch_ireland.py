@@ -78,8 +78,12 @@ import re
 import sys
 from datetime import date
 from pathlib import Path
+from urllib.parse import urljoin
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 BASE = "https://stats.simi.ie"
 SOURCE = "stats.simi.ie"
@@ -127,6 +131,86 @@ CSV_COLUMNS = [
 DATA_PAGE_RE = re.compile(r'data-page="([^"]*)"')
 
 
+def probe_props(page: dict) -> None:
+    """Log-only probe for a future top makes / models table (docs 03 §3.16):
+    the dashboard's Inertia props and the engine-type filter options, so the
+    make/model partials can be wired against the real names. Never raises."""
+    try:
+        props = page.get("props") or {}
+        print(f"[probe] SIMI props: {sorted(props)}")
+        for k, v in sorted(props.items()):
+            if isinstance(v, (dict, list)):
+                txt = json.dumps(v, ensure_ascii=False)
+                if any(w in k.lower() for w in ("make", "model", "engine", "filter", "top")):
+                    print(f"[probe]   {k}: {txt[:600]}")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] SIMI props listing failed: {type(e).__name__}: {e}")
+
+
+def probe_bundle(client: "SimiClient") -> None:
+    """--probe: the dashboard's data props are Inertia *partials*, so they are
+    not in the first page. Log (1) the initial props, (2) every prop name the
+    JS bundle asks for and every filter key it knows, (3) a full X-Inertia
+    reload's keys — enough to wire a make / model query per engine type."""
+    client.bootstrap()
+    probe_props(client.page)
+    root = client.s.get(f"{BASE}/", timeout=30).text
+    srcs = sorted(set(re.findall(r'(?:src|href)="([^"]+\.js)"', root)))
+    print(f"[probe] JS assets: {srcs}")
+    names, seen = set(), set()
+    queue = [urljoin(f"{BASE}/", s) for s in srcs]
+    while queue and len(seen) < 40:
+        url = queue.pop(0)
+        if url in seen:
+            continue
+        seen.add(url)
+        try:
+            js = client.s.get(url, timeout=30).text
+        except requests.RequestException as e:
+            print(f"[probe]   {url}: {e}")
+            continue
+        names |= set(re.findall(r"\b((?:cars|top|registrations|total)[A-Za-z]*(?:By|Table)[A-Za-z]*)\b", js))
+        names |= set(re.findall(r'only:\s*\[([^\]]{1,200})\]', js))
+        for imp in re.findall(r'["\'](\./[\w.-]+\.js|/build/assets/[\w.-]+\.js)["\']', js):
+            queue.append(urljoin(url, imp))
+        for m in re.finditer(r"(makes|models|engine_types)[^;]{0,160}", js):
+            names.add("ctx:" + m.group(0)[:160])
+    print(f"[probe] bundle names ({len(seen)} files):")
+    for n in sorted(names)[:150]:
+        print(f"[probe]   {n}")
+    y, m = previous_month()
+    for props, extra in (("carsByMake,carsByModel,engineTypes,carsByEngineType", None),):
+        try:
+            got = client.partial("Whole", y, m, props, extra)
+            for k, v in got.items():
+                print(f"[probe] partial {k}: {json.dumps(v, ensure_ascii=False)[:1500]}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] partial {props} failed: {type(e).__name__}: {e}")
+    for path in ("/filters/makes?class=Passenger", "/filters/engine-types?class=Passenger",
+                 "/filters/engine_types?class=Passenger", "/filters/engineTypes"):
+        try:
+            rr = client.s.get(f"{BASE}{path}", headers={"Accept": "application/json"}, timeout=30)
+            print(f"[probe] GET {path}: HTTP {rr.status_code} {rr.text[:400]!r}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] GET {path} failed: {e}")
+    # One engine-type filter guess, to see how the value must look.
+    for guess in ([{"name": "Electric", "value": "Electric"}], [{"name": "Electric", "value": "E"}]):
+        try:
+            got = client.partial("Whole", y, m, "carsByMake", {"engine_types": guess})
+            print(f"[probe] carsByMake with engine_types={guess}: "
+                  f"{json.dumps(got.get('carsByMake'), ensure_ascii=False)[:600]}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] engine_types={guess} failed: {type(e).__name__}: {e}")
+    r = client.s.get(f"{BASE}/", headers={"X-Inertia": "true",
+                                          "X-Inertia-Version": client.version},
+                     timeout=30)
+    try:
+        props = r.json().get("props", {})
+        print(f"[probe] X-Inertia reload props: {sorted(props)}")
+    except ValueError:
+        print(f"[probe] X-Inertia reload: HTTP {r.status_code}, not JSON")
+
+
 class SimiClient:
     def __init__(self):
         self.s = requests.Session()
@@ -142,11 +226,46 @@ class SimiClient:
                                "the site shape changed.")
         page = json.loads(html.unescape(m.group(1)))
         self.version = page["version"]
+        self.page = page
         if "XSRF-TOKEN" not in self.s.cookies:
             raise RuntimeError("XSRF-TOKEN cookie not set by stats.simi.ie root.")
 
     def _xsrf(self) -> str:
         return requests.utils.unquote(self.s.cookies.get("XSRF-TOKEN"))
+
+    def partial(self, variant: str, year: int, month: int, props: str,
+                extra: dict | None = None) -> dict:
+        """Store a one-month filter (plus `extra` filter keys) and return the
+        Inertia partial reload of the comma-separated `props`."""
+        cfg = VARIANT_CONFIG[variant]
+        page_url = f"{BASE}/{cfg['route']}" if cfg["route"] else f"{BASE}/"
+        body = {
+            "years": [{"name": year, "value": year}],
+            "month_from": {"name": MONTH_NAMES[month - 1], "value": month},
+            "day_from": None,
+            "month_to": {"name": MONTH_NAMES[month - 1], "value": month},
+            "day_to": None,
+            "registration_type": {"name": "Total New Registrations", "value": "new-total"},
+            "sales_types": [], "makes": [], "models": [], "body_types": [],
+            "transmissions": [], "engine_types": [], "engine_capacities": [],
+            "colours": [], "segments": [], "counties": [],
+            **(extra or {}),
+        }
+        p = self.s.patch(
+            f"{BASE}/filter/{cfg['filter']}",
+            headers={"X-XSRF-TOKEN": self._xsrf(), "Content-Type": "application/json",
+                     "Accept": "application/json", "X-Requested-With": "XMLHttpRequest",
+                     "Origin": BASE, "Referer": page_url},
+            data=json.dumps(body), allow_redirects=False, timeout=30,
+        )
+        if p.status_code not in (200, 302, 303):
+            raise RuntimeError(f"filter PATCH failed: HTTP {p.status_code} {p.text[:300]}")
+        g = self.s.get(page_url, headers={
+            "X-Inertia": "true", "X-Inertia-Version": self.version,
+            "X-Inertia-Partial-Component": cfg["component"],
+            "X-Inertia-Partial-Data": props}, allow_redirects=False, timeout=30)
+        g.raise_for_status()
+        return g.json().get("props", {})
 
     def fetch_month(self, variant: str, year: int, month: int) -> dict[str, float]:
         """Return {canonical_col: count} for a single (variant, year, month)."""
@@ -277,6 +396,93 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
         return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
 
 
+# ---------------------------------------------------------------------------
+# Top makes / models (market/ireland_top.json)
+# ---------------------------------------------------------------------------
+#
+# The passenger dashboard ranks makes (carsByMake) and models (carsByModel) for
+# whatever filter is stored — including an engine-type filter whose options
+# the page itself serves as the `engineTypes` partial ({"value": "03",
+# "name": "Electric"}, …). Per month and electrified class (BEV / PHEV / HEV,
+# labels mapped with LABEL_TO_COL exactly like the CSV) that is one filtered
+# reload; the class total comes from the unfiltered carsByEngineType, and any
+# make the dashboard does not list counts as the unranked rest.
+
+TOP_SLUG = "ireland"
+TOP_UNIT = "registrations (SIMI make / model as shown on stats.simi.ie)"
+TOP_CLASSES = ("BEV", "PHEV", "HEV")
+
+
+def top_units_from(datasets: list, cls: str, kind: str) -> dict:
+    """carsByMake / carsByModel datasets → {(class, brand, model): n}."""
+    out: dict = {}
+    for ds in datasets or []:
+        n = int((ds.get("units") or [{}])[0].get("count") or 0)
+        if not n:
+            continue
+        if kind == "make":
+            key = (cls, market_top.clean(ds.get("label")), "")
+        else:
+            lab = ds.get("labels") or {}
+            b = market_top.clean(lab.get("make"))
+            key = (cls, b, market_top.strip_brand(b, market_top.clean(lab.get("model"))))
+        out[key] = out.get(key, 0) + n
+    return out
+
+
+def with_rest(units: dict, cls: str, total: int, what: str) -> dict:
+    listed = sum(units.values())
+    if listed > total:
+        raise RuntimeError(f"{cls} {what}: listed {listed} > class total {total}")
+    return {**units, (cls, market_top.REST, ""): total - listed}
+
+
+def collect_top(client: "SimiClient", periods: list[str]) -> tuple[dict, dict]:
+    """(make months, model months) for build_top_monthly / splice_models."""
+    y0, m0 = map(int, periods[-1].split("-"))
+    options = client.partial("Whole", y0, m0, "engineTypes").get("engineTypes") or []
+    by_class = {c: [o for o in options if LABEL_TO_COL.get(o.get("name")) == c]
+                for c in TOP_CLASSES}
+    if not by_class["BEV"]:
+        raise RuntimeError(f"no 'Electric' engine type in {options}")
+    makes, models = {}, {}
+    for p in periods:
+        y, m = map(int, p.split("-"))
+        cols = client.fetch_month("Whole", y, m)
+        total = int(sum(cols.values()))
+        if not total:
+            continue
+        mk, md = {}, {}
+        for cls in TOP_CLASSES:
+            n_cls = int(cols.get(cls, 0))
+            if not n_cls or not by_class[cls]:
+                continue
+            got = client.partial("Whole", y, m, "carsByMake,carsByModel",
+                                 {"engine_types": [{"value": o["value"], "name": o["name"]}
+                                                   for o in by_class[cls]]})
+            mk.update(with_rest(top_units_from((got.get("carsByMake") or {}).get("datasets"),
+                                               cls, "make"), cls, n_cls, "makes"))
+            md.update(with_rest(top_units_from((got.get("carsByModel") or {}).get("datasets"),
+                                               cls, "model"), cls, n_cls, "models"))
+        makes[p], models[p] = (mk, total), (md, total)
+    return makes, models
+
+
+def refresh_top(client: "SimiClient") -> None:
+    csv_path = VARIANT_CONFIG["Whole"]["csv"]
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        have = sorted(r["period"] for r in csv.DictReader(f)
+                      if r.get("variant", "Whole") == "Whole")
+    target = have[-1]
+    periods = [p for p in market_top.month_window(target) if p in have]
+    makes, models = collect_top(client, periods)
+    top = market_top.build_top_monthly("Ireland", SOURCE, target, makes, TOP_UNIT)
+    market_top.splice_models(top, market_top.build_top_monthly(
+        "Ireland", SOURCE, target, models, TOP_UNIT))
+    path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    market_top.report(top, path, market_top.write_top(top, path))
+
+
 def run_variant(client: "SimiClient", variant: str, start, end) -> None:
     cfg = VARIANT_CONFIG[variant]
     print(f"[{variant}] fetching {start[0]}-{start[1]:02d} .. {end[0]}-{end[1]:02d}")
@@ -304,7 +510,12 @@ def main() -> None:
                     help="Backfill start 'YYYY-MM' (fetch through latest). Overrides --months.")
     ap.add_argument("--force", action="store_true",
                     help="Skip the 'previous month already present' early-exit.")
+    ap.add_argument("--probe", action="store_true",
+                    help="Bootstrap only: log the dashboard props (probe_props) and exit.")
     args = ap.parse_args()
+    if args.probe:
+        probe_bundle(SimiClient())
+        return
 
     aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
@@ -329,15 +540,19 @@ def main() -> None:
         for v in [v for v in targets if v not in pending]:
             print(f"[{v}] CSV already has {prev_period}; skipping.")
         targets = pending
-        if not targets:
-            print("All requested variants are current; nothing to do.")
-            return
+    top_path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    top_stale = not market_top.top_is_current(top_path, prev_period)
+    if not targets and not top_stale:
+        print("All requested variants are current; nothing to do.")
+        return
 
     client = SimiClient()
     client.bootstrap()
     print(f"Inertia version {client.version}")
     for variant in targets:
         run_variant(client, variant, start, end)
+    if "Whole" in targets or top_stale:
+        market_top.guarded(refresh_top, client)
 
 
 if __name__ == "__main__":

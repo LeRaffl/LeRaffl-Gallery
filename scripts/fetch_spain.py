@@ -420,14 +420,13 @@ def refresh_top(session: requests.Session | None) -> None:
     if target is None:
         return
     have = market_top.top_as_of(TOP_PATH)
-    if have == target:
+    if market_top.top_is_current(TOP_PATH, target):
         print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
         return
     print(f"Top brands/models: {have or 'none'} -> {target}, "
           "reading the trailing twelve months …")
     session = session or make_session()
-    units: dict = {}
-    total = 0
+    monthly: dict = {}
     for period in market_top.month_window(target):
         try:
             txt, _ = download_month(session, period)
@@ -436,17 +435,10 @@ def refresh_top(session: requests.Session | None) -> None:
             return
         u, t = aggregate_models(txt)
         del txt
-        total += t
-        for k, n in u.items():
-            units[k] = units.get(k, 0) + n
+        monthly[period] = (u, t)
         print(f"  {period}: {t:,} Whole records")
-    top = market_top.build_top("Spain", SOURCE, target, units, total, TOP_UNIT)
-    wrote = market_top.write_top(top, TOP_PATH)
-    bev = top["classes"].get("BEV", {})
-    lead = (bev.get("brands") or [{}])[0]
-    print(f"{TOP_PATH.relative_to(market_top.REPO)}: "
-          f"{'updated' if wrote else 'unchanged'} — BEV {bev.get('units', 0):,} units, "
-          f"top brand {lead.get('brand')} {lead.get('share_of_class')}")
+    top = market_top.build_top_monthly("Spain", SOURCE, target, monthly, TOP_UNIT)
+    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
 
 
 # ── CSV handling ───────────────────────────────────────────────────────────
