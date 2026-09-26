@@ -1177,11 +1177,21 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     )
 
 
+def _display_name(s: str) -> str:
+    """Registry strings are upper-case ("TESLA MODEL Y"); cards read better in
+    title case, but acronyms and codes stay as they are ("BYD", "ID.4", "EX30")."""
+    def word(w: str) -> str:
+        if len(w) <= 3 or any(ch.isdigit() or ch == "." for ch in w) or not w.isupper():
+            return w
+        return "-".join(p.capitalize() for p in w.split("-"))
+    return " ".join(word(w) for w in str(s).split())
+
+
 def market_summary(fm: dict) -> str:
-    """One line for the directory card when the page has a "Who sells the
-    electrified cars" section: brands or brands + models, which classes, and
-    whether single months are there — read from the generated top file, so it
-    can never promise a table that is not on the page."""
+    """The best-selling BEV make (and model, where the source has models) of
+    the page's headline window, for the directory card — read from the
+    generated top file, so a card only ever shows a table that is on the page.
+    Pooled rows such as JADA's "IMPORTS (ALL BRANDS)" are skipped."""
     rel = fm.get("market_breakdown")
     path = REPO / rel if rel else None
     if not path or not path.is_file():
@@ -1190,15 +1200,18 @@ def market_summary(fm: dict) -> str:
         top = json.loads(path.read_text(encoding="utf-8"))
     except ValueError:
         return ""
-    classes = top.get("classes") or {}
-    if not classes:
+    bev = (top.get("classes") or {}).get("BEV") or {}
+    brands = bev.get("brands") or []
+    brand = next((b["brand"] for b in brands if "ALL BRANDS" not in b["brand"].upper()), None)
+    if not brand:
         return ""
-    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
-    what = ("Top brands & models" if any(v.get("models") for v in classes.values())
-            else "Top brands")
-    cls = ", ".join(names[c] for c in CLASS_ORDER if c in classes)
-    monthly = " · monthly" if top.get("months") else ""
-    return f"{what} · {cls}{monthly}"
+    pooled_first = "ALL BRANDS" in brands[0]["brand"].upper()
+    out = ("Top BEV maker (imports pooled): " if pooled_first else "Top BEV: ") + _display_name(brand)
+    model = next(iter(bev.get("models") or []), None)
+    if model:
+        name = model["model"] if model["brand"] == brand else f'{model["brand"]} {model["model"]}'
+        out += " · model: " + _display_name(name)
+    return out
 
 
 def build_index(pages: list[dict]) -> str:
@@ -1446,8 +1459,8 @@ INDEX_TEMPLATE = """<!doctype html>
      what they count, and what to be careful about. {n} countries, each tagged by
      acquisition method — API, Scrape, PDF, File or Manual. {n_mkt} of them also
      show who sells the electrified cars (top brands, often models, per month
-     and over the last twelve) — marked <span class="mkt-chip">Top brands</span>
-     on the card.</p>
+     and over the last twelve); their card names the best-selling
+     battery-electric make and model.</p>
   <div class="dir-grid">{cards}</div>
 </div>
 </body>
