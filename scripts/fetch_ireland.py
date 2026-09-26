@@ -78,7 +78,6 @@ import re
 import sys
 from datetime import date
 from pathlib import Path
-
 from urllib.parse import urljoin
 
 import requests
