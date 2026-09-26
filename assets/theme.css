@@ -14,7 +14,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&display=swap');
 
-:root{
+:root,[data-theme="light"]{
+  /* DARK MODE (2026-09). Dieser Block ist und bleibt die HELLE Palette.
+     Er gilt zusaetzlich fuer jedes Element mit data-theme="light": so bleiben
+     die Chart-Flaechen (und alles, was tok() liest) hell, auch wenn die Seite
+     dunkel ist. Die dunklen Werte stehen im Block direkt darunter. */
   /* VISUAL REDESIGN (2026-09), Phase 2. Palette komplett ersetzt.
      Vorher: "Neo-Kinpaku" — Kinpaku-Gold auf warmem Lack, Verdigris-Patina fuer
      aktive Zustaende. Warum sie weg ist: die Kombination dunkelbraun + gold wurde
@@ -79,6 +83,10 @@
   --danger-wash:#fdecec;   /* Flaeche fuer Fehler                                */
   --warn-wash:#fbf6e8;     /* Flaeche fuer Hinweis                               */
   --warn:#9a6a00;          /* Warnung                                           */
+  --warn-txt:#7a5200;      /* Text auf --warn-wash                              */
+  --on-accent:#ffffff;     /* Text auf voller --accent-Flaeche                  */
+  /* Dropdown-Pfeil: Daten-URI-SVG kann kein Token lesen, darum als Token. */
+  --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2355534c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   --danger:#b5451b;        /* Fehler, "late"                                    */
   --shadow:none;
   --radius:2px;
@@ -92,6 +100,78 @@
   --header-h:68px;
   --tabs-h:58px;
   --chrome-h:calc(var(--header-h) + var(--tabs-h));
+}
+
+/* Dark palette, set explicitly by a page script ... */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#141413;
+  --bg-deep:#0f0f0e;
+  --surface:#1b1b19;
+  --surface-2:#222220;
+  --surface-3:#2a2a27;
+  /* Rampe nach Kontrast wie im Hellen: --line am staerksten, --line-3 leise. */
+  --line:#3a3934;
+  --line-2:#33322e;
+  --line-3:#2d2c29;
+  --line-soft:rgba(236,235,230,.08);
+  --text:#ecebe6;          /* 15.4:1 auf --bg */
+  --muted:#aeaba2;         /*  8.0:1 */
+  --muted-2:#85827a;       /*  4.8:1 */
+  --accent:#86acdd;        /*  7.9:1 */
+  --accent-deep:#a9c4e8;   /* Hover: auf dunklem Grund heller, nicht dunkler */
+  --accent-2:#86acdd;
+  --accent-2-pale:#3f6796;
+  --accent-wash:#1c2a3d;   /* Akzent darauf 6.2:1 */
+  --on-accent:#10151d;     /* auf --accent 7.8:1 */
+  --ok:#6fb585;
+  --ok-wash:#16261b;
+  --danger-wash:#321a14;
+  --warn-wash:#2c2412;
+  --warn-txt:#e3bd6a;      /* auf --warn-wash 8.6:1 */
+  --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aeaba2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  /* --warn und --danger bleiben: sie tragen volle Banner mit weissem Text. */
+  --thr-past-bg:rgba(111,181,133,.16);
+  --thr-past-txt:#8fd0a3;
+  --thr-late-bg:rgba(222,120,80,.16);
+  --thr-late-txt:#f0a07e;
+}
+
+/* ... or following the visitor's system setting when no script does. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#141413;
+    --bg-deep:#0f0f0e;
+    --surface:#1b1b19;
+    --surface-2:#222220;
+    --surface-3:#2a2a27;
+    /* Rampe nach Kontrast wie im Hellen: --line am staerksten, --line-3 leise. */
+    --line:#3a3934;
+    --line-2:#33322e;
+    --line-3:#2d2c29;
+    --line-soft:rgba(236,235,230,.08);
+    --text:#ecebe6;          /* 15.4:1 auf --bg */
+    --muted:#aeaba2;         /*  8.0:1 */
+    --muted-2:#85827a;       /*  4.8:1 */
+    --accent:#86acdd;        /*  7.9:1 */
+    --accent-deep:#a9c4e8;   /* Hover: auf dunklem Grund heller, nicht dunkler */
+    --accent-2:#86acdd;
+    --accent-2-pale:#3f6796;
+    --accent-wash:#1c2a3d;   /* Akzent darauf 6.2:1 */
+    --on-accent:#10151d;     /* auf --accent 7.8:1 */
+    --ok:#6fb585;
+    --ok-wash:#16261b;
+    --danger-wash:#321a14;
+    --warn-wash:#2c2412;
+    --warn-txt:#e3bd6a;      /* auf --warn-wash 8.6:1 */
+    --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aeaba2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    /* --warn und --danger bleiben: sie tragen volle Banner mit weissem Text. */
+    --thr-past-bg:rgba(111,181,133,.16);
+    --thr-past-txt:#8fd0a3;
+    --thr-late-bg:rgba(222,120,80,.16);
+    --thr-late-txt:#f0a07e;
+  }
 }
 
 /* Legacy token names used by sources/*.html, mapped onto the canonical ones
