@@ -135,6 +135,7 @@ jobs:
             data/Austria_HDV.csv
             data/Austria_Vans.csv
             data/Austria_Used.csv
+            market/austria_top.json
           message: 'chore: update Austria data from Statistik Austria (DE2/DE3/GE2)'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

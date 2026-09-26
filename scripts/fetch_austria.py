@@ -112,6 +112,7 @@ import argparse
 import csv
 import io
 import os
+import sys
 import re
 import socket
 import xml.etree.ElementTree as ET
@@ -122,6 +123,9 @@ from pathlib import Path
 from urllib.parse import quote
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -555,6 +559,139 @@ def parse_de2(content: bytes, year: int) -> dict[str, dict[str, float]]:
 
 
 # ---------------------------------------------------------------------------
+# Top BEV brands / types (market/austria_top.json)
+# ---------------------------------------------------------------------------
+#
+# Every DE2 month sheet carries "Tabelle 7: Pkw-Neuzulassungen nach TOP 10
+# Marken und Typen mit Elektroantrieb" (the month) and "Tabelle 14: …,
+# kumuliert" (January to that month). Each is two blocks — "Marke" (10 rows)
+# and "Marke/Type" (10 rows) — each closed by "Sonstige Pkw mit Elektroantrieb"
+# (the rest), the second by "Pkw mit Elektroantrieb insgesamt", which equals
+# Tabelle 2's Elektro row, i.e. the CSV's BEV. Only BEV is published this way.
+
+TOP_SLUG = "austria"
+TOP_UNIT = ("registrations (Statistik Austria top-10 BEV makes and types; "
+            "the rest is counted, not ranked)")
+
+
+def parse_ev_table(sheet: ET.Element, number: int) -> dict | None:
+    """Tabelle `number` (7 or 14) of one DE2 month sheet →
+    {"brands": {brand: n}, "types": {label: n}, "rest_brands", "rest_types",
+     "total"}; None if the sheet has no such table. Raises when a block does
+    not add up to the printed total."""
+    out = None
+    block = None
+    for r in sheet.findall(f"{TNS}table-row"):
+        cells = _row_cells(r)
+        if not cells:
+            continue
+        label = " ".join(str(cells[0]).split())
+        if out is None:
+            if re.match(rf"Tabelle {number}:", label) and "Elektroantrieb" in label:
+                out = {"brands": {}, "types": {}, "rest_brands": 0, "rest_types": 0,
+                       "total": None}
+            continue
+        if label.startswith("Tabelle ") or label.startswith("Q:"):
+            break
+        if label == "Marke":
+            block = "brands"
+            continue
+        if label.startswith("Marke/Type"):
+            block = "types"
+            continue
+        if block is None or len(cells) < 2:
+            continue
+        n = int(_to_float(cells[1]))
+        low = label.lower()
+        if low.startswith("sonstige"):
+            out["rest_" + block] = n
+        elif low.startswith("pkw mit elektroantrieb insge"):
+            out["total"] = n
+        elif label:
+            out[block][label] = n
+    if out is None:
+        return None
+    if out["total"] is None:
+        raise RuntimeError(f"Tabelle {number}: no 'insgesamt' row")
+    for b in ("brands", "types"):
+        got = sum(out[b].values()) + out["rest_" + b]
+        if got != out["total"]:
+            raise RuntimeError(f"Tabelle {number} {b}: {got} != insgesamt {out['total']}")
+    return out
+
+
+def _split_type(label: str, brands: list[str]) -> tuple[str, str]:
+    """'BMW X1' -> ('BMW', 'X1') against the table's own make names."""
+    s = market_top.clean(label)
+    for b in sorted(brands, key=len, reverse=True):
+        if s.startswith(b + " "):
+            return b, s[len(b) + 1:]
+    head, _, rest = s.partition(" ")
+    return head, rest or s
+
+
+def _ev_units(t: dict) -> tuple[dict, dict]:
+    """(brand units, type units) in market_top's shape, rest as REST."""
+    brands = {("BEV", market_top.clean(b), ""): n for b, n in t["brands"].items()}
+    brands[("BEV", market_top.REST, "")] = t["rest_brands"]
+    names = [b for (_, b, _) in brands]
+    types = {}
+    for label, n in t["types"].items():
+        b, m = _split_type(label, names)
+        types[("BEV", b, m)] = types.get(("BEV", b, m), 0) + n
+    types[("BEV", market_top.REST, "")] = t["rest_types"]
+    return brands, types
+
+
+def build_austria_top(content: bytes, year: int) -> dict:
+    """Headline = January to the newest month (Tabelle 14 of the newest sheet,
+    Statistik Austria's own year-to-date top 10); single months = Tabelle 7 of
+    every month sheet of the file. Totals from Tabelle 2."""
+    root = _open_xml(content)
+    fuels = parse_de2(content, year)
+    months_b, months_t, ytd, last = {}, {}, None, None
+    for sheet in root.iter(f"{TNS}table"):
+        month = MONTH_NAMES.get(sheet.get(f"{TNS}name", ""))
+        if month is None:
+            continue
+        period = f"{year}-{month:02d}"
+        t7 = parse_ev_table(sheet, 7)
+        if t7 is None or period not in fuels:
+            continue
+        if t7["total"] != int(fuels[period]["BEV"]):
+            raise RuntimeError(f"{period}: Tabelle 7 total {t7['total']} != "
+                               f"Tabelle 2 Elektro {fuels[period]['BEV']:.0f}")
+        b, t = _ev_units(t7)
+        total = int(fuels[period]["TOTAL"])
+        months_b[period], months_t[period] = (b, total), (t, total)
+        if last is None or period > last:
+            last, ytd = period, parse_ev_table(sheet, 14)
+    if not months_b or ytd is None:
+        raise RuntimeError("no Tabelle 7 / 14 found in the DE2 file")
+    top = market_top.build_top_monthly("Austria", SOURCE, last, months_b, TOP_UNIT)
+    market_top.splice_models(top, market_top.build_top_monthly(
+        "Austria", SOURCE, last, months_t, TOP_UNIT))
+    # Headline: the source's exact year-to-date ranking instead of a sum of
+    # monthly top-10 lists (a make outside one month's top 10 would be lost).
+    yb, yt = _ev_units(ytd)
+    ytd_total = sum(months_b[p][1] for p in months_b)
+    head = market_top.build_top("Austria", SOURCE, last, yb, ytd_total, TOP_UNIT)
+    market_top.splice_models(head, market_top.build_top("Austria", SOURCE, last, yt,
+                                                        ytd_total, TOP_UNIT))
+    if head["classes"]["BEV"]["units"] != ytd["total"]:
+        raise RuntimeError("Tabelle 14 does not add up")
+    top["classes"], top["total_registrations"] = head["classes"], ytd_total
+    top["window"] = {"from": f"{year}-01", "to": last, "months": len(months_b)}
+    return top
+
+
+def refresh_top(content: bytes, year: int) -> None:
+    top = build_austria_top(content, year)
+    path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    market_top.report(top, path, market_top.write_top(top, path))
+
+
+# ---------------------------------------------------------------------------
 # GE2 parser (Used)
 # ---------------------------------------------------------------------------
 
@@ -833,6 +970,8 @@ def run_variant(variant: str, urls: dict, session: requests.Session,
         if kind == "de2":
             parsed = parse_de2(content, year)
             interval = "monthly"
+            if year == max(y for (k, y) in urls if k == "de2"):
+                market_top.guarded(refresh_top, content, year)
         elif kind == "ge2":
             parsed = parse_ge2(content, year)
             interval = "monthly"
@@ -944,9 +1083,14 @@ def main() -> None:
         for v in skip:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
         targets = [v for v in targets if v not in skip]
-        if not targets:
+        top_stale = ("Whole" in skip and not market_top.top_is_current(
+            market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", prev))
+        if not targets and not top_stale:
             print("All requested variants are current; nothing to do.")
             return
+        if not targets:
+            print("Data is current; refreshing the top BEV makes/types only.")
+            args.probe_top_only = True
 
     session = requests.Session()
     session.headers.update({"User-Agent": "LeRaffl-Gallery/austria-fetch"})
@@ -964,6 +1108,11 @@ def main() -> None:
     session.mount("http://", _adapter)
     # The new-registrations listing feeds Whole/HDV/Vans; the used-registrations
     # listing feeds Used. Only fetch the pages the requested variants need.
+    if getattr(args, "probe_top_only", False):
+        de2 = sorted((y, u) for (k, y), u in discover_file_urls(session).items() if k == "de2")
+        if de2:
+            market_top.guarded(refresh_top, fetch_ods(de2[-1][1], session, {}), de2[-1][0])
+        return
     if args.probe:
         de2 = sorted((y, u) for (k, y), u in discover_file_urls(session).items() if k == "de2")
         if not de2:

@@ -41,6 +41,8 @@ MARKET_DIR = REPO / "market"
 # Classes that get a ranking, in display order. Anything else a fetcher passes
 # (PETROL, DIESEL, ICE, OTHERS, ...) only counts towards the market total.
 ELECTRIFIED = ("BEV", "PHEV", "EREV", "HEV", "MHEV")
+# Brand of a top-N source's own "all others" line (see _classes).
+REST = ""
 TOP_BRANDS = 10
 TOP_MODELS = 15
 # Single-month rankings are shorter: twelve of them sit behind one picker.
@@ -67,14 +69,15 @@ def ranked(counter: collections.Counter, n: int) -> list:
 def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
     """Rank one window's `units` ({(class, brand, model): n}) per electrified
     class. A brand-only source passes model "" — it gets brand rankings and an
-    empty model list."""
+    empty model list. Brand "" (REST) is a source's own "all others" line for
+    a top-N table: it counts towards the class, never into a ranking."""
     per_class = {c: {"brands": collections.Counter(),
                      "models": collections.Counter()} for c in ELECTRIFIED}
     for (cls, brand, model), n in units.items():
         if cls not in per_class or not n:
             continue
         per_class[cls]["brands"][brand] += n
-        if model:
+        if model and brand:
             per_class[cls]["models"][(brand, model)] += n
     classes = {}
     for cls in ELECTRIFIED:
@@ -86,7 +89,8 @@ def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
             "share_of_market": round(cls_units / total, 5) if total else None,
             "brands": [{"brand": b, "units": u,
                         "share_of_class": round(u / cls_units, 4)}
-                       for b, u in ranked(per_class[cls]["brands"], top_brands)],
+                       for b, u in ranked(per_class[cls]["brands"], top_brands + 1)
+                       if b != REST][:top_brands],
             "models": [{"brand": b, "model": m, "units": u,
                         "share_of_class": round(u / cls_units, 4)}
                        for (b, m), u in ranked(per_class[cls]["models"], top_models)],

@@ -82,6 +82,9 @@ from urllib.parse import urljoin
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
+
 BASE = "https://stats.simi.ie"
 SOURCE = "stats.simi.ie"
 
@@ -150,6 +153,7 @@ def probe_bundle(client: "SimiClient") -> None:
     JS bundle asks for and every filter key it knows, (3) a full X-Inertia
     reload's keys — enough to wire a make / model query per engine type."""
     client.bootstrap()
+    probe_props(client.page)
     root = client.s.get(f"{BASE}/", timeout=30).text
     srcs = sorted(set(re.findall(r'(?:src|href)="([^"]+\.js)"', root)))
     print(f"[probe] JS assets: {srcs}")
@@ -222,7 +226,7 @@ class SimiClient:
                                "the site shape changed.")
         page = json.loads(html.unescape(m.group(1)))
         self.version = page["version"]
-        probe_props(page)
+        self.page = page
         if "XSRF-TOKEN" not in self.s.cookies:
             raise RuntimeError("XSRF-TOKEN cookie not set by stats.simi.ie root.")
 
@@ -392,6 +396,93 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
         return any(r["period"] == period and r["variant"] == variant for r in csv.DictReader(f))
 
 
+# ---------------------------------------------------------------------------
+# Top makes / models (market/ireland_top.json)
+# ---------------------------------------------------------------------------
+#
+# The passenger dashboard ranks makes (carsByMake) and models (carsByModel) for
+# whatever filter is stored — including an engine-type filter whose options
+# the page itself serves as the `engineTypes` partial ({"value": "03",
+# "name": "Electric"}, …). Per month and electrified class (BEV / PHEV / HEV,
+# labels mapped with LABEL_TO_COL exactly like the CSV) that is one filtered
+# reload; the class total comes from the unfiltered carsByEngineType, and any
+# make the dashboard does not list counts as the unranked rest.
+
+TOP_SLUG = "ireland"
+TOP_UNIT = "registrations (SIMI make / model as shown on stats.simi.ie)"
+TOP_CLASSES = ("BEV", "PHEV", "HEV")
+
+
+def top_units_from(datasets: list, cls: str, kind: str) -> dict:
+    """carsByMake / carsByModel datasets → {(class, brand, model): n}."""
+    out: dict = {}
+    for ds in datasets or []:
+        n = int((ds.get("units") or [{}])[0].get("count") or 0)
+        if not n:
+            continue
+        if kind == "make":
+            key = (cls, market_top.clean(ds.get("label")), "")
+        else:
+            lab = ds.get("labels") or {}
+            b = market_top.clean(lab.get("make"))
+            key = (cls, b, market_top.strip_brand(b, market_top.clean(lab.get("model"))))
+        out[key] = out.get(key, 0) + n
+    return out
+
+
+def with_rest(units: dict, cls: str, total: int, what: str) -> dict:
+    listed = sum(units.values())
+    if listed > total:
+        raise RuntimeError(f"{cls} {what}: listed {listed} > class total {total}")
+    return {**units, (cls, market_top.REST, ""): total - listed}
+
+
+def collect_top(client: "SimiClient", periods: list[str]) -> tuple[dict, dict]:
+    """(make months, model months) for build_top_monthly / splice_models."""
+    y0, m0 = map(int, periods[-1].split("-"))
+    options = client.partial("Whole", y0, m0, "engineTypes").get("engineTypes") or []
+    by_class = {c: [o for o in options if LABEL_TO_COL.get(o.get("name")) == c]
+                for c in TOP_CLASSES}
+    if not by_class["BEV"]:
+        raise RuntimeError(f"no 'Electric' engine type in {options}")
+    makes, models = {}, {}
+    for p in periods:
+        y, m = map(int, p.split("-"))
+        cols = client.fetch_month("Whole", y, m)
+        total = int(sum(cols.values()))
+        if not total:
+            continue
+        mk, md = {}, {}
+        for cls in TOP_CLASSES:
+            n_cls = int(cols.get(cls, 0))
+            if not n_cls or not by_class[cls]:
+                continue
+            got = client.partial("Whole", y, m, "carsByMake,carsByModel",
+                                 {"engine_types": [{"value": o["value"], "name": o["name"]}
+                                                   for o in by_class[cls]]})
+            mk.update(with_rest(top_units_from((got.get("carsByMake") or {}).get("datasets"),
+                                               cls, "make"), cls, n_cls, "makes"))
+            md.update(with_rest(top_units_from((got.get("carsByModel") or {}).get("datasets"),
+                                               cls, "model"), cls, n_cls, "models"))
+        makes[p], models[p] = (mk, total), (md, total)
+    return makes, models
+
+
+def refresh_top(client: "SimiClient") -> None:
+    csv_path = VARIANT_CONFIG["Whole"]["csv"]
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        have = sorted(r["period"] for r in csv.DictReader(f)
+                      if r.get("variant", "Whole") == "Whole")
+    target = have[-1]
+    periods = [p for p in market_top.month_window(target) if p in have]
+    makes, models = collect_top(client, periods)
+    top = market_top.build_top_monthly("Ireland", SOURCE, target, makes, TOP_UNIT)
+    market_top.splice_models(top, market_top.build_top_monthly(
+        "Ireland", SOURCE, target, models, TOP_UNIT))
+    path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    market_top.report(top, path, market_top.write_top(top, path))
+
+
 def run_variant(client: "SimiClient", variant: str, start, end) -> None:
     cfg = VARIANT_CONFIG[variant]
     print(f"[{variant}] fetching {start[0]}-{start[1]:02d} .. {end[0]}-{end[1]:02d}")
@@ -449,15 +540,19 @@ def main() -> None:
         for v in [v for v in targets if v not in pending]:
             print(f"[{v}] CSV already has {prev_period}; skipping.")
         targets = pending
-        if not targets:
-            print("All requested variants are current; nothing to do.")
-            return
+    top_path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    top_stale = not market_top.top_is_current(top_path, prev_period)
+    if not targets and not top_stale:
+        print("All requested variants are current; nothing to do.")
+        return
 
     client = SimiClient()
     client.bootstrap()
     print(f"Inertia version {client.version}")
     for variant in targets:
         run_variant(client, variant, start, end)
+    if "Whole" in targets or top_stale:
+        market_top.guarded(refresh_top, client)
 
 
 if __name__ == "__main__":

@@ -394,6 +394,130 @@ def test_finland_traficom():
             pass
 
 
+def _de2_ods(months: dict) -> bytes:
+    """A minimal DE2 .ods: one sheet per month with Tabelle 2, 7 and 14."""
+    import io
+    import zipfile
+    import fetch_austria as fa
+    T = "urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+    X = "urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+
+    def row(*cells):
+        return ("<table:table-row>" + "".join(
+            f"<table:table-cell><text:p>{c}</text:p></table:table-cell>" for c in cells)
+            + "</table:table-row>")
+    sheets = []
+    for name, (fuels, t7, t14) in months.items():
+        rows = [row("Tabelle 2: Pkw-Neuzulassungen nach Kraftstoffart bzw. Energiequelle")]
+        rows += [row(k, v) for k, v in fuels.items()] + [row("Q: STATISTIK AUSTRIA")]
+        for num, t in ((7, t7), (14, t14)):
+            rows.append(row(f"Tabelle {num}: Pkw-Neuzulassungen nach TOP 10 Marken und Typen mit Elektroantrieb"))
+            rows.append(row("Marke", "Monat", "Anteil in %"))
+            rows += [row(b, n, "1.0") for b, n in t["brands"]]
+            rows.append(row("Sonstige Pkw mit Elektroantrieb", t["rest_b"]))
+            rows.append(row("Marke/Type", "", ""))
+            rows += [row(m, n, "1.0") for m, n in t["types"]]
+            rows.append(row("Sonstige Pkw mit Elektroantrieb", t["rest_t"]))
+            rows.append(row("Pkw mit Elektroantrieb insgesamt", t["total"]))
+            rows.append(row("Q: STATISTIK AUSTRIA, Kfz-Statistik"))
+        sheets.append(f'<table:table table:name="{name}">' + "".join(rows) + "</table:table>")
+    xml = (f'<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" '
+           f'xmlns:table="{T}" xmlns:text="{X}"><office:body><office:spreadsheet>'
+           + "".join(sheets) + "</office:spreadsheet></office:body></office:document-content>")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        z.writestr("content.xml", xml)
+    assert fa.L_TOTAL == "Pkw insgesamt"
+    return buf.getvalue()
+
+
+def test_austria_top_bev():
+    import fetch_austria as fa
+
+    def fuels(bev, total):
+        return {"Benzin": total - bev - 30, "Diesel": 10, "Elektro": bev,
+                "Benzin/Elektro (hybrid)": 20, "darunter Benzin/Elektro (hybrid) – Plug-In": 5,
+                "Diesel/Elektro (hybrid)": 0, "darunter Diesel/Elektro (hybrid) – Plug-In": 0,
+                "Pkw insgesamt": total}
+    jul7 = {"brands": [("BMW", 50), ("BYD", 30)], "rest_b": 20,
+            "types": [("BMW X1", 40), ("BYD ATTO", 25)], "rest_t": 35, "total": 100}
+    aug7 = {"brands": [("BYD", 60), ("TESLA", 40)], "rest_b": 50,
+            "types": [("TESLA MODEL Y", 40), ("BYD SEALION", 30)], "rest_t": 80, "total": 150}
+    aug14 = {"brands": [("BYD", 90), ("BMW", 70), ("TESLA", 45)], "rest_b": 45,
+             "types": [("TESLA MODEL Y", 45), ("BMW X1", 44)], "rest_t": 161, "total": 250}
+    ods = _de2_ods({"Juli": (fuels(100, 1000), jul7, jul7),
+                    "August": (fuels(150, 900), aug7, aug14)})
+    top = fa.build_austria_top(ods, 2026)
+    assert top["window"] == {"from": "2026-01", "to": "2026-08", "months": 2}
+    assert top["total_registrations"] == 1900
+    bev = top["classes"]["BEV"]
+    assert bev["units"] == 250                                # the YTD table, rest included
+    assert [b["brand"] for b in bev["brands"]] == ["BYD", "BMW", "TESLA"]  # never "Sonstige"
+    assert bev["models"][0] == {"brand": "TESLA", "model": "MODEL Y", "units": 45,
+                                "share_of_class": 0.18}
+    aug = top["months"][0]
+    assert aug["period"] == "2026-08" and aug["classes"]["BEV"]["units"] == 150
+    assert aug["classes"]["BEV"]["models"][1]["model"] == "SEALION"
+    # A Tabelle 7 total that disagrees with Tabelle 2's Elektro stops the refresh.
+    bad = _de2_ods({"August": (fuels(149, 900), aug7, aug14)})
+    try:
+        fa.build_austria_top(bad, 2026)
+        raise AssertionError("Tabelle 7 vs Tabelle 2 mismatch must raise")
+    except RuntimeError:
+        pass
+
+
+class _FakeSimi:
+    ENGINE = [{"value": "03", "name": "Electric"}, {"value": "16", "name": "Petrol/Plug-In Electric Hybrid"},
+              {"value": "15", "name": "Diesel/Plug-In Electric Hybrid"}, {"value": "01", "name": "Petrol"},
+              {"value": "08", "name": "Petrol Electric (Hybrid)"}]
+    COLS = {"2026-07": {"BEV": 100.0, "PHEV": 40.0, "HEV": 0.0, "PETROL": 360.0},
+            "2026-08": {"BEV": 50.0, "PHEV": 0.0, "HEV": 10.0, "PETROL": 140.0}}
+
+    def __init__(self):
+        self.calls = []
+
+    def fetch_month(self, variant, y, m):
+        return dict(self.COLS.get(f"{y}-{m:02d}", {}))
+
+    def partial(self, variant, y, m, props, extra=None):
+        if props == "engineTypes":
+            return {"engineTypes": self.ENGINE}
+        codes = sorted(o["value"] for o in (extra or {}).get("engine_types", []))
+        self.calls.append((f"{y}-{m:02d}", codes))
+        k = 1 if m == 7 else 2                                # August: half the cars
+        if codes == ["03"]:
+            return {"carsByMake": {"datasets": [
+                        {"label": "Tesla", "units": [{"count": 60 // k}]},
+                        {"label": "KIA", "units": [{"count": 30 // k}]}]},
+                    "carsByModel": {"datasets": [
+                        {"labels": {"make": "TESLA", "model": "MODEL Y"}, "units": [{"count": 60 // k}]}]}}
+        return {"carsByMake": {"datasets": [{"label": "TOYOTA", "units": [{"count": 5}]}]},
+                "carsByModel": {"datasets": []}}
+
+
+def test_ireland_top():
+    import fetch_ireland as fi
+    c = _FakeSimi()
+    makes, models = fi.collect_top(c, ["2026-07", "2026-08"])
+    assert ("2026-07", ["15", "16"]) in c.calls           # both plug-in codes in one filter
+    jul, total = makes["2026-07"]
+    assert total == 500
+    assert jul[("BEV", "TESLA", "")] == 60 and jul[("BEV", mt.REST, "")] == 10
+    assert models["2026-07"][0][("BEV", mt.REST, "")] == 40
+    top = mt.build_top_monthly("Ireland", "S", "2026-08", makes, "u")
+    mt.splice_models(top, mt.build_top_monthly("Ireland", "S", "2026-08", models, "u"))
+    bev = top["classes"]["BEV"]
+    assert bev["units"] == 150 and bev["brands"][0]["brand"] == "TESLA"
+    assert all(b["brand"] for b in bev["brands"])          # the rest is never ranked
+    assert bev["models"][0]["model"] == "MODEL Y" and bev["models"][0]["units"] == 90
+    try:
+        fi.with_rest({("BEV", "X", ""): 11}, "BEV", 10, "makes")
+        raise AssertionError("listed > total must raise")
+    except RuntimeError:
+        pass
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

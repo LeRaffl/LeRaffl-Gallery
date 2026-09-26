@@ -320,6 +320,29 @@ def discover_from_anchor(session, period: str | None = None) -> str:
     return urljoin(KBA_BASE, _newest(xhrefs).replace("&amp;", "&"))
 
 
+def probe_marken(session, merkmale_url: str) -> None:
+    """Log-only: the release's sibling "…_marken.xlsx" (same URL, `_marken`
+    for `_merkmale`) — every sheet's first rows, to wire a make × powertrain
+    table against the real layout (docs 03 §3.16). Never raises."""
+    try:
+        url = merkmale_url.replace("_merkmale.xlsx", "_marken.xlsx")
+        r = _get(session, url)
+        print(f"[probe] marken.xlsx: HTTP {r.status_code} {url}")
+        if not r.ok:
+            return
+        wb = openpyxl.load_workbook(io.BytesIO(r.content), data_only=True)
+        for ws in wb.worksheets:
+            print(f"[probe]   sheet {ws.title!r} {ws.max_row}x{ws.max_column}")
+            for i, row in enumerate(ws.iter_rows(values_only=True)):
+                cells = [str(c)[:22] for c in row if c is not None]
+                if cells:
+                    print(f"[probe]     r{i + 1}: {cells[:14]}")
+                if i >= 45:
+                    break
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] marken probe failed: {type(e).__name__}: {e}")
+
+
 def probe_antriebe(session, period: str) -> None:
     """Log-only: find KBA's "… nach Marken und alternativen Antrieben" release
     for `period` and list its downloads (docs 03 §3.16). Never raises."""
@@ -552,6 +575,7 @@ def main() -> None:
 
     if args.dry_run:
         if not args.file:
+            probe_marken(session, src_url)
             probe_antriebe(session, row["period"])
         print("[dry-run] not writing.")
         return

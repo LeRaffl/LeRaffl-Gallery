@@ -741,6 +741,9 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                               saying designations are raw source strings
 #   market_powertrain_note: "…"                 optional: replaces the "powertrain as
 #                                               recorded / classified" sentence
+#   market_window_note: "…"                     optional: replaces the "fewer than
+#                                               twelve months" note (a source whose
+#                                               headline is year-to-date by design)
 #
 #   classification:
 #     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
@@ -905,7 +908,9 @@ def build_market_breakdown(fm: dict) -> str:
                   or ('Powertrain as classified below.' if fm.get("classification")
                       else "Powertrain as recorded by the source's own fuel field."))
             + '</p>')
-    if n_months < 12:
+    if fm.get("market_window_note"):
+        lead += f'<p class="dim">{esc(fm["market_window_note"])}</p>'
+    elif n_months < 12:
         lead += ('<p class="dim">The source does not reach back a full twelve months '
                  'yet, so the headline view sums the months that exist; it grows to '
                  'a trailing twelve months as new months arrive.</p>')

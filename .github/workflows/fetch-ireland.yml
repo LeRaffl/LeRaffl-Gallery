@@ -101,6 +101,7 @@ jobs:
             data/Ireland_Vans.csv
             data/Ireland_HDV.csv
             data/Ireland_Buses.csv
+            market/ireland_top.json
           message: 'chore: update Ireland data from stats.simi.ie'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

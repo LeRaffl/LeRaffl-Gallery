@@ -681,11 +681,13 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 | Hong Kong | `fetch_hong_kong.py` | TD `Vehicle Make` / `Vehicle Model`, Whole records; classes BEV (TD's fuel value) and PHEV/EREV (classified). Display names only: brand aliases merged, brand prefix, chassis codes and trim words stripped so trims rank as one model (`market_designation_note` explains it on the page) | every real run — from the 12 newest monthly files the fetch reads anyway |
 | Finland | `fetch_finland.py` | Traficom PxWeb (`trafi2.stat.fi`) make × driving power × month for brands and totals, model series × driving power × month for BEV/PHEV designations; scope-checked against `data/Finland.csv` | when Whole data is written or the top file lags — twelve one-month queries per table |
+| Ireland | `fetch_ireland.py` | SIMI dashboard `carsByMake` / `carsByModel` per month, one `engine_types` filter per class (BEV, PHEV, HEV); unlisted makes/models = unranked rest | after a Whole update or when the top file lags — ~50 filter round-trips |
+| Austria | `fetch_austria.py` | DE2 Tabelle 7 (month) / Tabelle 14 (January to date) — top 10 BEV makes and types + "Sonstige"; **BEV only**, headline year-to-date | with the Whole parse of the newest DE2 file |
 | Japan | `fetch_japan.py` | JADA maker rows of the 燃料別メーカー別登録台数 workbook — **brands only**, imports lumped into one row, kei cars excluded like the CSV | whenever the workbook is downloaded (also when only the top file lags); 4 months per file → month store |
 | Singapore | `fetch_singapore.py` | LTA M03 row label `Make Importer Fuel` — **brands only**; AD and PI rows of a make are added; an unknown importer part stops the refresh | every real run; the PDF holds the current half-year → month store |
 | Uruguay | `fetch_uruguay.py` | ACAU Compilado `Marca` / `Modelo` columns, AUTOS + SUV; MHEV ranked as its own class (OTHERS in the CSV); columns found by header name, never guessed | whenever the workbook is downloaded; one calendar year per file → month store |
 
-**Record-level vs. summary sources.** The first five (and Argentina) re-read twelve months of
+**Record-level vs. summary sources.** The first five (and Argentina, Ireland, Austria) re-read twelve months of
 records whenever they like. The last three only ever see a few recent months
 per publication, so they keep every month they have parsed in a **month store**
 `market/<slug>_months.json` (generated; electrified brand/model counts plus the
@@ -766,9 +768,8 @@ a second query that has not been probed).
 | Country | Status |
 |---|---|
 | Denmark, Sweden | No make dimension in the tables the fetchers use (DST BIL5x, SCB PersBilarDrivMedel); the brand statistics live with the importers' associations (Mobility Denmark / Mobility Sweden), not in an API. Not planned. |
-| Austria | `fetch_austria.py` logs `[probe] DE2 … tables:` — every table title of the newest DE2 month sheet, and the first rows of any table about makes. Wire it once the log shows a make × fuel table. (Statistik Austria's OGD "Pkw-Neuzulassungen nach Marken" has no fuel split as far as known.) |
-| Germany | `fetch_germany.py` logs `[probe] listing/release page:` — every download link, and links about makes / alternative powertrains. KBA's monthly "… im Jahresverlauf nach Marken und alternativen Antrieben" release is make × powertrain **year-to-date**; single months would be the difference of two consecutive releases. |
-| Ireland | `fetch_ireland.py` logs `[probe] SIMI props:` — the dashboard's Inertia props and filter options. The dashboard ranks makes / models and filters by engine type, so a make × engine-type query per month is likely; wire it against the logged prop names. |
+| Austria, Ireland | Wired (rows above) after their probes ran in CI on 2026-09-26. |
+| Germany | The monthly release links a `…_marken.xlsx` next to `…_merkmale.xlsx`; `fetch_germany.py --dry-run` logs its sheets (`[probe] marken.xlsx`). KBA's "… nach Marken und alternativen Antrieben" release is a PDF only (year to date). Wire the xlsx once its layout is confirmed. |
 
 ## 3.17 Uncertainty bands (`bands/`)
 
