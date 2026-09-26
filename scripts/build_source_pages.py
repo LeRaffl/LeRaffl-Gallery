@@ -1177,19 +1177,46 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
     )
 
 
+def market_summary(fm: dict) -> str:
+    """One line for the directory card when the page has a "Who sells the
+    electrified cars" section: brands or brands + models, which classes, and
+    whether single months are there — read from the generated top file, so it
+    can never promise a table that is not on the page."""
+    rel = fm.get("market_breakdown")
+    path = REPO / rel if rel else None
+    if not path or not path.is_file():
+        return ""
+    try:
+        top = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return ""
+    classes = top.get("classes") or {}
+    if not classes:
+        return ""
+    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
+    what = ("Top brands & models" if any(v.get("models") for v in classes.values())
+            else "Top brands")
+    cls = ", ".join(names[c] for c in CLASS_ORDER if c in classes)
+    monthly = " · monthly" if top.get("months") else ""
+    return f"{what} · {cls}{monthly}"
+
+
 def build_index(pages: list[dict]) -> str:
     cards = []
     for p in sorted(pages, key=lambda x: x["country"]):
+        mkt = (f'<div class="dir-mkt"><span class="mkt-chip">{esc(p["market"])}</span></div>'
+               if p.get("market") else "")
         cards.append(
             f'<a class="dir-card" href="{esc(p["slug"])}.html">'
             f'<div class="dir-top">{esc(p["country"])}{method_chip(p["method"])}</div>'
             f'<div class="dir-sub">{esc(p["summary"])}</div>'
             f'<div class="dir-meta">Latest {esc(p["latest_period"])}'
-            f' · TTM BEV {esc(p["ttm"])}</div></a>')
+            f' · TTM BEV {esc(p["ttm"])}</div>{mkt}</a>')
     n_full = sum(1 for p in pages if not p.get("is_stub"))
+    n_mkt = sum(1 for p in pages if p.get("market"))
     return INDEX_TEMPLATE.format(
         theme_href=THEME_HREF_INDEX,
-        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full)
+        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full, n_mkt=n_mkt)
 
 
 # --------------------------------------------------------------------------
@@ -1260,6 +1287,10 @@ table.defs th{width:190px;color:var(--muted);font-weight:600}
   font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
 .dir-sub{color:var(--muted);font-size:14px;min-height:40px}
 .dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+.dir-mkt{margin-top:8px}
+.mkt-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;
+  font-weight:600;background:var(--ok-wash);color:var(--ok-tx);
+  border:1px solid transparent}
 
 /* --- shared bits for the data-derived sections ------------------------- */
 .dim{color:var(--muted)}
@@ -1413,7 +1444,10 @@ INDEX_TEMPLATE = """<!doctype html>
   <h1>Data sources</h1>
   <p class="lead">Where each country's numbers come from, how they're acquired,
      what they count, and what to be careful about. {n} countries, each tagged by
-     acquisition method — API, Scrape, PDF, File or Manual.</p>
+     acquisition method — API, Scrape, PDF, File or Manual. {n_mkt} of them also
+     show who sells the electrified cars (top brands, often models, per month
+     and over the last twelve) — marked <span class="mkt-chip">Top brands</span>
+     on the card.</p>
   <div class="dir-grid">{cards}</div>
 </div>
 </body>
@@ -1508,6 +1542,7 @@ def main() -> int:
             "latest_period": (last_row or {}).get("period")
                              or whole.get("data_per", "—"),
             "ttm": pct(whole.get("ttm_bev_share")),
+            "market": market_summary(fm),
             "is_stub": is_stub,
         })
 
