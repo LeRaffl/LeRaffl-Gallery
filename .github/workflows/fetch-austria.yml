@@ -46,6 +46,11 @@ on:
         required: false
         default: false
         type: boolean
+      probe:
+        description: 'Only log the DE2 table titles (top-brands probe); writes nothing'
+        required: false
+        default: false
+        type: boolean
   schedule:
     # Daily 8th–22nd at 09:25 UTC. Window covers the typical mid-month
     # publication slot with buffer for early/late releases.
@@ -83,11 +88,13 @@ jobs:
           python scripts/fetch_austria.py \
             ${VARIANT:+--variant "$VARIANT"} \
             ${YEAR:+--year "$YEAR"} \
-            ${FORCE:+--force}
+            ${FORCE:+--force} \
+            ${PROBE:+--probe}
         env:
           VARIANT: ${{ inputs.variant }}
           YEAR: ${{ inputs.year }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+          PROBE: ${{ inputs.probe == true && '1' || '' }}
           AUSTRIA_FETCH_RELAY: ${{ secrets.AUSTRIA_FETCH_RELAY }}
           AUSTRIA_RELAY_TOKEN: ${{ secrets.AUSTRIA_RELAY_TOKEN }}
           AUSTRIA_PROXY: ${{ secrets.AUSTRIA_PROXY }}

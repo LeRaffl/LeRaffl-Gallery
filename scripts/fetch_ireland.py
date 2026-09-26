@@ -79,6 +79,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from urllib.parse import urljoin
+
 import requests
 
 BASE = "https://stats.simi.ie"
@@ -141,6 +143,46 @@ def probe_props(page: dict) -> None:
                     print(f"[probe]   {k}: {txt[:600]}")
     except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
         print(f"[probe] SIMI props listing failed: {type(e).__name__}: {e}")
+
+
+def probe_bundle(client: "SimiClient") -> None:
+    """--probe: the dashboard's data props are Inertia *partials*, so they are
+    not in the first page. Log (1) the initial props, (2) every prop name the
+    JS bundle asks for and every filter key it knows, (3) a full X-Inertia
+    reload's keys — enough to wire a make / model query per engine type."""
+    client.bootstrap()
+    root = client.s.get(f"{BASE}/", timeout=30).text
+    srcs = sorted(set(re.findall(r'(?:src|href)="([^"]+\.js)"', root)))
+    print(f"[probe] JS assets: {srcs}")
+    names, seen = set(), set()
+    queue = [urljoin(f"{BASE}/", s) for s in srcs]
+    while queue and len(seen) < 40:
+        url = queue.pop(0)
+        if url in seen:
+            continue
+        seen.add(url)
+        try:
+            js = client.s.get(url, timeout=30).text
+        except requests.RequestException as e:
+            print(f"[probe]   {url}: {e}")
+            continue
+        names |= set(re.findall(r"\b((?:cars|top|registrations|total)[A-Za-z]*(?:By|Table)[A-Za-z]*)\b", js))
+        names |= set(re.findall(r'only:\s*\[([^\]]{1,200})\]', js))
+        for imp in re.findall(r'["\'](\./[\w.-]+\.js|/build/assets/[\w.-]+\.js)["\']', js):
+            queue.append(urljoin(url, imp))
+        for m in re.finditer(r"(makes|models|engine_types)[^;]{0,160}", js):
+            names.add("ctx:" + m.group(0)[:160])
+    print(f"[probe] bundle names ({len(seen)} files):")
+    for n in sorted(names)[:150]:
+        print(f"[probe]   {n}")
+    r = client.s.get(f"{BASE}/", headers={"X-Inertia": "true",
+                                          "X-Inertia-Version": client.version},
+                     timeout=30)
+    try:
+        props = r.json().get("props", {})
+        print(f"[probe] X-Inertia reload props: {sorted(props)}")
+    except ValueError:
+        print(f"[probe] X-Inertia reload: HTTP {r.status_code}, not JSON")
 
 
 class SimiClient:
@@ -321,7 +363,12 @@ def main() -> None:
                     help="Backfill start 'YYYY-MM' (fetch through latest). Overrides --months.")
     ap.add_argument("--force", action="store_true",
                     help="Skip the 'previous month already present' early-exit.")
+    ap.add_argument("--probe", action="store_true",
+                    help="Bootstrap only: log the dashboard props (probe_props) and exit.")
     args = ap.parse_args()
+    if args.probe:
+        probe_bundle(SimiClient())
+        return
 
     aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]

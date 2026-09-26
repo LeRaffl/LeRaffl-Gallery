@@ -923,12 +923,17 @@ def main() -> None:
         "--force", action="store_true",
         help="Skip the 'already current' early-exit check.",
     )
+    parser.add_argument(
+        "--probe", action="store_true",
+        help="Download the newest DE2 file, log its table titles "
+             "(probe_de2_tables) and exit — never writes.",
+    )
     args = parser.parse_args()
 
     aliases = {"whole": "Whole", "hdv": "HDV", "vans": "Vans", "used": "Used"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
 
-    if not args.force and args.year is None:
+    if not args.force and args.year is None and not args.probe:
         prev = previous_month_period()
         skip = [v for v in targets
                 if csv_has_period_for_variant(VARIANT_CONFIG[v]["csv"], prev, v)]
@@ -955,6 +960,14 @@ def main() -> None:
     session.mount("http://", _adapter)
     # The new-registrations listing feeds Whole/HDV/Vans; the used-registrations
     # listing feeds Used. Only fetch the pages the requested variants need.
+    if args.probe:
+        de2 = sorted((y, u) for (k, y), u in discover_file_urls(session).items() if k == "de2")
+        if not de2:
+            raise RuntimeError("probe: no DE2 file on the listing page")
+        year, url = de2[-1]
+        print(f"[probe] DE2 {year}: {url}")
+        parse_de2(fetch_ods(url, session, {}), year)
+        return
     urls: dict[tuple[str, int], str] = {}
     if any(v != "Used" for v in targets):
         urls.update(discover_file_urls(session))
