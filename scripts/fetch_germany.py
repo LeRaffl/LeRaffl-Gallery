@@ -70,6 +70,11 @@ Usage
     python scripts/fetch_germany.py [--file PATH] [--url URL]
                                     [--listing URL] [--force] [--dry-run]
 
+Discovery: KBA retired the listing page in 2026 (it now 404s). The release
+page is then derived from the newest one recorded in the CSV's ``notes``
+column: KBA numbers its press releases per publication year, so the next
+month's page is one of the following pm numbers (``release_candidates``).
+
 ``--file`` parses a local "…_merkmale.xlsx" (offline / testing).
 ``--url``  downloads a specific xlsx, skipping discovery.
 ``--dry-run`` prints the parsed row and the diff without writing the CSV.

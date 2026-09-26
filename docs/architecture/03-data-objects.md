@@ -769,7 +769,7 @@ a second query that has not been probed).
 |---|---|
 | Denmark, Sweden | No make dimension in the tables the fetchers use (DST BIL5x, SCB PersBilarDrivMedel); the brand statistics live with the importers' associations (Mobility Denmark / Mobility Sweden), not in an API. Not planned. |
 | Austria, Ireland | Wired (rows above) after their probes ran in CI on 2026-09-26. |
-| Germany | The monthly release links a `…_marken.xlsx` next to `…_merkmale.xlsx`; `fetch_germany.py --dry-run` logs its sheets (`[probe] marken.xlsx`). KBA's "… nach Marken und alternativen Antrieben" release is a PDF only (year to date). Wire the xlsx once its layout is confirmed. |
+| Germany | **Not available as data.** The monthly release's `…_marken.xlsx` is make × month / year-to-date totals over *all* powertrains (probed 2026-09-26: `Marke | Anzahl | Anteil | Veränd. …`), and KBA's "… nach Marken und alternativen Antrieben" release is a PDF only (year to date). A make × BEV table would mean parsing that PDF — not planned. `fetch_germany.py --dry-run` still logs both (`[probe] marken.xlsx`, `[probe] Antriebe release`). |
 
 ## 3.17 Uncertainty bands (`bands/`)
 
