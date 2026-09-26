@@ -174,6 +174,29 @@ def probe_bundle(client: "SimiClient") -> None:
     print(f"[probe] bundle names ({len(seen)} files):")
     for n in sorted(names)[:150]:
         print(f"[probe]   {n}")
+    y, m = previous_month()
+    for props, extra in (("carsByMake,carsByModel,engineTypes,carsByEngineType", None),):
+        try:
+            got = client.partial("Whole", y, m, props, extra)
+            for k, v in got.items():
+                print(f"[probe] partial {k}: {json.dumps(v, ensure_ascii=False)[:1500]}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] partial {props} failed: {type(e).__name__}: {e}")
+    for path in ("/filters/makes?class=Passenger", "/filters/engine-types?class=Passenger",
+                 "/filters/engine_types?class=Passenger", "/filters/engineTypes"):
+        try:
+            rr = client.s.get(f"{BASE}{path}", headers={"Accept": "application/json"}, timeout=30)
+            print(f"[probe] GET {path}: HTTP {rr.status_code} {rr.text[:400]!r}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] GET {path} failed: {e}")
+    # One engine-type filter guess, to see how the value must look.
+    for guess in ([{"name": "Electric", "value": "Electric"}], [{"name": "Electric", "value": "E"}]):
+        try:
+            got = client.partial("Whole", y, m, "carsByMake", {"engine_types": guess})
+            print(f"[probe] carsByMake with engine_types={guess}: "
+                  f"{json.dumps(got.get('carsByMake'), ensure_ascii=False)[:600]}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] engine_types={guess} failed: {type(e).__name__}: {e}")
     r = client.s.get(f"{BASE}/", headers={"X-Inertia": "true",
                                           "X-Inertia-Version": client.version},
                      timeout=30)
@@ -205,6 +228,40 @@ class SimiClient:
 
     def _xsrf(self) -> str:
         return requests.utils.unquote(self.s.cookies.get("XSRF-TOKEN"))
+
+    def partial(self, variant: str, year: int, month: int, props: str,
+                extra: dict | None = None) -> dict:
+        """Store a one-month filter (plus `extra` filter keys) and return the
+        Inertia partial reload of the comma-separated `props`."""
+        cfg = VARIANT_CONFIG[variant]
+        page_url = f"{BASE}/{cfg['route']}" if cfg["route"] else f"{BASE}/"
+        body = {
+            "years": [{"name": year, "value": year}],
+            "month_from": {"name": MONTH_NAMES[month - 1], "value": month},
+            "day_from": None,
+            "month_to": {"name": MONTH_NAMES[month - 1], "value": month},
+            "day_to": None,
+            "registration_type": {"name": "Total New Registrations", "value": "new-total"},
+            "sales_types": [], "makes": [], "models": [], "body_types": [],
+            "transmissions": [], "engine_types": [], "engine_capacities": [],
+            "colours": [], "segments": [], "counties": [],
+            **(extra or {}),
+        }
+        p = self.s.patch(
+            f"{BASE}/filter/{cfg['filter']}",
+            headers={"X-XSRF-TOKEN": self._xsrf(), "Content-Type": "application/json",
+                     "Accept": "application/json", "X-Requested-With": "XMLHttpRequest",
+                     "Origin": BASE, "Referer": page_url},
+            data=json.dumps(body), allow_redirects=False, timeout=30,
+        )
+        if p.status_code not in (200, 302, 303):
+            raise RuntimeError(f"filter PATCH failed: HTTP {p.status_code} {p.text[:300]}")
+        g = self.s.get(page_url, headers={
+            "X-Inertia": "true", "X-Inertia-Version": self.version,
+            "X-Inertia-Partial-Component": cfg["component"],
+            "X-Inertia-Partial-Data": props}, allow_redirects=False, timeout=30)
+        g.raise_for_status()
+        return g.json().get("props", {})
 
     def fetch_month(self, variant: str, year: int, month: int) -> dict[str, float]:
         """Return {canonical_col: count} for a single (variant, year, month)."""

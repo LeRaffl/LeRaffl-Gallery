@@ -493,13 +493,17 @@ def probe_de2_tables(sheet: ET.Element, name: str) -> None:
             label = str(cells[0]).strip()
             if label.startswith("Tabelle"):
                 titles.append(label[:110])
-                in_marke = "marke" in label.lower()
+                in_marke = bool(re.match(r"Tabelle (7|14|15)\b", label))
+                count = 0
+                if in_marke:
+                    marke_rows.append(["--", label[:80]])
                 continue
-            if in_marke and len(marke_rows) < 12:
-                marke_rows.append([str(c)[:24] for c in cells[:10]])
+            if in_marke and count < 30:
+                marke_rows.append([str(c)[:28] for c in cells[:12]])
+                count += 1
         print(f"[probe] DE2 {name!r} tables: {titles}")
         for row in marke_rows:
-            print(f"[probe]   make-table row: {row}")
+            print(f"[probe]   {row}")
     except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
         print(f"[probe] DE2 table listing failed: {type(e).__name__}: {e}")
 

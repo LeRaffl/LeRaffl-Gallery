@@ -114,12 +114,13 @@ def classify_fuel(label: str) -> str:
 
 
 # Importer-type part of an M03 row label ("<Make> <Importer Type> <Fuel Type>"),
-# lower-cased, longest first. LTA's own codes are AD (authorised dealer) and
-# PI (parallel importer).
+# lower-cased, longest first. M03 writes AMD (authorised motor dealer) and PI
+# (parallel importer) — seen in the 2026-09 run; the spelled-out forms are kept
+# in case LTA ever expands them.
 IMPORTER_TYPES = sorted([
     "authorised dealers", "authorised dealer", "authorized dealers", "authorized dealer",
     "parallel importers", "parallel importer", "parallel imports", "parallel import",
-    "ad", "pi",
+    "amd", "ad", "pi",
 ], key=len, reverse=True)
 TOP_SLUG = "singapore"
 TOP_UNIT = "registrations (brand = M03 make; no models published)"

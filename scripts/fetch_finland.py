@@ -592,9 +592,13 @@ class Traficom:
     def __init__(self, session: requests.Session):
         self.s = session
         self._tables = None
+        self._meta: dict[str, dict] = {}
 
     def table(self, *words: str) -> str:
-        """URL of the passenger-car table whose title contains every word."""
+        """URL of the monthly passenger-car table whose variables match every
+        word (Traficom's titles do not name the variables — "Henkilöautojen
+        mallisarjojen ensirekisteröinnit alueittain kuukausittain 2014-2026" —
+        so each candidate's metadata is read)."""
         if self._tables is None:
             errors = []
             for base in TRAFI_APIS:
@@ -605,15 +609,26 @@ class Traficom:
                 errors.append(f"{base}: HTTP {r.status_code}")
             else:
                 raise RuntimeError(f"Traficom table list unreachable: {errors}")
+        seen = []
         for t in self._tables:
             text = (t.get("text") or "").lower()
-            if (t.get("type", "t") == "t" and "henkilöauto" in text
-                    and all(w in text for w in words)):
-                return f"{self._base}/{t['id']}"
-        raise RuntimeError(f"no Traficom table titled with {words}: "
-                           f"{[t.get('text') for t in self._tables]}")
+            if t.get("type", "t") != "t" or "henkilöauto" not in text or "co2" in text:
+                continue
+            url = f"{self._base}/{t['id']}"
+            if url not in self._meta:
+                self._meta[url] = self.meta(url)
+            hay = " ".join(f"{v.get('code', '')} {v.get('text', '')}".lower()
+                           for v in self._meta[url].get("variables", []))
+            seen.append(f"{t.get('text')}: {hay}")
+            if all(w in hay for w in words):
+                print(f"[top] Traficom table for {words}: {t.get('text')!r} ({t['id']})")
+                return url
+        raise RuntimeError(f"no Traficom table with variables {words}: {seen}")
 
     def meta(self, url: str) -> dict:
+        if url in getattr(self, "_meta", {}):
+            return self._meta[url]
+        time.sleep(0.4)
         r = self.s.get(url, timeout=60)
         _check_response(r, f"metadata {url}")
         return r.json()

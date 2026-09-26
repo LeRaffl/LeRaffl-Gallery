@@ -218,13 +218,14 @@ def test_japan_maker_rows():
 def test_singapore_makes_via_store():
     import fetch_singapore as fsg
     assert fsg.make_of("bmw ad") == "BMW"
+    assert fsg.make_of("alfa romeo amd") == "ALFA ROMEO"              # M03's real code
     assert fsg.make_of("mercedes  benz parallel importer") == "MERCEDES BENZ"
     try:
         fsg.make_of("bmw xyz")
         raise AssertionError("unknown importer type must stop the refresh")
     except ValueError:
         pass
-    makes = {("2026-08", "BEV", "byd ad"): 300, ("2026-08", "BEV", "byd pi"): 20,
+    makes = {("2026-08", "BEV", "byd amd"): 300, ("2026-08", "BEV", "byd pi"): 20,
              ("2026-08", "BEV", "tesla ad"): 100, ("2026-08", "PETROL", "toyota ad"): 580,
              ("2026-07", "HEV", "toyota ad"): 50}
     periods = {"2026-08": {"BEV": 420.0, "PETROL": 580.0}, "2026-07": {"HEV": 50.0}}
