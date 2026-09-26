@@ -26,6 +26,8 @@ fetcher: scripts/fetch_singapore.py
 workflow: .github/workflows/fetch-singapore.yml
 fragility_doc: docs/architecture/26-source-singapore.md
 data_file: data/Singapore.csv
+market_breakdown: market/singapore_top.json
+market_designation_note: "M03 lists makes, not models; authorised-dealer and parallel-import rows of the same make are added together."
 ---
 
 # 26 · Source: Singapore (lta.gov.sg / M03 "Cars by Make" PDF)
@@ -101,6 +103,21 @@ CNG / Petrol-CNG / Others   → OTHERS
 Validation: the parser reproduces the known monthly fuel totals exactly, e.g.
 2026-05 = BEV 2930 / PHEV 121 / HEV 1230 / PETROL 196 / DIESEL 1 (rows_ok=125,
 rows_bad=0). Footnote/header lines are skipped (they carry no fuel suffix).
+
+### 2.1 Top brands (`market/singapore_top.json`)
+
+The same parse tallies every row's month-Total by `(month, fuel column, make)`
+— M03 is make × fuel already, so the "who sells the electrified cars" section
+comes for free. The make is the row label minus its fuel suffix and its
+importer type (`AD` / `PI` or the spelled-out forms in `IMPORTER_TYPES`); AD
+and PI rows of one make are added. A label whose importer part is unknown
+stops the refresh with the label in a warning — a guessed brand is never
+published. Each month's make rows must add up to the month's total. Because
+the PDF only holds the current half-year, parsed months are kept in the month
+store `market/singapore_months.json` and the page's twelve-month view is built
+from it ([03 §3.16](03-data-objects.md#316-top-brands--models-market)). Brands
+only — M03 has no models. Runs behind `market_top.guarded`; a change there
+alone is committed without a render.
 
 ## 3. Fragility & maintenance
 

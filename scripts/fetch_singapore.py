@@ -39,6 +39,17 @@ Fuel classification (the PDF's Fuel Type values)
     Diesel                        → DIESEL
     CNG / Petrol-CNG / Others     → OTHERS
 
+Top brands (market/singapore_top.json)
+--------------------------------------
+Every M03 row already names its make, so the parse also tallies
+``(month, fuel column, make)`` — brand × fuel for free. The make is the row
+label minus its fuel suffix and its importer type; any label whose importer
+part is not one of IMPORTER_TYPES stops the refresh (never a guessed brand).
+Months go into the month store market/singapore_months.json (the PDF only
+ever holds the current half-year) and market/singapore_top.json is rebuilt
+from it via scripts/market_top.py. Brands only — M03 has no models. Runs
+behind market_top.guarded, so it never blocks the data.
+
 Invoked by ``.github/workflows/fetch-singapore.yml``. The commit step is
 change-gated, so steady-state runs are a no-op.
 """
@@ -48,7 +59,12 @@ import os
 import re
 from pathlib import Path
 
+import sys
+
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 SOURCE = "lta.gov.sg"   # rendered as "Source: lta.gov.sg"; R. Andrew credited in footnotes.csv
 CSV_PATH = "data/Singapore.csv"
@@ -97,6 +113,45 @@ def classify_fuel(label: str) -> str:
     return "OTHERS"
 
 
+# Importer-type part of an M03 row label ("<Make> <Importer Type> <Fuel Type>"),
+# lower-cased, longest first. LTA's own codes are AD (authorised dealer) and
+# PI (parallel importer).
+IMPORTER_TYPES = sorted([
+    "authorised dealers", "authorised dealer", "authorized dealers", "authorized dealer",
+    "parallel importers", "parallel importer", "parallel imports", "parallel import",
+    "ad", "pi",
+], key=len, reverse=True)
+TOP_SLUG = "singapore"
+TOP_UNIT = "registrations (brand = M03 make; no models published)"
+
+
+def make_of(label_wo_fuel: str) -> str:
+    """'bmw ad' -> 'BMW'. Raises on an importer part it does not know, so a
+    layout change can never publish 'BMW XYZ' as a brand."""
+    t = " ".join(label_wo_fuel.split())
+    for imp in IMPORTER_TYPES:
+        if t.endswith(" " + imp):
+            return market_top.clean(t[: -len(imp)])
+    raise ValueError(f"M03 row label {label_wo_fuel!r}: no known importer type "
+                     f"(expected one of {IMPORTER_TYPES})")
+
+
+def refresh_top(makes: dict, periods: dict) -> None:
+    """`makes`: {(month, column, label-without-fuel): units} from parse_m03;
+    `periods`: its per-month fuel totals (the TOTAL of data/Singapore.csv)."""
+    units: dict = {}
+    for (m, col, rest), n in makes.items():
+        key = (m, col, make_of(rest), "")
+        units[key] = units.get(key, 0) + n
+    by_month = market_top.per_month(units)
+    fresh = {m: (by_month.get(m, {}), int(sum(cols.values())))
+             for m, cols in periods.items() if sum(cols.values())}
+    for m, (u, t) in fresh.items():         # same numbers as the CSV, or stop
+        if sum(u.values()) != t:
+            raise RuntimeError(f"{m}: make rows sum to {sum(u.values())}, total {t}")
+    market_top.refresh_from_store("Singapore", SOURCE, TOP_UNIT, TOP_SLUG, fresh)
+
+
 # --------------------------------------------------------------------------- #
 # M03 PDF parsing
 # --------------------------------------------------------------------------- #
@@ -130,6 +185,7 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
     import pdfplumber
 
     periods: dict[str, dict[str, float]] = {}
+    makes: dict[tuple[str, str, str], int] = {}
     rows_ok = rows_bad = 0
     unmapped: set[str] = set()
 
@@ -174,6 +230,7 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
                     unmapped.add(label)
                     continue
                 col = classify_fuel(fuel)
+                rest = label[: label.rindex(fuel)].strip()
 
                 row_assigned = 0
                 for w in ln:
@@ -186,12 +243,14 @@ def parse_m03(pdf_bytes: bytes, debug: bool = False) -> tuple[dict, dict]:
                         continue  # a body sub-column, not the month total
                     m = block_months[ci // 7]
                     periods.setdefault(m, {c: 0.0 for c in VALUE_COLUMNS})[col] += val
+                    makes[(m, col, rest)] = makes.get((m, col, rest), 0) + val
                     row_assigned += val
                 rows_ok += 1 if row_assigned else 0
                 rows_bad += 0 if row_assigned else 1
 
     stats = {"rows_ok": rows_ok, "rows_bad": rows_bad,
-             "unmapped": sorted(unmapped), "periods": sorted(periods)}
+             "unmapped": sorted(unmapped), "periods": sorted(periods),
+             "makes": makes}
     return periods, stats
 
 
@@ -286,6 +345,9 @@ def main() -> None:
 
     added, updated = upsert_csv(CSV_PATH, rows)
     print(f"{added} added, {updated} updated -> {CSV_PATH}")
+    market_top.guarded(refresh_top, stats["makes"],
+                       {p: c for p, c in periods.items()
+                        if not args.since or p >= args.since})
 
 
 if __name__ == "__main__":

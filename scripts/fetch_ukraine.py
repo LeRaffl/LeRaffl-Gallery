@@ -606,12 +606,10 @@ def check_consistency(agg: Aggregator, periods: list[str]) -> list[str]:
 
 def build_top(agg: Aggregator, target: str) -> dict:
     window = set(market_top.month_window(target))
-    units = collections.Counter()
-    for (p, cls, b, m), n in agg.units.items():
-        if p in window:
-            units[(cls, b, m)] += n
-    total = sum(agg.counts[p]["Whole"]["TOTAL"] for p in window if p in agg.counts)
-    return market_top.build_top("Ukraine", SOURCE, target, units, total, TOP_UNIT)
+    units = market_top.per_month({k: n for k, n in agg.units.items() if k[0] in window})
+    monthly = {p: (units.get(p, {}), agg.counts[p]["Whole"]["TOTAL"])
+               for p in window if p in agg.counts}
+    return market_top.build_top_monthly("Ukraine", SOURCE, target, monthly, TOP_UNIT)
 
 
 def report(agg: Aggregator, target: str, variants: list[str]) -> str:

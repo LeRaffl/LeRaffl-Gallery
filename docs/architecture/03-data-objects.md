@@ -680,6 +680,17 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Malaysia | `fetch_malaysia.py` | data.gov.my `maker` / `model` | when missing or behind the last complete month — from the two yearly parquets the fetch reads anyway |
 | Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 | Hong Kong | `fetch_hong_kong.py` | TD `Vehicle Make` / `Vehicle Model`, Whole records; classes BEV (TD's fuel value) and PHEV/EREV (classified). Display names only: brand aliases merged, brand prefix, chassis codes and trim words stripped so trims rank as one model (`market_designation_note` explains it on the page) | every real run — from the 12 newest monthly files the fetch reads anyway |
+| Japan | `fetch_japan.py` | JADA maker rows of the 燃料別メーカー別登録台数 workbook — **brands only**, imports lumped into one row, kei cars excluded like the CSV | whenever the workbook is downloaded (also when only the top file lags); 4 months per file → month store |
+| Singapore | `fetch_singapore.py` | LTA M03 row label `Make Importer Fuel` — **brands only**; AD and PI rows of a make are added; an unknown importer part stops the refresh | every real run; the PDF holds the current half-year → month store |
+| Uruguay | `fetch_uruguay.py` | ACAU Compilado `Marca` / `Modelo` columns, AUTOS + SUV; MHEV ranked as its own class (OTHERS in the CSV); columns found by header name, never guessed | whenever the workbook is downloaded; one calendar year per file → month store |
+
+**Record-level vs. summary sources.** The first four (and Argentina) re-read twelve months of
+records whenever they like. The last three only ever see a few recent months
+per publication, so they keep every month they have parsed in a **month store**
+`market/<slug>_months.json` (generated; electrified brand/model counts plus the
+month's whole-market total, newest `STORE_MONTHS` = 15 months, one month per
+line) and rebuild the summary from it (`market_top.refresh_from_store`). A
+month the source restates overwrites the stored one.
 
 ### Schema
 
@@ -691,10 +702,24 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
  "classes": {"BEV": {"units": 90000, "share_of_market": 0.08,
                      "brands": [{"brand": "TESLA", "units": 15000, "share_of_class": 0.17}, …],
                      "models": [{"brand": "TESLA", "model": "MODEL Y", "units": 9000, "share_of_class": 0.1}, …]},
-             "PHEV": {…}, "EREV": {…}, "HEV": {…}, "MHEV": {…}}}
+             "PHEV": {…}, "EREV": {…}, "HEV": {…}, "MHEV": {…}},
+ "months": [{"period": "2026-08", "total_registrations": 95000,
+             "classes": {"BEV": {"units", "share_of_market", "brands": […], "models": […]}, …}},
+            …]}                                   # newest first, one per month in the window
 ```
 
-(Values illustrative.) Top 10 brands and top 15 models per electrified class;
+(Values illustrative.) Top 10 brands and top 15 models per electrified class
+for the window; each entry of `months` ranks one single month (top 10 brands,
+top 10 models) — the source page's **month picker** switches between the
+twelve-month view and each month. A brand-only source has `"models": []`
+and the page shows the brand table alone.
+
+**Window honesty.** `window` describes the months actually summed
+(`market_top.build_top_monthly`): a source that does not yet reach back
+twelve months gets `"months": 8` and a `from` of its first month, and gaps
+inside the span are listed in `window.missing`; the page words its lead
+accordingly ("last 8 months", "no data for …") instead of claiming a year.
+
 combustion classes only count towards `total_registrations`. The class of each
 registration is the **same** one the fetcher writes into the data CSV, and the
 window total equals the CSV's TOTAL summed over the window, so the tables and
@@ -714,15 +739,26 @@ alphabetically so the file is byte-stable (no spurious commits).
   `market_breakdown: market/<slug>_top.json` ("Who sells the electrified
   cars", [39](39-source-argentina.md) §6). A missing file renders as "not
   generated yet".
-- Offline tests: `scripts/test_market_top.py` (gates both fetch workflows).
+- Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in `data/`).
 
-**Adding a country:** have its fetcher count `(class, brand, model)` over the
-trailing 12 months with the same class logic it uses for the CSV, call
-`market_top.build_top(...)` / `write_top(...)` behind `guarded`, add the file
-to the workflow's commit list (not to the render trigger), and add
-`market_breakdown:` to its source doc front-matter. Sources whose brand field
+**Adding a country:** have its fetcher count `(month, class, brand, model)`
+with the same class logic it uses for the CSV (model `""` for a brand-only
+source). A source that can re-read twelve months calls
+`market_top.build_top_monthly(...)` / `write_top(...)`; one that only sees a
+few months per file calls `market_top.refresh_from_store(...)`. Either runs
+behind `guarded`. Add `market/<slug>_top.json` (and `_months.json` if used) to
+the workflow's commit list (not to the render trigger: gate the render on the
+data CSV's own diff), and add `market_breakdown:` to its source doc
+front-matter. Rebuild gates use `market_top.top_is_current` so a file written
+before the single-month rankings existed is rebuilt once. Sources whose brand field
 needs translation first (Israel's registry names manufacturers in Hebrew) are
-not "easy" and were left out on purpose.
+not "easy" and were left out on purpose. Also left out for now: Chile (ANAC
+publishes monthly brand rankings per class, but in a Power-BI PDF whose text
+layer overlaps and whose model lists are year-to-date top 10s), Indonesia
+(GAIKINDO's per-model sheets are 1.5 pt print and recent editions dropped the
+fuel column), Brazil (the Central de Dados brand totals cannot be crossed with
+fuel — [05](05-flows.md)) and Luxembourg (STATEC's `BRAND` dimension would need
+a second query that has not been probed).
 
 ## 3.17 Uncertainty bands (`bands/`)
 

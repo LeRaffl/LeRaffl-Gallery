@@ -155,12 +155,15 @@ def build_top(frames: list, target: str) -> dict:
     df = pd.concat(frames, ignore_index=True)
     period = pd.to_datetime(df["date_reg"], errors="coerce").dt.strftime("%Y-%m")
     df = df[period.isin(window)]
+    period = period[period.isin(window)]
     cls = df["fuel"].str.lower().str.strip().map(FUEL_MAP).fillna("OTHERS")
     brand = df["maker"].map(market_top.clean)
     model = df["model"].map(market_top.clean)
-    counts = pd.DataFrame({"c": cls, "b": brand, "m": model}).value_counts()
-    units = {(c, b, m): int(n) for (c, b, m), n in counts.items()}
-    return market_top.build_top("Malaysia", SOURCE, target, units, len(df), TOP_UNIT)
+    counts = pd.DataFrame({"p": period, "c": cls, "b": brand, "m": model}).value_counts()
+    monthly = {p: (u, int((period == p).sum()))
+               for p, u in market_top.per_month(
+                   {(p, c, b, m): int(n) for (p, c, b, m), n in counts.items()}).items()}
+    return market_top.build_top_monthly("Malaysia", SOURCE, target, monthly, TOP_UNIT)
 
 
 def refresh_top(frames: list) -> None:
@@ -174,13 +177,7 @@ def refresh_top(frames: list) -> None:
     if not complete:
         return
     top = build_top(frames, complete[-1])
-    wrote = market_top.write_top(top, TOP_PATH)
-    bev = top["classes"].get("BEV", {})
-    lead = (bev.get("brands") or [{}])[0]
-    print(f"{TOP_PATH.relative_to(market_top.REPO)}: "
-          f"{'updated' if wrote else 'unchanged'} ({complete[-1]}) — BEV "
-          f"{bev.get('units', 0):,} units, top brand {lead.get('brand')} "
-          f"{lead.get('share_of_class')}")
+    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
 
 
 def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
@@ -239,7 +236,7 @@ def main() -> None:
     args = ap.parse_args()
 
     want_top = (not args.no_top and not args.year
-                and market_top.top_as_of(TOP_PATH) != previous_month_period())
+                and not market_top.top_is_current(TOP_PATH, previous_month_period()))
     data_current = not args.force and csv_has_period(CSV_PATH, previous_month_period())
     if data_current and not want_top:
         print(f"CSV already has {previous_month_period()}; nothing to do (use --force to refresh).")
