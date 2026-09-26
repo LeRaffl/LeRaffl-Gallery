@@ -1380,6 +1380,16 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 .cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
 .cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
 .cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
+/* Dark mode (assets/theme.css follows prefers-color-scheme): the badge inks
+   above are dark-on-wash and vanish on a dark page, so lift them. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .cls--bev{color:#6fd39a}
+  :root:not([data-theme="light"]) .cls--phev{color:#6cc0f0}
+  :root:not([data-theme="light"]) .cls--erev{color:#8fb4ee}
+  :root:not([data-theme="light"]) .cls--hev{color:#e8c95a}
+  :root:not([data-theme="light"]) .cls--mhev{color:#d6c27a}
+  :root:not([data-theme="light"]) .cls--ice{color:#d9a27a}
+}
 """
 
 TEMPLATE = """<!doctype html>

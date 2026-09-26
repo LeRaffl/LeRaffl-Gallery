@@ -29,6 +29,31 @@
      gleichgezogen werden. Bleibt er dunkel, faerbt Mobile-Safari die
      Statusleiste schwarz ueber einer weissen Seite. -->
 <meta name="theme-color" content="#fdfdfc">
+<!-- DARK MODE: setzt data-theme auf <html>, BEVOR irgendetwas gezeichnet wird,
+     sonst blitzt beim Laden kurz die helle Seite auf. Gespeicherte Wahl
+     ("light"/"dark") gewinnt, sonst folgt die Seite prefers-color-scheme.
+     Der Umschalter in der Kopfzeile ruft window.__setThemePref auf. -->
+<script>
+(function(){
+  var KEY = 'bev-theme', root = document.documentElement;
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function pref(){ try { var v = localStorage.getItem(KEY); return (v === 'light' || v === 'dark') ? v : 'auto'; } catch (e) { return 'auto'; } }
+  function apply(){
+    var p = pref(), t = p === 'auto' ? ((mq && mq.matches) ? 'dark' : 'light') : p;
+    root.setAttribute('data-theme', t);
+    root.setAttribute('data-theme-pref', p);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#141413' : '#fdfdfc');
+  }
+  window.__setThemePref = function(p){
+    try { if (p === 'auto') localStorage.removeItem(KEY); else localStorage.setItem(KEY, p); } catch (e) {}
+    apply();
+  };
+  window.__getThemePref = pref;
+  if (mq) { try { mq.addEventListener('change', apply); } catch (e) { mq.addListener && mq.addListener(apply); } }
+  apply();
+})();
+</script>
 <meta property="og:title" content="BEV Trajectories">
 <meta property="og:description" content="BEV registration trajectories per country.">
 <meta property="og:type" content="website">
@@ -45,7 +70,7 @@
 <style>
 /* Ensure the HTML `hidden` attribute always wins over any display rule. */
 [hidden] { display: none !important; }
-:root{
+:root,[data-theme="light"]{
   /* VISUAL REDESIGN (2026-09), Phase 2.
      Die vier Threshold-Farben mussten mit der Palette umgestellt werden, nicht
      danach: sie sind rgba-Fluechen mit hellem Text (#bff5d8 auf gruenem Schleier),
@@ -117,7 +142,7 @@ td.late {
 .side{background:var(--surface);border:1px solid var(--line-3);border-radius:2px;padding:12px;position:sticky;top:var(--header-h);height:fit-content;z-index:10}
 .side h2{margin:0 0 8px;font-size:14px;opacity:.9}
 select,input{width:100%;padding:10px 12px;border-radius:2px;border:1px solid var(--line);background:var(--surface);color:var(--text)}
-select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2355534c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
+select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:var(--select-arrow);background-repeat:no-repeat;background-position:right 12px center;background-size:12px 12px;padding-right:36px}
 select[multiple]{background-image:none;padding-right:12px;scrollbar-width:thin;scrollbar-color:var(--line-2) var(--surface-2)}
 select[multiple] option{padding:6px 10px;border-radius:2px;margin:1px 2px;transition:background .1s}
 select[multiple] option:checked{background:var(--accent-wash);color:var(--accent);font-weight:600}
@@ -153,7 +178,7 @@ select[multiple]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 
 .btn.primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
   font-weight: 700;
   padding: 10px 16px;
 }
@@ -199,7 +224,7 @@ dialog#lightbox::backdrop{background:rgba(0,0,0,.6)}
 .pill{display:inline-block;padding:2px 9px;border-radius:2px;font-size:12px;font-weight:700;
   white-space:nowrap;border:1px solid transparent}
 .pill--current{background:var(--ok-wash);color:var(--thr-past-txt);border-color:rgba(63,125,82,.35)}
-.pill--due{background:var(--warn-wash);color:#7a5200;border-color:rgba(154,106,0,.35)}
+.pill--due{background:var(--warn-wash);color:var(--warn-txt);border-color:rgba(154,106,0,.35)}
 .pill--late{background:var(--danger-wash);color:var(--thr-late-txt);border-color:rgba(181,69,27,.35)}
 .pill--manual{background:var(--surface-2);color:var(--muted);border-color:var(--line-3)}
 .pill--unknown{background:var(--surface-2);color:var(--muted);border-color:var(--line-3)}
@@ -385,7 +410,7 @@ th.sortable.desc::after{content:" ↓"}
     content:'';
     position:absolute;
     top:0;bottom:0;right:0;width:28px;
-    background:linear-gradient(to right,transparent,rgba(253,253,252,0.92)); /* Phase 3: Abblendkante am Scrollrand, musste mit --bg gleichziehen */
+    background:linear-gradient(to right,transparent,color-mix(in srgb,var(--bg) 92%,transparent)); /* Phase 3: Abblendkante am Scrollrand, musste mit --bg gleichziehen */
     pointer-events:none;
     border-radius:2px;
   }
@@ -812,7 +837,7 @@ th.sortable.desc::after{content:" ↓"}
 
 .faq-basics {
   background: rgba(255, 200, 80, 0.15);
-  color: #7a5200;
+  color: var(--warn-txt);
   border: 1px solid rgba(255, 200, 80, 0.3);
 } 
   
@@ -837,7 +862,7 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 .fb-toolbar .grow{flex:1 1 220px}
 .fb-toolbar input[type="search"],
 .fb-toolbar select{padding:8px 10px;font-size:13px}
-.fb-new-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:2px;border:1px solid var(--accent);background:var(--accent);color:#ffffff;font-weight:700;cursor:pointer;white-space:nowrap}
+.fb-new-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:2px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700;cursor:pointer;white-space:nowrap}
 .fb-new-btn:hover{filter:brightness(1.05)}
 .fb-new-btn svg{width:16px;height:16px}
 
@@ -874,7 +899,7 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 .fb-comment-head{display:flex;gap:8px;align-items:center;font-size:12px;margin-bottom:4px}
 .fb-comment-author{font-weight:700;color:var(--text)}
 .fb-comment.maintainer .fb-comment-author{color:var(--accent)}
-.fb-comment-badge{padding:1px 6px;border-radius:2px;background:var(--accent);color:#ffffff;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.fb-comment-badge{padding:1px 6px;border-radius:2px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 .fb-comment-time{opacity:.6}
 .fb-comment-body{font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
 .fb-comment-body strong{color:var(--text)}
@@ -888,7 +913,7 @@ section.tab .container > h2 { margin: 6px 0 12px; }
 .fb-pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:2px;font-size:11px;font-weight:600;line-height:1.6;white-space:nowrap}
 .fb-pill.cat-bug      {background:rgba(220,80,80,0.18);  color:var(--thr-late-txt)}
 .fb-pill.cat-question {background:rgba(80,160,255,0.18); color:var(--accent)}
-.fb-pill.cat-idea     {background:rgba(220,180,60,0.18); color:#7a5200}
+.fb-pill.cat-idea     {background:rgba(220,180,60,0.18); color:var(--warn-txt)}
 .fb-pill.cat-data     {background:rgba(255,140,60,0.20); color:var(--thr-late-txt)}
 .fb-pill.cat-comment  {background:rgba(180,180,180,0.18);color:var(--muted)}
 .fb-pill.status-open     {background:var(--accent-wash);color:var(--accent)}
@@ -944,8 +969,8 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 .fb-captcha input{width:80px;padding:6px 10px;font-size:14px;text-align:center;background:var(--surface);border:1px solid var(--line-2);color:var(--text);border-radius:2px}
 .fb-honeypot{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0}
 
-.fb-privacy{font-size:11px;opacity:.7;margin:10px 0;padding:8px 10px;background:var(--warn-wash);border:1px solid var(--warn);border-radius:2px;color:#6b4a00;line-height:1.5}
-.fb-privacy strong{color:#6b4a00}
+.fb-privacy{font-size:11px;opacity:.7;margin:10px 0;padding:8px 10px;background:var(--warn-wash);border:1px solid var(--warn);border-radius:2px;color:var(--warn-txt);line-height:1.5}
+.fb-privacy strong{color:var(--warn-txt)}
 .fb-image-drop{position:relative;border:2px dashed var(--line-2);border-radius:2px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
 .fb-image-drop:hover,.fb-image-drop.drag-over{border-color:var(--accent);background:var(--accent-wash)}
 .fb-image-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -962,7 +987,7 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 .fb-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-3)}
 .fb-modal-actions .btn-cancel{padding:10px 16px;background:var(--surface-2);border:1px solid var(--line-2);color:var(--text);border-radius:2px;cursor:pointer;font-weight:600}
 .fb-modal-actions .btn-cancel:hover{border-color:var(--line)}
-.fb-modal-actions .btn-submit{padding:10px 18px;background:var(--accent);border:1px solid var(--accent);color:#ffffff;border-radius:2px;cursor:pointer;font-weight:700}
+.fb-modal-actions .btn-submit{padding:10px 18px;background:var(--accent);border:1px solid var(--accent);color:var(--on-accent);border-radius:2px;cursor:pointer;font-weight:700}
 .fb-modal-actions .btn-submit:hover{filter:brightness(1.05)}
 .fb-modal-actions .btn-submit:disabled{opacity:.5;cursor:not-allowed;filter:none}
 .fb-error{color:var(--thr-late-txt);font-size:12px;margin-top:6px;min-height:16px}
@@ -970,7 +995,7 @@ dialog#feedbackModal::backdrop{background:rgba(0,0,0,.65)}
 /* Global Floating Action Button — always visible, opens modal with no
    pre-captured context. Use the contextual icon-cluster (below) when you
    want to attach "report this specific thing" triggers next to data. */
-.fb-fab{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:2px;border:1px solid var(--accent);background:var(--accent);color:#ffffff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:none;transition:transform .15s}
+.fb-fab{position:fixed;right:18px;bottom:18px;z-index:20;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:2px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px;cursor:pointer;box-shadow:none;transition:transform .15s}
 .fb-fab:hover{transform:translateY(-2px)}
 .fb-fab svg{width:18px;height:18px}
 @media (max-width:600px){
@@ -1030,7 +1055,11 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
    A late, deliberately compact layer that modernises the one-file UI without
    touching the data/rendering logic above.
    ========================================================================= */
-:root{
+:root,[data-theme="light"]{
+  /* DARK MODE (2026-09). Dieser Block ist und bleibt die HELLE Palette.
+     Er gilt zusaetzlich fuer jedes Element mit data-theme="light": so bleiben
+     die Chart-Flaechen (und alles, was tok() liest) hell, auch wenn die Seite
+     dunkel ist. Die dunklen Werte stehen im Block direkt darunter. */
   /* VISUAL REDESIGN (2026-09), Phase 2. Palette komplett ersetzt.
      Vorher: "Neo-Kinpaku" — Kinpaku-Gold auf warmem Lack, Verdigris-Patina fuer
      aktive Zustaende. Warum sie weg ist: die Kombination dunkelbraun + gold wurde
@@ -1095,6 +1124,10 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
   --danger-wash:#fdecec;   /* Flaeche fuer Fehler                                */
   --warn-wash:#fbf6e8;     /* Flaeche fuer Hinweis                               */
   --warn:#9a6a00;          /* Warnung                                           */
+  --warn-txt:#7a5200;      /* Text auf --warn-wash                              */
+  --on-accent:#ffffff;     /* Text auf voller --accent-Flaeche                  */
+  /* Dropdown-Pfeil: Daten-URI-SVG kann kein Token lesen, darum als Token. */
+  --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2355534c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   --danger:#b5451b;        /* Fehler, "late"                                    */
   --shadow:none;
   --radius:2px;
@@ -1109,6 +1142,88 @@ h2 .fb-ctx-btn{width:30px;height:30px;font-size:16px;opacity:.6}
   --tabs-h:58px;
   --chrome-h:calc(var(--header-h) + var(--tabs-h));
 }
+
+/* DARK MODE (2026-09). Die dunkle Palette — dieselben Tokens, andere Werte.
+   Kein zweites Design: Layout, Typo und "genau EIN Akzent" bleiben, nur die
+   Werte kippen. --accent und --accent-2 bleiben identisch (siehe oben).
+
+   Warum der Akzent heller ist: #1d4f91 hat auf #141413 nur ~2:1. Auf dunklem
+   Grund muss der eine Akzent aufgehellt werden (7.9:1), und damit traegt er
+   keinen weissen Text mehr — deshalb --on-accent statt #ffffff auf Buttons.
+
+   Aktiviert wird der Block NUR ueber data-theme="dark" auf <html>. Das kleine
+   Script ganz oben in <head> setzt das Attribut vor dem ersten Paint, aus der
+   gespeicherten Wahl oder aus prefers-color-scheme. scripts/build_theme.py
+   hebt diesen Block zusaetzlich als @media-Variante nach assets/theme.css, damit
+   sources/*.html und schedule*.html ohne Script der Systemeinstellung folgen.
+
+   Die Grafiken bleiben ABSICHTLICH hell: sie werden zitiert und gedruckt, und
+   ein Export darf nicht vom Theme des Besuchers abhaengen. Chart-Flaechen
+   tragen data-theme="light" (siehe Palette-Selektor oben), und tok() liest
+   immer die helle Palette. Die Galerie-PNGs rendert R ohnehin auf Weiss. */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#141413;
+  --bg-deep:#0f0f0e;
+  --surface:#1b1b19;
+  --surface-2:#222220;
+  --surface-3:#2a2a27;
+  /* Rampe nach Kontrast wie im Hellen: --line am staerksten, --line-3 leise. */
+  --line:#3a3934;
+  --line-2:#33322e;
+  --line-3:#2d2c29;
+  --line-soft:rgba(236,235,230,.08);
+  --text:#ecebe6;          /* 15.4:1 auf --bg */
+  --muted:#aeaba2;         /*  8.0:1 */
+  --muted-2:#85827a;       /*  4.8:1 */
+  --accent:#86acdd;        /*  7.9:1 */
+  --accent-deep:#a9c4e8;   /* Hover: auf dunklem Grund heller, nicht dunkler */
+  --accent-2:#86acdd;
+  --accent-2-pale:#3f6796;
+  --accent-wash:#1c2a3d;   /* Akzent darauf 6.2:1 */
+  --on-accent:#10151d;     /* auf --accent 7.8:1 */
+  --ok:#6fb585;
+  --ok-wash:#16261b;
+  --danger-wash:#321a14;
+  --warn-wash:#2c2412;
+  --warn-txt:#e3bd6a;      /* auf --warn-wash 8.6:1 */
+  --select-arrow:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aeaba2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  /* --warn und --danger bleiben: sie tragen volle Banner mit weissem Text. */
+  --thr-past-bg:rgba(111,181,133,.16);
+  --thr-past-txt:#8fd0a3;
+  --thr-late-bg:rgba(222,120,80,.16);
+  --thr-late-txt:#f0a07e;
+}
+
+/* Chart-Flaechen: bleiben in beiden Modi hell (siehe oben). Ausserhalb von
+   :root gesetzt, damit die helle Palette dort wieder greift und die Flaeche
+   selbst Papier ist, nicht die dunkle Karte dahinter. Nur im Dunkelmodus
+   gesetzt, damit der helle Modus pixelgleich zum Stand vor dem Dark Mode bleibt. */
+:root[data-theme="dark"] [data-theme="light"]{
+  color-scheme:light;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* Umschalter Auto / Hell / Dunkel in der Kopfzeile. */
+.theme-toggle{
+  flex:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:2px 8px;         /* passt in die 30px Innenhoehe der Kopfzeile — hoeher schiebt die ganze Seite */
+  border:1px solid var(--line);
+  border-radius:2px;
+  background:transparent;
+  color:var(--muted);
+  font:inherit;
+  font-size:12px;
+  cursor:pointer;
+}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle svg{width:14px;height:14px;display:block}
+@media (max-width:600px){.theme-toggle{margin-left:auto}}
+
 
 /* ─── proposed: respect prefers-reduced-motion ─── */
 @media (prefers-reduced-motion: reduce){
@@ -1463,7 +1578,7 @@ a:focus-visible{
 .sd-submit{
   border-color:color-mix(in srgb, var(--accent) 80%, #ffffff);
   background:var(--accent);
-  color:#ffffff;
+  color:var(--on-accent);
   box-shadow:none;
 }
 
@@ -1490,7 +1605,7 @@ a:focus-visible{
   z-index:2;
   margin:0;
   padding:8px 4px;
-  background:rgba(253,253,252,.86); /* Phase 3: war dunkel, rgba statt Hex — siehe REDESIGN-LOG */
+  background:color-mix(in srgb,var(--bg) 86%,transparent); /* Phase 3: war dunkel, rgba statt Hex — siehe REDESIGN-LOG */
   color:var(--muted);
   font-size:12px;
   letter-spacing:.07em;
@@ -1684,7 +1799,7 @@ a:focus-visible{
   border-color:var(--line);
 }
 .status-pill[data-tag="speed"][data-value="slow"]{
-  color:#7a5200;
+  color:var(--warn-txt);
   background:var(--warn-wash);
   border-color:var(--warn);
 }
@@ -1989,13 +2104,13 @@ a:focus-visible{
 .rd-presets button{border:1px solid var(--line-3);background:var(--surface-2);color:var(--muted);border-radius:2px;
   padding:3px 8px;font:inherit;font-size:11.5px;cursor:pointer}
 .rd-presets button:hover{border-color:var(--accent);color:var(--text)}
-.rd-presets button.pri{color:#ffffff;border-color:rgba(105,183,255,.4)}
+.rd-presets button.pri{color:var(--accent);border-color:var(--accent)} /* war #fff aus der dunklen Aera — auf hellem Grund unsichtbar */
 .rd-win{display:flex;align-items:center;gap:12px}
 .rd-win input[type=range]{width:180px;accent-color:var(--accent-2);padding:0}
 .rd-winval{font-family:ui-monospace,monospace;font-size:13.5px;min-width:118px;font-variant-numeric:tabular-nums}
 .rd-seg{display:inline-flex;border:1px solid var(--line-3);border-radius:2px;overflow:hidden}
 .rd-seg button{border:0;background:var(--surface-2);color:var(--muted);font:inherit;font-size:13px;padding:7px 13px;cursor:pointer}
-.rd-seg button.on{background:rgba(105,183,255,.14);color:#ffffff;font-weight:600}
+.rd-seg button.on{background:var(--accent-wash);color:var(--accent);font-weight:600}
 .rd-seg button+button{border-left:1px solid var(--line-3)}
 .rd-sumhead{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
 .rd-sumhead .l{font-size:12px;letter-spacing:0;color:var(--muted)}
@@ -2619,7 +2734,7 @@ select:focus,input:focus,textarea:focus,button:focus-visible,a:focus-visible{
 .btn.primary,.fb-new-btn,.fb-fab,.fb-modal-actions .btn-submit,.sd-submit{
   background:var(--accent);
   border-color:var(--accent);
-  color:#ffffff;
+  color:var(--on-accent);
   box-shadow:none;
 }
 
@@ -3211,10 +3326,26 @@ h2 .fb-ctx-btn{
    oder umbenannt wurde: dann zeichnet das Chart in der neuen Farbe statt in
    'transparent' oder ''. Er ist absichtlich redundant zu :root. */
 const __TOK_CACHE = new Map();
+/* DARK MODE: tok() liest NICHT von <html>, sondern von einer unsichtbaren
+   Sonde mit data-theme="light". Die Charts (und ihre PNG/SVG-Exporte) zeichnen
+   so immer in der hellen Palette, egal welches Theme die Seite hat — und die
+   Cache-Annahme oben bleibt wahr, weil sich die helle Palette nie aendert.
+   Wer Charts doch dunkel will, muss hier ansetzen UND den Cache beim
+   Umschalten leeren. */
+let __TOK_PROBE = null;
 function tok(name, fallback){
   if (__TOK_CACHE.has(name)) return __TOK_CACHE.get(name);
   let v = '';
-  try { v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  try {
+    if (!__TOK_PROBE || !__TOK_PROBE.isConnected){
+      __TOK_PROBE = document.createElement('span');
+      __TOK_PROBE.setAttribute('data-theme','light');
+      __TOK_PROBE.setAttribute('aria-hidden','true');
+      __TOK_PROBE.style.display = 'none';
+      document.documentElement.appendChild(__TOK_PROBE);
+    }
+    v = getComputedStyle(__TOK_PROBE).getPropertyValue(name).trim();
+  }
   catch (e) { v = ''; }
   const out = v || fallback;
   __TOK_CACHE.set(name, out);
@@ -3235,13 +3366,29 @@ function tok(name, fallback){
       <a class="wordmark" href="#about">
         <svg class="mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
           <rect width="32" height="32" rx="8" fill="currentColor"/>
-          <path d="M6.5 23.5c3.6 0 4.4-5.6 8-10.2C17.8 9.2 20.2 7.4 26 7" fill="none" stroke="#fdfdfc" stroke-width="2.15" stroke-linecap="round"/>
+          <path d="M6.5 23.5c3.6 0 4.4-5.6 8-10.2C17.8 9.2 20.2 7.4 26 7" fill="none" style="stroke:var(--bg)" stroke-width="2.15" stroke-linecap="round"/>
         </svg>
         <h1>BEV Trajectories</h1>
       </a>
       <div id="stats" class="small"></div>
+      <button type="button" id="themeToggle" class="theme-toggle" title="Theme: Auto / Light / Dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+        <span id="themeToggleLabel">Auto</span>
+      </button>
     </div>
   </header>
+  <script>
+  // DARK MODE: Auto -> Light -> Dark -> Auto. Das Anwenden selbst macht das
+  // Script in <head>; hier nur Beschriftung und Klick.
+  (function(){
+    var btn = document.getElementById('themeToggle'), lab = document.getElementById('themeToggleLabel');
+    if (!btn || !window.__setThemePref) return;
+    var NEXT = { auto:'light', light:'dark', dark:'auto' }, NAME = { auto:'Auto', light:'Light', dark:'Dark' };
+    function sync(){ var p = window.__getThemePref(); lab.textContent = NAME[p]; btn.setAttribute('aria-label', 'Theme: ' + NAME[p] + ' (click to change)'); }
+    btn.addEventListener('click', function(){ window.__setThemePref(NEXT[window.__getThemePref()]); sync(); });
+    sync();
+  })();
+  </script>
 
   <!-- Visible only when DEV_SAMPLE fallback kicks in (manifest/params missing). -->
   <div id="sampleDataBanner" hidden role="status" aria-live="polite">
@@ -3348,7 +3495,7 @@ function tok(name, fallback){
           <h2 class="gal-hero-title" id="galHeroTitle"></h2>
           <p class="gal-hero-sub" id="galHeroSub"></p>
         </figcaption>
-        <div class="gal-hero-plot" id="galHeroPlot"></div>
+        <div data-theme="light" class="gal-hero-plot" id="galHeroPlot"></div>
         <figcaption class="gal-hero-foot" id="galHeroFoot"></figcaption>
       </figure>
     </div>
@@ -4006,7 +4153,7 @@ function tok(name, fallback){
       </div>
     </div>
     <div class="container tablepad">
-      <div id="speedMount" class="tablecard" style="padding:0">
+      <div id="speedMount" data-theme="light" class="tablecard" style="padding:0">
         <div style="padding:14px">Loading <code>params.csv</code>…</div>
       </div>
       <p id="speedHiddenNote" class="rank-hidden-note" hidden></p>
@@ -4099,7 +4246,7 @@ function tok(name, fallback){
         <button type="button" id="buildCurve" class="btn primary">Build curve</button>
       </div>
       <div class="card builder-card">
-        <div id="builderPlot"></div>
+        <div data-theme="light" id="builderPlot"></div>
         <button class="btn chart-dl" onclick="downloadPlotlyChart('builderPlot','builder_chart.png')">↓ Download PNG</button>
       </div>
       <div id="builderDebug" class="small" style="margin-top:10px;opacity:.85"></div>
@@ -4123,7 +4270,7 @@ function tok(name, fallback){
              is one static picture: where each threshold was predicted to fall,
              plotted against when the prediction was made. A flat line is a
              model that had made up its mind; a wandering one had not. -->
-        <div id="tlConv"></div>
+        <div data-theme="light" id="tlConv"></div>
         <p class="small tl-note" id="tlConvNote" style="margin:4px 0 16px"></p>
 
         <h4 style="margin:18px 0 6px;font-size:15px">The curves behind it</h4>
@@ -4153,7 +4300,7 @@ function tok(name, fallback){
           <output id="tlStamp" class="tl-stamp"></output>
         </div>
 
-        <div id="tlPlot"></div>
+        <div data-theme="light" id="tlPlot"></div>
         <div class="tl-foot">
           <div id="tlReadout" class="small"></div>
           <!-- Points at the GIF the snapshot workflow already committed;
@@ -4219,7 +4366,7 @@ function tok(name, fallback){
     </div>
     <div id="compareExtras" class="compare-extras" hidden></div>
     <div class="card builder-card">
-      <div id="comparePlot"></div>
+      <div data-theme="light" id="comparePlot"></div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('comparePlot','compare_chart.png')">↓ Download PNG</button>
     </div>
     <div id="compareDebug" class="small" style="margin-top:10px;opacity:.85"></div>
@@ -4633,7 +4780,7 @@ function tok(name, fallback){
   <span class="fsub-hint">Same countries, same projection settings &mdash; counted as cars, or as the energy they need.</span>
 </div>
 <div id="fleetPlotWrap">
-  <div id="fleetPlot" style="height:520px;"></div>
+  <div data-theme="light" id="fleetPlot" style="height:520px;"></div>
   <button class="btn chart-dl" onclick="downloadPlotlyChart('fleetPlot','fleet_chart.png')">↓ Download PNG</button>
 </div>
 <div id="fleetEnergyView" hidden>
@@ -4671,7 +4818,7 @@ function tok(name, fallback){
       <label><input type="radio" name="feGridScen" value="linear" checked> decarbonises (IEA&nbsp;NZE &rarr; 2040)</label>
       <label><input type="radio" name="feGridScen" value="constant"> today&#39;s grid held</label>
     </div>
-    <div id="feCo2Chart"></div>
+    <div id="feCo2Chart" data-theme="light"></div>
     <div id="feCo2Legend" class="fe-legend"></div>
   </div>
 
@@ -4783,7 +4930,7 @@ function tok(name, fallback){
           <div class="wm-fig-kicker" id="wmFigTitle"></div>
           <div class="wm-fig-sub" id="wmFigSub"></div>
         </div>
-        <div id="worldMapPlot"></div>
+        <div data-theme="light" id="worldMapPlot"></div>
         <div class="wm-fig-foot"><span id="wmFigNote"></span><span>@LeRaffl</span></div>
       </div>
       <button class="btn chart-dl" onclick="downloadPlotlyChart('worldMapPlot','world_map.png')">↓ Download PNG</button>
@@ -6305,7 +6452,7 @@ const QR = (() => {
       h.innerHTML = `<span class="l">${CB.members.length} of ${ready.length} selected, summed`
         + `${S.q ? ' — complete data only' : ''}</span><span class="r"></span>`;
       sumwrap.appendChild(h);
-      const el = document.createElement('div'); el.className = 'rd-plot'; sumwrap.appendChild(el);
+      const el = document.createElement('div'); el.className = 'rd-plot'; el.dataset.theme = 'light'; sumwrap.appendChild(el);
       const cstep = Math.min(...VIEW.map(v=>v.step));
       drawPlot(el, {title:`${CB.members.length} countries combined`,
         sub:`${CB.members.length} countries${CB.skipped?` · ${CB.skipped} left out as incomplete`:''}`
@@ -6328,7 +6475,7 @@ const QR = (() => {
     // Append every host first, then draw: measuring clientWidth before the grid
     // has settled gives every chart the same wrong width.
     const hosts = VIEW.map(()=>{ const e = document.createElement('div');
-      e.className = 'rd-plot'; plots.appendChild(e); return e; });
+      e.className = 'rd-plot'; e.dataset.theme = 'light'; plots.appendChild(e); return e; });
     VIEW.forEach((v,i)=>{
       const d = DATA[v.c];
       drawPlot(hosts[i], {

@@ -540,7 +540,8 @@ A small, dependency-free Python script that lifts the design tokens out of `inde
 ### Inputs and outputs
 
 ```
-INPUT:  index.html            (the :root block carrying --bg, + the Google Fonts <link>)
+INPUT:  index.html            (the :root block carrying --bg, the :root[data-theme="dark"] block,
+                               + the Google Fonts <link>)
 OUTPUT: assets/theme.css      (generated — never hand-edit)
 ```
 
@@ -558,6 +559,14 @@ Hand-porting the palette into each generator would have left three copies to dri
 - **`--check` proves the committed stylesheet matches `index.html`** without writing, so `build-source-pages.yml` fails a PR that changes the palette without regenerating.
 - **Legacy aliases are deliberate and minimal.** `sources/*.html` was written against an older vocabulary (`--panel`, `--border`, `--chip-bg`, `--ok-tx`); theme.css maps exactly those four onto canonical tokens so the port did not have to rewrite ~80 unrelated rules. Aliases nothing uses are not carried on spec. New rules should use the canonical names.
 - The schedule pages **link** the stylesheet rather than inlining it, so a palette change reaches them without a re-render.
+
+### Dark mode
+
+- **One set of tokens, two sets of values.** The light palette block is scoped `:root,[data-theme="light"]`; the dark values live once, in a second block `:root[data-theme="dark"]{…}` right after it. Nothing else in the stylesheet knows which mode is on — every rule reads tokens. Colours that cannot read a token (the data-URI dropdown arrow) are themselves tokens (`--select-arrow`). White text on a filled accent is `--on-accent`, because the dark accent is light.
+- **Switching (gallery).** A small inline script at the top of `<head>` sets `data-theme` on `<html>` before first paint: the stored choice (`localStorage` key `bev-theme`, `light`/`dark`) or else `prefers-color-scheme`, following live OS changes. The header button cycles Auto → Light → Dark.
+- **Switching (generated pages).** `sources/*.html` and `schedule*.html` have no script. The extractor therefore emits the dark block twice: as-is, and wrapped in `@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`. Those pages follow the OS setting, not the gallery's toggle.
+- **Charts stay light — deliberately.** They are quoted, printed and downloaded; a figure must not depend on the viewer's theme. Chart hosts carry `data-theme="light"`, which re-applies the light palette inside them, and `tok()` reads tokens from a hidden `data-theme="light"` probe, so every Plotly/SVG/canvas chart and every PNG/SVG export draws in the light palette in both modes. The R-rendered gallery PNGs are on white anyway. Changing this is a design decision, not a fix: it would need `tok()` to follow the page *and* its cache to be cleared and every visible chart redrawn on toggle.
+- **Light mode is unchanged.** The dark-mode rules are all gated on `data-theme="dark"`, so the light page renders as it did before.
 
 ### Why not just give `index.html` the same `<link>`?
 

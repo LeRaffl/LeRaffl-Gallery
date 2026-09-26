@@ -33,6 +33,17 @@ Consequences worth knowing:
 - `--check` re-derives the CSS and compares it to the file on disk, so CI can
   prove the committed stylesheet matches `index.html` without writing.
 
+Dark mode
+---------
+`index.html` carries a second block, `:root[data-theme="dark"]{ … }`, right
+after the palette. The gallery switches it on with a tiny script that sets
+`data-theme` on `<html>` (stored choice, else `prefers-color-scheme`). The
+generated pages have no such script, so this module emits the same block twice:
+once as-is (for a page that does set the attribute) and once wrapped in
+`@media (prefers-color-scheme: dark)` scoped to `:root:not([data-theme="light"])`,
+so `sources/*.html` and `schedule*.html` follow the visitor's system setting.
+The dark values are therefore still written exactly once, in `index.html`.
+
 Legacy aliases
 --------------
 `sources/*.html` was written against a different token vocabulary (`--panel`,
@@ -53,6 +64,8 @@ from pathlib import Path
 # second, earlier `:root` (layout/threshold tokens only), so anchoring on the
 # token rather than on "the first :root" is deliberate.
 ROOT_ANCHOR = "--bg:"
+# The dark palette is its own block, anchored on its selector.
+DARK_ANCHOR = ':root[data-theme="dark"]{'
 
 FONT_LINK_RE = re.compile(
     r'<link\s+rel="stylesheet"\s+href="(https://fonts\.googleapis\.com/css2\?[^"]+)"',
@@ -137,6 +150,37 @@ LEGACY_ALIASES = """
 """
 
 
+def _brace_block(html: str, start: int, what: str) -> str:
+    """Return html[start:] up to and including the brace that closes the first
+    `{` after `start`. Brace-matched, not regexed (see _extract_root_block)."""
+    open_brace = html.find("{", start)
+    if open_brace == -1:
+        raise SystemExit(f"ERROR: malformed {what} in index.html.")
+    depth = 0
+    for i in range(open_brace, len(html)):
+        if html[i] == "{":
+            depth += 1
+        elif html[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return html[start:i + 1]
+    raise SystemExit(f"ERROR: unbalanced braces in index.html's {what}.")
+
+
+def _extract_dark_block(html: str) -> str:
+    """Return the *body* of the `:root[data-theme="dark"]{ … }` block (the
+    declarations between the braces), so it can be re-wrapped under two
+    selectors. Strict like the light block: a missing dark palette fails."""
+    start = html.find(DARK_ANCHOR)
+    if start == -1:
+        raise SystemExit(
+            f"ERROR: no '{DARK_ANCHOR}' block found in index.html — the dark "
+            "palette moved or was renamed. Fix scripts/build_theme.py before shipping."
+        )
+    block = _brace_block(html, start, "dark :root block")
+    return block[len(DARK_ANCHOR):-1].strip("\n")
+
+
 def _extract_root_block(html: str) -> str:
     """Return the `:root{ … }` block that carries the palette, braces included.
 
@@ -181,13 +225,20 @@ def _extract_font_href(html: str) -> str:
 
 def build_css(html: str) -> str:
     root = _extract_root_block(html)
+    dark = _extract_dark_block(html)
     font_href = _extract_font_href(html)
+    indented = "\n".join(("  " + ln) if ln.strip() else ln for ln in dark.split("\n"))
     return (
         GENERATED_HEADER
         # @import must precede every rule, so it goes first.
         + f"\n@import url('{font_href}');\n\n"
         + root.rstrip()
         + "\n\n"
+        + "/* Dark palette, set explicitly by a page script ... */\n"
+        + DARK_ANCHOR + "\n" + dark + "\n}\n\n"
+        + "/* ... or following the visitor's system setting when no script does. */\n"
+        + '@media (prefers-color-scheme: dark) {\n  :root:not([data-theme="light"]){\n'
+        + indented + "\n  }\n}\n\n"
         + LEGACY_ALIASES.strip()
         + "\n\n"
         + BASE_RULES.strip()
