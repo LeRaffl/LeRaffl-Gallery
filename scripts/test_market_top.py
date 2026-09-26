@@ -294,6 +294,105 @@ def test_uruguay_models():
         assert "brand/model column" in str(e)
 
 
+class _FakeTraficom:
+    """Two PxWeb tables shaped like Traficom's: makes with Maakunta + Vuosi +
+    Kuukausi, model series with Alue + a single YYYYMmm month variable."""
+    FUELS = [("YH", "Yhteensä"), ("01", "Bensiini"), ("04", "Sähkö"),
+             ("39", "Bensiini/Sähkö (ladattava hybridi)"), ("41", "Bensiini/Sähkö (ei ladattava)")]
+    # month -> {(fuel code, make): n}
+    MAKES = {"2026-07": {("04", "Tesla"): 100, ("04", "Volvo"): 50, ("39", "Volvo"): 80,
+                         ("01", "Toyota"): 300, ("41", "Toyota"): 200},
+             "2026-08": {("04", "Tesla"): 60, ("04", "Mercedes-Benz"): 40, ("01", "Skoda"): 400}}
+    SERIES = {"2026-07": {("04", "Tesla Model Y"): 70, ("04", "Tesla Model 3"): 30,
+                          ("04", "Volvo EX30"): 50, ("39", "Volvo XC60"): 80},
+              "2026-08": {("04", "Tesla Model Y"): 60, ("04", "Mercedes-Benz EQA"): 40}}
+
+    def table(self, *words):
+        return "makes" if "merkki" in words else "series"
+
+    def meta(self, url):
+        fuel = {"code": "Käyttövoima", "text": "Käyttövoima",
+                "values": [c for c, _ in self.FUELS], "valueTexts": [t for _, t in self.FUELS]}
+        if url == "makes":
+            makes = sorted({m for d in self.MAKES.values() for _, m in d})
+            return {"variables": [
+                {"code": "Maakunta", "text": "Maakunta", "values": ["SSS", "01"],
+                 "valueTexts": ["KOKO MAA", "Uusimaa"]},
+                {"code": "Merkki", "text": "Merkki", "values": makes, "valueTexts": makes},
+                fuel,
+                {"code": "Vuosi", "text": "Vuosi", "values": ["2025", "2026"], "valueTexts": ["2025", "2026"]},
+                {"code": "Kuukausi", "text": "Kuukausi", "values": [f"{m:02d}" for m in range(1, 13)],
+                 "valueTexts": [f"{m:02d}" for m in range(1, 13)]}]}
+        series = sorted({m for d in self.SERIES.values() for _, m in d})
+        return {"variables": [
+            {"code": "Alue", "text": "Alue", "values": ["X"], "valueTexts": ["Alue"], "elimination": True},
+            {"code": "Mallisarja", "text": "Mallisarja", "values": series, "valueTexts": series},
+            fuel,
+            {"code": "Kuukausi", "text": "Kuukausi", "values": ["2026M07", "2026M08"],
+             "valueTexts": ["2026M07", "2026M08"]}]}
+
+    def query(self, url, items):
+        sel = {i["code"]: i["selection"]["values"] for i in items}
+        if url == "makes":
+            period = f"{sel['Vuosi'][0]}-{sel['Kuukausi'][0]}"
+            data, key = self.MAKES.get(period, {}), "Merkki"
+        else:
+            p = sel["Kuukausi"][0]
+            data, key = self.SERIES.get(f"{p[:4]}-{p[5:]}", {}), "Mallisarja"
+        assert "Alue" not in sel                         # eliminable → left out
+        if url == "makes":
+            assert sel["Maakunta"] == ["SSS"]            # pinned to the whole country
+        names = sorted({m for _, m in data}) or ["none"]
+        fuels = sel["Käyttövoima"]
+        assert "YH" not in fuels
+        fl = dict(self.FUELS)
+        return {"id": [key, "Käyttövoima"], "size": [len(names), len(fuels)],
+                "dimension": {key: {"category": {"index": {n: i for i, n in enumerate(names)},
+                                                 "label": {n: n for n in names}}},
+                              "Käyttövoima": {"category": {"index": fuels,
+                                                           "label": {f: fl[f] for f in fuels}}}},
+                "value": [data.get((f, n), None) for n in names for f in fuels]}
+
+
+def test_finland_traficom():
+    import fetch_finland as ff
+    assert ff.fuel_class("Sähkö") == "BEV"
+    assert ff.fuel_class("Diesel/Sähkö (ladattava hybridi)") == "PHEV"
+    assert ff.fuel_class("Bensiini/Sähkö (ei ladattava)") == "OTHER"   # 121d: in Petrol
+    assert ff.fuel_class("Yhteensä") is None
+    assert ff.split_series("Mercedes-Benz EQA", ["MERCEDES-BENZ", "MERCEDES"]) == ("MERCEDES-BENZ", "EQA")
+    brands, models = ff.collect_top(_FakeTraficom(), "2026-08")
+    assert sorted(brands) == ["2026-07", "2026-08"]
+    jul, jul_total = brands["2026-07"]
+    assert jul_total == 730                                  # every fuel, never the Yhteensä code
+    assert jul[("BEV", "VOLVO", "")] == 50 and jul[("OTHER", "TOYOTA", "")] == 500
+    assert models["2026-07"][0][("BEV", "TESLA", "MODEL Y")] == 70
+    top = mt.build_top_monthly("Finland", "S", "2026-08", brands, "u")
+    mt.splice_models(top, mt.build_top_monthly("Finland", "S", "2026-08", models, "u"))
+    bev = top["classes"]["BEV"]
+    assert bev["units"] == 250 and bev["brands"][0]["brand"] == "TESLA"
+    assert bev["models"][0] == {"brand": "TESLA", "model": "MODEL Y", "units": 130,
+                                "share_of_class": 0.52}
+    aug = top["months"][0]
+    assert aug["period"] == "2026-08" and aug["classes"]["BEV"]["models"][1]["model"] == "EQA"
+    # A model table that disagrees with the makes drops only the designations.
+    bad = _FakeTraficom()
+    bad.SERIES = {"2026-07": {("04", "Tesla Model Y"): 10}}
+    b2, m2 = ff.collect_top(bad, "2026-08")
+    assert m2 == {} and b2["2026-07"][1] == 730
+    # Scope check against the CSV: a BEV mismatch publishes nothing.
+    with tempfile.TemporaryDirectory() as d:
+        csvp = Path(d) / "F.csv"
+        csvp.write_text("period,variant,BEV,TOTAL\n2026-07,Whole,150,730\n")
+        ff.check_against_csv(brands, str(csvp))
+        csvp.write_text("period,variant,BEV,TOTAL\n2026-07,Whole,300,730\n")
+        try:
+            ff.check_against_csv(brands, str(csvp))
+            raise AssertionError("BEV mismatch must stop the refresh")
+        except RuntimeError:
+            pass
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

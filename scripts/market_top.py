@@ -146,6 +146,23 @@ def build_top_monthly(country: str, source: str, target: str,
     return top
 
 
+def splice_models(top: dict, models_top: dict) -> dict:
+    """For a source that publishes brands and models in two separate tables
+    (Traficom): keep `top`'s brand-table classes and totals, take the model
+    rankings from `models_top` (built the same way from the model table),
+    with shares re-based on the brand table's class units."""
+    def graft(dst: dict, src: dict) -> None:
+        for cls, v in dst.items():
+            models = (src.get(cls) or {}).get("models") or []
+            v["models"] = [{**m, "share_of_class": round(m["units"] / v["units"], 4)}
+                           for m in models]
+    graft(top["classes"], models_top.get("classes") or {})
+    src_months = {m["period"]: m for m in models_top.get("months") or []}
+    for m in top.get("months") or []:
+        graft(m["classes"], (src_months.get(m["period"]) or {}).get("classes") or {})
+    return top
+
+
 def per_month(counter: dict) -> dict[str, dict]:
     """{(period, class, brand, model): n} -> {period: {(class, brand, model): n}}
     — the shape build_top_monthly wants, from the per-record tallies the

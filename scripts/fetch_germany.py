@@ -190,6 +190,23 @@ def _newest(matches):
     return max(matches, key=key)[0]
 
 
+def probe_links(html: str, where: str) -> None:
+    """Log-only probe for a future top-brands table (docs 03 §3.16): every
+    spreadsheet / PDF download and every link about makes or alternative
+    powertrains (KBA's monthly "… nach Marken und alternativen Antrieben"
+    release) on a page this fetch reads anyway. Never raises."""
+    try:
+        hrefs = sorted(set(re.findall(r'href="([^"]+)"', html)))
+        keep = [h for h in hrefs
+                if re.search(r"\.(xlsx?|csv|pdf)\b", h, re.I)
+                or re.search(r"antriebe|marke|fz10|fz 10", h, re.I)]
+        print(f"[probe] {where}: {len(keep)} relevant links")
+        for h in keep[:40]:
+            print(f"[probe]   {h.replace('&amp;', '&')[:200]}")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] link listing failed: {type(e).__name__}: {e}")
+
+
 def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
     """Find the newest "…_merkmale.xlsx". One hop if the listing links the xlsx
     directly; otherwise follow the newest "…_komplett.html" page and pull it
@@ -197,6 +214,7 @@ def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
     resp = _get(session, listing_url)
     resp.raise_for_status()
     html = resp.text
+    probe_links(html, "listing")
 
     direct = _XLSX_RE.findall(html)
     if direct:
@@ -215,6 +233,7 @@ def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
     print(f"[discover] newest release page: {page_url}")
     presp = _get(session, page_url)
     presp.raise_for_status()
+    probe_links(presp.text, "release page")
     xhrefs = _XLSX_RE.findall(presp.text)
     if not xhrefs:
         raise RuntimeError(

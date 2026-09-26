@@ -59,6 +59,21 @@ maintainer's definition, Industry = possessor Total (00) − Private person (01)
 computed cell-by-cell (per driving power, per month) so the per-fuel breakdown
 stays internally consistent.
 
+Top brands / models (market/finland_top.json)
+---------------------------------------------
+StatFin 121d has no make, but Traficom — the register keeper behind it —
+publishes first registrations of passenger cars by make × driving power ×
+month and by model series × driving power × month on its own PxWeb
+(trafi2.stat.fi, same API family). refresh_top() finds both tables in the
+TraFi__Ensirekisteroinnit folder by their titles, resolves every variable and
+value from the metadata (nothing hardcoded but Finnish words), and builds the
+trailing-twelve-month + single-month rankings via scripts/market_top.py.
+Classes follow this CSV: Sähkö → BEV, ladattava hybridi → PHEV; everything
+else (full hybrids included, as in 121d) only counts towards the total. Each
+month's BEV count is checked against data/Finland.csv (±5 %, Traficom's live
+register vs StatFin's snapshot) so a scope mismatch stops the refresh instead
+of publishing. Runs behind market_top.guarded — never blocks the data.
+
 The script is invoked by .github/workflows/fetch-finland.yml daily on the
 1st–15th at 04:40 UTC. Early-exit per variant skips work once the previous
 calendar month is already in the CSV.
@@ -66,10 +81,16 @@ calendar month is already in the CSV.
 import argparse
 import csv
 import os
+import re
+import sys
+import time
 from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 # Statistics Finland restructured the PxWeb databases on 2026-06-08: table
 # identifiers were shortened (statfin_merek_pxt_121d.px -> 121d.px) and every
@@ -445,6 +466,289 @@ def csv_has_period_for_variant(csv_path: str, period: str, variant: str) -> bool
     return False
 
 
+# ---------------------------------------------------------------------------
+# Top brands / models from Traficom's PxWeb (market/finland_top.json)
+# ---------------------------------------------------------------------------
+
+# The web UI's ".../TraFi/TraFi__Ensirekisteroinnit/" is ".../TraFi/Ensirekisteroinnit"
+# in the API (the "__" is the UI's folder separator); both are tried.
+TRAFI_APIS = ("https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit",
+              "https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/TraFi__Ensirekisteroinnit")
+TOP_SLUG = "finland"
+TOP_SOURCE = "trafi2.stat.fi (Traficom)"
+TOP_UNIT = ("first registrations of passenger cars (brand = Traficom make, "
+            "designation = model series)")
+TOP_BEV_TOLERANCE = 0.05
+# Words that mark a table / value in Traficom's Finnish metadata.
+_TOTAL_WORDS = ("koko maa", "manner-suomi", "yhteensä", "kaikki", "total")
+
+
+def fuel_class(text: str) -> str | None:
+    """Traficom driving-power label -> market class, same logic as the CSV.
+    None = the table's own total (never summed)."""
+    t = " ".join((text or "").lower().split())
+    if any(w in t for w in ("yhteensä", "kaikki", "total")):
+        return None
+    if "ladattava" in t and "ei ladattava" not in t or "plug-in" in t:
+        return "PHEV"
+    if t in ("sähkö", "electricity", "täyssähkö"):
+        return "BEV"
+    return "OTHER"
+
+
+def _find_var(meta: dict, *words: str) -> dict | None:
+    for v in meta.get("variables", []):
+        hay = f"{v.get('code', '')} {v.get('text', '')}".lower()
+        if any(w in hay for w in words):
+            return v
+    return None
+
+
+def _values(var: dict) -> list[tuple[str, str]]:
+    return list(zip(var["values"], var.get("valueTexts", var["values"])))
+
+
+def month_selections(meta: dict, wanted: list[str]) -> dict[str, list[dict]]:
+    """{period: [query items]} for the wanted periods the table has. Handles a
+    single month variable (codes like 2026M08) and a Vuosi + Kuukausi pair."""
+    mon = _find_var(meta, "kuukausi", "month")
+    if mon is None:
+        raise RuntimeError("no month variable in the Traficom table")
+    out: dict[str, list[dict]] = {}
+    if all(re.fullmatch(r"\d{4}M\d{2}", c) for c in mon["values"]):
+        for c in mon["values"]:
+            p = f"{c[:4]}-{c[5:]}"
+            if p in wanted:
+                out[p] = [{"code": mon["code"], "selection": {"filter": "item", "values": [c]}}]
+        return out
+    year = _find_var(meta, "vuosi", "year")
+    if year is None:
+        raise RuntimeError(f"month variable {mon['code']!r} has no year partner")
+    months = {}
+    for c, t in _values(mon):
+        m = re.search(r"(\d{1,2})", c) or re.search(r"(\d{1,2})", t)
+        if m and 1 <= int(m.group(1)) <= 12:
+            months[int(m.group(1))] = c
+    for yc, yt in _values(year):
+        y = re.search(r"(20\d{2})", f"{yc} {yt}")
+        if not y:
+            continue
+        for mi, mc in months.items():
+            p = f"{y.group(1)}-{mi:02d}"
+            if p in wanted:
+                out[p] = [{"code": year["code"], "selection": {"filter": "item", "values": [yc]}},
+                          {"code": mon["code"], "selection": {"filter": "item", "values": [mc]}}]
+    return out
+
+
+def fixed_selections(meta: dict, skip: set[str]) -> list[dict]:
+    """Every variable not in `skip` pinned to its total value (region, …);
+    an eliminable variable without a recognisable total is simply left out."""
+    out = []
+    for v in meta.get("variables", []):
+        if v["code"] in skip:
+            continue
+        tot = next((c for c, t in _values(v)
+                    if any(w in t.lower() for w in _TOTAL_WORDS)), None)
+        if tot is not None:
+            out.append({"code": v["code"], "selection": {"filter": "item", "values": [tot]}})
+        elif not v.get("elimination"):
+            raise RuntimeError(f"variable {v['code']!r} ({v.get('text')!r}) has no "
+                               f"total value and is not eliminable")
+    return out
+
+
+def jsonstat_cells(ds: dict):
+    """Yield ({dimension id: category label}, value) for every non-empty cell."""
+    ids, size = ds["id"], ds["size"]
+    labels = []
+    for d in ids:
+        cat = ds["dimension"][d]["category"]
+        index = cat["index"]
+        order = (sorted(index, key=index.get) if isinstance(index, dict) else list(index))
+        labels.append([cat.get("label", {}).get(k, k) for k in order])
+    values = ds["value"]
+    strides = _strides(size)
+    for flat, val in (enumerate(values) if isinstance(values, list)
+                      else ((int(k), v) for k, v in values.items())):
+        if not val:
+            continue
+        yield ({d: labels[i][(flat // strides[i]) % size[i]]
+                for i, d in enumerate(ids)}, val)
+
+
+def split_series(label: str, brands: list[str]) -> tuple[str, str]:
+    """'TESLA MODEL Y' -> ('TESLA', 'MODEL Y'), longest known brand first;
+    unknown prefix -> first word as the brand."""
+    s = market_top.clean(label)
+    for b in sorted(brands, key=len, reverse=True):
+        if s == b or s.startswith(b + " "):
+            return b, s[len(b):].strip() or s
+    head, _, rest = s.partition(" ")
+    return head, rest or s
+
+
+class Traficom:
+    def __init__(self, session: requests.Session):
+        self.s = session
+        self._tables = None
+
+    def table(self, *words: str) -> str:
+        """URL of the passenger-car table whose title contains every word."""
+        if self._tables is None:
+            errors = []
+            for base in TRAFI_APIS:
+                r = self.s.get(base, timeout=60)
+                if r.ok:
+                    self._base, self._tables = base, r.json()
+                    break
+                errors.append(f"{base}: HTTP {r.status_code}")
+            else:
+                raise RuntimeError(f"Traficom table list unreachable: {errors}")
+        for t in self._tables:
+            text = (t.get("text") or "").lower()
+            if (t.get("type", "t") == "t" and "henkilöauto" in text
+                    and all(w in text for w in words)):
+                return f"{self._base}/{t['id']}"
+        raise RuntimeError(f"no Traficom table titled with {words}: "
+                           f"{[t.get('text') for t in self._tables]}")
+
+    def meta(self, url: str) -> dict:
+        r = self.s.get(url, timeout=60)
+        _check_response(r, f"metadata {url}")
+        return r.json()
+
+    def query(self, url: str, items: list[dict]) -> dict:
+        time.sleep(0.4)                       # PxWeb rate limit (30 / 10 s)
+        r = self.s.post(url, json={"query": items, "response": {"format": "json-stat2"}},
+                        timeout=120)
+        _check_response(r, f"data POST {url}")
+        return r.json()
+
+
+def _passenger_items(meta: dict) -> tuple[list[dict], set[str]]:
+    """Pin a vehicle-class variable to passenger cars when the table has one."""
+    cls = _find_var(meta, "ajoneuvoluokka", "vehicle class")
+    if cls is None:
+        return [], set()
+    code = next((c for c, t in _values(cls) if "henkilöauto" in t.lower()), None)
+    if code is None:
+        raise RuntimeError(f"no passenger-car value in {cls['code']!r}")
+    return ([{"code": cls["code"], "selection": {"filter": "item", "values": [code]}}],
+            {cls["code"]})
+
+
+def collect_top(api: "Traficom", target: str) -> tuple[dict, dict]:
+    """(brand_months, model_months), each {period: ({(class, brand, model): n},
+    total)} for the twelve months ending at `target`. Brands and totals come
+    from the make table; designations (BEV / PHEV only) from the model-series
+    table. A model table that fails or disagrees with the make table only
+    drops the designations."""
+    wanted = market_top.month_window(target)
+    brand_months = _collect_table(api, api.table("merkki", "käyttövoima", "kuukausi"),
+                                  "brand", wanted, [])
+    try:
+        brands = sorted({b for u, _ in brand_months.values() for (_, b, _) in u})
+        model_months = _collect_table(api, api.table("mallisarja", "käyttövoima", "kuukausi"),
+                                      "model", [p for p in wanted if p in brand_months], brands)
+        for p, (u, _) in model_months.items():
+            for c in ("BEV", "PHEV"):
+                a = sum(v for (k, _, _), v in brand_months[p][0].items() if k == c)
+                b = sum(v for (k, _, _), v in u.items() if k == c)
+                if a and abs(a - b) > max(5, 0.02 * a):
+                    raise RuntimeError(f"{p} {c}: model series sum {b} vs makes {a}")
+    except RuntimeError as e:
+        print(f"::warning title=Finland designations skipped::{e}")
+        model_months = {}
+    return brand_months, model_months
+
+
+def _collect_table(api: "Traficom", url: str, kind: str, wanted: list[str],
+                   brands: list[str]) -> dict[str, tuple[dict, int]]:
+    meta = api.meta(url)
+    key = _find_var(meta, "merkki", "make") if kind == "brand" else \
+        _find_var(meta, "mallisarja", "model")
+    driv = _find_var(meta, "käyttövoima", "driving power")
+    if key is None or driv is None:
+        raise RuntimeError(f"{url}: make/model or driving-power variable missing "
+                           f"({[v.get('text') for v in meta.get('variables', [])]})")
+    fuels = {c: fuel_class(t) for c, t in _values(driv)}
+    fuel_codes = [c for c, k in fuels.items() if k is not None]
+    if kind == "model":
+        fuel_codes = [c for c in fuel_codes if fuels[c] in ("BEV", "PHEV")]
+    if not any(fuels[c] == "BEV" for c in fuel_codes):
+        raise RuntimeError(f"{url}: no 'Sähkö' driving power in {_values(driv)}")
+    months = month_selections(meta, wanted)
+    cls_items, cls_codes = _passenger_items(meta)
+    time_codes = {i["code"] for sel in months.values() for i in sel}
+    fixed = fixed_selections(meta, {key["code"], driv["code"]} | time_codes | cls_codes)
+    out = {}
+    for p, time_items in sorted(months.items()):
+        ds = api.query(url, fixed + cls_items + time_items + [
+            {"code": key["code"], "selection": {"filter": "all", "values": ["*"]}},
+            {"code": driv["code"], "selection": {"filter": "item", "values": fuel_codes}},
+        ])
+        units: dict = {}
+        total = 0
+        for cell, n in jsonstat_cells(ds):
+            name = cell[key["code"]]
+            if any(w in name.lower() for w in _TOTAL_WORDS):
+                continue
+            cls = fuel_class(cell[driv["code"]])
+            n = int(n)
+            total += n
+            if kind == "brand":
+                k = (cls if cls in ("BEV", "PHEV") else "OTHER", market_top.clean(name), "")
+            else:
+                b, m = split_series(name, brands)
+                k = (cls, b, market_top.strip_brand(b, m))
+            units[k] = units.get(k, 0) + n
+        if total:                     # an all-empty month is not published yet
+            out[p] = (units, total)
+    return out
+
+
+def check_against_csv(months: dict[str, tuple[dict, int]], csv_path: str) -> None:
+    """Traficom's BEV per month must match data/Finland.csv (StatFin) within
+    TOP_BEV_TOLERANCE — otherwise the scopes differ and we publish nothing."""
+    csv_bev, csv_total = {}, {}
+    if os.path.exists(csv_path):
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if r.get("variant", "Whole") == "Whole" and r.get("BEV"):
+                    csv_bev[r["period"]] = float(r["BEV"])
+                    csv_total[r["period"]] = float(r.get("TOTAL") or 0)
+    for p, (u, total) in months.items():
+        got = sum(n for (c, _, _), n in u.items() if c == "BEV")
+        for what, mine, ref in (("BEV", got, csv_bev.get(p)), ("TOTAL", total, csv_total.get(p))):
+            if ref and abs(mine - ref) > TOP_BEV_TOLERANCE * ref:
+                raise RuntimeError(f"{p}: Traficom {what} {mine} vs data/Finland.csv "
+                                   f"{ref:.0f} — scopes differ, not publishing")
+
+
+def refresh_top(session: requests.Session, target: str) -> None:
+    months, models = collect_top(Traficom(session), target)
+    if not months:
+        print("Top brands/models: Traficom has none of the target months yet.")
+        return
+    check_against_csv(months, VARIANT_CONFIG["Whole"]["csv"])
+    top = market_top.build_top_monthly("Finland", TOP_SOURCE, target, months, TOP_UNIT)
+    if models:
+        market_top.splice_models(top, market_top.build_top_monthly(
+            "Finland", TOP_SOURCE, target, models, TOP_UNIT))
+    path = market_top.MARKET_DIR / f"{TOP_SLUG}_top.json"
+    market_top.report(top, path, market_top.write_top(top, path))
+
+
+def latest_whole_period() -> str | None:
+    path = VARIANT_CONFIG["Whole"]["csv"]
+    if not os.path.exists(path):
+        return None
+    with open(path, newline="", encoding="utf-8") as f:
+        ps = [r["period"] for r in csv.DictReader(f) if r.get("variant", "Whole") == "Whole"]
+    return max(ps) if ps else None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -472,12 +776,17 @@ def main() -> None:
         targets = [v for v in targets if v not in current]
         for v in current:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
-        if not targets:
-            print("All requested variants are current; nothing to do.")
-            return
-
     session = requests.Session()
     session.headers.update(REQUEST_HEADERS)
+    if not targets:
+        latest = latest_whole_period()
+        if latest and not market_top.top_is_current(
+                market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", latest):
+            market_top.guarded(refresh_top, session, latest)
+        else:
+            print("All requested variants are current; nothing to do.")
+        return
+
     # Fetch table metadata once and adapt to StatFin's 2026 restructure: resolve
     # the current variable codes (names were replaced by codes) and filter the
     # driving-power selection to codes the table still exposes, so a removed or
@@ -502,6 +811,10 @@ def main() -> None:
         added, updated = upsert_csv(VARIANT_CONFIG[variant]["csv"], keyed)
         print(f"[{variant}] {added} added, {updated} updated "
               f"-> {VARIANT_CONFIG[variant]['csv']}")
+    latest = latest_whole_period()
+    if latest and ("Whole" in targets or not market_top.top_is_current(
+            market_top.MARKET_DIR / f"{TOP_SLUG}_top.json", latest)):
+        market_top.guarded(refresh_top, session, latest)
 
 
 if __name__ == "__main__":

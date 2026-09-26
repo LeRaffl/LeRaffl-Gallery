@@ -479,10 +479,39 @@ def _parse_de2_sheet_tab2(sheet: ET.Element) -> dict[str, float]:
     return found
 
 
+def probe_de2_tables(sheet: ET.Element, name: str) -> None:
+    """Log-only probe for a future top-brands table (docs 03 §3.16): list every
+    "Tabelle N: …" title of one month sheet and, for any table about makes
+    (Marke/Marken), its first rows — so the next change can be written against
+    the real layout instead of a guess. Never raises, never writes."""
+    try:
+        titles, marke_rows, in_marke = [], [], False
+        for r in sheet.findall(f"{TNS}table-row"):
+            cells = _row_cells(r)
+            if not cells:
+                continue
+            label = str(cells[0]).strip()
+            if label.startswith("Tabelle"):
+                titles.append(label[:110])
+                in_marke = "marke" in label.lower()
+                continue
+            if in_marke and len(marke_rows) < 12:
+                marke_rows.append([str(c)[:24] for c in cells[:10]])
+        print(f"[probe] DE2 {name!r} tables: {titles}")
+        for row in marke_rows:
+            print(f"[probe]   make-table row: {row}")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] DE2 table listing failed: {type(e).__name__}: {e}")
+
+
 def parse_de2(content: bytes, year: int) -> dict[str, dict[str, float]]:
     """Parse a DE2 cumulative-month .ods. Returns {period: canonical-cols}."""
     root = _open_xml(content)
     out: dict[str, dict[str, float]] = {}
+    month_sheets = [sh for sh in root.iter(f"{TNS}table")
+                    if MONTH_NAMES.get(sh.get(f"{TNS}name", "")) is not None]
+    if month_sheets:
+        probe_de2_tables(month_sheets[-1], month_sheets[-1].get(f"{TNS}name", ""))
     for sheet in root.iter(f"{TNS}table"):
         sheet_name = sheet.get(f"{TNS}name", "")
         month = MONTH_NAMES.get(sheet_name)

@@ -127,6 +127,22 @@ CSV_COLUMNS = [
 DATA_PAGE_RE = re.compile(r'data-page="([^"]*)"')
 
 
+def probe_props(page: dict) -> None:
+    """Log-only probe for a future top makes / models table (docs 03 §3.16):
+    the dashboard's Inertia props and the engine-type filter options, so the
+    make/model partials can be wired against the real names. Never raises."""
+    try:
+        props = page.get("props") or {}
+        print(f"[probe] SIMI props: {sorted(props)}")
+        for k, v in sorted(props.items()):
+            if isinstance(v, (dict, list)):
+                txt = json.dumps(v, ensure_ascii=False)
+                if any(w in k.lower() for w in ("make", "model", "engine", "filter", "top")):
+                    print(f"[probe]   {k}: {txt[:600]}")
+    except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
+        print(f"[probe] SIMI props listing failed: {type(e).__name__}: {e}")
+
+
 class SimiClient:
     def __init__(self):
         self.s = requests.Session()
@@ -142,6 +158,7 @@ class SimiClient:
                                "the site shape changed.")
         page = json.loads(html.unescape(m.group(1)))
         self.version = page["version"]
+        probe_props(page)
         if "XSRF-TOKEN" not in self.s.cookies:
             raise RuntimeError("XSRF-TOKEN cookie not set by stats.simi.ie root.")
 
