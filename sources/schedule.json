@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-26T20:28:37Z",
- "today": "2026-09-26",
+ "generated": "2026-09-27T10:11:06Z",
+ "today": "2026-09-27",
  "countries": [
   {
    "country": "Albania",
@@ -3507,11 +3507,11 @@
    "source_url": "https://aiu.thaiauto.or.th/",
    "cadence_text": "daily 04:40 UTC, 1st–20th of the month",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3556,38 +3556,38 @@
     ],
     "workflow": ".github/workflows/fetch-thailand.yml"
    },
-   "last_render": "2026-09-25",
+   "last_render": "2026-09-27",
    "flag": "🇹🇭",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "3-Wheelers",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 103,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
