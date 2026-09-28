@@ -300,29 +300,42 @@ def parse_nl_period(label: str) -> str:
 
 def swing_table_to_legacy(presentation: dict) -> dict:
     """Map the SPA's presentation JSON ({title, table: {columnHeaderRows,
-    rows, headColCount, …}}) onto the shape the parsers below were written for
-    ({caption, headRows, headCols, rowData, totalRows, totalCols}) — the old
-    GetTableStart response — so Whole, Used and HDV keep one parse path.
+    rows, headColCount, colCount, …}}) onto the shape the parsers below were
+    written for ({caption, headRows, headCols, rowData, totalRows, totalCols}) —
+    the old GetTableStart response — so Whole, Used and HDV keep one parse path.
 
-    * headCols: one list per header level, one {"d": label} per value column;
-      a cell spanning n columns is followed by n-1 blanks (the old span-
-      continuation convention _parse_periods_in_rows relies on).
+    * headCols: one list per header level, one {"d": label} per value column.
+      The SPA already emits a blank continuation cell (type 4) after a cell
+      with colSpan 2 (Used: each fuel over "> 90 dgn" / "<= 90 dgn"), which is
+      exactly the old span-continuation convention; should a payload ever leave
+      them out, they are added from colSpan.
     * headRows / rowData: the first headColCount cells of each row are its
-      header, the rest its values."""
+      header, the rest its values. Every row must carry exactly the declared
+      number of value cells, else the labels would slide — a hard error."""
     t = presentation["table"]
     hc = t.get("headColCount", 1)
+    ncols = t.get("colCount", 0) - hc
     head_cols = []
     for level in t.get("columnHeaderRows") or []:
-        cells: list[dict] = []
-        for c in level["cells"][hc:]:
-            cells.append({"d": c.get("text", "")})
-            cells.extend({"d": ""} for _ in range(int(c.get("colSpan", 1)) - 1))
+        cells = [{"d": c.get("text", "")} for c in level["cells"][hc:]]
+        if len(cells) != ncols:                   # continuation cells left out: expand
+            cells = []
+            for c in level["cells"][hc:]:
+                cells.append({"d": c.get("text", "")})
+                cells.extend({"d": ""} for _ in range(int(c.get("colSpan", 1)) - 1))
+        if len(cells) != ncols:
+            raise RuntimeError(f"Swing header level has {len(cells)} columns, the table "
+                               f"declares {ncols} — the payload shape changed (--probe-open)")
         head_cols.append(cells)
     rows = t.get("rows") or []
+    for i, r in enumerate(rows):
+        if len(r["cells"]) - hc != ncols:
+            raise RuntimeError(f"Swing row {i} has {len(r['cells']) - hc} value cells, the "
+                               f"table declares {ncols} — the payload shape changed")
     return {
         "caption": presentation.get("title", ""),
         "totalRows": len(rows),
-        "totalCols": t.get("colCount", 0) - hc,
+        "totalCols": ncols,
         "headRows": [[{"d": c.get("text", "")} for c in r["cells"][:hc]] for r in rows],
         "headCols": head_cols,
         "rowData": [[{"d": c.get("text", "")} for c in r["cells"][hc:]] for r in rows],

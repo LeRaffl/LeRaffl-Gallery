@@ -157,20 +157,51 @@ def test_whole_presentation_parses_like_the_old_pivot():
     assert r["TOTAL"] == 12764 + 4748 + 8102 + 22 + 154 and r["HEV"] == "" and r["source"] == fn.SOURCE
 
 
-def test_two_level_header_sums_sub_columns():
-    """Used: fuels on the outer header level, each spanning '> 90 dgn' / '<= 90 dgn'."""
-    def h(text, span=1):
-        return {"colSpan": span, "text": text, "type": 1, "valueType": 3}
-    corner = {"text": "Maand", "type": 5, "valueType": 3}
-    head0 = {"cells": [corner, h("BEV", 2), h("PHEV", 2), h("Benzine", 2)]}
-    head1 = {"cells": [corner] + [h(x) for x in ("> 90 dgn", "<= 90 dgn") * 3]}
+def _used_presentation(with_continuation_cells=True):
+    """Used as the SPA sends it (2026-09-28): fuels on the outer header level,
+    each colSpan 2 and followed by an empty type-4 continuation cell."""
+    def h(text, span=1, **kw):
+        return {"colSpan": span, "text": text, "type": 1, "valueType": 3, **kw}
+    corner = {"text": "", "type": 5, "valueType": 3}
+    cont = {"text": "", "type": 4, "valueType": 3}
+    outer = [corner]
+    for f in ("BEV", "PHEV", "Benzine"):
+        outer += [h(f, 2)] + ([cont] if with_continuation_cells else [])
+    inner = [{"text": "Maand", "type": 5, "valueType": 3}] + [
+        h(x) for x in ("Occasion import > 90 dgn", "Occasion import <= 90 dgn") * 3]
     row = {"cells": [{"rowSpan": 1, "text": "31 juli 2026", "type": 2, "valueType": 3}]
            + [_cell(v) for v in ("1.000", "10", "200", "5", "3.000", "30")]}
-    pres = {"title": "Occasion import", "table": {"colCount": 7, "rowCount": 1, "headColCount": 1,
-            "headRowCount": 2, "rows": [row], "columnHeaderRows": [head0, head1]}}
-    data = fn.swing_table_to_legacy(pres)
-    assert [c["d"] for c in data["headCols"][0]] == ["BEV", "", "PHEV", "", "Benzine", ""]
-    assert fn.parse_table(data, "Used")["2026-07"] == {"BEV": 1010.0, "PHEV": 205.0, "Benzine": 3030.0}
+    return {"title": "Occasion import", "table": {
+        "colCount": 7, "rowCount": 1, "headColCount": 1, "headRowCount": 2,
+        "rows": [row], "columnHeaderRows": [{"cells": outer}, {"cells": inner}]}}
+
+
+def test_two_level_header_sums_sub_columns():
+    """Used: the outer level's continuation cells must not be added a second time
+    (that slid every fuel two columns to the right on the first try)."""
+    for explicit in (True, False):
+        data = fn.swing_table_to_legacy(_used_presentation(explicit))
+        assert [c["d"] for c in data["headCols"][0]] == ["BEV", "", "PHEV", "", "Benzine", ""]
+        assert fn.parse_table(data, "Used")["2026-07"] == {"BEV": 1010.0, "PHEV": 205.0, "Benzine": 3030.0}
+
+
+def test_payload_shape_changes_are_errors_not_shifted_data():
+    pres = _used_presentation()
+    pres["table"]["rows"][0]["cells"].pop()             # one value cell missing
+    try:
+        fn.swing_table_to_legacy(pres)
+        raise AssertionError("a short row must raise")
+    except RuntimeError as e:
+        assert "declares 6" in str(e)
+    pres = _used_presentation()
+    pres["table"]["columnHeaderRows"][0]["cells"].pop()
+    pres["table"]["columnHeaderRows"][0]["cells"].pop()
+    pres["table"]["columnHeaderRows"][0]["cells"].pop()  # neither shape adds up to 6 columns
+    try:
+        fn.swing_table_to_legacy(pres)
+        raise AssertionError("a header that does not add up must raise")
+    except RuntimeError as e:
+        assert "header level" in str(e)
 
 
 def test_dry_run_report(capsys=None):
