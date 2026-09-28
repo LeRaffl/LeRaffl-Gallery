@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T08:40:11Z",
+ "generated": "2026-09-28T11:12:33Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4896,6 +4896,22 @@
    "slug": "thailand_hdv",
    "period": "2026-08",
    "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-09-28",
+   "label": "Peru",
+   "base": "Peru",
+   "slug": "peru",
+   "period": "2026-07",
+   "flag": "🇵🇪"
+  },
+  {
+   "date": "2026-09-28",
+   "label": "Peru (Vans)",
+   "base": "Peru",
+   "slug": "peru_vans",
+   "period": "2026-07",
+   "flag": "🇵🇪"
   }
  ]
 }
