@@ -102,6 +102,7 @@ jobs:
 
       - name: Detect which CSVs changed
         id: changed
+        if: ${{ !inputs.probe }}
         run: |
           # For each of the 3 per-variant CSVs, check if git sees changes.
           # `git add -N` makes `git diff` include untracked new files (needed
@@ -132,6 +133,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
+        if: ${{ !inputs.probe }}
         uses: EndBug/add-and-commit@v9
         with:
           add: |
