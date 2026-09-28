@@ -252,6 +252,36 @@ reasons:
   *import flow* (new+used), explicitly flagged as a mandate, not a modelled
   organic transition.
 
+## 🇷🇺 Russia — the monthly fuel split exists, but only for sale
+
+Investigated 2026-09-28 (the maintainer's preferred candidate for the next
+country; Peru was built instead — [45](45-source-peru.md)). Russia has no
+public registry dataset: the MVD/GIBDD registration data reaches the public
+only through **Autostat** (autostat.ru), a private analytics agency that
+licenses it, and resellers of Autostat's tables such as **Autostat Info**
+(avtostat-info.ru).
+
+- **What is free:** Autostat's news items and their press echo — a monthly
+  count of new BEVs registered (August 2026: 2,216) with a top-5 to top-10
+  model list, and, in *separate* articles, the total new passenger-car
+  market. No petrol / diesel / hybrid split of that total, no PHEV series, no
+  complete brand or model table. Hand-assembling BEV ÷ TOTAL from two press
+  articles a month is exactly the kind of secondary, prose-scraped series the
+  bar excludes (see the Serbia and CEauto notes in
+  [33](33-expansion-candidates.md)).
+- **What has the data:** Autostat's and Autostat Info's monthly reports and
+  Excel tables ("Регистрации новых легковых автомобилей", by brand, model,
+  region and engine type) — **3,000–10,000 ₽ per report**. Fails (c).
+- **Access is not the obstacle — price is.** `autostat.ru` and
+  `avtostat-info.ru` answer normally from GitHub runners (checked 2026-09-28;
+  `autostat.ru` only 403s the dev sandbox). There is no official alternative:
+  Rosstat/EMISS publish the fleet stock by engine type only annually, and the
+  AEB's monthly sales release is brand totals without a fuel split.
+- **What would change the decision:** a free, machine-readable Autostat (or
+  MVD) table with new registrations by engine type — or a maintainer decision
+  to pay for the monthly Autostat table, which would also need a licence that
+  allows republishing the derived series.
+
 ## General principle (for the LLM being asked "why isn't X on the map?")
 
 If someone points at one of these countries and says "but the data exists,

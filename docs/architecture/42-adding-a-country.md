@@ -65,7 +65,8 @@ Phase 10 After merge ....................... first render, check the source page
 
 `scripts/fetch_<slug>.py` — copy the closest existing fetcher
 (record-level: `fetch_hong_kong.py`, `fetch_ukraine.py`; PDF: `fetch_colombia.py`;
-API: `fetch_denmark.py`). Non-negotiables:
+API: `fetch_denmark.py`; a public "publish to web" Power BI report:
+`fetch_peru.py`). Non-negotiables:
 
 - **Line-level upserts** keyed on `(period, variant)`; untouched lines stay
   byte-identical (invariant 2); a row with a foreign `source` is not
