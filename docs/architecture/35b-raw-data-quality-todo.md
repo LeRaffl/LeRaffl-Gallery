@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 55 countries · 6,436 periods drawable · 164 held back · **40 of 55 files cost the chart nothing.**
+**Status:** 56 countries · 6,527 periods drawable · 164 held back · **40 of 56 files cost the chart nothing.**
 
 ---
 
@@ -68,6 +68,12 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 ### Uruguay  ·  costs 2 periods
 
 - [ ] **2 rows with an exactly-zero combustion side** — only the EV columns were filled and `TOTAL` computed from them · 2021-06, 2022-06
+
+### Peru  ·  costs 1 periods
+
+- [ ] `2020-05` — HEV drops to 0 between 41 and 36. The row still closes to `TOTAL`, so no sum check sees it.
+- [ ] **No rows for 2020-04…2020-04** — 1 periods the CSV says nothing about.
+→ *Symptom:* 1 visible gap in the chart, 1 months (worst 2020-04…2020-05).
 
 ### Costs no bars, but still wrong
 
