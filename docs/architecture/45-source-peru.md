@@ -24,7 +24,7 @@ variants:
 - Whole
 - Vans
 variant_notes:
-  Whole: New cars, station wagons, SUVs and MPVs (AAP classes Automóvil, Station Wagon, SUV/Todoterreno and Camionetas with body Multipropósito) ≈ EU M1.
+  Whole: New cars, station wagons, SUVs and MPVs (AAP classes Automóvil, Station Wagon, SUV/Todoterreno and Camionetas with body Multipropósito) ≈ EU M1. Pickups are not in Whole — they are in Vans.
   Vans: New pickups, chassis-cabs, dropside and box vans (class Pick up y Furgonetas) and panel vans (Camionetas with body Panel) ≈ EU N1.
 hev_split: true
 hev_note: BEV, PHEV and HEV are AAP's own powertrain classes. HEV counts full AND mild hybrids — the registry lumped them together until 2024 and only codes mild hybrids separately since 2025, so for a consistent series they stay in HEV (the top-brands table does rank MHEV separately).
@@ -32,6 +32,7 @@ backfill: from 2019-01, the first month in the BI-AAP model; April 2020 has no r
 scope_note: First registrations of new light vehicles in Peru. Minibuses (Camionetas with body Microbús, M2), ambulances and hearses, all heavy vehicles and motorcycles are in no variant.
 caveats:
 - BEV and PHEV shares are still very small (0.5 % and 0.8 % of new cars in 2025–26) — the fit sits at the very start of the S-curve and moves a lot with each new month.
+- Pickups are counted in Vans, not in Whole (they are N1 goods vehicles), so AAP's "livianos" figures are larger than Whole: July 2026 BEV = 65 in BI-AAP's light vehicles = 57 Whole + 6 Vans (pickups, dropsides) + 2 minibuses (in no variant).
 - HEV includes mild hybrids (48 V Suzuki, Mercedes, BMW, Audi systems), about half of all hybrids in 2025.
 - No registrations in April 2020 (the registry was closed during the COVID-19 lockdown); that month has no row and May 2020 is tiny.
 - AAP reports these first registrations as new-vehicle sales. Used imports are legal only up to two model years old, so a small near-new remainder may be included; the data has no new/used flag.
@@ -188,6 +189,17 @@ after printing; see §5a.
 |---|---|---|---|
 | `Whole` | class `AUTOMOVIL`, `STATION WAGON`, `SUV,TODOTERRENOS`, or `CAMIONETAS` with body `MULTIPROPOSITO` | M1 | 136,531 (BEV 0.47 %, PHEV 0.35 %, HEV 6.4 %) |
 | `Vans` | class `PICK UP Y FURGONETAS` (pickup, chassis-cab, dropside, box van, reefer), or `CAMIONETAS` with body `PANEL` | N1 | 40,345 (BEV 0.25 %, diesel 84 %) |
+
+**Pickups are in `Vans`, not in `Whole`.** Peru's pickups (Toyota Hilux, Ford
+Ranger, Great Wall Poer, …) are registered as goods vehicles, so they follow
+the EU N1 anchor into `Vans`. This differs from countries whose headline
+series bundles them (Thailand's "Passenger Car and Pickup Truck") and from
+those that split them into their own variant (Argentina, Canada, Indonesia
+`Pickups`). Reconciling with BI-AAP's "LIVIANOS" view, July 2026 BEV: 65
+there = 57 `Whole` (SUV 42, Automóvil 15) + 6 `Vans` (pickups, dropsides —
+Qingling, Farizon, JAC) + 2 minibuses (Dongfeng, in no variant). The
+top-brands table is `Whole` only, so pickup brands such as Qingling do not
+appear in it.
 
 AAP's class `CAMIONETAS` is a mixed bag: MPVs (Toyota Avanza, Mitsubishi
 Xpander, Suzuki Ertiga — M1), minibuses (Toyota Hiace commuter, Changan Grand
