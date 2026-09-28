@@ -38,6 +38,11 @@ data_file: data/Netherlands.csv
 market_breakdown: market/netherlands_top.json
 market_designation_note: a "designation" is RDW's trade name with the brand prefix and the engine, power and trim codes removed, so the versions of one model rank together (ID.4 PRO 210KW and ID.4 GTX → ID.4).
 market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid; full hybrids are not split, as in the charts. Counted from the register record by record, so a month can differ from the chart's total by about 1–3 %.
+market_breakdown_extra:
+- path: market/netherlands_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Imported used passenger cars at their first Dutch registration (the Used variant): cars that were admitted, and usually driven, abroad before they were registered here. Counted from the register as first registration in the month with an earlier first admission; about 1–3 % above the Used chart's total."
 ---
 
 # 10 · Source: Netherlands (duurzamemobiliteit.databank.nl / RDW)
@@ -488,7 +493,9 @@ The Swing pivots carry no make. The same register is published record by record
 as RDW open data (`opendata.rdw.nl`, Socrata, no key, no relay — RDW's open-data
 host is not blocked from GitHub the way the BI portal is), so
 `refresh_top()` in `scripts/fetch_netherlands.py` builds the source page's "Who
-sells the electrified cars" section from it. Whole only; classes BEV and PHEV.
+sells the electrified cars" section from it. Classes BEV and PHEV, for two
+variants: Whole (`netherlands_top.json`) and Used (`netherlands_used_top.json`,
+a second section on the page — see "Used" below).
 
 | Piece | Dataset | Used for |
 |---|---|---|

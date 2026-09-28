@@ -21,12 +21,13 @@ name: Fetch Netherlands data (RDW via Swing)
 # docs/architecture/10-source-netherlands.md §11.
 #
 # Top brands/models: the same script also keeps market/netherlands_top.json
-# (trailing-12-month top BEV / PHEV brands and models, Whole) and its month
-# store market/netherlands_months.json current from the RDW open-data register
+# (trailing-12-month top BEV / PHEV brands and models, Whole) and, for the
+# imported used cars, market/netherlands_used_top.json — each with its month
+# store (market/netherlands[_used]_months.json) — current from the RDW open-data register
 # (opendata.rdw.nl — a plain host, unlike the Swing portal, so no relay). It
 # is committed with the data but never triggers a render; the source page picks
 # it up through build-source-pages.yml. The very first run reads twelve months
-# (about 15 minutes), later runs one.
+# per variant (about 15 minutes each), later runs one.
 
 on:
   workflow_dispatch:
@@ -167,6 +168,8 @@ jobs:
             data/Netherlands_HDV.csv
             market/netherlands_top.json
             market/netherlands_months.json
+            market/netherlands_used_top.json
+            market/netherlands_used_months.json
           message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

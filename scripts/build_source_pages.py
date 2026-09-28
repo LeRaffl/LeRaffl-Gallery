@@ -728,6 +728,8 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 # country's fetcher writes; a front-matter key switches each section on:
 #
 #   market_breakdown: market/<slug>_top.json   (Argentina: classification/…)
+#   market_breakdown_extra: [{path, id, heading, note}]   optional further sections
+#                                               (a second slice with its own top file)
 #   market_class_names:  {HEV: Hybrid}          optional short-name override
 #   market_class_labels: {HEV: "…"}             optional long-label override
 #       written by the fetcher via scripts/market_top.py — Spain, Malaysia, …
@@ -864,23 +866,36 @@ def _market_view(classes: dict, names: dict, labels: dict, open_first: bool) -> 
     return "".join(parts)
 
 
-MARKET_PICK_JS = """<script>
-(function(){
-  var sel=document.getElementById('mkt-pick'); if(!sel) return;
-  var views=document.querySelectorAll('#market .mkt-view');
-  function show(){ views.forEach(function(v){ v.hidden=v.getAttribute('data-view')!==sel.value; }); }
-  sel.addEventListener('change',show); show();
-})();
-</script>"""
+def _market_pick_js(sec: str, sel: str) -> str:
+    return ("<script>\n(function(){\n"
+            f"  var sel=document.getElementById('{sel}'); if(!sel) return;\n"
+            f"  var views=document.querySelectorAll('#{sec} .mkt-view');\n"
+            "  function show(){ views.forEach(function(v){ "
+            "v.hidden=v.getAttribute('data-view')!==sel.value; }); }\n"
+            "  sel.addEventListener('change',show); show();\n"
+            "})();\n</script>")
 
 
 def build_market_breakdown(fm: dict) -> str:
-    rel = fm.get("market_breakdown")
-    if not rel:
+    """The "Who sells the electrified cars" section for `market_breakdown`,
+    followed by one more section per `market_breakdown_extra` entry
+    ({path, id, heading, note}) — e.g. the Netherlands' imported used cars,
+    a second slice of the same source with its own top file."""
+    if not fm.get("market_breakdown"):
         return ""
+    out = _market_section(fm, fm["market_breakdown"], "market",
+                          "Who sells the electrified cars", "")
+    for extra in fm.get("market_breakdown_extra") or []:
+        out += _market_section(fm, extra["path"], extra["id"],
+                               extra.get("heading", "Who sells the electrified cars"),
+                               extra.get("note", ""))
+    return out
+
+
+def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str) -> str:
     path = REPO / rel
     if not path.is_file():
-        return ('<section><h2>Who sells the electrified cars</h2>'
+        return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
                 '<p class="dim">Not generated yet — appears after the next fetch.</p></section>')
     top = json.loads(path.read_text(encoding="utf-8"))
     win = top.get("window") or {}
@@ -908,6 +923,8 @@ def build_market_breakdown(fm: dict) -> str:
                   or ('Powertrain as classified below.' if fm.get("classification")
                       else "Powertrain as recorded by the source's own fuel field."))
             + '</p>')
+    if note:
+        lead += f'<p class="dim">{esc(note)}</p>'
     if fm.get("market_window_note"):
         lead += f'<p class="dim">{esc(fm["market_window_note"])}</p>'
     elif n_months < 12:
@@ -925,7 +942,7 @@ def build_market_breakdown(fm: dict) -> str:
     views = [f'<div class="mkt-view" data-view="ttm">'
              + _market_view(classes, names, labels, True) + '</div>']
     if not months:
-        return ('<section id="market"><h2>Who sells the electrified cars</h2>'
+        return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
                 + lead + "".join(views) + '</section>')
     # Single months (newest first) behind a picker; the no-JS page shows the
     # headline view only (every month is `hidden` until the script runs).
@@ -940,10 +957,11 @@ def build_market_breakdown(fm: dict) -> str:
                      'Single-month lists are shorter: top 10 brands and top 10 '
                      'designations per class.</p>'
                      + _market_view(m.get("classes") or {}, names, labels, True) + '</div>')
-    picker = ('<p class="mkt-pick"><label for="mkt-pick">Show: </label>'
-              f'<select id="mkt-pick">{"".join(opts)}</select></p>')
-    return ('<section id="market"><h2>Who sells the electrified cars</h2>'
-            + lead + picker + "".join(views) + MARKET_PICK_JS + '</section>')
+    pick = f"mkt-pick-{sec}"
+    picker = (f'<p class="mkt-pick"><label for="{esc(pick)}">Show: </label>'
+              f'<select id="{esc(pick)}">{"".join(opts)}</select></p>')
+    return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
+            + lead + picker + "".join(views) + _market_pick_js(sec, pick) + '</section>')
 
 
 FILTER_JS = """<script>

@@ -689,7 +689,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Uruguay | `fetch_uruguay.py` | ACAU Compilado `Marca` / `Modelo` columns, AUTOS + SUV; MHEV ranked as its own class (OTHERS in the CSV); columns found by header name, never guessed | whenever the workbook is downloaded; one calendar year per file → month store |
 | Israel | `fetch_israel.py` | registry `tozeret_nm` (Hebrew manufacturer + country of production, translated by `BRAND_STEMS`) / `kinuy_mishari` (Latin commercial name), Whole; classes BEV / PHEV / HEV from `column_of()` — the CSV's own function. Display names only: drive / trim words stripped (`display_model`). Month totals equal the CSV's within ~0.1 % (older months) | when missing or behind the newest Whole month in `data/Israel.csv` — twelve registry pages (a few minutes) |
 | Portugal | `fetch_portugal.py` | motordata `result_table` `Marca` per fuel code — **brands only**; BEV / PHEV (14+15) / HEV (17+18) as in the CSV; brand tables checked to add up exactly to the fuel series. Headline = ACAP's January-to-date `Acumulado` (restarts every January, `market_window_note`); single months from `Mensal` accumulate in the month store | every run of the workflow, incl. the no-op days of the 1st–5th (7 requests); the picker starts with the first month seen and grows by one per publication |
-| Netherlands | `fetch_netherlands.py` | RDW open data (`opendata.rdw.nl`, Socrata) `merk` / `handelsbenaming` of the "new passenger car" records, class from the fuel table (`8ys7-d773`): BEV = electricity only, PHEV = `OVC-HEV`; full hybrids unsplit like the CSV. Display names only: engine / power / trim codes stripped (`display_model`). Month totals are checked against `data/Netherlands.csv` (about 1–3 % apart, the register is live and Swing is a snapshot; more than 10 % over the window aborts) | when the CSV's newest month is not in the month store yet — twelve months (about 15 min) on the first run, one (about 1 min) after; the fuel table cannot be joined, so plates go in as `IN` lists → month store |
+| Netherlands | `fetch_netherlands.py` | RDW open data (`opendata.rdw.nl`, Socrata) `merk` / `handelsbenaming` of the "new passenger car" records — and, as a second file `netherlands_used_top.json` (front-matter `market_breakdown_extra`, a second section on the page), of the imported used cars (first registration in the month, admitted before it) — class from the fuel table (`8ys7-d773`): BEV = electricity only, PHEV = `OVC-HEV`; full hybrids unsplit like the CSV. Display names only: engine / power / trim codes stripped (`display_model`). Month totals are checked against `data/Netherlands.csv` / `Netherlands_Used.csv` (about 1–3 % apart, the register is live and Swing is a snapshot; more than 10 % over the window aborts) | when the CSV's newest month is not in the month store yet — twelve months (about 15 min) on the first run, one (about 1 min) after; the fuel table cannot be joined, so plates go in as `IN` lists → month store |
 
 **Record-level vs. summary sources.** The first six (and Argentina, Ireland, Austria) re-read twelve months of
 records whenever they like; Netherlands could too but keeps a month store anyway, because a month costs a minute of
@@ -746,7 +746,10 @@ alphabetically so the file is byte-stable (no spurious commits).
 - **Shown on the source page** when the country's front-matter has
   `market_breakdown: market/<slug>_top.json` ("Who sells the electrified
   cars", [39](39-source-argentina.md) §6). A missing file renders as "not
-  generated yet".
+  generated yet". A second slice of the same source (Netherlands: imported
+  used cars) has its own top file and is listed under
+  `market_breakdown_extra: [{path, id, heading, note}]` — one more section
+  with its own month picker.
 - Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in `data/`).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`

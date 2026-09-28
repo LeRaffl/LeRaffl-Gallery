@@ -17,7 +17,8 @@ one ranking per single month (`months`, newest first).
 | `finland_top.json` | `scripts/fetch_finland.py` (Traficom PxWeb make and model-series tables) |
 | `israel_top.json` | `scripts/fetch_israel.py` (registry `tozeret_nm` translated from Hebrew / `kinuy_mishari`, Whole; BEV / PHEV / HEV) |
 | `portugal_top.json` + `portugal_months.json` | `scripts/fetch_portugal.py` (motordata `result_table` brands; brands only; January-to-date headline, months accumulate) |
-| `netherlands_top.json` + `netherlands_months.json` | `scripts/fetch_netherlands.py` (RDW open-data register `merk` / `handelsbenaming` + fuel table; BEV / PHEV; trim codes stripped for display) |
+| `netherlands_top.json` + `netherlands_months.json` | `scripts/fetch_netherlands.py` (RDW open-data register `merk` / `handelsbenaming` + fuel table; new passenger cars; BEV / PHEV; trim codes stripped for display) |
+| `netherlands_used_top.json` + `netherlands_used_months.json` | the same script, imported used passenger cars (Used variant); shown as a second section via front-matter `market_breakdown_extra` |
 | `japan_top.json` + `japan_months.json` | `scripts/fetch_japan.py` (JADA maker rows; brands only, imports one row) |
 | `singapore_top.json` + `singapore_months.json` | `scripts/fetch_singapore.py` (LTA M03 makes; brands only) |
 | `uruguay_top.json` + `uruguay_months.json` | `scripts/fetch_uruguay.py` (ACAU Compilado `Marca` / `Modelo`, AUTOS + SUV) |

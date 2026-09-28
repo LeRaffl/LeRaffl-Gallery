@@ -573,6 +573,22 @@ def test_netherlands_rdw_top():
     assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1}
     where = seen[0][1]["$where"]
     assert "2026-06-01" in where and "2026-07-01" in where and "export_indicator='Nee'" in where
+    # Whole: admitted in the month; Used: admitted before it (a used import)
+    assert "datum_eerste_toelating_dt >= '2026-06-01'" in where
+    seen.clear()
+    fn.rdw_get = fake_get
+    try:
+        u_units, u_total = fn.aggregate_month(None, "2026-06", "Used")
+    finally:
+        fn.rdw_get = real
+    used_where = seen[0][1]["$where"]
+    assert "datum_eerste_toelating_dt < '2026-06-01'" in used_where
+    assert "datum_eerste_toelating_dt >= '2026-06-01'" not in used_where
+    assert "datum_eerste_tenaamstelling_in_nederland_dt >= '2026-06-01'" in used_where
+    assert (u_units, u_total) == (units, total)          # same fake plates, same class logic
+    # one top file + month store per variant, slugs feed market_top's paths
+    assert fn.TOP_SLUGS == {"Whole": "netherlands", "Used": "netherlands_used"}
+    assert set(fn.TOP_UNITS) == set(fn.TOP_SLUGS) and "used" in fn.TOP_UNITS["Used"]
     top = mt.build_top_monthly("Netherlands", "S", "2026-06", {"2026-06": (units, total)}, "u")
     assert top["classes"]["BEV"]["models"][0]["units"] == 2
     assert top["classes"]["PHEV"]["brands"][0]["brand"] == "VOLVO"

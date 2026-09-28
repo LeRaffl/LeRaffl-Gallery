@@ -563,11 +563,20 @@ RDW_BASE = "https://opendata.rdw.nl/resource/"
 RDW_VEHICLES = "m9d7-ebf2"        # Gekentekende voertuigen (one row per plate)
 RDW_FUEL = "8ys7-d773"            # ... brandstof (one row per plate x fuel)
 TOP_SOURCE = "RDW open data"
+# One top file + month store per variant the register can reproduce: Whole
+# (new passenger cars) and Used (imported used passenger cars).
+TOP_SLUGS = {"Whole": "netherlands", "Used": "netherlands_used"}
 TOP_PATH = market_top.MARKET_DIR / "netherlands_top.json"
 STORE_PATH = market_top.MARKET_DIR / "netherlands_months.json"
-TOP_UNIT = ("first registrations (brand = RDW 'merk'; model = RDW "
-            "'handelsbenaming' with the brand prefix, engine / power / trim "
-            "codes removed — see display_model in scripts/fetch_netherlands.py)")
+_TOP_UNIT_TAIL = ("brand = RDW 'merk'; model = RDW 'handelsbenaming' with the "
+                  "brand prefix, engine / power / trim codes removed — see "
+                  "display_model in scripts/fetch_netherlands.py)")
+TOP_UNITS = {
+    "Whole": "first registrations (" + _TOP_UNIT_TAIL,
+    "Used": ("imported used cars at their first Dutch registration (admitted "
+             "before the month it was registered in; " + _TOP_UNIT_TAIL),
+}
+TOP_UNIT = TOP_UNITS["Whole"]
 FUEL_BATCH = 800                  # plates per fuel query (URL limit ~ 1000)
 PAGE = 50000                      # Socrata's maximum page size
 RDW_TRIES = 5
@@ -603,16 +612,22 @@ def next_month(period: str) -> str:
     return f"{y + m // 12}-{m % 12 + 1:02d}"
 
 
-def fetch_new_cars(session: requests.Session, period: str) -> list[dict]:
-    """The plates counted as "new passenger cars registered in `period`":
-    first NL registration in the month, first admission in the same month (a
-    car admitted earlier is a used import), not exported since."""
+def fetch_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole") -> list[dict]:
+    """The plates counted for `period`: first NL registration in the month,
+    not exported since, and
+
+    * Whole — first admission in the same month (a new car);
+    * Used  — first admission BEFORE the month (a used import: the car had
+      been admitted, and driven, abroad before it was registered here).
+    """
     a, b = f"{period}-01", f"{next_month(period)}-01"
+    admitted = (f"datum_eerste_toelating_dt >= '{a}' and datum_eerste_toelating_dt < '{b}'"
+                if variant == "Whole" else f"datum_eerste_toelating_dt < '{a}'")
     where = ("voertuigsoort='Personenauto' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt >= '{a}' "
              f"and datum_eerste_tenaamstelling_in_nederland_dt < '{b}' "
-             f"and datum_eerste_toelating_dt >= '{a}' "
-             f"and datum_eerste_toelating_dt < '{b}' "
+             f"and {admitted} "
              "and export_indicator='Nee'")
     rows: list[dict] = []
     while True:
@@ -712,9 +727,10 @@ def display_model(merk: str, model: str) -> str:
     return m or market_top.clean(model)
 
 
-def aggregate_month(session: requests.Session, period: str) -> tuple[dict, int]:
-    """({(class, brand, model): n} for BEV/PHEV, all new cars of the month)."""
-    cars = fetch_new_cars(session, period)
+def aggregate_month(session: requests.Session, period: str,
+                    variant: str = "Whole") -> tuple[dict, int]:
+    """({(class, brand, model): n} for BEV/PHEV, all cars of the month)."""
+    cars = fetch_new_cars(session, period, variant)
     fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
     units: collections.Counter = collections.Counter()
     for c in cars:
@@ -725,30 +741,41 @@ def aggregate_month(session: requests.Session, period: str) -> tuple[dict, int]:
     return dict(units), len(cars)
 
 
-def refresh_top(session: requests.Session | None = None) -> None:
-    """Bring market/netherlands_top.json up to the newest Whole month of the CSV,
-    reading only the months the month store does not have yet."""
-    totals = market_top.csv_totals(CSV_PATHS["Whole"])
+def refresh_top(session: requests.Session | None = None,
+                variant: str = "Whole") -> None:
+    """Bring market/netherlands[_used]_top.json up to the newest month of the
+    variant's CSV, reading only the months its month store does not have yet."""
+    slug = TOP_SLUGS[variant]
+    top_path = market_top.MARKET_DIR / f"{slug}_top.json"
+    store_path = market_top.MARKET_DIR / f"{slug}_months.json"
+    totals = market_top.csv_totals(CSV_PATHS[variant], variant)
     if not totals:
         return
     target = max(totals)
-    stored = market_top.load_store(STORE_PATH)
+    stored = market_top.load_store(store_path)
     need = [p for p in market_top.month_window(target) if p not in stored]
-    if not need and market_top.top_is_current(TOP_PATH, target):
-        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
+    if not need and market_top.top_is_current(top_path, target):
+        print(f"{top_path.relative_to(market_top.REPO)}: current ({target}).")
         return
-    print(f"Top brands/models: reading {len(need)} month(s) from RDW: {need or '-'}")
+    print(f"Top brands/models [{variant}]: reading {len(need)} month(s) from RDW: "
+          f"{need or '-'}")
     session = session or rdw_session()
     fresh = {}
     for p in need:
-        fresh[p] = aggregate_month(session, p)
-        print(f"  {p}: {fresh[p][1]:,} new cars, "
+        fresh[p] = aggregate_month(session, p, variant)
+        print(f"  {p}: {fresh[p][1]:,} cars, "
               f"{sum(fresh[p][0].values()):,} BEV/PHEV")
     window = market_top.month_window(target)
     market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items() if p in window},
                            totals)
-    market_top.refresh_from_store("Netherlands", TOP_SOURCE, TOP_UNIT,
-                                  "netherlands", fresh)
+    market_top.refresh_from_store("Netherlands", TOP_SOURCE, TOP_UNITS[variant],
+                                  slug, fresh, variant)
+
+
+def refresh_tops(session: requests.Session | None = None) -> None:
+    """Every variant's top file; a failure in one never stops the other."""
+    for variant in TOP_SLUGS:
+        market_top.guarded(refresh_top, session, variant)
 
 
 def open_presentation(session: requests.Session, variant: str) -> dict:
@@ -1030,7 +1057,7 @@ def main() -> None:
         if not targets:
             print("All requested variants are current; nothing to do.")
             if not args.no_top:
-                market_top.guarded(refresh_top)
+                refresh_tops()
             return
 
     session = make_swing_session()
@@ -1071,7 +1098,7 @@ def main() -> None:
         print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
 
     if not args.no_top and not args.dry_run:
-        market_top.guarded(refresh_top)
+        refresh_tops()
 
 
 if __name__ == "__main__":
