@@ -587,6 +587,65 @@ def test_netherlands_rdw_top():
         pass
 
 
+def test_israel_top():
+    import fetch_israel as fi
+    # manufacturer: Hebrew "<brand> <country>", cut off at 14 characters, punctuation-blind
+    b = fi.display_brand
+    assert b("טויוטה יפן") == b("טויוטה צרפת") == "TOYOTA"
+    assert b("מרצדס בנץ גרמנ") == "MERCEDES-BENZ" and b("בי ווי די סין") == "BYD"
+    assert b("מ.ג סין") == "MG" and b("ב מ וו ארהב\"") == "BMW" and b("גי.אי.סי סין") == "GAC"
+    assert b("ג'אקו סין") == "JAECOO" and b("ג'אק סין") == "JAC"      # longest stem wins
+    assert b("פולקסווגן-ספרד") == "VOLKSWAGEN" and b("קיה ד. קוריאה") == "KIA"
+    assert b("לינק אנד קו") == "LYNK & CO" and b("רובר אנגליה") == "LAND ROVER"
+    assert b("איויאיסי סין") == "איויאיסי סין"                          # unknown: shown, not merged
+    # commercial name: brand prefix, glued digits, drive / trim words
+    m = fi.display_model
+    assert m("JAECOO", "JAECOO7 PHEV") == m("JAECOO", "JAECOO 7 PHEV") == "7"
+    assert m("CHERY", "TIGGO8PRO PHEV") == m("CHERY", "TIGGO8 PRO PHEV") == "TIGGO 8"
+    assert m("LYNK & CO", "LYNKCO08 PHEV") == "08" and m("MG", "MG4") == "4"
+    assert m("BYD", "BYD SEAL U") == "SEAL U" and m("HYUNDAI", "IONIQ5") == "IONIQ 5"
+    assert m("TOYOTA", "RAV 4 HYBRID") == m("TOYOTA", "RAV4 HSD") == "RAV4"
+    assert m("LEXUS", "LEXUS NX450PHEV") == "NX" and m("BMW", "X5 XDRIVE 50E") == "X5"
+    assert m("MERCEDES-BENZ", "GLC300E COUPE") == "GLC" and m("MERCEDES-BENZ", "E300DE") == "E"
+    assert m("AUDI", "Q8 55 TFSIE") == "Q8" and m("TESLA", "MODEL Y") == "MODEL Y"
+    assert m("LAND ROVER", "R. ROVER SPORT") == "RANGE ROVER SPORT"
+    assert m("BYD", "ATTO 3 EVO") == m("BYD", "ATTO 3") == "ATTO 3"
+    assert m("X", "", "PFH11S") == "PFH11S"                            # falls back to the type code
+
+    # one column function for the CSV counts and the tables
+    exact = {(1, 2, 2024, "GLX"): "HEV", (1, 3, 2024, "GLX"): "PHEV"}
+    votes = {(1, 2, 2024): {"HEV": 3}, (1, 3, 2024): {"PHEV": 1}}
+
+    def rec(fuel, degem=2, trim="GLX", **kw):
+        return {fi.FUEL_FIELD: fuel, "tozeret_cd": 1, "degem_cd": degem,
+                "shnat_yitzur": 2024, "ramat_gimur": trim, **kw}
+    col = lambda r: fi.column_of(r, exact, votes)                      # noqa: E731
+    assert col(rec("בנזין")) == ("HEV", "trim")                        # HEV hidden in petrol
+    assert col(rec("בנזין", trim="OTHER")) == ("HEV", "majority")
+    assert col(rec("בנזין", degem=9)) == ("PETROL", "unmatched")
+    assert col(rec("בנזין", degem=3)) == ("PHEV", "trim")
+    assert col(rec("חשמל")) == ("BEV", "") and col(rec("")) == ("OTHERS", "")
+    assert col(rec('גפ"מ'))[0] == col(rec('גפמ"'))[0] == "OTHERS"      # both LPG spellings
+    assert col(rec("מימן"))[0] is None
+
+    # month_units: same records, ranked classes only, every record in the total
+    recs = [rec("חשמל", tozeret_nm="טסלה סין", kinuy_mishari="MODEL Y"),
+            rec("חשמל", tozeret_nm="טסלה גרמניה", kinuy_mishari="MODEL Y"),
+            rec("בנזין", tozeret_nm="טויוטה יפן", kinuy_mishari="RAV4 HYBRID"),
+            rec("בנזין", degem=9, tozeret_nm="סוזוקי יפן", kinuy_mishari="SWIFT")]
+    seen = []
+    real = fi.ds_all_records
+    fi.ds_all_records = lambda res, fields, filters=None: seen.append((fields, filters)) or recs
+    try:
+        units, total = fi.month_units("2026-05", (exact, votes))
+    finally:
+        fi.ds_all_records = real
+    assert total == 4
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("HEV", "TOYOTA", "RAV4"): 1}
+    assert seen[0][1] == {fi.DATE_FIELD: "2026-5", fi.SCOPE_FIELD: "P"}    # unpadded month, P scope
+    assert {"tozeret_nm", "kinuy_mishari"} <= set(seen[0][0])
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

@@ -60,17 +60,35 @@ the model's trims when the exact trim is missing. Cross-tab coverage was
 
 Unmapped fuel values are a hard error so CI surfaces schema drift; per-month
 join statistics (incl. unmatched rows) are printed on every run.
+
+Top brands / models (market/israel_top.json)
+--------------------------------------------
+The registry also carries the manufacturer (`tozeret_nm`, in Hebrew, with the
+country of production: "טויוטה יפן" and "טויוטה צרפת" are both Toyota) and the
+commercial name (`kinuy_mishari`, Latin script). Whenever the top file is
+missing or behind the newest Whole month of data/Israel.csv, the trailing twelve
+months are re-read (one page per month) and ranked per class (BEV / PHEV /
+HEV) with `column_of` — the very function the monthly counts use, so the tables
+and the charts classify identically. The manufacturer is translated by
+BRAND_STEMS (longest matching stem wins; anything unknown is shown in Hebrew and
+logged, never merged into a wrong brand) and the commercial name is cleaned by
+display_model (power, drive, trim words). --no-top skips it.
 """
 import argparse
+import collections
 import csv
 import json
 import os
+import re
 import sys
 import time
 from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 API = "https://data.gov.il/api/3/action"
 DATASET_ID = "private-and-commercial-vehicles"
@@ -101,7 +119,9 @@ CSV_COLUMNS = [
 # and the chargeable-hybrid buckets need the plug-in/regular verdict).
 JOINED_FUELS = {"בנזין": "PETROL", "דיזל": "DIESEL",
                 "חשמל/בנזין": "PHEV", "חשמל/דיזל": "PHEV"}
-DIRECT_FUELS = {"חשמל": "BEV", "גפ\"מ": "OTHERS"}
+# LPG is stored in both letter orders (bidi accident in the source); 5 records
+# in 2025-08 .. 2026-01 carry the second one.
+DIRECT_FUELS = {"חשמל": "BEV", "גפ\"מ": "OTHERS", "גפמ\"": "OTHERS"}
 
 REGULAR_HYBRID = "היברידי רגיל"
 # technologiat_hanaa_nm values that mean plug-in hybrid. Verified via probe
@@ -111,6 +131,105 @@ PLUGIN_MARKERS = ("פלאג", "plug")
 session = requests.Session()
 # data.gov.il rejects default python user agents.
 session.headers.update({"User-Agent": "Mozilla/5.0 (compatible; LeRaffl-Gallery/1.0; +https://leraffl.github.io/LeRaffl-Gallery/)"})
+
+
+TOP_PATH = market_top.MARKET_DIR / "israel_top.json"
+TOP_SOURCE = "data.gov.il vehicle registry"
+TOP_UNIT = ("registrations by road-entry month (brand = registry manufacturer "
+            "translated from Hebrew, model = registry commercial name with power, "
+            "drive and trim words removed — see BRAND_STEMS / display_model in "
+            "scripts/fetch_israel.py)")
+TOP_CLASSES = ("BEV", "PHEV", "HEV")
+TOP_FIELDS = [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur",
+              "tozeret_nm", "kinuy_mishari", "degem_nm"]
+SCOPE_WARN_REL = 0.03      # a month vs the CSV: the registry loses scrapped cars
+SCOPE_ABORT_REL = 0.10
+
+# Manufacturer (`tozeret_nm`) -> brand. The registry writes "<brand in Hebrew>
+# <country of production>", often cut off at 14 characters ("מרצדס בנץ גרמנ"), so
+# a name is matched by its leading stem, longest stem first. Punctuation is
+# ignored on both sides (see _heb).
+_BRAND_STEMS_RAW = {
+    "מרצדס בנץ": "MERCEDES-BENZ", "פולקסווגן": "VOLKSWAGEN", "טויוטה": "TOYOTA",
+    "יונדאי": "HYUNDAI", "קיה": "KIA", "סקודה": "SKODA", "צ'רי": "CHERY",
+    "ג'אקו": "JAECOO", "בי ווי די": "BYD", "מ.ג": "MG", "טסלה": "TESLA",
+    "גילי": "GEELY", "אקספנג": "XPENG", "מיצובישי": "MITSUBISHI",
+    "דיפאל": "DEEPAL", "לינק אנד קו": "LYNK & CO", "סיאט": "SEAT",
+    "ניסאן": "NISSAN", "סובארו": "SUBARU", "אומודה": "OMODA", "לקסוס": "LEXUS",
+    "קיי גי מוביליט": "KG MOBILITY", "ב מ וו": "BMW", "זיקר": "ZEEKR",
+    "סוזוקי": "SUZUKI", "דאצ'יה": "DACIA", "דאציה": "DACIA", "מזדה": "MAZDA",
+    "מאזדה": "MAZDA", "דונגפנג": "DONGFENG", "ליפמוטור": "LEAPMOTOR",
+    "רנו": "RENAULT", "פיג'ו": "PEUGEOT", "פיגו": "PEUGEOT", "קופרה": "CUPRA",
+    "אופל": "OPEL", "מקסוס": "MAXUS", "לנדרובר": "LAND ROVER",
+    "לנד רובר": "LAND ROVER", "רובר": "LAND ROVER", "אאודי": "AUDI",
+    "אודי": "AUDI", "סמארט": "SMART", "שברולט": "CHEVROLET",
+    "אף אי דאבל יו": "FAW", "גי.אי.סי": "GAC", "וולבו": "VOLVO",
+    "וולוו": "VOLVO", "וויה": "VOYAH", "פורתינג": "FORTHING", "סרס": "SERES",
+    "איון": "AION", "אוואטר": "AVATR", "ג'יפ": "JEEP", "פורד": "FORD",
+    "סקיוול": "SKYWELL", "קאדילאק": "CADILLAC", "אורה": "ORA", "ג'אק": "JAC",
+    "איי אם": "IM MOTORS", "פורשה": "PORSCHE", "הונדה": "HONDA",
+    "אלפא רומיאו": "ALFA ROMEO", "סיטרואן": "CITROEN", "ניאו רכב": "NIO",
+    "באייק": "BAIC", "ארקפוקס": "ARCFOX", "אקסלנטיקס": "EXLANTIX",
+    "קרייזלר": "CHRYSLER", "בנטלי": "BENTLEY", "ג'י.אמ.סי": "GMC",
+    "פיאט": "FIAT", "פרארי": "FERRARI", "אלפין": "ALPINE",
+    "רולס רויס": "ROLLS-ROYCE", "דודג'": "DODGE", "למבורגיני": "LAMBORGHINI",
+    "מיני": "MINI", "די אס": "DS", "אסטון מרטין": "ASTON MARTIN",
+    "יגואר": "JAGUAR", "לוטוס": "LOTUS",
+}
+
+
+def _heb(s: str) -> str:
+    """Hebrew name without quote marks / dots, hyphens as spaces, spaces collapsed."""
+    s = re.sub("['\"\u2019\u05f3\u05f4`.]", "", s or "")
+    return " ".join(re.sub("[-_]", " ", s).split())
+
+
+BRAND_STEMS = sorted(((_heb(k), v) for k, v in _BRAND_STEMS_RAW.items()),
+                     key=lambda kv: -len(kv[0]))
+
+
+def display_brand(tozeret_nm: str) -> str:
+    name = _heb(tozeret_nm)
+    for stem, brand in BRAND_STEMS:
+        if name.startswith(stem):
+            return brand
+    return name or "?"
+
+
+# Words the registry appends to a commercial name that are not the model.
+MODEL_NOISE = re.compile(
+    r"\b(?:PHEV|HEV|BEV|EV|EVO|HYBRID|E-HYBRID|EHYBRID|HSD|DM-I|EM-I|PRO|MAX|PLUS|"
+    r"RECHARGE\w*|XDRIVE\w*|4MATIC|TFSIE?)\b")
+FIRST_TOKEN = {"BMW", "PORSCHE", "VOLVO"}
+
+
+def display_model(brand: str, kinuy: str, degem: str = "") -> str:
+    """Registry commercial name -> the model as buyers know it (ranking only)."""
+    m = market_top.clean(kinuy) or market_top.clean(degem)
+    m = re.sub(r"([A-Z]{4,})(\d)", r"\1 \2", m)          # TIGGO8PRO -> TIGGO 8PRO
+    for pre in {brand, brand.replace(" & ", ""), brand.replace(" ", "")}:
+        m = market_top.strip_brand(pre, m)
+        if m.startswith(pre) and m[len(pre):len(pre) + 1].isdigit():
+            m = m[len(pre):]                              # MG4 -> 4, LYNKCO08 -> 08
+    m = re.sub(r"(?<=\d)([A-Z]{3,})\b", r" \1", m)        # 8PRO -> 8 PRO
+    if brand == "MERCEDES-BENZ":
+        m = (re.match(r"(AMG )?[A-Z]+", m) or re.match(r".*", m)).group(0)
+    elif brand == "AUDI":
+        toks = m.split()
+        fam = toks[:2] if toks[:1] in (["RS"], ["S"]) and len(toks) > 1 else toks[:1]
+        m = " ".join(fam + (["E-TRON"] if "E-TRON" in toks and "E-TRON" not in fam else []))
+    elif brand == "TESLA":
+        m = " ".join(m.split()[:2])
+    elif brand == "LEXUS":
+        m = re.sub(r"^([A-Z]{2})\d{3}.*$", r"\1", m)
+    elif brand == "LAND ROVER":
+        m = re.sub(r"^R\.? ?ROVER|^RANGE R\.", "RANGE ROVER", m)
+        m = "RANGE ROVER SPORT" if re.match(r"RANGE ROVER SPO", m) else m
+    elif brand in FIRST_TOKEN:
+        m = m.split(" ")[0]
+    m = " ".join(MODEL_NOISE.sub(" ", m).split())
+    m = re.sub(r"^RAV ?4\b", "RAV4", m)                   # "RAV 4" and "RAV4" are one model
+    return m or market_top.clean(kinuy) or market_top.clean(degem) or "?"
 
 
 def api_get(action: str, **params) -> dict:
@@ -235,6 +354,26 @@ def classify(rec: dict, exact: dict, votes: dict) -> tuple[str | None, str]:
     if v:
         return max(v, key=v.get), "majority"
     return None, "unmatched"
+
+
+def column_of(rec: dict, exact: dict, votes: dict) -> tuple[str | None, str]:
+    """The CSV column one registry record counts in, and how the catalogue join
+    decided it ("trim" / "majority" / "unmatched", "" when no join was needed).
+    Column None = a fuel value nobody mapped. Shared by the monthly counts and
+    by the top brands/models tables, so the two can never classify apart."""
+    fuel = (rec.get(FUEL_FIELD) or "").strip()
+    if fuel in JOINED_FUELS:
+        cat, how = classify(rec, exact, votes)
+        if cat in ("PHEV", "HEV"):
+            return cat, how
+        # OTHER (regular drive / electric) or unmatched: trust the registry
+        # fuel column's default bucket.
+        return JOINED_FUELS[fuel], how
+    if fuel in DIRECT_FUELS:
+        return DIRECT_FUELS[fuel], ""
+    if fuel == "":
+        return "OTHERS", ""
+    return None, ""
 
 
 # ---------------------------------------------------------------- probe mode
@@ -429,24 +568,16 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict],
     join_stats = {"trim": 0, "majority": 0, "unmatched": 0}
     hev_recovered = 0
     for rec in recs:
-        fuel = (rec.get(FUEL_FIELD) or "").strip()
-        if fuel in JOINED_FUELS:
-            cat, how = classify(rec, exact, votes)
-            join_stats[how] += 1
-            if cat in ("PHEV", "HEV"):
-                counts[cat] += 1
-                if cat == "HEV" and fuel in ("בנזין", "דיזל"):
-                    hev_recovered += 1
-            else:
-                # OTHER (regular drive / electric) or unmatched: trust the
-                # registry fuel column's default bucket.
-                counts[JOINED_FUELS[fuel]] += 1
-        elif fuel in DIRECT_FUELS:
-            counts[DIRECT_FUELS[fuel]] += 1
-        elif fuel == "":
-            counts["OTHERS"] += 1
-        else:
+        col, how = column_of(rec, exact, votes)
+        if col is None:
+            fuel = (rec.get(FUEL_FIELD) or "").strip()
             unmapped[fuel] = unmapped.get(fuel, 0) + 1
+            continue
+        if how:
+            join_stats[how] += 1
+        counts[col] += 1
+        if col == "HEV" and (rec.get(FUEL_FIELD) or "").strip() in ("בנזין", "דיזל"):
+            hev_recovered += 1
 
     if unmapped:
         raise SystemExit(f"Unmapped {FUEL_FIELD} values in {period}: {unmapped} — "
@@ -469,6 +600,65 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict],
         **{c: float(v) for c, v in counts.items()},
         "TOTAL": float(total), "notes": "",
     }
+
+
+def month_units(period: str, wltp_lookup: tuple[dict, dict]) -> tuple[dict, int]:
+    """({(class, brand, model): n} for BEV / PHEV / HEV, all registrations of
+    the month) — the same records and the same column_of as aggregate_month."""
+    exact, votes = wltp_lookup
+    recs = ds_all_records(REGISTRY_RESOURCE, TOP_FIELDS,
+                          filters={DATE_FIELD: unpadded(period),
+                                   SCOPE_FIELD: SCOPE_VALUE})
+    units: collections.Counter = collections.Counter()
+    for rec in recs:
+        col, _ = column_of(rec, exact, votes)
+        if col in TOP_CLASSES:
+            brand = display_brand(rec.get("tozeret_nm"))
+            units[(col, brand, display_model(brand, rec.get("kinuy_mishari"),
+                                             rec.get("degem_nm")))] += 1
+    return dict(units), len(recs)
+
+
+def csv_totals(path: str) -> dict[str, int]:
+    """{period: TOTAL} of the Whole rows in the data CSV."""
+    out: dict[str, int] = {}
+    if os.path.exists(path):
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if row["variant"] == VARIANT and row.get("TOTAL"):
+                    out[row["period"]] = int(float(row["TOTAL"]))
+    return out
+
+
+def refresh_top(wltp_lookup: tuple[dict, dict] | None = None) -> None:
+    """Rebuild market/israel_top.json when it is missing or behind the newest
+    Whole month in data/Israel.csv: re-read the trailing twelve months (one
+    registry page per month) and rank them per class."""
+    totals = csv_totals(CSV_PATH)
+    if not totals:
+        return
+    target = max(totals)
+    if market_top.top_is_current(TOP_PATH, target):
+        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
+        return
+    print(f"Top brands/models: {market_top.top_as_of(TOP_PATH) or 'none'} -> "
+          f"{target}, re-reading the trailing twelve months …", flush=True)
+    wltp_lookup = wltp_lookup or load_wltp_lookup()
+    monthly = {}
+    for period in market_top.month_window(target):
+        monthly[period] = month_units(period, wltp_lookup)
+        print(f"  {period}: {monthly[period][1]:,} registrations, "
+              f"{sum(monthly[period][0].values()):,} BEV/PHEV/HEV", flush=True)
+    market_top.check_scope({p: v[1] for p, v in monthly.items()}, totals,
+                           warn=SCOPE_WARN_REL, abort=SCOPE_ABORT_REL)
+    top = market_top.build_top_monthly("Israel", TOP_SOURCE, target, monthly, TOP_UNIT)
+    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
+    stray = sorted({b for v in top["classes"].values() for b in
+                    (x["brand"] for x in v["brands"])
+                    if any("\u0590" <= ch <= "\u05ff" for ch in b)})
+    if stray:
+        print(f"::warning title=Israel brands not translated::{stray} — "
+              "extend BRAND_STEMS in scripts/fetch_israel.py")
 
 
 def upsert_csv(csv_path: str, new_rows: dict) -> tuple[int, int]:
@@ -508,6 +698,8 @@ def main() -> None:
                     help="Skip the 'previous month already present' early-exit.")
     ap.add_argument("--variants", default="Whole,Vans",
                     help="Comma-separated variants to fetch (Whole, Vans).")
+    ap.add_argument("--no-top", action="store_true",
+                    help="Skip the top brands/models refresh (market/israel_top.json).")
     args = ap.parse_args()
 
     if args.probe:
@@ -527,6 +719,8 @@ def main() -> None:
             if any(r["period"] == end and r["variant"] == VARIANT
                    for r in csv.DictReader(f)):
                 print(f"CSV already has {end}; nothing to do (use --force to re-count).")
+                if not args.no_top:
+                    market_top.guarded(refresh_top)
                 return
 
     variants = [v.strip() for v in args.variants.split(",") if v.strip()]
@@ -552,6 +746,9 @@ def main() -> None:
             continue
         added, updated = upsert_csv(csv_path, new_rows)
         print(f"{variant}: {added} added, {updated} updated -> {csv_path}")
+
+    if not args.dry_run and not args.no_top and VARIANT in variants:
+        market_top.guarded(refresh_top, wltp_lookup)
 
 
 if __name__ == "__main__":
