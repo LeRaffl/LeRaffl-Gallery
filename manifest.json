@@ -2,6 +2,86 @@
   "updated": "2026-09-28",
   "images": [
     {
+      "country": "Peru",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_ICE_BEV_20260928.png",
+      "url": "images/2026-07/peru_ICE_BEV_20260928.png",
+      "alt": "Peru ICE-BEV-Hybrid trajectory",
+      "country_slug": "peru"
+    },
+    {
+      "country": "Peru",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_20260928.png",
+      "url": "images/2026-07/peru_20260928.png",
+      "alt": "Peru BEV trajectory",
+      "country_slug": "peru"
+    },
+    {
+      "country": "Peru",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_time_20260928.png",
+      "url": "images/2026-07/peru_time_20260928.png",
+      "alt": "Peru Transition time curve",
+      "country_slug": "peru"
+    },
+    {
+      "country": "Peru",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_ttm_shares_20260928.png",
+      "url": "images/2026-07/peru_ttm_shares_20260928.png",
+      "alt": "Peru TTM market split graph",
+      "country_slug": "peru"
+    },
+    {
+      "country": "Peru (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_vans_ICE_BEV_20260928.png",
+      "url": "images/2026-07/peru_vans_ICE_BEV_20260928.png",
+      "alt": "Peru (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "peru_vans"
+    },
+    {
+      "country": "Peru (Vans)",
+      "type": "share",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_vans_20260928.png",
+      "url": "images/2026-07/peru_vans_20260928.png",
+      "alt": "Peru (Vans) BEV trajectory",
+      "country_slug": "peru_vans"
+    },
+    {
+      "country": "Peru (Vans)",
+      "type": "time",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_vans_time_20260928.png",
+      "url": "images/2026-07/peru_vans_time_20260928.png",
+      "alt": "Peru (Vans) Transition time curve",
+      "country_slug": "peru_vans"
+    },
+    {
+      "country": "Peru (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-07",
+      "date": "2026-09-28",
+      "filename": "peru_vans_ttm_shares_20260928.png",
+      "url": "images/2026-07/peru_vans_ttm_shares_20260928.png",
+      "alt": "Peru (Vans) TTM market split graph",
+      "country_slug": "peru_vans"
+    },
+    {
       "country": "Thailand",
       "type": "ICE_BEV",
       "period": "2026-08",
