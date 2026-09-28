@@ -1,6 +1,6 @@
 {
- "generated": "2026-09-27T20:45:00Z",
- "today": "2026-09-27",
+ "generated": "2026-09-28T08:25:48Z",
+ "today": "2026-09-28",
  "countries": [
   {
    "country": "Albania",
@@ -2743,6 +2743,95 @@
      "latest": "2026-08",
      "first": "2005-01",
      "rows": 260,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Peru",
+   "slug": "peru",
+   "method": "api",
+   "source_name": "Asociación Automotriz del Perú (AAP) — BI-AAP (SUNARP first registrations)",
+   "source_url": "https://aap.org.pe/estadisticas/biaap",
+   "cadence_text": "daily 15:45 UTC — AAP reloads the report on no fixed day; a month is written once it is before the reload month, classified by AAP and confirmed by AAP's printed monthly report",
+   "interval": "monthly",
+   "latest_period": "2026-07",
+   "expected_period": "2026-08",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "15:45"
+    ],
+    "workflow": ".github/workflows/fetch-peru.yml"
+   },
+   "last_render": null,
+   "flag": "🇵🇪",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-07",
+     "first": "2019-01",
+     "rows": 90,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-07",
+     "first": "2019-01",
+     "rows": 90,
      "cadence": "monthly",
      "in_repo": true
     }
