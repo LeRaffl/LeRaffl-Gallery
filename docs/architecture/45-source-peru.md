@@ -19,7 +19,7 @@ source_links:
   note: the registry that records every first registration (inmatriculación)
 underlying: SUNARP vehicle register — first registrations (inmatriculaciones), compiled by AAP
 auth: none
-cadence: daily 15:45 UTC — AAP refreshes the report on no fixed day; a month is written once AAP has classified it
+cadence: daily 15:45 UTC — AAP reloads the report on no fixed day; a month is written once it is before the reload month, classified by AAP and confirmed by AAP's printed monthly report
 variants:
 - Whole
 - Vans
@@ -35,7 +35,8 @@ caveats:
 - HEV includes mild hybrids (48 V Suzuki, Mercedes, BMW, Audi systems), about half of all hybrids in 2025.
 - No registrations in April 2020 (the registry was closed during the COVID-19 lockdown); that month has no row and May 2020 is tiny.
 - AAP reports these first registrations as new-vehicle sales. Used imports are legal only up to two model years old, so a small near-new remainder may be included; the data has no new/used flag.
-- The newest month in BI-AAP is a preliminary load (incomplete, powertrain not yet classified); it is written only after AAP's next refresh classifies it, so Peru usually runs one to two months behind.
+- The newest month in BI-AAP is a preliminary cut (August 2026 stopped at the 22nd, powertrain not yet classified). A month is written only once AAP has classified it and its printed monthly report confirms the month's total, so Peru usually runs one to two months behind.
+- AAP re-classifies the powertrain split of earlier months after the fact (up to about 25 plug-ins a month moved between PHEV, BEV and HEV, as far back as 2024); month totals do not change. Every update re-reads the whole history, so earlier rows can change slightly.
 market_breakdown: market/peru_top.json
 market_designation_note: a "designation" is SUNARP's model string with the brand prefix removed; a few Chinese imports are registered under a type-approval code (e.g. LZW7007EVD2MBMA) rather than a commercial name and rank under that code.
 market_powertrain_note: BEV / PHEV / HEV are AAP's classes; HEV is split into HEV (full) and MHEV (mild) where the registry codes it, which covers the whole trailing year.
@@ -65,9 +66,14 @@ Auth:      None. The public ("publish to web") Power BI API the embedded
 API:       discover key (BI-AAP page) → cluster (embed page) → model id
            (modelsAndExploration) → schema check (conceptualschema) → one
            querydata call per month.
-Timing:    AAP refreshes irregularly (last: 2026-09-02). The newest month is
-           a preliminary, unclassified load; it becomes final at the next
-           refresh. Polled daily.
+Timing:    Rows are per registration DAY, but AAP reloads irregularly (last:
+           2026-09-02). Each reload's newest month is a preliminary cut
+           (2026-08 ended on the 22nd), unclassified. Written only when
+           before the reload month + classified + confirmed by AAP's printed
+           report (§5a). Polled daily.
+Revisions: the powertrain split of old months is re-classified at later
+           reloads (totals never change) → every real run re-reads the whole
+           history and lists the revised rows (§5a).
 History:   2019-01 → today (90 months at 2026-07; April 2020 empty).
 Fuel:      AAP's powertrain class: BEV / PHEV / HEV (full + mild) / petrol /
            diesel / CNG / LPG / other.
@@ -172,9 +178,9 @@ because its trailing year lies entirely after 2025-01.
 **Known source quirks** (kept, not corrected — the source's classification is
 the rule): a handful of early-2026 records coded `ELECTRICO` are BYD DM-i
 plug-ins under their type codes (`BYD6472ST6HEV2`) and are counted as BEV by
-AAP; AAP's printed report for January–March 2026 shows a slightly different
-BEV/PHEV split (e.g. January: BEV 75 / PHEV 100 vs 84 / 84 here) with the same
-total. From April 2026 the two agree exactly.
+AAP. AAP's printed reports show a somewhat different BEV/PHEV/HEV split
+for many months of 2024–2026 with the same totals — BI-AAP is re-classified
+after printing; see §5a.
 
 ## 4. Variants
 
@@ -198,6 +204,72 @@ registrations as new-vehicle sales; Peruvian law admits used imports only up
 to two model years old (D.L. 843) and bans used diesel light vehicles
 (D.S. 005-2020-MTC), so the remainder is small and near-new.
 
+## 5a. When is a month final — and how often are old months revised?
+
+The table's rows are dated by **registration day**, but the report is not
+live: AAP reloads the model on no fixed day (the reload in use on 2026-09-28
+was from 2026-09-02). What a reload holds for its newest month is a cut, not a
+month:
+
+| Month (reload of 2026-09-02) | Last day with data | Light vehicles | Powertrain class | Printed report (light + heavy) |
+|---|---|---|---|---|
+| 2026-07 | 31st | 18,864 | filled | 21,767 = BI-AAP |
+| 2026-08 | **22nd** (145 that day, ≈ 1,100 a normal day) | 16,412 | **empty** | 26,328 vs 18,421 in BI-AAP |
+
+A fetch on the 2nd or 3rd therefore must never turn the current or the
+preliminary month into a data point. **A month is written only when all three
+hold** (`main()` steps 1–3 and the `writable` filter):
+
+1. it is **strictly before the month of the model's last reload** — a reload
+   on 2 October can never yield "October";
+2. **AAP has classified it** — no light vehicle with an empty `Elect`;
+3. **AAP's printed monthly report has it and the month's total agrees**
+   (new light + heavy vehicles, ±2 units / 0.5 %).
+
+Rule 3 is the proof of completeness, and it works because the printed totals
+are **never revised**: the "Evolución mensual" tables of five editions
+(March → August 2026 reports, 111–116 months each) are identical month for
+month. A month that passes 1–2 but is not in the report yet is **held back**
+(`::notice::`, step summary) and written on the first run after the report
+appears. Without a reachable report no new month is written at all, only
+revisions of months already in the CSVs. A new month below 40 % of the
+trailing median is held back as well (a second guard, never needed so far).
+
+**Revisions exist, and they are powertrain re-classifications, not new
+registrations.** Comparing BI-AAP (reload of 2026-09-02) with the electrified
+table of the printed reports (which, once printed, also never changes — one
+BEV moved once in five editions), 20 of 31 months from 2024-01 to 2026-07
+differ, with identical month totals:
+
+| Month | Printed (BEV / PHEV / HEV, light + heavy) | BI-AAP now | |
+|---|---|---|---|
+| 2024-10 | 38 / 28 / 473 | 38 / 23 / 466 | 12 electrified → combustion |
+| 2025-08 | 73 / 69 / 844 | 78 / 45 / 863 | 24 PHEV → BEV / HEV |
+| 2025-10 | 48 / 81 / 780 | 55 / 64 / 790 | 17 PHEV → BEV / HEV |
+| 2026-01 | 75 / 100 / 999 | 84 / 84 / 1,006 | |
+| 2026-03 | 67 / 93 / 1,039 | 80 / 69 / 1,050 | |
+| 2026-04 → 07 | = | = | (one BEV in 2026-05) |
+
+So AAP keeps re-classifying months after it prints them, reaching back two
+years and more — since 2025 BI-AAP's class simply equals the registry's own
+fuel code (`Comb`), which suggests the registry records get corrected. The
+fetcher follows BI-AAP (the live source) and is built for it:
+
+- **every real run re-reads the whole history** (≈ 90 small queries, about a
+  minute), not a recent window;
+- **every new reload triggers a real run** — the reload stamp processed last
+  is stored as `source_refreshed` in `market/peru_top.json`, and the
+  self-throttle only skips when the CSVs hold the newest classified month
+  *and* the stamp is unchanged;
+- changed rows are upserted in place (invariant 2 — only those lines) and
+  **listed in the step summary** under "Earlier months revised in this run",
+  one line per row in the form `<month> <variant>: <column> old→new, …`, with
+  a `::notice::`.
+
+Invariant 3 ("don't rewrite the past") is about *definition* changes; these
+are the source correcting its own records under an unchanged definition, which
+the series should follow — like the Netherlands' or Spain's registry fetchers.
+
 ## 5. Governance — what every run checks
 
 | Check | On failure |
@@ -205,11 +277,14 @@ to two model years old (D.L. 843) and bans used diesel light vehicles
 | `Base` still has every column used (conceptual schema) | abort, nothing written |
 | Every month query complete (the API's `IC` flag; ≤ 30,000 rows — a month is ~3,300) | abort |
 | **Self-check:** detailed rows of each month = an independent `Grupo × Elect` aggregate query of the same month | abort (a decoding or truncation bug) |
+| Month strictly before the reload month | never a candidate |
 | Month classified by AAP (no light vehicle with an empty `Elect`) | month not written (`::warning::`), retried next run |
+| **Month confirmed by AAP's printed report** (in its table, total agrees) | held back (`::notice::`), written once the report has it; no report reachable → no new month, revisions only |
 | Unknown powertrain values ≤ 2 % of Whole | abort above; below → OTHERS, listed |
 | Light-vehicle class/body in no variant (not on the excluded list) ≤ 1 % | abort above; listed in the step summary |
-| Target Whole ≥ 40 % of the trailing-12 median | not written (`--force` overrides) |
+| A new month's Whole ≥ 40 % of the trailing-12 median | held back (`::warning::`; `--force` overrides) |
 | **Cross-check vs AAP's printed report** — new light + heavy vehicles per month, every month in its "Evolución mensual" table | ≤ 2 units or 0.5 % → reported; more → abort (`--force` overrides); report unreachable → warning |
+| Revised earlier rows | applied, listed in the step summary + `::notice::` |
 | Fuels sum to TOTAL, every row | abort |
 | Fetcher + `market_top` regression tests (`test_fetch_peru.py`) | the workflow stops before fetching |
 
@@ -274,32 +349,40 @@ sequenceDiagram
     Cron->>Py: run
     Py->>AAP: BI-AAP page → resource key; embed page → API host
     Py->>PBI: model + refresh stamp; schema check
-    Py->>PBI: Grupo×Elect of the newest months → newest classified month
-    Py->>CSV: that month already from BI-AAP in every CSV?
+    Py->>PBI: Grupo×Elect of the months before the reload month → newest classified month
+    Py->>CSV: that month in every CSV AND this reload stamp already processed (Top)?
     alt yes
         Py-->>Cron: no-op (no month queries)
     else no
-        Py->>PBI: 12 month queries (all since 2019-01 on backfill) + aggregate self-check
-        Py->>AAP: newest monthly report PDF → cross-check light + heavy per month
-        Py->>CSV: line-level upserts (changed lines only)
-        Py->>Top: trailing-12-month top brands / models (if changed)
+        Py->>AAP: newest monthly report PDF → confirmed months (printed totals)
+        opt same reload, newest classified month not printed yet
+            Py-->>Cron: waiting — no month queries
+        end
+        Py->>PBI: every month since 2019-01 + aggregate self-check
+        Py->>Py: cross-check totals vs report; writable = classified ∧ confirmed
+        Py->>CSV: line-level upserts (new months + revised rows)
+        Py->>Top: trailing-12-month top brands / models + reload stamp
         Py-->>Cron: run report → step summary
         Cron->>Render: once, variants = touched of "Vans|Whole"
     end
 ```
 
 - **Schedule:** `45 15 * * *` (daily, Lima 10:45). A no-op run makes six
-  small requests (two pages, model, schema, one or two aggregate queries).
-- **Normal run:** re-reads the newest 12 classified months (SUNARP corrects
-  registrations late; the rows update in place) and rebuilds the top list.
-- **Backfill / rebuild:** dispatch with `backfill = true` (90 month queries,
-  about a minute).
+  small requests (two pages, model, schema, one or two aggregate queries); a
+  "waiting for the report" run also downloads the report PDF (~6 MB).
+- **Real run** (after each AAP reload, and when a held month's report
+  appears): re-reads every month since 2019-01 (≈ 90 queries, about a minute),
+  writes new confirmed months and revised rows, rebuilds the top list and
+  stores the reload stamp.
+- **Backfill / rebuild:** dispatch with `backfill = true` — the same run,
+  forced past the self-throttle.
 - **Offline:** `--backfill --dump-json rows.json` saves the raw month rows;
   `--from-json rows.json [--report-pdf report.pdf]` rebuilds without network.
 - **Render:** the fetch job dispatches `render-country.yml` once with the
   changed variants (`Vans|Whole`).
 - **After each monthly run:** read the step summary — BEV/PHEV brands, unknown
-  powertrain values, unexpected classes/bodies, the cross-check line.
+  powertrain values, unexpected classes/bodies, the cross-check line, the
+  revised rows and the months held back.
 
 **If a run fails — where to look:**
 
@@ -312,9 +395,11 @@ sequenceDiagram
 | `query result incomplete` | a month exceeded 30,000 grouped rows | group by fewer columns or split the month in two date ranges in `build_query()` |
 | `detailed rows disagree with the month aggregate` | a DSR decoding bug (new compression feature) or a model refresh between the two queries | re-run; if it persists, dump the raw `querydata` response and extend `decode_dsr()` + its test |
 | `Unclassified months skipped` warning | the newest month is a preliminary load | nothing — written after AAP's next refresh |
+| `Months held back` notice / `waiting — nothing to do` | a classified month not yet in AAP's printed report | nothing — written on the first run after the report appears (usually 1–3 weeks) |
+| `Earlier months revised by BI-AAP` notice | AAP re-classified old months at its reload (§5a) | expected; skim the listed rows — a sudden large move (hundreds of units, or a TOTAL change) is worth a look |
 | `No classified month found in BI-AAP` | no month in the last four is classified | check the report; AAP may have stopped filling `Elect` — then map `Comb` (the registry code) instead, with tests |
 | `Cross-check against AAP's printed report failed` | BI-AAP and the report disagree beyond 2 units | compare the named months by hand (report page "Evolución mensual"). A report built from an older extract → wait for the next one or `force`; a scope change in `Grupo` → document it here |
-| `AAP report cross-check unavailable` warning | the reports page or PDF layout changed | the data is still written; fix `latest_report_url()` / `report_table_from_pdf()` and `test_report_table` |
+| `AAP report unavailable` warning | the reports page or PDF layout changed | revisions are still written but **no new month** until it is fixed: fix `latest_report_url()` / `report_table_from_pdf()` and `test_report_table` (or dispatch with `force` for one month, after checking it by hand) |
 | `unknown powertrain values … schema drift` | a new `Elect` value (> 2 % of Whole) | map it in `FUEL_MAP` with a test |
 | `light vehicles in a class/body no variant knows` | a new AAP class or body | decide M1 / N1 / excluded in `variant_for()` and the constants above it, with a test |
 | commit step `non-fast-forward` | a concurrent commit | already rebased by the action; re-run |

@@ -17,13 +17,19 @@ name: Fetch Peru data (SUNARP via AAP BI-AAP)
 # Full method, governance checks and a debugging runbook:
 # docs/architecture/45-source-peru.md.
 #
-# AAP refreshes the report irregularly (2026-09-02 for the last one); the
-# newest month is loaded as a preliminary, unclassified month and becomes
-# final at a later refresh — the script writes only classified months.
-# Polled once daily; the script reads the model's refresh stamp and one small
-# aggregate query, and exits without the month queries when every CSV already
-# has the newest classified month. A real run re-reads the newest 12 months
-# (~12 small queries); `backfill` re-derives every month from 2019-01 (~1 min).
+# The rows are dated by registration day, but AAP reloads the model on no
+# fixed day (2026-09-02 for the last one), and each reload's newest month is a
+# preliminary cut (2026-08 stopped at the 22nd) with no powertrain class. A
+# month is written only when it is (1) before the refresh month, (2)
+# classified by AAP and (3) confirmed by AAP's printed monthly report (same
+# month total — printed totals are never revised). Until then it is held back.
+# AAP re-classifies the powertrain split of earlier months at later refreshes
+# (back to 2024), so every real run re-reads the whole history (~90 small
+# queries, ~1 min) and lists the revised rows in the step summary.
+# Polled once daily. A no-op run makes a few small requests: nothing to do
+# when the CSVs hold the newest classified month and this refresh (its stamp
+# is kept in market/peru_top.json) was already processed; while a classified
+# month waits for the printed report, the run reads the report and stops.
 #
 # Rendering: dispatches render-country.yml ONCE with the pipe-separated list
 # of touched variants (serial in one run, one commit — see fetch-spain.yml).

@@ -69,10 +69,26 @@ keeps them in HEV throughout. HEV is therefore full + mild for the whole
 series; there is no MHEV column. From 2025 the registry separates them (`Comb`
 = MHEV), which the top-brands/models table uses.
 
-A month is written only when AAP has classified it: the report's newest month
-is a preliminary load (incomplete, `Elect` empty); it becomes final at the
-next monthly refresh. Earlier months are re-read on every real run (SUNARP
-registrations are occasionally corrected).
+When a month is complete — the rows are dated by registration day, but AAP
+reloads the model irregularly (2026-09-02 for the last one), and the newest
+month of each reload is a preliminary cut (2026-08 stopped at the 22nd) with
+no powertrain class. A month is written only when all three hold:
+  1. it is strictly before the month of the model's last refresh (a reload on
+     the 2nd can never yield that month);
+  2. AAP has classified it (no light vehicle with an empty `Elect`);
+  3. AAP's printed monthly report has it and agrees on the month's total
+     (the report's totals are never revised once printed — five editions
+     compared — so a match proves the month is complete).
+A month that passes 1–2 but not yet 3 is held back and written once the
+report appears.
+
+Revisions — AAP re-classifies the powertrain split of earlier months in
+BI-AAP after the fact (compared with the printed reports: up to ~25 PHEVs a
+month moved to BEV/HEV, as far back as 2024), while month totals stay fixed.
+Every real run therefore re-reads the WHOLE history, and every new BI-AAP
+refresh triggers a real run (the refresh stamp processed last is kept in
+market/peru_top.json as `source_refreshed`). Changed rows are listed in the
+step summary.
 
 Governance (every real run)
 ---------------------------
@@ -88,8 +104,9 @@ Governance (every real run)
   (--force overrides);
 * cross-check: new light + heavy vehicles per month must match the
   "Evolución mensual" table of AAP's newest printed report (±2 units or
-  0.5 %); a real mismatch aborts (--force overrides), an unreachable or
-  unparsable report is a warning;
+  0.5 %); a real mismatch aborts (--force overrides). An unreachable or
+  unparsable report is a warning — no new month is written then, only
+  revisions of months already in the CSVs;
 * fuels sum to TOTAL for every row written.
 
 Writes are line-level upserts keyed on (period, variant) (invariant 2); a row
@@ -99,7 +116,7 @@ models, trailing 12 months, Whole) via scripts/market_top.py.
 
 Usage
 -----
-    python scripts/fetch_peru.py                    # newest final month
+    python scripts/fetch_peru.py                    # newest confirmed month
     python scripts/fetch_peru.py --period 2026-07
     python scripts/fetch_peru.py --backfill         # 2019-01 → now
     python scripts/fetch_peru.py --from-json DUMP [--report-pdf FILE]  # offline
@@ -181,7 +198,6 @@ MAX_UNKNOWN_FUEL_SHARE = 0.02
 MAX_UNMAPPED_CLASS_SHARE = 0.01
 XCHECK_ABS_TOL = 2
 XCHECK_REL_TOL = 0.005
-NORMAL_WINDOW = 12                # months re-read on a normal run (top list)
 MAX_ROWS = 30000                  # the API's window per query
 
 HTTP_HEADERS = {
@@ -716,25 +732,72 @@ def newest_final_month(is_final, refreshed: dt.datetime | None,
 
 # ── main ───────────────────────────────────────────────────────────────────
 
+def load_report(session: requests.Session, args) -> tuple[dict[str, int] | None, str]:
+    """AAP's printed report table (period -> new light + heavy vehicles) and
+    where it came from; (None, reason) when it cannot be had."""
+    try:
+        if args.report_pdf:
+            return (report_table_from_pdf(Path(args.report_pdf).read_bytes()),
+                    Path(args.report_pdf).name)
+        if args.from_json:
+            return None, "offline run without --report-pdf"
+        url = latest_report_url(session)
+        r = session.get(url, timeout=180)
+        r.raise_for_status()
+        return report_table_from_pdf(r.content), url.rsplit("/", 1)[-1]
+    except Exception as e:  # noqa: BLE001 — reported by the caller
+        return None, f"{type(e).__name__}: {e}"
+
+
+def stored_refresh() -> str:
+    """BI-AAP refresh stamp the last full run processed (kept in the top file)."""
+    try:
+        return json.loads(TOP_PATH.read_text(encoding="utf-8")).get("source_refreshed") or ""
+    except (OSError, ValueError):
+        return ""
+
+
+def revisions(path: Path, updates: dict[tuple[str, str], str]) -> list[str]:
+    """Human-readable list of existing rows that `updates` would change."""
+    _, lines = read_csv_lines(path)
+    old = {line_key(l): l for l in lines}
+    out = []
+    for key, new in sorted(updates.items()):
+        if key not in old or old[key] == new:
+            continue
+        a = dict(zip(CSV_COLUMNS, next(csv.reader([old[key]]))))
+        b = dict(zip(CSV_COLUMNS, next(csv.reader([new]))))
+        diffs = []
+        for c in FUELS + ["TOTAL"]:
+            if a.get(c) != b.get(c):
+                fa = float(a[c]) if a.get(c) else 0.0
+                diffs.append(f"{c} {fa:g}→{float(b[c]):g}")
+        if a.get("source") != b.get("source"):
+            diffs.append(f"source `{a.get('source')}`→`{b.get('source')}`")
+        out.append(f"{key[0]} {key[1]}: " + ", ".join(diffs))
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--variant", default="all",
                     help=f"all | {' | '.join(VARIANT_CSV)} (default: all)")
     ap.add_argument("--period", default="",
-                    help="Target month YYYY-MM (default: newest month AAP has classified).")
+                    help="Newest month to write, YYYY-MM (default: newest confirmed month).")
     ap.add_argument("--backfill", action="store_true",
-                    help=f"Re-derive every month from {FIRST_PERIOD}. Implied when a "
-                         "CSV does not exist yet.")
+                    help="Ignore the self-throttle and re-derive every month from "
+                         f"{FIRST_PERIOD} (a real run always re-reads the whole history; "
+                         "this only forces one).")
     ap.add_argument("--force", action="store_true",
-                    help="Ignore the self-throttle, the completeness and cross-check "
-                         "guards, and foreign source strings.")
+                    help="Ignore the self-throttle, the report confirmation, the "
+                         "completeness and cross-check guards, and foreign source strings.")
     ap.add_argument("--from-json", default="",
                     help="Offline: month rows saved by --dump-json.")
     ap.add_argument("--dump-json", default="",
                     help="Save the month rows read from the API to this file.")
     ap.add_argument("--report-pdf", default="",
-                    help="Offline: AAP monthly report PDF for the cross-check.")
+                    help="Offline: AAP monthly report PDF (month confirmation + cross-check).")
     ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
     ap.add_argument("--step-summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
     args = ap.parse_args()
@@ -784,30 +847,48 @@ def main() -> int:
             return out
     print(f"BI-AAP model last refreshed: {refreshed_s or 'unknown'}")
 
-    def final(p: str) -> bool:
+    def classified(p: str) -> bool:
         tot = aggregate(p)
         light = sum(n for (g, e), n in tot.items() if g == GROUP_LIGHT)
         pending = sum(n for (g, e), n in tot.items() if g == GROUP_LIGHT and e == "")
         return light > 0 and pending == 0
 
-    newest = newest_final_month(final, refreshed)
+    # Step 1 — the newest month BI-AAP could hold complete: strictly before
+    # the refresh month (a refresh on the 2nd must never yield "September")
+    # and fully classified (the preliminary month is cut mid-month and has no
+    # powertrain class).
+    newest = newest_final_month(classified, refreshed)
     if newest is None:
         sys.exit("No classified month found in BI-AAP — report layout changed? Not writing.")
-    target = args.period or newest
-    if target > newest and not args.force:
-        print(f"{target} is not final in BI-AAP yet (newest classified: {newest}) — "
-              "will retry on the next scheduled run.")
+    last = min(args.period, newest) if args.period else newest
+    print(f"Newest classified month in BI-AAP: {newest}")
+
+    # Step 2 — self-throttle. Nothing to do when the CSVs already hold that
+    # month AND this BI-AAP refresh has been processed (AAP revises earlier
+    # months at every refresh, so a new refresh always means a full re-read).
+    in_csv = all(have[v].get(newest, {}).get("source") == SOURCE for v in variants)
+    seen = bool(refreshed_s) and stored_refresh() == refreshed_s
+    if not backfill and not args.force and in_csv and seen:
+        print(f"{newest} already fetched and BI-AAP refresh {refreshed_s} already "
+              "processed; nothing to do.")
         return emit(args, set())
-    print(f"Target month: {target} (newest classified: {newest})")
 
-    if not backfill and not args.force and all(
-            have[v].get(target, {}).get("source") == SOURCE for v in variants):
-        print(f"{target} already fetched from {SOURCE} for {variants}; nothing to do.")
+    # Step 3 — AAP's printed monthly report confirms a month as complete: its
+    # month totals are never revised once printed (five editions compared,
+    # 2026-03 → 2026-08), so a match proves BI-AAP holds the whole month.
+    table, where = load_report(session, args)
+    if table is None:
+        print(f"::warning title=AAP report unavailable::{where} — no new month can be "
+              "confirmed; only months already in the CSVs are revised.")
+    if (not backfill and not args.force and seen and not in_csv
+            and (table is None or newest not in table)):
+        print(f"{newest} is classified in BI-AAP but not confirmed by AAP's printed "
+              f"report yet ({where}); waiting — nothing to do.")
         return emit(args, set())
 
-    todo = (months_between(FIRST_PERIOD, target) if backfill
-            else market_top.month_window(target, NORMAL_WINDOW))
-
+    # Step 4 — a real run re-reads the whole history (≈ 90 small queries):
+    # BI-AAP revisions of the powertrain split reach back two years and more.
+    todo = months_between(FIRST_PERIOD, last)
     agg = Aggregator()
     for p in todo:
         rows = load(p)
@@ -836,8 +917,6 @@ def main() -> int:
     if pending:
         print(f"::warning title=Unclassified months skipped::{pending} still have "
               "light vehicles without AAP's powertrain class — not written.")
-    if target not in periods:
-        sys.exit(f"{target}: no classified light-vehicle data — not writing.")
 
     for p in periods:
         whole = agg.counts[p]["Whole"]["TOTAL"]
@@ -857,20 +936,8 @@ def main() -> int:
     if problems:
         sys.exit("Consistency check failed:\n  " + "\n  ".join(problems[:20]))
 
-    # Cross-check against AAP's printed monthly report.
-    table = None
-    try:
-        if args.report_pdf:
-            table = report_table_from_pdf(Path(args.report_pdf).read_bytes())
-            where = Path(args.report_pdf).name
-        elif not args.from_json:
-            url = latest_report_url(session)
-            r = session.get(url, timeout=180)
-            r.raise_for_status()
-            table = report_table_from_pdf(r.content)
-            where = url.rsplit("/", 1)[-1]
-    except Exception as e:  # noqa: BLE001 — the report is a check, not the data
-        print(f"::warning title=AAP report cross-check unavailable::{type(e).__name__}: {e}")
+    # Cross-check every month against the printed report; a real mismatch
+    # aborts (a truncated month, a scope change, a decoding bug).
     if table:
         compared, small, mism = cross_check(agg, periods, table)
         if mism and not args.force:
@@ -886,33 +953,70 @@ def main() -> int:
                   + (f" {len(mism)} MISMATCHES (forced): " + "; ".join(mism[:10])
                      if mism else ""))
     else:
-        xcheck = "Report not available this run — not compared."
+        xcheck = f"Report not available this run ({where}) — not compared."
     print("Cross-check: " + xcheck)
 
-    whole_total = agg.counts[target]["Whole"]["TOTAL"]
-    frac = median_fraction(target, whole_total, have.get("Whole", {}))
-    if not backfill and not args.force and frac is not None and frac < MIN_MONTH_FRACTION:
-        print(f"{target}: Whole TOTAL {whole_total:,} is {frac:.0%} of the trailing "
-              "median — looks incomplete; not writing. Re-run with --force if genuine.")
+    # Which months may be written: confirmed by the report — or, without a
+    # report, only months already in the CSVs (their revisions). --force
+    # writes every classified month.
+    known = set.intersection(*[{p for p, r in have[v].items() if r.get("source") == SOURCE}
+                               for v in variants])
+    if args.force:
+        writable = list(periods)
+    elif table:
+        writable = [p for p in periods if p in table]
+    else:
+        writable = [p for p in periods if p in known]
+    held = [p for p in periods if p not in writable]
+    if held:
+        print(f"::notice title=Months held back::{held} — classified in BI-AAP but not "
+              "yet confirmed by AAP's printed report; written once it is.")
+    if not writable:
+        print("No confirmed month to write.")
         return emit(args, set())
+    # A new month far below the trailing median is held back (a belt-and-braces
+    # completeness guard behind the report confirmation); revisions still go in.
+    for p in [p for p in writable if p not in known]:
+        whole_total = agg.counts[p]["Whole"]["TOTAL"]
+        frac = median_fraction(p, whole_total, have.get("Whole", {}))
+        if not backfill and not args.force and frac is not None and frac < MIN_MONTH_FRACTION:
+            print(f"::warning title=Peru {p} looks incomplete::Whole TOTAL {whole_total:,} "
+                  f"is {frac:.0%} of the trailing median — not written. Re-run with "
+                  "force if genuine.")
+            writable.remove(p)
+    if not writable:
+        print("No confirmed month to write.")
+        return emit(args, set())
+    target = max(writable)
+    print(f"Newest confirmed month: {target}")
 
     changed: set[str] = set()
+    revised: list[str] = []
     for v in variants:
         updates = {(p, v): render_line(p, v, agg.counts[p][v])
-                   for p in periods if agg.counts[p][v]["TOTAL"] > 0}
+                   for p in writable if agg.counts[p][v]["TOTAL"] > 0}
+        revised += revisions(paths[v], updates)
         stats = upsert_lines(paths[v], updates, args.force)
         print(f"{VARIANT_CSV[v]}: {stats}")
         if stats["added"] or stats["updated"]:
             changed.add(v)
+    if revised:
+        print(f"::notice title=Earlier months revised by BI-AAP::{len(revised)} row(s) "
+              "changed — see the step summary.")
 
     def refresh_top() -> None:
         top = build_top(agg, target)
+        top["source_refreshed"] = refreshed_s     # the self-throttle's memory
         print(f"{TOP_PATH.relative_to(REPO)}: "
               f"{'updated' if market_top.write_top(top, TOP_PATH) else 'unchanged'}")
     if "Whole" in variants:
         market_top.guarded(refresh_top)
 
     rep = report(agg, target, periods, xcheck, refreshed_s or "unknown")
+    rep += "\n### Earlier months revised in this run\n\n"
+    rep += ("\n".join(f"- {r}" for r in revised) if revised else "None.") + "\n"
+    if held:
+        rep += f"\n### Held back (not yet in AAP's printed report)\n\n{', '.join(held)}\n"
     print("\n" + rep)
     if args.step_summary:
         with open(args.step_summary, "a", encoding="utf-8") as fh:

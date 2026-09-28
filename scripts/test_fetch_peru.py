@@ -284,41 +284,126 @@ def test_completeness_guard():
     assert fp.median_fraction("2025-04", 10, have) is None           # too little history
 
 
+def _rows(bev, petrol, elect_ok=True):
+    e = (lambda v: v) if elect_ok else (lambda v: None)
+    return [["LIVIANOS", "SUV,TODOTERRENOS", "SUV", "BEV", e("BEV"), "VOLVO", "EX30", bev],
+            ["LIVIANOS", "AUTOMOVIL", "SEDAN", "GASOLINA", e("GASOLINA"), "KIA", "SOLUTO", petrol],
+            ["LIVIANOS", "PICK UP Y FURGONETAS", "PICK UP", "DIESEL", e("DIESEL"), "TOYOTA", "HILUX", 50],
+            ["PESADOS", "CAMIONES", "CAMIONES", "DIESEL", e("DIESEL"), "HINO", "300", 9]]
+
+
+def _light_heavy(rows):
+    return sum(r[-1] for r in rows if r[0] in ("LIVIANOS", "PESADOS"))
+
+
+class _Scenario:
+    """Runs fetch_peru.main() offline, run after run, in one temp repo."""
+
+    def __init__(self, d: Path):
+        self.d = d
+        self.out = d / "gh_output"
+        self.summary = d / "summary.md"
+
+    def run(self, refreshed, months, report_upto=None, report=None):
+        dump = self.d / "dump.json"
+        dump.write_text(json.dumps({"refreshed": refreshed, "months": months}))
+        if report is None and report_upto is not None:
+            report = {p: _light_heavy(r) for p, r in months.items() if p <= report_upto}
+        fp.load_report = lambda session, args: ((report, "test-report") if report is not None
+                                                else (None, "unreachable"))
+        self.out.write_text("")
+        self.summary.write_text("")
+        sys.argv = ["fetch_peru.py", "--from-json", str(dump), "--github-output",
+                    str(self.out), "--step-summary", str(self.summary)]
+        rc = fp.main()
+        return rc, self.out.read_text(), self.summary.read_text()
+
+    def whole(self):
+        p = self.d / "data/Peru.csv"
+        return {l.split(",")[0]: l for l in p.read_text().splitlines()[1:]} if p.exists() else {}
+
+
 def test_end_to_end_offline():
-    """--from-json: a preliminary month is skipped, the rest written, the
-    top table built, and a second run is a no-op."""
-    def rows(bev, petrol, elect_ok=True):
-        e = (lambda v: v) if elect_ok else (lambda v: None)
-        return [["LIVIANOS", "SUV,TODOTERRENOS", "SUV", "BEV", e("BEV"), "VOLVO", "EX30", bev],
-                ["LIVIANOS", "AUTOMOVIL", "SEDAN", "GASOLINA", e("GASOLINA"), "KIA", "SOLUTO", petrol],
-                ["LIVIANOS", "PICK UP Y FURGONETAS", "PICK UP", "DIESEL", e("DIESEL"), "TOYOTA", "HILUX", 50],
-                ["PESADOS", "CAMIONES", "CAMIONES", "DIESEL", e("DIESEL"), "HINO", "300", 9]]
-    months = {p: rows(2 + i, 900 + i) for i, p in enumerate(fp.months_between("2019-01", "2026-07"))}
-    months["2026-08"] = rows(1, 300, elect_ok=False)                 # preliminary load
-    with tempfile.TemporaryDirectory() as d:
-        dump = Path(d) / "dump.json"
-        dump.write_text(json.dumps({"refreshed": "2026-09-02T15:03:09", "months": months}))
-        old = fp.REPO, fp.TOP_PATH, sys.argv
-        fp.REPO, fp.TOP_PATH = Path(d), Path(d) / "market" / "peru_top.json"
-        out = Path(d) / "gh_output"
+    """The month-finality and revision rules, run after run:
+    preliminary and refresh-month data never written; a classified month
+    waits for AAP's printed report; a new BI-AAP refresh re-reads everything
+    and applies revisions of old months; no report → revisions only; a
+    report mismatch aborts."""
+    months = {p: _rows(2 + i, 900 + i)
+              for i, p in enumerate(fp.months_between("2019-01", "2026-07"))}
+    months["2026-08"] = _rows(1, 300, elect_ok=False)                # preliminary cut
+    saved = fp.REPO, fp.TOP_PATH, sys.argv, fp.load_report
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        fp.REPO, fp.TOP_PATH = d, d / "market" / "peru_top.json"
+        sc = _Scenario(d)
         try:
-            sys.argv = ["fetch_peru.py", "--from-json", str(dump), "--github-output", str(out),
-                        "--step-summary", ""]
-            assert fp.main() == 0
-            whole = (Path(d) / "data/Peru.csv").read_text().splitlines()
-            vans = (Path(d) / "data/Peru_Vans.csv").read_text().splitlines()
-            assert len(whole) == 1 + 91 and len(vans) == 1 + 91
-            assert whole[-1].startswith("2026-07,monthly,Whole,SUNARP via AAP (BI-AAP),92.0,")
-            assert not any(l.startswith("2026-08") for l in whole)
+            # 1. refresh of 2026-09-02, report printed through 2026-06:
+            #    July is classified but held, August (preliminary) never written
+            rc, out, summ = sc.run("2026-09-02T15:03:09", months, report_upto="2026-06")
+            w = sc.whole()
+            assert rc == 0 and max(w) == "2026-06" and len(w) == 90, (max(w), len(w))
+            assert "2026-07" in summ and "Held back" in summ
             top = json.loads(fp.TOP_PATH.read_text())
-            assert top["as_of"] == "2026-07" and top["window"]["months"] == 12
-            assert 'changed_variants=["Vans", "Whole"]' in out.read_text()
-            # second run: already fetched → no download, nothing changed
-            out.write_text("")
-            assert fp.main() == 0
-            assert "changed=false" in out.read_text()
+            assert top["as_of"] == "2026-06" and top["source_refreshed"] == "2026-09-02T15:03:09"
+            # 2. same refresh, report unchanged → waiting, nothing written
+            rc, out, summ = sc.run("2026-09-02T15:03:09", months, report_upto="2026-06")
+            assert "changed=false" in out and max(sc.whole()) == "2026-06"
+            # 3. the July report appears (it already prints August — still not written)
+            rc, out, summ = sc.run("2026-09-02T15:03:09", months, report_upto="2026-08")
+            w = sc.whole()
+            assert max(w) == "2026-07" and "2026-08" not in w
+            assert w["2026-07"].startswith("2026-07,monthly,Whole,SUNARP via AAP (BI-AAP),92.0,")
+            assert 'changed_variants=["Vans", "Whole"]' in out
+            # 4. nothing new → no-op
+            rc, out, summ = sc.run("2026-09-02T15:03:09", months, report_upto="2026-08")
+            assert "changed=false" in out and summ == ""
+            # 5. a new refresh (2026-10-02): August now classified, an old month
+            #    re-classified (3 BEVs become petrol, same total), and October
+            #    data already present (the refresh month) — never written
+            m2 = dict(months)
+            m2["2026-08"] = _rows(1, 1000)
+            m2["2026-09"] = _rows(5, 800, elect_ok=False)
+            m2["2026-10"] = _rows(1, 20)
+            old = m2["2025-03"]
+            m2["2025-03"] = _rows(old[0][-1] - 3, old[1][-1] + 3)
+            rc, out, summ = sc.run("2026-10-02T15:00:00", m2, report_upto="2026-10")
+            w = sc.whole()
+            assert max(w) == "2026-08" and "2026-10" not in w and "2026-09" not in w
+            assert "2025-03 Whole: BEV 76→73, PETROL 974→977" in summ, summ
+            assert w["2025-03"].split(",")[4] == "73.0"
+            # 6. another refresh with a revision, but the report is unreachable:
+            #    the revision is applied, the newly classified September is held
+            m3 = dict(m2)
+            m3["2026-09"] = _rows(5, 800)
+            m3["2025-04"] = _rows(m2["2025-04"][0][-1] + 1, m2["2025-04"][1][-1] - 1)
+            rc, out, summ = sc.run("2026-11-03T15:00:00", m3, report_upto=None)
+            w = sc.whole()
+            assert "2026-09" not in w and w["2025-04"].split(",")[4] == "78.0", w["2025-04"]
+            # 7. a report that disagrees with BI-AAP on a month's total aborts
+            bad = {p: _light_heavy(r) for p, r in m3.items()}
+            bad["2026-05"] += 100
+            try:
+                sc.run("2026-12-02T15:00:00", m3, report=bad)
+            except SystemExit as e:
+                assert "Cross-check" in str(e) and "2026-05" in str(e)
+            else:
+                raise AssertionError("a report mismatch must abort")
         finally:
-            fp.REPO, fp.TOP_PATH, sys.argv = old
+            fp.REPO, fp.TOP_PATH, sys.argv, fp.load_report = saved
+
+
+def test_revisions_listing():
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "Peru.csv"
+        c = fp.empty_counts()
+        c.update(BEV=10, PHEV=5, PETROL=85, TOTAL=100)
+        fp.upsert_lines(p, {("2025-08", "Whole"): fp.render_line("2025-08", "Whole", c)}, False)
+        c2 = dict(c, BEV=15, PHEV=0)
+        new = {("2025-08", "Whole"): fp.render_line("2025-08", "Whole", c2),
+               ("2025-09", "Whole"): fp.render_line("2025-09", "Whole", c)}   # new, not a revision
+        assert fp.revisions(p, new) == ["2025-08 Whole: BEV 10→15, PHEV 5→0"]
+        assert fp.revisions(p, {("2025-08", "Whole"): fp.render_line("2025-08", "Whole", c)}) == []
 
 
 def main() -> int:
