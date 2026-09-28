@@ -39,6 +39,11 @@ on:
         required: false
         default: false
         type: boolean
+      probe_open:
+        description: 'Open the Whole workspace like the Swing SPA does and print the table shape (needs the POST-capable relay)'
+        required: false
+        default: false
+        type: boolean
       probe_grep:
         description: 'probe: regexes to show the bundle code around (separated by ||)'
         required: false
@@ -83,14 +88,20 @@ jobs:
       - name: Test the top brands/models builder
         run: python scripts/test_market_top.py
 
+      # Offline; guards the relay POST contract and the Swing SPA open flow.
+      - name: Test the Swing client
+        run: python scripts/test_fetch_netherlands.py
+
       - name: Fetch & update Netherlands.csv
         run: |
           python scripts/fetch_netherlands.py \
             ${PROBE:+--probe-swing} \
+            ${PROBE_OPEN:+--probe-open} \
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
           PROBE: ${{ inputs.probe && '1' || '' }}
+          PROBE_OPEN: ${{ inputs.probe_open && '1' || '' }}
           PROBE_GREP: ${{ inputs.probe_grep }}
           PROBE_GET: ${{ inputs.probe_get }}
           # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;
@@ -102,7 +113,7 @@ jobs:
 
       - name: Detect which CSVs changed
         id: changed
-        if: ${{ !inputs.probe }}
+        if: ${{ !inputs.probe && !inputs.probe_open }}
         run: |
           # For each of the 3 per-variant CSVs, check if git sees changes.
           # `git add -N` makes `git diff` include untracked new files (needed
@@ -133,7 +144,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        if: ${{ !inputs.probe }}
+        if: ${{ !inputs.probe && !inputs.probe_open }}
         uses: EndBug/add-and-commit@v9
         with:
           add: |

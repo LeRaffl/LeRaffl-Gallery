@@ -74,6 +74,7 @@ import argparse
 import base64
 import collections
 import csv
+import json
 import os
 import re
 import sys
@@ -204,7 +205,31 @@ def _get(session: requests.Session, url: str,
     )
 
 
+# Request headers a POST needs that the relay forwards under an X-Fwd- name
+# (see worker/deno-relay.ts).
+RELAY_EXTRA_HEADERS = {
+    "Content-Type": "X-Fwd-Content-Type",
+    "Accept": "X-Fwd-Accept",
+    "X-Page-Type": "X-Fwd-Page-Type",
+    "__RequestVerificationToken": "X-Fwd-Antiforgery",
+    "Origin": "X-Fwd-Origin",
+}
+
+
+def _post_json(session: requests.Session, url: str, payload: dict,
+               headers: dict | None = None, **kwargs) -> requests.Response:
+    """POST a JSON body — directly, or through the relay (which must be the
+    2026-09 version of worker/deno-relay.ts: earlier ones answer 404 to POST)."""
+    body = json.dumps(payload).encode("utf-8")
+    merged = {**HTTP_HEADERS, "Accept": "application/json, text/plain, */*",
+              "Content-Type": "application/json", **(headers or {})}
+    if not getattr(session, "relay_base", None):
+        return session.post(url, headers=merged, data=body, **kwargs)
+    return _relay_once(session, url, merged, method="POST", body=body, **kwargs)
+
+
 def _relay_once(session: requests.Session, url: str, merged_headers: dict,
+                method: str = "GET", body: bytes | None = None,
                 **kwargs) -> requests.Response:
     """One relay round-trip, harvesting upstream Set-Cookie into the jar."""
     relay_base = session.relay_base  # type: ignore[attr-defined]
@@ -226,7 +251,13 @@ def _relay_once(session: requests.Session, url: str, merged_headers: dict,
         fwd["X-Fwd-Referer"] = merged_headers["Referer"]
 
     relay_url = relay_base + urlquote(url, safe="")
-    resp = session.get(relay_url, headers=fwd, **kwargs)
+    if method == "POST":
+        for name, wire in RELAY_EXTRA_HEADERS.items():
+            if merged_headers.get(name):
+                fwd[wire] = merged_headers[name]
+        resp = session.post(relay_url, headers=fwd, data=body, **kwargs)
+    else:
+        resp = session.get(relay_url, headers=fwd, **kwargs)
 
     # Harvest upstream Set-Cookie into the manual cookie jar. The Deno relay
     # base64-encodes the \n-joined blob (X-Upstream-Set-Cookie-B64) because
@@ -695,6 +726,67 @@ def refresh_top(session: requests.Session | None = None) -> None:
                                   "netherlands", fresh)
 
 
+def open_presentation(session: requests.Session, variant: str) -> dict:
+    """Open a saved workspace the way the Swing SPA does and return its
+    presentation JSON ({title, table: {rows, columnHeaderRows, …}, info, …}).
+
+    1. GET /viewer?workspace_guid=<template>  — anonymous login bounce; the page
+       carries the session's own workspace id (Globals.workspaceId).
+    2. POST api/workspace/<ws>/presentationfromurl {"entries": {"workspace_guid":
+       <template>}} — the SPA sends every query parameter of its URL; the server
+       copies the saved workspace's presentation into the session workspace.
+    3. GET api/workspace/<ws>/presentation/<id> — the presentation with its table.
+    """
+    template = TEMPLATES[variant]
+    init_url = f"{BASE}/viewer?workspace_guid={template}"
+    r = _get(session, init_url, timeout=30)
+    r.raise_for_status()
+    m = re.search(r'Globals\.workspaceId\s*=\s*"([0-9a-f-]{36})"', r.text)
+    if not m:
+        raise RuntimeError(f"[{variant}] Globals.workspaceId not found in /viewer — "
+                           "did Swing change the page again? (--probe-swing)")
+    ws = m.group(1)
+    page = re.search(r'<html[^>]*data-page-type="([^"]+)"', r.text)
+    hdrs = {"Referer": init_url, "Origin": BASE,
+            "X-Page-Type": page.group(1) if page else "Index"}
+    token = swing_token(r.text)
+    if token:
+        hdrs["__RequestVerificationToken"] = token
+    pr = _post_json(session, f"{BASE}/viewer/api/workspace/{ws}/presentationfromurl",
+                    {"entries": {"workspace_guid": template}}, hdrs, timeout=60)
+    pr.raise_for_status()
+    meta = pr.json()
+    if not (meta.get("isValid") and meta.get("presentationID")):
+        raise RuntimeError(
+            f"[{variant}] presentationfromurl gave no valid presentation ({meta}); the saved "
+            f"workspace {template} may be gone — re-save the view in Swing (see 10-source-"
+            "netherlands.md, 'Rotate one of the three Swing template GUIDs').")
+    g = _get(session, f"{BASE}/viewer/api/workspace/{ws}/presentation/{meta['presentationID']}",
+             headers={"Referer": init_url}, timeout=60)
+    g.raise_for_status()
+    return g.json()
+
+
+def probe_open(variant: str = "Whole") -> None:
+    """--probe-open: run open_presentation and print the shape of what comes back."""
+    session = make_swing_session()
+    p = open_presentation(session, variant)
+    t = p.get("table") or {}
+    print(f"[probe] title={p.get('title')!r} views={p.get('allowedViewTypes')} "
+          f"current={p.get('currentViewType')} info={p.get('info')}")
+    print(f"[probe] table: rows={t.get('rowCount')} cols={t.get('colCount')} "
+          f"headRows={t.get('headRowCount')} headCols={t.get('headColCount')} "
+          f"keys={sorted(t)}")
+    for i, row in enumerate(t.get("columnHeaderRows") or []):
+        print(f"[probe] columnHeaderRows[{i}] ({len(row['cells'])} cells): "
+              f"{json.dumps(row['cells'][:14], ensure_ascii=False)[:1400]}")
+    rows = t.get("rows") or []
+    for i in list(range(min(4, len(rows)))) + ([len(rows) - 1] if len(rows) > 4 else []):
+        print(f"[probe] rows[{i}] ({len(rows[i]['cells'])} cells): "
+              f"{json.dumps(rows[i]['cells'][:14], ensure_ascii=False)[:1400]}")
+    print(f"[probe] legend/info: {json.dumps({k: p[k] for k in p if k not in ('table',)}, ensure_ascii=False)[:800]}")
+
+
 def probe_swing(variant: str = "Whole", greps: list[str] | None = None,
                 gets: list[str] | None = None) -> None:
     """Diagnose how the Swing viewer opens a saved workspace — no data written.
@@ -872,11 +964,18 @@ def main() -> None:
         help="Diagnose how the Swing viewer opens a workspace (prints, writes nothing).",
     )
     parser.add_argument(
+        "--probe-open", action="store_true",
+        help="Open the Whole workspace like the SPA does and print the table's shape.",
+    )
+    parser.add_argument(
         "--no-top", action="store_true",
         help="Skip the top brands/models refresh (market/netherlands_top.json).",
     )
     args = parser.parse_args()
 
+    if args.probe_open:
+        probe_open()
+        return
     if args.probe_swing:
         split = lambda v: [x for x in (v or "").split("||") if x.strip()]  # noqa: E731
         probe_swing(greps=split(os.environ.get("PROBE_GREP")),

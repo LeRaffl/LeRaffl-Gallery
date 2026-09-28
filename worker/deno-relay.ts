@@ -11,12 +11,21 @@
 //                    NL_RELAY_TOKEN=<same random secret>
 //
 // Contract (identical to the CF worker, see scripts/fetch_netherlands.py _get):
-//   GET /fetch?url=<urlencoded https URL>     host-allowlisted
+//   GET  /fetch?url=<urlencoded https URL>    host-allowlisted
+//   POST /fetch?url=<urlencoded https URL>    same, but the request body is
+//                                             forwarded as a POST (added 2026-09:
+//                                             the Swing viewer became an SPA whose
+//                                             API is POST/JSON — see _post_json)
 //   X-Relay-Token           → must match RELAY_TOKEN env (if set)
 //   X-Fwd-User-Agent        → forwarded upstream as User-Agent
 //   X-Fwd-Cookie            → forwarded upstream as Cookie
 //   X-Fwd-Referer           → forwarded upstream as Referer
 //   X-Fwd-Accept-Language   → forwarded upstream as Accept-Language
+//   X-Fwd-Content-Type      → Content-Type    (POST bodies)
+//   X-Fwd-Accept            → Accept          (default: text/html,…)
+//   X-Fwd-Page-Type         → X-Page-Type     (Swing SPA)
+//   X-Fwd-Antiforgery       → __RequestVerificationToken (Swing SPA)
+//   X-Fwd-Origin            → Origin
 //   X-Relay-Redirect: manual → do NOT follow upstream redirects; return the
 //                              3xx as-is and put its Location into the
 //                              X-Upstream-Location response header
@@ -64,7 +73,7 @@ Deno.serve(async (req: Request) => {
   // (scripts/fetch_netherlands.py fetch_table) prints the body on non-200.
   try {
     const url = new URL(req.url);
-    if (url.pathname !== "/fetch" || req.method !== "GET") {
+    if (url.pathname !== "/fetch" || (req.method !== "GET" && req.method !== "POST")) {
       return new Response("Not found", { status: 404 });
     }
 
@@ -96,6 +105,19 @@ Deno.serve(async (req: Request) => {
     if (fwdCookie) upstreamHeaders["Cookie"] = fwdCookie;
     if (fwdReferer) upstreamHeaders["Referer"] = fwdReferer;
     if (fwdLang) upstreamHeaders["Accept-Language"] = fwdLang;
+    // Extra headers a JSON API call needs. Only these are forwarded, so the
+    // relay stays a narrow, host-allowlisted pipe rather than an open proxy.
+    const extraHeaders: Record<string, string> = {
+      "X-Fwd-Content-Type": "Content-Type",
+      "X-Fwd-Accept": "Accept",
+      "X-Fwd-Page-Type": "X-Page-Type",
+      "X-Fwd-Antiforgery": "__RequestVerificationToken",
+      "X-Fwd-Origin": "Origin",
+    };
+    for (const [from, to] of Object.entries(extraHeaders)) {
+      const v = req.headers.get(from);
+      if (v) upstreamHeaders[to] = v;
+    }
 
     // Redirect handling. `fetch` follows redirects itself by default, but it
     // carries no cookie jar across the hops — so a site that redirects until
@@ -108,10 +130,13 @@ Deno.serve(async (req: Request) => {
 
     let upstream: Response;
     try {
-      upstream = await fetch(t.toString(), {
+      const init: RequestInit = {
+        method: req.method,
         headers: upstreamHeaders,
         redirect: manualRedirect ? "manual" : "follow",
-      });
+      };
+      if (req.method === "POST") init.body = await req.arrayBuffer();
+      upstream = await fetch(t.toString(), init);
     } catch (e) {
       return new Response(`relay upstream error: ${e}`, { status: 502 });
     }
