@@ -145,6 +145,14 @@ NL_MONTHS = {
     "december": 12,
 }
 
+def swing_token(html: str) -> str:
+    """The antiforgery token the SPA sends as the __RequestVerificationToken
+    header on its POSTs (document.querySelector("input[name=__RequestVerificationToken]"))."""
+    m = re.search(r"<input[^>]*name=[\"']?__RequestVerificationToken[\"']?[^>]*>", html)
+    v = re.search(r"value=[\"']([^\"']*)[\"']", m.group(0)) if m else None
+    return v.group(1) if v else ""
+
+
 WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
@@ -704,6 +712,13 @@ def probe_swing(variant: str = "Whole", greps: list[str] | None = None,
     print(f"[probe] init -> HTTP {r.status_code}, {len(html):,} chars, "
           f"cookies {sorted(getattr(session, 'relay_cookies', {}))}")
     ws = (re.search(r'Globals\.workspaceId\s*=\s*"([0-9a-f-]{36})"', html) or [None, ""])[1]
+    tag = re.search(r"<html[^>]*>", html)
+    tok = re.search(r"<input[^>]*__RequestVerificationToken[^>]*>", html)
+    masked = re.sub(r"value=[^ >]+", "value=<masked>", tok.group(0)) if tok else None
+    jar = {k: len(v) for k, v in getattr(session, "relay_cookies", {}).items()}
+    print(f"[probe] <html> tag: {tag.group(0)[:200] if tag else None}")
+    print(f"[probe] antiforgery input: {masked}; token chars: {len(swing_token(html))}; "
+          f"cookies (name: length) {jar}")
     if greps or gets:
         probe_targets(session, html, ws, greps or [], gets or [])
         return
@@ -751,6 +766,13 @@ def probe_targets(session: requests.Session, html: str, ws: str,
     page's same-origin bundles, and fetch API paths ({ws} = the session's
     Globals.workspaceId) through the relay."""
     referer = {"Referer": f"{BASE}/viewer"}
+    pres = ""
+    if any("{pres}" in g for g in gets):
+        try:
+            w = _get(session, f"{BASE}/viewer/api/workspace/{ws}", headers=referer, timeout=60).json()
+            pres = (w.get("presentSheets") or [{}])[0].get("presentationID", "")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] workspace lookup for {{pres}} failed: {e}")
     if greps:
         bundles = {}
         for src in re.findall(r'<script[^>]+src="([^"]+)"', html):
@@ -769,7 +791,8 @@ def probe_targets(session: requests.Session, html: str, ws: str,
                 if hits:
                     print(f"[probe]   ({len(hits)} hit(s) in {u.rsplit('/', 1)[-1].split('?')[0]})")
     for path in gets:
-        url = urljoin(BASE, path.replace("{ws}", ws))
+        url = urljoin(BASE, path.replace("{ws}", ws).replace("{pres}", pres)
+                      .replace("{tpl}", TEMPLATES["Whole"]))
         try:
             r = _get(session, url, headers=referer, timeout=60)
         except Exception as e:  # noqa: BLE001 - keep probing the other paths
