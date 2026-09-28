@@ -136,7 +136,7 @@ def _whole_presentation():
             row("31 augustus 2026", "12.764", "", "4.748", "8.102", "22", "154"),
             row("30 september 2026", "", "", "", "", "", "")]      # pre-filled future month
     return {"title": "Instroom Personenauto Nieuw - Nederland",
-            "table": {"colCount": 7, "rowCount": 4, "headColCount": 1, "headRowCount": 1,
+            "table": {"colCount": 6, "rowCount": 4, "headColCount": 1, "headRowCount": 1,
                       "rows": rows, "columnHeaderRows": [head]}}
 
 
@@ -172,7 +172,7 @@ def _used_presentation(with_continuation_cells=True):
     row = {"cells": [{"rowSpan": 1, "text": "31 juli 2026", "type": 2, "valueType": 3}]
            + [_cell(v) for v in ("1.000", "10", "200", "5", "3.000", "30")]}
     return {"title": "Occasion import", "table": {
-        "colCount": 7, "rowCount": 1, "headColCount": 1, "headRowCount": 2,
+        "colCount": 6, "rowCount": 1, "headColCount": 1, "headRowCount": 2,
         "rows": [row], "columnHeaderRows": [{"cells": outer}, {"cells": inner}]}}
 
 

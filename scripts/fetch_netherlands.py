@@ -310,11 +310,12 @@ def swing_table_to_legacy(presentation: dict) -> dict:
       exactly the old span-continuation convention; should a payload ever leave
       them out, they are added from colSpan.
     * headRows / rowData: the first headColCount cells of each row are its
-      header, the rest its values. Every row must carry exactly the declared
-      number of value cells, else the labels would slide — a hard error."""
+      header, the rest its values. colCount counts the value columns only, and
+      every header level and row must carry exactly that many — else the
+      labels would slide, which is a hard error."""
     t = presentation["table"]
     hc = t.get("headColCount", 1)
-    ncols = t.get("colCount", 0) - hc
+    ncols = t.get("colCount", 0)          # value columns only (Whole 6, Used 12)
     head_cols = []
     for level in t.get("columnHeaderRows") or []:
         cells = [{"d": c.get("text", "")} for c in level["cells"][hc:]]
