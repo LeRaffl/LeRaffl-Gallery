@@ -39,6 +39,11 @@ on:
         required: false
         default: false
         type: boolean
+      dry_run:
+        description: 'Fetch and parse only: print how the rows differ from the CSVs, write nothing'
+        required: false
+        default: false
+        type: boolean
       probe_open:
         description: 'Open the Whole workspace like the Swing SPA does and print the table shape (needs the POST-capable relay)'
         required: false
@@ -97,11 +102,13 @@ jobs:
           python scripts/fetch_netherlands.py \
             ${PROBE:+--probe-swing} \
             ${PROBE_OPEN:+--probe-open} \
+            ${DRY_RUN:+--dry-run} \
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
           PROBE: ${{ inputs.probe && '1' || '' }}
           PROBE_OPEN: ${{ inputs.probe_open && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
           PROBE_GREP: ${{ inputs.probe_grep }}
           PROBE_GET: ${{ inputs.probe_get }}
           # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;

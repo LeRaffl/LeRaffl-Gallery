@@ -154,7 +154,6 @@ def swing_token(html: str) -> str:
     return v.group(1) if v else ""
 
 
-WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 # Relay redirect chain: followed client-side so the cookie jar in
@@ -299,70 +298,45 @@ def parse_nl_period(label: str) -> str:
     return f"{year}-{month:02d}"
 
 
+def swing_table_to_legacy(presentation: dict) -> dict:
+    """Map the SPA's presentation JSON ({title, table: {columnHeaderRows,
+    rows, headColCount, …}}) onto the shape the parsers below were written for
+    ({caption, headRows, headCols, rowData, totalRows, totalCols}) — the old
+    GetTableStart response — so Whole, Used and HDV keep one parse path.
+
+    * headCols: one list per header level, one {"d": label} per value column;
+      a cell spanning n columns is followed by n-1 blanks (the old span-
+      continuation convention _parse_periods_in_rows relies on).
+    * headRows / rowData: the first headColCount cells of each row are its
+      header, the rest its values."""
+    t = presentation["table"]
+    hc = t.get("headColCount", 1)
+    head_cols = []
+    for level in t.get("columnHeaderRows") or []:
+        cells: list[dict] = []
+        for c in level["cells"][hc:]:
+            cells.append({"d": c.get("text", "")})
+            cells.extend({"d": ""} for _ in range(int(c.get("colSpan", 1)) - 1))
+        head_cols.append(cells)
+    rows = t.get("rows") or []
+    return {
+        "caption": presentation.get("title", ""),
+        "totalRows": len(rows),
+        "totalCols": t.get("colCount", 0) - hc,
+        "headRows": [[{"d": c.get("text", "")} for c in r["cells"][:hc]] for r in rows],
+        "headCols": head_cols,
+        "rowData": [[{"d": c.get("text", "")} for c in r["cells"][hc:]] for r in rows],
+    }
+
+
 def fetch_table(variant: str, session: requests.Session) -> dict:
-    """Bootstrap a session-bound workspace and return its full pivot as JSON.
-
-    GetTableStart only returns the first ~70 rows; if the pivot is longer we
-    follow up with GetTableRows to backfill the remainder. With the current
-    rolling 36-month window Whole/HDV return 36 period rows (one page, no
-    backfill needed); the pagination loop stays for safety if the window is
-    ever widened. Used Imports has only 6 rows (fuels-in-rows layout) so a
-    single GetTableStart always suffices.
-    """
-    template_guid = TEMPLATES[variant]
-    init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
-    print(f"[{variant}] init: {init_url}")
-    r = _get(session, init_url, timeout=30)
-    if r.status_code != 200:
-        # DIAG: the relay passes the upstream body through unchanged, so r.text
-        # is whatever databank.nl actually returned (a real Swing/CBS error
-        # page) — or, if the Deno relay itself threw, a generic Deno 500 page.
-        # Printing status + headers + body snippet tells us which, and what the
-        # server complained about.
-        print(f"[{variant}] init HTTP {r.status_code}")
-        print(f"[{variant}] resp headers: {dict(r.headers)}")
-        print(f"[{variant}] body[:1500]: {r.text[:1500]!r}")
-    r.raise_for_status()
-    m = WSGUID_RE.search(r.text)
-    if not m:
-        raise RuntimeError(
-            f"[{variant}] WsGuid not found in /viewer response; the template GUID "
-            f"may have been deleted or Swing changed its HTML shape."
-        )
-    wsguid = m.group(1)
-    referer = {"Referer": f"{BASE}/viewer"}
-
-    start_url = (
-        f"{BASE}/viewer/Presentation/GetTableStart"
-        f"?workspaceGuid={wsguid}&_={int(time.time() * 1000)}"
-    )
-    r = _get(session, start_url, headers=referer, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-
-    total_rows = data["totalRows"]
-    total_cols = data["totalCols"]
-    have_rows = len(data["rowData"])
-    while have_rows < total_rows:
-        more_url = (
-            f"{BASE}/viewer/Presentation/GetTableRows"
-            f"?workspaceGuid={wsguid}"
-            f"&startRow={have_rows}&startCol=0"
-            f"&numRows={total_rows - have_rows}&numCols={total_cols}"
-            f"&tableId=0&_={int(time.time() * 1000)}"
-        )
-        r = _get(session, more_url, headers=referer, timeout=30)
-        r.raise_for_status()
-        chunk = r.json().get("rowData", [])
-        if not chunk:
-            raise RuntimeError(
-                f"[{variant}] GetTableRows returned no rows at startRow={have_rows}; "
-                f"expected {total_rows - have_rows} more"
-            )
-        data["rowData"].extend(chunk)
-        have_rows = len(data["rowData"])
-        print(f"[{variant}] paged: {have_rows}/{total_rows} rows")
-
+    """The variant's saved Swing view as {caption, headRows, headCols, rowData}
+    (see open_presentation for the flow, swing_table_to_legacy for the shape).
+    The presentation carries the whole table — no paging."""
+    presentation = open_presentation(session, variant)
+    data = swing_table_to_legacy(presentation)
+    print(f"[{variant}] {presentation.get('title')!r}: {data['totalRows']} rows x "
+          f"{data['totalCols']} cols, period {presentation.get('info', {}).get('period')}")
     return data
 
 
@@ -492,6 +466,36 @@ def to_csv_rows(parsed: dict[str, dict[str, float]], variant: str) -> dict[str, 
             "notes": f"workspace_guid={TEMPLATES[variant]}",
         }
     return out
+
+
+def dry_run_report(csv_path: str, rows: dict[str, dict], variant: str) -> None:
+    """--dry-run: how the freshly parsed rows relate to what the CSV already
+    holds — new months, and every cell that moved (Swing restates recent
+    months; a real historic difference would show up here)."""
+    cols = ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]
+    have: dict[str, dict] = {}
+    if os.path.exists(csv_path):
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            have = {r["period"]: r for r in csv.DictReader(f)
+                    if (r.get("variant") or variant) == variant}
+    same = 0
+    for period in sorted(rows):
+        new, old = rows[period], have.get(period)
+        if old is None:
+            print(f"[{variant}] NEW     {period}: "
+                  + " ".join(f"{c}={new[c]:.0f}" for c in cols))
+            continue
+        moved = [f"{c} {float(old[c] or 0):.0f}->{new[c]:.0f}" for c in cols
+                 if float(old[c] or 0) != float(new[c] or 0)]
+        if moved:
+            print(f"[{variant}] CHANGED {period}: " + ", ".join(moved))
+        else:
+            same += 1
+    gone = sorted(set(have) - set(rows))
+    print(f"[{variant}] dry run: {same} months identical to {csv_path}, "
+          f"{sum(1 for p_ in rows if p_ not in have)} new, "
+          f"{sum(1 for p_ in rows if p_ in have) - same} changed"
+          + (f"; {len(gone)} CSV months not in the view ({gone[0]}..{gone[-1]})" if gone else ""))
 
 
 def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[int, int]:
@@ -968,13 +972,17 @@ def main() -> None:
         help="Open the Whole workspace like the SPA does and print the table's shape.",
     )
     parser.add_argument(
+        "--dry-run", action="store_true",
+        help="Fetch and parse, print how the rows differ from the CSV, write nothing.",
+    )
+    parser.add_argument(
         "--no-top", action="store_true",
         help="Skip the top brands/models refresh (market/netherlands_top.json).",
     )
     args = parser.parse_args()
 
     if args.probe_open:
-        probe_open()
+        probe_open({"used": "Used", "hdv": "HDV"}.get(args.variant, "Whole"))
         return
     if args.probe_swing:
         split = lambda v: [x for x in (v or "").split("||") if x.strip()]  # noqa: E731
@@ -992,7 +1000,7 @@ def main() -> None:
     # Early exit per variant: skip those whose CSV already has last month's
     # row. RDW occasionally restates older months but those don't need
     # same-day pickup; --force is the override for restatement runs.
-    if not args.force:
+    if not args.force and not args.dry_run:
         prev = previous_month_period()
         current = [v for v in targets if csv_has_period(CSV_PATHS[v], prev)]
         targets = [v for v in targets if v not in current]
@@ -1034,11 +1042,14 @@ def main() -> None:
             print(f"[{variant}]   headCols: {_json.dumps(_shape(data.get('headCols')), ensure_ascii=False)[:1200]}")
             print(f"[{variant}]   rowData[0:2]: {_json.dumps(_shape(data.get('rowData'))[:2], ensure_ascii=False)[:800]}")
             continue
+        if args.dry_run:
+            dry_run_report(CSV_PATHS[variant], rows, variant)
+            continue
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)
         print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
 
-    if not args.no_top:
+    if not args.no_top and not args.dry_run:
         market_top.guarded(refresh_top)
 
 
