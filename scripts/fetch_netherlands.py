@@ -687,7 +687,8 @@ def refresh_top(session: requests.Session | None = None) -> None:
                                   "netherlands", fresh)
 
 
-def probe_swing(variant: str = "Whole") -> None:
+def probe_swing(variant: str = "Whole", greps: list[str] | None = None,
+                gets: list[str] | None = None) -> None:
     """Diagnose how the Swing viewer opens a saved workspace — no data written.
 
     Bootstraps the way fetch_table does, then prints what a client needs to
@@ -702,6 +703,10 @@ def probe_swing(variant: str = "Whole") -> None:
     html = r.text
     print(f"[probe] init -> HTTP {r.status_code}, {len(html):,} chars, "
           f"cookies {sorted(getattr(session, 'relay_cookies', {}))}")
+    ws = (re.search(r'Globals\.workspaceId\s*=\s*"([0-9a-f-]{36})"', html) or [None, ""])[1]
+    if greps or gets:
+        probe_targets(session, html, ws, greps or [], gets or [])
+        return
     for i, line in enumerate(html.splitlines(), 1):
         if "Globals." in line or "workspace_guid" in line or "swing" in line.lower() and "=" in line and len(line) < 240:
             print(f"[probe] html L{i}: {line.strip()[:260]}")
@@ -738,6 +743,41 @@ def probe_swing(variant: str = "Whole") -> None:
         calls = [m.group(0).replace("\n", " ")[:170] for m in call_site.finditer(text)]
         for x in list(dict.fromkeys(calls))[:60]:
             print(f"[probe]   call {x}")
+
+
+def probe_targets(session: requests.Session, html: str, ws: str,
+                  greps: list[str], gets: list[str]) -> None:
+    """--probe-grep / --probe-get: print the code around regex matches in the
+    page's same-origin bundles, and fetch API paths ({ws} = the session's
+    Globals.workspaceId) through the relay."""
+    referer = {"Referer": f"{BASE}/viewer"}
+    if greps:
+        bundles = {}
+        for src in re.findall(r'<script[^>]+src="([^"]+)"', html):
+            u = urljoin(f"{BASE}/viewer", src)
+            if u.startswith(BASE) and u not in bundles:
+                bundles[u] = _get(session, u, headers=referer, timeout=60).text
+        for pat in greps:
+            rx = re.compile(pat)
+            print(f"[probe] ### grep {pat!r}")
+            for u, text in bundles.items():
+                hits = list(rx.finditer(text))
+                for m in hits[:6]:
+                    a, b = max(0, m.start() - 350), min(len(text), m.end() + 350)
+                    print(f"[probe]   {u.rsplit('/', 1)[-1].split('?')[0]}@{m.start()}: "
+                          f"{text[a:b]!r}")
+                if hits:
+                    print(f"[probe]   ({len(hits)} hit(s) in {u.rsplit('/', 1)[-1].split('?')[0]})")
+    for path in gets:
+        url = urljoin(BASE, path.replace("{ws}", ws))
+        try:
+            r = _get(session, url, headers=referer, timeout=60)
+        except Exception as e:  # noqa: BLE001 - keep probing the other paths
+            print(f"[probe] GET {url}: {type(e).__name__}: {e}")
+            continue
+        print(f"[probe] GET {url} -> HTTP {r.status_code} {r.headers.get('content-type')} "
+              f"{len(r.content):,} bytes")
+        print(f"[probe]   body: {r.text[:2500]!r}")
 
 
 def make_swing_session() -> requests.Session:
@@ -815,7 +855,9 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.probe_swing:
-        probe_swing()
+        split = lambda v: [x for x in (v or "").split("||") if x.strip()]  # noqa: E731
+        probe_swing(greps=split(os.environ.get("PROBE_GREP")),
+                    gets=[x for x in (os.environ.get("PROBE_GET") or "").split() if x])
         return
 
     variant_aliases = {"whole": "Whole", "used": "Used", "hdv": "HDV"}
