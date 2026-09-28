@@ -544,12 +544,33 @@ heuristic: a new naming scheme shows up as a stray row, never as a wrong
 number; extend `display_model` and re-run with an empty store
 (`rm market/netherlands_*.json`) to re-key history.
 
+**Used — the imported used cars** (`market/netherlands_used_top.json`, its own
+month store, a second section on the source page through front-matter
+`market_breakdown_extra`). The Swing "Personenauto Occasion import" column is
+the register's mirror image of Whole: first registration in NL inside the month
+**and** first admission *before* it (the car had been admitted, and driven,
+abroad first), `export_indicator = Nee` — `fetch_new_cars(..., "Used")`, the
+same class logic as Whole. Tested against `data/Netherlands_Used.csv` on
+2026-09-28: every month of 2025-07 → 2026-06 is +1.3 % … +2.4 % above the CSV
+(the same live-register-vs-snapshot gap as Whole, but one-sided: the register
+keeps a few plates Swing's instroom does not count). Per class, June 2026 BEV
+2,650 vs 2,645 and PHEV 9,280 vs 9,319; September 2025 BEV 953 vs 936, PHEV
+7,972 vs 8,037. Nothing in the register isolates the residual (`taxi_indicator`,
+a first admission cut-off year, `wam_verzekerd` and the body type were all
+tried and none explains it), so the scope note on the page says "about 1–3 %
+above". Used is a different market from Whole: a third of it is PHEV (leased
+plug-ins coming off foreign lease books — Volvo XC60/XC40, Lynk & Co 01, Ford
+Kuga), BEV only about 5 %, the brand ranking is led by Audi and Tesla. It costs
+the same as a Whole month (~25 000 plates → ~2 minutes) and shares the check
+(`market_top.check_scope`, 10 % abort).
+
 **Also in the register:** motorhomes (`ADRIA`, `HYMER`, …) are `Personenauto`
 with a camper body and are in the total like in Swing; they are diesel, so
 they never reach the BEV/PHEV lists.
 
-Runs with the daily fetch, behind `market_top.guarded`, and alone when the
-data is current but the top file is not; `--no-top` skips it.
+Runs with the daily fetch, behind `market_top.guarded` (one guard per variant
+— a failure in Whole never stops Used), and alone when the data is current but
+the top file is not; `--no-top` skips it.
 
 ## 12. What is **not** in this pipeline
 
