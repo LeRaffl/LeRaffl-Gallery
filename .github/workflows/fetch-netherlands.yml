@@ -13,6 +13,13 @@ name: Fetch Netherlands data (RDW via Swing)
 # in scripts/fetch_netherlands.py for details. If the CSV changed, this workflow
 # renders touched variants via a serial render-country.yml matrix.
 #
+# Since 2026-09 the Swing viewer is an SPA: the fetcher opens each saved workspace
+# through its REST API (GET session page → POST presentationfromurl → GET
+# presentation), which needs the POST-capable relay (worker/deno-relay.ts).
+# Manual run inputs for diagnosing it without writing anything: dry_run (compare
+# with the CSVs), probe_open, probe (+ probe_grep / probe_get) — see
+# docs/architecture/10-source-netherlands.md §11.
+#
 # Top brands/models: the same script also keeps market/netherlands_top.json
 # (trailing-12-month top BEV / PHEV brands and models, Whole) and its month
 # store market/netherlands_months.json current from the RDW open-data register

@@ -25,18 +25,25 @@ TEMPLATES constant, the parser, or the column mapping.
 
 Brief recap (so the script reads on its own):
 
-* duurzamemobiliteit.databank.nl is RDW data served by Swing 7.1 (ABF
-  Research). No documented public API. We hit pre-saved workspace permalinks
-  the maintainer set up in the Swing UI.
-* Bootstrap: GET /viewer?workspace_guid=<TEMPLATE> establishes a session and
-  embeds a session-bound GUID as `WsGuid: "..."` in the HTML. We then hit
-  /viewer/Presentation/GetTableStart with that session GUID, paginating with
-  GetTableRows when the pivot is longer than the initial page (~70 rows).
+* duurzamemobiliteit.databank.nl is RDW data served by Swing (ABF Research).
+  No documented public API. We open pre-saved workspace permalinks the
+  maintainer set up in the Swing UI, the way the viewer's own SPA does
+  (since 2026-09; before that GetTableStart returned the pivot):
+    1. GET /viewer?workspace_guid=<TEMPLATE>  -> anonymous session; the page
+       defines Globals.workspaceId, the session's own workspace.
+    2. POST /viewer/api/workspace/<ws>/presentationfromurl
+       {"entries": {"workspace_guid": <TEMPLATE>}}  -> {presentationID, isValid}
+    3. GET /viewer/api/workspace/<ws>/presentation/<id>  -> {title, table:
+       {columnHeaderRows, rows: [{cells: [{text}]}]}} — the whole table.
+  swing_table_to_legacy() maps that onto the headRows/headCols/rowData shape
+  the parsers were written for. The POST needs the POST-capable relay
+  (worker/deno-relay.ts, 2026-09 version). --dry-run compares with the CSVs,
+  --probe-swing / --probe-open diagnose the portal (docs 10, section 11).
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
       FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
       split it; full hybrids fold into Benzine/Diesel upstream).
-* Dutch locale: "." is thousands separator (6.863 == 6863). "&nbsp;" == 0.
+* Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
 * Table orientation varies by view. Whole/HDV return periods-in-rows with one
   column per fuel. Used returns periods-in-rows too, but with fuels on the
   OUTER column level, each spanning two sub-columns ("Occasion import > 90 dgn"
@@ -356,7 +363,7 @@ def fetch_table(variant: str, session: requests.Session) -> dict:
 
 def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
     """
-    Parse a Swing GetTableStart response into {period: {fuel: value}}.
+    Parse the table (swing_table_to_legacy shape) into {period: {fuel: value}}.
 
     Two layouts are possible:
       A. Periods in headRows, fuels in headCols   (Whole, HDV, Used)

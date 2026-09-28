@@ -57,8 +57,11 @@ cold.
 ```
 Source:    duurzamemobiliteit.databank.nl (Swing 7.1, vendor: ABF Research)
            Underlying data: RDW (Rijksdienst voor het Wegverkeer)
-Auth:      None required (anonymous session, server issues JIVE_AUTH cookie)
-API:       Three saved Swing workspace templates → GetTableStart JSON
+Auth:      None required (anonymous session; the server sets swing_* cookies)
+API:       Three saved Swing workspace templates, opened like the viewer's SPA:
+           GET /viewer?workspace_guid=T → POST api/workspace/<ws>/presentationfromurl
+           → GET api/workspace/<ws>/presentation/<id> (table JSON). Since 2026-09;
+           the old GetTableStart flow answers 404.
 Variants:  Whole, Used, HDV   (three separate CSV files)
 HEV:       Not split by RDW (folded into Benzine/Diesel upstream); no HEV column
 FCEV:      Folded into OTHERS (~1 unit/month for Whole; ~30/month for Used)
@@ -70,6 +73,8 @@ Workflow:  .github/workflows/fetch-netherlands.yml
 IP block:  duurzamemobiliteit.databank.nl blocks GitHub Actions Azure IPs
            (TCP-drop, errno 101) AND Cloudflare egress IPs (HTTP 403).
            Fix: route via a Deno Deploy relay (Google Cloud egress). See §13.
+           The relay must be the 2026-09 version (POST support) — the SPA's
+           API is POST/JSON.
 Secrets:   NL_FETCH_RELAY  — https://<project>.deno.dev/fetch?url=
            NL_RELAY_TOKEN  — shared secret set in Deno env + GitHub secret
            NL_PROXY        — optional socks5/http proxy (overrides relay)
@@ -90,7 +95,7 @@ both paths:
 | Approach | Verdict |
 |---|---|
 | Reverse-engineer the JSON endpoint and replay dimension-toggle calls | Works but ~12 HTTP calls per variant in a brittle ordering; breaks if Swing changes any one item code |
-| Have the maintainer save a permalink per variant in the Swing UI and hit each one | Picked. ~2 HTTP calls per variant. The saved permalinks (`?workspace_guid=...`) are stable as long as nobody deletes them in the maintainer's Swing account |
+| Have the maintainer save a permalink per variant in the Swing UI and open each one | Picked. 3 HTTP calls per variant (§2). The saved permalinks (`?workspace_guid=...`) are stable as long as nobody deletes them in the maintainer's Swing account — they survived the September 2026 viewer migration |
 | Use CBS Statline OData as an alternative source | Rejected — different granularity, ~6 week publication lag, and doesn't split Used / HDV the way we need |
 
 ## 2. The Swing endpoint flow
@@ -101,39 +106,67 @@ Each variant maps to one saved-permalink URL of the form:
 https://duurzamemobiliteit.databank.nl/viewer?workspace_guid=<TEMPLATE_GUID>
 ```
 
-That URL doesn't itself return data — it returns the JS shell of the viewer.
-But the inline JavaScript on that page binds a server-side session to a
-fresh **session GUID** that's needed for all subsequent data calls. The
-bootstrap is:
+Since **September 2026** the viewer is a client-side SPA with a REST/JSON API
+(`/viewer/api/…`). Opening a permalink is no longer done by the server: the
+page only creates an anonymous **session workspace**, and the SPA's own
+JavaScript then asks the API to copy the saved workspace into it. The fetcher
+does exactly what the SPA does (`open_presentation`):
 
 ```python
-# 1. Hit the permalink with an empty cookie jar.
-#    The server sets ASP.NET_SessionId, JIVE_AUTH, jive_elektrischvervoer
-#    cookies, and embeds the session-bound workspace GUID in the HTML.
+# 1. Hit the permalink with an empty cookie jar (relay: 302 → /viewer/account/login
+#    → 302 back). Cookies: .AspNetCore.swing_auth_viewer, swing_token, swing_profile, …
 GET /viewer?workspace_guid=<TEMPLATE_GUID>
-    → HTML containing  WsGuid: "<SESSION_GUID>"  in inline JS
+    → HTML with   Globals.workspaceId = "<SESSION_WS>"   and  <html data-page-type="Index">
 
-# 2. Extract the session GUID and hit the data endpoint.
-GET /viewer/Presentation/GetTableStart?workspaceGuid=<SESSION_GUID>
-    → JSON pivot (first ~70 rows)
+# 2. Ask the API to open the saved workspace in the session workspace. The SPA sends
+#    every query parameter of its URL as "entries"; there is only workspace_guid.
+POST /viewer/api/workspace/<SESSION_WS>/presentationfromurl
+     headers: Content-Type: application/json, X-Page-Type: Index, Referer, Origin,
+              (__RequestVerificationToken if the page has that input — it does not today)
+     body:    {"entries": {"workspace_guid": "<TEMPLATE_GUID>"}}
+    → {"presentationID": "<id>", "isValid": true, …}
 
-# 3. If the pivot is longer than the initial page, paginate.
-GET /viewer/Presentation/GetTableRows
-        ?workspaceGuid=<SESSION_GUID>
-        &startRow=<n>&startCol=0&numRows=<m>&numCols=<cols>&tableId=0
-    → JSON {tableId, rowData: [...]}
+# 3. Read the presentation. It carries the whole table — no paging.
+GET /viewer/api/workspace/<SESSION_WS>/presentation/<id>
+    → {"title": "Instroom Personenauto Nieuw - Nederland",
+       "info": {"period": "30 september 2023 - 31 augustus 2026", "source": "Brondata: RDW - Bewerkt door: RVO"},
+       "table": {"colCount": 6, "headColCount": 1, "headRowCount": 1,
+                 "columnHeaderRows": [{"cells": [{"text": "Maand"}, {"text": "BEV"}, …]}],
+                 "rows": [{"cells": [{"text": "30 september 2023"}, {"text": "10.075"}, …]}]}}
 ```
 
-`scripts/fetch_netherlands.py::fetch_table` implements exactly this — see
-the `WSGUID_RE` regex (matches `WsGuid: "<36-char-uuid>"`) and the
-GetTableRows loop that fills in everything past the initial page.
+`colCount` counts the **value** columns (Whole 6, Used 12); every header level
+and row carries `headColCount + colCount` cells. `swing_table_to_legacy` checks
+that and raises if a level or row does not add up, instead of letting labels
+slide. Where a header cell spans columns (Used: each fuel over `> 90 dgn` /
+`<= 90 dgn`, `colSpan: 2`) the payload already contains the empty type-4
+continuation cell behind it — adding them again once shifted every fuel two
+columns while the totals still matched (found by the first dry run).
 
-**Important nuance**: the URL `?workspace_guid=...` parameter does *not*
-survive into the session as-is. The server reads it, looks up the saved
-template in the maintainer's account, and creates a *new* per-session
-workspace whose GUID is the one embedded in the HTML. So if you log the
-HTTP traffic, you will see two different GUIDs: the one in your request
-URL (the template) and the one used in every subsequent call (the session).
+The endpoints, headers and request bodies were read from the viewer's own
+bundle (`/viewer/js/common.js`: `addPresentationFromUrl`, the `fetch` wrapper
+that adds `X-Page-Type` and `__RequestVerificationToken`) with the workflow's
+probe mode (§11). `GET …/presentationfromurl` answers 405 — it is POST only, so
+the relay has to forward POSTs (§13).
+
+**Important nuance**: the `?workspace_guid=...` in the URL does *not* survive
+into the session as-is. The GUID in the page (`Globals.workspaceId`) is a fresh
+session workspace, different on every request; the template GUID only travels
+in the POST body. So if you log the HTTP traffic you will see two different
+GUIDs, exactly as before the migration.
+
+### History: the old flow (until 2026-09)
+
+Swing 7.1 rendered the workspace on the server: `GET /viewer?workspace_guid=T`
+returned HTML with `WsGuid: "<session>"` and the pivot came from
+`GET /viewer/Presentation/GetTableStart?workspaceGuid=<session>` (first ~70 rows)
+plus `GetTableRows` for the rest, as `{headRows, headCols, rowData}`. The viewer
+was migrated to the SPA in early September 2026; from 2026-09-05 every run failed
+(`WsGuid not found`), and a first debugging attempt that only swapped in
+`Globals.workspaceId` ended in a 404 on `GetTableStart`, which is gone. The
+parsers still expect the old `{headRows, headCols, rowData}` shape — the adapter
+`swing_table_to_legacy` produces it from the new JSON, so Whole, Used and HDV kept
+their parse path.
 
 ## 3. The three variants and why we split them
 
@@ -227,13 +260,18 @@ the HEV line automatically.
 
 ### Number formatting
 
-Dutch locale: `.` is the thousands separator (so `"6.863"` is six-thousand-
-eight-hundred-sixty-three, not 6.863). Empty cells render as the HTML
-entity `"&nbsp;"`. Both are handled by `parse_nl_number`.
+Dutch locale: `.` is the thousands separator (so `"10.075"` is ten-thousand-
+seventy-five, not 10.075). Empty cells are the empty string (the old viewer
+rendered them as the HTML entity `"&nbsp;"`, still accepted). Both are handled
+by `parse_nl_number`.
 
 ## 5. Table orientations
 
-Swing pivots can be returned in either orientation:
+The saved views come back in one of these orientations. The SPA's JSON is first
+mapped onto the shape below (`swing_table_to_legacy`: `headRows` = the first
+`headColCount` cells of each row, `headCols` = one list per `columnHeaderRows`
+level without the corner cell, `rowData` = the value cells), so one parser reads
+all of them:
 
 | Orientation | Returned for | `headRows` contains | `headCols` contains |
 |---|---|---|---|
@@ -302,6 +340,9 @@ Re-running is safe — adds 0 new rows on a no-op pass.
   Daily polling within that window catches the new data on the day it
   appears.
 - **06:30 UTC** is chosen to clear `fetch-brazil.yml`'s 08:00 UTC slot.
+- The saved views are a rolling 36 months (`30 september 2023 - 31 augustus 2026`
+  on 2026-09-28), so a run after an outage backfills every missed month on its own
+  — the September 2026 outage (Jul + Aug) needed no manual catch-up.
 - After day 15, the cron sleeps for the rest of the month.
 
 The scraper's `previous_month_period()` + `csv_has_period` short-circuit:
@@ -351,9 +392,12 @@ change, mirror the change in plots.R.
 | Relay also blocked (403 from Cloudflare egress IPs) | `_get()` returns a 403 from the relay; job fails | The Austria CF Worker relay returns 403 in ~400 ms — the host blocks Cloudflare IP ranges too. Use the Deno Deploy relay (Google Cloud egress) or `NL_PROXY` instead. |
 | Deno Deploy relay unavailable or misconfigured | `_get()` raises a connection error against the Deno URL | Check `NL_FETCH_RELAY`/`NL_RELAY_TOKEN` secrets. Re-deploy `worker/deno-relay.ts` at dash.deno.com. See §13. |
 | Relay reaches databank.nl but returns 500/512 | Fetch fails right after `[Whole] init:`; the Python side prints the relay response body | A crash *inside* the relay (not a block). A plain `Internal Server Error` body = Deno-runtime throw; a `relay handler error: …` body = caught with stack. Usually a `worker/deno-relay.ts` change that wasn't redeployed to the playground. See §13 "Two relay bugs". |
-| Maintainer deletes a saved permalink in Swing | Scraper fails on that variant with `WsGuid not found in /viewer response` | Look at the failing variant's URL in the Action log; recreate the permalink in Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
-| Swing upgrades to a version with a different inline-JS shape | `WSGUID_RE` regex stops matching | Update the regex to match the new JS pattern (look at the raw HTML response) |
-| Swing changes the pivot JSON shape | Parser fails noisily; render aborts before commit | Inspect a fresh HAR; update `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
+| Maintainer deletes a saved permalink in Swing | `presentationfromurl gave no valid presentation (…)` for that variant | Look at the failing variant in the Action log; recreate the permalink in the Swing UI; update `TEMPLATES` in `fetch_netherlands.py` |
+| Swing changes the viewer page again | `Globals.workspaceId not found in /viewer` | Run the workflow with `probe` (structure + bundle strings) and `probe_grep` / `probe_get` (§11); the flow in §2 was read that way |
+| Swing changes an API path or body | HTTP 4xx from `presentationfromurl` / the presentation GET | Same probe; `addPresentationFromUrl` in `/viewer/js/common.js` is the reference |
+| Relay predates POST support | `presentationfromurl` answers 404 (`Not found`) | Redeploy `worker/deno-relay.ts` (§13) — it must be the 2026-09 version |
+| Swing changes the table JSON shape | `Swing header level has N columns, the table declares M` / `Swing row i has …` | Run `probe_open` (prints title, dimensions, header levels and sample rows) and adapt `swing_table_to_legacy`. Deliberately a hard error: a shifted label once mis-assigned every fuel while the totals still matched. |
+| Swing changes the pivot layout of a variant | Parser returns 0 rows or fails noisily; render aborts before commit | `probe_open` with the `variant` input; adapt `parse_table` / `_parse_periods_in_rows` / `_parse_fuels_in_rows` |
 | RDW retroactively restates a month with values that differ >50% from what's in the CSV | Upsert prints `WARNING` to the action log but still commits the new values | Decide whether the restatement is real and revert with a manual edit if not |
 | Google Sheet revoked from "anyone with the link" | Backfill script fails with a Google login HTML response | Re-share the sheet, or hardcode the pre-2018 history into a static CSV |
 | The maintainer reconfigures a saved Swing template (e.g. drops a year, changes Aandrijfcategorie selection) | Scraper succeeds but produces wrong-shaped data | The "Captured caption" line in the action log doesn't match `Instroom Personenauto Nieuw - Nederland`. Re-save the workspace with the correct configuration. |
@@ -400,21 +444,43 @@ The `--force` flag skips the early-exit check; the scraper re-fetches all
 available months and the upsert overwrites existing rows (logging a
 WARNING for any cell that moved by >50%).
 
-### Validate the bootstrap by hand
+### Diagnose the portal (workflow inputs)
+
+The portal drops datacentre IPs (§13), so diagnostics run where the relay
+secrets are: `fetch-netherlands.yml` → *Run workflow*, on the branch to test.
+Probe runs skip change detection and the commit, so nothing is written.
+
+| Input | What it does |
+|---|---|
+| `dry_run` | Fetch and parse all variants, print per variant which months are `NEW`, which `CHANGED` (cell by cell, old→new) and how many are identical to the CSV. Writes nothing, no render, no top-brands refresh. The way to check a repair against the historic CSV. |
+| `probe_open` (+ `variant`) | Open that variant's workspace like the SPA and print title, period, table dimensions, the header levels and sample rows. Needs the POST-capable relay. |
+| `probe` | Structure of the page: `Globals.*`, script tags, and the URL-like strings / ajax call sites of the same-origin bundles. |
+| `probe_grep` | With `probe`: regexes (separated by `\|\|`) — prints the bundle code around each match. |
+| `probe_get` | With `probe`: API paths to GET through the relay; `{ws}` = the session workspace id, `{pres}` = its first presentation, `{tpl}` = the Whole template GUID. |
+
+Example that found the whole SPA flow: `probe` + `probe_grep`
+`presentationfromurl||apiUrl||method:"POST"` + `probe_get`
+`/viewer/api/configuration /viewer/api/workspace/{ws}`.
+
+### Validate the flow by hand
+
+Only from a network the portal does not block (a home connection, not a cloud VM):
 
 ```sh
-curl -s -c /tmp/c "https://duurzamemobiliteit.databank.nl/viewer?workspace_guid=a7d36cf5-9dd3-4eca-96e9-9e1b991af9ba" \
-  | grep -oE 'WsGuid: "[a-f0-9-]+"'
-# → WsGuid: "<some uuid>"
-
-curl -s -b /tmp/c "https://duurzamemobiliteit.databank.nl/viewer/Presentation/GetTableStart?workspaceGuid=<that uuid>" \
-  | python3 -m json.tool | head -40
-# → JSON with "caption", "headCols", "headRows", "rowData"
+T=29fcfefb-b82b-47cb-a601-b7c31ebd2901          # Whole template
+curl -sL -c /tmp/c "https://duurzamemobiliteit.databank.nl/viewer?workspace_guid=$T" -o /tmp/p.html
+WS=$(grep -oE 'Globals.workspaceId = "[0-9a-f-]+"' /tmp/p.html | grep -oE '[0-9a-f-]{36}')
+curl -s -b /tmp/c -H 'Content-Type: application/json' -H 'X-Page-Type: Index' \
+  -d "{\"entries\":{\"workspace_guid\":\"$T\"}}" \
+  "https://duurzamemobiliteit.databank.nl/viewer/api/workspace/$WS/presentationfromurl"
+# → {"presentationID":"…","isValid":true,…}
+curl -s -b /tmp/c "https://duurzamemobiliteit.databank.nl/viewer/api/workspace/$WS/presentation/<presentationID>" \
+  | python3 -m json.tool | head -60
+# → title, info.period, table.columnHeaderRows, table.rows
 ```
 
-If both steps succeed, the scraper will too. If step 1 returns no
-match, the template GUID is broken. If step 2 returns HTML (a 302 to
-`/Viewer/Error`), the cookies aren't being carried correctly.
+If step 2 says `"isValid":false`, the template GUID is gone. If step 1 leaves
+`$WS` empty, Swing changed the page.
 
 ## 11b. Top brands / models (`market/netherlands_top.json`)
 
@@ -527,11 +593,26 @@ The relay is session-aware (required for Swing's JIVE_AUTH cookie flow):
 | `X-Fwd-Cookie` | `Cookie` |
 | `X-Fwd-Referer` | `Referer` |
 | `X-Fwd-Accept-Language` | `Accept-Language` |
+| `X-Fwd-Content-Type` | `Content-Type` (POST bodies) |
+| `X-Fwd-Accept` | `Accept` (default `text/html,…`) |
+| `X-Fwd-Page-Type` | `X-Page-Type` (Swing SPA) |
+| `X-Fwd-Antiforgery` | `__RequestVerificationToken` (Swing SPA) |
+| `X-Fwd-Origin` | `Origin` |
 | ← `X-Upstream-Set-Cookie-B64` | upstream `Set-Cookie` headers, `\n`-joined **then base64-encoded** |
 
-`scripts/fetch_netherlands.py::_get()` transparently uses the relay when
-`session.relay_base` is set, accumulating upstream cookies in
-`session.relay_cookies` across the bootstrap → GetTableStart → GetTableRows
+**GET and POST.** Until 2026-09 the relay only forwarded GET (a `POST` answered
+404). The SPA's API needs POST, so `POST /fetch?url=…` now forwards the request
+body and the headers above; anything else still answers 404, and only these
+headers travel (the relay stays a narrow, host-allowlisted pipe). The change is
+backward compatible — a GET without the extra headers behaves as before — and
+was tested locally with Deno against a fake upstream (GET unchanged, POST
+forwarded, PUT rejected) before it was deployed. **The relay is not deployed by
+CI: after editing `worker/deno-relay.ts` paste it into the Deno Deploy playground
+and *Save & Deploy* (§ "Setting up the Deno Deploy relay").**
+
+`scripts/fetch_netherlands.py::_get()` (GET) and `_post_json()` (POST) transparently
+use the relay when `session.relay_base` is set, accumulating upstream cookies in
+`session.relay_cookies` across the bootstrap → presentationfromurl → presentation
 call sequence. It base64-decodes `X-Upstream-Set-Cookie-B64` (falling back to
 a plain `X-Upstream-Set-Cookie` header for the single-cookie CF-worker path).
 

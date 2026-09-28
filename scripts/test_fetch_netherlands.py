@@ -227,6 +227,42 @@ def test_dry_run_report(capsys=None):
     assert "1 months identical" in out and "1 new, 1 changed" in out
 
 
+def test_main_end_to_end_writes_the_csvs():
+    """main() with a stubbed portal: Whole and Used land in their CSVs with the
+    right columns, an existing month is updated in place, all-zero future months
+    are skipped, and --dry-run touches nothing."""
+    import csv
+    import tempfile
+    pres = {"Whole": _whole_presentation(), "Used": _used_presentation()}
+    real_fetch, real_paths, real_argv = fn.fetch_table, dict(fn.CSV_PATHS), sys.argv
+    real_session = fn.make_swing_session
+    with tempfile.TemporaryDirectory() as d:
+        fn.CSV_PATHS.update({v: str(Path(d) / f"{v}.csv") for v in fn.CSV_PATHS})
+        Path(fn.CSV_PATHS["Whole"]).write_text(
+            "period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,TOTAL,notes\n"
+            "2023-09,monthly,Whole,old,1.0,1.0,,1.0,1.0,,1.0,5.0,keep-me\n", encoding="utf-8")
+        fn.fetch_table = lambda variant, session: fn.swing_table_to_legacy(pres[variant])
+        fn.make_swing_session = lambda: None
+        try:
+            sys.argv = ["x", "--variant", "whole", "--force", "--no-top", "--dry-run"]
+            fn.main()
+            assert "old" in Path(fn.CSV_PATHS["Whole"]).read_text(encoding="utf-8")   # untouched
+            sys.argv = ["x", "--variant", "all", "--force", "--no-top"]
+            pres["HDV"] = _whole_presentation()
+            fn.main()
+        finally:
+            fn.fetch_table, fn.make_swing_session, sys.argv = real_fetch, real_session, real_argv
+            fn.CSV_PATHS.update(real_paths)
+        rows = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Whole.csv", encoding="utf-8"))}
+        assert sorted(rows) == ["2023-09", "2023-10", "2026-08"]      # future zero month skipped
+        r = rows["2023-09"]
+        assert (r["BEV"], r["PHEV"], r["PETROL"], r["DIESEL"], r["OTHERS"], r["TOTAL"]) == (
+            "10075.0", "3574.0", "15301.0", "27.0", "218.0", "29195.0")
+        assert r["source"] == fn.SOURCE and r["HEV"] == ""
+        used = {r["period"]: r for r in csv.DictReader(open(Path(d) / "Used.csv", encoding="utf-8"))}
+        assert used["2026-07"]["PHEV"] == "205.0" and used["2026-07"]["PETROL"] == "3030.0"
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn_ in tests:
