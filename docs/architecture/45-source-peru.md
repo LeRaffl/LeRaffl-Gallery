@@ -323,6 +323,16 @@ the crossing years. Two things move the denominator: the COVID-19 gap
 (April 2020 no row, May 2020 ≈ 300 cars) and the 2026 market boom
 (≈ 15,000–17,000 new cars a month against ≈ 11,000 in 2025).
 
+**How Peru shows in the gallery (until BEV passes 1 %).** At 0.46 % BEV in
+the trailing twelve months, Peru falls under the gallery's *no transition*
+rule (`rowHasNoTransition`: under 1 % BEV), whatever the fitted curve says —
+and that is shown, not hidden: the *No transition* pill on its cards, *shows
+no transition* in Thresholds and Durations, dark grey on the World Map (Cars
+and Vans) listed with its observed share. Its fit is not collapsed, so it is
+not treated like Argentina (whose collapsed fit is kept out on purpose).
+Checked in a headless browser with the backtest fit of 2026-07. Once the
+trailing share passes 1 % (5 % at the latest) the label goes away by itself.
+
 ## 7. Outputs
 
 - `data/Peru.csv`, `data/Peru_Vans.csv` (monthly, 2019-01 →).

@@ -2341,6 +2341,13 @@ a:focus-visible{
   padding:12px 16px 4px;
   background:#d7e4ee;
 }
+/* Map swatches: legend + list headings wear the exact map colours (WM_COLORS);
+   the text itself stays in ink. --x = off-scale category, heavy outline like
+   on the map. */
+.wm-sw{display:inline-block;width:11px;height:11px;border:1px solid var(--line-2);
+  border-radius:2px;vertical-align:-1px;margin-right:6px}
+.wm-sw--x{border:1.6px solid #3a3833}
+.wm-list-h{margin:0 0 10px;font-size:13px;color:var(--text);letter-spacing:0;text-transform:none}
 #worldMapPlot{
   width:100%;
   aspect-ratio:2.48 / 1;
@@ -4941,9 +4948,10 @@ function tok(name, fallback){
         Color scale is clipped at the 5th and 95th percentile so regular countries get a useful gradient.
         The scale runs <b>light&nbsp;→&nbsp;dark</b> in a single hue, so it stays readable with any form of
         colour blindness — dark always means further along.
-        <b style="color:#c2701a">Amber</b> = pioneers that have already reached the threshold.
-        <b style="color:#6f6c64">Grey</b> = countries whose fitted model does not project a transition within a reasonable horizon.
+        <span class="wm-sw wm-sw--x" style="background:#c2701a"></span><b>Amber</b> = pioneers that have already reached the threshold.
+        <span class="wm-sw wm-sw--x" style="background:#6e6258"></span><b>Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
+        HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
     </div>
@@ -4951,24 +4959,24 @@ function tok(name, fallback){
     <div class="card" style="margin-top:14px;">
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:20px;">
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:var(--ok); letter-spacing:0; text-transform:none;">Leaders</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" style="background:#143a6b"></span>Leaders</h3>
           <ol id="wmTopList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:var(--danger); letter-spacing:0; text-transform:none;">Laggards</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" style="background:#aecce9"></span>Laggards</h3>
           <ol id="wmBottomList" style="margin:0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ol>
         </div>
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:#c2701a; letter-spacing:0; text-transform:none;">Pioneers</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#c2701a"></span>Pioneers</h3>
           <ul id="wmPioneerList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 style="margin:0 0 10px; font-size:13px; color:#6f6c64; letter-spacing:0; text-transform:none;">No transition</h3>
+          <h3 class="wm-list-h"><span class="wm-sw wm-sw--x" style="background:#6e6258"></span>No transition</h3>
           <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
       </div>
       <p class="small" style="margin:12px 0 0; color:var(--muted-2);">
-        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric. <b style="color:#c2701a">Pioneers</b> have already reached the threshold at the time of the last data point. <b style="color:#6f6c64">No transition</b> countries have a fitted Weibull that does not reach the threshold within a reasonable horizon — usually because v2 is very small (flat curve) or the model is still in its early phase.
+        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric (the swatch is the darkest / lightest step of the scale). <b>Pioneers</b> have already reached the threshold at the time of the last data point. <b>No transition</b> countries sell under 1&nbsp;% BEV or have a fitted curve that does not reach the threshold within a reasonable horizon — the same rule as the "shows no transition" label in Thresholds and Durations.
       </p>
     </div>
 
@@ -12291,11 +12299,31 @@ document.addEventListener('keydown', (e) => {
 //                   (P5..P95 clip). Dark = further along, in every mode.
 //   - "pioneer"  — already past the threshold by the data_per date,
 //                   painted amber to signal "in a different league"
-//   - "stalled"  — Weibull does not project a transition within a
-//                   reasonable horizon, painted neutral grey to signal
-//                   "not slow, but absent"
+//   - "stalled"  — no transition: the tables' rowHasNoTransition() rule
+//                   (under 1 % BEV, or a negligible slope — so the map and
+//                   the "shows no transition" label always agree), or a fit
+//                   that does not reach the threshold within a reasonable
+//                   horizon. Painted warm dark grey: "not slow, but absent".
 // The two exception categories also carry a heavier, darker outline: colour
 // alone cannot separate five ramp steps plus two categories (see #226).
+// Unreliable fits (rowIsUnreliableFit — collapsed, unsettled, stale) are left
+// out on purpose, like in the tables.
+//
+// Every variant is coloured on the SAME scale as Cars (whole): the P5..P95
+// range is taken from the Cars rows for the chosen mode and threshold, so
+// switching Cars → HDV → Buses keeps one legend and the maps compare.
+
+// Map colours — used by the traces AND the swatches in the legend and the
+// lists under the map, so they cannot drift apart. Exception colours checked
+// with the dataviz validator against every ramp step (Machado 2009 CVD sim):
+// amber ΔE ≥ 21 to every step; the no-transition grey ΔE ≥ 13 (was #8a877e,
+// 10.6 against the mid step under protanopia).
+const WM_COLORS = {
+  ramp: ['#aecce9', '#7fa9d6', '#4f7fb8', '#22579a', '#143a6b'],
+  pioneer: '#c2701a',
+  stalled: '#6e6258',
+};
+const WM_REFERENCE_VARIANT = 'whole';
 //
 // Plotly understands full country names when locationmode is set to
 // 'country names'. A small alias table handles the handful of names
@@ -12368,8 +12396,10 @@ function wmLoadData(){
           WORLDMAP_STATE.loaded = true;
           const sel = document.getElementById('wmVariant');
           const seg = document.getElementById('wmVarSeg');
-          const allow = ['whole','hdv','buses'];
-          const labels = { whole:'Cars', hdv:'HDV', buses:'Buses' };
+          // Any variant here is drawn on the Cars scale (wmRender), so adding
+          // one is just this list. Vans and Used imports added 2026-09.
+          const allow = ['whole','vans','hdv','buses','used'];
+          const labels = { whole:'Cars', vans:'Vans', hdv:'HDV', buses:'Buses', used:'Used imports' };
           if (sel){
             const counts = new Map();
             rows.forEach(r => {
@@ -12456,8 +12486,11 @@ function wmBuildRows(csvRows, variantCanon){
       if (t0str !== '' && isFinite(t0raw) && t0raw >= 1800) baseYear = Math.round(t0raw);
     }
 
+    const ttmRaw = String(r.ttm_bev_share ?? '').trim();
     out.push({
       country:  wmNormalizeCountry(r.country),
+      noTrans:  rowHasNoTransition(r),   // same rule as the tables' label
+      obs:      ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN,
       dataPer:  r._dp || '',
       v1,
       v2:       normNumber(r.v2),
@@ -12505,6 +12538,9 @@ function wmPioneerCutoff(row){
 // "pioneer" — it can only be normal or stalled (at least one endpoint
 // unreachable within the fitted horizon).
 function wmClassify(mode, value, row){
+  // The tables say "shows no transition" → so does the map (no crossing
+  // year, no duration). In 'share' mode the fitted share stays meaningful.
+  if (row.noTrans && mode !== 'share') return 'stalled';
   // v1 was patched from exactly 0 to -1e-24 → CSV precision too low.
   // This happens for extremely fast transitions (e.g. Indonesia) where
   // v1 is so small that it rounds to 0. Treat as normal — the computed
@@ -12615,6 +12651,12 @@ let wmCurrentScale = 1;
 
 /* ── Build hover text for a row ── */
 function wmHover(row, mode, pct, pct2, value){
+  if (row.noTrans && mode !== 'share'){
+    return `<b>${row.country}</b><br><b>Shows no transition</b> — no crossing year.<br>` +
+      `<span style="opacity:0.75">` +
+      (isFinite(row.obs) ? `${(row.obs * 100).toFixed(1)} % BEV in the last 12 months` : '') +
+      (row.dataPer ? `<br>data per: ${row.dataPer}` : '') + `</span><extra></extra>`;
+  }
   const y20  = wmYearAt(row, 0.20);
   const y50  = wmYearAt(row, 0.50);
   const y80  = wmYearAt(row, 0.80);
@@ -12660,8 +12702,15 @@ function wmRender(){
   const stalled = data.filter(d => d.cls === 'stalled');
 
   const normalVals = normal.map(d => d.v);
-  // For share mode, fixed 0-100% range; otherwise percentile clip
-  const [zmin, zmax] = mode === 'share' ? [0, 100] : wmPercentileRange(normalVals);
+  // One scale for every variant: the P5..P95 clip comes from the Cars rows
+  // (same mode, same threshold), so a colour means the same year / duration
+  // on the HDV or Buses map as on the Cars map. Share mode is 0-100 anyway.
+  const isRef = (WORLDMAP_STATE.variant || WM_REFERENCE_VARIANT) === WM_REFERENCE_VARIANT;
+  if (!isRef && !WORLDMAP_STATE.refRows)
+    WORLDMAP_STATE.refRows = wmBuildRows(WORLDMAP_STATE.csvRows || [], WM_REFERENCE_VARIANT);
+  const refVals = isRef ? normalVals : (WORLDMAP_STATE.refRows || [])
+    .map(r => { const v = wmComputeMetric(r, mode, pct, pct2); return wmClassify(mode, v, r) === 'normal' ? v : NaN; });
+  const [zmin, zmax] = mode === 'share' ? [0, 100] : wmPercentileRange(refVals.length ? refVals : normalVals);
 
   /* COLORBLIND-SAFE MAP SCALE (#226).
      Vorher zwei Skalen, beide rot <-> gruen (shareScale rot->gruen,
@@ -12681,13 +12730,7 @@ function wmRender(){
      Der Ton ist --accent (#1d4f91) mit --accent-2-pale und --accent-deep als
      Nachbarstufen — die Phase-2-Entscheidung "genau EIN Akzent" bleibt damit
      gewahrt, statt eine zweite Farbfamilie einzufuehren. */
-  const SEQ_BLUE = [
-    [0,   '#aecce9'],
-    [0.25,'#7fa9d6'],
-    [0.5, '#4f7fb8'],
-    [0.75,'#22579a'],
-    [1,   '#143a6b']
-  ];
+  const SEQ_BLUE = WM_COLORS.ramp.map((c, i) => [i / (WM_COLORS.ramp.length - 1), c]);
   const colorscale = SEQ_BLUE;
   /* Dunkel heisst immer "weiter in der Transformation", in allen drei Modi.
      Bei 'share' waechst der Wert damit (hoher Anteil = dunkel); bei 'year'
@@ -12722,11 +12765,14 @@ function wmRender(){
     ? `Years from ${pct}% to ${pct2}% BEV`
     : `BEV share of new vehicles, ${shareYr}`;
   const figureSub = mode === 'year'
-    ? `When the fitted S-curve of new-vehicle BEV share crosses ${pct}%. Grey: no model.`
+    ? `When the fitted S-curve of new-vehicle BEV share crosses ${pct}%. Dark grey: no transition.`
     : mode === 'duration'
     ? `How long the fitted S-curve takes to move from ${pct}% to ${pct2}% BEV.`
-    : `Fitted BEV share of new vehicles in ${shareYr}. Grey: no model.`;
+    : `Fitted BEV share of new vehicles in ${shareYr}.`;
   const figureNote = 'Smoothed model · National statistical offices';
+  const varLabel = { whole: 'Cars', hdv: 'HDV', buses: 'Buses', vans: 'Vans', used: 'Used imports' };
+  const scaleNote = (!isRef && mode !== 'share')
+    ? ` Colour scale fixed to ${varLabel[WM_REFERENCE_VARIANT]}, so ${varLabel[WORLDMAP_STATE.variant] || 'this variant'} compares directly.` : '';
 
   const traceNormal = {
     type: 'choropleth', locationmode: 'country names',
@@ -12765,7 +12811,7 @@ function wmRender(){
        Pionier waere darin verschwunden. Bernstein ist der Gegenpol zu Blau
        und damit die eine Farbe, die unter jeder Farbfehlsichtigkeit sicher
        gegen die ganze Rampe steht (ΔE 21–36 gegen jede Stufe). */
-    colorscale: [[0, '#c2701a'], [1, '#c2701a']],
+    colorscale: [[0, WM_COLORS.pioneer], [1, WM_COLORS.pioneer]],
     zmin: 0, zmax: 1,
     showscale: false,
     marker: { line: exceptionLine }
@@ -12782,7 +12828,7 @@ function wmRender(){
        "kein projizierter Uebergang" ist eine Leerstelle, kein Extremwert, und
        Grau sagt das auch. Die staerkere Kontur (exceptionLine) traegt die
        Unterscheidung zur Rampenmitte, die in der Helligkeit nahe liegt. */
-    colorscale: [[0, '#8a877e'], [1, '#8a877e']],
+    colorscale: [[0, WM_COLORS.stalled], [1, WM_COLORS.stalled]],
     zmin: 0, zmax: 1,
     showscale: false,
     marker: { line: exceptionLine }
@@ -12831,7 +12877,7 @@ function wmRender(){
 
   const cap = (id, t) => { const n = document.getElementById(id); if (n) n.textContent = t; };
   cap('wmFigTitle', figureTitle);
-  cap('wmFigSub', figureSub);
+  cap('wmFigSub', figureSub + scaleNote);
   cap('wmFigNote', figureNote);
 
   // Explainer
@@ -12867,8 +12913,8 @@ function wmRender(){
     ? pioneer.map(d => `<li><b>${d.r.country}</b> — fitted curve already past ${pct}% (${wmFmt('year', d.v)})</li>`).join('')
     : '<li style="opacity:0.6">None at this threshold</li>';
   if (stalledList) stalledList.innerHTML = stalled.length
-    ? stalled.map(d => `<li><b>${d.r.country}</b></li>`).join('')
-    : '<li style="opacity:0.6">None at this threshold</li>';
+    ? stalled.map(d => `<li><b>${d.r.country}</b>${d.r.noTrans && isFinite(d.r.obs) ? ` — ${(d.r.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
+    : `<li style="opacity:0.6">${mode === 'share' ? 'Not used in this mode' : 'None at this threshold'}</li>`;
 }
 
 /* ── Init ── */
