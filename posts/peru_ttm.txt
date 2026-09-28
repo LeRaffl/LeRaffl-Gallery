@@ -1,0 +1,9 @@
+🇵🇪 Peru - TTM Market Split
+
+Aug24–Jul25  vs  Aug25–Jul26
++0.0pp  BEV   (0.4% → 0.5%)
++0.4pp  PHEV  (0.3% → 0.7%)
++1.5pp  HEV   (5.8% → 7.2%)
+−1.9pp  ICE   (93.6% → 91.6%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
