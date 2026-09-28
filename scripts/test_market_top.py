@@ -518,6 +518,199 @@ def test_ireland_top():
         pass
 
 
+def test_netherlands_rdw_top():
+    import fetch_netherlands as fn
+    # class = the CSV's split: BEV electricity-only, PHEV OVC-HEV, rest unranked
+    assert fn.powertrain_class([("Elektriciteit", "")]) == "BEV"
+    assert fn.powertrain_class([("Benzine", "OVC-HEV"), ("Elektriciteit", "OVC-HEV")]) == "PHEV"
+    assert fn.powertrain_class([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == ""
+    assert fn.powertrain_class([("Waterstof", "NOVC-FCHV"), ("Elektriciteit", "NOVC-FCHV")]) == ""
+    assert fn.powertrain_class([("Benzine", "")]) == "" and fn.powertrain_class([]) == ""
+    assert fn.next_month("2025-12") == "2026-01" and fn.next_month("2026-06") == "2026-07"
+    # display names: brand aliases, prefix, engine / power / trim codes
+    dm = fn.display_model
+    assert dm("VOLKSWAGEN", "ID.4 PRO 210KW") == "ID.4"
+    assert dm("VOLKSWAGEN", "ID. BUZZ PRO LR 210 KW") == "ID. BUZZ"
+    assert dm("BMW", "IX3 50 XDRIVE") == "IX3" and dm("BMW", "330E XDRIVE") == "330E"
+    assert dm("MERCEDES-BENZ", "CLA 250+") == "CLA" and dm("MERCEDES-BENZ", "GLC 400 4MATIC WITH EQ TE") == "GLC"
+    assert dm("AUDI", "Q4 SPORTBACK 45 E-TRON") == "Q4 E-TRON" and dm("AUDI", "Q3 SB 200KW TFSI E") == "Q3"
+    assert dm("SKODA", "ELROQ 85") == "ELROQ" and dm("SKODA", "ENYAQ RS") == "ENYAQ"
+    assert dm("RENAULT", "RENAULT 5 E-TECH ELECTRIC") == "5" and dm("TESLA", "Model Y") == "MODEL Y"
+    assert dm("MG", "MG4 EV URBAN") == "4" and dm("MG", "MG S5 EV") == "S5"
+    assert dm("MINI", "COUNTRYMAN SE ALL4") == "COUNTRYMAN" and dm("HYUNDAI", "IONIQ5 N") == "IONIQ 5 N"
+    assert dm("PEUGEOT", "3008") == "3008" and dm("BYD", "BYD SEAL U DM-I") == "SEAL U"
+    assert dm("LEXUS", "LEXUS RZ350E") == "RZ" and dm("LYNK&CO", "LYNK & CO 01") == "01"
+    assert fn.display_brand("DS AUTOMOBILES") == "DS" and fn.display_brand("Lynk&Co") == "LYNK & CO"
+
+    # month aggregation over a fake RDW: scope filter is in the query, the class
+    # comes from the fuel table, the total counts every plate
+    cars = [{"kenteken": "AA1", "merk": "TESLA", "handelsbenaming": "MODEL Y"},
+            {"kenteken": "AA2", "merk": "TESLA", "handelsbenaming": "MODEL Y"},
+            {"kenteken": "AA3", "merk": "VOLVO", "handelsbenaming": "XC60"},
+            {"kenteken": "AA4", "merk": "TOYOTA", "handelsbenaming": "TOYOTA YARIS"},
+            {"kenteken": "AA5", "merk": "KIA", "handelsbenaming": "EV3"}]   # no fuel row
+    fuel = [{"kenteken": "AA1", "brandstof_omschrijving": "Elektriciteit"},
+            {"kenteken": "AA2", "brandstof_omschrijving": "Elektriciteit"},
+            {"kenteken": "AA3", "brandstof_omschrijving": "Benzine",
+             "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
+            {"kenteken": "AA3", "brandstof_omschrijving": "Elektriciteit",
+             "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
+            {"kenteken": "AA4", "brandstof_omschrijving": "Benzine"}]
+    seen = []
+
+    def fake_get(session, resource, params):
+        seen.append((resource, params))
+        if resource == fn.RDW_VEHICLES:
+            return cars[params["$offset"]:params["$offset"] + params["$limit"]]
+        return [r for r in fuel if f"'{r['kenteken']}'" in params["$where"]]
+    real = fn.rdw_get
+    fn.rdw_get = fake_get
+    try:
+        units, total = fn.aggregate_month(None, "2026-06")
+    finally:
+        fn.rdw_get = real
+    assert total == 5
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1}
+    where = seen[0][1]["$where"]
+    assert "2026-06-01" in where and "2026-07-01" in where and "export_indicator='Nee'" in where
+    # Whole: admitted in the month; Used: admitted before it (a used import)
+    assert "datum_eerste_toelating_dt >= '2026-06-01'" in where
+    seen.clear()
+    fn.rdw_get = fake_get
+    try:
+        u_units, u_total = fn.aggregate_month(None, "2026-06", "Used")
+    finally:
+        fn.rdw_get = real
+    used_where = seen[0][1]["$where"]
+    assert "datum_eerste_toelating_dt < '2026-06-01'" in used_where
+    assert "datum_eerste_toelating_dt >= '2026-06-01'" not in used_where
+    assert "datum_eerste_tenaamstelling_in_nederland_dt >= '2026-06-01'" in used_where
+    assert (u_units, u_total) == (units, total)          # same fake plates, same class logic
+    # one top file + month store per variant, slugs feed market_top's paths
+    assert fn.TOP_SLUGS == {"Whole": "netherlands", "Used": "netherlands_used"}
+    assert set(fn.TOP_UNITS) == set(fn.TOP_SLUGS) and "used" in fn.TOP_UNITS["Used"]
+    top = mt.build_top_monthly("Netherlands", "S", "2026-06", {"2026-06": (units, total)}, "u")
+    assert top["classes"]["BEV"]["models"][0]["units"] == 2
+    assert top["classes"]["PHEV"]["brands"][0]["brand"] == "VOLVO"
+
+    # scope check: small deviations pass, a scope change aborts the refresh
+    mt.check_scope({"2026-05": 1010, "2026-06": 1000, "2026-07": 5},
+                   {"2026-05": 1000, "2026-06": 1000})          # 2026-07: not in the CSV
+    try:
+        mt.check_scope({"2026-06": 1200}, {"2026-06": 1000})
+        raise AssertionError("a 20 % deviation must raise")
+    except RuntimeError:
+        pass
+
+
+def test_israel_top():
+    import fetch_israel as fi
+    # manufacturer: Hebrew "<brand> <country>", cut off at 14 characters, punctuation-blind
+    b = fi.display_brand
+    assert b("טויוטה יפן") == b("טויוטה צרפת") == "TOYOTA"
+    assert b("מרצדס בנץ גרמנ") == "MERCEDES-BENZ" and b("בי ווי די סין") == "BYD"
+    assert b("מ.ג סין") == "MG" and b("ב מ וו ארהב\"") == "BMW" and b("גי.אי.סי סין") == "GAC"
+    assert b("ג'אקו סין") == "JAECOO" and b("ג'אק סין") == "JAC"      # longest stem wins
+    assert b("פולקסווגן-ספרד") == "VOLKSWAGEN" and b("קיה ד. קוריאה") == "KIA"
+    assert b("לינק אנד קו") == "LYNK & CO" and b("רובר אנגליה") == "LAND ROVER"
+    assert b("איויאיסי סין") == "איויאיסי סין"                          # unknown: shown, not merged
+    # commercial name: brand prefix, glued digits, drive / trim words
+    m = fi.display_model
+    assert m("JAECOO", "JAECOO7 PHEV") == m("JAECOO", "JAECOO 7 PHEV") == "7"
+    assert m("CHERY", "TIGGO8PRO PHEV") == m("CHERY", "TIGGO8 PRO PHEV") == "TIGGO 8"
+    assert m("LYNK & CO", "LYNKCO08 PHEV") == "08" and m("MG", "MG4") == "4"
+    assert m("BYD", "BYD SEAL U") == "SEAL U" and m("HYUNDAI", "IONIQ5") == "IONIQ 5"
+    assert m("TOYOTA", "RAV 4 HYBRID") == m("TOYOTA", "RAV4 HSD") == "RAV4"
+    assert m("LEXUS", "LEXUS NX450PHEV") == "NX" and m("BMW", "X5 XDRIVE 50E") == "X5"
+    assert m("MERCEDES-BENZ", "GLC300E COUPE") == "GLC" and m("MERCEDES-BENZ", "E300DE") == "E"
+    assert m("AUDI", "Q8 55 TFSIE") == "Q8" and m("TESLA", "MODEL Y") == "MODEL Y"
+    assert m("LAND ROVER", "R. ROVER SPORT") == "RANGE ROVER SPORT"
+    assert m("BYD", "ATTO 3 EVO") == m("BYD", "ATTO 3") == "ATTO 3"
+    assert m("X", "", "PFH11S") == "PFH11S"                            # falls back to the type code
+
+    # one column function for the CSV counts and the tables
+    exact = {(1, 2, 2024, "GLX"): "HEV", (1, 3, 2024, "GLX"): "PHEV"}
+    votes = {(1, 2, 2024): {"HEV": 3}, (1, 3, 2024): {"PHEV": 1}}
+
+    def rec(fuel, degem=2, trim="GLX", **kw):
+        return {fi.FUEL_FIELD: fuel, "tozeret_cd": 1, "degem_cd": degem,
+                "shnat_yitzur": 2024, "ramat_gimur": trim, **kw}
+    col = lambda r: fi.column_of(r, exact, votes)                      # noqa: E731
+    assert col(rec("בנזין")) == ("HEV", "trim")                        # HEV hidden in petrol
+    assert col(rec("בנזין", trim="OTHER")) == ("HEV", "majority")
+    assert col(rec("בנזין", degem=9)) == ("PETROL", "unmatched")
+    assert col(rec("בנזין", degem=3)) == ("PHEV", "trim")
+    assert col(rec("חשמל")) == ("BEV", "") and col(rec("")) == ("OTHERS", "")
+    assert col(rec('גפ"מ'))[0] == col(rec('גפמ"'))[0] == "OTHERS"      # both LPG spellings
+    assert col(rec("מימן"))[0] is None
+
+    # month_units: same records, ranked classes only, every record in the total
+    recs = [rec("חשמל", tozeret_nm="טסלה סין", kinuy_mishari="MODEL Y"),
+            rec("חשמל", tozeret_nm="טסלה גרמניה", kinuy_mishari="MODEL Y"),
+            rec("בנזין", tozeret_nm="טויוטה יפן", kinuy_mishari="RAV4 HYBRID"),
+            rec("בנזין", degem=9, tozeret_nm="סוזוקי יפן", kinuy_mishari="SWIFT")]
+    seen = []
+    real = fi.ds_all_records
+    fi.ds_all_records = lambda res, fields, filters=None: seen.append((fields, filters)) or recs
+    try:
+        units, total = fi.month_units("2026-05", (exact, votes))
+    finally:
+        fi.ds_all_records = real
+    assert total == 4
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("HEV", "TOYOTA", "RAV4"): 1}
+    assert seen[0][1] == {fi.DATE_FIELD: "2026-5", fi.SCOPE_FIELD: "P"}    # unpadded month, P scope
+    assert {"tozeret_nm", "kinuy_mishari"} <= set(seen[0][0])
+
+
+def test_portugal_brand_tables():
+    import fetch_portugal as fp
+
+    def chart(series, rows):
+        return {"thisyear": [str(x) for x in series],
+                "result_table": [{"Marca": b, "Mensal": str(m), "Acumulado": str(a)}
+                                 for b, m, a in rows]}
+    charts = {
+        "": chart([100, 120], [("TESLA", 20, 30), ("KIA", 100, 190)]),
+        "7": chart([10, 12], [("TESLA", 8, 15), ("KIA", 4, 7)]),
+        "14": chart([3, 4], [("BMW", 3, 4), ("VOLVO", 1, 3)]),
+        "15": chart([1, 1], [("BMW", 1, 2)]),
+        "17": chart([20, 25], [("TOYOTA", 25, 40), ("KIA", 0, 5)]),
+        "18": chart([0, 0], []),
+    }
+    real = fp.fetch_chart
+    fp.fetch_chart = lambda session, cat, code: charts[code]
+    try:
+        coll = fp.collect_brands(None, 2026)
+        assert coll["period"] == "2026-02" and coll["months"] == 2
+        assert coll["ytd_total"] == 220 and coll["month_total"] == 120
+        assert coll["month"][("PHEV", "BMW", "")] == 4          # 14 + 15 add up
+        assert coll["ytd"][("BEV", "TESLA", "")] == 15 and coll["ytd"][("HEV", "TOYOTA", "")] == 40
+        # brand tables must add up to the fuel series — a missing brand aborts
+        charts["7"] = chart([10, 12], [("TESLA", 8, 15)])
+        try:
+            fp.collect_brands(None, 2026)
+            raise AssertionError("an incomplete brand table must raise")
+        except RuntimeError:
+            pass
+        charts["7"] = chart([10, 12], [("TESLA", 8, 15), ("KIA", 4, 7)])
+        # before the year's first month is out there is nothing to rank
+        charts[""] = {"thisyear": [], "result_table": []}
+        assert fp.collect_brands(None, 2027) is None
+        charts[""] = chart([100, 120], [])
+        coll = fp.collect_brands(None, 2026)
+    finally:
+        fp.fetch_chart = real
+    # headline = year to date; single months come from the store and accumulate
+    stored = {"2026-01": ({("BEV", "TESLA", ""): 7}, 100),
+              "2026-02": (coll["month"], coll["month_total"])}
+    top = fp.build_top_portugal(coll, stored)
+    assert top["window"] == {"from": "2026-01", "to": "2026-02", "months": 2}
+    assert top["total_registrations"] == 220
+    assert top["classes"]["BEV"]["units"] == 22 and top["classes"]["BEV"]["brands"][0]["brand"] == "TESLA"
+    assert [m["period"] for m in top["months"]] == ["2026-02", "2026-01"]
+    assert top["classes"]["BEV"]["models"] == []                  # brands only
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

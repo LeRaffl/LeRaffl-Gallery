@@ -36,6 +36,8 @@ fetcher: scripts/fetch_portugal.py
 workflow: .github/workflows/fetch-portugal.yml
 fragility_doc: docs/architecture/16-source-portugal.md
 data_file: data/Portugal.csv
+market_breakdown: market/portugal_top.json
+market_window_note: The headline is ACAP's own January-to-date ranking, so it restarts every January. The source only ever returns the newest month and the year to date, so the single months are collected one per publication — the month picker starts with the first month the gallery saw and grows from there.
 ---
 
 # 16 · Source: Portugal (ACAP / motordata.pt)
@@ -214,6 +216,35 @@ Single variant ⇒ no parallel-render push race.
 | ACAP revises a month >50% | upsert prints WARNING, still commits | Verify; revert manually if wrong |
 | Google Sheet un-shared | `--sheet` mode fails | Re-share "anyone with the link"; or rely on the live endpoint |
 
+## 9b. Top brands (`market/portugal_top.json`)
+
+The `result_table` that comes back with every POST (see §2) is a **brand
+table**: `Marca`, `Mensal` (the newest published month), `Acumulado` (January to
+that month), `varMensal` / `varAcumulado`. There are no models. Queried per fuel
+code it gives the brands per class — BEV = 7, PHEV = 14 + 15, HEV = 17 + 18, the
+CSV's own split — and `refresh_top()` (Whole only, behind `market_top.guarded`,
+after the CSV work, also on the no-op days of the 1st–5th) builds the source
+page's "Who sells the electrified cars" section from it.
+
+* **Completeness is checked, not assumed.** Verified 2026-09-28: for every fuel
+  code the brands' `Mensal` add up to the last value of that fuel's `thisyear`
+  series and their `Acumulado` to the series' sum, to the unit (BEV: 5 079 and
+  45 388 over 56 brands; all fuels: 14 086 / 169 330 over 73 brands).
+  `collect_brands` re-checks it on every run and raises otherwise (a brand
+  missing from the table would make the ranking lie). The month's all-fuels total
+  is compared with the CSV row by `market_top.check_scope` (1 % warn, 5 % abort).
+* **Headline = year to date.** ACAP's own `Acumulado` ranking, so it restarts every
+  January and the page says so (`market_window_note`). There is no way to ask for
+  an earlier month or a rolling twelve months — same limitation as §2's "no year
+  parameter".
+* **Single months accumulate.** `Mensal` is stored in `market/portugal_months.json`
+  (the month store of `market_top.py`, newest month overwritten on each run so ACAP
+  revisions land), so the month picker starts with the first month the gallery saw
+  (2026-08) and gains one per publication. Nothing is back-filled: splitting the
+  year to date into months would be inventing numbers.
+* **Brands as ACAP spells them** (`DONG FENG`, `KGM`, `VAUXHALL`, …), upper-cased;
+  no aliasing.
+
 ## 10. Maintenance recipes
 
 ```sh
@@ -222,6 +253,9 @@ python scripts/fetch_portugal.py --force
 
 # Patch/backfill from the Google Sheet (e.g. to fill a December gap)
 python scripts/fetch_portugal.py --sheet --force
+
+# The brands file (§9b) is refreshed by every run, incl. the no-op ones;
+# --no-top skips it.
 
 # Validate the endpoint by hand (BEV, current year)
 curl -s -X POST 'https://motordata.pt/autoinforma/chartdata_novo.php' \
@@ -233,7 +267,8 @@ curl -s -X POST 'https://motordata.pt/autoinforma/chartdata_novo.php' \
 
 - Mopeds / motorcycles (categories 4–7). The four car/van/lorry/bus variants
   are ingested; commercials are fetch-only (not auto-rendered) — see §5.
-- A year parameter / arbitrary historical fetch from motordata (current year only).
+- A year parameter / arbitrary historical fetch from motordata (current year only) —
+  which is also why the brands file cannot show a rolling twelve months (§9b).
 - The PDF on the ACAP page (it publishes a few hours later than the chart data —
   the live chart is the earlier source).
 - FLEXFUEL (Portugal doesn't report ethanol/flexfuel).

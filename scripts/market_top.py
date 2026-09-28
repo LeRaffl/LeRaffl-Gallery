@@ -32,6 +32,7 @@ Argentina's predates the folder and lives in ``classification/``.
 from __future__ import annotations
 
 import collections
+import csv
 import json
 from pathlib import Path
 
@@ -247,6 +248,43 @@ def refresh_from_store(country: str, source: str, unit: str, slug: str,
     wrote = write_top(top, MARKET_DIR / f"{slug}_top.json")
     report(top, MARKET_DIR / f"{slug}_top.json", wrote)
     return top
+
+
+def csv_totals(path, variant: str = "Whole") -> dict[str, int]:
+    """{period: TOTAL} of one variant's rows in a data CSV (empty if the file is
+    missing) — the reference `check_scope` compares a fetcher's own counts to."""
+    out: dict[str, int] = {}
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if (row.get("variant") or "Whole") == variant and row.get("TOTAL"):
+                    out[row["period"]] = int(float(row["TOTAL"]))
+    except OSError:
+        pass
+    return out
+
+
+def check_scope(counted: dict[str, int], reference: dict[str, int],
+                warn: float = 0.05, abort: float = 0.10) -> None:
+    """For a source whose top lists are counted from records that the data CSV
+    does not come from: compare each month's counted total with the CSV's
+    TOTAL for the same month. Two snapshots of one register differ by a few
+    per cent (the register is live, the CSV a fetch-time copy); a month beyond
+    `warn` is logged, and a window beyond `abort` raises — the scope changed,
+    so the tables would no longer describe the charts. Months the CSV does not
+    have are skipped."""
+    got = ref = 0
+    for p in sorted(counted):
+        if not reference.get(p):
+            continue
+        n, t = counted[p], reference[p]
+        dev = (n - t) / t
+        flag = "  <-- above tolerance" if abs(dev) > warn else ""
+        print(f"  scope {p}: counted {n:,} vs CSV {t:,} ({dev:+.1%}){flag}")
+        got, ref = got + n, ref + t
+    if ref and abs(got - ref) / ref > abort:
+        raise RuntimeError(f"window total {got:,} vs CSV {ref:,} differs by more "
+                           f"than {abort:.0%} — did the source's scope change?")
 
 
 def report(top: dict, path: Path, wrote: bool) -> None:

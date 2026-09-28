@@ -25,18 +25,25 @@ TEMPLATES constant, the parser, or the column mapping.
 
 Brief recap (so the script reads on its own):
 
-* duurzamemobiliteit.databank.nl is RDW data served by Swing 7.1 (ABF
-  Research). No documented public API. We hit pre-saved workspace permalinks
-  the maintainer set up in the Swing UI.
-* Bootstrap: GET /viewer?workspace_guid=<TEMPLATE> establishes a session and
-  embeds a session-bound GUID as `WsGuid: "..."` in the HTML. We then hit
-  /viewer/Presentation/GetTableStart with that session GUID, paginating with
-  GetTableRows when the pivot is longer than the initial page (~70 rows).
+* duurzamemobiliteit.databank.nl is RDW data served by Swing (ABF Research).
+  No documented public API. We open pre-saved workspace permalinks the
+  maintainer set up in the Swing UI, the way the viewer's own SPA does
+  (since 2026-09; before that GetTableStart returned the pivot):
+    1. GET /viewer?workspace_guid=<TEMPLATE>  -> anonymous session; the page
+       defines Globals.workspaceId, the session's own workspace.
+    2. POST /viewer/api/workspace/<ws>/presentationfromurl
+       {"entries": {"workspace_guid": <TEMPLATE>}}  -> {presentationID, isValid}
+    3. GET /viewer/api/workspace/<ws>/presentation/<id>  -> {title, table:
+       {columnHeaderRows, rows: [{cells: [{text}]}]}} — the whole table.
+  swing_table_to_legacy() maps that onto the headRows/headCols/rowData shape
+  the parsers were written for. The POST needs the POST-capable relay
+  (worker/deno-relay.ts, 2026-09 version). --dry-run compares with the CSVs,
+  --probe-swing / --probe-open diagnose the portal (docs 10, section 11).
 * Dutch label -> canonical column:
       BEV -> BEV;  PHEV -> PHEV;  Benzine -> PETROL;  Diesel -> DIESEL;
       FCEV + Overig -> OTHERS;  HEV column is always blank (RDW doesn't
       split it; full hybrids fold into Benzine/Diesel upstream).
-* Dutch locale: "." is thousands separator (6.863 == 6863). "&nbsp;" == 0.
+* Dutch locale: "." is thousands separator (6.863 == 6863). Empty cell == 0.
 * Table orientation varies by view. Whole/HDV return periods-in-rows with one
   column per fuel. Used returns periods-in-rows too, but with fuels on the
   OUTER column level, each spanning two sub-columns ("Occasion import > 90 dgn"
@@ -44,10 +51,37 @@ Brief recap (so the script reads on its own):
   fuels-in-rows; _parse_fuels_in_rows is kept for that shape.) The parser
   picks the branch from the headRows labels and locates the fuel header level
   by matching NL_FUELS.
+
+Top brands / models (market/netherlands_top.json)
+-------------------------------------------------
+The Swing pivots carry no brand or model. The same register is also published
+record by record as RDW open data (opendata.rdw.nl, Socrata, no key), so every
+run also keeps the trailing-twelve-month top brands and models per electrified
+class (Whole only; BEV and PHEV, the classes the CSV splits) current, in the
+country-neutral schema of scripts/market_top.py; the source page renders it.
+
+* Scope = the Swing "Personenauto Nieuw" instroom, rebuilt from the records:
+  voertuigsoort Personenauto, first registration in NL in the month AND first
+  admission (datum eerste toelating) in the same month, export_indicator Nee.
+  That lands within about 1-3 % of the CSV per month (RDW is a live register,
+  Swing a snapshot), so each month is checked against data/Netherlands.csv and
+  a window deviating by more than 10 % aborts the refresh (market_top.check_scope;
+  guarded: a warning, the data commit is unaffected).
+* Class = fuel table 8ys7-d773 keyed by kenteken: BEV = Elektriciteit only;
+  PHEV = a row with klasse_hybride_elektrisch_voertuig OVC-HEV. Full hybrids
+  stay unsplit like in the CSV; fuel-cell cars count as OTHERS there and are
+  not ranked.
+* The fuel table cannot be joined server-side, so the fuels of a month are read
+  in batches of FUEL_BATCH plates (about one minute per month). Months are kept
+  in market/netherlands_months.json (the month store of market_top.py), so a
+  normal run reads only the newest month; the very first run reads twelve.
+* --no-top skips all of it.
 """
 import argparse
 import base64
+import collections
 import csv
+import json
 import os
 import re
 import sys
@@ -59,6 +93,9 @@ from urllib.parse import quote as urlquote, urljoin
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 BASE = "https://duurzamemobiliteit.databank.nl"
 
@@ -116,7 +153,14 @@ NL_MONTHS = {
     "december": 12,
 }
 
-WSGUID_RE = re.compile(r'WsGuid:\s*"([a-f0-9-]{36})"')
+def swing_token(html: str) -> str:
+    """The antiforgery token the SPA sends as the __RequestVerificationToken
+    header on its POSTs (document.querySelector("input[name=__RequestVerificationToken]"))."""
+    m = re.search(r"<input[^>]*name=[\"']?__RequestVerificationToken[\"']?[^>]*>", html)
+    v = re.search(r"value=[\"']([^\"']*)[\"']", m.group(0)) if m else None
+    return v.group(1) if v else ""
+
+
 DATE_RE = re.compile(r"(\d{1,2})\s+(\w+)\s+(\d{4})")
 
 # Relay redirect chain: followed client-side so the cookie jar in
@@ -167,7 +211,31 @@ def _get(session: requests.Session, url: str,
     )
 
 
+# Request headers a POST needs that the relay forwards under an X-Fwd- name
+# (see worker/deno-relay.ts).
+RELAY_EXTRA_HEADERS = {
+    "Content-Type": "X-Fwd-Content-Type",
+    "Accept": "X-Fwd-Accept",
+    "X-Page-Type": "X-Fwd-Page-Type",
+    "__RequestVerificationToken": "X-Fwd-Antiforgery",
+    "Origin": "X-Fwd-Origin",
+}
+
+
+def _post_json(session: requests.Session, url: str, payload: dict,
+               headers: dict | None = None, **kwargs) -> requests.Response:
+    """POST a JSON body — directly, or through the relay (which must be the
+    2026-09 version of worker/deno-relay.ts: earlier ones answer 404 to POST)."""
+    body = json.dumps(payload).encode("utf-8")
+    merged = {**HTTP_HEADERS, "Accept": "application/json, text/plain, */*",
+              "Content-Type": "application/json", **(headers or {})}
+    if not getattr(session, "relay_base", None):
+        return session.post(url, headers=merged, data=body, **kwargs)
+    return _relay_once(session, url, merged, method="POST", body=body, **kwargs)
+
+
 def _relay_once(session: requests.Session, url: str, merged_headers: dict,
+                method: str = "GET", body: bytes | None = None,
                 **kwargs) -> requests.Response:
     """One relay round-trip, harvesting upstream Set-Cookie into the jar."""
     relay_base = session.relay_base  # type: ignore[attr-defined]
@@ -189,7 +257,13 @@ def _relay_once(session: requests.Session, url: str, merged_headers: dict,
         fwd["X-Fwd-Referer"] = merged_headers["Referer"]
 
     relay_url = relay_base + urlquote(url, safe="")
-    resp = session.get(relay_url, headers=fwd, **kwargs)
+    if method == "POST":
+        for name, wire in RELAY_EXTRA_HEADERS.items():
+            if merged_headers.get(name):
+                fwd[wire] = merged_headers[name]
+        resp = session.post(relay_url, headers=fwd, data=body, **kwargs)
+    else:
+        resp = session.get(relay_url, headers=fwd, **kwargs)
 
     # Harvest upstream Set-Cookie into the manual cookie jar. The Deno relay
     # base64-encodes the \n-joined blob (X-Upstream-Set-Cookie-B64) because
@@ -231,76 +305,65 @@ def parse_nl_period(label: str) -> str:
     return f"{year}-{month:02d}"
 
 
+def swing_table_to_legacy(presentation: dict) -> dict:
+    """Map the SPA's presentation JSON ({title, table: {columnHeaderRows,
+    rows, headColCount, colCount, …}}) onto the shape the parsers below were
+    written for ({caption, headRows, headCols, rowData, totalRows, totalCols}) —
+    the old GetTableStart response — so Whole, Used and HDV keep one parse path.
+
+    * headCols: one list per header level, one {"d": label} per value column.
+      The SPA already emits a blank continuation cell (type 4) after a cell
+      with colSpan 2 (Used: each fuel over "> 90 dgn" / "<= 90 dgn"), which is
+      exactly the old span-continuation convention; should a payload ever leave
+      them out, they are added from colSpan.
+    * headRows / rowData: the first headColCount cells of each row are its
+      header, the rest its values. colCount counts the value columns only, and
+      every header level and row must carry exactly that many — else the
+      labels would slide, which is a hard error."""
+    t = presentation["table"]
+    hc = t.get("headColCount", 1)
+    ncols = t.get("colCount", 0)          # value columns only (Whole 6, Used 12)
+    head_cols = []
+    for level in t.get("columnHeaderRows") or []:
+        cells = [{"d": c.get("text", "")} for c in level["cells"][hc:]]
+        if len(cells) != ncols:                   # continuation cells left out: expand
+            cells = []
+            for c in level["cells"][hc:]:
+                cells.append({"d": c.get("text", "")})
+                cells.extend({"d": ""} for _ in range(int(c.get("colSpan", 1)) - 1))
+        if len(cells) != ncols:
+            raise RuntimeError(f"Swing header level has {len(cells)} columns, the table "
+                               f"declares {ncols} — the payload shape changed (--probe-open)")
+        head_cols.append(cells)
+    rows = t.get("rows") or []
+    for i, r in enumerate(rows):
+        if len(r["cells"]) - hc != ncols:
+            raise RuntimeError(f"Swing row {i} has {len(r['cells']) - hc} value cells, the "
+                               f"table declares {ncols} — the payload shape changed")
+    return {
+        "caption": presentation.get("title", ""),
+        "totalRows": len(rows),
+        "totalCols": ncols,
+        "headRows": [[{"d": c.get("text", "")} for c in r["cells"][:hc]] for r in rows],
+        "headCols": head_cols,
+        "rowData": [[{"d": c.get("text", "")} for c in r["cells"][hc:]] for r in rows],
+    }
+
+
 def fetch_table(variant: str, session: requests.Session) -> dict:
-    """Bootstrap a session-bound workspace and return its full pivot as JSON.
-
-    GetTableStart only returns the first ~70 rows; if the pivot is longer we
-    follow up with GetTableRows to backfill the remainder. With the current
-    rolling 36-month window Whole/HDV return 36 period rows (one page, no
-    backfill needed); the pagination loop stays for safety if the window is
-    ever widened. Used Imports has only 6 rows (fuels-in-rows layout) so a
-    single GetTableStart always suffices.
-    """
-    template_guid = TEMPLATES[variant]
-    init_url = f"{BASE}/viewer?workspace_guid={template_guid}"
-    print(f"[{variant}] init: {init_url}")
-    r = _get(session, init_url, timeout=30)
-    if r.status_code != 200:
-        # DIAG: the relay passes the upstream body through unchanged, so r.text
-        # is whatever databank.nl actually returned (a real Swing/CBS error
-        # page) — or, if the Deno relay itself threw, a generic Deno 500 page.
-        # Printing status + headers + body snippet tells us which, and what the
-        # server complained about.
-        print(f"[{variant}] init HTTP {r.status_code}")
-        print(f"[{variant}] resp headers: {dict(r.headers)}")
-        print(f"[{variant}] body[:1500]: {r.text[:1500]!r}")
-    r.raise_for_status()
-    m = WSGUID_RE.search(r.text)
-    if not m:
-        raise RuntimeError(
-            f"[{variant}] WsGuid not found in /viewer response; the template GUID "
-            f"may have been deleted or Swing changed its HTML shape."
-        )
-    wsguid = m.group(1)
-    referer = {"Referer": f"{BASE}/viewer"}
-
-    start_url = (
-        f"{BASE}/viewer/Presentation/GetTableStart"
-        f"?workspaceGuid={wsguid}&_={int(time.time() * 1000)}"
-    )
-    r = _get(session, start_url, headers=referer, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-
-    total_rows = data["totalRows"]
-    total_cols = data["totalCols"]
-    have_rows = len(data["rowData"])
-    while have_rows < total_rows:
-        more_url = (
-            f"{BASE}/viewer/Presentation/GetTableRows"
-            f"?workspaceGuid={wsguid}"
-            f"&startRow={have_rows}&startCol=0"
-            f"&numRows={total_rows - have_rows}&numCols={total_cols}"
-            f"&tableId=0&_={int(time.time() * 1000)}"
-        )
-        r = _get(session, more_url, headers=referer, timeout=30)
-        r.raise_for_status()
-        chunk = r.json().get("rowData", [])
-        if not chunk:
-            raise RuntimeError(
-                f"[{variant}] GetTableRows returned no rows at startRow={have_rows}; "
-                f"expected {total_rows - have_rows} more"
-            )
-        data["rowData"].extend(chunk)
-        have_rows = len(data["rowData"])
-        print(f"[{variant}] paged: {have_rows}/{total_rows} rows")
-
+    """The variant's saved Swing view as {caption, headRows, headCols, rowData}
+    (see open_presentation for the flow, swing_table_to_legacy for the shape).
+    The presentation carries the whole table — no paging."""
+    presentation = open_presentation(session, variant)
+    data = swing_table_to_legacy(presentation)
+    print(f"[{variant}] {presentation.get('title')!r}: {data['totalRows']} rows x "
+          f"{data['totalCols']} cols, period {presentation.get('info', {}).get('period')}")
     return data
 
 
 def parse_table(data: dict, variant: str) -> dict[str, dict[str, float]]:
     """
-    Parse a Swing GetTableStart response into {period: {fuel: value}}.
+    Parse the table (swing_table_to_legacy shape) into {period: {fuel: value}}.
 
     Two layouts are possible:
       A. Periods in headRows, fuels in headCols   (Whole, HDV, Used)
@@ -426,6 +489,36 @@ def to_csv_rows(parsed: dict[str, dict[str, float]], variant: str) -> dict[str, 
     return out
 
 
+def dry_run_report(csv_path: str, rows: dict[str, dict], variant: str) -> None:
+    """--dry-run: how the freshly parsed rows relate to what the CSV already
+    holds — new months, and every cell that moved (Swing restates recent
+    months; a real historic difference would show up here)."""
+    cols = ["BEV", "PHEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]
+    have: dict[str, dict] = {}
+    if os.path.exists(csv_path):
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            have = {r["period"]: r for r in csv.DictReader(f)
+                    if (r.get("variant") or variant) == variant}
+    same = 0
+    for period in sorted(rows):
+        new, old = rows[period], have.get(period)
+        if old is None:
+            print(f"[{variant}] NEW     {period}: "
+                  + " ".join(f"{c}={new[c]:.0f}" for c in cols))
+            continue
+        moved = [f"{c} {float(old[c] or 0):.0f}->{new[c]:.0f}" for c in cols
+                 if float(old[c] or 0) != float(new[c] or 0)]
+        if moved:
+            print(f"[{variant}] CHANGED {period}: " + ", ".join(moved))
+        else:
+            same += 1
+    gone = sorted(set(have) - set(rows))
+    print(f"[{variant}] dry run: {same} months identical to {csv_path}, "
+          f"{sum(1 for p_ in rows if p_ not in have)} new, "
+          f"{sum(1 for p_ in rows if p_ in have) - same} changed"
+          + (f"; {len(gone)} CSV months not in the view ({gone[0]}..{gone[-1]})" if gone else ""))
+
+
 def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[int, int]:
     """Upsert by (period, variant). Returns (added, updated). Warns on >50% delta."""
     existing: dict[tuple[str, str], dict] = {}
@@ -464,6 +557,429 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
     return added, updated
 
 
+# ── Top brands / models (RDW open data; not used for the data CSV) ─────────
+
+RDW_BASE = "https://opendata.rdw.nl/resource/"
+RDW_VEHICLES = "m9d7-ebf2"        # Gekentekende voertuigen (one row per plate)
+RDW_FUEL = "8ys7-d773"            # ... brandstof (one row per plate x fuel)
+TOP_SOURCE = "RDW open data"
+# One top file + month store per variant the register can reproduce: Whole
+# (new passenger cars) and Used (imported used passenger cars).
+TOP_SLUGS = {"Whole": "netherlands", "Used": "netherlands_used"}
+TOP_PATH = market_top.MARKET_DIR / "netherlands_top.json"
+STORE_PATH = market_top.MARKET_DIR / "netherlands_months.json"
+_TOP_UNIT_TAIL = ("brand = RDW 'merk'; model = RDW 'handelsbenaming' with the "
+                  "brand prefix, engine / power / trim codes removed — see "
+                  "display_model in scripts/fetch_netherlands.py)")
+TOP_UNITS = {
+    "Whole": "first registrations (" + _TOP_UNIT_TAIL,
+    "Used": ("imported used cars at their first Dutch registration (admitted "
+             "before the month it was registered in; " + _TOP_UNIT_TAIL),
+}
+TOP_UNIT = TOP_UNITS["Whole"]
+FUEL_BATCH = 800                  # plates per fuel query (URL limit ~ 1000)
+PAGE = 50000                      # Socrata's maximum page size
+RDW_TRIES = 5
+
+
+def rdw_session() -> requests.Session:
+    """A plain session for opendata.rdw.nl — deliberately not the Swing
+    session: NL_PROXY / NL_FETCH_RELAY exist because duurzamemobiliteit
+    blocks GitHub, RDW's open-data host does not."""
+    s = requests.Session()
+    s.headers["User-Agent"] = "LeRaffl-Gallery/1.0 (+https://github.com/LeRaffl/LeRaffl-Gallery)"
+    return s
+
+
+def rdw_get(session: requests.Session, resource: str, params: dict) -> list:
+    """One Socrata query, retried with backoff (RDW answers an occasional 500
+    under load)."""
+    err = None
+    for attempt in range(RDW_TRIES):
+        try:
+            r = session.get(f"{RDW_BASE}{resource}.json", params=params, timeout=180)
+            if r.status_code == 200:
+                return r.json()
+            err = f"HTTP {r.status_code}"
+        except requests.RequestException as e:
+            err = f"{type(e).__name__}: {e}"
+        time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"RDW {resource} failed after {RDW_TRIES} tries: {err}")
+
+
+def next_month(period: str) -> str:
+    y, m = map(int, period.split("-"))
+    return f"{y + m // 12}-{m % 12 + 1:02d}"
+
+
+def fetch_new_cars(session: requests.Session, period: str,
+                   variant: str = "Whole") -> list[dict]:
+    """The plates counted for `period`: first NL registration in the month,
+    not exported since, and
+
+    * Whole — first admission in the same month (a new car);
+    * Used  — first admission BEFORE the month (a used import: the car had
+      been admitted, and driven, abroad before it was registered here).
+    """
+    a, b = f"{period}-01", f"{next_month(period)}-01"
+    admitted = (f"datum_eerste_toelating_dt >= '{a}' and datum_eerste_toelating_dt < '{b}'"
+                if variant == "Whole" else f"datum_eerste_toelating_dt < '{a}'")
+    where = ("voertuigsoort='Personenauto' "
+             f"and datum_eerste_tenaamstelling_in_nederland_dt >= '{a}' "
+             f"and datum_eerste_tenaamstelling_in_nederland_dt < '{b}' "
+             f"and {admitted} "
+             "and export_indicator='Nee'")
+    rows: list[dict] = []
+    while True:
+        page = rdw_get(session, RDW_VEHICLES, {
+            "$select": "kenteken,merk,handelsbenaming", "$where": where,
+            "$order": "kenteken", "$limit": PAGE, "$offset": len(rows)})
+        rows += page
+        if len(page) < PAGE:
+            return rows
+
+
+def fetch_fuels(session: requests.Session, plates: list[str]) -> dict[str, list]:
+    """{plate: [(fuel, hybrid class), ...]} from the fuel table. It cannot be
+    joined on the server, so the plates go in as IN lists."""
+    out: dict[str, list] = collections.defaultdict(list)
+    for i in range(0, len(plates), FUEL_BATCH):
+        inlist = ",".join(f"'{p}'" for p in plates[i:i + FUEL_BATCH])
+        for r in rdw_get(session, RDW_FUEL, {
+                "$select": "kenteken,brandstof_omschrijving,klasse_hybride_elektrisch_voertuig",
+                "$where": f"kenteken in({inlist})", "$limit": PAGE}):
+            out[r["kenteken"]].append((r.get("brandstof_omschrijving") or "",
+                                       r.get("klasse_hybride_elektrisch_voertuig") or ""))
+    return out
+
+
+def powertrain_class(fuels: list) -> str:
+    """The CSV's split: BEV = electricity as the only fuel, PHEV = an
+    externally chargeable hybrid (OVC-HEV). Everything else — including the
+    full hybrids the CSV leaves unsplit and fuel-cell cars (OTHERS) — is ""."""
+    kinds = {k for _, k in fuels if k}
+    if any(k.startswith("OVC-HEV") for k in kinds):
+        return "PHEV"
+    if fuels and {f for f, _ in fuels} == {"Elektriciteit"} and not kinds:
+        return "BEV"
+    return ""
+
+
+# Display names only — the CSV never sees them. RDW's `merk` is consistent
+# apart from a handful of spellings; `handelsbenaming` is the type-approval
+# trade name and carries engine, power and trim ("ID.4 PRO 210KW", "IX3 50
+# XDRIVE", "CLA 250+"), so several strings are one model on the road.
+BRAND_ALIASES = {"DS AUTOMOBILES": "DS", "LYNK&CO": "LYNK & CO",
+                 "MERCEDES BENZ": "MERCEDES-BENZ", "LAND-ROVER": "LAND ROVER",
+                 "BURSTNER GMBH": "BURSTNER", "LUCID MOTORS": "LUCID"}
+# Equipment / drive / body words removed from any brand's model string.
+MODEL_NOISE = re.compile(
+    r"\d+(?:[.,]\d+)?\s?KWH?\b|\b\d+/\d+\s?KWH\b"          # 210KW, 150 KW, 60/63 KWH
+    r"|\b(?:PRO S|PRO|PURE|MAX|LR|KR|GTX|PERF\.?|PERFORMANCE|QUATTRO|SPORTBACK|"
+    r"SPORTS TOURER|TOURER|AVANT|AV|SB|SUV|TOURING|CROSS COUNTRY|E-TECH ELECTRIC|"
+    r"E-TECH|ELECTRIC|EV|EVO|DM-I|EM-I|PHEV|E-HYBRID\d*|HYBRID|TFSI E|TFSI|"
+    r"XDRIVE\d*E?|EDRIVE\d*|SDRIVE\d*|4MATIC\+?|ALL4|WITH EQ TE|SP|URBAN)\b")
+# Brands whose trade names are a family name followed by numbers / suffixes.
+FIRST_TOKEN = {"BMW", "PORSCHE"}
+DROP_NUMBERS = {"SKODA"}
+
+
+def display_brand(merk: str) -> str:
+    b = market_top.clean(merk)
+    return BRAND_ALIASES.get(b, b)
+
+
+def display_model(merk: str, model: str) -> str:
+    """RDW trade name -> the model as buyers know it, for the ranking only."""
+    brand = display_brand(merk)
+    m = market_top.clean(model)
+    for prefix in {market_top.clean(merk), brand}:
+        m = market_top.strip_brand(prefix, m)
+        if m.startswith(prefix) and m[len(prefix):len(prefix) + 1].isdigit():
+            m = m[len(prefix):]                       # "MG4 ELECTRIC" -> "4 ELECTRIC"
+    m = re.sub(r"\([^)]*\)", " ", m)
+    if brand == "MERCEDES-BENZ":
+        toks = m.split()
+        keep = []
+        for t in toks:
+            if any(ch.isdigit() for ch in t):
+                break
+            keep.append(t)
+        m = " ".join(keep or toks[:1])
+    elif brand == "AUDI":
+        toks = m.split()
+        fam = toks[:2] if toks[:1] in (["RS"], ["S"]) and len(toks) > 1 else toks[:1]
+        m = " ".join(fam + (["E-TRON"] if "E-TRON" in toks and "E-TRON" not in fam else []))
+    elif brand == "TESLA":
+        m = " ".join(m.split()[:2])
+    elif brand == "LEXUS":
+        m = re.sub(r"^([A-Z]{2})\d{3}.*$", r"\1", m)
+    elif brand == "HYUNDAI":
+        m = re.sub(r"^IONIQ ?(\d)", r"IONIQ \1", m)
+    elif brand in FIRST_TOKEN:
+        m = m.split(" ")[0]
+    m = MODEL_NOISE.sub(" ", m)
+    if brand in DROP_NUMBERS:
+        m = re.sub(r"(?<!\S)\d{2,3}(?!\S)|(?<!\S)RS(?!\S)", " ", m)
+    if brand == "MINI":
+        m = re.sub(r"(?<!\S)(?:E|SE|JCW)(?!\S)", " ", m)
+    m = " ".join(m.split())
+    return m or market_top.clean(model)
+
+
+def aggregate_month(session: requests.Session, period: str,
+                    variant: str = "Whole") -> tuple[dict, int]:
+    """({(class, brand, model): n} for BEV/PHEV, all cars of the month)."""
+    cars = fetch_new_cars(session, period, variant)
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    units: collections.Counter = collections.Counter()
+    for c in cars:
+        cls = powertrain_class(fuels.get(c["kenteken"], []))
+        if cls:
+            units[(cls, display_brand(c.get("merk")),
+                   display_model(c.get("merk"), c.get("handelsbenaming")))] += 1
+    return dict(units), len(cars)
+
+
+def refresh_top(session: requests.Session | None = None,
+                variant: str = "Whole") -> None:
+    """Bring market/netherlands[_used]_top.json up to the newest month of the
+    variant's CSV, reading only the months its month store does not have yet."""
+    slug = TOP_SLUGS[variant]
+    top_path = market_top.MARKET_DIR / f"{slug}_top.json"
+    store_path = market_top.MARKET_DIR / f"{slug}_months.json"
+    totals = market_top.csv_totals(CSV_PATHS[variant], variant)
+    if not totals:
+        return
+    target = max(totals)
+    stored = market_top.load_store(store_path)
+    need = [p for p in market_top.month_window(target) if p not in stored]
+    if not need and market_top.top_is_current(top_path, target):
+        print(f"{top_path.relative_to(market_top.REPO)}: current ({target}).")
+        return
+    print(f"Top brands/models [{variant}]: reading {len(need)} month(s) from RDW: "
+          f"{need or '-'}")
+    session = session or rdw_session()
+    fresh = {}
+    for p in need:
+        fresh[p] = aggregate_month(session, p, variant)
+        print(f"  {p}: {fresh[p][1]:,} cars, "
+              f"{sum(fresh[p][0].values()):,} BEV/PHEV")
+    window = market_top.month_window(target)
+    market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items() if p in window},
+                           totals)
+    market_top.refresh_from_store("Netherlands", TOP_SOURCE, TOP_UNITS[variant],
+                                  slug, fresh, variant)
+
+
+def refresh_tops(session: requests.Session | None = None) -> None:
+    """Every variant's top file; a failure in one never stops the other."""
+    for variant in TOP_SLUGS:
+        market_top.guarded(refresh_top, session, variant)
+
+
+def open_presentation(session: requests.Session, variant: str) -> dict:
+    """Open a saved workspace the way the Swing SPA does and return its
+    presentation JSON ({title, table: {rows, columnHeaderRows, …}, info, …}).
+
+    1. GET /viewer?workspace_guid=<template>  — anonymous login bounce; the page
+       carries the session's own workspace id (Globals.workspaceId).
+    2. POST api/workspace/<ws>/presentationfromurl {"entries": {"workspace_guid":
+       <template>}} — the SPA sends every query parameter of its URL; the server
+       copies the saved workspace's presentation into the session workspace.
+    3. GET api/workspace/<ws>/presentation/<id> — the presentation with its table.
+    """
+    template = TEMPLATES[variant]
+    init_url = f"{BASE}/viewer?workspace_guid={template}"
+    r = _get(session, init_url, timeout=30)
+    r.raise_for_status()
+    m = re.search(r'Globals\.workspaceId\s*=\s*"([0-9a-f-]{36})"', r.text)
+    if not m:
+        raise RuntimeError(f"[{variant}] Globals.workspaceId not found in /viewer — "
+                           "did Swing change the page again? (--probe-swing)")
+    ws = m.group(1)
+    page = re.search(r'<html[^>]*data-page-type="([^"]+)"', r.text)
+    hdrs = {"Referer": init_url, "Origin": BASE,
+            "X-Page-Type": page.group(1) if page else "Index"}
+    token = swing_token(r.text)
+    if token:
+        hdrs["__RequestVerificationToken"] = token
+    pr = _post_json(session, f"{BASE}/viewer/api/workspace/{ws}/presentationfromurl",
+                    {"entries": {"workspace_guid": template}}, hdrs, timeout=60)
+    pr.raise_for_status()
+    meta = pr.json()
+    if not (meta.get("isValid") and meta.get("presentationID")):
+        raise RuntimeError(
+            f"[{variant}] presentationfromurl gave no valid presentation ({meta}); the saved "
+            f"workspace {template} may be gone — re-save the view in Swing (see 10-source-"
+            "netherlands.md, 'Rotate one of the three Swing template GUIDs').")
+    g = _get(session, f"{BASE}/viewer/api/workspace/{ws}/presentation/{meta['presentationID']}",
+             headers={"Referer": init_url}, timeout=60)
+    g.raise_for_status()
+    return g.json()
+
+
+def probe_open(variant: str = "Whole") -> None:
+    """--probe-open: run open_presentation and print the shape of what comes back."""
+    session = make_swing_session()
+    p = open_presentation(session, variant)
+    t = p.get("table") or {}
+    print(f"[probe] title={p.get('title')!r} views={p.get('allowedViewTypes')} "
+          f"current={p.get('currentViewType')} info={p.get('info')}")
+    print(f"[probe] table: rows={t.get('rowCount')} cols={t.get('colCount')} "
+          f"headRows={t.get('headRowCount')} headCols={t.get('headColCount')} "
+          f"keys={sorted(t)}")
+    for i, row in enumerate(t.get("columnHeaderRows") or []):
+        print(f"[probe] columnHeaderRows[{i}] ({len(row['cells'])} cells): "
+              f"{json.dumps(row['cells'][:14], ensure_ascii=False)[:1400]}")
+    rows = t.get("rows") or []
+    for i in list(range(min(4, len(rows)))) + ([len(rows) - 1] if len(rows) > 4 else []):
+        print(f"[probe] rows[{i}] ({len(rows[i]['cells'])} cells): "
+              f"{json.dumps(rows[i]['cells'][:14], ensure_ascii=False)[:1400]}")
+    print(f"[probe] legend/info: {json.dumps({k: p[k] for k in p if k not in ('table',)}, ensure_ascii=False)[:800]}")
+
+
+def probe_swing(variant: str = "Whole", greps: list[str] | None = None,
+                gets: list[str] | None = None) -> None:
+    """Diagnose how the Swing viewer opens a saved workspace — no data written.
+
+    Bootstraps the way fetch_table does, then prints what a client needs to
+    know: the Globals.* the page defines, its script tags, and every URL-like
+    string / ajax call site in the same-origin bundles. Run it from CI through
+    the relay (workflow input `probe`), because the portal drops the
+    connections of datacentre IPs.
+    """
+    session = make_swing_session()
+    init_url = f"{BASE}/viewer?workspace_guid={TEMPLATES[variant]}"
+    r = _get(session, init_url, timeout=30)
+    html = r.text
+    print(f"[probe] init -> HTTP {r.status_code}, {len(html):,} chars, "
+          f"cookies {sorted(getattr(session, 'relay_cookies', {}))}")
+    ws = (re.search(r'Globals\.workspaceId\s*=\s*"([0-9a-f-]{36})"', html) or [None, ""])[1]
+    tag = re.search(r"<html[^>]*>", html)
+    tok = re.search(r"<input[^>]*__RequestVerificationToken[^>]*>", html)
+    masked = re.sub(r"value=[^ >]+", "value=<masked>", tok.group(0)) if tok else None
+    jar = {k: len(v) for k, v in getattr(session, "relay_cookies", {}).items()}
+    print(f"[probe] <html> tag: {tag.group(0)[:200] if tag else None}")
+    print(f"[probe] antiforgery input: {masked}; token chars: {len(swing_token(html))}; "
+          f"cookies (name: length) {jar}")
+    if greps or gets:
+        probe_targets(session, html, ws, greps or [], gets or [])
+        return
+    for i, line in enumerate(html.splitlines(), 1):
+        if "Globals." in line or "workspace_guid" in line or "swing" in line.lower() and "=" in line and len(line) < 240:
+            print(f"[probe] html L{i}: {line.strip()[:260]}")
+    srcs = re.findall(r'<script[^>]+src="([^"]+)"', html)
+    links = re.findall(r'<link[^>]+href="([^"]+)"', html)
+    print(f"[probe] script src: {srcs}")
+    print(f"[probe] link href : {links[:30]}")
+    for j, body in enumerate(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, re.S), 1):
+        body = body.strip()
+        if body:
+            print(f"[probe] inline script #{j} ({len(body)} chars): {body[:700]!r}")
+
+    url_like = re.compile(
+        r"""["'`]((?:/|\.\./)?(?:[Vv]iewer|[Aa]pi|[Hh]andlers|[Pp]resentation|[Jj]ive|[Ss]wing|[Ww]orkspace|[Dd]ata)"""
+        r"""[^"'`\s]{0,140})["'`]""")
+    call_site = re.compile(
+        r"(?:fetch|\.ajax|\.getJSON|\.get|\.post|XMLHttpRequest|\.open|sendBeacon)\s*\(\s*[^)]{0,140}")
+    seen: set[str] = set()
+    for src in srcs:
+        u = urljoin(f"{BASE}/viewer", src)
+        if not u.startswith(BASE) or u in seen:
+            continue
+        seen.add(u)
+        try:
+            b = _get(session, u, headers={"Referer": f"{BASE}/viewer"}, timeout=60)
+        except Exception as e:  # noqa: BLE001 - diagnostics must not stop at one bundle
+            print(f"[probe] {u}: {type(e).__name__}: {e}")
+            continue
+        text = b.text
+        print(f"[probe] === {u} -> HTTP {b.status_code}, {len(text):,} chars")
+        urls = sorted(set(m.group(1) for m in url_like.finditer(text)))
+        for x in urls[:150]:
+            print(f"[probe]   url  {x}")
+        calls = [m.group(0).replace("\n", " ")[:170] for m in call_site.finditer(text)]
+        for x in list(dict.fromkeys(calls))[:60]:
+            print(f"[probe]   call {x}")
+
+
+def probe_targets(session: requests.Session, html: str, ws: str,
+                  greps: list[str], gets: list[str]) -> None:
+    """--probe-grep / --probe-get: print the code around regex matches in the
+    page's same-origin bundles, and fetch API paths ({ws} = the session's
+    Globals.workspaceId) through the relay."""
+    referer = {"Referer": f"{BASE}/viewer"}
+    pres = ""
+    if any("{pres}" in g for g in gets):
+        try:
+            w = _get(session, f"{BASE}/viewer/api/workspace/{ws}", headers=referer, timeout=60).json()
+            pres = (w.get("presentSheets") or [{}])[0].get("presentationID", "")
+        except Exception as e:  # noqa: BLE001
+            print(f"[probe] workspace lookup for {{pres}} failed: {e}")
+    if greps:
+        bundles = {}
+        for src in re.findall(r'<script[^>]+src="([^"]+)"', html):
+            u = urljoin(f"{BASE}/viewer", src)
+            if u.startswith(BASE) and u not in bundles:
+                bundles[u] = _get(session, u, headers=referer, timeout=60).text
+        for pat in greps:
+            rx = re.compile(pat)
+            print(f"[probe] ### grep {pat!r}")
+            for u, text in bundles.items():
+                hits = list(rx.finditer(text))
+                for m in hits[:6]:
+                    a, b = max(0, m.start() - 350), min(len(text), m.end() + 350)
+                    print(f"[probe]   {u.rsplit('/', 1)[-1].split('?')[0]}@{m.start()}: "
+                          f"{text[a:b]!r}")
+                if hits:
+                    print(f"[probe]   ({len(hits)} hit(s) in {u.rsplit('/', 1)[-1].split('?')[0]})")
+    for path in gets:
+        url = urljoin(BASE, path.replace("{ws}", ws).replace("{pres}", pres)
+                      .replace("{tpl}", TEMPLATES["Whole"]))
+        try:
+            r = _get(session, url, headers=referer, timeout=60)
+        except Exception as e:  # noqa: BLE001 - keep probing the other paths
+            print(f"[probe] GET {url}: {type(e).__name__}: {e}")
+            continue
+        print(f"[probe] GET {url} -> HTTP {r.status_code} {r.headers.get('content-type')} "
+              f"{len(r.content):,} bytes")
+        print(f"[probe]   body: {r.text[:2500]!r}")
+
+
+def make_swing_session() -> requests.Session:
+    """The session every duurzamemobiliteit.databank.nl request goes through,
+    routed per NL_PROXY / NL_FETCH_RELAY (see _get)."""
+    session = requests.Session()
+    # Retry up to 3 times on connection errors with exponential backoff (2s, 4s, 8s).
+    # Handles transient network-unreachable failures seen on GitHub Actions runners.
+    _retry = Retry(connect=3, read=2, backoff_factor=2, raise_on_status=False)
+    _adapter = HTTPAdapter(max_retries=_retry)
+    session.mount("https://", _adapter)
+    session.mount("http://", _adapter)
+
+    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
+    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
+    # nor the CF relay works from a hosted runner.
+    # Precedence:
+    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
+    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
+    #   3. Neither → direct (only works on unblocked networks)
+    proxy = os.environ.get("NL_PROXY", "").strip()
+    if proxy:
+        session.proxies.update({"http": proxy, "https": proxy})
+        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
+        print(f"[net] routing via NL_PROXY = {masked}")
+    else:
+        relay_base = os.environ.get("NL_FETCH_RELAY")
+        if relay_base:
+            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
+            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
+            session.relay_cookies: dict = {}
+            print(f"[net] routing via relay: {relay_base}")
+    return session
+
+
 def previous_month_period() -> str:
     """YYYY-MM for the calendar month before today (UTC)."""
     today = date.today()
@@ -495,7 +1011,32 @@ def main() -> None:
         "--force", action="store_true",
         help="Skip the 'already current' early-exit check.",
     )
+    parser.add_argument(
+        "--probe-swing", action="store_true",
+        help="Diagnose how the Swing viewer opens a workspace (prints, writes nothing).",
+    )
+    parser.add_argument(
+        "--probe-open", action="store_true",
+        help="Open the Whole workspace like the SPA does and print the table's shape.",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true",
+        help="Fetch and parse, print how the rows differ from the CSV, write nothing.",
+    )
+    parser.add_argument(
+        "--no-top", action="store_true",
+        help="Skip the top brands/models refresh (market/netherlands_top.json).",
+    )
     args = parser.parse_args()
+
+    if args.probe_open:
+        probe_open({"used": "Used", "hdv": "HDV"}.get(args.variant, "Whole"))
+        return
+    if args.probe_swing:
+        split = lambda v: [x for x in (v or "").split("||") if x.strip()]  # noqa: E731
+        probe_swing(greps=split(os.environ.get("PROBE_GREP")),
+                    gets=[x for x in (os.environ.get("PROBE_GET") or "").split() if x])
+        return
 
     variant_aliases = {"whole": "Whole", "used": "Used", "hdv": "HDV"}
     targets = (
@@ -507,7 +1048,7 @@ def main() -> None:
     # Early exit per variant: skip those whose CSV already has last month's
     # row. RDW occasionally restates older months but those don't need
     # same-day pickup; --force is the override for restatement runs.
-    if not args.force:
+    if not args.force and not args.dry_run:
         prev = previous_month_period()
         current = [v for v in targets if csv_has_period(CSV_PATHS[v], prev)]
         targets = [v for v in targets if v not in current]
@@ -515,35 +1056,11 @@ def main() -> None:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
         if not targets:
             print("All requested variants are current; nothing to do.")
+            if not args.no_top:
+                refresh_tops()
             return
 
-    session = requests.Session()
-    # Retry up to 3 times on connection errors with exponential backoff (2s, 4s, 8s).
-    # Handles transient network-unreachable failures seen on GitHub Actions runners.
-    _retry = Retry(connect=3, read=2, backoff_factor=2, raise_on_status=False)
-    _adapter = HTTPAdapter(max_retries=_retry)
-    session.mount("https://", _adapter)
-    session.mount("http://", _adapter)
-
-    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
-    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
-    # nor the CF relay works from a hosted runner.
-    # Precedence:
-    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
-    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
-    #   3. Neither → direct (only works on unblocked networks)
-    proxy = os.environ.get("NL_PROXY", "").strip()
-    if proxy:
-        session.proxies.update({"http": proxy, "https": proxy})
-        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
-        print(f"[net] routing via NL_PROXY = {masked}")
-    else:
-        relay_base = os.environ.get("NL_FETCH_RELAY")
-        if relay_base:
-            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
-            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
-            session.relay_cookies: dict = {}
-            print(f"[net] routing via relay: {relay_base}")
+    session = make_swing_session()
 
     for variant in targets:
         data = fetch_table(variant, session)
@@ -573,9 +1090,15 @@ def main() -> None:
             print(f"[{variant}]   headCols: {_json.dumps(_shape(data.get('headCols')), ensure_ascii=False)[:1200]}")
             print(f"[{variant}]   rowData[0:2]: {_json.dumps(_shape(data.get('rowData'))[:2], ensure_ascii=False)[:800]}")
             continue
+        if args.dry_run:
+            dry_run_report(CSV_PATHS[variant], rows, variant)
+            continue
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)
         print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
+
+    if not args.no_top and not args.dry_run:
+        refresh_tops()
 
 
 if __name__ == "__main__":

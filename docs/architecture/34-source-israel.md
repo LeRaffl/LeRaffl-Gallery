@@ -43,6 +43,9 @@ fetcher: scripts/fetch_israel.py
 workflow: .github/workflows/fetch-israel.yml
 fragility_doc: docs/architecture/34-source-israel.md
 data_file: data/Israel.csv
+market_breakdown: market/israel_top.json
+market_designation_note: a "designation" is the registry's commercial name (Latin script) with the drive and trim words removed, so the versions of one model rank together (JAECOO7 PHEV and JAECOO 7 PHEV → 7); the brand is the registry's Hebrew manufacturer name translated by a maintained stem table.
+market_powertrain_note: Powertrain exactly as in the charts — the registry fuel value, with regular and plug-in hybrids recovered from the official model catalogue.
 ---
 
 # 34 · Source playbook — Israel (data.gov.il vehicle registry)
@@ -136,6 +139,45 @@ resulting shares reproduce I-VIA's quarterly powertrain mix within ~2pp
 (2025-06: petrol 37.9% vs I-VIA Q3 37.0%, BEV 20.5% vs 20.5%). The fetcher
 prints per-month join statistics and warns if the unmatched share exceeds
 5% (HEV undercount risk).
+
+## Top brands / models (`market/israel_top.json`)
+
+The registry record has more than the fuel: `tozeret_nm` (manufacturer, in
+**Hebrew** and with the country of production — "טויוטה יפן" and "טויוטה צרפת"
+are both Toyota, and the field is cut off at 14 characters: "מרצדס בנץ גרמנ")
+and `kinuy_mishari` (commercial name, Latin script). `refresh_top()` ranks the
+trailing twelve months per class **BEV / PHEV / HEV** — the CSV's own classes —
+and rebuilds the file whenever it is missing or behind the newest Whole month of
+`data/Israel.csv` (twelve registry pages plus the catalogue, a few minutes; no
+month store needed, the registry can be re-read at will). It runs behind
+`market_top.guarded`, never blocks the data commit and never triggers a render;
+`--no-top` skips it.
+
+* **Same classification as the CSV.** `column_of()` is the one function that
+  decides a record's column; `aggregate_month` (the CSV) and `month_units` (the
+  tables) both call it, so a table can never classify a car differently from the
+  chart. Checked 2026-09-28: for 2025-09 → 2026-07 the counted month totals equal
+  the CSV's within 0.1 %; the newest month was +2.6 % because the registry keeps
+  absorbing late entries after the CSV row was written (`market_top.check_scope`
+  logs every month, warns above 3 % and aborts the refresh above 10 %).
+* **Brand translation.** `BRAND_STEMS` maps the leading Hebrew stem to the Latin
+  brand (punctuation ignored, longest stem wins: "ג'אקו" JAECOO vs "ג'אק" JAC).
+  Coverage of the 305 000 registrations of 2025-09 → 2026-08: 99.8 %. A manufacturer
+  without a stem is **shown in Hebrew** and announced as a workflow warning
+  ("Israel brands not translated"), never merged into a wrong brand — today
+  "איויאיסי סין" (model LIMO, 612 units, a Chinese electric MPV whose Latin brand
+  we could not confirm) and "יודו סין" (JUNEYAO). To add one: put the stem and the
+  brand into `_BRAND_STEMS_RAW`, run `python scripts/test_market_top.py`, delete
+  `market/israel_top.json` and re-run the fetcher.
+* **Display names.** `display_model` strips the brand prefix (also glued:
+  `MG4`, `LYNKCO08`), splits `TIGGO8PRO`, removes drive / powertrain words
+  (`PHEV`, `HEV`, `DM-I`, `HSD`, …) and applies a few per-brand rules (Mercedes:
+  the letters before the number; BMW / Porsche / Volvo: first word; Lexus: the two
+  letters). It is a heuristic for the ranking only.
+* **Also fixed here:** LPG is stored in *both* letter orders (`גפ"מ` and `גפמ"`;
+  five records in 2025-08 → 2026-01 use the second). The second was unmapped, so
+  any run whose window reached one of those months stopped with "Unmapped
+  sug_delek_nm values"; both now map to OTHERS.
 
 ## Cross-check sources
 

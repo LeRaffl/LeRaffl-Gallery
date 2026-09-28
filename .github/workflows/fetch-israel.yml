@@ -10,6 +10,12 @@ name: Fetch Israel data (data.gov.il)
 #
 # See docs/architecture/34-source-israel.md for the source playbook
 # (unpadded month keys, P-scope, the HEV-hidden-in-petrol catalogue join).
+#
+# Top brands/models: the same records also feed market/israel_top.json
+# (trailing-12-month top BEV / PHEV / HEV brands and models, manufacturer
+# translated from Hebrew). It is rebuilt whenever it is missing or behind the
+# newest month in data/Israel.csv (twelve registry pages, a few minutes),
+# committed with the data and never triggers a render.
 
 on:
   workflow_dispatch:
@@ -55,6 +61,11 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
+      # Offline; guards the top brands/models builder (scripts/market_top.py)
+      # and the Hebrew brand translation / display names.
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
       - name: Run fetcher
         run: |
           if [ "${{ inputs.mode }}" = "probe" ]; then
@@ -73,7 +84,7 @@ jobs:
         id: commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'data/Israel.csv data/Israel_Vans.csv'
+          add: 'data/Israel.csv data/Israel_Vans.csv market/israel_top.json'
           message: 'chore: update Israel data from data.gov.il'
           default_author: github_actions
           # The full backfill runs ~15 min; rebase over anything (manifest CI,

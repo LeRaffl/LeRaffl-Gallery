@@ -12,6 +12,22 @@ name: Fetch Netherlands data (RDW via Swing)
 # in the Swing UI via the share-icon → permalink mechanism). See the docstring
 # in scripts/fetch_netherlands.py for details. If the CSV changed, this workflow
 # renders touched variants via a serial render-country.yml matrix.
+#
+# Since 2026-09 the Swing viewer is an SPA: the fetcher opens each saved workspace
+# through its REST API (GET session page → POST presentationfromurl → GET
+# presentation), which needs the POST-capable relay (worker/deno-relay.ts).
+# Manual run inputs for diagnosing it without writing anything: dry_run (compare
+# with the CSVs), probe_open, probe (+ probe_grep / probe_get) — see
+# docs/architecture/10-source-netherlands.md §11.
+#
+# Top brands/models: the same script also keeps market/netherlands_top.json
+# (trailing-12-month top BEV / PHEV brands and models, Whole) and, for the
+# imported used cars, market/netherlands_used_top.json — each with its month
+# store (market/netherlands[_used]_months.json) — current from the RDW open-data register
+# (opendata.rdw.nl — a plain host, unlike the Swing portal, so no relay). It
+# is committed with the data but never triggers a render; the source page picks
+# it up through build-source-pages.yml. The very first run reads twelve months
+# per variant (about 15 minutes each), later runs one.
 
 on:
   workflow_dispatch:
@@ -26,6 +42,31 @@ on:
           - whole
           - used
           - hdv
+      probe:
+        description: 'Diagnose the Swing viewer (prints how a workspace is opened; writes nothing)'
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: 'Fetch and parse only: print how the rows differ from the CSVs, write nothing'
+        required: false
+        default: false
+        type: boolean
+      probe_open:
+        description: 'Open the Whole workspace like the Swing SPA does and print the table shape (needs the POST-capable relay)'
+        required: false
+        default: false
+        type: boolean
+      probe_grep:
+        description: 'probe: regexes to show the bundle code around (separated by ||)'
+        required: false
+        default: ''
+        type: string
+      probe_get:
+        description: 'probe: API paths to GET through the relay ({ws} = session workspace id; space separated)'
+        required: false
+        default: ''
+        type: string
   schedule:
     # Daily 1st–15th at 06:30 UTC. RDW's publication date varies (sometime in
     # the first half of the following month), so we poll daily until the
@@ -55,12 +96,29 @@ jobs:
         # requests[socks] so NL_PROXY may be a socks5:// URL as well as http(s)://.
         run: pip install "requests[socks]"
 
+      # Offline; guards the top brands/models builder (scripts/market_top.py)
+      # and the RDW classification / display names.
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
+
+      # Offline; guards the relay POST contract and the Swing SPA open flow.
+      - name: Test the Swing client
+        run: python scripts/test_fetch_netherlands.py
+
       - name: Fetch & update Netherlands.csv
         run: |
           python scripts/fetch_netherlands.py \
+            ${PROBE:+--probe-swing} \
+            ${PROBE_OPEN:+--probe-open} \
+            ${DRY_RUN:+--dry-run} \
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
+          PROBE: ${{ inputs.probe && '1' || '' }}
+          PROBE_OPEN: ${{ inputs.probe_open && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          PROBE_GREP: ${{ inputs.probe_grep }}
+          PROBE_GET: ${{ inputs.probe_get }}
           # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;
           # falls back to the Austria CF relay — which duurzamemobiliteit
           # 403s, so set NL_FETCH_RELAY/NL_RELAY_TOKEN for this to work.
@@ -70,6 +128,7 @@ jobs:
 
       - name: Detect which CSVs changed
         id: changed
+        if: ${{ !inputs.probe && !inputs.probe_open }}
         run: |
           # For each of the 3 per-variant CSVs, check if git sees changes.
           # `git add -N` makes `git diff` include untracked new files (needed
@@ -100,12 +159,17 @@ jobs:
 
       - name: Commit if changed
         id: commit
+        if: ${{ !inputs.probe && !inputs.probe_open }}
         uses: EndBug/add-and-commit@v9
         with:
           add: |
             data/Netherlands.csv
             data/Netherlands_Used.csv
             data/Netherlands_HDV.csv
+            market/netherlands_top.json
+            market/netherlands_months.json
+            market/netherlands_used_top.json
+            market/netherlands_used_months.json
           message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

@@ -1016,7 +1016,7 @@ branch.
 
 ## Flow O — RDW/Swing ingest
 
-Netherlands is the first country with **three variants in one workflow** (Whole / Used Imports / HDV). Source is `duurzamemobiliteit.databank.nl`, a Swing 7.1 BI portal (ABF Research) that exposes RDW registration data. There is no documented public API; we drive three pre-saved Swing workspace permalinks the maintainer configured in the UI (one per variant). Each variant writes to its own CSV and triggers `render-country.yml` independently if it changed.
+Netherlands is the first country with **three variants in one workflow** (Whole / Used Imports / HDV). Source is `duurzamemobiliteit.databank.nl`, a Swing BI portal (ABF Research) that exposes RDW registration data. There is no documented public API; we drive three pre-saved Swing workspace permalinks the maintainer configured in the UI (one per variant). Each variant writes to its own CSV and triggers `render-country.yml` independently if it changed.
 
 ```mermaid
 sequenceDiagram
@@ -1028,16 +1028,15 @@ sequenceDiagram
 
     Cron->>Job: workflow_dispatch OR cron (daily 1–15, 06:30 UTC)
     loop per variant in {Whole, Used, HDV}
-        Job->>Swing: GET /viewer?workspace_guid=<TEMPLATE>
-        Swing-->>Job: HTML with WsGuid: "<session>"
-        Job->>Swing: POST /viewer/Presentation/GetTableStart (session GUID)
-        opt pivot longer than initial page
-            Job->>Swing: POST /viewer/Presentation/GetTableRows
-        end
-        Swing-->>Job: pivot rows (HTML fragments)
-        Job->>Job: Detect orientation (periods-in-rows vs fuels-in-rows)
+        Job->>Swing: GET /viewer?workspace_guid=<TEMPLATE> (via relay)
+        Swing-->>Job: HTML with Globals.workspaceId = "<session workspace>"
+        Job->>Swing: POST /viewer/api/workspace/<session>/presentationfromurl {entries: {workspace_guid}} (via relay)
+        Swing-->>Job: {presentationID, isValid}
+        Job->>Swing: GET /viewer/api/workspace/<session>/presentation/<id>
+        Swing-->>Job: {title, table: {columnHeaderRows, rows: [{cells: [{text}]}]}}
+        Job->>Job: swing_table_to_legacy → headRows/headCols/rowData; detect orientation
         Job->>Job: Parse Dutch labels → BEV/PHEV/PETROL/DIESEL/OTHERS<br/>(Benzine→PETROL, FCEV+Overig→OTHERS, HEV blank)
-        Job->>Job: Decode Dutch locale ("6.863"=6863, "&nbsp;"=0)
+        Job->>Job: Decode Dutch locale ("10.075"=10075, ""=0)
         Job->>CSVs: Upsert into per-variant file
     end
     Job->>Job: git diff each CSV → touched=[variants that changed]
@@ -1052,6 +1051,8 @@ sequenceDiagram
 
 **Where parsing lives:** [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py). Pipeline rationale, variant choices, template-GUID maintenance, and HEV/FCEV fold-in convention live in [10-source-netherlands.md](10-source-netherlands.md) — read that before changing the `TEMPLATES` constant.
 
+**Top brands / models:** after the CSVs, the same script keeps `market/netherlands_top.json` (Whole) and `market/netherlands_used_top.json` (imported used cars; a second section on the page), each with its `_months.json` store, current from the RDW open-data register (`opendata.rdw.nl`, a plain host — no relay), one month at a time behind `market_top.guarded`; it is committed with the data but never triggers a render. Scope, classes and display names: [10-source-netherlands.md § 11b](10-source-netherlands.md#11b-top-brands--models-marketnetherlands_topjson).
+
 **Vehicle scope:** Personenauto (passenger cars) for Whole + Used; Zware bedrijfsvoertuigen (heavy commercial > 3.5 t) for HDV. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
 
 **Why three variants in one workflow:** all three pivots ride on the same Swing session protocol, the same response shape, and the same fuel-label map. Splitting them into three workflows would triple the YAML for zero functional gain. Per-variant render dispatch lets a single-variant change still trigger only the right re-render.
@@ -1062,7 +1063,7 @@ sequenceDiagram
 
 **Why daily 1st–15th at 06:30 UTC:** RDW publishes the previous month sometime in the first half of the following month — exact day varies. We poll daily and the script self-throttles once the previous month's row exists in all three CSVs (no diff, no commit, no render trigger). 06:30 UTC sits clear of the 08:00 UTC slot used by Brazil/Chile/Japan/Türkiye/Uruguay/ACEA and most country-side timezones.
 
-**Why Swing-permalinks instead of a documented API:** Swing 7.1 exposes only undocumented endpoints (`GetTableStart`, `GetTableRows`) that require a session GUID bootstrapped from the HTML response of the workspace permalink. Reverse-engineering and replaying this is the only path; the alternative is a once-a-month manual CSV download, which contradicts the project's automation goal.
+**Why Swing-permalinks instead of a documented API:** the Swing viewer exposes only its SPA's own undocumented REST endpoints (`presentationfromurl`, `presentation/<id>`), which need a session workspace bootstrapped from the permalink page and a POST. (Until 2026-09 it was `GetTableStart` / `GetTableRows` on a server-rendered page — [10 § 2](10-source-netherlands.md#2-the-swing-endpoint-flow).) Reverse-engineering and replaying this is the only path; the alternative is a once-a-month manual CSV download, which contradicts the project's automation goal.
 
 **Known fragility:** the `TEMPLATES` constant in `scripts/fetch_netherlands.py` carries three Swing workspace GUIDs. If ABF/RDW rebuild the BI portal or invalidate saved workspaces, these GUIDs break. Recovery is a Swing-UI session: pick the source/dimension/period, share-icon → permalink, copy the new GUID into the script. See [10-source-netherlands.md § "If the GUIDs break"](10-source-netherlands.md) for the step-by-step.
 

@@ -61,6 +61,20 @@ Year-boundary caveat: December data publishes on Jan 1, when the endpoint's
 via motordata until it appears; use `--sheet` to patch it from the maintainer's
 Google Sheet (which carries the full history and is kept current).
 
+Top brands (market/portugal_top.json)
+-------------------------------------
+The same endpoint also returns, per fuel code, a brand table (`result_table`:
+`Marca`, `Mensal` = the latest published month, `Acumulado` = January to that
+month). Summed over all brands they equal the fuel's monthly / year-to-date
+series exactly, so the brand tables are checked against them on every run. Each
+run therefore keeps a brands-only top file (the source has no models) current
+for Whole, in the classes the CSV splits (BEV / PHEV = codes 14+15 / HEV =
+17+18): the headline is ACAP's own January-to-date ranking (`Acumulado`), the
+single months come from `Mensal` and accumulate in the month store
+market/portugal_months.json — motordata never returns an earlier month, so the
+picker grows by one month per publication. The headline restarts every January.
+--no-top skips it.
+
 See docs/architecture/16-source-portugal.md for the full playbook.
 """
 import argparse
@@ -74,6 +88,9 @@ from datetime import date
 from pathlib import Path
 
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 CHART_URL = "https://motordata.pt/autoinforma/chartdata_novo.php"
 CHART_REFERER = "https://motordata.pt/autoinforma/charts1t.php"
@@ -104,6 +121,14 @@ PT_CORE_FUEL = {
     "1": "PETROL", "2": "DIESEL",
 }
 
+# Fuel codes that make a ranked class (the CSV's own BEV / PHEV / HEV split).
+PT_TOP_CLASS = {"7": "BEV", "14": "PHEV", "15": "PHEV", "17": "HEV", "18": "HEV"}
+TOP_PATH = market_top.MARKET_DIR / "portugal_top.json"
+STORE_PATH = market_top.MARKET_DIR / "portugal_months.json"
+TOP_SOURCE = "ACAP (motordata)"
+TOP_UNIT = ("registrations (brand = ACAP / motordata 'Marca'; the source "
+            "publishes brands only, no models)")
+
 CSV_COLUMNS = [
     "period", "time_interval", "variant", "source",
     "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "FLEXFUEL",
@@ -111,8 +136,13 @@ CSV_COLUMNS = [
 ]
 
 
-def fetch_fuel_series(session: requests.Session, cat: str, fuel_code: str) -> list[float]:
-    """Current year's monthly series for one (vehicle category, fuel). Index 0 = January."""
+def _num(v) -> float:
+    return float(str(v).replace(".", "").replace(",", ".") or 0)
+
+
+def fetch_chart(session: requests.Session, cat: str, fuel_code: str) -> dict:
+    """The endpoint's whole answer for one (vehicle category, fuel): the current
+    year's monthly series (`thisyear`) and the brand table (`result_table`)."""
     r = session.post(
         CHART_URL,
         headers={"Referer": CHART_REFERER, "X-Requested-With": "XMLHttpRequest"},
@@ -120,15 +150,90 @@ def fetch_fuel_series(session: requests.Session, cat: str, fuel_code: str) -> li
         timeout=30,
     )
     r.raise_for_status()
-    data = r.json()
-    return [float(str(v).replace(".", "").replace(",", ".") or 0) for v in data.get("thisyear", [])]
+    return r.json()
+
+
+def fetch_fuel_series(session: requests.Session, cat: str, fuel_code: str) -> list[float]:
+    """Current year's monthly series for one (vehicle category, fuel). Index 0 = January."""
+    return [_num(v) for v in fetch_chart(session, cat, fuel_code).get("thisyear", [])]
+
+
+def collect_brands(session: requests.Session, year: int) -> dict | None:
+    """Brand counts of the newest published month and of the year to date, for
+    Whole (cat 0): {'period', 'months', 'ytd_total', 'month_total', 'ytd': {(class,
+    brand, ""): n}, 'month': {...}}. None before the year's first month is out.
+    Every class is checked against its fuel series: the brand table must add up
+    to it exactly, else a brand is missing and the ranking would lie."""
+    total = fetch_chart(session, "0", "")
+    series = [_num(v) for v in total.get("thisyear", [])]
+    if not series:
+        return None
+    ytd: dict = {}
+    month: dict = {}
+    for code, cls in PT_TOP_CLASS.items():
+        chart = fetch_chart(session, "0", code)
+        fuel = [_num(v) for v in chart.get("thisyear", [])]
+        got_m = got_y = 0.0
+        for row in chart.get("result_table", []):
+            brand = market_top.clean(row.get("Marca"))
+            m, y = int(_num(row.get("Mensal"))), int(_num(row.get("Acumulado")))
+            if not brand:
+                continue
+            key = (cls, brand, "")
+            month[key] = month.get(key, 0) + m
+            ytd[key] = ytd.get(key, 0) + y
+            got_m, got_y = got_m + m, got_y + y
+        if len(fuel) != len(series) or got_m != (fuel[-1] if fuel else 0) or got_y != sum(fuel):
+            raise RuntimeError(
+                f"fuel {code} ({cls}): brand table adds up to {got_m:g} / {got_y:g}, "
+                f"the series says {fuel[-1] if fuel else 0:g} / {sum(fuel):g}")
+    n = len(series)
+    return {"period": f"{year}-{n:02d}", "months": n, "year": year,
+            "ytd_total": int(sum(series)), "month_total": int(series[-1]),
+            "ytd": ytd, "month": month}
+
+
+def build_top_portugal(coll: dict, stored: dict) -> dict:
+    """Monthly view from the month store (`stored` already holds the newest
+    month), headline = ACAP's year-to-date ranking."""
+    target = coll["period"]
+    top = market_top.build_top_monthly("Portugal", TOP_SOURCE, target, stored, TOP_UNIT)
+    head = market_top.build_top("Portugal", TOP_SOURCE, target, coll["ytd"],
+                                coll["ytd_total"], TOP_UNIT)
+    top["classes"], top["total_registrations"] = head["classes"], coll["ytd_total"]
+    top["window"] = {"from": f"{coll['year']}-01", "to": target, "months": coll["months"]}
+    return top
+
+
+def refresh_top(session: requests.Session | None = None) -> None:
+    """Re-read the brand tables (7 requests), put the newest month into the
+    month store and rebuild market/portugal_top.json. Runs every real run: the
+    file is only rewritten when ACAP's numbers moved (they revise a little)."""
+    session = session or make_session()
+    coll = collect_brands(session, date.today().year)
+    if coll is None:
+        print("Top brands: motordata has no month of this year yet.")
+        return
+    market_top.check_scope({coll["period"]: coll["month_total"]},
+                           market_top.csv_totals(VARIANT_CONFIG["Whole"]["csv"]),
+                           warn=0.01, abort=0.05)
+    stored = market_top.load_store(STORE_PATH)
+    stored[coll["period"]] = (coll["month"], coll["month_total"])
+    market_top.save_store(STORE_PATH, stored, "Portugal", TOP_SOURCE)
+    top = build_top_portugal(coll, stored)
+    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
+
+
+def make_session() -> requests.Session:
+    session = requests.Session()
+    session.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+    return session
 
 
 def fetch_motordata(cat: str) -> dict:
     """Build {period: {col: value, 'TOTAL': t}} for the current calendar year."""
     year = date.today().year
-    session = requests.Session()
-    session.headers.update({"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+    session = make_session()
 
     # All-fuels total (empty fuel filter) — authoritative monthly TOTAL.
     total_series = fetch_fuel_series(session, cat, "")
@@ -277,6 +382,8 @@ def main() -> None:
                     help="Backfill/patch the Whole variant from the maintainer's Google Sheet "
                          "(the sheet only carries passenger cars).")
     ap.add_argument("--force", action="store_true", help="Skip the 'previous month present' early-exit.")
+    ap.add_argument("--no-top", action="store_true",
+                    help="Skip the top brands refresh (market/portugal_top.json).")
     args = ap.parse_args()
 
     if args.sheet:
@@ -287,6 +394,7 @@ def main() -> None:
     aliases = {"whole": "Whole", "vans": "Vans", "hdv": "HDV", "buses": "Buses"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
 
+    wants_whole = "Whole" in targets
     if not args.force:
         prev = previous_month_period()
         pending = [v for v in targets
@@ -296,10 +404,14 @@ def main() -> None:
         targets = pending
         if not targets:
             print("All requested variants are current; nothing to do.")
+            if not args.no_top and wants_whole:
+                market_top.guarded(refresh_top)
             return
 
     for variant in targets:
         run_variant(variant, from_sheet=False)
+    if not args.no_top and wants_whole:
+        market_top.guarded(refresh_top)
 
 
 if __name__ == "__main__":

@@ -324,7 +324,7 @@ failure modes; this table is the surface map.
 | Luxembourg | `lustat.statec.lu/rest/data/LU1,DF_D6122,1.1/…` | SDMX 2.1 REST (SDMX-CSV) | none |
 | Malaysia | `storage.data.gov.my/transportation/cars_<YYYY>.parquet` | Parquet download | none |
 | Nepal | `customs.gov.np` — homepage nav → FY category → content page → monthly `.xlsx` | Three-hop page scrape + XLSX | none |
-| Netherlands | `duurzamemobiliteit.databank.nl/viewer` + `/viewer/Presentation/GetTableStart` | Swing BI session flow **via relay** | relay token (portal blocks GHA and Cloudflare egress) |
+| Netherlands | `duurzamemobiliteit.databank.nl/viewer` + `/viewer/api/workspace/<ws>/presentationfromurl` (POST) + `…/presentation/<id>` | Swing viewer SPA API flow **via relay** (GET + POST) | relay token (portal blocks GHA and Cloudflare egress) |
 | New Zealand | `transport.govt.nz/…/inner`; `catalogue.data.govt.nz` CKAN | JSON/AJAX | none — **both behind Imperva since 2026-06; the fetcher is disabled** |
 | Poland | `pzpm.org.pl/en/Electromobility/eRegistrations` → monthly XLSX | Page scrape + XLSX | none |
 | Portugal | `motordata.pt/autoinforma/chartdata_novo.php`, `…/charts1t.php` | Form POST | none |

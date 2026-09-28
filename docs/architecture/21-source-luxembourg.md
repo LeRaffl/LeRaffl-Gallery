@@ -203,7 +203,10 @@ curl -H "Accept: application/vnd.sdmx.data+csv;labels=id" \
 * **Sub-national (canton/commune) breakdowns** — `CL_AREA_VEH` has 866 codes but
   we pin `REF_AREA=LU` (national total only).
 * **Mass / engine-size / brand / colour splits** — available in DF_D6122 and
-  sibling dataflows, but out of scope for the BEV trajectory.
+  sibling dataflows, but out of scope for the BEV trajectory. (Brand is
+  `DF_D6124`, new registrations by type **and brand** — with no fuel dimension,
+  so it cannot rank the electrified brands; probed 2026-09-28. See
+  [03 § 3.16](03-data-objects.md#316-top-brands--models-market).)
 
 ## 11. Known fragility
 
