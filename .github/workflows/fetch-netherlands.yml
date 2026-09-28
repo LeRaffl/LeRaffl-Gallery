@@ -34,6 +34,11 @@ on:
           - whole
           - used
           - hdv
+      probe:
+        description: 'Diagnose the Swing viewer (prints how a workspace is opened; writes nothing)'
+        required: false
+        default: false
+        type: boolean
   schedule:
     # Daily 1st–15th at 06:30 UTC. RDW's publication date varies (sometime in
     # the first half of the following month), so we poll daily until the
@@ -71,9 +76,11 @@ jobs:
       - name: Fetch & update Netherlands.csv
         run: |
           python scripts/fetch_netherlands.py \
+            ${PROBE:+--probe-swing} \
             ${VARIANT:+--variant "$VARIANT"}
         env:
           VARIANT: ${{ inputs.variant }}
+          PROBE: ${{ inputs.probe && '1' || '' }}
           # NL-specific relay (Deno Deploy, see worker/deno-relay.ts) preferred;
           # falls back to the Austria CF relay — which duurzamemobiliteit
           # 403s, so set NL_FETCH_RELAY/NL_RELAY_TOKEN for this to work.

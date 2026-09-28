@@ -687,6 +687,92 @@ def refresh_top(session: requests.Session | None = None) -> None:
                                   "netherlands", fresh)
 
 
+def probe_swing(variant: str = "Whole") -> None:
+    """Diagnose how the Swing viewer opens a saved workspace — no data written.
+
+    Bootstraps the way fetch_table does, then prints what a client needs to
+    know: the Globals.* the page defines, its script tags, and every URL-like
+    string / ajax call site in the same-origin bundles. Run it from CI through
+    the relay (workflow input `probe`), because the portal drops the
+    connections of datacentre IPs.
+    """
+    session = make_swing_session()
+    init_url = f"{BASE}/viewer?workspace_guid={TEMPLATES[variant]}"
+    r = _get(session, init_url, timeout=30)
+    html = r.text
+    print(f"[probe] init -> HTTP {r.status_code}, {len(html):,} chars, "
+          f"cookies {sorted(getattr(session, 'relay_cookies', {}))}")
+    for i, line in enumerate(html.splitlines(), 1):
+        if "Globals." in line or "workspace_guid" in line or "swing" in line.lower() and "=" in line and len(line) < 240:
+            print(f"[probe] html L{i}: {line.strip()[:260]}")
+    srcs = re.findall(r'<script[^>]+src="([^"]+)"', html)
+    links = re.findall(r'<link[^>]+href="([^"]+)"', html)
+    print(f"[probe] script src: {srcs}")
+    print(f"[probe] link href : {links[:30]}")
+    for j, body in enumerate(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", html, re.S), 1):
+        body = body.strip()
+        if body:
+            print(f"[probe] inline script #{j} ({len(body)} chars): {body[:700]!r}")
+
+    url_like = re.compile(
+        r"""["'`]((?:/|\.\./)?(?:[Vv]iewer|[Aa]pi|[Hh]andlers|[Pp]resentation|[Jj]ive|[Ss]wing|[Ww]orkspace|[Dd]ata)"""
+        r"""[^"'`\s]{0,140})["'`]""")
+    call_site = re.compile(
+        r"(?:fetch|\.ajax|\.getJSON|\.get|\.post|XMLHttpRequest|\.open|sendBeacon)\s*\(\s*[^)]{0,140}")
+    seen: set[str] = set()
+    for src in srcs:
+        u = urljoin(f"{BASE}/viewer", src)
+        if not u.startswith(BASE) or u in seen:
+            continue
+        seen.add(u)
+        try:
+            b = _get(session, u, headers={"Referer": f"{BASE}/viewer"}, timeout=60)
+        except Exception as e:  # noqa: BLE001 - diagnostics must not stop at one bundle
+            print(f"[probe] {u}: {type(e).__name__}: {e}")
+            continue
+        text = b.text
+        print(f"[probe] === {u} -> HTTP {b.status_code}, {len(text):,} chars")
+        urls = sorted(set(m.group(1) for m in url_like.finditer(text)))
+        for x in urls[:150]:
+            print(f"[probe]   url  {x}")
+        calls = [m.group(0).replace("\n", " ")[:170] for m in call_site.finditer(text)]
+        for x in list(dict.fromkeys(calls))[:60]:
+            print(f"[probe]   call {x}")
+
+
+def make_swing_session() -> requests.Session:
+    """The session every duurzamemobiliteit.databank.nl request goes through,
+    routed per NL_PROXY / NL_FETCH_RELAY (see _get)."""
+    session = requests.Session()
+    # Retry up to 3 times on connection errors with exponential backoff (2s, 4s, 8s).
+    # Handles transient network-unreachable failures seen on GitHub Actions runners.
+    _retry = Retry(connect=3, read=2, backoff_factor=2, raise_on_status=False)
+    _adapter = HTTPAdapter(max_retries=_retry)
+    session.mount("https://", _adapter)
+    session.mount("http://", _adapter)
+
+    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
+    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
+    # nor the CF relay works from a hosted runner.
+    # Precedence:
+    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
+    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
+    #   3. Neither → direct (only works on unblocked networks)
+    proxy = os.environ.get("NL_PROXY", "").strip()
+    if proxy:
+        session.proxies.update({"http": proxy, "https": proxy})
+        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
+        print(f"[net] routing via NL_PROXY = {masked}")
+    else:
+        relay_base = os.environ.get("NL_FETCH_RELAY")
+        if relay_base:
+            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
+            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
+            session.relay_cookies: dict = {}
+            print(f"[net] routing via relay: {relay_base}")
+    return session
+
+
 def previous_month_period() -> str:
     """YYYY-MM for the calendar month before today (UTC)."""
     today = date.today()
@@ -719,10 +805,18 @@ def main() -> None:
         help="Skip the 'already current' early-exit check.",
     )
     parser.add_argument(
+        "--probe-swing", action="store_true",
+        help="Diagnose how the Swing viewer opens a workspace (prints, writes nothing).",
+    )
+    parser.add_argument(
         "--no-top", action="store_true",
         help="Skip the top brands/models refresh (market/netherlands_top.json).",
     )
     args = parser.parse_args()
+
+    if args.probe_swing:
+        probe_swing()
+        return
 
     variant_aliases = {"whole": "Whole", "used": "Used", "hdv": "HDV"}
     targets = (
@@ -746,33 +840,7 @@ def main() -> None:
                 market_top.guarded(refresh_top)
             return
 
-    session = requests.Session()
-    # Retry up to 3 times on connection errors with exponential backoff (2s, 4s, 8s).
-    # Handles transient network-unreachable failures seen on GitHub Actions runners.
-    _retry = Retry(connect=3, read=2, backoff_factor=2, raise_on_status=False)
-    _adapter = HTTPAdapter(max_retries=_retry)
-    session.mount("https://", _adapter)
-    session.mount("http://", _adapter)
-
-    # Network routing — duurzamemobiliteit.databank.nl blocks both GitHub
-    # datacenter IPs *and* Cloudflare egress IPs, so neither a direct connection
-    # nor the CF relay works from a hosted runner.
-    # Precedence:
-    #   1. NL_PROXY (http/https/socks5) — direct proxy, most reliable
-    #   2. NL_FETCH_RELAY — Cloudflare Worker relay (works if CF IPs not blocked)
-    #   3. Neither → direct (only works on unblocked networks)
-    proxy = os.environ.get("NL_PROXY", "").strip()
-    if proxy:
-        session.proxies.update({"http": proxy, "https": proxy})
-        masked = re.sub(r"//[^@/]+@", "//***@", proxy)
-        print(f"[net] routing via NL_PROXY = {masked}")
-    else:
-        relay_base = os.environ.get("NL_FETCH_RELAY")
-        if relay_base:
-            session.relay_base = relay_base.rstrip("?url=") + "?url="  # normalise
-            session.relay_token = os.environ.get("NL_RELAY_TOKEN", "")
-            session.relay_cookies: dict = {}
-            print(f"[net] routing via relay: {relay_base}")
+    session = make_swing_session()
 
     for variant in targets:
         data = fetch_table(variant, session)
