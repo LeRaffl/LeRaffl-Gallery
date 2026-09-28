@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T11:12:33Z",
+ "generated": "2026-09-28T21:44:37Z",
  "today": "2026-09-28",
  "countries": [
   {
@@ -2550,11 +2550,11 @@
    "source_url": "https://duurzamemobiliteit.databank.nl/",
    "cadence_text": "daily cron, 1st–15th of the month",
    "interval": "monthly",
-   "latest_period": "2026-06",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2594,30 +2594,30 @@
     ],
     "workflow": ".github/workflows/fetch-netherlands.yml"
    },
-   "last_render": "2026-07-16",
+   "last_render": "2026-09-28",
    "flag": "🇳🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2011-01",
-     "rows": 186,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-06",
+     "latest": "2026-08",
      "first": "2018-01",
-     "rows": 102,
+     "rows": 104,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2756,11 +2756,11 @@
    "source_url": "https://aap.org.pe/estadisticas/biaap",
    "cadence_text": "daily 15:45 UTC — AAP reloads the report on no fixed day; a month is written once it is before the reload month, classified by AAP and confirmed by AAP's printed monthly report",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2821,17 +2821,17 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-01",
-     "rows": 90,
+     "rows": 91,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-01",
-     "rows": 90,
+     "rows": 91,
      "cadence": "monthly",
      "in_repo": true
     }

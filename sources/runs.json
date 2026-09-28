@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-28T11:12:33Z",
+ "generated": "2026-09-28T21:44:37Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4896,6 +4896,30 @@
    "slug": "thailand_hdv",
    "period": "2026-08",
    "flag": "🇹🇭"
+  },
+  {
+   "date": "2026-09-28",
+   "label": "Netherlands",
+   "base": "Netherlands",
+   "slug": "netherlands",
+   "period": "2026-08",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-09-28",
+   "label": "Netherlands (HDV)",
+   "base": "Netherlands",
+   "slug": "netherlands_hdv",
+   "period": "2026-08",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-09-28",
+   "label": "Netherlands (Used)",
+   "base": "Netherlands",
+   "slug": "netherlands_used",
+   "period": "2026-08",
+   "flag": "🇳🇱"
   },
   {
    "date": "2026-09-28",
