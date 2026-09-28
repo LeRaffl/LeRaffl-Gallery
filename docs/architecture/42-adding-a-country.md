@@ -65,7 +65,8 @@ Phase 10 After merge ....................... first render, check the source page
 
 `scripts/fetch_<slug>.py` — copy the closest existing fetcher
 (record-level: `fetch_hong_kong.py`, `fetch_ukraine.py`; PDF: `fetch_colombia.py`;
-API: `fetch_denmark.py`). Non-negotiables:
+API: `fetch_denmark.py`; a public "publish to web" Power BI report:
+`fetch_peru.py`). Non-negotiables:
 
 - **Line-level upserts** keyed on `(period, variant)`; untouched lines stay
   byte-identical (invariant 2); a row with a foreign `source` is not
@@ -230,6 +231,13 @@ python scripts/build_source_pages.py --check && python scripts/build_theme.py --
 python scripts/check_country_integration.py          # must end with 0 error(s)
 ```
 
+**Expect a CI commit on the branch.** Every push that touches a
+`fetch-*.yml` (or `R/render_schedule.R`) makes `build-manifest.yml` commit
+`chore: update manifest + schedule (CI)` to the branch — force-pushes
+included. Keep it (the Hong Kong and South Korea PRs merged with it); if the
+PR later conflicts on `schedule*` or `manifest.json`, take `master`'s version —
+both are regenerated after the merge.
+
 Then remove the probe files (`probe_out/`, `scripts/probe_tmp.py`,
 `.github/workflows/probe-tmp.yml`) and rewrite **your own** branch into a few
 logical commits (fetcher+tests+workflow · data · integration+docs · history)
@@ -243,4 +251,9 @@ so raw probe downloads never reach `master`'s history.
    away), the country appears on the gallery, the world map and the Builder,
    and `sources/<slug>.html` shows the brand/model tables after
    `build-source-pages.yml` has run.
-3. Watch the first scheduled fetch run and read its step summary.
+3. Check the country's **label**. Under 1 % BEV it reads *No transition*
+   (pill, "shows no transition" in the tables, dark grey on the map); a
+   collapsed / unsettled / stale fit reads *Unreliable fit* and is left out of
+   the rankings and the map on purpose (rules: [02](02-components.md) "Fit
+   reliability gate").
+4. Watch the first scheduled fetch run and read its step summary.

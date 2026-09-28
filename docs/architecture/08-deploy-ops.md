@@ -139,6 +139,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | 07:50 UTC, daily | Department of Customs FTS XLSX (`customs.gov.np`) — HS 8703 **imports**, not registrations | `Whole` + `3-Wheelers` | cheap-skip when the CSV already covers every published workbook |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`, Deno Deploy relay) | `Whole` + `Used` + `HDV` | per-variant diff vs CSV |
 | [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | **disabled** — cron commented out 2026-06 (Imperva); `workflow_dispatch` only, data entered by hand | transport.govt.nz `/inner` (CKAN fallback) | `Whole` | n/a |
+| [`fetch-peru.yml`](../../.github/workflows/fetch-peru.yml) | 15:45 UTC, daily | AAP «BI-AAP» public Power BI report (SUNARP first registrations; anonymous query API, one query per month) — a month is written only when before the reload month, classified and confirmed by AAP's printed monthly report; a real run re-reads the whole history for AAP's re-classifications ([45](45-source-peru.md) §5a) | `Whole` + `Vans` — one query per month, both variants | newest classified month already in every CSV **and** the report's reload stamp (in `market/peru_top.json`) unchanged → a few small requests, no month queries; a classified month still missing from the printed report → the report is read and the run stops |
 | [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | 09:30 & 13:30 UTC, 6th → 10th | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant early-exit |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
 | [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | 08:00 UTC, 15th → EOM | LTA Monthly Vehicle Statistics, file M03 (PDF) + `market/singapore_top.json` / `singapore_months.json` | `Whole` | change-gated commit (rolling ~6-month window); render only if `data/Singapore.csv` changed |
@@ -171,7 +172,7 @@ Notes on the schedule shape:
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
-  11:00, Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
+  11:00, Peru 15:45 (Lima mid-morning), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
   from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
   afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
@@ -186,10 +187,12 @@ Notes on the schedule shape:
   handful of self-throttle checks; it doesn't change correctness.
 - **Canada is the odd one out:** its cube is quarterly, so the workflow only
   runs in March, June, September and December (days 8–20).
-- **Nepal and Hong Kong are the only unbounded daily crons** (`50 7 * * *`,
-  `20 3,11 * * *`) — Nepali fiscal months don't line up with Gregorian ones,
-  and TD uploads Hong Kong's month anywhere from the 13th to the 28th (and
-  could slip past month end), so neither has a useful day window. Both
+- **Nepal, Hong Kong and Peru are the only unbounded daily crons**
+  (`50 7 * * *`, `20 3,11 * * *`, `45 15 * * *`) — Nepali fiscal months don't
+  line up with Gregorian ones, TD uploads Hong Kong's month anywhere from the
+  13th to the 28th (and could slip past month end), and AAP refreshes Peru's
+  BI-AAP report on no fixed day (a month becomes final only at the refresh
+  after it first appears), so none has a useful day window. All three
   self-throttle before downloading anything.
 - **New Zealand has no cron at all** since 2026-06; both upstream endpoints
   are behind Imperva and months are entered by hand.

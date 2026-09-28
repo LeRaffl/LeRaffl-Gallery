@@ -1,0 +1,144 @@
+name: Fetch Peru data (SUNARP via AAP BI-AAP)
+
+# Fetches Peru's new-vehicle first registrations (SUNARP, the national
+# registry, compiled by the Asociación Automotriz del Perú) from AAP's public
+# Power BI report "BI-AAP" — the same public API the embedded report calls,
+# no login — and upserts the Peru CSVs:
+#
+#   data/Peru.csv        Whole   cars, SUVs and MPVs (EU M1)
+#   data/Peru_Vans.csv   Vans    pickups, chassis-cabs, box and panel vans (EU N1)
+#
+# One query per month returns brand x model x class x body x powertrain; the
+# powertrain is AAP's harmonised class (BEV / PHEV / HEV incl. mild hybrids /
+# petrol / diesel / CNG / LPG). Also writes market/peru_top.json (top BEV /
+# PHEV / HEV / MHEV brands and models). Every run checks the detailed rows
+# against an independent aggregate query and cross-checks the monthly totals
+# against AAP's printed monthly report (aborts on a real mismatch).
+# Full method, governance checks and a debugging runbook:
+# docs/architecture/45-source-peru.md.
+#
+# The rows are dated by registration day, but AAP reloads the model on no
+# fixed day (2026-09-02 for the last one), and each reload's newest month is a
+# preliminary cut (2026-08 stopped at the 22nd) with no powertrain class. A
+# month is written only when it is (1) before the refresh month, (2)
+# classified by AAP and (3) confirmed by AAP's printed monthly report (same
+# month total — printed totals are never revised). Until then it is held back.
+# AAP re-classifies the powertrain split of earlier months at later refreshes
+# (back to 2024), so every real run re-reads the whole history (~90 small
+# queries, ~1 min) and lists the revised rows in the step summary.
+# Polled once daily. A no-op run makes a few small requests: nothing to do
+# when the CSVs hold the newest classified month and this refresh (its stamp
+# is kept in market/peru_top.json) was already processed; while a classified
+# month waits for the printed report, the run reads the report and stops.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Vans
+      period:
+        description: 'Target month YYYY-MM (default: newest month AAP has classified)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2019-01'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness / cross-check guards and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Daily 15:45 UTC (Lima 10:45). AAP's refresh day is not fixed, so there
+    # is no useful day window; the self-throttle keeps empty days cheap.
+    - cron: '45 15 * * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests pdfplumber
+
+      # Scope, the powertrain mapping and the Power BI decoder fail silently
+      # when wrong, so the regression tests gate the fetch (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_peru.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Peru CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_peru.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          # Matches data/Peru.csv and data/Peru_Vans.csv.
+          add: |
+            data/Peru*.csv
+            market/peru_top.json
+          message: 'chore: update Peru data from SUNARP via AAP (BI-AAP)'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Peru
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Peru" \
+            -f variants="$variants"
