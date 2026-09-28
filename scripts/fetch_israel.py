@@ -619,22 +619,11 @@ def month_units(period: str, wltp_lookup: tuple[dict, dict]) -> tuple[dict, int]
     return dict(units), len(recs)
 
 
-def csv_totals(path: str) -> dict[str, int]:
-    """{period: TOTAL} of the Whole rows in the data CSV."""
-    out: dict[str, int] = {}
-    if os.path.exists(path):
-        with open(path, newline="", encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                if row["variant"] == VARIANT and row.get("TOTAL"):
-                    out[row["period"]] = int(float(row["TOTAL"]))
-    return out
-
-
 def refresh_top(wltp_lookup: tuple[dict, dict] | None = None) -> None:
     """Rebuild market/israel_top.json when it is missing or behind the newest
     Whole month in data/Israel.csv: re-read the trailing twelve months (one
     registry page per month) and rank them per class."""
-    totals = csv_totals(CSV_PATH)
+    totals = market_top.csv_totals(CSV_PATH, VARIANT)
     if not totals:
         return
     target = max(totals)

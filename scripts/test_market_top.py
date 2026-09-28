@@ -646,6 +646,55 @@ def test_israel_top():
     assert {"tozeret_nm", "kinuy_mishari"} <= set(seen[0][0])
 
 
+def test_portugal_brand_tables():
+    import fetch_portugal as fp
+
+    def chart(series, rows):
+        return {"thisyear": [str(x) for x in series],
+                "result_table": [{"Marca": b, "Mensal": str(m), "Acumulado": str(a)}
+                                 for b, m, a in rows]}
+    charts = {
+        "": chart([100, 120], [("TESLA", 20, 30), ("KIA", 100, 190)]),
+        "7": chart([10, 12], [("TESLA", 8, 15), ("KIA", 4, 7)]),
+        "14": chart([3, 4], [("BMW", 3, 4), ("VOLVO", 1, 3)]),
+        "15": chart([1, 1], [("BMW", 1, 2)]),
+        "17": chart([20, 25], [("TOYOTA", 25, 40), ("KIA", 0, 5)]),
+        "18": chart([0, 0], []),
+    }
+    real = fp.fetch_chart
+    fp.fetch_chart = lambda session, cat, code: charts[code]
+    try:
+        coll = fp.collect_brands(None, 2026)
+        assert coll["period"] == "2026-02" and coll["months"] == 2
+        assert coll["ytd_total"] == 220 and coll["month_total"] == 120
+        assert coll["month"][("PHEV", "BMW", "")] == 4          # 14 + 15 add up
+        assert coll["ytd"][("BEV", "TESLA", "")] == 15 and coll["ytd"][("HEV", "TOYOTA", "")] == 40
+        # brand tables must add up to the fuel series — a missing brand aborts
+        charts["7"] = chart([10, 12], [("TESLA", 8, 15)])
+        try:
+            fp.collect_brands(None, 2026)
+            raise AssertionError("an incomplete brand table must raise")
+        except RuntimeError:
+            pass
+        charts["7"] = chart([10, 12], [("TESLA", 8, 15), ("KIA", 4, 7)])
+        # before the year's first month is out there is nothing to rank
+        charts[""] = {"thisyear": [], "result_table": []}
+        assert fp.collect_brands(None, 2027) is None
+        charts[""] = chart([100, 120], [])
+        coll = fp.collect_brands(None, 2026)
+    finally:
+        fp.fetch_chart = real
+    # headline = year to date; single months come from the store and accumulate
+    stored = {"2026-01": ({("BEV", "TESLA", ""): 7}, 100),
+              "2026-02": (coll["month"], coll["month_total"])}
+    top = fp.build_top_portugal(coll, stored)
+    assert top["window"] == {"from": "2026-01", "to": "2026-02", "months": 2}
+    assert top["total_registrations"] == 220
+    assert top["classes"]["BEV"]["units"] == 22 and top["classes"]["BEV"]["brands"][0]["brand"] == "TESLA"
+    assert [m["period"] for m in top["months"]] == ["2026-02", "2026-01"]
+    assert top["classes"]["BEV"]["models"] == []                  # brands only
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

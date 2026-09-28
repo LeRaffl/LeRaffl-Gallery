@@ -32,6 +32,7 @@ Argentina's predates the folder and lives in ``classification/``.
 from __future__ import annotations
 
 import collections
+import csv
 import json
 from pathlib import Path
 
@@ -247,6 +248,20 @@ def refresh_from_store(country: str, source: str, unit: str, slug: str,
     wrote = write_top(top, MARKET_DIR / f"{slug}_top.json")
     report(top, MARKET_DIR / f"{slug}_top.json", wrote)
     return top
+
+
+def csv_totals(path, variant: str = "Whole") -> dict[str, int]:
+    """{period: TOTAL} of one variant's rows in a data CSV (empty if the file is
+    missing) — the reference `check_scope` compares a fetcher's own counts to."""
+    out: dict[str, int] = {}
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if (row.get("variant") or "Whole") == variant and row.get("TOTAL"):
+                    out[row["period"]] = int(float(row["TOTAL"]))
+    except OSError:
+        pass
+    return out
 
 
 def check_scope(counted: dict[str, int], reference: dict[str, int],

@@ -1,0 +1,365 @@
+{
+ "country": "Portugal",
+ "variant": "Whole",
+ "source": "ACAP (motordata)",
+ "as_of": "2026-08",
+ "window": {
+  "from": "2026-01",
+  "to": "2026-08",
+  "months": 8
+ },
+ "total_registrations": 169330,
+ "unit": "registrations (brand = ACAP / motordata 'Marca'; the source publishes brands only, no models)",
+ "classes": {
+  "BEV": {
+   "units": 45388,
+   "share_of_market": 0.26804,
+   "brands": [
+    {
+     "brand": "TESLA",
+     "units": 6512,
+     "share_of_class": 0.1435
+    },
+    {
+     "brand": "BMW",
+     "units": 4258,
+     "share_of_class": 0.0938
+    },
+    {
+     "brand": "BYD",
+     "units": 3331,
+     "share_of_class": 0.0734
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 3297,
+     "share_of_class": 0.0726
+    },
+    {
+     "brand": "PEUGEOT",
+     "units": 2335,
+     "share_of_class": 0.0514
+    },
+    {
+     "brand": "VOLVO",
+     "units": 2333,
+     "share_of_class": 0.0514
+    },
+    {
+     "brand": "CITROEN",
+     "units": 2243,
+     "share_of_class": 0.0494
+    },
+    {
+     "brand": "RENAULT",
+     "units": 2189,
+     "share_of_class": 0.0482
+    },
+    {
+     "brand": "XPENG",
+     "units": 1398,
+     "share_of_class": 0.0308
+    },
+    {
+     "brand": "MG",
+     "units": 1371,
+     "share_of_class": 0.0302
+    }
+   ],
+   "models": []
+  },
+  "PHEV": {
+   "units": 25306,
+   "share_of_market": 0.14945,
+   "brands": [
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 5555,
+     "share_of_class": 0.2195
+    },
+    {
+     "brand": "BMW",
+     "units": 3875,
+     "share_of_class": 0.1531
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 2392,
+     "share_of_class": 0.0945
+    },
+    {
+     "brand": "BYD",
+     "units": 1918,
+     "share_of_class": 0.0758
+    },
+    {
+     "brand": "AUDI",
+     "units": 1705,
+     "share_of_class": 0.0674
+    },
+    {
+     "brand": "CUPRA",
+     "units": 1457,
+     "share_of_class": 0.0576
+    },
+    {
+     "brand": "VOLVO",
+     "units": 1028,
+     "share_of_class": 0.0406
+    },
+    {
+     "brand": "MG",
+     "units": 1021,
+     "share_of_class": 0.0403
+    },
+    {
+     "brand": "PEUGEOT",
+     "units": 788,
+     "share_of_class": 0.0311
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 775,
+     "share_of_class": 0.0306
+    }
+   ],
+   "models": []
+  },
+  "HEV": {
+   "units": 45985,
+   "share_of_market": 0.27157,
+   "brands": [
+    {
+     "brand": "PEUGEOT",
+     "units": 8576,
+     "share_of_class": 0.1865
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 7248,
+     "share_of_class": 0.1576
+    },
+    {
+     "brand": "CITROEN",
+     "units": 3583,
+     "share_of_class": 0.0779
+    },
+    {
+     "brand": "FIAT",
+     "units": 2912,
+     "share_of_class": 0.0633
+    },
+    {
+     "brand": "OPEL",
+     "units": 2845,
+     "share_of_class": 0.0619
+    },
+    {
+     "brand": "MG",
+     "units": 2431,
+     "share_of_class": 0.0529
+    },
+    {
+     "brand": "NISSAN",
+     "units": 2390,
+     "share_of_class": 0.052
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 1952,
+     "share_of_class": 0.0424
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 1816,
+     "share_of_class": 0.0395
+    },
+    {
+     "brand": "FORD",
+     "units": 1713,
+     "share_of_class": 0.0373
+    }
+   ],
+   "models": []
+  }
+ },
+ "months": [
+  {
+   "period": "2026-08",
+   "total_registrations": 14086,
+   "classes": {
+    "BEV": {
+     "units": 5079,
+     "share_of_market": 0.36057,
+     "brands": [
+      {
+       "brand": "BMW",
+       "units": 627,
+       "share_of_class": 0.1234
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 556,
+       "share_of_class": 0.1095
+      },
+      {
+       "brand": "BYD",
+       "units": 367,
+       "share_of_class": 0.0723
+      },
+      {
+       "brand": "VOLVO",
+       "units": 238,
+       "share_of_class": 0.0469
+      },
+      {
+       "brand": "MG",
+       "units": 234,
+       "share_of_class": 0.0461
+      },
+      {
+       "brand": "CITROEN",
+       "units": 229,
+       "share_of_class": 0.0451
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 218,
+       "share_of_class": 0.0429
+      },
+      {
+       "brand": "XPENG",
+       "units": 201,
+       "share_of_class": 0.0396
+      },
+      {
+       "brand": "KIA",
+       "units": 191,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "RENAULT",
+       "units": 176,
+       "share_of_class": 0.0347
+      }
+     ],
+     "models": []
+    },
+    "PHEV": {
+     "units": 2465,
+     "share_of_market": 0.175,
+     "brands": [
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 471,
+       "share_of_class": 0.1911
+      },
+      {
+       "brand": "BMW",
+       "units": 380,
+       "share_of_class": 0.1542
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 271,
+       "share_of_class": 0.1099
+      },
+      {
+       "brand": "CUPRA",
+       "units": 251,
+       "share_of_class": 0.1018
+      },
+      {
+       "brand": "AUDI",
+       "units": 157,
+       "share_of_class": 0.0637
+      },
+      {
+       "brand": "BYD",
+       "units": 107,
+       "share_of_class": 0.0434
+      },
+      {
+       "brand": "MG",
+       "units": 94,
+       "share_of_class": 0.0381
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 82,
+       "share_of_class": 0.0333
+      },
+      {
+       "brand": "SKODA",
+       "units": 74,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 71,
+       "share_of_class": 0.0288
+      }
+     ],
+     "models": []
+    },
+    "HEV": {
+     "units": 2847,
+     "share_of_market": 0.20212,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 716,
+       "share_of_class": 0.2515
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 347,
+       "share_of_class": 0.1219
+      },
+      {
+       "brand": "CITROEN",
+       "units": 214,
+       "share_of_class": 0.0752
+      },
+      {
+       "brand": "FIAT",
+       "units": 206,
+       "share_of_class": 0.0724
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 169,
+       "share_of_class": 0.0594
+      },
+      {
+       "brand": "OPEL",
+       "units": 124,
+       "share_of_class": 0.0436
+      },
+      {
+       "brand": "JEEP",
+       "units": 104,
+       "share_of_class": 0.0365
+      },
+      {
+       "brand": "RENAULT",
+       "units": 102,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "NISSAN",
+       "units": 101,
+       "share_of_class": 0.0355
+      },
+      {
+       "brand": "OMODA",
+       "units": 95,
+       "share_of_class": 0.0334
+      }
+     ],
+     "models": []
+    }
+   }
+  }
+ ]
+}

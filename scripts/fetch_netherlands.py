@@ -661,21 +661,10 @@ def aggregate_month(session: requests.Session, period: str) -> tuple[dict, int]:
     return dict(units), len(cars)
 
 
-def csv_totals(path: str) -> dict[str, int]:
-    """{period: TOTAL} of the Whole rows in the data CSV."""
-    out: dict[str, int] = {}
-    if os.path.exists(path):
-        with open(path, newline="", encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                if row["variant"] == "Whole" and row.get("TOTAL"):
-                    out[row["period"]] = int(float(row["TOTAL"]))
-    return out
-
-
 def refresh_top(session: requests.Session | None = None) -> None:
     """Bring market/netherlands_top.json up to the newest Whole month of the CSV,
     reading only the months the month store does not have yet."""
-    totals = csv_totals(CSV_PATHS["Whole"])
+    totals = market_top.csv_totals(CSV_PATHS["Whole"])
     if not totals:
         return
     target = max(totals)
