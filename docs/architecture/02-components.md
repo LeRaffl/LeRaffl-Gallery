@@ -83,7 +83,7 @@ A small inline script measures the header and the (now wrapping, not scrolling) 
 | Raw Data | `series/index.json` + `series/<slug>.json` | The country CSVs as stacked bars, one bar per rolling trailing window. Hand-drawn SVG, not Plotly — it renders up to 51 charts at once, and the bar geometry is the feature. Build-time half is `scripts/build_series.py`; spec in [35-proposal-raw-data-tab.md](35-proposal-raw-data-tab.md). |
 | Fleet | `fleet/*.csv`, `fleet_meta.json` | Bestand projection (separate from new-registrations data) |
 | Data freshness | `sources/schedule.json` | In-page render of the fetch schedule; `schedule.html` / `schedule-<YYYY-MM>.html` / `schedule.ics` are its generated standalone counterparts. All from `scripts/build_schedule.py`. |
-| World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share. **Colour scale is a single-hue blue ramp, light → dark** — the data is a magnitude with no meaningful midpoint, and a monotonic lightness ramp stays readable under every form of colour blindness because luminance is preserved. It replaced two opposed red↔green scales, the pair protanopes and deuteranopes cannot separate ([#226](https://github.com/LeRaffl/LeRaffl-Gallery/issues/226)); measured, the old scale put two adjacent steps at ΔE 1.9 under deuteranopia and 4.3 under *normal* vision. Dark always means further along, so `year`/`duration` set `reversescale` rather than carrying a second scale. The three off-scale categories — `pioneer` (amber), `stalled` (dark neutral grey: *no transition*, the tables' `rowHasNoTransition` rule) and `unreliable` (light warm grey: *fit not reliable*, `rowIsUnreliableFit` — shown and listed, never dated) — sit outside the ramp **and** carry a heavier outline, because five ramp steps plus three categories is more than colour alone can separate; unpainted land means no data (see the fit reliability gate below). Has a **variant selector** (`#wmVariant`, revealed once more than one variant is available) — no longer whole-market passenger cars only. |
+| World Map | `params.csv` + `weights.csv` | Choropleth of current BEV share. **Colour scale is a single-hue blue ramp, light → dark** — the data is a magnitude with no meaningful midpoint, and a monotonic lightness ramp stays readable under every form of colour blindness because luminance is preserved. It replaced two opposed red↔green scales, the pair protanopes and deuteranopes cannot separate ([#226](https://github.com/LeRaffl/LeRaffl-Gallery/issues/226)); measured, the old scale put two adjacent steps at ΔE 1.9 under deuteranopia and 4.3 under *normal* vision. Dark always means further along, so `year`/`duration` set `reversescale` rather than carrying a second scale. The two off-scale categories — `pioneer` (amber) and `stalled` (neutral grey) — sit outside the ramp **and** carry a heavier outline, because five ramp steps plus two categories is more than colour alone can separate. Has a **variant selector** (`#wmVariant`, revealed once more than one variant is available) — no longer whole-market passenger cars only. |
 | About | inline | Landing section; the default active tab. |
 | FAQ | inline `FAQ_DATA` array | Searchable Q&A |
 | Submit Data | Worker `POST /submissions` | Form for new monthly data points + corrections |
@@ -160,23 +160,12 @@ A row is **excluded** when any one of three tests fails:
 `provisional` = swing between `FIT_PROVISIONAL_SWING` (5 y) and the unsettled
 cut-off; tags stay, drawn hollow.
 
-What exclusion does — the market is **shown with its label, never ranked and
-never dated** (since 2026-09; before, it silently vanished from the map, which
-read as "no data" — Argentina):
-
-| Surface | "shows no transition" (`rowHasNoTransition`) | "fit not reliable" (`rowIsUnreliableFit`) |
-|---|---|---|
-| Thresholds, Durations | row kept, *shows no transition* instead of dates | row kept, *fit not reliable* instead of dates; named in the note under the table |
-| Time interval | not drawn (no bar without dates); named in the note under the chart | not drawn; named in the note under the chart |
-| World Map | `stalled` — dark grey, heavy outline, listed under *No transition* with its observed BEV share (year and duration modes; share mode keeps the fitted share) | `unreliable` — light grey, heavy outline, listed under *Fit not reliable* with the failed test; hover explains it, in every mode |
-| Gallery cards | *No transition* pill | *Unreliable fit* pill (popover lists the failed tests); the **Fit** filter can hide them |
-
-No transition wins over unreliable everywhere — `rowIsUnreliableFit()` checks
-`rowHasNoTransition` first — and the map uses the **same** two functions as the
-tables. (Before 2026-09 the map had its own no-transition rule, "no crossing
-before 2200", so a market under 1 % BEV such as Peru would have been painted
-blue with an 80 % year near 2100 while every table said *shows no
-transition*.) The chart PNGs themselves are never touched.
+What exclusion does: the row drops out of the three ranking tabs and the map (a
+note under each table names what was left out), its gallery cards carry a
+single *Unreliable fit* pill whose popover lists the failed tests, and the
+gallery's **Fit** filter can hide those charts. The chart PNGs themselves are
+never touched. Rows that already read "shows no transition" keep that label and
+stay in the tables: `rowIsUnreliableFit()` checks `rowHasNoTransition` first.
 The Builder is deliberately **not** gated — it aggregates by volume weight and
 mirrors `scripts/snapshot_builder.py`, and changing its inputs is a Builder
 change (see AGENTS.md).
