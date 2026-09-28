@@ -758,15 +758,19 @@ behind `guarded`. Add `market/<slug>_top.json` (and `_months.json` if used) to
 the workflow's commit list (not to the render trigger: gate the render on the
 data CSV's own diff), and add `market_breakdown:` to its source doc
 front-matter. Rebuild gates use `market_top.top_is_current` so a file written
-before the single-month rankings existed is rebuilt once. Sources whose brand field
-needs translation first (Israel's registry names manufacturers in Hebrew) are
-not "easy" and were left out on purpose. Also left out for now: Chile (ANAC
+before the single-month rankings existed is rebuilt once. A source whose brand
+field needs translation first is not the easy case — Israel's registry names
+manufacturers in Hebrew — and is only worth it when the source classifies exactly
+like the CSV (Israel does: one `column_of()` for both; a maintained `BRAND_STEMS`
+table translates, and an unknown name stays visible in Hebrew instead of merging
+into a wrong brand). Also left out for now: Chile (ANAC
 publishes monthly brand rankings per class, but in a Power-BI PDF whose text
 layer overlaps and whose model lists are year-to-date top 10s), Indonesia
 (GAIKINDO's per-model sheets are 1.5 pt print and recent editions dropped the
 fuel column), Brazil (the Central de Dados brand totals cannot be crossed with
-fuel — [05](05-flows.md)) and Luxembourg (STATEC's `BRAND` dimension would need
-a second query that has not been probed).
+fuel — [05](05-flows.md)) and Luxembourg (probed 2026-09-28: STATEC's `DF_D6124`
+has the brand, but every row carries `MOTOR_ENERGY = _Z` — brand totals over all
+fuels, no brand × powertrain, so no electrified ranking is possible).
 
 **Not available / still being probed (2026-09):**
 
@@ -779,7 +783,10 @@ a second query that has not been probed).
 | United Kingdom | **No usable table.** DfT/DVLA publish new registrations by body type, fuel and keepership (`VEH1153`), and plug-in registrations by generic model only quarterly and for GB (`VEH0181`); make × fuel exists for the licensed *stock* only. SMMT's brand tables are not open. Probed 2026-09-28. |
 | New Zealand | **Not reachable by a script.** `transport.govt.nz` sits behind Incapsula bot protection ("Pardon Our Interruption"); the `/inner` endpoint the fetcher uses answers 200 with an empty challenge body from a datacentre IP. Probed 2026-09-28. |
 | Latvia, Lithuania | Latvia's CSDD register on `data.gov.lv` is a stock snapshot (last resource dated 2025-02), not a registration flow; Regitra (`regitra.lt`) answers with a CAPTCHA. Probed 2026-09-28. |
-| Sweden (Trafikanalys) | `api.trafa.se` is a query API (`structure` / `data`); the products for new registrations (`t10030`, `t10016`, `t10026`) expose year / month / fuel / county / municipality but no make dimension under any name tried (`marke`, `fabrikat`, `modell`, …). Not possible without Trafa's API manual. Probed 2026-09-28. |
+| Sweden (Trafikanalys) | **No make anywhere.** The monthly workbook `fordon-nyregistreringar-YYYY-MM.xlsx` (16 tables: stock / new registrations, fuel, owner type, model year, emission class, municipality) has no make or model, and the query API `api.trafa.se` exposes the same dimensions (no `marke` / `fabrikat` / `modell` on `t10030`, `t10016`, `t10026`). Probed 2026-09-28. |
+| Luxembourg | No brand × fuel: `DF_D6124` (new registrations by type and brand) is all fuels together. Probed 2026-09-28. |
+| Portugal | **Wired** (row above), brands only. |
+| Israel | **Wired** (row above). |
 | Germany | **Not available as data.** The monthly release's `…_marken.xlsx` is make × month / year-to-date totals over *all* powertrains (probed 2026-09-26: `Marke | Anzahl | Anteil | Veränd. …`), and KBA's "… nach Marken und alternativen Antrieben" release is a PDF only (year to date). A make × BEV table would mean parsing that PDF — not planned. `fetch_germany.py --dry-run` still logs both (`[probe] marken.xlsx`, `[probe] Antriebe release`). |
 
 ## 3.17 Uncertainty bands (`bands/`)
