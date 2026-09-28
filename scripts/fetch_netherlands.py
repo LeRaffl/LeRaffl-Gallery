@@ -680,7 +680,9 @@ def refresh_top(session: requests.Session | None = None) -> None:
         fresh[p] = aggregate_month(session, p)
         print(f"  {p}: {fresh[p][1]:,} new cars, "
               f"{sum(fresh[p][0].values()):,} BEV/PHEV")
-    market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items()}, totals)
+    window = market_top.month_window(target)
+    market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items() if p in window},
+                           totals)
     market_top.refresh_from_store("Netherlands", TOP_SOURCE, TOP_UNIT,
                                   "netherlands", fresh)
 
