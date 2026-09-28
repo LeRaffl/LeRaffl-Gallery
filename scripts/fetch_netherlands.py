@@ -44,9 +44,35 @@ Brief recap (so the script reads on its own):
   fuels-in-rows; _parse_fuels_in_rows is kept for that shape.) The parser
   picks the branch from the headRows labels and locates the fuel header level
   by matching NL_FUELS.
+
+Top brands / models (market/netherlands_top.json)
+-------------------------------------------------
+The Swing pivots carry no brand or model. The same register is also published
+record by record as RDW open data (opendata.rdw.nl, Socrata, no key), so every
+run also keeps the trailing-twelve-month top brands and models per electrified
+class (Whole only; BEV and PHEV, the classes the CSV splits) current, in the
+country-neutral schema of scripts/market_top.py; the source page renders it.
+
+* Scope = the Swing "Personenauto Nieuw" instroom, rebuilt from the records:
+  voertuigsoort Personenauto, first registration in NL in the month AND first
+  admission (datum eerste toelating) in the same month, export_indicator Nee.
+  That lands within about 1-3 % of the CSV per month (RDW is a live register,
+  Swing a snapshot), so each month is checked against data/Netherlands.csv and
+  a window deviating by more than 10 % aborts the refresh (market_top.check_scope;
+  guarded: a warning, the data commit is unaffected).
+* Class = fuel table 8ys7-d773 keyed by kenteken: BEV = Elektriciteit only;
+  PHEV = a row with klasse_hybride_elektrisch_voertuig OVC-HEV. Full hybrids
+  stay unsplit like in the CSV; fuel-cell cars count as OTHERS there and are
+  not ranked.
+* The fuel table cannot be joined server-side, so the fuels of a month are read
+  in batches of FUEL_BATCH plates (about one minute per month). Months are kept
+  in market/netherlands_months.json (the month store of market_top.py), so a
+  normal run reads only the newest month; the very first run reads twelve.
+* --no-top skips all of it.
 """
 import argparse
 import base64
+import collections
 import csv
 import os
 import re
@@ -59,6 +85,9 @@ from urllib.parse import quote as urlquote, urljoin
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
 BASE = "https://duurzamemobiliteit.databank.nl"
 
@@ -464,6 +493,209 @@ def upsert_csv(csv_path: str, new_rows: dict[tuple[str, str], dict]) -> tuple[in
     return added, updated
 
 
+# ── Top brands / models (RDW open data; not used for the data CSV) ─────────
+
+RDW_BASE = "https://opendata.rdw.nl/resource/"
+RDW_VEHICLES = "m9d7-ebf2"        # Gekentekende voertuigen (one row per plate)
+RDW_FUEL = "8ys7-d773"            # ... brandstof (one row per plate x fuel)
+TOP_SOURCE = "RDW open data"
+TOP_PATH = market_top.MARKET_DIR / "netherlands_top.json"
+STORE_PATH = market_top.MARKET_DIR / "netherlands_months.json"
+TOP_UNIT = ("first registrations (brand = RDW 'merk'; model = RDW "
+            "'handelsbenaming' with the brand prefix, engine / power / trim "
+            "codes removed — see display_model in scripts/fetch_netherlands.py)")
+FUEL_BATCH = 800                  # plates per fuel query (URL limit ~ 1000)
+PAGE = 50000                      # Socrata's maximum page size
+RDW_TRIES = 5
+
+
+def rdw_session() -> requests.Session:
+    """A plain session for opendata.rdw.nl — deliberately not the Swing
+    session: NL_PROXY / NL_FETCH_RELAY exist because duurzamemobiliteit
+    blocks GitHub, RDW's open-data host does not."""
+    s = requests.Session()
+    s.headers["User-Agent"] = "LeRaffl-Gallery/1.0 (+https://github.com/LeRaffl/LeRaffl-Gallery)"
+    return s
+
+
+def rdw_get(session: requests.Session, resource: str, params: dict) -> list:
+    """One Socrata query, retried with backoff (RDW answers an occasional 500
+    under load)."""
+    err = None
+    for attempt in range(RDW_TRIES):
+        try:
+            r = session.get(f"{RDW_BASE}{resource}.json", params=params, timeout=180)
+            if r.status_code == 200:
+                return r.json()
+            err = f"HTTP {r.status_code}"
+        except requests.RequestException as e:
+            err = f"{type(e).__name__}: {e}"
+        time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"RDW {resource} failed after {RDW_TRIES} tries: {err}")
+
+
+def next_month(period: str) -> str:
+    y, m = map(int, period.split("-"))
+    return f"{y + m // 12}-{m % 12 + 1:02d}"
+
+
+def fetch_new_cars(session: requests.Session, period: str) -> list[dict]:
+    """The plates counted as "new passenger cars registered in `period`":
+    first NL registration in the month, first admission in the same month (a
+    car admitted earlier is a used import), not exported since."""
+    a, b = f"{period}-01", f"{next_month(period)}-01"
+    where = ("voertuigsoort='Personenauto' "
+             f"and datum_eerste_tenaamstelling_in_nederland_dt >= '{a}' "
+             f"and datum_eerste_tenaamstelling_in_nederland_dt < '{b}' "
+             f"and datum_eerste_toelating_dt >= '{a}' "
+             f"and datum_eerste_toelating_dt < '{b}' "
+             "and export_indicator='Nee'")
+    rows: list[dict] = []
+    while True:
+        page = rdw_get(session, RDW_VEHICLES, {
+            "$select": "kenteken,merk,handelsbenaming", "$where": where,
+            "$order": "kenteken", "$limit": PAGE, "$offset": len(rows)})
+        rows += page
+        if len(page) < PAGE:
+            return rows
+
+
+def fetch_fuels(session: requests.Session, plates: list[str]) -> dict[str, list]:
+    """{plate: [(fuel, hybrid class), ...]} from the fuel table. It cannot be
+    joined on the server, so the plates go in as IN lists."""
+    out: dict[str, list] = collections.defaultdict(list)
+    for i in range(0, len(plates), FUEL_BATCH):
+        inlist = ",".join(f"'{p}'" for p in plates[i:i + FUEL_BATCH])
+        for r in rdw_get(session, RDW_FUEL, {
+                "$select": "kenteken,brandstof_omschrijving,klasse_hybride_elektrisch_voertuig",
+                "$where": f"kenteken in({inlist})", "$limit": PAGE}):
+            out[r["kenteken"]].append((r.get("brandstof_omschrijving") or "",
+                                       r.get("klasse_hybride_elektrisch_voertuig") or ""))
+    return out
+
+
+def powertrain_class(fuels: list) -> str:
+    """The CSV's split: BEV = electricity as the only fuel, PHEV = an
+    externally chargeable hybrid (OVC-HEV). Everything else — including the
+    full hybrids the CSV leaves unsplit and fuel-cell cars (OTHERS) — is ""."""
+    kinds = {k for _, k in fuels if k}
+    if any(k.startswith("OVC-HEV") for k in kinds):
+        return "PHEV"
+    if fuels and {f for f, _ in fuels} == {"Elektriciteit"} and not kinds:
+        return "BEV"
+    return ""
+
+
+# Display names only — the CSV never sees them. RDW's `merk` is consistent
+# apart from a handful of spellings; `handelsbenaming` is the type-approval
+# trade name and carries engine, power and trim ("ID.4 PRO 210KW", "IX3 50
+# XDRIVE", "CLA 250+"), so several strings are one model on the road.
+BRAND_ALIASES = {"DS AUTOMOBILES": "DS", "LYNK&CO": "LYNK & CO",
+                 "MERCEDES BENZ": "MERCEDES-BENZ", "LAND-ROVER": "LAND ROVER",
+                 "BURSTNER GMBH": "BURSTNER", "LUCID MOTORS": "LUCID"}
+# Equipment / drive / body words removed from any brand's model string.
+MODEL_NOISE = re.compile(
+    r"\d+(?:[.,]\d+)?\s?KWH?\b|\b\d+/\d+\s?KWH\b"          # 210KW, 150 KW, 60/63 KWH
+    r"|\b(?:PRO S|PRO|PURE|MAX|LR|KR|GTX|PERF\.?|PERFORMANCE|QUATTRO|SPORTBACK|"
+    r"SPORTS TOURER|TOURER|AVANT|AV|SB|SUV|TOURING|CROSS COUNTRY|E-TECH ELECTRIC|"
+    r"E-TECH|ELECTRIC|EV|EVO|DM-I|EM-I|PHEV|E-HYBRID\d*|HYBRID|TFSI E|TFSI|"
+    r"XDRIVE\d*E?|EDRIVE\d*|SDRIVE\d*|4MATIC\+?|ALL4|WITH EQ TE|SP|URBAN)\b")
+# Brands whose trade names are a family name followed by numbers / suffixes.
+FIRST_TOKEN = {"BMW", "PORSCHE"}
+DROP_NUMBERS = {"SKODA"}
+
+
+def display_brand(merk: str) -> str:
+    b = market_top.clean(merk)
+    return BRAND_ALIASES.get(b, b)
+
+
+def display_model(merk: str, model: str) -> str:
+    """RDW trade name -> the model as buyers know it, for the ranking only."""
+    brand = display_brand(merk)
+    m = market_top.clean(model)
+    for prefix in {market_top.clean(merk), brand}:
+        m = market_top.strip_brand(prefix, m)
+        if m.startswith(prefix) and m[len(prefix):len(prefix) + 1].isdigit():
+            m = m[len(prefix):]                       # "MG4 ELECTRIC" -> "4 ELECTRIC"
+    m = re.sub(r"\([^)]*\)", " ", m)
+    if brand == "MERCEDES-BENZ":
+        toks = m.split()
+        keep = []
+        for t in toks:
+            if any(ch.isdigit() for ch in t):
+                break
+            keep.append(t)
+        m = " ".join(keep or toks[:1])
+    elif brand == "AUDI":
+        toks = m.split()
+        fam = toks[:2] if toks[:1] in (["RS"], ["S"]) and len(toks) > 1 else toks[:1]
+        m = " ".join(fam + (["E-TRON"] if "E-TRON" in toks and "E-TRON" not in fam else []))
+    elif brand == "TESLA":
+        m = " ".join(m.split()[:2])
+    elif brand == "LEXUS":
+        m = re.sub(r"^([A-Z]{2})\d{3}.*$", r"\1", m)
+    elif brand == "HYUNDAI":
+        m = re.sub(r"^IONIQ ?(\d)", r"IONIQ \1", m)
+    elif brand in FIRST_TOKEN:
+        m = m.split(" ")[0]
+    m = MODEL_NOISE.sub(" ", m)
+    if brand in DROP_NUMBERS:
+        m = re.sub(r"(?<!\S)\d{2,3}(?!\S)|(?<!\S)RS(?!\S)", " ", m)
+    if brand == "MINI":
+        m = re.sub(r"(?<!\S)(?:E|SE|JCW)(?!\S)", " ", m)
+    m = " ".join(m.split())
+    return m or market_top.clean(model)
+
+
+def aggregate_month(session: requests.Session, period: str) -> tuple[dict, int]:
+    """({(class, brand, model): n} for BEV/PHEV, all new cars of the month)."""
+    cars = fetch_new_cars(session, period)
+    fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
+    units: collections.Counter = collections.Counter()
+    for c in cars:
+        cls = powertrain_class(fuels.get(c["kenteken"], []))
+        if cls:
+            units[(cls, display_brand(c.get("merk")),
+                   display_model(c.get("merk"), c.get("handelsbenaming")))] += 1
+    return dict(units), len(cars)
+
+
+def csv_totals(path: str) -> dict[str, int]:
+    """{period: TOTAL} of the Whole rows in the data CSV."""
+    out: dict[str, int] = {}
+    if os.path.exists(path):
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if row["variant"] == "Whole" and row.get("TOTAL"):
+                    out[row["period"]] = int(float(row["TOTAL"]))
+    return out
+
+
+def refresh_top(session: requests.Session | None = None) -> None:
+    """Bring market/netherlands_top.json up to the newest Whole month of the CSV,
+    reading only the months the month store does not have yet."""
+    totals = csv_totals(CSV_PATHS["Whole"])
+    if not totals:
+        return
+    target = max(totals)
+    stored = market_top.load_store(STORE_PATH)
+    need = [p for p in market_top.month_window(target) if p not in stored]
+    if not need and market_top.top_is_current(TOP_PATH, target):
+        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
+        return
+    print(f"Top brands/models: reading {len(need)} month(s) from RDW: {need or '-'}")
+    session = session or rdw_session()
+    fresh = {}
+    for p in need:
+        fresh[p] = aggregate_month(session, p)
+        print(f"  {p}: {fresh[p][1]:,} new cars, "
+              f"{sum(fresh[p][0].values()):,} BEV/PHEV")
+    market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items()}, totals)
+    market_top.refresh_from_store("Netherlands", TOP_SOURCE, TOP_UNIT,
+                                  "netherlands", fresh)
+
+
 def previous_month_period() -> str:
     """YYYY-MM for the calendar month before today (UTC)."""
     today = date.today()
@@ -495,6 +727,10 @@ def main() -> None:
         "--force", action="store_true",
         help="Skip the 'already current' early-exit check.",
     )
+    parser.add_argument(
+        "--no-top", action="store_true",
+        help="Skip the top brands/models refresh (market/netherlands_top.json).",
+    )
     args = parser.parse_args()
 
     variant_aliases = {"whole": "Whole", "used": "Used", "hdv": "HDV"}
@@ -515,6 +751,8 @@ def main() -> None:
             print(f"[{v}] CSV already has {prev}; skipping (use --force to re-fetch).")
         if not targets:
             print("All requested variants are current; nothing to do.")
+            if not args.no_top:
+                market_top.guarded(refresh_top)
             return
 
     session = requests.Session()
@@ -576,6 +814,9 @@ def main() -> None:
         keyed = {(p, variant): r for p, r in rows.items()}
         added, updated = upsert_csv(CSV_PATHS[variant], keyed)
         print(f"[{variant}] {added} added, {updated} updated -> {CSV_PATHS[variant]}")
+
+    if not args.no_top:
+        market_top.guarded(refresh_top)
 
 
 if __name__ == "__main__":

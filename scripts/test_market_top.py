@@ -518,6 +518,75 @@ def test_ireland_top():
         pass
 
 
+def test_netherlands_rdw_top():
+    import fetch_netherlands as fn
+    # class = the CSV's split: BEV electricity-only, PHEV OVC-HEV, rest unranked
+    assert fn.powertrain_class([("Elektriciteit", "")]) == "BEV"
+    assert fn.powertrain_class([("Benzine", "OVC-HEV"), ("Elektriciteit", "OVC-HEV")]) == "PHEV"
+    assert fn.powertrain_class([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == ""
+    assert fn.powertrain_class([("Waterstof", "NOVC-FCHV"), ("Elektriciteit", "NOVC-FCHV")]) == ""
+    assert fn.powertrain_class([("Benzine", "")]) == "" and fn.powertrain_class([]) == ""
+    assert fn.next_month("2025-12") == "2026-01" and fn.next_month("2026-06") == "2026-07"
+    # display names: brand aliases, prefix, engine / power / trim codes
+    dm = fn.display_model
+    assert dm("VOLKSWAGEN", "ID.4 PRO 210KW") == "ID.4"
+    assert dm("VOLKSWAGEN", "ID. BUZZ PRO LR 210 KW") == "ID. BUZZ"
+    assert dm("BMW", "IX3 50 XDRIVE") == "IX3" and dm("BMW", "330E XDRIVE") == "330E"
+    assert dm("MERCEDES-BENZ", "CLA 250+") == "CLA" and dm("MERCEDES-BENZ", "GLC 400 4MATIC WITH EQ TE") == "GLC"
+    assert dm("AUDI", "Q4 SPORTBACK 45 E-TRON") == "Q4 E-TRON" and dm("AUDI", "Q3 SB 200KW TFSI E") == "Q3"
+    assert dm("SKODA", "ELROQ 85") == "ELROQ" and dm("SKODA", "ENYAQ RS") == "ENYAQ"
+    assert dm("RENAULT", "RENAULT 5 E-TECH ELECTRIC") == "5" and dm("TESLA", "Model Y") == "MODEL Y"
+    assert dm("MG", "MG4 EV URBAN") == "4" and dm("MG", "MG S5 EV") == "S5"
+    assert dm("MINI", "COUNTRYMAN SE ALL4") == "COUNTRYMAN" and dm("HYUNDAI", "IONIQ5 N") == "IONIQ 5 N"
+    assert dm("PEUGEOT", "3008") == "3008" and dm("BYD", "BYD SEAL U DM-I") == "SEAL U"
+    assert dm("LEXUS", "LEXUS RZ350E") == "RZ" and dm("LYNK&CO", "LYNK & CO 01") == "01"
+    assert fn.display_brand("DS AUTOMOBILES") == "DS" and fn.display_brand("Lynk&Co") == "LYNK & CO"
+
+    # month aggregation over a fake RDW: scope filter is in the query, the class
+    # comes from the fuel table, the total counts every plate
+    cars = [{"kenteken": "AA1", "merk": "TESLA", "handelsbenaming": "MODEL Y"},
+            {"kenteken": "AA2", "merk": "TESLA", "handelsbenaming": "MODEL Y"},
+            {"kenteken": "AA3", "merk": "VOLVO", "handelsbenaming": "XC60"},
+            {"kenteken": "AA4", "merk": "TOYOTA", "handelsbenaming": "TOYOTA YARIS"},
+            {"kenteken": "AA5", "merk": "KIA", "handelsbenaming": "EV3"}]   # no fuel row
+    fuel = [{"kenteken": "AA1", "brandstof_omschrijving": "Elektriciteit"},
+            {"kenteken": "AA2", "brandstof_omschrijving": "Elektriciteit"},
+            {"kenteken": "AA3", "brandstof_omschrijving": "Benzine",
+             "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
+            {"kenteken": "AA3", "brandstof_omschrijving": "Elektriciteit",
+             "klasse_hybride_elektrisch_voertuig": "OVC-HEV"},
+            {"kenteken": "AA4", "brandstof_omschrijving": "Benzine"}]
+    seen = []
+
+    def fake_get(session, resource, params):
+        seen.append((resource, params))
+        if resource == fn.RDW_VEHICLES:
+            return cars[params["$offset"]:params["$offset"] + params["$limit"]]
+        return [r for r in fuel if f"'{r['kenteken']}'" in params["$where"]]
+    real = fn.rdw_get
+    fn.rdw_get = fake_get
+    try:
+        units, total = fn.aggregate_month(None, "2026-06")
+    finally:
+        fn.rdw_get = real
+    assert total == 5
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1}
+    where = seen[0][1]["$where"]
+    assert "2026-06-01" in where and "2026-07-01" in where and "export_indicator='Nee'" in where
+    top = mt.build_top_monthly("Netherlands", "S", "2026-06", {"2026-06": (units, total)}, "u")
+    assert top["classes"]["BEV"]["models"][0]["units"] == 2
+    assert top["classes"]["PHEV"]["brands"][0]["brand"] == "VOLVO"
+
+    # scope check: small deviations pass, a scope change aborts the refresh
+    mt.check_scope({"2026-05": 1010, "2026-06": 1000, "2026-07": 5},
+                   {"2026-05": 1000, "2026-06": 1000})          # 2026-07: not in the CSV
+    try:
+        mt.check_scope({"2026-06": 1200}, {"2026-06": 1000})
+        raise AssertionError("a 20 % deviation must raise")
+    except RuntimeError:
+        pass
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

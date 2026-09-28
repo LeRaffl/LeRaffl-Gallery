@@ -249,6 +249,29 @@ def refresh_from_store(country: str, source: str, unit: str, slug: str,
     return top
 
 
+def check_scope(counted: dict[str, int], reference: dict[str, int],
+                warn: float = 0.05, abort: float = 0.10) -> None:
+    """For a source whose top lists are counted from records that the data CSV
+    does not come from: compare each month's counted total with the CSV's
+    TOTAL for the same month. Two snapshots of one register differ by a few
+    per cent (the register is live, the CSV a fetch-time copy); a month beyond
+    `warn` is logged, and a window beyond `abort` raises — the scope changed,
+    so the tables would no longer describe the charts. Months the CSV does not
+    have are skipped."""
+    got = ref = 0
+    for p in sorted(counted):
+        if not reference.get(p):
+            continue
+        n, t = counted[p], reference[p]
+        dev = (n - t) / t
+        flag = "  <-- above tolerance" if abs(dev) > warn else ""
+        print(f"  scope {p}: counted {n:,} vs CSV {t:,} ({dev:+.1%}){flag}")
+        got, ref = got + n, ref + t
+    if ref and abs(got - ref) / ref > abort:
+        raise RuntimeError(f"window total {got:,} vs CSV {ref:,} differs by more "
+                           f"than {abort:.0%} — did the source's scope change?")
+
+
 def report(top: dict, path: Path, wrote: bool) -> None:
     """One log line per refresh: what moved, and the leading BEV brand."""
     bev = top["classes"].get("BEV", {})

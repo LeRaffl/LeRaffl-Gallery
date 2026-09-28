@@ -12,6 +12,14 @@ name: Fetch Netherlands data (RDW via Swing)
 # in the Swing UI via the share-icon → permalink mechanism). See the docstring
 # in scripts/fetch_netherlands.py for details. If the CSV changed, this workflow
 # renders touched variants via a serial render-country.yml matrix.
+#
+# Top brands/models: the same script also keeps market/netherlands_top.json
+# (trailing-12-month top BEV / PHEV brands and models, Whole) and its month
+# store market/netherlands_months.json current from the RDW open-data register
+# (opendata.rdw.nl — a plain host, unlike the Swing portal, so no relay). It
+# is committed with the data but never triggers a render; the source page picks
+# it up through build-source-pages.yml. The very first run reads twelve months
+# (about 15 minutes), later runs one.
 
 on:
   workflow_dispatch:
@@ -54,6 +62,11 @@ jobs:
       - name: Install dependencies
         # requests[socks] so NL_PROXY may be a socks5:// URL as well as http(s)://.
         run: pip install "requests[socks]"
+
+      # Offline; guards the top brands/models builder (scripts/market_top.py)
+      # and the RDW classification / display names.
+      - name: Test the top brands/models builder
+        run: python scripts/test_market_top.py
 
       - name: Fetch & update Netherlands.csv
         run: |
@@ -106,6 +119,8 @@ jobs:
             data/Netherlands.csv
             data/Netherlands_Used.csv
             data/Netherlands_HDV.csv
+            market/netherlands_top.json
+            market/netherlands_months.json
           message: 'chore: update Netherlands data from duurzamemobiliteit.databank.nl'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a

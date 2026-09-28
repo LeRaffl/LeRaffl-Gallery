@@ -1052,6 +1052,8 @@ sequenceDiagram
 
 **Where parsing lives:** [scripts/fetch_netherlands.py](../../scripts/fetch_netherlands.py). Pipeline rationale, variant choices, template-GUID maintenance, and HEV/FCEV fold-in convention live in [10-source-netherlands.md](10-source-netherlands.md) — read that before changing the `TEMPLATES` constant.
 
+**Top brands / models:** after the CSVs, the same script keeps `market/netherlands_top.json` (+ `netherlands_months.json`) current from the RDW open-data register (`opendata.rdw.nl`, a plain host — no relay), one month at a time behind `market_top.guarded`; it is committed with the data but never triggers a render. Scope, classes and display names: [10-source-netherlands.md § 11b](10-source-netherlands.md#11b-top-brands--models-marketnetherlands_topjson).
+
 **Vehicle scope:** Personenauto (passenger cars) for Whole + Used; Zware bedrijfsvoertuigen (heavy commercial > 3.5 t) for HDV. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
 
 **Why three variants in one workflow:** all three pivots ride on the same Swing session protocol, the same response shape, and the same fuel-label map. Splitting them into three workflows would triple the YAML for zero functional gain. Per-variant render dispatch lets a single-variant change still trigger only the right re-render.

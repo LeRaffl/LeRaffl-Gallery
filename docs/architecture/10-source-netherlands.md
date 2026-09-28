@@ -35,6 +35,9 @@ fetcher: scripts/fetch_netherlands.py
 workflow: .github/workflows/fetch-netherlands.yml
 fragility_doc: docs/architecture/10-source-netherlands.md
 data_file: data/Netherlands.csv
+market_breakdown: market/netherlands_top.json
+market_designation_note: a "designation" is RDW's trade name with the brand prefix and the engine, power and trim codes removed, so the versions of one model rank together (ID.4 PRO 210KW and ID.4 GTX → ID.4).
+market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid; full hybrids are not split, as in the charts. Counted from the register record by record, so a month can differ from the chart's total by about 1–3 %.
 ---
 
 # 10 · Source: Netherlands (duurzamemobiliteit.databank.nl / RDW)
@@ -204,8 +207,10 @@ Source columns (Swing pivot, Dutch labels) → canonical CSV columns:
 
 ### The HEV gap
 
-RDW does not separately publish full-hybrid registrations. They land in the
-`Benzine` or `Diesel` bucket. The downstream effect is that:
+The Swing pivots do not separately show full-hybrid registrations. They land in
+the `Benzine` or `Diesel` bucket. (The record-level open-data fuel table
+*does* flag them — `NOVC-HEV` — see §11b; the CSV keeps the pivots' convention.)
+The downstream effect is that:
 
 - The TTM stacked-shares plot for Netherlands has no HEV slice (correct —
   it really isn't reported).
@@ -410,6 +415,68 @@ curl -s -b /tmp/c "https://duurzamemobiliteit.databank.nl/viewer/Presentation/Ge
 If both steps succeed, the scraper will too. If step 1 returns no
 match, the template GUID is broken. If step 2 returns HTML (a 302 to
 `/Viewer/Error`), the cookies aren't being carried correctly.
+
+## 11b. Top brands / models (`market/netherlands_top.json`)
+
+The Swing pivots carry no make. The same register is published record by record
+as RDW open data (`opendata.rdw.nl`, Socrata, no key, no relay — RDW's open-data
+host is not blocked from GitHub the way the BI portal is), so
+`refresh_top()` in `scripts/fetch_netherlands.py` builds the source page's "Who
+sells the electrified cars" section from it. Whole only; classes BEV and PHEV.
+
+| Piece | Dataset | Used for |
+|---|---|---|
+| Gekentekende voertuigen (`m9d7-ebf2`) | one row per plate | scope filter, `merk` (brand), `handelsbenaming` (trade name) |
+| …brandstof (`8ys7-d773`) | one row per plate × fuel | class: `brandstof_omschrijving`, `klasse_hybride_elektrisch_voertuig` |
+
+**Scope — rebuilding the Swing "Personenauto Nieuw" instroom.**
+`voertuigsoort = Personenauto`, first registration in NL inside the month
+(`datum_eerste_tenaamstelling_in_nederland_dt`) **and** first admission in the
+same month (`datum_eerste_toelating_dt`; an earlier admission means a used
+import), `export_indicator = Nee`. Tested against the CSV on 2026-09-28: every
+month of 2025-07 → 2026-06 within −0.8 % … +1.9 % of `data/Netherlands.csv`
+(RDW is a live register, Swing a fetch-time snapshot), the window as a whole
++0.3 % (BEV +0.1 %, PHEV +2.2 %). Looser scopes miss by 3–60 % (first
+admission alone: +6 %; first registration alone: +70 %, it contains every used
+import). `market_top.check_scope` logs every month and stops the refresh if the
+window drifts more than 10 % — a changed scope must not publish tables that no
+longer describe the charts.
+
+**Class — the CSV's split.** BEV = electricity as the only fuel row; PHEV = a
+fuel row with `klasse_hybride_elektrisch_voertuig = OVC-HEV`. Full hybrids
+(`NOVC-HEV`, about a quarter of the market) are *not* ranked, exactly as the CSV
+folds them into petrol/diesel (see "The HEV gap": the Swing pivots do not split
+them; the open-data fuel table would allow it, and adding an HEV class here
+would be one line in `powertrain_class` — but then the charts and the tables
+would disagree). Fuel-cell cars are OTHERS in the CSV and not ranked. A plate
+without a fuel row counts in the total only.
+
+**Cost and store.** The fuel table cannot be joined server-side (Socrata
+answers "joins are not supported"), so a month's ~30 000 plates go in as `IN`
+lists of `FUEL_BATCH` = 800 (the URL limit is ~1 000): ~40 queries, about a
+minute. `market/netherlands_months.json` (the month store of
+`market_top.py`) keeps every month already read, so a normal run reads only the
+month the CSV just gained; the first run reads twelve (about 12 minutes). RDW
+answers an occasional HTTP 500 — `rdw_get` retries five times with backoff.
+
+**Display names.** Only the table sees them. `merk` has a few duplicate
+spellings (`DS AUTOMOBILES` → `DS`, `LYNK&CO` → `LYNK & CO`);
+`handelsbenaming` is the type-approval trade name with engine, power and trim
+(`ID.4 PRO 210KW`, `IX3 50 XDRIVE`, `CLA 250+`, `Q3 200KW TFSI E`), so
+`display_model` removes the brand prefix, power figures and equipment words and
+applies a few per-brand rules (BMW/Porsche: first word; Mercedes: letters up to
+the first number; Audi: family + `E-TRON`; Škoda: number suffixes). Versions of
+one model then rank together (ID.4 PRO / PURE / GTX → `ID.4`). It is a
+heuristic: a new naming scheme shows up as a stray row, never as a wrong
+number; extend `display_model` and re-run with an empty store
+(`rm market/netherlands_*.json`) to re-key history.
+
+**Also in the register:** motorhomes (`ADRIA`, `HYMER`, …) are `Personenauto`
+with a camper body and are in the total like in Swing; they are diesel, so
+they never reach the BEV/PHEV lists.
+
+Runs with the daily fetch, behind `market_top.guarded`, and alone when the
+data is current but the top file is not; `--no-top` skips it.
 
 ## 12. What is **not** in this pipeline
 
