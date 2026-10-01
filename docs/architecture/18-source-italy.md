@@ -419,6 +419,7 @@ and re-derives the whole history in a few minutes.
 | F15 | Real outlier, not a parse error: 2023-05 PHEV 466 (neighbours ~90–150). The consolidated YTD reads 212 (Apr), 678 (May), 828 (Jun). Likewise 2021-11 BEV 948. | YTD columns |
 | F16 | **HDV still has no fuel split**: the `immatricolazioni-veicoli-industriali` struttura PDF (checked on July + August 2026) has weight classes only. | §8 |
 | F17 | The LCV struttura PDF appears around the 10th, at about the same time as the press release or slightly before it. For July + August 2026, the table data are "al 04/09/2026" and the press release is dated 2026-09-10. The exact publication day is not recorded on the page. | PDF footer, press release |
+| F18 | **The newest LCV page is not always on index page 1.** About 15 passenger-car pages appear around the 1st. From then until the next LCV table (~10th), the last LCV page sits on page 2. The first `fetch_vans` only searched page 1 and failed on 2026-10-01; the PKW data were committed anyway (D1). It now walks up to 5 index pages (`find_latest_lcv_page`), as the model-list search (§10) already did. | run 36894034384 |
 
 ### 9.2 Decisions
 

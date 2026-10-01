@@ -183,6 +183,25 @@ def test_assemble_skips_misprinted_ytd() -> None:
         assert note == bf.NOTE_YTD
 
 
+def test_latest_lcv_page_walks_index_pages() -> None:
+    # 2026-10-01: September's passenger-car tables pushed the July+August LCV
+    # page to index page 2; only page 1 was searched and Vans failed.
+    lcv = ('<a href="https://unrae.it/dati-statistici/immatricolazioni/7775/'
+           'immatricolazioni-veicoli-commerciali-luglioagosto-2026">')
+    pages = {fi.STRUTTURA_INDEX: "<a href='/x'>struttura-del-mercato-settembre-2026</a>",
+             fi.STRUTTURA_INDEX + "?page=2": lcv}
+    real, seen = fi.http_get, []
+    fi.http_get = lambda url: seen.append(url) or pages.get(url, "")
+    try:
+        assert fi.find_latest_lcv_page().endswith("/7775/immatricolazioni-veicoli-commerciali-luglioagosto-2026")
+        assert len(seen) == 2
+        pages.clear()
+        seen.clear()
+        assert fi.find_latest_lcv_page() is None and len(seen) == fi.LCV_MAX_INDEX_PAGES
+    finally:
+        fi.http_get = real
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in tests:
