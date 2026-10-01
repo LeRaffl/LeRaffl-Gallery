@@ -14,6 +14,10 @@ name: Fetch Italy data (UNRAE)
 # PDF on the same index, published around the 10th (July+August together in
 # September).  Polled 3×/day on the 8th–16th.  History: backfill_italy_vans.py.
 #
+# Top brands / models (Whole, BEV + PHEV): market/italy_top.json and its month
+# store market/italy_months.json, from UNRAE's "per modello" lists, refreshed
+# when the top file is behind the newest month.  Committed, never rendered.
+#
 # The script self-throttles per variant via the latest period already in each
 # CSV, so most invocations are no-ops.  When a CSV changes, render-country.yml
 # runs for the affected variants (serial reusable-workflow matrix).
@@ -92,6 +96,11 @@ jobs:
       - name: Parser self-test
         run: python scripts/test_fetch_italy.py
 
+      # Offline; guards the top brands/models builder (scripts/market_top.py)
+      # and the Italy model-list parser before they touch market/.
+      - name: Top brands/models self-test
+        run: python scripts/test_market_top.py
+
       - name: Fetch & update Italy CSVs
         id: fetch
         run: |
@@ -151,6 +160,8 @@ jobs:
             data/Italy_Rental.csv
             data/Italy_NonRental.csv
             data/Italy_Vans.csv
+            market/italy_top.json
+            market/italy_months.json
           message: 'chore: update Italy data from UNRAE'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a
