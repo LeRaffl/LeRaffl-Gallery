@@ -296,6 +296,20 @@ def find_latest_lcv(index_html: str) -> tuple[str, int, int]:
     return best[2], best[0], best[1]
 
 
+def slug_months(url: str) -> list[int]:
+    """Distinct Italian month names in a bulletin URL slug, in slug order.
+
+    More than one means a combined bulletin (e.g. UNRAE's July+August 2026
+    LCV release), whose fuel shares are only given cumulatively (YTD).
+    """
+    months: list[int] = []
+    for word in url.split("/")[-1].replace("-", " ").split():
+        m = IT_MONTHS.get(word.lower())
+        if m and m not in months:
+            months.append(m)
+    return months
+
+
 def find_lcv_pdf_url(detail_html: str) -> str:
     """Find the first PDF link on the LCV detail page."""
     pat = re.compile(r'href="(https://unrae\.it/files/[^"]+\.pdf)"', re.IGNORECASE)
@@ -319,12 +333,14 @@ def find_lcv_pdf_url(detail_html: str) -> str:
 _LCV_PCT: dict[str, re.Pattern] = {
     # "al" = preposition (word-boundary safe); "all'" may use ASCII ' or Unicode '
     # (U+2019 RIGHT SINGLE QUOTATION MARK) depending on the PDF.  We match both.
+    # "all'" needs its own \b: without it "dall’1,0% di un anno fa" (the
+    # year-ago share) matched first — June 2026 PHEV was read as 1,0% not 2,1%.
     "DIESEL": re.compile(
-        r"\bdiesel\b[^.]*?(?:\bal\b|all['’])\s*(\d+[,]\d+)\s*%",
+        r"\bdiesel\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
         re.IGNORECASE | re.DOTALL,
     ),
     "PETROL": re.compile(
-        r"\bbenzina\b[^.]*?(?:\bal\b|all['’])\s*(\d+[,]\d+)\s*%",
+        r"\bbenzina\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
         re.IGNORECASE | re.DOTALL,
     ),
     # GPL uses "all'X%" with a Unicode apostrophe; fall back to first % in sentence.
@@ -333,11 +349,11 @@ _LCV_PCT: dict[str, re.Pattern] = {
         re.IGNORECASE | re.DOTALL,
     ),
     "PHEV": re.compile(
-        r"\bplug.in\b[^.]*?(?:\bal\b|all['’])\s*(\d+[,]\d+)\s*%",
+        r"\bplug.in\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
         re.IGNORECASE | re.DOTALL,
     ),
     "BEV": re.compile(
-        r"\bbev\b[^.]*?(?:\bal\b|all['’])\s*(\d+[,]\d+)\s*%",
+        r"\bbev\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
         re.IGNORECASE | re.DOTALL,
     ),
     "HEV": re.compile(
@@ -463,6 +479,58 @@ def upsert(csv_path: str, period: str, cols: dict, variant: str) -> tuple[str, d
     return status, old
 
 
+# ── Vans (LCV) ─────────────────────────────────────────────────────────────
+
+def fetch_vans(args: argparse.Namespace, prev: str) -> None:
+    need_lcv = args.force or not csv_has_period(
+        VARIANT_CONFIG["Vans"]["csv"], prev, "Vans"
+    )
+    if not need_lcv:
+        print(f"Vans already has {prev}; nothing to do.")
+    else:
+        if args.vans_pdf_url:
+            if not (args.year and args.month):
+                sys.exit("--vans-pdf-url requires --year and --month.")
+            lcv_pdf_url = args.vans_pdf_url
+            year, month = args.year, args.month
+            print(f"Using supplied LCV PDF: {lcv_pdf_url} -> {year}-{month:02d}")
+        else:
+            print(f"Fetching LCV index: {LCV_INDEX}")
+            lcv_html    = http_get(LCV_INDEX)
+            detail_url, year, month = find_latest_lcv(lcv_html)
+            print(f"Latest LCV bulletin: {year}-{month:02d}  ({detail_url})")
+            months = slug_months(detail_url)
+            if len(months) > 1:
+                # Combined bulletin: totals per month, but fuel shares only
+                # cumulative (YTD), so no month can be derived.  Not an error —
+                # wait for the next single-month bulletin.
+                print(f"Vans: combined bulletin for months {months} gives fuel "
+                      f"shares only cumulatively; no monthly row derivable — skipping.")
+                return
+            detail_html = http_get(detail_url)
+            lcv_pdf_url = find_lcv_pdf_url(detail_html)
+            print(f"LCV PDF: {lcv_pdf_url}")
+
+        period = f"{year}-{month:02d}"
+        if not args.force and csv_has_period(
+            VARIANT_CONFIG["Vans"]["csv"], period, "Vans"
+        ):
+            print(f"Vans {period} already in CSV; nothing to do.")
+        else:
+            with tempfile.TemporaryDirectory() as td:
+                pdf_path = Path(td) / "lcv.pdf"
+                download_pdf(lcv_pdf_url, pdf_path)
+                text = pdf_to_text(pdf_path)
+
+            cols = parse_vans(text)
+            print(f"Parsed Vans {period}: BEV={cols['BEV']} PHEV={cols['PHEV']} "
+                  f"HEV={cols['HEV']} PETROL={cols['PETROL']} DIESEL={cols['DIESEL']} "
+                  f"OTHERS={cols['OTHERS']} TOTAL={cols['TOTAL']} (derived from %)")
+            sanity_check(cols, period, strict=False)
+            status, _ = upsert(VARIANT_CONFIG["Vans"]["csv"], period, cols, "Vans")
+            print(f"Vans {period} {status} -> {VARIANT_CONFIG['Vans']['csv']}")
+
+
 # ── main ───────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -551,47 +619,23 @@ def main() -> None:
                     print(f"{v} {period} {status} -> {VARIANT_CONFIG[v]['csv']}")
 
     # ── Vans (LCV): separate Comunicato Stampa PDF ───────────────────────
+    #
+    # Runs after PKW, so a Vans failure must not take the PKW rows down with
+    # it: the workflow commits only when this script succeeds, which would
+    # silently drop a freshly fetched PKW month.  Report the failure via
+    # $GITHUB_OUTPUT (vans_failed=true), let the workflow commit PKW anyway,
+    # and still exit non-zero so the run shows red.
 
     if lcv_variants:
-        need_lcv = args.force or not csv_has_period(
-            VARIANT_CONFIG["Vans"]["csv"], prev, "Vans"
-        )
-        if not need_lcv:
-            print(f"Vans already has {prev}; nothing to do.")
-        else:
-            if args.vans_pdf_url:
-                if not (args.year and args.month):
-                    sys.exit("--vans-pdf-url requires --year and --month.")
-                lcv_pdf_url = args.vans_pdf_url
-                year, month = args.year, args.month
-                print(f"Using supplied LCV PDF: {lcv_pdf_url} -> {year}-{month:02d}")
-            else:
-                print(f"Fetching LCV index: {LCV_INDEX}")
-                lcv_html    = http_get(LCV_INDEX)
-                detail_url, year, month = find_latest_lcv(lcv_html)
-                print(f"Latest LCV bulletin: {year}-{month:02d}  ({detail_url})")
-                detail_html = http_get(detail_url)
-                lcv_pdf_url = find_lcv_pdf_url(detail_html)
-                print(f"LCV PDF: {lcv_pdf_url}")
-
-            period = f"{year}-{month:02d}"
-            if not args.force and csv_has_period(
-                VARIANT_CONFIG["Vans"]["csv"], period, "Vans"
-            ):
-                print(f"Vans {period} already in CSV; nothing to do.")
-            else:
-                with tempfile.TemporaryDirectory() as td:
-                    pdf_path = Path(td) / "lcv.pdf"
-                    download_pdf(lcv_pdf_url, pdf_path)
-                    text = pdf_to_text(pdf_path)
-
-                cols = parse_vans(text)
-                print(f"Parsed Vans {period}: BEV={cols['BEV']} PHEV={cols['PHEV']} "
-                      f"HEV={cols['HEV']} PETROL={cols['PETROL']} DIESEL={cols['DIESEL']} "
-                      f"OTHERS={cols['OTHERS']} TOTAL={cols['TOTAL']} (derived from %)")
-                sanity_check(cols, period, strict=False)
-                status, _ = upsert(VARIANT_CONFIG["Vans"]["csv"], period, cols, "Vans")
-                print(f"Vans {period} {status} -> {VARIANT_CONFIG['Vans']['csv']}")
+        try:
+            fetch_vans(args, prev)
+        except Exception as e:
+            print(f"ERROR Vans: {e}", file=sys.stderr)
+            gh_out = os.environ.get("GITHUB_OUTPUT")
+            if gh_out:
+                with open(gh_out, "a", encoding="utf-8") as f:
+                    f.write("vans_failed=true\n")
+            raise
 
 
 if __name__ == "__main__":

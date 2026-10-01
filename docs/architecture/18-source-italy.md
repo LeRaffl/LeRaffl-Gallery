@@ -280,8 +280,33 @@ The LCV percentage patterns (`_LCV_PCT` in the script) match sentence-scoped
 text (stopping at `.`) to avoid picking up cumulative YTD percentages. They
 rely on UNRAE's PR agency keeping consistent phrasing. If the Comunicato
 Stampa phrasing changes, update `_LCV_PCT` and re-run with `--force`.
+`scripts/test_fetch_italy.py` holds a trimmed June 2026 bulletin as fixture.
 
-Verified against April 2026 LCV bulletin (May 14 2026 release).
+The `all'` alternative needs its own word boundary (`\ball['’]`): without it,
+"passando **dall’**1,0% di un anno fa al 2,1%" matched the year-ago share.
+That bug wrote the 2026-06 Vans row with PHEV = 171 (1,0 %) instead of ≈ 359
+(2,1 %); it slipped through because the lenient tolerance absorbs a 1 % miss.
+
+Verified against the April and June 2026 LCV bulletins.
+
+### Combined bulletins
+
+UNRAE sometimes covers two months in one release (July + August 2026, released
+2026-09-10, slug `…-luglio-flette-…-agosto-in-recupero-…`). Such a release
+gives each month's total and BEV share, but the other fuel shares **only
+cumulatively** (January–August), so no monthly row can be derived. The fetcher
+recognises it by more than one month name in the slug (`slug_months()`) and
+skips it without error; those months stay missing unless entered by hand.
+Before this check, the parser mixed August's BEV share and the YTD shares onto
+July's total, and the sanity check refused the row (sum ≈ 103 %).
+
+### Vans failures don't block PKW
+
+`fetch_vans()` runs after the PKW block. When it raises, the script writes
+`vans_failed=true` to `$GITHUB_OUTPUT` and exits non-zero; the workflow's
+detect/commit steps run on `success() || vans_failed`, and the render job on
+`!cancelled()`. So a broken LCV bulletin turns the run red but no longer
+discards a PKW month fetched in the same run (as it would have on 2026-10-01).
 
 ### Vans fuel mapping
 
