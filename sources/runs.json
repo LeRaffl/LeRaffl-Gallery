@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T11:09:26Z",
+ "generated": "2026-10-01T16:51:05Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4968,6 +4968,14 @@
    "slug": "ireland_vans",
    "period": "2026-09",
    "flag": "🇮🇪"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Portugal",
+   "base": "Portugal",
+   "slug": "portugal",
+   "period": "2026-09",
+   "flag": "🇵🇹"
   }
  ]
 }
