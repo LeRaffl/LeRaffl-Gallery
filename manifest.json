@@ -162,6 +162,46 @@
       "country_slug": "ireland_vans"
     },
     {
+      "country": "Portugal",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-01",
+      "filename": "portugal_ICE_BEV_20261001.png",
+      "url": "images/2026-09/portugal_ICE_BEV_20261001.png",
+      "alt": "Portugal ICE-BEV-Hybrid trajectory",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-01",
+      "filename": "portugal_20261001.png",
+      "url": "images/2026-09/portugal_20261001.png",
+      "alt": "Portugal BEV trajectory",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-01",
+      "filename": "portugal_time_20261001.png",
+      "url": "images/2026-09/portugal_time_20261001.png",
+      "alt": "Portugal Transition time curve",
+      "country_slug": "portugal"
+    },
+    {
+      "country": "Portugal",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-01",
+      "filename": "portugal_ttm_shares_20261001.png",
+      "url": "images/2026-09/portugal_ttm_shares_20261001.png",
+      "alt": "Portugal TTM market split graph",
+      "country_slug": "portugal"
+    },
+    {
       "country": "Netherlands",
       "type": "ICE_BEV",
       "period": "2026-08",
