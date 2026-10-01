@@ -75,6 +75,9 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
+
 STRUTTURA_INDEX = "https://unrae.it/dati-statistici/immatricolazioni"
 SOURCE          = "unrae.it"
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
@@ -411,6 +414,241 @@ def lcv_to_cols(f: dict) -> dict:
     }
 
 
+# ── Top brands / models (market/italy_top.json) ───────────────────────────
+#
+# UNRAE publishes, next to the struttura, one PDF per month per class:
+# "Immatricolazioni BEV per modello" / "PHEV per modello" — every model
+# (top 100 since 2026-05) with brand, plus "altre" and "Totale", always
+# JANUARY-TO-DATE.  So:
+#   single month M   = list(M) − list(M−1)          (January: list(1) itself)
+#   trailing 12 at T = list(T) + list(Dec T−1) − list(T, year−1)
+# The 12-month headline is computed directly from three lists, not by adding
+# up single months, so it is exact even where a month is missing (UNRAE
+# published no January 2026 lists) or where a month's difference is distorted
+# by a reclassification (Kia Sportage left the PHEV list in May 2026: −3 049).
+# Model names are compared on letters and digits only ("ATTO2" = "ATTO 2",
+# "N? 4" = "N4"); a model's negative difference is not ranked, and the class
+# total of the difference goes to the unranked rest.  HEV has only a top-10
+# list at UNRAE, so it is not ranked.  Whole only: no table crosses brand
+# with the rental channel.  See docs/architecture/18-source-italy.md §10.
+
+TOP_PATH   = market_top.MARKET_DIR / "italy_top.json"
+TOP_SLUG   = "italy"
+TOP_SOURCE = "UNRAE"
+TOP_UNIT   = ("registrations (brand / model as in UNRAE's 'Immatricolazioni BEV / PHEV "
+              "per modello' January-to-date lists; single months are differences of "
+              "consecutive lists)")
+TOP_CLASSES = ("BEV", "PHEV")
+TOP_MAX_INDEX_PAGES = 40
+
+_MODEL_LIST_LINK = re.compile(
+    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
+    r'immatricolazioni-(bev|phev)-per-modello-([a-z]+)-(\d{4}))"', re.IGNORECASE)
+_ML_TITLE = re.compile(
+    r"FUORISTRADA\s+(BEV|PHEV)\s*-\s*(?:(\d+)\s*mesi|([a-z]+))\s+(\d{4})", re.IGNORECASE)
+_ML_TAIL  = re.compile(r"(\d{1,3}(?:\.\d{3})*)\s+\d{1,3},\d+\s*$")
+# Ranked rows that are really UNRAE's own catch-alls.
+_ML_CATCH_ALL = {"ALTRE ESTERE", "ALTRE NAZIONALI"}
+
+
+def _model_key(brand: str, model: str) -> tuple[str, str]:
+    return re.sub(r"[^A-Z0-9]", "", brand.upper()), re.sub(r"[^A-Z0-9]", "", model.upper())
+
+
+def _display(s: str) -> str:
+    # pdftotext renders the degree sign of "N° 4" (DS) as '?'
+    return market_top.clean(s.replace("?", "°"))
+
+
+def parse_model_list(text: str) -> dict:
+    """One 'Immatricolazioni BEV|PHEV per modello' PDF (January-to-date).
+
+    Returns {"cls", "period", "models": {key: (brand, model, n)}, "rest", "total"}
+    where key = _model_key(brand, model).  Models + rest must equal Totale."""
+    lines = text.splitlines()
+    title = next((_ML_TITLE.search(ln) for ln in lines if _ML_TITLE.search(ln)), None)
+    if not title:
+        raise RuntimeError("model list: no 'AUTOVETTURE E FUORISTRADA BEV|PHEV - …' title")
+    cls, year = title.group(1).upper(), int(title.group(4))
+    if title.group(2):
+        month = int(title.group(2))
+    elif title.group(3).lower() in IT_MONTHS:
+        month = IT_MONTHS[title.group(3).lower()]
+    else:
+        raise RuntimeError(f"model list: unreadable period {title.group(0)!r}")
+    models: dict[tuple[str, str], tuple[str, str, int]] = {}
+    rest = total = None
+    for ln in lines:
+        tail = _ML_TAIL.search(ln)
+        if not tail:
+            continue
+        n, head = int(tail.group(1).replace(".", "")), ln.strip().lower()
+        if head.startswith("altre"):
+            rest = (rest or 0) + n
+            continue
+        if head.startswith("totale"):
+            total = n
+            break
+        row = re.match(r"\s*\d+\s+(.*)", ln)
+        if not row:
+            continue
+        parts = re.split(r"\s{2,}", row.group(1).strip())
+        brand, model = parts[0], parts[1]
+        if brand.upper() in _ML_CATCH_ALL:
+            rest = (rest or 0) + n
+            continue
+        key = _model_key(brand, model)
+        prev = models.get(key, (brand, model, 0))[2]
+        models[key] = (_display(brand), _display(model), prev + n)
+    if total is None or rest is None:
+        raise RuntimeError(f"model list {cls} {year}-{month:02d}: no 'altre' / 'Totale' row")
+    if sum(v[2] for v in models.values()) + rest != total:
+        raise RuntimeError(f"model list {cls} {year}-{month:02d}: rows do not add up to {total}")
+    return {"cls": cls, "period": f"{year}-{month:02d}", "models": models,
+            "rest": rest, "total": total}
+
+
+def _combine(lists: list[tuple[int, dict]], cls: str) -> tuple[dict, int]:
+    """Signed sum of model lists → ({(cls, brand, model): n>0} incl. REST, class total).
+
+    A negative model sum (a rename the key does not catch, a reclassification,
+    a model that dropped below the top 100) is not ranked; whatever the ranked
+    models do not explain goes to the unranked rest (never below 0)."""
+    names: dict = {}
+    sums: dict = {}
+    total = 0
+    for sign, lst in lists:
+        total += sign * lst["total"]
+        for key, (b, m, n) in lst["models"].items():
+            sums[key] = sums.get(key, 0) + sign * n
+            if sign > 0 or key not in names:
+                names[key] = (b, m)
+    units = {(cls, *names[k]): n for k, n in sums.items() if n > 0}
+    rest = total - sum(units.values())
+    if rest > 0:
+        units[(cls, market_top.REST, "")] = rest
+    return units, total
+
+
+def find_model_lists(wanted: set[str] | None = None) -> dict[tuple[str, str], str]:
+    """{(cls, 'YYYY-MM'): page URL} from the paginated UNRAE index.  Walks pages
+    until every period in `wanted` (and both classes of it) has been seen, or
+    TOP_MAX_INDEX_PAGES; with wanted=None until one month has both classes
+    (the newest lists are usually on page 1 or 2)."""
+    found: dict[tuple[str, str], str] = {}
+    for page in range(1, TOP_MAX_INDEX_PAGES + 1):
+        url = STRUTTURA_INDEX + (f"?page={page}" if page > 1 else "")
+        for href, cls, mese, anno in _MODEL_LIST_LINK.findall(http_get(url)):
+            if mese.lower() not in IT_MONTHS:
+                continue
+            href = "https://unrae.it" + href if href.startswith("/") else href
+            found.setdefault((cls.upper(), f"{anno}-{IT_MONTHS[mese.lower()]:02d}"), href)
+        if wanted is None:
+            if any(all((c, p) in found for c in TOP_CLASSES) for _, p in found):
+                break
+            continue
+        if all((c, p) in found for p in wanted for c in TOP_CLASSES):
+            break
+        if found and min(p for _, p in found) < _shift(min(wanted), -1):
+            break        # walked past the oldest wanted month (one month of slack:
+                         # BEV and PHEV of a month can sit on neighbouring pages)
+    return found
+
+
+def _shift(period: str, months: int) -> str:
+    y, m = map(int, period.split("-"))
+    m += months
+    while m < 1:
+        y, m = y - 1, m + 12
+    while m > 12:
+        y, m = y + 1, m - 12
+    return f"{y}-{m:02d}"
+
+
+def refresh_market_top() -> None:
+    """Rebuild market/italy_top.json (+ month store) for the newest month UNRAE
+    has published both model lists for.  Downloads only what the store lacks."""
+    newest = find_model_lists()
+    targets = [p for (c, p) in newest if all((k, p) in newest for k in TOP_CLASSES)]
+    if not targets:
+        raise RuntimeError("no month with both BEV and PHEV model lists on the UNRAE index")
+    target = max(targets)
+    totals = market_top.csv_totals(VARIANT_CONFIG["Whole"]["csv"])
+    if target not in totals:
+        raise RuntimeError(f"data/Italy.csv has no {target} row yet")
+
+    store_path = market_top.MARKET_DIR / f"{TOP_SLUG}_months.json"
+    stored = market_top.load_store(store_path)
+    window = market_top.month_window(target)
+    need_months = [p for p in window if p not in stored]
+    ttm = [target] if target.endswith("-12") else \
+        [target, f"{int(target[:4]) - 1}-12", _shift(target, -12)]
+    wanted = set(ttm) | set(need_months) | {_shift(p, -1) for p in need_months
+                                           if not p.endswith("-01")}
+    urls = find_model_lists(wanted)
+
+    lists: dict[tuple[str, str], dict] = {}
+
+    def get(cls: str, period: str) -> dict | None:
+        if (cls, period) not in lists:
+            page = urls.get((cls, period))
+            pdf = find_lcv_pdf_url(http_get(page)) if page else None
+            if pdf is None:
+                return None
+            with tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "list.pdf"
+                download_pdf(pdf, path)
+                lst = parse_model_list(pdf_to_text(path))
+            if (lst["cls"], lst["period"]) != (cls, period):
+                raise RuntimeError(f"{page}: PDF is {lst['cls']} {lst['period']}")
+            lists[(cls, period)] = lst
+        return lists[(cls, period)]
+
+    empty = {"models": {}, "rest": 0, "total": 0}
+    fresh: dict[str, tuple[dict, int]] = {}
+    for p in need_months:
+        units: dict = {}
+        for cls in TOP_CLASSES:
+            cur = get(cls, p)
+            prev = empty if p.endswith("-01") else get(cls, _shift(p, -1))
+            if cur is None or prev is None or p not in totals:
+                break
+            u, _ = _combine([(1, cur), (-1, prev)], cls)
+            units.update(u)
+        else:
+            fresh[p] = (units, totals[p])
+    monthly = {**stored, **fresh}
+    market_top.save_store(store_path, monthly, "Italy", TOP_SOURCE)
+
+    top = market_top.build_top_monthly("Italy", TOP_SOURCE, target, monthly, TOP_UNIT)
+    head_units: dict = {}
+    ttm_lists = {cls: [get(cls, p) for p in ttm] for cls in TOP_CLASSES}
+    if all(lst is not None for ls in ttm_lists.values() for lst in ls) \
+            and all(p in totals for p in window):
+        for cls, ls in ttm_lists.items():
+            signs = [1] if len(ls) == 1 else [1, 1, -1]
+            u, class_total = _combine(list(zip(signs, ls)), cls)
+            head_units.update(u)
+            csv_class = sum(_csv_class(p, cls) for p in window)
+            print(f"  {cls} trailing 12 months: lists {class_total:,} vs data/Italy.csv "
+                  f"{csv_class:,} ({(class_total - csv_class) / csv_class:+.2%})")
+        ttm_total = sum(totals[p] for p in window)
+        head = market_top.build_top("Italy", TOP_SOURCE, target, head_units, ttm_total, TOP_UNIT)
+        top["classes"], top["total_registrations"] = head["classes"], ttm_total
+        top["window"] = {"from": window[0], "to": window[-1], "months": 12}
+    else:
+        print("  trailing-12 lists incomplete; headline = sum of the stored single months")
+    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
+
+
+def _csv_class(period: str, cls: str) -> int:
+    with open(VARIANT_CONFIG["Whole"]["csv"], newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if r["period"] == period and r["variant"] == "Whole":
+                return int(float(r[cls] or 0))
+    return 0
+
+
 # ── sanity + upsert ────────────────────────────────────────────────────────
 
 def sanity_check(cols: dict, period: str, strict: bool = True) -> None:
@@ -637,6 +875,11 @@ def main() -> None:
                     sanity_check(cols, period, strict=True)
                     status, _ = upsert(VARIANT_CONFIG[v]["csv"], period, cols, v)
                     print(f"{v} {period} {status} -> {VARIANT_CONFIG[v]['csv']}")
+
+    # ── Top brands / models (Whole; never blocks the data, see market_top) ─
+
+    if "Whole" in variants and not market_top.top_is_current(TOP_PATH, prev):
+        market_top.guarded(refresh_market_top)
 
     # ── Vans (LCV): separate LCV struttura PDF ───────────────────────────
     #

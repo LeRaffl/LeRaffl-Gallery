@@ -711,6 +711,52 @@ def test_portugal_brand_tables():
     assert top["classes"]["BEV"]["models"] == []                  # brands only
 
 
+def _italy_list(cls: str, period_label: str, rows: list, rest: int) -> str:
+    """A 'Immatricolazioni BEV|PHEV per modello' page in UNRAE's layout
+    (thousands with '.', percentages with ',')."""
+    total = sum(n for _, _, n in rows) + rest
+
+    def num(n: int) -> str:
+        return f"{n:,}".replace(",", ".")
+
+    def pct(n: int) -> str:
+        return f"{n / total * 100:.1f}".replace(".", ",")
+    lines = [f"        IMMATRICOLAZIONI AUTOVETTURE E FUORISTRADA {cls} - {period_label}", "",
+             "n.   marca           modello                       totale   quote%"]
+    lines += [f"{i:>2} {b:<16}{m:<28}{num(n):>9}{pct(n):>9}" for i, (b, m, n) in enumerate(rows, 1)]
+    lines += [f"    altre{'':<39}{num(rest):>9}{pct(rest):>9}",
+              f"    Totale{'':<38}{num(total):>9}    100,0"]
+    return "\n".join(lines) + "\n"
+
+
+def test_italy_model_lists():
+    import fetch_italy as fi
+    jul = fi.parse_model_list(_italy_list("PHEV", "7 mesi 2026", [
+        ("BYD", "SEAL U", 9700), ("BYD", "ATTO2", 14279), ("DS", "N? 4", 80),
+        ("KIA", "SPORTAGE", 3049), ("ALTRE ESTERE", "ALTRI TIPI", 40)], 400))
+    aug = fi.parse_model_list(_italy_list("PHEV", "8 mesi 2026", [
+        ("BYD", "SEAL U", 11177), ("BYD", "ATTO 2", 14716), ("DS", "N4", 86)], 1500))
+    assert (jul["cls"], jul["period"], aug["period"]) == ("PHEV", "2026-07", "2026-08")
+    assert jul["rest"] == 440                    # UNRAE's own catch-all row is rest
+    assert jul["models"][fi._model_key("DS", "N 4")][:2] == ("DS", "N° 4")
+    month, total = fi._combine([(1, aug), (-1, jul)], "PHEV")
+    assert total == aug["total"] - jul["total"]
+    # renamed models are matched on letters and digits only
+    assert month[("PHEV", "BYD", "ATTO 2")] == 437 and month[("PHEV", "DS", "N4")] == 6
+    assert month[("PHEV", "BYD", "SEAL U")] == 1477
+    # a model that left the list (reclassified) is not ranked with a negative count
+    assert not any(k[2] == "SPORTAGE" for k in month)
+    assert all(n > 0 for n in month.values())
+    jan = fi.parse_model_list(_italy_list("BEV", "gennaio 2026", [("TESLA", "MODEL Y", 5)], 1))
+    assert jan["period"] == "2026-01" and jan["total"] == 6
+    try:
+        fi.parse_model_list(_italy_list("BEV", "gennaio 2026", [("TESLA", "MODEL Y", 5)], 1)
+                            .replace("    6", "    7"))
+        raise AssertionError("rows not adding up to Totale must raise")
+    except RuntimeError:
+        pass
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

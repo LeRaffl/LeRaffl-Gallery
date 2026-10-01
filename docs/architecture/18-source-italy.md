@@ -33,6 +33,8 @@ caveats:
 - OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual.
 - NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists.
 - Vans before 2025 are differences of UNRAE's year-to-date tables (flagged in notes); PHEV is not split out before 2020-07; June/July 2017–2021 and July/August 2023 are missing.
+market_breakdown: market/italy_top.json
+market_window_note: "The twelve-month view is computed directly from UNRAE's January-to-date model lists (this year's list, plus last December's, minus the same month last year), so it is exact. Single months are differences of two consecutive lists. January and February 2026 cannot be separated, because UNRAE published no January 2026 list. Hybrids (HEV) are not ranked: UNRAE lists only their top 10 models."
 fetcher: scripts/fetch_italy.py
 workflow: .github/workflows/fetch-italy.yml
 fragility_doc: docs/architecture/18-source-italy.md
@@ -435,3 +437,57 @@ and re-derives the whole history in a few minutes.
 | D11 | Vans cron on the **8th–16th** (was 13th–16th). | F17. | — |
 | D12 | **No estimates for the gaps** (June/July 2017–2021, July/August 2023, 2020-09…12, 2021-10, 2025-11/12). The rows are simply absent. | Splitting a two-month sum by the totals' ratio would be a modelled value. Vans is not rendered, and gaps are honest. | Proportional split, flagged in notes: possible later if Vans ever gets rendered and the gaps hurt the fit. |
 | D13 | The interim fix of #271 (skip a combined press release by its slug) is **superseded** by D2 and removed in #272. | — | — |
+
+## 10. Top brands / models (`market/italy_top.json`)
+
+Whole market, **BEV and PHEV**, shown on the source page ("Who sells the
+electrified cars") with a month picker; the default view is the trailing
+twelve months. Built by `refresh_market_top()` in `fetch_italy.py` behind
+`market_top.guarded` (it never blocks the data), whenever the top file is
+behind the newest month. The month store is `market/italy_months.json`.
+Committed, never rendered. Generic mechanics: `03-data-objects.md` §3.16.
+
+### 10.1 Source
+
+UNRAE publishes, alongside the struttura, one PDF per month and class:
+`immatricolazioni-bev-per-modello-<mese>-<anno>` and
+`…-phev-per-modello-…`. Each lists every model with its brand (only the top 100
+since 2026-05), then `altre` and `Totale`. The list is **always January to
+date** ("8 mesi 2026"; January is titled "gennaio 2026"). Available from
+2023-11 on the index.
+
+```
+single month M     = list(M) − list(M−1)                (January: list(1))
+trailing 12 at T   = list(T) + list(Dec of T−1) − list(T one year earlier)
+```
+
+The headline is computed from three lists directly, not by adding up single
+months. It is therefore complete even where a month is missing, and unaffected
+by one month's distortion.
+
+### 10.2 Findings
+
+| # | Finding | Evidence |
+|---|---|---|
+| M1 | **No rental split exists** for brands or models: no UNRAE table crosses brand with the rental channel. Only Whole can have a top list. | all brand/model publications on the index, 2026-10 |
+| M2 | **HEV has no full list**: only `top-10-per-alimentazione` (top 10 models + `altre`, month and YTD). A brand ranking cannot be derived from it. HEV here also includes mild hybrids (§3). | that PDF |
+| M3 | **No January 2026 lists** were published (neither BEV nor PHEV, nor the "per marca" tables). So 2026-01 and 2026-02 cannot be split; the month picker skips them. | index walk, 2026-10 |
+| M4 | The **"per marca" tables** (BEV/PHEV by brand, XLSX) only exist from 2026-05. The brand ranking is therefore summed from the model lists. | index walk |
+| M5 | From the 2026-05 list on, UNRAE **truncates to the top 100** models. `altre` then grows from ~0,2 % to 2,7 % (BEV). A model crossing rank 100 between two months shows up in the difference with all its earlier units at once. It only affects models with a few dozen units. | `altre` per list |
+| M6 | **Model names change between lists**: `ATTO2` / `ATTO 2`, `N? 4` / `N4` (DS: pdftotext turns the `°` of "N° 4" into `?`). Matching is on letters and digits only; display is the newest spelling, `?` → `°`. | Jul/Aug 2026, Apr–Jun 2026 lists |
+| M7 | UNRAE's lists contain a ranked **catch-all row** `ALTRE ESTERE  ALTRI TIPI`. It is counted as unranked rest. | e.g. rank 81, BEV 2026 |
+| M8 | **Kia Sportage left the 2026 PHEV lists in May 2026**, retroactively for January to April too (−3 049 between the April and May lists). The struttura months January–April were not restated. So the list-based PHEV twelve months are 2,0 % below `data/Italy.csv`. BEV is within 0,03 %. Single-month PHEV for 2026-05 (difference) is +1,1 % against the CSV. | refresh log; April vs May 2026 lists |
+| M9 | **Cross-check of single months** against UNRAE's own monthly `top-10-per-alimentazione` (real monthly figures, not differences): 2025-11, 2026-05, 2026-07, BEV and PHEV top 10. 54 of 60 models match exactly. The rest differ by 1–8 units, except one BEV model in 2026-05 at −43. The class totals of the differences are within a few units of `data/Italy.csv`, except PHEV 2026-05 (M8). | session 2026-10-01 |
+| M10 | All 66 lists from 2023-11 to 2026-08 parse, with models + `altre` = `Totale` exactly. Brand and model columns are separated by two or more spaces. The column offsets shift from line to line, so a fixed-position split does not work. | backfill run |
+
+### 10.3 Decisions
+
+| # | Decision | Why | Turned down |
+|---|---|---|---|
+| MD1 | **BEV + PHEV, Whole only.** | M1, M2. | HEV with a brand ranking from the top 10 only: it would credit a brand with only its top-10 models. |
+| MD2 | **Headline = exact trailing 12 months from three YTD lists**, not the sum of stored months. | Complete despite M3, and unaffected by M5/M8 distortions of single months. Owner's wish: the twelve-month sum as the default view. | Summing stored months: it would miss Jan/Feb 2026 and carry every month's artefacts. YTD headline (like Austria/Portugal): it restarts every January. |
+| MD3 | Single months by **difference**. A model with a negative difference is not ranked, and the part of the class total not explained by ranked models goes to the unranked rest (never below 0). | M5, M6, M8: the class total stays the source's; a negative count would be nonsense on the page. | Single months from `top-10-per-alimentazione`: exact, but only 10 models and no brand ranking. |
+| MD4 | Model identity = letters and digits of brand + model; display = newest spelling. | M6. | A hand-kept alias table: more upkeep for the same effect so far. |
+| MD5 | The **brand ranking is summed from models**. | M4: the brand tables only exist from 2026-05. | — |
+| MD6 | The window total (`total_registrations`) and month totals come from `data/Italy.csv`. The list-vs-CSV class gap is printed on every refresh, not enforced. | M8 is UNRAE's own inconsistency; aborting would hide the tables for a year. | `check_scope` with abort: it would have failed on M8. |
+
