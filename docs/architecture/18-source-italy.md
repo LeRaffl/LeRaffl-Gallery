@@ -385,3 +385,53 @@ Dispatch `fetch-italy.yml` with manual inputs to bypass discovery:
   flat rental share back through 2015 — adequate for fitting the long-run
   adoption curve, but not month-accurate, and 2015–2016 inherit the
   quarterly-approximation resolution of their Whole source.
+
+## 9. Findings and decision log (Vans, 2026-10)
+
+Everything learned while the Vans fetcher broke and was moved to the LCV
+struttura tables (PRs #271, #272), so the next person does not have to
+rediscover it. Findings are facts about the source, each with the evidence that
+showed it; decisions are the choices made on top of them, with the reason and
+the alternative that was turned down. To re-check any number here:
+`python scripts/backfill_italy_vans.py --dry-run --cache-dir <dir>` re-downloads
+and re-derives the whole history in a few minutes.
+
+### 9.1 Findings
+
+| # | Finding | Evidence |
+|---|---|---|
+| F1 | UNRAE's **LCV press release** for July + August 2026 (2026-09-10) gives each month's total and BEV share, but every other fuel share **only for January–August**. The old percentage parser put August's BEV share (7,0 %) and the YTD shares on July's total; the shares added up to 103,4 % and the sanity check refused the row. Every `fetch-italy.yml` run from 2026-09-15 to 2026-10-01 failed this way. | run 36832351407: `sum=16461 vs TOTAL=15921 (diff=540)` |
+| F2 | The script fetched PKW first and Vans second, and the commit step ran only on success, so a Vans exception also **discarded a PKW month** written seconds earlier. It would have hit the September 2026 PKW data on 2026-10-01. | `fetch-italy.yml` before #271 |
+| F3 | The press-release regex `all['’]` also matched inside "**dall’**1,0% di un anno fa" — the year-ago share. 2026-06 Vans was stored with PHEV 171 (1,0 %) instead of 357. The lenient tolerance (2 %) hid it. | June 2026 release, §5 |
+| F4 | A **structured LCV table exists**: "Struttura del mercato" for autocarri ≤ 3,5 t on the passenger-car index (`immatricolazioni-veicoli-commerciali-<mese>-<anno>`), with exact counts per fuel. Pages exist from 2016-06. Fuel tables start in the 2018-05 page. Monthly fuel columns start in 2025-02; before that the table is January-to-date only. | 112 pages found walking all ~190 index pages |
+| F5 | **Slug month ≠ data month** until 2023: the `aprile-2021` page holds "Gennaio/Marzo 2021". From 2023 the slug names the data month. | table titles vs. slugs |
+| F6 | **The comparison year is not always year − 1**: the 2021 tables compare with **2019** (COVID). The first draft assumed year − 1 and filed 2019 values under 2020. | header row `2021 (°)  2019`, `aprile-2021` |
+| F7 | **Blank cells mean 0** (often Metano, sometimes a 0 comparison value). Splitting on whitespace shifted every later value one column left; values have to be matched to columns by position. | July 2026 table, Metano 2025 column |
+| F8 | **Pages without a PDF** (empty page body): 2016-11, 2020-11, 2020-12, 2025-01, 2025-11, 2025-12, 2026-05. **PDFs without a fuel table** (totals only): all up to the 2018-04 page, 2022-01, 2022-11. | `find_lcv_pdf_url` → None; no 'Per alimentazione' |
+| F9 | July + August always share one page. Which tables it holds varies: Jan–July only (2018–2022), Jan–August only (2023), none for July (2024: only an `agosto-2024` page), both monthly (2025, 2026). So 2017–2021 June/July and 2023 July/August can only be split as a sum. | per-page table titles |
+| F10 | **UNRAE's own Jan–Oct 2024 table is misprinted**: Gpl 5 943 and Diesel 138 967, where the consolidated copy in the Jan–Oct 2025 table's comparison column has 4 443 / 140 499. That means 1 500 vans booked under the wrong fuel; the total is unchanged. Taking the difference against it made 2024-11 Gpl negative (−1 070). | `novembre-2024` page vs `ottobre-2025` page |
+| F11 | **Bulletins get revised.** A later table restates earlier YTD figures with late registrations. Own (provisional) vs. next-year (consolidated) YTD values differ by up to ≈ 1 %, mostly in Diesel. Where a direct monthly value and a YTD difference both exist (2025-02 … 2026-08), they agree to within 0,6 % of TOTAL, except 2025-09 (Diesel +319, ≈ 2 %). | comparison run during #272 |
+| F12 | **Mixing a provisional with a consolidated endpoint amplifies the revision**: 2021-11 came out 936 too high when computed as consolidated Jan–Nov minus provisional Jan–Oct, because the revisions of ten months landed in one. | vs. UNRAE monthly total 15 472 |
+| F13 | The table `totale` can differ from the headline monthly total on page 1. In August 2026 it was 8 376 vs. 8 390: the headline is a projection ("In corsivo proiezioni"), the table is registrations to date. | `luglioagosto-2026` PDF |
+| F14 | **No PHEV line before 2020-07.** The hybrid line is `Ibride` (2018) / `Ibrido` (2019–2020-06); PHEV volumes then were single digits. | table rows |
+| F15 | Real outlier, not a parse error: 2023-05 PHEV 466 (neighbours ~90–150). The consolidated YTD reads 212 (Apr), 678 (May), 828 (Jun). Likewise 2021-11 BEV 948. | YTD columns |
+| F16 | **HDV still has no fuel split**: the `immatricolazioni-veicoli-industriali` struttura PDF (checked on July + August 2026) has weight classes only. | §8 |
+| F17 | The LCV struttura PDF appears around the 10th, at about the same time as the press release or slightly before it. For July + August 2026, the table data are "al 04/09/2026" and the press release is dated 2026-09-10. The exact publication day is not recorded on the page. | PDF footer, press release |
+
+### 9.2 Decisions
+
+| # | Decision | Why | Turned down |
+|---|---|---|---|
+| D1 | A Vans failure writes `vans_failed=true` to `$GITHUB_OUTPUT` and exits non-zero. Detect + commit run on `success() \|\| vans_failed`, render on `!cancelled()`. (#271) | F2: PKW must never be lost to a Vans problem, but a broken Vans parse must stay visible (red run). | Warning + exit 0: green runs would hide a broken parser for weeks. |
+| D2 | Vans source = the LCV **struttura table**, not the press release. (#272) | F1, F3, F4: exact counts, no prose regex, history back to 2017. | Repairing the regexes: a combined release still has no monthly split (F1), so it cannot be repaired. |
+| D3 | The Vans history was **rewritten**, including the two existing press-release rows (2026-04, 2026-06). This is a deliberate exception to "don't rewrite the past", agreed with the owner on 2026-10-01. | Source switch; the old rows were percentage-derived and 2026-06 was wrong (F3). | Keep old rows and converge forward: it would have left a known-wrong PHEV and two methods in one series. |
+| D4 | Precedence per month: **(1) own table's month column → (2) next year's comparison column → (3) YTD difference → (4) YTD gap fill**. | (1) is what the live fetcher writes, so backfilled and fetched months are the same kind of number. (2) is a real published monthly figure. (3)/(4) are derived and flagged. | Preferring the consolidated (2) over the provisional (1) everywhere would be slightly more accurate, but would make old months a different vintage than new ones. Revisit if consistency matters less than accuracy. |
+| D5 | For (3), try all four pairings of own / next-year YTD for M and M−1 and keep the one whose TOTAL is **closest to UNRAE's monthly total**. Reject the month if all are > 2 % off or any count is negative. | F10 and F12: a fixed preference ("consolidated first, then own") failed both ways — mixed endpoints in 2021-11, and the misprint in 2024-10/11. UNRAE's monthly totals (page 1 of every PDF, later PDFs win) are an independent check. The 2 % threshold separates the revision noise (all kept months ≤ 1,1 %) from broken pairings (2020-09: 2,4 %, 2021-10: 2,5 %), which stay empty. | Hand-patching the misprinted 2024-10 value: not reproducible, and the next misprint would need another patch. |
+| D6 | Before 2020-07 **`PHEV` stays empty**, not 0, and `notes` says HEV covers all hybrids. | F14, invariant 4 (empty ≠ 0). | 0: would assert "no plug-in vans", which the source does not say. |
+| D7 | `OTHERS` = Gpl + Metano (+ Idrogeno if it ever appears). Before, it was Gpl only. | Explicit rows in the table; matches the PKW mapping. | — |
+| D8 | `TOTAL` = the table's `totale`, not the headline total. | F13: consistent with the fuel columns, and every row adds up exactly. | Headline: it is a projection and does not match the fuel split. |
+| D9 | The fetcher fills the **same month a year earlier only if it is missing**, and never overwrites. | Closes source gaps (2025-11/12 via the 2026-11/12 tables) without silently changing published history. | Overwriting with consolidated values on every run: endless churn in the CSV. |
+| D10 | A newest page **without a PDF is a warning** (`::warning::`), not a failure. | F8: it is a gap in the source, and a red run every day until the next month would teach people to ignore red. | Failure. |
+| D11 | Vans cron on the **8th–16th** (was 13th–16th). | F17. | — |
+| D12 | **No estimates for the gaps** (June/July 2017–2021, July/August 2023, 2020-09…12, 2021-10, 2025-11/12). The rows are simply absent. | Splitting a two-month sum by the totals' ratio would be a modelled value. Vans is not rendered, and gaps are honest. | Proportional split, flagged in notes: possible later if Vans ever gets rendered and the gaps hurt the fit. |
+| D13 | The interim fix of #271 (skip a combined press release by its slug) is **superseded** by D2 and removed in #272. | — | — |
