@@ -5,13 +5,14 @@ name: Fetch Italy data (UNRAE)
 #   data/Italy.csv             — PKW Whole (Struttura del mercato, inkl. Noleggio)
 #   data/Italy_Rental.csv      — PKW Rental  (Whole − al netto del noleggio)
 #   data/Italy_NonRental.csv   — PKW NonRental (al netto del noleggio block, direct)
-#   data/Italy_Vans.csv        — LCV Vans (Comunicato Stampa, derived from %×total)
+#   data/Italy_Vans.csv        — LCV Vans (autocarri ≤ 3,5 t struttura, exact counts)
 #
 # PKW (Whole + Private) comes from unrae.it/dati-statistici/immatricolazioni,
 # published around the 1st of each month.  Polled 4×/day on the 1st–3rd.
 #
-# Vans (LCV) comes from unrae.it/sala-stampa/veicoli-commerciali, published
-# around the 14th of each month.  Polled 3×/day on the 13th–16th.
+# Vans (LCV) comes from the "immatricolazioni-veicoli-commerciali" struttura
+# PDF on the same index, published around the 10th (July+August together in
+# September).  Polled 3×/day on the 8th–16th.  History: backfill_italy_vans.py.
 #
 # The script self-throttles per variant via the latest period already in each
 # CSV, so most invocations are no-ops.  When a CSV changes, render-country.yml
@@ -39,15 +40,15 @@ on:
         required: false
         default: ''
       vans_pdf_url:
-        description: 'Direct LCV Comunicato Stampa PDF URL (overrides discovery; requires year+month)'
+        description: 'Direct LCV struttura PDF URL (overrides discovery; periods come from the PDF)'
         required: false
         default: ''
       year:
-        description: 'Target year (required with pdf_url / vans_pdf_url)'
+        description: 'Target year (required with pdf_url)'
         required: false
         default: ''
       month:
-        description: 'Target month 1-12 (required with pdf_url / vans_pdf_url)'
+        description: 'Target month 1-12 (required with pdf_url)'
         required: false
         default: ''
       force:
@@ -59,9 +60,9 @@ on:
     # PKW (Whole + Private): 06/10/14/18 UTC on 1st-3rd
     # Covers UNRAE's typical release window (Italian morning of the 1st).
     - cron: '0 6,10,14,18 1-3 * *'
-    # Vans (LCV): 10/14/18 UTC on 13th-16th
-    # LCV Comunicato Stampa is published around the 14th of each month.
-    - cron: '0 10,14,18 13-16 * *'
+    # Vans (LCV): 10/14/18 UTC on 8th-16th
+    # The LCV struttura PDF is published around the 10th of each month.
+    - cron: '0 10,14,18 8-16 * *'
 
 jobs:
   fetch:
@@ -87,6 +88,9 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install requests
+
+      - name: Parser self-test
+        run: python scripts/test_fetch_italy.py
 
       - name: Fetch & update Italy CSVs
         id: fetch

@@ -9,11 +9,11 @@ source_url: https://unrae.it/dati-statistici
 source_links:
 - label: UNRAE — immatricolazioni (passenger-car PDFs)
   url: https://unrae.it/dati-statistici/immatricolazioni
-- label: UNRAE — veicoli commerciali (the LCV press release)
-  url: https://unrae.it/sala-stampa/veicoli-commerciali
+- label: UNRAE — immatricolazioni veicoli commerciali (the LCV struttura PDFs, same index)
+  url: https://unrae.it/dati-statistici/immatricolazioni/tag/autocarri
 underlying: UNRAE / Ministero delle Infrastrutture e dei Trasporti
 auth: none
-cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th
+cadence: passenger 4×/day on the 1st–3rd; vans 3×/day on the 8th–16th
 variants:
 - Whole
 - Rental
@@ -23,16 +23,16 @@ variant_notes:
   Whole: Passenger cars, whole market including rental.
   Rental: Rental fleet, derived exactly as Whole minus NonRental.
   NonRental: Passenger cars al netto del noleggio — private buyers, companies and self-registrations.
-  Vans: Light commercial vehicles, derived from published percentage shares.
+  Vans: Light commercial vehicles (autocarri up to 3.5 t), exact counts; pre-2025 months derived from year-to-date tables.
 hev_split: true
 fcev: counted in OTHERS (with LPG and CNG)
-backfill: none
+backfill: scripts/backfill_italy_vans.py (Vans, from 2017-05)
 scope_note: Whole = passenger cars incl. rental; NonRental is the full non-rental sector, not private
   persons.
 caveats:
 - OTHERS (passenger) = LPG + CNG + hydrogen/FCEV — explicit, not a residual.
 - NonRental mixes private buyers, self-registrations and companies; no per-fuel private-only split exists.
-- Vans are percentage-derived from a separate UNRAE LCV release.
+- Vans before 2025 are differences of UNRAE's year-to-date tables (flagged in notes); PHEV is not split out before 2020-07; June/July 2017–2021 and July/August 2023 are missing.
 fetcher: scripts/fetch_italy.py
 workflow: .github/workflows/fetch-italy.yml
 fragility_doc: docs/architecture/18-source-italy.md
@@ -47,9 +47,10 @@ registration bulletins as PDFs. Two distinct publications are used:
 - **PKW "Struttura del mercato"** — passenger cars, from
   `unrae.it/dati-statistici/immatricolazioni`, typically on the **1st (sometimes
   2nd) of the following month**.
-- **LCV "Comunicato Stampa"** — light commercial vehicles, from
-  `unrae.it/sala-stampa/veicoli-commerciali`, typically on the **14th of the
-  following month**.
+- **LCV "Struttura del mercato"** (autocarri ≤ 3,5 t) — light commercial
+  vehicles, on the same index (`immatricolazioni-veicoli-commerciali-<mese>-<anno>`),
+  typically around the **10th of the following month**; July and August come
+  together in September.
 
 ## TL;DR
 
@@ -58,7 +59,7 @@ Variants:
   Whole      data/Italy.csv           PKW whole market (inkl. Noleggio)
   Rental     data/Italy_Rental.csv    PKW rental fleet = Whole − (al netto del noleggio), exact
   NonRental  data/Italy_NonRental.csv PKW "al netto del noleggio" (second PDF block, exact)
-  Vans       data/Italy_Vans.csv      LCV (veicoli commerciali leggeri) ⚠ pct-derived
+  Vans       data/Italy_Vans.csv      LCV (autocarri ≤ 3,5 t), exact; pre-2025 YTD-derived
 
 NOTE: Italy exposes only Whole and "al netto del noleggio" fuel breakdowns.
   Rental    = NLT + NBT + autoimm.uso.noleggio ≈ 30–35 % of new registrations.
@@ -68,14 +69,14 @@ NOTE: Italy exposes only Whole and "al netto del noleggio" fuel breakdowns.
   See § 1 for full channel breakdown and cross-checks.
 
 PKW source:  UNRAE struttura-del-mercato PDF (Whole + Rental + NonRental from one download)
-Vans source: UNRAE LCV Comunicato Stampa PDF (separate page, separate schedule)
+Vans source: UNRAE LCV struttura PDF (same index, separate PDF and schedule)
 Auth:        None
 FLEXFUEL:    Not reported by Italy — column absent from all three CSVs
 HEV:         Reported natively as 'Ibride elettriche (HEV)' (full + mild sum)
 OTHERS (PKW): Gpl + Metano + Idrogeno (FCEV) — explicit, not a residual
-OTHERS (Vans): derived GPL count; unlisted fuels not separately extractable
+OTHERS (Vans): Gpl + Metano — explicit, not a residual
 Schedule:    PKW  4×/day on the 1st–3rd   (06:00/10:00/14:00/18:00 UTC)
-             Vans 3×/day on the 13th–16th (10:00/14:00/18:00 UTC)
+             Vans 3×/day on the 8th–16th  (10:00/14:00/18:00 UTC)
 Scripts:     scripts/fetch_italy.py
 Workflow:    .github/workflows/fetch-italy.yml
 ```
@@ -251,54 +252,71 @@ YoY %, YTD, etc.) are ignored.
 
 ## 5. Vans flow (LCV)
 
-UNRAE publishes LCV data only as a narrative "Comunicato Stampa" press release
-(not as a structured data table). Absolute counts are therefore **derived**:
+UNRAE publishes a "Struttura del mercato" for **autocarri ≤ 3,5 t** next to the
+passenger-car one, on the same index, slugged
+`immatricolazioni-veicoli-commerciali-<mese>-<anno>`. Its 'Per alimentazione'
+table gives exact counts per fuel, so Vans rows add up to `TOTAL` exactly.
+(Until 2026-09 Vans were derived from percentages in the LCV *press release*;
+that source broke on the combined July+August 2026 release, which only gave
+year-to-date shares — see the 2026-10 note below.)
 
 ```
-1. https://unrae.it/sala-stampa/veicoli-commerciali
-   → find newest <a href="…/veicoli-commerciali-leggeri-{...}">
-     (month name embedded in slug; year inferred from today)
+1. https://unrae.it/dati-statistici/immatricolazioni
+   → newest (highest page id) <a href="…/immatricolazioni-veicoli-commerciali-…">
 
-2. GET that detail page → find the first PDF link
+2. GET that page → its PDF (a few pages have none, see § 8)
 
-3. pdftotext -layout → extract from prose:
-     total  from "posizionano a NN.NNN unità"
-     diesel from "diesel ... al XX,X%"
-     benzina, gpl, plug-in, BEV, ibridi similarly
+3. pdftotext -layout → one 'Per alimentazione' table per month in the PDF
+   (two in the July+August PDF).  Period from the table's own title
+   "IMMATRICOLAZIONI - Agosto 2026" — not from the slug (see below).
 
-4. Compute: abs_count = round(pct / 100 × total)
+4. Upsert that month, and — only if missing — the same month a year
+   earlier from the table's comparison column (notes say so).
 ```
 
-⚠ **Data quality caveat**: percentages are rounded to one decimal in the press
-release. The derived counts typically deviate from the true values by ±1–5
-units per fuel type. The sanity check uses a lenient tolerance of
-`max(200, 2%)` for Vans rows. This deviation is documented in `notes` if needed.
+### Table layouts
 
-### Vans regex patterns
+| Tables from | Counts per fuel | Monthly value |
+|---|---|---|
+| 2025-02 → | month cur, month cmp, YTD cur, YTD cmp | read directly |
+| 2018-05 → 2025-01 | YTD cur, YTD cmp only (plus every January, where YTD = month) | `backfill_italy_vans.py` only: Jan–M minus Jan–(M−1) |
+| ≤ 2018-04, 2022-01, 2022-11 | none — monthly totals only | — (comparison columns of the next year fill some) |
 
-The LCV percentage patterns (`_LCV_PCT` in the script) match sentence-scoped
-text (stopping at `.`) to avoid picking up cumulative YTD percentages. They
-rely on UNRAE's PR agency keeping consistent phrasing. If the Comunicato
-Stampa phrasing changes, update `_LCV_PCT` and re-run with `--force`.
-`scripts/test_fetch_italy.py` holds a trimmed June 2026 bulletin as fixture.
+Gotchas the parser handles, each seen in real PDFs:
 
-The `all'` alternative needs its own word boundary (`\ball['’]`): without it,
-"passando **dall’**1,0% di un anno fa al 2,1%" matched the year-ago share.
-That bug wrote the 2026-06 Vans row with PHEV = 171 (1,0 %) instead of ≈ 359
-(2,1 %); it slipped through because the lenient tolerance absorbs a 1 % miss.
+- **Slug month ≠ data month.** Until 2023 the page for month M carried data
+  up to M−1 (`aprile-2021` holds "Gennaio/Marzo 2021").
+- **Comparison year ≠ year − 1.** The 2021 tables compare with 2019, not 2020.
+  It is read from the header.
+- **Blank cells mean 0** (Metano, often). Counts are mapped to columns by their
+  right edge against the `totale` row, so a blank never shifts later values.
+- **Every column must add up to its `totale`** or the parse fails.
 
-Verified against the April and June 2026 LCV bulletins.
+### History: `scripts/backfill_italy_vans.py`
 
-### Combined bulletins
+The fetcher only reads the newest PDF. The backfill walks all ~190 index pages
+(≈ 110 LCV PDFs) and builds each month from, in order:
 
-UNRAE sometimes covers two months in one release (July + August 2026, released
-2026-09-10, slug `…-luglio-flette-…-agosto-in-recupero-…`). Such a release
-gives each month's total and BEV share, but the other fuel shares **only
-cumulatively** (January–August), so no monthly row can be derived. The fetcher
-recognises it by more than one month name in the slug (`slug_months()`) and
-skips it without error; those months stay missing unless entered by hand.
-Before this check, the parser mixed August's BEV share and the YTD shares onto
-July's total, and the sanity check refused the row (sum ≈ 103 %).
+1. the month column of its own table (`notes` empty);
+2. the comparison column of next year's table;
+3. a YTD difference — all pairings of own-year and next-year (consolidated)
+   YTD tables are tried and the one whose `TOTAL` is closest to UNRAE's
+   published monthly total wins; > 2 % off, or any negative count, and the
+   month stays empty;
+4. a gap fill Jan–(M+1) − month M+1 − Jan–(M−1) when M has no table (2026-05).
+
+Differencing two bulletins puts late registrations of earlier months into
+month M; against UNRAE's monthly totals the median gap is < 0,01 % of
+`TOTAL`, the worst kept ≈ 1 % (2020-04, 1 590 vans in lockdown). Step 3 matters: UNRAE's own Jan–Oct 2024 table moved
+1 500 vans from Diesel to Gpl; the consolidated copy in the 2025 PDF is right,
+and without the closest-total rule 2024-11 came out with negative Gpl.
+
+Before 2020-07 the tables have no PHEV line (`Ibrido` / `Ibride` only):
+`PHEV` is left empty and `notes` says so.
+
+The backfill replaced the two press-release rows (2026-04, 2026-06). 2026-06
+had PHEV 171 instead of 357: the regex read "**dall’**1,0% di un anno fa" (the
+year-ago share) as the month's.
 
 ### Vans failures don't block PKW
 
@@ -310,19 +328,19 @@ discards a PKW month fetched in the same run (as it would have on 2026-10-01).
 
 ### Vans fuel mapping
 
-| Press-release phrase                              | CSV column        |
-|---------------------------------------------------|-------------------|
-| diesel … al XX,X%                                 | DIESEL            |
-| benzina … al XX,X%                                | PETROL            |
-| veicoli ibridi … XX,X% del totale                 | HEV               |
-| veicoli plug-in … al XX,X%                        | PHEV              |
-| veicoli BEV … al XX,X%                            | BEV               |
-| Gpl … all' XX,X%                                  | OTHERS (GPL only) |
-| Metano, Idrogeno etc.                             | (not mentioned)   |
+| Table row                                               | CSV column |
+|---------------------------------------------------------|------------|
+| Diesel                                                  | DIESEL     |
+| Benzina                                                 | PETROL     |
+| Ibridi elettrici (HEV) · before 2020-07: Ibrido / Ibride | HEV        |
+| Ibridi elettrici plug-in (PHEV+REx)                     | PHEV (empty before 2020-07) |
+| Elettrici (BEV) · before 2020-07: Elettrico / Elettriche | BEV        |
+| Gpl + Metano (+ Idrogeno, not listed so far)            | OTHERS     |
+| totale                                                  | TOTAL      |
 
-`OTHERS` for Vans = derived GPL count only. Metano and Idrogeno registrations
-for LCV are not reported in the Comunicato Stampa text; they would be negligible
-(<<1% combined).
+`TOTAL` is the table's `totale`, which can differ slightly from the headline
+monthly total on page 1 (August 2026: 8 376 vs 8 390 — the headline is a
+projection).
 
 ## 6. Schedule
 
@@ -331,7 +349,7 @@ for LCV are not reported in the Comunicato Stampa text; they would be negligible
 | Whole      | ~1st of month  | 06/10/14/18 UTC, days 1–3   |
 | Rental     | same PDF       | same schedule               |
 | NonRental  | same PDF       | same schedule               |
-| Vans       | ~14th of month | 10/14/18 UTC, days 13–16    |
+| Vans       | ~10th of month | 10/14/18 UTC, days 8–16     |
 
 All three scripts self-throttle: once the target period is in the CSV, runs are
 no-ops until the next month.
@@ -341,21 +359,23 @@ no-ops until the next month.
 Dispatch `fetch-italy.yml` with manual inputs to bypass discovery:
 
 - `pdf_url` + `year` + `month` → override PKW Struttura PDF
-- `vans_pdf_url` + `year` + `month` → override LCV Comunicato Stampa PDF
+- `vans_pdf_url` → override the LCV struttura PDF (periods come from the PDF)
 - `variant` → restrict to a specific variant (default: `all`)
 - `force` → re-process even if period already in CSV
 
 ## 8. Known limitations
 
-- **HDV not available.** The HDV Comunicato Stampa (`/sala-stampa/
-  veicoli-commerciali` entries for "veicoli industriali") contains no
-  fuel-type breakdown — only volume by weight class. HDV cannot be added
-  without a new structured data source.
-- **Vans derived counts.** Absolute counts for Vans are computed from rounded
-  percentages; true values may differ by ±1–5 units per fuel type.
-- **LCV regex fragility.** `_LCV_PCT` patterns depend on UNRAE's PR phrasing.
-  If a month's Comunicato Stampa uses different wording, a WARNING is printed
-  and the affected column defaults to 0. Run with `--force` after fixing.
+- **HDV not available.** Neither the HDV Comunicato Stampa nor the
+  "immatricolazioni-veicoli-industriali" struttura PDF (checked 2026-10 on
+  the July+August 2026 one) has a fuel-type breakdown — only volume by weight
+  class. HDV cannot be added without a new structured data source.
+- **Vans gaps.** No row for months before 2017-05, June/July 2017–2021, July/August
+  2023 (UNRAE only gives the Jan–August sum for
+  those), 2020-09/10/11/12 and 2021-10 (no table, or every derivation > 2 %
+  off the monthly total), 2025-11/12 (pages without PDF; the fetcher fills
+  them from the comparison columns of the 2026-11/12 tables).
+- **Vans pre-2025 rows are differences** of year-to-date tables (flagged in
+  `notes`); late registrations of earlier months land in the month.
 - **PKW PDF layout dependency.** If UNRAE restructures the Struttura del
   mercato (column order, section headings, fuel naming), the strict sanity
   check guards against silent misparses.
