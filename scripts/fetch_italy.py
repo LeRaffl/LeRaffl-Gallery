@@ -22,17 +22,13 @@ Whole vs. al netto del noleggio (rental excluded).  'Rental' here is the
 complement: noleggio a lungo + noleggio a breve + autoimm. uso noleggio.
 A per-fuel breakdown by juridical person is not available from this source.
 
-Vans comes from the LCV "Comunicato Stampa" press release PDF, published on
-unrae.it/sala-stampa/veicoli-commerciali around the 14th of each month.
-⚠  Absolute counts are DERIVED from rounded market-share percentages × total
-(e.g. BEV = round(2.9% × 15 205)).  Typical deviation: ±1–5 per fuel type.
-The sanity check uses lenient tolerance (max 200, 2%) for Vans rows.
-
-Parsing gotcha — Unicode apostrophe in LCV PDFs:
-  The LCV Comunicato Stampa uses the RIGHT SINGLE QUOTATION MARK (U+2019 ')
-  in "all'X%" constructions, not the ASCII apostrophe (U+0027 ').  The _LCV_PCT
-  patterns match both forms: all['’].  If new months fail to parse GPL,
-  check for a different apostrophe variant in the PDF text first.
+Vans comes from UNRAE's LCV "Struttura del mercato" (autocarri ≤ 3,5 t),
+on the same index page, slugged immatricolazioni-veicoli-commerciali-<mese>-<anno>,
+published around the 10th of each month.  Exact counts per fuel, like the PKW
+PDF; July+August come as one PDF with two tables.  The period is read from each
+table's title (the slug month lags by one until 2023).  The full history back
+to 2017 is built by scripts/backfill_italy_vans.py, which also derives the
+monthly values the pre-2025 YTD-only tables imply.
 
 CSV schema (all three files)
 -----------------------------
@@ -48,15 +44,15 @@ PKW fuel mapping (from "Per alimentazione" table)
     OTHERS = Gpl + Metano + Idrogeno (FCEV)
     TOTAL  = Totale mercato
 
-Vans fuel mapping (from Comunicato Stampa prose — percentages × total)
------------------------------------------------------------------------
-    DIESEL = diesel %
-    PETROL = benzina %
-    HEV    = veicoli ibridi % del totale
-    PHEV   = veicoli plug-in %
-    BEV    = veicoli BEV %
-    OTHERS = Gpl % only (Metano/Idrogeno not reported; negligible for LCV)
-    TOTAL  = total registrations stated in text (absolute, not derived)
+Vans fuel mapping (from the LCV "Per alimentazione" table)
+----------------------------------------------------------
+    PETROL = Benzina
+    DIESEL = Diesel
+    HEV    = Ibridi elettrici (HEV)    (before 2020-07: Ibrido / Ibride)
+    PHEV   = Ibridi elettrici plug-in (PHEV+REx)   (empty before 2020-07)
+    BEV    = Elettrici (BEV)          (before 2020-07: Elettrico / Elettriche)
+    OTHERS = Gpl + Metano (+ Idrogeno, not listed so far)
+    TOTAL  = totale
 
 See docs/architecture/18-source-italy.md for the full pipeline context.
 
@@ -64,7 +60,7 @@ Usage
 -----
     python scripts/fetch_italy.py [--variant all|pkw|Whole|Rental|Vans]
                                   [--pdf-url URL --year Y --month M]
-                                  [--vans-pdf-url URL --year Y --month M]
+                                  [--vans-pdf-url URL]
                                   [--force]
 """
 import argparse
@@ -80,7 +76,6 @@ from pathlib import Path
 import requests
 
 STRUTTURA_INDEX = "https://unrae.it/dati-statistici/immatricolazioni"
-LCV_INDEX       = "https://unrae.it/sala-stampa/veicoli-commerciali"
 SOURCE          = "unrae.it"
 USER_AGENT      = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) BEV-Gallery-Bot"
 
@@ -259,169 +254,177 @@ def parse_pkw(text: str) -> tuple[dict, dict, dict]:
 
 
 # ── LCV discovery ─────────────────────────────────────────────────────────
+#
+# UNRAE publishes a "Struttura del mercato" for autocarri ≤ 3,5 t on the same
+# index as the PKW one, slugged immatricolazioni-veicoli-commerciali-<mese>-<anno>
+# (July+August share one page: "luglio-agosto", "luglio-e-agosto",
+# "luglioagosto"...).  The slug month is NOT the data month — until 2023 the
+# page for month M carried data up to M−1 — so the parser takes the period
+# from each table's own title, never from the slug.
 
-def find_latest_lcv(index_html: str) -> tuple[str, int, int]:
-    """Find the newest 'veicoli commerciali leggeri' press release.
-
-    Returns (detail_url, year, month).  Month is extracted from the URL slug
-    (Italian month name embedded in the slug).  Year is inferred: if slug-month
-    > today.month, the bulletin belongs to the previous calendar year.
-    """
-    pat = re.compile(
-        r'href="(https://unrae\.it/sala-stampa/veicoli-commerciali/\d+/'
-        r'veicoli-commerciali-leggeri-[^"]+)"',
-        re.IGNORECASE,
-    )
-    today = date.today()
-    best: tuple[int, int, str] | None = None
-
-    for url in pat.findall(index_html):
-        slug = url.split("/")[-1]
-        month = None
-        for word in slug.replace("-", " ").split():
-            if word.lower() in IT_MONTHS:
-                month = IT_MONTHS[word.lower()]
-                break
-        if month is None:
-            continue
-        year = today.year if month <= today.month else today.year - 1
-        key = (year, month)
-        if best is None or key > (best[0], best[1]):
-            best = (key[0], key[1], url)
-
-    if best is None:
-        raise RuntimeError(
-            "No 'veicoli commerciali leggeri' link found on UNRAE sala-stampa page."
-        )
-    return best[2], best[0], best[1]
+_LCV_LINK = re.compile(
+    r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/(\d+)/'
+    r'immatricolazioni-veicoli-commerciali-[a-z-]*?\d{4})"',
+    re.IGNORECASE,
+)
 
 
-def slug_months(url: str) -> list[int]:
-    """Distinct Italian month names in a bulletin URL slug, in slug order.
-
-    More than one means a combined bulletin (e.g. UNRAE's July+August 2026
-    LCV release), whose fuel shares are only given cumulatively (YTD).
-    """
-    months: list[int] = []
-    for word in url.split("/")[-1].replace("-", " ").split():
-        m = IT_MONTHS.get(word.lower())
-        if m and m not in months:
-            months.append(m)
-    return months
+def find_lcv_pages(index_html: str) -> list[str]:
+    """LCV struttura detail URLs on an index page, newest (highest id) first."""
+    found: dict[int, str] = {}
+    for url, page_id in _LCV_LINK.findall(index_html):
+        if url.startswith("/"):
+            url = "https://unrae.it" + url
+        found[int(page_id)] = url
+    return [found[k] for k in sorted(found, reverse=True)]
 
 
-def find_lcv_pdf_url(detail_html: str) -> str:
-    """Find the first PDF link on the LCV detail page."""
-    pat = re.compile(r'href="(https://unrae\.it/files/[^"]+\.pdf)"', re.IGNORECASE)
-    m = pat.search(detail_html)
+def find_lcv_pdf_url(detail_html: str) -> str | None:
+    """The PDF attached to an LCV struttura page; None if the page has none
+    (a handful of months were published without an attachment)."""
+    m = re.search(r'href="((?:https?://unrae\.it)?/files/[^"]+\.pdf)"', detail_html, re.I)
     if not m:
-        raise RuntimeError("No PDF link found on LCV detail page.")
-    return m.group(1)
+        return None
+    url = m.group(1)
+    return "https://unrae.it" + url if url.startswith("/") else url
 
 
 # ── LCV parsing ────────────────────────────────────────────────────────────
 #
-# The LCV Comunicato Stampa is narrative prose — there is no structured data
-# table.  We extract the current-month market share percentage for each fuel
-# type from the "motorizzazioni" paragraph via sentence-scoped regex patterns
-# (stopping at '.'), then multiply by the total registration count.
+# Each 'Per alimentazione' table has, per fuel, either
+#   2 counts  [YTD current year, YTD comparison year]                (≤ 2025-01)
+#   4 counts  [month cur, month cmp, YTD cur, YTD cmp]               (≥ 2025-02)
+# plus %-columns, which are ignored.  Counts are matched to columns by their
+# right edge against the 'totale' row, because an empty cell means 0 (Metano
+# is often blank) and would otherwise shift every later value.
 #
-# These patterns are inherently fragile: if UNRAE's PR agency changes the
-# phrasing, they may need updating.  The sanity check (lenient tolerance)
-# guards against silent misparses.
+# The comparison year is read from the header, not assumed to be year−1:
+# the 2021 tables compare against 2019 (pre-COVID), not 2020.
 
-_LCV_PCT: dict[str, re.Pattern] = {
-    # "al" = preposition (word-boundary safe); "all'" may use ASCII ' or Unicode '
-    # (U+2019 RIGHT SINGLE QUOTATION MARK) depending on the PDF.  We match both.
-    # "all'" needs its own \b: without it "dall’1,0% di un anno fa" (the
-    # year-ago share) matched first — June 2026 PHEV was read as 1,0% not 2,1%.
-    "DIESEL": re.compile(
-        r"\bdiesel\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
-        re.IGNORECASE | re.DOTALL,
-    ),
-    "PETROL": re.compile(
-        r"\bbenzina\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
-        re.IGNORECASE | re.DOTALL,
-    ),
-    # GPL uses "all'X%" with a Unicode apostrophe; fall back to first % in sentence.
-    "GPL": re.compile(
-        r"\bgpl\b[^.]*?(\d+[,]\d+)\s*%",
-        re.IGNORECASE | re.DOTALL,
-    ),
-    "PHEV": re.compile(
-        r"\bplug.in\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
-        re.IGNORECASE | re.DOTALL,
-    ),
-    "BEV": re.compile(
-        r"\bbev\b[^.]*?(?:\bal\b|\ball['’])\s*(\d+[,]\d+)\s*%",
-        re.IGNORECASE | re.DOTALL,
-    ),
-    "HEV": re.compile(
-        r"\bibridi?\b[^.]*?(\d+[,]\d+)\s*%\s*del\s+totale",
-        re.IGNORECASE | re.DOTALL,
-    ),
-}
+_LCV_ROWS: list[tuple[re.Pattern, str]] = [
+    (re.compile(r"^Ibrid[ie] elettric[ih]e? plug-in", re.I),  "PHEV"),
+    (re.compile(r"^Ibrid[ie] elettric[ih]e? \(HEV\)", re.I),   "HEV"),
+    (re.compile(r"^Ibrid[eo]$", re.I),                         "HEV"),   # ≤ 2020, incl. PHEV
+    (re.compile(r"^Elettric[ih]e? \(BEV\)", re.I),             "BEV"),
+    (re.compile(r"^Elettric(?:he|o)$", re.I),                  "BEV"),
+    (re.compile(r"^Diesel$", re.I),                            "DIESEL"),
+    (re.compile(r"^Benzina$", re.I),                           "PETROL"),
+    (re.compile(r"^Gpl$", re.I),                               "GPL"),
+    (re.compile(r"^Metano$", re.I),                            "METANO"),
+    (re.compile(r"^Idrogeno", re.I),                           "H2"),
+    (re.compile(r"^totale$"),                                  "TOTAL"),
+]
+LCV_FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "GPL", "METANO", "H2", "TOTAL"]
 
-# Primary: "posizionano a 15.205 unità"
-_LCV_TOTAL_PRIMARY  = re.compile(r"posizionano\s+a\s+([\d\.]+)\s+unit", re.IGNORECASE)
-# Fallback: first 5-digit number (tens of thousands) followed by "unità"
-_LCV_TOTAL_FALLBACK = re.compile(r"(\d{2,3}(?:\.\d{3})+)\s+unit",      re.IGNORECASE)
+_LCV_TITLE = re.compile(
+    r"IMMATRICOLAZIONI\s*-\s*(?:Gennaio\s*/\s*)?([A-Za-z]+)\s+(\d{4})", re.IGNORECASE)
+_LCV_INT   = re.compile(r"(?<![\d,.+-])\d{1,3}(?:\.\d{3})*(?![\d,.])")
+_LCV_YEAR  = re.compile(r"(?<![/\d])(20\d\d)(?![/\d])")
 
 
-def parse_vans(text: str) -> dict:
-    """Parse LCV fuel-type data from Comunicato Stampa prose text.
+def _lcv_label(line: str) -> str:
+    return re.split(r"\s{2,}|\s+(?=[+-]?\d)", line.strip())[0]
 
-    Returns absolute counts derived from market-share percentages × total.
-    ⚠ Accuracy: ±~5 per fuel category due to percentage rounding.
-    OTHERS = derived GPL count; any unclassified fuels (Metano, Idrogeno…)
-    are not separately mentioned in the Comunicato Stampa.
+
+def parse_lcv_struttura(text: str) -> list[dict]:
+    """Parse every 'Per alimentazione' table of an LCV struttura PDF.
+
+    Returns one dict per table:
+      year, month   period the table belongs to (from its title)
+      cmp_year      comparison year (from its header)
+      month_cur     {fuel: count} for that month, or None (YTD-only layout)
+      month_cmp     same month of cmp_year, or None
+      ytd_cur       January..month of year
+      ytd_cmp       January..month of cmp_year
+    Fuel dicts use LCV_FUELS; a fuel the table doesn't list is None
+    (no PHEV row before 2020-07, no hydrogen row at all so far).
+    In January tables month == YTD, so month_cur/month_cmp are filled too.
+    Every column must add up exactly to its 'totale'.
     """
-    m = _LCV_TOTAL_PRIMARY.search(text)
-    if m:
-        total = int(m.group(1).replace(".", ""))
-    else:
-        m2 = _LCV_TOTAL_FALLBACK.search(text)
-        if not m2:
-            raise RuntimeError("Could not find LCV total registrations in PDF text.")
-        total = int(m2.group(1).replace(".", ""))
-    if not 5_000 <= total <= 100_000:
-        raise RuntimeError(
-            f"LCV total {total} outside expected range 5 000–100 000; check PDF."
-        )
+    lines = text.splitlines()
+    out: list[dict] = []
+    for s in [i for i, ln in enumerate(lines) if "Per alimentazione" in ln]:
+        title = next((_LCV_TITLE.search(lines[j]) for j in range(s, max(s - 60, -1), -1)
+                      if _LCV_TITLE.search(lines[j])), None)
+        if not title or title.group(1).lower() not in IT_MONTHS:
+            raise RuntimeError(f"LCV: no 'IMMATRICOLAZIONI - <mese> <anno>' title above line {s}.")
+        month, year = IT_MONTHS[title.group(1).lower()], int(title.group(2))
 
-    pcts: dict[str, float] = {}
-    for fuel, pat in _LCV_PCT.items():
-        hit = pat.search(text)
-        if hit:
-            pcts[fuel] = float(hit.group(1).replace(",", "."))
+        raw: dict[str, str] = {}
+        header: list[str] = []
+        for ln in lines[s:s + 30]:
+            key = next((k for p, k in _LCV_ROWS if p.search(_lcv_label(ln))), None)
+            if key is None:
+                if not raw:
+                    header.append(ln)
+                continue
+            raw[key] = ln
+            if key == "TOTAL":
+                break
+        if "TOTAL" not in raw:
+            raise RuntimeError(f"LCV {year}-{month:02d}: 'totale' row not found.")
+
+        cmp_years = {int(y) for y in _LCV_YEAR.findall(" ".join(header))} - {year}
+        if len(cmp_years) != 1:
+            raise RuntimeError(f"LCV {year}-{month:02d}: comparison year unclear {cmp_years}.")
+
+        edges = [m.end() for m in _LCV_INT.finditer(raw["TOTAL"])]
+        if len(edges) not in (2, 4):
+            raise RuntimeError(f"LCV {year}-{month:02d}: expected 2 or 4 counts in 'totale', "
+                               f"got {len(edges)}.")
+        cols = [{k: None for k in LCV_FUELS} for _ in edges]
+        for key, ln in raw.items():
+            for c in cols:
+                c[key] = 0
+            for m in _LCV_INT.finditer(ln):
+                j = min(range(len(edges)), key=lambda e: abs(edges[e] - m.end()))
+                if abs(edges[j] - m.end()) > 6:
+                    raise RuntimeError(f"LCV {year}-{month:02d} {key}: "
+                                       f"value {m.group(0)!r} matches no column.")
+                cols[j][key] = int(m.group(0).replace(".", ""))
+        for c in cols:
+            parts = sum(c[k] or 0 for k in LCV_FUELS if k != "TOTAL")
+            if parts != c["TOTAL"]:
+                raise RuntimeError(f"LCV {year}-{month:02d}: fuels sum to {parts}, "
+                                   f"totale {c['TOTAL']}.")
+
+        if len(cols) == 4:
+            m_cur, m_cmp, y_cur, y_cmp = cols
         else:
-            print(f"  WARNING Vans: {fuel} percentage not found — defaulting to 0.")
-            pcts[fuel] = 0.0
+            y_cur, y_cmp = cols
+            m_cur, m_cmp = (y_cur, y_cmp) if month == 1 else (None, None)
+        out.append({"year": year, "month": month, "cmp_year": cmp_years.pop(),
+                    "month_cur": m_cur, "month_cmp": m_cmp,
+                    "ytd_cur": y_cur, "ytd_cmp": y_cmp})
+    return out
 
-    def pct_to_int(key: str) -> int:
-        return round(pcts[key] / 100 * total)
 
+def lcv_to_cols(f: dict) -> dict:
+    """Map an LCV fuel dict onto the CSV columns.  OTHERS = Gpl + Metano
+    (+ Idrogeno).  PHEV stays empty where the table has no PHEV row (before
+    2020-07, 'Ibrido' is the only hybrid line)."""
     return {
-        "BEV":    pct_to_int("BEV"),
-        "PHEV":   pct_to_int("PHEV"),
-        "HEV":    pct_to_int("HEV"),
-        "PETROL": pct_to_int("PETROL"),
-        "DIESEL": pct_to_int("DIESEL"),
-        "OTHERS": pct_to_int("GPL"),
-        "TOTAL":  total,
+        "BEV": f["BEV"], "PHEV": "" if f["PHEV"] is None else f["PHEV"],
+        "HEV": f["HEV"], "PETROL": f["PETROL"], "DIESEL": f["DIESEL"],
+        "OTHERS": f["GPL"] + f["METANO"] + (f["H2"] or 0),
+        "TOTAL": f["TOTAL"],
     }
 
 
 # ── sanity + upsert ────────────────────────────────────────────────────────
 
 def sanity_check(cols: dict, period: str, strict: bool = True) -> None:
-    """Verify BEV+PHEV+HEV+PETROL+DIESEL+OTHERS ≈ TOTAL."""
-    core  = (cols["BEV"] + cols["PHEV"] + cols["HEV"]
-             + cols["PETROL"] + cols["DIESEL"] + cols["OTHERS"])
+    """Verify BEV+PHEV+HEV+PETROL+DIESEL+OTHERS ≈ TOTAL, none negative.
+    An empty cell ('', no split in the source) counts as 0 here."""
+    parts = [cols[k] or 0 for k in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS")]
+    core  = sum(parts)
     total = cols["TOTAL"]
     if total <= 0:
         raise RuntimeError(f"{period}: TOTAL is {total}; refusing to write.")
-    # Strict (table-parsed): max(50, 0.5%).  Lenient (pct-derived): max(200, 2%).
+    if min(parts) < 0:
+        raise RuntimeError(f"{period}: negative count in {cols}; refusing to write.")
+    # Strict (table-parsed): max(50, 0.5%).  Lenient: max(200, 2%) — unused since
+    # Vans moved from the press-release percentages to the struttura table.
     tol = max(50, total * 0.005) if strict else max(200, total * 0.02)
     if abs(core - total) > tol:
         raise RuntimeError(
@@ -430,8 +433,10 @@ def sanity_check(cols: dict, period: str, strict: bool = True) -> None:
         )
 
 
-def upsert(csv_path: str, period: str, cols: dict, variant: str) -> tuple[str, dict | None]:
+def upsert(csv_path: str, period: str, cols: dict, variant: str,
+           notes: str = "") -> tuple[str, dict | None]:
     """Write/replace the row for (period, variant) in csv_path.
+    An empty cell ('') in `cols` stays empty — never written as 0.
     Returns ('added'|'updated'|'unchanged', old_row).
     """
     rows: list[dict] = []
@@ -450,7 +455,7 @@ def upsert(csv_path: str, period: str, cols: dict, variant: str) -> tuple[str, d
         "period": period, "time_interval": "monthly", "variant": variant, "source": SOURCE,
         "BEV": cols["BEV"], "PHEV": cols["PHEV"], "HEV": cols["HEV"],
         "PETROL": cols["PETROL"], "DIESEL": cols["DIESEL"],
-        "OTHERS": cols["OTHERS"], "TOTAL": cols["TOTAL"], "notes": "",
+        "OTHERS": cols["OTHERS"], "TOTAL": cols["TOTAL"], "notes": notes,
     }
 
     # Preserve existing notes when the script writes empty notes.
@@ -461,11 +466,12 @@ def upsert(csv_path: str, period: str, cols: dict, variant: str) -> tuple[str, d
     if old is not None:
         for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]:
             ov = float(old.get(c) or 0)
-            nv = float(new_row[c])
+            nv = float(new_row[c] or 0)
             if ov > 100 and abs(nv - ov) / ov > 0.1:
                 print(f"  WARNING {c}: existing={ov:.0f}, new={nv:.0f} — drift >10%")
-        if all(float(old.get(c) or 0) == float(new_row[c])
-               for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]):
+        if all(str(old.get(c) or "") == str(new_row[c])
+               for c in ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"]) \
+                and old.get("notes", "") == new_row["notes"]:
             status = "unchanged"
 
     rows.append(new_row)
@@ -481,54 +487,67 @@ def upsert(csv_path: str, period: str, cols: dict, variant: str) -> tuple[str, d
 
 # ── Vans (LCV) ─────────────────────────────────────────────────────────────
 
+PRIOR_YEAR_NOTE = "from the following year's UNRAE table (comparison column)"
+
+
 def fetch_vans(args: argparse.Namespace, prev: str) -> None:
-    need_lcv = args.force or not csv_has_period(
-        VARIANT_CONFIG["Vans"]["csv"], prev, "Vans"
-    )
-    if not need_lcv:
+    """Upsert every month the latest LCV struttura PDF covers.
+
+    A combined July+August PDF yields both months.  Each table's comparison
+    column also fills the same month one year earlier, but only if that month
+    is missing — the source occasionally publishes a page without its PDF
+    (e.g. 2025-11, 2025-12), and the next year's table is the only other copy.
+    """
+    csv_path = VARIANT_CONFIG["Vans"]["csv"]
+    if not args.force and csv_has_period(csv_path, prev, "Vans"):
         print(f"Vans already has {prev}; nothing to do.")
+        return
+
+    if args.vans_pdf_url:
+        pdf_url = args.vans_pdf_url
+        print(f"Using supplied LCV PDF: {pdf_url}")
     else:
-        if args.vans_pdf_url:
-            if not (args.year and args.month):
-                sys.exit("--vans-pdf-url requires --year and --month.")
-            lcv_pdf_url = args.vans_pdf_url
-            year, month = args.year, args.month
-            print(f"Using supplied LCV PDF: {lcv_pdf_url} -> {year}-{month:02d}")
-        else:
-            print(f"Fetching LCV index: {LCV_INDEX}")
-            lcv_html    = http_get(LCV_INDEX)
-            detail_url, year, month = find_latest_lcv(lcv_html)
-            print(f"Latest LCV bulletin: {year}-{month:02d}  ({detail_url})")
-            months = slug_months(detail_url)
-            if len(months) > 1:
-                # Combined bulletin: totals per month, but fuel shares only
-                # cumulative (YTD), so no month can be derived.  Not an error —
-                # wait for the next single-month bulletin.
-                print(f"Vans: combined bulletin for months {months} gives fuel "
-                      f"shares only cumulatively; no monthly row derivable — skipping.")
-                return
-            detail_html = http_get(detail_url)
-            lcv_pdf_url = find_lcv_pdf_url(detail_html)
-            print(f"LCV PDF: {lcv_pdf_url}")
+        print(f"Fetching index: {STRUTTURA_INDEX}")
+        pages = find_lcv_pages(http_get(STRUTTURA_INDEX))
+        if not pages:
+            raise RuntimeError("No 'immatricolazioni-veicoli-commerciali' link on UNRAE index page.")
+        print(f"Latest LCV struttura: {pages[0]}")
+        pdf_url = find_lcv_pdf_url(http_get(pages[0]))
+        if pdf_url is None:
+            # Happened for 2025-11/12 and 2026-05: a source gap, not a parse
+            # failure.  The next year's comparison column fills the month.
+            print(f"::warning::No PDF attached to {pages[0]}; Vans month skipped.")
+            return
+        print(f"LCV PDF: {pdf_url}")
 
-        period = f"{year}-{month:02d}"
-        if not args.force and csv_has_period(
-            VARIANT_CONFIG["Vans"]["csv"], period, "Vans"
-        ):
-            print(f"Vans {period} already in CSV; nothing to do.")
-        else:
-            with tempfile.TemporaryDirectory() as td:
-                pdf_path = Path(td) / "lcv.pdf"
-                download_pdf(lcv_pdf_url, pdf_path)
-                text = pdf_to_text(pdf_path)
+    with tempfile.TemporaryDirectory() as td:
+        pdf_path = Path(td) / "lcv.pdf"
+        download_pdf(pdf_url, pdf_path)
+        text = pdf_to_text(pdf_path)
 
-            cols = parse_vans(text)
-            print(f"Parsed Vans {period}: BEV={cols['BEV']} PHEV={cols['PHEV']} "
-                  f"HEV={cols['HEV']} PETROL={cols['PETROL']} DIESEL={cols['DIESEL']} "
-                  f"OTHERS={cols['OTHERS']} TOTAL={cols['TOTAL']} (derived from %)")
-            sanity_check(cols, period, strict=False)
-            status, _ = upsert(VARIANT_CONFIG["Vans"]["csv"], period, cols, "Vans")
-            print(f"Vans {period} {status} -> {VARIANT_CONFIG['Vans']['csv']}")
+    tables = parse_lcv_struttura(text)
+    if not tables:
+        raise RuntimeError("No 'Per alimentazione' table in the LCV PDF.")
+    for t in sorted(tables, key=lambda t: t["month"]):
+        if t["month_cur"] is None:
+            raise RuntimeError(
+                f"LCV {t['year']}-{t['month']:02d}: table is YTD-only (pre-2025 layout); "
+                "monthly values need scripts/backfill_italy_vans.py.")
+        targets = [(f"{t['year']}-{t['month']:02d}", t["month_cur"], "")]
+        if t["cmp_year"] == t["year"] - 1:
+            targets.append((f"{t['cmp_year']}-{t['month']:02d}", t["month_cmp"], PRIOR_YEAR_NOTE))
+        for period, fuels, note in targets:
+            exists = csv_has_period(csv_path, period, "Vans")
+            if exists and (note or not args.force):
+                if not note:
+                    print(f"Vans {period} already in CSV; skipping.")
+                continue
+            cols = lcv_to_cols(fuels)
+            print(f"Parsed Vans {period}: " + " ".join(f"{k}={v}" for k, v in cols.items())
+                  + (" (prior-year column)" if note else ""))
+            sanity_check(cols, period, strict=True)
+            status, _ = upsert(csv_path, period, cols, "Vans", notes=note)
+            print(f"Vans {period} {status} -> {csv_path}")
 
 
 # ── main ───────────────────────────────────────────────────────────────────
@@ -545,9 +564,10 @@ def main() -> None:
     ap.add_argument("--pdf-url", default="",
                     help="Direct PKW Struttura PDF URL (skips index/detail scraping).")
     ap.add_argument("--vans-pdf-url", default="",
-                    help="Direct LCV Comunicato Stampa PDF URL (skips sala-stampa scraping).")
-    ap.add_argument("--year",  type=int, help="Target year  (required with --pdf-url / --vans-pdf-url).")
-    ap.add_argument("--month", type=int, help="Target month (required with --pdf-url / --vans-pdf-url).")
+                    help="Direct LCV struttura PDF URL (skips index scraping; "
+                         "periods come from the PDF's own titles).")
+    ap.add_argument("--year",  type=int, help="Target year  (required with --pdf-url).")
+    ap.add_argument("--month", type=int, help="Target month (required with --pdf-url).")
     args = ap.parse_args()
 
     alias_map = {
@@ -618,7 +638,7 @@ def main() -> None:
                     status, _ = upsert(VARIANT_CONFIG[v]["csv"], period, cols, v)
                     print(f"{v} {period} {status} -> {VARIANT_CONFIG[v]['csv']}")
 
-    # ── Vans (LCV): separate Comunicato Stampa PDF ───────────────────────
+    # ── Vans (LCV): separate LCV struttura PDF ───────────────────────────
     #
     # Runs after PKW, so a Vans failure must not take the PKW rows down with
     # it: the workflow commits only when this script succeeds, which would

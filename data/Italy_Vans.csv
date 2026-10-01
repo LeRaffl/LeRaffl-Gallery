@@ -1,3 +1,94 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2026-04,monthly,Vans,unrae.it,441,380,1520,517,12118,243,15205,
-2026-06,monthly,Vans,unrae.it,667,171,1506,530,13789,274,17108,
+2017-05,monthly,Vans,unrae.it,63,,38,391,15794,668,16954,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2017-08,monthly,Vans,unrae.it,21,,20,195,8731,356,9323,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2017-09,monthly,Vans,unrae.it,41,,38,259,14882,596,15816,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2017-10,monthly,Vans,unrae.it,44,,61,386,19344,735,20570,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2017-11,monthly,Vans,unrae.it,49,,95,261,18934,763,20102,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2017-12,monthly,Vans,unrae.it,43,,131,392,22026,853,23445,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-01,monthly,Vans,unrae.it,36,,69,280,12882,459,13726,from the following year's UNRAE table (comparison column); PHEV not split out in the source; HEV covers all hybrids
+2018-02,monthly,Vans,unrae.it,42,,48,323,13531,489,14433,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-03,monthly,Vans,unrae.it,18,,52,371,15150,896,16487,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-04,monthly,Vans,unrae.it,30,,63,325,12005,688,13111,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-05,monthly,Vans,unrae.it,60,,68,379,15298,695,16500,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-08,monthly,Vans,unrae.it,23,,19,286,8196,340,8864,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-09,monthly,Vans,unrae.it,58,,16,247,11195,614,12130,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-10,monthly,Vans,unrae.it,93,,15,439,15577,796,16920,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-11,monthly,Vans,unrae.it,93,,20,1274,16279,872,18538,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2018-12,monthly,Vans,unrae.it,44,,16,884,18477,1077,20498,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2019-01,monthly,Vans,unrae.it,118,,19,598,11959,751,13445,PHEV not split out in the source; HEV covers all hybrids
+2019-02,monthly,Vans,unrae.it,54,,11,953,13160,1085,15263,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2019-03,monthly,Vans,unrae.it,54,,8,867,15336,1054,17319,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2019-04,monthly,Vans,unrae.it,45,0,11,567,13945,994,15562,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-05,monthly,Vans,unrae.it,113,0,6,715,15989,1003,17826,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-08,monthly,Vans,unrae.it,48,0,20,382,8519,446,9415,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-09,monthly,Vans,unrae.it,60,0,78,1327,11627,574,13666,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-10,monthly,Vans,unrae.it,53,0,254,927,15186,784,17204,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-11,monthly,Vans,unrae.it,90,0,313,725,14711,700,16539,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2019-12,monthly,Vans,unrae.it,51,1,554,916,17470,997,19989,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2020-01,monthly,Vans,unrae.it,53,,326,415,11762,574,13130,PHEV not split out in the source; HEV covers all hybrids
+2020-02,monthly,Vans,unrae.it,54,4,366,716,12795,635,14570,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2020-03,monthly,Vans,unrae.it,16,,132,173,4396,211,4928,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2020-04,monthly,Vans,unrae.it,101,,20,55,1331,83,1590,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2020-05,monthly,Vans,unrae.it,76,,334,356,10201,426,11393,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here; PHEV not split out in the source; HEV covers all hybrids
+2020-08,monthly,Vans,unrae.it,66,1,239,346,8663,413,9728,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-01,monthly,Vans,unrae.it,66,8,466,451,10368,463,11822,
+2021-02,monthly,Vans,unrae.it,163,17,906,470,13881,558,15995,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-03,monthly,Vans,unrae.it,176,18,1068,522,15462,904,18150,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-04,monthly,Vans,unrae.it,135,22,1180,562,14159,926,16984,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-05,monthly,Vans,unrae.it,258,42,934,581,15105,927,17847,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-08,monthly,Vans,unrae.it,147,12,469,273,7835,491,9227,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-09,monthly,Vans,unrae.it,219,22,1121,473,11910,661,14406,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-11,monthly,Vans,unrae.it,948,63,1115,426,12118,771,15441,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2021-12,monthly,Vans,unrae.it,430,47,2240,468,12579,817,16581,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-01,monthly,Vans,unrae.it,147,19,1712,541,9199,497,12115,
+2022-02,monthly,Vans,unrae.it,188,53,1576,1095,11551,703,15166,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-03,monthly,Vans,unrae.it,329,105,1637,1230,12783,622,16706,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-04,monthly,Vans,unrae.it,234,50,1984,1161,10109,703,14241,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-05,monthly,Vans,unrae.it,360,69,1416,1061,11755,1156,15817,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-06,monthly,Vans,unrae.it,458,39,1108,590,10482,486,13163,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-07,monthly,Vans,unrae.it,387,69,1267,608,9849,551,12731,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-08,monthly,Vans,unrae.it,296,44,860,335,6309,232,8076,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-09,monthly,Vans,unrae.it,441,53,1430,472,9547,403,12346,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-10,monthly,Vans,unrae.it,425,71,1977,452,10363,413,13701,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-11,monthly,Vans,unrae.it,488,50,1314,508,9858,405,12623,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2022-12,monthly,Vans,unrae.it,511,41,1212,676,11153,550,14143,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-01,monthly,Vans,unrae.it,329,33,1131,544,10636,550,13223,
+2023-02,monthly,Vans,unrae.it,521,29,1079,785,11837,591,14842,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-03,monthly,Vans,unrae.it,835,62,1298,1074,15171,590,19030,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-04,monthly,Vans,unrae.it,502,88,1521,495,10602,416,13624,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-05,monthly,Vans,unrae.it,745,466,1491,665,13504,511,17382,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-06,monthly,Vans,unrae.it,732,150,1289,630,13708,505,17014,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-09,monthly,Vans,unrae.it,506,58,1722,717,14051,577,17631,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-10,monthly,Vans,unrae.it,433,74,1732,859,15773,605,19476,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-11,monthly,Vans,unrae.it,362,25,1523,859,15793,589,19151,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2023-12,monthly,Vans,unrae.it,273,30,1404,807,14495,713,17722,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2024-01,monthly,Vans,unrae.it,333,17,1543,733,14737,526,17889,
+2024-02,monthly,Vans,unrae.it,379,33,1622,710,14777,562,18083,from the following year's UNRAE table (comparison column)
+2024-03,monthly,Vans,unrae.it,317,21,2037,848,16546,511,20280,from the following year's UNRAE table (comparison column)
+2024-04,monthly,Vans,unrae.it,230,16,1391,637,13762,437,16473,from the following year's UNRAE table (comparison column)
+2024-05,monthly,Vans,unrae.it,262,14,1409,758,15555,525,18523,from the following year's UNRAE table (comparison column)
+2024-06,monthly,Vans,unrae.it,410,18,1405,559,17809,476,20677,from the following year's UNRAE table (comparison column)
+2024-07,monthly,Vans,unrae.it,283,18,1004,518,14581,479,16883,from the following year's UNRAE table (comparison column)
+2024-08,monthly,Vans,unrae.it,149,7,423,237,6552,216,7584,from the following year's UNRAE table (comparison column)
+2024-09,monthly,Vans,unrae.it,283,23,831,555,12178,356,14226,from the following year's UNRAE table (comparison column)
+2024-10,monthly,Vans,unrae.it,360,40,1032,738,13969,462,16601,from the following year's UNRAE table (comparison column)
+2024-11,monthly,Vans,unrae.it,409,38,1043,589,13544,433,16056,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2024-12,monthly,Vans,unrae.it,419,169,1204,674,12251,580,15297,derived: UNRAE Jan-M minus Jan-(M-1) totals (YTD-only table); late registrations of earlier months land here
+2025-01,monthly,Vans,unrae.it,408,57,925,607,12757,316,15070,from the following year's UNRAE table (comparison column)
+2025-02,monthly,Vans,unrae.it,481,61,1148,557,12584,423,15254,
+2025-03,monthly,Vans,unrae.it,565,70,1600,705,14114,351,17405,
+2025-04,monthly,Vans,unrae.it,508,60,1362,606,12223,362,15121,
+2025-05,monthly,Vans,unrae.it,895,86,1466,609,13014,379,16449,
+2025-06,monthly,Vans,unrae.it,1445,193,1605,744,14925,495,19407,
+2025-07,monthly,Vans,unrae.it,919,223,1313,768,13786,639,17648,
+2025-08,monthly,Vans,unrae.it,231,101,619,422,6435,197,8005,
+2025-09,monthly,Vans,unrae.it,955,221,1134,653,13603,320,16886,
+2025-10,monthly,Vans,unrae.it,579,227,1538,451,14126,388,17309,
+2026-01,monthly,Vans,unrae.it,339,322,1298,490,11291,532,14272,
+2026-02,monthly,Vans,unrae.it,412,359,1496,565,11877,549,15258,
+2026-03,monthly,Vans,unrae.it,625,500,2293,648,13179,314,17559,
+2026-04,monthly,Vans,unrae.it,438,376,1515,523,12105,237,15194,
+2026-05,monthly,Vans,unrae.it,544,240,1758,563,12013,231,15349,derived: Jan-(M+1) minus month M+1 minus Jan-(M-1); no UNRAE table for M
+2026-06,monthly,Vans,unrae.it,669,357,1504,525,13772,269,17096,
+2026-07,monthly,Vans,unrae.it,781,315,1727,654,12213,231,15921,
+2026-08,monthly,Vans,unrae.it,589,118,880,281,6402,106,8376,

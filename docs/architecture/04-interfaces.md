@@ -319,7 +319,7 @@ failure modes; this table is the surface map.
 | Finland | `pxdata.stat.fi/PxWeb/api/v1/en/StatFin/merek/121d.px` | PxWeb JSON (GET metadata + POST query) | none |
 | Indonesia | `files.gaikindo.or.id/` (ProjectSend) → cumulative wholesales PDF | Login + file download | **client login** (`INDONESIA_GAIKINDO_USER`/`_PW`) |
 | Ireland | `stats.simi.ie` | Inertia.js session-filter flow (no public API) | none |
-| Italy | `unrae.it/dati-statistici/immatricolazioni`, `unrae.it/sala-stampa/veicoli-commerciali` | Page scrape + PDF | none |
+| Italy | `unrae.it/dati-statistici/immatricolazioni` (passenger cars and LCV struttura) | Page scrape + PDF | none |
 | Japan | `jada.or.jp/pages/342/` → monthly XLSX (PDF fallback) | Page scrape + file | none |
 | Luxembourg | `lustat.statec.lu/rest/data/LU1,DF_D6122,1.1/…` | SDMX 2.1 REST (SDMX-CSV) | none |
 | Malaysia | `storage.data.gov.my/transportation/cars_<YYYY>.parquet` | Parquet download | none |
