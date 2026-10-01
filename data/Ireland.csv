@@ -221,5 +221,6 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-04,monthly,Whole,stats.simi.ie,2736.0,1479.0,2373.0,2159.0,1334.0,0.0,0.0,10081.0,
 2026-05,monthly,Whole,stats.simi.ie,2326.0,1075.0,1791.0,1829.0,1015.0,0.0,0.0,8036.0,
 2026-06,monthly,Whole,stats.simi.ie,1119.0,291.0,390.0,164.0,221.0,0.0,0.0,2185.0,
-2026-07,monthly,Whole,stats.simi.ie,9656.0,4448.0,6294.0,5343.0,3261.0,0.0,0.0,29002.0,
-2026-08,monthly,Whole,stats.simi.ie,2265.0,1660.0,1554.0,1224.0,1108.0,0.0,0.0,7811.0,
+2026-07,monthly,Whole,stats.simi.ie,9652.0,4448.0,6294.0,5343.0,3259.0,0.0,0.0,28996.0,
+2026-08,monthly,Whole,stats.simi.ie,2261.0,1650.0,1553.0,1222.0,1102.0,0.0,0.0,7788.0,
+2026-09,monthly,Whole,stats.simi.ie,3126.0,1064.0,975.0,634.0,543.0,0.0,0.0,6342.0,
