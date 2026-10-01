@@ -282,6 +282,21 @@ def find_lcv_pages(index_html: str) -> list[str]:
     return [found[k] for k in sorted(found, reverse=True)]
 
 
+LCV_MAX_INDEX_PAGES = 5
+
+
+def find_latest_lcv_page() -> str | None:
+    """Newest LCV struttura page.  Walks the paginated index: once the next
+    month's passenger-car tables are out (~1st), the last LCV page has slid
+    to page 2 until the next LCV table appears (~10th)."""
+    for page in range(1, LCV_MAX_INDEX_PAGES + 1):
+        url = STRUTTURA_INDEX + (f"?page={page}" if page > 1 else "")
+        pages = find_lcv_pages(http_get(url))
+        if pages:
+            return pages[0]
+    return None
+
+
 def find_lcv_pdf_url(detail_html: str) -> str | None:
     """The PDF attached to an LCV struttura page; None if the page has none
     (a handful of months were published without an attachment)."""
@@ -746,15 +761,16 @@ def fetch_vans(args: argparse.Namespace, prev: str) -> None:
         print(f"Using supplied LCV PDF: {pdf_url}")
     else:
         print(f"Fetching index: {STRUTTURA_INDEX}")
-        pages = find_lcv_pages(http_get(STRUTTURA_INDEX))
-        if not pages:
-            raise RuntimeError("No 'immatricolazioni-veicoli-commerciali' link on UNRAE index page.")
-        print(f"Latest LCV struttura: {pages[0]}")
-        pdf_url = find_lcv_pdf_url(http_get(pages[0]))
+        latest = find_latest_lcv_page()
+        if latest is None:
+            raise RuntimeError("No 'immatricolazioni-veicoli-commerciali' link on the first "
+                               f"{LCV_MAX_INDEX_PAGES} UNRAE index pages.")
+        print(f"Latest LCV struttura: {latest}")
+        pdf_url = find_lcv_pdf_url(http_get(latest))
         if pdf_url is None:
             # Happened for 2025-11/12 and 2026-05: a source gap, not a parse
             # failure.  The next year's comparison column fills the month.
-            print(f"::warning::No PDF attached to {pages[0]}; Vans month skipped.")
+            print(f"::warning::No PDF attached to {latest}; Vans month skipped.")
             return
         print(f"LCV PDF: {pdf_url}")
 
