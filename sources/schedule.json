@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T09:14:12Z",
+ "generated": "2026-10-01T09:15:30Z",
  "today": "2026-10-01",
  "countries": [
   {
@@ -1940,7 +1940,7 @@
    "method": "pdf",
    "source_name": "UNRAE — struttura del mercato PDF",
    "source_url": "https://unrae.it/dati-statistici",
-   "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 13th–16th",
+   "cadence_text": "passenger 4×/day on the 1st–3rd; vans 3×/day on the 8th–16th",
    "interval": "monthly",
    "latest_period": "2026-08",
    "expected_period": "2026-09",
@@ -1954,6 +1954,11 @@
      1,
      2,
      3,
+     8,
+     9,
+     10,
+     11,
+     12,
      13,
      14,
      15,
@@ -2010,9 +2015,9 @@
     },
     {
      "name": "Vans",
-     "latest": "2026-06",
-     "first": "2026-04",
-     "rows": 2,
+     "latest": "2026-08",
+     "first": "2017-05",
+     "rows": 93,
      "cadence": "monthly",
      "in_repo": true
     }
