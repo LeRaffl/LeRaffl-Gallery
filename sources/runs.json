@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T09:16:51Z",
+ "generated": "2026-10-01T11:09:26Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4936,6 +4936,38 @@
    "slug": "peru_vans",
    "period": "2026-07",
    "flag": "🇵🇪"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Ireland",
+   "base": "Ireland",
+   "slug": "ireland",
+   "period": "2026-09",
+   "flag": "🇮🇪"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Ireland (Buses)",
+   "base": "Ireland",
+   "slug": "ireland_buses",
+   "period": "2026-09",
+   "flag": "🇮🇪"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Ireland (HDV)",
+   "base": "Ireland",
+   "slug": "ireland_hdv",
+   "period": "2026-09",
+   "flag": "🇮🇪"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Ireland (Vans)",
+   "base": "Ireland",
+   "slug": "ireland_vans",
+   "period": "2026-09",
+   "flag": "🇮🇪"
   }
  ]
 }

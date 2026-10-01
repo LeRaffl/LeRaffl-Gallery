@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T09:16:51Z",
+ "generated": "2026-10-01T11:09:26Z",
  "today": "2026-10-01",
  "countries": [
   {
@@ -1793,11 +1793,11 @@
    "source_url": "https://stats.simi.ie/filter/passenger",
    "cadence_text": "twice-daily cron, 1st–5th of the month",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1828,38 +1828,38 @@
     ],
     "workflow": ".github/workflows/fetch-ireland.yml"
    },
-   "last_render": "2026-09-01",
+   "last_render": "2026-10-01",
    "flag": "🇮🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2008-01",
-     "rows": 224,
+     "rows": 225,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 187,
+     "rows": 188,
      "cadence": "monthly",
      "in_repo": true
     }
