@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T14:21:32Z",
+ "generated": "2026-10-02T19:18:00Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5056,6 +5056,14 @@
    "slug": "switzerland_vans",
    "period": "2026-09",
    "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "UK",
+   "base": "UK",
+   "slug": "uk",
+   "period": "2026-09",
+   "flag": "🇬🇧"
   }
  ]
 }

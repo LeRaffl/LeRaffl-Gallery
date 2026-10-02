@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T14:21:32Z",
+ "generated": "2026-10-02T19:18:00Z",
  "today": "2026-10-02",
  "countries": [
   {
@@ -3638,7 +3638,7 @@
      "name": "Used",
      "latest": "2026-09",
      "first": "2017-01",
-     "rows": 93,
+     "rows": 117,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3813,21 +3813,21 @@
    "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
    "cadence_text": "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-09-04",
+   "last_render": "2026-10-02",
    "flag": "🇬🇧",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-01",
-     "rows": 140,
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     }
