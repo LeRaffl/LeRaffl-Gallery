@@ -98,6 +98,30 @@ def slugify(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
+def source_line(rows):
+    """The newest row's source, plus the series' first label when that names
+    a different source: "ASTRA · earlier: pxweb.bfs.admin.ch / ACEA".
+
+    Bare links are skipped, and labels that differ only from " (" or " —" on
+    name the same source. Mirror of source_line() in R/data.R, which writes the
+    same line on the charts and into params.csv — keep the two identical.
+    """
+    labels = sorted(((midx(r.get("period")), (r.get("source") or "").strip())
+                     for r in rows), key=lambda x: x[0] if x[0] is not None else 0)
+    labels = [s for m, s in labels
+              if m is not None and s and not re.match(r"https?://", s)]
+    if not labels:
+        return ""
+
+    def name(x):
+        return re.sub(r"\s+[(—].*$", "", x)
+
+    current = labels[-1]
+    if name(current) == name(labels[0]):
+        return current
+    return f"{current} · earlier: {labels[0]}"
+
+
 # ---------------------------------------------------------------- the pipeline
 
 def build_country(country, rows):
@@ -358,7 +382,7 @@ def build_country(country, rows):
     return {
         "country": country,
         "slug": slugify(country),
-        "source": rows[-1].get("source", ""),
+        "source": source_line(rows),
         "step": step,
         "ice_split": "ICE" not in cols,
         "hybrid_combined": hybrid_combined,

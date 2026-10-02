@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,EREV,OTHERS,ICE,TOTAL,notes
 2010-01,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
-2010-02,yearly,Whole,http://cpcaauto.com/news.php?types=csjd&anid=129&nid=24,91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
+2010-02,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
 2010-03,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
 2010-04,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
 2010-05,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),91.66666666666667,28.333333333333332,0.0,0.0,1149880.0,1150000.0,
@@ -23,7 +23,7 @@ period,time_interval,variant,source,BEV,PHEV,EREV,OTHERS,ICE,TOTAL,notes
 2011-10,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),400.0,26.666666666666668,0.0,0.0,1541240.0,1541666.6666666667,
 2011-11,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),400.0,26.666666666666668,0.0,0.0,1541240.0,1541666.6666666667,
 2011-12,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),400.0,26.666666666666668,0.0,0.0,1541240.0,1541666.6666666667,
-2012-01,yearly,Whole,Statistik Austria,947.9166666666666,21.666666666666668,0.0,0.0,1290697.0833333333,1291666.6666666667,
+2012-01,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),947.9166666666666,21.666666666666668,0.0,0.0,1290697.0833333333,1291666.6666666667,
 2012-02,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),947.9166666666666,21.666666666666668,0.0,0.0,1290697.0833333333,1291666.6666666667,
 2012-03,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),947.9166666666666,21.666666666666668,0.0,0.0,1290697.0833333333,1291666.6666666667,
 2012-04,yearly,Whole,CPCA (PHEV excludes EREV from 2025-01-01 onwards if not specified differently),947.9166666666666,21.666666666666668,0.0,0.0,1290697.0833333333,1291666.6666666667,

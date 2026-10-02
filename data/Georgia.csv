@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2017-02,quarterly,Whole,National Statistics Office of Georgia,29.0,2655.0,16496.0,4457.0,76.0,23713.0,
-2017-05,quarterly,Whole,https://automobile.geostat.ge/en/automobiles/rating,148.0,4625.0,9451.0,4520.0,52.0,18796.0,
+2017-05,quarterly,Whole,National Statistics Office of Georgia,148.0,4625.0,9451.0,4520.0,52.0,18796.0,
 2017-08,quarterly,Whole,National Statistics Office of Georgia,297.0,4327.0,5750.0,4683.0,6.0,15063.0,
 2017-11,quarterly,Whole,National Statistics Office of Georgia,293.0,4889.0,5356.0,4944.0,7.0,15489.0,
 2018-02,quarterly,Whole,National Statistics Office of Georgia,178.0,4807.0,6465.0,4590.0,12.0,16052.0,

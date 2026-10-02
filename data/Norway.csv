@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2005-01,monthly,Whole,ofv.no & ACEA,2.0,0.0,0.0,4971.0,2839.0,0.0,7812.0,
-2005-02,monthly,Whole,https://ofv.no/bilsalget/bilsalget-i-august-2025,0.0,0.0,0.0,5670.0,3235.0,0.0,8905.0,
+2005-02,monthly,Whole,ofv.no & ACEA,0.0,0.0,0.0,5670.0,3235.0,0.0,8905.0,
 2005-03,monthly,Whole,ofv.no & ACEA,1.0,0.0,0.0,6462.0,3808.0,0.0,10271.0,
 2005-04,monthly,Whole,ofv.no & ACEA,0.0,0.0,0.0,6421.0,4482.0,0.0,10903.0,
 2005-05,monthly,Whole,ofv.no & ACEA,0.0,0.0,0.0,6274.0,4294.0,0.0,10568.0,
@@ -71,8 +71,8 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2010-10,monthly,Whole,ofv.no & ACEA,38.0,0.0,4.0,2406.0,8443.0,0.0,10891.0,
 2010-11,monthly,Whole,ofv.no & ACEA,29.0,0.0,6.0,2596.0,9446.0,0.0,12077.0,
 2010-12,monthly,Whole,ofv.no & ACEA,25.0,0.0,9.0,2110.0,8291.0,3.0,10438.0,
-2011-01,monthly,Whole,ACEA / PZPM,101.0,0.0,78.0,2902.0,7554.0,0.0,10635.0,
-2011-02,monthly,Whole,https://www.pzpm.org.pl/en/Electromobility/eRegistrations,117.0,0.0,53.0,2406.0,8249.0,0.0,10825.0,
+2011-01,monthly,Whole,ofv.no & ACEA,101.0,0.0,78.0,2902.0,7554.0,0.0,10635.0,
+2011-02,monthly,Whole,ofv.no & ACEA,117.0,0.0,53.0,2406.0,8249.0,0.0,10825.0,
 2011-03,monthly,Whole,ofv.no & ACEA,234.0,0.0,176.0,3104.0,9856.0,2.0,13372.0,
 2011-04,monthly,Whole,ofv.no & ACEA,129.0,0.0,156.0,2527.0,9086.0,0.0,11898.0,
 2011-05,monthly,Whole,ofv.no & ACEA,137.0,0.0,143.0,2682.0,10714.0,0.0,13676.0,

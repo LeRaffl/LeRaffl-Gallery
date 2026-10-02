@@ -1,7 +1,7 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2012-01,monthly,Whole,transport.govt.nz & Prof. Ray Willis,2.0,0.0,72.0,13677.0,2398.0,0.0,16149.0,
-2012-02,monthly,Whole,https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/light-motor-vehicle-registrations/,5.0,0.0,113.0,11451.0,2674.0,0.0,14243.0,
-2012-03,monthly,Whole,only Light passenger vehicles and light commercial vehicles,6.0,0.0,221.0,12500.0,3228.0,0.0,15955.0,
+2012-02,monthly,Whole,transport.govt.nz & Prof. Ray Willis,5.0,0.0,113.0,11451.0,2674.0,0.0,14243.0,
+2012-03,monthly,Whole,transport.govt.nz & Prof. Ray Willis,6.0,0.0,221.0,12500.0,3228.0,0.0,15955.0,
 2012-04,monthly,Whole,transport.govt.nz & Prof. Ray Willis,0.0,0.0,217.0,10775.0,2725.0,0.0,13717.0,
 2012-05,monthly,Whole,transport.govt.nz & Prof. Ray Willis,2.0,0.0,181.0,12208.0,3680.0,0.0,16071.0,
 2012-06,monthly,Whole,transport.govt.nz & Prof. Ray Willis,9.0,0.0,114.0,12490.0,4385.0,0.0,16998.0,

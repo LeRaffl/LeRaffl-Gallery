@@ -173,9 +173,7 @@ heal_v1_zero_rows <- function(params_path = "params.csv",
     cat(sprintf("[heal] %s/%s: v1=0 corruption (v2=%.3f) — re-fitting from %s\n",
                 country, variant, cand$v2, csv_path))
     data_per <- data_per_from_df(df)
-    source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
-    if (is.na(source_str)) source_str <- ""
-    upsert_params(params_path, country, variant, fit, data_per, source_str)
+    upsert_params(params_path, country, variant, fit, data_per, source_line(df))
     weight <- compute_weight(df)
     upsert_weights(weights_path, country, variant, weight, data_per)
     cat(sprintf("[heal] %s/%s: restored v1=%.4e v2=%.4f\n",
