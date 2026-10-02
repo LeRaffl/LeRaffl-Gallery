@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-01T16:51:05Z",
- "today": "2026-10-01",
+ "generated": "2026-10-02T10:43:14Z",
+ "today": "2026-10-02",
  "countries": [
   {
    "country": "Albania",
@@ -1986,7 +1986,7 @@
     ],
     "workflow": ".github/workflows/fetch-italy.yml"
    },
-   "last_render": "2026-09-01",
+   "last_render": "2026-10-01",
    "flag": "🇮🇹",
    "variants": [
     {
@@ -3462,11 +3462,11 @@
    "source_url": "https://www.statistikdatabasen.scb.se/pxweb/en/ssd/START__TK__TK1001__TK1001A/PersBilarDrivMedel/",
    "cadence_text": "daily cron, 1st–15th, 05:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3506,14 +3506,14 @@
     ],
     "workflow": ".github/workflows/fetch-sweden.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-02",
    "flag": "🇸🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2006-01",
-     "rows": 248,
+     "rows": 249,
      "cadence": "monthly",
      "in_repo": true
     }

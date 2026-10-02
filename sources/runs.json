@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-01T16:51:05Z",
+ "generated": "2026-10-02T10:43:14Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -4971,11 +4971,43 @@
   },
   {
    "date": "2026-10-01",
+   "label": "Italy",
+   "base": "Italy",
+   "slug": "italy",
+   "period": "2026-09",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Italy (Nonrental)",
+   "base": "Italy",
+   "slug": "italy_nonrental",
+   "period": "2026-09",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-10-01",
+   "label": "Italy (Rental)",
+   "base": "Italy",
+   "slug": "italy_rental",
+   "period": "2026-09",
+   "flag": "🇮🇹"
+  },
+  {
+   "date": "2026-10-01",
    "label": "Portugal",
    "base": "Portugal",
    "slug": "portugal",
    "period": "2026-09",
    "flag": "🇵🇹"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Sweden",
+   "base": "Sweden",
+   "slug": "sweden",
+   "period": "2026-09",
+   "flag": "🇸🇪"
   }
  ]
 }
