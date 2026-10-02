@@ -122,6 +122,46 @@
       "country_slug": "hungary"
     },
     {
+      "country": "India",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "india_ICE_BEV_20261002.png",
+      "url": "images/2026-08/india_ICE_BEV_20261002.png",
+      "alt": "India ICE-BEV-Hybrid trajectory",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "india_20261002.png",
+      "url": "images/2026-08/india_20261002.png",
+      "alt": "India BEV trajectory",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "india_time_20261002.png",
+      "url": "images/2026-08/india_time_20261002.png",
+      "alt": "India Transition time curve",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "india_ttm_shares_20261002.png",
+      "url": "images/2026-08/india_ttm_shares_20261002.png",
+      "alt": "India TTM market split graph",
+      "country_slug": "india"
+    },
+    {
       "country": "Indonesia",
       "type": "ICE_BEV",
       "period": "2026-08",
@@ -202,6 +242,46 @@
       "country_slug": "luxembourg"
     },
     {
+      "country": "Netherlands",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "netherlands_ICE_BEV_20261002.png",
+      "url": "images/2026-08/netherlands_ICE_BEV_20261002.png",
+      "alt": "Netherlands ICE-BEV-Hybrid trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "netherlands_20261002.png",
+      "url": "images/2026-08/netherlands_20261002.png",
+      "alt": "Netherlands BEV trajectory",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "netherlands_time_20261002.png",
+      "url": "images/2026-08/netherlands_time_20261002.png",
+      "alt": "Netherlands Transition time curve",
+      "country_slug": "netherlands"
+    },
+    {
+      "country": "Netherlands",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "netherlands_ttm_shares_20261002.png",
+      "url": "images/2026-08/netherlands_ttm_shares_20261002.png",
+      "alt": "Netherlands TTM market split graph",
+      "country_slug": "netherlands"
+    },
+    {
       "country": "Norway",
       "type": "ICE_BEV",
       "period": "2026-08",
@@ -240,6 +320,106 @@
       "url": "images/2026-08/norway_ttm_shares_20261002.png",
       "alt": "Norway TTM market split graph",
       "country_slug": "norway"
+    },
+    {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_ICE_BEV_20261002.png",
+      "url": "images/2026-08/poland_ICE_BEV_20261002.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_20261002.png",
+      "url": "images/2026-08/poland_20261002.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_time_20261002.png",
+      "url": "images/2026-08/poland_time_20261002.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_ttm_shares_20261002.png",
+      "url": "images/2026-08/poland_ttm_shares_20261002.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_hdv_ICE_BEV_20261002.png",
+      "url": "images/2026-08/poland_hdv_ICE_BEV_20261002.png",
+      "alt": "Poland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_hdv_20261002.png",
+      "url": "images/2026-08/poland_hdv_20261002.png",
+      "alt": "Poland (HDV) BEV trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_hdv_time_20261002.png",
+      "url": "images/2026-08/poland_hdv_time_20261002.png",
+      "alt": "Poland (HDV) Transition time curve",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_vans_ICE_BEV_20261002.png",
+      "url": "images/2026-08/poland_vans_ICE_BEV_20261002.png",
+      "alt": "Poland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_vans"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_vans_20261002.png",
+      "url": "images/2026-08/poland_vans_20261002.png",
+      "alt": "Poland (Vans) BEV trajectory",
+      "country_slug": "poland_vans"
+    },
+    {
+      "country": "Poland (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-02",
+      "filename": "poland_vans_time_20261002.png",
+      "url": "images/2026-08/poland_vans_time_20261002.png",
+      "alt": "Poland (Vans) Transition time curve",
+      "country_slug": "poland_vans"
     },
     {
       "country": "Spain",
