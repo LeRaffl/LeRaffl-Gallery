@@ -281,25 +281,6 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Norway.csv"
 
-  - country: Switzerland
-    slug: switzerland
-    method: pdf
-    source_group: acea
-    summary: "New vehicle registrations for Switzerland, via ACEA (national source: BFS)."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "BFS (Swiss Federal Statistical Office), aggregated by ACEA"
-    variants: [Whole, HDV]
-    variant_notes:
-      Whole: "New passenger-car registrations, via ACEA."
-      HDV: "Heavy commercial vehicles, taken from BFS directly (pxweb.bfs.admin.ch) — a legacy series whose CSV is not in this repo."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Switzerland.csv"
-    caveats:
-      - "The `HDV` variant does not come from ACEA — it is a separate BFS series rendered from the maintainer's local pipeline, and it lags the Whole series."
-
   # ======================================================================
   # National sources — automated fetchers (their own pipeline, no doc yet)
   # ======================================================================
@@ -443,6 +424,8 @@ stubs:
     variant_notes:
       Whole: "New passenger-car registrations (Neuzulassungen) as reported by the KBA."
     cadence: "fetched monthly, once KBA publishes the press release (typically the first week)"
+    fetcher: "scripts/fetch_germany.py"
+    workflow: ".github/workflows/fetch-germany.yml"
     data_file: "data/Germany.csv"
     notes:
       - "The KBA (Kraftfahrt-Bundesamt) is Germany's federal motor-transport authority and the official vehicle register. It publishes monthly new-registration counts (Neuzulassungen) broken down by fuel type. Because it's the registry itself, coverage is complete — every registered car, not an association sample."
@@ -524,6 +507,7 @@ stubs:
     source_url: "https://vahan.parivahan.gov.in/vahan4dashboard/"
     underlying: "VAHAN — Ministry of Road Transport & Highways (national register)"
     cadence: "monthly, entered by hand from yearly VAHAN Excel exports (one file per calendar year)"
+    data_file: "data/India.csv"
     variants: [Whole]
     scope_note: "Whole = EU M1 passenger cars: VAHAN Vehicle Class MOTOR CAR + MOTOR CAB + LUXURY CAB (private cars incl. SUVs, plus passenger-car taxis). Pulled as the Fuel x Month Wise table, all states/RTOs, calendar year. The running month is dropped and the last two completed months are provisional (VAHAN backfills daily). The exact, reproducible pull recipe lives in data/raw/india/README.md."
     hev_note: "All hybrids fold into HEV (STRONG HYBRID EV plus every */HYBRID label). VAHAN has no consistent MHEV label, so the strong/mild split is not distinguished — treat HEV as unverified on that axis. BEV = ELECTRIC(BOV) + PURE EV; PHEV = PLUG-IN HYBRID EV."

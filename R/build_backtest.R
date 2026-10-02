@@ -95,6 +95,11 @@ load_all_series <- function() {
     # carries its own. The country name is the part before the first underscore
     # only for the latter, so derive it from the file, not the variant.
     base <- sub("\\.csv$", "", basename(f))
+    # data/<Country>_legacy.csv is a parked archive (a superseded source),
+    # not a series: its rows carry live variant names (Whole, Vans, …) and
+    # would otherwise collide with the live file's key. Mirrors
+    # ARCHIVE_VARIANTS in scripts/check_country_integration.py.
+    if (grepl("_legacy$", base)) next
     country <- sub("_[^_]+$", "", base)
     if (!grepl("_", base)) country <- base
     for (v in unique(df$variant)) {

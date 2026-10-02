@@ -677,6 +677,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Country | Fetcher | Brand / model fields | Rebuilt |
 |---|---|---|---|
 | Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
+| Switzerland | `fetch_switzerland.py` | ASTRA IVZ `Marke` / type designation (`Typ2`, completed by `Typ3` for the families whose `Typ3` is the model — Model, Seal, Ioniq, RR, AMG, Atto; "MG4" merged with "4"), Whole records — and, as a second file `switzerland_used_top.json` (front-matter `market_breakdown_extra`), the used imports (GEBR); classes BEV / PHEV / HEV as in the CSV (register fuel + hybrid code) | every real run, from the snapshot it read anyway (the running year's complete months) → month store `market/switzerland_months.json`; the previous year comes from the backfill |
 | Malaysia | `fetch_malaysia.py` | data.gov.my `maker` / `model` | when missing or behind the last complete month — from the two yearly parquets the fetch reads anyway |
 | Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 | Hong Kong | `fetch_hong_kong.py` | TD `Vehicle Make` / `Vehicle Model`, Whole records; classes BEV (TD's fuel value) and PHEV/EREV (classified). Display names only: brand aliases merged, brand prefix, chassis codes and trim words stripped so trims rank as one model (`market_designation_note` explains it on the page) | every real run — from the 12 newest monthly files the fetch reads anyway |
@@ -751,7 +752,7 @@ alphabetically so the file is byte-stable (no spurious commits).
   used cars) has its own top file and is listed under
   `market_breakdown_extra: [{path, id, heading, note}]` — one more section
   with its own month picker.
-- Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in `data/`).
+- Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in [`scripts/fixtures/`](../../scripts/fixtures/README.md)).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`
 with the same class logic it uses for the CSV (model `""` for a brand-only

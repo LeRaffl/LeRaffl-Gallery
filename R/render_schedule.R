@@ -7,7 +7,7 @@ suppressPackageStartupMessages({
 FLAG <- c(
   albania="\U0001F1E6\U0001F1F1", argentina="\U0001F1E6\U0001F1F7", austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4",
-  denmark="\U0001F1E9\U0001F1F0", finland="\U0001F1EB\U0001F1EE", france="\U0001F1EB\U0001F1F7",
+  denmark="\U0001F1E9\U0001F1F0", germany="\U0001F1E9\U0001F1EA", finland="\U0001F1EB\U0001F1EE", france="\U0001F1EB\U0001F1F7",
   ireland="\U0001F1EE\U0001F1EA", israel="\U0001F1EE\U0001F1F1",
   `hong-kong`="\U0001F1ED\U0001F1F0",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
@@ -18,18 +18,18 @@ FLAG <- c(
   peru="\U0001F1F5\U0001F1EA",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
   `south-korea`="\U0001F1F0\U0001F1F7",
-  spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", turkey="\U0001F1F9\U0001F1F7", ukraine="\U0001F1FA\U0001F1E6",
+  spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", switzerland="\U0001F1E8\U0001F1ED", turkey="\U0001F1F9\U0001F1F7", ukraine="\U0001F1FA\U0001F1E6",
   uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
 )
 
 LABEL <- c(
   albania="Albania", argentina="Argentina", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
-  colombia="Colombia", denmark="Denmark", finland="Finland", france="France", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
+  colombia="Colombia", denmark="Denmark", finland="Finland", france="France", germany="Germany", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", peru="Peru", poland="Poland",
   portugal="Portugal", singapore="Singapore", `south-korea`="South Korea", spain="Spain", sweden="Sweden",
-  turkey="T\u00fcrkiye", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
+  switzerland="Switzerland", turkey="T\u00fcrkiye", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
   indonesia="Indonesia", thailand="Thailand"
 )
 

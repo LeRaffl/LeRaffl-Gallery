@@ -168,7 +168,7 @@ A country in no group silently never appears in any regional curve.
 
 | Doc | What to add |
 |---|---|
-| `docs/architecture/NN-source-<slug>.md` (next free number) | front-matter (drives the public source page — copy [41](41-source-hong-kong.md): `country`, `slug`, `method`, `summary`, `source_*`, `variants`, `variant_notes`, `hev_split`/`hev_note`, `caveats`, `market_breakdown`, `fetcher`, `workflow`), then TL;DR, why it clears the bar, record→row, mapping, variants, governance, validation, reading the fit, outputs, **operations + a debugging runbook table** and a sequence diagram |
+| `docs/architecture/NN-source-<slug>.md` (next free number) | front-matter (drives the public source page — copy [41](41-source-hong-kong.md): `country`, `slug`, `method`, `summary`, `source_*`, `variants`, `variant_notes`, `hev_split`/`hev_note`, `caveats`, `market_breakdown`, `processing` (the record → variant → column steps shown in the page's flow, [31](31-proposal-country-source-pages.md); copy [46](46-source-switzerland.md)), `fetcher`, `workflow`), then TL;DR, why it clears the bar, record→row, mapping, variants, governance, validation, reading the fit, outputs, **operations + a debugging runbook table** and a sequence diagram |
 | `docs/architecture/README.md` | a row in the doc index |
 | `02-components.md` §2.7 | a row in the fetch-actions table |
 | `03-data-objects.md` | §3.16 row if it writes `market/`; column notes if it adds a new pattern (e.g. EREV writer) |

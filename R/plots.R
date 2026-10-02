@@ -1,7 +1,7 @@
 # Plot constructors for the four country charts.
 # `meta` is expected to be a list with: country, country_label, flag_img,
 # qr_img (optional QR code), entire_caption, social_caption, and
-# reg_word/reg_Word ("new" / "used" — the registration type the extrapolation
+# reg_word/reg_Word ("new" / "used-import" — the registration type the extrapolation
 # plots label; defaults to "new" when absent).
 # `fit` is the result of fit_history().
 # `df` is the full loaded data.
