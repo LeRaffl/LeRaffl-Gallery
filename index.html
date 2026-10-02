@@ -14924,7 +14924,7 @@ document.addEventListener('click', (e) => {
     var title=document.getElementById('galHeroTitle');
     var srcs=[];
     picks.forEach(function(r){
-      var t=(r.source||'').split(/[(\\/&]/)[0].trim().replace(/[,;]$/,'');
+      var t=(r.source||'').split(/[(\\/&·]/)[0].trim().replace(/[,;]$/,'');
       if(t&&srcs.indexOf(t)<0) srcs.push(t);
     });
     if(foot) foot.innerHTML=

@@ -64,7 +64,7 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | `period` | yes | `YYYY-MM` | Month-resolution. Quarterly rows use the middle month (Q1→Feb, Q2→May, Q3→Aug, Q4→Nov). Yearly rows use July (`YYYY-07`). |
 | `time_interval` | yes | `monthly` \| `quarterly` \| `yearly` | Drives the post-text "TTM" computation and the chart x-axis treatment. |
 | `variant` | yes | string | Always `Whole` for top-level country files. Reserved for future per-CSV variants. |
-| `source` | yes | string | URL or short name (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where. |
+| `source` | yes | string | Short name of the source (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where; a bare link is tolerated (a Submit-Data PR may carry one) but never shown as a name. What charts, `params.csv` and `series/` display is derived from this column — see `params.csv` → `source`. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |
 | `PHEV` | optional | numeric | Plug-in hybrid. Absent in Türkiye, Georgia, Ukraine. |
 | `EREV` | optional | numeric | Extended-range EVs (a subset of PHEV in some sources). Written by **China** (retail + wholesale), **Spain** (all eight variants), **Argentina** and **Hong Kong** (both from range-extender designations, e.g. `REEV`). Folds into PHEV in the three-curve view. |
@@ -239,7 +239,7 @@ Germany,Whole,-1.050261627753e-4,2.898020288277,2011,2026-04,2026-05-08,KBA,,-3.
 | `ice_v1, ice_v2, ice_t0` | ICE-curve regression parameters (analogous form) |
 | `data_per` | Latest data period this fit was based on (`YYYY-MM`) |
 | `model_date` | When the fit was last run (`YYYY-MM-DD`) |
-| `source` | Mirror of the raw-data source for display purposes |
+| `source` | The series' source line — chart caption, Builder/Compare export footers, and `series/<slug>.json` (Raw Data, hero) all show the same text: the **newest** row's `source`, plus the first row's label when that names a different source (`ASTRA · earlier: pxweb.bfs.admin.ch / ACEA`). Bare links are skipped; two labels that differ only from ` (` or ` —` on count as one source (`api.statbank.dk (BIL53) — pre-2018 via maintainer sheet` = `api.statbank.dk (BIL53)`). `source_line()` in [`R/data.R`](../../R/data.R), mirrored in [`scripts/build_series.py`](../../scripts/build_series.py). (Until 2026-10 this was the first row's label only, so a change of source never reached the charts.) |
 | `baseline_date` | Reserved (always blank currently) |
 
 ### Owner / lifecycle

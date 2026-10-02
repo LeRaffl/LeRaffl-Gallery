@@ -194,3 +194,24 @@ slug_country <- function(country, variant) {
   if (variant == "Whole") return(base)
   paste0(base, "_", tolower(gsub("[^A-Za-z0-9]+", "_", translit(variant))))
 }
+
+# The "Source:" line of a series — chart caption and params.csv: the source of
+# the newest row, plus the label the series started with when that names a
+# different source ("ASTRA · earlier: pxweb.bfs.admin.ch / ACEA"). The first
+# row's label alone hid every change of source: Switzerland went BFS -> ACEA ->
+# ASTRA and its charts kept saying BFS. Bare links are skipped (a link is not
+# a name), and two labels that differ only from " (" or " —" on name the same
+# source ("api.statbank.dk (BIL53) — pre-2018 via maintainer sheet").
+# Mirrored by source_line() in scripts/build_series.py — keep the two identical.
+source_line <- function(df) {
+  s <- trimws(as.character(df$source))
+  t <- suppressWarnings(period_to_year(as.character(df$period)))
+  keep <- !is.na(s) & nzchar(s) & !grepl("^https?://", s) & !is.na(t)
+  if (!any(keep)) return("")
+  s <- s[keep][order(t[keep])]
+  # useBytes: a label is matched byte-wise, so a non-UTF-8 session locale
+  # cannot turn an em dash into an "invalid input string" error mid-render.
+  name <- function(x) sub("[[:space:]]+(\\(|—).*$", "", x, useBytes = TRUE)
+  current <- s[length(s)]
+  if (name(current) == name(s[1])) current else paste0(current, " \u00b7 earlier: ", s[1])
+}

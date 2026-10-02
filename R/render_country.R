@@ -37,8 +37,13 @@ df_all <- load_country_csv(csv_path)
 df <- df_all[df_all$variant == variant, ]
 if (nrow(df) == 0) stop("no rows for variant '", variant, "' in ", csv_path)
 
-source_str <- df$source[!is.na(df$source) & nzchar(df$source)][1]
-if (is.na(source_str)) source_str <- ""
+source_str <- source_line(df)
+
+# The EV gate below keeps keying on the first row's label, exactly as before
+# source_line() existed — the caption change must not flip any chart's
+# BEV/EV wording.
+first_source <- df$source[!is.na(df$source) & nzchar(df$source)][1]
+if (is.na(first_source)) first_source <- ""
 
 # ACEA's Commercial Vehicle release (Vans/HDV/Buses only — NOT the
 # passenger-car "Whole" release scripts/fetch_acea.py feeds, which splits
@@ -48,7 +53,7 @@ if (is.na(source_str)) source_str <- ""
 # those variants instead of claiming a pure-BEV split this source doesn't
 # have. Both the source and the variant gate matter here: source == "ACEA"
 # alone would also catch the (properly split) passenger-car ACEA countries.
-bev_label_val <- if (identical(trimws(toupper(source_str)), "ACEA") &&
+bev_label_val <- if (identical(trimws(toupper(first_source)), "ACEA") &&
                      variant %in% c("Vans", "HDV", "Buses")) "EV" else "BEV"
 
 # Does this source actually split plug-in hybrids out? Where it does not, the
