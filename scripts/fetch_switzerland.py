@@ -110,6 +110,7 @@ import datetime as dt
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import time
@@ -160,8 +161,8 @@ CSV_COLUMNS = ["period", "time_interval", "variant", "source",
 
 PHEV_CO2_MAX = 60   # g/km; only used when the register has no hybrid code
 
-TOP_PATH = market_top.MARKET_DIR / "switzerland_top.json"
-TOP_SLUG = "switzerland"
+# Top brands / models: one summary per variant that has them (market_top).
+TOP_SLUGS = {"Whole": "switzerland", "Used": "switzerland_used"}
 TOP_UNIT = ("registrations (brand = IVZ Marke; model = IVZ type designation "
             "Typ2, with Typ3 where Typ2 alone is no model name)")
 
@@ -258,16 +259,32 @@ def gebr_period(get) -> str | None:
     return f"{y}-{int(m):02d}" if y.isdigit() and m.isdigit() else None
 
 
+# Type families whose Typ3 is the model itself — Model Y, Seal U, Ioniq 5,
+# RR Evoque, AMG GLC, Atto 2 — where everywhere else Typ3 is trim or power
+# (ENYAQ 85X, X1 xDrive30e, GLC 400, 2 HYBRID). Found by listing every Typ2
+# of the electrified cars with its Typ3 values (2026 register; the rule is
+# also stated in 46-source-switzerland.md, market_designation_note).
+MODEL_FAMILIES = {"MODEL", "RR", "AMG", "IONIQ", "SEAL", "SEALION", "ATTO", "ID."}
+# A Typ3 that names a model: a word ("Evoque", "GLC") or one character
+# ("Y", "5"); engine codes like P550e / D350 never are.
+_MODEL_TOKEN = re.compile(r"[A-Za-z][A-Za-z-]*|[A-Za-z0-9]")
+
+
 def model_name(get) -> str:
-    """Typ2 is the model ("ENYAQ", "EX30", "iX3"); where it is only a number
-    or a generic word ("5", "Model", "ID.") Typ3 completes it."""
+    """Typ2 is the model ("ENYAQ", "EX30", "iX3", Renault "5"); Typ3 completes
+    it only for MODEL_FAMILIES. A model typed with the brand glued on ("MG4"
+    next to "4") is reduced to the part after the brand, so it ranks once."""
     t2 = (get("Typ2") or "").strip()
     t3 = (get("Typ3") or "").strip()
     if not t2:
         return market_top.clean(get("Typ1") or "")
-    if t3 and (t2.isdigit() or t2.lower() == "model" or t2.endswith(".")):
-        return market_top.clean(f"{t2} {t3}")
-    return market_top.clean(t2)
+    family = t2.upper() in MODEL_FAMILIES or t2.endswith(".")
+    model = f"{t2} {t3}" if t3 and family and _MODEL_TOKEN.fullmatch(t3) else t2
+    model = market_top.clean(model)
+    brand = market_top.clean(get("Marke") or "").replace(" ", "")
+    if brand and model.startswith(brand) and model[len(brand):].isdigit():
+        model = model[len(brand):]
+    return model
 
 
 # ── download & parse ───────────────────────────────────────────────────────
@@ -380,13 +397,14 @@ def probe_meta(session: requests.Session, url: str) -> str | None:
 
 class Tally:
     """Counts of one register file: {variant: {period: Counter(fuel)}}, the
-    Whole brand/model tallies for the top list, and the snapshot's dates."""
+    brand/model tallies for the top lists ({variant: {period: Counter}}, the
+    TOP_SLUGS variants only), and the snapshot's dates."""
 
     def __init__(self) -> None:
         self.counts: dict[str, dict[str, collections.Counter]] = \
             collections.defaultdict(lambda: collections.defaultdict(collections.Counter))
-        self.models: dict[str, collections.Counter] = \
-            collections.defaultdict(collections.Counter)
+        self.models: dict[str, dict[str, collections.Counter]] = \
+            collections.defaultdict(lambda: collections.defaultdict(collections.Counter))
         self.datenstand: dt.date | None = None
         self.bis: dt.date | None = None
         self.rows = 0
@@ -425,9 +443,9 @@ def tally_file(path: Path, kind: str, keep_models: bool = False) -> Tally:
                 continue
             fuel = fuel_of(get)
             t.counts[v][p][fuel] += 1
-            if keep_models and v == "Whole":
+            if keep_models and v in TOP_SLUGS:
                 brand = market_top.clean(get("Marke"))
-                t.models[p][(fuel, brand, model_name(get))] += 1
+                t.models[v][p][(fuel, brand, model_name(get))] += 1
     finally:
         fh.close()
     return t
@@ -654,16 +672,20 @@ def acea_check(months_back: int = 3) -> int:
 # ── top brands / models ────────────────────────────────────────────────────
 
 def refresh_top(monthly_tallies: list[Tally]) -> None:
-    fresh: dict[str, tuple[dict, int]] = {}
-    for t in monthly_tallies:
-        upto = t.complete_to
-        for p, units in t.models.items():
-            if upto and p > upto:
-                continue   # the running month is incomplete
-            fresh[p] = (dict(units), sum(units.values()))
-    if not fresh:
-        return
-    market_top.refresh_from_store("Switzerland", SOURCE, TOP_UNIT, TOP_SLUG, fresh)
+    """Merge the complete months of these tallies into each variant's month
+    store and rebuild its top summary (market_top.refresh_from_store)."""
+    for variant, slug in TOP_SLUGS.items():
+        fresh: dict[str, tuple[dict, int]] = {}
+        # oldest snapshot first, so a month two files share comes from the newest
+        for t in sorted(monthly_tallies, key=lambda t: t.complete_to or ""):
+            upto = t.complete_to
+            for p, units in t.models.get(variant, {}).items():
+                if upto and p > upto:
+                    continue   # the running month is incomplete
+                fresh[p] = (dict(units), sum(units.values()))
+        if fresh:
+            market_top.refresh_from_store("Switzerland", SOURCE, TOP_UNIT, slug,
+                                          fresh, variant)
 
 
 # ── main ───────────────────────────────────────────────────────────────────
@@ -707,7 +729,7 @@ def run_monthly(session, variants: list[str], force: bool) -> set[str]:
         print(f"{kind}: downloading {url} …")
         path = download(session, url)
         try:
-            t = tally_file(path, kind, keep_models=(kind == "NEUZU"))
+            t = tally_file(path, kind, keep_models=True)
         finally:
             path.unlink(missing_ok=True)
         upto = t.complete_to
@@ -715,8 +737,7 @@ def run_monthly(session, variants: list[str], force: bool) -> set[str]:
         if upto is None:
             print(f"::warning::{kind}: snapshot has no data date — skipped")
             continue
-        if kind == "NEUZU":
-            tallies.append(t)
+        tallies.append(t)
         for v in todo:
             have = csv_rows(REPO / VARIANT_CSV[v])
             months = flow_months(t, v, have, upto)
@@ -751,15 +772,14 @@ def run_backfill(session, variants: list[str], first: int | None,
         # (in January the current file still holds the previous year).
         path = download(session, cur_url)
         try:
-            cur = tally_file(path, kind, keep_models=(kind == "NEUZU"))
+            cur = tally_file(path, kind, keep_models=True)
         finally:
             path.unlink(missing_ok=True)
         upto = cur.complete_to or f"{this_year - 1}-12"
         cur_year = int(upto[:4])
         jobs = [(y, None) for y in range(max(first or start, start), cur_year)]
         jobs.append((cur_year, cur))
-        if kind == "NEUZU":
-            tallies.append(cur)
+        tallies.append(cur)
         for year, t in jobs:
             if t is None:
                 url = year_url.format(year=year)
@@ -770,11 +790,10 @@ def run_backfill(session, variants: list[str], first: int | None,
                     print(f"  {url} not found — skipped")
                     continue
                 try:
-                    t = tally_file(path, kind, keep_models=(kind == "NEUZU"
-                                                             and year == cur_year - 1))
+                    t = tally_file(path, kind, keep_models=(year == cur_year - 1))
                 finally:
                     path.unlink(missing_ok=True)
-                if kind == "NEUZU" and year == cur_year - 1:
+                if year == cur_year - 1:
                     tallies.append(t)
             periods = months_of_year(year, upto)
             for v in todo:

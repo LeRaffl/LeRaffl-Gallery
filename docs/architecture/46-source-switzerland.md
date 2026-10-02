@@ -50,40 +50,126 @@ processing:
   - ASTRA restates the whole running year in one file on every refresh, one row per vehicle (about 270,000 rows by September). The fetcher first reads only the first 16 KB — the header and one row — to see which month the snapshot is complete to; only when a CSV lacks that month does it download the file (about 90 MB of new registrations, about 15 MB of used imports).
 - title: Pick the vehicles
   text:
-  - Each record carries its EU vehicle class and the register's vehicle kind; together they decide the variant. Switzerland and Liechtenstein are one register and are counted together, as ACEA does. Vehicles taken off the road since still count in the month they were registered new.
-  rules_head: [Register record, Variant]
-  rules:
-  - ["Vehicle kind Personenwagen (EU class M1) — campers and other M1 \"light motor vehicles\" are not cars and stay out", Whole]
-  - ["EU class N1 and vehicle kind Lieferwagen", Vans]
-  - ["EU class N2 or N3 and vehicle kind Lastwagen or Sattelschlepper (lorries, tractor units)", HDV]
-  - ["EU class M2 or M3 with a gross weight over 3.5 t", Buses]
-  - ["EU class L1 (moped) or L3 (motorcycle)", 2-Wheelers]
-  - ["Used-import file (first registered abroad) and vehicle kind Personenwagen", Used]
-  - ["Anything else — trailers, tractors, work machines, quads, trikes, minibuses up to 3.5 t", in no variant]
+  - Every record carries the EU vehicle class and the register's vehicle kind (Fahrzeugart); together they decide the variant. Switzerland and Liechtenstein are one register and are counted together, as ACEA does. Vehicles taken off the road since still count in the month they were registered new.
+  decision:
+    ask: Which register file is the record in?
+    branches:
+    - when: New registrations (NEUZU)
+      then:
+        ask: EU vehicle class?
+        branches:
+        - when: M1 (or blank on a few old records)
+          then:
+            ask: Vehicle kind Personenwagen?
+            branches:
+            - when: "yes"
+              then: Whole
+            - when: no — camper, special vehicle ("light/heavy motor vehicle")
+              then: in no variant
+        - when: N1
+          then:
+            ask: Vehicle kind Lieferwagen (van)?
+            branches:
+            - when: "yes"
+              then: Vans
+            - when: no — work machine, small tractor unit
+              then: in no variant
+        - when: N2 or N3
+          then:
+            ask: Lorry or tractor unit (Lastwagen, Sattelschlepper)?
+            branches:
+            - when: "yes"
+              then: HDV
+            - when: no — work machine on a truck chassis
+              then: in no variant
+        - when: M2 or M3
+          then:
+            ask: Gross weight over 3.5 t?
+            branches:
+            - when: "yes"
+              then: Buses
+            - when: no — minibus
+              then: in no variant
+        - when: L1 (moped) or L3 (motorcycle)
+          then: 2-Wheelers
+        - when: anything else — trikes, quads, trailers, tractors, …
+          then: in no variant
+    - when: Used imports (GEBR — first registered abroad)
+      then:
+        ask: Vehicle kind Personenwagen?
+        branches:
+        - when: "yes"
+          then: Used
+          note: dated by the month of the first Swiss registration, not the first one abroad
+        - when: "no"
+          then: in no variant
 - title: Powertrain
   text:
-  - The register states the fuel and, for hybrids, whether the battery can be charged from the grid. The rules below are tested from top to bottom and the first match decides. Only vehicles approved under the older national type approval have no hybrid code (roughly a third of the hybrids in 2026); for them a recorded electric consumption or a CO2 value of at most 60 g/km marks a plug-in.
-  rules_head: [Register fuel and hybrid code, Column]
-  rules:
-  - ["Fuel E — electric", BEV]
-  - ["Fuel R — electric with range extender", PHEV]
-  - ["Fuel petrol/diesel + electric, hybrid code OVC-HEV (chargeable from outside)", PHEV]
-  - ["Fuel petrol/diesel + electric, hybrid code NOVC-HEV (not chargeable — full and mild hybrids)", HEV]
-  - ["Fuel petrol/diesel + electric, no hybrid code, electric consumption recorded", PHEV]
-  - ["Fuel petrol/diesel + electric, no hybrid code, CO2 at most 60 g/km", PHEV]
-  - ["Fuel petrol/diesel + electric, no hybrid code, otherwise", HEV]
-  - ["Fuel B — petrol", PETROL]
-  - ["Fuel D — diesel", DIESEL]
-  - ["Anything else (hydrogen, petrol/gas bi-fuel, …)", OTHERS]
+  - The register states the fuel and, for hybrids, whether the battery can be charged from the grid. Only vehicles approved under the older national type approval carry no hybrid code (roughly a third of the hybrids in 2026); for them the electric consumption or the CO2 value decides.
+  decision:
+    ask: Register fuel code?
+    branches:
+    - when: E — electric
+      then: BEV
+    - when: R — electric with range extender
+      then: PHEV
+      note: range extenders count as plug-ins, as at ACEA (no separate EREV column)
+    - when: C or F — petrol or diesel + electric
+      then:
+        ask: Hybrid code?
+        branches:
+        - when: OVC-HEV — chargeable from the grid
+          then: PHEV
+        - when: NOVC-HEV — not chargeable (full and mild hybrids)
+          then: HEV
+        - when: none — older national type approval
+          then:
+            ask: Electric consumption recorded?
+            branches:
+            - when: "yes"
+              then: PHEV
+            - when: "no"
+              then:
+                ask: CO2 at most 60 g/km?
+                branches:
+                - when: "yes"
+                  then: PHEV
+                - when: no (or not recorded)
+                  then: HEV
+    - when: B — petrol
+      then: PETROL
+    - when: D — diesel
+      then: DIESEL
+    - when: anything else — hydrogen, petrol/gas bi-fuel, …
+      then: OTHERS
 - title: Month
   text:
-  - A month is written once, from the first snapshot after it ends — the way ACEA counts it. A car keyed into the register after its month closed (typically after a quarter-end push) is added to the next month written, so year totals agree with ACEA and no written month is ever revised. Closed years (the history back to 2016) are counted by registration month from ASTRA's year files.
+  - ACEA's Swiss month is the year-to-date total at a cut-off shortly after month end, minus the previous month's. The fetcher writes a month the same way, so the two agree.
+  decision:
+    ask: Is the month already in the CSV?
+    branches:
+    - when: "yes"
+      then: left as it is — a written month is never revised
+    - when: "no"
+      then:
+        ask: Which run writes it?
+        branches:
+        - when: the monthly run, from the first snapshot after the month ends
+          then: the month's registrations + late registrations of the year's earlier months
+          note: late = keyed into the register after their month was written (e.g. after a quarter-end push); only months that came from ASTRA count, and January starts fresh
+        - when: the backfill of a closed year (ASTRA's year file)
+          then: the month's registrations, by registration date
 - title: Check against ACEA
   text:
-  - ACEA is the reference. When ACEA publishes the month (third to fourth week), the newest months are compared with ACEA's Swiss figure; a gap above 1 % in the total, or 3 % in one fuel, raises a warning. Over 2025-01 to 2026-08 (19 releases, 366,000 cars) the register reproduces ACEA to −0.02 % in total and +0.1 % in BEV.
+  - ACEA is the reference. When ACEA publishes the month (third to fourth week), the newest months are compared with ACEA's Swiss figure; a gap above 1 % in the total, or 3 % in one fuel with at least 200 cars, raises a warning. Over 2025-01 to 2026-08 (19 releases, 366,000 cars) the register reproduces ACEA to −0.02 % in total and +0.1 % in BEV.
 market_breakdown: market/switzerland_top.json
-market_designation_note: the model is the register's type designation (Typ2, completed by Typ3 where Typ2 alone is a number or "Model"), upper-cased — e.g. ENYAQ, MODEL Y, 5 E-TECH.
-market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV (register fuel + hybrid code); HEV includes mild hybrids.
+market_designation_note: the model is the register's type designation Typ2 (ENYAQ, EX30, GLC — trims and power codes in Typ3 such as 85X or xDrive30e are dropped, so the versions of one model rank together). For the families whose Typ3 is the model itself it is Typ2 + Typ3 — MODEL Y, SEAL U, IONIQ 5, RR EVOQUE, AMG GLC, ATTO 2. A model typed with the brand glued on is merged with the plain one (MG "MG4" and "4" both rank as 4). Upper-cased.
+market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV (register fuel + hybrid code); HEV includes mild hybrids. Counted by registration month from ASTRA's snapshot, so a month can differ from the chart's row by the few late registrations the chart moves into the next month.
+market_breakdown_extra:
+- path: market/switzerland_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Used imports (the Used variant): passenger cars first registered abroad, counted in the month they entered the Swiss register (ASTRA's GEBR file). Many are near-new: in 2026, 43 % had been registered abroad for less than a year. The BYD Seal U plug-in — about a third of the imported used plug-ins in the year to September 2026 — came almost always within a year of its first registration, mostly from Germany and Italy."
 fetcher: scripts/fetch_switzerland.py
 workflow: .github/workflows/fetch-switzerland.yml
 fragility_doc: docs/architecture/46-source-switzerland.md
@@ -271,7 +357,8 @@ January–April 2025 is 435 below ACEA's (with it: −36).
 | `data/Switzerland.csv` | Whole |
 | `data/Switzerland_Vans.csv`, `_HDV.csv`, `_Buses.csv`, `_2-Wheelers.csv`, `_Used.csv` | the variants |
 | `market/switzerland_top.json` | top BEV/PHEV/HEV brands and models, trailing 12 months + per month (Whole) |
-| `market/switzerland_months.json` | the month store behind it (electrified brand/model counts per month) |
+| `market/switzerland_used_top.json` | the same for the used imports (Used, GEBR) — a second section on the source page |
+| `market/switzerland_months.json`, `market/switzerland_used_months.json` | the month stores behind them (electrified brand/model counts per month; refreshed from every snapshot the fetcher reads) |
 
 ## 9. Operations and debugging
 

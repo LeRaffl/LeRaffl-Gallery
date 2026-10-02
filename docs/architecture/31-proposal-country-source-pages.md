@@ -87,15 +87,30 @@
     `rules_head: [left, right]` for the column titles and an optional `note`.
     An outcome that is a powertrain class (BEV, PHEV, EREV, HEV, MHEV, ICE) or
     a combustion column (PETROL, DIESEL, OTHERS, …) renders as the coloured
-    badge. Typical steps: download, pick the vehicles (record → variant), the
+    badge.
+  - **Decision trees** (`decision:` on a step) are the process-model view of
+    the same logic — "if x then PHEV; if not x but y then …" — drawn like a
+    BPMN/ADONIS gateway chart: a question (`ask`), its answers (`branches`,
+    each with `when`), and per answer either a result (`then:` a class badge,
+    a variant name such as `Whole`/`Vans`/`Used`, `in no variant`, or a short
+    sentence) or the next question (`then:` another `{ask, branches}`), plus an
+    optional `note` under the branch. Nesting is unlimited and the tree stays
+    readable at phone width. Prefer a tree over `rules` whenever the logic
+    branches (fuel → hybrid code → fallback); keep `rules` for flat
+    first-match lists. `build_decision()` in the generator.
+    The rule of thumb for what belongs in a tree: **every decision a parser or
+    classifier makes about a record or a figure** — which records count for
+    which variant, how a powertrain is decided, which month a figure lands
+    in, what happens to a missing or revised value. Typical steps: download, pick the vehicles (record → variant), the
     powertrain rules (record → column), month attribution, the cross-check.
     First user: Switzerland ([46](46-source-switzerland.md)); the steps change
     with the source, so they live with the source's front-matter.
   - A **Render** node for every country with a store: the shared downstream
     part — shares as column ÷ TOTAL, grouped into BEV / PHEV (incl. EREV) /
     ICE (incl. HEV, MHEV, petrol, diesel, other), the no-PHEV-split rule, the
-    generalized Weibull fit, and what gets rewritten (`RENDER_STEP` in the
-    generator). Keep it in step with `R/render_country.R` / `R/plots.R`.
+    generalized Weibull fit, and what gets rewritten (`RENDER_STEP` and the
+    column → curve tree `RENDER_TREE` in the generator). Keep both in step
+    with `R/render_country.R` / `R/plots.R`.
 
 - **Missing data is stated, not hidden.** A declared variant with no CSV in
   the repo (Latvia `Used`, all four of India) renders as

@@ -249,10 +249,23 @@ def test_acea_deltas():
 def test_model_name():
     cases = [
         (dict(Typ1="Model Y", Typ2="Model", Typ3="Y"), "MODEL Y"),
-        (dict(Typ1="ENYAQ 85X", Typ2="ENYAQ", Typ3="85X"), "ENYAQ"),
-        (dict(Typ1="5 E-TECH ELECTRIC", Typ2="5", Typ3="E-TECH"), "5 E-TECH"),
+        (dict(Typ1="ENYAQ 85X", Typ2="ENYAQ", Typ3="85X"), "ENYAQ"),           # trim
+        (dict(Typ1="X1 xDrive30e", Typ2="X1", Typ3="xDrive30e"), "X1"),
+        (dict(Typ1="GLC 400 4MATIC", Typ2="GLC", Typ3="400"), "GLC"),
+        (dict(Typ1="5 E-TECH ELECTRIC", Typ2="5", Typ3="E-TECH"), "5"),         # RENAULT 5
+        (dict(Typ1="2 HYBRID", Typ2="2", Typ3="HYBRID"), "2"),                  # MAZDA 2
+        (dict(Typ1="208 MHEV", Typ2="208", Typ3="MHEV"), "208"),                # a model number
+        (dict(Marke="MG", Typ1="MG4 Electric", Typ2="MG4", Typ3="Electric"), "4"),  # = MG "4 EV"
+        (dict(Marke="MG", Typ1="4 EV", Typ2="4", Typ3="EV"), "4"),
+        (dict(Marke="MG", Typ1="ZS Hybrid", Typ2="ZS", Typ3="Hybrid"), "ZS"),
         (dict(Typ1="EX30", Typ2="EX30", Typ3=""), "EX30"),
         (dict(Typ1="ID.3 Pro", Typ2="ID.", Typ3="3"), "ID. 3"),
+        (dict(Typ1="SEAL U DM-i", Typ2="SEAL", Typ3="U"), "SEAL U"),            # families
+        (dict(Typ1="SEAL 6 DM-i", Typ2="SEAL", Typ3="6"), "SEAL 6"),
+        (dict(Typ1="Ioniq 5", Typ2="Ioniq", Typ3="5"), "IONIQ 5"),
+        (dict(Typ1="RR Evoque PHEV", Typ2="RR", Typ3="Evoque"), "RR EVOQUE"),
+        (dict(Typ1="RR P550e PHEV", Typ2="RR", Typ3="P550e"), "RR"),            # engine code
+        (dict(Typ1="AMG GLC 63", Typ2="AMG", Typ3="GLC"), "AMG GLC"),
         (dict(Typ1="Clio", Typ2="", Typ3=""), "CLIO"),
     ]
     # market_top.clean() upper-cases, so one model typed two ways counts once
@@ -286,8 +299,33 @@ def test_tally_file_end_to_end():
     assert t.month("Vans", "2026-09")["DIESEL"] == 1
     assert t.month("Buses", "2026-09")["BEV"] == 1
     assert t.month("2-Wheelers", "2026-09")["PETROL"] == 1
-    assert t.models["2026-09"][("BEV", "TESLA", "MODEL Y")] == 1
-    assert t.models["2026-09"][("PHEV", "BYD", "SEAL")] == 1
+    assert t.models["Whole"]["2026-09"][("BEV", "TESLA", "MODEL Y")] == 1
+    assert t.models["Whole"]["2026-09"][("PHEV", "BYD", "SEAL U")] == 1
+    assert "Vans" not in t.models                       # top lists: Whole and Used only
+
+
+def test_tally_used_imports():
+    header = ["Fahrzeugklasse", "Fahrzeugart", "Marke", "Typ1", "Typ2", "Typ3",
+              "Treibstoff_Code", "Hybridcode", "Erstinverkehrsetzung_Jahr",
+              "Erstinverkehrsetzung_Monat", "Ersterfassung_Jahr", "Ersterfassung_Monat",
+              "Datenstand"]
+    rows = [
+        ["M1", "Personenwagen", "TESLA", "Model 3", "Model", "3", "E", "", "2022", "05", "2026", "09"],
+        ["", "Personenwagen", "BMW", "330e", "330e", "", "B", "OVC-HEV", "2023", "01", "2026", "08"],
+        ["N1", "Lieferwagen", "VW", "Transporter", "Transporter", "", "D", "", "2020", "02", "2026", "09"],
+    ]
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "GEBR.txt"
+        p.write_text("\n".join(["\t".join(header)]
+                               + ["\t".join(r + ["01.10.2026"]) for r in rows]) + "\n",
+                     encoding="utf-8")
+        t = fs.tally_file(p, "GEBR", keep_models=True)
+    assert t.complete_to == "2026-09"
+    # dated by the first SWISS registration (Ersterfassung), not the one abroad
+    assert t.month("Used", "2026-09")["BEV"] == 1 and t.month("Used", "2026-09")["TOTAL"] == 1
+    assert t.month("Used", "2026-08")["PETROL"] == 1     # fuel B wins; hybrid code only for C/F
+    assert t.models["Used"]["2026-09"][("BEV", "TESLA", "MODEL 3")] == 1
+    assert "2022-05" not in t.counts["Used"]
 
 
 def test_selected_variants():

@@ -111,9 +111,9 @@
     },
     {
      "brand": "RENAULT",
-     "model": "5 E-TECH",
-     "units": 1445,
-     "share_of_class": 0.023
+     "model": "5",
+     "units": 1450,
+     "share_of_class": 0.0231
     },
     {
      "brand": "BMW",
@@ -134,12 +134,6 @@
      "share_of_class": 0.0182
     },
     {
-     "brand": "HYUNDAI",
-     "model": "IONIQ",
-     "units": 957,
-     "share_of_class": 0.0152
-    },
-    {
      "brand": "MERCEDES-BENZ",
      "model": "CLA",
      "units": 856,
@@ -156,6 +150,12 @@
      "model": "BZ4X",
      "units": 842,
      "share_of_class": 0.0134
+    },
+    {
+     "brand": "BYD",
+     "model": "SEALION 7",
+     "units": 827,
+     "share_of_class": 0.0132
     }
    ]
   },
@@ -216,16 +216,16 @@
    ],
    "models": [
     {
-     "brand": "BYD",
-     "model": "SEAL",
-     "units": 2249,
-     "share_of_class": 0.0777
-    },
-    {
      "brand": "VOLVO",
      "model": "XC60",
      "units": 1904,
      "share_of_class": 0.0658
+    },
+    {
+     "brand": "BYD",
+     "model": "SEAL U",
+     "units": 1767,
+     "share_of_class": 0.0611
     },
     {
      "brand": "MERCEDES-BENZ",
@@ -244,12 +244,6 @@
      "model": "X3",
      "units": 1025,
      "share_of_class": 0.0354
-    },
-    {
-     "brand": "LAND ROVER",
-     "model": "RR",
-     "units": 933,
-     "share_of_class": 0.0322
     },
     {
      "brand": "AUDI",
@@ -304,6 +298,12 @@
      "model": "Q3",
      "units": 624,
      "share_of_class": 0.0216
+    },
+    {
+     "brand": "VW",
+     "model": "MULTIVAN",
+     "units": 602,
+     "share_of_class": 0.0208
     }
    ]
   },
@@ -424,12 +424,6 @@
      "share_of_class": 0.0201
     },
     {
-     "brand": "MERCEDES-BENZ",
-     "model": "AMG",
-     "units": 1639,
-     "share_of_class": 0.0196
-    },
-    {
      "brand": "MG",
      "model": "ZS",
      "units": 1491,
@@ -452,6 +446,12 @@
      "model": "C3",
      "units": 1404,
      "share_of_class": 0.0168
+    },
+    {
+     "brand": "PEUGEOT",
+     "model": "208",
+     "units": 1319,
+     "share_of_class": 0.0158
     }
    ]
   }
@@ -561,21 +561,21 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 162,
        "share_of_class": 0.021
-      },
-      {
-       "brand": "BYD",
-       "model": "ATTO",
-       "units": 147,
-       "share_of_class": 0.019
       },
       {
        "brand": "RENAULT",
        "model": "TWINGO",
        "units": 147,
        "share_of_class": 0.019
+      },
+      {
+       "brand": "BMW",
+       "model": "IX1",
+       "units": 139,
+       "share_of_class": 0.018
       }
      ]
     },
@@ -637,9 +637,9 @@
      "models": [
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 285,
-       "share_of_class": 0.1214
+       "model": "SEAL U",
+       "units": 244,
+       "share_of_class": 0.104
       },
       {
        "brand": "VOLVO",
@@ -660,12 +660,6 @@
        "share_of_class": 0.0418
       },
       {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 95,
-       "share_of_class": 0.0405
-      },
-      {
        "brand": "VOLVO",
        "model": "XC90",
        "units": 81,
@@ -679,7 +673,7 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "ATTO 2",
        "units": 71,
        "share_of_class": 0.0303
       },
@@ -694,6 +688,12 @@
        "model": "X1",
        "units": 67,
        "share_of_class": 0.0285
+      },
+      {
+       "brand": "BMW",
+       "model": "X3",
+       "units": 66,
+       "share_of_class": 0.0281
       }
      ]
     },
@@ -778,10 +778,10 @@
        "share_of_class": 0.0254
       },
       {
-       "brand": "MERCEDES-BENZ",
-       "model": "AMG",
-       "units": 171,
-       "share_of_class": 0.0242
+       "brand": "PEUGEOT",
+       "model": "208",
+       "units": 179,
+       "share_of_class": 0.0253
       },
       {
        "brand": "MERCEDES-BENZ",
@@ -933,9 +933,9 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
-       "units": 100,
-       "share_of_class": 0.0206
+       "model": "5",
+       "units": 102,
+       "share_of_class": 0.021
       }
      ]
     },
@@ -997,9 +997,9 @@
      "models": [
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 224,
-       "share_of_class": 0.115
+       "model": "SEAL U",
+       "units": 174,
+       "share_of_class": 0.0894
       },
       {
        "brand": "VOLVO",
@@ -1012,12 +1012,6 @@
        "model": "GLC",
        "units": 91,
        "share_of_class": 0.0467
-      },
-      {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 87,
-       "share_of_class": 0.0447
       },
       {
        "brand": "TOYOTA",
@@ -1045,7 +1039,7 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "ATTO 2",
        "units": 59,
        "share_of_class": 0.0303
       },
@@ -1054,6 +1048,12 @@
        "model": "TRANSIT",
        "units": 56,
        "share_of_class": 0.0288
+      },
+      {
+       "brand": "VOLVO",
+       "model": "XC90",
+       "units": 51,
+       "share_of_class": 0.0262
       }
      ]
     },
@@ -1357,9 +1357,9 @@
      "models": [
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 287,
-       "share_of_class": 0.1102
+       "model": "SEAL U",
+       "units": 227,
+       "share_of_class": 0.0872
       },
       {
        "brand": "VOLVO",
@@ -1381,7 +1381,7 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "ATTO 2",
        "units": 83,
        "share_of_class": 0.0319
       },
@@ -1623,7 +1623,7 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 153,
        "share_of_class": 0.0225
       },
@@ -1716,16 +1716,16 @@
      ],
      "models": [
       {
-       "brand": "BYD",
-       "model": "SEAL",
-       "units": 341,
-       "share_of_class": 0.1004
-      },
-      {
        "brand": "VOLVO",
        "model": "XC60",
        "units": 288,
        "share_of_class": 0.0848
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL U",
+       "units": 192,
+       "share_of_class": 0.0565
       },
       {
        "brand": "MERCEDES-BENZ",
@@ -1735,9 +1735,15 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "ATTO 2",
        "units": 153,
        "share_of_class": 0.045
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL 6",
+       "units": 149,
+       "share_of_class": 0.0439
       },
       {
        "brand": "VOLVO",
@@ -1768,12 +1774,6 @@
        "model": "X3",
        "units": 95,
        "share_of_class": 0.028
-      },
-      {
-       "brand": "AUDI",
-       "model": "RS",
-       "units": 93,
-       "share_of_class": 0.0274
       }
      ]
     },
@@ -2077,9 +2077,9 @@
      "models": [
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 205,
-       "share_of_class": 0.0889
+       "model": "SEAL U",
+       "units": 186,
+       "share_of_class": 0.0807
       },
       {
        "brand": "VOLVO",
@@ -2125,15 +2125,15 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "ATTO 2",
        "units": 74,
        "share_of_class": 0.0321
       },
       {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 66,
-       "share_of_class": 0.0286
+       "brand": "VW",
+       "model": "MULTIVAN",
+       "units": 65,
+       "share_of_class": 0.0282
       }
      ]
     },
@@ -2237,9 +2237,9 @@
       },
       {
        "brand": "PEUGEOT",
-       "model": "208 MHEV",
-       "units": 148,
-       "share_of_class": 0.0217
+       "model": "208",
+       "units": 149,
+       "share_of_class": 0.0218
       },
       {
        "brand": "OPEL",
@@ -2361,9 +2361,9 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
-       "units": 117,
-       "share_of_class": 0.0251
+       "model": "5",
+       "units": 118,
+       "share_of_class": 0.0253
       },
       {
        "brand": "AUDI",
@@ -2436,12 +2436,6 @@
      ],
      "models": [
       {
-       "brand": "BYD",
-       "model": "SEAL",
-       "units": 223,
-       "share_of_class": 0.0977
-      },
-      {
        "brand": "VOLVO",
        "model": "XC60",
        "units": 134,
@@ -2449,7 +2443,13 @@
       },
       {
        "brand": "BYD",
-       "model": "ATTO",
+       "model": "SEAL U",
+       "units": 130,
+       "share_of_class": 0.057
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
        "units": 107,
        "share_of_class": 0.0469
       },
@@ -2466,16 +2466,16 @@
        "share_of_class": 0.0434
       },
       {
+       "brand": "BYD",
+       "model": "SEAL 6",
+       "units": 93,
+       "share_of_class": 0.0408
+      },
+      {
        "brand": "AUDI",
        "model": "Q3",
        "units": 88,
        "share_of_class": 0.0386
-      },
-      {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 81,
-       "share_of_class": 0.0355
       },
       {
        "brand": "BMW",
@@ -2596,6 +2596,12 @@
        "share_of_class": 0.0211
       },
       {
+       "brand": "PORSCHE",
+       "model": "911",
+       "units": 139,
+       "share_of_class": 0.0211
+      },
+      {
        "brand": "MERCEDES-BENZ",
        "model": "A",
        "units": 136,
@@ -2606,12 +2612,6 @@
        "model": "X1",
        "units": 132,
        "share_of_class": 0.02
-      },
-      {
-       "brand": "SUZUKI",
-       "model": "SWIFT",
-       "units": 129,
-       "share_of_class": 0.0195
       }
      ]
     }
@@ -2727,7 +2727,7 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 135,
        "share_of_class": 0.025
       },
@@ -2797,9 +2797,9 @@
      "models": [
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 292,
-       "share_of_class": 0.1011
+       "model": "SEAL U",
+       "units": 268,
+       "share_of_class": 0.0928
       },
       {
        "brand": "VOLVO",
@@ -2818,12 +2818,6 @@
        "model": "GLC",
        "units": 128,
        "share_of_class": 0.0443
-      },
-      {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 121,
-       "share_of_class": 0.0419
       },
       {
        "brand": "BMW",
@@ -2854,6 +2848,12 @@
        "model": "X5",
        "units": 88,
        "share_of_class": 0.0305
+      },
+      {
+       "brand": "VW",
+       "model": "CALIFORNIA",
+       "units": 67,
+       "share_of_class": 0.0232
       }
      ]
     },
@@ -3081,7 +3081,7 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 75,
        "share_of_class": 0.0243
       },
@@ -3163,19 +3163,13 @@
       },
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 118,
-       "share_of_class": 0.064
+       "model": "SEAL U",
+       "units": 99,
+       "share_of_class": 0.0537
       },
       {
        "brand": "BMW",
        "model": "X1",
-       "units": 82,
-       "share_of_class": 0.0445
-      },
-      {
-       "brand": "LAND ROVER",
-       "model": "RR",
        "units": 82,
        "share_of_class": 0.0445
       },
@@ -3214,6 +3208,12 @@
        "model": "KODIAQ",
        "units": 54,
        "share_of_class": 0.0293
+      },
+      {
+       "brand": "BMW",
+       "model": "X5",
+       "units": 48,
+       "share_of_class": 0.026
       }
      ]
     },
@@ -3305,13 +3305,13 @@
       },
       {
        "brand": "PEUGEOT",
-       "model": "2008 MHEV",
+       "model": "2008",
        "units": 156,
        "share_of_class": 0.026
       },
       {
        "brand": "PEUGEOT",
-       "model": "208 MHEV",
+       "model": "208",
        "units": 156,
        "share_of_class": 0.026
       },
@@ -3528,28 +3528,22 @@
        "share_of_class": 0.0568
       },
       {
-       "brand": "LAND ROVER",
-       "model": "RR",
-       "units": 94,
-       "share_of_class": 0.0545
-      },
-      {
        "brand": "BMW",
        "model": "X1",
        "units": 92,
        "share_of_class": 0.0534
       },
       {
-       "brand": "BYD",
-       "model": "SEAL",
-       "units": 70,
-       "share_of_class": 0.0406
-      },
-      {
        "brand": "MERCEDES-BENZ",
        "model": "GLC",
        "units": 69,
        "share_of_class": 0.04
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL U",
+       "units": 60,
+       "share_of_class": 0.0348
       },
       {
        "brand": "AUDI",
@@ -3574,6 +3568,12 @@
        "model": "XC90",
        "units": 54,
        "share_of_class": 0.0313
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RR EVOQUE",
+       "units": 50,
+       "share_of_class": 0.029
       }
      ]
     },
@@ -4030,12 +4030,6 @@
        "share_of_class": 0.026
       },
       {
-       "brand": "MERCEDES-BENZ",
-       "model": "AMG",
-       "units": 206,
-       "share_of_class": 0.0258
-      },
-      {
        "brand": "DACIA",
        "model": "DUSTER",
        "units": 193,
@@ -4052,6 +4046,12 @@
        "model": "GLA",
        "units": 158,
        "share_of_class": 0.0198
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "SWIFT",
+       "units": 153,
+       "share_of_class": 0.0191
       }
      ]
     }
@@ -4137,7 +4137,7 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 165,
        "share_of_class": 0.0346
       },
@@ -4146,12 +4146,6 @@
        "model": "TAVASCAN",
        "units": 163,
        "share_of_class": 0.0341
-      },
-      {
-       "brand": "HYUNDAI",
-       "model": "IONIQ",
-       "units": 149,
-       "share_of_class": 0.0312
       },
       {
        "brand": "AUDI",
@@ -4170,6 +4164,12 @@
        "model": "ID.3",
        "units": 129,
        "share_of_class": 0.027
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "IONIQ 5",
+       "units": 127,
+       "share_of_class": 0.0266
       },
       {
        "brand": "BMW",
@@ -4291,9 +4291,9 @@
       },
       {
        "brand": "BYD",
-       "model": "SEAL",
-       "units": 66,
-       "share_of_class": 0.0292
+       "model": "SEAL U",
+       "units": 62,
+       "share_of_class": 0.0274
       }
      ]
     },
@@ -4384,12 +4384,6 @@
        "share_of_class": 0.0271
       },
       {
-       "brand": "MERCEDES-BENZ",
-       "model": "AMG",
-       "units": 182,
-       "share_of_class": 0.0271
-      },
-      {
        "brand": "HYUNDAI",
        "model": "TUCSON",
        "units": 165,
@@ -4412,6 +4406,12 @@
        "model": "C3",
        "units": 133,
        "share_of_class": 0.0198
+      },
+      {
+       "brand": "BMW",
+       "model": "X1",
+       "units": 128,
+       "share_of_class": 0.019
       }
      ]
     }
@@ -4497,7 +4497,7 @@
       },
       {
        "brand": "RENAULT",
-       "model": "5 E-TECH",
+       "model": "5",
        "units": 160,
        "share_of_class": 0.0379
       },
@@ -4651,7 +4651,7 @@
       },
       {
        "brand": "BYD",
-       "model": "SEAL",
+       "model": "SEAL U",
        "units": 65,
        "share_of_class": 0.0274
       }
@@ -4756,12 +4756,6 @@
        "share_of_class": 0.0249
       },
       {
-       "brand": "MERCEDES-BENZ",
-       "model": "AMG",
-       "units": 159,
-       "share_of_class": 0.0247
-      },
-      {
        "brand": "SUZUKI",
        "model": "SWIFT",
        "units": 159,
@@ -4772,6 +4766,12 @@
        "model": "X3",
        "units": 149,
        "share_of_class": 0.0232
+      },
+      {
+       "brand": "VOLVO",
+       "model": "XC40",
+       "units": 146,
+       "share_of_class": 0.0227
       }
      ]
     }

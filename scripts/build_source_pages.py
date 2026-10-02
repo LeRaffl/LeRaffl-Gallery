@@ -322,15 +322,29 @@ def gh_link(path: str) -> str:
 # the CSV (render-country.yml → R/render_country.R, R/fit.R, R/bands.R).
 RENDER_STEP = (
     "Each new or changed month re-renders the country. Shares are read from the "
-    "CSV as <em>column ÷ TOTAL</em> and grouped into three curves: "
-    "<strong>BEV</strong>; <strong>PHEV</strong> (range-extenders included); and "
-    "<strong>ICE</strong>, which also takes full and mild hybrids (HEV, MHEV), "
-    "petrol, diesel and everything else, because none of them can drive on grid "
-    "electricity. Where a source has no PHEV/HEV split, its combined hybrid figure "
-    "counts as ICE and the PHEV curve is left out rather than drawn at zero. A "
-    "generalized Weibull S-curve is fitted to the BEV and the ICE share, and the "
-    "charts, the fitted parameters, the twelve-month totals and the uncertainty "
-    "bands are rewritten.")
+    "CSV as <em>column ÷ TOTAL</em> and grouped into three curves. A generalized "
+    "Weibull S-curve is fitted to the BEV and the ICE share, and the charts, the "
+    "fitted parameters, the twelve-month totals and the uncertainty bands are "
+    "rewritten.")
+
+# The column → curve mapping of R/plots.R / R/render_country.R, as a decision
+# tree (same renderer as a country's `decision:` steps).
+RENDER_TREE = {
+    "ask": "Which curve does a CSV column count towards?",
+    "branches": [
+        {"when": "BEV", "then": "BEV"},
+        {"when": "PHEV or EREV (plug-in hybrids, range extenders)", "then": {
+            "ask": "Does the source split plug-ins from other hybrids?",
+            "branches": [
+                {"when": "yes", "then": "PHEV"},
+                {"when": "no — one combined hybrid figure (parked in HEV)",
+                 "then": "ICE", "note": "the PHEV curve is left out, never drawn at zero"},
+            ]}},
+        {"when": "HEV or MHEV (full and mild hybrids — no plug)", "then": "ICE"},
+        {"when": "petrol, diesel, gas, flex-fuel, others", "then": "ICE"},
+    ],
+}
+
 
 # Outcomes of a processing rule that are fuel columns, not powertrain classes:
 # rendered as an ICE badge carrying the column name.
@@ -344,6 +358,58 @@ def processing_outcome(value) -> str:
     if v.upper() in ICE_COLUMNS:
         return f'<span class="cls cls--ice">{esc(v.upper())}</span>'
     return esc(v)
+
+
+# Leaves of a decision tree that name a variant (pill) or "no variant".
+VARIANT_LEAVES = {"Whole", "Private", "Industry", "Used", "Resale", "Vans", "HDV",
+                  "Buses", "2-Wheelers", "3-Wheelers", "4-Wheelers", "Pickups",
+                  "Rental", "NonRental", "Wholesale"}
+NO_VARIANT = {"in no variant", "no variant", "not counted", "dropped"}
+
+
+def decision_leaf(value) -> str:
+    v = str(value if value is not None else "").strip()
+    if v.upper() in CLASS_ORDER or v.upper() in ICE_COLUMNS:
+        return processing_outcome(v)
+    if v in VARIANT_LEAVES:
+        return f'<span class="dt-var">{esc(v)}</span>'
+    if v.lower() in NO_VARIANT:
+        return f'<span class="dt-none">{esc(v)}</span>'
+    return f'<span class="dt-res">{esc(v)}</span>'
+
+
+def build_decision(node: dict) -> str:
+    """An if/then tree in the style of a process model (BPMN/ADONIS): a
+    gateway asks one question, each branch is labelled with its answer and
+    ends in a result (a class badge, a variant, a sentence) or in the next
+    question. Front-matter `decision:` on a `processing:` step:
+
+        ask: Register fuel code?
+        branches:
+        - when: E — electric
+          then: BEV
+        - when: C / F — petrol or diesel + electric
+          then:
+            ask: Hybrid code?
+            branches: [...]
+          note: optional small print under the branch
+    """
+    if not isinstance(node, dict):
+        return decision_leaf(node)
+    items = []
+    for b in node.get("branches") or []:
+        if not isinstance(b, dict):
+            continue
+        then = b.get("then")
+        note = (f'<div class="dt-note">{esc(b["note"])}</div>' if b.get("note") else "")
+        when = f'<span class="dt-when">{esc(b.get("when", ""))}</span>'
+        if isinstance(then, dict):
+            items.append(f'<li>{when}{note}{build_decision(then)}</li>')
+        else:
+            items.append(f'<li><div class="dt-leaf">{when}<span class="dt-arrow" '
+                         f'aria-hidden="true">→</span>{decision_leaf(then)}</div>{note}</li>')
+    return (f'<div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true">'
+            f'</span>{esc(node.get("ask", ""))}</div><ul class="dt-br">{"".join(items)}</ul></div>')
 
 
 def build_processing_step(step: dict) -> str:
@@ -363,6 +429,8 @@ def build_processing_step(step: dict) -> str:
         head = step.get("rules_head") or ["When", "Then"]
         parts.append('<div class="scroll"><table class="steps"><tr><th>#</th>'
                      f'<th>{esc(head[0])}</th><th>{esc(head[1])}</th></tr>{rows}</table></div>')
+    if isinstance(step.get("decision"), dict):
+        parts.append(build_decision(step["decision"]))
     note = step.get("note")
     if note:
         parts.append(f'<p class="dim">{esc(note)}</p>')
@@ -391,7 +459,8 @@ def build_flow(fm: dict) -> str:
         *[(str(s.get("title", "")), build_processing_step(s))
           for s in (fm.get("processing") or []) if isinstance(s, dict)],
         ("Store", gh_link(fm["data_file"]) if fm.get("data_file") else ""),
-        ("Render", RENDER_STEP if fm.get("data_file") else ""),
+        ("Render", f"<p>{RENDER_STEP}</p>{build_decision(RENDER_TREE)}"
+                   if fm.get("data_file") else ""),
         ("Gallery", '<a href="../">BEV Trajectories gallery</a>'),
     ]
     stages = [(t, s) for t, s in stages if s]
@@ -965,7 +1034,8 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str) -> st
                 + ')')
     lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · {span} '
             f'({esc(win.get("from", ""))} → {esc(win.get("to", ""))}){gaps} · '
-            f'{_num(total)} new registrations in total. '
+            f'{_num(total)} {"used-import" if top.get("variant") == "Used" else "new"} '
+            'registrations in total. '
             'Units are registrations; '
             + esc(fm.get("market_designation_note")
                   or ('the source publishes brands only, no models.' if brand_only else
@@ -1358,6 +1428,26 @@ table.steps th,table.steps td{text-align:left;vertical-align:top;padding:5px 8px
   border-bottom:1px solid var(--border);font-size:13px}
 table.steps th{color:var(--muted);font-weight:600}
 table.steps td.num{width:22px;color:var(--muted)}
+/* Decision trees (build_decision): gateway question, labelled branches. */
+.dt{margin:8px 0 4px}
+.dt-q{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;
+  border:1px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--chip-bg)}
+.dt-gw{width:10px;height:10px;flex:none;border:2px solid var(--accent);transform:rotate(45deg)}
+.dt-br{list-style:none;margin:2px 0 0 12px;padding:0}
+.dt-br>li{position:relative;padding:5px 0 3px 22px}
+.dt-br>li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--border)}
+.dt-br>li:last-child::before{bottom:auto;height:17px}
+.dt-br>li::after{content:"";position:absolute;left:0;top:17px;width:16px;border-top:2px solid var(--border)}
+.dt-leaf{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.dt-when{font-size:13px;color:var(--text)}
+.dt-arrow{color:var(--muted)}
+.dt-note{font-size:12px;color:var(--muted);margin-top:1px}
+.dt-var{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--accent);color:var(--accent)}
+.dt-none{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;
+  border:1.5px dashed var(--border);color:var(--muted)}
+.dt-res{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12.5px;
+  background:var(--chip-bg);color:var(--text)}
 .flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
 table.defs{width:100%;border-collapse:collapse}
 table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
