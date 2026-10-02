@@ -1,0 +1,10 @@
+🇨🇭 Switzerland (2-Wheelers) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++0.5pp  BEV     (5.0% → 5.5%)
+−0.0pp  Hybrid  (0.0% → 0.0%)
+−0.5pp  ICE     (95.0% → 94.5%)
+
+Hybrid peaked at 0.1% in 2025-03 (declining for 18 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

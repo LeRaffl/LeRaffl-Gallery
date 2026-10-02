@@ -1,0 +1,11 @@
+🇨🇭 Switzerland (Buses) - September 26 - BEV Trajectory
+60.7% BEV
+7.1% Hybrid
+32.1% ICE
+
+Trailing 12 months are:
+48.2% BEV
+14.8% Hybrid
+37.0% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,0 +1,11 @@
+🇨🇭 Switzerland (Used) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.0pp  BEV   (7.7% → 9.7%)
++3.8pp  PHEV  (3.8% → 7.6%)
++1.1pp  HEV   (25.1% → 26.2%)
+−6.9pp  ICE   (63.3% → 56.5%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2031-09.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

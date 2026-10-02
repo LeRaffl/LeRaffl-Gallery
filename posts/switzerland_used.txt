@@ -1,0 +1,11 @@
+🇨🇭 Switzerland (Used) - September 26 - BEV Trajectory
+13.0% BEV
+7.2% PHEV
+79.8% ICE (of which 24.7%p were HEV)
+
+Trailing 12 months are:
+9.7% BEV
+7.6% PHEV
+82.7% ICE (of which 26.2%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

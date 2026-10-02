@@ -1,11 +1,11 @@
-🇨🇭 Switzerland (HDV) - September 26 - BEV Trajectory
-30.6% BEV
+🇨🇭 Switzerland (2-Wheelers) - September 26 - BEV Trajectory
+5.7% BEV
 0.0% PHEV
-69.4% ICE
+94.3% ICE
 
 Trailing 12 months are:
-28.0% BEV
-0.0% PHEV
-72.0% ICE
+5.5% BEV
+0.0% Hybrid
+94.5% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
