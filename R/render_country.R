@@ -173,8 +173,8 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 # NB: these locals must NOT be named reg_word/reg_Word — plots.R defines
 # accessor functions of exactly those names in the same global environment,
 # and a character binding here shadows them ("could not find function").
-reg_word_lc <- if (variant == "Used") "used" else "new"
-reg_word_uc <- if (variant == "Used") "Used" else "New"
+reg_word_lc <- if (variant == "Used") "used-import" else "new"
+reg_word_uc <- if (variant == "Used") "Used-import" else "New"
 
 meta <- list(
   country = country, country_label = country_label,

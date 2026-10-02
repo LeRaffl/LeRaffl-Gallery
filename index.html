@@ -7233,7 +7233,7 @@ function displayLabelFromBase(base){
   const raw = String(base || '').trim();
   const map = {
     whole: 'New Cars',
-    used: 'Used Cars',
+    used: 'Used Imports',
     'used imports': 'Used Cars (imported)',
     private: 'New Cars (Private)',
     industry: 'New Cars (Industry)',
@@ -7253,7 +7253,7 @@ function displayLabelFromBase(base){
 function displayVariantLabel(v){
   const map = {
     "Whole": "New Cars",
-    "Used": "Used Cars",
+    "Used": "Used Imports",
     "Used Imports": "Used Cars (imported)",
     "Private": "New Cars (Private)",
     "Industry": "New Cars (Industry)",
@@ -8246,7 +8246,7 @@ renderTable();
   // with no suffix.
   const VARIANT_SHORT={
     whole:'', private:'Private', industry:'Industry', hdv:'HDV', vans:'Vans',
-    used:'Used','used imports':'Used (imports)','4-wheelers':'4-Wheelers'
+    used:'Used imports','used imports':'Used (imports)','4-wheelers':'4-Wheelers'
   };
   // Fill style per variant. "solid" uses the region color flat; everything
   // else routes through an SVG <pattern> built from the same color so the
