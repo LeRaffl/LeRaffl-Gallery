@@ -38,6 +38,97 @@ caveats:
 - AAP reports these first registrations as new-vehicle sales. Used imports are legal only up to two model years old, so a small near-new remainder may be included; the data has no new/used flag.
 - The newest month in BI-AAP is a preliminary cut (August 2026 stopped at the 22nd, powertrain not yet classified). A month is written only once AAP has classified it and its printed monthly report confirms the month's total, so Peru usually runs one to two months behind.
 - AAP re-classifies the powertrain split of earlier months after the fact (up to about 25 plug-ins a month moved between PHEV, BEV and HEV, as far back as 2024); month totals do not change. Every update re-reads the whole history, so earlier rows can change slightly.
+processing:
+- title: Download
+  text:
+  - The fetcher queries the public BI-AAP report directly, one month at a time, grouped by vehicle group, class, body, powertrain, brand and model. Each month's detailed rows must add up to a separate total query of the same month, or the run stops. Every new reload of the report re-reads the whole history from 2019.
+- title: Pick the vehicles
+  text:
+  - AAP sorts every first registration into a vehicle group and a class; the class Camionetas mixes people carriers and vans, so there the body type decides.
+  decision:
+    ask: AAP vehicle group?
+    branches:
+    - when: Livianos — light vehicles
+      then:
+        ask: Class (Clase)?
+        branches:
+        - when: Automóvil, Station Wagon, SUV / Todoterreno
+          then: Whole
+        - when: Pick up y Furgonetas — pickups, chassis-cabs, dropside and box vans
+          then: Vans
+        - when: Camionetas
+          then:
+            ask: Body (Carrocería)?
+            branches:
+            - when: Multipropósito (MPV)
+              then: Whole
+            - when: Panel (panel van)
+              then: Vans
+            - when: Microbús (minibus, EU M2), ambulance, hearse, motorhome
+              then: in no variant
+            - when: any other body
+              then: in no variant
+              note: listed in the run summary; above 1 % of the month's light vehicles the run stops
+        - when: any other class
+          then: in no variant
+          note: listed in the run summary; above 1 % of the month's light vehicles the run stops
+    - when: Pesados (trucks, tractors, buses), Menores (motorcycles, three-wheelers) or any other group
+      then: in no variant
+- title: Powertrain
+  text:
+  - The powertrain is AAP's own class (Elect) — the registry's fuel value, harmonised by AAP across SUNARP's coding change of 2025 and with the plug-ins split out of the old HIBRIDO code. The fetcher only maps it to columns.
+  decision:
+    ask: AAP powertrain class?
+    branches:
+    - when: BEV
+      then: BEV
+    - when: PHEV
+      then: PHEV
+    - when: HEV
+      then: HEV
+      note: full and mild hybrids — the registry coded them together until 2024, so mild hybrids stay in HEV for a consistent series
+    - when: Gasolina
+      then: PETROL
+    - when: Diesel
+      then: DIESEL
+    - when: GNV, BI-GNV, DUAL GNV (natural gas)
+      then: CNG
+    - when: GLP, BI-GLP, DUAL GLP
+      then: LPG
+    - when: GNL, BI-GNL, DUAL GNL (liquefied gas) or "-" (not stated)
+      then: OTHERS
+    - when: empty — AAP has not classified the vehicle yet
+      then: the month is not written (see below)
+    - when: any other value
+      then: OTHERS
+      note: above 2 % of a month's Whole the run stops
+- title: Month
+  text:
+  - AAP reloads the report on no fixed day, and the newest month of each reload is a preliminary cut. A month goes into the CSV only once it is provably complete; months already written are rewritten on every reload, because AAP re-classifies the powertrain split of earlier months.
+  decision:
+    ask: Is the month before the month of AAP's last reload?
+    branches:
+    - when: "no"
+      then: not written yet
+    - when: "yes"
+      then:
+        ask: Has AAP classified every light vehicle of the month?
+        branches:
+        - when: "no"
+          then: not written yet
+        - when: "yes"
+          then:
+            ask: Does AAP's printed monthly report list the month?
+            branches:
+            - when: yes, with the same total of new light and heavy vehicles
+              then: written
+              note: a month not in the CSV yet that falls below 40 % of the trailing twelve-month median is still held back
+            - when: yes, but the totals differ by more than 2 vehicles and 0.5 %
+              then: the run stops, nothing is written
+            - when: not yet
+              then: held back until the report has it
+            - when: the report could not be read this run
+              then: only months already in the CSV are rewritten
 market_breakdown: market/peru_top.json
 market_designation_note: a "designation" is SUNARP's model string with the brand prefix removed; a few Chinese imports are registered under a type-approval code (e.g. LZW7007EVD2MBMA) rather than a commercial name and rank under that code.
 market_powertrain_note: BEV / PHEV / HEV are AAP's classes; HEV is split into HEV (full) and MHEV (mild) where the registry codes it, which covers the whole trailing year.
