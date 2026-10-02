@@ -282,6 +282,46 @@
       "country_slug": "switzerland_vans"
     },
     {
+      "country": "UK",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "uk_ICE_BEV_20261002.png",
+      "url": "images/2026-09/uk_ICE_BEV_20261002.png",
+      "alt": "UK ICE-BEV-Hybrid trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "uk_20261002.png",
+      "url": "images/2026-09/uk_20261002.png",
+      "alt": "UK BEV trajectory",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "uk_time_20261002.png",
+      "url": "images/2026-09/uk_time_20261002.png",
+      "alt": "UK Transition time curve",
+      "country_slug": "uk"
+    },
+    {
+      "country": "UK",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "uk_ttm_shares_20261002.png",
+      "url": "images/2026-09/uk_ttm_shares_20261002.png",
+      "alt": "UK TTM market split graph",
+      "country_slug": "uk"
+    },
+    {
       "country": "Ireland",
       "type": "ICE_BEV",
       "period": "2026-09",
