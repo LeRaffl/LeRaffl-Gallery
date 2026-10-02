@@ -1,7 +1,7 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2011-01,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,24528.0,
-2011-02,quarterly,Whole,https://www.pzpm.org.pl/en/Electromobility/eRegistrations,3.583333333,0.0,0.0,,,,23458.0,
-2011-03,quarterly,Whole,https://www.pzpm.org.pl/en/Automotive-market/FIRST-REGISTRATIONS-PZPM-CEP/Passenger-Cars-Light-Commercial-Vehicles/Year-2026/Registrations-of-PC-and-LCV-in-March-2026,3.583333333,0.0,0.0,,,,28396.0,
+2011-02,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,23458.0,
+2011-03,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,28396.0,
 2011-04,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,24350.0,
 2011-05,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,24422.0,
 2011-06,quarterly,Whole,ACEA / PZPM,3.583333333,0.0,0.0,,,,26138.0,

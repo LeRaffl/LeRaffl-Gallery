@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2010-01,monthly,Whole,ACEA / lustat.statec.lu,0.0,0.0,27.0,747.0,2757.0,5.0,3536.0,
-2010-02,monthly,Whole,https://lustat.statec.lu/vis?lc=en&pg=0&fs[0]=Topics%2C1%7CEnterprises%23D%23%7CTransport%23D6%23&fc=Motor%20Energy&df[ds]=ds-release&df[id]=DF_D6122&df[ag]=LU1&df[vs]=1.1&pd=2024-10%2C&dq=.M...........&ly[rw]=MOTOR_ENERGY&ly[cl]=TIME_PERIOD&ly[rs]=VEHICLE_TYPE&vw=tb,0.0,0.0,21.0,1000.0,3056.0,4.0,4081.0,
+2010-02,monthly,Whole,ACEA / lustat.statec.lu,0.0,0.0,21.0,1000.0,3056.0,4.0,4081.0,
 2010-03,monthly,Whole,ACEA / lustat.statec.lu,0.0,0.0,29.0,1515.0,4262.0,0.0,5806.0,
 2010-04,monthly,Whole,ACEA / lustat.statec.lu,0.0,0.0,18.0,1590.0,4333.0,0.0,5941.0,
 2010-05,monthly,Whole,ACEA / lustat.statec.lu,0.0,0.0,13.0,1420.0,3724.0,1.0,5158.0,

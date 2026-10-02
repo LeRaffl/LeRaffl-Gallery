@@ -1,7 +1,7 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,OTHERS,ICE,TOTAL,notes
 2011-01,monthly,Whole,ANL,103.0,321.0,19540.0,0.0,799974.0,819938.0,
-2011-02,monthly,Whole,https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data,83.0,281.0,23306.0,0.0,969865.0,993535.0,
-2011-03,monthly,Whole,https://dbedt.hawaii.gov/economic/energy-trends-2/,298.0,608.0,34533.0,0.0,1211229.0,1246668.0,
+2011-02,monthly,Whole,ANL,83.0,281.0,23306.0,0.0,969865.0,993535.0,
+2011-03,monthly,Whole,ANL,298.0,608.0,34533.0,0.0,1211229.0,1246668.0,
 2011-04,monthly,Whole,ANL,573.0,493.0,25602.0,0.0,1131260.0,1157928.0,
 2011-05,monthly,Whole,ANL,1150.0,481.0,17419.0,0.0,1042791.0,1061841.0,
 2011-06,monthly,Whole,ANL,1708.0,561.0,12655.0,0.0,1038490.0,1053414.0,

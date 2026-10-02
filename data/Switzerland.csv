@@ -1,6 +1,6 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2010-01,monthly,Whole,pxweb.bfs.admin.ch / ACEA,10.0,2.0,307.0,12561.0,6295.0,106.0,19281.0,
-2010-02,monthly,Whole,https://www.pxweb.bfs.admin.ch/pxweb/de/px-x-1103020200_101/px-x-1103020200_101/px-x-1103020200_101.px/table/tableViewLayout1/,7.0,1.0,245.0,12645.0,5923.0,78.0,18899.0,
+2010-02,monthly,Whole,pxweb.bfs.admin.ch / ACEA,7.0,1.0,245.0,12645.0,5923.0,78.0,18899.0,
 2010-03,monthly,Whole,pxweb.bfs.admin.ch / ACEA,10.0,1.0,354.0,20136.0,8160.0,149.0,28810.0,
 2010-04,monthly,Whole,pxweb.bfs.admin.ch / ACEA,6.0,3.0,308.0,18581.0,7087.0,70.0,26055.0,
 2010-05,monthly,Whole,pxweb.bfs.admin.ch / ACEA,5.0,2.0,446.0,17554.0,7008.0,97.0,25112.0,
