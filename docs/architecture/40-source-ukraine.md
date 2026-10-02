@@ -39,6 +39,72 @@ caveats:
 - Registrations, not sales. The carmakers' association Ukrautoprom (dealer sales) reports ~3–5 % more new cars; BEV counts agree within ~1 % (see the developer doc).
 - EV imports were VAT-exempt until 31 Dec 2025. December 2025 shows a pull-forward spike and 2026 a sharp drop in both new and used BEV registrations — a policy step, not noise.
 - Used is a different population from new registrations (used imports, dominated by customs policy); read it next to Whole, not as part of it.
+processing:
+- title: Download
+  text:
+  - The register comes as one zip per year with one CSV inside, one record per registration operation. The current year is re-uploaded about monthly, cut at the previous month's end; a month is written only once the file covers it to within three days of its end.
+- title: Pick the vehicles
+  text:
+  - Every record carries the MIA's operation code, which says what happened — a first registration of a new vehicle, of a used import, a change of owner, a deregistration. Only first registrations count. Codes 105 and 100 split new from used dealer sales only from 2018-08, so the series starts 2018-09.
+  decision:
+    ask: Operation code?
+    branches:
+    - when: first registration of a new vehicle — 105 / 99 (from a dealer, imported / made in Ukraine), 72 (imported by the owner), 180 / 184 / 185 (by a business), 74 / 75 / 102 (humanitarian or experimental)
+      then:
+        ask: Vehicle kind?
+        branches:
+        - when: ЛЕГКОВИЙ — passenger car
+          then:
+            ask: Owner type?
+            branches:
+            - when: P — natural person
+              then: Whole + Private
+            - when: J — legal person
+              then: Whole + Industry
+            - when: blank (or any other value)
+              then: Whole
+              note: counted and listed in the run summary
+        - when: ВАНТАЖНИЙ — goods vehicle
+          then:
+            ask: Gross weight at most 3,500 kg?
+            branches:
+            - when: "yes"
+              then: Vans
+            - when: no (or no weight recorded)
+              then: in no variant
+        - when: anything else — bus, motorcycle, trailer, …
+          then: in no variant
+    - when: first Ukrainian registration of a used vehicle — 100 (from a dealer, imported), 70 / 71 (imported by the owner), 76 / 77 (humanitarian), 172 (the 2018 import wave)
+      then:
+        ask: Vehicle kind ЛЕГКОВИЙ (passenger car)?
+        branches:
+        - when: "yes"
+          then: Used
+        - when: "no"
+          then: in no variant
+    - when: anything else — change of owner, re-registration, deregistration, …
+      then: in no variant
+      note: an unknown code whose name reads like a first registration is listed in the run summary (not counted), so a new code the MIA introduces is noticed
+- title: Powertrain
+  text:
+  - The register states the fuel itself; nothing is classified from model names. It has one value for every kind of petrol- or diesel-electric hybrid, so plug-ins cannot be told apart from full or mild hybrids.
+  decision:
+    ask: Register fuel?
+    branches:
+    - when: ЕЛЕКТРО — electric
+      then: BEV
+    - when: electric or petrol, electric or diesel, petrol / gas or electric, gas and electric
+      then: HEV
+      note: the register's single hybrid value (plug-in + full + mild), shown as "Hybrid" and counted as ICE — there is no PHEV curve
+    - when: БЕНЗИН — petrol
+      then: PETROL
+    - when: ДИЗЕЛЬНЕ ПАЛИВО — diesel
+      then: DIESEL
+    - when: petrol or gas, gas, diesel or gas, hydrogen, "not determined", "absent", blank
+      then: OTHERS
+    - when: any other value
+      then: OTHERS
+      note: above 2 % of a month's Whole the run stops
 market_breakdown: market/ukraine_top.json
 market_class_names:
   HEV: Hybrid
