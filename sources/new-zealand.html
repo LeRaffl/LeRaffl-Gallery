@@ -36,6 +36,32 @@ h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);paddi
   padding:10px 14px}
 .flow-title{font-weight:700;font-size:13px;color:var(--accent)}
 .flow-sub{font-size:14px;color:var(--text)}
+.flow-sub p{margin:4px 0}
+table.steps{width:100%;border-collapse:collapse;margin:6px 0 2px}
+table.steps th,table.steps td{text-align:left;vertical-align:top;padding:5px 8px;
+  border-bottom:1px solid var(--border);font-size:13px}
+table.steps th{color:var(--muted);font-weight:600}
+table.steps td.num{width:22px;color:var(--muted)}
+/* Decision trees (build_decision): gateway question, labelled branches. */
+.dt{margin:8px 0 4px}
+.dt-q{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;
+  border:1px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--chip-bg)}
+.dt-gw{width:10px;height:10px;flex:none;border:2px solid var(--accent);transform:rotate(45deg)}
+.dt-br{list-style:none;margin:2px 0 0 12px;padding:0}
+.dt-br>li{position:relative;padding:5px 0 3px 22px}
+.dt-br>li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--border)}
+.dt-br>li:last-child::before{bottom:auto;height:17px}
+.dt-br>li::after{content:"";position:absolute;left:0;top:17px;width:16px;border-top:2px solid var(--border)}
+.dt-leaf{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.dt-when{font-size:13px;color:var(--text)}
+.dt-arrow{color:var(--muted)}
+.dt-note{font-size:12px;color:var(--muted);margin-top:1px}
+.dt-var{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--accent);color:var(--accent)}
+.dt-none{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;
+  border:1.5px dashed var(--border);color:var(--muted)}
+.dt-res{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12.5px;
+  background:var(--chip-bg);color:var(--text)}
 .flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
 table.defs{width:100%;border-collapse:collapse}
 table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
@@ -168,7 +194,7 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
   <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/">transport.govt.nz — fleet statistics ↗</a></p><ul class="srclist"><li><a href="https://catalogue.data.govt.nz/dataset/vehicle-fleet-statistics">data.govt.nz vehicle fleet statistics dataset</a> <span class="dim">— the EV/hybrid fallback resource</span></li></ul>
 
   <h2>How the data flows</h2>
-  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">NZ Ministry of Transport / Waka Kotahi</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/">transport.govt.nz — fleet statistics</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_new_zealand.py"><code>scripts/fetch_new_zealand.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-new-zealand.yml"><code>.github/workflows/fetch-new-zealand.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/New Zealand.csv"><code>data/New Zealand.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">NZ Ministry of Transport / Waka Kotahi</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/">transport.govt.nz — fleet statistics</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_new_zealand.py"><code>scripts/fetch_new_zealand.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-new-zealand.yml"><code>.github/workflows/fetch-new-zealand.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/New Zealand.csv"><code>data/New Zealand.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Render</div><div class="flow-sub"><p>Each new or changed month re-renders the country. Shares are read from the CSV as <em>column ÷ TOTAL</em> and grouped into three curves. A generalized Weibull S-curve is fitted to the BEV and the ICE share, and the charts, the fitted parameters, the twelve-month totals and the uncertainty bands are rewritten.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Which curve does a CSV column count towards?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">BEV</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--bev">BEV</span></div></li><li><span class="dt-when">PHEV or EREV (plug-in hybrids, range extenders)</span><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Does the source split plug-ins from other hybrids?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--phev">PHEV</span></div></li><li><div class="dt-leaf"><span class="dt-when">no — one combined hybrid figure (parked in HEV)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div><div class="dt-note">the PHEV curve is left out, never drawn at zero</div></li></ul></div></li><li><div class="dt-leaf"><span class="dt-when">HEV or MHEV (full and mild hybrids — no plug)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div></li><li><div class="dt-leaf"><span class="dt-when">petrol, diesel, gas, flex-fuel, others</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
 
   <h2>Definitions &amp; scope</h2>
   <table class="defs"><tr><th>Acquisition</th><td>Manual — entered by hand from the published source</td></tr><tr><th>Vehicle scope</th><td>All new light registrations (GVM &lt; 3,500 kg) — passenger cars and light commercials combined.</td></tr><tr><th>HEV (full hybrids)</th><td>split into its own column</td></tr><tr><th>Auth</th><td>none</td></tr></table>

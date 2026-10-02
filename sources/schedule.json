@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T10:43:14Z",
+ "generated": "2026-10-02T14:01:27Z",
  "today": "2026-10-02",
  "countries": [
   {
@@ -1346,12 +1346,40 @@
    "cadence_text": "fetched monthly, once KBA publishes the press release (typically the first week)",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": null,
-   "behind": null,
+   "expected_period": "2026-08",
+   "behind": 0,
    "behind_now": 1,
-   "status": "manual",
-   "automated": false,
-   "schedule": null,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "06:00"
+    ],
+    "workflow": ".github/workflows/fetch-germany.yml"
+   },
    "last_render": "2026-09-15",
    "flag": "🇩🇪",
    "variants": [
@@ -1669,11 +1697,11 @@
    "source_url": "https://vahan.parivahan.gov.in/vahan4dashboard/",
    "cadence_text": "monthly, entered by hand from yearly VAHAN Excel exports (one file per calendar year)",
    "interval": "monthly",
-   "latest_period": null,
+   "latest_period": "2026-08",
    "expected_period": null,
    "behind": null,
-   "behind_now": null,
-   "status": "unknown",
+   "behind_now": 1,
+   "status": "manual",
    "automated": false,
    "schedule": null,
    "last_render": "2026-09-11",
@@ -1681,11 +1709,11 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
+     "latest": "2026-08",
+     "first": "2017-07",
+     "rows": 83,
+     "cadence": "monthly",
+     "in_repo": true
     }
    ]
   },
@@ -3522,36 +3550,26 @@
   {
    "country": "Switzerland",
    "slug": "switzerland",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "ASTRA — IVZ vehicle register, open data (Neuzulassungen / Gebrauchtimporte)",
+   "source_url": "https://www.astra.admin.ch/de/fahrzeugdaten",
+   "cadence_text": "twice daily on the 1st–6th — ASTRA posts the new snapshot on the 1st; a month is written once, from the first snapshot after it ends",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
     "days": [
-     16,
-     17,
-     18,
-     19,
-     20,
-     21,
-     22,
-     23,
-     24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     1,
+     2,
+     3,
+     4,
+     5,
+     6
     ],
     "months": [
      1,
@@ -3568,27 +3586,60 @@
      12
     ],
     "times": [
-     "08:40"
+     "09:20",
+     "15:20"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-switzerland.yml"
    },
    "last_render": "2026-09-23",
    "flag": "🇨🇭",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-05",
-     "first": "2021-07",
-     "rows": 20,
-     "cadence": "quarterly",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "2-Wheelers",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-09",
+     "first": "2017-01",
+     "rows": 93,
+     "cadence": "monthly",
      "in_repo": true
     }
    ]
