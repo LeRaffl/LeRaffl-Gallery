@@ -41,6 +41,94 @@ caveats:
 - Raw DGT registry microdata (fixed-width, no header row); ACEA no longer writes Spain.
 - EREV has its own column and folds into PHEV in the three-curve view.
 - Whole is ~2% above ACEA's market definition (registry vs association scope).
+processing:
+- title: Download
+  text:
+  - DGT publishes one zip per month with one fixed-width record per registered vehicle (714 characters, 69 fields). One pass over the file fills every variant; a month with more than 1 % of records of another length, or a Whole total under 2,000, stops the run.
+- title: Pick the vehicles
+  text:
+  - Cars and two-wheelers are picked by DGT's national vehicle type; vans, lorries and buses by the EU homologation category, which DGT records for them reliably.
+  decision:
+    ask: DGT vehicle type?
+    branches:
+    - when: 40 turismo or 25 todo terreno (passenger car, off-roader)
+      then:
+        ask: New or used?
+        branches:
+        - when: N — new
+          then:
+            ask: Rental — service A01 (rent without driver) or the renting flag set?
+            branches:
+            - when: "yes"
+              then: Whole + Rental
+            - when: "no"
+              then: Whole + NonRental
+        - when: U — used
+          then:
+            ask: Kind of registration 1 — the first registration in Spain?
+            branches:
+            - when: "yes"
+              then: Used
+              note: overwhelmingly used imports; domestic changes of owner are a different DGT dataset
+            - when: no — a re-registration (mostly historic plates)
+              then: in no variant
+    - when: 50 motocicleta or 90 ciclomotor
+      then:
+        ask: New?
+        branches:
+        - when: "yes"
+          then: 2-Wheelers
+        - when: "no"
+          then: in no variant
+    - when: any other type
+      then:
+        ask: New?
+        branches:
+        - when: "yes"
+          then:
+            ask: EU homologation category?
+            branches:
+            - when: N1 (including N1G)
+              then: Vans
+            - when: N2 or N3
+              then: HDV
+            - when: M2 or M3
+              then: Buses
+            - when: anything else — motorhomes, quads and trikes, trailers, tractors, machinery, …
+              then: in no variant
+        - when: "no"
+          then: in no variant
+- title: Powertrain
+  text:
+  - DGT labels every electrified vehicle with an electric-vehicle category. Only where that label is empty does the propulsion code of the technical inspection decide.
+  decision:
+    ask: Electric-vehicle category?
+    branches:
+    - when: BEV
+      then: BEV
+    - when: PHEV
+      then: PHEV
+    - when: REEV — range extender
+      then: EREV
+      note: folds into the PHEV curve in the charts
+    - when: HEV
+      then: HEV
+      note: full and mild hybrids
+    - when: FCEV (fuel cell) or HICEV (hydrogen combustion)
+      then: OTHERS
+    - when: none
+      then:
+        ask: Propulsion code?
+        branches:
+        - when: 0 — petrol
+          then: PETROL
+        - when: 1 — diesel
+          then: DIESEL
+        - when: 2 — electric
+          then: BEV
+          note: an electric vehicle without a category label — rare
+        - when: anything else — LPG, CNG, LNG, hydrogen, …
+          then: OTHERS
 fetcher: scripts/fetch_spain.py
 workflow: .github/workflows/fetch-spain.yml
 fragility_doc: docs/architecture/28-source-spain.md
