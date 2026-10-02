@@ -34,6 +34,66 @@ caveats:
 - No petrol/diesel split — the combustion remainder is one ICE column.
 - Vans, trucks and buses are not published: the records have no weight or seat count, so those body types cannot be mapped to EU classes.
 - Pick-ups are kept as a data-only file (data/Argentina_Pickups.csv) — fetched and classified every month, but not charted or used anywhere in the gallery.
+processing:
+- title: Download
+  text:
+  - DNRPA publishes one zip per year (one CSV per month inside) and the newest month as a loose CSV, one row per registration. Every run reads the whole history from 2018, so a changed rule re-classifies every past month and DNRPA's corrections to earlier years land.
+- title: Pick the vehicles
+  text:
+  - Each record carries the kind of registration (trámite), the body type, the brand, the model designation and whether the first owner is a person or a company. Brand and designation are upper-cased with accents removed before any rule is applied.
+  decision:
+    ask: Registration type (trámite)?
+    branches:
+    - when: Inscripción inicial nacional or importado — a new vehicle's first registration
+      then:
+        ask: Body type?
+        branches:
+        - when: pick-up (simple, doble, cabina y media, carrozada)
+          then: Pickups
+          note: a data-only file — classified like every other record, but never charted
+        - when: sedán, rural (SUV/estate), todo terreno, coupé, convertible, familiar, … (≈ EU M1)
+          then:
+            ask: First owner?
+            branches:
+            - when: natural person (persona física)
+              then: Whole + Private
+            - when: legal person (persona jurídica)
+              then: Whole + Industry
+            - when: blank (or any other value)
+              then: Whole
+              note: Private + Industry can then fall short of Whole
+        - when: anything else — furgón, chasis, passenger transport, quadricycles (cuadriciclo), …
+          then: in no variant
+          note: these body types mix EU classes (a furgón can be N1 or N2) and carry no weight or seat count
+    - when: anything else — classic cars, auctions, court-ordered registrations
+      then: in no variant
+- title: Powertrain
+  text:
+  - The records carry no fuel. The designation is tested against the rule table further down ("How each registration gets its powertrain"), top to bottom, and the first rule whose brand and pattern both match decides. The rules come in blocks; the tree shows the blocks in the order they are tried — the table lists every rule, its reason and its evidence.
+  decision:
+    ask: Which block holds the first rule that matches?
+    branches:
+    - when: 1. exclusions — "PACK ELECTRICO" (a Hilux trim with electric windows)
+      then: ICE
+    - when: 2. range extender named (REEV, EREV, RANGE EXTEND)
+      then: EREV
+      note: folds into the PHEV curve in the charts
+    - when: 3. plug-in named (PHEV, PLUG-IN, ENCHUFABLE, DM-i, HYBRID4) or a brand's plug-in code (BMW 330e, Audi TFSI e, Mercedes 300 e, Jeep 4xe, Volvo T8, Porsche Hybrid, BYD Shark, …)
+      then: PHEV
+      note: a DS 3 E-TENSE is caught by a BEV rule placed just before DS's E-TENSE plug-in rule
+    - when: 4. mild hybrid named (MHEV, MILD HYBRID, 48V) or a brand whose "Hybrid" is mild (Suzuki, Stellantis, Renault, Volvo B3–B6, the new Audi Q5)
+      then: MHEV
+      note: a Renault FULL HYBRID is caught by an HEV rule placed just before Renault's mild-hybrid rule
+    - when: 5. full hybrid named (HEV, HYBRID, HIBRIDO, e-POWER, e:HEV, self-charging) or a brand's hybrid code (Lexus 300h, Toyota Prius / HV, BAIC BJ30)
+      then: HEV
+    - when: 6. electric named (ELECTRICO, EV, e-tron, Z.E., EQ…) or a brand's EV model (Nissan Leaf, Renault E-Tech electric, Kia EV6, …) or a brand that sells only EVs (BYD, Tesla, Leapmotor, Zeekr, …)
+      then: BEV
+    - when: no rule matches
+      then: ICE
+  note: Petrol and diesel are not told apart — everything that is not electrified is one ICE column.
+- title: Check against ACARA
+  text:
+  - ACARA, the dealers' association, publishes electrified totals from the same registry; the classified totals are compared with them (January–June 2026 BEV 3,877 against ACARA's 3,877). Every run also lists the designations never seen before with the rule that decided them, and the combustion-classified models of brands that also sell electrified cars, so a new plug-in that no rule catches shows up the month it is first registered.
 market_breakdown: classification/argentina_top.json
 classification:
   rules: classification/argentina_rules.csv
