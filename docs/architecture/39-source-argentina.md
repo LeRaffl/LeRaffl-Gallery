@@ -30,9 +30,9 @@ backfill: record-level microdata from 2018-01; nothing earlier carries models
 scope_note: Registry-side new registrations only; classic cars, auctions and court-ordered registrations excluded.
 caveats:
 - The registry records carry no fuel field. The powertrain is classified from the model designation by a public rule table (below), validated against ACARA's published electrified totals.
-- MHEV is a lower bound: a 48 V or 12 V system is only counted where the designation or a verified model rule says so. It sits on the ICE side of every chart either way.
+- 'MHEV is a lower bound: a 48 V or 12 V system is only counted where the designation or a verified model rule says so. It sits on the ICE side of every chart either way.'
 - No petrol/diesel split — the combustion remainder is one ICE column.
-- Vans, trucks and buses are not published: the records have no weight or seat count, so those body types cannot be mapped to EU classes.
+- 'Vans, trucks and buses are not published: the records have no weight or seat count, so those body types cannot be mapped to EU classes.'
 - Pick-ups are kept as a data-only file (data/Argentina_Pickups.csv) — fetched and classified every month, but not charted or used anywhere in the gallery.
 processing:
 - title: Download

@@ -29,9 +29,9 @@ caveats:
 - All vehicle types, not only passenger cars (EU M1) — trucks, vans and buses are in the total (the release does not state their share). Compare the level with M1-only countries with care.
 - Sales as reported by the makers' and importers' associations, not registry counts.
 - Imported hybrids include mild hybrids (KAIDA does not separate them before 2025 and MOTIR adds them together); domestic makers' mild hybrids are not in the hybrid figure.
-- Tesla is missing before 2024: KAIDA only counts Tesla from 2024 data on, so BEV and the total are too low up to 2023-12 (roughly 10 % of BEV in 2021–2023) — a step at 2024-01. BYD (from 2025) is included. See issue #257.
+- 'Tesla is missing before 2024: KAIDA only counts Tesla from 2024 data on, so BEV and the total are too low up to 2023-12 (roughly 10 % of BEV in 2021–2023) — a step at 2024-01. BYD (from 2025) is included. See issue #257.'
 - MOTIR revises the previous month in the following release; the series always holds the latest published figure.
-- 2017–2024 were entered by hand from the same releases and are not re-verified automatically; from 2025 every month is parsed and cross-checked (two transcription errors in the hand-entered rows were corrected: 2025-09 and 2026-04).
+- '2017–2024 were entered by hand from the same releases and are not re-verified automatically; from 2025 every month is parsed and cross-checked (two transcription errors in the hand-entered rows were corrected: 2025-09 and 2026-04).'
 fetcher: scripts/fetch_south_korea.py
 workflow: .github/workflows/fetch-south-korea.yml
 fragility_doc: docs/architecture/43-source-south-korea.md

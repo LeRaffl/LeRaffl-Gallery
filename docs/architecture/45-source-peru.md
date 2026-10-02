@@ -32,7 +32,7 @@ backfill: from 2019-01, the first month in the BI-AAP model; April 2020 has no r
 scope_note: First registrations of new light vehicles in Peru. Minibuses (Camionetas with body Microbús, M2), ambulances and hearses, all heavy vehicles and motorcycles are in no variant.
 caveats:
 - BEV and PHEV shares are still very small (0.5 % and 0.8 % of new cars in 2025–26) — the fit sits at the very start of the S-curve and moves a lot with each new month.
-- Pickups are counted in Vans, not in Whole (they are N1 goods vehicles), so AAP's "livianos" figures are larger than Whole: July 2026 BEV = 65 in BI-AAP's light vehicles = 57 Whole + 6 Vans (pickups, dropsides) + 2 minibuses (in no variant).
+- 'Pickups are counted in Vans, not in Whole (they are N1 goods vehicles), so AAP''s "livianos" figures are larger than Whole: July 2026 BEV = 65 in BI-AAP''s light vehicles = 57 Whole + 6 Vans (pickups, dropsides) + 2 minibuses (in no variant).'
 - HEV includes mild hybrids (48 V Suzuki, Mercedes, BMW, Audi systems), about half of all hybrids in 2025.
 - No registrations in April 2020 (the registry was closed during the COVID-19 lockdown); that month has no row and May 2020 is tiny.
 - AAP reports these first registrations as new-vehicle sales. Used imports are legal only up to two model years old, so a small near-new remainder may be included; the data has no new/used flag.
