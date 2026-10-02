@@ -103,6 +103,7 @@
   - `fetch-chile.yml` — täglich 08:00, 14.→EOM. Chile.
   - `fetch-china.yml` — täglich 11:00, 1.→EOM. China (retail + wholesale).
   - `fetch-france.yml` — täglich 07:40, 18.→EOM. France (SDES „motorisations“ série VP neuves, Whole; Média-Link wird von der Landing-Page aufgelöst).
+  - `fetch-germany.yml` — täglich 06:00, 4.→9. Germany (KBA-Monatspressemitteilung `…_merkmale.xlsx`, Block „Kraftstoffarten“; Whole — Vans/HDV/Buses kommen aus ACEA-CV).
   - `fetch-hong-kong.yml` — täglich 03:20 & 11:20. Hong Kong (Transport Department, DATA.GOV.HK: eine CSV-Zeile pro erstzugelassenem Fahrzeug **mit Kraftstofffeld** und TD-Erstzulassungsstatus; Whole / Used / Vans; Plug-in-Hybride aus der Modellbezeichnung klassifiziert, jeder Lauf gegen TDs Tabelle 4.1(e) abgeglichen; `market/hong_kong_top.json`).
   - `fetch-israel.yml` — täglich 08:00, 10.→20. Israel (MoT-Fahrzeugregister auf data.gov.il, Whole / Vans; HEV/PHEV über den Modellkatalog-Join; dieselben Datensätze schreiben auch `market/israel_top.json` mit aus dem Hebräischen übersetzten Herstellern, ohne Render-Trigger).
   - `fetch-japan.yml` — täglich 08:00, 1.→EOM. Japan (JADA; die Herstellerzeilen derselben Datei schreiben auch `market/japan_top.json` + Monatsspeicher `japan_months.json`, ohne Render-Trigger).

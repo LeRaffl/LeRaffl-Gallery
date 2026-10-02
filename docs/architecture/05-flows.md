@@ -475,7 +475,7 @@ Parser was checked byte-exact against the existing `data/Japan.csv` rows:
 | `202605081028169165.xlsx` — new row | 2026-04 | Sum check ✓ (parsed BEV/PHEV/HEV/PETROL/DIESEL/OTHERS sum to 223,369 = TOTAL) |
 | `202605081027423166.pdf` (same publication, PDF format) | 2026-01 … 2026-04 | Matches XLSX byte-exact (after the line-based parser fix; see Issue 2 above) |
 
-The XLSX layout has been stable from at least 2022 through 2026 — same column positions, same row label `乗用車計`, same footer notes. The sample files themselves are not in this branch; they live in `master` (committed by the maintainer as `Add files via upload`) and were pulled into the working tree only during development.
+The XLSX layout has been stable from at least 2022 through 2026 — same column positions, same row label `乗用車計`, same footer notes. The sample files were uploaded to `master` by the maintainer (`Add files via upload`); since 2026-10 they live in [`scripts/fixtures/`](../../scripts/fixtures/README.md) (the May 2026 workbook is the fixture of `scripts/test_market_top.py`).
 
 ## Flow K — ACEA ingest
 
@@ -608,7 +608,7 @@ ACEA's March 2026 release went out on **23 April 2026** (the embargo line on pag
 
 ### Issues hit during development
 
-1. **ACEA blocked the dev sandbox.** Initial `WebFetch`, `curl` with a desktop Chrome User-Agent, and even `web.archive.org` access all returned `HTTP 403 x-deny-reason: host_not_allowed` — the same pattern we saw with JADA. The maintainer uploaded the March 2026 PDF directly to `master` (`data/Press_release_car_registrations_March_2026.pdf`) and we developed the parser against that. Whether the GitHub-hosted runner is blocked too is an open question; if it is, the `--pdf-url` workflow input lets the maintainer paste in any working URL or local path. The downstream user-agent and `Referer: https://www.acea.auto/` headers in `HTTP_HEADERS` are the same trick that unblocked ANAC/JADA.
+1. **ACEA blocked the dev sandbox.** Initial `WebFetch`, `curl` with a desktop Chrome User-Agent, and even `web.archive.org` access all returned `HTTP 403 x-deny-reason: host_not_allowed` — the same pattern we saw with JADA. The maintainer uploaded the March 2026 PDF directly to `master` (`data/Press_release_car_registrations_March_2026.pdf`, since 2026-10 in `scripts/fixtures/`) and we developed the parser against that. Whether the GitHub-hosted runner is blocked too is an open question; if it is, the `--pdf-url` workflow input lets the maintainer paste in any working URL or local path. The downstream user-agent and `Referer: https://www.acea.auto/` headers in `HTTP_HEADERS` are the same trick that unblocked ANAC/JADA.
 
 2. **First parser prototype with pypdf shifted columns.** Used pypdf's `extract_text()` and a row-token regex first. Whenever ACEA rendered a count with extra inter-glyph spacing the tokens split (Cyprus DIESEL `"184"` in the PDF read as `"18 4"` in extracted text, then again as `"18 4 3 -58.1"` after the next `43` joined it), shifting every later column by one. pdfplumber's `extract_tables()` recovers the actual table-cell grid; a fuel-section cell reads cleanly as `"18 43 -58.1"`. Trade-off: pdfplumber pulls in pdfminer.six + pypdfium2 + Pillow, heavier than pypdf, but the install on `ubuntu-latest` is ~20 s and stays well within the runner's disk budget.
 
@@ -890,7 +890,7 @@ Parser was checked byte-exact against the existing `data/Türkiye.csv` and the u
 | Bulletin month vs target month mismatch | Passing `tuik_mart_2026.pdf` with `--month 4` (target Nisan) is refused: `Bulletin month is Mart (3) but target month is Nisan (4). Refusing to write.` |
 | No-input default | Running with no `--press-id` / `--pdf-url` / `--pdf-path` and no target month covered prints the helpful "dispatch manually with press_id" message and exits 0 (so cron self-throttle paths don't fail the workflow). |
 
-The sample PDFs (`data/tuik_mart_2026.pdf`, `data/tuik_nisan_2026.pdf`) are not in the feature branch — they're in `master` (committed by the maintainer as "Add files via upload") and were pulled into the working tree only during development.
+The sample PDFs (`data/tuik_mart_2026.pdf`, `data/tuik_nisan_2026.pdf`) were committed to `master` by the maintainer ("Add files via upload") and removed from `data/` in 2026-10 — they are only in the git history now; `scripts/test_fetch_turkey.py` carries its own text fixtures.
 
 ## Flow N — ANL ingest
 
@@ -1009,9 +1009,9 @@ months — this is the point the maintainer flagged up front).
 | Idempotency | Re-running the window against the same PDF reports `changed: []` and does not rewrite the file. |
 | ICE derivation | `ICE = TOTAL − BEV − PHEV − HEV` verified non-negative for every windowed row (e.g. 2026-04: 1,361,970 − 64,517 − 18,309 − 209,456 = 1,069,688). |
 
-The sample PDF (`data/Total Sales for Website_April 2026.pdf`) is in `master`
-(committed by the maintainer as "Add files via upload"), not produced by the
-branch.
+The sample PDF (committed by the maintainer as "Add files via upload" to
+`data/Total Sales for Website_April 2026.pdf`) lives in
+[`scripts/fixtures/`](../../scripts/fixtures/README.md) since 2026-10.
 
 ## Flow O — RDW/Swing ingest
 

@@ -128,6 +128,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | per-variant diff vs CSV |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) + `market/finland_top.json` (Traficom `trafi2.stat.fi`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV; the top file alone never renders |
 | [`fetch-france.yml`](../../.github/workflows/fetch-france.yml) | 07:40 UTC, 18th → EOM | SDES motorisations série VP workbook (média link resolved from the landing page; [36](36-source-france.md)) | `Whole` | change-gated commit — no new row, no diff, no render |
+| [`fetch-germany.yml`](../../.github/workflows/fetch-germany.yml) | 06:00 UTC, 4th → 9th | KBA monthly press release (`…_merkmale.xlsx`) | `Whole` | previous month already in `data/Germany.csv` → early exit |
 | [`fetch-hong-kong.yml`](../../.github/workflows/fetch-hong-kong.yml) | 03:20 & 11:20 UTC, daily | Transport Department «Particulars of first registered vehicles» (`data.gov.hk` CKAN; one CSV per month, uploaded between the 13th and 28th of M+1) — fuel from the record, plug-ins from the model designation, cross-checked against TD table 4.1(e) ([41](41-source-hong-kong.md)) | `Whole` + `Used` + `Vans` — one set of files, every variant | newest portal month already in every CSV from TD → one JSON request, no download |
 | [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | newest portal file title already covered → no-op before download |
 | [`fetch-ireland.yml`](../../.github/workflows/fetch-ireland.yml) | 04:00 & 13:00 UTC, 1st → 5th | SIMI motorstats (`stats.simi.ie`, Inertia SPA) (+ `market/ireland_top.json`, make/model partials per engine type) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant diff vs CSV |
@@ -200,8 +201,8 @@ Notes on the schedule shape:
 
 Country coverage of automated fetchers: **see also**
 [02-components.md](02-components.md#27-fetch-actions-overview). Countries with
-a CSV but no automated fetcher — maintained via the legacy local R pipeline or
-public-submit PRs — are **Australia, Georgia, Germany and the UK**, plus **India** (no committed CSV at all) and **New Zealand** (fetcher
+a CSV but no scheduled fetcher — maintained via the legacy local R pipeline or
+public-submit PRs — are **Australia, Georgia and the UK**, plus **India** (`data/India.csv` rebuilt by `scripts/build_india.py` from hand-pulled VAHAN exports; `fetch-india.yml` is a dispatch-only probe) and **New Zealand** (fetcher
 present, cron disabled).
 
 ### Infrastructure actions

@@ -197,7 +197,7 @@ def test_japan_maker_rows():
         print("   (openpyxl missing — Japan test skipped)")
         return
     import fetch_japan as fj
-    sample = Path(__file__).resolve().parent.parent / "data" / "202605081028169165.xlsx"
+    sample = Path(__file__).resolve().parent / "fixtures" / "202605081028169165.xlsx"
     if not sample.exists():
         print("   (JADA sample workbook missing — Japan test skipped)")
         return

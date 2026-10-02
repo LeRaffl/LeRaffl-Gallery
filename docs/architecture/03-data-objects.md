@@ -752,7 +752,7 @@ alphabetically so the file is byte-stable (no spurious commits).
   used cars) has its own top file and is listed under
   `market_breakdown_extra: [{path, id, heading, note}]` — one more section
   with its own month picker.
-- Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in `data/`).
+- Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in [`scripts/fixtures/`](../../scripts/fixtures/README.md)).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`
 with the same class logic it uses for the CSV (model `""` for a brand-only
