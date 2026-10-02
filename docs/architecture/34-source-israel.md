@@ -39,6 +39,51 @@ caveats:
   (100% coverage back to 2017; the fetcher warns above 5% unmatched).
 - Counts slice by road-entry date, whereas the importers' association reports deliveries, so single
   months can differ a few percent in either direction.
+processing:
+- title: Download
+  text:
+  - The registry is a list of every vehicle on the road today, not a list of registrations. A month is counted as the vehicles whose road-entry date falls in it; every run re-counts the last three months, because the newest are still filling up.
+- title: Pick the vehicles
+  decision:
+    ask: Registry model type?
+    branches:
+    - when: P — private passenger car
+      then: Whole
+    - when: M — commercial vehicle up to 3.5 t
+      then: Vans
+  note: The dataset holds nothing else — no motorcycles, no lorries over 3.5 t, no buses.
+- title: Powertrain
+  text:
+  - The registry's fuel value hides most hybrids — a regular hybrid is recorded as plain petrol, and the two electric-plus-fuel values are kept for plug-ins. So every petrol, diesel and electric-plus-fuel car is looked up in the Ministry's model catalogue (WLTP) by maker, model code, model year and trim. Where the trim is missing from the catalogue, the drive technology that most of that model's trims have decides.
+  decision:
+    ask: Registry fuel?
+    branches:
+    - when: electric (חשמל)
+      then: BEV
+    - when: petrol (בנזין), diesel (דיזל), or electric/petrol, electric/diesel
+      then:
+        ask: Drive technology in the model catalogue?
+        branches:
+        - when: PLUG IN
+          then: PHEV
+        - when: regular hybrid (היברידי רגיל)
+          then: HEV
+        - when: regular drive or electric, or the model is not in the catalogue
+          then:
+            ask: Registry fuel?
+            branches:
+            - when: petrol
+              then: PETROL
+            - when: diesel
+              then: DIESEL
+            - when: electric/petrol or electric/diesel
+              then: PHEV
+          note: more than 5 % of a month not found in the catalogue raises a warning
+    - when: LPG (גפ"מ) or blank
+      then: OTHERS
+    - when: any other value
+      then: the run stops
+      note: a new fuel value is mapped deliberately, never guessed
 fetcher: scripts/fetch_israel.py
 workflow: .github/workflows/fetch-israel.yml
 fragility_doc: docs/architecture/34-source-israel.md
