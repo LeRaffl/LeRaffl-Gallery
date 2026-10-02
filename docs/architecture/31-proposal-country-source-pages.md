@@ -94,7 +94,10 @@
     each with `when`), and per answer either a result (`then:` a class badge,
     a variant name such as `Whole`/`Vans`/`Used`, `in no variant`, or a short
     sentence) or the next question (`then:` another `{ask, branches}`), plus an
-    optional `note` under the branch. Nesting is unlimited and the tree stays
+    optional `note` under the branch. A result that is several of these joined
+    by ` + ` (counted in each: `Whole + Private`) or ` / ` (whichever the
+    record says: `PETROL / DIESEL`) renders as one badge or pill per part.
+    Nesting is unlimited and the tree stays
     readable at phone width. Prefer a tree over `rules` whenever the logic
     branches (fuel → hybrid code → fallback); keep `rules` for flat
     first-match lists. `build_decision()` in the generator.

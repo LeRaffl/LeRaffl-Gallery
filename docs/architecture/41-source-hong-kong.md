@@ -38,6 +38,69 @@ caveats:
 - Private cars only; taxis (about 100 a month, mostly LPG hybrids and now BEVs) are a separate vehicle class and not in Whole.
 - The record files match TD's own table 4.1(e) exactly for every month compared, except one used-import car in June 2020.
 - Used is a different population (used imports, dominated by Japanese-market Toyota and Honda MPVs) — read it next to Whole, not as part of it.
+processing:
+- title: Download
+  text:
+  - TD posts one CSV per month, one row per first-registered vehicle. A normal run reads the newest month plus the eleven before it (for the top-brands table); the whole history from 2019-11 is re-read only on a backfill.
+- title: Pick the vehicles
+  text:
+  - Every record carries TD's vehicle class and its first-registration status — TD's own record of where the vehicle was before it reached Hong Kong. Together with the permitted gross weight they decide the variant.
+  decision:
+    ask: TD vehicle class?
+    branches:
+    - when: Private Car
+      then:
+        ask: First-registration status?
+        branches:
+        - when: A, B or C1 — never registered abroad, or for fewer than 15 days
+          then: Whole
+        - when: C2 — registered abroad before import
+          then: Used
+        - when: D (imported by the owner for own use), E (assembled in Hong Kong) or F (government auction)
+          then: in no variant
+    - when: LGV — light goods vehicle
+      then:
+        ask: Status A, B, C1 or E, and permitted gross weight at most 3.5 t?
+        branches:
+        - when: "yes"
+          then: Vans
+          note: E = assembled in Hong Kong on an imported chassis
+        - when: no (or no weight recorded)
+          then: in no variant
+    - when: anything else — taxis, motorcycles, medium and heavy goods vehicles, buses, …
+      then: in no variant
+- title: Powertrain
+  text:
+  - TD's fuel field has no hybrid value — a plug-in hybrid is registered as Petrol. Plug-ins are therefore recovered from the make and the model designation by an ordered list of rules in the fetcher (first match wins). Full and mild hybrids cannot be recognised and stay in petrol.
+  decision:
+    ask: TD fuel?
+    branches:
+    - when: Electric
+      then: BEV
+    - when: Petrol or Diesel
+      then:
+        ask: First plug-in rule that matches the make and the designation?
+        branches:
+        - when: range extender named (REEV, EREV, RANGE EXTEND)
+          then: EREV
+          note: folds into the PHEV curve in the charts
+        - when: plug-in named (PHEV, PHV, PLUG-IN, e:PHEV, DM-i/p/o, E-HYBRID, T8, RECHARGE, E PERFORMANCE, GTE, TFSI e, 4xe, HYBRID4, 450h+)
+          then: PHEV
+        - when: a brand's plug-in code (Land Rover / Jaguar P400e, BMW 330e / xDrive50e / i8 / XM, Mercedes 300 e — each only if built from 2014–15; MINI Countryman S E ALL4, Bentley Hybrid, Ferrari SF90 / 296, Lamborghini Revuelto / Urus SE / Temerario, McLaren Artura, GAC E9)
+          then: PHEV
+          note: the build-year floor keeps an old Mercedes 300E (a petrol saloon from the 1980s) out
+        - when: make BYD or Denza, any model
+          then: PHEV
+          note: neither sells a combustion-only car in Hong Kong, so a Petrol record is a DM-i / DM-o plug-in
+        - when: no rule matches
+          then: PETROL / DIESEL
+          note: as registered — full and mild hybrids included
+    - when: LPG, hydrogen, or a value TD has not used before
+      then: OTHERS
+      note: an unknown value above 2 % of a month's Whole stops the run
+- title: Check against TD's own table
+  text:
+  - TD's Monthly Traffic and Transport Digest (table 4.1(e)) counts first-registered private cars by status and fuel. Every run compares the records with it, month by month and status by status; a difference beyond 2 cars and 0.5 % stops the run.
 market_breakdown: market/hong_kong_top.json
 market_designation_note: a "designation" is TD's model string with the brand prefix, chassis codes and trim words removed, so the trims of one model rank together (MODEL Y RWD and MODEL Y LONG RANGE → MODEL Y).
 market_powertrain_note: BEV is TD's own fuel value; PHEV and EREV are classified from the model designation (see the developer doc).

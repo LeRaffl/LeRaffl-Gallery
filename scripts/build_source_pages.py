@@ -369,6 +369,13 @@ NO_VARIANT = {"in no variant", "no variant", "not counted", "dropped"}
 
 def decision_leaf(value) -> str:
     v = str(value if value is not None else "").strip()
+    # "Whole + Private" (counted in both) or "PETROL / DIESEL" (as recorded):
+    # each part as its own pill or badge.
+    for sep in (" + ", " / "):
+        parts = v.split(sep)
+        if len(parts) > 1 and all(p in VARIANT_LEAVES or p.upper() in CLASS_ORDER
+                                  or p.upper() in ICE_COLUMNS for p in parts):
+            return f'<span class="dt-sep">{sep.strip()}</span>'.join(map(decision_leaf, parts))
     if v.upper() in CLASS_ORDER or v.upper() in ICE_COLUMNS:
         return processing_outcome(v)
     if v in VARIANT_LEAVES:
@@ -1440,7 +1447,7 @@ table.steps td.num{width:22px;color:var(--muted)}
 .dt-br>li::after{content:"";position:absolute;left:0;top:17px;width:16px;border-top:2px solid var(--border)}
 .dt-leaf{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
 .dt-when{font-size:13px;color:var(--text)}
-.dt-arrow{color:var(--muted)}
+.dt-arrow,.dt-sep{color:var(--muted)}
 .dt-note{font-size:12px;color:var(--muted);margin-top:1px}
 .dt-var{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;
   border:1.5px solid var(--accent);color:var(--accent)}
