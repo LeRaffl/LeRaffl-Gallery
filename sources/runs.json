@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T19:18:00Z",
+ "generated": "2026-10-02T21:34:53Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5003,6 +5003,102 @@
   },
   {
    "date": "2026-10-02",
+   "label": "Czechia",
+   "base": "Czechia",
+   "slug": "czechia",
+   "period": "2026-08",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Denmark",
+   "base": "Denmark",
+   "slug": "denmark",
+   "period": "2026-08",
+   "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Hungary",
+   "base": "Hungary",
+   "slug": "hungary",
+   "period": "2026-08",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "India",
+   "base": "India",
+   "slug": "india",
+   "period": "2026-08",
+   "flag": "🇮🇳"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Indonesia",
+   "base": "Indonesia",
+   "slug": "indonesia",
+   "period": "2026-08",
+   "flag": "🇮🇩"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Luxembourg",
+   "base": "Luxembourg",
+   "slug": "luxembourg",
+   "period": "2026-08",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Netherlands",
+   "base": "Netherlands",
+   "slug": "netherlands",
+   "period": "2026-08",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Norway",
+   "base": "Norway",
+   "slug": "norway",
+   "period": "2026-08",
+   "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Poland",
+   "base": "Poland",
+   "slug": "poland",
+   "period": "2026-08",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Poland (HDV)",
+   "base": "Poland",
+   "slug": "poland_hdv",
+   "period": "2026-08",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Poland (Vans)",
+   "base": "Poland",
+   "slug": "poland_vans",
+   "period": "2026-08",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Spain",
+   "base": "Spain",
+   "slug": "spain",
+   "period": "2026-08",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-02",
    "label": "Sweden",
    "base": "Sweden",
    "slug": "sweden",
@@ -5056,6 +5152,14 @@
    "slug": "switzerland_vans",
    "period": "2026-09",
    "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Türkiye",
+   "base": "Türkiye",
+   "slug": "tuerkiye",
+   "period": "2026-08",
+   "flag": "🇹🇷"
   },
   {
    "date": "2026-10-02",

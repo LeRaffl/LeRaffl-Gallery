@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T19:18:00Z",
+ "generated": "2026-10-02T21:34:53Z",
  "today": "2026-10-02",
  "countries": [
   {
@@ -964,7 +964,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-02",
    "flag": "🇨🇿",
    "variants": [
     {
@@ -1029,7 +1029,7 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-09-09",
+   "last_render": "2026-10-02",
    "flag": "🇩🇰",
    "variants": [
     {
@@ -1610,7 +1610,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-02",
    "flag": "🇭🇺",
    "variants": [
     {
@@ -1704,7 +1704,7 @@
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-09-11",
+   "last_render": "2026-10-02",
    "flag": "🇮🇳",
    "variants": [
     {
@@ -1776,7 +1776,7 @@
     ],
     "workflow": ".github/workflows/fetch-indonesia.yml"
    },
-   "last_render": "2026-09-10",
+   "last_render": "2026-10-02",
    "flag": "🇮🇩",
    "variants": [
     {
@@ -2324,7 +2324,7 @@
     ],
     "workflow": ".github/workflows/fetch-luxembourg.yml"
    },
-   "last_render": "2026-09-11",
+   "last_render": "2026-10-02",
    "flag": "🇱🇺",
    "variants": [
     {
@@ -2627,7 +2627,7 @@
     ],
     "workflow": ".github/workflows/fetch-netherlands.yml"
    },
-   "last_render": "2026-09-28",
+   "last_render": "2026-10-02",
    "flag": "🇳🇱",
    "variants": [
     {
@@ -2768,7 +2768,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-02",
    "flag": "🇳🇴",
    "variants": [
     {
@@ -2913,7 +2913,7 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-02",
    "flag": "🇵🇱",
    "variants": [
     {
@@ -3413,7 +3413,7 @@
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-02",
    "flag": "🇪🇸",
    "variants": [
     {
@@ -3792,7 +3792,7 @@
     ],
     "workflow": ".github/workflows/fetch-turkey.yml"
    },
-   "last_render": "2026-09-18",
+   "last_render": "2026-10-02",
    "flag": "🇹🇷",
    "variants": [
     {
