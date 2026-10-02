@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-02T14:01:27Z",
+ "generated": "2026-10-02T14:21:32Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5008,6 +5008,54 @@
    "slug": "sweden",
    "period": "2026-09",
    "flag": "🇸🇪"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland",
+   "base": "Switzerland",
+   "slug": "switzerland",
+   "period": "2026-09",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland (2 Wheelers)",
+   "base": "Switzerland",
+   "slug": "switzerland_2_wheelers",
+   "period": "2026-09",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland (Buses)",
+   "base": "Switzerland",
+   "slug": "switzerland_buses",
+   "period": "2026-09",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland (HDV)",
+   "base": "Switzerland",
+   "slug": "switzerland_hdv",
+   "period": "2026-09",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland (Used)",
+   "base": "Switzerland",
+   "slug": "switzerland_used",
+   "period": "2026-09",
+   "flag": "🇨🇭"
+  },
+  {
+   "date": "2026-10-02",
+   "label": "Switzerland (Vans)",
+   "base": "Switzerland",
+   "slug": "switzerland_vans",
+   "period": "2026-09",
+   "flag": "🇨🇭"
   }
  ]
 }
