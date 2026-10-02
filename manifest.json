@@ -42,6 +42,246 @@
       "country_slug": "sweden"
     },
     {
+      "country": "Switzerland",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_ICE_BEV_20261002.png",
+      "alt": "Switzerland ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_20261002.png",
+      "url": "images/2026-09/switzerland_20261002.png",
+      "alt": "Switzerland BEV trajectory",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_time_20261002.png",
+      "url": "images/2026-09/switzerland_time_20261002.png",
+      "alt": "Switzerland Transition time curve",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_ttm_shares_20261002.png",
+      "alt": "Switzerland TTM market split graph",
+      "country_slug": "switzerland"
+    },
+    {
+      "country": "Switzerland (2 Wheelers)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_2_wheelers_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_2_wheelers_ICE_BEV_20261002.png",
+      "alt": "Switzerland (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_2_wheelers"
+    },
+    {
+      "country": "Switzerland (2 Wheelers)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_2_wheelers_20261002.png",
+      "url": "images/2026-09/switzerland_2_wheelers_20261002.png",
+      "alt": "Switzerland (2 Wheelers) BEV trajectory",
+      "country_slug": "switzerland_2_wheelers"
+    },
+    {
+      "country": "Switzerland (2 Wheelers)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_2_wheelers_time_20261002.png",
+      "url": "images/2026-09/switzerland_2_wheelers_time_20261002.png",
+      "alt": "Switzerland (2 Wheelers) Transition time curve",
+      "country_slug": "switzerland_2_wheelers"
+    },
+    {
+      "country": "Switzerland (2 Wheelers)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_2_wheelers_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_2_wheelers_ttm_shares_20261002.png",
+      "alt": "Switzerland (2 Wheelers) TTM market split graph",
+      "country_slug": "switzerland_2_wheelers"
+    },
+    {
+      "country": "Switzerland (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_buses_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_buses_ICE_BEV_20261002.png",
+      "alt": "Switzerland (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_buses"
+    },
+    {
+      "country": "Switzerland (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_buses_20261002.png",
+      "url": "images/2026-09/switzerland_buses_20261002.png",
+      "alt": "Switzerland (Buses) BEV trajectory",
+      "country_slug": "switzerland_buses"
+    },
+    {
+      "country": "Switzerland (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_buses_time_20261002.png",
+      "url": "images/2026-09/switzerland_buses_time_20261002.png",
+      "alt": "Switzerland (Buses) Transition time curve",
+      "country_slug": "switzerland_buses"
+    },
+    {
+      "country": "Switzerland (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_buses_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_buses_ttm_shares_20261002.png",
+      "alt": "Switzerland (Buses) TTM market split graph",
+      "country_slug": "switzerland_buses"
+    },
+    {
+      "country": "Switzerland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_hdv_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_hdv_ICE_BEV_20261002.png",
+      "alt": "Switzerland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_hdv_20261002.png",
+      "url": "images/2026-09/switzerland_hdv_20261002.png",
+      "alt": "Switzerland (HDV) BEV trajectory",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_hdv_time_20261002.png",
+      "url": "images/2026-09/switzerland_hdv_time_20261002.png",
+      "alt": "Switzerland (HDV) Transition time curve",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_hdv_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_hdv_ttm_shares_20261002.png",
+      "alt": "Switzerland (HDV) TTM market split graph",
+      "country_slug": "switzerland_hdv"
+    },
+    {
+      "country": "Switzerland (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_used_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_used_ICE_BEV_20261002.png",
+      "alt": "Switzerland (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_used"
+    },
+    {
+      "country": "Switzerland (Used)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_used_20261002.png",
+      "url": "images/2026-09/switzerland_used_20261002.png",
+      "alt": "Switzerland (Used) BEV trajectory",
+      "country_slug": "switzerland_used"
+    },
+    {
+      "country": "Switzerland (Used)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_used_time_20261002.png",
+      "url": "images/2026-09/switzerland_used_time_20261002.png",
+      "alt": "Switzerland (Used) Transition time curve",
+      "country_slug": "switzerland_used"
+    },
+    {
+      "country": "Switzerland (Used)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_used_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_used_ttm_shares_20261002.png",
+      "alt": "Switzerland (Used) TTM market split graph",
+      "country_slug": "switzerland_used"
+    },
+    {
+      "country": "Switzerland (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_vans_ICE_BEV_20261002.png",
+      "url": "images/2026-09/switzerland_vans_ICE_BEV_20261002.png",
+      "alt": "Switzerland (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "switzerland_vans"
+    },
+    {
+      "country": "Switzerland (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_vans_20261002.png",
+      "url": "images/2026-09/switzerland_vans_20261002.png",
+      "alt": "Switzerland (Vans) BEV trajectory",
+      "country_slug": "switzerland_vans"
+    },
+    {
+      "country": "Switzerland (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_vans_time_20261002.png",
+      "url": "images/2026-09/switzerland_vans_time_20261002.png",
+      "alt": "Switzerland (Vans) Transition time curve",
+      "country_slug": "switzerland_vans"
+    },
+    {
+      "country": "Switzerland (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-02",
+      "filename": "switzerland_vans_ttm_shares_20261002.png",
+      "url": "images/2026-09/switzerland_vans_ttm_shares_20261002.png",
+      "alt": "Switzerland (Vans) TTM market split graph",
+      "country_slug": "switzerland_vans"
+    },
+    {
       "country": "Ireland",
       "type": "ICE_BEV",
       "period": "2026-09",
