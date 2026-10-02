@@ -229,6 +229,19 @@ significant EV importer is outside it**).
 > "publish to web" Power BI report) is worth trying wherever a registry or
 > association shows an interactive dashboard but no download.
 
+## Built outside this list — 🇵🇾 Paraguay (2026-10)
+
+> **Status: BUILT (2026-10-02).** The registry (DNRA) is unreachable from
+> outside Paraguay and has no monthly series, so the source is the customs
+> administration's record-level open data (DNIT, `datosabiertos.aduana.gov.py`):
+> every import declaration item, monthly, free, with the HS 2017 tariff line
+> (powertrain) and the declared state new/used. Whole (new cars, NCM 87.03) and
+> Used (used-car imports) from 2017-01; **imports, not registrations** — as for
+> Nepal. Validated against CADAM's yearly electrified imports (2021–2025 within
+> 2–6 %) and OLACDE's EV fleet count. ≈ 30,000 new cars a year, electrified
+> share 13.4 % in 2025, 24 % in 2026 to September (BEV 2.4 % → 4.0 %). See
+> [47-source-paraguay.md](47-source-paraguay.md).
+
 ## Investigated 2026-09 — large markets still missing
 
 The 2026-09 session set out to add the **largest** car market not yet on the

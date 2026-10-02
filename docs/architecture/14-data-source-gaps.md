@@ -110,6 +110,24 @@ The previous shelving rationale, kept for the record:
   endpoint (or a monthly combustible breakdown of *total* patentamientos
   without the ID wall).
 
+### 🇵🇾 Paraguay — built from customs imports, not the registry (2026-10)
+
+**Built:** see [47-source-paraguay.md](47-source-paraguay.md). The motor-vehicle
+registry (DNRA, judiciary) has a statistics portal by fuel and brand, but it
+does not answer from outside Paraguay (connect timeout from GitHub runners,
+2026-10-02) and publishes no monthly series; its only open data are yearly
+fleet totals without fuel. CADAM, the distributors' chamber, publishes the
+electrified import split only in press prose. The customs administration
+(DNIT) publishes **every import declaration item** as monthly open data, with
+the HS 2017 tariff line (which names the powertrain) and the declared state
+new/used — complete by construction (every importer, CADAM member or not).
+Paraguay builds no cars, so imports are its market; the series matches
+CADAM's yearly electrified imports 2021–2025 within 2–6 %. Caveat kept on
+the chart: imports, not registrations.
+**What would change it:** the DNRA statistics portal becoming reachable with
+a monthly first-registration series by fuel — then the registry should
+replace customs, as it would for Nepal.
+
 ### 🇲🇽 Mexico — the official monthly registry omits BYD
 
 - **The structured source:** INEGI's **RAIAVL** (Registro Administrativo de la
