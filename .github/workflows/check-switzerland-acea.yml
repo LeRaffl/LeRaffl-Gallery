@@ -1,0 +1,36 @@
+name: Check Switzerland against ACEA
+
+# ACEA is the maintainer's reference for the Swiss passenger-car figures.
+# data/Switzerland.csv comes from ASTRA's register extracts (fetch-
+# switzerland.yml) about three weeks before ACEA publishes the same month;
+# once ACEA's monthly press release is out, this compares the newest ASTRA
+# months with it and annotates any gap beyond 1 % (TOTAL) or 3 % (a fuel
+# with at least 200 cars) as a warning. Log-only: nothing is written, and a
+# missing or unreadable release is a note, not a failure.
+#
+# See scripts/fetch_switzerland.py (--acea-check) and
+# docs/architecture/46-source-switzerland.md §4.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Once a day on the 23rd–28th — ACEA publishes in the third/fourth week.
+    - cron: '50 10 23-28 * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests pdfplumber
+
+      - name: Compare the newest ASTRA months with ACEA
+        run: python scripts/fetch_switzerland.py --acea-check

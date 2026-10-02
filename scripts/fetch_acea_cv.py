@@ -168,6 +168,10 @@ import requests
 #   - Austria, Denmark, Finland, Netherlands, Spain: never in scope — each
 #     already has its own national Vans/HDV/Buses fetcher (see
 #     02-components.md § 2.7), so ACEA would only ever be redundant.
+#   - Switzerland: out since 2026-10 — ASTRA's register extracts
+#     (scripts/fetch_switzerland.py) carry monthly Vans/HDV/Buses with a
+#     real BEV/PHEV split; the quarterly ACEA rows are parked in
+#     data/Switzerland_legacy.csv.
 #   - Luxembourg: deliberately excluded even though it has no Buses source
 #     of its own (STATEC covers Whole/Vans/HDV only) — maintainer chose to
 #     leave that one gap unfilled rather than mix an ACEA-sourced Buses
@@ -180,7 +184,7 @@ TARGET_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
     "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
-    "Slovakia", "Slovenia", "Sweden", "Switzerland",
+    "Slovakia", "Slovenia", "Sweden",
 ]
 
 # Old-era PDFs spell some countries differently than the new-era ones (and

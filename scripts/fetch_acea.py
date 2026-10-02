@@ -82,10 +82,10 @@ The maintainer enumerated two lists:
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Switzerland
+    Luxembourg, Norway
 
-Denmark, Finland, France, Netherlands, Spain and Sweden appear on
-ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
+Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
+on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
 from national databases/registries that also carry variants ACEA doesn't expose
 (Private / Industry / Used / HDV / Vans / Buses).
 
@@ -105,7 +105,11 @@ motorisations série (scripts/fetch_france.py) — the registry-statistics branc
 of the same SIV behind the ACEA/PFA number — carrying the full énergie split
 incl. a real HEV column back to 2011, and (later) the VP/VUL/PL/TCP variants;
 ACEA must not write France so the ACEA and SDES definitions never mix (see
-docs/architecture/36-source-france.md). Sweden additionally has a
+docs/architecture/36-source-france.md). Switzerland comes from ASTRA's IVZ
+register extracts (scripts/fetch_switzerland.py), calibrated to reproduce
+ACEA's Swiss figure and out about three weeks earlier; ACEA is its cross-check
+(fetch_switzerland.py --acea-check), not a writer (see
+docs/architecture/46-source-switzerland.md). Sweden additionally has a
 non-standard CSV schema (FLEXFUEL column).
 
 For the prior-year correction (e.g. the March 2025 column of a March 2026
@@ -139,7 +143,7 @@ ALWAYS_COUNTRIES = [
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
-    "Luxembourg", "Norway", "Switzerland",
+    "Luxembourg", "Norway",
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month
@@ -151,7 +155,7 @@ CONDITIONAL_COUNTRIES = [
     "Poland",
 ]
 # Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
-# Spain, Sweden. The maintainer pulls those from national databases/registries
+# Spain, Sweden, Switzerland. The maintainer pulls those from national databases/registries
 # that also carry variants ACEA doesn't expose (Private / Industry / Used / HDV /
 # Vans / Buses), so the national pipeline is the preferred source and ACEA
 # would only muddy the water.
@@ -164,6 +168,10 @@ CONDITIONAL_COUNTRIES = [
 # direct, canonical, published weeks before ACEA. Removed from ACEA entirely
 # so an ACEA-sourced (ANFAC-defined) row can never land in the DGT series;
 # see docs/architecture/28-source-spain.md §4.
+# Switzerland: ASTRA IVZ register extracts (scripts/fetch_switzerland.py) —
+# reproduces ACEA's Swiss figure ~3 weeks earlier, with Vans/HDV/Buses/Used/
+# 2-Wheelers; ACEA is only its cross-check (--acea-check). See
+# docs/architecture/46-source-switzerland.md.
 # Sweden additionally has a non-standard schema (FLEXFUEL column) that ACEA
 # can't fill. Each is handled by its own workflow.
 ALL_COUNTRIES = ALWAYS_COUNTRIES + CONDITIONAL_COUNTRIES
@@ -497,7 +505,7 @@ def _parse_cell(s: str) -> tuple[int, int] | None:
     return ints[0], ints[1]
 
 
-def _parse_via_text(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+def _parse_via_text(pdf, wanted: set[str]) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Text-layer parser for April 2026+ Word-generated PDFs.
 
     extract_tables() returns nothing on these files because the cell
@@ -505,7 +513,6 @@ def _parse_via_text(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | N
     single line carrying 14 integers (7 fuel sections × {current, prior});
     we tokenise via extract_text() and read off pairs in PDF column order.
     """
-    wanted = set(ALL_COUNTRIES)
     for page in pdf.pages:
         text = page.extract_text() or ""
         if "BY MARKET AND POWER SOURCE" not in text:
@@ -540,7 +547,7 @@ def _parse_via_text(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | N
     return {}, None
 
 
-def _parse_via_tables(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+def _parse_via_tables(pdf, wanted: set[str]) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Legacy parser: read the country grid via extract_tables().
 
     Kept as a fallback for the pre-April-2026 PDF generator that emitted
@@ -548,7 +555,6 @@ def _parse_via_tables(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str |
     country-by-fuel grid with country names newline-joined in column 0 and
     fuel values newline-joined in each fuel column.
     """
-    wanted = set(ALL_COUNTRIES)
     for page in pdf.pages:
         for cand in (page.extract_tables() or []):
             if not cand or len(cand) < 3:
@@ -605,7 +611,8 @@ def _parse_via_tables(pdf) -> tuple[dict[str, dict[str, tuple[int, int]]], str |
     return {}, None
 
 
-def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
+def parse_monthly_table(pdf_path: str, countries: list[str] | None = None,
+                        ) -> tuple[dict[str, dict[str, tuple[int, int]]], str | None]:
     """Returns ({country: {fuel: (curr, prev)}}, period_label).
 
     Tries the text-layer parser first (works on April 2026+ Word PDFs and
@@ -614,15 +621,19 @@ def parse_monthly_table(pdf_path: str) -> tuple[dict[str, dict[str, tuple[int, i
     falls back to the legacy extract_tables() parser (works on pre-April
     PDFs with explicit cell rules). Only when both paths come up empty
     do we dump diagnostics and raise.
+
+    `countries` defaults to the countries this fetcher writes; a caller that
+    only reads the release (fetch_switzerland.py --acea-check) names its own.
     """
+    wanted = set(countries or ALL_COUNTRIES)
     with pdfplumber.open(pdf_path) as pdf:
-        countries, period_label = _parse_via_text(pdf)
+        countries, period_label = _parse_via_text(pdf, wanted)
         if countries:
             return countries, period_label
 
         print("text-layer parser found no countries; falling back to "
               "extract_tables()")
-        countries, period_label = _parse_via_tables(pdf)
+        countries, period_label = _parse_via_tables(pdf, wanted)
         if countries:
             return countries, period_label
 

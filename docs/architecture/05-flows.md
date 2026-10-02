@@ -35,7 +35,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 > **Not every fetcher has a lettered flow here.** Flows H–V were written as
 > each of the first ingest pipelines landed; the later ones — Austria, Canada,
 > Italy, Luxembourg, Poland, Malaysia, Singapore, Spain, Thailand, Indonesia,
-> Nepal, Albania, New Zealand, Argentina, Ukraine, Hong Kong, South Korea and Peru — never got one. They are not undocumented:
+> Nepal, Albania, New Zealand, Argentina, Ukraine, Hong Kong, South Korea, Peru and Switzerland — never got one. They are not undocumented:
 > each has a **workflow data-flow diagram in its own source doc**
 > (`docs/architecture/NN-source-<country>.md`), which is the authority for
 > that country, and every fetcher's schedule and scope is listed in
@@ -534,8 +534,7 @@ Before drafting the per-country rules we read every existing `data/<Country>.csv
 | Malta | `ACEA` | Always-list; last entry was `2025-05` — the file had a multi-month gap that this fetcher will close. |
 | Luxembourg | `ACEA / lustat.statec.lu` | Conditional — non-ACEA source means the blend stays untouched. |
 | Norway | `ofv.no & ACEA` | Conditional — same. |
-| Switzerland | `pxweb.bfs.admin.ch / ACEA` | Conditional — same. |
-| ~~Denmark, Finland, Netherlands, Poland, Spain, Sweden~~ | — | **Out of scope.** Fed from national databases/registries that also expose richer fuel/variant splits than ACEA (Private / Industry / Used / HDV / Rental / native HEV / flexifuel), so the ACEA fetcher would only muddy the water. Each has its own workflow: Denmark [Flow Q](#flow-q--statbank-ingest), Finland [Flow R](#flow-r--pxweb-ingest), Netherlands [Flow O](#flow-o--rdw-swing-ingest), Sweden [Flow S](#flow-s--scb-ingest), Poland (PZPM), **Spain (DGT — `scripts/fetch_spain.py`, removed from ACEA so its registry definition never mixes with ACEA's; see [28-source-spain.md](28-source-spain.md))**. |
+| ~~Denmark, Finland, Netherlands, Poland, Spain, Sweden, Switzerland~~ | — | **Out of scope.** Fed from national databases/registries that also expose richer fuel/variant splits than ACEA (Private / Industry / Used / HDV / Rental / native HEV / flexifuel), so the ACEA fetcher would only muddy the water. Each has its own workflow: Denmark [Flow Q](#flow-q--statbank-ingest), Finland [Flow R](#flow-r--pxweb-ingest), Netherlands [Flow O](#flow-o--rdw-swing-ingest), Sweden [Flow S](#flow-s--scb-ingest), Poland (PZPM), **Spain (DGT — `scripts/fetch_spain.py`, removed from ACEA so its registry definition never mixes with ACEA's; see [28-source-spain.md](28-source-spain.md))**, **Switzerland (ASTRA IVZ register — `scripts/fetch_switzerland.py` since 2026-10, calibrated to reproduce ACEA and cross-checked against it every month; see [46-source-switzerland.md](46-source-switzerland.md))**. |
 
 ### Maintainer Q&A that shaped the rules
 
@@ -555,7 +554,7 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 | Bucket | Countries | When ACEA writes |
 |---|---|---|
 | Always-list (16) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. |
-| Conditional-list (3) | Luxembourg, Norway, Switzerland | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. (Spain was here until it moved to its own DGT fetcher and was removed from ACEA entirely; Poland is likewise handled by PZPM.) |
+| Conditional-list (3) | Luxembourg, Norway, Poland (PZPM fallback; Switzerland until 2026-09) | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists. Mixed-source rows (e.g. `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. (Spain was here until it moved to its own DGT fetcher and was removed from ACEA entirely; Poland is likewise handled by PZPM.) |
 
 ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Ireland and Portugal now have their own workflows ([Flow T](#flow-t--simi-ingest), [Flow U](#flow-u--acap-ingest)); Austria/Germany/Italy/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel) and have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
 

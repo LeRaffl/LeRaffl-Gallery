@@ -1,0 +1,149 @@
+name: Fetch Switzerland data (ASTRA IVZ open data)
+
+# Fetches ASTRA's record-level extracts of the Swiss vehicle register IVZ
+# (opendata.astra.admin.ch/ivzod — one row per vehicle, EU vehicle class,
+# vehicle kind, fuel code, hybrid code) and upserts the Switzerland CSVs:
+#
+#   data/Switzerland.csv             Whole       new passenger cars (M1 Personenwagen)
+#   data/Switzerland_Vans.csv        Vans        new N1 Lieferwagen
+#   data/Switzerland_HDV.csv         HDV         new N2/N3 lorries + tractor units
+#   data/Switzerland_Buses.csv       Buses       new M2/M3 over 3.5 t
+#   data/Switzerland_2-Wheelers.csv  2-Wheelers  new L1 + L3
+#   data/Switzerland_Used.csv        Used        used-import passenger cars (GEBR)
+#
+# CH and FL together (one register). Every definition is calibrated against
+# ACEA, and a live month is attributed the way ACEA does it (late
+# registrations of written months flow into the next month, nothing written
+# is revised) — docs/architecture/46-source-switzerland.md §4/§5.
+# Also writes market/switzerland_top.json (+ _months.json): top brands and
+# models per electrified class.
+#
+# ASTRA refreshes NEUZU.txt on the 1st and in the middle of the month, and
+# GEBR.txt on the 1st. Polled twice daily on the 1st–6th; the script reads the
+# snapshot's first 16 KB and exits without the ~90 MB download when every CSV
+# already has the newest complete month.
+#
+# The ACEA cross-check (ACEA is the reference for these numbers) runs in its
+# own workflow, check-switzerland-acea.yml, so this file's cron stays the
+# fetch window the Schedule tab shows.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list of
+# touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Vans
+          - HDV
+          - Buses
+          - 2-Wheelers
+          - Used
+      backfill:
+        description: 'Count closed years from the year files (months the CSV lacks)'
+        required: false
+        default: false
+        type: boolean
+      backfill_from:
+        description: 'First year of the backfill (default 2016, Used 2017)'
+        required: false
+        default: ''
+      force:
+        description: 'Ignore the self-throttle and overwrite rows from other sources'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 09:20 and 15:20 UTC on the 1st–6th: ASTRA posted the 2026-10-01
+    # snapshot at 10:33 Swiss time.
+    - cron: '20 9,15 1-6 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # Scope, fuel mapping and the month rule fail silently when wrong, so
+      # the regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_switzerland.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Switzerland CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_switzerland.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${BACKFILL:+--backfill} \
+            ${BACKFILL_FROM:+--from "$BACKFILL_FROM"} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:       ${{ inputs.variant }}
+          BACKFILL:      ${{ inputs.backfill == true && '1' || '' }}
+          BACKFILL_FROM: ${{ inputs.backfill_from }}
+          FORCE:         ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Switzerland.csv
+            data/Switzerland_Vans.csv
+            data/Switzerland_HDV.csv
+            data/Switzerland_Buses.csv
+            data/Switzerland_2-Wheelers.csv
+            data/Switzerland_Used.csv
+            market/switzerland_top.json
+            market/switzerland_months.json
+          message: 'chore: update Switzerland data from ASTRA'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Switzerland
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Switzerland \
+            -f variants="$variants"

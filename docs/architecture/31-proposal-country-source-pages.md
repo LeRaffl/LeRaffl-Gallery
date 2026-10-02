@@ -37,7 +37,7 @@
   "live/planned" ticker after an accuracy pass over the classifications:
   - Germany, UK, Australia, Georgia, South Korea, India are **manual** (no
     fetcher; their CSV `source` is the national body, not `ACEA`).
-  - Hungary, Norway, Switzerland and the EU cluster are **ACEA/PDF** — grouped
+  - Hungary, Norway and the EU cluster are **ACEA/PDF** — grouped
     via `source_group: acea`, which injects one shared "About the ACEA figures"
     explainer instead of repeating it ~18×.
   - National stub sources (KBA, SMMT, ANFAVEA, ANAC, JADA, ANL, TÜİK, …) carry
@@ -77,8 +77,28 @@
   path instead), and where no public document exists at all, say so — South
   Korea's page states outright that its figures cannot be verified from there.
 
+- **Processing steps in the flow (2026-10).** "How the data flows" used to stop
+  at Origin → Source → Fetcher → Store → Gallery, so a reader could not see
+  *how* a registration becomes a BEV, PHEV, HEV or ICE count. Two additions:
+  - An optional front-matter list `processing:` adds the country's own steps
+    between Fetcher and Store, in order. Each step has a `title`, `text`
+    (paragraphs) and optionally `rules` — `[condition, outcome]` pairs applied
+    top to bottom (first match decides), rendered as a numbered table, with
+    `rules_head: [left, right]` for the column titles and an optional `note`.
+    An outcome that is a powertrain class (BEV, PHEV, EREV, HEV, MHEV, ICE) or
+    a combustion column (PETROL, DIESEL, OTHERS, …) renders as the coloured
+    badge. Typical steps: download, pick the vehicles (record → variant), the
+    powertrain rules (record → column), month attribution, the cross-check.
+    First user: Switzerland ([46](46-source-switzerland.md)); the steps change
+    with the source, so they live with the source's front-matter.
+  - A **Render** node for every country with a store: the shared downstream
+    part — shares as column ÷ TOTAL, grouped into BEV / PHEV (incl. EREV) /
+    ICE (incl. HEV, MHEV, petrol, diesel, other), the no-PHEV-split rule, the
+    generalized Weibull fit, and what gets rewritten (`RENDER_STEP` in the
+    generator). Keep it in step with `R/render_country.R` / `R/plots.R`.
+
 - **Missing data is stated, not hidden.** A declared variant with no CSV in
-  the repo (Latvia `Used`, Switzerland `HDV`, all four of India) renders as
+  the repo (Latvia `Used`, all four of India) renders as
   "not in this repo" with an explanation, and a country with no store at all
   shows "latest period **modelled**" rather than claiming a store it lacks.
 

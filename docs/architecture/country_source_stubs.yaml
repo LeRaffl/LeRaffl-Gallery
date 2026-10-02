@@ -281,25 +281,6 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Norway.csv"
 
-  - country: Switzerland
-    slug: switzerland
-    method: pdf
-    source_group: acea
-    summary: "New vehicle registrations for Switzerland, via ACEA (national source: BFS)."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "BFS (Swiss Federal Statistical Office), aggregated by ACEA"
-    variants: [Whole, HDV]
-    variant_notes:
-      Whole: "New passenger-car registrations, via ACEA."
-      HDV: "Heavy commercial vehicles, taken from BFS directly (pxweb.bfs.admin.ch) — a legacy series whose CSV is not in this repo."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Switzerland.csv"
-    caveats:
-      - "The `HDV` variant does not come from ACEA — it is a separate BFS series rendered from the maintainer's local pipeline, and it lags the Whole series."
-
   # ======================================================================
   # National sources — automated fetchers (their own pipeline, no doc yet)
   # ======================================================================

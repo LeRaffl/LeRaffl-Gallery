@@ -228,7 +228,7 @@ def collect_variant_facts(fm: dict) -> list[tuple[str, dict | None]]:
     """(variant, facts) in declared order; facts is None when there is no CSV.
 
     A declared variant with no file under `data/` is not an error — a few
-    series (Latvia Used, Switzerland HDV, all of India) are still rendered
+    series (Latvia Used, all of India) are still rendered
     from the maintainer's local pipeline and were never committed. Carrying
     the `None` through means the page can say that out loud instead of
     quietly showing one fewer row than the variant count promises.
@@ -318,6 +318,57 @@ def gh_link(path: str) -> str:
 # Page building
 # --------------------------------------------------------------------------
 
+# The part of the flow every country shares: what happens once a month is in
+# the CSV (render-country.yml → R/render_country.R, R/fit.R, R/bands.R).
+RENDER_STEP = (
+    "Each new or changed month re-renders the country. Shares are read from the "
+    "CSV as <em>column ÷ TOTAL</em> and grouped into three curves: "
+    "<strong>BEV</strong>; <strong>PHEV</strong> (range-extenders included); and "
+    "<strong>ICE</strong>, which also takes full and mild hybrids (HEV, MHEV), "
+    "petrol, diesel and everything else, because none of them can drive on grid "
+    "electricity. Where a source has no PHEV/HEV split, its combined hybrid figure "
+    "counts as ICE and the PHEV curve is left out rather than drawn at zero. A "
+    "generalized Weibull S-curve is fitted to the BEV and the ICE share, and the "
+    "charts, the fitted parameters, the twelve-month totals and the uncertainty "
+    "bands are rewritten.")
+
+# Outcomes of a processing rule that are fuel columns, not powertrain classes:
+# rendered as an ICE badge carrying the column name.
+ICE_COLUMNS = {"PETROL", "DIESEL", "OTHERS", "GAS", "CNG", "LPG", "FLEXFUEL", "ETHANOL"}
+
+
+def processing_outcome(value) -> str:
+    v = str(value or "").strip()
+    if v.upper() in CLASS_ORDER:
+        return cls_badge(v)
+    if v.upper() in ICE_COLUMNS:
+        return f'<span class="cls cls--ice">{esc(v.upper())}</span>'
+    return esc(v)
+
+
+def build_processing_step(step: dict) -> str:
+    """One country-specific processing stage of the flow (front-matter
+    `processing:` — title, text, optional `rules` as [condition, outcome]
+    pairs applied top to bottom; see 31-proposal-country-source-pages.md)."""
+    parts = []
+    text = step.get("text") or []
+    for p in ([text] if isinstance(text, str) else text):
+        parts.append(f"<p>{esc(p)}</p>")
+    rules = step.get("rules") or []
+    if rules:
+        rows = "".join(
+            f'<tr><td class="num">{i}</td><td>{esc(r[0])}</td>'
+            f'<td>{processing_outcome(r[1] if len(r) > 1 else "")}</td></tr>'
+            for i, r in enumerate(rules, 1) if isinstance(r, (list, tuple)) and r)
+        head = step.get("rules_head") or ["When", "Then"]
+        parts.append('<div class="scroll"><table class="steps"><tr><th>#</th>'
+                     f'<th>{esc(head[0])}</th><th>{esc(head[1])}</th></tr>{rows}</table></div>')
+    note = step.get("note")
+    if note:
+        parts.append(f'<p class="dim">{esc(note)}</p>')
+    return "".join(parts)
+
+
 def build_flow(fm: dict) -> str:
     """A simple top-to-bottom origin → gallery pipeline, per country.
 
@@ -337,7 +388,10 @@ def build_flow(fm: dict) -> str:
         ("Origin", esc(fm["underlying"]) if fm.get("underlying") else ""),
         ("Source / API", src_html if fm.get("source_name") else ""),
         ("Fetcher", fetcher_html),
+        *[(str(s.get("title", "")), build_processing_step(s))
+          for s in (fm.get("processing") or []) if isinstance(s, dict)],
         ("Store", gh_link(fm["data_file"]) if fm.get("data_file") else ""),
+        ("Render", RENDER_STEP if fm.get("data_file") else ""),
         ("Gallery", '<a href="../">BEV Trajectories gallery</a>'),
     ]
     stages = [(t, s) for t, s in stages if s]
@@ -609,7 +663,7 @@ ACEA_GROUP_NOTE = (
     "counts registrations reported through ACEA, is published with a lag "
     "(usually the third to fourth week of the following month), and carries only "
     "the fuel split ACEA itself reports. Where a national registry is the richer "
-    "source of record (e.g. Norway's OFV, Switzerland's BFS), we still ingest the "
+    "source of record (e.g. Norway's OFV), we still ingest the "
     "ACEA figure here for consistency across the cluster.</p></section>")
 
 
@@ -1298,6 +1352,12 @@ h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);paddi
   padding:10px 14px}
 .flow-title{font-weight:700;font-size:13px;color:var(--accent)}
 .flow-sub{font-size:14px;color:var(--text)}
+.flow-sub p{margin:4px 0}
+table.steps{width:100%;border-collapse:collapse;margin:6px 0 2px}
+table.steps th,table.steps td{text-align:left;vertical-align:top;padding:5px 8px;
+  border-bottom:1px solid var(--border);font-size:13px}
+table.steps th{color:var(--muted);font-weight:600}
+table.steps td.num{width:22px;color:var(--muted)}
 .flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
 table.defs{width:100%;border-collapse:collapse}
 table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
