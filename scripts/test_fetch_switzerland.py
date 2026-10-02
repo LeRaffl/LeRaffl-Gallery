@@ -328,6 +328,32 @@ def test_tally_used_imports():
     assert "2022-05" not in t.counts["Used"]
 
 
+def test_title_line_before_header():
+    # GEBR-2020.txt / GEBR-2021.txt open with a title line; a parser that
+    # takes line 1 as the header silently counts nothing (it did: two years
+    # of used imports were missing after the first backfill).
+    header = ["Fahrzeugklasse", "Fahrzeugart", "Marke", "Typ2", "Treibstoff_Code",
+              "Ersterfassung_Jahr", "Ersterfassung_Monat"]
+    title = "Gebrauchtfahrzeuge aus dem Ausland, erste Zulassung in der Schweiz " \
+            "von 01.01.2021 bis 01.01.2022" + "\t" * 6
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "GEBR-2021.txt"
+        p.write_text("\r\n".join([title, "\t".join(header),
+                                   "M1\tPersonenwagen\tVW\tGolf\tE\t2021\t03"]) + "\r\n",
+                     encoding="utf-8")
+        t = fs.tally_file(p, "GEBR")
+    assert t.month("Used", "2021-03")["BEV"] == 1
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "broken.txt"
+        p.write_text("no header here\n" * 12, encoding="utf-8")
+        try:
+            fs.tally_file(p, "GEBR")
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("a file without a header must fail loudly")
+
+
 def test_selected_variants():
     class A:
         variant = "all"

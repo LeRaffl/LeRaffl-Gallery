@@ -336,8 +336,16 @@ def download(session: requests.Session, url: str) -> Path:
     raise AssertionError("unreachable")
 
 
+def is_header(fields: list[str]) -> bool:
+    """The column header — some year files (GEBR-2020, GEBR-2021) open with
+    a title line ("Gebrauchtfahrzeuge aus dem Ausland, erste Zulassung in der
+    Schweiz von … bis …") before it."""
+    return "Fahrzeugart" in (f.strip() for f in fields)
+
+
 def open_rows(path: Path):
-    """(header index, row iterator) — UTF-8, falling back to cp1252."""
+    """(header index, row iterator) — UTF-8, falling back to cp1252; any
+    title lines before the header are skipped."""
     for enc in ("utf-8", "cp1252"):
         try:
             with open(path, encoding=enc) as f:
@@ -347,8 +355,12 @@ def open_rows(path: Path):
             continue
     fh = open(path, encoding=enc, newline="")
     reader = csv.reader(fh, delimiter="\t", quoting=csv.QUOTE_NONE)
-    header = [h.strip() for h in next(reader)]
-    return {k: i for i, k in enumerate(header)}, reader, fh
+    for _ in range(10):
+        header = [h.strip() for h in next(reader)]
+        if is_header(header):
+            return {k: i for i, k in enumerate(header)}, reader, fh
+    fh.close()
+    raise RuntimeError(f"{path}: no header line with 'Fahrzeugart' in the first 10 lines")
 
 
 def parse_date(s: str) -> dt.date | None:
@@ -388,11 +400,12 @@ def probe_meta(session: requests.Session, url: str) -> str | None:
     if r.status_code not in (200, 206) or "html" in r.headers.get("content-type", ""):
         print(f"  range probe HTTP {r.status_code}; will download the file")
         return None
-    lines = r.content.decode("utf-8", "replace").split("\n")
-    if len(lines) < 2:
+    lines = [l.rstrip("\r").split("\t") for l in
+             r.content.decode("utf-8", "replace").split("\n")]
+    at = next((i for i, l in enumerate(lines[:10]) if is_header(l)), None)
+    if at is None or at + 1 >= len(lines):
         return None
-    header, row = lines[0].rstrip("\r").split("\t"), lines[1].rstrip("\r").split("\t")
-    return last_complete_month(*snapshot_meta(header, row))
+    return last_complete_month(*snapshot_meta(lines[at], lines[at + 1]))
 
 
 class Tally:

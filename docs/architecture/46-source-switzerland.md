@@ -368,6 +368,10 @@ January–April 2025 is 435 below ACEA's (with it: −36).
   CSV has the newest complete month.
 - **HTTP "Request Rejected" page:** the WAF blocks a bare `Mozilla/5.0` UA and requests
   without an `Accept` header — keep `HTTP_HEADERS`.
+- **A year counts nothing:** `GEBR-2020.txt` and `GEBR-2021.txt` open with a title line
+  ("Gebrauchtfahrzeuge aus dem Ausland, erste Zulassung …") before the column header. The
+  parser looks for the line with `Fahrzeugart` in the first 10 lines and fails loudly when
+  there is none, rather than counting zero rows.
 - **A month is wrong:** rows are never revised automatically. Delete the row (and every later
   ASTRA row of that year) and dispatch the workflow: the next run re-derives them by the
   ACEA rule. `force` overwrites rows from other sources.
