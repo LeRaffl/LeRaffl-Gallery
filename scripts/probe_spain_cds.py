@@ -143,6 +143,33 @@ def main():
               f"BAJA_TELEMATICA set: {bt:,}; FEC_MATRICULA months: "
               f"{dict(fm.most_common(4))}")
 
+        # --- decomposition of the gap ---------------------------------
+        t25 = [l for l in whole if field(l, "COD_TIPO") == "25"]
+        t40 = [l for l in whole if field(l, "COD_TIPO") == "40"]
+        b25 = collections.Counter(bm(l)[0] for l in t25)
+        m25 = collections.Counter(bm(l) for l in t25)
+        print(f"\n### DECOMP tipo 25 todo terreno: {len(t25):,} "
+              f"(gap left after removing it: {gap - len(t25):+,})")
+        print("  brands: " + ", ".join(f"{b} {n}" for b, n in b25.most_common(15)))
+        print("  models: " + ", ".join(f"{b} {m} {n}" for (b, m), n in m25.most_common(20)))
+        b40 = collections.Counter(bm(l)[0] for l in t40)
+        print("### DECOMP tipo 40 only, brand diff vs cds (|d|>=20):")
+        for b in sorted(set(b40) | set(cds_brand), key=lambda b: -(b40[b] - cds_brand[b])):
+            d = b40[b] - cds_brand[b]
+            if abs(d) >= 20:
+                print(f"  {b:<28} ours40 {b40[b]:>6,} cds {cds_brand[b]:>6,} diff {d:>+5,}")
+        gapb = {b for b in b40 if b40[b] - cds_brand[b] >= 20}
+        for b in sorted(gapb, key=lambda b: -(b40[b] - cds_brand[b]))[:10]:
+            mm = collections.Counter((bm(l)[1], field(l, "CARROCERIA"),
+                                      field(l, "NUM_PLAZAS"))
+                                     for l in t40 if bm(l)[0] == b)
+            print(f"  {b}: " + "; ".join(f"{m} [{c},{p}] {n}" for (m, c, p), n
+                                          in mm.most_common(18)))
+        for a in ("CARROCERIA", "CLASIFICACION_REGLAMENTO_VEHICULOS_ITV",
+                  "NUM_PLAZAS"):
+            c = collections.Counter(field(l, a) for l in t40)
+            print(f"  tipo40 {a}: {dict(c.most_common(10))}")
+
         # attribute mix of the over-counted models' records
         over = {k for k in mods[:40] if our_model[k] - cds_model[k] > 0}
         sub = [l for l in whole if bm(l) in over]
