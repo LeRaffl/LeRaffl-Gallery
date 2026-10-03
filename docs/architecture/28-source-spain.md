@@ -294,6 +294,7 @@ https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_ma
 | Weekends | Usually 404; sometimes a file with 1–2 records (trailers, mopeds). |
 | Lifetime | **Deleted once the monthly file is published** — July/August daily files were already gone, so a same-month daily-vs-monthly diff was impossible. |
 | September 2026 | Daily sum, Whole: 96,047 cars, BEV 17,650 (18.38 %), BEV+PHEV+EREV 32,565. ANFAC: 93,858 / 31,945 → +2.3 % / +1.9 %, the usual DGT-vs-ANFAC scope gap (§4). |
+| Third-party check | [cardatasales.com](https://cardatasales.com/) (also built on DGT registrations, smaller turismo scope): over 2025-01…2026-08 its totals run 3.4–5.2 % and its BEV 0.8–2.6 % below our monthly-file rows; September's daily sum sits in the same band (−3.6 % / −0.5 %; BEV 17,558 vs 17,650). |
 
 **How `fetch_spain.py` uses them.** When the monthly file of the target
 month 404s, it fetches every daily file of that month. The month counts as
