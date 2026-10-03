@@ -53,10 +53,12 @@ processing:
 - title: Pick the vehicles
   text:
   - Cars and two-wheelers are picked by DGT's national vehicle type; vans, lorries and buses by the EU homologation category, which DGT records for them reliably.
+  - Whole is every new vehicle DGT registers as a passenger car — EU class M1 — with no model list on top. It therefore also holds the off-roaders (type 25) and the passenger versions of vans (Multivan, Tourneo, Berlingo, Proace Verso, …, about 2 % of the market), which ANFAC — and with it ACEA — counts as light commercials; some DGT-based sites also leave out the off-roaders.
   decision:
     ask: DGT vehicle type?
     branches:
     - when: 40 turismo or 25 todo terreno (passenger car, off-roader)
+      note: incl. passenger versions of vans (Multivan, Tourneo, Berlingo, …), which ANFAC/ACEA count as vans — about 2 % of Whole
       then:
         ask: New or used?
         branches:
