@@ -1,0 +1,11 @@
+🇵🇾 Paraguay - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++1.2pp  BEV   (2.5% → 3.7%)
++4.1pp  PHEV  (3.1% → 7.2%)
++4.7pp  HEV   (6.3% → 11.0%)
+−10.0pp  ICE   (88.0% → 78.0%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2031-05.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
