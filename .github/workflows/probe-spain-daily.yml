@@ -1,0 +1,35 @@
+name: Probe Spain DGT daily files (temporary)
+
+# TEMPORARY — compares the sum of DGT's daily matriculaciones files against
+# the monthly file (scripts/probe_spain_daily.py). Runs on push to its probe
+# branch only; read-only, commits nothing. Remove together with the script.
+
+on:
+  push:
+    branches:
+      - claude/spain-daily-probe
+    paths:
+      - scripts/probe_spain_daily.py
+      - .github/workflows/probe-spain-daily.yml
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Probe daily vs monthly
+        env:
+          PROBE_MONTHS: '2026-08,2026-07'
+          PROBE_CURRENT: '2026-09'
+        run: python -u scripts/probe_spain_daily.py
