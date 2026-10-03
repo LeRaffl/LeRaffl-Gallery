@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T10:01:57Z",
+ "generated": "2026-10-03T13:01:46Z",
  "today": "2026-10-03",
  "countries": [
   {
@@ -2776,6 +2776,64 @@
      "latest": "2026-08",
      "first": "2005-01",
      "rows": 260,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
+   "country": "Paraguay",
+   "slug": "paraguay",
+   "method": "file",
+   "source_name": "DNIT (customs, ex Dirección Nacional de Aduanas) — Portal de Datos Abiertos",
+   "source_url": "https://datosabiertos.aduana.gov.py/ddaa/app/#/inicio",
+   "cadence_text": "twice daily on the 1st–7th — the portal regenerates month M's files on the 1st of M+1",
+   "interval": "monthly",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "16:55",
+     "22:55"
+    ],
+    "workflow": ".github/workflows/fetch-paraguay.yml"
+   },
+   "last_render": null,
+   "flag": "🇵🇾",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-09",
+     "first": "2017-01",
+     "rows": 117,
      "cadence": "monthly",
      "in_repo": true
     }
