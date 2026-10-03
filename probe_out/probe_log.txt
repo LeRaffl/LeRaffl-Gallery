@@ -1,0 +1,17 @@
+ok https://www.cadam.com.py/detalle/importaciones-de-vehiculos-hibridos-y-electricos-crecieron-657-en-2025 3854
+ok https://www.cadam.com.py/detalle/importaciones-de-vehiculos-hibridos-y-electricos-crecieron-628-en-noviembre-de-2025 2779
+ok https://www.cadam.com.py/detalle/importaciones-de-vehiculos-hibridos-y-electricos-crecieron-70-en-octubre 2355
+ok https://www.cadam.com.py/detalle/importaciones-de-vehiculos-hibridos-y-electricos-crecieron-138-al-mes-de-febrero 2772
+2025-01 216MB 181s, 6240 vehicle items
+2025-02 226MB 145s, 7100 vehicle items
+2025-03 234MB 669s, 8424 vehicle items
+    ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')) — retry in 5s
+2025-04 242MB 188s, 7771 vehicle items
+2025-05 256MB 158s, 8453 vehicle items
+2025-06 225MB 135s, 7898 vehicle items
+2025-07 273MB 147s, 9063 vehicle items
+2025-08 264MB 105s, 8603 vehicle items
+2025-09 273MB 128s, 9135 vehicle items
+2025-10 319MB 545s, 12260 vehicle items
+2025-11 270MB 196s, 9536 vehicle items
+2025-12 277MB 107s, 10077 vehicle items
