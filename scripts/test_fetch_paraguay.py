@@ -270,6 +270,13 @@ def test_reclass_and_watch_in_aggregate():
     assert ("2026-08", "HEV", "NISSAN", "X-TRAIL E-POWER ADVANCE") in agg.units
 
 
+def test_used_is_data_only():
+    # Used is fetched and committed but never rendered (owner decision 2026-10).
+    assert fp.render_list({"Whole", "Used"}) == ["Whole"]
+    assert fp.render_list({"Used"}) == []
+    assert "Used" in fp.VARIANT_CSV
+
+
 def test_vin_once_per_month():
     vin = "LGXCEACC8S2156194"
     agg = agg_of([row("8703.80.00.000L", text=f"BYD SEAL CHASIS {vin}"),

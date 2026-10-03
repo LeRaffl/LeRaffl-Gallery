@@ -235,8 +235,8 @@ significant EV importer is outside it**).
 > outside Paraguay and has no monthly series, so the source is the customs
 > administration's record-level open data (DNIT, `datosabiertos.aduana.gov.py`):
 > every import declaration item, monthly, free, with the HS 2017 tariff line
-> (powertrain) and the declared state new/used. Whole (new cars, NCM 87.03) and
-> Used (used-car imports) from 2017-01; **imports, not registrations** — as for
+> (powertrain) and the declared state new/used. Whole (new cars, NCM 87.03) from
+> 2017-01, Used (used-car imports) as a data-only CSV; **imports, not registrations** — as for
 > Nepal. Validated against CADAM's yearly electrified imports (2021–2025 within
 > 2–6 %) and OLACDE's EV fleet count. ≈ 30,000 new cars a year, electrified
 > share 13.4 % in 2025, 24 % in 2026 to September (BEV 2.4 % → 4.0 %). See

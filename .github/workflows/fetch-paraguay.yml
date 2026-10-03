@@ -8,6 +8,7 @@ name: Fetch Paraguay data (DNIT customs imports)
 #
 #   data/Paraguay.csv        Whole   new cars imported for consumption (NCM 87.03, EU M1)
 #   data/Paraguay_Used.csv   Used    used cars imported for consumption (NCM 87.03)
+#                                    — DATA ONLY: kept current, never rendered
 #
 # Paraguay builds no cars, so imports are the market (CADAM reports them as
 # such). The powertrain is the NCM subheading (HS 2017): 8703.80 BEV,
@@ -27,6 +28,8 @@ name: Fetch Paraguay data (DNIT customs imports)
 #
 # Rendering: dispatches render-country.yml ONCE with the pipe-separated list
 # of touched variants (serial in one run, one commit — see fetch-spain.yml).
+# Used is fetch-only: the script leaves it out of changed_variants, so a
+# Used-only change is committed but not rendered (as Argentina's Pickups).
 
 on:
   workflow_dispatch:

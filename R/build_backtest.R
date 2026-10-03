@@ -66,8 +66,10 @@ MIN_ROWS <- 24
 # Series kept as data only: the CSV exists and is maintained, but by owner
 # decision it must not appear anywhere in the gallery — not rendered, no
 # params.csv row, and not in the backtest either. "Country|Variant".
-# Mirror of RENDERED_VARIANTS in scripts/fetch_argentina.py.
-DATA_ONLY_SERIES <- c("Argentina|Pickups")
+# Mirror of RENDERED_VARIANTS in scripts/fetch_argentina.py and
+# scripts/fetch_paraguay.py, and of DATA_ONLY_SERIES in
+# scripts/check_country_integration.py.
+DATA_ONLY_SERIES <- c("Argentina|Pickups", "Paraguay|Used")
 
 # Months are stepped as YYYY-MM strings throughout; the data's own `period`
 # column is the same shape, so truncation is a plain string comparison.

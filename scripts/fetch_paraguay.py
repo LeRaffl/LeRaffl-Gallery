@@ -37,7 +37,8 @@ Record → CSV
 Only cars (NCM heading 87.03) imported for consumption:
 
   Whole  data/Paraguay.csv        87.03 ∧ USO = NUEVO   (new cars, EU M1)
-  Used   data/Paraguay_Used.csv   87.03 ∧ USO = USADO   (used-car imports)
+  Used   data/Paraguay_Used.csv   87.03 ∧ USO = USADO   (used-car imports) — DATA ONLY,
+                                  never rendered (RENDERED_VARIANTS)
 
   OPERACION = IMPORTACION, and DESTINACION in CONSUMPTION_REGIMES (import for
   consumption, from a bonded warehouse, from a free zone, diplomatic). Entries
@@ -129,7 +130,11 @@ VARIANT_CSV = {
     "Whole": "data/Paraguay.csv",
     "Used":  "data/Paraguay_Used.csv",
 }
-RENDERED_VARIANTS = tuple(VARIANT_CSV)
+# Variants that are rendered into the gallery. Used is fetch-only: its CSV is
+# kept up to date, but it is never passed to render-country.yml (owner
+# decision 2026-10: BEV is ~0.03 % of used imports, the fit is flat, the chart
+# says nothing). Mirror of DATA_ONLY_SERIES in R/build_backtest.R.
+RENDERED_VARIANTS = ("Whole",)
 USO_VARIANT = {"NUEVO": "Whole", "USADO": "Used"}
 
 FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]

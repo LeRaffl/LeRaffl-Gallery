@@ -2,7 +2,7 @@
 country: Paraguay
 slug: paraguay
 method: file
-summary: New-car and used-car import data for Paraguay from the customs administration's
+summary: New-car import data for Paraguay from the customs administration's
   record-level open data — every import declaration item, with the tariff line that names
   the powertrain, the declared state new or used, brand and description. Paraguay builds no
   cars, so its car market is measured by its imports.
@@ -23,21 +23,20 @@ auth: none
 cadence: twice daily on the 1st–7th — the portal regenerates month M's files on the 1st of M+1
 variants:
 - Whole
-- Used
 variant_notes:
   Whole: New cars imported for consumption — NCM heading 87.03 (cars, SUVs, MPVs ≈ EU M1) with the declaration's own state NUEVO.
-  Used: Used cars imported for consumption — NCM 87.03 declared USADO (mostly Japanese-market cars via Chile, and US cars).
 hev_split: true
 hev_note: BEV, PHEV and HEV are the tariff subheadings of HS 2017 (8703.80 electric only; 8703.60/.70 plug-in hybrids, range extenders included; 8703.40/.50 hybrids that cannot be charged from the grid). HEV therefore counts full AND mild hybrids.
 backfill: from 2017-01, the first month of the HS 2017 nomenclature that splits cars by powertrain; the customs files reach back to 1997 but without a powertrain split
-scope_note: Imports for consumption of new (Whole) and used (Used) cars into Paraguay — counted when they clear customs, not when they are registered. Pickups and goods vehicles (NCM 87.04), golf carts, cars entering a bonded warehouse or free zone (counted when they leave it), temporary imports and leasing are in no variant.
+scope_note: Imports for consumption of new cars (Whole) into Paraguay — counted when they clear customs, not when they are registered. Pickups and goods vehicles (NCM 87.04), golf carts, cars entering a bonded warehouse or free zone (counted when they leave it), temporary imports and leasing are in no variant.
 caveats:
 - These are imports, not registrations. Paraguay has no car industry, so over a year imports and the market are the same thing, and the distributors' chamber CADAM measures the market this way too. A single month can still run ahead of sales when importers stock up.
 - The powertrain is the tariff line the importer declares and customs accepts. Validated against CADAM's published yearly electrified imports, 2021–2025, within 2–6 % every year.
+- BEV here is lower than CADAM's published figure (2025 — 698 vs 858, −19 %). The gap is one of definition and is reconciled to a single car (see "Check against CADAM" below): CADAM adds up every declaration on the electric-only tariff line, so it counts the Nissan X-Trail e-POWER (a hybrid without a plug) as electric, counts a car that goes through a bonded warehouse or free zone twice — on entry and again on release — and includes used imports. This series counts each new car once, on release, and the e-POWER as a hybrid. Quoting CADAM's BEV figure next to this chart will therefore always show a gap.
 - HEV includes mild hybrids (they share tariff subheading 8703.40 with full hybrids) — except where an importer declares them on a petrol line (Fiat Pulse/Fastback and Mazda CX-60/CX-90 mild hybrids, about 500 cars 2025–26), where they stay in PETROL.
 - A few models are declared on the wrong electrified tariff line and are corrected from their description: the Nissan X-Trail e-POWER (a hybrid without a plug, declared as electric-only) is counted as HEV, range-extender models (Leapmotor C10 REEV, Deepal S05) as PHEV.
 - Pickups are not in Whole (they are NCM 87.04, goods vehicles) — in Paraguay a large segment (Hilux, Ranger, …), so CADAM's "vehicles" figure is larger than Whole.
-- Used is a different population (used-car imports, one and a half to three times the number of new cars every year since 2017) — read it next to Whole, not as part of it.
+- Used-car imports (one and a half to three times the number of new cars every year since 2017, almost all combustion — BEV about 0.03 %) are kept as a data-only file (data/Paraguay_Used.csv): fetched every month, not charted. The new-car chart therefore describes well under half of the cars entering the Paraguayan fleet.
 - One declaration item is one car. The quantity column is unreliable for cars (thousands of single cars a month carry "7"); a larger quantity is believed only when the item weighs that many cars.
 processing:
 - title: Download
@@ -56,7 +55,7 @@ processing:
         - when: NUEVO
           then: Whole
         - when: USADO
-          then: Used
+          then: Used (data-only file, not charted)
     - when: entry into a bonded warehouse (IDA…) or a free zone (ZF01)
       then: not counted
       note: the car is counted when it leaves for consumption (IC09 / ZF2I) — never twice
@@ -100,6 +99,22 @@ processing:
 - title: Count
   text:
   - One declaration item is one car — the quantity column is unreliable for cars, so a quantity above one is believed only when the item's net weight is that of that many cars (at least 600 kg each). A chassis number (VIN) quoted twice in one month counts once.
+- title: Check against CADAM
+  text:
+  - CADAM, the distributors' chamber, publishes yearly electrified imports. BEV + PHEV + HEV together match within 2–6 % every year 2021–2025, PHEV and HEV in 2025 within 0.5 %. BEV is lower here (2025 — 698 vs 858) because the two count differently; going through every 2025 declaration on the electric-only line reconciles the two to a single car (698 + 82 + 68 + 9 = 857 vs 858).
+  decision:
+    ask: A declaration on the electric-only line (8703.80) that CADAM counts as a BEV — what does this series do with it?
+    branches:
+    - when: a new car released for consumption
+      then: BEV (698 in 2025)
+    - when: Nissan X-Trail e-POWER
+      then: HEV, not BEV (82 in 2025)
+      note: a hybrid without a plug — CADAM's own brand table has Nissan at 13 % of its BEVs
+    - when: entry into a bonded warehouse or free zone (IDA3, ZF01, IT04)
+      then: not counted on entry (68 in 2025)
+      note: counted once, when it is released; a gross count takes it twice (15 Xiaomi into the free zone in 2025 and the same 15 out)
+    - when: a used car (USADO)
+      then: Used data file (9 in 2025)
 market_breakdown: market/paraguay_top.json
 market_designation_note: the model is read from the declaration's free-text description (the words after "MODELO", or the whole text when it is just a designation such as "TANK 400 PHEV 4WD"), first three words, upper-cased. A description without a model counts for its brand only.
 market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV — the tariff subheading; HEV includes mild hybrids.
@@ -139,7 +154,7 @@ Timing:    month M's files regenerated on the 1st of M+1 (Aug 2026: Sep 1
            Last-Modified is after the month's end.
 History:   2017-01 → today (HS 2017 powertrain subheadings).
 Scope:     NCM 87.03, imports for consumption; USO NUEVO → Whole,
-           USADO → Used.
+           USADO → Used (data-only CSV, never rendered).
 Fuel:      the tariff subheading: .80 BEV · .60/.70 PHEV · .40/.50 HEV
            (full + mild) · .2x petrol · .3x diesel · .90 other.
 Checked:   CADAM's yearly electrified imports 2021–2025: 0.94–1.04.
@@ -176,7 +191,7 @@ or a recognised official body, complete for the market, free.
 |---|---|
 | `OPERACION` | `IMPORTACION` → counted; `EXPORTACION` → export check only (§6) |
 | `DESTINACION` | the customs regime (§4) |
-| `USO` | `NUEVO` → Whole, `USADO` → Used (the declared state of the goods) |
+| `USO` | `NUEVO` → Whole, `USADO` → Used, a data-only file (the declared state of the goods) |
 | `POSICION ` (trailing space) | NCM tariff line `8703.80.00.000L` → heading 87.03 and the fuel column (§3) |
 | `CANTIDAD ESTADISTICA`, `KILO NETO` | units (§5) |
 | `AÑO`, `MES` | period (must equal the file's month — a mismatch aborts) |
@@ -322,7 +337,13 @@ in at 27 %. Single import months are lumpier than registrations would be.
 
 ## 7. Outputs
 
-- `data/Paraguay.csv`, `data/Paraguay_Used.csv` (monthly, 2017-01 →).
+- `data/Paraguay.csv` (monthly, 2017-01 →), rendered.
+- `data/Paraguay_Used.csv` (monthly, 2017-01 →) — **data only** (owner decision
+  2026-10): BEV is about 0.03 % of used imports, so the fit is flat and the
+  chart said nothing ("-Inf years"). Kept current by every run, never passed to
+  `render-country.yml` (`RENDERED_VARIANTS`), no `params.csv` row, not in the
+  backtest (`DATA_ONLY_SERIES` in `R/build_backtest.R` and
+  `scripts/check_country_integration.py`).
 - `market/paraguay_top.json` — trailing-12-month top brands and models per
   class (BEV, PHEV, HEV) for Whole, built from the month store
   `market/paraguay_months.json` (a normal run downloads only two months, so it
@@ -354,7 +375,7 @@ sequenceDiagram
         Py->>CSV: line-level upserts (changed lines only)
         Py->>Top: month store + trailing-12-month top list
         Py-->>Cron: run report → step summary
-        Cron->>Render: once, variants = touched of "Used|Whole"
+        Cron->>Render: once, if Whole changed (Used is data only)
     end
 ```
 
