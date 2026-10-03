@@ -1,0 +1,27 @@
+name: probe-tmp
+on:
+  push:
+    branches: [claude/paraguay-probe]
+    paths: [scripts/probe_tmp.py, .github/workflows/probe-tmp.yml]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - run: python scripts/probe_tmp.py 2>&1 | tee probe_log.txt; mkdir -p probe_out; mv probe_log.txt probe_out/
+      - name: Commit probe output
+        if: always()
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@users.noreply.github.com
+          git add -f probe_out
+          git commit -m "probe output" || exit 0
+          git pull --rebase
+          git push
