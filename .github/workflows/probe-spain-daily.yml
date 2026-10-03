@@ -30,6 +30,6 @@ jobs:
 
       - name: Probe daily vs monthly
         env:
-          PROBE_MONTHS: '2026-08,2026-07'
+          PROBE_MONTHS: ''
           PROBE_CURRENT: '2026-09'
         run: python -u scripts/probe_spain_daily.py

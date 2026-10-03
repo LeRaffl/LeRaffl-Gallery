@@ -234,12 +234,66 @@ def list_current(session, period: str) -> None:
         d += timedelta(days=1)
 
 
+def daily_only(session, period: str) -> None:
+    """Aggregate a month from its daily files alone (no monthly yet) and
+    print the per-variant counts + top models as JSON for a later diff."""
+    y, m = map(int, period.split("-"))
+    ndays = calendar.monthrange(y, m)[1]
+    first_next = date(y, m, ndays) + timedelta(days=1)
+    days = [date(y, m, d) for d in range(1, ndays + 1)]
+    days += [first_next + timedelta(days=i) for i in range(NEXT_DAYS)]
+    print(f"\n\n======== {period} from daily files only ========")
+    all_in, fec_in = empty_counts(), empty_counts()
+    models = collections.Counter()
+    for d in days:
+        info, txt = get_daily(session, d)
+        if txt is None:
+            print(f"{d} {d.strftime('%a')} {info['status']}")
+            continue
+        fec = collections.Counter()
+        n = 0
+        for line in records(txt):
+            n += 1
+            fm = fec_month(line)
+            fec[fm] += 1
+            if d.month == m:
+                add(all_in, line)
+            if fm == period:
+                add(fec_in, line)
+                if (len(line) == fs.RECORD_LEN
+                        and "Whole" in fs.record_variants(line)):
+                    models[model_key(line)] += 1
+        print(f"{d} {d.strftime('%a')} records={n} fec_mix="
+              f"{dict(fec.most_common(4))}")
+        if n < 10:
+            print(f"   tiny file, first lines: "
+                  f"{[l[:60] for l in records(txt)][:3]} raw={txt[:200]!r}")
+    for label, c in (("all", all_in), ("fec_in", fec_in)):
+        print(f"\nCOUNTS_{label} " + json.dumps(
+            {v: dict(c[v]) for v in VARIANTS}, sort_keys=True))
+        w = c["Whole"]
+        if w["TOTAL"]:
+            print(f"Whole {label}: TOTAL={w['TOTAL']:,} "
+                  f"BEV={w['BEV']:,} ({w['BEV'] / w['TOTAL'] * 100:.2f} %) "
+                  f"PHEV+EREV={w['PHEV'] + w['EREV']:,}")
+    by_brand = collections.Counter()
+    for (c, b, _), n in models.items():
+        by_brand[(c, b)] += n
+    print("\ntop BEV brands: " + ", ".join(
+        f"{b} {n:,}" for (c, b), n in by_brand.most_common() if c == "BEV")[:600])
+    print("top BEV models: " + ", ".join(
+        f"{b} {mo} {n:,}" for (c, b, mo), n in models.most_common()
+        if c == "BEV")[:600])
+
+
 def main() -> int:
-    months = (os.environ.get("PROBE_MONTHS") or "2026-08,2026-07").split(",")
+    months = [p for p in (os.environ.get("PROBE_MONTHS") or "").split(",")
+              if p.strip()]
     current = os.environ.get("PROBE_CURRENT") or "2026-09"
     session = fs.make_session()
     list_current(session, current)
-    summary = [probe_month(session, p.strip()) for p in months if p.strip()]
+    daily_only(session, current)
+    summary = [probe_month(session, p.strip()) for p in months]
     print("\n\n======== SUMMARY ========")
     for s in summary:
         print(json.dumps(s))
