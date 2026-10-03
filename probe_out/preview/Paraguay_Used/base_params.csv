@@ -1,0 +1,2 @@
+country,variant,v1,v2,t0,data_per,model_date,source,baseline_date,ice_v1,ice_v2,ice_t0,ttm_bev_share,refit_swing
+Paraguay,Used,-3.51163076378e-5,0.908400088997616,2016,2026-09,2026-10-03,DNIT customs import declarations (datosabiertos.aduana.gov.py),,-2.017043364999e-5,1.61864270203948,2016,2.849679411066e-4,Inf
