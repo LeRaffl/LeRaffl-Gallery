@@ -140,6 +140,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-nepal.yml`](../../.github/workflows/fetch-nepal.yml) | 07:50 UTC, daily | Department of Customs FTS XLSX (`customs.gov.np`) — HS 8703 **imports**, not registrations | `Whole` + `3-Wheelers` | cheap-skip when the CSV already covers every published workbook |
 | [`fetch-netherlands.yml`](../../.github/workflows/fetch-netherlands.yml) | 06:30 UTC, 1st → 15th | RDW via Swing BI (`duurzamemobiliteit.databank.nl`, Deno Deploy relay) (+ `market/netherlands_top.json` / `netherlands_used_top.json` and their `_months.json` stores from `opendata.rdw.nl`, direct, no render trigger) | `Whole` + `Used` + `HDV` | per-variant diff vs CSV |
 | [`fetch-new-zealand.yml`](../../.github/workflows/fetch-new-zealand.yml) | **disabled** — cron commented out 2026-06 (Imperva); `workflow_dispatch` only, data entered by hand | transport.govt.nz `/inner` (CKAN fallback) | `Whole` | n/a |
+| [`fetch-paraguay.yml`](../../.github/workflows/fetch-paraguay.yml) | 16:55 & 22:55 UTC, 1st → 7th | DNIT customs open data (`datosabiertos.aduana.gov.py`, item-level CSV per month, regenerated on the 1st of M+1 in the Asunción afternoon) — NCM 87.03 **imports** for consumption, powertrain from the tariff subheading ([47](47-source-paraguay.md)) | `Whole` + `Used` (data only, never rendered) — one file, both variants | newest complete month (file generated after the month ended) already in every CSV → file list + one HEAD, no download |
 | [`fetch-peru.yml`](../../.github/workflows/fetch-peru.yml) | 15:45 UTC, daily | AAP «BI-AAP» public Power BI report (SUNARP first registrations; anonymous query API, one query per month) — a month is written only when before the reload month, classified and confirmed by AAP's printed monthly report; a real run re-reads the whole history for AAP's re-classifications ([45](45-source-peru.md) §5a) | `Whole` + `Vans` — one query per month, both variants | newest classified month already in every CSV **and** the report's reload stamp (in `market/peru_top.json`) unchanged → a few small requests, no month queries; a classified month still missing from the printed report → the report is read and the run stops |
 | [`fetch-poland.yml`](../../.github/workflows/fetch-poland.yml) | 09:30 & 13:30 UTC, 6th → 10th | PZPM eRegistrations XLSX (from the CEP register) | `Whole` + `Vans` + `HDV` + `Buses` | per-variant early-exit |
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`; + `market/portugal_top.json` / `portugal_months.json`, brands only, no render trigger) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
@@ -174,12 +175,12 @@ Notes on the schedule shape:
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
-  11:00, Peru 15:45 (Lima mid-morning), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
+  11:00, Peru 15:45 (Lima mid-morning), Paraguay 16:55 & 22:55 (1st–7th — the customs portal regenerates the month's files on the 1st, early afternoon in Asunción), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
   from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
   afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
-  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy and Portugal from the
-  1st too) rely entirely on the self-throttle to keep the empty days free —
+  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy, Portugal and Paraguay
+  from the 1st too) rely entirely on the self-throttle to keep the empty days free —
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,

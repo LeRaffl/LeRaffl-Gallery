@@ -47,7 +47,7 @@ GEO_GROUPS = ("western_europe", "northern_europe", "southern_europe", "eastern_e
 # Series a Weibull fit needs before the backtest fits it (R/build_backtest.R).
 MIN_ROWS = 24
 # Mirror of DATA_ONLY_SERIES in R/build_backtest.R.
-DATA_ONLY_SERIES = {"Argentina|Pickups"}
+DATA_ONLY_SERIES = {"Argentina|Pickups", "Paraguay|Used"}
 # Variant names that are archives, not series (data/France_legacy.csv, …).
 ARCHIVE_VARIANTS = {"legacy"}
 

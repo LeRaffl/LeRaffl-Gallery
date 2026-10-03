@@ -1,0 +1,142 @@
+name: Fetch Paraguay data (DNIT customs imports)
+
+# Fetches the customs administration's record-level open data (DNIT, ex
+# Dirección Nacional de Aduanas — datosabiertos.aduana.gov.py: one CSV per
+# month, one row per import-declaration item, with the NCM tariff line, the
+# declared state NUEVO/USADO, brand and a free-text description) and upserts
+# the Paraguay CSVs:
+#
+#   data/Paraguay.csv        Whole   new cars imported for consumption (NCM 87.03, EU M1)
+#   data/Paraguay_Used.csv   Used    used cars imported for consumption (NCM 87.03)
+#                                    — DATA ONLY: kept current, never rendered
+#
+# Paraguay builds no cars, so imports are the market (CADAM reports them as
+# such). The powertrain is the NCM subheading (HS 2017): 8703.80 BEV,
+# 8703.60/.70 PHEV, 8703.40/.50 HEV (full + mild), 8703.2x petrol,
+# 8703.3x diesel. Also writes market/paraguay_top.json and its month store
+# market/paraguay_months.json (top BEV / PHEV / HEV brands and models).
+# Full method, governance checks and a debugging runbook:
+# docs/architecture/47-source-paraguay.md.
+#
+# The portal regenerates month M's file on the 1st of M+1 (2026: Sep 1
+# 14:23 UTC for August, Oct 1 15:22 UTC for September). Polled twice a day
+# on the 1st-7th; the script reads the portal's file list and one HEAD (two
+# small requests) and exits without downloading when every CSV already has
+# the newest complete month. A real run downloads the newest two months
+# (≈ 2 × 300 MB as 12 parallel byte ranges, ≈ 1 min each); `backfill`
+# re-derives every month from 2017-01 (≈ 2-3 h).
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+# Used is fetch-only: the script leaves it out of changed_variants, so a
+# Used-only change is committed but not rendered (as Argentina's Pickups).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Used
+      period:
+        description: 'Target month YYYY-MM (default: newest complete month on the portal)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2017-01 (downloads every monthly file, 2-3 h)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness guard and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 16:55 and 22:55 UTC on the 1st-7th (Asunción 13:55 / 19:55): the
+    # portal regenerates the month's files in the early afternoon of the 1st.
+    - cron: '55 16,22 1-7 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # The tariff-line map and the regime rules fail silently when wrong,
+      # so the regression tests gate the fetch rather than trail it.
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_paraguay.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Paraguay CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_paraguay.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Paraguay*.csv
+            market/paraguay_top.json
+            market/paraguay_months.json
+          message: 'chore: update Paraguay data from DNIT customs import declarations'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Paraguay
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Paraguay" \
+            -f variants="$variants"
