@@ -276,9 +276,12 @@ An unknown regime is reported and, above 2 % of Whole, aborts the run.
 | 2025 | 3,876 | 4,049 | 0.96 |
 
 2025 by class: BEV 698 vs 858, PHEV 1,100 vs 1,105, HEV 2,078 vs 2,086 —
-PHEV and HEV within 0.5 %. The BEV gap (160) is about the Nissan X-Trail
-e-POWER this fetcher moves to HEV (§3a): CADAM evidently counts it as electric,
-as declared. First half of 2026: 3,924 vs 4,098 (0.96).
+PHEV and HEV within 0.5 %. BEV is 19 % below CADAM: about half of the gap
+(82 of 160) is the Nissan X-Trail e-POWER this fetcher moves to HEV (§3a),
+which CADAM evidently counts as electric, as declared. The other half is not
+explained — CADAM may count electric light commercials (NCM 87.04) or date
+imports differently. The BEV level is therefore the least certain of the
+three classes; it is not inflated by the rules here. First half of 2026: 3,924 vs 4,098 (0.96).
 
 **Fleet.** OLACDE's Latin-American e-mobility monitor (June 2026) counts 4,359
 light electric vehicles in circulation in Paraguay in March 2026. Cumulative
