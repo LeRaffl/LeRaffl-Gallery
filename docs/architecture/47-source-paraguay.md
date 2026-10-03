@@ -222,7 +222,8 @@ contains "HEV"):
 | BEV, HEV | `REEV`, `PHEV`, `DM-i`, plug-in — Leapmotor C10 REEV, Deepal S05, GWM New H6 PHEV, BMW X5 PHEV | PHEV | 52 |
 | BEV | `HEV`, `HYBRID` | HEV | 0 (a single BMW) |
 
-Without the first rule the BEV series would be ~14 % too high in 2025–26.
+Without the first rule the BEV series would be about 9 % too high in 2025–26
+(166 e-POWER on 1,894 BEV; 290 in 2023–26).
 **Petrol and diesel lines are never moved.** A description there that names
 a hybrid or plug-in is listed in the run report ("Petrol/diesel lines whose
 description names a hybrid or plug-in"); in 2017–2026 that was 553 cars,
