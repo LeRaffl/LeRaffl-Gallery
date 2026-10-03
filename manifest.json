@@ -2,6 +2,46 @@
   "updated": "2026-10-03",
   "images": [
     {
+      "country": "Paraguay",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-03",
+      "filename": "paraguay_ICE_BEV_20261003.png",
+      "url": "images/2026-09/paraguay_ICE_BEV_20261003.png",
+      "alt": "Paraguay ICE-BEV-Hybrid trajectory",
+      "country_slug": "paraguay"
+    },
+    {
+      "country": "Paraguay",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-03",
+      "filename": "paraguay_20261003.png",
+      "url": "images/2026-09/paraguay_20261003.png",
+      "alt": "Paraguay BEV trajectory",
+      "country_slug": "paraguay"
+    },
+    {
+      "country": "Paraguay",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-03",
+      "filename": "paraguay_time_20261003.png",
+      "url": "images/2026-09/paraguay_time_20261003.png",
+      "alt": "Paraguay Transition time curve",
+      "country_slug": "paraguay"
+    },
+    {
+      "country": "Paraguay",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-03",
+      "filename": "paraguay_ttm_shares_20261003.png",
+      "url": "images/2026-09/paraguay_ttm_shares_20261003.png",
+      "alt": "Paraguay TTM market split graph",
+      "country_slug": "paraguay"
+    },
+    {
       "country": "Spain",
       "type": "ICE_BEV",
       "period": "2026-09",
