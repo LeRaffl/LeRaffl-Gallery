@@ -146,7 +146,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-portugal.yml`](../../.github/workflows/fetch-portugal.yml) | 17:30 & 20:30 UTC, 1st → 5th | ACAP via motordata.pt (`chartdata_novo.php`; + `market/portugal_top.json` / `portugal_months.json`, brands only, no render trigger) | `Whole` (auto-render) + `Vans` + `HDV` + `Buses` (fetch-only, thin history) | per-variant diff vs CSV |
 | [`fetch-singapore.yml`](../../.github/workflows/fetch-singapore.yml) | 08:00 UTC, 15th → EOM | LTA Monthly Vehicle Statistics, file M03 (PDF) + `market/singapore_top.json` / `singapore_months.json` | `Whole` | change-gated commit (rolling ~6-month window); render only if `data/Singapore.csv` changed |
 | [`fetch-south-korea.yml`](../../.github/workflows/fetch-south-korea.yml) | 03:35 & 09:35 UTC, 12th → 25th | MOTIR «자동차산업 동향» press-release PDF ([43](43-source-south-korea.md)) | `Whole` | newest release's month in the CSV and its previous month unchanged → no write |
-| [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 06:30 UTC, 1st → 16th | DGT matriculaciones microdata (fixed-width, monthly zip) + `market/spain_top.json` | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
+| [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 07:15 UTC, 1st → 16th (+14:15, 1st → 3rd) | DGT matriculaciones microdata (fixed-width, monthly zip; provisional sum of the daily zips until the monthly one is out on the 15th) + `market/spain_top.json` | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
 | [`fetch-switzerland.yml`](../../.github/workflows/fetch-switzerland.yml) | 09:20 & 15:20 UTC, 1st → 6th | ASTRA IVZ open data (`NEUZU.txt` / `GEBR.txt`, record level) + `market/switzerland_top.json` ([46](46-source-switzerland.md)) | `Whole` + `Vans` + `HDV` + `Buses` + `2-Wheelers` + `Used` | 16 KB range probe: snapshot's newest complete month already in every CSV → no download |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
@@ -168,9 +168,9 @@ Notes on the schedule shape:
   (HK office hours — TD's upload day is unpredictable, so it polls daily),
   Ireland 04:00 & 13:00
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
-  Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Spain
-  06:30, Canada 06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Colombia
-  07:30, France 07:40, Nepal 07:50; South Korea 03:35 & 09:35 (MOTIR releases
+  Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Canada
+  06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Spain 07:15 (after
+  DGT's own 06:30 UTC drop; +14:15 on the 1st–3rd), Colombia 07:30, France 07:40, Nepal 07:50; South Korea 03:35 & 09:35 (MOTIR releases
   at 11:00 KST).
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30

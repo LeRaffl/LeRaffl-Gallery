@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-02T21:49:16Z",
- "today": "2026-10-02",
+ "generated": "2026-10-03T10:01:57Z",
+ "today": "2026-10-03",
  "countries": [
   {
    "country": "Albania",
@@ -3366,13 +3366,13 @@
    "method": "file",
    "source_name": "datos.gob.es — DGT matriculaciones microdata",
    "source_url": "https://datos.gob.es/es/catalogo/e00130502-microdatos-de-matriculaciones-de-vehiculos-mensual",
-   "cadence_text": "daily in the first half of the month (publishes weeks before ACEA)",
+   "cadence_text": "provisional month from the daily files on the 1st–2nd, final monthly file on the 15th (weeks before ACEA)",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3409,74 +3409,75 @@
      12
     ],
     "times": [
-     "06:30"
+     "07:15",
+     "14:15"
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-03",
    "flag": "🇪🇸",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-01",
-     "rows": 140,
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Rental",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "NonRental",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-10",
-     "rows": 131,
+     "rows": 132,
      "cadence": "monthly",
      "in_repo": true
     }
