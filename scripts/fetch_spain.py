@@ -12,6 +12,7 @@ registered vehicle, monthly, free, no login:
         export_mensual_mat_{YYYYMM}.zip
 
 The month directory is NOT zero-padded ("2026/4/", the padded variant 404s).
+The monthly file is published on the 15th of the following month.
 Records are 714 chars over 69 fields per the MATRICULACIONES_MATRABA.pdf
 record design; the layout below was transcribed and verified against real
 records by a temporary probe workflow (runs #1–#7, 2026-07-08; since
@@ -92,14 +93,32 @@ Fuel mapping (gallery schema with EREV column, China-style)
                                        category label; rare)
                                    anything else (GLP/GNC/GNL/H2/…) → OTHERS
 
+Daily files (provisional month)
+-------------------------------
+Before the monthly file is out, DGT has one zip per registration day in the
+same folder, same record layout:
+
+    .../{Y}/{M}/vehiculos/matriculaciones/export_mat_{YYYYMMDD}.zip
+
+Day D appears on D+1 (06:30 UTC; Friday's on Saturday afternoon), and the
+whole month's dailies are deleted once its monthly file is published. When
+the target month's monthly file 404s, the month is summed from its dailies —
+but only once every Monday–Friday file is there (national holidays excepted;
+a missing weekday means "not yet"). The rows get source "DGT (daily)" and a
+"provisional: …" note; the monthly file replaces them, a daily sum never
+replaces a "DGT" row. --no-daily disables the fallback. Probe record and
+September 2026 cross-check: docs/architecture/28-source-spain.md §3b.
+
 Top brands / models (market/spain_top.json)
 -------------------------------------------
 The records carry MARCA_ITV / MODELO_ITV, so every run also keeps the
 trailing-twelve-month top brands and models per electrified class (Whole
 only) current, in the country-neutral schema of scripts/market_top.py; the
-source page renders it. It is rebuilt whenever it is missing or its as_of is
-behind the newest DGT month in data/Spain.csv — i.e. once per new month, and
-automatically on the first run — which costs twelve downloads. --no-top skips it.
+source page renders it. It is rebuilt whenever it is missing, its as_of is
+behind the newest DGT month in data/Spain.csv, or its source differs from
+that row's ("DGT (daily)" → "DGT") — i.e. provisionally and then finally once
+per new month, and automatically on the first run — which costs twelve
+downloads. --no-top skips it.
 
 Components sum to TOTAL exactly (single-pass count over the same records);
 the sanity check is therefore an exact assertion, not a tolerance.
@@ -107,7 +126,8 @@ the sanity check is therefore an exact assertion, not a tolerance.
 Modes
 -----
 * Monthly (default): fetch the previous calendar month, upsert one row per
-  variant. Self-throttles via the latest DGT row already in every CSV.
+  variant; fall back to the daily files while the monthly one 404s.
+  Self-throttles via the latest "DGT" (monthly-file) row in every CSV.
 * Bootstrap/backfill (--backfill, or automatically when any selected CSV
   does not exist): walk months DESCENDING from the previous month down to
   --backfill-from (default 2015-01). Stops at the first month whose
@@ -117,8 +137,8 @@ Modes
   source string; variants have no pre-DGT history to splice.
 
 Overwrite rule (mirrors the fetch_acea.py courtesy rule): a row is
-overwritten only if it doesn't exist or its source is exactly "DGT" or
-"ACEA". Blend/legacy rows are never touched without --force.
+overwritten only if it doesn't exist or its source is exactly "DGT",
+"DGT (daily)" or "ACEA". Blend/legacy rows are never touched without --force.
 
 Usage
 -----
@@ -131,13 +151,14 @@ Usage
 See docs/architecture/28-source-spain.md for the full investigation record.
 """
 import argparse
+import calendar
 import csv
 import io
 import json
 import os
 import sys
 import zipfile
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import requests
@@ -147,6 +168,10 @@ import market_top  # noqa: E402
 
 LEGACY_PATH = "data/Spain_legacy.csv"
 SOURCE = "DGT"
+# Provisional rows summed from the daily files before the monthly file is out
+# (see "Daily files" in the module docstring). Distinct from SOURCE so the
+# monthly self-throttle keeps polling and the monthly file replaces them.
+SOURCE_DAILY = "DGT (daily)"
 BACKFILL_FROM_DEFAULT = "2015-01"
 
 VARIANT_CONFIG: dict[str, str] = {  # variant name → CSV path
@@ -173,6 +198,10 @@ ZIP_URL_CANDIDATES = [
     "https://www.dgt.es/microdatos/salida/{y}/{m_nopad}/vehiculos/matriculaciones/export_mensual_mat_{ym}.zip",
     "https://www.dgt.es/microdatos/salida/{y}/{m}/vehiculos/matriculaciones/export_mensual_mat_{ym}.zip",
 ]
+# One file per registration day, same directory and record layout. DGT
+# deletes a month's daily files once its monthly file is published.
+DAILY_URL_TPL = ("https://www.dgt.es/microdatos/salida/{y}/{m_nopad}/vehiculos/"
+                 "matriculaciones/export_mat_{ymd}.zip")
 
 # dgt.es 403s bare clients; browser headers + homepage warmup (same class of
 # WAF handling as fetch_acea.py).
@@ -288,6 +317,91 @@ def download_month(session: requests.Session, period: str) -> tuple[bytes, str]:
                 return z.read(txt_names[0]), url
     raise NotPublished(f"{period}: no candidate URL worked "
                        f"(last HTTP {last_status})")
+
+
+def easter(year: int) -> date:
+    """Gregorian Easter Sunday (anonymous Gregorian algorithm)."""
+    a, b, c = year % 19, year // 100, year % 100
+    d, e = b // 4, b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = c // 4, c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = (h + l - 7 * m + 114) % 31 + 1
+    return date(year, month, day)
+
+
+def national_holidays(year: int) -> set[date]:
+    """Spain-wide public holidays — weekdays DGT may publish no file for.
+    Regional holidays are not listed: the registry is national, so those
+    days still get a file."""
+    fixed = [(1, 1), (1, 6), (5, 1), (8, 15), (10, 12), (11, 1), (12, 6),
+             (12, 8), (12, 25)]
+    return ({date(year, m, d) for m, d in fixed}
+            | {easter(year) - timedelta(days=2)})        # Viernes Santo
+
+
+def expected_daily_files(period: str) -> list[date]:
+    """Days of `period` that must have a daily file for the month to count
+    as complete: every Monday–Friday that is not a national holiday.
+    Weekend and holiday files are summed when present, never required."""
+    y, m = map(int, period.split("-"))
+    hol = national_holidays(y)
+    return [date(y, m, d) for d in range(1, calendar.monthrange(y, m)[1] + 1)
+            if date(y, m, d).weekday() < 5 and date(y, m, d) not in hol]
+
+
+def strip_banner(txt: bytes) -> bytes:
+    """Drop the informational first line (if any) and end on a newline, so
+    daily files can be concatenated into one monthly-shaped text."""
+    if txt[:1] and not txt[:1].isdigit():
+        nl = txt.find(b"\n")
+        txt = b"" if nl < 0 else txt[nl + 1:]
+    if txt and not txt.endswith(b"\n"):
+        txt += b"\n"
+    return txt
+
+
+def download_daily_month(session: requests.Session,
+                         period: str) -> tuple[bytes, str]:
+    """Sum of a month's daily files as one monthly-shaped text, plus the
+    note for the provisional row. Raises NotPublished unless every expected
+    weekday file is there (a missing one means "not yet", not "no
+    registrations"), so a half-published month is never written."""
+    y, m = map(int, period.split("-"))
+    required = set(expected_daily_files(period))
+    parts: list[bytes] = []
+    have: list[date] = []
+    missing: list[date] = []
+    for d in range(1, calendar.monthrange(y, m)[1] + 1):
+        day = date(y, m, d)
+        url = DAILY_URL_TPL.format(y=y, m_nopad=m, ymd=day.strftime("%Y%m%d"))
+        r = session.get(url, timeout=180)
+        if r.status_code == 200 and r.content[:2] == b"PK":
+            with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+                names = [n for n in z.namelist() if n.lower().endswith(".txt")]
+                if not names:
+                    raise RuntimeError(f"{period}: no .txt inside {url}")
+                parts.append(strip_banner(z.read(names[0])))
+            have.append(day)
+        elif r.status_code == 404:
+            if day in required:
+                missing.append(day)
+        else:
+            raise RuntimeError(f"{period}: daily file {url} -> HTTP "
+                               f"{r.status_code}")
+    if missing:
+        raise NotPublished(
+            f"{period}: daily files incomplete — {len(missing)} weekday(s) "
+            f"missing: {', '.join(d.isoformat() for d in missing[:5])}"
+            + (" …" if len(missing) > 5 else ""))
+    note = (f"provisional: sum of {len(have)} DGT daily files "
+            f"export_mat_{have[0]:%Y%m%d}..{have[-1]:%Y%m%d}; replaced by "
+            f"the monthly file (published around the 15th)")
+    return b"".join(parts), note
 
 
 def classify_fuel(line: str) -> str:
@@ -407,29 +521,50 @@ def aggregate_models(txt_bytes: bytes) -> tuple[dict, int]:
 
 
 def latest_dgt_period(rows: list[dict]) -> str | None:
-    periods = [r["period"] for r in rows
-               if (r.get("source") or "") == SOURCE
-               and (r.get("variant") or "Whole") == "Whole"]
-    return max(periods) if periods else None
+    """Newest Whole month from DGT — monthly file or provisional daily sum."""
+    latest = latest_dgt_row(rows)
+    return latest["period"] if latest else None
+
+
+def latest_dgt_row(rows: list[dict]) -> dict | None:
+    dgt = [r for r in rows
+           if (r.get("source") or "") in (SOURCE, SOURCE_DAILY)
+           and (r.get("variant") or "Whole") == "Whole"]
+    return max(dgt, key=lambda r: r["period"]) if dgt else None
+
+
+def top_source_of(path: Path) -> str | None:
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("source")
+    except (OSError, ValueError):
+        return None
 
 
 def refresh_top(session: requests.Session | None) -> None:
-    """Rebuild market/spain_top.json if it is missing or behind the newest
-    DGT month in data/Spain.csv (twelve downloads; see module docstring)."""
-    target = latest_dgt_period(load_rows(Path(VARIANT_CONFIG["Whole"])))
-    if target is None:
+    """Rebuild market/spain_top.json if it is missing, behind the newest
+    DGT month in data/Spain.csv, or built from that month's daily files
+    while the CSV row now comes from the monthly file (twelve downloads;
+    see module docstring)."""
+    latest = latest_dgt_row(load_rows(Path(VARIANT_CONFIG["Whole"])))
+    if latest is None:
         return
+    target, source = latest["period"], latest["source"]
     have = market_top.top_as_of(TOP_PATH)
-    if market_top.top_is_current(TOP_PATH, target):
-        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current ({target}).")
+    if (market_top.top_is_current(TOP_PATH, target)
+            and top_source_of(TOP_PATH) == source):
+        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current "
+              f"({target}, {source}).")
         return
-    print(f"Top brands/models: {have or 'none'} -> {target}, "
+    print(f"Top brands/models: {have or 'none'} -> {target} ({source}), "
           "reading the trailing twelve months …")
     session = session or make_session()
     monthly: dict = {}
     for period in market_top.month_window(target):
         try:
-            txt, _ = download_month(session, period)
+            if period == target and source == SOURCE_DAILY:
+                txt, _ = download_daily_month(session, period)
+            else:
+                txt, _ = download_month(session, period)
         except NotPublished as e:
             print(f"  {e} — top list not rebuilt this run.")
             return
@@ -437,7 +572,7 @@ def refresh_top(session: requests.Session | None) -> None:
         del txt
         monthly[period] = (u, t)
         print(f"  {period}: {t:,} Whole records")
-    top = market_top.build_top_monthly("Spain", SOURCE, target, monthly, TOP_UNIT)
+    top = market_top.build_top_monthly("Spain", source, target, monthly, TOP_UNIT)
     market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
 
 
@@ -464,26 +599,32 @@ def may_overwrite(existing: dict | None, force: bool) -> bool:
     if existing is None or force:
         return True
     src = (existing.get("source") or "").strip().upper()
-    return src in ("DGT", "ACEA")
+    return src in (SOURCE.upper(), SOURCE_DAILY.upper(), "ACEA")
 
 
 def upsert(rows: list[dict], period: str, variant: str,
-           counts: dict[str, int], zip_url: str, force: bool) -> str:
-    """Returns 'added' | 'updated' | 'unchanged' | 'skipped'."""
+           counts: dict[str, int], zip_url: str, force: bool,
+           source: str = SOURCE) -> str:
+    """Returns 'added' | 'updated' | 'unchanged' | 'skipped'. A provisional
+    (SOURCE_DAILY) row never replaces a monthly-file (SOURCE) row."""
     existing = next((r for r in rows
                      if r["period"] == period
                      and (r.get("variant") or "Whole") == variant), None)
     if not may_overwrite(existing, force):
         return "skipped"
+    if (source == SOURCE_DAILY and existing is not None
+            and (existing.get("source") or "") == SOURCE):
+        return "skipped"
     new_row = {
         "period": period, "time_interval": "monthly", "variant": variant,
-        "source": SOURCE, "notes": zip_url,
+        "source": source, "notes": zip_url,
         **{k: f"{counts[k]:.1f}" for k in FUEL_COLUMNS + ["TOTAL"]},
     }
     if existing is not None:
         same = all(float(existing.get(k) or 0) == counts[k]
                    for k in FUEL_COLUMNS + ["TOTAL"])
-        if same and (existing.get("source") or "") == SOURCE:
+        if (same and (existing.get("source") or "") == source
+                and (existing.get("notes") or "") == zip_url):
             return "unchanged"
         rows.remove(existing)
         rows.append(new_row)
@@ -545,6 +686,9 @@ def main() -> int:
                     help="Overwrite rows regardless of their source string.")
     ap.add_argument("--no-top", action="store_true",
                     help="Skip the top brands/models refresh.")
+    ap.add_argument("--no-daily", action="store_true",
+                    help="Don't fall back to the daily files when the "
+                         "monthly file is not out yet.")
     ap.add_argument("--github-output",
                     default=os.environ.get("GITHUB_OUTPUT"),
                     help="Write changed=… and changed_variants=… outputs.")
@@ -584,6 +728,7 @@ def main() -> int:
     stopped_at: str | None = None
 
     for period in periods:
+        source = SOURCE
         try:
             txt, url = download_month(session, period)
             counts = aggregate(txt, period, variants)
@@ -593,14 +738,29 @@ def main() -> int:
                 stopped_at = period
                 break
             print(f"{e} — will retry on the next scheduled run.")
-            continue
+            if args.no_daily:
+                continue
+            try:
+                txt, url = download_daily_month(session, period)
+                counts = aggregate(txt, period, variants)
+            except NotPublished as e2:
+                print(f"{e2} — no provisional row this run.")
+                continue
+            except (RuntimeError, requests.RequestException,
+                    zipfile.BadZipFile) as e2:
+                # The fallback is an extra: never fail the run over it.
+                print(f"::warning::Spain daily-file fallback failed for "
+                      f"{period}: {e2}")
+                continue
+            source = SOURCE_DAILY
+            print(f"{period}: provisional counts from the daily files ({url}).")
         except LayoutMismatch as e:
             print(f"  {e}")
             stopped_at = period
             break
         for v in variants:
             status = upsert(rows_by_variant[v], period, v, counts[v],
-                            url, args.force)
+                            url, args.force, source)
             if status in ("added", "updated"):
                 changed.add(v)
             if v == "Whole" or status != "unchanged":

@@ -10,12 +10,15 @@ source_links:
 - label: Direct monthly download (pattern)
   url: https://www.dgt.es/microdatos/salida/2026/6/vehiculos/matriculaciones/export_mensual_mat_202606.zip
   note: one zip per month; swap year / month / YYYYMM. The month folder is not zero-padded
+- label: Direct daily download (pattern)
+  url: https://www.dgt.es/microdatos/salida/2026/9/vehiculos/matriculaciones/export_mat_20260930.zip
+  note: one zip per registration day, same layout; deleted once the month's monthly file is out
 - label: DGT
   url: https://www.dgt.es/
 underlying: DGT — Dirección General de Tráfico
 market_breakdown: market/spain_top.json
 auth: none
-cadence: daily in the first half of the month (publishes weeks before ACEA)
+cadence: provisional month from the daily files on the 1st–2nd, final monthly file on the 15th (weeks before ACEA)
 variants:
 - Whole
 - Rental
@@ -41,10 +44,12 @@ caveats:
 - Raw DGT registry microdata (fixed-width, no header row); ACEA no longer writes Spain.
 - EREV has its own column and folds into PHEV in the three-curve view.
 - Whole is ~2% above ACEA's market definition (registry vs association scope).
+- Until DGT's monthly file is out (around the 15th), the newest month is a provisional sum of DGT's daily files — source "DGT (daily)", flagged in the row's notes — and is replaced by the monthly file.
 processing:
 - title: Download
   text:
   - DGT publishes one zip per month with one fixed-width record per registered vehicle (714 characters, 69 fields). One pass over the file fills every variant; a month with more than 1 % of records of another length, or a Whole total under 2,000, stops the run.
+  - Until that monthly zip is out (around the 15th), the month is summed from DGT's daily zips instead — same records, one file per registration day — but only once every weekday file (national holidays excepted) is there. Those rows are marked provisional and the monthly zip replaces them.
 - title: Pick the vehicles
   text:
   - Cars and two-wheelers are picked by DGT's national vehicle type; vans, lorries and buses by the EU homologation category, which DGT records for them reliably.
@@ -160,8 +165,12 @@ resurrect it from git history (last present on branch
 Source:        DGT monthly matriculaciones microdata (raw registry, free,
                no login) → scripts/fetch_spain.py. Canonical; ACEA no longer
                writes Spain at all.
-Publishes:     first half of the following month — weeks before ACEA.
-Schedule:      daily cron 1st–16th, 06:30 UTC; per-variant early-exit.
+Publishes:     daily files on D+1 06:30 UTC; the monthly file on the 15th
+               of the following month, 06:30 UTC — weeks before ACEA.
+Provisional:   1st–15th: sum of the month's daily files → rows with source
+               "DGT (daily)", replaced by the monthly file (§3b).
+Schedule:      daily cron 1st–16th, 07:15 UTC (+14:15 on the 1st–3rd);
+               early-exit once every variant holds the month from "DGT".
 Zip URL:       https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/
                matriculaciones/export_mensual_mat_{YYYYMM}.zip
                ({M} NOT zero-padded — the padded variant 404s)
@@ -260,9 +269,54 @@ IEST help):
 | Trámite mix | The monthly file is 96–97 % clave trámite `1` (matriculación); `9` (re-matriculación, ≈ clase 7 histórica) and `B` are excluded by the new+turismo filters anyway. FEC_MATRICULA is ≈100 % in-month — no cut-off drift vs ANFAC. |
 | Key code tables (Anexo I) | COD_PROPULSION: 0 gasolina, 1 diésel, 2 eléctrico, 6 GLP, 7 GNC, 8 GNL, 9 H2, B etanol, C biodiésel. COD_SERVICIO/SERVICIO: `B00` particular (~75 %), `A01` alquiler sin conductor (~34–35k/month!), `A00` público, … CATEGORIA_VEHICULO_ELECTRICO: BEV/REEV/PHEV/HEV (+FCEV, single digits). COD_TIPO: 40 turismo, 25 todo terreno, 20 furgoneta, 30 autobús… |
 
-Still unverified: the exact publication day-of-month (observe live; both
-probed months were long since available) and layout stability across older
-years (matters only for a history backfill — check record lengths per year).
+Publication day, since observed: the monthly file lands on the **15th**,
+06:30 UTC (§3b). Still unverified: layout stability across older years
+(matters only for a history backfill — check record lengths per year).
+
+## 3b. Daily files → provisional month (since 2026-10)
+
+The monthly file only lands on the **15th** (Last-Modified 2026-08-15 and
+2026-09-15, 06:30 UTC both times), which left Spain half a month behind its
+own source. DGT also publishes one zip per registration day:
+
+```
+https://www.dgt.es/microdatos/salida/{Y}/{M}/vehiculos/matriculaciones/export_mat_{YYYYMMDD}.zip
+```
+
+**What the probe showed** (2026-10-03, temporary workflow on branch
+`claude/spain-daily-probe`):
+
+| Fact | Detail |
+|---|---|
+| Timing | Day D is out on D+1 at 06:30 UTC; Friday's file on Saturday ~13:00 UTC. The 30 Sep file was there on **1 Oct**. |
+| Layout | Same MATRABA layout as the monthly file — every record 714 chars; a leading banner line, if any, is dropped per file (`strip_banner`). |
+| Cut | By registration date: every record's FEC_MATRICULA is the file's day (bar a stray historic plate). No cross-month drift, so a month = its days' files. |
+| Weekends | Usually 404; sometimes a file with 1–2 records (trailers, mopeds). |
+| Lifetime | **Deleted once the monthly file is published** — July/August daily files were already gone, so a same-month daily-vs-monthly diff was impossible. |
+| September 2026 | Daily sum, Whole: 96,047 cars, BEV 17,650 (18.38 %), BEV+PHEV+EREV 32,565. ANFAC: 93,858 / 31,945 → +2.3 % / +1.9 %, the usual DGT-vs-ANFAC scope gap (§4). |
+
+**How `fetch_spain.py` uses them.** When the monthly file of the target
+month 404s, it fetches every daily file of that month. The month counts as
+complete only when **every Monday–Friday file is there**, except Spain-wide
+national holidays (`national_holidays()`: the nine fixed ones + Viernes
+Santo); a missing weekday means "not yet", so nothing is written. Weekend and
+holiday files are summed when present. The sum runs through the same
+`aggregate()` as the monthly file and is upserted for every variant with:
+
+- `source` = `DGT (daily)` — distinct from `DGT`, so the monthly
+  self-throttle keeps polling until the monthly file is in;
+- `notes` = `provisional: sum of N DGT daily files
+  export_mat_YYYYMMDD..YYYYMMDD; replaced by the monthly file (published
+  around the 15th)` (invariant 6).
+
+The monthly file overwrites those rows (also with identical counts — the
+source and notes change); a daily sum never overwrites a `DGT` row. The
+chart caption follows the newest row's source, so it reads "DGT (daily)"
+while the month is provisional. `market/spain_top.json` follows the same
+rule: built from the daily files for the provisional month (its `source` says
+`DGT (daily)`) and rebuilt once the monthly file arrives. The git diff of
+that replacement commit is the monthly measure of how far the daily sum was
+off. `--no-daily` disables the fallback.
 
 ## 4. Consistency check — results (runs #3–#7, months 2026-01/02/03/05)
 
@@ -403,7 +457,8 @@ conditional rule automatically stops touching Spain — no ACEA-side change
 needed. Since DGT publishes weeks before ACEA, the DGT row will exist first
 in the steady state. Give `fetch_spain.py` the mirrored courtesy rule:
 overwrite an existing row only if its source is exactly `ACEA` (the fallback
-that beat us to it) or already `DGT`; never touch the blended history rows.
+that beat us to it), `DGT (daily)` (a provisional row, §3b) or already `DGT`;
+never touch the blended history rows. A daily sum never replaces a `DGT` row.
 
 ## 5c. Top brands and models (`market/spain_top.json`)
 
@@ -414,10 +469,11 @@ the electrified cars". Class = exactly the fuel class the record gets in
 `data/Spain.csv` (`classify_fuel`), and the window total equals the CSV TOTAL
 over those months.
 
-- **When:** whenever the file is missing or its `as_of` is behind the newest
-  DGT month in `data/Spain.csv` — so once per new month, on the same run that
-  writes it, and on the first run after deployment (also from a throttled
-  no-op run).
+- **When:** whenever the file is missing, its `as_of` is behind the newest
+  DGT month in `data/Spain.csv`, or its `source` differs from that row's
+  (`DGT (daily)` → `DGT`) — so twice per month (provisional from the daily
+  files, final from the monthly file), on the same run that writes the row,
+  and on the first run after deployment (also from a throttled no-op run).
 - **Cost:** twelve monthly zips, a few minutes. `--no-top` skips it.
 - **Failure:** a warning annotation; the data commit is unaffected. If a month
   of the window 404s, the file is simply not rebuilt that run.
@@ -471,6 +527,9 @@ all eight variants, ACEA removed from Spain, footnotes, renders. The
 temporary probe scaffolding was removed after use (recover from git history
 on branch `claude/spain-data-automation-9jml5p` if a re-verification is
 ever needed).
+
+Since 2026-10 the newest month is filled from DGT's daily files from the
+1st and finalised by the monthly file on the 15th (§3b).
 
 Possible later work, none blocking:
 
