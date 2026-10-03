@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 56 countries · 6,536 periods drawable · 164 held back · **40 of 56 files cost the chart nothing.**
+**Status:** 57 countries · 6,654 periods drawable · 164 held back · **41 of 57 files cost the chart nothing.**
 
 ---
 
@@ -180,6 +180,10 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 - A coarse figure is written across finer rows in **`OTHERS`** — up to 9 rows, 2016-02…2022-09. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
 
+### Paraguay
+
+- A coarse figure is written across finer rows in **`HEV`** — up to 9 rows, 2017-04…2019-03. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
+
 ### Poland
 
 - A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `DIESEL`** — up to 87 rows, 2011-01…2021-06. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
@@ -214,4 +218,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Argentina, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA, Ukraine
+Albania, Argentina, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Korea, Spain, Sweden, Switzerland, Thailand, Türkiye, UK, USA, Ukraine
