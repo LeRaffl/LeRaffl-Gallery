@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-02T21:49:16Z",
- "today": "2026-10-02",
+ "generated": "2026-10-03T09:24:32Z",
+ "today": "2026-10-03",
  "countries": [
   {
    "country": "Albania",
@@ -3366,7 +3366,7 @@
    "method": "file",
    "source_name": "datos.gob.es — DGT matriculaciones microdata",
    "source_url": "https://datos.gob.es/es/catalogo/e00130502-microdatos-de-matriculaciones-de-vehiculos-mensual",
-   "cadence_text": "daily in the first half of the month (publishes weeks before ACEA)",
+   "cadence_text": "provisional month from the daily files on the 1st–2nd, final monthly file on the 15th (weeks before ACEA)",
    "interval": "monthly",
    "latest_period": "2026-08",
    "expected_period": "2026-09",
@@ -3409,7 +3409,8 @@
      12
     ],
     "times": [
-     "06:30"
+     "07:15",
+     "14:15"
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
