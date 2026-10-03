@@ -27,8 +27,14 @@ name: Fetch Spain data (DGT microdata)
 # entry in the Render-country-charts workflow) and commits once, so variants
 # never race each other on the render commit.
 #
-# DGT publishes the monthly file in the first half of the following month;
-# polled daily on the 1st–16th. The script self-throttles via the CSVs.
+# DGT publishes the monthly file on the 15th of the following month (06:30
+# UTC, observed 2026-08/09). Until then the script sums that month's DAILY
+# files (export_mat_YYYYMMDD.zip; day D is out on D+1 at 06:30 UTC, Friday's
+# on Saturday ~13:00) into provisional rows — source "DGT (daily)", flagged in
+# notes — but only once every weekday file is there. The monthly file then
+# replaces them. Polled daily on the 1st–16th (plus an afternoon run on the
+# 1st–3rd for a month ending on a Friday); the script self-throttles once the
+# monthly file is in.
 #
 # Top brands/models: the script also keeps market/spain_top.json (trailing-12-
 # month top brands and models per electrified class, Whole) current — rebuilt
@@ -76,10 +82,13 @@ on:
         default: false
         type: boolean
   schedule:
-    # Daily on the 1st–16th, 06:30 UTC. Empirically the consolidated monthly
-    # file is NOT out by the 8th (2026-06 was still 404 on 2026-07-08), so
-    # the window stays wide; the script self-throttles once the month is in.
-    - cron: '30 6 1-16 * *'
+    # Daily on the 1st–16th, 07:15 UTC — after DGT's 06:30 UTC drop of the
+    # daily and monthly files. The monthly file lands on the 15th; before
+    # that the daily files give a provisional month from the 1st.
+    - cron: '15 7 1-16 * *'
+    # Friday's daily file only appears on Saturday ~13:00 UTC, so a month
+    # ending on a Friday needs an afternoon run to be complete on the 1st.
+    - cron: '15 14 1-3 * *'
 
 jobs:
   fetch:
@@ -104,6 +113,11 @@ jobs:
       # Offline; guards the top brands/models parsing (scripts/market_top.py).
       - name: Test the top brands/models builder
         run: python scripts/test_market_top.py
+
+      # Offline; guards the daily-file fallback (completeness rule, overwrite
+      # order between provisional and monthly rows).
+      - name: Test the Spain fetcher
+        run: python scripts/test_fetch_spain.py
 
       - name: Fetch & update Spain CSVs
         id: fetch
