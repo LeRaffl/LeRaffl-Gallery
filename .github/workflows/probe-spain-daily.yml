@@ -10,6 +10,7 @@ on:
       - claude/spain-daily-probe
     paths:
       - scripts/probe_spain_daily.py
+      - scripts/probe_spain_cds.py
       - .github/workflows/probe-spain-daily.yml
   workflow_dispatch:
 
@@ -28,8 +29,5 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests
 
-      - name: Probe daily vs monthly
-        env:
-          PROBE_MONTHS: ''
-          PROBE_CURRENT: '2026-09'
-        run: python -u scripts/probe_spain_daily.py
+      - name: Probe our Whole vs cardatasales.com
+        run: python -u scripts/probe_spain_cds.py
