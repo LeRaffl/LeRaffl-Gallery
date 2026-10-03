@@ -277,12 +277,28 @@ An unknown regime is reported and, above 2 % of Whole, aborts the run.
 | 2025 | 3,876 | 4,049 | 0.96 |
 
 2025 by class: BEV 698 vs 858, PHEV 1,100 vs 1,105, HEV 2,078 vs 2,086 —
-PHEV and HEV within 0.5 %. BEV is 19 % below CADAM: about half of the gap
-(82 of 160) is the Nissan X-Trail e-POWER this fetcher moves to HEV (§3a),
-which CADAM evidently counts as electric, as declared. The other half is not
-explained — CADAM may count electric light commercials (NCM 87.04) or date
-imports differently. The BEV level is therefore the least certain of the
-three classes; it is not inflated by the rules here. First half of 2026: 3,924 vs 4,098 (0.96).
+PHEV and HEV within 0.5 %. BEV is 19 % below CADAM — a difference of
+definition, fully accounted for by a probe over every 2025 declaration
+(2026-10-03):
+
+| 2025 BEV | units |
+|---|---:|
+| this fetcher (8703.80, new, imports for consumption, e-POWER moved to HEV) | 698 |
+| + Nissan X-Trail e-POWER, kept as BEV as declared | +82 |
+| + bonded-warehouse / free-zone **entries** (IDA3 44, ZF01 22, IT04 2) | +68 |
+| + used BEV imports | +9 |
+| = every 8703.80 declaration, gross | 857 |
+| CADAM | 858 |
+
+So CADAM counts the tariff line gross and literally. Its own brand ranking
+confirms the e-POWER (Nissan 13.1 % of BEV January–November 2025; the
+declarations give 12.6 %). The gross count also takes a warehoused car twice —
+once on entry and again on release: 15 Xiaomi entered the free zone (ZF01) and
+the same 15 left it for consumption (ZF2I); BMW 15 into a bonded warehouse
+(IDA3), 14 out (IC09). This fetcher counts each car once, on release, and
+the e-POWER as the hybrid it is, so its BEV figure is the lower and the
+correct one. HEV and PHEV reconcile the same way (gross new HEV 2,066 vs
+CADAM 2,086; PHEV, where CADAM appears to drop the entries, 1,099 vs 1,105). First half of 2026: 3,924 vs 4,098 (0.96).
 
 **Fleet.** OLACDE's Latin-American e-mobility monitor (June 2026) counts 4,359
 light electric vehicles in circulation in Paraguay in March 2026. Cumulative
