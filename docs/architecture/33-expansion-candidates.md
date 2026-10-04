@@ -288,6 +288,26 @@ before settling; probes ran from GitHub runners, "desk" is web research only.
 | 🇲🇩 Moldova (small) | Public Services Agency open data | the portal's CKAN endpoints guessed (`date.gov.md`, `dataset.gov.md`) answer 404 — not pursued further (a small, used-import market) | not pursued |
 | 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | still a candidate |
 
+## Investigated 2026-10-04 — smaller markets
+
+Asked to try "any country, even a smaller one" after Vietnam failed
+([14](14-data-source-gaps.md)), the session probed these from GitHub runners
+(temporary probe workflow; the dev sandbox reaches none of the hosts).
+None is buildable today; two are close.
+
+| Market | Best source | Finding | Verdict |
+|---|---|---|---|
+| 🇦🇩 Andorra (~4,000 cars/yr) | Departament d'Estadística, note **A119 "Estadística de matriculacions de vehicles"**, monthly PDF about a week after month end (August 2026 on Sep 7), from the vehicle register (Departament de Seguretat Industrial i Transports) | the finest fuel split of any candidate — 100 % electric / petrol plug-in / petrol non-plug-in / diesel plug-in / diesel non-plug-in hybrid / petrol / diesel / no fuel — but **for all vehicle types together** (cars ≈ 2/3, plus motorcycles and mopeds, trucks and vans, others); the passenger-car (`Turismes`) total is published without a fuel split. Registrations include used imports (August 2026: 292 new, 95 imported). `estadistica.ad` is an ArcGIS Hub site whose search API does not answer (`/api/search/v1`, `/api/v3` → HTML error page). Twelve months to August 2026: 5,858 vehicles, 244 BEV (4.2 %), 373 plug-ins | **closest** — buildable if the database (or the office, on request) has `Turismes` × energy; an all-vehicle `Whole` would break the M1 anchoring (invariant 5) and is a maintainer decision |
+| 🇱🇰 Sri Lanka (~68k cars in 2025) | Department of Motor Traffic (`dmt.gov.lk` → Statistics), PDF "New Registrations of Motor Vehicles by Type of Fuel — YYYY" | registry data, **monthly × vehicle class × fuel** (cars: diesel / petrol / electric / diesel-electric / petrol-electric; dual-purpose vehicles likewise) — but published **once a year** (the 2025 file on 2026-02-10), the 2024 file is missing and 2016–2021 are absent; cars were under an import ban until early 2025 (2022: ≈ 1,500 cars, 2025: 68,047), so the only usable regime starts 2025-02 (11 months); "new registration" = first registration in Sri Lanka, mostly reconditioned used imports | **re-check after the 2026 file** (≈ 2027-02: 23 months post-ban) — annual cadence, needs the used-import footnote; petrol-electric is one hybrid bucket |
+| 🇧🇦 Bosnia and Herzegovina (~100k first registrations/yr, ~11k new cars) | BHAS monthly release `TRA_05_YYYY_MM_1_BS.pdf` "Prvi put registrovana cestovna motorna vozila" (from IDDEEA), from 2023-07 | monthly, separates new from used (June 2026: 1,175 new passenger cars of 8,822) — but the fuel split is a **rounded pie chart of all new vehicles** (mopeds, trucks, trailers included; electric 1.7 %, petrol-hybrid one slice), and only petrol's share of new cars is stated in the text | shelved — no passenger-car fuel table, no plug-in split, series from 2023-07 |
+| 🇫🇴 Faroe Islands | Hagstova PxWeb (`statbank.hagstova.fo`, answers runners) | Road traffic (SS03) has only the **stock** of registered vehicles by type and district, 1 January, yearly | no source |
+| 🇬🇱 Greenland | Statistics Greenland PxWeb (`bank.stat.gl`) | motor vehicles = stock by ownership / district / industry only | no source |
+| 🇲🇩 Moldova | Public Services Agency open data on `dataset.gov.md` (CKAN, answers runners) | only the register's **composition by vehicle type** (stock, monthly XLSX) — no first registrations, no fuel | no source |
+
+Also reachable but empty for this purpose: Statistics Mauritius (quarterly
+releases, no registration-by-fuel table found), Serbia's `data.gov.rs`
+(no MoI registration dataset, unchanged from 2026-09).
+
 ## Investigated 2026-09 — large markets still missing
 
 The 2026-09 session set out to add the **largest** car market not yet on the
