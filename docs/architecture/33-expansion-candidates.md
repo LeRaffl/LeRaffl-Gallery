@@ -272,6 +272,21 @@ significant EV importer is outside it**).
 > electric. Brands only, every powertrain (no brand × fuel table). See
 > [49-source-taiwan.md](49-source-taiwan.md).
 
+## Automated, not new — 🇬🇧 UK (2026-10)
+
+> **Status: AUTOMATED (2026-10-04).** Not a new country: the UK (≈ 2 million
+> new cars a year) had been on the gallery since the start, transcribed by
+> hand from SMMT's monthly release. It was the largest market still without
+> a fetcher. Since the November 2024 release SMMT's news post carries its
+> tables as HTML, and the site's WordPress REST API lists the posts without
+> a key, so `scripts/fetch_uk.py` finds the month's post and reads the fuel
+> table by row label. Over all 23 releases 2024-11 → 2026-09 it reproduces
+> the hand-entered rows exactly; the history before 2024-11 (image tables)
+> stays as transcribed. Also writes `market/uk_top.json` from SMMT's open
+> marque table (every powertrain). See [50-source-uk.md](50-source-uk.md).
+> Still by hand: Australia (VFACTS, FCAI's paid report) and Georgia
+> (Geostat, quarterly), plus India's semi-automated VAHAN import.
+
 ## Investigated 2026-10 — the rest of the large-market list
 
 The Taiwan session (2026-10-04) re-checked the remaining larger markets
