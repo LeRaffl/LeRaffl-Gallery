@@ -9,7 +9,7 @@ one ranking per single month (`months`, newest first).
 |---|---|
 | `spain_top.json` | `scripts/fetch_spain.py` (DGT `MARCA_ITV` / `MODELO_ITV`, Whole) |
 | `malaysia_top.json` | `scripts/fetch_malaysia.py` (data.gov.my `maker` / `model`) |
-| `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV + combined Hybrid) |
+| `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV, PHEV, EREV, HEV — plug-ins via `classification/ecuador_rules.csv`) |
 | `hong_kong_top.json` | `scripts/fetch_hong_kong.py` (TD `Vehicle Make` / `Vehicle Model`, Whole; BEV + classified PHEV/EREV; trims merged for display) |
 | `peru_top.json` | `scripts/fetch_peru.py` (AAP BI-AAP `Marca` / `Modelo` from SUNARP, Whole; BEV / PHEV / HEV / MHEV) |
 | `paraguay_top.json` + `paraguay_months.json` | `scripts/fetch_paraguay.py` (customs `MARCA ITEM` / designation from the free-text description, new cars imported for consumption; BEV / PHEV / HEV from the tariff subheading) |
