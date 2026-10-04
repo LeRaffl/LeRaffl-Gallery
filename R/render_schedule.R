@@ -18,7 +18,7 @@ FLAG <- c(
   paraguay="\U0001F1F5\U0001F1FE", peru="\U0001F1F5\U0001F1EA",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
   `south-korea`="\U0001F1F0\U0001F1F7",
-  spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", switzerland="\U0001F1E8\U0001F1ED", taiwan="\U0001F1F9\U0001F1FC", turkey="\U0001F1F9\U0001F1F7", ukraine="\U0001F1FA\U0001F1E6",
+  spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", switzerland="\U0001F1E8\U0001F1ED", taiwan="\U0001F1F9\U0001F1FC", turkey="\U0001F1F9\U0001F1F7", uk="\U0001F1EC\U0001F1E7", ukraine="\U0001F1FA\U0001F1E6",
   uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
 )
 
@@ -29,7 +29,7 @@ LABEL <- c(
   luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", paraguay="Paraguay", peru="Peru", poland="Poland",
   portugal="Portugal", singapore="Singapore", `south-korea`="South Korea", spain="Spain", sweden="Sweden",
-  switzerland="Switzerland", taiwan="Taiwan", turkey="T\u00fcrkiye", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
+  switzerland="Switzerland", taiwan="Taiwan", turkey="T\u00fcrkiye", uk="UK", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
   indonesia="Indonesia", thailand="Thailand"
 )
 

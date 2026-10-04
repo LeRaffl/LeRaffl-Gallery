@@ -153,6 +153,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-taiwan.yml`](../../.github/workflows/fetch-taiwan.yml) | 01:45 & 09:45 UTC, 12th → 28th | MOTC statistics database (`statis.motc.gov.tw`, THB register: Seq 104 by fuel, Seq 118 by brand — the page's `Display.json` endpoint; MOTC published August 2026 on Sep 15) + `market/taiwan_top.json` ([49](49-source-taiwan.md)) | `Whole` + `Vans` + `HDV` + `Buses` | newest month in the table page's period picker already in every CSV → one page request, no query |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
 | [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | 08:30 UTC, 15th → EOM | TÜİK «Motorlu Kara Taşıtları» bulletin (id auto-discovered; fuel table OCR'd) | `Whole` — otomobil only, combined Hybrid bucket | `latest_period(Türkiye.csv) ≥ target` |
+| [`fetch-uk.yml`](../../.github/workflows/fetch-uk.yml) | 10:25 & 16:25 UTC, 1st → 15th | SMMT monthly release (WordPress posts API → the post with the month's fuel table; vehicle-data page as fallback, and for `market/uk_top.json` / `uk_months.json`) — SMMT releases at 09:00 UK time on ~the 4th working day (September 2026 on Oct 2) ([50](50-source-uk.md)) | `Whole` | target month in `data/UK.csv` from `SMMT` and `uk_top.json` current → no HTTP; a release still missing on the 11th fails the run |
 | [`fetch-ukraine.yml`](../../.github/workflows/fetch-ukraine.yml) | 08:40 & 20:40 UTC, 1st → 15th | MIA open vehicle register (`data.gov.ua` CKAN; yearly zips, current year re-uploaded ~the 1st) — fuel from the record, new/used from operation codes ([40](40-source-ukraine.md)) | `Whole` + `Private` + `Industry` + `Used` + `Vans` — one download, every variant; combined Hybrid bucket | every CSV already has the target month from `MIA HSC (data.gov.ua)` → no HTTP |
 | [`fetch-uruguay.yml`](../../.github/workflows/fetch-uruguay.yml) | 08:10 UTC, 1st → EOM | ACAU «Compilado YYYY» xlsx + `market/uruguay_top.json` / `uruguay_months.json` | `Whole` (AUTOS + SUV) + `Vans` + `HDV` + `Buses` | `latest_period` per variant ≥ target and the top file current |
 | [`fetch-usa.yml`](../../.github/workflows/fetch-usa.yml) | 10:30 UTC, 10th → EOM | ANL «Total Sales for Website» PDF | `Whole` — trailing 3-month window, re-written each run to absorb ANL revisions | change-detection on the window |
@@ -178,13 +179,15 @@ Notes on the schedule shape:
   at 11:00 KST).
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
-  & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
+  & 13:30, Indonesia 09:35, UK 10:25 & 16:25 (1st–15th — an hour or so after
+  SMMT's 09:00 UK-time release; `:25` at those hours is otherwise unused), USA
+  10:30 (off the 10th's Brazil window), China
   11:00, Ecuador 14:05 & 23:05 (1st–14th, Quito 09:05 / 18:05 — SRI regenerated
   August 2026 on the 4th at 17:33 Quito time; `:05` is otherwise unused), Peru 15:45 (Lima mid-morning), Paraguay 16:55 & 22:55 (1st–7th — the customs portal regenerates the month's files on the 1st, early afternoon in Asunción), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
   from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
   afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
-  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy, Portugal, Paraguay and
+  Sweden, Spain, Thailand, Luxembourg, Ukraine, UK; Ireland, Italy, Portugal, Paraguay and
   Ecuador from the 1st too) rely entirely on the self-throttle to keep the empty days free —
   they fire many times a month but only do real HTTP on the days the source
   publishes.

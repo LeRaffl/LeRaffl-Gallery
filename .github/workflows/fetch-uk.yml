@@ -1,0 +1,131 @@
+name: Fetch UK data (SMMT)
+
+# Fetches SMMT's monthly new-car registrations release (compiled by SMMT from
+# DVLA data) and upserts data/UK.csv (Whole = new cars, EU M1):
+#
+#   BEV / PHEV / HEV / PETROL / DIESEL / TOTAL from the release's fuel table
+#   (mild hybrids are inside PETROL / DIESEL, as SMMT publishes them).
+#
+# SMMT tags nothing, so the script lists the posts of the publication window
+# through the site's WordPress REST API (/wp-json/wp/v2/posts, no key) and
+# keeps the one whose fuel table is for the target month; the vehicle-data
+# page (/vehicle-data/car-registrations/) is the fallback, and the only source
+# of the brand table behind market/uk_top.json (brands + SMMT's top-10 models,
+# January to date; single months accumulate in market/uk_months.json).
+# Every run checks the table against itself (sum, printed shares and % change
+# — a shifted column fails) and against data/UK.csv (year-to-date minus the
+# earlier months, same month a year earlier).
+# Full method, governance checks and a debugging runbook:
+# docs/architecture/50-source-uk.md.
+#
+# SMMT publishes month M at 09:00 UK time on about the 4th working day of
+# M+1 (2026: Jan 6, Feb 5, Mar 5, Apr 7, May 6, Jun 4, Jul 6, Aug 5, Sep 4,
+# Oct 2). An early release carries "preliminary figures ... subject to
+# change"; the month is then stored as a provisional row and replaced by the
+# final figures a few days later, without `force` (50-source-uk.md §2.1).
+# Polled at 10:25 and 16:25 UTC on the 1st-15th; once the month is in the CSV
+# (not provisional) and the top file is current, a run exits without any HTTP
+# request.
+# A normal run reads one page of the posts API plus the data page (~1 MB);
+# `backfill` re-reads every release since 2024-11 (the first with HTML
+# tables) and only adds months the CSV lacks. From the 11th on, a release
+# that still cannot be found fails the run (see the runbook).
+#
+# Rendering: dispatches render-country.yml ONCE with the changed variants.
+
+on:
+  workflow_dispatch:
+    inputs:
+      period:
+        description: 'Target month YYYY-MM (default: the month that just ended)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-read every release since 2024-11 and add the months the CSV lacks'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Overwrite an existing row for the month and skip the plausibility / year-to-date guards'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 10:25 and 16:25 UTC on the 1st-15th (SMMT releases at 09:00 UK time).
+    - cron: '25 10,16 1-15 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # The table parser fails quietly when SMMT changes its layout, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_uk.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update the UK CSV
+        id: fetch
+        run: |
+          python scripts/fetch_uk.py \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/UK.csv
+            market/uk_top.json
+            market/uk_months.json
+          message: 'chore: update UK data from SMMT'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for the UK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="UK" \
+            -f variants="$variants"

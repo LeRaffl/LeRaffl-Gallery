@@ -4,7 +4,7 @@
 #   * source_group: acea  — countries whose figures come from ACEA's monthly
 #     press-release PDF. They stay lean; the generator injects one shared
 #     "About the ACEA figures" explainer, so the paragraph isn't repeated ~18×.
-#   * national sources    — Germany, UK, Brazil, … — expanded with a `notes`
+#   * national sources    — Germany, Brazil, … — expanded with a `notes`
 #     paragraph so each reads as a proper page.
 #
 # `method` (required) is how the data is acquired: api | scrape | pdf | file |
@@ -433,27 +433,6 @@ stubs:
     caveats:
       - "Official registry — complete coverage, not an association sample."
       - "Fetched from the KBA monthly press release; the latest month appears once KBA has published it."
-
-  - country: UK
-    slug: uk
-    method: manual
-    summary: "New-car registrations for the UK from SMMT, compiled from DVLA data."
-    source_name: "SMMT — monthly registrations"
-    source_url: "https://www.smmt.co.uk/vehicle-data/car-registrations/"
-    underlying: "SMMT — Society of Motor Manufacturers and Traders (from DVLA data)"
-    variants: [Whole]
-    scope_note: "New car registrations compiled by SMMT from DVLA data — passenger cars."
-    hev_split: true
-    variant_notes:
-      Whole: "New-car registrations as reported by SMMT."
-    cadence: "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)"
-    data_file: "data/UK.csv"
-    notes:
-      - "The SMMT (Society of Motor Manufacturers and Traders) compiles the UK's monthly new-car-registration figures from DVLA registration data and publishes them with a powertrain breakdown (BEV, PHEV, hybrid, petrol, diesel). It's the standard UK market reference."
-      - "The UK is not pulled by the ACEA fetcher (which skips it); the monthly SMMT release is transcribed by hand."
-    caveats:
-      - "Compiled by SMMT from DVLA registrations — effectively complete for the UK market."
-      - "Maintained by hand; the latest month appears once it has been transcribed."
 
   - country: Australia
     slug: australia

@@ -1,0 +1,259 @@
+{
+ "country": "UK",
+ "variant": "Whole",
+ "source": "SMMT",
+ "as_of": "2026-09",
+ "window": {
+  "from": "2026-01",
+  "to": "2026-09",
+  "months": 9
+ },
+ "total_registrations": 1739253,
+ "unit": "new car registrations by marque as SMMT publishes them — every powertrain, as SMMT's brand table has no fuel split; models are SMMT's top 10, the rest of the market is unranked",
+ "classes": {
+  "ALL": {
+   "units": 1739253,
+   "share_of_market": 1.0,
+   "brands": [
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 137802,
+     "share_of_class": 0.0792
+    },
+    {
+     "brand": "KIA",
+     "units": 95249,
+     "share_of_class": 0.0548
+    },
+    {
+     "brand": "BMW",
+     "units": 91691,
+     "share_of_class": 0.0527
+    },
+    {
+     "brand": "AUDI",
+     "units": 88625,
+     "share_of_class": 0.051
+    },
+    {
+     "brand": "FORD",
+     "units": 82967,
+     "share_of_class": 0.0477
+    },
+    {
+     "brand": "MG",
+     "units": 78930,
+     "share_of_class": 0.0454
+    },
+    {
+     "brand": "MERCEDES",
+     "units": 76867,
+     "share_of_class": 0.0442
+    },
+    {
+     "brand": "SKODA",
+     "units": 71513,
+     "share_of_class": 0.0411
+    },
+    {
+     "brand": "VAUXHALL",
+     "units": 70490,
+     "share_of_class": 0.0405
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 70300,
+     "share_of_class": 0.0404
+    }
+   ],
+   "models": [
+    {
+     "brand": "FORD",
+     "model": "PUMA",
+     "units": 42926,
+     "share_of_class": 0.0247
+    },
+    {
+     "brand": "JAECOO",
+     "model": "7",
+     "units": 39473,
+     "share_of_class": 0.0227
+    },
+    {
+     "brand": "KIA",
+     "model": "SPORTAGE",
+     "units": 37085,
+     "share_of_class": 0.0213
+    },
+    {
+     "brand": "NISSAN",
+     "model": "QASHQAI",
+     "units": 33082,
+     "share_of_class": 0.019
+    },
+    {
+     "brand": "VAUXHALL",
+     "model": "CORSA",
+     "units": 27390,
+     "share_of_class": 0.0157
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "GOLF",
+     "units": 26702,
+     "share_of_class": 0.0154
+    },
+    {
+     "brand": "MG",
+     "model": "HS",
+     "units": 26653,
+     "share_of_class": 0.0153
+    },
+    {
+     "brand": "MINI",
+     "model": "COOPER",
+     "units": 23722,
+     "share_of_class": 0.0136
+    },
+    {
+     "brand": "TESLA",
+     "model": "MODEL 3",
+     "units": 23704,
+     "share_of_class": 0.0136
+    },
+    {
+     "brand": "VOLVO",
+     "model": "XC40",
+     "units": 23655,
+     "share_of_class": 0.0136
+    }
+   ]
+  }
+ },
+ "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 350518,
+   "classes": {
+    "ALL": {
+     "units": 350518,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 25972,
+       "share_of_class": 0.0741
+      },
+      {
+       "brand": "BYD",
+       "units": 20140,
+       "share_of_class": 0.0575
+      },
+      {
+       "brand": "KIA",
+       "units": 18399,
+       "share_of_class": 0.0525
+      },
+      {
+       "brand": "MG",
+       "units": 18026,
+       "share_of_class": 0.0514
+      },
+      {
+       "brand": "AUDI",
+       "units": 16721,
+       "share_of_class": 0.0477
+      },
+      {
+       "brand": "TESLA",
+       "units": 15875,
+       "share_of_class": 0.0453
+      },
+      {
+       "brand": "BMW",
+       "units": 15617,
+       "share_of_class": 0.0446
+      },
+      {
+       "brand": "MERCEDES",
+       "units": 15571,
+       "share_of_class": 0.0444
+      },
+      {
+       "brand": "JAECOO",
+       "units": 15055,
+       "share_of_class": 0.043
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 13947,
+       "share_of_class": 0.0398
+      }
+     ],
+     "models": [
+      {
+       "brand": "JAECOO",
+       "model": "7",
+       "units": 10813,
+       "share_of_class": 0.0308
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 9929,
+       "share_of_class": 0.0283
+      },
+      {
+       "brand": "FORD",
+       "model": "PUMA",
+       "units": 6958,
+       "share_of_class": 0.0199
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 6521,
+       "share_of_class": 0.0186
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 5946,
+       "share_of_class": 0.017
+      },
+      {
+       "brand": "NISSAN",
+       "model": "QASHQAI",
+       "units": 5554,
+       "share_of_class": 0.0158
+      },
+      {
+       "brand": "VAUXHALL",
+       "model": "CORSA",
+       "units": 5498,
+       "share_of_class": 0.0157
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "GOLF",
+       "units": 5496,
+       "share_of_class": 0.0157
+      },
+      {
+       "brand": "MG",
+       "model": "HS",
+       "units": 5444,
+       "share_of_class": 0.0155
+      },
+      {
+       "brand": "AUDI",
+       "model": "A3",
+       "units": 5268,
+       "share_of_class": 0.015
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
