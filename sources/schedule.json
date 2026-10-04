@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T21:10:10Z",
+ "generated": "2026-10-04T21:20:23Z",
  "today": "2026-10-04",
  "countries": [
   {
@@ -4032,18 +4032,56 @@
   {
    "country": "UK",
    "slug": "uk",
-   "method": "manual",
-   "source_name": "SMMT — monthly registrations",
+   "method": "file",
+   "source_name": "SMMT — monthly new car registrations (from DVLA data)",
    "source_url": "https://www.smmt.co.uk/vehicle-data/car-registrations/",
-   "cadence_text": "transcribed by hand each month, once SMMT publishes (typically the 4th–5th)",
+   "cadence_text": "twice daily on the 1st–15th, 10:25 and 16:25 UTC — SMMT publishes month M at 09:00 UK time in the first working days of M+1; an early release carries preliminary figures, and the final ones follow a few days later (September 2026 — preliminary on October 2, final on October 5)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": null,
-   "behind": null,
+   "expected_period": "2026-09",
+   "behind": 0,
    "behind_now": 0,
-   "status": "manual",
-   "automated": false,
-   "schedule": null,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "10:25",
+     "16:25"
+    ],
+    "workflow": ".github/workflows/fetch-uk.yml"
+   },
    "last_render": "2026-10-02",
    "flag": "🇬🇧",
    "variants": [
