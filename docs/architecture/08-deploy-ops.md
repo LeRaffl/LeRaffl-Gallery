@@ -150,6 +150,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-spain.yml`](../../.github/workflows/fetch-spain.yml) | 07:15 UTC, 1st → 16th (+14:15, 1st → 3rd) | DGT matriculaciones microdata (fixed-width, monthly zip; provisional sum of the daily zips until the monthly one is out on the 15th) + `market/spain_top.json` | `Whole` + `Rental` + `NonRental` + `Used` + `Vans` + `HDV` + `Buses` + `2-Wheelers` — one download, every variant | per-variant diff vs CSV |
 | [`fetch-sweden.yml`](../../.github/workflows/fetch-sweden.yml) | 05:50 UTC, 1st → 15th | SCB PxWeb `PersBilarDrivMedel` (`api.scb.se`) | `Whole` | `latest_period(Sweden.csv) ≥ target` |
 | [`fetch-switzerland.yml`](../../.github/workflows/fetch-switzerland.yml) | 09:20 & 15:20 UTC, 1st → 6th | ASTRA IVZ open data (`NEUZU.txt` / `GEBR.txt`, record level) + `market/switzerland_top.json` ([46](46-source-switzerland.md)) | `Whole` + `Vans` + `HDV` + `Buses` + `2-Wheelers` + `Used` | 16 KB range probe: snapshot's newest complete month already in every CSV → no download |
+| [`fetch-taiwan.yml`](../../.github/workflows/fetch-taiwan.yml) | 01:45 & 09:45 UTC, 12th → 28th | MOTC statistics database (`statis.motc.gov.tw`, THB register: Seq 104 by fuel, Seq 118 by brand — the page's `Display.json` endpoint; MOTC published August 2026 on Sep 15) + `market/taiwan_top.json` ([49](49-source-taiwan.md)) | `Whole` + `Vans` + `HDV` + `Buses` | newest month in the table page's period picker already in every CSV → one page request, no query |
 | [`fetch-thailand.yml`](../../.github/workflows/fetch-thailand.yml) | 04:40 UTC, 1st → 20th | TAI / AIU member portal JSON API (`taiapi.thaiauto.or.th:3000`, cookie login) | `Whole` (Passenger Car + Pickup Truck) + `HDV` + `Buses` + `3-Wheelers` | per-variant diff vs CSV |
 | [`fetch-turkey.yml`](../../.github/workflows/fetch-turkey.yml) | 08:30 UTC, 15th → EOM | TÜİK «Motorlu Kara Taşıtları» bulletin (id auto-discovered; fuel table OCR'd) | `Whole` — otomobil only, combined Hybrid bucket | `latest_period(Türkiye.csv) ≥ target` |
 | [`fetch-ukraine.yml`](../../.github/workflows/fetch-ukraine.yml) | 08:40 & 20:40 UTC, 1st → 15th | MIA open vehicle register (`data.gov.ua` CKAN; yearly zips, current year re-uploaded ~the 1st) — fuel from the record, new/used from operation codes ([40](40-source-ukraine.md)) | `Whole` + `Private` + `Industry` + `Used` + `Vans` — one download, every variant; combined Hybrid bucket | every CSV already has the target month from `MIA HSC (data.gov.ua)` → no HTTP |
@@ -165,7 +166,9 @@ Notes on the schedule shape:
   on the hour. They never conflicted (each writes a different CSV, and ACEA's render
   fan-out is serialised by `max-parallel: 1`), but a CI outage at exactly
   08:00 used to take all of them out together.
-- **The early band clears that window from below:** Hong Kong 03:20 & 11:20
+- **The early band clears that window from below:** Taiwan 01:45 & 09:45
+  (12th–28th, Taipei 09:45 / 17:45 — MOTC published August 2026 on the 15th;
+  `:45` at those hours is otherwise unused), Hong Kong 03:20 & 11:20
   (HK office hours — TD's upload day is unpredictable, so it polls daily),
   Ireland 04:00 & 13:00
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
@@ -186,7 +189,7 @@ Notes on the schedule shape:
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,
-  Israel 10–20, Chile 14+, South Korea 12–25, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
+  Israel 10–20, Chile 14+, South Korea 12–25, Taiwan 12–28, Singapore 15+, Malaysia 15+, Türkiye 15+, ACEA 16+, France 18+, and the
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.

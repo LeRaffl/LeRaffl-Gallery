@@ -1,0 +1,158 @@
+name: Fetch Taiwan data (THB register via MOTC statistics)
+
+# Fetches Taiwan's monthly new-vehicle registrations by fuel — the Highway
+# Bureau's (THB, 交通部公路局) motor-vehicle register as republished in the
+# Ministry of Transportation and Communications' statistics database
+# (statis.motc.gov.tw, table Seq 104 "機動車輛新領牌車輛數－按使用燃料分",
+# through the JSON endpoint the database's own page calls) — and upserts:
+#
+#   data/Taiwan.csv         Whole   小客車 passenger cars up to 9 seats (EU M1)
+#   data/Taiwan_Vans.csv    Vans    小貨車 goods vehicles up to 3.5 t (≈ N1)
+#   data/Taiwan_HDV.csv     HDV     大貨車 goods vehicles over 3.5 t (≈ N2+N3)
+#   data/Taiwan_Buses.csv   Buses   大客車 buses and coaches (M2+M3)
+#
+# BEV / PHEV / EREV / HEV / petrol / diesel / LPG straight from THB's own
+# fuel categories, from 2021-01 (the first month with a consistent plug-in
+# coding). Every month is cross-checked against THB's separately compiled
+# brand table (Seq 118), which also feeds market/taiwan_top.json (top brands
+# of new passenger cars, every powertrain). THB's own statistics site blocks
+# GitHub runners (Imperva); the MOTC database does not. Full method,
+# governance checks and a debugging runbook:
+# docs/architecture/49-source-taiwan.md.
+#
+# MOTC publishes a month around the 15th of the next (August 2026: Sep 15).
+# Polled twice a day on the 12th-28th; a run with nothing new reads one page
+# and exits. A real run re-reads the newest 24 months (4 + 4 small JSON
+# queries); `backfill` re-derives every month from 2021-01.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Vans
+          - HDV
+          - Buses
+      period:
+        description: 'Newest month to write, YYYY-MM (default: newest month MOTC has published)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2021-01'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness guard / brand-table cross-check and foreign rows'
+        required: false
+        default: false
+        type: boolean
+      debug_dump:
+        description: 'Save every MOTC response as a workflow artifact (replay offline with --from-dir)'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 01:45 and 09:45 UTC on the 12th-28th (Taipei 09:45 / 17:45): MOTC
+    # published August 2026 on September 15.
+    - cron: '45 1,9 12-28 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # The fuel mapping and the page / JSON parsers fail silently when wrong,
+      # so the regression tests gate the fetch rather than trail it.
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_taiwan.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Taiwan CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_taiwan.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force} \
+            ${DUMP:+--dump-dir taiwan_dump}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+          DUMP:     ${{ inputs.debug_dump == true && '1' || '' }}
+
+      # Kept even when the fetch fails: the raw responses are what a failed
+      # run is debugged from (python scripts/fetch_taiwan.py --from-dir DIR).
+      - name: Upload MOTC responses
+        if: always() && inputs.debug_dump == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: taiwan-motc-responses
+          path: taiwan_dump/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Taiwan*.csv
+            market/taiwan_top.json
+          message: 'chore: update Taiwan data from THB register via MOTC statistics'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Taiwan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Taiwan" \
+            -f variants="$variants"
