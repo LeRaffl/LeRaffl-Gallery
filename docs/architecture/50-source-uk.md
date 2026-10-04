@@ -19,7 +19,7 @@ source_links:
   note: the site's own public REST API, no key — the fetcher lists the posts of the publication window and keeps the one with the month's fuel table
 underlying: DVLA (Driver and Vehicle Licensing Agency) registrations, compiled and published by SMMT (Society of Motor Manufacturers and Traders)
 auth: none
-cadence: twice daily on the 1st–15th, 10:25 and 16:25 UTC — SMMT publishes month M at 09:00 UK time on about the 4th working day of M+1 (September 2026 on October 2)
+cadence: twice daily on the 1st–15th, 10:25 and 16:25 UTC — SMMT publishes month M at 09:00 UK time in the first working days of M+1; an early release carries preliminary figures, and the final ones follow a few days later (September 2026 — preliminary on October 2, final on October 5)
 variants:
 - Whole
 variant_notes:
@@ -30,13 +30,14 @@ backfill: hand-transcribed from SMMT's releases from 2015-01; automated from the
 scope_note: New car registrations compiled by SMMT from DVLA data — every new passenger car registered in the UK in the month, all brands. Light commercial vehicles are a separate SMMT release and not included.
 caveats:
 - Mild hybrids are counted inside PETROL and DIESEL, as SMMT publishes them, and full hybrids (HEV) count as ICE in the BEV/PHEV/ICE curves.
+- When SMMT releases early, its first figures are preliminary ("subject to change"); the final figures follow a few days later and replace them. Until then the month's row says "provisional" in its notes.
 - SMMT restates last year's figures in each release (the year-ago column). The chart keeps each month as first published; the difference is reported by every fetch run and is small — mostly a few hundred cars moved between HEV and PETROL.
 - The UK's two plate-change months (March and September) carry about a quarter of the year's registrations each, February and August very few. Read single months against the same month a year earlier, not against the month before.
 - The brand table on this page is every powertrain together — SMMT publishes its brand table without a fuel split, and only a top 10 of models.
 processing:
 - title: Find the release
   text:
-  - SMMT does not tag its registration release, so the fetcher lists the posts the site published from the 1st of the following month (one request to the site's public WordPress API) and keeps the post whose fuel table is headed by the target month — a re-issued post wins over the original. If none is found, SMMT's vehicle-data page, which always shows the newest month, is the fallback. From the 11th of the month on, a release that still cannot be found stops the run.
+  - SMMT does not tag its registration release, so the fetcher lists the posts the site published from the 1st of the following month (one request to the site's public WordPress API) and keeps the post whose fuel table is headed by the target month (SMMT updates that post in place when it replaces preliminary figures with final ones). If none is found, SMMT's vehicle-data page, which always shows the newest month, is the fallback. From the 11th of the month on, a release that still cannot be found stops the run.
 - title: Read the fuel table
   text:
   - The release's table has one row per powertrain and the columns this year, last year, % change and market share. The fetcher reads the rows by their label, never by position, and maps them one to one; a label it does not know (a new hydrogen or mild-hybrid row) stops the run until someone decides its column.
@@ -61,7 +62,7 @@ processing:
       note: OTHERS = TOTAL minus the five rows — 0 in every release so far
 - title: Check it
   text:
-  - The rows must add up to TOTAL; the printed market shares and % changes are recomputed from the counts (a shifted column fails); the year-to-date table minus the months already in the chart must give this month again; and the total must be within half to twice the same month a year earlier. Only then is the month written — as a new line, never by rewriting earlier ones.
+  - The rows must add up to TOTAL; the printed market shares and % changes are recomputed from the counts (a shifted column fails); the year-to-date table minus the months already in the chart must give this month again; and the total must be within half to twice the same month a year earlier. Only then is the month written — as a new line, never by rewriting earlier ones. The one exception is a month written from SMMT's preliminary figures: it is marked provisional and replaced by the final figures as soon as SMMT publishes them.
 market_breakdown: market/uk_top.json
 market_heading: Who sells the new cars
 market_designation_note: Brands as SMMT's marque table names them; models are SMMT's top 10 (the release names no more), so most of the market is unranked in the model table. SMMT's "Other British" and "Other Imports" lines count towards the total but are not ranked.
@@ -97,8 +98,11 @@ Find it:   GET https://www.smmt.co.uk/wp-json/wp/v2/posts
 Fallback:  GET https://www.smmt.co.uk/vehicle-data/car-registrations/
            (always the newest month; also the brand table for market/)
 Auth:      None. No login, no key.
-Timing:    month M at 09:00 UK time on ~ the 4th working day of M+1
+Timing:    month M at 09:00 UK time in the first working days of M+1
            (2026: Jan 6, Feb 5, Mar 5, Apr 7, May 6, Jun 4, Jul 6, Aug 5, Sep 4, Oct 2)
+           An early release is "SMMT preliminary figures … subject to
+           change"; "full and final figures" follow days later (Sep 2026:
+           Oct 2 → Oct 5) → provisional row, replaced automatically (§2.1)
 Scope:     new cars (M1), all brands → Whole. Vans are a separate release.
 Fuel:      BEV → BEV; PHEV → PHEV; HEV → HEV; PETROL (incl. MHEV) → PETROL;
            DIESEL (incl. MHEV) → DIESEL; TOTAL; OTHERS = residual (0)
@@ -149,7 +153,38 @@ CSV columns: `BEV, PHEV, HEV, PETROL, DIESEL, OTHERS, TOTAL, notes`;
 `source` = `SMMT` (the same string the hand-entered rows carry, so the
 self-throttle treats them as "already have it"); `notes` = the release URL.
 Integers, as the recent hand-entered rows. A new month is appended; an
-existing month is never replaced without `--force` (invariant 3).
+existing month is never replaced without `--force` (invariant 3) — except a
+provisional one (§2.1).
+
+### 2.1 Preliminary → final
+
+SMMT sometimes releases a month early with preliminary figures and publishes
+the final ones a few days later. September 2026 is the first case seen: the
+release of 2 October (2nd working day) and the data page carried, under every
+table, *"SMMT preliminary figures are subject to change. Full and final
+figures published Monday 5 October, 9am."* The final figures replace the
+preliminary ones in the same post and on the data page; there is no second
+post. (The release posts' `modified` timestamps show SMMT editing them days
+after publication — August 2026's was published 4 Sep, modified 9 Sep.)
+
+The fetcher handles it without a human:
+
+| Release says | CSV row for the month | Result |
+|---|---|---|
+| preliminary (`PRELIM_RE` matches) | none | appended, `notes` = `provisional: SMMT preliminary figures; <url>` |
+| preliminary | provisional | replaced if the numbers changed, else left alone |
+| final | provisional | replaced — final numbers, `notes` = the URL only — **no `--force` needed** |
+| preliminary | final | kept (a final row is replaced only with `--force`) |
+
+A provisional row does **not** satisfy the self-throttle, so the twice-daily
+runs keep re-reading the release (and refreshing `market/uk_top.json`, which
+has the same preliminary/final timing) until the final figures are in — the
+cron window (1st–15th) covers the gap. The `provisional:` prefix follows the
+repo-wide convention ([03](03-data-objects.md), Spain's DGT daily rows) and
+keeps the URL in `notes`, so the source page's "newest stored month was read
+from this exact document" link still works. 2026-09 was entered from the
+preliminary release and is marked provisional by hand in this PR; the run on
+5 October replaces it.
 
 ## 3. Discovering the release
 
@@ -162,7 +197,9 @@ posts, one API page) and parses each post containing "BEV":
 - the post whose single-month fuel table is for M is the release;
 - two matches: the larger TOTAL wins (should a van release ever carry the
   same table — the car market is always bigger), and between equal totals
-  (a re-issue) the newest post; the others are logged;
+  (a re-issue) the newest post; the others are logged. Final figures are an
+  in-place edit of the same post (§2.1), so this tie-break does not decide
+  between preliminary and final;
 - a fuel-shaped table that does not parse aborts with the post's URL (schema
   drift, not "someone else's post");
 - no match: the vehicle-data page is tried; still nothing → "not published
@@ -196,7 +233,8 @@ checked (they describe the rows).
 ## 5. Governance and validation
 
 Every real run (the self-throttle exits before any HTTP request when the
-CSV has the month from `SMMT` and `market/uk_top.json` is current):
+CSV has the month from `SMMT`, not provisional, and `market/uk_top.json` is
+current):
 
 - **Schema drift aborts:** a fuel table without a year header, a missing
   BEV/PHEV/HEV/PETROL/DIESEL/TOTAL row, a non-numeric count, an unknown
@@ -265,9 +303,9 @@ sequenceDiagram
     participant CSV as data/UK.csv
     participant Top as market/uk_top.json + uk_months.json
     participant Render as render-country.yml
-    Cron->>Test: labels, header layouts, checks, upsert, brand tables, throttle (gate)
+    Cron->>Test: labels, header layouts, checks, upsert, brand tables, throttle, preliminary→final (gate)
     Cron->>Py: run
-    Py->>CSV: target month already there (source SMMT) and top file current?
+    Py->>CSV: target month already there (source SMMT, not provisional) and top file current?
     alt yes
         Py-->>Cron: no-op (no HTTP request)
     else no
@@ -277,7 +315,7 @@ sequenceDiagram
             Py->>Page: newest month on the data page = M?
         end
         Py->>Py: YTD − CSV months = M? TOTAL within 0.5–2× a year earlier?
-        Py->>CSV: append the month (line-level)
+        Py->>CSV: append the month, or replace its provisional row (line-level)
         Py->>Page: marque + top-10 tables (month and year-to-date)
         Py->>Top: YTD headline + month store
         Py-->>Cron: run report → step summary
@@ -315,6 +353,7 @@ sequenceDiagram
 | `TOTAL … is ×N the same month a year earlier` | a real shock (tax change, pull-forward) or a wrong table | check the release text; `force` if genuine |
 | `::warning title=top brands/models not refreshed` | marque table changed (Grand Total ≠ fuel TOTAL, renamed rows) | the CSV was committed; adapt `parse_marque()` / `build_uk_top()` |
 | `… differs from the CSV … kept unless --force` | the release for an existing month disagrees with the stored row | normally nothing to do (invariant 3); `force` only for a transcription error |
+| a row still `provisional:` after the 15th | SMMT never dropped its "preliminary" caption, or changed its wording | check the release; if final, adapt `PRELIM_RE` or dispatch with `force` |
 
 ## 9. Not built (yet)
 

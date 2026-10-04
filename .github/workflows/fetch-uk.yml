@@ -20,8 +20,12 @@ name: Fetch UK data (SMMT)
 #
 # SMMT publishes month M at 09:00 UK time on about the 4th working day of
 # M+1 (2026: Jan 6, Feb 5, Mar 5, Apr 7, May 6, Jun 4, Jul 6, Aug 5, Sep 4,
-# Oct 2). Polled at 10:25 and 16:25 UTC on the 1st-15th; once the month is in
-# the CSV and the top file is current, a run exits without any HTTP request.
+# Oct 2). An early release carries "preliminary figures ... subject to
+# change"; the month is then stored as a provisional row and replaced by the
+# final figures a few days later, without `force` (50-source-uk.md §2.1).
+# Polled at 10:25 and 16:25 UTC on the 1st-15th; once the month is in the CSV
+# (not provisional) and the top file is current, a run exits without any HTTP
+# request.
 # A normal run reads one page of the posts API plus the data page (~1 MB);
 # `backfill` re-reads every release since 2024-11 (the first with HTML
 # tables) and only adds months the CSV lacks. From the 11th on, a release

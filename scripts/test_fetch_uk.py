@@ -8,7 +8,7 @@ relabelled ("ALL PETROL"), a misspelled or missing month above the table, a
 column added in front of the counts, a "Grand Total" row inside the brand
 table. These cases pin every fuel label, each header layout seen since
 2024-11, the column-shift checks, the year-to-date and plausibility guards,
-the line-level upsert, the brand / top-model tables and the self-throttle.
+the line-level upsert, the brand / top-model tables, the self-throttle and\nthe preliminary -> final replacement of a month.
 """
 import json
 import sys
@@ -352,6 +352,87 @@ def test_throttle_needs_no_network():
         finally:
             fu.TOP_PATH, fu.http_get = old_top, old_get
         assert out.read_text(encoding="utf-8") == "changed=false\nchanged_variants=[]\n"
+
+
+# ── preliminary -> final (same month, two publications) ────────────────────
+
+PRELIM_CAPTION = ("<p><em>SMMT preliminary figures are subject to change. Full and final "
+                  "figures published Monday 5 October, 9am.</em></p>")
+PROV_LINE = ("2026-09,monthly,Whole,SMMT,99199,59563,45838,131861,14057,0,350518,"
+             "provisional: SMMT preliminary figures; https://x/rel/")
+FINAL_LINE = "2026-09,monthly,Whole,SMMT,99200,59563,45838,131861,14056,0,350518,https://x/rel/"
+
+
+def test_preliminary_caption_makes_a_provisional_row():
+    assert fu.is_preliminary("SMMT  preliminary\n figures are subject to change.")
+    assert not fu.is_preliminary(fuel_html("September"))
+    line, _ = fu.process("2026-09", "https://x/rel/", fuel_html("September") + PRELIM_CAPTION,
+                         {}, False, [])
+    assert line == PROV_LINE, line
+    line, _ = fu.process("2026-09", "https://x/rel/", fuel_html("September"), {}, False, [])
+    assert line.endswith(",https://x/rel/") and "provisional" not in line
+    row = {"source": "SMMT", "notes": "provisional: SMMT preliminary figures; u"}
+    assert fu.is_provisional(row)
+    assert not fu.is_provisional({**row, "source": "ACEA"})
+    assert not fu.is_provisional({"source": "SMMT", "notes": "https://x/"})
+
+
+def run_main(csv_line: str, page: str) -> tuple[str, str]:
+    """main() for 2026-09 on a CSV ending in `csv_line`, with `page` as the
+    release found. Returns (the CSV's 2026-09 line, GITHUB_OUTPUT)."""
+    with tempfile.TemporaryDirectory() as d:
+        csvp, out = Path(d) / "UK.csv", Path(d) / "out.txt"
+        csvp.write_text(CSV_TEXT + csv_line + "\n", encoding="utf-8")
+        old_find = fu.find_release
+        fu.find_release = lambda period: ("https://x/rel/", page)
+        try:
+            assert fu.main(["--csv", str(csvp), "--period", "2026-09", "--no-top",
+                            "--github-output", str(out), "--summary", ""]) == 0
+        finally:
+            fu.find_release = old_find
+        lines = csvp.read_text(encoding="utf-8").splitlines()
+        assert lines[:3] == CSV_TEXT.splitlines(), "other lines must stay byte-identical"
+        return lines[-1], out.read_text(encoding="utf-8")
+
+
+def test_final_figures_replace_a_provisional_row_without_force():
+    final = fuel_html("September", rows=[("BEV", 99200, 72775, "36.3%", "28.3%")] + SEP26[1:4]
+                      + [("DIESEL", 14056, 12605, "11.5%", "4.0%")])
+    line, out = run_main(PROV_LINE, final)
+    assert line == FINAL_LINE, line
+    assert "changed=true" in out
+    # Same numbers, only the preliminary caption gone: the flag still clears.
+    line, _ = run_main(PROV_LINE, fuel_html("September"))
+    assert line == FINAL_LINE.replace("99200", "99199").replace("14056", "14057"), line
+
+
+def test_provisional_row_follows_revised_preliminary_figures():
+    revised = fuel_html("September", rows=[("BEV", 99200, 72775, "36.3%", "28.3%")] + SEP26[1:4]
+                        + [("DIESEL", 14056, 12605, "11.5%", "4.0%")]) + PRELIM_CAPTION
+    line, _ = run_main(PROV_LINE, revised)
+    assert line.startswith("2026-09,monthly,Whole,SMMT,99200,") and "provisional:" in line
+    line, out = run_main(PROV_LINE, fuel_html("September") + PRELIM_CAPTION)
+    assert line == PROV_LINE and "changed=false" in out
+
+
+def test_a_final_row_is_never_replaced_by_preliminary_figures():
+    line, out = run_main(FINAL_LINE, fuel_html("September") + PRELIM_CAPTION)
+    assert line == FINAL_LINE and "changed=false" in out
+
+
+def test_a_provisional_row_does_not_throttle():
+    with tempfile.TemporaryDirectory() as d:
+        csvp = Path(d) / "UK.csv"
+        csvp.write_text(CSV_TEXT + PROV_LINE + "\n", encoding="utf-8")
+        old_find = fu.find_release
+        fu.find_release = lambda period: (_ for _ in ()).throw(LookupError("network used"))
+        try:
+            fu.main(["--csv", str(csvp), "--period", "2026-09", "--no-top", "--summary", ""])
+            raise AssertionError("a provisional row must send the run to SMMT again")
+        except LookupError:
+            pass
+        finally:
+            fu.find_release = old_find
 
 
 def main() -> int:

@@ -13,7 +13,8 @@ Usage
                months data/UK.csv does not have yet. Months it already has are
                compared, never overwritten (see "History" below).
 * --force      Overwrite an existing row for the target month (and rows with a
-               foreign `source`), and skip the plausibility guard.
+               foreign `source`), and skip the plausibility guard. Not needed
+               to replace a provisional row (see "Preliminary figures").
 * --dry-run    Parse, validate and print; write nothing. Re-reading a month
                the CSV already holds this way is the regression test for a
                parser change: it must reproduce the committed row.
@@ -61,6 +62,19 @@ Fuel mapping (SMMT -> CSV column)
 
 Labels outside FUEL_LABELS abort the run: a new SMMT row (an MHEV line coming
 back, a hydrogen line) needs a human decision about its column.
+
+Preliminary figures
+-------------------
+When SMMT releases early (the September 2026 release came on 2 October), the
+tables are "SMMT preliminary figures ... subject to change", and the full and
+final figures follow a working day or so later — usually by editing the same
+post and the data page in place. The fetcher spots SMMT's own wording
+(PRELIM_RE) and writes such a month with notes "provisional: SMMT preliminary
+figures; <url>" (the 03-data-objects.md convention). A provisional row does
+not satisfy the self-throttle, so the next runs read the release again and
+replace the row — without --force — as soon as the numbers or the
+preliminary flag change. A final row is never replaced by a provisional one
+(only with --force).
 
 History
 -------
@@ -122,6 +136,11 @@ YTD_WARN = 0.01         # YTD minus the CSV's earlier months vs this month
 YTD_ABORT = 0.05
 PLAUSIBLE = (0.5, 2.0)  # TOTAL / same month a year earlier
 LATE_DAY = 10           # after this day of M+1, "no release found" is an error
+
+# SMMT's caption under every table of an early release ("SMMT preliminary
+# figures are subject to change. Full and final figures published <date>").
+PRELIM_RE = re.compile(r"preliminary\s+figures\s+are\s+subject\s+to\s+change", re.I)
+PROVISIONAL = "provisional: SMMT preliminary figures; "
 
 HTTP_HEADERS = {
     "User-Agent": ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -559,6 +578,17 @@ def find_release(period: str) -> tuple[str, str] | None:
     return hits[0][2], hits[0][3]
 
 
+def is_preliminary(page: str) -> bool:
+    """True if the release / data page carries SMMT's preliminary caption."""
+    return bool(PRELIM_RE.search(" ".join(page.split())))
+
+
+def is_provisional(row: dict[str, str] | None) -> bool:
+    """A CSV row this fetcher wrote from preliminary figures."""
+    return bool(row and row.get("source") == SOURCE
+                and (row.get("notes") or "").startswith("provisional:"))
+
+
 # ── CSV line-level upsert (invariant 2) ────────────────────────────────────
 
 def render_line(period: str, counts: dict[str, int], notes: str = "") -> str:
@@ -589,9 +619,11 @@ def existing_rows(path: Path) -> dict[str, dict[str, str]]:
                 if (r.get("variant") or "Whole") == VARIANT}
 
 
-def upsert_lines(path: Path, updates: dict[str, str], force: bool) -> dict[str, int]:
+def upsert_lines(path: Path, updates: dict[str, str], force: bool,
+                 replace: frozenset[str] = frozenset()) -> dict[str, int]:
     """Insert the given periods' lines; an existing line is replaced only with
-    --force. Every other line is written back byte-for-byte."""
+    --force or when its period is in `replace` (a provisional row). Every
+    other line is written back byte-for-byte."""
     header, lines = read_csv_lines(path)
     if header.split(",") != CSV_COLUMNS:
         raise SystemExit(f"{path}: unexpected header {header!r}")
@@ -604,7 +636,7 @@ def upsert_lines(path: Path, updates: dict[str, str], force: bool) -> dict[str, 
             stats["added"] += 1
         elif lines[index[key]] == new:
             stats["unchanged"] += 1
-        elif force:
+        elif force or period in replace:
             lines[index[key]] = new
             stats["updated"] += 1
         else:
@@ -710,6 +742,10 @@ def process(period: str, url: str, page: str, have: dict, force: bool,
     if f.get("month_from"):
         report.append(f"- the table header names no month; {period} taken from the "
                       "publication window (year column agrees)")
+    prelim = is_preliminary(page)
+    if prelim:
+        report.append("- SMMT marks these figures as **preliminary** — stored as a "
+                      "provisional row, replaced once the final figures are out")
     msg, dev = year_ago_check(f, have)
     flag = " ⚠️" if dev is not None and abs(dev) > YEAR_AGO_WARN else ""
     report.append(f"- year-ago column: {msg}{flag}")
@@ -728,6 +764,8 @@ def process(period: str, url: str, page: str, have: dict, force: bool,
             raise RuntimeError(f"{period}: TOTAL {counts['TOTAL']:,} is ×{ratio:.2f} the "
                                "same month a year earlier — implausible; check, then --force")
     note = url if url.startswith("http") else ""
+    if prelim:
+        note = PROVISIONAL + note
     return render_line(period, counts, note), counts
 
 
@@ -775,7 +813,7 @@ def main(argv: list[str] | None = None) -> int:
     top_current = market_top.top_as_of(TOP_PATH) == target
     cur_row = have.get(target)
     if (not args.force and not args.backfill and cur_row and cur_row.get("source") == SOURCE
-            and (top_current or args.no_top)):
+            and not is_provisional(cur_row) and (top_current or args.no_top)):
         print(f"{target} already in {csv_path.name} from {SOURCE} and market/uk_top.json "
               "is current — nothing to do.")
         return emit(args, set())
@@ -787,6 +825,7 @@ def main(argv: list[str] | None = None) -> int:
             data_page.append(http_get(DATA_PAGE))
         return data_page[0]
 
+    replace: set[str] = set()
     for period in periods:
         found = find_release(period)
         if found is None and period == target:
@@ -810,17 +849,26 @@ def main(argv: list[str] | None = None) -> int:
         url, page = found
         line, counts = process(period, url, page, have, args.force, report)
         diff = compare(counts, have.get(period))
-        if period in have and diff:
-            report.append(f"- {period} differs from the CSV ({have[period].get('source')}): "
+        old = have.get(period)
+        new_prov = next(csv.reader([line]))[-1].startswith("provisional:")
+        if is_provisional(old) and not new_prov:
+            replace.add(period)
+            report.append(f"- {period}: final figures replace the provisional row"
+                          + (f" ({diff})" if diff else " (numbers unchanged)"))
+        elif is_provisional(old) and diff:
+            replace.add(period)
+            report.append(f"- {period}: SMMT revised its preliminary figures: {diff}")
+        elif period in have and diff:
+            report.append(f"- {period} differs from the CSV ({old.get('source')}): "
                           f"{diff} — kept unless --force")
         elif period in have:
             report.append(f"- {period}: identical to the CSV")
-        if period not in have or args.force:
+        if period not in have or args.force or period in replace:
             updates[period] = line
 
     changed: set[str] = set()
     if updates and not args.dry_run:
-        stats = upsert_lines(csv_path, updates, args.force)
+        stats = upsert_lines(csv_path, updates, args.force, frozenset(replace))
         print(f"{csv_path.name}: {stats}")
         if stats["added"] or stats["updated"]:
             changed.add(VARIANT)
