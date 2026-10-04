@@ -1,0 +1,137 @@
+name: Fetch Ecuador data (SRI new-vehicle register)
+
+# Fetches the tax authority's record-level open data of new-vehicle sales
+# (SRI "Vehículos Nuevos", one CSV per calendar year on
+# descargas.sri.gob.ec: every invoiced new vehicle with brand, catalogue
+# description, class and fuel) and upserts the Ecuador CSVs:
+#
+#   data/Ecuador.csv        Whole   new cars + SUVs (SRI CLASE AUTOMOVIL + JEEP, EU M1)
+#   data/Ecuador_Vans.csv   Vans    new pickups and vans (CLASE CAMIONETA, ≈ EU N1)
+#
+# Each vehicle counts once, in the month SRI first processed it (unless it
+# was processed in the two preceding years). The powertrain is the end of
+# SRI's catalogue description (EV / HYBRID / DIESEL; e-POWER → hybrid), else
+# the invoice's fuel code; all hybrids are one HEV figure (no PHEV split).
+# Cross-checked against AEADE's monthly press bulletin, which is built from
+# the same register. Also writes market/ecuador_top.json (top BEV and hybrid
+# brands and models). Full method, governance checks and a debugging runbook:
+# docs/architecture/48-source-ecuador.md.
+#
+# SRI regenerates the current year's file early each month with the month
+# just ended (2026: Sep 4 22:33 UTC for August). Polled twice a day on the
+# 1st-14th; the script sends one HEAD and exits without downloading when
+# every CSV already has the newest complete month. A real run downloads the
+# newest two yearly files plus the two before them for the lookback
+# (≈ 4 × 75 MB); `backfill` re-derives every month from 2018-01 (10 files).
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Vans
+      period:
+        description: 'Target month YYYY-MM (default: newest complete month in the SRI files)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2018-01 (downloads every yearly file)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness guard / AEADE cross-check and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 14:05 and 23:05 UTC on the 1st-14th (Quito 09:05 / 18:05): SRI
+    # regenerated August 2026 on Sep 4 at 17:33 Quito time.
+    - cron: '5 14,23 1-14 * *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests pdfplumber
+
+      # The counting rule and the description rules fail silently when wrong,
+      # so the regression tests gate the fetch rather than trail it.
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_ecuador.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Ecuador CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_ecuador.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Ecuador*.csv
+            market/ecuador_top.json
+          message: 'chore: update Ecuador data from SRI new-vehicle register (open data)'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Ecuador
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Ecuador" \
+            -f variants="$variants"
