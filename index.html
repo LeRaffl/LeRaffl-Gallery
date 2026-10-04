@@ -8004,6 +8004,25 @@ function rowsToCSV(rows,d){
   return head + '\n' + body + '\n';
 }
 
+function download(filename, text, mime){
+  const blob = new Blob([text], {type: mime || 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+}
+
+function copyToClipboard(text){
+  if (!(navigator.clipboard && window.isSecureContext)) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyCsv');
+    const old = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(()=>btn.textContent = old, 1200);
+  });
+}
+
 sel.onchange = renderTable;
 document.getElementById('applyBtn').onclick = renderTable;
 customPctEl.addEventListener('change', renderTable);
