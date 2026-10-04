@@ -64,15 +64,24 @@ def faroe():
 
 import shutil
 shutil.rmtree(OUT); OUT.mkdir()
-for name, u in [("and_aug26.pdf", "https://www.altaveu.com/uploads/s1/26/23/88/5/matriculacions-agost-2026.pdf"),
-                ("and_feb26.pdf", "https://www.altaveu.com/uploads/s1/23/85/27/0/matriculacions-febrer-2026.pdf"),
-                ("and_may25.pdf", "https://www.altaveu.com/uploads/s1/20/71/48/5/nota-matriculacions-maig-2025.pdf")]:
+B = "https://www.estadistica.ad"
+for path, params in [
+    ("/api/search/v1/collections/all/items", {"q": "matriculacions", "limit": 50}),
+    ("/api/search/v1/collections/dataset/items", {"q": "vehicles", "limit": 50}),
+    ("/api/v3/datasets", {"q": "matriculacions"}),
+    ("/api/v3/search", {"q": "matriculacions"}),
+]:
     try:
-        r = get(u); print(name, r.status_code, len(r.content)); (OUT / name).write_bytes(r.content)
+        r = get(B + path, params=params)
+        print(f"\n=== {path} {params} -> {r.status_code} {len(r.text)}B {r.headers.get('content-type')}")
+        save(path.strip("/").replace("/", "_") + ".json", r.text[:2_000_000])
+        try:
+            d = r.json()
+            items = d.get("features") or d.get("data") or d.get("results") or []
+            for it in items[:50]:
+                pr = it.get("properties") or it.get("attributes") or it
+                print("  -", pr.get("title") or pr.get("name"), "|", pr.get("type"), "|", pr.get("id"), "|", pr.get("url"), "|", pr.get("modified"))
+        except Exception as e:
+            print("  not json:", r.text[:300])
     except Exception as e:
-        print(name, "ERR", e)
-page("estad_ad", "https://www.estadistica.ad/")
-page("estad_ad_portal", "https://www.estadistica.ad/portal/apps/sites/#/estadistica-ca")
-for u in ["https://www.estadistica.ad/serveiestudis/web/banc_dades4.asp?lang=1&codi_div=12",
-          "https://www.estadistica.ad/serveiestudis/web/index.asp?lang=1"]:
-    page("estad_ad_" + str(abs(hash(u)) % 1000), u)
+        print(path, "ERR", e)
