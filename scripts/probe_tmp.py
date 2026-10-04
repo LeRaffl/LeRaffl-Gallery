@@ -62,16 +62,13 @@ def faroe():
                 for sub in get(base + it["id"] + "/").json(): print("    sub", sub)
             except Exception as e: print("   sub ERR", e)
 
-faroe()
-page("dmt_lk_stats", "https://dmt.gov.lk/index.php?option=com_content&view=article&id=16&Itemid=132&lang=en")
-page("asp_md_stats", "https://www.asp.gov.md/ro/date-deschise/date-statistice")
-for q in ("transport", "vehicule", "inmatriculate", "mijloace de transport"):
+for name in ["2026/New_Registrations_of_Motor_Vehicles_by_Type_of_Fuel_-_2025.pdf",
+             "2026/Monthly_New_registration_of_Vehicles_2025.pdf",
+             "2023/fuel/2023.pdf", "2023/fuel/2022.pdf",
+             "PDF/statistics/2024_N_R_Monthly_New_registration_of_Vehicles_2024.pdf"]:
+    u = "https://dmt.gov.lk/images/" + name
     try:
-        r = get("https://dataset.gov.md/api/3/action/package_search", params={"q": q, "rows": 25})
-        print(f"\n=== dataset.gov.md q={q} -> {r.status_code}")
-        d = r.json()["result"]; print("count", d["count"])
-        for pk in d["results"]:
-            print("  -", pk.get("name"), "|", pk.get("title"), "|", (pk.get("organization") or {}).get("title"),
-                  "|", pk.get("metadata_modified"), "|", [ (x.get("format"), x.get("url")) for x in pk.get("resources", [])][:4])
+        r = get(u); print(u, r.status_code, len(r.content), r.headers.get("content-type"))
+        (OUT / name.replace("/", "_")).write_bytes(r.content)
     except Exception as e:
-        print(f"\n=== dataset.gov.md q={q} ERROR {type(e).__name__}: {str(e)[:200]}")
+        print(u, "ERR", e)
