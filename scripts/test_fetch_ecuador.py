@@ -15,10 +15,9 @@ variant scope, month completeness, the AEADE bulletin parser and cross-check
 tolerances, the line-level upsert and the model display names — with real
 rows from the SRI files.
 """
-import csv
 import datetime as dt
 import gzip
-import io
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -196,7 +195,7 @@ def test_description_rules():
         assert got == want, (model, code, got)
     # every rule has a case above
     for rx, col, _ in fe.DESCRIPTION_RULES:
-        assert any(__import__("re").search(rx, fe.norm(m)) for m, _, _ in cases), rx
+        assert any(re.search(rx, fe.norm(m)) for m, _, _ in cases), rx
 
 
 def test_every_fuel_code():
