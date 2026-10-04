@@ -83,13 +83,23 @@ description therefore decides, ordered rules, first match wins
     DUAL_GAS_GASOLINA, GAS_NATURAL_COMPRIMIDO, GAS_LICUADO_PETROLEO,
     ALCOHOL, OTROS, SOLAR, NO_UTILIZA → OTHERS
 
-HEV is every hybrid: SRI has a single hybrid code and the description a
-single "HYBRID" suffix, so mild, full, plug-in and range-extender hybrids
-cannot be told apart (AEADE's own catalogue puts 2025 at 49 % mild, 34 %
-full, 14 % plug-in, 3 % e-POWER). The gallery convention for a combined
-hybrid figure applies: HEV column, no PHEV column (hev_split false — the
-chart draws no PHEV curve). Mild hybrids that the description does not call
-HYBRID stay in PETROL.
+Plug-in split (classification/ecuador_rules.csv)
+-------------------------------------------------
+SRI has a single hybrid code and its catalogue a single "HYBRID" ending, so a
+hybrid's kind is decided from the model: every record that the steps above
+put in HEV goes through the hand-edited rule table
+classification/ecuador_rules.csv (ordered, first match wins, same format as
+Argentina's) and becomes EREV (range extender), PHEV (plug-in) or stays HEV
+(full and mild hybrids, e-POWER). The table holds explicit markers (PHEV,
+DM-i, REEV, 4xe, …) and the models that plug in without saying so (DFSK E5,
+Changan CS55 and Deepal, Jaecoo J7, BMW "…e", …), each with its reason and
+evidence. Validated against ZEMO's monthly PHEV count for Ecuador and AEADE's
+yearly technology split (source doc §3b). Every hybrid designation, its class
+and the rule that decided it are written to classification/ecuador_models.csv
+(generated; its git diff is the audit trail). After a rule change, dispatch
+with backfill so the whole history is re-classified.
+
+Mild hybrids that the description does not call HYBRID stay in PETROL.
 
 Governance (every real run)
 ---------------------------
@@ -114,8 +124,9 @@ Governance (every real run)
 Writes are line-level upserts keyed on (period, variant) (invariant 2); a row
 whose `source` is not ours is never overwritten without --force. Every real
 run re-derives the newest two years and lists changed earlier rows in the
-step summary. Also writes market/ecuador_top.json (top BEV and hybrid brands
-and models, trailing 12 months, Whole) via scripts/market_top.py.
+step summary. Also writes market/ecuador_top.json (top BEV / PHEV / EREV /
+HEV brands and models, trailing 12 months, Whole) via scripts/market_top.py,
+and classification/ecuador_models.csv.
 
 Usage
 -----
@@ -168,7 +179,7 @@ VARIANT_CSV = {
 }
 RENDERED_VARIANTS = ("Whole", "Vans")
 
-FUELS = ["BEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
+FUELS = ["BEV", "PHEV", "EREV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 CSV_COLUMNS = (["period", "time_interval", "variant", "source"]
                + FUELS + ["TOTAL", "notes"])
 
@@ -223,12 +234,18 @@ HTTP_HEADERS = {
 }
 
 REPO = Path(__file__).resolve().parent.parent
+RULES_CSV = REPO / "classification" / "ecuador_rules.csv"
+MODELS_CSV = REPO / "classification" / "ecuador_models.csv"
+RULE_COLUMNS = ["order", "id", "class", "brand", "pattern", "kind", "reason", "evidence",
+                "example_brand", "example_model"]
+RULE_CLASSES = {"PHEV", "EREV"}
+DEFAULT_RULE = "default-hev"
 SLUG = "ecuador"
 TOP_PATH = market_top.MARKET_DIR / f"{SLUG}_top.json"
 TOP_UNIT = ("new cars and SUVs invoiced (SRI new-vehicle register: brand = 'MARCA', "
             "model = the start of SRI's catalogue description 'MODELO', up to the first "
-            "trim or specification word). HEV = every hybrid — the register does not "
-            "separate mild, full and plug-in hybrids")
+            "trim or specification word). PHEV / EREV / HEV split from the model by "
+            "classification/ecuador_rules.csv; HEV = full and mild hybrids")
 
 
 # ── normalisation ──────────────────────────────────────────────────────────
@@ -271,6 +288,51 @@ def fuel_column(model: str, code: str) -> tuple[str | None, str | None]:
         if rx.search(m):
             return col, why
     return FUEL_CODE.get(norm(code)), None
+
+
+# ── plug-in split of the hybrids (classification/ecuador_rules.csv) ────────
+
+def load_rules(path: Path = RULES_CSV) -> list[dict]:
+    """The hand-edited rule table, checked: header, order 1..N, unique ids,
+    class PHEV/EREV, compilable patterns, and every rule decides its own
+    example."""
+    with open(path, newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames != RULE_COLUMNS:
+            raise ValueError(f"{path.name}: header {reader.fieldnames} != {RULE_COLUMNS}")
+        rules = list(reader)
+    ids = [r["id"] for r in rules]
+    if len(set(ids)) != len(ids):
+        raise ValueError(f"{path.name}: duplicate rule ids")
+    if [r["order"] for r in rules] != [str(i) for i in range(1, len(rules) + 1)]:
+        raise ValueError(f"{path.name}: column 'order' must run 1..{len(rules)}")
+    for r in rules:
+        if r["class"] not in RULE_CLASSES:
+            raise ValueError(f"rule {r['id']}: class {r['class']!r} not in {sorted(RULE_CLASSES)}")
+        if not (r["reason"] and r["evidence"] and r["example_model"]):
+            raise ValueError(f"rule {r['id']}: reason, evidence and an example are required")
+        r["_pattern"] = re.compile(r["pattern"])
+    for r in rules:
+        got = classify_hybrid(r["example_brand"], r["example_model"], rules)
+        if got != (r["class"], r["id"]):
+            raise ValueError(f"rule {r['id']}: its example is decided as {got}")
+    return rules
+
+
+def classify_hybrid(make: str, model: str, rules: list[dict] | None = None) -> tuple[str, str]:
+    """(PHEV | EREV | HEV, rule id) for a vehicle that is a hybrid by SRI's
+    code or catalogue. HEV (default-hev) = full or mild hybrid."""
+    mk, mo = norm(make), norm(model)
+    for r in (RULES if rules is None else rules):
+        if r["brand"] and norm(r["brand"]) != mk:
+            continue
+        if r["_pattern"].search(mo):
+            return r["class"], r["id"]
+    return "HEV", DEFAULT_RULE
+
+
+RULES: list[dict] = []
+RULES = load_rules()
 
 
 # ── reading a yearly file ──────────────────────────────────────────────────
@@ -383,6 +445,7 @@ class Aggregator:
         self.unknown_class = collections.Counter()            # (p, class)
         self.other_class = collections.Counter()              # (p, class)
         self.lookback_hits = collections.Counter()            # p
+        self.designations = collections.Counter()             # (scope, year, make, model, cls, rule)
 
     def add_year(self, yf: YearFile, lookback: set[str]) -> None:
         for code, (d, make, model, vclass, fcode) in yf.first.items():
@@ -394,10 +457,13 @@ class Aggregator:
             if col is None:
                 self.unknown_fuel[(p, fcode)] += 1
                 col = "OTHERS"
+            variant = CLASS_VARIANT.get(vclass)
+            if col == "HEV":
+                col, hybrid_rule = classify_hybrid(make, model)
+                self.designations[(variant or "other", p[:4], make, model, col, hybrid_rule)] += 1
             seg = self.allseg[p]
             seg[col] += 1
             seg["TOTAL"] += 1
-            variant = CLASS_VARIANT.get(vclass)
             if variant is None:
                 if vclass in OTHER_CLASSES:
                     self.other_class[(p, vclass)] += 1
@@ -408,7 +474,7 @@ class Aggregator:
             c[col] += 1
             c["TOTAL"] += 1
             base = FUEL_CODE.get(fcode)
-            if rule and base != col:
+            if rule and base != col and not (base == "HEV" and col in RULE_CLASSES):
                 self.reclassed[(p, variant, fcode or "(blank)", col, make, model)] += 1
             if variant == "Whole":
                 self.units[(p, col, display_brand(make), display_model(make, model))] += 1
@@ -632,18 +698,19 @@ def cross_check(agg: Aggregator, table: dict,
         def cell(key, ours, abs_tol=0, check=True):
             if key not in a:
                 return "—", "—"
-            msg = f"{p} {key}: ours {ours:,} vs AEADE {a[key]:,} ({ours / a[key] - 1:+.1%})"
+            dev = f"{ours / a[key] - 1:+.1%}" if a[key] else "n/a"
+            msg = f"{p} {key}: ours {ours:,} vs AEADE {a[key]:,} ({dev})"
             close = within(ours, a[key], XCHECK_WARN, abs_tol)
             if check and not within(ours, a[key], XCHECK_TOL, abs_tol):
                 problems.append(msg)
             elif check and not close:
                 flagged.append(msg)
             mark = "" if close else " ⚠"
-            return f"{a[key]:,}", f"{ours:,} ({ours / a[key] - 1:+.1%}){mark}"
+            return f"{a[key]:,}", f"{ours:,} ({dev}){mark}"
 
         t = cell("TOTAL", s["TOTAL"])
         b = cell("BEV", s["BEV"], XCHECK_BEV_ABS)
-        h = cell("HEV", s["HEV"], check=False)           # AEADE moves hybrids between months
+        h = cell("HEV", s["PHEV"] + s["EREV"] + s["HEV"], check=False)   # AEADE: all hybrids
         wh = cell("WHOLE", w)
         lines.append(f"| {p} | {t[0]} | {t[1]} | {b[0]} | {b[1]} | {h[0]} | {h[1]} | "
                      f"{wh[0]} | {wh[1]} |")
@@ -851,21 +918,75 @@ def write_top(agg: Aggregator, target: str) -> None:
     market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
 
 
+MODELS_COLUMNS = ["brand", "model", "scope", "year", "class", "rule", "units"]
+
+
+def models_rows(agg: Aggregator, years: set[str], path: Path = MODELS_CSV) -> list[dict]:
+    """Every hybrid designation by scope and year with its class and deciding
+    rule: the years this run derived are replaced, older years are kept from
+    the existing file (a normal run reads only the newest two years) and
+    re-classified with today's rules, so a rule change shows in the diff."""
+    rows = {}
+    if path.exists():
+        with open(path, newline="", encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                if r["year"] not in years:
+                    rows[(r["brand"], r["model"], r["scope"], r["year"])] = int(r["units"])
+    for (scope, year, mk, mo, _cls, _rule), n in agg.designations.items():
+        k = (mk, mo, scope, year)
+        rows[k] = rows.get(k, 0) + n
+    out = []
+    for (mk, mo, scope, year), n in sorted(rows.items()):
+        cls, rule = classify_hybrid(mk, mo)
+        out.append({"brand": mk, "model": mo, "scope": scope, "year": year,
+                    "class": cls, "rule": rule, "units": n})
+    return out
+
+
+def write_models(agg: Aggregator, years: set[str], path: Path = MODELS_CSV) -> bool:
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=MODELS_COLUMNS, lineterminator="\n")
+    w.writeheader()
+    w.writerows(models_rows(agg, years, path))
+    text = buf.getvalue()
+    if path.exists() and path.read_text(encoding="utf-8") == text:
+        return False
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return True
+
+
+def new_hybrids(agg: Aggregator, target: str, path: Path = MODELS_CSV) -> collections.Counter:
+    """Hybrid designations counted in `target`'s year that the existing
+    models file has never listed — the review list for new plug-ins."""
+    known = set()
+    if path.exists():
+        with open(path, newline="", encoding="utf-8") as fh:
+            known = {(r["brand"], r["model"]) for r in csv.DictReader(fh)}
+    out = collections.Counter()
+    for (scope, year, mk, mo, cls, rule), n in agg.designations.items():
+        if year == target[:4] and (mk, mo) not in known:
+            out[(mk, mo, cls, rule)] += n
+    return out
+
+
 def report(agg: Aggregator, target: str, periods: list[str], xcheck: list[str],
-           xsource: str, revised: list[str], stamps: dict[int, str]) -> str:
+           xsource: str, revised: list[str], stamps: dict[int, str],
+           fresh: collections.Counter | None = None) -> str:
     t = agg.counts[target]
     out = [f"## Ecuador (SRI new-vehicle register, open data) — {target}\n",
            "Files: " + ", ".join(f"{y} ({s})" for y, s in sorted(stamps.items())) + "\n",
-           "| variant | " + " | ".join(FUELS) + " | TOTAL | BEV share | hybrid share |",
+           "| variant | " + " | ".join(FUELS) + " | TOTAL | BEV share | PHEV+EREV share |",
            "|---|" + "---:|" * (len(FUELS) + 3)]
     for v in VARIANT_CSV:
         c = t[v]
         tot = c["TOTAL"] or 1
         out.append(f"| {v} | " + " | ".join(f"{c[k]:,}" for k in FUELS)
-                   + f" | {c['TOTAL']:,} | {c['BEV'] / tot:.2%} | {c['HEV'] / tot:.1%} |")
+                   + f" | {c['TOTAL']:,} | {c['BEV'] / tot:.2%} | {(c['PHEV'] + c['EREV']) / tot:.1%} |")
     s = agg.allseg[target]
     out.append(f"\nAll segments (AEADE's scope, motorcycles excluded): {s['TOTAL']:,} "
-               f"(BEV {s['BEV']:,}, hybrid {s['HEV']:,}). Vehicles skipped as already "
+               f"(BEV {s['BEV']:,}, PHEV + EREV {s['PHEV'] + s['EREV']:,}, other hybrids "
+               f"{s['HEV']:,}). Vehicles skipped as already "
                f"counted in an earlier year: {agg.lookback_hits[target]:,}.")
     out.append(f"\nMonths processed: {periods[0]} → {periods[-1]} ({len(periods)})")
     out.append(f"\n### Cross-check against AEADE's press bulletin ({xsource})\n")
@@ -880,7 +1001,11 @@ def report(agg: Aggregator, target: str, periods: list[str], xcheck: list[str],
     out.append("\n".join(f"- {v}: `{f}` → {col}: {mk} `{mo}` × {n}"
                          for (v, f, col, mk, mo), n in sorted(rc.items(), key=lambda kv: -kv[1])[:30])
                or "None.")
-    for cls in ("BEV", "HEV"):
+    out.append("\n### New hybrid designations since the last run (check whether they plug in — "
+               "a plug-in belongs in classification/ecuador_rules.csv)\n")
+    out.append("\n".join(f"- {cls} ({rule}): {mk} `{mo}` × {n}" for (mk, mo, cls, rule), n
+                         in (fresh or collections.Counter()).most_common(25)) or "None.")
+    for cls in ("BEV", "PHEV", "EREV", "HEV"):
         models = collections.Counter()
         for (p, c, b, m), n in agg.units.items():
             if p == target and c == cls:
@@ -1086,12 +1211,16 @@ def main() -> int:
         if stats["added"] or stats["updated"]:
             changed.add(v)
 
+    fresh = new_hybrids(agg, target) if not backfill else collections.Counter()
+    years = {str(y) for y in write_years}
+    print(f"{MODELS_CSV.relative_to(REPO)}: "
+          f"{'updated' if write_models(agg, years) else 'unchanged'}")
     if "Whole" in variants:
         market_top.guarded(write_top, agg, target)
 
     shown = {y: (stamps[y].strftime("%Y-%m-%d") if stamps.get(y) else "local")
              for y in files if y in write_years}
-    rep = report(agg, target, periods, xlines, xsource, revised, shown)
+    rep = report(agg, target, periods, xlines, xsource, revised, shown, fresh)
     print("\n" + rep)
     if args.step_summary:
         with open(args.step_summary, "a", encoding="utf-8") as fh:

@@ -11,7 +11,10 @@ name: Fetch Ecuador data (SRI new-vehicle register)
 # Each vehicle counts once, in the month SRI first processed it (unless it
 # was processed in the two preceding years). The powertrain is the end of
 # SRI's catalogue description (EV / HYBRID / DIESEL; e-POWER → hybrid), else
-# the invoice's fuel code; all hybrids are one HEV figure (no PHEV split).
+# the invoice's fuel code; hybrids are split into PHEV / EREV / HEV by the
+# hand-edited classification/ecuador_rules.csv (every hybrid designation and
+# its deciding rule is written to classification/ecuador_models.csv). After
+# changing a rule, dispatch with `backfill` so the whole history follows.
 # Cross-checked against AEADE's monthly press bulletin, which is built from
 # the same register. Also writes market/ecuador_top.json (top BEV and hybrid
 # brands and models). Full method, governance checks and a debugging runbook:
@@ -107,6 +110,7 @@ jobs:
           add: |
             data/Ecuador*.csv
             market/ecuador_top.json
+            classification/ecuador_models.csv
           message: 'chore: update Ecuador data from SRI new-vehicle register (open data)'
           default_author: github_actions
           # Rebase over anything that landed while this job ran instead of
