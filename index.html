@@ -6991,7 +6991,7 @@ const sortField     = document.getElementById('sortField');
 const sortDir       = document.getElementById('sortDir');
 const pager         = document.getElementById('pager');
 const loadMoreBtn   = document.getElementById('loadMore');
-const INITIAL_ROWS = 3, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
+const INITIAL_ROWS = 6, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
 const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
@@ -8002,6 +8002,25 @@ function rowsToCSV(rows,d){
   ).join('\n');
 
   return head + '\n' + body + '\n';
+}
+
+function download(filename, text, mime){
+  const blob = new Blob([text], {type: mime || 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+}
+
+function copyToClipboard(text){
+  if (!(navigator.clipboard && window.isSecureContext)) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn = document.getElementById('copyCsv');
+    const old = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(()=>btn.textContent = old, 1200);
+  });
 }
 
 sel.onchange = renderTable;

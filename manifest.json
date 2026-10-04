@@ -362,43 +362,43 @@
       "country_slug": "spain"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_2_wheelers_ICE_BEV_20261003.png",
       "url": "images/2026-09/spain_2_wheelers_ICE_BEV_20261003.png",
-      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "share",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_2_wheelers_20261003.png",
       "url": "images/2026-09/spain_2_wheelers_20261003.png",
-      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "alt": "Spain (2-Wheelers) BEV trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "time",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_2_wheelers_time_20261003.png",
       "url": "images/2026-09/spain_2_wheelers_time_20261003.png",
-      "alt": "Spain (2 Wheelers) Transition time curve",
+      "alt": "Spain (2-Wheelers) Transition time curve",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_2_wheelers_ttm_shares_20261003.png",
       "url": "images/2026-09/spain_2_wheelers_ttm_shares_20261003.png",
-      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "alt": "Spain (2-Wheelers) TTM market split graph",
       "country_slug": "spain_2_wheelers"
     },
     {
@@ -482,43 +482,43 @@
       "country_slug": "spain_hdv"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_nonrental_ICE_BEV_20261003.png",
       "url": "images/2026-09/spain_nonrental_ICE_BEV_20261003.png",
-      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "share",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_nonrental_20261003.png",
       "url": "images/2026-09/spain_nonrental_20261003.png",
-      "alt": "Spain (Nonrental) BEV trajectory",
+      "alt": "Spain (NonRental) BEV trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "time",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_nonrental_time_20261003.png",
       "url": "images/2026-09/spain_nonrental_time_20261003.png",
-      "alt": "Spain (Nonrental) Transition time curve",
+      "alt": "Spain (NonRental) Transition time curve",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ttm_shares",
       "period": "2026-09",
       "date": "2026-10-03",
       "filename": "spain_nonrental_ttm_shares_20261003.png",
       "url": "images/2026-09/spain_nonrental_ttm_shares_20261003.png",
-      "alt": "Spain (Nonrental) TTM market split graph",
+      "alt": "Spain (NonRental) TTM market split graph",
       "country_slug": "spain_nonrental"
     },
     {
@@ -1182,43 +1182,43 @@
       "country_slug": "switzerland"
     },
     {
-      "country": "Switzerland (2 Wheelers)",
+      "country": "Switzerland (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-09",
       "date": "2026-10-02",
       "filename": "switzerland_2_wheelers_ICE_BEV_20261002.png",
       "url": "images/2026-09/switzerland_2_wheelers_ICE_BEV_20261002.png",
-      "alt": "Switzerland (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Switzerland (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "switzerland_2_wheelers"
     },
     {
-      "country": "Switzerland (2 Wheelers)",
+      "country": "Switzerland (2-Wheelers)",
       "type": "share",
       "period": "2026-09",
       "date": "2026-10-02",
       "filename": "switzerland_2_wheelers_20261002.png",
       "url": "images/2026-09/switzerland_2_wheelers_20261002.png",
-      "alt": "Switzerland (2 Wheelers) BEV trajectory",
+      "alt": "Switzerland (2-Wheelers) BEV trajectory",
       "country_slug": "switzerland_2_wheelers"
     },
     {
-      "country": "Switzerland (2 Wheelers)",
+      "country": "Switzerland (2-Wheelers)",
       "type": "time",
       "period": "2026-09",
       "date": "2026-10-02",
       "filename": "switzerland_2_wheelers_time_20261002.png",
       "url": "images/2026-09/switzerland_2_wheelers_time_20261002.png",
-      "alt": "Switzerland (2 Wheelers) Transition time curve",
+      "alt": "Switzerland (2-Wheelers) Transition time curve",
       "country_slug": "switzerland_2_wheelers"
     },
     {
-      "country": "Switzerland (2 Wheelers)",
+      "country": "Switzerland (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-09",
       "date": "2026-10-02",
       "filename": "switzerland_2_wheelers_ttm_shares_20261002.png",
       "url": "images/2026-09/switzerland_2_wheelers_ttm_shares_20261002.png",
-      "alt": "Switzerland (2 Wheelers) TTM market split graph",
+      "alt": "Switzerland (2-Wheelers) TTM market split graph",
       "country_slug": "switzerland_2_wheelers"
     },
     {
@@ -1662,43 +1662,43 @@
       "country_slug": "italy"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-09",
       "date": "2026-10-01",
       "filename": "italy_nonrental_ICE_BEV_20261001.png",
       "url": "images/2026-09/italy_nonrental_ICE_BEV_20261001.png",
-      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "share",
       "period": "2026-09",
       "date": "2026-10-01",
       "filename": "italy_nonrental_20261001.png",
       "url": "images/2026-09/italy_nonrental_20261001.png",
-      "alt": "Italy (Nonrental) BEV trajectory",
+      "alt": "Italy (NonRental) BEV trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "time",
       "period": "2026-09",
       "date": "2026-10-01",
       "filename": "italy_nonrental_time_20261001.png",
       "url": "images/2026-09/italy_nonrental_time_20261001.png",
-      "alt": "Italy (Nonrental) Transition time curve",
+      "alt": "Italy (NonRental) Transition time curve",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ttm_shares",
       "period": "2026-09",
       "date": "2026-10-01",
       "filename": "italy_nonrental_ttm_shares_20261001.png",
       "url": "images/2026-09/italy_nonrental_ttm_shares_20261001.png",
-      "alt": "Italy (Nonrental) TTM market split graph",
+      "alt": "Italy (NonRental) TTM market split graph",
       "country_slug": "italy_nonrental"
     },
     {
@@ -2102,43 +2102,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-09-27",
       "filename": "thailand_3_wheelers_ICE_BEV_20260927.png",
       "url": "images/2026-08/thailand_3_wheelers_ICE_BEV_20260927.png",
-      "alt": "Thailand (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-09-27",
       "filename": "thailand_3_wheelers_20260927.png",
       "url": "images/2026-08/thailand_3_wheelers_20260927.png",
-      "alt": "Thailand (3 Wheelers) BEV trajectory",
+      "alt": "Thailand (3-Wheelers) BEV trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-09-27",
       "filename": "thailand_3_wheelers_time_20260927.png",
       "url": "images/2026-08/thailand_3_wheelers_time_20260927.png",
-      "alt": "Thailand (3 Wheelers) Transition time curve",
+      "alt": "Thailand (3-Wheelers) Transition time curve",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-09-27",
       "filename": "thailand_3_wheelers_ttm_shares_20260927.png",
       "url": "images/2026-08/thailand_3_wheelers_ttm_shares_20260927.png",
-      "alt": "Thailand (3 Wheelers) TTM market split graph",
+      "alt": "Thailand (3-Wheelers) TTM market split graph",
       "country_slug": "thailand_3_wheelers"
     },
     {
@@ -3462,43 +3462,43 @@
       "country_slug": "nepal"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-09",
       "date": "2026-09-23",
       "filename": "nepal_3_wheelers_ICE_BEV_20260923.png",
       "url": "images/2026-09/nepal_3_wheelers_ICE_BEV_20260923.png",
-      "alt": "Nepal (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Nepal (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "share",
       "period": "2026-09",
       "date": "2026-09-23",
       "filename": "nepal_3_wheelers_20260923.png",
       "url": "images/2026-09/nepal_3_wheelers_20260923.png",
-      "alt": "Nepal (3 Wheelers) BEV trajectory",
+      "alt": "Nepal (3-Wheelers) BEV trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "time",
       "period": "2026-09",
       "date": "2026-09-23",
       "filename": "nepal_3_wheelers_time_20260923.png",
       "url": "images/2026-09/nepal_3_wheelers_time_20260923.png",
-      "alt": "Nepal (3 Wheelers) Transition time curve",
+      "alt": "Nepal (3-Wheelers) Transition time curve",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-09",
       "date": "2026-09-23",
       "filename": "nepal_3_wheelers_ttm_shares_20260923.png",
       "url": "images/2026-09/nepal_3_wheelers_ttm_shares_20260923.png",
-      "alt": "Nepal (3 Wheelers) TTM market split graph",
+      "alt": "Nepal (3-Wheelers) TTM market split graph",
       "country_slug": "nepal_3_wheelers"
     },
     {
@@ -5402,43 +5402,43 @@
       "country_slug": "spain"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_2_wheelers_ICE_BEV_20260915.png",
       "url": "images/2026-08/spain_2_wheelers_ICE_BEV_20260915.png",
-      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_2_wheelers_20260915.png",
       "url": "images/2026-08/spain_2_wheelers_20260915.png",
-      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "alt": "Spain (2-Wheelers) BEV trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_2_wheelers_time_20260915.png",
       "url": "images/2026-08/spain_2_wheelers_time_20260915.png",
-      "alt": "Spain (2 Wheelers) Transition time curve",
+      "alt": "Spain (2-Wheelers) Transition time curve",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_2_wheelers_ttm_shares_20260915.png",
       "url": "images/2026-08/spain_2_wheelers_ttm_shares_20260915.png",
-      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "alt": "Spain (2-Wheelers) TTM market split graph",
       "country_slug": "spain_2_wheelers"
     },
     {
@@ -5522,43 +5522,43 @@
       "country_slug": "spain_hdv"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_nonrental_ICE_BEV_20260915.png",
       "url": "images/2026-08/spain_nonrental_ICE_BEV_20260915.png",
-      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_nonrental_20260915.png",
       "url": "images/2026-08/spain_nonrental_20260915.png",
-      "alt": "Spain (Nonrental) BEV trajectory",
+      "alt": "Spain (NonRental) BEV trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_nonrental_time_20260915.png",
       "url": "images/2026-08/spain_nonrental_time_20260915.png",
-      "alt": "Spain (Nonrental) Transition time curve",
+      "alt": "Spain (NonRental) Transition time curve",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-09-15",
       "filename": "spain_nonrental_ttm_shares_20260915.png",
       "url": "images/2026-08/spain_nonrental_ttm_shares_20260915.png",
-      "alt": "Spain (Nonrental) TTM market split graph",
+      "alt": "Spain (NonRental) TTM market split graph",
       "country_slug": "spain_nonrental"
     },
     {
@@ -6042,43 +6042,43 @@
       "country_slug": "albania"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-09-10",
       "filename": "albania_2_wheelers_ICE_BEV_20260910.png",
       "url": "images/2026-08/albania_2_wheelers_ICE_BEV_20260910.png",
-      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Albania (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-09-10",
       "filename": "albania_2_wheelers_20260910.png",
       "url": "images/2026-08/albania_2_wheelers_20260910.png",
-      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "alt": "Albania (2-Wheelers) BEV trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-09-10",
       "filename": "albania_2_wheelers_time_20260910.png",
       "url": "images/2026-08/albania_2_wheelers_time_20260910.png",
-      "alt": "Albania (2 Wheelers) Transition time curve",
+      "alt": "Albania (2-Wheelers) Transition time curve",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-09-10",
       "filename": "albania_2_wheelers_ttm_shares_20260910.png",
       "url": "images/2026-08/albania_2_wheelers_ttm_shares_20260910.png",
-      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "alt": "Albania (2-Wheelers) TTM market split graph",
       "country_slug": "albania_2_wheelers"
     },
     {
@@ -7742,43 +7742,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-09-02",
       "filename": "thailand_3_wheelers_ICE_BEV_20260902.png",
       "url": "images/2026-07/thailand_3_wheelers_ICE_BEV_20260902.png",
-      "alt": "Thailand (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-09-02",
       "filename": "thailand_3_wheelers_20260902.png",
       "url": "images/2026-07/thailand_3_wheelers_20260902.png",
-      "alt": "Thailand (3 Wheelers) BEV trajectory",
+      "alt": "Thailand (3-Wheelers) BEV trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-09-02",
       "filename": "thailand_3_wheelers_time_20260902.png",
       "url": "images/2026-07/thailand_3_wheelers_time_20260902.png",
-      "alt": "Thailand (3 Wheelers) Transition time curve",
+      "alt": "Thailand (3-Wheelers) Transition time curve",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-09-02",
       "filename": "thailand_3_wheelers_ttm_shares_20260902.png",
       "url": "images/2026-07/thailand_3_wheelers_ttm_shares_20260902.png",
-      "alt": "Thailand (3 Wheelers) TTM market split graph",
+      "alt": "Thailand (3-Wheelers) TTM market split graph",
       "country_slug": "thailand_3_wheelers"
     },
     {
@@ -8022,43 +8022,43 @@
       "country_slug": "italy"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-09-01",
       "filename": "italy_nonrental_ICE_BEV_20260901.png",
       "url": "images/2026-08/italy_nonrental_ICE_BEV_20260901.png",
-      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-09-01",
       "filename": "italy_nonrental_20260901.png",
       "url": "images/2026-08/italy_nonrental_20260901.png",
-      "alt": "Italy (Nonrental) BEV trajectory",
+      "alt": "Italy (NonRental) BEV trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-09-01",
       "filename": "italy_nonrental_time_20260901.png",
       "url": "images/2026-08/italy_nonrental_time_20260901.png",
-      "alt": "Italy (Nonrental) Transition time curve",
+      "alt": "Italy (NonRental) Transition time curve",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-09-01",
       "filename": "italy_nonrental_ttm_shares_20260901.png",
       "url": "images/2026-08/italy_nonrental_ttm_shares_20260901.png",
-      "alt": "Italy (Nonrental) TTM market split graph",
+      "alt": "Italy (NonRental) TTM market split graph",
       "country_slug": "italy_nonrental"
     },
     {
@@ -8222,43 +8222,43 @@
       "country_slug": "nepal"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-08",
       "date": "2026-08-21",
       "filename": "nepal_3_wheelers_ICE_BEV_20260821.png",
       "url": "images/2026-08/nepal_3_wheelers_ICE_BEV_20260821.png",
-      "alt": "Nepal (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Nepal (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "share",
       "period": "2026-08",
       "date": "2026-08-21",
       "filename": "nepal_3_wheelers_20260821.png",
       "url": "images/2026-08/nepal_3_wheelers_20260821.png",
-      "alt": "Nepal (3 Wheelers) BEV trajectory",
+      "alt": "Nepal (3-Wheelers) BEV trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "time",
       "period": "2026-08",
       "date": "2026-08-21",
       "filename": "nepal_3_wheelers_time_20260821.png",
       "url": "images/2026-08/nepal_3_wheelers_time_20260821.png",
-      "alt": "Nepal (3 Wheelers) Transition time curve",
+      "alt": "Nepal (3-Wheelers) Transition time curve",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-08",
       "date": "2026-08-21",
       "filename": "nepal_3_wheelers_ttm_shares_20260821.png",
       "url": "images/2026-08/nepal_3_wheelers_ttm_shares_20260821.png",
-      "alt": "Nepal (3 Wheelers) TTM market split graph",
+      "alt": "Nepal (3-Wheelers) TTM market split graph",
       "country_slug": "nepal_3_wheelers"
     },
     {
@@ -8302,43 +8302,43 @@
       "country_slug": "albania"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-08-16",
       "filename": "albania_2_wheelers_ICE_BEV_20260816.png",
       "url": "images/2026-07/albania_2_wheelers_ICE_BEV_20260816.png",
-      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Albania (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-08-16",
       "filename": "albania_2_wheelers_20260816.png",
       "url": "images/2026-07/albania_2_wheelers_20260816.png",
-      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "alt": "Albania (2-Wheelers) BEV trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-08-16",
       "filename": "albania_2_wheelers_time_20260816.png",
       "url": "images/2026-07/albania_2_wheelers_time_20260816.png",
-      "alt": "Albania (2 Wheelers) Transition time curve",
+      "alt": "Albania (2-Wheelers) Transition time curve",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-08-16",
       "filename": "albania_2_wheelers_ttm_shares_20260816.png",
       "url": "images/2026-07/albania_2_wheelers_ttm_shares_20260816.png",
-      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "alt": "Albania (2-Wheelers) TTM market split graph",
       "country_slug": "albania_2_wheelers"
     },
     {
@@ -8462,43 +8462,43 @@
       "country_slug": "spain"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_2_wheelers_ICE_BEV_20260815.png",
       "url": "images/2026-07/spain_2_wheelers_ICE_BEV_20260815.png",
-      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_2_wheelers_20260815.png",
       "url": "images/2026-07/spain_2_wheelers_20260815.png",
-      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "alt": "Spain (2-Wheelers) BEV trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_2_wheelers_time_20260815.png",
       "url": "images/2026-07/spain_2_wheelers_time_20260815.png",
-      "alt": "Spain (2 Wheelers) Transition time curve",
+      "alt": "Spain (2-Wheelers) Transition time curve",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_2_wheelers_ttm_shares_20260815.png",
       "url": "images/2026-07/spain_2_wheelers_ttm_shares_20260815.png",
-      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "alt": "Spain (2-Wheelers) TTM market split graph",
       "country_slug": "spain_2_wheelers"
     },
     {
@@ -8582,43 +8582,43 @@
       "country_slug": "spain_hdv"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_nonrental_ICE_BEV_20260815.png",
       "url": "images/2026-07/spain_nonrental_ICE_BEV_20260815.png",
-      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_nonrental_20260815.png",
       "url": "images/2026-07/spain_nonrental_20260815.png",
-      "alt": "Spain (Nonrental) BEV trajectory",
+      "alt": "Spain (NonRental) BEV trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_nonrental_time_20260815.png",
       "url": "images/2026-07/spain_nonrental_time_20260815.png",
-      "alt": "Spain (Nonrental) Transition time curve",
+      "alt": "Spain (NonRental) Transition time curve",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-08-15",
       "filename": "spain_nonrental_ttm_shares_20260815.png",
       "url": "images/2026-07/spain_nonrental_ttm_shares_20260815.png",
-      "alt": "Spain (Nonrental) TTM market split graph",
+      "alt": "Spain (NonRental) TTM market split graph",
       "country_slug": "spain_nonrental"
     },
     {
@@ -10212,43 +10212,43 @@
       "country_slug": "italy"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-08-03",
       "filename": "italy_nonrental_ICE_BEV_20260803.png",
       "url": "images/2026-07/italy_nonrental_ICE_BEV_20260803.png",
-      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-08-03",
       "filename": "italy_nonrental_20260803.png",
       "url": "images/2026-07/italy_nonrental_20260803.png",
-      "alt": "Italy (Nonrental) BEV trajectory",
+      "alt": "Italy (NonRental) BEV trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-08-03",
       "filename": "italy_nonrental_time_20260803.png",
       "url": "images/2026-07/italy_nonrental_time_20260803.png",
-      "alt": "Italy (Nonrental) Transition time curve",
+      "alt": "Italy (NonRental) Transition time curve",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-08-03",
       "filename": "italy_nonrental_ttm_shares_20260803.png",
       "url": "images/2026-07/italy_nonrental_ttm_shares_20260803.png",
-      "alt": "Italy (Nonrental) TTM market split graph",
+      "alt": "Italy (NonRental) TTM market split graph",
       "country_slug": "italy_nonrental"
     },
     {
@@ -10492,43 +10492,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-06",
       "date": "2026-08-01",
       "filename": "thailand_3_wheelers_ICE_BEV_20260801.png",
       "url": "images/2026-06/thailand_3_wheelers_ICE_BEV_20260801.png",
-      "alt": "Thailand (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "share",
       "period": "2026-06",
       "date": "2026-08-01",
       "filename": "thailand_3_wheelers_20260801.png",
       "url": "images/2026-06/thailand_3_wheelers_20260801.png",
-      "alt": "Thailand (3 Wheelers) BEV trajectory",
+      "alt": "Thailand (3-Wheelers) BEV trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "time",
       "period": "2026-06",
       "date": "2026-08-01",
       "filename": "thailand_3_wheelers_time_20260801.png",
       "url": "images/2026-06/thailand_3_wheelers_time_20260801.png",
-      "alt": "Thailand (3 Wheelers) Transition time curve",
+      "alt": "Thailand (3-Wheelers) Transition time curve",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-06",
       "date": "2026-08-01",
       "filename": "thailand_3_wheelers_ttm_shares_20260801.png",
       "url": "images/2026-06/thailand_3_wheelers_ttm_shares_20260801.png",
-      "alt": "Thailand (3 Wheelers) TTM market split graph",
+      "alt": "Thailand (3-Wheelers) TTM market split graph",
       "country_slug": "thailand_3_wheelers"
     },
     {
@@ -11362,43 +11362,43 @@
       "country_slug": "nepal"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-07",
       "date": "2026-07-23",
       "filename": "nepal_3_wheelers_ICE_BEV_20260723.png",
       "url": "images/2026-07/nepal_3_wheelers_ICE_BEV_20260723.png",
-      "alt": "Nepal (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Nepal (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "share",
       "period": "2026-07",
       "date": "2026-07-23",
       "filename": "nepal_3_wheelers_20260723.png",
       "url": "images/2026-07/nepal_3_wheelers_20260723.png",
-      "alt": "Nepal (3 Wheelers) BEV trajectory",
+      "alt": "Nepal (3-Wheelers) BEV trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "time",
       "period": "2026-07",
       "date": "2026-07-23",
       "filename": "nepal_3_wheelers_time_20260723.png",
       "url": "images/2026-07/nepal_3_wheelers_time_20260723.png",
-      "alt": "Nepal (3 Wheelers) Transition time curve",
+      "alt": "Nepal (3-Wheelers) Transition time curve",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-07",
       "date": "2026-07-23",
       "filename": "nepal_3_wheelers_ttm_shares_20260723.png",
       "url": "images/2026-07/nepal_3_wheelers_ttm_shares_20260723.png",
-      "alt": "Nepal (3 Wheelers) TTM market split graph",
+      "alt": "Nepal (3-Wheelers) TTM market split graph",
       "country_slug": "nepal_3_wheelers"
     },
     {
@@ -11682,43 +11682,43 @@
       "country_slug": "nepal"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-06",
       "date": "2026-07-20",
       "filename": "nepal_3_wheelers_ICE_BEV_20260720.png",
       "url": "images/2026-06/nepal_3_wheelers_ICE_BEV_20260720.png",
-      "alt": "Nepal (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Nepal (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "share",
       "period": "2026-06",
       "date": "2026-07-20",
       "filename": "nepal_3_wheelers_20260720.png",
       "url": "images/2026-06/nepal_3_wheelers_20260720.png",
-      "alt": "Nepal (3 Wheelers) BEV trajectory",
+      "alt": "Nepal (3-Wheelers) BEV trajectory",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "time",
       "period": "2026-06",
       "date": "2026-07-20",
       "filename": "nepal_3_wheelers_time_20260720.png",
       "url": "images/2026-06/nepal_3_wheelers_time_20260720.png",
-      "alt": "Nepal (3 Wheelers) Transition time curve",
+      "alt": "Nepal (3-Wheelers) Transition time curve",
       "country_slug": "nepal_3_wheelers"
     },
     {
-      "country": "Nepal (3 Wheelers)",
+      "country": "Nepal (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-06",
       "date": "2026-07-20",
       "filename": "nepal_3_wheelers_ttm_shares_20260720.png",
       "url": "images/2026-06/nepal_3_wheelers_ttm_shares_20260720.png",
-      "alt": "Nepal (3 Wheelers) TTM market split graph",
+      "alt": "Nepal (3-Wheelers) TTM market split graph",
       "country_slug": "nepal_3_wheelers"
     },
     {
@@ -12042,43 +12042,43 @@
       "country_slug": "spain"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_2_wheelers_ICE_BEV_20260715.png",
       "url": "images/2026-06/spain_2_wheelers_ICE_BEV_20260715.png",
-      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "share",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_2_wheelers_20260715.png",
       "url": "images/2026-06/spain_2_wheelers_20260715.png",
-      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "alt": "Spain (2-Wheelers) BEV trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "time",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_2_wheelers_time_20260715.png",
       "url": "images/2026-06/spain_2_wheelers_time_20260715.png",
-      "alt": "Spain (2 Wheelers) Transition time curve",
+      "alt": "Spain (2-Wheelers) Transition time curve",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_2_wheelers_ttm_shares_20260715.png",
       "url": "images/2026-06/spain_2_wheelers_ttm_shares_20260715.png",
-      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "alt": "Spain (2-Wheelers) TTM market split graph",
       "country_slug": "spain_2_wheelers"
     },
     {
@@ -12162,43 +12162,43 @@
       "country_slug": "spain_hdv"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_nonrental_ICE_BEV_20260715.png",
       "url": "images/2026-06/spain_nonrental_ICE_BEV_20260715.png",
-      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "share",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_nonrental_20260715.png",
       "url": "images/2026-06/spain_nonrental_20260715.png",
-      "alt": "Spain (Nonrental) BEV trajectory",
+      "alt": "Spain (NonRental) BEV trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "time",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_nonrental_time_20260715.png",
       "url": "images/2026-06/spain_nonrental_time_20260715.png",
-      "alt": "Spain (Nonrental) Transition time curve",
+      "alt": "Spain (NonRental) Transition time curve",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ttm_shares",
       "period": "2026-06",
       "date": "2026-07-15",
       "filename": "spain_nonrental_ttm_shares_20260715.png",
       "url": "images/2026-06/spain_nonrental_ttm_shares_20260715.png",
-      "alt": "Spain (Nonrental) TTM market split graph",
+      "alt": "Spain (NonRental) TTM market split graph",
       "country_slug": "spain_nonrental"
     },
     {
@@ -12562,43 +12562,43 @@
       "country_slug": "thailand"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-07-11",
       "filename": "thailand_3_wheelers_ICE_BEV_20260711.png",
       "url": "images/2026-05/thailand_3_wheelers_ICE_BEV_20260711.png",
-      "alt": "Thailand (3 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Thailand (3-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-07-11",
       "filename": "thailand_3_wheelers_20260711.png",
       "url": "images/2026-05/thailand_3_wheelers_20260711.png",
-      "alt": "Thailand (3 Wheelers) BEV trajectory",
+      "alt": "Thailand (3-Wheelers) BEV trajectory",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-07-11",
       "filename": "thailand_3_wheelers_time_20260711.png",
       "url": "images/2026-05/thailand_3_wheelers_time_20260711.png",
-      "alt": "Thailand (3 Wheelers) Transition time curve",
+      "alt": "Thailand (3-Wheelers) Transition time curve",
       "country_slug": "thailand_3_wheelers"
     },
     {
-      "country": "Thailand (3 Wheelers)",
+      "country": "Thailand (3-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-07-11",
       "filename": "thailand_3_wheelers_ttm_shares_20260711.png",
       "url": "images/2026-05/thailand_3_wheelers_ttm_shares_20260711.png",
-      "alt": "Thailand (3 Wheelers) TTM market split graph",
+      "alt": "Thailand (3-Wheelers) TTM market split graph",
       "country_slug": "thailand_3_wheelers"
     },
     {
@@ -12722,43 +12722,43 @@
       "country_slug": "albania"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-06",
       "date": "2026-07-10",
       "filename": "albania_2_wheelers_ICE_BEV_20260710.png",
       "url": "images/2026-06/albania_2_wheelers_ICE_BEV_20260710.png",
-      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Albania (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "share",
       "period": "2026-06",
       "date": "2026-07-10",
       "filename": "albania_2_wheelers_20260710.png",
       "url": "images/2026-06/albania_2_wheelers_20260710.png",
-      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "alt": "Albania (2-Wheelers) BEV trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "time",
       "period": "2026-06",
       "date": "2026-07-10",
       "filename": "albania_2_wheelers_time_20260710.png",
       "url": "images/2026-06/albania_2_wheelers_time_20260710.png",
-      "alt": "Albania (2 Wheelers) Transition time curve",
+      "alt": "Albania (2-Wheelers) Transition time curve",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-06",
       "date": "2026-07-10",
       "filename": "albania_2_wheelers_ttm_shares_20260710.png",
       "url": "images/2026-06/albania_2_wheelers_ttm_shares_20260710.png",
-      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "alt": "Albania (2-Wheelers) TTM market split graph",
       "country_slug": "albania_2_wheelers"
     },
     {
@@ -13262,43 +13262,43 @@
       "country_slug": "spain"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_2_wheelers_ICE_BEV_20260709.png",
       "url": "images/2026-05/spain_2_wheelers_ICE_BEV_20260709.png",
-      "alt": "Spain (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_2_wheelers_20260709.png",
       "url": "images/2026-05/spain_2_wheelers_20260709.png",
-      "alt": "Spain (2 Wheelers) BEV trajectory",
+      "alt": "Spain (2-Wheelers) BEV trajectory",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_2_wheelers_time_20260709.png",
       "url": "images/2026-05/spain_2_wheelers_time_20260709.png",
-      "alt": "Spain (2 Wheelers) Transition time curve",
+      "alt": "Spain (2-Wheelers) Transition time curve",
       "country_slug": "spain_2_wheelers"
     },
     {
-      "country": "Spain (2 Wheelers)",
+      "country": "Spain (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_2_wheelers_ttm_shares_20260709.png",
       "url": "images/2026-05/spain_2_wheelers_ttm_shares_20260709.png",
-      "alt": "Spain (2 Wheelers) TTM market split graph",
+      "alt": "Spain (2-Wheelers) TTM market split graph",
       "country_slug": "spain_2_wheelers"
     },
     {
@@ -13382,43 +13382,43 @@
       "country_slug": "spain_hdv"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_nonrental_ICE_BEV_20260709.png",
       "url": "images/2026-05/spain_nonrental_ICE_BEV_20260709.png",
-      "alt": "Spain (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Spain (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_nonrental_20260709.png",
       "url": "images/2026-05/spain_nonrental_20260709.png",
-      "alt": "Spain (Nonrental) BEV trajectory",
+      "alt": "Spain (NonRental) BEV trajectory",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_nonrental_time_20260709.png",
       "url": "images/2026-05/spain_nonrental_time_20260709.png",
-      "alt": "Spain (Nonrental) Transition time curve",
+      "alt": "Spain (NonRental) Transition time curve",
       "country_slug": "spain_nonrental"
     },
     {
-      "country": "Spain (Nonrental)",
+      "country": "Spain (NonRental)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-07-09",
       "filename": "spain_nonrental_ttm_shares_20260709.png",
       "url": "images/2026-05/spain_nonrental_ttm_shares_20260709.png",
-      "alt": "Spain (Nonrental) TTM market split graph",
+      "alt": "Spain (NonRental) TTM market split graph",
       "country_slug": "spain_nonrental"
     },
     {
@@ -15442,43 +15442,43 @@
       "country_slug": "albania"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-06-15",
       "filename": "albania_2_wheelers_ICE_BEV_20260615.png",
       "url": "images/2026-05/albania_2_wheelers_ICE_BEV_20260615.png",
-      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Albania (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-06-15",
       "filename": "albania_2_wheelers_20260615.png",
       "url": "images/2026-05/albania_2_wheelers_20260615.png",
-      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "alt": "Albania (2-Wheelers) BEV trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-06-15",
       "filename": "albania_2_wheelers_time_20260615.png",
       "url": "images/2026-05/albania_2_wheelers_time_20260615.png",
-      "alt": "Albania (2 Wheelers) Transition time curve",
+      "alt": "Albania (2-Wheelers) Transition time curve",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-06-15",
       "filename": "albania_2_wheelers_ttm_shares_20260615.png",
       "url": "images/2026-05/albania_2_wheelers_ttm_shares_20260615.png",
-      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "alt": "Albania (2-Wheelers) TTM market split graph",
       "country_slug": "albania_2_wheelers"
     },
     {
@@ -15672,43 +15672,43 @@
       "country_slug": "albania"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-06-14",
       "filename": "albania_2_wheelers_ICE_BEV_20260614.png",
       "url": "images/2026-05/albania_2_wheelers_ICE_BEV_20260614.png",
-      "alt": "Albania (2 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "Albania (2-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-06-14",
       "filename": "albania_2_wheelers_20260614.png",
       "url": "images/2026-05/albania_2_wheelers_20260614.png",
-      "alt": "Albania (2 Wheelers) BEV trajectory",
+      "alt": "Albania (2-Wheelers) BEV trajectory",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-06-14",
       "filename": "albania_2_wheelers_time_20260614.png",
       "url": "images/2026-05/albania_2_wheelers_time_20260614.png",
-      "alt": "Albania (2 Wheelers) Transition time curve",
+      "alt": "Albania (2-Wheelers) Transition time curve",
       "country_slug": "albania_2_wheelers"
     },
     {
-      "country": "Albania (2 Wheelers)",
+      "country": "Albania (2-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-06-14",
       "filename": "albania_2_wheelers_ttm_shares_20260614.png",
       "url": "images/2026-05/albania_2_wheelers_ttm_shares_20260614.png",
-      "alt": "Albania (2 Wheelers) TTM market split graph",
+      "alt": "Albania (2-Wheelers) TTM market split graph",
       "country_slug": "albania_2_wheelers"
     },
     {
@@ -16572,43 +16572,43 @@
       "country_slug": "malaysia"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-06-07",
       "filename": "italy_nonrental_ICE_BEV_20260607.png",
       "url": "images/2026-05/italy_nonrental_ICE_BEV_20260607.png",
-      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-06-07",
       "filename": "italy_nonrental_20260607.png",
       "url": "images/2026-05/italy_nonrental_20260607.png",
-      "alt": "Italy (Nonrental) BEV trajectory",
+      "alt": "Italy (NonRental) BEV trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-06-07",
       "filename": "italy_nonrental_time_20260607.png",
       "url": "images/2026-05/italy_nonrental_time_20260607.png",
-      "alt": "Italy (Nonrental) Transition time curve",
+      "alt": "Italy (NonRental) Transition time curve",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-06-07",
       "filename": "italy_nonrental_ttm_shares_20260607.png",
       "url": "images/2026-05/italy_nonrental_ttm_shares_20260607.png",
-      "alt": "Italy (Nonrental) TTM market split graph",
+      "alt": "Italy (NonRental) TTM market split graph",
       "country_slug": "italy_nonrental"
     },
     {
@@ -16652,43 +16652,43 @@
       "country_slug": "italy_rental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ICE_BEV",
       "period": "2026-05",
       "date": "2026-06-06",
       "filename": "italy_nonrental_ICE_BEV_20260606.png",
       "url": "images/2026-05/italy_nonrental_ICE_BEV_20260606.png",
-      "alt": "Italy (Nonrental) ICE-BEV-Hybrid trajectory",
+      "alt": "Italy (NonRental) ICE-BEV-Hybrid trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "share",
       "period": "2026-05",
       "date": "2026-06-06",
       "filename": "italy_nonrental_20260606.png",
       "url": "images/2026-05/italy_nonrental_20260606.png",
-      "alt": "Italy (Nonrental) BEV trajectory",
+      "alt": "Italy (NonRental) BEV trajectory",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "time",
       "period": "2026-05",
       "date": "2026-06-06",
       "filename": "italy_nonrental_time_20260606.png",
       "url": "images/2026-05/italy_nonrental_time_20260606.png",
-      "alt": "Italy (Nonrental) Transition time curve",
+      "alt": "Italy (NonRental) Transition time curve",
       "country_slug": "italy_nonrental"
     },
     {
-      "country": "Italy (Nonrental)",
+      "country": "Italy (NonRental)",
       "type": "ttm_shares",
       "period": "2026-05",
       "date": "2026-06-06",
       "filename": "italy_nonrental_ttm_shares_20260606.png",
       "url": "images/2026-05/italy_nonrental_ttm_shares_20260606.png",
-      "alt": "Italy (Nonrental) TTM market split graph",
+      "alt": "Italy (NonRental) TTM market split graph",
       "country_slug": "italy_nonrental"
     },
     {
@@ -25382,43 +25382,43 @@
       "country_slug": "denmark_private"
     },
     {
-      "country": "India (4 Wheelers)",
+      "country": "India (4-Wheelers)",
       "type": "ICE_BEV",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india_4-wheelers_ICE_BEV_20260315.png",
       "url": "images/2026-01/india_4-wheelers_ICE_BEV_20260315.png",
-      "alt": "India (4 Wheelers) ICE-BEV-Hybrid trajectory",
+      "alt": "India (4-Wheelers) ICE-BEV-Hybrid trajectory",
       "country_slug": "india_4-wheelers"
     },
     {
-      "country": "India (4 Wheelers)",
+      "country": "India (4-Wheelers)",
       "type": "share",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india_4-wheelers_20260315.png",
       "url": "images/2026-01/india_4-wheelers_20260315.png",
-      "alt": "India (4 Wheelers) BEV trajectory",
+      "alt": "India (4-Wheelers) BEV trajectory",
       "country_slug": "india_4-wheelers"
     },
     {
-      "country": "India (4 Wheelers)",
+      "country": "India (4-Wheelers)",
       "type": "time",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india_4-wheelers_time_20260315.png",
       "url": "images/2026-01/india_4-wheelers_time_20260315.png",
-      "alt": "India (4 Wheelers) Transition time curve",
+      "alt": "India (4-Wheelers) Transition time curve",
       "country_slug": "india_4-wheelers"
     },
     {
-      "country": "India (4 Wheelers)",
+      "country": "India (4-Wheelers)",
       "type": "ttm_shares",
       "period": "2026-01",
       "date": "2026-03-15",
       "filename": "india_4-wheelers_ttm_shares_20260315.png",
       "url": "images/2026-01/india_4-wheelers_ttm_shares_20260315.png",
-      "alt": "India (4 Wheelers) TTM market split graph",
+      "alt": "India (4-Wheelers) TTM market split graph",
       "country_slug": "india_4-wheelers"
     },
     {

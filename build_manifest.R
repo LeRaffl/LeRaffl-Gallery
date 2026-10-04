@@ -107,6 +107,10 @@ label_from_slug <- function(slug, country_overrides = NULL, variant_overrides = 
   rest_label <- gsub("\\bAnd\\b", "and", rest_label)
   rest_label <- gsub("\\bOf\\b",  "of",  rest_label)
   rest_label <- gsub("\\bIn\\b",  "In",  rest_label)
+  # Match the variant spelling in params.csv, which the gallery's tag lookup
+  # keys on: "2 Wheelers" -> "2-Wheelers", "Nonrental" -> "NonRental".
+  rest_label <- gsub("\\b([0-9]) Wheelers\\b", "\\1-Wheelers", rest_label)
+  rest_label <- gsub("\\bNonrental\\b", "NonRental", rest_label)
 
   # Variant-Overrides optional (vektorisiert). Caller can pass e.g.
   # c("Used Imports" = "Used") to remap display labels without renaming
