@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta name="hub-site-head-content">
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="V9SzvB895BKr2ff7JVvaJQM1CIgPqOL5FPooX1aqENo" />
+    <meta name="msvalidate.01" content="217F0EED65C5B131219477CE2CEAAF8E" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+      (function () {
+        // check for unsupported browsers
+        function isIE () {
+          return (
+            (navigator.appName === 'Microsoft Internet Explorer') ||
+            ((navigator.appName === 'Netscape') && (new RegExp('Trident/.*rv:([0-9]{1,}[.0-9]{0,})').exec(navigator.userAgent) != null))
+          );
+        }
+        function isEdge () {
+          return navigator.userAgent.toLowerCase().includes('edge');
+        }
+        if (isIE() || isEdge()) {
+          window.location.replace('./unsupported.html');
+        }
+      })();
+    	  
+	  if ((window.parent.location.href.indexOf("estadistica-")>-1) && (window.parent.location.href.indexOf("estadistica.ad")>-1)) {
+			var dataInicial = Date.now()
+			document.cookie = "EW_DateTimeInit=" + dataInicial + ";path=/";
+			console.log("Data inicial " + new Date(dataInicial))
+		}
+    </script>
+    
+<meta name="activation-engine/config/environment" content="%7B%22modulePrefix%22%3A%22activation-engine%22%2C%22environment%22%3A%22production%22%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+<meta name="community-engine/config/environment" content="%7B%22modulePrefix%22%3A%22community-engine%22%2C%22environment%22%3A%22production%22%7D" />
+<meta name="content-library-engine/config/environment" content="%7B%22modulePrefix%22%3A%22content-library-engine%22%2C%22environment%22%3A%22production%22%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+<script>var AmCharts_path = './amcharts';</script>
+<meta name="events-engine/config/environment" content="%7B%22modulePrefix%22%3A%22events-engine%22%2C%22environment%22%3A%22production%22%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+<meta name="feedback-engine/config/environment" content="%7B%22modulePrefix%22%3A%22feedback-engine%22%2C%22environment%22%3A%22production%22%7D" />
+<meta name="initiative-editor-engine/config/environment" content="%7B%22modulePrefix%22%3A%22initiative-editor-engine%22%2C%22environment%22%3A%22production%22%7D" />
+<meta name="layout-editor-engine/config/environment" content="%7B%22modulePrefix%22%3A%22layout-editor-engine%22%2C%22environment%22%3A%22production%22%2C%22cedar%22%3A%7B%22amCharts%22%3A%7B%22dependencies%22%3A%5B%22amcharts.js%22%2C%22serial.js%22%2C%22xy.js%22%2C%22pie.js%22%2C%22radar.js%22%2C%22https%3A//unpkg.com/@esri/cedar@1.0.0-beta.9/dist/umd/themes/amCharts/calcite.js%22%5D%2C%22baseUrl%22%3A%22https%3A//www.amcharts.com/lib/3%22%7D%7D%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+<meta name="overview-engine/config/environment" content="%7B%22modulePrefix%22%3A%22overview-engine%22%2C%22environment%22%3A%22production%22%7D" />
+<meta name="solutions-engine/config/environment" content="%7B%22modulePrefix%22%3A%22solutions-engine%22%2C%22environment%22%3A%22production%22%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+<meta name="teams-engine/config/environment" content="%7B%22modulePrefix%22%3A%22teams-engine%22%2C%22environment%22%3A%22production%22%2C%22ember-do-forms%22%3A%7B%22defaultClasses%22%3A%7B%22field%22%3A%5B%22field%22%5D%2C%22label%22%3A%5B%22label%22%5D%2C%22control%22%3A%5B%22control%22%5D%2C%22feedback%22%3A%5B%22feedback%22%5D%2C%22hint%22%3A%5B%22hint%22%5D%7D%2C%22validationClasses%22%3A%7B%22fieldSuccess%22%3A%5B%22field-success%22%5D%2C%22fieldError%22%3A%5B%22field-error%22%5D%2C%22controlSuccess%22%3A%5B%22control-success%22%5D%2C%22controlError%22%3A%5B%22control-error%22%5D%7D%7D%7D" />
+    <link rel="stylesheet" href="./assets/vendor-de08d070a52e48c47eae5bf8d94b2cd3.css">
+    <!-- [begin custom site css injection point] - please do not remove this -->
+
+    <!-- FOR LTR DEVELOPMENT/TESTING: Un-Comment the next section -->
+    <!-- <link rel="stylesheet" href="assets/opendata-base.css"> -->
+    <!-- FOR RTL TESTING: Un-Comment the next section -->
+    <!-- <link rel="stylesheet" href="./assets/opendata-rtl-5e26b21b80824714d94334c60cd78c84.css">
+    <link rel="stylesheet" href="//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css"> -->
+
+    <!-- [end custom site css injection point] - please do not remove this -->
+
+    <script type="module" src=".//calcite-components/calcite.esm.js"></script>
+<meta name="opendata-ui/config/asset-manifest" content="%7B%22bundles%22%3A%7B%22activation-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/activation-engine/assets/engine-a2a6cc813bf4a0f0fdcc360f2b75785b.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/activation-engine/config/environment-02e46b599ff43d73a8c30b2258d2f535.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22community-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/community-engine/assets/engine-a551df86d4998cc4562e1c8ce922f1ea.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/community-engine/assets/engine-vendor-e0a2d675b75a15923610a081f8b295f4.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/community-engine/config/environment-b5d32dfa541fd726aa03712148f93b1f.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22content-library-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/content-library-engine/assets/engine-ff4b1f4e6fdac3ebc741fc32d0489cd2.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/content-library-engine/assets/engine-vendor-29c879b98fb6bbaf16eda5ce662e4a4d.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/content-library-engine/config/environment-6bb94c538c720e7cb6604670b7a0833b.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22events-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/events-engine/assets/engine-2639cd57a65ec0483da4c2e5761e28ae.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/events-engine/assets/engine-vendor-8f52438b256caecb377092ba1d9ee90f.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/events-engine/config/environment-0e5a6998af1e081cedab36365af02ef6.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22feedback-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/feedback-engine/assets/engine-f036422536810c45e0334aa34381d1ee.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/feedback-engine/assets/engine-vendor-5d746da9106f6a033a23efddff65fd67.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/feedback-engine/config/environment-aeb3ede8d26037e84bab30b3b16039d3.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22initiative-editor-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/initiative-editor-engine/assets/engine-02f6e098b3578fef8996da15a9e21745.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/initiative-editor-engine/assets/engine-vendor-e0a2d675b75a15923610a081f8b295f4.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/initiative-editor-engine/config/environment-559877f60685126c505084c937b75c06.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22layout-editor-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/layout-editor-engine/assets/engine-e15846020bfe060e02c51dfc3f3bde60.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/layout-editor-engine/assets/engine-vendor-188819a7da922d27c286dd640266d1a3.css%22%2C%22type%22%3A%22css%22%7D%2C%7B%22uri%22%3A%22./engines-dist/layout-editor-engine/assets/engine-vendor-963e737d957312174f579dfe003941b7.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/layout-editor-engine/config/environment-0c708bd57793ef571ca5da211951d770.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22overview-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/overview-engine/assets/engine-59cdc1b2851a8350a30d6a698c478601.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/overview-engine/assets/engine-vendor-8f52438b256caecb377092ba1d9ee90f.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/overview-engine/config/environment-8f048ab4eeb1d87573aa97a715ad541a.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22solutions-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/solutions-engine/assets/engine-c556e3ddcc6dd2a0173b6ca8b8154e25.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/solutions-engine/assets/engine-vendor-1fff9d805e49a90915100bb0d4b201e8.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/solutions-engine/config/environment-c2163c58e28496cf074dd391c468e5dd.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%2C%22teams-engine%22%3A%7B%22assets%22%3A%5B%7B%22uri%22%3A%22./engines-dist/teams-engine/assets/engine-9a93fdef8963d7de7b81737863a79a2c.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/teams-engine/assets/engine-vendor-e0a2d675b75a15923610a081f8b295f4.js%22%2C%22type%22%3A%22js%22%7D%2C%7B%22uri%22%3A%22./engines-dist/teams-engine/config/environment-936633d0ff5d69816888f4fa6e5a4912.js%22%2C%22type%22%3A%22js%22%7D%5D%7D%7D%7D" />
+
+    <!-- [site data injection point] - please do not remove this -->
+    <!-- [ga injection point] - please do not remove this -->
+  </head>
+  <body class="calcite">
+    
+    <calcite-loader
+      active
+      type="indeterminate"
+      scale="m"
+      id="base-loader"
+      role="loading"
+      unthemed
+    ></calcite-loader>
+    <script>
+      if (typeof customElements !== 'undefined') {
+        customElements.efineday = customElements.define;
+      }
+    </script>
+    <!-- crossorigin options added because otherwise we cannot see error messages from unhandled errors and rejections -->
+    <script crossorigin="anonymous" src="./assets/vendor-14a5f5f2be970daab736aecdccc64445.js"></script>
+    <script crossorigin="anonymous" src="./assets/opendata-ui-66a67e36bd17ae5d97e61383cba65bfe.js"></script>
+
+    <div id="ember-basic-dropdown-wormhole"></div>
+<script>	
+		function getCookie (name) {
+			var nameEQ = name + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+			}
+			return null;
+		}			
+	
+
+			if((window.parent.location.href.indexOf("estadistica-")>-1)) {
+				
+				var meta1 = document.createElement('meta');
+				meta1.name='DESCRIPTION';
+				meta1.content='Pàgina oficial del Govern d\'Andorra. Conté informació econòmica i estadística del país - Página oficial del Gobierno de Andorra. Contiene información económica y estadística del país - Page officielle du gouvernement d\'Andorre élaborée par le Service d\'Etudes. Contient l\'information économique et statistique.- This is the official page of the Survey Service of the Ministry of Finance, This page contains statistic data and economic information about the Principality of Andorra';
+				document.head.appendChild(meta1);
+				
+				var meta2 = document.createElement('meta');
+				meta2.name='KEYWORDS';
+				meta2.content='Andorra,estadístiques,economia,dades,població,educació,mercat de treball,comerç,comerç exterior, importacions,exportacions,vehicles,construcció,energia,telecomunicacions,índex de preus al consum,sector financer,administració pública,turisme,estadísticas,economia,población,educación,mercador laboral,comercio,comercio exterior,importaciones,exportaciones,vehículos,construcción,energia,telecomunicaciones,índice de precios al consumo,turismo,statistics,population,education,labour market,imports,exports,external trade,automobile pool,consumer price index,construction,public sector, tourism,statistiques,economie,marché du travail,commerce,commerce exterieur,importations,exportations,indice des prix a la consommation,structure économique,salaires,parc automobile,energie,finances publiques,budgets';
+				document.head.appendChild(meta2);
+				
+				var meta3 = document.createElement('meta');
+				meta3.name='location';
+				meta3.content='Andorra';
+				document.head.appendChild(meta3);
+				
+				$(window.parent.document).contents().find("head").append($('<style type="text/css">img{color:white}body{overflow-y:scroll !important}</style>'));
+				$(window.parent.document).contents().find("head").append($('<link rel="stylesheet" type="text/css" href="./estadistica.ad/Fonts/fontawesome/css/all.min.css">'));
+				document.cookie = "EW_urlParent=" + window.parent.location.href + "; path=/";
+				document.cookie = "EW_Idioma=" + window.parent.location.href.split('estadistica-')[1].substring(0, 2) + "; path=/";
+				document.cookie = "EW_FirstLoadPage=1;path=/";
+			
+				var scriptCookies = document.createElement('script');
+				scriptCookies.src = './estadistica.ad/Scripts/cookies.js'
+				document.head.appendChild(scriptCookies);
+			
+				var script = document.createElement('script');
+				script.src = './estadistica.ad/Scripts/IniciSites.js';
+				document.head.appendChild(script);
+				
+				script.onload = function() {
+					var script2 = document.createElement('script');
+					script2.src = './estadistica.ad/Scripts/BreadcrumbsNav.js';
+					document.head.appendChild(script2);
+					
+					script2.onload = function() {
+						var ShowWeb_Interval = function(){
+							if ($("img[alt*='PAG_']:first", window.parent.document).length || $("iframe[title*='PAG_']:first", window.parent.document).length){
+								clearInterval(intervalId1);
+								//Breadcrumb.init();
+								IniciSites.init();
+								if($("iframe[src*='PAG']").attr("id")==null) $("iframe[src*='PAG']").attr("id","iframeContent")
+							}
+							else{$(".footerWeb").show();}
+						}
+						var intervalId1 = setInterval(ShowWeb_Interval, 200);
+					}					
+				}
+				
+				// Script Google Analytics 
+				<!-- var scriptGoog = document.createElement('script'); -->
+				<!-- scriptGoog.src = 'https://www.googletagmanager.com/gtag/js?id=UA-2534605-146'; -->
+				<!-- document.head.appendChild(scriptGoog); -->
+				
+				<!-- scriptGoog.onload = function() { -->
+					<!-- window.dataLayer = window.dataLayer || [];  -->
+					<!-- function gtag(){dataLayer.push(arguments);}  -->
+					<!-- gtag('js', new Date());  -->
+
+					<!-- gtag('config', 'UA-2534605-146');  -->
+				<!-- } -->
+				
+				// Script Matomo
+				var _paq = window._paq = window._paq || [];
+				_paq.push(['trackPageView']);
+				_paq.push(['enableLinkTracking']);
+				(function() {
+					var u="https://governandorra.matomo.cloud/";
+					_paq.push(['setTrackerUrl', u+'matomo.php']);
+					_paq.push(['setSiteId', '9']);
+					var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+					g.async=true; g.src='https://cdn.matomo.cloud/governandorra.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+				})();
+				
+				
+				window.parent.addEventListener('popstate', function (event) {
+					
+					// Script Matomo
+					var _paq = window._paq = window._paq || [];
+					_paq.push(['trackPageView']);
+					_paq.push(['enableLinkTracking']);
+					(function() {
+						var u="https://governandorra.matomo.cloud/";
+						_paq.push(['setTrackerUrl', u+'matomo.php']);
+						_paq.push(['setSiteId', '9']);
+						var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+						g.async=true; g.src='https://cdn.matomo.cloud/governandorra.matomo.cloud/matomo.js'; s.parentNode.insertBefore(g,s);
+					})();
+				
+					$(".footerWeb").hide();
+					
+					document.cookie = "EW_Idioma=" + window.parent.location.href.split('estadistica-')[1].substring(0, 2) + "; path=/";
+					
+					IniciSites.cierraMenus();
+										
+					if($("#barraNavegacionPrincipal").is(":visible") && $(".iconMenuSuperior").is(":visible")) $(".iconMenuSuperior").trigger("click");
+					
+					var PaginaActual = $("img[alt*='PAG_']:first").attr("alt") || $("iframe[title*='PAG_']:first").attr("title");	
+					var urlIframeActual = $("#iframeContent").attr("src");
+
+					if(getCookie("EW_urlParent") != window.location.href){
+						
+						document.cookie = "EW_urlParent=" + window.parent.location.href + "; path=/";
+						
+						var dataInicial = Date.now()
+						document.cookie = "EW_DateTimeInit=" + dataInicial + ";path=/";
+						console.log("Data inicial " + new Date(dataInicial))
+						
+						var ShowWeb_Interval2 = function(){
+							var PaginaNueva = $("img[alt*='PAG_']:first").attr("alt") || $("iframe[title*='PAG_']:first").attr("title");	
+							var urlIframeNueva = $("#iframeContent").attr("src");
+							
+							if($("iframe[src*='PAG']").attr("id")==null) $("iframe[src*='PAG']").attr("id","iframeContent")
+							if ($(".Container_IframePrincipal .hub-iframe").length){
+								clearInterval(intervalId2)
+								IniciSites.setParamsIniciSites();
+								Breadcrumb.init();
+								IniciSites.init() 
+								setTimeout(function(){
+									// ... por si la página no ha cargado
+									if (!$("#iframeContent").length){										
+										var urlIframe = IniciSites.init();
+									}
+								},1200)
+							}
+							else{$(".footerWeb").show();}
+						}
+						var intervalId2 = setInterval(ShowWeb_Interval2, 300);
+					}
+					
+				});
+				
+			}
+			
+		window.addEventListener('beforeunload', function (event) {
+            document.cookie.split(";").forEach(function (c) { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
+        });
+	</script>
+    <!-- opendata-ui version: 5.261.0+fe8bcd828b - Mon, 15 Jul 2024 16:07:29 GMT -->
+  </body>
+</html>
