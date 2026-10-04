@@ -82,6 +82,46 @@
       "country_slug": "ecuador_vans"
     },
     {
+      "country": "India",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-04",
+      "filename": "india_ICE_BEV_20261004.png",
+      "url": "images/2026-09/india_ICE_BEV_20261004.png",
+      "alt": "India ICE-BEV-Hybrid trajectory",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-04",
+      "filename": "india_20261004.png",
+      "url": "images/2026-09/india_20261004.png",
+      "alt": "India BEV trajectory",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-04",
+      "filename": "india_time_20261004.png",
+      "url": "images/2026-09/india_time_20261004.png",
+      "alt": "India Transition time curve",
+      "country_slug": "india"
+    },
+    {
+      "country": "India",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-04",
+      "filename": "india_ttm_shares_20261004.png",
+      "url": "images/2026-09/india_ttm_shares_20261004.png",
+      "alt": "India TTM market split graph",
+      "country_slug": "india"
+    },
+    {
       "country": "Taiwan",
       "type": "ICE_BEV",
       "period": "2026-08",
