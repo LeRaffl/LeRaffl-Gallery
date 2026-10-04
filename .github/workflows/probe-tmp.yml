@@ -1,0 +1,13 @@
+name: probe-tmp
+on:
+  push:
+    branches: [claude/probe-vietnam]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+      - run: pip install requests
+      - run: python scripts/probe_tmp.py
