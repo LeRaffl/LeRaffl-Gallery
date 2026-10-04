@@ -256,6 +256,38 @@ significant EV importer is outside it**).
 > (August 18.9 %), hybrids another 27 %. See
 > [48-source-ecuador.md](48-source-ecuador.md).
 
+## Built outside this list — 🇹🇼 Taiwan (2026-10)
+
+> **Status: BUILT (2026-10-04).** The 2026-09 verdict ("blocked, not dead")
+> held for THB's own statistics site, but the same tables live in the
+> Ministry of Transportation's statistics database (`statis.motc.gov.tw`,
+> found through the "交通統計名詞定義" link on THB's statistics page), which
+> answers runners. Table Seq 104 has new registrations by vehicle kind × fuel
+> monthly from 2012-01, with THB's own BEV / plug-in / range-extender / hybrid
+> categories. Whole (小客車) / Vans / HDV / Buses from 2021-01 (THB's old
+> plug-in code still held conventional hybrids until December 2020); every
+> month cross-checked against THB's separately compiled brand table (identical
+> for all 272 variant-months). ≈ 400,000 new passenger cars a year, BEV 8.9 %
+> in 2025 and 10.4 % in January–August 2026, hybrids another 41 %; buses 60 %
+> electric. Brands only, every powertrain (no brand × fuel table). See
+> [49-source-taiwan.md](49-source-taiwan.md).
+
+## Investigated 2026-10 — the rest of the large-market list
+
+The Taiwan session (2026-10-04) re-checked the remaining larger markets
+before settling; probes ran from GitHub runners, "desk" is web research only.
+
+| Market (new cars/yr) | Best source | Finding | Verdict |
+|---|---|---|---|
+| 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | re-checked: the roster grew to "22 AMIA + 8 non-affiliated companies, 44 brands" (2026 bulletins), but BYD still does not report — the press quotes BYD as an estimate (desk) | shelved, unchanged ([14](14-data-source-gaps.md)) |
+| 🇨🇷 Costa Rica (~70k, BEV ≈ 20 % in 2026) | Registro Nacional (registrations), MINAE (EV statistics) | the press quotes monthly BEV units and shares from Registro Nacional data, but nothing structured is published: the Registro Nacional's statistics compendium (2025) has only yearly EV plate counts; MINAE's energy site (`energia.minae.go.cr`) does not resolve from runners and `minae.go.cr` answers 403; `registronacional.go.cr` fails TLS; the national portal `datos.go.cr` answers runners but its catalogue was not searched in depth | **no source** — a strong curve, worth a re-check if MINAE or the Registro publish a monthly table ([14](14-data-source-gaps.md)) |
+| 🇵🇭 Philippines (~0.5M) | CAMPI + TMA | the electrified split (HEV / BEV / PHEV) is published monthly, but for member brands only — the press adds "including brands not affiliated with CAMPI" as an estimate (desk) | shelved — completeness |
+| 🇰🇿 Kazakhstan (~0.2M) | AKAB / KAU (dealer sales), stat.gov.kz | NEV counts from "official dealers" only, no full fuel split; `data.egov.kz`'s API answers 403 to runners | shelved |
+| 🇺🇿 Uzbekistan (~0.4M) | Statistics Agency (stat.uz) | quarterly EV **fleet** totals (122.7k on 2026-07-01), no new-registration flow by fuel (desk) | shelved |
+| 🇬🇹 Guatemala / 🇩🇴 Dominican Republic | SAT / DGII | yearly fleet reports and ad-hoc import figures; no monthly first-registration series by fuel (desk) | shelved |
+| 🇲🇩 Moldova (small) | Public Services Agency open data | the portal's CKAN endpoints guessed (`date.gov.md`, `dataset.gov.md`) answer 404 — not pursued further (a small, used-import market) | not pursued |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | still a candidate |
+
 ## Investigated 2026-09 — large markets still missing
 
 The 2026-09 session set out to add the **largest** car market not yet on the
@@ -264,7 +296,7 @@ almost nothing); "desk" means web research only.
 
 | Market (new cars/yr) | Best source | Finding | Verdict |
 |---|---|---|---|
-| 🇹🇼 Taiwan (~450k) | Highway Bureau (公路局) statistics query system `stat.thb.gov.tw` — 新車領牌數 by fuel (電能 / 油電混合 / 汽油 / 柴油) and by brand | **403 from GitHub runners** (Imperva/Incapsula bot wall). The open dataset on data.gov.tw (id 30202, `thb.gov.tw/Common/ThbOpenDataService.ashx?SN=517`) is reachable but carries only totals by vehicle type — **no fuel split**. Taipei City's portal has a fuel split for Taipei only. | **Blocked, not dead.** Retry through the Cloudflare Worker relay Austria already uses for a datacenter-IP block ([08](08-deploy-ops.md)), or find a THB open-data resource with the fuel dimension. Brand level only either way — no models. |
+| 🇹🇼 Taiwan (~450k) | ~~Highway Bureau statistics site `stat.thb.gov.tw`~~ → **MOTC statistics database `statis.motc.gov.tw`** (the ministry's copy of THB's tables) | THB's own site is still blocked (2026-10-04: Imperva "Error 16" for plain requests, TLS-impersonating clients and a real headless browser alike), but the Ministry's statistics database republishes THB's monthly new registrations by vehicle kind × fuel (table Seq 104, from 2012-01) and × brand (Seq 118), with a JSON endpoint runners reach | **BUILT 2026-10-04** — see below and [49](49-source-taiwan.md) |
 | 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | unchanged — omits BYD ([14](14-data-source-gaps.md)) | shelved |
 | 🇷🇺 Russia (~1.5M) | Autostat (MVD/GIBDD data, licensed) | re-checked 2026-09-28: the fuel-split tables are sold per report (3,000–10,000 ₽, also via the Autostat Info reseller); the free part is news prose — a monthly BEV count and a top-10 model list, no split of the total market. Reachable from runners — the obstacle is price, not access. Details in [14](14-data-source-gaps.md#-russia--the-monthly-fuel-split-exists-but-only-for-sale) | shelved |
 | 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | shelved — same completeness failure as Mexico |

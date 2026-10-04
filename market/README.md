@@ -14,6 +14,7 @@ one ranking per single month (`months`, newest first).
 | `peru_top.json` | `scripts/fetch_peru.py` (AAP BI-AAP `Marca` / `Modelo` from SUNARP, Whole; BEV / PHEV / HEV / MHEV) |
 | `paraguay_top.json` + `paraguay_months.json` | `scripts/fetch_paraguay.py` (customs `MARCA ITEM` / designation from the free-text description, new cars imported for consumption; BEV / PHEV / HEV from the tariff subheading) |
 | `ecuador_top.json` | `scripts/fetch_ecuador.py` (SRI register `MARCA` / start of the catalogue description `MODELO`, Whole; BEV + combined Hybrid) |
+| `taiwan_top.json` | `scripts/fetch_taiwan.py` (MOTC statistics database, THB brand table — new passenger cars by brand; brands only, **every powertrain in one class `ALL`**: THB has no brand × fuel table) |
 | `austria_top.json` | `scripts/fetch_austria.py` (DE2 Tabelle 7 / 14 — top 10 BEV makes and types; year-to-date headline) |
 | `ireland_top.json` | `scripts/fetch_ireland.py` (SIMI dashboard make / model rankings per engine type) |
 | `finland_top.json` | `scripts/fetch_finland.py` (Traficom PxWeb make and model-series tables) |

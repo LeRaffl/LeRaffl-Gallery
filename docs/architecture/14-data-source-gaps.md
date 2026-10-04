@@ -145,6 +145,22 @@ are split off by a published rule table on the model (as for Argentina);
 **What would change it:** SRI adding a plug-in flag — then the rule table
 could be retired.
 
+### 🇨🇷 Costa Rica — a strong curve, but no published series (checked 2026-10)
+
+Costa Rica is one of Latin America's fastest EV markets — the press reports
+battery-electric cars at about 20 % of new cars in the first half of 2026,
+quoting Registro Nacional (the property registry, where every vehicle is
+inscribed) through the environment ministry MINAE. But nothing structured is
+published: the Registro Nacional's statistics compendium has yearly EV plate
+counts only, MINAE's energy site does not resolve from GitHub runners (and its
+main site answers 403), and no monthly new-registration table by fuel was
+found. Monthly shares quoted in the press without a total by fuel are the kind
+of secondary series the bar excludes. Details: [33](33-expansion-candidates.md)
+("Investigated 2026-10").
+**What would change it:** MINAE or the Registro Nacional publishing the
+monthly inscriptions of new vehicles by fuel (a table, an open dataset, or a
+public dashboard whose query API can be read, as for Peru).
+
 ### 🇲🇽 Mexico — the official monthly registry omits BYD
 
 - **The structured source:** INEGI's **RAIAVL** (Registro Administrativo de la
@@ -176,6 +192,9 @@ could be retired.
   (incl. BYD), internally consistent (EV and total from one universe), and
   structured. The official monthly one omits the market leader; the complete
   one is quarterly, EV-only, and PDF.
+- **Re-checked 2026-10:** RAIAVL now reports "22 AMIA + 8 non-affiliated
+  companies, 44 brands" — still without BYD (the press quotes BYD's figures
+  as estimates).
 - **What would change the decision:** BYD starting to report to INEGI RAIAVL,
   or EMA publishing a machine-readable series that includes a consistent total/
   ICE.
