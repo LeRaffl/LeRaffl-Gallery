@@ -249,8 +249,8 @@ significant EV importer is outside it**).
 > (`descargas.sri.gob.ec`, one CSV per year from 2017) — the register AEADE's
 > official monthly sales statistics are built from. Whole (cars + SUVs) and
 > Vans (pickups + vans) from 2018-01, each vehicle counted once at its first
-> processing; powertrain from SRI's catalogue description; one combined hybrid
-> figure (no PHEV split). Matches AEADE's annual market 2019–2024 within 0.2 %
+> processing; powertrain from SRI's catalogue description; plug-ins split off
+> the hybrids by a published rule table (2025 within 0.3 % of ZEMO). Matches AEADE's annual market 2019–2024 within 0.2 %
 > and every monthly bulletin since 2024-05 within about 1 %. ≈ 80,000 new cars
 > and SUVs a year; BEV share 5.1 % in 2025, 11.5 % in January–August 2026
 > (August 18.9 %), hybrids another 27 %. See

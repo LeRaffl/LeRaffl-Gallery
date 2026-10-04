@@ -369,8 +369,9 @@ def test_cross_check_tolerances():
 def test_upsert_line_level():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "Ecuador.csv"
-        foreign = "2017-12,monthly,Whole,someone else,1,2,3,4,0,10,"
-        untouched = "2018-01,monthly,Whole,SRI new-vehicle register (open data),1.0,327.0,8407.0,133.0,0.0,8868.0,"
+        foreign = "2017-12,monthly,Whole,someone else,1,0,0,2,3,4,0,10,"
+        untouched = ("2018-01,monthly,Whole,SRI new-vehicle register (open data),"
+                     "1.0,0.0,0.0,327.0,8407.0,133.0,0.0,8868.0,")
         p.write_text(",".join(fe.CSV_COLUMNS) + "\n" + foreign + "\n" + untouched + "\n",
                      encoding="utf-8")
         c = dict(fe.empty_counts(), BEV=5, PETROL=5, TOTAL=10)
@@ -380,14 +381,149 @@ def test_upsert_line_level():
         assert stats == {"added": 1, "updated": 0, "unchanged": 0, "skipped": 1}
         lines = p.read_text(encoding="utf-8").splitlines()
         assert lines[1] == foreign and lines[2] == untouched
-        assert lines[3] == "2026-08,monthly,Whole,SRI new-vehicle register (open data),5.0,0.0,5.0,0.0,0.0,10.0,"
+        assert lines[3] == ("2026-08,monthly,Whole,SRI new-vehicle register (open data),"
+                            "5.0,0.0,0.0,0.0,5.0,0.0,0.0,10.0,")
         assert fe.revisions(p, {("2018-01", "Whole"): fe.render_line("2018-01", "Whole", c)})
 
 
-def test_csv_columns_have_no_phev():
-    # One combined hybrid figure → HEV, and no PHEV column (hev_split false).
-    assert "PHEV" not in fe.CSV_COLUMNS and "HEV" in fe.FUELS
+def test_csv_columns():
+    # The plug-in split gives real PHEV and EREV columns (hev_split true).
+    assert fe.FUELS == ["BEV", "PHEV", "EREV", "HEV", "PETROL", "DIESEL", "OTHERS"]
     assert fe.RENDERED_VARIANTS == ("Whole", "Vans")
+
+
+# ── plug-in split (classification/ecuador_rules.csv) ───────────────────────
+
+def test_every_rule_decides_its_real_example():
+    # load_rules() enforces it on import; repeated here so a failure names the rule.
+    assert len(fe.RULES) >= 10
+    for r in fe.RULES:
+        assert fe.classify_hybrid(r["example_brand"], r["example_model"]) == (r["class"], r["id"]), r["id"]
+
+
+def test_hybrid_split_cases():
+    cases = [
+        # plug-ins that say so
+        ("CHERY", "TIGGO 7 DISTINGUISHED PHEV AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("CHEVROLET", "CAPTIVA PHEV AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("BYD", "SHARK DMO GS AC 1.5 CD 4X4 TA HYBRID", "PHEV"),
+        ("BYD", "YUAN PRO DM-I GS AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("VOLVO", "XC60 CORE T8 AWD PLUG-IN HYBRID AC 2.0 5P 4X4 TA HYBRID", "PHEV"),
+        ("JEEP", "WRANGLER UNLIMITED SAHARA 4XE AC 2.0 5P 4X4 TA HYBRID", "PHEV"),
+        ("PORSCHE", "CAYENNE E AC 3.0 5P 4X4 TA HYBRID", "PHEV"),
+        # range extenders
+        ("CHANGAN", "HUNTER REEV LUXURY AC 2.0 CD 4X4 TA HYBRID", "EREV"),
+        ("ROX MOTOR", "ROX 01 7 PAS EREV AC 1.5 5P 4X4 TA HYBRID", "EREV"),
+        ("CHANGAN", "DEEPAL S07 AC 1.5 5P 4X2 TA HYBRID", "EREV"),
+        # plug-ins that do not say so
+        ("DFSK", "E5 S508 LUXURY AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("CHANGAN", "CS55 PLUS LUXURY AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("JAECOO", "J7 STANDARD AC 1.5 5P 4X2 TA HYBRID", "PHEV"),
+        ("BMW", "330E AC 2.0 4P 4X2 TA HYBRID", "PHEV"),
+        ("BMW", "X1 XDRIVE 25E AC 1.5 5P 4X4 TA HYBRID", "PHEV"),
+        ("MERCEDES BENZ", "GLE 400E 4MATIC CON TECNOLOGIA HIBRIDA EQ AC 2.0 5P 4X4 TA HYBRID", "PHEV"),
+        ("MINI", "COUNTRYMAN COOPER SE ALL 4 AC 1.5 5P 4X4 TA HYBRID", "PHEV"),
+        # look-alikes that stay full / mild hybrids
+        ("BMW", "X5 XDRIVE 40I AC 3.0 5P 4X4 TA HYBRID", "HEV"),          # 'i' = mild
+        ("MERCEDES BENZ", "GLC 300 AMG LINE PLUS AC 2.0 5P 4X4 TA HYBRID", "HEV"),
+        ("MERCEDES BENZ", "GLE 53 AMG COUPE EQ AC 3.0 5P 4X4 TA HYBRID", "HEV"),  # EQ Boost
+        ("KIA", "SORENTO GLS AC 1.6 5P 4X4 TA HYBRID", "HEV"),           # Full Hybrid in Ecuador
+        ("CHERY", "TIGGO 7 PRO COMFORT AC 1.5 5P 4X2 TA HYBRID", "HEV"),
+        ("GREAT WALL", "TANK 500 SUPREME PLUS AC 2.0 5P 4X4 TA HYBRID", "HEV"),
+        ("JAECOO", "J5 EXCELLENT AC 1.5 5P 4X2 TA HYBRID", "HEV"),
+        ("JAC", "E5 AC 1.5 5P 4X2 TA HYBRID", "HEV"),                      # E5 only for DFSK
+        ("TOYOTA", "COROLLA CROSS MID AC 1.8 5P 4X2 TA HYBRID", "HEV"),
+        ("NISSAN", "X-TRAIL EPOWER EXCLUSIVE AC 5P 4X4 TA EV", "HEV"),
+        ("SUZUKI", "FRONX ISG GLX AC 1.5 5P 4X2 TM HYBRID", "HEV"),
+    ]
+    for make, model, want in cases:
+        assert fe.classify_hybrid(make, model)[0] == want, (make, model, fe.classify_hybrid(make, model))
+
+
+def test_rule_table_is_checked():
+    import csv as _csv
+    import io as _io
+    good = list(_csv.DictReader(open(fe.RULES_CSV, encoding="utf-8")))
+
+    def write(rows, d, header=None):
+        path = Path(d) / "rules.csv"
+        buf = _io.StringIO()
+        w = _csv.DictWriter(buf, fieldnames=header or fe.RULE_COLUMNS, lineterminator="\n",
+                            extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows)
+        path.write_text(buf.getvalue(), encoding="utf-8")
+        return path
+    with tempfile.TemporaryDirectory() as d:
+        assert fe.load_rules(write(good, d))
+        broken = [
+            [dict(good[0], **{"class": "HEV"})] + good[1:],                 # class not PHEV/EREV
+            [good[1]] + good[1:],                                              # duplicate id, order
+            [dict(good[0], order="2"), dict(good[1], order="1")] + good[2:],   # order not 1..N
+            [dict(good[0], evidence="")] + good[1:],                           # no evidence
+            good[:2] + [dict(good[2], example_model="TOYOTA COROLLA")] + good[3:],  # example not decided
+        ]
+        for rows in broken:
+            try:
+                fe.load_rules(write(rows, d))
+            except ValueError:
+                continue
+            raise AssertionError("a broken rule table must not load")
+        try:
+            fe.load_rules(write(good, d, header=fe.RULE_COLUMNS[:-1]))
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("a wrong header must not load")
+
+
+def test_split_in_aggregate_and_crosscheck_sum():
+    rows = [row("1", "05/08/2026", model="E5 S508 SUPREME AC 1.5 5P 4X2 TA HYBRID", make="DFSK",
+                fuel="HIBRIDO_GASOLINA_BATERIAS"),
+            row("2", "05/08/2026", model="DEEPAL G318 AC 1.5 5P 4X4 TA HYBRID", make="CHANGAN",
+                fuel="HIBRIDO_GASOLINA_BATERIAS"),
+            row("3", "05/08/2026", model="COROLLA CROSS MID AC 1.8 5P 4X2 TA HYBRID",
+                make="TOYOTA", fuel="GASOLINA"),
+            row("4", "05/08/2026", model="SHARK DMO GS AC 1.5 CD 4X4 TA HYBRID", make="BYD",
+                cls="CAMIONETA", fuel="HIBRIDO_GASOLINA_BATERIAS")]
+    agg = fe.count_years({2026: parse(rows)}, [2026])
+    w, v = agg.counts["2026-08"]["Whole"], agg.counts["2026-08"]["Vans"]
+    assert (w["PHEV"], w["EREV"], w["HEV"], w["TOTAL"]) == (1, 1, 1, 3)
+    assert v["PHEV"] == 1 and agg.allseg["2026-08"]["PHEV"] == 2
+    assert fe.check_sums(agg, ["2026-08"]) == []
+    # the rule split is not a fuel-code override: only the GASOLINA→HEV Corolla is listed
+    assert [k[2:4] for k in agg.reclassed] == [("GASOLINA", "HEV")]
+    # AEADE's HIBRIDO is every hybrid: the cross-check compares PHEV + EREV + HEV
+    table = {"2026-08": {"TOTAL": 4, "BEV": 0, "HEV": 4}}
+    lines, problems, _ = fe.cross_check(agg, table, ["2026-08"])
+    assert "| 4 | 4 (+0.0%)" in lines[2] and not problems
+    units = {(k[1], k[2]) for k in agg.units}
+    assert units == {("PHEV", "DFSK"), ("EREV", "CHANGAN"), ("HEV", "TOYOTA")}
+
+
+def test_models_file_merge_and_review_list():
+    rows25 = [row("1", "05/08/2025", model="E5 S508 SUPREME AC 1.5 5P 4X2 TA HYBRID", make="DFSK",
+                  fuel="HIBRIDO_GASOLINA_BATERIAS")]
+    rows26 = [row("2", "05/08/2026", model="E5 S508 SUPREME AC 1.5 5P 4X2 TA HYBRID", make="DFSK",
+                  fuel="HIBRIDO_GASOLINA_BATERIAS"),
+              row("3", "06/08/2026", model="NEWCAR X AC 1.5 5P 4X2 TA HYBRID", make="ACME",
+                  fuel="HIBRIDO_GASOLINA_BATERIAS")]
+    with tempfile.TemporaryDirectory() as d:
+        path = Path(d) / "models.csv"
+        full = fe.count_years({2025: parse(rows25, 2025), 2026: parse(rows26)}, [2025, 2026])
+        assert fe.write_models(full, {"2025", "2026"}, path)
+        assert not fe.write_models(full, {"2025", "2026"}, path)          # byte-stable
+        text = path.read_text(encoding="utf-8").splitlines()
+        assert text[0] == ",".join(fe.MODELS_COLUMNS)
+        assert "DFSK,E5 S508 SUPREME AC 1.5 5P 4X2 TA HYBRID,Whole,2025,PHEV,phev-dfsk-e5,1" in text
+        # a normal run that only derived 2026 keeps 2025 from the file
+        only26 = fe.count_years({2026: parse(rows26[:1])}, [2026])
+        fe.write_models(only26, {"2026"}, path)
+        text = path.read_text(encoding="utf-8")
+        assert ",2025,PHEV,phev-dfsk-e5,1" in text and "ACME" not in text
+        # review list: hybrid designations the file has never listed
+        fresh = fe.new_hybrids(full, "2026-08", path)
+        assert list(fresh) == [("ACME", "NEWCAR X AC 1.5 5P 4X2 TA HYBRID", "HEV", "default-hev")]
 
 
 def test_model_display_names():

@@ -30,13 +30,13 @@ variants:
 variant_notes:
   Whole: New cars and SUVs — SRI classes AUTOMOVIL (sedans, hatchbacks, wagons, coupés) and JEEP (SUVs), EU M1. The same set as AEADE's segments «automóvil» + «SUV».
   Vans: New pickups and vans — SRI class CAMIONETA (≈ EU N1). About four fifths pickups; the rest panel vans and van-based minibuses («furgonetas»), some of them passenger versions.
-hev_split: false
-hev_note: SRI has a single hybrid code and its catalogue a single "HYBRID" ending, so mild, full, plug-in and range-extender hybrids are one figure (HEV column, no PHEV column; the chart draws no PHEV curve). AEADE's own catalogue puts 2025 hybrids at 49 % mild, 34 % full, 14 % plug-in and 3 % e-POWER. Nissan's e-POWER (a series hybrid without a plug) is a hybrid here, not a BEV.
+hev_split: true
+hev_note: SRI has a single hybrid code and its catalogue a single "HYBRID" ending for mild, full, plug-in and range-extender hybrids. The plug-ins are picked out of the hybrids by this project's own rule table (classification/ecuador_rules.csv, below) — from the model name, or from the model where the name does not say it — and counted as PHEV or EREV; the rest stays HEV (full and mild hybrids, not split). Checked against ZEMO's monthly plug-in counts and AEADE's yearbook (§3b). Nissan's e-POWER (a series hybrid without a plug) is HEV, not BEV or EREV.
 backfill: from 2018-01, the first year whose file has a processing date (the 2017 file has only a month of sale, and no 2016 file exists to deduplicate its January against — it is read only to deduplicate 2018–2019)
 scope_note: New vehicles invoiced in Ecuador (dealer sales and new vehicles imported directly by their buyer), counted once each, in the month SRI first processed the vehicle. Ecuador does not allow imports of used vehicles, so there is no used-import series. Motorcycles, trucks, buses, tractor units and special vehicles are in no variant.
 caveats:
 - These are sales (invoices of new vehicles registered with the tax authority), not registrations — in Ecuador the first registration follows the invoice, and AEADE reports this register as the country's vehicle sales. Each vehicle is counted once, in the month SRI first processed it; the series reproduces AEADE's published annual market within 0.2 % for 2019–2024 and its monthly figures within about 1 %.
-- One combined hybrid figure (no plug-in split), counted within ICE in the BEV/ICE trajectory.
+- PHEV and EREV are derived: SRI does not distinguish plug-in from other hybrids, so this project classifies them from the model with a published rule table. 2025 plug-ins agree with ZEMO's count within 0.3 % and are 5 % below AEADE's yearbook; before 2025 they are 10–18 % below AEADE and 3–13 % above ZEMO (small numbers, §3b). HEV (full and mild hybrids together) is counted within ICE in the BEV/ICE trajectory.
 - The powertrain is read from SRI's catalogue description where it names one (… EV, … HYBRID, … DIESEL), and from the invoice's fuel field otherwise. The fuel field is filled per invoice and is less reliable — about 5,300 cars and pickups 2018–2026 whose description says HYBRID were invoiced as GASOLINA (Toyota Corolla Cross, Kia Niro, Suzuki mild hybrids). Mild hybrids the description does not call HYBRID stay in PETROL.
 - Nissan's X-Trail e-POWER is coded ELECTRICO by SRI and catalogued as "EV", but has no plug — the petrol engine only charges the battery. It is counted as a hybrid (2,814 cars 2023–2026). AEADE counts it as a hybrid too (in 2023–2024 as "ELECTRICO EREV", outside its BEV figure).
 - Pickups are not in Whole — they are Ecuador (Vans), a large segment (about a fifth of the market). Passenger minivans built on vans (≈ 800 a year named as passenger versions) are in Vans, not Whole, as in AEADE's «VAN» segment.
@@ -79,8 +79,8 @@ processing:
       then: HEV
       note: a series hybrid without a plug; SRI codes it ELECTRICO and catalogues it as EV
     - when: ends in HYBRID
-      then: HEV
-      note: mild, full and plug-in hybrids alike
+      then: a hybrid — split by the rule table (below)
+      note: mild, full and plug-in hybrids alike in SRI's catalogue
     - when: ends in EV
       then: BEV
     - when: ends in DIESEL
@@ -96,20 +96,45 @@ processing:
         - when: ELECTRICO
           then: BEV
         - when: HIBRIDO_GASOLINA_BATERIAS / HIBRIDO_DIESEL_BATERIAS
-          then: HEV
+          then: a hybrid — split by the rule table (below)
         - when: dual gas, CNG, LPG, alcohol, other
           then: OTHERS
+- title: Plug-in or not
+  text:
+  - Every hybrid is tested against the rule table in the section below, top to bottom; the first rule whose brand and pattern match makes it a plug-in (PHEV) or a range-extender (EREV). Most plug-ins say so in the name (PHEV, DM-i, REEV); for the ones that do not — the DFSK E5, the Changan CS55 Plus and Deepal, a BMW "…e" — a brand- or model-specific rule was written from the importer's Ecuadorian spec page. A hybrid no rule matches stays HEV.
 - title: Check against AEADE
   text:
   - AEADE's monthly press bulletin is built from this register. Every run compares the all-segment total, the BEV count and Whole (against AEADE's automóvil + SUV) for the months the newest bulletin shows. Over all 16 bulletins with these tables (May 2025 to August 2026, months from 2024-05) totals agree within 1.5 % and BEV within 3.4 %; a gap beyond 10 % stops the run.
   - The one exception is AEADE's first edition for October/November 2025, which put about 500 vehicles in October that the register puts in November (the two months together agree within 0.5 %).
 market_breakdown: market/ecuador_top.json
 market_designation_note: the model is the start of SRI's catalogue description, up to the first trim or specification word and at most two words ("YUAN PRO GS AC 5P 4X2 TA EV" → YUAN PRO; "TIGGO 4 PRO COMFORT AC 1.5 …" → TIGGO 4), so trims of one model are one row.
-market_powertrain_note: BEV and Hybrid exactly as in the CSV — the end of SRI's catalogue description, else the invoice's fuel code; Hybrid is every hybrid (mild, full and plug-in), and the Nissan e-POWER is a hybrid.
+market_powertrain_note: exactly as in the CSV — the end of SRI's catalogue description, else the invoice's fuel code; hybrids split into plug-in (PHEV), range-extender (EREV) and the rest (HEV, full and mild) by the rule table below. The Nissan e-POWER is HEV.
 market_class_names:
   HEV: Hybrid
 market_class_labels:
-  HEV: Hybrid — SRI's single hybrid class (mild + full + plug-in; counted as ICE in the curves)
+  HEV: Hybrid without a plug — full and mild hybrids, not split (counted as ICE in the curves)
+classification:
+  rules: classification/ecuador_rules.csv
+  mapping: classification/ecuador_models.csv
+  scopes: [Whole, Vans]
+  default:
+    id: default-hev
+    class: HEV
+    text: "No rule matched: a hybrid whose designation names no plug and no model-specific rule applies, so it is counted as a hybrid without a plug (full or mild)."
+    leftover: "This is where a plug-in hiding behind a designation without any marker would show up — every one of these was checked when the rules were written, and the fetcher lists hybrid designations it has not seen before on every run."
+  labels:
+    seen: hybrid designations seen
+    decided: classified plug-in
+    heading: classified as plug-in (PHEV or EREV)
+    token: of plug-in sales say so in the designation (PHEV, DM-i, REEV …)
+    specific: decided by a brand- or model-specific rule
+    recent: Newest year
+  intro:
+  - "SRI's catalogue ends every hybrid's description in the same word, HYBRID, and its fuel field has one hybrid code — a Toyota Corolla Cross hybrid and a BYD Song Plus DM-i plug-in look alike. So among the hybrids this project picks out the plug-ins itself, from the designation, and publishes every step here so you can check it."
+  - "Step 1 — only hybrids. Battery-electric, petrol and diesel cars are decided as described above and never reach this table. Nissan's e-POWER (no plug) is decided before it, as a hybrid."
+  - "Step 2 — rules. Each hybrid's designation (upper-case, as SRI writes it) is tested against the rule table below, top to bottom. The first rule that matches both the brand and the pattern decides: plug-in hybrid (PHEV) or range-extender (EREV). Many designations say it outright ('SONG PLUS DM-I …', 'TIGGO 7 PHEV …', 'HUNTER REEV …'); the brand- and model-specific rules cover the ones that do not — the DFSK E5 and Changan's CS55 Plus are sold in Ecuador only as plug-ins, a Deepal only as a range-extender, a BMW '330E' or a Volvo 'T8' is a plug-in. Every model-specific rule was checked against the importer's or a dealer's Ecuadorian page; the evidence is listed with the rule."
+  - "Step 3 — the rest. A hybrid no rule matches is counted as HEV: full and mild hybrids, which the source does not tell apart either."
+  - "Check. ZEMO (the Latin American e-mobility platform) publishes monthly plug-in counts for Ecuador; AEADE's yearbook has yearly ones. 2025: 2,495 plug-ins here, ZEMO 2,502, AEADE 2,636 (all segments)."
 fetcher: scripts/fetch_ecuador.py
 workflow: .github/workflows/fetch-ecuador.yml
 fragility_doc: docs/architecture/48-source-ecuador.md
@@ -149,7 +174,9 @@ History:   2018-01 → today (2017 has no processing date; lookback only).
 Scope:     CLASE AUTOMOVIL + JEEP → Whole (M1); CAMIONETA → Vans (≈ N1).
 Fuel:      end of the catalogue description: EV → BEV, HYBRID → HEV,
            DIESEL → DIESEL, E-POWER → HEV; else the invoice's fuel code.
-           One hybrid figure: no PHEV column (hev_split false).
+Plug-ins:  hybrids → PHEV / EREV / HEV by classification/ecuador_rules.csv
+           (13 ordered rules, first match wins; default HEV). 2025 vs ZEMO
+           −0.3 %, vs AEADE yearbook −5 % (§3b).
 Checked:   AEADE (same register): annual market 2019–2024 within 0.2 %;
            every bulletin month 2024-05 → 2026-08: total ≤ 1.5 %, BEV ≤ 3.4 %
            (except AEADE's own Oct/Nov 2025 month-boundary shift, below).
@@ -194,7 +221,8 @@ or a recognised official body, complete for the market, free.
 
 Not used: `TIPO TRANSACCIÓN` (COMPRA LOCAL ≈ 99.6 %, IMPORTACIÓN DIRECTA —
 both new vehicles), `FECHA COMPRA`, `AVALÚO`, `TIPO SERVICIO`, colours,
-canton, owner type. CSV columns: `BEV, HEV, PETROL, DIESEL, OTHERS, TOTAL`;
+canton, owner type. CSV columns: `BEV, PHEV, EREV, HEV, PETROL, DIESEL,
+OTHERS, TOTAL`;
 `source` = `SRI new-vehicle register (open data)`. Line-level upserts (invariant
 2); a row whose `source` is not ours is never overwritten without `--force`.
 
@@ -239,16 +267,91 @@ unknown code is counted as OTHERS and listed; above 2 % of Whole the run
 aborts. Every rule has a test, including look-alikes that must not match
 (`EVOQUE`, `EV18 …` with EV not at the end, `… HYBRID LINE …`, `POWERTRAIN`).
 
-**Why there is no PHEV column.** SRI has one hybrid code and one `HYBRID`
-ending. Plug-ins can only be guessed from words in the description (`PHEV`,
-`DM-i`, `REEV`, `EM-i` …), and that guess finds 1,113 plug-ins in 2025 where
-AEADE's catalogue counts 2,636 PHEV (plus 644 e-POWER it calls EREV) — two
-thirds would be missed, and the gap would move with every new Chinese model.
-So the source is treated like Türkiye's and Ukraine's: one hybrid figure in
-`HEV`, `hev_split: false`, no PHEV curve ([09](09-glossary.md) "Hybrid").
-Without the description rules HEV would be about 7 % too low in 2025, and
-BEV more than double in 2023 (1,043 e-POWER on about 830 BEV) and 15 % too
-high in 2025.
+Without the description rules HEV (here: all hybrids before the plug-in
+split) would be about 7 % too low in 2025, and BEV more than double in 2023
+(1,043 e-POWER on about 830 BEV) and 15 % too high in 2025.
+
+### 3b. Plug-in split (`classification/ecuador_rules.csv`)
+
+SRI has one hybrid code and one `HYBRID` ending, so a plug-in can only be
+recognised by its model. Words in the description (`PHEV`, `DM-i`, `REEV`)
+find only 1,102 of 2025's plug-ins — two of the three biggest plug-ins in
+Ecuador, the DFSK E5 and the Changan CS55 Plus, carry no such word. So the
+split follows Argentina's design ([39](39-source-argentina.md) §4,
+[`classification/README.md`](../../classification/README.md)): a
+**hand-edited, ordered rule table**, first match wins, every rule with a
+reason, evidence and a real Ecuadorian example — but a separate file, since
+Ecuador's designations (SRI's catalogue, ending in `HYBRID`) and its model
+range differ from Argentina's and only hybrids reach it.
+
+| # | Rule | Brand | Pattern | → | 2018–24 | 2025 | 2026 Jan–Aug |
+|---:|---|---|---|---|---:|---:|---:|
+| 1 | `erev-token` | any | `REEV` / `EREV` | EREV | 0 | 60 | 128 |
+| 2 | `erev-deepal` | Changan | `DEEPAL` (sold as range-extender only) | EREV | 0 | 94 | 191 |
+| 3 | `phev-token` | any | `PHEV`, `PLUG-IN`, `ENCHUFABLE` | PHEV | 149 | 563 | 1,957 |
+| 4 | `phev-dm-idm` | any | BYD `DM-i` / `DM-p` / `DMO`, Jetour / Chery `i-DM` | PHEV | 171 | 458 | 502 |
+| 5 | `phev-jeep-4xe` | Jeep | `4XE` | PHEV | 90 | 5 | 1 |
+| 6 | `phev-porsche-ehybrid` | Porsche | `E-HYBRID`, `CAYENNE E` | PHEV | 51 | 16 | 13 |
+| 7 | `phev-volvo` | Volvo | `T8`, `RECHARGE` | PHEV | 1 | 0 | 0 |
+| 8 | `phev-bmw-e` | BMW | a model number ending in E (`330E`, `X5 45E`) | PHEV | 417 | 91 | 35 |
+| 9 | `phev-mercedes-e` | Mercedes-Benz | `300E`-style, `HIBRIDA EQ` | PHEV | 0 | 1 | 28 |
+| 10 | `phev-mini-countryman-se` | Mini | `COUNTRYMAN COOPER SE` | PHEV | 14 | 0 | 0 |
+| 11 | `phev-dfsk-e5` | DFSK | `E5` (sold as PHEV only) | PHEV | 137 | 707 | 715 |
+| 12 | `phev-changan-cs55` | Changan | `CS55` hybrid (sold as PHEV only) | PHEV | 0 | 493 | 636 |
+| 13 | `phev-jaecoo-j7` | Jaecoo | `J7` hybrid (SHS-P, a plug-in) | PHEV | 0 | 7 | 56 |
+| — | `default-hev` | | anything left | HEV | | | |
+
+(Counts: all segments, vehicles counted as in §4.) The full rule table with
+patterns, reasons and evidence, and every hybrid designation with its deciding
+rule, are on the [source page](../../sources/ecuador.html#classification) and
+in `classification/ecuador_models.csv` (generated, one row per brand,
+designation, scope and year). Look-alikes the tests pin down as *not*
+plug-ins: BMW `X3 XDRIVE 40I` (mild), Mercedes `GLC 300` / `GLE 53 … EQ
+BOOST` (mild), Kia Sorento hybrid (full), Chery Tiggo 7 Pro hybrid (mild),
+GWM Tank 500 (full), Jaecoo J5, JAC `E5` (a BEV brand rule must not leak),
+Nissan e-POWER.
+
+**How the model-specific rules were found.** ZEMO (zemo-la.com/data, the
+Latin American e-mobility platform) publishes monthly BEV and PHEV counts
+for Ecuador, built from the same register — its BEV equals this fetcher's
+all-segment BEV to the unit. The monthly gap between ZEMO's PHEV and the
+token rules (1–3) pointed to the hybrid models that fill it exactly
+(DFSK E5, Changan CS55 Plus and Deepal, BMW "…e"); each was then confirmed
+on the Ecuadorian importer's or a dealer's page before a rule was written.
+ZEMO is a **check, never an input**: no number is taken from it.
+
+**Check, all segments (PHEV + EREV):**
+
+| Year | This fetcher | ZEMO | | AEADE yearbook | |
+|---|---:|---:|---:|---:|---:|
+| 2019 | 8 | 7 | | | |
+| 2020 | 39 | 29 | | | |
+| 2021 | 35 | 40 | | | |
+| 2022 | 156 | 138 | +13 % | | |
+| 2023 | 308 | 273 | +13 % | 375 | −18 % |
+| 2024 | 484 | 468 | +3 % | 540 | −10 % |
+| 2025 | 2,495 | 2,502 | −0.3 % | 2,636 | −5 % |
+| 2026 Jan–Aug | 4,262 | 4,114 | +4 % | | |
+
+Month by month, 2025-01 → 2026-08: within ±12 % of ZEMO in every month but
+one (2026-02: 353 vs 313, +13 %). AEADE classifies with its own model
+catalogue and counts somewhat more plug-ins; the remaining gap (2025: 141)
+is no single model — no hybrid designation the rules leave as HEV is a known
+plug-in. AEADE's yearbook also has an "EREV" line (2023: 1,043, 2024: 782,
+2025: 644): that is Nissan's e-POWER, which has no plug and is HEV here (§3a).
+Real range-extenders (Deepal, Changan Hunter REEV) only arrived in 2025.
+
+Plug-in share of new cars and SUVs (Whole): 0.3 % (2023), 0.6 % (2024),
+2.8 % (2025), 5.4 % (2026 Jan–Aug), 7.1 % in August 2026.
+
+**Changing a rule.** Edit `classification/ecuador_rules.csv` (ordered;
+fill `reason`, `evidence`, a real example — `load_rules()` refuses the file
+otherwise, and checks that each example is decided by its own rule), run
+`scripts/test_fetch_ecuador.py`, then dispatch the fetch with `backfill` so
+the whole history is re-classified. Never widen a brand-wide rule to fix one
+model. Every run lists hybrid designations it has not seen before in the step
+summary ("New hybrid designations") — that list is where a new plug-in shows
+up first.
 
 ## 4. One count per vehicle
 
@@ -309,8 +412,9 @@ accents, so `PAÍS`/`PAIS`, `AVALÚO`/`AVALUO` do not matter.
 | 2024 | 108,446 | 108,266 | +0.2 % | 1,450 | 1,416 | 13,082 | 13,088 |
 | 2025 | 124,626 | 125,505 | −0.7 % | 4,332 | 4,276 | 18,327 | 18,370 |
 
-Hybrids match to a few units from 2020 (AEADE's yearbook hybrids include the
-e-POWER, as here). BEV runs 1–9 % above AEADE's — a few dozen vehicles a
+Hybrids (here PHEV + EREV + HEV) match to a few units from 2020 (AEADE's
+yearbook hybrids include the e-POWER, as here); the plug-in split is checked
+in §3b. BEV runs 1–9 % above AEADE's — a few dozen vehicles a
 year (2023: 66) that SRI codes and catalogues as electric but AEADE, which
 classifies with its own model catalogue, leaves out of its BEV figure. 2018
 is the one year with a larger gap, in hybrids (−16 %, 542 vehicles); the
@@ -340,7 +444,7 @@ bulletins were all uploaded in July).
 
 Ecuador's BEV share of new cars and SUVs went from ≈ 0.1–0.4 % (2018–2022)
 to 0.8 % (2023), 1.9 % (2024), 5.1 % (2025) and 11.5 % in January–August
-2026, with August 2026 at 18.9 %; hybrids are another 27 %. The rise is
+2026, with August 2026 at 18.9 %; hybrids are another 27 % (plug-ins 5.4 %, August 7.1 %). The rise is
 almost entirely Chinese brands (BYD 40 % of BEVs in the last twelve months,
 then Chevrolet's China-built Spark EUV, Kia, Dongfeng, GAC). BEVs pay no VAT
 and no special consumption tax (ICE) and are exempt from the vehicle property
@@ -351,15 +455,20 @@ coincided with Guayaquil's Autoshow); no policy change explains them, so the
 fit should be read on the trend, not the last month.
 
 Vans: BEV ≈ 0.3–0.5 % (Riddara RD6, BYD T3, Keyton vans), hybrids 4 %
-(Ford F-150, RAM, Foton Tunland; BYD's Shark plug-in pickup counts as
-hybrid) — *No transition* by the gallery's rule.
+(Ford F-150, RAM, Foton Tunland), plug-ins 1.4 % in 2026 (BYD Shark,
+Changan Hunter REEV) — *No transition* by the gallery's rule.
 
 ## 7. Outputs
 
 - `data/Ecuador.csv` (Whole) and `data/Ecuador_Vans.csv` (Vans), monthly,
   2018-01 →, both rendered.
+- `classification/ecuador_models.csv` — every hybrid designation with its
+  class and deciding rule, per scope and year (generated; the years a run
+  re-derives are replaced, older years kept and re-classified with the current
+  rules). `classification/ecuador_rules.csv` is the hand-edited source of
+  truth (§3b).
 - `market/ecuador_top.json` — trailing-12-month top brands and models per
-  class (BEV, Hybrid) for Whole, plus single-month rankings, built straight
+  class (BEV, PHEV, EREV, HEV) for Whole, plus single-month rankings, built straight
   from the records of the two years each run reads (no month store needed).
   Brand = `MARCA` with a few aliases (`MERCEDES BENZ` → MERCEDES-BENZ,
   `URVANE MOVILITY` → URVANE MOBILITY, `LYNK AND CO` → LYNK & CO); model =
@@ -385,11 +494,11 @@ sequenceDiagram
         Py-->>Cron: no-op (one HEAD)
     else no
         Py->>SRI: newest two yearly files + the two before (lookback), ≈ 4 × 75 MB
-        Py->>Py: first processing per vehicle → class → variant; description / fuel code → column
+        Py->>Py: first processing per vehicle → class → variant; description / fuel code → column; hybrids → ecuador_rules.csv
         Py->>AEADE: bulletin page → newest download ids → PDF of the target month (else newest usable)
         Py->>Py: cross-check total / BEV / car+SUV (abort > 10 %)
         Py->>CSV: line-level upserts (changed lines only)
-        Py->>Top: trailing-12-month top list
+        Py->>Top: trailing-12-month top list + classification/ecuador_models.csv
         Py-->>Cron: run report → step summary
         Cron->>Render: once, with the changed variants
     end
@@ -409,7 +518,8 @@ sequenceDiagram
 - **After each monthly run:** read the step summary — the month's table, the
   AEADE comparison, earlier rows SRI revised, records whose fuel code the
   description overrode (review that they are real hybrids / BEVs), BEV and
-  hybrid models, classes in no variant, unknown classes / fuel codes.
+  plug-in and hybrid models, hybrid designations never seen before (check
+  each for a plug — §3b), classes in no variant, unknown classes / fuel codes.
 
 **If a run fails — where to look:**
 
@@ -424,4 +534,6 @@ sequenceDiagram
 | `AEADE cross-check failed` | an incomplete SRI file, a broken counting rule — or an AEADE slip (Oct 2025) | compare the step summary with the bulletin by hand; if the register is right, dispatch with `force` |
 | warning `AEADE cross-check not run` | bulletin not uploaded yet / page changed / table layout changed | nothing if the bulletin is just late; else adapt `find_bulletins()` / `_table()` (tests: `test_bulletin_*`) |
 | `below 40 % of the trailing median` | a partial file — or a real collapse (April 2020: 423 cars) | check AEADE; `force` if genuine |
+| `classification/ecuador_rules.csv: …` (rule id, example, header) | a rule edit broke the table's checks | fix the row as the message says; run `scripts/test_fetch_ecuador.py` |
+| a new plug-in counted as HEV (seen in "New hybrid designations" or a ZEMO gap) | its designation names no plug | add a rule with evidence (§3b), test, dispatch with `backfill` |
 | commit step `non-fast-forward` | a concurrent commit | already rebased by the action; re-run |

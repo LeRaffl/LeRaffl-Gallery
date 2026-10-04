@@ -138,11 +138,12 @@ SRI publishes that register as free record-level open data, one CSV per year
 since 2017: every invoiced new vehicle with brand, catalogue description,
 class and fuel. Counted once per vehicle it reproduces AEADE's annual market
 within 0.2 % (2019–2024) and its monthly figures within about 1 %, complete by
-construction (every brand). One limitation stays: SRI has a single hybrid
-code, so there is no PHEV/HEV split (one combined hybrid figure, as for
-Türkiye and Ukraine).
-**What would change it:** SRI adding a plug-in flag (or AEADE publishing its
-technology split monthly) — then PHEV could be split out.
+construction (every brand). SRI has a single hybrid code, so the plug-ins
+are split off by a published rule table on the model (as for Argentina);
+2025 matches ZEMO's plug-in count within 0.3 % and AEADE's yearbook within
+5 %. Full and mild hybrids stay one figure (`HEV`).
+**What would change it:** SRI adding a plug-in flag — then the rule table
+could be retired.
 
 ### 🇲🇽 Mexico — the official monthly registry omits BYD
 
