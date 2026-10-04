@@ -1,0 +1,11 @@
+🇪🇨 Ecuador - August 26 - BEV Trajectory
+18.9% BEV
+29.2% Hybrid
+51.9% ICE
+
+Trailing 12 months are:
+10.1% BEV
+25.3% Hybrid
+64.6% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

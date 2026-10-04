@@ -1,0 +1,8 @@
+🇪🇨 Ecuador (Vans) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++0.1pp  BEV     (0.3% → 0.4%)
++1.5pp  Hybrid  (2.9% → 4.4%)
+−1.6pp  ICE     (96.8% → 95.3%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

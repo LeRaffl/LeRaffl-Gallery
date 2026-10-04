@@ -1,0 +1,11 @@
+🇪🇨 Ecuador - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++6.4pp  BEV     (3.7% → 10.1%)
++5.0pp  Hybrid  (20.3% → 25.3%)
+−11.4pp  ICE     (76.0% → 64.6%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-01.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2036-03.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
