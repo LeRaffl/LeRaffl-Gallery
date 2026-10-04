@@ -64,18 +64,15 @@ def faroe():
 
 import shutil
 shutil.rmtree(OUT); OUT.mkdir()
-found = []
-for y in range(2016, 2027):
-    for m in range(1, 13):
-        if (y, m) > (2026, 8):
-            break
-        for folder in (y, y + 1):
-            u = f"https://bhas.gov.ba/data/Publikacije/Saopstenja/{folder}/TRA_05_{y}_{m:02d}_1_BS.pdf"
-            try:
-                r = get(u)
-            except Exception as e:
-                print(u, "ERR", type(e).__name__); continue
-            if r.status_code == 200 and r.content[:4] == b"%PDF":
-                (OUT / f"TRA_05_{y}_{m:02d}.pdf").write_bytes(r.content)
-                found.append(f"{y}-{m:02d}"); print("OK", u, len(r.content)); break
-print("found", len(found), found[:3], found[-3:])
+for name, u in [("and_aug26.pdf", "https://www.altaveu.com/uploads/s1/26/23/88/5/matriculacions-agost-2026.pdf"),
+                ("and_feb26.pdf", "https://www.altaveu.com/uploads/s1/23/85/27/0/matriculacions-febrer-2026.pdf"),
+                ("and_may25.pdf", "https://www.altaveu.com/uploads/s1/20/71/48/5/nota-matriculacions-maig-2025.pdf")]:
+    try:
+        r = get(u); print(name, r.status_code, len(r.content)); (OUT / name).write_bytes(r.content)
+    except Exception as e:
+        print(name, "ERR", e)
+page("estad_ad", "https://www.estadistica.ad/")
+page("estad_ad_portal", "https://www.estadistica.ad/portal/apps/sites/#/estadistica-ca")
+for u in ["https://www.estadistica.ad/serveiestudis/web/banc_dades4.asp?lang=1&codi_div=12",
+          "https://www.estadistica.ad/serveiestudis/web/index.asp?lang=1"]:
+    page("estad_ad_" + str(abs(hash(u)) % 1000), u)
