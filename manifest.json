@@ -82,6 +82,166 @@
       "country_slug": "ecuador_vans"
     },
     {
+      "country": "Taiwan",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_ICE_BEV_20261004.png",
+      "url": "images/2026-08/taiwan_ICE_BEV_20261004.png",
+      "alt": "Taiwan ICE-BEV-Hybrid trajectory",
+      "country_slug": "taiwan"
+    },
+    {
+      "country": "Taiwan",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_20261004.png",
+      "url": "images/2026-08/taiwan_20261004.png",
+      "alt": "Taiwan BEV trajectory",
+      "country_slug": "taiwan"
+    },
+    {
+      "country": "Taiwan",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_time_20261004.png",
+      "url": "images/2026-08/taiwan_time_20261004.png",
+      "alt": "Taiwan Transition time curve",
+      "country_slug": "taiwan"
+    },
+    {
+      "country": "Taiwan",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_ttm_shares_20261004.png",
+      "url": "images/2026-08/taiwan_ttm_shares_20261004.png",
+      "alt": "Taiwan TTM market split graph",
+      "country_slug": "taiwan"
+    },
+    {
+      "country": "Taiwan (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_buses_ICE_BEV_20261004.png",
+      "url": "images/2026-08/taiwan_buses_ICE_BEV_20261004.png",
+      "alt": "Taiwan (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "taiwan_buses"
+    },
+    {
+      "country": "Taiwan (Buses)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_buses_20261004.png",
+      "url": "images/2026-08/taiwan_buses_20261004.png",
+      "alt": "Taiwan (Buses) BEV trajectory",
+      "country_slug": "taiwan_buses"
+    },
+    {
+      "country": "Taiwan (Buses)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_buses_time_20261004.png",
+      "url": "images/2026-08/taiwan_buses_time_20261004.png",
+      "alt": "Taiwan (Buses) Transition time curve",
+      "country_slug": "taiwan_buses"
+    },
+    {
+      "country": "Taiwan (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_buses_ttm_shares_20261004.png",
+      "url": "images/2026-08/taiwan_buses_ttm_shares_20261004.png",
+      "alt": "Taiwan (Buses) TTM market split graph",
+      "country_slug": "taiwan_buses"
+    },
+    {
+      "country": "Taiwan (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_hdv_ICE_BEV_20261004.png",
+      "url": "images/2026-08/taiwan_hdv_ICE_BEV_20261004.png",
+      "alt": "Taiwan (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "taiwan_hdv"
+    },
+    {
+      "country": "Taiwan (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_hdv_20261004.png",
+      "url": "images/2026-08/taiwan_hdv_20261004.png",
+      "alt": "Taiwan (HDV) BEV trajectory",
+      "country_slug": "taiwan_hdv"
+    },
+    {
+      "country": "Taiwan (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_hdv_time_20261004.png",
+      "url": "images/2026-08/taiwan_hdv_time_20261004.png",
+      "alt": "Taiwan (HDV) Transition time curve",
+      "country_slug": "taiwan_hdv"
+    },
+    {
+      "country": "Taiwan (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_hdv_ttm_shares_20261004.png",
+      "url": "images/2026-08/taiwan_hdv_ttm_shares_20261004.png",
+      "alt": "Taiwan (HDV) TTM market split graph",
+      "country_slug": "taiwan_hdv"
+    },
+    {
+      "country": "Taiwan (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_vans_ICE_BEV_20261004.png",
+      "url": "images/2026-08/taiwan_vans_ICE_BEV_20261004.png",
+      "alt": "Taiwan (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "taiwan_vans"
+    },
+    {
+      "country": "Taiwan (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_vans_20261004.png",
+      "url": "images/2026-08/taiwan_vans_20261004.png",
+      "alt": "Taiwan (Vans) BEV trajectory",
+      "country_slug": "taiwan_vans"
+    },
+    {
+      "country": "Taiwan (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_vans_time_20261004.png",
+      "url": "images/2026-08/taiwan_vans_time_20261004.png",
+      "alt": "Taiwan (Vans) Transition time curve",
+      "country_slug": "taiwan_vans"
+    },
+    {
+      "country": "Taiwan (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-04",
+      "filename": "taiwan_vans_ttm_shares_20261004.png",
+      "url": "images/2026-08/taiwan_vans_ttm_shares_20261004.png",
+      "alt": "Taiwan (Vans) TTM market split graph",
+      "country_slug": "taiwan_vans"
+    },
+    {
       "country": "Paraguay",
       "type": "ICE_BEV",
       "period": "2026-09",
