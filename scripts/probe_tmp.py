@@ -39,15 +39,39 @@ def pxweb(name, base, depth=3):
     print(f"\n=== PXWEB {name} {base}"); print("\n".join(lines[:400]))
     save(name + "_tree.txt", "\n".join(lines))
 
-pxweb("faroe_fo", "https://statbank.hagstova.fo/api/v1/fo/H2/")
-pxweb("faroe_en", "https://statbank.hagstova.fo/api/v1/en/H2/")
-pxweb("greenland", "https://bank.stat.gl/api/v1/en/Greenland/")
-page("dmt_lk", "https://dmt.gov.lk/")
-page("dmt_lk_stats", "https://dmt.gov.lk/index.php?option=com_content&view=article&id=152&Itemid=181&lang=en")
-page("lk_stats", "https://www.statistics.gov.lk/")
-page("asp_md", "https://www.asp.gov.md/ro/date-deschise")
-page("asp_md_en", "https://www.asp.gov.md/en/open-data")
-page("datagov_md", "https://date.gov.md/")
-page("bhas", "https://bhas.gov.ba/")
-page("mauritius", "https://statsmauritius.govmu.org/")
-page("serbia_mup", "https://data.gov.rs/sr/datasets/?q=vozila")
+def faroe():
+    base = "https://statbank.hagstova.fo/api/v1/en/H2/SS/SS03/"
+    try:
+        items = get(base).json()
+    except Exception as e:
+        print("faroe ERR", e); return
+    print("\n=== FAROE SS03"); 
+    for it in items:
+        print(" ", it)
+        if it.get("type") == "t":
+            try:
+                meta = get(base + it["id"]).json()
+                save("faroe_" + it["id"] + ".json", json.dumps(meta, ensure_ascii=False, indent=1))
+                for v in meta.get("variables", []):
+                    vals = v.get("valueTexts", [])
+                    print("     var", v.get("code"), v.get("text"), len(vals), vals[:12], "...", vals[-3:])
+            except Exception as e:
+                print("   meta ERR", e)
+        elif it.get("type") == "l":
+            try:
+                for sub in get(base + it["id"] + "/").json(): print("    sub", sub)
+            except Exception as e: print("   sub ERR", e)
+
+faroe()
+page("dmt_lk_stats", "https://dmt.gov.lk/index.php?option=com_content&view=article&id=16&Itemid=132&lang=en")
+page("asp_md_stats", "https://www.asp.gov.md/ro/date-deschise/date-statistice")
+for q in ("transport", "vehicule", "inmatriculate", "mijloace de transport"):
+    try:
+        r = get("https://dataset.gov.md/api/3/action/package_search", params={"q": q, "rows": 25})
+        print(f"\n=== dataset.gov.md q={q} -> {r.status_code}")
+        d = r.json()["result"]; print("count", d["count"])
+        for pk in d["results"]:
+            print("  -", pk.get("name"), "|", pk.get("title"), "|", (pk.get("organization") or {}).get("title"),
+                  "|", pk.get("metadata_modified"), "|", [ (x.get("format"), x.get("url")) for x in pk.get("resources", [])][:4])
+    except Exception as e:
+        print(f"\n=== dataset.gov.md q={q} ERROR {type(e).__name__}: {str(e)[:200]}")
