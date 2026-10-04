@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T15:46:57Z",
+ "generated": "2026-10-04T21:10:10Z",
  "today": "2026-10-04",
  "countries": [
   {
@@ -1777,7 +1777,7 @@
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-04",
    "flag": "🇮🇳",
    "variants": [
     {
@@ -3831,7 +3831,7 @@
     ],
     "workflow": ".github/workflows/fetch-taiwan.yml"
    },
-   "last_render": null,
+   "last_render": "2026-10-04",
    "flag": "🇹🇼",
    "variants": [
     {

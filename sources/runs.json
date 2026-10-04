@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T15:46:57Z",
+ "generated": "2026-10-04T21:10:10Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -411,7 +411,7 @@
   },
   {
    "date": "2026-03-15",
-   "label": "India (4 Wheelers)",
+   "label": "India (4-Wheelers)",
    "base": "India",
    "slug": "india_4-wheelers",
    "period": "2026-01",
@@ -2027,7 +2027,7 @@
   },
   {
    "date": "2026-06-06",
-   "label": "Italy (Nonrental)",
+   "label": "Italy (NonRental)",
    "base": "Italy",
    "slug": "italy_nonrental",
    "period": "2026-05",
@@ -2043,7 +2043,7 @@
   },
   {
    "date": "2026-06-07",
-   "label": "Italy (Nonrental)",
+   "label": "Italy (NonRental)",
    "base": "Italy",
    "slug": "italy_nonrental",
    "period": "2026-05",
@@ -2235,7 +2235,7 @@
   },
   {
    "date": "2026-06-14",
-   "label": "Albania (2 Wheelers)",
+   "label": "Albania (2-Wheelers)",
    "base": "Albania",
    "slug": "albania_2_wheelers",
    "period": "2026-05",
@@ -2267,7 +2267,7 @@
   },
   {
    "date": "2026-06-15",
-   "label": "Albania (2 Wheelers)",
+   "label": "Albania (2-Wheelers)",
    "base": "Albania",
    "slug": "albania_2_wheelers",
    "period": "2026-05",
@@ -2707,7 +2707,7 @@
   },
   {
    "date": "2026-07-09",
-   "label": "Spain (2 Wheelers)",
+   "label": "Spain (2-Wheelers)",
    "base": "Spain",
    "slug": "spain_2_wheelers",
    "period": "2026-05",
@@ -2731,7 +2731,7 @@
   },
   {
    "date": "2026-07-09",
-   "label": "Spain (Nonrental)",
+   "label": "Spain (NonRental)",
    "base": "Spain",
    "slug": "spain_nonrental",
    "period": "2026-05",
@@ -2771,7 +2771,7 @@
   },
   {
    "date": "2026-07-10",
-   "label": "Albania (2 Wheelers)",
+   "label": "Albania (2-Wheelers)",
    "base": "Albania",
    "slug": "albania_2_wheelers",
    "period": "2026-06",
@@ -2875,7 +2875,7 @@
   },
   {
    "date": "2026-07-11",
-   "label": "Thailand (3 Wheelers)",
+   "label": "Thailand (3-Wheelers)",
    "base": "Thailand",
    "slug": "thailand_3_wheelers",
    "period": "2026-05",
@@ -2923,7 +2923,7 @@
   },
   {
    "date": "2026-07-15",
-   "label": "Spain (2 Wheelers)",
+   "label": "Spain (2-Wheelers)",
    "base": "Spain",
    "slug": "spain_2_wheelers",
    "period": "2026-06",
@@ -2947,7 +2947,7 @@
   },
   {
    "date": "2026-07-15",
-   "label": "Spain (Nonrental)",
+   "label": "Spain (NonRental)",
    "base": "Spain",
    "slug": "spain_nonrental",
    "period": "2026-06",
@@ -3019,7 +3019,7 @@
   },
   {
    "date": "2026-07-20",
-   "label": "Nepal (3 Wheelers)",
+   "label": "Nepal (3-Wheelers)",
    "base": "Nepal",
    "slug": "nepal_3_wheelers",
    "period": "2026-06",
@@ -3147,7 +3147,7 @@
   },
   {
    "date": "2026-07-23",
-   "label": "Nepal (3 Wheelers)",
+   "label": "Nepal (3-Wheelers)",
    "base": "Nepal",
    "slug": "nepal_3_wheelers",
    "period": "2026-07",
@@ -3283,7 +3283,7 @@
   },
   {
    "date": "2026-08-01",
-   "label": "Thailand (3 Wheelers)",
+   "label": "Thailand (3-Wheelers)",
    "base": "Thailand",
    "slug": "thailand_3_wheelers",
    "period": "2026-06",
@@ -3299,7 +3299,7 @@
   },
   {
    "date": "2026-08-03",
-   "label": "Italy (Nonrental)",
+   "label": "Italy (NonRental)",
    "base": "Italy",
    "slug": "italy_nonrental",
    "period": "2026-07",
@@ -3611,7 +3611,7 @@
   },
   {
    "date": "2026-08-15",
-   "label": "Spain (2 Wheelers)",
+   "label": "Spain (2-Wheelers)",
    "base": "Spain",
    "slug": "spain_2_wheelers",
    "period": "2026-07",
@@ -3635,7 +3635,7 @@
   },
   {
    "date": "2026-08-15",
-   "label": "Spain (Nonrental)",
+   "label": "Spain (NonRental)",
    "base": "Spain",
    "slug": "spain_nonrental",
    "period": "2026-07",
@@ -3675,7 +3675,7 @@
   },
   {
    "date": "2026-08-16",
-   "label": "Albania (2 Wheelers)",
+   "label": "Albania (2-Wheelers)",
    "base": "Albania",
    "slug": "albania_2_wheelers",
    "period": "2026-07",
@@ -3707,7 +3707,7 @@
   },
   {
    "date": "2026-08-21",
-   "label": "Nepal (3 Wheelers)",
+   "label": "Nepal (3-Wheelers)",
    "base": "Nepal",
    "slug": "nepal_3_wheelers",
    "period": "2026-08",
@@ -3763,7 +3763,7 @@
   },
   {
    "date": "2026-09-01",
-   "label": "Italy (Nonrental)",
+   "label": "Italy (NonRental)",
    "base": "Italy",
    "slug": "italy_nonrental",
    "period": "2026-08",
@@ -3819,7 +3819,7 @@
   },
   {
    "date": "2026-09-02",
-   "label": "Thailand (3 Wheelers)",
+   "label": "Thailand (3-Wheelers)",
    "base": "Thailand",
    "slug": "thailand_3_wheelers",
    "period": "2026-07",
@@ -4083,7 +4083,7 @@
   },
   {
    "date": "2026-09-10",
-   "label": "Albania (2 Wheelers)",
+   "label": "Albania (2-Wheelers)",
    "base": "Albania",
    "slug": "albania_2_wheelers",
    "period": "2026-08",
@@ -4467,7 +4467,7 @@
   },
   {
    "date": "2026-09-15",
-   "label": "Spain (2 Wheelers)",
+   "label": "Spain (2-Wheelers)",
    "base": "Spain",
    "slug": "spain_2_wheelers",
    "period": "2026-08",
@@ -4491,7 +4491,7 @@
   },
   {
    "date": "2026-09-15",
-   "label": "Spain (Nonrental)",
+   "label": "Spain (NonRental)",
    "base": "Spain",
    "slug": "spain_nonrental",
    "period": "2026-08",
@@ -4707,7 +4707,7 @@
   },
   {
    "date": "2026-09-23",
-   "label": "Nepal (3 Wheelers)",
+   "label": "Nepal (3-Wheelers)",
    "base": "Nepal",
    "slug": "nepal_3_wheelers",
    "period": "2026-09",
@@ -4875,7 +4875,7 @@
   },
   {
    "date": "2026-09-27",
-   "label": "Thailand (3 Wheelers)",
+   "label": "Thailand (3-Wheelers)",
    "base": "Thailand",
    "slug": "thailand_3_wheelers",
    "period": "2026-08",
@@ -4979,7 +4979,7 @@
   },
   {
    "date": "2026-10-01",
-   "label": "Italy (Nonrental)",
+   "label": "Italy (NonRental)",
    "base": "Italy",
    "slug": "italy_nonrental",
    "period": "2026-09",
@@ -5115,7 +5115,7 @@
   },
   {
    "date": "2026-10-02",
-   "label": "Switzerland (2 Wheelers)",
+   "label": "Switzerland (2-Wheelers)",
    "base": "Switzerland",
    "slug": "switzerland_2_wheelers",
    "period": "2026-09",
@@ -5187,7 +5187,7 @@
   },
   {
    "date": "2026-10-03",
-   "label": "Spain (2 Wheelers)",
+   "label": "Spain (2-Wheelers)",
    "base": "Spain",
    "slug": "spain_2_wheelers",
    "period": "2026-09",
@@ -5211,7 +5211,7 @@
   },
   {
    "date": "2026-10-03",
-   "label": "Spain (Nonrental)",
+   "label": "Spain (NonRental)",
    "base": "Spain",
    "slug": "spain_nonrental",
    "period": "2026-09",
@@ -5256,6 +5256,46 @@
    "slug": "ecuador_vans",
    "period": "2026-08",
    "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "India",
+   "base": "India",
+   "slug": "india",
+   "period": "2026-09",
+   "flag": "🇮🇳"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Taiwan",
+   "base": "Taiwan",
+   "slug": "taiwan",
+   "period": "2026-08",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Taiwan (Buses)",
+   "base": "Taiwan",
+   "slug": "taiwan_buses",
+   "period": "2026-08",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Taiwan (HDV)",
+   "base": "Taiwan",
+   "slug": "taiwan_hdv",
+   "period": "2026-08",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Taiwan (Vans)",
+   "base": "Taiwan",
+   "slug": "taiwan_vans",
+   "period": "2026-08",
+   "flag": "🇹🇼"
   }
  ]
 }
