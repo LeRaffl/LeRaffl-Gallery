@@ -1,0 +1,116 @@
+{
+ "title": "SS03060 Traffic accidents by district, place and type (1995-2017)",
+ "variables": [
+  {
+   "code": "district",
+   "text": "district",
+   "values": [
+    "9999",
+    "4100",
+    "4200",
+    "4347",
+    "4400",
+    "4500",
+    "4600"
+   ],
+   "valueTexts": [
+    "Total (district)",
+    "Norðoya district",
+    "Eysturoyar district",
+    "Streymoyar district",
+    "Vága district",
+    "Sandoyar district",
+    "Suðuroyar district"
+   ],
+   "elimination": true
+  },
+  {
+   "code": "place",
+   "text": "place",
+   "values": [
+    "TOT",
+    "MAIN",
+    "LOCAL"
+   ],
+   "valueTexts": [
+    "Total (place)",
+    "On main roads",
+    "On local roads"
+   ],
+   "elimination": true
+  },
+  {
+   "code": "type",
+   "text": "type",
+   "values": [
+    "TOT",
+    "CASU",
+    "ALCO",
+    "INJURED",
+    "KILLED"
+   ],
+   "valueTexts": [
+    "Total traffic accidents",
+    "- With casualties",
+    "- Alcohol related",
+    "Casualties",
+    "Killed"
+   ]
+  },
+  {
+   "code": "year",
+   "text": "year",
+   "values": [
+    "1995",
+    "1996",
+    "1997",
+    "1998",
+    "1999",
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "2004",
+    "2005",
+    "2006",
+    "2007",
+    "2008",
+    "2009",
+    "2010",
+    "2011",
+    "2012",
+    "2013",
+    "2014",
+    "2015",
+    "2016",
+    "2017"
+   ],
+   "valueTexts": [
+    "1995",
+    "1996",
+    "1997",
+    "1998",
+    "1999",
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "2004",
+    "2005",
+    "2006",
+    "2007",
+    "2008",
+    "2009",
+    "2010",
+    "2011",
+    "2012",
+    "2013",
+    "2014",
+    "2015",
+    "2016",
+    "2017"
+   ],
+   "time": true
+  }
+ ]
+}

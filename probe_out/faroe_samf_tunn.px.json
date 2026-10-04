@@ -1,0 +1,79 @@
+{
+ "title": "SS03020 Tunnels by place, finish year and dimensions",
+ "variables": [
+  {
+   "code": "region",
+   "text": "region",
+   "values": [
+    "SU_SU",
+    "SU_HO",
+    "SU_HV_1",
+    "SU_HV_2",
+    "SU_SA",
+    "SA_SA-ST",
+    "VA_GA",
+    "VA_VA-ST",
+    "ST_LE",
+    "ST_KO",
+    "EY_EY-ST",
+    "EY_NO",
+    "EY_LE",
+    "NO_BO-EY",
+    "BO_AR1",
+    "BO_AR2",
+    "BO_HV1",
+    "BO_HV2",
+    "VI_VI",
+    "KU_KU",
+    "KA_VI",
+    "KA_RI",
+    "KA_MI",
+    "KA_TR",
+    "KA_DJ"
+   ],
+   "valueTexts": [
+    "Suðuroy: Sumbiartunnel, year 1997",
+    "Suðuroy: Hovstunnel, year 2007",
+    "Suðuroy: Hvalbiartunnel, year 1963",
+    "Suðuroy: Hvalbiartunnel, year 2021",
+    "Suðuroy: Sandvíkartunnel, year 1969",
+    "Betw. Sandoy and Streymoy: Sandoyartunnel, year 2023",
+    "Vágoy: Gásadalstunnel, year 2006",
+    "Betw. Vágoy and Streymoy: Vágatunnel, year 2002",
+    "Streymoy: Leynatunnel, year 1977",
+    "Streymoy: Kollfjarðartunnel, year 1992",
+    "Betw. Eysturoy and Streymoy: Eysturoyartunnel, year 2020",
+    "Eysturoy: Norðskálatunnel, year 1976",
+    "Eysturoy: Leirvíkartunnel, year 1985",
+    "Betw. Borðoy and Eysturoy: Norðoyatunnel, year 2006",
+    "Borðoy: Árnafjarðartunnel, year 1965",
+    "Borðoy: Árnafjarðartunnel, year 2025",
+    "Borðoy: Hvannasundstunnel, year 1967",
+    "Borðoy: Hvannasundstunnel, year 2025",
+    "Viðoy: Viðareiðistunnel, year 2016",
+    "Kunoy: Kunoyartunnel, year 1988",
+    "Kalsoy: Villingadalstunnel, year 1979",
+    "Kalsoy: Ritudalstunnel, year 1980",
+    "Kalsoy: Mikladalstunnel, year 1980",
+    "Kalsoy: Trøllanestunnel, year 1985",
+    "Kalsoy: Sidetrack to Djúpadal, year 1985"
+   ]
+  },
+  {
+   "code": "dimensions",
+   "text": "dimensions",
+   "values": [
+    "LENGTH",
+    "HEIGHT",
+    "WIDTH",
+    "GRADIENT"
+   ],
+   "valueTexts": [
+    "Lenght in meters",
+    "Accessible height in meters",
+    "Width of lane in meters",
+    "Gradient in ‰"
+   ]
+  }
+ ]
+}
