@@ -862,6 +862,11 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                               (a second slice with its own top file)
 #   market_class_names:  {HEV: Hybrid}          optional short-name override
 #   market_class_labels: {HEV: "…"}             optional long-label override
+#   market_heading: "…"                         optional: replaces "Who sells the
+#                                               electrified cars" (a top file with
+#                                               only the ALL class — every powertrain,
+#                                               for a source without a brand × fuel
+#                                               table — is not about electrified cars)
 #       written by the fetcher via scripts/market_top.py — Spain, Malaysia, …
 #       {"variant", "as_of", "window": {"from","to","months"},
 #        "total_registrations", "unit",
@@ -914,6 +919,7 @@ CLASS_LABEL = {
     "EREV": "Range-extended EV (a plug-in; counted with PHEV in the curves)",
     "HEV": "Full hybrid (no plug; counted as ICE in the curves)",
     "MHEV": "Mild hybrid (counted as ICE)", "ICE": "Combustion only",
+    "ALL": "Every powertrain (the source has no brand × fuel table)",
 }
 GH_RAW = "https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master"
 
@@ -992,7 +998,8 @@ def _market_view(classes: dict, names: dict, labels: dict, open_first: bool) -> 
     brand_cols = [("#", "#"), ("Brand", "brand"), ("Units", "units"), ("Share", "share_of_class")]
     model_cols = [("#", "#"), ("Brand", "brand"), ("Designation", "model"),
                   ("Units", "units"), ("Share", "share_of_class")]
-    for c, open_ in (("BEV", True), ("PHEV", True), ("EREV", False), ("HEV", False), ("MHEV", False)):
+    for c, open_ in (("BEV", True), ("PHEV", True), ("EREV", False), ("HEV", False), ("MHEV", False),
+                     ("ALL", True)):
         v = classes.get(c)
         if not v:
             continue
@@ -1027,7 +1034,7 @@ def build_market_breakdown(fm: dict) -> str:
     if not fm.get("market_breakdown"):
         return ""
     out = _market_section(fm, fm["market_breakdown"], "market",
-                          "Who sells the electrified cars", "")
+                          fm.get("market_heading") or "Who sells the electrified cars", "")
     for extra in fm.get("market_breakdown_extra") or []:
         out += _market_section(fm, extra["path"], extra["id"],
                                extra.get("heading", "Who sells the electrified cars"),
@@ -1611,6 +1618,7 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 .cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
 .cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
 .cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
+.cls--all{background:rgba(90,90,110,.14);color:#3d3d55}
 /* Dark mode (assets/theme.css follows prefers-color-scheme): the badge inks
    above are dark-on-wash and vanish on a dark page, so lift them. */
 @media (prefers-color-scheme: dark){
@@ -1620,6 +1628,7 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
   :root:not([data-theme="light"]) .cls--hev{color:#e8c95a}
   :root:not([data-theme="light"]) .cls--mhev{color:#d6c27a}
   :root:not([data-theme="light"]) .cls--ice{color:#d9a27a}
+  :root:not([data-theme="light"]) .cls--all{color:#b4b4cc}
 }
 """
 

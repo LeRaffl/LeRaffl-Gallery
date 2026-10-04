@@ -788,6 +788,35 @@ def test_ecuador_top():
     assert not any(b["brand"] == "RIDDARA" for b in bev["brands"])       # a pickup: Vans
 
 
+def test_taiwan_all_powertrains():
+    # THB publishes brands without a fuel split: one ALL class, no electrified
+    # class; the local maker merges into its marque; 其他 (others) counts
+    # towards the total but is never ranked.
+    import fetch_taiwan as ftw
+    brands = {"2026-08": {"廠牌別總計": 100, "國瑞": 30, "TOYOTA": 20, "TESLA": 25,
+                          "LEXUS": 15, "其他": 10},
+              "2026-07": {"廠牌別總計": 50, "國瑞": 20, "TESLA": 30}}
+    top = ftw.build_top(brands, {"2026-08": 100, "2026-07": 50}, "2026-08")
+    assert list(top["classes"]) == ["ALL"]
+    cls = top["classes"]["ALL"]
+    assert cls["units"] == 150 and cls["share_of_market"] == 1.0
+    assert [(b["brand"], b["units"]) for b in cls["brands"]] == [
+        ("Toyota", 70), ("Tesla", 55), ("Lexus", 15)]
+    assert cls["brands"][0]["share_of_class"] == round(70 / 150, 4)
+    assert cls["models"] == []                                 # brand-only source
+    assert top["window"] == {"from": "2026-07", "to": "2026-08", "months": 2}
+    assert [m["period"] for m in top["months"]] == ["2026-08", "2026-07"]
+    # a brand the code list lacks (2026-06 →): in the total, never ranked
+    gap = ftw.build_top({"2026-08": {"廠牌別總計": 100, "國瑞": 60, "TESLA": 25}},
+                        {"2026-08": 100}, "2026-08")
+    assert gap["classes"]["ALL"]["units"] == 100
+    assert [b["brand"] for b in gap["classes"]["ALL"]["brands"]] == ["Toyota", "Tesla"]
+    assert ftw.unlisted({"廠牌別總計": 100, "國瑞": 60, "TESLA": 25}) == 15
+    assert ftw.unlisted({"廠牌別總計": 85, "國瑞": 60, "TESLA": 25}) == 0
+    # electrified files are unchanged by the extra class
+    assert mt._classes({("BEV", "X", "Y"): 3}, 10, 10, 10).keys() == {"BEV"}
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

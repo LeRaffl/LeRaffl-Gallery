@@ -16,6 +16,8 @@ Schema (docs/architecture/03-data-objects.md §3.16):
                          "brands": [{"brand", "units", "share_of_class"}, ...],
                          "models": [{"brand", "model", "units", "share_of_class"}, ...]},
                  "PHEV": ..., "EREV": ..., "HEV": ..., "MHEV": ...},
+                                             # or only "ALL" (every powertrain) for a
+                                             # source with no brand x fuel table
      "months": [{"period", "total_registrations", "classes": {...}}, ...]}
                                              # build_top_monthly: newest first
 
@@ -23,7 +25,8 @@ Schema (docs/architecture/03-data-objects.md §3.16):
 ``missing`` list when the source does not cover the full year).
 
 ICE classes are never listed (the section is about who sells the electrified
-cars). Ties are broken alphabetically so the file is byte-stable whatever order
+cars); combustion cars appear only inside ALL, for a source that cannot split
+its brand table by fuel. Ties are broken alphabetically so the file is byte-stable whatever order
 the records arrived in — no spurious commits.
 
 Output location: ``market/<slug>_top.json`` (generated, never hand-edited).
@@ -42,6 +45,11 @@ MARKET_DIR = REPO / "market"
 # Classes that get a ranking, in display order. Anything else a fetcher passes
 # (PETROL, DIESEL, ICE, OTHERS, ...) only counts towards the market total.
 ELECTRIFIED = ("BEV", "PHEV", "EREV", "HEV", "MHEV")
+# Every powertrain together — for a source that publishes brands but no brand
+# × fuel split (Taiwan: THB's brand table and fuel table are separate tables).
+# Such a file has no electrified class at all; never mix ALL with them.
+ALL = "ALL"
+RANKED = ELECTRIFIED + (ALL,)
 # Brand of a top-N source's own "all others" line (see _classes).
 REST = ""
 TOP_BRANDS = 10
@@ -69,11 +77,11 @@ def ranked(counter: collections.Counter, n: int) -> list:
 
 def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
     """Rank one window's `units` ({(class, brand, model): n}) per electrified
-    class. A brand-only source passes model "" — it gets brand rankings and an
-    empty model list. Brand "" (REST) is a source's own "all others" line for
+    class (or ALL, see above). A brand-only source passes model "" — it gets
+    brand rankings and an empty model list. Brand "" (REST) is a source's own "all others" line for
     a top-N table: it counts towards the class, never into a ranking."""
     per_class = {c: {"brands": collections.Counter(),
-                     "models": collections.Counter()} for c in ELECTRIFIED}
+                     "models": collections.Counter()} for c in RANKED}
     for (cls, brand, model), n in units.items():
         if cls not in per_class or not n:
             continue
@@ -81,7 +89,7 @@ def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
         if model and brand:
             per_class[cls]["models"][(brand, model)] += n
     classes = {}
-    for cls in ELECTRIFIED:
+    for cls in RANKED:
         cls_units = sum(per_class[cls]["brands"].values())
         if not cls_units:
             continue
