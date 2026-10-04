@@ -306,6 +306,47 @@ reasons:
   *import flow* (new+used), explicitly flagged as a mandate, not a modelled
   organic transition.
 
+## 🇻🇳 Vietnam — a booming EV market split across three sales reports
+
+Investigated 2026-10-04 at the maintainer's request (desk research plus a
+temporary probe workflow on GitHub runners, since removed). Vietnam is an
+attractive curve — roughly 600,000–700,000 new cars a year (the Traffic Police
+registered 369,210 in the first half of 2026), and VinFast alone sells about
+20,000 battery-electric cars a month, roughly 40 % of the market — but no
+single source covers the market with a fuel split.
+
+- **What the press quotes is three sources added together.** The monthly
+  market figure (August 2026: 48,484) is VAMA's member sales (25,395) +
+  Hyundai Thanh Cong's own release (2,928) + VinFast's own announcement
+  (20,161). VAMA, the manufacturers' association, publishes a
+  hybrid count for its members (1,388 in August 2026), but **VinFast and
+  Hyundai Thanh Cong are not members**, so VAMA's figure leaves out almost
+  every battery-electric car in the country. Several importers (BYD, Wuling,
+  Geely, Omoda/Jaecoo and others) appear in none of the three. Stitching
+  company press releases onto an association table is the
+  secondary, multi-universe series the bar excludes (the Mexico failure in
+  [Mexico](#-mexico--the-official-monthly-registry-omits-byd)), and a BEV
+  share from VAMA alone would be close to zero, which is wrong.
+- **The registry publishes no monthly series by fuel.** The Traffic Police
+  (Cục CSGT, Ministry of Public Security) register every vehicle, but their
+  figures reach the public as half-yearly press totals (new cars, new
+  motorcycles, fleet), with no fuel split. Vietnam Register (Cục Đăng kiểm)
+  certifies every new vehicle, but its portal has news, not statistics
+  tables. The statistics office's monthly socio-economic report has car
+  production and imports, not registrations by fuel. Customs data would
+  miss the domestically assembled cars, VinFast included.
+- **Access from runners (probed 2026-10-04):** `vama.org.vn` resets every
+  connection (WAF / geo block), `csgt.vn` times out, `data.gov.vn`,
+  `tcmotor.vn` and `ir.vinfastauto.com` do not resolve, `vinfastauto.com`
+  answers 403. `vr.org.vn`, `nso.gov.vn` and `customs.gov.vn` answer, but
+  carry no usable table. The dev sandbox reaches none of them.
+- **What would change the decision:** the Traffic Police or Vietnam Register
+  publishing monthly first registrations (or new-vehicle certifications) by
+  fuel, as a table, an open dataset or a dashboard whose query API can be
+  read (the Peru technique); or VAMA's report starting to include VinFast
+  and Hyundai Thanh Cong, with a full fuel split, on a page runners can
+  reach.
+
 ## 🇷🇺 Russia — the monthly fuel split exists, but only for sale
 
 Investigated 2026-09-28 (the maintainer's preferred candidate for the next
