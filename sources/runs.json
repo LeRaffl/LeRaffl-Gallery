@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-04T09:37:13Z",
+ "generated": "2026-10-04T10:44:29Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5240,6 +5240,22 @@
    "slug": "spain_vans",
    "period": "2026-09",
    "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Ecuador",
+   "base": "Ecuador",
+   "slug": "ecuador",
+   "period": "2026-08",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-04",
+   "label": "Ecuador (Vans)",
+   "base": "Ecuador",
+   "slug": "ecuador_vans",
+   "period": "2026-08",
+   "flag": "🇪🇨"
   }
  ]
 }
