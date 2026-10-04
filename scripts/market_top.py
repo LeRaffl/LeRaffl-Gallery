@@ -195,8 +195,9 @@ def per_month(counter: dict) -> dict[str, dict]:
 # four months, LTA's M03 the current half-year, ACAU's the current calendar
 # year. For those the fetcher keeps every month it has seen in
 # ``market/<slug>_months.json`` (generated, never hand-edited) and builds the
-# twelve-month view from that store. Only electrified classes are kept per
-# brand/model — combustion only ever counts towards the month's total — so the
+# twelve-month view from that store. Only the ranked classes are kept per
+# brand/model (electrified, or ALL for a source without a brand × fuel table
+# — the UK) — combustion only ever counts towards the month's total — so the
 # file stays small. A month the source restates simply overwrites the stored
 # one; months older than STORE_MONTHS are dropped.
 
@@ -219,7 +220,7 @@ def load_store(path: Path) -> dict[str, tuple[dict, int]]:
 
 def save_store(path: Path, monthly: dict[str, tuple[dict, int]],
                country: str, source: str) -> bool:
-    """Write the newest STORE_MONTHS months (electrified rows only, sorted so
+    """Write the newest STORE_MONTHS months (ranked-class rows only, sorted so
     the file is byte-stable). Returns True if the file changed."""
     keep = sorted(monthly)[-STORE_MONTHS:]
     doc = {"country": country, "source": source,
@@ -228,7 +229,7 @@ def save_store(path: Path, monthly: dict[str, tuple[dict, int]],
            "months": {p: {"total": monthly[p][1],
                           "units": sorted([c, b, m, n] for (c, b, m), n
                                           in monthly[p][0].items()
-                                          if n and c in ELECTRIFIED)}
+                                          if n and c in RANKED)}
                       for p in keep}}
     text = json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
     text = text.replace('},"', '},\n"') + "\n"     # one month per line
