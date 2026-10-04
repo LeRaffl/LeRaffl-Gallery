@@ -160,10 +160,11 @@ GROUPS_STATIC = {
     ],
     "g7": ["USA", "Canada", "Japan", "Germany", "France", "United Kingdom", "Italy", "UK"],
     "north_america": ["United States", "Canada", "Mexico", "USA"],
-    "south_america": ["Brazil", "Argentina", "Chile", "Colombia", "Paraguay", "Peru", "Uruguay"],
+    "south_america": ["Brazil", "Argentina", "Chile", "Colombia", "Ecuador", "Paraguay", "Peru",
+                      "Uruguay"],
     "americas": [
         "United States", "Canada", "Mexico",
-        "Brazil", "Argentina", "Chile", "Colombia", "Paraguay", "Peru", "Uruguay", "USA",
+        "Brazil", "Argentina", "Chile", "Colombia", "Ecuador", "Paraguay", "Peru", "Uruguay", "USA",
     ],
     "asia": [
         "China", "Japan", "South Korea", "India",

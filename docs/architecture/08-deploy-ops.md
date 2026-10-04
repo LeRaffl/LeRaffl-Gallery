@@ -126,6 +126,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-china.yml`](../../.github/workflows/fetch-china.yml) | 11:00 UTC, 1st → EOM | CPCA monthly market analysis (article + OCR of the NEV slide) | `Whole` (retail) + `Wholesale` to a separate CSV | `latest_period` of both CSVs ≥ target |
 | [`fetch-colombia.yml`](../../.github/workflows/fetch-colombia.yml) | 07:30 UTC, 5th → 25th | ANDI/FENALCO Boletín PDF (datos RUNT) — page listing, else the month's `/Uploads/` URL rebuilt (see [18](18-source-colombia.md)) | `Whole` — single combined Hybrid bucket | `latest_period(Colombia.csv) ≥ target` |
 | [`fetch-denmark.yml`](../../.github/workflows/fetch-denmark.yml) | 05:15 UTC, 1st → 15th | Statbank BIL53 (`api.statbank.dk`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` | per-variant diff vs CSV |
+| [`fetch-ecuador.yml`](../../.github/workflows/fetch-ecuador.yml) | 14:05 & 23:05 UTC, 1st → 14th | SRI open data «Vehículos Nuevos» (`descargas.sri.gob.ec` — one CSV per calendar year, every processing of an invoiced new vehicle; the current year regenerated early in the month, August 2026 on Sep 4) — each vehicle once at its first processing, powertrain from the catalogue description, cross-checked against AEADE's bulletin ([48](48-source-ecuador.md)) | `Whole` + `Vans` — one set of yearly files, both variants; combined Hybrid bucket | newest complete month (file regenerated after the month ended) already in every CSV → one HEAD, no download |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) + `market/finland_top.json` (Traficom `trafi2.stat.fi`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV; the top file alone never renders |
 | [`fetch-france.yml`](../../.github/workflows/fetch-france.yml) | 07:40 UTC, 18th → EOM | SDES motorisations série VP workbook (média link resolved from the landing page; [36](36-source-france.md)) | `Whole` | change-gated commit — no new row, no diff, no render |
 | [`fetch-germany.yml`](../../.github/workflows/fetch-germany.yml) | 06:00 UTC, 4th → 9th | KBA monthly press release (`…_merkmale.xlsx`) | `Whole` | previous month already in `data/Germany.csv` → early exit |
@@ -175,12 +176,13 @@ Notes on the schedule shape:
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
   slot starts on the 16th, so they never share a day), Argentina 09:15 & 21:15, Austria 09:25, Poland 09:30
   & 13:30, Indonesia 09:35, USA 10:30 (off the 10th's Brazil window), China
-  11:00, Peru 15:45 (Lima mid-morning), Paraguay 16:55 & 22:55 (1st–7th — the customs portal regenerates the month's files on the 1st, early afternoon in Asunción), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
+  11:00, Ecuador 14:05 & 23:05 (1st–14th, Quito 09:05 / 18:05 — SRI regenerated
+  August 2026 on the 4th at 17:33 Quito time; `:05` is otherwise unused), Peru 15:45 (Lima mid-morning), Paraguay 16:55 & 22:55 (1st–7th — the customs portal regenerates the month's files on the 1st, early afternoon in Asunción), Portugal 17:30 & 20:30 — the evening slots, because ACAP publishes
   from ~17:00 Lisbon on the 1st and DNRPA uploads in the Buenos Aires
   afternoon (~17:30 UTC).
 - **Day-1 starters** (Japan, Uruguay, China, Netherlands, Denmark, Finland,
-  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy, Portugal and Paraguay
-  from the 1st too) rely entirely on the self-throttle to keep the empty days free —
+  Sweden, Spain, Thailand, Luxembourg, Ukraine; Ireland, Italy, Portugal, Paraguay and
+  Ecuador from the 1st too) rely entirely on the self-throttle to keep the empty days free —
   they fire many times a month but only do real HTTP on the days the source
   publishes.
 - **Date-window starters** (Poland 6+, Argentina 8+, USA 10+, Indonesia 10+, Albania 10+,

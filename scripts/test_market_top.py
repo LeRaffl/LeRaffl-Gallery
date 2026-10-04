@@ -757,6 +757,34 @@ def test_italy_model_lists():
         pass
 
 
+def test_ecuador_top():
+    import fetch_ecuador as fe
+    header = ("CATEGORÍA;CÓDIGO DE VEHÍCULO;TIPO TRANSACCIÓN;MARCA;MODELO;PAÍS;AÑO MODELO;CLASE;"
+              "SUB CLASE;TIPO;AVALÚO;FECHA PROCESO (DD/MM/AAAA);TIPO SERVICIO;CILINDRAJE;"
+              "TIPO COMBUSTIBLE;FECHA COMPRA (DD/MM/AAAA);CANTÓN;COLOR 1;COLOR 2;"
+              "PERSONA NATURAL - JURÍDICA")
+
+    def r(code, make, model, cls, fuel, date="05/08/2026"):
+        return ";".join(["1", code, "COMPRA LOCAL", make, model, "CHINA POPULAR", "2026", cls,
+                         cls, "LIVIANO", "1", date, "PAR", "0", fuel, date, "QUITO", "BLA", "",
+                         "NATURAL"])
+    rows = [r("1", "BYD", "YUAN PRO GS AC 5P 4X2 TA EV", "JEEP", "ELECTRICO"),
+            r("2", "BYD", "YUAN PRO GS AC 5P 4X2 TA EV", "JEEP", "ELECTRICO", "06/08/2026"),
+            r("2", "BYD", "YUAN PRO GS AC 5P 4X2 TA EV", "JEEP", "ELECTRICO", "20/08/2026"),
+            r("3", "NISSAN", "X-TRAIL EPOWER EXCLUSIVE AC 5P 4X4 TA EV", "JEEP", "ELECTRICO"),
+            r("4", "SUZUKI", "FRONX ISG GLX AC 1.5 5P 4X2 TM HYBRID", "JEEP", "GASOLINA"),
+            r("5", "KIA", "SOLUTO AC 1.4 4P 4X2 TM", "AUTOMOVIL", "GASOLINA"),
+            r("6", "RIDDARA", "RD6 PRO AC CD 4X2 TA EV", "CAMIONETA", "ELECTRICO")]
+    yf = fe.YearFile.parse("\n".join([header] + rows), 2026)
+    top = fe.build_top(fe.count_years({2026: yf}, [2026]), "2026-08")
+    assert top["total_registrations"] == 5                  # Whole only, vehicle "2" once
+    assert list(top["classes"]) == ["BEV", "HEV"]
+    bev, hev = top["classes"]["BEV"], top["classes"]["HEV"]
+    assert bev["units"] == 2 and bev["models"][0]["model"] == "YUAN PRO"
+    assert {m["model"] for m in hev["models"]} == {"X-TRAIL", "FRONX"}   # e-POWER is a hybrid
+    assert not any(b["brand"] == "RIDDARA" for b in bev["brands"])       # a pickup: Vans
+
+
 if __name__ == "__main__":
     tests = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_")]
     for name, fn in tests:

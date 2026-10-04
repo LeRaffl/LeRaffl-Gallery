@@ -242,6 +242,20 @@ significant EV importer is outside it**).
 > share 13.4 % in 2025, 24 % in 2026 to September (BEV 2.4 % → 4.0 %). See
 > [47-source-paraguay.md](47-source-paraguay.md).
 
+## Built outside this list — 🇪🇨 Ecuador (2026-10)
+
+> **Status: BUILT (2026-10-04).** The SRI (tax authority) publishes its
+> register of new-vehicle invoices as free record-level open data
+> (`descargas.sri.gob.ec`, one CSV per year from 2017) — the register AEADE's
+> official monthly sales statistics are built from. Whole (cars + SUVs) and
+> Vans (pickups + vans) from 2018-01, each vehicle counted once at its first
+> processing; powertrain from SRI's catalogue description; one combined hybrid
+> figure (no PHEV split). Matches AEADE's annual market 2019–2024 within 0.2 %
+> and every monthly bulletin since 2024-05 within about 1 %. ≈ 80,000 new cars
+> and SUVs a year; BEV share 5.1 % in 2025, 11.5 % in January–August 2026
+> (August 18.9 %), hybrids another 27 %. See
+> [48-source-ecuador.md](48-source-ecuador.md).
+
 ## Investigated 2026-09 — large markets still missing
 
 The 2026-09 session set out to add the **largest** car market not yet on the
