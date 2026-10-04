@@ -1,11 +1,11 @@
 🇪🇨 Ecuador - August 26 - BEV Trajectory
 18.9% BEV
-29.2% Hybrid
-51.9% ICE
+7.1% PHEV (of which 0.4%p were EREV)
+74.0% ICE (of which 22.1%p were HEV)
 
 Trailing 12 months are:
 10.1% BEV
-25.3% Hybrid
-64.6% ICE
+5.0% PHEV (of which 0.3%p were EREV)
+84.9% ICE (of which 20.2%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
