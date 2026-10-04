@@ -1,0 +1,117 @@
+l UO/ | Umhvørvi og orka
+  l UO/UO01/ | Land
+  l UO/UO02/ | Veður
+  l UO/UO03/ | Orka
+  l UO/UO04/ | Umhvørvi
+l IB/ | Íbúgvar og val
+  l IB/IB01/ | Fólkatal
+  l IB/IB02/ | Fødd og deyð
+  l IB/IB03/ | Flyting
+  l IB/IB04/ | Vígslur og skilnaðir
+  l IB/IB05/ | Nøvn
+  l IB/IB06/ | Føðingardagar
+  l IB/IB07/ | Húski
+  l IB/IB08/ | Søgulig fólkatøl
+  l IB/IB09/ | Fólkatalsframrokning
+  l IB/IB10/ | Val
+l AM/ | Arbeiði og løn
+  l AM/AMK/ | Arbeiðsmegi, kanning
+  l AM/AMS/ | Arbeiðsmegi, skrádátur
+  l AM/LON/ | Løn (A-skattað), skrádátur
+l IP/ | Inntøkur og prísir
+  l IP/IP01/ | Inntøkubýti og fátækaváði
+  l IP/IP02/ | Brúkaraprístal
+  l IP/IP04/ | Bústaðir
+  l IP/endad/ | Endaðar talvur
+l UB/ | Útbúgving
+  l UB/UBS/ | Útbúgvingarstøða
+  l UB/NOL/ | Næmingar og lesandi
+  l UB/endad/ | Endaðar talvur
+l MM/ | Mentan og átrúnaður
+  l MM/MM01/ | Mentan
+  l MM/MM02/ | Ítrótt og skótar
+  l MM/MM03/ | Átrúnaður
+  l MM/FUV/ | Frítíðarundirvísing
+  l MM/endad/ | Endaðar talvur
+l AL/ | Almannamál
+  l AL/AL05/ | Heimloysi
+  l AL/endad/ | Endaðar talvur
+l HM/ | Heilsumál
+  l HM/HM01/ | Heilsuviðurskifti
+  l HM/HM02/ | Apotekvirksemi
+  l HM/HM03/ | Rúsdrekkasøla
+l RL/ | Rættur og løgregla
+  l RL/RL01/ | Føroya Rættur
+  l RL/RL02/ | Løgregla - endað
+  l RL/RL03/ | Tinglýsing
+l SS/ | Samferðsla og samskifti
+  l SS/SS01/ | Ferðandi og flutningur
+  l SS/SS02/ | Samskifti
+  l SS/SS03/ | Samferðsla
+l VV/ | Vinna og veiða
+  l VV/VV01/ | Fiskiveiða
+  l VV/VV02/ | Havbúnaður
+  l VV/VV03/ | Landbúnaður
+  l VV/VV04/ | Grind
+  l VV/VV05/ | Handil
+  l VV/VV06/ | Bygging
+  l VV/VV07/ | Gistingar
+  l VV/VV08/ | Tryggingar
+  l VV/VV09/ | Bjarging og eftirlit
+l UH/ | Uttanlandshandil
+  l UH/UH01/ | Uttanlandshandil við vørum
+  l UH/UH02/ | Uttanlandshandil við tænastum
+l VB/ | Vinnubúskapur
+  l VB/VB05/ | Roknskapartøl
+l PF/ | Peninga- og fíggjarviðurskifti
+  l PF/PF01/ | Inn- og útlán, javni o.a.
+l GMN/ | Gransking, menning og nýskapan
+  l GMN/GM/ | Gransking og menning
+  l GMN/NY/ | Nýskapan
+l LK/ | Lands- og kommunubúskapur
+  l LK/LK01/ | Almenn fyrisiting og tænasta
+  l LK/LK02/ | Kommunufíggjarmál
+  l LK/LK03/ | Skattir
+  l LK/LK04/ | Almennar íløgur
+l TB/ | Tjóðarbúskapur
+  l TB/TB02/ | Høvuðstøl í tjóðarroknskapi
+  l TB/TB03/ | Vinnugreinar í tjóðarroknskapi
+  l TB/TB04/ | Geirar í tjóðarroknskapi
+  l TB/TB01/ | Gjaldsjavni
+l KB/ | Konjunkturbarometrið
+  l KB/KB01/ | Samanvigaður ávísi
+  l KB/KB02/ | Brúkarar
+  l KB/KB03/ | Tilfeingis- og framleiðsluvinna
+  l KB/KB04/ | Byggivinnan
+  l KB/KB05/ | Handilsvinnan
+  l KB/KB06/ | Tænastuvinnan
+l MT/ | Manntal 2011
+  l MT/MT01/ | Fólkið 11.11.11
+  l MT/MT02/ | Húski
+  l MT/MT03/ | Familjur og børn
+  l MT/MT04/ | Býli
+  l MT/MT05/ | Útbúgving
+  l MT/MT06/ | Arbeiði
+  l MT/MT07/ | Heilsa og førleiki
+  l MT/MT08/ | Sosial viðurskifti
+  l MT/MT09/ | Frítíð og samskifti
+  l MT/MT10/ | Átrúnaður
+  l MT/MT11/ | Liviumstøður og inntøkur
+l SDG/ | Heimsmálini
+  l SDG/SDG01/ | Mál 1: Einki fátækadømi
+  l SDG/SDG02/ | Mál 2: Eingin hungur
+  l SDG/SDG03/ | Mál 3: Góð heilsa og vælferð
+  l SDG/SDG04/ | Mál 4: Dygdargóð útbúgving                               
+  l SDG/SDG05/ | Mál 5: Javnstøða millum kyn
+  l SDG/SDG06/ | Mál 6: Reint vatn og reinføri
+  l SDG/SDG07/ | Mál 7: Burðardygg orka
+  l SDG/SDG08/ | Mál 8: Sømiligt arbeiði og búskaparvøkstur
+  l SDG/SDG09/ | Mál 9: Vinna, nýskapan og undirstøðukervi
+  l SDG/SDG10/ | Mál 10: Minni ójavni
+  l SDG/SDG11/ | Mál 11: Burðardyggir býir og býlingar
+  l SDG/SDG12/ | Mál 12: Ábyrgdarfull nýtsla og framleiðsla
+  l SDG/SDG13/ | Mál 13: Veðurlagsátøk
+  l SDG/SDG14/ | Mál 14: Lív í havi
+  l SDG/SDG15/ | Mál 15: Lív á landi
+  l SDG/SDG16/ | Mál 16: Friður, rættvísi og sterkir stovnar
+  l SDG/SDG17/ | Mál 17: Samstarv um heimsmálini

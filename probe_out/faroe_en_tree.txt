@@ -1,0 +1,221 @@
+l UO/ | Environment and energy
+  l UO/UO01/ | Geography
+  l UO/UO02/ | Climate
+  l UO/UO03/ | Energy
+  l UO/UO04/ | Environment
+l IB/ | Population and elections
+
+  l IB/IB01/ | Population
+
+  l IB/IB02/ | Vital statistics
+
+    t IB/IB02/fd_fodeyd.px | IB02010 Live births and deaths by village/city and sex (1985-2025)
+    t IB/IB02/fd_ferttal.px | IB02020 Live births by mother's age (1985-2025)
+    t IB/IB02/fd_fertkv5.px | IB02030 Age specific fertility rates 5-year groups (1970-2025)
+    t IB/IB02/fd_fertkv1.px | IB02040 Age specific fertility rates 1-year groups (1985-2025) - discontinued
+    t IB/IB02/fd_livsavi.px | IB02050 Life expectancy by age and sex (1966/70-2024/2025)
+    t IB/IB02/fd_livsavi1.px | IB02052 Life expectancy by 1-year agegroups and sex (1985/86-2024/25)
+    t IB/IB02/fd_deydtal.px | IB02060 Number of deaths, by sex, age and month (1985-2025)
+    t IB/IB02/fd_deydkvot.px | IB02070 Mortality rate (per 1,000) by age and sex (1985-2025)
+    t IB/IB02/fd_deyor7.px | IB02080 Causes of death (7 main groups) by sex (1983-2024)
+    t IB/IB02/fd_deyor25.px | IB02090 Causes of death (25 groups) by sex and age (2007-2024)
+    t IB/IB02/fd_deyor107.px | IB02100 Causes of death (107 groups) by sex (2007-2024)
+  l IB/IB03/ | Migration
+
+  l IB/IB04/ | Marriages and divorces
+
+  l IB/IB05/ | Names
+
+  l IB/IB06/ | Birthdays
+  l IB/IB07/ | Households
+  l IB/IB08/ | Historical population
+  l IB/IB09/ | Population forecast
+  l IB/IB10/ | Elections
+
+    l IB/IB10/endad/ | endad
+    t IB/IB10/val_lvflok.px | IB10010 Elections for the Faroese Parliament by parties, votes and won seats (1978-2026)
+    t IB/IB10/val_fting.px | IB10040 Election for the Danish Parliament in Faroe Islands by region and party (1906-2026)
+l AM/ | Labour and wages
+
+  l AM/AMK/ | Labour force, survey 
+
+  l AM/AMS/ | Labour force, register data 
+
+    l AM/AMS/STF/ | Employees, register data
+
+      l AM/AMS/STF/endad/ | Discontinued tables
+
+      t AM/AMS/STF/stf_hov_md.px | STF01010 Employees and jobs by institutional sector, main activity, sex, value mode and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_bkng_md.px | STF01020 Employees and jobs by institutional sector, long-term residency, citizenship, sex and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_bknh_md.px | STF01021 Employees and jobs by main activity, long-term residency, citizenship, sex and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_oki_md.px | STF01025 Employees and jobs by institutional sector, main activity, employee's region of residence and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_kom_md.px | STF01026 Employees and jobs by institutional sector, main activity, employee's municipality of residence and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_ald_md.px | STF01030 Employees and jobs by institutional sector, age and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_aldb_vg_md.px | STF01031 Employees and jobs by institutional sector, main activity, age group and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_aldb_kyn_md.px | STF01032 Employees and jobs by institutional sector, age group, sex and month (1985M01-2026M08)
+      t AM/AMS/STF/stf_aett_md.px | STF01035 Employees and jobs by institutional sector, birth year and month (1985M01-2026M08)
+    l AM/AMS/ARL/ | Unemployment, register data
+
+      t AM/AMS/ARL/arl_pctkyn_t.px | ARL02011 Unemployment in number and pct. by sex (1995M01-2026M08)
+      t AM/AMS/ARL/arl_aldkysy_t.px | ARL02021 Unemployment by sex, age and region (1995M01-2026M08)
+      t AM/AMS/ARL/arl_aldtid_t.px | ARL02051 Duration of unemployment by age and sex (2016M01-2026M08)
+      t AM/AMS/ARL/arl_sytid_t.px | ARL02053 Duration of unemployment by region and sex (2016M01-2026M08)
+  l AM/LON/ | Wages (Pay as you earn), register data
+    l AM/LON/LON01/ | Expenditure
+    l AM/LON/LON02/ | Average
+    l AM/LON/LON03/ | Median and quantiles
+    l AM/LON/endad/ | Discontinued tables
+l IP/ | Prices and income
+
+  l IP/IP01/ | Income distibution and risk of poverty
+
+  l IP/IP02/ | Consumer price index
+
+  l IP/IP04/ | Residential properties
+
+  l IP/endad/ | Discontinued tables
+
+l UB/ | Education
+  l UB/UBS/ | Educational status
+  l UB/NOL/ | Pupils and students
+  l UB/endad/ | Discontinued tables
+l MM/ | Culture and religion
+  l MM/MM01/ | Culture
+  l MM/MM02/ | Sports and scouts
+  l MM/MM03/ | Religion
+  l MM/FUV/ | Leisure-time education
+  l MM/endad/ | Discontinued tables
+l AL/ | Social affairs
+
+  l AL/AL05/ | Homelessness
+
+  l AL/endad/ | Discontinued tables
+
+l HM/ | Health
+  l HM/HM01/ | Health affairs
+  l HM/HM02/ | Pharmacies
+  l HM/HM03/ | Alcohol
+l RL/ | Justice and police
+  l RL/RL01/ | The Faroese Court
+  l RL/RL02/ | The police - discontinued
+  l RL/RL03/ | Land registration
+    t RL/RL03/tinglys.px | RL03010 Cases at the registration (in the land register) (2004-2025)
+l SS/ | Transport and communication
+  l SS/SS01/ | Travellers and freight
+  l SS/SS02/ | Telecommunication
+    t SS/SS02/tele_felagar.px | SS02010 Telephone subscribers (1990-2023)
+    t SS/SS02/tele_fjarsk.px | SS02020 Telecommunications by type and traffic (2003-2023)
+    t SS/SS02/tele_post.px | SS02030 Postal activities under universal service obligation (2006-2025)
+  l SS/SS03/ | Road traffic
+l VV/ | Ecomomic activities
+
+  l VV/VV01/ | Fishery
+
+  l VV/VV02/ | Aquaculture
+
+  l VV/VV03/ | Agriculture
+
+  l VV/VV04/ | Whale hunts
+
+  l VV/VV05/ | Retail
+
+  l VV/VV06/ | Construction
+
+  l VV/VV07/ | Accomodation
+
+  l VV/VV08/ | Insurance
+
+  l VV/VV09/ | Inspection and rescue
+
+l UH/ | International trade
+
+  l UH/UH01/ | International trade in goods
+  l UH/UH02/ | International trade in services
+
+l VB/ | Business statistics
+
+  l VB/VB05/ | Annual account statistics
+    t VB/VB05/vb_nace_utg.px | VB05010 Annual account statistics by accounts/key figures and NACE-classification (1998-2024)
+l PF/ | Money and credit market
+
+  l PF/PF01/ | Loans, deposits, balance etc.
+
+l GMN/ | Research, development and innovation
+
+  l GMN/GM/ | Research and development
+  l GMN/NY/ | Innovation
+l LK/ | Public finance
+
+  l LK/LK01/ | Public administration and service
+
+  l LK/LK02/ | Finance of municipalities
+
+  l LK/LK03/ | Tax
+
+  l LK/LK04/ | Public investments
+
+l TB/ | National accounts
+
+  l TB/TB02/ | Main figures
+  l TB/TB03/ | Branches
+  l TB/TB04/ | Sectors
+  l TB/TB01/ | Balance of payments
+l KB/ | Tendency surveys
+
+  l KB/KB01/ | Economic sentiment indicator
+
+  l KB/KB02/ | Consumers
+
+  l KB/KB03/ | Natural resources and industry
+  l KB/KB04/ | Construction
+
+  l KB/KB05/ | Retail trade
+
+  l KB/KB06/ | Services
+
+l MT/ | Census 2011
+
+  l MT/MT01/ | Population 11.11.11
+  l MT/MT02/ | Households
+  l MT/MT03/ | Families and children
+  l MT/MT04/ | Dwellings
+  l MT/MT05/ | Education
+  l MT/MT06/ | Employment
+  l MT/MT07/ | Health issues
+  l MT/MT08/ | Social affairs
+  l MT/MT09/ | Recreation and communication
+  l MT/MT10/ | Religion
+  l MT/MT11/ | Livelihood and income
+l SDG/ | Sustainable Development Goals
+
+  l SDG/SDG01/ | Goal 1: No poverty
+
+  l SDG/SDG02/ | Goal 2: Zero hunger
+  l SDG/SDG03/ | Goal 3: Good Health and Well-Being
+
+  l SDG/SDG04/ | Goal 4: Quality education
+
+  l SDG/SDG05/ | Goal 5: Gender equality
+
+  l SDG/SDG06/ | Goal 6: Clean water and sanitation
+
+  l SDG/SDG07/ | Goal 7: Affordable and clean energy
+
+  l SDG/SDG08/ | Goal 8: Decent work and economic growth
+
+  l SDG/SDG09/ | Goal 9: Industry, innovation and infrastructure
+
+  l SDG/SDG10/ | Goal 10: Reduced inequalities
+
+  l SDG/SDG11/ | Goal 11: Sustainable cities and communities
+
+  l SDG/SDG12/ | Goal 12: Sustainable cities and communities
+
+  l SDG/SDG13/ | Goal 13: Climate action
+  l SDG/SDG14/ | Goal 14: Life below water
+
+  l SDG/SDG15/ | Goal 15: Life on land
+
+  l SDG/SDG16/ | Goal 16: Peace, justice, and strong institutions
+
+  l SDG/SDG17/ | Goal 17: Partnerships for the goals

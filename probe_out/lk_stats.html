@@ -1,0 +1,3664 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- reqest for https access for all links in website -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+
+
+  <title>Department of Census and Statistics</title>
+
+
+  <link rel="icon" href="https://www.statistics.gov.lk/img/Sri-Lanka_Emblem.jpg" type="image/jpg">
+
+
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/assets/assets_new/css/main.css">
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/assets/assets_new/css/style.css">
+
+  <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/assets/assets_new/css/main.css">
+  <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.0/css/all.css' integrity='sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ' crossorigin='anonymous'>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/External_code/header.css">
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/External_code/mainarea.css">
+  <!----aDDITIONAL--->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+  <!----aDDITIONAL--->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://www.statistics.gov.lk/dcscssjs/content_css/articles.css">
+
+
+  <style>
+   p.dcs_font{
+    font-family: Arial;
+    font-size: 14px;
+    color:white;
+    font-weight: 700;
+   }
+   h3.dcs_font{
+    font-family: sans-serif;
+   }
+   h4.dcs_font{
+    font-family: sans-serif;
+   }
+  a.dcs_font{
+    font-family: sans-serif;
+   }
+  </style>
+
+  <script>
+    function getPageList(totalPages, page, maxLength) {
+      if (maxLength < 5) throw "maxLength must be at least 5";
+
+      function range(start, end) {
+        return Array.from(Array(end - start + 1), (_, i) => i + start);
+      }
+
+      var sideWidth = maxLength < 9 ? 1 : 2;
+      var leftWidth = (maxLength - sideWidth * 2 - 3) >> 1;
+      var rightWidth = (maxLength - sideWidth * 2 - 2) >> 1;
+      if (totalPages <= maxLength) {
+    // no breaks in list
+    return range(1, totalPages);
+  }
+  if (page <= maxLength - sideWidth - 1 - rightWidth) {
+    // no break on left of page
+    return range(1, maxLength - sideWidth - 1)
+    .concat([0])
+    .concat(range(totalPages - sideWidth + 1, totalPages));
+  }
+  if (page >= totalPages - sideWidth - 1 - rightWidth) {
+    // no break on right of page
+    return range(1, sideWidth)
+    .concat([0])
+    .concat(
+      range(totalPages - sideWidth - 1 - rightWidth - leftWidth, totalPages)
+      );
+  }
+  // Breaks on both sides
+  return range(1, sideWidth)
+  .concat([0])
+  .concat(range(page - leftWidth, page + rightWidth))
+  .concat([0])
+  .concat(range(totalPages - sideWidth + 1, totalPages));
+  }
+
+  $(function() {
+  // Number of items and limits the number of items per page
+  var numberOfItems = $("#jar .content").length;
+  var limitPerPage = 10;
+
+  // Total pages rounded upwards
+  var totalPages = Math.ceil(numberOfItems / limitPerPage);
+  // Number of buttons at the top, not counting prev/next,
+  // but including the dotted buttons.
+  // Must be at least 5:
+  var paginationSize = 10;
+
+
+
+  var currentPage;
+
+  function showPage(whichPage) {
+    if (whichPage < 1 || whichPage > totalPages) return false;
+    currentPage = whichPage;
+    $("#jar .content")
+    .hide()
+    .slice((currentPage - 1) * limitPerPage, currentPage * limitPerPage)
+    .show();
+    // Replace the navigation items (not prev/next):
+    $(".pagination li").slice(1, -1).remove();
+    getPageList(totalPages, currentPage, paginationSize).forEach(item => {
+      $("<li>")
+      .addClass(
+        "page-item " +
+        (item ? "current-page " : "") +
+        (item === currentPage ? "active " : "")
+        )
+      .append(
+        $("<a>")
+        .addClass("page-link")
+        .attr({
+          href: "javascript:void(0)"
+        })
+        .text(item || "...")
+        )
+      .insertBefore("#next-page");
+    });
+    return true;
+  }
+
+  // Include the prev/next buttons:
+  $(".pagination").append(
+    $("<li>").addClass("page-item").attr({ id: "previous-page" }).append(
+      $("<a>")
+      .addClass("page-link")
+      .attr({
+        href: "javascript:void(0)"
+      })
+      .text("Prev")
+      ),
+    $("<li>").addClass("page-item").attr({ id: "next-page" }).append(
+      $("<a>")
+      .addClass("page-link")
+      .attr({
+        href: "javascript:void(0)"
+      })
+      .text("Next")
+      )
+    );
+  // Show the page links
+  $("#jar").show();
+  showPage(1);
+
+  // Use event delegation, as these items are recreated later
+  $(
+    document
+    ).on("click", ".pagination li.current-page:not(.active)", function() {
+      return showPage(+$(this).text());
+    });
+    $("#next-page").on("click", function() {
+      return showPage(currentPage + 1);
+    });
+
+    $("#previous-page").on("click", function() {
+      return showPage(currentPage - 1);
+    });
+    $(".pagination").on("click", function() {
+      $("html,body").animate({ scrollTop: 0 }, 0);
+    });
+  });
+  </script>
+
+
+  <link rel="me"
+  href="https://twitter.com/twitterdev"
+  >
+
+
+
+
+                             <!--<div class="gcse-search"></div>-->
+
+                            <script>
+
+                              $(document).ready(function(){
+                                $('.nav-link').click(function() {
+                                  $('.nav-link').removeClass('activetab');
+                                  $(this).addClass('activetab');
+                                });
+
+                                $(document).mouseup(function(e) 
+                                {
+                                  var container = $('.nav-link');
+
+    // if the target of the click isn't the container nor a descendant of the container
+    if (!container.is(e.target) && container.has(e.target).length === 0) 
+    {
+      $('.nav-link').removeClass('activetab');
+    }
+  });
+
+                              });
+
+
+                            </script>
+                            <script>
+                              $(document).ready(function() {
+                                $('.lnv').click(function() {
+                                  var x = this.id;
+
+                                  if(x === "latest_release"){
+
+                                    $('html,body').animate({
+                                      scrollTop: $("#sector1").offset().top},
+                                      'fast');
+
+                                    $("#sector1List li a").removeClass( "active" );
+                                    $("#sector1List li a:eq(1)").addClass( "active" );
+
+                                    $("#sectorContent1 div").removeClass("show");
+                                    $("#sectorContent1 div").removeClass("active");
+                                    $("#sectorContent1 div:nth-child(2)").addClass("show");
+                                    $("#sectorContent1 div:nth-child(2)").addClass("active");
+
+                                  }
+
+                                  if(x === "Visualising_Data"){
+
+
+                                    $('html,body').animate({
+                                      scrollTop: $("#sector1").offset().top},
+                                      'fast');
+
+                                    $("#sector1List li a").removeClass( "active" );
+                                    $("#sector1List li a:eq(2)").addClass( "active" );
+
+                                    $("#sectorContent1 div").removeClass("show");
+                                    $("#sectorContent1 div").removeClass("active");
+                                    $("#sectorContent1 div:nth-child(3)").addClass("show");
+                                    $("#sectorContent1 div:nth-child(3)").addClass("active");
+
+                                  } 
+
+                                });
+                              });
+                            </script>
+
+                          </head>
+                          <header>
+
+                            <!--social Media-->
+
+                            <div class="myDialog m-0 p-0" style="border:solid 0px grey;display:none">
+
+                								<div class="m-0 p-0"><a class="" style="background-color: #121481;padding:
+                								8px;color: white;width:35px;height:40px;text-align: center;border-bottom:solid 1px white;" href="https://www.facebook.com/DCS.SriLanka/" role="button" ><i class="fab fa-facebook-f"></i
+                                              ></a></div> 
+                							  <div class="m-0 p-0"><!-- Twitter --> <a class="" style="background-color: #121481;padding:
+                                              8px;color: white;width:35px;height:40px;text-align: center;border-bottom:solid 1px white;" href="#" role="button" >
+                                              <i class="fab fa-instagram"></i></a></div> 
+                							  <div class="m-0 p-"><a class="" style="background-color: #121481;padding:
+                                              8px;color: white;width:35px;height:40px;text-align: center;border-bottom:solid 1px white;" href="https://www.youtube.com/channel/UC1W0CzCyn-Sf9FQryy24W0A" role="button" ><i
+                                              class="fab fa-youtube"></i ></a></div> 
+                							  <div class="m-0 p-"><a class="" style="background-color: #121481;padding:
+                                              8px;color: white;width:35px;height:40px;text-align: center;border-bottom:solid 1px white;" href="#" role="button" ><i class="fab fa-linkedin-in"></i></a></div>
+                							  </div>
+
+                                <!--social Media End-->
+  							  
+  							 
+
+                                
+  							  
+  							  
+  							  
+                                <!--Top Head Line-->
+                                  <div  class="topheaderBanner" style="background-color: #121481;">
+                                    <div class="container-fluid">
+                                      <div class="row">
+                                        <div class="col-sm-6  d-flex align-items-center">
+                                            <img src="https://www.statistics.gov.lk/img/flag_icon.png" class="img-responsive">
+                                             <font color="white" size="1"> &nbsp;An official website of the Government of Sri Lanka</font>
+                                        </div>
+										          <div class="col-sm-6 d-flex flex-row-reverse bd-highlight">
+
+                                                                        <form action="https://www.statistics.gov.lk/lang" method="POST">
+                                                          <div class="btn-group" role="group" aria-label="Basic example">
+                                                            
+                                                  <button type="Submit" name="lan_button" value="si" class="btn btn-outline-primary btn-sm ">Sinhala</button>
+                                                  <button type="Submit" name="lan_button" value="ta" class="btn btn-outline-primary btn-sm">Tamil</button>
+                                                  <button type="Submit" name="lan_button" value="en" class="btn btn-outline-primary btn-sm active">English</button>
+
+                                                </div>
+                                                </form>
+                                                </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!--Top Head Line End-->
+  							  
+  							  
+  							  
+  							  
+
+  							  
+                                <!--Banner-->
+                               
+                                       
+  							
+                                <div style="box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);">
+                                          <nav class="navbar navbar-expand-lg mb-1 pb-1 navbar-light bg-light">
+  										
+  									
+
+  										
+                                            <div class="container-fluid collapse navbar-collapse"  id="navbarText">
+
+
+                                              <div class="col col-sm-4 p-0 m-0"><a href="https://www.statistics.gov.lk/">
+                                                <img src="https://www.statistics.gov.lk/img/banner_new.png" class="" alt="logo photo" style=""></a>
+                                              </div>
+
+                                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                                                <span class="navbar-toggler-icon"></span>
+                                              </button>
+  											<!--<button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#MainNavbar"
+                  aria-controls="MainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+              <i class="fas fa-bars"></i>
+          </button>-->
+  											
+  											
+        <div class="col col-sm-8 p-0 m-0 collapse navbar-collapse justify-content-end" id="navbarNavDropdown" style="">
+  										 
+                    <ul class="navbar-nav bottom-0 start-0" style="">
+  						<li class="nav-item" style="">
+                         <a class="nav-link thick latest_news" href="https://www.statistics.gov.lk/" id="mega1" role="button" style="white-space: nowrap;text-align: center;">
+                        <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+                            </a>
+  				  	 </li>
+                                                  <li class="nav-item pb-0" style="">
+                                                    <a class="nav-link thick latest_news pb-0" href="#" id="mega1" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                     What's New
+                                                   </a>
+                                                   <div class="dropdown-menu megaarea" aria-labelledby="mega1" style="">
+                                                    <div class="container-fluid">
+                                                      <div class="row">
+                                                        <div class="col-sm-3">
+                                                          <div class="vl d-flex justify-content-center">
+                                                            <img src="https://www.statistics.gov.lk/assets/img/Menu/Whats.jpg" class="img-thumbnail">
+                                                          </div>
+                                                        </div>
+                                                        <div class="col-sm-9">
+                                                          <div class="container-fluid">
+                                                            <div class="row">
+                                                              <ul class="row list-inline list-unstyled">
+                                                               <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                <ul class="list-group list-group-flush list-unstyled" style="">
+                                                                  <li class="p-1" style="">
+                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/Blog/Blog_details"><h6>Latest News</h6></a></li>
+  																  <li class="p-1">
+  																  
+  																  <!-- <a id="Blog" class="text-decoration-none lnv" href="javascript:void(0);" onclick="func(0)"><h6>Latest News</h6></a></li><li class="p-1">-->
+                                                                      <a id="latest_release" class="text-decoration-none lnv" href="javascript:void(0);" onclick="func(0)"><h6>Latest Reports & Bulletins</h6></a></li>
+  																	<li class="p-1">
+  																	<a class="text-decoration-none" href="https://www.statistics.gov.lk/qlink/pressrelease"><h6>Press Releases</h6></a></li>
+  																	<li class="p-1">
+  																	<a class="text-decoration-none" href="https://www.statistics.gov.lk/Gallery/NewsGallery"><h6>Events</h6></a></li>
+  																	<!--<li class="p-1">
+  																	<a class="text-decoration-none" href="https://www.statistics.gov.lk/qlink/ADRCalender"><h6>Advance Data Release Calendar - 2022</h6></a></li>-->
+  																	<!--<a class="text-decoration-none" href="https://www.statistics.gov.lk/qlink/releases"><h6>Upcoming Releases</h6></a></li>-->
+                                                                        <!--<a id="Visualising_Data" class="text-decoration-none lnv"  href="javascript:void(0);" onclick="func(0)"><h6>Visualising Data</h6></a></li>--><li class="p-1">
+                                                                       <a class="text-decoration-none" href="https://www.statistics.gov.lk/qlink/ADRCalender"><h6>Advance Data Release Calendar</h6></a></li>
+                                                                            
+                                                                          </li>
+                                                                        </ul>
+
+                                                                      </li><li class="col col-12 col-lg-6 list-inline-item m-0"><ul class="list-unstyled">
+                                                                        <li class="p-1">
+                                                                          <!--<a class="text-decoration-none" href="https://www.statistics.gov.lk/image_gallery"><h6>Photos</h6></a></li><li class="p-1">
+                                                                            <a class="text-decoration-none" href="https://www.statistics.gov.lk/Gallery/VideoGallery"><h6>Videos</h6></a></li><li class="p-1">
+                                                                              <a class="text-decoration-none" href="https://www.statistics.gov.lk/Notice/Procurement"><h6>Procuments</h6></a></li><li class="p-1">
+                                                                                <a class="text-decoration-none" href="https://www.statistics.gov.lk/Notice/Recruitment"><h6>Recruitments</h6></a></li>-->
+                                                                              </ul></li></ul>
+                                                                            </div>
+                                                                          </div>
+                                                                        </div>
+                                                                      </div>
+
+                                                                    </div>
+                                                                  </div>
+                                                                </li>
+                                                               
+                                                                <!--<li class="nav-item">
+                                                                  <a class="nav-link  thick latest_news" href="#" id="mega4" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                   Census
+                                                                 </a>
+                                                                 <div class="dropdown-menu megaarea" aria-labelledby="mega4" style="">
+                                                                  <div class="container-fluid">
+                                                                    <div class="row">
+                                                                      <div class="col-sm-3">
+                                                                        <img src="https://www.statistics.gov.lk/assets/img/Menu/Census.jpg" class="img-thumbnail" width="250px">
+                                                                      </div>
+                                                                      <div class="col-sm-9">
+                                                                        <div class="container-fluid">
+                                                                          <div class="row row-cols-12 p-3">
+                                                                            <ul class="row list-inline">
+                                                                             <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                              <ul class="list-unstyled">
+                                                                                <li class="p-1">
+                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/"><h6>Population 2023</h6></a></li><li class="p-1">
+                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/PopHouSat/CPH2011/index.php"><h6>Population 2012</h6></a></li><li class="p-1">
+                                                                                      <a class="text-decoration-none" href="https://www.statistics.gov.lk/Economic/Economic%20Census.html"><h6>Economic 2014</h6></a></li>
+                                                                                      <li class=" p-1">
+                                                                                        <a class="text-decoration-none" href="https://www.statistics.gov.lk/Other_CensusandSurveys"><h6>Other Census</h6></a></li>
+                                                                                        <li class="p-1"></li>
+
+                                                                                      </ul></li></ul>
+                                                                                    </div>
+                                                                                  </div>
+                                                                                </div>
+
+                                                                              </div>
+                                                                            </div>
+                                                                          </div>
+                                                                        </li>-->
+                                                                       <!-- <li class="nav-item">
+                                                                          <a class="nav-link thick latest_news" href="#" id="mega2" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                           Survey Programs
+                                                                         </a>
+                                                                         <div class="dropdown-menu megaarea" aria-labelledby="mega2" style="">
+                                                                          <div class="container-fluid">
+                                                                            <div class="row">
+                                                                              <div class="col-sm-3">
+                                                                                <img src="https://www.statistics.gov.lk/assets/img/Menu/Surveys.jpg" class="img-thumbnail" width="250px">
+                                                                              </div>
+                                                                              <div class="col-sm-9">
+                                                                                <div class="container-fluid">
+                                                                                  <div class="row row-cols-12 p-10">
+
+                                                                                   <ul class="row list-inline">
+                                                                                     <li class="col col-12 col-lg-12 list-inline-item m-0">
+                                                                                      <ul class="list-unstyled">
+  																					
+                                                                                        <li class="p-1">
+
+                                                                                          <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/Health/StaticalInformation"><h6>Demographic and Health Survey 2016</h6></a></h6></li><li class="p-1">
+                                                                                            <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASI"><h6>Annual Survey of Industries</h6></a></h6></li><li class="p-1">
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/Other_CensusandSurveys"><h6>Other Surveys</h6></a> </h6>   </li>
+
+                                                                                              <li class="p-1"></li></ul></li></ul>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+
+                                                                                    </div>
+                                                                                  </div>
+                                                                                </li>-->
+  																			  
+  																			  
+  																			  
+  																			  
+  																			  
+  																			  
+  																			  
+
+  																			  
+  																			  <li class="nav-item  pb-0">
+                                                                          <a class="nav-link thick latest_news pb-0" href="#" id="mega2" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                           Data Visualisation
+                                                                         </a>
+                                                                         <div class="dropdown-menu megaarea" aria-labelledby="mega2" style="">
+                                                                          <div class="container-fluid">
+                                                                            <div class="row">
+                                                                              <div class="col-sm-3">
+                                                                                <img src="https://www.statistics.gov.lk/assets/img/Menu/Visualization.jpg" class="img-thumbnail" width="250px">
+                                                                              </div>
+                                                                              <div class="col-sm-9">
+                                                                                <div class="container-fluid">
+                                                                                  <div class="row row-cols-12 p-10">
+
+                                                                                   <ul class="row list-inline">
+                                                                                     <li class="col col-12 col-lg-12 list-inline-item m-0">
+                                                                                      <ul class="list-unstyled">
+                                                                                      
+
+																				<li class="p-1"> 
+                                                                                           
+  			<h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/DashBoard/censusdashV1/"><h6> Census DashBoard</h6></a></h6></li>
+
+
+																					  
+																					   <li class="p-1">
+  																						<h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/DashBoard/srilanka_glance/"><h6>Sri Lanka at a Glance</h6></a></h6></li>
+																						
+																						<li class="p-1"> 
+                                                                                          <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/DashBoard/EIP/"><h6>Macroeconomic Indicators</h6></a></h6></li>
+																						  
+																						  <li class="p-1">
+                                                                                           <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/DashBoard/Prices/"><h6>Weekly Retail Prices</h6></a></h6></li>
+																						   
+																						   <li class="p-1"> 
+                                                                                           
+  																						 <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/DashBoard/IIP/"><h6>Index of Industrial Production</h6></a></h6></li>
+																						 
+																						 <li class="p-1">
+  																						 
+                                                                                              <li class="p-1"></li></ul></li></ul>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+
+                                                                                    </div>
+                                                                                  </div>
+                                                                                </li>
+  																			  
+  																			  
+  																			  
+  																			  
+  																			 <!--<li class="nav-item">
+                                                                          <a class="nav-link thick latest_news" href="#" id="mega2" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                           Surveys/Programs
+                                                                         </a>
+                                                                         <div class="dropdown-menu megaarea" aria-labelledby="mega2" style="">
+                                                                          <div class="container-fluid">
+                                                                            <div class="row">
+                                                                              <div class="col-sm-3">
+                                                                                <img src="https://www.statistics.gov.lk/assets/img/Menu/Surveys.jpg" class="img-thumbnail" width="250px">
+                                                                              </div>
+                                                                              <div class="col-sm-9">
+                                                                                <div class="container-fluid">
+                                                                                  <div class="row row-cols-12 p-10">
+
+                                                                                   <ul class="row list-inline">
+                                                                                             <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                              <ul class="list-unstyled">
+
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/"><h6>Population Census 2023</h6></a>
+                                                                                                </li>
+                                                                                               <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/PopHouSat/CPH2011/index.php"><h6>Population Census 2012</h6></a>
+                                                                                                </li>
+                                                                                                <li  class="">
+                                                                                                 <a class="text-decoration-none" href="https://www.statistics.gov.lk/Economic/Economic%20Census.html"><h6>Economic Census 2014</h6></a>
+                                                                                                </li>
+  																							  
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/Other_CensusandSurveys"><h6>Other Census</h6></a>
+                                                                                                </li>
+  																							  
+  																							   <li class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASI"><h6>Annual Survey of Industries</h6></a></li>
+                                                                                                    <li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/OtherCensusandSurveys/StaticalInformation"><h6>Other Census & Surveys</h6></a> 
+                                                                                                  </li>
+                                                                                                
+                                                                                              </ul></li><li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                                  <ul class="list-unstyled">
+                                                                                                      <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/Health/StaticalInformation"><h6>Demographic and Health Survey 2016</h6></a>
+                                                                                                </li>
+                                                                                                <li class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASI"><h6>Annual Survey of Industries</h6></a></li>
+                                                                                                    <li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/OtherCensusandSurveys/StaticalInformation"><h6>Other Census & Surveys</h6></a> 
+                                                                                                  </li>
+                                                                                                  
+                                                                                                  </ul>
+                                                                                                </li></ul>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+
+                                                                                    </div>
+                                                                                  </div>
+                                                                                </li> -->
+  																			  
+  																			  
+  																			 <li class="nav-item">
+                                                                                    <a class="nav-link thick latest_news" href="#" id="mega4" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                                     Censuses/Surveys
+                                                                                   </a>
+                                                                                   <div class="dropdown-menu megaarea" aria-labelledby="mega4" style="">
+                                                                                    <div class="container-fluid">
+                                                                                      <div class="row">
+                                                                                        <div class="col-sm-3">
+                                                                                         <img src="https://www.statistics.gov.lk/assets/img/Menu/Surveys.jpg" class="img-thumbnail" width="250px">
+                                                                                        </div>
+                                                                                        <div class="col-sm-9">
+                                                                                          <div class="container-fluid">
+                                                                                            <div class="row row-cols-12 p-3">
+
+
+
+                                                                                             <ul class="row list-inline">
+                                                                                               <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                                <ul class="list-unstyled"><b><a href="https://www.statistics.gov.lk/Censuses">Censuses</a></b>
+  																								<ul class="list-unstyled">
+                                                                                                  <li><a href="https://www.statistics.gov.lk/Censuses" class="text-decoration-none"><h6>Census of Population and Housing 2024</h6></a></li>
+                                                                                                  <li><a href="http://www.statistics.gov.lk/Economic/Economic%20Census.html" class="text-decoration-none"><h6>Economic Census (Agricultural activities)</h6></a></li>
+  																								<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/CensusIndustry"><h6>Economic Census (Non-agricultural activities)</h6></a></li>                                                                                               
+                                                                                                  <li><a href="https://www.statistics.gov.lk/PublicEmployment/StaticalInformation/CensusReports" class="text-decoration-none"><h6>Census of Public and Semi Government Sector Employment</h6></a></li>
+                                                                                                  <li><a href="https://www.statistics.gov.lk/Censuses" class="text-decoration-none"><h6>Other ad-hoc censuses</h6></a></li>
+                                                                                                </ul>
+  																							  </ul>
+
+                                                                                              </li> 
+                                                                                              
+                                                                                              <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                                <ul class="list-unstyled"><a href="https://www.statistics.gov.lk/Surveys"><b>Surveys</b></a>
+  																								 <ul>
+  					
+  																									<li> <b><a href="https://www.statistics.gov.lk/Surveys/Household_Surveys">Household Surveys</a></b>
+  																										<ul class="list-unstyled">
+  																											<li> <a href="https://www.statistics.gov.lk/LabourForce/StaticalInformation/AnnualReports">Labour Force Survey</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/IncomeAndExpenditure/StaticalInformation">Household Income and Expenditure Survey</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Health/StaticalInformation">Demographic and Health Survey</a></li>							
+  																										</ul>					
+  																									</li>
+  																									
+  																									<li><b><a href="https://www.statistics.gov.lk/Surveys/Establishment_Surveys">Establishment Surveys</a></b>
+  																										<ul class="list-unstyled">
+  																											<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASI">Annual Survey of Industries </a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASS">Annual Survey of Services</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/AST">Annual Trade Survey</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASCI">Annual Survey of Construction Industries</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Industry/StaticalInformation/OngoingSurveyDocuments/ASFS">Annual Survey on Financial Services</a></li>							
+  																										</ul>					
+  																									</li>
+  																									
+  																									<li><b><a href="https://www.statistics.gov.lk/Surveys/Agriculture_Surveys_Programs">Agriculture Surveys/Programs</a></b>
+  																										<ul class="list-unstyled">
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/rubpaddy">Paddy Crop Cutting Survey </a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/HighlandCrops">Highland Crop Statistics</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/LivestockStatistics">Livestock Statistics</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/FoodBalanceSheet">Food Balance Sheet</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/rubb11">Volume Index on Agricultural Production</a></li>
+  																											<li> <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/CostOfProduction">Cost of Production of Tea/Rubber/Coconut</a></li>							
+  																										</ul>					
+  																									</li>
+  																									<li> <b><a href="https://www.statistics.gov.lk/Surveys/Other_adhoc_Surveys">Other ad-hoc Surveys</a></b></li>
+  																									</ul>
+  																							  </ul>
+
+                                                                                              </li> 
+
+                                                                                            </ul>  
+
+
+                                                                                           
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                    </div>
+
+                                                                                  </div>
+                                                                                </div>
+                                                                              </li>  
+  																			  
+  																			  
+  																			   <li class="nav-item">
+                                                                   <a class="nav-link  thick latest_news" aria-current="page" href="https://www.statistics.gov.lk/Publication/newPage" style="white-space: nowrap;text-align: center;">Publications</a>
+                                                                </li>
+  															  
+  																			  
+                                                                                <li class="nav-item">
+                                                                                  <a class="nav-link thick latest_news" href="#" id="mega4" role="button" data-bs-toggle="dropdown" aria-expanded="false"  style="white-space: nowrap;text-align: center;">
+                                                                                   Information
+                                                                                 </a>
+                                                                                 <div class="dropdown-menu megaarea" aria-labelledby="mega4" style="">
+                                                                                  <div class="container-fluid">
+                                                                                    <div class="row">
+                                                                                      <div class="col-sm-3">
+                                                                                        <img src="https://www.statistics.gov.lk/assets/img/Menu/Information.jpg" class="img-thumbnail" width="250px">
+                                                                                      </div>
+                                                                                      <div class="col-sm-9">
+                                                                                        <div class="container-fluid">
+                                                                                          <div class="row row-cols-12 p-3">
+
+                                                                                            <ul class="row list-inline">
+                                                                                             <li class="col col-12 col-lg-4 list-inline-item m-0">
+                                                                                              <ul class="list-unstyled">
+
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/HandbookDictionary"><h6>District Statistical Handbook</h6></a>
+                                                                                                </li>
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/qlink/AdminDivCode"><h6>Administrative Division Codes</h6></a>
+                                                                                                </li>
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/GNbyDistrict"><h6>Grama Niladhari Divisions</h6></a>
+                                                                                                </li>
+                                                                                                <li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/Map_Admin_District"><h6>Map of Administrative Districts</h6></a>
+                                                                                                </li>
+                                                                                                
+                                                                                               <!--<li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/CircuitBungalows"><h6>Circuit Bungalows</h6></a>
+                                                                                                </li>-->
+                                                                      
+                                                                                                
+                                                                                                </ul>
+  																							  
+  																							  </li>
+  																							  
+  																							  
+  																							  
+  																							  <li class="col col-12 col-lg-4 list-inline-item m-0">
+                                                                                              <ul class="list-unstyled">
+                                                                                                   <li  class="">
+                                                                                                 <h6>Classification of Industry</h6>
+                                                                                                 <ul>
+                                                                                                    
+                                                                                                    
+                                                                                                    <li><a href="https://www.statistics.gov.lk/ref/classiIndustry">SLSIC (Revision 4) </a></li>
+                                                                                                 
+  																									<li><a href="https://www.statistics.gov.lk/ref/classiOccupation-2008">SLSCO - 2008</a></li>
+                                                                                                  
+                                                                                                  </ul>
+                                                                                                  </a>
+                                                                                                </li>
+                                                                                                 
+                                                                                                <!--<li class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/about_us/righttoinformation"><h6>Right to Information Act</h6></a></li>-->
+  																								<li class=""><a href="https://www.statistics.gov.lk/Notice/Questionaire" class="text-decoration-none"><h6>Questionaires</h6></a></li>
+                                                                                                    <li  class="mt-1">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/FAQ"><h6>FAQs</h6></a>
+                                                                                                  </li>
+                                                                                                  <!--
+                                                                                                  </ul>
+  																							  
+  																							  </li>
+  																							  
+  																							  
+  																							  
+  																							  
+  																							  
+  																							  
+  																							  
+  																							  
+  																							  <li class="col col-12 col-lg-4 list-inline-item m-0">
+                                                                                                  <ul class="list-unstyled">
+                                                                                                      <!--<li  class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/classiOccupation-2008"><h6>treasury.gov.lk </h6></a>
+                                                                                                </li>
+                                                                                                <li class="">
+                                                                                                  <a class="text-decoration-none" href="https://www.statistics.gov.lk/about_us/righttoinformation"><h6>cbsl.gov.lk </h6></a></li>
+                                                                                                    <li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/FAQ"><h6>unescap.org</h6></a>
+                                                                                                  </li>
+  																								<li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/FAQ"><h6>unsiap.or.jp</h6></a>
+                                                                                                  </li>
+  																								<li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/FAQ"><h6> unstat.gov.lk</h6></a>
+                                                                                                  </li>
+  																								<li  class="">
+                                                                                                    <a class="text-decoration-none" href="https://www.statistics.gov.lk/FAQ"><h6>data.un.org</h6></a>
+                                                                                                  </li>-->
+                                                                                                  
+                                                                                                  </ul>
+                                                                                                </li></ul>
+                                                                                              </div>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+
+                                                                                      </div>
+                                                                                    </div>
+                                                                                  </li>
+
+                                                                                  <li class="nav-item">
+                                                                                    <a class="nav-link thick latest_news" href="#" id="mega4" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="white-space: nowrap;text-align: center;">
+                                                                                     About Us
+                                                                                   </a>
+                                                                                   <div class="dropdown-menu megaarea" aria-labelledby="mega4" style="">
+                                                                                    <div class="container-fluid">
+                                                                                      <div class="row">
+                                                                                        <div class="col-sm-3">
+                                                                                         <img src="https://www.statistics.gov.lk/assets/img/Menu/AboutUs.jpg" class="img-thumbnail" width="250px">
+                                                                                        </div>
+                                                                                        <div class="col-sm-9">
+                                                                                          <div class="container-fluid">
+                                                                                            <div class="row row-cols-12 p-3">
+
+
+                                                                                             <ul class="row list-inline">
+                                                                                               <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                                <ul class="list-unstyled">
+                                                                                                  <li class=""><a href="https://www.statistics.gov.lk/about_us/vision_mission" class="text-decoration-none"><h6>Vision & Mission</h6></a></li>
+                                                                                                  <li class=""><a href="https://www.statistics.gov.lk/about_us/history" class="text-decoration-none"><h6>History</h6></a></li>
+                                                                                                  <li class=""><a href="https://www.statistics.gov.lk/about_us/censusordanance" class="text-decoration-none"><h6>Census Ordinance</h6></a></li>
+                                                                                                  <li class=""><a href="https://www.statistics.gov.lk/about_us/org_struct" class="text-decoration-none"><h6>Organization Structure</h6></a></li>
+                                                                                                  <!--<li class=""><a class="text-decoration-none" href="https://www.statistics.gov.lk/ref/CircuitBungalows"><h6>.</h6></a></li>-->
+                                                                                                  <!--<li class=""><a href="https://www.statistics.gov.lk/about_us/righttoinformation" class="text-decoration-none"><h6>Right to Information Act</h6></a></li>-->
+  																								<li class=""><a href="https://www.statistics.gov.lk/Contact_Us/index" class="text-decoration-none"><h6>Contact Us</h6></a></li>
+                                                                                                </ul>
+
+                                                                                              </li> 
+                                                                                              
+                                                                                              <li class="col col-12 col-lg-6 list-inline-item m-0">
+                                                                                              <ul class="list-unstyled">
+  																								<li class=""><a class="text-decoration-none" href="https://www.statistics.gov.lk/image_gallery"><h6>Photos</h6></a></li>
+  																								<li class=""><a class="text-decoration-none" href="https://www.statistics.gov.lk/Gallery/VideoGallery"><h6>Videos</h6></a></li>
+  																								<li class=""><a class="text-decoration-none" href="https://www.statistics.gov.lk/Notice/Procurement"><h6>Procuments</h6></a></li>
+  																								<li class=""><a class="text-decoration-none" href="https://www.statistics.gov.lk/Notice/Recruitment"><h6>Recruitments</h6></a></li>
+  																							    
+                                                                                                  <li class=""><a href="https://www.statistics.gov.lk/ContactUs/Inquiry" class="text-decoration-none"><h6>Inquiries</h6></a></li>
+                                                                                              </ul>
+                                                                                              </li>
+
+                                                                                            </ul>  
+
+
+                                                                                            <div style="display: none;">
+                                                                                              <h6><a class="text-decoration-none" href="">Vision & Mission</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/about_us/history">History</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/about_us/censusordanance">Census Ordinance</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/about_us/org_struct">Organization History</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/headOffice">Staff of the Head Office</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/DistrictOffice">District Staff</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/Ministries">Staff in Ministries</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/Departments">Staff in Departments</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/ProvincialCouncils">Staff in Provincials</a></h6>
+                                                                                              <h6><a class="text-decoration-none" href="https://www.statistics.gov.lk/ContactUs/Inquiry">Inquiries</a></h6>
+                                                                                            </div>
+                                                                                          </div>
+                                                                                        </div>
+                                                                                      </div>
+                                                                                    </div>
+
+                                                                                  </div>
+                                                                                </div>
+                                                                              </li>
+  	
+  																			<li class="nav-item">
+  																			<a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                                                              <i class="fas fa-search m-0 p-0" style=""></i></a>
+  																			</li>
+
+                                                                            </ul>
+                                                                    
+                                                                          </div>
+  																		
+                                                                     
+                                                                 </div>
+                                                                      </nav>
+                                                                    </div>
+
+                                                                      <div class="container-fluid collapse" id="collapseExample">
+                                                                        <div class="" style="border-top:1px solid lightgrey">
+                                                                         
+                                                                          <script async src="https://cse.google.com/cse.js?cx=00194f91ad3134f77">
+  </script>
+  <script>
+    (function() {   
+      var cx = '!!!!!!!!!!!!!!!!!!!';
+      var gcse = document.createElement('script');
+      gcse.type = 'text/javascript';
+      gcse.async = true;
+      gcse.src = 'https://cse.google.com/cse.js?cx='+ cx;
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(gcse, s);
+  })();
+
+  window.onload = function(){
+  document.getElementById('gsc-i-id1').placeholder = 'Department Census and Statistics Search "Type the keyword and enter"';
+  };
+  </script>
+ 
+  <div class="gcse-search enablehistory=false"> <input type="text" class="form-control" id="usr" style="" placeholder="search...."
+                                                                          ></div>
+    <div class="container-fluid collapse" id="collapseExample">
+                                                                        <div class="" style="border-top:1px solid lightgrey">
+                                                                         <script async src="https://cse.google.com/cse.js?cx=554572e1251b66ff8">
+</script>
+<div class="gcse-search"></div>
+                                                                          </div>
+                                                                      </div>                                                                  
+																	  
+																	  </div>
+																	 
+                                                            
+                                                            <!--Banner End-->
+															
+</div>                                                           
+                                                           <!--Banner End-->
+                                         
+                            <div  class="topheaderBanner" style="background-color: #121481;">
+                                    <div class="container-fluid" style="border-bottom: white 1px solid">
+                                      <div class="row">
+                                        <div class="col-sm-12  d-flex align-items-center">
+										<div class="col-sm-12  d-flex align-items-center" >
+                                        <marquee class="p-0" width="100%" direction="left" style="p-0 m-o" >
+									   
+<div>
+
+<!------30-10-2025 ------->
+<!--<a href="https://www.statistics.gov.lk/Population/StaticalInformation/CPH2024" style="color:white;padding:'2px;'"><font color="white" size="2">Basic Population and Housing Information by Districts and Divisional Secretary Divisions  - Census of Population & Housing 2024 .................//.................... </font></a>-->
+<!-------------------------------->
+
+<a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyCCPI" style="color:white;padding:'2px;'"><font color="white" size="2">CCPI for the month of September 2026 is 209.1 ------------- // ------------ </font></a>
+
+<!--<font color="white">&nbsp&nbsp&nbsp&nbsp||&nbsp&nbsp&nbsp&nbsp</font><a href="" style="color:white;padding:'2px;'">-->
+
+<a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/PPI" style="color:white;padding:'2px;'"><font color="white" size="2">PPI for all activities reported for August 2026 is 251.7 </font></a>
+
+
+<!--<font color="white" size="2"><a href="http://www.statistics.gov.lk/NationalAccounts/StaticalInformation/GDP2015_expand" style="color:white;padding:'2px;'"><font color="white" size="2"> GDP - The economic growth rate for the Second quarter 2026 has been estimated as 4.2 percent positive growth rate.</font></a>-->
+
+<!--<a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyNCPI" style="color:white;padding:'2px;'"><font color="white" size="2">NCPI for the month of August 2026 was 223.9 and the year on year inflation has reported as 8.1% </font></a>-->
+
+<!--<a href="http://www.statistics.gov.lk/Industry/StaticalInformation/IndexIndustrialProduction" style="color:white;padding:'2px;'"><font color="white" size="2">The Index of Industrial Production (IIP) for the month of July 2026 is 101.5 </font></a>-->
+
+
+</div>
+
+</marquee>
+										</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+
+</header><body><link href="assets/include/vendor/aos/aos.css" rel="stylesheet">
+ <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+ <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+<style>
+.sticky-container {
+/*background-color: #333;*/
+padding: 0px;
+margin: 0px;
+position: fixed;
+right: -119px;
+top: 110px;
+width: 195px;
+}
+.sticky li {
+list-style-type: none;
+background-color: #333;
+color: #efefef;
+height: 43px;
+padding: 0px;
+margin: 0px 0px 1px 0px;
+-webkit-transition: all 0.25s ease-in-out;
+-moz-transition: all 0.25s ease-in-out;
+-o-transition: all 0.25s ease-in-out;
+transition: all 0.25s ease-in-out;
+cursor: pointer;
+filter: url("data:image/svg+xml;utf8,<svg xmlns=\'https://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale");
+filter: gray;
+-webkit-filter: grayscale(100%);
+}
+.sticky li:hover {
+margin-left: -115px;
+/*-webkit-transform: translateX(-115px);
+		-moz-transform: translateX(-115px);
+		-o-transform: translateX(-115px);
+		-ms-transform: translateX(-115px);
+		transform:translateX(-115px);
+		background-color: #8e44ad;*/
+filter: url("data:image/svg+xml;utf8,<svg xmlns=\'https://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/></filter></svg>#grayscale");
+-webkit-filter: grayscale(0%);
+}
+.sticky li img {
+float: left;
+margin: 5px 5px;
+margin-right: 10px;
+}
+.sticky li p {
+padding: 0px;
+margin: 0px;
+text-transform: uppercase;
+line-height: 43px;
+}
+/** content **/
+.content {
+margin-top: 150px;
+margin-left: 100px;
+width: 700px;
+}
+h_1, h_2 {
+font-family: "Source Sans Pro", sans-serif;
+color: #ecf0f1;
+padding: 0px;
+margin: 0px;
+font-weight: normal;
+}
+h_1 {
+font-weight: 900;
+font-size: 64px;
+}
+h_2 {
+font-size: 26px;
+}
+p1 {
+color: #ecf0f1;
+font-family: "Lato";
+line-height: 28px;
+font-size: 15px;
+padding-top: 50px;
+}
+p1.credit {
+padding-top: 5px;
+padding-bottom: 2px;
+font-size: 12px;
+line-height: normal;
+}
+p1 a {
+color: #ecf0f1;
+}
+/** fork icon**/
+.fork {
+position: absolute;
+top: 0px;
+left: 0px;
+}
+
+</style>
+<style>
+* {box-sizing: border-box}
+
+.mySlides {display: none}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 100%;
+  position: relative;
+  margin: auto;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Caption text */
+.text {
+
+  
+}
+.text_cover{
+
+  
+ 
+ 
+}
+/* Number text (1/3 etc) */
+.numbertext {
+  color: #f2f2f2;
+  font-size: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: 0;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+  cursor: pointer;
+  height: 15px;
+  width: 15px;
+  margin: 0 2px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.6s ease;
+}
+
+.active1, .dot:hover {
+  background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+  animation-name: fade;
+  animation-duration: 4s;
+}
+
+@keyframes fade {
+  from {opacity: .6} 
+  to {opacity: 1}
+}
+
+/* On smaller screens, decrease text size */
+@media only screen and (max-width: 300px) {
+  .prev, .next{font-size: 11px}
+  
+}
+@media only screen and (max-width: 320px) {
+  .text{right:10%;font-size: 8px}
+}
+
+@media screen and (min-width: 480px) {
+		.text{right:15%;font-size: 10px}
+}
+
+@media screen and (min-width: 801px) {
+	.text{right:25%;font-size: 11px}
+}
+
+@media screen and (min-width:1025px) {
+	.text{right:30%;font-size: 15px}
+}
+
+
+</style>
+
+<style>
+#tools h1,
+#tools h2,
+#tools h3,
+#tools h4 {
+    color: #fff;
+}
+
+#tools strong {
+    display: block;
+    margin-bottom: 30px;
+}
+
+.tools {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    font-size: 24px;
+    line-height: 140px;
+    border: 3px solid #fff;
+    border-radius: 100px;
+    margin-bottom: 10px;
+}
+
+/*.section-header {
+    margin-bottom: 20px;
+	padding-top:40px;
+}
+
+.section-header .section-title {
+    font-size: 28px;
+    color: #272727;
+    position: relative;
+    padding-bottom: 20px;
+    margin: 0 0 20px;
+}*/
+div.circletag {
+    display: block;
+    width: 100px;
+    height: 100px;
+    background: #E6E7ED;
+    text-align: center;
+    align-content: center;
+    align-items: center;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+div.circletag>img {
+   max-height: 100%;
+   max-width: 100%;
+}
+/*for tools section*/
+#work-process {
+    padding: 30px 0 10px;
+    background: #121481;
+    background-size: cover;
+    color: #fff;
+}
+
+#work-process h2 {
+    color: #fff;
+}
+
+#work-process h3 {
+    color: #fff;
+    margin-bottom: 0;
+}
+
+#work-process h4 {
+    color: #fff;
+    margin-bottom: 0;
+}
+
+#work-process .icon-circle {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border: 2px solid #ffffff;
+    border-radius: 100px;
+    position: relative;
+}
+
+#work-process .icon-circle>span {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #45aed6;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    line-height: 20px;
+    top: -12px;
+    color: #64686d;
+}
+
+#work-process h3 {
+    margin-bottom: 50px;
+}
+
+#work-process p {
+    color: white;
+}
+
+.section-header {
+    margin-bottom: 50px;
+}
+
+.section-header .section-title {
+    font-size: 28px;
+    color: #272727;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 20px;
+    margin: 0 0 20px;
+}
+
+
+
+.section-header .section-title:before {
+    content: "";
+    position: absolute;
+    width: 140px;
+    bottom: 0;
+    left: 50%;
+    margin-left: -70px;
+    height: 1px;
+    background: #ebebeb;
+}
+
+.section-header .section-title:after {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    bottom: -11px;
+    left: 50%;
+    margin-left: -12px;
+    border: 5px solid #fff;
+    border-radius: 20px;
+    background: #45aed6;
+}
+/*end tools section*/
+
+
+
+</style>
+
+
+<style>
+  .blink_me {
+    animation: blinker 2s linear infinite;
+}
+.badge-danger {
+    color: #fff;
+    background-color: #dc3545;
+}
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+#news_in_brief  {
+    padding-left: 0;
+}
+</style>
+
+<style>
+.thick{
+	font-size : 0.9rem;
+}
+</style>
+
+
+
+<!--
+<script src="_https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.js"></script>
+<script src="_https://cdnjs.cloudflare.com/ajax/libs/notify/0.4.2/notify.min.js"></script>-->
+<script>
+  function openForm() {
+    document.getElementById("myForm").style.display = "block";
+  }
+  function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+  }
+
+</script>
+
+<script>
+  function check_cookie_available(){
+    if (typeof $.cookie('cookie_id') === 'undefined'){
+      return "No";
+    } else {
+      var cookie_id = $.cookie("cookie_id");
+
+      return cookie_id;
+    }
+  }
+</script>
+<script>
+ var count_feed = function(a) {
+
+  
+  $('#'+"rate"+a).attr('style', 'background-color:green;');
+  
+  $('.rate').attr('style', 'background-color:#002147;');
+  var ab = check_cookie_available();
+  
+
+  $.ajax({
+    url: "https://www.statistics.gov.lk/count/rate",
+    type:'POST',
+    data: {rate:a,cookie_status:ab},
+    
+    success: function(aa){
+
+
+         // $.cookie('cookie_id', { path: '/', expires: expDate });
+         $.cookie("cookie_id", aa,{expires: 10 });
+
+
+         $("#feedbackalert").css("display", "block");
+         $.cookie("rate", a,{expires: 100 });
+         $('#'+"rate"+a).attr('style', 'background-color:orange;');
+       }
+       
+     });
+  
+  
+
+};
+
+
+
+</script>
+
+
+<script type="text/javascript">
+  /*for rating pupose*/
+  $( document ).ready(function() {
+    if (typeof $.cookie('rate') === 'undefined'){
+      
+    } else {
+      var rate = $.cookie("rate");
+      var ratetag = "rate"+rate;
+      $('#'+ratetag).attr('style', 'background-color:orange;');
+    }
+    if (typeof $.cookie('identifier') === 'undefined'){
+      
+    } else {
+      
+    }
+    
+  });
+</script>
+
+<script type="text/javascript">
+$(function(){
+      SyntaxHighlighter.all();
+    });
+    $(window).load(function(){
+      $('.flexslider').flexslider({
+        animation: "slide",
+        start: function(slider){
+          $('body').removeClass('loading');
+        }
+      });
+    });
+</script>
+<script>
+function checkOffset() {
+    if($('#social-float').offset().top + $('#social-float').height() 
+                                           >= $('#footer').offset().top - 10)
+        $('#social-float').css('position', 'absolute');
+    if($(document).scrollTop() + window.innerHeight < $('#footer').offset().top)
+        $('#social-float').css('position', 'fixed'); // restore when you scroll up
+  //  $('#social-float').text($(document).scrollTop() + window.innerHeight);
+}
+$(document).scroll(function() {
+    checkOffset();
+});
+</script>
+  <!---new code-->
+<div id="social-float" class="sticky-container" style="z-index: 2;">
+<ul class="sticky">
+<li> <img width="30" height="32" title="" alt="" src="assets/img/icons/other/GDP.png" />
+<!-- <p1 class="credit">2023 - Q3 : 1.6</p1> -->
+<p1 class="credit">2026-Q2 : 4.2</p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/NCPI.png" />
+<!-- <p1 class="credit">2023 - Dec. : 208.8 </p1> -->
+<p1 class="credit">2026-Aug : 223.9 </p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/CCPI.png" />
+<!-- <p1 class="credit">2024 - Jan. : 200.7 </p1> -->
+<p1 class="credit">2026-Sep : 209.1</p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/PPI.png" />
+<!-- <p1 class="credit">2023 - Dec. : 241.6</p1> -->
+<p1 class="credit">2026-August : 251.7</p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/IIP.png" />
+<!-- <p1 class="credit">2023 - Dec. : 87.2</p1> -->
+<p1 class="credit">2026-Jul : 101.5</p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/Inflation.jpg" />
+<!-- <p1 class="credit">2023 - Dec. : 4.2% </p1> -->
+<p1 class="credit">2026-Aug : 8.1%</p1>
+</li>
+<li> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/More.jpg" />
+<p1 class="credit"><a href="https://www.statistics.gov.lk/Notice/SLFigures">SL in Figures</a></p1>
+</li>
+</ul>
+<br>
+<!--social Media-->
+<ul class="sticky">
+<li><a href="https://www.facebook.com/DCS.SriLanka/"> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/facebook.png" />
+<p1 class="credit">Facebook</p1></a>
+</li>
+<li><a href="https://www.instagram.com/dcs_srilanka/"><img width="32" height="32" title="" alt="" src="assets/img/icons/other/instagram.png"/>
+<p1 class="credit">Instagram</p1></a>
+</li>
+<li> <a href="https://www.youtube.com/channel/UC1W0CzCyn-Sf9FQryy24W0A"><img width="32" height="50" title="" alt="" src="assets/img/icons/other/youtube.png"/>
+<p1 class="credit">Youtube</p1></a>
+</li>
+<li><a href="https://www.linkedin.com/"> <img width="32" height="32" title="" alt="" src="assets/img/icons/other/linkedin.png"/>
+<p1 class="credit">Linkedin</p1></a>
+</li>
+
+</ul>
+                    
+</div>
+  <div class="bg5">
+   <div class="container-fluid">
+    
+    <div class="row">
+     
+
+	 <div class="col-sm-12 p-0 m-0" Style="z-index: 1;">
+	 <div><!--div plate for slide show still not developed for handle scale problrm on resposive screen-->
+	<div class="slideshow-container">
+
+
+<style type="text/css">
+  @media (min-width:1000px) and (max-width:2400px){
+
+    .sliderstyle{
+      position: absolute;top:0;padding-right:100px;padding-top:150px;
+    }
+    .sliderstyle h1{
+      color:white;align-items: right;font-size: 20px;font-family: "Times New Roman", Times, serif;
+    }
+        /*button class*/
+    .slide_btn {
+      box-shadow: 0px 0px 0px 2px #9fb4f2;
+      background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+      /* background: rgb(230, 126, 34); */
+      background-color:#7892c2;
+      border-radius:10px;
+      border:1px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family: "Times New Roman", Times, serif;
+      font-size:14px;
+      padding:3px 30px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #283966;
+
+    }
+    
+
+    .slide_btn:hover {
+      background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%);
+      background-color:#476e9e;
+    }
+    .slide_btn:active {
+      position:relative;
+      top:1px;
+    }
+  }
+  @media (min-width:300px) and (max-width:999px){
+
+    .sliderstyle{
+      position: absolute;top:0;padding-right:100px;padding-top:60px;
+    }
+    .sliderstyle h1{
+      color:white;align-items: right;font-size: 16px;font-family: "Times New Roman", Times, serif;background-color:rgba(0, 0, 0, 0.5);;padding: 10px;opacity: 
+    }
+        /*button class*/
+    .slide_btn {
+      box-shadow: 0px 0px 0px 2px #9fb4f2;
+      background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+      background-color:#7892c2;
+      /* background: rgb(230, 126, 34); */
+/* background: radial-gradient(circle, rgba(236,86,86,1) 0%, rgba(240,54,20,1) 17%, rgba(245,255,0,1) 100%); */
+      border-radius:10px;
+      border:1px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family: "Times New Roman", Times, serif;
+      font-size:14px;
+      padding:3px 10px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #283966;
+
+    }
+    .slide_btn2 {
+      box-shadow: 0px 0px 0px 2px #9fb4f2;
+      background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+      background-color:#7892c2;
+      border-radius:10px;
+      border:1px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family: "Times New Roman", Times, serif;
+      font-size:12px;
+      padding:3px 10px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #283966;
+
+    }
+
+    .slide_btn:hover {
+      background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%);
+      background-color:#476e9e;
+    }
+    .slide_btn:active {
+      position:relative;
+      top:1px;
+    }
+  }
+    @media (min-width:100px) and (max-width:299px){
+
+    .sliderstyle{
+      position: absolute;top:0;padding-right:50px;padding-top:30px;
+    }
+    .sliderstyle h1{
+      color:white;align-items: right;font-size: 12px;font-family: "Times New Roman", Times, serif;
+      text-shadow: #FC0 1px 0 10px;
+    }
+        /*button class*/
+    .slide_btn {
+        box-shadow: 0px 0px 0px 2px #9fb4f2;
+      background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%);
+      background-color:#7892c2;
+      border-radius:10px;
+      border:1px solid #4e6096;
+      display:inline-block;
+      cursor:pointer;
+      color:#ffffff;
+      font-family: "Times New Roman", Times, serif;
+      font-size:12px;
+      padding:3px 20px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #283966;
+
+
+    }
+
+    .slide_btn:hover {
+      background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%);
+      background-color:#476e9e;
+    }
+    .slide_btn:active {
+      position:relative;
+      top:1px;
+    }
+  }
+</style>
+
+
+
+
+<!-------------------------------e-Cen --------------------->
+<!--<div class="mySlides fade">
+  <div class="numbertext">1/2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide5.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle h-100" style="width:65%">
+  
+          <a href="http://ecensus.nso.gov.lk/" class="slide_btn position-absolute bottom-0 start-40 mb-5">Registration</a>
+      </div>
+    </div>
+</div>-->
+
+
+<!--<div class="mySlides fade">
+  <div class="numbertext">2/2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide5.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle h-100" style="width:65%">
+  
+          <a href="http://ecensus.nso.gov.lk/" class="slide_btn position-absolute bottom-0 start-40 mb-5">Registration</a>
+      </div>
+    </div>
+</div>-->
+
+<!-------------------------------e-Cen --------------------->
+
+
+
+<!--
+
+<div class="mySlides fade">
+  <div class="numbertext">5 / 5</div>
+    <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide3.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle" style="">
+          <p class="dcs_font">Data visualizations at  your fingertips <br>for better decision making</p>
+       
+          <a href="https://www.statistics.gov.lk/ExploreData" class="slide_btn">Explore Data</a>
+      </div>
+    </div>
+</div>
+
+-->
+
+
+
+
+
+
+
+<!--
+
+<div class="mySlides fade">
+  <div class="numbertext">1/ 4</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide001.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle h-100" style="width:65%">
+          <!--<p class="dcs_font">View our latest publications and<br> see how the newest data affects you</p>-->
+  
+          <!--<a href="https://www.statistics.gov.lk/Slider/Census2024_En" class="slide_btn position-absolute bottom-0 start-50 mb-5">For Information</a>-->
+     <!-- </div>
+    </div>
+</div>-->
+
+
+
+
+<!--<div class="mySlides fade">
+  <div class="numbertext">2 / 4</div>
+  
+  <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide2.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle" style="">
+          <p class="dcs_font">View the Censuses and Surveys <br>we conduct that will impact communities<br> and locales across the country</p>
+          
+          <a href="https://www.statistics.gov.lk/CensusSurveys-main" class="slide_btn" style="">Censuses/Surveys</a>
+      </div>
+    </div>
+</div>
+
+<div class="mySlides fade">
+  <div class="numbertext">3 / 4</div>
+    <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide3.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle" style="">
+          <p class="dcs_font">Data visualizations at  your fingertips <br>for better decision making</p>
+       
+          <a href="https://www.statistics.gov.lk/ExploreData" class="slide_btn">Explore Data</a>
+      </div>
+    </div>
+</div>
+
+
+<div class="mySlides fade">
+  <div class="numbertext">4 / 4</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+        <img src="assets/img/slide4.jpg" style="width:100%">
+      </div>
+      <div class="sliderstyle" style="">
+          <p class="dcs_font">View our latest publications and <br> see how the newest data affects you</p>
+  
+          <a href="https://www.statistics.gov.lk/Publication/newPage" class="slide_btn">Publications</a>
+      </div>
+    </div>
+</div>-->
+
+
+<!---------------------- Agriculture ---------------->
+
+<div class="mySlides fade">
+  <div class="numbertext">1 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/new">
+        <img src="assets/img/Slide1.jpg" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>
+
+
+<div class="mySlides fade">
+  <div class="numbertext">2 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href="https://www.statistics.gov.lk/Agriculture/StaticalInformation/new">
+        <img src="assets/img/Slide1.jpg" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>
+
+
+<!---------------------- Agriculture ---------------->
+
+
+
+
+
+
+<!---------------------- Population ---------------->
+
+<!--<div class="mySlides fade">
+  <div class="numbertext">1 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href="https://www.statistics.gov.lk/Population/StaticalInformation/CPH2024">
+        <img src="assets/img/slide5.png" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>
+
+
+<div class="mySlides fade">
+  <div class="numbertext">2 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href="https://www.statistics.gov.lk/Population/StaticalInformation/CPH2024">
+        <img src="assets/img/slide5.png" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>-->
+
+<!-----------------Population ----------------------------->
+
+
+		<!---------- e-cen Non agri ---------->
+
+<!--<div class="mySlides fade">
+  <div class="numbertext">1 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href=" https://ecensus.ecsl.statistics.gov.lk ">
+        <img src="assets/img/slide7.jpg" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>
+
+
+<div class="mySlides fade">
+  <div class="numbertext">2 / 2</div>
+   <div style="display: flex;justify-content: flex-end">
+      <div style="">
+	    <a href=" https://ecensus.ecsl.statistics.gov.lk ">
+        <img src="assets/img/slide7.jpg" style="width:100%"></a>
+      </div>
+      <div class="sliderstyle" style="">
+          
+  
+        
+      </div>
+    </div>
+</div>-->
+
+
+		<!---------- e-cen Non agri ---------->
+
+</div>
+<br>
+
+<div style="text-align:center">
+    <span class="dot" onclick="currentSlide(1)"></span>
+  <span class="dot" onclick="currentSlide(2)"></span>
+	  <!--<span class="dot" onclick="currentSlide(3)"></span>
+	<span class="dot" onclick="currentSlide(4)"></span>-->
+	<!--<span class="dot" onclick="currentSlide(5)"></span>-->
+
+</div>
+
+<script>
+let slideIndex = 0;
+showSlides();
+
+function showSlides() {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";  
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) {slideIndex = 1}    
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active1", "");
+  }
+  slides[slideIndex-1].style.display = "block";  
+  dots[slideIndex-1].className += " active1";
+  setTimeout(showSlides, 4000); // Change image every 2 seconds
+  
+}
+
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+</script>
+
+	</div>
+	 </div>
+	 
+	 
+	
+</div>
+</div> </div>
+
+
+<div id="sector1" class="tabs-area spb">
+  <div class="container">
+    <ul id="sector1List" class="nav tabs-nav" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#subjects">
+          <!--<i class="fa fa-puzzle-piece"></i>-->
+		  <img src="assets/img/icons/other/Subjects.png" width="40" height="40"> <br>
+          <span>Browse by Topic</span><br>
+          <h7>View statistics across a <br> variety of topics</h7><br><br>
+          
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#releases">
+          <!--<i class="fa fa-binoculars"></i>-->
+		  <img src="assets/img/icons/other/Releases.png" width="40" height="40"> <br>
+          <span>New Releases</span><br>
+          <h7>Our newest<br>bulletins & publications</h7><br><br>
+          
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#figures">
+          <!--<i class="fa fa-pie-chart"></i>-->
+		  <img src="assets/img/icons/other/SL_figures.png" width="40" height="40"> <br>
+          <span>Sri Lanka Quick Facts</span><br>
+          <h7>New ways to explore <br>our nation's statistics </h7><br><br>
+        </a>
+
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#request-data">
+          <!--<i class="fa fa-qrcode"></i>--> 
+		  <img src="assets/img/icons/other/Drequest.png" width="40" height="40"> <br>
+          <span>Data Requests</span><br>
+          <h7>Did you know that you can <br> submit a data  request on statistics<br>you are unable to find here? </h7><br>
+          
+        </a>
+      </li>
+      
+      
+
+    </ul>
+    
+    
+
+    <div id="sectorContent1" class="tab-content" id="pills-tabContent" style="">
+      <div class="tab-pane fade show active" id="subjects" role="tabpanel">
+
+        <!---->
+        <div class="row">
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Population/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Population.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Population</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Poverty/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Poverty.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Poverty</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/IncomeAndExpenditure/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/IncomeAndExpenditure.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Income And Expenditure</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/LabourForce/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/LabourForce.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Labour Force</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/InflationAndPrices/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/InflationAndPrices.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Inflation and Prices</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/NationalAccounts/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/NationalAccounts.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> National Accounts</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Industry/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Industry.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Industry</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Agriculture/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Agriculture.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Agriculture</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Trade/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Trade.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Trade</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/PublicEmployment/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/PublicEmployment.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Public Employment</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Education/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Education.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Education</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/ComputerLiteracy/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/ComputerLiteracy.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Computer Literacy</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/Health/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/Health.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Health</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/VitalStatistics/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/VitalStatistics.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Vital Statistics</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/GenderStatistics/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/GenderStatistics.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Gender Statistics</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/ChildStatistics/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/ChildStatistics.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Child Statistics</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                    <div class="col col-xxl-2 col-lg-2 col-md-3 col-sm-4" style="text-align: center;">
+            <a class="thick" href="https://www.statistics.gov.lk/OtherCensusandSurveys/StaticalInformation">
+              <div class="media service-box">
+
+                <div class="pull-center box">
+                 <!--<i class="fa fa-pagelines"></i>-->
+                 <img class="" src="assets/img/icons/subjects/OtherCensusandSurveys.png" style="width: 80px;height: 80px;"> 
+                 
+                 <br>
+               
+                 
+               </div>
+                 <div class="align-middle">
+                 <h6 class="heading_style thick mt-1"> Other Census and Surveys</h6>
+               </div>
+             </div>
+           </a>
+         </div>
+                  </div>
+        <!---->
+
+  
+</div>
+<div class="tab-pane fade" id="releases" role="tabpanel">
+  <div class="row">
+    <div class="col col-md-10">
+        <h5>Latest Reports & Bulletins</h5>
+        <div class="container-fluid row" style="">
+        <div class="col col-md-6">
+
+         <ul id="news_in_brief">
+  
+          <li class='list-group'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/Bulletins/2ndQuarter2026'>Sri Lanka Labour Force Survey Quarterly Bulletin - 2nd Quarter 2026<span class="badge badge-danger blink_me">New</span></a><p align =justify>The estimated labour force participation rate is 50.0% and unemployment rate is 4.0% for second quarter 2026.</p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/NationalAccounts/StaticalInformation/AnnualReports/Annual2025'>Annual Report of National Accounts 2025<span class="badge badge-danger blink_me">New</span></a><p align =justify>Annual Report of National Accounts 2025 - Department of Census & Statistics</p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/CCPI_20260930E'>Web Release on CCPI (Base:2021=100) – September 2026<span class="badge badge-danger blink_me">New</span></a><p align =justify>CCPI for the month of September 2026 is 209.1 <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyCCPI/CCPIInfo2026E"> Infographic </a></p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/PPI_20260930E'>Producer Price Index (PPI) - August 2026</a><p align =justify>PPI for all activities reported for August 2026 is 251.7   - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/PPI/Infographic_PPI"> Infographic</a></p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/povertyLine/2021_Rebase'>District Official Poverty Line August 2026</a><p align =justify>The official poverty line at the national level for August, 2026 is Rs. 17,719/-</p></li><hr></ul>
+      </div>
+      <div class="col col-md-6">
+
+         <ul id="news_in_brief"><li class='list-group'><a href='https://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/retail/DCSB-WRP-2026-09-W4'>Weekly Retail Prices</a><p align =justify>Open market retail prices of food and miscellaneous items with respect to main markets in Colombo district.</p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/NCPI_Aug_2026'>Web Release on NCPI (Base:2021=100) and Inflation - August 2026 </a><p align =justify>NCPI for the month of August 2026 was 223.9 and the year on year inflation has reported as 8.1%. - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyNCPI/NCPIInfo2026E"> Infographic </a></p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/-'><a href="http://www.statistics.gov.lk/NationalAccounts/StaticalInformation/GDP2015_expand"> National Accounts Estimates of 2nd Quarter 2026</a><p align =justify>The economic growth rate for the second quarter 2026 has been estimated as 4.2 percent positive growth rate.</p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/AnnualReports/2025'>Sri Lanka Labour Force Survey 2025 - Annual Report</a><p align =justify>The estimated labour force participation rate is 49.4% and unemployment rate is 3.9% for 2025.</p></li><hr><li class='list-group'><a href='https://www.statistics.gov.lk/ComputerLiteracy/StaticalInformation/Bulletins/2025-Annual'>Computer Literacy Statistics – 2025-Annual </a><p align =justify>The estimated computer literacy rate is 39.2% and digital literacy rate is 72.0% for 2025.</p></li><hr>        </ul>
+		<a href="https://www.statistics.gov.lk/sort/sort_publication" class="button-2">View previous reports & bulletins </a> 
+      </div>
+      <div class="col col-md-6" style="display: none;">
+
+         <ul id="news_in_brief">
+  
+          <li class='list-group'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/Bulletins/2ndQuarter2026'>Sri Lanka Labour Force Survey Quarterly Bulletin - 2nd Quarter 2026&nbsp;<span class="badge badge-danger blink_me">New</span></a><p align =justify>The estimated labour force participation rate is 50.0% and unemployment rate is 4.0% for second quarter 2026.</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/NationalAccounts/StaticalInformation/AnnualReports/Annual2025'>Annual Report of National Accounts 2025&nbsp;<span class="badge badge-danger blink_me">New</span></a><p align =justify>Annual Report of National Accounts 2025 - Department of Census & Statistics</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/CCPI_20260930E'>Web Release on CCPI (Base:2021=100) – September 2026&nbsp;<span class="badge badge-danger blink_me">New</span></a><p align =justify>CCPI for the month of September 2026 is 209.1 <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyCCPI/CCPIInfo2026E"> Infographic </a></p></li><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/PPI_20260930E'>Producer Price Index (PPI) - August 2026</a><p align =justify>PPI for all activities reported for August 2026 is 251.7   - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/PPI/Infographic_PPI"> Infographic</a></p></li><li class='list-group'><a href='https://www.statistics.gov.lk/povertyLine/2021_Rebase'>District Official Poverty Line August 2026</a><p align =justify>The official poverty line at the national level for August, 2026 is Rs. 17,719/-</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/retail/DCSB-WRP-2026-09-W4'>Weekly Retail Prices</a><p align =justify>Open market retail prices of food and miscellaneous items with respect to main markets in Colombo district.</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/WebReleases/NCPI_Aug_2026'>Web Release on NCPI (Base:2021=100) and Inflation - August 2026 </a><p align =justify>NCPI for the month of August 2026 was 223.9 and the year on year inflation has reported as 8.1%. - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyNCPI/NCPIInfo2026E"> Infographic </a></p></li><li class='list-group'><a href='https://www.statistics.gov.lk/-'><a href="http://www.statistics.gov.lk/NationalAccounts/StaticalInformation/GDP2015_expand"> National Accounts Estimates of 2nd Quarter 2026</a><p align =justify>The economic growth rate for the second quarter 2026 has been estimated as 4.2 percent positive growth rate.</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/AnnualReports/2025'>Sri Lanka Labour Force Survey 2025 - Annual Report</a><p align =justify>The estimated labour force participation rate is 49.4% and unemployment rate is 3.9% for 2025.</p></li><li class='list-group'><a href='https://www.statistics.gov.lk/ComputerLiteracy/StaticalInformation/Bulletins/2025-Annual'>Computer Literacy Statistics – 2025-Annual </a><p align =justify>The estimated computer literacy rate is 39.2% and digital literacy rate is 72.0% for 2025.</p></li>        </ul>
+		
+      </div>
+	  
+    </div>
+ 
+      <!--<div class="container-fluid row" style="display: none">
+        <div class="col col-md-6">
+          
+         <hr class="underline">
+         <h6> <a class="thick latest_news" href="#">Web Release on CCPI – November 2021</a></h6> <p class="paragraph_style fz1">CCPI for the month of November 2021 is 150.7</p>
+         <hr class="underline"><h6> <a class="thick latest_news" href="#">Web Release on NCPI and Inflation -October 2021</a></h6> <p class="paragraph_style fz1">NCPI for the month of October 2021 was 150.6 and the year on year inflation has reported as 8.3%.</p>
+         <hr class="underline"><h6> <a class="thick latest_news" href="#">Index of Industrial Production (IIP) -October 2021</a></h6> <p class="paragraph_style fz1">The Index of Industrial Production (IIP) for the month of October 2021 is 109.5</p>
+         <hr class="underline"> 
+       </div>
+       
+       <div class="col col-md-6">
+        
+        <hr class="underline"><h6> <a class="thick latest_news" href="#">Web Release on CCPI – April 2021</a></h6> <p class="paragraph_style fz1">CCPI for the month of April 2021 is 138.8</p>
+        <hr class="underline"><h6> <a class="thick latest_news" href="#">Web Release on CCPI – April 2021</a></h6> <p class="paragraph_style fz1">CCPI for the month of April 2021 is 138.8</p>
+        <hr class="underline"><h6> <a class="thick latest_news" href="#">Web Release on CCPI – April 2021</a></h6> <p class="paragraph_style fz1">CCPI for the month of April 2021 is 138.8</p>
+        <hr class="underline"> 
+      </div>
+    </div>
+    -->
+
+    
+ <!--<a href="https://www.statistics.gov.lk/sort/sort_publication" class="button-2">View previous reports & bulletins </a> -->
+  </div>
+  
+  
+  <div class="col-md-2 border-left" align="right">
+   
+   <h5>Publications</h5>
+  <a href="https://www.statistics.gov.lk/Publication/PocketBook2026"> <img class="img-thumbnail" src="assets/img/clients/PocketBook2026.jpg" width="100" height="120"> </a><br><br>
+  <a href="https://www.statistics.gov.lk/Publication/Economic-Statistics-2026"> <img class="img-thumbnail" src="assets/img/clients/EconomicStatistcs2026.jpg" width="100" height="120"> </a><br><br>
+  <!--<a href="https://www.statistics.gov.lk/Publication/Economic-Statistics-2023"> <img class="img-thumbnail" src="assets/img/clients/EconomicStatistcs2023.jpg" width="100" height="120"> </a><br><br>-->
+  <a href="https://www.statistics.gov.lk/Publication/PocketBook2025"> <img class="img-thumbnail" src="assets/img/clients/PocketBook2025.png" width="100" height="120"> </a></br></br>
+  <!--<a href="https://www.statistics.gov.lk/Publication/PocketBook2024"> <img class="img-thumbnail" src="assets/img/clients/PocketBook2024.png" width="100" height="120"> </a></br></br>-->
+  <a href="https://www.statistics.gov.lk/Publication/SSR/SSR_Introduction"> <img class="img-thumbnail" src="assets/img/clients/SSR.jpg" width="100" height="120"> </a><br><br>
+  <a href="https://www.statistics.gov.lk/Publication/Dishanathi/Dishanathi_Vol1"> <img class="img-thumbnail" src="assets/img/clients/Dishanathi.jpg" width="100" height="120"> </a><br><br>
+   <a href="https://www.statistics.gov.lk/Publication/newPage" class="button-2"> More ></a></div>
+   <!--<a href="#" class="button-2">View more ></a></div>-->
+   
+   
+   
+ </div>
+ 
+</div>
+
+
+
+            <div class="tab-pane fade" id="figures" role="tabpanel">
+              <div class="row">
+                <div class="col-md-3">
+                 <div id="rcorners3" align="center"><a href="https://www.statistics.gov.lk/DashBoard/srilanka_glance/" target="_blank"> <img src="assets/img/figures/dashboard.jpg" ></a> Data Dashboard </div>
+               </div>
+               <!--<div class="col-md-3">
+                <div id="rcorners3" align="center"><a href="https://www.statistics.gov.lk/data_visualization"> <img src="assets/img/figures/infographics.jpg" ></a>Infographics</div>      
+              </div>-->
+
+			  
+			  <div class="col-md-3">
+                <div id="rcorners3" align="center"><a href="https://www.statistics.gov.lk/ref/HandbookDictionary"> <img src="assets/img/figures/Handbook.jpg" ></a>District Statistical Handbook</div>      
+              </div>
+              <div class="col-md-3">
+                <div id="rcorners3" align="center" ><a href="http://sis.statistics.gov.lk/"> <img src="assets/img/figures/LankaSIS.jpg" ></a> LankaSIS</div> 
+              </div>
+              <div class="col-md-3">
+                <div id="rcorners3" align="center" ><a href="https://www.statistics.gov.lk/abstract2025/preface/"><img src="assets/img/figures/abstract.jpg" ></a>Statistical Abstract</div> 
+              </div>
+            </div>
+            
+          </div>
+          
+          
+          <div class="tab-pane fade" id="request-data" role="tabpanel">
+              <div class="row">
+              <div class="col-md-12">
+                <h4 align="center">Data Dissemination</h4>
+                <p align="justify">
+                  As the central government agency of producing official statistics, DCS provides services to the government, its agencies private sector and the general public in their data and information needs.
+                </p>
+              </div>
+            <div class="col-md-6">
+              <h5 align="center">Microdata Requests</h5><br>
+              <div style="text-align:center"> 
+                <a href="https://nada.statistics.gov.lk/index.php/home" class="button-2"><img class="" src="assets/img/figures/NADA.png"> Visit our Online Microdata Catalog >></a>  
+              </div>
+            <br><br>
+              <u><h6 align="left">Licensed Microdata Files</h6></u>
+              <p align="justify">Access the licensed microdata a files of DCS by sending a duly filled DRA form, project proposal and a recommendation letter</p>
+              <div class="row">
+                <div class="col-md-6 ml-3" style="background-color: #2c2fc9;border:solid white 2px;text-align: center;padding:15px;">
+				
+				
+                <a href="https://www.statistics.gov.lk/Publication/Data/DD_Policy"><font color="white" size="2"> Microdata Dissemination Policy</font></a>
+				<!--<a href="https://www.statistics.gov.lk/Datadessimination/DataDissaPolicy_2007Oct26"><font color="white" size="2"> Microdata Dissemination Policy</font></a>--> 
+                </div>
+                <div class="col-md-6 ml-3" style="background-color: #2c2fc9;border:solid white 2px;text-align: center;padding:15px;">
+                   <a href="https://www.statistics.gov.lk/Datadessimination/datadissemination_DRAform"><font color="white" size="2"> Microdata Application(DRA)</font></a>
+                </div>
+              </div>
+               <hr>
+             <h5 align="center"><u>Public Use Files(PUFs)</u></h5>
+              <p align="justify">Register in our online Microdata Catalog, <i>Lanka Datta</i> and access household survey sample data files which are made available for downloading and are ideal to be used in acamadic endavour.</p>
+            </div>
+             <!--<div class="col-md-6">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 align="center"> Geo-spartial Data Requests</h5>
+                  <p align="justify">Access the geo-spartial data produced by DCS by sending a duly filled MRA form, project proposal and a recomandation Letter</p>
+                  <!--<div class="m-3" style="background-color: #2c2fc9;border:solid white 2px;text-align: center;padding:15px;">
+                    <h6><font color="white" size="2">Geo spatial Data Dissmination Policy</font></h6>
+                  </div>
+                  <div class="m-3" style="background-color: #2c2fc9;border:solid white 2px;text-align: center;padding:15px;">
+                      <h6><font color="white" size="2">Geo spatial Data Application (MRA)</font></h6>
+                  </div>
+                </div>-->
+                <div class="col-md-6">
+                   <h5 align="center">Other Data Requests</h5><br>
+                   <p align="justify">
+                  Request DCS produced data other than those are published in the website, microdata and geo-spartial data by sending an email to dgcensus@statistics.gov.lk
+                  cc:data.requests@statistics.gov.lk</p>
+
+                </div>
+              </div>
+            </div>
+            
+            
+            <div class="row justify-content-end">
+              <div class="col col-7">
+               
+            </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+      </div>
+    </div> 
+
+    
+
+
+
+<br>
+
+<div class="bg5">
+
+  
+ <div class="container">	
+	 <section id="work-process">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title text-center wow fadeInDown">A collection of data repositories</h2>
+                <p class="text-center wow fadeInDown">Access a comprehensive array of data & knowledge banks from DCS and its partners.</p>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-md-3 col-md-3 col-xs-6">
+                    <div class="wow fadeInUp" data-wow-duration="400ms" data-wow-delay="0ms">
+                        <div class="icon-circle">
+                           <a href="http://www.statistics.gov.lk/sdg/index.php">   <img src="assets/img/icons/other/SDG.png" width="60" height="60"></a>
+                          <!--  <i class="fa fa-coffee fa-2x"></i>-->
+                        </div>
+                        <h3><a href="http://www.statistics.gov.lk/sdg/index.php" style="color:white">SDG</a></h3>
+                    </div>
+                </div>
+                <div class="col-md-3 col-md-3 col-xs-6">
+                    <div class="wow fadeInUp" data-wow-duration="400ms" data-wow-delay="100ms">
+                        <div class="icon-circle">
+                            
+                            <!--<i class="fa fa-bullhorn fa-2x"></i>-->
+							 <a href="http://map.statistics.gov.lk/"><img src="assets/img/icons/other/Lstatmap.png" width="60" height="60"> </a>  
+                        </div>
+                        <h3><a href="http://map.statistics.gov.lk/" style="color:white">LankaStatMAP</a></h3>
+                    </div>
+                </div>
+                <div class="col-md-3 col-md-3 col-xs-6">
+                    <div class="wow fadeInUp" data-wow-duration="400ms" data-wow-delay="200ms">
+                        <div class="icon-circle">
+                            <!--<a href="http://repo.statistics.gov.lk/"><img src="assets/img/icons/other/DigitalLibrary.png" width="50" height="50"> </a> -->
+							<a href="https://nada.statistics.gov.lk/index.php/home"><img src="assets/img/icons/other/NADA.png" width="60" height="60"> </a>							
+                           <!-- <i class="fa fa-image fa-2x"></i>-->
+                        </div>
+                        <!--<h3><a href="http://www.statistics.gov.lk/ebulletin/index.php" style="color:white">eBulletin</a></h3>-->
+						<!--<h3><a href="http://nada.nso.gov.lk/index.php/home" style="color:white">NADA</a></h3>-->
+						<h3><a href="https://nada.statistics.gov.lk/index.php/home" style="color:white">NADA</a></h3>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 col-md-3 col-xs-6">
+                    <div class="wow fadeInUp" data-wow-duration="400ms" data-wow-delay="500ms">
+                        <div class="icon-circle">
+                           <!--<a href="http://library.statistics.gov.lk/"><img src="assets/img/icons/other/Library.png" width="60" height="60"> </a> -->
+							<a href="http://repo.statistics.gov.lk/"><img src="assets/img/icons/other/DigitalLibrary.png" width="50" height="50"> </a>
+                           <!-- <i class="fa fa-space-shuttle fa-2x"></i>-->
+                        </div>
+                        <!--<h3><a href="http://library.statistics.gov.lk/" style="color:white">Library</a></h3>-->
+						<h3><a href="http://repo.statistics.gov.lk/" style="color:white">Digital Library</a></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--/#work-process-->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+<div class="container" style="display: none;">
+
+  <!-- Heading Row -->
+  <div class="row my-3">
+    <div class="col-lg-7 my-1">
+      <!--  <img class="img-fluid rounded" src="http://placehold.it/900x400" alt="">-->
+      <!---slider start---->
+      <div id="demo" class="carousel slide" data-ride="carousel" style="" data-pause="false" data-interval="10000">
+        <ul class="carousel-indicators">
+
+                 </ul>
+        <div class="carousel-inner">
+         
+         
+           <div class="carousel-item active"><a href="">
+               <img src="img/slider/GDP_2023Q1.jpg" class="img-fluid">
+               <div class="carousel-caption">
+               <p></p>
+               </div></a>
+               </div> <div class="carousel-item"><a href="Publication/Dishanathi/Dishanathi_Vol1">
+              <img src="img/slider/Dishanathi.jpg" class="img-fluid">
+              <div class="carousel-caption">
+              <p>-</p>
+              </div></a>
+              </div> <div class="carousel-item"><a href="">
+              <img src="img/slider/newsite.jpg" class="img-fluid">
+              <div class="carousel-caption">
+              <p>-</p>
+              </div></a>
+              </div>          </div>
+            <!--
+            <a class="carousel-control-prev" href="#demo" data-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </a>
+            <a class="carousel-control-next" href="#demo" data-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </a>-->
+          </div>
+
+          <!--sliderr end-->
+        </div>
+        <!-- /.col-lg-8 -->
+        <div class="col-lg-5" style="">
+         <div class="row">
+          <div class="col-4 col-lg-4">
+           <div class="card text-white bg-primary mb-3 _nail" style="max-width: 18rem;background-color: #bce9f7;">
+            <div class="card-header"><h3 style="text-align: center;">GDP</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                4.2              </h3>
+
+            </div>
+            <span class="badge badge-primary">2026 Q2 Quarter</span>
+          </div>
+        </div>
+        <div class="col-4 col-lg-4" style="">
+          <div class="card text-white bg-success mb-3 _nail" style="max-width: 18rem;">
+            <div class="card-header"><h3 style="text-align: center;">PPI</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                251.7              </h3>
+            </div>
+            <span class="badge badge-success">2026 August</span>
+          </div>
+        </div>
+        
+        <div class="col-4 col-lg-4" style="">
+          <div class="card text-white bg-info mb-3 _nail" style="max-width: 18rem;">
+            <div class="card-header"><h3 style="text-align: center;">IIP</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                101.5              </h3>
+              
+            </div>
+            <span class="badge badge-info"> 2026 Jul</span>
+          </div>
+
+        </div>
+        <div class="col-4 col-lg-4">
+          <div class="card text-white _bg-danger mb-3 _nail" style="max-width: 18rem;background-color: #BB310C;">
+            <div class="card-header"><h3 style="text-align: center;">NCPI</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                223.9              </h3>
+              
+            </div>
+            <span class="badge _badge-danger" style="background-color: #BB310C;"> 2026 Aug</span>
+          </div>
+        </div>
+        <div class="col-4 col-lg-4">
+          <div class="card text-white _bg-warning mb-3 _nail" style="max-width: 18rem;background-color: #D8AA3A;">
+            <div class="card-header"><h3 style="text-align: center;">CCPI</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                209.1              </h3>
+              
+            </div>
+            <span class="badge _badge-warning" style="background-color: #D8AA3A;"><font color='white'>2026 Sep</font></span>
+          </div>
+        </div>
+        
+        <div class="col-lg-4" style="">
+          <div class="card text-white mb-3 _nail" style="max-width: 18rem;background-color: #839A4E;">
+            <div class="card-header" style="padding-left: 0px;padding-right: 0px;"><h3 style="text-align: center;">Inflation</h3></div>
+            <div class="card-body">
+              <h3 class="card-title" style="height: 10px;text-align: center;">
+                8.1%              </h3>
+              
+            </div>
+            <span class="badge" style="background-color: #839A4E;"> 2026 Aug</span>
+          </div>
+
+        </div>
+      </div>
+
+      
+    </div>
+    <!-- /.col-md-4 -->
+  </div>
+  <!-- /.row -->
+  
+  <!-- Sanganana Siththara start -->
+  <div class="card text-white my-2 text-center" style="border:solid 1px white;background-color:#f5f5dc;">
+    <div class="col-sm-12" style="">
+      <div class="container-fluid">
+               <!--<div id="carouselExampleControls" class="carousel vert slide text-left" data-ride="carousel" data-interval="3000">
+                  <div class="row">
+                  <div class="col-sm-12" style="padding:4px;">
+                    <!--<a href="https://www.statistics.gov.lk/junior" style="color: black;text-decoration: none;">
+          <font size="3" style="font-family:Bookman Old Style;color:black;">Census of Population & Housing - 2021 "SANGANANA SITHTHARA" Art Competition Winners</font>
+          <font size="3" style="font-family:Bookman Old Style;color:blue;"><span class="badge badge blink_me">
+          <em><big>"Junior Section"</big></em></span></font><font size="3" style="font-family:Bookman Old Style;color:black;">&nbsp;</font></a>
+
+                    <a href="https://www.statistics.gov.lk/senior" style="color: black;text-decoration: none;"><font size="3" style="font-family:Bookman Old Style;color:black;">
+                    & </font><font size="3" style="font-family:Bookman Old Style;color:blue;"><span class="badge badge blink_me"><em><big>"Senior Section"</big></em></span></font>
+                    <font size="3" style="font-family:Bookman Old Style;color:black;">&nbsp;</font></a>-->
+          <!--<a href="https://www.statistics.gov.lk/interview" style="color: black;text-decoration: none;">
+          <font size="3" style="font-family:Bookman Old Style;color:black;">Recruitment of Statistical Officer Grade II- Open Examination 2018(2019), Department of Census & Statistics.</font>
+          <font size="3" style="font-family:Bookman Old Style;color:blue;"><span class="badge badge blink_me">
+            <em><big>"Interview List" </big></em></span></font><font size="3" style="font-family:Bookman Old Style;color:black;">&nbsp;</font></a>-->
+            
+                  <!--</div>
+                  </div>
+                </div>-->
+              </div>  
+            </div>
+          </div>
+          <!--Sanganana Siththara end--> 
+          
+          
+          
+          <!------------------------------------------------------------------------------------------------------------------------------------ -->
+
+          <!-- covid link start -->
+     <!-- <div class="card text-white my-2 text-center" style="border:solid 1px white;background-color:#f5f5dc;">
+        <div class="col-sm-12" style="">
+          <div class="container-fluid">
+               <div id="carouselExampleControls" class="carousel vert slide text-left" data-ride="carousel" data-interval="3000">
+                  <div class="row">
+                  <div class="col-sm-12" style="padding:4px;">
+                    <a href="https://data.statistics.gov.lk/covidimpact/" style="color: black;text-decoration: none;"><font size="3" style="font-family:Bookman Old Style;color:black;">e-Survey on Economic Impact of COVID-19.&nbsp; </font><font size="3" style="font-family:Bookman Old Style;color:blue;"><span class="badge badge blink_me"><em><big>"Click here"</big></em></span></font><font size="3" style="font-family:Bookman Old Style;color:black;">&nbsp;to Register</font></a>
+
+                    <a href="https://www.statistics.gov.lk/covid19Survey" style="color: black;text-decoration: none;"><font size="3" style="font-family:Bookman Old Style;color:black;">
+                    or </font><font size="3" style="font-family:Bookman Old Style;color:blue;"><span class="badge badge blink_me"><em><big>"Download"</big></em></span></font>
+                    <font size="3" style="font-family:Bookman Old Style;color:black;">&nbsp;
+                    questionnaire as a PDF file.
+                    </font></a>
+                  </div>
+                  </div>
+              </div>
+          </div>  
+        </div>
+      </div>-->
+      <!--covid link start end-->
+
+
+
+      <!-- Call to Action Well -->
+      <div class="card text-white my-4 text-center" style="background-color: #0078d4;">
+        <div class="" style="">
+          <div class="container-fluid">
+           <div id="carouselExampleControls" class="carousel vert slide text-center" data-ride="carousel" >
+            <div class="row">
+              <div class="col-sm-2" style="padding:4px;">
+                <font size="3" style="font-family:Bookman Old Style;">Sri Lankan Figures</font>
+              </div>
+              <div class="col-sm-9 text-white" style="padding:5px;">
+                <div class="carousel-inner">
+                  
+
+                  <div class="carousel-item active">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Inflation (Base NCPI) (2023-May.): Year on Year 22.1%%% </font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">CCPI (Base 2013=100) (2023 -May): 192.3</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">GDP growth (2015 Base): 2023- Q1:  -11.5%</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Index of Industrial Production (2023-Apr.): 80.1</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Paddy Production - Yala (2022): 1,461,675 (Mt)</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Paddy Production Maha (2021/22): 1,931,230(Mt)</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Poverty (H:C: 2016):4.1%</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Unemployment (2022-Annual) - 4.7% & (2022-Q4)- 4.8%</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">NCPI (2022 - May) : 203.1</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">PPI (2023 -Apr.).: 244.0</font></a>
+                        </div><div class="carousel-item">
+                        <a href="https://www.statistics.gov.lk/#"><font color="white">Estimated Mid Year Population 2022 - 22.2  (Mn)</font></a>
+                        </div>                      
+                    </div>
+                  </div>
+                  <div class="col-sm-1" style="padding-top:5px;">
+                    <a class="carousel-control" href="#carouselExampleControls" role="button" data-slide="prev">
+                    <!--  <span class="carousel-control-prev-icon rounded-circle" aria-hidden="true"></span>
+                      <span class="sr-only">Previous</span>-->
+                    </a>
+                    <a class="carousel-control" href="#carouselExampleControls" role="button" data-slide="next">
+                   <!-- <span class="carousel-control-next-icon rounded-circle" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>-->
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>  
+          
+        </div>
+      </div>
+      <div>
+        <div class="row my-4" style="">
+          <div class="col-lg-7">
+
+            <div class="newsPannels">
+              <div class="container-fluid">
+                <div class="recentNewsHeader">
+                  <font size="5" style="color:/*#1A5276*/#202242;font-family:Bookman Old Style;">Latest Reports and Bulletins</font>
+                </div><br>
+                <div class="recentNewsLists">
+
+                  <div>
+                    
+                   <ul class="" style="">
+                    
+                    <li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/Bulletins/2ndQuarter2026' style='background-color:lightgrey;color:#202242'><b>Sri Lanka Labour Force Survey Quarterly Bulletin - 2nd Quarter 2026&nbsp;<span class="badge badge-danger blink_me">New</span></b></a><p align =justify>The estimated labour force participation rate is 50.0% and unemployment rate is 4.0% for second quarter 2026.</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/NationalAccounts/StaticalInformation/AnnualReports/Annual2025' style='background-color:lightgrey;color:#202242'><b>Annual Report of National Accounts 2025&nbsp;<span class="badge badge-danger blink_me">New</span></b></a><p align =justify>Annual Report of National Accounts 2025 - Department of Census & Statistics</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/WebReleases/CCPI_20260930E' style='background-color:lightgrey;color:#202242'><b>Web Release on CCPI (Base:2021=100) – September 2026&nbsp;<span class="badge badge-danger blink_me">New</span></b></a><p align =justify>CCPI for the month of September 2026 is 209.1 <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyCCPI/CCPIInfo2026E"> Infographic </a></p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/WebReleases/PPI_20260930E' style='background-color:lightgrey;color:#202242'><b>Producer Price Index (PPI) - August 2026</b></a><p align =justify>PPI for all activities reported for August 2026 is 251.7   - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/PPI/Infographic_PPI"> Infographic</a></p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/povertyLine/2021_Rebase' style='background-color:lightgrey;color:#202242'><b>District Official Poverty Line August 2026</b></a><p align =justify>The official poverty line at the national level for August, 2026 is Rs. 17,719/-</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/retail/DCSB-WRP-2026-09-W4' style='background-color:lightgrey;color:#202242'><b>Weekly Retail Prices</b></a><p align =justify>Open market retail prices of food and miscellaneous items with respect to main markets in Colombo district.</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/WebReleases/NCPI_Aug_2026' style='background-color:lightgrey;color:#202242'><b>Web Release on NCPI (Base:2021=100) and Inflation - August 2026 </b></a><p align =justify>NCPI for the month of August 2026 was 223.9 and the year on year inflation has reported as 8.1%. - <a href="http://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/MonthlyNCPI/NCPIInfo2026E"> Infographic </a></p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/-' style='background-color:lightgrey;color:#202242'><b><a href="http://www.statistics.gov.lk/NationalAccounts/StaticalInformation/GDP2015_expand"> National Accounts Estimates of 2nd Quarter 2026</b></a><p align =justify>The economic growth rate for the second quarter 2026 has been estimated as 4.2 percent positive growth rate.</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/LabourForce/StaticalInformation/AnnualReports/2025' style='background-color:lightgrey;color:#202242'><b>Sri Lanka Labour Force Survey 2025 - Annual Report</b></a><p align =justify>The estimated labour force participation rate is 49.4% and unemployment rate is 3.9% for 2025.</p></li><li class='list-group row1 mx-auto content newsbox' style='font-family:Times New Roman;'><a href='https://www.statistics.gov.lk/ComputerLiteracy/StaticalInformation/Bulletins/2025-Annual' style='background-color:lightgrey;color:#202242'><b>Computer Literacy Statistics – 2025-Annual </b></a><p align =justify>The estimated computer literacy rate is 39.2% and digital literacy rate is 72.0% for 2025.</p></li>                  </ul>
+                  
+                  <div align="right"><a href="https://www.statistics.gov.lk/MoreNews"><font size="2"><b>More...</b></font></a></div>
+
+                </div>
+              </div>
+              
+            </div>
+          </div><hr>
+          <div class="row my-4" style="">
+            
+            <div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://nada.nso.gov.lk/index.php/home"><div class="card cardone">
+               <img src="img/sub/NADA.png" style="border-radius: 4px;height: 190px;">
+               <div class="containercard" align="center" style="display:none;">
+               <b><font  size=2 color="#006994">NADA</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://www.statistics.gov.lk/ref/Riskmaps"><div class="card cardone">
+               <img src="img/sub/indicators.png" style="border-radius: 4px;height: 190px;">
+               <div class="containercard" align="center" style="display:none;">
+               <b><font  size=2 color="#006994">INDICATORS</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://www.statistics.gov.lk/data_visualization"><div class="card cardone">
+               <img src="img/sub/visualize.png" style="border-radius: 4px;height: 190px;">
+               <div class="containercard" align="center" style="display:none;">
+               <b><font  size=2 color="#006994">DATA VISUALIZATION</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="Datadessimination"><div class="card cardone">
+               <img src="img/sub/microdata.png" style="border-radius: 4px;height: 190px;">
+               <div class="containercard" align="center" style="display:none;">
+               <b><font  size=2 color="#006994">MICRODATA</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div>
+           </div>
+         </div>
+         <div class="col-lg-5">
+           <div class="row">
+            <div class="col-12 col-lg-12">
+              <div class="recentNewsHeader">
+                <font size="5" style="color:#202242;font-family:Bookman Old Style;">Statistical Subjects</font>
+              </div><br>
+            </div>    
+            <div class="col-4 col-lg-4">
+              <a class="thick" href="https://www.statistics.gov.lk/Agriculture/StaticalInformation" style="text-decoration: none;">
+                <div class="dcs_subject_head_page_sub">
+                 <div class="subject_box" style="">
+                  Agriculture
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-4 col-lg-4">
+           <a href="https://www.statistics.gov.lk/ComputerLiteracy/StaticalInformation" style="text-decoration: none;">
+            <div class="dcs_subject_head_page_sub">
+              <div class="subject_box">
+                Computer Literacy
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-4 col-lg-4">
+         <a href="https://www.statistics.gov.lk/Education/StaticalInformation" style="text-decoration: none;">
+           <div class="dcs_subject_head_page_sub">
+            <div class="subject_box">
+              Education
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-4 col-lg-4">
+       <a href="https://www.statistics.gov.lk/Health/StaticalInformation" style="text-decoration: none;">
+        <div class="dcs_subject_head_page_sub">
+         <div class="subject_box">
+          Health
+        </div>
+      </div>
+    </a>
+  </div>
+  <div class="col-4 col-lg-4">
+   <a href="https://www.statistics.gov.lk/Industry/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+      <div class="subject_box">
+        Industry
+      </div>
+    </div>
+  </a>
+</div>
+<div class="col-4 col-lg-4">
+ <a href="https://www.statistics.gov.lk/InflationAndPrices/StaticalInformation/" style="text-decoration: none;">
+   <div class="dcs_subject_head_page_sub">
+    <div class="subject_box">
+      Inflation & Prices
+    </div>
+  </div>
+</a>  
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/Trade/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+     <div class="subject_box">
+      Trade
+    </div>
+  </div>
+</a>
+</div>
+<div class="col-4 col-lg-4">
+ <a href="https://www.statistics.gov.lk/IncomeAndExpenditure/StaticalInformation" style="text-decoration: none;">
+  <div class="dcs_subject_head_page_sub">
+    <div class="subject_box">
+      Income & Expenditure
+    </div>
+  </div>
+</a>
+</div>
+<div class="col-4 col-lg-4">
+ <a href="https://www.statistics.gov.lk/LabourForce/StaticalInformation" style="text-decoration: none;">
+   <div class="dcs_subject_head_page_sub">
+    <div class="subject_box">
+      Labour Force
+    </div>
+  </div>
+</a>
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/NationalAccounts/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+     <div class="subject_box">
+      National Accounts
+    </div>
+  </div>
+</a>
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/GenderStatistics/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+      <div class="subject_box">
+        Gender Statistics
+      </div>
+    </div>
+  </a>
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/Population/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+      <div class="subject_box">
+        Population
+      </div>
+    </div>
+  </a>
+</div>
+<div class="col-4 col-lg-4" style="display: none;" style="text-decoration: none;">
+  <a href="https://www.statistics.gov.lk/Population/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+     <div class="subject_box">
+      Computer literacy
+    </div>
+  </div>
+</a>
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/Poverty/StaticalInformation" style="text-decoration: none;">
+    <div class="dcs_subject_head_page_sub">
+      <div class="subject_box">
+        Poverty
+      </div>
+    </div>
+  </a>
+</div>
+<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/PublicEmployment/StaticalInformation" style="text-decoration: none;">
+   <div class="dcs_subject_head_page_sub" style="text-decoration: none;">
+    <div class="subject_box">
+      Public Employment
+    </div>
+  </div>
+</a>
+</div>
+
+<!--<div class="col-4 col-lg-4">
+  <a href="https://www.statistics.gov.lk/ChildStatistics/StaticalInformation" style="text-decoration: none;">
+   <div class="dcs_subject_head_page_sub" style="text-decoration: none;">
+    <div class="subject_box">
+      Child Statistics.
+    </div>
+  </div>
+</a>
+</div>-->
+
+<div class="col-4 col-lg-4">
+ <a href="https://www.statistics.gov.lk/OtherCensusandSurveys/StaticalInformation" style="text-decoration: none;">
+  <div class="dcs_subject_head_page_sub">
+    <div class="subject_box">
+      Other Surveys
+    </div>
+  </div>
+</a>
+</div>
+
+
+
+
+             <!--<div class="col-4 col-lg-4">
+             <a href="" style="text-decoration: none;">
+              <div class="dcs_subject_head_page_sub">
+                <div class="subject_box" style="background-color: ;display: table-cell; 
+   vertical-align: middle;">
+                        <font color ="#A52A2A" class="blink_me">Ongoing Surveys</font>
+                </div>
+              </div>
+             </a>
+           </div>-->
+         </div>
+
+         <!--<hr>
+          
+          <div class="row my-4"><a href="http://www.statistics.gov.lk/">
+            <img src="https://www.statistics.gov.lk/img/tranfer.jpg" alt="DCS" class="img-thumbnail my-1"></a>
+          </div>
+          <hr>-->
+
+
+
+          <hr>
+
+          <div class="recentNewsHeader">
+            <font size="5" style="color:#202242;font-family:Bookman Old Style;">DCS Statistical Sites</font>
+          </div>
+          <div class="row my-4">
+            
+            <div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://www.statistics.gov.lk/sdg/index.php"><div class="card cardone">
+               <img src="img/sites/sdg.png" style="border-radius: 4px;height: 120px;">
+               <div class="containercard" align="center">
+               <b><font  size=2 color="#006994">SDG</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://sis.statistics.gov.lk/"><div class="card cardone">
+               <img src="img/sites/lanksis.png" style="border-radius: 4px;height: 120px;">
+               <div class="containercard" align="center">
+               <b><font  size=2 color="#006994">LankaSIS</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://library.statistics.gov.lk/"><div class="card cardone">
+               <img src="img/sites/Library.png" style="border-radius: 4px;height: 120px;">
+               <div class="containercard" align="center">
+               <b><font  size=2 color="#006994">library</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div><div class="col-6 col-lg-6 my-2">
+               <div class="DCS_sites">
+               <a href="http://map.statistics.gov.lk/"><div class="card cardone">
+               <img src="img/sites/lankastatMap.png" style="border-radius: 4px;height: 120px;">
+               <div class="containercard" align="center">
+               <b><font  size=2 color="#006994">Lanka Stat Map</font></b>
+               </div>
+               </div></a>
+               </div>
+               </div>
+           </div>
+           <hr>
+           <div class="row my-2">
+            
+                <div class="col-lg-6 my-2"><a href="ebulletin/index.php">
+                <img src="img/sideSystem/e-Bulletin.png"></a>
+                </div>
+                
+                <div class="col-lg-6 my-2"><a href="http://repo.statistics.gov.lk/">
+                <img src="img/sideSystem/digitalLibrary.png"></a>
+                </div>
+                
+                <div class="col-lg-6 my-2"><a href="https://twitter.com/lankaSTAT">
+                <img src="img/sideSystem/twitter.png"></a>
+                </div>
+                
+                <div class="col-lg-6 my-2"><a href="https://play.google.com/store/apps/details?id=lk.gov.statistics.lkstat&hl=en">
+                <img src="img/sideSystem/LankaStat.png"></a>
+                </div>
+                            </div>
+            
+            <hr>
+            
+            <div class="recentNewsHeader">
+              <font size="5" style="color:#202242;font-family:Bookman Old Style;">Important Publications</font>
+            </div>
+            <div class="row my-2">
+              
+              <div class="col-4 col-lg-4" style="">
+                <a href="https://www.statistics.gov.lk/Abstract2020">
+                  <!--<a href="https://www.statistics.gov.lk/Abstract2019">-->
+                    <!--<a href="http://www.statistics.gov.lk/Abstract2019/index.asp">-->
+                      <img src="img/publications/Abstract2020.jpg" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                    </a>
+                  </div>
+                  <div class="col-4 col-lg-4" style="">
+                    <a href="https://www.statistics.gov.lk/Pocket%20Book/index.html">
+                      <img src="https://www.statistics.gov.lk/img/publications/image2.gif" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                    </a>
+                  </div>
+                  <div class="col-4 col-lg-4">
+                    <a href="https://www.statistics.gov.lk/Publication/populationAtlas">
+                      <img src="img/publications/populationatlas.png" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                    </a>
+                  </div>
+                  <div class="col-4 col-lg-4" style="">
+                    <a href="https://www.statistics.gov.lk/Publication/Atlas">
+                      <img src="https://www.statistics.gov.lk/img/publications/image4.gif" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                    </a>
+                  </div>
+                  <div class="col-4 col-lg-4" style="">
+                    <a href="https://www.statistics.gov.lk/Publication/OfficialStatisticsReview">
+                      <img src="https://www.statistics.gov.lk/img/publications/review.png" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                    </a>
+                  </div>
+                  <div class="col-4 col-lg-4" style="">
+                    <!--<a href="http://www.statistics.gov.lk/sdg/application/publications/book.pdf">-->
+                      <a href="https://www.statistics.gov.lk/Publication/Economic-Statistics-2022">
+                        <img src="https://www.statistics.gov.lk/img/publications/EconomicStatistcs2022.jpg" alt="DCS" class="img-thumbnail my-1" style="width:200px;height:140px;">
+                      </a>
+                    </div>
+                  </div>
+                  
+                  
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Row -->
+
+            <!-- /.row -->
+            
+            
+
+            
+          </div>
+    <!-----NOT APPEAR DIV END---->
+    <!---NEW--->
+          <!-- ======= Blog Section ======= -->
+    <div id="blog" class="blog-area mt-2">
+      <div class="blog-inner area-padding">
+        <div class="blog-overly"></div>
+        <div class="container ">
+          <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+			
+
+              <div class="section-headline-blog text-center" style="padding:20px">
+                <h4>Latest News</h4>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+			<!-- Start Left Blog -->
+            <div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/10.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 06th April, 2026</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Census of Population and Housing - 2024</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The final report of the Census of Population and Housing 2024, which was conducted under the powers vested by the Census Ordinance was presented by the Director General of the Department of census and Statistics to the Minister of Finance, Planning and Economic Development, His Excellency the President Anura Kumara Dissanayake, on 6th April 2026.   
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>
+            <!-- End Left Blog-->
+		  
+		  
+		  
+		    <!-- Start Left Blog -->
+            <div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/8.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 28th May, 2025</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Census of Public and Semi-Government Sector Employment 2024</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The preliminary report of the ‘Census of Public and Semi-Government Sector Employment 2024’, conducted by the Department of Census and Statistics (DCS), was published on 29 April 2025.  
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>
+            <!-- End Left Blog-->
+		  
+		  
+		  
+		  
+		  
+		   <!-- Start Left Blog -->
+            <div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/7.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 09th May, 2025</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Household Income and Expenditure Survey 2025 Now in Progress…</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The Department of Census and Statistics (DCS) is currently conducting the latest Household Income and Expenditure Survey (HIES) throughout 2025.  
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>
+            <!-- End Left Blog-->
+		  
+		  
+		  
+		  
+		  
+		  <!-- Start Left Blog -->
+             <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/9.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 25th March, 2025</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Census of Population and Housing - 2024</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The Preliminary Report of the Census of Population and Housing 2024, which was conducted in accordance with the powers conferred by the Census Ordinance,was presented to the minister of Finance, Planning and Economic Development;  
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>-->
+            <!-- End Left Blog-->
+		  
+		  
+		  
+		  
+		  
+		  
+		  <!-- Start Left Blog -->
+            <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/4.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 17th August, 2023</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">The 15th Census of Population and Housing 2023/24</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The 15th Population and Housing Census is scheduled to take place in 2023/24.
+				 The listing phase of the census is set to commence in late 2023, followed by the enumeration phase in 2024. 
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>-->
+            <!-- End Left Blog-->
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  <!-- Start Left Blog -->
+            <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/4.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                 <span class="date-type">
+                    <p><i class="fa fa-calendar"></i> 08th October, 2024</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">The Enumeration stage of the 15th Census of Population and Housing in Sri Lanka starts</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                 The Enumeration stage of the fifteenth Census of Population and Housing (CPH) in Sri Lanka starts in October 2024. 
+				 <a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>-->
+            <!-- End Left Blog-->
+            <!-- Start Left Blog -->
+            <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+                  
+                    <img src="assets/img/blog/1.jpg" alt="" style="width:349px">
+                
+                </div>
+                <div class="blog-meta">
+                  
+                  <span class="date-type">
+                    <p><i class="fa fa-calendar"></i>16th June, 2022</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Sri Lanka Statistical Review (SSR)</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                    Sri Lanka Statistical Review (SSR) provides a forum for sharing new knowledge relates to the novel researchable areas of official statistics.&nbsp;
+                  <a href="https://www.statistics.gov.lk/Blog/Blog_details">Read more</a></p>
+                </div>
+               
+              </div>
+              
+            </div>-->
+            <!-- End Left Blog-->
+			
+            <!-- Start Left Blog -->
+            <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+               
+                    <img src="assets/img/blog/6.jpg" alt="">
+              
+                </div>
+                <div class="blog-meta">
+                 
+                  <span class="date-type">
+                    <p><i class="fa fa-calendar"></i>17th August, 2023</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                    <a class="thick" href="Blog/Blog_details">Household  Survey on the Impact of Economic Crisis - 2023</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                Sri Lanka is currently experiencing one of its biggest economic crises since its independence in 1948 due to the Easter Attack in 2019 which worsened with the COVID 19 pandemic. &nbsp;<a href="https://www.statistics.gov.lk/Blog/Blog_details">&nbsp;Read more</a>
+                  </p>
+                </div>
+                
+                <br><br>
+              </div>
+              
+            </div>-->
+            <!-- End Left Blog-->
+			
+			
+            <!-- Start Right Blog-->
+            <!--<div class="col-md-4 col-sm-4 col-xs-12">
+              <div class="single-blog">
+                <div class="single-blog-img">
+                 
+                    <img src="assets/img/blog/5.jpg" alt="">
+                 
+                </div>
+                <div class="blog-meta">
+                 <!-- <span class="comments-type">
+                    <i class="fa fa-comment-o"></i>
+                    <a href="#">10 comments</a>
+                  </span>-->
+                  <!--<span class="date-type">
+                    <p><i class="fa fa-calendar"></i>18th August, 2023</p>
+                  </span>
+                </div>
+                <div class="blog-text">
+                  <h5>
+                   <a class="thick" href="Blog/Blog_details">Measuring the Impact of Economic Crisis (2022) on SMEs: A Quick Survey</a>
+                  </h5>
+                  <p class="paragraph_style fz1">
+                   On the request of Presidential Secretariat, the Department of Census and Statistics (DCS) embarked on a comprehensive survey designed to probe the far-reaching consequences of the prevailing economic crisis on the landscape of small and medium-scale enterprises (SMEs) in the months of May and June 2023.  &nbsp;
+                  <a href="https://www.statistics.gov.lk/Blog/Blog_details">Read more</a> 
+                  </p>
+                </div>
+               <!-- <span>
+                  <a href="https://www.statistics.gov.lk/Blog/Blog_details" class="ready-btn">Read more</a>
+                </span>-->
+              <!--</div>
+            </div>-->
+            <!-- End Right Blog-->
+          </div>
+        </div>
+      </div>
+    </div><!-- End Blog Section -->
+    <!----NEW END--->
+  <div class="row">
+    </div>
+  </div>
+</div>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script> 
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+  
+
+
+
+
+
+<!--- new code-->  
+
+
+        
+
+
+        <!--<script src="https://www.statistics.gov.lk/assets/include/vendor/aos/aos.js"></script>
+    <script src="https://www.statistics.gov.lk/assets/include/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.statistics.gov.lk/assets/include/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="https://www.statistics.gov.lk/assets/include/vendor/swiper/swiper-bundle.min.js"></script>
+    <script src="https://www.statistics.gov.lk/assets/include/js/main.js"></script> -->
+  </body>
+  <div id="footer" style="width: 100%;">
+</div>
+<footer style="background-color: white">
+  <div class="footer-top"  style="/*border-top:solid 2px #121481;border-bottom:solid 2px #121481;box-shadow: 0px -6px 5px -3px rgba(122,111,122,1);*/">
+    <br>
+    <div class="container">       
+      <div class="row">
+        <div class="col-md-12 col-lg-3 footer_widget">
+            <img src="/assets/img/logo/dcs_logo.png" alt="DCS logo" style="width: 80px">
+            <br><br>
+            <ul class="list-unstyled">
+              <li>The Department of </li>
+              <li>Census and Statistics,</li>
+              <li>Sri Lanka</li>
+            </ul>
+            <div id="footer_socialmedia_icon" class="d-flex justify-content-start justify-content-center justify-content-lg-start">
+              <div class="pt-3"><a href="https://www.facebook.com/DCS.SriLanka/"><i class="fab fa-facebook-f"></i></a></div>
+              <div class="p-3"><a href="https://www.instagram.com/dcs_srilanka/"><i class="fab fa-instagram"></i></a></div>
+              <div class="pt-3"><a href="https://www.linkedin.com/"><i class="fab fa-linkedin-in"></i></a></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3 footer_widget">
+          <div>
+            <!--<img src="" class="img-responsive"> -->
+          </div>
+                      <div class="inner">
+                       <p style="margin-bottom: 0px;color:white;padding-bottom: 0px;"><b>Contact Us</b></p>
+                       <hr class="footer-topic">
+                       <ul style="">
+                       
+                          <li>
+                            <a class="latest_news text-decoration-none" style="mailto:info@statistics.gov.lk">
+                                <img src="https://www.statistics.gov.lk/assets/img/icons/other/icons-04.png" width="16" height="16">&nbsp;&nbsp;information@statistics.gov.lk
+                             </a>
+                          </li>
+
+                          <li>
+                              <a class="latest_news" style="text-decoration: none;">
+                                <img src="https://www.statistics.gov.lk/assets/img/icons/other/icons-05.png" width="20" height="20">
+                              +94 11 2147000 </a>
+                          </li>
+                        
+                          <li>
+                              <a class="latest_news" style="text-decoration: none;">
+                                <img src="https://www.statistics.gov.lk/assets/img/icons/other/icons-02.png" width="20" height="20"> +94 11 2147011 </a>
+                          </li>
+                        <li>
+                          <a class="latest_news" style="text-decoration: none;">
+                            <img src="https://www.statistics.gov.lk/assets/img/icons/other/icons-01.png" width="20" height="20">
+                           306/71,<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Polduwa Road, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Battaramulla.</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+          
+          <div class="col-md-3 col-lg-2 footer_widget">
+          <div class="inner">
+            <p style="margin-bottom: 0px;color:white;padding-bottom: 0px;">Legal Authority</p>
+            <hr class="footer-topic" style="padding: 0;margin: 0;margin-bottom: 10;">
+
+             <ul class="list-unstyled">
+              <li><a href=https://www.statistics.gov.lk/about_us/censusordanance>The Census Ordinance</a></li>
+			  <li><a href=https://www.statistics.gov.lk/about_us/statisticsordinance>The Statistics Ordinance</a></li>
+              <!--<li>About the 2023 Census</li>
+              <li>2023 Census Website</li>-->
+            </ul>
+			</br>
+			<p style="margin-bottom: 0px;color:white;padding-bottom: 0px;">Right to Information Act</p>
+			 <hr class="footer-topic" style="padding: 0;margin: 0;margin-bottom: 10;">
+			 <ul class="list-unstyled">
+			
+			 <li><a href=https://www.statistics.gov.lk/about_us/righttoinformation>Right to Information</a></li>
+			</ul>
+			
+			<p style="margin-bottom: 0px;color:white;padding-bottom: 0px;">Compliants</p>
+            <hr class="footer-topic" style="padding: 0;margin: 0;margin-bottom: 10;">
+			<ul class="list-unstyled">
+			<li  class="">
+              <a class="text-decoration-none" href="http://203.94.94.81/Complaint_Reports/">Report Bribery, Corruption & Fraud</a>
+                </li>
+					</u>
+          </div>
+        </div>
+          <div class="col-md-3 col-lg-2 footer_widget">
+          <div class="inner">
+            <p style="margin-bottom: 0px;color:white;padding-bottom: 0px;">Partner Links</p>
+            <hr class="footer-topic" style="padding: 0;margin: 0;margin-bottom: 10;">
+
+            <ul class="list-unstyled">
+                                        <li  class="">
+                                            <a class="text-decoration-none" href="https://www.treasury.gov.lk/">treasury.gov.lk</a>
+                                        </li>
+                                        <li class="">
+                                            <a class="text-decoration-none" href="https://www.cbsl.gov.lk/">cbsl.gov.lk </a></li>
+										<!-- <li class="">
+                                            <a class="text-decoration-none" href="https://www.unfpa.org/">unfpa.org</a></li>-->
+                                        <li  class="">
+                                            <a class="text-decoration-none" href="https://www.unescap.org/">unescap.org</a>
+                                        </li>
+                                        <li  class="">
+                                            <a class="text-decoration-none" href="https://www.unsiap.or.jp/">unsiap.or.jp</a>
+                                        </li>
+                                        <li  class="">
+                                            <a class="text-decoration-none" href="https://unstats.un.org/UNSDWebsite/">unstats.un.org</a>
+                                        </li>
+                                        <li  class="">
+                                            <a class="text-decoration-none" href="http://data.un.org/">data.un.org</a>
+                                        </li>
+										 <li  class="">
+                                            <a class="text-decoration-none" href="https://srilanka.unfpa.org/en">srilanka.unfpa.org</a>
+                                        </li>
+                                    </ul>
+
+
+          </div>
+        </div>
+          <div class="col-md-3 col-lg-2 footer_widget">
+          <div class="inner">
+            <p style="margin-bottom: 0px;color:white;padding-bottom: 0px;">Staff Access</p>
+            <hr class="footer-topic" style="padding: 0;margin: 0;margin-bottom: 10;">
+
+            <ul style="margin: 0;padding: 0;padding-top: 5px">
+              <li class="p-0 m-0"><a class="latest_news" href="https://www.statistics.gov.lk/Internal/login.php" style="text-decoration: none;" target="_blank"> Internal Web</a></li>
+               <!--<li><a class="latest_news" href="http://203.94.94.85/lms/" style="text-decoration: none;"> DCS LMS</a></li> -->
+			  <li><a class="latest_news" href="http://lms.statistics.gov.lk" style="text-decoration: none;"> DCS LMS</a></li> 
+              <!-- <li><a class="latest_news" href="http://203.94.94.85:8712/Census2021/" style="text-decoration: none;"> CPH 2024 - Internal</a></li> -->
+             <!-- <li><a class="latest_news" href="https://www.statistics.gov.lk/commonhrm/login.php" style="text-decoration: none;"> e- HRM</a></li> -->
+              <li><a class="latest_news" href="https://mail.statistics.gov.lk/webmail/login.php" style="text-decoration: none;" target="_blank"> Web Mail</a></li>                          
+            </ul>
+
+          </div>
+        </div>
+
+    
+         
+
+               
+
+                    
+
+                     
+
+
+
+
+                </div>
+              </div>
+              <br>
+            </div>
+
+            <div class="container" style="/*border-top: grey 1px solid;*/">
+ <ul class="row list-group list-group-horizontal-sm border-0 p-0 mt-1 mb-1" style="display: none;">
+          <li class="col list-group-item border-0 p-0 m-0"><a href="http://www.erd.gov.lk/index.php?lang=en"><img src="https://www.statistics.gov.lk/img/Institutions/icons/GovMinistrys1.png" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="https://www.cbsl.gov.lk/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/GovMinistrys2.png" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="http://www.npd.gov.lk/index.php/en/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/GovMinistrys3.png" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="http://www.treasury.gov.lk/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/GovMinistrys4.png" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="https://www.unescap.org/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/escap.jpg" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="http://www.unsiap.or.jp/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/siap_new.jpg" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="https://unstats.un.org/home/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/unsd.jpg" class="img-responsive" width="150px" height="40px"></a></li>
+          <li class="col list-group-item border-0 p-0 m-0"><a href="http://data.un.org/"><img src="https://www.statistics.gov.lk/img/Institutions/icons/UNdata.jpg" class="img-responsive" width="150px" height="40px"></a></li>
+        </ul>
+      </div>
+ <!---Bottom line-->
+
+  <div class="footer-bottom secondFooter">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="copyright-txt">
+          <font color="white" style="">@ All Rights Reserved</font>
+        </div>
+        </div>
+       
+	   <!---->
+       
+        <!--<div class="daily-total">
+                <h6><em>Hits: 8,541</em></h6>
+                <!-- <small>Date: 2026-10-04</small> -->
+            <!--</div>-->
+         
+         <div class="col-lg-3 text-right">
+		 </div>
+         
+		 
+		<div class="col-lg-3">
+                 
+              <em style="color: white"> Last Update : 2026-10-01<br></em>
+            </div>
+      </div>
+    </div>
+  </div>
+  <!--Bottom line End-->
+</footer>
+</html>

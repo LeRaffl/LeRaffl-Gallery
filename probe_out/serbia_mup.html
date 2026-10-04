@@ -1,0 +1,596 @@
+<!DOCTYPE html><html lang="sr" data-fr-scheme="light" data-fr-theme="light">
+
+<head>
+    
+    
+    
+
+
+
+
+
+<meta charset="utf-8" />
+<title>Скупови података - Портал отворених података</title>
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Скупови података - Портал отворених података" />
+<link rel="author" href="None" />
+<meta name="description" content="Портал отворених података претрага скупова података" />
+<meta name="robots" content="noindex" />
+
+<meta property="og:description" content="Портал отворених података претрага скупова података" />
+<meta property="og:image" content="https://data.gov.rs/_themes/govrs/img/logo-social.png?_=1791139840.8272805" />
+<meta name="keywords" content="opendata, udata, претрага, скуповa података" />
+<meta name="theme-static-root" content="/_themes/govrs/" />
+<meta name="static-root" content="/static/" />
+<meta name="api-root" content="/api/1/" />
+<meta name="api-2-root" content="/api/2/" />
+<meta name="admin-root" content="/sr/admin/" />
+<meta name="api-specs" content="https://data.gov.rs/api/1/swagger.json"/>
+<meta name="auth-url" content="/sr/login/" />
+<meta name="schema-catalog-url" content="None" />
+<meta name="schema-validata-url" content="https://validata.etalab.studio" />
+<meta name="github" content="https://github.com/etalab/udata" />
+<meta name="js-config-dataset-url" content="/sr/datasets/" />
+<meta name="js-config-reuse-url" content="/sr/reuses/" />
+<link rel="alternate" href="/sl/datasets/?q=vozila" hreflang="sl" />
+
+<meta name="csrf-token" content="IjZkOGVlZDMyOWU0ZDM4ZmZjMDNjZjRhZWE2OTdlYmY1YjIzYTE0MmQi.asKgAA.1B-KbAmqe-7OKPDTo26QUp9hDsw" />
+<meta name="site-title" content="Портал отворених података" />
+
+
+
+<meta name="check-urls" content="true" />
+<meta name="unchecked-types" content="%5B%22api%22%5D" />
+<meta name="territory-enabled" content="false">
+<meta name="delete-me-enabled" content="true">
+<meta name="search-autocomplete-enabled" content="true">
+<meta name="search-autocomplete-debounce" content="200">
+<meta name="resources-default-page-size" content="6">
+<meta name="markdown-config" content="%7B%22attributes%22%3A%20%7B%22a%22%3A%20%5B%22href%22%2C%20%22title%22%2C%20%22rel%22%2C%20%22data-tooltip%22%5D%2C%20%22abbr%22%3A%20%5B%22title%22%5D%2C%20%22acronym%22%3A%20%5B%22title%22%5D%2C%20%22div%22%3A%20%5B%22class%22%5D%2C%20%22img%22%3A%20%5B%22alt%22%2C%20%22src%22%2C%20%22title%22%5D%7D%2C%20%22styles%22%3A%20%5B%5D%2C%20%22tags%22%3A%20%5B%22a%22%2C%20%22abbr%22%2C%20%22acronym%22%2C%20%22b%22%2C%20%22br%22%2C%20%22blockquote%22%2C%20%22code%22%2C%20%22dd%22%2C%20%22del%22%2C%20%22div%22%2C%20%22dl%22%2C%20%22dt%22%2C%20%22em%22%2C%20%22h1%22%2C%20%22h2%22%2C%20%22h3%22%2C%20%22h4%22%2C%20%22h5%22%2C%20%22h6%22%2C%20%22hr%22%2C%20%22i%22%2C%20%22img%22%2C%20%22li%22%2C%20%22ol%22%2C%20%22p%22%2C%20%22pre%22%2C%20%22small%22%2C%20%22span%22%2C%20%22strong%22%2C%20%22ul%22%2C%20%22sup%22%2C%20%22sub%22%2C%20%22table%22%2C%20%22td%22%2C%20%22th%22%2C%20%22tr%22%2C%20%22tbody%22%2C%20%22thead%22%2C%20%22tfooter%22%2C%20%22details%22%2C%20%22summary%22%5D%7D" />
+
+<meta name="map-config" content="%7B%22init%22%3A%20%7B%22center%22%3A%20%5B44.508248%2C%2020.914047%5D%2C%20%22level%22%3A%200%2C%20%22zoom%22%3A%206%7D%2C%20%22tiles%22%3A%20%7B%22config%22%3A%20%7B%22attribution%22%3A%20%22%26copy%3B%3Ca%20href%3D%5C%22http%3A//openstreetmap.org/copyright%5C%22%3EOpenStreetMap%3C/a%3E/%3Ca%20href%3D%5C%22https%3A//cartodb.com/attributions%5C%22%3ECartoDB%3C/a%3E%22%2C%20%22subdomains%22%3A%20%22abcd%22%7D%2C%20%22hidpi%22%3A%20%22https%3A//cartodb-basemaps-%7Bs%7D.global.ssl.fastly.net/light_all/%7Bz%7D/%7Bx%7D/%7By%7D%402x.png%22%2C%20%22url%22%3A%20%22https%3A//server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D%22%7D%7D" />
+<meta name="tags-config" content="%7B%22MAX_LENGTH%22%3A%2096%2C%20%22MIN_LENGTH%22%3A%203%7D" />
+<meta name="read-only-enabled" content="false">
+
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    <link href="/_themes/govrs/less/index.css?_=1791139840.8292503" rel="stylesheet">
+    <link href="/_themes/govrs/js/index.css?_=1791139840.8292737" rel="stylesheet">
+    <link href="/_themes/govrs/less/footer.css?_=1791139840.829296" rel="stylesheet">
+    <link rel="shortcut icon" href="/_themes/govrs/img/favicon.png?_=1791139840.8293164">
+    
+    
+    <link href="/sr/datasets/recent.atom" rel="alternate" type="application/atom+xml"
+        title="Недавни скупови података" />
+
+    <link href="/sr/reuses/recent.atom" rel="alternate" type="application/atom+xml"
+        title="Недавни примери употребе" />
+
+    
+
+    
+
+    
+
+<!-- Matomo -->
+<script>
+  var _paq = window._paq = window._paq || [];
+  /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="https://stats.data.gov.rs/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', '2']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<!-- End Matomo Code -->
+</head>
+
+<body class=" theme-govrs">
+    <section id="app">
+        
+
+
+
+
+
+
+
+
+<section class="site-header" ref="header" role="banner">
+    <div class="header-inner">
+        <div class="hidden visible-xl mobile-menu vuejs row justify-start" role="navigation"
+            aria-label="Мобилни навигациони мени">
+            <div class="row w-100">
+                <div class="mobile-icon">
+                    <a href="#" @click.capture.prevent="addBodyClass('mobile-menu-open')" title="Отвори мени" class="burger-open">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M2 14.8H18V16H2V14.8ZM2 11.2H18V12.4H2V11.2ZM2 7.6H18V8.8H2V7.6ZM2 4H18V5.2H2V4Z" fill="white"/>
+</svg>
+                    </a>
+                </div>
+                <nav class="site-title">
+                    <a href="/">Data.gov.rs</a>
+                </nav>
+                <div class="mobile-icon" style="margin-left: auto;">
+                    <a href="/datasets" title="Претрага података" 
+                        @click.capture.prevent="$bus.emit('suggest.startSearch')" role="search" class="mobile-search">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M18.75 17.8686L14.0312 13.1249C16.3746 10.2975 16.0822 6.12762 13.3672 3.65493C10.6522 1.18224 6.47324 1.27977 3.87657 3.87644C1.2799 6.47311 1.18236 10.6521 3.65505 13.3671C6.12774 16.0821 10.2976 16.3745 13.125 14.0311L17.8687 18.7499L18.75 17.8686ZM3.125 8.74987C3.125 5.64327 5.64339 3.12487 8.75 3.12487C11.8566 3.12487 14.375 5.64327 14.375 8.74987C14.375 11.8565 11.8566 14.3749 8.75 14.3749C5.64339 14.3749 3.125 11.8565 3.125 8.74987Z" fill="white"/>
+</svg>
+                    </a>
+                </div>
+                <div class="mobile-icon">
+                    <a href="#" @click.capture.prevent="addBodyClass('mobile-profile-open')" title="Отвори мени" class="burger-open">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M10 2.5C11.7259 2.5 13.125 3.89911 13.125 5.625C13.125 7.35089 11.7259 8.75 10 8.75C8.27411 8.75 6.875 7.35089 6.875 5.625C6.875 3.89911 8.27411 2.5 10 2.5ZM10 1.25C7.58375 1.25 5.625 3.20875 5.625 5.625C5.625 8.04125 7.58375 10 10 10C12.4162 10 14.375 8.04125 14.375 5.625C14.375 3.20875 12.4162 1.25 10 1.25ZM16.25 18.75H15V15.625C15 14.7962 14.6708 14.0013 14.0847 13.4153C13.4987 12.8292 12.7038 12.5 11.875 12.5H8.125C6.39911 12.5 5 13.8991 5 15.625V18.75H3.75V15.625C3.75 13.2088 5.70875 11.25 8.125 11.25H11.875C14.2912 11.25 16.25 13.2088 16.25 15.625V18.75Z" fill="white"/>
+</svg>
+                    </a>
+                </div>
+                <div class="mobile-menu-close hidden">
+                    <a href="#" @click.capture.prevent="removeBodyClasses(['mobile-menu-open','mobile-profile-open'])" title="Затвори мени">
+                        <svg width="15" height="15" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.85156 4.5L8.38281 1.99219C8.52344 1.85156 8.52344 1.59375 8.38281 1.45312L7.79688 0.867188C7.65625 0.726562 7.39844 0.726562 7.25781 0.867188L4.75 3.39844L2.21875 0.867188C2.07812 0.726562 1.82031 0.726562 1.67969 0.867188L1.09375 1.45312C0.953125 1.59375 0.953125 1.85156 1.09375 1.99219L3.625 4.5L1.09375 7.03125C0.953125 7.17188 0.953125 7.42969 1.09375 7.57031L1.67969 8.15625C1.82031 8.29688 2.07812 8.29688 2.21875 8.15625L4.75 5.625L7.25781 8.15625C7.39844 8.29688 7.65625 8.29688 7.79688 8.15625L8.38281 7.57031C8.52344 7.42969 8.52344 7.17188 8.38281 7.03125L5.85156 4.5Z" fill="#E0E0E0"/>
+</svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="header-nav">
+            <div class="hagrid">
+                <div class="row align-items-center">
+                    <div class="col-1 hidden-xl">
+                        <nav class="site-titl">
+                            <a href="/">
+                                <img
+                                src="/_themes/govrs/img/srb-logo.png?_=1791139840.8357239"
+                                width="54.5"
+                                height="108"
+                                loading="lazy"
+                                alt="Portal otvorenih podataka"
+                                />
+                            </a>
+                        </nav>
+                    </div>
+                   <div class="col-11">
+                    <div class="row justify-between align-items-center">
+                        <div class="fr-mt-2w hidden-xl">
+                            <span id="data-gov-rs">DATA.GOV.RS</span>
+                        </div>
+                        <div class="col login-box row-inline justify-end align-items-center fr-mt-2w" style="flex-grow: 0;">
+                            
+                            <div>
+                                <a class="fr-mr-1w" href="/sr/login/?next=%2Fsr%2Fdatasets%2F"
+                                title="Пријава">
+                                    Пријава
+                                </a> / 
+                                
+                                <a class="fr-ml-1w" href="/sr/register/?next=%2Fsr%2Fdatasets%2F"
+                                title="Региструјте се">
+                                    Региструјте се
+                                </a>                                
+                            </div>
+
+                            
+                            
+                            <div class="row justify-between align-items-center">
+                                <div class="pt-sm navbar-search hidden-xl" role="search">
+                                    <form action="/datasets" class="w-100 row-inline"
+                                            @focus.capture.prevent="$bus.emit('suggest.startSearch')" tabindex="0">
+                                        <span class="icon active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15 14.3L10.7 10C12.6 7.70001 12.3 4.20001 10 2.30001C7.70001 0.400014 4.20001 0.700014 2.30001 3.00001C0.400014 5.30001 0.700014 8.80001 3.00001 10.7C5.00001 12.4 8.00001 12.4 10 10.7L14.3 15L15 14.3ZM2.00001 6.50001C2.00001 4.00001 4.00001 2.00001 6.50001 2.00001C9.00001 2.00001 11 4.00001 11 6.50001C11 9.00001 9.00001 11 6.50001 11C4.00001 11 2.00001 9.00001 2.00001 6.50001Z" fill="#0D4077"/>
+</svg></span>
+                                        <input type="text"  name="q" aria-label="Претрага..."
+                                            placeholder="Претрага..." />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                   </div>
+                </div>
+            </div>
+        </nav>
+        
+        <nav class="header-menu">
+            <div class="hagrid">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="row justify-between align-items-center">
+                            <div class="row justify-between align-items-center">
+                                <nav class="nav-tabs" role="navigation" aria-label="Главни навигациони мени">
+                                    
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/discover/">Отворени подаци</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/organizations/">Организације</a>
+                                    
+                                    
+                                    
+                                    <a class="tab active" href="/sr/datasets/">Скупови података</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/reuses/">Примери употребе</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/posts/">Практично о подацима</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/documents/">Документа</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/ask/">Питамо вас</a>
+                                    
+                                    
+                                    
+                                    <a class="tab " href="/sr/contact/">Контакт</a>
+                                    
+                                </nav>   
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="vuejs">
+            <suggest ref="suggest" />
+        </div>
+    </div>
+</section>
+
+
+
+
+<main>
+    
+
+
+
+
+<section class="default" role="main">
+    <div class="">
+        
+<section
+    class="hagrid search py-lg vuejs"
+>
+    <Search
+        :disable-first-search="true"
+        data-total-results="0"
+        data-results=""
+    >
+    </Search>
+    <noscript>
+        <div class="pt-sm search-input">
+            <form method="GET" class="row-inline fs-lg">
+                <span class="icon active"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="58" height="55" viewBox="0 0 58 55"><g><g><path fill="none" stroke="#0D4077" stroke-miterlimit="20" stroke-width="4" d="M46.072 24.377c0 11.985-9.716 21.7-21.7 21.7-11.985 0-21.7-9.716-21.7-21.7 0-11.985 9.715-21.7 21.7-21.7s21.7 9.715 21.7 21.7z"/></g><g><path fill="none" stroke="#0D4077" stroke-miterlimit="20" stroke-width="4" d="M40.822 38.026l15.05 15.05"/></g></g></svg></span>
+                <input type="text" name="q" value="vozila" aria-label="Претрага..."
+                    placeholder="Претрага..." />
+            </form>
+        </div>
+        <div class="row-inline pt-xl pt-lg-lg justify-between align-items-center">
+            <h1 class="m-0 h2">Скупови података <sup>0</sup></h1>
+            <a href="/sr/reuses/" title="" class="nav-link fs-sm mt-lg-sm">Претрага примера употебе</a>
+        </div>
+        <ul class="search-results mt-lg">
+            
+        </ul>
+        
+
+
+
+    </noscript>
+</section>
+
+    </div>
+</section>
+
+
+
+</main>
+
+<section class="footer" role="contentinfo">
+    <footer>
+        <div class="participez">
+    <div class="hagrid" style="position: relative;min-height: 722px;">
+        <a href="https://hub.data.gov.rs/" target="_blank" id="open-data-hub-img">
+            <img
+            src="/_themes/govrs/img/open_data_hub_negative.png?_=1791139840.84396"
+            width="368"
+            height="170"
+            loading="lazy"
+            alt="Open Data Hub"
+            class="hidden-md"
+            />
+        </a>
+        <div class="py-hg row">
+            <div class="col-4 col-sm-12 text-white">
+                <h1 class="participez-header">Укључите се у свет отворених података</h1>
+                <p class="participez-description">Отворени подаци доприносе привредном расту, модернизацији јавне управе, квалитетнијим услугама за грађане, и отварају простор за учешће грађане у процесу доношења одлука. 
+                </p>
+            </div>
+        </div>
+        
+        <div class="participez-urls">
+<!--             <a class="blue-link-arrow"
+                href="https://guides.etalab.gouv.fr/data.gouv.fr/publier-jeu-de-donnees/">
+                                Објавите скуп података
+                                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.3 0.7L12.1 4.5H0V5.5H12.1L8.3 9.3L9 10L14 5L9 0L8.3 0.7Z" fill="#4B90F5"/>
+</svg>
+            </a> -->
+            <br>    
+<!--             <a class="blue-link-arrow"
+                href="https://guides.etalab.gouv.fr/reutilisation/publier-reutilisation/">
+                Објавите пример употребе
+                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.3 0.7L12.1 4.5H0V5.5H12.1L8.3 9.3L9 10L14 5L9 0L8.3 0.7Z" fill="#4B90F5"/>
+</svg>
+            </a> -->
+            <br>
+<!--            <a class="blue-link-arrow hidden-md"
+                href="/sr/apidoc/">
+                Погледајте комплетну документацију
+                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.3 0.7L12.1 4.5H0V5.5H12.1L8.3 9.3L9 10L14 5L9 0L8.3 0.7Z" fill="#4B90F5"/>
+</svg>
+            </a>
+
+            <a class="white-link-arrow visible-md" style="display: none;"
+                href="/sr/apidoc/">
+                Погледајте комплетну документацију
+                <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.3 0.7L12.1 4.5H0V5.5H12.1L8.3 9.3L9 10L14 5L9 0L8.3 0.7Z" fill="#4B90F5"/>
+</svg>
+            </a>-->
+        </div>
+        <div class="fr-mt-14w">
+            <a class="fr-btn fr-btn--secondary-interactive fr-btn--icon-right fr-mr-3v redesign-button interactive-color"
+                target="_blank"
+                href="https://hub.data.gov.rs/">
+                <span class="fr-mr-1v">Посетите Open Data Hub</span>
+                <span class="button-icon"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.3 0.7L12.1 4.5H0V5.5H12.1L8.3 9.3L9 10L14 5L9 0L8.3 0.7Z" fill="#4B90F5"/>
+</svg></span>
+            </a>
+        </div>
+        <a href="https://hub.data.gov.rs/" target="_blank" id="open-data-hub-mobile">
+            <img
+            src="/_themes/govrs/img/open_data_hub_negative.png?_=1791139840.8487759"
+            width="180"
+            height="84"
+            loading="lazy"
+            alt="Open Data Hub"
+            style="display: none;"
+            class="visible-md"
+            />
+        </a>
+        
+    </div>
+</div>
+    </footer>
+    <div class="hagrid">
+        <footer class="footer-brand">
+            <select
+                aria-label="Одабир језика"
+                onchange="location = location.href.replace(new RegExp('\/\\w{2}\/'), '/' + this.value + '/', true)"
+            >
+                
+                    
+                    <option value=sr selected>
+                        Српски - ћир
+                    </option>
+                    
+                
+                    
+                    <option value=sl>
+                        Srpski - lat
+                    </option>
+                    
+                
+            </select>
+        </footer>
+        <footer class="footer-legals fr-py-3w text-grey-380 fr-text--sm fr-mb-0">
+            <div class="fr-grid-row fr-grid-row--gutters align-items-center">
+                <ul class="fr-col-12 fr-col-lg fr-grid-row legal-nav text-align-center-lg">
+                    
+                </ul>
+            </div>
+        </footer>
+        <footer class="footer-links fr-py-9v py-lg-xl">
+            <div class="hagrid">
+                <div class="fr-grid-row fr-grid-row--gutters">
+                    <div class="fr-col-12 fr-col-lg-5-col">
+                        <h3 class="h4">Корисни линкови</h3>
+                        <ul class="fr-text--sm fr-mb-0">
+                            <li>
+                                <a href="https://hub.data.gov.rs" target="_blank">Open Data Hub</a>
+                            </li>
+                            <li>
+                                <a href="https://www.ite.gov.rs/" target="_blank">Канцеларија за ИТ и еУправу</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-5-col mt-lg-lg">
+                        <h3 class="h4">Пратите нас</h3>
+                        <ul class="fr-text--sm fr-mb-0">
+                            <li>
+                                <a href="https://twitter.com/kancelarijaITE" title="Twitter" target="_blank">
+                                    Twitter
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.linkedin.com/company/kancelarija-ite/" target="_blank" title="Linkedin">
+                                    LinkedIn
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://data.gov.rs/sr/datasets/recent.atom" target="_blank" title="RSS">
+                                    RSS
+                                </a>
+                            </li>                        
+                        </ul>
+                    </div>
+                    <!-- <div class="fr-col-12 fr-col-lg-5-col mt-lg-lg">
+                        <h3 class="h4">Контакт</h3>
+                        <ul class="socials fr-my-3w">
+                            <li>
+                                <a href="mailto:opendata@ite.gov.rs" title="Twitter">
+                                    opendata@ite.gov.rs
+                                </a>
+                            </li>                    
+                        </ul>
+                    </div> -->
+                    <div class="fr-col-12 fr-col-lg-5-col mt-lg-lg">
+                        <h3 class="h4">Документација</h3>
+                        <ul class="fr-text--sm fr-mb-0">
+                            
+                            <li>
+                                <a href="/rs/apidoc" target="_blank">АПИ документација</a>
+                            </li>
+                            
+                            <li>
+                                <a href="/terms" target="_blank">Услови коришћења</a>
+                            </li>
+                            
+                        </ul>
+                    </div>
+                    <div class="fr-col-12 fr-col-lg-5-col mt-lg-lg">
+                        <h3 class="h4">Други портали</h3>
+                        <ul class="fr-text--sm fr-mb-0">
+                            <li>
+                                <a href="https://data.poverenik.rs/" target="_blank">Повереник</a>
+                            </li>
+                            <li>
+                                <a href="https://download.geosrbija.rs/download/login" target="_blank">ГеоСрбија</a>
+                            </li>
+                            <li>
+                                <a href="https://opendata.stat.gov.rs/odata/" target="_blank">Републички завод за статистику</a>
+                            </li>                      
+                            <li>
+                                <a href="https://opendata.stat.gov.rs/odatasdgun/" target="_blank">Циљеви одрживог развоја</a>
+                            </li>  
+                            <li>
+                                <a href="https://opendata.mpn.gov.rs/otvoreni-podaci.html" target="_blank">Министарство просвете</a>
+                            </li>
+                            <li>
+                                <a href="https://data.europa.eu/en" target="_blank">Европски портал отворених података</a>
+                            </li>  
+                        </ul>
+                    </div>                    
+                </div>
+                <div class="logos-array">
+                    <img
+                    src="/_themes/govrs/img/logo_array.png?_=1791139840.8490875"
+                    width="624.13"
+                    height="91"
+                    loading="lazy"
+                    class="hidden-md"
+                    alt="Open Data Hub"
+                    />
+
+                    <img
+                    src="/_themes/govrs/img/logos_mobile.png?_=1791139840.8491082"
+                    width="336"
+                    height="376.46"
+                    loading="lazy"
+                    class="visible-md"
+                    style="display: none;"
+                    alt="Open Data Hub"
+                    />
+                </div>
+                <div class="mt-lg-lg self-center">
+                    <!-- <div>
+                        <a href="/terms" title="Twitter">
+                            Услови коришћења
+                        </a>
+                    </div> -->
+                    <!--<p class="text-black fr-text--sm fr-my-1w">
+                        Уколико није другачије наведено, сав садржај сајта је доступан под <a href='https://github.com/etalab/licence-ouverte/blob/master/LO.md#licence-ouverte-20open-licence-20'>Open Licence 2.0</a>
+                    </p>-->
+                    <!--   <div class="etalab-logo">
+                        <a href="http://www.etalab.gouv.fr" title="Etalab блог">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="226" height="67" viewBox="0 0 226 67"><g><g><path fill="#232323" d="M192.89 58.601c-2.77 3.342-6.21 5.54-10.507 6.603-4.39 1.086-8.666.914-12.971-.147-1.017-.25-2.006-.659-2.97-1.083-1.361-.599-1.901-.504-2.907.527-.261.267-.725.337-1.095.497-.125-.404-.37-.813-.353-1.213.053-1.386.288-2.769.29-4.153.02-15.934.009-31.868.01-47.802 0-2.546-.73-4.657-3.193-5.897-.456-.23-.71-.864-1.057-1.31.456-.35.862-.824 1.375-1.03a263.87 263.87 0 0 1 7.686-2.925c.495-.18 1.066-.153 1.602-.222.06.54.2 1.083.17 1.617-.15 2.63-.464 5.253-.5 7.882-.082 6.191-.044 12.384-.037 18.577 0 .48.054.992.229 1.433.479 1.21.876 1.142 2.052.65 2.136-.894 4.326-1.89 6.583-2.215 3.792-.546 7.619-.376 11.123 1.583 4.046 2.263 6.868 5.49 7.872 10.104.397 1.827.66 3.682.984 5.523-.251 4.803-1.274 9.25-4.385 13.001zm-24.462-13.759c0 2.603-.081 5.21.024 7.808.095 2.376.492 4.76 1.784 6.796 2.159 3.4 5.24 4.828 9.339 4.181 2.934-.463 5.188-1.825 7.006-4.106 1.52-1.908 2.333-4.087 2.854-6.444 1.209-5.465.586-10.642-2.358-15.439-1.558-2.539-3.73-4.408-6.598-5.416-2.762-.97-5.557-.954-8.338-.26-1.341.333-2.744.852-3.17 2.42-.275 1.007-.483 2.063-.514 3.105-.074 2.45-.024 4.903-.024 7.355z"/></g><g><path fill="#232323" d="M145.357 30.066c1.49 1.17 2.372 2.73 2.495 4.53.198 2.881.152 5.783.144 8.677-.006 2.301-.137 4.602-.164 6.904-.03 2.566-.08 5.135.018 7.698.07 1.78.892 3.227 2.457 4.211 1.46.918 2.795.488 4.17-.213.352-.18.847-.08 1.276-.108-.148.42-.188.937-.463 1.243-2.334 2.607-5.316 3.48-8.698 2.974-1.678-.25-2.889-1.369-3.976-2.624-1.465-1.689-1.44-1.603-3.339-.487-1.874 1.103-3.744 2.385-5.793 2.986-4.568 1.34-10.395-.486-11.03-6.46a13.45 13.45 0 0 1 .067-3.478c.271-1.719 1.365-2.964 2.924-3.652 2.547-1.124 5.141-2.143 7.731-3.163 2.31-.909 4.686-1.666 6.942-2.69.76-.346 1.69-1.259 1.77-1.996.325-3.05.761-6.144-.53-9.139-1.395-3.234-5.062-4.77-8.36-3.61-2.212.776-3.42 2.064-3.635 4.461-.085.95-.07 2.154-1.188 2.79-1.545.876-3.182 1.417-4.957 1.236-.299-.03-.822-.814-.739-1.108.31-1.102.651-2.272 1.303-3.186 1.704-2.39 4.128-3.958 6.754-5.17 2.701-1.246 5.384-2.645 8.43-2.296 2.381-.165 4.52.201 6.391 1.67zm-3.639 20.102c-.086-.734-.452-1.378-1.299-1.236-3.182.53-6.155 1.667-8.908 3.338-2.184 1.325-3.194 3.667-2.578 5.753.811 2.746 2.931 4.431 5.575 4.437 2.06.006 3.848-.796 5.372-2.07.644-.539 1.231-1.439 1.356-2.249.313-2.032.35-4.107.496-6.165 0-.603.055-1.213-.014-1.808z"/></g><g><path fill="#232323" d="M88.74 54.15a19.82 19.82 0 0 0 .794 5.894c.798 2.721 3.633 3.518 6.26 2.051.32-.18.76-.149 1.144-.215-.1.444-.062 1.013-.326 1.313-2.328 2.651-5.309 3.698-8.743 3.062-1.674-.309-3.135-1.215-4.16-2.719-.984-1.443-1.337-1.43-2.869-.553-1.796 1.03-3.548 2.222-5.473 2.923-3.703 1.35-8.958.543-11.039-3.636-2.137-4.294-1.073-8.78 4.184-10.61 3.157-1.1 6.233-2.428 9.355-3.628a46.115 46.115 0 0 1 3.2-1.084c1.268-.384 2.036-1.326 2.041-2.64.01-2.296.126-4.6-.025-6.886-.27-4.094-4.623-6.876-8.484-5.517-.735.26-1.477.557-2.133.97-1.345.848-2.067 2.115-1.932 3.72.125 1.49-.597 2.427-1.845 2.916a16.07 16.07 0 0 1-3.578.932c-1.329.188-1.737-.479-1.429-1.76.521-2.168 2.004-3.649 3.625-4.924 3.271-2.573 6.912-4.485 11.121-4.966 2.44-.279 4.911-.396 7.174.9 1.576.903 2.717 2.175 3.085 3.988.362 1.791.626 3.602.808 4.67-.294 5.79-.649 10.792-.755 15.8zm-8.339-4.752c-.91.183-1.809.501-2.669.861-1.628.682-3.327 1.274-4.816 2.196-4.616 2.856-3.22 7.491-.03 9.576 1.844 1.206 3.7.857 5.618.212 2.53-.85 4.214-2.76 4.33-5.234.082-1.799.015-3.605.015-5.408.196-2.184-.303-2.634-2.448-2.203z"/></g><g><path fill="#232323" d="M110.873 3.654c0 17.849-.008 35.699.018 53.548.002 1.196.147 2.419.428 3.58.465 1.923 2.15 2.22 3.768 2.518.295.055.603.034.903.067.686.075 1.038.46.91 1.15-.119.647-.49.86-1.215.835a352.88 352.88 0 0 0-11.032-.221c-1.648-.005-3.296.238-4.947.268-.308.005-.864-.454-.88-.724-.02-.358.295-.95.61-1.071.761-.297 1.605-.38 2.415-.548 1.54-.322 2.38-1.161 2.533-2.743.193-1.983.394-3.976.4-5.965.036-13.893.047-27.785-.005-41.678-.006-1.731.005-3.6-1.305-5.01-.554-.594-1.336-.972-1.955-1.514-.374-.327-.95-.866-.872-1.16.118-.442.67-.896 1.141-1.093 1.382-.577 2.83-.996 4.226-1.542 1.26-.492 2.482-1.084 3.731-1.607 1.112-.465 1.421-.23 1.391.986-.015.64-.002 1.283-.002 1.924h-.26z"/></g><g><path fill="#232323" d="M18.983 41.986c-2.943 0-5.888-.02-8.831.012-1.052.011-2.123.058-3.145.277-.452.098-1.093.624-1.147 1.024-.159 1.167-.161 2.378-.054 3.557.349 3.85 1.763 7.287 4.18 10.311 3.34 4.18 10.553 6.398 15.215 3.82 1.256-.696 2.237-1.874 3.396-2.763.419-.32 1.198-.758 1.452-.592.717.47.512 1.252.069 1.894-2.191 3.175-5.013 5.451-8.831 6.44-5.467 1.414-10.557.727-15.159-2.612-2.521-1.829-4.004-4.415-5.01-7.348-1.42-4.14-1.26-8.365-.492-12.512.754-4.069 2.752-7.635 5.911-10.446 4.447-3.956 9.706-4.857 15.325-3.75 4.083.803 7.043 3.31 8.354 7.317.446 1.366.244 2.991.125 4.48-.073.906-1.019.87-1.733.873-3.208.013-6.416.006-9.625.006zm-4.922-2.398c2.409 0 4.825.111 7.225-.03 2.346-.14 3.091-1.243 2.733-3.56-.525-3.4-5.117-6.005-8.773-4.907-3.199.96-5.902 2.648-7.578 5.665-.322.58-.665 1.187-.793 1.823-.171.848.211 1.32 1.196 1.293 1.996-.054 3.993-.016 5.99-.016z"/></g><g><path fill="#232323" d="M40.606 47.435c0-3.847.011-7.694-.005-11.542-.008-2.02-.828-2.794-2.848-2.77-.415.006-.847.1-1.24.014-.353-.078-.664-.35-.993-.535.225-.315.39-.724.69-.922.398-.262.903-.364 1.365-.526 3.25-1.144 5.347-3.553 7.032-6.412.134-.228.215-.563.413-.661.408-.2.92-.44 1.31-.344.274.067.575.65.597 1.019.07 1.165-.005 2.338.01 3.508.015 1.339.473 1.717 1.812 1.69 3.018-.062 6.037-.102 9.055-.121 1.126-.007 1.42.434 1.443 1.799.018 1.012-.31 1.538-1.433 1.522-2.944-.044-5.889-.02-8.833-.008-1.597.006-2.215.568-2.22 2.17-.022 6.305-.06 12.61.025 18.912.03 2.216.283 4.43 1.643 6.372 1.486 2.12 4.792 3.14 7.147 2.054.715-.33 1.375-.796 2.113-1.051.373-.13.862.076 1.3.129-.1.357-.092.816-.317 1.056-2.222 2.364-4.952 3.666-8.223 3.653-1.717-.006-3.4.042-5.128-.527-3.027-.996-4.468-3.17-4.635-6.034-.242-4.135-.062-8.295-.062-12.445h-.018z"/></g><g><path fill="#232323" d="M181.871 9.835c.532.19 1.224-.11 1.841-.1.442.007.883.153 1.324.237-.192.349-.41.686-.57 1.049-.157.358-.358.74-.363 1.113-.023 1.735.028 3.47.028 5.207 0 1.447-.878 2.547-2.393 3.058-1.246.42-3.11.018-3.729-.944-.192-.297.04-.866.08-1.311.375.114.92.11 1.096.364.543.777 1.288 1.109 2.042.719.667-.345 1.182-1.037 1.663-1.653.137-.176.027-.737-.162-.915-.164-.154-.67-.132-.909.01-1.938 1.152-4.857-.661-4.849-3.351-.005-2.565 2.541-4.325 4.901-3.483zm-1.21.913c-1.348.026-2.406 1.188-2.387 2.62.016 1.277 1.274 2.703 2.395 2.512 1.531-.26 2.573-.824 2.222-2.595-.015-2.004-.512-2.57-2.23-2.537z"/></g><g><path fill="#232323" d="M196.993 12.627c0 .415.004.829-.001 1.243-.01.859.014 1.715 1.05 1.999.793.217 2.367-.552 2.47-1.395.162-1.292.81-2.743-.62-3.846-.156-.12.02-.671.043-1.023.582.13 1.195.19 1.727.43.183.083.214.613.225.941.027.828.028 1.658-.007 2.486-.042.994-.36 2 .929 2.596.494.228.29.823-.295.968-.313.078-.786.128-.981-.044-.931-.818-1.755-.375-2.69-.002-1.447.577-3.068-.534-3.161-2.104-.05-.863.083-1.743-.026-2.595-.073-.562-.43-1.088-.66-1.63-.082-.192-.277-.431-.221-.566a.931.931 0 0 1 .534-.48c.988-.278 1.686.278 1.71 1.327.013.565.002 1.13.002 1.695z"/></g><g><path fill="#232323" d="M189.92 17.202c-1.91.005-3.691-1.854-3.687-3.847.005-2.084 1.757-3.916 3.747-3.917 2.126-.002 3.828 1.733 3.84 3.913.013 2.102-1.753 3.846-3.9 3.851zm-2.356-4.032c-.083 1.398 1.04 2.828 2.294 2.924 1.22.092 2.735-1.336 2.792-2.634.063-1.413-1.134-2.726-2.546-2.795-1.301-.063-2.455 1.075-2.54 2.505z"/></g><g><path fill="#232323" d="M216.421 13.03c-.112-.803.44-2.03-1.016-2.523-.056-.019-.02-.795.13-.86.946-.418.818-1.208.918-2.004.114-.903.298-1.863.731-2.642.502-.905 1.5-.979 2.404-.572.277.125.388.622.575.95-.328.157-.674.478-.982.446-1.272-.13-1.54.027-1.65 1.273-.044.488-.033.981-.036 1.472-.003.708.487.801 1.045.932.293.07.516.433.77.663-.256.183-.508.514-.77.523-.969.03-1.086.587-1.039 1.366.043.715.057 1.437.004 2.15-.058.787-.024 1.421.962 1.6.206.036.502.52.456.734-.045.213-.458.47-.726.491-.705.055-1.42.011-2.128-.029-.67-.039-1.012-.593-.52-.949 1.083-.786.871-1.819.872-3.022z"/></g><g><path fill="#232323" d="M210.238 9.637c.412-.04.829-.137 1.234-.1.284.027.716.182.782.38.07.213-.156.584-.342.814-.408.503-.991.896-1.29 1.448-.736 1.356-1.333 2.787-2.03 4.166-.151.297-.485.502-.734.75-.271-.273-.636-.5-.797-.828-.682-1.381-1.258-2.817-1.97-4.182-.276-.528-.831-.906-1.221-1.383-.167-.205-.334-.495-.318-.733.01-.14.373-.333.596-.363.7-.094 1.409-.153 2.114-.153.199 0 .545.23.563.385.029.248-.081.646-.268.763-.723.452-.608.869-.182 1.482.33.477.41 1.122.705 1.634.184.32.524.649.858.74.158.043.527-.43.69-.73.326-.59.61-1.21.838-1.844.114-.32.149-.72.065-1.042-.097-.377-.364-.71-.557-1.062l1.235-.29.029.148z"/></g><g><path fill="#232323" d="M222.404 16.875c-.188.01-.383.056-.563.023-.445-.08-.885-.195-1.326-.297.228-.346.49-.675.674-1.043.178-.354.362-.742.392-1.127.063-.823.08-1.66.012-2.48-.034-.41-.3-.8-.463-1.198-.14-.338-.282-.675-.423-1.012.419-.065.837-.15 1.259-.183.126-.01.28.11.392.205.58.492 1.063.478 1.694-.029.316-.253.993-.266 1.406-.114.266.097.436.686.466 1.068.01.127-.554.436-.85.427-1.903-.055-2.263.264-2.29 2.183-.005.414-.122.86-.006 1.233.136.44.447.835.725 1.218.195.268.463.484.698.723-.337.165-.661.38-1.016.476-.237.064-.52-.043-.781-.074z"/></g><g><path fill="#232323" d="M212.917 14.41c.493.716.998 1.131.985 1.53-.012.346-.647.978-.934.94-.425-.057-1.044-.558-1.1-.94-.051-.358.522-.807 1.049-1.53z"/></g></g></svg>
+                        </a>
+                    </div> -->
+<!--                     <ul class="text-black fr-text--sm fr-mv-0">
+                        <li>DINUM одсек</li>
+                        <li>
+                            <a
+                                href="https://numerique.gouv.fr"
+                                title="DINUM сајт"
+                                class="fr-text--bold unstyled w-100"
+                            >
+                                numerique.gouv.fr
+                            </a>
+                        </li>
+                    </ul> -->
+                    <!-- <ul class="engines fr-mt-2w fr-text--xs fr-mb-0 text-grey-380">
+                        <li>
+                            <a
+                                href="https://github.com/opendatateam/udata/"
+                                title="Технологија отвореног кода"
+                                class="unstyled"
+                            >
+                                udata
+                            </a>
+                            <a
+                                href="https://pypi.org/project/udata/10.1.4.dev0/"
+                                title="Постављена верзија"
+                                class="unstyled"
+                            >
+                                10.1.4.dev0
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://github.com/etalab/udata-front/"
+                                title="Француска екстензија"
+                                class="unstyled"
+                            >
+                                udata-front
+                            </a>
+                            <a href="https://pypi.org/project/udata-front/1.2.4.dev0/"
+                                title="Постављена верзија"
+                                class="unstyled"
+                            >
+                                1.2.4.dev0
+                            </a>
+                        </li>
+                    </ul> -->
+                </div>
+            </div>
+        </footer>
+    </div>
+</section>
+
+
+
+
+    </section>
+
+    <script src="/_themes/govrs/js/index.js?_=1791139840.8514001"></script>
+    
+
+    
+
+</body>
+
+</html>

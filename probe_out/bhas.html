@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+
+    <link href="https://fonts.googleapis.com/css?family=Rubik:400,700" rel='stylesheet' type='text/css'>
+    
+    <script src="https://www.google.com/recaptcha/api.js?hl=bs"></script>
+    <link rel="stylesheet" href="/Content/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Content/css/tooltipster.css">
+    <link rel="stylesheet" href="/Content/css/slick.css">
+    <link rel="stylesheet" href="/Content/css/slick-theme.css">
+    <link rel="stylesheet" href="/Content/css/style.css">
+    <link rel="stylesheet" href="/Content/css/style-custom.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="/Content/js/custom.js"></script>
+    <script src="/Content/js/jquery.tooltipster.min.js"></script>
+    <script src="/Content/js/slick.min.js"></script>
+    <script src="/Content/js/bootstrap.min.js"></script>
+    <script src="/Content/js/prefixfree.min.js"></script>
+    <script src="/Content/js/core.js"></script>
+    <script src="/Content/js/touch.js"></script>
+    <script src="/Content/js/checkbox.js"></script>
+    <script src="/Content/js/moment.min.js"></script>
+    <script src="/Content/js/owl.carousel.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script>  (function (i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-46914903-1', 'kruchten.com'); ga('send', 'pageview');</script>
+    <!-- external libs from cdnjs -->
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-96827699-2"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-96827699-2');
+</script>
+
+
+
+</head>
+
+<body>
+    <!-- Mobile top bar -->
+    <div class="mobile-bar">
+        <div class="header__search">
+            <form class="form">
+                <input id="searchTBMobile" class="form-control" name=" " value="" placeholder="Pretraga" type="text">
+                <a href="#" id="searchBtnMobile" class="btn btn-primary btn-search"><i class="icon-arrow"></i></a>
+                <a href="#" class="btn btn-closesearch"><i class="icon-x"></i></a>
+            </form>
+        </div>
+
+        <div class="logobox">
+                <img class="logo" src="/Content/img/logo-bs.png" alt="Agencija za statistiku Bosne i Hercegovine">
+        </div>
+        <a href="#" class="btn-showsearch"><i class="icon-search"></i></a>
+        <div class="mobile-menu">
+            <button type="button" class="navbar-toggle btn-mobilemenu">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="title">MENI</span>
+                <span class="bars">
+                    <span class="icon-bar icon-bar1"></span>
+                    <span class="icon-bar icon-bar2"></span>
+                    <span class="icon-bar icon-bar3"></span>
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <div class="overlay"></div>
+
+    <!-- Header -->
+
+<header class="header">
+    <div class="header__search">
+        <form class="form">
+            <input id="searchTB" class="form-control" name=" " value="" placeholder="Pretraga" type="text">
+            <a href="#" id="searchBtn" class="btn btn-primary btn-search"><i class="icon-arrow"></i></a>
+            <a href="#" class="btn btn-closesearch"><i class="icon-x"></i></a>
+        </form>
+    </div>
+    <div class="header__topbar" > <div class="container" > <ul class="list-inline list-soc-header" ><li><a href="https://www.facebook.com/BHAS.BIH/"><span class="icon-facebook" style="color: #034A8A !important" ></span></a></li><li><a href="https://twitter.com/bhas_statistics"><span class="icon-twitter"  style="color: #034A8A !important" ></span></a></li></ul><ul class="list-inline list-lang" > <li><a class="active" href="?lang=bs">Ba</a></li><li><a href="?lang=hr">Hr</a></li><li><a href="?lang=sr">Sr</a></li><li><a href="?lang=en">En</a></li></ul ><div class="dropdown dropdown--statbih" > <a href="/Links/" class="btn dropdown-toggle"  id ="dropdownMenu2" style="color:black !important;" aria-haspopup="true" aria-expanded="false" >Linkovi    </a><ul class="dropdown-menu" > </ul></div ><div class="header__logo" > <p>Bosna i Hercegovina</p><img src = "/Content/img/grb-bih.png" alt ="Grb Bosne i Hercegovine" > </div></div></div>
+
+    <div class="header__navbar">
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mobile-side" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="#" class="btn-closemenu"><i class="icon-x"></i></a>
+                    <a class="navbar-brand" href="/Home/">
+                            <img class="logo" src="/Content/img/logo-bs.png" alt="Agencija za statistiku Bosne i Hercegovine">
+                       
+                    </a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="mobile-side">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="third">
+                            <ul class="list-inline list-lang">
+                                    <li><a class="active" href="?lang=bs">Ba</a></li>
+                                                                    <li><a href="?lang=hr">Hr</a></li>
+                                                                    <li><a href="?lang=sr">Sr</a></li>
+                                                                    <li><a href="?lang=en">En</a></li>
+                                
+                            </ul>
+                        </li>
+                        <li class="dropdown mega-dropdown"><a href="#" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">Statistike <span class="caret"></span></a><div class="dropdown-menu mega-dropdown-menu"><div class="container" ><ul class="list-dropdown-menu" ><li><ul><li><a class="statGroup1" href="/Calendar/Category/10">Cijene</a></li><li><a class="statGroup1" href="/Calendar/Category/11">Vanjska trgovina</a></li><li><a class="statGroup1" href="/Calendar/Category/12">Nacionalni računi</a></li></ul></li><li><ul><li><a class="statGroup2" href="/Calendar/Category/13">Tržište rada</a></li><li><a class="statGroup2" href="/Calendar/Category/14">Stanovništvo</a></li><li><a class="statGroup2" href="/Calendar/Category/15">Obrazovanje</a></li><li><a class="statGroup2" href="/Calendar/Category/16">Kriminalitet</a></li><li><a class="statGroup2" href="/Calendar/Category/36">Kultura i umjetnost</a></li><li><a class="statGroup2" href="/Calendar/Category/37">Socijalna zaštita</a></li><li><a class="statGroup2" href="/Calendar/Category/38">Životni uslovi, prihodi i potrošnja</a></li><li><a class="statGroup2" href="/Calendar/Category/40">Nacionalni zdravstveni računi</a></li></ul></li><li><ul><li><a class="statGroup3" href="/Calendar/Category/17">Građevinarstvo</a></li><li><a class="statGroup3" href="/Calendar/Category/18">Industrija</a></li><li><a class="statGroup3" href="/Calendar/Category/19">Turizam</a></li><li><a class="statGroup3" href="/Calendar/Category/20">Kratkoročne uslužne statistike</a></li><li><a class="statGroup3" href="/Calendar/Category/21">Strukturne poslovne statistike</a></li><li><a class="statGroup3" href="/Calendar/Category/22">Investicije</a></li><li><a class="statGroup3" href="/Calendar/Category/39">Statistički poslovni registar</a></li></ul></li><li><ul><li><a class="statGroup4" href="/Calendar/Category/23">Poljoprivreda</a></li><li><a class="statGroup4" href="/Calendar/Category/24">Šumarstvo</a></li></ul></li><li><ul><li><a class="statGroup5" href="/Calendar/Category/25">Saobraćaj</a></li></ul></li><li><ul><li><a class="statGroup6" href="/Calendar/Category/26">Energija</a></li><li><a class="statGroup6" href="/Calendar/Category/27">Okoliš</a></li></ul></li><li><ul><li><a class="statGroup7" href="/Calendar/Category/28">Istraživanje i razvoj</a></li><li><a class="statGroup7" href="/Calendar/Category/29">Komunikacije</a></li></ul></li><li><ul><li><a class="statGroup8" href="/Calendar/Category/30">BiH u brojkama</a></li><li><a class="statGroup8" href="/Calendar/Category/31">Izbori</a></li><li><a class="statGroup8" href="/Calendar/Category/32">Žene i muškarci</a></li><li><a class="statGroup8" href="/Calendar/Category/33">Ciljevi održivog razvoja</a></li><li><a class="statGroup8" href="/Calendar/Category/44">Ostalo</a></li></ul></li><li><ul></ul></li></ul></div></div><li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">Statistika u BiH <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="/Content/Read/87?title=StatističkisistemBiH">Statistički sistem BiH</a></li><li><a href="/Content/Read/88?title=VijećezastatistikuBiH">Vijeće za statistiku BiH</a></li><li><a href="/Content/Read/89?title=Legislativa">Legislativa</a></li><li><a href="/Content/Read/90?title=Planiprogramrada">Plan i program rada</a></li><li><a href="/Content/Read/91?title=Izvještajioradu">Izvještaji o radu</a></li><li><a href="/Content/Read/92?title=Kvalitet">Kvalitet</a></li></ul></li><li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">Europska statistika <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="/Content/Read/94?title=Evropskistatističkisistem(ESS)">Evropski statistički sistem (ESS)</a></li><li><a href="/Content/Read/96?title=Pomoćkorisnicima(ESDS)">Pomoć korisnicima (ESDS)</a></li><li><a href="/Content/Read/97?title=Kodeksprakseevropskestatistike">Kodeks prakse evropske statistike</a></li><li><a href="/Content/Read/98?title=Kompendijumstatističkihzahtjeva">Kompendijum statističkih zahtjeva</a></li><li><a href="/Content/Read/99?title=Principizvaničnestatistike">Principi zvanične statistike</a></li></ul></li><li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">O Agenciji <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="/Content/Read/101?title=Onama">O nama</a></li><li><a href="/Content/Read/103?title=Međunarodnasaradnja">Međunarodna saradnja</a></li><li><a href="/Content/Read/104?title=Finansije">Finansije</a></li><li><a href="/Content/Read/106?title=Javnenabavke">Javne nabavke</a></li><li><a href="/Content/Read/105?title=Dokumenti">Dokumenti</a></li><li><a href="/Content/Read/133?title=Javnekonsultacije">Javne konsultacije</a></li></ul></li><li ><a href="/News/" >Novosti</a><li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">Usluge <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="/Content/Read/111?title=Korisničkiupitiipristupstatističkimpodacima">Korisnički upiti i pristup statističkim podacima</a></li><li><a href="/Content/Read/112?title=Pristupinformacijama(ZOSPI)">Pristup informacijama (ZOSPI)</a></li><li><a href="/Content/Read/130?title=FAQ">FAQ</a></li></ul></li><li class="dropdown"><a href="javascript:void(0);" class="dropdown-toggle" aria-expanded="false" data-toggle="dropdown">Kontakti <span class="caret"></span></a><ul class="dropdown-menu"><li><a href="/Content/Read/110?title=Kontaktiilokacija">Kontakti i lokacija</a></li></ul></li>
+                        <li class="sec"><a href="#" class="btn-showsearch"><i class="icon-search"></i></a></li>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+    </div>
+
+</header> <!-- End Header -->
+<script type="text/javascript">
+    function newSearch(searchTerm) {
+        window.location = '/search/results?searchTerm=' + searchTerm;
+    }
+    $(document).ready(function () {
+        $('#searchBtn').click(function () {
+            newSearch($('#searchTB').val());
+        });
+        $('#searchTB').keypress(function (e) {
+            if (e.keyCode == 13) {
+                newSearch($('#searchTB').val());
+                return false;
+            }
+        });
+    });
+</script>
+
+    
+<style>
+    .selector {
+        cursor: pointer;
+    }
+</style>
+
+<!-- Main Content -->
+<main class="content">
+    <!-- Subheader -->
+    <section class="subheader">
+        <div class="container">
+
+            <div class="statsbar">
+                <ul class="list-inline list-stats list-stats--topstats">
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Uvoz robe u tekućoj godini"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-import.png" alt="Uvoz robe"> 
+
+                            <p class="list-stats__val">18.528.595</p>
+                            <p class="list-stats__desc">Uvoz robe (hilj. KM)</p>
+                            <p class="list-stats__year">I-VII, 2026</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Izvoz robe u tekućoj godini"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-export.png" alt="Izvoz robe"> 
+
+                            <p class="list-stats__val">10.455.546</p>
+                            <p class="list-stats__desc">Izvoz robe (hilj. KM)</p>
+                            <p class="list-stats__year">I-VII, 2026</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Prosječna isplaćena neto plaća u BiH "><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-salary.png" alt="Prosječna neto plaća"> 
+
+                            <p class="list-stats__val">1.706 KM</p>
+                            <p class="list-stats__desc">Prosječna neto plaća</p>
+                            <p class="list-stats__year">VI-2026</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Godišnja stopa promjene indeksa potrošačkih cijena"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-priceindex.png" alt="CPI"> 
+
+                            <p class="list-stats__val">6.8%</p>
+                            <p class="list-stats__desc">Inflacija (CPI)</p>
+                            <p class="list-stats__year">IV-2026/IV-2025</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Godišnja stopa promjene indeksa obima industrijske proizvodnje"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-industry.png" alt="Indeks industrijske proizvodnje"> 
+
+                            <p class="list-stats__val">-2,8%</p>
+                            <p class="list-stats__desc">Indeks industrijske proizvodnje</p>
+                            <p class="list-stats__year">III-2026/III-2025</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Bruto domaći proizvod (BDP)"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-bdp.png" alt="BDP"> 
+
+                            <p class="list-stats__val">2,1%</p>
+                            <p class="list-stats__desc">Bruto domaći proizvod (BDP)</p>
+                            <p class="list-stats__year">Q4-2025/Q4-2024</p>
+                        </li>
+                        <li class="" style="" tabindex="-1" role="option" aria-describedby="slick-slide00">
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" tabindex="-1" title="Popis 2013"><i class="icon-info"></i></a>
+
+<img src="/Content/img/icon-population.png" alt="Population"> 
+
+                            <p class="list-stats__val">3.531.159</p>
+                            <p class="list-stats__desc">Populacija</p>
+                            <p class="list-stats__year">2013</p>
+                        </li>
+                    
+
+
+                </ul>
+            </div>
+
+        </div>
+    </section> <!-- End Subheader -->
+
+    <section class="block">
+
+        <div class="container">
+
+            <div class="main main--home">
+                <div class="main__content">
+
+
+                    <!-- Box: Latest -->
+                    <div class="box box--news">
+                        <div class="box__header box__header--withactions">
+                            <div class="box__headertitle">
+                                <h3>Zadnje objave</h3>
+                            </div>
+                            <div class="box__headeraction">
+                                <a href="/Calendar/" class="btn-text btn-withicon">Kalendar objava<i class="icon-arrow-alt"></i></a>
+                            </div>
+                        </div>
+                        <div class="box__body">
+                            <ul class="list-unstyled list-announc"><li class="list-announc__date" >30.09.2026.</li><li><a href = "/data/Publikacije/VremenskeSerije/SBS_02.xlsx">Strane podružnice u BiH (Inward FATS)<span class="date icon--3" ></span></a></li><li><a href = "/data/Publikacije/VremenskeSerije/IKT_02.xlsx">Poštanske usluge<span class="date icon--2" ></span></a></li><li><a href = "/data/Publikacije/VremenskeSerije/IND_02.xlsx">Indeks prometa industrije<span class="date icon--1" ></span></a></li></ul><ul class="list-unstyled list-announc"><li class="list-announc__date" >30.09.2026.</li><li><a href = "/data/Publikacije/VremenskeSerije/STS_01.xlsx">Indeksi prometa trgovine na malo<span class="date icon--1" ></span></a></li><li><a href = "/data/Publikacije/Saopstenja/2026/IKT_02_2026_Q2_1_BS.pdf">Poštanske usluge, II kvartal 2026.<span class="date icon--2" ></span></a></li><li><a href = "/data/Publikacije/Saopstenja/2026/NAC_04_2026_Q2_1_HR.pdf">Bruto domaći proizvod - rashodni pristup - prvi rezultati, II kvartal 2026.<span class="date icon--2" ></span></a></li></ul>
+                            <ul class="list-inline list-legend">
+                                <li><span class="circle circle--label circle--label1"></span> Mjesečno</li>
+                                <li><span class="circle circle--label circle--label2"></span> Kvartalno</li>
+                                <li><span class="circle circle--label circle--label5"></span> Polugodišnje</li>
+                                <li><span class="circle circle--label circle--label3"></span> Godišnje</li>
+                                <li><span class="circle circle--label circle--label4"></span> Višegodišnje</li>
+                            </ul>
+                            <div class="list-qlinks">
+                                <a href="https://pdo.bhas.gov.ba/">
+                                    <i class="icon-users"></i>
+                                    <p>Demografska otpornost</p>
+                                </a>
+                                <a href="http://klasifikacije.bhas.gov.ba/default.aspx?l=b">
+                                    <i class="icon-chart"></i>
+                                    <p>Klasifikacije</p>
+                                </a>
+                                <a href="http://popis.gov.ba/">
+                                    <i class="icon-census"></i>
+                                    <p>Popis stanovništva 2013</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End Box: Latest -->
+                    <!-- Box: News -->
+                    <div class="box box--news">
+                        <div class="box__header box__header--withactions">
+                            <div class="box__headertitle">
+                                <h3>Vijesti</h3>
+                            </div>
+                            <div class="box__headeraction">
+                                <a href="/News" class="btn-text btn-withicon">Sve vijesti<i class="icon-arrow-alt"></i></a>
+                            </div>
+                        </div>
+                        <div class="box__body">
+                            <ul class="list-inline list-topnews">
+                                    <li>
+                                        <a href="/News/Read/131">
+                                            <div class="imgbox" style="background-image: url(/data/Fotografije/jpg/european-statistics-day-2026.jpg)">
+                                                <span class="date">25.09.2026.</span>
+                                            </div>
+                                            <div class="list-topnews__body">
+                                                <p class="list-topnews__title">20. oktobar: Jubilej Evropskog dana statistike</p>
+                                                <p>Ove godine navršava se deset godina od prvog obilježavanja Evropskog dana statistike, održanog 20. oktobra 2016. godine. Početak ove evropske inicijative vezuje se za Budimpeštu, gdje je pokrenuta zahvaljujući Evropskom savjetodavnom odboru za statistiku (ESAC), uz podršku Evropskog statističkog sistema (ESS) i Evropskog sistema centralnih banaka.</p>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/News/Read/130">
+                                            <div class="imgbox" style="background-image: url(/data/Fotografije/jpg/EU4Admin_Sarajevo_00.jpg)">
+                                                <span class="date">16.09.2026.</span>
+                                            </div>
+                                            <div class="list-topnews__body">
+                                                <p class="list-topnews__title">EU4ADMIN od projekta do prakse: Potpisani sporazumi za održivu razmjenu administrativnih podataka</p>
+                                                <p>U okviru projekta „EU za povećanje korištenja administrativnih izvora podataka u proizvodnji službene statistike u Bosni i Hercegovini – EU4ADMIN“, u Sarajevu je održana svečanost potpisivanja sporazuma o međuinstitucionalnoj saradnji.</p>
+                                            </div>
+                                        </a>
+                                    </li>
+                            </ul>
+                            <ul class="list-unstyled list-news">
+                                    <li>
+                                        <a href="/News/Read/129">
+                                            <p>Najava velike revizije podataka bruto domaćeg proizvoda </p>
+                                            <p class="date date--1">08.09.2026.</p>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/News/Read/128">
+                                            <p>Obavještenje – Javni oglas za radno mjesto pomoćnika direktora</p>
+                                            <p class="date date--1">03.09.2026.</p>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/News/Read/127">
+                                            <p>Od administrativnih podataka do modernije statistike: završni događaj EU4ADMIN u Tarčinu</p>
+                                            <p class="date date--1">03.09.2026.</p>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/News/Read/126">
+                                            <p>Najvažniji statistički pokazatelji na jednom mjestu: Objavljeno 18. izdanje publikacije „Bosna i Hercegovina u brojevima“</p>
+                                            <p class="date date--1">31.07.2026.</p>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/News/Read/125">
+                                            <p>Obavijest o provođenju Probnog popisa poljoprivrede 2026.</p>
+                                            <p class="date date--1">12.06.2026.</p>
+                                        </a>
+                                    </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- End Box: News -->
+
+
+                </div>
+
+                <aside class="main__side">
+
+                    <!-- Sidebox: Trends -->
+                    <div class="box box--side">
+
+                        <div class="box__header box__header--withactions">
+                            <div class="box__headertitle">
+                                <h3>Trendovi</h3>
+                            </div>
+                            <div class="box__headeraction">
+                                <a href="#" class="btn-text btn-withicon">Klasifikacije<i class="icon-arrow-alt"></i></a>
+                            </div>
+                        </div>
+
+
+                        <div class="box__body box__body--nopadding">
+                            <ul class="nav nav-tabs nav-tabs--charts" role="tablist">
+                                <li role="presentation" class="active"><a href="#bdp" aria-controls="BDP" role="tab" data-toggle="tab">BDP</a></li>
+                                <li role="presentation"><a href="#cpi" aria-controls="CPI" role="tab" data-toggle="tab">CPI</a></li>
+                                <li role="presentation"><a href="#unemployment" aria-controls="Nezaposlenost" role="tab" data-toggle="tab">Nezaposlenost</a></li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <!-- Tab 1: BDP -->
+                                <div role="tabpanel" class="tab-pane active" id="bdp">
+                                    <div class="chart chart--bdp" id="chart--bdp" data-highcharts-chart="0"><div id="highcharts-t5edgz7-0" style="position: relative; overflow: hidden; width: 370px; height: 260px; text-align: left; line-height: normal; z-index: 0; font-family: &quot;Rubik&quot;,sans-serif; left: 0.56665px; top: 0.383331px;" class="highcharts-container "><svg version="1.1" class="highcharts-root" style="font-family:'Rubik', sans-serif;font-size:12px;" xmlns="http://www.w3.org/2000/svg" width="370" height="260" viewBox="0 0 370 260"><desc>Created with Highcharts 5.0.11</desc><defs><clipPath id="highcharts-t5edgz7-1"><rect x="0" y="0" width="309" height="213" fill="none"></rect></clipPath></defs><rect fill="#525B6D" class="highcharts-background" x="0" y="0" width="370" height="260" rx="0" ry="0"></rect><rect fill="none" class="highcharts-plot-background" x="51" y="10" width="309" height="213"></rect><g class="highcharts-grid highcharts-xaxis-grid "><path fill="none" class="highcharts-grid-line" d="M 53.5 10 L 53.5 223" opacity="1"></path><path fill="none" class="highcharts-grid-line" d="M 140.5 10 L 140.5 223" opacity="1"></path><path fill="none" class="highcharts-grid-line" d="M 226.5 10 L 226.5 223" opacity="1"></path><path fill="none" class="highcharts-grid-line" d="M 313.5 10 L 313.5 223" opacity="1"></path></g><g class="highcharts-grid highcharts-yaxis-grid "><path fill="none" stroke="#707073" stroke-width="1" class="highcharts-grid-line" d="M 51 223.5 L 360 223.5" opacity="1"></path><path fill="none" stroke="#707073" stroke-width="1" class="highcharts-grid-line" d="M 51 170.5 L 360 170.5" opacity="1"></path><path fill="none" stroke="#707073" stroke-width="1" class="highcharts-grid-line" d="M 51 117.5 L 360 117.5" opacity="1"></path><path fill="none" stroke="#707073" stroke-width="1" class="highcharts-grid-line" d="M 51 63.5 L 360 63.5" opacity="1"></path><path fill="none" stroke="#707073" stroke-width="1" class="highcharts-grid-line" d="M 51 9.5 L 360 9.5" opacity="1"></path></g><rect fill="none" class="highcharts-plot-border" x="51" y="10" width="309" height="213"></rect><g class="highcharts-axis highcharts-xaxis "><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 53.5 223 L 53.5 233" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 140.5 223 L 140.5 233" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 226.5 223 L 226.5 233" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 313.5 223 L 313.5 233" opacity="1"></path><path fill="none" class="highcharts-axis-line" stroke="#707073" stroke-width="1" d="M 51 223.5 L 360 223.5"></path></g><g class="highcharts-axis highcharts-yaxis "><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 51 223.5 L 41 223.5" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 51 170.5 L 41 170.5" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 51 117.5 L 41 117.5" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 51 63.5 L 41 63.5" opacity="1"></path><path fill="none" class="highcharts-tick" stroke="#707073" stroke-width="1" d="M 51 9.5 L 41 9.5" opacity="1"></path><path fill="none" class="highcharts-axis-line" d="M 51 10 L 51 223"></path></g><g class="highcharts-series-group"><g class="highcharts-series highcharts-series-0 highcharts-area-series highcharts-color-undefined " transform="translate(51,10) scale(1 1)" clip-path="url(#highcharts-t5edgz7-1)"><path fill="rgba(0,0,0,.1)" d="M 3.0294117647032 166.21029 L 46.306722689074 157.084305 L 89.584033613444 152.106495 L 132.86134453781 138.81423 L 176.13865546219 109.661985 L 219.41596638656 85.27348500000001 L 262.69327731093 66.95335500000002 L 305.9705882353 48.80362500000001 L 305.9705882353 213 L 262.69327731093 213 L 219.41596638656 213 L 176.13865546219 213 L 132.86134453781 213 L 89.584033613444 213 L 46.306722689074 213 L 3.0294117647032 213" class="highcharts-area"></path><path fill="none" d="M 3.0294117647032 166.21029 L 46.306722689074 157.084305 L 89.584033613444 152.106495 L 132.86134453781 138.81423 L 176.13865546219 109.661985 L 219.41596638656 85.27348500000001 L 262.69327731093 66.95335500000002 L 305.9705882353 48.80362500000001" class="highcharts-graph" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path><path fill="none" d="M -6.9705882352968 166.21029 L 3.0294117647032 166.21029 L 46.306722689074 157.084305 L 89.584033613444 152.106495 L 132.86134453781 138.81423 L 176.13865546219 109.661985 L 219.41596638656 85.27348500000001 L 262.69327731093 66.95335500000002 L 305.9705882353 48.80362500000001 L 315.9705882353 48.80362500000001" stroke-linejoin="round" visibility="visible" stroke="rgba(192,192,192,0.0001)" stroke-width="22" class="highcharts-tracker"></path></g><g class="highcharts-markers highcharts-series-0 highcharts-area-series highcharts-color-undefined highcharts-tracker" transform="translate(51,10) scale(1 1)"><path fill="#525B6D" d="M 10 166 A 7 7 0 1 1 9.999996500000291 165.99300000116665 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 53 157 A 7 7 0 1 1 52.99999650000029 156.99300000116665 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 96 152 A 7 7 0 1 1 95.9999965000003 151.99300000116665 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 139 139 A 7 7 0 1 1 138.9999965000003 138.99300000116665 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 183 110 A 7 7 0 1 1 182.9999965000003 109.99300000116666 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 226 85 A 7 7 0 1 1 225.9999965000003 84.99300000116666 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 269 67 A 7 7 0 1 1 268.9999965000003 66.99300000116666 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path><path fill="#525B6D" d="M 312 49 A 7 7 0 1 1 311.9999965000003 48.99300000116666 Z" stroke="#fff" stroke-width="2" class="highcharts-point"></path></g></g><g class="highcharts-axis-labels highcharts-xaxis-labels "><text x="54.029411764703184" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="middle" transform="translate(0,0)" y="242" opacity="1"><tspan>2010</tspan></text><text x="140.5840336134442" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="middle" transform="translate(0,0)" y="242" opacity="1"><tspan>2012</tspan></text><text x="227.13865546218526" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="middle" transform="translate(0,0)" y="242" opacity="1"><tspan>2014</tspan></text><text x="313.6932773109263" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="middle" transform="translate(0,0)" y="242" opacity="1"><tspan>2016</tspan></text></g><g class="highcharts-axis-labels highcharts-yaxis-labels "><text x="36" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="end" transform="translate(0,0)" y="227" opacity="1"><tspan>0</tspan></text><text x="36" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="end" transform="translate(0,0)" y="174" opacity="1"><tspan>50k</tspan></text><text x="36" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="end" transform="translate(0,0)" y="121" opacity="1"><tspan>100k</tspan></text><text x="36" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="end" transform="translate(0,0)" y="67" opacity="1"><tspan>150k</tspan></text><text x="36" style="color:#E0E0E3;cursor:default;font-size:11px;fill:#E0E0E3;" text-anchor="end" transform="translate(0,0)" y="14" opacity="1"><tspan>200k</tspan></text></g></svg></div></div>
+                                </div>
+
+                                <!-- Tab 2: CPI -->
+                                <div role="tabpanel" class="tab-pane" id="cpi">
+                                    <div class="chart chart--cpi" id="chart--cpi"></div>
+                                </div>
+
+                                <!-- Tab 3: Unemployment -->
+                                <div role="tabpanel" class="tab-pane" id="unemployment">
+                                    <div class="chart chart--unemployment" id="chart--unemployment"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Sidebox: Statistic Groups -->
+                    <div class="box box--side">
+
+                        <div class="box__header box__header--withactions">
+                            <div class="box__headertitle">
+                                <h3>Statističke grupe</h3>
+                            </div>
+                            <div class="box__headeraction">
+                                <a href="/Calendar/Category/" class="btn-text btn-withicon">Sve statistike<i class="icon-arrow-alt"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="box__body box__body--nopadding">
+
+                            <ul class="list-unstyled list-groups list-groups--light list-groups--withsub">
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-1"></i>
+                                                Ekonomske statistike
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/10';"><a  id="10">Cijene</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/11';"><a  id="11">Vanjska trgovina</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/12';"><a  id="12">Nacionalni računi</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-2"></i>
+                                                Demografija i socijalne statistike
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/13';"><a  id="13">Tržište rada</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/14';"><a  id="14">Stanovništvo</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/15';"><a  id="15">Obrazovanje</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/16';"><a  id="16">Kriminalitet</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/36';"><a  id="36">Kultura i umjetnost</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/37';"><a  id="37">Socijalna zaštita</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/38';"><a  id="38">Životni uslovi, prihodi i potrošnja</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/40';"><a  id="40">Nacionalni zdravstveni računi</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-3"></i>
+                                                Poslovne statistike
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/17';"><a  id="17">Građevinarstvo</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/18';"><a  id="18">Industrija</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/19';"><a  id="19">Turizam</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/20';"><a  id="20">Kratkoročne uslužne statistike</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/21';"><a  id="21">Strukturne poslovne statistike</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/22';"><a  id="22">Investicije</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/39';"><a  id="39">Statistički poslovni registar</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-4"></i>
+                                                Poljoprivreda i šumarstvo
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/23';"><a  id="23">Poljoprivreda</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/24';"><a  id="24">Šumarstvo</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-5"></i>
+                                                Saobraćaj
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/25';"><a  id="25">Saobraćaj</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-6"></i>
+                                                Okoliš i energija
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/26';"><a  id="26">Energija</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/27';"><a  id="27">Okoliš</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-7"></i>
+                                                Nauka, tehnologija i digitalno društvo
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/28';"><a  id="28">Istraživanje i razvoj</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/29';"><a  id="29">Komunikacije</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li>
+                                            <a href="#" >
+                                                <i class="icon-group-8"></i>
+                                                Generalna izdanja
+                                            </a>
+                                            <ul class="list-unstyled list-groups-sub" style="display: none;">
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/30';"><a  id="30">BiH u brojkama</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/31';"><a  id="31">Izbori</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/32';"><a  id="32">Žene i muškarci</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/33';"><a  id="33">Ciljevi održivog razvoja</a></li>
+                                                    <li class="selector" onclick="location.href = '/Calendar/Category/44';"><a  id="44">Ostalo</a></li>
+                                            </ul>
+
+                                        </li>
+                                        <li class="selector" onclick="location.href = '/Calendar/Category/35';">
+                                            <a class="list-groups--noicon" href="#">
+                                                <strong>Statistike Brčko distrikta BiH</strong>
+                                            </a>
+                                        </li>
+                            </ul>
+
+                        </div>
+                    </div>
+
+			<a href="https://sdg.bhas.gov.ba/bs/" target="_blank" style="text-decoration: none; color: inherit;">
+    <div class="box box--side" style="background-color: #FFFFFF; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#F0F0F0';" onmouseout="this.style.backgroundColor='#FFFFFF';">
+        <div class="box__header box__header--withactions">
+            <!-- Image inserted here -->
+            <img src="/data/Fotografije/png/SDG%20Wheel_Transparent_WEB.png" style="max-width: 70px; display: block; margin-right: 10px;">
+
+            <div class="box__headeraction">
+                <p style="text-align: left;">UN indikatori ciljeva održivog razvoja za Bosnu i Hercegovinu</p>
+            </div>
+        </div>
+    </div>
+</a>
+
+<a href="https://eu-sdg.bhas.gov.ba/bs/" target="_blank" style="text-decoration: none; color: inherit;">
+    <div class="box box--side" style="background-color: #D1E5ED; transition: background-color 0.2s ease;" onmouseover="this.style.backgroundColor='#B8D8E5';" onmouseout="this.style.backgroundColor='#D1E5ED';">
+        <div class="box__header box__header--withactions">
+            <!-- Image inserted here -->
+            <img src="/data/Fotografije/png/SDG%20Wheel_Transparent_WEB.png" style="max-width: 70px; display: block; margin-right: 10px;">
+
+            <div class="box__headeraction">
+                <p style="text-align: left;">EU indikatori ciljeva održivog razvoja za Bosnu i Hercegovinu</p>
+            </div>
+        </div>
+    </div>
+</a>
+
+                    <!-- Sidebox: Publications -->
+                    <div class="box box--side">
+
+                        <div class="box__header box__header--withactions">
+                            <div class="box__headertitle">
+                                <h3>Publikacije</h3>
+                            </div>
+                            <div class="box__headeraction">
+                                <a href="/Archive/Category/1" class="btn-text btn-withicon">Sve publikacije<i class="icon-arrow-alt"></i></a> 
+                            </div>
+                        </div>
+
+                        <div class="box__body box__body--nopadding">
+                            <ul class="list-unstyled list-groups list-groups--docs">
+                                            <li><a href="/data/Publikacije/Bilteni/2026/BRC_00_2026_B3_1_BS.pdf"><i class="icon-doc"></i>Statistički bilten BD broj 3</a></li>
+                                            <li><a href="/data/Publikacije/Bilteni/2026/BRC_02_2022_Y2_1_BS.pdf"><i class="icon-doc"></i>Statistika vanjske trgovine BD, 2022-2025 i I polugodište 2026.</a></li>
+                                            <li><a href="/data/Publikacije/Bilteni/2026/NUM_00_2025_TB_1_BS.pdf"><i class="icon-doc"></i>Bosna i Hercegovina u brojevima, 2025.</a></li>
+                                            <li><a href="/data/Publikacije/Bilteni/2026/BRC_00_2026_B2_1_BS.pdf"><i class="icon-doc"></i>Statistički bilten BD broj 2</a></li>
+                                            <li><a href="/data/Publikacije/Bilteni/2026/BRC_07_2025_Y4_1_BS.pdf"><i class="icon-doc"></i>Demografija BD, 2021-2025.</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                </aside>
+            </div>
+
+
+            <!-- Key Indicators -->
+            <div class="indicators">
+                <h4>Godišnji indikatori</h4>
+
+                <ul class="list-inline list-stats list-stats--blocks">
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Prosječne neto plaće za BiH u KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">1.570 KM</p>
+                            <p class="list-stats__desc">Prosječne neto plaće za BiH u KM</p>
+                            <p class="list-stats__year">2025</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Vanjskotrgovinski bilans u hiljadama KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">-12.979.808</p>
+                            <p class="list-stats__desc">Vanjskotrgovinski bilans u hiljadama KM</p>
+                            <p class="list-stats__year">2025</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Uvoz robe u hiljadama KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">29.953.873</p>
+                            <p class="list-stats__desc">Uvoz robe u hiljadama KM</p>
+                            <p class="list-stats__year">2025</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Izvoz robe u hiljadama KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">16.974.065</p>
+                            <p class="list-stats__desc">Izvoz robe u hiljadama KM</p>
+                            <p class="list-stats__year">2025</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Stopa zaposlenosti po ILO definiciji (ARS)"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">42,9%</p>
+                            <p class="list-stats__desc">Stopa zaposlenosti po ILO definiciji (ARS)</p>
+                            <p class="list-stats__year">2024</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Stopa nezaposlenosti po ILO definiciji (ARS)"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">12,6%</p>
+                            <p class="list-stats__desc">Stopa nezaposlenosti po ILO definiciji (ARS)</p>
+                            <p class="list-stats__year">2024</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Umrli u BiH"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">35.471</p>
+                            <p class="list-stats__desc">Umrli u BiH</p>
+                            <p class="list-stats__year">2023</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Živorođeni u BiH"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">26.451</p>
+                            <p class="list-stats__desc">Živorođeni u BiH</p>
+                            <p class="list-stats__year">2023</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Bruto domaći proizvod po stanovniku (GDP/C) u KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">13.263 KM</p>
+                            <p class="list-stats__desc">Bruto domaći proizvod po stanovniku (GDP/C) u KM</p>
+                            <p class="list-stats__year">2022</p>
+                        </li>
+                        <li>
+                            <a href="#" class="btn-helper btn-tooltip tooltipstered" title="Bruto domaći proizvod (GDP) u milionima KM"><i class="icon-info"></i></a>
+                            <p class="list-stats__val">45.505 KM</p>
+                            <p class="list-stats__desc">Bruto domaći proizvod (GDP) u milionima KM</p>
+                            <p class="list-stats__year">2022</p>
+                        </li>
+                </ul>
+            </div>
+
+        </div>
+    </section> <!-- Block: Features -->
+
+</main> <!-- End Main Content -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var bdpData, cpiData, unemploymentData, bdpPeriod,cpiPeriod,unemploymentPeriod;
+        getBdp();
+        $("div#bannerImages").removeClass("hidden");
+        $(".picto").owlCarousel({
+            autoPlay: 3000,
+            pagination: false,
+            navigation: false,
+            dots: false,
+            singleItem: true,
+            slideSpeed: 700,
+            navigationSpeed: 700
+        });
+
+
+        function getBdp() {
+            $.ajax({
+                type: 'GET',
+                url: '/Chart/GetData?area=Cms',
+               dataType: "json",
+                success: function (data) {
+                    bdpData = data.bdp;
+                    console.log(data.bdp);
+                    cpiData = data.cpi;
+                    unemploymentData = data.unemployment;
+                    bdpPeriod = data.bdpperiod;
+                    cpiPeriod = data.cpiperiod;
+                    unemploymentPeriod = data.unemploymentperiod;
+                    //-- BDP Chart 
+                    Highcharts.chart('chart--bdp', {
+                        chart: { type: "area" },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: { formatter: function () { return bdpPeriod[this.value]; } },
+                        },
+                        yAxis: {
+                            title: { text: '' }
+                        },
+                        legend: { enabled: false, },
+                        credits: { enabled: false },
+                        series: [{
+                            name: 'GDP',
+                            data: bdpData,
+                            color: '#fff'
+                        }]
+
+                    });
+                    
+                },
+                complete: function() {
+                    
+                },
+                cache: false
+            });
+        }
+        if ($('.chart--bdp').length != 0) {
+            Highcharts.theme = {
+                colors: ['#fff', '#90ee7e', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066', '#eeaaee',
+                   '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
+                chart: {
+                    backgroundColor: '#525B6D',
+                    style: {
+                        fontFamily: '\'Rubik\', sans-serif'
+                    },
+                    plotBorderColor: '#606063'
+                },
+                title: {
+                    style: {
+                        color: '#E0E0E3',
+                        textTransform: 'uppercase',
+                        fontSize: '20px'
+                    }
+                },
+                subtitle: {
+                    style: {
+                        color: '#E0E0E3',
+                        textTransform: 'uppercase'
+                    }
+                },
+                xAxis: {
+                    gridLineColor: '#707073',
+                    labels: {
+                        style: {
+                            color: '#E0E0E3'
+                        }
+                    },
+                    lineColor: '#707073',
+                    minorGridLineColor: '#505053',
+                    tickColor: '#707073',
+                    title: {
+                        style: {
+                            color: '#A0A0A3'
+
+                        }
+                    }
+                },
+                yAxis: {
+                    gridLineColor: '#707073',
+                    labels: {
+                        style: {
+                            color: '#E0E0E3'
+                        }
+                    },
+                    lineColor: '#707073',
+                    minorGridLineColor: '#505053',
+                    tickColor: '#707073',
+                    tickWidth: 1,
+                    title: {
+                        style: {
+                            color: '#A0A0A3'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    borderWidth: 0,
+                    style: {
+                        color: '#F0F0F0'
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        dataLabels: {
+                            color: '#B0B0B3'
+                        }
+                    },
+                    boxplot: {
+                        fillColor: '#505053'
+                    },
+                    candlestick: {
+                        lineColor: 'white'
+                    },
+                    errorbar: {
+                        color: 'white'
+                    }
+                },
+                legend: {
+                    itemStyle: {
+                        color: '#E0E0E3'
+                    },
+                    itemHoverStyle: {
+                        color: '#FFF'
+                    },
+                    itemHiddenStyle: {
+                        color: '#606063'
+                    }
+                },
+                credits: {
+                    style: {
+                        color: '#666'
+                    }
+                },
+                labels: {
+                    style: {
+                        color: '#707073'
+                    }
+                },
+
+                drilldown: {
+                    activeAxisLabelStyle: {
+                        color: '#F0F0F3'
+                    },
+                    activeDataLabelStyle: {
+                        color: '#F0F0F3'
+                    }
+                },
+
+                navigation: {
+                    buttonOptions: {
+                        symbolStroke: '#DDDDDD',
+                        theme: {
+                            fill: '#505053'
+                        }
+                    }
+                },
+
+                // scroll charts
+                rangeSelector: {
+                    buttonTheme: {
+                        fill: '#505053',
+                        stroke: '#000000',
+                        style: {
+                            color: '#CCC'
+                        },
+                        states: {
+                            hover: {
+                                fill: '#707073',
+                                stroke: '#000000',
+                                style: {
+                                    color: 'white'
+                                }
+                            },
+                            select: {
+                                fill: '#000003',
+                                stroke: '#000000',
+                                style: {
+                                    color: 'white'
+                                }
+                            }
+                        }
+                    },
+                    inputBoxBorderColor: '#505053',
+                    inputStyle: {
+                        backgroundColor: '#333',
+                        color: 'silver'
+                    },
+                    labelStyle: {
+                        color: 'silver'
+                    }
+                },
+
+                navigator: {
+                    handles: {
+                        backgroundColor: '#666',
+                        borderColor: '#AAA'
+                    },
+                    outlineColor: '#CCC',
+                    maskFill: 'rgba(255,255,255,0.1)',
+                    series: {
+                        color: '#7798BF',
+                        lineColor: '#A6C7ED'
+                    },
+                    xAxis: {
+                        gridLineColor: '#505053'
+                    }
+                },
+
+                scrollbar: {
+                    barBackgroundColor: '#808083',
+                    barBorderColor: '#808083',
+                    buttonArrowColor: '#CCC',
+                    buttonBackgroundColor: '#606063',
+                    buttonBorderColor: '#606063',
+                    rifleColor: '#FFF',
+                    trackBackgroundColor: '#404043',
+                    trackBorderColor: '#404043'
+                },
+
+                // special colors for some of the
+                legendBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+                background2: '#505053',
+                dataLabelsColor: '#B0B0B3',
+                textColor: '#C0C0C0',
+                contrastTextColor: '#F0F0F3',
+                maskColor: 'rgba(255,255,255,0.3)'
+            };
+
+            // Apply the theme
+            Highcharts.setOptions(Highcharts.theme);
+
+
+
+
+
+            var cpichartcreated = false;
+            var emplychartcreated = false;
+        
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+
+
+                if ($(e.target).attr('href') == '#bdp') {
+
+                    //-- BRP Redraw
+                    Highcharts.chart('chart--bdp', {
+                        chart: {type: "area"},
+                        title: {text: ''},
+                        subtitle: {text: ''},
+                        xAxis: {
+                            labels: { formatter: function () { return bdpPeriod[this.value]; } },
+                        },
+                        yAxis: {
+                            title: {text: ''}
+                        },
+                        legend: {enabled: false,},
+                        credits: {enabled: false},
+                        series: [{
+                            name: 'GDP',
+                            data: bdpData,
+                            color: '#fff'
+                        }]
+
+                    });
+
+                } else if ($(e.target).attr('href') == '#cpi') {
+
+                    //-- CPI Chart 
+                    Highcharts.chart('chart--cpi', {
+                        chart: { type: "area" },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: { formatter: function () { return cpiPeriod[this.value]; } },
+                        },
+                        yAxis: {
+                            title: { text: '' }
+                        },
+                        legend: { enabled: false, },
+                        credits: { enabled: false },
+                        series: [{
+                            name: 'CPI',
+                            data: cpiData,
+                            color: '#fff'
+                        }]
+
+
+                    });
+
+                } else if ($(e.target).attr('href') == '#unemployment') {
+
+                    //-- Unemployment Chart 
+                    Highcharts.chart('chart--unemployment', {
+                        chart: { type: "area" },
+                        title: { text: '' },
+                        subtitle: { text: '' },
+                        xAxis: {
+                            labels: { formatter: function () { return unemploymentPeriod[this.value]; } },
+                        },
+                        yAxis: {
+                            title: { text: '' }
+                        },
+                        legend: { enabled: false, },
+                        credits: { enabled: false },
+                        series: [{
+                            name: 'Nezaposlenost',
+                            data: unemploymentData,
+                            color: '#fff'
+                        }]
+
+                    });
+
+                }
+
+            });
+
+
+        }
+
+
+     
+    });
+
+</script>
+
+
+    <!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <!-- Newsletter -->
+        <div class="newsletter">
+            <div class="form">
+                <p class="newsletter__head">Prijava na Newsletter</p>
+                <p>Primajte statistike, vijesti i informacije direktno u inbox</p>
+                <div class="form-group form-group-lg">
+                    <div class="form-prefix">
+                        <i class="icon-email picto"></i>
+                        <input id="email" class="form-control" name=" " value="" placeholder="Vaša e-mail adresa" type="text">
+                        <button id="btnSubmit" type="submit" class="btn btn-submitnewsletter btn-withicon">PRIJAVA<i class="icon-arrow"></i></button>
+                    </div>
+                </div>
+                <div class="form-group"><div class="g-recaptcha" data-sitekey="6LeB27AUAAAAAPwD25WyzENmk50t9MVhb0qZlVxu"></div></div>
+                <div id="subscribemessage">
+                </div>
+            </div>
+    </div>
+
+
+    <ul class="list-inline list-soc">
+        <li><a href="https://www.facebook.com/BHAS.BIH/"><i class="icon-facebook"></i></a></li>
+        <li><a href="https://twitter.com/bhas_statistics"><i class="icon-twitter"></i></a></li>
+    </ul>
+
+    <ul class="list-inline list-links">
+        
+        <li><a href="#">Uslovi korištenja</a></li>
+        <li><a href="#">Izjava o privatnosti</a></li>
+    </ul>
+    <p class="footer__copy">&#169; 2002-2026 Agencija za statistiku Bosne i Hercegovine</p>
+
+
+</div>
+
+</footer> <!-- End Footer -->
+<script type="text/javascript">
+    $(document).on("click", "#btnSubmit", function () {
+        var a = $('#email').val();
+            $.ajax({
+                type: 'POST',
+                url: '/Newsletter/Subscribe',
+                data: { email: $('#email').val(), captcha: $("#g-recaptcha-response").val() },
+                success: function (response) {
+                    if (response.indexOf('[[Success]]') == 0) {
+                        $("#subscribemessage").html('<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>' + response.replace("[[Success]]", "") + '</div>');
+                        $(".alert-success").delay(1000).fadeOut(1000);
+                        $('#email').val('');
+                    }
+                    else {
+                        $("#subscribemessage").html('<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span>' + response + '</span></div>');
+                        $(".alert-danger").delay(1000).fadeOut(1000);
+                    }
+                },
+                cache: false
+
+            });
+        });
+</script>
+
+
+    
+
+        <script> moment.locale('bs'); </script>
+
+    <script type="text/javascript">
+
+        $('#spinnercontainer, #spinner').ajaxStart(function () {
+            $(this).fadeIn('fast');
+        }).ajaxStop(function () {
+            $(this).stop().fadeOut('fast');
+        });
+
+        $("#backontop").click(function () {
+            $("html, body").animate({ scrollTop: 0 }, 1000);
+        });
+
+        /* When the user clicks on the button,
+    toggle between hiding and showing the dropdown content */
+        function ToggleClass(id) {
+            document.getElementById("dropdown" + id).classList.toggle("show");
+        }
+
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function (event) {
+            if (!event.target.matches('.dropbtn')) {
+
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                var i;
+                for (i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+
+        function hideEvents() {
+            //$(".active #eventListing p").html('Resources.UITranslation.Events');
+            $('.active #eventListing').hide();
+            $('.active #CalendarTable').show();
+
+        }
+
+    </script>
+
+
+
+
+    <script type="text/template" id="sml-clndr-template">
+
+        <div id="CalendarTable">
+            <div class='clndr-controls' id="cal_control">
+                <div class='clndr-control-button'>
+                    <span class='clndr-previous-button'> <</span>
+                </div>
+                <div class='month'><%= month %> <%= year %> </div>
+                <div class='clndr-control-button rightalign'>
+                    <span class='clndr-next-button'> > </span>
+                </div>
+            </div>
+
+            <table class='clndr-table'>
+                <thead>
+                    <tr class='header-days'>
+                        <% for(var i = 0; i < daysOfTheWeek.length; i++) { %>
+                        <td class='header-day'><%= daysOfTheWeek[i] %></td>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody class="days">
+                    <% for(var i = 0; i < numberOfRows; i++){ %>
+                    <tr>
+                        <% for(var j = 0; j < 7; j++){ %>
+                        <% var d = j + i * 7; %>
+                        <td class='<%= days[d].classes %>'>
+                            <div class='day-contents'><%= days[d].day %></div>
+                            <span class="eventInCalendar"><%=  (  _.pluck(days[d].events, "title"))%> </span>
+
+                        </td>
+                        <% } %>
+                    </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="event-listing" hidden id="eventListing" style="max-height 400px; overflow-y scroll;">
+            <div class="event-header">
+                <p>Resources.UITranslation.Events </p>  <span class="event-x-header" onclick="hideEvents()"> X </span>
+
+            </div>
+            <div id="eventListingBody">
+                <% _.each(eventsThisMonth, function(event) {
+                %>
+
+                <% }); %>
+            </div>
+
+        </div>
+    </script>
+
+    
+    
+</body>
+
+</html>
+<script type="text/javascript">
+    function newSearch(searchTerm) {
+        window.location = '/search/results?searchTerm=' + searchTerm;
+    }
+    $(document).ready(function () {
+        $('#searchBtnMobile').click(function () {
+            newSearch($('#searchTBMobile').val());
+        });
+        $('#searchTBMobile').keypress(function (e) {
+            if (e.keyCode == 13) {
+                newSearch($('#searchTBMobile').val());
+                return false;
+            }
+        });
+    });
+</script>

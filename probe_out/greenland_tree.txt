@@ -1,0 +1,166 @@
+l ES/ | Businesses
+  l ES/ES05/ | Accounting statistics
+    t ES/ES05/ESXINVST.px | Investstment by industry <em>[ESEINVST]</em>
+    t ES/ES05/ESXNGL.px | Key figures for companies by industry <em>[ESENGL]</em>
+    t ES/ES05/ESXRESBAL.px | Account statistics for companies by industry and items <em>[ESERESBAL]</em>
+  l ES/ES99/ | Archive - discontinued tables
+  l ES/ES01/ | Business statistics
+    t ES/ES01/ESX1A.px | Number of businesses by business sector, calculation variable and time <em>[ESE1A]</em>
+    t ES/ES01/ESX2A.px | Number of businesses by operating mode, calculation variable and time <em>[ESE2A]</em>
+    t ES/ES01/ESX3A.px | Number of businesses by municipality, calculation variable and time<em>[ESE3A]</em>
+    t ES/ES01/ESX4A.px | Number of businesses by interval of aggregate salaries and shares, calculation variable and time<em>[ESE4A]</em>
+    t ES/ES01/ESX5A.px | Number of businesses by municipality, time and interval of aggregate salaries and shares<em>[ESE5A]</em>
+    t ES/ES01/ESX6A.px | Number of businesses by business sector, time and interval of aggregate salaries and shares<em>[ESE6A]</em>
+l KR/ | Criminal offenses
+  t KR/KRXAF.px | Measures by criminal- and speciallaws <em>[KREAF]</em>
+  t KR/KRXAN1.px | Reported offences by type of offence and Police district <em>[KREAN1]</em>
+  t KR/KRXAN2.px | Reported Traffic offences 2014-23 <em>[KREAN2]</em>
+  t KR/KRXAN3.px | Reported on Special laws 2014-23 <em>[KREAN3]</em>
+l UD/ | Education
+  l UD/UD40/ | Population by status of education
+  l UD/UD45/ | Primary and lower secondary education
+  l UD/UD60/ | upper secondary and tertiary education
+  l UD/UD70/ | Educational progress
+  l UD/UD99/ | Archive - discontinued tables
+l EN/ | Energy
+  l EN/EN20/ | Energy
+  l EN/EN30/ | Climate
+  l EN/EN40/ | Motor vehicles
+    t EN/EN40/ENXMO1HI.px | Registered motor vehicles by ownership <em>[ENEMO1HI]</em>
+    t EN/EN40/ENXMO2DI.px | Registered motor vehicles by district <em>[ENEMO2DI]</em>
+    t EN/EN40/ENXMO3BR.px | Registered motor vehicles by industry <em>[ENEMO3BR]</em>
+  l EN/EN99/ | Archive - discontinued tables
+l FI/ | Fisheries and catch
+  l FI/FI10/ | Fisheries
+  l FI/FI20/ | Catch
+  l FI/FI25/ | Catches licence
+  l FI/FI80/ | Agriculture
+  l FI/FI60/ | Price index
+  l FI/FI70/ | Consumption of marine resources
+  l FI/FI99/ | Archive - discontinued tables
+l IE/ | Foreign trade
+  l IE/IE10/ | Foreign trade
+  l IE/IE20/ | Exports of fishproducts
+  l IE/IE99/ | Archive - discontinued tables
+l GD/ | Greenlanders in Denmark
+  t GD/GDX1GD.px | Persons born in Greenland living in Denmark by gender and age (2007-2023) <em>[GDE1GD]</em>
+  t GD/GDX1GDO.px | Persons born in Greenland living in Denmark by region (2007-2023) <em>[GDE1GDO]</em>
+  t GD/GDXDI.px | Disposable income (2005-2021) <em>[GDEDI]</em>
+  t GD/GDXRA.px | Socioeconomic status by gender and age (2008-2021) <em>[GDERA]</em>
+  t GD/GDXUH.px | Highest education completed, gender and age (2006-2022) <em>[GDEUH]</em>
+l SU/ | Health
+  l SU/SU01/ | National Board of Health
+  l SU/SU10/ | Indicators of public health
+  l SU/SU99/ | Archive - discontinued tables
+l BO/ | Housing
+  l BO/BO99/ | Archive - discontinued tables
+l IN/ | Income
+  l IN/IN20/ | Personal income
+  l IN/IN30/ | Family income
+  l IN/IN40/ | Income Inequality
+  l IN/IN50/ | Tax statistics
+    t IN/IN50/INXSS101.px | Total taxable income and income tax by tax municipality (1988-2024) <em>[INESS101]</em> 
+  l IN/IN99/ | Archive - discontinued tables
+l AR/ | Labour market
+  l AR/AR10/ | Labour force
+  l AR/AR20/ | Jobseekers
+  l AR/AR30/ | Employment
+  l AR/AR40/ | Unemployment
+  l AR/AR99/ | Archive - discontinued tables
+l NA/ | Names
+  t NA/NAXT1.px | Surnames <em>[NAET1]</em>
+  t NA/NAXT3.px | Number of first names by Surname <em>[NAET3]</em>
+  t NA/NAXT5.px | First names <em>[NAET5]</em>
+  t NA/NAXT6.px | First firstname for boys born in Greenland. 2026 <em>[NAET6]</em>
+  t NA/NAXT7.px | First firstname for girls born in Greenland. 2026 <em>[NAET7]</em>
+l NR/ | National accounts
+  l NR/NR99/ | Archive - discontinued tables
+  t NR/NRX00.px | Revision Summary <em>[NRE00]</em>
+  t NR/NRX01.px | Account 0: Goods and services (2003-2023) <em>[NRE01]</em>
+  t NR/NRX02.px | Account 2.1.1: Generation of income (2003-2023) <em>[NRE02]</em>
+  t NR/NRX0318.px | Production (2003-2023) <em>[NRE0318]</em>
+  t NR/NRX0418.px | The gross value added (2003-2023) <em>[NRE0418]</em>
+  t NR/NRX0518.px | Compensation of employees (2003-2023) <em>[NRE0518]</em>
+  t NR/NRX06.px | Gross operating surplus and mixed income (2003-2023) <em>[NRE06]</em>
+  t NR/NRX07.px | Private consumption (2003-2023) <em>[NRE07]</em>
+  t NR/NRX08.px | Government consumption (2003-2023) <em>[NRE08]</em>
+  t NR/NRX09.px | Investments (2003-2023) <em>[NRE09]</em>
+  t NR/NRX10.px | Trends in GDP (2003-2023) <em>[NRE10]</em>
+  t NR/NRX11.px | Trends in supply balance (2003-2023) <em>[NRE11]</em>
+  t NR/NRX12.px | Terms of trade (2003-2023) <em>[NRE12]</em>
+  t NR/NRX13.px | Growth contribution to GDP (2003-2023) <em>[NRE13]</em>
+  t NR/NRX15.px | Input-Output Table 34x34<em>[NRE15]</em>
+  t NR/NRX16.px | Individual consumption expenditure of households<em>[NRE16]</em>
+l BE/ | Population
+  l BE/BE01/ | Population in Greenland
+  l BE/BE10/ | Vital Statistics
+    t BE/BE10/BEXSAT2.PX | Vital statistics 1950-2025 <em>[BEESAT2]</em>
+    l BE/BE10/BE1001/ | Birth
+    l BE/BE10/BE20/ | Death
+    l BE/BE10/BE30/ | Internal migration
+    l BE/BE10/BE50/ | Migrations
+  l BE/BE60/ | Households and families
+  l BE/BE85/ | Quarterly Population
+  l BE/BE80/ | Population Accounts
+  l BE/BE99/ | Archive - discontinued tables
+l PR/ | Prices
+  t PR/PRXBYG1.px | Construction cost index(2006=100) by building trade and type (2006H1-2025H2) <em>[PREBYG1]</em>
+  t PR/PRXBYG2.px | Building Cost Index for Dwellings (2025H1=100) <em>[PRXBYG2]</em>
+  t PR/PRXPLI.px | Price level index (index DK=100) by commodity group (2014-2016)
+  t PR/PRXPRISF.px | Consumer price index series (1971H1-2026H2)
+  t PR/PRXPRISG.px | Rate of change per cent per six months, Consumer price index (1971H1-2026H2) <em>[PREPRISG]</em>
+  t PR/PRXPRISH.px | Rate of change last 12 months, Consumer price index (1971H1-2026H2) <em>[PREPRISH]</em>
+  t PR/PRXPRISR.px | Wage regulating price index series (1971H1-2026H2) <em>[PREPRISR]</em>
+  t PR/PRXPRISV.px | Consumer price index (2008=100) by commodity group (2008H1-2026H2) <em>[PREPRISV]</em>
+  t PR/PRXPRISW.px | Wage regulating price index (2008=100) by commodity group (2008H1-2026H2) <em>[PREPRISW]</em>
+l OF/ | Public finances
+  l OF/OF20/ | Employees
+  l OF/OF30/ | Public finances
+  l OF/OF35/ | Public employee salary
+  l OF/OF40/ | Municipal accounts
+  l OF/OF50/ | Accounts of the Greenland Treasury
+l KO/ | Short term trends
+  t KO/KOXAFG.px | Custom, import and stamp duties by commodity and time (2007Q1-2026Q2) <em>[KOEAFG]</em>
+  t KO/KOXANL.px | Spendings from the construction and renovation fund by main areas (2010M01-2021M09) <em>[KOEANL]</em> 
+  t KO/KOXDET.px | Retail trade index (index 2010=100) (2009Q2-2026Q2) <em>[KOEDET]</em>
+  t KO/KOXGOD.px | Volume of goods by shipping way (2008Q1-2026Q2) <em>[KOEGOD]</em>
+  t KO/KOXLAN.px | Loans from and deposits in banks outstanding amounts by domestic sector and time(2003Q1-2026Q2) <em>[KOELAN]</em>
+  t KO/KOXLIK.px | The treasury liquidity assets end balance by type (2002M01-2026M06) <em>[KOELIK]</em>
+  t KO/KOXOBL.px | Mortgage loans, outstanding amounts by type of property (2004Q1-2026Q2) <em>[KOEOBL]</em>
+  t KO/KOXRES.px | Arrears to the tax authority by type (2010H2-2026H2) <em>[KOERES]</em>
+  t KO/KOXSKT.px | Current income tax, payable by time, municipality and type (2003Q1-2026Q2) <em>[KOESKT]</em>
+l SO/ | Social Services
+  l SO/SO80/ | Additional social subsidies
+  l SO/SO99/ | Archive - discontinued tables
+  l SO/SO90/ | Economically disadvantaged
+  l SO/SO70/ | Foster care
+    t SO/SO70/SOXPV001.px | Foster Children by age <em>[SOEPV001]</em>
+    t SO/SO70/SOXPV002.px | Foster children in december by size of allowence <em>[SOEPV002]</em>
+    t SO/SO70/SOXPV003.px | Foster children in december by first adress i Greenland <em>[SOEPV003]</em>
+    t SO/SO70/SOXPV004.px | Foster children in december by municipality <em>[SOEPV004]</em>
+    t SO/SO70/SOXPV005.px | Forster parents by number af forster children <em>[SOEPV005]</em>
+  l SO/SO10/ | Labor market attachment
+  l SO/SO35/ | Maternity
+  l SO/SO50/ | Pensions
+  l SO/SO25/ | Public and job search benefits, 2024
+  l SO/SO20/ | Public benefits, 2009-2023
+  l SO/SO60/ | Social Care
+    l SO/SO60/SO6040/ | Disabled citizens
+    l SO/SO60/SO6060/ | Residents and capacity in the Government´s disability institutions
+      t SO/SO60/SO6060/SOXFO1.px | Residents in the Government´s disability institutions and orphanages, by institution name and institution type <em>[SOEFO1]</em>
+      t SO/SO60/SO6060/SOXFO2.px | Residents in the Government´s disability institutions and orphanages, by town and institution type <em>[SOEFO2]</em>
+      t SO/SO60/SO6060/SOXFO3.px | Residents in The Government of Greenland´s disability institutions and orphanages, by gender, age and type of institution <em>[SOEFO3]</em>
+      t SO/SO60/SO6060/SOXFO4.px | In- and outflux of residents in the Government of Greenland´s orphanages and disability institutions <em>[SOEFO4]</em>
+    l SO/SO60/SO6020/ | Sheltered workshop remuneration
+  l SO/SO30/ | Unemployment and maternity benefits, 2009-2023
+l SA/ | Statistical Yearbook
+  l SA/SA99/ | Archive - discontinued tables
+l AL/ | Tobacco and alcohol
+  l AL/AL10/ | Alcohol
+  l AL/AL40/ | Tobacco
+l TU/ | Tourism
+  l TU/TU10/ | Cruises
+  l TU/TU20/ | Flight passengers
+  l TU/TU30/ | Overnight stays
+  l TU/TU99/ | Archive - discontinued tables
+  t TU/TUX01.px | Number of sled dogs <em>[TUE01]</em>
