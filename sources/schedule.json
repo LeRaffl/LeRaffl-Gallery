@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-03T13:01:46Z",
- "today": "2026-10-03",
+ "generated": "2026-10-04T09:37:13Z",
+ "today": "2026-10-04",
  "countries": [
   {
    "country": "Albania",
@@ -1075,6 +1075,79 @@
    ]
   },
   {
+   "country": "Ecuador",
+   "slug": "ecuador",
+   "method": "file",
+   "source_name": "SRI (Servicio de Rentas Internas) — open data «Vehículos Nuevos»",
+   "source_url": "https://www.datosabiertos.gob.ec/dataset/?organization=sri-servicio-de-rentas-internas&tags=Vehiculos+Nuevos",
+   "cadence_text": "twice daily on the 1st–14th — SRI regenerates the current year's file early in the month (August 2026 on Sep 4)",
+   "interval": "monthly",
+   "latest_period": "2026-08",
+   "expected_period": "2026-09",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "months": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12
+    ],
+    "times": [
+     "14:05",
+     "23:05"
+    ],
+    "workflow": ".github/workflows/fetch-ecuador.yml"
+   },
+   "last_render": null,
+   "flag": "🇪🇨",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-08",
+     "first": "2018-01",
+     "rows": 104,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-08",
+     "first": "2018-01",
+     "rows": 104,
+     "cadence": "monthly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
    "country": "Estonia",
    "slug": "estonia",
    "method": "pdf",
@@ -1346,10 +1419,10 @@
    "cadence_text": "fetched monthly, once KBA publishes the press release (typically the first week)",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2826,7 +2899,7 @@
     ],
     "workflow": ".github/workflows/fetch-paraguay.yml"
    },
-   "last_render": null,
+   "last_render": "2026-10-03",
    "flag": "🇵🇾",
    "variants": [
     {

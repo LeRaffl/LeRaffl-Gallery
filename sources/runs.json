@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T13:01:46Z",
+ "generated": "2026-10-04T09:37:13Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5168,6 +5168,14 @@
    "slug": "uk",
    "period": "2026-09",
    "flag": "🇬🇧"
+  },
+  {
+   "date": "2026-10-03",
+   "label": "Paraguay",
+   "base": "Paraguay",
+   "slug": "paraguay",
+   "period": "2026-09",
+   "flag": "🇵🇾"
   },
   {
    "date": "2026-10-03",
