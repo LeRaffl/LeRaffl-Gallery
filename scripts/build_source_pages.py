@@ -890,6 +890,19 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                                 counted (data-only scopes such
 #                                                 as Argentina's Pickups stay in
 #                                                 the downloadable CSV only)
+#     default: {id, class, text, leftover}        optional: the "no rule matched"
+#                                                 row (default: default-ice / ICE);
+#                                                 a classifier that only splits one
+#                                                 class (Ecuador: hybrids → PHEV /
+#                                                 EREV / HEV) names its own default.
+#                                                 The designations listed and counted
+#                                                 as "decided" are those whose class
+#                                                 differs from the default's.
+#     labels:  {seen, decided, heading, token,    optional stat / column wording
+#               specific, recent}
+#   A mapping may also be per year (brand,model,scope,year,class,rule,units —
+#   Ecuador): rows are summed per (brand, model, scope); "recent" is then the
+#   newest year in the file and first/last seen are years.
 #
 # Neither file is hand-edited except the rules CSV (the classifier's source of
 # truth). Missing files degrade to a short "not generated yet" note, never an
@@ -1112,6 +1125,26 @@ document.querySelectorAll('input[data-filter]').forEach(function(inp){
 </script>"""
 
 
+def _sum_yearly_mapping(rows: list[dict]) -> list[dict]:
+    """A per-year mapping (…,year,class,rule,units) → one row per designation
+    in the Argentina shape; 'units_last_12m' is the newest year in the file."""
+    newest = max(r["year"] for r in rows)
+    out: dict = {}
+    for r in rows:
+        k = (r["brand"], r["model"], r.get("scope", ""))
+        o = out.setdefault(k, {"brand": k[0], "model": k[1], "scope": k[2],
+                               "class": r["class"], "rule": r["rule"], "units_total": 0,
+                               "units_last_12m": 0, "first_seen": r["year"],
+                               "last_seen": r["year"]})
+        n = int(float(r.get("units") or 0))
+        o["units_total"] += n
+        if r["year"] == newest:
+            o["units_last_12m"] += n
+        o["first_seen"] = min(o["first_seen"], r["year"])
+        o["last_seen"] = max(o["last_seen"], r["year"])
+    return list(out.values())
+
+
 def build_classification(fm: dict) -> str:
     spec = fm.get("classification")
     if not isinstance(spec, dict):
@@ -1121,6 +1154,18 @@ def build_classification(fm: dict) -> str:
     scopes = spec.get("scopes")
     if mapping is not None and scopes:
         mapping = [r for r in mapping if r.get("scope") in scopes]
+    if mapping and "year" in mapping[0] and "units_total" not in mapping[0]:
+        mapping = _sum_yearly_mapping(mapping)
+    dflt = {"id": "default-ice", "class": "ICE",
+            "text": "No rule matched: the designation carries no electrification marker and no "
+                    "model-specific rule applies, so it is counted as a combustion car.",
+            "leftover": None}
+    dflt.update(spec.get("default") or {})
+    labels = {"seen": "designations seen", "decided": "classified electrified",
+              "token": "of electrified registrations say so in the designation (EV, PHEV, HEV …)",
+              "specific": "decided by a brand- or model-specific rule",
+              "recent": "Last 12 m"}
+    labels.update(spec.get("labels") or {})
     intro = spec.get("intro") or []
     if isinstance(intro, str):
         intro = [intro]
@@ -1133,20 +1178,20 @@ def build_classification(fm: dict) -> str:
             decided.setdefault(r.get("rule", ""), [0, 0])
             decided[r["rule"]][0] += 1
             decided[r["rule"]][1] += int(float(r.get("units_total") or 0))
-        electrified = [r for r in mapping if r.get("class") != "ICE"]
+        electrified = [r for r in mapping if r.get("class") != dflt["class"]]
         kind_of = {r["id"]: r.get("kind", "") for r in rules}
         el_units = sum(int(float(r.get("units_total") or 0)) for r in electrified)
         by_token = sum(int(float(r.get("units_total") or 0)) for r in electrified
                        if kind_of.get(r.get("rule")) == "token")
         parts.append(
             '<div class="stats">'
-            f'<div class="stat"><div class="n">{len(mapping):,}</div><div class="l">designations seen</div></div>'
-            f'<div class="stat"><div class="n">{len(electrified):,}</div><div class="l">classified electrified</div></div>'
+            f'<div class="stat"><div class="n">{len(mapping):,}</div><div class="l">{esc(labels["seen"])}</div></div>'
+            f'<div class="stat"><div class="n">{len(electrified):,}</div><div class="l">{esc(labels["decided"])}</div></div>'
             f'<div class="stat"><div class="n">{len(rules)}</div><div class="l">rules</div></div>'
             f'<div class="stat"><div class="n">{_share(by_token / el_units if el_units else None)}</div>'
-            '<div class="l">of electrified registrations say so in the designation (EV, PHEV, HEV …)</div></div>'
+            '<div class="l">' + esc(labels["token"]) + '</div></div>'
             f'<div class="stat"><div class="n">{_share((el_units - by_token) / el_units if el_units else None)}</div>'
-            '<div class="l">decided by a brand- or model-specific rule</div></div>'
+            '<div class="l">' + esc(labels["specific"]) + '</div></div>'
             '</div>')
 
     # 1. The rule table, in evaluation order.
@@ -1166,13 +1211,12 @@ def build_classification(fm: dict) -> str:
                 f'<td>{esc(r["reason"])}<div class="dim ev">Evidence: {esc(r.get("evidence", ""))}</div>'
                 f'<div class="ev">Example: {ex}</div></td>'
                 f'<td class="num">{n_units:,}<div class="dim">{n_des} desig.</div></td></tr>')
-        default = decided.get("default-ice", [0, 0])
+        default = decided.get(dflt["id"], [0, 0])
         rows.append(
-            f'<tr id="rule-default-ice"><td class="num">—</td><td>{cls_badge("ICE")}'
-            '<div class="rid"><code>default-ice</code></div></td>'
+            f'<tr id="rule-{esc(dflt["id"])}"><td class="num">—</td><td>{cls_badge(dflt["class"])}'
+            f'<div class="rid"><code>{esc(dflt["id"])}</code></div></td>'
             '<td><span class="dim">anything left</span></td>'
-            '<td>No rule matched: the designation carries no electrification marker and no '
-            'model-specific rule applies, so it is counted as a combustion car.</td>'
+            f'<td>{esc(dflt["text"])}</td>'
             f'<td class="num">{default[1]:,}<div class="dim">{default[0]} desig.</div></td></tr>')
         parts.append(
             '<h3>The rules, in the order they are applied</h3>'
@@ -1190,7 +1234,7 @@ def build_classification(fm: dict) -> str:
         parts.append('<p class="dim">The model mapping has not been generated yet — it '
                      'appears after the next fetch.</p>')
     else:
-        el = sorted((r for r in mapping if r.get("class") != "ICE"),
+        el = sorted((r for r in mapping if r.get("class") != dflt["class"]),
                     key=lambda r: (CLASS_ORDER.index(r["class"]) if r["class"] in CLASS_ORDER else 9,
                                    -int(float(r.get("units_total") or 0))))
         trs = "".join(
@@ -1202,7 +1246,7 @@ def build_classification(fm: dict) -> str:
             f'<td class="nowrap">{esc(r.get("first_seen", ""))} → {esc(r.get("last_seen", ""))}</td></tr>'
             for r in el)
         parts.append(
-            f'<h3>Every designation classified as electrified ({len(el):,})</h3>'
+            f'<h3>Every designation {esc(labels.get("heading", labels["decided"].replace("classified ", "classified as ")))} ({len(el):,})</h3>'
             '<p class="fig-lead">The complete mapping, generated on every fetch. Click a '
             'rule to see why. Type to filter (brand, designation, class or rule).</p>'
             '<p><input type="search" class="filter" placeholder="Filter, e.g. BYD, PHEV, SHARK …" '
@@ -1210,14 +1254,26 @@ def build_classification(fm: dict) -> str:
             '<span class="dim"><span id="map-el-n"></span> shown</span></p>'
             '<div class="scroll tall"><table class="mapping" id="map-el"><tr><th>Class</th>'
             '<th>Brand</th><th>Designation</th><th>Scope</th><th>Rule</th><th class="num">Units</th>'
-            '<th class="num">Last 12 m</th><th>Registered</th></tr>' + trs + '</table></div>')
+            '<th class="num">' + esc(labels["recent"]) + '</th><th>Registered</th></tr>' + trs + '</table></div>')
 
         # 3. The ICE side of brands that also sell electrified cars.
         el_brands = {r["brand"] for r in el}
-        ice = sorted((r for r in mapping if r.get("class") == "ICE"
+        ice = sorted((r for r in mapping if r.get("class") == dflt["class"]
                       and r["brand"] in el_brands and int(float(r.get("units_last_12m") or 0)) > 0),
                      key=lambda r: -int(float(r.get("units_last_12m") or 0)))[:40]
-        if ice:
+        if ice and dflt["class"] != "ICE":
+            trs = "".join(
+                f'<tr><td>{esc(r["brand"])}</td><td><code>{esc(r["model"])}</code></td>'
+                f'<td>{esc(r.get("scope", ""))}</td><td class="num">{_num(r.get("units_last_12m"))}</td>'
+                f'<td class="nowrap">{esc(r.get("first_seen", ""))}</td></tr>' for r in ice)
+            parts.append(
+                f'<details><summary>What was left as {esc(CLASS_LABEL.get(dflt["class"], dflt["class"]).split(" (")[0].lower())}: '
+                f'the 40 largest such designations of the same brands ({esc(labels["recent"].lower())})</summary>'
+                f'<p class="fig-lead">{esc(dflt.get("leftover") or "")}</p>'
+                '<div class="scroll"><table class="mapping"><tr><th>Brand</th><th>Designation</th>'
+                f'<th>Scope</th><th>Units ({esc(labels["recent"].lower())})</th><th>First seen</th></tr>' + trs
+                + '</table></div></details>')
+        elif ice:
             trs = "".join(
                 f'<tr><td>{esc(r["brand"])}</td><td><code>{esc(r["model"])}</code></td>'
                 f'<td>{esc(r.get("scope", ""))}</td><td class="num">{_num(r.get("units_last_12m"))}</td>'
