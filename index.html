@@ -6991,7 +6991,7 @@ const sortField     = document.getElementById('sortField');
 const sortDir       = document.getElementById('sortDir');
 const pager         = document.getElementById('pager');
 const loadMoreBtn   = document.getElementById('loadMore');
-const INITIAL_ROWS = 3, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
+const INITIAL_ROWS = 6, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
 const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
