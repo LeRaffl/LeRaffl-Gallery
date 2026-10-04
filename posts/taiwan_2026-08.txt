@@ -1,0 +1,11 @@
+🇹🇼 Taiwan - August 26 - BEV Trajectory
+12.6% BEV
+1.1% PHEV
+86.3% ICE (of which 40.3%p were HEV)
+
+Trailing 12 months are:
+10.5% BEV
+1.0% PHEV (of which 0.0%p were EREV)
+88.6% ICE (of which 39.2%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

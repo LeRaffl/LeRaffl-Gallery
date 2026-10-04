@@ -1,0 +1,12 @@
+🇹🇼 Taiwan (HDV) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++0.2pp  BEV   (0.2% → 0.4%)
++0.2pp  PHEV  (0.1% → 0.3%)
+−0.2pp  HEV   (0.3% → 0.1%)
+−0.2pp  ICE   (99.4% → 99.2%)
+
+PHEV peaked at 0.4% in 2025-09 (declining for 11 months).
+HEV peaked at 0.4% in 2025-07 (declining for 13 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
