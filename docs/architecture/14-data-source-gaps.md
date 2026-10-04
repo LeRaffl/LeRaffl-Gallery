@@ -128,6 +128,22 @@ the chart: imports, not registrations.
 a monthly first-registration series by fuel — then the registry should
 replace customs, as it would for Nepal.
 
+### 🇪🇨 Ecuador — built from the tax authority's new-vehicle register (2026-10)
+
+**Built:** see [48-source-ecuador.md](48-source-ecuador.md). AEADE, the
+importers' and assemblers' association, publishes the monthly market as a
+PDF bulletin (fuel split for all segments only, with that table only since
+2025-05). Its source is the SRI's register of new-vehicle invoices — and the
+SRI publishes that register as free record-level open data, one CSV per year
+since 2017: every invoiced new vehicle with brand, catalogue description,
+class and fuel. Counted once per vehicle it reproduces AEADE's annual market
+within 0.2 % (2019–2024) and its monthly figures within about 1 %, complete by
+construction (every brand). One limitation stays: SRI has a single hybrid
+code, so there is no PHEV/HEV split (one combined hybrid figure, as for
+Türkiye and Ukraine).
+**What would change it:** SRI adding a plug-in flag (or AEADE publishing its
+technology split monthly) — then PHEV could be split out.
+
 ### 🇲🇽 Mexico — the official monthly registry omits BYD
 
 - **The structured source:** INEGI's **RAIAVL** (Registro Administrativo de la
