@@ -62,13 +62,20 @@ def faroe():
                 for sub in get(base + it["id"] + "/").json(): print("    sub", sub)
             except Exception as e: print("   sub ERR", e)
 
-for name in ["2026/New_Registrations_of_Motor_Vehicles_by_Type_of_Fuel_-_2025.pdf",
-             "2026/Monthly_New_registration_of_Vehicles_2025.pdf",
-             "2023/fuel/2023.pdf", "2023/fuel/2022.pdf",
-             "PDF/statistics/2024_N_R_Monthly_New_registration_of_Vehicles_2024.pdf"]:
-    u = "https://dmt.gov.lk/images/" + name
-    try:
-        r = get(u); print(u, r.status_code, len(r.content), r.headers.get("content-type"))
-        (OUT / name.replace("/", "_")).write_bytes(r.content)
-    except Exception as e:
-        print(u, "ERR", e)
+import shutil
+shutil.rmtree(OUT); OUT.mkdir()
+found = []
+for y in range(2016, 2027):
+    for m in range(1, 13):
+        if (y, m) > (2026, 8):
+            break
+        for folder in (y, y + 1):
+            u = f"https://bhas.gov.ba/data/Publikacije/Saopstenja/{folder}/TRA_05_{y}_{m:02d}_1_BS.pdf"
+            try:
+                r = get(u)
+            except Exception as e:
+                print(u, "ERR", type(e).__name__); continue
+            if r.status_code == 200 and r.content[:4] == b"%PDF":
+                (OUT / f"TRA_05_{y}_{m:02d}.pdf").write_bytes(r.content)
+                found.append(f"{y}-{m:02d}"); print("OK", u, len(r.content)); break
+print("found", len(found), found[:3], found[-3:])
