@@ -8,11 +8,11 @@
   "to": "2026-09",
   "months": 9
  },
- "total_registrations": 1739253,
+ "total_registrations": 1739271,
  "unit": "new car registrations by marque as SMMT publishes them — every powertrain, as SMMT's brand table has no fuel split; models are SMMT's top 10, the rest of the market is unranked",
  "classes": {
   "ALL": {
-   "units": 1739253,
+   "units": 1739271,
    "share_of_market": 1.0,
    "brands": [
     {
@@ -32,7 +32,7 @@
     },
     {
      "brand": "AUDI",
-     "units": 88625,
+     "units": 88626,
      "share_of_class": 0.051
     },
     {
@@ -57,12 +57,12 @@
     },
     {
      "brand": "VAUXHALL",
-     "units": 70490,
+     "units": 70491,
      "share_of_class": 0.0405
     },
     {
      "brand": "TOYOTA",
-     "units": 70300,
+     "units": 70301,
      "share_of_class": 0.0404
     }
    ],
@@ -76,7 +76,7 @@
     {
      "brand": "JAECOO",
      "model": "7",
-     "units": 39473,
+     "units": 39474,
      "share_of_class": 0.0227
     },
     {
@@ -112,7 +112,7 @@
     {
      "brand": "MINI",
      "model": "COOPER",
-     "units": 23722,
+     "units": 23724,
      "share_of_class": 0.0136
     },
     {
@@ -133,10 +133,10 @@
  "months": [
   {
    "period": "2026-09",
-   "total_registrations": 350518,
+   "total_registrations": 350536,
    "classes": {
     "ALL": {
-     "units": 350518,
+     "units": 350536,
      "share_of_market": 1.0,
      "brands": [
       {
@@ -161,7 +161,7 @@
       },
       {
        "brand": "AUDI",
-       "units": 16721,
+       "units": 16722,
        "share_of_class": 0.0477
       },
       {
@@ -181,12 +181,12 @@
       },
       {
        "brand": "JAECOO",
-       "units": 15055,
+       "units": 15057,
        "share_of_class": 0.043
       },
       {
        "brand": "TOYOTA",
-       "units": 13947,
+       "units": 13948,
        "share_of_class": 0.0398
       }
      ],
@@ -194,7 +194,7 @@
       {
        "brand": "JAECOO",
        "model": "7",
-       "units": 10813,
+       "units": 10814,
        "share_of_class": 0.0308
       },
       {
@@ -207,7 +207,7 @@
        "brand": "FORD",
        "model": "PUMA",
        "units": 6958,
-       "share_of_class": 0.0199
+       "share_of_class": 0.0198
       },
       {
        "brand": "KIA",
