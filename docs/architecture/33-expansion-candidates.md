@@ -1,18 +1,40 @@
-# 33 · Expansion candidates — Israel, India, Africa, MENA (July 2026 investigation)
+# 33 · Expansion candidates — the running log of countries checked for the gallery
 
-This document records a **desk investigation (2026-07)** into expanding the
-gallery's country portfolio into regions it currently doesn't cover at all:
-Africa, the Arab world, Israel, and India. It is the forward-looking sibling of
+This document started as a **desk investigation (2026-07)** into regions the
+gallery didn't cover at all (Africa, the Arab world, Israel, India) and has
+since become the running log of every expansion check: the 2026-07 candidates,
+the Western Balkans, and the large-market sweeps of 2026-09 and 2026-10 (which
+built Ukraine, Hong Kong, Peru, Paraguay, Ecuador and Taiwan). It is the
+forward-looking sibling of
 [14-data-source-gaps.md](14-data-source-gaps.md) (which records countries we
 investigated and *rejected*). Same bar applies: **(a) direct from the original
 registry/agency or the de-facto complete industry body, (b) reasonably complete
 for the market, (c) machine-accessible without paywalls or identity checks.**
 
-> **Verification status:** everything below is from web research only. The
-> session that produced this doc ran under a network policy that blocked direct
-> requests to the candidate endpoints, so **none of the APIs/PDFs have been
-> exercised yet**. Each candidate lists its open verification points — check
-> those first when building the fetcher.
+> **Where things stand (2026-10-05).**
+>
+> | Country | Status | Where |
+> |---|---|---|
+> | 🇮🇱 Israel | built (2026-07) | [34](34-source-israel.md) |
+> | 🇮🇳 India | built — semi-automated: hand-pulled VAHAN exports → `scripts/build_india.py` (the CI route stayed blocked) | `country_source_stubs.yaml`, `data/raw/india/README.md` |
+> | 🇺🇦 🇭🇰 🇵🇪 🇵🇾 🇪🇨 🇹🇼 | built outside the original list (2026-09/10) | sections below |
+> | 🇿🇦 South Africa | **viable, not built** | § South Africa |
+> | 🇷🇸 Serbia | **data model confirmed, build deferred** | § Serbia |
+> | 🇧🇦 Bosnia | lead, fuel granularity unverified | § Western Balkans |
+> | 🇲🇦 Morocco | shelved — energy split login-walled | § Morocco |
+> | 🇲🇽 🇷🇺 🇨🇷 🇵🇭 🇰🇿 🇪🇬 | shelved / no source | tables below, [14](14-data-source-gaps.md) |
+>
+> The original 2026-07 write-up was web research only; most entries have
+> since been probed from GitHub runners (each says which). Older text below
+> is kept as the record of what was believed at the time — the status boxes
+> are what is current.
+>
+> **Public pages.** Every checked-but-not-built country above also has a
+> reader-facing page under `sources/` (verdict, best source, findings, what
+> would change it), generated from
+> [`candidate_sources.yaml`](candidate_sources.yaml). When a verdict changes
+> here, update that entry too; when a country is built, delete its entry
+> (`build_source_pages.py --check` fails otherwise).
 
 ---
 
@@ -56,6 +78,14 @@ are licensing-data-based. A Chile/Colombia-style monthly PDF parser would work.
 as the PHEV/HEV disambiguator and as a cross-check.
 
 ### 🇮🇳 India — Vahan (MoRTH national registry)
+
+> **Status: BUILT (semi-automated).** The "pragmatic plan" below is what
+> shipped: the maintainer exports the VAHAN4 "Fuel × Month Wise" table by
+> hand, and `scripts/build_india.py` turns the workbooks into
+> `data/India.csv` (monthly from 2020, yearly before). Recipe:
+> `data/raw/india/README.md`; source page entry in
+> `country_source_stubs.yaml`. The 2-/3-wheeler variants below are still
+> open.
 
 The **Vahan** platform (Ministry of Road Transport & Highways) is the national
 vehicle register, and its public analytics dashboard
@@ -464,13 +494,19 @@ publication + fuel split before building):
 | `France_Vans` / `France_HDV` | SDES / data.gouv.fr (RSVERO-based immatriculations by energy) | Registry-direct, structured downloads |
 | `Sweden_Vans` / `Sweden_HDV` / `Sweden_Buses` | Mobility Sweden monthly press stats | Complements the existing SCB PxWeb source |
 | `Norway_Vans` | OFV monthly varebil registrations | Norway is the most-watched market on the gallery; vans curve lags cars interestingly |
-| `India_2-Wheelers` / `India_3-Wheelers` | Vahan (see above) | Comes almost free with the India fetcher |
+| `India_2-Wheelers` / `India_3-Wheelers` | Vahan (see above) | Same hand-pulled export with a different vehicle-class filter |
 
 ## Suggested order of attack
 
-1. **Israel** (CKAN API, known tech, complete registry) — highest
-   value-per-effort.
-2. **India** (data.gov.in API + Telangana footnote) — biggest market gap on
-   the gallery, plus 2W/3W variants.
-3. **Morocco** (after verifying AIVAM's own PDFs carry the energy table).
-4. **South Africa** (quarterly, Canada-pattern).
+The 2026-07 list (Israel → India → Morocco → South Africa) is done or
+decided: Israel and India are built, Morocco is shelved. What is left, in
+order of value per effort:
+
+1. **South Africa** — verified, quarterly, Canada pattern; the only open
+   question is the all-vehicle scope (§ South Africa).
+2. **Serbia** — solve article discovery on `uvoznicivozila.rs`, then a
+   quarterly parser (§ Serbia).
+3. **Bosnia** — only if the BHAS monthly table has an electric line.
+4. Re-checks when something changes: Morocco (portal credentials), Mexico
+   (BYD reporting to INEGI), Costa Rica (a MINAE / Registro Nacional table),
+   Russia (a free Autostat table).

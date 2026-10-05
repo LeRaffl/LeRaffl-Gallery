@@ -35,12 +35,34 @@ REPO = Path(__file__).resolve().parent.parent
 DOCS = REPO / "docs" / "architecture"
 PARAMS = REPO / "params.csv"
 STUBS = DOCS / "country_source_stubs.yaml"
+CANDIDATES = DOCS / "candidate_sources.yaml"
 OUT_DIR = REPO / "sources"
 GH_BLOB = "https://github.com/LeRaffl/LeRaffl-Gallery/blob/master"
 
 # Every entry (doc front-matter or stub) must carry these before it can
 # become a page — the --check mode enforces it in CI.
 REQUIRED_FIELDS = ("country", "slug", "source_name", "variants", "method")
+
+# Checked-but-not-built countries (candidate_sources.yaml) need these instead:
+# they have no data file, no variants and no acquisition method.
+CANDIDATE_REQUIRED = ("country", "slug", "verdict", "checked", "summary",
+                      "findings", "doc")
+
+# A candidate's verdict replaces the method chip on its page and card.
+VERDICT_LABELS = {
+    "viable": "Viable",
+    "deferred": "Deferred",
+    "lead": "Lead",
+    "shelved": "Shelved",
+    "no-source": "No source",
+}
+VERDICT_DESC = {
+    "viable": "a usable source exists and was verified — not built yet",
+    "deferred": "the data model is confirmed, but the build is waiting on an open problem",
+    "lead": "a promising source, not yet verified in detail",
+    "shelved": "a source exists, but fails the gallery's bar (completeness, access or price)",
+    "no-source": "no published series with a fuel split was found",
+}
 
 # How the data is acquired — the page's headline label (replaces the old
 # live/planned status). One of these five buckets per country.
@@ -1426,7 +1448,7 @@ def market_summary(fm: dict) -> str:
     return out
 
 
-def build_index(pages: list[dict]) -> str:
+def build_index(pages: list[dict], candidates: list[dict] = ()) -> str:
     cards = []
     for p in sorted(pages, key=lambda x: x["country"]):
         mkt = (f'<div class="dir-mkt"><span class="mkt-chip">{esc(p["market"])}</span></div>'
@@ -1439,9 +1461,18 @@ def build_index(pages: list[dict]) -> str:
             f' · TTM BEV {esc(p["ttm"])}</div>{mkt}</a>')
     n_full = sum(1 for p in pages if not p.get("is_stub"))
     n_mkt = sum(1 for p in pages if p.get("market"))
+    cand_cards = "".join(
+        f'<a class="dir-card" href="{esc(c["slug"])}.html">'
+        f'<div class="dir-top">{esc(c["country"])}{verdict_chip(c["verdict"])}</div>'
+        f'<div class="dir-sub">{esc(c["summary"])}</div>'
+        f'<div class="dir-meta">Checked {esc(c["checked"])}</div></a>'
+        for c in sorted(candidates, key=lambda x: x["country"]))
+    candidates_html = (CANDIDATE_INDEX_SECTION.format(
+        n=len(candidates), cards=cand_cards) if candidates else "")
     return INDEX_TEMPLATE.format(
         theme_href=THEME_HREF_INDEX,
-        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full, n_mkt=n_mkt)
+        css=BASE_CSS, cards="".join(cards), n=len(pages), n_full=n_full, n_mkt=n_mkt,
+        candidates=candidates_html)
 
 
 # --------------------------------------------------------------------------
@@ -1478,6 +1509,10 @@ h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);paddi
 .chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
 .chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
 .chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--viable{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--deferred,.chip--lead{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--shelved,.chip--no-source{background:transparent;color:var(--muted);border-color:var(--border)}
+.dir-grid--cand .dir-card{background:transparent;border-style:dashed}
 .banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
   padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
 .stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
@@ -1712,6 +1747,60 @@ INDEX_TEMPLATE = """<!doctype html>
      and over the last twelve); their card names the best-selling
      battery-electric make and model.</p>
   <div class="dir-grid">{cards}</div>
+  {candidates}
+</div>
+</body>
+</html>
+"""
+
+CANDIDATE_INDEX_SECTION = """
+  <h2>Checked, not on the gallery yet</h2>
+  <p class="lead">{n} countries we looked into whose data is not (yet) in the
+     gallery — the best source we found, what we found when we checked it, and
+     what would have to change. These pages have no charts or numbers of their
+     own.</p>
+  <div class="dir-grid dir-grid--cand">{cards}</div>
+"""
+
+CANDIDATE_TEMPLATE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{country} — candidate source · BEV Trajectories</title>
+<meta name="description" content="{summary}">
+<link rel="stylesheet" href="{theme_href}">
+<style>{css}</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">← All sources</a>
+  <h1>{country} {chip}</h1>
+  <div class="banner">Not on the gallery. We checked this country's sources but
+    hold no data for it, so there is no chart and no BEV share here — this page
+    records what we found. Verdict: {verdict_desc}.</div>
+  <p class="lead">{summary}</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">{verdict_label}</div><div class="l">Verdict</div></div>
+    <div class="stat"><div class="n">{checked}</div><div class="l">Last checked</div></div>
+  </div>
+
+  <section><h2>Best source found</h2>
+  {source}
+  <p class="fig-note">How it was checked: {how}.</p></section>
+
+  {findings}
+
+  {blockers}
+
+  {would}
+
+  {if_built}
+
+  <div class="footer">
+    <p>Full investigation notes (for developers): {doc}</p>
+  </div>
 </div>
 </body>
 </html>
@@ -1770,10 +1859,101 @@ def collect_entries() -> tuple[list[tuple[dict, bool]], list[str]]:
     return entries, problems
 
 
+def verdict_chip(verdict: str) -> str:
+    label = VERDICT_LABELS.get(verdict, verdict or "—")
+    title = VERDICT_DESC.get(verdict, "")
+    return (f'<span class="chip chip--{esc(verdict)}" title="{esc(title)}">'
+            f'{esc(label)}</span>')
+
+
+def _bullets(items, heading: str) -> str:
+    items = [items] if isinstance(items, str) else list(items or [])
+    if not items:
+        return ""
+    lis = "".join(f"<li>{esc(i)}</li>" for i in items)
+    return f'<section><h2>{esc(heading)}</h2><ul class="caveats">{lis}</ul></section>'
+
+
+def build_candidate_page(fm: dict) -> str:
+    """A page for a country we checked but have not built: no data, no curve —
+    the source we found, what the check established, and what would have to
+    change. Deliberately a different, smaller template so it can never be
+    mistaken for a page about a series the gallery holds."""
+    verdict = fm.get("verdict", "")
+    doc = fm.get("doc", "")
+    url = fm.get("source_url")
+    name = esc(fm.get("source_name") or "—")
+    source = (f'<a class="source-btn" href="{esc(url)}" rel="noopener">{name} ↗</a>'
+              if url else f'<p><strong>{name}</strong></p>')
+    would = fm.get("would_change")
+    would_html = (f'<section><h2>What would change the verdict</h2><p>{esc(would)}</p></section>'
+                  if would else "")
+    probed = fm.get("probed")
+    how = ("endpoints probed from GitHub's runners" if probed is True else
+           "desk research only — no endpoint exercised yet" if probed is False else "—")
+    return CANDIDATE_TEMPLATE.format(
+        theme_href=THEME_HREF,
+        css=BASE_CSS,
+        country=esc(fm["country"]),
+        chip=verdict_chip(verdict),
+        verdict_desc=esc(VERDICT_DESC.get(verdict, "")),
+        summary=esc(fm.get("summary", "")),
+        checked=esc(fm.get("checked", "—")),
+        verdict_label=esc(VERDICT_LABELS.get(verdict, verdict)),
+        how=esc(how),
+        source=source,
+        findings=_bullets(fm.get("findings"), "What we found"),
+        blockers=_bullets(fm.get("blockers"), "Why it is not on the gallery"),
+        would=would_html,
+        if_built=_bullets(fm.get("if_built"), "How it would map, if built"),
+        doc=(f'<a href="{GH_BLOB}/{esc(doc)}">'
+             f'<code>{esc(doc.split("#")[0])}</code></a>'),
+    )
+
+
+def load_candidates() -> list[dict]:
+    """Checked-but-not-built countries, if the registry exists."""
+    if not CANDIDATES.exists():
+        return []
+    data = yaml.safe_load(CANDIDATES.read_text(encoding="utf-8")) or {}
+    return [c for c in (data.get("candidates") or []) if isinstance(c, dict)]
+
+
+def collect_candidates(gallery_slugs: set[str]) -> tuple[list[dict], list[str]]:
+    problems: list[str] = []
+    out: list[dict] = []
+    seen: set[str] = set()
+    for c in load_candidates():
+        where = f"candidate_sources.yaml:{c.get('slug', '?')}"
+        missing = [f for f in CANDIDATE_REQUIRED if not c.get(f)]
+        if missing:
+            problems.append(f"{where}: missing {', '.join(missing)}")
+        if c.get("verdict") and c["verdict"] not in VERDICT_LABELS:
+            problems.append(f"{where}: unknown verdict '{c['verdict']}' "
+                            f"(one of {', '.join(VERDICT_LABELS)})")
+        slug = c.get("slug")
+        if slug in gallery_slugs:
+            problems.append(f"{where}: '{slug}' is on the gallery now — "
+                            f"remove the candidate entry")
+            continue
+        if slug in seen:
+            problems.append(f"{where}: duplicate slug")
+            continue
+        seen.add(slug)
+        doc = (c.get("doc") or "").split("#")[0]
+        if doc and not (REPO / doc).is_file():
+            problems.append(f"{where}: doc '{doc}' does not exist")
+        out.append(c)
+    return out, problems
+
+
 def main() -> int:
     check_only = "--check" in sys.argv
     params = load_params()
     entries, problems = collect_entries()
+    candidates, cand_problems = collect_candidates(
+        {fm.get("slug") for fm, _ in entries})
+    problems += cand_problems
 
     if problems:
         print("Front-matter / stub problems:", file=sys.stderr)
@@ -1784,7 +1964,7 @@ def main() -> int:
         print("No entries found (no front-matter, no stubs).", file=sys.stderr)
         return 1
     if check_only:
-        print(f"OK — {len(entries)} valid entries.")
+        print(f"OK — {len(entries)} valid entries, {len(candidates)} candidates.")
         return 0
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1809,8 +1989,15 @@ def main() -> int:
             "is_stub": is_stub,
         })
 
-    (OUT_DIR / "index.html").write_text(build_index(built), encoding="utf-8")
+    for c in candidates:
+        (OUT_DIR / f"{c['slug']}.html").write_text(build_candidate_page(c),
+                                                   encoding="utf-8")
 
+    (OUT_DIR / "index.html").write_text(build_index(built, candidates),
+                                        encoding="utf-8")
+
+    # Candidates are deliberately NOT in this map: the gallery has no card for
+    # them, and a link from a card must always lead to data we hold.
     # A country → slug map the gallery loads to add "ⓘ Source" links to each
     # country card. Keyed by the country name so index.html can look it up
     # from a card's (variant-stripped) country label.
@@ -1821,6 +2008,7 @@ def main() -> int:
 
     n_full = sum(1 for b in built if not b["is_stub"])
     print(f"  ✓ {len(built)} pages ({n_full} full, {len(built) - n_full} stub) "
+          f"+ {len(candidates)} candidate pages "
           f"+ sources/index.html + sources/sources.json")
     return 0
 

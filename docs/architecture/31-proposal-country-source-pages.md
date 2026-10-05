@@ -43,6 +43,20 @@
   - National stub sources (KBA, SMMT, ANFAVEA, ANAC, JADA, ANL, TÜİK, …) carry
     a `notes` paragraph so they read as full pages, not one-liners.
 
+- **Candidate pages (2026-10).** Countries we checked but have not built
+  (South Africa, Serbia, Morocco, Mexico, …) get a page too, from a separate
+  registry, [`candidate_sources.yaml`](candidate_sources.yaml): verdict
+  (`viable` / `deferred` / `lead` / `shelved` / `no-source`) as the headline
+  chip instead of a method, date of the last check, best source found,
+  findings, blockers, what would change the verdict, and a link to the full
+  write-up in [33](33-expansion-candidates.md) / [14](14-data-source-gaps.md).
+  They use their own smaller template with a "not on the gallery" banner and
+  no stats from `params.csv`, are listed in a separate section of
+  `sources/index.html`, and are **left out of `sources.json`** so no gallery
+  card ever links to one. `--check` fails on a candidate whose slug is also a
+  gallery page (delete the entry when the country is built), on an unknown
+  verdict, and on a `doc` path that doesn't exist.
+
 - **Data-derived sections (2026-07 cleanup).** The pages used to describe their
   data in prose only, so a page could drift from the CSV it described. Three
   sections are now computed from the committed CSVs at build time and cannot

@@ -1,0 +1,213 @@
+# Countries we have CHECKED but that are NOT on the gallery (yet).
+#
+# scripts/build_source_pages.py turns each entry into a reader-facing page
+# sources/<slug>.html and lists it in a separate "Checked, not on the gallery
+# yet" section of sources/index.html. These pages have no data, no curve and no
+# TTM share — they record what source exists, what we found when we probed it,
+# and what would have to change for the country to be built. They are left out
+# of sources/sources.json, so the gallery never links a country card to one.
+#
+# The canonical write-ups stay in 33-expansion-candidates.md and
+# 14-data-source-gaps.md; this file is the short public summary of them.
+# When a candidate is built, delete its entry here (--check fails on a slug
+# that is also a gallery page). When a re-check changes a verdict, update the
+# entry, its `checked` date and the doc section it links.
+#
+# Fields:
+#   country, slug, summary            — as for gallery pages
+#   verdict   (required)              — viable | deferred | lead | shelved | no-source
+#   checked   (required)              — date of the latest check (YYYY-MM)
+#   probed    (optional)              — true if endpoints were exercised from
+#                                       GitHub runners, false = desk research only
+#   source_name / source_url          — the best source we found
+#   findings  (required, list)        — what the check established
+#   blockers  (list)                  — why it is not built
+#   would_change                      — what would flip the verdict
+#   if_built  (list)                  — how it would map onto the gallery
+#   doc       (required)              — repo path (+ #anchor) of the full write-up
+
+candidates:
+  - country: South Africa
+    slug: south-africa
+    verdict: viable
+    checked: "2026-10"
+    probed: true
+    summary: "naamsa's Quarterly Business Review carries a BEV / PHEV / HEV table that parses cleanly — viable, but quarterly and for the whole vehicle market."
+    source_name: "naamsa — Quarterly Review of Business Conditions"
+    source_url: "https://naamsa.net/press-releases/"
+    findings:
+      - "naamsa.net is reachable from GitHub runners; the press-release archive reaches back to 2017."
+      - "The quarterly review's NEV page has plug-in hybrid, traditional hybrid and electric counts, with yearly columns 2020–2025 plus quarterly columns — one current PDF bootstraps the yearly history."
+      - "The monthly flash reports carry totals only, without a drivetrain split."
+      - "The roster covers the formal market including BYD, Chery and GWM (the NEV table says 21 brands)."
+    blockers:
+      - "Quarterly cadence only."
+      - "The NEV table covers all vehicles, with no passenger-car / light-commercial split, so Whole would have to be the total market — mixing it with naamsa's passenger-only total would combine two different universes."
+      - "No petrol / diesel split of the combustion remainder."
+      - "BEV share is about 0.2 %, so the curve would be an early-stage data point."
+    would_change: "Nothing blocks it — it is a build decision. A passenger-car NEV split or a monthly drivetrain table would make it a much better series."
+    if_built:
+      - "Quarterly rows stored under the middle month (the Canada pattern)."
+      - "ICE = TOTAL − BEV − PHEV − HEV in one bucket (the USA convention); a footnote that Whole is the total market."
+    doc: "docs/architecture/33-expansion-candidates.md#-south-africa--naamsa-quarterly-granularity"
+
+  - country: Serbia
+    slug: serbia
+    verdict: deferred
+    checked: "2026-09"
+    probed: false
+    summary: "The importers' association publishes Interior Ministry first registrations of new cars — but the fuel split is quarterly, hybrids are one bucket, and it only exists as article prose."
+    source_name: "Uvoznici vozila — Overview of the New Vehicle Market (M1 / N1 / L)"
+    source_url: "https://uvoznicivozila.rs/"
+    findings:
+      - "Data model confirmed from three published reports (Q1-2025, H1-2025, H1-2026): first registrations of new M1 cars, sourced from the Ministry of Internal Affairs. N1 vans and L two-wheelers are reported separately."
+      - "Fuel split: petrol, diesel, hybrids (all types, one bucket), electric, other. H1-2025: 16,473 cars, 161 electric (0.98 %), 6,039 hybrids."
+      - "Monthly figures exist only as totals in the text; the drivetrain split is quarterly / half-yearly."
+      - "The national open-data portal data.gov.rs has no Interior Ministry registration dataset (checked 2026-09)."
+    blockers:
+      - "No PDF, spreadsheet or API — numbers sit in article text, and each period is a new article with an unpredictable URL."
+      - "PHEV and HEV are not separated."
+      - "Whether BYD and other Chinese imports appear is not yet confirmed."
+    would_change: "A stable way to discover the articles (a news index or feed) — then a quarterly parser is feasible. A published table would make it easy."
+    if_built:
+      - "Hybrids → HEV (the Türkiye / Georgia combined-hybrid pattern, with the standard footnote); PHEV blank."
+      - "Possible variants: Vans (N1) and 2-Wheelers (L)."
+    doc: "docs/architecture/33-expansion-candidates.md#-serbia--verification-status-2026-07"
+
+  - country: Bosnia and Herzegovina
+    slug: bosnia
+    verdict: lead
+    checked: "2026-07"
+    probed: false
+    summary: "The statistics agency's monthly transport bulletin counts first registrations — but its fuel split may be a single 'alternative fuel' bucket."
+    source_name: "BHAS — monthly Transport statistical bulletin (from IDDEEA)"
+    source_url: "https://bhas.gov.ba/"
+    findings:
+      - "BHAS publishes a free monthly bulletin with registered-vehicle data from IDDEEA, the national registers agency."
+      - "The figures are first registrations including imported used cars (March 2025: about 630 new passenger cars)."
+      - "The fuel split seen so far is coarse: diesel / petrol / alternative fuel."
+    blockers:
+      - "Not yet verified that the monthly table separates BEV, PHEV and HEV."
+      - "Used imports dominate — it would need the Albania-style 'incl. imported used' footnote and is not comparable with ACEA new-car counts."
+    would_change: "Confirming that the monthly flow table has an electric line of its own."
+    doc: "docs/architecture/33-expansion-candidates.md#tier--western-balkans--former-yugoslavia-gap-2026-07"
+
+  - country: Morocco
+    slug: morocco
+    verdict: shelved
+    checked: "2026-07"
+    probed: true
+    summary: "AIVAM has a full BEV / PHEV / HEV / MHEV split — but only inside a members' portal."
+    source_name: "AIVAM — Association des Importateurs de Véhicules Automobiles au Maroc"
+    source_url: "https://www.aivam.ma/fr/documentation-et-etudes"
+    findings:
+      - "AIVAM's monthly press PDF and its monthly sales spreadsheet are machine-readable, but carry brand × passenger/commercial totals only — no energy split."
+      - "The energy data lives in the statistics portal statistique.aivam.ma; its statistics/energy API exists but answers 401 without a member login."
+      - "The annual review has a NEV section, yearly only."
+    blockers:
+      - "The monthly energy split is behind a login."
+    would_change: "Portal credentials (the fetcher would authenticate with a repo secret, as for Thailand and Indonesia), or AIVAM adding the energy table to its public monthly files."
+    if_built:
+      - "REEV → PHEV (the EREV convention); MHEV → OTHERS, as for Uruguay."
+    doc: "docs/architecture/33-expansion-candidates.md#-morocco--aivam-importers-association"
+
+  - country: Mexico
+    slug: mexico
+    verdict: shelved
+    checked: "2026-10"
+    probed: true
+    summary: "INEGI's official monthly series is structured and free — but BYD, which sells most of Mexico's EVs, does not report to it."
+    source_name: "INEGI — RAIAVL (light-vehicle industry register)"
+    source_url: "https://www.inegi.org.mx/datosprimarios/iavl/"
+    findings:
+      - "RAIAVL is monthly, machine-readable and has a hybrid / electric breakdown."
+      - "It is manufacturer-reported: 22 AMIA members plus 8 non-affiliated companies, 44 brands (2026) — without BYD."
+      - "Cross-check: RAIAVL's EV + PHEV count is about a third of what the EMA barometer and import data show."
+      - "EMA's barometer includes BYD but is quarterly, covers electrified cars only and is a PDF."
+    blockers:
+      - "With the market leader missing from both the BEV count and the total, the BEV share would be about a third of the real value."
+      - "Combining EMA's EV count with INEGI's total would mix two different universes."
+    would_change: "BYD reporting to INEGI, or EMA publishing a machine-readable series with a consistent total."
+    doc: "docs/architecture/14-data-source-gaps.md#-mexico--the-official-monthly-registry-omits-byd"
+
+  - country: Russia
+    slug: russia
+    verdict: shelved
+    checked: "2026-09"
+    probed: true
+    summary: "The monthly registration split by engine type exists — Autostat sells it per report."
+    source_name: "Autostat (licensed Interior Ministry registration data)"
+    source_url: "https://www.autostat.ru/"
+    findings:
+      - "Autostat's free news items give a monthly count of new BEVs (August 2026: 2,216) and a top-10 model list; the total market is in separate articles."
+      - "The full tables (brand, model, region, engine type) cost 3,000–10,000 ₽ per report, also via the reseller Autostat Info."
+      - "Both sites answer GitHub runners normally — access is not the obstacle."
+      - "Rosstat publishes the fleet by engine type annually only; the AEB's monthly release has no fuel split."
+    blockers:
+      - "The fuel split is paid; the free numbers are prose from two separate articles."
+    would_change: "A free machine-readable table — or a decision to buy the monthly table under a licence that allows republishing the derived series."
+    doc: "docs/architecture/14-data-source-gaps.md#-russia--the-monthly-fuel-split-exists-but-only-for-sale"
+
+  - country: Costa Rica
+    slug: costa-rica
+    verdict: no-source
+    checked: "2026-10"
+    probed: true
+    summary: "One of Latin America's fastest EV markets (BEV about 20 % of new cars in 2026) — but no monthly table by fuel is published."
+    source_name: "Registro Nacional / MINAE (environment ministry)"
+    source_url: "https://www.registronacional.go.cr/"
+    findings:
+      - "The press quotes monthly BEV units and shares from Registro Nacional data, via MINAE."
+      - "The Registro Nacional's statistics compendium (2025) has yearly EV plate counts only."
+      - "MINAE's energy site does not resolve from GitHub runners and its main site answers 403; registronacional.go.cr fails TLS."
+      - "The national portal datos.go.cr answers, but its catalogue has not been searched in depth."
+    blockers:
+      - "No published monthly series of new registrations by fuel."
+    would_change: "MINAE or the Registro Nacional publishing monthly new-vehicle inscriptions by fuel — a table, an open dataset, or a public dashboard whose query API can be read (as for Peru)."
+    doc: "docs/architecture/14-data-source-gaps.md#-costa-rica--a-strong-curve-but-no-published-series-checked-2026-10"
+
+  - country: Philippines
+    slug: philippines
+    verdict: shelved
+    checked: "2026-10"
+    probed: false
+    summary: "CAMPI and TMA publish a monthly electrified split — for their member brands only."
+    source_name: "CAMPI + TMA monthly sales reports"
+    source_url: "https://www.campiauto.org/"
+    findings:
+      - "The HEV / BEV / PHEV split is published monthly."
+      - "The press adds brands not affiliated with CAMPI as estimates — the reported series is incomplete."
+    blockers:
+      - "Member-reported: key EV sellers are outside the roster (the Mexico completeness failure)."
+    would_change: "A registry series from the Land Transportation Office, or the roster covering the EV importers."
+    doc: "docs/architecture/33-expansion-candidates.md#investigated-2026-10--the-rest-of-the-large-market-list"
+
+  - country: Kazakhstan
+    slug: kazakhstan
+    verdict: shelved
+    checked: "2026-10"
+    probed: true
+    summary: "Only dealer-reported EV counts — no full fuel split of the market."
+    source_name: "AKAB / KAU dealer sales; stat.gov.kz"
+    source_url: "https://stat.gov.kz/"
+    findings:
+      - "NEV counts come from official dealers only, without a full fuel split."
+      - "The open-data API data.egov.kz answers 403 to GitHub runners."
+    blockers:
+      - "No complete monthly series by fuel; grey imports are outside the dealer figures."
+    would_change: "A registry table of new registrations by fuel."
+    doc: "docs/architecture/33-expansion-candidates.md#investigated-2026-10--the-rest-of-the-large-market-list"
+
+  - country: Egypt
+    slug: egypt
+    verdict: shelved
+    checked: "2026-07"
+    probed: false
+    summary: "AMIC has exactly the right data — and sells it."
+    source_name: "AMIC — Automotive Marketing Information Council"
+    findings:
+      - "AMIC compiles monthly new-vehicle sales by brand and segment."
+    blockers:
+      - "Paywalled."
+    would_change: "A free release with an electrified split."
+    doc: "docs/architecture/33-expansion-candidates.md#shelved--investigated-2026-07-no-viable-source"
