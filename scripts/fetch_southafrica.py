@@ -12,7 +12,7 @@ Usage
         verify where the quarterly NEV breakdown (BEV / PHEV / HEV) lives
         and whether the PDFs parse cleanly.
 
-Plan (see docs/architecture/29-expansion-candidates.md): quarterly cadence
+Plan (see docs/architecture/33-expansion-candidates.md): quarterly cadence
 like Canada (middle-month rows), ICE = TOTAL − NEV with the USA single-ICE
 convention, monthly totals from the flash reports.
 """

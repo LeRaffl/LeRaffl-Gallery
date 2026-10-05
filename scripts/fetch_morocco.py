@@ -8,7 +8,7 @@ Usage
         Run from CI (the dev sandbox has no external network). Crawls
         AIVAM's publication pages, lists downloadable PDFs, downloads the
         most recent one(s) and dumps their text — to answer the open
-        question from docs/architecture/29-expansion-candidates.md: does
+        question from docs/architecture/33-expansion-candidates.md: does
         AIVAM's own monthly PDF carry the per-energy split (BEV / PHEV /
         HEV / MHEV / petrol / diesel) that the Moroccan press quotes, or
         does that table only exist in press relays?

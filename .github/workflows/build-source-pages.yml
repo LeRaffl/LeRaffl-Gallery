@@ -18,6 +18,7 @@ on:
     paths:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/country_source_stubs.yaml'
+      - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
@@ -31,6 +32,7 @@ on:
     paths:
       - 'docs/architecture/*-source-*.md'
       - 'docs/architecture/country_source_stubs.yaml'
+      - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'

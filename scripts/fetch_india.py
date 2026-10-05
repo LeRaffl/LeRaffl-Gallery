@@ -9,7 +9,7 @@ Usage
         maintainer's own access to Vahan historically required a VPN, so
         whether GH runners can reach it at all decides the fetcher design).
 
-Routes under evaluation (see docs/architecture/29-expansion-candidates.md):
+Routes under evaluation (see docs/architecture/33-expansion-candidates.md):
 1. analytics dashboard  vahan.parivahan.gov.in/analytics/  (JSF/PrimeFaces)
 2. vahan4dashboard reportview (JSF)
 3. data.gov.in OGD API (month/category/fuel-wise registrations dataset) —
