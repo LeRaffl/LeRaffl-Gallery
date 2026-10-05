@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-05T11:49:06Z",
+ "generated": "2026-10-05T21:53:14Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5299,6 +5299,22 @@
   },
   {
    "date": "2026-10-05",
+   "label": "Ecuador",
+   "base": "Ecuador",
+   "slug": "ecuador",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-05",
+   "label": "Ecuador (Vans)",
+   "base": "Ecuador",
+   "slug": "ecuador_vans",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-05",
    "label": "France",
    "base": "France",
    "slug": "france",
@@ -5312,6 +5328,22 @@
    "slug": "germany",
    "period": "2026-09",
    "flag": "🇩🇪"
+  },
+  {
+   "date": "2026-10-05",
+   "label": "Israel",
+   "base": "Israel",
+   "slug": "israel",
+   "period": "2026-09",
+   "flag": "🇮🇱"
+  },
+  {
+   "date": "2026-10-05",
+   "label": "Israel (Vans)",
+   "base": "Israel",
+   "slug": "israel_vans",
+   "period": "2026-09",
+   "flag": "🇮🇱"
   }
  ]
 }
