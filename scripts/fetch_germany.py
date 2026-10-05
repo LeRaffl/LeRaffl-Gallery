@@ -87,6 +87,7 @@ import io
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from urllib.parse import quote, urljoin
 
@@ -253,15 +254,21 @@ def release_candidates(period: str, anchor: tuple | None, kind: str = "Fahrzeugz
             for nn in range(start, start + span)]
 
 
-def _first_ok(session, urls: list[str]) -> str | None:
-    for u in urls:
+def _first_ok(session, urls: list[str]):
+    """(url, response) of the first candidate that resolves, else (None, None).
+    The response is handed back so the page is not requested a second time:
+    KBA's WAF answers 403 to a re-fetch right after a burst of 404 probes.
+    Candidates are paced for the same reason."""
+    for i, u in enumerate(urls):
+        if i:
+            time.sleep(1.5)
         try:
             r = _get(session, u)
         except Exception:  # noqa: BLE001 — a dead candidate is just skipped
             continue
         if r.ok and "komplett" in r.url:
-            return u
-    return None
+            return u, r
+    return None, None
 
 
 def discover_latest_xlsx(session, listing_url: str = LISTING_URL) -> str:
@@ -309,15 +316,16 @@ def discover_from_anchor(session, period: str | None = None) -> str:
     period = period or _previous_month_period()
     anchor = _last_release()
     if anchor and anchor[2] == period:
-        page = anchor[3]
+        page, presp = anchor[3], None
     else:
-        page = _first_ok(session, release_candidates(period, anchor))
+        page, presp = _first_ok(session, release_candidates(period, anchor))
     if page is None:
         raise RuntimeError(f"No KBA release page found for {period} "
                            f"(anchor {anchor}); not published yet?")
     print(f"[discover] release page (from anchor): {page}")
-    presp = _get(session, page)
-    presp.raise_for_status()
+    if presp is None:
+        presp = _get(session, page)
+        presp.raise_for_status()
     probe_links(presp.text, "release page")
     xhrefs = _XLSX_RE.findall(presp.text)
     if not xhrefs:
@@ -356,10 +364,10 @@ def probe_antriebe(session, period: str) -> None:
         urls = release_candidates(period, anchor and (anchor[0], anchor[1] - 4),
                                   kind="AlternativeAntriebe", slug="Antriebe",
                                   tail="", span=12)
-        page = _first_ok(session, urls)
+        page, presp = _first_ok(session, urls)
         print(f"[probe] Antriebe release for {period}: {page or 'not found'}")
         if page:
-            probe_links(_get(session, page).text, "Antriebe release page")
+            probe_links(presp.text, "Antriebe release page")
     except Exception as e:  # noqa: BLE001 — a probe must never break the fetch
         print(f"[probe] Antriebe probe failed: {type(e).__name__}: {e}")
 
