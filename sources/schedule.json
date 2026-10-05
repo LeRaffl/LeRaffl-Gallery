@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-05T05:40:22Z",
+ "generated": "2026-10-05T11:49:06Z",
  "today": "2026-10-05",
  "countries": [
   {
@@ -1326,10 +1326,10 @@
    "source_url": "https://www.statistiques.developpement-durable.gouv.fr/immatriculation-des-vehicules-routiers",
    "cadence_text": "monthly; SDES publishes the previous month ~3–4 weeks after month-end",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-08",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -1369,14 +1369,14 @@
     ],
     "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-05",
    "flag": "🇫🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2011-01",
-     "rows": 188,
+     "rows": 189,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1418,11 +1418,11 @@
    "source_url": "https://www.kba.de/",
    "cadence_text": "fetched monthly, once KBA publishes the press release (typically the first week)",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1453,14 +1453,14 @@
     ],
     "workflow": ".github/workflows/fetch-germany.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-05",
    "flag": "🇩🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2012-01",
-     "rows": 176,
+     "rows": 177,
      "cadence": "monthly",
      "in_repo": true
     }

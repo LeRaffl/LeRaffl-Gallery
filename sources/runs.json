@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-05T05:40:22Z",
+ "generated": "2026-10-05T11:49:06Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5296,6 +5296,22 @@
    "slug": "taiwan_vans",
    "period": "2026-08",
    "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-05",
+   "label": "France",
+   "base": "France",
+   "slug": "france",
+   "period": "2026-09",
+   "flag": "🇫🇷"
+  },
+  {
+   "date": "2026-10-05",
+   "label": "Germany",
+   "base": "Germany",
+   "slug": "germany",
+   "period": "2026-09",
+   "flag": "🇩🇪"
   }
  ]
 }
