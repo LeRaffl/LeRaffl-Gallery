@@ -2,318 +2,318 @@
  "country": "Hong Kong",
  "variant": "Whole",
  "source": "Transport Department (data.gov.hk)",
- "as_of": "2026-07",
+ "as_of": "2026-08",
  "window": {
-  "from": "2025-08",
-  "to": "2026-07",
+  "from": "2025-09",
+  "to": "2026-08",
   "months": 12
  },
- "total_registrations": 57547,
+ "total_registrations": 56538,
  "unit": "first registrations (brand = TD 'Vehicle Make', aliases merged; model = TD 'Vehicle Model' with the brand prefix, chassis codes and trim words removed — see MODEL_TRIM in scripts/fetch_hong_kong.py)",
  "classes": {
   "BEV": {
-   "units": 51808,
-   "share_of_market": 0.90027,
+   "units": 50715,
+   "share_of_market": 0.89701,
    "brands": [
     {
-     "brand": "TESLA",
-     "units": 10797,
-     "share_of_class": 0.2084
+     "brand": "BYD",
+     "units": 10062,
+     "share_of_class": 0.1984
     },
     {
-     "brand": "BYD",
-     "units": 9861,
-     "share_of_class": 0.1903
+     "brand": "TESLA",
+     "units": 10029,
+     "share_of_class": 0.1978
     },
     {
      "brand": "ZEEKR",
-     "units": 5121,
-     "share_of_class": 0.0988
+     "units": 5155,
+     "share_of_class": 0.1016
     },
     {
      "brand": "GAC AION",
-     "units": 4791,
-     "share_of_class": 0.0925
+     "units": 4428,
+     "share_of_class": 0.0873
     },
     {
      "brand": "XPENG",
-     "units": 2950,
-     "share_of_class": 0.0569
+     "units": 2875,
+     "share_of_class": 0.0567
     },
     {
      "brand": "DONGFENG",
-     "units": 2066,
-     "share_of_class": 0.0399
+     "units": 2102,
+     "share_of_class": 0.0414
     },
     {
      "brand": "TOYOTA",
-     "units": 1848,
+     "units": 1810,
      "share_of_class": 0.0357
     },
     {
      "brand": "SMART",
-     "units": 1749,
-     "share_of_class": 0.0338
+     "units": 1707,
+     "share_of_class": 0.0337
     },
     {
      "brand": "BMW",
-     "units": 1588,
-     "share_of_class": 0.0307
+     "units": 1639,
+     "share_of_class": 0.0323
     },
     {
      "brand": "DENZA",
-     "units": 1382,
-     "share_of_class": 0.0267
+     "units": 1336,
+     "share_of_class": 0.0263
     }
    ],
    "models": [
     {
      "brand": "TESLA",
      "model": "MODEL Y",
-     "units": 5326,
-     "share_of_class": 0.1028
+     "units": 4941,
+     "share_of_class": 0.0974
     },
     {
      "brand": "TESLA",
      "model": "MODEL 3",
-     "units": 5113,
-     "share_of_class": 0.0987
+     "units": 4550,
+     "share_of_class": 0.0897
     },
     {
      "brand": "BYD",
      "model": "ATTO 2",
-     "units": 4411,
-     "share_of_class": 0.0851
+     "units": 4537,
+     "share_of_class": 0.0895
     },
     {
      "brand": "ZEEKR",
      "model": "7X",
-     "units": 3889,
-     "share_of_class": 0.0751
+     "units": 3948,
+     "share_of_class": 0.0778
     },
     {
      "brand": "BYD",
      "model": "SEALION 7",
-     "units": 3749,
-     "share_of_class": 0.0724
+     "units": 3650,
+     "share_of_class": 0.072
     },
     {
      "brand": "XPENG",
      "model": "G6",
-     "units": 2225,
-     "share_of_class": 0.0429
-    },
-    {
-     "brand": "GAC AION",
-     "model": "AION ES",
-     "units": 1763,
-     "share_of_class": 0.034
+     "units": 2172,
+     "share_of_class": 0.0428
     },
     {
      "brand": "TOYOTA",
      "model": "BZ3X",
-     "units": 1697,
-     "share_of_class": 0.0328
+     "units": 1700,
+     "share_of_class": 0.0335
+    },
+    {
+     "brand": "GAC AION",
+     "model": "AION ES",
+     "units": 1568,
+     "share_of_class": 0.0309
     },
     {
      "brand": "DONGFENG",
      "model": "NAMMI VIGO",
-     "units": 1464,
-     "share_of_class": 0.0283
+     "units": 1543,
+     "share_of_class": 0.0304
     },
     {
      "brand": "DENZA",
      "model": "D9",
-     "units": 1382,
-     "share_of_class": 0.0267
+     "units": 1336,
+     "share_of_class": 0.0263
     },
     {
      "brand": "GAC AION",
      "model": "AION UT",
-     "units": 1199,
-     "share_of_class": 0.0231
-    },
-    {
-     "brand": "GAC AION",
-     "model": "AION V",
-     "units": 1139,
-     "share_of_class": 0.022
+     "units": 1227,
+     "share_of_class": 0.0242
     },
     {
      "brand": "SMART",
      "model": "#5",
-     "units": 1024,
-     "share_of_class": 0.0198
+     "units": 1030,
+     "share_of_class": 0.0203
     },
     {
      "brand": "ZEEKR",
      "model": "009",
      "units": 1023,
-     "share_of_class": 0.0197
+     "share_of_class": 0.0202
+    },
+    {
+     "brand": "GAC AION",
+     "model": "AION V",
+     "units": 1002,
+     "share_of_class": 0.0198
     },
     {
      "brand": "MAXUS",
      "model": "MIFA 7",
-     "units": 876,
-     "share_of_class": 0.0169
+     "units": 904,
+     "share_of_class": 0.0178
     }
    ]
   },
   "PHEV": {
-   "units": 516,
-   "share_of_market": 0.00897,
+   "units": 593,
+   "share_of_market": 0.01049,
    "brands": [
     {
      "brand": "GAC",
-     "units": 334,
-     "share_of_class": 0.6473
-    },
-    {
-     "brand": "DENZA",
-     "units": 59,
-     "share_of_class": 0.1143
+     "units": 384,
+     "share_of_class": 0.6476
     },
     {
      "brand": "BYD",
-     "units": 53,
-     "share_of_class": 0.1027
+     "units": 70,
+     "share_of_class": 0.118
     },
     {
-     "brand": "MERCEDES-BENZ",
-     "units": 19,
-     "share_of_class": 0.0368
+     "brand": "DENZA",
+     "units": 63,
+     "share_of_class": 0.1062
     },
     {
      "brand": "LAMBORGHINI",
-     "units": 17,
-     "share_of_class": 0.0329
+     "units": 19,
+     "share_of_class": 0.032
     },
     {
-     "brand": "FERRARI",
-     "units": 12,
-     "share_of_class": 0.0233
+     "brand": "MERCEDES-BENZ",
+     "units": 16,
+     "share_of_class": 0.027
     },
     {
      "brand": "JAECOO",
-     "units": 8,
-     "share_of_class": 0.0155
+     "units": 15,
+     "share_of_class": 0.0253
+    },
+    {
+     "brand": "FERRARI",
+     "units": 11,
+     "share_of_class": 0.0185
     },
     {
      "brand": "LAND ROVER",
-     "units": 6,
-     "share_of_class": 0.0116
+     "units": 5,
+     "share_of_class": 0.0084
     },
     {
      "brand": "MCLAREN",
      "units": 4,
-     "share_of_class": 0.0078
+     "share_of_class": 0.0067
     },
     {
-     "brand": "PORSCHE",
-     "units": 2,
-     "share_of_class": 0.0039
+     "brand": "MG",
+     "units": 3,
+     "share_of_class": 0.0051
     }
    ],
    "models": [
     {
      "brand": "GAC",
      "model": "E9",
-     "units": 334,
-     "share_of_class": 0.6473
-    },
-    {
-     "brand": "DENZA",
-     "model": "B5",
-     "units": 59,
-     "share_of_class": 0.1143
+     "units": 384,
+     "share_of_class": 0.6476
     },
     {
      "brand": "BYD",
      "model": "SEALION 6",
-     "units": 49,
-     "share_of_class": 0.095
+     "units": 67,
+     "share_of_class": 0.113
     },
     {
-     "brand": "MERCEDES-BENZ",
-     "model": "AMG E 53 HYBRID",
-     "units": 18,
-     "share_of_class": 0.0349
+     "brand": "DENZA",
+     "model": "B5",
+     "units": 63,
+     "share_of_class": 0.1062
     },
     {
      "brand": "LAMBORGHINI",
      "model": "URUS",
+     "units": 16,
+     "share_of_class": 0.027
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "AMG E 53 HYBRID",
      "units": 15,
-     "share_of_class": 0.0291
+     "share_of_class": 0.0253
     },
     {
      "brand": "FERRARI",
      "model": "296 GTS",
-     "units": 9,
-     "share_of_class": 0.0174
+     "units": 8,
+     "share_of_class": 0.0135
+    },
+    {
+     "brand": "JAECOO",
+     "model": "JAECOO8",
+     "units": 8,
+     "share_of_class": 0.0135
     },
     {
      "brand": "JAECOO",
      "model": "JAECOO7",
-     "units": 8,
-     "share_of_class": 0.0155
-    },
-    {
-     "brand": "LAND ROVER",
-     "model": "RR EVOQUE",
-     "units": 4,
-     "share_of_class": 0.0078
+     "units": 7,
+     "share_of_class": 0.0118
     },
     {
      "brand": "MCLAREN",
      "model": "ARTURA COUPE",
      "units": 4,
-     "share_of_class": 0.0078
+     "share_of_class": 0.0067
     },
     {
-     "brand": "BYD",
-     "model": "SEAL U",
-     "units": 2,
-     "share_of_class": 0.0039
+     "brand": "LAND ROVER",
+     "model": "RR EVOQUE",
+     "units": 3,
+     "share_of_class": 0.0051
+    },
+    {
+     "brand": "MG",
+     "model": "S9",
+     "units": 3,
+     "share_of_class": 0.0051
     },
     {
      "brand": "LAMBORGHINI",
      "model": "REVUELTO",
      "units": 2,
-     "share_of_class": 0.0039
+     "share_of_class": 0.0034
     },
     {
      "brand": "PORSCHE",
      "model": "CAYENNE E-HYBRID COUPE",
      "units": 2,
-     "share_of_class": 0.0039
+     "share_of_class": 0.0034
     },
     {
-     "brand": "BENTLEY",
-     "model": "FLYING SPUR HYBRID",
+     "brand": "BYD",
+     "model": "M9",
      "units": 1,
-     "share_of_class": 0.0019
-    },
-    {
-     "brand": "BMW",
-     "model": "XM LABEL",
-     "units": 1,
-     "share_of_class": 0.0019
+     "share_of_class": 0.0017
     },
     {
      "brand": "BYD",
      "model": "SEAL 6",
      "units": 1,
-     "share_of_class": 0.0019
+     "share_of_class": 0.0017
     }
    ]
   },
   "EREV": {
-   "units": 8,
-   "share_of_market": 0.00014,
+   "units": 11,
+   "share_of_market": 0.00019,
    "brands": [
     {
      "brand": "FORTHING",
-     "units": 8,
+     "units": 11,
      "share_of_class": 1.0
     }
    ],
@@ -321,10 +321,2371 @@
     {
      "brand": "FORTHING",
      "model": "FRIDAY",
-     "units": 8,
+     "units": 11,
      "share_of_class": 1.0
     }
    ]
   }
- }
+ },
+ "months": [
+  {
+   "period": "2026-08",
+   "total_registrations": 2409,
+   "classes": {
+    "BEV": {
+     "units": 1804,
+     "share_of_market": 0.74886,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 614,
+       "share_of_class": 0.3404
+      },
+      {
+       "brand": "TESLA",
+       "units": 213,
+       "share_of_class": 0.1181
+      },
+      {
+       "brand": "ICAUR",
+       "units": 154,
+       "share_of_class": 0.0854
+      },
+      {
+       "brand": "BMW",
+       "units": 136,
+       "share_of_class": 0.0754
+      },
+      {
+       "brand": "XPENG",
+       "units": 100,
+       "share_of_class": 0.0554
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 96,
+       "share_of_class": 0.0532
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 84,
+       "share_of_class": 0.0466
+      },
+      {
+       "brand": "MAXUS",
+       "units": 76,
+       "share_of_class": 0.0421
+      },
+      {
+       "brand": "WULING",
+       "units": 53,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 42,
+       "share_of_class": 0.0233
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 252,
+       "share_of_class": 0.1397
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 3",
+       "units": 162,
+       "share_of_class": 0.0898
+      },
+      {
+       "brand": "ICAUR",
+       "model": "V23",
+       "units": 154,
+       "share_of_class": 0.0854
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y L",
+       "units": 135,
+       "share_of_class": 0.0748
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 126,
+       "share_of_class": 0.0698
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 79,
+       "share_of_class": 0.0438
+      },
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 75,
+       "share_of_class": 0.0416
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 71,
+       "share_of_class": 0.0394
+      },
+      {
+       "brand": "BMW",
+       "model": "IX3 50",
+       "units": 65,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 59,
+       "share_of_class": 0.0327
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 115,
+     "share_of_market": 0.04774,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 78,
+       "share_of_class": 0.6783
+      },
+      {
+       "brand": "BYD",
+       "units": 19,
+       "share_of_class": 0.1652
+      },
+      {
+       "brand": "JAECOO",
+       "units": 8,
+       "share_of_class": 0.0696
+      },
+      {
+       "brand": "DENZA",
+       "units": 4,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "MG",
+       "units": 3,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 2,
+       "share_of_class": 0.0174
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 1,
+       "share_of_class": 0.0087
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 78,
+       "share_of_class": 0.6783
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 18,
+       "share_of_class": 0.1565
+      },
+      {
+       "brand": "JAECOO",
+       "model": "JAECOO8",
+       "units": 8,
+       "share_of_class": 0.0696
+      },
+      {
+       "brand": "DENZA",
+       "model": "B5",
+       "units": 4,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "MG",
+       "model": "S9",
+       "units": 3,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "BYD",
+       "model": "M9",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "TEMERARIO",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "PORSCHE",
+       "model": "CAYENNE E-HYBRID",
+       "units": 1,
+       "share_of_class": 0.0087
+      }
+     ]
+    },
+    "EREV": {
+     "units": 3,
+     "share_of_market": 0.00125,
+     "brands": [
+      {
+       "brand": "FORTHING",
+       "units": 3,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORTHING",
+       "model": "FRIDAY",
+       "units": 3,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-07",
+   "total_registrations": 2540,
+   "classes": {
+    "BEV": {
+     "units": 1963,
+     "share_of_market": 0.77283,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 648,
+       "share_of_class": 0.3301
+      },
+      {
+       "brand": "ICAUR",
+       "units": 236,
+       "share_of_class": 0.1202
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 221,
+       "share_of_class": 0.1126
+      },
+      {
+       "brand": "WULING",
+       "units": 207,
+       "share_of_class": 0.1055
+      },
+      {
+       "brand": "TESLA",
+       "units": 145,
+       "share_of_class": 0.0739
+      },
+      {
+       "brand": "XPENG",
+       "units": 114,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "MAXUS",
+       "units": 80,
+       "share_of_class": 0.0408
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 77,
+       "share_of_class": 0.0392
+      },
+      {
+       "brand": "MG",
+       "units": 56,
+       "share_of_class": 0.0285
+      },
+      {
+       "brand": "SUBARU",
+       "units": 38,
+       "share_of_class": 0.0194
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 244,
+       "share_of_class": 0.1243
+      },
+      {
+       "brand": "ICAUR",
+       "model": "V23",
+       "units": 236,
+       "share_of_class": 0.1202
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 3",
+       "units": 226,
+       "share_of_class": 0.1151
+      },
+      {
+       "brand": "WULING",
+       "model": "DARION",
+       "units": 194,
+       "share_of_class": 0.0988
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 178,
+       "share_of_class": 0.0907
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y L",
+       "units": 97,
+       "share_of_class": 0.0494
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 81,
+       "share_of_class": 0.0413
+      },
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 76,
+       "share_of_class": 0.0387
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 74,
+       "share_of_class": 0.0377
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 64,
+       "share_of_class": 0.0326
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 115,
+     "share_of_market": 0.04528,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 83,
+       "share_of_class": 0.7217
+      },
+      {
+       "brand": "BYD",
+       "units": 16,
+       "share_of_class": 0.1391
+      },
+      {
+       "brand": "DENZA",
+       "units": 7,
+       "share_of_class": 0.0609
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 4,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "JAECOO",
+       "units": 3,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 1,
+       "share_of_class": 0.0087
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 83,
+       "share_of_class": 0.7217
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 15,
+       "share_of_class": 0.1304
+      },
+      {
+       "brand": "DENZA",
+       "model": "B5",
+       "units": 7,
+       "share_of_class": 0.0609
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 4,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "JAECOO",
+       "model": "JAECOO7",
+       "units": 3,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL 6",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "PORSCHE",
+       "model": "CAYENNE E-HYBRID COUPE",
+       "units": 1,
+       "share_of_class": 0.0087
+      }
+     ]
+    },
+    "EREV": {
+     "units": 7,
+     "share_of_market": 0.00276,
+     "brands": [
+      {
+       "brand": "FORTHING",
+       "units": 7,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORTHING",
+       "model": "FRIDAY",
+       "units": 7,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-06",
+   "total_registrations": 1910,
+   "classes": {
+    "BEV": {
+     "units": 1402,
+     "share_of_market": 0.73403,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 252,
+       "share_of_class": 0.1797
+      },
+      {
+       "brand": "TESLA",
+       "units": 202,
+       "share_of_class": 0.1441
+      },
+      {
+       "brand": "ICAUR",
+       "units": 183,
+       "share_of_class": 0.1305
+      },
+      {
+       "brand": "WULING",
+       "units": 164,
+       "share_of_class": 0.117
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 129,
+       "share_of_class": 0.092
+      },
+      {
+       "brand": "AVATR",
+       "units": 85,
+       "share_of_class": 0.0606
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 84,
+       "share_of_class": 0.0599
+      },
+      {
+       "brand": "XPENG",
+       "units": 77,
+       "share_of_class": 0.0549
+      },
+      {
+       "brand": "GEELY",
+       "units": 58,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "MAXUS",
+       "units": 39,
+       "share_of_class": 0.0278
+      }
+     ],
+     "models": [
+      {
+       "brand": "ICAUR",
+       "model": "V23",
+       "units": 183,
+       "share_of_class": 0.1305
+      },
+      {
+       "brand": "WULING",
+       "model": "DARION",
+       "units": 159,
+       "share_of_class": 0.1134
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 145,
+       "share_of_class": 0.1034
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y L",
+       "units": 137,
+       "share_of_class": 0.0977
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 128,
+       "share_of_class": 0.0913
+      },
+      {
+       "brand": "AVATR",
+       "model": "07",
+       "units": 80,
+       "share_of_class": 0.0571
+      },
+      {
+       "brand": "GEELY",
+       "model": "EX5",
+       "units": 58,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 56,
+       "share_of_class": 0.0399
+      },
+      {
+       "brand": "XPENG",
+       "model": "X9",
+       "units": 40,
+       "share_of_class": 0.0285
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL 6",
+       "units": 39,
+       "share_of_class": 0.0278
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 69,
+     "share_of_market": 0.03613,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 28,
+       "share_of_class": 0.4058
+      },
+      {
+       "brand": "BYD",
+       "units": 23,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "DENZA",
+       "units": 6,
+       "share_of_class": 0.087
+      },
+      {
+       "brand": "JAECOO",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "FERRARI",
+       "units": 2,
+       "share_of_class": 0.029
+      },
+      {
+       "brand": "MCLAREN",
+       "units": 1,
+       "share_of_class": 0.0145
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 28,
+       "share_of_class": 0.4058
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 23,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "DENZA",
+       "model": "B5",
+       "units": 6,
+       "share_of_class": 0.087
+      },
+      {
+       "brand": "JAECOO",
+       "model": "JAECOO7",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 3,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 1,
+       "share_of_class": 0.0145
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 SPECIALE",
+       "units": 1,
+       "share_of_class": 0.0145
+      },
+      {
+       "brand": "MCLAREN",
+       "model": "ARTURA COUPE",
+       "units": 1,
+       "share_of_class": 0.0145
+      }
+     ]
+    },
+    "EREV": {
+     "units": 1,
+     "share_of_market": 0.00052,
+     "brands": [
+      {
+       "brand": "FORTHING",
+       "units": 1,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORTHING",
+       "model": "FRIDAY",
+       "units": 1,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-05",
+   "total_registrations": 4830,
+   "classes": {
+    "BEV": {
+     "units": 4307,
+     "share_of_market": 0.89172,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 1392,
+       "share_of_class": 0.3232
+      },
+      {
+       "brand": "BYD",
+       "units": 801,
+       "share_of_class": 0.186
+      },
+      {
+       "brand": "DENZA",
+       "units": 649,
+       "share_of_class": 0.1507
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 300,
+       "share_of_class": 0.0697
+      },
+      {
+       "brand": "XPENG",
+       "units": 212,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "SMART",
+       "units": 149,
+       "share_of_class": 0.0346
+      },
+      {
+       "brand": "AVATR",
+       "units": 146,
+       "share_of_class": 0.0339
+      },
+      {
+       "brand": "GAC AION",
+       "units": 142,
+       "share_of_class": 0.033
+      },
+      {
+       "brand": "MG",
+       "units": 135,
+       "share_of_class": 0.0313
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 52,
+       "share_of_class": 0.0121
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 808,
+       "share_of_class": 0.1876
+      },
+      {
+       "brand": "DENZA",
+       "model": "D9",
+       "units": 649,
+       "share_of_class": 0.1507
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 537,
+       "share_of_class": 0.1247
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 382,
+       "share_of_class": 0.0887
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 3",
+       "units": 236,
+       "share_of_class": 0.0548
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 224,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 203,
+       "share_of_class": 0.0471
+      },
+      {
+       "brand": "AVATR",
+       "model": "07",
+       "units": 105,
+       "share_of_class": 0.0244
+      },
+      {
+       "brand": "SMART",
+       "model": "#5",
+       "units": 93,
+       "share_of_class": 0.0216
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 73,
+       "share_of_class": 0.0169
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 56,
+     "share_of_market": 0.01159,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 38,
+       "share_of_class": 0.6786
+      },
+      {
+       "brand": "DENZA",
+       "units": 10,
+       "share_of_class": 0.1786
+      },
+      {
+       "brand": "BYD",
+       "units": 5,
+       "share_of_class": 0.0893
+      },
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 0.0179
+      },
+      {
+       "brand": "JAECOO",
+       "units": 1,
+       "share_of_class": 0.0179
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.0179
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 38,
+       "share_of_class": 0.6786
+      },
+      {
+       "brand": "DENZA",
+       "model": "B5",
+       "units": 10,
+       "share_of_class": 0.1786
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 5,
+       "share_of_class": 0.0893
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 1,
+       "share_of_class": 0.0179
+      },
+      {
+       "brand": "JAECOO",
+       "model": "JAECOO7",
+       "units": 1,
+       "share_of_class": 0.0179
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 1,
+       "share_of_class": 0.0179
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-04",
+   "total_registrations": 8535,
+   "classes": {
+    "BEV": {
+     "units": 8071,
+     "share_of_market": 0.94564,
+     "brands": [
+      {
+       "brand": "GAC AION",
+       "units": 1596,
+       "share_of_class": 0.1977
+      },
+      {
+       "brand": "TESLA",
+       "units": 1389,
+       "share_of_class": 0.1721
+      },
+      {
+       "brand": "BYD",
+       "units": 871,
+       "share_of_class": 0.1079
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 689,
+       "share_of_class": 0.0854
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 551,
+       "share_of_class": 0.0683
+      },
+      {
+       "brand": "XPENG",
+       "units": 465,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "SMART",
+       "units": 302,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 281,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "DENZA",
+       "units": 273,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "AVATR",
+       "units": 251,
+       "share_of_class": 0.0311
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 857,
+       "share_of_class": 0.1062
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ3X",
+       "units": 551,
+       "share_of_class": 0.0683
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 492,
+       "share_of_class": 0.061
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 485,
+       "share_of_class": 0.0601
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 462,
+       "share_of_class": 0.0572
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION UT",
+       "units": 449,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 425,
+       "share_of_class": 0.0527
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 378,
+       "share_of_class": 0.0468
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION V",
+       "units": 352,
+       "share_of_class": 0.0436
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 308,
+       "share_of_class": 0.0382
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 98,
+     "share_of_market": 0.01148,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 50,
+       "share_of_class": 0.5102
+      },
+      {
+       "brand": "DENZA",
+       "units": 36,
+       "share_of_class": 0.3673
+      },
+      {
+       "brand": "BYD",
+       "units": 6,
+       "share_of_class": 0.0612
+      },
+      {
+       "brand": "FERRARI",
+       "units": 3,
+       "share_of_class": 0.0306
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.0102
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.0102
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 1,
+       "share_of_class": 0.0102
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 50,
+       "share_of_class": 0.5102
+      },
+      {
+       "brand": "DENZA",
+       "model": "B5",
+       "units": 36,
+       "share_of_class": 0.3673
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 6,
+       "share_of_class": 0.0612
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 3,
+       "share_of_class": 0.0306
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 1,
+       "share_of_class": 0.0102
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RR EVOQUE",
+       "units": 1,
+       "share_of_class": 0.0102
+      },
+      {
+       "brand": "PORSCHE",
+       "model": "CAYENNE E-HYBRID COUPE",
+       "units": 1,
+       "share_of_class": 0.0102
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-03",
+   "total_registrations": 9624,
+   "classes": {
+    "BEV": {
+     "units": 9136,
+     "share_of_market": 0.94929,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 1763,
+       "share_of_class": 0.193
+      },
+      {
+       "brand": "TESLA",
+       "units": 1675,
+       "share_of_class": 0.1833
+      },
+      {
+       "brand": "GAC AION",
+       "units": 951,
+       "share_of_class": 0.1041
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 927,
+       "share_of_class": 0.1015
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 858,
+       "share_of_class": 0.0939
+      },
+      {
+       "brand": "XPENG",
+       "units": 469,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 376,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "BMW",
+       "units": 373,
+       "share_of_class": 0.0408
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 236,
+       "share_of_class": 0.0258
+      },
+      {
+       "brand": "SMART",
+       "units": 203,
+       "share_of_class": 0.0222
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 1497,
+       "share_of_class": 0.1639
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 989,
+       "share_of_class": 0.1083
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 732,
+       "share_of_class": 0.0801
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 686,
+       "share_of_class": 0.0751
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 665,
+       "share_of_class": 0.0728
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION UT",
+       "units": 492,
+       "share_of_class": 0.0539
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ3X",
+       "units": 375,
+       "share_of_class": 0.041
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 369,
+       "share_of_class": 0.0404
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 267,
+       "share_of_class": 0.0292
+      },
+      {
+       "brand": "BMW",
+       "model": "IX1 EDRIVE20",
+       "units": 181,
+       "share_of_class": 0.0198
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 58,
+     "share_of_market": 0.00603,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 53,
+       "share_of_class": 0.9138
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 2,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 2,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "MCLAREN",
+       "units": 1,
+       "share_of_class": 0.0172
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 53,
+       "share_of_class": 0.9138
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 2,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RR EVOQUE",
+       "units": 1,
+       "share_of_class": 0.0172
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RRS P460E",
+       "units": 1,
+       "share_of_class": 0.0172
+      },
+      {
+       "brand": "MCLAREN",
+       "model": "ARTURA COUPE",
+       "units": 1,
+       "share_of_class": 0.0172
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-02",
+   "total_registrations": 4176,
+   "classes": {
+    "BEV": {
+     "units": 3874,
+     "share_of_market": 0.92768,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 1001,
+       "share_of_class": 0.2584
+      },
+      {
+       "brand": "BYD",
+       "units": 714,
+       "share_of_class": 0.1843
+      },
+      {
+       "brand": "GAC AION",
+       "units": 358,
+       "share_of_class": 0.0924
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 291,
+       "share_of_class": 0.0751
+      },
+      {
+       "brand": "XPENG",
+       "units": 219,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 187,
+       "share_of_class": 0.0483
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 162,
+       "share_of_class": 0.0418
+      },
+      {
+       "brand": "BMW",
+       "units": 127,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "SMART",
+       "units": 116,
+       "share_of_class": 0.0299
+      },
+      {
+       "brand": "MAXUS",
+       "units": 114,
+       "share_of_class": 0.0294
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 542,
+       "share_of_class": 0.1399
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 459,
+       "share_of_class": 0.1185
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 345,
+       "share_of_class": 0.0891
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 272,
+       "share_of_class": 0.0702
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 264,
+       "share_of_class": 0.0681
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION UT",
+       "units": 228,
+       "share_of_class": 0.0589
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ3X",
+       "units": 162,
+       "share_of_class": 0.0418
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 151,
+       "share_of_class": 0.039
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 140,
+       "share_of_class": 0.0361
+      },
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 96,
+       "share_of_class": 0.0248
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 10,
+     "share_of_market": 0.00239,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 9,
+       "share_of_class": 0.9
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.1
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 9,
+       "share_of_class": 0.9
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 1,
+       "share_of_class": 0.1
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-01",
+   "total_registrations": 4150,
+   "classes": {
+    "BEV": {
+     "units": 3695,
+     "share_of_market": 0.89036,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 607,
+       "share_of_class": 0.1643
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 579,
+       "share_of_class": 0.1567
+      },
+      {
+       "brand": "TESLA",
+       "units": 367,
+       "share_of_class": 0.0993
+      },
+      {
+       "brand": "XPENG",
+       "units": 291,
+       "share_of_class": 0.0788
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 268,
+       "share_of_class": 0.0725
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 266,
+       "share_of_class": 0.072
+      },
+      {
+       "brand": "GAC AION",
+       "units": 213,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "BMW",
+       "units": 193,
+       "share_of_class": 0.0522
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 156,
+       "share_of_class": 0.0422
+      },
+      {
+       "brand": "MG",
+       "units": 116,
+       "share_of_class": 0.0314
+      }
+     ],
+     "models": [
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 500,
+       "share_of_class": 0.1353
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 466,
+       "share_of_class": 0.1261
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 335,
+       "share_of_class": 0.0907
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ3X",
+       "units": 254,
+       "share_of_class": 0.0687
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 237,
+       "share_of_class": 0.0641
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "CLA250+",
+       "units": 145,
+       "share_of_class": 0.0392
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 115,
+       "share_of_class": 0.0311
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 97,
+       "share_of_class": 0.0263
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION V",
+       "units": 71,
+       "share_of_class": 0.0192
+      },
+      {
+       "brand": "SMART",
+       "model": "#5",
+       "units": 70,
+       "share_of_class": 0.0189
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 18,
+     "share_of_market": 0.00434,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 12,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "FERRARI",
+       "units": 4,
+       "share_of_class": 0.2222
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.0556
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 12,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 3,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "FERRARI",
+       "model": "SF90 STRADALE",
+       "units": 1,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "REVUELTO",
+       "units": 1,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG C63 S E",
+       "units": 1,
+       "share_of_class": 0.0556
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-12",
+   "total_registrations": 5650,
+   "classes": {
+    "BEV": {
+     "units": 5156,
+     "share_of_market": 0.91257,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 1260,
+       "share_of_class": 0.2444
+      },
+      {
+       "brand": "BYD",
+       "units": 1219,
+       "share_of_class": 0.2364
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 455,
+       "share_of_class": 0.0882
+      },
+      {
+       "brand": "XPENG",
+       "units": 442,
+       "share_of_class": 0.0857
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 303,
+       "share_of_class": 0.0588
+      },
+      {
+       "brand": "GAC AION",
+       "units": 203,
+       "share_of_class": 0.0394
+      },
+      {
+       "brand": "SMART",
+       "units": 192,
+       "share_of_class": 0.0372
+      },
+      {
+       "brand": "DONGFENG",
+       "units": 175,
+       "share_of_class": 0.0339
+      },
+      {
+       "brand": "BMW",
+       "units": 134,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "MG",
+       "units": 128,
+       "share_of_class": 0.0248
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 762,
+       "share_of_class": 0.1478
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 636,
+       "share_of_class": 0.1234
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 624,
+       "share_of_class": 0.121
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 416,
+       "share_of_class": 0.0807
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 388,
+       "share_of_class": 0.0753
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 349,
+       "share_of_class": 0.0677
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ3X",
+       "units": 300,
+       "share_of_class": 0.0582
+      },
+      {
+       "brand": "SMART",
+       "model": "#5",
+       "units": 149,
+       "share_of_class": 0.0289
+      },
+      {
+       "brand": "DONGFENG",
+       "model": "NAMMI VIGO",
+       "units": 112,
+       "share_of_class": 0.0217
+      },
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 108,
+       "share_of_class": 0.0209
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 11,
+     "share_of_market": 0.00195,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "BYD",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "BYD",
+       "model": "SEAL U",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-11",
+   "total_registrations": 4261,
+   "classes": {
+    "BEV": {
+     "units": 3799,
+     "share_of_market": 0.89157,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 1146,
+       "share_of_class": 0.3017
+      },
+      {
+       "brand": "BYD",
+       "units": 719,
+       "share_of_class": 0.1893
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 354,
+       "share_of_class": 0.0932
+      },
+      {
+       "brand": "GAC AION",
+       "units": 266,
+       "share_of_class": 0.07
+      },
+      {
+       "brand": "SMART",
+       "units": 261,
+       "share_of_class": 0.0687
+      },
+      {
+       "brand": "XPENG",
+       "units": 222,
+       "share_of_class": 0.0584
+      },
+      {
+       "brand": "MG",
+       "units": 114,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "BMW",
+       "units": 104,
+       "share_of_class": 0.0274
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 93,
+       "share_of_class": 0.0245
+      },
+      {
+       "brand": "MINI",
+       "units": 78,
+       "share_of_class": 0.0205
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 679,
+       "share_of_class": 0.1787
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 467,
+       "share_of_class": 0.1229
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 427,
+       "share_of_class": 0.1124
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 251,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 251,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "SMART",
+       "model": "#5",
+       "units": 171,
+       "share_of_class": 0.045
+      },
+      {
+       "brand": "XPENG",
+       "model": "G6",
+       "units": 162,
+       "share_of_class": 0.0426
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 154,
+       "share_of_class": 0.0405
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 86,
+       "share_of_class": 0.0226
+      },
+      {
+       "brand": "MG",
+       "model": "ZS",
+       "units": 82,
+       "share_of_class": 0.0216
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 19,
+     "share_of_market": 0.00446,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 13,
+       "share_of_class": 0.6842
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 3,
+       "share_of_class": 0.1579
+      },
+      {
+       "brand": "MCLAREN",
+       "units": 2,
+       "share_of_class": 0.1053
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.0526
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 13,
+       "share_of_class": 0.6842
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 3,
+       "share_of_class": 0.1579
+      },
+      {
+       "brand": "MCLAREN",
+       "model": "ARTURA COUPE",
+       "units": 2,
+       "share_of_class": 0.1053
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "REVUELTO",
+       "units": 1,
+       "share_of_class": 0.0526
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-10",
+   "total_registrations": 4473,
+   "classes": {
+    "BEV": {
+     "units": 3969,
+     "share_of_market": 0.88732,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 934,
+       "share_of_class": 0.2353
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 613,
+       "share_of_class": 0.1544
+      },
+      {
+       "brand": "TESLA",
+       "units": 386,
+       "share_of_class": 0.0973
+      },
+      {
+       "brand": "GAC AION",
+       "units": 369,
+       "share_of_class": 0.093
+      },
+      {
+       "brand": "SMART",
+       "units": 310,
+       "share_of_class": 0.0781
+      },
+      {
+       "brand": "MG",
+       "units": 181,
+       "share_of_class": 0.0456
+      },
+      {
+       "brand": "BMW",
+       "units": 165,
+       "share_of_class": 0.0416
+      },
+      {
+       "brand": "XPENG",
+       "units": 144,
+       "share_of_class": 0.0363
+      },
+      {
+       "brand": "IM MOTORS",
+       "units": 134,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "MINI",
+       "units": 122,
+       "share_of_class": 0.0307
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 535,
+       "share_of_class": 0.1348
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 462,
+       "share_of_class": 0.1164
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 341,
+       "share_of_class": 0.0859
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 275,
+       "share_of_class": 0.0693
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 256,
+       "share_of_class": 0.0645
+      },
+      {
+       "brand": "SMART",
+       "model": "#5",
+       "units": 203,
+       "share_of_class": 0.0511
+      },
+      {
+       "brand": "MG",
+       "model": "ZS",
+       "units": 112,
+       "share_of_class": 0.0282
+      },
+      {
+       "brand": "IM MOTORS",
+       "model": "IM6",
+       "units": 99,
+       "share_of_class": 0.0249
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION V",
+       "units": 96,
+       "share_of_class": 0.0242
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 93,
+       "share_of_class": 0.0234
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 13,
+     "share_of_market": 0.00291,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 6,
+       "share_of_class": 0.4615
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 3,
+       "share_of_class": 0.2308
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 2,
+       "share_of_class": 0.1538
+      },
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 0.0769
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.0769
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 6,
+       "share_of_class": 0.4615
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 3,
+       "share_of_class": 0.2308
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 2,
+       "share_of_class": 0.1538
+      },
+      {
+       "brand": "FERRARI",
+       "model": "296 GTB",
+       "units": 1,
+       "share_of_class": 0.0769
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "DEFENDER P300E X-",
+       "units": 1,
+       "share_of_class": 0.0769
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-09",
+   "total_registrations": 3980,
+   "classes": {
+    "BEV": {
+     "units": 3539,
+     "share_of_market": 0.8892,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 920,
+       "share_of_class": 0.26
+      },
+      {
+       "brand": "TESLA",
+       "units": 853,
+       "share_of_class": 0.241
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 546,
+       "share_of_class": 0.1543
+      },
+      {
+       "brand": "GAC AION",
+       "units": 262,
+       "share_of_class": 0.074
+      },
+      {
+       "brand": "BMW",
+       "units": 146,
+       "share_of_class": 0.0413
+      },
+      {
+       "brand": "XPENG",
+       "units": 120,
+       "share_of_class": 0.0339
+      },
+      {
+       "brand": "MG",
+       "units": 109,
+       "share_of_class": 0.0308
+      },
+      {
+       "brand": "MINI",
+       "units": 80,
+       "share_of_class": 0.0226
+      },
+      {
+       "brand": "MAXUS",
+       "units": 50,
+       "share_of_class": 0.0141
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 50,
+       "share_of_class": 0.0141
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "ATTO 2",
+       "units": 635,
+       "share_of_class": 0.1794
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 554,
+       "share_of_class": 0.1565
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 476,
+       "share_of_class": 0.1345
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 299,
+       "share_of_class": 0.0845
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 234,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION ES",
+       "units": 172,
+       "share_of_class": 0.0486
+      },
+      {
+       "brand": "XPENG",
+       "model": "X9",
+       "units": 72,
+       "share_of_class": 0.0203
+      },
+      {
+       "brand": "GAC AION",
+       "model": "AION V",
+       "units": 68,
+       "share_of_class": 0.0192
+      },
+      {
+       "brand": "MG",
+       "model": "MG4",
+       "units": 62,
+       "share_of_class": 0.0175
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "009",
+       "units": 55,
+       "share_of_class": 0.0155
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 11,
+     "share_of_market": 0.00276,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "URUS",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RR EVOQUE",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG E 53 HYBRID",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ]
+    }
+   }
+  }
+ ]
 }
