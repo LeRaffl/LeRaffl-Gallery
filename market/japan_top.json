@@ -2,128 +2,245 @@
  "country": "Japan",
  "variant": "Whole",
  "source": "JADA",
- "as_of": "2026-08",
+ "as_of": "2026-09",
  "window": {
   "from": "2026-01",
-  "to": "2026-08",
-  "months": 8
+  "to": "2026-09",
+  "months": 9
  },
- "total_registrations": 1751075,
+ "total_registrations": 1987368,
  "unit": "registrations (brand = JADA maker row; imports are one row; no models published)",
  "classes": {
   "BEV": {
-   "units": 69441,
-   "share_of_market": 0.03966,
+   "units": 82881,
+   "share_of_market": 0.0417,
    "brands": [
     {
      "brand": "IMPORTS (ALL BRANDS)",
-     "units": 28987,
-     "share_of_class": 0.4174
+     "units": 34837,
+     "share_of_class": 0.4203
     },
     {
      "brand": "TOYOTA",
-     "units": 19545,
-     "share_of_class": 0.2815
+     "units": 23441,
+     "share_of_class": 0.2828
     },
     {
      "brand": "NISSAN",
-     "units": 14087,
-     "share_of_class": 0.2029
+     "units": 16173,
+     "share_of_class": 0.1951
     },
     {
      "brand": "HONDA",
-     "units": 3912,
-     "share_of_class": 0.0563
+     "units": 4967,
+     "share_of_class": 0.0599
     },
     {
      "brand": "SUBARU",
-     "units": 2910,
-     "share_of_class": 0.0419
+     "units": 3463,
+     "share_of_class": 0.0418
     }
    ],
    "models": []
   },
   "PHEV": {
-   "units": 29132,
-   "share_of_market": 0.01664,
+   "units": 33792,
+   "share_of_market": 0.017,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 16603,
-     "share_of_class": 0.5699
+     "units": 19616,
+     "share_of_class": 0.5805
     },
     {
      "brand": "IMPORTS (ALL BRANDS)",
-     "units": 6526,
-     "share_of_class": 0.224
+     "units": 7370,
+     "share_of_class": 0.2181
     },
     {
      "brand": "MITSUBISHI",
-     "units": 5873,
-     "share_of_class": 0.2016
+     "units": 6651,
+     "share_of_class": 0.1968
     },
     {
      "brand": "MAZDA",
-     "units": 130,
-     "share_of_class": 0.0045
+     "units": 155,
+     "share_of_class": 0.0046
     }
    ],
    "models": []
   },
   "HEV": {
-   "units": 1069108,
-   "share_of_market": 0.61054,
+   "units": 1216604,
+   "share_of_market": 0.61217,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 596987,
-     "share_of_class": 0.5584
+     "units": 670972,
+     "share_of_class": 0.5515
     },
     {
      "brand": "HONDA",
-     "units": 158476,
-     "share_of_class": 0.1482
+     "units": 177769,
+     "share_of_class": 0.1461
     },
     {
      "brand": "NISSAN",
-     "units": 102994,
-     "share_of_class": 0.0963
+     "units": 120973,
+     "share_of_class": 0.0994
     },
     {
      "brand": "IMPORTS (ALL BRANDS)",
-     "units": 81746,
-     "share_of_class": 0.0765
+     "units": 96141,
+     "share_of_class": 0.079
     },
     {
      "brand": "SUZUKI",
-     "units": 62334,
+     "units": 70940,
      "share_of_class": 0.0583
     },
     {
      "brand": "SUBARU",
-     "units": 30368,
-     "share_of_class": 0.0284
+     "units": 35995,
+     "share_of_class": 0.0296
     },
     {
      "brand": "MAZDA",
-     "units": 23811,
-     "share_of_class": 0.0223
+     "units": 30309,
+     "share_of_class": 0.0249
     },
     {
      "brand": "DAIHATSU",
-     "units": 8284,
-     "share_of_class": 0.0077
+     "units": 8759,
+     "share_of_class": 0.0072
     },
     {
      "brand": "MITSUBISHI",
-     "units": 4108,
-     "share_of_class": 0.0038
+     "units": 4746,
+     "share_of_class": 0.0039
     }
    ],
    "models": []
   }
  },
  "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 236293,
+   "classes": {
+    "BEV": {
+     "units": 13440,
+     "share_of_market": 0.05688,
+     "brands": [
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 5850,
+       "share_of_class": 0.4353
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 3896,
+       "share_of_class": 0.2899
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2086,
+       "share_of_class": 0.1552
+      },
+      {
+       "brand": "HONDA",
+       "units": 1055,
+       "share_of_class": 0.0785
+      },
+      {
+       "brand": "SUBARU",
+       "units": 553,
+       "share_of_class": 0.0411
+      }
+     ],
+     "models": []
+    },
+    "PHEV": {
+     "units": 4660,
+     "share_of_market": 0.01972,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 3013,
+       "share_of_class": 0.6466
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 844,
+       "share_of_class": 0.1811
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 778,
+       "share_of_class": 0.167
+      },
+      {
+       "brand": "MAZDA",
+       "units": 25,
+       "share_of_class": 0.0054
+      }
+     ],
+     "models": []
+    },
+    "HEV": {
+     "units": 147496,
+     "share_of_market": 0.62421,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 73985,
+       "share_of_class": 0.5016
+      },
+      {
+       "brand": "HONDA",
+       "units": 19293,
+       "share_of_class": 0.1308
+      },
+      {
+       "brand": "NISSAN",
+       "units": 17979,
+       "share_of_class": 0.1219
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 14395,
+       "share_of_class": 0.0976
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 8606,
+       "share_of_class": 0.0583
+      },
+      {
+       "brand": "MAZDA",
+       "units": 6498,
+       "share_of_class": 0.0441
+      },
+      {
+       "brand": "SUBARU",
+       "units": 5627,
+       "share_of_class": 0.0382
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 638,
+       "share_of_class": 0.0043
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 475,
+       "share_of_class": 0.0032
+      }
+     ],
+     "models": []
+    }
+   }
+  },
   {
    "period": "2026-08",
    "total_registrations": 172839,
