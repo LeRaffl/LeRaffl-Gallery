@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-05T21:53:14Z",
+ "generated": "2026-10-06T11:29:06Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5344,6 +5344,62 @@
    "slug": "israel_vans",
    "period": "2026-09",
    "flag": "🇮🇱"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland",
+   "base": "Finland",
+   "slug": "finland",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland (Buses)",
+   "base": "Finland",
+   "slug": "finland_buses",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland (HDV)",
+   "base": "Finland",
+   "slug": "finland_hdv",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland (Industry)",
+   "base": "Finland",
+   "slug": "finland_industry",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland (Private)",
+   "base": "Finland",
+   "slug": "finland_private",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Finland (Vans)",
+   "base": "Finland",
+   "slug": "finland_vans",
+   "period": "2026-09",
+   "flag": "🇫🇮"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Japan",
+   "base": "Japan",
+   "slug": "japan",
+   "period": "2026-09",
+   "flag": "🇯🇵"
   }
  ]
 }
