@@ -151,3 +151,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-06,monthly,Buses,pxdata.stat.fi (StatFin 121d),28.0,0.0,,0.0,18.0,,0.0,46.0,
 2026-07,monthly,Buses,pxdata.stat.fi (StatFin 121d),71.0,0.0,,0.0,33.0,,0.0,104.0,
 2026-08,monthly,Buses,pxdata.stat.fi (StatFin 121d),12.0,0.0,,0.0,41.0,,8.0,61.0,
+2026-09,monthly,Buses,pxdata.stat.fi (StatFin 121d),1.0,0.0,,0.0,10.0,,0.0,11.0,
