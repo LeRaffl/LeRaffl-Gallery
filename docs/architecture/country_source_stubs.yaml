@@ -80,22 +80,6 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Cyprus.csv"
 
-  - country: Czechia
-    slug: czechia
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for Czechia, via ACEA (data compiled by SDA-CIA)."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "SDA-CIA (Czech importers' association), aggregated by ACEA"
-    variants: [Whole]
-    variant_notes:
-      Whole: "New passenger-car registrations as reported by ACEA."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Czechia.csv"
-
   - country: Estonia
     slug: estonia
     method: pdf

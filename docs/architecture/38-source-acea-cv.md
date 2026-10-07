@@ -30,11 +30,11 @@ Cadence:   ACEA publishes four CUMULATIVE year-to-date checkpoints a year — Q1
            reconstructs genuine, non-overlapping Q1/Q2/Q3/Q4 quarters from them (see § 2)
            and falls back to a single yearly row only when no quarterly baseline exists
            yet for that (country, variant, year).
-Countries: 20, maintainer-curated (2026-09) — NOT simply fetch_acea.py's passenger-car
+Countries: 19, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
            roster. See § 1a for the full reasoning:
-           Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Germany, Greece,
+           Belgium, Bulgaria, Croatia, Cyprus, Estonia, France, Germany, Greece,
            Hungary, Iceland, Latvia, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
-           Slovenia, Sweden. (Switzerland until 2026-09 — see § 1a.)
+           Slovenia, Sweden. (Switzerland and Czechia until 2026-09 — see § 1a.)
            (Malta is sometimes missing from a given release — "Data for Malta not
            available" — so its coverage is patchier than the rest.)
 Variants:  Vans (N1), HDV (N2+N3, i.e. medium+heavy trucks combined — already how the
@@ -94,6 +94,11 @@ no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
   Buses with a real BEV/PHEV split, matched to these ACEA checkpoints (BEV+PHEV within ±10 per
   checkpoint, Vans FY 2025 −31). The quarterly rows this fetcher wrote are parked byte for byte in
   `data/Switzerland_legacy.csv`.
+- **Czechia is OUT since 2026-10.** The RSV register extract
+  (`scripts/fetch_czechia.py`, [51](51-source-czechia.md)) carries monthly Vans / HDV /
+  Buses with a BEV/PHEV split back to 2016 (Buses within a few vehicles of these ACEA
+  checkpoints, HDV about −1 %, Vans about −2.5 %). The quarterly rows this fetcher wrote
+  are parked byte for byte in `data/Czechia_legacy.csv`.
 - **Luxembourg is OUT**, deliberately, even though STATEC (its national source) covers only
   `Whole`/`Vans`/`HDV` and has no `Buses` variant of its own. An earlier version of this
   fetcher filled exactly that one gap with an ACEA-sourced `Luxembourg_Buses.csv`; the
