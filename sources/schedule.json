@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-06T11:29:06Z",
- "today": "2026-10-06",
+ "generated": "2026-10-07T11:18:56Z",
+ "today": "2026-10-07",
  "countries": [
   {
    "country": "Albania",
@@ -188,21 +188,21 @@
    "source_url": "https://www.fcai.com.au/",
    "cadence_text": "transcribed by hand each month, once VFACTS publishes",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": null,
-   "last_render": "2026-09-05",
+   "last_render": "2026-10-06",
    "flag": "🇦🇺",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-06",
-     "rows": 79,
+     "rows": 80,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1540,11 +1540,11 @@
    "source_url": "https://data.gov.hk/en-data/dataset/hk-td-wcms_11-first-reg-vehicle",
    "cadence_text": "twice daily, 03:20 and 11:20 UTC — TD uploads month M between the 13th and the 28th of M+1",
    "interval": "monthly",
-   "latest_period": "2026-07",
+   "latest_period": "2026-08",
    "expected_period": "2026-09",
-   "behind": 2,
-   "behind_now": 2,
-   "status": "late",
+   "behind": 1,
+   "behind_now": 1,
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1601,30 +1601,30 @@
     ],
     "workflow": ".github/workflows/fetch-hong-kong.yml"
    },
-   "last_render": "2026-09-25",
+   "last_render": "2026-10-06",
    "flag": "🇭🇰",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-11",
-     "rows": 81,
+     "rows": 82,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-11",
-     "rows": 81,
+     "rows": 82,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-07",
+     "latest": "2026-08",
      "first": "2019-11",
-     "rows": 81,
+     "rows": 82,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2737,10 +2737,10 @@
    "source_url": "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/",
    "cadence_text": "entered by hand once the Ministry publishes, usually the 5th–10th of the following month",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": null,
    "behind": null,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "manual",
    "automated": false,
    "schedule": {
@@ -2775,14 +2775,14 @@
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
-   "last_render": "2026-09-10",
+   "last_render": "2026-10-06",
    "flag": "🇳🇿",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2012-01",
-     "rows": 176,
+     "rows": 177,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -4273,11 +4273,11 @@
    "source_url": "https://www.acau.com.uy/",
    "cadence_text": "daily from the 1st of the month, self-throttling per variant",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4333,38 +4333,38 @@
     ],
     "workflow": ".github/workflows/fetch-uruguay.yml"
    },
-   "last_render": "2026-09-07",
+   "last_render": "2026-10-06",
    "flag": "🇺🇾",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2021-06",
-     "rows": 46,
+     "rows": 47,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024-01",
-     "rows": 20,
+     "rows": 21,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024-01",
-     "rows": 20,
+     "rows": 21,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024-02",
-     "rows": 19,
+     "rows": 20,
      "cadence": "monthly",
      "in_repo": true
     }
