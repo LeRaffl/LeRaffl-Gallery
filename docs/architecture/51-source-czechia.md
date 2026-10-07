@@ -21,7 +21,7 @@ source_links:
   note: replaces the register's passenger-car row with SDA's official fuel split three weeks later
 underlying: RSV (Registr silničních vozidel) — the national road-vehicle register kept by the Ministry of Transport (Ministerstvo dopravy ČR)
 auth: none
-cadence: twice daily on the 1st–8th — the extract is regenerated on the 1st; one real run a month streams the whole file (about an hour), every other run reads only the response headers
+cadence: twice daily on the 1st–8th — the extract is regenerated on the 1st; one real run a month streams the whole file (one to two hours), every other run reads only the response headers
 variants:
 - Whole
 - Used
@@ -147,7 +147,8 @@ Whole:     register row on the 1st–3rd (BEV/PHEV/OTHERS/TOTAL exact,
 Check:     TOTAL M1 2025-06..2026-08 within 0.0–0.9 % of SDA/ACEA (mostly
            0.0–0.3 %), BEV within a few cars a month; Sept 2026: 19,078 vs
            SDA's 19,095. PHEV 2022–2026 +0.8 % in sum (§4).
-Run:       ~60–70 min streaming, once a month; nothing stored.
+Run:       ~1–2 h streaming (101 min for the 2026-10-01 extract), once a month;
+           nothing stored.
 ```
 
 ## 1. Why this source, and why not alone
@@ -267,8 +268,11 @@ Register extract of 2026-10-01 against the CSV (SDA, via ACEA):
 Year ends 2011–2024: within ±2.3 % (2021/2022 −2 %; most years under 1 %).
 
 **BEV** agrees within 0–4 cars in every month of 2025–2026. **OTHERS** likewise.
-**PHEV** with the test above: 2022-01..2026-08 +0.8 % in sum; single months 2025–2026
-between −4.4 % and +0.5 %; 2020–2021 within ±6 %.
+**PHEV** with the test above, by year: 2019 −5.7 %, 2020 +0.9 %, 2021 −1.4 %, 2022 +1.0 %,
+2023 +7.1 %, 2024 +6.2 %, 2025 −1.1 %, 2026 (Jan–Aug) −3.0 %; single months 2025–2026
+between −4.4 % and +0.5 %. (Before 2018 SDA counted every petrol-electric car as PHEV —
+the CSV's 2016–2017 PHEV are 7–10× the register's plug-ins; Whole's history is not
+rewritten.) September 2026: BEV 2,141 = SDA/ACEA exactly; PHEV 877 vs 920.
 
 **Commercial vehicles** (quarters of ACEA's CV release):
 
@@ -308,7 +312,7 @@ Step summary: the newest month of every variant. Top lists (`market/czechia_top.
 
 ## 7. Operations
 
-* **Cron** `25 5,13 1-8 * *` (UTC). One real run a month (~1 h), every other run is one
+* **Cron** `25 5,13 1-8 * *` (UTC). One real run a month (1–2 h), every other run is one
   header request. `concurrency: fetch-czechia` keeps a scheduled poll from starting a second
   stream; nothing else waits on it. Job timeout 330 min.
 * **Dispatch inputs:** `variant`, `backfill`, `force`.
@@ -339,7 +343,7 @@ sequenceDiagram
   alt every CSV has the month
     Cron-->>Cron: exit
   else
-    Cron->>RSV: GET, gzip stream (~7.5 GB, ~1 h)
+    Cron->>RSV: GET, gzip stream (~7.5 GB, 1–2 h)
     Cron->>Repo: Whole (estimated split) + Used/Vans/HDV/Buses
     Cron->>Cron: dispatch render-country.yml
   end

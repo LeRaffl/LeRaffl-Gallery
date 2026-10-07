@@ -20,7 +20,7 @@ name: Fetch Czechia data (RSV vehicle register)
 # RSV_vypis_vozidel_<YYYYMMDD>.csv). Polled twice daily on the 1st–8th; the
 # script reads only the response headers first and exits without downloading
 # when every CSV already has the extract's newest complete month. A real run
-# streams the whole file once (nothing is stored on disk) — about an hour;
+# streams the whole file once (nothing is stored on disk) — one to two hours;
 # a dropped connection restarts the stream (the server cannot resume).
 #
 # Rendering: dispatches render-country.yml ONCE with the pipe-separated list of
