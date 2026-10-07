@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T11:18:56Z",
+ "generated": "2026-10-07T15:31:06Z",
  "today": "2026-10-07",
  "countries": [
   {
@@ -914,36 +914,28 @@
   {
    "country": "Czechia",
    "slug": "czechia",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "Ministry of Transport — RSV vehicle register, open data (dataovozidlech.cz)",
+   "source_url": "https://download.dataovozidlech.cz/",
+   "cadence_text": "twice daily on the 1st–8th — the extract is regenerated on the 1st; one real run a month streams the whole file (one to two hours), every other run reads only the response headers",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
     "days": [
-     16,
-     17,
-     18,
-     19,
-     20,
-     21,
-     22,
-     23,
-     24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8
     ],
     "months": [
      1,
@@ -960,18 +952,51 @@
      12
     ],
     "times": [
-     "08:40"
+     "05:25",
+     "13:25"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-czechia.yml"
    },
    "last_render": "2026-10-02",
    "flag": "🇨🇿",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2011-01",
-     "rows": 188,
+     "rows": 189,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-09",
+     "first": "2016-01",
+     "rows": 129,
      "cadence": "monthly",
      "in_repo": true
     }
