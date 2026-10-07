@@ -70,9 +70,11 @@ processing:
         - when: no — used import
           then: in no variant
     - when: N2, N3 (or with G)
-      then: HDV (new only)
+      then: HDV
+      note: new vehicles only
     - when: M2, M3 (or with G)
-      then: Buses (new only)
+      then: Buses
+      note: new vehicles only
     - when: anything else — motorcycles, trailers, tractors, special vehicles
       then: in no variant
 - title: Powertrain
@@ -100,7 +102,7 @@ processing:
             branches:
             - when: "yes"
               then: PHEV
-            - when: no
+            - when: "no"
               then: the class most often recorded for the same type-approval variant — PHEV if chargeable, else PETROL / DIESEL
     - when: BA — petrol
       then: PETROL
