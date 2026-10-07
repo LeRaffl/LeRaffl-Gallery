@@ -2,6 +2,206 @@
   "updated": "2026-10-07",
   "images": [
     {
+      "country": "Czechia",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_ICE_BEV_20261007.png",
+      "url": "images/2026-09/czechia_ICE_BEV_20261007.png",
+      "alt": "Czechia ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_20261007.png",
+      "url": "images/2026-09/czechia_20261007.png",
+      "alt": "Czechia BEV trajectory",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_time_20261007.png",
+      "url": "images/2026-09/czechia_time_20261007.png",
+      "alt": "Czechia Transition time curve",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_ttm_shares_20261007.png",
+      "url": "images/2026-09/czechia_ttm_shares_20261007.png",
+      "alt": "Czechia TTM market split graph",
+      "country_slug": "czechia"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_buses_ICE_BEV_20261007.png",
+      "url": "images/2026-09/czechia_buses_ICE_BEV_20261007.png",
+      "alt": "Czechia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_buses_20261007.png",
+      "url": "images/2026-09/czechia_buses_20261007.png",
+      "alt": "Czechia (Buses) BEV trajectory",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_buses_time_20261007.png",
+      "url": "images/2026-09/czechia_buses_time_20261007.png",
+      "alt": "Czechia (Buses) Transition time curve",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_buses_ttm_shares_20261007.png",
+      "url": "images/2026-09/czechia_buses_ttm_shares_20261007.png",
+      "alt": "Czechia (Buses) TTM market split graph",
+      "country_slug": "czechia_buses"
+    },
+    {
+      "country": "Czechia (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_hdv_ICE_BEV_20261007.png",
+      "url": "images/2026-09/czechia_hdv_ICE_BEV_20261007.png",
+      "alt": "Czechia (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia_hdv"
+    },
+    {
+      "country": "Czechia (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_hdv_20261007.png",
+      "url": "images/2026-09/czechia_hdv_20261007.png",
+      "alt": "Czechia (HDV) BEV trajectory",
+      "country_slug": "czechia_hdv"
+    },
+    {
+      "country": "Czechia (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_hdv_time_20261007.png",
+      "url": "images/2026-09/czechia_hdv_time_20261007.png",
+      "alt": "Czechia (HDV) Transition time curve",
+      "country_slug": "czechia_hdv"
+    },
+    {
+      "country": "Czechia (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_hdv_ttm_shares_20261007.png",
+      "url": "images/2026-09/czechia_hdv_ttm_shares_20261007.png",
+      "alt": "Czechia (HDV) TTM market split graph",
+      "country_slug": "czechia_hdv"
+    },
+    {
+      "country": "Czechia (Used)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_used_ICE_BEV_20261007.png",
+      "url": "images/2026-09/czechia_used_ICE_BEV_20261007.png",
+      "alt": "Czechia (Used) ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia_used"
+    },
+    {
+      "country": "Czechia (Used)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_used_20261007.png",
+      "url": "images/2026-09/czechia_used_20261007.png",
+      "alt": "Czechia (Used) BEV trajectory",
+      "country_slug": "czechia_used"
+    },
+    {
+      "country": "Czechia (Used)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_used_time_20261007.png",
+      "url": "images/2026-09/czechia_used_time_20261007.png",
+      "alt": "Czechia (Used) Transition time curve",
+      "country_slug": "czechia_used"
+    },
+    {
+      "country": "Czechia (Used)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_used_ttm_shares_20261007.png",
+      "url": "images/2026-09/czechia_used_ttm_shares_20261007.png",
+      "alt": "Czechia (Used) TTM market split graph",
+      "country_slug": "czechia_used"
+    },
+    {
+      "country": "Czechia (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_vans_ICE_BEV_20261007.png",
+      "url": "images/2026-09/czechia_vans_ICE_BEV_20261007.png",
+      "alt": "Czechia (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "czechia_vans"
+    },
+    {
+      "country": "Czechia (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_vans_20261007.png",
+      "url": "images/2026-09/czechia_vans_20261007.png",
+      "alt": "Czechia (Vans) BEV trajectory",
+      "country_slug": "czechia_vans"
+    },
+    {
+      "country": "Czechia (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_vans_time_20261007.png",
+      "url": "images/2026-09/czechia_vans_time_20261007.png",
+      "alt": "Czechia (Vans) Transition time curve",
+      "country_slug": "czechia_vans"
+    },
+    {
+      "country": "Czechia (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-07",
+      "filename": "czechia_vans_ttm_shares_20261007.png",
+      "url": "images/2026-09/czechia_vans_ttm_shares_20261007.png",
+      "alt": "Czechia (Vans) TTM market split graph",
+      "country_slug": "czechia_vans"
+    },
+    {
       "country": "Australia",
       "type": "ICE_BEV",
       "period": "2026-09",
