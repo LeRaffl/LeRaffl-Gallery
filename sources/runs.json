@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-06T11:29:06Z",
+ "generated": "2026-10-07T11:18:56Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5347,6 +5347,14 @@
   },
   {
    "date": "2026-10-06",
+   "label": "Australia",
+   "base": "Australia",
+   "slug": "australia",
+   "period": "2026-09",
+   "flag": "🇦🇺"
+  },
+  {
+   "date": "2026-10-06",
    "label": "Finland",
    "base": "Finland",
    "slug": "finland",
@@ -5395,11 +5403,75 @@
   },
   {
    "date": "2026-10-06",
+   "label": "Hong (Kong Used)",
+   "base": "Hong",
+   "slug": "hong_kong_used",
+   "period": "2026-08",
+   "flag": ""
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Hong (Kong Vans)",
+   "base": "Hong",
+   "slug": "hong_kong_vans",
+   "period": "2026-08",
+   "flag": ""
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Hong Kong",
+   "base": "Hong Kong",
+   "slug": "hong_kong",
+   "period": "2026-08",
+   "flag": "🇭🇰"
+  },
+  {
+   "date": "2026-10-06",
    "label": "Japan",
    "base": "Japan",
    "slug": "japan",
    "period": "2026-09",
    "flag": "🇯🇵"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "New Zealand",
+   "base": "New Zealand",
+   "slug": "new_zealand",
+   "period": "2026-08",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Uruguay",
+   "base": "Uruguay",
+   "slug": "uruguay",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Uruguay (Buses)",
+   "base": "Uruguay",
+   "slug": "uruguay_buses",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Uruguay (HDV)",
+   "base": "Uruguay",
+   "slug": "uruguay_hdv",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-06",
+   "label": "Uruguay (Vans)",
+   "base": "Uruguay",
+   "slug": "uruguay_vans",
+   "period": "2026-09",
+   "flag": "🇺🇾"
   }
  ]
 }
