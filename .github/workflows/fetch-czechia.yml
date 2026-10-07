@@ -1,0 +1,145 @@
+name: Fetch Czechia data (RSV vehicle register)
+
+# Streams the Ministry of Transport's open-data extract of the national vehicle
+# register RSV (download.dataovozidlech.cz — one CSV row per vehicle ever
+# registered in Czechia, ~19 M rows, ~7.5 GB with gzip) and upserts:
+#
+#   data/Czechia.csv        Whole  new M1/M1G — BEV/PHEV/OTHERS/TOTAL from the
+#                                  register, HEV/PETROL/DIESEL estimated until
+#                                  ACEA publishes the month and overwrites it
+#   data/Czechia_Used.csv   Used   used-import M1/M1G (first registered abroad)
+#   data/Czechia_Vans.csv   Vans   new N1/N1G
+#   data/Czechia_HDV.csv    HDV    new N2/N3 (+G)
+#   data/Czechia_Buses.csv  Buses  new M2/M3 (+G)
+#
+# Also writes market/czechia_top.json and market/czechia_used_top.json (+ their
+# _months.json stores). Method, calibration against SDA/ACEA, governance and a
+# debugging runbook: docs/architecture/51-source-czechia.md.
+#
+# The extract is regenerated on the 1st of the month (file name
+# RSV_vypis_vozidel_<YYYYMMDD>.csv). Polled twice daily on the 1st–8th; the
+# script reads only the response headers first and exits without downloading
+# when every CSV already has the extract's newest complete month. A real run
+# streams the whole file once (nothing is stored on disk) — about an hour;
+# a dropped connection restarts the stream (the server cannot resume).
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list of
+# touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Used
+          - Vans
+          - HDV
+          - Buses
+      backfill:
+        description: 'Write every month a CSV lacks (Used/Vans/HDV/Buses from 2016-01; Whole from 2026-09)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle and the guards; rewrite own rows (never another source)'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 05:25 and 13:25 UTC on the 1st–8th (07:25 / 15:25 Prague).
+    - cron: '25 5,13 1-8 * *'
+
+# One run at a time: a scheduled poll must not start a second hour-long
+# stream while one is still running. Other workflows are unaffected.
+concurrency:
+  group: fetch-czechia
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # Scope, fuel tokens and the plug-in test fail silently when wrong, so
+      # the regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_czechia.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Czechia CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_czechia.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Czechia.csv
+            data/Czechia_Used.csv
+            data/Czechia_Vans.csv
+            data/Czechia_HDV.csv
+            data/Czechia_Buses.csv
+            market/czechia_top.json
+            market/czechia_months.json
+            market/czechia_used_top.json
+            market/czechia_used_months.json
+          message: 'chore: update Czechia data from RSV (dataovozidlech.cz)'
+          default_author: github_actions
+          # Rebase over anything that landed during the hour-long stream
+          # instead of failing the push with non-fast-forward.
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Czechia
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Czechia \
+            -f variants="$variants"

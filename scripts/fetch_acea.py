@@ -322,13 +322,19 @@ def is_acea_source(src: str | None) -> bool:
 
 
 def latest_period_across(data_dir: Path, countries: list[str]) -> str | None:
-    """Returns the maximum period in any of the given country CSVs."""
+    """Returns the maximum period of an ACEA-sourced row in any of the given
+    country CSVs. Rows from another source don't count: Czechia's register
+    fetcher (scripts/fetch_czechia.py) writes a month weeks before ACEA
+    publishes it, and that row must not make this run believe ACEA's release
+    was already processed (it would skip every always-list country)."""
     best: str | None = None
     for name in countries:
         path = data_dir / f"{name}.csv"
         _, rows = load_csv(path)
         for r in rows:
             p = r.get("period") or ""
+            if not is_acea_source(r.get("source")):
+                continue
             if p and (best is None or p > best):
                 best = p
     return best

@@ -172,6 +172,11 @@ import requests
 #     (scripts/fetch_switzerland.py) carry monthly Vans/HDV/Buses with a
 #     real BEV/PHEV split; the quarterly ACEA rows are parked in
 #     data/Switzerland_legacy.csv.
+#   - Czechia: out since 2026-10 — the RSV register extract
+#     (scripts/fetch_czechia.py) carries monthly Vans/HDV/Buses with a
+#     BEV/PHEV split; the quarterly ACEA rows are parked in
+#     data/Czechia_legacy.csv. ("Czech Republic" is still parsed — the
+#     candidate-name sets below — but no longer written.)
 #   - Luxembourg: deliberately excluded even though it has no Buses source
 #     of its own (STATEC covers Whole/Vans/HDV only) — maintainer chose to
 #     leave that one gap unfilled rather than mix an ACEA-sourced Buses
@@ -181,7 +186,7 @@ import requests
 # below (not a separate exclusion list) is what keeps ACEA from ever
 # overwriting them.
 TARGET_COUNTRIES = [
-    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
+    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Estonia",
     "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",
