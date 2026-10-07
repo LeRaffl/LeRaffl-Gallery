@@ -251,7 +251,7 @@ A set of small, focused R modules that turn `data/<Country>.csv` into the four c
 | `R/fit.R` | Weighted regression with full time-history loop | `fit_history(df, extrapol = 2200, confidence_level = 0.999)` |
 | `R/plots.R` | The four ggplot2 plot constructors | `plot_bev_trajectory`, `plot_ice_bev_phev`, `plot_timer`, `plot_ttm_shares` |
 | `R/upsert.R` | Line-level upsert into `params.csv` and `weights.csv` | `upsert_params`, `upsert_weights`, `data_per_from_df`, `compute_weight` |
-| `R/post_text.R` | Build the social-media post text per country | `build_post_text(df, country, last_period = NULL)` |
+| `R/post_text.R` | Build the social-media post text per country. When the newest row's notes say `HEV/PETROL/DIESEL estimated` (Czechia's register rows until ACEA replaces them — [51](51-source-czechia.md)), both posts leave HEV out: no "(of which … HEV)", no HEV band, peak or crossing; ICE then includes HEV | `build_post_text(df, country, last_period = NULL)` |
 | `R/bands.R` | Confidence / prediction / tolerance bands around the fit, for the frontend only (never drawn on the PNGs). Canonical explanation: [44-uncertainty-bands.md](44-uncertainty-bands.md) | `compute_bands(df, fit)`, `write_bands_json(path, bands, country, variant, data_per)` |
 | `R/render_country.R` | Entry point: orchestrates everything | `Rscript R/render_country.R <Country> [<Variant>]` |
 

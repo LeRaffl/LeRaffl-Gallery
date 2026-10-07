@@ -95,6 +95,17 @@
 }
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
+# TRUE when a row's HEV figure is a placeholder estimate, not a count. A
+# fetcher that can count BEV/PHEV/TOTAL but not the hybrid split says so in the
+# row's notes (Czechia's register rows, scripts/fetch_czechia.py:
+# "HEV/PETROL/DIESEL estimated from the YYYY-MM ACEA split") until the official
+# figure replaces the row. Posts then leave HEV out instead of publishing the
+# estimate as a fact; BEV, PHEV and ICE stay exact.
+.pt_hev_estimated <- function(rows) {
+  if (!("notes" %in% names(rows)) || nrow(rows) == 0) return(FALSE)
+  any(grepl("HEV/PETROL/DIESEL estimated", rows$notes[nrow(rows)], fixed = TRUE))
+}
+
 # Build the share triplet (BEV / second / ICE) for either monthly row or TTM
 # rolling 12 sums. `vals` is a named numeric vector with keys BEV, PHEV, EREV,
 # HEV, TOTAL. Missing keys → NA.
@@ -169,8 +180,10 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
   pick <- function(name) {
     if (name %in% names(last)) suppressWarnings(as.numeric(last[[name]][1])) else NA_real_
   }
+  hev_estimated <- .pt_hev_estimated(periodic)
   period_vals <- c(BEV = pick("BEV"), PHEV = pick("PHEV"), EREV = pick("EREV"),
-                   HEV = pick("HEV"), TOTAL = pick("TOTAL"))
+                   HEV = if (hev_estimated) NA_real_ else pick("HEV"),
+                   TOTAL = pick("TOTAL"))
   period_lines <- .pt_triplet_lines(period_vals, bev_label = bev_label)
 
   # TTM: 4-quarter rolling window for quarterly countries, 12-month for monthly.
@@ -187,7 +200,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
       sum(v)
     }
     ttm_vals <- c(BEV = sum_col("BEV"), PHEV = sum_col("PHEV"), EREV = sum_col("EREV"),
-                  HEV = sum_col("HEV"), TOTAL = sum_col("TOTAL"))
+                  HEV = if (hev_estimated) NA_real_ else sum_col("HEV"),
+                  TOTAL = sum_col("TOTAL"))
     if (is.finite(ttm_vals[["TOTAL"]]) && ttm_vals[["TOTAL"]] > 0) {
       ttm_lines <- .pt_triplet_lines(ttm_vals, bev_label = bev_label)
     }
@@ -297,6 +311,15 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
 
   use_phev <- any(phev_m > 0)
 
+  # Newest row's HEV only estimated (see .pt_hev_estimated): no HEV band, no
+  # HEV peak or crossing — ICE absorbs HEV in both windows alike, so the
+  # comparison stays like for like.
+  hev_ok <- !.pt_hev_estimated(periodic)
+  if (!hev_ok) {
+    hev_s <- rep(0, N)
+    ice_s <- pmax(0, 1 - bev_s - phev_s)
+  }
+
   fmt_pct <- function(s) sprintf("%.1f%%", s * 100)
   fmt_pp  <- function(d) {
     s <- if (is.na(d) || d >= 0) "+" else "−"  # Unicode minus
@@ -320,6 +343,8 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
       list(label = "ICE",    cur = hyb_cur_ice[cur], pri = hyb_cur_ice[pri])
     )
   }
+
+  if (!hev_ok) bands <- Filter(function(b) !(b$label %in% c("HEV", "Hybrid")), bands)
 
   label_w <- max(nchar(vapply(bands, function(b) b$label, character(1))))
   delta_lines <- vapply(bands, function(b) {
@@ -352,6 +377,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
   } else {
     list(list(s = hev_s, l = "Hybrid"))
   }
+  if (!hev_ok) peak_targets <- Filter(function(p) !(p$l %in% c("HEV", "Hybrid")), peak_targets)
   for (p in peak_targets) {
     line <- peak_for(p$s, p$l)
     if (!is.null(line)) peak_lines <- c(peak_lines, line)
@@ -380,6 +406,7 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
       hyb_ice <- pmax(0, 1 - bev_s - hev_s)
       others <- list(list(l = "Hybrid", s = hev_s), list(l = "ICE", s = hyb_ice))
     }
+    if (!hev_ok) others <- Filter(function(o) !(o$l %in% c("HEV", "Hybrid")), others)
     crossings <- list()
     unreachable <- FALSE
     for (o in others) {

@@ -40,6 +40,7 @@ backfill: Whole is SDA/ACEA from 2011 (the register writes from 2026-09 on, repl
 scope_note: Vehicles in the road register RSV (not the historic-vehicle register RHSV). Vehicles deregistered since are still counted in the month they were first registered.
 caveats:
 - 'Register-written Whole rows (from 2026-09, until ACEA publishes the month — and for July, which ACEA never publishes on its own): BEV, PHEV, other fuels and TOTAL are register counts; HEV, PETROL and DIESEL are estimated in the previous ACEA month''s proportions, and the row says so in its notes.'
+- 'Until ACEA replaces a register row, the generated posts give no HEV share for that month (ICE includes HEV) — the estimate is not quoted.'
 - Vans count about 2–3 % fewer vehicles than SDA/ACEA, and up to a quarter fewer electric vans since 2025 — SDA also counts vans first registered abroad shortly before import, which the register files as used.
 - Vans, HDV and Buses were quarterly ACEA figures before 2026-10 (BEV and PHEV merged into one "electrically chargeable" number); they are now monthly register counts with a BEV/PHEV split, back to 2016.
 processing:
@@ -236,6 +237,11 @@ window containing it). The note says so:
 register count (BEV/PHEV/OTHERS/TOTAL); HEV/PETROL/DIESEL estimated from the
 2026-08 ACEA split — replaced by ACEA's figures when they are published
 ```
+
+**Posts.** The estimate is good enough to keep the stacked TTM chart whole, not to be
+quoted: while the newest row carries that note, `R/post_text.R` leaves HEV out of both
+generated posts (`.pt_hev_estimated()` — ICE includes HEV, no HEV band, peak or crossing).
+The re-render after ACEA's overwrite brings HEV back.
 
 Czechia stays on `fetch_acea.py`'s always-list, which overwrites the current month
 unconditionally — so ACEA's release replaces the row, source and all.
