@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-07T15:31:06Z",
+ "generated": "2026-10-08T11:35:33Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5472,6 +5472,54 @@
    "slug": "uruguay_vans",
    "period": "2026-09",
    "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-07",
+   "label": "Czechia",
+   "base": "Czechia",
+   "slug": "czechia",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-07",
+   "label": "Czechia (Buses)",
+   "base": "Czechia",
+   "slug": "czechia_buses",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-07",
+   "label": "Czechia (HDV)",
+   "base": "Czechia",
+   "slug": "czechia_hdv",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-07",
+   "label": "Czechia (Used)",
+   "base": "Czechia",
+   "slug": "czechia_used",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-07",
+   "label": "Czechia (Vans)",
+   "base": "Czechia",
+   "slug": "czechia_vans",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Brazil",
+   "base": "Brazil",
+   "slug": "brazil",
+   "period": "2026-09",
+   "flag": "🇧🇷"
   }
  ]
 }

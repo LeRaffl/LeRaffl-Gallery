@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-07T15:31:06Z",
- "today": "2026-10-07",
+ "generated": "2026-10-08T11:35:33Z",
+ "today": "2026-10-08",
  "countries": [
   {
    "country": "Albania",
@@ -104,10 +104,10 @@
    "cadence_text": "twice daily on the 8th–25th, 09:15 and 21:15 UTC — DNRPA uploads month M around the 11th of M+1",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -217,10 +217,10 @@
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -371,10 +371,10 @@
    "source_url": "https://anfavea.com.br/site/central-de-dados/",
    "cadence_text": "monthly cron on the 10th, 08:50 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-08",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -401,14 +401,14 @@
     ],
     "workflow": ".github/workflows/fetch-brazil.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-08",
    "flag": "🇧🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2012-01",
-     "rows": 176,
+     "rows": 177,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -957,7 +957,7 @@
     ],
     "workflow": ".github/workflows/fetch-czechia.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-07",
    "flag": "🇨🇿",
    "variants": [
     {
