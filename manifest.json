@@ -282,6 +282,46 @@
       "country_slug": "netherlands_used"
     },
     {
+      "country": "Poland",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "poland_ICE_BEV_20261008.png",
+      "url": "images/2026-09/poland_ICE_BEV_20261008.png",
+      "alt": "Poland ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "poland_20261008.png",
+      "url": "images/2026-09/poland_20261008.png",
+      "alt": "Poland BEV trajectory",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "poland_time_20261008.png",
+      "url": "images/2026-09/poland_time_20261008.png",
+      "alt": "Poland Transition time curve",
+      "country_slug": "poland"
+    },
+    {
+      "country": "Poland",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "poland_ttm_shares_20261008.png",
+      "url": "images/2026-09/poland_ttm_shares_20261008.png",
+      "alt": "Poland TTM market split graph",
+      "country_slug": "poland"
+    },
+    {
       "country": "Czechia",
       "type": "ICE_BEV",
       "period": "2026-09",
