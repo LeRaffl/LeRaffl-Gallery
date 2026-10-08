@@ -78,11 +78,11 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2024-05,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),58.0,2.0,,0.0,1204.0,,5.0,1269.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2024-06,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),48.0,0.0,,0.0,1219.0,,21.0,1288.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2024-07,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),64.0,3.0,,0.0,975.0,,41.0,1083.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2024-08,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),33.0,2.0,,0.0,814.0,,10.0,859.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2024-09,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),29.0,1.0,,0.0,1034.0,,7.0,1071.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2024-10,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),55.0,1.0,,0.0,1379.0,,17.0,1452.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2024-08,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),33.0,2.0,,0.0,815.0,,10.0,860.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2024-09,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),29.0,1.0,,0.0,1035.0,,7.0,1072.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2024-10,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),55.0,1.0,,0.0,1380.0,,17.0,1453.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2024-11,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),38.0,2.0,,0.0,1558.0,,16.0,1614.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2024-12,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),36.0,2.0,,1.0,3669.0,,72.0,3780.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2024-12,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),36.0,2.0,,1.0,3670.0,,72.0,3781.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2025-01,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),40.0,1.0,,0.0,516.0,,2.0,559.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2025-02,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),47.0,0.0,,0.0,475.0,,2.0,524.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2025-03,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),59.0,3.0,,0.0,696.0,,5.0,763.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
@@ -100,6 +100,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-03,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),127.0,2.0,,0.0,1065.0,,2.0,1196.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-04,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),123.0,2.0,,0.0,886.0,,7.0,1018.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-05,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),106.0,0.0,,0.0,785.0,,6.0,897.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
-2026-06,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),166.0,0.0,,0.0,2326.0,,73.0,2565.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2026-06,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),166.0,0.0,,0.0,2327.0,,73.0,2566.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-07,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),117.0,1.0,,0.0,422.0,,20.0,560.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
 2026-08,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),89.0,0.0,,0.0,393.0,,7.0,489.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
+2026-09,monthly,HDV,duurzamemobiliteit.databank.nl (RDW),132.0,2.0,,0.0,559.0,,8.0,701.0,workspace_guid=3ca8fa6f-52a6-4b29-8f43-7bae5200c74c
