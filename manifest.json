@@ -2,6 +2,126 @@
   "updated": "2026-10-08",
   "images": [
     {
+      "country": "Argentina",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_ICE_BEV_20261008.png",
+      "url": "images/2026-09/argentina_ICE_BEV_20261008.png",
+      "alt": "Argentina ICE-BEV-Hybrid trajectory",
+      "country_slug": "argentina"
+    },
+    {
+      "country": "Argentina",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_20261008.png",
+      "url": "images/2026-09/argentina_20261008.png",
+      "alt": "Argentina BEV trajectory",
+      "country_slug": "argentina"
+    },
+    {
+      "country": "Argentina",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_time_20261008.png",
+      "url": "images/2026-09/argentina_time_20261008.png",
+      "alt": "Argentina Transition time curve",
+      "country_slug": "argentina"
+    },
+    {
+      "country": "Argentina",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_ttm_shares_20261008.png",
+      "url": "images/2026-09/argentina_ttm_shares_20261008.png",
+      "alt": "Argentina TTM market split graph",
+      "country_slug": "argentina"
+    },
+    {
+      "country": "Argentina (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_industry_ICE_BEV_20261008.png",
+      "url": "images/2026-09/argentina_industry_ICE_BEV_20261008.png",
+      "alt": "Argentina (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "argentina_industry"
+    },
+    {
+      "country": "Argentina (Industry)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_industry_20261008.png",
+      "url": "images/2026-09/argentina_industry_20261008.png",
+      "alt": "Argentina (Industry) BEV trajectory",
+      "country_slug": "argentina_industry"
+    },
+    {
+      "country": "Argentina (Industry)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_industry_time_20261008.png",
+      "url": "images/2026-09/argentina_industry_time_20261008.png",
+      "alt": "Argentina (Industry) Transition time curve",
+      "country_slug": "argentina_industry"
+    },
+    {
+      "country": "Argentina (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_industry_ttm_shares_20261008.png",
+      "url": "images/2026-09/argentina_industry_ttm_shares_20261008.png",
+      "alt": "Argentina (Industry) TTM market split graph",
+      "country_slug": "argentina_industry"
+    },
+    {
+      "country": "Argentina (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_private_ICE_BEV_20261008.png",
+      "url": "images/2026-09/argentina_private_ICE_BEV_20261008.png",
+      "alt": "Argentina (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "argentina_private"
+    },
+    {
+      "country": "Argentina (Private)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_private_20261008.png",
+      "url": "images/2026-09/argentina_private_20261008.png",
+      "alt": "Argentina (Private) BEV trajectory",
+      "country_slug": "argentina_private"
+    },
+    {
+      "country": "Argentina (Private)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_private_time_20261008.png",
+      "url": "images/2026-09/argentina_private_time_20261008.png",
+      "alt": "Argentina (Private) Transition time curve",
+      "country_slug": "argentina_private"
+    },
+    {
+      "country": "Argentina (Private)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-08",
+      "filename": "argentina_private_ttm_shares_20261008.png",
+      "url": "images/2026-09/argentina_private_ttm_shares_20261008.png",
+      "alt": "Argentina (Private) TTM market split graph",
+      "country_slug": "argentina_private"
+    },
+    {
       "country": "Brazil",
       "type": "ICE_BEV",
       "period": "2026-09",
