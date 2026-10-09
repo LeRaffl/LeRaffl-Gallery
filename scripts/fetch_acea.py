@@ -83,6 +83,8 @@ The maintainer enumerated two lists:
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
     Luxembourg, Norway
+  (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
+  fills a month OFV's fetcher has not written.)
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -143,7 +145,7 @@ ALWAYS_COUNTRIES = [
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
-    "Luxembourg", "Norway",
+    "Luxembourg", "Norway",  # Norway: OFV-primary (fetch_norway.py), ACEA = fallback
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month
