@@ -48,7 +48,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2024-11,monthly,HDV,api.statbank.dk (BIL53),36.0,0.0,,0.0,147.0,,2.0,185.0,
 2024-12,monthly,HDV,api.statbank.dk (BIL53),75.0,0.0,,0.0,142.0,,3.0,220.0,
 2025-01,monthly,HDV,api.statbank.dk (BIL53),37.0,0.0,,0.0,138.0,,3.0,178.0,
-2025-02,monthly,HDV,api.statbank.dk (BIL53),39.0,0.0,,0.0,137.0,,6.0,182.0,
+2025-02,monthly,HDV,api.statbank.dk (BIL53),39.0,0.0,,0.0,136.0,,6.0,181.0,
 2025-03,monthly,HDV,api.statbank.dk (BIL53),35.0,0.0,,0.0,159.0,,4.0,198.0,
 2025-04,monthly,HDV,api.statbank.dk (BIL53),47.0,0.0,,0.0,145.0,,0.0,192.0,
 2025-05,monthly,HDV,api.statbank.dk (BIL53),50.0,0.0,,0.0,150.0,,1.0,201.0,
@@ -67,3 +67,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,FLEXFUEL,OTHERS,T
 2026-06,monthly,HDV,api.statbank.dk (BIL53),80.0,0.0,,0.0,246.0,,1.0,327.0,
 2026-07,monthly,HDV,api.statbank.dk (BIL53),48.0,0.0,,0.0,64.0,,1.0,113.0,
 2026-08,monthly,HDV,api.statbank.dk (BIL53),72.0,0.0,,0.0,68.0,,0.0,140.0,
+2026-09,monthly,HDV,api.statbank.dk (BIL53),101.0,0.0,,0.0,99.0,,1.0,201.0,
