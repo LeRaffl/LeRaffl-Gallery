@@ -56,59 +56,59 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2021-10,quarterly,Whole,ACEA,229.0,491.0,1703.0,2642.0,988.0,330.0,6385.0,
 2021-11,quarterly,Whole,ACEA,229.0,491.0,1703.0,2642.0,988.0,330.0,6385.0,
 2021-12,quarterly,Whole,ACEA,229.0,491.0,1703.0,2642.0,988.0,330.0,6385.0,
-2022-01,monthly,Whole,ACEA,92.0,271.0,1424.0,2530.0,797.0,408.0,5522.0,
-2022-02,monthly,Whole,ACEA,135.0,488.0,2471.0,3744.0,1385.0,272.0,8495.0,
-2022-03,monthly,Whole,ACEA,278.0,515.0,2292.0,3879.0,1257.0,189.0,8410.0,
-2022-04,monthly,Whole,ACEA,229.0,533.0,2641.0,4163.0,1501.0,222.0,9289.0,
-2022-05,monthly,Whole,ACEA,234.0,525.0,3119.0,6221.0,1602.0,290.0,11991.0,
-2022-06,monthly,Whole,ACEA,318.0,475.0,3573.0,5217.0,1174.0,334.0,11091.0,
-2022-07,monthly,Whole,ACEA,227.0,355.0,2644.0,5203.0,1995.0,450.0,10874.0,
-2022-08,monthly,Whole,ACEA,198.0,381.0,2003.0,4160.0,1654.0,262.0,8658.0,
-2022-09,monthly,Whole,ACEA,282.0,377.0,2622.0,3077.0,1925.0,323.0,8606.0,
-2022-10,monthly,Whole,ACEA,241.0,592.0,2058.0,3061.0,1495.0,344.0,7791.0,
-2022-11,monthly,Whole,ACEA,283.0,466.0,2622.0,3282.0,1104.0,313.0,8070.0,
-2022-12,monthly,Whole,ACEA,378.0,398.0,3997.0,2214.0,914.0,100.0,8001.0,
-2023-01,monthly,Whole,ACEA,273.0,447.0,2516.0,4968.0,2088.0,240.0,10532.0,
-2023-02,monthly,Whole,ACEA,395.0,497.0,2832.0,4066.0,1909.0,257.0,9956.0,
-2023-03,monthly,Whole,ACEA,724.0,822.0,3829.0,5891.0,1626.0,392.0,13284.0,
-2023-04,monthly,Whole,ACEA,463.0,434.0,3017.0,4768.0,1198.0,359.0,10239.0,
-2023-05,monthly,Whole,ACEA,720.0,725.0,3715.0,6144.0,1376.0,277.0,12957.0,
-2023-06,monthly,Whole,ACEA,637.0,695.0,4065.0,5874.0,1803.0,319.0,13393.0,
-2023-07,monthly,Whole,ACEA,355.0,536.0,3188.0,3025.0,1207.0,31.0,8342.0,
-2023-08,monthly,Whole,ACEA,403.0,636.0,3684.0,4071.0,1345.0,229.0,10368.0,
-2023-09,monthly,Whole,ACEA,755.0,1090.0,3318.0,4585.0,1305.0,348.0,11401.0,
-2023-10,monthly,Whole,ACEA,416.0,1133.0,3857.0,4238.0,1362.0,276.0,11282.0,
-2023-11,monthly,Whole,ACEA,443.0,996.0,3354.0,4036.0,1295.0,328.0,10452.0,
-2023-12,monthly,Whole,ACEA,577.0,666.0,3100.0,2912.0,653.0,332.0,8240.0,
-2024-01,monthly,Whole,ACEA,450.0,798.0,4586.0,5177.0,1603.0,138.0,12752.0,
-2024-02,monthly,Whole,ACEA,581.0,525.0,4445.0,4472.0,1280.0,148.0,11451.0,
-2024-03,monthly,Whole,ACEA,549.0,689.0,4662.0,5195.0,1009.0,361.0,12465.0,
-2024-04,monthly,Whole,ACEA,604.0,783.0,4523.0,6063.0,1254.0,218.0,13445.0,
-2024-05,monthly,Whole,ACEA,405.0,646.0,5977.0,5592.0,983.0,157.0,13760.0,
-2024-06,monthly,Whole,ACEA,752.0,590.0,6445.0,5227.0,1030.0,103.0,14147.0,
-2024-07,monthly,Whole,ACEA,882.0,814.0,5469.0,4090.0,758.0,192.0,12205.0,
-2024-08,monthly,Whole,ACEA,514.0,484.0,3948.0,2648.0,344.0,211.0,8149.0,
-2024-09,monthly,Whole,ACEA,865.0,734.0,4503.0,2773.0,314.0,472.0,9661.0,
-2024-10,monthly,Whole,ACEA,918.0,750.0,4670.0,2601.0,394.0,337.0,9670.0,
-2024-11,monthly,Whole,ACEA,1106.0,727.0,4725.0,3135.0,383.0,590.0,10666.0,
-2024-12,monthly,Whole,ACEA,1081.0,722.0,3964.0,1950.0,483.0,504.0,8704.0,
-2025-01,monthly,Whole,ACEA,527.0,753.0,5122.0,3671.0,463.0,123.0,10659.0,
-2025-02,monthly,Whole,ACEA,718.0,610.0,5002.0,3116.0,236.0,136.0,9818.0,
-2025-03,monthly,Whole,ACEA,775.0,670.0,6048.0,4534.0,511.0,181.0,12719.0,
-2025-04,monthly,Whole,ACEA,630.0,819.0,7022.0,5154.0,536.0,488.0,14649.0,
-2025-05,monthly,Whole,ACEA,746.0,1066.0,7459.0,5477.0,246.0,676.0,15670.0,
-2025-06,monthly,Whole,ACEA,869.0,1008.0,7153.0,4699.0,287.0,631.0,14647.0,
-2025-07,monthly,Whole,ACEA,611.0,1056.0,7202.0,3696.0,588.0,453.0,13606.0,
-2025-08,monthly,Whole,ACEA,428.0,813.0,4194.0,2100.0,375.0,281.0,8191.0,
-2025-09,monthly,Whole,ACEA,850.0,1148.0,6661.0,2598.0,567.0,449.0,12273.0,
-2025-10,monthly,Whole,ACEA,799.0,1311.0,5648.0,2300.0,291.0,414.0,10763.0,
-2025-11,monthly,Whole,ACEA,790.0,1055.0,6014.0,1887.0,337.0,375.0,10458.0,
-2025-12,monthly,Whole,ACEA,1149.0,1347.0,5600.0,1629.0,513.0,508.0,10746.0,
-2026-01,monthly,Whole,ACEA,633.0,691.0,6397.0,1933.0,219.0,214.0,10087.0,
-2026-02,monthly,Whole,ACEA,646.0,844.0,5396.0,2448.0,380.0,301.0,10015.0,
-2026-03,monthly,Whole,ACEA,1015.0,780.0,8145.0,4175.0,296.0,299.0,14710.0,
-2026-04,monthly,Whole,ACEA,695.0,863.0,8194.0,3803.0,525.0,195.0,14275.0,data/Press_release_car_registrations_April_2026.pdf
-2026-05,monthly,Whole,ACEA,951.0,957.0,9117.0,4198.0,426.0,593.0,16242.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2026-06,monthly,Whole,ACEA,1346.0,1064.0,10308.0,4771.0,248.0,931.0,18668.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2026-07,monthly,Whole,ACEA,994.0,1024.0,8478.0,2310.0,113.0,301.0,13220.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2026-08,monthly,Whole,ACEA,544.0,279.0,3086.0,965.0,68.0,211.0,5153.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
+2022-01,monthly,Whole,SEAA,92.0,271.0,1424.0,2529.0,801.0,404.0,5521.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-02,monthly,Whole,SEAA,135.0,488.0,2464.0,3746.0,1385.0,277.0,8495.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-03,monthly,Whole,SEAA,278.0,515.0,2288.0,3885.0,1253.0,191.0,8410.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-04,monthly,Whole,SEAA,229.0,533.0,2629.0,4171.0,1505.0,222.0,9289.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-05,monthly,Whole,SEAA,234.0,525.0,3118.0,6211.0,1607.0,296.0,11991.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-06,monthly,Whole,SEAA,318.0,475.0,3560.0,5213.0,1187.0,338.0,11091.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-07,monthly,Whole,SEAA,227.0,355.0,2631.0,5209.0,2001.0,451.0,10874.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-08,monthly,Whole,SEAA,198.0,381.0,2000.0,4165.0,1645.0,269.0,8658.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-09,monthly,Whole,SEAA,282.0,377.0,2616.0,3090.0,1928.0,313.0,8606.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-10,monthly,Whole,SEAA,241.0,592.0,2057.0,3054.0,1496.0,351.0,7791.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-11,monthly,Whole,SEAA,283.0,466.0,2615.0,3284.0,1106.0,316.0,8070.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2022-12,monthly,Whole,SEAA,310.0,515.0,1550.0,2614.0,1219.0,278.0,6486.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-01,monthly,Whole,SEAA,273.0,447.0,2517.0,4971.0,2096.0,228.0,10532.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-02,monthly,Whole,SEAA,395.0,497.0,2837.0,4072.0,1902.0,253.0,9956.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-03,monthly,Whole,SEAA,724.0,822.0,3826.0,5898.0,1621.0,393.0,13284.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-04,monthly,Whole,SEAA,463.0,434.0,3021.0,4771.0,1198.0,352.0,10239.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-05,monthly,Whole,SEAA,720.0,725.0,3719.0,6142.0,1373.0,278.0,12957.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-06,monthly,Whole,SEAA,637.0,695.0,4072.0,5866.0,1795.0,329.0,13394.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-07,monthly,Whole,SEAA,573.0,685.0,4271.0,4742.0,1696.0,413.0,12380.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-08,monthly,Whole,SEAA,403.0,636.0,3691.0,4064.0,1348.0,226.0,10368.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-09,monthly,Whole,SEAA,755.0,1100.0,3318.0,4583.0,1311.0,334.0,11401.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-10,monthly,Whole,SEAA,416.0,1133.0,3859.0,4242.0,1365.0,267.0,11282.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-11,monthly,Whole,SEAA,443.0,996.0,3355.0,4045.0,1296.0,317.0,10452.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2023-12,monthly,Whole,SEAA,577.0,666.0,3098.0,2909.0,651.0,339.0,8240.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV electric.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-01,monthly,Whole,SEAA,450.0,798.0,4591.0,5177.0,1607.0,129.0,12752.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-02,monthly,Whole,SEAA,581.0,525.0,4443.0,4466.0,1282.0,154.0,11451.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-03,monthly,Whole,SEAA,549.0,689.0,4662.0,5198.0,1010.0,357.0,12465.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-04,monthly,Whole,SEAA,604.0,783.0,4518.0,6064.0,1250.0,226.0,13445.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-05,monthly,Whole,SEAA,405.0,646.0,5986.0,5586.0,991.0,146.0,13760.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-06,monthly,Whole,SEAA,752.0,590.0,6451.0,5220.0,1033.0,101.0,14147.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-07,monthly,Whole,SEAA,882.0,814.0,5419.0,4137.0,757.0,196.0,12205.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-08,monthly,Whole,SEAA,514.0,484.0,3936.0,2665.0,342.0,208.0,8149.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-09,monthly,Whole,SEAA,865.0,734.0,4502.0,2773.0,319.0,468.0,9661.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-10,monthly,Whole,SEAA,918.0,750.0,4671.0,2601.0,387.0,343.0,9670.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-11,monthly,Whole,SEAA,1106.0,727.0,4725.0,3136.0,384.0,588.0,10666.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2024-12,monthly,Whole,SEAA,1081.0,722.0,3969.0,1950.0,487.0,495.0,8704.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-01,monthly,Whole,SEAA,527.0,753.0,5116.0,3667.0,469.0,127.0,10659.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-02,monthly,Whole,SEAA,718.0,610.0,4997.0,3112.0,236.0,145.0,9818.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-03,monthly,Whole,SEAA,775.0,670.0,6041.0,4528.0,509.0,196.0,12719.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-04,monthly,Whole,SEAA,630.0,819.0,7017.0,5156.0,542.0,485.0,14649.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-05,monthly,Whole,SEAA,746.0,1066.0,7459.0,5469.0,251.0,679.0,15670.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-06,monthly,Whole,SEAA,869.0,1008.0,7148.0,4702.0,293.0,627.0,14647.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-07,monthly,Whole,SEAA,611.0,1056.0,7198.0,3701.0,585.0,455.0,13606.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-08,monthly,Whole,SEAA,428.0,813.0,4194.0,2097.0,377.0,282.0,8191.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-09,monthly,Whole,SEAA,850.0,1148.0,6664.0,2602.0,565.0,444.0,12273.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-10,monthly,Whole,SEAA,799.0,1311.0,5640.0,2303.0,291.0,419.0,10763.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-11,monthly,Whole,SEAA,790.0,1055.0,5993.0,1903.0,345.0,372.0,10458.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2025-12,monthly,Whole,SEAA,1149.0,1347.0,5599.0,1633.0,516.0,502.0,10746.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-01,monthly,Whole,SEAA,633.0,691.0,6395.0,1937.0,222.0,209.0,10087.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-02,monthly,Whole,SEAA,646.0,844.0,5398.0,2444.0,380.0,303.0,10015.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-03,monthly,Whole,SEAA,1015.0,780.0,8120.0,4207.0,294.0,294.0,14710.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-04,monthly,Whole,SEAA,693.0,862.0,8175.0,3789.0,527.0,197.0,14243.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-05,monthly,Whole,SEAA,951.0,957.0,9112.0,4190.0,422.0,610.0,16242.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-06,monthly,Whole,SEAA,1346.0,1064.0,10305.0,4760.0,243.0,950.0,18668.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-07,monthly,Whole,SEAA,996.0,1025.0,8481.0,2319.0,133.0,298.0,13252.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
+2026-08,monthly,Whole,SEAA,544.0,279.0,3081.0,969.0,67.0,213.0,5153.0,"SEAA statistics: TOTAL comp.xlsx, BEV/PHEV BEV.pdf/PHEV.pdf; HEV/PETROL/DIESEL/OTHERS derived from the press-release fuel shares (1 decimal), OTHERS = LPG+CNG+rest"
