@@ -39,12 +39,18 @@ Month → row
                          leave out                                     derived
 
 The shares carry one decimal and are the press release's, not the final
-statistics', so a derived column is not a count: against ACEA's counted
-figures it is off by about 5 cars in a typical month, by at most 15 in 9
-months out of 10 and by at most 50 (0.4 % of the month) — the row's `notes`
-says it is derived. BEV, PHEV and TOTAL are never derived. A month whose
-press release is missing or whose shares do not add up gets BEV/PHEV/TOTAL
-only, the other columns empty (no split ≠ zero, invariant 4).
+statistics', so a derived column is not a count: typically about 5 cars off,
+at most 15 in 9 months out of 10, at most 50 (0.4 % of the month). ACEA
+publishes SEAA's counted split about a week later; then HEV/PETROL/DIESEL
+are ACEA's and OTHERS = TOTAL minus the rest (source "SEAA / ACEA"). The
+merge (scripts/acea_split.py) runs in whichever fetcher comes second: here,
+when the month already has an ACEA (or SEAA / ACEA) row, its split is kept;
+in fetch_acea.py, on a SEAA row. It is refused when ACEA's TOTAL/BEV/PHEV
+are not SEAA's month (ACEA's wrong 2022-12 and 2023-07).
+
+BEV, PHEV and TOTAL are never derived. A month whose press release is
+missing or whose shares do not add up gets BEV/PHEV/TOTAL only (until ACEA's
+split arrives), the other columns empty (no split ≠ zero, invariant 4).
 
 Provisional rows: the press release (published first, ~10th–24th) has
 carried preliminary BEV/PHEV/TOTAL counts since 2025-11. When the statistics
@@ -105,11 +111,14 @@ import urllib.parse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import acea_split  # noqa: E402
 import market_top  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
 CSV_PATH = REPO / "data" / "Greece.csv"
 SOURCE = "SEAA"
+MERGED = acea_split.MERGED_SOURCE["Greece"]   # SEAA + ACEA's counted split
+OWN = (SOURCE, MERGED)
 SUPERSEDES = ("ACEA",)            # foreign sources SEAA may replace
 VARIANT = "Whole"
 COLUMNS = ["period", "time_interval", "variant", "source", "BEV", "PHEV", "HEV",
@@ -703,10 +712,10 @@ def fmt(v) -> str:
     return "" if v is None else f"{float(v):.1f}"
 
 
-def render_line(period: str, row: dict, notes: str) -> str:
+def render_line(period: str, row: dict, notes: str, source: str = SOURCE) -> str:
     buf = io.StringIO()
     csv.writer(buf, lineterminator="").writerow(
-        [period, "monthly", VARIANT, SOURCE]
+        [period, "monthly", VARIANT, source]
         + [fmt(row.get(k)) for k in FUELS + ["TOTAL"]] + [notes])
     return buf.getvalue()
 
@@ -727,7 +736,7 @@ def may_replace(old: dict, force: bool) -> bool:
     src = (old.get("source") or "").strip()
     if src in SUPERSEDES:
         return True
-    if src != SOURCE:
+    if src not in OWN:
         return False
     return force or (old.get("notes") or "").startswith("provisional")
 
@@ -788,7 +797,7 @@ def needs_write(have: dict[str, dict], period: str) -> bool:
     if r is None:
         return True
     return (r.get("source") or "").strip() in SUPERSEDES or (
-        (r.get("source") or "").strip() == SOURCE
+        (r.get("source") or "").strip() in OWN
         and (r.get("notes") or "").startswith("provisional"))
 
 
@@ -842,7 +851,7 @@ def summary(months: list[Month], written: dict[str, str]) -> None:
                            for k in FUELS + ["TOTAL"])
         lines.append(f"| {mo.period}{' (prov.)' if mo.provisional else ''} | {cells} | "
                      f"{'yes' if mo.period in written else 'no'} |")
-    lines += ["", "\\* derived from the press-release shares.", ""]
+    lines += ["", "\\* derived from the press-release shares (replaced by ACEA's counts where a check below says so).", ""]
     for mo in months[-3:]:
         for c in mo.checks:
             lines.append(f"- {mo.period} {c}")
@@ -869,6 +878,19 @@ def run(lib: Library, periods: list[str], force: bool, allow_provisional: bool,
                   "— not written")
             continue
         row, note = r
+        source = SOURCE
+        old = have.get(p)
+        if old and (old.get("source") or "").strip() in ("ACEA", MERGED):
+            merged = acea_split.merge(row, old)
+            if merged:
+                row.update(merged[0])
+                source = MERGED
+                note = (("provisional — " if mo.provisional else "")
+                        + acea_split.NOTE.format(nat="SEAA" + (" press release"
+                                                                if mo.provisional else "")))
+                mo.checks.append(f"HEV/PETROL/DIESEL from the {old['source']} row ({merged[1]})")
+            else:
+                mo.checks.append(acea_split.why_not(row, old))
         assert sum(row[k] for k in FUELS if row.get(k) is not None) == row["TOTAL"] \
             or any(row.get(k) is None for k in DERIVED), (p, row)
         ratio, why = completeness(have, p, row["TOTAL"])
@@ -876,7 +898,7 @@ def run(lib: Library, periods: list[str], force: bool, allow_provisional: bool,
             sys.exit(f"{p} looks incomplete ({why}) — not written; --force overrides")
         if ratio < COMPLETENESS_WARN:
             print(f"::warning title=Greece {p} unusually low::{why}")
-        updates[p] = render_line(p, row, note)
+        updates[p] = render_line(p, row, note, source)
     changed = False
     if updates:
         for p in sorted(updates)[-3:]:
@@ -914,7 +936,7 @@ def main() -> int:
     elif args.backfill:
         periods = months_between(WHOLE_FROM, target)
     else:
-        newest = max((p for p, r in have.items() if (r.get("source") or "") == SOURCE),
+        newest = max((p for p, r in have.items() if (r.get("source") or "") in OWN),
                      default=None)
         start = next_month(newest) if newest else WHOLE_FROM
         periods = sorted({p for p in months_between(min(start, target), target)}

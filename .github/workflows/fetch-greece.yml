@@ -7,7 +7,10 @@ name: Fetch Greece data (SEAA)
 #   data/Greece.csv   Whole  new passenger cars incl. taxis — TOTAL from
 #                            <Y>-<M>-comp.xlsx, BEV/PHEV from the BEV/PHEV PDFs,
 #                            HEV/PETROL/DIESEL/OTHERS derived from the press
-#                            release's fuel shares (one decimal)
+#                            release's fuel shares (one decimal) until ACEA
+#                            publishes the month; fetch-acea.yml then puts
+#                            ACEA's counted HEV/PETROL/DIESEL on the row
+#                            (scripts/acea_split.py, source "SEAA / ACEA")
 #
 # Also writes market/greece_top.json (+ greece_months.json). Files are found by
 # name through the WordPress media API (seaa.gr/wp-json/wp/v2/media). Method,

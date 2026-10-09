@@ -13,12 +13,14 @@ the upsert, and one end-to-end run into a scratch CSV.
 """
 import contextlib
 import io
+import csv
 import json
 import sys
 import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import acea_split  # noqa: E402
 import fetch_greece as fg  # noqa: E402
 import market_top  # noqa: E402
 
@@ -277,10 +279,60 @@ def test_end_to_end():
             market_top.MARKET_DIR = old
         assert changed
         row = p.read_text(encoding="utf-8").splitlines()[1].split(",")
-        assert row[:5] == ["2026-08", "monthly", "Whole", "SEAA", "544.0"] and row[10] == "5153.0"
+        # ACEA's counted HEV/PETROL/DIESEL stay; OTHERS is the residual
+        assert row[:11] == ["2026-08", "monthly", "Whole", "SEAA / ACEA", "544.0", "279.0",
+                            "3086.0", "965.0", "68.0", "211.0", "5153.0"], row
         top = json.loads((store / "greece_top.json").read_text(encoding="utf-8"))
         assert top["as_of"] == "2026-08" and top["classes"]["BEV"]["units"] == 544
         assert top["classes"]["PHEV"]["units"] == 279
+
+
+def test_acea_split_merge():
+    seaa = {"TOTAL": 5153, "BEV": 544, "PHEV": 279}
+    acea = {"TOTAL": 5153, "BEV": 544, "PHEV": 279, "HEV": 3086, "PETROL": 965,
+            "DIESEL": 68, "OTHERS": 211}
+    row, _ = acea_split.merge(seaa, acea)
+    assert (row["HEV"], row["PETROL"], row["DIESEL"], row["OTHERS"]) == (3086, 965, 68, 211)
+    # 2026-07: ACEA's hand-derived total is 32 off — still the same month
+    row, _ = acea_split.merge({"TOTAL": 13252, "BEV": 996, "PHEV": 1025},
+                              {"TOTAL": 13220, "BEV": 994, "PHEV": 1024, "HEV": 8478,
+                               "PETROL": 2310, "DIESEL": 113})
+    assert row["OTHERS"] == 13252 - 996 - 1025 - 8478 - 2310 - 113
+    # 2022-12: ACEA's row is wrong (8,001 vs 6,486) — refused
+    assert acea_split.merge({"TOTAL": 6486, "BEV": 310, "PHEV": 515},
+                            {"TOTAL": 8001, "BEV": 378, "PHEV": 398, "HEV": 3997,
+                             "PETROL": 2214, "DIESEL": 914}) is None
+    # a split that leaves a negative OTHERS — refused
+    assert acea_split.merge({"TOTAL": 1000, "BEV": 100, "PHEV": 100},
+                            {"TOTAL": 1000, "BEV": 100, "PHEV": 100, "HEV": 500,
+                             "PETROL": 300, "DIESEL": 50}) is None
+
+
+def test_acea_run_merges_split_onto_seaa_row():
+    """fetch_acea.py on a SEAA row: only HEV/PETROL/DIESEL (+ residual OTHERS)
+    change; a non-matching ACEA month leaves the row alone."""
+    import fetch_acea
+    with tempfile.TemporaryDirectory() as d:
+        p = Path(d) / "Greece.csv"
+        seaa = ("2026-08,monthly,Whole,SEAA,544.0,279.0,3081.0,969.0,67.0,213.0,5153.0,"
+                "SEAA statistics\r\n")
+        p.write_text(CSV_HEAD + seaa, encoding="utf-8", newline="")
+        parsed = {"BEV": (544, 0), "PHEV": (279, 0), "HEV": (3086, 0), "PETROL": (965, 0),
+                  "DIESEL": (68, 0), "OTHERS": (211, 0), "TOTAL": (5153, 0)}
+        assert quiet(fetch_acea.update_country, Path(d), "Greece", parsed, "2026-08", "u")
+        rows = {r["period"]: r for r in csv.DictReader(open(p, newline="", encoding="utf-8"))}
+        r = rows["2026-08"]
+        assert r["source"] == "SEAA / ACEA" and float(r["HEV"]) == 3086 \
+            and float(r["OTHERS"]) == 211 and float(r["TOTAL"]) == 5153, r
+        # second run: nothing to do
+        assert not quiet(fetch_acea.update_country, Path(d), "Greece", parsed, "2026-08", "u")
+        # SEAA re-run (e.g. --force) keeps ACEA's split
+        assert fg.needs_write({"2026-08": r}, "2026-08") is False
+        p.write_text(CSV_HEAD + seaa, encoding="utf-8", newline="")
+        bad = dict(parsed, TOTAL=(8001, 0))
+        quiet(fetch_acea.update_country, Path(d), "Greece", bad, "2026-08", "u")
+        rows = {r["period"]: r for r in csv.DictReader(open(p, newline="", encoding="utf-8"))}
+        assert rows["2026-08"]["source"] == "SEAA" and rows["2026-08"]["HEV"] == "3081.0"
 
 
 def main():
