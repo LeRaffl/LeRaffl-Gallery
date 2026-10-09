@@ -170,9 +170,9 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-01,monthly,Whole,transport.govt.nz & Prof. Ray Willis,946.0,823.0,7179.0,7203.0,3127.0,0.0,19278.0,
 2026-02,monthly,Whole,transport.govt.nz & Prof. Ray Willis,841.0,773.0,5809.0,6584.0,2969.0,0.0,16976.0,
 2026-03,monthly,Whole,transport.govt.nz & Prof. Ray Willis,2992.0,1566.0,8307.0,6351.0,3769.0,1.0,22986.0,
-2026-04,monthly,Whole,transport.govt.nz & Prof. Ray Willis,1415,1273,6996,7265,2418,0,19367,https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/light-motor-vehicle-registrations/
-2026-05,monthly,Whole,transport.govt.nz & Prof. Ray Willis,1962,1115,6792,6560,3261,,19690,
-2026-06,monthly,Whole,transport.govt.nz & Prof. Ray Willis,3144,1506,6946,6955,3668,,22219,
-2026-07,monthly,Whole,transport.govt.nz & Prof. Ray Willis,2387,1595,6963,6714,3065,,20724,
-2026-08,monthly,Whole,transport.govt.nz & Prof. Ray Willis,1485,1389,8200,7309,3127,,21510,
-2026-09,monthly,Whole,transport.govt.nz & Prof. Ray Willis,3007,1608,9673,8217,3822,,26327,
+2026-04,monthly,Whole,NZTA Motor Vehicle Register,1310,1269,6954,4905,1969,0,16407,register snapshot of 2026-10-06: vehicles deregistered since are missing (undercount)
+2026-05,monthly,Whole,NZTA Motor Vehicle Register,1889,1109,6757,5708,2799,0,18262,register snapshot of 2026-10-06: vehicles deregistered since are missing (undercount)
+2026-06,monthly,Whole,NZTA Motor Vehicle Register,3068,1500,6899,6147,3080,0,20694,register snapshot of 2026-10-06: vehicles deregistered since are missing (undercount)
+2026-07,monthly,Whole,NZTA Motor Vehicle Register,2337,1583,7149,5965,2548,0,19582,
+2026-08,monthly,Whole,NZTA Motor Vehicle Register,1411,1388,8179,6595,2571,0,20144,
+2026-09,monthly,Whole,NZTA Motor Vehicle Register,2966,1602,9665,7419,3069,0,24721,
