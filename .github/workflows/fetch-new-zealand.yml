@@ -1,64 +1,61 @@
-name: Fetch New Zealand data (transport.govt.nz)
+name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 
-# Fetches new light motor vehicle registrations from the Ministry of Transport
-# (transport.govt.nz fleet-statistics /inner endpoint) and upserts:
+# Counts New Zealand's first registrations of light vehicles from the NZTA
+# Waka Kotahi Motor Vehicle Register (open data, CC BY 4.0) and upserts
+# data/New Zealand.csv (Whole = new + used-import light vehicles, the scope
+# of the legacy series) plus market/new_zealand_top.json (brands and models
+# per electrified class, trailing twelve months).
 #
-#   data/New Zealand.csv  — Whole  (all new light registrations by fuel type)
+# The register is an ArcGIS feature service; the fetcher sends grouped count
+# queries (a handful of small JSON requests, no record download). Its URL
+# changes when NZTA republishes, so it is resolved from the Hub item on every
+# run. NZTA reloads the register once a month, "accurate up to the end of the
+# previous month" (September 2026 was loaded on 6 October, 03:46 UTC).
+# Polled at 04:55 and 18:55 UTC on the 3rd-20th; once the month is in the CSV
+# and the top file is current, a run exits without any HTTP request. Before
+# the register covers the month a run is a no-op; from the 20th on that
+# fails the run (refresh late, or the item moved).
 #
-# Only the Whole variant is available (no Private/Rental/Industry split).
-# The dashboard covers light vehicles (GVM < 3,500 kg) — passenger cars and
-# light commercial vehicles combined.
+# Until 2026-06 this workflow read transport.govt.nz, which went behind
+# Imperva; rows before 2026-10 were entered by hand from that dashboard.
+# Full method, governance checks and a debugging runbook:
+# docs/architecture/19-source-new-zealand.md.
 #
-# Transport.govt.nz publishes monthly data around the 5th–10th of the
-# following month. Poll twice daily on the 5th–12th to catch releases.
-# Per-variant early-exit makes most runs no-ops once the latest month is in.
-#
-# See scripts/fetch_new_zealand.py and docs/architecture/19-source-new-zealand.md.
-#
-# STATUS (2026-06): auto-fetch disabled. Both sources are now behind Imperva
-# (Incapsula/Reese84) anti-bot:
-#   - transport.govt.nz/.../inner returns a 212-byte Incapsula challenge stub
-#     instead of the chart JSON.
-#   - catalogue.data.govt.nz CKAN API returns an Imperva "Pardon Our
-#     Interruption" HTML interstitial instead of JSON.
-# Plain `requests` from a GHA runner cannot pass either. The scheduled trigger
-# is removed; workflow_dispatch is kept so the workflow can still be invoked
-# manually (e.g. from a non-blocked host) until an alternate source is wired
-# up (Stats NZ API or NZTA open-data ArcGIS are the likely candidates).
+# Rendering: dispatches render-country.yml ONCE with the changed variants.
 
 on:
   workflow_dispatch:
     inputs:
-      months:
-        description: 'Trailing months window to re-fetch (default: 3)'
-        required: false
-        default: '3'
-        type: string
-      since:
-        description: 'Backfill start YYYY-MM (overrides months; fetches through last month)'
+      period:
+        description: 'Target month YYYY-MM (default: the month that just ended)'
         required: false
         default: ''
-        type: string
+      since:
+        description: 'Backfill: also count every month from YYYY-MM on (adds only months the CSV lacks; old months undercount)'
+        required: false
+        default: ''
       force:
-        description: 'Re-fetch and overwrite periods already in the CSV'
+        description: 'Overwrite existing rows (any source) and skip the plausibility guard'
         required: false
-        default: 'false'
+        default: false
         type: boolean
-      debug:
-        description: 'Print raw response details for troubleshooting'
+      dry_run:
+        description: 'Query and validate only; write and commit nothing'
         required: false
-        default: 'false'
+        default: false
         type: boolean
-  # schedule: disabled — both upstream sources are behind Imperva (see header).
-  #   - cron: '0 6  5-12 * *'
-  #   - cron: '0 14 5-12 * *'
+  schedule:
+    # 04:55 and 18:55 UTC on the 3rd-20th (NZTA reloads around the 5th).
+    - cron: '55 4,18 3-20 * *'
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
+    outputs:
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
 
     steps:
       - uses: actions/checkout@v5
@@ -70,38 +67,62 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests
 
+      # The mapping fails quietly when NZTA adds a MOTIVE_POWER label, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_new_zealand.py
+          python scripts/test_market_top.py
+
       - name: Fetch & update New Zealand.csv
+        id: fetch
         run: |
           python scripts/fetch_new_zealand.py \
-            --months "$MONTHS" \
+            ${PERIOD:+--period "$PERIOD"} \
             ${SINCE:+--since "$SINCE"} \
             ${FORCE:+--force} \
-            ${DEBUG:+--debug}
+            ${DRY_RUN:+--dry-run}
         env:
-          MONTHS: ${{ inputs.months || '3' }}
-          SINCE:  ${{ inputs.since }}
-          FORCE:  ${{ inputs.force == true && '1' || '' }}
-          DEBUG:  ${{ inputs.debug == true && '1' || '' }}
+          PERIOD:  ${{ inputs.period }}
+          SINCE:   ${{ inputs.since }}
+          FORCE:   ${{ inputs.force == true && '1' || '' }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
 
       - name: Commit if changed
         id: commit
+        if: inputs.dry_run != true
         uses: EndBug/add-and-commit@v9
         with:
-          add: 'data/New Zealand.csv'
-          message: 'chore: update New Zealand data from transport.govt.nz'
+          # The action splits `add` on whitespace, so the space in the file
+          # name is matched with a pathspec glob.
+          add: |
+            data/New?Zealand.csv
+            market/new_zealand_top.json
+          message: 'chore: update New Zealand data from NZTA Motor Vehicle Register'
           default_author: github_actions
-          # Rebase over anything (manifest/source-page CI, another fetcher, a
-          # doc push) that landed on the branch while this job ran, instead of
-          # failing the push with non-fast-forward and dropping the commit.
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
           pull: '--rebase --autostash'
 
-      - name: Trigger render for New Zealand/Whole
-        if: steps.commit.outputs.committed == 'true'
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for New Zealand
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
         run: |
-          echo "Dispatching render for New Zealand/Whole"
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
           gh workflow run render-country.yml \
-            --ref "${GITHUB_REF_NAME}" \
+            --ref "$GITHUB_REF_NAME" \
             -f country="New Zealand" \
-            -f variant=Whole
+            -f variants="$variants"
