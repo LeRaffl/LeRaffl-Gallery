@@ -6,6 +6,7 @@ Register (MVR) and update data/New Zealand.csv.
 Usage
 -----
     python scripts/fetch_new_zealand.py [--period YYYY-MM] [--since YYYY-MM]
+                                        [--variant Whole,Vans,Used]
                                         [--force] [--dry-run]
                                         [--from-json PATH] [--save-json PATH]
                                         [--github-output PATH] [--summary PATH]
@@ -14,6 +15,7 @@ Usage
 * --since      Also count every month from YYYY-MM to the target. Months the
                CSV already holds are compared, never overwritten (unless
                --force); see "History" below for why old months undercount.
+* --variant    Only these variants (default: all three).
 * --force      Overwrite existing rows (any source) and skip the plausibility
                guard.
 * --dry-run    Query, validate and print; write nothing. Re-reading a month
@@ -52,7 +54,12 @@ for the first time — new AND used imports — so the fetcher counts:
                                          goods vehicles up to 3.5 t)
     month = FIRST_NZ_REGISTRATION_YEAR / _MONTH
 
-With that scope the register reproduces the legacy rows to about 1 % in every
+Two EU-anchored slices of that scope are written as their own variants:
+
+    Vans   data/New Zealand_Vans.csv   IMPORT_STATUS NEW,  CLASS NA        (N1)
+    Used   data/New Zealand_Used.csv   IMPORT_STATUS USED, CLASS MA/MB/MC  (M1 used imports)
+
+With the Whole scope the register reproduces the legacy rows to about 1 % in every
 fuel column through 2026-03 (the shortfall is vehicles deregistered since,
 and owners with a confidential listing, whom NZTA leaves out).
 
@@ -101,7 +108,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import market_top  # noqa: E402
 
 REPO = Path(__file__).resolve().parent.parent
-CSV_PATH = REPO / "data" / "New Zealand.csv"
+DATA_DIR = REPO / "data"
+CSV_PATH = DATA_DIR / "New Zealand.csv"
 COUNTRY = "New Zealand"
 SLUG = "new_zealand"
 SOURCE = "NZTA Motor Vehicle Register"
@@ -124,6 +132,13 @@ FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 STATUSES = ("NEW", "USED")
 CLASSES = ("MA", "MB", "MC", "NA")
+# variant -> (import statuses, vehicle classes). Whole is the legacy scope;
+# Vans and Used are EU-anchored slices of it (N1 new, M1 used imports).
+VARIANTS = {
+    "Whole": (STATUSES, CLASSES),
+    "Vans": (("NEW",), ("NA",)),
+    "Used": (("USED",), ("MA", "MB", "MC")),
+}
 F_YEAR, F_MONTH = "FIRST_NZ_REGISTRATION_YEAR", "FIRST_NZ_REGISTRATION_MONTH"
 REQUIRED_FIELDS = {F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER",
                    "MAKE", "MODEL"}
@@ -248,7 +263,7 @@ def query_register(first: str, last: str, top_from: str | None) -> dict:
     query_url, loaded = layer_info(service)
     print(f"register: {service} (data loaded {loaded})")
     fuel = grouped(query_url, scope_where(first, last),
-                   [F_YEAR, F_MONTH, "IMPORT_STATUS", "MOTIVE_POWER"])
+                   [F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER"])
     models: list[dict] = []
     if top_from:
         elec = [k for k, v in MOTIVE_MAP.items() if v in ELECTRIFIED and k]
@@ -258,7 +273,7 @@ def query_register(first: str, last: str, top_from: str | None) -> dict:
         # month totals for the shares — the fuel query covers only first..last
         if month_num(top_from) < month_num(first):
             fuel_top = grouped(query_url, scope_where(top_from, shift_month(first, -1)),
-                               [F_YEAR, F_MONTH, "IMPORT_STATUS", "MOTIVE_POWER"])
+                               [F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER"])
             fuel = fuel_top + fuel
     return {"service": service, "loaded": loaded.isoformat(), "fuel": fuel, "models": models}
 
@@ -282,24 +297,34 @@ def column_of(label) -> str | None:
     return MOTIVE_MAP.get(market_top.clean(label))
 
 
+def variants_of(a: dict) -> list[str]:
+    """The variants a grouped row belongs to (Whole and at most one slice)."""
+    st, cl = a.get("IMPORT_STATUS") or "", a.get("CLASS") or ""
+    return [v for v, (sts, cls) in VARIANTS.items() if st in sts and cl in cls]
+
+
 def count_months(fuel_rows: list[dict]) -> tuple[dict, dict, dict]:
-    """({period: {column: n, TOTAL}}, {period: {unknown label: n}},
-    {period: {status: n}})."""
-    counts: dict[str, dict[str, int]] = {}
+    """({variant: {period: {column: n, TOTAL}}}, {period: {unknown label: n}},
+    {period: {status: n}}) — unknown labels and statuses are for Whole."""
+    counts: dict[str, dict[str, dict[str, int]]] = {v: {} for v in VARIANTS}
     unknown: dict[str, dict[str, int]] = {}
     status: dict[str, dict[str, int]] = {}
     for a in fuel_rows:
         if a.get(F_YEAR) is None or a.get(F_MONTH) is None:
             continue
+        vs = variants_of(a)
+        if not vs:
+            continue
         p, n = period_of(a), int(a["n"])
-        c = counts.setdefault(p, {k: 0 for k in FUELS + ["TOTAL"]})
         col = column_of(a.get("MOTIVE_POWER"))
         if col is None:
             col = "OTHERS"
             lab = market_top.clean(a.get("MOTIVE_POWER"))
             unknown.setdefault(p, {})[lab] = unknown.get(p, {}).get(lab, 0) + n
-        c[col] += n
-        c["TOTAL"] += n
+        for v in vs:
+            c = counts[v].setdefault(p, {k: 0 for k in FUELS + ["TOTAL"]})
+            c[col] += n
+            c["TOTAL"] += n
         s = status.setdefault(p, {})
         s[a.get("IMPORT_STATUS") or ""] = s.get(a.get("IMPORT_STATUS") or "", 0) + n
     return counts, unknown, status
@@ -335,7 +360,7 @@ def month_units(model_rows: list[dict]) -> dict[str, dict]:
 
 
 def build_top(data: dict, target: str) -> dict:
-    counts, _, _ = count_months(data["fuel"])
+    counts = count_months(data["fuel"])[0]["Whole"]
     units = month_units(data["models"])
     window = market_top.month_window(target)
     monthly = {p: (units.get(p, {}), counts[p]["TOTAL"]) for p in window if p in counts}
@@ -349,10 +374,15 @@ def refresh_top(data: dict, target: str) -> None:
 
 # ── CSV line-level upsert (invariant 2) ────────────────────────────────────
 
-def render_line(period: str, counts: dict[str, int], notes: str = "") -> str:
+def csv_path_for(variant: str, data_dir: Path = DATA_DIR) -> Path:
+    return data_dir / (f"{COUNTRY}.csv" if variant == "Whole" else f"{COUNTRY}_{variant}.csv")
+
+
+def render_line(period: str, counts: dict[str, int], notes: str = "",
+                variant: str = VARIANT) -> str:
     buf = io.StringIO()
     csv.writer(buf, lineterminator="").writerow(
-        [period, "monthly", VARIANT, SOURCE]
+        [period, "monthly", variant, SOURCE]
         + [str(counts[k]) for k in FUELS + ["TOTAL"]] + [notes])
     return buf.getvalue()
 
@@ -369,15 +399,16 @@ def line_key(line: str) -> tuple[str, str]:
     return f[0], f[2]
 
 
-def existing_rows(path: Path) -> dict[str, dict[str, str]]:
+def existing_rows(path: Path, variant: str = VARIANT) -> dict[str, dict[str, str]]:
     if not path.exists():
         return {}
     with open(path, newline="", encoding="utf-8") as f:
         return {r["period"]: r for r in csv.DictReader(f)
-                if (r.get("variant") or "Whole") == VARIANT}
+                if (r.get("variant") or "Whole") == variant}
 
 
-def upsert_lines(path: Path, updates: dict[str, str], force: bool) -> dict[str, int]:
+def upsert_lines(path: Path, updates: dict[str, str], force: bool,
+                 variant: str = VARIANT) -> dict[str, int]:
     """Insert the given periods' lines; an existing line is replaced only with
     --force. Every other line is written back byte-for-byte."""
     header, lines = read_csv_lines(path)
@@ -386,7 +417,7 @@ def upsert_lines(path: Path, updates: dict[str, str], force: bool) -> dict[str, 
     stats = {"added": 0, "updated": 0, "unchanged": 0, "skipped": 0}
     index = {line_key(l): i for i, l in enumerate(lines)}
     for period, new in sorted(updates.items()):
-        key = (period, VARIANT)
+        key = (period, variant)
         if key not in index:
             lines.append(new)
             stats["added"] += 1
@@ -452,11 +483,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--period", help="target month YYYY-MM (default: last month)")
     ap.add_argument("--since", help="also count every month from YYYY-MM on")
+    ap.add_argument("--variant", help="comma-separated subset of " + ",".join(VARIANTS))
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--from-json", help="saved query result instead of the network")
     ap.add_argument("--save-json", help="write the query result here")
-    ap.add_argument("--csv", default=str(CSV_PATH))
+    ap.add_argument("--data-dir", default=str(DATA_DIR))
     ap.add_argument("--no-top", action="store_true", help="skip market/new_zealand_top.json")
     ap.add_argument("--today", help=argparse.SUPPRESS)          # tests
     ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
@@ -468,20 +500,25 @@ def main(argv: list[str] | None = None) -> int:
     first = args.since or target
     if month_num(first) > month_num(target):
         raise RuntimeError(f"--since {first} is after the target {target}")
-    csv_path = Path(args.csv)
-    have = existing_rows(csv_path)
+    variants = [v.strip() for v in args.variant.split(",")] if args.variant else list(VARIANTS)
+    bad = [v for v in variants if v not in VARIANTS]
+    if bad:
+        raise RuntimeError(f"unknown variant(s) {bad}; known: {list(VARIANTS)}")
+    data_dir = Path(args.data_dir)
+    paths = {v: csv_path_for(v, data_dir) for v in variants}
+    have = {v: existing_rows(paths[v], v) for v in variants}
 
-    # Self-throttle: the month is in the CSV and the top file is current.
+    # Self-throttle: every CSV has the month and the top file is current.
     top_current = args.no_top or market_top.top_is_current(TOP_PATH, target)
-    if (target in have and top_current and not args.force and not args.since
-            and not args.dry_run and not args.from_json):
-        print(f"{target} already in {csv_path.name} "
-              f"(source: {have[target]['source']}) and the top file is current — nothing to do")
+    if (all(target in have[v] for v in variants) and top_current and not args.force
+            and not args.since and not args.dry_run and not args.from_json):
+        print(f"{target} already in every New Zealand CSV and the top file is current "
+              "— nothing to do")
         return emit(args, set())
 
     top_from = None if args.no_top else market_top.month_window(target)[0]
     # The months just before the target are fetched too: they are the overlap
-    # check against rows the CSV already holds.
+    # check against rows the CSVs already hold.
     q_first = min(first, shift_month(target, -3), key=month_num)
     if args.from_json:
         data = json.loads(Path(args.from_json).read_text(encoding="utf-8"))
@@ -499,64 +536,73 @@ def main(argv: list[str] | None = None) -> int:
         print(msg + " — nothing to do until NZTA refreshes it")
         return emit(args, set())
 
-    counts, unknown, status = count_months(data["fuel"])
-    if target not in counts or not counts[target]["TOTAL"]:
+    counts_all, unknown, status = count_months(data["fuel"])
+    if not counts_all["Whole"].get(target, {}).get("TOTAL"):
         raise RuntimeError(f"the register has no {target} registrations in scope")
 
     report: list[str] = [f"### New Zealand — {SOURCE}",
-                         f"Service `{data.get('service')}`, data loaded {loaded}.", ""]
+                         f"Service `{data.get('service')}`, data loaded {loaded}."]
     warnings: list[str] = []
-    months = [p for p in sorted(counts, key=month_num)
-              if month_num(first) <= month_num(p) <= month_num(target)]
-
-    for p in months:
-        w = check_unknown(p, unknown, counts[p]["TOTAL"])
-        if w:
-            warnings.append(w)
-
-    ratio = plausibility(target, counts[target]["TOTAL"], have)
-    if ratio is not None and not (PLAUSIBLE[0] <= ratio <= PLAUSIBLE[1]) and not args.force:
-        raise RuntimeError(f"{target}: TOTAL {counts[target]['TOTAL']:,} is ×{ratio:.2f} "
-                           f"the same month a year earlier — outside {PLAUSIBLE}; "
-                           "check the register, dispatch with force if genuine")
-
-    report += [summary_table({p: counts[p] for p in months}), ""]
+    for p in sorted(unknown, key=month_num):
+        if month_num(first) <= month_num(p) <= month_num(target):
+            w = check_unknown(p, unknown, counts_all["Whole"].get(p, {}).get("TOTAL", 0))
+            if w:
+                warnings.append(w)
     st = status.get(target, {})
-    report.append(f"{target}: new {st.get('NEW', 0):,}, used imports {st.get('USED', 0):,}; "
-                  f"year-ago ratio {('×%.2f' % ratio) if ratio else 'n/a'}.")
-
-    # Overlap: months the CSV already holds, register vs CSV (information).
-    overlap = [p for p in sorted(counts, key=month_num) if p in have
-               and month_num(q_first) <= month_num(p) <= month_num(target)]
-    if overlap:
-        report += ["", "Register vs CSV on months the CSV already holds "
-                   "(register − CSV; the CSV row is kept unless `force`):"]
-        for p in overlap:
-            diff, dev = compare(counts[p], have[p])
-            flag = " ⚠" if abs(dev) > OVERLAP_WARN else ""
-            report.append(f"- {p} ({have[p]['source']}): {diff} (TOTAL {dev:+.1%}){flag}")
-            if flag:
-                warnings.append(f"{p}: register differs from the CSV by {dev:+.1%}")
-
-    updates = {}
-    for p in months:
-        notes = ""
-        if month_num(p) < month_num(shift_month(target, -2)):
-            notes = (f"register snapshot of {loaded}: vehicles deregistered "
-                     "since are missing (undercount)")
-        updates[p] = render_line(p, counts[p], notes)
+    report.append(f"{target}: new {st.get('NEW', 0):,}, used imports {st.get('USED', 0):,}.")
 
     changed: set[str] = set()
-    if args.dry_run:
+    pending: list[tuple[str, dict[str, str]]] = []
+    for v in variants:
+        counts = counts_all[v]
+        months = [p for p in sorted(counts, key=month_num)
+                  if month_num(first) <= month_num(p) <= month_num(target)]
+        if target not in counts:
+            raise RuntimeError(f"{v}: the register has no {target} registrations in scope")
+        ratio = plausibility(target, counts[target]["TOTAL"], have[v])
+        if ratio is not None and not (PLAUSIBLE[0] <= ratio <= PLAUSIBLE[1]) and not args.force:
+            raise RuntimeError(f"{v} {target}: TOTAL {counts[target]['TOTAL']:,} is ×{ratio:.2f} "
+                               f"the same month a year earlier — outside {PLAUSIBLE}; "
+                               "check the register, dispatch with force if genuine")
+        report += ["", f"#### {v} — `{paths[v].name}`", "",
+                   summary_table({p: counts[p] for p in months[-13:]}), "",
+                   f"year-ago ratio {('×%.2f' % ratio) if ratio else 'n/a'}"
+                   + (f"; {len(months) - 13} earlier month(s) not shown" if len(months) > 13 else "")]
+
+        # Overlap: months the CSV already holds, register vs CSV (information).
+        overlap = [p for p in sorted(counts, key=month_num) if p in have[v]
+                   and month_num(q_first) <= month_num(p) <= month_num(target)]
+        if overlap:
+            report += ["", "Register vs CSV on months the CSV already holds "
+                       "(register − CSV; the CSV row is kept unless `force`):"]
+            for p in overlap[-13:]:
+                diff, dev = compare(counts[p], have[v][p])
+                flag = " ⚠" if abs(dev) > OVERLAP_WARN else ""
+                report.append(f"- {p} ({have[v][p]['source']}): {diff} (TOTAL {dev:+.1%}){flag}")
+                if flag:
+                    warnings.append(f"{v} {p}: register differs from the CSV by {dev:+.1%}")
+
+        updates = {}
         for p in months:
-            print(updates[p])
+            notes = ""
+            if month_num(p) < month_num(shift_month(target, -2)):
+                notes = (f"register snapshot of {loaded}: vehicles deregistered "
+                         "since are missing (undercount)")
+            updates[p] = render_line(p, counts[p], notes, v)
+        pending.append((v, updates))
+
+    if args.dry_run:
+        for v, updates in pending:
+            for p in sorted(updates):
+                print(updates[p])
         report.append("\n_dry run — nothing written_")
     else:
-        stats = upsert_lines(csv_path, updates, args.force)
-        report.append(f"\nCSV: {stats}")
-        print(f"{csv_path.name}: {stats}")
-        if stats["added"] or stats["updated"]:
-            changed.add(VARIANT)
+        for v, updates in pending:
+            stats = upsert_lines(paths[v], updates, args.force, v)
+            report.append(f"\n{paths[v].name}: {stats}")
+            print(f"{paths[v].name}: {stats}")
+            if stats["added"] or stats["updated"]:
+                changed.add(v)
         if not args.no_top and data.get("models"):
             market_top.guarded(refresh_top, data, target)
 

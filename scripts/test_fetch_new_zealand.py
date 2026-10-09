@@ -59,10 +59,10 @@ def raises(name, fn, *a, **kw):
     print(f"FAIL {name}: no RuntimeError")
 
 
-def row(p, status, power, n):
+def row(p, status, power, n, cls="MA"):
     y, m = p.split("-")
     return {nz.F_YEAR: int(y), nz.F_MONTH: int(m), "IMPORT_STATUS": status,
-            "MOTIVE_POWER": power, "n": n}
+            "CLASS": cls, "MOTIVE_POWER": power, "n": n}
 
 
 def mrow(p, power, make, model, n):
@@ -75,28 +75,33 @@ def mrow(p, power, make, model, n):
 SEP = [row("2026-09", "NEW", "ELECTRIC", 2661), row("2026-09", "USED", "ELECTRIC", 305),
        row("2026-09", "NEW", "PLUGIN PETROL HYBRID", 1450), row("2026-09", "NEW", "ELECTRIC [PETROL EXTENDED]", 51),
        row("2026-09", "USED", "PLUGIN PETROL HYBRID", 101),
-       row("2026-09", "NEW", "PETROL HYBRID", 4500), row("2026-09", "NEW", "DIESEL HYBRID", 930),
+       row("2026-09", "NEW", "PETROL HYBRID", 4500), row("2026-09", "NEW", "DIESEL HYBRID", 930, "NA"),
        row("2026-09", "USED", "PETROL HYBRID", 4235),
        row("2026-09", "NEW", "PETROL", 4023), row("2026-09", "USED", "PETROL", 3396),
-       row("2026-09", "NEW", "DIESEL", 2735), row("2026-09", "USED", "DIESEL", 334)]
+       row("2026-09", "NEW", "DIESEL", 2735, "NA"), row("2026-09", "USED", "DIESEL", 334)]
 SEP_COUNTS = {"BEV": 2966, "PHEV": 1602, "HEV": 9665, "PETROL": 7419, "DIESEL": 3069,
               "OTHERS": 0, "TOTAL": 24721}
+SEP_VANS = {"BEV": 0, "PHEV": 0, "HEV": 930, "PETROL": 0, "DIESEL": 2735,
+            "OTHERS": 0, "TOTAL": 3665}
+SEP_USED = {"BEV": 305, "PHEV": 101, "HEV": 4235, "PETROL": 3396, "DIESEL": 334,
+            "OTHERS": 0, "TOTAL": 8371}
 
 
 def data(fuel=SEP, models=(), loaded="2026-10-06"):
     return {"service": "test", "loaded": loaded, "fuel": list(fuel), "models": list(models)}
 
 
-def run(tmp, d, *extra, csv_lines=LEGACY, today="2026-10-09"):
-    csv = Path(tmp) / "nz.csv"
+def run(tmp, d, *extra, csv_lines=LEGACY, today="2026-10-09", variant="Whole"):
+    csv = Path(tmp) / "New Zealand.csv"
     if not csv.exists():
         csv.write_text("\n".join([HEADER] + list(csv_lines)) + "\n", encoding="utf-8")
     src = Path(tmp) / "in.json"
     src.write_text(json.dumps(d), encoding="utf-8")
     out = Path(tmp) / "out.txt"
     out.write_text("")
-    nz.main(["--csv", str(csv), "--from-json", str(src), "--no-top", "--today", today,
-             "--github-output", str(out), "--summary", str(Path(tmp) / "sum.md"), *extra])
+    nz.main(["--data-dir", tmp, "--from-json", str(src), "--no-top", "--today", today,
+             "--variant", variant, "--github-output", str(out),
+             "--summary", str(Path(tmp) / "sum.md"), *extra])
     return csv.read_text(encoding="utf-8"), out.read_text()
 
 
@@ -113,12 +118,19 @@ check("scope status", "IMPORT_STATUS IN ('NEW','USED')" in w, True)
 check("scope class", "CLASS IN ('MA','MB','MC','NA')" in w, True)
 
 # ── counting ──
-counts, unknown, status = nz.count_months(SEP)
+counts_all, unknown, status = nz.count_months(SEP)
+counts = counts_all["Whole"]
 check("Sep counts", counts["2026-09"], SEP_COUNTS)
+check("Sep Vans (new NA)", counts_all["Vans"]["2026-09"], SEP_VANS)
+check("Sep Used (used MA/MB/MC)", counts_all["Used"]["2026-09"], SEP_USED)
+check("variants of new MC", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "MC"}), ["Whole"])
+check("variants of used NA", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "NA"}), ["Whole"])
+check("variants of RE-REG", nz.variants_of({"IMPORT_STATUS": "RE-REG", "CLASS": "MA"}), [])
+check("variants of heavy", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "NB"}), [])
 check("Sep status", status["2026-09"], {"NEW": 16350, "USED": 8371})
 check("no unknown", unknown, {})
 c2, u2, _ = nz.count_months(SEP + [row("2026-09", "NEW", "HYDROGEN", 10)])
-check("unknown -> OTHERS", c2["2026-09"]["OTHERS"], 10)
+check("unknown -> OTHERS", c2["Whole"]["2026-09"]["OTHERS"], 10)
 check("unknown listed", u2, {"2026-09": {"HYDROGEN": 10}})
 check("small unknown warns", bool(nz.check_unknown("2026-09", u2, 24731)), True)
 _, u3, _ = nz.count_months(SEP + [row("2026-09", "NEW", "HYDROGEN", 400)])
@@ -170,10 +182,11 @@ with tempfile.TemporaryDirectory() as tmp:
     check("plausibility skipped with force", "2026-09,monthly" in text, True)
 
 with tempfile.TemporaryDirectory() as tmp:
-    # self-throttle: month present and --no-top -> no input needed at all
-    csv = Path(tmp) / "nz.csv"
-    csv.write_text("\n".join([HEADER, "2026-09,monthly,Whole,x,1,1,1,1,1,0,5,"]) + "\n")
-    nz.main(["--csv", str(csv), "--no-top", "--today", "2026-10-09"])   # no network: must not query
+    # self-throttle: month present in every CSV and --no-top -> no input needed at all
+    for v in nz.VARIANTS:
+        nz.csv_path_for(v, Path(tmp)).write_text(
+            "\n".join([HEADER, f"2026-09,monthly,{v},x,1,1,1,1,1,0,5,"]) + "\n")
+    nz.main(["--data-dir", tmp, "--no-top", "--today", "2026-10-09"])   # no network: must not query
     check("throttle", True, True)
 
 with tempfile.TemporaryDirectory() as tmp:
@@ -188,6 +201,15 @@ with tempfile.TemporaryDirectory() as tmp:
     text, _ = run(tmp, data(may + SEP), "--since", "2026-05", csv_lines=[])
     may_line = [l for l in text.splitlines() if l.startswith("2026-05")][0]
     check("old month flagged", "undercount" in may_line, True)
+
+with tempfile.TemporaryDirectory() as tmp:
+    # every variant at once: Vans and Used get their own files, Whole is untouched
+    run(tmp, data(), variant="Whole,Vans,Used")
+    vans = nz.csv_path_for("Vans", Path(tmp)).read_text().splitlines()
+    used = nz.csv_path_for("Used", Path(tmp)).read_text().splitlines()
+    check("Vans file", vans, [HEADER, "2026-09,monthly,Vans,NZTA Motor Vehicle Register,0,0,930,0,2735,0,3665,"])
+    check("Used file", used, [HEADER, "2026-09,monthly,Used,NZTA Motor Vehicle Register,305,101,4235,3396,334,0,8371,"])
+    raises("unknown variant", run, tmp, data(), variant="Taxis")
 
 # ── brand / model summary ──
 MODELS = [mrow("2026-09", "ELECTRIC", "TESLA", "MODEL Y", 500),

@@ -2,9 +2,11 @@ name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 
 # Counts New Zealand's first registrations of light vehicles from the NZTA
 # Waka Kotahi Motor Vehicle Register (open data, CC BY 4.0) and upserts
-# data/New Zealand.csv (Whole = new + used-import light vehicles, the scope
-# of the legacy series) plus market/new_zealand_top.json (brands and models
-# per electrified class, trailing twelve months).
+#   data/New Zealand.csv       Whole = new + used-import light vehicles
+#                              (classes MA/MB/MC/NA — the legacy scope)
+#   data/New Zealand_Vans.csv  Vans  = new goods vehicles up to 3.5 t (NA, N1)
+#   data/New Zealand_Used.csv  Used  = used-import passenger vehicles (MA/MB/MC)
+#   market/new_zealand_top.json  brands and models per electrified class (Whole)
 #
 # The register is an ArcGIS feature service; the fetcher sends grouped count
 # queries (a handful of small JSON requests, no record download). Its URL
@@ -26,6 +28,10 @@ name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 on:
   workflow_dispatch:
     inputs:
+      variant:
+        description: 'Comma-separated subset of Whole,Vans,Used (default: all)'
+        required: false
+        default: ''
       period:
         description: 'Target month YYYY-MM (default: the month that just ended)'
         required: false
@@ -74,15 +80,17 @@ jobs:
           python scripts/test_fetch_new_zealand.py
           python scripts/test_market_top.py
 
-      - name: Fetch & update New Zealand.csv
+      - name: Fetch & update the New Zealand CSVs
         id: fetch
         run: |
           python scripts/fetch_new_zealand.py \
+            ${VARIANT:+--variant "$VARIANT"} \
             ${PERIOD:+--period "$PERIOD"} \
             ${SINCE:+--since "$SINCE"} \
             ${FORCE:+--force} \
             ${DRY_RUN:+--dry-run}
         env:
+          VARIANT: ${{ inputs.variant }}
           PERIOD:  ${{ inputs.period }}
           SINCE:   ${{ inputs.since }}
           FORCE:   ${{ inputs.force == true && '1' || '' }}
@@ -96,7 +104,7 @@ jobs:
           # The action splits `add` on whitespace, so the space in the file
           # name is matched with a pathspec glob.
           add: |
-            data/New?Zealand.csv
+            data/New?Zealand*.csv
             market/new_zealand_top.json
           message: 'chore: update New Zealand data from NZTA Motor Vehicle Register'
           default_author: github_actions

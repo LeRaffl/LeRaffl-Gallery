@@ -329,7 +329,7 @@ significant EV importer is outside it**).
 > vehicles, which the old doc had wrongly called "new" — it reproduces the
 > Ray Willis rows to about 1 % in every column through 2026-03; the six
 > hand-entered months 2026-04..09 ran 5–15 % high in petrol and diesel only
-> and were rewritten. Also writes `market/new_zealand_top.json`. See
+> and were rewritten. Adds `Vans` (new N1) and `Used` (used-import M1) from the same query, and writes `market/new_zealand_top.json`. See
 > [19-source-new-zealand.md](19-source-new-zealand.md).
 > Rejected on the way (same session): Australia (FCAI's VFACTS is paid; the
 > parallel session checked it), India (VAHAN still blocks foreign
