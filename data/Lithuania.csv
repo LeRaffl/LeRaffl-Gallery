@@ -83,35 +83,35 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2023-10,monthly,Whole,ACEA,240.0,112.0,807.0,695.0,204.0,37.0,2095.0,
 2023-11,monthly,Whole,ACEA,155.0,92.0,933.0,723.0,238.0,47.0,2188.0,
 2023-12,monthly,Whole,ACEA,182.0,64.0,825.0,505.0,155.0,39.0,1770.0,
-2024-01,monthly,Whole,ACEA,128.0,150.0,918.0,697.0,175.0,64.0,2132.0,
-2024-02,monthly,Whole,ACEA,108.0,103.0,954.0,606.0,204.0,39.0,2014.0,
-2024-03,monthly,Whole,ACEA,120.0,110.0,1000.0,686.0,329.0,46.0,2291.0,
-2024-04,monthly,Whole,ACEA,214.0,95.0,1193.0,728.0,405.0,68.0,2703.0,
-2024-05,monthly,Whole,ACEA,167.0,114.0,1427.0,785.0,330.0,22.0,2845.0,
-2024-06,monthly,Whole,ACEA,114.0,127.0,1223.0,1012.0,299.0,30.0,2805.0,
-2024-07,monthly,Whole,ACEA,159.0,114.0,1164.0,876.0,347.0,40.0,2700.0,
-2024-08,monthly,Whole,ACEA,105.0,113.0,1009.0,518.0,299.0,54.0,2098.0,
-2024-09,monthly,Whole,ACEA,188.0,168.0,1300.0,522.0,369.0,35.0,2582.0,
-2024-10,monthly,Whole,ACEA,220.0,209.0,1228.0,596.0,556.0,55.0,2864.0,
-2024-11,monthly,Whole,ACEA,145.0,186.0,1300.0,413.0,481.0,82.0,2607.0,
-2024-12,monthly,Whole,ACEA,111.0,196.0,1175.0,405.0,552.0,42.0,2481.0,
-2025-01,monthly,Whole,ACEA,161.0,296.0,1341.0,525.0,440.0,73.0,2836.0,
-2025-02,monthly,Whole,ACEA,101.0,209.0,1284.0,415.0,494.0,28.0,2531.0,
-2025-03,monthly,Whole,ACEA,223.0,220.0,1973.0,541.0,547.0,62.0,3566.0,
-2025-04,monthly,Whole,ACEA,218.0,270.0,2017.0,803.0,688.0,44.0,4040.0,
-2025-05,monthly,Whole,ACEA,222.0,325.0,1964.0,972.0,533.0,77.0,4093.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2025-06,monthly,Whole,ACEA,280.0,352.0,1886.0,821.0,302.0,82.0,3723.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2025-07,monthly,Whole,ACEA,279.0,480.0,1711.0,745.0,337.0,46.0,3598.0,
-2025-08,monthly,Whole,ACEA,170.0,379.0,1457.0,610.0,498.0,77.0,3191.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2025-09,monthly,Whole,ACEA,517.0,431.0,1501.0,779.0,486.0,78.0,3792.0,
-2025-10,monthly,Whole,ACEA,307.0,514.0,1768.0,1103.0,299.0,57.0,4048.0,
-2025-11,monthly,Whole,ACEA,248.0,488.0,1497.0,1070.0,239.0,38.0,3580.0,
-2025-12,monthly,Whole,ACEA,424.0,483.0,1199.0,543.0,290.0,27.0,2966.0,
-2026-01,monthly,Whole,ACEA,266.0,403.0,1248.0,559.0,328.0,29.0,2833.0,
-2026-02,monthly,Whole,ACEA,214.0,305.0,1381.0,432.0,241.0,20.0,2593.0,
-2026-03,monthly,Whole,ACEA,278.0,454.0,2281.0,645.0,414.0,73.0,4145.0,
-2026-04,monthly,Whole,ACEA,331.0,569.0,2441.0,576.0,660.0,115.0,4692.0,data/Press_release_car_registrations_April_2026.pdf
-2026-05,monthly,Whole,ACEA,288.0,543.0,2797.0,733.0,374.0,97.0,4832.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2026-06,monthly,Whole,ACEA,475.0,640.0,2504.0,848.0,437.0,112.0,5016.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2026-07,monthly,Whole,ACEA,405.0,725.0,2352.0,848.0,296.0,75.0,4701.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2026-08,monthly,Whole,ACEA,325.0,623.0,2148.0,684.0,244.0,66.0,4090.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
+2024-01,monthly,Whole,Regitra,126.0,149.0,911.0,693.0,178.0,64.0,2121.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 150 / HEV 918
+2024-02,monthly,Whole,Regitra,106.0,102.0,949.0,607.0,206.0,39.0,2009.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 103 / HEV 954
+2024-03,monthly,Whole,Regitra,118.0,109.0,994.0,688.0,329.0,43.0,2281.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 110 / HEV 1000
+2024-04,monthly,Whole,Regitra,212.0,95.0,1187.0,727.0,407.0,69.0,2697.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 95 / HEV 1193
+2024-05,monthly,Whole,Regitra,167.0,113.0,1420.0,787.0,328.0,22.0,2837.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 114 / HEV 1427
+2024-06,monthly,Whole,Regitra,111.0,127.0,1219.0,1012.0,299.0,30.0,2798.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 127 / HEV 1223
+2024-07,monthly,Whole,Regitra,158.0,113.0,1158.0,878.0,351.0,41.0,2699.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 114 / HEV 1164
+2024-08,monthly,Whole,Regitra,104.0,113.0,1006.0,520.0,303.0,54.0,2100.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 113 / HEV 1009
+2024-09,monthly,Whole,Regitra,186.0,168.0,1300.0,523.0,371.0,33.0,2581.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 168 / HEV 1300
+2024-10,monthly,Whole,Regitra,218.0,209.0,1227.0,599.0,558.0,51.0,2862.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 209 / HEV 1228
+2024-11,monthly,Whole,Regitra,145.0,185.0,1290.0,420.0,482.0,81.0,2603.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 186 / HEV 1300
+2024-12,monthly,Whole,Regitra,111.0,194.0,1165.0,414.0,554.0,43.0,2481.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 196 / HEV 1175
+2025-01,monthly,Whole,Regitra,160.0,294.0,1332.0,529.0,440.0,73.0,2828.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 296 / HEV 1341
+2025-02,monthly,Whole,Regitra,100.0,207.0,1275.0,421.0,494.0,27.0,2524.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 209 / HEV 1284
+2025-03,monthly,Whole,Regitra,223.0,219.0,1966.0,544.0,541.0,60.0,3553.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 220 / HEV 1973
+2025-04,monthly,Whole,Regitra,218.0,269.0,2011.0,811.0,686.0,42.0,4037.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 270 / HEV 2017
+2025-05,monthly,Whole,Regitra,217.0,323.0,1955.0,962.0,532.0,82.0,4071.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 325 / HEV 1964
+2025-06,monthly,Whole,Regitra,277.0,350.0,1873.0,817.0,302.0,86.0,3705.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 352 / HEV 1886
+2025-07,monthly,Whole,Regitra,278.0,478.0,1706.0,748.0,339.0,46.0,3595.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 480 / HEV 1711
+2025-08,monthly,Whole,Regitra,170.0,378.0,1453.0,615.0,496.0,77.0,3189.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 379 / HEV 1457
+2025-09,monthly,Whole,Regitra,518.0,429.0,1496.0,788.0,489.0,77.0,3797.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 431 / HEV 1501
+2025-10,monthly,Whole,Regitra,308.0,513.0,1766.0,1103.0,299.0,56.0,4045.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 514 / HEV 1768
+2025-11,monthly,Whole,Regitra,248.0,489.0,1500.0,1071.0,248.0,35.0,3591.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 488 / HEV 1497
+2025-12,monthly,Whole,Regitra,424.0,483.0,1199.0,541.0,292.0,28.0,2967.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 483 / HEV 1199
+2026-01,monthly,Whole,Regitra,267.0,403.0,1249.0,562.0,327.0,28.0,2836.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 403 / HEV 1248
+2026-02,monthly,Whole,Regitra,215.0,303.0,1372.0,439.0,241.0,19.0,2589.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 305 / HEV 1381
+2026-03,monthly,Whole,Regitra,278.0,453.0,2278.0,666.0,419.0,55.0,4149.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 454 / HEV 2281
+2026-04,monthly,Whole,Regitra,331.0,566.0,2427.0,581.0,662.0,110.0,4677.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 569 / HEV 2441
+2026-05,monthly,Whole,Regitra,287.0,541.0,2789.0,743.0,377.0,98.0,4835.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 543 / HEV 2797
+2026-06,monthly,Whole,Regitra,474.0,637.0,2490.0,851.0,435.0,114.0,5001.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 640 / HEV 2504
+2026-07,monthly,Whole,Regitra,401.0,699.0,2267.0,837.0,297.0,66.0,4567.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 725 / HEV 2352
+2026-08,monthly,Whole,Regitra,317.0,608.0,2098.0,671.0,243.0,64.0,4001.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 623 / HEV 2148
