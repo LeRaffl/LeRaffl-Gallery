@@ -1,0 +1,169 @@
+{
+ "country": "Georgia",
+ "variant": "Whole",
+ "source": "National Statistics Office of Georgia",
+ "as_of": "2026-05",
+ "window": {
+  "from": "2025-07",
+  "to": "2026-06",
+  "months": 12
+ },
+ "total_registrations": 167010,
+ "unit": "vehicles initially registered in Georgia by brand and model as Geostat's treemap lists them — every powertrain and every vehicle category (new and imported used together); Geostat lists the top 25 brands and the top models of each, the rest counts towards the total but is not ranked",
+ "classes": {
+  "ALL": {
+   "units": 167010,
+   "share_of_market": 1.0,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 25896,
+     "share_of_class": 0.1551
+    },
+    {
+     "brand": "FORD",
+     "units": 15502,
+     "share_of_class": 0.0928
+    },
+    {
+     "brand": "BMW",
+     "units": 11873,
+     "share_of_class": 0.0711
+    },
+    {
+     "brand": "SUBARU",
+     "units": 11587,
+     "share_of_class": 0.0694
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 11421,
+     "share_of_class": 0.0684
+    },
+    {
+     "brand": "JEEP",
+     "units": 9945,
+     "share_of_class": 0.0595
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 9787,
+     "share_of_class": 0.0586
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 7094,
+     "share_of_class": 0.0425
+    },
+    {
+     "brand": "HONDA",
+     "units": 7019,
+     "share_of_class": 0.042
+    },
+    {
+     "brand": "LEXUS",
+     "units": 5291,
+     "share_of_class": 0.0317
+    }
+   ],
+   "models": [
+    {
+     "brand": "SUBARU",
+     "model": "FORESTER",
+     "units": 4450,
+     "share_of_class": 0.0266
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "JETTA",
+     "units": 4166,
+     "share_of_class": 0.0249
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "CAMRY",
+     "units": 3953,
+     "share_of_class": 0.0237
+    },
+    {
+     "brand": "FORD",
+     "model": "FUSION",
+     "units": 3420,
+     "share_of_class": 0.0205
+    },
+    {
+     "brand": "FORD",
+     "model": "FUSION HYBRID",
+     "units": 3057,
+     "share_of_class": 0.0183
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "ELANTRA",
+     "units": 2621,
+     "share_of_class": 0.0157
+    },
+    {
+     "brand": "SUBARU",
+     "model": "CROSSTREK",
+     "units": 2230,
+     "share_of_class": 0.0134
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "PRIUS",
+     "units": 2230,
+     "share_of_class": 0.0134
+    },
+    {
+     "brand": "TESLA",
+     "model": "MODEL 3",
+     "units": 2191,
+     "share_of_class": 0.0131
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "RAV 4",
+     "units": 2168,
+     "share_of_class": 0.013
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "RAV 4 HYBRID",
+     "units": 2002,
+     "share_of_class": 0.012
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "AQUA",
+     "units": 1985,
+     "share_of_class": 0.0119
+    },
+    {
+     "brand": "JEEP",
+     "model": "CHEROKEE",
+     "units": 1806,
+     "share_of_class": 0.0108
+    },
+    {
+     "brand": "FORD",
+     "model": "TRANSIT",
+     "units": 1727,
+     "share_of_class": 0.0103
+    },
+    {
+     "brand": "BUICK",
+     "model": "ENCORE",
+     "units": 1521,
+     "share_of_class": 0.0091
+    }
+   ]
+  }
+ },
+ "quarters": [
+  "2025-Q3",
+  "2025-Q4",
+  "2026-Q1",
+  "2026-Q2"
+ ]
+}
