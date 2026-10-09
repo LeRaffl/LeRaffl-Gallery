@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-08T11:35:33Z",
+ "generated": "2026-10-09T11:29:42Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5515,11 +5515,131 @@
   },
   {
    "date": "2026-10-08",
+   "label": "Argentina",
+   "base": "Argentina",
+   "slug": "argentina",
+   "period": "2026-09",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Argentina (Industry)",
+   "base": "Argentina",
+   "slug": "argentina_industry",
+   "period": "2026-09",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Argentina (Private)",
+   "base": "Argentina",
+   "slug": "argentina_private",
+   "period": "2026-09",
+   "flag": "🇦🇷"
+  },
+  {
+   "date": "2026-10-08",
    "label": "Brazil",
    "base": "Brazil",
    "slug": "brazil",
    "period": "2026-09",
    "flag": "🇧🇷"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Netherlands",
+   "base": "Netherlands",
+   "slug": "netherlands",
+   "period": "2026-09",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Netherlands (HDV)",
+   "base": "Netherlands",
+   "slug": "netherlands_hdv",
+   "period": "2026-09",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Netherlands (Used)",
+   "base": "Netherlands",
+   "slug": "netherlands_used",
+   "period": "2026-09",
+   "flag": "🇳🇱"
+  },
+  {
+   "date": "2026-10-08",
+   "label": "Poland",
+   "base": "Poland",
+   "slug": "poland",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Austria",
+   "base": "Austria",
+   "slug": "austria",
+   "period": "2026-09",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Austria (HDV)",
+   "base": "Austria",
+   "slug": "austria_hdv",
+   "period": "2026-09",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Austria (Vans)",
+   "base": "Austria",
+   "slug": "austria_vans",
+   "period": "2026-09",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Denmark",
+   "base": "Denmark",
+   "slug": "denmark",
+   "period": "2026-09",
+   "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Denmark (HDV)",
+   "base": "Denmark",
+   "slug": "denmark_hdv",
+   "period": "2026-09",
+   "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Denmark (Industry)",
+   "base": "Denmark",
+   "slug": "denmark_industry",
+   "period": "2026-09",
+   "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Denmark (Private)",
+   "base": "Denmark",
+   "slug": "denmark_private",
+   "period": "2026-09",
+   "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-09",
+   "label": "Denmark (Vans)",
+   "base": "Denmark",
+   "slug": "denmark_vans",
+   "period": "2026-09",
+   "flag": "🇩🇰"
   }
  ]
 }

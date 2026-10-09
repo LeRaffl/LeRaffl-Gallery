@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-08T11:35:33Z",
- "today": "2026-10-08",
+ "generated": "2026-10-09T11:29:42Z",
+ "today": "2026-10-09",
  "countries": [
   {
    "country": "Albania",
@@ -103,11 +103,11 @@
    "source_url": "https://datos.jus.gob.ar/dataset/inscripciones-iniciales-de-autos",
    "cadence_text": "twice daily on the 8th–25th, 09:15 and 21:15 UTC — DNRPA uploads month M around the 11th of M+1",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -151,30 +151,30 @@
     ],
     "workflow": ".github/workflows/fetch-argentina.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-08",
    "flag": "🇦🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -216,11 +216,11 @@
    "source_url": "https://www.statistik.at/statistiken/tourismus-und-verkehr/fahrzeuge/kfz-neuzulassungen",
    "cadence_text": "daily cron, 8th–22nd, 09:25 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -260,30 +260,30 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-09-14",
+   "last_render": "2026-10-09",
    "flag": "🇦🇹",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2012-01",
-     "rows": 176,
+     "rows": 177,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024",
-     "rows": 21,
+     "rows": 22,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024",
-     "rows": 21,
+     "rows": 22,
      "cadence": "monthly",
      "in_repo": true
     },
@@ -1010,11 +1010,11 @@
    "source_url": "https://www.statbank.dk/BIL53",
    "cadence_text": "daily cron, 1st–15th, 05:15 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1054,46 +1054,46 @@
     ],
     "workflow": ".github/workflows/fetch-denmark.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-09",
    "flag": "🇩🇰",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2014-01",
-     "rows": 152,
+     "rows": 153,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Private",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Industry",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2021-01",
-     "rows": 68,
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2681,11 +2681,11 @@
    "source_url": "https://duurzamemobiliteit.databank.nl/",
    "cadence_text": "daily cron, 1st–15th of the month",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2725,30 +2725,30 @@
     ],
     "workflow": ".github/workflows/fetch-netherlands.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-08",
    "flag": "🇳🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2011-01",
-     "rows": 188,
+     "rows": 189,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3034,11 +3034,11 @@
    "source_url": "https://www1.pzpm.org.pl/pl/Elektromobilnosc/eRejestracje",
    "cadence_text": "twice-daily cron, 6th–10th, 09:30 & 13:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3069,38 +3069,38 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-08",
    "flag": "🇵🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2011-01",
-     "rows": 188,
+     "rows": 189,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2021-07",
-     "rows": 24,
+     "rows": 25,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2021-07",
-     "rows": 24,
+     "rows": 25,
      "cadence": "quarterly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2021-07",
-     "rows": 24,
+     "rows": 25,
      "cadence": "quarterly",
      "in_repo": true
     }
