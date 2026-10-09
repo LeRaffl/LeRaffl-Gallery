@@ -130,6 +130,7 @@ These are the workflows that pull the previous month's data from each national s
 | [`fetch-ecuador.yml`](../../.github/workflows/fetch-ecuador.yml) | 14:05 & 23:05 UTC, 1st → 14th | SRI open data «Vehículos Nuevos» (`descargas.sri.gob.ec` — one CSV per calendar year, every processing of an invoiced new vehicle; the current year regenerated early in the month, August 2026 on Sep 4) — each vehicle once at its first processing, powertrain from the catalogue description, cross-checked against AEADE's bulletin ([48](48-source-ecuador.md)) | `Whole` + `Vans` — one set of yearly files, both variants; combined Hybrid bucket | newest complete month (file regenerated after the month ended) already in every CSV → one HEAD, no download |
 | [`fetch-finland.yml`](../../.github/workflows/fetch-finland.yml) | 04:40 UTC, 1st → 15th | StatFin 121d (`pxdata.stat.fi` PxWeb) + `market/finland_top.json` (Traficom `trafi2.stat.fi`) | `Whole` + `Private` + `Industry` + `HDV` + `Vans` + `Buses` | per-variant diff vs CSV; the top file alone never renders |
 | [`fetch-france.yml`](../../.github/workflows/fetch-france.yml) | 07:40 UTC, 18th → EOM | SDES motorisations série VP workbook (média link resolved from the landing page; [36](36-source-france.md)) | `Whole` | change-gated commit — no new row, no diff, no render |
+| [`fetch-georgia.yml`](../../.github/workflows/fetch-georgia.yml) | 06:55 UTC, 10th → EOM of Jan/Feb, Apr/May, Jul/Aug, Oct/Nov | Geostat «Automobile» portal API (`autoapi.geostat.ge`; quarterly fuel split + treemap → `market/georgia_top.json`) ([52](52-source-georgia.md)) | `Whole` — initial registrations, every vehicle category, new + imported used; quarterly | the period picker's newest quarter already in the CSV and the top file current → one request, nothing else |
 | [`fetch-germany.yml`](../../.github/workflows/fetch-germany.yml) | 06:00 UTC, 4th → 9th | KBA monthly press release (`…_merkmale.xlsx`) | `Whole` | previous month already in `data/Germany.csv` → early exit |
 | [`fetch-hong-kong.yml`](../../.github/workflows/fetch-hong-kong.yml) | 03:20 & 11:20 UTC, daily | Transport Department «Particulars of first registered vehicles» (`data.gov.hk` CKAN; one CSV per month, uploaded between the 13th and 28th of M+1) — fuel from the record, plug-ins from the model designation, cross-checked against TD table 4.1(e) ([41](41-source-hong-kong.md)) | `Whole` + `Used` + `Vans` — one set of files, every variant | newest portal month already in every CSV from TD → one JSON request, no download |
 | [`fetch-indonesia.yml`](../../.github/workflows/fetch-indonesia.yml) | 09:35 UTC, 10th → EOM | GAIKINDO wholesales PDF (ProjectSend portal, client login) | `Whole` (auto-render) + `Pickups` + `HDV` + `Buses` (fetch-only) | newest portal file title already covered → no-op before download |
@@ -175,7 +176,7 @@ Notes on the schedule shape:
   Ireland 04:00 & 13:00
   (SIMI publishes very early on the 1st), Thailand 04:40, Finland 04:40,
   Denmark 05:15, Sweden 05:50, Italy from 06:00, Netherlands 06:30, Canada
-  06:40, Luxembourg 06:45, Albania and Malaysia 07:00, Spain 07:15 (after
+  06:40, Luxembourg 06:45, Georgia 06:55 (quarterly — only the two months after each quarter, 10th → EOM; Tbilisi 10:55), Albania and Malaysia 07:00, Spain 07:15 (after
   DGT's own 06:30 UTC drop; +14:15 on the 1st–3rd), Colombia 07:30, France 07:40, Nepal 07:50; South Korea 03:35 & 09:35 (MOTIR releases
   at 11:00 KST).
 - **And from above:** Ukraine 08:40 & 20:40 (1st–15th only — ACEA's 08:40
@@ -197,8 +198,12 @@ Notes on the schedule shape:
   matching upper cut-offs) reflect the earliest plausible publication day for
   the previous month from that source. Cutting off the empty days saves a
   handful of self-throttle checks; it doesn't change correctness.
-- **Canada is the odd one out:** its cube is quarterly, so the workflow only
-  runs in March, June, September and December (days 8–20).
+- **Canada and Georgia are the quarterly ones:** Canada's cube is quarterly,
+  so its workflow only runs in March, June, September and December (days
+  8–20); Georgia's Geostat portal is quarterly too, polled in the two months
+  after each quarter (Jan/Feb, Apr/May, Jul/Aug, Oct/Nov, days 10–31).
+  `build_schedule.py` expects, in a polling month, the newest quarter that
+  ended before it (Canada: March → Q4; Georgia: July → Q2).
 - **Nepal, Hong Kong and Peru are the only unbounded daily crons**
   (`50 7 * * *`, `20 3,11 * * *`, `45 15 * * *`) — Nepali fiscal months don't
   line up with Gregorian ones, TD uploads Hong Kong's month anywhere from the
@@ -212,7 +217,7 @@ Notes on the schedule shape:
 Country coverage of automated fetchers: **see also**
 [02-components.md](02-components.md#27-fetch-actions-overview). Countries with
 a CSV but no scheduled fetcher — maintained via the legacy local R pipeline or
-public-submit PRs — are **Australia, Georgia and the UK**, plus **India** (`data/India.csv` rebuilt by `scripts/build_india.py` from hand-pulled VAHAN exports; `fetch-india.yml` is a dispatch-only probe) and **New Zealand** (fetcher
+public-submit PRs — are **Australia** (the UK since `fetch-uk.yml` and Georgia since `fetch-georgia.yml`, both 2026-10, are automated), plus **India** (`data/India.csv` rebuilt by `scripts/build_india.py` from hand-pulled VAHAN exports; `fetch-india.yml` is a dispatch-only probe) and **New Zealand** (fetcher
 present, cron disabled).
 
 ### Infrastructure actions

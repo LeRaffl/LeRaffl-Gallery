@@ -434,32 +434,10 @@ stubs:
     data_file: "data/Australia.csv"
     notes:
       - "Australia's monthly figures come from VFACTS, the industry sales report administered by the FCAI (Federal Chamber of Automotive Industries), with a longer historical series curated by Prof. Ray Willis. Entered by hand."
+      - "Not automatable from free sources (checked 2026-10-09): the FCAI's monthly media release (fcai.com.au, readable through its public WordPress API) gives the battery-electric share and growth rates in prose and only class, brand, model and state tables as images — the counts by powertrain are in the paid VFACTS report. See docs/architecture/14-data-source-gaps.md."
     caveats:
       - "VFACTS reports sales/deliveries of participating brands, not registrations."
       - "The pre-modern history is a maintainer-curated series (Prof. Ray Willis)."
-      - "Maintained by hand."
-
-  - country: Georgia
-    slug: georgia
-    method: manual
-    summary: "New-registration data for Georgia from the National Statistics Office (Geostat)."
-    source_name: "Geostat — National Statistics Office of Georgia"
-    source_url: "https://automobile.geostat.ge/en/automobiles/rating"
-    underlying: "Geostat — National Statistics Office of Georgia"
-    variants: [Whole]
-    cadence: "entered by hand; Geostat publishes quarterly, so expect a longer lag"
-    data_file: "data/Georgia.csv"
-    scope_note: "New vehicle registrations as published by Geostat, quarterly."
-    variant_notes:
-      Whole: "New vehicle registrations as published by Geostat."
-    hev_note: "Hybrids are a single combined bucket, placed in the HEV column; there is no PHEV column at all."
-    notes:
-      - "Georgia's figures come from the National Statistics Office (Geostat) and are entered by hand."
-      - "Geostat publishes quarterly, not monthly — each row carries `time_interval = quarterly`, so Georgia has far fewer points than the monthly countries and the latest period lags them."
-      - "PETROL combines Geostat's Gasoline and Gasoline-gas categories."
-    caveats:
-      - "Quarterly, not monthly — expect a longer lag and a coarser series than the European sources."
-      - "Plug-in and full hybrids are not separated; both sit in the HEV column."
       - "Maintained by hand."
 
   - country: India
