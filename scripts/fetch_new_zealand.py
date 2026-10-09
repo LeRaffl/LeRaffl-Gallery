@@ -6,7 +6,7 @@ Register (MVR) and update data/New Zealand.csv.
 Usage
 -----
     python scripts/fetch_new_zealand.py [--period YYYY-MM] [--since YYYY-MM]
-                                        [--variant Whole,Vans,Used]
+                                        [--variant Whole,Vans,HDV,Used,Legacy]
                                         [--force] [--dry-run]
                                         [--from-json PATH] [--save-json PATH]
                                         [--github-output PATH] [--summary PATH]
@@ -15,7 +15,7 @@ Usage
 * --since      Also count every month from YYYY-MM to the target. Months the
                CSV already holds are compared, never overwritten (unless
                --force); see "History" below for why old months undercount.
-* --variant    Only these variants (default: all three).
+* --variant    Only these variants (default: all five).
 * --force      Overwrite existing rows (any source) and skip the plausibility
                guard.
 * --dry-run    Query, validate and print; write nothing. Re-reading a month
@@ -42,26 +42,24 @@ e.g. ".../MVR_Mar26/FeatureServer"), so it is looked up on every run from
 the stable Hub item ITEM_ID; FALLBACK_SERVICE is only used when the Hub
 search API is down.
 
-Scope (= the legacy series, see docs/architecture/19-source-new-zealand.md)
------
-The rows before automation were compiled by Prof. Ray Willis from the
-Ministry of Transport's "light motor vehicle registrations" (MoT reads the
-same register). That series is every light vehicle registered in New Zealand
-for the first time — new AND used imports — so the fetcher counts:
+Variants (docs/architecture/19-source-new-zealand.md §2)
+--------
+Every count is a first registration in New Zealand (IMPORT_STATUS NEW or
+USED — not RE-REG, SCRATCH), dated by FIRST_NZ_REGISTRATION_YEAR / _MONTH,
+and cut by import status × NZTA vehicle class onto the EU classes:
 
-    IMPORT_STATUS in NEW, USED          (not RE-REG, SCRATCH)
-    CLASS in MA, MB, MC, NA             (passenger cars incl. off-road MC,
-                                         goods vehicles up to 3.5 t)
-    month = FIRST_NZ_REGISTRATION_YEAR / _MONTH
+    Whole   data/New Zealand.csv         NEW,  MA/MB/MC        (M1 new cars)
+    Vans    data/New Zealand_Vans.csv    NEW,  NA              (N1)
+    HDV     data/New Zealand_HDV.csv     NEW,  NB/NC           (N2/N3)
+    Used    data/New Zealand_Used.csv    USED, MA/MB/MC        (M1 used imports)
+    Legacy  data/New Zealand_Legacy.csv  NEW+USED, MA/MB/MC/NA
 
-Two EU-anchored slices of that scope are written as their own variants:
-
-    Vans   data/New Zealand_Vans.csv   IMPORT_STATUS NEW,  CLASS NA        (N1)
-    Used   data/New Zealand_Used.csv   IMPORT_STATUS USED, CLASS MA/MB/MC  (M1 used imports)
-
-With the Whole scope the register reproduces the legacy rows to about 1 % in every
-fuel column through 2026-03 (the shortfall is vehicles deregistered since,
-and owners with a confidential listing, whom NZTA leaves out).
+Legacy is the series as it was until 2026-10: compiled by Prof. Ray Willis
+from the Ministry of Transport's "light motor vehicle registrations" (new and
+used-import light vehicles; MoT reads the same register). The register
+reproduces those rows to about 1 % in every fuel column through 2026-03 (the
+shortfall is vehicles deregistered since, and owners with a confidential
+listing, whom NZTA leaves out), so Legacy keeps being written.
 
 Fuel mapping (MOTIVE_POWER -> CSV column)
 -----------------------------------------
@@ -115,9 +113,9 @@ SLUG = "new_zealand"
 SOURCE = "NZTA Motor Vehicle Register"
 VARIANT = "Whole"
 TOP_PATH = market_top.MARKET_DIR / f"{SLUG}_top.json"
-TOP_UNIT = ("one first registration in New Zealand of a light vehicle (cars and "
-            "goods vehicles up to 3.5 t), new or used import; brand and model as "
-            "entered on the Motor Vehicle Register")
+TOP_UNIT = ("one first registration of a new passenger car (classes MA/MB/MC, "
+            "EU M1) in New Zealand; brand and model as entered on the Motor "
+            "Vehicle Register")
 
 ITEM_ID = "7b4df667d5014f1a93e6050b31d18407"
 HUB_ITEM = ("https://opendata-nzta.opendata.arcgis.com/api/search/v1/"
@@ -130,15 +128,19 @@ CSV_COLUMNS = ["period", "time_interval", "variant", "source", "BEV", "PHEV",
                "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes"]
 FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
-STATUSES = ("NEW", "USED")
-CLASSES = ("MA", "MB", "MC", "NA")
-# variant -> (import statuses, vehicle classes). Whole is the legacy scope;
-# Vans and Used are EU-anchored slices of it (N1 new, M1 used imports).
+M1 = ("MA", "MB", "MC")          # passenger car, passenger van, off-road passenger
+# variant -> (import statuses, vehicle classes), anchored to the EU classes
+# like every other country (09-glossary.md). Legacy is the Ministry of
+# Transport's "light vehicles" scope the series had until 2026-10.
 VARIANTS = {
-    "Whole": (STATUSES, CLASSES),
+    "Whole": (("NEW",), M1),
     "Vans": (("NEW",), ("NA",)),
-    "Used": (("USED",), ("MA", "MB", "MC")),
+    "HDV": (("NEW",), ("NB", "NC")),
+    "Used": (("USED",), M1),
+    "Legacy": (("NEW", "USED"), M1 + ("NA",)),
 }
+STATUSES = tuple(sorted({s for sts, _ in VARIANTS.values() for s in sts}))
+CLASSES = tuple(sorted({c for _, cls in VARIANTS.values() for c in cls}))
 F_YEAR, F_MONTH = "FIRST_NZ_REGISTRATION_YEAR", "FIRST_NZ_REGISTRATION_MONTH"
 REQUIRED_FIELDS = {F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER",
                    "MAKE", "MODEL"}
@@ -251,10 +253,11 @@ def month_num(p: str) -> int:
     return int(p[:4]) * 100 + int(p[5:7])
 
 
-def scope_where(first: str, last: str) -> str:
+def scope_where(first: str, last: str, statuses=None, classes=None) -> str:
     q = lambda xs: ",".join(f"'{x}'" for x in xs)
     return (f"({F_YEAR}*100+{F_MONTH}) BETWEEN {month_num(first)} AND {month_num(last)} "
-            f"AND IMPORT_STATUS IN ({q(STATUSES)}) AND CLASS IN ({q(CLASSES)})")
+            f"AND IMPORT_STATUS IN ({q(statuses or STATUSES)}) "
+            f"AND CLASS IN ({q(classes or CLASSES)})")
 
 
 def query_register(first: str, last: str, top_from: str | None) -> dict:
@@ -267,7 +270,7 @@ def query_register(first: str, last: str, top_from: str | None) -> dict:
     models: list[dict] = []
     if top_from:
         elec = [k for k, v in MOTIVE_MAP.items() if v in ELECTRIFIED and k]
-        where = (scope_where(top_from, last) + " AND MOTIVE_POWER IN ("
+        where = (scope_where(top_from, last, *VARIANTS["Whole"]) + " AND MOTIVE_POWER IN ("
                  + ",".join(f"'{k}'" for k in elec) + ")")
         models = grouped(query_url, where, [F_YEAR, F_MONTH, "MOTIVE_POWER", "MAKE", "MODEL"])
         # month totals for the shares — the fuel query covers only first..last
@@ -298,14 +301,14 @@ def column_of(label) -> str | None:
 
 
 def variants_of(a: dict) -> list[str]:
-    """The variants a grouped row belongs to (Whole and at most one slice)."""
+    """The variants a grouped row belongs to (Legacy and at most one EU-class variant)."""
     st, cl = a.get("IMPORT_STATUS") or "", a.get("CLASS") or ""
     return [v for v, (sts, cls) in VARIANTS.items() if st in sts and cl in cls]
 
 
 def count_months(fuel_rows: list[dict]) -> tuple[dict, dict, dict]:
     """({variant: {period: {column: n, TOTAL}}}, {period: {unknown label: n}},
-    {period: {status: n}}) — unknown labels and statuses are for Whole."""
+    {period: {status: n}}) — unknown labels and statuses over every row in scope."""
     counts: dict[str, dict[str, dict[str, int]]] = {v: {} for v in VARIANTS}
     unknown: dict[str, dict[str, int]] = {}
     status: dict[str, dict[str, int]] = {}
@@ -545,7 +548,8 @@ def main(argv: list[str] | None = None) -> int:
     warnings: list[str] = []
     for p in sorted(unknown, key=month_num):
         if month_num(first) <= month_num(p) <= month_num(target):
-            w = check_unknown(p, unknown, counts_all["Whole"].get(p, {}).get("TOTAL", 0))
+            w = check_unknown(p, unknown, sum(counts_all[v].get(p, {}).get("TOTAL", 0)
+                                                for v in ("Legacy", "HDV")))
             if w:
                 warnings.append(w)
     st = status.get(target, {})

@@ -1,11 +1,13 @@
 name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 
-# Counts New Zealand's first registrations of light vehicles from the NZTA
-# Waka Kotahi Motor Vehicle Register (open data, CC BY 4.0) and upserts
-#   data/New Zealand.csv       Whole = new + used-import light vehicles
-#                              (classes MA/MB/MC/NA — the legacy scope)
-#   data/New Zealand_Vans.csv  Vans  = new goods vehicles up to 3.5 t (NA, N1)
-#   data/New Zealand_Used.csv  Used  = used-import passenger vehicles (MA/MB/MC)
+# Counts New Zealand's first registrations from the NZTA Waka Kotahi Motor
+# Vehicle Register (open data, CC BY 4.0) and upserts, by class x import status
+#   data/New Zealand.csv         Whole  = new passenger cars (MA/MB/MC, M1)
+#   data/New Zealand_Vans.csv    Vans   = new goods vehicles up to 3.5 t (NA, N1)
+#   data/New Zealand_HDV.csv     HDV    = new goods vehicles over 3.5 t (NB/NC)
+#   data/New Zealand_Used.csv    Used   = used-import passenger vehicles (MA/MB/MC)
+#   data/New Zealand_Legacy.csv  Legacy = new + used light vehicles (MA/MB/MC/NA),
+#                                the series as the gallery showed it until 2026-10
 #   market/new_zealand_top.json  brands and models per electrified class (Whole)
 #
 # The register is an ArcGIS feature service; the fetcher sends grouped count
@@ -13,7 +15,7 @@ name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 # changes when NZTA republishes, so it is resolved from the Hub item on every
 # run. NZTA reloads the register once a month, "accurate up to the end of the
 # previous month" (September 2026 was loaded on 6 October, 03:46 UTC).
-# Polled at 04:55 and 18:55 UTC on the 3rd-20th; once the month is in the CSV
+# Polled at 04:55 and 18:55 UTC on the 3rd-20th; once the month is in every CSV
 # and the top file is current, a run exits without any HTTP request. Before
 # the register covers the month a run is a no-op; from the 20th on that
 # fails the run (refresh late, or the item moved).
@@ -29,7 +31,7 @@ on:
   workflow_dispatch:
     inputs:
       variant:
-        description: 'Comma-separated subset of Whole,Vans,Used (default: all)'
+        description: 'Comma-separated subset of Whole,Vans,HDV,Used,Legacy (default: all)'
         required: false
         default: ''
       period:
