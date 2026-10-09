@@ -1,0 +1,33 @@
+name: probe-tmp (temporary, removed before PR)
+on:
+  push:
+    branches: [claude/elegant-faraday-7tksy4]
+    paths: [scripts/probe_tmp.py, .github/workflows/probe-tmp.yml, probe_seeds.txt]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            probe_seeds.txt
+          sparse-checkout-cone-mode: false
+      - name: Probe
+        run: |
+          if [ -f probe_seeds.txt ]; then
+            PROBE_SEEDS="$(cat probe_seeds.txt)"
+            export PROBE_SEEDS
+          fi
+          python3 scripts/probe_tmp.py
+      - name: Commit probe output
+        run: |
+          git config user.name "probe-bot"
+          git config user.email "probe-bot@users.noreply.github.com"
+          git add --sparse -f probe_out
+          git commit -m "chore: probe output (temporary)" || exit 0
+          git pull --rebase
+          git push
