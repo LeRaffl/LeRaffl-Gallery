@@ -29,11 +29,11 @@ variants:
 variant_notes:
   Whole: New passenger cars incl. taxis (SEAA's "PC and taxi cars", EU M1) — the scope of ACEA's Greek figure.
 hev_split: true
-hev_note: HEV, PETROL and DIESEL are derived from the press release's fuel shares (one decimal) applied to the cars that are not plug-ins, so each is within about 0.05 % of the month's total of the true count. SEAA's HEV share includes mild hybrids. BEV, PHEV and TOTAL are exact counts.
+hev_note: HEV, PETROL and DIESEL are derived from the press release's fuel shares (one decimal) applied to the cars that are not plug-ins — not counted; against ACEA's counted figures (2022-01..2026-08, its two wrong months left out) a derived column is off by about 5 cars in a typical month, by at most 15 in 9 months out of 10 (0.15 % of the month) and by at most 50 (0.4 %). SEAA's HEV share includes mild hybrids. BEV, PHEV and TOTAL are exact counts.
 backfill: SEAA from 2022-01 (the first full month with exact BEV/PHEV counts); ACEA before that (quarterly figures spread over the quarter's months, as before). The old all-ACEA series is kept as data/Greece_legacy.csv.
 scope_note: New passenger cars and taxis registered in Greece (SEAA's PC + taxi tables). Used imports are not counted — ELSTAT publishes them without a fuel split.
 caveats:
-- HEV, PETROL, DIESEL and OTHERS are derived from one-decimal fuel shares, not counted. OTHERS is LPG + CNG (and whatever the shares leave out).
+- HEV, PETROL, DIESEL and OTHERS are derived from one-decimal fuel shares, not counted — against ACEA's counted figures (2022-01..2026-08, its two wrong months left out) a derived column is off by about 5 cars in a typical month, by at most 15 in 9 months out of 10 (0.15 % of the month) and by at most 50 (0.4 %). OTHERS is LPG + CNG (and whatever the shares leave out). BEV, PHEV and TOTAL, and so the BEV share, are exact.
 - 'A month the press release has announced but whose statistics files are not out yet is written provisionally from the press release (BEV, PHEV and TOTAL only) and marked "provisional" in its notes; the run that finds the statistics files replaces it.'
 - Two ACEA months were wrong and are corrected by SEAA — 2022-12 (ACEA 8,001 cars, SEAA 6,486) and 2023-07 (ACEA 8,342, SEAA 12,380). SEAA's own year-to-date columns confirm its figures.
 - Vans, HDV and Buses still come from ACEA's quarterly commercial-vehicle report — SEAA publishes them without a fuel split.
@@ -66,6 +66,7 @@ processing:
     ask: Do the press release's shares add up (within 1.5 points of the non-plug-in share)?
     branches:
     - when: "yes"
+      note: derived, not counted — against ACEA's counts typically ±5 cars per column, at most ±15 in 9 of 10 months, at most ±50
       then:
         ask: Fuel in the press release?
         branches:
@@ -176,9 +177,11 @@ CNG) as shares with one decimal, e.g. 2026-08: petrol 18.8, diesel 1.3, HEV 59.8
 3. TOTAL − BEV − PHEV is split in those shares; OTHERS takes LPG, CNG and the
    remainder. Largest-remainder rounding keeps the row summing to TOTAL.
 
-With one decimal, each derived column is within about ±0.05 % of TOTAL of the true
-count (±10 cars in the biggest month). LPG is not given its own column: ACEA writes
-OTHERS for a month before SEAA has it, and an LPG column would sit at 0.0 in those rows.
+With one decimal the rounding alone would be within ±0.05 % of TOTAL per column; in
+practice the press release's shares and the final statistics differ slightly too. Against
+ACEA's counted figures (2022-01..2026-08 without its two wrong months) a derived column is
+off by a median of 3–5 cars, by at most 8–13 in 9 months out of 10 (≤ 0.13 % of the month)
+and by at most 50 (HEV 2024-07, 0.4 %).
 
 ## 4. Check against ACEA
 

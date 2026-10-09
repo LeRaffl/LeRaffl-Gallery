@@ -38,9 +38,11 @@ Month → row
                          TOTAL; OTHERS = LPG + CNG + whatever the shares
                          leave out                                     derived
 
-The shares carry one decimal, so a derived column is within about
-±0.05 % × TOTAL (≤ ±10 cars in the biggest month) of the true count — the
-row's `notes` says so. BEV, PHEV and TOTAL are never derived. A month whose
+The shares carry one decimal and are the press release's, not the final
+statistics', so a derived column is not a count: against ACEA's counted
+figures it is off by about 5 cars in a typical month, by at most 15 in 9
+months out of 10 and by at most 50 (0.4 % of the month) — the row's `notes`
+says it is derived. BEV, PHEV and TOTAL are never derived. A month whose
 press release is missing or whose shares do not add up gets BEV/PHEV/TOTAL
 only, the other columns empty (no split ≠ zero, invariant 4).
 
