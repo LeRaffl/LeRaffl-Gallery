@@ -325,7 +325,7 @@ failure modes; this table is the surface map.
 | Malaysia | `storage.data.gov.my/transportation/cars_<YYYY>.parquet` | Parquet download | none |
 | Nepal | `customs.gov.np` — homepage nav → FY category → content page → monthly `.xlsx` | Three-hop page scrape + XLSX | none |
 | Netherlands | `duurzamemobiliteit.databank.nl/viewer` + `/viewer/api/workspace/<ws>/presentationfromurl` (POST) + `…/presentation/<id>` | Swing viewer SPA API flow **via relay** (GET + POST) | relay token (portal blocks GHA and Cloudflare egress) |
-| New Zealand | `transport.govt.nz/…/inner`; `catalogue.data.govt.nz` CKAN | JSON/AJAX | none — **both behind Imperva since 2026-06; the fetcher is disabled** |
+| New Zealand | NZTA Motor Vehicle Register — ArcGIS feature service (`services.arcgis.com/…/FeatureServer/0/query`, `outStatistics`), URL resolved from the Hub item `7b4df667…` | JSON | none (CC BY 4.0); the former `transport.govt.nz` endpoints are behind Imperva since 2026-06 |
 | Poland | `pzpm.org.pl/en/Electromobility/eRegistrations` → monthly XLSX | Page scrape + XLSX | none |
 | Portugal | `motordata.pt/autoinforma/chartdata_novo.php`, `…/charts1t.php` | Form POST | none |
 | Singapore | `lta.gov.sg/…/statistics/pdf/M03-Car_Regn_by_make.pdf` | PDF (stable URL) | none |

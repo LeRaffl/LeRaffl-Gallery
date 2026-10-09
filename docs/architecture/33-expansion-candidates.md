@@ -317,6 +317,25 @@ significant EV importer is outside it**).
 > Still by hand: Australia (VFACTS, FCAI's paid report) and Georgia
 > (Geostat, quarterly), plus India's semi-automated VAHAN import.
 
+## Automated, not new — 🇳🇿 New Zealand (2026-10)
+
+> **Status: AUTOMATED (2026-10-09).** Not a new country: New Zealand had
+> been on the gallery since the start, but its fetcher (transport.govt.nz)
+> was switched off in 2026-06 when both endpoints went behind Imperva, and
+> months were entered by hand. NZTA publishes the Motor Vehicle Register
+> itself as open data (an ArcGIS feature service, CC BY 4.0, reloaded
+> monthly), reachable from runners; `scripts/fetch_new_zealand.py` asks it
+> for grouped counts. With the legacy scope — new **and used-import** light
+> vehicles, which the old doc had wrongly called "new" — it reproduces the
+> Ray Willis rows to about 1 % in every column through 2026-03; the six
+> hand-entered months 2026-04..09 ran 5–15 % high in petrol and diesel only
+> and were rewritten. Also writes `market/new_zealand_top.json`. See
+> [19-source-new-zealand.md](19-source-new-zealand.md).
+> Rejected on the way (same session): Australia (FCAI's VFACTS is paid; the
+> parallel session checked it), India (VAHAN still blocks foreign
+> connections, see above), South Africa (quarterly, all-vehicle NEV table).
+> Still by hand: Australia, Georgia (another session is on it), India.
+
 ## Investigated 2026-10 — the rest of the large-market list
 
 The Taiwan session (2026-10-04) re-checked the remaining larger markets
