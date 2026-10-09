@@ -78,11 +78,13 @@ The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
     Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, Greece,
-    Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia
+    Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway
+    Luxembourg, Norway, Poland, Lithuania. A row a national fetcher marks as
+    provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
+    "Regitra (provisional)") counts as replaceable too.
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -139,11 +141,19 @@ import requests
 
 ALWAYS_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
+    "Greece", "Hungary", "Iceland", "Latvia",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
     "Luxembourg", "Norway",
+    # Lithuania is Regitra-primary (scripts/fetch_lithuania.py: the register's
+    # own monthly fuel table, plus Used). Regitra's table has one hybrid
+    # number, so ACEA's counted PHEV/HEV split is what fetch_lithuania.py
+    # splits it with: ACEA may fill a missing month and replace a
+    # "Regitra (provisional)" row (see PROVISIONAL_NATIONAL_SOURCES), and the
+    # next Regitra run takes the split from that row. It never overwrites a
+    # final Regitra row. See docs/architecture/55-source-lithuania.md.
+    "Lithuania",
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month
@@ -314,6 +324,12 @@ def write_csv(path: Path, fields: list[str], rows: list[dict],
         writer.writeheader()
         for r in ordered:
             writer.writerow({k: r.get(k, "") for k in fields})
+
+
+# Source strings a national fetcher writes for a month it could only partly
+# measure and wants ACEA to fill in: fetch_acea treats such a row like an
+# ACEA row (replaceable), and the national fetcher upgrades it afterwards.
+PROVISIONAL_NATIONAL_SOURCES = {"Regitra (provisional)"}
 
 
 def is_acea_source(src: str | None) -> bool:
@@ -687,10 +703,12 @@ def should_write(country: str, row_kind: str, existing_row: dict | None) -> bool
     """
     if row_kind == "current" and country in ALWAYS_COUNTRIES:
         return True  # always-list current month: unconditional overwrite
-    # Every other case: write iff no row exists OR existing source == "ACEA".
+    # Every other case: write iff no row exists OR existing source == "ACEA"
+    # (or a national fetcher's provisional row, see PROVISIONAL_NATIONAL_SOURCES).
     if existing_row is None:
         return True
-    return is_acea_source(existing_row.get("source"))
+    src = existing_row.get("source")
+    return is_acea_source(src) or (src or "").strip() in PROVISIONAL_NATIONAL_SOURCES
 
 
 def row_equals(existing: dict | None, new: dict, fields: list[str]) -> bool:
