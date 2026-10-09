@@ -2,135 +2,259 @@
  "country": "Austria",
  "variant": "Whole",
  "source": "Statistik Austria",
- "as_of": "2026-08",
+ "as_of": "2026-09",
  "window": {
   "from": "2026-01",
-  "to": "2026-08",
-  "months": 8
+  "to": "2026-09",
+  "months": 9
  },
- "total_registrations": 212140,
+ "total_registrations": 241108,
  "unit": "registrations (Statistik Austria top-10 BEV makes and types; the rest is counted, not ranked)",
  "classes": {
   "BEV": {
-   "units": 53449,
-   "share_of_market": 0.25195,
+   "units": 63172,
+   "share_of_market": 0.26201,
    "brands": [
     {
      "brand": "BMW",
-     "units": 5728,
-     "share_of_class": 0.1072
+     "units": 6383,
+     "share_of_class": 0.101
     },
     {
      "brand": "SKODA",
-     "units": 5312,
-     "share_of_class": 0.0994
-    },
-    {
-     "brand": "BYD",
-     "units": 5095,
-     "share_of_class": 0.0953
-    },
-    {
-     "brand": "VW",
-     "units": 4495,
-     "share_of_class": 0.0841
+     "units": 6210,
+     "share_of_class": 0.0983
     },
     {
      "brand": "TESLA",
-     "units": 4387,
+     "units": 5947,
+     "share_of_class": 0.0941
+    },
+    {
+     "brand": "BYD",
+     "units": 5762,
+     "share_of_class": 0.0912
+    },
+    {
+     "brand": "VW",
+     "units": 5184,
      "share_of_class": 0.0821
     },
     {
      "brand": "KIA",
-     "units": 2677,
-     "share_of_class": 0.0501
+     "units": 3089,
+     "share_of_class": 0.0489
     },
     {
      "brand": "MERCEDES",
-     "units": 2493,
-     "share_of_class": 0.0466
+     "units": 2953,
+     "share_of_class": 0.0467
     },
     {
      "brand": "CUPRA",
-     "units": 2484,
-     "share_of_class": 0.0465
+     "units": 2888,
+     "share_of_class": 0.0457
     },
     {
      "brand": "AUDI",
-     "units": 2430,
-     "share_of_class": 0.0455
+     "units": 2699,
+     "share_of_class": 0.0427
     },
     {
      "brand": "FORD",
-     "units": 2060,
-     "share_of_class": 0.0385
+     "units": 2303,
+     "share_of_class": 0.0365
     }
    ],
    "models": [
     {
      "brand": "TESLA",
      "model": "MODEL Y",
-     "units": 3163,
-     "share_of_class": 0.0592
+     "units": 4109,
+     "share_of_class": 0.065
     },
     {
      "brand": "SKODA",
      "model": "ENYAQ",
-     "units": 2748,
-     "share_of_class": 0.0514
+     "units": 3151,
+     "share_of_class": 0.0499
     },
     {
      "brand": "SKODA",
      "model": "ELROQ",
-     "units": 2564,
-     "share_of_class": 0.048
+     "units": 2893,
+     "share_of_class": 0.0458
     },
     {
      "brand": "BMW",
      "model": "X3",
-     "units": 1863,
-     "share_of_class": 0.0349
-    },
-    {
-     "brand": "BMW",
-     "model": "X1",
-     "units": 1730,
-     "share_of_class": 0.0324
+     "units": 2155,
+     "share_of_class": 0.0341
     },
     {
      "brand": "BYD",
      "model": "ATTO",
-     "units": 1650,
-     "share_of_class": 0.0309
+     "units": 1968,
+     "share_of_class": 0.0312
+    },
+    {
+     "brand": "BMW",
+     "model": "X1",
+     "units": 1911,
+     "share_of_class": 0.0303
     },
     {
      "brand": "BYD",
      "model": "SEALION",
-     "units": 1631,
-     "share_of_class": 0.0305
+     "units": 1806,
+     "share_of_class": 0.0286
+    },
+    {
+     "brand": "TESLA",
+     "model": "MODEL 3",
+     "units": 1788,
+     "share_of_class": 0.0283
     },
     {
      "brand": "VW",
      "model": "ID.7",
-     "units": 1501,
-     "share_of_class": 0.0281
-    },
-    {
-     "brand": "VW",
-     "model": "ID.3",
-     "units": 1466,
-     "share_of_class": 0.0274
+     "units": 1689,
+     "share_of_class": 0.0267
     },
     {
      "brand": "CUPRA",
      "model": "BORN",
-     "units": 1417,
-     "share_of_class": 0.0265
+     "units": 1642,
+     "share_of_class": 0.026
     }
    ]
   }
  },
  "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 28968,
+   "classes": {
+    "BEV": {
+     "units": 9723,
+     "share_of_market": 0.33565,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 1560,
+       "share_of_class": 0.1604
+      },
+      {
+       "brand": "SKODA",
+       "units": 898,
+       "share_of_class": 0.0924
+      },
+      {
+       "brand": "VW",
+       "units": 689,
+       "share_of_class": 0.0709
+      },
+      {
+       "brand": "BYD",
+       "units": 667,
+       "share_of_class": 0.0686
+      },
+      {
+       "brand": "BMW",
+       "units": 655,
+       "share_of_class": 0.0674
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 645,
+       "share_of_class": 0.0663
+      },
+      {
+       "brand": "MERCEDES",
+       "units": 460,
+       "share_of_class": 0.0473
+      },
+      {
+       "brand": "KIA",
+       "units": 412,
+       "share_of_class": 0.0424
+      },
+      {
+       "brand": "CUPRA",
+       "units": 404,
+       "share_of_class": 0.0416
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 381,
+       "share_of_class": 0.0392
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 946,
+       "share_of_class": 0.0973
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 614,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "SKODA",
+       "model": "ENYAQ",
+       "units": 403,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "SKODA",
+       "model": "ELROQ",
+       "units": 329,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO",
+       "units": 318,
+       "share_of_class": 0.0327
+      },
+      {
+       "brand": "BMW",
+       "model": "X3",
+       "units": 292,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "VW",
+       "model": "POLO / ID.POLO",
+       "units": 237,
+       "share_of_class": 0.0244
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "INSTER",
+       "units": 231,
+       "share_of_class": 0.0238
+      },
+      {
+       "brand": "CUPRA",
+       "model": "BORN",
+       "units": 225,
+       "share_of_class": 0.0231
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "IONIQ 5",
+       "units": 197,
+       "share_of_class": 0.0203
+      }
+     ]
+    }
+   }
+  },
   {
    "period": "2026-08",
    "total_registrations": 21788,
