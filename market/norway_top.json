@@ -1,0 +1,289 @@
+{
+ "country": "Norway",
+ "variant": "Whole",
+ "source": "OFV",
+ "as_of": "2026-09",
+ "window": {
+  "from": "2026-09",
+  "to": "2026-09",
+  "months": 1
+ },
+ "total_registrations": 18733,
+ "unit": "new passenger cars by brand as OFV publishes them — every powertrain (OFV's brand table has no fuel split; Norway's market is ~98 % battery-electric); brands and models are OFV's monthly top 30, the rest of the market is unranked",
+ "classes": {
+  "ALL": {
+   "units": 18733,
+   "share_of_market": 1.0,
+   "brands": [
+    {
+     "brand": "TESLA",
+     "units": 4935,
+     "share_of_class": 0.2634
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 1333,
+     "share_of_class": 0.0712
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 1182,
+     "share_of_class": 0.0631
+    },
+    {
+     "brand": "VOLVO",
+     "units": 1088,
+     "share_of_class": 0.0581
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 886,
+     "share_of_class": 0.0473
+    },
+    {
+     "brand": "BMW",
+     "units": 856,
+     "share_of_class": 0.0457
+    },
+    {
+     "brand": "KIA",
+     "units": 770,
+     "share_of_class": 0.0411
+    },
+    {
+     "brand": "BYD",
+     "units": 758,
+     "share_of_class": 0.0405
+    },
+    {
+     "brand": "SKODA",
+     "units": 681,
+     "share_of_class": 0.0364
+    },
+    {
+     "brand": "XPENG",
+     "units": 564,
+     "share_of_class": 0.0301
+    }
+   ],
+   "models": [
+    {
+     "brand": "TESLA",
+     "model": "MODEL Y",
+     "units": 4810,
+     "share_of_class": 0.2568
+    },
+    {
+     "brand": "VOLVO",
+     "model": "EX30",
+     "units": 576,
+     "share_of_class": 0.0307
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "GLC",
+     "units": 568,
+     "share_of_class": 0.0303
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "BZ4X",
+     "units": 567,
+     "share_of_class": 0.0303
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "ID.4",
+     "units": 516,
+     "share_of_class": 0.0275
+    },
+    {
+     "brand": "BYD",
+     "model": "EVO 4X4",
+     "units": 405,
+     "share_of_class": 0.0216
+    },
+    {
+     "brand": "AUDI",
+     "model": "Q4 E-TRON",
+     "units": 378,
+     "share_of_class": 0.0202
+    },
+    {
+     "brand": "BMW",
+     "model": "IX3",
+     "units": 352,
+     "share_of_class": 0.0188
+    },
+    {
+     "brand": "KIA",
+     "model": "EV5",
+     "units": 350,
+     "share_of_class": 0.0187
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "URBAN CRUISER",
+     "units": 334,
+     "share_of_class": 0.0178
+    },
+    {
+     "brand": "FORD",
+     "model": "EXPLORER EV",
+     "units": 332,
+     "share_of_class": 0.0177
+    },
+    {
+     "brand": "SKODA",
+     "model": "ELROQ",
+     "units": 329,
+     "share_of_class": 0.0176
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "C-HR+",
+     "units": 329,
+     "share_of_class": 0.0176
+    },
+    {
+     "brand": "VOLVO",
+     "model": "EX40",
+     "units": 329,
+     "share_of_class": 0.0176
+    },
+    {
+     "brand": "BYD",
+     "model": "SEALION 7",
+     "units": 304,
+     "share_of_class": 0.0162
+    }
+   ]
+  }
+ },
+ "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 18733,
+   "classes": {
+    "ALL": {
+     "units": 18733,
+     "share_of_market": 1.0,
+     "brands": [
+      {
+       "brand": "TESLA",
+       "units": 4935,
+       "share_of_class": 0.2634
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1333,
+       "share_of_class": 0.0712
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 1182,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "VOLVO",
+       "units": 1088,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 886,
+       "share_of_class": 0.0473
+      },
+      {
+       "brand": "BMW",
+       "units": 856,
+       "share_of_class": 0.0457
+      },
+      {
+       "brand": "KIA",
+       "units": 770,
+       "share_of_class": 0.0411
+      },
+      {
+       "brand": "BYD",
+       "units": 758,
+       "share_of_class": 0.0405
+      },
+      {
+       "brand": "SKODA",
+       "units": 681,
+       "share_of_class": 0.0364
+      },
+      {
+       "brand": "XPENG",
+       "units": 564,
+       "share_of_class": 0.0301
+      }
+     ],
+     "models": [
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 4810,
+       "share_of_class": 0.2568
+      },
+      {
+       "brand": "VOLVO",
+       "model": "EX30",
+       "units": 576,
+       "share_of_class": 0.0307
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "GLC",
+       "units": 568,
+       "share_of_class": 0.0303
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "BZ4X",
+       "units": 567,
+       "share_of_class": 0.0303
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "ID.4",
+       "units": 516,
+       "share_of_class": 0.0275
+      },
+      {
+       "brand": "BYD",
+       "model": "EVO 4X4",
+       "units": 405,
+       "share_of_class": 0.0216
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q4 E-TRON",
+       "units": 378,
+       "share_of_class": 0.0202
+      },
+      {
+       "brand": "BMW",
+       "model": "IX3",
+       "units": 352,
+       "share_of_class": 0.0188
+      },
+      {
+       "brand": "KIA",
+       "model": "EV5",
+       "units": 350,
+       "share_of_class": 0.0187
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "URBAN CRUISER",
+       "units": 334,
+       "share_of_class": 0.0178
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
