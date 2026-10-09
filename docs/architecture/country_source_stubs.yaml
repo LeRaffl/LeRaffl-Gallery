@@ -101,21 +101,9 @@ stubs:
   # (scripts/fetch_france.py). Kept out of this stub registry so the doc is the
   # single source of truth for the page (the Spain precedent).
 
-  - country: Greece
-    slug: greece
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for Greece, via ACEA's monthly figures."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "National registrations, aggregated by ACEA"
-    variants: [Whole]
-    variant_notes:
-      Whole: "New passenger-car registrations as reported by ACEA."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Greece.csv"
+  # Greece: migrated off the ACEA stub to SEAA (the importers' association,
+  # ACEA's own source for Greece) — driven by the front-matter in
+  # docs/architecture/52-source-greece.md (scripts/fetch_greece.py).
 
   - country: Hungary
     slug: hungary

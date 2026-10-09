@@ -1,0 +1,272 @@
+---
+country: Greece
+slug: greece
+method: pdf
+summary: New passenger-car registrations for Greece from SEAA, the importers' association
+  that processes ELSTAT's registration data every month and is the source of ACEA's Greek
+  figure. Exact BEV, PHEV and total counts from SEAA's statistics files; the hybrid,
+  petrol and diesel split is derived from the fuel shares in SEAA's press release.
+source_name: SEAA — monthly passenger-car registration statistics (seaa.gr)
+source_url: https://seaa.gr/registrations/
+source_links:
+- label: SEAA — registration statistics
+  url: https://seaa.gr/registrations/
+  note: per month <Y>-<M>-BEV.pdf and <Y>-<M>-PHEV.pdf (battery-electric and plug-in hybrid cars by segment, brand and model; one combined electric.pdf until 2023)
+- label: SEAA — passenger-car comparisons
+  url: https://seaa.gr/passenger-car-registrations-comparisons/
+  note: per month <Y>-<M>-comp.xlsx, passenger cars by brand against the year before — the month's exact total
+- label: SEAA — press releases
+  url: https://seaa.gr/seaa-press-releases/
+  note: the month's fuel split as shares with one decimal; since 2025-11 also preliminary BEV / PHEV / total counts
+- label: ACEA — monthly new-car registrations
+  url: https://www.acea.auto/
+  note: relays SEAA's figures; fills a Greek month only until SEAA has published it
+underlying: ELSTAT (Hellenic Statistical Authority) registration records of new vehicles, processed and published by SEAA (Σύνδεσμος Εισαγωγέων Αντιπροσώπων Αυτοκινήτων)
+auth: none
+cadence: twice daily from the 8th to the end of the month — the press release comes out around the 10th–24th, the statistics files around the 15th–21st
+variants:
+- Whole
+variant_notes:
+  Whole: New passenger cars incl. taxis (SEAA's "PC and taxi cars", EU M1) — the scope of ACEA's Greek figure.
+hev_split: true
+hev_note: HEV, PETROL and DIESEL are derived from the press release's fuel shares (one decimal) applied to the cars that are not plug-ins, so each is within about 0.05 % of the month's total of the true count. SEAA's HEV share includes mild hybrids. BEV, PHEV and TOTAL are exact counts.
+backfill: SEAA from 2022-01 (the first full month with exact BEV/PHEV counts); ACEA before that (quarterly figures spread over the quarter's months, as before). The old all-ACEA series is kept as data/Greece_legacy.csv.
+scope_note: New passenger cars and taxis registered in Greece (SEAA's PC + taxi tables). Used imports are not counted — ELSTAT publishes them without a fuel split.
+caveats:
+- HEV, PETROL, DIESEL and OTHERS are derived from one-decimal fuel shares, not counted. OTHERS is LPG + CNG (and whatever the shares leave out).
+- 'A month the press release has announced but whose statistics files are not out yet is written provisionally from the press release (BEV, PHEV and TOTAL only) and marked "provisional" in its notes; the run that finds the statistics files replaces it.'
+- Two ACEA months were wrong and are corrected by SEAA — 2022-12 (ACEA 8,001 cars, SEAA 6,486) and 2023-07 (ACEA 8,342, SEAA 12,380). SEAA's own year-to-date columns confirm its figures.
+- Vans, HDV and Buses still come from ACEA's quarterly commercial-vehicle report — SEAA publishes them without a fuel split.
+processing:
+- title: Find the files
+  text:
+  - SEAA posts every file to its WordPress site. The fetcher lists the uploads through the site's media API and recognises each file by its name — <Y>-<M>-comp.xlsx, <Y>-<M>-BEV.pdf, <Y>-<M>-PHEV.pdf, <Y>-<M>-electric.pdf, and the press release, whose name carries the month in Greek. When a file was re-uploaded, the newest copy wins.
+- title: Exact counts
+  text:
+  - TOTAL is the TOTAL row of the comparison workbook. BEV and PHEV are the summary lines of the BEV and PHEV files (until 2023 one electric file with both). Each file's printed month must be the month its name claims.
+  decision:
+    ask: Statistics files for the month out?
+    branches:
+    - when: comp.xlsx and BEV.pdf + PHEV.pdf
+      then: TOTAL, BEV, PHEV exact
+    - when: comp.xlsx and electric.pdf (2021-12..2023-12)
+      then: TOTAL, BEV, PHEV exact
+    - when: not yet
+      then:
+        ask: Press release with preliminary counts (since 2025-11)?
+        branches:
+        - when: "yes"
+          then: provisional row — replaced when the statistics files appear
+        - when: "no"
+          then: month not written — ACEA may fill it meanwhile
+- title: Fuel split
+  text:
+  - The press release gives the month's market by fuel as shares with one decimal. The cars that are not plug-ins (TOTAL − BEV − PHEV) are split across hybrid, petrol, diesel and the rest in those shares, rounded so the row adds up to TOTAL.
+  decision:
+    ask: Do the press release's shares add up (within 1.5 points of the non-plug-in share)?
+    branches:
+    - when: "yes"
+      then:
+        ask: Fuel in the press release?
+        branches:
+        - when: HEV (full and mild hybrids)
+          then: HEV
+        - when: petrol
+          then: PETROL
+        - when: diesel
+          then: DIESEL
+        - when: LPG, CNG, rest
+          then: OTHERS
+        - when: BEV, PHEV
+          then: not used — counted exactly instead
+    - when: no, or no press release
+      then: BEV, PHEV, TOTAL only — the other columns stay empty
+- title: Cross-checks
+  text:
+  - The press release's preliminary counts and its BEV share must agree with the statistics files within 3 %, or the run stops. A month far below the usual volume is not written. The model lines of each BEV/PHEV file are summed and compared with the file's own total; only months where they agree feed the brand and model lists.
+market_breakdown: market/greece_top.json
+market_designation_note: the brand is SEAA's make, the model SEAA's "Range" (the model family — MODEL Y, ATTO 2, PROACE CITY), as printed in the BEV and PHEV files.
+market_powertrain_note: BEV and PHEV exactly as in the CSV (SEAA's BEV and PHEV files). Hybrids are not ranked — SEAA publishes them only as a share.
+fetcher: scripts/fetch_greece.py
+workflow: .github/workflows/fetch-greece.yml
+fragility_doc: docs/architecture/52-source-greece.md
+data_file: data/Greece.csv
+---
+
+# 52 · Source: Greece (SEAA registration statistics)
+
+**Status: LIVE since 2026-10.** Fetcher `scripts/fetch_greece.py` (+ tests
+`scripts/test_fetch_greece.py`, fixtures `scripts/fixtures/greece/`), workflow
+`.github/workflows/fetch-greece.yml`. Writes `data/Greece.csv` (Whole) from 2022-01;
+ACEA (`fetch_acea.py`, conditional list) only fills a month SEAA has not published yet.
+
+## TL;DR
+
+```
+Source:    seaa.gr — files found through the WordPress media API
+           https://seaa.gr/wp-json/wp/v2/media?per_page=100&page=N
+           (newest uploads first; ~20 pages, the page past the end is HTTP 400)
+Auth:      None.
+Files:     <Y>-<M>-comp.xlsx       TOTAL                        since 2020-07
+           <Y>-<M>-BEV.pdf/-PHEV.pdf  BEV, PHEV (+ brand/model) since 2024-01
+           <Y>-<M>-electric.pdf    both in one             2021-12..2023-12
+           Δελτίο-τύπου-ΣΕΑΑ-για-τις-ταξινομήσεις-<μήνα>-<Y>.pdf
+                                   fuel shares (1 decimal); since 2025-11 also
+                                   preliminary BEV/PHEV/TOTAL counts
+Timing:    press release ~10th–24th, statistics files ~15th–21st of the next
+           month (July 2026's statistics only on 21 Sept). ACEA: ~20th–25th.
+Whole:     TOTAL/BEV/PHEV exact; HEV/PETROL/DIESEL/OTHERS derived from shares.
+Check:     2022-01..2026-08 vs ACEA: TOTAL/BEV/PHEV identical in 50 of 56
+           months; two of the rest are ACEA errors (§4).
+Run:       seconds (a few HTTP requests; files are ~100–400 KB).
+```
+
+## 1. Why this source
+
+Before 2026-10 every Greek series came from ACEA: `Whole` from the monthly car press
+release (an "always" country in `fetch_acea.py`), `Vans`/`HDV`/`Buses` from the quarterly
+commercial-vehicle release. ACEA's Greek figure is SEAA's, and SEAA's is ELSTAT's
+registration data, processed every month.
+
+SEAA publishes the same month earlier than ACEA, free and without a login, with exact
+BEV and PHEV counts, the brand and model of every plug-in, and its own year-to-date
+columns — which exposed two months where ACEA's figure (and so our CSV) was wrong
+(§4).
+
+What SEAA does **not** publish is a counted hybrid/petrol/diesel split: the press release
+gives the fuel mix only as shares with one decimal. So those four columns are derived
+(§3) and the row's `notes` say so.
+
+ELSTAT itself (statistics.gr, the monthly "Motor vehicle registrations" release) has
+passenger cars new vs used but **no fuel split**, and neither does SEAA's van, truck or
+bus data. That is why Vans, HDV and Buses stay on ACEA's commercial-vehicle report
+(`docs/architecture/38-source-acea-cv.md`), and why there is no `Used` variant.
+
+## 2. File → CSV row
+
+| Column | From | How |
+|---|---|---|
+| `TOTAL` | `<Y>-<M>-comp.xlsx` | the TOTAL row, the month's column (the header row whose column B reads "Brand"); exact |
+| `BEV` | `<Y>-<M>-BEV.pdf` (`electric.pdf` before 2024) | the file's summary line, month column; exact |
+| `PHEV` | `<Y>-<M>-PHEV.pdf` (`electric.pdf` before 2024) | ditto; exact |
+| `HEV`, `PETROL`, `DIESEL` | press release | share × (TOTAL − BEV − PHEV) / (100 − plug-in share), largest-remainder rounded |
+| `OTHERS` | press release | LPG + CNG + whatever the shares leave out, same rounding |
+| `notes` | — | which files, and that the split is derived; "provisional — …" for a press-release-only row |
+
+The press release's subject line names the month ("…κατά τον Αύγουστο 2026"); the
+statistics files print it ("AUGUST '26", "Aug. '26" — once with Greek capitals, "ΜΑΥ
+'23"). Both must match the month in the file name.
+
+**Provisional rows.** Since 2025-11 the press release, out a few days before the
+statistics files, carries preliminary BEV, PHEV and total counts. The fetcher writes such a
+month from the press release alone (`notes` start with "provisional"), and the next run
+that finds the statistics files rewrites it. Preliminary and final counts differ by a few
+cars (2026-08: 5,159 vs 5,153 total, 546 vs 544 BEV).
+
+## 3. The derived split
+
+The press release's table lists petrol, diesel, HEV, PHEV, BEV, LPG (and until 2022
+CNG) as shares with one decimal, e.g. 2026-08: petrol 18.8, diesel 1.3, HEV 59.8, PHEV
+5.4, BEV 10.6, LPG 4.1. The plug-in shares are not used — BEV and PHEV are counted.
+
+1. plug-in share = 100 × (BEV + PHEV) / TOTAL, from the counts.
+2. The non-plug-in shares (HEV + PETROL + DIESEL + LPG + CNG) must add up to
+   100 − plug-in share within 1.5 points, or the month gets no split (empty columns,
+   never zeros — invariant 4).
+3. TOTAL − BEV − PHEV is split in those shares; OTHERS takes LPG, CNG and the
+   remainder. Largest-remainder rounding keeps the row summing to TOTAL.
+
+With one decimal, each derived column is within about ±0.05 % of TOTAL of the true
+count (±10 cars in the biggest month). LPG is not given its own column: ACEA writes
+OTHERS for a month before SEAA has it, and an LPG column would sit at 0.0 in those rows.
+
+## 4. Check against ACEA
+
+Every SEAA month 2022-01..2026-08 against the ACEA row it replaced
+(`data/Greece_legacy.csv`):
+
+| Column | Months | Identical | Largest differences |
+|---|---|---|---|
+| TOTAL | 56 | 50 | 2023-07 +4,038 · 2022-12 −1,515 · 2026-07 +32 · 2026-04 −32 |
+| BEV | 56 | 52 | 2023-07 +218 · 2022-12 −68 · 2026-07 +2 · 2026-04 −2 |
+| PHEV | 56 | 51 | 2023-07 +149 · 2022-12 +117 · 2023-09 +10 |
+| HEV / PETROL / DIESEL | 56 | 4–6 | apart from the two bad months within ±50 (2024-07 HEV −50), mostly ±15 |
+
+- **2022-12** — ACEA 8,001 cars; SEAA 6,486, and SEAA's year-to-date columns of
+  November and December differ by exactly that.
+- **2023-07** — ACEA 8,342; SEAA 12,380, again consistent with its year-to-date.
+- **2026-07** — ACEA publishes no July; our row was derived by hand from year-to-date
+  sums (13,220). SEAA counts 13,252.
+
+The derived columns differ from ACEA's by the rounding of the shares (§3) — ACEA has
+SEAA's underlying counts, which SEAA does not publish.
+
+## 5. Month and revisions
+
+A month is the calendar month of registration. SEAA does not revise a published month;
+a re-uploaded file (WordPress adds `-1`, `-2` to the name) replaces the older copy, and
+the fetcher always reads the newest. Own rows are rewritten only when provisional or under
+`--force`. An ACEA row for a month SEAA covers is replaced; any other source is never
+touched. Before 2022-01 nothing changes (invariant 3): those rows are ACEA quarterly
+figures spread over the quarter's months (see 35b), and a monthly 2021-12 row would split
+that quarter.
+
+## 6. Governance
+
+Every run, before anything is written:
+
+- The regression tests (`scripts/test_fetch_greece.py`, offline fixtures) gate the fetch
+  in the workflow: file-name patterns, Greek month names, PDF column positions, the share
+  split and the upsert rules.
+- Printed month = file-name month, for every file.
+- Shares within 1.5 points (§3), else no split.
+- Press-release preliminary counts and BEV share × TOTAL vs the statistics files: a
+  difference above 3 % stops the run.
+- A new month below 25 % of the trailing-12 median TOTAL is not written; below 50 % a
+  warning (Greek Augusts are legitimately ~45 %).
+- Model lines vs the file's own summary line: off by more than max(3, 3 %) and the month
+  is left out of the brand/model lists (SEAA's 2022–2023 electric files miss a few
+  lines). Counts never come from the model table.
+- Fuels sum to TOTAL in every row written.
+
+The step summary of each run lists the months written with their files and checks.
+
+## 7. Operations
+
+| | |
+|---|---|
+| Schedule | `55 11,17 8-31 * *` (14:55 / 20:55 Athens) |
+| Dispatch inputs | `period` (one month), `backfill` (every month from 2022-01 still missing, ACEA or provisional; with `force`: all), `force` |
+| Commits | `data/Greece.csv`, `market/greece_top.json`, `market/greece_months.json` — `chore: update Greece data from SEAA` |
+| Render | `render-country.yml` with `country=Greece`, `variants=Whole` |
+| Dependencies | `requests`, `pdfplumber`, `openpyxl` |
+
+### Debugging runbook
+
+- **"nothing published yet" / "incomplete … — not written"** — SEAA has not posted the
+  month's files yet; the run writes what it can (or the provisional row) and a later run
+  picks the rest up. `https://seaa.gr/wp-json/wp/v2/media?search=<Y>-<M>` shows what is
+  there.
+- **"… file for <month> prints <other month>" / "press release filed as … is about …"** —
+  a file uploaded under the wrong name; the run stops. Check it by hand; a local mirror
+  (`--from-dir`) with `--period` replays one month.
+- **"no summary line found" / model-gap warnings for a new month** — the PDF layout
+  changed. Save the file into `scripts/fixtures/greece/`, add a test, and adjust
+  `parse_plugin_pdf`.
+- **Shares do not add up** — the press release's table changed; the month is written
+  without a split until `parse_press_release` is fixed and the month re-run with
+  `--period … --force`.
+- **seaa.gr unreachable** — nothing is written; ACEA fills the month around the 20th–25th
+  and SEAA replaces it on a later run.
+
+## 8. Sequence
+
+```
+cron 8th–31st ──► fetch_greece.py
+                    ├─ CSV: newest SEAA month, rows that are ACEA or provisional
+                    ├─ media API (3 newest pages) ──► comp.xlsx, BEV/PHEV.pdf, press release
+                    ├─ parse + checks ──► upsert data/Greece.csv (Whole)
+                    └─ market/greece_top.json (guarded)
+                  ──► commit ──► render-country.yml (Greece, Whole) ──► build-manifest
+fetch-acea.yml ──► Greece on the conditional list: writes only a missing / ACEA row
+```

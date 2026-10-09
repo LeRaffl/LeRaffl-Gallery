@@ -77,12 +77,12 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, Greece,
+    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia,
     Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway
+    Luxembourg, Norway, Poland, Greece
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -109,7 +109,13 @@ docs/architecture/36-source-france.md). Switzerland comes from ASTRA's IVZ
 register extracts (scripts/fetch_switzerland.py), calibrated to reproduce
 ACEA's Swiss figure and out about three weeks earlier; ACEA is its cross-check
 (fetch_switzerland.py --acea-check), not a writer (see
-docs/architecture/46-source-switzerland.md). Sweden additionally has a
+docs/architecture/46-source-switzerland.md). Greece comes from SEAA, the
+importers' association whose register-based statistics ACEA itself relays
+(scripts/fetch_greece.py, exact BEV/PHEV/TOTAL, same numbers as ACEA in
+almost every month and corrects ACEA's 2022-12 and 2023-07 rows); Greece is
+on the CONDITIONAL list so ACEA fills a month only until SEAA has published
+it, and never overwrites a SEAA row (see docs/architecture/52-source-greece.md).
+Sweden additionally has a
 non-standard CSV schema (FLEXFUEL column).
 
 For the prior-year correction (e.g. the March 2025 column of a March 2026
@@ -139,7 +145,7 @@ import requests
 
 ALWAYS_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
+    "Hungary", "Iceland", "Latvia", "Lithuania",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
@@ -153,6 +159,11 @@ CONDITIONAL_COUNTRIES = [
     # overwrites a PZPM row. ACEA Poland == PZPM OSOBOWE (verified to the unit),
     # so the two sources share one comparable Whole series.
     "Poland",
+    # Greece is SEAA-primary (scripts/fetch_greece.py): SEAA publishes the
+    # month around mid-month, usually before ACEA. ACEA fills a Greece month
+    # only while no SEAA row exists and never overwrites one
+    # (docs/architecture/52-source-greece.md).
+    "Greece",
 ]
 # Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
 # Spain, Sweden, Switzerland. The maintainer pulls those from national databases/registries
