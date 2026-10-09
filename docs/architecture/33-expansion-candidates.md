@@ -336,8 +336,8 @@ significant EV importer is outside it**).
 > (`autoapi.geostat.ge`, no key, Origin/Referer of the portal) that answers
 > GitHub runners; `scripts/fetch_georgia.py` reads the quarter's fuel split
 > and reproduces the hand-entered history 2017-Q1 → 2026-Q2 in the same
-> columns — 37 of 38 quarters exactly, 2023-Q3 within 10 BEV (a
-> transcription slip, kept). The scope stays what it always was: every
+> columns — 37 of 38 quarters exactly; 2023-Q3 was a transcription
+> slip (10 BEV) and was corrected. The scope stays what it always was: every
 > vehicle initially registered, all categories, new and imported used (the
 > source has no filter for either). Also writes `market/georgia_top.json`
 > from Geostat's treemap (brands and models, every powertrain). See

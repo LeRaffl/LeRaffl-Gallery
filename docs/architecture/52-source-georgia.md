@@ -23,7 +23,7 @@ variant_notes:
   Whole: Every vehicle registered in Georgia for the first time in the quarter, as Geostat counts its "initial registrations" — all vehicle categories (passenger cars, light and heavy trucks, buses, special vehicles) and new and imported used vehicles together. This is the scope the series has had since it started; Geostat's fuel table has no vehicle-category or new/used filter.
 hev_split: false
 hev_note: Geostat publishes one "Hybrid" category for plug-in and full hybrids together; it sits in the HEV column and there is no PHEV column. In the BEV/PHEV/ICE curves the hybrids count as ICE.
-backfill: hand-entered from Geostat since 2017-Q1 (the API's first quarter); automated from October 2026. The fetcher reproduces 37 of the 38 hand-entered quarters (2017-Q1 to 2026-Q2) exactly; 2023-Q3 differs by 10 battery-electric vehicles (a transcription slip, kept as entered — see §5).
+backfill: hand-entered from Geostat since 2017-Q1 (the API's first quarter); automated from October 2026. The fetcher reproduces 37 of the 38 hand-entered quarters (2017-Q1 to 2026-Q2) exactly; the 38th, 2023-Q3, had a transcription slip of 10 battery-electric vehicles and was corrected to Geostat's figure — see §5.
 scope_note: Initial registrations of road motor vehicles in Georgia per quarter — every vehicle category, new and imported used. Georgia's market is dominated by imported used cars (in 2026-Q2 only about one in six newly registered vehicles was at most two years old), so the series measures the drivetrain mix of the vehicles entering the national fleet, not of new-car sales, and is not comparable with ACEA-style new-car counts.
 caveats:
 - Quarterly, not monthly — each row sits on the quarter's middle month (Feb, May, Aug, Nov), so Georgia has fewer points than the monthly countries and the newest one lags them.
@@ -99,7 +99,7 @@ Geostat Automobile portal (automobile.geostat.ge, React front end)
 - **It is the series the gallery already had.** Every hand-entered row since
   2017-Q1 came from this portal; the API is what the portal's own charts read.
   Run against the whole history (2026-10-09, GitHub runner) the fetcher gives
-  37 of 38 quarters identically and the 38th within 10 vehicles (§5) — the
+  37 of 38 quarters identically; the 38th was a typo, corrected (§5) — the
   new source *extends* the legacy data rather than replacing it, in the same
   categories (the owner's rule for new sources, 2026-10-09).
 - **Official and complete:** Geostat publishes the Interior Ministry's Service
@@ -181,9 +181,10 @@ flow is: 7,440 vehicles at most two years old in 2026-Q2.
   2017-Q1…2026-Q2 — 37 quarters identical; **2023-Q3** differs: the CSV has
   BEV 463 / TOTAL 44,923, Geostat BEV 453 / TOTAL 44,913. Geostat's 2023
   year figure equals the sum of its quarters with 453, so the CSV row is most
-  likely a transcription slip. It is left as entered; dispatching the
-  workflow with `quarter = 2023-Q3` and `force` would correct it (an owner
-  decision).
+  likely a transcription slip. **Corrected** to Geostat's figure in the
+  automation PR (owner's rule, 2026-10-09: typos in hand-entered rows are
+  corrected; real definition changes are not rewritten — invariant 3).
+  Since then all 38 quarters match.
 
 ## 6. Reading the fit
 
@@ -259,7 +260,7 @@ sequenceDiagram
 | `listed in the picker but mobile/fuels is empty` | Geostat lists a quarter before its data is loaded | wait for the next run; if it persists, check the portal |
 | `year cross-check` | the year figure ≠ the sum of the quarters: a quarter was revised, or the year figure is being reloaded | re-run later; if it persists, compare the quarters on the portal and decide with `force` |
 | `completeness guard` | the new quarter is under 50 % of a year earlier — a partial upload, or a real collapse | check the portal and the news; if real, dispatch with `force` |
-| `… differs from the CSV … kept unless force` | Geostat revised an older quarter (or a hand-entered row has a typo, 2023-Q3) | nothing breaks; to adopt Geostat's figure dispatch with `quarter = YYYY-Qn` and `force` |
+| `… differs from the CSV … kept unless force` | Geostat revised an older quarter (or a hand-entered row has a typo — those are corrected, as 2023-Q3 was) | nothing breaks; to adopt Geostat's figure dispatch with `quarter = YYYY-Qn` and `force` |
 | `top brands/models not refreshed` warning | the treemap failed or lists more vehicles than the quarter | the CSV is committed anyway; replay with `--from-dir` and look at `treemap_units` |
 
 ## 9. Not built (yet)
