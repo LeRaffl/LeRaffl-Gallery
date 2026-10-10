@@ -34,9 +34,10 @@ LABEL_CASES = {
 NOT_MAPPED = ["ELECTRIC HYBRID", "HYDROGEN", "PETROL/LPG", "ELECTRIC [HYDROGEN EXTENDED]"]
 
 HEADER = ",".join(nz.CSV_COLUMNS)
-LEGACY = [
-    "2025-09,monthly,Legacy,transport.govt.nz & Prof. Ray Willis,814.0,606.0,8152.0,7738.0,3444.0,0.0,20754.0,",
-    "2026-08,monthly,Legacy,transport.govt.nz & Prof. Ray Willis,1485,1389,8200,7309,3127,,21510,",
+# Rows from another source (hand-entered): kept byte for byte without --force.
+FOREIGN = [
+    "2025-09,monthly,Whole,Submit-Data,1700.0,1200.0,4300.0,4100.0,300.0,0.0,11600.0,",
+    "2026-08,monthly,Whole,Submit-Data,1047,1172,3435,2883,583,,9120,",
 ]
 
 failures = 0
@@ -79,8 +80,6 @@ SEP = [row("2026-09", "NEW", "ELECTRIC", 2661), row("2026-09", "USED", "ELECTRIC
        row("2026-09", "USED", "PETROL HYBRID", 4235),
        row("2026-09", "NEW", "PETROL", 4023), row("2026-09", "USED", "PETROL", 3396),
        row("2026-09", "NEW", "DIESEL", 2735, "NA"), row("2026-09", "USED", "DIESEL", 334)]
-SEP_COUNTS = {"BEV": 2966, "PHEV": 1602, "HEV": 9665, "PETROL": 7419, "DIESEL": 3069,
-              "OTHERS": 0, "TOTAL": 24721}
 SEP_WHOLE = {"BEV": 2661, "PHEV": 1501, "HEV": 4500, "PETROL": 4023, "DIESEL": 0,
              "OTHERS": 0, "TOTAL": 12685}
 SEP_VANS = {"BEV": 0, "PHEV": 0, "HEV": 930, "PETROL": 0, "DIESEL": 2735,
@@ -93,7 +92,7 @@ def data(fuel=SEP, models=(), loaded="2026-10-06"):
     return {"service": "test", "loaded": loaded, "fuel": list(fuel), "models": list(models)}
 
 
-def run(tmp, d, *extra, csv_lines=LEGACY, today="2026-10-09", variant="Legacy"):
+def run(tmp, d, *extra, csv_lines=FOREIGN, today="2026-10-09", variant="Whole"):
     csv = nz.csv_path_for(variant.split(",")[0], Path(tmp))
     if not csv.exists():
         csv.write_text("\n".join([HEADER] + list(csv_lines)) + "\n", encoding="utf-8")
@@ -122,24 +121,23 @@ check("Whole scope", "IMPORT_STATUS IN ('NEW') AND CLASS IN ('MA','MB','MC')" in
 
 # ── counting ──
 counts_all, unknown, status = nz.count_months(SEP)
-counts = counts_all["Legacy"]
-check("Sep Legacy counts", counts["2026-09"], SEP_COUNTS)
 check("Sep Whole (new M1)", counts_all["Whole"]["2026-09"], SEP_WHOLE)
 check("no HDV rows", counts_all["HDV"], {})
 check("Sep Vans (new NA)", counts_all["Vans"]["2026-09"], SEP_VANS)
 check("Sep Used (used MA/MB/MC)", counts_all["Used"]["2026-09"], SEP_USED)
-check("variants of new MC", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "MC"}), ["Whole", "Legacy"])
-check("variants of new NA", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "NA"}), ["Vans", "Legacy"])
+check("variants of new MC", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "MC"}), ["Whole"])
+check("variants of new NA", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "NA"}), ["Vans"])
 check("variants of new NC", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "NC"}), ["HDV"])
-check("variants of used MA", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "MA"}), ["Used", "Legacy"])
-check("variants of used NA", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "NA"}), ["Legacy"])
+check("variants of used MA", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "MA"}), ["Used"])
+check("variants of used NA (used vans: no variant)", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "NA"}), [])
+check("no Legacy variant", "Legacy" in nz.VARIANTS, False)
 check("variants of used NB", nz.variants_of({"IMPORT_STATUS": "USED", "CLASS": "NB"}), [])
 check("variants of RE-REG", nz.variants_of({"IMPORT_STATUS": "RE-REG", "CLASS": "MA"}), [])
 check("variants of bus", nz.variants_of({"IMPORT_STATUS": "NEW", "CLASS": "MD3"}), [])
 check("Sep status", status["2026-09"], {"NEW": 16350, "USED": 8371})
 check("no unknown", unknown, {})
 c2, u2, _ = nz.count_months(SEP + [row("2026-09", "NEW", "HYDROGEN", 10)])
-check("unknown -> OTHERS", c2["Legacy"]["2026-09"]["OTHERS"], 10)
+check("unknown -> OTHERS", c2["Whole"]["2026-09"]["OTHERS"], 10)
 check("unknown listed", u2, {"2026-09": {"HYDROGEN": 10}})
 check("small unknown warns", bool(nz.check_unknown("2026-09", u2, 24731)), True)
 _, u3, _ = nz.count_months(SEP + [row("2026-09", "NEW", "HYDROGEN", 400)])
@@ -155,22 +153,22 @@ check("default period", nz.default_period(nz.date(2026, 1, 5)), "2025-12")
 with tempfile.TemporaryDirectory() as tmp:
     text, out = run(tmp, data())
     check("Sep row appended", text.splitlines()[-1],
-          "2026-09,monthly,Legacy,NZTA Motor Vehicle Register,2966,1602,9665,7419,3069,0,24721,")
-    check("legacy rows byte-identical", text.splitlines()[1:3], LEGACY)
-    check("changed output", "changed=true" in out and '["Legacy"]' in out, True)
+          "2026-09,monthly,Whole,NZTA Motor Vehicle Register,2661,1501,4500,4023,0,0,12685,")
+    check("foreign rows byte-identical", text.splitlines()[1:3], FOREIGN)
+    check("changed output", "changed=true" in out and '["Whole"]' in out, True)
     # second run: same month -> unchanged
     text2, out2 = run(tmp, data())
     check("idempotent", text2, text)
     check("unchanged output", "changed=false" in out2, True)
 
 with tempfile.TemporaryDirectory() as tmp:
-    # a foreign (legacy) row for the month is kept without --force …
+    # a foreign (hand-entered) row for the month is kept without --force …
     aug = [dict(r, **{nz.F_MONTH: 8}) for r in SEP]
     text, _ = run(tmp, data(aug + SEP), "--period", "2026-08")
-    check("foreign row kept", LEGACY[1] in text, True)
+    check("foreign row kept", FOREIGN[1] in text, True)
     # … and replaced with it
     text, _ = run(tmp, data(aug + SEP), "--period", "2026-08", "--force")
-    check("foreign row replaced", LEGACY[1] in text, False)
+    check("foreign row replaced", FOREIGN[1] in text, False)
 
 with tempfile.TemporaryDirectory() as tmp:
     # snapshot not yet covering the month: no-op before the 20th, error after
@@ -183,11 +181,11 @@ with tempfile.TemporaryDirectory() as tmp:
 with tempfile.TemporaryDirectory() as tmp:
     # plausibility: ×10 the same month a year earlier stops the run
     big = [dict(r, n=r["n"] * 10) for r in SEP]
-    legacy_sep = ["2025-09,monthly,Legacy,x,1,1,1,1,1,0,24000,"]
-    raises("plausibility", run, tmp, data(big), csv_lines=legacy_sep)
+    year_before = ["2025-09,monthly,Whole,x,1,1,1,1,1,0,12000,"]
+    raises("plausibility", run, tmp, data(big), csv_lines=year_before)
 with tempfile.TemporaryDirectory() as tmp:
     text, _ = run(tmp, data([dict(r, n=r["n"] * 10) for r in SEP]), "--force",
-                  csv_lines=["2025-09,monthly,Legacy,x,1,1,1,1,1,0,24000,"])
+                  csv_lines=["2025-09,monthly,Whole,x,1,1,1,1,1,0,12000,"])
     check("plausibility skipped with force", "2026-09,monthly" in text, True)
 
 with tempfile.TemporaryDirectory() as tmp:
@@ -221,6 +219,7 @@ with tempfile.TemporaryDirectory() as tmp:
     check("Vans file", vans, [HEADER, "2026-09,monthly,Vans,NZTA Motor Vehicle Register,0,0,930,0,2735,0,3665,"])
     check("Used file", used, [HEADER, "2026-09,monthly,Used,NZTA Motor Vehicle Register,305,101,4235,3396,334,0,8371,"])
     raises("unknown variant", run, tmp, data(), variant="Taxis")
+    raises("Legacy is no variant any more", run, tmp, data(), variant="Legacy")
 
 # ── brand / model summary ──
 MODELS = [mrow("2026-09", "ELECTRIC", "TESLA", "MODEL Y", 500),

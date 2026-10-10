@@ -5,7 +5,7 @@ method: api
 summary: New-vehicle registrations for New Zealand — new passenger cars, vans and trucks, plus
   used-import cars — counted automatically from NZTA Waka Kotahi's open Motor Vehicle Register,
   the register behind the Ministry of Transport's fleet statistics. The former light-vehicle
-  series (new and used together) continues as the Legacy variant.
+  series (new and used together) is archived in data/New Zealand_legacy.csv.
 source_name: NZTA Waka Kotahi — Motor Vehicle Register (open data)
 source_url: https://opendata-nzta.opendata.arcgis.com/datasets/NZTA::motor-vehicle-register-1/about
 source_links:
@@ -26,29 +26,27 @@ variants:
 - Vans
 - HDV
 - Used
-- Legacy
 variant_notes:
   Whole: New passenger cars — register classes MA (car), MB (passenger van) and MC (off-road passenger vehicle), i.e. EU M1, at their first New Zealand registration.
   Vans: New goods vehicles up to 3.5 t (register class NA, EU N1) — utes and vans, which dominate New Zealand's light-commercial market.
   HDV: New goods vehicles over 3.5 t (register classes NB and NC, EU N2/N3).
   Used: Used-import passenger vehicles (classes MA, MB, MC — EU M1) at their first New Zealand registration, mostly from Japan.
-  Legacy: The series as the gallery showed it until 2026-10 — every light vehicle registered for the first time, new and used imports, cars and goods vehicles up to 3.5 t (MA, MB, MC, NA), the Ministry of Transport's "light vehicles". Compiled by Prof. Ray Willis to 2026-03, from the register since.
 hev_split: true
 hev_note: PHEV and HEV come from the register's motive power. Range-extended EVs ("ELECTRIC [PETROL EXTENDED]") are counted as PHEV, as in the history. HEV is whatever was entered as a petrol or diesel hybrid — mostly full hybrids, but some 48 V mild-hybrid utes are registered as "DIESEL HYBRID" and count here too.
-backfill: Whole, Vans, HDV and Used were counted from the register's 2026-10 snapshot (Whole from 2012-01, the others from 2015-01), with undercount notes on every row before 2026-07. Legacy is the former data/New Zealand.csv, renamed — Prof. Ray Willis's rows 2012-01 to 2026-03, the register from 2026-04 (the hand rows for 2026-04..09 were replaced, see §7).
-scope_note: First registrations in New Zealand by the register's own vehicle class and import status, mapped onto the EU classes like every other country. Before 2026-10 the gallery's New Zealand series was all light vehicles, new and used imports together; that series is kept as the Legacy variant.
+backfill: Whole, Vans, HDV and Used were counted from the register's 2026-10 snapshot (Whole from 2012-01, the others from 2015-01), with undercount notes on every row before 2026-07. The former data/New Zealand.csv (light vehicles, new and used) is archived in data/New Zealand_legacy.csv — Prof. Ray Willis's rows 2012-01 to 2026-03, the register from 2026-04 (the hand rows for 2026-04..09 were replaced, see §7); it is no longer fetched or rendered.
+scope_note: First registrations in New Zealand by the register's own vehicle class and import status, mapped onto the EU classes like every other country. Before 2026-10 the gallery's New Zealand series was all light vehicles, new and used imports together; that series is archived, not continued.
 caveats:
-- Whole, Vans, HDV and Used were counted from today's register back to 2012 / 2015. The register lists vehicles registered today, so older months miss the vehicles scrapped or exported since — little for recent years, more further back (for Legacy's scope about 4 % for 2024, 15 % for 2019, 30 % for 2015; less for new cars, more for used imports). Shares are affected less than volumes. Each such row says "undercount" in its notes; from 2026-10 every month is written once, right after it ends.
+- Whole, Vans, HDV and Used were counted from today's register back to 2012 / 2015. The register lists vehicles registered today, so older months miss the vehicles scrapped or exported since — little for recent years, more further back (for the former light-vehicle scope about 4 % for 2024, 15 % for 2019, 30 % for 2015; less for new cars, more for used imports). Shares are affected less than volumes. Each such row says "undercount" in its notes; from 2026-10 every month is written once, right after it ends.
 - NZTA leaves out vehicles whose owners have a confidential listing; with the deregistrations this puts the register about 1 % below the Ministry's published figures.
 - Some 48 V mild-hybrid utes are registered as diesel hybrids and count as HEV — most visibly in Vans.
-- Legacy includes used imports (about 40 % of its volume) and light goods vehicles, so its BEV share is about half of Whole's (8.5 % against 15 % in the year to September 2026).
+- The New Zealand series shown until 2026-10 included used imports (about 40 % of its volume) and light goods vehicles, so its BEV share was about half of today's Whole (8.5 % against 15 % in the year to September 2026). Whole is now new cars only — the jump in the chart's history is this change of scope, not a market event.
 processing:
 - title: Ask the register
   text:
   - The register is an ArcGIS feature service with about 5.8 million records. The fetcher never downloads them; it asks the service for grouped counts (first registration month × import status × motive power), a handful of small JSON requests. The service address changes when NZTA republishes the register, so it is looked up from the stable open-data item on every run. A month is only read once the register's load date is after the month ended.
 - title: Pick the vehicles
   text:
-  - Every record carries its import status, its vehicle class and the year and month of its first registration in New Zealand. Together they decide the variant, mapped onto the EU classes like every other country; the former light-vehicle series continues as Legacy.
+  - Every record carries its import status, its vehicle class and the year and month of its first registration in New Zealand. Together they decide the variant, mapped onto the EU classes like every other country.
   decision:
     ask: Import status?
     branches:
@@ -61,17 +59,17 @@ processing:
             ask: New or used import?
             branches:
             - when: NEW
-              then: Whole + Legacy
+              then: Whole
             - when: USED
-              then: Used + Legacy
+              then: Used
         - when: NA — goods vehicle up to 3.5 t (EU N1)
           then:
             ask: New or used import?
             branches:
             - when: NEW
-              then: Vans + Legacy
+              then: Vans
             - when: USED
-              then: Legacy
+              then: in no variant
               note: used goods vehicles are in no EU-class variant
         - when: NB, NC — goods vehicle over 3.5 t (EU N2/N3)
           then:
@@ -141,7 +139,7 @@ Variants:  Whole   data/New Zealand.csv          NEW, MA/MB/MC (M1)
            Vans    data/New Zealand_Vans.csv     NEW, NA (N1)
            HDV     data/New Zealand_HDV.csv      NEW, NB/NC (N2+N3)
            Used    data/New Zealand_Used.csv     USED, MA/MB/MC (M1 used imports)
-           Legacy  data/New Zealand_Legacy.csv   NEW + USED, MA/MB/MC/NA (the pre-2026-10 series)
+Archive:   data/New Zealand_legacy.csv — the pre-2026-10 series (NEW + USED, MA/MB/MC/NA), not written
 Columns:   BEV, PHEV, HEV, PETROL, DIESEL, OTHERS, TOTAL (no FLEXFUEL)
 Top lists: market/new_zealand_top.json (BEV / PHEV / HEV, trailing 12 months + single months)
 Schedule:  55 4,18 3-20 * *   (self-throttling; a no-op costs no HTTP request)
@@ -160,7 +158,7 @@ route that is not behind a bot wall, and adds brands and models.
 It clears the gallery's bar ([14](14-data-source-gaps.md)): registry-based (no
 member-brand completeness gap), monthly, and with the same BEV / PHEV / HEV /
 petrol / diesel split as the legacy series — no coarser hybrid bucket — and
-it reproduces the legacy rows (§2), which continue as the Legacy variant.
+it reproduces the legacy rows (§2), which are archived.
 
 ## 2. Scope — EU classes, and the legacy series reproduced
 
@@ -168,8 +166,9 @@ Until 2026-10 the gallery's New Zealand series was the Ministry's "light
 vehicles": **new and used-import** passenger cars and goods vehicles up to
 3.5 t, in one number. It never matched the EU-class variants of the other
 countries, so since 2026-10 New Zealand is split like them, by the register's
-own class and import status, and the old series continues as **Legacy**
-(`data/New Zealand_Legacy.csv`, the renamed former `data/New Zealand.csv`):
+own class and import status. The old series is archived unchanged in
+`data/New Zealand_legacy.csv` (the former `data/New Zealand.csv`; not fetched,
+not rendered — the `_legacy` convention, like Czechia's or Spain's):
 
 | Variant | `IMPORT_STATUS` | `CLASS` | EU class |
 |---|---|---|---|
@@ -177,14 +176,13 @@ own class and import status, and the old series continues as **Legacy**
 | Vans | `NEW` | `NA` | N1 |
 | HDV | `NEW` | `NB`, `NC` | N2 + N3 |
 | Used | `USED` | `MA`, `MB`, `MC` | M1, used imports at their first national registration |
-| Legacy | `NEW`, `USED` | `MA`, `MB`, `MC`, `NA` | — (the Ministry's "light vehicles") |
 
 `RE-REG` and `SCRATCH` are not first registrations and are in no variant. The
 month is `FIRST_NZ_REGISTRATION_YEAR` / `_MONTH`, the month the plates were
 issued. Buses (`MD*`, `ME`) are not built (§9). Year to 2026-09: Whole 109,477
 (BEV 14.7 %), Vans 32,964 (BEV 1.8 %, PHEV 7.4 % — mostly the BYD Shark 6
-ute), HDV 5,177 (BEV 1.7 %), Used 88,446 (BEV 3.9 %, HEV 49.7 %), Legacy
-235,700 (BEV 8.5 %).
+ute), HDV 5,177 (BEV 1.7 %), Used 88,446 (BEV 3.9 %, HEV 49.7 %); the former
+light-vehicle scope would be 235,700 (BEV 8.5 %).
 
 The register settles what the legacy series was: with used imports in, it
 matches the legacy rows in every column; without them it is 40 % short and
@@ -212,14 +210,14 @@ known — possibly a view that also counts re-registrations, which are almost
 all petrol and diesel — but they are not the series the history is. See §7 for how they were handled.
 
 Earlier months undercount more, because the register only lists vehicles
-still registered: in Legacy's scope 2024 is about 4 % short, 2019 about 15 %,
+still registered: in the former light-vehicle scope 2024 is about 4 % short, 2019 about 15 %,
 2015 about 30 %. That is why the fetcher writes each month once, right after
 it ends, and does not rebuild a history it already has (invariant 3).
 
 ### 2.1 The new variants' history
 
 Whole, Vans, HDV and Used had no history of their own, so it was counted from
-the 2026-10 snapshot — Whole back to 2012-01 (as far as Legacy goes), the
+the 2026-10 snapshot — Whole back to 2012-01 (as far as the old series went), the
 others back to 2015-01 — and every row before 2026-07 carries the undercount
 note. The undercount is smaller for new cars (kept longer, rarely exported)
 than for used imports; it lowers volumes more than shares. From 2026-10 each
@@ -237,8 +235,8 @@ month of every variant is written once, right after it ends.
    IMPORT_STATUS NEW/USED and CLASS MA/MB/MC/NA/NB/NC, group by year, month,
    IMPORT_STATUS, CLASS, MOTIVE_POWER.
 5. Map MOTIVE_POWER → column (§4); TOTAL = the sum; the IMPORT_STATUS × CLASS
-   of each count decides its variants (§2, `VARIANTS` in the fetcher) — a
-   count can land in two (Whole and Legacy, say).
+   of each count decides its variant (§2, `VARIANTS` in the fetcher) — at
+   most one.
 6. Checks (§5) per variant → upsert the target month into each variant's CSV,
    line-level.
 7. Top lists: Whole's scope over the 12 months to the target, electrified
@@ -257,15 +255,14 @@ month of every variant is written once, right after it ends.
 | DIESEL | DIESEL |
 | LPG, CNG, ELECTRIC FUEL CELL HYDROGEN, PLUG IN FUEL CELL HYDROGEN HYBRID, OTHER, blank | OTHERS |
 
-Legacy's scope 2012-01 → 2026-09 by label: petrol 1.97 M, diesel 684k, petrol
+The former light-vehicle scope 2012-01 → 2026-09 by label: petrol 1.97 M, diesel 684k, petrol
 hybrid 428k, electric 105k, plug-in petrol hybrid 53k, diesel hybrid 16k,
 petrol electric hybrid 12k, EREV 925, LPG 249, hydrogen 38, plug-in diesel
 hybrid 21, diesel electric hybrid 6, other 4, CNG 2.
 
 **MHEV.** The register has no mild-hybrid label. Diesel hybrids are mostly
 48 V mild-hybrid utes (Hilux, from 2024), registered as "DIESEL HYBRID"; they
-count as HEV here, as they did in the Ministry's figures — mostly in Vans and
-Legacy. A label the map does
+count as HEV here, as they did in the Ministry's figures — mostly in Vans. A label the map does
 not know goes to OTHERS with a warning, and stops the run above 1 % of a month
 (`UNKNOWN_ABORT`).
 
@@ -299,18 +296,19 @@ shows a warning.
 
 ## 7. History
 
-- **2012-01 → 2026-03 (Legacy):** compiled by Prof. Ray Willis from the
+- **2012-01 → 2026-03 (now the archive):** compiled by Prof. Ray Willis from the
   Ministry of Transport's dashboard (`source = transport.govt.nz & Prof. Ray
   Willis`). Kept.
-- **2026-04 → 2026-09 (Legacy):** were entered by hand from the dashboard
+- **2026-04 → 2026-09 (now the archive):** were entered by hand from the dashboard
   after the fetcher stopped; petrol and diesel were inflated against the rest
   of the series (§2). They were rewritten from the register in the automation
-  PR (`--since 2026-04 --force`), so Legacy has one definition from 2012 on;
+  PR (`--since 2026-04 --force`), so the archive has one definition from 2012 on;
   2026-04..06 carry an "undercount" note because they were counted a few
   months late.
 - **2026-10:** the series was split into EU-class variants (§2). The former
-  `data/New Zealand.csv` became `data/New Zealand_Legacy.csv` (variant
-  `Legacy`, still updated and shown in the gallery); Whole is now new M1 cars,
+  `data/New Zealand.csv` was archived as `data/New Zealand_legacy.csv` (rows
+  unchanged, variant label `Whole` kept; no longer written or rendered — a
+  `Legacy` variant was considered and dropped); Whole is now new M1 cars,
   counted from the register back to 2012-01; Vans, HDV and Used back to
   2015-01.
 - **2026-10 →:** every variant is written by the fetcher each month
@@ -343,13 +341,13 @@ sequenceDiagram
         Py->>FS: grouped counts with MAKE, MODEL (12 months, electrified)
         Py->>Top: trailing 12 months + single months
         Py-->>Cron: run report → step summary
-        Cron->>Render: once, with the changed variants (Whole|Vans|HDV|Used|Legacy)
+        Cron->>Render: once, with the changed variants (Whole|Vans|HDV|Used)
     end
 ```
 
 - **Normal run:** about six small JSON requests (Hub item, service, table,
   one fuel query, one or two pages of make × model).
-- **Dispatch inputs:** `variant` (comma-separated subset of Whole, Vans, HDV, Used, Legacy), `period` (target month), `since` (backfill — only adds
+- **Dispatch inputs:** `variant` (comma-separated subset of Whole, Vans, HDV, Used), `period` (target month), `since` (backfill — only adds
   months the CSV lacks unless `force`; old months undercount, §2), `force`,
   `dry_run` (query and report, write and commit nothing).
 - **Offline:** `python scripts/fetch_new_zealand.py --period 2026-09 --dry-run

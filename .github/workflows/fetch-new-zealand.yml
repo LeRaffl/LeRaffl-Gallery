@@ -6,8 +6,6 @@ name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 #   data/New Zealand_Vans.csv    Vans   = new goods vehicles up to 3.5 t (NA, N1)
 #   data/New Zealand_HDV.csv     HDV    = new goods vehicles over 3.5 t (NB/NC)
 #   data/New Zealand_Used.csv    Used   = used-import passenger vehicles (MA/MB/MC)
-#   data/New Zealand_Legacy.csv  Legacy = new + used light vehicles (MA/MB/MC/NA),
-#                                the series as the gallery showed it until 2026-10
 #   market/new_zealand_top.json  brands and models per electrified class (Whole)
 #
 # The register is an ArcGIS feature service; the fetcher sends grouped count
@@ -22,6 +20,8 @@ name: Fetch New Zealand data (NZTA Motor Vehicle Register)
 #
 # Until 2026-06 this workflow read transport.govt.nz, which went behind
 # Imperva; rows before 2026-10 were entered by hand from that dashboard.
+# That former series (new + used light vehicles) is parked unchanged in
+# data/New Zealand_legacy.csv — an archive, never written here.
 # Full method, governance checks and a debugging runbook:
 # docs/architecture/19-source-new-zealand.md.
 #
@@ -31,7 +31,7 @@ on:
   workflow_dispatch:
     inputs:
       variant:
-        description: 'Comma-separated subset of Whole,Vans,HDV,Used,Legacy (default: all)'
+        description: 'Comma-separated subset of Whole,Vans,HDV,Used (default: all)'
         required: false
         default: ''
       period:

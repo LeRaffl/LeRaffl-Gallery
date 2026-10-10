@@ -6,7 +6,7 @@ Register (MVR) and update data/New Zealand.csv.
 Usage
 -----
     python scripts/fetch_new_zealand.py [--period YYYY-MM] [--since YYYY-MM]
-                                        [--variant Whole,Vans,HDV,Used,Legacy]
+                                        [--variant Whole,Vans,HDV,Used]
                                         [--force] [--dry-run]
                                         [--from-json PATH] [--save-json PATH]
                                         [--github-output PATH] [--summary PATH]
@@ -15,7 +15,7 @@ Usage
 * --since      Also count every month from YYYY-MM to the target. Months the
                CSV already holds are compared, never overwritten (unless
                --force); see "History" below for why old months undercount.
-* --variant    Only these variants (default: all five).
+* --variant    Only these variants (default: all four).
 * --force      Overwrite existing rows (any source) and skip the plausibility
                guard.
 * --dry-run    Query, validate and print; write nothing. Re-reading a month
@@ -52,14 +52,14 @@ and cut by import status × NZTA vehicle class onto the EU classes:
     Vans    data/New Zealand_Vans.csv    NEW,  NA              (N1)
     HDV     data/New Zealand_HDV.csv     NEW,  NB/NC           (N2/N3)
     Used    data/New Zealand_Used.csv    USED, MA/MB/MC        (M1 used imports)
-    Legacy  data/New Zealand_Legacy.csv  NEW+USED, MA/MB/MC/NA
 
-Legacy is the series as it was until 2026-10: compiled by Prof. Ray Willis
-from the Ministry of Transport's "light motor vehicle registrations" (new and
-used-import light vehicles; MoT reads the same register). The register
-reproduces those rows to about 1 % in every fuel column through 2026-03 (the
-shortfall is vehicles deregistered since, and owners with a confidential
-listing, whom NZTA leaves out), so Legacy keeps being written.
+Used vans (USED × NA) are in no variant. The series the gallery had until
+2026-10 — Prof. Ray Willis's compilation of the Ministry of Transport's "light
+motor vehicle registrations", new *and* used-import light vehicles — is parked
+unchanged in data/New Zealand_legacy.csv (an archive: not fetched, not
+rendered). The register reproduces it to about 1 % in every fuel column
+through 2026-03 (the shortfall is vehicles deregistered since, and owners with
+a confidential listing, whom NZTA leaves out).
 
 Fuel mapping (MOTIVE_POWER -> CSV column)
 -----------------------------------------
@@ -130,14 +130,12 @@ FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 
 M1 = ("MA", "MB", "MC")          # passenger car, passenger van, off-road passenger
 # variant -> (import statuses, vehicle classes), anchored to the EU classes
-# like every other country (09-glossary.md). Legacy is the Ministry of
-# Transport's "light vehicles" scope the series had until 2026-10.
+# like every other country (09-glossary.md).
 VARIANTS = {
     "Whole": (("NEW",), M1),
     "Vans": (("NEW",), ("NA",)),
     "HDV": (("NEW",), ("NB", "NC")),
     "Used": (("USED",), M1),
-    "Legacy": (("NEW", "USED"), M1 + ("NA",)),
 }
 STATUSES = tuple(sorted({s for sts, _ in VARIANTS.values() for s in sts}))
 CLASSES = tuple(sorted({c for _, cls in VARIANTS.values() for c in cls}))
@@ -301,7 +299,7 @@ def column_of(label) -> str | None:
 
 
 def variants_of(a: dict) -> list[str]:
-    """The variants a grouped row belongs to (Legacy and at most one EU-class variant)."""
+    """The variants a grouped row belongs to (at most one)."""
     st, cl = a.get("IMPORT_STATUS") or "", a.get("CLASS") or ""
     return [v for v, (sts, cls) in VARIANTS.items() if st in sts and cl in cls]
 
@@ -549,7 +547,7 @@ def main(argv: list[str] | None = None) -> int:
     for p in sorted(unknown, key=month_num):
         if month_num(first) <= month_num(p) <= month_num(target):
             w = check_unknown(p, unknown, sum(counts_all[v].get(p, {}).get("TOTAL", 0)
-                                                for v in ("Legacy", "HDV")))
+                                                for v in VARIANTS))
             if w:
                 warnings.append(w)
     st = status.get(target, {})
