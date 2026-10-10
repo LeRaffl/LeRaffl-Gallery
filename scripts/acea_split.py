@@ -16,7 +16,7 @@ BEV or PHEV is not the same month as the national one (more than
 TOTAL_TOLERANCE / PLUGIN_TOLERANCE apart: ACEA's wrong 2022-12 and 2023-07
 Greek rows) or when the residual OTHERS would be negative.
 
-See docs/architecture/52-source-greece.md §3.
+See docs/architecture/53-source-greece.md §3.
 """
 from __future__ import annotations
 

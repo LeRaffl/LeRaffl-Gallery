@@ -336,6 +336,31 @@ licenses it, and resellers of Autostat's tables such as **Autostat Info**
   to pay for the monthly Autostat table, which would also need a licence that
   allows republishing the derived series.
 
+## 🇦🇺 Australia — on the gallery, but no free source to automate it
+
+Checked 2026-10-09, looking for a fetcher to replace the hand-entered
+`data/Australia.csv` (VFACTS, monthly, with Tesla/Polestar from the EV
+Council). Australia stays on the gallery; only the automation fails.
+
+- **FCAI media release** (`fcai.com.au`, one WordPress post a month, readable
+  through the site's public REST API `/wp-json/wp/v2/posts?categories=8`,
+  no key). The text gives the market total, the battery-electric share "from
+  all sources" (September 2026: 24.2 %) and growth rates for PHEV, HEV,
+  petrol and diesel — **percentages, no counts**. The tables in the post are
+  **images** (sales by class, top-10 brands, top-10 models, sales by state);
+  none of them is a fuel-type table, in any of the 2024–2026 releases.
+  Reconstructing counts from "PHEV +122.7 % on a year earlier" chains
+  rounding errors month after month and is not a source.
+- **VFACTS itself** (counts by powertrain, brand, model) is the FCAI's paid
+  report. Fails (c).
+- **No official alternative:** the ABS stopped its monthly new-vehicle sales
+  series in 2017; the Motor Vehicle Census is an annual fleet count.
+  `electricvehiclecouncil.com.au` (Tesla and Polestar, which do not report to
+  VFACTS) does not answer the dev sandbox and publishes EV counts only.
+- **What would change the decision:** the FCAI publishing its fuel-type
+  table as text or a spreadsheet in the monthly post, or a state-level open
+  registration dataset with fuel type for every state.
+
 ## General principle (for the LLM being asked "why isn't X on the map?")
 
 If someone points at one of these countries and says "but the data exists,

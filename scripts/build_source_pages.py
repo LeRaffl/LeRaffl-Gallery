@@ -880,8 +880,12 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 # country's fetcher writes; a front-matter key switches each section on:
 #
 #   market_breakdown: market/<slug>_top.json   (Argentina: classification/…)
-#   market_breakdown_extra: [{path, id, heading, note}]   optional further sections
-#                                               (a second slice with its own top file)
+#   market_breakdown_extra: [{path, id, heading, note,
+#                             class_names, class_labels}]
+#                                               optional further sections (a second
+#                                               slice with its own top file, e.g. Used);
+#                                               class_names/_labels override the two
+#                                               keys below for that section only
 #   market_class_names:  {HEV: Hybrid}          optional short-name override
 #   market_class_labels: {HEV: "…"}             optional long-label override
 #   market_heading: "…"                         optional: replaces "Who sells the
@@ -903,6 +907,11 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #   market_window_note: "…"                     optional: replaces the "fewer than
 #                                               twelve months" note (a source whose
 #                                               headline is year-to-date by design)
+#   market_total_word: "…"                      optional: the word before
+#                                               "registrations in total" (default
+#                                               "new", "used-import" for Used) —
+#                                               Georgia's register counts new and
+#                                               imported used together
 #
 #   classification:
 #     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
@@ -1060,11 +1069,14 @@ def build_market_breakdown(fm: dict) -> str:
     for extra in fm.get("market_breakdown_extra") or []:
         out += _market_section(fm, extra["path"], extra["id"],
                                extra.get("heading", "Who sells the electrified cars"),
-                               extra.get("note", ""))
+                               extra.get("note", ""),
+                               extra.get("class_names"), extra.get("class_labels"))
     return out
 
 
-def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str) -> str:
+def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
+                    class_names: dict | None = None,
+                    class_labels: dict | None = None) -> str:
     path = REPO / rel
     if not path.is_file():
         return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
@@ -1083,8 +1095,10 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str) -> st
                 + ')')
     lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · {span} '
             f'({esc(win.get("from", ""))} → {esc(win.get("to", ""))}){gaps} · '
-            f'{_num(total)} {"used-import" if top.get("variant") == "Used" else "new"} '
-            'registrations in total. '
+            f'{_num(total)} '
+            + esc(fm.get("market_total_word")
+                  or ("used-import" if top.get("variant") == "Used" else "new"))
+            + ' registrations in total. '
             'Units are registrations; '
             + esc(fm.get("market_designation_note")
                   or ('the source publishes brands only, no models.' if brand_only else
@@ -1108,9 +1122,12 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str) -> st
     # `market_class_labels`), for a source whose class is broader than the
     # gallery's name for its column — e.g. Ukraine's register has ONE combined
     # hybrid value (plug-in + full + mild) that lives in the HEV column, so its
-    # page must say "Hybrid", not "Full hybrid".
-    names = {c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
-    labels = CLASS_LABEL | (fm.get("market_class_labels") or {})
+    # page must say "Hybrid", not "Full hybrid". A `market_breakdown_extra`
+    # entry can override them for its own section only (Lithuania: Whole has
+    # a real PHEV/HEV split, Used one combined hybrid class).
+    names = ({c: c for c in CLASS_LABEL} | (fm.get("market_class_names") or {})
+             | (class_names or {}))
+    labels = CLASS_LABEL | (fm.get("market_class_labels") or {}) | (class_labels or {})
     head = (f'Last {n_months} months' if n_months != 1 else 'Latest month')
     views = [f'<div class="mkt-view" data-view="ttm">'
              + _market_view(classes, names, labels, True) + '</div>']

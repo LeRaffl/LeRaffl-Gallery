@@ -26,7 +26,7 @@ Every upload is listed by the WordPress REST API
 instead of scraping pages. SEAA's figures are what ACEA publishes for Greece:
 TOTAL, BEV and PHEV agree to the unit in 50 of 56 months 2022-01..2026-08, and
 two of the others are ACEA errors SEAA corrects
-(docs/architecture/52-source-greece.md §4).
+(docs/architecture/53-source-greece.md §4).
 
 Month → row
 -----------

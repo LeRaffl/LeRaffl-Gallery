@@ -15,7 +15,7 @@ name: Fetch Greece data (SEAA)
 # Also writes market/greece_top.json (+ greece_months.json). Files are found by
 # name through the WordPress media API (seaa.gr/wp-json/wp/v2/media). Method,
 # the ACEA comparison, governance and a debugging runbook:
-# docs/architecture/52-source-greece.md.
+# docs/architecture/53-source-greece.md.
 #
 # SEAA's press release comes out around the 10th–24th, the statistics files
 # around the 15th–21st (once as late as the 21st of the month after). The

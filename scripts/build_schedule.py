@@ -146,9 +146,12 @@ def expected_for(interval: str, sched: dict | None, today: date) -> str:
         for _ in range(12):
             if cur.month in months and (cur < date(today.year, today.month, 1)
                                         or today.day >= start):
-                # A window in month M releases the quarter that ended ~2.5
-                # months earlier; that quarter's middle month is M − 4.
-                return shift(f"{cur.year:04d}-{cur.month:02d}", -4)
+                # A window in month M releases the newest quarter that had
+                # ended before M; return that quarter's middle month. Canada
+                # polls in Mar/Jun/Sep/Dec (→ M − 4), Georgia in the two
+                # months after each quarter (Jul → May, Aug → May).
+                back = (cur.month - 1) % 3 + 2
+                return shift(f"{cur.year:04d}-{cur.month:02d}", -back)
             cur = date(cur.year - 1, 12, 1) if cur.month == 1 else \
                 date(cur.year, cur.month - 1, 1)
         return prev_month

@@ -100,7 +100,7 @@ no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
   checkpoints, HDV about −1 %, Vans about −2.5 %). The quarterly rows this fetcher wrote
   are parked byte for byte in `data/Czechia_legacy.csv`.
 - **Greece stays IN.** Its passenger cars moved to SEAA in 2026-10
-  (`scripts/fetch_greece.py`, [52](52-source-greece.md)), but SEAA and ELSTAT publish vans,
+  (`scripts/fetch_greece.py`, [53](53-source-greece.md)), but SEAA and ELSTAT publish vans,
   trucks and buses without a fuel split, so these checkpoints remain the only electric
   figure for Greek commercial vehicles.
 - **Luxembourg is OUT**, deliberately, even though STATEC (its national source) covers only

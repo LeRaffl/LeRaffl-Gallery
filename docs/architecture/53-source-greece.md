@@ -100,11 +100,11 @@ market_designation_note: the brand is SEAA's make, the model SEAA's "Range" (the
 market_powertrain_note: BEV and PHEV exactly as in the CSV (SEAA's BEV and PHEV files). Hybrids are not ranked — SEAA publishes them only as a share.
 fetcher: scripts/fetch_greece.py
 workflow: .github/workflows/fetch-greece.yml
-fragility_doc: docs/architecture/52-source-greece.md
+fragility_doc: docs/architecture/53-source-greece.md
 data_file: data/Greece.csv
 ---
 
-# 52 · Source: Greece (SEAA registration statistics)
+# 53 · Source: Greece (SEAA registration statistics)
 
 **Status: LIVE since 2026-10.** Fetcher `scripts/fetch_greece.py` (+ tests
 `scripts/test_fetch_greece.py`, fixtures `scripts/fixtures/greece/`), workflow
