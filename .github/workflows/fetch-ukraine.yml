@@ -16,7 +16,8 @@ name: Fetch Ukraine data (MIA register)
 # (105/99/72/180/… vs 100/70/71/…); the series starts 2018-09, the first full
 # month of that code set. The register does not separate plug-in, full and
 # mild hybrids: they are one combined Hybrid bucket in the HEV column.
-# Also writes market/ukraine_top.json (top BEV / Hybrid brands and models).
+# Also writes market/ukraine_top.json (top BEV / Hybrid brands and models) and
+# market/ukraine_used_top.json (the same for Used).
 # Full method, governance checks and caveats: docs/architecture/40-source-ukraine.md.
 #
 # The MIA re-uploads the current year's zip at the start of each month, cut at
@@ -114,6 +115,7 @@ jobs:
             data/Ukraine_Used.csv
             data/Ukraine_Vans.csv
             market/ukraine_top.json
+            market/ukraine_used_top.json
           message: 'chore: update Ukraine data from MIA register (data.gov.ua)'
           default_author: github_actions
           # Rebase over anything that landed while this job ran instead of
