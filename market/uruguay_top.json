@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Uruguay",
  "variant": "Whole",
  "source": "ACAU",
@@ -587,6 +588,154 @@
      "share_of_class": 0.0052
     }
    ]
+  },
+  "PETROL": {
+   "units": 13797,
+   "share_of_market": 0.32973,
+   "brands": [
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 1995,
+     "share_of_class": 0.1446
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 1943,
+     "share_of_class": 0.1408
+    },
+    {
+     "brand": "RENAULT",
+     "units": 1815,
+     "share_of_class": 0.1316
+    },
+    {
+     "brand": "CHEVROLET",
+     "units": 1748,
+     "share_of_class": 0.1267
+    },
+    {
+     "brand": "JETOUR",
+     "units": 1387,
+     "share_of_class": 0.1005
+    },
+    {
+     "brand": "FIAT",
+     "units": 875,
+     "share_of_class": 0.0634
+    },
+    {
+     "brand": "SUZUKI",
+     "units": 789,
+     "share_of_class": 0.0572
+    },
+    {
+     "brand": "NISSAN",
+     "units": 785,
+     "share_of_class": 0.0569
+    },
+    {
+     "brand": "CHERY",
+     "units": 737,
+     "share_of_class": 0.0534
+    },
+    {
+     "brand": "CITROEN",
+     "units": 370,
+     "share_of_class": 0.0268
+    }
+   ],
+   "models": [
+    {
+     "brand": "HYUNDAI",
+     "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+     "units": 1001,
+     "share_of_class": 0.0726
+    },
+    {
+     "brand": "CHEVROLET",
+     "model": "ONIX HB 1.0L LT MT",
+     "units": 747,
+     "share_of_class": 0.0541
+    },
+    {
+     "brand": "CHERY",
+     "model": "TIGGO2 1.5 PRO MT",
+     "units": 678,
+     "share_of_class": 0.0491
+    },
+    {
+     "brand": "RENAULT",
+     "model": "NUEVO KWID ZEN 1.0 MT",
+     "units": 647,
+     "share_of_class": 0.0469
+    },
+    {
+     "brand": "JETOUR",
+     "model": "X70 1.5 MT COMFORT",
+     "units": 574,
+     "share_of_class": 0.0416
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+     "units": 449,
+     "share_of_class": 0.0325
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "NUEVO POLO TRACK",
+     "units": 344,
+     "share_of_class": 0.0249
+    },
+    {
+     "brand": "RENAULT",
+     "model": "NUEVO KWID INTENS 1.0 MT",
+     "units": 340,
+     "share_of_class": 0.0246
+    },
+    {
+     "brand": "JETOUR",
+     "model": "X50 COMFORT MT",
+     "units": 284,
+     "share_of_class": 0.0206
+    },
+    {
+     "brand": "FIAT",
+     "model": "MOBI LIKE",
+     "units": 269,
+     "share_of_class": 0.0195
+    },
+    {
+     "brand": "SUZUKI",
+     "model": "CELERIO GL",
+     "units": 267,
+     "share_of_class": 0.0194
+    },
+    {
+     "brand": "FIAT",
+     "model": "MOBI TREKKING",
+     "units": 231,
+     "share_of_class": 0.0167
+    },
+    {
+     "brand": "RENAULT",
+     "model": "NUEVO KWID BITONO 1.0 MT",
+     "units": 228,
+     "share_of_class": 0.0165
+    },
+    {
+     "brand": "SUZUKI",
+     "model": "ALTO 1.0 GL",
+     "units": 205,
+     "share_of_class": 0.0149
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "TERA COMFORT",
+     "units": 204,
+     "share_of_class": 0.0148
+    }
+   ]
   }
  },
  "months": [
@@ -1038,6 +1187,165 @@
        "model": "NEW 308 GT 1.2 HEV",
        "units": 3,
        "share_of_class": 0.0163
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 1087,
+     "share_of_market": 0.22224,
+     "brands": [
+      {
+       "brand": "JETOUR",
+       "units": 203,
+       "share_of_class": 0.1868
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 162,
+       "share_of_class": 0.149
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 143,
+       "share_of_class": 0.1316
+      },
+      {
+       "brand": "RENAULT",
+       "units": 114,
+       "share_of_class": 0.1049
+      },
+      {
+       "brand": "NISSAN",
+       "units": 84,
+       "share_of_class": 0.0773
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 82,
+       "share_of_class": 0.0754
+      },
+      {
+       "brand": "CHERY",
+       "units": 56,
+       "share_of_class": 0.0515
+      },
+      {
+       "brand": "CITROEN",
+       "units": 49,
+       "share_of_class": 0.0451
+      },
+      {
+       "brand": "FIAT",
+       "units": 47,
+       "share_of_class": 0.0432
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 40,
+       "share_of_class": 0.0368
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X50 COMFORT MT",
+       "units": 122,
+       "share_of_class": 0.1122
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+       "units": 71,
+       "share_of_class": 0.0653
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 66,
+       "share_of_class": 0.0607
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 49,
+       "share_of_class": 0.0451
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 48,
+       "share_of_class": 0.0442
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 46,
+       "share_of_class": 0.0423
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "208 STYLE 1.0",
+       "units": 35,
+       "share_of_class": 0.0322
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "GROOVE 1.5L RS MT",
+       "units": 34,
+       "share_of_class": 0.0313
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 34,
+       "share_of_class": 0.0313
+      },
+      {
+       "brand": "NISSAN",
+       "model": "KICKS EXCLUSIVE DCT P16",
+       "units": 27,
+       "share_of_class": 0.0248
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 11,
+     "share_of_market": 0.00225,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "CITROEN",
+       "units": 3,
+       "share_of_class": 0.2727
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 3,
+       "share_of_class": 0.2727
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL LIMITED",
+       "units": 1,
+       "share_of_class": 0.0909
       }
      ]
     }
@@ -1493,6 +1801,160 @@
        "share_of_class": 0.0102
       }
      ]
+    },
+    "PETROL": {
+     "units": 1189,
+     "share_of_market": 0.23114,
+     "brands": [
+      {
+       "brand": "JETOUR",
+       "units": 204,
+       "share_of_class": 0.1716
+      },
+      {
+       "brand": "RENAULT",
+       "units": 180,
+       "share_of_class": 0.1514
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 164,
+       "share_of_class": 0.1379
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 132,
+       "share_of_class": 0.111
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 119,
+       "share_of_class": 0.1001
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 99,
+       "share_of_class": 0.0833
+      },
+      {
+       "brand": "FIAT",
+       "units": 78,
+       "share_of_class": 0.0656
+      },
+      {
+       "brand": "CHERY",
+       "units": 53,
+       "share_of_class": 0.0446
+      },
+      {
+       "brand": "CITROEN",
+       "units": 35,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "NISSAN",
+       "units": 35,
+       "share_of_class": 0.0294
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 92,
+       "share_of_class": 0.0774
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 77,
+       "share_of_class": 0.0648
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 75,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X50 COMFORT MT",
+       "units": 64,
+       "share_of_class": 0.0538
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "CELERIO GL",
+       "units": 59,
+       "share_of_class": 0.0496
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 46,
+       "share_of_class": 0.0387
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 42,
+       "share_of_class": 0.0353
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI LIKE",
+       "units": 35,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X50 1.5T LUXURY AT",
+       "units": 31,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "GROOVE 1.5L LT MT",
+       "units": 30,
+       "share_of_class": 0.0252
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 5,
+     "share_of_market": 0.00097,
+     "brands": [
+      {
+       "brand": "HYUNDAI",
+       "units": 4,
+       "share_of_class": 0.8
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 1,
+       "share_of_class": 0.2
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL LIMITED",
+       "units": 2,
+       "share_of_class": 0.4
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL SAFE",
+       "units": 2,
+       "share_of_class": 0.4
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 1,
+       "share_of_class": 0.2
+      }
+     ]
     }
    }
   },
@@ -1944,6 +2406,176 @@
        "model": "Q5 S LINE 2.0 QUATTRO",
        "units": 2,
        "share_of_class": 0.0069
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 1481,
+     "share_of_market": 0.29514,
+     "brands": [
+      {
+       "brand": "JETOUR",
+       "units": 223,
+       "share_of_class": 0.1506
+      },
+      {
+       "brand": "RENAULT",
+       "units": 180,
+       "share_of_class": 0.1215
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 177,
+       "share_of_class": 0.1195
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 167,
+       "share_of_class": 0.1128
+      },
+      {
+       "brand": "NISSAN",
+       "units": 152,
+       "share_of_class": 0.1026
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 151,
+       "share_of_class": 0.102
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 118,
+       "share_of_class": 0.0797
+      },
+      {
+       "brand": "CHERY",
+       "units": 115,
+       "share_of_class": 0.0777
+      },
+      {
+       "brand": "FIAT",
+       "units": 48,
+       "share_of_class": 0.0324
+      },
+      {
+       "brand": "CITROEN",
+       "units": 19,
+       "share_of_class": 0.0128
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 110,
+       "share_of_class": 0.0743
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 102,
+       "share_of_class": 0.0689
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 101,
+       "share_of_class": 0.0682
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NEW VERSA PH2 SENSE T/M",
+       "units": 92,
+       "share_of_class": 0.0621
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 84,
+       "share_of_class": 0.0567
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 77,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X50 1.5T LUXURY AT",
+       "units": 67,
+       "share_of_class": 0.0452
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X50 COMFORT MT",
+       "units": 49,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 46,
+       "share_of_class": 0.0311
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "CELERIO GL",
+       "units": 45,
+       "share_of_class": 0.0304
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 11,
+     "share_of_market": 0.00219,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "CITROEN",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "BMW",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1,
+       "share_of_class": 0.0909
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 7,
+       "share_of_class": 0.6364
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 2,
+       "share_of_class": 0.1818
+      },
+      {
+       "brand": "BMW",
+       "model": "X5 XDRIVE30D",
+       "units": 1,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL SAFE",
+       "units": 1,
+       "share_of_class": 0.0909
       }
      ]
     }
@@ -2399,6 +3031,171 @@
        "share_of_class": 0.0242
       }
      ]
+    },
+    "PETROL": {
+     "units": 1496,
+     "share_of_market": 0.33141,
+     "brands": [
+      {
+       "brand": "CHEVROLET",
+       "units": 271,
+       "share_of_class": 0.1811
+      },
+      {
+       "brand": "RENAULT",
+       "units": 257,
+       "share_of_class": 0.1718
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 226,
+       "share_of_class": 0.1511
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 192,
+       "share_of_class": 0.1283
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 160,
+       "share_of_class": 0.107
+      },
+      {
+       "brand": "CHERY",
+       "units": 71,
+       "share_of_class": 0.0475
+      },
+      {
+       "brand": "FIAT",
+       "units": 70,
+       "share_of_class": 0.0468
+      },
+      {
+       "brand": "NISSAN",
+       "units": 51,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "CITROEN",
+       "units": 34,
+       "share_of_class": 0.0227
+      },
+      {
+       "brand": "JETOUR",
+       "units": 27,
+       "share_of_class": 0.018
+      }
+     ],
+     "models": [
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 117,
+       "share_of_class": 0.0782
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 91,
+       "share_of_class": 0.0608
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 81,
+       "share_of_class": 0.0541
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "ALTO 1.0 GL",
+       "units": 80,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 69,
+       "share_of_class": 0.0461
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "SONIC 1.0T RS AT",
+       "units": 60,
+       "share_of_class": 0.0401
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 60,
+       "share_of_class": 0.0401
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "SONIC 1.0T PREMIER AT",
+       "units": 58,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "CELERIO GL",
+       "units": 51,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI LIKE",
+       "units": 41,
+       "share_of_class": 0.0274
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 7,
+     "share_of_market": 0.00155,
+     "brands": [
+      {
+       "brand": "HYUNDAI",
+       "units": 4,
+       "share_of_class": 0.5714
+      },
+      {
+       "brand": "CITROEN",
+       "units": 2,
+       "share_of_class": 0.2857
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 1,
+       "share_of_class": 0.1429
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL SAFE",
+       "units": 3,
+       "share_of_class": 0.4286
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 2,
+       "share_of_class": 0.2857
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL LIMITED",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "RIFTER N1 16H B5",
+       "units": 1,
+       "share_of_class": 0.1429
+      }
+     ]
     }
    }
   },
@@ -2850,6 +3647,154 @@
        "model": "X3 20 XDRIVE",
        "units": 3,
        "share_of_class": 0.0078
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 1420,
+     "share_of_market": 0.29381,
+     "brands": [
+      {
+       "brand": "HYUNDAI",
+       "units": 278,
+       "share_of_class": 0.1958
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 259,
+       "share_of_class": 0.1824
+      },
+      {
+       "brand": "RENAULT",
+       "units": 257,
+       "share_of_class": 0.181
+      },
+      {
+       "brand": "FIAT",
+       "units": 143,
+       "share_of_class": 0.1007
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 97,
+       "share_of_class": 0.0683
+      },
+      {
+       "brand": "NISSAN",
+       "units": 75,
+       "share_of_class": 0.0528
+      },
+      {
+       "brand": "CHERY",
+       "units": 74,
+       "share_of_class": 0.0521
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 48,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "CITROEN",
+       "units": 42,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "JETOUR",
+       "units": 30,
+       "share_of_class": 0.0211
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 163,
+       "share_of_class": 0.1148
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+       "units": 82,
+       "share_of_class": 0.0577
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 71,
+       "share_of_class": 0.05
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 67,
+       "share_of_class": 0.0472
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI LIKE",
+       "units": 67,
+       "share_of_class": 0.0472
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 67,
+       "share_of_class": 0.0472
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 66,
+       "share_of_class": 0.0465
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "NUEVO POLO TRACK",
+       "units": 32,
+       "share_of_class": 0.0225
+      },
+      {
+       "brand": "FIAT",
+       "model": "ARGO TREKKING 1.3",
+       "units": 30,
+       "share_of_class": 0.0211
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID BITONO 1.0 MT",
+       "units": 30,
+       "share_of_class": 0.0211
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 6,
+     "share_of_market": 0.00124,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 4,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "CITROEN",
+       "units": 2,
+       "share_of_class": 0.3333
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 4,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 2,
+       "share_of_class": 0.3333
       }
      ]
     }
@@ -3310,6 +4255,143 @@
        "share_of_class": 0.0128
       }
      ]
+    },
+    "PETROL": {
+     "units": 1795,
+     "share_of_market": 0.38685,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 315,
+       "share_of_class": 0.1755
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 287,
+       "share_of_class": 0.1599
+      },
+      {
+       "brand": "RENAULT",
+       "units": 236,
+       "share_of_class": 0.1315
+      },
+      {
+       "brand": "JETOUR",
+       "units": 198,
+       "share_of_class": 0.1103
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 191,
+       "share_of_class": 0.1064
+      },
+      {
+       "brand": "FIAT",
+       "units": 155,
+       "share_of_class": 0.0864
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 119,
+       "share_of_class": 0.0663
+      },
+      {
+       "brand": "CHERY",
+       "units": 49,
+       "share_of_class": 0.0273
+      },
+      {
+       "brand": "CITROEN",
+       "units": 44,
+       "share_of_class": 0.0245
+      },
+      {
+       "brand": "NISSAN",
+       "units": 41,
+       "share_of_class": 0.0228
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 193,
+       "share_of_class": 0.1075
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 112,
+       "share_of_class": 0.0624
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 77,
+       "share_of_class": 0.0429
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 76,
+       "share_of_class": 0.0423
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI TREKKING",
+       "units": 63,
+       "share_of_class": 0.0351
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI LIKE",
+       "units": 60,
+       "share_of_class": 0.0334
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT LUXURY",
+       "units": 57,
+       "share_of_class": 0.0318
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "ALTO 1.0 GL",
+       "units": 57,
+       "share_of_class": 0.0318
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID BITONO 1.0 MT",
+       "units": 53,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+       "units": 49,
+       "share_of_class": 0.0273
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 2,
+     "share_of_market": 0.00043,
+     "brands": [
+      {
+       "brand": "CITROEN",
+       "units": 2,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 2,
+       "share_of_class": 1.0
+      }
+     ]
     }
    }
   },
@@ -3768,6 +4850,165 @@
        "share_of_class": 0.0163
       }
      ]
+    },
+    "PETROL": {
+     "units": 2051,
+     "share_of_market": 0.43161,
+     "brands": [
+      {
+       "brand": "CHEVROLET",
+       "units": 323,
+       "share_of_class": 0.1575
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 301,
+       "share_of_class": 0.1468
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 243,
+       "share_of_class": 0.1185
+      },
+      {
+       "brand": "RENAULT",
+       "units": 234,
+       "share_of_class": 0.1141
+      },
+      {
+       "brand": "JETOUR",
+       "units": 194,
+       "share_of_class": 0.0946
+      },
+      {
+       "brand": "NISSAN",
+       "units": 159,
+       "share_of_class": 0.0775
+      },
+      {
+       "brand": "FIAT",
+       "units": 128,
+       "share_of_class": 0.0624
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 101,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "CHERY",
+       "units": 91,
+       "share_of_class": 0.0444
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 54,
+       "share_of_class": 0.0263
+      }
+     ],
+     "models": [
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 175,
+       "share_of_class": 0.0853
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 139,
+       "share_of_class": 0.0678
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI TREKKING",
+       "units": 90,
+       "share_of_class": 0.0439
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 85,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 83,
+       "share_of_class": 0.0405
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 79,
+       "share_of_class": 0.0385
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "CELERIO GL AMT",
+       "units": 59,
+       "share_of_class": 0.0288
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "NIVUS COMFORTLINE MT",
+       "units": 44,
+       "share_of_class": 0.0215
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID BITONO 1.0 MT",
+       "units": 41,
+       "share_of_class": 0.02
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID INTENS 1.0 MT",
+       "units": 38,
+       "share_of_class": 0.0185
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 10,
+     "share_of_market": 0.0021,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 7,
+       "share_of_class": 0.7
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2,
+       "share_of_class": 0.2
+      },
+      {
+       "brand": "CITROEN",
+       "units": 1,
+       "share_of_class": 0.1
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 7,
+       "share_of_class": 0.7
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL SAFE",
+       "units": 2,
+       "share_of_class": 0.2
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 1,
+       "share_of_class": 0.1
+      }
+     ]
     }
    }
   },
@@ -4221,6 +5462,124 @@
        "share_of_class": 0.0088
       }
      ]
+    },
+    "PETROL": {
+     "units": 1774,
+     "share_of_market": 0.41653,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 271,
+       "share_of_class": 0.1528
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 268,
+       "share_of_class": 0.1511
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 243,
+       "share_of_class": 0.137
+      },
+      {
+       "brand": "JETOUR",
+       "units": 183,
+       "share_of_class": 0.1032
+      },
+      {
+       "brand": "RENAULT",
+       "units": 158,
+       "share_of_class": 0.0891
+      },
+      {
+       "brand": "FIAT",
+       "units": 120,
+       "share_of_class": 0.0676
+      },
+      {
+       "brand": "CHERY",
+       "units": 114,
+       "share_of_class": 0.0643
+      },
+      {
+       "brand": "NISSAN",
+       "units": 110,
+       "share_of_class": 0.062
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 58,
+       "share_of_class": 0.0327
+      },
+      {
+       "brand": "CITROEN",
+       "units": 43,
+       "share_of_class": 0.0242
+      }
+     ],
+     "models": [
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 117,
+       "share_of_class": 0.066
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 109,
+       "share_of_class": 0.0614
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+       "units": 102,
+       "share_of_class": 0.0575
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 101,
+       "share_of_class": 0.0569
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 77,
+       "share_of_class": 0.0434
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 76,
+       "share_of_class": 0.0428
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "NUEVO POLO TRACK",
+       "units": 57,
+       "share_of_class": 0.0321
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TERA HIGH",
+       "units": 57,
+       "share_of_class": 0.0321
+      },
+      {
+       "brand": "FIAT",
+       "model": "MOBI TREKKING",
+       "units": 49,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TERA TREND",
+       "units": 49,
+       "share_of_class": 0.0276
+      }
+     ]
     }
    }
   },
@@ -4672,6 +6031,165 @@
        "model": "GRAND VITARA GL AT HYBRID",
        "units": 7,
        "share_of_class": 0.0202
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 1504,
+     "share_of_market": 0.39662,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 258,
+       "share_of_class": 0.1715
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 207,
+       "share_of_class": 0.1376
+      },
+      {
+       "brand": "RENAULT",
+       "units": 199,
+       "share_of_class": 0.1323
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 159,
+       "share_of_class": 0.1057
+      },
+      {
+       "brand": "JETOUR",
+       "units": 125,
+       "share_of_class": 0.0831
+      },
+      {
+       "brand": "CHERY",
+       "units": 114,
+       "share_of_class": 0.0758
+      },
+      {
+       "brand": "FIAT",
+       "units": 86,
+       "share_of_class": 0.0572
+      },
+      {
+       "brand": "NISSAN",
+       "units": 78,
+       "share_of_class": 0.0519
+      },
+      {
+       "brand": "CITROEN",
+       "units": 54,
+       "share_of_class": 0.0359
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 46,
+       "share_of_class": 0.0306
+      }
+     ],
+     "models": [
+      {
+       "brand": "CHERY",
+       "model": "TIGGO2 1.5 PRO MT",
+       "units": 109,
+       "share_of_class": 0.0725
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 COMFORT MT",
+       "units": 79,
+       "share_of_class": 0.0525
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 1.5 MT COMFORT",
+       "units": 74,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NOVO HB20 HATCH 1.0 PREMIUM MT",
+       "units": 65,
+       "share_of_class": 0.0432
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "NUEVO POLO TRACK",
+       "units": 64,
+       "share_of_class": 0.0426
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID ZEN 1.0 MT",
+       "units": 60,
+       "share_of_class": 0.0399
+      },
+      {
+       "brand": "FIAT",
+       "model": "ARGO ENDURANCE 1.3 MT",
+       "units": 51,
+       "share_of_class": 0.0339
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "ONIX HB 1.0L LT MT",
+       "units": 50,
+       "share_of_class": 0.0332
+      },
+      {
+       "brand": "NISSAN",
+       "model": "KICKS EXCLUSIVE DCT P16",
+       "units": 37,
+       "share_of_class": 0.0246
+      },
+      {
+       "brand": "RENAULT",
+       "model": "NUEVO KWID OUTSIDER 1.0 MT",
+       "units": 34,
+       "share_of_class": 0.0226
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 6,
+     "share_of_market": 0.00158,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 3,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 2,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "CITROEN",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "301 N1 1.6HDI BM5",
+       "units": 3,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON DIESEL SAFE",
+       "units": 2,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO PLUS L2 1.6D MT",
+       "units": 1,
+       "share_of_class": 0.1667
       }
      ]
     }
