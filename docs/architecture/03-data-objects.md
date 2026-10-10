@@ -132,7 +132,7 @@ Some sources use non-canonical column names. The Excel→CSV extraction normalis
 | `OTHER` | `OTHERS` | Malta |
 | `HYBRIDS` | `HEV` | Türkiye (single hybrid bucket) |
 | `Hybrid` | `HEV` | Georgia (single hybrid bucket) |
-| `PETROL-GAS` | `PETROL` | Georgia (treated as ICE/petrol per maintainer convention) |
+| `Gasoline-gas` | `PETROL` | Georgia (petrol converted to LPG/CNG; treated as ICE/petrol per maintainer convention — `scripts/fetch_georgia.py`) |
 | `Benzine` | `PETROL` | Netherlands |
 | `Overig` + `FCEV` | `OTHERS` | Netherlands (FCEV folded — single-digit units/month) |
 
@@ -679,6 +679,8 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
 | Switzerland | `fetch_switzerland.py` | ASTRA IVZ `Marke` / type designation (`Typ2`, completed by `Typ3` for the families whose `Typ3` is the model — Model, Seal, Ioniq, RR, AMG, Atto; "MG4" merged with "4"), Whole records — and, as a second file `switzerland_used_top.json` (front-matter `market_breakdown_extra`), the used imports (GEBR); classes BEV / PHEV / HEV as in the CSV (register fuel + hybrid code) | every real run, from the snapshot it read anyway (the running year's complete months) → month store `market/switzerland_months.json`; the previous year comes from the backfill |
 | Czechia | `fetch_czechia.py` | RSV register make (`Tovární značka`) / trade name (`Obchodní označení`), Whole records — and `czechia_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; classes BEV / PHEV only (the register cannot identify full and mild hybrids) | every real run — the newest 15 complete months from the extract the fetch streams anyway |
+| Greece | `fetch_greece.py` | SEAA's BEV / PHEV PDFs: make and "Range" (model family) per segment; classes BEV / PHEV only (SEAA publishes hybrids only as a share). A month whose model lines do not add up to the file's own total is left out | every run that writes a month from the statistics files — the newest 12 complete months, kept in `greece_months.json` |
+| Lithuania | `fetch_lithuania.py` | Regitra open register snapshot `MARKE` / commercial name `KOMERCINIS_PAV` (trims, power and drive words dropped: ID.4 PRO 4MOTION 210KW → ID.4), Whole (status new) and `lithuania_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; Whole's classes BEV / PHEV / HEV from the EU hybrid category (OVC-HEV / NOVC-HEV), Used's BEV and one combined Hybrid class (like its CSV; `class_names` in the extra entry). Only cars still registered on the snapshot date — Lithuania re-exports many, so the scope check warns (expected) | when Regitra publishes a new snapshot (about quarterly) — the last 12 full months in it |
 | Malaysia | `fetch_malaysia.py` | data.gov.my `maker` / `model` | when missing or behind the last complete month — from the two yearly parquets the fetch reads anyway |
 | Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 | New Zealand | `fetch_new_zealand.py` | NZTA Motor Vehicle Register `MAKE` / `MODEL` (free text, upper-cased, brand prefix stripped), `Whole`'s scope — new passenger cars (classes MA/MB/MC, M1) — and `new_zealand_used_top.json` for `Used` (used-import M1, `market_breakdown_extra`); classes BEV / PHEV (EREV folded in) / HEV as in the CSV; grouped counts, never record downloads | every real run — the 12 months to the target, one grouped query |
@@ -691,6 +693,8 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Ireland | `fetch_ireland.py` | SIMI dashboard `carsByMake` / `carsByModel` per month, one `engine_types` filter per class (BEV, PHEV, HEV); unlisted makes/models = unranked rest | after a Whole update or when the top file lags — ~50 filter round-trips |
 | Austria | `fetch_austria.py` | DE2 Tabelle 7 (month) / Tabelle 14 (January to date) — top 10 BEV makes and types + "Sonstige"; **BEV only**, headline year-to-date | with the Whole parse of the newest DE2 file |
 | UK | `fetch_uk.py` | SMMT vehicle-data page (`/vehicle-data/car-registrations/`): marque table (month + year-to-date; "Other British" / "Other Imports" = unranked rest, "Grand Total" must equal the fuel table's TOTAL) and SMMT's top-10 models; class `ALL` (every powertrain — SMMT's brand table has no fuel split). Headline = January → newest month from SMMT's own year-to-date tables (exact, as for Austria) | every real run, from the data page (which only ever shows the newest month) → month store `market/uk_months.json` (brand rows with model "", model rows with a model; `splice_models`) |
+| Georgia | `fetch_georgia.py` | Geostat portal API `mobile/treemap` (period switch "during the period") — brand → model counts per quarter, top 25 brands and their top models, `დანარჩენი` ("others") = unranked rest; **every powertrain and every vehicle category in one class `ALL`** (Geostat has no brand × fuel table), new and imported used; the last four quarters summed, `window` set to their twelve months, an extra `quarters` key | when the newest published quarter changes — four treemap requests |
+| Norway | `fetch_norway.py` | OFV's monthly release article (`ofv.no/aktuelt/…`): top-30 brand table and top-30 model table of new passenger cars (models carry the brand in front — split against the brand names, longest first); class `ALL` (every powertrain — OFV's brand table has no fuel split; ~98 % of the market is BEV). What the top 30 do not list is the unranked rest | every real run that finds the article → month store `market/norway_months.json` (brand rows with model "", model rows with a model; `splice_models`, as for the UK) |
 | Japan | `fetch_japan.py` | JADA maker rows of the 燃料別メーカー別登録台数 workbook — **brands only**, imports lumped into one row, kei cars excluded like the CSV | whenever the workbook is downloaded (also when only the top file lags); 4 months per file → month store |
 | Singapore | `fetch_singapore.py` | LTA M03 row label `Make Importer Fuel` — **brands only**; AD and PI rows of a make are added; an unknown importer part stops the refresh | every real run; the PDF holds the current half-year → month store |
 | Uruguay | `fetch_uruguay.py` | ACAU Compilado `Marca` / `Modelo` columns, AUTOS + SUV; MHEV ranked as its own class (OTHERS in the CSV); columns found by header name, never guessed | whenever the workbook is downloaded; one calendar year per file → month store |
@@ -764,8 +768,17 @@ alphabetically so the file is byte-stable (no spurious commits).
   cars", [39](39-source-argentina.md) §6). A missing file renders as "not
   generated yet". A second slice of the same source (Netherlands: imported
   used cars) has its own top file and is listed under
-  `market_breakdown_extra: [{path, id, heading, note}]` — one more section
-  with its own month picker.
+  `market_breakdown_extra: [{path, id, heading, note, class_names,
+  class_labels}]` — one more section with its own month picker;
+  `class_names`/`class_labels` relabel classes for that section only
+  (Lithuania's Used: `{HEV: Hybrid}`, its hybrids being one combined class).
+- **A `Used` variant gets its own tables (rule since 2026-10).** Wherever a
+  record-level source carries a `Used` variant, its fetcher also writes
+  `market/<slug>_used_top.json` with the *same* class logic as the Used CSV
+  (a combined hybrid there → one combined class here) and the source doc
+  lists it under `market_breakdown_extra` — so the source pages grow by a
+  used-imports section, country by country (built: Netherlands,
+  Switzerland, Czechia, Lithuania).
 - Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in [`scripts/fixtures/`](../../scripts/fixtures/README.md)).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`
@@ -801,7 +814,7 @@ fuels, no brand × powertrain, so no electrified ranking is possible).
 | Netherlands | **Wired** (row above) — the Swing pivots have no make, but the RDW open-data register does; probed and built 2026-09-28. |
 | United Kingdom | **Wired** (row above, 2026-10-04) — no brand × fuel table: DfT/DVLA publish new registrations by body type, fuel and keepership (`VEH1153`), and plug-in registrations by generic model only quarterly and for GB (`VEH0181`); make × fuel exists for the licensed *stock* only. But SMMT's vehicle-data page publishes its full marque table and top-10 models (every powertrain) openly, which is what `uk_top.json` uses. |
 | New Zealand | **Wired** (row above, 2026-10-09) — `transport.govt.nz` is behind Incapsula, but NZTA's open Motor Vehicle Register carries make and model per vehicle. |
-| Latvia, Lithuania | Latvia's CSDD register on `data.gov.lv` is a stock snapshot (last resource dated 2025-02), not a registration flow; Regitra (`regitra.lt`) answers with a CAPTCHA. Probed 2026-09-28. |
+| Latvia | Latvia's CSDD register on `data.gov.lv` is a stock snapshot (last resource dated 2025-02), not a registration flow. Probed 2026-09-28 and 2026-10-09. (Lithuania's Regitra answered with a CAPTCHA on 2026-09-28 but not from GitHub's runners on 2026-10-09: its register snapshot now feeds `lithuania_top.json`, row above.) |
 | Sweden (Trafikanalys) | **No make anywhere.** The monthly workbook `fordon-nyregistreringar-YYYY-MM.xlsx` (16 tables: stock / new registrations, fuel, owner type, model year, emission class, municipality) has no make or model, and the query API `api.trafa.se` exposes the same dimensions (no `marke` / `fabrikat` / `modell` on `t10030`, `t10016`, `t10026`). Probed 2026-09-28. |
 | Luxembourg | No brand × fuel: `DF_D6124` (new registrations by type and brand) is all fuels together. Probed 2026-09-28. |
 | Portugal | **Wired** (row above), brands only. |

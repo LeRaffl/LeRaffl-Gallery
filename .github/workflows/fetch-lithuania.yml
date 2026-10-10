@@ -1,0 +1,152 @@
+name: Fetch Lithuania data (Regitra register)
+
+# Fetches Regitra's monthly statistics (regitra.lt — the state enterprise that
+# keeps Lithuania's road-vehicle register) and upserts the Lithuania CSVs:
+#
+#   data/Lithuania.csv        Whole   new M1 first registered (status Nauja)
+#   data/Lithuania_Used.csv   Used    used-import M1 (status Naudota)
+#
+# Counts come from table 5 "Pirmą kartą įregistruotų Lietuvoje M1 klasės
+# transporto priemonių skaičius pagal degalų rūšį" (one XLSX per year, new /
+# used × the register's fuel field), cross-checked every run against Regitra's
+# separate monthly totals table (must match exactly). Table 5 has one hybrid
+# number; the PHEV/HEV split comes from ACEA's counted split (Whole), the
+# open register snapshot's EU hybrid category OVC/NOVC (refreshed about
+# quarterly, 167 MB zip — downloaded only when its date changes), or, for a
+# month neither covers yet, a provisional trailing share written as
+# "Regitra (provisional)" and upgraded on a later run.
+# The snapshot also feeds market/lithuania_top.json and
+# market/lithuania_used_top.json (top BEV / PHEV / HEV brands and models) and
+# the split store market/lithuania_fleet.json.
+# Full method, validation and a debugging runbook:
+# docs/architecture/55-source-lithuania.md.
+#
+# Regitra restates the year file during the following month (August 2026 was
+# on the page by Sep 9). Polled twice daily; a run with nothing to do (target
+# month final in both CSVs, no provisional row) makes no HTTP request. A
+# normal run reads the statistics page, two year files (~40 KB) and the
+# open-data page; `backfill` reads every year file from 2024.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Used
+      period:
+        description: 'Target month YYYY-MM (default: last month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2024-01 (every year file)'
+        required: false
+        default: false
+        type: boolean
+      fleet:
+        description: 'Download the register snapshot even if its date is unchanged'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness / cross-check guards and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Twice daily, 06:35 and 12:35 UTC (Vilnius 09:35 / 15:35, office hours).
+    - cron: '35 6,12 * * *'
+
+concurrency:
+  group: fetch-lithuania
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests openpyxl
+
+      # The fuel mapping and the split tiers fail silently when wrong, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_lithuania.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Lithuania CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_lithuania.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FLEET:+--fleet} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FLEET:    ${{ inputs.fleet == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Lithuania.csv
+            data/Lithuania_Used.csv
+            market/lithuania_top.json
+            market/lithuania_used_top.json
+            market/lithuania_fleet.json
+          message: 'chore: update Lithuania data from Regitra'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Lithuania
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Lithuania" \
+            -f variants="$variants"

@@ -77,12 +77,16 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, Greece,
-    Hungary, Iceland, Latvia, Lithuania, Malta, Romania, Slovakia, Slovenia
+    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia,
+    Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway
+    Luxembourg, Norway, Poland, Lithuania, Greece. A row a national fetcher marks as
+    provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
+    "Regitra (provisional)") counts as replaceable too.
+  (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
+  fills a month OFV's fetcher has not written.)
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -109,7 +113,15 @@ docs/architecture/36-source-france.md). Switzerland comes from ASTRA's IVZ
 register extracts (scripts/fetch_switzerland.py), calibrated to reproduce
 ACEA's Swiss figure and out about three weeks earlier; ACEA is its cross-check
 (fetch_switzerland.py --acea-check), not a writer (see
-docs/architecture/46-source-switzerland.md). Sweden additionally has a
+docs/architecture/46-source-switzerland.md). Greece comes from SEAA, the
+importers' association whose register-based statistics ACEA itself relays
+(scripts/fetch_greece.py, exact BEV/PHEV/TOTAL, same numbers as ACEA in
+almost every month and corrects ACEA's 2022-12 and 2023-07 rows); Greece is
+on the CONDITIONAL list so ACEA fills a whole month only until SEAA has
+published it. On a SEAA row ACEA replaces only the derived HEV/PETROL/DIESEL
+with its counts (SEAA publishes them as shares only) — scripts/acea_split.py,
+source becomes "SEAA / ACEA" (see docs/architecture/53-source-greece.md §3).
+Sweden additionally has a
 non-standard CSV schema (FLEXFUEL column).
 
 For the prior-year correction (e.g. the March 2025 column of a March 2026
@@ -135,15 +147,26 @@ from pathlib import Path
 import pdfplumber
 import requests
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import acea_split  # noqa: E402
+
 # --- Constants ------------------------------------------------------------
 
 ALWAYS_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Greece", "Hungary", "Iceland", "Latvia", "Lithuania",
+    "Hungary", "Iceland", "Latvia",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
-    "Luxembourg", "Norway",
+    "Luxembourg", "Norway",  # Norway: OFV-primary (fetch_norway.py), ACEA = fallback
+    # Lithuania is Regitra-primary (scripts/fetch_lithuania.py: the register's
+    # own monthly fuel table, plus Used). Regitra's table has one hybrid
+    # number, so ACEA's counted PHEV/HEV split is what fetch_lithuania.py
+    # splits it with: ACEA may fill a missing month and replace a
+    # "Regitra (provisional)" row (see PROVISIONAL_NATIONAL_SOURCES), and the
+    # next Regitra run takes the split from that row. It never overwrites a
+    # final Regitra row. See docs/architecture/55-source-lithuania.md.
+    "Lithuania",
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month
@@ -153,6 +176,12 @@ CONDITIONAL_COUNTRIES = [
     # overwrites a PZPM row. ACEA Poland == PZPM OSOBOWE (verified to the unit),
     # so the two sources share one comparable Whole series.
     "Poland",
+    # Greece is SEAA-primary (scripts/fetch_greece.py): SEAA publishes the
+    # month around mid-month, usually before ACEA. ACEA fills a Greece month
+    # only while no SEAA row exists; on a SEAA row it replaces only the
+    # derived HEV/PETROL/DIESEL with its counts (update_country → merge_split,
+    # docs/architecture/53-source-greece.md §3).
+    "Greece",
 ]
 # Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
 # Spain, Sweden, Switzerland. The maintainer pulls those from national databases/registries
@@ -314,6 +343,12 @@ def write_csv(path: Path, fields: list[str], rows: list[dict],
         writer.writeheader()
         for r in ordered:
             writer.writerow({k: r.get(k, "") for k in fields})
+
+
+# Source strings a national fetcher writes for a month it could only partly
+# measure and wants ACEA to fill in: fetch_acea treats such a row like an
+# ACEA row (replaceable), and the national fetcher upgrades it afterwards.
+PROVISIONAL_NATIONAL_SOURCES = {"Regitra (provisional)"}
 
 
 def is_acea_source(src: str | None) -> bool:
@@ -687,10 +722,12 @@ def should_write(country: str, row_kind: str, existing_row: dict | None) -> bool
     """
     if row_kind == "current" and country in ALWAYS_COUNTRIES:
         return True  # always-list current month: unconditional overwrite
-    # Every other case: write iff no row exists OR existing source == "ACEA".
+    # Every other case: write iff no row exists OR existing source == "ACEA"
+    # (or a national fetcher's provisional row, see PROVISIONAL_NATIONAL_SOURCES).
     if existing_row is None:
         return True
-    return is_acea_source(existing_row.get("source"))
+    src = existing_row.get("source")
+    return is_acea_source(src) or (src or "").strip() in PROVISIONAL_NATIONAL_SOURCES
 
 
 def row_equals(existing: dict | None, new: dict, fields: list[str]) -> bool:
@@ -723,6 +760,36 @@ def row_equals(existing: dict | None, new: dict, fields: list[str]) -> bool:
 
 # --- Per-country update ---------------------------------------------------
 
+def merge_split(country: str, period: str, kind: str, existing: dict,
+                parsed: dict[str, tuple[int, int]], use_prev: bool,
+                by_period: dict[str, dict]) -> bool:
+    """Put ACEA's counted HEV/PETROL/DIESEL on a national row (scripts/acea_split.py).
+    Returns True if the row changed."""
+    idx = 1 if use_prev else 0
+    acea = {fuel: float(vals[idx]) for fuel, vals in parsed.items()}
+    merged = acea_split.merge(existing, acea)
+    if merged is None:
+        print(f"    {country} {period} ({kind}): {acea_split.why_not(existing, acea)}")
+        return False
+    vals, why = merged
+    new = dict(existing)
+    for k in ("HEV", "PETROL", "DIESEL", "OTHERS"):
+        new[k] = vals[k]
+    new["source"] = acea_split.MERGED_SOURCE[country]
+    prov = (existing.get("notes") or "").startswith("provisional")
+    nat = acea_split.NATIONAL_SOURCE[country] + (" press release" if prov else "")
+    new["notes"] = ("provisional — " if prov else "") + acea_split.NOTE.format(nat=nat)
+    if all(str(new[k]) == str(existing.get(k)) for k in new) or (
+            (existing.get("source") or "").strip() == new["source"]
+            and all(abs(float(existing.get(k) or 0) - float(new[k])) < 0.5
+                    for k in ("HEV", "PETROL", "DIESEL", "OTHERS"))):
+        return False
+    by_period[period] = new
+    print(f"    {country} {period} ({kind}): HEV/PETROL/DIESEL from ACEA on the "
+          f"{existing.get('source')} row ({why})")
+    return True
+
+
 def update_country(data_dir: Path, country: str,
                    parsed: dict[str, tuple[int, int]],
                    target_period: str, source_url: str) -> bool:
@@ -738,6 +805,14 @@ def update_country(data_dir: Path, country: str,
         ("previous_year", prev_year_period(target_period), True),
     ):
         existing = by_period.get(period)
+        national = acea_split.NATIONAL_SOURCE.get(country)
+        if existing is not None and national and (existing.get("source") or "").strip() in (
+                national, acea_split.MERGED_SOURCE[country]):
+            # A national row with exact TOTAL/BEV/PHEV but a derived split
+            # (Greece/SEAA): ACEA contributes only its counted HEV/PETROL/DIESEL.
+            changed |= merge_split(country, period, kind, existing, parsed, use_prev,
+                                   by_period)
+            continue
         if not should_write(country, kind, existing):
             print(f"    {country} {period} ({kind}): skipped "
                   f"(existing source={existing.get('source')!r})")
