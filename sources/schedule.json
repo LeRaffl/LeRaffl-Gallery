@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T15:29:06Z",
+ "generated": "2026-10-10T15:46:03Z",
  "today": "2026-10-10",
  "countries": [
   {
@@ -2556,10 +2556,10 @@
    "source_url": "https://data.gov.my/data-catalogue/cars",
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-08",
-   "behind": 0,
-   "behind_now": 1,
+   "behind": -1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -2602,14 +2602,14 @@
     ],
     "workflow": ".github/workflows/fetch-malaysia.yml"
    },
-   "last_render": "2026-09-10",
+   "last_render": "2026-10-10",
    "flag": "🇲🇾",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
      "cadence": "monthly",
      "in_repo": true
     }

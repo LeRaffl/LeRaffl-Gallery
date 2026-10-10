@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T15:29:06Z",
+ "generated": "2026-10-10T15:46:03Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5688,6 +5688,14 @@
    "slug": "greece",
    "period": "2026-08",
    "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Malaysia",
+   "base": "Malaysia",
+   "slug": "malaysia",
+   "period": "2026-09",
+   "flag": "🇲🇾"
   },
   {
    "date": "2026-10-10",
