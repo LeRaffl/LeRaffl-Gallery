@@ -66,10 +66,13 @@ def row(p, status, power, n, cls="MA"):
             "CLASS": cls, "MOTIVE_POWER": power, "n": n}
 
 
-def mrow(p, power, make, model, n):
+def mrow(p, power, make, model, n, status=None):
     y, m = p.split("-")
-    return {nz.F_YEAR: int(y), nz.F_MONTH: int(m), "MOTIVE_POWER": power,
-            "MAKE": make, "MODEL": model, "n": n}
+    r = {nz.F_YEAR: int(y), nz.F_MONTH: int(m), "MOTIVE_POWER": power,
+         "MAKE": make, "MODEL": model, "n": n}
+    if status:
+        r["IMPORT_STATUS"] = status
+    return r
 
 
 # September 2026 as the register returned it on 2026-10-09 (new + used, MA/MB/MC/NA)
@@ -236,6 +239,24 @@ top = nz.build_top(data(SEP, MODELS), "2026-09")
 check("top total = new M1", top["total_registrations"], 12685)
 check("top BEV leader", top["classes"]["BEV"]["brands"][0]["brand"], "TESLA")
 check("top window", top["window"], {"from": "2026-09", "to": "2026-09", "months": 1})
+
+# ── Used brand / model table (rows carry IMPORT_STATUS) ──
+UMODELS = [mrow("2026-09", "ELECTRIC", "NISSAN", "LEAF", 120, "USED"),
+           mrow("2026-09", "PETROL HYBRID", "TOYOTA", "TOYOTA AQUA", 2000, "USED"),
+           mrow("2026-09", "PLUGIN PETROL HYBRID", "MITSUBISHI", "OUTLANDER", 40, "USED"),
+           mrow("2026-09", "ELECTRIC", "TESLA", "MODEL Y", 500, "NEW")]
+used_units = nz.month_units(UMODELS, "Used")["2026-09"]
+check("used units only USED rows", (("BEV", "TESLA", "MODEL Y") in used_units,
+                                    used_units[("BEV", "NISSAN", "LEAF")]), (False, 120))
+check("used PHEV kept (real split)", used_units[("PHEV", "MITSUBISHI", "OUTLANDER")], 40)
+check("whole units skip USED rows", ("BEV", "NISSAN", "LEAF") in nz.month_units(UMODELS)["2026-09"], False)
+check("row without status counts as new", ("BEV", "TESLA", "MODEL Y") in
+      nz.month_units([mrow("2026-09", "ELECTRIC", "TESLA", "MODEL Y", 5)])["2026-09"], True)
+utop = nz.build_top(data(SEP, UMODELS), "2026-09", "Used")
+check("used top total = used M1", utop["total_registrations"], 8371)
+check("used top variant", utop["variant"], "Used")
+check("used top HEV leader", utop["classes"]["HEV"]["brands"][0]["brand"], "TOYOTA")
+check("two top files", sorted(nz.TOP_PATHS), ["Used", "Whole"])
 
 print(f"{failures} failure(s)" if failures else "all New Zealand fetcher tests passed")
 sys.exit(1 if failures else 0)

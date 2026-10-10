@@ -112,7 +112,12 @@ processing:
 market_breakdown: market/new_zealand_top.json
 market_heading: Who sells the new electrified cars
 market_designation_note: Make and model as the entry certifier typed them on the register, upper-cased; a model typed with the brand in front is merged with the plain one. Some models are generic (BMW's electric cars are partly registered as model "I").
-market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV, for Whole — new passenger cars (MA/MB/MC). Used imports (the Nissan Leafs) and utes are not in these lists.
+market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV, for Whole — new passenger cars (MA/MB/MC). Used imports (the Nissan Leafs) have their own section below; utes are in neither.
+market_breakdown_extra:
+- path: market/new_zealand_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Used imports (the Used variant): passenger cars (MA/MB/MC) first registered abroad — mostly in Japan — at their first New Zealand registration. BEV / PHEV / HEV from the register's motive power, exactly as in the Used CSV."
 fetcher: scripts/fetch_new_zealand.py
 workflow: .github/workflows/fetch-new-zealand.yml
 fragility_doc: docs/architecture/19-source-new-zealand.md
@@ -141,7 +146,8 @@ Variants:  Whole   data/New Zealand.csv          NEW, MA/MB/MC (M1)
            Used    data/New Zealand_Used.csv     USED, MA/MB/MC (M1 used imports)
 Archive:   data/New Zealand_legacy.csv — the pre-2026-10 series (NEW + USED, MA/MB/MC/NA), not written
 Columns:   BEV, PHEV, HEV, PETROL, DIESEL, OTHERS, TOTAL (no FLEXFUEL)
-Top lists: market/new_zealand_top.json (BEV / PHEV / HEV, trailing 12 months + single months)
+Top lists: market/new_zealand_top.json (Whole) + market/new_zealand_used_top.json (Used);
+           BEV / PHEV / HEV, trailing 12 months + single months
 Schedule:  55 4,18 3-20 * *   (self-throttling; a no-op costs no HTTP request)
 ```
 
@@ -283,14 +289,19 @@ not know goes to OTHERS with a warning, and stops the run above 1 % of a month
   publication and it is behind Imperva — the overlap check against the
   committed history stands in for it.
 
-## 6. Brands and models (`market/new_zealand_top.json`)
+## 6. Brands and models (`market/new_zealand_top.json`, `market/new_zealand_used_top.json`)
 
-Whole's scope (new passenger cars) and the same powertrain mapping, grouped
-by `MAKE` and `MODEL` for BEV, PHEV and HEV, over the twelve months to the target, plus a ranking
-per single month (`market_top.build_top_monthly`). Make and model are free
+One grouped query — passenger cars (MA/MB/MC), new and used imports, by
+`IMPORT_STATUS`, `MAKE` and `MODEL` for BEV, PHEV and HEV over the twelve
+months to the target — feeds two tables with their CSV's scope and the same
+powertrain mapping: Whole (`NEW`) and Used (`USED`, its own section on the
+source page via `market_breakdown_extra` — the rule for every `Used` variant,
+[03](03-data-objects.md) §3.16). Each has a ranking per single month too
+(`market_top.build_top_monthly`). Make and model are free
 text typed by the entry certifier; `market_top.clean()` upper-cases them and
-`strip_brand()` merges "BYD ATTO 3" with "ATTO 3". Used imports (the Nissan
-Leafs) and utes are not in the lists. The refresh runs inside
+`strip_brand()` merges "BYD ATTO 3" with "ATTO 3". Utes (class NA) are in
+neither list. A `--save-json` file from before the Used table has no
+`IMPORT_STATUS` on its model rows; they are read as new cars. The refresh runs inside
 `market_top.guarded()`: if it fails, the CSV is still committed and the run
 shows a warning.
 
@@ -324,7 +335,7 @@ sequenceDiagram
     participant Hub as opendata-nzta Hub API
     participant FS as ArcGIS FeatureServer (MVR)
     participant CSV as data/New Zealand*.csv (5 variants)
-    participant Top as market/new_zealand_top.json
+    participant Top as market/new_zealand_top.json + _used_top.json
     participant Render as render-country.yml
     Cron->>Test: mapping, scope, guards, upsert, throttle, top lists (gate)
     Cron->>Py: run

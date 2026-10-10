@@ -113,9 +113,18 @@ SLUG = "new_zealand"
 SOURCE = "NZTA Motor Vehicle Register"
 VARIANT = "Whole"
 TOP_PATH = market_top.MARKET_DIR / f"{SLUG}_top.json"
-TOP_UNIT = ("one first registration of a new passenger car (classes MA/MB/MC, "
-            "EU M1) in New Zealand; brand and model as entered on the Motor "
-            "Vehicle Register")
+# Brand / model tables: Whole (new M1) and Used (used-import M1), each with
+# its CSV's class logic (03-data-objects.md §3.16: a Used variant gets its own).
+TOP_PATHS = {"Whole": TOP_PATH, "Used": market_top.MARKET_DIR / f"{SLUG}_used_top.json"}
+TOP_UNITS = {
+    "Whole": ("one first registration of a new passenger car (classes MA/MB/MC, "
+              "EU M1) in New Zealand; brand and model as entered on the Motor "
+              "Vehicle Register"),
+    "Used": ("one first New Zealand registration of a used-import passenger car "
+             "(classes MA/MB/MC, EU M1); brand and model as entered on the Motor "
+             "Vehicle Register"),
+}
+TOP_UNIT = TOP_UNITS["Whole"]
 
 ITEM_ID = "7b4df667d5014f1a93e6050b31d18407"
 HUB_ITEM = ("https://opendata-nzta.opendata.arcgis.com/api/search/v1/"
@@ -268,9 +277,11 @@ def query_register(first: str, last: str, top_from: str | None) -> dict:
     models: list[dict] = []
     if top_from:
         elec = [k for k, v in MOTIVE_MAP.items() if v in ELECTRIFIED and k]
-        where = (scope_where(top_from, last, *VARIANTS["Whole"]) + " AND MOTIVE_POWER IN ("
+        statuses = tuple(st for v in TOP_PATHS for st in VARIANTS[v][0])
+        where = (scope_where(top_from, last, statuses, M1) + " AND MOTIVE_POWER IN ("
                  + ",".join(f"'{k}'" for k in elec) + ")")
-        models = grouped(query_url, where, [F_YEAR, F_MONTH, "MOTIVE_POWER", "MAKE", "MODEL"])
+        models = grouped(query_url, where, [F_YEAR, F_MONTH, "IMPORT_STATUS", "MOTIVE_POWER",
+                                            "MAKE", "MODEL"])
         # month totals for the shares — the fuel query covers only first..last
         if month_num(top_from) < month_num(first):
             fuel_top = grouped(query_url, scope_where(top_from, shift_month(first, -1)),
@@ -344,11 +355,16 @@ def check_unknown(period: str, unknown: dict, total: int) -> str:
     return msg
 
 
-def month_units(model_rows: list[dict]) -> dict[str, dict]:
-    """{period: {(class, brand, model): n}} with the CSV's class logic."""
+def month_units(model_rows: list[dict], variant: str = "Whole") -> dict[str, dict]:
+    """{period: {(class, brand, model): n}} of one variant, with the CSV's class
+    logic. A row without IMPORT_STATUS (a --save-json file from before the Used
+    tables) is a new car."""
+    statuses = VARIANTS[variant][0]
     tally: dict = {}
     for a in model_rows:
         if a.get(F_YEAR) is None or a.get(F_MONTH) is None:
+            continue
+        if (a.get("IMPORT_STATUS") or "NEW") not in statuses:
             continue
         cls = column_of(a.get("MOTIVE_POWER"))
         if cls not in ELECTRIFIED:
@@ -360,17 +376,19 @@ def month_units(model_rows: list[dict]) -> dict[str, dict]:
     return market_top.per_month(tally)
 
 
-def build_top(data: dict, target: str) -> dict:
-    counts = count_months(data["fuel"])[0]["Whole"]
-    units = month_units(data["models"])
+def build_top(data: dict, target: str, variant: str = "Whole") -> dict:
+    counts = count_months(data["fuel"])[0][variant]
+    units = month_units(data["models"], variant)
     window = market_top.month_window(target)
     monthly = {p: (units.get(p, {}), counts[p]["TOTAL"]) for p in window if p in counts}
-    return market_top.build_top_monthly(COUNTRY, SOURCE, target, monthly, TOP_UNIT)
+    return market_top.build_top_monthly(COUNTRY, SOURCE, target, monthly,
+                                        TOP_UNITS[variant], variant)
 
 
-def refresh_top(data: dict, target: str) -> None:
-    top = build_top(data, target)
-    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
+def refresh_top(data: dict, target: str, variant: str = "Whole") -> None:
+    top = build_top(data, target, variant)
+    path = TOP_PATHS[variant]
+    market_top.report(top, path, market_top.write_top(top, path))
 
 
 # ── CSV line-level upsert (invariant 2) ────────────────────────────────────
@@ -490,7 +508,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--from-json", help="saved query result instead of the network")
     ap.add_argument("--save-json", help="write the query result here")
     ap.add_argument("--data-dir", default=str(DATA_DIR))
-    ap.add_argument("--no-top", action="store_true", help="skip market/new_zealand_top.json")
+    ap.add_argument("--no-top", action="store_true", help="skip market/new_zealand_top.json and new_zealand_used_top.json")
     ap.add_argument("--today", help=argparse.SUPPRESS)          # tests
     ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
     ap.add_argument("--summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
@@ -510,7 +528,8 @@ def main(argv: list[str] | None = None) -> int:
     have = {v: existing_rows(paths[v], v) for v in variants}
 
     # Self-throttle: every CSV has the month and the top file is current.
-    top_current = args.no_top or market_top.top_is_current(TOP_PATH, target)
+    top_current = args.no_top or all(market_top.top_is_current(p, target)
+                                     for p in TOP_PATHS.values())
     if (all(target in have[v] for v in variants) and top_current and not args.force
             and not args.since and not args.dry_run and not args.from_json):
         print(f"{target} already in every New Zealand CSV and the top file is current "
@@ -606,7 +625,8 @@ def main(argv: list[str] | None = None) -> int:
             if stats["added"] or stats["updated"]:
                 changed.add(v)
         if not args.no_top and data.get("models"):
-            market_top.guarded(refresh_top, data, target)
+            for v in TOP_PATHS:
+                market_top.guarded(refresh_top, data, target, v)
 
     for w in warnings:
         print(f"::warning title=New Zealand::{w}")
