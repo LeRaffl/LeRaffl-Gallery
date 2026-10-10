@@ -2,6 +2,86 @@
   "updated": "2026-10-10",
   "images": [
     {
+      "country": "Georgia",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-10-10",
+      "filename": "georgia_ICE_BEV_20261010.png",
+      "url": "images/2026-06/georgia_ICE_BEV_20261010.png",
+      "alt": "Georgia ICE-BEV-Hybrid trajectory",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-10-10",
+      "filename": "georgia_20261010.png",
+      "url": "images/2026-06/georgia_20261010.png",
+      "alt": "Georgia BEV trajectory",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-10-10",
+      "filename": "georgia_time_20261010.png",
+      "url": "images/2026-06/georgia_time_20261010.png",
+      "alt": "Georgia Transition time curve",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-10-10",
+      "filename": "georgia_ttm_shares_20261010.png",
+      "url": "images/2026-06/georgia_ttm_shares_20261010.png",
+      "alt": "Georgia TTM market split graph",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Norway",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "norway_ICE_BEV_20261010.png",
+      "url": "images/2026-09/norway_ICE_BEV_20261010.png",
+      "alt": "Norway ICE-BEV-Hybrid trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "norway_20261010.png",
+      "url": "images/2026-09/norway_20261010.png",
+      "alt": "Norway BEV trajectory",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "norway_time_20261010.png",
+      "url": "images/2026-09/norway_time_20261010.png",
+      "alt": "Norway Transition time curve",
+      "country_slug": "norway"
+    },
+    {
+      "country": "Norway",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "norway_ttm_shares_20261010.png",
+      "url": "images/2026-09/norway_ttm_shares_20261010.png",
+      "alt": "Norway TTM market split graph",
+      "country_slug": "norway"
+    },
+    {
       "country": "Austria",
       "type": "ICE_BEV",
       "period": "2026-09",
