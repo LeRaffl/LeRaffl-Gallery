@@ -322,6 +322,21 @@ def test_top_only_whole_csv_classes():
         {"brand": "TOYOTA", "model": "ALPHARD", "units": 1, "share_of_class": 1.0}]
 
 
+def test_top_used_has_its_own_table():
+    agg = fh.Aggregator()
+    agg.add("2026-07", "Private Car", "TESLA", "MODEL Y RWD", "Electric", "A", "-", "2026")
+    agg.add("2026-07", "Private Car", "BYD", "ATTO 3", "Electric", "C2", "-", "2024")
+    agg.add("2026-07", "Private Car", "GAC", "E9 GX", "Petrol", "C2", "-", "2025")
+    agg.add("2026-07", "Private Car", "TOYOTA", "ALPHARD", "Petrol", "C2", "-", "2020")
+    agg.add("2026-07", "Private Car", "TOYOTA", "PRIUS", "Petrol", "D", "-", "2020")  # no variant
+    top = fh.build_top(agg, "2026-07", "Used")
+    assert top["variant"] == "Used"
+    assert top["total_registrations"] == agg.counts["2026-07"]["Used"]["TOTAL"] == 3
+    assert top["classes"]["BEV"]["models"] == [
+        {"brand": "BYD", "model": "ATTO 3", "units": 1, "share_of_class": 1.0}]
+    assert top["classes"]["PHEV"]["brands"][0]["brand"] == "GAC"    # same rules as the CSV
+
+
 def main() -> int:
     tests = [(n, f) for n, f in sorted(globals().items())
              if n.startswith("test_") and callable(f)]

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T10:03:38Z",
+ "generated": "2026-10-10T14:25:28Z",
  "today": "2026-10-10",
  "countries": [
   {
@@ -10,11 +10,11 @@
    "source_url": "https://lookerstudio.google.com/reporting/233df2cc-6bd4-45fc-bf9b-e8ee4f83293e/page/VPWqB",
    "cadence_text": "daily 07:00 UTC, 10th–28th, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -58,38 +58,38 @@
     ],
     "workflow": ".github/workflows/fetch-albania.yml"
    },
-   "last_render": "2026-09-10",
+   "last_render": "2026-10-10",
    "flag": "🇦🇱",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-01",
-     "rows": 92,
+     "rows": 93,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2020-01",
-     "rows": 68,
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2020-01",
-     "rows": 68,
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "2-Wheelers",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2020-01",
-     "rows": 68,
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1593,7 +1593,7 @@
     ],
     "workflow": ".github/workflows/fetch-greece.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-10",
    "flag": "🇬🇷",
    "variants": [
     {
@@ -2907,7 +2907,7 @@
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
-   "last_render": "2026-10-06",
+   "last_render": "2026-10-10",
    "flag": "🇳🇿",
    "variants": [
     {

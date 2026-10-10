@@ -109,12 +109,13 @@ a missing weekday means "not yet"). The rows get source "DGT (daily)" and a
 replaces a "DGT" row. --no-daily disables the fallback. Probe record and
 September 2026 cross-check: docs/architecture/28-source-spain.md §3b.
 
-Top brands / models (market/spain_top.json)
--------------------------------------------
+Top brands / models (market/spain_top.json, market/spain_used_top.json)
+-----------------------------------------------------------------------
 The records carry MARCA_ITV / MODELO_ITV, so every run also keeps the
-trailing-twelve-month top brands and models per electrified class (Whole
-only) current, in the country-neutral schema of scripts/market_top.py; the
-source page renders it. It is rebuilt whenever it is missing, its as_of is
+trailing-twelve-month top brands and models per electrified class current —
+Whole in spain_top.json, Used in spain_used_top.json, from the same
+downloads — in the country-neutral schema of scripts/market_top.py; the
+source page renders both. They are rebuilt whenever one is missing, its as_of is
 behind the newest DGT month in data/Spain.csv, or its source differs from
 that row's ("DGT (daily)" → "DGT") — i.e. provisionally and then finally once
 per new month, and automatically on the first run — which costs twelve
@@ -273,7 +274,8 @@ SL_HOMOLOGACION = _slice("CATEGORIA_HOMOLOGACION_EUROPEA_ITV")
 SL_MARCA = _slice("MARCA_ITV")
 SL_MODELO = _slice("MODELO_ITV")
 
-TOP_PATH = market_top.MARKET_DIR / "spain_top.json"
+TOP_PATHS = {"Whole": market_top.MARKET_DIR / "spain_top.json",
+             "Used": market_top.MARKET_DIR / "spain_used_top.json"}
 TOP_UNIT = "registrations (model = DGT MODELO_ITV string, brand = MARCA_ITV)"
 
 TURISMO_TIPOS = {"40", "25"}
@@ -499,25 +501,30 @@ def aggregate(txt_bytes: bytes, period: str,
     return counts
 
 
-def aggregate_models(txt_bytes: bytes) -> tuple[dict, int]:
-    """Whole records of one month -> ({(class, brand, model): units}, total).
-    Same scope and fuel logic as aggregate(), so the total equals the CSV's."""
-    units: dict = {}
-    total = 0
+def aggregate_models(txt_bytes: bytes) -> dict[str, tuple[dict, int]]:
+    """Whole and Used records of one month -> {variant: ({(class, brand,
+    model): units}, total)}. Same scope and fuel logic as aggregate(), so
+    each total equals that variant's CSV TOTAL."""
+    units: dict = {v: {} for v in TOP_PATHS}
+    totals = dict.fromkeys(TOP_PATHS, 0)
     stream = io.TextIOWrapper(io.BytesIO(txt_bytes), encoding="latin-1")
     for i, line in enumerate(stream):
         if i == 0 and not line[:1].isdigit():
             continue
         line = line.rstrip("\r\n")
-        if len(line) != RECORD_LEN or "Whole" not in record_variants(line):
+        if len(line) != RECORD_LEN:
             continue
-        total += 1
+        variants = [v for v in record_variants(line) if v in units]
+        if not variants:
+            continue
         brand = market_top.clean(line[SL_MARCA[0]:SL_MARCA[1]])
         model = market_top.strip_brand(
             brand, market_top.clean(line[SL_MODELO[0]:SL_MODELO[1]]))
         key = (classify_fuel(line), brand, model)
-        units[key] = units.get(key, 0) + 1
-    return units, total
+        for v in variants:
+            totals[v] += 1
+            units[v][key] = units[v].get(key, 0) + 1
+    return {v: (units[v], totals[v]) for v in TOP_PATHS}
 
 
 def latest_dgt_period(rows: list[dict]) -> str | None:
@@ -541,24 +548,24 @@ def top_source_of(path: Path) -> str | None:
 
 
 def refresh_top(session: requests.Session | None) -> None:
-    """Rebuild market/spain_top.json if it is missing, behind the newest
-    DGT month in data/Spain.csv, or built from that month's daily files
-    while the CSV row now comes from the monthly file (twelve downloads;
-    see module docstring)."""
+    """Rebuild market/spain_top.json and spain_used_top.json if one is
+    missing, behind the newest DGT month in data/Spain.csv, or built from
+    that month's daily files while the CSV row now comes from the monthly
+    file (twelve downloads for both; see module docstring)."""
     latest = latest_dgt_row(load_rows(Path(VARIANT_CONFIG["Whole"])))
     if latest is None:
         return
     target, source = latest["period"], latest["source"]
-    have = market_top.top_as_of(TOP_PATH)
-    if (market_top.top_is_current(TOP_PATH, target)
-            and top_source_of(TOP_PATH) == source):
-        print(f"{TOP_PATH.relative_to(market_top.REPO)}: current "
+    if all(market_top.top_is_current(p, target) and top_source_of(p) == source
+           for p in TOP_PATHS.values()):
+        print(f"market/spain_top.json, spain_used_top.json: current "
               f"({target}, {source}).")
         return
-    print(f"Top brands/models: {have or 'none'} -> {target} ({source}), "
+    have = {v: market_top.top_as_of(p) or "none" for v, p in TOP_PATHS.items()}
+    print(f"Top brands/models: {have} -> {target} ({source}), "
           "reading the trailing twelve months …")
     session = session or make_session()
-    monthly: dict = {}
+    monthly: dict = {v: {} for v in TOP_PATHS}
     for period in market_top.month_window(target):
         try:
             if period == target and source == SOURCE_DAILY:
@@ -568,12 +575,15 @@ def refresh_top(session: requests.Session | None) -> None:
         except NotPublished as e:
             print(f"  {e} — top list not rebuilt this run.")
             return
-        u, t = aggregate_models(txt)
+        for v, ut in aggregate_models(txt).items():
+            monthly[v][period] = ut
         del txt
-        monthly[period] = (u, t)
-        print(f"  {period}: {t:,} Whole records")
-    top = market_top.build_top_monthly("Spain", source, target, monthly, TOP_UNIT)
-    market_top.report(top, TOP_PATH, market_top.write_top(top, TOP_PATH))
+        print(f"  {period}: {monthly['Whole'][period][1]:,} Whole, "
+              f"{monthly['Used'][period][1]:,} Used records")
+    for v, path in TOP_PATHS.items():
+        top = market_top.build_top_monthly("Spain", source, target, monthly[v],
+                                           TOP_UNIT, v)
+        market_top.report(top, path, market_top.write_top(top, path))
 
 
 # ── CSV handling ───────────────────────────────────────────────────────────

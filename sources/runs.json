@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T10:03:38Z",
+ "generated": "2026-10-10T14:25:28Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5643,11 +5643,83 @@
   },
   {
    "date": "2026-10-10",
+   "label": "Albania",
+   "base": "Albania",
+   "slug": "albania",
+   "period": "2026-09",
+   "flag": "🇦🇱"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Albania (2-Wheelers)",
+   "base": "Albania",
+   "slug": "albania_2_wheelers",
+   "period": "2026-09",
+   "flag": "🇦🇱"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Albania (Buses)",
+   "base": "Albania",
+   "slug": "albania_buses",
+   "period": "2026-09",
+   "flag": "🇦🇱"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Albania (HDV)",
+   "base": "Albania",
+   "slug": "albania_hdv",
+   "period": "2026-09",
+   "flag": "🇦🇱"
+  },
+  {
+   "date": "2026-10-10",
    "label": "Georgia",
    "base": "Georgia",
    "slug": "georgia",
    "period": "2026-06",
    "flag": "🇬🇪"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Greece",
+   "base": "Greece",
+   "slug": "greece",
+   "period": "2026-08",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "New Zealand",
+   "base": "New Zealand",
+   "slug": "new_zealand",
+   "period": "2026-09",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "New Zealand (HDV)",
+   "base": "New Zealand",
+   "slug": "new_zealand_hdv",
+   "period": "2026-09",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "New Zealand (Used)",
+   "base": "New Zealand",
+   "slug": "new_zealand_used",
+   "period": "2026-09",
+   "flag": "🇳🇿"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "New Zealand (Vans)",
+   "base": "New Zealand",
+   "slug": "new_zealand_vans",
+   "period": "2026-09",
+   "flag": "🇳🇿"
   },
   {
    "date": "2026-10-10",
