@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Argentina",
  "variant": "Whole",
  "source": "DNRPA",
@@ -305,7 +306,157 @@
      "units": 44,
      "share_of_class": 0.0031
     }
-   ]
+   ],
+   "incl_erev": {
+    "units": 14758,
+    "share_of_market": 0.04027,
+    "brands": [
+     {
+      "brand": "BYD",
+      "units": 7716,
+      "share_of_class": 0.5228
+     },
+     {
+      "brand": "CHEVROLET",
+      "units": 3108,
+      "share_of_class": 0.2106
+     },
+     {
+      "brand": "CHANGAN",
+      "units": 1468,
+      "share_of_class": 0.0995
+     },
+     {
+      "brand": "JETOUR",
+      "units": 677,
+      "share_of_class": 0.0459
+     },
+     {
+      "brand": "CHERY",
+      "units": 596,
+      "share_of_class": 0.0404
+     },
+     {
+      "brand": "LEAPMOTOR",
+      "units": 312,
+      "share_of_class": 0.0211
+     },
+     {
+      "brand": "JAC",
+      "units": 250,
+      "share_of_class": 0.0169
+     },
+     {
+      "brand": "DFSK",
+      "units": 187,
+      "share_of_class": 0.0127
+     },
+     {
+      "brand": "VOLVO",
+      "units": 124,
+      "share_of_class": 0.0084
+     },
+     {
+      "brand": "BMW",
+      "units": 88,
+      "share_of_class": 0.006
+     }
+    ],
+    "models": [
+     {
+      "brand": "BYD",
+      "model": "ATTO 2 DM-I GS",
+      "units": 3528,
+      "share_of_class": 0.2391
+     },
+     {
+      "brand": "BYD",
+      "model": "SONG PRO DM-I GS",
+      "units": 3295,
+      "share_of_class": 0.2233
+     },
+     {
+      "brand": "CHEVROLET",
+      "model": "CAPTIVA PHEV PREMIER",
+      "units": 3108,
+      "share_of_class": 0.2106
+     },
+     {
+      "brand": "CHANGAN",
+      "model": "CS55 PLUS",
+      "units": 1449,
+      "share_of_class": 0.0982
+     },
+     {
+      "brand": "JETOUR",
+      "model": "T1 I-DM",
+      "units": 673,
+      "share_of_class": 0.0456
+     },
+     {
+      "brand": "BYD",
+      "model": "SEAL U DM-I GS",
+      "units": 524,
+      "share_of_class": 0.0355
+     },
+     {
+      "brand": "BYD",
+      "model": "SONG PRO DM-I GL",
+      "units": 338,
+      "share_of_class": 0.0229
+     },
+     {
+      "brand": "CHERY",
+      "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
+      "units": 315,
+      "share_of_class": 0.0213
+     },
+     {
+      "brand": "CHERY",
+      "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
+      "units": 274,
+      "share_of_class": 0.0186
+     },
+     {
+      "brand": "JAC",
+      "model": "JS6 PHEV",
+      "units": 250,
+      "share_of_class": 0.0169
+     },
+     {
+      "brand": "LEAPMOTOR",
+      "model": "B10 REEV DESIGN",
+      "units": 203,
+      "share_of_class": 0.0138,
+      "erev": true
+     },
+     {
+      "brand": "DFSK",
+      "model": "E5 PLUS PHEV",
+      "units": 116,
+      "share_of_class": 0.0079
+     },
+     {
+      "brand": "LEAPMOTOR",
+      "model": "C10 REEV DESIGN",
+      "units": 109,
+      "share_of_class": 0.0074,
+      "erev": true
+     },
+     {
+      "brand": "DFSK",
+      "model": "E5",
+      "units": 71,
+      "share_of_class": 0.0048
+     },
+     {
+      "brand": "VOLVO",
+      "model": "XC60 T8 AWD RECHARGE",
+      "units": 56,
+      "share_of_class": 0.0038
+     }
+    ]
+   }
   },
   "EREV": {
    "units": 348,
@@ -896,7 +1047,127 @@
        "units": 34,
        "share_of_class": 0.0167
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 2187,
+      "share_of_market": 0.06624,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 941,
+        "share_of_class": 0.4303
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 440,
+        "share_of_class": 0.2012
+       },
+       {
+        "brand": "CHERY",
+        "units": 201,
+        "share_of_class": 0.0919
+       },
+       {
+        "brand": "JETOUR",
+        "units": 184,
+        "share_of_class": 0.0841
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 155,
+        "share_of_class": 0.0709
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "units": 148,
+        "share_of_class": 0.0677
+       },
+       {
+        "brand": "DFSK",
+        "units": 38,
+        "share_of_class": 0.0174
+       },
+       {
+        "brand": "KAIYI",
+        "units": 21,
+        "share_of_class": 0.0096
+       },
+       {
+        "brand": "JAC",
+        "units": 19,
+        "share_of_class": 0.0087
+       },
+       {
+        "brand": "TOYOTA",
+        "units": 15,
+        "share_of_class": 0.0069
+       }
+      ],
+      "models": [
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 440,
+        "share_of_class": 0.2012
+       },
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 431,
+        "share_of_class": 0.1971
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 279,
+        "share_of_class": 0.1276
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 182,
+        "share_of_class": 0.0832
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL U DM-I GS",
+        "units": 161,
+        "share_of_class": 0.0736
+       },
+       {
+        "brand": "CHERY",
+        "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
+        "units": 160,
+        "share_of_class": 0.0732
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 140,
+        "share_of_class": 0.064
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "B10 REEV DESIGN",
+        "units": 87,
+        "share_of_class": 0.0398,
+        "erev": true
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "C10 REEV DESIGN",
+        "units": 61,
+        "share_of_class": 0.0279,
+        "erev": true
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 44,
+        "share_of_class": 0.0201
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 155,
@@ -1410,7 +1681,126 @@
        "units": 24,
        "share_of_class": 0.0133
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 1930,
+      "share_of_market": 0.06385,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 908,
+        "share_of_class": 0.4705
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 384,
+        "share_of_class": 0.199
+       },
+       {
+        "brand": "CHERY",
+        "units": 151,
+        "share_of_class": 0.0782
+       },
+       {
+        "brand": "JETOUR",
+        "units": 141,
+        "share_of_class": 0.0731
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "units": 116,
+        "share_of_class": 0.0601
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 114,
+        "share_of_class": 0.0591
+       },
+       {
+        "brand": "DFSK",
+        "units": 34,
+        "share_of_class": 0.0176
+       },
+       {
+        "brand": "JAC",
+        "units": 23,
+        "share_of_class": 0.0119
+       },
+       {
+        "brand": "TOYOTA",
+        "units": 17,
+        "share_of_class": 0.0088
+       },
+       {
+        "brand": "VOLVO",
+        "units": 13,
+        "share_of_class": 0.0067
+       }
+      ],
+      "models": [
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 431,
+        "share_of_class": 0.2233
+       },
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 384,
+        "share_of_class": 0.199
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL U DM-I GS",
+        "units": 237,
+        "share_of_class": 0.1228
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 198,
+        "share_of_class": 0.1026
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 141,
+        "share_of_class": 0.0731
+       },
+       {
+        "brand": "CHERY",
+        "model": "TIGGO 7 PRO HYBRID 1.5T PHEV PREMIUM",
+        "units": 127,
+        "share_of_class": 0.0658
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 111,
+        "share_of_class": 0.0575
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "B10 REEV DESIGN",
+        "units": 87,
+        "share_of_class": 0.0451,
+        "erev": true
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 38,
+        "share_of_class": 0.0197
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5 PLUS PHEV",
+        "units": 33,
+        "share_of_class": 0.0171
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 125,
@@ -1924,7 +2314,126 @@
        "units": 27,
        "share_of_class": 0.0187
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 1492,
+      "share_of_market": 0.049,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 469,
+        "share_of_class": 0.3143
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 459,
+        "share_of_class": 0.3076
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 168,
+        "share_of_class": 0.1126
+       },
+       {
+        "brand": "JETOUR",
+        "units": 157,
+        "share_of_class": 0.1052
+       },
+       {
+        "brand": "CHERY",
+        "units": 49,
+        "share_of_class": 0.0328
+       },
+       {
+        "brand": "DFSK",
+        "units": 44,
+        "share_of_class": 0.0295
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "units": 44,
+        "share_of_class": 0.0295
+       },
+       {
+        "brand": "JAC",
+        "units": 32,
+        "share_of_class": 0.0214
+       },
+       {
+        "brand": "KAIYI",
+        "units": 25,
+        "share_of_class": 0.0168
+       },
+       {
+        "brand": "TOYOTA",
+        "units": 15,
+        "share_of_class": 0.0101
+       }
+      ],
+      "models": [
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 459,
+        "share_of_class": 0.3076
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 219,
+        "share_of_class": 0.1468
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 168,
+        "share_of_class": 0.1126
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 157,
+        "share_of_class": 0.1052
+       },
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 112,
+        "share_of_class": 0.0751
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL U DM-I GS",
+        "units": 104,
+        "share_of_class": 0.0697
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5 PLUS PHEV",
+        "units": 43,
+        "share_of_class": 0.0288
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 34,
+        "share_of_class": 0.0228
+       },
+       {
+        "brand": "JAC",
+        "model": "JS6 PHEV",
+        "units": 32,
+        "share_of_class": 0.0214
+       },
+       {
+        "brand": "LEAPMOTOR",
+        "model": "B10 REEV DESIGN",
+        "units": 29,
+        "share_of_class": 0.0194,
+        "erev": true
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 50,
@@ -2438,7 +2947,125 @@
        "units": 6,
        "share_of_class": 0.0036
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 1667,
+      "share_of_market": 0.05365,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 1030,
+        "share_of_class": 0.6179
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 332,
+        "share_of_class": 0.1992
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 194,
+        "share_of_class": 0.1164
+       },
+       {
+        "brand": "JAC",
+        "units": 27,
+        "share_of_class": 0.0162
+       },
+       {
+        "brand": "CHERY",
+        "units": 25,
+        "share_of_class": 0.015
+       },
+       {
+        "brand": "DFSK",
+        "units": 9,
+        "share_of_class": 0.0054
+       },
+       {
+        "brand": "TOYOTA",
+        "units": 8,
+        "share_of_class": 0.0048
+       },
+       {
+        "brand": "BMW",
+        "units": 6,
+        "share_of_class": 0.0036
+       },
+       {
+        "brand": "SHINERAY",
+        "units": 6,
+        "share_of_class": 0.0036
+       },
+       {
+        "brand": "VOLVO",
+        "units": 6,
+        "share_of_class": 0.0036
+       }
+      ],
+      "models": [
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 532,
+        "share_of_class": 0.3191
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 443,
+        "share_of_class": 0.2657
+       },
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 332,
+        "share_of_class": 0.1992
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 194,
+        "share_of_class": 0.1164
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 32,
+        "share_of_class": 0.0192
+       },
+       {
+        "brand": "JAC",
+        "model": "JS6 PHEV",
+        "units": 27,
+        "share_of_class": 0.0162
+       },
+       {
+        "brand": "CHERY",
+        "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
+        "units": 24,
+        "share_of_class": 0.0144
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL U DM-I GS",
+        "units": 22,
+        "share_of_class": 0.0132
+       },
+       {
+        "brand": "TOYOTA",
+        "model": "NUEVA RAV4 PHEV 2.5 AWD XSE",
+        "units": 7,
+        "share_of_class": 0.0042
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5",
+        "units": 6,
+        "share_of_class": 0.0036
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 9,
@@ -3424,7 +4051,125 @@
        "units": 5,
        "share_of_class": 0.0028
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 1786,
+      "share_of_market": 0.05556,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 1077,
+        "share_of_class": 0.603
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 375,
+        "share_of_class": 0.21
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 213,
+        "share_of_class": 0.1193
+       },
+       {
+        "brand": "CHERY",
+        "units": 46,
+        "share_of_class": 0.0258
+       },
+       {
+        "brand": "JAC",
+        "units": 33,
+        "share_of_class": 0.0185
+       },
+       {
+        "brand": "VOLVO",
+        "units": 11,
+        "share_of_class": 0.0062
+       },
+       {
+        "brand": "DFSK",
+        "units": 8,
+        "share_of_class": 0.0045
+       },
+       {
+        "brand": "FORTHING",
+        "units": 5,
+        "share_of_class": 0.0028
+       },
+       {
+        "brand": "JETOUR",
+        "units": 5,
+        "share_of_class": 0.0028
+       },
+       {
+        "brand": "LAND ROVER",
+        "units": 4,
+        "share_of_class": 0.0022
+       }
+      ],
+      "models": [
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 695,
+        "share_of_class": 0.3891
+       },
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 375,
+        "share_of_class": 0.21
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 363,
+        "share_of_class": 0.2032
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 212,
+        "share_of_class": 0.1187
+       },
+       {
+        "brand": "CHERY",
+        "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
+        "units": 46,
+        "share_of_class": 0.0258
+       },
+       {
+        "brand": "JAC",
+        "model": "JS6 PHEV",
+        "units": 33,
+        "share_of_class": 0.0185
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 19,
+        "share_of_class": 0.0106
+       },
+       {
+        "brand": "VOLVO",
+        "model": "XC60 T8 CORE",
+        "units": 10,
+        "share_of_class": 0.0056
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5",
+        "units": 8,
+        "share_of_class": 0.0045
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 5,
+        "share_of_class": 0.0028
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 6,
@@ -3938,7 +4683,125 @@
        "units": 3,
        "share_of_class": 0.0019
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 1614,
+      "share_of_market": 0.04772,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 963,
+        "share_of_class": 0.5967
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 359,
+        "share_of_class": 0.2224
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 168,
+        "share_of_class": 0.1041
+       },
+       {
+        "brand": "CHERY",
+        "units": 48,
+        "share_of_class": 0.0297
+       },
+       {
+        "brand": "JETOUR",
+        "units": 43,
+        "share_of_class": 0.0266
+       },
+       {
+        "brand": "JAC",
+        "units": 16,
+        "share_of_class": 0.0099
+       },
+       {
+        "brand": "DFSK",
+        "units": 7,
+        "share_of_class": 0.0043
+       },
+       {
+        "brand": "BMW",
+        "units": 3,
+        "share_of_class": 0.0019
+       },
+       {
+        "brand": "SHINERAY",
+        "units": 3,
+        "share_of_class": 0.0019
+       },
+       {
+        "brand": "FORTHING",
+        "units": 2,
+        "share_of_class": 0.0012
+       }
+      ],
+      "models": [
+       {
+        "brand": "BYD",
+        "model": "ATTO 2 DM-I GS",
+        "units": 572,
+        "share_of_class": 0.3544
+       },
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 359,
+        "share_of_class": 0.2224
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 357,
+        "share_of_class": 0.2212
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 168,
+        "share_of_class": 0.1041
+       },
+       {
+        "brand": "CHERY",
+        "model": "ARRIZO 8 HYBRID 1.5T PHEV COMFORT",
+        "units": 48,
+        "share_of_class": 0.0297
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 43,
+        "share_of_class": 0.0266
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 34,
+        "share_of_class": 0.0211
+       },
+       {
+        "brand": "JAC",
+        "model": "JS6 PHEV",
+        "units": 16,
+        "share_of_class": 0.0099
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5",
+        "units": 7,
+        "share_of_class": 0.0043
+       },
+       {
+        "brand": "BMW",
+        "model": "X1 XDRIVE25E",
+        "units": 3,
+        "share_of_class": 0.0019
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 2,
@@ -4898,7 +5761,125 @@
        "units": 9,
        "share_of_class": 0.0098
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 923,
+      "share_of_market": 0.0205,
+      "brands": [
+       {
+        "brand": "BYD",
+        "units": 526,
+        "share_of_class": 0.5699
+       },
+       {
+        "brand": "CHEVROLET",
+        "units": 145,
+        "share_of_class": 0.1571
+       },
+       {
+        "brand": "CHANGAN",
+        "units": 113,
+        "share_of_class": 0.1224
+       },
+       {
+        "brand": "JAC",
+        "units": 49,
+        "share_of_class": 0.0531
+       },
+       {
+        "brand": "VOLVO",
+        "units": 33,
+        "share_of_class": 0.0358
+       },
+       {
+        "brand": "JETOUR",
+        "units": 21,
+        "share_of_class": 0.0228
+       },
+       {
+        "brand": "DFSK",
+        "units": 16,
+        "share_of_class": 0.0173
+       },
+       {
+        "brand": "BMW",
+        "units": 12,
+        "share_of_class": 0.013
+       },
+       {
+        "brand": "SHINERAY",
+        "units": 4,
+        "share_of_class": 0.0043
+       },
+       {
+        "brand": "DS",
+        "units": 1,
+        "share_of_class": 0.0011
+       }
+      ],
+      "models": [
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GS",
+        "units": 470,
+        "share_of_class": 0.5092
+       },
+       {
+        "brand": "CHEVROLET",
+        "model": "CAPTIVA PHEV PREMIER",
+        "units": 145,
+        "share_of_class": 0.1571
+       },
+       {
+        "brand": "CHANGAN",
+        "model": "CS55 PLUS",
+        "units": 113,
+        "share_of_class": 0.1224
+       },
+       {
+        "brand": "BYD",
+        "model": "SONG PRO DM-I GL",
+        "units": 56,
+        "share_of_class": 0.0607
+       },
+       {
+        "brand": "JAC",
+        "model": "JS6 PHEV",
+        "units": 49,
+        "share_of_class": 0.0531
+       },
+       {
+        "brand": "VOLVO",
+        "model": "XC60 T8 AWD RECHARGE",
+        "units": 24,
+        "share_of_class": 0.026
+       },
+       {
+        "brand": "JETOUR",
+        "model": "T1 I-DM",
+        "units": 21,
+        "share_of_class": 0.0228
+       },
+       {
+        "brand": "DFSK",
+        "model": "E5",
+        "units": 16,
+        "share_of_class": 0.0173
+       },
+       {
+        "brand": "BMW",
+        "model": "X1 XDRIVE25E",
+        "units": 9,
+        "share_of_class": 0.0098
+       },
+       {
+        "brand": "VOLVO",
+        "model": "XC60 T8 CORE",
+        "units": 9,
+        "share_of_class": 0.0098
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 1,
