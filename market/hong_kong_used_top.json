@@ -1,0 +1,1025 @@
+{
+ "country": "Hong Kong",
+ "variant": "Used",
+ "source": "Transport Department (data.gov.hk)",
+ "as_of": "2026-08",
+ "window": {
+  "from": "2025-09",
+  "to": "2026-08",
+  "months": 12
+ },
+ "total_registrations": 8430,
+ "unit": "first registrations (brand = TD 'Vehicle Make', aliases merged; model = TD 'Vehicle Model' with the brand prefix, chassis codes and trim words removed — see MODEL_TRIM in scripts/fetch_hong_kong.py)",
+ "classes": {
+  "BEV": {
+   "units": 85,
+   "share_of_market": 0.01008,
+   "brands": [
+    {
+     "brand": "MAXUS",
+     "units": 22,
+     "share_of_class": 0.2588
+    },
+    {
+     "brand": "NISSAN",
+     "units": 20,
+     "share_of_class": 0.2353
+    },
+    {
+     "brand": "GEELY",
+     "units": 11,
+     "share_of_class": 0.1294
+    },
+    {
+     "brand": "BYD",
+     "units": 10,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "BMW",
+     "units": 9,
+     "share_of_class": 0.1059
+    },
+    {
+     "brand": "ZEEKR",
+     "units": 4,
+     "share_of_class": 0.0471
+    },
+    {
+     "brand": "FIAT",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "MINI",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 1,
+     "share_of_class": 0.0118
+    }
+   ],
+   "models": [
+    {
+     "brand": "MAXUS",
+     "model": "MIFA 7",
+     "units": 20,
+     "share_of_class": 0.2353
+    },
+    {
+     "brand": "GEELY",
+     "model": "EX5",
+     "units": 11,
+     "share_of_class": 0.1294
+    },
+    {
+     "brand": "BYD",
+     "model": "SEALION 7",
+     "units": 8,
+     "share_of_class": 0.0941
+    },
+    {
+     "brand": "BMW",
+     "model": "IX 40",
+     "units": 6,
+     "share_of_class": 0.0706
+    },
+    {
+     "brand": "NISSAN",
+     "model": "LEAF E+X",
+     "units": 4,
+     "share_of_class": 0.0471
+    },
+    {
+     "brand": "ZEEKR",
+     "model": "7X",
+     "units": 4,
+     "share_of_class": 0.0471
+    },
+    {
+     "brand": "NISSAN",
+     "model": "LEAF X",
+     "units": 3,
+     "share_of_class": 0.0353
+    },
+    {
+     "brand": "BYD",
+     "model": "M6",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "MAXUS",
+     "model": "MIFA 9",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "NISSAN",
+     "model": "LEAF 30X THANKS",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "NISSAN",
+     "model": "LEAF E+G",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "NISSAN",
+     "model": "SAKURA G",
+     "units": 2,
+     "share_of_class": 0.0235
+    },
+    {
+     "brand": "BMW",
+     "model": "325I TOURING",
+     "units": 1,
+     "share_of_class": 0.0118
+    },
+    {
+     "brand": "BMW",
+     "model": "IX 50",
+     "units": 1,
+     "share_of_class": 0.0118
+    },
+    {
+     "brand": "BMW",
+     "model": "IX XDRIVE40",
+     "units": 1,
+     "share_of_class": 0.0118
+    }
+   ]
+  },
+  "PHEV": {
+   "units": 17,
+   "share_of_market": 0.00202,
+   "brands": [
+    {
+     "brand": "FERRARI",
+     "units": 5,
+     "share_of_class": 0.2941
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 5,
+     "share_of_class": 0.2941
+    },
+    {
+     "brand": "GAC",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "LAND ROVER",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "BENTLEY",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "BYD",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "LAMBORGHINI",
+     "units": 1,
+     "share_of_class": 0.0588
+    }
+   ],
+   "models": [
+    {
+     "brand": "FERRARI",
+     "model": "296 GTS",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "FERRARI",
+     "model": "SF90 STRADALE",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "GAC",
+     "model": "E9",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "ALPHARD PLUG-IN",
+     "units": 2,
+     "share_of_class": 0.1176
+    },
+    {
+     "brand": "BENTLEY",
+     "model": "BENTAYGA HYBRID",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "BYD",
+     "model": "SEALION 6",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "FERRARI",
+     "model": "296GTB",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "LAMBORGHINI",
+     "model": "REVUELTO",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "LAND ROVER",
+     "model": "RANGE ROVER AUTOBIOGRAPHY P510E WHEELBASE",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "LAND ROVER",
+     "model": "RANGE ROVER P550E",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "ALPHARD",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "CROWN RS",
+     "units": 1,
+     "share_of_class": 0.0588
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "PRIUS PHV S GR",
+     "units": 1,
+     "share_of_class": 0.0588
+    }
+   ]
+  }
+ },
+ "months": [
+  {
+   "period": "2026-08",
+   "total_registrations": 576,
+   "classes": {
+    "BEV": {
+     "units": 6,
+     "share_of_market": 0.01042,
+     "brands": [
+      {
+       "brand": "GEELY",
+       "units": 5,
+       "share_of_class": 0.8333
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ],
+     "models": [
+      {
+       "brand": "GEELY",
+       "model": "EX5",
+       "units": 5,
+       "share_of_class": 0.8333
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF E+G",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 2,
+     "share_of_market": 0.00347,
+     "brands": [
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ],
+     "models": [
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-07",
+   "total_registrations": 708,
+   "classes": {
+    "BEV": {
+     "units": 6,
+     "share_of_market": 0.00847,
+     "brands": [
+      {
+       "brand": "GEELY",
+       "units": 5,
+       "share_of_class": 0.8333
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ],
+     "models": [
+      {
+       "brand": "GEELY",
+       "model": "EX5",
+       "units": 5,
+       "share_of_class": 0.8333
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SAKURA G",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 4,
+     "share_of_market": 0.00565,
+     "brands": [
+      {
+       "brand": "FERRARI",
+       "units": 2,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ],
+     "models": [
+      {
+       "brand": "FERRARI",
+       "model": "296 GTS",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "FERRARI",
+       "model": "SF90 STRADALE",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RANGE ROVER P550E",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "CROWN RS",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-06",
+   "total_registrations": 666,
+   "classes": {
+    "PHEV": {
+     "units": 2,
+     "share_of_market": 0.003,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD PLUG-IN",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PRIUS PHV S GR",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-05",
+   "total_registrations": 692,
+   "classes": {
+    "BEV": {
+     "units": 4,
+     "share_of_market": 0.00578,
+     "brands": [
+      {
+       "brand": "BMW",
+       "units": 3,
+       "share_of_class": 0.75
+      },
+      {
+       "brand": "FIAT",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ],
+     "models": [
+      {
+       "brand": "BMW",
+       "model": "IX 40",
+       "units": 2,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "BMW",
+       "model": "IX 50",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "FIAT",
+       "model": "500E OPEN",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 1,
+     "share_of_market": 0.00145,
+     "brands": [
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 1.0
+      }
+     ],
+     "models": [
+      {
+       "brand": "FERRARI",
+       "model": "296GTB",
+       "units": 1,
+       "share_of_class": 1.0
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-04",
+   "total_registrations": 746,
+   "classes": {
+    "BEV": {
+     "units": 7,
+     "share_of_market": 0.00938,
+     "brands": [
+      {
+       "brand": "BMW",
+       "units": 4,
+       "share_of_class": 0.5714
+      },
+      {
+       "brand": "FIAT",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 1,
+       "share_of_class": 0.1429
+      }
+     ],
+     "models": [
+      {
+       "brand": "BMW",
+       "model": "IX 40",
+       "units": 3,
+       "share_of_class": 0.4286
+      },
+      {
+       "brand": "BMW",
+       "model": "325I TOURING",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "FIAT",
+       "model": "ABARTH 500E",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "IONIQ 5 VOYAGE",
+       "units": 1,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "EQE350+",
+       "units": 1,
+       "share_of_class": 0.1429
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-03",
+   "total_registrations": 813,
+   "classes": {
+    "BEV": {
+     "units": 14,
+     "share_of_market": 0.01722,
+     "brands": [
+      {
+       "brand": "NISSAN",
+       "units": 9,
+       "share_of_class": 0.6429
+      },
+      {
+       "brand": "BYD",
+       "units": 2,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "GEELY",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NETA",
+       "units": 1,
+       "share_of_class": 0.0714
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "M6",
+       "units": 2,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF 30X THANKS",
+       "units": 2,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "GEELY",
+       "model": "EX5",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MINICAB MIEV",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NETA",
+       "model": "V",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NISSAN",
+       "model": "E-NV200 WAGON G",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF 30S",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF 30X AERO STYLE",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF 30X AERO STYLE THANKS",
+       "units": 1,
+       "share_of_class": 0.0714
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF E+X",
+       "units": 1,
+       "share_of_class": 0.0714
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-02",
+   "total_registrations": 614,
+   "classes": {
+    "BEV": {
+     "units": 31,
+     "share_of_market": 0.05049,
+     "brands": [
+      {
+       "brand": "MAXUS",
+       "units": 16,
+       "share_of_class": 0.5161
+      },
+      {
+       "brand": "BYD",
+       "units": 8,
+       "share_of_class": 0.2581
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 4,
+       "share_of_class": 0.129
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2,
+       "share_of_class": 0.0645
+      },
+      {
+       "brand": "BMW",
+       "units": 1,
+       "share_of_class": 0.0323
+      }
+     ],
+     "models": [
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 16,
+       "share_of_class": 0.5161
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION 7",
+       "units": 8,
+       "share_of_class": 0.2581
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 4,
+       "share_of_class": 0.129
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF E+X",
+       "units": 2,
+       "share_of_class": 0.0645
+      },
+      {
+       "brand": "BMW",
+       "model": "IX 40",
+       "units": 1,
+       "share_of_class": 0.0323
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 2,
+     "share_of_market": 0.00326,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ],
+     "models": [
+      {
+       "brand": "BYD",
+       "model": "SEALION 6",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "RANGE ROVER AUTOBIOGRAPHY P510E WHEELBASE",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2026-01",
+   "total_registrations": 832,
+   "classes": {
+    "BEV": {
+     "units": 8,
+     "share_of_market": 0.00962,
+     "brands": [
+      {
+       "brand": "MAXUS",
+       "units": 6,
+       "share_of_class": 0.75
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2,
+       "share_of_class": 0.25
+      }
+     ],
+     "models": [
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 7",
+       "units": 4,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "MAXUS",
+       "model": "MIFA 9",
+       "units": 2,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF E+G",
+       "units": 1,
+       "share_of_class": 0.125
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF E+X",
+       "units": 1,
+       "share_of_class": 0.125
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-12",
+   "total_registrations": 678,
+   "classes": {}
+  },
+  {
+   "period": "2025-11",
+   "total_registrations": 698,
+   "classes": {
+    "BEV": {
+     "units": 2,
+     "share_of_market": 0.00287,
+     "brands": [
+      {
+       "brand": "BMW",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ],
+     "models": [
+      {
+       "brand": "BMW",
+       "model": "IX XDRIVE40",
+       "units": 1,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF G",
+       "units": 1,
+       "share_of_class": 0.5
+      }
+     ]
+    },
+    "PHEV": {
+     "units": 6,
+     "share_of_market": 0.0086,
+     "brands": [
+      {
+       "brand": "GAC",
+       "units": 2,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "BENTLEY",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "FERRARI",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ],
+     "models": [
+      {
+       "brand": "GAC",
+       "model": "E9",
+       "units": 2,
+       "share_of_class": 0.3333
+      },
+      {
+       "brand": "BENTLEY",
+       "model": "BENTAYGA HYBRID",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "FERRARI",
+       "model": "SF90 STRADALE",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "LAMBORGHINI",
+       "model": "REVUELTO",
+       "units": 1,
+       "share_of_class": 0.1667
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD PLUG-IN",
+       "units": 1,
+       "share_of_class": 0.1667
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-10",
+   "total_registrations": 716,
+   "classes": {
+    "BEV": {
+     "units": 4,
+     "share_of_market": 0.00559,
+     "brands": [
+      {
+       "brand": "MINI",
+       "units": 2,
+       "share_of_class": 0.5
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2,
+       "share_of_class": 0.5
+      }
+     ],
+     "models": [
+      {
+       "brand": "MINI",
+       "model": "COOPER S LEVEL 1",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "MINI",
+       "model": "COOPER S LEVEL 2",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "NISSAN",
+       "model": "LEAF X",
+       "units": 1,
+       "share_of_class": 0.25
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SAKURA G",
+       "units": 1,
+       "share_of_class": 0.25
+      }
+     ]
+    }
+   }
+  },
+  {
+   "period": "2025-09",
+   "total_registrations": 691,
+   "classes": {
+    "BEV": {
+     "units": 3,
+     "share_of_market": 0.00434,
+     "brands": [
+      {
+       "brand": "NISSAN",
+       "units": 2,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1,
+       "share_of_class": 0.3333
+      }
+     ],
+     "models": [
+      {
+       "brand": "NISSAN",
+       "model": "LEAF X",
+       "units": 2,
+       "share_of_class": 0.6667
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "EK CROSS G",
+       "units": 1,
+       "share_of_class": 0.3333
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

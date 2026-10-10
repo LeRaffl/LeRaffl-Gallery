@@ -85,7 +85,8 @@ Governance (every real run)
 Writes are line-level upserts keyed on (period, variant) (invariant 2); a row
 whose `source` is not ours is never overwritten without --force.
 Also writes market/hong_kong_top.json (top BEV / PHEV brands and models,
-trailing 12 months, Whole) via scripts/market_top.py.
+trailing 12 months, Whole, and market/hong_kong_used_top.json for Used) via
+scripts/market_top.py.
 
 Usage
 -----
@@ -221,7 +222,8 @@ XCHECK_REL_TOL = 0.005
 NORMAL_WINDOW = 12                # months re-read on a normal run (top list)
 
 REPO = Path(__file__).resolve().parent.parent
-TOP_PATH = market_top.MARKET_DIR / "hong_kong_top.json"
+TOP_PATHS = {"Whole": market_top.MARKET_DIR / "hong_kong_top.json",
+             "Used": market_top.MARKET_DIR / "hong_kong_used_top.json"}
 TOP_UNIT = ("first registrations (brand = TD 'Vehicle Make', aliases merged; "
             "model = TD 'Vehicle Model' with the brand prefix, chassis codes and "
             "trim words removed — see MODEL_TRIM in scripts/fetch_hong_kong.py)")
@@ -334,8 +336,9 @@ class Aggregator:
     def __init__(self) -> None:
         self.counts: dict[str, dict[str, dict[str, int]]] = \
             collections.defaultdict(lambda: collections.defaultdict(empty_counts))
-        # (period, class, brand, model) -> units, Whole only (market top)
-        self.units: collections.Counter = collections.Counter()
+        # variant -> (period, class, brand, model) -> units (market top)
+        self.units: dict[str, collections.Counter] = {
+            v: collections.Counter() for v in TOP_PATHS}
         self.unknown_fuel: collections.Counter = collections.Counter()    # (period, fuel)
         self.unknown_class: collections.Counter = collections.Counter()   # (period, class)
         self.unknown_status: collections.Counter = collections.Counter()  # (period, class, status)
@@ -378,8 +381,8 @@ class Aggregator:
             self.plugins[(period, v, cls, norm(make), norm(model))] += n
         elif cls in ("PETROL", "DIESEL") and norm(make) in NEV_BRANDS:
             self.nev_watch[(period, v, norm(make), norm(model), cls)] += n
-        if v == "Whole":
-            self.units[(period, cls, display_brand(make), display_model(make, model))] += n
+        if v in self.units:
+            self.units[v][(period, cls, display_brand(make), display_model(make, model))] += n
 
 
 # ── download / parse ───────────────────────────────────────────────────────
@@ -629,12 +632,14 @@ def check_sums(agg: Aggregator, periods: list[str]) -> list[str]:
     return problems
 
 
-def build_top(agg: Aggregator, target: str) -> dict:
+def build_top(agg: Aggregator, target: str, variant: str = "Whole") -> dict:
     window = set(market_top.month_window(target))
-    units = market_top.per_month({k: n for k, n in agg.units.items() if k[0] in window})
-    monthly = {p: (units.get(p, {}), agg.counts[p]["Whole"]["TOTAL"])
+    units = market_top.per_month({k: n for k, n in agg.units[variant].items()
+                                  if k[0] in window})
+    monthly = {p: (units.get(p, {}), agg.counts[p][variant]["TOTAL"])
                for p in window if p in agg.counts}
-    return market_top.build_top_monthly("Hong Kong", SOURCE, target, monthly, TOP_UNIT)
+    return market_top.build_top_monthly("Hong Kong", SOURCE, target, monthly, TOP_UNIT,
+                                        variant)
 
 
 def report(agg: Aggregator, target: str, periods: list[str], xcheck: str) -> str:
@@ -650,7 +655,7 @@ def report(agg: Aggregator, target: str, periods: list[str], xcheck: str) -> str
     out.append(f"\nMonths processed: {periods[0]} → {periods[-1]} ({len(periods)})")
     out.append(f"\n### Cross-check against TD table 4.1(e)\n\n{xcheck}")
     brands = collections.Counter()
-    for (p, cls, b, m), n in agg.units.items():
+    for (p, cls, b, m), n in agg.units["Whole"].items():
         if p == target:
             brands[b] += n
     out.append("\n### Top 10 brands, new private cars\n")
@@ -745,8 +750,10 @@ def main() -> int:
               "— will retry on the next scheduled run.")
         return emit(args, set())
 
+    tops = [v for v in variants if v in TOP_PATHS]
     if not backfill and not args.force and all(
-            have[v].get(target, {}).get("source") == SOURCE for v in variants):
+            have[v].get(target, {}).get("source") == SOURCE for v in variants) and all(
+            market_top.top_is_current(TOP_PATHS[v], target) for v in tops):
         print(f"{target} already fetched from {SOURCE} for {variants}; nothing to do.")
         return emit(args, set())
 
@@ -827,12 +834,12 @@ def main() -> int:
         if stats["added"] or stats["updated"]:
             changed.add(v)
 
-    def refresh_top() -> None:
-        top = build_top(agg, target)
-        print(f"{TOP_PATH.relative_to(REPO)}: "
-              f"{'updated' if market_top.write_top(top, TOP_PATH) else 'unchanged'}")
-    if "Whole" in variants:
-        market_top.guarded(refresh_top)
+    def refresh_top(v: str) -> None:
+        top = build_top(agg, target, v)
+        print(f"{TOP_PATHS[v].relative_to(REPO)}: "
+              f"{'updated' if market_top.write_top(top, TOP_PATHS[v]) else 'unchanged'}")
+    for v in tops:
+        market_top.guarded(refresh_top, v)
 
     rep = report(agg, target, periods, xcheck)
     print("\n" + rep)
