@@ -249,22 +249,6 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Slovenia.csv"
 
-  - country: Norway
-    slug: norway
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for Norway — the world's most electrified market — via ACEA (national source: OFV)."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "OFV (Opplysningsrådet for Veitrafikken), aggregated by ACEA"
-    variants: [Whole]
-    variant_notes:
-      Whole: "New passenger-car registrations as reported by ACEA."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Norway.csv"
-
   # ======================================================================
   # National sources — automated fetchers (their own pipeline, no doc yet)
   # ======================================================================

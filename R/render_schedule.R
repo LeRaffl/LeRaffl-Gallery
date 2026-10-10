@@ -14,7 +14,7 @@ FLAG <- c(
   luxembourg="\U0001F1F1\U0001F1FA", malaysia="\U0001F1F2\U0001F1FE",
   nepal="\U0001F1F3\U0001F1F5", indonesia="\U0001F1EE\U0001F1E9",
   thailand="\U0001F1F9\U0001F1ED",
-  netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF",
+  netherlands="\U0001F1F3\U0001F1F1", `new-zealand`="\U0001F1F3\U0001F1FF", norway="\U0001F1F3\U0001F1F4",
   paraguay="\U0001F1F5\U0001F1FE", peru="\U0001F1F5\U0001F1EA",
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
   `south-korea`="\U0001F1F0\U0001F1F7",
@@ -27,7 +27,7 @@ LABEL <- c(
   colombia="Colombia", czechia="Czechia", denmark="Denmark", ecuador="Ecuador", finland="Finland", france="France", georgia="Georgia", germany="Germany", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
-  netherlands="Netherlands", `new-zealand`="New Zealand", paraguay="Paraguay", peru="Peru", poland="Poland",
+  netherlands="Netherlands", `new-zealand`="New Zealand", norway="Norway", paraguay="Paraguay", peru="Peru", poland="Poland",
   portugal="Portugal", singapore="Singapore", `south-korea`="South Korea", spain="Spain", sweden="Sweden",
   switzerland="Switzerland", taiwan="Taiwan", turkey="T\u00fcrkiye", uk="UK", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
   indonesia="Indonesia", thailand="Thailand"

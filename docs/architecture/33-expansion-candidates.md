@@ -343,6 +343,24 @@ significant EV importer is outside it**).
 > from Geostat's treemap (brands and models, every powertrain). See
 > [52-source-georgia.md](52-source-georgia.md).
 
+## Automated, not new — 🇳🇴 Norway (2026-10)
+
+> **Status: AUTOMATED (2026-10-09).** Not a new country: Norway (130k new cars
+> in 2024, 180k in 2025; BEV 96 % in 2025) had been on the gallery since the start,
+> hand-transcribed from OFV and since 2026-04 filled from ACEA's copy. Since
+> the September 2026 release OFV's monthly article carries its fuel, brand
+> and model tables as HTML, and OFV publishes an open JSON export (CC BY
+> 4.0) with the monthly totals and the year-to-date fuel mix, so
+> `scripts/fetch_norway.py` finds the article through the RSS feed, reads
+> the fuel table by row label and checks it exactly against the export.
+> Also writes `market/norway_top.json` (top-30 brands and models). See
+> [54-source-norway.md](54-source-norway.md).
+>
+> Checked first and rejected in the same session: 🇷🇴 Romania (data.gov.ro
+> has only the yearly fleet), 🇧🇪 Belgium (Statbel / mobilit: yearly files, the
+> monthly view is interactive only), and SSB table 14020 for Norway (lumps
+> all hybrids — a coarser split than the legacy series, not allowed).
+
 ## Investigated 2026-10 — the rest of the large-market list
 
 The Taiwan session (2026-10-04) re-checked the remaining larger markets
