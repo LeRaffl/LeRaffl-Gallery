@@ -110,6 +110,15 @@ market_class_names:
   HEV: Hybrid
 market_class_labels:
   HEV: Hybrid — the register's single hybrid value (plug-in + full + mild; counted as ICE in the curves)
+market_breakdown_extra:
+- path: market/ukraine_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Used imports (the Used variant): passenger cars at their first Ukrainian registration after import, by the MIA's used first-registration codes. BEV and Hybrid from the register's fuel field, exactly as in the Used CSV."
+  class_names:
+    HEV: Hybrid
+  class_labels:
+    HEV: Hybrid — the register's single hybrid value (plug-in + full + mild; counted as ICE in the curves)
 fetcher: scripts/fetch_ukraine.py
 workflow: .github/workflows/fetch-ukraine.yml
 fragility_doc: docs/architecture/40-source-ukraine.md
@@ -169,7 +178,7 @@ dataset is what Ukrautoprom's monthly market releases are built from.
 | `TOTAL_WEIGHT` | Vans only: ≤ 3,500 kg (EU N1) |
 | `PERSON` | Private (`P`) / Industry (`J`) |
 | `FUEL` | fuel column (§3) |
-| `BRAND`, `MODEL` | `market/ukraine_top.json` only |
+| `BRAND`, `MODEL` | `market/ukraine_top.json` / `ukraine_used_top.json` only |
 
 **Operation codes** (the register's own classification — no heuristics):
 
@@ -306,6 +315,11 @@ shows the same policy step and is the larger, steadier EV market.
   (BEV, Hybrid) for Whole, via `scripts/market_top.py`; shown on the source
   page with the class relabelled "Hybrid" (`market_class_names` /
   `market_class_labels` front-matter, generic in `build_source_pages.py`).
+- `market/ukraine_used_top.json` — the same for `Used` (used imports, same
+  fuel-field classes as `Ukraine_Used.csv`), a second section on the page via
+  `market_breakdown_extra` with `class_names: {HEV: Hybrid}` — the rule for
+  every `Used` variant ([03](03-data-objects.md) §3.16). A missing or stale
+  top file lifts the self-throttle, so the first run after a change rebuilds it.
 
 ## 8. Operations
 
