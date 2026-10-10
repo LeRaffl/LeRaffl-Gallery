@@ -676,7 +676,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 
 | Country | Fetcher | Brand / model fields | Rebuilt |
 |---|---|---|---|
-| Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
+| Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records — and `spain_used_top.json` (front-matter `market_breakdown_extra`) for Used (first Spanish registration of used cars), from the same downloads; classes as in the CSVs (`classify_fuel`) | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
 | Switzerland | `fetch_switzerland.py` | ASTRA IVZ `Marke` / type designation (`Typ2`, completed by `Typ3` for the families whose `Typ3` is the model — Model, Seal, Ioniq, RR, AMG, Atto; "MG4" merged with "4"), Whole records — and, as a second file `switzerland_used_top.json` (front-matter `market_breakdown_extra`), the used imports (GEBR); classes BEV / PHEV / HEV as in the CSV (register fuel + hybrid code) | every real run, from the snapshot it read anyway (the running year's complete months) → month store `market/switzerland_months.json`; the previous year comes from the backfill |
 | Czechia | `fetch_czechia.py` | RSV register make (`Tovární značka`) / trade name (`Obchodní označení`), Whole records — and `czechia_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; classes BEV / PHEV only (the register cannot identify full and mild hybrids) | every real run — the newest 15 complete months from the extract the fetch streams anyway |
 | Greece | `fetch_greece.py` | SEAA's BEV / PHEV PDFs: make and "Range" (model family) per segment; classes BEV / PHEV only (SEAA publishes hybrids only as a share). A month whose model lines do not add up to the file's own total is left out | every run that writes a month from the statistics files — the newest 12 complete months, kept in `greece_months.json` |
@@ -778,7 +778,7 @@ alphabetically so the file is byte-stable (no spurious commits).
   (a combined hybrid there → one combined class here) and the source doc
   lists it under `market_breakdown_extra` — so the source pages grow by a
   used-imports section, country by country (built: Netherlands,
-  Switzerland, Czechia, Lithuania, New Zealand, Ukraine, Hong Kong).
+  Switzerland, Czechia, Lithuania, New Zealand, Ukraine, Hong Kong, Spain).
 - Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in [`scripts/fixtures/`](../../scripts/fixtures/README.md)).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`

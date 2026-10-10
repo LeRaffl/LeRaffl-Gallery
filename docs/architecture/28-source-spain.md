@@ -17,6 +17,11 @@ source_links:
   url: https://www.dgt.es/
 underlying: DGT — Dirección General de Tráfico
 market_breakdown: market/spain_top.json
+market_breakdown_extra:
+- path: market/spain_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Used imports (the Used variant): used passenger cars at their first Spanish registration (DGT IND_NUEVO_USADO = U, procedure 1) — overwhelmingly imports. BEV / PHEV / EREV / HEV from DGT's electric-vehicle category, exactly as in the Used CSV."
 auth: none
 cadence: provisional month from the daily files on the 1st–2nd, final monthly file on the 15th (weeks before ACEA)
 variants:
@@ -315,8 +320,8 @@ holiday files are summed when present. The sum runs through the same
 The monthly file overwrites those rows (also with identical counts — the
 source and notes change); a daily sum never overwrites a `DGT` row. The
 chart caption follows the newest row's source, so it reads "DGT (daily)"
-while the month is provisional. `market/spain_top.json` follows the same
-rule: built from the daily files for the provisional month (its `source` says
+while the month is provisional. `market/spain_top.json` (and
+`spain_used_top.json`) follow the same rule: built from the daily files for the provisional month (its `source` says
 `DGT (daily)`) and rebuilt once the monthly file arrives. The git diff of
 that replacement commit is the monthly measure of how far the daily sum was
 off. `--no-daily` disables the fallback.
@@ -463,21 +468,24 @@ overwrite an existing row only if its source is exactly `ACEA` (the fallback
 that beat us to it), `DGT (daily)` (a provisional row, §3b) or already `DGT`;
 never touch the blended history rows. A daily sum never replaces a `DGT` row.
 
-## 5c. Top brands and models (`market/spain_top.json`)
+## 5c. Top brands and models (`market/spain_top.json`, `spain_used_top.json`)
 
 Every record carries `MARCA_ITV` and `MODELO_ITV`, so `fetch_spain.py` also
 keeps a trailing-twelve-month top-brands / top-models summary per
 electrified class for **Whole**, rendered on the source page as "Who sells
-the electrified cars". Class = exactly the fuel class the record gets in
-`data/Spain.csv` (`classify_fuel`), and the window total equals the CSV TOTAL
-over those months.
+the electrified cars", and one for **Used** (`spain_used_top.json`, a second
+section via `market_breakdown_extra` — the rule for every `Used` variant,
+[03](03-data-objects.md) §3.16), counted from the same downloads. Class =
+exactly the fuel class the record gets in `data/Spain.csv` /
+`Spain_Used.csv` (`classify_fuel`, `record_variants`), and each window total
+equals that CSV's TOTAL over those months.
 
-- **When:** whenever the file is missing, its `as_of` is behind the newest
+- **When:** whenever either file is missing, its `as_of` is behind the newest
   DGT month in `data/Spain.csv`, or its `source` differs from that row's
   (`DGT (daily)` → `DGT`) — so twice per month (provisional from the daily
   files, final from the monthly file), on the same run that writes the row,
   and on the first run after deployment (also from a throttled no-op run).
-- **Cost:** twelve monthly zips, a few minutes. `--no-top` skips it.
+- **Cost:** twelve monthly zips for both files, a few minutes. `--no-top` skips it.
 - **Failure:** a warning annotation; the data commit is unaffected. If a month
   of the window 404s, the file is simply not rebuilt that run.
 - **Strings:** DGT's own `MARCA_ITV` / `MODELO_ITV`, trimmed and upper-cased.
