@@ -159,299 +159,151 @@
     }
    ]
   },
-  "PHEV": {
-   "units": 5313,
-   "share_of_market": 0.04489,
-   "brands": [
-    {
-     "brand": "BMW",
-     "units": 783,
-     "share_of_class": 0.1474
-    },
-    {
-     "brand": "VOLVO",
-     "units": 740,
-     "share_of_class": 0.1393
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "units": 611,
-     "share_of_class": 0.115
-    },
-    {
-     "brand": "VOLKSWAGEN",
-     "units": 436,
-     "share_of_class": 0.0821
-    },
-    {
-     "brand": "AUDI",
-     "units": 372,
-     "share_of_class": 0.07
-    },
-    {
-     "brand": "MITSUBISHI",
-     "units": 350,
-     "share_of_class": 0.0659
-    },
-    {
-     "brand": "SKODA",
-     "units": 258,
-     "share_of_class": 0.0486
-    },
-    {
-     "brand": "TOYOTA",
-     "units": 212,
-     "share_of_class": 0.0399
-    },
-    {
-     "brand": "PEUGEOT",
-     "units": 180,
-     "share_of_class": 0.0339
-    },
-    {
-     "brand": "LEXUS",
-     "units": 166,
-     "share_of_class": 0.0312
-    }
-   ],
-   "models": [
-    {
-     "brand": "VOLVO",
-     "model": "V60",
-     "units": 248,
-     "share_of_class": 0.0467
-    },
-    {
-     "brand": "MITSUBISHI",
-     "model": "OUTLANDER",
-     "units": 233,
-     "share_of_class": 0.0439
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "model": "GLC",
-     "units": 220,
-     "share_of_class": 0.0414
-    },
-    {
-     "brand": "VOLKSWAGEN",
-     "model": "PASSAT",
-     "units": 220,
-     "share_of_class": 0.0414
-    },
-    {
-     "brand": "BMW",
-     "model": "X5",
-     "units": 189,
-     "share_of_class": 0.0356
-    },
-    {
-     "brand": "SKODA",
-     "model": "SUPERB",
-     "units": 163,
-     "share_of_class": 0.0307
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "model": "E",
-     "units": 159,
-     "share_of_class": 0.0299
-    },
-    {
-     "brand": "PEUGEOT",
-     "model": "3008",
-     "units": 157,
-     "share_of_class": 0.0296
-    },
-    {
-     "brand": "BMW",
-     "model": "530E",
-     "units": 142,
-     "share_of_class": 0.0267
-    },
-    {
-     "brand": "AUDI",
-     "model": "Q5",
-     "units": 138,
-     "share_of_class": 0.026
-    },
-    {
-     "brand": "VOLVO",
-     "model": "XC60",
-     "units": 131,
-     "share_of_class": 0.0247
-    },
-    {
-     "brand": "BMW",
-     "model": "X3",
-     "units": 125,
-     "share_of_class": 0.0235
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "model": "GLE",
-     "units": 125,
-     "share_of_class": 0.0235
-    },
-    {
-     "brand": "BMW",
-     "model": "330E",
-     "units": 114,
-     "share_of_class": 0.0215
-    },
-    {
-     "brand": "MITSUBISHI",
-     "model": "ECLIPSE CROSS",
-     "units": 113,
-     "share_of_class": 0.0213
-    }
-   ]
-  },
   "HEV": {
-   "units": 4770,
-   "share_of_market": 0.04031,
+   "units": 16929,
+   "share_of_market": 0.14305,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 1918,
-     "share_of_class": 0.4021
+     "units": 5184,
+     "share_of_class": 0.3062
     },
     {
      "brand": "LEXUS",
-     "units": 826,
-     "share_of_class": 0.1732
+     "units": 1962,
+     "share_of_class": 0.1159
     },
     {
      "brand": "BMW",
-     "units": 490,
-     "share_of_class": 0.1027
+     "units": 1890,
+     "share_of_class": 0.1116
     },
     {
      "brand": "AUDI",
-     "units": 336,
-     "share_of_class": 0.0704
-    },
-    {
-     "brand": "MERCEDES-BENZ",
-     "units": 177,
-     "share_of_class": 0.0371
-    },
-    {
-     "brand": "RENAULT",
-     "units": 158,
-     "share_of_class": 0.0331
+     "units": 1259,
+     "share_of_class": 0.0744
     },
     {
      "brand": "VOLVO",
-     "units": 155,
-     "share_of_class": 0.0325
+     "units": 1199,
+     "share_of_class": 0.0708
     },
     {
-     "brand": "HONDA",
-     "units": 103,
-     "share_of_class": 0.0216
+     "brand": "MERCEDES-BENZ",
+     "units": 1082,
+     "share_of_class": 0.0639
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 544,
+     "share_of_class": 0.0321
     },
     {
      "brand": "KIA",
-     "units": 99,
-     "share_of_class": 0.0208
+     "units": 427,
+     "share_of_class": 0.0252
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 414,
+     "share_of_class": 0.0245
     },
     {
      "brand": "HYUNDAI",
-     "units": 95,
-     "share_of_class": 0.0199
+     "units": 332,
+     "share_of_class": 0.0196
     }
    ],
    "models": [
     {
      "brand": "TOYOTA",
      "model": "C-HR",
-     "units": 571,
-     "share_of_class": 0.1197
+     "units": 1223,
+     "share_of_class": 0.0722
     },
     {
      "brand": "TOYOTA",
      "model": "RAV4",
-     "units": 396,
-     "share_of_class": 0.083
-    },
-    {
-     "brand": "LEXUS",
-     "model": "NX",
-     "units": 314,
-     "share_of_class": 0.0658
-    },
-    {
-     "brand": "TOYOTA",
-     "model": "COROLLA",
-     "units": 234,
-     "share_of_class": 0.0491
-    },
-    {
-     "brand": "LEXUS",
-     "model": "RX",
-     "units": 218,
-     "share_of_class": 0.0457
+     "units": 899,
+     "share_of_class": 0.0531
     },
     {
      "brand": "TOYOTA",
      "model": "AURIS",
-     "units": 212,
-     "share_of_class": 0.0444
-    },
-    {
-     "brand": "TOYOTA",
-     "model": "YARIS",
-     "units": 175,
-     "share_of_class": 0.0367
-    },
-    {
-     "brand": "LEXUS",
-     "model": "UX",
-     "units": 159,
-     "share_of_class": 0.0333
+     "units": 736,
+     "share_of_class": 0.0435
     },
     {
      "brand": "TOYOTA",
      "model": "PRIUS",
-     "units": 134,
-     "share_of_class": 0.0281
+     "units": 694,
+     "share_of_class": 0.041
+    },
+    {
+     "brand": "LEXUS",
+     "model": "NX",
+     "units": 671,
+     "share_of_class": 0.0396
+    },
+    {
+     "brand": "LEXUS",
+     "model": "RX",
+     "units": 572,
+     "share_of_class": 0.0338
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "COROLLA",
+     "units": 550,
+     "share_of_class": 0.0325
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "YARIS",
+     "units": 401,
+     "share_of_class": 0.0237
     },
     {
      "brand": "AUDI",
      "model": "A6",
-     "units": 113,
-     "share_of_class": 0.0237
+     "units": 368,
+     "share_of_class": 0.0217
     },
     {
-     "brand": "RENAULT",
-     "model": "CAPTUR",
-     "units": 93,
-     "share_of_class": 0.0195
+     "brand": "VOLVO",
+     "model": "V60",
+     "units": 325,
+     "share_of_class": 0.0192
+    },
+    {
+     "brand": "BMW",
+     "model": "X5",
+     "units": 324,
+     "share_of_class": 0.0191
     },
     {
      "brand": "VOLVO",
      "model": "XC60",
-     "units": 84,
-     "share_of_class": 0.0176
+     "units": 305,
+     "share_of_class": 0.018
     },
     {
-     "brand": "BMW",
-     "model": "520D",
-     "units": 77,
-     "share_of_class": 0.0161
+     "brand": "AUDI",
+     "model": "Q5",
+     "units": 304,
+     "share_of_class": 0.018
     },
     {
-     "brand": "TOYOTA",
-     "model": "PRIUS PLUS",
-     "units": 65,
-     "share_of_class": 0.0136
+     "brand": "MITSUBISHI",
+     "model": "OUTLANDER",
+     "units": 296,
+     "share_of_class": 0.0175
     },
     {
-     "brand": "TOYOTA",
-     "model": "YARIS CROSS",
-     "units": 65,
-     "share_of_class": 0.0136
+     "brand": "MERCEDES-BENZ",
+     "model": "GLC",
+     "units": 294,
+     "share_of_class": 0.0174
     }
    ]
   }
@@ -579,239 +431,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 630,
-     "share_of_market": 0.05288,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 94,
-       "share_of_class": 0.1492
-      },
-      {
-       "brand": "VOLVO",
-       "units": 90,
-       "share_of_class": 0.1429
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 57,
-       "share_of_class": 0.0905
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 49,
-       "share_of_class": 0.0778
-      },
-      {
-       "brand": "AUDI",
-       "units": 48,
-       "share_of_class": 0.0762
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 43,
-       "share_of_class": 0.0683
-      },
-      {
-       "brand": "SKODA",
-       "units": 37,
-       "share_of_class": 0.0587
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 27,
-       "share_of_class": 0.0429
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 23,
-       "share_of_class": 0.0365
-      },
-      {
-       "brand": "FORD",
-       "units": 19,
-       "share_of_class": 0.0302
-      }
-     ],
-     "models": [
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 39,
-       "share_of_class": 0.0619
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 29,
-       "share_of_class": 0.046
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 28,
-       "share_of_class": 0.0444
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 26,
-       "share_of_class": 0.0413
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 21,
-       "share_of_class": 0.0333
-      },
-      {
-       "brand": "AUDI",
-       "model": "Q5",
-       "units": 20,
-       "share_of_class": 0.0317
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 20,
-       "share_of_class": 0.0317
-      },
-      {
-       "brand": "PEUGEOT",
-       "model": "3008",
-       "units": 20,
-       "share_of_class": 0.0317
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 19,
-       "share_of_class": 0.0302
-      },
-      {
-       "brand": "FORD",
-       "model": "KUGA",
-       "units": 16,
-       "share_of_class": 0.0254
-      }
-     ]
-    },
     "HEV": {
-     "units": 489,
-     "share_of_market": 0.04105,
+     "units": 1805,
+     "share_of_market": 0.15152,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 205,
-       "share_of_class": 0.4192
+       "units": 529,
+       "share_of_class": 0.2931
+      },
+      {
+       "brand": "BMW",
+       "units": 211,
+       "share_of_class": 0.1169
       },
       {
        "brand": "LEXUS",
-       "units": 83,
-       "share_of_class": 0.1697
-      },
-      {
-       "brand": "BMW",
-       "units": 48,
-       "share_of_class": 0.0982
-      },
-      {
-       "brand": "AUDI",
-       "units": 22,
-       "share_of_class": 0.045
+       "units": 176,
+       "share_of_class": 0.0975
       },
       {
        "brand": "VOLVO",
-       "units": 20,
-       "share_of_class": 0.0409
+       "units": 138,
+       "share_of_class": 0.0765
       },
       {
-       "brand": "HONDA",
-       "units": 16,
-       "share_of_class": 0.0327
+       "brand": "AUDI",
+       "units": 119,
+       "share_of_class": 0.0659
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 14,
-       "share_of_class": 0.0286
+       "units": 94,
+       "share_of_class": 0.0521
       },
       {
-       "brand": "HYUNDAI",
-       "units": 11,
-       "share_of_class": 0.0225
+       "brand": "VOLKSWAGEN",
+       "units": 62,
+       "share_of_class": 0.0343
       },
       {
        "brand": "KIA",
-       "units": 10,
-       "share_of_class": 0.0204
+       "units": 57,
+       "share_of_class": 0.0316
       },
       {
-       "brand": "RENAULT",
-       "units": 10,
-       "share_of_class": 0.0204
+       "brand": "MITSUBISHI",
+       "units": 50,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "SKODA",
+       "units": 49,
+       "share_of_class": 0.0271
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 66,
-       "share_of_class": 0.135
+       "units": 141,
+       "share_of_class": 0.0781
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 47,
-       "share_of_class": 0.0961
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 31,
-       "share_of_class": 0.0634
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 25,
-       "share_of_class": 0.0511
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 21,
-       "share_of_class": 0.0429
+       "units": 89,
+       "share_of_class": 0.0493
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 20,
-       "share_of_class": 0.0409
+       "units": 75,
+       "share_of_class": 0.0416
       },
       {
        "brand": "LEXUS",
-       "model": "UX",
-       "units": 19,
-       "share_of_class": 0.0389
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 16,
-       "share_of_class": 0.0327
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 15,
-       "share_of_class": 0.0307
+       "model": "NX",
+       "units": 69,
+       "share_of_class": 0.0382
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 13,
-       "share_of_class": 0.0266
+       "units": 62,
+       "share_of_class": 0.0343
+      },
+      {
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 51,
+       "share_of_class": 0.0283
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 47,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "VOLVO",
+       "model": "V60",
+       "units": 46,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "AUDI",
+       "model": "A6",
+       "units": 39,
+       "share_of_class": 0.0216
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 38,
+       "share_of_class": 0.0211
       }
      ]
     }
@@ -939,239 +673,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 647,
-     "share_of_market": 0.04763,
-     "brands": [
-      {
-       "brand": "VOLVO",
-       "units": 99,
-       "share_of_class": 0.153
-      },
-      {
-       "brand": "BMW",
-       "units": 83,
-       "share_of_class": 0.1283
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 60,
-       "share_of_class": 0.0927
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 56,
-       "share_of_class": 0.0866
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 47,
-       "share_of_class": 0.0726
-      },
-      {
-       "brand": "AUDI",
-       "units": 40,
-       "share_of_class": 0.0618
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 32,
-       "share_of_class": 0.0495
-      },
-      {
-       "brand": "SKODA",
-       "units": 29,
-       "share_of_class": 0.0448
-      },
-      {
-       "brand": "KIA",
-       "units": 27,
-       "share_of_class": 0.0417
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 26,
-       "share_of_class": 0.0402
-      }
-     ],
-     "models": [
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 38,
-       "share_of_class": 0.0587
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 36,
-       "share_of_class": 0.0556
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 33,
-       "share_of_class": 0.051
-      },
-      {
-       "brand": "PEUGEOT",
-       "model": "3008",
-       "units": 27,
-       "share_of_class": 0.0417
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 24,
-       "share_of_class": 0.0371
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 21,
-       "share_of_class": 0.0325
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 20,
-       "share_of_class": 0.0309
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 18,
-       "share_of_class": 0.0278
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 17,
-       "share_of_class": 0.0263
-      },
-      {
-       "brand": "FORD",
-       "model": "KUGA",
-       "units": 17,
-       "share_of_class": 0.0263
-      }
-     ]
-    },
     "HEV": {
-     "units": 579,
-     "share_of_market": 0.04262,
+     "units": 2040,
+     "share_of_market": 0.15018,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 233,
-       "share_of_class": 0.4024
+       "units": 644,
+       "share_of_class": 0.3157
       },
       {
        "brand": "LEXUS",
-       "units": 93,
-       "share_of_class": 0.1606
+       "units": 235,
+       "share_of_class": 0.1152
       },
       {
        "brand": "BMW",
-       "units": 47,
-       "share_of_class": 0.0812
+       "units": 196,
+       "share_of_class": 0.0961
       },
       {
        "brand": "AUDI",
-       "units": 42,
-       "share_of_class": 0.0725
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 24,
-       "share_of_class": 0.0415
-      },
-      {
-       "brand": "RENAULT",
-       "units": 24,
-       "share_of_class": 0.0415
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 19,
-       "share_of_class": 0.0328
+       "units": 154,
+       "share_of_class": 0.0755
       },
       {
        "brand": "VOLVO",
-       "units": 16,
-       "share_of_class": 0.0276
+       "units": 143,
+       "share_of_class": 0.0701
       },
       {
-       "brand": "FORD",
-       "units": 12,
-       "share_of_class": 0.0207
+       "brand": "MERCEDES-BENZ",
+       "units": 112,
+       "share_of_class": 0.0549
       },
       {
-       "brand": "NISSAN",
-       "units": 12,
-       "share_of_class": 0.0207
+       "brand": "KIA",
+       "units": 66,
+       "share_of_class": 0.0324
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 64,
+       "share_of_class": 0.0314
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 53,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 48,
+       "share_of_class": 0.0235
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 74,
-       "share_of_class": 0.1278
+       "units": 145,
+       "share_of_class": 0.0711
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 47,
-       "share_of_class": 0.0812
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 40,
-       "share_of_class": 0.0691
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 28,
-       "share_of_class": 0.0484
+       "units": 101,
+       "share_of_class": 0.0495
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 23,
-       "share_of_class": 0.0397
+       "units": 92,
+       "share_of_class": 0.0451
       },
       {
        "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 20,
-       "share_of_class": 0.0345
+       "model": "COROLLA",
+       "units": 84,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 80,
+       "share_of_class": 0.0392
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PRIUS",
+       "units": 80,
+       "share_of_class": 0.0392
       },
       {
        "brand": "LEXUS",
        "model": "RX",
-       "units": 19,
-       "share_of_class": 0.0328
+       "units": 57,
+       "share_of_class": 0.0279
       },
       {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 19,
-       "share_of_class": 0.0328
-      },
-      {
-       "brand": "RENAULT",
-       "model": "CAPTUR",
-       "units": 17,
-       "share_of_class": 0.0294
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 53,
+       "share_of_class": 0.026
       },
       {
        "brand": "AUDI",
        "model": "A6",
-       "units": 14,
-       "share_of_class": 0.0242
+       "units": 47,
+       "share_of_class": 0.023
+      },
+      {
+       "brand": "VOLVO",
+       "model": "V60",
+       "units": 46,
+       "share_of_class": 0.0225
       }
      ]
     }
@@ -1299,239 +915,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 507,
-     "share_of_market": 0.04716,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 74,
-       "share_of_class": 0.146
-      },
-      {
-       "brand": "VOLVO",
-       "units": 69,
-       "share_of_class": 0.1361
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 56,
-       "share_of_class": 0.1105
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 44,
-       "share_of_class": 0.0868
-      },
-      {
-       "brand": "AUDI",
-       "units": 38,
-       "share_of_class": 0.075
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 29,
-       "share_of_class": 0.0572
-      },
-      {
-       "brand": "SKODA",
-       "units": 25,
-       "share_of_class": 0.0493
-      },
-      {
-       "brand": "LEXUS",
-       "units": 20,
-       "share_of_class": 0.0394
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 20,
-       "share_of_class": 0.0394
-      },
-      {
-       "brand": "KIA",
-       "units": 18,
-       "share_of_class": 0.0355
-      }
-     ],
-     "models": [
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 23,
-       "share_of_class": 0.0454
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 22,
-       "share_of_class": 0.0434
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 20,
-       "share_of_class": 0.0394
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 19,
-       "share_of_class": 0.0375
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 18,
-       "share_of_class": 0.0355
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 17,
-       "share_of_class": 0.0335
-      },
-      {
-       "brand": "PEUGEOT",
-       "model": "3008",
-       "units": 17,
-       "share_of_class": 0.0335
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 17,
-       "share_of_class": 0.0335
-      },
-      {
-       "brand": "AUDI",
-       "model": "Q5",
-       "units": 16,
-       "share_of_class": 0.0316
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 16,
-       "share_of_class": 0.0316
-      }
-     ]
-    },
     "HEV": {
-     "units": 450,
-     "share_of_market": 0.04186,
+     "units": 1599,
+     "share_of_market": 0.14873,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 185,
-       "share_of_class": 0.4111
-      },
-      {
-       "brand": "LEXUS",
-       "units": 74,
-       "share_of_class": 0.1644
+       "units": 497,
+       "share_of_class": 0.3108
       },
       {
        "brand": "BMW",
-       "units": 58,
-       "share_of_class": 0.1289
+       "units": 194,
+       "share_of_class": 0.1213
+      },
+      {
+       "brand": "LEXUS",
+       "units": 172,
+       "share_of_class": 0.1076
       },
       {
        "brand": "AUDI",
-       "units": 30,
-       "share_of_class": 0.0667
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 18,
-       "share_of_class": 0.04
+       "units": 117,
+       "share_of_class": 0.0732
       },
       {
        "brand": "VOLVO",
-       "units": 18,
-       "share_of_class": 0.04
+       "units": 116,
+       "share_of_class": 0.0725
       },
       {
-       "brand": "NISSAN",
-       "units": 13,
-       "share_of_class": 0.0289
+       "brand": "MERCEDES-BENZ",
+       "units": 103,
+       "share_of_class": 0.0644
       },
       {
-       "brand": "HYUNDAI",
-       "units": 12,
-       "share_of_class": 0.0267
+       "brand": "VOLKSWAGEN",
+       "units": 50,
+       "share_of_class": 0.0313
       },
       {
        "brand": "KIA",
-       "units": 10,
-       "share_of_class": 0.0222
+       "units": 42,
+       "share_of_class": 0.0263
       },
       {
-       "brand": "HONDA",
-       "units": 9,
-       "share_of_class": 0.02
+       "brand": "MITSUBISHI",
+       "units": 38,
+       "share_of_class": 0.0238
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 33,
+       "share_of_class": 0.0206
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 67,
-       "share_of_class": 0.1489
+       "units": 129,
+       "share_of_class": 0.0807
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 37,
-       "share_of_class": 0.0822
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 28,
-       "share_of_class": 0.0622
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "AURIS",
-       "units": 21,
-       "share_of_class": 0.0467
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 20,
-       "share_of_class": 0.0444
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 19,
-       "share_of_class": 0.0422
+       "units": 85,
+       "share_of_class": 0.0532
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 16,
-       "share_of_class": 0.0356
+       "units": 75,
+       "share_of_class": 0.0469
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AURIS",
+       "units": 59,
+       "share_of_class": 0.0369
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 55,
+       "share_of_class": 0.0344
+      },
+      {
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 52,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 45,
+       "share_of_class": 0.0281
       },
       {
        "brand": "AUDI",
        "model": "A6",
-       "units": 13,
-       "share_of_class": 0.0289
+       "units": 37,
+       "share_of_class": 0.0231
       },
       {
        "brand": "TOYOTA",
        "model": "YARIS",
-       "units": 11,
-       "share_of_class": 0.0244
+       "units": 35,
+       "share_of_class": 0.0219
       },
       {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 10,
-       "share_of_class": 0.0222
+       "brand": "VOLVO",
+       "model": "XC60",
+       "units": 32,
+       "share_of_class": 0.02
       }
      ]
     }
@@ -1659,239 +1157,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 354,
-     "share_of_market": 0.04761,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 55,
-       "share_of_class": 0.1554
-      },
-      {
-       "brand": "VOLVO",
-       "units": 52,
-       "share_of_class": 0.1469
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 46,
-       "share_of_class": 0.1299
-      },
-      {
-       "brand": "AUDI",
-       "units": 31,
-       "share_of_class": 0.0876
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 22,
-       "share_of_class": 0.0621
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 19,
-       "share_of_class": 0.0537
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 17,
-       "share_of_class": 0.048
-      },
-      {
-       "brand": "KIA",
-       "units": 12,
-       "share_of_class": 0.0339
-      },
-      {
-       "brand": "SKODA",
-       "units": 12,
-       "share_of_class": 0.0339
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 10,
-       "share_of_class": 0.0282
-      }
-     ],
-     "models": [
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 20,
-       "share_of_class": 0.0565
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 18,
-       "share_of_class": 0.0508
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 15,
-       "share_of_class": 0.0424
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 14,
-       "share_of_class": 0.0395
-      },
-      {
-       "brand": "AUDI",
-       "model": "Q5",
-       "units": 13,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 13,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 11,
-       "share_of_class": 0.0311
-      },
-      {
-       "brand": "AUDI",
-       "model": "A6",
-       "units": 10,
-       "share_of_class": 0.0282
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC90",
-       "units": 10,
-       "share_of_class": 0.0282
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 9,
-       "share_of_class": 0.0254
-      }
-     ]
-    },
     "HEV": {
-     "units": 317,
-     "share_of_market": 0.04263,
+     "units": 1109,
+     "share_of_market": 0.14914,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 134,
-       "share_of_class": 0.4227
+       "units": 333,
+       "share_of_class": 0.3003
+      },
+      {
+       "brand": "BMW",
+       "units": 140,
+       "share_of_class": 0.1262
       },
       {
        "brand": "LEXUS",
-       "units": 52,
-       "share_of_class": 0.164
-      },
-      {
-       "brand": "BMW",
-       "units": 36,
-       "share_of_class": 0.1136
+       "units": 140,
+       "share_of_class": 0.1262
       },
       {
        "brand": "AUDI",
-       "units": 33,
-       "share_of_class": 0.1041
-      },
-      {
-       "brand": "HONDA",
-       "units": 11,
-       "share_of_class": 0.0347
+       "units": 103,
+       "share_of_class": 0.0929
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 11,
-       "share_of_class": 0.0347
+       "units": 86,
+       "share_of_class": 0.0775
       },
       {
        "brand": "VOLVO",
-       "units": 8,
-       "share_of_class": 0.0252
+       "units": 70,
+       "share_of_class": 0.0631
       },
       {
        "brand": "KIA",
-       "units": 7,
-       "share_of_class": 0.0221
+       "units": 29,
+       "share_of_class": 0.0261
       },
       {
-       "brand": "LAND ROVER",
-       "units": 3,
-       "share_of_class": 0.0095
+       "brand": "VOLKSWAGEN",
+       "units": 29,
+       "share_of_class": 0.0261
       },
       {
-       "brand": "NISSAN",
-       "units": 3,
-       "share_of_class": 0.0095
+       "brand": "MITSUBISHI",
+       "units": 22,
+       "share_of_class": 0.0198
+      },
+      {
+       "brand": "SKODA",
+       "units": 16,
+       "share_of_class": 0.0144
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 39,
-       "share_of_class": 0.123
+       "units": 77,
+       "share_of_class": 0.0694
       },
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 34,
-       "share_of_class": 0.1073
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 29,
-       "share_of_class": 0.0915
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 24,
-       "share_of_class": 0.0757
+       "units": 58,
+       "share_of_class": 0.0523
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 14,
-       "share_of_class": 0.0442
+       "units": 48,
+       "share_of_class": 0.0433
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 45,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 43,
+       "share_of_class": 0.0388
       },
       {
        "brand": "LEXUS",
        "model": "RX",
-       "units": 12,
+       "units": 42,
        "share_of_class": 0.0379
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PRIUS",
+       "units": 38,
+       "share_of_class": 0.0343
+      },
+      {
+       "brand": "BMW",
+       "model": "X5",
+       "units": 30,
+       "share_of_class": 0.0271
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q5",
+       "units": 28,
+       "share_of_class": 0.0252
       },
       {
        "brand": "AUDI",
        "model": "A6",
-       "units": 9,
-       "share_of_class": 0.0284
-      },
-      {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 9,
-       "share_of_class": 0.0284
-      },
-      {
-       "brand": "BMW",
-       "model": "520D",
-       "units": 8,
-       "share_of_class": 0.0252
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 7,
-       "share_of_class": 0.0221
+       "units": 27,
+       "share_of_class": 0.0243
       }
      ]
     }
@@ -2019,239 +1399,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 333,
-     "share_of_market": 0.04454,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 47,
-       "share_of_class": 0.1411
-      },
-      {
-       "brand": "VOLVO",
-       "units": 39,
-       "share_of_class": 0.1171
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 37,
-       "share_of_class": 0.1111
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 36,
-       "share_of_class": 0.1081
-      },
-      {
-       "brand": "AUDI",
-       "units": 28,
-       "share_of_class": 0.0841
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 26,
-       "share_of_class": 0.0781
-      },
-      {
-       "brand": "LEXUS",
-       "units": 17,
-       "share_of_class": 0.0511
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 16,
-       "share_of_class": 0.048
-      },
-      {
-       "brand": "SKODA",
-       "units": 14,
-       "share_of_class": 0.042
-      },
-      {
-       "brand": "FORD",
-       "units": 8,
-       "share_of_class": 0.024
-      }
-     ],
-     "models": [
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 26,
-       "share_of_class": 0.0781
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 14,
-       "share_of_class": 0.042
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 13,
-       "share_of_class": 0.039
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 13,
-       "share_of_class": 0.039
-      },
-      {
-       "brand": "BMW",
-       "model": "330E",
-       "units": 10,
-       "share_of_class": 0.03
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 10,
-       "share_of_class": 0.03
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 10,
-       "share_of_class": 0.03
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLE",
-       "units": 10,
-       "share_of_class": 0.03
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "ECLIPSE CROSS",
-       "units": 10,
-       "share_of_class": 0.03
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 10,
-       "share_of_class": 0.03
-      }
-     ]
-    },
     "HEV": {
-     "units": 324,
-     "share_of_market": 0.04334,
+     "units": 1071,
+     "share_of_market": 0.14326,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 124,
-       "share_of_class": 0.3827
+       "units": 311,
+       "share_of_class": 0.2904
       },
       {
        "brand": "LEXUS",
-       "units": 57,
-       "share_of_class": 0.1759
+       "units": 135,
+       "share_of_class": 0.1261
       },
       {
        "brand": "BMW",
-       "units": 36,
-       "share_of_class": 0.1111
+       "units": 124,
+       "share_of_class": 0.1158
       },
       {
        "brand": "AUDI",
-       "units": 22,
-       "share_of_class": 0.0679
+       "units": 82,
+       "share_of_class": 0.0766
+      },
+      {
+       "brand": "VOLVO",
+       "units": 71,
+       "share_of_class": 0.0663
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 18,
-       "share_of_class": 0.0556
+       "units": 70,
+       "share_of_class": 0.0654
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 39,
+       "share_of_class": 0.0364
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 32,
+       "share_of_class": 0.0299
       },
       {
        "brand": "HONDA",
-       "units": 13,
-       "share_of_class": 0.0401
+       "units": 21,
+       "share_of_class": 0.0196
       },
       {
        "brand": "KIA",
-       "units": 8,
-       "share_of_class": 0.0247
-      },
-      {
-       "brand": "VOLVO",
-       "units": 8,
-       "share_of_class": 0.0247
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 7,
-       "share_of_class": 0.0216
-      },
-      {
-       "brand": "RENAULT",
-       "units": 7,
-       "share_of_class": 0.0216
+       "units": 20,
+       "share_of_class": 0.0187
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 27,
-       "share_of_class": 0.0833
+       "units": 63,
+       "share_of_class": 0.0588
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 27,
-       "share_of_class": 0.0833
+       "units": 60,
+       "share_of_class": 0.056
       },
       {
        "brand": "LEXUS",
        "model": "NX",
-       "units": 26,
-       "share_of_class": 0.0802
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 17,
-       "share_of_class": 0.0525
+       "units": 55,
+       "share_of_class": 0.0514
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 16,
-       "share_of_class": 0.0494
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 15,
-       "share_of_class": 0.0463
+       "units": 47,
+       "share_of_class": 0.0439
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 13,
-       "share_of_class": 0.0401
+       "units": 44,
+       "share_of_class": 0.0411
+      },
+      {
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 42,
+       "share_of_class": 0.0392
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 38,
+       "share_of_class": 0.0355
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "OUTLANDER",
+       "units": 28,
+       "share_of_class": 0.0261
       },
       {
        "brand": "AUDI",
        "model": "A6",
-       "units": 9,
-       "share_of_class": 0.0278
-      },
-      {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 8,
-       "share_of_class": 0.0247
+       "units": 25,
+       "share_of_class": 0.0233
       },
       {
        "brand": "BMW",
-       "model": "520D",
-       "units": 7,
-       "share_of_class": 0.0216
+       "model": "X5",
+       "units": 23,
+       "share_of_class": 0.0215
       }
      ]
     }
@@ -2379,239 +1641,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 349,
-     "share_of_market": 0.04148,
+    "HEV": {
+     "units": 1222,
+     "share_of_market": 0.14523,
      "brands": [
       {
-       "brand": "MERCEDES-BENZ",
-       "units": 54,
-       "share_of_class": 0.1547
-      },
-      {
-       "brand": "VOLVO",
-       "units": 48,
-       "share_of_class": 0.1375
+       "brand": "TOYOTA",
+       "units": 362,
+       "share_of_class": 0.2962
       },
       {
        "brand": "BMW",
-       "units": 45,
-       "share_of_class": 0.1289
+       "units": 131,
+       "share_of_class": 0.1072
       },
       {
-       "brand": "VOLKSWAGEN",
-       "units": 32,
-       "share_of_class": 0.0917
+       "brand": "LEXUS",
+       "units": 126,
+       "share_of_class": 0.1031
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 94,
+       "share_of_class": 0.0769
       },
       {
        "brand": "AUDI",
-       "units": 20,
-       "share_of_class": 0.0573
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 17,
-       "share_of_class": 0.0487
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 15,
-       "share_of_class": 0.043
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 12,
-       "share_of_class": 0.0344
-      },
-      {
-       "brand": "KIA",
-       "units": 12,
-       "share_of_class": 0.0344
-      },
-      {
-       "brand": "LEXUS",
-       "units": 12,
-       "share_of_class": 0.0344
-      }
-     ],
-     "models": [
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 19,
-       "share_of_class": 0.0544
+       "units": 92,
+       "share_of_class": 0.0753
       },
       {
        "brand": "VOLVO",
-       "model": "V60",
-       "units": 16,
-       "share_of_class": 0.0458
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 15,
-       "share_of_class": 0.043
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLE",
-       "units": 14,
-       "share_of_class": 0.0401
+       "units": 88,
+       "share_of_class": 0.072
       },
       {
        "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 14,
-       "share_of_class": 0.0401
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 12,
+       "units": 42,
        "share_of_class": 0.0344
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 10,
-       "share_of_class": 0.0287
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "RAV4",
-       "units": 10,
-       "share_of_class": 0.0287
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 8,
-       "share_of_class": 0.0229
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 7,
-       "share_of_class": 0.0201
-      }
-     ]
-    },
-    "HEV": {
-     "units": 370,
-     "share_of_market": 0.04397,
-     "brands": [
-      {
-       "brand": "TOYOTA",
-       "units": 124,
-       "share_of_class": 0.3351
-      },
-      {
-       "brand": "LEXUS",
-       "units": 56,
-       "share_of_class": 0.1514
-      },
-      {
-       "brand": "BMW",
-       "units": 37,
-       "share_of_class": 0.1
       },
       {
        "brand": "RENAULT",
-       "units": 30,
-       "share_of_class": 0.0811
+       "units": 36,
+       "share_of_class": 0.0295
       },
       {
-       "brand": "AUDI",
-       "units": 28,
-       "share_of_class": 0.0757
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 16,
-       "share_of_class": 0.0432
-      },
-      {
-       "brand": "HONDA",
-       "units": 12,
-       "share_of_class": 0.0324
+       "brand": "HYUNDAI",
+       "units": 34,
+       "share_of_class": 0.0278
       },
       {
        "brand": "KIA",
-       "units": 11,
-       "share_of_class": 0.0297
-      },
-      {
-       "brand": "VOLVO",
-       "units": 11,
-       "share_of_class": 0.0297
-      },
-      {
-       "brand": "NISSAN",
-       "units": 9,
-       "share_of_class": 0.0243
+       "units": 29,
+       "share_of_class": 0.0237
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 29,
-       "share_of_class": 0.0784
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 22,
-       "share_of_class": 0.0595
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "RAV4",
-       "units": 22,
-       "share_of_class": 0.0595
-      },
-      {
-       "brand": "RENAULT",
-       "model": "CAPTUR",
-       "units": 20,
-       "share_of_class": 0.0541
+       "units": 73,
+       "share_of_class": 0.0597
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 20,
-       "share_of_class": 0.0541
+       "units": 59,
+       "share_of_class": 0.0483
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAV4",
+       "units": 59,
+       "share_of_class": 0.0483
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PRIUS",
+       "units": 54,
+       "share_of_class": 0.0442
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 44,
+       "share_of_class": 0.036
       },
       {
        "brand": "TOYOTA",
        "model": "COROLLA",
-       "units": 14,
-       "share_of_class": 0.0378
+       "units": 40,
+       "share_of_class": 0.0327
       },
       {
        "brand": "LEXUS",
        "model": "RX",
-       "units": 13,
-       "share_of_class": 0.0351
+       "units": 35,
+       "share_of_class": 0.0286
       },
       {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 13,
-       "share_of_class": 0.0351
+       "brand": "MERCEDES-BENZ",
+       "model": "GLC",
+       "units": 25,
+       "share_of_class": 0.0205
       },
       {
-       "brand": "TOYOTA",
-       "model": "PRIUS PLUS",
-       "units": 12,
-       "share_of_class": 0.0324
+       "brand": "BMW",
+       "model": "X5",
+       "units": 24,
+       "share_of_class": 0.0196
       },
       {
        "brand": "TOYOTA",
        "model": "YARIS",
-       "units": 10,
-       "share_of_class": 0.027
+       "units": 24,
+       "share_of_class": 0.0196
       }
      ]
     }
@@ -2739,239 +1883,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 430,
-     "share_of_market": 0.04997,
-     "brands": [
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 67,
-       "share_of_class": 0.1558
-      },
-      {
-       "brand": "BMW",
-       "units": 58,
-       "share_of_class": 0.1349
-      },
-      {
-       "brand": "VOLVO",
-       "units": 54,
-       "share_of_class": 0.1256
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 34,
-       "share_of_class": 0.0791
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 30,
-       "share_of_class": 0.0698
-      },
-      {
-       "brand": "AUDI",
-       "units": 25,
-       "share_of_class": 0.0581
-      },
-      {
-       "brand": "SKODA",
-       "units": 21,
-       "share_of_class": 0.0488
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 18,
-       "share_of_class": 0.0419
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 13,
-       "share_of_class": 0.0302
-      },
-      {
-       "brand": "FORD",
-       "units": 12,
-       "share_of_class": 0.0279
-      }
-     ],
-     "models": [
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 21,
-       "share_of_class": 0.0488
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 17,
-       "share_of_class": 0.0395
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 16,
-       "share_of_class": 0.0372
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLE",
-       "units": 16,
-       "share_of_class": 0.0372
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 16,
-       "share_of_class": 0.0372
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 15,
-       "share_of_class": 0.0349
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 15,
-       "share_of_class": 0.0349
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 14,
-       "share_of_class": 0.0326
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "ECLIPSE CROSS",
-       "units": 14,
-       "share_of_class": 0.0326
-      },
-      {
-       "brand": "PEUGEOT",
-       "model": "3008",
-       "units": 13,
-       "share_of_class": 0.0302
-      }
-     ]
-    },
     "HEV": {
-     "units": 311,
-     "share_of_market": 0.03614,
+     "units": 1256,
+     "share_of_market": 0.14594,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 108,
-       "share_of_class": 0.3473
+       "units": 351,
+       "share_of_class": 0.2795
+      },
+      {
+       "brand": "BMW",
+       "units": 145,
+       "share_of_class": 0.1154
       },
       {
        "brand": "LEXUS",
-       "units": 51,
-       "share_of_class": 0.164
-      },
-      {
-       "brand": "BMW",
-       "units": 42,
-       "share_of_class": 0.135
-      },
-      {
-       "brand": "AUDI",
-       "units": 25,
-       "share_of_class": 0.0804
+       "units": 134,
+       "share_of_class": 0.1067
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 15,
-       "share_of_class": 0.0482
+       "units": 114,
+       "share_of_class": 0.0908
       },
       {
-       "brand": "RENAULT",
-       "units": 14,
-       "share_of_class": 0.045
+       "brand": "AUDI",
+       "units": 91,
+       "share_of_class": 0.0725
       },
       {
        "brand": "VOLVO",
-       "units": 13,
-       "share_of_class": 0.0418
+       "units": 90,
+       "share_of_class": 0.0717
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 44,
+       "share_of_class": 0.035
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 33,
+       "share_of_class": 0.0263
       },
       {
        "brand": "HYUNDAI",
-       "units": 6,
-       "share_of_class": 0.0193
+       "units": 27,
+       "share_of_class": 0.0215
       },
       {
-       "brand": "FORD",
-       "units": 5,
-       "share_of_class": 0.0161
-      },
-      {
-       "brand": "HONDA",
-       "units": 5,
-       "share_of_class": 0.0161
+       "brand": "KIA",
+       "units": 24,
+       "share_of_class": 0.0191
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 29,
-       "share_of_class": 0.0932
+       "units": 77,
+       "share_of_class": 0.0613
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 29,
-       "share_of_class": 0.0932
+       "units": 69,
+       "share_of_class": 0.0549
       },
       {
        "brand": "LEXUS",
        "model": "RX",
-       "units": 22,
-       "share_of_class": 0.0707
+       "units": 53,
+       "share_of_class": 0.0422
       },
       {
        "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 13,
-       "share_of_class": 0.0418
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 12,
-       "share_of_class": 0.0386
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 12,
-       "share_of_class": 0.0386
-      },
-      {
-       "brand": "RENAULT",
-       "model": "CAPTUR",
-       "units": 11,
-       "share_of_class": 0.0354
-      },
-      {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 10,
-       "share_of_class": 0.0322
+       "model": "PRIUS",
+       "units": 53,
+       "share_of_class": 0.0422
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 9,
-       "share_of_class": 0.0289
+       "units": 50,
+       "share_of_class": 0.0398
       },
       {
-       "brand": "AUDI",
-       "model": "A6",
-       "units": 8,
-       "share_of_class": 0.0257
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 39,
+       "share_of_class": 0.0311
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 29,
+       "share_of_class": 0.0231
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 28,
+       "share_of_class": 0.0223
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "E",
+       "units": 27,
+       "share_of_class": 0.0215
+      },
+      {
+       "brand": "VOLVO",
+       "model": "XC60",
+       "units": 27,
+       "share_of_class": 0.0215
       }
      ]
     }
@@ -3099,239 +2125,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 484,
-     "share_of_market": 0.04653,
+    "HEV": {
+     "units": 1494,
+     "share_of_market": 0.14364,
      "brands": [
       {
-       "brand": "BMW",
-       "units": 85,
-       "share_of_class": 0.1756
-      },
-      {
-       "brand": "VOLVO",
-       "units": 65,
-       "share_of_class": 0.1343
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 51,
-       "share_of_class": 0.1054
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 47,
-       "share_of_class": 0.0971
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 34,
-       "share_of_class": 0.0702
-      },
-      {
-       "brand": "AUDI",
-       "units": 30,
-       "share_of_class": 0.062
+       "brand": "TOYOTA",
+       "units": 470,
+       "share_of_class": 0.3146
       },
       {
        "brand": "LEXUS",
-       "units": 19,
-       "share_of_class": 0.0393
+       "units": 192,
+       "share_of_class": 0.1285
+      },
+      {
+       "brand": "BMW",
+       "units": 174,
+       "share_of_class": 0.1165
+      },
+      {
+       "brand": "AUDI",
+       "units": 113,
+       "share_of_class": 0.0756
+      },
+      {
+       "brand": "VOLVO",
+       "units": 105,
+       "share_of_class": 0.0703
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 83,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 56,
+       "share_of_class": 0.0375
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 39,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "KIA",
+       "units": 29,
+       "share_of_class": 0.0194
       },
       {
        "brand": "SKODA",
-       "units": 19,
-       "share_of_class": 0.0393
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 17,
-       "share_of_class": 0.0351
-      },
-      {
-       "brand": "CUPRA",
-       "units": 13,
-       "share_of_class": 0.0269
-      }
-     ],
-     "models": [
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 28,
-       "share_of_class": 0.0579
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 28,
-       "share_of_class": 0.0579
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 22,
-       "share_of_class": 0.0455
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 21,
-       "share_of_class": 0.0434
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 19,
-       "share_of_class": 0.0393
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 15,
-       "share_of_class": 0.031
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 15,
-       "share_of_class": 0.031
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "ECLIPSE CROSS",
-       "units": 13,
-       "share_of_class": 0.0269
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 12,
-       "share_of_class": 0.0248
-      },
-      {
-       "brand": "AUDI",
-       "model": "Q5",
-       "units": 11,
-       "share_of_class": 0.0227
-      }
-     ]
-    },
-    "HEV": {
-     "units": 400,
-     "share_of_market": 0.03846,
-     "brands": [
-      {
-       "brand": "TOYOTA",
-       "units": 154,
-       "share_of_class": 0.385
-      },
-      {
-       "brand": "LEXUS",
-       "units": 83,
-       "share_of_class": 0.2075
-      },
-      {
-       "brand": "BMW",
-       "units": 51,
-       "share_of_class": 0.1275
-      },
-      {
-       "brand": "AUDI",
-       "units": 35,
-       "share_of_class": 0.0875
-      },
-      {
-       "brand": "VOLVO",
-       "units": 13,
-       "share_of_class": 0.0325
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 10,
-       "share_of_class": 0.025
-      },
-      {
-       "brand": "RENAULT",
-       "units": 9,
-       "share_of_class": 0.0225
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 8,
-       "share_of_class": 0.02
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 8,
-       "share_of_class": 0.02
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 4,
-       "share_of_class": 0.01
+       "units": 23,
+       "share_of_class": 0.0154
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 43,
-       "share_of_class": 0.1075
+       "units": 108,
+       "share_of_class": 0.0723
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 32,
-       "share_of_class": 0.08
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 31,
-       "share_of_class": 0.0775
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 24,
-       "share_of_class": 0.06
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 19,
-       "share_of_class": 0.0475
-      },
-      {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 19,
-       "share_of_class": 0.0475
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "AURIS",
-       "units": 14,
-       "share_of_class": 0.035
-      },
-      {
-       "brand": "AUDI",
-       "model": "A6",
-       "units": 13,
-       "share_of_class": 0.0325
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 13,
-       "share_of_class": 0.0325
+       "units": 86,
+       "share_of_class": 0.0576
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 12,
-       "share_of_class": 0.03
+       "units": 80,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 58,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 58,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AURIS",
+       "units": 57,
+       "share_of_class": 0.0382
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 49,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "AUDI",
+       "model": "A6",
+       "units": 42,
+       "share_of_class": 0.0281
+      },
+      {
+       "brand": "BMW",
+       "model": "X5",
+       "units": 36,
+       "share_of_class": 0.0241
+      },
+      {
+       "brand": "VOLVO",
+       "model": "V60",
+       "units": 34,
+       "share_of_class": 0.0228
       }
      ]
     }
@@ -3459,239 +2367,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 409,
-     "share_of_market": 0.04308,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 66,
-       "share_of_class": 0.1614
-      },
-      {
-       "brand": "VOLVO",
-       "units": 63,
-       "share_of_class": 0.154
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 40,
-       "share_of_class": 0.0978
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 35,
-       "share_of_class": 0.0856
-      },
-      {
-       "brand": "AUDI",
-       "units": 30,
-       "share_of_class": 0.0733
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 29,
-       "share_of_class": 0.0709
-      },
-      {
-       "brand": "SKODA",
-       "units": 20,
-       "share_of_class": 0.0489
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 16,
-       "share_of_class": 0.0391
-      },
-      {
-       "brand": "KIA",
-       "units": 15,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 12,
-       "share_of_class": 0.0293
-      }
-     ],
-     "models": [
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 18,
-       "share_of_class": 0.044
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 16,
-       "share_of_class": 0.0391
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 16,
-       "share_of_class": 0.0391
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 15,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 15,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 14,
-       "share_of_class": 0.0342
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "ECLIPSE CROSS",
-       "units": 14,
-       "share_of_class": 0.0342
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 13,
-       "share_of_class": 0.0318
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLE",
-       "units": 13,
-       "share_of_class": 0.0318
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 13,
-       "share_of_class": 0.0318
-      }
-     ]
-    },
     "HEV": {
-     "units": 421,
-     "share_of_market": 0.04434,
+     "units": 1388,
+     "share_of_market": 0.1462,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 169,
-       "share_of_class": 0.4014
+       "units": 433,
+       "share_of_class": 0.312
+      },
+      {
+       "brand": "BMW",
+       "units": 163,
+       "share_of_class": 0.1174
       },
       {
        "brand": "LEXUS",
-       "units": 78,
-       "share_of_class": 0.1853
-      },
-      {
-       "brand": "BMW",
-       "units": 42,
-       "share_of_class": 0.0998
-      },
-      {
-       "brand": "RENAULT",
-       "units": 31,
-       "share_of_class": 0.0736
-      },
-      {
-       "brand": "AUDI",
-       "units": 20,
-       "share_of_class": 0.0475
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 18,
-       "share_of_class": 0.0428
+       "units": 151,
+       "share_of_class": 0.1088
       },
       {
        "brand": "VOLVO",
-       "units": 11,
-       "share_of_class": 0.0261
+       "units": 102,
+       "share_of_class": 0.0735
+      },
+      {
+       "brand": "AUDI",
+       "units": 97,
+       "share_of_class": 0.0699
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 85,
+       "share_of_class": 0.0612
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 46,
+       "share_of_class": 0.0331
       },
       {
        "brand": "KIA",
-       "units": 9,
-       "share_of_class": 0.0214
+       "units": 38,
+       "share_of_class": 0.0274
       },
       {
-       "brand": "HONDA",
-       "units": 8,
-       "share_of_class": 0.019
+       "brand": "MITSUBISHI",
+       "units": 34,
+       "share_of_class": 0.0245
       },
       {
-       "brand": "NISSAN",
-       "units": 6,
-       "share_of_class": 0.0143
+       "brand": "RENAULT",
+       "units": 32,
+       "share_of_class": 0.0231
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 55,
-       "share_of_class": 0.1306
+       "units": 126,
+       "share_of_class": 0.0908
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 32,
-       "share_of_class": 0.076
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 27,
-       "share_of_class": 0.0641
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 20,
-       "share_of_class": 0.0475
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 20,
-       "share_of_class": 0.0475
+       "units": 70,
+       "share_of_class": 0.0504
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 19,
-       "share_of_class": 0.0451
+       "units": 65,
+       "share_of_class": 0.0468
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 52,
+       "share_of_class": 0.0375
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PRIUS",
+       "units": 46,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 41,
+       "share_of_class": 0.0295
       },
       {
        "brand": "LEXUS",
        "model": "RX",
-       "units": 18,
-       "share_of_class": 0.0428
+       "units": 40,
+       "share_of_class": 0.0288
       },
       {
-       "brand": "RENAULT",
-       "model": "CAPTUR",
-       "units": 18,
-       "share_of_class": 0.0428
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 40,
+       "share_of_class": 0.0288
       },
       {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 15,
-       "share_of_class": 0.0356
+       "brand": "MERCEDES-BENZ",
+       "model": "GLC",
+       "units": 31,
+       "share_of_class": 0.0223
       },
       {
-       "brand": "BMW",
-       "model": "520D",
-       "units": 12,
-       "share_of_class": 0.0285
+       "brand": "VOLVO",
+       "model": "XC60",
+       "units": 26,
+       "share_of_class": 0.0187
       }
      ]
     }
@@ -3819,239 +2609,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 408,
-     "share_of_market": 0.04101,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 62,
-       "share_of_class": 0.152
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 52,
-       "share_of_class": 0.1275
-      },
-      {
-       "brand": "VOLVO",
-       "units": 52,
-       "share_of_class": 0.1275
-      },
-      {
-       "brand": "SKODA",
-       "units": 31,
-       "share_of_class": 0.076
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 29,
-       "share_of_class": 0.0711
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 22,
-       "share_of_class": 0.0539
-      },
-      {
-       "brand": "AUDI",
-       "units": 19,
-       "share_of_class": 0.0466
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 19,
-       "share_of_class": 0.0466
-      },
-      {
-       "brand": "LEXUS",
-       "units": 16,
-       "share_of_class": 0.0392
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 13,
-       "share_of_class": 0.0319
-      }
-     ],
-     "models": [
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 19,
-       "share_of_class": 0.0466
-      },
-      {
-       "brand": "PEUGEOT",
-       "model": "3008",
-       "units": 19,
-       "share_of_class": 0.0466
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 19,
-       "share_of_class": 0.0466
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 17,
-       "share_of_class": 0.0417
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 15,
-       "share_of_class": 0.0368
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 14,
-       "share_of_class": 0.0343
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 14,
-       "share_of_class": 0.0343
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 13,
-       "share_of_class": 0.0319
-      },
-      {
-       "brand": "BMW",
-       "model": "530E",
-       "units": 12,
-       "share_of_class": 0.0294
-      },
-      {
-       "brand": "BMW",
-       "model": "330E",
-       "units": 11,
-       "share_of_class": 0.027
-      }
-     ]
-    },
     "HEV": {
-     "units": 361,
-     "share_of_market": 0.03629,
+     "units": 1329,
+     "share_of_market": 0.13358,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 161,
-       "share_of_class": 0.446
+       "units": 412,
+       "share_of_class": 0.31
       },
       {
        "brand": "LEXUS",
-       "units": 59,
-       "share_of_class": 0.1634
+       "units": 160,
+       "share_of_class": 0.1204
       },
       {
        "brand": "BMW",
-       "units": 36,
-       "share_of_class": 0.0997
-      },
-      {
-       "brand": "AUDI",
-       "units": 26,
-       "share_of_class": 0.072
+       "units": 154,
+       "share_of_class": 0.1159
       },
       {
        "brand": "VOLVO",
-       "units": 13,
-       "share_of_class": 0.036
+       "units": 99,
+       "share_of_class": 0.0745
+      },
+      {
+       "brand": "AUDI",
+       "units": 94,
+       "share_of_class": 0.0707
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 12,
-       "share_of_class": 0.0332
+       "units": 82,
+       "share_of_class": 0.0617
       },
       {
-       "brand": "HONDA",
-       "units": 9,
-       "share_of_class": 0.0249
+       "brand": "SKODA",
+       "units": 37,
+       "share_of_class": 0.0278
       },
       {
-       "brand": "KIA",
-       "units": 9,
-       "share_of_class": 0.0249
+       "brand": "VOLKSWAGEN",
+       "units": 35,
+       "share_of_class": 0.0263
       },
       {
-       "brand": "RENAULT",
-       "units": 7,
-       "share_of_class": 0.0194
+       "brand": "HYUNDAI",
+       "units": 28,
+       "share_of_class": 0.0211
       },
       {
        "brand": "PEUGEOT",
-       "units": 6,
-       "share_of_class": 0.0166
+       "units": 28,
+       "share_of_class": 0.0211
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 54,
-       "share_of_class": 0.1496
+       "units": 105,
+       "share_of_class": 0.079
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 28,
-       "share_of_class": 0.0776
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 21,
-       "share_of_class": 0.0582
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 19,
-       "share_of_class": 0.0526
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 18,
-       "share_of_class": 0.0499
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "AURIS",
-       "units": 17,
-       "share_of_class": 0.0471
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 13,
-       "share_of_class": 0.036
-      },
-      {
-       "brand": "LEXUS",
-       "model": "UX",
-       "units": 13,
-       "share_of_class": 0.036
+       "units": 70,
+       "share_of_class": 0.0527
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 12,
-       "share_of_class": 0.0332
+       "units": 63,
+       "share_of_class": 0.0474
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AURIS",
+       "units": 54,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX",
+       "units": 53,
+       "share_of_class": 0.0399
+      },
+      {
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 47,
+       "share_of_class": 0.0354
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 38,
+       "share_of_class": 0.0286
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 37,
+       "share_of_class": 0.0278
       },
       {
        "brand": "AUDI",
        "model": "A6",
-       "units": 9,
-       "share_of_class": 0.0249
+       "units": 30,
+       "share_of_class": 0.0226
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q5",
+       "units": 26,
+       "share_of_class": 0.0196
       }
      ]
     }
@@ -4179,239 +2851,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 416,
-     "share_of_market": 0.03779,
-     "brands": [
-      {
-       "brand": "VOLVO",
-       "units": 62,
-       "share_of_class": 0.149
-      },
-      {
-       "brand": "BMW",
-       "units": 53,
-       "share_of_class": 0.1274
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 46,
-       "share_of_class": 0.1106
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 33,
-       "share_of_class": 0.0793
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 32,
-       "share_of_class": 0.0769
-      },
-      {
-       "brand": "AUDI",
-       "units": 30,
-       "share_of_class": 0.0721
-      },
-      {
-       "brand": "SKODA",
-       "units": 24,
-       "share_of_class": 0.0577
-      },
-      {
-       "brand": "TOYOTA",
-       "units": 22,
-       "share_of_class": 0.0529
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 13,
-       "share_of_class": 0.0312
-      },
-      {
-       "brand": "PORSCHE",
-       "units": 11,
-       "share_of_class": 0.0264
-      }
-     ],
-     "models": [
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 20,
-       "share_of_class": 0.0481
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 17,
-       "share_of_class": 0.0409
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 16,
-       "share_of_class": 0.0385
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "ECLIPSE CROSS",
-       "units": 16,
-       "share_of_class": 0.0385
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 16,
-       "share_of_class": 0.0385
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 15,
-       "share_of_class": 0.0361
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 14,
-       "share_of_class": 0.0337
-      },
-      {
-       "brand": "VOLVO",
-       "model": "XC60",
-       "units": 14,
-       "share_of_class": 0.0337
-      },
-      {
-       "brand": "BMW",
-       "model": "330E",
-       "units": 11,
-       "share_of_class": 0.0264
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLE",
-       "units": 11,
-       "share_of_class": 0.0264
-      }
-     ]
-    },
     "HEV": {
-     "units": 410,
-     "share_of_market": 0.03724,
+     "units": 1451,
+     "share_of_market": 0.1318,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 176,
-       "share_of_class": 0.4293
+       "units": 469,
+       "share_of_class": 0.3232
       },
       {
        "brand": "LEXUS",
-       "units": 77,
-       "share_of_class": 0.1878
+       "units": 202,
+       "share_of_class": 0.1392
       },
       {
        "brand": "BMW",
-       "units": 29,
-       "share_of_class": 0.0707
+       "units": 132,
+       "share_of_class": 0.091
       },
       {
        "brand": "AUDI",
-       "units": 26,
-       "share_of_class": 0.0634
-      },
-      {
-       "brand": "RENAULT",
-       "units": 18,
-       "share_of_class": 0.0439
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 12,
-       "share_of_class": 0.0293
+       "units": 100,
+       "share_of_class": 0.0689
       },
       {
        "brand": "VOLVO",
-       "units": 11,
-       "share_of_class": 0.0268
+       "units": 97,
+       "share_of_class": 0.0669
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 85,
+       "share_of_class": 0.0586
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 42,
+       "share_of_class": 0.0289
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 41,
+       "share_of_class": 0.0283
       },
       {
        "brand": "KIA",
-       "units": 10,
-       "share_of_class": 0.0244
-      },
-      {
-       "brand": "HONDA",
-       "units": 8,
-       "share_of_class": 0.0195
+       "units": 39,
+       "share_of_class": 0.0269
       },
       {
        "brand": "HYUNDAI",
-       "units": 7,
-       "share_of_class": 0.0171
+       "units": 28,
+       "share_of_class": 0.0193
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 47,
-       "share_of_class": 0.1146
+       "units": 101,
+       "share_of_class": 0.0696
       },
       {
        "brand": "TOYOTA",
        "model": "RAV4",
-       "units": 34,
-       "share_of_class": 0.0829
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 26,
-       "share_of_class": 0.0634
-      },
-      {
-       "brand": "LEXUS",
-       "model": "RX",
-       "units": 24,
-       "share_of_class": 0.0585
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 23,
-       "share_of_class": 0.0561
+       "units": 81,
+       "share_of_class": 0.0558
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 19,
-       "share_of_class": 0.0463
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA",
-       "units": 17,
-       "share_of_class": 0.0415
+       "units": 68,
+       "share_of_class": 0.0469
       },
       {
        "brand": "LEXUS",
-       "model": "UX",
-       "units": 14,
-       "share_of_class": 0.0341
+       "model": "NX",
+       "units": 66,
+       "share_of_class": 0.0455
       },
       {
-       "brand": "RENAULT",
-       "model": "CAPTUR",
-       "units": 13,
-       "share_of_class": 0.0317
+       "brand": "LEXUS",
+       "model": "RX",
+       "units": 56,
+       "share_of_class": 0.0386
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 13,
-       "share_of_class": 0.0317
+       "units": 56,
+       "share_of_class": 0.0386
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA",
+       "units": 53,
+       "share_of_class": 0.0365
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 52,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "AUDI",
+       "model": "A6",
+       "units": 29,
+       "share_of_class": 0.02
+      },
+      {
+       "brand": "LEXUS",
+       "model": "UX",
+       "units": 28,
+       "share_of_class": 0.0193
       }
      ]
     }
@@ -4539,239 +3093,121 @@
       }
      ]
     },
-    "PHEV": {
-     "units": 346,
-     "share_of_market": 0.03716,
-     "brands": [
-      {
-       "brand": "BMW",
-       "units": 61,
-       "share_of_class": 0.1763
-      },
-      {
-       "brand": "VOLVO",
-       "units": 47,
-       "share_of_class": 0.1358
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "units": 45,
-       "share_of_class": 0.1301
-      },
-      {
-       "brand": "AUDI",
-       "units": 33,
-       "share_of_class": 0.0954
-      },
-      {
-       "brand": "VOLKSWAGEN",
-       "units": 29,
-       "share_of_class": 0.0838
-      },
-      {
-       "brand": "SKODA",
-       "units": 18,
-       "share_of_class": 0.052
-      },
-      {
-       "brand": "MITSUBISHI",
-       "units": 16,
-       "share_of_class": 0.0462
-      },
-      {
-       "brand": "KIA",
-       "units": 10,
-       "share_of_class": 0.0289
-      },
-      {
-       "brand": "LEXUS",
-       "units": 10,
-       "share_of_class": 0.0289
-      },
-      {
-       "brand": "PEUGEOT",
-       "units": 8,
-       "share_of_class": 0.0231
-      }
-     ],
-     "models": [
-      {
-       "brand": "VOLKSWAGEN",
-       "model": "PASSAT",
-       "units": 16,
-       "share_of_class": 0.0462
-      },
-      {
-       "brand": "AUDI",
-       "model": "Q5",
-       "units": 14,
-       "share_of_class": 0.0405
-      },
-      {
-       "brand": "BMW",
-       "model": "X5",
-       "units": 14,
-       "share_of_class": 0.0405
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "GLC",
-       "units": 14,
-       "share_of_class": 0.0405
-      },
-      {
-       "brand": "SKODA",
-       "model": "SUPERB",
-       "units": 14,
-       "share_of_class": 0.0405
-      },
-      {
-       "brand": "VOLVO",
-       "model": "V60",
-       "units": 14,
-       "share_of_class": 0.0405
-      },
-      {
-       "brand": "BMW",
-       "model": "330E",
-       "units": 12,
-       "share_of_class": 0.0347
-      },
-      {
-       "brand": "BMW",
-       "model": "X3",
-       "units": 11,
-       "share_of_class": 0.0318
-      },
-      {
-       "brand": "MERCEDES-BENZ",
-       "model": "E",
-       "units": 11,
-       "share_of_class": 0.0318
-      },
-      {
-       "brand": "MITSUBISHI",
-       "model": "OUTLANDER",
-       "units": 11,
-       "share_of_class": 0.0318
-      }
-     ]
-    },
     "HEV": {
-     "units": 338,
-     "share_of_market": 0.03631,
+     "units": 1165,
+     "share_of_market": 0.12513,
      "brands": [
       {
        "brand": "TOYOTA",
-       "units": 145,
-       "share_of_class": 0.429
+       "units": 373,
+       "share_of_class": 0.3202
       },
       {
        "brand": "LEXUS",
-       "units": 63,
-       "share_of_class": 0.1864
+       "units": 139,
+       "share_of_class": 0.1193
       },
       {
        "brand": "BMW",
-       "units": 28,
-       "share_of_class": 0.0828
+       "units": 126,
+       "share_of_class": 0.1082
       },
       {
        "brand": "AUDI",
-       "units": 27,
-       "share_of_class": 0.0799
+       "units": 97,
+       "share_of_class": 0.0833
       },
       {
        "brand": "VOLVO",
-       "units": 13,
-       "share_of_class": 0.0385
-      },
-      {
-       "brand": "HYUNDAI",
-       "units": 10,
-       "share_of_class": 0.0296
+       "units": 80,
+       "share_of_class": 0.0687
       },
       {
        "brand": "MERCEDES-BENZ",
-       "units": 9,
-       "share_of_class": 0.0266
+       "units": 74,
+       "share_of_class": 0.0635
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 43,
+       "share_of_class": 0.0369
       },
       {
        "brand": "KIA",
-       "units": 8,
-       "share_of_class": 0.0237
+       "units": 28,
+       "share_of_class": 0.024
       },
       {
-       "brand": "FORD",
-       "units": 5,
-       "share_of_class": 0.0148
+       "brand": "HYUNDAI",
+       "units": 24,
+       "share_of_class": 0.0206
       },
       {
-       "brand": "NISSAN",
-       "units": 4,
-       "share_of_class": 0.0118
+       "brand": "MITSUBISHI",
+       "units": 24,
+       "share_of_class": 0.0206
       }
      ],
      "models": [
       {
        "brand": "TOYOTA",
        "model": "C-HR",
-       "units": 46,
-       "share_of_class": 0.1361
-      },
-      {
-       "brand": "LEXUS",
-       "model": "NX",
-       "units": 26,
-       "share_of_class": 0.0769
-      },
-      {
-       "brand": "TOYOTA",
-       "model": "RAV4",
-       "units": 22,
-       "share_of_class": 0.0651
+       "units": 97,
+       "share_of_class": 0.0833
       },
       {
        "brand": "TOYOTA",
        "model": "AURIS",
-       "units": 20,
-       "share_of_class": 0.0592
+       "units": 62,
+       "share_of_class": 0.0532
       },
       {
        "brand": "LEXUS",
-       "model": "RX",
-       "units": 18,
-       "share_of_class": 0.0533
+       "model": "NX",
+       "units": 57,
+       "share_of_class": 0.0489
       },
       {
        "brand": "TOYOTA",
-       "model": "YARIS",
-       "units": 17,
-       "share_of_class": 0.0503
+       "model": "RAV4",
+       "units": 52,
+       "share_of_class": 0.0446
       },
       {
        "brand": "TOYOTA",
        "model": "COROLLA",
-       "units": 15,
-       "share_of_class": 0.0444
-      },
-      {
-       "brand": "AUDI",
-       "model": "A6",
-       "units": 11,
-       "share_of_class": 0.0325
+       "units": 43,
+       "share_of_class": 0.0369
       },
       {
        "brand": "TOYOTA",
        "model": "PRIUS",
-       "units": 11,
-       "share_of_class": 0.0325
+       "units": 43,
+       "share_of_class": 0.0369
       },
       {
        "brand": "LEXUS",
-       "model": "UX",
-       "units": 10,
-       "share_of_class": 0.0296
+       "model": "RX",
+       "units": 39,
+       "share_of_class": 0.0335
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 38,
+       "share_of_class": 0.0326
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q5",
+       "units": 29,
+       "share_of_class": 0.0249
+      },
+      {
+       "brand": "BMW",
+       "model": "X5",
+       "units": 28,
+       "share_of_class": 0.024
       }
      ]
     }
