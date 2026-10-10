@@ -86,7 +86,11 @@ API: `fetch_denmark.py`; a public "publish to web" Power BI report:
 - **Brand + model tables** when the source has brand and model per
   registration: count `(class, brand, model)` with the same class logic as
   the CSV and write `market/<slug>_top.json` through `scripts/market_top.py`
-  inside `market_top.guarded()` ([03](03-data-objects.md) §3.16). **A `Used`
+  inside `market_top.guarded()` ([03](03-data-objects.md) §3.16). Count
+  `PETROL` / `DIESEL` too whenever the CSV has its own petrol / diesel split
+  and the brand counts reproduce it — the page then shows them as two more
+  columns of its grids; a CSV with empty petrol / diesel gets no combustion
+  ranking (empty, never zero). **A `Used`
   variant gets its own** `market/<slug>_used_top.json`, with the Used CSV's
   class logic, listed under `market_breakdown_extra` in the source doc.
 - **An offline mode** (`--from-dir` / `--from-agg`) so tests and rebuilds need

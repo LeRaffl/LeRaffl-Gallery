@@ -2,19 +2,23 @@
 
 **Generated — never hand-edit.** One `<slug>_top.json` per country whose
 source carries brands (and usually models): the trailing-twelve-month top
-brands and models per electrified class (BEV / PHEV / EREV / HEV / MHEV), plus
-one ranking per single month (`months`, newest first).
+brands and models per electrified class (BEV / PHEV / EREV / HEV / MHEV) and,
+where the country's CSV splits them, petrol and diesel (PETROL / DIESEL, since
+2026-10 — not for Czechia, Greece, Italy, Austria or the `ALL` sources), plus
+one ranking per single month (`months`, newest first). The source page shows
+them as leaderboard grids, one column per class; range extenders sit inside
+PHEV with an EREV tag (`incl_erev`).
 
 | file | written by |
 |---|---|
 | `spain_top.json` | `scripts/fetch_spain.py` (DGT `MARCA_ITV` / `MODELO_ITV`, Whole) |
 | `malaysia_top.json` | `scripts/fetch_malaysia.py` (data.gov.my `maker` / `model`) |
 | `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV, PHEV, EREV, HEV — plug-ins via `classification/ecuador_rules.csv`) |
-| `new_zealand_top.json` | `scripts/fetch_new_zealand.py` (NZTA Motor Vehicle Register `MAKE` / `MODEL`; Whole's scope — new passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
-| `new_zealand_used_top.json` | `scripts/fetch_new_zealand.py` (same query; Used's scope — used-import passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
+| `new_zealand_top.json` | `scripts/fetch_new_zealand.py` (NZTA Motor Vehicle Register `MAKE` / `MODEL`; Whole's scope — new passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV, PETROL, DIESEL) |
+| `new_zealand_used_top.json` | `scripts/fetch_new_zealand.py` (same query; Used's scope — used-import passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV, PETROL, DIESEL) |
 | `hong_kong_top.json` | `scripts/fetch_hong_kong.py` (TD `Vehicle Make` / `Vehicle Model`, Whole; BEV + classified PHEV/EREV; trims merged for display) |
 | `peru_top.json` | `scripts/fetch_peru.py` (AAP BI-AAP `Marca` / `Modelo` from SUNARP, Whole; BEV / PHEV / HEV / MHEV) |
-| `paraguay_top.json` + `paraguay_months.json` | `scripts/fetch_paraguay.py` (customs `MARCA ITEM` / designation from the free-text description, new cars imported for consumption; BEV / PHEV / HEV from the tariff subheading) |
+| `paraguay_top.json` + `paraguay_months.json` | `scripts/fetch_paraguay.py` (customs `MARCA ITEM` / designation from the free-text description, new cars imported for consumption; BEV / PHEV / HEV / PETROL / DIESEL from the tariff subheading) |
 | `ecuador_top.json` | `scripts/fetch_ecuador.py` (SRI register `MARCA` / start of the catalogue description `MODELO`, Whole; BEV + combined Hybrid) |
 | `taiwan_top.json` | `scripts/fetch_taiwan.py` (MOTC statistics database, THB brand table — new passenger cars by brand; brands only, **every powertrain in one class `ALL`**: THB has no brand × fuel table) |
 | `uk_top.json` (+ `uk_months.json`) | `scripts/fetch_uk.py` (SMMT vehicle-data page — marque table and top-10 models of new cars; **every powertrain in one class `ALL`**: SMMT's brand table has no fuel split; headline January-to-date from SMMT's own year-to-date tables, single months from the month store) |
@@ -26,16 +30,16 @@ one ranking per single month (`months`, newest first).
 | `greece_top.json` + `greece_months.json` | `scripts/fetch_greece.py` (SEAA's BEV / PHEV PDFs: make / "Range"; BEV / PHEV only — SEAA publishes hybrids as a share) |
 | `lithuania_top.json`, `lithuania_used_top.json` (+ `lithuania_fleet.json`, the PHEV/HEV split store) | `scripts/fetch_lithuania.py` (Regitra open register snapshot `MARKE` / `KOMERCINIS_PAV`, Whole and Used; BEV / PHEV / HEV from the EU hybrid category; cars still registered on the snapshot date) |
 | `finland_top.json` | `scripts/fetch_finland.py` (Traficom PxWeb make and model-series tables) |
-| `israel_top.json` | `scripts/fetch_israel.py` (registry `tozeret_nm` translated from Hebrew / `kinuy_mishari`, Whole; BEV / PHEV / HEV) |
+| `israel_top.json` | `scripts/fetch_israel.py` (registry `tozeret_nm` translated from Hebrew / `kinuy_mishari`, Whole; BEV / PHEV / HEV / PETROL / DIESEL) |
 | `portugal_top.json` + `portugal_months.json` | `scripts/fetch_portugal.py` (motordata `result_table` brands; brands only; January-to-date headline, months accumulate) |
-| `netherlands_top.json` + `netherlands_months.json` | `scripts/fetch_netherlands.py` (RDW open-data register `merk` / `handelsbenaming` + fuel table; new passenger cars; BEV / PHEV; trim codes stripped for display) |
+| `netherlands_top.json` + `netherlands_months.json` | `scripts/fetch_netherlands.py` (RDW open-data register `merk` / `handelsbenaming` + fuel table; new passenger cars; BEV / PHEV / PETROL (full hybrids inside, no diesel ranking); trim codes stripped for display) |
 | `netherlands_used_top.json` + `netherlands_used_months.json` | the same script, imported used passenger cars (Used variant); shown as a second section via front-matter `market_breakdown_extra` |
 | `japan_top.json` + `japan_months.json` | `scripts/fetch_japan.py` (JADA maker rows; brands only, imports one row) |
 | `singapore_top.json` + `singapore_months.json` | `scripts/fetch_singapore.py` (LTA M03 makes; brands only) |
 | `uruguay_top.json` + `uruguay_months.json` | `scripts/fetch_uruguay.py` (ACAU Compilado `Marca` / `Modelo`, AUTOS + SUV) |
 
 `<slug>_months.json` is the **month store** of a source whose files only
-carry a few recent months: per-month electrified brand/model counts the
+carry a few recent months: per-month brand/model counts of the ranked classes the
 fetcher accumulates and rebuilds `<slug>_top.json` from. Also generated.
 
 Argentina's equivalent is `classification/argentina_top.json` (same schema).

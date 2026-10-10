@@ -35,7 +35,9 @@ workflow: .github/workflows/fetch-finland.yml
 fragility_doc: docs/architecture/12-source-finland.md
 data_file: data/Finland.csv
 market_breakdown: market/finland_top.json
-market_designation_note: 'Brands come from Traficom''s make table, designations from its model-series table (BEV and plug-ins only); both are Traficom''s live register, so a month can differ from the chart''s StatFin figure by a few cars.'
+market_class_labels:
+  PETROL: Petrol, full hybrids included (neither Traficom nor Statistics Finland has a hybrid code)
+market_designation_note: 'Brands come from Traficom''s make table, designations from its model-series table; both are Traficom''s live register, so a month can differ from the chart''s StatFin figure by a few cars.'
 ---
 
 # 12 · Source: Finland (pxdata.stat.fi / StatFin 121d)
@@ -347,13 +349,18 @@ month pair and a single `YYYYMmm` variable both work), queries one month at a
 time and builds the trailing-twelve-month + single-month rankings through
 `scripts/market_top.py` ([03 §3.16](03-data-objects.md#316-top-brands--models-market)).
 
-- Classes follow this CSV: `Sähkö` → BEV, `… (ladattava hybridi)` → PHEV;
-  non-plug hybrids stay on the combustion side, as in 121d.
+- Classes follow this CSV: `Sähkö` → BEV, `… (ladattava hybridi)` → PHEV,
+  `Bensiini` (01) → PETROL (since 2026-10); non-plug hybrids stay on the
+  combustion side, as in 121d — the page labels petrol "full hybrids included"
+  (`market_class_labels`). **No diesel ranking:** Traficom's passenger-car table
+  holds about 130 diesel cars a month fewer than StatFin (64 vs 196 in 2026-07 —
+  the whole gap between the two totals), so it would not be the chart's diesel.
+  Petrol matches StatFin to the car.
 - **Scope guard:** each month's Traficom BEV count and total must match
   `data/Finland.csv` within 5 % (live register vs StatFin's snapshot), or
   nothing is published.
 - The model-series table only supplies designations: if it fails or its
-  BEV/PHEV sums disagree with the make table (> 2 %), the page keeps the brand
+  per-class sums (BEV, PHEV, petrol) disagree with the make table (> 2 %), the page keeps the brand
   tables and a warning names the month.
 - Runs after the CSVs are written (or alone, when the data is current but the
   top file is not), behind `market_top.guarded`; the file is committed with the

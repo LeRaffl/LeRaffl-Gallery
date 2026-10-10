@@ -475,6 +475,11 @@ def csv_has_period_for_variant(csv_path: str, period: str, variant: str) -> bool
 TRAFI_APIS = ("https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/Ensirekisteroinnit",
               "https://trafi2.stat.fi/PXWeb/api/v1/fi/TraFi/TraFi__Ensirekisteroinnit")
 TOP_SLUG = "finland"
+# Ranked; the rest only counts in the total. No DIESEL: Traficom's passenger-
+# car table holds ~130 diesel cars a month fewer than StatFin's (64 vs 196 in
+# 2026-07, the whole gap between the two totals), so a diesel ranking would
+# not describe the CSV's diesel. Petrol matches StatFin to the car.
+TOP_CLASSES = ("BEV", "PHEV", "PETROL")
 TOP_SOURCE = "trafi2.stat.fi (Traficom)"
 TOP_UNIT = ("first registrations of passenger cars (brand = Traficom make, "
             "designation = model series)")
@@ -493,6 +498,12 @@ def fuel_class(text: str) -> str | None:
         return "PHEV"
     if t in ("sähkö", "electricity", "täyssähkö"):
         return "BEV"
+    # 01 / 02 as in the CSV (DRIV_TO_COL): full hybrids are inside petrol and
+    # diesel, Traficom has no hybrid code either.
+    if t in ("bensiini", "petrol") or t.startswith("bensiini/sähkö (ei ladattava"):
+        return "PETROL"
+    if t == "diesel" or t.startswith("diesel/sähkö (ei ladattava"):
+        return "DIESEL"
     return "OTHER"
 
 
@@ -667,7 +678,7 @@ def collect_top(api: "Traficom", target: str) -> tuple[dict, dict]:
         model_months = _collect_table(api, api.table("mallisarja", "käyttövoima", "kuukausi"),
                                       "model", [p for p in wanted if p in brand_months], brands)
         for p, (u, _) in model_months.items():
-            for c in ("BEV", "PHEV"):
+            for c in TOP_CLASSES:
                 a = sum(v for (k, _, _), v in brand_months[p][0].items() if k == c)
                 b = sum(v for (k, _, _), v in u.items() if k == c)
                 if a and abs(a - b) > max(5, 0.02 * a):
@@ -690,7 +701,7 @@ def _collect_table(api: "Traficom", url: str, kind: str, wanted: list[str],
     fuels = {c: fuel_class(t) for c, t in _values(driv)}
     fuel_codes = [c for c, k in fuels.items() if k is not None]
     if kind == "model":
-        fuel_codes = [c for c in fuel_codes if fuels[c] in ("BEV", "PHEV")]
+        fuel_codes = [c for c in fuel_codes if fuels[c] in TOP_CLASSES]
     if not any(fuels[c] == "BEV" for c in fuel_codes):
         raise RuntimeError(f"{url}: no 'Sähkö' driving power in {_values(driv)}")
     months = month_selections(meta, wanted)
@@ -713,7 +724,7 @@ def _collect_table(api: "Traficom", url: str, kind: str, wanted: list[str],
             n = int(n)
             total += n
             if kind == "brand":
-                k = (cls if cls in ("BEV", "PHEV") else "OTHER", market_top.clean(name), "")
+                k = (cls if cls in TOP_CLASSES else "OTHER", market_top.clean(name), "")
             else:
                 b, m = split_series(name, brands)
                 k = (cls, b, market_top.strip_brand(b, m))

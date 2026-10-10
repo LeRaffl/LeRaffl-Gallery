@@ -19,7 +19,7 @@ def test_build_top_ranks_and_scopes():
              ("PETROL", "SEAT", "IBIZA"): 860, ("OTHERS", "DACIA", "SANDERO GLP"): 0}
     top = mt.build_top("X", "SRC", "2026-08", units, 1000, "u")
     assert top["window"] == {"from": "2025-09", "to": "2026-08", "months": 12}
-    assert list(top["classes"]) == ["BEV", "HEV"]            # ICE never listed
+    assert list(top["classes"]) == ["BEV", "HEV", "PETROL"]  # OTHERS never listed
     bev = top["classes"]["BEV"]
     assert bev["units"] == 100 and bev["share_of_market"] == 0.1
     assert bev["brands"][0] == {"brand": "TESLA", "units": 70, "share_of_class": 0.7}
@@ -68,13 +68,51 @@ def test_build_top_monthly_windows_and_months():
     aug = top["months"][0]
     assert aug["total_registrations"] == 100
     assert aug["classes"]["BEV"]["share_of_market"] == 0.06
-    assert "PETROL" not in aug["classes"]
+    # PETROL is ranked in the month that has it, but kept out of the headline:
+    # July has no PETROL rows (a month stored before combustion was counted).
+    assert aug["classes"]["PETROL"]["brands"][0] == {"brand": "SEAT", "units": 94,
+                                                     "share_of_class": 1.0}
+    assert "PETROL" not in top["classes"]
+    assert top["schema"] == mt.SCHEMA
     # A gap inside the covered span is listed, never silently bridged.
     gap = mt.build_top_monthly("X", "S", "2026-08",
                                {"2026-08": monthly["2026-08"],
                                 "2026-05": monthly["2026-07"]}, "u")
     assert gap["window"]["missing"] == ["2026-06", "2026-07"]
     assert gap["window"]["months"] == 2
+
+
+def test_combustion_ranked_like_electrified():
+    """PETROL / DIESEL get rankings when passed; OTHERS only counts in the total."""
+    top = mt.build_top_monthly("X", "S", "2026-08",
+                               {"2026-08": ({("BEV", "TESLA", "MODEL Y"): 10,
+                                             ("PETROL", "TOYOTA", "YARIS"): 30,
+                                             ("PETROL", "KIA", "PICANTO"): 10,
+                                             ("DIESEL", "FORD", "RANGER"): 20,
+                                             ("OTHERS", "DACIA", "SANDERO LPG"): 30}, 100)}, "u")
+    assert list(top["classes"]) == ["BEV", "PETROL", "DIESEL"]
+    assert top["classes"]["PETROL"]["share_of_market"] == 0.4
+    assert top["classes"]["PETROL"]["models"][0] == {"brand": "TOYOTA", "model": "YARIS",
+                                                     "units": 30, "share_of_class": 0.75}
+    assert top["classes"]["DIESEL"]["brands"] == [{"brand": "FORD", "units": 20,
+                                                   "share_of_class": 1.0}]
+
+
+def test_erev_ranked_inside_phev():
+    """PHEV's incl_erev ranks PHEV + EREV from the raw units (a brand's EREV
+    outside the EREV top list still counts); EREV models are flagged."""
+    units = {("PHEV", "BYD", "SEAL U"): 10, ("PHEV", "LEAPMOTOR", "C10"): 1,
+             ("EREV", "LEAPMOTOR", "C10"): 6, ("EREV", "DEEPAL", "S05"): 3}
+    top = mt.build_top("X", "S", "2026-08", units, 100, "u", top_brands=1, top_models=3)
+    assert top["classes"]["PHEV"]["units"] == 11 and top["classes"]["EREV"]["units"] == 9
+    both = top["classes"]["PHEV"]["incl_erev"]
+    assert both["units"] == 20 and both["share_of_market"] == 0.2
+    assert both["brands"] == [{"brand": "BYD", "units": 10, "share_of_class": 0.5}]
+    assert both["models"][1] == {"brand": "LEAPMOTOR", "model": "C10", "units": 7,
+                                 "share_of_class": 0.35, "erev": True}
+    assert "erev" not in both["models"][0]
+    assert "incl_erev" not in mt.build_top("X", "S", "2026-08", {("PHEV", "A", "B"): 1},
+                                           1, "u")["classes"]["PHEV"]
 
 
 def test_brand_only_source_has_no_models():
@@ -88,14 +126,16 @@ def test_brand_only_source_has_no_models():
 def test_month_store_roundtrip_and_prune():
     with tempfile.TemporaryDirectory() as d:
         path = Path(d) / "x_months.json"
-        months = {f"2025-{m:02d}": ({("BEV", "A", "M"): m, ("PETROL", "A", "P"): 50}, 100 + m)
+        months = {f"2025-{m:02d}": ({("BEV", "A", "M"): m, ("PETROL", "A", "P"): 5,
+                                     ("OTHERS", "A", "Q"): 50}, 100 + m)
                   for m in range(1, 13)}
         months.update({f"2026-{m:02d}": ({("HEV", "B", ""): m}, 10 * m) for m in range(1, 7)})
         assert mt.save_store(path, months, "X", "S") is True
         assert mt.save_store(path, months, "X", "S") is False           # byte-stable
         back = mt.load_store(path)
         assert sorted(back) == sorted(months)[-mt.STORE_MONTHS:]
-        assert back["2025-12"] == ({("BEV", "A", "M"): 12}, 112)       # ICE rows dropped, total kept
+        assert back["2025-12"] == ({("BEV", "A", "M"): 12, ("PETROL", "A", "P"): 5},
+                                   112)                                # OTHERS dropped, total kept
         assert back["2026-06"] == ({("HEV", "B", ""): 6}, 60)
         json.loads(path.read_text())                                  # still valid JSON
     assert mt.load_store(Path("/nonexistent/x.json")) == {}
@@ -110,6 +150,10 @@ def test_top_is_current():
                                           {"2026-08": ({}, 1)}, "u"), p)
         assert mt.top_is_current(p, "2026-08")
         assert not mt.top_is_current(p, "2026-09")
+        old = json.loads(p.read_text())
+        del old["schema"]                                             # written before PETROL / DIESEL
+        p.write_text(json.dumps(old))
+        assert not mt.top_is_current(p, "2026-08")
 
 
 def _dgt_record(tipo, nu, cat_elec, prop, marca, modelo, clave="1"):
@@ -244,7 +288,10 @@ def test_singapore_makes_via_store():
     assert top["total_registrations"] == 1050 and top["window"]["months"] == 2
     assert top["classes"]["BEV"]["brands"][0] == {"brand": "BYD", "units": 320,
                                                   "share_of_class": 0.7619}
-    assert store["2026-08"][1] == 1000 and ("PETROL", "TOYOTA", "") not in store["2026-08"][0]
+    assert store["2026-08"][1] == 1000 and store["2026-08"][0][("PETROL", "TOYOTA", "")] == 580
+    # July has no PETROL row, so the headline leaves petrol out; August shows it.
+    assert "PETROL" not in top["classes"]
+    assert top["months"][0]["classes"]["PETROL"]["brands"][0]["brand"] == "TOYOTA"
     assert top2["as_of"] == "2026-09" and top2["window"]["months"] == 3
     assert top2["classes"]["BEV"]["units"] == 427
 
@@ -305,8 +352,10 @@ class _FakeTraficom:
                          ("01", "Toyota"): 300, ("41", "Toyota"): 200},
              "2026-08": {("04", "Tesla"): 60, ("04", "Mercedes-Benz"): 40, ("01", "Skoda"): 400}}
     SERIES = {"2026-07": {("04", "Tesla Model Y"): 70, ("04", "Tesla Model 3"): 30,
-                          ("04", "Volvo EX30"): 50, ("39", "Volvo XC60"): 80},
-              "2026-08": {("04", "Tesla Model Y"): 60, ("04", "Mercedes-Benz EQA"): 40}}
+                          ("04", "Volvo EX30"): 50, ("39", "Volvo XC60"): 80,
+                          ("01", "Toyota Corolla"): 300, ("41", "Toyota Yaris"): 200},
+              "2026-08": {("04", "Tesla Model Y"): 60, ("04", "Mercedes-Benz EQA"): 40,
+                          ("01", "Skoda Octavia"): 400}}
 
     def table(self, *words):
         return "makes" if "merkki" in words else "series"
@@ -359,14 +408,17 @@ def test_finland_traficom():
     import fetch_finland as ff
     assert ff.fuel_class("Sähkö") == "BEV"
     assert ff.fuel_class("Diesel/Sähkö (ladattava hybridi)") == "PHEV"
-    assert ff.fuel_class("Bensiini/Sähkö (ei ladattava)") == "OTHER"   # 121d: in Petrol
+    assert ff.fuel_class("Bensiini/Sähkö (ei ladattava)") == "PETROL"  # 121d: in Petrol
+    assert ff.fuel_class("Bensiini") == "PETROL" and ff.fuel_class("Diesel") == "DIESEL"
+    assert "DIESEL" not in ff.TOP_CLASSES                    # Traficom's diesel ≠ StatFin's
+    assert ff.fuel_class("Bensiini/CNG") == "OTHER"
     assert ff.fuel_class("Yhteensä") is None
     assert ff.split_series("Mercedes-Benz EQA", ["MERCEDES-BENZ", "MERCEDES"]) == ("MERCEDES-BENZ", "EQA")
     brands, models = ff.collect_top(_FakeTraficom(), "2026-08")
     assert sorted(brands) == ["2026-07", "2026-08"]
     jul, jul_total = brands["2026-07"]
     assert jul_total == 730                                  # every fuel, never the Yhteensä code
-    assert jul[("BEV", "VOLVO", "")] == 50 and jul[("OTHER", "TOYOTA", "")] == 500
+    assert jul[("BEV", "VOLVO", "")] == 50 and jul[("PETROL", "TOYOTA", "")] == 500
     assert models["2026-07"][0][("BEV", "TESLA", "MODEL Y")] == 70
     top = mt.build_top_monthly("Finland", "S", "2026-08", brands, "u")
     mt.splice_models(top, mt.build_top_monthly("Finland", "S", "2026-08", models, "u"))
@@ -374,6 +426,8 @@ def test_finland_traficom():
     assert bev["units"] == 250 and bev["brands"][0]["brand"] == "TESLA"
     assert bev["models"][0] == {"brand": "TESLA", "model": "MODEL Y", "units": 130,
                                 "share_of_class": 0.52}
+    assert top["classes"]["PETROL"]["models"][0] == {"brand": "SKODA", "model": "OCTAVIA",
+                                                     "units": 400, "share_of_class": 0.4444}
     aug = top["months"][0]
     assert aug["period"] == "2026-08" and aug["classes"]["BEV"]["models"][1]["model"] == "EQA"
     # A model table that disagrees with the makes drops only the designations.
@@ -520,12 +574,16 @@ def test_ireland_top():
 
 def test_netherlands_rdw_top():
     import fetch_netherlands as fn
-    # class = the CSV's split: BEV electricity-only, PHEV OVC-HEV, rest unranked
+    # class = the CSV's split: BEV electricity-only, PHEV OVC-HEV, petrol incl.
+    # full hybrids (unsplit, like Swing's Benzine), rest — diesel too — unranked
     assert fn.powertrain_class([("Elektriciteit", "")]) == "BEV"
     assert fn.powertrain_class([("Benzine", "OVC-HEV"), ("Elektriciteit", "OVC-HEV")]) == "PHEV"
-    assert fn.powertrain_class([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == ""
+    assert fn.powertrain_class([("Benzine", "NOVC-HEV"), ("Elektriciteit", "NOVC-HEV")]) == "PETROL"
+    assert fn.powertrain_class([("Benzine", "")]) == "PETROL"
+    assert fn.powertrain_class([("Diesel", "")]) == ""           # motorhomes, not Swing's diesel
+    assert fn.powertrain_class([("Benzine", ""), ("LPG", "")]) == ""
     assert fn.powertrain_class([("Waterstof", "NOVC-FCHV"), ("Elektriciteit", "NOVC-FCHV")]) == ""
-    assert fn.powertrain_class([("Benzine", "")]) == "" and fn.powertrain_class([]) == ""
+    assert fn.powertrain_class([]) == ""
     assert fn.next_month("2025-12") == "2026-01" and fn.next_month("2026-06") == "2026-07"
     # display names: brand aliases, prefix, engine / power / trim codes
     dm = fn.display_model
@@ -570,7 +628,8 @@ def test_netherlands_rdw_top():
     finally:
         fn.rdw_get = real
     assert total == 5
-    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1}
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("PHEV", "VOLVO", "XC60"): 1,
+                     ("PETROL", "TOYOTA", "YARIS"): 1}
     where = seen[0][1]["$where"]
     assert "2026-06-01" in where and "2026-07-01" in where and "export_indicator='Nee'" in where
     # Whole: admitted in the month; Used: admitted before it (a used import)
@@ -657,7 +716,8 @@ def test_israel_top():
     finally:
         fi.ds_all_records = real
     assert total == 4
-    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("HEV", "TOYOTA", "RAV4"): 1}
+    assert units == {("BEV", "TESLA", "MODEL Y"): 2, ("HEV", "TOYOTA", "RAV4"): 1,
+                     ("PETROL", "SUZUKI", "SWIFT"): 1}
     assert seen[0][1] == {fi.DATE_FIELD: "2026-5", fi.SCOPE_FIELD: "P"}    # unpadded month, P scope
     assert {"tozeret_nm", "kinuy_mishari"} <= set(seen[0][0])
 
@@ -676,6 +736,8 @@ def test_portugal_brand_tables():
         "15": chart([1, 1], [("BMW", 1, 2)]),
         "17": chart([20, 25], [("TOYOTA", 25, 40), ("KIA", 0, 5)]),
         "18": chart([0, 0], []),
+        "1": chart([50, 60], [("SEAT", 50, 90), ("KIA", 10, 20)]),
+        "2": chart([5, 6], [("PEUGEOT", 6, 11)]),
     }
     real = fp.fetch_chart
     fp.fetch_chart = lambda session, cat, code: charts[code]
@@ -685,6 +747,7 @@ def test_portugal_brand_tables():
         assert coll["ytd_total"] == 220 and coll["month_total"] == 120
         assert coll["month"][("PHEV", "BMW", "")] == 4          # 14 + 15 add up
         assert coll["ytd"][("BEV", "TESLA", "")] == 15 and coll["ytd"][("HEV", "TOYOTA", "")] == 40
+        assert coll["ytd"][("PETROL", "SEAT", "")] == 90 and coll["month"][("DIESEL", "PEUGEOT", "")] == 6
         # brand tables must add up to the fuel series — a missing brand aborts
         charts["7"] = chart([10, 12], [("TESLA", 8, 15)])
         try:
@@ -709,6 +772,10 @@ def test_portugal_brand_tables():
     assert top["classes"]["BEV"]["units"] == 22 and top["classes"]["BEV"]["brands"][0]["brand"] == "TESLA"
     assert [m["period"] for m in top["months"]] == ["2026-02", "2026-01"]
     assert top["classes"]["BEV"]["models"] == []                  # brands only
+    # the year-to-date headline has petrol from the start; January was stored without it
+    assert top["classes"]["PETROL"]["brands"][0] == {"brand": "SEAT", "units": 90,
+                                                     "share_of_class": 0.8182}
+    assert "PETROL" in top["months"][0]["classes"] and "PETROL" not in top["months"][1]["classes"]
 
 
 def _italy_list(cls: str, period_label: str, rows: list, rest: int) -> str:
@@ -780,8 +847,9 @@ def test_ecuador_top():
     yf = fe.YearFile.parse("\n".join([header] + rows), 2026)
     top = fe.build_top(fe.count_years({2026: yf}, [2026]), "2026-08")
     assert top["total_registrations"] == 6                  # Whole only, vehicle "2" once
-    assert list(top["classes"]) == ["BEV", "PHEV", "HEV"]   # E5: plug-in by rule
+    assert list(top["classes"]) == ["BEV", "PHEV", "HEV", "PETROL"]   # E5: plug-in by rule
     assert top["classes"]["PHEV"]["models"][0]["model"] == "E5 S508"
+    assert top["classes"]["PETROL"]["models"][0]["model"] == "SOLUTO"
     bev, hev = top["classes"]["BEV"], top["classes"]["HEV"]
     assert bev["units"] == 2 and bev["models"][0]["model"] == "YUAN PRO"
     assert {m["model"] for m in hev["models"]} == {"X-TRAIL", "FRONX"}   # e-POWER is a hybrid

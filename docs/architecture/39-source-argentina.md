@@ -424,8 +424,10 @@ nothing yet.
 on by front-matter keys (this doc's front-matter is the first user):
 
 * `market_breakdown: <path to top json>` → **"Who sells the electrified
-  cars"**: share tiles per class, then for BEV and PHEV (open) and EREV / HEV
-  / MHEV (collapsed) the top brands and top designations with units and share.
+  cars"**: a leaderboard grid of the top brands and one of the top
+  designations, one column per class (BEV, PHEV with the range extenders inside and tagged
+  EREV, HEV, MHEV — and petrol / diesel for a country whose CSV splits them;
+  Argentina's does not), with a Share / Units toggle ([03](03-data-objects.md) §3.16).
 * `classification: {rules, mapping, intro, scopes}` → **"How each registration gets
   its powertrain"**: the plain-language method (`intro` paragraphs), stat
   tiles, **the full rule table in evaluation order** (class, id, kind, brand

@@ -221,10 +221,13 @@ Single variant ⇒ no parallel-render push race.
 The `result_table` that comes back with every POST (see §2) is a **brand
 table**: `Marca`, `Mensal` (the newest published month), `Acumulado` (January to
 that month), `varMensal` / `varAcumulado`. There are no models. Queried per fuel
-code it gives the brands per class — BEV = 7, PHEV = 14 + 15, HEV = 17 + 18, the
-CSV's own split — and `refresh_top()` (Whole only, behind `market_top.guarded`,
-after the CSV work, also on the no-op days of the 1st–5th) builds the source
-page's "Who sells the electrified cars" section from it.
+code it gives the brands per class — BEV = 7, PHEV = 14 + 15, HEV = 17 + 18,
+PETROL = 1, DIESEL = 2, the CSV's own split (OTHERS is the CSV's residual and
+has no brand table) — and `refresh_top()` (Whole only, behind
+`market_top.guarded`, after the CSV work, also on the no-op days of the
+1st–5th; 9 requests) builds the source page's "Who sells the cars" section
+from it. Petrol and diesel since 2026-10: their brand tables add up to the fuel
+series exactly, like the electrified ones (verified 2026-10-10).
 
 * **Completeness is checked, not assumed.** Verified 2026-09-28: for every fuel
   code the brands' `Mensal` add up to the last value of that fuel's `thisyear`

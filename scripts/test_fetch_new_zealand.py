@@ -230,11 +230,13 @@ MODELS = [mrow("2026-09", "ELECTRIC", "TESLA", "MODEL Y", 500),
           mrow("2026-09", "ELECTRIC", "byd", "Atto 3", 50),
           mrow("2026-09", "ELECTRIC [PETROL EXTENDED]", "LEAPMOTOR", "C10", 40),
           mrow("2026-09", "PETROL HYBRID", "TOYOTA", "AQUA", 900),
-          mrow("2026-09", "PETROL", "TOYOTA", "HILUX", 999)]          # ICE never ranked
+          mrow("2026-09", "PETROL", "TOYOTA", "HILUX", 999),          # petrol ranked as in the CSV
+          mrow("2026-09", "LPG", "FORD", "FALCON", 9)]                # OTHERS never ranked
 units = nz.month_units(MODELS)["2026-09"]
 check("brand prefix stripped + case folded", units[("BEV", "BYD", "ATTO 3")], 250)
-check("EREV ranked as PHEV", units[("PHEV", "LEAPMOTOR", "C10")], 40)
-check("ICE not ranked", any(k[0] == "PETROL" for k in units), False)
+check("EREV kept apart for the tag", units[("EREV", "LEAPMOTOR", "C10")], 40)
+check("petrol ranked", units[("PETROL", "TOYOTA", "HILUX")], 999)
+check("OTHERS not ranked", any(k[0] == "OTHERS" for k in units), False)
 top = nz.build_top(data(SEP, MODELS), "2026-09")
 check("top total = new M1", top["total_registrations"], 12685)
 check("top BEV leader", top["classes"]["BEV"]["brands"][0]["brand"], "TESLA")

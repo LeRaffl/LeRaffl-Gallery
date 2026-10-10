@@ -121,8 +121,9 @@ PT_CORE_FUEL = {
     "1": "PETROL", "2": "DIESEL",
 }
 
-# Fuel codes that make a ranked class (the CSV's own BEV / PHEV / HEV split).
-PT_TOP_CLASS = {"7": "BEV", "14": "PHEV", "15": "PHEV", "17": "HEV", "18": "HEV"}
+# Fuel codes that make a ranked class: the CSV's own BEV / PHEV / HEV / petrol /
+# diesel split (OTHERS is a residual, so it has no brand table to rank).
+PT_TOP_CLASS = PT_CORE_FUEL
 TOP_PATH = market_top.MARKET_DIR / "portugal_top.json"
 STORE_PATH = market_top.MARKET_DIR / "portugal_months.json"
 TOP_SOURCE = "ACAP (motordata)"
@@ -206,7 +207,7 @@ def build_top_portugal(coll: dict, stored: dict) -> dict:
 
 
 def refresh_top(session: requests.Session | None = None) -> None:
-    """Re-read the brand tables (7 requests), put the newest month into the
+    """Re-read the brand tables (9 requests), put the newest month into the
     month store and rebuild market/portugal_top.json. Runs every real run: the
     file is only rewritten when ACAP's numbers moved (they revise a little)."""
     session = session or make_session()

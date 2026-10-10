@@ -223,7 +223,8 @@ def test_market_top_uses_csv_classes():
     assert top["total_registrations"] == 6
     assert top["classes"]["BEV"]["models"][0] == {"brand": "BYD", "model": "SONG PLUS",
                                                   "units": 2, "share_of_class": 1.0}
-    assert top["classes"]["HEV"]["units"] == 2 and "PETROL" not in top["classes"]
+    assert top["classes"]["HEV"]["units"] == 2
+    assert top["classes"]["PETROL"]["models"][0]["model"] == "OCTAVIA"   # petrol as in the CSV
 
 
 if __name__ == "__main__":

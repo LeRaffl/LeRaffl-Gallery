@@ -304,7 +304,7 @@ def test_display_names():
             (mk, mo, fh.display_brand(mk), fh.display_model(mk, mo))
 
 
-def test_top_only_whole_and_electrified():
+def test_top_only_whole_csv_classes():
     agg = fh.Aggregator()
     agg.add("2026-07", "Private Car", "TESLA", "MODEL Y RWD", "Electric", "A", "-", "2026")
     agg.add("2026-07", "Private Car", "TESLA", "MODEL Y LONG RANGE DUAL MOTOR ALL WHEEL DRIVE",
@@ -318,7 +318,8 @@ def test_top_only_whole_and_electrified():
     assert top["classes"]["BEV"]["models"][0] == {
         "brand": "TESLA", "model": "MODEL Y", "units": 2, "share_of_class": 1.0}
     assert top["classes"]["PHEV"]["brands"][0]["brand"] == "GAC"
-    assert "PETROL" not in top["classes"]
+    assert top["classes"]["PETROL"]["models"] == [            # petrol ranked as in the CSV
+        {"brand": "TOYOTA", "model": "ALPHARD", "units": 1, "share_of_class": 1.0}]
 
 
 def main() -> int:

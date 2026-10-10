@@ -191,7 +191,7 @@ The registry record has more than the fuel: `tozeret_nm` (manufacturer, in
 **Hebrew** and with the country of production — "טויוטה יפן" and "טויוטה צרפת"
 are both Toyota, and the field is cut off at 14 characters: "מרצדס בנץ גרמנ")
 and `kinuy_mishari` (commercial name, Latin script). `refresh_top()` ranks the
-trailing twelve months per class **BEV / PHEV / HEV** — the CSV's own classes —
+trailing twelve months per class **BEV / PHEV / HEV / PETROL / DIESEL** (petrol and diesel since 2026-10) — the CSV's own classes —
 and rebuilds the file whenever it is missing or behind the newest Whole month of
 `data/Israel.csv` (twelve registry pages plus the catalogue, a few minutes; no
 month store needed, the registry can be re-read at will). It runs behind

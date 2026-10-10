@@ -429,7 +429,7 @@ class Aggregator:
         if variant == "Whole":
             b = display_brand(brand)
             self.units[(period, fuel, b, model_of(brand, text) if fuel in
-                        market_top.ELECTRIFIED else "")] += n
+                        market_top.RANKED else "")] += n
 
 
 COUNTERS = ("units", "unknown_pos", "unknown_regime", "unknown_uso", "excluded",

@@ -37,7 +37,9 @@ fragility_doc: docs/architecture/10-source-netherlands.md
 data_file: data/Netherlands.csv
 market_breakdown: market/netherlands_top.json
 market_designation_note: a "designation" is RDW's trade name with the brand prefix and the engine, power and trim codes removed, so the versions of one model rank together (ID.4 PRO 210KW and ID.4 GTX → ID.4).
-market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid; full hybrids are not split, as in the charts. Counted from the register record by record, so a month can differ from the chart's total by about 1–3 %.
+market_powertrain_note: Powertrain from RDW's fuel table — BEV is electricity as the only fuel, PHEV an externally chargeable hybrid, petrol the only combustion fuel; full hybrids are not split, they are inside petrol, as in the charts. Diesel is not ranked — the register's diesel new cars are mostly motorhomes the chart's diesel does not count. Counted from the register record by record, so a month can differ from the chart's total by about 1–3 %.
+market_class_labels:
+  PETROL: Petrol, full hybrids included (not split, as in the charts)
 market_breakdown_extra:
 - path: market/netherlands_used_top.json
   id: market-used
@@ -493,7 +495,11 @@ The Swing pivots carry no make. The same register is published record by record
 as RDW open data (`opendata.rdw.nl`, Socrata, no key, no relay — RDW's open-data
 host is not blocked from GitHub the way the BI portal is), so
 `refresh_top()` in `scripts/fetch_netherlands.py` builds the source page's "Who
-sells the electrified cars" section from it. Classes BEV and PHEV, for two
+sells the cars" section from it. Classes BEV, PHEV and (since 2026-10) PETROL —
+petrol as the only combustion fuel, full hybrids inside as in the CSV; no
+DIESEL: RDW's diesel new passenger cars are mostly motorhomes (≈ 300 a month)
+that Swing's Diesel (≈ 15) does not count. A stored month without petrol rows
+is read again on the next refresh. For two
 variants: Whole (`netherlands_top.json`) and Used (`netherlands_used_top.json`,
 a second section on the page — see "Used" below).
 

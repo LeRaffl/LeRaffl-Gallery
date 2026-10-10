@@ -310,7 +310,10 @@ missing CSV is backfilled automatically.
 | fuels ≠ TOTAL | assertion — never written |
 
 Step summary: the newest month of every variant. Top lists (`market/czechia_top.json`,
-`market/czechia_used_top.json`) are refreshed behind `market_top.guarded()`.
+`market/czechia_used_top.json`) are refreshed behind `market_top.guarded()`. They rank
+BEV and PHEV only: the register's petrol and diesel still hold the full and mild hybrids
+the CSV takes from ACEA, so `refresh_top` leaves PETROL / DIESEL out (no combustion
+columns on the page).
 
 ## 7. Operations
 

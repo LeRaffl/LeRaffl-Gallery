@@ -131,7 +131,7 @@ processing:
               then: only months already in the CSV are rewritten
 market_breakdown: market/peru_top.json
 market_designation_note: a "designation" is SUNARP's model string with the brand prefix removed; a few Chinese imports are registered under a type-approval code (e.g. LZW7007EVD2MBMA) rather than a commercial name and rank under that code.
-market_powertrain_note: BEV / PHEV / HEV are AAP's classes; HEV is split into HEV (full) and MHEV (mild) where the registry codes it, which covers the whole trailing year.
+market_powertrain_note: BEV / PHEV / HEV / petrol / diesel are AAP's classes, as in the CSV; HEV is split into HEV (full) and MHEV (mild) where the registry codes it, which covers the whole trailing year.
 fetcher: scripts/fetch_peru.py
 workflow: .github/workflows/fetch-peru.yml
 fragility_doc: docs/architecture/45-source-peru.md
