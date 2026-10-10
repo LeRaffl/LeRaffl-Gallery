@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Hong Kong",
  "variant": "Whole",
  "source": "Transport Department (data.gov.hk)",
@@ -305,7 +306,156 @@
      "units": 1,
      "share_of_class": 0.0017
     }
-   ]
+   ],
+   "incl_erev": {
+    "units": 604,
+    "share_of_market": 0.01068,
+    "brands": [
+     {
+      "brand": "GAC",
+      "units": 384,
+      "share_of_class": 0.6358
+     },
+     {
+      "brand": "BYD",
+      "units": 70,
+      "share_of_class": 0.1159
+     },
+     {
+      "brand": "DENZA",
+      "units": 63,
+      "share_of_class": 0.1043
+     },
+     {
+      "brand": "LAMBORGHINI",
+      "units": 19,
+      "share_of_class": 0.0315
+     },
+     {
+      "brand": "MERCEDES-BENZ",
+      "units": 16,
+      "share_of_class": 0.0265
+     },
+     {
+      "brand": "JAECOO",
+      "units": 15,
+      "share_of_class": 0.0248
+     },
+     {
+      "brand": "FERRARI",
+      "units": 11,
+      "share_of_class": 0.0182
+     },
+     {
+      "brand": "FORTHING",
+      "units": 11,
+      "share_of_class": 0.0182
+     },
+     {
+      "brand": "LAND ROVER",
+      "units": 5,
+      "share_of_class": 0.0083
+     },
+     {
+      "brand": "MCLAREN",
+      "units": 4,
+      "share_of_class": 0.0066
+     }
+    ],
+    "models": [
+     {
+      "brand": "GAC",
+      "model": "E9",
+      "units": 384,
+      "share_of_class": 0.6358
+     },
+     {
+      "brand": "BYD",
+      "model": "SEALION 6",
+      "units": 67,
+      "share_of_class": 0.1109
+     },
+     {
+      "brand": "DENZA",
+      "model": "B5",
+      "units": 63,
+      "share_of_class": 0.1043
+     },
+     {
+      "brand": "LAMBORGHINI",
+      "model": "URUS",
+      "units": 16,
+      "share_of_class": 0.0265
+     },
+     {
+      "brand": "MERCEDES-BENZ",
+      "model": "AMG E 53 HYBRID",
+      "units": 15,
+      "share_of_class": 0.0248
+     },
+     {
+      "brand": "FORTHING",
+      "model": "FRIDAY",
+      "units": 11,
+      "share_of_class": 0.0182,
+      "erev": true
+     },
+     {
+      "brand": "FERRARI",
+      "model": "296 GTS",
+      "units": 8,
+      "share_of_class": 0.0132
+     },
+     {
+      "brand": "JAECOO",
+      "model": "JAECOO8",
+      "units": 8,
+      "share_of_class": 0.0132
+     },
+     {
+      "brand": "JAECOO",
+      "model": "JAECOO7",
+      "units": 7,
+      "share_of_class": 0.0116
+     },
+     {
+      "brand": "MCLAREN",
+      "model": "ARTURA COUPE",
+      "units": 4,
+      "share_of_class": 0.0066
+     },
+     {
+      "brand": "LAND ROVER",
+      "model": "RR EVOQUE",
+      "units": 3,
+      "share_of_class": 0.005
+     },
+     {
+      "brand": "MG",
+      "model": "S9",
+      "units": 3,
+      "share_of_class": 0.005
+     },
+     {
+      "brand": "LAMBORGHINI",
+      "model": "REVUELTO",
+      "units": 2,
+      "share_of_class": 0.0033
+     },
+     {
+      "brand": "PORSCHE",
+      "model": "CAYENNE E-HYBRID COUPE",
+      "units": 2,
+      "share_of_class": 0.0033
+     },
+     {
+      "brand": "BYD",
+      "model": "M9",
+      "units": 1,
+      "share_of_class": 0.0017
+     }
+    ]
+   }
   },
   "EREV": {
    "units": 11,
@@ -323,6 +473,154 @@
      "model": "FRIDAY",
      "units": 11,
      "share_of_class": 1.0
+    }
+   ]
+  },
+  "PETROL": {
+   "units": 5219,
+   "share_of_market": 0.09231,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 1200,
+     "share_of_class": 0.2299
+    },
+    {
+     "brand": "HONDA",
+     "units": 1046,
+     "share_of_class": 0.2004
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 553,
+     "share_of_class": 0.106
+    },
+    {
+     "brand": "SUBARU",
+     "units": 362,
+     "share_of_class": 0.0694
+    },
+    {
+     "brand": "BMW",
+     "units": 356,
+     "share_of_class": 0.0682
+    },
+    {
+     "brand": "SUZUKI",
+     "units": 334,
+     "share_of_class": 0.064
+    },
+    {
+     "brand": "NISSAN",
+     "units": 317,
+     "share_of_class": 0.0607
+    },
+    {
+     "brand": "LEXUS",
+     "units": 310,
+     "share_of_class": 0.0594
+    },
+    {
+     "brand": "PORSCHE",
+     "units": 151,
+     "share_of_class": 0.0289
+    },
+    {
+     "brand": "MAZDA",
+     "units": 129,
+     "share_of_class": 0.0247
+    }
+   ],
+   "models": [
+    {
+     "brand": "TOYOTA",
+     "model": "ALPHARD",
+     "units": 482,
+     "share_of_class": 0.0924
+    },
+    {
+     "brand": "HONDA",
+     "model": "FREED",
+     "units": 407,
+     "share_of_class": 0.078
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "NOAH",
+     "units": 370,
+     "share_of_class": 0.0709
+    },
+    {
+     "brand": "HONDA",
+     "model": "STEPWGN",
+     "units": 282,
+     "share_of_class": 0.054
+    },
+    {
+     "brand": "HONDA",
+     "model": "JAZZ",
+     "units": 281,
+     "share_of_class": 0.0538
+    },
+    {
+     "brand": "NISSAN",
+     "model": "SERENA E-POWER HWS",
+     "units": 258,
+     "share_of_class": 0.0494
+    },
+    {
+     "brand": "BMW",
+     "model": "X3 20",
+     "units": 151,
+     "share_of_class": 0.0289
+    },
+    {
+     "brand": "SUBARU",
+     "model": "CROSSTREK 2.0I-S EYESIGHT",
+     "units": 135,
+     "share_of_class": 0.0259
+    },
+    {
+     "brand": "SUBARU",
+     "model": "FORESTER 2.5I-S HYBRID",
+     "units": 135,
+     "share_of_class": 0.0259
+    },
+    {
+     "brand": "LEXUS",
+     "model": "NX350H",
+     "units": 117,
+     "share_of_class": 0.0224
+    },
+    {
+     "brand": "MG",
+     "model": "MG3 HYBRID+",
+     "units": 117,
+     "share_of_class": 0.0224
+    },
+    {
+     "brand": "SUZUKI",
+     "model": "HUSTLER",
+     "units": 104,
+     "share_of_class": 0.0199
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "SIENTA",
+     "units": 92,
+     "share_of_class": 0.0176
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "VELLFIRE",
+     "units": 86,
+     "share_of_class": 0.0165
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "C200 AMG",
+     "units": 81,
+     "share_of_class": 0.0155
     }
    ]
   }
@@ -545,7 +843,116 @@
        "units": 1,
        "share_of_class": 0.0087
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 118,
+      "share_of_market": 0.04898,
+      "brands": [
+       {
+        "brand": "GAC",
+        "units": 78,
+        "share_of_class": 0.661
+       },
+       {
+        "brand": "BYD",
+        "units": 19,
+        "share_of_class": 0.161
+       },
+       {
+        "brand": "JAECOO",
+        "units": 8,
+        "share_of_class": 0.0678
+       },
+       {
+        "brand": "DENZA",
+        "units": 4,
+        "share_of_class": 0.0339
+       },
+       {
+        "brand": "FORTHING",
+        "units": 3,
+        "share_of_class": 0.0254
+       },
+       {
+        "brand": "MG",
+        "units": 3,
+        "share_of_class": 0.0254
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "units": 2,
+        "share_of_class": 0.0169
+       },
+       {
+        "brand": "PORSCHE",
+        "units": 1,
+        "share_of_class": 0.0085
+       }
+      ],
+      "models": [
+       {
+        "brand": "GAC",
+        "model": "E9",
+        "units": 78,
+        "share_of_class": 0.661
+       },
+       {
+        "brand": "BYD",
+        "model": "SEALION 6",
+        "units": 18,
+        "share_of_class": 0.1525
+       },
+       {
+        "brand": "JAECOO",
+        "model": "JAECOO8",
+        "units": 8,
+        "share_of_class": 0.0678
+       },
+       {
+        "brand": "DENZA",
+        "model": "B5",
+        "units": 4,
+        "share_of_class": 0.0339
+       },
+       {
+        "brand": "FORTHING",
+        "model": "FRIDAY",
+        "units": 3,
+        "share_of_class": 0.0254,
+        "erev": true
+       },
+       {
+        "brand": "MG",
+        "model": "S9",
+        "units": 3,
+        "share_of_class": 0.0254
+       },
+       {
+        "brand": "BYD",
+        "model": "M9",
+        "units": 1,
+        "share_of_class": 0.0085
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "model": "TEMERARIO",
+        "units": 1,
+        "share_of_class": 0.0085
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "model": "URUS",
+        "units": 1,
+        "share_of_class": 0.0085
+       },
+       {
+        "brand": "PORSCHE",
+        "model": "CAYENNE E-HYBRID",
+        "units": 1,
+        "share_of_class": 0.0085
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 3,
@@ -563,6 +970,124 @@
        "model": "FRIDAY",
        "units": 3,
        "share_of_class": 1.0
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 487,
+     "share_of_market": 0.20216,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 148,
+       "share_of_class": 0.3039
+      },
+      {
+       "brand": "HONDA",
+       "units": 92,
+       "share_of_class": 0.1889
+      },
+      {
+       "brand": "LEXUS",
+       "units": 46,
+       "share_of_class": 0.0945
+      },
+      {
+       "brand": "SUBARU",
+       "units": 45,
+       "share_of_class": 0.0924
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 41,
+       "share_of_class": 0.0842
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 35,
+       "share_of_class": 0.0719
+      },
+      {
+       "brand": "BMW",
+       "units": 34,
+       "share_of_class": 0.0698
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 9,
+       "share_of_class": 0.0185
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 6,
+       "share_of_class": 0.0123
+      },
+      {
+       "brand": "MAZDA",
+       "units": 5,
+       "share_of_class": 0.0103
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 64,
+       "share_of_class": 0.1314
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 35,
+       "share_of_class": 0.0719
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAV4",
+       "units": 31,
+       "share_of_class": 0.0637
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 30,
+       "share_of_class": 0.0616
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX350H",
+       "units": 29,
+       "share_of_class": 0.0595
+      },
+      {
+       "brand": "SUBARU",
+       "model": "FORESTER 2.5I-S HYBRID",
+       "units": 29,
+       "share_of_class": 0.0595
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 25,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 21,
+       "share_of_class": 0.0431
+      },
+      {
+       "brand": "HONDA",
+       "model": "CIVIC TYPE R",
+       "units": 14,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "BMW",
+       "model": "X3 20",
+       "units": 13,
+       "share_of_class": 0.0267
       }
      ]
     }
@@ -779,7 +1304,110 @@
        "units": 1,
        "share_of_class": 0.0087
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 122,
+      "share_of_market": 0.04803,
+      "brands": [
+       {
+        "brand": "GAC",
+        "units": 83,
+        "share_of_class": 0.6803
+       },
+       {
+        "brand": "BYD",
+        "units": 16,
+        "share_of_class": 0.1311
+       },
+       {
+        "brand": "DENZA",
+        "units": 7,
+        "share_of_class": 0.0574
+       },
+       {
+        "brand": "FORTHING",
+        "units": 7,
+        "share_of_class": 0.0574
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "units": 4,
+        "share_of_class": 0.0328
+       },
+       {
+        "brand": "JAECOO",
+        "units": 3,
+        "share_of_class": 0.0246
+       },
+       {
+        "brand": "MERCEDES-BENZ",
+        "units": 1,
+        "share_of_class": 0.0082
+       },
+       {
+        "brand": "PORSCHE",
+        "units": 1,
+        "share_of_class": 0.0082
+       }
+      ],
+      "models": [
+       {
+        "brand": "GAC",
+        "model": "E9",
+        "units": 83,
+        "share_of_class": 0.6803
+       },
+       {
+        "brand": "BYD",
+        "model": "SEALION 6",
+        "units": 15,
+        "share_of_class": 0.123
+       },
+       {
+        "brand": "DENZA",
+        "model": "B5",
+        "units": 7,
+        "share_of_class": 0.0574
+       },
+       {
+        "brand": "FORTHING",
+        "model": "FRIDAY",
+        "units": 7,
+        "share_of_class": 0.0574,
+        "erev": true
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "model": "URUS",
+        "units": 4,
+        "share_of_class": 0.0328
+       },
+       {
+        "brand": "JAECOO",
+        "model": "JAECOO7",
+        "units": 3,
+        "share_of_class": 0.0246
+       },
+       {
+        "brand": "BYD",
+        "model": "SEAL 6",
+        "units": 1,
+        "share_of_class": 0.0082
+       },
+       {
+        "brand": "MERCEDES-BENZ",
+        "model": "AMG E 53 HYBRID",
+        "units": 1,
+        "share_of_class": 0.0082
+       },
+       {
+        "brand": "PORSCHE",
+        "model": "CAYENNE E-HYBRID COUPE",
+        "units": 1,
+        "share_of_class": 0.0082
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 7,
@@ -797,6 +1425,124 @@
        "model": "FRIDAY",
        "units": 7,
        "share_of_class": 1.0
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 455,
+     "share_of_market": 0.17913,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 132,
+       "share_of_class": 0.2901
+      },
+      {
+       "brand": "HONDA",
+       "units": 65,
+       "share_of_class": 0.1429
+      },
+      {
+       "brand": "SUBARU",
+       "units": 58,
+       "share_of_class": 0.1275
+      },
+      {
+       "brand": "BMW",
+       "units": 43,
+       "share_of_class": 0.0945
+      },
+      {
+       "brand": "LEXUS",
+       "units": 38,
+       "share_of_class": 0.0835
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 37,
+       "share_of_class": 0.0813
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 36,
+       "share_of_class": 0.0791
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 13,
+       "share_of_class": 0.0286
+      },
+      {
+       "brand": "NISSAN",
+       "units": 8,
+       "share_of_class": 0.0176
+      },
+      {
+       "brand": "MAZDA",
+       "units": 7,
+       "share_of_class": 0.0154
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 52,
+       "share_of_class": 0.1143
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 40,
+       "share_of_class": 0.0879
+      },
+      {
+       "brand": "SUBARU",
+       "model": "FORESTER 2.5I-S HYBRID",
+       "units": 39,
+       "share_of_class": 0.0857
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 29,
+       "share_of_class": 0.0637
+      },
+      {
+       "brand": "BMW",
+       "model": "X3 20",
+       "units": 26,
+       "share_of_class": 0.0571
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX350H",
+       "units": 23,
+       "share_of_class": 0.0505
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAV4",
+       "units": 21,
+       "share_of_class": 0.0462
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 20,
+       "share_of_class": 0.044
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 13,
+       "share_of_class": 0.0286
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 11,
+       "share_of_class": 0.0242
       }
      ]
     }
@@ -1024,7 +1770,121 @@
        "units": 1,
        "share_of_class": 0.0145
       }
-     ]
+     ],
+     "incl_erev": {
+      "units": 70,
+      "share_of_market": 0.03665,
+      "brands": [
+       {
+        "brand": "GAC",
+        "units": 28,
+        "share_of_class": 0.4
+       },
+       {
+        "brand": "BYD",
+        "units": 23,
+        "share_of_class": 0.3286
+       },
+       {
+        "brand": "DENZA",
+        "units": 6,
+        "share_of_class": 0.0857
+       },
+       {
+        "brand": "JAECOO",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "MERCEDES-BENZ",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "FERRARI",
+        "units": 2,
+        "share_of_class": 0.0286
+       },
+       {
+        "brand": "FORTHING",
+        "units": 1,
+        "share_of_class": 0.0143
+       },
+       {
+        "brand": "MCLAREN",
+        "units": 1,
+        "share_of_class": 0.0143
+       }
+      ],
+      "models": [
+       {
+        "brand": "GAC",
+        "model": "E9",
+        "units": 28,
+        "share_of_class": 0.4
+       },
+       {
+        "brand": "BYD",
+        "model": "SEALION 6",
+        "units": 23,
+        "share_of_class": 0.3286
+       },
+       {
+        "brand": "DENZA",
+        "model": "B5",
+        "units": 6,
+        "share_of_class": 0.0857
+       },
+       {
+        "brand": "JAECOO",
+        "model": "JAECOO7",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "LAMBORGHINI",
+        "model": "URUS",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "MERCEDES-BENZ",
+        "model": "AMG E 53 HYBRID",
+        "units": 3,
+        "share_of_class": 0.0429
+       },
+       {
+        "brand": "FERRARI",
+        "model": "296 GTS",
+        "units": 1,
+        "share_of_class": 0.0143
+       },
+       {
+        "brand": "FERRARI",
+        "model": "296 SPECIALE",
+        "units": 1,
+        "share_of_class": 0.0143
+       },
+       {
+        "brand": "FORTHING",
+        "model": "FRIDAY",
+        "units": 1,
+        "share_of_class": 0.0143,
+        "erev": true
+       },
+       {
+        "brand": "MCLAREN",
+        "model": "ARTURA COUPE",
+        "units": 1,
+        "share_of_class": 0.0143
+       }
+      ]
+     }
     },
     "EREV": {
      "units": 1,
@@ -1042,6 +1902,124 @@
        "model": "FRIDAY",
        "units": 1,
        "share_of_class": 1.0
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 438,
+     "share_of_market": 0.22932,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 86,
+       "share_of_class": 0.1963
+      },
+      {
+       "brand": "HONDA",
+       "units": 85,
+       "share_of_class": 0.1941
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 62,
+       "share_of_class": 0.1416
+      },
+      {
+       "brand": "BMW",
+       "units": 54,
+       "share_of_class": 0.1233
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 29,
+       "share_of_class": 0.0662
+      },
+      {
+       "brand": "LEXUS",
+       "units": 27,
+       "share_of_class": 0.0616
+      },
+      {
+       "brand": "SUBARU",
+       "units": 23,
+       "share_of_class": 0.0525
+      },
+      {
+       "brand": "NISSAN",
+       "units": 21,
+       "share_of_class": 0.0479
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 14,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "MAZDA",
+       "units": 6,
+       "share_of_class": 0.0137
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 48,
+       "share_of_class": 0.1096
+      },
+      {
+       "brand": "BMW",
+       "model": "X3 20",
+       "units": 40,
+       "share_of_class": 0.0913
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 31,
+       "share_of_class": 0.0708
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 27,
+       "share_of_class": 0.0616
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 20,
+       "share_of_class": 0.0457
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 17,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "JIMNY ADVANCE",
+       "units": 14,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VELLFIRE",
+       "units": 14,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 13,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "C200 AMG",
+       "units": 11,
+       "share_of_class": 0.0251
       }
      ]
     }
@@ -1240,6 +2218,124 @@
        "model": "URUS",
        "units": 1,
        "share_of_class": 0.0179
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 467,
+     "share_of_market": 0.09669,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 128,
+       "share_of_class": 0.2741
+      },
+      {
+       "brand": "HONDA",
+       "units": 80,
+       "share_of_class": 0.1713
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 46,
+       "share_of_class": 0.0985
+      },
+      {
+       "brand": "NISSAN",
+       "units": 43,
+       "share_of_class": 0.0921
+      },
+      {
+       "brand": "SUBARU",
+       "units": 42,
+       "share_of_class": 0.0899
+      },
+      {
+       "brand": "BMW",
+       "units": 32,
+       "share_of_class": 0.0685
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 27,
+       "share_of_class": 0.0578
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 15,
+       "share_of_class": 0.0321
+      },
+      {
+       "brand": "LEXUS",
+       "units": 13,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "MG",
+       "units": 13,
+       "share_of_class": 0.0278
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 66,
+       "share_of_class": 0.1413
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 44,
+       "share_of_class": 0.0942
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 41,
+       "share_of_class": 0.0878
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 38,
+       "share_of_class": 0.0814
+      },
+      {
+       "brand": "SUBARU",
+       "model": "FORESTER 2.5I-S HYBRID",
+       "units": 26,
+       "share_of_class": 0.0557
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 21,
+       "share_of_class": 0.045
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 18,
+       "share_of_class": 0.0385
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "SIENTA",
+       "units": 13,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "MG",
+       "model": "MG3 HYBRID+",
+       "units": 12,
+       "share_of_class": 0.0257
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "JIMNY 5D 1.5 4AT",
+       "units": 10,
+       "share_of_class": 0.0214
       }
      ]
     }
@@ -1451,6 +2547,124 @@
        "share_of_class": 0.0102
       }
      ]
+    },
+    "PETROL": {
+     "units": 366,
+     "share_of_market": 0.04288,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 102,
+       "share_of_class": 0.2787
+      },
+      {
+       "brand": "HONDA",
+       "units": 85,
+       "share_of_class": 0.2322
+      },
+      {
+       "brand": "BMW",
+       "units": 27,
+       "share_of_class": 0.0738
+      },
+      {
+       "brand": "MG",
+       "units": 26,
+       "share_of_class": 0.071
+      },
+      {
+       "brand": "LEXUS",
+       "units": 24,
+       "share_of_class": 0.0656
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 17,
+       "share_of_class": 0.0464
+      },
+      {
+       "brand": "NISSAN",
+       "units": 14,
+       "share_of_class": 0.0383
+      },
+      {
+       "brand": "SUBARU",
+       "units": 14,
+       "share_of_class": 0.0383
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 10,
+       "share_of_class": 0.0273
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 10,
+       "share_of_class": 0.0273
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 47,
+       "share_of_class": 0.1284
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 38,
+       "share_of_class": 0.1038
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 32,
+       "share_of_class": 0.0874
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 29,
+       "share_of_class": 0.0792
+      },
+      {
+       "brand": "MG",
+       "model": "MG3 HYBRID+",
+       "units": 24,
+       "share_of_class": 0.0656
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 23,
+       "share_of_class": 0.0628
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX350H",
+       "units": 12,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 12,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 7,
+       "share_of_class": 0.0191
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "SIENTA",
+       "units": 7,
+       "share_of_class": 0.0191
+      }
+     ]
     }
    }
   },
@@ -1633,6 +2847,124 @@
        "share_of_class": 0.0172
       }
      ]
+    },
+    "PETROL": {
+     "units": 430,
+     "share_of_market": 0.04468,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 95,
+       "share_of_class": 0.2209
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 89,
+       "share_of_class": 0.207
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 55,
+       "share_of_class": 0.1279
+      },
+      {
+       "brand": "BMW",
+       "units": 31,
+       "share_of_class": 0.0721
+      },
+      {
+       "brand": "NISSAN",
+       "units": 29,
+       "share_of_class": 0.0674
+      },
+      {
+       "brand": "LEXUS",
+       "units": 26,
+       "share_of_class": 0.0605
+      },
+      {
+       "brand": "MG",
+       "units": 25,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 16,
+       "share_of_class": 0.0372
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 16,
+       "share_of_class": 0.0372
+      },
+      {
+       "brand": "MAZDA",
+       "units": 14,
+       "share_of_class": 0.0326
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 36,
+       "share_of_class": 0.0837
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 34,
+       "share_of_class": 0.0791
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 30,
+       "share_of_class": 0.0698
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 29,
+       "share_of_class": 0.0674
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 25,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "MG",
+       "model": "MG3 HYBRID+",
+       "units": 24,
+       "share_of_class": 0.0558
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 20,
+       "share_of_class": 0.0465
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LM350H",
+       "units": 11,
+       "share_of_class": 0.0256
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "GLC300",
+       "units": 11,
+       "share_of_class": 0.0256
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "HUSTLER",
+       "units": 11,
+       "share_of_class": 0.0256
+      }
+     ]
     }
    }
   },
@@ -1785,6 +3117,124 @@
        "model": "AMG E 53 HYBRID",
        "units": 1,
        "share_of_class": 0.1
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 292,
+     "share_of_market": 0.06992,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 58,
+       "share_of_class": 0.1986
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 52,
+       "share_of_class": 0.1781
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 37,
+       "share_of_class": 0.1267
+      },
+      {
+       "brand": "NISSAN",
+       "units": 31,
+       "share_of_class": 0.1062
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 31,
+       "share_of_class": 0.1062
+      },
+      {
+       "brand": "LEXUS",
+       "units": 20,
+       "share_of_class": 0.0685
+      },
+      {
+       "brand": "BMW",
+       "units": 17,
+       "share_of_class": 0.0582
+      },
+      {
+       "brand": "SUBARU",
+       "units": 15,
+       "share_of_class": 0.0514
+      },
+      {
+       "brand": "MAZDA",
+       "units": 7,
+       "share_of_class": 0.024
+      },
+      {
+       "brand": "VOLVO",
+       "units": 5,
+       "share_of_class": 0.0171
+      }
+     ],
+     "models": [
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 30,
+       "share_of_class": 0.1027
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 30,
+       "share_of_class": 0.1027
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 26,
+       "share_of_class": 0.089
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 19,
+       "share_of_class": 0.0651
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "HUSTLER",
+       "units": 10,
+       "share_of_class": 0.0342
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 8,
+       "share_of_class": 0.0274
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "JIMNY 5D 1.5 4AT",
+       "units": 8,
+       "share_of_class": 0.0274
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "BANDIT SOLIO 1.2",
+       "units": 7,
+       "share_of_class": 0.024
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "SIENTA",
+       "units": 7,
+       "share_of_class": 0.024
+      },
+      {
+       "brand": "LEXUS",
+       "model": "NX350H",
+       "units": 6,
+       "share_of_class": 0.0205
       }
      ]
     }
@@ -1969,6 +3419,124 @@
        "share_of_class": 0.0556
       }
      ]
+    },
+    "PETROL": {
+     "units": 437,
+     "share_of_market": 0.1053,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 77,
+       "share_of_class": 0.1762
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 74,
+       "share_of_class": 0.1693
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 67,
+       "share_of_class": 0.1533
+      },
+      {
+       "brand": "MG",
+       "units": 33,
+       "share_of_class": 0.0755
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 31,
+       "share_of_class": 0.0709
+      },
+      {
+       "brand": "SUBARU",
+       "units": 25,
+       "share_of_class": 0.0572
+      },
+      {
+       "brand": "BMW",
+       "units": 24,
+       "share_of_class": 0.0549
+      },
+      {
+       "brand": "NISSAN",
+       "units": 23,
+       "share_of_class": 0.0526
+      },
+      {
+       "brand": "LEXUS",
+       "units": 16,
+       "share_of_class": 0.0366
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 15,
+       "share_of_class": 0.0343
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 39,
+       "share_of_class": 0.0892
+      },
+      {
+       "brand": "MG",
+       "model": "MG3 HYBRID+",
+       "units": 31,
+       "share_of_class": 0.0709
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 28,
+       "share_of_class": 0.0641
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 28,
+       "share_of_class": 0.0641
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 23,
+       "share_of_class": 0.0526
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 19,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 16,
+       "share_of_class": 0.0366
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "HUSTLER",
+       "units": 15,
+       "share_of_class": 0.0343
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 14,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "AMG G63",
+       "units": 9,
+       "share_of_class": 0.0206
+      }
+     ]
     }
    }
   },
@@ -2145,6 +3713,124 @@
        "share_of_class": 0.0909
       }
      ]
+    },
+    "PETROL": {
+     "units": 483,
+     "share_of_market": 0.08549,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 112,
+       "share_of_class": 0.2319
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 89,
+       "share_of_class": 0.1843
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 51,
+       "share_of_class": 0.1056
+      },
+      {
+       "brand": "NISSAN",
+       "units": 36,
+       "share_of_class": 0.0745
+      },
+      {
+       "brand": "SUBARU",
+       "units": 35,
+       "share_of_class": 0.0725
+      },
+      {
+       "brand": "BMW",
+       "units": 24,
+       "share_of_class": 0.0497
+      },
+      {
+       "brand": "LEXUS",
+       "units": 22,
+       "share_of_class": 0.0455
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 22,
+       "share_of_class": 0.0455
+      },
+      {
+       "brand": "MG",
+       "units": 21,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 20,
+       "share_of_class": 0.0414
+      }
+     ],
+     "models": [
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 40,
+       "share_of_class": 0.0828
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 37,
+       "share_of_class": 0.0766
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 35,
+       "share_of_class": 0.0725
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 27,
+       "share_of_class": 0.0559
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 26,
+       "share_of_class": 0.0538
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 22,
+       "share_of_class": 0.0455
+      },
+      {
+       "brand": "MG",
+       "model": "MG3 HYBRID+",
+       "units": 21,
+       "share_of_class": 0.0435
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 16,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "C200 AMG",
+       "units": 14,
+       "share_of_class": 0.029
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "SIENTA",
+       "units": 10,
+       "share_of_class": 0.0207
+      }
+     ]
     }
    }
   },
@@ -2319,6 +4005,124 @@
        "model": "REVUELTO",
        "units": 1,
        "share_of_class": 0.0526
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 443,
+     "share_of_market": 0.10397,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 103,
+       "share_of_class": 0.2325
+      },
+      {
+       "brand": "HONDA",
+       "units": 96,
+       "share_of_class": 0.2167
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 57,
+       "share_of_class": 0.1287
+      },
+      {
+       "brand": "NISSAN",
+       "units": 41,
+       "share_of_class": 0.0926
+      },
+      {
+       "brand": "SUBARU",
+       "units": 32,
+       "share_of_class": 0.0722
+      },
+      {
+       "brand": "LEXUS",
+       "units": 25,
+       "share_of_class": 0.0564
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 25,
+       "share_of_class": 0.0564
+      },
+      {
+       "brand": "BMW",
+       "units": 14,
+       "share_of_class": 0.0316
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 10,
+       "share_of_class": 0.0226
+      },
+      {
+       "brand": "MAZDA",
+       "units": 9,
+       "share_of_class": 0.0203
+      }
+     ],
+     "models": [
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 55,
+       "share_of_class": 0.1242
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 46,
+       "share_of_class": 0.1038
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 32,
+       "share_of_class": 0.0722
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 27,
+       "share_of_class": 0.0609
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 23,
+       "share_of_class": 0.0519
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 16,
+       "share_of_class": 0.0361
+      },
+      {
+       "brand": "SUBARU",
+       "model": "FORESTER 2.5I-S HYBRID",
+       "units": 11,
+       "share_of_class": 0.0248
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "HUSTLER",
+       "units": 11,
+       "share_of_class": 0.0248
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS",
+       "units": 9,
+       "share_of_class": 0.0203
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VELLFIRE",
+       "units": 9,
+       "share_of_class": 0.0203
       }
      ]
     }
@@ -2508,6 +4312,124 @@
        "share_of_class": 0.0769
       }
      ]
+    },
+    "PETROL": {
+     "units": 491,
+     "share_of_market": 0.10977,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 106,
+       "share_of_class": 0.2159
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 106,
+       "share_of_class": 0.2159
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 48,
+       "share_of_class": 0.0978
+      },
+      {
+       "brand": "NISSAN",
+       "units": 43,
+       "share_of_class": 0.0876
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 35,
+       "share_of_class": 0.0713
+      },
+      {
+       "brand": "BMW",
+       "units": 31,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "SUBARU",
+       "units": 31,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "LEXUS",
+       "units": 29,
+       "share_of_class": 0.0591
+      },
+      {
+       "brand": "MAZDA",
+       "units": 15,
+       "share_of_class": 0.0305
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 13,
+       "share_of_class": 0.0265
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 47,
+       "share_of_class": 0.0957
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 43,
+       "share_of_class": 0.0876
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 38,
+       "share_of_class": 0.0774
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 28,
+       "share_of_class": 0.057
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 24,
+       "share_of_class": 0.0489
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 19,
+       "share_of_class": 0.0387
+      },
+      {
+       "brand": "BMW",
+       "model": "X3 20",
+       "units": 15,
+       "share_of_class": 0.0305
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS",
+       "units": 14,
+       "share_of_class": 0.0285
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 11,
+       "share_of_class": 0.0224
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "SIENTA",
+       "units": 11,
+       "share_of_class": 0.0224
+      }
+     ]
     }
    }
   },
@@ -2682,6 +4604,124 @@
        "model": "AMG E 53 HYBRID",
        "units": 1,
        "share_of_class": 0.0909
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 430,
+     "share_of_market": 0.10804,
+     "brands": [
+      {
+       "brand": "HONDA",
+       "units": 95,
+       "share_of_class": 0.2209
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 91,
+       "share_of_class": 0.2116
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 37,
+       "share_of_class": 0.086
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 35,
+       "share_of_class": 0.0814
+      },
+      {
+       "brand": "SUBARU",
+       "units": 28,
+       "share_of_class": 0.0651
+      },
+      {
+       "brand": "NISSAN",
+       "units": 26,
+       "share_of_class": 0.0605
+      },
+      {
+       "brand": "BMW",
+       "units": 25,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "LEXUS",
+       "units": 24,
+       "share_of_class": 0.0558
+      },
+      {
+       "brand": "MAZDA",
+       "units": 17,
+       "share_of_class": 0.0395
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 15,
+       "share_of_class": 0.0349
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 40,
+       "share_of_class": 0.093
+      },
+      {
+       "brand": "HONDA",
+       "model": "FREED",
+       "units": 37,
+       "share_of_class": 0.086
+      },
+      {
+       "brand": "HONDA",
+       "model": "JAZZ",
+       "units": 33,
+       "share_of_class": 0.0767
+      },
+      {
+       "brand": "HONDA",
+       "model": "STEPWGN",
+       "units": 22,
+       "share_of_class": 0.0512
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA E-POWER HWS",
+       "units": 19,
+       "share_of_class": 0.0442
+      },
+      {
+       "brand": "SUBARU",
+       "model": "CROSSTREK 2.0I-S EYESIGHT",
+       "units": 18,
+       "share_of_class": 0.0419
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "NOAH",
+       "units": 16,
+       "share_of_class": 0.0372
+      },
+      {
+       "brand": "BMW",
+       "model": "X3 20",
+       "units": 15,
+       "share_of_class": 0.0349
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA WAGON",
+       "units": 15,
+       "share_of_class": 0.0349
+      },
+      {
+       "brand": "SUZUKI",
+       "model": "HUSTLER",
+       "units": 14,
+       "share_of_class": 0.0326
       }
      ]
     }
