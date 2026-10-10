@@ -104,6 +104,11 @@ processing:
 market_breakdown: market/hong_kong_top.json
 market_designation_note: a "designation" is TD's model string with the brand prefix, chassis codes and trim words removed, so the trims of one model rank together (MODEL Y RWD and MODEL Y LONG RANGE → MODEL Y).
 market_powertrain_note: BEV is TD's own fuel value; PHEV and EREV are classified from the model designation (see the developer doc).
+market_breakdown_extra:
+- path: market/hong_kong_used_top.json
+  id: market-used
+  heading: Who sells the imported used electrified cars
+  note: "Used imports (the Used variant): private cars first registered outside Hong Kong before import (TD status C2). BEV from TD's fuel value, PHEV and EREV classified from the model designation — exactly as in the Used CSV; designations shortened the same way as above."
 fetcher: scripts/fetch_hong_kong.py
 workflow: .github/workflows/fetch-hong-kong.yml
 fragility_doc: docs/architecture/41-source-hong-kong.md
@@ -172,7 +177,7 @@ the highest BEV shares (86 % of new private cars in 2025).
 | `First Registration Vehicle Status` | new vs used (below) |
 | `Permitted Gross Vehicle Weight` (tonnes) | Vans only: ≤ 3.5 t (EU N1) |
 | `Fuel Type` | fuel column (§3) |
-| `Vehicle Make`, `Vehicle Model`, `Year Of Manufacture` | plug-in rules (§3); `market/hong_kong_top.json` |
+| `Vehicle Make`, `Vehicle Model`, `Year Of Manufacture` | plug-in rules (§3); `market/hong_kong_top.json` / `hong_kong_used_top.json` |
 
 **First-registration status** — TD's classification (data specification):
 
@@ -336,6 +341,10 @@ is small but shows a real transition (BEV 1 % in 2022 → 46 % in 2026).
   prefix, chassis codes `(G20)` and trim words (`MODEL_TRIM`) removed, so
   `MODEL Y RWD` and `MODEL Y LONG RANGE DUAL MOTOR ALL WHEEL DRIVE` rank as
   one model. The data CSVs never use these names.
+- `market/hong_kong_used_top.json` — the same for `Used` (status C2, same
+  classes and display names as `Hong Kong_Used.csv`), a second section on the
+  page via `market_breakdown_extra` — the rule for every `Used` variant
+  ([03](03-data-objects.md) §3.16).
 
 ## 8. Operations and debugging
 
@@ -346,12 +355,12 @@ sequenceDiagram
     participant Py as fetch_hong_kong.py
     participant HK as data.gov.hk (CKAN) / td.gov.hk
     participant CSV as data/Hong Kong*.csv
-    participant Top as market/hong_kong_top.json
+    participant Top as market/hong_kong_top.json + _used_top.json
     participant Render as render-country.yml
     Cron->>Test: scope + plug-in rules + headers + cross-check + upsert tests (gate)
     Cron->>Py: run (target = newest month on the portal)
     Py->>HK: package_show → monthly CSV list
-    Py->>CSV: target month already from TD in every CSV?
+    Py->>CSV: target month already from TD in every CSV (and both top files current)?
     alt yes
         Py-->>Cron: no-op, no download
     else no
@@ -367,9 +376,10 @@ sequenceDiagram
 
 - **Schedule:** `20 3,11 * * *` (daily, HK 11:20 and 19:20). The first HTTP
   call is the portal's resource list; when every CSV already has the newest
-  published month the run ends there ("already fetched … nothing to do").
+  published month and both top files are current for it, the run ends there
+  ("already fetched … nothing to do").
 - **Normal run:** downloads the newest 12 monthly files (~5 MB), re-derives
-  those months (no-op if unchanged) and rebuilds the top list.
+  those months (no-op if unchanged) and rebuilds the two top lists.
 - **Backfill / rebuild:** dispatch with `backfill = true` (81 files, ~30 MB,
   ~1 min).
 - **Render:** the fetch job dispatches `render-country.yml` once with the

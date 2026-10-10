@@ -14,6 +14,7 @@ one ranking per single month (`months`, newest first).
 | `new_zealand_top.json` | `scripts/fetch_new_zealand.py` (NZTA Motor Vehicle Register `MAKE` / `MODEL`; Whole's scope — new passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
 | `new_zealand_used_top.json` | `scripts/fetch_new_zealand.py` (same query; Used's scope — used-import passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
 | `hong_kong_top.json` | `scripts/fetch_hong_kong.py` (TD `Vehicle Make` / `Vehicle Model`, Whole; BEV + classified PHEV/EREV; trims merged for display) |
+| `hong_kong_used_top.json` | the same script, Used (used imports, TD status C2; same classes and display names) |
 | `peru_top.json` | `scripts/fetch_peru.py` (AAP BI-AAP `Marca` / `Modelo` from SUNARP, Whole; BEV / PHEV / HEV / MHEV) |
 | `paraguay_top.json` + `paraguay_months.json` | `scripts/fetch_paraguay.py` (customs `MARCA ITEM` / designation from the free-text description, new cars imported for consumption; BEV / PHEV / HEV from the tariff subheading) |
 | `ecuador_top.json` | `scripts/fetch_ecuador.py` (SRI register `MARCA` / start of the catalogue description `MODELO`, Whole; BEV + combined Hybrid) |
