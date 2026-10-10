@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Peru",
  "variant": "Whole",
  "source": "SUNARP via AAP (BI-AAP)",
@@ -602,6 +603,270 @@
      "share_of_class": 0.0113
     }
    ]
+  },
+  "PETROL": {
+   "units": 158826,
+   "share_of_market": 0.90406,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 24425,
+     "share_of_class": 0.1538
+    },
+    {
+     "brand": "KIA",
+     "units": 20323,
+     "share_of_class": 0.128
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 17265,
+     "share_of_class": 0.1087
+    },
+    {
+     "brand": "JETOUR",
+     "units": 12885,
+     "share_of_class": 0.0811
+    },
+    {
+     "brand": "CHANGAN",
+     "units": 10073,
+     "share_of_class": 0.0634
+    },
+    {
+     "brand": "CHEVROLET",
+     "units": 9719,
+     "share_of_class": 0.0612
+    },
+    {
+     "brand": "GEELY",
+     "units": 9435,
+     "share_of_class": 0.0594
+    },
+    {
+     "brand": "CHERY",
+     "units": 7377,
+     "share_of_class": 0.0464
+    },
+    {
+     "brand": "FORD",
+     "units": 5299,
+     "share_of_class": 0.0334
+    },
+    {
+     "brand": "DFSK",
+     "units": 5205,
+     "share_of_class": 0.0328
+    }
+   ],
+   "models": [
+    {
+     "brand": "JETOUR",
+     "model": "X70FL",
+     "units": 5724,
+     "share_of_class": 0.036
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "RUSH",
+     "units": 5687,
+     "share_of_class": 0.0358
+    },
+    {
+     "brand": "KIA",
+     "model": "SOLUTO",
+     "units": 5505,
+     "share_of_class": 0.0347
+    },
+    {
+     "brand": "DFSK",
+     "model": "GLORY",
+     "units": 5073,
+     "share_of_class": 0.0319
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "AVANZA",
+     "units": 4832,
+     "share_of_class": 0.0304
+    },
+    {
+     "brand": "FORD",
+     "model": "TERRITORY",
+     "units": 4586,
+     "share_of_class": 0.0289
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "GRAND I10",
+     "units": 4577,
+     "share_of_class": 0.0288
+    },
+    {
+     "brand": "KIA",
+     "model": "SELTOS",
+     "units": 4293,
+     "share_of_class": 0.027
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "RAIZE",
+     "units": 4238,
+     "share_of_class": 0.0267
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "NEW TUCSON",
+     "units": 3801,
+     "share_of_class": 0.0239
+    },
+    {
+     "brand": "CHEVROLET",
+     "model": "N400",
+     "units": 3524,
+     "share_of_class": 0.0222
+    },
+    {
+     "brand": "KIA",
+     "model": "SONET",
+     "units": 3381,
+     "share_of_class": 0.0213
+    },
+    {
+     "brand": "GEELY",
+     "model": "CITYRAY",
+     "units": 3091,
+     "share_of_class": 0.0195
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "CRETA",
+     "units": 3077,
+     "share_of_class": 0.0194
+    },
+    {
+     "brand": "CHANGAN",
+     "model": "X7 PLUS",
+     "units": 3003,
+     "share_of_class": 0.0189
+    }
+   ]
+  },
+  "DIESEL": {
+   "units": 1253,
+   "share_of_market": 0.00713,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 1167,
+     "share_of_class": 0.9314
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 68,
+     "share_of_class": 0.0543
+    },
+    {
+     "brand": "LEXUS",
+     "units": 10,
+     "share_of_class": 0.008
+    },
+    {
+     "brand": "212",
+     "units": 5,
+     "share_of_class": 0.004
+    },
+    {
+     "brand": "LAND ROVER",
+     "units": 2,
+     "share_of_class": 0.0016
+    },
+    {
+     "brand": "DFSK",
+     "units": 1,
+     "share_of_class": 0.0008
+    }
+   ],
+   "models": [
+    {
+     "brand": "TOYOTA",
+     "model": "FORTUNER",
+     "units": 1142,
+     "share_of_class": 0.9114
+    },
+    {
+     "brand": "MITSUBISHI",
+     "model": "MONTERO SPORT",
+     "units": 67,
+     "share_of_class": 0.0535
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LAND CRUISER",
+     "units": 13,
+     "share_of_class": 0.0104
+    },
+    {
+     "brand": "LEXUS",
+     "model": "LX",
+     "units": 10,
+     "share_of_class": 0.008
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LAND CRUISER 300",
+     "units": 9,
+     "share_of_class": 0.0072
+    },
+    {
+     "brand": "212",
+     "model": "T01",
+     "units": 5,
+     "share_of_class": 0.004
+    },
+    {
+     "brand": "DFSK",
+     "model": "K07S",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "LAND ROVER",
+     "model": "DEFENDER",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "LAND ROVER",
+     "model": "DISCOVERY",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "MITSUBISHI",
+     "model": "MONTERO",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "2026",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LAND CRUISER 76",
+     "units": 1,
+     "share_of_class": 0.0008
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LAND CRUISER PRADO",
+     "units": 1,
+     "share_of_class": 0.0008
+    }
+   ]
   }
  },
  "months": [
@@ -1075,6 +1340,194 @@
        "share_of_class": 0.0223
       }
      ]
+    },
+    "PETROL": {
+     "units": 16398,
+     "share_of_market": 0.90402,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2698,
+       "share_of_class": 0.1645
+      },
+      {
+       "brand": "KIA",
+       "units": 2209,
+       "share_of_class": 0.1347
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1818,
+       "share_of_class": 0.1109
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1674,
+       "share_of_class": 0.1021
+      },
+      {
+       "brand": "GEELY",
+       "units": 1001,
+       "share_of_class": 0.061
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 921,
+       "share_of_class": 0.0562
+      },
+      {
+       "brand": "CHERY",
+       "units": 879,
+       "share_of_class": 0.0536
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 787,
+       "share_of_class": 0.048
+      },
+      {
+       "brand": "FORD",
+       "units": 512,
+       "share_of_class": 0.0312
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 382,
+       "share_of_class": 0.0233
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X70FL",
+       "units": 1187,
+       "share_of_class": 0.0724
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 668,
+       "share_of_class": 0.0407
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 665,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 517,
+       "share_of_class": 0.0315
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 494,
+       "share_of_class": 0.0301
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 456,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 443,
+       "share_of_class": 0.027
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 2 PRO MAX",
+       "units": 433,
+       "share_of_class": 0.0264
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 427,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 414,
+       "share_of_class": 0.0252
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 125,
+     "share_of_market": 0.00689,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 114,
+       "share_of_class": 0.912
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 9,
+       "share_of_class": 0.072
+      },
+      {
+       "brand": "212",
+       "units": 1,
+       "share_of_class": 0.008
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.008
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 110,
+       "share_of_class": 0.88
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 9,
+       "share_of_class": 0.072
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 2,
+       "share_of_class": 0.016
+      },
+      {
+       "brand": "212",
+       "model": "T01",
+       "units": 1,
+       "share_of_class": 0.008
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "DISCOVERY",
+       "units": 1,
+       "share_of_class": 0.008
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER 76",
+       "units": 1,
+       "share_of_class": 0.008
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER PRADO",
+       "units": 1,
+       "share_of_class": 0.008
+      }
+     ]
     }
    }
   },
@@ -1541,6 +1994,193 @@
        "model": "Q5",
        "units": 19,
        "share_of_class": 0.0346
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 12615,
+     "share_of_market": 0.89386,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2074,
+       "share_of_class": 0.1644
+      },
+      {
+       "brand": "KIA",
+       "units": 1754,
+       "share_of_class": 0.139
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1396,
+       "share_of_class": 0.1107
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1214,
+       "share_of_class": 0.0962
+      },
+      {
+       "brand": "GEELY",
+       "units": 843,
+       "share_of_class": 0.0668
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 731,
+       "share_of_class": 0.0579
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 666,
+       "share_of_class": 0.0528
+      },
+      {
+       "brand": "CHERY",
+       "units": 513,
+       "share_of_class": 0.0407
+      },
+      {
+       "brand": "FORD",
+       "units": 353,
+       "share_of_class": 0.028
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 320,
+       "share_of_class": 0.0254
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X70FL",
+       "units": 815,
+       "share_of_class": 0.0646
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 584,
+       "share_of_class": 0.0463
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 438,
+       "share_of_class": 0.0347
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 417,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 387,
+       "share_of_class": 0.0307
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 356,
+       "share_of_class": 0.0282
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 334,
+       "share_of_class": 0.0265
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 333,
+       "share_of_class": 0.0264
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "CRETA",
+       "units": 325,
+       "share_of_class": 0.0258
+      },
+      {
+       "brand": "GEELY",
+       "model": "GX3 PRO",
+       "units": 295,
+       "share_of_class": 0.0234
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 93,
+     "share_of_market": 0.00659,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 78,
+       "share_of_class": 0.8387
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 12,
+       "share_of_class": 0.129
+      },
+      {
+       "brand": "212",
+       "units": 1,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 1,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "LEXUS",
+       "units": 1,
+       "share_of_class": 0.0108
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 77,
+       "share_of_class": 0.828
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 12,
+       "share_of_class": 0.129
+      },
+      {
+       "brand": "212",
+       "model": "T01",
+       "units": 1,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "LAND ROVER",
+       "model": "DEFENDER",
+       "units": 1,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 1,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER 300",
+       "units": 1,
+       "share_of_class": 0.0108
       }
      ]
     }
@@ -2014,6 +2654,176 @@
        "model": "Q5 SPORTBACK",
        "units": 16,
        "share_of_class": 0.0287
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 15011,
+     "share_of_market": 0.89399,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1996,
+       "share_of_class": 0.133
+      },
+      {
+       "brand": "KIA",
+       "units": 1982,
+       "share_of_class": 0.132
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1638,
+       "share_of_class": 0.1091
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1594,
+       "share_of_class": 0.1062
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 1042,
+       "share_of_class": 0.0694
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 923,
+       "share_of_class": 0.0615
+      },
+      {
+       "brand": "GEELY",
+       "units": 918,
+       "share_of_class": 0.0612
+      },
+      {
+       "brand": "CHERY",
+       "units": 768,
+       "share_of_class": 0.0512
+      },
+      {
+       "brand": "FORD",
+       "units": 427,
+       "share_of_class": 0.0284
+      },
+      {
+       "brand": "JAC",
+       "units": 415,
+       "share_of_class": 0.0276
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X70FL",
+       "units": 1172,
+       "share_of_class": 0.0781
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 589,
+       "share_of_class": 0.0392
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 467,
+       "share_of_class": 0.0311
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 404,
+       "share_of_class": 0.0269
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 399,
+       "share_of_class": 0.0266
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 2 PRO MAX",
+       "units": 383,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 375,
+       "share_of_class": 0.025
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 374,
+       "share_of_class": 0.0249
+      },
+      {
+       "brand": "KIA",
+       "model": "SONET",
+       "units": 356,
+       "share_of_class": 0.0237
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 346,
+       "share_of_class": 0.023
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 115,
+     "share_of_market": 0.00685,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 103,
+       "share_of_class": 0.8957
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 10,
+       "share_of_class": 0.087
+      },
+      {
+       "brand": "212",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "LEXUS",
+       "units": 1,
+       "share_of_class": 0.0087
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 103,
+       "share_of_class": 0.8957
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 10,
+       "share_of_class": 0.087
+      },
+      {
+       "brand": "212",
+       "model": "T01",
+       "units": 1,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 1,
+       "share_of_class": 0.0087
       }
      ]
     }
@@ -2494,6 +3304,177 @@
        "share_of_class": 0.0203
       }
      ]
+    },
+    "PETROL": {
+     "units": 13880,
+     "share_of_market": 0.90294,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2098,
+       "share_of_class": 0.1512
+      },
+      {
+       "brand": "KIA",
+       "units": 1824,
+       "share_of_class": 0.1314
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1567,
+       "share_of_class": 0.1129
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1460,
+       "share_of_class": 0.1052
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 833,
+       "share_of_class": 0.06
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 810,
+       "share_of_class": 0.0584
+      },
+      {
+       "brand": "GEELY",
+       "units": 799,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "CHERY",
+       "units": 692,
+       "share_of_class": 0.0499
+      },
+      {
+       "brand": "FORD",
+       "units": 461,
+       "share_of_class": 0.0332
+      },
+      {
+       "brand": "JAC",
+       "units": 364,
+       "share_of_class": 0.0262
+      }
+     ],
+     "models": [
+      {
+       "brand": "JETOUR",
+       "model": "X70FL",
+       "units": 1152,
+       "share_of_class": 0.083
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 614,
+       "share_of_class": 0.0442
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 539,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 410,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 398,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 389,
+       "share_of_class": 0.028
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 372,
+       "share_of_class": 0.0268
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 2 PRO MAX",
+       "units": 366,
+       "share_of_class": 0.0264
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 361,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "GEELY",
+       "model": "CITYRAY",
+       "units": 352,
+       "share_of_class": 0.0254
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 89,
+     "share_of_market": 0.00579,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 83,
+       "share_of_class": 0.9326
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 4,
+       "share_of_class": 0.0449
+      },
+      {
+       "brand": "LEXUS",
+       "units": 2,
+       "share_of_class": 0.0225
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 81,
+       "share_of_class": 0.9101
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 4,
+       "share_of_class": 0.0449
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 2,
+       "share_of_class": 0.0225
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "2026",
+       "units": 1,
+       "share_of_class": 0.0112
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 1,
+       "share_of_class": 0.0112
+      }
+     ]
     }
    }
   },
@@ -2965,6 +3946,171 @@
        "model": "Q5",
        "units": 9,
        "share_of_class": 0.0152
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 13463,
+     "share_of_market": 0.8936,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1819,
+       "share_of_class": 0.1351
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1547,
+       "share_of_class": 0.1149
+      },
+      {
+       "brand": "KIA",
+       "units": 1434,
+       "share_of_class": 0.1065
+      },
+      {
+       "brand": "JETOUR",
+       "units": 946,
+       "share_of_class": 0.0703
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 945,
+       "share_of_class": 0.0702
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 935,
+       "share_of_class": 0.0694
+      },
+      {
+       "brand": "GEELY",
+       "units": 925,
+       "share_of_class": 0.0687
+      },
+      {
+       "brand": "CHERY",
+       "units": 788,
+       "share_of_class": 0.0585
+      },
+      {
+       "brand": "FORD",
+       "units": 519,
+       "share_of_class": 0.0386
+      },
+      {
+       "brand": "JAC",
+       "units": 408,
+       "share_of_class": 0.0303
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 475,
+       "share_of_class": 0.0353
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70FL",
+       "units": 460,
+       "share_of_class": 0.0342
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "N400",
+       "units": 424,
+       "share_of_class": 0.0315
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 397,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 381,
+       "share_of_class": 0.0283
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 374,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 348,
+       "share_of_class": 0.0258
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 344,
+       "share_of_class": 0.0256
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 343,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "CHERY",
+       "model": "TIGGO 2 PRO MAX",
+       "units": 337,
+       "share_of_class": 0.025
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 104,
+     "share_of_market": 0.0069,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 98,
+       "share_of_class": 0.9423
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 5,
+       "share_of_class": 0.0481
+      },
+      {
+       "brand": "LEXUS",
+       "units": 1,
+       "share_of_class": 0.0096
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 95,
+       "share_of_class": 0.9135
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 5,
+       "share_of_class": 0.0481
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 3,
+       "share_of_class": 0.0288
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 1,
+       "share_of_class": 0.0096
       }
      ]
     }
@@ -3445,6 +4591,165 @@
        "share_of_class": 0.0229
       }
      ]
+    },
+    "PETROL": {
+     "units": 14127,
+     "share_of_market": 0.91573,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2045,
+       "share_of_class": 0.1448
+      },
+      {
+       "brand": "KIA",
+       "units": 1769,
+       "share_of_class": 0.1252
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1620,
+       "share_of_class": 0.1147
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 1032,
+       "share_of_class": 0.0731
+      },
+      {
+       "brand": "JETOUR",
+       "units": 944,
+       "share_of_class": 0.0668
+      },
+      {
+       "brand": "GEELY",
+       "units": 912,
+       "share_of_class": 0.0646
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 864,
+       "share_of_class": 0.0612
+      },
+      {
+       "brand": "CHERY",
+       "units": 766,
+       "share_of_class": 0.0542
+      },
+      {
+       "brand": "FORD",
+       "units": 508,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "JAC",
+       "units": 405,
+       "share_of_class": 0.0287
+      }
+     ],
+     "models": [
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 609,
+       "share_of_class": 0.0431
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 470,
+       "share_of_class": 0.0333
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 457,
+       "share_of_class": 0.0323
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "N400",
+       "units": 429,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 414,
+       "share_of_class": 0.0293
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 384,
+       "share_of_class": 0.0272
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 377,
+       "share_of_class": 0.0267
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 366,
+       "share_of_class": 0.0259
+      },
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 334,
+       "share_of_class": 0.0236
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 322,
+       "share_of_class": 0.0228
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 106,
+     "share_of_market": 0.00687,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 104,
+       "share_of_class": 0.9811
+      },
+      {
+       "brand": "LEXUS",
+       "units": 1,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1,
+       "share_of_class": 0.0094
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 104,
+       "share_of_class": 0.9811
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 1,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 1,
+       "share_of_class": 0.0094
+      }
+     ]
     }
    }
   },
@@ -3913,6 +5218,176 @@
        "share_of_class": 0.019
       }
      ]
+    },
+    "PETROL": {
+     "units": 14298,
+     "share_of_market": 0.9081,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2186,
+       "share_of_class": 0.1529
+      },
+      {
+       "brand": "KIA",
+       "units": 1862,
+       "share_of_class": 0.1302
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1725,
+       "share_of_class": 0.1206
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1134,
+       "share_of_class": 0.0793
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 919,
+       "share_of_class": 0.0643
+      },
+      {
+       "brand": "GEELY",
+       "units": 853,
+       "share_of_class": 0.0597
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 763,
+       "share_of_class": 0.0534
+      },
+      {
+       "brand": "DFSK",
+       "units": 745,
+       "share_of_class": 0.0521
+      },
+      {
+       "brand": "CHERY",
+       "units": 470,
+       "share_of_class": 0.0329
+      },
+      {
+       "brand": "FORD",
+       "units": 452,
+       "share_of_class": 0.0316
+      }
+     ],
+     "models": [
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 732,
+       "share_of_class": 0.0512
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 579,
+       "share_of_class": 0.0405
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 FL",
+       "units": 545,
+       "share_of_class": 0.0381
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 506,
+       "share_of_class": 0.0354
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 472,
+       "share_of_class": 0.033
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 439,
+       "share_of_class": 0.0307
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 419,
+       "share_of_class": 0.0293
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 384,
+       "share_of_class": 0.0269
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 365,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "KIA",
+       "model": "SONET",
+       "units": 365,
+       "share_of_class": 0.0255
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 113,
+     "share_of_market": 0.00718,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 109,
+       "share_of_class": 0.9646
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 2,
+       "share_of_class": 0.0177
+      },
+      {
+       "brand": "212",
+       "units": 1,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "DFSK",
+       "units": 1,
+       "share_of_class": 0.0088
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 109,
+       "share_of_class": 0.9646
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 2,
+       "share_of_class": 0.0177
+      },
+      {
+       "brand": "212",
+       "model": "T01",
+       "units": 1,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "DFSK",
+       "model": "K07S",
+       "units": 1,
+       "share_of_class": 0.0088
+      }
+     ]
     }
    }
   },
@@ -4374,6 +5849,160 @@
        "model": "GLE",
        "units": 10,
        "share_of_class": 0.0185
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 14095,
+     "share_of_market": 0.91372,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2326,
+       "share_of_class": 0.165
+      },
+      {
+       "brand": "KIA",
+       "units": 1796,
+       "share_of_class": 0.1274
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1397,
+       "share_of_class": 0.0991
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1229,
+       "share_of_class": 0.0872
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 840,
+       "share_of_class": 0.0596
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 792,
+       "share_of_class": 0.0562
+      },
+      {
+       "brand": "GEELY",
+       "units": 725,
+       "share_of_class": 0.0514
+      },
+      {
+       "brand": "CHERY",
+       "units": 617,
+       "share_of_class": 0.0438
+      },
+      {
+       "brand": "DFSK",
+       "units": 604,
+       "share_of_class": 0.0429
+      },
+      {
+       "brand": "FORD",
+       "units": 507,
+       "share_of_class": 0.036
+      }
+     ],
+     "models": [
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 678,
+       "share_of_class": 0.0481
+      },
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 581,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70 FL",
+       "units": 545,
+       "share_of_class": 0.0387
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 523,
+       "share_of_class": 0.0371
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 476,
+       "share_of_class": 0.0338
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 454,
+       "share_of_class": 0.0322
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 387,
+       "share_of_class": 0.0275
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 345,
+       "share_of_class": 0.0245
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 332,
+       "share_of_class": 0.0236
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 317,
+       "share_of_class": 0.0225
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 136,
+     "share_of_market": 0.00882,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 135,
+       "share_of_class": 0.9926
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1,
+       "share_of_class": 0.0074
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 132,
+       "share_of_class": 0.9706
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 3,
+       "share_of_class": 0.0221
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 1,
+       "share_of_class": 0.0074
       }
      ]
     }
@@ -4844,6 +6473,160 @@
        "share_of_class": 0.0153
       }
      ]
+    },
+    "PETROL": {
+     "units": 12395,
+     "share_of_market": 0.90613,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2078,
+       "share_of_class": 0.1676
+      },
+      {
+       "brand": "KIA",
+       "units": 1594,
+       "share_of_class": 0.1286
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1288,
+       "share_of_class": 0.1039
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 815,
+       "share_of_class": 0.0658
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 764,
+       "share_of_class": 0.0616
+      },
+      {
+       "brand": "GEELY",
+       "units": 730,
+       "share_of_class": 0.0589
+      },
+      {
+       "brand": "JETOUR",
+       "units": 667,
+       "share_of_class": 0.0538
+      },
+      {
+       "brand": "DFSK",
+       "units": 572,
+       "share_of_class": 0.0461
+      },
+      {
+       "brand": "CHERY",
+       "units": 516,
+       "share_of_class": 0.0416
+      },
+      {
+       "brand": "FORD",
+       "units": 470,
+       "share_of_class": 0.0379
+      }
+     ],
+     "models": [
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 559,
+       "share_of_class": 0.0451
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 488,
+       "share_of_class": 0.0394
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 423,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 402,
+       "share_of_class": 0.0324
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 339,
+       "share_of_class": 0.0273
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 329,
+       "share_of_class": 0.0265
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 321,
+       "share_of_class": 0.0259
+      },
+      {
+       "brand": "KIA",
+       "model": "SONET",
+       "units": 315,
+       "share_of_class": 0.0254
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 305,
+       "share_of_class": 0.0246
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 290,
+       "share_of_class": 0.0234
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 92,
+     "share_of_market": 0.00673,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 86,
+       "share_of_class": 0.9348
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 6,
+       "share_of_class": 0.0652
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 84,
+       "share_of_class": 0.913
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 6,
+       "share_of_class": 0.0652
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER 300",
+       "units": 2,
+       "share_of_class": 0.0217
+      }
+     ]
     }
    }
   },
@@ -5299,6 +7082,171 @@
        "model": "Q8",
        "units": 9,
        "share_of_class": 0.0217
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 11033,
+     "share_of_market": 0.90859,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1606,
+       "share_of_class": 0.1456
+      },
+      {
+       "brand": "KIA",
+       "units": 1348,
+       "share_of_class": 0.1222
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1262,
+       "share_of_class": 0.1144
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 807,
+       "share_of_class": 0.0731
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 756,
+       "share_of_class": 0.0685
+      },
+      {
+       "brand": "JETOUR",
+       "units": 630,
+       "share_of_class": 0.0571
+      },
+      {
+       "brand": "DFSK",
+       "units": 590,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "GEELY",
+       "units": 549,
+       "share_of_class": 0.0498
+      },
+      {
+       "brand": "CHERY",
+       "units": 486,
+       "share_of_class": 0.044
+      },
+      {
+       "brand": "FORD",
+       "units": 369,
+       "share_of_class": 0.0334
+      }
+     ],
+     "models": [
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 578,
+       "share_of_class": 0.0524
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 362,
+       "share_of_class": 0.0328
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 355,
+       "share_of_class": 0.0322
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 353,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "NEW TUCSON",
+       "units": 306,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 301,
+       "share_of_class": 0.0273
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "N400",
+       "units": 285,
+       "share_of_class": 0.0258
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 274,
+       "share_of_class": 0.0248
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70",
+       "units": 263,
+       "share_of_class": 0.0238
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 256,
+       "share_of_class": 0.0232
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 108,
+     "share_of_market": 0.00889,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 104,
+       "share_of_class": 0.963
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "LEXUS",
+       "units": 1,
+       "share_of_class": 0.0093
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 102,
+       "share_of_class": 0.9444
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 3,
+       "share_of_class": 0.0278
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 2,
+       "share_of_class": 0.0185
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 1,
+       "share_of_class": 0.0093
       }
      ]
     }
@@ -5762,6 +7710,177 @@
        "model": "Q5",
        "units": 10,
        "share_of_class": 0.0275
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 11246,
+     "share_of_market": 0.91024,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1922,
+       "share_of_class": 0.1709
+      },
+      {
+       "brand": "KIA",
+       "units": 1388,
+       "share_of_class": 0.1234
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 1149,
+       "share_of_class": 0.1022
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 739,
+       "share_of_class": 0.0657
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 728,
+       "share_of_class": 0.0647
+      },
+      {
+       "brand": "JETOUR",
+       "units": 681,
+       "share_of_class": 0.0606
+      },
+      {
+       "brand": "GEELY",
+       "units": 653,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "DFSK",
+       "units": 504,
+       "share_of_class": 0.0448
+      },
+      {
+       "brand": "CHERY",
+       "units": 498,
+       "share_of_class": 0.0443
+      },
+      {
+       "brand": "FORD",
+       "units": 359,
+       "share_of_class": 0.0319
+      }
+     ],
+     "models": [
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 488,
+       "share_of_class": 0.0434
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70",
+       "units": 438,
+       "share_of_class": 0.0389
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 430,
+       "share_of_class": 0.0382
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 420,
+       "share_of_class": 0.0373
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 375,
+       "share_of_class": 0.0333
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 325,
+       "share_of_class": 0.0289
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 304,
+       "share_of_class": 0.027
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 295,
+       "share_of_class": 0.0262
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "N400",
+       "units": 248,
+       "share_of_class": 0.0221
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS",
+       "units": 246,
+       "share_of_class": 0.0219
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 75,
+     "share_of_market": 0.00607,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 66,
+       "share_of_class": 0.88
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 8,
+       "share_of_class": 0.1067
+      },
+      {
+       "brand": "212",
+       "units": 1,
+       "share_of_class": 0.0133
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 64,
+       "share_of_class": 0.8533
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 7,
+       "share_of_class": 0.0933
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER 300",
+       "units": 2,
+       "share_of_class": 0.0267
+      },
+      {
+       "brand": "212",
+       "model": "T01",
+       "units": 1,
+       "share_of_class": 0.0133
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO",
+       "units": 1,
+       "share_of_class": 0.0133
       }
      ]
     }
@@ -6240,6 +8359,177 @@
        "model": "CS55",
        "units": 14,
        "share_of_class": 0.0384
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 10265,
+     "share_of_market": 0.89847,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1577,
+       "share_of_class": 0.1536
+      },
+      {
+       "brand": "KIA",
+       "units": 1363,
+       "share_of_class": 0.1328
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 965,
+       "share_of_class": 0.094
+      },
+      {
+       "brand": "CHEVROLET",
+       "units": 702,
+       "share_of_class": 0.0684
+      },
+      {
+       "brand": "CHANGAN",
+       "units": 678,
+       "share_of_class": 0.066
+      },
+      {
+       "brand": "JETOUR",
+       "units": 605,
+       "share_of_class": 0.0589
+      },
+      {
+       "brand": "DFSK",
+       "units": 558,
+       "share_of_class": 0.0544
+      },
+      {
+       "brand": "GEELY",
+       "units": 527,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "CHERY",
+       "units": 384,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "FORD",
+       "units": 362,
+       "share_of_class": 0.0353
+      }
+     ],
+     "models": [
+      {
+       "brand": "DFSK",
+       "model": "GLORY",
+       "units": 547,
+       "share_of_class": 0.0533
+      },
+      {
+       "brand": "KIA",
+       "model": "SOLUTO",
+       "units": 399,
+       "share_of_class": 0.0389
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RUSH",
+       "units": 367,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "JETOUR",
+       "model": "X70",
+       "units": 363,
+       "share_of_class": 0.0354
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "GRAND I10",
+       "units": 324,
+       "share_of_class": 0.0316
+      },
+      {
+       "brand": "FORD",
+       "model": "TERRITORY",
+       "units": 305,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "KIA",
+       "model": "SELTOS",
+       "units": 295,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "RAIZE",
+       "units": 288,
+       "share_of_class": 0.0281
+      },
+      {
+       "brand": "CHEVROLET",
+       "model": "N400",
+       "units": 275,
+       "share_of_class": 0.0268
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "AVANZA",
+       "units": 271,
+       "share_of_class": 0.0264
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 97,
+     "share_of_market": 0.00849,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 87,
+       "share_of_class": 0.8969
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 7,
+       "share_of_class": 0.0722
+      },
+      {
+       "brand": "LEXUS",
+       "units": 3,
+       "share_of_class": 0.0309
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 81,
+       "share_of_class": 0.8351
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "MONTERO SPORT",
+       "units": 7,
+       "share_of_class": 0.0722
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER 300",
+       "units": 4,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "LEXUS",
+       "model": "LX",
+       "units": 3,
+       "share_of_class": 0.0309
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 2,
+       "share_of_class": 0.0206
       }
      ]
     }
