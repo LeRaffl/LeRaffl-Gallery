@@ -829,6 +829,23 @@ def test_italy_model_lists():
     # renamed models are matched on letters and digits only
     assert month[("PHEV", "BYD", "ATTO 2")] == 437 and month[("PHEV", "DS", "N4")] == 6
     assert month[("PHEV", "BYD", "SEAL U")] == 1477
+    # 2026-09: UNRAE appends BYD's plug-in drive name; same model, display without it
+    sep = fi.parse_model_list(_italy_list("PHEV", "9 mesi 2026", [
+        ("BYD", "SEAL U DM-I", 12321), ("BYD", "ATTO 2 DM-I", 16089), ("DS", "N4", 90)], 1600))
+    fi._check_renames(sep, aug)
+    month, _ = fi._combine([(1, sep), (-1, aug)], "PHEV")
+    assert month[("PHEV", "BYD", "ATTO 2")] == 1373 and month[("PHEV", "BYD", "SEAL U")] == 1144
+    assert not any("DM-I" in k[2] for k in month)
+    # a rename the key does not catch aborts instead of crediting a year to date
+    oct_ = fi.parse_model_list(_italy_list("PHEV", "10 mesi 2026", [
+        ("BYD", "SEAL U PLUS", 13000), ("BYD", "ATTO 2", 17000), ("DS", "N4", 95)], 1700))
+    try:
+        fi._check_renames(oct_, sep)
+        raise AssertionError("an unmatched rename must raise")
+    except RuntimeError as e:
+        assert "SEAL U PLUS" in str(e)
+    # a model that just leaves the list (Kia Sportage, May 2026) is no rename
+    fi._check_renames(aug, jul)
     # a model that left the list (reclassified) is not ranked with a negative count
     assert not any(k[2] == "SPORTAGE" for k in month)
     assert all(n > 0 for n in month.values())

@@ -442,8 +442,12 @@ def lcv_to_cols(f: dict) -> dict:
 # published no January 2026 lists) or where a month's difference is distorted
 # by a reclassification (Kia Sportage left the PHEV list in May 2026: −3 049).
 # Model names are compared on letters and digits only ("ATTO2" = "ATTO 2",
-# "N? 4" = "N4"); a model's negative difference is not ranked, and the class
-# total of the difference goes to the unranked rest.  HEV has only a top-10
+# "N? 4" = "N4"), and a trailing plug-in drive name is dropped ("SEAL U DM-I"
+# = "SEAL U": UNRAE added BYD's "DM-I" in the 2026-09 lists); a model's
+# negative difference is not ranked, and the class total of the difference
+# goes to the unranked rest.  A rename the key still misses would credit the
+# new name with its whole year to date in one month; _check_renames aborts
+# the refresh on that pattern instead of publishing it.  HEV has only a top-10
 # list at UNRAE, so it is not ranked.  Whole only: no table crosses brand
 # with the rental channel.  See docs/architecture/18-source-italy.md §10.
 
@@ -455,6 +459,11 @@ TOP_UNIT   = ("registrations (brand / model as in UNRAE's 'Immatricolazioni BEV 
               "consecutive lists)")
 TOP_CLASSES = ("BEV", "PHEV")
 TOP_MAX_INDEX_PAGES = 40
+# A model that vanishes between two lists with at least this many units to
+# date, while a new model of the same brand appears with at least as many, is
+# taken for an uncaught rename (2026-09: "ATTO 2" 14 716 → "ATTO 2 DM-I"
+# 16 089).  Models crossing rank 100 (§10 M5) have a few dozen units.
+TOP_RENAME_MIN = 500
 
 _MODEL_LIST_LINK = re.compile(
     r'href="((?:https?://unrae\.it)?/dati-statistici/immatricolazioni/\d+/'
@@ -464,15 +473,23 @@ _ML_TITLE = re.compile(
 _ML_TAIL  = re.compile(r"(\d{1,3}(?:\.\d{3})*)\s+\d{1,3},\d+\s*$")
 # Ranked rows that are really UNRAE's own catch-alls.
 _ML_CATCH_ALL = {"ALTRE ESTERE", "ALTRE NAZIONALI"}
+# A plug-in drive name after the model (BYD DM-i / DM-p / DM-o, Geely EM-i):
+# the class already says it, and UNRAE adds or drops it between lists.
+_ML_DRIVE_SUFFIX = re.compile(r"\s+(?:DM-?[IPO]|EM-?I)\s*$", re.IGNORECASE)
+
+
+def _strip_drive(model: str) -> str:
+    return _ML_DRIVE_SUFFIX.sub("", model)
 
 
 def _model_key(brand: str, model: str) -> tuple[str, str]:
-    return re.sub(r"[^A-Z0-9]", "", brand.upper()), re.sub(r"[^A-Z0-9]", "", model.upper())
+    return (re.sub(r"[^A-Z0-9]", "", brand.upper()),
+            re.sub(r"[^A-Z0-9]", "", _strip_drive(model).upper()))
 
 
 def _display(s: str) -> str:
     # pdftotext renders the degree sign of "N° 4" (DS) as '?'
-    return market_top.clean(s.replace("?", "°"))
+    return market_top.clean(_strip_drive(s.replace("?", "°")))
 
 
 def parse_model_list(text: str) -> dict:
@@ -543,6 +560,23 @@ def _combine(lists: list[tuple[int, dict]], cls: str) -> tuple[dict, int]:
     if rest > 0:
         units[(cls, market_top.REST, "")] = rest
     return units, total
+
+
+def _check_renames(cur: dict, prev: dict) -> None:
+    """Raise when a model of `prev` is missing from `cur` while a model of the
+    same brand that `prev` lacks has at least its units: a rename _model_key
+    does not catch, which the month difference would show as a whole year to
+    date.  A model that simply leaves the list (Kia Sportage, §10 M8) passes."""
+    gone = {k: v for k, v in prev["models"].items()
+            if k not in cur["models"] and v[2] >= TOP_RENAME_MIN}
+    new = {k: v for k, v in cur["models"].items() if k not in prev["models"]}
+    for gk, (gb, gm, gn) in gone.items():
+        for nk, (_, nm, nn) in new.items():
+            if nk[0] == gk[0] and nn >= gn:
+                raise RuntimeError(
+                    f"{cur['cls']} {prev['period']} → {cur['period']}: {gb} {gm!r} ({gn:,}) "
+                    f"is gone and {nm!r} ({nn:,}) is new — an unmatched rename? "
+                    "Extend _model_key (§10 M6).")
 
 
 def find_model_lists(wanted: set[str] | None = None) -> dict[tuple[str, str], str]:
@@ -628,6 +662,8 @@ def refresh_market_top() -> None:
             prev = empty if p.endswith("-01") else get(cls, _shift(p, -1))
             if cur is None or prev is None or p not in totals:
                 break
+            if "period" in prev:
+                _check_renames(cur, prev)
             u, _ = _combine([(1, cur), (-1, prev)], cls)
             units.update(u)
         else:

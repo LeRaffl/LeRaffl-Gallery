@@ -218,15 +218,15 @@
    "models": [
     {
      "brand": "BYD",
-     "model": "ATTO 2 DM-I",
+     "model": "ATTO 2",
      "units": 16089,
      "share_of_class": 0.1061
     },
     {
      "brand": "BYD",
-     "model": "SEAL U DM-I",
-     "units": 12321,
-     "share_of_class": 0.0813
+     "model": "SEAL U",
+     "units": 16008,
+     "share_of_class": 0.1056
     },
     {
      "brand": "VOLKSWAGEN",
@@ -277,12 +277,6 @@
      "share_of_class": 0.0246
     },
     {
-     "brand": "BYD",
-     "model": "SEAL U",
-     "units": 3687,
-     "share_of_class": 0.0243
-    },
-    {
      "brand": "GEELY",
      "model": "STARRAY",
      "units": 3554,
@@ -305,6 +299,12 @@
      "model": "GLC",
      "units": 2821,
      "share_of_class": 0.0186
+    },
+    {
+     "brand": "AUDI",
+     "model": "Q5",
+     "units": 2682,
+     "share_of_class": 0.0177
     }
    ]
   }
@@ -433,120 +433,120 @@
      ]
     },
     "PHEV": {
-     "units": 40664,
-     "share_of_market": 0.28804,
+     "units": 15771,
+     "share_of_market": 0.11171,
      "brands": [
       {
        "brand": "BYD",
-       "units": 28970,
-       "share_of_class": 0.7124
+       "units": 4077,
+       "share_of_class": 0.2585
       },
       {
        "brand": "AUDI",
        "units": 1338,
-       "share_of_class": 0.0329
+       "share_of_class": 0.0848
       },
       {
        "brand": "VOLKSWAGEN",
        "units": 1158,
-       "share_of_class": 0.0285
+       "share_of_class": 0.0734
       },
       {
        "brand": "LEAPMOTOR",
        "units": 1128,
-       "share_of_class": 0.0277
+       "share_of_class": 0.0715
       },
       {
        "brand": "BMW",
        "units": 894,
-       "share_of_class": 0.022
+       "share_of_class": 0.0567
       },
       {
        "brand": "OMODA",
        "units": 883,
-       "share_of_class": 0.0217
+       "share_of_class": 0.056
       },
       {
        "brand": "CUPRA",
        "units": 849,
-       "share_of_class": 0.0209
+       "share_of_class": 0.0538
       },
       {
        "brand": "JAECOO",
        "units": 771,
-       "share_of_class": 0.019
+       "share_of_class": 0.0489
       },
       {
        "brand": "GEELY",
        "units": 686,
-       "share_of_class": 0.0169
+       "share_of_class": 0.0435
       },
       {
        "brand": "MERCEDES",
        "units": 596,
-       "share_of_class": 0.0147
+       "share_of_class": 0.0378
       }
      ],
      "models": [
       {
        "brand": "BYD",
-       "model": "ATTO 2 DM-I",
-       "units": 16089,
-       "share_of_class": 0.3957
+       "model": "SEAL U",
+       "units": 2144,
+       "share_of_class": 0.1359
       },
       {
        "brand": "BYD",
-       "model": "SEAL U DM-I",
-       "units": 12321,
-       "share_of_class": 0.303
+       "model": "ATTO 2",
+       "units": 1373,
+       "share_of_class": 0.0871
       },
       {
        "brand": "LEAPMOTOR",
        "model": "B10",
        "units": 914,
-       "share_of_class": 0.0225
+       "share_of_class": 0.058
       },
       {
        "brand": "GEELY",
        "model": "STARRAY",
        "units": 686,
-       "share_of_class": 0.0169
+       "share_of_class": 0.0435
       },
       {
        "brand": "BMW",
        "model": "X1",
        "units": 551,
-       "share_of_class": 0.0136
+       "share_of_class": 0.0349
       },
       {
        "brand": "JAECOO",
        "model": "7",
        "units": 544,
-       "share_of_class": 0.0134
+       "share_of_class": 0.0345
       },
       {
        "brand": "VOLKSWAGEN",
        "model": "TIGUAN",
        "units": 511,
-       "share_of_class": 0.0126
+       "share_of_class": 0.0324
       },
       {
        "brand": "AUDI",
        "model": "Q3",
        "units": 493,
-       "share_of_class": 0.0121
+       "share_of_class": 0.0313
       },
       {
        "brand": "OMODA",
        "model": "9",
        "units": 471,
-       "share_of_class": 0.0116
+       "share_of_class": 0.0299
       },
       {
        "brand": "BYD",
        "model": "DOLPHIN G",
        "units": 435,
-       "share_of_class": 0.0107
+       "share_of_class": 0.0276
       }
      ]
     }
