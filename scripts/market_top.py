@@ -173,15 +173,15 @@ def build_top_monthly(country: str, source: str, target: str,
         u, t = monthly[p]
         units.update({k: n for k, n in u.items() if n})
         total += t
-    # A combustion class missing from a summed month (a month store filled
-    # before PETROL / DIESEL were counted) would rank a part of the window as
-    # if it were all of it: the headline leaves it out until every month has
-    # it; the single months that do have it still show it.
-    partial = {c for c in COMBUSTION
-               if not all(any(k[0] == c and n for k, n in monthly[p][0].items())
-                          for p in have)}
-    if partial:
-        units = collections.Counter({k: n for k, n in units.items() if k[0] not in partial})
+    # A month without any combustion row was stored before PETROL / DIESEL
+    # were counted; summing it would rank a part of the window as if it were
+    # all of it, so the headline leaves combustion out until every month has
+    # been counted (the single months that were still show it). A month with
+    # petrol but no diesel is a genuine zero (Uruguay 2026-02), not a gap.
+    uncounted = [p for p in have
+                 if not any(k[0] in COMBUSTION and n for k, n in monthly[p][0].items())]
+    if uncounted:
+        units = collections.Counter({k: n for k, n in units.items() if k[0] not in COMBUSTION})
     top = build_top(country, source, target, units, total, unit, variant)
     top["window"] = {"from": have[0], "to": have[-1], "months": len(have)}
     missing = [p for p in window if p not in monthly and p > have[0]]
@@ -235,8 +235,8 @@ def per_month(counter: dict) -> dict[str, dict]:
 # brand/model (electrified and PETROL / DIESEL, or ALL for a source without a
 # brand × fuel table — the UK) — OTHERS only ever counts towards the month's
 # total. A month stored before PETROL / DIESEL were counted has no rows for
-# them, and build_top_monthly keeps them out of the headline until every month
-# of the window has them. A month the source restates simply overwrites the stored
+# either, and build_top_monthly keeps combustion out of the headline until
+# every month of the window has been counted. A month the source restates simply overwrites the stored
 # one; months older than STORE_MONTHS are dropped.
 
 STORE_MONTHS = 15
