@@ -86,7 +86,8 @@ Governance (every real run)
 Writes are line-level upserts keyed on (period, variant) (invariant 2); a
 row whose `source` is not ours is never overwritten without --force.
 Also writes market/ukraine_top.json (top BEV / Hybrid brands and models,
-trailing 12 months, Whole) via scripts/market_top.py.
+trailing 12 months, Whole) and market/ukraine_used_top.json (the same for
+Used) via scripts/market_top.py.
 
 Usage
 -----
@@ -175,7 +176,8 @@ MIN_MONTH_FRACTION = 0.4
 MAX_UNKNOWN_FUEL_SHARE = 0.02
 
 REPO = Path(__file__).resolve().parent.parent
-TOP_PATH = market_top.MARKET_DIR / "ukraine_top.json"
+TOP_PATHS = {"Whole": market_top.MARKET_DIR / "ukraine_top.json",
+             "Used": market_top.MARKET_DIR / "ukraine_used_top.json"}
 TOP_UNIT = ("registrations (brand = BRAND, model = MODEL as recorded by the "
             "MIA register; Hybrid = the register's combined hybrid fuel value)")
 
@@ -257,8 +259,9 @@ class Aggregator:
         self.backfill_from = backfill_from
         self.counts: dict[str, dict[str, dict[str, int]]] = \
             collections.defaultdict(lambda: collections.defaultdict(empty_counts))
-        # (period, class, brand, model) -> units, Whole only (market top)
-        self.units: collections.Counter = collections.Counter()
+        # variant -> (period, class, brand, model) -> units (market top)
+        self.units: dict[str, collections.Counter] = {
+            v: collections.Counter() for v in TOP_PATHS}
         self.unknown_fuel: collections.Counter = collections.Counter()   # (period, fuel)
         self.unmapped_ops: collections.Counter = collections.Counter()   # (period, code, name, kind)
         self.blank_person: collections.Counter = collections.Counter()   # period
@@ -288,11 +291,12 @@ class Aggregator:
             c = self.counts[period][v]
             c[cls] += n
             c["TOTAL"] += n
-        if vs[0] == "Whole":
-            if len(vs) == 1:
-                self.blank_person[period] += n
+        if vs[0] == "Whole" and len(vs) == 1:
+            self.blank_person[period] += n
+        if vs[0] in self.units:
             b = market_top.clean(brand)
-            self.units[(period, cls, b, market_top.strip_brand(b, market_top.clean(model)))] += n
+            self.units[vs[0]][(period, cls, b,
+                               market_top.strip_brand(b, market_top.clean(model)))] += n
 
 
 # ── download / parse ───────────────────────────────────────────────────────
@@ -604,12 +608,14 @@ def check_consistency(agg: Aggregator, periods: list[str]) -> list[str]:
     return problems
 
 
-def build_top(agg: Aggregator, target: str) -> dict:
+def build_top(agg: Aggregator, target: str, variant: str = "Whole") -> dict:
     window = set(market_top.month_window(target))
-    units = market_top.per_month({k: n for k, n in agg.units.items() if k[0] in window})
-    monthly = {p: (units.get(p, {}), agg.counts[p]["Whole"]["TOTAL"])
+    units = market_top.per_month({k: n for k, n in agg.units[variant].items()
+                                  if k[0] in window})
+    monthly = {p: (units.get(p, {}), agg.counts[p][variant]["TOTAL"])
                for p in window if p in agg.counts}
-    return market_top.build_top_monthly("Ukraine", SOURCE, target, monthly, TOP_UNIT)
+    return market_top.build_top_monthly("Ukraine", SOURCE, target, monthly, TOP_UNIT,
+                                        variant)
 
 
 def report(agg: Aggregator, target: str, variants: list[str]) -> str:
@@ -623,7 +629,7 @@ def report(agg: Aggregator, target: str, variants: list[str]) -> str:
         out.append(f"| {v} | " + " | ".join(f"{c[k]:,}" for k in FUELS)
                    + f" | {c['TOTAL']:,} | {c['BEV'] / tot:.2%} |")
     brands = collections.Counter()
-    for (p, cls, b, m), n in agg.units.items():
+    for (p, cls, b, m), n in agg.units["Whole"].items():
         if p == target:
             brands[b] += n
     out.append("\n### Top 10 brands, new passenger cars (cross-check against "
@@ -682,8 +688,10 @@ def main() -> int:
     backfill = (args.backfill or bool(args.from_agg)
                 or any(not paths[v].exists() for v in variants))
 
+    tops = [v for v in variants if v in TOP_PATHS]
     if not backfill and not args.force and all(
-            have[v].get(target, {}).get("source") == SOURCE for v in variants):
+            have[v].get(target, {}).get("source") == SOURCE for v in variants) and all(
+            market_top.top_is_current(TOP_PATHS[v], target) for v in tops):
         print(f"{target} already fetched from {SOURCE} for {variants}; nothing to do.")
         return emit(args, set())
 
@@ -752,12 +760,12 @@ def main() -> int:
         if stats["added"] or stats["updated"]:
             changed.add(v)
 
-    def refresh_top() -> None:
-        top = build_top(agg, target)
-        print(f"{TOP_PATH.relative_to(REPO)}: "
-              f"{'updated' if market_top.write_top(top, TOP_PATH) else 'unchanged'}")
-    if "Whole" in variants:
-        market_top.guarded(refresh_top)
+    def refresh_top(v: str) -> None:
+        top = build_top(agg, target, v)
+        print(f"{TOP_PATHS[v].relative_to(REPO)}: "
+              f"{'updated' if market_top.write_top(top, TOP_PATHS[v]) else 'unchanged'}")
+    for v in tops:
+        market_top.guarded(refresh_top, v)
 
     rep = report(agg, target, variants)
     print("\n" + rep)

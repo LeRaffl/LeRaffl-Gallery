@@ -12,7 +12,8 @@ name: Fetch Hong Kong data (TD first registrations)
 # Fuel is TD's own field (Electric -> BEV). It has no hybrid value: plug-in
 # hybrids register as Petrol and are classified from the model designation
 # (PHEV_RULES in the script); full and mild hybrids stay in PETROL.
-# Also writes market/hong_kong_top.json (top BEV / PHEV brands and models).
+# Also writes market/hong_kong_top.json (top BEV / PHEV brands and models) and
+# market/hong_kong_used_top.json (the same for Used).
 # Every run cross-checks the record files against TD's own aggregate table
 # 4.1(e) and aborts on a real mismatch.
 # Full method, governance checks and a debugging runbook:
@@ -112,6 +113,7 @@ jobs:
           add: |
             data/Hong?Kong*.csv
             market/hong_kong_top.json
+            market/hong_kong_used_top.json
           message: 'chore: update Hong Kong data from TD first registrations (data.gov.hk)'
           default_author: github_actions
           # Rebase over anything that landed while this job ran instead of
