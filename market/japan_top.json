@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Japan",
  "variant": "Whole",
  "source": "JADA",
@@ -121,6 +122,85 @@
     }
    ],
    "models": []
+  },
+  "PETROL": {
+   "units": 573156,
+   "share_of_market": 0.2884,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 285138,
+     "share_of_class": 0.4975
+    },
+    {
+     "brand": "IMPORTS (ALL BRANDS)",
+     "units": 114366,
+     "share_of_class": 0.1995
+    },
+    {
+     "brand": "HONDA",
+     "units": 64434,
+     "share_of_class": 0.1124
+    },
+    {
+     "brand": "MAZDA",
+     "units": 35618,
+     "share_of_class": 0.0621
+    },
+    {
+     "brand": "SUBARU",
+     "units": 28456,
+     "share_of_class": 0.0496
+    },
+    {
+     "brand": "NISSAN",
+     "units": 16085,
+     "share_of_class": 0.0281
+    },
+    {
+     "brand": "SUZUKI",
+     "units": 13009,
+     "share_of_class": 0.0227
+    },
+    {
+     "brand": "DAIHATSU",
+     "units": 12550,
+     "share_of_class": 0.0219
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 3500,
+     "share_of_class": 0.0061
+    }
+   ],
+   "models": []
+  },
+  "DIESEL": {
+   "units": 80561,
+   "share_of_market": 0.04054,
+   "brands": [
+    {
+     "brand": "MITSUBISHI",
+     "units": 25943,
+     "share_of_class": 0.322
+    },
+    {
+     "brand": "IMPORTS (ALL BRANDS)",
+     "units": 20187,
+     "share_of_class": 0.2506
+    },
+    {
+     "brand": "MAZDA",
+     "units": 17822,
+     "share_of_class": 0.2212
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 16609,
+     "share_of_class": 0.2062
+    }
+   ],
+   "models": []
   }
  },
  "months": [
@@ -235,6 +315,85 @@
        "brand": "DAIHATSU",
        "units": 475,
        "share_of_class": 0.0032
+      }
+     ],
+     "models": []
+    },
+    "PETROL": {
+     "units": 62863,
+     "share_of_market": 0.26604,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 25831,
+       "share_of_class": 0.4109
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 17284,
+       "share_of_class": 0.2749
+      },
+      {
+       "brand": "HONDA",
+       "units": 7588,
+       "share_of_class": 0.1207
+      },
+      {
+       "brand": "SUBARU",
+       "units": 4179,
+       "share_of_class": 0.0665
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3429,
+       "share_of_class": 0.0545
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1682,
+       "share_of_class": 0.0268
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1544,
+       "share_of_class": 0.0246
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1004,
+       "share_of_class": 0.016
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 322,
+       "share_of_class": 0.0051
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 7781,
+     "share_of_market": 0.03293,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 3105,
+       "share_of_class": 0.399
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 2703,
+       "share_of_class": 0.3474
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1036,
+       "share_of_class": 0.1331
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 937,
+       "share_of_class": 0.1204
       }
      ],
      "models": []
@@ -355,6 +514,85 @@
       }
      ],
      "models": []
+    },
+    "PETROL": {
+     "units": 48948,
+     "share_of_market": 0.2832,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 23112,
+       "share_of_class": 0.4722
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 11072,
+       "share_of_class": 0.2262
+      },
+      {
+       "brand": "HONDA",
+       "units": 5601,
+       "share_of_class": 0.1144
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3168,
+       "share_of_class": 0.0647
+      },
+      {
+       "brand": "SUBARU",
+       "units": 2088,
+       "share_of_class": 0.0427
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1297,
+       "share_of_class": 0.0265
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1228,
+       "share_of_class": 0.0251
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1002,
+       "share_of_class": 0.0205
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 380,
+       "share_of_class": 0.0078
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 5118,
+     "share_of_market": 0.02961,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 1962,
+       "share_of_class": 0.3834
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 1678,
+       "share_of_class": 0.3279
+      },
+      {
+       "brand": "MAZDA",
+       "units": 772,
+       "share_of_class": 0.1508
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 706,
+       "share_of_class": 0.1379
+      }
+     ],
+     "models": []
     }
    }
   },
@@ -469,6 +707,85 @@
        "brand": "MITSUBISHI",
        "units": 660,
        "share_of_class": 0.0043
+      }
+     ],
+     "models": []
+    },
+    "PETROL": {
+     "units": 70169,
+     "share_of_market": 0.28926,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 36157,
+       "share_of_class": 0.5153
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 12642,
+       "share_of_class": 0.1802
+      },
+      {
+       "brand": "HONDA",
+       "units": 8582,
+       "share_of_class": 0.1223
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3369,
+       "share_of_class": 0.048
+      },
+      {
+       "brand": "SUBARU",
+       "units": 3003,
+       "share_of_class": 0.0428
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2130,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1863,
+       "share_of_class": 0.0266
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1845,
+       "share_of_class": 0.0263
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 578,
+       "share_of_class": 0.0082
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 6714,
+     "share_of_market": 0.02768,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 2750,
+       "share_of_class": 0.4096
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 1773,
+       "share_of_class": 0.2641
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1215,
+       "share_of_class": 0.181
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 976,
+       "share_of_class": 0.1454
       }
      ],
      "models": []
@@ -589,6 +906,85 @@
       }
      ],
      "models": []
+    },
+    "PETROL": {
+     "units": 71942,
+     "share_of_market": 0.29014,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 36348,
+       "share_of_class": 0.5052
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 16029,
+       "share_of_class": 0.2228
+      },
+      {
+       "brand": "HONDA",
+       "units": 7979,
+       "share_of_class": 0.1109
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3499,
+       "share_of_class": 0.0486
+      },
+      {
+       "brand": "SUBARU",
+       "units": 2092,
+       "share_of_class": 0.0291
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1816,
+       "share_of_class": 0.0252
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1788,
+       "share_of_class": 0.0249
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1668,
+       "share_of_class": 0.0232
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 723,
+       "share_of_class": 0.01
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 8853,
+     "share_of_market": 0.0357,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 3011,
+       "share_of_class": 0.3401
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 2894,
+       "share_of_class": 0.3269
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1882,
+       "share_of_class": 0.2126
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1066,
+       "share_of_class": 0.1204
+      }
+     ],
+     "models": []
     }
    }
   },
@@ -706,6 +1102,85 @@
       }
      ],
      "models": []
+    },
+    "PETROL": {
+     "units": 57033,
+     "share_of_market": 0.3042,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 31992,
+       "share_of_class": 0.5609
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 9455,
+       "share_of_class": 0.1658
+      },
+      {
+       "brand": "HONDA",
+       "units": 6119,
+       "share_of_class": 0.1073
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3049,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "SUBARU",
+       "units": 2348,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1342,
+       "share_of_class": 0.0235
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1222,
+       "share_of_class": 0.0214
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1212,
+       "share_of_class": 0.0213
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 294,
+       "share_of_class": 0.0052
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 7480,
+     "share_of_market": 0.0399,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 2661,
+       "share_of_class": 0.3557
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 2128,
+       "share_of_class": 0.2845
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1644,
+       "share_of_class": 0.2198
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1047,
+       "share_of_class": 0.14
+      }
+     ],
+     "models": []
     }
    }
   },
@@ -815,6 +1290,85 @@
        "brand": "MITSUBISHI",
        "units": 511,
        "share_of_class": 0.0044
+      }
+     ],
+     "models": []
+    },
+    "PETROL": {
+     "units": 85583,
+     "share_of_market": 0.38315,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 55275,
+       "share_of_class": 0.6459
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 9923,
+       "share_of_class": 0.1159
+      },
+      {
+       "brand": "HONDA",
+       "units": 7789,
+       "share_of_class": 0.091
+      },
+      {
+       "brand": "MAZDA",
+       "units": 4263,
+       "share_of_class": 0.0498
+      },
+      {
+       "brand": "SUBARU",
+       "units": 3811,
+       "share_of_class": 0.0445
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1442,
+       "share_of_class": 0.0168
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1416,
+       "share_of_class": 0.0165
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1376,
+       "share_of_class": 0.0161
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 288,
+       "share_of_class": 0.0034
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 13033,
+     "share_of_market": 0.05835,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 5801,
+       "share_of_class": 0.4451
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3308,
+       "share_of_class": 0.2538
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1975,
+       "share_of_class": 0.1515
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 1949,
+       "share_of_class": 0.1495
       }
      ],
      "models": []
@@ -930,6 +1484,85 @@
       }
      ],
      "models": []
+    },
+    "PETROL": {
+     "units": 59374,
+     "share_of_market": 0.22368,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 20196,
+       "share_of_class": 0.3401
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 14352,
+       "share_of_class": 0.2417
+      },
+      {
+       "brand": "HONDA",
+       "units": 7923,
+       "share_of_class": 0.1334
+      },
+      {
+       "brand": "MAZDA",
+       "units": 6768,
+       "share_of_class": 0.114
+      },
+      {
+       "brand": "SUBARU",
+       "units": 4005,
+       "share_of_class": 0.0675
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2596,
+       "share_of_class": 0.0437
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1636,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1488,
+       "share_of_class": 0.0251
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 410,
+       "share_of_class": 0.0069
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 12101,
+     "share_of_market": 0.04559,
+     "brands": [
+      {
+       "brand": "MAZDA",
+       "units": 3708,
+       "share_of_class": 0.3064
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 3695,
+       "share_of_class": 0.3053
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 3369,
+       "share_of_class": 0.2784
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 1329,
+       "share_of_class": 0.1098
+      }
+     ],
+     "models": []
     }
    }
   },
@@ -1042,6 +1675,85 @@
       }
      ],
      "models": []
+    },
+    "PETROL": {
+     "units": 57368,
+     "share_of_market": 0.27142,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 25119,
+       "share_of_class": 0.4379
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 12154,
+       "share_of_class": 0.2119
+      },
+      {
+       "brand": "HONDA",
+       "units": 6607,
+       "share_of_class": 0.1152
+      },
+      {
+       "brand": "MAZDA",
+       "units": 4554,
+       "share_of_class": 0.0794
+      },
+      {
+       "brand": "SUBARU",
+       "units": 4086,
+       "share_of_class": 0.0712
+      },
+      {
+       "brand": "NISSAN",
+       "units": 2146,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1309,
+       "share_of_class": 0.0228
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1100,
+       "share_of_class": 0.0192
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 293,
+       "share_of_class": 0.0051
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 10346,
+     "share_of_market": 0.04895,
+     "brands": [
+      {
+       "brand": "MITSUBISHI",
+       "units": 3378,
+       "share_of_class": 0.3265
+      },
+      {
+       "brand": "MAZDA",
+       "units": 2845,
+       "share_of_class": 0.275
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 2099,
+       "share_of_class": 0.2029
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 2024,
+       "share_of_class": 0.1956
+      }
+     ],
+     "models": []
     }
    }
   },
@@ -1151,6 +1863,85 @@
        "brand": "MITSUBISHI",
        "units": 298,
        "share_of_class": 0.0024
+      }
+     ],
+     "models": []
+    },
+    "PETROL": {
+     "units": 59876,
+     "share_of_market": 0.29931,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 31108,
+       "share_of_class": 0.5195
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 11455,
+       "share_of_class": 0.1913
+      },
+      {
+       "brand": "HONDA",
+       "units": 6246,
+       "share_of_class": 0.1043
+      },
+      {
+       "brand": "MAZDA",
+       "units": 3519,
+       "share_of_class": 0.0588
+      },
+      {
+       "brand": "SUBARU",
+       "units": 2844,
+       "share_of_class": 0.0475
+      },
+      {
+       "brand": "NISSAN",
+       "units": 1792,
+       "share_of_class": 0.0299
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 1478,
+       "share_of_class": 0.0247
+      },
+      {
+       "brand": "DAIHATSU",
+       "units": 1222,
+       "share_of_class": 0.0204
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 212,
+       "share_of_class": 0.0035
+      }
+     ],
+     "models": []
+    },
+    "DIESEL": {
+     "units": 9135,
+     "share_of_market": 0.04566,
+     "brands": [
+      {
+       "brand": "MAZDA",
+       "units": 2745,
+       "share_of_class": 0.3005
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 2723,
+       "share_of_class": 0.2981
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 2073,
+       "share_of_class": 0.2269
+      },
+      {
+       "brand": "IMPORTS (ALL BRANDS)",
+       "units": 1594,
+       "share_of_class": 0.1745
       }
      ],
      "models": []
