@@ -21,6 +21,9 @@ name: Snapshot Builder curves
 # backfill a newly added country into the backtest right away without writing
 # an off-schedule builder_history/<date>.csv (that file is a record of what the
 # gallery showed on the day, so it should only come from the regular run).
+# `refit` re-fits named series ("Country|Variant", comma-separated) in every
+# month — for a CSV redefined under the same key, whose old fits the backtest
+# would otherwise keep forever (REFIT in the header of R/build_backtest.R).
 
 on:
   workflow_dispatch:
@@ -34,6 +37,10 @@ on:
         required: false
         default: false
         type: boolean
+      refit:
+        description: 'Re-fit these series in every backtest month, e.g. "New Zealand|Whole" — after a definition change (comma-separated Country|Variant keys)'
+        required: false
+        default: ''
   schedule:
     - cron: '0 9 25 * *'
 
@@ -85,6 +92,8 @@ jobs:
       - name: Extend backtest
         run: |
           Rscript -e 'source("R/build_backtest.R"); build_backtest(cores = 4)'
+        env:
+          BACKTEST_REFIT: ${{ inputs.refit }}
 
       # The new month has to reach the Time-lapse panel, which reads the
       # compact per-group files rather than the per-month CSVs. Leaving this

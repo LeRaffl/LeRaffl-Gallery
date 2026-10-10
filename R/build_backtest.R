@@ -48,6 +48,17 @@
 # fit failures and eligibility gaps are not retried forever. Cost: ~1.8 s per
 # fit, e.g. Argentina 2026-09: 3 series x ~80 months ~ 240 fits ~ 2 min on 4
 # cores. Data-only series (DATA_ONLY_SERIES) are never fitted at all.
+#
+# REFIT (a series whose definition changed)
+# -----------------------------------------
+# A series already present is never re-fitted — so when a CSV is redefined
+# under the same key (New Zealand's Whole went from new + used light vehicles
+# to new M1 cars in 2026-10), its old fits would stay in every month. Name it
+# in `refit` ("Country|Variant", or env BACKTEST_REFIT, comma-separated —
+# the `refit` input of snapshot-builder.yml): its rows are deleted from every
+# month file (pure line deletions, every other line stays byte-identical) and
+# it is then fitted like a new series. A key that is no longer a series (a
+# dropped variant) is only deleted.
 
 suppressPackageStartupMessages({
   library(parallel)
@@ -259,6 +270,27 @@ merge_rows <- function(path, new_df) {
   writeLines(c(old[1], body), path)
 }
 
+# Delete the rows of `keys` ("Country|Variant") from a month file as PURE
+# LINE DELETIONS — the counterpart of merge_rows(). Returns how many went.
+drop_rows <- function(path, keys) {
+  old <- readLines(path)
+  key_of <- function(line) {
+    f <- gsub('"', "", strsplit(line, ",", fixed = TRUE)[[1]][1:2])
+    paste0(f[1], "|", f[2])
+  }
+  hit <- vapply(old[-1], key_of, character(1), USE.NAMES = FALSE) %in% keys
+  if (any(hit)) writeLines(c(old[1], old[-1][!hit]), path)
+  sum(hit)
+}
+
+parse_refit <- function(x) {
+  k <- trimws(unlist(strsplit(paste(x, collapse = ","), ",", fixed = TRUE)))
+  k <- k[nzchar(k)]
+  bad <- k[!grepl("^[^|]+\\|[^|]+$", k)]
+  if (length(bad)) stop(sprintf("refit: not a Country|Variant key: %s", paste(bad, collapse = ", ")))
+  unique(k)
+}
+
 params_frame <- function(res, mo) {
   do.call(rbind, lapply(res, function(r) data.frame(
     country = r$country, variant = r$variant,
@@ -283,8 +315,10 @@ weights_frame <- function(res, mo) {
 }
 
 build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
-                           out_dir = BACKTEST_DIR) {
+                           out_dir = BACKTEST_DIR,
+                           refit = Sys.getenv("BACKTEST_REFIT")) {
   series <- load_all_series()
+  refit <- parse_refit(refit)
   cat(sprintf("[backtest] %d series with >= %d rows\n", length(series), MIN_ROWS))
 
   if (is.null(to)) {
@@ -297,6 +331,22 @@ build_backtest <- function(from = "2015-01", to = NULL, cores = NULL,
 
   dir.create(file.path(out_dir, "params"), recursive = TRUE, showWarnings = FALSE)
   dir.create(file.path(out_dir, "weights"), recursive = TRUE, showWarnings = FALSE)
+
+  # Series to re-fit (see header, REFIT): delete their rows everywhere first,
+  # so they count as new below.
+  if (length(refit)) {
+    gone <- 0L
+    for (f in list.files(file.path(out_dir, c("params", "weights")),
+                         pattern = "\\.csv$", full.names = TRUE)) {
+      gone <- gone + drop_rows(f, refit)
+    }
+    cat(sprintf("[backtest] refit %s: %d old rows deleted%s\n",
+                paste(refit, collapse = ", "), gone,
+                if (length(setdiff(refit, names(series))))
+                  sprintf(" (no longer a series, not re-fitted: %s)",
+                          paste(setdiff(refit, names(series)), collapse = ", "))
+                else ""))
+  }
 
   # Series new to the repo since the backtest was built (see header).
   known <- backtest_keys(out_dir)

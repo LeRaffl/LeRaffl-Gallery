@@ -1,583 +1,656 @@
 #!/usr/bin/env python3
 """
-Fetch New Zealand light motor vehicle new-registration data from the
-Ministry of Transport (transport.govt.nz) and upsert data/New\ Zealand.csv.
-
-Source
-------
-  Primary: transport.govt.nz fleet-statistics dashboard (AJAX /inner endpoint)
-    https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/
-    light-motor-vehicle-registrations/inner
-  Fallback: data.govt.nz CKAN resource (monthly EV/hybrid registrations CSV)
-    https://catalogue.data.govt.nz/dataset/vehicle-fleet-statistics
-    resource fc87b220-59ec-4678-a09a-88497bb1018d
-
-Only one variant is available ("Whole" = all light new registrations).
-Light vehicles = GVM < 3,500 kg (passenger cars + light commercial combined).
-No Private / Rental / Industry split is available from this source.
+Fetch New Zealand light-vehicle registrations from the NZTA Motor Vehicle
+Register (MVR) and update data/New Zealand.csv.
 
 Usage
 -----
-    python scripts/fetch_new_zealand.py
-    python scripts/fetch_new_zealand.py --months 6
-    python scripts/fetch_new_zealand.py --since 2020-01   # backfill
-    python scripts/fetch_new_zealand.py --force           # re-fetch even if current
-    python scripts/fetch_new_zealand.py --debug           # print raw response
+    python scripts/fetch_new_zealand.py [--period YYYY-MM] [--since YYYY-MM]
+                                        [--variant Whole,Vans,HDV,Used]
+                                        [--force] [--dry-run]
+                                        [--from-json PATH] [--save-json PATH]
+                                        [--github-output PATH] [--summary PATH]
 
-How the source works (reverse-engineered June 2026)
------------------------------------------------------
-transport.govt.nz/statistics-and-insights/fleet-statistics runs on
-Silverstripe CMS. Each "sheet" page loads its chart data by GETting the same
-path with /inner appended; that endpoint returns a JSON-serialised chart
-payload (Highcharts-style or a custom tabular format).
+* --period     Target month (default: the calendar month that just ended).
+* --since      Also count every month from YYYY-MM to the target. Months the
+               CSV already holds are compared, never overwritten (unless
+               --force); see "History" below for why old months undercount.
+* --variant    Only these variants (default: all four).
+* --force      Overwrite existing rows (any source) and skip the plausibility
+               guard.
+* --dry-run    Query, validate and print; write nothing. Re-reading a month
+               the CSV already holds this way is the regression check.
+* --from-json  Use a saved query result (written by --save-json) instead of
+               the network — offline debugging and the tests.
 
-Response formats handled (checked in order):
-  A) Highcharts: top-level "series" list + "xAxis.categories" list of month
-     labels ("Jan 2020", "January 2020", "Jan-20", …).
-  B) Tabular:    top-level "data" or "rows" list of objects with per-row
-     period and fuel-type keys.
-  C) HTML fragment: JSON embedded in <script>…</script> or data-chart= attrs.
+Invoked by .github/workflows/fetch-new-zealand.yml (daily on the 3rd–20th,
+plus workflow_dispatch). Full method, governance checks and a debugging
+runbook: docs/architecture/19-source-new-zealand.md.
 
-Fallback (data.govt.nz CKAN):
-  When /inner fails or returns no usable data, the script queries the CKAN
-  resource_show API, downloads the CSV at the returned url, and maps columns.
-  Only BEV/PHEV/HEV columns are populated from this source (the resource
-  covers EV/hybrid only). PETROL/DIESEL/TOTAL are set to 0 / unknown; the
-  script prints a WARNING and the operator should re-run once the primary
-  source recovers.
+Data source
+-----------
+NZ Transport Agency Waka Kotahi publishes the Motor Vehicle Register as open
+data (CC BY 4.0): one record per currently-registered vehicle, refreshed
+monthly "accurate up to the end of the previous month" (the September 2026
+snapshot was loaded on 6 October). The fetcher never downloads the records:
+the register is an ArcGIS feature service, and its query endpoint returns
+grouped counts (`outStatistics`) — a normal run is a handful of small JSON
+requests.
 
-Fuel-type label → canonical column
------------------------------------
-  "Battery Electric" / "BEV" / "Electric"      → BEV
-  "Plug-in Hybrid" / "PHEV" / "Plugin Hybrid"  → PHEV
-  "Full Hybrid" / "Hybrid" / "HEV"             → HEV
-  "Petrol"                                      → PETROL
-  "Diesel"                                      → DIESEL
-  "LPG" / "Gas" / "Other" / "Other Fuel"       → OTHERS
+The service URL changes when NZTA republishes (it is named after a month,
+e.g. ".../MVR_Mar26/FeatureServer"), so it is looked up on every run from
+the stable Hub item ITEM_ID; FALLBACK_SERVICE is only used when the Hub
+search API is down.
 
-See docs/architecture/19-source-new-zealand.md for the full playbook.
+Variants (docs/architecture/19-source-new-zealand.md §2)
+--------
+Every count is a first registration in New Zealand (IMPORT_STATUS NEW or
+USED — not RE-REG, SCRATCH), dated by FIRST_NZ_REGISTRATION_YEAR / _MONTH,
+and cut by import status × NZTA vehicle class onto the EU classes:
+
+    Whole   data/New Zealand.csv         NEW,  MA/MB/MC        (M1 new cars)
+    Vans    data/New Zealand_Vans.csv    NEW,  NA              (N1)
+    HDV     data/New Zealand_HDV.csv     NEW,  NB/NC           (N2/N3)
+    Used    data/New Zealand_Used.csv    USED, MA/MB/MC        (M1 used imports)
+
+Used vans (USED × NA) are in no variant. The series the gallery had until
+2026-10 — Prof. Ray Willis's compilation of the Ministry of Transport's "light
+motor vehicle registrations", new *and* used-import light vehicles — is parked
+unchanged in data/New Zealand_legacy.csv (an archive: not fetched, not
+rendered). The register reproduces it to about 1 % in every fuel column
+through 2026-03 (the shortfall is vehicles deregistered since, and owners with
+a confidential listing, whom NZTA leaves out).
+
+Fuel mapping (MOTIVE_POWER -> CSV column)
+-----------------------------------------
+    ELECTRIC                                   -> BEV
+    PLUGIN PETROL / DIESEL HYBRID,
+    ELECTRIC [PETROL / DIESEL EXTENDED]        -> PHEV  (EREV folded in: the
+                                                  CSV has no EREV column and
+                                                  the legacy rows include it)
+    PETROL HYBRID, PETROL ELECTRIC HYBRID,
+    DIESEL HYBRID, DIESEL ELECTRIC HYBRID      -> HEV   (whatever the certifier
+                                                  entered as "hybrid" — some
+                                                  48 V mild-hybrid utes too)
+    PETROL                                     -> PETROL
+    DIESEL                                     -> DIESEL
+    LPG, CNG, ELECTRIC FUEL CELL HYDROGEN,
+    OTHER, empty                               -> OTHERS
+
+A label outside MOTIVE_MAP is counted in OTHERS and listed in the step
+summary; above UNKNOWN_ABORT of a month's total it stops the run — a new
+register label needs a human decision about its column.
+
+History
+-------
+The register is a snapshot of vehicles registered *today*: a month counted
+years later misses every vehicle scrapped or exported since (about 4 % for
+2024, 30 % for 2015). So the fetcher writes the month that just ended, from
+the first snapshot that covers it, and leaves older rows alone (invariant 3,
+"don't rewrite the past"). A `--since` backfill adds only months the CSV
+lacks and flags them in `notes`.
 """
+from __future__ import annotations
+
 import argparse
 import csv
+import io
 import json
 import os
-import re
 import sys
-from datetime import date
+import time
+from datetime import date, datetime, timezone
 from pathlib import Path
 
-import requests
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import market_top  # noqa: E402
 
-INNER_URL = (
-    "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/"
-    "light-motor-vehicle-registrations/inner"
-)
-CKAN_API  = "https://catalogue.data.govt.nz/api/3/action/resource_show"
-CKAN_RID  = "fc87b220-59ec-4678-a09a-88497bb1018d"   # monthly EV/hybrid registrations
-SOURCE    = "transport.govt.nz"
-CSV_PATH  = "data/New Zealand.csv"
-
-USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-)
-
-CSV_COLUMNS = [
-    "period", "time_interval", "variant", "source",
-    "BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes",
-]
-
-# Fuel-type label → canonical column (case-insensitive matching done at call site)
-FUEL_MAP: dict[str, str] = {
-    "battery electric": "BEV",
-    "battery electric (bev)": "BEV",
-    "bev": "BEV",
-    "electric": "BEV",
-    "electric vehicle": "BEV",
-    "plug-in hybrid": "PHEV",
-    "plug in hybrid": "PHEV",
-    "plugin hybrid": "PHEV",
-    "phev": "PHEV",
-    "plug-in hybrid electric vehicle": "PHEV",
-    "full hybrid": "HEV",
-    "hybrid": "HEV",
-    "hev": "HEV",
-    "hybrid electric vehicle": "HEV",
-    "petrol": "PETROL",
-    "gasoline": "PETROL",
-    "petrol/lpg": "PETROL",   # count against petrol; LPG share negligible
-    "diesel": "DIESEL",
-    "lpg": "OTHERS",
-    "gas": "OTHERS",
-    "cng": "OTHERS",
-    "compressed natural gas": "OTHERS",
-    "other": "OTHERS",
-    "other fuel": "OTHERS",
-    "other fuels": "OTHERS",
-    "other fuel types": "OTHERS",
+REPO = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO / "data"
+CSV_PATH = DATA_DIR / "New Zealand.csv"
+COUNTRY = "New Zealand"
+SLUG = "new_zealand"
+SOURCE = "NZTA Motor Vehicle Register"
+VARIANT = "Whole"
+TOP_PATH = market_top.MARKET_DIR / f"{SLUG}_top.json"
+# Brand / model tables: Whole (new M1) and Used (used-import M1), each with
+# its CSV's class logic (03-data-objects.md §3.16: a Used variant gets its own).
+TOP_PATHS = {"Whole": TOP_PATH, "Used": market_top.MARKET_DIR / f"{SLUG}_used_top.json"}
+TOP_UNITS = {
+    "Whole": ("one first registration of a new passenger car (classes MA/MB/MC, "
+              "EU M1) in New Zealand; brand and model as entered on the Motor "
+              "Vehicle Register"),
+    "Used": ("one first New Zealand registration of a used-import passenger car "
+             "(classes MA/MB/MC, EU M1); brand and model as entered on the Motor "
+             "Vehicle Register"),
 }
+TOP_UNIT = TOP_UNITS["Whole"]
 
-# Month-name → number (for category label parsing)
-_MONTH_ABBR = {
-    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
-    "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12,
+ITEM_ID = "7b4df667d5014f1a93e6050b31d18407"
+HUB_ITEM = ("https://opendata-nzta.opendata.arcgis.com/api/search/v1/"
+            f"collections/all/items/{ITEM_ID}")
+FALLBACK_SERVICE = ("https://services.arcgis.com/CXBb7LAjgIIdcsPt/arcgis/rest/"
+                    "services/MVR_Mar26/FeatureServer")
+PAGE = 2000                      # the service's maxRecordCount
+
+CSV_COLUMNS = ["period", "time_interval", "variant", "source", "BEV", "PHEV",
+               "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL", "notes"]
+FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
+
+M1 = ("MA", "MB", "MC")          # passenger car, passenger van, off-road passenger
+# variant -> (import statuses, vehicle classes), anchored to the EU classes
+# like every other country (09-glossary.md).
+VARIANTS = {
+    "Whole": (("NEW",), M1),
+    "Vans": (("NEW",), ("NA",)),
+    "HDV": (("NEW",), ("NB", "NC")),
+    "Used": (("USED",), M1),
 }
-_MONTH_FULL = {
-    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
-    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11,
-    "december": 12,
+STATUSES = tuple(sorted({s for sts, _ in VARIANTS.values() for s in sts}))
+CLASSES = tuple(sorted({c for _, cls in VARIANTS.values() for c in cls}))
+F_YEAR, F_MONTH = "FIRST_NZ_REGISTRATION_YEAR", "FIRST_NZ_REGISTRATION_MONTH"
+REQUIRED_FIELDS = {F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER",
+                   "MAKE", "MODEL"}
+
+MOTIVE_MAP = {
+    "ELECTRIC": "BEV",
+    "PLUGIN PETROL HYBRID": "PHEV",
+    "PLUGIN DIESEL HYBRID": "PHEV",
+    "ELECTRIC [PETROL EXTENDED]": "PHEV",
+    "ELECTRIC [DIESEL EXTENDED]": "PHEV",
+    "PETROL HYBRID": "HEV",
+    "PETROL ELECTRIC HYBRID": "HEV",
+    "DIESEL HYBRID": "HEV",
+    "DIESEL ELECTRIC HYBRID": "HEV",
+    "PETROL": "PETROL",
+    "DIESEL": "DIESEL",
+    "LPG": "OTHERS",
+    "CNG": "OTHERS",
+    "ELECTRIC FUEL CELL HYDROGEN": "OTHERS",
+    "PLUG IN FUEL CELL HYDROGEN HYBRID": "OTHERS",
+    "OTHER": "OTHERS",
+    "": "OTHERS",
 }
+ELECTRIFIED = ("BEV", "PHEV", "HEV")
+UNKNOWN_ABORT = 0.01             # unknown labels above 1 % of a month stop the run
+PLAUSIBLE = (0.5, 2.0)           # TOTAL / same month a year earlier
+OVERLAP_WARN = 0.05              # register vs CSV on months the CSV holds
+STALE_DAY = 20                   # from this day on, a missing month is an error
 
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+# ── HTTP ────────────────────────────────────────────────────────────────────
 
-def _http_get(url: str, **kwargs) -> requests.Response:
-    r = requests.get(
-        url, headers={"User-Agent": USER_AGENT}, timeout=30, **kwargs
-    )
-    r.raise_for_status()
-    return r
-
-
-def _fuel_col(label: str) -> str | None:
-    """Map a fuel-type label to a canonical column, or None if unknown."""
-    return FUEL_MAP.get(label.strip().lower())
-
-
-def _parse_period_label(label: str) -> str | None:
-    """
-    Convert a month label ("Jan 2020", "January 2020", "Jan-20", "2020-01")
-    to "YYYY-MM".  Returns None if the label cannot be parsed.
-    """
-    label = label.strip()
-    # ISO: "2020-01"
-    m = re.fullmatch(r"(\d{4})-(\d{2})", label)
-    if m:
-        return label
-
-    # "Jan 2020" / "January 2020"
-    m = re.fullmatch(r"([A-Za-z]+)\s+(\d{4})", label)
-    if m:
-        mon_str, yr_str = m.group(1).lower(), m.group(2)
-        mon = _MONTH_ABBR.get(mon_str[:3]) or _MONTH_FULL.get(mon_str)
-        if mon:
-            return f"{yr_str}-{mon:02d}"
-
-    # "Jan-20" / "Jan-2020"
-    m = re.fullmatch(r"([A-Za-z]+)-(\d{2,4})", label)
-    if m:
-        mon_str, yr_str = m.group(1).lower(), m.group(2)
-        mon = _MONTH_ABBR.get(mon_str[:3]) or _MONTH_FULL.get(mon_str)
-        if mon:
-            yr = int(yr_str)
-            if yr < 100:
-                yr += 2000 if yr < 50 else 1900
-            return f"{yr}-{mon:02d}"
-
-    return None
+def http_json(url: str, params: dict | None = None, tries: int = 4) -> dict:
+    import requests
+    last = None
+    for i in range(tries):
+        try:
+            r = requests.get(url, params=params, timeout=120,
+                             headers={"User-Agent": "LeRaffl-Gallery fetcher "
+                                      "(+https://github.com/LeRaffl/LeRaffl-Gallery)"})
+            if r.status_code == 200:
+                d = r.json()
+                if isinstance(d, dict) and "error" in d:
+                    raise RuntimeError(f"ArcGIS error from {url}: {d['error']}")
+                return d
+            last = f"HTTP {r.status_code}"
+        except (requests.RequestException, ValueError) as e:   # network, bad JSON
+            last = f"{type(e).__name__}: {e}"
+        time.sleep(2 ** (i + 1))
+    raise RuntimeError(f"GET {url} failed after {tries} tries: {last}")
 
 
-# ── Format-A: Highcharts-style ────────────────────────────────────────────────
+def resolve_service() -> str:
+    """The feature service the Hub item currently points at."""
+    try:
+        d = http_json(HUB_ITEM, tries=2)
+        url = (d.get("properties") or d).get("url") or ""
+        if "/FeatureServer" in url:
+            return url.split("/FeatureServer")[0] + "/FeatureServer"
+        print(f"::warning title=NZ register URL::Hub item has no FeatureServer url "
+              f"({url!r}); using {FALLBACK_SERVICE}")
+    except RuntimeError as e:
+        print(f"::warning title=NZ register URL::Hub lookup failed ({e}); "
+              f"using {FALLBACK_SERVICE}")
+    return FALLBACK_SERVICE
 
-def _parse_highcharts(payload: dict) -> dict[str, dict[str, int]] | None:
-    """
-    Extract {period: {column: count}} from a Highcharts-style dict:
-      {"xAxis": {"categories": [...]}, "series": [{"name": "...", "data": [...]}, ...]}
-    Returns None if the structure doesn't match.
-    """
-    # xAxis may be a dict or a list; data may be nested one level deeper
-    x_axis = payload.get("xAxis") or payload.get("xaxis")
-    series = payload.get("series")
-    if not series:
-        return None
 
-    cats: list[str] = []
-    if isinstance(x_axis, dict):
-        cats = x_axis.get("categories") or []
-    elif isinstance(x_axis, list) and x_axis:
-        cats = x_axis[0].get("categories") or []
+def layer_info(service: str) -> tuple[str, date]:
+    """(query URL of the register table, date the data was last loaded)."""
+    svc = http_json(service, {"f": "json"})
+    tables = (svc.get("tables") or []) + (svc.get("layers") or [])
+    if not tables:
+        raise RuntimeError(f"{service}: no table in the service")
+    layer = f"{service}/{tables[0]['id']}"
+    meta = http_json(layer, {"f": "json"})
+    fields = {f["name"] for f in meta.get("fields") or []}
+    missing = REQUIRED_FIELDS - fields
+    if missing:
+        raise RuntimeError(f"register schema changed — fields {sorted(missing)} missing")
+    ms = ((meta.get("editingInfo") or {}).get("dataLastEditDate")
+          or (meta.get("editingInfo") or {}).get("lastEditDate"))
+    if not ms:
+        raise RuntimeError("register has no dataLastEditDate — cannot tell which "
+                           "months are complete")
+    loaded = datetime.fromtimestamp(ms / 1000, tz=timezone.utc).date()
+    return layer + "/query", loaded
 
-    if not cats:
-        return None
 
-    periods = [_parse_period_label(c) for c in cats]
+def grouped(query_url: str, where: str, group: list[str]) -> list[dict]:
+    """Every row of a grouped count query, paged."""
+    out: list[dict] = []
+    offset = 0
+    while True:
+        d = http_json(query_url, {
+            "where": where,
+            "groupByFieldsForStatistics": ",".join(group),
+            "outStatistics": json.dumps([{"statisticType": "count",
+                                          "onStatisticField": "OBJECTID",
+                                          "outStatisticFieldName": "n"}]),
+            "orderByFields": ",".join(group),
+            "resultOffset": offset, "resultRecordCount": PAGE, "f": "json"})
+        rows = [f["attributes"] for f in d.get("features") or []]
+        out += rows
+        if len(rows) < PAGE and not d.get("exceededTransferLimit"):
+            return out
+        offset += len(rows)
 
-    result: dict[str, dict[str, int]] = {}
-    for s in series:
-        label = s.get("name") or s.get("label") or ""
-        col = _fuel_col(label)
+
+def month_num(p: str) -> int:
+    return int(p[:4]) * 100 + int(p[5:7])
+
+
+def scope_where(first: str, last: str, statuses=None, classes=None) -> str:
+    q = lambda xs: ",".join(f"'{x}'" for x in xs)
+    return (f"({F_YEAR}*100+{F_MONTH}) BETWEEN {month_num(first)} AND {month_num(last)} "
+            f"AND IMPORT_STATUS IN ({q(statuses or STATUSES)}) "
+            f"AND CLASS IN ({q(classes or CLASSES)})")
+
+
+def query_register(first: str, last: str, top_from: str | None) -> dict:
+    """Everything a run needs, in the --save-json / --from-json shape."""
+    service = resolve_service()
+    query_url, loaded = layer_info(service)
+    print(f"register: {service} (data loaded {loaded})")
+    fuel = grouped(query_url, scope_where(first, last),
+                   [F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER"])
+    models: list[dict] = []
+    if top_from:
+        elec = [k for k, v in MOTIVE_MAP.items() if v in ELECTRIFIED and k]
+        statuses = tuple(st for v in TOP_PATHS for st in VARIANTS[v][0])
+        where = (scope_where(top_from, last, statuses, M1) + " AND MOTIVE_POWER IN ("
+                 + ",".join(f"'{k}'" for k in elec) + ")")
+        models = grouped(query_url, where, [F_YEAR, F_MONTH, "IMPORT_STATUS", "MOTIVE_POWER",
+                                            "MAKE", "MODEL"])
+        # month totals for the shares — the fuel query covers only first..last
+        if month_num(top_from) < month_num(first):
+            fuel_top = grouped(query_url, scope_where(top_from, shift_month(first, -1)),
+                               [F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER"])
+            fuel = fuel_top + fuel
+    return {"service": service, "loaded": loaded.isoformat(), "fuel": fuel, "models": models}
+
+
+# ── counting ────────────────────────────────────────────────────────────────
+
+def shift_month(p: str, k: int) -> str:
+    y, m = int(p[:4]), int(p[5:7]) + k
+    while m < 1:
+        y, m = y - 1, m + 12
+    while m > 12:
+        y, m = y + 1, m - 12
+    return f"{y:04d}-{m:02d}"
+
+
+def period_of(a: dict) -> str:
+    return f"{int(a[F_YEAR]):04d}-{int(a[F_MONTH]):02d}"
+
+
+def column_of(label) -> str | None:
+    return MOTIVE_MAP.get(market_top.clean(label))
+
+
+def variants_of(a: dict) -> list[str]:
+    """The variants a grouped row belongs to (at most one)."""
+    st, cl = a.get("IMPORT_STATUS") or "", a.get("CLASS") or ""
+    return [v for v, (sts, cls) in VARIANTS.items() if st in sts and cl in cls]
+
+
+def count_months(fuel_rows: list[dict]) -> tuple[dict, dict, dict]:
+    """({variant: {period: {column: n, TOTAL}}}, {period: {unknown label: n}},
+    {period: {status: n}}) — unknown labels and statuses over every row in scope."""
+    counts: dict[str, dict[str, dict[str, int]]] = {v: {} for v in VARIANTS}
+    unknown: dict[str, dict[str, int]] = {}
+    status: dict[str, dict[str, int]] = {}
+    for a in fuel_rows:
+        if a.get(F_YEAR) is None or a.get(F_MONTH) is None:
+            continue
+        vs = variants_of(a)
+        if not vs:
+            continue
+        p, n = period_of(a), int(a["n"])
+        col = column_of(a.get("MOTIVE_POWER"))
         if col is None:
-            print(f"  WARNING: unmapped fuel label {label!r} — add to FUEL_MAP")
+            col = "OTHERS"
+            lab = market_top.clean(a.get("MOTIVE_POWER"))
+            unknown.setdefault(p, {})[lab] = unknown.get(p, {}).get(lab, 0) + n
+        for v in vs:
+            c = counts[v].setdefault(p, {k: 0 for k in FUELS + ["TOTAL"]})
+            c[col] += n
+            c["TOTAL"] += n
+        s = status.setdefault(p, {})
+        s[a.get("IMPORT_STATUS") or ""] = s.get(a.get("IMPORT_STATUS") or "", 0) + n
+    return counts, unknown, status
+
+
+def check_unknown(period: str, unknown: dict, total: int) -> str:
+    """'' or a warning; raises above UNKNOWN_ABORT of the month."""
+    u = unknown.get(period) or {}
+    if not u:
+        return ""
+    n = sum(u.values())
+    msg = f"unmapped MOTIVE_POWER label(s) in {period} (counted in OTHERS): {u}"
+    if total and n / total > UNKNOWN_ABORT:
+        raise RuntimeError(msg + f" — {n / total:.1%} of the month, above "
+                           f"{UNKNOWN_ABORT:.0%}; add them to MOTIVE_MAP")
+    return msg
+
+
+def month_units(model_rows: list[dict], variant: str = "Whole") -> dict[str, dict]:
+    """{period: {(class, brand, model): n}} of one variant, with the CSV's class
+    logic. A row without IMPORT_STATUS (a --save-json file from before the Used
+    tables) is a new car."""
+    statuses = VARIANTS[variant][0]
+    tally: dict = {}
+    for a in model_rows:
+        if a.get(F_YEAR) is None or a.get(F_MONTH) is None:
             continue
-        data_vals = s.get("data") or []
-        for i, val in enumerate(data_vals):
-            if i >= len(periods) or periods[i] is None:
-                continue
-            period = periods[i]
-            count = int(val) if val else 0
-            result.setdefault(period, {})
-            result[period][col] = result[period].get(col, 0) + count
-
-    return result if result else None
-
-
-# ── Format-B: tabular rows ────────────────────────────────────────────────────
-
-def _parse_tabular(payload: dict) -> dict[str, dict[str, int]] | None:
-    """
-    Extract {period: {column: count}} from a tabular-rows format:
-      {"data": [{"period": "...", "fuel_type": "...", "count": N}, ...]}
-    or
-      {"rows": [...]}
-    """
-    rows = payload.get("data") or payload.get("rows") or []
-    if not rows or not isinstance(rows, list) or not isinstance(rows[0], dict):
-        return None
-
-    # Try to identify which keys hold period and fuel type
-    sample = rows[0]
-    period_keys = [k for k in sample if re.search(r"period|month|date", k, re.I)]
-    fuel_keys   = [k for k in sample if re.search(r"fuel|type|label|name", k, re.I)]
-    count_keys  = [k for k in sample if re.search(r"count|registrations?|units?|value", k, re.I)]
-
-    if not period_keys or not fuel_keys or not count_keys:
-        return None
-
-    pk, fk, ck = period_keys[0], fuel_keys[0], count_keys[0]
-    result: dict[str, dict[str, int]] = {}
-    for row in rows:
-        period_raw = str(row.get(pk) or "")
-        period = _parse_period_label(period_raw)
-        if period is None:
+        if (a.get("IMPORT_STATUS") or "NEW") not in statuses:
             continue
-        col = _fuel_col(str(row.get(fk) or ""))
-        if col is None:
+        cls = column_of(a.get("MOTIVE_POWER"))
+        if cls not in ELECTRIFIED:
             continue
-        count = int(float(row.get(ck) or 0))
-        result.setdefault(period, {})
-        result[period][col] = result[period].get(col, 0) + count
-
-    return result if result else None
-
-
-# ── Try to extract JSON from HTML ─────────────────────────────────────────────
-
-def _extract_json_from_html(html: str) -> list[dict]:
-    """
-    Find all JSON objects embedded in <script> tags or data-chart= attributes.
-    Returns a list of parsed dict candidates.
-    """
-    candidates: list[dict] = []
-
-    # data-chart='{"series":...}' or data-highcharts-chart='...'
-    for m in re.finditer(r'data-[^=]*chart[^=]*=\'({.*?})\'', html, re.S):
-        try:
-            candidates.append(json.loads(m.group(1)))
-        except ValueError:
-            pass
-    for m in re.finditer(r'data-[^=]*chart[^=]*="({.*?})"', html, re.S):
-        try:
-            candidates.append(json.loads(m.group(1)))
-        except ValueError:
-            pass
-
-    # <script>var chartData = {...}</script>
-    for m in re.finditer(r"<script[^>]*>(.*?)</script>", html, re.S):
-        block = m.group(1)
-        # Look for JSON objects assigned to variables
-        for jm in re.finditer(r"(?:=|\()\s*(\{(?:[^{}]|\{[^{}]*\})*\})\s*[;,)]", block):
-            try:
-                obj = json.loads(jm.group(1))
-                if isinstance(obj, dict):
-                    candidates.append(obj)
-            except ValueError:
-                pass
-        # Entire block is JSON
-        stripped = block.strip()
-        if stripped.startswith("{"):
-            try:
-                candidates.append(json.loads(stripped))
-            except ValueError:
-                pass
-
-    return candidates
+        brand = market_top.clean(a.get("MAKE"))
+        model = market_top.strip_brand(brand, market_top.clean(a.get("MODEL")))
+        key = (period_of(a), cls, brand, model)
+        tally[key] = tally.get(key, 0) + int(a["n"])
+    return market_top.per_month(tally)
 
 
-# ── Primary source: transport.govt.nz /inner ─────────────────────────────────
-
-def fetch_from_inner(debug: bool = False) -> dict[str, dict[str, int]] | None:
-    """
-    Fetch data from the transport.govt.nz /inner endpoint.
-    Returns {period: {col: count}} or None on failure.
-    """
-    print(f"  Fetching {INNER_URL} …")
-    try:
-        r = _http_get(INNER_URL, allow_redirects=True)
-    except requests.RequestException as exc:
-        print(f"  WARN: transport.govt.nz /inner request failed: {exc}")
-        return None
-
-    content_type = r.headers.get("content-type", "")
-    if debug:
-        print(f"  [debug] status={r.status_code}  content-type={content_type}")
-        print(f"  [debug] first 2000 chars of response:\n{r.text[:2000]}\n")
-
-    # Try as JSON directly
-    payload = None
-    if "json" in content_type or r.text.lstrip().startswith("{"):
-        try:
-            payload = r.json()
-        except ValueError:
-            pass
-
-    if payload is not None:
-        result = _parse_highcharts(payload) or _parse_tabular(payload)
-        if result:
-            return result
-        if debug:
-            print(f"  [debug] Parsed as JSON but no recognised structure. Keys: {list(payload.keys())[:20]}")
-
-    # Try embedded JSON in HTML
-    candidates = _extract_json_from_html(r.text)
-    if debug:
-        print(f"  [debug] Found {len(candidates)} JSON candidate(s) in HTML")
-    for cand in candidates:
-        result = _parse_highcharts(cand) or _parse_tabular(cand)
-        if result:
-            return result
-
-    print("  WARN: /inner response not in any recognised format.")
-    if not debug:
-        print("  Tip: re-run with --debug to see the raw response.")
-    return None
+def build_top(data: dict, target: str, variant: str = "Whole") -> dict:
+    counts = count_months(data["fuel"])[0][variant]
+    units = month_units(data["models"], variant)
+    window = market_top.month_window(target)
+    monthly = {p: (units.get(p, {}), counts[p]["TOTAL"]) for p in window if p in counts}
+    return market_top.build_top_monthly(COUNTRY, SOURCE, target, monthly,
+                                        TOP_UNITS[variant], variant)
 
 
-# ── Fallback source: data.govt.nz CKAN ───────────────────────────────────────
-
-def fetch_from_ckan(debug: bool = False) -> dict[str, dict[str, int]] | None:
-    """
-    Download the 'Monthly electric and hybrid light vehicle registrations' CSV
-    from data.govt.nz via the CKAN resource_show API.
-    Returns {period: {col: count}} — NOTE: only BEV/PHEV/HEV populated.
-    """
-    print(f"  Querying CKAN resource {CKAN_RID} …")
-    try:
-        meta = _http_get(CKAN_API, params={"id": CKAN_RID}).json()
-    except Exception as exc:
-        print(f"  WARN: CKAN API request failed: {exc}")
-        return None
-
-    if not meta.get("success"):
-        print(f"  WARN: CKAN returned success=false: {meta.get('error')}")
-        return None
-
-    csv_url = meta["result"].get("url")
-    if not csv_url:
-        print("  WARN: CKAN resource has no url field.")
-        return None
-
-    print(f"  Downloading {csv_url} …")
-    try:
-        r = _http_get(csv_url)
-    except Exception as exc:
-        print(f"  WARN: CKAN CSV download failed: {exc}")
-        return None
-
-    if debug:
-        print(f"  [debug] CKAN CSV first 500 chars:\n{r.text[:500]}\n")
-
-    reader = csv.DictReader(r.text.splitlines())
-    fieldnames = reader.fieldnames or []
-    if debug:
-        print(f"  [debug] CKAN CSV columns: {fieldnames}")
-
-    # Identify period and count columns heuristically
-    period_cols = [c for c in fieldnames if re.search(r"period|month|date", c, re.I)]
-    if not period_cols:
-        print(f"  WARN: cannot identify period column in CKAN CSV. Columns: {fieldnames}")
-        return None
-
-    result: dict[str, dict[str, int]] = {}
-    for row in reader:
-        period_raw = row.get(period_cols[0], "")
-        period = _parse_period_label(period_raw)
-        if period is None:
-            continue
-        # Try to map each column
-        for k, v in row.items():
-            col = _fuel_col(k)
-            if col:
-                try:
-                    result.setdefault(period, {})
-                    result[period][col] = result[period].get(col, 0) + int(float(v or 0))
-                except (ValueError, TypeError):
-                    pass
-
-    if not result:
-        print("  WARN: CKAN CSV parsed but yielded no data rows.")
-        return None
-
-    print("  WARNING: CKAN source covers EV/hybrid only — PETROL/DIESEL/TOTAL "
-          "will be 0/partial. Verify against transport.govt.nz dashboard.")
-    return result
+def refresh_top(data: dict, target: str, variant: str = "Whole") -> None:
+    top = build_top(data, target, variant)
+    path = TOP_PATHS[variant]
+    market_top.report(top, path, market_top.write_top(top, path))
 
 
-# ── CSV helpers ───────────────────────────────────────────────────────────────
+# ── CSV line-level upsert (invariant 2) ────────────────────────────────────
 
-def _load_existing(csv_path: str) -> dict[str, dict]:
-    existing: dict[str, dict] = {}
-    if not os.path.exists(csv_path):
-        return existing
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            for c in CSV_COLUMNS:
-                row.setdefault(c, "")
-            existing[row["period"]] = row
-    return existing
+def csv_path_for(variant: str, data_dir: Path = DATA_DIR) -> Path:
+    return data_dir / (f"{COUNTRY}.csv" if variant == "Whole" else f"{COUNTRY}_{variant}.csv")
 
 
-def _upsert(csv_path: str, new_data: dict[str, dict[str, int]]) -> tuple[int, int]:
-    """
-    Merge new_data into csv_path.  Returns (added, updated).
-    Prints a WARNING for >50% changes on existing rows to catch fetch errors.
-    """
-    existing = _load_existing(csv_path)
-    added = updated = 0
+def render_line(period: str, counts: dict[str, int], notes: str = "",
+                variant: str = VARIANT) -> str:
+    buf = io.StringIO()
+    csv.writer(buf, lineterminator="").writerow(
+        [period, "monthly", variant, SOURCE]
+        + [str(counts[k]) for k in FUELS + ["TOTAL"]] + [notes])
+    return buf.getvalue()
 
-    for period, cols in sorted(new_data.items()):
-        total = cols.get("TOTAL") or (
-            cols.get("BEV", 0) + cols.get("PHEV", 0) + cols.get("HEV", 0)
-            + cols.get("PETROL", 0) + cols.get("DIESEL", 0) + cols.get("OTHERS", 0)
-        )
-        if total <= 0:
-            print(f"  SKIP {period}: total={total}")
-            continue
 
-        new_row: dict = {
-            "period": period, "time_interval": "monthly", "variant": "Whole",
-            "source": SOURCE,
-            "BEV":    cols.get("BEV", 0),
-            "PHEV":   cols.get("PHEV", 0),
-            "HEV":    cols.get("HEV", 0),
-            "PETROL": cols.get("PETROL", 0),
-            "DIESEL": cols.get("DIESEL", 0),
-            "OTHERS": cols.get("OTHERS", 0),
-            "TOTAL":  total,
-            "notes":  "",
-        }
+def read_csv_lines(path: Path) -> tuple[str, list[str]]:
+    if not path.exists():
+        return ",".join(CSV_COLUMNS), []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return (lines[0], lines[1:]) if lines else (",".join(CSV_COLUMNS), [])
 
-        if period in existing:
-            old = existing[period]
-            for col in ("BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS", "TOTAL"):
-                try:
-                    ov, nv = float(old.get(col) or 0), float(new_row[col] or 0)
-                except (ValueError, TypeError):
-                    continue
-                if ov > 100 and nv > 0 and abs(nv - ov) / ov > 0.5:
-                    print(f"  WARNING {period} {col}: existing={ov:.0f} "
-                          f"new={nv:.0f} (>50% change) — please verify")
-            if not new_row["notes"]:
-                new_row["notes"] = old.get("notes", "")
-            existing[period] = new_row
-            updated += 1
+
+def line_key(line: str) -> tuple[str, str]:
+    f = next(csv.reader([line]))
+    return f[0], f[2]
+
+
+def existing_rows(path: Path, variant: str = VARIANT) -> dict[str, dict[str, str]]:
+    if not path.exists():
+        return {}
+    with open(path, newline="", encoding="utf-8") as f:
+        return {r["period"]: r for r in csv.DictReader(f)
+                if (r.get("variant") or "Whole") == variant}
+
+
+def upsert_lines(path: Path, updates: dict[str, str], force: bool,
+                 variant: str = VARIANT) -> dict[str, int]:
+    """Insert the given periods' lines; an existing line is replaced only with
+    --force. Every other line is written back byte-for-byte."""
+    header, lines = read_csv_lines(path)
+    if header.split(",") != CSV_COLUMNS:
+        raise RuntimeError(f"{path}: unexpected header {header!r}")
+    stats = {"added": 0, "updated": 0, "unchanged": 0, "skipped": 0}
+    index = {line_key(l): i for i, l in enumerate(lines)}
+    for period, new in sorted(updates.items()):
+        key = (period, variant)
+        if key not in index:
+            lines.append(new)
+            stats["added"] += 1
+        elif lines[index[key]] == new:
+            stats["unchanged"] += 1
+        elif force:
+            lines[index[key]] = new
+            stats["updated"] += 1
         else:
-            existing[period] = new_row
-            added += 1
-
-    Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=CSV_COLUMNS, lineterminator="\n")
-        w.writeheader()
-        for p in sorted(existing.keys()):
-            w.writerow(existing[p])
-
-    return added, updated
+            stats["skipped"] += 1
+    if stats["added"]:
+        lines.sort(key=line_key)
+    if stats["added"] or stats["updated"]:
+        path.write_text("\n".join([header] + lines) + "\n", encoding="utf-8")
+    return stats
 
 
-def _latest_period(csv_path: str) -> str | None:
-    if not os.path.exists(csv_path):
+def row_counts(row: dict[str, str]) -> dict[str, int]:
+    return {k: int(float(row[k])) if row.get(k) not in (None, "") else 0
+            for k in FUELS + ["TOTAL"]}
+
+
+def compare(counts: dict[str, int], row: dict[str, str]) -> tuple[str, float]:
+    """(per-column differences register − CSV, TOTAL deviation)."""
+    old = row_counts(row)
+    diffs = [f"{k} {counts[k] - old[k]:+,}" for k in FUELS + ["TOTAL"] if old[k] != counts[k]]
+    dev = (counts["TOTAL"] - old["TOTAL"]) / old["TOTAL"] if old["TOTAL"] else 0.0
+    return (", ".join(diffs) or "identical"), dev
+
+
+def plausibility(period: str, total: int, have: dict[str, dict]) -> float | None:
+    """TOTAL / same month a year earlier (NZ registrations are seasonal —
+    March and September peak — so this beats a median)."""
+    p = shift_month(period, -12)
+    if p not in have:
         return None
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        periods = [r["period"] for r in csv.DictReader(f)]
-    return max(periods) if periods else None
+    old = row_counts(have[p])["TOTAL"]
+    return total / old if old else None
 
 
-def _previous_month() -> tuple[int, int]:
-    t = date.today()
-    return (t.year - 1, 12) if t.month == 1 else (t.year, t.month - 1)
+# ── main ───────────────────────────────────────────────────────────────────
+
+def default_period(today: date) -> str:
+    return shift_month(f"{today.year:04d}-{today.month:02d}", -1)
 
 
-# ── main ─────────────────────────────────────────────────────────────────────
+def month_end(p: str) -> date:
+    n = shift_month(p, 1)
+    return date(int(n[:4]), int(n[5:7]), 1)
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__,
-                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--months", type=int, default=3,
-                    help="Trailing window of recent months to include (default 3).")
-    ap.add_argument("--since", type=str, default=None,
-                    help="Backfill start 'YYYY-MM'; fetches through last month.")
-    ap.add_argument("--force", action="store_true",
-                    help="Re-fetch and overwrite periods already in the CSV.")
-    ap.add_argument("--debug", action="store_true",
-                    help="Print raw response details for troubleshooting.")
-    ap.add_argument("--csv", default=CSV_PATH,
-                    help=f"CSV path (default: {CSV_PATH}).")
-    args = ap.parse_args()
 
-    prev_y, prev_m = _previous_month()
-    prev_period = f"{prev_y}-{prev_m:02d}"
+def summary_table(rows: dict[str, dict[str, int]]) -> str:
+    out = ["| month | BEV | PHEV | HEV | PETROL | DIESEL | OTHERS | TOTAL | BEV share |",
+           "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    for p, c in sorted(rows.items()):
+        share = f"{c['BEV'] / c['TOTAL']:.1%}" if c["TOTAL"] else "–"
+        out.append(f"| {p} | " + " | ".join(f"{c[k]:,}" for k in FUELS + ["TOTAL"])
+                   + f" | {share} |")
+    return "\n".join(out)
 
-    # Early-exit if CSV already has the previous month (and not --force/--since)
-    if not args.force and not args.since:
-        latest = _latest_period(args.csv)
-        if latest and latest >= prev_period:
-            print(f"CSV already has {latest}; nothing to do (use --force to re-fetch).")
-            return
 
-    # Try primary source
-    print("Fetching from transport.govt.nz …")
-    data = fetch_from_inner(debug=args.debug)
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--period", help="target month YYYY-MM (default: last month)")
+    ap.add_argument("--since", help="also count every month from YYYY-MM on")
+    ap.add_argument("--variant", help="comma-separated subset of " + ",".join(VARIANTS))
+    ap.add_argument("--force", action="store_true")
+    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--from-json", help="saved query result instead of the network")
+    ap.add_argument("--save-json", help="write the query result here")
+    ap.add_argument("--data-dir", default=str(DATA_DIR))
+    ap.add_argument("--no-top", action="store_true", help="skip market/new_zealand_top.json and new_zealand_used_top.json")
+    ap.add_argument("--today", help=argparse.SUPPRESS)          # tests
+    ap.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
+    ap.add_argument("--summary", default=os.environ.get("GITHUB_STEP_SUMMARY"))
+    args = ap.parse_args(argv)
 
-    # Fallback
-    if not data:
-        print("Primary source failed; trying data.govt.nz CKAN fallback …")
-        data = fetch_from_ckan(debug=args.debug)
+    today = date.fromisoformat(args.today) if args.today else datetime.now(timezone.utc).date()
+    target = args.period or default_period(today)
+    first = args.since or target
+    if month_num(first) > month_num(target):
+        raise RuntimeError(f"--since {first} is after the target {target}")
+    variants = [v.strip() for v in args.variant.split(",")] if args.variant else list(VARIANTS)
+    bad = [v for v in variants if v not in VARIANTS]
+    if bad:
+        raise RuntimeError(f"unknown variant(s) {bad}; known: {list(VARIANTS)}")
+    data_dir = Path(args.data_dir)
+    paths = {v: csv_path_for(v, data_dir) for v in variants}
+    have = {v: existing_rows(paths[v], v) for v in variants}
 
-    if not data:
-        sys.exit(
-            "ERROR: Both sources failed.\n"
-            "  – Check that transport.govt.nz is accessible from this runner.\n"
-            "  – Re-run with --debug to see raw responses.\n"
-            "  – If the /inner format changed, update FUEL_MAP or the parser."
-        )
+    # Self-throttle: every CSV has the month and the top file is current.
+    top_current = args.no_top or all(market_top.top_is_current(p, target)
+                                     for p in TOP_PATHS.values())
+    if (all(target in have[v] for v in variants) and top_current and not args.force
+            and not args.since and not args.dry_run and not args.from_json):
+        print(f"{target} already in every New Zealand CSV and the top file is current "
+              "— nothing to do")
+        return emit(args, set())
 
-    # Filter to the requested window (unless --force, keep all fetched)
-    if not args.force:
-        if args.since:
-            m = re.match(r"(\d{4})-(\d{2})", args.since)
-            if not m:
-                sys.exit("--since must be YYYY-MM")
-            cutoff = args.since
-        else:
-            total_months = prev_y * 12 + (prev_m - 1) - (args.months - 1)
-            cutoff_y, cutoff_m = total_months // 12, total_months % 12 + 1
-            cutoff = f"{cutoff_y}-{cutoff_m:02d}"
+    top_from = None if args.no_top else market_top.month_window(target)[0]
+    # The months just before the target are fetched too: they are the overlap
+    # check against rows the CSVs already hold.
+    q_first = min(first, shift_month(target, -3), key=month_num)
+    if args.from_json:
+        data = json.loads(Path(args.from_json).read_text(encoding="utf-8"))
+    else:
+        data = query_register(q_first, target, top_from)
+    if args.save_json:
+        Path(args.save_json).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
-        existing_latest = _latest_period(args.csv)
-        data = {
-            p: v for p, v in data.items()
-            if p >= cutoff
-            and (args.force or not existing_latest or p > existing_latest)
-        }
+    loaded = date.fromisoformat(data["loaded"])
+    if loaded < month_end(target):
+        msg = (f"the register snapshot (loaded {loaded}) does not cover {target} yet")
+        if today.day >= STALE_DAY and today > month_end(target):
+            raise RuntimeError(msg + f" — and it is the {today.day}th; NZTA's monthly "
+                               "refresh is late or the item moved (see the runbook)")
+        print(msg + " — nothing to do until NZTA refreshes it")
+        return emit(args, set())
 
-    if not data:
-        print("No new data to write.")
-        return
+    counts_all, unknown, status = count_months(data["fuel"])
+    if not counts_all["Whole"].get(target, {}).get("TOTAL"):
+        raise RuntimeError(f"the register has no {target} registrations in scope")
 
-    print(f"Periods to write: {sorted(data.keys())}")
-    added, updated = _upsert(args.csv, data)
-    print(f"Done. added={added}  updated={updated}  → {args.csv}")
+    report: list[str] = [f"### New Zealand — {SOURCE}",
+                         f"Service `{data.get('service')}`, data loaded {loaded}."]
+    warnings: list[str] = []
+    for p in sorted(unknown, key=month_num):
+        if month_num(first) <= month_num(p) <= month_num(target):
+            w = check_unknown(p, unknown, sum(counts_all[v].get(p, {}).get("TOTAL", 0)
+                                                for v in VARIANTS))
+            if w:
+                warnings.append(w)
+    st = status.get(target, {})
+    report.append(f"{target}: new {st.get('NEW', 0):,}, used imports {st.get('USED', 0):,}.")
+
+    changed: set[str] = set()
+    pending: list[tuple[str, dict[str, str]]] = []
+    for v in variants:
+        counts = counts_all[v]
+        months = [p for p in sorted(counts, key=month_num)
+                  if month_num(first) <= month_num(p) <= month_num(target)]
+        if target not in counts:
+            raise RuntimeError(f"{v}: the register has no {target} registrations in scope")
+        ratio = plausibility(target, counts[target]["TOTAL"], have[v])
+        if ratio is not None and not (PLAUSIBLE[0] <= ratio <= PLAUSIBLE[1]) and not args.force:
+            raise RuntimeError(f"{v} {target}: TOTAL {counts[target]['TOTAL']:,} is ×{ratio:.2f} "
+                               f"the same month a year earlier — outside {PLAUSIBLE}; "
+                               "check the register, dispatch with force if genuine")
+        report += ["", f"#### {v} — `{paths[v].name}`", "",
+                   summary_table({p: counts[p] for p in months[-13:]}), "",
+                   f"year-ago ratio {('×%.2f' % ratio) if ratio else 'n/a'}"
+                   + (f"; {len(months) - 13} earlier month(s) not shown" if len(months) > 13 else "")]
+
+        # Overlap: months the CSV already holds, register vs CSV (information).
+        overlap = [p for p in sorted(counts, key=month_num) if p in have[v]
+                   and month_num(q_first) <= month_num(p) <= month_num(target)]
+        if overlap:
+            report += ["", "Register vs CSV on months the CSV already holds "
+                       "(register − CSV; the CSV row is kept unless `force`):"]
+            for p in overlap[-13:]:
+                diff, dev = compare(counts[p], have[v][p])
+                flag = " ⚠" if abs(dev) > OVERLAP_WARN else ""
+                report.append(f"- {p} ({have[v][p]['source']}): {diff} (TOTAL {dev:+.1%}){flag}")
+                if flag:
+                    warnings.append(f"{v} {p}: register differs from the CSV by {dev:+.1%}")
+
+        updates = {}
+        for p in months:
+            notes = ""
+            if month_num(p) < month_num(shift_month(target, -2)):
+                notes = (f"register snapshot of {loaded}: vehicles deregistered "
+                         "since are missing (undercount)")
+            updates[p] = render_line(p, counts[p], notes, v)
+        pending.append((v, updates))
+
+    if args.dry_run:
+        for v, updates in pending:
+            for p in sorted(updates):
+                print(updates[p])
+        report.append("\n_dry run — nothing written_")
+    else:
+        for v, updates in pending:
+            stats = upsert_lines(paths[v], updates, args.force, v)
+            report.append(f"\n{paths[v].name}: {stats}")
+            print(f"{paths[v].name}: {stats}")
+            if stats["added"] or stats["updated"]:
+                changed.add(v)
+        if not args.no_top and data.get("models"):
+            for v in TOP_PATHS:
+                market_top.guarded(refresh_top, data, target, v)
+
+    for w in warnings:
+        print(f"::warning title=New Zealand::{w}")
+    if warnings:
+        report += ["", "**Review:**"] + [f"- {w}" for w in warnings]
+    text = "\n".join(report)
+    print(text)
+    if args.summary:
+        with open(args.summary, "a", encoding="utf-8") as fh:
+            fh.write(text + "\n")
+    return emit(args, changed)
+
+
+def emit(args, changed: set[str]) -> int:
+    if args.github_output:
+        with open(args.github_output, "a", encoding="utf-8") as f:
+            f.write(f"changed={'true' if changed else 'false'}\n")
+            f.write(f"changed_variants={json.dumps(sorted(changed))}\n")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        sys.exit(main())
+    except RuntimeError as e:
+        print(f"::error title=New Zealand fetch failed::{e}")
+        sys.exit(1)
