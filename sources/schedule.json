@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T09:59:45Z",
+ "generated": "2026-10-10T10:03:38Z",
  "today": "2026-10-10",
  "countries": [
   {
@@ -1462,7 +1462,7 @@
     ],
     "workflow": ".github/workflows/fetch-georgia.yml"
    },
-   "last_render": "2026-07-25",
+   "last_render": "2026-10-10",
    "flag": "🇬🇪",
    "variants": [
     {
@@ -2854,20 +2854,22 @@
   {
    "country": "New Zealand",
    "slug": "new-zealand",
-   "method": "manual",
-   "source_name": "transport.govt.nz — fleet statistics",
-   "source_url": "https://www.transport.govt.nz/statistics-and-insights/fleet-statistics/",
-   "cadence_text": "entered by hand once the Ministry publishes, usually the 5th–10th of the following month",
+   "method": "api",
+   "source_name": "NZTA Waka Kotahi — Motor Vehicle Register (open data)",
+   "source_url": "https://opendata-nzta.opendata.arcgis.com/datasets/NZTA::motor-vehicle-register-1/about",
+   "cadence_text": "twice daily on the 3rd–20th, 04:55 and 18:55 UTC — NZTA reloads the register once a month, accurate to the end of the previous month (September 2026 was loaded on 6 October)",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": null,
-   "behind": null,
+   "expected_period": "2026-09",
+   "behind": 0,
    "behind_now": 0,
-   "status": "manual",
-   "automated": false,
+   "status": "current",
+   "automated": true,
    "schedule": {
-    "enabled": false,
+    "enabled": true,
     "days": [
+     3,
+     4,
      5,
      6,
      7,
@@ -2875,7 +2877,15 @@
      9,
      10,
      11,
-     12
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
     ],
     "months": [
      1,
@@ -2892,8 +2902,8 @@
      12
     ],
     "times": [
-     "06:00",
-     "14:00"
+     "04:55",
+     "18:55"
     ],
     "workflow": ".github/workflows/fetch-new-zealand.yml"
    },
@@ -2905,6 +2915,30 @@
      "latest": "2026-09",
      "first": "2012-01",
      "rows": 177,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2960,7 +2994,7 @@
     ],
     "workflow": ".github/workflows/fetch-norway.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-10",
    "flag": "🇳🇴",
    "variants": [
     {

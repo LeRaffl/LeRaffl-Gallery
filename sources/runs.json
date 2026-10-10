@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T09:59:45Z",
+ "generated": "2026-10-10T10:03:38Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5640,6 +5640,22 @@
    "slug": "denmark_vans",
    "period": "2026-09",
    "flag": "🇩🇰"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Georgia",
+   "base": "Georgia",
+   "slug": "georgia",
+   "period": "2026-06",
+   "flag": "🇬🇪"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Norway",
+   "base": "Norway",
+   "slug": "norway",
+   "period": "2026-09",
+   "flag": "🇳🇴"
   }
  ]
 }
