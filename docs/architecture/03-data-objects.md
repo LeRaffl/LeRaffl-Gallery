@@ -132,7 +132,7 @@ Some sources use non-canonical column names. The Excel→CSV extraction normalis
 | `OTHER` | `OTHERS` | Malta |
 | `HYBRIDS` | `HEV` | Türkiye (single hybrid bucket) |
 | `Hybrid` | `HEV` | Georgia (single hybrid bucket) |
-| `PETROL-GAS` | `PETROL` | Georgia (treated as ICE/petrol per maintainer convention) |
+| `Gasoline-gas` | `PETROL` | Georgia (petrol converted to LPG/CNG; treated as ICE/petrol per maintainer convention — `scripts/fetch_georgia.py`) |
 | `Benzine` | `PETROL` | Netherlands |
 | `Overig` + `FCEV` | `OTHERS` | Netherlands (FCEV folded — single-digit units/month) |
 
@@ -690,6 +690,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Ireland | `fetch_ireland.py` | SIMI dashboard `carsByMake` / `carsByModel` per month, one `engine_types` filter per class (BEV, PHEV, HEV); unlisted makes/models = unranked rest | after a Whole update or when the top file lags — ~50 filter round-trips |
 | Austria | `fetch_austria.py` | DE2 Tabelle 7 (month) / Tabelle 14 (January to date) — top 10 BEV makes and types + "Sonstige"; **BEV only**, headline year-to-date | with the Whole parse of the newest DE2 file |
 | UK | `fetch_uk.py` | SMMT vehicle-data page (`/vehicle-data/car-registrations/`): marque table (month + year-to-date; "Other British" / "Other Imports" = unranked rest, "Grand Total" must equal the fuel table's TOTAL) and SMMT's top-10 models; class `ALL` (every powertrain — SMMT's brand table has no fuel split). Headline = January → newest month from SMMT's own year-to-date tables (exact, as for Austria) | every real run, from the data page (which only ever shows the newest month) → month store `market/uk_months.json` (brand rows with model "", model rows with a model; `splice_models`) |
+| Georgia | `fetch_georgia.py` | Geostat portal API `mobile/treemap` (period switch "during the period") — brand → model counts per quarter, top 25 brands and their top models, `დანარჩენი` ("others") = unranked rest; **every powertrain and every vehicle category in one class `ALL`** (Geostat has no brand × fuel table), new and imported used; the last four quarters summed, `window` set to their twelve months, an extra `quarters` key | when the newest published quarter changes — four treemap requests |
 | Japan | `fetch_japan.py` | JADA maker rows of the 燃料別メーカー別登録台数 workbook — **brands only**, imports lumped into one row, kei cars excluded like the CSV | whenever the workbook is downloaded (also when only the top file lags); 4 months per file → month store |
 | Singapore | `fetch_singapore.py` | LTA M03 row label `Make Importer Fuel` — **brands only**; AD and PI rows of a make are added; an unknown importer part stops the refresh | every real run; the PDF holds the current half-year → month store |
 | Uruguay | `fetch_uruguay.py` | ACAU Compilado `Marca` / `Modelo` columns, AUTOS + SUV; MHEV ranked as its own class (OTHERS in the CSV); columns found by header name, never guessed | whenever the workbook is downloaded; one calendar year per file → month store |
