@@ -1,11 +1,11 @@
 🇪🇨 Ecuador - September 26 - BEV Trajectory
-15.6% BEV
-6.8% PHEV (of which 0.4%p were EREV)
-77.6% ICE (of which 22.0%p were HEV)
+15.5% BEV
+6.1% PHEV (of which 0.3%p were EREV)
+78.4% ICE (of which 20.6%p were HEV)
 
 Trailing 12 months are:
-10.8% BEV
-5.3% PHEV (of which 0.4%p were EREV)
-84.0% ICE (of which 20.4%p were HEV)
+10.9% BEV
+5.2% PHEV (of which 0.4%p were EREV)
+83.9% ICE (of which 20.3%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

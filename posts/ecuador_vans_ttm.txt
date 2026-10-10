@@ -1,11 +1,11 @@
 🇪🇨 Ecuador (Vans) - TTM Market Split
 
 Oct24–Sep25  vs  Oct25–Sep26
-+0.1pp  BEV   (0.3% → 0.4%)
-+0.7pp  PHEV  (0.4% → 1.1%)
++0.2pp  BEV   (0.3% → 0.4%)
++0.7pp  PHEV  (0.4% → 1.2%)
 +0.4pp  HEV   (2.6% → 3.0%)
-−1.2pp  ICE   (96.7% → 95.5%)
+−1.3pp  ICE   (96.7% → 95.4%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2035-04.
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2034-10.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

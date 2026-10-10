@@ -1,12 +1,12 @@
 🇪🇨 Ecuador - TTM Market Split
 
 Oct24–Sep25  vs  Oct25–Sep26
-+6.7pp  BEV   (4.1% → 10.8%)
-+3.0pp  PHEV  (1.9% → 4.9%)
-+1.7pp  HEV   (18.7% → 20.4%)
++6.8pp  BEV   (4.1% → 10.9%)
++2.9pp  PHEV  (1.9% → 4.9%)
++1.6pp  HEV   (18.7% → 20.3%)
 −11.3pp  ICE   (75.2% → 63.9%)
 
-If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2028-05.
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-11.
+If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2028-03.
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-10.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
