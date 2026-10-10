@@ -736,6 +736,70 @@
      "share_of_class": 0.0148
     }
    ]
+  },
+  "DIESEL": {
+   "units": 58,
+   "share_of_market": 0.00139,
+   "brands": [
+    {
+     "brand": "PEUGEOT",
+     "units": 30,
+     "share_of_class": 0.5172
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 14,
+     "share_of_class": 0.2414
+    },
+    {
+     "brand": "CITROEN",
+     "units": 13,
+     "share_of_class": 0.2241
+    },
+    {
+     "brand": "BMW",
+     "units": 1,
+     "share_of_class": 0.0172
+    }
+   ],
+   "models": [
+    {
+     "brand": "PEUGEOT",
+     "model": "301 N1 1.6HDI BM5",
+     "units": 29,
+     "share_of_class": 0.5
+    },
+    {
+     "brand": "CITROEN",
+     "model": "BERLINGO PLUS L2 1.6D MT",
+     "units": 13,
+     "share_of_class": 0.2241
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "TUCSON DIESEL SAFE",
+     "units": 10,
+     "share_of_class": 0.1724
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "TUCSON DIESEL LIMITED",
+     "units": 4,
+     "share_of_class": 0.069
+    },
+    {
+     "brand": "BMW",
+     "model": "X5 XDRIVE30D",
+     "units": 1,
+     "share_of_class": 0.0172
+    },
+    {
+     "brand": "PEUGEOT",
+     "model": "RIFTER N1 16H B5",
+     "units": 1,
+     "share_of_class": 0.0172
+    }
+   ]
   }
  },
  "months": [
