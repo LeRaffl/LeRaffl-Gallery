@@ -1,4 +1,5 @@
 {
+ "schema": 3,
  "country": "Lithuania",
  "variant": "Whole",
  "source": "Regitra open register",
@@ -454,6 +455,302 @@
      "share_of_class": 0.0162
     }
    ]
+  },
+  "PETROL": {
+   "units": 6105,
+   "share_of_market": 0.16468,
+   "brands": [
+    {
+     "brand": "SKODA",
+     "units": 2074,
+     "share_of_class": 0.3397
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 787,
+     "share_of_class": 0.1289
+    },
+    {
+     "brand": "KIA",
+     "units": 767,
+     "share_of_class": 0.1256
+    },
+    {
+     "brand": "AUDI",
+     "units": 515,
+     "share_of_class": 0.0844
+    },
+    {
+     "brand": "CUPRA",
+     "units": 366,
+     "share_of_class": 0.06
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 271,
+     "share_of_class": 0.0444
+    },
+    {
+     "brand": "BMW",
+     "units": 234,
+     "share_of_class": 0.0383
+    },
+    {
+     "brand": "SUBARU",
+     "units": 171,
+     "share_of_class": 0.028
+    },
+    {
+     "brand": "FORD",
+     "units": 169,
+     "share_of_class": 0.0277
+    },
+    {
+     "brand": "PORSCHE",
+     "units": 133,
+     "share_of_class": 0.0218
+    }
+   ],
+   "models": [
+    {
+     "brand": "SKODA",
+     "model": "KAMIQ",
+     "units": 559,
+     "share_of_class": 0.0916
+    },
+    {
+     "brand": "KIA",
+     "model": "SPORTAGE",
+     "units": 480,
+     "share_of_class": 0.0786
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "T ROC",
+     "units": 452,
+     "share_of_class": 0.074
+    },
+    {
+     "brand": "SKODA",
+     "model": "KAROQ",
+     "units": 381,
+     "share_of_class": 0.0624
+    },
+    {
+     "brand": "SKODA",
+     "model": "FABIA",
+     "units": 349,
+     "share_of_class": 0.0572
+    },
+    {
+     "brand": "SKODA",
+     "model": "KODIAQ",
+     "units": 327,
+     "share_of_class": 0.0536
+    },
+    {
+     "brand": "AUDI",
+     "model": "Q3",
+     "units": 320,
+     "share_of_class": 0.0524
+    },
+    {
+     "brand": "SKODA",
+     "model": "SCALA",
+     "units": 176,
+     "share_of_class": 0.0288
+    },
+    {
+     "brand": "SUBARU",
+     "model": "OUTBACK",
+     "units": 165,
+     "share_of_class": 0.027
+    },
+    {
+     "brand": "BMW",
+     "model": "X1",
+     "units": 164,
+     "share_of_class": 0.0269
+    },
+    {
+     "brand": "AUDI",
+     "model": "A5",
+     "units": 159,
+     "share_of_class": 0.026
+    },
+    {
+     "brand": "FORD",
+     "model": "TOURNEO COURIER",
+     "units": 152,
+     "share_of_class": 0.0249
+    },
+    {
+     "brand": "CUPRA",
+     "model": "TERRAMAR",
+     "units": 149,
+     "share_of_class": 0.0244
+    },
+    {
+     "brand": "SKODA",
+     "model": "OCTAVIA RS",
+     "units": 136,
+     "share_of_class": 0.0223
+    },
+    {
+     "brand": "CUPRA",
+     "model": "FORMENTOR",
+     "units": 121,
+     "share_of_class": 0.0198
+    }
+   ]
+  },
+  "DIESEL": {
+   "units": 3571,
+   "share_of_market": 0.09632,
+   "brands": [
+    {
+     "brand": "VOLKSWAGEN",
+     "units": 894,
+     "share_of_class": 0.2504
+    },
+    {
+     "brand": "SKODA",
+     "units": 767,
+     "share_of_class": 0.2148
+    },
+    {
+     "brand": "PEUGEOT",
+     "units": 447,
+     "share_of_class": 0.1252
+    },
+    {
+     "brand": "RENAULT",
+     "units": 316,
+     "share_of_class": 0.0885
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 305,
+     "share_of_class": 0.0854
+    },
+    {
+     "brand": "FORD",
+     "units": 232,
+     "share_of_class": 0.065
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "units": 230,
+     "share_of_class": 0.0644
+    },
+    {
+     "brand": "CITROEN",
+     "units": 193,
+     "share_of_class": 0.054
+    },
+    {
+     "brand": "OPEL",
+     "units": 66,
+     "share_of_class": 0.0185
+    },
+    {
+     "brand": "GIOTTILINE",
+     "units": 11,
+     "share_of_class": 0.0031
+    }
+   ],
+   "models": [
+    {
+     "brand": "SKODA",
+     "model": "OCTAVIA",
+     "units": 452,
+     "share_of_class": 0.1266
+    },
+    {
+     "brand": "RENAULT",
+     "model": "TRAFIC",
+     "units": 278,
+     "share_of_class": 0.0778
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "TIGUAN",
+     "units": 250,
+     "share_of_class": 0.07
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "TRANSPORTER",
+     "units": 243,
+     "share_of_class": 0.068
+    },
+    {
+     "brand": "PEUGEOT",
+     "model": "308",
+     "units": 237,
+     "share_of_class": 0.0664
+    },
+    {
+     "brand": "SKODA",
+     "model": "KODIAQ",
+     "units": 231,
+     "share_of_class": 0.0647
+    },
+    {
+     "brand": "PEUGEOT",
+     "model": "TRAVELLER",
+     "units": 200,
+     "share_of_class": 0.056
+    },
+    {
+     "brand": "FORD",
+     "model": "TRANSIT CUSTOM",
+     "units": 166,
+     "share_of_class": 0.0465
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "PROACE CITY VERSO",
+     "units": 143,
+     "share_of_class": 0.04
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "TOUAREG",
+     "units": 136,
+     "share_of_class": 0.0381
+    },
+    {
+     "brand": "CITROEN",
+     "model": "SPACETOURER",
+     "units": 110,
+     "share_of_class": 0.0308
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "PROACE",
+     "units": 110,
+     "share_of_class": 0.0308
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "V-KLASSE",
+     "units": 96,
+     "share_of_class": 0.0269
+    },
+    {
+     "brand": "MERCEDES-BENZ",
+     "model": "SPRINTER",
+     "units": 76,
+     "share_of_class": 0.0213
+    },
+    {
+     "brand": "VOLKSWAGEN",
+     "model": "TAYRON",
+     "units": 59,
+     "share_of_class": 0.0165
+    }
+   ]
   }
  },
  "months": [
@@ -812,6 +1109,242 @@
        "model": "C5 AIRCROSS",
        "units": 75,
        "share_of_class": 0.0271
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 734,
+     "share_of_market": 0.15257,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 322,
+       "share_of_class": 0.4387
+      },
+      {
+       "brand": "KIA",
+       "units": 133,
+       "share_of_class": 0.1812
+      },
+      {
+       "brand": "CUPRA",
+       "units": 49,
+       "share_of_class": 0.0668
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 43,
+       "share_of_class": 0.0586
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 41,
+       "share_of_class": 0.0559
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 25,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "FORD",
+       "units": 20,
+       "share_of_class": 0.0272
+      },
+      {
+       "brand": "AUDI",
+       "units": 18,
+       "share_of_class": 0.0245
+      },
+      {
+       "brand": "BMW",
+       "units": 16,
+       "share_of_class": 0.0218
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 14,
+       "share_of_class": 0.0191
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 80,
+       "share_of_class": 0.109
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 76,
+       "share_of_class": 0.1035
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA RS",
+       "units": 72,
+       "share_of_class": 0.0981
+      },
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 68,
+       "share_of_class": 0.0926
+      },
+      {
+       "brand": "KIA",
+       "model": "STONIC",
+       "units": 44,
+       "share_of_class": 0.0599
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 42,
+       "share_of_class": 0.0572
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 40,
+       "share_of_class": 0.0545
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON",
+       "units": 32,
+       "share_of_class": 0.0436
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 30,
+       "share_of_class": 0.0409
+      },
+      {
+       "brand": "CUPRA",
+       "model": "LEON SP",
+       "units": 29,
+       "share_of_class": 0.0395
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 372,
+     "share_of_market": 0.07732,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 133,
+       "share_of_class": 0.3575
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 53,
+       "share_of_class": 0.1425
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 44,
+       "share_of_class": 0.1183
+      },
+      {
+       "brand": "RENAULT",
+       "units": 33,
+       "share_of_class": 0.0887
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 25,
+       "share_of_class": 0.0672
+      },
+      {
+       "brand": "FORD",
+       "units": 21,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "CITROEN",
+       "units": 19,
+       "share_of_class": 0.0511
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 19,
+       "share_of_class": 0.0511
+      },
+      {
+       "brand": "OPEL",
+       "units": 11,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "BENIMAR",
+       "units": 3,
+       "share_of_class": 0.0081
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 110,
+       "share_of_class": 0.2957
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "308",
+       "units": 30,
+       "share_of_class": 0.0806
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 29,
+       "share_of_class": 0.078
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 17,
+       "share_of_class": 0.0457
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TAYRON",
+       "units": 16,
+       "share_of_class": 0.043
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 15,
+       "share_of_class": 0.0403
+      },
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 14,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 14,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 14,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO",
+       "units": 13,
+       "share_of_class": 0.0349
       }
      ]
     }
@@ -1174,6 +1707,242 @@
        "share_of_class": 0.0233
       }
      ]
+    },
+    "PETROL": {
+     "units": 549,
+     "share_of_market": 0.12008,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 165,
+       "share_of_class": 0.3005
+      },
+      {
+       "brand": "KIA",
+       "units": 90,
+       "share_of_class": 0.1639
+      },
+      {
+       "brand": "CUPRA",
+       "units": 87,
+       "share_of_class": 0.1585
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 31,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "DACIA",
+       "units": 27,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 27,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 24,
+       "share_of_class": 0.0437
+      },
+      {
+       "brand": "BMW",
+       "units": 21,
+       "share_of_class": 0.0383
+      },
+      {
+       "brand": "AUDI",
+       "units": 13,
+       "share_of_class": 0.0237
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 13,
+       "share_of_class": 0.0237
+      }
+     ],
+     "models": [
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 80,
+       "share_of_class": 0.1457
+      },
+      {
+       "brand": "CUPRA",
+       "model": "LEON SP",
+       "units": 60,
+       "share_of_class": 0.1093
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 42,
+       "share_of_class": 0.0765
+      },
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 32,
+       "share_of_class": 0.0583
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 31,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 31,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "DACIA",
+       "model": "SANDERO",
+       "units": 27,
+       "share_of_class": 0.0492
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 22,
+       "share_of_class": 0.0401
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA RS",
+       "units": 22,
+       "share_of_class": 0.0401
+      },
+      {
+       "brand": "CUPRA",
+       "model": "FORMENTOR",
+       "units": 16,
+       "share_of_class": 0.0291
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 662,
+     "share_of_market": 0.14479,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 228,
+       "share_of_class": 0.3444
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 194,
+       "share_of_class": 0.2931
+      },
+      {
+       "brand": "SKODA",
+       "units": 98,
+       "share_of_class": 0.148
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 34,
+       "share_of_class": 0.0514
+      },
+      {
+       "brand": "FORD",
+       "units": 27,
+       "share_of_class": 0.0408
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 25,
+       "share_of_class": 0.0378
+      },
+      {
+       "brand": "RENAULT",
+       "units": 18,
+       "share_of_class": 0.0272
+      },
+      {
+       "brand": "CITROEN",
+       "units": 13,
+       "share_of_class": 0.0196
+      },
+      {
+       "brand": "OPEL",
+       "units": 9,
+       "share_of_class": 0.0136
+      },
+      {
+       "brand": "AUDI",
+       "units": 3,
+       "share_of_class": 0.0045
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "308",
+       "units": 124,
+       "share_of_class": 0.1873
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 110,
+       "share_of_class": 0.1662
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 80,
+       "share_of_class": 0.1208
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 70,
+       "share_of_class": 0.1057
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TRANSPORTER",
+       "units": 55,
+       "share_of_class": 0.0831
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 21,
+       "share_of_class": 0.0317
+      },
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 19,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 19,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 17,
+       "share_of_class": 0.0257
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 15,
+       "share_of_class": 0.0227
+      }
+     ]
     }
    }
   },
@@ -1532,6 +2301,242 @@
        "model": "3008",
        "units": 49,
        "share_of_class": 0.0235
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 578,
+     "share_of_market": 0.15207,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 205,
+       "share_of_class": 0.3547
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 94,
+       "share_of_class": 0.1626
+      },
+      {
+       "brand": "KIA",
+       "units": 75,
+       "share_of_class": 0.1298
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 45,
+       "share_of_class": 0.0779
+      },
+      {
+       "brand": "DACIA",
+       "units": 29,
+       "share_of_class": 0.0502
+      },
+      {
+       "brand": "CUPRA",
+       "units": 22,
+       "share_of_class": 0.0381
+      },
+      {
+       "brand": "NISSAN",
+       "units": 20,
+       "share_of_class": 0.0346
+      },
+      {
+       "brand": "FORD",
+       "units": 19,
+       "share_of_class": 0.0329
+      },
+      {
+       "brand": "BMW",
+       "units": 15,
+       "share_of_class": 0.026
+      },
+      {
+       "brand": "SUBARU",
+       "units": 15,
+       "share_of_class": 0.026
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 74,
+       "share_of_class": 0.128
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 56,
+       "share_of_class": 0.0969
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "I 30",
+       "units": 35,
+       "share_of_class": 0.0606
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 33,
+       "share_of_class": 0.0571
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON",
+       "units": 32,
+       "share_of_class": 0.0554
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 32,
+       "share_of_class": 0.0554
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 31,
+       "share_of_class": 0.0536
+      },
+      {
+       "brand": "DACIA",
+       "model": "SANDERO",
+       "units": 29,
+       "share_of_class": 0.0502
+      },
+      {
+       "brand": "FORD",
+       "model": "TOURNEO COURIER",
+       "units": 18,
+       "share_of_class": 0.0311
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "TUCSON.IX35",
+       "units": 18,
+       "share_of_class": 0.0311
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 374,
+     "share_of_market": 0.0984,
+     "brands": [
+      {
+       "brand": "PEUGEOT",
+       "units": 104,
+       "share_of_class": 0.2781
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 96,
+       "share_of_class": 0.2567
+      },
+      {
+       "brand": "SKODA",
+       "units": 67,
+       "share_of_class": 0.1791
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 38,
+       "share_of_class": 0.1016
+      },
+      {
+       "brand": "RENAULT",
+       "units": 26,
+       "share_of_class": 0.0695
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 13,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "FORD",
+       "units": 9,
+       "share_of_class": 0.0241
+      },
+      {
+       "brand": "GIOTTILINE",
+       "units": 4,
+       "share_of_class": 0.0107
+      },
+      {
+       "brand": "RIMOR",
+       "units": 4,
+       "share_of_class": 0.0107
+      },
+      {
+       "brand": "CITROEN",
+       "units": 3,
+       "share_of_class": 0.008
+      }
+     ],
+     "models": [
+      {
+       "brand": "PEUGEOT",
+       "model": "308",
+       "units": 81,
+       "share_of_class": 0.2166
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TRANSPORTER",
+       "units": 50,
+       "share_of_class": 0.1337
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 44,
+       "share_of_class": 0.1176
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE",
+       "units": 34,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 23,
+       "share_of_class": 0.0615
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 23,
+       "share_of_class": 0.0615
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 16,
+       "share_of_class": 0.0428
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CARAVELLE",
+       "units": 16,
+       "share_of_class": 0.0428
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 9,
+       "share_of_class": 0.0241
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 8,
+       "share_of_class": 0.0214
       }
      ]
     }
@@ -1894,6 +2899,242 @@
        "share_of_class": 0.0376
       }
      ]
+    },
+    "PETROL": {
+     "units": 363,
+     "share_of_market": 0.15131,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 105,
+       "share_of_class": 0.2893
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 68,
+       "share_of_class": 0.1873
+      },
+      {
+       "brand": "KIA",
+       "units": 57,
+       "share_of_class": 0.157
+      },
+      {
+       "brand": "CUPRA",
+       "units": 32,
+       "share_of_class": 0.0882
+      },
+      {
+       "brand": "SUBARU",
+       "units": 20,
+       "share_of_class": 0.0551
+      },
+      {
+       "brand": "FORD",
+       "units": 19,
+       "share_of_class": 0.0523
+      },
+      {
+       "brand": "BMW",
+       "units": 12,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "AUDI",
+       "units": 11,
+       "share_of_class": 0.0303
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 9,
+       "share_of_class": 0.0248
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 9,
+       "share_of_class": 0.0248
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 46,
+       "share_of_class": 0.1267
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 41,
+       "share_of_class": 0.1129
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 33,
+       "share_of_class": 0.0909
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 27,
+       "share_of_class": 0.0744
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 20,
+       "share_of_class": 0.0551
+      },
+      {
+       "brand": "FORD",
+       "model": "TOURNEO COURIER",
+       "units": 18,
+       "share_of_class": 0.0496
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 18,
+       "share_of_class": 0.0496
+      },
+      {
+       "brand": "CUPRA",
+       "model": "TERRAMAR",
+       "units": 16,
+       "share_of_class": 0.0441
+      },
+      {
+       "brand": "CUPRA",
+       "model": "FORMENTOR",
+       "units": 15,
+       "share_of_class": 0.0413
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T CROSS",
+       "units": 11,
+       "share_of_class": 0.0303
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 223,
+     "share_of_market": 0.09296,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 66,
+       "share_of_class": 0.296
+      },
+      {
+       "brand": "SKODA",
+       "units": 50,
+       "share_of_class": 0.2242
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 29,
+       "share_of_class": 0.13
+      },
+      {
+       "brand": "RENAULT",
+       "units": 17,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 17,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "CITROEN",
+       "units": 10,
+       "share_of_class": 0.0448
+      },
+      {
+       "brand": "FORD",
+       "units": 10,
+       "share_of_class": 0.0448
+      },
+      {
+       "brand": "OPEL",
+       "units": 7,
+       "share_of_class": 0.0314
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 5,
+       "share_of_class": 0.0224
+      },
+      {
+       "brand": "ADRIA",
+       "units": 3,
+       "share_of_class": 0.0135
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TRANSPORTER",
+       "units": 29,
+       "share_of_class": 0.13
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 24,
+       "share_of_class": 0.1076
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 23,
+       "share_of_class": 0.1031
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "SPRINTER",
+       "units": 17,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 17,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 17,
+       "share_of_class": 0.0762
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 15,
+       "share_of_class": 0.0673
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO",
+       "units": 8,
+       "share_of_class": 0.0359
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CARAVELLE",
+       "units": 8,
+       "share_of_class": 0.0359
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 7,
+       "share_of_class": 0.0314
+      }
+     ]
     }
    }
   },
@@ -2252,6 +3493,242 @@
        "model": "YARIS",
        "units": 21,
        "share_of_class": 0.0198
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 398,
+     "share_of_market": 0.16439,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 129,
+       "share_of_class": 0.3241
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 56,
+       "share_of_class": 0.1407
+      },
+      {
+       "brand": "KIA",
+       "units": 52,
+       "share_of_class": 0.1307
+      },
+      {
+       "brand": "BMW",
+       "units": 35,
+       "share_of_class": 0.0879
+      },
+      {
+       "brand": "CUPRA",
+       "units": 32,
+       "share_of_class": 0.0804
+      },
+      {
+       "brand": "AUDI",
+       "units": 23,
+       "share_of_class": 0.0578
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 14,
+       "share_of_class": 0.0352
+      },
+      {
+       "brand": "SUBARU",
+       "units": 14,
+       "share_of_class": 0.0352
+      },
+      {
+       "brand": "FORD",
+       "units": 7,
+       "share_of_class": 0.0176
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 6,
+       "share_of_class": 0.0151
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 46,
+       "share_of_class": 0.1156
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 45,
+       "share_of_class": 0.1131
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 43,
+       "share_of_class": 0.108
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 32,
+       "share_of_class": 0.0804
+      },
+      {
+       "brand": "BMW",
+       "model": "X1",
+       "units": 29,
+       "share_of_class": 0.0729
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 26,
+       "share_of_class": 0.0653
+      },
+      {
+       "brand": "CUPRA",
+       "model": "FORMENTOR",
+       "units": 16,
+       "share_of_class": 0.0402
+      },
+      {
+       "brand": "AUDI",
+       "model": "A5",
+       "units": 15,
+       "share_of_class": 0.0377
+      },
+      {
+       "brand": "CUPRA",
+       "model": "TERRAMAR",
+       "units": 15,
+       "share_of_class": 0.0377
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 14,
+       "share_of_class": 0.0352
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 285,
+     "share_of_market": 0.11772,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 90,
+       "share_of_class": 0.3158
+      },
+      {
+       "brand": "SKODA",
+       "units": 67,
+       "share_of_class": 0.2351
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 35,
+       "share_of_class": 0.1228
+      },
+      {
+       "brand": "RENAULT",
+       "units": 30,
+       "share_of_class": 0.1053
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 23,
+       "share_of_class": 0.0807
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 16,
+       "share_of_class": 0.0561
+      },
+      {
+       "brand": "FORD",
+       "units": 11,
+       "share_of_class": 0.0386
+      },
+      {
+       "brand": "CITROEN",
+       "units": 3,
+       "share_of_class": 0.0105
+      },
+      {
+       "brand": "BMW",
+       "units": 2,
+       "share_of_class": 0.007
+      },
+      {
+       "brand": "ITINEO",
+       "units": 1,
+       "share_of_class": 0.0035
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TRANSPORTER",
+       "units": 39,
+       "share_of_class": 0.1368
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 31,
+       "share_of_class": 0.1088
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 30,
+       "share_of_class": 0.1053
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 28,
+       "share_of_class": 0.0982
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 24,
+       "share_of_class": 0.0842
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 23,
+       "share_of_class": 0.0807
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "SPRINTER",
+       "units": 15,
+       "share_of_class": 0.0526
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 12,
+       "share_of_class": 0.0421
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 11,
+       "share_of_class": 0.0386
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "CITAN",
+       "units": 9,
+       "share_of_class": 0.0316
       }
      ]
     }
@@ -2614,6 +4091,242 @@
        "share_of_class": 0.0226
       }
      ]
+    },
+    "PETROL": {
+     "units": 398,
+     "share_of_market": 0.15474,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 162,
+       "share_of_class": 0.407
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 43,
+       "share_of_class": 0.108
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 33,
+       "share_of_class": 0.0829
+      },
+      {
+       "brand": "KIA",
+       "units": 32,
+       "share_of_class": 0.0804
+      },
+      {
+       "brand": "AUDI",
+       "units": 28,
+       "share_of_class": 0.0704
+      },
+      {
+       "brand": "CUPRA",
+       "units": 20,
+       "share_of_class": 0.0503
+      },
+      {
+       "brand": "BMW",
+       "units": 19,
+       "share_of_class": 0.0477
+      },
+      {
+       "brand": "SUBARU",
+       "units": 19,
+       "share_of_class": 0.0477
+      },
+      {
+       "brand": "RENAULT",
+       "units": 17,
+       "share_of_class": 0.0427
+      },
+      {
+       "brand": "FORD",
+       "units": 9,
+       "share_of_class": 0.0226
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 64,
+       "share_of_class": 0.1608
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 36,
+       "share_of_class": 0.0905
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 25,
+       "share_of_class": 0.0628
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 23,
+       "share_of_class": 0.0578
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 20,
+       "share_of_class": 0.0503
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 19,
+       "share_of_class": 0.0477
+      },
+      {
+       "brand": "RENAULT",
+       "model": "CLIO",
+       "units": 17,
+       "share_of_class": 0.0427
+      },
+      {
+       "brand": "AUDI",
+       "model": "A5",
+       "units": 16,
+       "share_of_class": 0.0402
+      },
+      {
+       "brand": "BMW",
+       "model": "X1",
+       "units": 16,
+       "share_of_class": 0.0402
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 16,
+       "share_of_class": 0.0402
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 273,
+     "share_of_market": 0.10614,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 121,
+       "share_of_class": 0.4432
+      },
+      {
+       "brand": "SKODA",
+       "units": 36,
+       "share_of_class": 0.1319
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 35,
+       "share_of_class": 0.1282
+      },
+      {
+       "brand": "CITROEN",
+       "units": 26,
+       "share_of_class": 0.0952
+      },
+      {
+       "brand": "RENAULT",
+       "units": 26,
+       "share_of_class": 0.0952
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 14,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 10,
+       "share_of_class": 0.0366
+      },
+      {
+       "brand": "FORD",
+       "units": 2,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "AUDI",
+       "units": 1,
+       "share_of_class": 0.0037
+      },
+      {
+       "brand": "OPEL",
+       "units": 1,
+       "share_of_class": 0.0037
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TRANSPORTER",
+       "units": 70,
+       "share_of_class": 0.2564
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 30,
+       "share_of_class": 0.1099
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 25,
+       "share_of_class": 0.0916
+      },
+      {
+       "brand": "CITROEN",
+       "model": "SPACETOURER",
+       "units": 23,
+       "share_of_class": 0.0842
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 20,
+       "share_of_class": 0.0733
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 16,
+       "share_of_class": 0.0586
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 15,
+       "share_of_class": 0.0549
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 12,
+       "share_of_class": 0.044
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CARAVELLE",
+       "units": 11,
+       "share_of_class": 0.0403
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 9,
+       "share_of_class": 0.033
+      }
+     ]
     }
    }
   },
@@ -2972,6 +4685,242 @@
        "model": "TIGUAN",
        "units": 37,
        "share_of_class": 0.0279
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 461,
+     "share_of_market": 0.16697,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 108,
+       "share_of_class": 0.2343
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 91,
+       "share_of_class": 0.1974
+      },
+      {
+       "brand": "AUDI",
+       "units": 60,
+       "share_of_class": 0.1302
+      },
+      {
+       "brand": "RENAULT",
+       "units": 57,
+       "share_of_class": 0.1236
+      },
+      {
+       "brand": "KIA",
+       "units": 39,
+       "share_of_class": 0.0846
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 19,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "BMW",
+       "units": 15,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "CUPRA",
+       "units": 15,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "SUBARU",
+       "units": 15,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "FORD",
+       "units": 11,
+       "share_of_class": 0.0239
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 63,
+       "share_of_class": 0.1367
+      },
+      {
+       "brand": "RENAULT",
+       "model": "CLIO",
+       "units": 56,
+       "share_of_class": 0.1215
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 43,
+       "share_of_class": 0.0933
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 34,
+       "share_of_class": 0.0738
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 25,
+       "share_of_class": 0.0542
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 23,
+       "share_of_class": 0.0499
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 19,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "AUDI",
+       "model": "A5",
+       "units": 15,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 15,
+       "share_of_class": 0.0325
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 14,
+       "share_of_class": 0.0304
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 234,
+     "share_of_market": 0.08475,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 52,
+       "share_of_class": 0.2222
+      },
+      {
+       "brand": "RENAULT",
+       "units": 51,
+       "share_of_class": 0.2179
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 51,
+       "share_of_class": 0.2179
+      },
+      {
+       "brand": "CITROEN",
+       "units": 33,
+       "share_of_class": 0.141
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 12,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 12,
+       "share_of_class": 0.0513
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 9,
+       "share_of_class": 0.0385
+      },
+      {
+       "brand": "SSANGYONG",
+       "units": 7,
+       "share_of_class": 0.0299
+      },
+      {
+       "brand": "FORD",
+       "units": 2,
+       "share_of_class": 0.0085
+      },
+      {
+       "brand": "AUDI",
+       "units": 1,
+       "share_of_class": 0.0043
+      }
+     ],
+     "models": [
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 50,
+       "share_of_class": 0.2137
+      },
+      {
+       "brand": "CITROEN",
+       "model": "SPACETOURER",
+       "units": 28,
+       "share_of_class": 0.1197
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 22,
+       "share_of_class": 0.094
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 18,
+       "share_of_class": 0.0769
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 13,
+       "share_of_class": 0.0556
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 9,
+       "share_of_class": 0.0385
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CADDY",
+       "units": 8,
+       "share_of_class": 0.0342
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CRAFTER",
+       "units": 8,
+       "share_of_class": 0.0342
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 8,
+       "share_of_class": 0.0342
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 7,
+       "share_of_class": 0.0299
       }
      ]
     }
@@ -3334,6 +5283,242 @@
        "share_of_class": 0.0223
       }
      ]
+    },
+    "PETROL": {
+     "units": 616,
+     "share_of_market": 0.20283,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 171,
+       "share_of_class": 0.2776
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 147,
+       "share_of_class": 0.2386
+      },
+      {
+       "brand": "AUDI",
+       "units": 90,
+       "share_of_class": 0.1461
+      },
+      {
+       "brand": "KIA",
+       "units": 69,
+       "share_of_class": 0.112
+      },
+      {
+       "brand": "CUPRA",
+       "units": 25,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "FORD",
+       "units": 24,
+       "share_of_class": 0.039
+      },
+      {
+       "brand": "SUBARU",
+       "units": 19,
+       "share_of_class": 0.0308
+      },
+      {
+       "brand": "BMW",
+       "units": 18,
+       "share_of_class": 0.0292
+      },
+      {
+       "brand": "NISSAN",
+       "units": 10,
+       "share_of_class": 0.0162
+      },
+      {
+       "brand": "DACIA",
+       "units": 6,
+       "share_of_class": 0.0097
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 129,
+       "share_of_class": 0.2094
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 77,
+       "share_of_class": 0.125
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 42,
+       "share_of_class": 0.0682
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 42,
+       "share_of_class": 0.0682
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 41,
+       "share_of_class": 0.0666
+      },
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 39,
+       "share_of_class": 0.0633
+      },
+      {
+       "brand": "FORD",
+       "model": "TOURNEO COURIER",
+       "units": 21,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 21,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 19,
+       "share_of_class": 0.0308
+      },
+      {
+       "brand": "KIA",
+       "model": "CEED",
+       "units": 15,
+       "share_of_class": 0.0244
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 208,
+     "share_of_market": 0.06849,
+     "brands": [
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 62,
+       "share_of_class": 0.2981
+      },
+      {
+       "brand": "SKODA",
+       "units": 43,
+       "share_of_class": 0.2067
+      },
+      {
+       "brand": "CITROEN",
+       "units": 35,
+       "share_of_class": 0.1683
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 26,
+       "share_of_class": 0.125
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 15,
+       "share_of_class": 0.0721
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 9,
+       "share_of_class": 0.0433
+      },
+      {
+       "brand": "RENAULT",
+       "units": 7,
+       "share_of_class": 0.0337
+      },
+      {
+       "brand": "FORD",
+       "units": 6,
+       "share_of_class": 0.0288
+      },
+      {
+       "brand": "BMW",
+       "units": 2,
+       "share_of_class": 0.0096
+      },
+      {
+       "brand": "AUDI",
+       "units": 1,
+       "share_of_class": 0.0048
+      }
+     ],
+     "models": [
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 36,
+       "share_of_class": 0.1731
+      },
+      {
+       "brand": "CITROEN",
+       "model": "SPACETOURER",
+       "units": 23,
+       "share_of_class": 0.1106
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 20,
+       "share_of_class": 0.0962
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 19,
+       "share_of_class": 0.0913
+      },
+      {
+       "brand": "CITROEN",
+       "model": "C5 AIRCROSS",
+       "units": 12,
+       "share_of_class": 0.0577
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 12,
+       "share_of_class": 0.0577
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 11,
+       "share_of_class": 0.0529
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 9,
+       "share_of_class": 0.0433
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 9,
+       "share_of_class": 0.0433
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "SPRINTER",
+       "units": 7,
+       "share_of_class": 0.0337
+      }
+     ]
     }
    }
   },
@@ -3692,6 +5877,242 @@
        "model": "FORMENTOR",
        "units": 24,
        "share_of_class": 0.0214
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 505,
+     "share_of_market": 0.17713,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 204,
+       "share_of_class": 0.404
+      },
+      {
+       "brand": "AUDI",
+       "units": 72,
+       "share_of_class": 0.1426
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 61,
+       "share_of_class": 0.1208
+      },
+      {
+       "brand": "KIA",
+       "units": 55,
+       "share_of_class": 0.1089
+      },
+      {
+       "brand": "CUPRA",
+       "units": 19,
+       "share_of_class": 0.0376
+      },
+      {
+       "brand": "BMW",
+       "units": 15,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "NISSAN",
+       "units": 15,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "FORD",
+       "units": 13,
+       "share_of_class": 0.0257
+      },
+      {
+       "brand": "SUBARU",
+       "units": 10,
+       "share_of_class": 0.0198
+      },
+      {
+       "brand": "CITROEN",
+       "units": 9,
+       "share_of_class": 0.0178
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 69,
+       "share_of_class": 0.1366
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 57,
+       "share_of_class": 0.1129
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 56,
+       "share_of_class": 0.1109
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 39,
+       "share_of_class": 0.0772
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 33,
+       "share_of_class": 0.0653
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 24,
+       "share_of_class": 0.0475
+      },
+      {
+       "brand": "SKODA",
+       "model": "SCALA",
+       "units": 22,
+       "share_of_class": 0.0436
+      },
+      {
+       "brand": "NISSAN",
+       "model": "JUKE",
+       "units": 15,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "SKODA",
+       "model": "FABIA",
+       "units": 14,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "FORD",
+       "model": "TOURNEO COURIER",
+       "units": 12,
+       "share_of_class": 0.0238
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 265,
+     "share_of_market": 0.09295,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 60,
+       "share_of_class": 0.2264
+      },
+      {
+       "brand": "FORD",
+       "units": 50,
+       "share_of_class": 0.1887
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 30,
+       "share_of_class": 0.1132
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 29,
+       "share_of_class": 0.1094
+      },
+      {
+       "brand": "CITROEN",
+       "units": 24,
+       "share_of_class": 0.0906
+      },
+      {
+       "brand": "RENAULT",
+       "units": 23,
+       "share_of_class": 0.0868
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 21,
+       "share_of_class": 0.0792
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 18,
+       "share_of_class": 0.0679
+      },
+      {
+       "brand": "OPEL",
+       "units": 3,
+       "share_of_class": 0.0113
+      },
+      {
+       "brand": "BMW",
+       "units": 2,
+       "share_of_class": 0.0075
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 33,
+       "share_of_class": 0.1245
+      },
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 31,
+       "share_of_class": 0.117
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 22,
+       "share_of_class": 0.083
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 21,
+       "share_of_class": 0.0792
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 19,
+       "share_of_class": 0.0717
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 16,
+       "share_of_class": 0.0604
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO",
+       "units": 13,
+       "share_of_class": 0.0491
+      },
+      {
+       "brand": "CITROEN",
+       "model": "SPACETOURER",
+       "units": 11,
+       "share_of_class": 0.0415
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "SPRINTER",
+       "units": 10,
+       "share_of_class": 0.0377
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TIGUAN",
+       "units": 10,
+       "share_of_class": 0.0377
       }
      ]
     }
@@ -4054,6 +6475,242 @@
        "share_of_class": 0.0151
       }
      ]
+    },
+    "PETROL": {
+     "units": 469,
+     "share_of_market": 0.20312,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 150,
+       "share_of_class": 0.3198
+      },
+      {
+       "brand": "AUDI",
+       "units": 72,
+       "share_of_class": 0.1535
+      },
+      {
+       "brand": "KIA",
+       "units": 60,
+       "share_of_class": 0.1279
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 52,
+       "share_of_class": 0.1109
+      },
+      {
+       "brand": "BMW",
+       "units": 27,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "CUPRA",
+       "units": 23,
+       "share_of_class": 0.049
+      },
+      {
+       "brand": "SUBARU",
+       "units": 20,
+       "share_of_class": 0.0426
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 18,
+       "share_of_class": 0.0384
+      },
+      {
+       "brand": "NISSAN",
+       "units": 10,
+       "share_of_class": 0.0213
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 8,
+       "share_of_class": 0.0171
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 44,
+       "share_of_class": 0.0938
+      },
+      {
+       "brand": "SKODA",
+       "model": "SCALA",
+       "units": 43,
+       "share_of_class": 0.0917
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 38,
+       "share_of_class": 0.081
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 38,
+       "share_of_class": 0.081
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 38,
+       "share_of_class": 0.081
+      },
+      {
+       "brand": "AUDI",
+       "model": "A5",
+       "units": 31,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 27,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "CUPRA",
+       "model": "TERRAMAR",
+       "units": 21,
+       "share_of_class": 0.0448
+      },
+      {
+       "brand": "KIA",
+       "model": "CEED",
+       "units": 21,
+       "share_of_class": 0.0448
+      },
+      {
+       "brand": "SUBARU",
+       "model": "OUTBACK",
+       "units": 19,
+       "share_of_class": 0.0405
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 203,
+     "share_of_market": 0.08792,
+     "brands": [
+      {
+       "brand": "FORD",
+       "units": 41,
+       "share_of_class": 0.202
+      },
+      {
+       "brand": "SKODA",
+       "units": 41,
+       "share_of_class": 0.202
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 35,
+       "share_of_class": 0.1724
+      },
+      {
+       "brand": "RENAULT",
+       "units": 26,
+       "share_of_class": 0.1281
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 17,
+       "share_of_class": 0.0837
+      },
+      {
+       "brand": "OPEL",
+       "units": 13,
+       "share_of_class": 0.064
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 12,
+       "share_of_class": 0.0591
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 7,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "CITROEN",
+       "units": 6,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "ADRIA",
+       "units": 1,
+       "share_of_class": 0.0049
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 38,
+       "share_of_class": 0.1872
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 26,
+       "share_of_class": 0.1281
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 25,
+       "share_of_class": 0.1232
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 15,
+       "share_of_class": 0.0739
+      },
+      {
+       "brand": "OPEL",
+       "model": "ZAFIRA LIFE",
+       "units": 12,
+       "share_of_class": 0.0591
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE",
+       "units": 12,
+       "share_of_class": 0.0591
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 11,
+       "share_of_class": 0.0542
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 8,
+       "share_of_class": 0.0394
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "SPRINTER",
+       "units": 7,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 6,
+       "share_of_class": 0.0296
+      }
+     ]
     }
    }
   },
@@ -4414,6 +7071,242 @@
        "share_of_class": 0.0305
       }
      ]
+    },
+    "PETROL": {
+     "units": 507,
+     "share_of_market": 0.17592,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 182,
+       "share_of_class": 0.359
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 67,
+       "share_of_class": 0.1321
+      },
+      {
+       "brand": "AUDI",
+       "units": 60,
+       "share_of_class": 0.1183
+      },
+      {
+       "brand": "KIA",
+       "units": 60,
+       "share_of_class": 0.1183
+      },
+      {
+       "brand": "CUPRA",
+       "units": 27,
+       "share_of_class": 0.0533
+      },
+      {
+       "brand": "BMW",
+       "units": 24,
+       "share_of_class": 0.0473
+      },
+      {
+       "brand": "NISSAN",
+       "units": 19,
+       "share_of_class": 0.0375
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 14,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "SUBARU",
+       "units": 14,
+       "share_of_class": 0.0276
+      },
+      {
+       "brand": "FORD",
+       "units": 8,
+       "share_of_class": 0.0158
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 66,
+       "share_of_class": 0.1302
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 51,
+       "share_of_class": 0.1006
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 50,
+       "share_of_class": 0.0986
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 28,
+       "share_of_class": 0.0552
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 25,
+       "share_of_class": 0.0493
+      },
+      {
+       "brand": "SKODA",
+       "model": "SCALA",
+       "units": 23,
+       "share_of_class": 0.0454
+      },
+      {
+       "brand": "KIA",
+       "model": "CEED",
+       "units": 22,
+       "share_of_class": 0.0434
+      },
+      {
+       "brand": "NISSAN",
+       "model": "JUKE",
+       "units": 19,
+       "share_of_class": 0.0375
+      },
+      {
+       "brand": "CUPRA",
+       "model": "FORMENTOR",
+       "units": 18,
+       "share_of_class": 0.0355
+      },
+      {
+       "brand": "KIA",
+       "model": "SPORTAGE",
+       "units": 18,
+       "share_of_class": 0.0355
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 250,
+     "share_of_market": 0.08675,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 77,
+       "share_of_class": 0.308
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 57,
+       "share_of_class": 0.228
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 29,
+       "share_of_class": 0.116
+      },
+      {
+       "brand": "FORD",
+       "units": 22,
+       "share_of_class": 0.088
+      },
+      {
+       "brand": "RENAULT",
+       "units": 15,
+       "share_of_class": 0.06
+      },
+      {
+       "brand": "CITROEN",
+       "units": 14,
+       "share_of_class": 0.056
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 13,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 8,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "OPEL",
+       "units": 4,
+       "share_of_class": 0.016
+      },
+      {
+       "brand": "GIOTTILINE",
+       "units": 3,
+       "share_of_class": 0.012
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 33,
+       "share_of_class": 0.132
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 30,
+       "share_of_class": 0.12
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "CADDY",
+       "units": 26,
+       "share_of_class": 0.104
+      },
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 19,
+       "share_of_class": 0.076
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE CITY VERSO",
+       "units": 17,
+       "share_of_class": 0.068
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 13,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TOUAREG",
+       "units": 13,
+       "share_of_class": 0.052
+      },
+      {
+       "brand": "SKODA",
+       "model": "SUPERB",
+       "units": 9,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "TRAVELLER",
+       "units": 8,
+       "share_of_class": 0.032
+      },
+      {
+       "brand": "CITROEN",
+       "model": "BERLINGO",
+       "units": 7,
+       "share_of_class": 0.028
+      }
+     ]
     }
    }
   },
@@ -4772,6 +7665,242 @@
        "model": "OCTAVIA",
        "units": 43,
        "share_of_class": 0.0341
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 527,
+     "share_of_market": 0.19834,
+     "brands": [
+      {
+       "brand": "SKODA",
+       "units": 171,
+       "share_of_class": 0.3245
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 108,
+       "share_of_class": 0.2049
+      },
+      {
+       "brand": "AUDI",
+       "units": 56,
+       "share_of_class": 0.1063
+      },
+      {
+       "brand": "KIA",
+       "units": 45,
+       "share_of_class": 0.0854
+      },
+      {
+       "brand": "FORD",
+       "units": 22,
+       "share_of_class": 0.0417
+      },
+      {
+       "brand": "BMW",
+       "units": 17,
+       "share_of_class": 0.0323
+      },
+      {
+       "brand": "CUPRA",
+       "units": 15,
+       "share_of_class": 0.0285
+      },
+      {
+       "brand": "SUBARU",
+       "units": 14,
+       "share_of_class": 0.0266
+      },
+      {
+       "brand": "NISSAN",
+       "units": 13,
+       "share_of_class": 0.0247
+      },
+      {
+       "brand": "CITROEN",
+       "units": 12,
+       "share_of_class": 0.0228
+      }
+     ],
+     "models": [
+      {
+       "brand": "SKODA",
+       "model": "KAMIQ",
+       "units": 87,
+       "share_of_class": 0.1651
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "TAIGO",
+       "units": 33,
+       "share_of_class": 0.0626
+      },
+      {
+       "brand": "AUDI",
+       "model": "Q3",
+       "units": 31,
+       "share_of_class": 0.0588
+      },
+      {
+       "brand": "KIA",
+       "model": "CEED",
+       "units": 28,
+       "share_of_class": 0.0531
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T ROC",
+       "units": 28,
+       "share_of_class": 0.0531
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "model": "T CROSS",
+       "units": 26,
+       "share_of_class": 0.0493
+      },
+      {
+       "brand": "SKODA",
+       "model": "KAROQ",
+       "units": 25,
+       "share_of_class": 0.0474
+      },
+      {
+       "brand": "AUDI",
+       "model": "A5",
+       "units": 19,
+       "share_of_class": 0.0361
+      },
+      {
+       "brand": "FORD",
+       "model": "TOURNEO COURIER",
+       "units": 19,
+       "share_of_class": 0.0361
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 19,
+       "share_of_class": 0.0361
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 222,
+     "share_of_market": 0.08355,
+     "brands": [
+      {
+       "brand": "RENAULT",
+       "units": 44,
+       "share_of_class": 0.1982
+      },
+      {
+       "brand": "SKODA",
+       "units": 43,
+       "share_of_class": 0.1937
+      },
+      {
+       "brand": "FORD",
+       "units": 31,
+       "share_of_class": 0.1396
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 23,
+       "share_of_class": 0.1036
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 18,
+       "share_of_class": 0.0811
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "units": 16,
+       "share_of_class": 0.0721
+      },
+      {
+       "brand": "OPEL",
+       "units": 14,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "PEUGEOT",
+       "units": 13,
+       "share_of_class": 0.0586
+      },
+      {
+       "brand": "CITROEN",
+       "units": 7,
+       "share_of_class": 0.0315
+      },
+      {
+       "brand": "KIA",
+       "units": 3,
+       "share_of_class": 0.0135
+      }
+     ],
+     "models": [
+      {
+       "brand": "FORD",
+       "model": "TRANSIT CUSTOM",
+       "units": 28,
+       "share_of_class": 0.1261
+      },
+      {
+       "brand": "RENAULT",
+       "model": "KANGOO",
+       "units": 22,
+       "share_of_class": 0.0991
+      },
+      {
+       "brand": "RENAULT",
+       "model": "TRAFIC",
+       "units": 22,
+       "share_of_class": 0.0991
+      },
+      {
+       "brand": "SKODA",
+       "model": "OCTAVIA",
+       "units": 15,
+       "share_of_class": 0.0676
+      },
+      {
+       "brand": "SKODA",
+       "model": "KODIAQ",
+       "units": 14,
+       "share_of_class": 0.0631
+      },
+      {
+       "brand": "MERCEDES-BENZ",
+       "model": "V-KLASSE",
+       "units": 12,
+       "share_of_class": 0.0541
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "PROACE",
+       "units": 11,
+       "share_of_class": 0.0495
+      },
+      {
+       "brand": "PEUGEOT",
+       "model": "EXPERT",
+       "units": 10,
+       "share_of_class": 0.045
+      },
+      {
+       "brand": "SKODA",
+       "model": "SUPERB",
+       "units": 9,
+       "share_of_class": 0.0405
+      },
+      {
+       "brand": "CITROEN",
+       "model": "C5 AIRCROSS",
+       "units": 7,
+       "share_of_class": 0.0315
       }
      ]
     }
