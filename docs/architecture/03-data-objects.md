@@ -767,8 +767,10 @@ EREV there equals the CSV's PHEV.
 | Spain, Switzerland (+ Used), Lithuania (+ Used), Malaysia, Ukraine, New Zealand (+ Used), Hong Kong, Peru, Paraguay, Ecuador, Israel, Netherlands (+ Used; petrol only — see its row), Finland (petrol only — see its row), Ireland, Portugal, Japan, Singapore, Uruguay | Czechia — the register cannot tell full / mild hybrids from petrol, while the CSV takes HEV from ACEA, so a register petrol ranking would not be the CSV's petrol. Greece, Italy, Austria — the sources publish brand tables for the electrified classes only. Taiwan, UK, Georgia, Norway — no brand × fuel table at all (`ALL`). Argentina — no petrol / diesel split (one ICE column). |
 
 A **month store** filled before 2026-10 has no PETROL / DIESEL rows for its
-older months. `build_top_monthly` keeps a combustion class out of the headline
-until every summed month has it (the single months that do have it show it),
+older months. `build_top_monthly` keeps combustion out of the headline while
+any summed month has no PETROL / DIESEL row at all (the single months that were
+counted show it; a month with petrol but no diesel is a genuine zero, not a gap —
+Uruguay 2026-02),
 so a twelve-month petrol ranking never quietly covers three months. Record
 sources refill at once (Netherlands re-reads every stored month without petrol;
 Spain, Peru, … re-read twelve months anyway); Switzerland's previous year,

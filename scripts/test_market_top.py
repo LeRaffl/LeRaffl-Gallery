@@ -98,6 +98,20 @@ def test_combustion_ranked_like_electrified():
                                                    "share_of_class": 1.0}]
 
 
+def test_genuine_zero_diesel_month_keeps_diesel_in_headline():
+    """A month with petrol but no diesel was counted (a real zero, Uruguay
+    2026-02); only a month without any combustion row is a store gap."""
+    monthly = {"2026-02": ({("BEV", "A", ""): 5, ("PETROL", "B", ""): 50}, 60),
+               "2026-03": ({("BEV", "A", ""): 5, ("PETROL", "B", ""): 40,
+                            ("DIESEL", "C", ""): 3}, 50)}
+    top = mt.build_top_monthly("X", "S", "2026-03", monthly, "u")
+    assert top["classes"]["DIESEL"]["units"] == 3 and top["classes"]["PETROL"]["units"] == 90
+    gap = dict(monthly, **{"2026-01": ({("BEV", "A", ""): 5}, 30)})   # stored before
+    top = mt.build_top_monthly("X", "S", "2026-03", gap, "u")
+    assert "PETROL" not in top["classes"] and "DIESEL" not in top["classes"]
+    assert "DIESEL" in top["months"][0]["classes"]
+
+
 def test_erev_ranked_inside_phev():
     """PHEV's incl_erev ranks PHEV + EREV from the raw units (a brand's EREV
     outside the EREV top list still counts); EREV models are flagged."""
