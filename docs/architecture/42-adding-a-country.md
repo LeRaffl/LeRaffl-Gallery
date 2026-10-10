@@ -202,6 +202,10 @@ Do it **in the PR** so the country arrives with its history:
    It fits the new series into every eligible month (≥ 24 rows of data),
    rebuilds `backtest/series/*.json` and re-renders the GIFs, and commits to
    the branch. ~2–5 min for a country with three series.
+   **Replacing a country's source with a new definition** (same file, new
+   scope — New Zealand's `Whole` in 2026-10): also set `refit` to the
+   redefined keys (`New Zealand|Whole`). Without it the old fits stay in every
+   month, because a series already present is never re-fitted.
 3. Pull, and check: `python scripts/check_country_integration.py --country
    "<Country>"` (the `backtest` check), and that the group file
    (`backtest/series/asia.json` for Hong Kong) now lists the country.

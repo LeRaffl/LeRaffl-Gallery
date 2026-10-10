@@ -98,7 +98,9 @@ in short:
    (`scripts/snapshot_builder.py`); ask the owner when no group fits.
 2. **History** — dispatch `snapshot-builder.yml` on the PR branch with
    `backtest_only = true`, so the country is fitted into every past month and
-   the Time-lapse series and GIFs include it before merge (§ 8.9).
+   the Time-lapse series and GIFs include it before merge (§ 8.9). A country
+   whose existing series was **redefined** (same file, new scope) also needs
+   `refit = "<Country>|<Variant>"` — the backtest never re-fits a known key.
 3. **Flag file name** — `assets/flags/<slug>.png` with the slug exactly as
    `R/render_country.R` builds it (`hong_kong`, not `hongkong`).
 4. **Schedule labels** — `FLAG`/`LABEL` in `R/render_schedule.R`, keyed by the
