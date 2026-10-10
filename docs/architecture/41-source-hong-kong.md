@@ -102,8 +102,10 @@ processing:
   text:
   - TD's Monthly Traffic and Transport Digest (table 4.1(e)) counts first-registered private cars by status and fuel. Every run compares the records with it, month by month and status by status; a difference beyond 2 cars and 0.5 % stops the run.
 market_breakdown: market/hong_kong_top.json
+market_class_labels:
+  PETROL: Petrol, hybrids included (TD's fuel value; the CSV has no hybrid column)
 market_designation_note: a "designation" is TD's model string with the brand prefix, chassis codes and trim words removed, so the trims of one model rank together (MODEL Y RWD and MODEL Y LONG RANGE → MODEL Y).
-market_powertrain_note: BEV is TD's own fuel value; PHEV and EREV are classified from the model designation (see the developer doc).
+market_powertrain_note: BEV is TD's own fuel value; PHEV and EREV are classified from the model designation (see the developer doc); petrol and diesel are the rest of TD's petrol and diesel values, as in the CSV.
 market_breakdown_extra:
 - path: market/hong_kong_used_top.json
   id: market-used

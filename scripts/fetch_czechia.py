@@ -681,7 +681,9 @@ def refresh_top(t: Tally, upto: str) -> None:
         for p in months:
             units = collections.Counter()
             for (v, pp, fuel, brand, model), n in t.models.items():
-                if v == variant and pp == p:
+                # The register's petrol / diesel still hold the full and mild
+                # hybrids the CSV takes from ACEA: no combustion ranking.
+                if v == variant and pp == p and fuel not in market_top.COMBUSTION:
                     units[(fuel, brand, model)] += n
             if units:
                 fresh[p] = (dict(units), t.month(variant, p)["TOTAL"])

@@ -410,7 +410,7 @@ def csv_has_period(csv_path: str, period: str, variant: str) -> bool:
 
 TOP_SLUG = "ireland"
 TOP_UNIT = "registrations (SIMI make / model as shown on stats.simi.ie)"
-TOP_CLASSES = ("BEV", "PHEV", "HEV")
+TOP_CLASSES = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL")
 
 
 def top_units_from(datasets: list, cls: str, kind: str) -> dict:

@@ -290,14 +290,14 @@ def test_vin_once_per_month():
     assert fp.vin_of("ABCDEFGHJKLMNPRST") is None                 # letters only
 
 
-def test_top_units_whole_electrified_only():
+def test_top_units_whole_only():
     agg = agg_of([row("8703.80.00.000L", brand="VOLVO", text="MARCA VOLVO, MODELO EX30, ANIO 2026"),
                   row("8703.80.00.000L", uso="USADO", brand="TESLA", text="MODELO 3"),
                   row("8703.22.10.000B", brand="KIA", text="MODELO PICANTO")])
     keys = {(cls, b, m) for (p, cls, b, m) in agg.units}
     assert ("BEV", "VOLVO", "EX30") in keys
     assert not any(b == "TESLA" for _, b, _ in keys)            # Used is not in the top list
-    assert ("PETROL", "KIA", "") in keys                         # ICE counts, unnamed
+    assert ("PETROL", "KIA", "PICANTO") in keys                  # petrol ranked, with its model
     store = fp.store_months(agg, ["2026-08"])
     assert store["2026-08"][1] == 2                              # Whole total
 

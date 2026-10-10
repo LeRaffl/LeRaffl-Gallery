@@ -139,7 +139,7 @@ TOP_UNIT = ("registrations by road-entry month (brand = registry manufacturer "
             "translated from Hebrew, model = registry commercial name with power, "
             "drive and trim words removed — see BRAND_STEMS / display_model in "
             "scripts/fetch_israel.py)")
-TOP_CLASSES = ("BEV", "PHEV", "HEV")
+TOP_CLASSES = ("BEV", "PHEV", "HEV", "PETROL", "DIESEL")
 TOP_FIELDS = [FUEL_FIELD, "tozeret_cd", "degem_cd", "shnat_yitzur", "ramat_gimur",
               "tozeret_nm", "kinuy_mishari", "degem_nm"]
 SCOPE_WARN_REL = 0.03      # a month vs the CSV: the registry loses scrapped cars
@@ -603,7 +603,7 @@ def aggregate_month(period: str, wltp_lookup: tuple[dict, dict],
 
 
 def month_units(period: str, wltp_lookup: tuple[dict, dict]) -> tuple[dict, int]:
-    """({(class, brand, model): n} for BEV / PHEV / HEV, all registrations of
+    """({(class, brand, model): n} for BEV / PHEV / HEV / PETROL / DIESEL, all registrations of
     the month) — the same records and the same column_of as aggregate_month."""
     exact, votes = wltp_lookup
     recs = ds_all_records(REGISTRY_RESOURCE, TOP_FIELDS,

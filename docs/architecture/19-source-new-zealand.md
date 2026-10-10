@@ -112,12 +112,12 @@ processing:
 market_breakdown: market/new_zealand_top.json
 market_heading: Who sells the new electrified cars
 market_designation_note: Make and model as the entry certifier typed them on the register, upper-cased; a model typed with the brand in front is merged with the plain one. Some models are generic (BMW's electric cars are partly registered as model "I").
-market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV, for Whole — new passenger cars (MA/MB/MC). Used imports (the Nissan Leafs) have their own section below; utes are in neither.
+market_powertrain_note: BEV / PHEV / HEV / petrol / diesel exactly as in the CSV (LPG, CNG and hydrogen count towards the total only), for Whole — new passenger cars (MA/MB/MC). Used imports (the Nissan Leafs) have their own section below; utes are in neither.
 market_breakdown_extra:
 - path: market/new_zealand_used_top.json
   id: market-used
   heading: Who sells the imported used electrified cars
-  note: "Used imports (the Used variant): passenger cars (MA/MB/MC) first registered abroad — mostly in Japan — at their first New Zealand registration. BEV / PHEV / HEV from the register's motive power, exactly as in the Used CSV."
+  note: "Used imports (the Used variant): passenger cars (MA/MB/MC) first registered abroad — mostly in Japan — at their first New Zealand registration. BEV / PHEV / HEV / petrol / diesel from the register's motive power, exactly as in the Used CSV."
 fetcher: scripts/fetch_new_zealand.py
 workflow: .github/workflows/fetch-new-zealand.yml
 fragility_doc: docs/architecture/19-source-new-zealand.md
@@ -246,7 +246,7 @@ month of every variant is written once, right after it ends.
 6. Checks (§5) per variant → upsert the target month into each variant's CSV,
    line-level.
 7. Top lists: Whole's scope over the 12 months to the target, electrified
-   powertrains only, grouped by MAKE and MODEL as well (§6).
+   powertrains, petrol and diesel, grouped by MAKE and MODEL as well (§6).
 ```
 
 ## 4. Motive power → column (`MOTIVE_MAP`)
@@ -292,7 +292,7 @@ not know goes to OTHERS with a warning, and stops the run above 1 % of a month
 ## 6. Brands and models (`market/new_zealand_top.json`, `market/new_zealand_used_top.json`)
 
 One grouped query — passenger cars (MA/MB/MC), new and used imports, by
-`IMPORT_STATUS`, `MAKE` and `MODEL` for BEV, PHEV and HEV over the twelve
+`IMPORT_STATUS`, `MAKE` and `MODEL` for BEV, PHEV, HEV, petrol and diesel (since 2026-10; OTHERS only counts in the total; range extenders — `[PETROL EXTENDED]` / `[DIESEL EXTENDED]` — are passed as EREV so the page can tag them inside its PHEV column, PHEV + EREV = the CSV's PHEV) over the twelve
 months to the target — feeds two tables with their CSV's scope and the same
 powertrain mapping: Whole (`NEW`) and Used (`USED`, its own section on the
 source page via `market_breakdown_extra` — the rule for every `Used` variant,
@@ -349,7 +349,7 @@ sequenceDiagram
         Py->>FS: grouped counts (month × status × class × motive power), target−3 … target
         Py->>Py: labels known? year-ago ratio? overlap with the CSV?
         Py->>CSV: append the month to each variant (line-level)
-        Py->>FS: grouped counts with MAKE, MODEL (12 months, electrified)
+        Py->>FS: grouped counts with MAKE, MODEL (12 months, ranked classes)
         Py->>Top: trailing 12 months + single months
         Py-->>Cron: run report → step summary
         Cron->>Render: once, with the changed variants (Whole|Vans|HDV|Used)

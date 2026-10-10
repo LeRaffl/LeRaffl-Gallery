@@ -3,19 +3,23 @@
 Every fetcher whose source carries brand + model per registration (record-level
 registries such as DNRPA, DGT, data.gov.my) feeds its trailing-twelve-month
 counts in here and gets back the same country-neutral JSON document, which
-scripts/build_source_pages.py renders as the "Who sells the electrified cars"
+scripts/build_source_pages.py renders as the "Who sells the cars" grids
 section of the country's source page (front-matter key ``market_breakdown:``).
 
 Schema (docs/architecture/03-data-objects.md §3.16):
 
-    {"country", "variant", "source", "as_of": "YYYY-MM",
+    {"schema": 3, "country", "variant", "source", "as_of": "YYYY-MM",
      "window": {"from", "to", "months"},
      "total_registrations": int,            # whole market in the window
      "unit": "...",                          # what one unit / one model string is
      "classes": {"BEV": {"units", "share_of_market",
                          "brands": [{"brand", "units", "share_of_class"}, ...],
                          "models": [{"brand", "model", "units", "share_of_class"}, ...]},
-                 "PHEV": ..., "EREV": ..., "HEV": ..., "MHEV": ...},
+                 "PHEV": ..., "EREV": ..., "HEV": ..., "MHEV": ...,
+                 "PETROL": ..., "DIESEL": ...},     # combustion: see below
+                                             # PHEV also carries "incl_erev" (PHEV + EREV
+                                             # ranked together, models flagged "erev")
+                                             # when the file has both
                                              # or only "ALL" (every powertrain) for a
                                              # source with no brand x fuel table
      "months": [{"period", "total_registrations", "classes": {...}}, ...]}
@@ -24,9 +28,11 @@ Schema (docs/architecture/03-data-objects.md §3.16):
 ``window`` describes the months actually summed (``months`` < 12 and a
 ``missing`` list when the source does not cover the full year).
 
-ICE classes are never listed (the section is about who sells the electrified
-cars); combustion cars appear only inside ALL, for a source that cannot split
-its brand table by fuel. Ties are broken alphabetically so the file is byte-stable whatever order
+PETROL and DIESEL are ranked too when a fetcher passes them — only a fetcher
+whose brand counts use the CSV's own petrol / diesel columns does (a source
+with no petrol/diesel split passes neither: empty, never zero). OTHERS and any
+other class only count towards the market total. A source that cannot split
+its brand table by fuel at all ranks every powertrain inside ALL. Ties are broken alphabetically so the file is byte-stable whatever order
 the records arrived in — no spurious commits.
 
 Output location: ``market/<slug>_top.json`` (generated, never hand-edited).
@@ -43,13 +49,18 @@ REPO = Path(__file__).resolve().parent.parent
 MARKET_DIR = REPO / "market"
 
 # Classes that get a ranking, in display order. Anything else a fetcher passes
-# (PETROL, DIESEL, ICE, OTHERS, ...) only counts towards the market total.
+# (ICE, OTHERS, ...) only counts towards the market total.
 ELECTRIFIED = ("BEV", "PHEV", "EREV", "HEV", "MHEV")
+# Combustion classes that get a ranking too. A fetcher passes them only when
+# its counts use the CSV's own PETROL / DIESEL logic (a source with no
+# petrol/diesel split, or one whose petrol would differ from the CSV's —
+# Czechia's register cannot tell full hybrids from petrol — passes neither).
+COMBUSTION = ("PETROL", "DIESEL")
 # Every powertrain together — for a source that publishes brands but no brand
 # × fuel split (Taiwan: THB's brand table and fuel table are separate tables).
 # Such a file has no electrified class at all; never mix ALL with them.
 ALL = "ALL"
-RANKED = ELECTRIFIED + (ALL,)
+RANKED = ELECTRIFIED + COMBUSTION + (ALL,)
 # Brand of a top-N source's own "all others" line (see _classes).
 REST = ""
 TOP_BRANDS = 10
@@ -57,6 +68,9 @@ TOP_MODELS = 15
 # Single-month rankings are shorter: twelve of them sit behind one picker.
 TOP_BRANDS_MONTH = 10
 TOP_MODELS_MONTH = 10
+# Written into every top file; files below it are rebuilt once by the fetchers'
+# top_is_current gates (2: PETROL / DIESEL ranked; 3: PHEV's incl_erev).
+SCHEMA = 3
 
 
 def month_window(target: str, months: int = 12) -> list[str]:
@@ -76,8 +90,8 @@ def ranked(counter: collections.Counter, n: int) -> list:
 
 
 def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
-    """Rank one window's `units` ({(class, brand, model): n}) per electrified
-    class (or ALL, see above). A brand-only source passes model "" — it gets
+    """Rank one window's `units` ({(class, brand, model): n}) per ranked
+    class (RANKED: electrified, PETROL / DIESEL, or ALL — see above). A brand-only source passes model "" — it gets
     brand rankings and an empty model list. Brand "" (REST) is a source's own "all others" line for
     a top-N table: it counts towards the class, never into a ranking."""
     per_class = {c: {"brands": collections.Counter(),
@@ -88,22 +102,34 @@ def _classes(units: dict, total: int, top_brands: int, top_models: int) -> dict:
         per_class[cls]["brands"][brand] += n
         if model and brand:
             per_class[cls]["models"][(brand, model)] += n
-    classes = {}
-    for cls in RANKED:
-        cls_units = sum(per_class[cls]["brands"].values())
-        if not cls_units:
-            continue
-        classes[cls] = {
+    def ranking(brands: collections.Counter, models: collections.Counter,
+                erev: collections.Counter | None = None) -> dict:
+        cls_units = sum(brands.values())
+        return {
             "units": cls_units,
             "share_of_market": round(cls_units / total, 5) if total else None,
             "brands": [{"brand": b, "units": u,
                         "share_of_class": round(u / cls_units, 4)}
-                       for b, u in ranked(per_class[cls]["brands"], top_brands + 1)
+                       for b, u in ranked(brands, top_brands + 1)
                        if b != REST][:top_brands],
             "models": [{"brand": b, "model": m, "units": u,
-                        "share_of_class": round(u / cls_units, 4)}
-                       for (b, m), u in ranked(per_class[cls]["models"], top_models)],
+                        "share_of_class": round(u / cls_units, 4),
+                        **({"erev": True} if erev and 2 * erev[(b, m)] >= u else {})}
+                       for (b, m), u in ranked(models, top_models)],
         }
+    classes = {}
+    for cls in RANKED:
+        if sum(per_class[cls]["brands"].values()):
+            classes[cls] = ranking(per_class[cls]["brands"], per_class[cls]["models"])
+    # EREV is a kind of plug-in hybrid (the curves count it with PHEV): PHEV
+    # also gets one ranking of both together, counted from the same units —
+    # exact, unlike merging two top-N lists — where a model that is mostly
+    # EREV carries "erev": true. The page shows that ranking as its PHEV
+    # column with an EREV tag; PHEV / EREV themselves stay the CSV's classes.
+    if "PHEV" in classes and "EREV" in classes:
+        both = {k: per_class["PHEV"][k] + per_class["EREV"][k] for k in ("brands", "models")}
+        classes["PHEV"]["incl_erev"] = ranking(both["brands"], both["models"],
+                                               per_class["EREV"]["models"])
     return classes
 
 
@@ -115,6 +141,7 @@ def build_top(country: str, source: str, target: str,
     ending at `target`; `total` is the whole market in that window."""
     window = month_window(target)
     return {
+        "schema": SCHEMA,
         "country": country, "variant": variant, "source": source,
         "as_of": target, "window": {"from": window[0], "to": window[-1],
                                     "months": len(window)},
@@ -146,6 +173,15 @@ def build_top_monthly(country: str, source: str, target: str,
         u, t = monthly[p]
         units.update({k: n for k, n in u.items() if n})
         total += t
+    # A combustion class missing from a summed month (a month store filled
+    # before PETROL / DIESEL were counted) would rank a part of the window as
+    # if it were all of it: the headline leaves it out until every month has
+    # it; the single months that do have it still show it.
+    partial = {c for c in COMBUSTION
+               if not all(any(k[0] == c and n for k, n in monthly[p][0].items())
+                          for p in have)}
+    if partial:
+        units = collections.Counter({k: n for k, n in units.items() if k[0] not in partial})
     top = build_top(country, source, target, units, total, unit, variant)
     top["window"] = {"from": have[0], "to": have[-1], "months": len(have)}
     missing = [p for p in window if p not in monthly and p > have[0]]
@@ -196,9 +232,11 @@ def per_month(counter: dict) -> dict[str, dict]:
 # year. For those the fetcher keeps every month it has seen in
 # ``market/<slug>_months.json`` (generated, never hand-edited) and builds the
 # twelve-month view from that store. Only the ranked classes are kept per
-# brand/model (electrified, or ALL for a source without a brand × fuel table
-# — the UK) — combustion only ever counts towards the month's total — so the
-# file stays small. A month the source restates simply overwrites the stored
+# brand/model (electrified and PETROL / DIESEL, or ALL for a source without a
+# brand × fuel table — the UK) — OTHERS only ever counts towards the month's
+# total. A month stored before PETROL / DIESEL were counted has no rows for
+# them, and build_top_monthly keeps them out of the headline until every month
+# of the window has them. A month the source restates simply overwrites the stored
 # one; months older than STORE_MONTHS are dropped.
 
 STORE_MONTHS = 15
@@ -225,7 +263,7 @@ def save_store(path: Path, monthly: dict[str, tuple[dict, int]],
     keep = sorted(monthly)[-STORE_MONTHS:]
     doc = {"country": country, "source": source,
            "note": "generated by the fetcher (scripts/market_top.py) — "
-                   "per-month electrified brand/model counts, never hand-edit",
+                   "per-month brand/model counts of the ranked classes, never hand-edit",
            "months": {p: {"total": monthly[p][1],
                           "units": sorted([c, b, m, n] for (c, b, m), n
                                           in monthly[p][0].items()
@@ -331,14 +369,15 @@ def top_as_of(path: Path) -> str | None:
 
 
 def top_is_current(path: Path, target: str) -> bool:
-    """True when an existing summary is for `target` AND already carries the
-    single-month rankings — files written before those existed are rebuilt
-    once even though their `as_of` matches."""
+    """True when an existing summary is for `target`, already carries the
+    single-month rankings and is of the current SCHEMA — older files are
+    rebuilt once even though their `as_of` matches."""
     try:
         doc = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return False
-    return doc.get("as_of") == target and "months" in doc
+    return (doc.get("as_of") == target and "months" in doc
+            and doc.get("schema", 1) >= SCHEMA)
 
 
 def guarded(fn, *args) -> None:

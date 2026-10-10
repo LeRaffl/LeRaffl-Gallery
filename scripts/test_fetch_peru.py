@@ -240,7 +240,7 @@ def test_top_table():
     assert top["classes"]["BEV"]["models"][1]["brand"] == "BYD"
     assert top["classes"]["MHEV"]["brands"][0]["brand"] == "SUZUKI"
     assert top["classes"]["HEV"]["units"] == 5
-    assert "PETROL" not in top["classes"]
+    assert top["classes"]["PETROL"]["models"][0]["model"] == "SOLUTO"   # petrol as in the CSV
 
 
 def test_display_names():

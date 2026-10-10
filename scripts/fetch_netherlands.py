@@ -655,13 +655,21 @@ def fetch_fuels(session: requests.Session, plates: list[str]) -> dict[str, list]
 
 def powertrain_class(fuels: list) -> str:
     """The CSV's split: BEV = electricity as the only fuel, PHEV = an
-    externally chargeable hybrid (OVC-HEV). Everything else — including the
-    full hybrids the CSV leaves unsplit and fuel-cell cars (OTHERS) — is ""."""
+    externally chargeable hybrid (OVC-HEV), PETROL = petrol as the only
+    combustion fuel — full hybrids included, the CSV leaves them unsplit
+    (Swing's Benzine). Everything else — LPG / CNG bi-fuel, fuel-cell cars
+    (OTHERS) and diesel — is "". Diesel is not ranked: RDW's diesel new
+    passenger cars are mostly motorhomes (≈ 300 a month in 2026), Swing's
+    Diesel counts about 15, so a ranking would not describe the CSV's diesel."""
     kinds = {k for _, k in fuels if k}
     if any(k.startswith("OVC-HEV") for k in kinds):
         return "PHEV"
-    if fuels and {f for f, _ in fuels} == {"Elektriciteit"} and not kinds:
+    names = {f for f, _ in fuels}
+    if names == {"Elektriciteit"} and not kinds:
         return "BEV"
+    combustion = names - {"Elektriciteit"}
+    if combustion == {"Benzine"}:
+        return "PETROL"
     return ""
 
 
@@ -729,7 +737,7 @@ def display_model(merk: str, model: str) -> str:
 
 def aggregate_month(session: requests.Session, period: str,
                     variant: str = "Whole") -> tuple[dict, int]:
-    """({(class, brand, model): n} for BEV/PHEV, all cars of the month)."""
+    """({(class, brand, model): n} for BEV/PHEV/PETROL, all cars of the month)."""
     cars = fetch_new_cars(session, period, variant)
     fuels = fetch_fuels(session, [c["kenteken"] for c in cars])
     units: collections.Counter = collections.Counter()
@@ -753,7 +761,9 @@ def refresh_top(session: requests.Session | None = None,
         return
     target = max(totals)
     stored = market_top.load_store(store_path)
-    need = [p for p in market_top.month_window(target) if p not in stored]
+    # A month stored before petrol / diesel were counted is read again.
+    need = [p for p in market_top.month_window(target)
+            if p not in stored or not any(c == "PETROL" for c, _, _ in stored[p][0])]
     if not need and market_top.top_is_current(top_path, target):
         print(f"{top_path.relative_to(market_top.REPO)}: current ({target}).")
         return
@@ -764,7 +774,7 @@ def refresh_top(session: requests.Session | None = None,
     for p in need:
         fresh[p] = aggregate_month(session, p, variant)
         print(f"  {p}: {fresh[p][1]:,} cars, "
-              f"{sum(fresh[p][0].values()):,} BEV/PHEV")
+              f"{sum(n for (c, _, _), n in fresh[p][0].items() if c in ('BEV', 'PHEV')):,} BEV/PHEV")
     window = market_top.month_window(target)
     market_top.check_scope({p: v[1] for p, v in {**stored, **fresh}.items() if p in window},
                            totals)

@@ -892,14 +892,18 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                               electrified cars" (a top file with
 #                                               only the ALL class — every powertrain,
 #                                               for a source without a brand × fuel
-#                                               table — is not about electrified cars)
+#                                               table — is not about electrified cars).
+#                                               Any heading loses its word "electrified"
+#                                               once the file ranks PETROL / DIESEL
 #       written by the fetcher via scripts/market_top.py — Spain, Malaysia, …
 #       {"variant", "as_of", "window": {"from","to","months"},
 #        "total_registrations", "unit",
 #        "classes": {"BEV": {"units","share_of_market",
 #                            "brands": [{"brand","units","share_of_class"}],
 #                            "models": [{"brand","model","units","share_of_class"}]},
-#                    "PHEV": {...}, ...}}
+#                    "PHEV": {...}, ..., "PETROL": {...}, "DIESEL": {...}}}
+#       rendered as leaderboard grids (rank × one column per class, Share /
+#       Units toggle, header = the column's base, last row = unranked rest)
 #   market_designation_note: "…"                optional: replaces the sentence
 #                                               saying designations are raw source strings
 #   market_powertrain_note: "…"                 optional: replaces the "powertrain as
@@ -950,6 +954,7 @@ CLASS_LABEL = {
     "EREV": "Range-extended EV (a plug-in; counted with PHEV in the curves)",
     "HEV": "Full hybrid (no plug; counted as ICE in the curves)",
     "MHEV": "Mild hybrid (counted as ICE)", "ICE": "Combustion only",
+    "PETROL": "Petrol", "DIESEL": "Diesel",
     "ALL": "Every powertrain (the source has no brand × fuel table)",
 }
 GH_RAW = "https://raw.githubusercontent.com/LeRaffl/LeRaffl-Gallery/master"
@@ -984,26 +989,6 @@ def _share(v) -> str:
         return "—"
 
 
-def _rank_table(rows: list[dict], cols: list[tuple[str, str]], caption: str) -> str:
-    head = "".join(f'<th class="num">{esc(h)}</th>' if k in ("#", "units", "share_of_class")
-                   else f"<th>{esc(h)}</th>" for h, k in cols)
-    body = []
-    for i, r in enumerate(rows, 1):
-        cells = []
-        for _, key in cols:
-            if key == "#":
-                cells.append(f'<td class="num">{i}</td>')
-            elif key in ("units",):
-                cells.append(f'<td class="num">{_num(r.get(key))}</td>')
-            elif key == "share_of_class":
-                cells.append(f'<td class="num">{_share(r.get(key))}</td>')
-            else:
-                cells.append(f"<td>{esc(r.get(key, ''))}</td>")
-        body.append("<tr>" + "".join(cells) + "</tr>")
-    return (f'<div class="scroll"><table class="rank"><caption>{esc(caption)}</caption>'
-            f'<tr>{head}</tr>{"".join(body)}</table></div>')
-
-
 MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July",
                "August", "September", "October", "November", "December"]
 
@@ -1016,44 +1001,115 @@ def _month_label(period: str) -> str:
         return period
 
 
-def _market_view(classes: dict, names: dict, labels: dict, open_first: bool) -> str:
-    """Share tiles + one collapsible block per electrified class (brand table,
-    and the designation table when the source has models)."""
-    tiles = []
-    for c in CLASS_ORDER:
-        if c in classes:
-            v = classes[c]
-            tiles.append(f'<div class="stat"><div class="n">{_share(v.get("share_of_market"))}</div>'
-                         f'<div class="l">{esc(names[c])} · {_num(v.get("units"))} units</div></div>')
-    parts = [f'<div class="stats">{"".join(tiles)}</div>'] if tiles else []
-    brand_cols = [("#", "#"), ("Brand", "brand"), ("Units", "units"), ("Share", "share_of_class")]
-    model_cols = [("#", "#"), ("Brand", "brand"), ("Designation", "model"),
-                  ("Units", "units"), ("Share", "share_of_class")]
-    for c, open_ in (("BEV", True), ("PHEV", True), ("EREV", False), ("HEV", False), ("MHEV", False),
-                     ("ALL", True)):
-        v = classes.get(c)
-        if not v:
-            continue
-        n = names[c]
-        brands = _rank_table(v.get("brands") or [], brand_cols, f"{n} — top brands (share of {n})")
-        if v.get("models"):
-            inner = ('<div class="pair">' + brands
-                     + _rank_table(v["models"], model_cols, f"{n} — top designations (share of {n})")
-                     + '</div>')
-        else:
-            inner = f'<div class="solo">{brands}</div>'
-        parts.append(f'<details{" open" if open_ and open_first else ""}><summary>{cls_badge(c)} '
-                     f'{esc(labels[c])} — {_num(v.get("units"))} units</summary>{inner}</details>')
-    return "".join(parts)
+def _vals(share, units) -> str:
+    """Both values of a grid cell; the section's Share / Units toggle shows one."""
+    return f'<span class="v-s">{_share(share)}</span><span class="v-u">{_num(units)}</span>'
 
 
-def _market_pick_js(sec: str, sel: str) -> str:
+def _grid(classes: dict, order: list, key: str, names: dict, caption: str) -> str:
+    """Leaderboard grid: rank rows × one column per class. Every value is there
+    twice — share of the class (`.v-s`) and units (`.v-u`) — and the section's
+    Share / Units toggle shows one. The header carries each column's base (its
+    share of the market, or its units) and the last row the unranked rest, so
+    a column visibly adds up to its header."""
+    lists = {c: classes[c].get(key) or [] for c in order}
+    rows = max(len(v) for v in lists.values())
+    head = "".join(
+        f'<th class="nm"><span class="cls cls--{c.lower()}">{esc(names[c])}</span></th>'
+        f'<th class="num">{_vals(classes[c].get("share_of_market"), classes[c].get("units"))}</th>'
+        for c in order)
+    body = []
+    for i in range(rows):
+        cells = []
+        for c in order:
+            r = lists[c][i] if i < len(lists[c]) else None
+            if not r:
+                cells.append('<td class="nm"></td><td></td>')
+                continue
+            brand, model = _display_name(r["brand"]), _display_name(r.get("model", ""))
+            # A model cell is always two lines — model, then its brand small —
+            # so every row has the same height; overlong names end in "…"
+            # and the title attribute carries the full name.
+            tag = '<span class="cls cls--erev tag">EREV</span>' if r.get("erev") else ""
+            name = (f'<span class="ln">{esc(model)}</span>'
+                    f'<span class="ln br"><span class="bn">{esc(brand)}</span>{tag}</span>'
+                    if key == "models" else f'<span class="ln">{esc(brand)}</span>')
+            full = f"{brand} {model}" if key == "models" else brand
+            cells.append(f'<td class="nm" title="{esc(full)}">{name}</td>'
+                         f'<td class="num">{_vals(r.get("share_of_class"), r.get("units"))}</td>')
+        body.append(f'<tr><td class="num">{i + 1}</td>{"".join(cells)}</tr>')
+    rest = []
+    for c in order:
+        units = classes[c].get("units") or 0
+        left = units - sum(r.get("units") or 0 for r in lists[c])
+        rest.append(f'<td class="nm">rest</td><td class="num">{_vals(left / units, left)}</td>'
+                    if left > 0 and units else '<td class="nm"></td><td></td>')
+    caption = (f'{esc(caption)} — <span class="v-s">% of each powertrain; header: the '
+               'powertrain\'s % of all registrations</span><span class="v-u">registrations; '
+               'header: the powertrain\'s total</span>')
+    # Fixed layout, same column widths in every grid of the section: each
+    # powertrain gets an equal share, so the brand and model grids line up.
+    few = " grid--few" if len(order) <= 2 else ""
+    cols = '<col class="c-rank">' + '<col><col class="c-val">' * len(order)
+    return (f'<p class="grid-cap">{caption}</p>'
+            f'<div class="scroll" style="--n:{len(order)}"><table class="grid grid--{key}{few}">'
+            f'<colgroup>{cols}</colgroup>'
+            f'<tr><th class="num">#</th>{head}</tr>{"".join(body)}'
+            f'<tr class="rest"><td></td>{"".join(rest)}</tr></table></div>')
+
+
+# Column order of the grids: electrified first, then combustion.
+MARKET_ORDER = ("BEV", "PHEV", "EREV", "HEV", "MHEV", "PETROL", "DIESEL", "ALL")
+
+
+def _market_view(classes: dict, names: dict, labels: dict) -> str:
+    """One view (the headline window or one month): a brand grid and, when the
+    source has models, a designation grid, one column per ranked class."""
+    # PHEV and EREV ranked together (market_top's incl_erev) replace the two
+    # columns: range extenders are plug-ins, the curves count them so too, and
+    # an EREV model carries a small tag instead of a column of its own.
+    merged = bool((classes.get("PHEV") or {}).get("incl_erev"))
+    if merged:
+        classes = {**{c: v for c, v in classes.items() if c != "EREV"},
+                   "PHEV": classes["PHEV"]["incl_erev"]}
+    order = [c for c in MARKET_ORDER if classes.get(c)]
+    if not order:
+        return ""
+    # Spell out the classes whose meaning a reader could get wrong (hybrids
+    # are counted as ICE in the curves, EREV with PHEV), and every class a
+    # country relabels (Finland's petrol includes its full hybrids).
+    notes = [f'{esc(names[c])} = {esc(labels[c][0].lower() + labels[c][1:])}'
+             for c in order if c in ("EREV", "HEV", "MHEV", "ALL")
+             or labels[c] != CLASS_LABEL.get(c)]
+    out = _grid(classes, order, "brands", names, "Top brands")
+    if any(classes[c].get("models") for c in order):
+        out += _grid(classes, order, "models", names, "Top designations")
+    if merged:
+        notes.insert(0, f'{esc(names["PHEV"])} = plug-in hybrids including range extenders '
+                        f'({cls_badge("EREV")} on the model)')
+    if notes:
+        out += f'<p class="dim">{" · ".join(notes)}.</p>'
+    return out
+
+
+MARKET_TOGGLE = ('<span class="mkt-toggle" role="group" aria-label="Values" hidden>'
+                 '<button type="button" value="s" aria-pressed="true">Share</button>'
+                 '<button type="button" value="u" aria-pressed="false">Units</button></span>')
+
+
+def _market_js(sec: str, sel: str | None) -> str:
+    """Month picker (when there is one) + the Share / Units toggle."""
     return ("<script>\n(function(){\n"
-            f"  var sel=document.getElementById('{sel}'); if(!sel) return;\n"
-            f"  var views=document.querySelectorAll('#{sec} .mkt-view');\n"
+            f"  var root=document.getElementById('{sec}'), sel={'document.getElementById(%r)' % sel if sel else 'null'};\n"
+            "  var views=root.querySelectorAll('.mkt-view'), tg=root.querySelector('.mkt-toggle');\n"
             "  function show(){ views.forEach(function(v){ "
-            "v.hidden=v.getAttribute('data-view')!==sel.value; }); }\n"
-            "  sel.addEventListener('change',show); show();\n"
+            "v.hidden=!!sel&&v.getAttribute('data-view')!==sel.value; }); }\n"
+            "  tg.hidden=false;\n"
+            "  tg.addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return;\n"
+            "    root.classList.toggle('units', b.value==='u');\n"
+            "    tg.querySelectorAll('button').forEach(function(x){ "
+            "x.setAttribute('aria-pressed', x===b?'true':'false'); }); });\n"
+            "  if(sel) sel.addEventListener('change',show); show();\n"
             "})();\n</script>")
 
 
@@ -1084,6 +1140,11 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
     top = json.loads(path.read_text(encoding="utf-8"))
     win = top.get("window") or {}
     classes = top.get("classes") or {}
+    # A file that ranks petrol / diesel is no longer about the electrified cars
+    # alone: "Who sells the new electrified cars" → "Who sells the new cars".
+    if any(c in m.get("classes", {}) for m in [top] + (top.get("months") or [])
+           for c in ("PETROL", "DIESEL")):
+        heading = heading.replace("electrified ", "")
     total = top.get("total_registrations")
     n_months = win.get("months", 12)
     months = top.get("months") or []
@@ -1130,10 +1191,11 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
     labels = CLASS_LABEL | (fm.get("market_class_labels") or {}) | (class_labels or {})
     head = (f'Last {n_months} months' if n_months != 1 else 'Latest month')
     views = [f'<div class="mkt-view" data-view="ttm">'
-             + _market_view(classes, names, labels, True) + '</div>']
+             + _market_view(classes, names, labels) + '</div>']
     if not months:
         return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
-                + lead + "".join(views) + '</section>')
+                + lead + f'<p class="mkt-pick">{MARKET_TOGGLE}</p>'
+                + "".join(views) + _market_js(sec, None) + '</section>')
     # Single months (newest first) behind a picker; the no-JS page shows the
     # headline view only (every month is `hidden` until the script runs).
     opts = [f'<option value="ttm">{esc(head)} ({esc(win.get("from", ""))} → '
@@ -1145,13 +1207,13 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
                      f'<p class="dim">{esc(_month_label(per))} · '
                      f'{_num(m.get("total_registrations"))} new registrations. '
                      'Single-month lists are shorter: top 10 brands and top 10 '
-                     'designations per class.</p>'
-                     + _market_view(m.get("classes") or {}, names, labels, True) + '</div>')
+                     'designations per powertrain.</p>'
+                     + _market_view(m.get("classes") or {}, names, labels) + '</div>')
     pick = f"mkt-pick-{sec}"
     picker = (f'<p class="mkt-pick"><label for="{esc(pick)}">Show: </label>'
-              f'<select id="{esc(pick)}">{"".join(opts)}</select></p>')
+              f'<select id="{esc(pick)}">{"".join(opts)}</select>{MARKET_TOGGLE}</p>')
     return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
-            + lead + picker + "".join(views) + _market_pick_js(sec, pick) + '</section>')
+            + lead + picker + "".join(views) + _market_js(sec, pick) + '</section>')
 
 
 FILTER_JS = """<script>
@@ -1434,7 +1496,7 @@ def _display_name(s: str) -> str:
     def word(w: str) -> str:
         if len(w) <= 3 or any(ch.isdigit() or ch == "." for ch in w) or not w.isupper():
             return w
-        return "-".join(p.capitalize() for p in w.split("-"))
+        return "-".join(p.capitalize() if len(p) > 3 else p for p in w.split("-"))
     return " ".join(word(w) for w in str(s).split())
 
 
@@ -1636,16 +1698,44 @@ table.matrix th:first-child{white-space:nowrap}
 details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
   padding:8px 12px;background:var(--panel)}
 details>summary{cursor:pointer;font-weight:600;padding:4px 0}
-.pair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:14px;margin-top:8px}
-@media (max-width:760px){.pair{grid-template-columns:1fr}}
-.solo{max-width:520px;margin-top:8px}
+table.grid{border-collapse:collapse;font-size:14px;width:100%;table-layout:fixed;
+  min-width:calc(34px + var(--n) * 150px)}
+table.grid col.c-rank{width:34px}
+table.grid col.c-val{width:54px}
+table.grid td.num,table.grid th.num{padding-left:2px;padding-right:7px}
+table.grid .ln{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table.grid .br{font-size:12px;color:var(--muted);display:flex;gap:4px;align-items:center}
+table.grid .bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.cls.tag{font-size:10px;padding:0 4px;flex:none}
+table.grid th .cls{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  vertical-align:middle}
+.grid-cap{font-size:13px;color:var(--muted);margin:14px 0 6px}
+table.grid th,table.grid td{padding:6px 6px;border-bottom:1px solid var(--border);
+  text-align:left;vertical-align:top}
+table.grid th{background:var(--panel)}
+table.grid th.num{color:var(--muted);font-weight:400}
+table.grid .nm{border-left:1px solid var(--border);padding-left:8px;padding-right:4px}
+table.grid--few{max-width:calc(34px + var(--n) * 260px)}
+table.grid tr.rest td{color:var(--muted);font-size:13px;border-bottom:0}
+.v-u{display:none}
+.units .v-u{display:inline}.units .v-s{display:none}
+.mkt-toggle{margin-left:12px;white-space:nowrap}
+.mkt-toggle button{font:inherit;font-size:13px;padding:5px 10px;cursor:pointer;
+  border:1px solid var(--border);background:var(--panel);color:var(--muted)}
+.mkt-toggle button:first-child{border-radius:8px 0 0 8px}
+.mkt-toggle button:last-child{border-radius:0 8px 8px 0;border-left:0}
+.mkt-toggle button[aria-pressed="true"]{color:var(--text);font-weight:600;background:var(--chip-bg)}
+.mkt-view .scroll{margin:0 0 12px}
+/* A grid wider than the text column (six classes need ~930 px) breaks out of
+   it, centred, as far as the window allows; on a phone it scrolls instead. */
+.mkt-view .scroll{width:max(100%,min(calc(34px + var(--n) * 150px),calc(100vw - 32px)));
+  position:relative;left:50%;transform:translateX(-50%)}
 .mkt-pick select{padding:6px 8px;border:1px solid var(--border);border-radius:8px;
   font:inherit;background:var(--panel);color:var(--text)}
-table.rank,table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
-table.rank caption{text-align:left;font-size:13px;color:var(--muted);padding:0 0 6px}
-table.rank th,table.rank td,table.rules th,table.rules td,table.mapping th,table.mapping td{
+table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rules th,table.rules td,table.mapping th,table.mapping td{
   text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
-table.rank th,table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+table.rules th,table.mapping th{color:var(--muted);font-weight:600;
   position:sticky;top:0;background:var(--panel)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 table.rules td:nth-child(2){min-width:140px}
@@ -1671,6 +1761,8 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
 .cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
 .cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
 .cls--all{background:rgba(90,90,110,.14);color:#3d3d55}
+.cls--petrol{background:rgba(200,90,20,.13);color:#9a4310}
+.cls--diesel{background:rgba(60,60,60,.13);color:#454545}
 /* Dark mode (assets/theme.css follows prefers-color-scheme): the badge inks
    above are dark-on-wash and vanish on a dark page, so lift them. */
 @media (prefers-color-scheme: dark){
@@ -1681,6 +1773,8 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
   :root:not([data-theme="light"]) .cls--mhev{color:#d6c27a}
   :root:not([data-theme="light"]) .cls--ice{color:#d9a27a}
   :root:not([data-theme="light"]) .cls--all{color:#b4b4cc}
+  :root:not([data-theme="light"]) .cls--petrol{color:#eba270}
+  :root:not([data-theme="light"]) .cls--diesel{color:#bdbdbd}
 }
 """
 

@@ -117,7 +117,7 @@ processing:
       then: Used data file (9 in 2025)
 market_breakdown: market/paraguay_top.json
 market_designation_note: the model is read from the declaration's free-text description (the words after "MODELO", or the whole text when it is just a designation such as "TANK 400 PHEV 4WD"), first three words, upper-cased. A description without a model counts for its brand only.
-market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV — the tariff subheading; HEV includes mild hybrids.
+market_powertrain_note: BEV / PHEV / HEV / petrol / diesel exactly as in the CSV — the tariff subheading; HEV includes mild hybrids.
 fetcher: scripts/fetch_paraguay.py
 workflow: .github/workflows/fetch-paraguay.yml
 fragility_doc: docs/architecture/47-source-paraguay.md
@@ -345,7 +345,8 @@ in at 27 %. Single import months are lumpier than registrations would be.
   backtest (`DATA_ONLY_SERIES` in `R/build_backtest.R` and
   `scripts/check_country_integration.py`).
 - `market/paraguay_top.json` — trailing-12-month top brands and models per
-  class (BEV, PHEV, HEV) for Whole, built from the month store
+  class (BEV, PHEV, HEV, and since 2026-10 PETROL / DIESEL with their models)
+  for Whole, built from the month store
   `market/paraguay_months.json` (a normal run downloads only two months, so it
   cannot re-read twelve). Brand = `MARCA ITEM` with aliases merged
   (`GREATWALL` → GREAT WALL, `LYNK  CO` → LYNK & CO, `MERCEDES BENZ` →

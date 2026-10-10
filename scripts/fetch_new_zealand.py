@@ -172,6 +172,7 @@ MOTIVE_MAP = {
     "": "OTHERS",
 }
 ELECTRIFIED = ("BEV", "PHEV", "HEV")
+RANKED = ELECTRIFIED + ("PETROL", "DIESEL")   # classes with a brand/model ranking
 UNKNOWN_ABORT = 0.01             # unknown labels above 1 % of a month stop the run
 PLAUSIBLE = (0.5, 2.0)           # TOTAL / same month a year earlier
 OVERLAP_WARN = 0.05              # register vs CSV on months the CSV holds
@@ -276,10 +277,10 @@ def query_register(first: str, last: str, top_from: str | None) -> dict:
                    [F_YEAR, F_MONTH, "IMPORT_STATUS", "CLASS", "MOTIVE_POWER"])
     models: list[dict] = []
     if top_from:
-        elec = [k for k, v in MOTIVE_MAP.items() if v in ELECTRIFIED and k]
+        ranked = [k for k, v in MOTIVE_MAP.items() if v in RANKED and k]
         statuses = tuple(st for v in TOP_PATHS for st in VARIANTS[v][0])
         where = (scope_where(top_from, last, statuses, M1) + " AND MOTIVE_POWER IN ("
-                 + ",".join(f"'{k}'" for k in elec) + ")")
+                 + ",".join(f"'{k}'" for k in ranked) + ")")
         models = grouped(query_url, where, [F_YEAR, F_MONTH, "IMPORT_STATUS", "MOTIVE_POWER",
                                             "MAKE", "MODEL"])
         # month totals for the shares — the fuel query covers only first..last
@@ -367,8 +368,12 @@ def month_units(model_rows: list[dict], variant: str = "Whole") -> dict[str, dic
         if (a.get("IMPORT_STATUS") or "NEW") not in statuses:
             continue
         cls = column_of(a.get("MOTIVE_POWER"))
-        if cls not in ELECTRIFIED:
+        if cls not in RANKED:
             continue
+        # Range extenders are PHEV in the CSV; the ranking keeps them apart so
+        # the page can tag them inside its PHEV column (market_top incl_erev).
+        if "EXTENDED" in market_top.clean(a.get("MOTIVE_POWER")):
+            cls = "EREV"
         brand = market_top.clean(a.get("MAKE"))
         model = market_top.strip_brand(brand, market_top.clean(a.get("MODEL")))
         key = (period_of(a), cls, brand, model)

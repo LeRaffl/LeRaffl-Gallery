@@ -164,7 +164,7 @@ processing:
   - ACEA is the reference. When ACEA publishes the month (third to fourth week), the newest months are compared with ACEA's Swiss figure; a gap above 1 % in the total, or 3 % in one fuel with at least 200 cars, raises a warning. Over 2025-01 to 2026-08 (19 releases, 366,000 cars) the register reproduces ACEA to −0.02 % in total and +0.1 % in BEV.
 market_breakdown: market/switzerland_top.json
 market_designation_note: the model is the register's type designation Typ2 (ENYAQ, EX30, GLC — trims and power codes in Typ3 such as 85X or xDrive30e are dropped, so the versions of one model rank together). For the families whose Typ3 is the model itself it is Typ2 + Typ3 — MODEL Y, SEAL U, IONIQ 5, RR EVOQUE, AMG GLC, ATTO 2. A model typed with the brand glued on is merged with the plain one (MG "MG4" and "4" both rank as 4). Upper-cased.
-market_powertrain_note: BEV / PHEV / HEV exactly as in the CSV (register fuel + hybrid code); HEV includes mild hybrids. Counted by registration month from ASTRA's snapshot, so a month can differ from the chart's row by the few late registrations the chart moves into the next month.
+market_powertrain_note: BEV / PHEV / HEV / petrol / diesel exactly as in the CSV (register fuel + hybrid code); HEV includes mild hybrids. Counted by registration month from ASTRA's snapshot, so a month can differ from the chart's row by the few late registrations the chart moves into the next month.
 market_breakdown_extra:
 - path: market/switzerland_used_top.json
   id: market-used

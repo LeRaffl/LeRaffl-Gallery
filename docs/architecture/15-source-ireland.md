@@ -286,11 +286,11 @@ The passenger dashboard also serves `carsByMake` and `carsByModel` partials
 for the stored filter, and its `engineTypes` partial lists the engine-type
 filter values (`{"value": "03", "name": "Electric"}`, …). `refresh_top()`
 maps those names through `LABEL_TO_COL` (same classes as the CSV: BEV, PHEV,
-HEV), then per month of the trailing twelve stores the month plus one class's
+HEV, PETROL, DIESEL — petrol and diesel since 2026-10), then per month of the trailing twelve stores the month plus one class's
 engine types and reloads both rankings. Class totals come from the unfiltered
 `carsByEngineType`; whatever the dashboard does not list is counted but not
 ranked (`market_top.REST`), and a list that exceeds its class total stops the
-refresh. ~50 filter round-trips per refresh; runs after a Whole update or when
+refresh. ~80 filter round-trips per refresh; runs after a Whole update or when
 the top file lags, behind `market_top.guarded`. `--probe` (workflow input
 `probe`) logs the dashboard props and filter options without writing.
 
