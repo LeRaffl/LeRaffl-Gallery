@@ -1,0 +1,130 @@
+name: Fetch Greece data (SEAA)
+
+# Reads SEAA's monthly registration statistics (seaa.gr — the importers'
+# association, processing ELSTAT's registration data; the figures ACEA relays
+# for Greece) and upserts:
+#
+#   data/Greece.csv   Whole  new passenger cars incl. taxis — TOTAL from
+#                            <Y>-<M>-comp.xlsx, BEV/PHEV from the BEV/PHEV PDFs,
+#                            HEV/PETROL/DIESEL/OTHERS derived from the press
+#                            release's fuel shares (one decimal) until ACEA
+#                            publishes the month; fetch-acea.yml then puts
+#                            ACEA's counted HEV/PETROL/DIESEL on the row
+#                            (scripts/acea_split.py, source "SEAA / ACEA")
+#
+# Also writes market/greece_top.json (+ greece_months.json). Files are found by
+# name through the WordPress media API (seaa.gr/wp-json/wp/v2/media). Method,
+# the ACEA comparison, governance and a debugging runbook:
+# docs/architecture/53-source-greece.md.
+#
+# SEAA's press release comes out around the 10th–24th, the statistics files
+# around the 15th–21st (once as late as the 21st of the month after). The
+# press release alone writes a provisional row (BEV/PHEV/TOTAL only, since
+# 2025-11); the run that finds the statistics files replaces it. Polled twice
+# daily from the 8th; a run with nothing missing exits after reading the CSV.
+#
+# Vans / HDV / Buses stay on ACEA's commercial-vehicle report (fetch-acea-cv.yml):
+# SEAA publishes them without a fuel split.
+#
+# Rendering: dispatches render-country.yml once with the touched variant.
+
+on:
+  workflow_dispatch:
+    inputs:
+      period:
+        description: 'One month YYYY-MM (default: every month missing or provisional)'
+        required: false
+        default: ''
+        type: string
+      backfill:
+        description: 'Rewrite every month from 2022-01 that is missing, ACEA or provisional (with force: all)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle and the completeness guard; rewrite own rows (never a foreign source other than ACEA)'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 11:55 and 17:55 UTC on the 8th–31st (14:55 / 20:55 Athens).
+    - cron: '55 11,17 8-31 * *'
+
+concurrency:
+  group: fetch-greece
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests pdfplumber openpyxl
+
+      # The PDF column positions, the Greek month names and the share split
+      # fail silently when wrong, so the regression tests gate the fetch.
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_greece.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Greece.csv
+        id: fetch
+        run: |
+          python scripts/fetch_greece.py \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: |
+            data/Greece.csv
+            market/greece_top.json
+            market/greece_months.json
+          message: 'chore: update Greece data from SEAA'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Greece
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country=Greece \
+            -f variants="$variants"

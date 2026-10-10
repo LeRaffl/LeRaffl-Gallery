@@ -8,7 +8,7 @@ FLAG <- c(
   albania="\U0001F1E6\U0001F1F1", argentina="\U0001F1E6\U0001F1F7", austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4", czechia="\U0001F1E8\U0001F1FF",
   denmark="\U0001F1E9\U0001F1F0", ecuador="\U0001F1EA\U0001F1E8", germany="\U0001F1E9\U0001F1EA", finland="\U0001F1EB\U0001F1EE", france="\U0001F1EB\U0001F1F7",
-  georgia="\U0001F1EC\U0001F1EA", ireland="\U0001F1EE\U0001F1EA", israel="\U0001F1EE\U0001F1F1",
+  georgia="\U0001F1EC\U0001F1EA", greece="\U0001F1EC\U0001F1F7", ireland="\U0001F1EE\U0001F1EA", israel="\U0001F1EE\U0001F1F1",
   `hong-kong`="\U0001F1ED\U0001F1F0",
   italy="\U0001F1EE\U0001F1F9", italy_rental="\U0001F1EE\U0001F1F9", japan="\U0001F1EF\U0001F1F5",
   lithuania="\U0001F1F1\U0001F1F9", luxembourg="\U0001F1F1\U0001F1FA", malaysia="\U0001F1F2\U0001F1FE",
@@ -24,7 +24,7 @@ FLAG <- c(
 
 LABEL <- c(
   albania="Albania", argentina="Argentina", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
-  colombia="Colombia", czechia="Czechia", denmark="Denmark", ecuador="Ecuador", finland="Finland", france="France", georgia="Georgia", germany="Germany", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
+  colombia="Colombia", czechia="Czechia", denmark="Denmark", ecuador="Ecuador", finland="Finland", france="France", georgia="Georgia", germany="Germany", greece="Greece", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   lithuania="Lithuania", luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",
   netherlands="Netherlands", `new-zealand`="New Zealand", norway="Norway", paraguay="Paraguay", peru="Peru", poland="Poland",
