@@ -172,10 +172,6 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 - A coarse figure is written across finer rows in **`BEV`, `PHEV`** — up to 72 rows, 2011-01…2016-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
 
-### New Zealand
-
-- A coarse figure is written across finer rows in **`OTHERS`** — up to 14 rows, 2016-05…2023-06. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
-
 ### Norway
 
 - A coarse figure is written across finer rows in **`OTHERS`** — up to 9 rows, 2016-02…2022-09. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
