@@ -361,6 +361,34 @@ significant EV importer is outside it**).
 > monthly view is interactive only), and SSB table 14020 for Norway (lumps
 > all hybrids — a coarser split than the legacy series, not allowed).
 
+## Automated, not new — 🇱🇹 Lithuania (2026-10)
+
+> **Status: AUTOMATED (2026-10-09).** Lithuania was an ACEA always-list
+> country. Regitra, the register keeper, publishes a yearly XLSX of first
+> registrations of M1 by new/used status × fuel field (table 5, from 2024)
+> and an open register snapshot with the EU hybrid category and brand/model;
+> both answer GitHub's runners (the 2026-09-28 CAPTCHA did not recur).
+> `scripts/fetch_lithuania.py` writes `Whole` from 2024-01 (−0.2 % against
+> ACEA, exact against Regitra's own totals) and adds `Used` — the used-import
+> market, 3.6× the new one. The PHEV/HEV split is derived (ACEA's counted
+> split, else the snapshot's share). See
+> [55-source-lithuania.md](55-source-lithuania.md).
+>
+> The same session (2026-10-09) probed the other EU registers still on ACEA,
+> from GitHub runners; none had a monthly fuel series that could be fetched:
+>
+> | Country | Probed | Finding |
+> |---|---|---|
+> | 🇷🇴 Romania | `data.gov.ro` (CKAN), `drpciv.ro` | the API timed out or answered 503; the datasets found are yearly (fleet "parc auto", licences); DRPCIV's site is a script-rendered app with no data files |
+> | 🇭🇺 Hungary | `data.gov.hu`, KSH STADAT | the portal timed out; KSH's STADAT transport page answered but was not searched for a monthly table by fuel |
+> | 🇭🇷 Croatia | `data.gov.hr` (CVH datasets) | yearly vehicle datasets, the newest for 2022 |
+> | 🇸🇮 Slovenia | `podatki.gov.si`, SURS PxWeb | the record-level register extract stopped in 2023 (data protection); SURS's monthly first registrations have no fuel |
+> | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 |
+> | 🇪🇪 Estonia | `avaandmed.eesti.ee` (Transpordiamet "Infoleht") | a monthly XLSX of first and new registrations exists (to 2025-12); a small market, not pursued in this round — the best lead left among the ACEA countries |
+> | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is` | timed out from runners |
+> | 🇧🇬 Bulgaria | `data.egov.bg` | 403 |
+> | 🇸🇰 Slovakia | `data.gov.sk` | the CKAN API answered an HTML page |
+
 ## Investigated 2026-10 — the rest of the large-market list
 
 The Taiwan session (2026-10-04) re-checked the remaining larger markets
