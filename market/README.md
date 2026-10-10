@@ -8,6 +8,7 @@ one ranking per single month (`months`, newest first).
 | file | written by |
 |---|---|
 | `spain_top.json` | `scripts/fetch_spain.py` (DGT `MARCA_ITV` / `MODELO_ITV`, Whole) |
+| `spain_used_top.json` | the same script and downloads, Used (used cars at their first Spanish registration) |
 | `malaysia_top.json` | `scripts/fetch_malaysia.py` (data.gov.my `maker` / `model`) |
 | `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV, PHEV, EREV, HEV — plug-ins via `classification/ecuador_rules.csv`) |
 | `new_zealand_top.json` | `scripts/fetch_new_zealand.py` (NZTA Motor Vehicle Register `MAKE` / `MODEL`; Whole's scope — new passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |

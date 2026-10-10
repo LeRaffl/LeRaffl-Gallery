@@ -138,21 +138,25 @@ def test_spain_aggregate_models():
              _dgt_record("40", "N", "BEV", "2", "TESLA", "TESLA MODEL Y"),  # brand repeated
              _dgt_record("25", "N", "PHEV", "0", "BYD", "SEAL U DM-I"),
              _dgt_record("40", "N", "", "0", "SEAT", "IBIZA"),
-             _dgt_record("40", "U", "BEV", "2", "TESLA", "MODEL 3"),      # used → out
+             _dgt_record("40", "U", "BEV", "2", "TESLA", "MODEL 3"),      # used import
+             _dgt_record("25", "U", "HEV", "0", "TOYOTA", "C-HR"),         # used import
+             _dgt_record("40", "U", "BEV", "2", "NISSAN", "LEAF", clave="9"),  # re-plate → out
              _dgt_record("50", "N", "BEV", "2", "SILENCE", "S01")]        # moto → out
     txt = ("\n".join(lines) + "\n").encode("latin-1")
-    units, total = fs.aggregate_models(txt)
+    out = fs.aggregate_models(txt)
+    units, total = out["Whole"]
     assert total == 5, total
     assert units == {("BEV", "TESLA", "MODEL Y"): 3, ("PHEV", "BYD", "SEAL U DM-I"): 1,
                      ("PETROL", "SEAT", "IBIZA"): 1}, units
-    # The total must equal what aggregate() writes to data/Spain.csv (scaled
-    # past its 2,000-record corruption guard).
+    assert out["Used"] == ({("BEV", "TESLA", "MODEL 3"): 1, ("HEV", "TOYOTA", "C-HR"): 1}, 2)
+    # Each total must equal what aggregate() writes to that variant's CSV
+    # (scaled past its 2,000-record corruption guard).
     big = ("\n".join([lines[0]] + lines[1:] * 600) + "\n").encode("latin-1")
-    counts = fs.aggregate(big, "2026-08", ["Whole"])["Whole"]
-    big_units, big_total = fs.aggregate_models(big)
-    assert big_total == counts["TOTAL"] == 3000
-    for cls in ("BEV", "PHEV", "PETROL"):
-        assert sum(n for (c, _, _), n in big_units.items() if c == cls) == counts[cls]
+    counts = fs.aggregate(big, "2026-08", ["Whole", "Used"])
+    for v, (big_units, big_total) in fs.aggregate_models(big).items():
+        assert big_total == counts[v]["TOTAL"], v
+        for cls in ("BEV", "PHEV", "HEV", "PETROL"):
+            assert sum(n for (c, _, _), n in big_units.items() if c == cls) == counts[v][cls]
 
 
 def test_spain_latest_dgt_period():

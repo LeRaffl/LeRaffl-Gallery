@@ -37,7 +37,8 @@ name: Fetch Spain data (DGT microdata)
 # monthly file is in.
 #
 # Top brands/models: the script also keeps market/spain_top.json (trailing-12-
-# month top brands and models per electrified class, Whole) current — rebuilt
+# month top brands and models per electrified class, Whole) and
+# market/spain_used_top.json (the same for Used) current — rebuilt
 # once per new DGT month, or whenever it is missing, from twelve monthly
 # downloads. A change there is committed but never rendered (it only feeds the
 # source page, via build-source-pages.yml); a failure there is a warning, never
@@ -149,6 +150,7 @@ jobs:
             data/Spain_Buses.csv
             data/Spain_2-Wheelers.csv
             market/spain_top.json
+            market/spain_used_top.json
           message: 'chore: update Spain data from DGT'
           default_author: github_actions
           # Rebase over anything (manifest/source-page CI, another fetcher, a
