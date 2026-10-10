@@ -242,6 +242,36 @@
       "country_slug": "greece"
     },
     {
+      "country": "Malaysia",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "malaysia_ICE_BEV_20261010.png",
+      "url": "images/2026-09/malaysia_ICE_BEV_20261010.png",
+      "alt": "Malaysia ICE-BEV-Hybrid trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "malaysia_20261010.png",
+      "url": "images/2026-09/malaysia_20261010.png",
+      "alt": "Malaysia BEV trajectory",
+      "country_slug": "malaysia"
+    },
+    {
+      "country": "Malaysia",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-10",
+      "filename": "malaysia_time_20261010.png",
+      "url": "images/2026-09/malaysia_time_20261010.png",
+      "alt": "Malaysia Transition time curve",
+      "country_slug": "malaysia"
+    },
+    {
       "country": "New Zealand",
       "type": "ICE_BEV",
       "period": "2026-09",
