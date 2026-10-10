@@ -1,314 +1,1089 @@
 {
+ "schema": 3,
  "country": "Malaysia",
  "variant": "Whole",
  "source": "data.gov.my",
- "as_of": "2026-08",
+ "as_of": "2026-09",
  "window": {
-  "from": "2025-09",
-  "to": "2026-08",
+  "from": "2025-10",
+  "to": "2026-09",
   "months": 12
  },
- "total_registrations": 885439,
+ "total_registrations": 897111,
  "unit": "registrations (brand = maker, model = model as recorded by data.gov.my)",
  "classes": {
   "BEV": {
-   "units": 68925,
-   "share_of_market": 0.07784,
+   "units": 71422,
+   "share_of_market": 0.07961,
    "brands": [
     {
      "brand": "PROTON",
-     "units": 25276,
-     "share_of_class": 0.3667
+     "units": 27535,
+     "share_of_class": 0.3855
     },
     {
      "brand": "BYD",
-     "units": 14490,
-     "share_of_class": 0.2102
+     "units": 14077,
+     "share_of_class": 0.1971
     },
     {
      "brand": "TESLA",
-     "units": 7853,
-     "share_of_class": 0.1139
+     "units": 7871,
+     "share_of_class": 0.1102
     },
     {
      "brand": "ZEEKR",
-     "units": 4838,
-     "share_of_class": 0.0702
+     "units": 4990,
+     "share_of_class": 0.0699
     },
     {
      "brand": "CHERY",
-     "units": 4556,
-     "share_of_class": 0.0661
+     "units": 4618,
+     "share_of_class": 0.0647
     },
     {
      "brand": "LEAPMOTOR",
-     "units": 1803,
-     "share_of_class": 0.0262
+     "units": 1917,
+     "share_of_class": 0.0268
     },
     {
      "brand": "XPENG",
-     "units": 1614,
-     "share_of_class": 0.0234
+     "units": 1610,
+     "share_of_class": 0.0225
     },
     {
      "brand": "MG",
-     "units": 1236,
+     "units": 1277,
      "share_of_class": 0.0179
     },
     {
      "brand": "BMW",
-     "units": 940,
-     "share_of_class": 0.0136
+     "units": 895,
+     "share_of_class": 0.0125
     },
     {
      "brand": "DENZA",
-     "units": 758,
-     "share_of_class": 0.011
+     "units": 782,
+     "share_of_class": 0.0109
     }
    ],
    "models": [
     {
      "brand": "PROTON",
      "model": "E.MAS 5",
-     "units": 18050,
-     "share_of_class": 0.2619
+     "units": 20540,
+     "share_of_class": 0.2876
     },
     {
      "brand": "PROTON",
      "model": "E.MAS 7",
-     "units": 7226,
-     "share_of_class": 0.1048
+     "units": 6995,
+     "share_of_class": 0.0979
     },
     {
      "brand": "BYD",
      "model": "ATTO 3",
-     "units": 4733,
-     "share_of_class": 0.0687
+     "units": 4639,
+     "share_of_class": 0.065
     },
     {
      "brand": "TESLA",
      "model": "MODEL Y",
-     "units": 4334,
-     "share_of_class": 0.0629
+     "units": 4323,
+     "share_of_class": 0.0605
     },
     {
      "brand": "ZEEKR",
      "model": "7X",
-     "units": 3953,
-     "share_of_class": 0.0574
+     "units": 4072,
+     "share_of_class": 0.057
     },
     {
      "brand": "TESLA",
      "model": "MODEL 3",
-     "units": 3519,
-     "share_of_class": 0.0511
+     "units": 3548,
+     "share_of_class": 0.0497
     },
     {
      "brand": "BYD",
      "model": "SEALION",
-     "units": 3438,
-     "share_of_class": 0.0499
+     "units": 3355,
+     "share_of_class": 0.047
     },
     {
      "brand": "BYD",
      "model": "SEAL 6",
-     "units": 2605,
-     "share_of_class": 0.0378
+     "units": 2623,
+     "share_of_class": 0.0367
     },
     {
      "brand": "BYD",
      "model": "ATTO 2",
-     "units": 2269,
-     "share_of_class": 0.0329
+     "units": 2032,
+     "share_of_class": 0.0285
     },
     {
      "brand": "CHERY",
      "model": "ICAUR V23",
-     "units": 1853,
-     "share_of_class": 0.0269
+     "units": 1870,
+     "share_of_class": 0.0262
     },
     {
      "brand": "CHERY",
      "model": "ICAUR 03",
-     "units": 1543,
-     "share_of_class": 0.0224
+     "units": 1511,
+     "share_of_class": 0.0212
     },
     {
      "brand": "XPENG",
      "model": "G6",
-     "units": 1035,
-     "share_of_class": 0.015
+     "units": 1057,
+     "share_of_class": 0.0148
     },
     {
      "brand": "BYD",
      "model": "M6",
-     "units": 1025,
-     "share_of_class": 0.0149
+     "units": 1030,
+     "share_of_class": 0.0144
     },
     {
      "brand": "LEAPMOTOR",
      "model": "B10",
-     "units": 934,
-     "share_of_class": 0.0136
+     "units": 977,
+     "share_of_class": 0.0137
     },
     {
      "brand": "LEAPMOTOR",
      "model": "C10",
-     "units": 869,
-     "share_of_class": 0.0126
+     "units": 940,
+     "share_of_class": 0.0132
     }
    ]
   },
   "HEV": {
-   "units": 46378,
-   "share_of_market": 0.05238,
+   "units": 49427,
+   "share_of_market": 0.0551,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 14273,
-     "share_of_class": 0.3078
-    },
-    {
-     "brand": "GREAT WALL",
-     "units": 6280,
-     "share_of_class": 0.1354
+     "units": 15443,
+     "share_of_class": 0.3124
     },
     {
      "brand": "HONDA",
-     "units": 5995,
-     "share_of_class": 0.1293
+     "units": 6335,
+     "share_of_class": 0.1282
+    },
+    {
+     "brand": "GREAT WALL",
+     "units": 6295,
+     "share_of_class": 0.1274
     },
     {
      "brand": "PROTON",
-     "units": 5562,
-     "share_of_class": 0.1199
+     "units": 6247,
+     "share_of_class": 0.1264
     },
     {
      "brand": "CHERY",
-     "units": 5289,
-     "share_of_class": 0.114
+     "units": 5525,
+     "share_of_class": 0.1118
     },
     {
      "brand": "MERCEDES BENZ",
-     "units": 3525,
-     "share_of_class": 0.076
+     "units": 3549,
+     "share_of_class": 0.0718
     },
     {
      "brand": "NISSAN",
-     "units": 1938,
+     "units": 2064,
      "share_of_class": 0.0418
     },
     {
      "brand": "BMW",
-     "units": 1056,
-     "share_of_class": 0.0228
+     "units": 1033,
+     "share_of_class": 0.0209
     },
     {
      "brand": "LEXUS",
-     "units": 762,
-     "share_of_class": 0.0164
+     "units": 750,
+     "share_of_class": 0.0152
     },
     {
      "brand": "VOLVO",
-     "units": 732,
-     "share_of_class": 0.0158
+     "units": 713,
+     "share_of_class": 0.0144
     }
    ],
    "models": [
     {
      "brand": "TOYOTA",
      "model": "COROLLA CROSS",
-     "units": 7072,
-     "share_of_class": 0.1525
+     "units": 7062,
+     "share_of_class": 0.1429
     },
     {
      "brand": "PROTON",
      "model": "E.MAS 7",
-     "units": 5562,
-     "share_of_class": 0.1199
+     "units": 6247,
+     "share_of_class": 0.1264
     },
     {
      "brand": "GREAT WALL",
      "model": "HAVAL H6",
-     "units": 4261,
-     "share_of_class": 0.0919
+     "units": 4137,
+     "share_of_class": 0.0837
     },
     {
      "brand": "TOYOTA",
      "model": "VIOS",
-     "units": 3614,
-     "share_of_class": 0.0779
+     "units": 4135,
+     "share_of_class": 0.0837
     },
     {
      "brand": "TOYOTA",
      "model": "YARIS CROSS",
-     "units": 2558,
-     "share_of_class": 0.0552
+     "units": 3190,
+     "share_of_class": 0.0645
     },
     {
      "brand": "HONDA",
      "model": "HR-V",
-     "units": 2554,
-     "share_of_class": 0.0551
+     "units": 2756,
+     "share_of_class": 0.0558
     },
     {
      "brand": "HONDA",
      "model": "CR-V",
-     "units": 1976,
-     "share_of_class": 0.0426
-    },
-    {
-     "brand": "CHERY",
-     "model": "TIGGO CROSS",
-     "units": 1931,
-     "share_of_class": 0.0416
+     "units": 2081,
+     "share_of_class": 0.0421
     },
     {
      "brand": "GREAT WALL",
      "model": "WEY G9",
-     "units": 1769,
-     "share_of_class": 0.0381
+     "units": 1932,
+     "share_of_class": 0.0391
+    },
+    {
+     "brand": "CHERY",
+     "model": "TIGGO CROSS",
+     "units": 1843,
+     "share_of_class": 0.0373
     },
     {
      "brand": "CHERY",
      "model": "JAECOO J7",
-     "units": 1460,
-     "share_of_class": 0.0315
-    },
-    {
-     "brand": "CHERY",
-     "model": "TIGGO 7",
-     "units": 1363,
-     "share_of_class": 0.0294
+     "units": 1631,
+     "share_of_class": 0.033
     },
     {
      "brand": "NISSAN",
      "model": "SERENA",
-     "units": 1274,
-     "share_of_class": 0.0275
+     "units": 1458,
+     "share_of_class": 0.0295
+    },
+    {
+     "brand": "CHERY",
+     "model": "TIGGO 7",
+     "units": 1436,
+     "share_of_class": 0.0291
     },
     {
      "brand": "MERCEDES BENZ",
      "model": "C-CLASS",
-     "units": 1069,
-     "share_of_class": 0.023
+     "units": 1057,
+     "share_of_class": 0.0214
     },
     {
      "brand": "HONDA",
      "model": "CITY",
-     "units": 938,
-     "share_of_class": 0.0202
+     "units": 953,
+     "share_of_class": 0.0193
     },
     {
      "brand": "MERCEDES BENZ",
      "model": "GLC",
-     "units": 918,
-     "share_of_class": 0.0198
+     "units": 921,
+     "share_of_class": 0.0186
+    }
+   ]
+  },
+  "PETROL": {
+   "units": 732313,
+   "share_of_market": 0.8163,
+   "brands": [
+    {
+     "brand": "PERODUA",
+     "units": 351709,
+     "share_of_class": 0.4803
+    },
+    {
+     "brand": "PROTON",
+     "units": 160947,
+     "share_of_class": 0.2198
+    },
+    {
+     "brand": "TOYOTA",
+     "units": 76505,
+     "share_of_class": 0.1045
+    },
+    {
+     "brand": "HONDA",
+     "units": 59047,
+     "share_of_class": 0.0806
+    },
+    {
+     "brand": "CHERY",
+     "units": 22199,
+     "share_of_class": 0.0303
+    },
+    {
+     "brand": "MAZDA",
+     "units": 11936,
+     "share_of_class": 0.0163
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 10231,
+     "share_of_class": 0.014
+    },
+    {
+     "brand": "JETOUR",
+     "units": 10181,
+     "share_of_class": 0.0139
+    },
+    {
+     "brand": "LEXUS",
+     "units": 5673,
+     "share_of_class": 0.0077
+    },
+    {
+     "brand": "BMW",
+     "units": 4732,
+     "share_of_class": 0.0065
+    }
+   ],
+   "models": [
+    {
+     "brand": "PERODUA",
+     "model": "BEZZA",
+     "units": 101752,
+     "share_of_class": 0.1389
+    },
+    {
+     "brand": "PROTON",
+     "model": "SAGA",
+     "units": 89687,
+     "share_of_class": 0.1225
+    },
+    {
+     "brand": "PERODUA",
+     "model": "AXIA",
+     "units": 82267,
+     "share_of_class": 0.1123
+    },
+    {
+     "brand": "PERODUA",
+     "model": "MYVI",
+     "units": 64616,
+     "share_of_class": 0.0882
+    },
+    {
+     "brand": "PERODUA",
+     "model": "ALZA",
+     "units": 41702,
+     "share_of_class": 0.0569
+    },
+    {
+     "brand": "PERODUA",
+     "model": "ATIVA",
+     "units": 31107,
+     "share_of_class": 0.0425
+    },
+    {
+     "brand": "PROTON",
+     "model": "X50",
+     "units": 26637,
+     "share_of_class": 0.0364
+    },
+    {
+     "brand": "PROTON",
+     "model": "S70",
+     "units": 25022,
+     "share_of_class": 0.0342
+    },
+    {
+     "brand": "HONDA",
+     "model": "CITY",
+     "units": 24552,
+     "share_of_class": 0.0335
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "VIOS",
+     "units": 21220,
+     "share_of_class": 0.029
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "ALPHARD",
+     "units": 16987,
+     "share_of_class": 0.0232
+    },
+    {
+     "brand": "PERODUA",
+     "model": "TRAZ",
+     "units": 16193,
+     "share_of_class": 0.0221
+    },
+    {
+     "brand": "PERODUA",
+     "model": "ARUZ",
+     "units": 14072,
+     "share_of_class": 0.0192
+    },
+    {
+     "brand": "HONDA",
+     "model": "HR-V",
+     "units": 12524,
+     "share_of_class": 0.0171
+    },
+    {
+     "brand": "HONDA",
+     "model": "CIVIC",
+     "units": 11664,
+     "share_of_class": 0.0159
+    }
+   ]
+  },
+  "DIESEL": {
+   "units": 43949,
+   "share_of_market": 0.04899,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 29747,
+     "share_of_class": 0.6769
+    },
+    {
+     "brand": "ISUZU",
+     "units": 5734,
+     "share_of_class": 0.1305
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 3317,
+     "share_of_class": 0.0755
+    },
+    {
+     "brand": "FORD",
+     "units": 2196,
+     "share_of_class": 0.05
+    },
+    {
+     "brand": "CAM",
+     "units": 497,
+     "share_of_class": 0.0113
+    },
+    {
+     "brand": "FOTON",
+     "units": 471,
+     "share_of_class": 0.0107
+    },
+    {
+     "brand": "NISSAN",
+     "units": 432,
+     "share_of_class": 0.0098
+    },
+    {
+     "brand": "KIA",
+     "units": 420,
+     "share_of_class": 0.0096
+    },
+    {
+     "brand": "HYUNDAI",
+     "units": 295,
+     "share_of_class": 0.0067
+    },
+    {
+     "brand": "MAXUS",
+     "units": 169,
+     "share_of_class": 0.0038
+    }
+   ],
+   "models": [
+    {
+     "brand": "TOYOTA",
+     "model": "HILUX",
+     "units": 25707,
+     "share_of_class": 0.5849
+    },
+    {
+     "brand": "ISUZU",
+     "model": "D-MAX",
+     "units": 5353,
+     "share_of_class": 0.1218
+    },
+    {
+     "brand": "MITSUBISHI",
+     "model": "TRITON",
+     "units": 3315,
+     "share_of_class": 0.0754
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "HIACE",
+     "units": 2248,
+     "share_of_class": 0.0512
+    },
+    {
+     "brand": "FORD",
+     "model": "RANGER",
+     "units": 2141,
+     "share_of_class": 0.0487
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "FORTUNER",
+     "units": 1452,
+     "share_of_class": 0.033
+    },
+    {
+     "brand": "FOTON",
+     "model": "VIEW",
+     "units": 455,
+     "share_of_class": 0.0104
+    },
+    {
+     "brand": "NISSAN",
+     "model": "NAVARA",
+     "units": 431,
+     "share_of_class": 0.0098
+    },
+    {
+     "brand": "KIA",
+     "model": "CARNIVAL",
+     "units": 415,
+     "share_of_class": 0.0094
+    },
+    {
+     "brand": "ISUZU",
+     "model": "INVADER",
+     "units": 381,
+     "share_of_class": 0.0087
+    },
+    {
+     "brand": "HYUNDAI",
+     "model": "STARIA",
+     "units": 294,
+     "share_of_class": 0.0067
+    },
+    {
+     "brand": "CAM",
+     "model": "PLACER-X",
+     "units": 259,
+     "share_of_class": 0.0059
+    },
+    {
+     "brand": "CAM",
+     "model": "KINGO",
+     "units": 238,
+     "share_of_class": 0.0054
+    },
+    {
+     "brand": "TOYOTA",
+     "model": "LAND CRUISER",
+     "units": 198,
+     "share_of_class": 0.0045
+    },
+    {
+     "brand": "MAXUS",
+     "model": "V80",
+     "units": 150,
+     "share_of_class": 0.0034
     }
    ]
   }
  },
  "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 74259,
+   "classes": {
+    "BEV": {
+     "units": 6029,
+     "share_of_market": 0.08119,
+     "brands": [
+      {
+       "brand": "PROTON",
+       "units": 3016,
+       "share_of_class": 0.5002
+      },
+      {
+       "brand": "TESLA",
+       "units": 703,
+       "share_of_class": 0.1166
+      },
+      {
+       "brand": "BYD",
+       "units": 615,
+       "share_of_class": 0.102
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 445,
+       "share_of_class": 0.0738
+      },
+      {
+       "brand": "ICAUR",
+       "units": 181,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "units": 167,
+       "share_of_class": 0.0277
+      },
+      {
+       "brand": "CHERY",
+       "units": 158,
+       "share_of_class": 0.0262
+      },
+      {
+       "brand": "XPENG",
+       "units": 133,
+       "share_of_class": 0.0221
+      },
+      {
+       "brand": "DENZA",
+       "units": 87,
+       "share_of_class": 0.0144
+      },
+      {
+       "brand": "PERODUA",
+       "units": 86,
+       "share_of_class": 0.0143
+      }
+     ],
+     "models": [
+      {
+       "brand": "PROTON",
+       "model": "E.MAS 5",
+       "units": 2490,
+       "share_of_class": 0.413
+      },
+      {
+       "brand": "PROTON",
+       "model": "E.MAS 7",
+       "units": 526,
+       "share_of_class": 0.0872
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL Y",
+       "units": 378,
+       "share_of_class": 0.0627
+      },
+      {
+       "brand": "ZEEKR",
+       "model": "7X",
+       "units": 347,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "TESLA",
+       "model": "MODEL 3",
+       "units": 325,
+       "share_of_class": 0.0539
+      },
+      {
+       "brand": "BYD",
+       "model": "ATTO 3",
+       "units": 208,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "ICAUR",
+       "model": "3",
+       "units": 181,
+       "share_of_class": 0.03
+      },
+      {
+       "brand": "BYD",
+       "model": "SEALION",
+       "units": 154,
+       "share_of_class": 0.0255
+      },
+      {
+       "brand": "LEAPMOTOR",
+       "model": "C10",
+       "units": 124,
+       "share_of_class": 0.0206
+      },
+      {
+       "brand": "BYD",
+       "model": "M6",
+       "units": 90,
+       "share_of_class": 0.0149
+      }
+     ]
+    },
+    "HEV": {
+     "units": 5448,
+     "share_of_market": 0.07336,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1855,
+       "share_of_class": 0.3405
+      },
+      {
+       "brand": "PROTON",
+       "units": 685,
+       "share_of_class": 0.1257
+      },
+      {
+       "brand": "HONDA",
+       "units": 646,
+       "share_of_class": 0.1186
+      },
+      {
+       "brand": "GREAT WALL",
+       "units": 511,
+       "share_of_class": 0.0938
+      },
+      {
+       "brand": "CHERY",
+       "units": 492,
+       "share_of_class": 0.0903
+      },
+      {
+       "brand": "JETOUR",
+       "units": 342,
+       "share_of_class": 0.0628
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 277,
+       "share_of_class": 0.0508
+      },
+      {
+       "brand": "NISSAN",
+       "units": 222,
+       "share_of_class": 0.0407
+      },
+      {
+       "brand": "BMW",
+       "units": 87,
+       "share_of_class": 0.016
+      },
+      {
+       "brand": "LEXUS",
+       "units": 76,
+       "share_of_class": 0.014
+      }
+     ],
+     "models": [
+      {
+       "brand": "PROTON",
+       "model": "E.MAS 7",
+       "units": 685,
+       "share_of_class": 0.1257
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "YARIS CROSS",
+       "units": 632,
+       "share_of_class": 0.116
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "COROLLA CROSS",
+       "units": 593,
+       "share_of_class": 0.1088
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 521,
+       "share_of_class": 0.0956
+      },
+      {
+       "brand": "JETOUR",
+       "model": "T2",
+       "units": 342,
+       "share_of_class": 0.0628
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V",
+       "units": 337,
+       "share_of_class": 0.0619
+      },
+      {
+       "brand": "GREAT WALL",
+       "model": "HAVAL H6",
+       "units": 331,
+       "share_of_class": 0.0608
+      },
+      {
+       "brand": "CHERY",
+       "model": "JAECOO J7",
+       "units": 216,
+       "share_of_class": 0.0396
+      },
+      {
+       "brand": "HONDA",
+       "model": "CR-V",
+       "units": 216,
+       "share_of_class": 0.0396
+      },
+      {
+       "brand": "NISSAN",
+       "model": "SERENA",
+       "units": 184,
+       "share_of_class": 0.0338
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 59117,
+     "share_of_market": 0.79609,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 27752,
+       "share_of_class": 0.4694
+      },
+      {
+       "brand": "PROTON",
+       "units": 14448,
+       "share_of_class": 0.2444
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6316,
+       "share_of_class": 0.1068
+      },
+      {
+       "brand": "HONDA",
+       "units": 3507,
+       "share_of_class": 0.0593
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1488,
+       "share_of_class": 0.0252
+      },
+      {
+       "brand": "CHERY",
+       "units": 1486,
+       "share_of_class": 0.0251
+      },
+      {
+       "brand": "MAZDA",
+       "units": 961,
+       "share_of_class": 0.0163
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 858,
+       "share_of_class": 0.0145
+      },
+      {
+       "brand": "LEXUS",
+       "units": 557,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 317,
+       "share_of_class": 0.0054
+      }
+     ],
+     "models": [
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 8671,
+       "share_of_class": 0.1467
+      },
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 7779,
+       "share_of_class": 0.1316
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7678,
+       "share_of_class": 0.1299
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4143,
+       "share_of_class": 0.0701
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 3358,
+       "share_of_class": 0.0568
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 2756,
+       "share_of_class": 0.0466
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 2687,
+       "share_of_class": 0.0455
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 1981,
+       "share_of_class": 0.0335
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1599,
+       "share_of_class": 0.027
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 1355,
+       "share_of_class": 0.0229
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3665,
+     "share_of_market": 0.04935,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2433,
+       "share_of_class": 0.6638
+      },
+      {
+       "brand": "ISUZU",
+       "units": 521,
+       "share_of_class": 0.1422
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 291,
+       "share_of_class": 0.0794
+      },
+      {
+       "brand": "FORD",
+       "units": 207,
+       "share_of_class": 0.0565
+      },
+      {
+       "brand": "FOTON",
+       "units": 44,
+       "share_of_class": 0.012
+      },
+      {
+       "brand": "KIA",
+       "units": 36,
+       "share_of_class": 0.0098
+      },
+      {
+       "brand": "NISSAN",
+       "units": 33,
+       "share_of_class": 0.009
+      },
+      {
+       "brand": "CAM",
+       "units": 31,
+       "share_of_class": 0.0085
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 23,
+       "share_of_class": 0.0063
+      },
+      {
+       "brand": "MAZDA",
+       "units": 15,
+       "share_of_class": 0.0041
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 2123,
+       "share_of_class": 0.5793
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 439,
+       "share_of_class": 0.1198
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 291,
+       "share_of_class": 0.0794
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 198,
+       "share_of_class": 0.054
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 196,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 87,
+       "share_of_class": 0.0237
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 82,
+       "share_of_class": 0.0224
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 36,
+       "share_of_class": 0.0098
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 33,
+       "share_of_class": 0.009
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 33,
+       "share_of_class": 0.009
+      }
+     ]
+    }
+   }
+  },
   {
    "period": "2026-08",
    "total_registrations": 77276,
@@ -546,6 +1321,242 @@
        "model": "CR-V",
        "units": 197,
        "share_of_class": 0.0397
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 60157,
+     "share_of_market": 0.77847,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 29366,
+       "share_of_class": 0.4882
+      },
+      {
+       "brand": "PROTON",
+       "units": 14142,
+       "share_of_class": 0.2351
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6264,
+       "share_of_class": 0.1041
+      },
+      {
+       "brand": "HONDA",
+       "units": 3769,
+       "share_of_class": 0.0627
+      },
+      {
+       "brand": "CHERY",
+       "units": 1727,
+       "share_of_class": 0.0287
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1220,
+       "share_of_class": 0.0203
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 852,
+       "share_of_class": 0.0142
+      },
+      {
+       "brand": "MAZDA",
+       "units": 809,
+       "share_of_class": 0.0134
+      },
+      {
+       "brand": "LEXUS",
+       "units": 503,
+       "share_of_class": 0.0084
+      },
+      {
+       "brand": "BMW",
+       "units": 307,
+       "share_of_class": 0.0051
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 8413,
+       "share_of_class": 0.1399
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 8081,
+       "share_of_class": 0.1343
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7319,
+       "share_of_class": 0.1217
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4878,
+       "share_of_class": 0.0811
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 3483,
+       "share_of_class": 0.0579
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 3235,
+       "share_of_class": 0.0538
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 2288,
+       "share_of_class": 0.038
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2229,
+       "share_of_class": 0.0371
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 1522,
+       "share_of_class": 0.0253
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 1475,
+       "share_of_class": 0.0245
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3322,
+     "share_of_market": 0.04299,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2367,
+       "share_of_class": 0.7125
+      },
+      {
+       "brand": "ISUZU",
+       "units": 437,
+       "share_of_class": 0.1315
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 193,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "FORD",
+       "units": 137,
+       "share_of_class": 0.0412
+      },
+      {
+       "brand": "KIA",
+       "units": 37,
+       "share_of_class": 0.0111
+      },
+      {
+       "brand": "CAM",
+       "units": 29,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "NISSAN",
+       "units": 26,
+       "share_of_class": 0.0078
+      },
+      {
+       "brand": "FOTON",
+       "units": 23,
+       "share_of_class": 0.0069
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 17,
+       "share_of_class": 0.0051
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 15,
+       "share_of_class": 0.0045
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 2052,
+       "share_of_class": 0.6177
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 348,
+       "share_of_class": 0.1048
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 193,
+       "share_of_class": 0.0581
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 189,
+       "share_of_class": 0.0569
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 132,
+       "share_of_class": 0.0397
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 105,
+       "share_of_class": 0.0316
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 89,
+       "share_of_class": 0.0268
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 36,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 26,
+       "share_of_class": 0.0078
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 22,
+       "share_of_class": 0.0066
       }
      ]
     }
@@ -790,6 +1801,242 @@
        "share_of_class": 0.0217
       }
      ]
+    },
+    "PETROL": {
+     "units": 63754,
+     "share_of_market": 0.79663,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 31733,
+       "share_of_class": 0.4977
+      },
+      {
+       "brand": "PROTON",
+       "units": 13218,
+       "share_of_class": 0.2073
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6963,
+       "share_of_class": 0.1092
+      },
+      {
+       "brand": "HONDA",
+       "units": 4760,
+       "share_of_class": 0.0747
+      },
+      {
+       "brand": "CHERY",
+       "units": 1719,
+       "share_of_class": 0.027
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1182,
+       "share_of_class": 0.0185
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1002,
+       "share_of_class": 0.0157
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 813,
+       "share_of_class": 0.0128
+      },
+      {
+       "brand": "LEXUS",
+       "units": 586,
+       "share_of_class": 0.0092
+      },
+      {
+       "brand": "BMW",
+       "units": 342,
+       "share_of_class": 0.0054
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 9821,
+       "share_of_class": 0.154
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7814,
+       "share_of_class": 0.1226
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7154,
+       "share_of_class": 0.1122
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 5472,
+       "share_of_class": 0.0858
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 4233,
+       "share_of_class": 0.0664
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 2325,
+       "share_of_class": 0.0365
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 2244,
+       "share_of_class": 0.0352
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 1959,
+       "share_of_class": 0.0307
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 1953,
+       "share_of_class": 0.0306
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 1886,
+       "share_of_class": 0.0296
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3717,
+     "share_of_market": 0.04645,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2710,
+       "share_of_class": 0.7291
+      },
+      {
+       "brand": "ISUZU",
+       "units": 423,
+       "share_of_class": 0.1138
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 199,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "FORD",
+       "units": 177,
+       "share_of_class": 0.0476
+      },
+      {
+       "brand": "FOTON",
+       "units": 42,
+       "share_of_class": 0.0113
+      },
+      {
+       "brand": "CAM",
+       "units": 36,
+       "share_of_class": 0.0097
+      },
+      {
+       "brand": "NISSAN",
+       "units": 27,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "KIA",
+       "units": 26,
+       "share_of_class": 0.007
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 15,
+       "share_of_class": 0.004
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 12,
+       "share_of_class": 0.0032
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 2289,
+       "share_of_class": 0.6158
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 358,
+       "share_of_class": 0.0963
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 269,
+       "share_of_class": 0.0724
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 199,
+       "share_of_class": 0.0535
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 176,
+       "share_of_class": 0.0474
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 131,
+       "share_of_class": 0.0352
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 65,
+       "share_of_class": 0.0175
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 40,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 27,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 26,
+       "share_of_class": 0.007
+      }
+     ]
     }
    }
   },
@@ -1030,6 +2277,242 @@
        "model": "CR-V",
        "units": 196,
        "share_of_class": 0.0347
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 58166,
+     "share_of_market": 0.79742,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 27452,
+       "share_of_class": 0.472
+      },
+      {
+       "brand": "PROTON",
+       "units": 12424,
+       "share_of_class": 0.2136
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5761,
+       "share_of_class": 0.099
+      },
+      {
+       "brand": "HONDA",
+       "units": 5618,
+       "share_of_class": 0.0966
+      },
+      {
+       "brand": "CHERY",
+       "units": 1622,
+       "share_of_class": 0.0279
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1202,
+       "share_of_class": 0.0207
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1201,
+       "share_of_class": 0.0206
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 776,
+       "share_of_class": 0.0133
+      },
+      {
+       "brand": "LEXUS",
+       "units": 534,
+       "share_of_class": 0.0092
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 281,
+       "share_of_class": 0.0048
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 7998,
+       "share_of_class": 0.1375
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7000,
+       "share_of_class": 0.1203
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 5970,
+       "share_of_class": 0.1026
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 5218,
+       "share_of_class": 0.0897
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 3827,
+       "share_of_class": 0.0658
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 3774,
+       "share_of_class": 0.0649
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 2307,
+       "share_of_class": 0.0397
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2016,
+       "share_of_class": 0.0347
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 1904,
+       "share_of_class": 0.0327
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 1834,
+       "share_of_class": 0.0315
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 2916,
+     "share_of_market": 0.03998,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2116,
+       "share_of_class": 0.7257
+      },
+      {
+       "brand": "ISUZU",
+       "units": 396,
+       "share_of_class": 0.1358
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 172,
+       "share_of_class": 0.059
+      },
+      {
+       "brand": "FORD",
+       "units": 109,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "CAM",
+       "units": 30,
+       "share_of_class": 0.0103
+      },
+      {
+       "brand": "NISSAN",
+       "units": 26,
+       "share_of_class": 0.0089
+      },
+      {
+       "brand": "FOTON",
+       "units": 18,
+       "share_of_class": 0.0062
+      },
+      {
+       "brand": "KIA",
+       "units": 16,
+       "share_of_class": 0.0055
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 13,
+       "share_of_class": 0.0045
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 6,
+       "share_of_class": 0.0021
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1741,
+       "share_of_class": 0.5971
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 350,
+       "share_of_class": 0.12
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 247,
+       "share_of_class": 0.0847
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 172,
+       "share_of_class": 0.059
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 107,
+       "share_of_class": 0.0367
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 97,
+       "share_of_class": 0.0333
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 46,
+       "share_of_class": 0.0158
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 25,
+       "share_of_class": 0.0086
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 22,
+       "share_of_class": 0.0075
+      },
+      {
+       "brand": "CAM",
+       "model": "KINGO",
+       "units": 20,
+       "share_of_class": 0.0069
       }
      ]
     }
@@ -1274,6 +2757,242 @@
        "share_of_class": 0.0323
       }
      ]
+    },
+    "PETROL": {
+     "units": 53042,
+     "share_of_market": 0.80302,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 24400,
+       "share_of_class": 0.46
+      },
+      {
+       "brand": "PROTON",
+       "units": 13180,
+       "share_of_class": 0.2485
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5901,
+       "share_of_class": 0.1113
+      },
+      {
+       "brand": "HONDA",
+       "units": 3054,
+       "share_of_class": 0.0576
+      },
+      {
+       "brand": "CHERY",
+       "units": 1566,
+       "share_of_class": 0.0295
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1011,
+       "share_of_class": 0.0191
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1008,
+       "share_of_class": 0.019
+      },
+      {
+       "brand": "JETOUR",
+       "units": 968,
+       "share_of_class": 0.0182
+      },
+      {
+       "brand": "LEXUS",
+       "units": 506,
+       "share_of_class": 0.0095
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 271,
+       "share_of_class": 0.0051
+      }
+     ],
+     "models": [
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7337,
+       "share_of_class": 0.1383
+      },
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 7079,
+       "share_of_class": 0.1335
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 5985,
+       "share_of_class": 0.1128
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4416,
+       "share_of_class": 0.0833
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 2871,
+       "share_of_class": 0.0541
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 2350,
+       "share_of_class": 0.0443
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2073,
+       "share_of_class": 0.0391
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 1762,
+       "share_of_class": 0.0332
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 1539,
+       "share_of_class": 0.029
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1404,
+       "share_of_class": 0.0265
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 2870,
+     "share_of_market": 0.04345,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2046,
+       "share_of_class": 0.7129
+      },
+      {
+       "brand": "ISUZU",
+       "units": 420,
+       "share_of_class": 0.1463
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 171,
+       "share_of_class": 0.0596
+      },
+      {
+       "brand": "FORD",
+       "units": 102,
+       "share_of_class": 0.0355
+      },
+      {
+       "brand": "FOTON",
+       "units": 33,
+       "share_of_class": 0.0115
+      },
+      {
+       "brand": "NISSAN",
+       "units": 27,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "CAM",
+       "units": 18,
+       "share_of_class": 0.0063
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 11,
+       "share_of_class": 0.0038
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 10,
+       "share_of_class": 0.0035
+      },
+      {
+       "brand": "KIA",
+       "units": 9,
+       "share_of_class": 0.0031
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1670,
+       "share_of_class": 0.5819
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 369,
+       "share_of_class": 0.1286
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 256,
+       "share_of_class": 0.0892
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 169,
+       "share_of_class": 0.0589
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 99,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 87,
+       "share_of_class": 0.0303
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 51,
+       "share_of_class": 0.0178
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 33,
+       "share_of_class": 0.0115
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 27,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "LAND CRUISER",
+       "units": 22,
+       "share_of_class": 0.0077
+      }
+     ]
     }
    }
   },
@@ -1514,6 +3233,242 @@
        "model": "C-CLASS",
        "units": 153,
        "share_of_class": 0.031
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 63771,
+     "share_of_market": 0.81948,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 32013,
+       "share_of_class": 0.502
+      },
+      {
+       "brand": "PROTON",
+       "units": 14559,
+       "share_of_class": 0.2283
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5548,
+       "share_of_class": 0.087
+      },
+      {
+       "brand": "HONDA",
+       "units": 3329,
+       "share_of_class": 0.0522
+      },
+      {
+       "brand": "CHERY",
+       "units": 1874,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1395,
+       "share_of_class": 0.0219
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 1394,
+       "share_of_class": 0.0219
+      },
+      {
+       "brand": "JETOUR",
+       "units": 1197,
+       "share_of_class": 0.0188
+      },
+      {
+       "brand": "LEXUS",
+       "units": 540,
+       "share_of_class": 0.0085
+      },
+      {
+       "brand": "BMW",
+       "units": 377,
+       "share_of_class": 0.0059
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 9431,
+       "share_of_class": 0.1479
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 8207,
+       "share_of_class": 0.1287
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7294,
+       "share_of_class": 0.1144
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 5828,
+       "share_of_class": 0.0914
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 4115,
+       "share_of_class": 0.0645
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2468,
+       "share_of_class": 0.0387
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 2377,
+       "share_of_class": 0.0373
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 2230,
+       "share_of_class": 0.035
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 2220,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1476,
+       "share_of_class": 0.0231
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3212,
+     "share_of_market": 0.04128,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2126,
+       "share_of_class": 0.6619
+      },
+      {
+       "brand": "ISUZU",
+       "units": 510,
+       "share_of_class": 0.1588
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 181,
+       "share_of_class": 0.0564
+      },
+      {
+       "brand": "FORD",
+       "units": 133,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "CAM",
+       "units": 73,
+       "share_of_class": 0.0227
+      },
+      {
+       "brand": "FOTON",
+       "units": 37,
+       "share_of_class": 0.0115
+      },
+      {
+       "brand": "NISSAN",
+       "units": 34,
+       "share_of_class": 0.0106
+      },
+      {
+       "brand": "MAZDA",
+       "units": 32,
+       "share_of_class": 0.01
+      },
+      {
+       "brand": "KIA",
+       "units": 21,
+       "share_of_class": 0.0065
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 19,
+       "share_of_class": 0.0059
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1798,
+       "share_of_class": 0.5598
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 462,
+       "share_of_class": 0.1438
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 215,
+       "share_of_class": 0.0669
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 181,
+       "share_of_class": 0.0564
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 133,
+       "share_of_class": 0.0414
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 79,
+       "share_of_class": 0.0246
+      },
+      {
+       "brand": "CAM",
+       "model": "PLACER-X",
+       "units": 51,
+       "share_of_class": 0.0159
+      },
+      {
+       "brand": "ISUZU",
+       "model": "INVADER",
+       "units": 48,
+       "share_of_class": 0.0149
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 37,
+       "share_of_class": 0.0115
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 34,
+       "share_of_class": 0.0106
       }
      ]
     }
@@ -1758,6 +3713,242 @@
        "share_of_class": 0.0391
       }
      ]
+    },
+    "PETROL": {
+     "units": 55937,
+     "share_of_market": 0.82475,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 24519,
+       "share_of_class": 0.4383
+      },
+      {
+       "brand": "PROTON",
+       "units": 12220,
+       "share_of_class": 0.2185
+      },
+      {
+       "brand": "HONDA",
+       "units": 6341,
+       "share_of_class": 0.1134
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 5565,
+       "share_of_class": 0.0995
+      },
+      {
+       "brand": "CHERY",
+       "units": 1910,
+       "share_of_class": 0.0341
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1034,
+       "share_of_class": 0.0185
+      },
+      {
+       "brand": "JETOUR",
+       "units": 788,
+       "share_of_class": 0.0141
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 712,
+       "share_of_class": 0.0127
+      },
+      {
+       "brand": "BMW",
+       "units": 530,
+       "share_of_class": 0.0095
+      },
+      {
+       "brand": "LEXUS",
+       "units": 456,
+       "share_of_class": 0.0082
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 7493,
+       "share_of_class": 0.134
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 5774,
+       "share_of_class": 0.1032
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 5398,
+       "share_of_class": 0.0965
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4514,
+       "share_of_class": 0.0807
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2860,
+       "share_of_class": 0.0511
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 2655,
+       "share_of_class": 0.0475
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 2474,
+       "share_of_class": 0.0442
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 2254,
+       "share_of_class": 0.0403
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 1920,
+       "share_of_class": 0.0343
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1595,
+       "share_of_class": 0.0285
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3076,
+     "share_of_market": 0.04535,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2067,
+       "share_of_class": 0.672
+      },
+      {
+       "brand": "ISUZU",
+       "units": 272,
+       "share_of_class": 0.0884
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 269,
+       "share_of_class": 0.0875
+      },
+      {
+       "brand": "FORD",
+       "units": 209,
+       "share_of_class": 0.0679
+      },
+      {
+       "brand": "KIA",
+       "units": 54,
+       "share_of_class": 0.0176
+      },
+      {
+       "brand": "NISSAN",
+       "units": 47,
+       "share_of_class": 0.0153
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 34,
+       "share_of_class": 0.0111
+      },
+      {
+       "brand": "CAM",
+       "units": 32,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "FOTON",
+       "units": 25,
+       "share_of_class": 0.0081
+      },
+      {
+       "brand": "MAZDA",
+       "units": 19,
+       "share_of_class": 0.0062
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1749,
+       "share_of_class": 0.5686
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 272,
+       "share_of_class": 0.0884
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 269,
+       "share_of_class": 0.0875
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 207,
+       "share_of_class": 0.0673
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 172,
+       "share_of_class": 0.0559
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 115,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 54,
+       "share_of_class": 0.0176
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 47,
+       "share_of_class": 0.0153
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA",
+       "units": 34,
+       "share_of_class": 0.0111
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 25,
+       "share_of_class": 0.0081
+      }
+     ]
     }
    }
   },
@@ -1998,6 +4189,242 @@
        "model": "C-CLASS",
        "units": 95,
        "share_of_class": 0.043
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 47768,
+     "share_of_market": 0.84272,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 23574,
+       "share_of_class": 0.4935
+      },
+      {
+       "brand": "PROTON",
+       "units": 11549,
+       "share_of_class": 0.2418
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 4512,
+       "share_of_class": 0.0945
+      },
+      {
+       "brand": "HONDA",
+       "units": 3113,
+       "share_of_class": 0.0652
+      },
+      {
+       "brand": "CHERY",
+       "units": 1386,
+       "share_of_class": 0.029
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 706,
+       "share_of_class": 0.0148
+      },
+      {
+       "brand": "MAZDA",
+       "units": 438,
+       "share_of_class": 0.0092
+      },
+      {
+       "brand": "LEXUS",
+       "units": 416,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "BMW",
+       "units": 336,
+       "share_of_class": 0.007
+      },
+      {
+       "brand": "JETOUR",
+       "units": 297,
+       "share_of_class": 0.0062
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 7031,
+       "share_of_class": 0.1472
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 6007,
+       "share_of_class": 0.1258
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 5306,
+       "share_of_class": 0.1111
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4317,
+       "share_of_class": 0.0904
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 3205,
+       "share_of_class": 0.0671
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 1940,
+       "share_of_class": 0.0406
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 1818,
+       "share_of_class": 0.0381
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 1710,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 1352,
+       "share_of_class": 0.0283
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1288,
+       "share_of_class": 0.027
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 3072,
+     "share_of_market": 0.0542,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1895,
+       "share_of_class": 0.6169
+      },
+      {
+       "brand": "ISUZU",
+       "units": 527,
+       "share_of_class": 0.1715
+      },
+      {
+       "brand": "FORD",
+       "units": 193,
+       "share_of_class": 0.0628
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 183,
+       "share_of_class": 0.0596
+      },
+      {
+       "brand": "KIA",
+       "units": 107,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "NISSAN",
+       "units": 39,
+       "share_of_class": 0.0127
+      },
+      {
+       "brand": "CAM",
+       "units": 38,
+       "share_of_class": 0.0124
+      },
+      {
+       "brand": "FOTON",
+       "units": 21,
+       "share_of_class": 0.0068
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 19,
+       "share_of_class": 0.0062
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 17,
+       "share_of_class": 0.0055
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1677,
+       "share_of_class": 0.5459
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 527,
+       "share_of_class": 0.1715
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 186,
+       "share_of_class": 0.0605
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 183,
+       "share_of_class": 0.0596
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 107,
+       "share_of_class": 0.0348
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 103,
+       "share_of_class": 0.0335
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 91,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 39,
+       "share_of_class": 0.0127
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 21,
+       "share_of_class": 0.0068
+      },
+      {
+       "brand": "CAM",
+       "model": "KINGO",
+       "units": 20,
+       "share_of_class": 0.0065
       }
      ]
     }
@@ -2242,6 +4669,242 @@
        "share_of_class": 0.0278
       }
      ]
+    },
+    "PETROL": {
+     "units": 56857,
+     "share_of_market": 0.83627,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 26128,
+       "share_of_class": 0.4595
+      },
+      {
+       "brand": "PROTON",
+       "units": 16474,
+       "share_of_class": 0.2897
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 4453,
+       "share_of_class": 0.0783
+      },
+      {
+       "brand": "HONDA",
+       "units": 2937,
+       "share_of_class": 0.0517
+      },
+      {
+       "brand": "CHERY",
+       "units": 2066,
+       "share_of_class": 0.0363
+      },
+      {
+       "brand": "MAZDA",
+       "units": 828,
+       "share_of_class": 0.0146
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 822,
+       "share_of_class": 0.0145
+      },
+      {
+       "brand": "JETOUR",
+       "units": 593,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "BMW",
+       "units": 417,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "LEXUS",
+       "units": 358,
+       "share_of_class": 0.0063
+      }
+     ],
+     "models": [
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 10285,
+       "share_of_class": 0.1809
+      },
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 8431,
+       "share_of_class": 0.1483
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 6581,
+       "share_of_class": 0.1157
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 4819,
+       "share_of_class": 0.0848
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 3012,
+       "share_of_class": 0.053
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2411,
+       "share_of_class": 0.0424
+      },
+      {
+       "brand": "PERODUA",
+       "model": "TRAZ",
+       "units": 1901,
+       "share_of_class": 0.0334
+      },
+      {
+       "brand": "PROTON",
+       "model": "S70",
+       "units": 1604,
+       "share_of_class": 0.0282
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 1191,
+       "share_of_class": 0.0209
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "ALPHARD",
+       "units": 1162,
+       "share_of_class": 0.0204
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 2738,
+     "share_of_market": 0.04027,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 1591,
+       "share_of_class": 0.5811
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 369,
+       "share_of_class": 0.1348
+      },
+      {
+       "brand": "ISUZU",
+       "units": 261,
+       "share_of_class": 0.0953
+      },
+      {
+       "brand": "FORD",
+       "units": 254,
+       "share_of_class": 0.0928
+      },
+      {
+       "brand": "KIA",
+       "units": 61,
+       "share_of_class": 0.0223
+      },
+      {
+       "brand": "CAM",
+       "units": 46,
+       "share_of_class": 0.0168
+      },
+      {
+       "brand": "FOTON",
+       "units": 45,
+       "share_of_class": 0.0164
+      },
+      {
+       "brand": "NISSAN",
+       "units": 38,
+       "share_of_class": 0.0139
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 26,
+       "share_of_class": 0.0095
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 11,
+       "share_of_class": 0.004
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 1338,
+       "share_of_class": 0.4887
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 369,
+       "share_of_class": 0.1348
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 261,
+       "share_of_class": 0.0953
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 251,
+       "share_of_class": 0.0917
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 141,
+       "share_of_class": 0.0515
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 91,
+       "share_of_class": 0.0332
+      },
+      {
+       "brand": "KIA",
+       "model": "CARNIVAL",
+       "units": 61,
+       "share_of_class": 0.0223
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 43,
+       "share_of_class": 0.0157
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 38,
+       "share_of_class": 0.0139
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA",
+       "units": 25,
+       "share_of_class": 0.0091
+      }
+     ]
     }
    }
   },
@@ -2482,6 +5145,242 @@
        "model": "GLC",
        "units": 69,
        "share_of_class": 0.0177
+      }
+     ]
+    },
+    "PETROL": {
+     "units": 78613,
+     "share_of_market": 0.81072,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 37017,
+       "share_of_class": 0.4709
+      },
+      {
+       "brand": "PROTON",
+       "units": 12385,
+       "share_of_class": 0.1575
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 10339,
+       "share_of_class": 0.1315
+      },
+      {
+       "brand": "HONDA",
+       "units": 10157,
+       "share_of_class": 0.1292
+      },
+      {
+       "brand": "CHERY",
+       "units": 2813,
+       "share_of_class": 0.0358
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1066,
+       "share_of_class": 0.0136
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 861,
+       "share_of_class": 0.011
+      },
+      {
+       "brand": "BMW",
+       "units": 714,
+       "share_of_class": 0.0091
+      },
+      {
+       "brand": "JETOUR",
+       "units": 598,
+       "share_of_class": 0.0076
+      },
+      {
+       "brand": "NISSAN",
+       "units": 396,
+       "share_of_class": 0.005
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 9213,
+       "share_of_class": 0.1172
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 8238,
+       "share_of_class": 0.1048
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7253,
+       "share_of_class": 0.0923
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7218,
+       "share_of_class": 0.0918
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 6662,
+       "share_of_class": 0.0847
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 5017,
+       "share_of_class": 0.0638
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 3606,
+       "share_of_class": 0.0459
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ARUZ",
+       "units": 3510,
+       "share_of_class": 0.0446
+      },
+      {
+       "brand": "HONDA",
+       "model": "HR-V",
+       "units": 2603,
+       "share_of_class": 0.0331
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2012,
+       "share_of_class": 0.0256
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 6339,
+     "share_of_market": 0.06537,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 4585,
+       "share_of_class": 0.7233
+      },
+      {
+       "brand": "ISUZU",
+       "units": 772,
+       "share_of_class": 0.1218
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 438,
+       "share_of_class": 0.0691
+      },
+      {
+       "brand": "FORD",
+       "units": 237,
+       "share_of_class": 0.0374
+      },
+      {
+       "brand": "FOTON",
+       "units": 87,
+       "share_of_class": 0.0137
+      },
+      {
+       "brand": "CAM",
+       "units": 57,
+       "share_of_class": 0.009
+      },
+      {
+       "brand": "NISSAN",
+       "units": 46,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 39,
+       "share_of_class": 0.0062
+      },
+      {
+       "brand": "DAIMLER",
+       "units": 14,
+       "share_of_class": 0.0022
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 13,
+       "share_of_class": 0.0021
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 4163,
+       "share_of_class": 0.6567
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 772,
+       "share_of_class": 0.1218
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 438,
+       "share_of_class": 0.0691
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 229,
+       "share_of_class": 0.0361
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 228,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 164,
+       "share_of_class": 0.0259
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 87,
+       "share_of_class": 0.0137
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 46,
+       "share_of_class": 0.0073
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA",
+       "units": 39,
+       "share_of_class": 0.0062
+      },
+      {
+       "brand": "CAM",
+       "model": "PLACER-X",
+       "units": 33,
+       "share_of_class": 0.0052
       }
      ]
     }
@@ -2726,6 +5625,242 @@
        "share_of_class": 0.0255
       }
      ]
+    },
+    "PETROL": {
+     "units": 65677,
+     "share_of_market": 0.84347,
+     "brands": [
+      {
+       "brand": "PERODUA",
+       "units": 33639,
+       "share_of_class": 0.5122
+      },
+      {
+       "brand": "PROTON",
+       "units": 12120,
+       "share_of_class": 0.1845
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 7081,
+       "share_of_class": 0.1078
+      },
+      {
+       "brand": "HONDA",
+       "units": 6104,
+       "share_of_class": 0.0929
+      },
+      {
+       "brand": "CHERY",
+       "units": 1798,
+       "share_of_class": 0.0274
+      },
+      {
+       "brand": "MAZDA",
+       "units": 1345,
+       "share_of_class": 0.0205
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 715,
+       "share_of_class": 0.0109
+      },
+      {
+       "brand": "BMW",
+       "units": 461,
+       "share_of_class": 0.007
+      },
+      {
+       "brand": "LEXUS",
+       "units": 381,
+       "share_of_class": 0.0058
+      },
+      {
+       "brand": "JETOUR",
+       "units": 327,
+       "share_of_class": 0.005
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 9073,
+       "share_of_class": 0.1381
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7558,
+       "share_of_class": 0.1151
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 6571,
+       "share_of_class": 0.1001
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 5795,
+       "share_of_class": 0.0882
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 4606,
+       "share_of_class": 0.0701
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 4343,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "VIOS",
+       "units": 2651,
+       "share_of_class": 0.0404
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 2290,
+       "share_of_class": 0.0349
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ARUZ",
+       "units": 2264,
+       "share_of_class": 0.0345
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2123,
+       "share_of_class": 0.0323
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 4221,
+     "share_of_market": 0.05421,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 2777,
+       "share_of_class": 0.6579
+      },
+      {
+       "brand": "ISUZU",
+       "units": 590,
+       "share_of_class": 0.1398
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 352,
+       "share_of_class": 0.0834
+      },
+      {
+       "brand": "FORD",
+       "units": 192,
+       "share_of_class": 0.0455
+      },
+      {
+       "brand": "CAM",
+       "units": 58,
+       "share_of_class": 0.0137
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 46,
+       "share_of_class": 0.0109
+      },
+      {
+       "brand": "FOTON",
+       "units": 44,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "NISSAN",
+       "units": 44,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "MAZDA",
+       "units": 39,
+       "share_of_class": 0.0092
+      },
+      {
+       "brand": "KIA",
+       "units": 16,
+       "share_of_class": 0.0038
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 2429,
+       "share_of_class": 0.5755
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 590,
+       "share_of_class": 0.1398
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 352,
+       "share_of_class": 0.0834
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 187,
+       "share_of_class": 0.0443
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 184,
+       "share_of_class": 0.0436
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 133,
+       "share_of_class": 0.0315
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA",
+       "units": 46,
+       "share_of_class": 0.0109
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 44,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 44,
+       "share_of_class": 0.0104
+      },
+      {
+       "brand": "MAZDA",
+       "model": "CX-5",
+       "units": 39,
+       "share_of_class": 0.0092
+      }
+     ]
     }
    }
   },
@@ -2968,246 +6103,240 @@
        "share_of_class": 0.0243
       }
      ]
-    }
-   }
-  },
-  {
-   "period": "2025-09",
-   "total_registrations": 62587,
-   "classes": {
-    "BEV": {
-     "units": 3532,
-     "share_of_market": 0.05643,
-     "brands": [
-      {
-       "brand": "BYD",
-       "units": 1028,
-       "share_of_class": 0.2911
-      },
-      {
-       "brand": "PROTON",
-       "units": 757,
-       "share_of_class": 0.2143
-      },
-      {
-       "brand": "TESLA",
-       "units": 685,
-       "share_of_class": 0.1939
-      },
-      {
-       "brand": "ZEEKR",
-       "units": 293,
-       "share_of_class": 0.083
-      },
-      {
-       "brand": "XPENG",
-       "units": 137,
-       "share_of_class": 0.0388
-      },
-      {
-       "brand": "BMW",
-       "units": 98,
-       "share_of_class": 0.0277
-      },
-      {
-       "brand": "CHERY",
-       "units": 96,
-       "share_of_class": 0.0272
-      },
-      {
-       "brand": "PORSCHE",
-       "units": 78,
-       "share_of_class": 0.0221
-      },
-      {
-       "brand": "DENZA",
-       "units": 63,
-       "share_of_class": 0.0178
-      },
-      {
-       "brand": "LEAPMOTOR",
-       "units": 53,
-       "share_of_class": 0.015
-      }
-     ],
-     "models": [
-      {
-       "brand": "PROTON",
-       "model": "E.MAS 7",
-       "units": 757,
-       "share_of_class": 0.2143
-      },
-      {
-       "brand": "TESLA",
-       "model": "MODEL Y",
-       "units": 389,
-       "share_of_class": 0.1101
-      },
-      {
-       "brand": "BYD",
-       "model": "ATTO 3",
-       "units": 302,
-       "share_of_class": 0.0855
-      },
-      {
-       "brand": "TESLA",
-       "model": "MODEL 3",
-       "units": 296,
-       "share_of_class": 0.0838
-      },
-      {
-       "brand": "BYD",
-       "model": "ATTO 2",
-       "units": 285,
-       "share_of_class": 0.0807
-      },
-      {
-       "brand": "BYD",
-       "model": "SEALION",
-       "units": 237,
-       "share_of_class": 0.0671
-      },
-      {
-       "brand": "ZEEKR",
-       "model": "7X",
-       "units": 228,
-       "share_of_class": 0.0646
-      },
-      {
-       "brand": "BYD",
-       "model": "M6",
-       "units": 85,
-       "share_of_class": 0.0241
-      },
-      {
-       "brand": "XPENG",
-       "model": "X9",
-       "units": 74,
-       "share_of_class": 0.021
-      },
-      {
-       "brand": "DENZA",
-       "model": "D9",
-       "units": 63,
-       "share_of_class": 0.0178
-      }
-     ]
     },
-    "HEV": {
-     "units": 2399,
-     "share_of_market": 0.03833,
+    "PETROL": {
+     "units": 69454,
+     "share_of_market": 0.8532,
      "brands": [
       {
-       "brand": "TOYOTA",
-       "units": 685,
-       "share_of_class": 0.2855
+       "brand": "PERODUA",
+       "units": 34116,
+       "share_of_class": 0.4912
       },
       {
-       "brand": "GREAT WALL",
-       "units": 496,
-       "share_of_class": 0.2068
+       "brand": "PROTON",
+       "units": 14228,
+       "share_of_class": 0.2049
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 7802,
+       "share_of_class": 0.1123
       },
       {
        "brand": "HONDA",
-       "units": 306,
-       "share_of_class": 0.1276
+       "units": 6358,
+       "share_of_class": 0.0915
       },
       {
        "brand": "CHERY",
-       "units": 256,
-       "share_of_class": 0.1067
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "units": 253,
-       "share_of_class": 0.1055
-      },
-      {
-       "brand": "BMW",
-       "units": 110,
-       "share_of_class": 0.0459
-      },
-      {
-       "brand": "NISSAN",
-       "units": 96,
-       "share_of_class": 0.04
-      },
-      {
-       "brand": "LEXUS",
-       "units": 88,
-       "share_of_class": 0.0367
-      },
-      {
-       "brand": "VOLVO",
-       "units": 71,
-       "share_of_class": 0.0296
-      },
-      {
-       "brand": "PORSCHE",
-       "units": 18,
-       "share_of_class": 0.0075
-      }
-     ],
-     "models": [
-      {
-       "brand": "TOYOTA",
-       "model": "COROLLA CROSS",
-       "units": 603,
-       "share_of_class": 0.2514
-      },
-      {
-       "brand": "GREAT WALL",
-       "model": "HAVAL H6",
-       "units": 455,
-       "share_of_class": 0.1897
-      },
-      {
-       "brand": "CHERY",
-       "model": "TIGGO CROSS",
-       "units": 209,
-       "share_of_class": 0.0871
-      },
-      {
-       "brand": "HONDA",
-       "model": "HR-V",
-       "units": 135,
-       "share_of_class": 0.0563
-      },
-      {
-       "brand": "HONDA",
-       "model": "CR-V",
-       "units": 111,
-       "share_of_class": 0.0463
-      },
-      {
-       "brand": "NISSAN",
-       "model": "KICKS",
-       "units": 96,
-       "share_of_class": 0.04
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "GLC",
-       "units": 81,
-       "share_of_class": 0.0338
-      },
-      {
-       "brand": "MERCEDES BENZ",
-       "model": "C-CLASS",
-       "units": 77,
+       "units": 2232,
        "share_of_class": 0.0321
       },
       {
+       "brand": "MAZDA",
+       "units": 849,
+       "share_of_class": 0.0122
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 711,
+       "share_of_class": 0.0102
+      },
+      {
        "brand": "BMW",
-       "model": "X3",
-       "units": 58,
-       "share_of_class": 0.0242
+       "units": 466,
+       "share_of_class": 0.0067
+      },
+      {
+       "brand": "LEXUS",
+       "units": 452,
+       "share_of_class": 0.0065
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 361,
+       "share_of_class": 0.0052
+      }
+     ],
+     "models": [
+      {
+       "brand": "PERODUA",
+       "model": "BEZZA",
+       "units": 9990,
+       "share_of_class": 0.1438
+      },
+      {
+       "brand": "PROTON",
+       "model": "SAGA",
+       "units": 7825,
+       "share_of_class": 0.1127
+      },
+      {
+       "brand": "PERODUA",
+       "model": "AXIA",
+       "units": 7668,
+       "share_of_class": 0.1104
+      },
+      {
+       "brand": "PERODUA",
+       "model": "MYVI",
+       "units": 6978,
+       "share_of_class": 0.1005
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ALZA",
+       "units": 4998,
+       "share_of_class": 0.072
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ATIVA",
+       "units": 2795,
+       "share_of_class": 0.0402
       },
       {
        "brand": "TOYOTA",
-       "model": "CAMRY",
-       "units": 48,
-       "share_of_class": 0.02
+       "model": "VIOS",
+       "units": 2793,
+       "share_of_class": 0.0402
+      },
+      {
+       "brand": "PROTON",
+       "model": "X50",
+       "units": 2693,
+       "share_of_class": 0.0388
+      },
+      {
+       "brand": "HONDA",
+       "model": "CITY",
+       "units": 2425,
+       "share_of_class": 0.0349
+      },
+      {
+       "brand": "PERODUA",
+       "model": "ARUZ",
+       "units": 1687,
+       "share_of_class": 0.0243
+      }
+     ]
+    },
+    "DIESEL": {
+     "units": 4801,
+     "share_of_market": 0.05898,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 3034,
+       "share_of_class": 0.632
+      },
+      {
+       "brand": "ISUZU",
+       "units": 605,
+       "share_of_class": 0.126
+      },
+      {
+       "brand": "MITSUBISHI",
+       "units": 499,
+       "share_of_class": 0.1039
+      },
+      {
+       "brand": "FORD",
+       "units": 246,
+       "share_of_class": 0.0512
+      },
+      {
+       "brand": "MAXUS",
+       "units": 146,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "FOTON",
+       "units": 52,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "CAM",
+       "units": 49,
+       "share_of_class": 0.0102
+      },
+      {
+       "brand": "NISSAN",
+       "units": 45,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "HYUNDAI",
+       "units": 33,
+       "share_of_class": 0.0069
+      },
+      {
+       "brand": "KIA",
+       "units": 28,
+       "share_of_class": 0.0058
+      }
+     ],
+     "models": [
+      {
+       "brand": "TOYOTA",
+       "model": "HILUX",
+       "units": 2678,
+       "share_of_class": 0.5578
+      },
+      {
+       "brand": "ISUZU",
+       "model": "D-MAX",
+       "units": 605,
+       "share_of_class": 0.126
+      },
+      {
+       "brand": "MITSUBISHI",
+       "model": "TRITON",
+       "units": 499,
+       "share_of_class": 0.1039
+      },
+      {
+       "brand": "FORD",
+       "model": "RANGER",
+       "units": 241,
+       "share_of_class": 0.0502
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "HIACE",
+       "units": 173,
+       "share_of_class": 0.036
+      },
+      {
+       "brand": "MAXUS",
+       "model": "V80",
+       "units": 146,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "TOYOTA",
+       "model": "FORTUNER",
+       "units": 142,
+       "share_of_class": 0.0296
+      },
+      {
+       "brand": "FOTON",
+       "model": "VIEW",
+       "units": 52,
+       "share_of_class": 0.0108
+      },
+      {
+       "brand": "NISSAN",
+       "model": "NAVARA",
+       "units": 45,
+       "share_of_class": 0.0094
+      },
+      {
+       "brand": "HYUNDAI",
+       "model": "STARIA",
+       "units": 33,
+       "share_of_class": 0.0069
       }
      ]
     }
