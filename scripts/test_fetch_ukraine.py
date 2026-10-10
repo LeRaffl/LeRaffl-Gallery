@@ -162,7 +162,8 @@ def test_both_header_layouts_and_scope_end_to_end():
     # op 69 ("new vehicles by acceptance act") is not counted but reported
     assert any(k[1] == 69 for k in agg.unmapped_ops), agg.unmapped_ops
     assert fu.check_consistency(agg, ["2025-08", "2026-08"]) == []
-    assert agg.units[("2025-08", "BEV", "BYD", "SONG PLUS")] == 1
+    assert agg.units["Whole"][("2025-08", "BEV", "BYD", "SONG PLUS")] == 1
+    assert agg.units["Used"] == {("2025-08", "BEV", "TESLA", "MODEL 3"): 1}
 
 
 def test_schema_drift_is_fatal():
@@ -224,6 +225,20 @@ def test_market_top_uses_csv_classes():
     assert top["classes"]["BEV"]["models"][0] == {"brand": "BYD", "model": "SONG PLUS",
                                                   "units": 2, "share_of_class": 1.0}
     assert top["classes"]["HEV"]["units"] == 2 and "PETROL" not in top["classes"]
+
+
+def test_market_top_used_has_its_own_table():
+    agg = fu.Aggregator()
+    agg.add("2026-08", 105, "", M1, "le3500", "ЕЛЕКТРО", "P", "BYD", "SEAL")
+    agg.add("2026-08", 100, "", M1, "le3500", "ЕЛЕКТРО", "P", "NISSAN", "NISSAN LEAF")
+    agg.add("2026-08", 100, "", M1, "le3500", "ЕЛЕКТРО АБО БЕНЗИН", "P", "TOYOTA", "PRIUS")
+    agg.add("2026-08", 100, "", M1, "le3500", "БЕНЗИН", "P", "AUDI", "A4")
+    top = fu.build_top(agg, "2026-08", "Used")
+    assert top["variant"] == "Used" and top["total_registrations"] == 3
+    assert top["classes"]["BEV"]["models"] == [{"brand": "NISSAN", "model": "LEAF",
+                                                "units": 1, "share_of_class": 1.0}]
+    assert top["classes"]["HEV"]["units"] == 1                     # the combined Hybrid
+    assert fu.build_top(agg, "2026-08")["classes"]["BEV"]["brands"][0]["brand"] == "BYD"
 
 
 if __name__ == "__main__":

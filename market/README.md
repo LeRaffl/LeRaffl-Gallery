@@ -10,6 +10,7 @@ one ranking per single month (`months`, newest first).
 | `spain_top.json` | `scripts/fetch_spain.py` (DGT `MARCA_ITV` / `MODELO_ITV`, Whole) |
 | `malaysia_top.json` | `scripts/fetch_malaysia.py` (data.gov.my `maker` / `model`) |
 | `ukraine_top.json` | `scripts/fetch_ukraine.py` (MIA register `BRAND` / `MODEL`, Whole; BEV, PHEV, EREV, HEV — plug-ins via `classification/ecuador_rules.csv`) |
+| `ukraine_used_top.json` | the same script, Used (used imports at their first Ukrainian registration; BEV + the combined Hybrid, as in the Used CSV) |
 | `new_zealand_top.json` | `scripts/fetch_new_zealand.py` (NZTA Motor Vehicle Register `MAKE` / `MODEL`; Whole's scope — new passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
 | `new_zealand_used_top.json` | `scripts/fetch_new_zealand.py` (same query; Used's scope — used-import passenger cars (MA/MB/MC); BEV, PHEV incl. EREV, HEV) |
 | `hong_kong_top.json` | `scripts/fetch_hong_kong.py` (TD `Vehicle Make` / `Vehicle Model`, Whole; BEV + classified PHEV/EREV; trims merged for display) |
