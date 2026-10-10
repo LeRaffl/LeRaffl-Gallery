@@ -85,6 +85,8 @@ The maintainer enumerated two lists:
     Luxembourg, Norway, Poland, Lithuania. A row a national fetcher marks as
     provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
     "Regitra (provisional)") counts as replaceable too.
+  (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
+  fills a month OFV's fetcher has not written.)
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -145,7 +147,7 @@ ALWAYS_COUNTRIES = [
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
-    "Luxembourg", "Norway",
+    "Luxembourg", "Norway",  # Norway: OFV-primary (fetch_norway.py), ACEA = fallback
     # Lithuania is Regitra-primary (scripts/fetch_lithuania.py: the register's
     # own monthly fuel table, plus Used). Regitra's table has one hybrid
     # number, so ACEA's counted PHEV/HEV split is what fetch_lithuania.py

@@ -907,6 +907,11 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #   market_window_note: "…"                     optional: replaces the "fewer than
 #                                               twelve months" note (a source whose
 #                                               headline is year-to-date by design)
+#   market_total_word: "…"                      optional: the word before
+#                                               "registrations in total" (default
+#                                               "new", "used-import" for Used) —
+#                                               Georgia's register counts new and
+#                                               imported used together
 #
 #   classification:
 #     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
@@ -1090,8 +1095,10 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
                 + ')')
     lead = (f'<p class="fig-lead">{esc(top.get("variant", "Whole"))} · {span} '
             f'({esc(win.get("from", ""))} → {esc(win.get("to", ""))}){gaps} · '
-            f'{_num(total)} {"used-import" if top.get("variant") == "Used" else "new"} '
-            'registrations in total. '
+            f'{_num(total)} '
+            + esc(fm.get("market_total_word")
+                  or ("used-import" if top.get("variant") == "Used" else "new"))
+            + ' registrations in total. '
             'Units are registrations; '
             + esc(fm.get("market_designation_note")
                   or ('the source publishes brands only, no models.' if brand_only else

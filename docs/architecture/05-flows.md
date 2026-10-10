@@ -35,7 +35,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 > **Not every fetcher has a lettered flow here.** Flows H–V were written as
 > each of the first ingest pipelines landed; the later ones — Austria, Canada,
 > Italy, Luxembourg, Poland, Malaysia, Singapore, Spain, Thailand, Indonesia,
-> Nepal, Albania, New Zealand, Argentina, Ukraine, Hong Kong, South Korea, Peru, Switzerland, Paraguay, Ecuador, Taiwan, the UK (automated 2026-10) and Czechia (RSV register, 2026-10) — never got one. They are not undocumented:
+> Nepal, Albania, New Zealand, Argentina, Ukraine, Hong Kong, South Korea, Peru, Switzerland, Paraguay, Ecuador, Taiwan, the UK (automated 2026-10), Czechia (RSV register, 2026-10), Georgia (Geostat API, automated 2026-10) and Norway (OFV, automated 2026-10) — never got one. They are not undocumented:
 > each has a **workflow data-flow diagram in its own source doc**
 > (`docs/architecture/NN-source-<country>.md`), which is the authority for
 > that country, and every fetcher's schedule and scope is listed in
@@ -554,7 +554,7 @@ The maintainer maintains the gallery for a ~50-country roster; ACEA only covers 
 
 | Bucket | Countries | When ACEA writes |
 |---|---|---|
-| Always-list (15) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, France, Greece, Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia | Always overwrites the current-month row, source becomes `ACEA`. For Czechia that row was written ~3 weeks earlier from the RSV register ([51](51-source-czechia.md)); ACEA's figure replaces it. |
+| Always-list (14) | Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia, Greece, Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia (France left for SDES, [36](36-source-france.md)) | Always overwrites the current-month row, source becomes `ACEA`. For Czechia that row was written ~3 weeks earlier from the RSV register ([51](51-source-czechia.md)); ACEA's figure replaces it. |
 | Conditional-list (4) | Lithuania (Regitra from 2026-10, [55](55-source-lithuania.md)), Luxembourg, Norway, Poland (PZPM fallback; Switzerland until 2026-09) | Writes the current-month row only if the existing row's `source` is exactly `ACEA` or no row exists — or is a national fetcher's provisional row (`Regitra (provisional)`: Lithuania's estimated PHEV/HEV split, which ACEA's counted split replaces). Mixed-source rows (e.g. `ofv.no & ACEA`) are left untouched — and today every conditional-list country sits on a blended source, so the practical effect is "never write". The branch is kept so a future maintainer reset of any of these CSVs to pure `ACEA` would let the fetcher resume writing it. (Spain was here until it moved to its own DGT fetcher and was removed from ACEA entirely; Poland is likewise handled by PZPM.) |
 
 ACEA's PDF also covers Austria, Germany, Ireland, Italy, Portugal, the United Kingdom, plus Denmark, Finland, Netherlands and Sweden — none are in this fetcher's scope. Ireland and Portugal now have their own workflows ([Flow T](#flow-t--simi-ingest), [Flow U](#flow-u--acap-ingest)); Austria/Germany/Italy/UK get their own (more granular) per-country workflows planned for later; Denmark/Finland/Netherlands/Sweden are fed from national databases that expose richer splits than ACEA (Private / Industry / Used / HDV / native HEV / flexifuel) and have their own workflows ([Flow Q](#flow-q--statbank-ingest), [Flow R](#flow-r--pxweb-ingest), [Flow O](#flow-o--rdw-swing-ingest), [Flow S](#flow-s--scb-ingest)). The ACEA fetcher script skips all of them silently regardless.
