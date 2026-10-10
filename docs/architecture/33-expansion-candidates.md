@@ -11,11 +11,13 @@ investigated and *rejected*). Same bar applies: **(a) direct from the original
 registry/agency or the de-facto complete industry body, (b) reasonably complete
 for the market, (c) machine-accessible without paywalls or identity checks.**
 
-> **Where things stand (2026-10-05).**
+> **Where things stand (2026-10-09).**
 >
 > | Country | Status | Where |
 > |---|---|---|
 > | 🇮🇱 Israel | built (2026-07) | [34](34-source-israel.md) |
+> | 🇬🇪 Georgia | on the gallery, hand-entered until 2026-10; now automated (Geostat API) | [52](52-source-georgia.md) |
+> | 🇦🇺 Australia | on the gallery, hand-entered; automation checked 2026-10 — no free source | [14](14-data-source-gaps.md) |
 > | 🇮🇳 India | built — semi-automated: hand-pulled VAHAN exports → `scripts/build_india.py` (the CI route stayed blocked) | `country_source_stubs.yaml`, `data/raw/india/README.md` |
 > | 🇺🇦 🇭🇰 🇵🇪 🇵🇾 🇪🇨 🇹🇼 | built outside the original list (2026-09/10) | sections below |
 > | 🇿🇦 South Africa | **viable, not built** | § South Africa |
@@ -315,7 +317,31 @@ significant EV importer is outside it**).
 > stays as transcribed. Also writes `market/uk_top.json` from SMMT's open
 > marque table (every powertrain). See [50-source-uk.md](50-source-uk.md).
 > Still by hand: Australia (VFACTS, FCAI's paid report) and Georgia
-> (Geostat, quarterly), plus India's semi-automated VAHAN import.
+> (Geostat, quarterly), plus India's semi-automated VAHAN import. *(Georgia
+> automated 2026-10-09, Australia checked again and still not automatable —
+> next section.)*
+
+## Automated, not new — 🇬🇪 Georgia (2026-10)
+
+> **Status: AUTOMATED (2026-10-09).** The session that set out to add one
+> more country (Greece and New Zealand were being handled in parallel)
+> first re-checked **🇦🇺 Australia** (≈ 1.2 million new vehicles a year,
+> the largest market still entered by hand): the FCAI's monthly release
+> gives only the BEV share and growth rates in prose, its tables are images
+> without a fuel split, and VFACTS is paid — no free source with counts by
+> powertrain ([14](14-data-source-gaps.md#-australia--on-the-gallery-but-no-free-source-to-automate-it)).
+> The large-market sweeps above had already exhausted the new candidates,
+> so the session automated **Georgia**, the other hand-entered country.
+> Geostat's «Automobile» portal reads a public JSON API
+> (`autoapi.geostat.ge`, no key, Origin/Referer of the portal) that answers
+> GitHub runners; `scripts/fetch_georgia.py` reads the quarter's fuel split
+> and reproduces the hand-entered history 2017-Q1 → 2026-Q2 in the same
+> columns — 37 of 38 quarters exactly; 2023-Q3 was a transcription
+> slip (10 BEV) and was corrected. The scope stays what it always was: every
+> vehicle initially registered, all categories, new and imported used (the
+> source has no filter for either). Also writes `market/georgia_top.json`
+> from Geostat's treemap (brands and models, every powertrain). See
+> [52-source-georgia.md](52-source-georgia.md).
 
 ## Automated, not new — 🇳🇴 Norway (2026-10)
 
