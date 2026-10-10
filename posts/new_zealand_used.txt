@@ -1,0 +1,11 @@
+🇳🇿 New Zealand (Used) - September 26 - BEV Trajectory
+3.8% BEV
+1.2% PHEV
+95.0% ICE (of which 52.9%p were HEV)
+
+Trailing 12 months are:
+3.9% BEV
+1.1% PHEV
+95.1% ICE (of which 49.7%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

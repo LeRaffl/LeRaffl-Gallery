@@ -1,0 +1,12 @@
+🇳🇿 New Zealand (Used) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.1pp  BEV   (1.8% → 3.9%)
++0.2pp  PHEV  (0.8% → 1.1%)
++3.3pp  HEV   (46.4% → 49.7%)
+−5.6pp  ICE   (51.0% → 45.4%)
+
+PHEV peaked at 1.8% in 2024-10 (declining for 23 months).
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2035-06.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

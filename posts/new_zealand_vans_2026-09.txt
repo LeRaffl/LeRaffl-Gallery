@@ -1,0 +1,11 @@
+🇳🇿 New Zealand (Vans) - September 26 - BEV Trajectory
+2.2% BEV
+8.5% PHEV
+89.3% ICE (of which 18.1%p were HEV)
+
+Trailing 12 months are:
+1.8% BEV
+7.4% PHEV
+90.8% ICE (of which 14.9%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
