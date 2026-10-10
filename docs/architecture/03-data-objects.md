@@ -679,7 +679,7 @@ hand-edited. Argentina's equivalent is `classification/argentina_top.json`
 | Spain | `fetch_spain.py` | DGT `MARCA_ITV` / `MODELO_ITV`, Whole records | when missing or behind the newest DGT month in `data/Spain.csv` — twelve monthly downloads |
 | Switzerland | `fetch_switzerland.py` | ASTRA IVZ `Marke` / type designation (`Typ2`, completed by `Typ3` for the families whose `Typ3` is the model — Model, Seal, Ioniq, RR, AMG, Atto; "MG4" merged with "4"), Whole records — and, as a second file `switzerland_used_top.json` (front-matter `market_breakdown_extra`), the used imports (GEBR); classes BEV / PHEV / HEV as in the CSV (register fuel + hybrid code) | every real run, from the snapshot it read anyway (the running year's complete months) → month store `market/switzerland_months.json`; the previous year comes from the backfill |
 | Czechia | `fetch_czechia.py` | RSV register make (`Tovární značka`) / trade name (`Obchodní označení`), Whole records — and `czechia_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; classes BEV / PHEV only (the register cannot identify full and mild hybrids) | every real run — the newest 15 complete months from the extract the fetch streams anyway |
-| Lithuania | `fetch_lithuania.py` | Regitra open register snapshot `MARKE` / commercial name `KOMERCINIS_PAV` (trims, power and drive words dropped: ID.4 PRO 4MOTION 210KW → ID.4), Whole (status new) and `lithuania_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; classes BEV / PHEV / HEV from the EU hybrid category (OVC-HEV / NOVC-HEV). Only cars still registered on the snapshot date — Lithuania re-exports many, so the scope check warns (expected) | when Regitra publishes a new snapshot (about quarterly) — the last 12 full months in it |
+| Lithuania | `fetch_lithuania.py` | Regitra open register snapshot `MARKE` / commercial name `KOMERCINIS_PAV` (trims, power and drive words dropped: ID.4 PRO 4MOTION 210KW → ID.4), Whole (status new) and `lithuania_used_top.json` (front-matter `market_breakdown_extra`) for the used imports; Whole's classes BEV / PHEV / HEV from the EU hybrid category (OVC-HEV / NOVC-HEV), Used's BEV and one combined Hybrid class (like its CSV; `class_names` in the extra entry). Only cars still registered on the snapshot date — Lithuania re-exports many, so the scope check warns (expected) | when Regitra publishes a new snapshot (about quarterly) — the last 12 full months in it |
 | Malaysia | `fetch_malaysia.py` | data.gov.my `maker` / `model` | when missing or behind the last complete month — from the two yearly parquets the fetch reads anyway |
 | Ukraine | `fetch_ukraine.py` | MIA register `BRAND` / `MODEL`, Whole records; classes BEV and the combined Hybrid (HEV column, relabelled on the page via `market_class_names`) | every real run — from the current + previous yearly file the fetch reads anyway |
 | Hong Kong | `fetch_hong_kong.py` | TD `Vehicle Make` / `Vehicle Model`, Whole records; classes BEV (TD's fuel value) and PHEV/EREV (classified). Display names only: brand aliases merged, brand prefix, chassis codes and trim words stripped so trims rank as one model (`market_designation_note` explains it on the page) | every real run — from the 12 newest monthly files the fetch reads anyway |
@@ -764,8 +764,17 @@ alphabetically so the file is byte-stable (no spurious commits).
   cars", [39](39-source-argentina.md) §6). A missing file renders as "not
   generated yet". A second slice of the same source (Netherlands: imported
   used cars) has its own top file and is listed under
-  `market_breakdown_extra: [{path, id, heading, note}]` — one more section
-  with its own month picker.
+  `market_breakdown_extra: [{path, id, heading, note, class_names,
+  class_labels}]` — one more section with its own month picker;
+  `class_names`/`class_labels` relabel classes for that section only
+  (Lithuania's Used: `{HEV: Hybrid}`, its hybrids being one combined class).
+- **A `Used` variant gets its own tables (rule since 2026-10).** Wherever a
+  record-level source carries a `Used` variant, its fetcher also writes
+  `market/<slug>_used_top.json` with the *same* class logic as the Used CSV
+  (a combined hybrid there → one combined class here) and the source doc
+  lists it under `market_breakdown_extra` — so the source pages grow by a
+  used-imports section, country by country (built: Netherlands,
+  Switzerland, Czechia, Lithuania).
 - Offline tests: `scripts/test_market_top.py` (gates every fetch workflow that writes `market/`; the Japan test runs against the JADA sample workbook in [`scripts/fixtures/`](../../scripts/fixtures/README.md)).
 
 **Adding a country:** have its fetcher count `(month, class, brand, model)`

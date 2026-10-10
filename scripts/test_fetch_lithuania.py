@@ -181,15 +181,22 @@ def test_split():
           fl.split_hybrids("2026-05", "new", 3330, regitra, store, {})[:2] == (541, 2789))
     p, h, note, prov = fl.split_hybrids("2026-05", "new", 400, None, store, {})
     check("tier 2 from the snapshot", (p, h, prov) == (100, 300, False) and "OVC 50" in note)
+    thin = {"months": {"2026-05|new": {"PHEV": 10, "HEV": 5}}}
     check("tier 2 ignored below the minimum base",
-          fl.split_hybrids("2026-05", "used", 100, None, store, {"2026-04": (1, 3)})[3] is True)
+          fl.split_hybrids("2026-05", "new", 100, None, thin, {"2026-04": (1, 3)})[3] is True)
+    check("used: every hybrid in HEV, no PHEV (no counted split)",
+          fl.split_hybrids("2026-05", "used", 100, None, store, {"2026-04": (1, 3)})
+          == (None, 100, fl.USED_HYBRID_NOTE, False))
+    check("used: an ACEA-looking row does not split it",
+          fl.split_hybrids("2026-05", "used", 100, acea, store, {})[:2] == (None, 100))
+    check("used: no hybrids", fl.split_hybrids("2026-05", "used", 0, None, {}, {})[:2] == (None, 0))
     done = {"2026-02": (10, 90), "2026-03": (20, 80), "2026-04": (30, 70), "2025-12": (99, 1)}
     p, h, note, prov = fl.split_hybrids("2026-08", "new", 1000, None, store, done)
     check("tier 3 trailing three months", (p, h, prov) == (200, 800, True) and
           note.startswith("provisional"))
     check("no hybrids", fl.split_hybrids("2026-08", "new", 0, None, {}, {})[:2] == (0, 0))
     try:
-        fl.split_hybrids("2026-08", "used", 10, None, {}, {})
+        fl.split_hybrids("2026-08", "new", 10, None, {}, {})
         check("no base at all raises NoSplit", False)
     except fl.NoSplit:
         check("no base at all raises NoSplit", True)
@@ -218,6 +225,8 @@ def test_fleet():
     check("snapshot newest date", newest == "2026-06-27")
     check("brand cleaned", ("2026-05", "PHEV", "VOLKSWAGEN", "TIGUAN") in units["new"])
     check("model brand prefix stripped", ("2026-05", "HEV", "TOYOTA", "COROLLA") in units["new"])
+    check("used hybrid without category ranked as the combined HEV class",
+          ("2026-05", "HEV", "AUDI", "A4") in units["used"])
     check("covered months", fl.covered_months("2026-06-27") == "2026-05" and
           fl.covered_months("2026-01-02") == "2025-12")
     store = fl.build_store(split, newest, "2026-07-03", stamp)
@@ -253,6 +262,21 @@ def test_upsert():
         check("ACEA replaced, notes quoted",
               '2024-01,monthly,Whole,Regitra,2.0,2.0,3.0,4.0,5.0,6.0,22.0,n; x' in text)
         check("insert in order", text.strip().splitlines()[-1].startswith("2024-03"))
+
+        used = Path(d) / "used.csv"
+        cols = fl.csv_columns("Used")
+        check("Used header has no PHEV", "PHEV" not in cols and cols[4:6] == ["BEV", "HEV"])
+        u = {"BEV": 2, "PHEV": None, "HEV": 5, "PETROL": 4, "DIESEL": 5, "OTHERS": 6, "TOTAL": 22}
+        line = fl.render_line("2024-01", "Used", u, fl.SOURCE, "n")
+        check("Used line without PHEV", line == "2024-01,monthly,Used,Regitra,2.0,5.0,4.0,5.0,6.0,22.0,n")
+        st = fl.upsert_lines(used, {("2024-01", "Used"): line}, force=False, columns=cols)
+        check("Used file created with its own header",
+              st["added"] == 1 and used.read_text().splitlines()[0] == ",".join(cols))
+        try:
+            fl.upsert_lines(path, {("2024-04", "Used"): line}, force=False, columns=cols)
+            check("header mismatch aborts", False)
+        except SystemExit:
+            check("header mismatch aborts", True)
 
 
 def test_display_names():

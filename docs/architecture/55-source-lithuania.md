@@ -30,18 +30,18 @@ variants:
 - Buses
 variant_notes:
   Whole: New passenger cars — EU M1 incl. off-road M1G, Regitra status Nauja (new, first registration anywhere). Regitra from 2024-01, ACEA before.
-  Used: Used passenger cars imported into Lithuania — EU M1 incl. M1G, Regitra status Naudota (first registered abroad), dated by the month of the first Lithuanian registration. From 2024-01.
+  Used: Used passenger cars imported into Lithuania — EU M1 incl. M1G, Regitra status Naudota (first registered abroad), dated by the month of the first Lithuanian registration. From 2024-01. One combined hybrid number (in HEV, no PHEV column) — no counted PHEV/HEV split exists for used imports.
   Vans: ACEA commercial-vehicle figures (unchanged by this source).
   HDV: ACEA commercial-vehicle figures (unchanged by this source).
   Buses: ACEA commercial-vehicle figures (unchanged by this source).
 hev_split: true
-hev_note: Regitra's fuel table has one number for every fuel combination with "Elektra" (petrol, diesel or gas + electric). It is split into PHEV and HEV with a counted share — ACEA's split of the same month for new cars, the register snapshot's EU hybrid category (OVC-HEV = plug-in, NOVC-HEV = not externally chargeable) for used cars and for new months ACEA has not reached yet. HEV includes mild hybrids (type-approved as NOVC-HEV), as ACEA's does. Fuel-cell cars are OTHERS.
+hev_note: Regitra's fuel table has one number for every fuel combination with "Elektra" (petrol, diesel or gas + electric). For Whole (new cars) it is split into PHEV and HEV with ACEA's counted split of the same month — the register snapshot's EU hybrid category (OVC-HEV = plug-in, NOVC-HEV = not externally chargeable) or a provisional share only bridge the weeks until ACEA publishes. HEV includes mild hybrids (type-approved as NOVC-HEV), as ACEA's does. Used has no counted split anywhere, so its hybrids stay one combined number in HEV (plug-in + full + mild, no PHEV column; the chart then draws no PHEV curve) — the Türkiye/Ukraine convention. Fuel-cell cars are OTHERS.
 backfill: Whole is ACEA to 2023-12 and Regitra from 2024-01 (the first year with table 5); Used from 2024-01; Vans, HDV and Buses stay ACEA's commercial-vehicle series
 scope_note: Every M1 vehicle first registered in Lithuania, split by Regitra's own new/used status. Lithuania is a re-export hub — many cars leave again within months — but a first registration counts once, whether the car stays or not.
 caveats:
-- 'Derived, not counted: the PHEV/HEV split. Regitra counts every car but has one hybrid number. For new cars the split is ACEA''s counted split of the same month scaled to Regitra''s hybrid count (exact to within one or two cars); for a month ACEA has not published yet it is the register snapshot''s plug-in share, and for the newest months, which neither covers, a provisional share from the three months before (the CSV row''s source then reads "Regitra (provisional)"). Every row''s notes column says which.'
+- 'Whole only — derived, not counted: the PHEV/HEV split. Regitra counts every car but has one hybrid number. For new cars the split is ACEA''s counted split of the same month scaled to Regitra''s hybrid count (exact to within one or two cars); for a month ACEA has not published yet it is the register snapshot''s plug-in share, and for the newest months, which neither covers, a provisional share from the three months before (the CSV row''s source then reads "Regitra (provisional)"). Every row''s notes column says which.'
 - 'The register snapshot holds only cars still registered. Lithuania re-exports many cars, more hybrids than plug-ins, so for months more than about half a year before the snapshot its plug-in share runs high — by up to 80 cars a month in 2025 against ACEA''s counted split. That is why it ranks second for new cars, and why the brand and model tables below rank cars still registered, not all first registrations.'
-- 'Used: about a third of used hybrids have no hybrid category in the register (older foreign approvals). The split assumes they divide like the used hybrids that have one. A provisional used row is upgraded when Regitra publishes the next snapshot, about quarterly.'
+- 'Used: hybrids are one combined number (HEV column, PHEV absent), counted exactly from table 5. A PHEV/HEV split would have to come from the register snapshot, which misses the 22–29 % of used imports re-exported since (more hybrids than plug-ins) and has no hybrid category for about 40 % of used hybrids — an estimate on a biased sample, so it is not made. Until 2026-10 the Used rows carried such a split; they were rewritten combined.'
 - 'The Whole series changes source at 2024-01, not definition: from 2024 Regitra and ACEA count the same register (2024–2026: −0.2 % in total, −0.5 % in BEV). ACEA''s 2026-07 row was derived from year-to-date sums and was 134 cars too high; Regitra''s count replaces it.'
 processing:
 - title: Download
@@ -60,7 +60,7 @@ processing:
       note: dated by the month of the first Lithuanian registration
 - title: Powertrain
   text:
-  - The register's fuel field (DEGALAI) lists the energy sources of the vehicle, separated by "/". It decides every column except the PHEV/HEV split, which it does not know.
+  - The register's fuel field (DEGALAI) lists the energy sources of the vehicle, separated by "/". It decides every column except the PHEV/HEV split of new cars, which it does not know.
   decision:
     ask: Fuel field (DEGALAI)?
     branches:
@@ -70,7 +70,8 @@ processing:
       then: OTHERS
       note: fuel-cell cars, as at ACEA
     - when: any other combination with Elektra — petrol, diesel or gas + electric
-      then: hybrid (one number, split in the next step)
+      then: hybrid — one number
+      note: Used keeps it combined in HEV; Whole is split in the next step
     - when: exactly Benzinas (petrol)
       then: PETROL
     - when: exactly Dyzelinas (diesel)
@@ -79,16 +80,19 @@ processing:
       then: OTHERS
 - title: PHEV or HEV
   text:
-  - 'Derived, not counted: the hybrid count of each month is split with a plug-in share from the best counted source available. The share is re-evaluated on every run, so a month gets the better split as soon as one exists. PHEV = hybrids × share, HEV = the rest.'
+  - 'Whole only, derived, not counted: the hybrid count of each month is split with a plug-in share from the best counted source available. The share is re-evaluated on every run, so a month gets the better split as soon as one exists. PHEV = hybrids × share, HEV = the rest. Used is not split: no counted source covers used imports.'
   decision:
-    ask: Which counted split covers the month?
+    ask: Which variant, and which counted split covers the month?
     branches:
+    - when: Used (used imports)
+      then: not split — every hybrid in HEV, no PHEV column
+      note: the snapshot misses re-exported cars and has no category for ~40 % of used hybrids
     - when: ACEA's PHEV and HEV for the month (new cars only)
       then: ACEA's share
       note: same register, so ACEA's split scaled to Regitra's hybrid count; exact to a car or two
     - when: no ACEA figure — the register snapshot has the month
       then: the snapshot's share OVC-HEV / (OVC-HEV + NOVC-HEV)
-      note: counted, but only cars still registered; hybrids without category are left out of the share (a third of used ones)
+      note: counted, but only cars still registered; bridges the weeks until ACEA publishes
     - when: neither yet (the newest months)
       then: the pooled share of the three final months before — source "Regitra (provisional)"
       note: estimated; upgraded by a later run once ACEA or a newer snapshot covers it
@@ -102,7 +106,11 @@ market_breakdown_extra:
 - path: market/lithuania_used_top.json
   id: market-used
   heading: Who sells the imported used electrified cars
-  note: "Used imports (the Used variant): passenger cars first registered abroad, by the month of their first Lithuanian registration, from the register snapshot. About a quarter of each month's used imports is no longer in the register a few months later — mostly re-exported — so the table ranks the ones that stayed."
+  note: "Used imports (the Used variant): passenger cars first registered abroad, by the month of their first Lithuanian registration, from the register snapshot. About a quarter of each month's used imports is no longer in the register a few months later — mostly re-exported — so the table ranks the ones that stayed. Hybrids are one class, as in the Used CSV: plug-in, full and mild together, including the hybrids without a register category."
+  class_names:
+    HEV: Hybrid
+  class_labels:
+    HEV: Hybrid — every hybrid, plug-in + full + mild (one combined class, as in the Used CSV; counted as ICE in the curves)
 fetcher: scripts/fetch_lithuania.py
 workflow: .github/workflows/fetch-lithuania.yml
 fragility_doc: docs/architecture/55-source-lithuania.md
@@ -132,7 +140,8 @@ Auth:      None. A full browser User-Agent is needed for the zip (a short UA
 Timing:    a month's year file is up in the first ten days of the next month;
            ACEA publishes Lithuania around the 20th.
 Variants:  Whole (Nauja) · Used (Naudota). Vans/HDV/Buses stay ACEA CV.
-Split:     PHEV/HEV derived: ACEA's split → snapshot share → provisional (§5).
+Split:     Whole: PHEV/HEV from ACEA's split → snapshot share → provisional (§5).
+           Used: one combined hybrid number in HEV, no PHEV column (§5).
 Check:     table 5 = Regitra's totals table, 64/64 exact. vs ACEA 2024-01..
            2026-06: −0.2 % total, every month within ±0.6 % (§4).
 ```
@@ -236,16 +245,27 @@ for months near its date.
 
 ## 5. The PHEV/HEV split
 
-`split_hybrids()` evaluates on every run, best first:
+**Used is not split.** No counted PHEV/HEV split exists for used imports (ACEA covers new
+cars only), and the register snapshot is a poor stand-in: it misses the 22–29 % of used
+imports re-exported since — hybrids more often than plug-ins (§4.3) — has no hybrid
+category for about 40 % of used hybrids, and so far there is one snapshot for the whole
+history. So `split_hybrids()` returns every used hybrid as `HEV` and
+`data/Lithuania_Used.csv` has no `PHEV` column — the combined-hybrid convention of
+Türkiye and Ukraine ([09](09-glossary.md) "Hybrid"; the trajectory draws no PHEV curve,
+`has_phev_split`). The Used brand table ranks the same combined class, including the
+hybrids without a category. (Until 2026-10 the Used rows carried a snapshot split; they
+were rewritten combined in the PR that built this source.)
+
+For **Whole**, `split_hybrids()` evaluates on every run, best first:
 
 1. **ACEA** (Whole only). The share from ACEA's PHEV and HEV for the month, taken from the
    ACEA row in the CSV or, once Regitra has replaced it, from the note `ACEA PHEV a / HEV b`
    the fetcher leaves in that row. PHEV = round(H × a / (a + b)).
 2. **Register snapshot.** OVC-HEV / (OVC-HEV + NOVC-HEV) among the month's first
    registrations in the snapshot (store `market/lithuania_fleet.json`, `months` →
-   `"YYYY-MM|new"` / `"|used"`), if at least 20 categorised hybrids. Hybrids without a
-   category (`UNK`, about a third of used ones) are left out. Months after the last full
-   month of the snapshot are not used.
+   `"YYYY-MM|new"`; the `"|used"` counts are kept for diagnostics only), if at least 20
+   categorised hybrids. Hybrids without a category (`UNK`) are left out. Months after the
+   last full month of the snapshot are not used.
 3. **Provisional.** The pooled share (ΣPHEV / Σhybrids) of the three final months before it
    (tier 1 or 2).
    The row's `source` is `Regitra (provisional)`; `fetch_acea.py` may replace it with ACEA's
@@ -272,9 +292,10 @@ the snapshot has fuel but only the cars still registered — not enough for a co
 | File | What |
 |---|---|
 | `data/Lithuania.csv` | Whole, Regitra rows from 2024-01 |
-| `data/Lithuania_Used.csv` | Used, from 2024-01 |
+| `data/Lithuania_Used.csv` | Used, from 2024-01 — no `PHEV` column, hybrids combined in `HEV` |
 | `market/lithuania_fleet.json` | snapshot date + per-month OVC/NOVC/UNK counts (tier 2 store, generated) |
-| `market/lithuania_top.json`, `market/lithuania_used_top.json` | top BEV/PHEV/HEV brands and models, last 12 full months of the snapshot (generated by `market_top.py`) |
+| `market/lithuania_top.json` | Whole: top BEV/PHEV/HEV brands and models, last 12 full months of the snapshot (generated by `market_top.py`) |
+| `market/lithuania_used_top.json` | Used: top BEV and Hybrid (combined) brands and models, same window — shown as its own section via `market_breakdown_extra` with `class_names: {HEV: Hybrid}` |
 
 The brand tables are written only when a new snapshot is read, and their scope check
 (`check_scope`, counted vs CSV) warns above 15 % — expected here because of re-exports
@@ -283,9 +304,8 @@ The brand tables are written only when a new snapshot is read, and their scope c
 ## 8. Operations and debugging
 
 * **Cron** `35 6,12 * * *` (UTC). A run makes no HTTP request when the target month (last
-  month) is a final Regitra row in both CSVs and no provisional row is left. While a Used
-  month waits for the next snapshot the poll reads the statistics and open-data pages (and
-  two ~20 KB files) — small.
+  month) is a final Regitra row in both CSVs and no provisional row is left (only Whole
+  rows can be provisional).
 * **Dispatch inputs:** `variant` (all / Whole / Used), `period` (YYYY-MM), `backfill`
   (every year file from 2024), `fleet` (download the snapshot even if its date is
   unchanged), `force` (skip throttle, completeness, cross-check and foreign-row guards).
@@ -305,7 +325,7 @@ The brand tables are written only when a new snapshot is read, and their scope c
 | `::warning New fuel label` | a new DEGALAI combination | add its components to `KNOWN_COMPONENTS` and a `test_fuel_class` case once the mapping is confirmed |
 | `<variant> <month>: not written — no ACEA split, no register snapshot month …` | no ACEA row, no snapshot month and no earlier split | backfill order problem; run with `backfill` so earlier months exist |
 | `register snapshot link not found` / `missing columns` / non-zip download | open-data page or snapshot changed, or a short User-Agent | the CSVs are still written (tier 1 / 3); check `find_fleet()` and the `UA` header |
-| provisional rows never upgrade | Regitra stopped refreshing the snapshot | Whole upgrades via ACEA anyway; for Used, note it in `footnotes.csv` |
+| provisional Whole rows never upgrade | ACEA has not published the month (and no newer snapshot) | wait for ACEA; a provisional row older than two months means fetch-acea is failing |
 | scope warnings above tolerance on the brand tables | re-exports (§4.3) | expected up to ~30 %; investigate only above 40 % (abort) |
 
 ## 9. Sequence
@@ -324,7 +344,7 @@ sequenceDiagram
     Cron->>R: Atviri_TP_parko_duomenys.zip (167 MB)
     Cron->>Repo: market/lithuania_fleet.json + top tables
   end
-  Cron->>Repo: Whole + Used rows (split tier 1 / 2 / 3)
+  Cron->>Repo: Whole rows (split tier 1 / 2 / 3) + Used rows (hybrids combined)
   Cron->>Cron: dispatch render-country.yml (touched variants)
   ACEA->>Repo: only a Whole month Regitra lacks, or a provisional one
 ```

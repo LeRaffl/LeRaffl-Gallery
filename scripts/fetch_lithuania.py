@@ -45,8 +45,11 @@ they sit in HEV — exactly as in ACEA's Lithuanian figures (the legacy series).
 
 The PHEV / HEV split (the fuel table has one hybrid number)
 -----------------------------------------------------------
-For each month the hybrid count H from table 5 is split with a PHEV share,
-taken from the best source available, re-evaluated on every run:
+Used has no counted split anywhere (ACEA covers new cars only), so its hybrid
+count H goes into HEV unsplit and Lithuania_Used.csv has no PHEV column — the
+combined-hybrid convention of Türkiye/Ukraine (09-glossary "Hybrid"; the
+trajectory then draws no PHEV curve). For Whole, H is split with a PHEV
+share, taken from the best source available, re-evaluated on every run:
 
   tier 1  ACEA's counted PHEV/HEV for that month (Whole only). ACEA's
           Lithuanian figures come from the same register and reproduce
@@ -56,7 +59,8 @@ taken from the best source available, re-evaluated on every run:
   tier 2  the register snapshot: OVC-HEV / (OVC-HEV + NOVC-HEV) among that
           month's first registrations still in the register. Counted, but
           cars re-exported since are missing — accurate for recent months,
-          biased for old ones (doc §4.3). The only source for Used.
+          biased for old ones (doc §4.3). Only for a month ACEA has not
+          published yet.
   tier 3  provisional: the trailing three final months' share. Written with
           source "Regitra (provisional)" so fetch-acea may replace the row
           and this script upgrades it once ACEA or a newer snapshot covers it.
@@ -121,6 +125,15 @@ VARIANT_CSV = {"Whole": "data/Lithuania.csv", "Used": "data/Lithuania_Used.csv"}
 RENDERED_VARIANTS = {"Whole", "Used"}
 FUELS = ["BEV", "PHEV", "HEV", "PETROL", "DIESEL", "OTHERS"]
 CSV_COLUMNS = ["period", "time_interval", "variant", "source"] + FUELS + ["TOTAL", "notes"]
+# Used: one combined hybrid number in HEV, no PHEV column (module docstring).
+VARIANT_FUELS = {"Whole": FUELS, "Used": [f for f in FUELS if f != "PHEV"]}
+USED_HYBRID_NOTE = ("hybrids combined in HEV (Regitra has one hybrid number; "
+                    "no counted PHEV/HEV split exists for used imports)")
+
+
+def csv_columns(variant: str) -> list[str]:
+    return (["period", "time_interval", "variant", "source"] + VARIANT_FUELS[variant]
+            + ["TOTAL", "notes"])
 FLEET_STORE = market_top.MARKET_DIR / "lithuania_fleet.json"
 TOP_PATHS = {"Whole": market_top.MARKET_DIR / "lithuania_top.json",
              "Used": market_top.MARKET_DIR / "lithuania_used_top.json"}
@@ -371,8 +384,11 @@ def scan_fleet(text_stream, first_month: str) -> tuple[dict, dict, str]:
             continue
         cls = fuel_class(row["DEGALAI"])
         if cls == "HYB":
-            cls = hybrid_kind(row["HIBRIDINES_TP_KATEGORIJA"])
-            split[(p, st)][cls] += 1
+            kind = hybrid_kind(row["HIBRIDINES_TP_KATEGORIJA"])
+            split[(p, st)][kind] += 1
+            # Used ranks one combined hybrid class (incl. hybrids without a
+            # category), like its CSV's HEV column; Whole keeps the split.
+            cls = "HEV" if st == "used" else kind
         brand = display_brand(row["MARKE"])
         units[st][(p, cls, brand, display_model(brand, row["KOMERCINIS_PAV"]))] += 1
     return dict(split), units, newest
@@ -473,7 +489,10 @@ def acea_split(row: dict | None) -> tuple[int, int] | None:
 def split_hybrids(period: str, status: str, hyb: int, existing: dict | None,
                   store: dict, done: dict[str, tuple[int, int]]) -> tuple[int, int, str, bool]:
     """→ (PHEV, HEV, note, provisional). `done` maps already-final months of
-    this variant to (PHEV, HEV) — the tier-3 base."""
+    this variant to (PHEV, HEV) — the tier-3 base. Used: PHEV is None and
+    HEV holds every hybrid."""
+    if status == "used":
+        return None, hyb, USED_HYBRID_NOTE, False
     if hyb == 0:
         return 0, 0, "no hybrids", False
     if status == "new":
@@ -513,17 +532,17 @@ def render_line(period: str, variant: str, counts: dict[str, int], source: str,
     buf = io.StringIO()
     csv.writer(buf, lineterminator="").writerow(
         [period, "monthly", variant, source]
-        + [fmt(counts[k]) for k in FUELS + ["TOTAL"]] + [notes])
+        + [fmt(counts[k]) for k in VARIANT_FUELS[variant] + ["TOTAL"]] + [notes])
     return buf.getvalue()
 
 
-def read_csv_lines(path: Path) -> tuple[str, list[str], str]:
+def read_csv_lines(path: Path, columns: list[str] = CSV_COLUMNS) -> tuple[str, list[str], str]:
     if not path.exists():
-        return ",".join(CSV_COLUMNS), [], "\n"
+        return ",".join(columns), [], "\n"
     raw = path.read_bytes().decode("utf-8")
     eol = "\r\n" if "\r\n" in raw else "\n"
     lines = raw.splitlines()
-    return (lines[0], lines[1:], eol) if lines else (",".join(CSV_COLUMNS), [], eol)
+    return (lines[0], lines[1:], eol) if lines else (",".join(columns), [], eol)
 
 
 def parse_line(line: str) -> list[str]:
@@ -531,12 +550,12 @@ def parse_line(line: str) -> list[str]:
 
 
 def upsert_lines(path: Path, updates: dict[tuple[str, str], str],
-                 force: bool) -> dict[str, int]:
+                 force: bool, columns: list[str] = CSV_COLUMNS) -> dict[str, int]:
     """Replace/insert only the given (period, variant) lines; every other line
     is written back byte for byte (line endings kept). New lines are inserted
     in period order."""
-    header, lines, eol = read_csv_lines(path)
-    if header.split(",") != CSV_COLUMNS:
+    header, lines, eol = read_csv_lines(path, columns)
+    if header.split(",") != columns:
         sys.exit(f"{path}: unexpected header {header!r}")
     stats = {"added": 0, "updated": 0, "unchanged": 0, "skipped": 0}
     index = {}
@@ -834,11 +853,11 @@ def main() -> int:
             except NoSplit as e:
                 print(f"  {v} {p}: not written — {e}")
                 continue
-            if not prov:
+            if not prov and phev is not None:
                 done[p] = (phev, hev)
             row = {"BEV": c["BEV"], "PHEV": phev, "HEV": hev, "PETROL": c["PETROL"],
                    "DIESEL": c["DIESEL"], "OTHERS": c["OTHERS"], "TOTAL": tot}
-            assert sum(row[k] for k in FUELS) == tot
+            assert sum(row[k] for k in VARIANT_FUELS[v]) == tot
             notes = f"Regitra table 5 ({'Nauja' if st == 'new' else 'Naudota'} M1 by fuel); {note}"
             updates[(p, v)] = render_line(p, v, row, SOURCE_PROVISIONAL if prov else SOURCE, notes)
             old = have[v].get(p)
@@ -846,7 +865,7 @@ def main() -> int:
         if args.dry_run:
             print(f"{VARIANT_CSV[v]}: dry run, {len(updates)} row(s) computed")
             continue
-        stats = upsert_lines(paths[v], updates, args.force)
+        stats = upsert_lines(paths[v], updates, args.force, csv_columns(v))
         print(f"{VARIANT_CSV[v]}: {stats}")
         if stats["added"] or stats["updated"]:
             changed.add(v)
@@ -866,11 +885,13 @@ def report(rows, target: str, xcheck: str, fleet_note: str) -> str:
            "|---|---|---:|---:|---:|---:|---:|---:|---:|---|---|"]
     for v, p, r, note, old in rows[-30:] if len(rows) > 30 else rows:
         tier = ("provisional" if note.startswith("provisional") else "ACEA" if "ACEA" in note
-                else "register" if "register" in note else note)
+                else "register" if "register" in note
+                else "combined" if note == USED_HYBRID_NOTE else note)
+        phev = "–" if r["PHEV"] is None else f"{r['PHEV']:,}"
         d = ""
         if old and old.get("TOTAL"):
             d = f"{r['TOTAL'] - int(float(old['TOTAL'])):+d} ({old.get('source')})"
-        out.append(f"| {v} | {p} | {r['TOTAL']:,} | {r['BEV']:,} | {r['PHEV']:,} | {r['HEV']:,} | "
+        out.append(f"| {v} | {p} | {r['TOTAL']:,} | {r['BEV']:,} | {phev} | {r['HEV']:,} | "
                    f"{r['PETROL']:,} | {r['DIESEL']:,} | {r['OTHERS']:,} | {tier} | {d} |")
     return "\n".join(out) + "\n"
 
