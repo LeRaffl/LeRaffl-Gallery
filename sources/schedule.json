@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T15:58:59Z",
+ "generated": "2026-10-10T20:55:44Z",
  "today": "2026-10-10",
  "countries": [
   {
@@ -1151,7 +1151,7 @@
     ],
     "workflow": ".github/workflows/fetch-ecuador.yml"
    },
-   "last_render": "2026-10-05",
+   "last_render": "2026-10-10",
    "flag": "🇪🇨",
    "variants": [
     {
@@ -3221,7 +3221,7 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-10-08",
+   "last_render": "2026-10-10",
    "flag": "🇵🇱",
    "variants": [
     {

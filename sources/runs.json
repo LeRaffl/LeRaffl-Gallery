@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10T15:58:59Z",
+ "generated": "2026-10-10T20:55:44Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5675,6 +5675,22 @@
   },
   {
    "date": "2026-10-10",
+   "label": "Ecuador",
+   "base": "Ecuador",
+   "slug": "ecuador",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Ecuador (Vans)",
+   "base": "Ecuador",
+   "slug": "ecuador_vans",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-10",
    "label": "Georgia",
    "base": "Georgia",
    "slug": "georgia",
@@ -5736,6 +5752,22 @@
    "slug": "norway",
    "period": "2026-09",
    "flag": "🇳🇴"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Poland (HDV)",
+   "base": "Poland",
+   "slug": "poland_hdv",
+   "period": "2026-09",
+   "flag": "🇵🇱"
+  },
+  {
+   "date": "2026-10-10",
+   "label": "Poland (Vans)",
+   "base": "Poland",
+   "slug": "poland_vans",
+   "period": "2026-09",
+   "flag": "🇵🇱"
   }
  ]
 }
