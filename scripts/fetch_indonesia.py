@@ -220,6 +220,10 @@ class ParsedPdf:
         self.unknown_fuels = defaultdict(int)
         self.warnings = []
         self.sections_without_fuel_column = 0
+        # rows that carry month data but were neither a fuel row nor a
+        # re-attachable orphan — printed when their section fails validation
+        self.skipped = defaultdict(list)
+        self.untitled = []       # numeric rows on a page above its first sheet title
 
 
 def process_region(rows, key, parsed):
@@ -258,9 +262,22 @@ def process_region(rows, key, parsed):
 
     fuel_rows, orphans, cumulative_tops = [], [], []
     for r in rows:
-        if r["top"] <= hdr_top + 3.5:      # title + 3-line column header block
-            continue
         vals = month_values(r["words"], bands)
+        # title + 3-line column header block. The first model row can sit
+        # inside that band (GAIKINDO's Jan-Sep 2026 DOUBLE CABIN sheet: the
+        # Ranger DC Wildtrak 2.0L row, 1-6 units/month, was silently dropped),
+        # so a row there still counts when it carries a real fuel token and
+        # month data — header lines never do.
+        if r["top"] <= hdr_top:
+            continue
+        if r["top"] <= hdr_top + 3.5:
+            has_fuel = any(abs((w["x0"] + w["x1"]) / 2 - fuel_cx) < 4
+                           and w["text"] in FUEL_COLUMN for w in r["words"])
+            if not (has_fuel and any(vals)):
+                if any(vals):
+                    parsed.skipped[key].append(
+                        f"{r['text'][:110]!r} | in header block | months: {vals}")
+                continue
 
         m = SUMMARY_RE.match(r["text"])
         if m:
@@ -278,6 +295,8 @@ def process_region(rows, key, parsed):
         if re.search(r"\bTOTAL\b", left_text):
             if "SALES" in left_text:
                 parsed.printed[key] = [v or 0 for v in vals]
+            elif any(vals):
+                parsed.skipped[key].append(f"{r['text'][:110]!r} | read as subtotal | months: {vals}")
             continue                     # subsection totals: no data, no orphan
 
         fuel = None
@@ -300,6 +319,10 @@ def process_region(rows, key, parsed):
                               "vals": [v or 0 for v in vals]})
         elif any(vals) and not any(v is None for v in vals):
             orphans.append({"top": r["top"], "vals": vals, "text": r["text"]})
+        elif any(vals):
+            near = [w["text"] for w in r["words"] if abs((w["x0"] + w["x1"]) / 2 - fuel_cx) < 8]
+            parsed.skipped[key].append(
+                f"{r['text'][:110]!r} | tokens near FUEL column: {near} | months: {vals}")
 
     # wrapped rows: value fragments sit on their own visual row slightly
     # above/below the fuel cell — re-attach to the nearest fuel row
@@ -367,6 +390,11 @@ def parse_pdf(pdf_bytes):
                 elif parsed.coverage != cov:
                     raise SystemExit(f"inconsistent sheet coverage: {cov} vs {parsed.coverage}")
                 regions.append((i, key))
+            first = regions[0][0] if regions else len(rows)
+            numeric = [r["text"][:90] for r in rows[:first]
+                       if sum(bool(re.fullmatch(r"[\d.,]+", w["text"])) for w in r["words"]) >= 3]
+            if numeric:
+                parsed.untitled.append((page.page_number, len(numeric), numeric[:3]))
             for ri, (start, key) in enumerate(regions):
                 end = regions[ri + 1][0] if ri + 1 < len(regions) else len(rows)
                 process_region(rows[start:end], key, parsed)
@@ -404,7 +432,7 @@ def validate(parsed):
             f"nothing to parse. Most likely a bad edition rather than a format change: the "
             f"production, export and import files published alongside it still carry the "
             f"column, and GAIKINDO does re-publish revisions. Wait for a corrected wholesales "
-            f"file, or re-run with --pdf-url pointing at one."
+            f"file, or re-run with --download-url pointing at one."
         )
 
     missing = ALL_SECTIONS - set(parsed.sections)
@@ -462,6 +490,16 @@ def validate(parsed):
         print(f"warning: {w}")
     for tok, n in parsed.unknown_fuels.items():
         print(f"warning: unknown fuel type {tok!r} in {n} row(s) -> OTHERS")
+    # A section that misses its printed total by a few units has lost a row
+    # somewhere the warnings above don't reach. Name the candidates.
+    failed = {e.split()[0] for e in errors}
+    for key in sorted(failed & set(parsed.skipped)):
+        for row in parsed.skipped[key]:
+            print(f"warning: {key}: skipped row with month data {row}")
+    if errors:
+        for page_no, n, sample in parsed.untitled:
+            print(f"warning: page {page_no}: {n} numeric row(s) above the first sheet "
+                  f"title, assigned to no section, e.g. {sample}")
 
     if errors:
         for e in errors:
