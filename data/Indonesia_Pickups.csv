@@ -1,9 +1,10 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2026-01,monthly,Pickups,GAIKINDO,0,0,0,6128,4413,0,10541,Wholesales Jan-Jun 2026
-2026-02,monthly,Pickups,GAIKINDO,0,0,0,11591,4460,0,16051,Wholesales Jan-Jun 2026
-2026-03,monthly,Pickups,GAIKINDO,0,0,0,5998,3530,0,9528,Wholesales Jan-Jun 2026
-2026-04,monthly,Pickups,GAIKINDO,0,0,0,10606,4788,0,15394,Wholesales Jan-Jun 2026
-2026-05,monthly,Pickups,GAIKINDO,0,0,0,7945,4044,0,11989,Wholesales Jan-Jun 2026
-2026-06,monthly,Pickups,GAIKINDO,0,0,0,9040,3702,0,12742,Wholesales Jan-Aug 2026
-2026-07,monthly,Pickups,GAIKINDO,0,0,0,8334,5882,0,14216,Wholesales Jan-Aug 2026
-2026-08,monthly,Pickups,GAIKINDO,0,0,0,8239,5261,0,13500,Wholesales Jan-Aug 2026
+2026-01,monthly,Pickups,GAIKINDO,0,0,0,6128,4413,0,10541,Wholesales Jan-Sep 2026
+2026-02,monthly,Pickups,GAIKINDO,0,0,0,11591,4460,0,16051,Wholesales Jan-Sep 2026
+2026-03,monthly,Pickups,GAIKINDO,0,0,0,5998,3530,0,9528,Wholesales Jan-Sep 2026
+2026-04,monthly,Pickups,GAIKINDO,0,0,0,10606,4788,0,15394,Wholesales Jan-Sep 2026
+2026-05,monthly,Pickups,GAIKINDO,0,0,0,7945,4044,0,11989,Wholesales Jan-Sep 2026
+2026-06,monthly,Pickups,GAIKINDO,0,0,0,9040,3702,0,12742,Wholesales Jan-Sep 2026
+2026-07,monthly,Pickups,GAIKINDO,0,0,0,8334,5882,0,14216,Wholesales Jan-Sep 2026
+2026-08,monthly,Pickups,GAIKINDO,0,0,0,8239,5262,0,13501,Wholesales Jan-Sep 2026
+2026-09,monthly,Pickups,GAIKINDO,1,0,0,7788,5288,0,13077,Wholesales Jan-Sep 2026
