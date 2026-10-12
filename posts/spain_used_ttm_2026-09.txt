@@ -2,10 +2,10 @@
 
 Oct24–Sep25  vs  Oct25–Sep26
 −0.3pp  BEV   (3.3% → 2.9%)
-+0.1pp  PHEV  (6.1% → 6.3%)
++0.1pp  PHEV  (6.2% → 6.3%)
 +0.8pp  HEV   (7.0% → 7.8%)
 −0.6pp  ICE   (83.6% → 83.0%)
 
-PHEV peaked at 6.4% in 2026-03 (declining for 6 months).
+PHEV peaked at 6.5% in 2026-03 (declining for 6 months).
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
