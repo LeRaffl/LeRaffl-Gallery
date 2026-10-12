@@ -220,6 +220,9 @@ class ParsedPdf:
         self.unknown_fuels = defaultdict(int)
         self.warnings = []
         self.sections_without_fuel_column = 0
+        # rows that carry month data but were neither a fuel row nor a
+        # re-attachable orphan — printed when their section fails validation
+        self.skipped = defaultdict(list)
 
 
 def process_region(rows, key, parsed):
@@ -300,6 +303,10 @@ def process_region(rows, key, parsed):
                               "vals": [v or 0 for v in vals]})
         elif any(vals) and not any(v is None for v in vals):
             orphans.append({"top": r["top"], "vals": vals, "text": r["text"]})
+        elif any(vals):
+            near = [w["text"] for w in r["words"] if abs((w["x0"] + w["x1"]) / 2 - fuel_cx) < 8]
+            parsed.skipped[key].append(
+                f"{r['text'][:110]!r} | tokens near FUEL column: {near} | months: {vals}")
 
     # wrapped rows: value fragments sit on their own visual row slightly
     # above/below the fuel cell — re-attach to the nearest fuel row
@@ -404,7 +411,7 @@ def validate(parsed):
             f"nothing to parse. Most likely a bad edition rather than a format change: the "
             f"production, export and import files published alongside it still carry the "
             f"column, and GAIKINDO does re-publish revisions. Wait for a corrected wholesales "
-            f"file, or re-run with --pdf-url pointing at one."
+            f"file, or re-run with --download-url pointing at one."
         )
 
     missing = ALL_SECTIONS - set(parsed.sections)
@@ -462,6 +469,12 @@ def validate(parsed):
         print(f"warning: {w}")
     for tok, n in parsed.unknown_fuels.items():
         print(f"warning: unknown fuel type {tok!r} in {n} row(s) -> OTHERS")
+    # A section that misses its printed total by a few units has lost a row
+    # somewhere the warnings above don't reach. Name the candidates.
+    failed = {e.split()[0] for e in errors}
+    for key in sorted(failed & set(parsed.skipped)):
+        for row in parsed.skipped[key]:
+            print(f"warning: {key}: skipped row with month data {row}")
 
     if errors:
         for e in errors:
