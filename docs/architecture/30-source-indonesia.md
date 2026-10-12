@@ -131,6 +131,15 @@ Parsing gotchas, all handled in `scripts/fetch_indonesia.py`:
   "… SALES TOTAL" label lands exactly inside the FUEL column band. Row type
   (TOTAL/CUMULATIVE, decided from tokens left of the JAN band) is classified
   *before* fuel detection, else every section double-counts.
+* **First row inside the header band**: rows up to 3.5 pt below the JAN..DEC
+  header row are the column-header block and are skipped — *unless* the row
+  carries a real fuel token (`G`/`D`/`BEV`/`HEV`/`PHEV`) and month data. In
+  the Jan-Sep 2026 edition the DOUBLE CABIN sheet's first model row (Ford
+  Ranger DC Wildtrak 2.0L, 1-6 units/month) sat inside that band and was
+  dropped, failing the section checksum for every month. On a checksum
+  failure the fetcher now prints the rows it skipped with month data
+  (header block, read-as-subtotal, unparseable cells, numeric rows above a
+  page's first sheet title) so the next layout drift is readable from the log.
 * **Fuel column**: token under the FUEL header → `G`→PETROL, `D`→DIESEL,
   `BEV`/`HEV`/`PHEV`→ same-named columns; `-` (blank spec rows, a few dozen
   units/month) and rarities (`CNG` tractor heads) → OTHERS with a warning.

@@ -263,17 +263,21 @@ def process_region(rows, key, parsed):
     fuel_rows, orphans, cumulative_tops = [], [], []
     for r in rows:
         vals = month_values(r["words"], bands)
-        stray = [w["text"] for w in r["words"]
-                 if bands[0][0] - 15 <= (w["x0"] + w["x1"]) / 2 < bands[-1][1] + 15
-                 and re.fullmatch(r"[\d.,]+", w["text"])
-                 and not any(lo <= (w["x0"] + w["x1"]) / 2 < hi for lo, hi in bands)]
-        if stray:
-            parsed.skipped[key].append(
-                f"{r['text'][:110]!r} | numbers outside every month band: {stray}")
-        if r["top"] <= hdr_top + 3.5:      # title + 3-line column header block
-            if any(vals) and r["top"] > hdr_top:
-                parsed.skipped[key].append(f"{r['text'][:110]!r} | in header block | months: {vals}")
+        # title + 3-line column header block. The first model row can sit
+        # inside that band (GAIKINDO's Jan-Sep 2026 DOUBLE CABIN sheet: the
+        # Ranger DC Wildtrak 2.0L row, 1-6 units/month, was silently dropped),
+        # so a row there still counts when it carries a real fuel token and
+        # month data — header lines never do.
+        if r["top"] <= hdr_top:
             continue
+        if r["top"] <= hdr_top + 3.5:
+            has_fuel = any(abs((w["x0"] + w["x1"]) / 2 - fuel_cx) < 4
+                           and w["text"] in FUEL_COLUMN for w in r["words"])
+            if not (has_fuel and any(vals)):
+                if any(vals):
+                    parsed.skipped[key].append(
+                        f"{r['text'][:110]!r} | in header block | months: {vals}")
+                continue
 
         m = SUMMARY_RE.match(r["text"])
         if m:
