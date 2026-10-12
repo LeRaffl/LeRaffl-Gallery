@@ -2,11 +2,11 @@
 
 Oct24–Sep25  vs  Oct25–Sep26
 +6.5pp  BEV   (31.5% → 38.0%)
-−0.6pp  PHEV  (15.5% → 14.9%)
+−0.1pp  PHEV  (20.4% → 20.3%)
 +0.0pp  HEV   (0.0% → 0.0%)
-−5.9pp  ICE   (52.9% → 47.1%)
+−6.3pp  ICE   (48.1% → 41.7%)
 
-PHEV peaked at 16.0% in 2025-06 (declining for 15 months).
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2027-03.
+PHEV peaked at 20.9% in 2025-06 (declining for 15 months).
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-12.
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
