@@ -162,6 +162,46 @@
       "country_slug": "china"
     },
     {
+      "country": "China (Wholesale)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "china_wholesale_ICE_BEV_20261012.png",
+      "url": "images/2026-09/china_wholesale_ICE_BEV_20261012.png",
+      "alt": "China (Wholesale) ICE-BEV-Hybrid trajectory",
+      "country_slug": "china_wholesale"
+    },
+    {
+      "country": "China (Wholesale)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "china_wholesale_20261012.png",
+      "url": "images/2026-09/china_wholesale_20261012.png",
+      "alt": "China (Wholesale) BEV trajectory",
+      "country_slug": "china_wholesale"
+    },
+    {
+      "country": "China (Wholesale)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "china_wholesale_time_20261012.png",
+      "url": "images/2026-09/china_wholesale_time_20261012.png",
+      "alt": "China (Wholesale) Transition time curve",
+      "country_slug": "china_wholesale"
+    },
+    {
+      "country": "China (Wholesale)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "china_wholesale_ttm_shares_20261012.png",
+      "url": "images/2026-09/china_wholesale_ttm_shares_20261012.png",
+      "alt": "China (Wholesale) TTM market split graph",
+      "country_slug": "china_wholesale"
+    },
+    {
       "country": "Hong Kong",
       "type": "ICE_BEV",
       "period": "2026-08",
