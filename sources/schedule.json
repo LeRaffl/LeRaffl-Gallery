@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12T08:58:33Z",
+ "generated": "2026-10-12T12:24:15Z",
  "today": "2026-10-12",
  "countries": [
   {
@@ -1923,7 +1923,7 @@
     ],
     "workflow": ".github/workflows/fetch-indonesia.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-12",
    "flag": "🇮🇩",
    "variants": [
     {

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12T08:58:33Z",
+ "generated": "2026-10-12T12:24:15Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5832,6 +5832,14 @@
    "slug": "hong_kong",
    "period": "2026-08",
    "flag": "🇭🇰"
+  },
+  {
+   "date": "2026-10-12",
+   "label": "Indonesia",
+   "base": "Indonesia",
+   "slug": "indonesia",
+   "period": "2026-09",
+   "flag": "🇮🇩"
   },
   {
    "date": "2026-10-12",
