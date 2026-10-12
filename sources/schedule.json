@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-11T10:59:59Z",
- "today": "2026-10-11",
+ "generated": "2026-10-12T08:58:33Z",
+ "today": "2026-10-12",
  "countries": [
   {
    "country": "Albania",
@@ -151,7 +151,7 @@
     ],
     "workflow": ".github/workflows/fetch-argentina.yml"
    },
-   "last_render": "2026-10-08",
+   "last_render": "2026-10-12",
    "flag": "🇦🇷",
    "variants": [
     {
@@ -627,11 +627,11 @@
    "source_url": "https://www.cpcaauto.com/news.php?types=csjd&anid=129&nid=24",
    "cadence_text": "daily cron 11:00 UTC; CPCA publishes the prior month around the 8th–11th",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -687,22 +687,22 @@
     ],
     "workflow": ".github/workflows/fetch-china.yml"
    },
-   "last_render": "2026-09-08",
+   "last_render": "2026-10-12",
    "flag": "🇨🇳",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Wholesale",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2024-09",
-     "rows": 24,
+     "rows": 25,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1151,7 +1151,7 @@
     ],
     "workflow": ".github/workflows/fetch-ecuador.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-10-12",
    "flag": "🇪🇨",
    "variants": [
     {
@@ -1675,7 +1675,7 @@
     ],
     "workflow": ".github/workflows/fetch-hong-kong.yml"
    },
-   "last_render": "2026-10-06",
+   "last_render": "2026-10-12",
    "flag": "🇭🇰",
    "variants": [
     {
@@ -1872,11 +1872,11 @@
    "source_url": "https://www.gaikindo.or.id/",
    "cadence_text": "daily 09:35 UTC, 10th–EOM (GAIKINDO publishes ~10th–15th)",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1928,33 +1928,33 @@
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Pickups",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2026-01",
-     "rows": 8,
+     "rows": 9,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2026-01",
-     "rows": 8,
+     "rows": 9,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Buses",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2026-01",
-     "rows": 8,
+     "rows": 9,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3612,10 +3612,10 @@
    "cadence_text": "twice daily on the 12th–25th, 03:35 and 09:35 UTC — MOTIR publishes around the 13th–20th of M+1 at 11:00 KST",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3722,7 +3722,7 @@
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-10-03",
+   "last_render": "2026-10-12",
    "flag": "🇪🇸",
    "variants": [
     {
@@ -3962,10 +3962,10 @@
    "cadence_text": "twice daily on the 12th–28th, 01:45 and 09:45 UTC — MOTC publishes month M around the 15th of M+1 (August 2026 on September 15)",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4008,7 +4008,7 @@
     ],
     "workflow": ".github/workflows/fetch-taiwan.yml"
    },
-   "last_render": "2026-10-04",
+   "last_render": "2026-10-12",
    "flag": "🇹🇼",
    "variants": [
     {
