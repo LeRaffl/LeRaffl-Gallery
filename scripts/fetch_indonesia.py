@@ -223,6 +223,7 @@ class ParsedPdf:
         # rows that carry month data but were neither a fuel row nor a
         # re-attachable orphan — printed when their section fails validation
         self.skipped = defaultdict(list)
+        self.untitled = []       # numeric rows on a page above its first sheet title
 
 
 def process_region(rows, key, parsed):
@@ -261,9 +262,18 @@ def process_region(rows, key, parsed):
 
     fuel_rows, orphans, cumulative_tops = [], [], []
     for r in rows:
-        if r["top"] <= hdr_top + 3.5:      # title + 3-line column header block
-            continue
         vals = month_values(r["words"], bands)
+        stray = [w["text"] for w in r["words"]
+                 if bands[0][0] - 15 <= (w["x0"] + w["x1"]) / 2 < bands[-1][1] + 15
+                 and re.fullmatch(r"[\d.,]+", w["text"])
+                 and not any(lo <= (w["x0"] + w["x1"]) / 2 < hi for lo, hi in bands)]
+        if stray:
+            parsed.skipped[key].append(
+                f"{r['text'][:110]!r} | numbers outside every month band: {stray}")
+        if r["top"] <= hdr_top + 3.5:      # title + 3-line column header block
+            if any(vals) and r["top"] > hdr_top:
+                parsed.skipped[key].append(f"{r['text'][:110]!r} | in header block | months: {vals}")
+            continue
 
         m = SUMMARY_RE.match(r["text"])
         if m:
@@ -281,6 +291,8 @@ def process_region(rows, key, parsed):
         if re.search(r"\bTOTAL\b", left_text):
             if "SALES" in left_text:
                 parsed.printed[key] = [v or 0 for v in vals]
+            elif any(vals):
+                parsed.skipped[key].append(f"{r['text'][:110]!r} | read as subtotal | months: {vals}")
             continue                     # subsection totals: no data, no orphan
 
         fuel = None
@@ -374,6 +386,11 @@ def parse_pdf(pdf_bytes):
                 elif parsed.coverage != cov:
                     raise SystemExit(f"inconsistent sheet coverage: {cov} vs {parsed.coverage}")
                 regions.append((i, key))
+            first = regions[0][0] if regions else len(rows)
+            numeric = [r["text"][:90] for r in rows[:first]
+                       if sum(bool(re.fullmatch(r"[\d.,]+", w["text"])) for w in r["words"]) >= 3]
+            if numeric:
+                parsed.untitled.append((page.page_number, len(numeric), numeric[:3]))
             for ri, (start, key) in enumerate(regions):
                 end = regions[ri + 1][0] if ri + 1 < len(regions) else len(rows)
                 process_region(rows[start:end], key, parsed)
@@ -475,6 +492,10 @@ def validate(parsed):
     for key in sorted(failed & set(parsed.skipped)):
         for row in parsed.skipped[key]:
             print(f"warning: {key}: skipped row with month data {row}")
+    if errors:
+        for page_no, n, sample in parsed.untitled:
+            print(f"warning: page {page_no}: {n} numeric row(s) above the first sheet "
+                  f"title, assigned to no section, e.g. {sample}")
 
     if errors:
         for e in errors:
