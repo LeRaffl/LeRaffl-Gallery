@@ -234,6 +234,7 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
 #   Graphs are available in the Gallery: ...
 #
 # Bands sum to 100%: BEV + PHEV + HEV + ICE (pure ICE, i.e. ICE minus HEV).
+# PHEV is the broad figure (EREV included), as in the main post.
 # Hybrid-only countries (no PHEV/HEV split) collapse to BEV / Hybrid / ICE.
 # Quarterly countries (e.g. Canada) use a 4-quarter rolling window.
 
@@ -288,7 +289,10 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
     v[is.na(v)] <- 0
     v
   }
-  bev_m  <- num("BEV"); phev_m <- num("PHEV"); hev_m <- num("HEV"); tot_m <- num("TOTAL")
+  # EREV folds into PHEV (broad PHEV), exactly as in .pt_triplet_lines() and the
+  # R/data.R rollup; otherwise it would fall into the ICE remainder below.
+  bev_m  <- num("BEV"); phev_m <- num("PHEV") + num("EREV")
+  hev_m  <- num("HEV"); tot_m <- num("TOTAL")
   periods <- periodic$period
   N <- nrow(periodic)
 
