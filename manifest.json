@@ -202,6 +202,86 @@
       "country_slug": "china_wholesale"
     },
     {
+      "country": "Ecuador",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_ICE_BEV_20261012.png",
+      "url": "images/2026-09/ecuador_ICE_BEV_20261012.png",
+      "alt": "Ecuador ICE-BEV-Hybrid trajectory",
+      "country_slug": "ecuador"
+    },
+    {
+      "country": "Ecuador",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_20261012.png",
+      "url": "images/2026-09/ecuador_20261012.png",
+      "alt": "Ecuador BEV trajectory",
+      "country_slug": "ecuador"
+    },
+    {
+      "country": "Ecuador",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_time_20261012.png",
+      "url": "images/2026-09/ecuador_time_20261012.png",
+      "alt": "Ecuador Transition time curve",
+      "country_slug": "ecuador"
+    },
+    {
+      "country": "Ecuador",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_ttm_shares_20261012.png",
+      "url": "images/2026-09/ecuador_ttm_shares_20261012.png",
+      "alt": "Ecuador TTM market split graph",
+      "country_slug": "ecuador"
+    },
+    {
+      "country": "Ecuador (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_vans_ICE_BEV_20261012.png",
+      "url": "images/2026-09/ecuador_vans_ICE_BEV_20261012.png",
+      "alt": "Ecuador (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "ecuador_vans"
+    },
+    {
+      "country": "Ecuador (Vans)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_vans_20261012.png",
+      "url": "images/2026-09/ecuador_vans_20261012.png",
+      "alt": "Ecuador (Vans) BEV trajectory",
+      "country_slug": "ecuador_vans"
+    },
+    {
+      "country": "Ecuador (Vans)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_vans_time_20261012.png",
+      "url": "images/2026-09/ecuador_vans_time_20261012.png",
+      "alt": "Ecuador (Vans) Transition time curve",
+      "country_slug": "ecuador_vans"
+    },
+    {
+      "country": "Ecuador (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-12",
+      "filename": "ecuador_vans_ttm_shares_20261012.png",
+      "url": "images/2026-09/ecuador_vans_ttm_shares_20261012.png",
+      "alt": "Ecuador (Vans) TTM market split graph",
+      "country_slug": "ecuador_vans"
+    },
+    {
       "country": "Hong Kong",
       "type": "ICE_BEV",
       "period": "2026-08",
