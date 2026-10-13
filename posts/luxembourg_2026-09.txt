@@ -1,0 +1,11 @@
+🇱🇺 Luxembourg - September 26 - BEV Trajectory
+37.6% BEV
+6.7% PHEV
+55.7% ICE (of which 30.1%p were HEV)
+
+Trailing 12 months are:
+30.9% BEV
+6.3% PHEV
+62.8% ICE (of which 31.2%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

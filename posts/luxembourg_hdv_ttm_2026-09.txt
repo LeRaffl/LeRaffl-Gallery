@@ -1,0 +1,11 @@
+🇱🇺 Luxembourg (HDV) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
+−2.8pp  BEV   (13.1% → 10.3%)
++0.0pp  PHEV  (0.0% → 0.0%)
+−0.8pp  HEV   (0.8% → 0.0%)
++3.6pp  ICE   (86.1% → 89.7%)
+
+HEV peaked at 0.9% in 2025-07 (declining for 14 months).
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

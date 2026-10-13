@@ -1,11 +1,11 @@
-🇱🇺 Luxembourg (HDV) - August 26 - BEV Trajectory
-24.5% BEV
+🇱🇺 Luxembourg (HDV) - September 26 - BEV Trajectory
+6.7% BEV
 0.0% PHEV
-75.5% ICE
+93.3% ICE
 
 Trailing 12 months are:
-9.9% BEV
+10.3% BEV
 0.0% PHEV
-90.1% ICE
+89.7% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
