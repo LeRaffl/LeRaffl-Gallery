@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-12T12:24:15Z",
- "today": "2026-10-12",
+ "generated": "2026-10-13T12:08:16Z",
+ "today": "2026-10-13",
  "countries": [
   {
    "country": "Albania",
@@ -2475,11 +2475,11 @@
    "source_url": "https://lustat.statec.lu/",
    "cadence_text": "daily cron, 1st–15th, 06:45 UTC (STATEC publishes around the 6th)",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2519,30 +2519,30 @@
     ],
     "workflow": ".github/workflows/fetch-luxembourg.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-13",
    "flag": "🇱🇺",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "HDV",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2010-01",
-     "rows": 200,
+     "rows": 201,
      "cadence": "monthly",
      "in_repo": true
     }

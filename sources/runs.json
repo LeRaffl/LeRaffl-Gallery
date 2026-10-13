@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12T12:24:15Z",
+ "generated": "2026-10-13T12:08:16Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5912,6 +5912,30 @@
    "slug": "taiwan",
    "period": "2026-08",
    "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-13",
+   "label": "Luxembourg",
+   "base": "Luxembourg",
+   "slug": "luxembourg",
+   "period": "2026-09",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-10-13",
+   "label": "Luxembourg (HDV)",
+   "base": "Luxembourg",
+   "slug": "luxembourg_hdv",
+   "period": "2026-09",
+   "flag": "🇱🇺"
+  },
+  {
+   "date": "2026-10-13",
+   "label": "Luxembourg (Vans)",
+   "base": "Luxembourg",
+   "slug": "luxembourg_vans",
+   "period": "2026-09",
+   "flag": "🇱🇺"
   }
  ]
 }
