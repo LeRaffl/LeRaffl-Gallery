@@ -255,9 +255,10 @@ one collides with a different gallery assumption:
   a number exists it often can't be trusted as ground truth.
 
 The realistic near-term candidates are the two markets that *do* have an
-industry-association monthly series: **South Africa** (naamsa — genuine
-monthly new-vehicle sales with a drivetrain split; the most promising, under
-active investigation) and **Morocco** (AIVAM — a monthly series exists, but the
+industry-association monthly series: **South Africa** (naamsa — **built 2026-10**,
+[56](56-source-south-africa.md); correction to the earlier note here: the
+drivetrain split is *quarterly* and for the *whole* new-vehicle market, not
+monthly and not passenger cars — the monthly releases carry totals only) and **Morocco** (AIVAM — a monthly series exists, but the
 energy split sits behind a login on `statistique.aivam.ma`; shelved under the
 old no-login rule, so worth a second look now that Thailand and Indonesia set
 the free-account precedent). Kenya, Nigeria and Egypt have manufacturer/importer associations but
@@ -300,6 +301,12 @@ reasons:
     cited ~100,000 EVs while the US ITA estimates ~30,000 — a 3× disagreement
     in the headline number.
 
+- **Re-checked 2026-10-14 (from the shared box, not a runner):** the
+  `.gov.et` hosts (motl, ecc, customs.erca, statsethiopia, fta, aatb,
+  data.gov.et) did not connect; `ess.gov.et` and `mofed.gov.et` answer but
+  publish no vehicle statistics. Monthly HS-8703.80 import values exist only
+  at paid resellers (ExportGenius); JICA's 2026 study uses monthly customs
+  data it does not publish. Verdict unchanged.
 - **What would change the decision:** a free, machine-readable **ERCA monthly
   import export with a BEV/ICE split** *and* enough post-ban history to fit.
   Even then Ethiopia would be a documented special case — a policy-driven

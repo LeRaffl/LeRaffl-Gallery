@@ -27,30 +27,6 @@
 #   doc       (required)              — repo path (+ #anchor) of the full write-up
 
 candidates:
-  - country: South Africa
-    slug: south-africa
-    verdict: viable
-    checked: "2026-10"
-    probed: true
-    summary: "naamsa's Quarterly Business Review carries a BEV / PHEV / HEV table that parses cleanly — viable, but quarterly and for the whole vehicle market."
-    source_name: "naamsa — Quarterly Review of Business Conditions"
-    source_url: "https://naamsa.net/press-releases/"
-    findings:
-      - "naamsa.net is reachable from GitHub runners; the press-release archive reaches back to 2017."
-      - "The quarterly review's NEV page has plug-in hybrid, traditional hybrid and electric counts, with yearly columns 2020–2025 plus quarterly columns — one current PDF bootstraps the yearly history."
-      - "The monthly flash reports carry totals only, without a drivetrain split."
-      - "The roster covers the formal market including BYD, Chery and GWM (the NEV table says 21 brands)."
-    blockers:
-      - "Quarterly cadence only."
-      - "The NEV table covers all vehicles, with no passenger-car / light-commercial split, so Whole would have to be the total market — mixing it with naamsa's passenger-only total would combine two different universes."
-      - "No petrol / diesel split of the combustion remainder."
-      - "BEV share is about 0.2 %, so the curve would be an early-stage data point."
-    would_change: "Nothing blocks it — it is a build decision. A passenger-car NEV split or a monthly drivetrain table would make it a much better series."
-    if_built:
-      - "Quarterly rows stored under the middle month (the Canada pattern)."
-      - "ICE = TOTAL − BEV − PHEV − HEV in one bucket (the USA convention); a footnote that Whole is the total market."
-    doc: "docs/architecture/33-expansion-candidates.md#-south-africa--naamsa-quarterly-granularity"
-
   - country: Serbia
     slug: serbia
     verdict: deferred
