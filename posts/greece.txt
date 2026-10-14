@@ -1,11 +1,11 @@
-🇬🇷 Greece - August 26 - BEV Trajectory
+🇬🇷 Greece - September 26 - BEV Trajectory
 10.6% BEV
-5.4% PHEV
-84.0% ICE (of which 59.9%p were HEV)
+9.1% PHEV
+80.3% ICE (of which 60.8%p were HEV)
 
 Trailing 12 months are:
-7.1% BEV
-7.8% PHEV
-85.1% ICE (of which 56.6%p were HEV)
+7.4% BEV
+7.7% PHEV
+84.8% ICE (of which 57.2%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
