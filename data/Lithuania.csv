@@ -115,3 +115,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-06,monthly,Whole,Regitra,474.0,637.0,2490.0,851.0,435.0,114.0,5001.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 640 / HEV 2504
 2026-07,monthly,Whole,Regitra,401.0,699.0,2267.0,837.0,297.0,66.0,4567.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 725 / HEV 2352
 2026-08,monthly,Whole,Regitra,317.0,608.0,2098.0,671.0,243.0,64.0,4001.0,Regitra table 5 (Nauja M1 by fuel); PHEV/HEV split from ACEA PHEV 623 / HEV 2148
+2026-09,monthly,Whole,Regitra (provisional),549.0,531.0,1874.0,568.0,232.0,74.0,3828.0,Regitra table 5 (Nauja M1 by fuel); provisional: PHEV/HEV split estimated from the previous 3 months' share (22.1%) until ACEA or a newer register snapshot covers this month

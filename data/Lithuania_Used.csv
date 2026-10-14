@@ -31,3 +31,4 @@ period,time_interval,variant,source,BEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
 2026-06,monthly,Used,Regitra,645.0,2065.0,3933.0,9063.0,648.0,16354.0,Regitra table 5 (Naudota M1 by fuel); hybrids combined in HEV (Regitra has one hybrid number; no counted PHEV/HEV split exists for used imports)
 2026-07,monthly,Used,Regitra,674.0,2468.0,4390.0,9707.0,715.0,17954.0,Regitra table 5 (Naudota M1 by fuel); hybrids combined in HEV (Regitra has one hybrid number; no counted PHEV/HEV split exists for used imports)
 2026-08,monthly,Used,Regitra,674.0,2257.0,3937.0,8559.0,702.0,16129.0,Regitra table 5 (Naudota M1 by fuel); hybrids combined in HEV (Regitra has one hybrid number; no counted PHEV/HEV split exists for used imports)
+2026-09,monthly,Used,Regitra,759.0,2200.0,4073.0,8421.0,670.0,16123.0,Regitra table 5 (Naudota M1 by fuel); hybrids combined in HEV (Regitra has one hybrid number; no counted PHEV/HEV split exists for used imports)
