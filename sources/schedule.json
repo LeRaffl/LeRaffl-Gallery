@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-13T12:08:16Z",
- "today": "2026-10-13",
+ "generated": "2026-10-14T09:42:08Z",
+ "today": "2026-10-14",
  "countries": [
   {
    "country": "Albania",
@@ -560,10 +560,10 @@
    "cadence_text": "daily cron from the 14th, 08:20 UTC — runs are no-ops until both ANAC PDFs are out",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
