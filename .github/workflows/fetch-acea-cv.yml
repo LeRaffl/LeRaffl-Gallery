@@ -59,7 +59,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -97,7 +97,7 @@ jobs:
 
       - name: Commit if changed
         if: steps.fetch.outputs.any_changed == 'true'
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: data
           message: 'chore: update ACEA commercial-vehicle data (multi-country)'

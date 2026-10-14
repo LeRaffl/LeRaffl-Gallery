@@ -41,7 +41,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     outputs:
@@ -77,7 +77,7 @@ jobs:
       - name: Commit if changed
         id: commit
         if: steps.fetch.outputs.changed == 'true'
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           # A git pathspec glob, not a shell glob: the action splits this input
           # on whitespace, so "data/South Korea.csv" would become two arguments.
@@ -89,7 +89,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

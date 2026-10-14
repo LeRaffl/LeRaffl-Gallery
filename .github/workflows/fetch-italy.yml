@@ -73,7 +73,7 @@ jobs:
     outputs:
       committed: ${{ steps.commit.outputs.committed }}
       variants_json: ${{ steps.changed.outputs.variants_json }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -153,7 +153,7 @@ jobs:
       - name: Commit if changed
         id: commit
         if: success() || steps.fetch.outputs.vans_failed == 'true'
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Italy.csv
@@ -181,7 +181,7 @@ jobs:
     needs: fetch
     # !cancelled(): still render committed PKW rows when the job failed on Vans.
     if: "!cancelled() && needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.variants_json != '[]'"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

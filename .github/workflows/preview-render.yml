@@ -61,7 +61,7 @@ env:
 
 jobs:
   plan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
@@ -94,7 +94,7 @@ jobs:
 
   render:
     needs: plan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Two renders of one series; a slow variant (HDV) takes ~5 min each.
     timeout-minutes: 40
     strategy:
@@ -167,7 +167,7 @@ jobs:
           render base
           ls -R "$out"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: preview-${{ matrix.slug }}
           path: out/
@@ -177,7 +177,7 @@ jobs:
     needs: [plan, render]
     # Build the sheet from whatever rendered, even if some series failed.
     if: ${{ always() && needs.plan.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -188,7 +188,7 @@ jobs:
           sparse-checkout: scripts/build_render_preview.py
           sparse-checkout-cone-mode: false
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: preview-*
           path: preview
@@ -204,7 +204,7 @@ jobs:
           cat preview/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - id: upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: render-preview
           path: preview/

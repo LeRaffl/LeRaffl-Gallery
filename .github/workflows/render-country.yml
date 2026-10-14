@@ -81,7 +81,7 @@ on:
 
 jobs:
   render:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # A single warm render finishes in <10 min. This job now renders every
     # touched variant of the country serially in one run, so the cap has to
     # cover the widest fetcher: Spain fans out 8 variants. Budget ≈ one-off R
@@ -173,7 +173,7 @@ jobs:
       # bands/<slug>.json (CI / PI / TI for the frontend) is written by
       # render_country.R next to the PNGs; see docs/architecture/44-uncertainty-bands.md.
       - name: Commit outputs
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             images

@@ -36,7 +36,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
 
@@ -64,7 +64,7 @@ jobs:
 
       - name: Commit if changed
         if: ${{ inputs.dry_run != true }}
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: 'fleet/fleet_initial.csv'
           message: 'chore: update Germany fleet data from KBA FZ 13'

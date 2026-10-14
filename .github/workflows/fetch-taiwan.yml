@@ -68,7 +68,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: write
@@ -114,7 +114,7 @@ jobs:
       # run is debugged from (python scripts/fetch_taiwan.py --from-dir DIR).
       - name: Upload MOTC responses
         if: always() && inputs.debug_dump == true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: taiwan-motc-responses
           path: taiwan_dump/
@@ -123,7 +123,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Taiwan*.csv
@@ -137,7 +137,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

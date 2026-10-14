@@ -45,7 +45,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -96,7 +96,7 @@ jobs:
 
       - name: Commit if changed
         if: steps.changed.outputs.any == 'true'
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Canada.csv
@@ -121,7 +121,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.any_changed == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:
