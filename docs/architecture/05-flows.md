@@ -31,6 +31,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | V | [Auto-ingest Colombia from ANDI/FENALCO](#flow-v--andi-pdf-ingest) | Daily cron (5th–25th, 07:30 UTC) or manual dispatch | Updated `data/Colombia.csv` → Flow B for Colombia |
 | W | [Render preview](#flow-w--render-preview) | PR touching `R/**`, or manual dispatch | `render-preview` artifact (base vs PR charts) + one PR comment; nothing committed |
 | X | Backfill uncertainty bands | Manual dispatch of `backfill-bands.yml` | `bands/<slug>.json` for every series (or the given countries), committed; nothing else changes. See [02 §2.18](02-components.md#218-bands-backfill-githubworkflowsbackfill-bandsyml-scriptsbackfill_bandsr) |
+| Y | Runner canary | Monthly cron (20th, 05:29 UTC), manual dispatch, or a push to the canary's own files | A report in the run summary (pinned runner image vs the next one); nothing committed. See [56-runner-upgrades.md](56-runner-upgrades.md) |
 
 > **Not every fetcher has a lettered flow here.** Flows H–V were written as
 > each of the first ingest pipelines landed; the later ones — Austria, Canada,

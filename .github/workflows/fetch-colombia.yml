@@ -51,7 +51,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload bulletin PDF + text
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: colombia-bulletin
           path: ${{ runner.temp }}/colombia-bulletin
@@ -95,7 +95,7 @@ jobs:
       - name: Commit if changed
         id: commit
         if: ${{ inputs.dry_run != true }}
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: data/Colombia.csv
           message: 'chore: update Colombia data from ANDI/FENALCO (datos RUNT)'

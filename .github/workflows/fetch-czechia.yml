@@ -63,7 +63,7 @@ concurrency:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 330
     permissions:
       contents: write
@@ -103,7 +103,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Czechia.csv
@@ -124,7 +124,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

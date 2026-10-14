@@ -84,10 +84,28 @@ id      = "<redacted>"
 
 ## CI runner stack
 
-- `actions/checkout@v4` — pull source
+Every job runs on **`runs-on: ubuntu-24.04`**, pinned on purpose instead of
+`ubuntu-latest`. GitHub moves `ubuntu-latest` to Ubuntu 26.04 in November 2026,
+and that image ships different system tools: Python 3.14 instead of 3.12 as the
+system Python, and newer `tesseract`/`poppler`/ImageMagick from apt. Turkey and
+China read their numbers through OCR, and Italy and Colombia through
+`pdftotext`, so a silent tool upgrade could change parsed values, not just break
+a build. `fetch_turkey.py` also calls ImageMagick's `convert`, which ImageMagick 7
+replaces with `magick`. Move to `ubuntu-26.04` deliberately: the monthly
+`runner-canary.yml` compares the pinned image with the next one, and
+[56-runner-upgrades.md](56-runner-upgrades.md) holds the risk register and the
+checklist for the move.
+
+All actions are on their Node 24 majors. Node 20 actions are deprecated on
+GitHub-hosted runners, so don't reintroduce a Node 20 major when copying an old
+workflow.
+
+- `actions/checkout@v5` — pull source
+- `actions/setup-python@v6` — Python for the fetchers and generators
 - `r-lib/actions/setup-r@v2` (with `use-public-rspm: true` for fast package binaries on Ubuntu)
 - `r-lib/actions/setup-r-dependencies@v2` — install the package list with apt prebuilds
-- `EndBug/add-and-commit@v9` — commit and push outputs back. Every use of it in this repo sets
+- `actions/upload-artifact@v6` / `actions/download-artifact@v7` — debug dumps and the render preview
+- `EndBug/add-and-commit@v10` — commit and push outputs back. Every use of it in this repo sets
   `pull: '--rebase --autostash'`: CI pushes its own commits (manifest, source pages, renders,
   other fetchers) to the same branch, so a job that pushes without rebasing first can lose the
   race and drop the commit it just built — see [05-flows.md § Issues hit in production](05-flows.md).

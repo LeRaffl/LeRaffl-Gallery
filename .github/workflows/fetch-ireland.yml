@@ -41,7 +41,7 @@ jobs:
     outputs:
       committed: ${{ steps.commit.outputs.committed }}
       variants_json: ${{ steps.changed.outputs.variants_json }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -94,7 +94,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Ireland.csv
@@ -120,7 +120,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.variants_json != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

@@ -53,7 +53,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     outputs:
@@ -90,7 +90,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             data/Norway.csv
@@ -105,7 +105,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

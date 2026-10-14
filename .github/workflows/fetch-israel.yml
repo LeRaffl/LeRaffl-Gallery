@@ -43,7 +43,7 @@ on:
 
 jobs:
   fetch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -52,9 +52,9 @@ jobs:
       changed_variants: ${{ steps.changed.outputs.variants }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -82,7 +82,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: 'data/Israel.csv data/Israel_Vans.csv market/israel_top.json'
           message: 'chore: update Israel data from data.gov.il'
@@ -115,7 +115,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

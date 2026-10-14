@@ -46,7 +46,7 @@ on:
 
 jobs:
   snapshot:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # The snapshot itself finishes in seconds; the budget is the backtest
     # extension, ~95 Weibull fits at ~1.8s each over 4 cores, plus R setup and
     # the GIF render. Still capped, so a hang fails fast and visibly instead
@@ -111,7 +111,7 @@ jobs:
           python scripts/build_builder_gif.py
 
       - name: Commit if changed
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             builder_history

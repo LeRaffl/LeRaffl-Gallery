@@ -37,7 +37,7 @@ jobs:
   fetch:
     outputs:
       committed: ${{ steps.commit.outputs.committed }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       actions: write
@@ -61,7 +61,7 @@ jobs:
 
       - name: Commit if changed
         id: commit
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: data/France.csv
           message: 'chore: update France data from SDES (motorisations série VP)'
@@ -78,7 +78,7 @@ jobs:
   render:
     needs: fetch
     if: needs.fetch.outputs.committed == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: write
     steps:

@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write               # erlaubt das Committen von manifest.json
     concurrency:
@@ -39,7 +39,7 @@ jobs:
           Rscript -e "source('R/render_schedule.R'); build_schedule()"
 
       - name: Commit manifest + schedule
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           add: |
             manifest.json
