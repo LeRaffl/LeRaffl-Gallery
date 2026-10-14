@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14T14:17:47Z",
+ "generated": "2026-10-14T18:06:08Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5939,11 +5939,35 @@
   },
   {
    "date": "2026-10-14",
+   "label": "Austria (Used)",
+   "base": "Austria",
+   "slug": "austria_used",
+   "period": "2026-09",
+   "flag": "🇦🇹"
+  },
+  {
+   "date": "2026-10-14",
    "label": "Greece",
    "base": "Greece",
    "slug": "greece",
    "period": "2026-09",
    "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-14",
+   "label": "Lithuania",
+   "base": "Lithuania",
+   "slug": "lithuania",
+   "period": "2026-09",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-14",
+   "label": "Lithuania (Used)",
+   "base": "Lithuania",
+   "slug": "lithuania_used",
+   "period": "2026-09",
+   "flag": "🇱🇹"
   }
  ]
 }
