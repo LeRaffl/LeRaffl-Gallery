@@ -141,7 +141,10 @@ def run_as_of(csv_path: Path, script: Path, args: list[str]) -> int:
     import importlib.util
     from datetime import date
 
-    lines = csv_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    # newline="" keeps "\r\n" as it is: some CSVs (Türkiye.csv) use it, and
+    # a translated line ending would rewrite every line of the file.
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        lines = f.read().splitlines(keepends=True)
     periods = [m.group(0)[:-1] for m in map(PERIOD.match, lines) if m]
     if not periods:
         print(f"::error::{csv_path} has no YYYY-MM rows")
@@ -150,7 +153,8 @@ def run_as_of(csv_path: Path, script: Path, args: list[str]) -> int:
     year, month = map(int, target.split("-"))
     fake = date(year + month // 12, month % 12 + 1, 15)
     kept = [ln for ln in lines if not ln.startswith(target + ",")]
-    csv_path.write_text("".join(kept), encoding="utf-8")
+    with open(csv_path, "w", encoding="utf-8", newline="") as f:
+        f.write("".join(kept))
     print(f"[as-of] removed {len(lines) - len(kept)} row(s) for {target} from {csv_path}; "
           f"running {script.name} as of {fake.isoformat()}", flush=True)
 
