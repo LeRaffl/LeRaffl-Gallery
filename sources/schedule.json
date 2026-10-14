@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14T09:42:08Z",
+ "generated": "2026-10-14T12:26:27Z",
  "today": "2026-10-14",
  "countries": [
   {
@@ -1539,11 +1539,11 @@
    "source_url": "https://seaa.gr/registrations/",
    "cadence_text": "twice daily from the 8th to the end of the month — the press release comes out around the 10th–24th, the statistics files around the 15th–21st",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1593,14 +1593,14 @@
     ],
     "workflow": ".github/workflows/fetch-greece.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-10-14",
    "flag": "🇬🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-06",
-     "rows": 113,
+     "rows": 114,
      "cadence": "monthly",
      "in_repo": true
     }
