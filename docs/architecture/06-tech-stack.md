@@ -91,9 +91,10 @@ system Python, and newer `tesseract`/`poppler`/ImageMagick from apt. Turkey and
 China read their numbers through OCR, and Italy and Colombia through
 `pdftotext`, so a silent tool upgrade could change parsed values, not just break
 a build. `fetch_turkey.py` also calls ImageMagick's `convert`, which ImageMagick 7
-replaces with `magick`. Move to `ubuntu-26.04` deliberately: change the label in a PR, run the
-OCR/PDF fetchers with `workflow_dispatch` and check that they produce no data
-diff, then merge.
+replaces with `magick`. Move to `ubuntu-26.04` deliberately: the monthly
+`runner-canary.yml` compares the pinned image with the next one, and
+[56-runner-upgrades.md](56-runner-upgrades.md) holds the risk register and the
+checklist for the move.
 
 All actions are on their Node 24 majors. Node 20 actions are deprecated on
 GitHub-hosted runners, so don't reintroduce a Node 20 major when copying an old

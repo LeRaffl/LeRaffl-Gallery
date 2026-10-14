@@ -1,0 +1,155 @@
+name: Runner canary (pinned image vs next)
+
+# Every job in this repo pins `runs-on: ubuntu-24.04` (docs/architecture/
+# 06-tech-stack.md). This canary runs the jobs most exposed to an OS change on
+# that image and on the next one side by side, and compares what they produce,
+# so a move to the next image is decided on evidence, not hope.
+#
+# It never commits and has read-only repo permissions: each leg works on a
+# throwaway checkout and uploads its results; the report job compares them.
+#
+#   * OCR / PDF / browser fetchers (turkey, china, italy, colombia, albania)
+#     re-run with --force against the live source. Both images fetch the same
+#     document minutes apart, so a difference between them comes from the OS
+#     tools (tesseract, poppler, ImageMagick, Chromium).
+#   * render: the R model and charts for Sweden (Whole).
+#   * system-python: preview-render.yml's pip install into the runner's own
+#     Python (3.14 on Ubuntu 26.04).
+#
+# The verdict lands in the run summary; the run fails when the next image
+# changes or breaks something. Commands, tolerances and the comparison live in
+# scripts/runner_canary.py; the risk register and how to read the report in
+# docs/architecture/56-runner-upgrades.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_image:
+        description: 'Image the jobs are pinned to today'
+        required: false
+        default: 'ubuntu-24.04'
+        type: string
+      next_image:
+        description: 'Image to test against it'
+        required: false
+        default: 'ubuntu-26.04'
+        type: string
+  schedule:
+    # Monthly, 20th 05:29 UTC: catches a change to either image (GitHub
+    # updates both weekly) well before anyone flips the pin.
+    - cron: '29 5 20 * *'
+  push:
+    # Re-run whenever the canary itself changes, on any branch.
+    paths:
+      - '.github/workflows/runner-canary.yml'
+      - 'scripts/runner_canary.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runner-canary-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  leg:
+    name: ${{ matrix.target }} · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ${{ inputs.base_image || 'ubuntu-24.04' }}
+          - ${{ inputs.next_image || 'ubuntu-26.04' }}
+        target: [turkey, china, italy, colombia, albania, render, system-python]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      # Setup steps don't stop the leg: their outcome is passed to the leg
+      # script and reported, so a setup that breaks on one image is a finding.
+      - id: py
+        if: matrix.target != 'render' && matrix.target != 'system-python'
+        continue-on-error: true
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - id: r
+        if: matrix.target == 'render'
+        continue-on-error: true
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      # Same package list as render-country.yml.
+      - id: rdeps
+        if: matrix.target == 'render'
+        continue-on-error: true
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            ggplot2
+            scales
+            grid
+            png
+            ggtext
+            viridis
+            showtext
+            sysfonts
+            glue
+
+      - name: Run leg
+        env:
+          TARGET: ${{ matrix.target }}
+          IMAGE: ${{ matrix.os }}
+          SETUP_PY: ${{ steps.py.outcome }}
+          SETUP_R: ${{ steps.r.outcome }}
+          SETUP_RDEPS: ${{ steps.rdeps.outcome }}
+        run: python3 scripts/runner_canary.py leg "$TARGET" --out "$RUNNER_TEMP/canary" --image "$IMAGE"
+
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: canary-${{ matrix.target }}-${{ matrix.os }}
+          path: ${{ runner.temp }}/canary
+          retention-days: 30
+          if-no-files-found: warn
+
+  report:
+    needs: leg
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/runner_canary.py
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: canary-*
+          path: canary
+
+      - name: Compare
+        env:
+          BASE: ${{ inputs.base_image || 'ubuntu-24.04' }}
+          NEXT: ${{ inputs.next_image || 'ubuntu-26.04' }}
+        run: |
+          rc=0
+          python3 scripts/runner_canary.py compare canary \
+            --base "$BASE" --next "$NEXT" --report "$RUNNER_TEMP/report.md" || rc=$?
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: runner-canary-report
+          path: ${{ runner.temp }}/report.md
+          retention-days: 90
+          if-no-files-found: ignore

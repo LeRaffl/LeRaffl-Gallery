@@ -856,6 +856,17 @@ No PNGs, no `params.csv` / `weights.csv` / `posts` changes. For the first fill
 after the bands feature lands and after a change to `R/bands.R`; renders keep
 the files current afterwards. See [44](44-uncertainty-bands.md).
 
+## 2.19 Runner canary (`.github/workflows/runner-canary.yml`, `scripts/runner_canary.py`)
+
+Monthly (20th, 05:29 UTC), on dispatch and on a push to its own files. Runs the
+jobs most exposed to an OS change (the OCR, `pdftotext` and Playwright fetchers
+with `--force`, a Sweden render, the system-Python step of the render preview)
+on the pinned runner image and on the next one, then compares every file each
+run changed and every step's exit code. Read-only permissions, never commits;
+the verdict goes to the run summary and the run is red when the next image
+changes or breaks something. It exists so that moving the `ubuntu-24.04` pin is
+decided on evidence. See [56](56-runner-upgrades.md).
+
 ## See also
 
 - [03-data-objects.md](03-data-objects.md) — what each component reads/writes
