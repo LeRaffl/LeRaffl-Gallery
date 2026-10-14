@@ -1,11 +1,11 @@
-🇱🇹 Lithuania - August 26 - BEV Trajectory
-7.9% BEV
-15.2% PHEV
-76.8% ICE (of which 52.5%p were HEV)
+🇱🇹 Lithuania - September 26 - BEV Trajectory
+14.3% BEV
+13.9% PHEV
+71.8% ICE (of which 49.0%p were HEV)
 
 Trailing 12 months are:
-8.6% BEV
-13.1% PHEV
-78.3% ICE (of which 48.9%p were HEV)
+8.7% BEV
+13.2% PHEV
+78.1% ICE (of which 49.5%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

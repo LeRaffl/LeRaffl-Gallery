@@ -1,0 +1,8 @@
+🇱🇹 Lithuania (Used) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++1.3pp  BEV     (2.8% → 4.1%)
++2.1pp  Hybrid  (10.6% → 12.7%)
+−3.4pp  ICE     (86.5% → 83.2%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

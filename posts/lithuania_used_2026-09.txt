@@ -1,0 +1,11 @@
+🇱🇹 Lithuania (Used) - September 26 - BEV Trajectory
+4.7% BEV
+13.6% Hybrid
+81.6% ICE
+
+Trailing 12 months are:
+4.1% BEV
+12.7% Hybrid
+83.2% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
