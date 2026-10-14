@@ -40,30 +40,37 @@ from pathlib import Path
 
 # ── legs ────────────────────────────────────────────────────────────────────
 # Commands mirror the production workflow of each target; keep them in step
-# when a fetch-*.yml changes its apt/pip line. `--force` re-parses the newest
-# period even though master already has it, so an unchanged source gives an
-# empty diff on a healthy image.
+# when a fetch-*.yml changes its apt/pip line.
+#
+# Fetchers run through `as-of` (below): it drops the newest period master has
+# from the CSV and runs the fetcher as if today were the month after it, so
+# the fetcher must download and parse that period again. A healthy image puts
+# the rows back byte for byte (an empty diff); a fetcher that silently found
+# nothing fails the step instead of passing as "no changes". Running on the
+# real date tests nothing early in the month, when the previous month isn't
+# published yet (the first canary run did exactly that for Turkey and Colombia).
+AS_OF = "python scripts/runner_canary.py as-of"
 LEGS: dict[str, dict[str, str]] = {
     # OCR (tesseract, Turkish) on an image upscaled with ImageMagick `convert`.
     "turkey": {
         "kind": "fetch",
         "apt": "poppler-utils tesseract-ocr tesseract-ocr-tur imagemagick",
         "pip": "requests pypdf cryptography",
-        "main": "python scripts/fetch_turkey.py --force",
+        "main": f"{AS_OF} data/Türkiye.csv scripts/fetch_turkey.py --force",
     },
     # OCR (tesseract, simplified Chinese) on the CPCA table images.
     "china": {
         "kind": "fetch",
         "apt": "tesseract-ocr tesseract-ocr-chi-sim",
         "pip": "requests beautifulsoup4 Pillow",
-        "main": "python scripts/fetch_china.py --force",
+        "main": f"{AS_OF} data/China.csv scripts/fetch_china.py --force",
     },
     # pdftotext -layout on the UNRAE PDFs.
     "italy": {
         "kind": "fetch",
         "apt": "poppler-utils",
         "pip": "requests",
-        "main": "python scripts/fetch_italy.py --force",
+        "main": f"{AS_OF} data/Italy.csv scripts/fetch_italy.py --force",
     },
     # pdftotext -layout on the bulletin; --debug-dir keeps the text so the
     # report can show a layout change even when the parsed numbers agree.
@@ -71,14 +78,15 @@ LEGS: dict[str, dict[str, str]] = {
         "kind": "fetch",
         "apt": "poppler-utils",
         "pip": "requests",
-        "main": "python scripts/fetch_colombia.py --force --debug-dir {files}/colombia-bulletin",
+        "main": f"{AS_OF} data/Colombia.csv scripts/fetch_colombia.py --force"
+                " --debug-dir {files}/colombia-bulletin",
     },
     # Headless Chromium via Playwright; `--with-deps` apt-installs its libraries.
     "albania": {
         "kind": "fetch",
         "pip": "requests playwright",
         "pre": "python -m playwright install --with-deps chromium",
-        "main": "python scripts/fetch_albania.py",
+        "main": f"{AS_OF} data/Albania.csv scripts/fetch_albania.py --year-from {{year}}",
     },
     # The R model and plots (render-country.yml's command for one series).
     "render": {
@@ -110,8 +118,70 @@ VERSIONS = [
     ("playwright", "python -m playwright --version"),
 ]
 
-# Changed paths never worth comparing (byte-code caches the fetchers leave).
-SKIP_PATH = re.compile(r"(^|/)__pycache__/|\.pyc$")
+# Changed paths never worth comparing: byte-code caches the fetchers leave,
+# and R's default graphics device file (an empty Rplots.pdf stamped with the
+# time it was created).
+SKIP_PATH = re.compile(r"(^|/)__pycache__/|\.pyc$|(^|/)Rplots\.pdf$")
+
+
+PERIOD = re.compile(r"^(\d{4})-(\d{2}),")
+
+
+def run_as_of(csv_path: Path, script: Path, args: list[str]) -> int:
+    """Re-fetch the newest period of `csv_path` with `script` and prove it.
+
+    Drops that period's rows (a line-level edit: every other byte stays), then
+    runs the fetcher's main() with its module-level `date` replaced so that
+    `date.today()` is the 15th of the following month. The fetchers all derive
+    their target from "previous month of today", so they go after exactly the
+    period we removed. Only that one name in the fetcher's own module is
+    patched: the system clock, TLS and every library keep the real date.
+    Returns non-zero when the rows didn't come back.
+    """
+    import importlib.util
+    from datetime import date
+
+    lines = csv_path.read_text(encoding="utf-8").splitlines(keepends=True)
+    periods = [m.group(0)[:-1] for m in map(PERIOD.match, lines) if m]
+    if not periods:
+        print(f"::error::{csv_path} has no YYYY-MM rows")
+        return 2
+    target = max(periods)
+    year, month = map(int, target.split("-"))
+    fake = date(year + month // 12, month % 12 + 1, 15)
+    kept = [ln for ln in lines if not ln.startswith(target + ",")]
+    csv_path.write_text("".join(kept), encoding="utf-8")
+    print(f"[as-of] removed {len(lines) - len(kept)} row(s) for {target} from {csv_path}; "
+          f"running {script.name} as of {fake.isoformat()}", flush=True)
+
+    class _Today(date):
+        @classmethod
+        def today(cls):  # noqa: D401 - mirrors date.today
+            return cls(fake.year, fake.month, fake.day)
+
+    sys.path.insert(0, str(script.parent.resolve()))
+    spec = importlib.util.spec_from_file_location(script.stem, script)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[script.stem] = module
+    spec.loader.exec_module(module)
+    module.date = _Today
+    # `{year}` in the fetcher's arguments stands for the target's year (Albania
+    # takes a year range, not a month).
+    sys.argv = [str(script), *(a.replace("{year}", str(year)) for a in args)]
+    rc = 0
+    try:
+        rc = module.main() or 0
+    except SystemExit as e:  # fetchers exit with a message on hard failures
+        rc = e.code if isinstance(e.code, int) else (1 if e.code else 0)
+    back = any(ln.startswith(target + ",")
+               for ln in csv_path.read_text(encoding="utf-8").splitlines())
+    if not back:
+        print(f"::error title=canary: {script.name} did not re-fetch {target}::"
+              f"the rows for {target} were not written back to {csv_path}, so this "
+              f"leg tested nothing (source unreachable, or the fetcher skipped).")
+        return rc or 3
+    print(f"[as-of] {target} re-fetched into {csv_path}")
+    return rc
 
 
 def _sh(cmd: str, log: Path | None = None) -> int:
@@ -152,7 +222,7 @@ def run_leg(target: str, out: Path, image: str) -> int:
         steps.append(("pip", f"pip install {leg['pip']}"))
     if leg.get("pre"):
         steps.append(("pre", leg["pre"]))
-    steps.append(("main", leg["main"].format(files=files)))
+    steps.append(("main", leg["main"].replace("{files}", str(files))))
     for name, cmd in steps:
         rc = _sh(cmd, out / f"{name}.log")
         exits.append(f"{name} {rc}")
@@ -194,6 +264,8 @@ def run_leg(target: str, out: Path, image: str) -> int:
 NUM = re.compile(r"[-+]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][-+]?\d+)?")
 NOISE = 1e-9   # relative; floating-point noise from a different libm/BLAS
 DRIFT = 1e-4   # relative; above this a number has visibly changed
+# What the gallery publishes; a difference anywhere else is diagnostic only.
+PUBLISHED = ("data/", "market/", "images/", "bands/", "posts/", "params.csv", "weights.csv")
 BINARY = {".png", ".pdf", ".jpg", ".jpeg", ".gif", ".xlsx", ".xls", ".zip"}
 
 # Verdict levels, worst last. Only RED fails the run.
@@ -296,12 +368,20 @@ def compare(root: Path, base: str, nxt: str, report: Path) -> int:
                     findings.append((WARN, f"`{step}` fails on {base} only", ""))
             main_b, main_n = b["exits"].get("main"), n["exits"].get("main")
             if main_b and main_n:
-                findings.append((INFO, "main step fails on both images (source down or a "
-                                       "parser problem, not the OS); inconclusive", ""))
+                # Not the OS, but the canary tested nothing: say so loudly.
+                findings.append((WARN, "main step fails on both images, so this leg tested "
+                                       "nothing (source down, or a fetcher/parser problem; "
+                                       "see the leg logs)", ""))
             elif main_b == 0 and main_n == 0:
                 for name in sorted(set(b["files"]) | set(n["files"])):
-                    findings.append(compare_file(name, b["files"].get(name),
-                                                 n["files"].get(name), base, nxt))
+                    lvl, line, detail = compare_file(name, b["files"].get(name),
+                                                     n["files"].get(name), base, nxt)
+                    if not name.startswith(PUBLISHED):
+                        # Diagnostics (Colombia's pdftotext dump): a layout
+                        # change there is worth a look, but only a changed
+                        # published file is a reason not to migrate.
+                        lvl = min(lvl, WARN)
+                    findings.append((lvl, line, detail))
                 if not b["files"] and not n["files"]:
                     findings.append((SAME, "no changes on either image (reproduces master)", ""))
         level = max((f[0] for f in findings), default=SAME)
@@ -312,6 +392,9 @@ def compare(root: Path, base: str, nxt: str, report: Path) -> int:
         summary = "<br>".join(f[1] for f in shown[:4])
         if len(shown) > 4:
             summary += f"<br>… and {len(shown) - 4} more"
+        hidden_same = sum(1 for f in findings if f[0] in (SAME, NOISY) and f not in shown)
+        if hidden_same:
+            summary += f"<br>(+ {hidden_same} file(s) identical or within float noise)"
         rows.append(f"| {ICON[level]} | `{t}` | {status(b)} | {status(n)} | {summary} |")
         for lvl, line, detail in findings:
             if detail and lvl >= WARN:
@@ -365,6 +448,10 @@ def main() -> int:
     p.add_argument("target")
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--image", required=True)
+    p = sub.add_parser("as-of")
+    p.add_argument("csv", type=Path)
+    p.add_argument("script", type=Path)
+    p.add_argument("args", nargs=argparse.REMAINDER)
     p = sub.add_parser("compare")
     p.add_argument("root", type=Path)
     p.add_argument("--base", required=True)
@@ -373,6 +460,8 @@ def main() -> int:
     a = ap.parse_args()
     if a.cmd == "leg":
         return run_leg(a.target, a.out, a.image)
+    if a.cmd == "as-of":
+        return run_as_of(a.csv, a.script, a.args)
     return compare(a.root, a.base, a.nxt, a.report)
 
 

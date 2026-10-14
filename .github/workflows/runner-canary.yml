@@ -9,9 +9,11 @@ name: Runner canary (pinned image vs next)
 # throwaway checkout and uploads its results; the report job compares them.
 #
 #   * OCR / PDF / browser fetchers (turkey, china, italy, colombia, albania)
-#     re-run with --force against the live source. Both images fetch the same
-#     document minutes apart, so a difference between them comes from the OS
-#     tools (tesseract, poppler, ImageMagick, Chromium).
+#     re-fetch the newest period master already has, from the live source
+#     (`runner_canary.py as-of` removes it first and fails the leg if it
+#     doesn't come back). Both images fetch the same document minutes apart,
+#     so a difference between them comes from the OS tools (tesseract,
+#     poppler, ImageMagick, Chromium).
 #   * render: the R model and charts for Sweden (Whole).
 #   * system-python: preview-render.yml's pip install into the runner's own
 #     Python (3.14 on Ubuntu 26.04).
