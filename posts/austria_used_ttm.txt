@@ -1,11 +1,9 @@
 🇦🇹 Austria (Used) - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-+1.5pp  BEV   (3.9% → 5.5%)
-+1.0pp  PHEV  (2.9% → 3.8%)
-+1.7pp  HEV   (7.6% → 9.3%)
-−4.2pp  ICE   (85.6% → 81.4%)
-
-If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2033-06.
+Oct24–Sep25  vs  Oct25–Sep26
++1.6pp  BEV   (4.0% → 5.7%)
++1.0pp  PHEV  (2.9% → 3.9%)
++1.7pp  HEV   (7.8% → 9.4%)
+−4.3pp  ICE   (85.3% → 81.0%)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
