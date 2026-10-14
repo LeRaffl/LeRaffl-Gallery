@@ -27,6 +27,11 @@ name: Fetch South Africa data (naamsa quarterly review)
 # Rendering: dispatches render-country.yml once (see fetch-hong-kong.yml).
 
 on:
+  # TEMP (trial on PR #314, remove before merge): a dispatch-only workflow
+  # cannot be dispatched until it is on the default branch.
+  push:
+    branches: [feat/south-africa]
+    paths: ['.github/workflows/fetch-south-africa.yml']
   workflow_dispatch:
     inputs:
       backfill:
@@ -78,7 +83,7 @@ jobs:
             ${BACKFILL:+--backfill} \
             ${FORCE:+--force}
         env:
-          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          BACKFILL: ${{ (inputs.backfill == true || github.event_name == 'push') && '1' || '' }}
           FORCE:    ${{ inputs.force == true && '1' || '' }}
 
       - name: Commit if changed
