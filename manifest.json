@@ -42,6 +42,46 @@
       "country_slug": "latvia"
     },
     {
+      "country": "Latvia (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-15",
+      "filename": "latvia_buses_ICE_BEV_20261015.png",
+      "url": "images/2026-09/latvia_buses_ICE_BEV_20261015.png",
+      "alt": "Latvia (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "latvia_buses"
+    },
+    {
+      "country": "Latvia (Buses)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-15",
+      "filename": "latvia_buses_20261015.png",
+      "url": "images/2026-09/latvia_buses_20261015.png",
+      "alt": "Latvia (Buses) BEV trajectory",
+      "country_slug": "latvia_buses"
+    },
+    {
+      "country": "Latvia (Buses)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-15",
+      "filename": "latvia_buses_time_20261015.png",
+      "url": "images/2026-09/latvia_buses_time_20261015.png",
+      "alt": "Latvia (Buses) Transition time curve",
+      "country_slug": "latvia_buses"
+    },
+    {
+      "country": "Latvia (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-15",
+      "filename": "latvia_buses_ttm_shares_20261015.png",
+      "url": "images/2026-09/latvia_buses_ttm_shares_20261015.png",
+      "alt": "Latvia (Buses) TTM market split graph",
+      "country_slug": "latvia_buses"
+    },
+    {
       "country": "Latvia (HDV)",
       "type": "ICE_BEV",
       "period": "2026-09",
