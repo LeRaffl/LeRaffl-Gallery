@@ -55,8 +55,11 @@ ARCHIVE_VARIANTS = {"legacy"}
 # Do not add a new country here to make CI green without a reason a reviewer
 # would accept.
 KNOWN_GAPS: dict[str, dict[str, str]] = {
-    # Empty since 2026-09-25: every country passes every check. Format when
-    # a gap has to be accepted: "Country": {"check": "open: why / what is missing"}
+    # Format: "Country": {"check": "open: why / what is missing"}
+    "South Africa": {
+        "geo_group": "open: first African country — no 'africa' Builder group exists and doc 42 "
+                     "Phase 6.2 says to ask the owner before creating one (5 places, Phase 6.3)",
+    },
 }
 
 
