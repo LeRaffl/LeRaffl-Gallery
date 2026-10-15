@@ -20,7 +20,7 @@ for the market, (c) machine-accessible without paywalls or identity checks.**
 > | 🇦🇺 Australia | on the gallery, hand-entered; automation checked 2026-10 — no free source | [14](14-data-source-gaps.md) |
 > | 🇮🇳 India | built — semi-automated: hand-pulled VAHAN exports → `scripts/build_india.py` (the CI route stayed blocked) | `country_source_stubs.yaml`, `data/raw/india/README.md` |
 > | 🇺🇦 🇭🇰 🇵🇪 🇵🇾 🇪🇨 🇹🇼 | built outside the original list (2026-09/10) | sections below |
-> | 🇿🇦 South Africa | **built (2026-10)** — total new-vehicle market, not M1 | [56](56-source-south-africa.md) |
+> | 🇿🇦 South Africa | **built (2026-10)** — total new-vehicle market, not M1 | [60](60-source-south-africa.md) |
 > | 🇷🇸 Serbia | **data model confirmed, build deferred** | § Serbia |
 > | 🇧🇦 Bosnia | lead, fuel granularity unverified | § Western Balkans |
 > | 🇲🇦 Morocco | shelved — energy split login-walled | § Morocco |
@@ -186,7 +186,7 @@ appear to exist here.
 ### 🇿🇦 South Africa — naamsa (quarterly granularity)
 
 > **Status: BUILT (2026-10-14)** — `scripts/fetch_south_africa.py`, `fetch-south-africa.yml`,
-> [56-source-south-africa.md](56-source-south-africa.md). Built as planned below: quarterly
+> [60-source-south-africa.md](60-source-south-africa.md). Built as planned below: quarterly
 > middle-month rows, `Whole` = the **whole new-vehicle market** (naamsa's NEV table has no
 > segment split — checked in all ten reviews 2024-Q1…2026-Q2, the monthly releases and
 > the flash reports; no passenger-only or per-model drivetrain data exists, so no own M1
@@ -430,7 +430,7 @@ before settling; probes ran from GitHub runners, "desk" is web research only.
 | 🇺🇿 Uzbekistan (~0.4M) | Statistics Agency (stat.uz) | quarterly EV **fleet** totals (122.7k on 2026-07-01), no new-registration flow by fuel (desk) | shelved |
 | 🇬🇹 Guatemala / 🇩🇴 Dominican Republic | SAT / DGII | yearly fleet reports and ad-hoc import figures; no monthly first-registration series by fuel (desk) | shelved |
 | 🇲🇩 Moldova (small) | Public Services Agency open data | the portal's CKAN endpoints guessed (`date.gov.md`, `dataset.gov.md`) answer 404 — not pursued further (a small, used-import market) | not pursued |
-| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | **built 2026-10-14** ([56](56-source-south-africa.md)) |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | **built 2026-10-14** ([60](60-source-south-africa.md)) |
 
 ## Investigated 2026-09 — large markets still missing
 
@@ -444,7 +444,7 @@ almost nothing); "desk" means web research only.
 | 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | unchanged — omits BYD ([14](14-data-source-gaps.md)) | shelved |
 | 🇷🇺 Russia (~1.5M) | Autostat (MVD/GIBDD data, licensed) | re-checked 2026-09-28: the fuel-split tables are sold per report (3,000–10,000 ₽, also via the Autostat Info reseller); the free part is news prose — a monthly BEV count and a top-10 model list, no split of the total market. Reachable from runners — the obstacle is price, not access. Details in [14](14-data-source-gaps.md#-russia--the-monthly-fuel-split-exists-but-only-for-sale) | shelved |
 | 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | shelved — same completeness failure as Mexico |
-| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | built 2026-10-14 ([56](56-source-south-africa.md)) |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | built 2026-10-14 ([60](60-source-south-africa.md)) |
 | 🇷🇸 Serbia (~35k) | data.gov.rs | the national portal's search returns **no MoI registration dataset** (only a municipal bus-fleet list) — the importers' quarterly prose remains the only fuel split (§ Serbia) | unchanged |
 | 🇵🇪 Peru (~190k) | ~~datosabiertos.gob.pe~~ → **AAP's public BI-AAP report (SUNARP)** | the open-data portal has nothing usable, but AAP publishes SUNARP first registrations as a public Power BI report whose query API is open — brand × model × body × powertrain, day by day, from 2019-01 | **BUILT 2026-09-28** — see below and [45](45-source-peru.md) |
 
@@ -601,7 +601,7 @@ The 2026-07 list (Israel → India → Morocco → South Africa) is done or
 decided: Israel and India are built, Morocco is shelved. What is left, in
 order of value per effort:
 
-1. ~~**South Africa**~~ — built 2026-10 ([56](56-source-south-africa.md)).
+1. ~~**South Africa**~~ — built 2026-10 ([60](60-source-south-africa.md)).
 2. **Serbia** — solve article discovery on `uvoznicivozila.rs`, then a
    quarterly parser (§ Serbia).
 3. **Bosnia** — only if the BHAS monthly table has an electric line.

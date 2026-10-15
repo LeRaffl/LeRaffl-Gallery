@@ -256,7 +256,7 @@ one collides with a different gallery assumption:
 
 The realistic near-term candidates are the two markets that *do* have an
 industry-association monthly series: **South Africa** (naamsa — **built 2026-10**,
-[56](56-source-south-africa.md); correction to the earlier note here: the
+[60](60-source-south-africa.md); correction to the earlier note here: the
 drivetrain split is *quarterly* and for the *whole* new-vehicle market, not
 monthly and not passenger cars — the monthly releases carry totals only) and **Morocco** (AIVAM — a monthly series exists, but the
 energy split sits behind a login on `statistique.aivam.ma`; shelved under the

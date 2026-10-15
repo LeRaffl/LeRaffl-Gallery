@@ -14,7 +14,7 @@ name: Fetch South Africa data (naamsa quarterly review)
 # ICE = TOTAL - NEVs (no petrol/diesel split). One row per quarter on its
 # middle month (time_interval quarterly, as Canada / Georgia).
 # Full method, governance checks and a debugging runbook:
-# docs/architecture/56-source-south-africa.md.
+# docs/architecture/60-source-south-africa.md.
 #
 # naamsa publishes the review 7-8 weeks after the quarter ends (2024-2026:
 # Feb 17-20, May 21-27, Aug 15-20, Nov 18-19). Polled daily from the 10th to

@@ -21,7 +21,7 @@ Usage
 * --dump-dir   Save every PDF the run downloads (for --from-dir).
 
 Invoked by .github/workflows/fetch-south-africa.yml. Full method, governance
-and a debugging runbook: docs/architecture/56-source-south-africa.md.
+and a debugging runbook: docs/architecture/60-source-south-africa.md.
 
 Data source and scope (read this before using the numbers)
 ----------------------------------------------------------

@@ -92,11 +92,11 @@ processing:
       then: written as published, the gap reported
 fetcher: scripts/fetch_south_africa.py
 workflow: .github/workflows/fetch-south-africa.yml
-fragility_doc: docs/architecture/56-source-south-africa.md
+fragility_doc: docs/architecture/60-source-south-africa.md
 data_file: data/South Africa.csv
 ---
 
-# 56 · Source: South Africa (naamsa Quarterly Review of Business Conditions)
+# 60 · Source: South Africa (naamsa Quarterly Review of Business Conditions)
 
 **Status: LIVE from this PR.** Fetcher `scripts/fetch_south_africa.py`
 (+ tests `scripts/test_fetch_south_africa.py`), workflow
