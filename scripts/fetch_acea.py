@@ -78,11 +78,11 @@ The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
     Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia,
-    Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia
+    Hungary, Iceland, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Poland, Lithuania, Greece. A row a national fetcher marks as
+    Luxembourg, Norway, Poland, Lithuania, Latvia, Greece. A row a national fetcher marks as
     provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
     "Regitra (provisional)") counts as replaceable too.
   (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
@@ -154,7 +154,7 @@ import acea_split  # noqa: E402
 
 ALWAYS_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Hungary", "Iceland", "Latvia",
+    "Hungary", "Iceland",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
@@ -167,6 +167,13 @@ CONDITIONAL_COUNTRIES = [
     # next Regitra run takes the split from that row. It never overwrites a
     # final Regitra row. See docs/architecture/55-source-lithuania.md.
     "Lithuania",
+    # Latvia is CSDD-primary (scripts/fetch_latvia.py: the register's own
+    # first-registration records, about ten days before ACEA, plus Private /
+    # Industry / Used and monthly Vans/HDV/Buses). CSDD is the source of
+    # ACEA's Latvian figure — the two agree to the car — so ACEA only fills a
+    # month CSDD has not published yet; the next CSDD run replaces that row.
+    # See docs/architecture/58-source-latvia.md.
+    "Latvia",
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month
