@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-14T18:06:08Z",
- "today": "2026-10-14",
+ "generated": "2026-10-15T09:23:47Z",
+ "today": "2026-10-15",
  "countries": [
   {
    "country": "Albania",
@@ -2557,8 +2557,8 @@
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-08",
-   "behind": -1,
+   "expected_period": "2026-09",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -3413,10 +3413,10 @@
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4148,10 +4148,10 @@
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
