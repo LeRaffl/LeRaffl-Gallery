@@ -400,7 +400,8 @@ def check_failures(checks) -> list[str]:
 
 def display_brand(mark) -> str:
     b = market_top.clean(mark).split(",")[0].strip()
-    return {"VW": "VOLKSWAGEN", "MERCEDES BENZ": "MERCEDES-BENZ"}.get(b, b)
+    # SKODA: the 2025-08 workbook spells the make without the háček.
+    return {"VW": "VOLKSWAGEN", "MERCEDES BENZ": "MERCEDES-BENZ", "SKODA": "ŠKODA"}.get(b, b)
 
 
 def display_model(brand: str, model) -> str:
@@ -494,6 +495,19 @@ def acea_note(old: dict | None, total: int) -> str:
     vals = " / ".join(f"{k} {int(float(old[k]))}" for k in keys)
     a = int(float(old["TOTAL"]))
     return f"; replaces ACEA (TOTAL {a}, {total - a:+d}; {vals})"
+
+
+ACEA_TRAIL = "; replaces ACEA"
+
+
+def row_notes(base: str, old: dict | None, total: int) -> str:
+    """`base` plus the ACEA trail: written when an ACEA row is replaced and
+    carried over when our own row is rewritten later (--backfill / --force),
+    which would otherwise drop it — the old row is ours by then."""
+    if old and (old.get("source") or "").strip() == SOURCE:
+        prev = old.get("notes") or ""
+        return base + (prev[prev.index(ACEA_TRAIL):] if ACEA_TRAIL in prev else "")
+    return base + acea_note(old, total)
 
 
 # ── network ────────────────────────────────────────────────────────────────
@@ -648,7 +662,7 @@ def main() -> int:
                     "Private": "new M1, owner type FÜÜSILINE (private person)",
                     "Industry": "new M1, owner not a private person (legal person, state, foreign)"}.get(
                         v, "new vehicles by engine and EU hybrid type")
-            notes = f"Transpordiamet Infoleht {p}: {what}" + acea_note(old, tot)
+            notes = row_notes(f"Transpordiamet Infoleht {p}: {what}", old, tot)
             updates[(p, v)] = render_line(p, v, row, notes)
             report_rows.append((v, p, row, old))
         if args.dry_run:

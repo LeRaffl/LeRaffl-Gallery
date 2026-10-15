@@ -241,6 +241,13 @@ def test_acea_note():
     check("acea quarterly", F.acea_note({"source": "ACEA", "time_interval": "quarterly",
                                          "TOTAL": "1"}, 5), "; replaces ACEA quarterly row")
     check("no note for own row", F.acea_note({"source": F.SOURCE}, 5), "")
+    first = F.row_notes("base", old, 1486)
+    check("first write keeps ACEA", first, "base" + F.acea_note(old, 1486))
+    check("rewrite keeps the trail",
+          F.row_notes("new base", {"source": F.SOURCE, "notes": first}, 1490),
+          "new base" + F.acea_note(old, 1486))
+    check("own row without trail", F.row_notes("b", {"source": F.SOURCE, "notes": "x"}, 1), "b")
+    check("brand alias", F.display_brand("SKODA"), "ŠKODA")
 
 
 def test_median_guard():
