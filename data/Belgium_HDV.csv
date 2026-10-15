@@ -146,7 +146,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-01,monthly,HDV,DIV,26.0,0.0,0.0,0.0,1100.0,19.0,1145.0,DIV 2025-01: new lorries + tractor units by fuel
 2025-02,monthly,HDV,DIV,27.0,0.0,0.0,0.0,805.0,5.0,837.0,DIV 2025-02: new lorries + tractor units by fuel
 2025-03,monthly,HDV,DIV,16.0,1.0,0.0,1.0,756.0,9.0,783.0,DIV 2025-03: new lorries + tractor units by fuel
-2025-04,monthly,HDV,DIV,19.0,0.0,0.0,0.0,667.0,5.0,691.0,DIV 2025-04: new lorries + tractor units by fuel
+2025-04,monthly,HDV,DIV,19.0,0.0,0.0,0.0,667.0,5.0,691.0,"DIV 2025-04: new lorries + tractor units by fuel; CHECK: DIV's 2025-04 file is about 13 % short (passenger cars vs ACEA's 37,812); this month likely undercounts"
 2025-05,monthly,HDV,DIV,38.0,0.0,0.0,0.0,658.0,5.0,701.0,DIV 2025-05: new lorries + tractor units by fuel
 2025-06,monthly,HDV,DIV,37.0,0.0,0.0,1.0,747.0,10.0,795.0,DIV 2025-06: new lorries + tractor units by fuel
 2025-07,monthly,HDV,DIV,18.0,0.0,0.0,0.0,626.0,7.0,651.0,DIV 2025-07: new lorries + tractor units by fuel

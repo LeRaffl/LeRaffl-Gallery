@@ -146,7 +146,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-01,monthly,Vans,DIV,245.0,3.0,296.0,452.0,5984.0,10.0,6990.0,DIV 2025-01: new light goods vehicles (camionnettes) by fuel
 2025-02,monthly,Vans,DIV,317.0,1.0,225.0,375.0,5699.0,2.0,6619.0,DIV 2025-02: new light goods vehicles (camionnettes) by fuel
 2025-03,monthly,Vans,DIV,327.0,2.0,249.0,341.0,5724.0,14.0,6657.0,DIV 2025-03: new light goods vehicles (camionnettes) by fuel
-2025-04,monthly,Vans,DIV,375.0,7.0,269.0,349.0,4222.0,2.0,5224.0,DIV 2025-04: new light goods vehicles (camionnettes) by fuel
+2025-04,monthly,Vans,DIV,375.0,7.0,269.0,349.0,4222.0,2.0,5224.0,"DIV 2025-04: new light goods vehicles (camionnettes) by fuel; CHECK: DIV's 2025-04 file is about 13 % short (passenger cars vs ACEA's 37,812); this month likely undercounts"
 2025-05,monthly,Vans,DIV,191.0,34.0,303.0,352.0,5136.0,7.0,6023.0,DIV 2025-05: new light goods vehicles (camionnettes) by fuel
 2025-06,monthly,Vans,DIV,429.0,60.0,346.0,386.0,6028.0,10.0,7259.0,DIV 2025-06: new light goods vehicles (camionnettes) by fuel
 2025-07,monthly,Vans,DIV,527.0,64.0,406.0,278.0,4599.0,3.0,5877.0,DIV 2025-07: new light goods vehicles (camionnettes) by fuel
