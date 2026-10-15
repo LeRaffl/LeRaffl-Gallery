@@ -1,0 +1,143 @@
+name: Fetch Belgium data (FPS Mobility / DIV)
+
+# Fetches the monthly registration CSVs of the FPS Mobility and Transport
+# (FOD Mobiliteit / SPF Mobilite, Directorate for Vehicle Registration DIV)
+# from datafiles.mobilit.belgium.be and upserts the Belgium CSVs:
+#
+#   data/Belgium.csv           Whole     new passenger cars
+#   data/Belgium_Private.csv   Private   new cars, keeper not VAT-registered
+#   data/Belgium_Industry.csv  Industry  new cars, keeper a VAT-registered legal person
+#   data/Belgium_Vans.csv      Vans      new light goods vehicles
+#   data/Belgium_HDV.csv       HDV       new lorries + tractor units
+#   data/Belgium_Buses.csv     Buses     new buses and coaches
+#
+# One ~220 KB CSV per month (YYYYMM_Immatriculations-Inschrijvingen.csv, from
+# 2025-01) plus a 28 MB history file 2013-2024 (read only on backfill). The
+# file server has no index, so months are found by probing the name pattern
+# forward (404 = not out yet). DIV writes a month on the 2nd of the next month
+# at about 16:00 UTC. Method, validation and a debugging runbook:
+# docs/architecture/59-source-belgium.md.
+#
+# Polled daily at 17:10 UTC on the 2nd-20th; a run whose target month is
+# already in every CSV makes no HTTP request.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit - see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Private
+          - Industry
+          - Vans
+          - HDV
+          - Buses
+      period:
+        description: 'Target month YYYY-MM (default: last month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2013-01 (reads the 28 MB history file)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness / cross-check guards and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 17:10 UTC (Brussels 18:10 / 19:10), 2nd-20th of the month: DIV's files
+    # land on the 2nd at ~16:00 UTC; the later days catch a late month.
+    - cron: '10 17 2-20 * *'
+
+concurrency:
+  group: fetch-belgium
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # The fuel and use-group mapping fail silently when wrong, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: python scripts/test_fetch_belgium.py
+
+      - name: Fetch & update Belgium CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_belgium.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: |
+            data/Belgium.csv
+            data/Belgium_Private.csv
+            data/Belgium_Industry.csv
+            data/Belgium_Vans.csv
+            data/Belgium_HDV.csv
+            data/Belgium_Buses.csv
+          message: 'chore: update Belgium data from DIV'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Belgium
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Belgium" \
+            -f variants="$variants"
