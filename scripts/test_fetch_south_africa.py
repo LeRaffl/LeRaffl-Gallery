@@ -178,6 +178,47 @@ def test_completeness_guard():
     f.completeness(rows, "2026-05", [], force=True)
 
 
+def test_newest_distinct():
+    urls = ["https://x/20251119-naamsa-Quarter-3-2025-Review-of-Business-Conditions.pdf",
+            "https://x/20260217-naamsa-4th-Quarter-2025-Review-of-Business-Conditions.pdf",
+            "https://x/20260527-naamsa-1st-Quarter-2026-Review-of-Business-Conditions.pdf",
+            "https://x/20260820-naamsa-2nd-Quarter-2026-Review-of-Business-Conditions.pdf",
+            "https://x/20260902-SIGNED-naamsa-2nd-Quarter-2026-Review-of-Business-Conditions.pdf"]
+    got = f.newest_distinct(urls, 4)
+    check([f.quarter_from_name(u) for u in got] == [(2025, 3), (2025, 4), (2026, 1), (2026, 2)],
+          got)
+    check(got[-1] == urls[-1], "the newest upload of a quarter is the one kept")
+
+
+def _review(q, cur, prev, annual, total=100000):
+    y, k = q
+    return {"quarter": q, "nev": {(y, k): cur, (y - 1, k): prev},
+            "totals": {(y, k): total, (y - 1, k): total}, "annual": annual}
+
+
+def test_normal_window_repairs_a_repeated_misprint():
+    """The Q4-2026 review prints its year-ago column (2025-Q4) with PHEV and
+    HEV swapped, as the Q4-2025 review did. The four newest reviews hold all
+    of 2025 and its annual column, so the misprint is undone; with the old
+    two-review window it would have overwritten the repaired 2025-Q4 row."""
+    y25 = {1: {"BEV": 276, "PHEV": 241, "HEV": 2970}, 2: {"BEV": 294, "PHEV": 547, "HEV": 2834},
+           3: {"BEV": 232, "PHEV": 996, "HEV": 3559}, 4: {"BEV": 286, "PHEV": 1026, "HEV": 3452}}
+    annual = {2025: {"BEV": 1088, "PHEV": 2810, "HEV": 12818}}
+    cur = {"BEV": 500, "PHEV": 1500, "HEV": 3000}
+    swapped = {"BEV": 286, "PHEV": 3452, "HEV": 1026}
+    reviews = [_review((2026, k), cur, y25[k] if k < 4 else swapped, annual) for k in (1, 2, 3, 4)]
+    log = []
+    rows = f.build_rows([dict(r, nev=dict(r["nev"])) for r in reviews], log)
+    check(rows["2025-11"][1]["PHEV"] == 1026 and rows["2025-11"][1]["HEV"] == 3452,
+          rows["2025-11"])
+    check(any("2025-Q4" in l and "swapped back" in l for l in log), log)
+    log = []
+    rows = f.build_rows([dict(r, nev=dict(r["nev"])) for r in reviews[-2:]], log)
+    check(rows["2025-11"][1]["PHEV"] == 3452 and not log,
+          "a two-review window cannot see the misprint (why REPORTS_PER_RUN is 4)")
+    check(f.REPORTS_PER_RUN >= 4, f.REPORTS_PER_RUN)
+
+
 def test_bootstrap_rows_sum():
     for p, (iv, v, note) in f.BOOTSTRAP_ROWS.items():
         c = f.counts_of(v)

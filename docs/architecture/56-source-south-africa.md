@@ -36,6 +36,7 @@ caveats:
 - naamsa restates recent quarters by a few units in later reviews; the newest review wins.
 - The Q4-2025 review printed the plug-in and traditional hybrid values of its two quarter columns in each other's rows; the fetcher detects this against the annual column and swaps them back (§5).
 - There is no brand or model table — naamsa publishes brands' total sales, but not by drivetrain.
+- Completeness drift: new entrants started reporting to naamsa in 2026 (30 brands in the NEV table), which lifts the 2026 NEV counts a little beyond the market's own growth.
 processing:
 - title: Find the reviews
   text:
@@ -133,7 +134,8 @@ naamsa.net (WordPress)
   There is no government registration statistic with a drivetrain split.
 - **(b) complete enough.** The NEV table counts "30 industry brands" (2026).
   naamsa notes that new entrants started reporting in 2026, which lifted the
-  NEV count — a real but small completeness drift, mentioned in the footnote.
+  NEV count — a real but small completeness drift, stated in the footnote and
+  the caveats above.
 - **(c) free and machine-readable.** Plain PDFs with a text layer, listed by a
   public JSON API; runners and the box reach naamsa.net without blocking
   (checked 2026-10-14). The Q4-2024 review is the one file whose first
@@ -189,7 +191,7 @@ no Time-lapse month yet; it will enter by itself once the series is long enough.
 | Check | What happens |
 |---|---|
 | Column sum | every NEV column must equal "Total NEVs" — else the review is skipped and listed |
-| Year reconciliation | four quarters vs the annual column, ±max(5, 0.5 %); a PHEV↔HEV swap in one quarter that fixes it is applied and reported (Q4-2025 review: 2024-Q4 printed 4,156 / 261, 2025-Q4 3,452 / 1,026 in the wrong rows) |
+| Year reconciliation | four quarters vs the annual column, ±max(5, 0.5 %); a PHEV↔HEV swap in one quarter that fixes it is applied and reported (Q4-2025 review: 2024-Q4 printed 4,156 / 261, 2025-Q4 3,452 / 1,026 in the wrong rows). Runs on every normal run, not only on a backfill: the four newest reviews of distinct quarters always hold the last full year's four quarters (current + year-ago columns) and, from its Q1 review on, its annual column — so a repeated Q4 misprint is caught and cannot overwrite an already repaired row |
 | Completeness | newest total < 75 % of the year-ago quarter aborts (`--force` overrides), < 90 % warns |
 | Foreign rows | a row with another `source` is never overwritten without `--force` |
 | Restatements | rows from `naamsa.net` are overwritten by a newer review and listed as `updated` |
@@ -220,7 +222,7 @@ sequenceDiagram
   alt newest quarter already in CSV
     GH-->>GH: exit (self-throttle)
   else
-    GH->>PDF: download 2 newest
+    GH->>PDF: download 4 newest (distinct quarters)
     GH->>GH: parse, reconcile, guard
     GH->>CSV: line-level upsert
     GH->>GH: dispatch render-country.yml (South Africa, Whole)

@@ -84,7 +84,12 @@ SOURCE = "naamsa.net"
 FUELS = ["BEV", "PHEV", "HEV", "ICE"]
 CSV_COLUMNS = ["period", "time_interval", "variant", "source", *FUELS, "TOTAL", "notes"]
 MEDIA_API = "https://naamsa.net/wp-json/wp/v2/media"
-REPORTS_PER_RUN = 2
+# A normal run reads the newest four reviews of distinct quarters: their
+# current and year-ago columns always hold all four quarters of the last full
+# year, and from its Q1 review on also that year's annual column — so
+# reconcile() checks the year on every run, and a review that repeats the
+# Q4-2025 PHEV/HEV misprint cannot overwrite an already repaired row.
+REPORTS_PER_RUN = 4
 # naamsa restates individual quarters by a few units; a year "adds up" when
 # every fuel is within max(5 units, 0.5 % of the annual value).
 TOLERANCE_UNITS = 5
@@ -364,6 +369,22 @@ def quarter_from_name(name: str) -> tuple[int, int] | None:
     return int(years[-1]), int(m.group(1) or m.group(2))
 
 
+def newest_distinct(urls: list[str], n: int) -> list[str]:
+    """The newest `n` reviews of distinct quarters, oldest first (a review
+    re-uploaded on another date must not shrink the window). A name whose
+    quarter cannot be read counts as its own quarter."""
+    seen, out = set(), []
+    for u in reversed(urls):
+        q = quarter_from_name(u) or u
+        if q in seen:
+            continue
+        seen.add(q)
+        out.append(u)
+        if len(out) == n:
+            break
+    return out[::-1]
+
+
 def already_have(period: str) -> bool:
     if not CSV_PATH.exists():
         return False
@@ -393,7 +414,7 @@ def load_reviews(args, log: list[str]) -> list[dict]:
         if not urls:
             raise SystemExit("naamsa media library lists no quarterly review — layout change?")
         if not args.backfill:
-            urls = urls[-REPORTS_PER_RUN:]
+            urls = newest_distinct(urls, REPORTS_PER_RUN)
             q = quarter_from_name(urls[-1])
             if q and already_have(period_of(*q)) and not args.force:
                 print(f"self-throttle: newest review ({urls[-1].rsplit('/', 1)[-1]}) is "
