@@ -861,6 +861,7 @@ fuels, no brand × powertrain, so no electrified ranking is possible).
 |---|---|
 | Denmark, Sweden | No make dimension in the tables the fetchers use (DST BIL5x, SCB PersBilarDrivMedel); the brand statistics live with the importers' associations (Mobility Denmark / Mobility Sweden), not in an API. Not planned. |
 | Austria, Ireland | Wired (rows above) after their probes ran in CI on 2026-09-26. |
+| Belgium | DIV's monthly registration CSVs (`fetch_belgium.py`, 2026-10) carry no make or model; the yearly DIV files with make and handelsnaam are booked at year end. Not possible monthly. |
 | Denmark | Re-checked live 2026-09-28: DST `BIL5`, `BIL50`, `BIL51`, `BIL53`, `BIL55` carry no make/model variable (ownership, segment, propellant, region only). Still not possible. |
 | Netherlands | **Wired** (row above) — the Swing pivots have no make, but the RDW open-data register does; probed and built 2026-09-28. |
 | United Kingdom | **Wired** (row above, 2026-10-04) — no brand × fuel table: DfT/DVLA publish new registrations by body type, fuel and keepership (`VEH1153`), and plug-in registrations by generic model only quarterly and for GB (`VEH0181`); make × fuel exists for the licensed *stock* only. But SMMT's vehicle-data page publishes its full marque table and top-10 models (every powertrain) openly, which is what `uk_top.json` uses. |

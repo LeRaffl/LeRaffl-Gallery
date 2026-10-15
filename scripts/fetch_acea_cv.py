@@ -185,12 +185,18 @@ import requests
 # owns its Vans/HDV/Buses rows, and the per-file conditional-write rule
 # below (not a separate exclusion list) is what keeps ACEA from ever
 # overwriting them.
+# Belgium left 2026-10: scripts/fetch_belgium.py writes its Vans/HDV/Buses
+# monthly from the FPS Mobility's registration CSVs; the former ACEA rows are
+# archived in data/Belgium_legacy.csv (docs/architecture/59-source-belgium.md).
 TARGET_COUNTRIES = [
-    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Estonia",
+    "Bulgaria", "Croatia", "Cyprus", "Estonia",
     "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",
 ]
+
+SENTINEL_COUNTRY = "Germany"
+assert SENTINEL_COUNTRY in TARGET_COUNTRIES
 
 # Old-era PDFs spell some countries differently than the new-era ones (and
 # differently than our TARGET_COUNTRIES / data/ filenames).
@@ -860,11 +866,12 @@ def handle_checkpoint(data_dir: Path, country: str, variant: str, year: int,
 
 
 def already_have_checkpoint(data_dir: Path, year: int, n_quarters: int) -> bool:
-    """Cheap self-throttle sentinel: Belgium is present in every observed
+    """Cheap self-throttle sentinel: Germany is present in every observed
     ACEA CV release (unlike Malta, whose data ACEA sometimes omits
     entirely), so it's a safe stand-in for "has this checkpoint landed
-    already" without scanning all 19 countries x 3 variants."""
-    sentinel = data_dir / f"{TARGET_COUNTRIES[0]}_HDV.csv"
+    already" without scanning every country x 3 variants. (Belgium was the
+    sentinel until it left the roster in 2026-10.)"""
+    sentinel = data_dir / f"{SENTINEL_COUNTRY}_HDV.csv"
     _, rows = load_csv(sentinel)
     by_period = {r["period"]: r for r in rows}
     have = existing_quarter_rows(by_period, year)

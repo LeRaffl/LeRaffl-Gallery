@@ -358,8 +358,37 @@ significant EV importer is outside it**).
 >
 > Checked first and rejected in the same session: 🇷🇴 Romania (data.gov.ro
 > has only the yearly fleet), 🇧🇪 Belgium (Statbel / mobilit: yearly files, the
-> monthly view is interactive only), and SSB table 14020 for Norway (lumps
+> monthly view is interactive only — but the report's source CSVs turned out
+> to be on a plain file server: built 2026-10, see below), and SSB table 14020 for Norway (lumps
 > all hybrids — a coarser split than the legacy series, not allowed).
+
+## Automated, not new — 🇧🇪 Belgium (2026-10)
+
+Belgium moved from ACEA (Whole monthly, CV quarterly) to the **FPS Mobility's
+DIV registration files**. The open-data page's Power BI report "Maandcijfers
+van de inschrijvingen" links, on its last page, monthly CSVs on
+`datafiles.mobilit.belgium.be/OPENDATA/DGTRSR/MonthlyRegistrations/`
+(`YYYYMM_Immatriculations-Inschrijvingen.csv` from 2025-01, plus a 2013–2024
+history file; CC0). The web page sits behind a CAPTCHA for scripts, the file
+server does not. They are ACEA's source (Whole ~0.4 % above ACEA, BEV within
+~30 cars) and add `Private`, `Industry` and monthly `Vans` / `HDV` / `Buses`
+from 2013. No make/model (no market table), no clean Used. See
+[59](59-source-belgium.md).
+
+### 🇮🇸 Iceland — blocked (re-checked 2026-10-15)
+
+Samgöngustofa's statistics site `bifreidatolur.samgongustofa.is`
+(Nýskráningar, Lykiltölur, monthly PDFs) is the only free source of monthly
+first registrations by fuel. It is unreachable from automation: the sandbox
+gets a TLS reset during the handshake (also with `--tlsv1.2`, `--http1.1` and
+lowered cipher levels), and a throwaway runner probe on 2026-10-15 timed out
+on every URL (the root, each `partial/*.html` page, `robots.txt`) — most
+likely the site only answers from Iceland. The site's scripts (via the Web
+Archive) load only HTML partials; no data API is visible. Statistics Iceland
+(PxWeb) has yearly vehicle tables only, and the trade association BGS sells
+the weekly register extracts (subscription). Iceland stays on ACEA. What would
+change it: Samgöngustofa opening the site (or an API) to non-Icelandic
+networks, or a data agreement.
 
 ## Automated, not new — 🇱🇹 Lithuania (2026-10)
 
