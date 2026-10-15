@@ -2,6 +2,246 @@
   "updated": "2026-10-15",
   "images": [
     {
+      "country": "Belgium",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_ICE_BEV_20261015.png",
+      "alt": "Belgium ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_20261015.png",
+      "url": "images/2026-08/belgium_20261015.png",
+      "alt": "Belgium BEV trajectory",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_time_20261015.png",
+      "url": "images/2026-08/belgium_time_20261015.png",
+      "alt": "Belgium Transition time curve",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_ttm_shares_20261015.png",
+      "alt": "Belgium TTM market split graph",
+      "country_slug": "belgium"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_buses_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_buses_ICE_BEV_20261015.png",
+      "alt": "Belgium (Buses) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_buses_20261015.png",
+      "url": "images/2026-08/belgium_buses_20261015.png",
+      "alt": "Belgium (Buses) BEV trajectory",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_buses_time_20261015.png",
+      "url": "images/2026-08/belgium_buses_time_20261015.png",
+      "alt": "Belgium (Buses) Transition time curve",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (Buses)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_buses_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_buses_ttm_shares_20261015.png",
+      "alt": "Belgium (Buses) TTM market split graph",
+      "country_slug": "belgium_buses"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_hdv_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_hdv_ICE_BEV_20261015.png",
+      "alt": "Belgium (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_hdv_20261015.png",
+      "url": "images/2026-08/belgium_hdv_20261015.png",
+      "alt": "Belgium (HDV) BEV trajectory",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_hdv_time_20261015.png",
+      "url": "images/2026-08/belgium_hdv_time_20261015.png",
+      "alt": "Belgium (HDV) Transition time curve",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (HDV)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_hdv_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_hdv_ttm_shares_20261015.png",
+      "alt": "Belgium (HDV) TTM market split graph",
+      "country_slug": "belgium_hdv"
+    },
+    {
+      "country": "Belgium (Industry)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_industry_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_industry_ICE_BEV_20261015.png",
+      "alt": "Belgium (Industry) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_industry"
+    },
+    {
+      "country": "Belgium (Industry)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_industry_20261015.png",
+      "url": "images/2026-08/belgium_industry_20261015.png",
+      "alt": "Belgium (Industry) BEV trajectory",
+      "country_slug": "belgium_industry"
+    },
+    {
+      "country": "Belgium (Industry)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_industry_time_20261015.png",
+      "url": "images/2026-08/belgium_industry_time_20261015.png",
+      "alt": "Belgium (Industry) Transition time curve",
+      "country_slug": "belgium_industry"
+    },
+    {
+      "country": "Belgium (Industry)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_industry_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_industry_ttm_shares_20261015.png",
+      "alt": "Belgium (Industry) TTM market split graph",
+      "country_slug": "belgium_industry"
+    },
+    {
+      "country": "Belgium (Private)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_private_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_private_ICE_BEV_20261015.png",
+      "alt": "Belgium (Private) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_private"
+    },
+    {
+      "country": "Belgium (Private)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_private_20261015.png",
+      "url": "images/2026-08/belgium_private_20261015.png",
+      "alt": "Belgium (Private) BEV trajectory",
+      "country_slug": "belgium_private"
+    },
+    {
+      "country": "Belgium (Private)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_private_time_20261015.png",
+      "url": "images/2026-08/belgium_private_time_20261015.png",
+      "alt": "Belgium (Private) Transition time curve",
+      "country_slug": "belgium_private"
+    },
+    {
+      "country": "Belgium (Private)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_private_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_private_ttm_shares_20261015.png",
+      "alt": "Belgium (Private) TTM market split graph",
+      "country_slug": "belgium_private"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_vans_ICE_BEV_20261015.png",
+      "url": "images/2026-08/belgium_vans_ICE_BEV_20261015.png",
+      "alt": "Belgium (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "share",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_vans_20261015.png",
+      "url": "images/2026-08/belgium_vans_20261015.png",
+      "alt": "Belgium (Vans) BEV trajectory",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "time",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_vans_time_20261015.png",
+      "url": "images/2026-08/belgium_vans_time_20261015.png",
+      "alt": "Belgium (Vans) Transition time curve",
+      "country_slug": "belgium_vans"
+    },
+    {
+      "country": "Belgium (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-08",
+      "date": "2026-10-15",
+      "filename": "belgium_vans_ttm_shares_20261015.png",
+      "url": "images/2026-08/belgium_vans_ttm_shares_20261015.png",
+      "alt": "Belgium (Vans) TTM market split graph",
+      "country_slug": "belgium_vans"
+    },
+    {
       "country": "Spain",
       "type": "ICE_BEV",
       "period": "2026-09",
