@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T17:49:17Z",
+ "generated": "2026-10-15T20:38:29Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5971,6 +5971,14 @@
   },
   {
    "date": "2026-10-14",
+   "label": "South Africa",
+   "base": "South Africa",
+   "slug": "south_africa",
+   "period": "2026-06",
+   "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-15",
    "label": "South Africa",
    "base": "South Africa",
    "slug": "south_africa",
