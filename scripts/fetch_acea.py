@@ -77,16 +77,19 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Belgium, Bulgaria, Croatia, Cyprus, Czechia, Estonia,
+    Belgium, Bulgaria, Croatia, Cyprus, Czechia,
     Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Poland, Lithuania, Greece. A row a national fetcher marks as
+    Luxembourg, Norway, Poland, Lithuania, Greece, Estonia. A row a national fetcher marks as
     provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
     "Regitra (provisional)") counts as replaceable too.
   (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
-  fills a month OFV's fetcher has not written.)
+  fills a month OFV's fetcher has not written. Estonia is Transpordiamet-
+  primary since 2026-10 — scripts/fetch_estonia.py, the register's own
+  monthly workbook from 2021-01; ACEA only fills a month that workbook has
+  not delivered yet, and is replaced by it on the next run.)
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -153,7 +156,7 @@ import acea_split  # noqa: E402
 # --- Constants ------------------------------------------------------------
 
 ALWAYS_COUNTRIES = [
-    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
+    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia",
     "Hungary", "Iceland", "Latvia",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
@@ -182,6 +185,14 @@ CONDITIONAL_COUNTRIES = [
     # derived HEV/PETROL/DIESEL with its counts (update_country → merge_split,
     # docs/architecture/53-source-greece.md §3).
     "Greece",
+    # Estonia is Transpordiamet-primary (scripts/fetch_estonia.py): the traffic
+    # register's monthly "Infoleht" workbook, counted BEV/PHEV/HEV split from
+    # the EU hybrid type, posted in the first days of the next month — about
+    # three weeks before ACEA. ACEA fills an Estonia month only while no
+    # Transpordiamet row exists (a late workbook); fetch_estonia.py replaces
+    # that row and keeps ACEA's figure in its notes as the cross-check. See
+    # docs/architecture/57-source-estonia.md.
+    "Estonia",
 ]
 # Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
 # Spain, Sweden, Switzerland. The maintainer pulls those from national databases/registries
