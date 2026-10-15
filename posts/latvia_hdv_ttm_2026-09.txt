@@ -1,0 +1,8 @@
+🇱🇻 Latvia (HDV) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++0.1pp  BEV     (0.2% → 0.3%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−0.1pp  ICE     (99.8% → 99.7%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
