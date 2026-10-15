@@ -78,6 +78,14 @@
   if (is.null(flag)) "\U0001F310" else flag
 }
 
+# Quarter of any month: quarterly rows sit on the quarter's last month
+# (ACEA-style "2026-03") or on its middle month (Canada, Georgia, South Africa
+# and the ACEA CV rows: "2026-02") — both are Q1. Only accepting the last
+# month printed "Q?" for every middle-month series.
+.pt_quarter_of <- function(d) {
+  sprintf("Q%d", (as.integer(format(d, "%m")) - 1L) %/% 3L + 1L)
+}
+
 .pt_month_label <- function(period, quarterly = FALSE) {
   # period like "2026-03" → "March 26", or "Q1 2026" when quarterly = TRUE.
   if (is.null(period) || !is.character(period) || !nzchar(period) ||
@@ -85,8 +93,7 @@
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
   if (quarterly) {
-    q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
-    return(sprintf("%s %s", if (is.na(q)) "Q?" else q, format(d, "%Y")))
+    return(sprintf("%s %s", .pt_quarter_of(d), format(d, "%Y")))
   }
   old <- Sys.getlocale("LC_TIME")
   on.exit(Sys.setlocale("LC_TIME", old), add = TRUE)
@@ -255,8 +262,7 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
       !grepl("^\\d{4}-\\d{2}$", period)) return(as.character(period %||% ""))
   d <- as.Date(paste0(period, "-01"))
   if (is.na(d)) return(period)
-  q <- c("03" = "Q1", "06" = "Q2", "09" = "Q3", "12" = "Q4")[format(d, "%m")]
-  sprintf("%s'%s", if (is.na(q)) "Q?" else q, format(d, "%y"))
+  sprintf("%s'%s", .pt_quarter_of(d), format(d, "%y"))
 }
 
 .pt_add_months <- function(period, n) {
