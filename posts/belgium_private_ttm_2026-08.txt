@@ -1,0 +1,11 @@
+🇧🇪 Belgium (Private) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++1.3pp  BEV   (9.4% → 10.7%)
++1.9pp  PHEV  (3.9% → 5.8%)
++3.8pp  HEV   (44.9% → 48.6%)
+−6.9pp  ICE   (41.8% → 34.9%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2028-06.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

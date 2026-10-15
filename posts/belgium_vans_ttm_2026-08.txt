@@ -1,0 +1,9 @@
+🇧🇪 Belgium (Vans) - TTM Market Split
+
+Sep24–Aug25  vs  Sep25–Aug26
++1.7pp  BEV   (5.3% → 7.0%)
++1.9pp  PHEV  (0.4% → 2.3%)
++1.0pp  HEV   (4.1% → 5.1%)
+−4.6pp  ICE   (90.2% → 85.5%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

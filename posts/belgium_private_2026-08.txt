@@ -1,0 +1,11 @@
+🇧🇪 Belgium (Private) - August 26 - BEV Trajectory
+14.5% BEV
+9.8% PHEV
+75.7% ICE (of which 46.3%p were HEV)
+
+Trailing 12 months are:
+10.7% BEV
+5.8% PHEV
+83.5% ICE (of which 48.6%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

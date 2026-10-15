@@ -1,11 +1,11 @@
 🇧🇪 Belgium - August 26 - BEV Trajectory
-46.2% BEV
-6.9% PHEV
-46.9% ICE (of which 9.6%p were HEV)
+46.1% BEV
+6.0% PHEV
+48.0% ICE (of which 28.6%p were HEV)
 
 Trailing 12 months are:
-38.1% BEV
-7.3% PHEV
-54.6% ICE (of which 11.5%p were HEV)
+38.0% BEV
+6.8% PHEV
+55.2% ICE (of which 32.0%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
