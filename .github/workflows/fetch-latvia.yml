@@ -1,0 +1,156 @@
+name: Fetch Latvia data (CSDD register)
+
+# Fetches CSDD's first-registration workbooks (csdd.lv — the Road Traffic
+# Safety Directorate, keeper of the Latvian vehicle register) and upserts the
+# Latvia CSVs:
+#
+#   data/Latvia.csv           Whole     new passenger cars
+#   data/Latvia_Private.csv   Private   new cars, keeper a natural person (FP)
+#   data/Latvia_Industry.csv  Industry  new cars, keeper a legal person (JP)
+#   data/Latvia_Used.csv      Used      cars first registered abroad before
+#   data/Latvia_Vans.csv      Vans      new N1 (+ N1G)
+#   data/Latvia_HDV.csv       HDV       new N2 + N3 (+ G)
+#   data/Latvia_Buses.csv     Buses     new M2 + M3 (+ G)
+#
+# Three XLSX files from the statistics page: the headline table (~50 KB; read
+# first — says whether the month is out, and is the cross-check), the
+# passenger-car records (~70 MB) and the lorry/bus records (~25 MB), each with
+# the full history since 2000 and replaced by CSDD about ten working days after
+# month end. Also writes market/latvia_top.json and latvia_used_top.json (+ the
+# month stores latvia_months.json / latvia_used_months.json).
+# Method, validation and a debugging runbook:
+# docs/architecture/58-source-latvia.md.
+#
+# Polled twice daily on the 8th-25th; a run whose target month is already in
+# every CSV makes no HTTP request, and one whose month is not in the headline
+# table yet downloads only that 50 KB file. A normal run rewrites the last 13
+# months (CSDD books a few late registrations); `backfill` every month from
+# 2015-01.
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Private
+          - Industry
+          - Used
+          - Vans
+          - HDV
+          - Buses
+      period:
+        description: 'Target month YYYY-MM (default: last month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2015-01'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness / cross-check guards and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 06:20 and 12:20 UTC (Riga 09:20 / 15:20), 8th-25th of the month.
+    - cron: '20 6,12 8-25 * *'
+
+concurrency:
+  group: fetch-latvia
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests openpyxl
+
+      # The fuel mapping and the sheet parsers fail silently when wrong, so the
+      # regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_latvia.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Latvia CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_latvia.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: |
+            data/Latvia.csv
+            data/Latvia_Private.csv
+            data/Latvia_Industry.csv
+            data/Latvia_Used.csv
+            data/Latvia_Vans.csv
+            data/Latvia_HDV.csv
+            data/Latvia_Buses.csv
+            market/latvia_top.json
+            market/latvia_months.json
+            market/latvia_used_top.json
+            market/latvia_used_months.json
+          message: 'chore: update Latvia data from CSDD'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Latvia
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Latvia" \
+            -f variants="$variants"

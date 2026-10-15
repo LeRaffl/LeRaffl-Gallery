@@ -1,0 +1,11 @@
+🇱🇻 Latvia (Used) - September 26 - BEV Trajectory
+13.3% BEV
+3.8% PHEV
+82.9% ICE
+
+Trailing 12 months are:
+9.2% BEV
+4.3% PHEV
+86.5% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

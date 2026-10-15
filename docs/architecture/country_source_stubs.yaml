@@ -137,25 +137,10 @@ stubs:
     workflow: ".github/workflows/fetch-acea.yml"
     data_file: "data/Iceland.csv"
 
-  - country: Latvia
-    slug: latvia
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for Latvia, via ACEA's monthly figures."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "National registrations, aggregated by ACEA"
-    variants: [Whole, Used]
-    variant_notes:
-      Whole: "New passenger-car registrations, via ACEA."
-      Used: "Used-import registrations — a legacy series rendered from the maintainer's local pipeline; the CSV is not in this repo and it is not ACEA-sourced."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Latvia.csv"
-    caveats:
-      - "The `Used` variant is legacy: its data was never committed here, so it updates on its own (irregular) schedule and is not covered by the ACEA fetcher."
-      - "Latvia is the one country in the ACEA cluster whose HEV column is zero in every row we hold (all 138 of them) — the column exists but has never carried a value. Read it as \"not reported for Latvia\", not as \"Latvia has no full hybrids\"; those cars are somewhere else in the split."
+  # Latvia: migrated off the ACEA stub to CSDD (the vehicle register's
+  # first-registration workbooks) — driven by the front-matter in
+  # docs/architecture/58-source-latvia.md (scripts/fetch_latvia.py). The
+  # legacy Used series is replaced by data/Latvia_Used.csv.
 
   - country: Malta
     slug: malta

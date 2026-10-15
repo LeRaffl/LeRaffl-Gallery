@@ -1,21 +1,142 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2021-07,yearly,Vans,ACEA,,,,,,,2535.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2022-07,yearly,Vans,ACEA,,,,,,,2407.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2023-02,quarterly,Vans,ACEA,20.0,,0.0,79.0,503.0,0.0,602.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2022-02,quarterly,Vans,ACEA,11.0,,0.0,33.0,640.0,0.0,684.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,Vans,ACEA,12.0,,0.0,40.0,715.0,0.0,767.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
-2022-05,quarterly,Vans,ACEA,10.0,,0.0,21.0,605.0,0.0,636.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2024-02,quarterly,Vans,ACEA,12.0,,0.0,44.0,710.0,0.0,766.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
-2024-05,quarterly,Vans,ACEA,12.0,,0.0,18.0,681.0,0.0,711.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
-2024-08,quarterly,Vans,ACEA,12.0,,0.0,33.0,563.0,0.0,608.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2023-08,quarterly,Vans,ACEA,23.0,,0.0,22.0,718.0,3.0,766.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2022-08,quarterly,Vans,ACEA,11.0,,0.0,21.0,473.0,0.0,505.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2023-11,quarterly,Vans,ACEA,26.0,,0.0,21.0,518.0,-1.0,564.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2022-11,quarterly,Vans,ACEA,1.0,,0.0,35.0,537.0,8.0,581.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2025-02,quarterly,Vans,ACEA,22.0,,0.0,31.0,480.0,0.0,533.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
-2025-05,quarterly,Vans,ACEA,37.0,,0.0,32.0,610.0,0.0,679.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
-2025-08,quarterly,Vans,ACEA,46.0,,0.0,18.0,672.0,0.0,736.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2025-11,quarterly,Vans,ACEA,67.0,,0.0,23.0,552.0,0.0,642.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2024-11,quarterly,Vans,ACEA,21.0,,0.0,31.0,601.0,0.0,653.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2026-02,quarterly,Vans,ACEA,35.0,,0.0,10.0,570.0,0.0,615.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2026-05,quarterly,Vans,ACEA,66.0,,0.0,21.0,706.0,0.0,793.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2015-01,monthly,Vans,CSDD,0.0,0.0,,4.0,181.0,0.0,185.0,CSDD 2015-01: new N1 + N1G by energy source
+2015-02,monthly,Vans,CSDD,0.0,0.0,,3.0,146.0,0.0,149.0,CSDD 2015-02: new N1 + N1G by energy source
+2015-03,monthly,Vans,CSDD,0.0,0.0,,17.0,180.0,1.0,198.0,CSDD 2015-03: new N1 + N1G by energy source
+2015-04,monthly,Vans,CSDD,0.0,0.0,,14.0,199.0,0.0,213.0,CSDD 2015-04: new N1 + N1G by energy source
+2015-05,monthly,Vans,CSDD,0.0,0.0,,19.0,210.0,2.0,231.0,CSDD 2015-05: new N1 + N1G by energy source
+2015-06,monthly,Vans,CSDD,0.0,0.0,,4.0,217.0,0.0,221.0,CSDD 2015-06: new N1 + N1G by energy source
+2015-07,monthly,Vans,CSDD,0.0,0.0,,5.0,158.0,0.0,163.0,CSDD 2015-07: new N1 + N1G by energy source
+2015-08,monthly,Vans,CSDD,0.0,0.0,,5.0,167.0,0.0,172.0,CSDD 2015-08: new N1 + N1G by energy source
+2015-09,monthly,Vans,CSDD,0.0,0.0,,4.0,165.0,2.0,171.0,CSDD 2015-09: new N1 + N1G by energy source
+2015-10,monthly,Vans,CSDD,0.0,0.0,,12.0,198.0,0.0,210.0,CSDD 2015-10: new N1 + N1G by energy source
+2015-11,monthly,Vans,CSDD,0.0,0.0,,12.0,220.0,1.0,233.0,CSDD 2015-11: new N1 + N1G by energy source
+2015-12,monthly,Vans,CSDD,0.0,0.0,,6.0,187.0,0.0,193.0,CSDD 2015-12: new N1 + N1G by energy source
+2016-01,monthly,Vans,CSDD,0.0,0.0,,5.0,166.0,0.0,171.0,CSDD 2016-01: new N1 + N1G by energy source
+2016-02,monthly,Vans,CSDD,0.0,0.0,,3.0,169.0,0.0,172.0,CSDD 2016-02: new N1 + N1G by energy source
+2016-03,monthly,Vans,CSDD,0.0,0.0,,5.0,158.0,0.0,163.0,CSDD 2016-03: new N1 + N1G by energy source
+2016-04,monthly,Vans,CSDD,0.0,0.0,,6.0,178.0,0.0,184.0,CSDD 2016-04: new N1 + N1G by energy source
+2016-05,monthly,Vans,CSDD,0.0,0.0,,2.0,169.0,0.0,171.0,CSDD 2016-05: new N1 + N1G by energy source
+2016-06,monthly,Vans,CSDD,0.0,0.0,,1.0,152.0,1.0,154.0,CSDD 2016-06: new N1 + N1G by energy source
+2016-07,monthly,Vans,CSDD,3.0,0.0,,3.0,186.0,0.0,192.0,CSDD 2016-07: new N1 + N1G by energy source
+2016-08,monthly,Vans,CSDD,0.0,0.0,,0.0,204.0,0.0,204.0,CSDD 2016-08: new N1 + N1G by energy source
+2016-09,monthly,Vans,CSDD,1.0,0.0,,4.0,179.0,0.0,184.0,CSDD 2016-09: new N1 + N1G by energy source
+2016-10,monthly,Vans,CSDD,0.0,0.0,,4.0,150.0,0.0,154.0,CSDD 2016-10: new N1 + N1G by energy source
+2016-11,monthly,Vans,CSDD,0.0,0.0,,7.0,195.0,0.0,202.0,CSDD 2016-11: new N1 + N1G by energy source
+2016-12,monthly,Vans,CSDD,0.0,0.0,,7.0,249.0,1.0,257.0,CSDD 2016-12: new N1 + N1G by energy source
+2017-01,monthly,Vans,CSDD,0.0,0.0,,11.0,123.0,0.0,134.0,CSDD 2017-01: new N1 + N1G by energy source
+2017-02,monthly,Vans,CSDD,0.0,0.0,,2.0,116.0,1.0,119.0,CSDD 2017-02: new N1 + N1G by energy source
+2017-03,monthly,Vans,CSDD,0.0,0.0,,6.0,177.0,0.0,183.0,CSDD 2017-03: new N1 + N1G by energy source
+2017-04,monthly,Vans,CSDD,0.0,0.0,,5.0,167.0,1.0,173.0,CSDD 2017-04: new N1 + N1G by energy source
+2017-05,monthly,Vans,CSDD,0.0,0.0,,2.0,215.0,0.0,217.0,CSDD 2017-05: new N1 + N1G by energy source
+2017-06,monthly,Vans,CSDD,0.0,0.0,,5.0,172.0,0.0,177.0,CSDD 2017-06: new N1 + N1G by energy source
+2017-07,monthly,Vans,CSDD,0.0,0.0,,9.0,173.0,1.0,183.0,CSDD 2017-07: new N1 + N1G by energy source
+2017-08,monthly,Vans,CSDD,0.0,0.0,,5.0,173.0,0.0,178.0,CSDD 2017-08: new N1 + N1G by energy source
+2017-09,monthly,Vans,CSDD,0.0,0.0,,4.0,160.0,0.0,164.0,CSDD 2017-09: new N1 + N1G by energy source
+2017-10,monthly,Vans,CSDD,1.0,0.0,,2.0,168.0,1.0,172.0,CSDD 2017-10: new N1 + N1G by energy source
+2017-11,monthly,Vans,CSDD,0.0,0.0,,6.0,243.0,0.0,249.0,CSDD 2017-11: new N1 + N1G by energy source
+2017-12,monthly,Vans,CSDD,0.0,0.0,,3.0,276.0,1.0,280.0,CSDD 2017-12: new N1 + N1G by energy source
+2018-01,monthly,Vans,CSDD,0.0,0.0,,5.0,166.0,0.0,171.0,CSDD 2018-01: new N1 + N1G by energy source
+2018-02,monthly,Vans,CSDD,0.0,0.0,,2.0,160.0,0.0,162.0,CSDD 2018-02: new N1 + N1G by energy source
+2018-03,monthly,Vans,CSDD,0.0,0.0,,11.0,169.0,0.0,180.0,CSDD 2018-03: new N1 + N1G by energy source
+2018-04,monthly,Vans,CSDD,0.0,0.0,,16.0,205.0,0.0,221.0,CSDD 2018-04: new N1 + N1G by energy source
+2018-05,monthly,Vans,CSDD,0.0,0.0,,24.0,194.0,1.0,219.0,CSDD 2018-05: new N1 + N1G by energy source
+2018-06,monthly,Vans,CSDD,0.0,0.0,,21.0,212.0,2.0,235.0,CSDD 2018-06: new N1 + N1G by energy source
+2018-07,monthly,Vans,CSDD,0.0,0.0,,9.0,152.0,0.0,161.0,CSDD 2018-07: new N1 + N1G by energy source
+2018-08,monthly,Vans,CSDD,0.0,0.0,,14.0,230.0,1.0,245.0,CSDD 2018-08: new N1 + N1G by energy source
+2018-09,monthly,Vans,CSDD,0.0,0.0,,1.0,173.0,4.0,178.0,CSDD 2018-09: new N1 + N1G by energy source
+2018-10,monthly,Vans,CSDD,0.0,0.0,,9.0,169.0,0.0,178.0,CSDD 2018-10: new N1 + N1G by energy source
+2018-11,monthly,Vans,CSDD,0.0,0.0,,7.0,242.0,0.0,249.0,CSDD 2018-11: new N1 + N1G by energy source
+2018-12,monthly,Vans,CSDD,0.0,0.0,,17.0,159.0,0.0,176.0,CSDD 2018-12: new N1 + N1G by energy source
+2019-01,monthly,Vans,CSDD,1.0,0.0,,5.0,223.0,0.0,229.0,CSDD 2019-01: new N1 + N1G by energy source
+2019-02,monthly,Vans,CSDD,0.0,0.0,,2.0,186.0,2.0,190.0,CSDD 2019-02: new N1 + N1G by energy source
+2019-03,monthly,Vans,CSDD,1.0,0.0,,2.0,224.0,1.0,228.0,CSDD 2019-03: new N1 + N1G by energy source
+2019-04,monthly,Vans,CSDD,0.0,0.0,,3.0,228.0,1.0,232.0,CSDD 2019-04: new N1 + N1G by energy source
+2019-05,monthly,Vans,CSDD,0.0,0.0,,4.0,228.0,1.0,233.0,CSDD 2019-05: new N1 + N1G by energy source
+2019-06,monthly,Vans,CSDD,0.0,0.0,,2.0,225.0,0.0,227.0,CSDD 2019-06: new N1 + N1G by energy source
+2019-07,monthly,Vans,CSDD,0.0,0.0,,6.0,199.0,0.0,205.0,CSDD 2019-07: new N1 + N1G by energy source
+2019-08,monthly,Vans,CSDD,0.0,0.0,,19.0,174.0,1.0,194.0,CSDD 2019-08: new N1 + N1G by energy source
+2019-09,monthly,Vans,CSDD,0.0,0.0,,5.0,260.0,2.0,267.0,CSDD 2019-09: new N1 + N1G by energy source
+2019-10,monthly,Vans,CSDD,0.0,0.0,,24.0,203.0,0.0,227.0,CSDD 2019-10: new N1 + N1G by energy source
+2019-11,monthly,Vans,CSDD,0.0,0.0,,3.0,186.0,3.0,192.0,CSDD 2019-11: new N1 + N1G by energy source
+2019-12,monthly,Vans,CSDD,0.0,0.0,,5.0,258.0,0.0,263.0,CSDD 2019-12: new N1 + N1G by energy source
+2020-01,monthly,Vans,CSDD,1.0,0.0,,2.0,158.0,6.0,167.0,CSDD 2020-01: new N1 + N1G by energy source
+2020-02,monthly,Vans,CSDD,0.0,0.0,,1.0,170.0,0.0,171.0,CSDD 2020-02: new N1 + N1G by energy source
+2020-03,monthly,Vans,CSDD,1.0,0.0,,2.0,141.0,0.0,144.0,CSDD 2020-03: new N1 + N1G by energy source
+2020-04,monthly,Vans,CSDD,0.0,0.0,,9.0,147.0,0.0,156.0,CSDD 2020-04: new N1 + N1G by energy source
+2020-05,monthly,Vans,CSDD,0.0,0.0,,2.0,164.0,3.0,169.0,CSDD 2020-05: new N1 + N1G by energy source
+2020-06,monthly,Vans,CSDD,0.0,0.0,,21.0,131.0,0.0,152.0,CSDD 2020-06: new N1 + N1G by energy source
+2020-07,monthly,Vans,CSDD,0.0,0.0,,11.0,187.0,0.0,198.0,CSDD 2020-07: new N1 + N1G by energy source
+2020-08,monthly,Vans,CSDD,0.0,0.0,,11.0,206.0,0.0,217.0,CSDD 2020-08: new N1 + N1G by energy source
+2020-09,monthly,Vans,CSDD,0.0,0.0,,2.0,200.0,1.0,203.0,CSDD 2020-09: new N1 + N1G by energy source
+2020-10,monthly,Vans,CSDD,0.0,0.0,,5.0,183.0,6.0,194.0,CSDD 2020-10: new N1 + N1G by energy source
+2020-11,monthly,Vans,CSDD,0.0,0.0,,16.0,188.0,0.0,204.0,CSDD 2020-11: new N1 + N1G by energy source
+2020-12,monthly,Vans,CSDD,14.0,0.0,,3.0,120.0,0.0,137.0,CSDD 2020-12: new N1 + N1G by energy source
+2021-01,monthly,Vans,CSDD,0.0,0.0,,2.0,141.0,0.0,143.0,CSDD 2021-01: new N1 + N1G by energy source
+2021-02,monthly,Vans,CSDD,0.0,0.0,,8.0,173.0,0.0,181.0,CSDD 2021-02: new N1 + N1G by energy source
+2021-03,monthly,Vans,CSDD,0.0,0.0,,1.0,260.0,0.0,261.0,CSDD 2021-03: new N1 + N1G by energy source
+2021-04,monthly,Vans,CSDD,0.0,0.0,,7.0,181.0,0.0,188.0,CSDD 2021-04: new N1 + N1G by energy source
+2021-05,monthly,Vans,CSDD,2.0,0.0,,15.0,239.0,0.0,256.0,CSDD 2021-05: new N1 + N1G by energy source
+2021-06,monthly,Vans,CSDD,0.0,0.0,,11.0,189.0,0.0,200.0,CSDD 2021-06: new N1 + N1G by energy source
+2021-07,monthly,Vans,CSDD,0.0,0.0,,9.0,247.0,0.0,256.0,CSDD 2021-07: new N1 + N1G by energy source
+2021-08,monthly,Vans,CSDD,6.0,0.0,,13.0,225.0,0.0,244.0,CSDD 2021-08: new N1 + N1G by energy source
+2021-09,monthly,Vans,CSDD,3.0,0.0,,23.0,194.0,0.0,220.0,CSDD 2021-09: new N1 + N1G by energy source
+2021-10,monthly,Vans,CSDD,1.0,0.0,,7.0,196.0,0.0,204.0,CSDD 2021-10: new N1 + N1G by energy source
+2021-11,monthly,Vans,CSDD,13.0,0.0,,2.0,218.0,8.0,241.0,CSDD 2021-11: new N1 + N1G by energy source
+2021-12,monthly,Vans,CSDD,0.0,1.0,,6.0,133.0,0.0,140.0,CSDD 2021-12: new N1 + N1G by energy source
+2022-01,monthly,Vans,CSDD,1.0,0.0,,9.0,214.0,0.0,224.0,CSDD 2022-01: new N1 + N1G by energy source
+2022-02,monthly,Vans,CSDD,1.0,0.0,,12.0,233.0,0.0,246.0,CSDD 2022-02: new N1 + N1G by energy source
+2022-03,monthly,Vans,CSDD,9.0,0.0,,12.0,190.0,0.0,211.0,CSDD 2022-03: new N1 + N1G by energy source
+2022-04,monthly,Vans,CSDD,5.0,0.0,,10.0,197.0,0.0,212.0,CSDD 2022-04: new N1 + N1G by energy source
+2022-05,monthly,Vans,CSDD,5.0,0.0,,10.0,187.0,0.0,202.0,CSDD 2022-05: new N1 + N1G by energy source
+2022-06,monthly,Vans,CSDD,0.0,0.0,,1.0,203.0,0.0,204.0,CSDD 2022-06: new N1 + N1G by energy source
+2022-07,monthly,Vans,CSDD,0.0,0.0,,11.0,137.0,0.0,148.0,CSDD 2022-07: new N1 + N1G by energy source
+2022-08,monthly,Vans,CSDD,3.0,0.0,,2.0,147.0,0.0,152.0,CSDD 2022-08: new N1 + N1G by energy source
+2022-09,monthly,Vans,CSDD,8.0,0.0,,8.0,184.0,0.0,200.0,CSDD 2022-09: new N1 + N1G by energy source
+2022-10,monthly,Vans,CSDD,0.0,0.0,,16.0,164.0,0.0,180.0,CSDD 2022-10: new N1 + N1G by energy source
+2022-11,monthly,Vans,CSDD,0.0,0.0,,17.0,221.0,0.0,238.0,CSDD 2022-11: new N1 + N1G by energy source
+2022-12,monthly,Vans,CSDD,1.0,0.0,,3.0,176.0,8.0,188.0,CSDD 2022-12: new N1 + N1G by energy source
+2023-01,monthly,Vans,CSDD,8.0,0.0,,18.0,176.0,0.0,202.0,CSDD 2023-01: new N1 + N1G by energy source
+2023-02,monthly,Vans,CSDD,8.0,0.0,,26.0,134.0,0.0,168.0,CSDD 2023-02: new N1 + N1G by energy source
+2023-03,monthly,Vans,CSDD,5.0,0.0,,34.0,192.0,1.0,232.0,CSDD 2023-03: new N1 + N1G by energy source
+2023-04,monthly,Vans,CSDD,4.0,0.0,,12.0,198.0,0.0,214.0,CSDD 2023-04: new N1 + N1G by energy source
+2023-05,monthly,Vans,CSDD,3.0,0.0,,10.0,242.0,0.0,255.0,CSDD 2023-05: new N1 + N1G by energy source
+2023-06,monthly,Vans,CSDD,5.0,0.0,,18.0,275.0,0.0,298.0,CSDD 2023-06: new N1 + N1G by energy source
+2023-07,monthly,Vans,CSDD,13.0,1.0,,12.0,229.0,2.0,257.0,CSDD 2023-07: new N1 + N1G by energy source
+2023-08,monthly,Vans,CSDD,2.0,0.0,,3.0,265.0,0.0,270.0,CSDD 2023-08: new N1 + N1G by energy source
+2023-09,monthly,Vans,CSDD,6.0,0.0,,8.0,198.0,0.0,212.0,CSDD 2023-09: new N1 + N1G by energy source
+2023-10,monthly,Vans,CSDD,7.0,0.0,,11.0,204.0,0.0,222.0,CSDD 2023-10: new N1 + N1G by energy source
+2023-11,monthly,Vans,CSDD,14.0,0.0,,4.0,156.0,0.0,174.0,CSDD 2023-11: new N1 + N1G by energy source
+2023-12,monthly,Vans,CSDD,6.0,0.0,,6.0,186.0,0.0,198.0,CSDD 2023-12: new N1 + N1G by energy source
+2024-01,monthly,Vans,CSDD,8.0,0.0,,29.0,167.0,0.0,204.0,CSDD 2024-01: new N1 + N1G by energy source
+2024-02,monthly,Vans,CSDD,3.0,0.0,,6.0,229.0,0.0,238.0,CSDD 2024-02: new N1 + N1G by energy source
+2024-03,monthly,Vans,CSDD,1.0,0.0,,9.0,252.0,0.0,262.0,CSDD 2024-03: new N1 + N1G by energy source
+2024-04,monthly,Vans,CSDD,8.0,0.0,,6.0,195.0,0.0,209.0,CSDD 2024-04: new N1 + N1G by energy source
+2024-05,monthly,Vans,CSDD,1.0,0.0,,10.0,269.0,0.0,280.0,CSDD 2024-05: new N1 + N1G by energy source
+2024-06,monthly,Vans,CSDD,3.0,0.0,,3.0,155.0,0.0,161.0,CSDD 2024-06: new N1 + N1G by energy source
+2024-07,monthly,Vans,CSDD,3.0,0.0,,18.0,184.0,0.0,205.0,CSDD 2024-07: new N1 + N1G by energy source
+2024-08,monthly,Vans,CSDD,5.0,0.0,,9.0,192.0,0.0,206.0,CSDD 2024-08: new N1 + N1G by energy source
+2024-09,monthly,Vans,CSDD,3.0,0.0,,6.0,118.0,0.0,127.0,CSDD 2024-09: new N1 + N1G by energy source
+2024-10,monthly,Vans,CSDD,4.0,0.0,,21.0,167.0,0.0,192.0,CSDD 2024-10: new N1 + N1G by energy source
+2024-11,monthly,Vans,CSDD,4.0,0.0,,4.0,243.0,0.0,251.0,CSDD 2024-11: new N1 + N1G by energy source
+2024-12,monthly,Vans,CSDD,13.0,0.0,,6.0,157.0,0.0,176.0,CSDD 2024-12: new N1 + N1G by energy source
+2025-01,monthly,Vans,CSDD,11.0,0.0,,22.0,110.0,0.0,143.0,CSDD 2025-01: new N1 + N1G by energy source
+2025-02,monthly,Vans,CSDD,6.0,0.0,,3.0,141.0,0.0,150.0,CSDD 2025-02: new N1 + N1G by energy source
+2025-03,monthly,Vans,CSDD,5.0,0.0,,6.0,190.0,0.0,201.0,CSDD 2025-03: new N1 + N1G by energy source
+2025-04,monthly,Vans,CSDD,0.0,1.0,,12.0,151.0,0.0,164.0,CSDD 2025-04: new N1 + N1G by energy source
+2025-05,monthly,Vans,CSDD,8.0,0.0,,16.0,225.0,0.0,249.0,CSDD 2025-05: new N1 + N1G by energy source
+2025-06,monthly,Vans,CSDD,28.0,0.0,,4.0,189.0,1.0,222.0,CSDD 2025-06: new N1 + N1G by energy source
+2025-07,monthly,Vans,CSDD,13.0,0.0,,5.0,254.0,0.0,272.0,CSDD 2025-07: new N1 + N1G by energy source
+2025-08,monthly,Vans,CSDD,5.0,1.0,,11.0,191.0,0.0,208.0,CSDD 2025-08: new N1 + N1G by energy source
+2025-09,monthly,Vans,CSDD,27.0,0.0,,2.0,195.0,0.0,224.0,CSDD 2025-09: new N1 + N1G by energy source
+2025-10,monthly,Vans,CSDD,16.0,4.0,,13.0,166.0,0.0,199.0,CSDD 2025-10: new N1 + N1G by energy source
+2025-11,monthly,Vans,CSDD,18.0,7.0,,7.0,207.0,0.0,239.0,CSDD 2025-11: new N1 + N1G by energy source
+2025-12,monthly,Vans,CSDD,18.0,4.0,,3.0,151.0,1.0,177.0,CSDD 2025-12: new N1 + N1G by energy source
+2026-01,monthly,Vans,CSDD,9.0,3.0,,6.0,172.0,0.0,190.0,CSDD 2026-01: new N1 + N1G by energy source
+2026-02,monthly,Vans,CSDD,10.0,4.0,,2.0,172.0,0.0,188.0,CSDD 2026-02: new N1 + N1G by energy source
+2026-03,monthly,Vans,CSDD,5.0,4.0,,2.0,199.0,0.0,210.0,CSDD 2026-03: new N1 + N1G by energy source
+2026-04,monthly,Vans,CSDD,6.0,8.0,,6.0,226.0,0.0,246.0,CSDD 2026-04: new N1 + N1G by energy source
+2026-05,monthly,Vans,CSDD,18.0,22.0,,7.0,158.0,0.0,205.0,CSDD 2026-05: new N1 + N1G by energy source
+2026-06,monthly,Vans,CSDD,10.0,2.0,,8.0,316.0,0.0,336.0,CSDD 2026-06: new N1 + N1G by energy source
+2026-07,monthly,Vans,CSDD,13.0,1.0,,23.0,177.0,0.0,214.0,CSDD 2026-07: new N1 + N1G by energy source
+2026-08,monthly,Vans,CSDD,7.0,3.0,,14.0,138.0,0.0,162.0,CSDD 2026-08: new N1 + N1G by energy source
+2026-09,monthly,Vans,CSDD,13.0,4.0,,10.0,223.0,0.0,250.0,CSDD 2026-09: new N1 + N1G by energy source

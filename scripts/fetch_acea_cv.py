@@ -185,9 +185,12 @@ import requests
 # owns its Vans/HDV/Buses rows, and the per-file conditional-write rule
 # below (not a separate exclusion list) is what keeps ACEA from ever
 # overwriting them.
+# Latvia left 2026-10: scripts/fetch_latvia.py writes its Vans/HDV/Buses
+# monthly from CSDD's register records; the former ACEA rows are archived in
+# data/Latvia_legacy.csv (docs/architecture/58-source-latvia.md).
 TARGET_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus", "Estonia",
-    "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
+    "France", "Germany", "Greece", "Hungary", "Iceland",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",
 ]

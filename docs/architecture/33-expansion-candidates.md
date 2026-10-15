@@ -391,11 +391,36 @@ significant EV importer is outside it**).
 > | 🇭🇺 Hungary | `data.gov.hu`, KSH STADAT | the portal timed out; KSH's STADAT transport page answered but was not searched for a monthly table by fuel |
 > | 🇭🇷 Croatia | `data.gov.hr` (CVH datasets) | yearly vehicle datasets, the newest for 2022 |
 > | 🇸🇮 Slovenia | `podatki.gov.si`, SURS PxWeb | the record-level register extract stopped in 2023 (data protection); SURS's monthly first registrations have no fuel |
-> | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 |
+> | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 — but CSDD's own statistics page has monthly first-registration records: **built 2026-10**, see below |
 > | 🇪🇪 Estonia | `avaandmed.eesti.ee` (Transpordiamet "Infoleht") | a monthly XLSX of first and new registrations exists (to 2025-12); a small market, not pursued in this round — the best lead left among the ACEA countries |
 > | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is` | timed out from runners |
 > | 🇧🇬 Bulgaria | `data.egov.bg` | 403 |
 > | 🇸🇰 Slovakia | `data.gov.sk` | the CKAN API answered an HTML page |
+
+## Automated, not new — 🇱🇻 Latvia (2026-10)
+
+Latvia moved from ACEA (Whole, quarterly CV) to **CSDD**, the register keeper. Its
+statistics page (`csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati`) has XLSX
+record files of every first registration since 2000 — passenger cars by make, model,
+fuel, new/used status and keeper type; lorries and buses by EU category — free, no
+login, replaced about ten days after month end. They reproduce ACEA's Latvian series to
+the car and add `Private`, `Industry`, `Used`, monthly `Vans` / `HDV` / `Buses` and
+brand/model tables. HEV is not reported (full and mild hybrids are filed under their
+fuel). See [58](58-source-latvia.md).
+
+Re-check of the remaining ACEA-primary countries in the same round (2026-10-15):
+
+> | Country | Probed | Finding |
+> |---|---|---|
+> | 🇧🇪 Belgium | FOD Mobiliteit open data (`mobilit.belgium.be`, `data.gov.be`), Statbel, FEBIAC | the record-level yearly files are booked at year end; the monthly figures are interactive Power BI pages; FEBIAC's monthly files are press tables. The FOD site sits behind a bot challenge for scripts. Not monthly machine-readable. |
+> | 🇸🇮 Slovenia | OPSI `prvic-registrirana-vozila-po-mesecih` | publication suspended on data-protection grounds (notice on the dataset); no current files |
+> | 🇭🇷 Croatia | `data.gov.hr` (CVH), `cvh.hr` | new/used M1 and the electric/hybrid tables are yearly to 2022; CVH posts yearly PDFs and half-year press figures |
+> | 🇷🇴 Romania | `data.gov.ro`, DGPCI portal, APIA | only the yearly fleet ("parc auto", to 2025-12); DGPCI's portal is an app with no statistics files; APIA's monthly releases are PDFs (detail in its paid CarS platform) |
+> | 🇸🇰 Slovakia | `data.slovensko.sk`, ZAP SR | the open-data portal is a script app (no API answer); ZAP's monthly releases are PDFs |
+> | 🇧🇬 Bulgaria | `data.egov.bg`, `testdata.egov.bg`, MVR | `data.egov.bg` timed out / 403 from the sandbox; the MVR monthly datasets visible on the test portal stop in 2022; MVR's monthly bulletins are PDFs |
+> | 🇨🇾 Cyprus | CYSTAT PxWeb API, `data.gov.cy` | monthly registrations as machine-readable PxWeb tables, but only by category and new/used — the energy type is in the monthly PDF release only (and annual tables). The closest miss. |
+> | 🇲🇹 Malta | NSO, Transport Malta | NSO publishes quarterly "Motor Vehicles" releases; both sites refuse the sandbox (403 / TLS) |
+> | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is`, Statistics Iceland PxWeb | Samgöngustofa's dashboard still fails TLS from the sandbox (and timed out from runners earlier); Statistics Iceland has only yearly vehicle tables |
 
 ## Automated, not new — 🇳🇿 New Zealand (2026-10)
 

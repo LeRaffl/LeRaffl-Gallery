@@ -1,19 +1,142 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2021-07,yearly,HDV,ACEA,,,,,,,1379.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2022-07,yearly,HDV,ACEA,,,,,,,1672.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2023-02,quarterly,HDV,ACEA,0.0,,0.0,0.0,615.0,1.0,616.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2022-02,quarterly,HDV,ACEA,0.0,,0.0,0.0,370.0,23.0,393.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,HDV,ACEA,0.0,,0.0,0.0,475.0,4.0,479.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
-2022-05,quarterly,HDV,ACEA,0.0,,0.0,0.0,481.0,404.0,885.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2024-02,quarterly,HDV,ACEA,2.0,,0.0,0.0,316.0,1.0,319.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
-2024-05,quarterly,HDV,ACEA,0.0,,0.0,0.0,328.0,4.0,332.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
-2024-08,quarterly,HDV,ACEA,4.0,,0.0,0.0,236.0,3.0,243.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2023-08,quarterly,HDV,ACEA,1.0,,0.0,0.0,419.0,735.0,1155.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2022-08,quarterly,HDV,ACEA,0.0,,0.0,0.0,481.0,245.0,726.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2025-02,quarterly,HDV,ACEA,0.0,,0.0,0.0,237.0,8.0,245.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
-2025-05,quarterly,HDV,ACEA,0.0,,0.0,0.0,353.0,17.0,370.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
-2025-08,quarterly,HDV,ACEA,1.0,,0.0,0.0,292.0,11.0,304.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2025-11,quarterly,HDV,ACEA,2.0,,0.0,0.0,303.0,6.0,311.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2024-11,quarterly,HDV,ACEA,0.0,,0.0,0.0,343.0,5.0,348.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2026-02,quarterly,HDV,ACEA,0.0,,0.0,0.0,379.0,22.0,401.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2026-05,quarterly,HDV,ACEA,0.0,,0.0,0.0,362.0,11.0,373.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2015-01,monthly,HDV,CSDD,0.0,0.0,,0.0,82.0,0.0,82.0,CSDD 2015-01: new N2 + N3 (incl. G) by energy source
+2015-02,monthly,HDV,CSDD,0.0,0.0,,0.0,57.0,0.0,57.0,CSDD 2015-02: new N2 + N3 (incl. G) by energy source
+2015-03,monthly,HDV,CSDD,0.0,0.0,,0.0,90.0,0.0,90.0,CSDD 2015-03: new N2 + N3 (incl. G) by energy source
+2015-04,monthly,HDV,CSDD,0.0,0.0,,0.0,152.0,0.0,152.0,CSDD 2015-04: new N2 + N3 (incl. G) by energy source
+2015-05,monthly,HDV,CSDD,0.0,0.0,,0.0,91.0,0.0,91.0,CSDD 2015-05: new N2 + N3 (incl. G) by energy source
+2015-06,monthly,HDV,CSDD,0.0,0.0,,0.0,80.0,1.0,81.0,CSDD 2015-06: new N2 + N3 (incl. G) by energy source
+2015-07,monthly,HDV,CSDD,0.0,0.0,,0.0,144.0,0.0,144.0,CSDD 2015-07: new N2 + N3 (incl. G) by energy source
+2015-08,monthly,HDV,CSDD,0.0,0.0,,0.0,63.0,0.0,63.0,CSDD 2015-08: new N2 + N3 (incl. G) by energy source
+2015-09,monthly,HDV,CSDD,0.0,0.0,,0.0,83.0,0.0,83.0,CSDD 2015-09: new N2 + N3 (incl. G) by energy source
+2015-10,monthly,HDV,CSDD,0.0,0.0,,0.0,201.0,0.0,201.0,CSDD 2015-10: new N2 + N3 (incl. G) by energy source
+2015-11,monthly,HDV,CSDD,0.0,0.0,,0.0,134.0,0.0,134.0,CSDD 2015-11: new N2 + N3 (incl. G) by energy source
+2015-12,monthly,HDV,CSDD,0.0,0.0,,0.0,73.0,0.0,73.0,CSDD 2015-12: new N2 + N3 (incl. G) by energy source
+2016-01,monthly,HDV,CSDD,0.0,0.0,,0.0,110.0,0.0,110.0,CSDD 2016-01: new N2 + N3 (incl. G) by energy source
+2016-02,monthly,HDV,CSDD,0.0,0.0,,0.0,104.0,0.0,104.0,CSDD 2016-02: new N2 + N3 (incl. G) by energy source
+2016-03,monthly,HDV,CSDD,0.0,0.0,,0.0,132.0,0.0,132.0,CSDD 2016-03: new N2 + N3 (incl. G) by energy source
+2016-04,monthly,HDV,CSDD,0.0,0.0,,0.0,107.0,0.0,107.0,CSDD 2016-04: new N2 + N3 (incl. G) by energy source
+2016-05,monthly,HDV,CSDD,0.0,0.0,,0.0,146.0,0.0,146.0,CSDD 2016-05: new N2 + N3 (incl. G) by energy source
+2016-06,monthly,HDV,CSDD,0.0,0.0,,0.0,135.0,0.0,135.0,CSDD 2016-06: new N2 + N3 (incl. G) by energy source
+2016-07,monthly,HDV,CSDD,0.0,0.0,,0.0,178.0,0.0,178.0,CSDD 2016-07: new N2 + N3 (incl. G) by energy source
+2016-08,monthly,HDV,CSDD,0.0,0.0,,0.0,113.0,0.0,113.0,CSDD 2016-08: new N2 + N3 (incl. G) by energy source
+2016-09,monthly,HDV,CSDD,0.0,0.0,,0.0,123.0,0.0,123.0,CSDD 2016-09: new N2 + N3 (incl. G) by energy source
+2016-10,monthly,HDV,CSDD,0.0,0.0,,0.0,180.0,0.0,180.0,CSDD 2016-10: new N2 + N3 (incl. G) by energy source
+2016-11,monthly,HDV,CSDD,0.0,0.0,,0.0,129.0,0.0,129.0,CSDD 2016-11: new N2 + N3 (incl. G) by energy source
+2016-12,monthly,HDV,CSDD,0.0,0.0,,0.0,130.0,0.0,130.0,CSDD 2016-12: new N2 + N3 (incl. G) by energy source
+2017-01,monthly,HDV,CSDD,0.0,0.0,,0.0,130.0,0.0,130.0,CSDD 2017-01: new N2 + N3 (incl. G) by energy source
+2017-02,monthly,HDV,CSDD,0.0,0.0,,0.0,100.0,0.0,100.0,CSDD 2017-02: new N2 + N3 (incl. G) by energy source
+2017-03,monthly,HDV,CSDD,0.0,0.0,,0.0,117.0,0.0,117.0,CSDD 2017-03: new N2 + N3 (incl. G) by energy source
+2017-04,monthly,HDV,CSDD,0.0,0.0,,0.0,116.0,0.0,116.0,CSDD 2017-04: new N2 + N3 (incl. G) by energy source
+2017-05,monthly,HDV,CSDD,0.0,0.0,,0.0,89.0,0.0,89.0,CSDD 2017-05: new N2 + N3 (incl. G) by energy source
+2017-06,monthly,HDV,CSDD,0.0,0.0,,0.0,114.0,0.0,114.0,CSDD 2017-06: new N2 + N3 (incl. G) by energy source
+2017-07,monthly,HDV,CSDD,0.0,0.0,,0.0,83.0,0.0,83.0,CSDD 2017-07: new N2 + N3 (incl. G) by energy source
+2017-08,monthly,HDV,CSDD,0.0,0.0,,0.0,73.0,0.0,73.0,CSDD 2017-08: new N2 + N3 (incl. G) by energy source
+2017-09,monthly,HDV,CSDD,0.0,0.0,,0.0,148.0,0.0,148.0,CSDD 2017-09: new N2 + N3 (incl. G) by energy source
+2017-10,monthly,HDV,CSDD,0.0,0.0,,0.0,141.0,0.0,141.0,CSDD 2017-10: new N2 + N3 (incl. G) by energy source
+2017-11,monthly,HDV,CSDD,0.0,0.0,,0.0,164.0,0.0,164.0,CSDD 2017-11: new N2 + N3 (incl. G) by energy source
+2017-12,monthly,HDV,CSDD,0.0,0.0,,0.0,106.0,0.0,106.0,CSDD 2017-12: new N2 + N3 (incl. G) by energy source
+2018-01,monthly,HDV,CSDD,0.0,0.0,,0.0,150.0,0.0,150.0,CSDD 2018-01: new N2 + N3 (incl. G) by energy source
+2018-02,monthly,HDV,CSDD,0.0,0.0,,0.0,109.0,0.0,109.0,CSDD 2018-02: new N2 + N3 (incl. G) by energy source
+2018-03,monthly,HDV,CSDD,0.0,0.0,,0.0,89.0,0.0,89.0,CSDD 2018-03: new N2 + N3 (incl. G) by energy source
+2018-04,monthly,HDV,CSDD,0.0,0.0,,0.0,86.0,0.0,86.0,CSDD 2018-04: new N2 + N3 (incl. G) by energy source
+2018-05,monthly,HDV,CSDD,0.0,0.0,,0.0,111.0,0.0,111.0,CSDD 2018-05: new N2 + N3 (incl. G) by energy source
+2018-06,monthly,HDV,CSDD,0.0,0.0,,0.0,125.0,0.0,125.0,CSDD 2018-06: new N2 + N3 (incl. G) by energy source
+2018-07,monthly,HDV,CSDD,0.0,0.0,,0.0,101.0,0.0,101.0,CSDD 2018-07: new N2 + N3 (incl. G) by energy source
+2018-08,monthly,HDV,CSDD,0.0,0.0,,0.0,93.0,0.0,93.0,CSDD 2018-08: new N2 + N3 (incl. G) by energy source
+2018-09,monthly,HDV,CSDD,0.0,0.0,,0.0,169.0,1.0,170.0,CSDD 2018-09: new N2 + N3 (incl. G) by energy source
+2018-10,monthly,HDV,CSDD,0.0,0.0,,0.0,239.0,0.0,239.0,CSDD 2018-10: new N2 + N3 (incl. G) by energy source
+2018-11,monthly,HDV,CSDD,0.0,0.0,,0.0,121.0,0.0,121.0,CSDD 2018-11: new N2 + N3 (incl. G) by energy source
+2018-12,monthly,HDV,CSDD,0.0,0.0,,0.0,112.0,2.0,114.0,CSDD 2018-12: new N2 + N3 (incl. G) by energy source
+2019-01,monthly,HDV,CSDD,0.0,0.0,,0.0,126.0,0.0,126.0,CSDD 2019-01: new N2 + N3 (incl. G) by energy source
+2019-02,monthly,HDV,CSDD,0.0,0.0,,0.0,100.0,0.0,100.0,CSDD 2019-02: new N2 + N3 (incl. G) by energy source
+2019-03,monthly,HDV,CSDD,0.0,0.0,,0.0,126.0,0.0,126.0,CSDD 2019-03: new N2 + N3 (incl. G) by energy source
+2019-04,monthly,HDV,CSDD,0.0,0.0,,0.0,64.0,0.0,64.0,CSDD 2019-04: new N2 + N3 (incl. G) by energy source
+2019-05,monthly,HDV,CSDD,0.0,0.0,,0.0,95.0,0.0,95.0,CSDD 2019-05: new N2 + N3 (incl. G) by energy source
+2019-06,monthly,HDV,CSDD,0.0,0.0,,0.0,156.0,0.0,156.0,CSDD 2019-06: new N2 + N3 (incl. G) by energy source
+2019-07,monthly,HDV,CSDD,0.0,0.0,,0.0,87.0,0.0,87.0,CSDD 2019-07: new N2 + N3 (incl. G) by energy source
+2019-08,monthly,HDV,CSDD,0.0,0.0,,0.0,66.0,0.0,66.0,CSDD 2019-08: new N2 + N3 (incl. G) by energy source
+2019-09,monthly,HDV,CSDD,0.0,0.0,,0.0,84.0,0.0,84.0,CSDD 2019-09: new N2 + N3 (incl. G) by energy source
+2019-10,monthly,HDV,CSDD,0.0,0.0,,0.0,86.0,0.0,86.0,CSDD 2019-10: new N2 + N3 (incl. G) by energy source
+2019-11,monthly,HDV,CSDD,0.0,0.0,,0.0,80.0,0.0,80.0,CSDD 2019-11: new N2 + N3 (incl. G) by energy source
+2019-12,monthly,HDV,CSDD,0.0,0.0,,0.0,40.0,0.0,40.0,CSDD 2019-12: new N2 + N3 (incl. G) by energy source
+2020-01,monthly,HDV,CSDD,0.0,0.0,,0.0,62.0,0.0,62.0,CSDD 2020-01: new N2 + N3 (incl. G) by energy source
+2020-02,monthly,HDV,CSDD,0.0,0.0,,0.0,56.0,4.0,60.0,CSDD 2020-02: new N2 + N3 (incl. G) by energy source
+2020-03,monthly,HDV,CSDD,0.0,0.0,,0.0,53.0,2.0,55.0,CSDD 2020-03: new N2 + N3 (incl. G) by energy source
+2020-04,monthly,HDV,CSDD,0.0,0.0,,0.0,27.0,0.0,27.0,CSDD 2020-04: new N2 + N3 (incl. G) by energy source
+2020-05,monthly,HDV,CSDD,0.0,0.0,,0.0,27.0,6.0,33.0,CSDD 2020-05: new N2 + N3 (incl. G) by energy source
+2020-06,monthly,HDV,CSDD,0.0,0.0,,0.0,31.0,0.0,31.0,CSDD 2020-06: new N2 + N3 (incl. G) by energy source
+2020-07,monthly,HDV,CSDD,0.0,0.0,,0.0,47.0,3.0,50.0,CSDD 2020-07: new N2 + N3 (incl. G) by energy source
+2020-08,monthly,HDV,CSDD,0.0,0.0,,0.0,35.0,5.0,40.0,CSDD 2020-08: new N2 + N3 (incl. G) by energy source
+2020-09,monthly,HDV,CSDD,0.0,0.0,,0.0,52.0,0.0,52.0,CSDD 2020-09: new N2 + N3 (incl. G) by energy source
+2020-10,monthly,HDV,CSDD,0.0,0.0,,0.0,125.0,14.0,139.0,CSDD 2020-10: new N2 + N3 (incl. G) by energy source
+2020-11,monthly,HDV,CSDD,0.0,0.0,,0.0,83.0,7.0,90.0,CSDD 2020-11: new N2 + N3 (incl. G) by energy source
+2020-12,monthly,HDV,CSDD,0.0,0.0,,0.0,75.0,0.0,75.0,CSDD 2020-12: new N2 + N3 (incl. G) by energy source
+2021-01,monthly,HDV,CSDD,0.0,0.0,,0.0,118.0,0.0,118.0,CSDD 2021-01: new N2 + N3 (incl. G) by energy source
+2021-02,monthly,HDV,CSDD,0.0,0.0,,0.0,117.0,0.0,117.0,CSDD 2021-02: new N2 + N3 (incl. G) by energy source
+2021-03,monthly,HDV,CSDD,0.0,0.0,,0.0,125.0,14.0,139.0,CSDD 2021-03: new N2 + N3 (incl. G) by energy source
+2021-04,monthly,HDV,CSDD,0.0,0.0,,0.0,92.0,20.0,112.0,CSDD 2021-04: new N2 + N3 (incl. G) by energy source
+2021-05,monthly,HDV,CSDD,0.0,0.0,,0.0,83.0,12.0,95.0,CSDD 2021-05: new N2 + N3 (incl. G) by energy source
+2021-06,monthly,HDV,CSDD,0.0,0.0,,0.0,126.0,4.0,130.0,CSDD 2021-06: new N2 + N3 (incl. G) by energy source
+2021-07,monthly,HDV,CSDD,0.0,0.0,,0.0,145.0,7.0,152.0,CSDD 2021-07: new N2 + N3 (incl. G) by energy source
+2021-08,monthly,HDV,CSDD,0.0,0.0,,0.0,95.0,1.0,96.0,CSDD 2021-08: new N2 + N3 (incl. G) by energy source
+2021-09,monthly,HDV,CSDD,0.0,0.0,,0.0,128.0,2.0,130.0,CSDD 2021-09: new N2 + N3 (incl. G) by energy source
+2021-10,monthly,HDV,CSDD,0.0,0.0,,0.0,125.0,15.0,140.0,CSDD 2021-10: new N2 + N3 (incl. G) by energy source
+2021-11,monthly,HDV,CSDD,0.0,0.0,,0.0,82.0,7.0,89.0,CSDD 2021-11: new N2 + N3 (incl. G) by energy source
+2021-12,monthly,HDV,CSDD,0.0,0.0,,0.0,56.0,8.0,64.0,CSDD 2021-12: new N2 + N3 (incl. G) by energy source
+2022-01,monthly,HDV,CSDD,0.0,0.0,,0.0,153.0,2.0,155.0,CSDD 2022-01: new N2 + N3 (incl. G) by energy source
+2022-02,monthly,HDV,CSDD,0.0,0.0,,0.0,87.0,13.0,100.0,CSDD 2022-02: new N2 + N3 (incl. G) by energy source
+2022-03,monthly,HDV,CSDD,0.0,0.0,,0.0,130.0,8.0,138.0,CSDD 2022-03: new N2 + N3 (incl. G) by energy source
+2022-04,monthly,HDV,CSDD,0.0,0.0,,0.0,149.0,2.0,151.0,CSDD 2022-04: new N2 + N3 (incl. G) by energy source
+2022-05,monthly,HDV,CSDD,0.0,0.0,,0.0,160.0,5.0,165.0,CSDD 2022-05: new N2 + N3 (incl. G) by energy source
+2022-06,monthly,HDV,CSDD,0.0,0.0,,0.0,172.0,0.0,172.0,CSDD 2022-06: new N2 + N3 (incl. G) by energy source
+2022-07,monthly,HDV,CSDD,0.0,0.0,,0.0,171.0,3.0,174.0,CSDD 2022-07: new N2 + N3 (incl. G) by energy source
+2022-08,monthly,HDV,CSDD,0.0,0.0,,0.0,162.0,0.0,162.0,CSDD 2022-08: new N2 + N3 (incl. G) by energy source
+2022-09,monthly,HDV,CSDD,0.0,0.0,,0.0,148.0,0.0,148.0,CSDD 2022-09: new N2 + N3 (incl. G) by energy source
+2022-10,monthly,HDV,CSDD,0.0,0.0,,0.0,138.0,1.0,139.0,CSDD 2022-10: new N2 + N3 (incl. G) by energy source
+2022-11,monthly,HDV,CSDD,0.0,0.0,,0.0,96.0,0.0,96.0,CSDD 2022-11: new N2 + N3 (incl. G) by energy source
+2022-12,monthly,HDV,CSDD,0.0,0.0,,0.0,73.0,0.0,73.0,CSDD 2022-12: new N2 + N3 (incl. G) by energy source
+2023-01,monthly,HDV,CSDD,0.0,0.0,,0.0,150.0,0.0,150.0,CSDD 2023-01: new N2 + N3 (incl. G) by energy source
+2023-02,monthly,HDV,CSDD,0.0,0.0,,0.0,175.0,1.0,176.0,CSDD 2023-02: new N2 + N3 (incl. G) by energy source
+2023-03,monthly,HDV,CSDD,0.0,0.0,,0.0,290.0,0.0,290.0,CSDD 2023-03: new N2 + N3 (incl. G) by energy source
+2023-04,monthly,HDV,CSDD,0.0,0.0,,0.0,166.0,0.0,166.0,CSDD 2023-04: new N2 + N3 (incl. G) by energy source
+2023-05,monthly,HDV,CSDD,0.0,0.0,,0.0,162.0,3.0,165.0,CSDD 2023-05: new N2 + N3 (incl. G) by energy source
+2023-06,monthly,HDV,CSDD,0.0,0.0,,0.0,147.0,1.0,148.0,CSDD 2023-06: new N2 + N3 (incl. G) by energy source
+2023-07,monthly,HDV,CSDD,0.0,0.0,,0.0,123.0,0.0,123.0,CSDD 2023-07: new N2 + N3 (incl. G) by energy source
+2023-08,monthly,HDV,CSDD,0.0,0.0,,0.0,164.0,0.0,164.0,CSDD 2023-08: new N2 + N3 (incl. G) by energy source
+2023-09,monthly,HDV,CSDD,1.0,0.0,,0.0,133.0,1.0,135.0,CSDD 2023-09: new N2 + N3 (incl. G) by energy source
+2023-10,monthly,HDV,CSDD,0.0,0.0,,0.0,163.0,3.0,166.0,CSDD 2023-10: new N2 + N3 (incl. G) by energy source
+2023-11,monthly,HDV,CSDD,0.0,0.0,,0.0,144.0,0.0,144.0,CSDD 2023-11: new N2 + N3 (incl. G) by energy source
+2023-12,monthly,HDV,CSDD,0.0,0.0,,0.0,42.0,0.0,42.0,CSDD 2023-12: new N2 + N3 (incl. G) by energy source
+2024-01,monthly,HDV,CSDD,1.0,0.0,,0.0,103.0,0.0,104.0,CSDD 2024-01: new N2 + N3 (incl. G) by energy source
+2024-02,monthly,HDV,CSDD,0.0,0.0,,0.0,83.0,0.0,83.0,CSDD 2024-02: new N2 + N3 (incl. G) by energy source
+2024-03,monthly,HDV,CSDD,1.0,0.0,,0.0,94.0,1.0,96.0,CSDD 2024-03: new N2 + N3 (incl. G) by energy source
+2024-04,monthly,HDV,CSDD,1.0,0.0,,0.0,114.0,1.0,116.0,CSDD 2024-04: new N2 + N3 (incl. G) by energy source
+2024-05,monthly,HDV,CSDD,0.0,0.0,,0.0,104.0,3.0,107.0,CSDD 2024-05: new N2 + N3 (incl. G) by energy source
+2024-06,monthly,HDV,CSDD,0.0,0.0,,0.0,73.0,0.0,73.0,CSDD 2024-06: new N2 + N3 (incl. G) by energy source
+2024-07,monthly,HDV,CSDD,0.0,0.0,,0.0,65.0,1.0,66.0,CSDD 2024-07: new N2 + N3 (incl. G) by energy source
+2024-08,monthly,HDV,CSDD,1.0,0.0,,0.0,55.0,1.0,57.0,CSDD 2024-08: new N2 + N3 (incl. G) by energy source
+2024-09,monthly,HDV,CSDD,0.0,0.0,,0.0,96.0,1.0,97.0,CSDD 2024-09: new N2 + N3 (incl. G) by energy source
+2024-10,monthly,HDV,CSDD,0.0,0.0,,0.0,133.0,4.0,137.0,CSDD 2024-10: new N2 + N3 (incl. G) by energy source
+2024-11,monthly,HDV,CSDD,0.0,0.0,,0.0,100.0,1.0,101.0,CSDD 2024-11: new N2 + N3 (incl. G) by energy source
+2024-12,monthly,HDV,CSDD,0.0,0.0,,0.0,86.0,0.0,86.0,CSDD 2024-12: new N2 + N3 (incl. G) by energy source
+2025-01,monthly,HDV,CSDD,0.0,0.0,,0.0,87.0,1.0,88.0,CSDD 2025-01: new N2 + N3 (incl. G) by energy source
+2025-02,monthly,HDV,CSDD,0.0,0.0,,0.0,45.0,1.0,46.0,CSDD 2025-02: new N2 + N3 (incl. G) by energy source
+2025-03,monthly,HDV,CSDD,0.0,0.0,,0.0,63.0,6.0,69.0,CSDD 2025-03: new N2 + N3 (incl. G) by energy source
+2025-04,monthly,HDV,CSDD,0.0,0.0,,0.0,109.0,7.0,116.0,CSDD 2025-04: new N2 + N3 (incl. G) by energy source
+2025-05,monthly,HDV,CSDD,1.0,0.0,,0.0,96.0,9.0,106.0,CSDD 2025-05: new N2 + N3 (incl. G) by energy source
+2025-06,monthly,HDV,CSDD,0.0,0.0,,0.0,120.0,3.0,123.0,CSDD 2025-06: new N2 + N3 (incl. G) by energy source
+2025-07,monthly,HDV,CSDD,1.0,0.0,,0.0,77.0,3.0,81.0,CSDD 2025-07: new N2 + N3 (incl. G) by energy source
+2025-08,monthly,HDV,CSDD,0.0,0.0,,0.0,109.0,1.0,110.0,CSDD 2025-08: new N2 + N3 (incl. G) by energy source
+2025-09,monthly,HDV,CSDD,0.0,0.0,,0.0,99.0,7.0,106.0,CSDD 2025-09: new N2 + N3 (incl. G) by energy source
+2025-10,monthly,HDV,CSDD,2.0,0.0,,0.0,136.0,0.0,138.0,CSDD 2025-10: new N2 + N3 (incl. G) by energy source
+2025-11,monthly,HDV,CSDD,0.0,0.0,,0.0,95.0,2.0,97.0,CSDD 2025-11: new N2 + N3 (incl. G) by energy source
+2025-12,monthly,HDV,CSDD,0.0,0.0,,0.0,66.0,3.0,69.0,CSDD 2025-12: new N2 + N3 (incl. G) by energy source
+2026-01,monthly,HDV,CSDD,0.0,0.0,,0.0,81.0,7.0,88.0,CSDD 2026-01: new N2 + N3 (incl. G) by energy source
+2026-02,monthly,HDV,CSDD,0.0,0.0,,0.0,99.0,3.0,102.0,CSDD 2026-02: new N2 + N3 (incl. G) by energy source
+2026-03,monthly,HDV,CSDD,0.0,0.0,,0.0,158.0,12.0,170.0,CSDD 2026-03: new N2 + N3 (incl. G) by energy source
+2026-04,monthly,HDV,CSDD,0.0,0.0,,0.0,143.0,3.0,146.0,CSDD 2026-04: new N2 + N3 (incl. G) by energy source
+2026-05,monthly,HDV,CSDD,0.0,0.0,,0.0,146.0,5.0,151.0,CSDD 2026-05: new N2 + N3 (incl. G) by energy source
+2026-06,monthly,HDV,CSDD,0.0,0.0,,0.0,72.0,3.0,75.0,CSDD 2026-06: new N2 + N3 (incl. G) by energy source
+2026-07,monthly,HDV,CSDD,2.0,0.0,,0.0,57.0,1.0,60.0,CSDD 2026-07: new N2 + N3 (incl. G) by energy source
+2026-08,monthly,HDV,CSDD,0.0,0.0,,0.0,54.0,2.0,56.0,CSDD 2026-08: new N2 + N3 (incl. G) by energy source
+2026-09,monthly,HDV,CSDD,0.0,0.0,,0.0,172.0,19.0,191.0,CSDD 2026-09: new N2 + N3 (incl. G) by energy source
