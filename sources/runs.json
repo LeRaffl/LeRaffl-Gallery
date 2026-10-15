@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T09:23:47Z",
+ "generated": "2026-10-15T17:49:17Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5968,6 +5968,86 @@
    "slug": "lithuania_used",
    "period": "2026-09",
    "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-14",
+   "label": "South Africa",
+   "base": "South Africa",
+   "slug": "south_africa",
+   "period": "2026-06",
+   "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain",
+   "base": "Spain",
+   "slug": "spain",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (2-Wheelers)",
+   "base": "Spain",
+   "slug": "spain_2_wheelers",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (Buses)",
+   "base": "Spain",
+   "slug": "spain_buses",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (HDV)",
+   "base": "Spain",
+   "slug": "spain_hdv",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (NonRental)",
+   "base": "Spain",
+   "slug": "spain_nonrental",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (Rental)",
+   "base": "Spain",
+   "slug": "spain_rental",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (Used)",
+   "base": "Spain",
+   "slug": "spain_used",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Spain (Vans)",
+   "base": "Spain",
+   "slug": "spain_vans",
+   "period": "2026-09",
+   "flag": "🇪🇸"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Türkiye",
+   "base": "Türkiye",
+   "slug": "tuerkiye",
+   "period": "2026-09",
+   "flag": "🇹🇷"
   }
  ]
 }
