@@ -96,6 +96,8 @@ def test_guards():
     n, labels = m["unknown"]["Whole"]
     check("unknown Whole", (n, labels), (13, ["fuel Steam", "use group Hovercraft"]))
     check("unknown keeper", m["unknown"]["Private"], (1, ["keeper Martian"]))
+    check("unknown keeper kept in Industry: Private + Industry = Whole",
+          m["rows"]["Private"]["TOTAL"] + m["rows"]["Industry"]["TOTAL"], m["rows"]["Whole"]["TOTAL"])
     check("unknown fuel lands in OTHERS", m["rows"]["Whole"]["OTHERS"], 5 + 9 + 0)
 
 

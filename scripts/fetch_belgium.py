@@ -39,7 +39,8 @@ Record → CSV (New Vehicle Flag = "New vehicle", either plate flag)
   Whole     Passenger car
   Private   Whole, keeper "Natural/Legal Person" (not VAT-registered — in
             practice private persons; see the source doc §3)
-  Industry  Whole, keeper "Legal Person (VAT)"
+  Industry  Whole, keeper "Legal Person (VAT)" — and the few rows without a
+            keeper type, so that Private + Industry = Whole
   Vans      Light goods vehicle               (camionnette, ≤ 3.5 t)
   HDV       Lorry + Tractor unit for semitrailer  (> 3.5 t)
   Buses     Bus                               (autobus and coaches)
@@ -66,8 +67,11 @@ Governance (every real run)
   variant-month abort (below: OTHERS + a warning);
 * completeness: a Whole month below 25 % of the trailing-12 median is not
   written, below 50 % is written with a warning;
-* ACEA cross-check (reported, not enforced): Whole TOTAL vs the ACEA row of
-  the month. DIV is ACEA's source; DIV runs ~0.4 % above ACEA every month;
+* ACEA cross-check (not enforced): Whole TOTAL vs the ACEA row it replaces.
+  DIV is ACEA's source and runs ~0.4 % above it every month; a month more
+  than 2 % off is still written (its HEV definition must match the rest of
+  the series) but raises a ::warning:: and says so in its notes — DIV's
+  2025-04 file is ~13 % short of ACEA's 37,812 (source doc §5);
 * rows from a foreign source other than ACEA are never overwritten without
   --force.
 
@@ -149,6 +153,7 @@ MAX_UNKNOWN_SHARE = 0.02
 MIN_MONTH_FRACTION = 0.25
 WARN_MONTH_FRACTION = 0.50
 ACEA_WARN = 0.02                  # report a Whole month > 2 % off ACEA
+ACEA_FLAG = "; CHECK: more than 2 % off ACEA, the DIV file may be incomplete"
 
 NOTES = {
     "Whole": "new passenger cars by fuel (HEV incl. mild hybrids)",
@@ -225,9 +230,10 @@ def parse_file(blob: bytes, expect: set[str] | None = None) -> dict:
         if v == "Whole":
             keeper = key(r[ix["Titular Type Label"]])
             if keeper not in (KEEPER_PRIVATE, KEEPER_VAT):
+                # counted (above 2 % aborts) and kept in Industry, so that
+                # Private + Industry = Whole as for every other country
                 m["unknown"]["Private"][0] += n
                 m["unknown"]["Private"][1].add(f"keeper {r[ix['Titular Type Label']]}")
-                continue
             m["rows"]["Private" if keeper == KEEPER_PRIVATE else "Industry"][cls] += n
     for m in months.values():
         for row in m["rows"].values():
@@ -481,14 +487,19 @@ def main() -> int:
                     print(f"::warning title=Belgium Whole {p} unusually low::TOTAL {tot:,} = "
                           f"{frac:.0%} of the trailing-12 median — written; check it.")
             old = have[v].get(p)
+            flag = ""
             if v == "Whole":
                 line = acea_check(p, row, old)
                 if line:
                     acea_lines.append(line)
+                    if line.endswith("CHECK"):
+                        print(f"::warning title=Belgium {p} vs ACEA::{line} (the DIV file may "
+                              "be incomplete; written, and flagged in its notes)")
+                        flag = ACEA_FLAG
             if old and old.get("source") == SOURCE and old.get("notes"):
                 notes = old["notes"]           # keep the first write's ACEA trail
             else:
-                notes = f"DIV {p}: {NOTES[v]}" + acea_note(old, row)
+                notes = f"DIV {p}: {NOTES[v]}" + acea_note(old, row) + flag
             updates[(p, v)] = render_line(p, v, row, notes)
             report_rows.append((v, p, row, old))
         if args.dry_run:
