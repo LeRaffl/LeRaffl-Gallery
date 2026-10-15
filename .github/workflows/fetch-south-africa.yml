@@ -20,18 +20,15 @@ name: Fetch South Africa data (naamsa quarterly review)
 # Feb 17-20, May 21-27, Aug 15-20, Nov 18-19). Polled daily from the 10th to
 # the end of those months; the script lists the media library (one small
 # JSON request) and exits without downloading when the newest review's
-# quarter is already in the CSV. A normal run downloads the two newest
-# reviews (~1.5 MB); `backfill` reads every review the library lists
-# (2024-Q1 on, ~8 MB) and writes the yearly 2021/2022 rows.
+# quarter is already in the CSV. A normal run downloads the four newest
+# reviews (~3 MB: they always hold the last full year's four quarters, so the
+# PHEV/HEV swap check runs on every normal run, not only on a backfill);
+# `backfill` reads every review the library lists (2024-Q1 on, ~8 MB) and
+# writes the yearly 2021/2022 rows.
 #
 # Rendering: dispatches render-country.yml once (see fetch-hong-kong.yml).
 
 on:
-  # TEMP (trial on PR #314, remove before merge): a dispatch-only workflow
-  # cannot be dispatched until it is on the default branch.
-  push:
-    branches: [feat/south-africa]
-    paths: ['.github/workflows/fetch-south-africa.yml']
   workflow_dispatch:
     inputs:
       backfill:
@@ -83,7 +80,7 @@ jobs:
             ${BACKFILL:+--backfill} \
             ${FORCE:+--force}
         env:
-          BACKFILL: ${{ (inputs.backfill == true || github.event_name == 'push') && '1' || '' }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
           FORCE:    ${{ inputs.force == true && '1' || '' }}
 
       - name: Commit if changed
