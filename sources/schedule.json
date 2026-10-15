@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-14T20:20:51Z",
- "today": "2026-10-14",
+ "generated": "2026-10-15T17:49:17Z",
+ "today": "2026-10-15",
  "countries": [
   {
    "country": "Albania",
@@ -2557,8 +2557,8 @@
    "cadence_text": "daily 07:00 UTC, 15th–31st of the month",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": "2026-08",
-   "behind": -1,
+   "expected_period": "2026-09",
+   "behind": 0,
    "behind_now": 0,
    "status": "current",
    "automated": true,
@@ -3413,10 +3413,10 @@
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3654,7 +3654,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-africa.yml"
    },
-   "last_render": null,
+   "last_render": "2026-10-14",
    "flag": "🇿🇦",
    "variants": [
     {
@@ -3786,7 +3786,7 @@
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-15",
    "flag": "🇪🇸",
    "variants": [
     {
@@ -4211,10 +4211,10 @@
    "source_url": "https://veriportali.tuik.gov.tr/",
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
@@ -4257,14 +4257,14 @@
     ],
     "workflow": ".github/workflows/fetch-turkey.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-15",
    "flag": "🇹🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2016-01",
-     "rows": 128,
+     "rows": 129,
      "cadence": "monthly",
      "in_repo": true
     }

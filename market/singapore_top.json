@@ -239,6 +239,23 @@
     }
    ],
    "models": []
+  },
+  "DIESEL": {
+   "units": 3,
+   "share_of_market": 8e-05,
+   "brands": [
+    {
+     "brand": "TOYOTA",
+     "units": 2,
+     "share_of_class": 0.6667
+    },
+    {
+     "brand": "MITSUBISHI",
+     "units": 1,
+     "share_of_class": 0.3333
+    }
+   ],
+   "models": []
   }
  },
  "months": [
