@@ -1,0 +1,8 @@
+🇱🇻 Latvia (Buses) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
+−3.7pp  BEV     (28.1% → 24.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++3.7pp  ICE     (71.9% → 75.6%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
