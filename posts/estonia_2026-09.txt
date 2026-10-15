@@ -1,0 +1,11 @@
+🇪🇪 Estonia - September 26 - BEV Trajectory
+11.1% BEV
+9.3% PHEV
+79.5% ICE (of which 56.2%p were HEV)
+
+Trailing 12 months are:
+7.4% BEV
+9.0% PHEV
+83.5% ICE (of which 55.9%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

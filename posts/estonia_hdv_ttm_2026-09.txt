@@ -1,0 +1,8 @@
+🇪🇪 Estonia (HDV) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
+−0.0pp  BEV     (0.4% → 0.4%)
++0.0pp  Hybrid  (0.0% → 0.0%)
++0.0pp  ICE     (99.6% → 99.6%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
