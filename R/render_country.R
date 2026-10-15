@@ -153,14 +153,27 @@ entire_caption <- paste0(social_caption, " | \t ", Sys.Date(), "  | \t    Source
 # country,variant,footnote) — kept separate from the per-row `notes` CSV column,
 # which is internal/not display-safe. Used e.g. to flag Canada's pre-2017
 # passenger-cars-only scope on the Whole charts.
+#
+# element_markdown() does not wrap, so a footnote longer than the chart is
+# wide ran off its right edge: it is broken into lines of FOOTNOTE_WRAP
+# characters (a 3840 px chart holds ~200 at the caption's size). A footnotes.csv
+# that does not parse (an unquoted comma; read.csv also treats ' as a quote)
+# used to drop every footnote silently — it now leaves a warning in the log.
+FOOTNOTE_WRAP <- 170
 footnote <- ""
 if (file.exists("footnotes.csv")) {
-  fn <- tryCatch(read.csv("footnotes.csv", stringsAsFactors = FALSE), error = function(e) NULL)
+  fn <- tryCatch(read.csv("footnotes.csv", stringsAsFactors = FALSE, encoding = "UTF-8"),
+                 error = function(e) {
+                   cat(sprintf("::warning title=footnotes.csv::not readable, no footnote on this chart: %s\n",
+                               conditionMessage(e)))
+                   NULL
+                 })
   if (!is.null(fn) && all(c("country", "variant", "footnote") %in% names(fn))) {
     hit <- fn[fn$country == country & fn$variant == variant, , drop = FALSE]
     if (nrow(hit) >= 1 && !is.na(hit$footnote[1]) && nzchar(hit$footnote[1])) {
       footnote <- hit$footnote[1]
-      entire_caption <- paste0(entire_caption, "<br>", footnote)
+      entire_caption <- paste0(entire_caption, "<br>",
+                               paste(strwrap(footnote, width = FOOTNOTE_WRAP), collapse = "<br>"))
       cat(sprintf("[render] footnote: %s\n", footnote))
     }
   }
