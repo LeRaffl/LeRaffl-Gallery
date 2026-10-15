@@ -1,21 +1,70 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2021-07,yearly,Buses,ACEA,,,,,,,269.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2022-07,yearly,Buses,ACEA,,,,,,,306.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2023-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,13.0,2.0,15.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2022-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,12.0,99.0,111.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,Buses,ACEA,0.0,,0.0,0.0,86.0,0.0,86.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2022-05,quarterly,Buses,ACEA,0.0,,0.0,0.0,4.0,74.0,78.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2024-02,quarterly,Buses,ACEA,1.0,,0.0,0.0,56.0,0.0,57.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
-2024-05,quarterly,Buses,ACEA,16.0,,0.0,0.0,60.0,0.0,76.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
-2024-08,quarterly,Buses,ACEA,0.0,,0.0,0.0,20.0,1.0,21.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2023-08,quarterly,Buses,ACEA,0.0,,0.0,0.0,32.0,10.0,42.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2022-08,quarterly,Buses,ACEA,0.0,,0.0,0.0,5.0,65.0,70.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2023-11,quarterly,Buses,ACEA,0.0,,0.0,0.0,5.0,0.0,5.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2022-11,quarterly,Buses,ACEA,0.0,,0.0,0.0,25.0,19.0,44.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2024-11,quarterly,Buses,ACEA,0.0,,0.0,0.0,26.0,0.0,26.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2024.pdf
-2025-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,26.0,0.0,26.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
-2025-05,quarterly,Buses,ACEA,0.0,,0.0,0.0,33.0,0.0,33.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
-2025-08,quarterly,Buses,ACEA,0.0,,0.0,0.0,20.0,4.0,24.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2025-11,quarterly,Buses,ACEA,1.0,,0.0,0.0,20.0,1.0,22.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2026-02,quarterly,Buses,ACEA,0.0,,0.0,0.0,18.0,0.0,18.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2026-05,quarterly,Buses,ACEA,18.0,,0.0,0.0,27.0,29.0,74.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2021-01,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,32.0,0.0,32.0,Transpordiamet Infoleht 2021-01: new vehicles by engine and EU hybrid type
+2021-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,0.0,0.0,0.0,Transpordiamet Infoleht 2021-02: new vehicles by engine and EU hybrid type
+2021-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,11.0,0.0,11.0,Transpordiamet Infoleht 2021-03: new vehicles by engine and EU hybrid type
+2021-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,1.0,19.0,27.0,47.0,Transpordiamet Infoleht 2021-04: new vehicles by engine and EU hybrid type
+2021-05,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,37.0,39.0,Transpordiamet Infoleht 2021-05: new vehicles by engine and EU hybrid type
+2021-06,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,38.0,40.0,Transpordiamet Infoleht 2021-06: new vehicles by engine and EU hybrid type
+2021-07,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,5.0,7.0,12.0,Transpordiamet Infoleht 2021-07: new vehicles by engine and EU hybrid type
+2021-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,14.0,0.0,14.0,Transpordiamet Infoleht 2021-08: new vehicles by engine and EU hybrid type
+2021-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,3.0,0.0,3.0,Transpordiamet Infoleht 2021-09: new vehicles by engine and EU hybrid type
+2021-10,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,13.0,3.0,16.0,Transpordiamet Infoleht 2021-10: new vehicles by engine and EU hybrid type
+2021-11,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,17.0,5.0,22.0,Transpordiamet Infoleht 2021-11: new vehicles by engine and EU hybrid type
+2021-12,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,10.0,24.0,34.0,Transpordiamet Infoleht 2021-12: new vehicles by engine and EU hybrid type
+2022-01,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,53.0,61.0,Transpordiamet Infoleht 2022-01: new vehicles by engine and EU hybrid type
+2022-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,1.0,6.0,7.0,Transpordiamet Infoleht 2022-02: new vehicles by engine and EU hybrid type
+2022-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,3.0,40.0,43.0,Transpordiamet Infoleht 2022-03: new vehicles by engine and EU hybrid type
+2022-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,3.0,30.0,33.0,Transpordiamet Infoleht 2022-04: new vehicles by engine and EU hybrid type
+2022-05,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,1.0,18.0,19.0,Transpordiamet Infoleht 2022-05: new vehicles by engine and EU hybrid type
+2022-06,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,0.0,26.0,26.0,Transpordiamet Infoleht 2022-06: new vehicles by engine and EU hybrid type
+2022-07,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,24.0,26.0,Transpordiamet Infoleht 2022-07: new vehicles by engine and EU hybrid type
+2022-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,1.0,35.0,36.0,Transpordiamet Infoleht 2022-08: new vehicles by engine and EU hybrid type
+2022-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,6.0,8.0,Transpordiamet Infoleht 2022-09: new vehicles by engine and EU hybrid type
+2022-10,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,10.0,12.0,Transpordiamet Infoleht 2022-10: new vehicles by engine and EU hybrid type
+2022-11,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,20.0,9.0,29.0,Transpordiamet Infoleht 2022-11: new vehicles by engine and EU hybrid type
+2022-12,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,4.0,0.0,4.0,Transpordiamet Infoleht 2022-12: new vehicles by engine and EU hybrid type
+2023-01,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,1.0,2.0,3.0,Transpordiamet Infoleht 2023-01: new vehicles by engine and EU hybrid type
+2023-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,4.0,0.0,4.0,Transpordiamet Infoleht 2023-02: new vehicles by engine and EU hybrid type
+2023-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,0.0,8.0,Transpordiamet Infoleht 2023-03: new vehicles by engine and EU hybrid type
+2023-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,4.0,0.0,4.0,Transpordiamet Infoleht 2023-04: new vehicles by engine and EU hybrid type
+2023-05,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,7.0,0.0,7.0,Transpordiamet Infoleht 2023-05: new vehicles by engine and EU hybrid type
+2023-06,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,77.0,0.0,77.0,Transpordiamet Infoleht 2023-06: new vehicles by engine and EU hybrid type
+2023-07,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,11.0,10.0,21.0,Transpordiamet Infoleht 2023-07: new vehicles by engine and EU hybrid type
+2023-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,15.0,0.0,15.0,Transpordiamet Infoleht 2023-08: new vehicles by engine and EU hybrid type
+2023-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,6.0,0.0,6.0,Transpordiamet Infoleht 2023-09: new vehicles by engine and EU hybrid type
+2023-10,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,0.0,2.0,Transpordiamet Infoleht 2023-10: new vehicles by engine and EU hybrid type
+2023-11,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,3.0,0.0,3.0,Transpordiamet Infoleht 2023-11: new vehicles by engine and EU hybrid type
+2023-12,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,1.0,0.0,1.0,Transpordiamet Infoleht 2023-12: new vehicles by engine and EU hybrid type
+2024-01,monthly,Buses,Transpordiamet,1.0,0.0,0.0,0.0,16.0,0.0,17.0,Transpordiamet Infoleht 2024-01: new vehicles by engine and EU hybrid type
+2024-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,15.0,0.0,15.0,Transpordiamet Infoleht 2024-02: new vehicles by engine and EU hybrid type
+2024-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,26.0,0.0,26.0,Transpordiamet Infoleht 2024-03: new vehicles by engine and EU hybrid type
+2024-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,24.0,0.0,24.0,Transpordiamet Infoleht 2024-04: new vehicles by engine and EU hybrid type
+2024-05,monthly,Buses,Transpordiamet,16.0,0.0,0.0,0.0,24.0,0.0,40.0,Transpordiamet Infoleht 2024-05: new vehicles by engine and EU hybrid type
+2024-06,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,12.0,0.0,12.0,Transpordiamet Infoleht 2024-06: new vehicles by engine and EU hybrid type
+2024-07,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,7.0,1.0,8.0,Transpordiamet Infoleht 2024-07: new vehicles by engine and EU hybrid type
+2024-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,10.0,0.0,10.0,Transpordiamet Infoleht 2024-08: new vehicles by engine and EU hybrid type
+2024-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,0.0,8.0,Transpordiamet Infoleht 2024-09: new vehicles by engine and EU hybrid type
+2024-10,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,12.0,0.0,12.0,Transpordiamet Infoleht 2024-10: new vehicles by engine and EU hybrid type
+2024-11,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,7.0,0.0,7.0,Transpordiamet Infoleht 2024-11: new vehicles by engine and EU hybrid type
+2024-12,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,7.0,0.0,7.0,Transpordiamet Infoleht 2024-12: new vehicles by engine and EU hybrid type
+2025-01,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,0.0,8.0,Transpordiamet Infoleht 2025-01: new vehicles by engine and EU hybrid type
+2025-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,0.0,8.0,Transpordiamet Infoleht 2025-02: new vehicles by engine and EU hybrid type
+2025-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,12.0,0.0,12.0,Transpordiamet Infoleht 2025-03: new vehicles by engine and EU hybrid type
+2025-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,9.0,0.0,9.0,Transpordiamet Infoleht 2025-04: new vehicles by engine and EU hybrid type
+2025-05,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,15.0,0.0,15.0,Transpordiamet Infoleht 2025-05: new vehicles by engine and EU hybrid type
+2025-06,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,11.0,0.0,11.0,Transpordiamet Infoleht 2025-06: new vehicles by engine and EU hybrid type
+2025-07,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,1.0,9.0,Transpordiamet Infoleht 2025-07: new vehicles by engine and EU hybrid type
+2025-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,6.0,2.0,8.0,Transpordiamet Infoleht 2025-08: new vehicles by engine and EU hybrid type
+2025-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,8.0,1.0,9.0,Transpordiamet Infoleht 2025-09: new vehicles by engine and EU hybrid type
+2025-10,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,15.0,0.0,15.0,Transpordiamet Infoleht 2025-10: new vehicles by engine and EU hybrid type
+2025-11,monthly,Buses,Transpordiamet,1.0,0.0,0.0,0.0,3.0,0.0,4.0,Transpordiamet Infoleht 2025-11: new vehicles by engine and EU hybrid type
+2025-12,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,1.0,3.0,Transpordiamet Infoleht 2025-12: new vehicles by engine and EU hybrid type
+2026-01,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,13.0,0.0,13.0,Transpordiamet Infoleht 2026-01: new vehicles by engine and EU hybrid type
+2026-02,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,2.0,0.0,2.0,Transpordiamet Infoleht 2026-02: new vehicles by engine and EU hybrid type
+2026-03,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,3.0,0.0,3.0,Transpordiamet Infoleht 2026-03: new vehicles by engine and EU hybrid type
+2026-04,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,11.0,0.0,11.0,Transpordiamet Infoleht 2026-04: new vehicles by engine and EU hybrid type
+2026-05,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,12.0,0.0,12.0,Transpordiamet Infoleht 2026-05: new vehicles by engine and EU hybrid type
+2026-06,monthly,Buses,Transpordiamet,18.0,0.0,0.0,0.0,4.0,29.0,51.0,Transpordiamet Infoleht 2026-06: new vehicles by engine and EU hybrid type
+2026-07,monthly,Buses,Transpordiamet,22.0,0.0,0.0,0.0,7.0,1.0,30.0,Transpordiamet Infoleht 2026-07: new vehicles by engine and EU hybrid type
+2026-08,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,5.0,0.0,5.0,Transpordiamet Infoleht 2026-08: new vehicles by engine and EU hybrid type
+2026-09,monthly,Buses,Transpordiamet,0.0,0.0,0.0,0.0,7.0,0.0,7.0,Transpordiamet Infoleht 2026-09: new vehicles by engine and EU hybrid type
