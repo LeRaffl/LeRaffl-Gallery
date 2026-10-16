@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T02:27:01Z",
+ "generated": "2026-10-16T02:54:00Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5976,6 +5976,54 @@
    "slug": "south_africa",
    "period": "2026-06",
    "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium",
+   "base": "Belgium",
+   "slug": "belgium",
+   "period": "2026-08",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium (Buses)",
+   "base": "Belgium",
+   "slug": "belgium_buses",
+   "period": "2026-08",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium (HDV)",
+   "base": "Belgium",
+   "slug": "belgium_hdv",
+   "period": "2026-08",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium (Industry)",
+   "base": "Belgium",
+   "slug": "belgium_industry",
+   "period": "2026-08",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium (Private)",
+   "base": "Belgium",
+   "slug": "belgium_private",
+   "period": "2026-08",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Belgium (Vans)",
+   "base": "Belgium",
+   "slug": "belgium_vans",
+   "period": "2026-08",
+   "flag": "🇧🇪"
   },
   {
    "date": "2026-10-15",

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T02:27:01Z",
+ "generated": "2026-10-16T02:54:00Z",
  "today": "2026-10-16",
  "countries": [
   {
@@ -300,10 +300,10 @@
   {
    "country": "Belgium",
    "slug": "belgium",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "FPS Mobility and Transport (FOD Mobiliteit en Vervoer / SPF Mobilité et Transports) — monthly vehicle registrations (open data, CC0)",
+   "source_url": "https://mobilit.belgium.be/nl/documenten/open-data/wegverkeer/inschrijvingen-van-voertuigen",
+   "cadence_text": "daily at 17:10 UTC on the 2nd–20th; DIV writes a month's file on the 2nd of the following month (~16:00 UTC)",
    "interval": "monthly",
    "latest_period": "2026-08",
    "expected_period": "2026-09",
@@ -314,22 +314,25 @@
    "schedule": {
     "enabled": true,
     "days": [
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
      16,
      17,
      18,
      19,
-     20,
-     21,
-     22,
-     23,
-     24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     20
     ],
     "months": [
      1,
@@ -346,18 +349,58 @@
      12
     ],
     "times": [
-     "08:40"
+     "17:10"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-belgium.yml"
    },
-   "last_render": "2026-09-25",
+   "last_render": "2026-10-15",
    "flag": "🇧🇪",
    "variants": [
     {
      "name": "Whole",
      "latest": "2026-08",
-     "first": "2018-01",
-     "rows": 104,
+     "first": "2013-01",
+     "rows": 164,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-08",
+     "first": "2013-01",
+     "rows": 164,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-08",
+     "first": "2013-01",
+     "rows": 164,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-08",
+     "first": "2013-01",
+     "rows": 164,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-08",
+     "first": "2013-01",
+     "rows": 164,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-08",
+     "first": "2013-01",
+     "rows": 164,
      "cadence": "monthly",
      "in_repo": true
     }
