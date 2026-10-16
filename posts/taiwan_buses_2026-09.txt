@@ -1,0 +1,11 @@
+🇹🇼 Taiwan (Buses) - September 26 - BEV Trajectory
+63.0% BEV
+0.0% PHEV
+37.0% ICE
+
+Trailing 12 months are:
+62.2% BEV
+0.0% PHEV
+37.8% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,11 +1,11 @@
-🇹🇼 Taiwan (Buses) - August 26 - BEV Trajectory
-65.8% BEV
+🇹🇼 Taiwan (Buses) - September 26 - BEV Trajectory
+63.0% BEV
 0.0% PHEV
-34.2% ICE
+37.0% ICE
 
 Trailing 12 months are:
-60.1% BEV
+62.2% BEV
 0.0% PHEV
-39.9% ICE
+37.8% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

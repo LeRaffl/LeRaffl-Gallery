@@ -1,0 +1,8 @@
+🇹🇼 Taiwan (Buses) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++31.1pp  BEV     (31.1% → 62.2%)
++0.0pp  Hybrid  (0.0% → 0.0%)
+−31.1pp  ICE     (68.9% → 37.8%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

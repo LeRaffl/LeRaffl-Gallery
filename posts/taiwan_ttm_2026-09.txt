@@ -1,0 +1,11 @@
+🇹🇼 Taiwan - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.5pp  BEV   (8.7% → 11.2%)
++0.2pp  PHEV  (0.8% → 1.0%)
++5.9pp  HEV   (33.8% → 39.7%)
+−8.6pp  ICE   (56.7% → 48.1%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2030-01.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
