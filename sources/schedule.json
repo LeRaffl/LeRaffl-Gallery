@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T20:38:29Z",
+ "generated": "2026-10-15T20:42:03Z",
  "today": "2026-10-15",
  "countries": [
   {
@@ -2282,20 +2282,28 @@
   {
    "country": "Latvia",
    "slug": "latvia",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "CSDD — first registrations from the vehicle register (Transportlīdzekļu dati, atjaunoti biežāk nekā reizi gadā)",
+   "source_url": "https://www.csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati",
+   "cadence_text": "twice daily (06:20 and 12:20 UTC) on the 8th–25th; CSDD replaces the files about ten working days after month end",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
     "days": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
      16,
      17,
      18,
@@ -2305,13 +2313,7 @@
      22,
      23,
      24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     25
     ],
     "months": [
      1,
@@ -2328,28 +2330,69 @@
      12
     ],
     "times": [
-     "08:40"
+     "06:20",
+     "12:20"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-latvia.yml"
    },
    "last_render": "2026-09-23",
    "flag": "🇱🇻",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-01",
-     "rows": 140,
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
     }
    ]
   },
