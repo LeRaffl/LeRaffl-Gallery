@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T05:56:10Z",
+ "generated": "2026-10-16T08:24:51Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6384,6 +6384,38 @@
    "slug": "south_africa",
    "period": "2026-06",
    "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-16",
+   "label": "Taiwan",
+   "base": "Taiwan",
+   "slug": "taiwan",
+   "period": "2026-09",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-16",
+   "label": "Taiwan (Buses)",
+   "base": "Taiwan",
+   "slug": "taiwan_buses",
+   "period": "2026-09",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-16",
+   "label": "Taiwan (HDV)",
+   "base": "Taiwan",
+   "slug": "taiwan_hdv",
+   "period": "2026-09",
+   "flag": "🇹🇼"
+  },
+  {
+   "date": "2026-10-16",
+   "label": "Taiwan (Vans)",
+   "base": "Taiwan",
+   "slug": "taiwan_vans",
+   "period": "2026-09",
+   "flag": "🇹🇼"
   }
  ]
 }
