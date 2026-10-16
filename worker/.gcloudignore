@@ -1,0 +1,4 @@
+# Cloud Run source upload (worker/Dockerfile): only the relay is needed.
+*
+!Dockerfile
+!deno-relay.ts

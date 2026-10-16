@@ -2,7 +2,9 @@
 // endpoint in worker/index.js, but egressing from Google Cloud IP ranges
 // instead of Cloudflare's. Used for hosts (duurzamemobiliteit.databank.nl,
 // www.csdd.lv) that refuse Cloudflare egress IPs as well as GitHub's Azure ranges.
-// Also used by scripts/fetch_latvia.py (LATVIA_FETCH_RELAY ← NL_FETCH_RELAY).
+// The same file also runs as a container on Google Cloud Run in Europe
+// (worker/Dockerfile) for scripts/fetch_latvia.py: CSDD answers only European
+// IPs, and Deno Deploy serves a US caller from a US region.
 //
 // Deploy (gratis, no credit card):
 //   1. https://dash.deno.com → sign in with GitHub → New Playground

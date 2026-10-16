@@ -154,8 +154,8 @@ Doc 33's 2026-09/10 register round looked at `data.gov.lv` only (stock snapshots
 CSDD statistics page itself publishes the first-registration records, free, without
 login, as XLSX, and was reachable from the dev sandbox. GitHub's hosted runners get no
 answer from `www.csdd.lv` (connect timeout on two runners, 2026-10-16), so the workflow
-goes through the project's Deno Deploy fetch relay — Cloudflare's egress gets no answer
-either (522 through the Worker relay, same day) (§7).
+goes through the project's fetch relay on Google Cloud Run in Europe: CSDD answers only
+European IP addresses (§7).
 
 CSDD keeps the register ACEA's Latvian figure is built from, and the record file
 reproduces ACEA's monthly series to the car (§4). What it adds:
@@ -285,22 +285,47 @@ All CSVs keep the `HEV` column, empty in every row.
 
 ## 7. Operations and debugging
 
-* **Cron** `20 6,12 8-25 * *` (UTC). No HTTP when the target month (last month) is a CSDD
+* **Cron** `20 6,12 8-25 * *` (UTC) — **paused since 2026-10-16** until the EU relay below
+  is live (commented out in `fetch-latvia.yml`; uncomment to restore). No HTTP when the target month (last month) is a CSDD
   row in every CSV; only the 50 KB headline file while CSDD has not published.
 * A normal run rewrites the last 13 months (late bookings move a month by a car or two;
   only changed lines are written). `backfill` rewrites every month from 2015-01.
 * **Dispatch inputs:** `variant`, `period` (YYYY-MM), `backfill`, `force` (skip throttle,
   completeness, cross-check and foreign-row guards).
-* **Network:** every request goes through the Deno Deploy fetch relay
-  (`worker/deno-relay.ts`, Google Cloud egress, `GET /fetch?url=`;
-  [10](10-source-netherlands.md) §13) — `LATVIA_FETCH_RELAY` / `LATVIA_RELAY_TOKEN` in the
-  workflow, filled from the Netherlands relay's secrets (`NL_FETCH_RELAY` /
-  `NL_RELAY_TOKEN`, [07](07-secrets-trust.md)). `www.csdd.lv` is on the relay's host
-  allow-list and its files are streamed through, not buffered. The Deno relay is
-  deployed by hand (paste the file at dash.deno.com) — a change to it is live only after
-  that. Neither GitHub's runners (connect timeout) nor Cloudflare's egress (`522` through
-  the Worker relay) get an answer from CSDD. With `LATVIA_FETCH_RELAY` unset the fetcher connects
-  directly, which works from a normal network.
+* **Network:** CSDD answers **only European IP addresses**. A check-host.net TCP test on
+  2026-10-16 connected from every European node (EU, UK, Switzerland, Serbia, Turkey,
+  Ukraine, Moldova) and timed out everywhere else (US, Canada, Brazil, Asia, Australia,
+  Israel, Russia). GitHub's runners (connect timeout), the Cloudflare Worker relay (`522`)
+  and the Deno Deploy relay (`503`) all reach it from the US. So the relay
+  (`worker/deno-relay.ts`, `GET /fetch?url=`, [10](10-source-netherlands.md) §13) runs as
+  a container on **Google Cloud Run in `europe-north1`** (`worker/Dockerfile`), with the
+  secrets `LATVIA_FETCH_RELAY` / `LATVIA_RELAY_TOKEN` ([07](07-secrets-trust.md)).
+  `www.csdd.lv` is on the relay's host allow-list and its files are streamed through.
+  Traffic is ~0.1–0.2 GB a month, inside Cloud Run's free tier but for a few cents of
+  egress. With `LATVIA_FETCH_RELAY` unset the fetcher connects directly, which works from
+  a European network.
+
+### EU relay setup (Cloud Run, one-off)
+
+In the browser, at <https://console.cloud.google.com> (a billing account is required even
+for the free tier):
+
+1. Create a project (e.g. `leraffl-relay`) and open **Cloud Shell** (the `>_` icon).
+2. `git clone https://github.com/LeRaffl/LeRaffl-Gallery.git && cd LeRaffl-Gallery`
+3. `TOKEN=$(openssl rand -hex 24); echo "$TOKEN"` — keep the printed value.
+4. `gcloud run deploy csdd-relay --source worker --region europe-north1 --port 8000
+   --allow-unauthenticated --max-instances 1 --memory 256Mi --set-env-vars
+   RELAY_TOKEN=$TOKEN` — answer `Y` to enabling the APIs and creating the Artifact
+   Registry repository; it prints a **Service URL** (`https://csdd-relay-….run.app`).
+5. Check: `curl -s -o /dev/null -w "%{http_code}\n" -H "X-Relay-Token: $TOKEN"
+   "<Service URL>/fetch?url=https%3A%2F%2Fwww.csdd.lv%2F"` → `200`.
+6. GitHub → repo → Settings → Secrets and variables → Actions → New repository secret:
+   `LATVIA_FETCH_RELAY` = `<Service URL>/fetch?url=` and `LATVIA_RELAY_TOKEN` = the token.
+7. Dispatch `fetch-latvia.yml` (`period` = last month, `force`) and, once it is green,
+   uncomment the `schedule:` block.
+
+A change to `worker/deno-relay.ts` reaches Cloud Run only by repeating step 4 (Cloud
+Shell: `git pull` first).
 * **Offline:** `python scripts/fetch_latvia.py --from-dir DIR --backfill --dry-run` with the
   files saved as `DIR/headline.xlsx`, `DIR/cars.xlsx`, `DIR/lorries.xlsx` (`--dump-dir`
   saves them on a live run). Parsing both record files takes ~45 s.
@@ -313,9 +338,9 @@ All CSVs keep the `HEV` column, empty in every row.
 | `headline table has no YYYY-MM yet` | not published | nothing — retried until the 25th; fetch-acea fills the month after that |
 | `no DATI sheet` / `DATI header lacks …` | a new file layout | open the file; adjust `iter_dati()` column names |
 | `ConnectTimeout … www.csdd.lv` | a direct connection from a runner (CSDD does not answer GitHub's IP ranges) | check that `LATVIA_FETCH_RELAY` reaches the step (the secret is set) |
-| `403 host not allowed: www.csdd.lv` from the relay | the deployed Deno relay predates the Latvia host | redeploy `worker/deno-relay.ts` at dash.deno.com ([10](10-source-netherlands.md) §13) |
-| `403 host not allowed: …` (another host) | CSDD moved its files | add the host to `ALLOW_HOSTS` (and `STREAM_HOSTS`) in `worker/deno-relay.ts`, redeploy |
-| relay `502` / `522` or a timeout through the relay | CSDD refuses that egress too (Cloudflare does: `522`) | a `*_PROXY`-style fallback or a data agreement with CSDD; ACEA keeps Latvia Whole meanwhile |
+| `401 Unauthorized` from the relay | `LATVIA_RELAY_TOKEN` ≠ the Cloud Run service's `RELAY_TOKEN` | set both to the same value |
+| `403 host not allowed: …` from the relay | CSDD moved its files, or the deployed relay predates the Latvia host | add the host to `ALLOW_HOSTS` (and `STREAM_HOSTS`) in `worker/deno-relay.ts`, redeploy (step 4) |
+| relay `502` / `503` or a timeout through the relay | the relay runs outside Europe, or CSDD tightened its filter | check the Cloud Run region (`europe-*`); re-run the check-host.net test; ACEA keeps Latvia Whole meanwhile |
 | `not an XLSX` | an HTML error page or a block | rerun; check the URL by hand |
 | `cross-check failed — first-registered passenger cars` | a partial file, or a restatement | compare with the headline table by hand; `force` if the records are right |
 | `::warning New value … fuel X` / `keeper X` / `status X` | a new register value | decide the mapping in `FUEL_CLASS` / `STATUS_*` / `KEEPER_*`, add a test |
