@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 60 countries · 6,879 periods drawable · 164 held back · **44 of 60 files cost the chart nothing.**
+**Status:** 60 countries · 6,971 periods drawable · 164 held back · **45 of 60 files cost the chart nothing.**
 
 ---
 
@@ -77,11 +77,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 ### Costs no bars, but still wrong
 
-**Belgium**
-- [ ] `2022-03` — OTHERS drops to 0 between 258 and 171. The row still closes to `TOTAL`, so no sum check sees it.
-- [ ] `2023-02` — OTHERS drops to 0 between 281 and 403. The row still closes to `TOTAL`, so no sum check sees it.
-- [ ] `2023-09` — OTHERS drops to 0 between 151 and 224. The row still closes to `TOTAL`, so no sum check sees it.
-
 **Colombia**
 - [ ] `2020-04` — BEV drops to 0 between 110 and 51. The row still closes to `TOTAL`, so no sum check sees it.
 
@@ -103,11 +98,6 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 ### Austria
 
 - A coarse figure is written across finer rows in **`BEV`, `TOTAL`** — up to 72 rows, 2012-01…2017-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
-
-### Belgium
-
-- A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `PETROL`, `DIESEL`, `OTHERS`, `TOTAL`** — up to 48 rows, 2018-01…2021-12. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
-- `time_interval` says **quarterly** on 57 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
 
 ### Bulgaria
 
@@ -214,4 +204,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Argentina, Austria, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine
+Albania, Argentina, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine
