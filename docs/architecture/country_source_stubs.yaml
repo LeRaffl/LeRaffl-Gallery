@@ -16,21 +16,8 @@ stubs:
   # ======================================================================
   # ACEA-fed (fetch_acea.py parses ACEA's Europe-wide registrations PDF)
   # ======================================================================
-  - country: Belgium
-    slug: belgium
-    method: pdf
-    source_group: acea
-    summary: "New passenger-car registrations for Belgium, via ACEA's monthly figures."
-    source_name: "ACEA — monthly registrations"
-    source_url: "https://www.acea.auto/"
-    underlying: "National registrations, aggregated by ACEA"
-    variants: [Whole]
-    variant_notes:
-      Whole: "New passenger-car registrations as reported by ACEA."
-    cadence: "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week"
-    fetcher: "scripts/fetch_acea.py"
-    workflow: ".github/workflows/fetch-acea.yml"
-    data_file: "data/Belgium.csv"
+  # Belgium moved to its own source doc in 2026-10 (DIV / FPS Mobility):
+  # docs/architecture/59-source-belgium.md.
 
   - country: Bulgaria
     slug: bulgaria

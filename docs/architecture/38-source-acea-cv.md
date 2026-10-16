@@ -30,13 +30,14 @@ Cadence:   ACEA publishes four CUMULATIVE year-to-date checkpoints a year — Q1
            reconstructs genuine, non-overlapping Q1/Q2/Q3/Q4 quarters from them (see § 2)
            and falls back to a single yearly row only when no quarterly baseline exists
            yet for that (country, variant, year).
-Countries: 17, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
+Countries: 16, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
            roster. See § 1a for the full reasoning:
-           Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece,
+           Bulgaria, Croatia, Cyprus, France, Germany, Greece,
            Hungary, Iceland, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
-           Slovenia, Sweden. (Switzerland and Czechia until 2026-09; Latvia and Estonia
-           until 2026-10 — CSDD register, [58](58-source-latvia.md), and Transpordiamet
-           workbook, [57](57-source-estonia.md) — see § 1a.)
+           Slovenia, Sweden. (Switzerland and Czechia until 2026-09; Latvia, Estonia and
+           Belgium until 2026-10 — CSDD register, [58](58-source-latvia.md), Transpordiamet
+           workbook, [57](57-source-estonia.md), and DIV files, [59](59-source-belgium.md)
+           — see § 1a.)
            (Malta is sometimes missing from a given release — "Data for Malta not
            available" — so its coverage is patchier than the rest.)
 Variants:  Vans (N1), HDV (N2+N3, i.e. medium+heavy trucks combined — already how the
@@ -113,6 +114,12 @@ no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
   within −1 … +3 % (ACEA's "BEV" = our BEV + PHEV), HDV within a few vehicles a quarter,
   Buses equal or within 1–5. The rows this fetcher wrote are parked in
   `data/Estonia_legacy.csv`.
+- **Belgium is OUT since 2026-10.** The FPS Mobility's monthly DIV registration files
+  (`scripts/fetch_belgium.py`, [59](59-source-belgium.md)) carry monthly Vans / HDV / Buses
+  with BEV and PHEV separate back to 2013. DIV is ACEA's source for commercial vehicles too:
+  the checkpoints agree within about 1 % (Vans 2026-Q2 18,605 / 18,585), except the quarter
+  holding DIV's short 2025-04 file (3–5 % low). The rows this fetcher wrote are parked in
+  `data/Belgium_legacy.csv`.
 - **Greece stays IN.** Its passenger cars moved to SEAA in 2026-10
   (`scripts/fetch_greece.py`, [53](53-source-greece.md)), but SEAA and ELSTAT publish vans,
   trucks and buses without a fuel split, so these checkpoints remain the only electric

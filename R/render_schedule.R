@@ -5,7 +5,7 @@ suppressPackageStartupMessages({
 })
 
 FLAG <- c(
-  albania="\U0001F1E6\U0001F1F1", argentina="\U0001F1E6\U0001F1F7", austria="\U0001F1E6\U0001F1F9", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
+  albania="\U0001F1E6\U0001F1F1", argentina="\U0001F1E6\U0001F1F7", austria="\U0001F1E6\U0001F1F9", belgium="\U0001F1E7\U0001F1EA", brazil="\U0001F1E7\U0001F1F7", canada="\U0001F1E8\U0001F1E6",
   chile="\U0001F1E8\U0001F1F1", china="\U0001F1E8\U0001F1F3", colombia="\U0001F1E8\U0001F1F4", czechia="\U0001F1E8\U0001F1FF",
   denmark="\U0001F1E9\U0001F1F0", ecuador="\U0001F1EA\U0001F1E8", estonia="\U0001F1EA\U0001F1EA", germany="\U0001F1E9\U0001F1EA", finland="\U0001F1EB\U0001F1EE", france="\U0001F1EB\U0001F1F7",
   georgia="\U0001F1EC\U0001F1EA", greece="\U0001F1EC\U0001F1F7", ireland="\U0001F1EE\U0001F1EA", israel="\U0001F1EE\U0001F1F1",
@@ -23,7 +23,7 @@ FLAG <- c(
 )
 
 LABEL <- c(
-  albania="Albania", argentina="Argentina", austria="Austria", brazil="Brazil", canada="Canada", chile="Chile", china="China",
+  albania="Albania", argentina="Argentina", austria="Austria", belgium="Belgium", brazil="Brazil", canada="Canada", chile="Chile", china="China",
   colombia="Colombia", czechia="Czechia", denmark="Denmark", ecuador="Ecuador", estonia="Estonia", finland="Finland", france="France", georgia="Georgia", germany="Germany", greece="Greece", `hong-kong`="Hong Kong", ireland="Ireland", israel="Israel",
   italy="Italy", italy_rental="Italy (Rental)", japan="Japan",
   latvia="Latvia", lithuania="Lithuania", luxembourg="Luxembourg", malaysia="Malaysia", nepal="Nepal",

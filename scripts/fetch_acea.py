@@ -77,12 +77,12 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Belgium, Bulgaria, Croatia, Cyprus, Czechia,
+    Bulgaria, Croatia, Cyprus, Czechia,
     Hungary, Iceland, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Poland, Lithuania, Latvia, Greece, Estonia. A row a national fetcher marks as
+    Luxembourg, Norway, Poland, Lithuania, Latvia, Belgium, Greece, Estonia. A row a national fetcher marks as
     provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
     "Regitra (provisional)") counts as replaceable too.
   (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
@@ -156,7 +156,7 @@ import acea_split  # noqa: E402
 # --- Constants ------------------------------------------------------------
 
 ALWAYS_COUNTRIES = [
-    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czechia",
+    "Bulgaria", "Croatia", "Cyprus", "Czechia",
     "Hungary", "Iceland",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
@@ -177,6 +177,13 @@ CONDITIONAL_COUNTRIES = [
     # month CSDD has not published yet; the next CSDD run replaces that row.
     # See docs/architecture/58-source-latvia.md.
     "Latvia",
+    # Belgium is DIV-primary (scripts/fetch_belgium.py: the FPS Mobility's
+    # monthly registration CSVs, on the 2nd of the next month — about three
+    # weeks before ACEA — plus Private / Industry and monthly Vans/HDV/Buses).
+    # DIV is the source of ACEA's Belgian figure (DIV runs ~0.4 % above it), so
+    # ACEA only fills a month DIV has not published yet; the next DIV run
+    # replaces that row. See docs/architecture/59-source-belgium.md.
+    "Belgium",
     # Poland is PZPM-primary (scripts/fetch_poland.py, CEP-based, carries the
     # BEV/PHEV/HEV/Petrol/Diesel split and the Vans/HDV/Buses variants). But PZPM
     # curates its eRegistrations section by hand and sometimes publishes a month

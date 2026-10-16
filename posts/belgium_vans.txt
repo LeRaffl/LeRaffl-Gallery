@@ -1,11 +1,11 @@
-🇧🇪 Belgium (Vans) - Q2 2026 - EV Trajectory
-10.0% EV
-0.5% Hybrid
-89.5% ICE
+🇧🇪 Belgium (Vans) - August 26 - BEV Trajectory
+13.4% BEV
+3.5% PHEV
+83.0% ICE (of which 5.3%p were HEV)
 
-Trailing 4 quarters are:
-8.8% EV
-1.2% Hybrid
-90.0% ICE
+Trailing 12 months are:
+7.0% BEV
+2.3% PHEV
+90.7% ICE (of which 5.1%p were HEV)
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

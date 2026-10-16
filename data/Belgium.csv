@@ -1,105 +1,165 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2018-01,quarterly,Whole,ACEA,304.0,1022.0,1497.0,31235.0,20749.0,377.0,55185.0,
-2018-02,quarterly,Whole,ACEA,304.0,1022.0,1497.0,31235.0,20749.0,377.0,55185.0,
-2018-03,quarterly,Whole,ACEA,304.0,1022.0,1497.0,31235.0,20749.0,377.0,55185.0,
-2018-04,quarterly,Whole,ACEA,263.0,966.0,1373.0,32882.0,19166.0,618.0,55270.0,
-2018-05,quarterly,Whole,ACEA,263.0,966.0,1373.0,32882.0,19166.0,618.0,55270.0,
-2018-06,quarterly,Whole,ACEA,263.0,966.0,1373.0,32882.0,19166.0,618.0,55270.0,
-2018-07,quarterly,Whole,ACEA,236.0,709.0,1058.0,24161.0,15001.0,284.0,41451.0,
-2018-08,quarterly,Whole,ACEA,236.0,709.0,1058.0,24161.0,15001.0,284.0,41451.0,
-2018-09,quarterly,Whole,ACEA,236.0,709.0,1058.0,24161.0,15001.0,284.0,41451.0,
-2018-10,quarterly,Whole,ACEA,411.0,537.0,1125.0,18995.0,10107.0,127.0,31303.0,
-2018-11,quarterly,Whole,ACEA,411.0,537.0,1125.0,18995.0,10107.0,127.0,31303.0,
-2018-12,quarterly,Whole,ACEA,411.0,537.0,1125.0,18995.0,10107.0,127.0,31303.0,
-2019-01,quarterly,Whole,ACEA,732.0,707.0,1764.0,33160.0,15382.0,209.0,51955.0,
-2019-02,quarterly,Whole,ACEA,732.0,707.0,1764.0,33160.0,15382.0,209.0,51955.0,
-2019-03,quarterly,Whole,ACEA,732.0,707.0,1764.0,33160.0,15382.0,209.0,51955.0,
-2019-04,quarterly,Whole,ACEA,801.0,684.0,1336.0,31678.0,16548.0,492.0,51541.0,
-2019-05,quarterly,Whole,ACEA,801.0,684.0,1336.0,31678.0,16548.0,492.0,51541.0,
-2019-06,quarterly,Whole,ACEA,801.0,684.0,1336.0,31678.0,16548.0,492.0,51541.0,
-2019-07,quarterly,Whole,ACEA,712.0,580.0,1424.0,26200.0,13699.0,303.0,42920.0,
-2019-08,quarterly,Whole,ACEA,712.0,580.0,1424.0,26200.0,13699.0,303.0,42920.0,
-2019-09,quarterly,Whole,ACEA,712.0,580.0,1424.0,26200.0,13699.0,303.0,42920.0,
-2019-10,quarterly,Whole,ACEA,699.0,1083.0,1206.0,21810.0,11891.0,226.0,36918.0,
-2019-11,quarterly,Whole,ACEA,699.0,1083.0,1206.0,21810.0,11891.0,226.0,36918.0,
-2019-12,quarterly,Whole,ACEA,699.0,1083.0,1206.0,21810.0,11891.0,226.0,36918.0,
-2020-01,quarterly,Whole,ACEA,961.0,1602.0,1998.0,24129.0,13507.0,273.0,42472.0,
-2020-02,quarterly,Whole,ACEA,961.0,1602.0,1998.0,24129.0,13507.0,273.0,42472.0,
-2020-03,quarterly,Whole,ACEA,961.0,1602.0,1998.0,24129.0,13507.0,273.0,42472.0,
-2020-04,quarterly,Whole,ACEA,680.0,1437.0,975.0,16692.0,9659.0,284.0,29729.0,
-2020-05,quarterly,Whole,ACEA,680.0,1437.0,975.0,16692.0,9659.0,284.0,29729.0,
-2020-06,quarterly,Whole,ACEA,680.0,1437.0,975.0,16692.0,9659.0,284.0,29729.0,
-2020-07,quarterly,Whole,ACEA,1461.0,2683.0,1292.0,20023.0,13117.0,422.0,39000.0,
-2020-08,quarterly,Whole,ACEA,1461.0,2683.0,1292.0,20023.0,13117.0,422.0,39000.0,
-2020-09,quarterly,Whole,ACEA,1461.0,2683.0,1292.0,20023.0,13117.0,422.0,39000.0,
-2020-10,quarterly,Whole,ACEA,1894.0,4724.0,1010.0,13654.0,11036.0,307.0,32628.0,
-2020-11,quarterly,Whole,ACEA,1894.0,4724.0,1010.0,13654.0,11036.0,307.0,32628.0,
-2020-12,quarterly,Whole,ACEA,1894.0,4724.0,1010.0,13654.0,11036.0,307.0,32628.0,
-2021-01,quarterly,Whole,ACEA,1346.333333,4247.666667,1799.0,21365.33333,10706.33333,281.0,39746.0,
-2021-02,quarterly,Whole,ACEA,1346.333333,4247.666667,1799.0,21365.33333,10706.33333,281.0,39746.0,
-2021-03,quarterly,Whole,ACEA,1346.333333,4247.666667,1799.0,21365.33333,10706.33333,281.0,39746.0,
-2021-04,quarterly,Whole,ACEA,1691.0,4445.0,1764.0,20393.0,9126.0,298.0,37718.0,
-2021-05,quarterly,Whole,ACEA,1691.0,4445.0,1764.0,20393.0,9126.0,298.0,37718.0,
-2021-06,quarterly,Whole,ACEA,1691.0,4445.0,1764.0,20393.0,9126.0,298.0,37718.0,
-2021-07,quarterly,Whole,ACEA,2061.0,3731.0,1659.0,13742.0,5624.0,240.3333333,27057.0,
-2021-08,quarterly,Whole,ACEA,2061.0,3731.0,1659.0,13742.0,5624.0,240.3333333,27057.0,
-2021-09,quarterly,Whole,ACEA,2061.0,3731.0,1659.0,13742.0,5624.0,240.3333333,27057.0,
-2021-10,quarterly,Whole,ACEA,2460.0,3496.0,1338.0,10838.0,4842.0,209.0,23185.0,
-2021-11,quarterly,Whole,ACEA,2460.0,3496.0,1338.0,10838.0,4842.0,209.0,23185.0,
-2021-12,quarterly,Whole,ACEA,2460.0,3496.0,1338.0,10838.0,4842.0,209.0,23185.0,
-2022-01,quarterly,Whole,ACEA,2766.0,4885.0,2472.0,16644.0,6755.0,425.0,33947.0,
-2022-02,quarterly,Whole,ACEA,3068.0,4484.0,2470.0,16091.0,5830.0,258.0,32201.0,
-2022-03,quarterly,Whole,ACEA,65.0,16.0,74.0,2168.0,379.0,0.0,2702.0,
-2022-04,quarterly,Whole,ACEA,2349.0,4652.0,2140.0,14287.0,4803.0,171.0,28402.0,
-2022-05,quarterly,Whole,ACEA,2366.0,4704.0,2113.0,14900.0,4702.0,240.0,29025.0,
-2022-06,quarterly,Whole,ACEA,2843.0,5486.0,2767.0,17095.0,6276.0,347.0,34814.0,
-2022-10,quarterly,Whole,ACEA,3489.0,5416.0,2425.0,14340.0,4573.0,208.0,30451.0,
-2022-11,quarterly,Whole,ACEA,3927.0,5388.0,2029.0,12899.0,3812.0,214.0,28271.0,
-2022-12,quarterly,Whole,ACEA,4497.0,4547.0,1678.0,10654.0,3017.0,191.0,24584.0,
-2023-01,monthly,Whole,ACEA,5696.0,7246.0,3266.0,18256.0,5102.0,281.0,39847.0,
-2023-02,monthly,Whole,ACEA,184.0,13.0,43.0,1665.0,386.0,0.0,2291.0,
-2023-03,monthly,Whole,ACEA,9459.0,8450.0,3331.0,24776.0,5335.0,403.0,51754.0,
-2023-04,monthly,Whole,ACEA,6486.0,7770.0,2648.0,18601.0,3970.0,397.0,39872.0,
-2023-05,monthly,Whole,ACEA,7194.0,8875.0,2986.0,18306.0,3596.0,402.0,41359.0,
-2023-06,monthly,Whole,ACEA,9119.0,11716.0,4197.0,21877.0,4361.0,490.0,51760.0,
-2023-07,monthly,Whole,ACEA,6731.0,8428.0,2664.0,13822.0,2784.0,240.0,34669.0,
-2022-07,monthly,Whole,ACEA,2004.0,3754.0,1940.0,13467.0,4738.0,258.0,26161.0,
-2023-08,monthly,Whole,ACEA,9241.0,8639.0,2562.0,13647.0,2558.0,151.0,36798.0,
-2022-08,monthly,Whole,ACEA,2848.0,4264.0,2352.0,14685.0,4602.0,166.0,28917.0,
-2023-09,monthly,Whole,ACEA,159.0,47.0,68.0,2363.0,328.0,0.0,2965.0,
-2022-09,monthly,Whole,ACEA,3797.0,5048.0,2647.0,15199.0,4086.0,248.0,31025.0,
-2023-10,monthly,Whole,ACEA,8628.0,9297.0,3540.0,14407.0,2464.0,224.0,38560.0,
-2023-11,monthly,Whole,ACEA,9499.0,8908.0,3141.0,13046.0,2640.0,318.0,37552.0,
-2023-12,monthly,Whole,ACEA,6462.0,5443.0,2314.0,9753.0,1554.0,189.0,25715.0,
-2024-01,monthly,Whole,ACEA,9995.0,11972.0,4170.0,17461.0,2803.0,266.0,46667.0,
-2024-02,monthly,Whole,ACEA,9385.0,8385.0,4282.0,18918.0,2337.0,415.0,43722.0,
-2024-03,monthly,Whole,ACEA,11711.0,7138.0,4321.0,18877.0,2270.0,434.0,44751.0,
-2024-04,monthly,Whole,ACEA,9181.0,6371.0,3619.0,17953.0,2196.0,379.0,39699.0,
-2024-05,monthly,Whole,ACEA,10418.0,5627.0,3107.0,17271.0,2245.0,239.0,38907.0,
-2024-06,monthly,Whole,ACEA,13714.0,5903.0,4823.0,22626.0,2286.0,310.0,49662.0,
-2024-07,monthly,Whole,ACEA,9706.0,4318.0,2739.0,13615.0,1573.0,200.0,32151.0,
-2024-08,monthly,Whole,ACEA,10027.0,3699.0,2534.0,11528.0,1350.0,195.0,29333.0,
-2024-09,monthly,Whole,ACEA,12142.0,3491.0,3035.0,11690.0,1098.0,220.0,31676.0,
-2024-10,monthly,Whole,ACEA,12738.0,4503.0,3364.0,14068.0,1476.0,298.0,36447.0,
-2024-11,monthly,Whole,ACEA,11247.0,3441.0,2728.0,12755.0,1331.0,323.0,31825.0,
-2024-12,monthly,Whole,ACEA,7439.0,2018.0,2408.0,10419.0,913.0,240.0,23437.0,
-2025-01,monthly,Whole,ACEA,13712.0,3996.0,4458.0,16600.0,1535.0,293.0,40594.0,
-2025-02,monthly,Whole,ACEA,13040.0,3070.0,5383.0,17280.0,1121.0,267.0,40161.0,
-2025-03,monthly,Whole,ACEA,13650.0,3399.0,4455.0,17056.0,1275.0,349.0,40184.0,
-2025-04,monthly,Whole,ACEA,12469.0,3443.0,4161.0,16121.0,1227.0,391.0,37812.0,data/Press_release_car_registrations_April_2026.pdf
-2025-05,monthly,Whole,ACEA,11347.0,3411.0,3587.0,14406.0,1250.0,337.0,34338.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2025-06,monthly,Whole,ACEA,12762.0,3853.0,4217.0,18667.0,1685.0,343.0,41527.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2025-07,monthly,Whole,ACEA,10195.0,3543.0,3571.0,12864.0,1150.0,290.0,31613.0,
-2025-08,monthly,Whole,ACEA,9080.0,2895.0,2560.0,10641.0,768.0,176.0,26120.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2025-09,monthly,Whole,ACEA,11966.0,3261.0,3358.0,11943.0,811.0,180.0,31519.0,
-2025-10,monthly,Whole,ACEA,12360.0,3581.0,3970.0,13080.0,747.0,217.0,33955.0,
-2025-11,monthly,Whole,ACEA,11935.0,2645.0,2861.0,9878.0,547.0,205.0,28071.0,
-2025-12,monthly,Whole,ACEA,11333.0,3345.0,3591.0,9900.0,594.0,114.0,28877.0,
-2026-01,monthly,Whole,ACEA,12131.0,2068.0,3809.0,14105.0,784.0,100.0,32997.0,
-2026-02,monthly,Whole,ACEA,11677.0,1965.0,5058.0,17528.0,734.0,113.0,37075.0,
-2026-03,monthly,Whole,ACEA,15661.0,2417.0,5221.0,18908.0,1103.0,423.0,43733.0,
-2026-04,monthly,Whole,ACEA,13971.0,1830.0,4506.0,15888.0,1236.0,371.0,37802.0,data/Press_release_car_registrations_April_2026.pdf
-2026-05,monthly,Whole,ACEA,12586.0,1596.0,4130.0,13765.0,1063.0,485.0,33625.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2026-06,monthly,Whole,ACEA,17256.0,2788.0,5935.0,17344.0,1474.0,652.0,45449.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2026-07,monthly,Whole,ACEA,12528.0,2424.0,1904.0,11210.0,813.0,395.0,29274.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2026-08,monthly,Whole,ACEA,13069.0,1952.0,2720.0,9685.0,615.0,254.0,28295.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
+2013-01,monthly,Whole,DIV,12.0,25.0,644.0,15409.0,34595.0,68.0,50753.0,DIV 2013-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-02,monthly,Whole,DIV,13.0,37.0,570.0,14708.0,30063.0,63.0,45454.0,DIV 2013-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-03,monthly,Whole,DIV,16.0,48.0,582.0,18898.0,33561.0,72.0,53177.0,DIV 2013-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-04,monthly,Whole,DIV,14.0,22.0,692.0,18599.0,33721.0,89.0,53137.0,DIV 2013-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-05,monthly,Whole,DIV,35.0,10.0,469.0,15405.0,28622.0,80.0,44621.0,DIV 2013-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-06,monthly,Whole,DIV,46.0,17.0,460.0,14871.0,27894.0,53.0,43341.0,DIV 2013-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-07,monthly,Whole,DIV,28.0,20.0,497.0,11783.0,22524.0,44.0,34896.0,DIV 2013-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-08,monthly,Whole,DIV,39.0,17.0,351.0,10485.0,18973.0,29.0,29894.0,DIV 2013-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-09,monthly,Whole,DIV,89.0,24.0,411.0,11593.0,22811.0,47.0,34975.0,DIV 2013-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-10,monthly,Whole,DIV,38.0,32.0,494.0,12827.0,26167.0,50.0,39608.0,DIV 2013-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-11,monthly,Whole,DIV,97.0,34.0,401.0,10986.0,20640.0,48.0,32206.0,DIV 2013-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2013-12,monthly,Whole,DIV,74.0,39.0,313.0,8723.0,15943.0,26.0,25118.0,DIV 2013-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-01,monthly,Whole,DIV,50.0,65.0,746.0,17082.0,31661.0,61.0,49665.0,DIV 2014-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-02,monthly,Whole,DIV,81.0,90.0,895.0,17245.0,27850.0,74.0,46235.0,DIV 2014-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-03,monthly,Whole,DIV,184.0,62.0,699.0,20441.0,31346.0,162.0,52894.0,DIV 2014-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-04,monthly,Whole,DIV,72.0,100.0,649.0,19697.0,32651.0,272.0,53441.0,DIV 2014-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-05,monthly,Whole,DIV,78.0,85.0,515.0,15262.0,26888.0,257.0,43085.0,DIV 2014-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-06,monthly,Whole,DIV,126.0,68.0,578.0,14734.0,27473.0,142.0,43121.0,DIV 2014-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-07,monthly,Whole,DIV,77.0,52.0,423.0,11607.0,23155.0,92.0,35406.0,DIV 2014-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-08,monthly,Whole,DIV,80.0,36.0,353.0,9561.0,18684.0,46.0,28760.0,DIV 2014-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-09,monthly,Whole,DIV,92.0,48.0,796.0,13439.0,21994.0,63.0,36432.0,DIV 2014-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-10,monthly,Whole,DIV,75.0,74.0,933.0,13493.0,23612.0,64.0,38251.0,DIV 2014-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-11,monthly,Whole,DIV,72.0,95.0,444.0,11012.0,18241.0,55.0,29919.0,DIV 2014-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2014-12,monthly,Whole,DIV,179.0,99.0,480.0,9975.0,16190.0,61.0,26984.0,DIV 2014-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-01,monthly,Whole,DIV,128.0,192.0,767.0,17704.0,28657.0,72.0,47520.0,DIV 2015-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-02,monthly,Whole,DIV,55.0,143.0,737.0,17688.0,25898.0,80.0,44601.0,DIV 2015-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-03,monthly,Whole,DIV,178.0,249.0,841.0,22459.0,31474.0,115.0,55316.0,DIV 2015-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-04,monthly,Whole,DIV,61.0,267.0,592.0,20826.0,29582.0,192.0,51520.0,DIV 2015-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-05,monthly,Whole,DIV,110.0,229.0,461.0,15684.0,24165.0,108.0,40757.0,DIV 2015-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-06,monthly,Whole,DIV,223.0,251.0,558.0,17639.0,30662.0,105.0,49438.0,DIV 2015-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-07,monthly,Whole,DIV,84.0,144.0,439.0,12898.0,22566.0,95.0,36226.0,DIV 2015-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-08,monthly,Whole,DIV,137.0,142.0,442.0,10953.0,19618.0,40.0,31332.0,DIV 2015-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-09,monthly,Whole,DIV,116.0,190.0,639.0,13549.0,22246.0,69.0,36809.0,DIV 2015-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-10,monthly,Whole,DIV,86.0,212.0,573.0,14429.0,24305.0,74.0,39679.0,DIV 2015-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-11,monthly,Whole,DIV,79.0,238.0,461.0,13247.0,22299.0,59.0,36383.0,DIV 2015-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2015-12,monthly,Whole,DIV,99.0,232.0,378.0,12659.0,19392.0,61.0,32821.0,DIV 2015-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-01,monthly,Whole,DIV,150.0,567.0,826.0,18933.0,24019.0,131.0,44626.0,DIV 2016-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-02,monthly,Whole,DIV,121.0,522.0,835.0,22643.0,25474.0,140.0,49735.0,DIV 2016-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-03,monthly,Whole,DIV,311.0,608.0,855.0,25686.0,28690.0,413.0,56563.0,DIV 2016-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-04,monthly,Whole,DIV,176.0,642.0,741.0,25507.0,27793.0,403.0,55262.0,DIV 2016-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-05,monthly,Whole,DIV,128.0,584.0,755.0,22430.0,24698.0,303.0,48898.0,DIV 2016-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-06,monthly,Whole,DIV,189.0,692.0,699.0,23975.0,29554.0,272.0,55381.0,DIV 2016-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-07,monthly,Whole,DIV,82.0,464.0,511.0,14285.0,19102.0,172.0,34616.0,DIV 2016-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-08,monthly,Whole,DIV,160.0,521.0,759.0,16225.0,20768.0,178.0,38611.0,DIV 2016-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-09,monthly,Whole,DIV,220.0,746.0,985.0,18721.0,21043.0,139.0,41854.0,DIV 2016-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-10,monthly,Whole,DIV,132.0,760.0,966.0,17775.0,22260.0,166.0,42059.0,DIV 2016-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-11,monthly,Whole,DIV,164.0,650.0,745.0,17540.0,20475.0,167.0,39741.0,DIV 2016-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2016-12,monthly,Whole,DIV,213.0,482.0,551.0,16089.0,16079.0,168.0,33582.0,DIV 2016-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-01,monthly,Whole,DIV,169.0,894.0,1430.0,23390.0,25738.0,175.0,51796.0,DIV 2017-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-02,monthly,Whole,DIV,164.0,581.0,1412.0,26525.0,23189.0,213.0,52084.0,DIV 2017-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-03,monthly,Whole,DIV,455.0,940.0,1339.0,30307.0,27955.0,240.0,61236.0,DIV 2017-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-04,monthly,Whole,DIV,197.0,1054.0,954.0,25787.0,23081.0,269.0,51342.0,DIV 2017-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-05,monthly,Whole,DIV,268.0,1126.0,1060.0,24979.0,23752.0,281.0,51466.0,DIV 2017-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-06,monthly,Whole,DIV,230.0,1322.0,1054.0,25778.0,26625.0,252.0,55261.0,DIV 2017-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-07,monthly,Whole,DIV,116.0,1056.0,826.0,16692.0,17859.0,235.0,36784.0,DIV 2017-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-08,monthly,Whole,DIV,180.0,836.0,862.0,16325.0,17069.0,344.0,35616.0,DIV 2017-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-09,monthly,Whole,DIV,264.0,951.0,959.0,19439.0,19158.0,261.0,41032.0,DIV 2017-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-10,monthly,Whole,DIV,141.0,1005.0,1030.0,20794.0,20384.0,305.0,43659.0,DIV 2017-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-11,monthly,Whole,DIV,224.0,997.0,832.0,20162.0,17305.0,261.0,39781.0,DIV 2017-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2017-12,monthly,Whole,DIV,299.0,1093.0,612.0,14258.0,11744.0,195.0,28201.0,DIV 2017-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-01,monthly,Whole,DIV,331.0,1225.0,1575.0,30538.0,22958.0,494.0,57121.0,DIV 2018-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-02,monthly,Whole,DIV,171.0,875.0,1348.0,29310.0,18400.0,286.0,50390.0,DIV 2018-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-03,monthly,Whole,DIV,404.0,996.0,1575.0,34133.0,21019.0,464.0,58591.0,DIV 2018-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-04,monthly,Whole,DIV,229.0,816.0,1483.0,32986.0,18619.0,610.0,54743.0,DIV 2018-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-05,monthly,Whole,DIV,289.0,911.0,1338.0,32854.0,19080.0,660.0,55132.0,DIV 2018-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-06,monthly,Whole,DIV,275.0,1168.0,1323.0,33056.0,19883.0,673.0,56378.0,DIV 2018-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-07,monthly,Whole,DIV,147.0,730.0,1106.0,25004.0,15521.0,417.0,42925.0,DIV 2018-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-08,monthly,Whole,DIV,246.0,1026.0,1227.0,31660.0,19966.0,396.0,54521.0,DIV 2018-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-09,monthly,Whole,DIV,320.0,371.0,848.0,16050.0,9529.0,102.0,27220.0,DIV 2018-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-10,monthly,Whole,DIV,430.0,492.0,1349.0,22173.0,12451.0,118.0,37013.0,DIV 2018-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-11,monthly,Whole,DIV,480.0,628.0,1222.0,20453.0,10952.0,184.0,33919.0,DIV 2018-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2018-12,monthly,Whole,DIV,349.0,259.0,912.0,14664.0,6972.0,140.0,23296.0,DIV 2018-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-01,monthly,Whole,DIV,471.0,585.0,2288.0,31591.0,16063.0,196.0,51194.0,DIV 2019-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-02,monthly,Whole,DIV,642.0,546.0,2075.0,32826.0,13752.0,194.0,50035.0,DIV 2019-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-03,monthly,Whole,DIV,1086.0,595.0,2148.0,34881.0,15983.0,313.0,55006.0,DIV 2019-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-04,monthly,Whole,DIV,593.0,643.0,2388.0,33303.0,16156.0,538.0,53621.0,DIV 2019-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-05,monthly,Whole,DIV,675.0,503.0,2371.0,30804.0,16291.0,546.0,51190.0,DIV 2019-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-06,monthly,Whole,DIV,1143.0,387.0,2119.0,29992.0,16034.0,473.0,50148.0,DIV 2019-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-07,monthly,Whole,DIV,526.0,419.0,2013.0,27363.0,14608.0,327.0,45256.0,DIV 2019-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-08,monthly,Whole,DIV,579.0,565.0,2321.0,29764.0,14412.0,410.0,48051.0,DIV 2019-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-09,monthly,Whole,DIV,1035.0,750.0,1849.0,20940.0,10990.0,260.0,35824.0,DIV 2019-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-10,monthly,Whole,DIV,579.0,1059.0,3038.0,24501.0,13392.0,292.0,42861.0,DIV 2019-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-11,monthly,Whole,DIV,464.0,911.0,2355.0,19940.0,10812.0,217.0,34699.0,DIV 2019-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2019-12,monthly,Whole,DIV,1077.0,989.0,2048.0,19926.0,9334.0,223.0,33597.0,DIV 2019-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-01,monthly,Whole,DIV,743.0,2340.0,4060.0,28100.0,16404.0,307.0,51954.0,DIV 2020-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-02,monthly,Whole,DIV,863.0,1512.0,4272.0,26332.0,13576.0,321.0,46876.0,DIV 2020-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-03,monthly,Whole,DIV,1276.0,1181.0,2882.0,15266.0,7987.0,254.0,28846.0,DIV 2020-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-04,monthly,Whole,DIV,153.0,285.0,582.0,2943.0,1297.0,51.0,5311.0,DIV 2020-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-05,monthly,Whole,DIV,746.0,1685.0,3081.0,18315.0,10734.0,245.0,34806.0,DIV 2020-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-06,monthly,Whole,DIV,1148.0,2355.0,3516.0,26673.0,14992.0,598.0,49282.0,DIV 2020-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-07,monthly,Whole,DIV,1137.0,2561.0,3570.0,23148.0,13739.0,498.0,44653.0,DIV 2020-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-08,monthly,Whole,DIV,1372.0,2439.0,3220.0,17886.0,11195.0,384.0,36496.0,DIV 2020-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-09,monthly,Whole,DIV,1879.0,3026.0,4264.0,15249.0,11321.0,443.0,36182.0,DIV 2020-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-10,monthly,Whole,DIV,1471.0,4059.0,4276.0,15689.0,12964.0,357.0,38816.0,DIV 2020-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-11,monthly,Whole,DIV,1476.0,4670.0,3113.0,10573.0,9177.0,198.0,29207.0,DIV 2020-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2020-12,monthly,Whole,DIV,2733.0,5406.0,2999.0,11028.0,7624.0,405.0,30195.0,DIV 2020-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-01,monthly,Whole,DIV,1092.0,3919.0,5940.0,17197.0,9419.0,275.0,37842.0,DIV 2021-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-02,monthly,Whole,DIV,1142.0,3255.0,5776.0,17585.0,8578.0,294.0,36630.0,DIV 2021-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-03,monthly,Whole,DIV,1802.0,5487.0,7777.0,20537.0,9244.0,315.0,45162.0,DIV 2021-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-04,monthly,Whole,DIV,1305.0,4367.0,6529.0,17359.0,7479.0,270.0,37309.0,DIV 2021-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-05,monthly,Whole,DIV,1504.0,3990.0,6144.0,16129.0,6975.0,236.0,34978.0,DIV 2021-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-06,monthly,Whole,DIV,2264.0,4943.0,7382.0,18497.0,7756.0,408.0,41250.0,DIV 2021-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-07,monthly,Whole,DIV,1486.0,3832.0,5466.0,11949.0,4630.0,369.0,27732.0,DIV 2021-07: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-08,monthly,Whole,DIV,2080.0,3760.0,5310.0,11470.0,4298.0,186.0,27104.0,DIV 2021-08: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-09,monthly,Whole,DIV,2618.0,3527.0,5082.0,10880.0,4354.0,185.0,26646.0,DIV 2021-09: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-10,monthly,Whole,DIV,2154.0,3929.0,4709.0,9815.0,4332.0,206.0,25145.0,DIV 2021-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-11,monthly,Whole,DIV,2473.0,3571.0,4073.0,9237.0,4693.0,225.0,24272.0,DIV 2021-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2021-12,monthly,Whole,DIV,2787.0,2937.0,3401.0,8030.0,3199.0,207.0,20561.0,DIV 2021-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-01,monthly,Whole,DIV,2769.0,4857.0,6935.0,13781.0,5281.0,416.0,34039.0,DIV 2022-01: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-02,monthly,Whole,DIV,3079.0,4467.0,6725.0,13159.0,4670.0,258.0,32358.0,DIV 2022-02: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-03,monthly,Whole,DIV,3797.0,5815.0,7160.0,14726.0,5420.0,233.0,37151.0,DIV 2022-03: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-04,monthly,Whole,DIV,2357.0,4637.0,5927.0,11642.0,3797.0,161.0,28521.0,DIV 2022-04: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-05,monthly,Whole,DIV,2362.0,4678.0,6099.0,11853.0,3882.0,235.0,29109.0,DIV 2022-05: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-06,monthly,Whole,DIV,2861.0,5442.0,7587.0,13587.0,5140.0,338.0,34955.0,DIV 2022-06: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-07,monthly,Whole,DIV,2004.0,3734.0,5545.0,10947.0,3777.0,256.0,26263.0,"DIV 2022-07: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 26161, +102; ACEA had PHEV 3754 / HEV 1940 / PETROL 13467 / DIESEL 4738 / OTHERS 258 / TOTAL 26161)"
+2022-08,monthly,Whole,DIV,2864.0,4241.0,5907.0,12108.0,3736.0,161.0,29017.0,"DIV 2022-08: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 28917, +100; ACEA had BEV 2848 / PHEV 4264 / HEV 2352 / PETROL 14685 / DIESEL 4602 / OTHERS 166 / TOTAL 28917)"
+2022-09,monthly,Whole,DIV,3805.0,5018.0,6611.0,12194.0,3327.0,234.0,31189.0,"DIV 2022-09: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 31025, +164; ACEA had BEV 3797 / PHEV 5048 / HEV 2647 / PETROL 15199 / DIESEL 4086 / OTHERS 248 / TOTAL 31025)"
+2022-10,monthly,Whole,DIV,3496.0,5387.0,6244.0,11537.0,3714.0,202.0,30580.0,DIV 2022-10: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-11,monthly,Whole,DIV,3808.0,6152.0,5231.0,11271.0,3176.0,261.0,29899.0,DIV 2022-11: new passenger cars by fuel (HEV incl. mild hybrids)
+2022-12,monthly,Whole,DIV,4500.0,4498.0,4155.0,8931.0,2424.0,189.0,24697.0,DIV 2022-12: new passenger cars by fuel (HEV incl. mild hybrids)
+2023-01,monthly,Whole,DIV,5715.0,7187.0,8084.0,14687.0,4038.0,259.0,39970.0,"DIV 2023-01: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 39847, +123; ACEA had BEV 5696 / PHEV 7246 / HEV 3266 / PETROL 18256 / DIESEL 5102 / OTHERS 281 / TOTAL 39847)"
+2023-02,monthly,Whole,DIV,5648.0,6842.0,8045.0,15531.0,3646.0,344.0,40056.0,"DIV 2023-02: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 2291, +37765; ACEA had BEV 184 / PHEV 13 / HEV 43 / PETROL 1665 / DIESEL 386 / OTHERS 0 / TOTAL 2291)"
+2023-03,monthly,Whole,DIV,9470.0,8386.0,9213.0,20053.0,4417.0,402.0,51941.0,"DIV 2023-03: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 51754, +187; ACEA had BEV 9459 / PHEV 8450 / HEV 3331 / PETROL 24776 / DIESEL 5335 / OTHERS 403 / TOTAL 51754)"
+2023-04,monthly,Whole,DIV,6498.0,7733.0,7386.0,14710.0,3263.0,390.0,39980.0,"DIV 2023-04: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 39872, +108; ACEA had BEV 6486 / PHEV 7770 / HEV 2648 / PETROL 18601 / DIESEL 3970 / OTHERS 397 / TOTAL 39872)"
+2023-05,monthly,Whole,DIV,7203.0,8843.0,7721.0,14372.0,2915.0,397.0,41451.0,"DIV 2023-05: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 41359, +92; ACEA had BEV 7194 / PHEV 8875 / HEV 2986 / PETROL 18306 / DIESEL 3596 / OTHERS 402 / TOTAL 41359)"
+2023-06,monthly,Whole,DIV,9139.0,11662.0,9900.0,17184.0,3556.0,488.0,51929.0,"DIV 2023-06: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 51760, +169; ACEA had BEV 9119 / PHEV 11716 / HEV 4197 / PETROL 21877 / DIESEL 4361 / OTHERS 490 / TOTAL 51760)"
+2023-07,monthly,Whole,DIV,6738.0,8395.0,6864.0,10406.0,2132.0,235.0,34770.0,"DIV 2023-07: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 34669, +101; ACEA had BEV 6731 / PHEV 8428 / HEV 2664 / PETROL 13822 / DIESEL 2784 / OTHERS 240 / TOTAL 34669)"
+2023-08,monthly,Whole,DIV,9254.0,8697.0,6867.0,10049.0,1898.0,146.0,36911.0,"DIV 2023-08: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 36798, +113; ACEA had BEV 9241 / PHEV 8639 / HEV 2562 / PETROL 13647 / DIESEL 2558 / OTHERS 151 / TOTAL 36798)"
+2023-09,monthly,Whole,DIV,9158.0,8675.0,7690.0,11052.0,2308.0,151.0,39034.0,"DIV 2023-09: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 2965, +36069; ACEA had BEV 159 / PHEV 47 / HEV 68 / PETROL 2363 / DIESEL 328 / OTHERS 0 / TOTAL 2965)"
+2023-10,monthly,Whole,DIV,8640.0,9270.0,8008.0,10662.0,1915.0,221.0,38716.0,"DIV 2023-10: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 38560, +156; ACEA had BEV 8628 / PHEV 9297 / HEV 3540 / PETROL 14407 / DIESEL 2464 / OTHERS 224 / TOTAL 38560)"
+2023-11,monthly,Whole,DIV,9508.0,8865.0,7204.0,9746.0,2047.0,340.0,37710.0,"DIV 2023-11: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 37552, +158; ACEA had BEV 9499 / PHEV 8908 / HEV 3141 / PETROL 13046 / DIESEL 2640 / OTHERS 318 / TOTAL 37552)"
+2023-12,monthly,Whole,DIV,6472.0,5422.0,5212.0,7346.0,1171.0,226.0,25849.0,"DIV 2023-12: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 25715, +134; ACEA had BEV 6462 / PHEV 5443 / HEV 2314 / PETROL 9753 / DIESEL 1554 / OTHERS 189 / TOTAL 25715)"
+2024-01,monthly,Whole,DIV,10017.0,11938.0,10008.0,12453.0,2223.0,279.0,46918.0,"DIV 2024-01: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 46667, +251; ACEA had BEV 9995 / PHEV 11972 / HEV 4170 / PETROL 17461 / DIESEL 2803 / OTHERS 266 / TOTAL 46667)"
+2024-02,monthly,Whole,DIV,9396.0,8327.0,9897.0,13912.0,1894.0,437.0,43863.0,"DIV 2024-02: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 43722, +141; ACEA had BEV 9385 / PHEV 8385 / HEV 4282 / PETROL 18918 / DIESEL 2337 / OTHERS 415 / TOTAL 43722)"
+2024-03,monthly,Whole,DIV,11726.0,7074.0,9839.0,13929.0,1909.0,436.0,44913.0,"DIV 2024-03: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 44751, +162; ACEA had BEV 11711 / PHEV 7138 / HEV 4321 / PETROL 18877 / DIESEL 2270 / OTHERS 434 / TOTAL 44751)"
+2024-04,monthly,Whole,DIV,9190.0,6362.0,9317.0,12822.0,1751.0,380.0,39822.0,"DIV 2024-04: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 39699, +123; ACEA had BEV 9181 / PHEV 6371 / HEV 3619 / PETROL 17953 / DIESEL 2196 / OTHERS 379 / TOTAL 39699)"
+2024-05,monthly,Whole,DIV,10428.0,5583.0,9010.0,11884.0,1876.0,235.0,39016.0,"DIV 2024-05: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 38907, +109; ACEA had BEV 10418 / PHEV 5627 / HEV 3107 / PETROL 17271 / DIESEL 2245 / OTHERS 239 / TOTAL 38907)"
+2024-06,monthly,Whole,DIV,13717.0,5847.0,12727.0,15350.0,1872.0,313.0,49826.0,"DIV 2024-06: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 49662, +164; ACEA had BEV 13714 / PHEV 5903 / HEV 4823 / PETROL 22626 / DIESEL 2286 / OTHERS 310 / TOTAL 49662)"
+2024-07,monthly,Whole,DIV,9732.0,4251.0,7471.0,9406.0,1256.0,198.0,32314.0,"DIV 2024-07: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 32151, +163; ACEA had BEV 9706 / PHEV 4318 / HEV 2739 / PETROL 13615 / DIESEL 1573 / OTHERS 200 / TOTAL 32151)"
+2024-08,monthly,Whole,DIV,10030.0,3633.0,7102.0,7378.0,1088.0,195.0,29426.0,"DIV 2024-08: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 29333, +93; ACEA had BEV 10027 / PHEV 3699 / HEV 2534 / PETROL 11528 / DIESEL 1350 / TOTAL 29333)"
+2024-09,monthly,Whole,DIV,12146.0,3452.0,7361.0,7835.0,824.0,222.0,31840.0,"DIV 2024-09: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 31676, +164; ACEA had BEV 12142 / PHEV 3491 / HEV 3035 / PETROL 11690 / DIESEL 1098 / OTHERS 220 / TOTAL 31676)"
+2024-10,monthly,Whole,DIV,12772.0,4368.0,9379.0,8599.0,1207.0,299.0,36624.0,"DIV 2024-10: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 36447, +177; ACEA had BEV 12738 / PHEV 4503 / HEV 3364 / PETROL 14068 / DIESEL 1476 / OTHERS 298 / TOTAL 36447)"
+2024-11,monthly,Whole,DIV,11256.0,3296.0,8039.0,7984.0,1084.0,324.0,31983.0,"DIV 2024-11: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 31825, +158; ACEA had BEV 11247 / PHEV 3441 / HEV 2728 / PETROL 12755 / DIESEL 1331 / OTHERS 323 / TOTAL 31825)"
+2024-12,monthly,Whole,DIV,7451.0,1930.0,6402.0,6846.0,760.0,242.0,23631.0,"DIV 2024-12: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 23437, +194; ACEA had BEV 7439 / PHEV 2018 / HEV 2408 / PETROL 10419 / DIESEL 913 / OTHERS 240 / TOTAL 23437)"
+2025-01,monthly,Whole,DIV,13723.0,3709.0,11588.0,10311.0,1137.0,291.0,40759.0,"DIV 2025-01: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 40594, +165; ACEA had BEV 13712 / PHEV 3996 / HEV 4458 / PETROL 16600 / DIESEL 1535 / OTHERS 293 / TOTAL 40594)"
+2025-02,monthly,Whole,DIV,13049.0,2729.0,12506.0,10931.0,811.0,267.0,40293.0,"DIV 2025-02: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 40161, +132; ACEA had BEV 13040 / PHEV 3070 / HEV 5383 / PETROL 17280 / DIESEL 1121 / TOTAL 40161)"
+2025-03,monthly,Whole,DIV,13664.0,3084.0,11997.0,10331.0,920.0,356.0,40352.0,"DIV 2025-03: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 40184, +168; ACEA had BEV 13650 / PHEV 3399 / HEV 4455 / PETROL 17056 / DIESEL 1275 / OTHERS 349 / TOTAL 40184)"
+2025-04,monthly,Whole,DIV,10714.0,2784.0,10387.0,7798.0,721.0,333.0,32737.0,"DIV 2025-04: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 37812, -5075; ACEA had BEV 12469 / PHEV 3443 / HEV 4161 / PETROL 16121 / DIESEL 1227 / OTHERS 391 / TOTAL 37812); CHECK: DIV's 2025-04 file is about 13 % short of ACEA's 37,812 (ACEA's April = its YTD difference; FY2025 ACEA 414,770 vs DIV 411,384) - shares usable, volume too low"
+2025-05,monthly,Whole,DIV,11359.0,3195.0,10555.0,8127.0,903.0,336.0,34475.0,"DIV 2025-05: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 34338, +137; ACEA had BEV 11347 / PHEV 3411 / HEV 3587 / PETROL 14406 / DIESEL 1250 / OTHERS 337 / TOTAL 34338)"
+2025-06,monthly,Whole,DIV,12771.0,3629.0,13567.0,10206.0,1207.0,343.0,41723.0,"DIV 2025-06: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 41527, +196; ACEA had BEV 12762 / PHEV 3853 / HEV 4217 / PETROL 18667 / DIESEL 1685 / TOTAL 41527)"
+2025-07,monthly,Whole,DIV,10219.0,3518.0,9731.0,7181.0,865.0,290.0,31804.0,"DIV 2025-07: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 31613, +191; ACEA had BEV 10195 / PHEV 3543 / HEV 3571 / PETROL 12864 / DIESEL 1150 / TOTAL 31613)"
+2025-08,monthly,Whole,DIV,9088.0,2799.0,7604.0,6029.0,510.0,176.0,26206.0,"DIV 2025-08: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 26120, +86; ACEA had BEV 9080 / PHEV 2895 / HEV 2560 / PETROL 10641 / DIESEL 768 / TOTAL 26120)"
+2025-09,monthly,Whole,DIV,11975.0,3193.0,9275.0,6443.0,597.0,180.0,31663.0,"DIV 2025-09: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 31519, +144; ACEA had BEV 11966 / PHEV 3261 / HEV 3358 / PETROL 11943 / DIESEL 811 / TOTAL 31519)"
+2025-10,monthly,Whole,DIV,12370.0,3479.0,10425.0,7066.0,551.0,218.0,34109.0,"DIV 2025-10: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 33955, +154; ACEA had BEV 12360 / PHEV 3581 / HEV 3970 / PETROL 13080 / DIESEL 747 / OTHERS 217 / TOTAL 33955)"
+2025-11,monthly,Whole,DIV,11952.0,2533.0,7639.0,5519.0,372.0,206.0,28221.0,"DIV 2025-11: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 28071, +150; ACEA had BEV 11935 / PHEV 2645 / HEV 2861 / PETROL 9878 / DIESEL 547 / OTHERS 205 / TOTAL 28071)"
+2025-12,monthly,Whole,DIV,11344.0,3219.0,8308.0,5584.0,473.0,114.0,29042.0,"DIV 2025-12: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 28877, +165; ACEA had BEV 11333 / PHEV 3345 / HEV 3591 / PETROL 9900 / DIESEL 594 / TOTAL 28877)"
+2026-01,monthly,Whole,DIV,12141.0,2136.0,11117.0,7158.0,526.0,100.0,33178.0,"DIV 2026-01: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 32997, +181; ACEA had BEV 12131 / PHEV 2068 / HEV 3809 / PETROL 14105 / DIESEL 784 / TOTAL 32997)"
+2026-02,monthly,Whole,DIV,11686.0,1799.0,13356.0,9761.0,517.0,113.0,37232.0,"DIV 2026-02: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 37075, +157; ACEA had BEV 11677 / PHEV 1965 / HEV 5058 / PETROL 17528 / DIESEL 734 / TOTAL 37075)"
+2026-03,monthly,Whole,DIV,15668.0,2177.0,15078.0,9820.0,717.0,423.0,43883.0,"DIV 2026-03: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 43733, +150; ACEA had BEV 15661 / PHEV 2417 / HEV 5221 / PETROL 18908 / DIESEL 1103 / TOTAL 43733)"
+2026-04,monthly,Whole,DIV,13989.0,1760.0,12942.0,8072.0,849.0,372.0,37984.0,"DIV 2026-04: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 37802, +182; ACEA had BEV 13971 / PHEV 1830 / HEV 4506 / PETROL 15888 / DIESEL 1236 / OTHERS 371 / TOTAL 37802)"
+2026-05,monthly,Whole,DIV,12601.0,1590.0,11882.0,6412.0,778.0,485.0,33748.0,"DIV 2026-05: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 33625, +123; ACEA had BEV 12586 / PHEV 1596 / HEV 4130 / PETROL 13765 / DIESEL 1063 / TOTAL 33625)"
+2026-06,monthly,Whole,DIV,17276.0,2567.0,15339.0,8709.0,1084.0,653.0,45628.0,"DIV 2026-06: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 45449, +179; ACEA had BEV 17256 / PHEV 2788 / HEV 5935 / PETROL 17344 / DIESEL 1474 / OTHERS 652 / TOTAL 45449)"
+2026-07,monthly,Whole,DIV,12541.0,1837.0,8584.0,5492.0,558.0,396.0,29408.0,"DIV 2026-07: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 29274, +134; ACEA had BEV 12528 / PHEV 2424 / HEV 1904 / PETROL 11210 / DIESEL 813 / OTHERS 395 / TOTAL 29274)"
+2026-08,monthly,Whole,DIV,13082.0,1691.0,8120.0,4820.0,425.0,255.0,28393.0,"DIV 2026-08: new passenger cars by fuel (HEV incl. mild hybrids); replaces ACEA (TOTAL 28295, +98; ACEA had BEV 13069 / PHEV 1952 / HEV 2720 / PETROL 9685 / DIESEL 615 / OTHERS 254 / TOTAL 28295)"

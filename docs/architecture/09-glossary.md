@@ -114,7 +114,7 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | Albania | First registrations of M1 passenger cars (Autovetura), new and imported used | — | — | — | First registrations of heavy goods vehicles | First registrations of buses |
 | Argentina | New registrations of passenger-car body types (sedán, rural, todo terreno, coupé, …) ≈ M1 | Whole ∧ first owner a natural person (persona física) | Whole ∧ first owner a legal person (persona jurídica) | — | — | — |
 | Austria | New passenger cars, class M1 (Pkw) | — | — | Lorries N1, up to 3.5 t | Lorries N2 + N3 plus articulated tractors (Sattelzugfahrzeuge) | — |
-| Belgium | New passenger-car registrations, via ACEA | — | — | New van registrations (N1, ≤ 3.5 t), via ACEA's Commercial Vehicle report | New truck registrations (N2+N3, > 3.5 t combined), via ACEA's Commercial Vehicle report | New bus & coach registrations (M2+M3), via ACEA's Commercial Vehicle report |
+| Belgium | New passenger cars (DIV "New vehicle", use group Passenger car) from the FPS Mobility's monthly registration files, monthly from 2013-01 ([59](59-source-belgium.md)) | Whole ∧ keeper not VAT-registered (DIV "Natural/Legal Person") | Whole ∧ keeper a VAT-registered legal person | New light goods vehicles (camionnettes, ≤ 3.5 t), DIV, monthly from 2013-01 | New lorries + tractor units (> 3.5 t), DIV, monthly from 2013-01 | New buses & coaches, DIV, monthly from 2013-01 |
 | Bulgaria | New passenger-car registrations, via ACEA | — | — | New van registrations (N1, ≤ 3.5 t), via ACEA's Commercial Vehicle report | New truck registrations (N2+N3, > 3.5 t combined), via ACEA's Commercial Vehicle report | New bus & coach registrations (M2+M3), via ACEA's Commercial Vehicle report |
 | Canada | Passenger cars + multi-purpose vehicles (SUVs/crossovers) = EU class M1 | — | — | Minivans + cargo vans — Canada-specific, mixes M1 and N1 | — | — |
 | China | Retail (零售) — passenger cars reaching end customers in mainland China | — | — | — | — | — |
@@ -159,7 +159,7 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 | Ukraine | New passenger cars (register kind ЛЕГКОВИЙ, M1) by the MIA register's new-vehicle first-registration codes | Whole ∧ owner a natural person (PERSON P) | Whole ∧ owner a legal person (PERSON J) | New goods vehicles (ВАНТАЖНИЙ) with gross weight ≤ 3,500 kg | — | — |
 | Uruguay | AUTOS + SUV worksheets combined | — | — | UTILITARIO worksheet | CAMIONES worksheet | OMNIBUS worksheet |
 
-> **ACEA Commercial Vehicle rows above** (Belgium, Bulgaria, Croatia, Cyprus,
+> **ACEA Commercial Vehicle rows above** (Bulgaria, Croatia, Cyprus,
 > France, Germany, Greece, Hungary, Iceland,
 > Lithuania, Malta, Norway, Romania, Slovakia, Slovenia, Sweden
 > — a maintainer-curated roster, not the same list `fetch_acea.py` uses for
