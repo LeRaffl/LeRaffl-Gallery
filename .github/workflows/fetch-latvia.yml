@@ -96,6 +96,10 @@ jobs:
           python scripts/test_fetch_latvia.py
           python scripts/test_market_top.py
 
+      # www.csdd.lv does not answer GitHub's hosted runners (connect timeout),
+      # so requests go through the Cloudflare Worker fetch relay — the same
+      # /fetch endpoint and secrets as the Austria fetcher (worker/index.js,
+      # RELAY_ALLOW_HOSTS); the Worker egresses from Cloudflare.
       - name: Fetch & update Latvia CSVs
         id: fetch
         run: |
@@ -109,6 +113,8 @@ jobs:
           PERIOD:   ${{ inputs.period }}
           BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
           FORCE:    ${{ inputs.force == true && '1' || '' }}
+          LATVIA_FETCH_RELAY: ${{ secrets.AUSTRIA_FETCH_RELAY }}
+          LATVIA_RELAY_TOKEN: ${{ secrets.AUSTRIA_RELAY_TOKEN }}
 
       - name: Commit if changed
         id: commit

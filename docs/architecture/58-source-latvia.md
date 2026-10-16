@@ -152,8 +152,9 @@ Latvia was an ACEA "always" country. ACEA's figure arrives three weeks after mon
 has no owner or used-import split, and its commercial vehicles are reconstructed quarters.
 Doc 33's 2026-09/10 register round looked at `data.gov.lv` only (stock snapshots); the
 CSDD statistics page itself publishes the first-registration records, free, without
-login, as XLSX, and was reachable from the dev sandbox. It has not been fetched from
-GitHub's runners yet — the first scheduled or dispatched run will show it (§7).
+login, as XLSX, and was reachable from the dev sandbox. GitHub's hosted runners get no
+answer from `www.csdd.lv` (connect timeout on two runners, 2026-10-16), so the workflow
+goes through the project's Cloudflare Worker fetch relay (§7).
 
 CSDD keeps the register ACEA's Latvian figure is built from, and the record file
 reproduces ACEA's monthly series to the car (§4). What it adds:
@@ -289,6 +290,12 @@ All CSVs keep the `HEV` column, empty in every row.
   only changed lines are written). `backfill` rewrites every month from 2015-01.
 * **Dispatch inputs:** `variant`, `period` (YYYY-MM), `backfill`, `force` (skip throttle,
   completeness, cross-check and foreign-row guards).
+* **Network:** every request goes through the Cloudflare Worker fetch relay
+  (`GET /fetch?url=`, [04](04-interfaces.md) §4.8) — `LATVIA_FETCH_RELAY` /
+  `LATVIA_RELAY_TOKEN` in the workflow, filled from the Austria relay's secrets
+  (`AUSTRIA_FETCH_RELAY` / `AUSTRIA_RELAY_TOKEN`, [07](07-secrets-trust.md)); `www.csdd.lv`
+  is on the Worker's host allow-list. With `LATVIA_FETCH_RELAY` unset the fetcher connects
+  directly, which works from a normal network.
 * **Offline:** `python scripts/fetch_latvia.py --from-dir DIR --backfill --dry-run` with the
   files saved as `DIR/headline.xlsx`, `DIR/cars.xlsx`, `DIR/lorries.xlsx` (`--dump-dir`
   saves them on a live run). Parsing both record files takes ~45 s.
@@ -300,6 +307,9 @@ All CSVs keep the `HEV` column, empty in every row.
 | `Statistics page: no link labelled …` | CSDD renamed a file or moved the page | open the page; update `FILE_LABELS` and `test_find_files` |
 | `headline table has no YYYY-MM yet` | not published | nothing — retried until the 25th; fetch-acea fills the month after that |
 | `no DATI sheet` / `DATI header lacks …` | a new file layout | open the file; adjust `iter_dati()` column names |
+| `ConnectTimeout … www.csdd.lv` | a direct connection from a runner (CSDD does not answer GitHub's IP ranges) | check that `LATVIA_FETCH_RELAY` reaches the step (the secret is set) |
+| `403 host not allowed: …` from the relay | CSDD moved its files to another host | add the host to `RELAY_ALLOW_HOSTS` in `worker/index.js` (deploys on push to `master`) |
+| relay `502` or a timeout through the relay | CSDD also refuses Cloudflare's egress | try the Deno Deploy relay (`worker/deno-relay.ts`, as the Netherlands does) |
 | `not an XLSX` | an HTML error page or a block | rerun; check the URL by hand |
 | `cross-check failed — first-registered passenger cars` | a partial file, or a restatement | compare with the headline table by hand; `force` if the records are right |
 | `::warning New value … fuel X` / `keeper X` / `status X` | a new register value | decide the mapping in `FUEL_CLASS` / `STATUS_*` / `KEEPER_*`, add a test |

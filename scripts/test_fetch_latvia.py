@@ -162,6 +162,13 @@ def test_find_files():
     check("headline url", got["headline"].endswith("xi=0"), True)
 
 
+def test_relayed():
+    url = "https://www.csdd.lv/cck?id=4473&xi=7"
+    check("direct", F.relayed(url, ""), url)
+    check("relay", F.relayed(url, "https://relay.example/fetch?url="),
+          "https://relay.example/fetch?url=https%3A%2F%2Fwww.csdd.lv%2Fcck%3Fid%3D4473%26xi%3D7")
+
+
 def test_upsert():
     cols = F.csv_columns()
     with tempfile.TemporaryDirectory() as d:
