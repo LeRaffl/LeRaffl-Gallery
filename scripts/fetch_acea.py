@@ -77,16 +77,19 @@ Per-country write rules
 The maintainer enumerated two lists:
 
 * "Always" list — always overwrite the current-month row, source := "ACEA":
-    Bulgaria, Croatia, Cyprus, Czechia, Estonia,
-    Hungary, Iceland, Latvia, Malta, Romania, Slovakia, Slovenia
+    Bulgaria, Croatia, Cyprus, Czechia,
+    Hungary, Iceland, Malta, Romania, Slovakia, Slovenia
 
 * "Conditional" list — only touch a row if the existing source is exactly
   "ACEA" (case-insensitive, after stripping whitespace), or no row exists:
-    Luxembourg, Norway, Poland, Lithuania, Belgium, Greece. A row a national fetcher marks as
+    Luxembourg, Norway, Poland, Lithuania, Latvia, Belgium, Greece, Estonia. A row a national fetcher marks as
     provisional (PROVISIONAL_NATIONAL_SOURCES — Lithuania's
     "Regitra (provisional)") counts as replaceable too.
   (Norway is OFV-primary since 2026-10 — scripts/fetch_norway.py; ACEA only
-  fills a month OFV's fetcher has not written.)
+  fills a month OFV's fetcher has not written. Estonia is Transpordiamet-
+  primary since 2026-10 — scripts/fetch_estonia.py, the register's own
+  monthly workbook from 2021-01; ACEA only fills a month that workbook has
+  not delivered yet, and is replaced by it on the next run.)
 
 Denmark, Finland, France, Netherlands, Spain, Sweden and Switzerland appear
 on ACEA's PDF but are intentionally out of scope here — the maintainer pulls those
@@ -153,8 +156,8 @@ import acea_split  # noqa: E402
 # --- Constants ------------------------------------------------------------
 
 ALWAYS_COUNTRIES = [
-    "Bulgaria", "Croatia", "Cyprus", "Czechia", "Estonia",
-    "Hungary", "Iceland", "Latvia",
+    "Bulgaria", "Croatia", "Cyprus", "Czechia",
+    "Hungary", "Iceland",
     "Malta", "Romania", "Slovakia", "Slovenia",
 ]
 CONDITIONAL_COUNTRIES = [
@@ -167,6 +170,13 @@ CONDITIONAL_COUNTRIES = [
     # next Regitra run takes the split from that row. It never overwrites a
     # final Regitra row. See docs/architecture/55-source-lithuania.md.
     "Lithuania",
+    # Latvia is CSDD-primary (scripts/fetch_latvia.py: the register's own
+    # first-registration records, about ten days before ACEA, plus Private /
+    # Industry / Used and monthly Vans/HDV/Buses). CSDD is the source of
+    # ACEA's Latvian figure — the two agree to the car — so ACEA only fills a
+    # month CSDD has not published yet; the next CSDD run replaces that row.
+    # See docs/architecture/58-source-latvia.md.
+    "Latvia",
     # Belgium is DIV-primary (scripts/fetch_belgium.py: the FPS Mobility's
     # monthly registration CSVs, on the 2nd of the next month — about three
     # weeks before ACEA — plus Private / Industry and monthly Vans/HDV/Buses).
@@ -189,6 +199,14 @@ CONDITIONAL_COUNTRIES = [
     # derived HEV/PETROL/DIESEL with its counts (update_country → merge_split,
     # docs/architecture/53-source-greece.md §3).
     "Greece",
+    # Estonia is Transpordiamet-primary (scripts/fetch_estonia.py): the traffic
+    # register's monthly "Infoleht" workbook, counted BEV/PHEV/HEV split from
+    # the EU hybrid type, posted in the first days of the next month — about
+    # three weeks before ACEA. ACEA fills an Estonia month only while no
+    # Transpordiamet row exists (a late workbook); fetch_estonia.py replaces
+    # that row and keeps ACEA's figure in its notes as the cross-check. See
+    # docs/architecture/57-source-estonia.md.
+    "Estonia",
 ]
 # Intentionally NOT in scope: Denmark, Finland, France, Netherlands,
 # Spain, Sweden, Switzerland. The maintainer pulls those from national databases/registries

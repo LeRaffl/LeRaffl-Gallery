@@ -185,12 +185,19 @@ import requests
 # owns its Vans/HDV/Buses rows, and the per-file conditional-write rule
 # below (not a separate exclusion list) is what keeps ACEA from ever
 # overwriting them.
+#   - Estonia: out since 2026-10 — Transpordiamet's monthly register workbook
+#     (scripts/fetch_estonia.py) carries monthly Vans/HDV/Buses with a
+#     counted BEV/PHEV/HEV split from 2021-01; the quarterly ACEA rows are
+#     parked in data/Estonia_legacy.csv.
+# Latvia left 2026-10: scripts/fetch_latvia.py writes its Vans/HDV/Buses
+# monthly from CSDD's register records; the former ACEA rows are archived in
+# data/Latvia_legacy.csv (docs/architecture/58-source-latvia.md).
 # Belgium left 2026-10: scripts/fetch_belgium.py writes its Vans/HDV/Buses
 # monthly from the FPS Mobility's registration CSVs; the former ACEA rows are
 # archived in data/Belgium_legacy.csv (docs/architecture/59-source-belgium.md).
 TARGET_COUNTRIES = [
-    "Bulgaria", "Croatia", "Cyprus", "Estonia",
-    "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
+    "Bulgaria", "Croatia", "Cyprus",
+    "France", "Germany", "Greece", "Hungary", "Iceland",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",
 ]

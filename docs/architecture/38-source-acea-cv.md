@@ -32,10 +32,10 @@ Cadence:   ACEA publishes four CUMULATIVE year-to-date checkpoints a year — Q1
            yet for that (country, variant, year).
 Countries: 18, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
            roster. See § 1a for the full reasoning:
-           Bulgaria, Croatia, Cyprus, Estonia, France, Germany, Greece,
-           Hungary, Iceland, Latvia, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
-           Slovenia, Sweden. (Switzerland and Czechia until 2026-09, Belgium until 2026-10
-           — DIV files, [59](59-source-belgium.md) — see § 1a.)
+           Belgium, Bulgaria, Croatia, Cyprus, Estonia, France, Germany, Greece,
+           Hungary, Iceland, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
+           Slovenia, Sweden. (Switzerland and Czechia until 2026-09, Latvia until 2026-10
+           — CSDD register, [58](58-source-latvia.md) — see § 1a.)
            (Malta is sometimes missing from a given release — "Data for Malta not
            available" — so its coverage is patchier than the rest.)
 Variants:  Vans (N1), HDV (N2+N3, i.e. medium+heavy trucks combined — already how the

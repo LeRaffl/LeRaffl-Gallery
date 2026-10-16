@@ -9,6 +9,11 @@
 fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
   verschiebung <- floor(min(na.omit(df$year)))
   df <- subset(df, df$year >= verschiebung)
+  # A period with TOTAL 0 (e.g. a month in which no bus was registered) has no
+  # share — 0/0 — and its weight in the RSS is 0 anyway. Left in, its NaN made
+  # optim() fail ("function cannot be evaluated at initial parameters") and the
+  # whole variant did not render. R/bands.R drops the same rows.
+  df <- df[is.finite(df$bev_share) & is.finite(df$ice_share), , drop = FALSE]
   alpha <- 1 - confidence_level
   z <- qnorm(1 - alpha / 2)
 

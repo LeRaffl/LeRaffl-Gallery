@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T09:23:47Z",
+ "generated": "2026-10-15T20:42:03Z",
  "today": "2026-10-15",
  "countries": [
   {
@@ -2282,20 +2282,28 @@
   {
    "country": "Latvia",
    "slug": "latvia",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "CSDD — first registrations from the vehicle register (Transportlīdzekļu dati, atjaunoti biežāk nekā reizi gadā)",
+   "source_url": "https://www.csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati",
+   "cadence_text": "twice daily (06:20 and 12:20 UTC) on the 8th–25th; CSDD replaces the files about ten working days after month end",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
     "days": [
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
      16,
      17,
      18,
@@ -2305,13 +2313,7 @@
      22,
      23,
      24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     25
     ],
     "months": [
      1,
@@ -2328,28 +2330,69 @@
      12
     ],
     "times": [
-     "08:40"
+     "06:20",
+     "12:20"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-latvia.yml"
    },
    "last_render": "2026-09-23",
    "flag": "🇱🇻",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2015-01",
-     "rows": 140,
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Used",
-     "latest": null,
-     "first": null,
-     "rows": 0,
-     "cadence": null,
-     "in_repo": false
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-09",
+     "first": "2015-01",
+     "rows": 141,
+     "cadence": "monthly",
+     "in_repo": true
     }
    ]
   },
@@ -3604,6 +3647,70 @@
    ]
   },
   {
+   "country": "South Africa",
+   "slug": "south_africa",
+   "method": "file",
+   "source_name": "naamsa — Quarterly Review of Business Conditions (New energy vehicle sales)",
+   "source_url": "https://naamsa.net/",
+   "cadence_text": "daily on the 10th–31st of February, May, August and November, 12:25 UTC — naamsa publishes the review 7–8 weeks after the quarter ends (2024–2026 between the 15th and the 27th)",
+   "interval": "quarterly",
+   "latest_period": "2026-05",
+   "expected_period": "2026-05",
+   "behind": 0,
+   "behind_now": 4,
+   "status": "current",
+   "automated": true,
+   "schedule": {
+    "enabled": true,
+    "days": [
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ],
+    "months": [
+     2,
+     5,
+     8,
+     11
+    ],
+    "times": [
+     "12:25"
+    ],
+    "workflow": ".github/workflows/fetch-south-africa.yml"
+   },
+   "last_render": "2026-10-15",
+   "flag": "🇿🇦",
+   "variants": [
+    {
+     "name": "Whole",
+     "latest": "2026-05",
+     "first": "2021-06",
+     "rows": 16,
+     "cadence": "quarterly",
+     "in_repo": true
+    }
+   ]
+  },
+  {
    "country": "South Korea",
    "slug": "south-korea",
    "method": "pdf",
@@ -3722,7 +3829,7 @@
     ],
     "workflow": ".github/workflows/fetch-spain.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-15",
    "flag": "🇪🇸",
    "variants": [
     {
@@ -4147,11 +4254,11 @@
    "source_url": "https://veriportali.tuik.gov.tr/",
    "cadence_text": "daily cron from the 15th, 08:30 UTC, but a no-op until the maintainer supplies the bulletin id",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -4193,14 +4300,14 @@
     ],
     "workflow": ".github/workflows/fetch-turkey.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-15",
    "flag": "🇹🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2016-01",
-     "rows": 128,
+     "rows": 129,
      "cadence": "monthly",
      "in_repo": true
     }
