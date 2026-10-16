@@ -4,7 +4,7 @@ Fetch ACEA's quarterly-cumulative Commercial Vehicle press release PDFs and
 reconstruct genuine Q1/Q2/Q3/Q4 rows (falling back to a single yearly row
 only when no clean quarterly baseline exists yet) into
 data/<Country>_<Variant>.csv for the ACEA multi-country roster — a
-maintainer-curated 21-country list, not simply scripts/fetch_acea.py's
+maintainer-curated list, not simply scripts/fetch_acea.py's
 passenger-car roster (see TARGET_COUNTRIES for exactly why each country
 is, or isn't, in scope).
 
