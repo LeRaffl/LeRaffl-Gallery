@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 60 countries · 6,870 periods drawable · 164 held back · **44 of 60 files cost the chart nothing.**
+**Status:** 60 countries · 6,879 periods drawable · 164 held back · **44 of 60 files cost the chart nothing.**
 
 ---
 
@@ -129,8 +129,8 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ### Estonia
 
-- A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `PETROL`, `DIESEL`, `OTHERS`, `TOTAL`** — up to 48 rows, 2018-01…2024-02. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
-- `time_interval` says **quarterly** on 48 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
+- A coarse figure is written across finer rows in **`BEV`, `PHEV`, `HEV`, `PETROL`, `DIESEL`, `OTHERS`, `TOTAL`** — up to 36 rows, 2018-01…2024-02. Recovered by summing the cycle; the cycle is then the finest resolution the chart can offer for that span.
+- `time_interval` says **quarterly** on 36 rows whose spacing is **monthly**. Nothing reads the label except § 3.2b (a row alone in its cycle), but it misleads every future consumer.
 
 ### Germany
 
