@@ -154,7 +154,8 @@ Doc 33's 2026-09/10 register round looked at `data.gov.lv` only (stock snapshots
 CSDD statistics page itself publishes the first-registration records, free, without
 login, as XLSX, and was reachable from the dev sandbox. GitHub's hosted runners get no
 answer from `www.csdd.lv` (connect timeout on two runners, 2026-10-16), so the workflow
-goes through the project's Cloudflare Worker fetch relay (§7).
+goes through the project's Deno Deploy fetch relay — Cloudflare's egress gets no answer
+either (522 through the Worker relay, same day) (§7).
 
 CSDD keeps the register ACEA's Latvian figure is built from, and the record file
 reproduces ACEA's monthly series to the car (§4). What it adds:
@@ -290,11 +291,15 @@ All CSVs keep the `HEV` column, empty in every row.
   only changed lines are written). `backfill` rewrites every month from 2015-01.
 * **Dispatch inputs:** `variant`, `period` (YYYY-MM), `backfill`, `force` (skip throttle,
   completeness, cross-check and foreign-row guards).
-* **Network:** every request goes through the Cloudflare Worker fetch relay
-  (`GET /fetch?url=`, [04](04-interfaces.md) §4.8) — `LATVIA_FETCH_RELAY` /
-  `LATVIA_RELAY_TOKEN` in the workflow, filled from the Austria relay's secrets
-  (`AUSTRIA_FETCH_RELAY` / `AUSTRIA_RELAY_TOKEN`, [07](07-secrets-trust.md)); `www.csdd.lv`
-  is on the Worker's host allow-list. With `LATVIA_FETCH_RELAY` unset the fetcher connects
+* **Network:** every request goes through the Deno Deploy fetch relay
+  (`worker/deno-relay.ts`, Google Cloud egress, `GET /fetch?url=`;
+  [10](10-source-netherlands.md) §13) — `LATVIA_FETCH_RELAY` / `LATVIA_RELAY_TOKEN` in the
+  workflow, filled from the Netherlands relay's secrets (`NL_FETCH_RELAY` /
+  `NL_RELAY_TOKEN`, [07](07-secrets-trust.md)). `www.csdd.lv` is on the relay's host
+  allow-list and its files are streamed through, not buffered. The Deno relay is
+  deployed by hand (paste the file at dash.deno.com) — a change to it is live only after
+  that. Neither GitHub's runners (connect timeout) nor Cloudflare's egress (`522` through
+  the Worker relay) get an answer from CSDD. With `LATVIA_FETCH_RELAY` unset the fetcher connects
   directly, which works from a normal network.
 * **Offline:** `python scripts/fetch_latvia.py --from-dir DIR --backfill --dry-run` with the
   files saved as `DIR/headline.xlsx`, `DIR/cars.xlsx`, `DIR/lorries.xlsx` (`--dump-dir`
@@ -308,8 +313,9 @@ All CSVs keep the `HEV` column, empty in every row.
 | `headline table has no YYYY-MM yet` | not published | nothing — retried until the 25th; fetch-acea fills the month after that |
 | `no DATI sheet` / `DATI header lacks …` | a new file layout | open the file; adjust `iter_dati()` column names |
 | `ConnectTimeout … www.csdd.lv` | a direct connection from a runner (CSDD does not answer GitHub's IP ranges) | check that `LATVIA_FETCH_RELAY` reaches the step (the secret is set) |
-| `403 host not allowed: …` from the relay | CSDD moved its files to another host | add the host to `RELAY_ALLOW_HOSTS` in `worker/index.js` (deploys on push to `master`) |
-| relay `502` or a timeout through the relay | CSDD also refuses Cloudflare's egress | try the Deno Deploy relay (`worker/deno-relay.ts`, as the Netherlands does) |
+| `403 host not allowed: www.csdd.lv` from the relay | the deployed Deno relay predates the Latvia host | redeploy `worker/deno-relay.ts` at dash.deno.com ([10](10-source-netherlands.md) §13) |
+| `403 host not allowed: …` (another host) | CSDD moved its files | add the host to `ALLOW_HOSTS` (and `STREAM_HOSTS`) in `worker/deno-relay.ts`, redeploy |
+| relay `502` / `522` or a timeout through the relay | CSDD refuses that egress too (Cloudflare does: `522`) | a `*_PROXY`-style fallback or a data agreement with CSDD; ACEA keeps Latvia Whole meanwhile |
 | `not an XLSX` | an HTML error page or a block | rerun; check the URL by hand |
 | `cross-check failed — first-registered passenger cars` | a partial file, or a restatement | compare with the headline table by hand; `force` if the records are right |
 | `::warning New value … fuel X` / `keeper X` / `status X` | a new register value | decide the mapping in `FUEL_CLASS` / `STATUS_*` / `KEEPER_*`, add a test |

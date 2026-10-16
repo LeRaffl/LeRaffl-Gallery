@@ -339,8 +339,7 @@ export default {
 // ── GET /fetch — host-allowlisted fetch relay ────────────────────────────────
 // Statistik Austria silently drops connections from GitHub's datacenter/Azure
 // IP ranges, so the Austria fetcher (scripts/fetch_austria.py) can't reach
-// www.statistik.at from a hosted runner; CSDD (www.csdd.lv, the Latvia
-// fetcher) does not answer them either. They instead call this endpoint, which
+// www.statistik.at from a hosted runner. It instead calls this endpoint, which
 // egresses from Cloudflare (a non-blocked IP), fetches the target, and streams
 // the raw bytes back unchanged (so binary .ods files survive intact).
 //
@@ -362,7 +361,6 @@ export default {
 const RELAY_ALLOW_HOSTS = new Set([
   'www.statistik.at', 'data.statistik.gv.at',  // Austria
   'duurzamemobiliteit.databank.nl',              // Netherlands (RDW via Swing)
-  'www.csdd.lv',                                 // Latvia (CSDD register files)
 ]);
 // Hosts that use server-side sessions: disable CF caching, forward cookies.
 const RELAY_SESSION_HOSTS = new Set(['duurzamemobiliteit.databank.nl']);
