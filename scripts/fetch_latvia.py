@@ -64,13 +64,13 @@ Governance (every real run)
 * rows from a foreign source other than ACEA are never overwritten without
   --force.
 
-Network: www.csdd.lv answers neither GitHub's hosted runners (connect
-timeout) nor Cloudflare's egress (522 through the Worker relay), both
-2026-10-16, so the workflow routes every request through the project's Deno
-Deploy fetch relay (worker/deno-relay.ts, Google Cloud egress) —
+Network: www.csdd.lv answers only European IP addresses (2026-10-16:
+GitHub's runners, Cloudflare and Deno Deploy all reach it from the US and time
+out), so the workflow routes every request through the project's fetch relay
+(worker/deno-relay.ts) running on Google Cloud Run in europe-north1 —
 LATVIA_FETCH_RELAY, the base URL `https://<relay-host>/fetch?url=` the target
 is appended to (url-encoded), gated by LATVIA_RELAY_TOKEN (sent as
-X-Relay-Token). Unset → direct, which works from a normal network.
+X-Relay-Token). Unset → direct, which works from a European network.
 
 CSDD restates recent months by a car or two when late registrations are
 booked, so a normal run rewrites the last 13 months (line-level upsert: only

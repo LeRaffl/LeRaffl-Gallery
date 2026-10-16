@@ -61,9 +61,11 @@ on:
         required: false
         default: false
         type: boolean
-  schedule:
-    # 06:20 and 12:20 UTC (Riga 09:20 / 15:20), 8th-25th of the month.
-    - cron: '20 6,12 8-25 * *'
+  # Schedule paused 2026-10-16 until the EU relay (Cloud Run, see the fetch
+  # step) is live — without it every run fails. To restore, uncomment:
+  # schedule:
+  #   # 06:20 and 12:20 UTC (Riga 09:20 / 15:20), 8th-25th of the month.
+  #   - cron: '20 6,12 8-25 * *'
 
 concurrency:
   group: fetch-latvia
@@ -96,11 +98,11 @@ jobs:
           python scripts/test_fetch_latvia.py
           python scripts/test_market_top.py
 
-      # www.csdd.lv answers neither GitHub's hosted runners (connect timeout)
-      # nor Cloudflare's egress (522 through the Worker relay, 2026-10-16), so
-      # requests go through the Deno Deploy relay (worker/deno-relay.ts,
-      # Google Cloud egress) — the same relay and secrets as the Netherlands
-      # fetcher.
+      # www.csdd.lv answers only European IP addresses (check-host.net,
+      # 2026-10-16): GitHub's runners, Cloudflare and Deno Deploy all reach it
+      # from the US and time out. Requests go through the relay
+      # (worker/deno-relay.ts) running on Google Cloud Run in europe-north1
+      # (worker/Dockerfile) — setup in docs/architecture/58-source-latvia.md §7.
       - name: Fetch & update Latvia CSVs
         id: fetch
         run: |
@@ -114,8 +116,8 @@ jobs:
           PERIOD:   ${{ inputs.period }}
           BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
           FORCE:    ${{ inputs.force == true && '1' || '' }}
-          LATVIA_FETCH_RELAY: ${{ secrets.NL_FETCH_RELAY }}
-          LATVIA_RELAY_TOKEN: ${{ secrets.NL_RELAY_TOKEN }}
+          LATVIA_FETCH_RELAY: ${{ secrets.LATVIA_FETCH_RELAY }}
+          LATVIA_RELAY_TOKEN: ${{ secrets.LATVIA_RELAY_TOKEN }}
 
       - name: Commit if changed
         id: commit

@@ -616,10 +616,11 @@ Investigation showed:
 same `/fetch?url=<encoded>` contract as the Austria CF Worker
 (`worker/index.js`). Because Deno Deploy's free tier egresses from **Google
 Cloud** IP ranges rather than Cloudflare or Azure, it is not caught by the
-current block. Since 2026-10 it also serves the Latvia fetcher: CSDD
-(`www.csdd.lv`) drops GitHub's Azure ranges and Cloudflare's egress (`522`)
-alike; its large XLSX files are streamed through (`STREAM_HOSTS`), not
-buffered ([58](58-source-latvia.md) §7).
+current block. The same file also runs on Google Cloud Run in Europe for the
+Latvia fetcher (`worker/Dockerfile`): CSDD (`www.csdd.lv`) answers only
+European IPs, and Deno Deploy serves a US caller (a GitHub runner) from a US
+region; its large XLSX files are streamed through (`STREAM_HOSTS`)
+([58](58-source-latvia.md) §7).
 
 The relay is session-aware (required for Swing's JIVE_AUTH cookie flow):
 
