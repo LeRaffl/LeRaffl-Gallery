@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-15T20:42:03Z",
- "today": "2026-10-15",
+ "generated": "2026-10-16T02:27:01Z",
+ "today": "2026-10-16",
  "countries": [
   {
    "country": "Albania",
@@ -306,10 +306,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -423,10 +423,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -788,10 +788,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -854,10 +854,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1175,36 +1175,35 @@
   {
    "country": "Estonia",
    "slug": "estonia",
-   "method": "pdf",
-   "source_name": "ACEA — monthly registrations",
-   "source_url": "https://www.acea.auto/",
-   "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
+   "method": "file",
+   "source_name": "Transpordiamet — monthly first-registration statistics (Infoleht), from the traffic register",
+   "source_url": "https://www.transpordiamet.ee/soidukitega-tehtud-toimingute-statistika",
+   "cadence_text": "twice daily (07:05 and 13:05 UTC) on the 1st–15th; the month's workbook is posted in the first days of the next month and never restated",
    "interval": "monthly",
-   "latest_period": "2026-08",
-   "expected_period": "2026-08",
+   "latest_period": "2026-09",
+   "expected_period": "2026-09",
    "behind": 0,
-   "behind_now": 1,
+   "behind_now": 0,
    "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
     "days": [
-     16,
-     17,
-     18,
-     19,
-     20,
-     21,
-     22,
-     23,
-     24,
-     25,
-     26,
-     27,
-     28,
-     29,
-     30,
-     31
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15
     ],
     "months": [
      1,
@@ -1221,18 +1220,67 @@
      12
     ],
     "times": [
-     "08:40"
+     "07:05",
+     "13:05"
     ],
-    "workflow": ".github/workflows/fetch-acea.yml"
+    "workflow": ".github/workflows/fetch-estonia.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-15",
    "flag": "🇪🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2018-01",
-     "rows": 104,
+     "rows": 105,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Private",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Industry",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Used",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Vans",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "HDV",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
+     "cadence": "monthly",
+     "in_repo": true
+    },
+    {
+     "name": "Buses",
+     "latest": "2026-09",
+     "first": "2021-01",
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1713,10 +1761,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1779,10 +1827,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -2190,9 +2238,9 @@
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2017-05",
-     "rows": 93,
+     "rows": 94,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2335,7 +2383,7 @@
     ],
     "workflow": ".github/workflows/fetch-latvia.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-15",
    "flag": "🇱🇻",
    "variants": [
     {
@@ -2667,10 +2715,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3390,10 +3438,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3523,10 +3571,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3589,10 +3637,10 @@
    "cadence_text": "daily cron, 16th–end of month, 08:40 UTC — ACEA publishes in the third to fourth week",
    "interval": "monthly",
    "latest_period": "2026-08",
-   "expected_period": "2026-08",
-   "behind": 0,
+   "expected_period": "2026-09",
+   "behind": 1,
    "behind_now": 1,
-   "status": "current",
+   "status": "due",
    "automated": true,
    "schedule": {
     "enabled": true,

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-15T20:42:03Z",
+ "generated": "2026-10-16T02:27:01Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -5976,6 +5976,118 @@
    "slug": "south_africa",
    "period": "2026-06",
    "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia",
+   "base": "Estonia",
+   "slug": "estonia",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (Buses)",
+   "base": "Estonia",
+   "slug": "estonia_buses",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (HDV)",
+   "base": "Estonia",
+   "slug": "estonia_hdv",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (Industry)",
+   "base": "Estonia",
+   "slug": "estonia_industry",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (Private)",
+   "base": "Estonia",
+   "slug": "estonia_private",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (Used)",
+   "base": "Estonia",
+   "slug": "estonia_used",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Estonia (Vans)",
+   "base": "Estonia",
+   "slug": "estonia_vans",
+   "period": "2026-09",
+   "flag": "🇪🇪"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia",
+   "base": "Latvia",
+   "slug": "latvia",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (Buses)",
+   "base": "Latvia",
+   "slug": "latvia_buses",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (HDV)",
+   "base": "Latvia",
+   "slug": "latvia_hdv",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (Industry)",
+   "base": "Latvia",
+   "slug": "latvia_industry",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (Private)",
+   "base": "Latvia",
+   "slug": "latvia_private",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (Used)",
+   "base": "Latvia",
+   "slug": "latvia_used",
+   "period": "2026-09",
+   "flag": "🇱🇻"
+  },
+  {
+   "date": "2026-10-15",
+   "label": "Latvia (Vans)",
+   "base": "Latvia",
+   "slug": "latvia_vans",
+   "period": "2026-09",
+   "flag": "🇱🇻"
   },
   {
    "date": "2026-10-15",
