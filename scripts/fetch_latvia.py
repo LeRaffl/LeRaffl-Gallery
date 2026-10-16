@@ -64,6 +64,13 @@ Governance (every real run)
 * rows from a foreign source other than ACEA are never overwritten without
   --force.
 
+Network: www.csdd.lv does not answer GitHub's hosted runners (connect
+timeout, 2026-10-16), so the workflow routes every request through the
+project's Cloudflare Worker fetch relay — LATVIA_FETCH_RELAY, the base URL
+`https://<worker-host>/fetch?url=` the target is appended to (url-encoded),
+gated by LATVIA_RELAY_TOKEN (sent as X-Relay-Token). Unset → direct, which
+works from a normal network.
+
 CSDD restates recent months by a car or two when late registrations are
 booked, so a normal run rewrites the last 13 months (line-level upsert: only
 lines that changed are touched).
@@ -89,6 +96,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 SCRIPTS = Path(__file__).resolve().parent
 REPO = SCRIPTS.parent
@@ -451,6 +459,12 @@ def acea_note(old: dict | None, counts: dict[str, int]) -> str:
 
 # ── network ────────────────────────────────────────────────────────────────
 
+def relayed(url: str, relay: str) -> str:
+    """The URL to request: through the fetch relay when one is set (the target
+    url-encoded onto its base, as the Worker's /fetch?url= expects)."""
+    return relay + quote(url, safe="") if relay else url
+
+
 def find_files(page: str) -> dict[str, str]:
     """Statistics page → {file key: url} for the three workbooks, matched by
     the visible link text (the URLs are opaque ...&xi=N indexes)."""
@@ -529,7 +543,16 @@ def main() -> int:
         import requests
         session = requests.Session()
         session.headers.update(UA)
-        r = session.get(PAGE_URL, timeout=120)
+        relay = os.environ.get("LATVIA_FETCH_RELAY", "").strip()
+        token = os.environ.get("LATVIA_RELAY_TOKEN", "").strip()
+        if relay:
+            # The Worker sends its own User-Agent upstream unless told otherwise.
+            session.headers["X-Fwd-User-Agent"] = UA["User-Agent"]
+            if token:
+                session.headers["X-Relay-Token"] = token
+        print("[net] " + (f"via the fetch relay (token {'set' if token else 'not set'})"
+                          if relay else "direct (LATVIA_FETCH_RELAY not set)"))
+        r = session.get(relayed(PAGE_URL, relay), timeout=120)
         r.raise_for_status()
         files = find_files(r.text)
         lacking = [k for k in FILE_LABELS if k not in files]
@@ -538,7 +561,7 @@ def main() -> int:
                      "— layout changed? Not writing. See the runbook in 58-source-latvia.md.")
 
         def load(k):
-            resp = session.get(files[k], timeout=600)
+            resp = session.get(relayed(files[k], relay), timeout=600)
             resp.raise_for_status()
             if resp.content[:2] != b"PK":
                 raise SystemExit(f"{k}: not an XLSX ({resp.headers.get('content-type')})")
