@@ -340,13 +340,14 @@ Two hosts are reached **through a relay** rather than directly, because they
 block datacenter egress: Statistik Austria (Cloudflare Worker, § 4.8) and
 duurzamemobiliteit (Deno Deploy — the Cloudflare relay is itself 403'd there).
 
-## 4.8 Worker GET /fetch (fetch relay: Austria, Latvia)
+## 4.8 Worker GET /fetch (Austria fetch relay)
 
 ### Purpose
 
 Host-allowlisted fetch relay so the Austria fetcher can reach Statistik Austria,
-which blocks GitHub Actions' datacenter IPs, and the Latvia fetcher can reach CSDD
-(`www.csdd.lv` does not answer them either; [58](58-source-latvia.md) §7). The Worker egresses from a
+which blocks GitHub Actions' datacenter IPs. (CSDD, the Latvia source, refuses
+Cloudflare's egress too — the Latvia fetcher uses the Deno Deploy relay instead;
+[58](58-source-latvia.md) §7.) The Worker egresses from a
 non-blocked IP, fetches the target, and streams the raw bytes back unchanged.
 See [20-source-austria.md](20-source-austria.md) for the full story.
 
@@ -357,17 +358,16 @@ GET /fetch?url=<url-encoded target>
 X-Relay-Token: <AUSTRIA_RELAY_TOKEN>     # required only if the secret is set on the Worker
 ```
 
-Called server-to-server by `.github/workflows/fetch-austria.yml` and
-`fetch-latvia.yml` (not the browser). `fetch_austria.py` builds the URL via
-`_get()`, `fetch_latvia.py` via `relayed()`; both send the same token.
+Called server-to-server by `.github/workflows/fetch-austria.yml` (not the
+browser). `fetch_austria.py` builds the URL via `_get()`.
 
 ### Response
 
 - `200` + the upstream body **verbatim** (original `Content-Type`; binary `.ods`
   preserved), `Cache-Control: public, max-age=300`.
 - Errors: `400` missing/bad `url`; `401` token mismatch; `403` host not in the
-  allow-list (`www.statistik.at`, `data.statistik.gv.at`, `www.csdd.lv`, and the
-  Netherlands host `duurzamemobiliteit.databank.nl`); `502` upstream error.
+  allow-list (`www.statistik.at`, `data.statistik.gv.at`, and the Netherlands host
+  `duurzamemobiliteit.databank.nl`); `502` upstream error.
 
 ### Guardrails
 

@@ -1,7 +1,8 @@
 // Deno Deploy fetch-relay — same contract as the Cloudflare Worker /fetch
 // endpoint in worker/index.js, but egressing from Google Cloud IP ranges
-// instead of Cloudflare's. Used for hosts (duurzamemobiliteit.databank.nl)
-// that 403 Cloudflare egress IPs as well as GitHub's Azure ranges.
+// instead of Cloudflare's. Used for hosts (duurzamemobiliteit.databank.nl,
+// www.csdd.lv) that refuse Cloudflare egress IPs as well as GitHub's Azure ranges.
+// Also used by scripts/fetch_latvia.py (LATVIA_FETCH_RELAY ← NL_FETCH_RELAY).
 //
 // Deploy (gratis, no credit card):
 //   1. https://dash.deno.com → sign in with GitHub → New Playground
@@ -36,7 +37,13 @@ const ALLOW_HOSTS = new Set([
   "duurzamemobiliteit.databank.nl", // Netherlands (RDW via Swing)
   "www.statistik.at",               // Austria (fallback if CF relay dies)
   "data.statistik.gv.at",
+  "www.csdd.lv",                    // Latvia (CSDD; drops Azure and Cloudflare too)
 ]);
+// Hosts whose files are large (CSDD's record workbooks are ~25–70 MB): the
+// body is streamed through instead of buffered, which keeps memory and CPU
+// time per request flat. Plain GETs without a session, so the streaming
+// pitfalls noted at the end of the handler do not apply.
+const STREAM_HOSTS = new Set(["www.csdd.lv"]);
 
 // Read every Set-Cookie from an upstream response, robust across runtimes.
 // Headers.getSetCookie() is the correct API but isn't present in every Deno
@@ -158,6 +165,12 @@ Deno.serve(async (req: Request) => {
       responseHeaders["X-Upstream-Location"] = upstreamLocation;
     }
 
+    if (STREAM_HOSTS.has(t.hostname)) {
+      return new Response(upstream.body, {
+        status: upstream.status,
+        headers: responseHeaders,
+      });
+    }
     // Buffer the body rather than streaming upstream.body through. Streaming a
     // consumed/aborted body is another source of opaque 500s; a full read is
     // fine for the small HTML/JSON payloads Swing returns.
