@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-16T02:54:00Z",
+ "generated": "2026-10-16T04:52:39Z",
  "today": "2026-10-16",
  "countries": [
   {
@@ -353,7 +353,7 @@
     ],
     "workflow": ".github/workflows/fetch-belgium.yml"
    },
-   "last_render": "2026-10-15",
+   "last_render": "2026-10-16",
    "flag": "🇧🇪",
    "variants": [
     {
@@ -1268,7 +1268,7 @@
     ],
     "workflow": ".github/workflows/fetch-estonia.yml"
    },
-   "last_render": "2026-10-15",
+   "last_render": "2026-10-16",
    "flag": "🇪🇪",
    "variants": [
     {
@@ -2426,7 +2426,7 @@
     ],
     "workflow": ".github/workflows/fetch-latvia.yml"
    },
-   "last_render": "2026-10-15",
+   "last_render": "2026-10-16",
    "flag": "🇱🇻",
    "variants": [
     {
@@ -3788,7 +3788,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-africa.yml"
    },
-   "last_render": "2026-10-15",
+   "last_render": "2026-10-16",
    "flag": "🇿🇦",
    "variants": [
     {
