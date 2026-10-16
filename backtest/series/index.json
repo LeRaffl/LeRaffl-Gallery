@@ -169,9 +169,10 @@
   2015.0,
   2050.0
  ],
- "n_cohort": 25,
+ "n_cohort": 26,
  "cohort": [
   "Austria",
+  "Belgium",
   "Brazil",
   "Chile",
   "China",
