@@ -1,0 +1,153 @@
+name: Fetch Estonia data (Transpordiamet register)
+
+# Fetches Transpordiamet's monthly "Infoleht (esmaste ja uute sõidukite
+# statistika)" workbook (transpordiamet.ee — the Estonian Transport
+# Administration, keeper of the traffic register) and upserts the Estonia CSVs:
+#
+#   data/Estonia.csv           Whole     new M1 + M1G
+#   data/Estonia_Private.csv   Private   new M1, owner a private person
+#   data/Estonia_Industry.csv  Industry  new M1, any other owner
+#   data/Estonia_Used.csv      Used      used-import M1 (first registrations − new)
+#   data/Estonia_Vans.csv      Vans      new N1 (+ N1G)
+#   data/Estonia_HDV.csv       HDV       new N2 + N3 (+ G)
+#   data/Estonia_Buses.csv     Buses     new M2 + M3 (+ G)
+#
+# Counts come from the workbook's "Uued sõidukid" sheet (every new vehicle,
+# with the EU hybrid type OVC_HEV / NOVC_HEV — a counted PHEV/HEV split) and
+# its "Kytus_esm" sheet (first registrations by engine type, for Used),
+# cross-checked every run against the same workbook's headline table. Also
+# writes market/estonia_top.json (+ the month store estonia_months.json).
+# Full method, validation and a debugging runbook:
+# docs/architecture/57-source-estonia.md.
+#
+# A month's workbook is posted in the first days of the next month and never
+# restated. Polled twice daily on the 1st-15th; a run whose target month is
+# already in every CSV makes no HTTP request. A normal run reads the
+# statistics page and one workbook (~0.5-1.5 MB); `backfill` reads every
+# workbook from 2021-01 (~70 files, ~90 MB).
+#
+# Rendering: dispatches render-country.yml ONCE with the pipe-separated list
+# of touched variants (serial in one run, one commit — see fetch-spain.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Variant to fetch (default: all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - Whole
+          - Private
+          - Industry
+          - Used
+          - Vans
+          - HDV
+          - Buses
+      period:
+        description: 'Target month YYYY-MM (default: last month)'
+        required: false
+        default: ''
+      backfill:
+        description: 'Re-derive every month from 2021-01 (every workbook)'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness / cross-check guards and foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 07:05 and 13:05 UTC (Tallinn 10:05 / 16:05), 1st-15th of the month.
+    - cron: '5 7,13 1-15 * *'
+
+concurrency:
+  group: fetch-estonia
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install requests openpyxl xlrd
+
+      # The powertrain mapping and the sheet parsers fail silently when wrong,
+      # so the regression tests gate the fetch rather than trail it (no network).
+      - name: Test the fetcher
+        run: |
+          python scripts/test_fetch_estonia.py
+          python scripts/test_market_top.py
+
+      - name: Fetch & update Estonia CSVs
+        id: fetch
+        run: |
+          python scripts/fetch_estonia.py \
+            ${VARIANT:+--variant "$VARIANT"} \
+            ${PERIOD:+--period "$PERIOD"} \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          VARIANT:  ${{ inputs.variant }}
+          PERIOD:   ${{ inputs.period }}
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: |
+            data/Estonia.csv
+            data/Estonia_Private.csv
+            data/Estonia_Industry.csv
+            data/Estonia_Used.csv
+            data/Estonia_Vans.csv
+            data/Estonia_HDV.csv
+            data/Estonia_Buses.csv
+            market/estonia_top.json
+            market/estonia_months.json
+          message: 'chore: update Estonia data from Transpordiamet'
+          default_author: github_actions
+          # Rebase over anything that landed while this job ran instead of
+          # failing the push with non-fast-forward (same as fetch-spain.yml).
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for Estonia
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="Estonia" \
+            -f variants="$variants"

@@ -18,7 +18,7 @@ don't ingest"). This fetcher is that separate release, finally wired up, with
 `Vans` / `HDV` / `Buses` variants — and reconstructing genuine `Q1`/`Q2`/`Q3`/`Q4` rows out of
 a source that only ever publishes cumulative running totals.
 
-**Its 21-country roster is not simply `fetch_acea.py`'s passenger-car list** — see § 1a.
+**Its roster is not simply `fetch_acea.py`'s passenger-car list** — see § 1a.
 
 ## TL;DR
 
@@ -30,12 +30,13 @@ Cadence:   ACEA publishes four CUMULATIVE year-to-date checkpoints a year — Q1
            reconstructs genuine, non-overlapping Q1/Q2/Q3/Q4 quarters from them (see § 2)
            and falls back to a single yearly row only when no quarterly baseline exists
            yet for that (country, variant, year).
-Countries: 18, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
+Countries: 17, maintainer-curated (2026-10) — NOT simply fetch_acea.py's passenger-car
            roster. See § 1a for the full reasoning:
-           Belgium, Bulgaria, Croatia, Cyprus, Estonia, France, Germany, Greece,
+           Belgium, Bulgaria, Croatia, Cyprus, France, Germany, Greece,
            Hungary, Iceland, Lithuania, Malta, Norway, Poland, Romania, Slovakia,
-           Slovenia, Sweden. (Switzerland and Czechia until 2026-09, Latvia until 2026-10
-           — CSDD register, [58](58-source-latvia.md) — see § 1a.)
+           Slovenia, Sweden. (Switzerland and Czechia until 2026-09; Latvia and Estonia
+           until 2026-10 — CSDD register, [58](58-source-latvia.md), and Transpordiamet
+           workbook, [57](57-source-estonia.md) — see § 1a.)
            (Malta is sometimes missing from a given release — "Data for Malta not
            available" — so its coverage is patchier than the rest.)
 Variants:  Vans (N1), HDV (N2+N3, i.e. medium+heavy trucks combined — already how the
@@ -100,6 +101,18 @@ no national Vans/HDV/Buses source at all, or vice versa. `TARGET_COUNTRIES` in
   Buses with a BEV/PHEV split back to 2016 (Buses within a few vehicles of these ACEA
   checkpoints, HDV about −1 %, Vans about −2.5 %). The quarterly rows this fetcher wrote
   are parked byte for byte in `data/Czechia_legacy.csv`.
+- **Latvia is OUT since 2026-10.** CSDD's first-registration records
+  (`scripts/fetch_latvia.py`, [58](58-source-latvia.md)) carry monthly Vans / HDV / Buses
+  with BEV and PHEV separate back to 2015. Against these checkpoints: Vans equal in
+  2023-Q1/Q2 and 0–13 % below in 2024–2026 with the same electric count (ACEA's "BEV" is
+  BEV + PHEV), HDV equal where ACEA's quarters are sound, Buses within 0–6 a quarter. The
+  rows this fetcher wrote are parked in `data/Latvia_legacy.csv`.
+- **Estonia is OUT since 2026-10.** Transpordiamet's monthly «Infoleht» workbook
+  (`scripts/fetch_estonia.py`, [57](57-source-estonia.md)) carries monthly Vans / HDV /
+  Buses with a counted BEV/PHEV/HEV split from 2021-01. Against these checkpoints: Vans
+  within −1 … +3 % (ACEA's "BEV" = our BEV + PHEV), HDV within a few vehicles a quarter,
+  Buses equal or within 1–5. The rows this fetcher wrote are parked in
+  `data/Estonia_legacy.csv`.
 - **Greece stays IN.** Its passenger cars moved to SEAA in 2026-10
   (`scripts/fetch_greece.py`, [53](53-source-greece.md)), but SEAA and ELSTAT publish vans,
   trucks and buses without a fuel split, so these checkpoints remain the only electric

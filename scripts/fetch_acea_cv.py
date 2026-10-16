@@ -4,7 +4,7 @@ Fetch ACEA's quarterly-cumulative Commercial Vehicle press release PDFs and
 reconstruct genuine Q1/Q2/Q3/Q4 rows (falling back to a single yearly row
 only when no clean quarterly baseline exists yet) into
 data/<Country>_<Variant>.csv for the ACEA multi-country roster — a
-maintainer-curated 21-country list, not simply scripts/fetch_acea.py's
+maintainer-curated list, not simply scripts/fetch_acea.py's
 passenger-car roster (see TARGET_COUNTRIES for exactly why each country
 is, or isn't, in scope).
 
@@ -185,11 +185,15 @@ import requests
 # owns its Vans/HDV/Buses rows, and the per-file conditional-write rule
 # below (not a separate exclusion list) is what keeps ACEA from ever
 # overwriting them.
+#   - Estonia: out since 2026-10 — Transpordiamet's monthly register workbook
+#     (scripts/fetch_estonia.py) carries monthly Vans/HDV/Buses with a
+#     counted BEV/PHEV/HEV split from 2021-01; the quarterly ACEA rows are
+#     parked in data/Estonia_legacy.csv.
 # Latvia left 2026-10: scripts/fetch_latvia.py writes its Vans/HDV/Buses
 # monthly from CSDD's register records; the former ACEA rows are archived in
 # data/Latvia_legacy.csv (docs/architecture/58-source-latvia.md).
 TARGET_COUNTRIES = [
-    "Belgium", "Bulgaria", "Croatia", "Cyprus", "Estonia",
+    "Belgium", "Bulgaria", "Croatia", "Cyprus",
     "France", "Germany", "Greece", "Hungary", "Iceland",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",

@@ -1,11 +1,11 @@
-🇪🇪 Estonia (Buses) - Q2 2026 - EV Trajectory
-24.3% EV
+🇪🇪 Estonia (Buses) - September 26 - BEV Trajectory
+0.0% BEV
 0.0% PHEV
-75.7% ICE
+100.0% ICE
 
-Trailing 4 quarters are:
-13.8% EV
+Trailing 12 months are:
+26.3% BEV
 0.0% PHEV
-86.2% ICE
+73.7% ICE
 
 Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

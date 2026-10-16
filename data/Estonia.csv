@@ -35,71 +35,72 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2020-10,quarterly,Whole,ACEA,48.0,9.0,254.0,768.0,707.0,61.0,1849.0,
 2020-11,quarterly,Whole,ACEA,48.0,9.0,254.0,768.0,707.0,61.0,1849.0,
 2020-12,quarterly,Whole,ACEA,48.0,9.0,254.0,768.0,707.0,61.0,1849.0,
-2021-01,quarterly,Whole,ACEA,31.66666667,14.66666667,480.0,847.0,473.3333333,62.66666667,1909.333333,
-2021-02,quarterly,Whole,ACEA,31.66666667,14.66666667,480.0,847.0,473.3333333,62.66666667,1909.333333,
-2021-03,quarterly,Whole,ACEA,31.66666667,14.66666667,480.0,847.0,473.3333333,62.66666667,1909.333333,
-2021-04,quarterly,Whole,ACEA,54.0,20.0,670.0,1177.0,449.0,31.0,2404.0,
-2021-05,quarterly,Whole,ACEA,54.0,20.0,670.0,1177.0,449.0,31.0,2404.0,
-2021-06,quarterly,Whole,ACEA,54.0,20.0,670.0,1177.0,449.0,31.0,2404.0,
-2021-07,quarterly,Whole,ACEA,35.0,21.0,559.6666667,963.0,247.0,40.33333333,1866.0,
-2021-08,quarterly,Whole,ACEA,35.0,21.0,559.6666667,963.0,245.0,40.33333333,1864.0,
-2021-09,quarterly,Whole,ACEA,34.0,21.0,559.6666667,963.0,245.0,40.33333333,1863.0,
-2021-10,quarterly,Whole,ACEA,40.0,9.0,411.0,593.0,193.0,20.0,1267.0,
-2021-11,quarterly,Whole,ACEA,40.0,9.0,411.0,593.0,193.0,20.0,1267.0,
-2021-12,quarterly,Whole,ACEA,40.0,9.0,411.0,593.0,193.0,20.0,1267.0,
-2022-01,monthly,Whole,ACEA,44.0,39.0,671.0,633.0,301.0,36.0,1724.0,
-2022-02,monthly,Whole,ACEA,41.0,68.0,449.0,587.0,233.0,31.0,1409.0,
-2022-03,monthly,Whole,ACEA,62.0,36.0,764.0,870.0,291.0,35.0,2058.0,
-2022-04,monthly,Whole,ACEA,79.0,45.0,600.0,772.0,265.0,17.0,1778.0,
-2022-05,monthly,Whole,ACEA,87.0,33.0,733.0,973.0,327.0,21.0,2174.0,
-2022-06,monthly,Whole,ACEA,71.0,43.0,543.0,978.0,316.0,20.0,1972.0,
-2022-07,monthly,Whole,ACEA,51.0,41.0,439.0,740.0,273.0,25.0,1569.0,
-2022-08,monthly,Whole,ACEA,55.0,30.0,543.0,766.0,291.0,43.0,1728.0,
-2022-09,monthly,Whole,ACEA,64.0,15.0,555.0,828.0,325.0,23.0,1810.0,
-2022-10,monthly,Whole,ACEA,68.0,27.0,565.0,719.0,276.0,17.0,1672.0,
-2022-11,monthly,Whole,ACEA,46.0,17.0,435.0,643.0,276.0,11.0,1428.0,
-2022-12,monthly,Whole,ACEA,44.0,23.0,419.0,475.0,181.0,3.0,1145.0,
-2023-01,monthly,Whole,ACEA,58.0,32.0,739.0,735.0,203.0,6.0,1773.0,
-2023-02,monthly,Whole,ACEA,77.0,25.0,728.0,541.0,220.0,6.0,1597.0,
-2023-03,monthly,Whole,ACEA,110.0,74.0,798.0,1025.0,276.0,5.0,2288.0,
-2023-04,monthly,Whole,ACEA,112.0,30.0,707.0,813.0,253.0,8.0,1923.0,
-2023-05,monthly,Whole,ACEA,149.0,54.0,796.0,987.0,298.0,5.0,2289.0,
-2023-06,monthly,Whole,ACEA,138.0,61.0,809.0,979.0,264.0,10.0,2261.0,
-2023-07,monthly,Whole,ACEA,119.0,43.0,669.0,718.0,270.0,3.0,1822.0,
-2023-08,monthly,Whole,ACEA,124.0,52.0,772.0,621.0,196.0,3.0,1768.0,
-2023-09,monthly,Whole,ACEA,141.0,52.0,742.0,652.0,145.0,1.0,1733.0,
-2023-10,monthly,Whole,ACEA,149.0,59.0,665.0,654.0,194.0,5.0,1726.0,
-2023-11,monthly,Whole,ACEA,129.0,39.0,789.0,625.0,240.0,5.0,1827.0,
-2023-12,monthly,Whole,ACEA,139.0,39.0,853.0,496.0,277.0,9.0,1813.0,
-2024-01,monthly,Whole,ACEA,136.0,55.0,683.0,413.0,281.0,9.0,1577.0,
-2024-02,monthly,Whole,ACEA,89.0,59.0,609.0,430.0,244.0,9.0,1440.0,
-2024-03,monthly,Whole,ACEA,92.0,69.0,647.0,571.0,303.0,17.0,1699.0,
-2024-04,monthly,Whole,ACEA,82.0,60.0,780.0,510.0,285.0,17.0,1734.0,
-2024-05,monthly,Whole,ACEA,130.0,64.0,887.0,530.0,284.0,10.0,1905.0,
-2024-06,monthly,Whole,ACEA,120.0,61.0,889.0,498.0,239.0,5.0,1812.0,
-2024-07,monthly,Whole,ACEA,122.0,117.0,820.0,460.0,286.0,49.0,1854.0,
-2024-08,monthly,Whole,ACEA,104.0,110.0,775.0,449.0,235.0,8.0,1681.0,
-2024-09,monthly,Whole,ACEA,107.0,130.0,1000.0,535.0,349.0,4.0,2125.0,
-2024-10,monthly,Whole,ACEA,119.0,155.0,1280.0,599.0,520.0,0.0,2673.0,
-2024-11,monthly,Whole,ACEA,131.0,177.0,1587.0,805.0,601.0,12.0,3313.0,
-2024-12,monthly,Whole,ACEA,88.0,212.0,1578.0,895.0,794.0,6.0,3573.0,
-2025-01,monthly,Whole,ACEA,83.0,77.0,254.0,82.0,35.0,0.0,531.0,
-2025-02,monthly,Whole,ACEA,59.0,69.0,307.0,132.0,57.0,0.0,624.0,
-2025-03,monthly,Whole,ACEA,82.0,95.0,531.0,182.0,76.0,0.0,966.0,
-2025-04,monthly,Whole,ACEA,72.0,83.0,591.0,216.0,113.0,0.0,1075.0,
-2025-05,monthly,Whole,ACEA,59.0,133.0,774.0,249.0,196.0,0.0,1411.0,
-2025-06,monthly,Whole,ACEA,89.0,175.0,832.0,312.0,141.0,0.0,1549.0,
-2025-07,monthly,Whole,ACEA,100.0,113.0,545.0,234.0,114.0,0.0,1106.0,
-2025-08,monthly,Whole,ACEA,46.0,125.0,426.0,290.0,94.0,0.0,981.0,
-2025-09,monthly,Whole,ACEA,68.0,139.0,588.0,301.0,83.0,0.0,1179.0,
-2025-10,monthly,Whole,ACEA,77.0,143.0,663.0,283.0,100.0,0.0,1266.0,
-2025-11,monthly,Whole,ACEA,65.0,115.0,626.0,290.0,88.0,0.0,1184.0,
-2025-12,monthly,Whole,ACEA,68.0,136.0,611.0,271.0,97.0,0.0,1183.0,
-2026-01,monthly,Whole,ACEA,76.0,155.0,656.0,286.0,186.0,0.0,1359.0,
-2026-02,monthly,Whole,ACEA,65.0,87.0,598.0,242.0,146.0,0.0,1138.0,
-2026-03,monthly,Whole,ACEA,119.0,161.0,1032.0,289.0,152.0,0.0,1753.0,
-2026-04,monthly,Whole,ACEA,115.0,154.0,1238.0,185.0,222.0,0.0,1914.0,data/Press_release_car_registrations_April_2026.pdf
-2026-05,monthly,Whole,ACEA,96.0,146.0,1229.0,218.0,194.0,0.0,1883.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
-2026-06,monthly,Whole,ACEA,146.0,161.0,1067.0,336.0,222.0,0.0,1932.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
-2026-07,monthly,Whole,ACEA,176.0,146.0,856.0,239.0,196.0,0.0,1613.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2026-08,monthly,Whole,ACEA,174.0,112.0,773.0,275.0,145.0,0.0,1479.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
+2021-01,monthly,Whole,Transpordiamet,25.0,17.0,466.0,766.0,652.0,83.0,2009.0,Transpordiamet Infoleht 2021-01: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-02,monthly,Whole,Transpordiamet,24.0,9.0,473.0,758.0,411.0,50.0,1725.0,Transpordiamet Infoleht 2021-02: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-03,monthly,Whole,Transpordiamet,45.0,18.0,521.0,1070.0,459.0,57.0,2170.0,Transpordiamet Infoleht 2021-03: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-04,monthly,Whole,Transpordiamet,76.0,18.0,594.0,1179.0,520.0,23.0,2410.0,Transpordiamet Infoleht 2021-04: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-05,monthly,Whole,Transpordiamet,26.0,23.0,552.0,1178.0,411.0,25.0,2215.0,Transpordiamet Infoleht 2021-05: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-06,monthly,Whole,Transpordiamet,62.0,29.0,867.0,1183.0,468.0,47.0,2656.0,Transpordiamet Infoleht 2021-06: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-07,monthly,Whole,Transpordiamet,30.0,19.0,675.0,1200.0,329.0,63.0,2316.0,Transpordiamet Infoleht 2021-07: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-08,monthly,Whole,Transpordiamet,32.0,22.0,431.0,829.0,169.0,33.0,1516.0,Transpordiamet Infoleht 2021-08: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-09,monthly,Whole,Transpordiamet,43.0,22.0,575.0,872.0,247.0,25.0,1784.0,Transpordiamet Infoleht 2021-09: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-10,monthly,Whole,Transpordiamet,49.0,19.0,393.0,686.0,189.0,12.0,1348.0,Transpordiamet Infoleht 2021-10: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-11,monthly,Whole,Transpordiamet,41.0,29.0,447.0,660.0,251.0,22.0,1450.0,Transpordiamet Infoleht 2021-11: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2021-12,monthly,Whole,Transpordiamet,33.0,14.0,363.0,438.0,151.0,28.0,1027.0,Transpordiamet Infoleht 2021-12: new vehicles by engine and EU hybrid type; replaces ACEA quarterly row
+2022-01,monthly,Whole,Transpordiamet,46.0,39.0,676.0,644.0,305.0,36.0,1746.0,"Transpordiamet Infoleht 2022-01: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1724, +22; BEV 44 / PHEV 39 / HEV 671 / PETROL 633 / DIESEL 301 / OTHERS 36)"
+2022-02,monthly,Whole,Transpordiamet,42.0,32.0,489.0,589.0,236.0,31.0,1419.0,"Transpordiamet Infoleht 2022-02: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1409, +10; BEV 41 / PHEV 68 / HEV 449 / PETROL 587 / DIESEL 233 / OTHERS 31)"
+2022-03,monthly,Whole,Transpordiamet,62.0,36.0,773.0,873.0,296.0,35.0,2075.0,"Transpordiamet Infoleht 2022-03: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2058, +17; BEV 62 / PHEV 36 / HEV 764 / PETROL 870 / DIESEL 291 / OTHERS 35)"
+2022-04,monthly,Whole,Transpordiamet,79.0,45.0,606.0,774.0,268.0,17.0,1789.0,"Transpordiamet Infoleht 2022-04: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1778, +11; BEV 79 / PHEV 45 / HEV 600 / PETROL 772 / DIESEL 265 / OTHERS 17)"
+2022-05,monthly,Whole,Transpordiamet,87.0,33.0,736.0,982.0,329.0,21.0,2188.0,"Transpordiamet Infoleht 2022-05: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2174, +14; BEV 87 / PHEV 33 / HEV 733 / PETROL 973 / DIESEL 327 / OTHERS 21)"
+2022-06,monthly,Whole,Transpordiamet,47.0,52.0,577.0,968.0,273.0,23.0,1940.0,"Transpordiamet Infoleht 2022-06: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1972, -32; BEV 71 / PHEV 43 / HEV 543 / PETROL 978 / DIESEL 316 / OTHERS 20)"
+2022-07,monthly,Whole,Transpordiamet,50.0,41.0,442.0,744.0,274.0,26.0,1577.0,"Transpordiamet Infoleht 2022-07: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1569, +8; BEV 51 / PHEV 41 / HEV 439 / PETROL 740 / DIESEL 273 / OTHERS 25)"
+2022-08,monthly,Whole,Transpordiamet,56.0,30.0,544.0,771.0,293.0,43.0,1737.0,"Transpordiamet Infoleht 2022-08: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1728, +9; BEV 55 / PHEV 30 / HEV 543 / PETROL 766 / DIESEL 291 / OTHERS 43)"
+2022-09,monthly,Whole,Transpordiamet,64.0,15.0,555.0,831.0,326.0,23.0,1814.0,"Transpordiamet Infoleht 2022-09: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1810, +4; BEV 64 / PHEV 15 / HEV 555 / PETROL 828 / DIESEL 325 / OTHERS 23)"
+2022-10,monthly,Whole,Transpordiamet,68.0,27.0,569.0,721.0,277.0,17.0,1679.0,"Transpordiamet Infoleht 2022-10: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1672, +7; BEV 68 / PHEV 27 / HEV 565 / PETROL 719 / DIESEL 276 / OTHERS 17)"
+2022-11,monthly,Whole,Transpordiamet,47.0,17.0,439.0,652.0,277.0,11.0,1443.0,"Transpordiamet Infoleht 2022-11: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1428, +15; BEV 46 / PHEV 17 / HEV 435 / PETROL 643 / DIESEL 276 / OTHERS 11)"
+2022-12,monthly,Whole,Transpordiamet,44.0,23.0,419.0,483.0,182.0,3.0,1154.0,"Transpordiamet Infoleht 2022-12: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1145, +9; BEV 44 / PHEV 23 / HEV 419 / PETROL 475 / DIESEL 181 / OTHERS 3)"
+2023-01,monthly,Whole,Transpordiamet,58.0,28.0,747.0,736.0,213.0,6.0,1788.0,"Transpordiamet Infoleht 2023-01: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1773, +15; BEV 58 / PHEV 32 / HEV 739 / PETROL 735 / DIESEL 203 / OTHERS 6)"
+2023-02,monthly,Whole,Transpordiamet,77.0,25.0,744.0,545.0,225.0,6.0,1622.0,"Transpordiamet Infoleht 2023-02: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1597, +25; BEV 77 / PHEV 25 / HEV 728 / PETROL 541 / DIESEL 220 / OTHERS 6)"
+2023-03,monthly,Whole,Transpordiamet,111.0,74.0,804.0,1039.0,283.0,5.0,2316.0,"Transpordiamet Infoleht 2023-03: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2288, +28; BEV 110 / PHEV 74 / HEV 798 / PETROL 1025 / DIESEL 276 / OTHERS 5)"
+2023-04,monthly,Whole,Transpordiamet,112.0,30.0,708.0,821.0,255.0,8.0,1934.0,"Transpordiamet Infoleht 2023-04: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1923, +11; BEV 112 / PHEV 30 / HEV 707 / PETROL 813 / DIESEL 253 / OTHERS 8)"
+2023-05,monthly,Whole,Transpordiamet,149.0,54.0,800.0,993.0,300.0,5.0,2301.0,"Transpordiamet Infoleht 2023-05: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2289, +12; BEV 149 / PHEV 54 / HEV 796 / PETROL 987 / DIESEL 298 / OTHERS 5)"
+2023-06,monthly,Whole,Transpordiamet,138.0,61.0,810.0,992.0,265.0,10.0,2276.0,"Transpordiamet Infoleht 2023-06: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2261, +15; BEV 138 / PHEV 61 / HEV 809 / PETROL 979 / DIESEL 264 / OTHERS 10)"
+2023-07,monthly,Whole,Transpordiamet,118.0,43.0,671.0,725.0,272.0,4.0,1833.0,"Transpordiamet Infoleht 2023-07: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1822, +11; BEV 119 / PHEV 43 / HEV 669 / PETROL 718 / DIESEL 270 / OTHERS 3)"
+2023-08,monthly,Whole,Transpordiamet,124.0,52.0,775.0,622.0,197.0,3.0,1773.0,"Transpordiamet Infoleht 2023-08: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1768, +5; BEV 124 / PHEV 52 / HEV 772 / PETROL 621 / DIESEL 196 / OTHERS 3)"
+2023-09,monthly,Whole,Transpordiamet,141.0,52.0,757.0,659.0,145.0,1.0,1755.0,"Transpordiamet Infoleht 2023-09: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1733, +22; BEV 141 / PHEV 52 / HEV 742 / PETROL 652 / DIESEL 145 / OTHERS 1)"
+2023-10,monthly,Whole,Transpordiamet,149.0,59.0,677.0,661.0,196.0,5.0,1747.0,"Transpordiamet Infoleht 2023-10: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1726, +21; BEV 149 / PHEV 59 / HEV 665 / PETROL 654 / DIESEL 194 / OTHERS 5)"
+2023-11,monthly,Whole,Transpordiamet,131.0,39.0,789.0,626.0,240.0,5.0,1830.0,"Transpordiamet Infoleht 2023-11: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1827, +3; BEV 129 / PHEV 39 / HEV 789 / PETROL 625 / DIESEL 240 / OTHERS 5)"
+2023-12,monthly,Whole,Transpordiamet,139.0,39.0,855.0,496.0,278.0,9.0,1816.0,"Transpordiamet Infoleht 2023-12: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1813, +3; BEV 139 / PHEV 39 / HEV 853 / PETROL 496 / DIESEL 277 / OTHERS 9)"
+2024-01,monthly,Whole,Transpordiamet,136.0,55.0,683.0,422.0,284.0,9.0,1589.0,"Transpordiamet Infoleht 2024-01: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1577, +12; BEV 136 / PHEV 55 / HEV 683 / PETROL 413 / DIESEL 281 / OTHERS 9)"
+2024-02,monthly,Whole,Transpordiamet,90.0,59.0,613.0,432.0,245.0,9.0,1448.0,"Transpordiamet Infoleht 2024-02: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1440, +8; BEV 89 / PHEV 59 / HEV 609 / PETROL 430 / DIESEL 244 / OTHERS 9)"
+2024-03,monthly,Whole,Transpordiamet,93.0,69.0,649.0,575.0,304.0,17.0,1707.0,"Transpordiamet Infoleht 2024-03: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1699, +8; BEV 92 / PHEV 69 / HEV 647 / PETROL 571 / DIESEL 303 / OTHERS 17)"
+2024-04,monthly,Whole,Transpordiamet,82.0,60.0,781.0,517.0,286.0,17.0,1743.0,"Transpordiamet Infoleht 2024-04: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1734, +9; BEV 82 / PHEV 60 / HEV 780 / PETROL 510 / DIESEL 285 / OTHERS 17)"
+2024-05,monthly,Whole,Transpordiamet,130.0,64.0,888.0,533.0,286.0,10.0,1911.0,"Transpordiamet Infoleht 2024-05: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1905, +6; BEV 130 / PHEV 64 / HEV 887 / PETROL 530 / DIESEL 284 / OTHERS 10)"
+2024-06,monthly,Whole,Transpordiamet,121.0,61.0,889.0,502.0,242.0,5.0,1820.0,"Transpordiamet Infoleht 2024-06: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1812, +8; BEV 120 / PHEV 61 / HEV 889 / PETROL 498 / DIESEL 239 / OTHERS 5)"
+2024-07,monthly,Whole,Transpordiamet,122.0,117.0,846.0,463.0,285.0,49.0,1882.0,"Transpordiamet Infoleht 2024-07: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1854, +28; BEV 122 / PHEV 117 / HEV 820 / PETROL 460 / DIESEL 286 / OTHERS 49)"
+2024-08,monthly,Whole,Transpordiamet,99.0,110.0,786.0,450.0,264.0,13.0,1722.0,"Transpordiamet Infoleht 2024-08: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1681, +41; BEV 104 / PHEV 110 / HEV 775 / PETROL 449 / DIESEL 235 / OTHERS 8)"
+2024-09,monthly,Whole,Transpordiamet,107.0,130.0,1018.0,540.0,356.0,4.0,2155.0,"Transpordiamet Infoleht 2024-09: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2125, +30; BEV 107 / PHEV 130 / HEV 1000 / PETROL 535 / DIESEL 349 / OTHERS 4)"
+2024-10,monthly,Whole,Transpordiamet,119.0,155.0,1296.0,603.0,522.0,0.0,2695.0,"Transpordiamet Infoleht 2024-10: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 2673, +22; BEV 119 / PHEV 155 / HEV 1280 / PETROL 599 / DIESEL 520 / OTHERS 0)"
+2024-11,monthly,Whole,Transpordiamet,131.0,177.0,1619.0,808.0,602.0,12.0,3349.0,"Transpordiamet Infoleht 2024-11: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 3313, +36; BEV 131 / PHEV 177 / HEV 1587 / PETROL 805 / DIESEL 601 / OTHERS 12)"
+2024-12,monthly,Whole,Transpordiamet,88.0,212.0,1647.0,939.0,832.0,6.0,3724.0,"Transpordiamet Infoleht 2024-12: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 3573, +151; BEV 88 / PHEV 212 / HEV 1578 / PETROL 895 / DIESEL 794 / OTHERS 6)"
+2025-01,monthly,Whole,Transpordiamet,58.0,77.0,257.0,82.0,35.0,25.0,534.0,"Transpordiamet Infoleht 2025-01: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 531, +3; BEV 83 / PHEV 77 / HEV 254 / PETROL 82 / DIESEL 35 / OTHERS 0)"
+2025-02,monthly,Whole,Transpordiamet,59.0,69.0,307.0,132.0,60.0,0.0,627.0,"Transpordiamet Infoleht 2025-02: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 624, +3; BEV 59 / PHEV 69 / HEV 307 / PETROL 132 / DIESEL 57 / OTHERS 0)"
+2025-03,monthly,Whole,Transpordiamet,82.0,95.0,531.0,184.0,76.0,0.0,968.0,"Transpordiamet Infoleht 2025-03: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 966, +2; BEV 82 / PHEV 95 / HEV 531 / PETROL 182 / DIESEL 76 / OTHERS 0)"
+2025-04,monthly,Whole,Transpordiamet,72.0,83.0,592.0,206.0,109.0,0.0,1062.0,"Transpordiamet Infoleht 2025-04: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1075, -13; BEV 72 / PHEV 83 / HEV 591 / PETROL 216 / DIESEL 113 / OTHERS 0)"
+2025-05,monthly,Whole,Transpordiamet,60.0,133.0,774.0,251.0,196.0,0.0,1414.0,"Transpordiamet Infoleht 2025-05: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1411, +3; BEV 59 / PHEV 133 / HEV 774 / PETROL 249 / DIESEL 196 / OTHERS 0)"
+2025-06,monthly,Whole,Transpordiamet,90.0,175.0,832.0,332.0,141.0,0.0,1570.0,"Transpordiamet Infoleht 2025-06: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1549, +21; BEV 89 / PHEV 175 / HEV 832 / PETROL 312 / DIESEL 141 / OTHERS 0)"
+2025-07,monthly,Whole,Transpordiamet,100.0,113.0,547.0,243.0,116.0,0.0,1119.0,"Transpordiamet Infoleht 2025-07: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1106, +13; BEV 100 / PHEV 113 / HEV 545 / PETROL 234 / DIESEL 114 / OTHERS 0)"
+2025-08,monthly,Whole,Transpordiamet,46.0,125.0,427.0,292.0,94.0,0.0,984.0,"Transpordiamet Infoleht 2025-08: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 981, +3; BEV 46 / PHEV 125 / HEV 426 / PETROL 290 / DIESEL 94 / OTHERS 0)"
+2025-09,monthly,Whole,Transpordiamet,68.0,139.0,591.0,303.0,83.0,0.0,1184.0,"Transpordiamet Infoleht 2025-09: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1179, +5; BEV 68 / PHEV 139 / HEV 588 / PETROL 301 / DIESEL 83 / OTHERS 0)"
+2025-10,monthly,Whole,Transpordiamet,78.0,143.0,664.0,285.0,101.0,0.0,1271.0,"Transpordiamet Infoleht 2025-10: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1266, +5; BEV 77 / PHEV 143 / HEV 663 / PETROL 283 / DIESEL 100 / OTHERS 0)"
+2025-11,monthly,Whole,Transpordiamet,66.0,115.0,630.0,290.0,88.0,0.0,1189.0,"Transpordiamet Infoleht 2025-11: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1184, +5; BEV 65 / PHEV 115 / HEV 626 / PETROL 290 / DIESEL 88 / OTHERS 0)"
+2025-12,monthly,Whole,Transpordiamet,68.0,136.0,614.0,290.0,97.0,0.0,1205.0,"Transpordiamet Infoleht 2025-12: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1183, +22; BEV 68 / PHEV 136 / HEV 611 / PETROL 271 / DIESEL 97 / OTHERS 0)"
+2026-01,monthly,Whole,Transpordiamet,76.0,155.0,659.0,292.0,186.0,0.0,1368.0,"Transpordiamet Infoleht 2026-01: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1359, +9; BEV 76 / PHEV 155 / HEV 656 / PETROL 286 / DIESEL 186 / OTHERS 0)"
+2026-02,monthly,Whole,Transpordiamet,66.0,87.0,599.0,245.0,146.0,0.0,1143.0,"Transpordiamet Infoleht 2026-02: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1138, +5; BEV 65 / PHEV 87 / HEV 598 / PETROL 242 / DIESEL 146 / OTHERS 0)"
+2026-03,monthly,Whole,Transpordiamet,119.0,161.0,1035.0,294.0,154.0,0.0,1763.0,"Transpordiamet Infoleht 2026-03: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1753, +10; BEV 119 / PHEV 161 / HEV 1032 / PETROL 289 / DIESEL 152 / OTHERS 0)"
+2026-04,monthly,Whole,Transpordiamet,115.0,154.0,1242.0,190.0,222.0,0.0,1923.0,"Transpordiamet Infoleht 2026-04: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1914, +9; BEV 115 / PHEV 154 / HEV 1238 / PETROL 185 / DIESEL 222 / OTHERS 0)"
+2026-05,monthly,Whole,Transpordiamet,98.0,146.0,1235.0,220.0,194.0,0.0,1893.0,"Transpordiamet Infoleht 2026-05: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1883, +10; BEV 96 / PHEV 146 / HEV 1229 / PETROL 218 / DIESEL 194 / OTHERS 0)"
+2026-06,monthly,Whole,Transpordiamet,147.0,161.0,1070.0,349.0,223.0,0.0,1950.0,"Transpordiamet Infoleht 2026-06: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1932, +18; BEV 146 / PHEV 161 / HEV 1067 / PETROL 336 / DIESEL 222 / OTHERS 0)"
+2026-07,monthly,Whole,Transpordiamet,177.0,146.0,866.0,241.0,197.0,0.0,1627.0,"Transpordiamet Infoleht 2026-07: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1613, +14; BEV 176 / PHEV 146 / HEV 856 / PETROL 239 / DIESEL 196 / OTHERS 0)"
+2026-08,monthly,Whole,Transpordiamet,174.0,112.0,777.0,276.0,147.0,0.0,1486.0,"Transpordiamet Infoleht 2026-08: new vehicles by engine and EU hybrid type; replaces ACEA (TOTAL 1479, +7; BEV 174 / PHEV 112 / HEV 773 / PETROL 275 / DIESEL 145 / OTHERS 0)"
+2026-09,monthly,Whole,Transpordiamet,186.0,156.0,938.0,216.0,174.0,0.0,1670.0,Transpordiamet Infoleht 2026-09: new vehicles by engine and EU hybrid type

@@ -1,0 +1,11 @@
+🇪🇪 Estonia (Used) - September 26 - BEV Trajectory
+11.5% BEV
+21.5% Hybrid
+66.9% ICE
+
+Trailing 12 months are:
+10.9% BEV
+21.2% Hybrid
+67.9% ICE
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

@@ -1,0 +1,13 @@
+🇪🇪 Estonia (Industry) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++1.7pp  BEV   (5.3% → 7.0%)
++0.6pp  PHEV  (7.3% → 7.9%)
++9.8pp  HEV   (46.8% → 56.6%)
+−12.0pp  ICE   (40.6% → 28.6%)
+
+PHEV peaked at 9.4% in 2025-12 (declining for 9 months).
+If the changes from the last 6 months continued linearly, BEV would overtake PHEV in 2026-12.
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-06.
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

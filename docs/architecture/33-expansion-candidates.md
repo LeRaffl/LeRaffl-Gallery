@@ -392,7 +392,7 @@ significant EV importer is outside it**).
 > | 🇭🇷 Croatia | `data.gov.hr` (CVH datasets) | yearly vehicle datasets, the newest for 2022 |
 > | 🇸🇮 Slovenia | `podatki.gov.si`, SURS PxWeb | the record-level register extract stopped in 2023 (data protection); SURS's monthly first registrations have no fuel |
 > | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 — but CSDD's own statistics page has monthly first-registration records: **built 2026-10**, see below |
-> | 🇪🇪 Estonia | `avaandmed.eesti.ee` (Transpordiamet "Infoleht") | a monthly XLSX of first and new registrations exists (to 2025-12); a small market, not pursued in this round — the best lead left among the ACEA countries |
+> | 🇪🇪 Estonia | `avaandmed.eesti.ee` (Transpordiamet "Infoleht") | a monthly XLSX of first and new registrations exists (to 2025-12); **built 2026-10** — see the section below |
 > | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is` | timed out from runners |
 > | 🇧🇬 Bulgaria | `data.egov.bg` | 403 |
 > | 🇸🇰 Slovakia | `data.gov.sk` | the CKAN API answered an HTML page |
@@ -421,6 +421,21 @@ Re-check of the remaining ACEA-primary countries in the same round (2026-10-15):
 > | 🇨🇾 Cyprus | CYSTAT PxWeb API, `data.gov.cy` | monthly registrations as machine-readable PxWeb tables, but only by category and new/used — the energy type is in the monthly PDF release only (and annual tables). The closest miss. |
 > | 🇲🇹 Malta | NSO, Transport Malta | NSO publishes quarterly "Motor Vehicles" releases; both sites refuse the sandbox (403 / TLS) |
 > | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is`, Statistics Iceland PxWeb | Samgöngustofa's dashboard still fails TLS from the sandbox (and timed out from runners earlier); Statistics Iceland has only yearly vehicle tables |
+
+## Automated, not new — 🇪🇪 Estonia (2026-10)
+
+Estonia moved from ACEA (Whole, quarterly CV) to **Transpordiamet**'s monthly
+«Infoleht» register workbook — free, no login, one XLS/XLSX per month on
+`transpordiamet.ee/soidukitega-tehtud-toimingute-statistika`, reachable
+from GitHub's runners. It lists every new vehicle with EU category, engine
+type, EU hybrid type (from 2021), owner type, make and model, so one file
+gives `Whole`, `Private`, `Industry`, `Used`, monthly `Vans` / `HDV` /
+`Buses` and the brand/model tables. Whole agrees with ACEA within about
++0.6 % overall (2022–2026). ACEA is now only a conditional fallback. See
+[57](57-source-estonia.md).
+
+On top of the Latvia re-check table above, Hungary was probed in the same round: no
+monthly drivetrain table on KSH, `data.gov.hu` or `kormany.hu` — only green-plate stocks.
 
 ## Automated, not new — 🇳🇿 New Zealand (2026-10)
 

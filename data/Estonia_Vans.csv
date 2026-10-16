@@ -1,21 +1,70 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2021-07,yearly,Vans,ACEA,,,,,,,4142.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2022-07,yearly,Vans,ACEA,,,,,,,3910.0,https://www.acea.auto/files/20230125_PRCV_2212_FINAL.pdf (pre-fuel-split ACEA CV release: TOTAL only)
-2023-02,quarterly,Vans,ACEA,14.0,,1.0,90.0,722.0,0.0,827.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2022-02,quarterly,Vans,ACEA,22.0,,1.0,57.0,963.0,0.0,1043.0,https://www.acea.auto/files/20230407_PRCV_Q1-2023_FINAL.pdf
-2023-05,quarterly,Vans,ACEA,10.0,,5.0,68.0,878.0,0.0,980.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_H1-2024.pdf
-2022-05,quarterly,Vans,ACEA,10.0,,23.0,50.0,893.0,0.0,976.0,https://www.acea.auto/files/20230727_PRCV_Q1-Q2_2023.pdf
-2024-02,quarterly,Vans,ACEA,27.0,,29.0,86.0,887.0,0.0,1029.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2024.pdf
-2024-05,quarterly,Vans,ACEA,16.0,,10.0,124.0,829.0,0.0,979.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
-2024-08,quarterly,Vans,ACEA,15.0,,4.0,54.0,671.0,0.0,744.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2023-08,quarterly,Vans,ACEA,87.0,,15.0,57.0,976.0,0.0,1116.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q3_2024.pdf
-2022-08,quarterly,Vans,ACEA,15.0,,5.0,42.0,868.0,0.0,930.0,https://www.acea.auto/files/Press_release_commercial_vehicles_Q1-Q3_2023.pdf
-2023-11,quarterly,Vans,ACEA,15.0,,9.0,89.0,868.0,0.0,981.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2022-11,quarterly,Vans,ACEA,15.0,,6.0,40.0,700.0,0.0,761.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_2023.pdf
-2025-02,quarterly,Vans,ACEA,15.0,,15.0,17.0,423.0,0.0,470.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2025-1.pdf
-2025-05,quarterly,Vans,ACEA,26.0,,15.0,34.0,639.0,0.0,714.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-Q2_2025.pdf
-2025-08,quarterly,Vans,ACEA,44.0,,6.0,35.0,487.0,0.0,572.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q3-2025.pdf
-2025-11,quarterly,Vans,ACEA,35.0,,3.0,23.0,506.0,0.0,567.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2024-11,quarterly,Vans,ACEA,40.0,,10.0,89.0,1189.0,0.0,1328.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_fulll_year_2025.pdf
-2026-02,quarterly,Vans,ACEA,39.0,,28.0,17.0,687.0,0.0,771.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations_Q1-2026.pdf
-2026-05,quarterly,Vans,ACEA,70.0,,23.0,26.0,739.0,0.0,858.0,https://www.acea.auto/files/Press_release_commercial_vehicle_registrations-H1_2026.pdf
+2021-01,monthly,Vans,Transpordiamet,2.0,0.0,0.0,15.0,376.0,0.0,393.0,Transpordiamet Infoleht 2021-01: new vehicles by engine and EU hybrid type
+2021-02,monthly,Vans,Transpordiamet,2.0,0.0,1.0,17.0,340.0,0.0,360.0,Transpordiamet Infoleht 2021-02: new vehicles by engine and EU hybrid type
+2021-03,monthly,Vans,Transpordiamet,0.0,0.0,0.0,33.0,420.0,0.0,453.0,Transpordiamet Infoleht 2021-03: new vehicles by engine and EU hybrid type
+2021-04,monthly,Vans,Transpordiamet,2.0,0.0,0.0,26.0,379.0,1.0,408.0,Transpordiamet Infoleht 2021-04: new vehicles by engine and EU hybrid type
+2021-05,monthly,Vans,Transpordiamet,0.0,0.0,1.0,20.0,353.0,1.0,375.0,Transpordiamet Infoleht 2021-05: new vehicles by engine and EU hybrid type
+2021-06,monthly,Vans,Transpordiamet,0.0,0.0,0.0,29.0,387.0,0.0,416.0,Transpordiamet Infoleht 2021-06: new vehicles by engine and EU hybrid type
+2021-07,monthly,Vans,Transpordiamet,0.0,0.0,0.0,22.0,247.0,0.0,269.0,Transpordiamet Infoleht 2021-07: new vehicles by engine and EU hybrid type
+2021-08,monthly,Vans,Transpordiamet,0.0,0.0,2.0,24.0,327.0,0.0,353.0,Transpordiamet Infoleht 2021-08: new vehicles by engine and EU hybrid type
+2021-09,monthly,Vans,Transpordiamet,6.0,0.0,0.0,14.0,294.0,0.0,314.0,Transpordiamet Infoleht 2021-09: new vehicles by engine and EU hybrid type
+2021-10,monthly,Vans,Transpordiamet,2.0,0.0,0.0,13.0,245.0,0.0,260.0,Transpordiamet Infoleht 2021-10: new vehicles by engine and EU hybrid type
+2021-11,monthly,Vans,Transpordiamet,12.0,0.0,0.0,18.0,287.0,0.0,317.0,Transpordiamet Infoleht 2021-11: new vehicles by engine and EU hybrid type
+2021-12,monthly,Vans,Transpordiamet,0.0,0.0,0.0,7.0,259.0,0.0,266.0,Transpordiamet Infoleht 2021-12: new vehicles by engine and EU hybrid type
+2022-01,monthly,Vans,Transpordiamet,14.0,0.0,0.0,14.0,332.0,0.0,360.0,Transpordiamet Infoleht 2022-01: new vehicles by engine and EU hybrid type
+2022-02,monthly,Vans,Transpordiamet,2.0,3.0,1.0,23.0,314.0,0.0,343.0,Transpordiamet Infoleht 2022-02: new vehicles by engine and EU hybrid type
+2022-03,monthly,Vans,Transpordiamet,3.0,0.0,0.0,22.0,338.0,0.0,363.0,Transpordiamet Infoleht 2022-03: new vehicles by engine and EU hybrid type
+2022-04,monthly,Vans,Transpordiamet,5.0,0.0,1.0,20.0,305.0,0.0,331.0,Transpordiamet Infoleht 2022-04: new vehicles by engine and EU hybrid type
+2022-05,monthly,Vans,Transpordiamet,0.0,0.0,15.0,17.0,293.0,0.0,325.0,Transpordiamet Infoleht 2022-05: new vehicles by engine and EU hybrid type
+2022-06,monthly,Vans,Transpordiamet,5.0,0.0,7.0,14.0,307.0,0.0,333.0,Transpordiamet Infoleht 2022-06: new vehicles by engine and EU hybrid type
+2022-07,monthly,Vans,Transpordiamet,1.0,0.0,2.0,12.0,236.0,0.0,251.0,Transpordiamet Infoleht 2022-07: new vehicles by engine and EU hybrid type
+2022-08,monthly,Vans,Transpordiamet,3.0,0.0,2.0,14.0,306.0,0.0,325.0,Transpordiamet Infoleht 2022-08: new vehicles by engine and EU hybrid type
+2022-09,monthly,Vans,Transpordiamet,11.0,0.0,1.0,17.0,334.0,0.0,363.0,Transpordiamet Infoleht 2022-09: new vehicles by engine and EU hybrid type
+2022-10,monthly,Vans,Transpordiamet,10.0,0.0,1.0,15.0,237.0,0.0,263.0,Transpordiamet Infoleht 2022-10: new vehicles by engine and EU hybrid type
+2022-11,monthly,Vans,Transpordiamet,4.0,0.0,4.0,15.0,280.0,0.0,303.0,Transpordiamet Infoleht 2022-11: new vehicles by engine and EU hybrid type
+2022-12,monthly,Vans,Transpordiamet,1.0,0.0,1.0,8.0,186.0,0.0,196.0,Transpordiamet Infoleht 2022-12: new vehicles by engine and EU hybrid type
+2023-01,monthly,Vans,Transpordiamet,6.0,0.0,3.0,35.0,243.0,0.0,287.0,Transpordiamet Infoleht 2023-01: new vehicles by engine and EU hybrid type
+2023-02,monthly,Vans,Transpordiamet,2.0,0.0,1.0,24.0,190.0,0.0,217.0,Transpordiamet Infoleht 2023-02: new vehicles by engine and EU hybrid type
+2023-03,monthly,Vans,Transpordiamet,3.0,0.0,1.0,34.0,303.0,0.0,341.0,Transpordiamet Infoleht 2023-03: new vehicles by engine and EU hybrid type
+2023-04,monthly,Vans,Transpordiamet,0.0,0.0,0.0,20.0,247.0,0.0,267.0,Transpordiamet Infoleht 2023-04: new vehicles by engine and EU hybrid type
+2023-05,monthly,Vans,Transpordiamet,4.0,0.0,2.0,26.0,262.0,0.0,294.0,Transpordiamet Infoleht 2023-05: new vehicles by engine and EU hybrid type
+2023-06,monthly,Vans,Transpordiamet,9.0,0.0,3.0,24.0,399.0,0.0,435.0,Transpordiamet Infoleht 2023-06: new vehicles by engine and EU hybrid type
+2023-07,monthly,Vans,Transpordiamet,48.0,0.0,6.0,17.0,292.0,0.0,363.0,Transpordiamet Infoleht 2023-07: new vehicles by engine and EU hybrid type
+2023-08,monthly,Vans,Transpordiamet,13.0,0.0,8.0,22.0,292.0,0.0,335.0,Transpordiamet Infoleht 2023-08: new vehicles by engine and EU hybrid type
+2023-09,monthly,Vans,Transpordiamet,23.0,0.0,1.0,19.0,404.0,0.0,447.0,Transpordiamet Infoleht 2023-09: new vehicles by engine and EU hybrid type
+2023-10,monthly,Vans,Transpordiamet,8.0,0.0,1.0,21.0,312.0,0.0,342.0,Transpordiamet Infoleht 2023-10: new vehicles by engine and EU hybrid type
+2023-11,monthly,Vans,Transpordiamet,4.0,0.0,4.0,52.0,341.0,0.0,401.0,Transpordiamet Infoleht 2023-11: new vehicles by engine and EU hybrid type
+2023-12,monthly,Vans,Transpordiamet,3.0,0.0,4.0,16.0,225.0,0.0,248.0,Transpordiamet Infoleht 2023-12: new vehicles by engine and EU hybrid type
+2024-01,monthly,Vans,Transpordiamet,16.0,0.0,15.0,38.0,251.0,0.0,320.0,Transpordiamet Infoleht 2024-01: new vehicles by engine and EU hybrid type
+2024-02,monthly,Vans,Transpordiamet,2.0,0.0,6.0,24.0,303.0,0.0,335.0,Transpordiamet Infoleht 2024-02: new vehicles by engine and EU hybrid type
+2024-03,monthly,Vans,Transpordiamet,8.0,1.0,8.0,37.0,350.0,0.0,404.0,Transpordiamet Infoleht 2024-03: new vehicles by engine and EU hybrid type
+2024-04,monthly,Vans,Transpordiamet,7.0,0.0,5.0,28.0,275.0,0.0,315.0,Transpordiamet Infoleht 2024-04: new vehicles by engine and EU hybrid type
+2024-05,monthly,Vans,Transpordiamet,2.0,0.0,4.0,11.0,318.0,0.0,335.0,Transpordiamet Infoleht 2024-05: new vehicles by engine and EU hybrid type
+2024-06,monthly,Vans,Transpordiamet,7.0,0.0,1.0,86.0,241.0,0.0,335.0,Transpordiamet Infoleht 2024-06: new vehicles by engine and EU hybrid type
+2024-07,monthly,Vans,Transpordiamet,4.0,0.0,2.0,28.0,188.0,0.0,222.0,Transpordiamet Infoleht 2024-07: new vehicles by engine and EU hybrid type
+2024-08,monthly,Vans,Transpordiamet,5.0,0.0,0.0,11.0,230.0,0.0,246.0,Transpordiamet Infoleht 2024-08: new vehicles by engine and EU hybrid type
+2024-09,monthly,Vans,Transpordiamet,4.0,2.0,2.0,16.0,272.0,0.0,296.0,Transpordiamet Infoleht 2024-09: new vehicles by engine and EU hybrid type
+2024-10,monthly,Vans,Transpordiamet,7.0,0.0,1.0,25.0,281.0,0.0,314.0,Transpordiamet Infoleht 2024-10: new vehicles by engine and EU hybrid type
+2024-11,monthly,Vans,Transpordiamet,10.0,0.0,1.0,26.0,384.0,0.0,421.0,Transpordiamet Infoleht 2024-11: new vehicles by engine and EU hybrid type
+2024-12,monthly,Vans,Transpordiamet,21.0,2.0,8.0,40.0,529.0,0.0,600.0,Transpordiamet Infoleht 2024-12: new vehicles by engine and EU hybrid type
+2025-01,monthly,Vans,Transpordiamet,7.0,0.0,4.0,8.0,87.0,0.0,106.0,Transpordiamet Infoleht 2025-01: new vehicles by engine and EU hybrid type
+2025-02,monthly,Vans,Transpordiamet,2.0,0.0,10.0,4.0,151.0,0.0,167.0,Transpordiamet Infoleht 2025-02: new vehicles by engine and EU hybrid type
+2025-03,monthly,Vans,Transpordiamet,5.0,1.0,1.0,5.0,181.0,0.0,193.0,Transpordiamet Infoleht 2025-03: new vehicles by engine and EU hybrid type
+2025-04,monthly,Vans,Transpordiamet,6.0,5.0,5.0,14.0,229.0,0.0,259.0,Transpordiamet Infoleht 2025-04: new vehicles by engine and EU hybrid type
+2025-05,monthly,Vans,Transpordiamet,3.0,0.0,4.0,16.0,172.0,0.0,195.0,Transpordiamet Infoleht 2025-05: new vehicles by engine and EU hybrid type
+2025-06,monthly,Vans,Transpordiamet,7.0,5.0,6.0,4.0,237.0,0.0,259.0,Transpordiamet Infoleht 2025-06: new vehicles by engine and EU hybrid type
+2025-07,monthly,Vans,Transpordiamet,16.0,0.0,1.0,10.0,172.0,0.0,199.0,Transpordiamet Infoleht 2025-07: new vehicles by engine and EU hybrid type
+2025-08,monthly,Vans,Transpordiamet,11.0,1.0,2.0,11.0,145.0,0.0,170.0,Transpordiamet Infoleht 2025-08: new vehicles by engine and EU hybrid type
+2025-09,monthly,Vans,Transpordiamet,15.0,1.0,3.0,17.0,170.0,0.0,206.0,Transpordiamet Infoleht 2025-09: new vehicles by engine and EU hybrid type
+2025-10,monthly,Vans,Transpordiamet,9.0,0.0,2.0,11.0,143.0,0.0,165.0,Transpordiamet Infoleht 2025-10: new vehicles by engine and EU hybrid type
+2025-11,monthly,Vans,Transpordiamet,17.0,3.0,1.0,9.0,208.0,0.0,238.0,Transpordiamet Infoleht 2025-11: new vehicles by engine and EU hybrid type
+2025-12,monthly,Vans,Transpordiamet,4.0,2.0,0.0,4.0,155.0,0.0,165.0,Transpordiamet Infoleht 2025-12: new vehicles by engine and EU hybrid type
+2026-01,monthly,Vans,Transpordiamet,10.0,2.0,3.0,9.0,237.0,0.0,261.0,Transpordiamet Infoleht 2026-01: new vehicles by engine and EU hybrid type
+2026-02,monthly,Vans,Transpordiamet,9.0,3.0,11.0,2.0,256.0,0.0,281.0,Transpordiamet Infoleht 2026-02: new vehicles by engine and EU hybrid type
+2026-03,monthly,Vans,Transpordiamet,14.0,1.0,14.0,6.0,200.0,0.0,235.0,Transpordiamet Infoleht 2026-03: new vehicles by engine and EU hybrid type
+2026-04,monthly,Vans,Transpordiamet,12.0,1.0,19.0,5.0,174.0,0.0,211.0,Transpordiamet Infoleht 2026-04: new vehicles by engine and EU hybrid type
+2026-05,monthly,Vans,Transpordiamet,25.0,3.0,1.0,3.0,318.0,0.0,350.0,Transpordiamet Infoleht 2026-05: new vehicles by engine and EU hybrid type
+2026-06,monthly,Vans,Transpordiamet,19.0,10.0,3.0,18.0,247.0,0.0,297.0,Transpordiamet Infoleht 2026-06: new vehicles by engine and EU hybrid type
+2026-07,monthly,Vans,Transpordiamet,15.0,1.0,2.0,20.0,228.0,0.0,266.0,Transpordiamet Infoleht 2026-07: new vehicles by engine and EU hybrid type
+2026-08,monthly,Vans,Transpordiamet,22.0,8.0,12.0,9.0,153.0,0.0,204.0,Transpordiamet Infoleht 2026-08: new vehicles by engine and EU hybrid type
+2026-09,monthly,Vans,Transpordiamet,22.0,4.0,14.0,18.0,203.0,0.0,261.0,Transpordiamet Infoleht 2026-09: new vehicles by engine and EU hybrid type
