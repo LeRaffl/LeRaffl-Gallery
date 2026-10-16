@@ -130,7 +130,7 @@
     with `R/render_country.R` / `R/plots.R`.
 
 - **Missing data is stated, not hidden.** A declared variant with no CSV in
-  the repo (Latvia `Used`, all four of India) renders as
+  the repo (all four of India) renders as
   "not in this repo" with an explanation, and a country with no store at all
   shows "latest period **modelled**" rather than claiming a store it lacks.
 

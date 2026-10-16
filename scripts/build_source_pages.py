@@ -250,7 +250,7 @@ def collect_variant_facts(fm: dict) -> list[tuple[str, dict | None]]:
     """(variant, facts) in declared order; facts is None when there is no CSV.
 
     A declared variant with no file under `data/` is not an error — a few
-    series (Latvia Used, all of India) are still rendered
+    series (all of India) are still rendered
     from the maintainer's local pipeline and were never committed. Carrying
     the `None` through means the page can say that out loud instead of
     quietly showing one fewer row than the variant count promises.

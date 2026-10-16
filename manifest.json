@@ -2,284 +2,44 @@
   "updated": "2026-10-15",
   "images": [
     {
-      "country": "Estonia",
+      "country": "South Africa",
       "type": "ICE_BEV",
-      "period": "2026-09",
+      "period": "2026-06",
       "date": "2026-10-15",
-      "filename": "estonia_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_ICE_BEV_20261015.png",
-      "alt": "Estonia ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia"
+      "filename": "south_africa_ICE_BEV_20261015.png",
+      "url": "images/2026-06/south_africa_ICE_BEV_20261015.png",
+      "alt": "South Africa ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_africa"
     },
     {
-      "country": "Estonia",
+      "country": "South Africa",
       "type": "share",
-      "period": "2026-09",
+      "period": "2026-06",
       "date": "2026-10-15",
-      "filename": "estonia_20261015.png",
-      "url": "images/2026-09/estonia_20261015.png",
-      "alt": "Estonia BEV trajectory",
-      "country_slug": "estonia"
+      "filename": "south_africa_20261015.png",
+      "url": "images/2026-06/south_africa_20261015.png",
+      "alt": "South Africa BEV trajectory",
+      "country_slug": "south_africa"
     },
     {
-      "country": "Estonia",
+      "country": "South Africa",
       "type": "time",
-      "period": "2026-09",
+      "period": "2026-06",
       "date": "2026-10-15",
-      "filename": "estonia_time_20261015.png",
-      "url": "images/2026-09/estonia_time_20261015.png",
-      "alt": "Estonia Transition time curve",
-      "country_slug": "estonia"
+      "filename": "south_africa_time_20261015.png",
+      "url": "images/2026-06/south_africa_time_20261015.png",
+      "alt": "South Africa Transition time curve",
+      "country_slug": "south_africa"
     },
     {
-      "country": "Estonia",
+      "country": "South Africa",
       "type": "ttm_shares",
-      "period": "2026-09",
+      "period": "2026-06",
       "date": "2026-10-15",
-      "filename": "estonia_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_ttm_shares_20261015.png",
-      "alt": "Estonia TTM market split graph",
-      "country_slug": "estonia"
-    },
-    {
-      "country": "Estonia (Buses)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_buses_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_buses_ICE_BEV_20261015.png",
-      "alt": "Estonia (Buses) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_buses"
-    },
-    {
-      "country": "Estonia (Buses)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_buses_20261015.png",
-      "url": "images/2026-09/estonia_buses_20261015.png",
-      "alt": "Estonia (Buses) BEV trajectory",
-      "country_slug": "estonia_buses"
-    },
-    {
-      "country": "Estonia (Buses)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_buses_time_20261015.png",
-      "url": "images/2026-09/estonia_buses_time_20261015.png",
-      "alt": "Estonia (Buses) Transition time curve",
-      "country_slug": "estonia_buses"
-    },
-    {
-      "country": "Estonia (Buses)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_buses_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_buses_ttm_shares_20261015.png",
-      "alt": "Estonia (Buses) TTM market split graph",
-      "country_slug": "estonia_buses"
-    },
-    {
-      "country": "Estonia (HDV)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_hdv_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_hdv_ICE_BEV_20261015.png",
-      "alt": "Estonia (HDV) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_hdv"
-    },
-    {
-      "country": "Estonia (HDV)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_hdv_20261015.png",
-      "url": "images/2026-09/estonia_hdv_20261015.png",
-      "alt": "Estonia (HDV) BEV trajectory",
-      "country_slug": "estonia_hdv"
-    },
-    {
-      "country": "Estonia (HDV)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_hdv_time_20261015.png",
-      "url": "images/2026-09/estonia_hdv_time_20261015.png",
-      "alt": "Estonia (HDV) Transition time curve",
-      "country_slug": "estonia_hdv"
-    },
-    {
-      "country": "Estonia (HDV)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_hdv_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_hdv_ttm_shares_20261015.png",
-      "alt": "Estonia (HDV) TTM market split graph",
-      "country_slug": "estonia_hdv"
-    },
-    {
-      "country": "Estonia (Industry)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_industry_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_industry_ICE_BEV_20261015.png",
-      "alt": "Estonia (Industry) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_industry"
-    },
-    {
-      "country": "Estonia (Industry)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_industry_20261015.png",
-      "url": "images/2026-09/estonia_industry_20261015.png",
-      "alt": "Estonia (Industry) BEV trajectory",
-      "country_slug": "estonia_industry"
-    },
-    {
-      "country": "Estonia (Industry)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_industry_time_20261015.png",
-      "url": "images/2026-09/estonia_industry_time_20261015.png",
-      "alt": "Estonia (Industry) Transition time curve",
-      "country_slug": "estonia_industry"
-    },
-    {
-      "country": "Estonia (Industry)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_industry_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_industry_ttm_shares_20261015.png",
-      "alt": "Estonia (Industry) TTM market split graph",
-      "country_slug": "estonia_industry"
-    },
-    {
-      "country": "Estonia (Private)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_private_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_private_ICE_BEV_20261015.png",
-      "alt": "Estonia (Private) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_private"
-    },
-    {
-      "country": "Estonia (Private)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_private_20261015.png",
-      "url": "images/2026-09/estonia_private_20261015.png",
-      "alt": "Estonia (Private) BEV trajectory",
-      "country_slug": "estonia_private"
-    },
-    {
-      "country": "Estonia (Private)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_private_time_20261015.png",
-      "url": "images/2026-09/estonia_private_time_20261015.png",
-      "alt": "Estonia (Private) Transition time curve",
-      "country_slug": "estonia_private"
-    },
-    {
-      "country": "Estonia (Private)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_private_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_private_ttm_shares_20261015.png",
-      "alt": "Estonia (Private) TTM market split graph",
-      "country_slug": "estonia_private"
-    },
-    {
-      "country": "Estonia (Used)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_used_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_used_ICE_BEV_20261015.png",
-      "alt": "Estonia (Used) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_used"
-    },
-    {
-      "country": "Estonia (Used)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_used_20261015.png",
-      "url": "images/2026-09/estonia_used_20261015.png",
-      "alt": "Estonia (Used) BEV trajectory",
-      "country_slug": "estonia_used"
-    },
-    {
-      "country": "Estonia (Used)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_used_time_20261015.png",
-      "url": "images/2026-09/estonia_used_time_20261015.png",
-      "alt": "Estonia (Used) Transition time curve",
-      "country_slug": "estonia_used"
-    },
-    {
-      "country": "Estonia (Used)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_used_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_used_ttm_shares_20261015.png",
-      "alt": "Estonia (Used) TTM market split graph",
-      "country_slug": "estonia_used"
-    },
-    {
-      "country": "Estonia (Vans)",
-      "type": "ICE_BEV",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_vans_ICE_BEV_20261015.png",
-      "url": "images/2026-09/estonia_vans_ICE_BEV_20261015.png",
-      "alt": "Estonia (Vans) ICE-BEV-Hybrid trajectory",
-      "country_slug": "estonia_vans"
-    },
-    {
-      "country": "Estonia (Vans)",
-      "type": "share",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_vans_20261015.png",
-      "url": "images/2026-09/estonia_vans_20261015.png",
-      "alt": "Estonia (Vans) BEV trajectory",
-      "country_slug": "estonia_vans"
-    },
-    {
-      "country": "Estonia (Vans)",
-      "type": "time",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_vans_time_20261015.png",
-      "url": "images/2026-09/estonia_vans_time_20261015.png",
-      "alt": "Estonia (Vans) Transition time curve",
-      "country_slug": "estonia_vans"
-    },
-    {
-      "country": "Estonia (Vans)",
-      "type": "ttm_shares",
-      "period": "2026-09",
-      "date": "2026-10-15",
-      "filename": "estonia_vans_ttm_shares_20261015.png",
-      "url": "images/2026-09/estonia_vans_ttm_shares_20261015.png",
-      "alt": "Estonia (Vans) TTM market split graph",
-      "country_slug": "estonia_vans"
+      "filename": "south_africa_ttm_shares_20261015.png",
+      "url": "images/2026-06/south_africa_ttm_shares_20261015.png",
+      "alt": "South Africa TTM market split graph",
+      "country_slug": "south_africa"
     },
     {
       "country": "Spain",
@@ -800,6 +560,46 @@
       "url": "images/2026-09/lithuania_used_ttm_shares_20261014.png",
       "alt": "Lithuania (Used) TTM market split graph",
       "country_slug": "lithuania_used"
+    },
+    {
+      "country": "South Africa",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-10-14",
+      "filename": "south_africa_ICE_BEV_20261014.png",
+      "url": "images/2026-06/south_africa_ICE_BEV_20261014.png",
+      "alt": "South Africa ICE-BEV-Hybrid trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-10-14",
+      "filename": "south_africa_20261014.png",
+      "url": "images/2026-06/south_africa_20261014.png",
+      "alt": "South Africa BEV trajectory",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-10-14",
+      "filename": "south_africa_time_20261014.png",
+      "url": "images/2026-06/south_africa_time_20261014.png",
+      "alt": "South Africa Transition time curve",
+      "country_slug": "south_africa"
+    },
+    {
+      "country": "South Africa",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-10-14",
+      "filename": "south_africa_ttm_shares_20261014.png",
+      "url": "images/2026-06/south_africa_ttm_shares_20261014.png",
+      "alt": "South Africa TTM market split graph",
+      "country_slug": "south_africa"
     },
     {
       "country": "Luxembourg",

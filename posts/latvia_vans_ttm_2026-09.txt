@@ -1,0 +1,9 @@
+🇱🇻 Latvia (Vans) - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++0.4pp  BEV   (5.1% → 5.5%)
++2.4pp  PHEV  (0.1% → 2.5%)
++0.0pp  HEV   (0.0% → 0.0%)
+−2.9pp  ICE   (94.9% → 92.0%)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

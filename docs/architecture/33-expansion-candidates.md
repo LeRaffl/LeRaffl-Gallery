@@ -20,7 +20,7 @@ for the market, (c) machine-accessible without paywalls or identity checks.**
 > | 🇦🇺 Australia | on the gallery, hand-entered; automation checked 2026-10 — no free source | [14](14-data-source-gaps.md) |
 > | 🇮🇳 India | built — semi-automated: hand-pulled VAHAN exports → `scripts/build_india.py` (the CI route stayed blocked) | `country_source_stubs.yaml`, `data/raw/india/README.md` |
 > | 🇺🇦 🇭🇰 🇵🇪 🇵🇾 🇪🇨 🇹🇼 | built outside the original list (2026-09/10) | sections below |
-> | 🇿🇦 South Africa | **viable, not built** | § South Africa |
+> | 🇿🇦 South Africa | **built (2026-10)** — total new-vehicle market, not M1 | [60](60-source-south-africa.md) |
 > | 🇷🇸 Serbia | **data model confirmed, build deferred** | § Serbia |
 > | 🇧🇦 Bosnia | lead, fuel granularity unverified | § Western Balkans |
 > | 🇲🇦 Morocco | shelved — energy split login-walled | § Morocco |
@@ -185,7 +185,15 @@ appear to exist here.
 
 ### 🇿🇦 South Africa — naamsa (quarterly granularity)
 
-> **Status: VERIFIED VIABLE (2026-07-12, CI probes — `scripts/fetch_southafrica.py --probe`).**
+> **Status: BUILT (2026-10-14)** — `scripts/fetch_south_africa.py`, `fetch-south-africa.yml`,
+> [60-source-south-africa.md](60-source-south-africa.md). Built as planned below: quarterly
+> middle-month rows, `Whole` = the **whole new-vehicle market** (naamsa's NEV table has no
+> segment split — checked in all ten reviews 2024-Q1…2026-Q2, the monthly releases and
+> the flash reports; no passenger-only or per-model drivetrain data exists, so no own M1
+> classification was possible), ICE = TOTAL − NEVs. The roster is now "30 industry brands"
+> (2026). The original probe (`fetch_southafrica.py --probe`) was replaced.
+>
+> *Earlier status: VERIFIED VIABLE (2026-07-12, CI probes).*
 > naamsa.net is open from CI, the press-release archive reaches back to 2017,
 > and the **Quarterly Business Review** (found via the WP sitemap; the
 > newest lives under `naamsa.net/wp-content/uploads/...Quarterly-Review...`)
@@ -383,11 +391,36 @@ significant EV importer is outside it**).
 > | 🇭🇺 Hungary | `data.gov.hu`, KSH STADAT | the portal timed out; KSH's STADAT transport page answered but was not searched for a monthly table by fuel |
 > | 🇭🇷 Croatia | `data.gov.hr` (CVH datasets) | yearly vehicle datasets, the newest for 2022 |
 > | 🇸🇮 Slovenia | `podatki.gov.si`, SURS PxWeb | the record-level register extract stopped in 2023 (data protection); SURS's monthly first registrations have no fuel |
-> | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 |
+> | 🇱🇻 Latvia | `data.gov.lv` (CSDD) | stock snapshots only, the newest 2025-02 — but CSDD's own statistics page has monthly first-registration records: **built 2026-10**, see below |
 > | 🇪🇪 Estonia | `avaandmed.eesti.ee` (Transpordiamet "Infoleht") | a monthly XLSX of first and new registrations exists (to 2025-12); **built 2026-10** — see the section below |
 > | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is` | timed out from runners |
 > | 🇧🇬 Bulgaria | `data.egov.bg` | 403 |
 > | 🇸🇰 Slovakia | `data.gov.sk` | the CKAN API answered an HTML page |
+
+## Automated, not new — 🇱🇻 Latvia (2026-10)
+
+Latvia moved from ACEA (Whole, quarterly CV) to **CSDD**, the register keeper. Its
+statistics page (`csdd.lv/transportlidzekli/transportlidzeklu-ikmenesa-dati`) has XLSX
+record files of every first registration since 2000 — passenger cars by make, model,
+fuel, new/used status and keeper type; lorries and buses by EU category — free, no
+login, replaced about ten days after month end. They reproduce ACEA's Latvian series to
+the car and add `Private`, `Industry`, `Used`, monthly `Vans` / `HDV` / `Buses` and
+brand/model tables. HEV is not reported (full and mild hybrids are filed under their
+fuel). See [58](58-source-latvia.md).
+
+Re-check of the remaining ACEA-primary countries in the same round (2026-10-15):
+
+> | Country | Probed | Finding |
+> |---|---|---|
+> | 🇧🇪 Belgium | FOD Mobiliteit open data (`mobilit.belgium.be`, `data.gov.be`), Statbel, FEBIAC | the record-level yearly files are booked at year end; the monthly figures are interactive Power BI pages; FEBIAC's monthly files are press tables. The FOD site sits behind a bot challenge for scripts. Not monthly machine-readable. |
+> | 🇸🇮 Slovenia | OPSI `prvic-registrirana-vozila-po-mesecih` | publication suspended on data-protection grounds (notice on the dataset); no current files |
+> | 🇭🇷 Croatia | `data.gov.hr` (CVH), `cvh.hr` | new/used M1 and the electric/hybrid tables are yearly to 2022; CVH posts yearly PDFs and half-year press figures |
+> | 🇷🇴 Romania | `data.gov.ro`, DGPCI portal, APIA | only the yearly fleet ("parc auto", to 2025-12); DGPCI's portal is an app with no statistics files; APIA's monthly releases are PDFs (detail in its paid CarS platform) |
+> | 🇸🇰 Slovakia | `data.slovensko.sk`, ZAP SR | the open-data portal is a script app (no API answer); ZAP's monthly releases are PDFs |
+> | 🇧🇬 Bulgaria | `data.egov.bg`, `testdata.egov.bg`, MVR | `data.egov.bg` timed out / 403 from the sandbox; the MVR monthly datasets visible on the test portal stop in 2022; MVR's monthly bulletins are PDFs |
+> | 🇨🇾 Cyprus | CYSTAT PxWeb API, `data.gov.cy` | monthly registrations as machine-readable PxWeb tables, but only by category and new/used — the energy type is in the monthly PDF release only (and annual tables). The closest miss. |
+> | 🇲🇹 Malta | NSO, Transport Malta | NSO publishes quarterly "Motor Vehicles" releases; both sites refuse the sandbox (403 / TLS) |
+> | 🇮🇸 Iceland | `bifreidatolur.samgongustofa.is`, Statistics Iceland PxWeb | Samgöngustofa's dashboard still fails TLS from the sandbox (and timed out from runners earlier); Statistics Iceland has only yearly vehicle tables |
 
 ## Automated, not new — 🇪🇪 Estonia (2026-10)
 
@@ -401,12 +434,8 @@ gives `Whole`, `Private`, `Industry`, `Used`, monthly `Vans` / `HDV` /
 +0.6 % overall (2022–2026). ACEA is now only a conditional fallback. See
 [57](57-source-estonia.md).
 
-The other ACEA-primary countries were re-checked for the same round
-(2026-10): Hungary (no monthly drivetrain table on KSH, `data.gov.hu` or
-`kormany.hu` — only green-plate stocks), Iceland (`bifreidatolur.samgongustofa.is`
-unreachable from runners and the box), and the findings in the table above
-for Romania, Croatia, Slovenia, Latvia, Bulgaria, Slovakia; Belgium (Statbel,
-yearly), Cyprus and Malta were not re-probed.
+On top of the Latvia re-check table above, Hungary was probed in the same round: no
+monthly drivetrain table on KSH, `data.gov.hu` or `kormany.hu` — only green-plate stocks.
 
 ## Automated, not new — 🇳🇿 New Zealand (2026-10)
 
@@ -441,7 +470,7 @@ before settling; probes ran from GitHub runners, "desk" is web research only.
 | 🇺🇿 Uzbekistan (~0.4M) | Statistics Agency (stat.uz) | quarterly EV **fleet** totals (122.7k on 2026-07-01), no new-registration flow by fuel (desk) | shelved |
 | 🇬🇹 Guatemala / 🇩🇴 Dominican Republic | SAT / DGII | yearly fleet reports and ad-hoc import figures; no monthly first-registration series by fuel (desk) | shelved |
 | 🇲🇩 Moldova (small) | Public Services Agency open data | the portal's CKAN endpoints guessed (`date.gov.md`, `dataset.gov.md`) answer 404 — not pursued further (a small, used-import market) | not pursued |
-| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | still a candidate |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | unchanged (above): quarterly, all-vehicle NEV table, no brand or model by drivetrain | **built 2026-10-14** ([60](60-source-south-africa.md)) |
 
 ## Investigated 2026-09 — large markets still missing
 
@@ -455,7 +484,7 @@ almost nothing); "desk" means web research only.
 | 🇲🇽 Mexico (~1.5M) | INEGI RAIAVL | unchanged — omits BYD ([14](14-data-source-gaps.md)) | shelved |
 | 🇷🇺 Russia (~1.5M) | Autostat (MVD/GIBDD data, licensed) | re-checked 2026-09-28: the fuel-split tables are sold per report (3,000–10,000 ₽, also via the Autostat Info reseller); the free part is news prose — a monthly BEV count and a top-10 model list, no split of the total market. Reachable from runners — the obstacle is price, not access. Details in [14](14-data-source-gaps.md#-russia--the-monthly-fuel-split-exists-but-only-for-sale) | shelved |
 | 🇻🇳 Vietnam / 🇵🇭 Philippines (~0.5M each) | VAMA / CAMPI+TMA industry releases | member-reported, key EV sellers not in the roster, no free fuel split (desk) | shelved — same completeness failure as Mexico |
-| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | still a candidate; not built this session |
+| 🇿🇦 South Africa (~0.5M) | naamsa quarterly NEV table | viable (§ South Africa above) but quarterly, all-vehicle NEV table, brand/model not per drivetrain | built 2026-10-14 ([60](60-source-south-africa.md)) |
 | 🇷🇸 Serbia (~35k) | data.gov.rs | the national portal's search returns **no MoI registration dataset** (only a municipal bus-fleet list) — the importers' quarterly prose remains the only fuel split (§ Serbia) | unchanged |
 | 🇵🇪 Peru (~190k) | ~~datosabiertos.gob.pe~~ → **AAP's public BI-AAP report (SUNARP)** | the open-data portal has nothing usable, but AAP publishes SUNARP first registrations as a public Power BI report whose query API is open — brand × model × body × powertrain, day by day, from 2019-01 | **BUILT 2026-09-28** — see below and [45](45-source-peru.md) |
 
@@ -612,8 +641,7 @@ The 2026-07 list (Israel → India → Morocco → South Africa) is done or
 decided: Israel and India are built, Morocco is shelved. What is left, in
 order of value per effort:
 
-1. **South Africa** — verified, quarterly, Canada pattern; the only open
-   question is the all-vehicle scope (§ South Africa).
+1. ~~**South Africa**~~ — built 2026-10 ([60](60-source-south-africa.md)).
 2. **Serbia** — solve article discovery on `uvoznicivozila.rs`, then a
    quarterly parser (§ Serbia).
 3. **Bosnia** — only if the BHAS monthly table has an electric line.

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>South Africa — data source · BEV Trajectories</title>
+<meta name="description" content="Quarterly new-vehicle sales in South Africa with naamsa&#x27;s battery-electric, plug-in hybrid and hybrid counts, read automatically from naamsa&#x27;s Quarterly Review of Business Conditions. The split exists only for the whole new-vehicle market — cars, bakkies, minibuses, trucks and buses together — not for passenger cars alone.">
+<link rel="stylesheet" href="../assets/theme.css">
+<style>
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 64px}
+.back{display:inline-block;margin-bottom:18px;color:var(--muted);font-size:14px}
+h1{font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:18px;margin:34px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.lead{color:var(--muted);font-size:16px;margin:0 0 22px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;letter-spacing:.03em;background:var(--chip-bg);color:var(--accent);
+  border:1px solid transparent}
+/* Acquisition-method chips — tinted background reads on both themes; text is a
+   mid-tone that stays legible over light and dark. */
+.chip--api{background:rgba(56,139,222,.16);color:#3b8fdd;border-color:rgba(56,139,222,.4)}
+.chip--scrape{background:rgba(139,92,246,.16);color:#9a7cf0;border-color:rgba(139,92,246,.4)}
+.chip--pdf{background:rgba(224,122,63,.18);color:#e07a3f;border-color:rgba(224,122,63,.42)}
+.chip--file{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--manual{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--viable{background:rgba(46,168,120,.16);color:#33b07c;border-color:rgba(46,168,120,.42)}
+.chip--deferred,.chip--lead{background:rgba(180,140,40,.18);color:#c99a2e;border-color:rgba(180,140,40,.45)}
+.chip--shelved,.chip--no-source{background:transparent;color:var(--muted);border-color:var(--border)}
+.dir-grid--cand .dir-card{background:transparent;border-style:dashed}
+.banner{background:var(--chip-bg);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin:0 0 20px;font-size:14px;color:var(--muted)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 8px}
+.stat{flex:1 1 140px;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:14px 16px}
+.stat .n{font-size:22px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.source-btn{display:inline-block;margin:6px 0 4px;padding:10px 16px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--border);font-weight:600}
+.flow{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:8px 0}
+.flow-node{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px}
+.flow-title{font-weight:700;font-size:13px;color:var(--accent)}
+.flow-sub{font-size:14px;color:var(--text)}
+.flow-sub p{margin:4px 0}
+table.steps{width:100%;border-collapse:collapse;margin:6px 0 2px}
+table.steps th,table.steps td{text-align:left;vertical-align:top;padding:5px 8px;
+  border-bottom:1px solid var(--border);font-size:13px}
+table.steps th{color:var(--muted);font-weight:600}
+table.steps td.num{width:22px;color:var(--muted)}
+/* Decision trees (build_decision): gateway question, labelled branches. */
+.dt{margin:8px 0 4px}
+.dt-q{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;
+  border:1px solid var(--accent);border-radius:8px;padding:4px 10px;background:var(--chip-bg)}
+.dt-gw{width:10px;height:10px;flex:none;border:2px solid var(--accent);transform:rotate(45deg)}
+.dt-br{list-style:none;margin:2px 0 0 12px;padding:0}
+.dt-br>li{position:relative;padding:5px 0 3px 22px}
+.dt-br>li::before{content:"";position:absolute;left:0;top:0;bottom:0;border-left:2px solid var(--border)}
+.dt-br>li:last-child::before{bottom:auto;height:17px}
+.dt-br>li::after{content:"";position:absolute;left:0;top:17px;width:16px;border-top:2px solid var(--border)}
+.dt-leaf{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+.dt-when{font-size:13px;color:var(--text)}
+.dt-arrow,.dt-sep{color:var(--muted)}
+.dt-note{font-size:12px;color:var(--muted);margin-top:1px}
+.dt-var{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1.5px solid var(--accent);color:var(--accent)}
+.dt-none{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;
+  border:1.5px dashed var(--border);color:var(--muted)}
+.dt-res{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12.5px;
+  background:var(--chip-bg);color:var(--text)}
+.flow-arrow{text-align:center;color:var(--muted);font-size:14px;line-height:1}
+table.defs{width:100%;border-collapse:collapse}
+table.defs th,table.defs td{text-align:left;vertical-align:top;padding:9px 10px;
+  border-bottom:1px solid var(--border);font-size:15px}
+table.defs th{width:190px;color:var(--muted);font-weight:600}
+.map{display:flex;flex-direction:column;gap:4px}
+.map-pair{display:flex;align-items:center;gap:8px}
+.map-arrow{color:var(--muted)}
+.caveats{margin:0;padding-left:20px}
+.caveats li{margin:6px 0}
+.footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--border);
+  color:var(--muted);font-size:14px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.dir-card{display:block;background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.dir-card:hover{border-color:var(--accent)}
+.dir-top{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-weight:700;font-size:17px;color:var(--text);margin-bottom:6px}
+.dir-sub{color:var(--muted);font-size:14px;min-height:40px}
+.dir-meta{margin-top:8px;font-size:13px;color:var(--accent)}
+.dir-mkt{margin-top:8px}
+.mkt-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;
+  font-weight:600;background:var(--ok-wash);color:var(--ok-tx);
+  border:1px solid transparent}
+
+/* --- shared bits for the data-derived sections ------------------------- */
+.dim{color:var(--muted)}
+.nowrap{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+  white-space:nowrap}
+/* Wide content scrolls inside its own box; the page never scrolls sideways. */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fig-lead{color:var(--muted);font-size:14px;margin:0 0 12px}
+.fig-note{color:var(--muted);font-size:13px;margin:10px 0 0}
+.srclist{margin:6px 0 0;padding-left:20px;font-size:15px}
+.srclist li{margin:4px 0}
+.live-src{font-size:14px;margin:12px 0 0}
+.source-btn--dead{color:var(--muted);font-weight:600}
+
+/* Coverage timeline — one hue, no legend needed (a single series). */
+.cov{display:block;margin:6px 0 0;max-width:100%}
+.cov-bar{fill:var(--accent);opacity:.85}
+.cov-grid{stroke:var(--border);stroke-width:1}
+.cov-label{fill:var(--text);font-size:12px;font-weight:600}
+.cov-tick,.cov-meta{fill:var(--muted);font-size:11px}
+
+/* Fuel-column matrix — glyph + tooltip, never colour alone. */
+table.vars,table.matrix{width:100%;border-collapse:collapse;font-size:14px}
+table.vars th,table.vars td,table.matrix th,table.matrix td{
+  text-align:left;vertical-align:top;padding:8px 10px;
+  border-bottom:1px solid var(--border)}
+table.vars th,table.matrix th{color:var(--muted);font-weight:600}
+table.matrix td{text-align:center}
+table.matrix th:first-child{white-space:nowrap}
+.cell{font-size:15px;line-height:1}
+/* The page is light-only now (index.html sets `color-scheme:light`), so the
+   old prefers-color-scheme override for this cell is gone — --ok-tx already
+   resolves to the light-theme green. */
+.cell--yes{color:var(--ok-tx)}
+.cell--zero{color:var(--muted)}
+.cell--no{color:var(--muted);opacity:.55}
+
+/* Market breakdown + powertrain classification (derived fuel splits). */
+details{margin:10px 0;border:1px solid var(--border);border-radius:10px;
+  padding:8px 12px;background:var(--panel)}
+details>summary{cursor:pointer;font-weight:600;padding:4px 0}
+table.grid{border-collapse:collapse;font-size:14px;width:100%;table-layout:fixed;
+  min-width:calc(34px + var(--n) * 150px)}
+table.grid col.c-rank{width:34px}
+table.grid col.c-val{width:54px}
+table.grid td.num,table.grid th.num{padding-left:2px;padding-right:7px}
+table.grid .ln{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+table.grid .br{font-size:12px;color:var(--muted);display:flex;gap:4px;align-items:center}
+table.grid .bn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.cls.tag{font-size:10px;padding:0 4px;flex:none}
+table.grid th .cls{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  vertical-align:middle}
+.grid-cap{font-size:13px;color:var(--muted);margin:14px 0 6px}
+table.grid th,table.grid td{padding:6px 6px;border-bottom:1px solid var(--border);
+  text-align:left;vertical-align:top}
+table.grid th{background:var(--panel)}
+table.grid th.num{color:var(--muted);font-weight:400}
+table.grid .nm{border-left:1px solid var(--border);padding-left:8px;padding-right:4px}
+table.grid--few{max-width:calc(34px + var(--n) * 260px)}
+table.grid tr.rest td{color:var(--muted);font-size:13px;border-bottom:0}
+.v-u{display:none}
+.units .v-u{display:inline}.units .v-s{display:none}
+.mkt-toggle{margin-left:12px;white-space:nowrap}
+.mkt-toggle button{font:inherit;font-size:13px;padding:5px 10px;cursor:pointer;
+  border:1px solid var(--border);background:var(--panel);color:var(--muted)}
+.mkt-toggle button:first-child{border-radius:8px 0 0 8px}
+.mkt-toggle button:last-child{border-radius:0 8px 8px 0;border-left:0}
+.mkt-toggle button[aria-pressed="true"]{color:var(--text);font-weight:600;background:var(--chip-bg)}
+.mkt-view .scroll{margin:0 0 12px}
+/* A grid wider than the text column (six classes need ~930 px) breaks out of
+   it, centred, as far as the window allows; on a phone it scrolls instead. */
+.mkt-view .scroll{width:max(100%,min(calc(34px + var(--n) * 150px),calc(100vw - 32px)));
+  position:relative;left:50%;transform:translateX(-50%)}
+.mkt-pick select{padding:6px 8px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;background:var(--panel);color:var(--text)}
+table.rules,table.mapping{width:100%;border-collapse:collapse;font-size:14px}
+table.rules th,table.rules td,table.mapping th,table.mapping td{
+  text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+table.rules th,table.mapping th{color:var(--muted);font-weight:600;
+  position:sticky;top:0;background:var(--panel)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rules td:nth-child(2){min-width:140px}
+table.rules td:nth-child(3){min-width:150px;max-width:190px}
+table.rules td:nth-child(4){min-width:220px}
+table.rules th,table.rules td{padding:7px 6px}
+table.mapping td:nth-child(5) code{white-space:nowrap}
+table.rules .rid code{word-break:normal;white-space:nowrap}
+table.rules .pat code{word-break:break-all}
+table.rules code,table.mapping code{font-size:12.5px;word-break:break-word}
+.rid{margin-top:4px}.pat{margin-top:4px}.ev{font-size:13px;margin-top:4px}
+.tall{max-height:560px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+input.filter{padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font:inherit;min-width:260px;background:var(--panel);color:var(--text)}
+tr:target{outline:2px solid var(--accent);outline-offset:-2px}
+/* Class badges always carry their text label — colour is only a second cue. */
+.cls{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;
+  font-weight:700;border:1px solid var(--border);letter-spacing:.02em}
+.cls--bev{background:rgba(0,190,90,.14);color:#0a7a3e}
+.cls--phev{background:rgba(0,150,230,.14);color:#086aa6}
+.cls--erev{background:rgba(25,90,200,.14);color:#1d4f9e}
+.cls--hev{background:rgba(240,190,0,.20);color:#7a5b00}
+.cls--mhev{background:rgba(180,150,30,.16);color:#6b5a14}
+.cls--ice{background:rgba(110,60,20,.12);color:#6b3a14}
+.cls--all{background:rgba(90,90,110,.14);color:#3d3d55}
+.cls--petrol{background:rgba(200,90,20,.13);color:#9a4310}
+.cls--diesel{background:rgba(60,60,60,.13);color:#454545}
+/* Dark mode (assets/theme.css follows prefers-color-scheme): the badge inks
+   above are dark-on-wash and vanish on a dark page, so lift them. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .cls--bev{color:#6fd39a}
+  :root:not([data-theme="light"]) .cls--phev{color:#6cc0f0}
+  :root:not([data-theme="light"]) .cls--erev{color:#8fb4ee}
+  :root:not([data-theme="light"]) .cls--hev{color:#e8c95a}
+  :root:not([data-theme="light"]) .cls--mhev{color:#d6c27a}
+  :root:not([data-theme="light"]) .cls--ice{color:#d9a27a}
+  :root:not([data-theme="light"]) .cls--all{color:#b4b4cc}
+  :root:not([data-theme="light"]) .cls--petrol{color:#eba270}
+  :root:not([data-theme="light"]) .cls--diesel{color:#bdbdbd}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">← All sources</a>
+  <h1>South Africa <span class="chip chip--file" title="downloaded as a data file (XLSX / Parquet / ODS / zip)">File</span></h1>
+  
+  <p class="lead">Quarterly new-vehicle sales in South Africa with naamsa&#x27;s battery-electric, plug-in hybrid and hybrid counts, read automatically from naamsa&#x27;s Quarterly Review of Business Conditions. The split exists only for the whole new-vehicle market — cars, bakkies, minibuses, trucks and buses together — not for passenger cars alone.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">2026-05</div><div class="l">Latest period held</div></div>
+    <div class="stat"><div class="n">0.4%</div><div class="l">TTM BEV share (Whole)</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
+  </div>
+
+  
+
+  
+
+  <h2>Raw source</h2><p>Go and check the numbers yourself:</p><p><a class="source-btn" href="https://naamsa.net/">naamsa — Quarterly Review of Business Conditions (New energy vehicle sales) ↗</a></p><ul class="srclist"><li><a href="https://naamsa.net/wp-json/wp/v2/media?search=Review%20of%20Business%20Conditions&amp;per_page=100">naamsa media library — quarterly reviews (the list the fetcher reads)</a> <span class="dim">— public WordPress JSON; every review is a PDF named like 20260820-naamsa-2nd-Quarter-2026-Review-of-Business-Conditions.pdf</span></li><li><a href="https://naamsa.net/wp-content/uploads/2026/08/20260820-naamsa-2nd-Quarter-2026-Review-of-Business-Conditions.pdf">2nd quarter 2026 review (PDF)</a> <span class="dim">— page 6 — the NEV drivetrain table (2020–2025 years, Q2 2025, Q2 2026); section 7 — the quarter&#x27;s passenger and commercial vehicle sales</span></li><li><a href="https://naamsa.net/press-releases/">naamsa press releases (monthly new-vehicle sales)</a> <span class="dim">— monthly totals by segment; the NEV split there is year-to-date prose only, so the monthly releases are not used for the chart</span></li></ul>
+
+  <h2>How the data flows</h2>
+  <div class="flow"><div class="flow-node"><div class="flow-title">Origin</div><div class="flow-sub">naamsa (the Automotive Business Council) — new-vehicle sales reported by its member and reporting brands, compiled with Lightstone Auto</div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Source / API</div><div class="flow-sub"><a href="https://naamsa.net/">naamsa — Quarterly Review of Business Conditions (New energy vehicle sales)</a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Fetcher</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/scripts/fetch_south_africa.py"><code>scripts/fetch_south_africa.py</code></a> · <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/.github/workflows/fetch-south-africa.yml"><code>.github/workflows/fetch-south-africa.yml</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Find the reviews</div><div class="flow-sub"><p>naamsa&#x27;s website is WordPress; its media library answers a public JSON search. The fetcher asks it for &quot;Review of Business Conditions&quot; PDFs (one small request), keeps one file per upload date (naamsa sometimes uploads a signed and an unsigned copy) and reads the quarter from the file name. When that quarter is already in the chart it stops there.</p></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Read the review</div><div class="flow-sub"><p>The PDF is turned into text and two things are read from it. Section 7 states the quarter&#x27;s aggregate new passenger car sales and aggregate commercial vehicle sales, with the same quarter a year earlier. The NEV section has a table with one line per drivetrain, by year and for the quarter and the year-ago quarter. Every column of that table must add up to its &quot;Total NEVs&quot; line, or the review is not used.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>naamsa NEV table line?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">Electric</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--bev">BEV</span></div></li><li><div class="dt-leaf"><span class="dt-when">Plug-in hybrid</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--phev">PHEV</span></div></li><li><div class="dt-leaf"><span class="dt-when">Traditional hybrid</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--hev">HEV</span></div></li><li><div class="dt-leaf"><span class="dt-when">Total NEVs</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">check only — must equal the three lines above</span></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Which vehicles are counted</div><div class="flow-sub"><p>naamsa&#x27;s table covers every new vehicle the reporting brands sell — it has no segment split, so nothing is reclassified here and the chart is the whole market, not passenger cars.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>naamsa segment?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">Passenger cars (incl. SUVs)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-var">Whole</span></div></li><li><div class="dt-leaf"><span class="dt-when">Light commercial vehicles ≤ 3,500 kg (bakkies, minibuses)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-var">Whole</span></div><div class="dt-note">in the NEV table and in the total — not separable</div></li><li><div class="dt-leaf"><span class="dt-when">Medium, heavy and extra-heavy commercial vehicles</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-var">Whole</span></div><div class="dt-note">in the NEV table and in the total — not separable</div></li><li><div class="dt-leaf"><span class="dt-when">Buses over 8,500 kg</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-var">Whole</span></div></li><li><div class="dt-leaf"><span class="dt-when">Motorcycles, used vehicles, exports</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-none">in no variant</span></div><div class="dt-note">not in naamsa&#x27;s domestic new-vehicle statistics</div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Build the row</div><div class="flow-sub"><p>TOTAL is passenger plus commercial sales of the quarter; ICE is TOTAL minus BEV, PHEV and HEV. The row sits on the quarter&#x27;s middle month. Every review repeats the year-ago quarter, often slightly revised — reviews are read oldest first, so the newest figure wins.</p></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Check it</div><div class="flow-sub"><p>For every year whose four quarters and annual column are known, the quarters must add up to the year (within a few units — naamsa&#x27;s restatements). If they only add up with one quarter&#x27;s plug-in and hybrid values exchanged, that quarter was printed in the wrong rows and is swapped back; otherwise the gap is reported and the published values stay. The newest quarter&#x27;s total must be at least 75 % of the same quarter a year earlier (a warning below 90 %).</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Do the year&#x27;s quarters add up to its annual column?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">written as published</span></div></li><li><div class="dt-leaf"><span class="dt-when">no — but they do with one quarter&#x27;s PHEV / HEV exchanged</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">that quarter swapped back, reported in the run summary</span></div><div class="dt-note">happened with the Q4-2025 review (2024-Q4 and 2025-Q4 columns)</div></li><li><div class="dt-leaf"><span class="dt-when">False</span><span class="dt-arrow" aria-hidden="true">→</span><span class="dt-res">written as published, the gap reported</span></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Store</div><div class="flow-sub"><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/South Africa.csv"><code>data/South Africa.csv</code></a></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Render</div><div class="flow-sub"><p>Each new or changed month re-renders the country. Shares are read from the CSV as <em>column ÷ TOTAL</em> and grouped into three curves. A generalized Weibull S-curve is fitted to the BEV and the ICE share, and the charts, the fitted parameters, the twelve-month totals and the uncertainty bands are rewritten.</p><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Which curve does a CSV column count towards?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">BEV</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--bev">BEV</span></div></li><li><span class="dt-when">PHEV or EREV (plug-in hybrids, range extenders)</span><div class="dt"><div class="dt-q"><span class="dt-gw" aria-hidden="true"></span>Does the source split plug-ins from other hybrids?</div><ul class="dt-br"><li><div class="dt-leaf"><span class="dt-when">yes</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--phev">PHEV</span></div></li><li><div class="dt-leaf"><span class="dt-when">no — one combined hybrid figure (parked in HEV)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div><div class="dt-note">the PHEV curve is left out, never drawn at zero</div></li></ul></div></li><li><div class="dt-leaf"><span class="dt-when">HEV or MHEV (full and mild hybrids — no plug)</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div></li><li><div class="dt-leaf"><span class="dt-when">petrol, diesel, gas, flex-fuel, others</span><span class="dt-arrow" aria-hidden="true">→</span><span class="cls cls--ice">ICE</span></div></li></ul></div></div></div><div class="flow-arrow" aria-hidden="true">▼</div><div class="flow-node"><div class="flow-title">Gallery</div><div class="flow-sub"><a href="../">BEV Trajectories gallery</a></div></div></div>
+
+  <h2>Definitions &amp; scope</h2>
+  <table class="defs"><tr><th>Acquisition</th><td>File — downloaded as a data file (XLSX / Parquet / ODS / zip)</td></tr><tr><th>Vehicle scope</th><td>New vehicles sold in South Africa per quarter, every segment naamsa covers, as reported by the brands that report to naamsa / Lightstone Auto (30 brands for the NEV table in 2026). Exports are not included. The battery-electric share of new passenger cars alone is not published and is higher than the share shown here, because trucks, bakkies and buses are in the denominator.</td></tr><tr><th>HEV (full hybrids)</th><td>naamsa reports &quot;Traditional hybrid&quot; (HEV, including mild hybrids as the brands report them) and &quot;Plug-in hybrid&quot; (PHEV) as separate lines; range-extender EVs are not separated and sit wherever the brand reports them.</td></tr><tr><th>Backfill</th><td>quarterly from 2023-Q1 out of the reviews naamsa&#x27;s media library holds (2024-Q1 review onward — each review repeats the year-ago quarter); 2021 and 2022 as yearly rows on the mid-year month. Earlier years exist as NEV counts (2019, 2020) but without a published total-market figure in the same scope, so they are left out.</td></tr><tr><th>Auth</th><td>none</td></tr></table>
+
+  <section><h2>Variants</h2><p class="fig-lead">Each variant is its own series with its own CSV. Not every variant is charted in the gallery — the CSV is the authoritative record either way.</p><div class="scroll"><table class="vars"><tr><th>Variant</th><th>What it counts</th><th>Held</th><th>Raw data</th></tr><tr><th>Whole</th><td>The whole new-vehicle market as naamsa reports it — passenger cars, light commercial vehicles up to 3,500 kg (bakkies and minibuses), medium (3,501–8,500 kg), heavy (8,501–16,500 kg) and extra-heavy (over 16,500 kg) commercial vehicles and buses over 8,500 kg. Not new passenger cars (EU M1) — naamsa does not split its drivetrain table by segment. Motorcycles are not in naamsa&#x27;s statistics.</td><td class="nowrap">2021-06 – 2026-05<br><span class="dim">16 rows</span></td><td><a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/data/South Africa.csv"><code>data/South Africa.csv</code></a></td></tr></table></div></section>
+
+  <section><h2>History we hold</h2><p class="fig-lead">Every bar is the span actually present in our stored CSV — breaks in a bar are real gaps in the series, not rendering. Cadence is shown on the right.</p><svg class="cov" viewBox="0 0 646 56" width="100%" height="56" role="img" aria-label="History held per variant, by year"><line class="cov-grid" x1="84.9" y1="6" x2="84.9" y2="34"/><text class="cov-tick" x="84.9" y="50" text-anchor="middle">2021</text><line class="cov-grid" x1="164.3" y1="6" x2="164.3" y2="34"/><text class="cov-tick" x="164.3" y="50" text-anchor="middle">2022</text><line class="cov-grid" x1="243.8" y1="6" x2="243.8" y2="34"/><text class="cov-tick" x="243.8" y="50" text-anchor="middle">2023</text><line class="cov-grid" x1="323.2" y1="6" x2="323.2" y2="34"/><text class="cov-tick" x="323.2" y="50" text-anchor="middle">2024</text><line class="cov-grid" x1="402.6" y1="6" x2="402.6" y2="34"/><text class="cov-tick" x="402.6" y="50" text-anchor="middle">2025</text><line class="cov-grid" x1="482.1" y1="6" x2="482.1" y2="34"/><text class="cov-tick" x="482.1" y="50" text-anchor="middle">2026</text><line class="cov-grid" x1="561.5" y1="6" x2="561.5" y2="34"/><text class="cov-tick" x="561.5" y="50" text-anchor="middle">2027</text><text class="cov-label" x="0" y="20">Whole</text><rect class="cov-bar" x="118.0" y="10" width="19.9" height="12" rx="3"><title>Whole: 2021-06 → 2026-05</title></rect><rect class="cov-bar" x="197.4" y="10" width="19.9" height="12" rx="3"><title>Whole: 2021-06 → 2026-05</title></rect><rect class="cov-bar" x="250.4" y="10" width="278.0" height="12" rx="3"><title>Whole: 2021-06 → 2026-05</title></rect><text class="cov-meta" x="594" y="20">quarterly</text></svg><p class="fig-note">Whole 2021-06–2026-05 (16 rows). Some rows additionally carry a <code>time_interval</code> of <code>yearly</code>; the cadence shown is the spacing the periods actually have.</p></section>
+
+  <section><h2>Which fuel columns this source fills</h2><p class="fig-lead">A blank column almost never means "no such cars" — it means this source does not split them out, and those vehicles are counted inside another column. Check the caveats for where they land.</p><div class="scroll"><table class="matrix"><tr><th></th><th>BEV</th><th>PHEV</th><th>HEV</th><th>ICE</th></tr><tr><th>Whole</th><td><span class="cell cell--yes" title="BEV: values in 16 of 16 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="PHEV: values in 16 of 16 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="HEV: values in 16 of 16 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td><td><span class="cell cell--yes" title="ICE: values in 16 of 16 rows (100%)"><span aria-hidden="true">●</span><span class="sr">reported</span></span></td></tr></table></div><p class="fig-note"><span class="cell cell--yes" aria-hidden="true">●</span> reported &nbsp; <span class="cell cell--zero" aria-hidden="true">◐</span> column exists but is zero in every row &nbsp; <span class="cell cell--no" aria-hidden="true">·</span> not reported by this source. Hover a cell for the row count.</p></section>
+
+  
+
+  
+
+  <section><h2>Caveats</h2><ul class="caveats"><li>NOT passenger cars: the BEV / PHEV / HEV counts and the total are the whole new-vehicle market (cars + LCV incl. bakkies and minibuses + MCV + HCV + XHCV + buses). naamsa relates its NEV table to &quot;total new vehicle sales&quot; (Q2-2026 review, p. 6: &quot;NEV sales comprised 5,6% of total new vehicle sales&quot;), and its September 2026 release says electrification &quot;is also beginning to extend beyond the passenger vehicle market, with emerging adoption across the light and medium commercial vehicle segments&quot;. Compare South Africa with other countries&#x27; car curves with care.</li><li>Quarterly, not monthly — each row sits on the quarter&#x27;s middle month (Feb, May, Aug, Nov); 2021 and 2022 are one yearly row each on June.</li><li>ICE is the total minus the NEVs; naamsa publishes no petrol / diesel split of the new-vehicle market.</li><li>naamsa restates recent quarters by a few units in later reviews; the newest review wins.</li><li>The Q4-2025 review printed the plug-in and traditional hybrid values of its two quarter columns in each other&#x27;s rows; the fetcher detects this against the annual column and swaps them back (§5).</li><li>There is no brand or model table — naamsa publishes brands&#x27; total sales, but not by drivetrain.</li><li>{&#x27;Completeness drift&#x27;: &quot;new entrants started reporting to naamsa in 2026 (30 brands in the NEV table), which lifts the 2026 NEV counts a little beyond the market&#x27;s own growth.&quot;}</li></ul></section>
+
+  <div class="footer">
+    <p><strong>Freshness.</strong> Latest period in our store: <code>2026-05</code>.
+       Update cadence: daily on the 10th–31st of February, May, August and November, 12:25 UTC — naamsa publishes the review 7–8 weeks after the quarter ends (2024–2026 between the 15th and the 27th).<br>
+       Curves in the gallery are fitted through <code>2026-06</code>.<br>
+       Row source string: <code>naamsa.net</code></p>
+    <p>Full pipeline notes (for developers): <a href="https://github.com/LeRaffl/LeRaffl-Gallery/blob/master/docs/architecture/60-source-south-africa.md"><code>docs/architecture/60-source-south-africa.md</code></a></p>
+  </div>
+</div>
+</body>
+</html>

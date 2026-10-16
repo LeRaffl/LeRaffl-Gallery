@@ -1,0 +1,118 @@
+name: Fetch South Africa data (naamsa quarterly review)
+
+# Reads naamsa's "Quarterly Review of Business Conditions" PDFs (found through
+# the naamsa.net WordPress media API) and upserts data/South Africa.csv:
+#
+#   data/South Africa.csv     Whole   naamsa TOTAL new-vehicle market — passenger
+#                                     cars + LCV (bakkies, minibuses) + MCV + HCV +
+#                                     XHCV + buses. NOT new M1: naamsa publishes
+#                                     its BEV / PHEV / HEV split only for all
+#                                     vehicles together.
+#
+# Electric -> BEV, Plug-in hybrid -> PHEV, Traditional hybrid -> HEV,
+# TOTAL = the quarter's aggregate passenger + commercial sales (section 7),
+# ICE = TOTAL - NEVs (no petrol/diesel split). One row per quarter on its
+# middle month (time_interval quarterly, as Canada / Georgia).
+# Full method, governance checks and a debugging runbook:
+# docs/architecture/60-source-south-africa.md.
+#
+# naamsa publishes the review 7-8 weeks after the quarter ends (2024-2026:
+# Feb 17-20, May 21-27, Aug 15-20, Nov 18-19). Polled daily from the 10th to
+# the end of those months; the script lists the media library (one small
+# JSON request) and exits without downloading when the newest review's
+# quarter is already in the CSV. A normal run downloads the four newest
+# reviews (~3 MB: they always hold the last full year's four quarters, so the
+# PHEV/HEV swap check runs on every normal run, not only on a backfill);
+# `backfill` reads every review the library lists (2024-Q1 on, ~8 MB) and
+# writes the yearly 2021/2022 rows.
+#
+# Rendering: dispatches render-country.yml once (see fetch-hong-kong.yml).
+
+on:
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: 'Re-read every review naamsa lists and write the yearly 2021/2022 rows'
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: 'Ignore the self-throttle / completeness guard and overwrite foreign rows'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # 12:25 UTC (14:25 SAST), 10th-31st of Feb, May, Aug and Nov.
+    - cron: '25 12 10-31 2,5,8,11 *'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    outputs:
+      any_changed: ${{ steps.fetch.outputs.changed }}
+      changed_variants: ${{ steps.fetch.outputs.changed_variants }}
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          pip install requests
+
+      # The table parser and the PHEV/HEV swap repair fail silently when
+      # wrong, so the regression tests gate the fetch (no network).
+      - name: Test the fetcher
+        run: python scripts/test_fetch_south_africa.py
+
+      - name: Fetch & update the South Africa CSV
+        id: fetch
+        run: |
+          python scripts/fetch_south_africa.py \
+            ${BACKFILL:+--backfill} \
+            ${FORCE:+--force}
+        env:
+          BACKFILL: ${{ inputs.backfill == true && '1' || '' }}
+          FORCE:    ${{ inputs.force == true && '1' || '' }}
+
+      - name: Commit if changed
+        id: commit
+        uses: EndBug/add-and-commit@v10
+        with:
+          # A git pathspec glob: the action splits `add` on whitespace.
+          add: |
+            data/South?Africa.csv
+          message: 'chore: update South Africa data from naamsa quarterly review'
+          default_author: github_actions
+          pull: '--rebase --autostash'
+
+  render:
+    needs: fetch
+    if: needs.fetch.outputs.committed == 'true' && needs.fetch.outputs.changed_variants != '[]'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+    steps:
+      - name: Dispatch render for South Africa
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VARIANTS_JSON: ${{ needs.fetch.outputs.changed_variants }}
+        run: |
+          variants=$(jq -r 'join("|")' <<< "$VARIANTS_JSON")
+          if [ -z "$variants" ]; then
+            echo "No changed variants to render."
+            exit 0
+          fi
+          gh workflow run render-country.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f country="South Africa" \
+            -f variants="$variants"

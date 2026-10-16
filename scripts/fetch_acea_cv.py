@@ -189,9 +189,12 @@ import requests
 #     (scripts/fetch_estonia.py) carries monthly Vans/HDV/Buses with a
 #     counted BEV/PHEV/HEV split from 2021-01; the quarterly ACEA rows are
 #     parked in data/Estonia_legacy.csv.
+# Latvia left 2026-10: scripts/fetch_latvia.py writes its Vans/HDV/Buses
+# monthly from CSDD's register records; the former ACEA rows are archived in
+# data/Latvia_legacy.csv (docs/architecture/58-source-latvia.md).
 TARGET_COUNTRIES = [
     "Belgium", "Bulgaria", "Croatia", "Cyprus",
-    "France", "Germany", "Greece", "Hungary", "Iceland", "Latvia",
+    "France", "Germany", "Greece", "Hungary", "Iceland",
     "Lithuania", "Malta", "Norway", "Poland", "Romania",
     "Slovakia", "Slovenia", "Sweden",
 ]
