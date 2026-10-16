@@ -159,6 +159,10 @@ entire_caption <- paste0(social_caption, " | \t ", Sys.Date(), "  | \t    Source
 # characters (a 3840 px chart holds ~200 at the caption's size). A footnotes.csv
 # that does not parse (an unquoted comma; read.csv also treats ' as a quote)
 # used to drop every footnote silently — it now leaves a warning in the log.
+# The markdown step behind element_markdown() turns a straight ' into a
+# typographic ’ (smart punctuation), which the chart font sets with the wrong
+# width ("ACEA’ s", "DIV’ sHybrid"); written as the entity &#39; it is left a
+# plain apostrophe.
 FOOTNOTE_WRAP <- 170
 footnote <- ""
 if (file.exists("footnotes.csv")) {
@@ -172,8 +176,9 @@ if (file.exists("footnotes.csv")) {
     hit <- fn[fn$country == country & fn$variant == variant, , drop = FALSE]
     if (nrow(hit) >= 1 && !is.na(hit$footnote[1]) && nzchar(hit$footnote[1])) {
       footnote <- hit$footnote[1]
+      fn_lines <- strwrap(footnote, width = FOOTNOTE_WRAP)
       entire_caption <- paste0(entire_caption, "<br>",
-                               paste(strwrap(footnote, width = FOOTNOTE_WRAP), collapse = "<br>"))
+                               paste(gsub("'", "&#39;", fn_lines, fixed = TRUE), collapse = "<br>"))
       cat(sprintf("[render] footnote: %s\n", footnote))
     }
   }
