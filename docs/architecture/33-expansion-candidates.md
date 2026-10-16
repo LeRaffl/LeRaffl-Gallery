@@ -441,7 +441,7 @@ Re-check of the remaining ACEA-primary countries in the same round (2026-10-15):
 
 > | Country | Probed | Finding |
 > |---|---|---|
-> | 🇧🇪 Belgium | FOD Mobiliteit open data (`mobilit.belgium.be`, `data.gov.be`), Statbel, FEBIAC | the record-level yearly files are booked at year end; the monthly figures are interactive Power BI pages; FEBIAC's monthly files are press tables. The FOD site sits behind a bot challenge for scripts. Not monthly machine-readable. |
+> | 🇧🇪 Belgium | FOD Mobiliteit open data (`mobilit.belgium.be`, `data.gov.be`), Statbel, FEBIAC | the record-level yearly files are booked at year end; the monthly figures are interactive Power BI pages; FEBIAC's monthly files are press tables. The FOD site sits behind a bot challenge for scripts. Not monthly machine-readable — but the report's source CSVs sit on a plain file server: built 2026-10, see the Belgium section above. |
 > | 🇸🇮 Slovenia | OPSI `prvic-registrirana-vozila-po-mesecih` | publication suspended on data-protection grounds (notice on the dataset); no current files |
 > | 🇭🇷 Croatia | `data.gov.hr` (CVH), `cvh.hr` | new/used M1 and the electric/hybrid tables are yearly to 2022; CVH posts yearly PDFs and half-year press figures |
 > | 🇷🇴 Romania | `data.gov.ro`, DGPCI portal, APIA | only the yearly fleet ("parc auto", to 2025-12); DGPCI's portal is an app with no statistics files; APIA's monthly releases are PDFs (detail in its paid CarS platform) |
