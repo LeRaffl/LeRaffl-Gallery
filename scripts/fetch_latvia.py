@@ -462,8 +462,13 @@ def acea_note(old: dict | None, counts: dict[str, int]) -> str:
 
 def relayed(url: str, relay: str) -> str:
     """The URL to request: through the fetch relay when one is set (the target
-    url-encoded onto its base, as the Worker's /fetch?url= expects)."""
-    return relay + quote(url, safe="") if relay else url
+    url-encoded onto its base, as the relay's /fetch?url= expects). A relay set
+    to the bare service URL gets the /fetch?url= added."""
+    if not relay:
+        return url
+    if "?url=" not in relay:
+        relay = relay.rstrip("/") + "/fetch?url="
+    return relay + quote(url, safe="")
 
 
 def find_files(page: str) -> dict[str, str]:

@@ -305,13 +305,49 @@ All CSVs keep the `HEV` column, empty in every row.
   egress. With `LATVIA_FETCH_RELAY` unset the fetcher connects directly, which works from
   a European network.
 
+* **Offline:** `python scripts/fetch_latvia.py --from-dir DIR --backfill --dry-run` with the
+  files saved as `DIR/headline.xlsx`, `DIR/cars.xlsx`, `DIR/lorries.xlsx` (`--dump-dir`
+  saves them on a live run). Parsing both record files takes ~45 s.
+
+### The deployed EU relay
+
+| | |
+|---|---|
+| Google Cloud project | `leraffl-relay` (project number `765509719249`), owner account of the repo maintainer; billing: Google Cloud free trial (credit), then the always-free tier |
+| Service | Cloud Run `csdd-relay`, region `europe-north1` (Finland), max 1 instance, 256 MiB, port 8000 |
+| URL | `https://csdd-relay-765509719249.europe-north1.run.app` — the fetcher calls `…/fetch?url=<url-encoded CSDD URL>` |
+| Code | `worker/deno-relay.ts` built from `worker/Dockerfile` (Cloud Build → Artifact Registry repo `cloud-run-source-deploy`, `europe-north1`) |
+| Auth | `RELAY_TOKEN` env var on the service = GitHub secret `LATVIA_RELAY_TOKEN` (never in the repo); requests without it get `401` |
+| GitHub secrets | `LATVIA_FETCH_RELAY` = the URL above + `/fetch?url=`, `LATVIA_RELAY_TOKEN` |
+| Deployed | 2026-10-17, revision `csdd-relay-00001-xkq` |
+
+**Where to look:**
+* *Is it running / why did it fail?* Console → Cloud Run → `csdd-relay` → **Logs** (one
+  line per relayed request with status and latency) and **Revisions**.
+* *What does it cost?* Console → **Billing** → Reports, filtered on project
+  `leraffl-relay`. Expected: ~0.1–0.2 GB egress and a few hundred requests a month — inside
+  the free tier but for a few cents of egress. The container image in Artifact Registry
+  (~50 MB) is free up to 0.5 GB. A budget alert (Billing → Budgets & alerts, e.g. 1 €)
+  makes any surprise visible.
+* *The free trial ends after 90 days:* Google then asks to upgrade to a paid account; until
+  that is confirmed the service is stopped and the Latvia fetch fails with a connection
+  error to `*.run.app`.
+
 ### EU relay setup (Cloud Run, one-off)
 
 In the browser, at <https://console.cloud.google.com> (a billing account is required even
 for the free tier):
 
-1. Create a project (e.g. `leraffl-relay`) and open **Cloud Shell** (the `>_` icon).
-2. `git clone https://github.com/LeRaffl/LeRaffl-Gallery.git && cd LeRaffl-Gallery`
+1. Create a project (e.g. `leraffl-relay`) and open **Cloud Shell** (the `>_` icon, top
+   right next to the Gemini star).
+2. `gcloud config set project leraffl-relay` and
+   `git clone https://github.com/LeRaffl/LeRaffl-Gallery.git && cd LeRaffl-Gallery`
+   — then, once per new project, let Cloud Build use the default compute service account
+   (without it step 4 fails with `PERMISSION_DENIED … default service account is missing
+   required IAM permissions`):
+   `gcloud projects add-iam-policy-binding leraffl-relay --member="serviceAccount:<project
+   number>-compute@developer.gserviceaccount.com" --role="roles/run.builder"` (condition:
+   None), and wait a minute.
 3. `TOKEN=$(openssl rand -hex 24); echo "$TOKEN"` — keep the printed value.
 4. `gcloud run deploy csdd-relay --source worker --region europe-north1 --port 8000
    --allow-unauthenticated --max-instances 1 --memory 256Mi --set-env-vars
@@ -326,9 +362,6 @@ for the free tier):
 
 A change to `worker/deno-relay.ts` reaches Cloud Run only by repeating step 4 (Cloud
 Shell: `git pull` first).
-* **Offline:** `python scripts/fetch_latvia.py --from-dir DIR --backfill --dry-run` with the
-  files saved as `DIR/headline.xlsx`, `DIR/cars.xlsx`, `DIR/lorries.xlsx` (`--dump-dir`
-  saves them on a live run). Parsing both record files takes ~45 s.
 
 ### Debugging runbook
 

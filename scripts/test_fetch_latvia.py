@@ -167,6 +167,9 @@ def test_relayed():
     check("direct", F.relayed(url, ""), url)
     check("relay", F.relayed(url, "https://relay.example/fetch?url="),
           "https://relay.example/fetch?url=https%3A%2F%2Fwww.csdd.lv%2Fcck%3Fid%3D4473%26xi%3D7")
+    for bare in ("https://relay.example", "https://relay.example/"):
+        check(f"bare relay {bare}", F.relayed(url, bare),
+              "https://relay.example/fetch?url=https%3A%2F%2Fwww.csdd.lv%2Fcck%3Fid%3D4473%26xi%3D7")
 
 
 def test_upsert():
