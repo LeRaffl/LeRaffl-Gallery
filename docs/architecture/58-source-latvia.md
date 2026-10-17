@@ -44,8 +44,21 @@ caveats:
 - 'HEV is not reported: full and mild hybrids are inside PETROL/DIESEL. PHEV is plug-in hybrids only, so the PHEV curve is real but the HEV share cannot be shown.'
 - 'Used imports are a market of their own: about 42,000 a year (twice the new market), mostly diesel; 10 % BEV and 5 % PHEV in January–September 2026.'
 - 'Vans run up to about 13 % and HDV up to about 17 % below ACEA''s quarterly reconstructions in 2024–2026 (their electric counts agree); ACEA''s CV quarters for Latvia also have known errors (HDV 2022-Q2, 2023-Q3). Buses are 0–40 a month, so single deliveries of electric city buses swing the shares.'
+- 'CSDD''s website answers only European internet addresses. GitHub''s servers (which run the fetch) are in the US, so every request goes through a small relay of this project on Google Cloud Run in Finland, which fetches the files from CSDD and passes them back unchanged. If the relay is down, the fetch fails loudly; ACEA still fills the Whole series.'
 - 'The file is the register as it is today, not a snapshot of each month: more than a year back the record counts drift up to ~1.5 % below the headline table written at the time (records removed since), while new cars still equal ACEA''s figure. December 2023 is the exception the other way: the records hold 653 more first-registered cars than the headline table (new cars still equal ACEA).'
 processing:
+- title: Network path
+  text:
+  - CSDD's website answers only European internet addresses (a reachability test from servers in about 40 countries on 2026-10-16 connected from every European one and timed out everywhere else). The fetch runs on GitHub's servers in the US, so it does not call CSDD directly but goes through a small relay of this project on Google Cloud Run in Finland (europe-north1). The relay only forwards requests to www.csdd.lv, needs a secret token, and streams the files back byte for byte — the data are exactly CSDD's.
+  decision:
+    ask: Where does the request to www.csdd.lv come from?
+    branches:
+    - when: GitHub's server in the US, directly
+      then: no answer (connection times out)
+    - when: Cloudflare or Deno Deploy relay (also served from the US)
+      then: no answer (tried and dropped, 2026-10-16)
+    - when: the project's relay on Google Cloud Run, Finland
+      then: CSDD answers — the files go back to the fetch unchanged
 - title: Download
   text:
   - The fetcher reads CSDD's statistics page and finds the three files by their link text (the URLs are opaque indexes). It first downloads the headline table (~50 KB); if that has no figure for the target month yet, it stops. Otherwise it downloads the passenger-car records (~70 MB) and the lorry/bus records (~25 MB). A run whose target month is already a CSDD row in every CSV makes no request at all.
@@ -285,8 +298,8 @@ All CSVs keep the `HEV` column, empty in every row.
 
 ## 7. Operations and debugging
 
-* **Cron** `20 6,12 8-25 * *` (UTC) — **paused since 2026-10-16** until the EU relay below
-  is live (commented out in `fetch-latvia.yml`; uncomment to restore). No HTTP when the target month (last month) is a CSDD
+* **Cron** `20 6,12 8-25 * *` (UTC). It was paused 2026-10-16 while the EU relay below was
+  set up and is back since the first green relayed run (2026-10-17). No HTTP when the target month (last month) is a CSDD
   row in every CSV; only the 50 KB headline file while CSDD has not published.
 * A normal run rewrites the last 13 months (late bookings move a month by a car or two;
   only changed lines are written). `backfill` rewrites every month from 2015-01.
@@ -357,8 +370,8 @@ for the free tier):
    "<Service URL>/fetch?url=https%3A%2F%2Fwww.csdd.lv%2F"` → `200`.
 6. GitHub → repo → Settings → Secrets and variables → Actions → New repository secret:
    `LATVIA_FETCH_RELAY` = `<Service URL>/fetch?url=` and `LATVIA_RELAY_TOKEN` = the token.
-7. Dispatch `fetch-latvia.yml` (`period` = last month, `force`) and, once it is green,
-   uncomment the `schedule:` block.
+7. Dispatch `fetch-latvia.yml` (`period` = last month, `force`): the step summary shows the
+   month's table and the CSVs stay unchanged (first green run 2026-10-17).
 
 A change to `worker/deno-relay.ts` reaches Cloud Run only by repeating step 4 (Cloud
 Shell: `git pull` first).
