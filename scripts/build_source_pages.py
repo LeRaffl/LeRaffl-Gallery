@@ -7,6 +7,14 @@ front-matter plus live facts from `params.csv` and the per-country data CSV,
 fills a single theme-aware HTML template, and writes one page per country to
 `sources/<slug>.html` — plus a `sources/index.html` directory page.
 
+Explainer pages: any other `docs/architecture/*.md` whose front-matter sets
+`explainer: true` (e.g. 61-tag-system.md → `sources/tags.html`, "How the tags
+work") is rendered with the same flow / decision-tree (BPMN-style) renderer
+from its `processing:` block, plus optional `sections:` and live widgets
+(`boxplots: true` mounts assets/tag_boxplots.js on top of
+assets/fit_core.js + assets/tag_system.js). They are not countries, so
+they never appear in sources.json or the directory.
+
 The pages are served straight from the repo by GitHub Pages, so the generated
 HTML is committed. Re-run this whenever a source doc's front-matter or the
 underlying CSV changes:
@@ -1873,6 +1881,33 @@ CANDIDATE_INDEX_SECTION = """
   <div class="dir-grid dir-grid--cand">{cards}</div>
 """
 
+EXPLAINER_TEMPLATE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title} · BEV Trajectories</title>
+<meta name="description" content="{summary}">
+<link rel="stylesheet" href="{theme_href}">
+<style>{css}</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← Gallery</a>
+  <h1>{title}</h1>
+  <p class="lead">{summary}</p>
+  {sections}
+  <section><h2>How a tag is decided</h2>
+  {flow}</section>
+  {boxplots}
+  <div class="footer">
+    <p>Specification (for developers): {doc}</p>
+  </div>
+</div>
+</body>
+</html>
+"""
+
 CANDIDATE_TEMPLATE = """<!doctype html>
 <html lang="en">
 <head>
@@ -1921,6 +1956,63 @@ CANDIDATE_TEMPLATE = """<!doctype html>
 # --------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------
+
+EXPLAINER_REQUIRED = ("slug", "title", "summary", "processing")
+
+
+def collect_explainers() -> tuple[list[tuple[dict, str]], list[str]]:
+    problems: list[str] = []
+    out: list[tuple[dict, str]] = []
+    for doc in sorted(DOCS.glob("*.md")):
+        if "-source-" in doc.name:
+            continue
+        fm = read_front_matter(doc)
+        if not fm or fm.get("explainer") is not True:
+            continue
+        missing = [f for f in EXPLAINER_REQUIRED if not fm.get(f)]
+        if missing:
+            problems.append(f"{doc.name}: missing {', '.join(missing)}")
+            continue
+        if not isinstance(fm["processing"], list):
+            problems.append(f"{doc.name}: processing must be a list of steps")
+            continue
+        out.append((fm, doc.name))
+    return out, problems
+
+
+def build_explainer_page(fm: dict, doc_name: str) -> str:
+    steps = [s for s in fm.get("processing") or [] if isinstance(s, dict)]
+    nodes = []
+    for i, st in enumerate(steps):
+        if i:
+            nodes.append('<div class="flow-arrow" aria-hidden="true">▼</div>')
+        nodes.append(f'<div class="flow-node"><div class="flow-title">{esc(st.get("title", ""))}</div>'
+                     f'<div class="flow-sub">{build_processing_step(st)}</div></div>')
+    sections = []
+    for sec in fm.get("sections") or []:
+        if not isinstance(sec, dict):
+            continue
+        text = sec.get("text") or []
+        paras = "".join(f"<p>{esc(t)}</p>" for t in ([text] if isinstance(text, str) else text))
+        sections.append(f'<section><h2>{esc(sec.get("heading", ""))}</h2>{paras}</section>')
+    box = ""
+    if fm.get("boxplots"):
+        box = ('<section><h2>Where the cut-offs sit today</h2>'
+               '<p class="fig-note">Live from params.csv with the gallery\'s own tag code. '
+               'Each dot is one market\'s reference curve (hover for its name); the box is the '
+               'middle half, the braces mark the tag bands with their cut-off.</p>'
+               '<div id="tagBoxplots"></div></section>'
+               '<script src="../assets/fit_core.js"></script>'
+               '<script src="../assets/tag_system.js"></script>'
+               '<script src="../assets/tag_boxplots.js"></script>'
+               '<script>TagBoxplots.mount(document.getElementById("tagBoxplots"),'
+               '{params:"../params.csv"});</script>')
+    return EXPLAINER_TEMPLATE.format(
+        theme_href=THEME_HREF, css=BASE_CSS, title=esc(fm["title"]),
+        summary=esc(fm["summary"]), flow='<div class="flow">' + "".join(nodes) + "</div>",
+        sections="".join(sections), boxplots=box,
+        doc=f'<a href="{GH_BLOB}/docs/architecture/{esc(doc_name)}"><code>docs/architecture/{esc(doc_name)}</code></a>')
+
 
 def load_stubs() -> list[dict]:
     """Brief entries from the stub registry, if the file exists."""
@@ -2065,6 +2157,11 @@ def main() -> int:
     candidates, cand_problems = collect_candidates(
         {fm.get("slug") for fm, _ in entries})
     problems += cand_problems
+    explainers, expl_problems = collect_explainers()
+    problems += expl_problems
+    taken = {fm.get("slug") for fm, _ in entries} | {c.get("slug") for c in candidates}
+    problems += [f"{d}: explainer slug '{fm['slug']}' clashes with a country page"
+                 for fm, d in explainers if fm["slug"] in taken | {"index"}]
 
     if problems:
         print("Front-matter / stub problems:", file=sys.stderr)
@@ -2075,7 +2172,8 @@ def main() -> int:
         print("No entries found (no front-matter, no stubs).", file=sys.stderr)
         return 1
     if check_only:
-        print(f"OK — {len(entries)} valid entries, {len(candidates)} candidates.")
+        print(f"OK — {len(entries)} valid entries, {len(candidates)} candidates, "
+              f"{len(explainers)} explainer page(s).")
         return 0
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -2102,6 +2200,10 @@ def main() -> int:
 
     for c in candidates:
         (OUT_DIR / f"{c['slug']}.html").write_text(build_candidate_page(c),
+                                                   encoding="utf-8")
+
+    for fm, doc_name in explainers:
+        (OUT_DIR / f"{fm['slug']}.html").write_text(build_explainer_page(fm, doc_name),
                                                    encoding="utf-8")
 
     (OUT_DIR / "index.html").write_text(build_index(built, candidates),
