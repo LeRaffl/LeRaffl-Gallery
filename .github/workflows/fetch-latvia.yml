@@ -61,11 +61,9 @@ on:
         required: false
         default: false
         type: boolean
-  # Schedule paused 2026-10-16 until the EU relay (Cloud Run, see the fetch
-  # step) is live — without it every run fails. To restore, uncomment:
-  # schedule:
-  #   # 06:20 and 12:20 UTC (Riga 09:20 / 15:20), 8th-25th of the month.
-  #   - cron: '20 6,12 8-25 * *'
+  schedule:
+    # 06:20 and 12:20 UTC (Riga 09:20 / 15:20), 8th-25th of the month.
+    - cron: '20 6,12 8-25 * *'
 
 concurrency:
   group: fetch-latvia
