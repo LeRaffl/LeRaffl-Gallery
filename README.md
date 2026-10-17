@@ -191,8 +191,9 @@ When opening `index.html`, the browser loads:
 The landing section opens with a hand-rolled inline-SVG chart for your **home market**, picked from your browser's timezone — no IP lookup, no location prompt — and a search box that writes straight through to the gallery filter (press Enter to jump to the gallery).
 
 ### Gallery
-- Search box on top (country, aliases, type, date, filename), country picker, chart types, one sort dropdown  
-- *More filters*: month and the tag chips — Fit (Reliable / Unreliable / No transition), Status, Speed, Start — with live counts; selected filters show as removable chips above the results  
+- Search box on top (country, aliases, type, date, filename), country picker, chart types; always newest first  
+- Tag chips — Fit (Reliable / Unreliable / No transition), Status, Speed, Start — with live counts; selected filters show as removable chips above the results  
+- *More filters*: month and “Latest only”  
 - *Show more* adds about a screenful (24 charts) below the current ones without moving the view; *Show all* loads the rest  
 - Lightbox preview and direct download  
 - “Latest only” mode automatically selects the newest chart per type/country (there may be several even for a single month, e.g. when I'm cleaning up or trying something)  

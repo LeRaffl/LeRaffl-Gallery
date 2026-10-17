@@ -170,7 +170,13 @@ def main():
     checks += [
         (all(f'data-tag-cat="{c}"' in html and all(f'data-tag-value="{v}"' in html for v in vals.split(","))
              for c, _, vals in fl["groups"]), "sidebar markup has every chip of TAG_FILTER_GROUPS"),
-        (" checked/>" not in html.split('id="moreFilters"')[1].split("</details>")[0], "tag chips start unselected"),
+        (" checked/>" not in html.split('id="tagFilters"')[1].split('id="moreFilters"')[0], "tag chips start unselected"),
+        (html.index('id="tagFilters"') < html.index('id="moreFilters"') and
+         'id="periodSelect"' in html.split('id="moreFilters"')[1].split("</details>")[0] and
+         'id="latestOnly"' in html.split('id="moreFilters"')[1].split("</details>")[0],
+         "tag chips visible by default; Month + Latest only under More filters"),
+        (all(f'id="{i}"' not in html for i in ["sortField", "sortDir", "sortCombo"]) and "GALLERY_SORT = { field: 'created', dir: 'desc' }" in html,
+         "no sort control; fixed newest-first order"),
         ("cols.replaceChildren(frag)" in html and "function appendCards(" in html, "Show more appends instead of rebuilding"),
     ]
     html = (ROOT / "index.html").read_text()

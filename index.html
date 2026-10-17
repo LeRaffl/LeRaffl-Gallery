@@ -3333,7 +3333,6 @@ h2 .fb-ctx-btn{
 .side .fx-more .chips.tag-filter{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px}
 .side .fx-more .tag-filter .chip{padding:4px 9px;font-size:12.5px;border-radius:999px;gap:5px}
 .side .fx-more .tag-filter .chip input{inline-size:.9rem;block-size:.9rem}
-#sortCombo{width:100%}
 .fx-more>summary{display:flex;align-items:center;gap:8px}
 .fx-badge{display:inline-block;min-width:18px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .fx-reset{margin-left:auto;font-size:12px}
@@ -3366,6 +3365,7 @@ h2 .fb-ctx-btn{
 .fx-reset{background:none;border:0;padding:0 4px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:12px;min-height:28px}
 .fx-achip:focus-visible,.fx-clear:focus-visible,.fx-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #tab-gallery .side .fx-taghint{margin:2px 0 6px;color:var(--muted-2)}
+#tab-gallery .side .fx-how{float:right;text-transform:none;letter-spacing:0;font-size:11.5px}
 #tab-gallery .side .fx-toggle{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .fx-applied{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
 .fx-achip{--tc:var(--fg);--tb:var(--surface);--tl:var(--line);display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;
@@ -3924,10 +3924,12 @@ function tok(name, fallback){
         <div class="side-body">
         <!-- Filter sidebar v2 (2026-10-17): ordered by how often each control
              is used — search, country, types; one sort dropdown; month and the
-             tag chips folded under "More filters" (badge = selected chips).
-             #countrySelect / #sortField / #sortDir stay as the hidden source of
-             truth that applyFilters() reads; #countryPick and #sortCombo drive
-             them (data-fb-skip keeps the proxies out of the feedback context). -->
+             the tag chips visible by default; Month and Latest only folded
+             under "More filters" (badge = active hidden settings).
+             #countrySelect stays as the hidden source of truth that
+             applyFilters() reads; #countryPick drives it (data-fb-skip keeps
+             the proxy out of the feedback context). No sort control: the
+             gallery is always newest first (GALLERY_SORT). -->
         <div class="fx-search">
           <input id="search" type="search" autocomplete="off"
                  aria-label="Search charts by country, type or filename"
@@ -3953,28 +3955,36 @@ function tok(name, fallback){
             <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
             <label class="chip"><input type="checkbox" value="time" checked/> Transition time</label>
           </div>
-          <label class="fx-toggle"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
         </div>
 
-        <div class="fx-row">
-          <label class="fx-lab" for="sortCombo">Sort</label>
-          <select id="sortCombo" data-fb-skip>
-            <option value="created:desc" selected>Newest first</option>
-            <option value="created:asc">Oldest first</option>
-            <option value="country:asc">Country A–Z</option>
-            <option value="country:desc">Country Z–A</option>
-            <option value="filename:asc">Filename A–Z</option>
-          </select>
-          <!-- original field + direction, kept hidden; sortCombo drives them -->
-          <select id="sortField" hidden>
-            <option value="created" selected>Created time (from filename)</option>
-            <option value="country">Country</option>
-            <option value="filename">Filename</option>
-          </select>
-          <select id="sortDir" hidden>
-            <option value="desc" selected>Descending</option>
-            <option value="asc">Ascending</option>
-          </select>
+
+        <div class="fx-row fx-tagsec" id="tagFilters">
+          <span class="fx-lab">Tags <a href="sources/tags.html" id="tagsHowLink" class="fx-how">How the tags work →</a></span>
+          <p class="small fx-taghint" id="tagHint">Pick tags to narrow the gallery. Nothing picked shows everything; within a group any picked tag matches, across groups all must match.</p>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-fit">Fit</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" aria-describedby="tagHint" data-fb-group="tag_fit">
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="reliable" data-tag-value="reliable"/><span class="fx-tl">Reliable</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="unreliable" data-tag-value="unreliable"/><span class="fx-tl">Unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="grey"><input type="checkbox" value="notrans" data-tag-value="notrans"/><span class="fx-tl">No transition</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" aria-describedby="tagHint" data-fb-group="tag_status">
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" value="ontrack" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" aria-describedby="tagHint" data-fb-group="tag_speed">
+            <label class="chip tag-chip fx-tag" data-tone="accent"><input type="checkbox" value="fast" data-tag-value="fast"/><span class="fx-tl">Fast</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="avg" data-tag-value="avg"/><span class="fx-tl">Avg</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="slow" data-tag-value="slow"/><span class="fx-tl">Slow</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-timing">Start</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="timing" data-group-label="Start" role="group" aria-labelledby="tg-timing" aria-describedby="tagHint" data-fb-group="tag_timing">
+            <label class="chip tag-chip fx-tag" data-tone="blue2"><input type="checkbox" value="early" data-tag-value="early"/><span class="fx-tl">Early</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="mid" data-tag-value="mid"/><span class="fx-tl">Mid</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="orange"><input type="checkbox" value="late_start" data-tag-value="late_start"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
         </div>
 
         <details class="side-more fx-more" id="moreFilters">
@@ -3982,33 +3992,7 @@ function tok(name, fallback){
             <button type="button" id="moreReset" class="fx-reset" hidden>Clear</button></summary>
           <label class="small" for="periodSelect">Month</label>
           <select id="periodSelect" hidden><option value="">All months</option></select>
-          <div style="height:10px"></div>
-          <p class="small" style="margin:4px 0 8px"><a href="sources/tags.html" id="tagsHowLink">How the tags work →</a></p>
-          <p class="small fx-taghint" id="tagHint">Pick tags to narrow the gallery. Nothing picked shows everything; within a group any picked tag matches, across groups all must match.</p>
-          <div class="fx-tgroup"><span class="fx-glabel" id="tg-fit">Fit</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" aria-describedby="tagHint" data-fb-group="tag_fit">
-            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" data-tag-value="reliable"/><span class="fx-tl">Reliable</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" data-tag-value="unreliable"/><span class="fx-tl">Unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="grey"><input type="checkbox" data-tag-value="notrans"/><span class="fx-tl">No transition</span><span class="fx-n" data-n aria-live="off"></span></label>
-          </div></div>
-          <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" aria-describedby="tagHint" data-fb-group="tag_status">
-            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
-          </div></div>
-          <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" aria-describedby="tagHint" data-fb-group="tag_speed">
-            <label class="chip tag-chip fx-tag" data-tone="accent"><input type="checkbox" data-tag-value="fast"/><span class="fx-tl">Fast</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" data-tag-value="avg"/><span class="fx-tl">Avg</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" data-tag-value="slow"/><span class="fx-tl">Slow</span><span class="fx-n" data-n aria-live="off"></span></label>
-          </div></div>
-          <div class="fx-tgroup"><span class="fx-glabel" id="tg-timing">Start</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="timing" data-group-label="Start" role="group" aria-labelledby="tg-timing" aria-describedby="tagHint" data-fb-group="tag_timing">
-            <label class="chip tag-chip fx-tag" data-tone="blue2"><input type="checkbox" data-tag-value="early"/><span class="fx-tl">Early</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" data-tag-value="mid"/><span class="fx-tl">Mid</span><span class="fx-n" data-n aria-live="off"></span></label>
-            <label class="chip tag-chip fx-tag" data-tone="orange"><input type="checkbox" data-tag-value="late_start"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
-          </div></div>
+          <label class="fx-toggle" title="Newest chart per country and type, unless a month is picked"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
         </details>
         </div><!-- /.side-body -->
       </aside>
@@ -7081,8 +7065,8 @@ const searchInput   = document.getElementById('search');
 const stats         = document.getElementById('stats');
 const latestOnly    = document.getElementById('latestOnly');
 const typeChecks    = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
-const sortField     = document.getElementById('sortField');
-const sortDir       = document.getElementById('sortDir');
+// Fixed gallery order: newest chart first (sort controls removed 2026-10-17).
+const GALLERY_SORT = { field: 'created', dir: 'desc' };
 const pager         = document.getElementById('pager');
 const loadMoreBtn   = document.getElementById('loadMore');
 const showAllBtn    = document.getElementById('showAll');
@@ -7127,7 +7111,7 @@ function galleryNextRows(shown, total, step){
 function renderColumns(items){
   if(items.length===0){ cols.replaceChildren(); galleryView=null; empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
   const frag=document.createDocumentFragment();
-  const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
+  const { field, dir } = GALLERY_SORT; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
   galleryView = { sections: {} };
   for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue;
     const col=document.createElement('section'); col.className='col'; col.dataset.type=t;
@@ -7228,10 +7212,10 @@ loadManifest().then(({images})=>{
   // is immediate — users expect selects/checkboxes to react instantly.
   const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
-  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>showMore(Object.keys(galleryView?galleryView.sections:{}), loadMoreBtn)); if(showAllBtn) showAllBtn.addEventListener('click',()=>{ const l=Object.keys(galleryView?galleryView.sections:{}); showMore(l, showAllBtn, true); });
+  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced);  loadMoreBtn.addEventListener('click',()=>showMore(Object.keys(galleryView?galleryView.sections:{}), loadMoreBtn)); if(showAllBtn) showAllBtn.addEventListener('click',()=>{ const l=Object.keys(galleryView?galleryView.sections:{}); showMore(l, showAllBtn, true); });
   // Tag-filter chips — same reset() flow as the type chips.
   document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
-  sortField.value='created'; sortDir.value='desc'; update();
+  update();
   // Load the country→source-page map, then repaint so cards get their
   // "ⓘ Source" links. Done after the first paint so a slow/missing
   // sources.json never blocks the gallery from showing.
@@ -14370,7 +14354,7 @@ document.addEventListener('click', (e) => {
       basisRow(cat, country) +
       stabilityRow(cat, country) +
       `<p class="tag-tip-note">${c.note}</p>` +
-      `<p class="tag-tip-note">Full explanation, decision diagram and live boxplots of every group: <em>How the tags work</em> (sidebar, <em>More filters</em>).</p>`;
+      `<p class="tag-tip-note">Full explanation, decision diagram and live boxplots of every group: <em>How the tags work</em> (sidebar, next to <em>Tags</em>).</p>`;
     return true;
   }
 
@@ -15066,8 +15050,8 @@ document.addEventListener('click', (e) => {
 
 <script>
 /* Filter sidebar v2: the country picker and the sort dropdown drive the
-   hidden #countrySelect / #sortField / #sortDir and fire their normal
-   'change' events; "More filters" owns the tag-chip counts, the badge and
+   hidden #countrySelect and fires its normal
+   'change' events; this block owns the tag-chip counts, the badge and
    the applied-filters bar above the results. */
 (function(){
   const $ = id => document.getElementById(id);
@@ -15083,17 +15067,11 @@ document.addEventListener('click', (e) => {
     pick.addEventListener('input', () => { const o = match(); if (o && o.value !== sel.value) setCountry(o.value); });
     pick.addEventListener('change', () => { const o = match(); setCountry(o ? o.value : ''); });
     clr.addEventListener('click', () => setCountry(''));
-    // combined sort → field + direction
-    const combo = $('sortCombo'), sf = $('sortField'), sd = $('sortDir');
-    combo.value = `${sf.value}:${sd.value}`;
-    combo.addEventListener('change', () => {
-      const [f, d] = combo.value.split(':'); sf.value = f; sd.value = d;
-      sf.dispatchEvent(new Event('change'));   // one re-render for both
-    });
-    // "More filters": badge = selected chips (+ month), live chip counts,
-    // applied-filters bar. Called by the gallery after every render.
+    // Tag chips (always visible): live counts + applied-filters bar.
+    // "More filters" (Month, Latest only): badge + Clear. Called by the
+    // gallery after every render.
     const more = $('moreFilters'), badge = $('moreBadge'), clearBtn = $('moreReset'), bar = $('appliedBar');
-    const chips = [...more.querySelectorAll('.tag-filter input[data-tag-value]')];
+    const chips = [...document.querySelectorAll('#tagFilters .tag-filter input[data-tag-value]')];
     const groupOf = c => c.closest('.tag-filter');
     const fire = el => el.dispatchEvent(new Event('change', { bubbles: true }));
     // Speed and Start share words ("Late", "Fast" vs "Early"…): prefix the
@@ -15120,10 +15098,13 @@ document.addEventListener('click', (e) => {
         lab.classList.toggle('is-zero', n === 0 && !c.checked);
         lab.classList.toggle('is-on', c.checked);
       });
-      const on = chips.filter(c => c.checked), ps = $('periodSelect');
+      const on = chips.filter(c => c.checked), ps = $('periodSelect'), lo = $('latestOnly');
+      // Badge: settings folded away under "More filters" that differ from
+      // the default (a month picked, Latest only switched off).
+      const hiddenN = (ps.value ? 1 : 0) + (lo.checked ? 0 : 1);
+      badge.textContent = hiddenN; badge.hidden = !hiddenN; clearBtn.hidden = !hiddenN;
+      badge.setAttribute('aria-label', `${hiddenN} changed`);
       const n = on.length + (ps.value ? 1 : 0);
-      badge.textContent = n; badge.hidden = !n; clearBtn.hidden = !n;
-      badge.setAttribute('aria-label', `${n} active`);
       bar.replaceChildren();
       if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
       on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
@@ -15138,7 +15119,10 @@ document.addEventListener('click', (e) => {
       const x = document.createElement('span'); x.textContent = '×'; x.setAttribute('aria-hidden', 'true');
       b.append(t, x); b.setAttribute('aria-label', 'Remove filter ' + text); b.addEventListener('click', onRemove); return b;
     }
-    clearBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); clearAll(); });
+    clearBtn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      const ps = $('periodSelect'), lo = $('latestOnly'); ps.value = ''; lo.checked = true; fire(lo);
+    });
     if (window.__fxRefresh) window.__fxRefresh();
   });
 })();

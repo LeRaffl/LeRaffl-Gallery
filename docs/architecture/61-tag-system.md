@@ -12,7 +12,7 @@ sections:
   - A reference group needs at least 4 markets. Smaller groups — and their subsets — get no speed or timing tag.
 - heading: Filtering the gallery by tag
   text:
-  - Under More filters the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
+  - Right under the search box, country and chart types, the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
   - Nothing picked shows everything. Within a group any picked tag matches; across groups all must match — Fast and Early means fast and early, Fast and Avg means either.
   - Every chart has exactly one Fit value. No-transition charts appear only under No transition, never as Reliable, and Unreliable or No-transition charts carry no Status, Speed or Start — they drop out as soon as one of those is picked. So does a market whose group is too small for a scale, once a Speed or Start value is picked; it is never counted as Mid.
   - Each chip shows how many charts it would give with the other groups' picks applied; chips that would give none are dimmed. Picked tags also appear as removable chips above the results.
@@ -79,7 +79,7 @@ processing:
 Reader-facing page: **`sources/tags.html`** ("How the tags work"), generated
 from the front-matter above by `scripts/build_source_pages.py` (explainer
 pages; same flow / decision-tree renderer as the country source pages). Linked
-from the gallery sidebar (*More filters* → *How the tags work*),
+from the gallery sidebar (*Tags* → *How the tags work*),
 the FAQ entry *What do the small tags on gallery cards mean?*, and named in
 every tag popover. The page draws **live boxplots** (`assets/tag_boxplots.js`)
 from `params.csv` with the gallery's own tag functions.
@@ -143,9 +143,11 @@ exclude). Counts (`tagFilterCounts`) are facet counts: for each chip, the
 charts left after the non-tag filters and the **other** groups' selections,
 with that chip as its group's selection; 0 ⇒ chip dimmed. The applied-filters
 bar above the results lists every selected chip (Speed/Start prefixed:
-"Speed: Avg", "Start: Late") plus *Clear all*; the *More filters* badge counts
-selected chips plus an active month. Feedback context records the chips as
-`tag_fit`, `tag_status`, `tag_speed`, `tag_timing` (`data-fb-group`).
+"Speed: Avg", "Start: Late") plus *Clear all*. The tag chips are visible by default (below Search /
+Country / Types); *More filters* holds only Month and *Latest only*, and its
+badge counts those two when changed from the default. The gallery has no sort
+control (removed 2026-10-17): always newest first (`GALLERY_SORT`). Feedback context records the chips as
+`tag_fit`, `tag_status`, `tag_speed`, `tag_timing` (`data-fb-group`); `sortField` / `sortDir` are no longer captured (older reports still carry them).
 
 ## Parent map (current)
 
