@@ -12554,13 +12554,17 @@ function wmPioneerCutoff(row){
   return 2025;
 }
 
-// 'normal' | 'pioneer' | 'stalled'. Duration mode never produces a
+// 'normal' | 'pioneer' | 'stalled' | 'notrans'. 'notrans' (#266) is decided
+// first, before any value-based check: a collapsed curve can yield a fitted
+// "year at threshold" in the past, which used to paint it as a pioneer.
+// 'notrans' rows never enter the colour ramp or the Pioneers list; they are
+// drawn in the neutral grey "No transition" layer. Duration mode never produces a
 // "pioneer" — it can only be normal or stalled (at least one endpoint
 // unreachable within the fitted horizon).
 function wmClassify(mode, value, row){
   // The tables say "shows no transition" → so does the map (no crossing
   // year, no duration). In 'share' mode the fitted share stays meaningful.
-  if (row.noTrans && mode !== 'share') return 'stalled';
+  if (row.noTrans && mode !== 'share') return 'notrans';
   // v1 was patched from exactly 0 to -1e-24 → CSV precision too low.
   // This happens for extremely fast transitions (e.g. Indonesia) where
   // v1 is so small that it rounds to 0. Treat as normal — the computed
@@ -12719,7 +12723,9 @@ function wmRender(){
   // Split into three traces: normal, pioneer, stalled
   const normal  = data.filter(d => d.cls === 'normal');
   const pioneer = data.filter(d => d.cls === 'pioneer');
-  const stalled = data.filter(d => d.cls === 'stalled');
+  // 'notrans' (#266) shares the neutral grey layer and list with 'stalled',
+  // never the colour ramp (normal) or the Pioneers list.
+  const stalled = data.filter(d => d.cls === 'stalled' || d.cls === 'notrans');
 
   const normalVals = normal.map(d => d.v);
   // One scale for every variant: the P5..P95 clip comes from the Cars rows
