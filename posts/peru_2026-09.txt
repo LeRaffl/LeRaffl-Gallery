@@ -1,0 +1,11 @@
+🇵🇪 Peru - September 26 - BEV Trajectory
+0.5% BEV
+1.6% PHEV
+97.9% ICE (of which 7.3%p were HEV)
+
+Trailing 12 months are:
+0.5% BEV
+0.9% PHEV
+98.7% ICE (of which 7.3%p were HEV)
+
+Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
