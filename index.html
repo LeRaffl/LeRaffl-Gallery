@@ -3366,6 +3366,7 @@ function tok(name, fallback){
   Plotly v3.5.0 (latest stable as of April 2026).
 -->
 <script src="https://cdn.plot.ly/plotly-3.5.0.min.js" defer></script>
+<script src="assets/tag_boxplots.js" defer></script>
 </head>
 <body>
   <header>
@@ -3874,6 +3875,7 @@ function tok(name, fallback){
 
         <details class="side-more">
           <summary>Status, speed, timing &amp; fit</summary>
+          <p class="small" style="margin:4px 0 8px"><a href="sources/tags.html" id="tagsHowLink">How the tags work →</a></p>
           <label class="small">Status <span class="small">(fitted 80%)</span></label>
           <div class="chips tag-filter" data-tag-cat="status">
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="past"    checked/> Past 80%</label>
@@ -3882,7 +3884,7 @@ function tok(name, fallback){
           </div>
 
           <div style="height:10px"></div>
-          <label class="small">Speed <span class="small">(slope quartile)</span></label>
+          <label class="small">Speed <span class="small">(slope quartile of its group)</span></label>
           <div class="chips tag-filter" data-tag-cat="speed">
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="fast" checked/> Fast</label>
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="avg"  checked/> Avg speed</label>
@@ -3890,7 +3892,7 @@ function tok(name, fallback){
           </div>
 
           <div style="height:10px"></div>
-          <label class="small">Timing <span class="small">(10% before 2023 / after 2025)</span></label>
+          <label class="small">Timing <span class="small">(10% crossing, quartile of its group)</span></label>
           <div class="chips tag-filter" data-tag-cat="timing">
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="early"      checked/> Early starter</label>
             <label class="chip tag-chip"><input type="checkbox" data-tag-value="mid"        checked/> Mid</label>
@@ -7523,30 +7525,56 @@ function rowIsUnreliableFit(r){
 // against a pool that mixes cars with trucks. Electric trucks only reached
 // the market years after electric cars, so a fixed calendar cut (the old
 // "10 % before 2023") could never award a truck market "Early starter".
-//   • Group = variant. Whole and its subsets Private and Industry form one
-//     group ("Cars"); every other variant (Vans, HDV, Buses, Used, …) is its
-//     own group.
+//   • Reference groups: only BASE variants define a distribution. Whole is
+//     the reference for cars; HDV, Vans, Buses, 2-Wheelers, … are their own
+//     references. A subset (Private, Industry, Rental, Used, …) never feeds the
+//     cut-offs — it is classified against its parent's distribution ("the
+//     boxplot of Whole"). The subset → parent mapping is TAG_PARENT; add a
+//     line there when a new subset variant appears. A variant missing from
+//     the map is its own reference group.
 //   • Timing is share-based: each row's fitted 10 % crossing year. Markets
 //     still below 10 % count with their extrapolated year. Early = earliest
 //     quarter of the group (≤ 25th percentile), Late = latest quarter
 //     (≥ 75th percentile); the middle half carries no timing pill.
 //   • Speed: the same quartiles of the inflection slope, per group.
-//   • A group needs TAG_MIN_GROUP distinct countries in a pool, otherwise
-//     that tag is withheld for the whole group (quartiles of 2–3 markets are
-//     not a ranking).
+//   • A reference group needs TAG_MIN_GROUP countries (one reference row
+//     each) in a pool, otherwise that tag is withheld for the group and all
+//     its subsets (quartiles of 2–3 markets are not a ranking).
 // Pool = rows that transition (not rowHasNoTransition) and whose fit is not
 // excluded by fitReliability(); provisional fits count. Status (80 % / 2035)
 // is absolute and unchanged.
 const TAG_MIN_GROUP = 4;
 const TAG_LOW_Q  = 0.25;
 const TAG_HIGH_Q = 0.75;
-function tagGroupOf(variant){
+// Subset variant (lower case) → parent reference variant (lower case).
+const TAG_PARENT = {
+  'private':      'whole',   // private keepers
+  'industry':     'whole',   // company / VAT-registered keepers
+  'rental':       'whole',
+  'nonrental':    'whole',
+  'used':         'whole',   // used imports at first national registration
+  'used imports': 'whole',
+  'resale':       'whole',
+  'fleet':        'whole',
+  'custom':       'whole',   // Germany KBA custom passenger-car slice
+  'wholesale':    'whole',   // China CPCA passenger-car wholesale
+  '4-wheelers':   'whole',   // India cars and other four-wheelers
+};
+function tagVariantKey(variant){
   const v = String(variant || '').trim().toLowerCase();
-  if (!v || v === 'whole' || v === 'private' || v === 'industry') return 'whole';
-  return v;
+  return v || 'whole';
+}
+// Reference group a row is compared against.
+function tagGroupOf(variant){
+  const v = tagVariantKey(variant);
+  return TAG_PARENT[v] || v;
+}
+// True when the row itself defines its group's distribution.
+function tagIsReference(variant){
+  return !TAG_PARENT[tagVariantKey(variant)];
 }
 function tagGroupLabel(group, variant){
-  return group === 'whole' ? 'Cars' : String(variant || group).trim();
+  return group === 'whole' ? 'Cars (Whole)' : String(variant || group).trim();
 }
 function tagQuantile(sorted, q){
   if (!sorted.length) return NaN;
@@ -7555,17 +7583,18 @@ function tagQuantile(sorted, q){
   if (lo === hi) return sorted[lo];
   return sorted[lo] * (hi - idx) + sorted[hi] * (idx - lo);
 }
-// items: [{ group, label, country, t10, speed, eligible }]
+// items: [{ group, label, country, t10, speed, eligible, ref }]
 // → { [group]: { label, timing: {n, lo, hi, ok}, speed: {n, lo, hi, ok} } }
-// n counts distinct countries; the quartiles run over all eligible rows
-// (a Cars country with Whole + Private + Industry rows contributes three).
+// Only reference rows (ref = true) feed a group, one per country (the first
+// one wins), so n = countries = values. Subset rows are ignored here.
 function tagGroupCutoffs(items){
   const acc = {};
   for (const it of items){
-    if (!it.eligible) continue;
+    if (!it.ref) continue;
     const g = acc[it.group] || (acc[it.group] = { label: it.label,
-      t: [], s: [], tc: new Set(), sc: new Set() });
-    if (it.group === 'whole' || !g.label) g.label = it.label;
+      t: [], s: [], tc: new Set(), sc: new Set(), seen: new Set() });
+    if (!it.eligible || g.seen.has(it.country)) continue;
+    g.seen.add(it.country);
     if (isFinite(it.t10))   { g.t.push(it.t10);   g.tc.add(it.country); }
     if (isFinite(it.speed)) { g.s.push(it.speed); g.sc.add(it.country); }
   }
@@ -7593,6 +7622,63 @@ function speedTagFor(speed, cut){
   if (speed >= cut.hi) return { v: 'fast', label: 'Fast' };
   if (speed <= cut.lo) return { v: 'slow', label: 'Slow' };
   return                      { v: 'avg',  label: 'Avg speed' };
+}
+
+// Slope (dS/dz) at the inflection point of 1 − exp(v1 · z^v2): the Speed
+// metric. NaN without an inflection point (v2 ≤ 1).
+function tagSlopeAtInflection(v1raw, v2raw){
+  let k = +v2raw, v1n = +v1raw;
+  if (v1n === 0) v1n = -1e-24;
+  if (!isFinite(k) || !isFinite(v1n)) return NaN;
+  if (v1n >= 0 || k <= 1) return NaN;
+  const invLambda = Math.pow(-v1n, 1/k);
+  const u = Math.pow((k - 1) / k, 1/k);
+  return k * invLambda * Math.pow(u, k - 1) * Math.exp(-Math.pow(u, k));
+}
+// Phase 1 + 2 of the tags for parsed params.csv rows: every row enriched with
+// t80 / t10 / speed / reliability / group, plus the per-group cut-offs.
+// The single implementation — the gallery tags, the boxplots on
+// sources/tags.html and scripts/tag_system_report.js all call this.
+function tagComputeAll(rows, pastThreshold){
+  const enriched = rows.map(row => {
+    const variant = String(row.variant || '').trim();
+    const key = (!variant || variant.toLowerCase() === 'whole')
+      ? row.country
+      : `${row.country} (${variant})`;
+    // inv_x_years returns the calendar year of the crossing directly.
+    const t80res = inv_x_years(pastThreshold ?? 0.8, row.v1, row.v2, row.t0);
+    const t10res = inv_x_years(0.10,                 row.v1, row.v2, row.t0);
+    // Empty ttm_bev_share stays NaN ("unknown"), never 0; out-of-range too
+    // (a stray column shift can put a year in this field).
+    const ttmRaw = String(row.ttm_bev_share ?? '').trim();
+    const ttm = ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN;
+    const v2n = Number(String(row.v2 ?? '').replace(',', '.'));
+    const group = tagGroupOf(variant);
+    const e = {
+      key,
+      country: String(row.country || '').trim(),
+      variant: variant || 'Whole',
+      group,
+      groupLabel: tagGroupLabel(group, variant),
+      ref: tagIsReference(variant),
+      noTrans: rowHasNoTransition(row),
+      t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
+      t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
+      speed: tagSlopeAtInflection(row.v1, row.v2),
+      obs: isFinite(ttm) && ttm >= 0 && ttm <= 1 ? ttm : NaN,
+      // Share at the inflection point (S-shaped fits only).
+      inflShare: isFinite(v2n) && v2n > 1 ? 1 - Math.exp(-(v2n - 1) / v2n) : NaN,
+      rel: fitReliability(row),
+    };
+    // Excluded fits stay out of the pools: a collapsed curve carries a huge
+    // inflection slope and would drag the "Fast" cut-off up with it.
+    e.eligible = !e.noTrans && e.rel.status !== 'excluded';
+    return e;
+  });
+  const cutoffs = tagGroupCutoffs(enriched.map(e => ({
+    group: e.group, label: e.groupLabel, country: e.country,
+    t10: e.t10, speed: e.speed, eligible: e.eligible, ref: e.ref })));
+  return { enriched, cutoffs };
 }
 function fitRowKey(r){
   const v = String(r.variant || '').trim();
@@ -12117,9 +12203,9 @@ const FAQ_DATA = [
     answers: [
       'Each gallery card carries up to three stacked tags summarising the country\u2019s curve at a glance. All three are computed from the same Weibull fit shown in <em>Thresholds</em> and <em>Durations</em>.',
       '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
-      '<b>Vehicle groups</b> \u2014 Speed and Timing compare a market only with markets of the <b>same vehicle group</b>: cars (the main curve plus its Private and Industry subsets), vans, trucks (HDV), buses, used imports and so on each form their own group. Electric trucks reached the market years after electric cars, so a shared yardstick could never call a truck market an early starter. A group needs at least <b>4 markets</b>; smaller groups get no speed or timing tag. Hover a tag for its group\u2019s actual cut-offs.',
-      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) within the vehicle group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
-      '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared within its vehicle group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
+      '<b>Reference groups</b> \u2014 Speed and Timing compare a market only with the <b>reference group</b> of its vehicle type. For cars that is the main new-car curve (<em>Whole</em>) of every market, one per country; car subsets (private, company, rental, used imports, \u2026) do not shape the scale, they are placed on Whole\u2019s scale. Vans, trucks (HDV), buses, two-wheelers and so on are their own reference groups. Electric trucks reached the market years after electric cars, so a shared yardstick could never call a truck market an early starter. A reference group needs at least <b>4 markets</b>; smaller groups (and their subsets) get no speed or timing tag. Hover a tag for its group\u2019s actual cut-offs, or read <a href="sources/tags.html">How the tags work</a> for the full decision diagram.',
+      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
+      '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared against its reference group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
       '<b>Unreliable fit</b> \u2014 a market whose fitted curve cannot be trusted yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the World Map (a note under each table names what was left out). The chart itself stays in the gallery. Three tests, any one is enough:<br>&nbsp;&nbsp;<b>Unsettled</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
       'All thresholds (80 %, 2035, 10 %) are constants of the script that renders the tags; the quartiles (25 / 75 %) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
@@ -14140,19 +14226,6 @@ document.addEventListener('click', (e) => {
   // carries a single "Unreliable fit" pill instead; a provisional one keeps
   // its tags, drawn hollow.
 
-  // Re-implementation of slopeAtInflection (the original lives in an IIFE).
-  // Returns the dimensionless slope (dS/dz) at the inflection point of the
-  // Weibull S-curve 1 − exp(v1 · z^v2).
-  function slopeAtInflection(v1raw, v2raw){
-    let k = +v2raw, v1n = +v1raw;
-    if (v1n === 0) v1n = -1e-24;
-    if (!isFinite(k) || !isFinite(v1n)) return NaN;
-    if (v1n >= 0 || k <= 1) return NaN;
-    const invLambda = Math.pow(-v1n, 1/k);
-    const u = Math.pow((k - 1) / k, 1/k);
-    return k * invLambda * Math.pow(u, k - 1) * Math.exp(-Math.pow(u, k));
-  }
-
   function statusTag(t80){
     if (!isFinite(t80)) return null;
     const now = new Date();
@@ -14170,58 +14243,10 @@ document.addEventListener('click', (e) => {
       if (!r.ok) return;
       const rows = parseCSV(await r.text());
 
-      // Phase 1 — enrich every row with t80, t10, speed.
-      // inv_x_years now returns the calendar year of the crossing directly
-      // (see its CALENDAR-YEAR FIX comment), so t80/t10 can be compared to
-      // "today" without any further offset — this is what makes the gallery
-      // status pills (Past 80% / On track / Late) line up with the plotted
-      // crossing year instead of firing one year early.
-      const enriched = rows.map(row => {
-        const variant = String(row.variant || '').trim();
-        const key = (!variant || variant.toLowerCase() === 'whole')
-          ? row.country
-          : `${row.country} (${variant})`;
-        const t80res = inv_x_years(PAST_THRESHOLD, row.v1, row.v2, row.t0);
-        const t10res = inv_x_years(0.10,           row.v1, row.v2, row.t0);
-        // Observed share now, so the glossary can say whether a threshold is
-        // something the data has actually reached or something the fit
-        // extrapolates to. Empty ttm_bev_share stays NaN ("unknown"), never 0.
-        const ttmRaw = String(row.ttm_bev_share ?? '').trim();
-        const v2n = Number(String(row.v2 ?? '').replace(',', '.'));
-        return {
-          key,
-          country: String(row.country || '').trim(),
-          group: tagGroupOf(variant),
-          groupLabel: tagGroupLabel(tagGroupOf(variant), variant),
-          noTrans: rowHasNoTransition(row),
-          t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
-          t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
-          speed: slopeAtInflection(row.v1, row.v2),
-          // Guarded to a real share: a stray params.csv column shift can put a
-          // year (e.g. 2019) in this field, which would otherwise be rendered
-          // as "201900 %". Out-of-range means "unknown", so the glossary
-          // simply omits the observed/projected line.
-          obs: (() => {
-            const n = ttmRaw !== '' ? Number(ttmRaw.replace(',', '.')) : NaN;
-            return isFinite(n) && n >= 0 && n <= 1 ? n : NaN;
-          })(),
-          // Share at the curve's inflection point — the level the market has
-          // to reach before "speed" describes observed rather than projected
-          // behaviour. Only defined for S-shaped fits (v2 > 1).
-          inflShare: isFinite(v2n) && v2n > 1 ? 1 - Math.exp(-(v2n - 1) / v2n) : NaN,
-          rel: fitReliability(row),
-        };
-      });
-
-      // Phase 2 — speed and timing quartiles per vehicle group (#294).
-      // Excluded fits are left out of the pools: a collapsed curve (Albania
-      // Buses, a near-vertical step) carries a huge inflection slope and
-      // would drag the "Fast" cut-off up with it.
-      const cutoffs = tagGroupCutoffs(enriched.map(e => ({
-        group: e.group, label: e.groupLabel, country: e.country,
-        t10: e.t10, speed: e.speed,
-        eligible: !e.noTrans && e.rel.status !== 'excluded',
-      })));
+      // Phase 1 + 2 — tagComputeAll() (top level, shared with the
+      // "How the tags work" page and scripts/tag_system_report.js).
+      const { enriched, cutoffs } = tagComputeAll(rows, PAST_THRESHOLD);
+      window.__bevTagPoints = enriched;    // boxplots: every row's position
       window.__bevTagCutoffs = cutoffs; // read by the tag glossary
 
       // Phase 3 — assemble the tag set per row.
@@ -14248,9 +14273,9 @@ document.addEventListener('click', (e) => {
           if (s) { s.level = PAST_THRESHOLD; s.year = e.t80; s.obs = e.obs; tags.status = s; }
           const cut = cutoffs[e.group];
           const sp = speedTagFor(e.speed, cut && cut.speed);
-          if (sp) { sp.level = e.inflShare; sp.obs = e.obs; sp.group = e.group; tags.speed = sp; }
+          if (sp) { sp.level = e.inflShare; sp.obs = e.obs; sp.group = e.group; sp.ref = e.ref; tags.speed = sp; }
           const tm = timingTagFor(e.t10, cut && cut.timing);
-          if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tm.group = e.group; tags.timing = tm; }
+          if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tm.group = e.group; tm.ref = e.ref; tags.timing = tm; }
           if (provisional) {
             for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.rel.swing; }
           }
@@ -14314,7 +14339,7 @@ document.addEventListener('click', (e) => {
       name: 'Speed',
       order: ['slow', 'avg', 'fast'],
       ticks: ['25th pct', '75th pct'],
-      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts are computed <b>per vehicle group</b> (cars, vans, trucks, buses, …), so trucks are ranked against trucks, and they shift as markets are refitted. Groups with fewer than 4 markets get no speed pill.',
+      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts come from the <b>reference group</b>: the main new-car curves (Whole) for cars and every car subset (private, company, rental, used, …), the vans, truck or bus curves for those. So trucks are ranked against trucks. Groups with fewer than 4 markets get no speed pill.',
       values: {
         slow: { label: 'Slow',       def: 'Bottom quarter of its vehicle group by inflection speed.' },
         avg:  { label: 'Avg speed',  def: 'Middle half of its vehicle group — a typical pace.' },
@@ -14325,7 +14350,7 @@ document.addEventListener('click', (e) => {
       name: 'Timing',
       order: ['early', 'mid', 'late_start'],
       ticks: ['25th pct', '75th pct'],
-      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year <b>within the vehicle group</b>, so trucks are compared with trucks. Cards carry no timing pill for the middle half; groups with fewer than 4 markets get none at all.',
+      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year in the <b>reference group</b> (Whole for cars and all car subsets; vans, trucks, buses each their own), so trucks are compared with trucks. Cards carry no timing pill for the middle half; groups with fewer than 4 markets get none at all.',
       values: {
         early:      { label: 'Early starter', def: 'Among the earliest quarter of its vehicle group to cross 10 % BEV share.' },
         mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share with the middle half of its vehicle group.' },
@@ -14453,11 +14478,11 @@ document.addEventListener('click', (e) => {
     if (!cuts) return base;
     const all = window.__bevTagsByCountry;
     const t = country && all && all[country] && all[country][cat];
-    const fmt = x => cat === 'timing' ? yr(x) : (x * 100).toFixed(1) + ' %/yr';
+    const fmt = x => !isFinite(x) ? '—' : cat === 'timing' ? x.toFixed(1) : (x * 100).toFixed(1) + ' %/yr';
     if (t && t.group && cuts[t.group] && cuts[t.group][cat].ok){
       const g = cuts[t.group], d = g[cat];
       const c = Object.assign({}, base, { ticks: [fmt(d.lo), fmt(d.hi)], values: Object.assign({}, base.values) });
-      const who = `${g.label} (${d.n} markets)`;
+      const who = `${g.label} (${d.n} markets)` + (t.ref ? '' : ' — this subset is compared against that reference');
       if (cat === 'timing'){
         c.values.early      = { label: 'Early starter', def: `Crosses 10 % BEV share by ${yr(d.lo)} — earliest quarter of ${who}.` };
         c.values.mid        = { label: 'Mid',           def: `Crosses 10 % BEV share between ${yr(d.lo)} and ${yr(d.hi)} — middle half of ${who}.` };
@@ -14478,6 +14503,18 @@ document.addEventListener('click', (e) => {
     return Object.assign({}, base, { note: base.note + '<br><b>Cut-offs per group</b> (25th / 75th pct, markets): ' + rows.join(' · ') });
   }
 
+  // The market's own position on its reference group's boxplot (live, same
+  // data as the pill). Drawn by assets/tag_boxplots.js.
+  function boxplotRow(cat, country){
+    if ((cat !== 'speed' && cat !== 'timing') || !country || !window.TagBoxplots) return '';
+    const pts = window.__bevTagPoints, cuts = window.__bevTagCutoffs;
+    const me = pts && pts.find(p => p.key === country);
+    if (!me || !cuts || !cuts[me.group]) return '';
+    window.TagBoxplots.injectCss();
+    return '<div class="tag-tip-box">' + window.TagBoxplots.svg({ group: me.group, metric: cat,
+      cut: cuts[me.group], points: pts, highlight: me, compact: true }) + '</div>';
+  }
+
   function fill(cat, value, country){
     const c = groupView(cat, country);
     const v = c && c.values[value];
@@ -14492,9 +14529,11 @@ document.addEventListener('click', (e) => {
     tip.innerHTML =
       `<div class="tag-tip-eyebrow">${c.name}</div>` +
       `<p class="tag-tip-def">${v.def}</p>${scale}` +
+      boxplotRow(cat, country) +
       basisRow(cat, country) +
       stabilityRow(cat, country) +
-      `<p class="tag-tip-note">${c.note}</p>`;
+      `<p class="tag-tip-note">${c.note}</p>` +
+      `<p class="tag-tip-note">Full explanation, decision diagram and live boxplots of every group: <em>How the tags work</em> (sidebar, under Status, speed, timing &amp; fit).</p>`;
     return true;
   }
 
