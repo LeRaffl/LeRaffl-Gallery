@@ -59,6 +59,26 @@ const st = [api.statusTagFor(2020, new Date(Date.UTC(2026,9,1))), api.statusTagF
 console.log(JSON.stringify({ cuts, st, svg_ok: /<path d="M/.test(svg) && /tbp-hl/.test(svg) && /Early starter/.test(svg) }));
 """
 
+FILTER_JS = r"""
+const src = require('child_process').execFileSync('node', [process.argv[1], process.argv[2], 'passesTagFilter']).toString();
+global.window = { __bevTagsByCountry: {
+  big:   { status: {v:'late'}, speed: {v:'avg'}, timing: {v:'early'} },
+  mid:   { status: {v:'late'}, speed: {v:'avg'} },                       // middle half: no timing pill
+  small: { status: {v:'late'}, noscale: { timing: true, speed: true } }, // group < 4 markets
+}};
+eval(src);
+const f = (cat, vals) => ({ [cat]: new Set(vals) });
+const R = {};
+for (const c of ['big', 'mid', 'small']) R[c] = {
+  none: passesTagFilter(c, {}),
+  timingMid: passesTagFilter(c, f('timing', ['mid'])),
+  timingEarlyLate: passesTagFilter(c, f('timing', ['early', 'late_start'])),
+  speedAvg: passesTagFilter(c, f('speed', ['avg'])),
+  statusOnly: passesTagFilter(c, f('status', ['late'])),
+};
+console.log(JSON.stringify(R));
+"""
+
 def node(args):
     return subprocess.run(["node", *args], capture_output=True, text=True, check=True, cwd=ROOT).stdout
 
@@ -70,8 +90,8 @@ def main():
     live = json.loads(node([lib, "--json"]))
     hdv_live = live["dist"].get("hdv", {})
     checks = [
-        (r["groups"] == ["whole"]*4 + ["hdv","vans","buses","whole","whole","pickups"], "subset → parent mapping"),
-        (r["refs"] == [True, True, False, False, True, False, True], "only base variants are reference rows"),
+        (r["groups"] == ["whole"]*4 + ["hdv","vans","buses","whole","whole","vans"], "subset → parent mapping"),
+        (r["refs"] == [True, True, False, False, True, False, False], "only base variants are reference rows"),
         (r["hdv"]["timing"]["n"] == 5 and r["hdv"]["timing"]["ok"], "HDV pool = 5 eligible countries"),
         (r["hdv"]["timing"]["lo"] == 2026 and r["hdv"]["timing"]["hi"] == 2028, "HDV quartiles 2026/2028"),
         (r["early"] == {"v":"early","label":"Early starter"}, "earliest quarter → Early starter"),
@@ -94,6 +114,14 @@ def main():
          "boxplot cut-offs == report cut-offs"),
         (bp["svg_ok"], "boxplot SVG renders with braces and highlight"),
         (bp["st"] == ["past", "ontrack", "late"], "status tag unchanged (80 % / 2035)"),
+    ]
+    fl = json.loads(node(["-e", FILTER_JS, str(ROOT / "scripts/js_extract.js"), str(ROOT / "index.html")]))
+    checks += [
+        (all(fl[c]["none"] for c in fl), "no active filter: every row shows (incl. small groups)"),
+        (fl["mid"]["timingMid"] and not fl["small"]["timingMid"], "small group is not 'Mid'"),
+        (not fl["small"]["timingEarlyLate"] and not fl["small"]["speedAvg"], "small group hidden by a specific speed/timing filter"),
+        (fl["small"]["statusOnly"], "small group unaffected by a status filter"),
+        (fl["big"]["timingEarlyLate"] and not fl["mid"]["timingEarlyLate"], "normal filter behaviour unchanged"),
     ]
     html = (ROOT / "index.html").read_text()
     tags_html = (ROOT / "sources/tags.html").read_text() if (ROOT / "sources/tags.html").exists() else ""

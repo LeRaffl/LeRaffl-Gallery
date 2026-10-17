@@ -8,7 +8,8 @@ sections:
 - heading: Reference groups
   text:
   - Only base variants define a scale. For cars that is the main new-car curve (Whole) of every market, one per country. Car subsets — private and company keepers, rental and non-rental, used imports, and other car slices — do not shape the scale; they are placed on Whole's scale, like a dot on Whole's boxplot.
-  - Vans, trucks (HDV), buses, two- and three-wheelers, pickups and so on are their own reference groups. A future subset of one of them is compared against that parent.
+  - Vans, trucks (HDV), buses, two- and three-wheelers and so on are their own reference groups. A subset of one of them is compared against that parent — Canada's pickup trucks, for example, are placed on the Vans scale.
+  - In the sidebar filter, a market in a group too small for a scale has no speed or timing tag. It shows while that category is unfiltered and is hidden as soon as a specific speed or timing value is selected; it is never counted as Mid.
   - A reference group needs at least 4 markets. Smaller groups — and their subsets — get no speed or timing tag.
 - heading: The three tags
   text:
@@ -42,6 +43,8 @@ processing:
     branches:
     - when: Private, Industry, Rental, NonRental, Used, Custom, Wholesale, 4-Wheelers, …
       then: Whole (classified on Whole's scale, does not shape it)
+    - when: Pickups
+      then: Vans (classified on the Vans scale)
     - when: no — a base variant (Whole, Vans, HDV, Buses, 2-Wheelers, …)
       then: its own group (shapes the scale, one row per country)
 - title: Build each group's scale
@@ -102,7 +105,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | Thresholds table, "Tags" column | same `.tag-stack` / `paint()` (MutationObserver on `thresholdsMount`) | yes, identical to the cards | yes (automatic) |
 | Durations table, "Tags" column | same (`durationsMount`) | yes, identical | yes (automatic) |
 | Durations "Numerical speed" column / sort, Speed tab chart, Time interval | raw slope / crossing years, **not** the tags | no | not needed — rankings stay global numbers; only the *labels* are per group |
-| Sidebar tag filters (`getActiveTagFilters`, `passesTagFilter`) | `__bevTagsByCountry[*].{status,speed,timing,unsettled,notrans}`; missing timing ⇒ `mid` | yes — pills differ; **groups below 4 markets have no timing pill and therefore count as "Mid"** (and as unknown for speed) | values follow automatically; the "no tag because group < 4" vs "Mid" ambiguity is **flagged, not changed** |
+| Sidebar tag filters (`getActiveTagFilters`, `passesTagFilter`) | `__bevTagsByCountry[*].{status,speed,timing,unsettled,notrans,noscale}`; missing timing ⇒ `mid` | yes — pills differ | yes — rows whose reference group has < 4 markets carry `noscale.{timing,speed}`: shown while that category is unfiltered, **hidden as soon as a specific value of that category is selected**, never counted as *Mid* (decision 2026-10-17) |
 | Tag popover / glossary | cut-offs, points, CATS texts | yes | yes (per-group wording, mini boxplot, link text) |
 | FAQ "What do the small tags…" | static text | yes | yes |
 | Sidebar labels (Speed / Timing) | static text | yes | yes ("quartile of its group") |
@@ -121,7 +124,10 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 |---|---|
 | Whole | Whole (reference) |
 | Private, Industry, Rental, NonRental, Used, Used Imports, Resale, Fleet, Custom, Wholesale, 4-Wheelers | Whole |
-| Vans, HDV, Buses, 2-Wheelers, 3-Wheelers, Pickups, Non-Passenger | own group |
+| Pickups (Canada, StatCan pickup trucks GVWR ≤ 14,000 lb ≈ N1 + part N2) | Vans |
+| Vans, HDV, Buses, 2-Wheelers, 3-Wheelers, Non-Passenger | own group |
+
+**Non-Passenger (Canada)** is an orphan `params.csv` / `weights.csv` row from the pre-pipeline hand-maintained sheet (last data 2025-12, `refit_swing` Inf → *Unreliable fit*, so it never carries speed/timing tags). Its TTM volume (1.63 M) only fits "all light vehicles except passenger cars" (SUVs + pickups + vans). Not retired yet: `render-country.yml` still offers it as a dispatch option — see PR #326.
 
 ## Cut-offs on params.csv as of 2026-10-17
 
@@ -132,7 +138,6 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | HDV | 16 | 2025.0 / 2028.8 | 16 | 7.4 / 11.6 |
 | Buses | 13 | 2021.7 / 2024.7 | 13 | 3.9 / 15.5 |
 | 3-Wheelers | 2 | no tag | 0 | no tag |
-| Pickups | 1 | no tag | 1 | no tag |
 | 2-Wheelers | 0 | no tag | 0 | no tag |
 | Non-Passenger | 0 | no tag | 0 | no tag |
 

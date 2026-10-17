@@ -56,6 +56,7 @@ const TAG_PARENT = {
   'custom':       'whole',   // Germany KBA custom passenger-car slice
   'wholesale':    'whole',   // China CPCA passenger-car wholesale
   '4-wheelers':   'whole',   // India cars and other four-wheelers
+  'pickups':      'vans',    // Canada StatCan pickup trucks, GVWR ≤ 14,000 lb (N1 + part N2)
 };
 function tagVariantKey(variant){
   const v = String(variant || '').trim().toLowerCase();
@@ -71,7 +72,10 @@ function tagIsReference(variant){
   return !TAG_PARENT[tagVariantKey(variant)];
 }
 function tagGroupLabel(group, variant){
-  return group === 'whole' ? 'Cars (Whole)' : String(variant || group).trim();
+  if (group === 'whole') return 'Cars (Whole)';
+  // A subset row names its parent group, a reference row its own variant.
+  return tagIsReference(variant) ? String(variant || group).trim()
+    : ({ vans: 'Vans', hdv: 'HDV', buses: 'Buses' }[group] || group);
 }
 function tagQuantile(sorted, q){
   if (!sorted.length) return NaN;

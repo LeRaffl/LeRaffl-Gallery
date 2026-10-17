@@ -7060,6 +7060,11 @@ function passesTagFilter(country, filters){
   for (const cat of cats){
     if (cat === 'fit') continue;
     const allowed = filters[cat];
+    // Group too small for a speed / timing scale (fewer than 4 markets): the
+    // row has no tag in that category. It shows while that category is
+    // unfiltered and is hidden as soon as a specific value is selected —
+    // it is neither "Mid" nor any other value. See docs/architecture/61.
+    if (tags && tags.noscale && tags.noscale[cat]) return false;
     // Timing has a designed middle band — missing tag means "mid".
     // Status/Speed without a tag means we couldn't compute it; treat as 'unknown'
     // and only accept when the user explicitly includes the 'mid' pseudo-value
@@ -13956,6 +13961,10 @@ document.addEventListener('click', (e) => {
           if (sp) { sp.level = e.inflShare; sp.obs = e.obs; sp.group = e.group; sp.ref = e.ref; tags.speed = sp; }
           const tm = timingTagFor(e.t10, cut && cut.timing);
           if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tm.group = e.group; tm.ref = e.ref; tags.timing = tm; }
+          // Reference group below TAG_MIN_GROUP: no scale, so "no tag" — not
+          // "Mid" / "unknown". The sidebar filter reads this (not painted).
+          const noscale = { timing: !(cut && cut.timing.ok), speed: !(cut && cut.speed.ok) };
+          if (noscale.timing || noscale.speed) tags.noscale = noscale;
           if (provisional) {
             for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.rel.swing; }
           }
