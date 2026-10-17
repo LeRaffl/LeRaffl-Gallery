@@ -16,7 +16,7 @@ function loadTagApi(){
   return vm.runInContext(`({ parseCSV, rowHasNoTransition, fitReliability, inv_x_years,
     TAG_PARENT, TAG_MIN_GROUP, tagGroupOf, tagIsReference, tagGroupLabel, tagGroupCutoffs,
     timingTagFor, speedTagFor, statusTagFor, tagComputeAll, TAG_FILTER_GROUPS, tagFilterValue,
-    tagFilterPasses, tagFilterCounts, TagBoxplots: window.TagBoxplots })`, ctx);
+    tagFilterPasses, tagFilterCounts, tagFmtYearMonth, TagBoxplots: window.TagBoxplots })`, ctx);
 }
 module.exports = { loadTagApi, run };
 
@@ -55,11 +55,12 @@ function run(legacy, byVariant, csvPath){
   return { dist, cuts: legacy ? null : JSON.parse(JSON.stringify(cuts)) };
 }
 if (require.main === module) {
+  const api = loadTagApi();
   const out = run(flags.has('--legacy'), flags.has('--by-variant'));
   if (flags.has('--json')) { console.log(JSON.stringify(out, null, 1)); }
   else for (const [g, d] of Object.entries(out.dist).sort((a,b)=>b[1].rows-a[1].rows)) {
     const c = out.cuts && out.cuts[d.group];
     console.log(`${d.label.padEnd(14)} rows=${String(d.rows).padStart(3)}  timing E/L/- ${d.timing.early}/${d.timing.late_start}/${d.timing.none}  speed F/A/S/- ${d.speed.fast}/${d.speed.avg}/${d.speed.slow}/${d.speed.none}` +
-      (c ? `  cut t10 ${c.timing.ok ? c.timing.lo.toFixed(1)+'–'+c.timing.hi.toFixed(1) : 'n<4'} (n=${c.timing.n})` : ''));
+      (c ? `  cut t10 ${c.timing.ok ? api.tagFmtYearMonth(c.timing.lo)+' – '+api.tagFmtYearMonth(c.timing.hi) : 'n<4'} (n=${c.timing.n})` : ''));
   }
 }

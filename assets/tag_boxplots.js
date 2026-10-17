@@ -14,7 +14,7 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const METRICS = {
     timing: { name: 'Timing', axis: 'fitted year at 10 % BEV share',
-      fmt: v => String(Math.round(v)), fmtCut: v => v.toFixed(1), fmtFine: v => v.toFixed(1),
+      fmt: v => String(Math.round(v)), fmtCut: v => tagFmtYearMonth(v), fmtFine: v => tagFmtYearMonth(v),
       bands: [ { v: 'early', label: 'Early starter', short: 'Early', col: 'var(--accent,#1d4f91)', op: '≤' },
                { v: 'mid', label: 'no timing pill', short: '', col: 'var(--muted-2,#8a877e)' },
                { v: 'late_start', label: 'Late starter', short: 'Late', col: 'var(--thr-late-txt,#c0562b)', op: '≥' } ] },

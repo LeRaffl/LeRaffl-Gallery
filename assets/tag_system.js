@@ -183,6 +183,18 @@ function tagComputeAll(rows, pastThreshold){
 }
 
 
+// Display only: a fractional (decimal) year as "Mon YYYY", e.g. 2021.9 →
+// "Nov 2021". Month = floor(frac × 12) + 1, clamped to Jan–Dec; a tiny
+// epsilon keeps float noise (2021.99999999 for 2022.0) from slipping a month
+// back. Calculations keep the raw number — never feed this back in.
+const TAG_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function tagFmtYearMonth(y){
+  if (typeof y !== 'number' || !isFinite(y)) return '—';
+  let yr = Math.floor(y + 1e-9), m = Math.floor((y - yr) * 12 + 1e-9);
+  if (m < 0) m = 0; if (m > 11) m = 11;
+  return `${TAG_MONTHS[m]} ${yr}`;
+}
+
 // ── Sidebar tag filter (filter sidebar v2) ──────────────────────────────
 // Four groups of chips. Nothing selected in a group = that group does not
 // filter. Values inside a group are OR-ed (a row has exactly one value per
@@ -239,4 +251,4 @@ function tagFilterCounts(items, filters, tagsOf){
 if (typeof module !== 'undefined') module.exports = { TAG_PAST_THRESHOLD, TAG_TARGET_YEAR, statusTagFor,
   TAG_MIN_GROUP, TAG_LOW_Q, TAG_HIGH_Q, TAG_PARENT, tagVariantKey, tagGroupOf, tagIsReference, tagGroupLabel,
   tagQuantile, tagGroupCutoffs, timingTagFor, speedTagFor, tagSlopeAtInflection, tagComputeAll,
-  TAG_FILTER_GROUPS, tagFilterValue, tagFilterPasses, tagFilterCounts };
+  TAG_FILTER_GROUPS, tagFilterValue, tagFilterPasses, tagFilterCounts, tagFmtYearMonth };

@@ -14303,7 +14303,7 @@ document.addEventListener('click', (e) => {
     if (!cuts) return base;
     const all = window.__bevTagsByCountry;
     const t = country && all && all[country] && all[country][cat];
-    const fmt = x => !isFinite(x) ? '—' : cat === 'timing' ? x.toFixed(1) : (x * 100).toFixed(1) + ' %/yr';
+    const fmt = x => !isFinite(x) ? '—' : cat === 'timing' ? tagFmtYearMonth(x) : (x * 100).toFixed(1) + ' %/yr';
     if (t && t.group && cuts[t.group] && cuts[t.group][cat].ok){
       const g = cuts[t.group], d = g[cat];
       const c = Object.assign({}, base, { ticks: [fmt(d.lo), fmt(d.hi)], values: Object.assign({}, base.values) });
