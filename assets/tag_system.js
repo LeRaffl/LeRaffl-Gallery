@@ -182,6 +182,61 @@ function tagComputeAll(rows, pastThreshold){
   return { enriched, cutoffs };
 }
 
+
+// ── Sidebar tag filter (filter sidebar v2) ──────────────────────────────
+// Four groups of chips. Nothing selected in a group = that group does not
+// filter. Values inside a group are OR-ed (a row has exactly one value per
+// group, so AND would always be empty); groups are AND-ed.
+const TAG_FILTER_GROUPS = [
+  { cat: 'fit',    label: 'Fit',    values: [['reliable', 'Reliable'], ['unreliable', 'Unreliable'], ['notrans', 'No transition']] },
+  { cat: 'status', label: 'Status', values: [['past', 'Past 80%'], ['ontrack', 'On track'], ['late', 'Late']] },
+  { cat: 'speed',  label: 'Speed',  values: [['fast', 'Fast'], ['avg', 'Avg'], ['slow', 'Slow']] },
+  { cat: 'timing', label: 'Start',  values: [['early', 'Early'], ['mid', 'Mid'], ['late_start', 'Late']] },
+];
+// The one value a row has in a filter group, or null = "no tag" (the row
+// drops out as soon as a value of that group is selected).
+//   fit:    notrans | unreliable | reliable. A chart without a params row
+//           has no verdict and counts as reliable.
+//   status/speed/timing: null for no-transition and unreliable rows (they
+//           carry no such pill) and for speed/timing when the reference
+//           group has fewer than TAG_MIN_GROUP markets (tags.noscale).
+//   timing: a scaled row without a timing pill sits in the middle half: mid.
+function tagFilterValue(tags, cat){
+  if (cat === 'fit') return tags && tags.notrans ? 'notrans' : tags && tags.unsettled ? 'unreliable' : 'reliable';
+  if (!tags || tags.notrans || tags.unsettled) return null;
+  if ((cat === 'speed' || cat === 'timing') && tags.noscale && tags.noscale[cat]) return null;
+  if (cat === 'timing') return (tags.timing && tags.timing.v) || 'mid';
+  return (tags[cat] && tags[cat].v) || null;
+}
+// filters = { cat: Set(values) } holding only groups with a selection.
+function tagFilterPasses(tags, filters, skipCat){
+  for (const cat of Object.keys(filters)) {
+    if (cat === skipCat) continue;
+    const v = tagFilterValue(tags, cat);
+    if (!v || !filters[cat].has(v)) return false;
+  }
+  return true;
+}
+// Live chip counts: for every chip, how many items the result would hold if
+// that chip were the selection of its group, with the OTHER groups'
+// selections applied (the usual facet count; an already selected chip shows
+// its own share). items = rows after the non-tag filters; tagsOf(item) →
+// that item's tag set.
+function tagFilterCounts(items, filters, tagsOf){
+  const out = {};
+  for (const g of TAG_FILTER_GROUPS) { out[g.cat] = {}; for (const [v] of g.values) out[g.cat][v] = 0; }
+  for (const it of items) {
+    const tags = tagsOf(it);
+    for (const g of TAG_FILTER_GROUPS) {
+      if (!tagFilterPasses(tags, filters, g.cat)) continue;
+      const v = tagFilterValue(tags, g.cat);
+      if (v && v in out[g.cat]) out[g.cat][v]++;
+    }
+  }
+  return out;
+}
+
 if (typeof module !== 'undefined') module.exports = { TAG_PAST_THRESHOLD, TAG_TARGET_YEAR, statusTagFor,
   TAG_MIN_GROUP, TAG_LOW_Q, TAG_HIGH_Q, TAG_PARENT, tagVariantKey, tagGroupOf, tagIsReference, tagGroupLabel,
-  tagQuantile, tagGroupCutoffs, timingTagFor, speedTagFor, tagSlopeAtInflection, tagComputeAll };
+  tagQuantile, tagGroupCutoffs, timingTagFor, speedTagFor, tagSlopeAtInflection, tagComputeAll,
+  TAG_FILTER_GROUPS, tagFilterValue, tagFilterPasses, tagFilterCounts };

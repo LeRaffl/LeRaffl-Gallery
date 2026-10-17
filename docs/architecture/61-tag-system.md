@@ -9,8 +9,13 @@ sections:
   text:
   - Only base variants define a scale. For cars that is the main new-car curve (Whole) of every market, one per country. Car subsets — private and company keepers, rental and non-rental, used imports, and other car slices — do not shape the scale; they are placed on Whole's scale, like a dot on Whole's boxplot.
   - Vans, trucks (HDV), buses, two- and three-wheelers and so on are their own reference groups. A subset of one of them is compared against that parent — Canada's pickup trucks, for example, are placed on the Vans scale.
-  - In the sidebar filter, a market in a group too small for a scale has no speed or timing tag. It shows while that category is unfiltered and is hidden as soon as a specific speed or timing value is selected; it is never counted as Mid.
   - A reference group needs at least 4 markets. Smaller groups — and their subsets — get no speed or timing tag.
+- heading: Filtering the gallery by tag
+  text:
+  - Under More filters the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
+  - Nothing picked shows everything. Within a group any picked tag matches; across groups all must match — Fast and Early means fast and early, Fast and Avg means either.
+  - Every chart has exactly one Fit value. No-transition charts appear only under No transition, never as Reliable, and Unreliable or No-transition charts carry no Status, Speed or Start — they drop out as soon as one of those is picked. So does a market whose group is too small for a scale, once a Speed or Start value is picked; it is never counted as Mid.
+  - Each chip shows how many charts it would give with the other groups' picks applied; chips that would give none are dimmed. Picked tags also appear as removable chips above the results.
 - heading: The three tags
   text:
   - Status — where the fitted curve crosses 80 % BEV share of new registrations. Past 80 % (already crossed), On track (by the end of 2035), Late (after 2035). The same for every vehicle type.
@@ -74,7 +79,7 @@ processing:
 Reader-facing page: **`sources/tags.html`** ("How the tags work"), generated
 from the front-matter above by `scripts/build_source_pages.py` (explainer
 pages; same flow / decision-tree renderer as the country source pages). Linked
-from the gallery sidebar (*Status, speed, timing & fit* → *How the tags work*),
+from the gallery sidebar (*More filters* → *How the tags work*),
 the FAQ entry *What do the small tags on gallery cards mean?*, and named in
 every tag popover. The page draws **live boxplots** (`assets/tag_boxplots.js`)
 from `params.csv` with the gallery's own tag functions.
@@ -90,7 +95,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | File | Role |
 |---|---|
 | `assets/fit_core.js` | `parseCSV`, `normNumber`, `getDataPer`, `inv_x_years`, `rowHasNoTransition`, `fitReliability` + `FIT_*` — moved verbatim out of index.html; classic script, globals as before |
-| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)` |
+| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)`; **sidebar filter**: `TAG_FILTER_GROUPS`, `tagFilterValue()`, `tagFilterPasses()`, `tagFilterCounts()` |
 | `assets/tag_boxplots.js` | SVG boxplots with tag braces; `mount()` for sources/tags.html, `svg()` for the gallery popover |
 | `index.html` | loads `fit_core.js` + `tag_system.js` in `<head>` (before every inline script), `tag_boxplots.js` deferred. Tag IIFE (*gallery status pills*): pills, `window.__bevTagsByCountry / __bevTagCutoffs / __bevTagPoints`; glossary IIFE: popover with group cut-offs and mini boxplot (`boxplotRow()`) |
 | `sources/tags.html` | generated explainer page; loads the three assets + `../params.csv` — never index.html |
@@ -105,7 +110,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | Thresholds table, "Tags" column | same `.tag-stack` / `paint()` (MutationObserver on `thresholdsMount`) | yes, identical to the cards | yes (automatic) |
 | Durations table, "Tags" column | same (`durationsMount`) | yes, identical | yes (automatic) |
 | Durations "Numerical speed" column / sort, Speed tab chart, Time interval | raw slope / crossing years, **not** the tags | no | not needed — rankings stay global numbers; only the *labels* are per group |
-| Sidebar tag filters (`getActiveTagFilters`, `passesTagFilter`) | `__bevTagsByCountry[*].{status,speed,timing,unsettled,notrans,noscale}`; missing timing ⇒ `mid` | yes — pills differ | yes — rows whose reference group has < 4 markets carry `noscale.{timing,speed}`: shown while that category is unfiltered, **hidden as soon as a specific value of that category is selected**, never counted as *Mid* (decision 2026-10-17) |
+| Sidebar tag filters (`getActiveTagFilters` → `tagFilterPasses` / `tagFilterCounts`) | `__bevTagsByCountry[*].{status,speed,timing,unsettled,notrans,noscale}` | yes — pills differ; filter v2 (2026-10-17) | yes — see *Sidebar filter* below |
 | Tag popover / glossary | cut-offs, points, CATS texts | yes | yes (per-group wording, mini boxplot, link text) |
 | FAQ "What do the small tags…" | static text | yes | yes |
 | Sidebar labels (Speed / Timing) | static text | yes | yes ("quartile of its group") |
@@ -117,6 +122,30 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | `manifest.json`, `weights.csv`, `params.csv`, `bands/*.json`, `sources/sources.json` | no tag fields | no | no |
 | `index_legacy.html` | its own frozen copy of the old v1 rules (2023/2025) | — | **not adapted** (legacy snapshot, not linked from anywhere) — flagged |
 | `.github/workflows/build-source-pages.yml` | builds `sources/` | doc 61 now produces `sources/tags.html` | yes — path trigger for `61-tag-system.md` added |
+
+## Sidebar filter (v2, 2026-10-17)
+
+Chips start **unselected** (= no filter). A group filters only when one of its
+chips is selected; values are OR-ed within a group, groups are AND-ed.
+`tagFilterValue(tags, cat)` gives each chart exactly one value per group or
+`null` ("no tag", drops out once that group filters):
+
+| Group (`cat`) | Values | `null` when |
+|---|---|---|
+| Fit (`fit`) | `notrans` (rowHasNoTransition) · `unreliable` (fitReliability *excluded*) · `reliable` (everything else, incl. charts without a params row) | never |
+| Status (`status`) | `past` · `ontrack` · `late` | no transition, unreliable, no t80 |
+| Speed (`speed`) | `fast` · `avg` · `slow` | no transition, unreliable, group < 4 markets (`noscale.speed`) |
+| Start (`timing`) | `early` · `mid` (scaled, no pill) · `late_start` | no transition, unreliable, group < 4 markets (`noscale.timing`) |
+
+Changes against v1: no-transition charts used to bypass status/speed/timing
+filters and counted as *Reliable*; v1 chips started checked (uncheck to
+exclude). Counts (`tagFilterCounts`) are facet counts: for each chip, the
+charts left after the non-tag filters and the **other** groups' selections,
+with that chip as its group's selection; 0 ⇒ chip dimmed. The applied-filters
+bar above the results lists every selected chip (Speed/Start prefixed:
+"Speed: Avg", "Start: Late") plus *Clear all*; the *More filters* badge counts
+selected chips plus an active month. Feedback context records the chips as
+`tag_fit`, `tag_status`, `tag_speed`, `tag_timing` (`data-fb-group`).
 
 ## Parent map (current)
 
@@ -148,6 +177,8 @@ line per variant, `--legacy` for the pre-v2 rules, `--json`).
 
 - `python scripts/test_tag_system.py` — parent mapping, reference-only
   pools, one row per country, quartiles, minimum, extrapolated years, the
-  #294 symptom on the live `params.csv`, and that `assets/tag_boxplots.js`
-  can load every function it names from index.html.
+  #294 symptom on the live `params.csv`, that `assets/tag_boxplots.js`
+  can load every function it names from index.html, the sidebar filter
+  (OR within / AND across, facet counts, no transition, small groups,
+  unselected start state) and the gallery *Show more* step.
 - `python scripts/build_source_pages.py --check` validates the front-matter.

@@ -15,7 +15,8 @@ function loadTagApi(){
   // const/let live in the context's lexical scope, not on the global object
   return vm.runInContext(`({ parseCSV, rowHasNoTransition, fitReliability, inv_x_years,
     TAG_PARENT, TAG_MIN_GROUP, tagGroupOf, tagIsReference, tagGroupLabel, tagGroupCutoffs,
-    timingTagFor, speedTagFor, statusTagFor, tagComputeAll, TagBoxplots: window.TagBoxplots })`, ctx);
+    timingTagFor, speedTagFor, statusTagFor, tagComputeAll, TAG_FILTER_GROUPS, tagFilterValue,
+    tagFilterPasses, tagFilterCounts, TagBoxplots: window.TagBoxplots })`, ctx);
 }
 module.exports = { loadTagApi, run };
 
