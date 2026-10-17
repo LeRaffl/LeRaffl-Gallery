@@ -82,21 +82,38 @@ after 2025 = *Late*) for every variant, and the speed quartiles came from one
 pool mixing cars with trucks, so not a single HDV market could ever be an
 *Early starter*.
 
-## Code map (`index.html`, next to `fitReliability()`)
+## Code map
 
-| Piece | Role |
+| File | Role |
 |---|---|
-| `TAG_PARENT` | subset variant → parent reference variant (lower case). **Add a line here for a new subset.** A variant not listed is its own reference group. |
-| `tagGroupOf()`, `tagIsReference()` | reference group of a row; whether the row defines it |
-| `tagComputeAll(rows)` | phase 1 + 2: enrich every row (t80, t10, speed, reliability, group) and compute `tagGroupCutoffs()` — the single implementation used by the gallery, `sources/tags.html` and `scripts/tag_system_report.js` |
-| `tagGroupCutoffs()` | only **eligible reference rows, one per country**, feed a group; `TAG_MIN_GROUP = 4` countries per metric, `TAG_LOW_Q / TAG_HIGH_Q` = 0.25 / 0.75 |
-| `timingTagFor()`, `speedTagFor()` | classify any row (reference or subset) against its group's cut-offs |
-| tag IIFE (*gallery status pills*) | status (absolute, unchanged), pills, `window.__bevTagCutoffs`, `window.__bevTagPoints` |
-| glossary IIFE | popover: group cut-offs in the wording, mini boxplot with the market highlighted (`boxplotRow()`) |
+| `assets/fit_core.js` | `parseCSV`, `normNumber`, `getDataPer`, `inv_x_years`, `rowHasNoTransition`, `fitReliability` + `FIT_*` — moved verbatim out of index.html; classic script, globals as before |
+| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)` |
+| `assets/tag_boxplots.js` | SVG boxplots with tag braces; `mount()` for sources/tags.html, `svg()` for the gallery popover |
+| `index.html` | loads `fit_core.js` + `tag_system.js` in `<head>` (before every inline script), `tag_boxplots.js` deferred. Tag IIFE (*gallery status pills*): pills, `window.__bevTagsByCountry / __bevTagCutoffs / __bevTagPoints`; glossary IIFE: popover with group cut-offs and mini boxplot (`boxplotRow()`) |
+| `sources/tags.html` | generated explainer page; loads the three assets + `../params.csv` — never index.html |
+| `scripts/tag_system_report.js` | runs the same assets under node (one `vm` context = one page); `--by-variant`, `--legacy`, `--json` |
+| `scripts/test_tag_system.py` | tests on the same assets |
 
-`assets/tag_boxplots.js` loads index.html's functions by name
-(`TAG_API_NAMES`, same list as `NAMES` in `scripts/tag_system_report.js`) —
-renaming one of them breaks both, and `scripts/test_tag_system.py` notices.
+## Consumers of the tag outputs (audit, 2026-10-17)
+
+| Consumer | Uses | Changed by v2? | Adapted |
+|---|---|---|---|
+| Gallery cards (`.tag-stack` in the card footer, `paint()`) | `__bevTagsByCountry[key]` | yes — speed/timing pills follow the reference group | yes (same object) |
+| Thresholds table, "Tags" column | same `.tag-stack` / `paint()` (MutationObserver on `thresholdsMount`) | yes, identical to the cards | yes (automatic) |
+| Durations table, "Tags" column | same (`durationsMount`) | yes, identical | yes (automatic) |
+| Durations "Numerical speed" column / sort, Speed tab chart, Time interval | raw slope / crossing years, **not** the tags | no | not needed — rankings stay global numbers; only the *labels* are per group |
+| Sidebar tag filters (`getActiveTagFilters`, `passesTagFilter`) | `__bevTagsByCountry[*].{status,speed,timing,unsettled,notrans}`; missing timing ⇒ `mid` | yes — pills differ; **groups below 4 markets have no timing pill and therefore count as "Mid"** (and as unknown for speed) | values follow automatically; the "no tag because group < 4" vs "Mid" ambiguity is **flagged, not changed** |
+| Tag popover / glossary | cut-offs, points, CATS texts | yes | yes (per-group wording, mini boxplot, link text) |
+| FAQ "What do the small tags…" | static text | yes | yes |
+| Sidebar labels (Speed / Timing) | static text | yes | yes ("quartile of its group") |
+| World map (`wmClassify`, `wmBuildRows`) | `rowHasNoTransition`, `rowIsUnreliableFit` — no tags | no | moved functions only (now from `fit_core.js`) |
+| Fit reliability gate in Thresholds / Durations / Time interval | `fitReliability` | no | moved only |
+| `scripts/snapshot_builder.py` (+ test) | own Python mirror of the curve maths; no tags | no | no |
+| R (`fit.R` refit_swing, `post_text.R`, `render_*.R`) | no tags (refit_swing feeds `fitReliability`) | no | no |
+| posts/*.txt, X/Bluesky drafts | BEV/PHEV/ICE shares only; no tag words | no | no |
+| `manifest.json`, `weights.csv`, `params.csv`, `bands/*.json`, `sources/sources.json` | no tag fields | no | no |
+| `index_legacy.html` | its own frozen copy of the old v1 rules (2023/2025) | — | **not adapted** (legacy snapshot, not linked from anywhere) — flagged |
+| `.github/workflows/build-source-pages.yml` | builds `sources/` | doc 61 now produces `sources/tags.html` | yes — path trigger for `61-tag-system.md` added |
 
 ## Parent map (current)
 

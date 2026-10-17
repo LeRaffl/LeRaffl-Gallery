@@ -3,7 +3,8 @@
 
 Run:  python scripts/test_tag_system.py   (needs node on PATH)
 
-Loads the real functions from index.html via scripts/tag_system_report.js and
+Loads assets/fit_core.js + assets/tag_system.js (the files index.html and
+sources/tags.html load) via scripts/tag_system_report.js and
 checks: reference groups (only base variants define a distribution; subsets
 such as Private / Industry / Used are classified against their parent via
 TAG_PARENT), per-group timing and speed quartiles, extrapolated 10 % years
@@ -15,7 +16,7 @@ import json, pathlib, shutil, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 JS = r"""
-const api = require(process.argv[1]);
+const api = require(process.argv[1]).loadTagApi();
 const R = {};
 R.groups = ['Whole','','Private','Industry','HDV','Vans','Buses','Used','Rental','Pickups'].map(api.tagGroupOf);
 R.refs = ['Whole','','Private','Industry','HDV','Used','Pickups'].map(api.tagIsReference);
@@ -47,17 +48,15 @@ console.log(JSON.stringify(R));
 """
 
 BOXPLOT_JS = r"""
+const lib = require(process.argv[1]);
+const api = lib.loadTagApi();
 const fs = require('fs');
-global.window = {};
-eval(fs.readFileSync(process.argv[1], 'utf8'));
-const TB = window.TagBoxplots, src = fs.readFileSync(process.argv[2], 'utf8');
-const missing = TB.TAG_API_NAMES.filter(n => !new RegExp('^(?:function '+n+'\\s*\\(|(?:const|let|var) '+n+'\\b)', 'm').test(src));
-const api = TB.apiFrom(src);
-const { enriched, cutoffs } = api.tagComputeAll(api.parseCSV(fs.readFileSync(process.argv[3], 'utf8')), 0.8);
+const { enriched, cutoffs } = api.tagComputeAll(api.parseCSV(fs.readFileSync(process.argv[2], 'utf8')));
 const cuts = {}; for (const [k, v] of Object.entries(cutoffs)) cuts[k] = [v.timing.lo, v.timing.hi];
 const hl = enriched.find(e => e.group === 'hdv' && e.eligible);
-const svg = TB.svg({ group: 'hdv', metric: 'timing', cut: cutoffs.hdv, points: enriched, highlight: hl });
-console.log(JSON.stringify({ missing, cuts, svg_ok: /<path d="M/.test(svg) && /tbp-hl/.test(svg) && /Early starter/.test(svg) }));
+const svg = api.TagBoxplots.svg({ group: 'hdv', metric: 'timing', cut: cutoffs.hdv, points: enriched, highlight: hl });
+const st = [api.statusTagFor(2020, new Date(Date.UTC(2026,9,1))), api.statusTagFor(2030), api.statusTagFor(2040)].map(x => x.v);
+console.log(JSON.stringify({ cuts, st, svg_ok: /<path d="M/.test(svg) && /tbp-hl/.test(svg) && /Early starter/.test(svg) }));
 """
 
 def node(args):
@@ -89,13 +88,22 @@ def main():
     ]
     # assets/tag_boxplots.js must load every function it names from index.html
     # and produce the same cut-offs as the report (sources/tags.html relies on it).
-    bp = json.loads(node(["-e", BOXPLOT_JS, str(ROOT / "assets/tag_boxplots.js"),
-                          str(ROOT / "index.html"), str(ROOT / "params.csv")]))
+    bp = json.loads(node(["-e", BOXPLOT_JS, lib, str(ROOT / "params.csv")]))
     checks += [
-        (bp["missing"] == [], f"tag_boxplots.js finds all functions (missing: {bp['missing']})"),
         (bp["cuts"] == {k: [v["timing"]["lo"], v["timing"]["hi"]] for k, v in live["cuts"].items()},
-         "boxplot page cut-offs == report cut-offs"),
+         "boxplot cut-offs == report cut-offs"),
         (bp["svg_ok"], "boxplot SVG renders with braces and highlight"),
+        (bp["st"] == ["past", "ontrack", "late"], "status tag unchanged (80 % / 2035)"),
+    ]
+    html = (ROOT / "index.html").read_text()
+    tags_html = (ROOT / "sources/tags.html").read_text() if (ROOT / "sources/tags.html").exists() else ""
+    checks += [
+        ('src="assets/fit_core.js"' in html and 'src="assets/tag_system.js"' in html, "gallery loads the shared files"),
+        (html.index('src="assets/fit_core.js"') < html.index('<script>\n'), "shared files load before the inline scripts"),
+        (all(f"function {n}(" not in html for n in ["rowHasNoTransition", "fitReliability", "tagComputeAll", "inv_x_years"]),
+         "no second copy of the shared logic in index.html"),
+        ("../assets/tag_system.js" in tags_html and "index.html" not in tags_html.split("tagBoxplots")[-1],
+         "sources/tags.html uses the shared files, not index.html"),
     ]
     html = (ROOT / "index.html").read_text()
     checks.append(("EARLY_BY" not in html and "LATE_AFTER" not in html, "fixed 2023/2025 cut removed"))

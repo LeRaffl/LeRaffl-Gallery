@@ -141,7 +141,7 @@ re-enter the recovery path at any time. To see what is affected right now, read
 
 ### Fit reliability gate (`fitReliability()`)
 
-Not every fitted curve can carry a ranking. One function in `index.html`,
+Not every fitted curve can carry a ranking. One function in `assets/fit_core.js` (loaded by `index.html`),
 `fitReliability(row)` (next to `rowHasNoTransition`), classifies each
 `params.csv` row as `ok`, `provisional` or `excluded`, and **every** consumer
 reads that verdict: Thresholds, Durations, Time Interval, the World Map, the

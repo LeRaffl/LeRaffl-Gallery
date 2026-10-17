@@ -4,57 +4,24 @@
 
    Used in two places, always with the live params.csv:
    • sources/tags.html ("How the tags work", built by build_source_pages.py):
-     TagBoxplots.mount(el, {index:'../index.html', params:'../params.csv'})
-     fetches index.html and runs ITS tag functions (tagComputeAll and the
-     helpers it calls), so the page can never drift from the gallery's tags.
+     TagBoxplots.mount(el, {params:'../params.csv'}) after loading
+     assets/fit_core.js + assets/tag_system.js — the same files the gallery
+     loads, so the page can never drift from the gallery's tags.
    • index.html's tag popover: TagBoxplots.svg(...) with the hovered market
      highlighted, fed from window.__bevTagPoints / __bevTagCutoffs.
-   Keep TAG_API_NAMES in sync with scripts/tag_system_report.js (NAMES). */
+   Needs fit_core.js + tag_system.js loaded first (globals). */
 (function(){
-  const TAG_API_NAMES = ['normNumber','toYYYYMM','getDataPer','MIN_TRANSITION_SLOPE','rowHasNoTransition',
-    'FIT_UNSETTLED_SWING','FIT_PROVISIONAL_SWING','FIT_COLLAPSE_SPAN','FIT_COLLAPSE_OBS','FIT_STALE_MONTHS',
-    'parseRefitSwing','fitSpan10to80','fitReliability','parseCSV','inv_x_years',
-    'TAG_MIN_GROUP','TAG_LOW_Q','TAG_HIGH_Q','TAG_PARENT','tagVariantKey','tagGroupOf','tagIsReference',
-    'tagGroupLabel','tagQuantile','tagGroupCutoffs','timingTagFor','speedTagFor','tagSlopeAtInflection',
-    'tagComputeAll'];
-
-  // Same rules as scripts/js_extract.js: a top-level `function name(` up to
-  // its closing brace, or a `const name` line / multi-line literal.
-  function extract(src, name){
-    const m = new RegExp('^(?:async )?function ' + name + '\\s*\\(|^(?:const|let|var) ' + name + '\\b', 'm').exec(src);
-    if (!m) return '';
-    const i = m.index;
-    if (!/^(async )?function/.test(src.slice(i, i + 15))){
-      const eol = src.indexOf('\n', i), line = src.slice(i, eol).replace(/\/\/.*$/, '').trimEnd();
-      if (!/[{\[]$/.test(line)) return src.slice(i, eol);
-      let d = 0;
-      for (let j = i + line.length - 1; j < src.length; j++){
-        if (src[j] === '{' || src[j] === '[') d++;
-        else if ((src[j] === '}' || src[j] === ']') && !--d) return src.slice(i, src.indexOf('\n', j));
-      }
-      return '';
-    }
-    let j = src.indexOf('{', src.indexOf(')', i)), d = 0;
-    for (; j < src.length; j++){ if (src[j] === '{') d++; else if (src[j] === '}' && !--d) return src.slice(i, j + 1); }
-    return '';
-  }
-  function apiFrom(src){
-    const names = TAG_API_NAMES.filter(n => extract(src, n));
-    const code = names.map(n => extract(src, n)).join('\n');
-    return new Function(code + '; return {' + names.join(',') + '};')();
-  }
-
   const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const METRICS = {
     timing: { name: 'Timing', axis: 'fitted year at 10 % BEV share',
       fmt: v => String(Math.round(v)), fmtCut: v => v.toFixed(1), fmtFine: v => v.toFixed(1),
-      bands: [ { v: 'early', label: 'Early starter', col: 'var(--accent,#1d4f91)', op: '≤' },
-               { v: 'mid', label: 'no timing pill', col: 'var(--muted-2,#8a877e)' },
-               { v: 'late_start', label: 'Late starter', col: 'var(--thr-late-txt,#c0562b)', op: '≥' } ] },
+      bands: [ { v: 'early', label: 'Early starter', short: 'Early', col: 'var(--accent,#1d4f91)', op: '≤' },
+               { v: 'mid', label: 'no timing pill', short: '', col: 'var(--muted-2,#8a877e)' },
+               { v: 'late_start', label: 'Late starter', short: 'Late', col: 'var(--thr-late-txt,#c0562b)', op: '≥' } ] },
     speed: { name: 'Speed', axis: 'slope at inflection, %/yr',
       fmt: v => (v * 100).toFixed(1), fmtCut: v => (v * 100).toFixed(1), fmtFine: v => (v * 100).toFixed(2) + ' %/yr',
       bands: [ { v: 'slow', label: 'Slow', col: 'var(--warn,#9a6a00)', op: '≤' },
-               { v: 'avg', label: 'Avg speed', col: 'var(--muted-2,#8a877e)' },
+               { v: 'avg', label: 'Avg speed', short: '', col: 'var(--muted-2,#8a877e)' },
                { v: 'fast', label: 'Fast', col: 'var(--thr-past-txt,#2e8a57)', op: '≥' } ] },
   };
   const val = (p, metric) => metric === 'timing' ? p.t10 : p.speed;
@@ -91,7 +58,12 @@
       out.push(`<path d="M${xa},${yBrace + h} Q${xa},${yBrace} ${xa + r},${yBrace} L${m - r},${yBrace} Q${m},${yBrace} ${m},${yBrace - h} ` +
                `Q${m},${yBrace} ${m + r},${yBrace} L${xb - r},${yBrace} Q${xb},${yBrace} ${xb},${yBrace + h}" fill="none" stroke="${band.col}" stroke-width="2" stroke-linecap="round"/>`);
       const cutTxt = i === 0 ? ` ${band.op} ${M.fmtCut(d.lo)}` : i === 2 ? ` ${band.op} ${M.fmtCut(d.hi)}` : '';
-      out.push(`<text x="${m}" y="${yBrace - h - 5}" text-anchor="middle" class="tbp-lab" fill="${band.col}">${esc(band.label)}${esc(cutTxt)}</text>`);
+      // Outer labels hug the outer edge, so three labels never collide even
+      // when a band is narrow; the compact (popover) variant uses short names.
+      const name = compact && band.short != null ? band.short : band.label;
+      const anchor = i === 0 ? 'start' : i === 2 ? 'end' : 'middle';
+      const lx = i === 0 ? xa : i === 2 ? xb : m;
+      out.push(`<text x="${lx}" y="${yBrace - h - 5}" text-anchor="${anchor}" class="tbp-lab${compact ? ' tbp-lab--c' : ''}" fill="${band.col}">${esc(name)}${esc(cutTxt)}</text>`);
     });
     const yc = yBox + boxH / 2;
     out.push(`<line x1="${X(vs[0])}" x2="${X(vs[vs.length - 1])}" y1="${yc}" y2="${yc}" class="tbp-wh"/>`);
@@ -117,6 +89,7 @@
 
   const CSS = `.tbp{display:block;overflow:visible;font-family:inherit}
 .tbp-lab{font-size:12px;font-weight:700;letter-spacing:.03em}
+.tbp-lab--c{font-size:11px}
 .tbp-dim{font-size:11px;fill:var(--muted,#55534c)}
 .tbp-box{fill:var(--accent-wash,#eaf0f8);stroke:var(--accent,#1d4f91);stroke-width:1.2}
 .tbp-wh{stroke:var(--muted-2,#8a877e);stroke-width:1.2}
@@ -140,11 +113,9 @@
     injectCss();
     el.innerHTML = '<p class="tbp-sub">Loading the live cut-offs…</p>';
     try {
-      const [src, csv] = await Promise.all([
-        fetch(urls.index).then(r => r.text()), fetch(urls.params).then(r => r.text())]);
-      const api = apiFrom(src);
-      const { enriched, cutoffs } = api.tagComputeAll(api.parseCSV(csv), 0.8);
-      const subsetsOf = g => Object.entries(api.TAG_PARENT).filter(([, p]) => p === g).map(([k]) => k);
+      const csv = await fetch(urls.params).then(r => r.text());
+      const { enriched, cutoffs } = tagComputeAll(parseCSV(csv));
+      const subsetsOf = g => Object.entries(TAG_PARENT).filter(([, p]) => p === g).map(([k]) => k);
       const groups = Object.keys(cutoffs).sort((a, b) =>
         (a === 'whole' ? -1 : b === 'whole' ? 1 : cutoffs[b].timing.n - cutoffs[a].timing.n));
       const opts = enriched.filter(e => e.eligible).map(e => e.key).sort();
@@ -170,5 +141,5 @@
     }
   }
 
-  window.TagBoxplots = { svg, mount, injectCss, apiFrom, TAG_API_NAMES };
+  window.TagBoxplots = { svg, mount, injectCss };
 })();

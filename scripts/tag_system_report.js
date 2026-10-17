@@ -1,28 +1,32 @@
-// Runs the gallery tag logic of index.html under node against params.csv.
-// usage: node scripts/tag_system_report.js [index.html] [params.csv] [--legacy] [--json]
+// Runs the gallery tag logic (assets/fit_core.js + assets/tag_system.js — the
+// files index.html and sources/tags.html load) under node against params.csv.
+// usage: node scripts/tag_system_report.js [params.csv] [--by-variant] [--legacy] [--json]
 //   --by-variant: one line per variant (with its reference group)
-//   --legacy: old rules (one speed pool for every variant, timing cut at fixed
-//             calendar years 2023 / 2025) for before/after comparisons.
-const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
+//   --legacy:     old rules (one speed pool for every variant, timing cut at
+//                 fixed calendar years 2023 / 2025) for before/after comparisons.
+const fs = require('fs'), path = require('path'), vm = require('vm');
+const ROOT = path.join(__dirname, '..');
+// One shared global scope, like two classic <script> tags in a page.
+function loadTagApi(){
+  const ctx = vm.createContext({ console, Date, Math, Number, String, Object, Set, Map, JSON, isFinite, isNaN, window: {} });
+  for (const f of ['assets/fit_core.js', 'assets/tag_system.js', 'assets/tag_boxplots.js']) {
+    vm.runInContext(fs.readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+  }
+  // const/let live in the context's lexical scope, not on the global object
+  return vm.runInContext(`({ parseCSV, rowHasNoTransition, fitReliability, inv_x_years,
+    TAG_PARENT, TAG_MIN_GROUP, tagGroupOf, tagIsReference, tagGroupLabel, tagGroupCutoffs,
+    timingTagFor, speedTagFor, statusTagFor, tagComputeAll, TagBoxplots: window.TagBoxplots })`, ctx);
+}
+module.exports = { loadTagApi, run };
+
 const args = process.argv.slice(2);
 const flags = new Set(args.filter(a => a.startsWith('--')));
-const pos = args.filter(a => !a.startsWith('--'));
-const html = pos[0] || path.join(__dirname, '..', 'index.html');
-const csv  = pos[1] || path.join(__dirname, '..', 'params.csv');
-const NAMES = ['normNumber','toYYYYMM','getDataPer','MIN_TRANSITION_SLOPE','rowHasNoTransition',
-  'FIT_UNSETTLED_SWING','FIT_PROVISIONAL_SWING','FIT_COLLAPSE_SPAN','FIT_COLLAPSE_OBS','FIT_STALE_MONTHS',
-  'parseRefitSwing','fitSpan10to80','fitReliability','parseCSV','inv_x_years',
-  'TAG_MIN_GROUP','TAG_LOW_Q','TAG_HIGH_Q','TAG_PARENT','tagVariantKey','tagGroupOf','tagIsReference','tagGroupLabel','tagQuantile','tagGroupCutoffs',
-  'timingTagFor','speedTagFor','tagSlopeAtInflection','tagComputeAll'];
-// The same list is loaded in the browser by assets/tag_boxplots.js (TAG_API_NAMES).
-const have = n => new RegExp('^(?:function '+n+'\\s*\\(|(?:const|let|var) '+n+'\\b)','m').test(fs.readFileSync(html,'utf8'));
-const code = execFileSync('node', [path.join(__dirname,'js_extract.js'), html, ...NAMES.filter(have)]).toString();
-const api = new Function(code + '; return {' + NAMES.filter(have).join(',') + '};')();
-module.exports = api;
+const csv = args.filter(a => !a.startsWith('--'))[0] || path.join(ROOT, 'params.csv');
 
-function run(legacy){
-  const rows = api.parseCSV(fs.readFileSync(csv, 'utf8'));
-  const { enriched: E, cutoffs } = api.tagComputeAll(rows, 0.8);
+function run(legacy, byVariant, csvPath){
+  const api = loadTagApi();
+  const rows = api.parseCSV(fs.readFileSync(csvPath || csv, 'utf8'));
+  const { enriched: E, cutoffs } = api.tagComputeAll(rows);
   const elig = e => e.eligible;
   let cuts;
   if (legacy) {
@@ -30,29 +34,27 @@ function run(legacy){
     const sp = E.filter(elig).map(e => e.speed).filter(isFinite).sort((a,b)=>a-b);
     const all = { timing: { ok: true, legacy: true }, speed: { ok: true, lo: q(sp,.25), hi: q(sp,.75) } };
     cuts = new Proxy({}, { get: () => all });
-  } else {
-    cuts = cutoffs;
-  }
+  } else cuts = cutoffs;
   const dist = {};
   for (const e of E){
-    const dk = flags.has('--by-variant') ? e.variant : e.group;
-    const d = dist[dk] || (dist[dk] = { label: flags.has('--by-variant') ? `${e.variant} → ${e.groupLabel}` : e.groupLabel, group: e.group, rows: 0, countries: new Set(),
+    const dk = byVariant ? e.variant : e.group;
+    const d = dist[dk] || (dist[dk] = { label: byVariant ? `${e.variant} → ${e.groupLabel}` : e.groupLabel, group: e.group,
+      rows: 0, countries: new Set(),
       timing: { early: 0, late_start: 0, none: 0 }, speed: { fast: 0, avg: 0, slow: 0, none: 0 } });
     d.rows++; d.countries.add(e.country);
     if (!elig(e)) { d.timing.none++; d.speed.none++; continue; }
     const c = cuts[e.group];
-    let tm;
-    if (legacy) tm = !isFinite(e.t10) ? null : e.t10 < 2023 ? {v:'early'} : e.t10 > 2025 ? {v:'late_start'} : null;
-    else tm = api.timingTagFor(e.t10, c && c.timing);
+    const tm = legacy ? (!isFinite(e.t10) ? null : e.t10 < 2023 ? {v:'early'} : e.t10 > 2025 ? {v:'late_start'} : null)
+                      : api.timingTagFor(e.t10, c && c.timing);
     const sp = legacy ? (isFinite(e.speed) ? (e.speed >= c.speed.hi ? {v:'fast'} : e.speed <= c.speed.lo ? {v:'slow'} : {v:'avg'}) : null)
                       : api.speedTagFor(e.speed, c && c.speed);
     d.timing[tm ? tm.v : 'none']++; d.speed[sp ? sp.v : 'none']++;
   }
   for (const d of Object.values(dist)) d.countries = d.countries.size;
-  return { dist, cuts: legacy ? null : cuts };
+  return { dist, cuts: legacy ? null : JSON.parse(JSON.stringify(cuts)) };
 }
 if (require.main === module) {
-  const out = run(flags.has('--legacy'));
+  const out = run(flags.has('--legacy'), flags.has('--by-variant'));
   if (flags.has('--json')) { console.log(JSON.stringify(out, null, 1)); }
   else for (const [g, d] of Object.entries(out.dist).sort((a,b)=>b[1].rows-a[1].rows)) {
     const c = out.cuts && out.cuts[d.group];

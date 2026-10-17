@@ -11,7 +11,8 @@ Explainer pages: any other `docs/architecture/*.md` whose front-matter sets
 `explainer: true` (e.g. 61-tag-system.md → `sources/tags.html`, "How the tags
 work") is rendered with the same flow / decision-tree (BPMN-style) renderer
 from its `processing:` block, plus optional `sections:` and live widgets
-(`boxplots: true` mounts assets/tag_boxplots.js). They are not countries, so
+(`boxplots: true` mounts assets/tag_boxplots.js on top of
+assets/fit_core.js + assets/tag_system.js). They are not countries, so
 they never appear in sources.json or the directory.
 
 The pages are served straight from the repo by GitHub Pages, so the generated
@@ -2001,9 +2002,11 @@ def build_explainer_page(fm: dict, doc_name: str) -> str:
                'Each dot is one market\'s reference curve (hover for its name); the box is the '
                'middle half, the braces mark the tag bands with their cut-off.</p>'
                '<div id="tagBoxplots"></div></section>'
+               '<script src="../assets/fit_core.js"></script>'
+               '<script src="../assets/tag_system.js"></script>'
                '<script src="../assets/tag_boxplots.js"></script>'
                '<script>TagBoxplots.mount(document.getElementById("tagBoxplots"),'
-               '{index:"../index.html",params:"../params.csv"});</script>')
+               '{params:"../params.csv"});</script>')
     return EXPLAINER_TEMPLATE.format(
         theme_href=THEME_HREF, css=BASE_CSS, title=esc(fm["title"]),
         summary=esc(fm["summary"]), flow='<div class="flow">' + "".join(nodes) + "</div>",
