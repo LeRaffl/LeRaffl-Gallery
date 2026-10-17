@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T11:30:30Z",
+ "generated": "2026-10-17T11:49:03Z",
  "today": "2026-10-17",
  "countries": [
   {
@@ -2379,13 +2379,13 @@
    "cadence_text": "twice daily (06:20 and 12:20 UTC) on the 8th–25th; CSDD replaces the files about ten working days after month end",
    "interval": "monthly",
    "latest_period": "2026-09",
-   "expected_period": null,
-   "behind": null,
+   "expected_period": "2026-09",
+   "behind": 0,
    "behind_now": 0,
-   "status": "manual",
-   "automated": false,
+   "status": "current",
+   "automated": true,
    "schedule": {
-    "enabled": false,
+    "enabled": true,
     "days": [
      8,
      9,
