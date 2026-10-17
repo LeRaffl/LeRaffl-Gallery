@@ -16,8 +16,17 @@ NAMES = ["MIN_TRANSITION_SLOPE", "normNumber", "toYYYYMM", "getDataPer",
          "rowHasNoTransition", "wmPioneerCutoff", "wmClassify"]
 
 HARNESS = r"""
-const code = require('child_process').execFileSync('node',
-  [process.argv[1], process.argv[2], ...JSON.parse(process.argv[3])]).toString();
+// The fit helpers may live in assets/fit_core.js (tag refactor, #326) or still
+// in index.html: extract each name from whichever file declares it.
+const fs = require('fs'), path = require('path');
+const files = [process.argv[2], path.join(path.dirname(process.argv[2]), 'assets/fit_core.js')].filter(fs.existsSync);
+const code = JSON.parse(process.argv[3]).map(n => {
+  for (const f of files) {
+    try { return require('child_process').execFileSync('node', [process.argv[1], f, n], {stdio: ['ignore', 'pipe', 'ignore']}).toString(); }
+    catch (e) {}
+  }
+  throw new Error('not found: ' + n);
+}).join('\n');
 eval(code);
 const pt = {country:'Portugal', variant:'HDV', v1:'-0.0137973527002662',
             v2:'-0.49121649765089', t0:'2025', data_per:'2026-08', ttm_bev_share:''};
