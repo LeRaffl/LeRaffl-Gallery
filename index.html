@@ -189,7 +189,12 @@ select[multiple]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 
 }
 .filename{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.95;font-size:12px;border:1px solid var(--line);border-radius:2px;padding:4px 8px;background:var(--surface)}
 .badge{padding:2px 8px;border:1px solid var(--line);border-radius:2px;background:var(--surface);font-size:12px}
-.pager{display:flex;justify-content:center;margin-top:18px}
+.pager{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.pager .btn,.col-more{min-height:44px;padding:0 18px}
+/* Per-section "Show more" only where the type sections are stacked (one
+   column): there the global button would grow sections far above the view. */
+.col-more{display:none;width:100%;margin-top:10px}
+@media (max-width:600px){.col-more:not([hidden]){display:block}}
 
 /* Lightbox */
 dialog#lightbox{border:none;padding:0;background:rgba(0,0,0,.6)}
@@ -3311,6 +3316,72 @@ h2 .fb-ctx-btn{
   font-size:16px;
   line-height:1;
 }
+
+/* ── Filter sidebar v2 (2026-10-17) ─────────────────────────────────── */
+.fx-search input{width:100%;box-sizing:border-box;font-size:16px;padding:11px 12px;border:1.5px solid var(--accent);border-radius:3px;background:var(--surface-2,#fff)}
+.fx-search{margin:2px 0 14px}
+.fx-row{margin:0 0 12px}
+.fx-lab{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+.fx-country{position:relative}
+.fx-country input{width:100%;box-sizing:border-box;padding:8px 28px 8px 10px;border:1px solid var(--line-2);border-radius:3px;background:var(--surface-2,#fff);font-size:14px}
+.fx-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;color:var(--muted);cursor:pointer}
+.side .chips.fx-pills{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;margin:0}
+.side .fx-pills .chip, .side .fx-more .tag-filter .chip{padding:4px 9px;font-size:12.5px;border-radius:999px;gap:5px}
+.side .fx-pills .chip input{inline-size:.9rem;block-size:.9rem}
+.side .fx-toggle{display:inline-flex !important;flex-direction:row;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:8px;white-space:nowrap;width:auto}
+.side .fx-toggle input{inline-size:.95rem;block-size:.95rem;margin:0;flex:none;width:auto}
+.side .fx-more .chips.tag-filter{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px}
+.side .fx-more .tag-filter .chip{padding:4px 9px;font-size:12.5px;border-radius:999px;gap:5px}
+.side .fx-more .tag-filter .chip input{inline-size:.9rem;block-size:.9rem}
+.fx-more>summary{display:flex;align-items:center;gap:8px}
+.fx-badge{display:inline-block;min-width:18px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+.fx-reset{margin-left:auto;font-size:12px}
+
+
+/* Tag chips: same palette as the card pills (.status-pill), outlined while
+   unselected, filled + ✓ when selected; dimmed when they would give 0. */
+.fx-tag[data-tone]{--tc:var(--muted);--tb:rgba(255,255,255,.04);--tl:var(--line)}
+.fx-tag[data-tone="green"],.fx-achip[data-tone="green"]{--tc:var(--thr-past-txt);--tb:rgba(60,180,120,.18);--tl:rgba(60,180,120,.55)}
+.fx-tag[data-tone="blue"],.fx-achip[data-tone="blue"]{--tc:var(--accent);--tb:rgba(80,160,255,.16);--tl:rgba(80,160,255,.5)}
+.fx-tag[data-tone="blue2"],.fx-achip[data-tone="blue2"]{--tc:var(--accent);--tb:rgba(105,183,255,.14);--tl:rgba(105,183,255,.5)}
+.fx-tag[data-tone="red"],.fx-achip[data-tone="red"]{--tc:var(--thr-late-txt);--tb:rgba(220,80,80,.18);--tl:rgba(220,80,80,.55)}
+.fx-tag[data-tone="orange"],.fx-achip[data-tone="orange"]{--tc:var(--thr-late-txt);--tb:rgba(255,140,60,.14);--tl:rgba(255,140,60,.5)}
+.fx-tag[data-tone="accent"],.fx-achip[data-tone="accent"]{--tc:var(--thr-past-txt);--tb:var(--accent-wash);--tl:var(--accent)}
+.fx-tag[data-tone="warn"],.fx-achip[data-tone="warn"]{--tc:var(--warn-txt);--tb:var(--warn-wash);--tl:var(--warn)}
+.fx-tag[data-tone="grey"],.fx-achip[data-tone="grey"]{--tc:var(--muted);--tb:rgba(170,180,200,.12);--tl:rgba(170,180,200,.45)}
+#tab-gallery .side .fx-tgroup{display:grid;grid-template-columns:1fr;gap:4px;margin:8px 0}
+#tab-gallery .side .fx-glabel{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2)}
+#tab-gallery .side .chips.fx-tags{display:flex;flex-direction:row;flex-wrap:wrap;gap:5px;margin:0}
+#tab-gallery .side .fx-tags .fx-tag{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 9px;width:auto;
+  font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:2px;cursor:pointer;
+  color:var(--tc);background:transparent;border:1px dashed var(--tl)}
+#tab-gallery .side .fx-tags .fx-tag input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+#tab-gallery .side .fx-tags .fx-tag.is-on{background:var(--tb);border-style:solid;box-shadow:inset 0 0 0 1px var(--tl)}
+#tab-gallery .side .fx-tags .fx-tag.is-on .fx-tl::before{content:"✓ "}
+#tab-gallery .side .fx-tags .fx-tag:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
+#tab-gallery .side .fx-tags .fx-tag.is-zero{opacity:.38}
+#tab-gallery .side .fx-n{font-weight:500;opacity:.75;font-variant-numeric:tabular-nums}
+.fx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.fx-reset{background:none;border:0;padding:0 4px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:12px;min-height:28px}
+.fx-achip:focus-visible,.fx-clear:focus-visible,.fx-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#tab-gallery .side .fx-how{float:right;text-transform:none;letter-spacing:0;font-size:11.5px}
+#tab-gallery .side .fx-toggle{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.fx-applied{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.fx-achip{--tc:var(--fg);--tb:var(--surface);--tl:var(--line);display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;
+  font:600 12px/1 inherit;color:var(--tc);background:var(--tb);border:1px solid var(--tl);border-radius:999px;cursor:pointer}
+.fx-achip span:last-child{font-size:15px;opacity:.8}
+.fx-clear{background:none;border:0;color:var(--accent);font:600 12px inherit;text-decoration:underline;cursor:pointer;min-height:30px;padding:0 6px}
+@media (min-width:881px){
+  #tab-gallery aside.side{max-height:calc(100vh - var(--header-h) - 56px);overflow-y:auto;overscroll-behavior:contain}
+}
+@media (max-width:880px){
+  #tab-gallery .side .fx-tags .fx-tag,.fx-achip,.fx-clear{min-height:44px}
+  #tab-gallery .side .fx-tags .fx-tag{font-size:11.5px;padding:0 12px}
+  #tab-gallery .side .fx-tgroup{grid-template-columns:1fr}
+  #tab-gallery .side .fx-pills .chip,#tab-gallery .side .fx-toggle,#tab-gallery .side select,#tab-gallery .side input[type=search],#countryPick{min-height:44px}
+  .fx-applied{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  .fx-achip{flex:0 0 auto}
+}
 </style>
 
 <script>
@@ -3380,7 +3451,7 @@ function tok(name, fallback){
         </svg>
         <h1>BEV Trajectories</h1>
       </a>
-      <div id="stats" class="small"></div>
+      <div id="stats" aria-live="polite" class="small"></div>
       <button type="button" id="themeToggle" class="theme-toggle" title="Theme: Auto / Light / Dark">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
         <span id="themeToggleLabel">Auto</span>
@@ -3850,86 +3921,87 @@ function tok(name, fallback){
           <span class="side-chevron" aria-hidden="true">▾</span>
         </h2>
         <div class="side-body">
-        <!-- Reihenfolge 2026-09-13 (Auftraggeber): taeglich genutzt zuerst —
-             Suche, Types, Country, Month. Status/Speed/Timing werden selten
-             gebraucht und liegen jetzt in einem geschlossenen Block, damit
-             die Leiste kurz bleibt und nicht mehr laenger als der Viewport
-             wird (das war die Ursache des Scroll-Verhaltens). -->
-        <label class="small" for="search">Search</label>
-        <input id="search" type="search" autocomplete="off"
-               aria-label="Search charts by country, type or filename"
-               placeholder="Country, type or filename" />
-        <div style="height:14px"></div>
-        <label class="small">Types</label>
-        <div class="chips">
-          <label class="chip"><input type="checkbox" value="share" checked/> BEV trajectory</label>
-          <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV trajectory</label>
-          <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM market split</label>
-          <label class="chip"><input type="checkbox" value="time" checked/> Transition time curves</label>
-          <label class="chip"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
+        <!-- Filter sidebar v2 (2026-10-17): ordered by how often each control
+             is used — search, country, types; one sort dropdown; month and the
+             the tag chips visible by default; Month and Latest only folded
+             under "More filters" (badge = active hidden settings).
+             #countrySelect stays as the hidden source of truth that
+             applyFilters() reads; #countryPick drives it (data-fb-skip keeps
+             the proxy out of the feedback context). No sort control: the
+             gallery is always newest first (GALLERY_SORT). -->
+        <div class="fx-search">
+          <input id="search" type="search" autocomplete="off"
+                 aria-label="Search charts by country, type or filename"
+                 placeholder="Search country, type or file…" />
         </div>
-        <div style="height:14px"></div>
-        <label class="small">Country</label>
-        <select id="countrySelect"><option value="">All countries</option></select>
-        <div style="height:10px"></div>
-        <label class="small">Month</label>
-        <select id="periodSelect" hidden><option value="">All months</option></select>
 
-        <details class="side-more">
-          <summary>Status, speed, timing &amp; fit</summary>
-          <p class="small" style="margin:4px 0 8px"><a href="sources/tags.html" id="tagsHowLink">How the tags work →</a></p>
-          <label class="small">Status <span class="small">(fitted 80%)</span></label>
-          <div class="chips tag-filter" data-tag-cat="status">
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="past"    checked/> Past 80%</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="ontrack" checked/> On track</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="late"    checked/> Late</label>
+        <div class="fx-row">
+          <label class="fx-lab" for="countryPick">Country</label>
+          <div class="fx-country">
+            <input id="countryPick" list="countryList" autocomplete="off" placeholder="All countries" data-fb-skip/>
+            <datalist id="countryList"></datalist>
+            <button type="button" id="countryClear" class="fx-x" hidden aria-label="Clear country">×</button>
           </div>
+          <!-- original single-select, kept as the source of truth (hidden) -->
+          <select id="countrySelect" hidden><option value="">All countries</option></select>
+        </div>
 
-          <div style="height:10px"></div>
-          <label class="small">Speed <span class="small">(slope quartile of its group)</span></label>
-          <div class="chips tag-filter" data-tag-cat="speed">
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="fast" checked/> Fast</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="avg"  checked/> Avg speed</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="slow" checked/> Slow</label>
+        <div class="fx-row">
+          <span class="fx-lab">Types</span>
+          <div class="chips fx-pills" role="group" aria-label="Chart types" data-fb-group="types">
+            <label class="chip"><input type="checkbox" value="share" checked/> BEV</label>
+            <label class="chip"><input type="checkbox" value="ICE_BEV" checked/> ICE↔BEV</label>
+            <label class="chip"><input type="checkbox" value="ttm_shares" checked/> TTM split</label>
+            <label class="chip"><input type="checkbox" value="time" checked/> Transition time</label>
           </div>
+        </div>
 
-          <div style="height:10px"></div>
-          <label class="small">Timing <span class="small">(10% crossing, quartile of its group)</span></label>
-          <div class="chips tag-filter" data-tag-cat="timing">
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="early"      checked/> Early starter</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="mid"        checked/> Mid</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="late_start" checked/> Late starter</label>
-          </div>
 
-          <div style="height:10px"></div>
-          <label class="small">Fit <span class="small">(unsettled, collapsed or stale)</span></label>
-          <div class="chips tag-filter" data-tag-cat="fit">
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="reliable"   checked/> Reliable</label>
-            <label class="chip tag-chip"><input type="checkbox" data-tag-value="unreliable" checked/> Unreliable fit</label>
-          </div>
+        <div class="fx-row fx-tagsec" id="tagFilters">
+          <span class="fx-lab">Tags <a href="sources/tags.html" id="tagsHowLink" class="fx-how">How the tags work →</a></span>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-fit">Fit</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" data-fb-group="tag_fit">
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="reliable" data-tag-value="reliable"/><span class="fx-tl">Reliable</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="unreliable" data-tag-value="unreliable"/><span class="fx-tl">Unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="grey"><input type="checkbox" value="notrans" data-tag-value="notrans"/><span class="fx-tl">No transition</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" data-fb-group="tag_status">
+            <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" value="ontrack" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" data-fb-group="tag_speed">
+            <label class="chip tag-chip fx-tag" data-tone="accent"><input type="checkbox" value="fast" data-tag-value="fast"/><span class="fx-tl">Fast</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="avg" data-tag-value="avg"/><span class="fx-tl">Avg</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="slow" data-tag-value="slow"/><span class="fx-tl">Slow</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+          <div class="fx-tgroup"><span class="fx-glabel" id="tg-timing">Start</span>
+          <div class="chips tag-filter fx-tags" data-tag-cat="timing" data-group-label="Start" role="group" aria-labelledby="tg-timing" data-fb-group="tag_timing">
+            <label class="chip tag-chip fx-tag" data-tone="blue2"><input type="checkbox" value="early" data-tag-value="early"/><span class="fx-tl">Early</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="mid" data-tag-value="mid"/><span class="fx-tl">Mid</span><span class="fx-n" data-n aria-live="off"></span></label>
+            <label class="chip tag-chip fx-tag" data-tone="orange"><input type="checkbox" value="late_start" data-tag-value="late_start"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
+          </div></div>
+        </div>
+
+        <details class="side-more fx-more" id="moreFilters">
+          <summary>More filters <span id="moreBadge" class="fx-badge" hidden>0</span>
+            <button type="button" id="moreReset" class="fx-reset" hidden>Clear</button></summary>
+          <label class="small" for="periodSelect">Month</label>
+          <select id="periodSelect" hidden><option value="">All months</option></select>
+          <label class="fx-toggle" title="Newest chart per country and type, unless a month is picked"><input type="checkbox" id="latestOnly" checked/> Latest only</label>
         </details>
-        <div style="height:14px"></div>
-        <h2>Sort</h2>
-        <label class="small">Field</label>
-        <select id="sortField">
-          <option value="created" selected>Created time (from filename)</option>
-          <option value="country">Country</option>
-          <option value="filename">Filename</option>
-        </select>
-        <div style="height:8px"></div>
-        <label class="small">Direction</label>
-        <select id="sortDir">
-          <option value="desc" selected>Descending</option>
-          <option value="asc">Ascending</option>
-        </select>
         </div><!-- /.side-body -->
       </aside>
 
       <main>
+        <div id="appliedBar" class="fx-applied" role="region" aria-label="Applied filters" hidden></div>
         <div id="cols" class="cols"></div>
         <div id="empty" class="empty" hidden>No matches. Relax filters.</div>
         <div id="pager" class="pager" hidden>
-          <button id="loadMore" class="btn">Load more</button>
+          <button id="loadMore" class="btn" type="button">Show more</button>
+          <button id="showAll" class="btn btn--ghost" type="button">Show all</button>
         </div>
       </main>
     </div>
@@ -6991,11 +7063,14 @@ const searchInput   = document.getElementById('search');
 const stats         = document.getElementById('stats');
 const latestOnly    = document.getElementById('latestOnly');
 const typeChecks    = [...document.querySelectorAll('.chip input[type="checkbox"][value]')];
-const sortField     = document.getElementById('sortField');
-const sortDir       = document.getElementById('sortDir');
+// Fixed gallery order: newest chart first (sort controls removed 2026-10-17).
+const GALLERY_SORT = { field: 'created', dir: 'desc' };
 const pager         = document.getElementById('pager');
 const loadMoreBtn   = document.getElementById('loadMore');
-const INITIAL_ROWS = 6, PAGE_ROWS = 3; let visibleRows = INITIAL_ROWS;
+const showAllBtn    = document.getElementById('showAll');
+// INITIAL_ROWS cards per type section on first paint; each "Show more" adds
+// about GALLERY_STEP cards (one screenful).
+const INITIAL_ROWS = 6, GALLERY_STEP = 24; let rowsShown = {};
 const TYPE_LABEL = { share:'BEV trajectory', ICE_BEV:'ICE↔BEV trajectory', ttm_shares:'TTM market split graph', time:'Transition time curve' };
 const TYPE_ORDER = ['share','ICE_BEV','ttm_shares','time'];
 function prettyPeriod(p){ if(!/^[0-9]{4}-[0-9]{2}$/.test(p)) return p; const [y,m]=p.split('-').map(Number); return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'numeric'}); }
@@ -7011,16 +7086,95 @@ const uniq = xs => [...new Set(xs)];
 function latestByKey(items){ const map=new Map(); const toNum=p=>Number((p||'0000-00').replace('-','')); for(const it of items){ const k=`${it.country}|||${it.type}`; const cur=map.get(k); if(!cur||toNum(it.period)>toNum(cur.period)) map.set(k,it);} return [...map.values()]; }
 function createdNum(it){ const m = it.filename && it.filename.match(/(\d{8})(?=\.[^.]+$)/); return m?Number(m[1]):0; }
 function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='created'){ const da=createdNum(a), db=createdNum(b); if(da===db) return sgn*a.filename.localeCompare(b.filename); return sgn*(da-db);} if(field==='country') return sgn*a.country.localeCompare(b.country); if(field==='filename') return sgn*a.filename.localeCompare(b.filename); return 0; }
+// Gallery paging (#filter-sidebar-v2). Each type is one column ("section");
+// every section shows rowsShown[type] cards. "Show more" APPENDS cards to the
+// existing sections instead of rebuilding the grid: the old full rebuild
+// (cols.replaceChildren) destroyed the node the browser was scroll-anchored
+// to, so on narrow screens — where the four sections are stacked — the cards
+// inserted into the upper sections pushed everything down and the view
+// appeared to jump. Paging state is reset by every filter/sort change.
+function buildCard(it){
+  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
+let galleryView = null;   // { byType, sections: {type: {col, more, list}} }
+function galleryStepRows(){
+  // About one screenful (~GALLERY_STEP cards) per click, spread over the visible sections.
+  const n = galleryView ? Object.keys(galleryView.sections).length : 1;
+  return Math.max(3, Math.ceil(GALLERY_STEP / Math.max(1, n)));
+}
+function galleryNextRows(shown, total, step){
+  const next = shown + step;
+  // Few left after this step? Show them all instead of leaving a stub page.
+  return (total - next) <= Math.ceil(step / 2) ? total : Math.min(total, next);
+}
 function renderColumns(items){
-  // Perf note: build everything inside a DocumentFragment so the entire
-  // gallery swap is a single DOM mutation (one reflow) instead of one
-  // reflow per column. replaceChildren(frag) at the end swaps atomically
-  // and preserves scroll position.
-  if(items.length===0){ cols.replaceChildren(); empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
+  if(items.length===0){ cols.replaceChildren(); galleryView=null; empty.hidden=false; stats.textContent=''; pager.hidden=true; return; } empty.hidden=true;
   const frag=document.createDocumentFragment();
-  const field=sortField.value, dir=sortDir.value; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
-  let visibleCount=0,totalCount=0,canLoadMore=false;
-  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue; const col=document.createElement('section'); col.className='col'; const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; col.append(h); const take=Math.min(list.length,visibleRows); totalCount+=list.length; visibleCount+=take; if(list.length>visibleRows) canLoadMore=true; for(let i=0;i<take;i++){ const it=list[i]; const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); col.append(card);} frag.append(col);} cols.replaceChildren(frag); stats.innerHTML=`<span class="badge">Showing ${visibleCount} of ${totalCount} charts</span>`; pager.hidden=!canLoadMore; }
+  const { field, dir } = GALLERY_SORT; const sorted=[...items].sort((a,b)=>compareItems(a,b,field,dir)); const byType=Object.fromEntries(TYPE_ORDER.map(t=>[t,[]])); sorted.forEach(it=>{ if(byType[it.type]) byType[it.type].push(it); });
+  galleryView = { sections: {} };
+  for(const t of TYPE_ORDER){ const list=byType[t]; if(!list||!list.length) continue;
+    const col=document.createElement('section'); col.className='col'; col.dataset.type=t;
+    const h=document.createElement('h3'); h.textContent=TYPE_LABEL[t]; h.id='col-h-'+t; col.setAttribute('aria-labelledby', h.id); col.append(h);
+    const more=document.createElement('button'); more.type='button'; more.className='btn col-more'; more.dataset.type=t;
+    more.addEventListener('click',()=>showMore([t], more));
+    col.append(more);
+    galleryView.sections[t] = { col, more, list, shown: 0 };
+    frag.append(col); }
+  cols.replaceChildren(frag);
+  for (const t of Object.keys(galleryView.sections)) appendCards(t, rowsShown[t] ?? INITIAL_ROWS);
+  updatePager();
+}
+// Append cards to section t until it shows `upto` cards; returns the first new card.
+function appendCards(t, upto){
+  const sec = galleryView && galleryView.sections[t]; if (!sec) return null;
+  const end = Math.min(sec.list.length, upto); let first = null;
+  const frag = document.createDocumentFragment();
+  for (let i = sec.shown; i < end; i++){ const card = buildCard(sec.list[i]); frag.append(card); if (!first) first = card; }
+  sec.col.insertBefore(frag, sec.more); sec.shown = end; rowsShown[t] = end;
+  if (first && window.__bevPaintTags) window.__bevPaintTags();
+  return first;
+}
+function updatePager(){
+  if (!galleryView) return;
+  let shown = 0, total = 0;
+  for (const [t, sec] of Object.entries(galleryView.sections)){
+    shown += sec.shown; total += sec.list.length;
+    const left = sec.list.length - sec.shown;
+    sec.more.hidden = left <= 0;
+    const n = galleryNextRows(sec.shown, sec.list.length, GALLERY_STEP) - sec.shown;
+    sec.more.textContent = `Show ${n} more`;
+    sec.more.setAttribute('aria-label', `Show ${n} more ${TYPE_LABEL[t] || t} charts (${left} not shown)`);
+  }
+  stats.innerHTML=`<span class="badge">Showing ${shown} of ${total} charts</span>`;
+  const left = total - shown; pager.hidden = left <= 0;
+  loadMoreBtn.textContent = 'Show more';
+  if (showAllBtn) { showAllBtn.textContent = `Show all (${left} more)`; }
+}
+// Grow the given sections, keep the view still and move focus to the first
+// new card. `from` is the button that was clicked: the first new card is
+// scrolled to where that button was (manual fallback for browsers without
+// CSS scroll anchoring), so the reader continues exactly where they were.
+function showMore(types, from, all){
+  if (!galleryView) return;
+  const before = from ? from.getBoundingClientRect().top : null;
+  // "Show all" can add hundreds of cards: pin the last card already shown
+  // instead (otherwise the browser follows the pager button to the very end).
+  const pinned = all ? [...cols.querySelectorAll('.card')].pop() : null;
+  const pinnedTop = pinned ? pinned.getBoundingClientRect().top : 0;
+  const step = all ? Infinity : (types.length > 1 ? galleryStepRows() : GALLERY_STEP);
+  let anchor = null;
+  for (const t of types){
+    const sec = galleryView.sections[t]; if (!sec || sec.shown >= sec.list.length) continue;
+    const first = appendCards(t, all ? sec.list.length : galleryNextRows(sec.shown, sec.list.length, step));
+    // Anchor on the section that sits nearest above the clicked button.
+    if (first && (!anchor || !from || sec.col.getBoundingClientRect().top <= before)) anchor = first;
+  }
+  updatePager();
+  if (anchor){
+    if (pinned){ const d = pinned.getBoundingClientRect().top - pinnedTop; if (Math.abs(d) > 1) window.scrollBy(0, d); }
+    else if (before != null){ const d = anchor.getBoundingClientRect().top - before; if (Math.abs(d) > 1) window.scrollBy(0, d); }
+    anchor.tabIndex = -1; anchor.focus({ preventScroll: true });
+  }
+}
 /* Search synonyms: countries are stored under one short name ("UK", "USA"),
    but visitors type the long or local one ("United Kingdom", "Turkey"). */
 const SEARCH_ALIASES = {
@@ -7031,65 +7185,35 @@ const SEARCH_ALIASES = {
   'South Korea':'korea',
   'Netherlands':'holland'
 };
-function applyFilters(all){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
-// Tag filters — read chip state per category, return { cat: Set<value> } only for
-// categories where the user has unchecked something. Empty result = no filter.
+function applyFilters(all, tagOverride){ const q=searchInput.value.trim().toLowerCase(); const allowed=new Set(typeChecks.filter(c=>c.checked).map(c=>c.value)); const country=countrySelect.value; const period=periodSelect.value; const tagF=tagOverride||getActiveTagFilters(); let out=all.filter(it=>{ if(country&&it.country!==country) return false; if(!allowed.has(it.type)) return false; if(period&&it.period!==period) return false; if(!passesTagFilter(it.country, tagF)) return false; const hay=`${it.country} ${SEARCH_ALIASES[it.country]||''} ${it.type} ${it.date} ${it.period} ${it.filename}`.toLowerCase(); return q===''||hay.includes(q);}); if(latestOnly && latestOnly.checked && !period) out=latestByKey(out); return out; }
+// Tag filters — logic in assets/tag_system.js (tagFilterValue/Passes/Counts);
+// these two read the chip state and look up a chart's tags.
 function getActiveTagFilters(){
   const result = {};
   document.querySelectorAll('.tag-filter[data-tag-cat]').forEach(group => {
-    const cat = group.dataset.tagCat;
-    const all = [...group.querySelectorAll('input[data-tag-value]')];
-    const checked = all.filter(c => c.checked).map(c => c.dataset.tagValue);
-    if (checked.length === 0) { result[cat] = new Set(); return; }       // all unchecked → hide everything in this cat
-    if (checked.length < all.length) result[cat] = new Set(checked);     // partial → filter
-    // else (all checked) → no filter for this category
+    const on = [...group.querySelectorAll('input[data-tag-value]:checked')].map(c => c.dataset.tagValue);
+    if (on.length) result[group.dataset.tagCat] = new Set(on);
   });
   return result;
 }
 function passesTagFilter(country, filters){
-  const cats = Object.keys(filters);
-  if (!cats.length) return true;
-  const tags = window.__bevTagsByCountry && window.__bevTagsByCountry[country];
-  // Fit reliability applies to every chart, no-transition ones included. A
-  // chart with no params row at all has no verdict and counts as reliable.
-  if (filters.fit && !filters.fit.has(tags && tags.unsettled ? 'unreliable' : 'reliable')) return false;
-  // No-transition rows bypass status/speed/timing filters: those categories
-  // are undefined for a curve that never takes off, so they shouldn't be
-  // filtered against. The dedicated 'notrans' pill makes them findable.
-  if (tags && tags.notrans) return true;
-  for (const cat of cats){
-    if (cat === 'fit') continue;
-    const allowed = filters[cat];
-    // Group too small for a speed / timing scale (fewer than 4 markets): the
-    // row has no tag in that category. It shows while that category is
-    // unfiltered and is hidden as soon as a specific value is selected —
-    // it is neither "Mid" nor any other value. See docs/architecture/61.
-    if (tags && tags.noscale && tags.noscale[cat]) return false;
-    // Timing has a designed middle band — missing tag means "mid".
-    // Status/Speed without a tag means we couldn't compute it; treat as 'unknown'
-    // and only accept when the user explicitly includes the 'mid' pseudo-value
-    // (timing only) or when no filter is active.
-    const v = cat === 'timing'
-      ? (tags && tags.timing && tags.timing.v) || 'mid'
-      : (tags && tags[cat] && tags[cat].v) || null;
-    if (!v || !allowed.has(v)) return false;
-  }
-  return true;
+  if (!Object.keys(filters).length) return true;
+  return tagFilterPasses(window.__bevTagsByCountry && window.__bevTagsByCountry[country], filters);
 }
 loadManifest().then(({images})=>{
   const imgs = Array.isArray(images)?images:[]; if(!imgs.length){ empty.hidden=false; empty.textContent='No charts found. manifest.json loaded but contains no images.'; return; }
   uniq(imgs.map(x=>x.country)).sort().forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; countrySelect.append(o);});
   const periods=uniq(imgs.map(x=>x.period).filter(Boolean)).sort(); if(periods.length){ periodSelect.hidden=false; periods.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=prettyPeriod(p); periodSelect.append(o);}); }
-  const update=()=>{ const list=applyFilters(imgs); renderColumns(list);}; const reset=()=>{ visibleRows=INITIAL_ROWS; update(); };
+  const update=()=>{ const list=applyFilters(imgs); renderColumns(list); if(window.__fxTagUi) window.__fxTagUi(imgs, list.length);}; window.__fxRefresh=update; const reset=()=>{ rowsShown={}; update(); };
   // Search input is debounced by ~150 ms so rapid typing does not
   // trigger one full gallery rebuild per keystroke. Every other control
   // is immediate — users expect selects/checkboxes to react instantly.
   const resetDebounced = debounce(reset, 150);
   [countrySelect,periodSelect].forEach(el=>el.addEventListener('change',reset));
-  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced); sortField.addEventListener('change',reset); sortDir.addEventListener('change',reset); loadMoreBtn.addEventListener('click',()=>{ visibleRows+=PAGE_ROWS; update(); });
+  typeChecks.forEach(c=>c.addEventListener('change',reset)); latestOnly.addEventListener('change',reset); searchInput.addEventListener('input',resetDebounced);  loadMoreBtn.addEventListener('click',()=>showMore(Object.keys(galleryView?galleryView.sections:{}), loadMoreBtn)); if(showAllBtn) showAllBtn.addEventListener('click',()=>{ const l=Object.keys(galleryView?galleryView.sections:{}); showMore(l, showAllBtn, true); });
   // Tag-filter chips — same reset() flow as the type chips.
   document.querySelectorAll('.tag-filter input[data-tag-value]').forEach(c => c.addEventListener('change', reset));
-  sortField.value='created'; sortDir.value='desc'; update();
+  update();
   // Load the country→source-page map, then repaint so cards get their
   // "ⓘ Source" links. Done after the first paint so a slow/missing
   // sources.json never blocks the gallery from showing.
@@ -13048,6 +13172,9 @@ function fbCollectControls(tabEl){
   const state = {};
   tabEl.querySelectorAll('input, select, textarea').forEach(el => {
     if (el.disabled) return;
+    // UI proxies (gallery country picker, combined sort) mirror a hidden
+    // control that is captured anyway — skip them so each setting appears once.
+    if (el.hasAttribute('data-fb-skip')) return;
     const key = el.id || el.name;
     if (el.type === 'checkbox' || el.type === 'radio') {
       if (!el.checked) return;
@@ -13979,6 +14106,7 @@ document.addEventListener('click', (e) => {
       }
       byCountry = acc;
       window.__bevTagsByCountry = byCountry; // exposed for gallery filters and external paint() triggers
+      if (window.__fxRefresh) window.__fxRefresh(); // chip counts need the tags
       paint();
     } catch (e) { /* silent */ }
   }
@@ -13997,6 +14125,7 @@ document.addEventListener('click', (e) => {
     });
   }
 
+  window.__bevPaintTags = paint;   // gallery "Show more" appends cards inside sections
   document.addEventListener('DOMContentLoaded', () => {
     compute();
     // Repaint whenever any of the three mounts re-renders.
@@ -14034,7 +14163,7 @@ document.addEventListener('click', (e) => {
       name: 'Speed',
       order: ['slow', 'avg', 'fast'],
       ticks: ['25th pct', '75th pct'],
-      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts come from the <b>reference group</b>: the main new-car curves (Whole) for cars and every car subset (private, company, rental, used, …), the vans, truck or bus curves for those. So trucks are ranked against trucks. Groups with fewer than 4 markets get no speed pill.',
+      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts come from the <b>reference group</b>: the main new-car curves (Whole) for cars and every car subset (private, company, rental, used, …), the vans, truck or bus curves for those. So trucks are ranked against trucks. Groups with fewer than 4 markets get no speed pill and drop out once a Speed value is picked.',
       values: {
         slow: { label: 'Slow',       def: 'Bottom quarter of its vehicle group by inflection speed.' },
         avg:  { label: 'Avg speed',  def: 'Middle half of its vehicle group — a typical pace.' },
@@ -14042,10 +14171,10 @@ document.addEventListener('click', (e) => {
       }
     },
     timing: {
-      name: 'Timing',
+      name: 'Start (timing)',
       order: ['early', 'mid', 'late_start'],
       ticks: ['25th pct', '75th pct'],
-      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year in the <b>reference group</b> (Whole for cars and all car subsets; vans, trucks, buses each their own), so trucks are compared with trucks. Cards carry no timing pill for the middle half; groups with fewer than 4 markets get none at all.',
+      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year in the <b>reference group</b> (Whole for cars and all car subsets; vans, trucks, buses each their own), so trucks are compared with trucks. Cards carry no timing pill for the middle half — the sidebar filter calls it <em>Mid</em>. Groups with fewer than 4 markets get no timing at all and drop out once a Start value is picked.',
       values: {
         early:      { label: 'Early starter', def: 'Among the earliest quarter of its vehicle group to cross 10 % BEV share.' },
         mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share with the middle half of its vehicle group.' },
@@ -14066,10 +14195,11 @@ document.addEventListener('click', (e) => {
       name: 'Fit',
       order: [],
       ticks: [],
-      note: 'Unchecking <em>Unreliable fit</em> hides those charts from the gallery. They are always left out of Thresholds, Durations, Time interval and the World Map.',
+      note: 'Every chart has exactly one fit value. Pick one or more to show only those charts; Status, Speed and Start only apply to <em>Reliable</em> charts. Unreliable and no-transition markets are always left out of Thresholds, Durations, Time interval and the World Map.',
       values: {
-        reliable:   { label: 'Reliable',       def: 'The fit is settled, has a plausible S-shape and its data is current.' },
-        unreliable: { label: 'Unreliable fit', def: 'Unsettled (moves with every new month), collapsed (a near-vertical step the data has not reached) or stale (no data for over a year).' }
+        reliable:   { label: 'Reliable',      def: 'The curve takes off and its fit is settled, plausibly S-shaped and on current data. Only these carry Status, Speed and Start.' },
+        unreliable: { label: 'Unreliable',    def: 'The curve takes off, but its fit is unsettled (the projected 80 % year moved more than 25 years over the last year of re-fits), collapsed (10 → 80 % in under 3 years while below 10 % share) or stale (no data for over 12 months).' },
+        notrans:    { label: 'No transition', def: 'No take-off: the latest 12-month BEV share is under 1 %, or (between 1 and 5 %) the fitted curve never gets steeper than 1 percentage point per year.' }
       }
     },
     notrans: {
@@ -14228,7 +14358,7 @@ document.addEventListener('click', (e) => {
       basisRow(cat, country) +
       stabilityRow(cat, country) +
       `<p class="tag-tip-note">${c.note}</p>` +
-      `<p class="tag-tip-note">Full explanation, decision diagram and live boxplots of every group: <em>How the tags work</em> (sidebar, under Status, speed, timing &amp; fit).</p>`;
+      `<p class="tag-tip-note">Full explanation, decision diagram and live boxplots of every group: <em>How the tags work</em> (sidebar, next to <em>Tags</em>).</p>`;
     return true;
   }
 
@@ -14919,6 +15049,86 @@ document.addEventListener('click', (e) => {
   });
   if(stats&&window.MutationObserver)
     new MutationObserver(refresh).observe(stats,{childList:true,characterData:true,subtree:true});
+})();
+</script>
+
+<script>
+/* Filter sidebar v2: the country picker and the sort dropdown drive the
+   hidden #countrySelect and fires its normal
+   'change' events; this block owns the tag-chip counts, the badge and
+   the applied-filters bar above the results. */
+(function(){
+  const $ = id => document.getElementById(id);
+  document.addEventListener('DOMContentLoaded', () => {
+    const sel = $('countrySelect'), pick = $('countryPick'), list = $('countryList'), clr = $('countryClear');
+    if (!sel || !pick) return;
+    // mirror the country options (filled after manifest load)
+    const sync = () => { list.innerHTML = [...sel.options].filter(o => o.value).map(o => `<option value="${o.value.replace(/"/g,'&quot;')}">`).join(''); };
+    new MutationObserver(sync).observe(sel, { childList: true }); sync();
+    const setCountry = v => { sel.value = v; sel.dispatchEvent(new Event('change')); pick.value = v; clr.hidden = !v; };
+    const match = () => [...sel.options].find(o => o.value && o.value.toLowerCase() === pick.value.trim().toLowerCase());
+    // A datalist pick fires 'input' with the full name: apply it at once.
+    pick.addEventListener('input', () => { const o = match(); if (o && o.value !== sel.value) setCountry(o.value); });
+    pick.addEventListener('change', () => { const o = match(); setCountry(o ? o.value : ''); });
+    clr.addEventListener('click', () => setCountry(''));
+    // Tag chips (always visible): live counts + applied-filters bar.
+    // "More filters" (Month, Latest only): badge + Clear. Called by the
+    // gallery after every render.
+    const more = $('moreFilters'), badge = $('moreBadge'), clearBtn = $('moreReset'), bar = $('appliedBar');
+    const chips = [...document.querySelectorAll('#tagFilters .tag-filter input[data-tag-value]')];
+    const groupOf = c => c.closest('.tag-filter');
+    const fire = el => el.dispatchEvent(new Event('change', { bubbles: true }));
+    // Speed and Start share words ("Late", "Fast" vs "Early"…): prefix the
+    // group in the applied bar for those; Fit/Status labels stand alone.
+    const PREFIXED = new Set(['speed', 'timing']);
+    const labelOf = c => { const g = groupOf(c), t = c.parentNode.querySelector('.fx-tl').textContent;
+      return PREFIXED.has(g.dataset.tagCat) ? `${g.dataset.groupLabel}: ${t}` : t; };
+    const clearAll = () => {
+      const ps = $('periodSelect'); if (ps.value) ps.value = '';
+      chips.forEach(c => { c.checked = false; });
+      fire(ps);                          // one re-render for everything
+      $('search').focus({ preventScroll: true });
+    };
+    window.__fxTagUi = (imgs) => {
+      const active = getActiveTagFilters();
+      const tagsReady = !!window.__bevTagsByCountry;
+      const counts = tagsReady
+        ? tagFilterCounts(applyFilters(imgs, {}), active, it => window.__bevTagsByCountry[it.country])
+        : null;
+      chips.forEach(c => {
+        const cat = groupOf(c).dataset.tagCat, n = counts ? counts[cat][c.dataset.tagValue] : null;
+        const lab = c.parentNode, out = lab.querySelector('[data-n]');
+        out.innerHTML = n == null ? '' : `${n}<span class="fx-sr"> charts</span>`;
+        lab.classList.toggle('is-zero', n === 0 && !c.checked);
+        lab.classList.toggle('is-on', c.checked);
+      });
+      const on = chips.filter(c => c.checked), ps = $('periodSelect'), lo = $('latestOnly');
+      // Badge: settings folded away under "More filters" that differ from
+      // the default (a month picked, Latest only switched off).
+      const hiddenN = (ps.value ? 1 : 0) + (lo.checked ? 0 : 1);
+      badge.textContent = hiddenN; badge.hidden = !hiddenN; clearBtn.hidden = !hiddenN;
+      badge.setAttribute('aria-label', `${hiddenN} changed`);
+      const n = on.length + (ps.value ? 1 : 0);
+      bar.replaceChildren();
+      if (ps.value) bar.append(mk('Month: ' + ps.options[ps.selectedIndex].textContent, () => { ps.value = ''; fire(ps); }));
+      on.forEach(c => { const b = mk(labelOf(c), () => { c.checked = false; fire(c); c.focus({ preventScroll: true }); });
+        b.dataset.tone = c.parentNode.dataset.tone; bar.append(b); });
+      if (n) { const x = document.createElement('button'); x.type = 'button'; x.className = 'fx-clear';
+        x.textContent = 'Clear all'; x.addEventListener('click', clearAll); bar.append(x); }
+      bar.hidden = !n;
+    };
+    function mk(text, onRemove){
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'fx-achip';
+      const t = document.createElement('span'); t.textContent = text;
+      const x = document.createElement('span'); x.textContent = '×'; x.setAttribute('aria-hidden', 'true');
+      b.append(t, x); b.setAttribute('aria-label', 'Remove filter ' + text); b.addEventListener('click', onRemove); return b;
+    }
+    clearBtn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      const ps = $('periodSelect'), lo = $('latestOnly'); ps.value = ''; lo.checked = true; fire(lo);
+    });
+    if (window.__fxRefresh) window.__fxRefresh();
+  });
 })();
 </script>
 </body>
