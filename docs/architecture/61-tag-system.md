@@ -95,7 +95,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | File | Role |
 |---|---|
 | `assets/fit_core.js` | `parseCSV`, `normNumber`, `getDataPer`, `inv_x_years`, `rowHasNoTransition`, `fitReliability` + `FIT_*` — moved verbatim out of index.html; classic script, globals as before |
-| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)`; **sidebar filter**: `TAG_FILTER_GROUPS`, `tagFilterValue()`, `tagFilterPasses()`, `tagFilterCounts()` |
+| `assets/tag_system.js` | **all tag logic**: `TAG_PARENT` (subset → parent; **add a line here for a new subset**), `tagGroupOf()`, `tagIsReference()`, `tagGroupCutoffs()` (only eligible reference rows, one per country; `TAG_MIN_GROUP = 4`, `TAG_LOW_Q / TAG_HIGH_Q`), `timingTagFor()`, `speedTagFor()`, `statusTagFor()` (80 % / `TAG_TARGET_YEAR` 2035), `tagComputeAll(rows)`; **sidebar filter**: `TAG_FILTER_GROUPS`, `tagFilterValue()`, `tagFilterPasses()`, `tagFilterCounts()`; **display**: `tagFmtYearMonth()` (decimal year → "Nov 2021") |
 | `assets/tag_boxplots.js` | SVG boxplots with tag braces; `mount()` for sources/tags.html, `svg()` for the gallery popover |
 | `index.html` | loads `fit_core.js` + `tag_system.js` in `<head>` (before every inline script), `tag_boxplots.js` deferred. Tag IIFE (*gallery status pills*): pills, `window.__bevTagsByCountry / __bevTagCutoffs / __bevTagPoints`; glossary IIFE: popover with group cut-offs and mini boxplot (`boxplotRow()`) |
 | `sources/tags.html` | generated explainer page; loads the three assets + `../params.csv` — never index.html |
@@ -162,17 +162,19 @@ control (removed 2026-10-17): always newest first (`GALLERY_SORT`). Feedback con
 
 ## Cut-offs on params.csv as of 2026-10-17
 
-| Group | timing n | t10 P25 / P75 | speed n | speed P25 / P75 (%/yr) |
+| Group | timing n | 10 % crossing P25 / P75 | speed n | speed P25 / P75 (%/yr) |
 |---|---|---|---|---|
-| Cars (Whole) | 52 | 2021.9 / 2026.7 | 51 | 5.0 / 11.4 |
-| Vans | 18 | 2024.5 / 2028.8 | 18 | 3.7 / 10.5 |
-| HDV | 16 | 2025.0 / 2028.8 | 16 | 7.4 / 11.6 |
-| Buses | 13 | 2021.7 / 2024.7 | 13 | 3.9 / 15.5 |
+| Cars (Whole) | 52 | Nov 2021 / Sep 2026 | 51 | 5.0 / 11.4 |
+| Vans | 18 | Jul 2024 / Oct 2028 | 18 | 3.7 / 10.5 |
+| HDV | 16 | Jan 2025 / Oct 2028 | 16 | 7.4 / 11.6 |
+| Buses | 13 | Sep 2021 / Sep 2024 | 13 | 3.9 / 15.5 |
 | 3-Wheelers | 2 | no tag | 0 | no tag |
 | 2-Wheelers | 0 | no tag | 0 | no tag |
 | Non-Passenger | 0 | no tag | 0 | no tag |
 
-Regenerate with `node scripts/tag_system_report.js` (`--by-variant` for one
+Years are shown as month + year (`tagFmtYearMonth()` in `assets/tag_system.js`:
+month = floor(fraction × 12) + 1; display only, every calculation keeps the
+decimal year; `--json` output stays raw). Regenerate with `node scripts/tag_system_report.js` (`--by-variant` for one
 line per variant, `--legacy` for the pre-v2 rules, `--json`).
 
 ## Tests

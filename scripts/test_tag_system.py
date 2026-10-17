@@ -100,6 +100,15 @@ R.groups = api.TAG_FILTER_GROUPS.map(g => [g.cat, g.label, g.values.map(v => v[0
 console.log(JSON.stringify(R));
 """
 
+FMT_JS = r"""
+const api = require(process.argv[1]).loadTagApi();
+const f = api.tagFmtYearMonth;
+const out = [2021.0, 2021.999, 2021.9, 2021.5, 2021 + 1/12, 2021 + 1/12 - 1e-6, 2022 - 1e-12, 2025.0147, 2026.666951, NaN, Infinity, null].map(f);
+const svg = api.TagBoxplots.svg({ group: 'hdv', metric: 'timing', cut: { timing: { ok: true, lo: 2025.0147, hi: 2028.76, n: 5 } },
+  points: [2024, 2025, 2026, 2027, 2029].map((t, i) => ({ group: 'hdv', eligible: true, ref: true, country: 'C' + i, t10: t, speed: 0.1 })) });
+console.log(JSON.stringify({ out, svgMonths: /≤ Jan 2025/.test(svg) && /≥ Oct 2028/.test(svg), svgDecimal: /20\d\d\.\d/.test(svg.replace(/<[^>]*>/g, ' ')) }));
+"""
+
 PAGER_JS = r"""
 const src = require('child_process').execFileSync('node', [process.argv[1], process.argv[2], 'galleryNextRows']).toString();
 eval(src);
@@ -161,6 +170,14 @@ def main():
         (fl["countsFast"]["speed"] == {"fast": 1, "avg": 2, "slow": 0}, "counts: own group ignores its own selection"),
         (fl["countsFast"]["timing"]["early"] == 1 and fl["countsFast"]["fit"]["reliable"] == 1, "counts: other groups apply the selection"),
         ([g[1] for g in fl["groups"]] == ["Fit", "Status", "Speed", "Start"], "four chip groups in sidebar order"),
+    ]
+    fm = json.loads(node(["-e", FMT_JS, lib]))
+    checks += [
+        (fm["out"][:4] == ["Jan 2021", "Dec 2021", "Nov 2021", "Jul 2021"], "year-month: .0 → Jan, .999 → Dec, .9 → Nov, .5 → Jul"),
+        (fm["out"][4:7] == ["Feb 2021", "Jan 2021", "Jan 2022"], "year-month: month boundaries, float noise does not slip a month/year"),
+        (fm["out"][7:9] == ["Jan 2025", "Sep 2026"], "year-month: live cut-offs (HDV P25, Cars P75)"),
+        (fm["out"][9:] == ["—", "—", "—"], "year-month: NaN / Infinity / null → —"),
+        (fm["svgMonths"] and not fm["svgDecimal"], "boxplot brace labels show month + year, no decimal years"),
     ]
     pg = json.loads(node(["-e", PAGER_JS, str(ROOT / "scripts/js_extract.js"), str(ROOT / "index.html")]))
     checks += [
