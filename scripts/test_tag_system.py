@@ -177,6 +177,9 @@ def main():
          "tag chips visible by default; Month + Latest only under More filters"),
         (all(f'id="{i}"' not in html for i in ["sortField", "sortDir", "sortCombo"]) and "GALLERY_SORT = { field: 'created', dir: 'desc' }" in html,
          "no sort control; fixed newest-first order"),
+        ('id="tagsHowLink"' in html.split('id="tagFilters"')[1].split('data-tag-cat="fit"')[0] and
+         "<p" not in html.split('id="tagFilters"')[1].split('data-tag-cat="fit"')[0],
+         "Tags section: heading + How-the-tags-work link only, no explainer paragraph"),
         ("cols.replaceChildren(frag)" in html and "function appendCards(" in html, "Show more appends instead of rebuilding"),
     ]
     html = (ROOT / "index.html").read_text()

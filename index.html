@@ -3364,7 +3364,6 @@ h2 .fb-ctx-btn{
 .fx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .fx-reset{background:none;border:0;padding:0 4px;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;font-size:12px;min-height:28px}
 .fx-achip:focus-visible,.fx-clear:focus-visible,.fx-reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#tab-gallery .side .fx-taghint{margin:2px 0 6px;color:var(--muted-2)}
 #tab-gallery .side .fx-how{float:right;text-transform:none;letter-spacing:0;font-size:11.5px}
 #tab-gallery .side .fx-toggle{white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .fx-applied{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
@@ -3960,27 +3959,26 @@ function tok(name, fallback){
 
         <div class="fx-row fx-tagsec" id="tagFilters">
           <span class="fx-lab">Tags <a href="sources/tags.html" id="tagsHowLink" class="fx-how">How the tags work →</a></span>
-          <p class="small fx-taghint" id="tagHint">Pick tags to narrow the gallery. Nothing picked shows everything; within a group any picked tag matches, across groups all must match.</p>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-fit">Fit</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" aria-describedby="tagHint" data-fb-group="tag_fit">
+          <div class="chips tag-filter fx-tags" data-tag-cat="fit" data-group-label="Fit" role="group" aria-labelledby="tg-fit" data-fb-group="tag_fit">
             <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="reliable" data-tag-value="reliable"/><span class="fx-tl">Reliable</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="unreliable" data-tag-value="unreliable"/><span class="fx-tl">Unreliable</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="grey"><input type="checkbox" value="notrans" data-tag-value="notrans"/><span class="fx-tl">No transition</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-status">Status</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" aria-describedby="tagHint" data-fb-group="tag_status">
+          <div class="chips tag-filter fx-tags" data-tag-cat="status" data-group-label="Status" role="group" aria-labelledby="tg-status" data-fb-group="tag_status">
             <label class="chip tag-chip fx-tag" data-tone="green"><input type="checkbox" value="past" data-tag-value="past"/><span class="fx-tl">Past 80%</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="blue"><input type="checkbox" value="ontrack" data-tag-value="ontrack"/><span class="fx-tl">On track</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="red"><input type="checkbox" value="late" data-tag-value="late"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-speed">Speed</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" aria-describedby="tagHint" data-fb-group="tag_speed">
+          <div class="chips tag-filter fx-tags" data-tag-cat="speed" data-group-label="Speed" role="group" aria-labelledby="tg-speed" data-fb-group="tag_speed">
             <label class="chip tag-chip fx-tag" data-tone="accent"><input type="checkbox" value="fast" data-tag-value="fast"/><span class="fx-tl">Fast</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="avg" data-tag-value="avg"/><span class="fx-tl">Avg</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="warn"><input type="checkbox" value="slow" data-tag-value="slow"/><span class="fx-tl">Slow</span><span class="fx-n" data-n aria-live="off"></span></label>
           </div></div>
           <div class="fx-tgroup"><span class="fx-glabel" id="tg-timing">Start</span>
-          <div class="chips tag-filter fx-tags" data-tag-cat="timing" data-group-label="Start" role="group" aria-labelledby="tg-timing" aria-describedby="tagHint" data-fb-group="tag_timing">
+          <div class="chips tag-filter fx-tags" data-tag-cat="timing" data-group-label="Start" role="group" aria-labelledby="tg-timing" data-fb-group="tag_timing">
             <label class="chip tag-chip fx-tag" data-tone="blue2"><input type="checkbox" value="early" data-tag-value="early"/><span class="fx-tl">Early</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="neutral"><input type="checkbox" value="mid" data-tag-value="mid"/><span class="fx-tl">Mid</span><span class="fx-n" data-n aria-live="off"></span></label>
             <label class="chip tag-chip fx-tag" data-tone="orange"><input type="checkbox" value="late_start" data-tag-value="late_start"/><span class="fx-tl">Late</span><span class="fx-n" data-n aria-live="off"></span></label>
