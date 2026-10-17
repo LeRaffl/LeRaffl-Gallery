@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T11:49:03Z",
+ "generated": "2026-10-17T20:06:45Z",
  "today": "2026-10-17",
  "countries": [
   {
@@ -3231,11 +3231,11 @@
    "source_url": "https://aap.org.pe/estadisticas/biaap",
    "cadence_text": "daily 15:45 UTC — AAP reloads the report on no fixed day; a month is written once it is before the reload month, classified by AAP and confirmed by AAP's printed monthly report",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3291,22 +3291,22 @@
     ],
     "workflow": ".github/workflows/fetch-peru.yml"
    },
-   "last_render": "2026-09-28",
+   "last_render": "2026-10-17",
    "flag": "🇵🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-01",
-     "rows": 91,
+     "rows": 92,
      "cadence": "monthly",
      "in_repo": true
     },
     {
      "name": "Vans",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-01",
-     "rows": 91,
+     "rows": 92,
      "cadence": "monthly",
      "in_repo": true
     }
