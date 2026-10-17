@@ -1,6 +1,7 @@
 name: Build source pages
 
-# Regenerates the public country source pages under sources/ whenever their
+# Regenerates the public country source pages (and explainer pages such as
+# sources/tags.html, docs/architecture/61-tag-system.md) under sources/ whenever their
 # inputs change: a source doc's front-matter, the stub registry, the generator
 # itself, params.csv (which carries the latest period + TTM BEV share shown
 # on each page), classification/** (Argentina's powertrain mapping + top
@@ -17,6 +18,7 @@ on:
     branches: [master]
     paths:
       - 'docs/architecture/*-source-*.md'
+      - 'docs/architecture/61-tag-system.md'   # explainer page sources/tags.html
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
@@ -31,6 +33,7 @@ on:
   pull_request:
     paths:
       - 'docs/architecture/*-source-*.md'
+      - 'docs/architecture/61-tag-system.md'   # explainer page sources/tags.html
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
