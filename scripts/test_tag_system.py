@@ -9,7 +9,9 @@ checks: reference groups (only base variants define a distribution; subsets
 such as Private / Industry / Used are classified against their parent via
 TAG_PARENT), per-group timing and speed quartiles, extrapolated 10 % years
 counting, the 4-country minimum, and the #294 symptom itself — HDV must be
-able to carry "Early starter" on the live params.csv.
+able to carry "Early starter" on the live params.csv. Also the sidebar
+tag filter (OR within a group, AND across groups, facet counts, no-transition
+and small-group handling) and the gallery Show-more step.
 """
 import json, pathlib, shutil, subprocess, sys
 
@@ -60,23 +62,49 @@ console.log(JSON.stringify({ cuts, st, svg_ok: /<path d="M/.test(svg) && /tbp-hl
 """
 
 FILTER_JS = r"""
-const src = require('child_process').execFileSync('node', [process.argv[1], process.argv[2], 'passesTagFilter']).toString();
-global.window = { __bevTagsByCountry: {
-  big:   { status: {v:'late'}, speed: {v:'avg'}, timing: {v:'early'} },
+// Sidebar tag filter (filter sidebar v2): assets/tag_system.js
+// tagFilterValue / tagFilterPasses / tagFilterCounts.
+const api = require(process.argv[1]).loadTagApi();
+const T = {
+  big:   { status: {v:'late'}, speed: {v:'avg'},  timing: {v:'early'} },
+  fast:  { status: {v:'ontrack'}, speed: {v:'fast'}, timing: {v:'early'} },
   mid:   { status: {v:'late'}, speed: {v:'avg'} },                       // middle half: no timing pill
   small: { status: {v:'late'}, noscale: { timing: true, speed: true } }, // group < 4 markets
-}};
-eval(src);
-const f = (cat, vals) => ({ [cat]: new Set(vals) });
-const R = {};
-for (const c of ['big', 'mid', 'small']) R[c] = {
-  none: passesTagFilter(c, {}),
-  timingMid: passesTagFilter(c, f('timing', ['mid'])),
-  timingEarlyLate: passesTagFilter(c, f('timing', ['early', 'late_start'])),
-  speedAvg: passesTagFilter(c, f('speed', ['avg'])),
-  statusOnly: passesTagFilter(c, f('status', ['late'])),
+  notr:  { notrans: {v:'notrans'} },
+  unrel: { unsettled: {v:'unsettled'} },
+  none:  undefined,                                                     // no params row
 };
+const f = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, new Set(v)]));
+const P = (k, o) => api.tagFilterPasses(T[k], f(o));
+const R = { pass: {}, val: {} };
+for (const k of Object.keys(T)) {
+  R.val[k] = Object.fromEntries(['fit','status','speed','timing'].map(c => [c, api.tagFilterValue(T[k], c)]));
+  R.pass[k] = {
+    nothing:    P(k, {}),
+    timingMid:  P(k, { timing: ['mid'] }),
+    speedAvg:   P(k, { speed: ['avg'] }),
+    statusLate: P(k, { status: ['late'] }),
+    reliable:   P(k, { fit: ['reliable'] }),
+    notrans:    P(k, { fit: ['notrans'] }),
+    orWithin:   P(k, { speed: ['fast', 'avg'] }),
+    andAcross:  P(k, { speed: ['fast'], timing: ['early'] }),
+    andAcross2: P(k, { speed: ['avg'], timing: ['early'] }),
+  };
+}
+const items = Object.keys(T).map(k => ({ k }));
+const tagsOf = it => T[it.k];
+R.countsNone = api.tagFilterCounts(items, {}, tagsOf);
+R.countsFast = api.tagFilterCounts(items, f({ speed: ['fast'] }), tagsOf);
+R.groups = api.TAG_FILTER_GROUPS.map(g => [g.cat, g.label, g.values.map(v => v[0]).join(',')]);
+// live params.csv: every chart lands in exactly one Fit value
 console.log(JSON.stringify(R));
+"""
+
+PAGER_JS = r"""
+const src = require('child_process').execFileSync('node', [process.argv[1], process.argv[2], 'galleryNextRows']).toString();
+eval(src);
+console.log(JSON.stringify([galleryNextRows(6, 100, 24), galleryNextRows(6, 40, 24), galleryNextRows(6, 30, 24),
+                            galleryNextRows(6, 6, 24), galleryNextRows(30, 31, 24)]));
 """
 
 def node(args):
@@ -115,13 +143,44 @@ def main():
         (bp["svg_ok"], "boxplot SVG renders with braces and highlight"),
         (bp["st"] == ["past", "ontrack", "late"], "status tag unchanged (80 % / 2035)"),
     ]
-    fl = json.loads(node(["-e", FILTER_JS, str(ROOT / "scripts/js_extract.js"), str(ROOT / "index.html")]))
+    fl = json.loads(node(["-e", FILTER_JS, lib]))
+    P, V = fl["pass"], fl["val"]
     checks += [
-        (all(fl[c]["none"] for c in fl), "no active filter: every row shows (incl. small groups)"),
-        (fl["mid"]["timingMid"] and not fl["small"]["timingMid"], "small group is not 'Mid'"),
-        (not fl["small"]["timingEarlyLate"] and not fl["small"]["speedAvg"], "small group hidden by a specific speed/timing filter"),
-        (fl["small"]["statusOnly"], "small group unaffected by a status filter"),
-        (fl["big"]["timingEarlyLate"] and not fl["mid"]["timingEarlyLate"], "normal filter behaviour unchanged"),
+        (all(P[k]["nothing"] for k in P), "no chip selected: every chart shows"),
+        (V["notr"] == {"fit": "notrans", "status": None, "speed": None, "timing": None}, "no transition: only Fit=No transition"),
+        (not P["notr"]["reliable"] and P["notr"]["notrans"], "no transition is not counted as Reliable"),
+        (V["unrel"]["fit"] == "unreliable" and not P["unrel"]["statusLate"], "unreliable: no status/speed/start"),
+        (V["none"]["fit"] == "reliable" and not P["none"]["statusLate"], "no params row: reliable, no tags"),
+        (P["mid"]["timingMid"] and V["mid"]["timing"] == "mid", "scaled row without timing pill = Mid"),
+        (not P["small"]["timingMid"] and not P["small"]["speedAvg"], "small group drops out once Speed/Start is picked"),
+        (P["small"]["statusLate"], "small group still filtered normally by Status"),
+        (P["big"]["orWithin"] and P["fast"]["orWithin"] and not P["small"]["orWithin"], "OR within a group"),
+        (P["fast"]["andAcross"] and not P["big"]["andAcross"] and P["big"]["andAcross2"] and not P["mid"]["andAcross2"], "AND across groups"),
+        (fl["countsNone"]["fit"] == {"reliable": 5, "unreliable": 1, "notrans": 1}, "counts: Fit partitions all charts"),
+        (fl["countsNone"]["timing"] == {"early": 2, "mid": 1, "late_start": 0}, "counts: Start ignores unscaled rows"),
+        (fl["countsFast"]["speed"] == {"fast": 1, "avg": 2, "slow": 0}, "counts: own group ignores its own selection"),
+        (fl["countsFast"]["timing"]["early"] == 1 and fl["countsFast"]["fit"]["reliable"] == 1, "counts: other groups apply the selection"),
+        ([g[1] for g in fl["groups"]] == ["Fit", "Status", "Speed", "Start"], "four chip groups in sidebar order"),
+    ]
+    pg = json.loads(node(["-e", PAGER_JS, str(ROOT / "scripts/js_extract.js"), str(ROOT / "index.html")]))
+    checks += [
+        (pg == [30, 40, 30, 6, 31], "Show more: +24 per step, all of the rest once ≤ 12 would be left"),
+    ]
+    html = (ROOT / "index.html").read_text()
+    checks += [
+        (all(f'data-tag-cat="{c}"' in html and all(f'data-tag-value="{v}"' in html for v in vals.split(","))
+             for c, _, vals in fl["groups"]), "sidebar markup has every chip of TAG_FILTER_GROUPS"),
+        (" checked/>" not in html.split('id="tagFilters"')[1].split('id="moreFilters"')[0], "tag chips start unselected"),
+        (html.index('id="tagFilters"') < html.index('id="moreFilters"') and
+         'id="periodSelect"' in html.split('id="moreFilters"')[1].split("</details>")[0] and
+         'id="latestOnly"' in html.split('id="moreFilters"')[1].split("</details>")[0],
+         "tag chips visible by default; Month + Latest only under More filters"),
+        (all(f'id="{i}"' not in html for i in ["sortField", "sortDir", "sortCombo"]) and "GALLERY_SORT = { field: 'created', dir: 'desc' }" in html,
+         "no sort control; fixed newest-first order"),
+        ('id="tagsHowLink"' in html.split('id="tagFilters"')[1].split('data-tag-cat="fit"')[0] and
+         "<p" not in html.split('id="tagFilters"')[1].split('data-tag-cat="fit"')[0],
+         "Tags section: heading + How-the-tags-work link only, no explainer paragraph"),
+        ("cols.replaceChildren(frag)" in html and "function appendCards(" in html, "Show more appends instead of rebuilding"),
     ]
     html = (ROOT / "index.html").read_text()
     tags_html = (ROOT / "sources/tags.html").read_text() if (ROOT / "sources/tags.html").exists() else ""
