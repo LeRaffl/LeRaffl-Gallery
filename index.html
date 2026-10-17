@@ -7516,6 +7516,84 @@ function fitReliability(r, now){
 function rowIsUnreliableFit(r){
   return !rowHasNoTransition(r) && fitReliability(r).status === 'excluded';
 }
+
+// ── Tag system v2 (#294) ────────────────────────────────────────────────
+// Speed and timing tags are relative: a market is Fast/Slow or an Early/Late
+// starter compared with the other markets of the SAME vehicle group, never
+// against a pool that mixes cars with trucks. Electric trucks only reached
+// the market years after electric cars, so a fixed calendar cut (the old
+// "10 % before 2023") could never award a truck market "Early starter".
+//   • Group = variant. Whole and its subsets Private and Industry form one
+//     group ("Cars"); every other variant (Vans, HDV, Buses, Used, …) is its
+//     own group.
+//   • Timing is share-based: each row's fitted 10 % crossing year. Markets
+//     still below 10 % count with their extrapolated year. Early = earliest
+//     quarter of the group (≤ 25th percentile), Late = latest quarter
+//     (≥ 75th percentile); the middle half carries no timing pill.
+//   • Speed: the same quartiles of the inflection slope, per group.
+//   • A group needs TAG_MIN_GROUP distinct countries in a pool, otherwise
+//     that tag is withheld for the whole group (quartiles of 2–3 markets are
+//     not a ranking).
+// Pool = rows that transition (not rowHasNoTransition) and whose fit is not
+// excluded by fitReliability(); provisional fits count. Status (80 % / 2035)
+// is absolute and unchanged.
+const TAG_MIN_GROUP = 4;
+const TAG_LOW_Q  = 0.25;
+const TAG_HIGH_Q = 0.75;
+function tagGroupOf(variant){
+  const v = String(variant || '').trim().toLowerCase();
+  if (!v || v === 'whole' || v === 'private' || v === 'industry') return 'whole';
+  return v;
+}
+function tagGroupLabel(group, variant){
+  return group === 'whole' ? 'Cars' : String(variant || group).trim();
+}
+function tagQuantile(sorted, q){
+  if (!sorted.length) return NaN;
+  const idx = (sorted.length - 1) * q;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] * (hi - idx) + sorted[hi] * (idx - lo);
+}
+// items: [{ group, label, country, t10, speed, eligible }]
+// → { [group]: { label, timing: {n, lo, hi, ok}, speed: {n, lo, hi, ok} } }
+// n counts distinct countries; the quartiles run over all eligible rows
+// (a Cars country with Whole + Private + Industry rows contributes three).
+function tagGroupCutoffs(items){
+  const acc = {};
+  for (const it of items){
+    if (!it.eligible) continue;
+    const g = acc[it.group] || (acc[it.group] = { label: it.label,
+      t: [], s: [], tc: new Set(), sc: new Set() });
+    if (it.group === 'whole' || !g.label) g.label = it.label;
+    if (isFinite(it.t10))   { g.t.push(it.t10);   g.tc.add(it.country); }
+    if (isFinite(it.speed)) { g.s.push(it.speed); g.sc.add(it.country); }
+  }
+  const out = {};
+  for (const [k, g] of Object.entries(acc)){
+    const dim = (vals, set) => {
+      const v = vals.slice().sort((a, b) => a - b);
+      const ok = set.size >= TAG_MIN_GROUP;
+      return { n: set.size, ok,
+               lo: ok ? tagQuantile(v, TAG_LOW_Q)  : NaN,
+               hi: ok ? tagQuantile(v, TAG_HIGH_Q) : NaN };
+    };
+    out[k] = { label: g.label, timing: dim(g.t, g.tc), speed: dim(g.s, g.sc) };
+  }
+  return out;
+}
+function timingTagFor(t10, cut){
+  if (!cut || !cut.ok || !isFinite(t10)) return null;
+  if (t10 <= cut.lo) return { v: 'early',      label: 'Early starter' };
+  if (t10 >= cut.hi) return { v: 'late_start', label: 'Late starter' };
+  return null; // middle half → no timing pill
+}
+function speedTagFor(speed, cut){
+  if (!cut || !cut.ok || !isFinite(speed)) return null;
+  if (speed >= cut.hi) return { v: 'fast', label: 'Fast' };
+  if (speed <= cut.lo) return { v: 'slow', label: 'Slow' };
+  return                      { v: 'avg',  label: 'Avg speed' };
+}
 function fitRowKey(r){
   const v = String(r.variant || '').trim();
   return (!v || v.toLowerCase() === 'whole') ? (r.country || '') : `${r.country} (${v})`;
@@ -12039,11 +12117,12 @@ const FAQ_DATA = [
     answers: [
       'Each gallery card carries up to three stacked tags summarising the country\u2019s curve at a glance. All three are computed from the same Weibull fit shown in <em>Thresholds</em> and <em>Durations</em>.',
       '<b>Status</b> \u2014 reading where the country sits relative to the <b>80 %</b> BEV-share-of-new-registrations line and the <b>2035</b> reference year:<br>&nbsp;&nbsp;<b>Past 80 %</b> = projected year of crossing 80 % is already past.<br>&nbsp;&nbsp;<b>On track</b> = projected to cross 80 % by end of 2035.<br>&nbsp;&nbsp;<b>Late</b> = projected to cross 80 % only after 2035.',
-      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) across all rows in <code>params.csv</code>:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of countries by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
-      '<b>Timing</b> \u2014 when the country crossed (or is projected to cross) <b>10 %</b> BEV share:<br>&nbsp;&nbsp;<b>Early starter</b> = before Jan 2023.<br>&nbsp;&nbsp;<b>Late starter</b> = after 2025.<br>&nbsp;&nbsp;If 10 % was/will be crossed between 2023 and 2025, no timing tag is shown.',
-      '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035, 2023 and 2025 are fixed calendar dates. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
+      '<b>Vehicle groups</b> \u2014 Speed and Timing compare a market only with markets of the <b>same vehicle group</b>: cars (the main curve plus its Private and Industry subsets), vans, trucks (HDV), buses, used imports and so on each form their own group. Electric trucks reached the market years after electric cars, so a shared yardstick could never call a truck market an early starter. A group needs at least <b>4 markets</b>; smaller groups get no speed or timing tag. Hover a tag for its group\u2019s actual cut-offs.',
+      '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) within the vehicle group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
+      '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared within its vehicle group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
+      '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
       '<b>Unreliable fit</b> \u2014 a market whose fitted curve cannot be trusted yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the World Map (a note under each table names what was left out). The chart itself stays in the gallery. Three tests, any one is enough:<br>&nbsp;&nbsp;<b>Unsettled</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
-      'All thresholds (80 %, 2035, 10 %, 2023, 2025) and the quartile breakpoints are configurable constants at the top of the script that renders the tags; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
+      'All thresholds (80 %, 2035, 10 %) are constants of the script that renders the tags; the quartiles (25 / 75 %) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What is the shaded band around the curve in Builder and Compare?',
     answers: [
@@ -14053,8 +14132,7 @@ document.addEventListener('click', (e) => {
 (function(){
   const TARGET_YEAR    = 2035;  // status: late vs on-track cutoff
   const PAST_THRESHOLD = 0.8;   // status: "past 80%" is past hitting 0.8 share
-  const EARLY_BY       = 2023;  // timing: t10 before this → early starter
-  const LATE_AFTER     = 2025;  // timing: t10 after this → late starter
+  // Speed and timing cut-offs are per vehicle group — see tagGroupCutoffs().
 
   // Reliability gate: fitReliability() (next to rowHasNoTransition) decides,
   // with the same cut-offs every table and the map use. All three tags are
@@ -14075,14 +14153,6 @@ document.addEventListener('click', (e) => {
     return k * invLambda * Math.pow(u, k - 1) * Math.exp(-Math.pow(u, k));
   }
 
-  function quantile(sorted, q){
-    if (!sorted.length) return NaN;
-    const idx = (sorted.length - 1) * q;
-    const lo = Math.floor(idx), hi = Math.ceil(idx);
-    if (lo === hi) return sorted[lo];
-    return sorted[lo] * (hi - idx) + sorted[hi] * (idx - lo);
-  }
-
   function statusTag(t80){
     if (!isFinite(t80)) return null;
     const now = new Date();
@@ -14090,20 +14160,6 @@ document.addEventListener('click', (e) => {
     if (t80 <= today)        return { v: 'past',    label: 'Past 80%' };
     if (t80 <= TARGET_YEAR)  return { v: 'ontrack', label: 'On track' };
     return                          { v: 'late',    label: 'Late' };
-  }
-
-  function speedTag(speed, p25, p75){
-    if (!isFinite(speed)) return null;
-    if (speed >= p75) return { v: 'fast', label: 'Fast' };
-    if (speed <= p25) return { v: 'slow', label: 'Slow' };
-    return                   { v: 'avg',  label: 'Avg speed' };
-  }
-
-  function timingTag(t10){
-    if (!isFinite(t10)) return null;
-    if (t10 < EARLY_BY)   return { v: 'early',      label: 'Early starter' };
-    if (t10 > LATE_AFTER) return { v: 'late_start', label: 'Late starter' };
-    return null; // middle band → no tag
   }
 
   let byCountry = null;
@@ -14134,6 +14190,9 @@ document.addEventListener('click', (e) => {
         const v2n = Number(String(row.v2 ?? '').replace(',', '.'));
         return {
           key,
+          country: String(row.country || '').trim(),
+          group: tagGroupOf(variant),
+          groupLabel: tagGroupLabel(tagGroupOf(variant), variant),
           noTrans: rowHasNoTransition(row),
           t80: t80res && isFinite(t80res.x) ? t80res.x : NaN,
           t10: t10res && isFinite(t10res.x) ? t10res.x : NaN,
@@ -14154,17 +14213,16 @@ document.addEventListener('click', (e) => {
         };
       });
 
-      // Phase 2 — speed quartiles across rows that actually transition.
-      // Excluded fits are left out of the pool as well: a collapsed curve
-      // (Albania Buses, a near-vertical step) carries a huge inflection slope
-      // and would drag the "Fast" cut-off up with it.
-      const speeds = enriched
-        .filter(e => !e.noTrans && e.rel.status !== 'excluded')
-        .map(e => e.speed)
-        .filter(isFinite)
-        .sort((a, b) => a - b);
-      const p25 = quantile(speeds, 0.25);
-      const p75 = quantile(speeds, 0.75);
+      // Phase 2 — speed and timing quartiles per vehicle group (#294).
+      // Excluded fits are left out of the pools: a collapsed curve (Albania
+      // Buses, a near-vertical step) carries a huge inflection slope and
+      // would drag the "Fast" cut-off up with it.
+      const cutoffs = tagGroupCutoffs(enriched.map(e => ({
+        group: e.group, label: e.groupLabel, country: e.country,
+        t10: e.t10, speed: e.speed,
+        eligible: !e.noTrans && e.rel.status !== 'excluded',
+      })));
+      window.__bevTagCutoffs = cutoffs; // read by the tag glossary
 
       // Phase 3 — assemble the tag set per row.
       // No-transition rows get a single dedicated pill; status/speed/timing
@@ -14188,10 +14246,11 @@ document.addEventListener('click', (e) => {
           // glossary turns those three into an "observed / projected" line.
           const s = statusTag(e.t80);
           if (s) { s.level = PAST_THRESHOLD; s.year = e.t80; s.obs = e.obs; tags.status = s; }
-          const sp = speedTag(e.speed, p25, p75);
-          if (sp) { sp.level = e.inflShare; sp.obs = e.obs; tags.speed = sp; }
-          const tm = timingTag(e.t10);
-          if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tags.timing = tm; }
+          const cut = cutoffs[e.group];
+          const sp = speedTagFor(e.speed, cut && cut.speed);
+          if (sp) { sp.level = e.inflShare; sp.obs = e.obs; sp.group = e.group; tags.speed = sp; }
+          const tm = timingTagFor(e.t10, cut && cut.timing);
+          if (tm) { tm.level = 0.10; tm.year = e.t10; tm.obs = e.obs; tm.group = e.group; tags.timing = tm; }
           if (provisional) {
             for (const k of Object.keys(tags)) { tags[k].prov = true; tags[k].swing = e.rel.swing; }
           }
@@ -14235,7 +14294,8 @@ document.addEventListener('click', (e) => {
 <script>
 (function(){
   // What each tag means. Mirrors the constants of the tag script above
-  // (PAST_THRESHOLD 80 %, TARGET_YEAR 2035, EARLY_BY 2023, LATE_AFTER 2025)
+  // (PAST_THRESHOLD 80 %, TARGET_YEAR 2035; speed/timing quartiles per vehicle
+  // group from tagGroupCutoffs(), filled in at hover time by groupView())
   // and the "What do the small tags on gallery cards mean?" FAQ entry — keep
   // the three in sync when a threshold moves.
   const CATS = {
@@ -14254,22 +14314,22 @@ document.addEventListener('click', (e) => {
       name: 'Speed',
       order: ['slow', 'avg', 'fast'],
       ticks: ['25th pct', '75th pct'],
-      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts are recomputed across every fitted curve in the gallery, so they shift as other markets are refitted.',
+      note: 'Speed is the slope at the fitted curve’s inflection point — <b>a model quantity throughout</b>. The quartile cuts are computed <b>per vehicle group</b> (cars, vans, trucks, buses, …), so trucks are ranked against trucks, and they shift as markets are refitted. Groups with fewer than 4 markets get no speed pill.',
       values: {
-        slow: { label: 'Slow',       def: 'Bottom quarter of all fitted curves by inflection speed.' },
-        avg:  { label: 'Avg speed',  def: 'Middle half — a typical pace among the fitted curves.' },
-        fast: { label: 'Fast',       def: 'Top quarter of all fitted curves by inflection speed.' }
+        slow: { label: 'Slow',       def: 'Bottom quarter of its vehicle group by inflection speed.' },
+        avg:  { label: 'Avg speed',  def: 'Middle half of its vehicle group — a typical pace.' },
+        fast: { label: 'Fast',       def: 'Top quarter of its vehicle group by inflection speed.' }
       }
     },
     timing: {
       name: 'Timing',
       order: ['early', 'mid', 'late_start'],
-      ticks: ['2023', '2025'],
-      note: '10 % is a level of new registrations; 2023 and 2025 are fixed calendar dates. <b>The crossing year itself comes from the fit</b>. Cards carry no timing pill for the middle band.',
+      ticks: ['25th pct', '75th pct'],
+      note: '10 % is a level of new registrations. <b>The crossing year comes from the fit</b> — for markets still below 10 % it is extrapolated, and those count too. The cut years are the quartiles of that year <b>within the vehicle group</b>, so trucks are compared with trucks. Cards carry no timing pill for the middle half; groups with fewer than 4 markets get none at all.',
       values: {
-        early:      { label: 'Early starter', def: 'Crossed 10 % BEV share before 2023.' },
-        mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share between 2023 and 2025.' },
-        late_start: { label: 'Late starter',  def: 'Crosses 10 % BEV share after 2025.' }
+        early:      { label: 'Early starter', def: 'Among the earliest quarter of its vehicle group to cross 10 % BEV share.' },
+        mid:        { label: 'Mid',           def: 'Crosses 10 % BEV share with the middle half of its vehicle group.' },
+        late_start: { label: 'Late starter',  def: 'Among the latest quarter of its vehicle group to cross 10 % BEV share.' }
       }
     },
     unsettled: {
@@ -14383,8 +14443,43 @@ document.addEventListener('click', (e) => {
     return lines.map(l => `<p class="tag-tip-stab">${l}</p>`).join('');
   }
 
+  // Speed/timing: replace the generic quartile wording with the actual cut
+  // years of the pill's vehicle group. Sidebar chips (no country) get a list
+  // of every group's cut-offs instead.
+  function groupView(cat, country){
+    const base = CATS[cat];
+    if (cat !== 'speed' && cat !== 'timing') return base;
+    const cuts = window.__bevTagCutoffs;
+    if (!cuts) return base;
+    const all = window.__bevTagsByCountry;
+    const t = country && all && all[country] && all[country][cat];
+    const fmt = x => cat === 'timing' ? yr(x) : (x * 100).toFixed(1) + ' %/yr';
+    if (t && t.group && cuts[t.group] && cuts[t.group][cat].ok){
+      const g = cuts[t.group], d = g[cat];
+      const c = Object.assign({}, base, { ticks: [fmt(d.lo), fmt(d.hi)], values: Object.assign({}, base.values) });
+      const who = `${g.label} (${d.n} markets)`;
+      if (cat === 'timing'){
+        c.values.early      = { label: 'Early starter', def: `Crosses 10 % BEV share by ${yr(d.lo)} — earliest quarter of ${who}.` };
+        c.values.mid        = { label: 'Mid',           def: `Crosses 10 % BEV share between ${yr(d.lo)} and ${yr(d.hi)} — middle half of ${who}.` };
+        c.values.late_start = { label: 'Late starter',  def: `Crosses 10 % BEV share in ${yr(d.hi)} or later — latest quarter of ${who}.` };
+      } else {
+        c.values.slow = { label: 'Slow',      def: `Inflection speed at or below ${fmt(d.lo)} — bottom quarter of ${who}.` };
+        c.values.avg  = { label: 'Avg speed', def: `Between ${fmt(d.lo)} and ${fmt(d.hi)} — middle half of ${who}.` };
+        c.values.fast = { label: 'Fast',      def: `Inflection speed at or above ${fmt(d.hi)} — top quarter of ${who}.` };
+      }
+      return c;
+    }
+    if (country) return base;
+    const rows = Object.values(cuts)
+      .sort((a, b) => (b[cat].n - a[cat].n))
+      .map(g => g[cat].ok
+        ? `${g.label}: ${fmt(g[cat].lo)} / ${fmt(g[cat].hi)} (${g[cat].n})`
+        : `${g.label}: no tag (${g[cat].n} market${g[cat].n === 1 ? '' : 's'})`);
+    return Object.assign({}, base, { note: base.note + '<br><b>Cut-offs per group</b> (25th / 75th pct, markets): ' + rows.join(' · ') });
+  }
+
   function fill(cat, value, country){
-    const c = CATS[cat];
+    const c = groupView(cat, country);
     const v = c && c.values[value];
     if (!v) return false;
     const scale = c.order.length ? `

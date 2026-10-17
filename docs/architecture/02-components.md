@@ -145,7 +145,7 @@ Not every fitted curve can carry a ranking. One function in `index.html`,
 `fitReliability(row)` (next to `rowHasNoTransition`), classifies each
 `params.csv` row as `ok`, `provisional` or `excluded`, and **every** consumer
 reads that verdict: Thresholds, Durations, Time Interval, the World Map, the
-gallery tags and the speed-quartile pool behind the *Fast/Slow* tags. Keep it
+gallery tags and the per-group quartile pools behind the *Fast/Slow* and *Early/Late starter* tags (see [61-tag-system.md](61-tag-system.md)). Keep it
 one function — a second, slightly different copy in one tab is how rankings and
 tags start to disagree.
 
