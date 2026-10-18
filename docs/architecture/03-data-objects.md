@@ -350,7 +350,7 @@ See [02-components.md § 2.4](02-components.md). Top-level `{updated, images: [{
 
 ### Schema
 
-Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE breakdown for the latest period, then trailing-12-months breakdown, then a link to the gallery. Format matches what the historical Germany R script produced for posting on Bluesky/X.
+Plain UTF-8 text, ~10 lines, one country flag emoji at the top, BEV/PHEV/ICE breakdown for the latest period, then trailing-12-months breakdown. No gallery link (removed 2026-10: links make X API posts expensive). Format matches what the historical Germany R script produced for posting on Bluesky/X.
 
 ### Why two files per render?
 

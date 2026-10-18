@@ -10,8 +10,8 @@
 #   <X%> BEV
 #   <X%> PHEV (of which <Y%>p were EREV)
 #   <X%> ICE (of which <Y%>p were HEV)
-#                                                # blank line
-#   Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+#
+# No gallery link line: links make X API posts expensive (removed 2026-10).
 #
 # Edge cases:
 #   - If a country has only one "Hybrid" total (no PHEV/HEV split), the
@@ -222,7 +222,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
   if (!is.null(ttm_lines)) {
     parts <- c(parts, ttm_label, ttm_lines, "")
   }
-  parts <- c(parts, "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
+  # Drop trailing blank line(s); no gallery link (X API charges for links).
+  while (length(parts) > 0L && !nzchar(parts[[length(parts)]])) parts <- parts[-length(parts)]
   paste(parts, collapse = "\n")
 }
 
@@ -237,8 +238,8 @@ build_post_text <- function(df, country_label, last_period = NULL, bev_label = "
 #   <PHEV/HEV peaked at X% in YYYY-MM (declining for N months).>
 #   <If the changes from the last 6 months continued linearly, BEV would overtake X in YYYY-MM.>
 #   <If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in YYYY-MM.>
-#                                                # blank line
-#   Graphs are available in the Gallery: ...
+#
+# No gallery link line (X API charges for links).
 #
 # Bands sum to 100%: BEV + PHEV + HEV + ICE (pure ICE, i.e. ICE minus HEV).
 # PHEV is the broad figure (EREV included), as in the main post.
@@ -474,6 +475,5 @@ build_ttm_post_text <- function(df, country_label, as_of_period = NULL, bev_labe
   parts <- c(header, "", window_line, delta_lines)
   extras <- c(peak_lines, cross_lines)
   if (length(extras) > 0L) parts <- c(parts, "", extras)
-  parts <- c(parts, "", "Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/")
   paste(parts, collapse = "\n")
 }
