@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-18T09:03:02Z",
+ "generated": "2026-10-18T12:42:50Z",
  "today": "2026-10-18",
  "countries": [
   {
@@ -4474,9 +4474,9 @@
    "country": "USA",
    "slug": "usa",
    "method": "pdf",
-   "source_name": "Argonne National Laboratory — monthly sales PDF",
+   "source_name": "Argonne National Laboratory — Light Duty Electric Drive Vehicles Monthly Sales Updates (\"Total Sales for Website\" PDF)",
    "source_url": "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data",
-   "cadence_text": "daily cron from the 10th, 10:30 UTC",
+   "cadence_text": "daily from the 10th to the end of the month, 10:30 UTC — ANL publishes about 6–7 weeks after the month (the Aug-2026 PDF is dated 17 Sep 2026)",
    "interval": "monthly",
    "latest_period": "2026-08",
    "expected_period": "2026-09",
@@ -4535,8 +4535,8 @@
     {
      "name": "Whole",
      "latest": "2026-08",
-     "first": "2011-01",
-     "rows": 188,
+     "first": "2010-12",
+     "rows": 189,
      "cadence": "monthly",
      "in_repo": true
     }
