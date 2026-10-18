@@ -267,11 +267,14 @@ def main() -> int:
                         help="How many trailing months to (re)write (default: 3)")
     parser.add_argument("--pdf-url", help="Direct URL/path to the Total Sales PDF")
     parser.add_argument("--csv", default="data/USA.csv")
+    parser.add_argument("--save-pdf", metavar="PATH",
+                        help="Also write the downloaded PDF (and its extracted text "
+                             "as PATH.txt) for inspection / CI artifacts")
     parser.add_argument("--force", action="store_true",
                         help="Rewrite the trailing window even if values are unchanged")
     args = parser.parse_args()
-    if args.months < 1:
-        sys.exit("--months must be >= 1")
+    if args.months < 0:
+        sys.exit("--months must be >= 0 (0 = refresh the full history)")
 
     # Determine the cutoff month (defaults to the calendar month before today).
     # Only PDF rows up to and including this month are considered.
@@ -296,7 +299,13 @@ def main() -> int:
         print(f"Found PDF: {pdf_url}")
 
     # Parse
-    table = parse_table(pdf_text(load_pdf_bytes(pdf_url)))
+    pdf_bytes = load_pdf_bytes(pdf_url)
+    text = pdf_text(pdf_bytes)
+    if args.save_pdf:
+        Path(args.save_pdf).write_bytes(pdf_bytes)
+        Path(args.save_pdf + ".txt").write_text(text, encoding="utf-8")
+        print(f"Saved PDF to {args.save_pdf} (+ .txt)")
+    table = parse_table(text)
     if not table:
         sys.exit("Parsed zero rows from the ANL PDF — layout may have changed.")
     print(f"Parsed {len(table)} monthly rows ({min(table)} … {max(table)}).")
@@ -309,7 +318,7 @@ def main() -> int:
         print(f"Note: {cutoff_period} not yet in the PDF (latest eligible is "
               f"{eligible[-1]}); refreshing the trailing window instead.")
 
-    window = eligible[-args.months:]
+    window = eligible if args.months == 0 else eligible[-args.months:]
     rows: dict[str, dict] = {}
     for period in window:
         vals = table[period]
