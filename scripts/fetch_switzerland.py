@@ -649,15 +649,15 @@ def acea_check(months_back: int = 3) -> int:
             month_name=fetch_acea.ENGLISH_MONTHS[m - 1], year=y)
         try:
             pdf = fetch_acea.load_pdf_bytes(url)
+        except fetch_acea.NotAPDF:
+            print(f"::warning::{period}: ACEA answered with a non-PDF page "
+                  "(bot challenge?) — skipped.")
+            continue
         except FileNotFoundError:
             print(f"{period}: ACEA release not published (yet) — skipped.")
             continue
         except Exception as e:  # noqa: BLE001 — a cross-check never fails the run
             print(f"::warning::{period}: ACEA release could not be read ({e})")
-            continue
-        if not pdf.startswith(b"%PDF"):
-            print(f"::warning::{period}: ACEA answered with a non-PDF page "
-                  "(bot challenge?) — skipped.")
             continue
         with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
             f.write(pdf)

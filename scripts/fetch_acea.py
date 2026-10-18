@@ -27,6 +27,42 @@ every always-list CSV; the cheapest path is "all CSVs already at target, no
 HTTP". When something changes, the workflow commits the modified CSVs in one
 commit and then a sequential matrix job renders each affected country.
 
+What a download can return
+--------------------------
+acea.auto has no single answer for "this release isn't out yet". From a
+GitHub runner the same unpublished URL came back, on different days, as:
+  * HTTP 404;
+  * HTTP 403 with no x-deny-reason (2026-09-16..19 and 09-21, for the
+    August release; there was no change on our side before it downloaded
+    fine on 09-23);
+  * HTTP 200 with an HTML page instead of the PDF (2026-08-23..25, 08-29,
+    09-20, 09-22, 10-16..18). Before the %PDF- check in load_pdf_bytes,
+    pdfplumber failed on that page with "No /Root object! - Is this really
+    a PDF?". That was issue #244: never a broken release. The August 2026
+    PDF parses cleanly and matches the CSVs to the unit.
+    fetch_acea_cv.py ran into the same page and checks for it the same way.
+Every one of those 14 failed runs asked for a release that wasn't there
+yet (or, for July 2026, at all). The August release downloaded on the
+first run after it came out. So:
+* the PDF → parse and write.
+* any "not there" answer (404, 403, a 200 that isn't a PDF, another HTTP
+  error, a timeout) → clean no-op while the release is not overdue, i.e.
+  before day RELEASE_OVERDUE_DAY of the following month (ACEA publishes
+  about the 20th–25th). From that day on, the same answer fails the run and
+  shows what ACEA returned: by then a 403 or an HTML page is more likely a
+  block than a late release.
+* 403 with x-deny-reason=host_not_allowed → hard fail at once (an IP
+  allowlist block, which never means "not published").
+* a %PDF- file pdfplumber can't open → hard fail (a really broken release).
+While it waits for the target, a scheduled run also checks the month before
+it, because the cron stops at month end (from the 16th to publication
+there are always such days). If no always-list CSV has an ACEA row for it, that
+release never landed (it came out after the window closed, it was never
+readable, or ACEA published none). The run then fails and names the month,
+so it gets dispatched by hand, or derived from the next year-to-date table
+when there is no release. That happened with July 2026: ACEA went straight
+to a Jan–Aug release, and the July rows were derived in #249.
+
 Data source
 -----------
 ACEA (European Automobile Manufacturers' Association) publishes monthly press
@@ -149,6 +185,7 @@ from pathlib import Path
 
 import pdfplumber
 import requests
+from pdfplumber.utils.exceptions import PdfminerException
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import acea_split  # noqa: E402
@@ -242,6 +279,11 @@ ACEA_URL_TEMPLATE = (
 
 ACEA_HOMEPAGE = "https://www.acea.auto/"
 
+# From this day of the month after the target, a release that still can't
+# be read fails the run instead of waiting (see "What a download can return"
+# in the module docstring). ACEA publishes around the 20th–25th.
+RELEASE_OVERDUE_DAY = 28
+
 # ACEA's edge (Cloudflare-style WAF) 403s requests that don't look like a
 # real browser. A bare UA/Accept/Referer set used to work but stopped working
 # from GitHub Actions runners — they now need the modern Chrome client-hints
@@ -315,6 +357,11 @@ def previous_month(today: date) -> tuple[int, int]:
 def prev_year_period(period: str) -> str:
     y, m = period.split("-")
     return f"{int(y) - 1}-{m}"
+
+
+def prev_month_period(period: str) -> str:
+    y, m = previous_month(date(int(period[:4]), int(period[5:7]), 1))
+    return f"{y}-{m:02d}"
 
 
 # --- CSV helpers ---------------------------------------------------------
@@ -400,10 +447,35 @@ def latest_period_across(data_dir: Path, countries: list[str]) -> str | None:
     return best
 
 
+def has_acea_month(data_dir: Path, countries: list[str], period: str) -> bool:
+    """True if any of the given country CSVs has an ACEA-sourced row for
+    `period`, i.e. that month's release was processed."""
+    for name in countries:
+        _, rows = load_csv(data_dir / f"{name}.csv")
+        if any(r.get("period") == period and is_acea_source(r.get("source"))
+               for r in rows):
+            return True
+    return False
+
+
 # --- PDF download ---------------------------------------------------------
 
 class PDFAccessDenied(RuntimeError):
-    """403 from ACEA — bot detection or IP allowlist hit. Not retryable."""
+    """403 from ACEA. With x-deny-reason=host_not_allowed (`allowlist`) it
+    is an IP allowlist block. Without it, it is either the WAF or ACEA's
+    answer for a release that isn't out yet; main() can't tell those apart
+    and waits until the release is overdue."""
+
+    def __init__(self, message: str, allowlist: bool = False):
+        super().__init__(message)
+        self.allowlist = allowlist
+
+
+class NotAPDF(FileNotFoundError):
+    """HTTP 200, but the body is not a PDF: what acea.auto serves on some
+    days for a release that isn't published yet. A FileNotFoundError, so a
+    caller that only handles "not there" treats it that way; callers that
+    want to tell the two apart (fetch_switzerland.py --acea-check) can."""
 
 
 def load_pdf_bytes(url_or_path: str) -> bytes:
@@ -426,21 +498,31 @@ def load_pdf_bytes(url_or_path: str) -> bytes:
             print("  HTTP 404 — PDF not published yet.")
             raise FileNotFoundError(url_or_path)
         if resp.status_code == 403:
-            # 403 means we're blocked, not "not yet published". Two known
-            # variants from ACEA's edge:
+            # Two known variants from ACEA's edge:
             #   * `x-deny-reason: host_not_allowed` — IP allowlist hit.
-            #   * no x-deny-reason header — Cloudflare-style WAF/bot block.
-            # Both are configuration problems, not a "retry tomorrow"
-            # situation. Raise loudly so the workflow turns red and the
-            # maintainer sees it (rather than the cron silently no-op'ing
-            # every day until someone notices the data is stale).
+            #   * no x-deny-reason header — a Cloudflare-style WAF/bot block,
+            #     or (seen 2026-09-16..21) just a release that isn't out yet.
+            # main() fails at once on the first and waits on the second
+            # until the release is overdue.
+            deny = resp.headers.get("x-deny-reason", "n/a")
             raise PDFAccessDenied(
-                f"HTTP 403 from {url_or_path} "
-                f"(x-deny-reason={resp.headers.get('x-deny-reason', 'n/a')}). "
-                f"ACEA is blocking this runner; download the PDF from a "
-                f"browser and re-run with --pdf-url path/to/file.pdf."
+                f"HTTP 403 from {url_or_path} (x-deny-reason={deny}). If "
+                f"ACEA is blocking this runner, download the PDF from a "
+                f"browser and re-run with --pdf-url path/to/file.pdf.",
+                allowlist=(deny == "host_not_allowed"),
             )
         resp.raise_for_status()
+        if not resp.content.startswith(b"%PDF-"):
+            # See "What a download can return" in the module docstring: an
+            # unpublished release sometimes comes back as an HTML page with
+            # HTTP 200 instead of a 404. The content-type and snippet are
+            # logged so a new kind of page can be recognised.
+            snippet = resp.content[:200].decode("utf-8", errors="replace")
+            raise NotAPDF(
+                f"{url_or_path} returned HTTP 200 but no PDF "
+                f"(content-type={resp.headers.get('content-type', 'n/a')!r}, "
+                f"{len(resp.content)} bytes, body-snippet={snippet!r})"
+            )
         return resp.content
     path = url_or_path.replace("file://", "")
     with open(path, "rb") as f:
@@ -860,6 +942,31 @@ def update_country(data_dir: Path, country: str,
 
 # --- Main ----------------------------------------------------------------
 
+def release_unavailable(err: Exception, data_dir: Path, target_period: str,
+                        scheduled: bool, today: date) -> int:
+    """Decide what a download that found no PDF means; see "What a download
+    can return" in the module docstring. Returns 0 (wait for the next run)
+    or exits non-zero with the reason."""
+    print(f"  {err}")
+    if isinstance(err, PDFAccessDenied) and err.allowlist:
+        sys.exit(str(err))
+    y, m = int(target_period[:4]), int(target_period[5:7])
+    overdue = date(y + (m == 12), m % 12 + 1, RELEASE_OVERDUE_DAY)
+    if today >= overdue:
+        sys.exit(f"ACEA's {target_period} release still can't be read on "
+                 f"{today} (overdue since {overdue}): {err}")
+    if scheduled:
+        missed = prev_month_period(target_period)
+        if not has_acea_month(data_dir, ALWAYS_COUNTRIES, missed):
+            sys.exit(f"ACEA's {missed} release never landed: no always-list CSV "
+                     f"has an ACEA row for {missed}. Dispatch fetch-acea.yml "
+                     f"with year/month set to it. If ACEA published no release "
+                     f"for that month (July 2026), derive it from the next "
+                     f"year-to-date table as in #249.")
+    print("PDF not available yet — will retry next scheduled run.")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int)
@@ -918,23 +1025,24 @@ def main() -> int:
         month_name=month_name, year=target_year)
     try:
         pdf_bytes = load_pdf_bytes(pdf_url)
-    except FileNotFoundError:
-        print("PDF not available yet — will retry next scheduled run.")
-        return 0
-    except PDFAccessDenied as e:
-        # Hard fail: the runner is blocked, not the PDF missing. Cron retries
-        # from the same IP won't help — the maintainer needs to download the
-        # PDF manually and re-dispatch with the pdf_url input.
-        sys.exit(str(e))
-    except requests.HTTPError as e:
-        print(f"Could not fetch {pdf_url}: {e}. Pass --pdf-url manually.")
-        return 0
+    except (FileNotFoundError, PDFAccessDenied, requests.RequestException) as e:
+        if not pdf_url.startswith(("http://", "https://")):
+            raise  # a local --pdf-url that isn't there is a typo, not ACEA
+        return release_unavailable(e, data_dir, target_period,
+                                   scheduled=not (args.year or args.pdf_url),
+                                   today=date.today())
 
     # pdfplumber needs a file path or buffer
     tmp_pdf = Path("/tmp/_acea_latest.pdf")
     tmp_pdf.write_bytes(pdf_bytes)
 
-    parsed_all, period_label = parse_monthly_table(str(tmp_pdf))
+    try:
+        parsed_all, period_label = parse_monthly_table(str(tmp_pdf))
+    except PdfminerException as e:
+        # For a download, load_pdf_bytes already checked the %PDF- header, so
+        # this is a broken PDF, not a "not published yet" page.
+        sys.exit(f"pdfplumber cannot open {pdf_url} ({e}). If it is a broken "
+                 f"release, download it from a browser and re-run with --pdf-url.")
     if period_label:
         print(f"Parsed table for: {period_label}")
         # Verify the PDF's month matches what was requested. A mismatch
