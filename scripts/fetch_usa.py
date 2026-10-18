@@ -32,19 +32,32 @@ Each release contains the FULL monthly history (Dec-2010 onward) in one table:
     Month   BEV     PHEV    HEV     Total LDV
     Apr-26  64,517  18,309  209,456 1,361,970
 
-ANL frequently revises the most recent ~2 months (and occasionally older
-months) between releases. To absorb those revisions we re-write a trailing
-window of the last `--months` (default 3) months on every run: new months are
-appended and recently-revised months are corrected in place. Rows older than
-the window are never touched, even if a later ANL release would adjust them —
-so the deep-history rows in data/USA.csv may still differ from a newer PDF.
-The CSV is only rewritten when at least one value in the window actually
-changed, so steady-state runs are a no-op.
+ANL frequently revises the most recent ~2 months — and, as a 2026-10 audit
+showed, sometimes whole years (2023-08 … 2025-08 had drifted by up to ~19k
+BEVs/month). Every run re-writes a trailing window of the last `--months`
+(default 3) months: new months are appended, recently-revised months are
+corrected in place. Rows older than the window are not rewritten, but they ARE
+compared with the PDF and every drifted row is reported as a ::warning so a
+full refresh (`--months 0`, workflow input `months=0`) can be triggered. The
+CSV is only rewritten when at least one value actually changed.
+
+Sanity checks (validate_table) run on the whole parsed table before anything
+is written: no gaps between the first and last month, no negative values,
+BEV+PHEV+HEV <= Total LDV, Total LDV within a plausible band. A violation
+aborts the run (exit 1) so a broken parse never reaches the CSV. Soft
+anomalies (a BEV/PHEV/HEV value identical in two consecutive months, the PDF
+lagging the cutoff by more than 2 months) are printed as ::warning only — an
+identical value can be genuine (Sep-2025 HEV = Aug-2025's stale CSV value was
+the case that prompted this; the PDF itself was fine).
 
 Vehicle scope
 -------------
-Light-Duty Vehicles (LDV): passenger cars + light trucks. Matches the existing
-historical rows in data/USA.csv.
+Light-Duty Vehicles (LDV) as ANL defines them: GVWR <= 10,000 lb — passenger
+cars + light trucks INCLUDING pickups, SUVs and vans (not EPA's 8,500 lb). These
+are new-vehicle SALES compiled by ANL from Wards Auto (reference since
+Oct-2019), not registrations. ANL publishes no car/light-truck split of the
+table (only the HEV headline on its web page), so there is no Pickups/cars-only
+variant. The PDF's "PEV Sales by Size" box (YTD, plug-ins only) is not used.
 
 CSV layout
 ----------
@@ -55,7 +68,9 @@ ANL column        → CSV column
     BEV           → BEV
     PHEV          → PHEV
     HEV           → HEV
-    (none)        → OTHERS  (0; ANL does not break out FCV/other)
+    (none)        → OTHERS  (0; the PDF has no FCEV column — FCEVs, a few
+                             dozen a month per ANL's web page, stay inside the
+                             ICE residual; see docs/architecture/62-source-usa.md)
     Total LDV     → TOTAL
     (derived)     → ICE = TOTAL − BEV − PHEV − HEV − OTHERS
 
@@ -185,6 +200,71 @@ def parse_table(text: str) -> dict[str, dict[str, int]]:
     return out
 
 
+# Plausibility band for a month of US light-duty sales (observed 2010-2026:
+# ~0.7 M in Apr-2020 … ~1.8 M). Wide on purpose: it catches a mis-parsed
+# column (e.g. a cumulative or a share), not a weak month.
+TOTAL_MIN, TOTAL_MAX = 500_000, 2_500_000
+
+
+def _next_period(period: str) -> str:
+    y, m = int(period[:4]), int(period[5:])
+    return f"{y + (m == 12)}-{(m % 12) + 1:02d}"
+
+
+def validate_table(table: dict[str, dict[str, int]]) -> tuple[list[str], list[str]]:
+    """Return (errors, warnings) for the parsed ANL table.
+
+    errors   — the parse cannot be trusted; nothing must be written.
+    warnings — worth a look, but can be genuine data.
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+    if not table:
+        return ["parsed zero rows"], warnings
+    periods = sorted(table)
+    p = periods[0]
+    while p < periods[-1]:
+        p = _next_period(p)
+        if p not in table:
+            errors.append(f"{p}: month missing from the PDF table (gap)")
+    for p in periods:
+        v = table[p]
+        if any(v[k] < 0 for k in ("BEV", "PHEV", "HEV", "TOTAL")):
+            errors.append(f"{p}: negative value {v}")
+        if v["BEV"] + v["PHEV"] + v["HEV"] > v["TOTAL"]:
+            errors.append(f"{p}: BEV+PHEV+HEV exceeds Total LDV {v}")
+        if not TOTAL_MIN <= v["TOTAL"] <= TOTAL_MAX:
+            errors.append(f"{p}: Total LDV {v['TOTAL']:,} outside "
+                          f"{TOTAL_MIN:,}-{TOTAL_MAX:,}")
+    for a, b in zip(periods, periods[1:]):
+        for k in ("BEV", "PHEV", "HEV"):
+            if table[a][k] == table[b][k] and table[a][k] > 1000:
+                warnings.append(f"{b}: {k} identical to {a} ({table[b][k]:,})")
+    return errors, warnings
+
+
+def drifted_rows(csv_path: str, table: dict[str, dict[str, int]],
+                 skip: set[str]) -> list[str]:
+    """Periods (outside `skip`) whose CSV values differ from the PDF."""
+    if not Path(csv_path).exists():
+        return []
+    out = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            p = r["period"]
+            if p in skip or p not in table:
+                continue
+            for k in ("BEV", "PHEV", "HEV", "TOTAL"):
+                try:
+                    cur = float(r.get(k) or "nan")
+                except ValueError:
+                    cur = float("nan")
+                if cur != table[p][k]:
+                    out.append(p)
+                    break
+    return out
+
+
 def build_row(period: str, vals: dict[str, int]) -> dict:
     bev = float(vals["BEV"])
     phev = float(vals["PHEV"])
@@ -309,6 +389,13 @@ def main() -> int:
     if not table:
         sys.exit("Parsed zero rows from the ANL PDF — layout may have changed.")
     print(f"Parsed {len(table)} monthly rows ({min(table)} … {max(table)}).")
+    errors, warnings = validate_table(table)
+    for w in warnings:
+        print(f"::warning title=USA ANL sanity::{w}")
+    if errors:
+        for e in errors:
+            print(f"::error title=USA ANL sanity::{e}")
+        sys.exit(f"{len(errors)} sanity check(s) failed — CSV not touched.")
 
     eligible = sorted(p for p in table if p <= cutoff_period)
     if not eligible:
@@ -329,6 +416,18 @@ def main() -> int:
         rows[period] = build_row(period, vals)
         print(f"  {period}: BEV={vals['BEV']}, PHEV={vals['PHEV']}, "
               f"HEV={vals['HEV']}, TOTAL={vals['TOTAL']}, ICE={ice}")
+
+    lag = (cutoff_year * 12 + cutoff_month) - (int(eligible[-1][:4]) * 12
+                                               + int(eligible[-1][5:]))
+    if lag > 2:
+        print(f"::warning title=USA ANL stale::latest PDF month {eligible[-1]} is "
+              f"{lag} months behind the cutoff {cutoff_period}")
+
+    drift = drifted_rows(args.csv, {p: table[p] for p in eligible}, set(window))
+    if drift:
+        print(f"::warning title=USA ANL revisions::{len(drift)} row(s) outside the "
+              f"window differ from the current PDF ({drift[0]} … {drift[-1]}); "
+              f"run the workflow with months=0 to refresh the full history")
 
     changed = upsert_window(args.csv, rows, args.force)
     if changed:

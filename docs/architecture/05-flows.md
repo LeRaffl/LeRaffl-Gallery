@@ -20,7 +20,7 @@ End-to-end sequence diagrams for every meaningful user journey or background pro
 | L | [Snapshot Builder curves](#flow-l--snapshot-builder) | Monthly cron (25th, 09:00 UTC) or manual dispatch | New `builder_history/<date>.csv` + updated `index.json`, **and** a new `backtest/` month with `backtest/series/` + GIFs rebuilt |
 | L₂ | [Auto-ingest Uruguay from ACAU](#flow-l--acau-ingest) | Daily cron (1st–end of month, 08:10 UTC) or manual dispatch | Updated `data/Uruguay.csv` → triggers Flow B for Uruguay |
 | M | [Auto-ingest Türkiye from TÜİK](#flow-m--tuik-ingest) | Daily cron (15th–end of month, 08:30 UTC) or manual dispatch | Updated `data/Türkiye.csv` → triggers Flow B for Türkiye |
-| N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:30 UTC) or manual dispatch | Updated `data/USA.csv` (trailing 3-month window) → triggers Flow B for USA |
+| N | [Auto-ingest USA from ANL](#flow-n--anl-ingest) | Daily cron (10th–end of month, 10:30 UTC) or manual dispatch (`months=0` = full refresh) | Updated `data/USA.csv` (trailing 3-month window, sanity-checked) → triggers Flow B for USA |
 | O | [Auto-ingest Netherlands from RDW/Swing](#flow-o--rdw-swing-ingest) | Daily cron (1st–15th, 06:30 UTC) or manual dispatch | Updated `data/Netherlands.csv` / `Netherlands_Used.csv` / `Netherlands_HDV.csv` → per-variant Flow B |
 | P | [Auto-ingest China from CPCA](#flow-p--cpca-ingest) | Daily cron (1st–end of month, 11:00 UTC) or manual dispatch | Updated `data/China.csv` (+ `China_Wholesale.csv`) → triggers Flow B for China |
 | Q | [Auto-ingest Denmark from Statbank](#flow-q--statbank-ingest) | Daily cron (1st–15th, 05:15 UTC) or manual dispatch | Updated `data/Denmark.csv` and four variant CSVs → per-variant Flow B |
@@ -907,7 +907,13 @@ one.** ANL publishes a single PDF that contains the *entire* monthly history
 (Dec-2010 → latest) and silently revises the most recent ~2 months between
 releases. To absorb those revisions the script rebuilds the last `--months`
 (default 3) rows on every run; new months are appended and recently-revised
-months are corrected in place. Everything older than the window is left alone.
+months are corrected in place. Everything older than the window is left alone
+but compared with the PDF — drift is reported as a `::warning`, and the
+workflow input `months=0` rewrites the whole history. Since 2026-10 the parsed
+table must also pass sanity checks (no gap, no negative, BEV+PHEV+HEV ≤ total,
+total within 0.5–2.5 M) before anything is written, the PDF is kept as a 7-day
+artifact, and `scripts/test_fetch_usa.py` runs first. Source doc:
+[62-source-usa.md](62-source-usa.md).
 
 ```mermaid
 sequenceDiagram
@@ -922,7 +928,9 @@ sequenceDiagram
     Site-->>Job: HTML with "Total Sales for Website_<Month> <Year>.pdf" link
     Job->>Site: GET the PDF
     Site-->>Job: full-history table (Month, BEV, PHEV, HEV, Total LDV)
-    Job->>Job: parse table → take last N periods ≤ cutoff
+    Job->>Job: unit tests (scripts/test_fetch_usa.py)
+    Job->>Job: parse table → sanity checks (abort on gap/negative/sum/total band)
+    Job->>Job: take last N periods ≤ cutoff (N=0 → all); warn on drift outside window
     Job->>CSV: upsert window; rewrite only if a value changed
     alt CSV changed
         Job->>Render: gh workflow run render-country.yml -f country=USA
@@ -935,15 +943,17 @@ sequenceDiagram
 module docstring is the authoritative reference for the column map, the ICE
 derivation, and the trailing-window rule.
 
-**Vehicle scope:** Light-Duty Vehicles (passenger cars + light trucks). See
+**Vehicle scope:** new light-duty vehicle **sales** ≤ 10,000 lb GVWR (passenger cars + light trucks incl. pickups). See
 [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
 
 **Column map — no ICE column in the source:** ANL's table is
 `Month | BEV | PHEV | HEV | Total LDV`. There is no gasoline/diesel/ICE column
 and no FCV/other column. We map BEV/PHEV/HEV directly, take `Total LDV` → TOTAL,
 set `OTHERS = 0`, and derive `ICE = TOTAL − BEV − PHEV − HEV − OTHERS` (same
-implicit-subtraction convention as Chile). A negative computed ICE aborts the
-run as a parser sanity-check.
+implicit-subtraction convention as Chile). FCEVs (a few dozen a month per ANL's
+web page) therefore sit in the ICE residual. `validate_table()` aborts the run
+before writing if the table has a gap, a negative value, BEV+PHEV+HEV above the
+total or a total outside 0.5–2.5 M.
 
 **Why the trailing window (and why this differs from every other fetcher):**
 the maintainer confirmed ANL routinely corrects the last ~2 months. The other
@@ -952,9 +962,11 @@ revises the explicit prior-year column; Chile/Japan never touch older rows).
 For USA the corrections are the norm, so freezing them would leave the chart's
 most recent — and most-viewed — points permanently stale. `--months 3` gives
 one month of headroom over the observed ~2-month revision horizon. Months that
-ANL revises *outside* that window (it occasionally adjusts 2023–2025 too — see
-Validation) stay at their original CSV values by design; we don't chase the
-entire history on every run.
+ANL revises *outside* that window (it adjusts whole years at times — the
+2026-10 audit found 39 drifted rows, 2023-08 … 2025-08 among them) are not
+rewritten automatically, but every run lists them in a `::warning`; dispatch
+with `months=0` to refresh. The history was fully refreshed from the Aug-2026
+release on 2026-10-18 (see [62 § 2](62-source-usa.md)).
 
 **Why change-detection instead of a period-based self-throttle:** the other
 fetchers no-op by comparing the CSV's latest period to the target. That can't

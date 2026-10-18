@@ -260,30 +260,6 @@ stubs:
       - "No kei series is charted, and Whole cannot simply be widened to include kei: kei four-wheelers are reported by a separate body (全国軽自動車協会連合会, Zenkeijikyo), whose monthly figures split only by body type (乗用/貨物), model and prefecture — not by powertrain. With no primary source for a monthly kei BEV/PHEV/HEV split, a kei series could only be approximated by tagging individual models (BEV plus an ICE residual, with no HEV) — below the standard of every other series here. Kei passenger cars are EU M1, the same class as Whole, so this is a coverage gap in Whole rather than a missing vehicle class; adding it properly would need a source publishing the monthly kei powertrain split."
       - "Delivered as a monthly Excel workbook (PDF fallback)."
 
-  - country: USA
-    slug: usa
-    method: pdf
-    summary: "US light-duty EV/PHEV sales estimates from Argonne National Laboratory."
-    source_name: "Argonne National Laboratory — monthly sales PDF"
-    source_url: "https://www.anl.gov/esia/reference/light-duty-electric-drive-vehicles-monthly-sales-updates-historical-data"
-    underlying: "Argonne National Laboratory — light-duty electric-drive sales updates"
-    variants: [Whole]
-    hev_split: true
-    variant_notes:
-      Whole: "All light-duty vehicles — cars and light trucks combined."
-    scope_note: "Light-duty vehicles (cars + light trucks), US sales."
-    cadence: "daily cron from the 10th, 10:30 UTC"
-    fetcher: "scripts/fetch_usa.py"
-    workflow: ".github/workflows/fetch-usa.yml"
-    data_file: "data/USA.csv"
-    notes:
-      - "The US has no single federal new-registration feed, so the gallery uses Argonne National Laboratory's monthly light-duty electric-drive vehicle sales updates, published as a «Total Sales for Website» PDF that our fetcher parses. These are modelled sales estimates rather than a registry count."
-      - "Argonne publishes BEV, PHEV, HEV and the light-duty total. Combustion is therefore a residual — ICE = Total − BEV − PHEV − HEV — so there is no petrol/diesel split and OTHERS is always 0."
-    caveats:
-      - "Modelled sales estimates (Argonne), not a national registration count."
-      - "Combustion is not reported at all: we derive ICE as Total − BEV − PHEV − HEV. There is no petrol/diesel split, so those columns stay empty."
-      - "Argonne revises the last ~2 months between releases. Each run re-reads a trailing window and corrects those months in place; rows older than the window are left as first recorded, so deep history can differ from a newer PDF."
-
   - country: Türkiye
     slug: turkiye
     method: pdf

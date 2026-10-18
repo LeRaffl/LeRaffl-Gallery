@@ -53,6 +53,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4 pypdf
 
+      - name: Unit tests (offline)
+        run: python scripts/test_fetch_usa.py
+
       - name: Fetch & update USA.csv
         run: |
           python scripts/fetch_usa.py \
