@@ -7094,7 +7094,7 @@ function compareItems(a,b,field,dir){ const sgn=dir==='asc'?1:-1; if(field==='cr
 // inserted into the upper sections pushed everything down and the view
 // appeared to jump. Paging state is reset by every filter/sort change.
 function buildCard(it){
-  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div></div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
+  const card=document.createElement('article'); card.className='card g'; const box=document.createElement('div'); box.className='thumbbox'; const img=document.createElement('img'); img.className='thumb'; img.loading='lazy'; img.decoding='async'; img.src=it.url; img.alt=it.alt||`${it.country} – ${it.type}`; img.addEventListener('click',()=>{ lbImg.src=it.url; lbImg.alt=img.alt; lbDl.href=it.url; lbDl.download=it.filename||'chart.png'; lb.showModal(); }); box.append(img); const meta=document.createElement('div'); meta.className='meta'; const right=[it.period||'', it.date||''].filter(Boolean).join(' • '); meta.innerHTML=`<div class="left"><div class="country" title="${it.country}">${it.country}</div><div class="type" title="${TYPE_LABEL[it.type]||it.type}">${TYPE_LABEL[it.type]||it.type}</div>${scopeBadgeFor(it.country)}</div><div class="date">${right}</div><div class="tag-stack" data-tag-country="${(it.country||'').replace(/"/g,'&quot;')}"></div>`; const footer=document.createElement('div'); footer.className='footer'; const slug=it.country_slug||(it.filename||'').replace(/_(?:ICE_BEV|time|ttm_shares)_\d{8}\.png$/,'').replace(/_\d{8}\.png$/,''); const postSlug=it.type==='ttm_shares'?`${slug}_ttm`:slug; const postTitle=it.type==='ttm_shares'?`Copy TTM market split post text for ${it.country}`:`Copy social-media post text for ${it.country}`; const baseCountry=(it.country||'').replace(/\s*\(.*\)\s*$/,'').trim(); const srcSlug=SOURCE_PAGES[baseCountry]; const srcLink=srcSlug?`<a class="btn btn--source" href="sources/${srcSlug}.html" target="_blank" rel="noopener" title="Where ${baseCountry}'s data comes from">ⓘ Source</a>`:''; footer.innerHTML=`<a class="btn" href="${it.url}" download>Download</a><button class="btn" data-copy-post="${postSlug}" title="${postTitle}">Copy post</button>${srcLink}<span class="filename">${it.filename}</span>`; card.append(box,meta,footer); return card; }
 let galleryView = null;   // { byType, sections: {type: {col, more, list}} }
 function galleryStepRows(){
   // About one screenful (~GALLERY_STEP cards) per click, spread over the visible sections.
@@ -7219,6 +7219,24 @@ loadManifest().then(({images})=>{
   // sources.json never blocks the gallery from showing.
   loadSourcePages().then(update);
 }).catch(err=>{ empty.hidden=false; empty.textContent=(err&&err.message)||'Failed to load manifest.json'; });
+
+/* Measurement-scope badge on gallery cards (#283). Most series are new
+   REGISTRATIONS of passenger cars; a country listed here counts something
+   else, and the card says so up front — the chart footnote (footnotes.csv)
+   and the source page carry the full wording. Keyed by base country name. */
+const SCOPE_BADGES = {
+  USA: {
+    label: 'Sales · cars + light trucks incl. pickups',
+    tip: 'USA = new light-vehicle SALES, not registrations: passenger cars AND light trucks (pickups, SUVs, vans) up to 10,000 lb GVWR, compiled by Argonne National Laboratory (ANL) from Wards Auto. Not comparable 1:1 with passenger-car (EU M1) registration series.'
+  }
+};
+function scopeBadgeFor(country){
+  const base = String(country || '').replace(/\s*\(.*\)\s*$/, '').trim();
+  const b = SCOPE_BADGES[base];
+  if (!b) return '';
+  const esc = v => String(v).replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
+  return `<div class="scope-badge" title="${esc(b.tip)}" style="font-size:.72em;line-height:1.25;margin-top:2px;opacity:.85">ⓘ ${esc(b.label)}</div>`;
+}
 
 // country (base name) → source-page slug, populated from sources/sources.json.
 // Empty until loaded; renderColumns only adds a link when a country is present.

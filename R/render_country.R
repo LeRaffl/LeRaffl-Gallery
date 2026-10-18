@@ -198,10 +198,17 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 # and a character binding here shadows them ("could not find function").
 reg_word_lc <- if (variant == "Used") "used-import" else "new"
 reg_word_uc <- if (variant == "Used") "Used-import" else "New"
+# Sources that count SALES rather than registrations (#283). Only the noun
+# changes ("new sales" instead of "new registrations"); the scope itself is
+# spelled out in footnotes.csv and on the source page.
+SALES_SOURCES <- c("USA")
+reg_noun_lc <- if (country %in% SALES_SOURCES) "sales" else "registrations"
+reg_noun_uc <- if (country %in% SALES_SOURCES) "Sales" else "Registration"
 
 meta <- list(
   country = country, country_label = country_label,
   reg_word = reg_word_lc, reg_Word = reg_word_uc,
+  reg_noun = reg_noun_lc, reg_Noun = reg_noun_uc,
   bev_label = bev_label_val,
   has_phev_split = has_phev_split_val,
   flag_img = flag_img,

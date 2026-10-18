@@ -1,4 +1,5 @@
 country,variant,footnote
+USA,Whole,"New light-vehicle SALES (not registrations): cars + light trucks incl. pickups, SUVs and vans up to 10,000 lb GVWR. Argonne National Laboratory (ANL), compiled from Wards Auto."
 Canada,Whole,Pre-2017 figures are passenger cars only; SUVs/crossovers included from 2017 (EU M1).
 Israel,Whole,MoT registry snapshot of currently-registered private cars: older months slightly undercount (deregistered vehicles drop out). HEV/PHEV split via the official model-catalogue join.
 Israel,Vans,MoT registry snapshot; sug_degem M = light commercial vehicles up to 3.5t. Same snapshot/undercount and catalogue-join caveats as Whole. Low volume (roughly 500-1100/month).

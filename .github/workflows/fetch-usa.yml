@@ -22,6 +22,10 @@ on:
         description: 'Direct Total Sales PDF URL (leave empty to auto-discover)'
         required: false
         default: ''
+      months:
+        description: 'Trailing months to rewrite (default 3; 0 = full history refresh)'
+        required: false
+        default: ''
       force:
         description: 'Re-process even if target period already exists'
         required: false
@@ -49,18 +53,35 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4 pypdf
 
+      - name: Unit tests (offline)
+        run: python scripts/test_fetch_usa.py
+
       - name: Fetch & update USA.csv
         run: |
           python scripts/fetch_usa.py \
             ${YEAR:+--year "$YEAR"} \
             ${MONTH:+--month "$MONTH"} \
             ${PDF_URL:+--pdf-url "$PDF_URL"} \
+            ${MONTHS:+--months "$MONTHS"} \
+            --save-pdf "$RUNNER_TEMP/anl_total_sales.pdf" \
             ${FORCE:+--force}
         env:
+          MONTHS: ${{ inputs.months }}
           YEAR: ${{ inputs.year }}
           MONTH: ${{ inputs.month }}
           PDF_URL: ${{ inputs.pdf_url }}
           FORCE: ${{ inputs.force == true && '1' || '' }}
+
+      # Keep the exact ANL PDF (and its extracted text) for a week so a
+      # suspicious value can be checked against the source after the fact.
+      - name: Upload ANL PDF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anl-total-sales
+          path: ${{ runner.temp }}/anl_total_sales.pdf*
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Commit if changed
         id: commit
