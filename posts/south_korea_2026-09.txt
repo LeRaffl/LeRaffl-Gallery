@@ -1,0 +1,9 @@
+🇰🇷 South Korea - September 26 - BEV Trajectory
+23.5% BEV
+1.0% PHEV
+75.6% ICE (of which 34.1%p were HEV)
+
+Trailing 12 months are:
+21.0% BEV
+0.8% PHEV
+78.2% ICE (of which 34.1%p were HEV)
