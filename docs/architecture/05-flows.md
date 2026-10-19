@@ -498,8 +498,10 @@ sequenceDiagram
         Fetch-->>Cron: Exit cleanly (no-op)
     else Target month missing somewhere
         Fetch->>Site: GET Press_release_car_registrations_<Month>_<Year>.pdf
-        alt 403 / 404
-            Fetch-->>Cron: Exit cleanly (no-op, retry tomorrow)
+        alt 404 / 403 / HTTP 200 that isn't a PDF / other HTTP error, before the 28th of M+1
+            Fetch-->>Cron: Exit cleanly (no-op, retry tomorrow) — unless the month before the target never landed (fail, naming it)
+        else same answer from the 28th of M+1, or 403 host_not_allowed
+            Fetch-->>Cron: Fail with ACEA's answer
         else PDF bytes
             Site-->>Fetch: PDF bytes
             Fetch->>Fetch: pdfplumber extract_text() per-line parser (primary) or extract_tables() fallback
@@ -519,7 +521,9 @@ sequenceDiagram
     Note over Manifest: build-manifest.yml has `concurrency: manifest-${{ github.ref }}, cancel-in-progress: true` so the ~16 fan-in triggers coalesce to a single final manifest build.
 ```
 
-**Where parsing lives:** [scripts/fetch_acea.py](../../scripts/fetch_acea.py). The module docstring documents the column-position detection, the dash-glyph handling, and the per-row write rules.
+**Where parsing lives:** [scripts/fetch_acea.py](../../scripts/fetch_acea.py). The module docstring documents the column-position detection, the dash-glyph handling, and the per-row write rules. The offline regression tests [scripts/test_fetch_acea.py](../../scripts/test_fetch_acea.py) gate every run.
+
+**"Not published yet" has three answers (issue #244).** From a GitHub runner, acea.auto answered the same unpublished release URL with a 404 on some days, a 403 without `x-deny-reason` on others (2026-09-16..21), and an HTML page served as HTTP 200 on others (2026-08-23..25, 08-29, 09-20, 09-22, 10-16..18). All 14 failed fetch runs from August to October 2026 asked for a release that wasn't out yet (or, for July 2026, never came out). The August release downloaded on the first run after it was published, with no change on our side. The HTML page used to reach pdfplumber, which failed with "No /Root object! - Is this really a PDF?". That looked like a broken release but never was one: the August 2026 PDF parses cleanly and matches the CSVs to the unit. `load_pdf_bytes` now checks for the `%PDF-` header, as `fetch_acea_cv.py` already did. Any "not there" answer is a green no-op until the 28th of the following month, and from then on the run fails and shows what ACEA sent. Since the cron stops at month end, a scheduled run that is waiting for the target also fails when the month before the target has no ACEA row in any always-list CSV. Between the 16th and publication there are always such runs. It names that month so it gets dispatched by hand instead of being lost. If ACEA published no release for that month, the month is derived from the next year-to-date table instead. That happened with July 2026: ACEA went straight to a Jan–Aug release, and the July rows were derived in #249.
 
 **Vehicle scope:** ACEA's "new passenger car registrations" — M1 vehicles only. Light commercial vehicles are published in a separate ACEA press release that we don't ingest. See [09-glossary.md § Vehicle scope per source](09-glossary.md#vehicle-scope-per-source).
 
@@ -641,6 +645,8 @@ ACEA's March 2026 release went out on **23 April 2026** (the embargo line on pag
 6. **The same race, on a fetcher: a data commit built and then thrown away.** Immediately after a PR merge, `build-source-pages.yml` and `build-manifest.yml` both pushed to `master` inside the ~70 s between `fetch-colombia.yml` checking out and pushing. The fetch itself succeeded and the commit was *created* (`summary: { changes: 1, insertions: 1 }`), but the push was rejected non-fast-forward and the commit discarded — `committed: true, pushed: false`, the step red, the new month absent. Issue 5 had already found this fix for `render-country.yml`, and `fetch-israel.yml`, `fetch-nepal.yml`, `build-manifest.yml` and `snapshot-builder.yml` had each acquired it after being bitten in turn; the remaining 33 workflows were one unlucky window away from the same thing. Fix: `pull: '--rebase --autostash'` on **every** `EndBug/add-and-commit@v9` step in the repo, so this is now an invariant rather than a patch applied per incident. Any new workflow that commits back to the branch must carry it.
 
    Note what this class of bug is *not*: the fetch and the parse were correct, and the run went red, so nothing silently rotted. The cost is a wasted run and a month that doesn't appear until someone re-dispatches.
+
+7. **Red every day before publication: "No /Root object!" and 403 (#244).** Between 2026-08-23 and 2026-10-18, 14 scheduled runs failed. Nine had pdfplumber raising "No /Root object! - Is this really a PDF?". Five were the issue-1 `PDFAccessDenied` exit on a 403 without `x-deny-reason`. Every one asked for a release that wasn't out yet (July 2026 never came out). The August release downloaded on the first run after publication with no code change, and its PDF parses cleanly. So both were ACEA's answer for "not here yet": an HTML page served as HTTP 200, and a 403. Fix: (a) `load_pdf_bytes` raises `NotAPDF` (a `FileNotFoundError`) when a 200 body has no `%PDF-` header, so the page never reaches pdfplumber; (b) every "not there" answer (404, 403 without `host_not_allowed`, `NotAPDF`, another HTTP error, a timeout) is a green no-op until the 28th of the following month and a failure from then on, printing what ACEA sent. This keeps what issue 1 was about: a block can't stay silent past the date ACEA normally publishes by, and `host_not_allowed` still fails at once. (c) Since the cron stops at month end, a scheduled run that is waiting for the target fails when the month before it has no ACEA row in any always-list CSV, so a release that never landed (like July 2026, derived in #249) gets named instead of skipped. `scripts/test_fetch_acea.py` pins all three and gates the workflow.
 
 ### Validation
 

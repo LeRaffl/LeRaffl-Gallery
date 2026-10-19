@@ -20,6 +20,13 @@ name: Fetch ACEA data (multi-country)
 # 22nd and 25th of the following month. We cron daily from the 16th onward
 # so the first publication day is in range without us hammering ACEA in
 # the empty days.
+#
+# Before publication acea.auto answers with a 404, a 403 or an HTML page
+# served as HTTP 200, depending on the day. All three are a green no-op
+# until the 28th. From then on the run fails and shows ACEA's answer. While
+# waiting it also fails, naming the month, when the month before the target
+# never landed, because the cron window closed first (issue #244; see "What
+# a download can return" in scripts/fetch_acea.py).
 
 on:
   workflow_dispatch:
@@ -67,6 +74,11 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests pdfplumber
+
+      # How each "not published yet" answer is classified and the parser
+      # against two real releases; offline, so they gate the fetch.
+      - name: Test the fetcher
+        run: python scripts/test_fetch_acea.py
 
       - name: Fetch & update ACEA CSVs
         id: fetch

@@ -10,8 +10,8 @@ here is ever read by a fetcher's scheduled run.
 | `202605081028169165.xlsx` | JADA «燃料別メーカー別登録台数（乗用車）» workbook, May 2026 release (months 2026-01 … 04) | `scripts/test_market_top.py` (`test_japan_maker_rows`); validation record in `docs/architecture/05-flows.md` § Flow J |
 | `202605081027423166.pdf` | The same JADA publication as PDF | validation record, 05-flows § Flow J |
 | `燃料別登録台数統計（2022年1月~12月）.xlsx` | JADA full-year 2022 rollup | validation record, 05-flows § Flow J |
-| `Press_release_car_registrations_March_2026.pdf` | ACEA monthly car-registrations release, March 2026 | validation record, 05-flows § Flow K (`fetch_acea.py`) |
-| `Press_release_car_registrations_April_2026.pdf` | ACEA release, April 2026 (Word-generated layout) | validation record, 05-flows § Flow K |
+| `Press_release_car_registrations_March_2026.pdf` | ACEA monthly car-registrations release, March 2026 | `scripts/test_fetch_acea.py` (`test_parse_fixtures`); validation record, 05-flows § Flow K (`fetch_acea.py`) |
+| `Press_release_car_registrations_April_2026.pdf` | ACEA release, April 2026 (Word-generated layout) | `scripts/test_fetch_acea.py` (`test_parse_fixtures`); validation record, 05-flows § Flow K |
 | `Total Sales for Website_April 2026.pdf` | ANL «Total Sales for Website», April 2026 | validation record, 05-flows § Flow N (`fetch_usa.py`) |
 | `greece/2026-8-comp.xlsx`, `greece/2023-5-comp-1.xlsx` | SEAA passenger-car comparison workbooks (TOTAL by brand), August 2026 and May 2023 | `scripts/test_fetch_greece.py`; [53-source-greece.md](../../docs/architecture/53-source-greece.md) |
 | `greece/2026-8-BEV.pdf`, `greece/2026-8-PHEV.pdf`, `greece/2026-3-BEV-1.pdf` | SEAA BEV / PHEV registrations by segment, brand and model (2026-03: the shifted "700,00%" volume line) | `scripts/test_fetch_greece.py` |
