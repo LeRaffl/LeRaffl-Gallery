@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-18T12:42:50Z",
- "today": "2026-10-18",
+ "generated": "2026-10-19T06:48:01Z",
+ "today": "2026-10-19",
  "countries": [
   {
    "country": "Albania",
@@ -3809,11 +3809,11 @@
    "source_url": "https://www.motir.go.kr/kor/article/ATCL3f49a5a8c?searchCondition=1&searchKeyword=%EC%9E%90%EB%8F%99%EC%B0%A8%EC%82%B0%EC%97%85+%EB%8F%99%ED%96%A5",
    "cadence_text": "twice daily on the 12th–25th, 03:35 and 09:35 UTC — MOTIR publishes around the 13th–20th of M+1 at 11:00 KST",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3853,14 +3853,14 @@
     ],
     "workflow": ".github/workflows/fetch-south-korea.yml"
    },
-   "last_render": "2026-09-25",
+   "last_render": "2026-10-19",
    "flag": "🇰🇷",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2017-01",
-     "rows": 116,
+     "rows": 117,
      "cadence": "monthly",
      "in_repo": true
     }
