@@ -2,6 +2,46 @@
   "updated": "2026-10-19",
   "images": [
     {
+      "country": "Greece",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-19",
+      "filename": "greece_ICE_BEV_20261019.png",
+      "url": "images/2026-09/greece_ICE_BEV_20261019.png",
+      "alt": "Greece ICE-BEV-Hybrid trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-19",
+      "filename": "greece_20261019.png",
+      "url": "images/2026-09/greece_20261019.png",
+      "alt": "Greece BEV trajectory",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-19",
+      "filename": "greece_time_20261019.png",
+      "url": "images/2026-09/greece_time_20261019.png",
+      "alt": "Greece Transition time curve",
+      "country_slug": "greece"
+    },
+    {
+      "country": "Greece",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-19",
+      "filename": "greece_ttm_shares_20261019.png",
+      "url": "images/2026-09/greece_ttm_shares_20261019.png",
+      "alt": "Greece TTM market split graph",
+      "country_slug": "greece"
+    },
+    {
       "country": "South Korea",
       "type": "ICE_BEV",
       "period": "2026-09",
