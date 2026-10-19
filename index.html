@@ -9683,7 +9683,10 @@ if (stepTraces.length){
       range: [xs[0], xs[xs.length - 1]], dtick: 'M24', title: { text: '' },
     });
     layout.yaxis = Object.assign({}, layout.yaxis, {
+      // The shared dtick of 25 is for 0–100% shares; on years it leaves
+      // just 2025 and 2050. Let Plotly pick a step (5 yr on a wide range).
       autorange: true, tickformat: 'd', ticksuffix: '',
+      dtick: undefined, nticks: 8,
       title: { text: '' }, range: undefined,
     });
     layout.shapes = [{
