@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-19T17:20:58Z",
+ "generated": "2026-10-20T09:36:45Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6432,6 +6432,14 @@
    "slug": "peru_vans",
    "period": "2026-09",
    "flag": "🇵🇪"
+  },
+  {
+   "date": "2026-10-19",
+   "label": "Greece",
+   "base": "Greece",
+   "slug": "greece",
+   "period": "2026-09",
+   "flag": "🇬🇷"
   },
   {
    "date": "2026-10-19",
