@@ -1,0 +1,9 @@
+🇺🇸 USA - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
+−2.4pp  BEV   (8.4% → 6.0%)
+−0.8pp  PHEV  (1.9% → 1.1%)
++2.9pp  HEV   (12.2% → 15.1%)
++0.3pp  ICE   (77.5% → 77.8%)
+
+PHEV peaked at 2.1% in 2024-11 (declining for 22 months).
