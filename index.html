@@ -4568,7 +4568,17 @@ function tok(name, fallback){
         <label class="chip">
           <input type="radio" name="fleetMode" value="relative"> Relative (%)
         </label>
+        <label class="chip" title="One BEV-share line per selected country instead of one combined fleet (#288)">
+          <input type="radio" name="fleetMode" value="compare"> Compare BEV share
+        </label>
       </div>
+    </div>
+    <div class="field">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label for="fleetStartYear">Start year</label>
+        <span class="info-tip" data-tip="First year shown in the chart. Leave empty to show every observed year (Denmark goes back to 1993, Finland to 1990). Only the view changes; the projection still starts from the last observed year.">i</span>
+      </div>
+      <input id="fleetStartYear" type="number" min="1990" max="2100" step="1" placeholder="all years">
     </div>
     <div class="field">
       <label> </label>
@@ -11696,6 +11706,28 @@ function buildFleetPlot() {
   const showOTHERS = document.getElementById("fleetShowOTHERS")?.checked ?? false;
 
   const commonYears = getCommonFleetYears(countries);
+
+  // Start year (#288): a view filter only. Empty = every observed year.
+  const startYearRaw = document.getElementById('fleetStartYear')?.value;
+  const viewStartYear = (startYearRaw === '' || startYearRaw == null) ? -Infinity : safeNum(startYearRaw, -Infinity);
+
+  if (mode === 'compare') {
+    // Per-country lines need no common years. The Energy sub-tab keeps its
+    // combined view, so it is still refreshed whenever there are common years.
+    if (commonYears.length) {
+      const lastCommon = Math.max(...commonYears);
+      try {
+        buildFleetEnergy(countries, commonYears, lastCommon,
+                         projectionEnabled && endYear > lastCommon ? endYear : lastCommon,
+                         projectFn, options);
+      } catch (e) { console.warn('energy view:', e); }
+    }
+    buildFleetCompareLines(countries, {
+      projectionEnabled, endYear, projectFn, options, viewStartYear
+    });
+    return;
+  }
+
   if (!commonYears.length) {
     document.getElementById("fleetPlot").innerHTML = `
       <div style="padding: 40px; text-align:center; color:#ffaaaa;">
@@ -11726,7 +11758,8 @@ function buildFleetPlot() {
                      projectFn, options);
   } catch (e) { console.warn('energy view:', e); }
 
-  const combined = [...historySeries, ...projectedSeries];
+  const combined = [...historySeries, ...projectedSeries]
+    .filter(r => r.year >= viewStartYear);
   const histYears = combined.filter(r => !r.projected).map(r => r.year);
   const projYears = combined.filter(r =>  r.projected).map(r => r.year);
 
@@ -11908,6 +11941,91 @@ function buildFleetPlot() {
   }
 }
 
+// "Compare BEV share" view (#288). Selecting several countries normally sums
+// them into one fleet; here every country keeps its own line: BEV share of
+// its own fleet, observed years solid, its own projection dashed. Each
+// country uses ALL of its observed years and projects from its own last
+// observed year, so one short series no longer cuts the others down to the
+// common years. Category chips do not apply (only BEV is drawn).
+const FLEET_COMPARE_COLORS = ['#1d4f91','#d85a1a','#1e7a45','#c44c6a','#c9a227',
+  '#7a4a28','#5b6abf','#2a9d8f','#8b887f','#9c4dcc','#e07b91','#4f7942'];
+function buildFleetCompareLines(countries, cfg) {
+  const { projectionEnabled, endYear, projectFn, options, viewStartYear } = cfg;
+  const share = r => { const t = rowTotal(r); return t > 0 ? safeNum(r.BEV, 0) / t * 100 : null; };
+  const traces = [];
+  const skipped = [];
+  countries.forEach((country, i) => {
+    const years = getCommonFleetYears([country]);
+    if (!years.length) { skipped.push(country); return; }
+    const last = Math.max(...years);
+    const color = FLEET_COMPARE_COLORS[i % FLEET_COMPARE_COLORS.length];
+    const hist = buildFleetHistoryAggregate([country], years).filter(r => r.year >= viewStartYear);
+    traces.push({
+      x: hist.map(r => r.year), y: hist.map(share),
+      name: country, type: 'scatter', mode: 'lines+markers',
+      line: { color, width: 2.5 }, marker: { color, size: 5 },
+      legendgroup: country,
+      hovertemplate: country + ' %{x}<br><b>%{y:.1f}%</b> BEV<extra></extra>'
+    });
+    if (projectionEnabled && endYear > last) {
+      const lastRow = buildFleetHistoryAggregate([country], [last])[0];
+      const proj = projectFn(country, last, endYear, options).filter(r => r.year > last);
+      // Start the dashed line at the last observed point so it joins the solid one.
+      const rows = [lastRow, ...proj].filter(r => r.year >= viewStartYear);
+      if (rows.length > 1) {
+        traces.push({
+          x: rows.map(r => r.year), y: rows.map(share),
+          name: country + ' (projected)', type: 'scatter', mode: 'lines',
+          line: { color, width: 2, dash: 'dash' },
+          legendgroup: country, showlegend: false,
+          hovertemplate: country + ' %{x} (projected)<br><b>%{y:.1f}%</b> BEV<extra></extra>'
+        });
+      }
+    }
+  });
+  if (!traces.length) {
+    document.getElementById('fleetPlot').innerHTML = `
+      <div style="padding: 40px; text-align:center; color:#ffaaaa;">
+        No observed fleet data for the selected countries.
+      </div>`;
+    return;
+  }
+  const layout = {
+    hovermode: 'closest',
+    margin: { t: 30, r: 20, l: 100, b: 110 },
+    title: { text: 'Fleet · BEV share by country', x: 0 },
+    yaxis: {
+      title: 'BEV share of fleet (%)', rangemode: 'tozero', ticksuffix: '%',
+      gridcolor: tok('--line-2','#e8e6e1'), zerolinecolor: tok('--line','#e4e2dd'),
+      automargin: true, tickfont: { size: 12 }
+    },
+    xaxis: { title: 'Year', gridcolor: tok('--line-2','#e8e6e1'), zeroline: false },
+    legend: {
+      orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center',
+      bgcolor: 'rgba(255,255,255,0.9)', bordercolor: tok('--line-2','#e8e6e1'),
+      borderwidth: 1, font: { size: 12 }
+    },
+    annotations: [
+      {
+        x: 0.5, y: -0.24, xref: 'paper', yref: 'paper',
+        text: 'Solid = observed · dashed = projected (each country from its own last observed year)'
+          + (skipped.length ? ' · no fleet data: ' + skipped.join(', ') : ''),
+        showarrow: false, align: 'center',
+        font: { size: 12, color: tok('--muted','#55534c') }
+      },
+      {
+        x: 0.995, y: 0.02, xref: 'paper', yref: 'paper',
+        xanchor: 'right', yanchor: 'bottom', text: '@LeRaffl', showarrow: false,
+        font: { size: 11, color: tok('--muted-2','#8a877e') }
+      }
+    ],
+    plot_bgcolor: tok('--surface','#ffffff'),
+    paper_bgcolor: tok('--bg','#fdfdfc'),
+    font: { color: tok('--text','#1a1a18') }
+  };
+  Plotly.newPlot('fleetPlot', traces, layout, { responsive: true });
+}
+
 const updateFleetPlot = () => buildFleetPlot();
 // Number inputs fire `input` on every keystroke; debounce so we don't rebuild
 // the Plotly chart five times while the user types "0.035".
@@ -11975,6 +12093,7 @@ document.getElementById('fleetEnableProjection')
 // and `input` (as before) caused duplicate rebuilds on every edit.
 [
   'fleetProjectionEndYear',
+  'fleetStartYear',
   'fleetInflowMultiplier',
   'fleetNetImportsPerYear',
   'fleetBevImportShare',
