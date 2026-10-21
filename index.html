@@ -4042,6 +4042,10 @@ function tok(name, fallback){
           <select id="variantMulti" multiple size="4"></select>
         </div>
         <div class="field">
+          <label for="regionThr">Region</label>
+          <select id="regionThr" class="rank-region"></select>
+        </div>
+        <div class="field">
           <label for="customPct">Custom %</label>
           <input id="customPct" class="rank-num" type="number" min="1" max="99" value="90">
         </div>
@@ -4163,6 +4167,10 @@ function tok(name, fallback){
           <select id="variantMultiD" multiple size="4"></select>
         </div>
         <div class="field">
+          <label for="regionDur">Region</label>
+          <select id="regionDur" class="rank-region"></select>
+        </div>
+        <div class="field">
           <label for="customFrom">From %</label>
           <input id="customFrom" class="rank-num" type="number" min="1" max="98" step="1" value="25" />
         </div>
@@ -4212,6 +4220,10 @@ function tok(name, fallback){
         <div class="field rank-variant">
           <label for="speedVariantMulti">Variant</label>
           <select id="speedVariantMulti" multiple size="4"></select>
+        </div>
+        <div class="field">
+          <label for="speedRegion">Region</label>
+          <select id="speedRegion" class="rank-region"></select>
         </div>
         <div class="field"><label for="speedFrom">From %</label><input id="speedFrom" class="rank-num" type="number" min="0.1" max="49.9" step="0.5" value="20"></div>
         <div class="field"><label for="speedMid">Mid %</label><input id="speedMid" class="rank-num" type="number" min="1" max="99" step="0.5" value="50"></div>
@@ -7534,6 +7546,55 @@ function renderHiddenFitsNote(el, rows, keep){
     '. Their charts stay in the gallery; see the FAQ on the <em>Unreliable fit</em> tag for the criteria.';
 }
 
+// Region filter for the three ranking tabs (#336). No new taxonomy: the
+// continents are COUNTRY_REGION (Time Interval colours, Fleet, Raw Data) and
+// the European subsets are the Builder quick groups (BUILDER_GROUPS, which is
+// the only place EU membership lives). Both are read lazily because they are
+// defined further down the page. Filtering happens before numbering, so the
+// "#" column re-ranks within the chosen region.
+const RANK_REGION_CONTINENTS = ['Europe','North America','South America','Asia','Oceania','Africa','Other'];
+const RANK_REGION_GROUPS = [
+  ['eu','EU'], ['western_europe','Western Europe'], ['northern_europe','Northern Europe'],
+  ['southern_europe','Southern Europe'], ['eastern_europe','Eastern Europe']
+];
+function rankRegionBase(country){
+  return String(country || '').replace(/\s*\(.*\)\s*$/, '').trim();
+}
+function rankRegionOf(country){
+  const map = window.COUNTRY_REGION || {};
+  const c = String(country || '');
+  return map[c] || map[rankRegionBase(c)] || 'Other';
+}
+function fillRankRegionSelect(sel, rows){
+  if (!sel) return;
+  const keep = sel.value;
+  const present = new Set((rows || []).map(r => rankRegionOf(r.country)));
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  let html = '<option value="">All countries</option><optgroup label="Continents">';
+  RANK_REGION_CONTINENTS.filter(c => present.has(c))
+    .forEach(c => { html += `<option value="cont:${esc(c)}">${esc(c)}</option>`; });
+  html += '</optgroup><optgroup label="Europe">';
+  RANK_REGION_GROUPS.forEach(([k, label]) => { html += `<option value="grp:${k}">${esc(label)}</option>`; });
+  html += '</optgroup>';
+  sel.innerHTML = html;
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+}
+// Predicate for one region key ('' = everything). Country names may carry a
+// variant suffix ("Italy (Rental)"), so membership is checked on the base name.
+function rankRegionMatcher(key){
+  if (!key) return () => true;
+  if (key.startsWith('cont:')) {
+    const want = key.slice(5);
+    return country => rankRegionOf(country) === want;
+  }
+  if (key.startsWith('grp:')) {
+    const fn = (window.BUILDER_GROUPS || {})[key.slice(4)];
+    const set = new Set(fn ? fn([]) : []);
+    return country => set.has(String(country || '')) || set.has(rankRegionBase(country));
+  }
+  return () => true;
+}
+
 // ---- Uncertainty bands (bands/<slug>.json, written by R/bands.R) ----------
 // 95 % confidence (CI), prediction (PI) and tolerance (TI, 95/95) bands around
 // the fitted BEV curve, drawn as a shaded area in Builder and Compare.
@@ -7792,6 +7853,8 @@ function renderThresholds(csvText){
     enhanceMultiSelect(sel);
 
     const customPctEl = document.getElementById('customPct');
+    const regionEl = document.getElementById('regionThr');
+    fillRankRegionSelect(regionEl, rows);
 
     let sortKey = 'val80';
     let sortAsc = true;
@@ -7859,7 +7922,8 @@ function renderThresholds(csvText){
     function applyVariantFilter(arr){
       const selected = new Set(getSelectedCanonicals());
       if(selected.size === 0) return [];
-      return arr.filter(r => selected.has(r.variantBaseCanonical));
+      const inRegion = rankRegionMatcher(regionEl ? regionEl.value : '');
+      return arr.filter(r => selected.has(r.variantBaseCanonical) && inRegion(r.country));
     }
 
     function isoOrValForSort(row,key){
@@ -7947,8 +8011,9 @@ function renderTable(){
   mount.classList.add('tablecard');
   mount.innerHTML = `<table class="tablecard__table">${headerHTML()}${bodyHTML()}</table>`;
   const selectedBases = new Set(getSelectedCanonicals());
+  const inRegionNote = rankRegionMatcher(regionEl ? regionEl.value : '');
   renderHiddenFitsNote(document.getElementById('thresholdsHiddenNote'), rows,
-    r => selectedBases.has(normalizeBase(extractVariantParts(r.variant || '').base || '')));
+    r => selectedBases.has(normalizeBase(extractVariantParts(r.variant || '').base || '')) && inRegionNote(r.country));
 
   mount.querySelectorAll('th.sortable').forEach(th=>{
     th.classList.remove('asc','desc');
@@ -8027,6 +8092,7 @@ function copyToClipboard(text){
 sel.onchange = renderTable;
 document.getElementById('applyBtn').onclick = renderTable;
 customPctEl.addEventListener('change', renderTable);
+if(regionEl) regionEl.addEventListener('change', renderTable);
 
 document.getElementById('exportCsv').onclick = ()=>{
   download('bev_thresholds.csv', rowsToCSV(buildExportRows(), ','), 'text/csv;charset=utf-8');
@@ -8073,9 +8139,10 @@ renderTable();
   function computeDurations(rows){ const fromPct=Math.max(1,Math.min(98,Number(document.getElementById('customFrom').value)||25)); const toPct=Math.max(fromPct+1,Math.min(99,Number(document.getElementById('customTo').value)||75)); function normDur(d){ if(!isFinite(d)) return {text:'—',val:null}; return {text:fmtYearsMonths(d),val:d}; } const NO_TRANS='shows no transition'; return rows.filter(r=>!rowIsUnreliableFit(r)).map(r=>{ const noTransition = rowHasNoTransition(r); const x10=yx(r,0.10), x20=yx(r,0.20), x80=yx(r,0.80), x90=yx(r,0.90); const xf=yx(r,fromPct/100), xt=yx(r,toPct/100); const d2080=normDur(x80-x20); const d1090=normDur(x90-x10); const dC=normDur(xt-xf); const sNum=slopeAtInflection(r.v1,r.v2); const speedText = noTransition ? NO_TRANS : (isFinite(sNum)?((sNum*100).toFixed(2)+' %/year'):'—'); const speedVal  = (noTransition || !isFinite(sNum)) ? null : sNum; const p=extractVariantParts(r.variant||''); return { country:r.country||'', variant:r.variant||'', variantBaseCanonical:normalizeBase(p.base||''), d2080_text:noTransition?NO_TRANS:d2080.text,_d2080:noTransition?null:d2080.val, d1090_text:noTransition?NO_TRANS:d1090.text,_d1090:noTransition?null:d1090.val, dC_text:noTransition?NO_TRANS:dC.text,_dC:noTransition?null:dC.val, speed_text:speedText, _speed:speedVal, _noTrans:noTransition, data_per:getDataPer(r), _periodSort:Date.parse((getDataPer(r)||'')+'-01')||0 }; }); }
   function renderDurations(rows){
     const mount=document.getElementById('durationsMount'); const sel=document.getElementById('variantMultiD'); makeVariantOptions(rows);
+    const regionEl=document.getElementById('regionDur'); fillRankRegionSelect(regionEl, rows);
     let data=computeDurations(rows); let sortKey='_d2080', sortAsc=true;
     function selected(){ return new Set(Array.from(sel.selectedOptions||[]).map(o=>o.value)); }
-    function filtered(){ const s=selected(); if(s.size===0) return []; return data.filter(r=>s.has(r.variantBaseCanonical||'')); }
+    function filtered(){ const s=selected(); if(s.size===0) return []; const inRegion=rankRegionMatcher(regionEl?regionEl.value:''); return data.filter(r=>s.has(r.variantBaseCanonical||'') && inRegion(r.country)); }
     function sortNow(){ const arr=filtered(); arr.sort((a,b)=>{ const va=a[sortKey], vb=b[sortKey]; const aBad=(va==null||(typeof va==='number'&&!isFinite(va))); const bBad=(vb==null||(typeof vb==='number'&&!isFinite(vb))); if(aBad&&bBad) return 0; if(aBad) return 1; if(bBad) return -1; return va<vb?(sortAsc?-1:1):va>vb?(sortAsc?1:-1):0; }); return arr; }
     function head(){ return `<thead><tr>
       <th class="num">#</th>
@@ -8104,8 +8171,9 @@ renderTable();
         <td class="col-tags"><div class="tag-stack" data-tag-country="${key.replace(/"/g,'&quot;')}"></div></td>
       </tr>`;}).join('')}</tbody>`; 
     }
-    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); const sb=selected(); renderHiddenFitsNote(document.getElementById('durationsHiddenNote'), rows, r=>sb.has(normalizeBase(extractVariantParts(r.variant||'').base||''))); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
+    function draw(){ data=computeDurations(rows); const arr=sortNow(); mount.innerHTML=`<table class="tablecard__table">${head()}${body(arr)}</table>`; mount.classList.add('tablecard'); const sb=selected(); const inRegionNote=rankRegionMatcher(regionEl?regionEl.value:''); renderHiddenFitsNote(document.getElementById('durationsHiddenNote'), rows, r=>sb.has(normalizeBase(extractVariantParts(r.variant||'').base||'')) && inRegionNote(r.country)); mount.querySelectorAll('th.sortable').forEach(th=>{ th.classList.remove('asc','desc'); const k=th.dataset.k; if(k===sortKey) th.classList.add(sortAsc?'asc':'desc'); th.onclick=()=>{ if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; } draw(); }; }); }
     document.getElementById('applyDurBtn').addEventListener('click', draw); sel.addEventListener('change', draw);
+    if(regionEl) regionEl.addEventListener('change', draw);
     ['customFrom','customTo'].forEach(id => document.getElementById(id).addEventListener('change', draw));
     // exports
     function escapeCsvCell(s,d){ const needs=typeof s==='string'&&(s.includes(d)||s.includes('"')||s.includes('\n')); let out=String(s??''); out=out.replace(/"/g,'""'); return needs?`"${out}"`:out; }
@@ -8357,7 +8425,7 @@ renderTable();
     const mount=document.getElementById('speedMount');
     mount.innerHTML='';
     if(!rows.length){
-      mount.innerHTML='<div style="padding:14px">No rows match — adjust the variant filter.</div>';
+      mount.innerHTML='<div style="padding:14px">No rows match — adjust the variant or region filter.</div>';
       return;
     }
     const sorted=sortRows(rows, opts.sortKey);
@@ -8585,16 +8653,21 @@ renderTable();
     loadParams().then(rows=>{
       makeVariantOptions(rows);
       enhanceMultiSelect(document.getElementById('speedVariantMulti'));
+      const regionEl=document.getElementById('speedRegion');
+      fillRankRegionSelect(regionEl, rows);
       const redraw=()=>{
-        const o=currentOpts(); render(compute(rows,o.fromPct,o.midPct,o.toPct), o);
+        const o=currentOpts();
+        const inRegion=rankRegionMatcher(regionEl?regionEl.value:'');
+        render(compute(rows,o.fromPct,o.midPct,o.toPct).filter(d=>inRegion(d.country)), o);
         const sel=document.getElementById('speedVariantMulti');
         const sb=new Set(Array.from(sel?.selectedOptions||[]).map(x=>x.value));
         renderHiddenFitsNote(document.getElementById('speedHiddenNote'), rows,
-          r=>!sb.size || sb.has(normalizeBase(extractVariantParts(r.variant||'').base||'')));
+          r=>(!sb.size || sb.has(normalizeBase(extractVariantParts(r.variant||'').base||''))) && inRegion(r.country));
       };
       document.getElementById('speedApplyBtn').addEventListener('click', redraw);
       document.getElementById('speedSort').addEventListener('change', redraw);
       document.getElementById('speedVariantMulti').addEventListener('change', redraw);
+      if(regionEl) regionEl.addEventListener('change', redraw);
       ['speedFrom','speedMid','speedTo'].forEach(id=>{
         document.getElementById(id).addEventListener('change', redraw);
       });
@@ -8861,6 +8934,9 @@ small_markets: (rows, vars) => marketBucket(rows, vars, w => w < SMALL_MARKET_LI
 medium_markets: (rows, vars) => marketBucket(rows, vars, w => w >= SMALL_MARKET_LIMIT && w < BIG_MARKET_LIMIT),
 big_markets: (rows, vars) => marketBucket(rows, vars, w => w >= BIG_MARKET_LIMIT)
 };
+// Read by the ranking tabs' region filter (#336) for EU and the European
+// subsets, so EU membership stays defined in exactly one place.
+window.BUILDER_GROUPS = BUILDER_GROUPS;
 
 // Compare classifies market size on the passenger-car market, always: a
 // "Big Market (>1M/yr)" is a property of the country, and measuring the
