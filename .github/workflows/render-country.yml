@@ -102,6 +102,10 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    # Container jobs default to `sh`; keep the runner's default `bash -e`.
+    defaults:
+      run:
+        shell: bash -e {0}
     # Keeps two renders of the same country+variant from overlapping (they'd
     # race on that variant's images + the shared params.csv/weights.csv push).
     # When a fetcher passes a `variants` list, those variants render serially

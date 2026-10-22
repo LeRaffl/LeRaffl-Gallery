@@ -25,6 +25,10 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    # Container jobs default to `sh`; keep the runner's default `bash -e`.
+    defaults:
+      run:
+        shell: bash -e {0}
     concurrency:
       group: manifest-${{ github.ref }}
       cancel-in-progress: true      # vermeidet parallele Läufe bei vielen kleinen Pushes
