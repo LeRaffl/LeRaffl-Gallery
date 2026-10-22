@@ -43,6 +43,7 @@ RUN apt-get update -qq \
       ca-certificates curl git gh python3 tzdata locales gdebi-core \
       libfreetype6 libpng16-16t64 zlib1g libjpeg8 libcurl4t64 libssl3t64 \
       libicu74 libxml2 libuv1t64 \
+      libtiff6 libwebp7 libwebpmux3 libharfbuzz0b libfribidi0 libfontconfig1 \
  && curl -fsSL -o /tmp/r.deb "https://cdn.posit.co/r/ubuntu-2404/pkgs/r-${R_VERSION}_1_amd64.deb" \
  && echo "${R_DEB_SHA256}  /tmp/r.deb" | sha256sum -c - \
  && apt-get install -y --no-install-recommends /tmp/r.deb \

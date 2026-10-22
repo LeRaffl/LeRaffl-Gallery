@@ -17,3 +17,8 @@ purrr
 fs
 tibble
 yaml
+# Not called by our code, but ggsave() writes PNGs through ragg::agg_png when
+# ragg is installed. The old r-lib setup installed it (as a Suggests of
+# ggplot2), so every ggsave()'d chart was rasterised by ragg; without it the
+# charts come out from grDevices::png and differ by anti-aliasing.
+ragg

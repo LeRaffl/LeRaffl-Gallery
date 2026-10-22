@@ -17,7 +17,7 @@ Until 2026-10 every R job ran `r-lib/actions/setup-r@v2` +
 **97 s per job** before any R code ran (setup-r ≈ 39 s, of which ≈ 27 s was
 apt-installing devscripts/qpdf/ghostscript that nothing here uses; setup-r-dependencies
 ≈ 58 s, of which ≈ 32 s was apt system requirements — `dependencies: "all"`
-resolved 149 packages and 24 system packages although the code needs 49).
+resolved 149 packages and 24 system packages although the code needs 53).
 `preview-render.yml` alone ran 479 jobs that week, so roughly 800 of its
 1,327 job-minutes were setup. The image does that work once.
 
@@ -27,8 +27,8 @@ resolved 149 packages and 24 system packages although the code needs 49).
 |---|---|---|
 | Base | `ubuntu:24.04` (noble) | digest in the `FROM` line |
 | R | Posit's R build `r-4.6.1_1_amd64.deb` (same binaries setup-r installs) at `/opt/R/4.6.1`, `R`/`Rscript` on `PATH` | `R_VERSION` + `R_DEB_SHA256` |
-| R packages | the 16 in [`packages.txt`](../../docker/r-render/packages.txt) with their **hard** dependencies only (`Depends`, `Imports`, `LinkingTo`) — 49 packages, all Posit Package Manager (P3M) binaries; `grid` ships with R | `P3M_SNAPSHOT` date (§4) |
-| System libs | only what those binaries link against: freetype, libpng, zlib, libjpeg, libcurl, OpenSSL, ICU, libxml2, libuv | Ubuntu noble archive at build time (not snapshot-frozen, see §7) |
+| R packages | the 17 in [`packages.txt`](../../docker/r-render/packages.txt) with their **hard** dependencies only (`Depends`, `Imports`, `LinkingTo`) — 53 packages, all Posit Package Manager (P3M) binaries; `grid` ships with R | `P3M_SNAPSHOT` date (§4) |
+| System libs | only what those binaries link against: freetype, libpng, zlib, libjpeg, libtiff, libwebp, harfbuzz, fribidi, fontconfig, libcurl, OpenSSL, ICU, libxml2, libuv | Ubuntu noble archive at build time (not snapshot-frozen, see §7) |
 | Tools for the workflow steps | `git` (system `safe.directory '*'`, because container jobs run as root on a checkout owned by the runner user), `gh`, `python3`, `curl`, `ca-certificates`, `tzdata` | Ubuntu noble archive |
 
 Environment: `LANG=LC_ALL=C.UTF-8`, `TZ=Etc/UTC`. `Rprofile.site` points
@@ -37,10 +37,21 @@ same versions. The image writes `/opt/r-render-packages.csv` (package,
 version, repository) at build time; `build-r-image.yml` prints it in the job
 summary.
 
+**`ragg` is load-bearing although no script calls it.** `ggsave()` writes
+PNGs through `ragg::agg_png` whenever ragg is installed, and through
+`grDevices::png` otherwise. The old setup installed ragg as a Suggests of
+ggplot2, so every chart saved with `ggsave()` (all `_ttm_shares` charts, and
+all charts of series without a flag overlay) was rasterised by ragg; the charts
+with a flag overlay go through `png()` directly. Without ragg those `ggsave()`
+charts came out 0.3–2.7 % of pixels different (anti-aliasing). Keep it in
+`packages.txt`.
+
 **Fonts:** charts use `showtext`/`sysfonts`' bundled Liberation fonts, so no
 system font packages are needed and none are installed.
 
-Size: about 0.96 GB uncompressed (local podman build, v1).
+Size (v1): about 0.96 GB uncompressed (local podman build: 962 MB), about
+0.4 GB gzip-compressed; the job's "Initialize containers" step (pull + start)
+took 17–19 s in the PR's preview runs.
 
 ## 3. How the workflows use it
 
@@ -59,7 +70,8 @@ are unchanged and still run on the runner.
 day, so rebuilding the same `IMAGE_VERSION` gives the same package versions.
 v1 uses **2026-10-21** with R **4.6.1**; at that date every package the image
 shares with the old CI lockfile (2026-10-22) had the identical version
-(ggplot2 4.0.3, scales 1.4.0, showtext 0.9-8, sysfonts 0.8.9, rlang 1.3.0, …).
+(ggplot2 4.0.3, scales 1.4.0, showtext 0.9-8, sysfonts 0.8.9, rlang 1.3.0,
+ragg 1.5.2, systemfonts 1.3.2, textshaping 1.0.5, …).
 
 To move to newer packages: change `P3M_SNAPSHOT` (and/or `R_VERSION` +
 `R_DEB_SHA256`), bump `IMAGE_VERSION`, and compare renders (§6).
