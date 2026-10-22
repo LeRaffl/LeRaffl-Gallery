@@ -202,6 +202,86 @@
       "country_slug": "hungary"
     },
     {
+      "country": "Iceland",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "iceland_ICE_BEV_20261022.png",
+      "url": "images/2026-09/iceland_ICE_BEV_20261022.png",
+      "alt": "Iceland ICE-BEV-Hybrid trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "iceland_20261022.png",
+      "url": "images/2026-09/iceland_20261022.png",
+      "alt": "Iceland BEV trajectory",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "iceland_time_20261022.png",
+      "url": "images/2026-09/iceland_time_20261022.png",
+      "alt": "Iceland Transition time curve",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Iceland",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "iceland_ttm_shares_20261022.png",
+      "url": "images/2026-09/iceland_ttm_shares_20261022.png",
+      "alt": "Iceland TTM market split graph",
+      "country_slug": "iceland"
+    },
+    {
+      "country": "Malta",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "malta_ICE_BEV_20261022.png",
+      "url": "images/2026-09/malta_ICE_BEV_20261022.png",
+      "alt": "Malta ICE-BEV-Hybrid trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "malta_20261022.png",
+      "url": "images/2026-09/malta_20261022.png",
+      "alt": "Malta BEV trajectory",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "malta_time_20261022.png",
+      "url": "images/2026-09/malta_time_20261022.png",
+      "alt": "Malta Transition time curve",
+      "country_slug": "malta"
+    },
+    {
+      "country": "Malta",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-22",
+      "filename": "malta_ttm_shares_20261022.png",
+      "url": "images/2026-09/malta_ttm_shares_20261022.png",
+      "alt": "Malta TTM market split graph",
+      "country_slug": "malta"
+    },
+    {
       "country": "USA",
       "type": "ICE_BEV",
       "period": "2026-09",
