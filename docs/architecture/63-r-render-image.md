@@ -49,8 +49,8 @@ charts came out 0.3–2.7 % of pixels different (anti-aliasing). Keep it in
 **Fonts:** charts use `showtext`/`sysfonts`' bundled Liberation fonts, so no
 system font packages are needed and none are installed.
 
-Size (v1): about 0.96 GB uncompressed (local podman build: 962 MB), about
-0.4 GB gzip-compressed; the job's "Initialize containers" step (pull + start)
+Size (v1): 378 MB compressed (sum of the 7 layers in the GHCR manifest), about
+0.96 GB uncompressed (local podman build: 962 MB); the job's "Initialize containers" step (pull + start)
 took 17–19 s in the PR's preview runs.
 
 ## 3. How the workflows use it
@@ -113,10 +113,11 @@ image and check `git diff manifest.json` is empty.
 - **apt packages are not frozen**: Ubuntu security updates land on rebuild.
   They only affect libraries (freetype/libpng could in principle shift
   anti-aliasing); compare renders when rebuilding.
-- **Private package**: a GHCR package is private by default. Pulls in this
-  repo's workflows work through `GITHUB_TOKEN` + `packages: read` as long as the
-  package is linked to the repo (§8). Fork PRs cannot read a private package.
-- **Image pull** replaces R setup: about 0.3 GB compressed per job.
+- **Package visibility**: after the first publish (2026-10-22) the package
+  could already be pulled anonymously (it is linked to this public repo). The
+  workflows log in with `GITHUB_TOKEN` + `packages: read` anyway, so they keep
+  working if it is ever made private (§8); fork PRs could not pull it then.
+- **Image pull** replaces R setup: 378 MB compressed per job (17–19 s).
 
 ## 8. One-time GHCR settings (owner)
 
@@ -128,9 +129,10 @@ Package settings**:
    automatically on the first push; check it anyway) with role **Read**
    (Write if it should also be able to publish — the build already has it as
    the creating repo).
-2. Optional: **Change visibility → Public**. Not needed for the workflows,
-   but lets fork PRs and anyone without a token `docker pull` it. The repo is
-   public anyway, and the image contains nothing secret.
+2. **Visibility**: check it shows **Public** (an anonymous pull of `:v1`
+   worked on 2026-10-22). Public is not needed for the workflows, but lets
+   fork PRs and anyone without a token `docker pull` it; the repo is public
+   anyway, and the image contains nothing secret.
 
 ## 9. Rollback
 
