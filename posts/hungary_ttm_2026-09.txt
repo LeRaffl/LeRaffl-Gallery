@@ -1,0 +1,9 @@
+🇭🇺 Hungary - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++1.6pp  BEV   (7.8% → 9.5%)
++4.0pp  PHEV  (4.7% → 8.7%)
++0.4pp  HEV   (50.0% → 50.4%)
+−6.0pp  ICE   (37.4% → 31.4%)
+
+HEV peaked at 50.9% in 2026-03 (declining for 6 months).
