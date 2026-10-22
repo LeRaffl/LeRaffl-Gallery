@@ -1,9 +1,10 @@
 🇮🇸 Iceland - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-+15.7pp  BEV   (35.4% → 51.1%)
-−0.9pp  PHEV  (19.7% → 18.8%)
-−1.1pp  HEV   (21.5% → 20.4%)
-−13.8pp  ICE   (23.4% → 9.6%)
+Oct24–Sep25  vs  Oct25–Sep26
++14.7pp  BEV   (37.2% → 51.9%)
+−0.8pp  PHEV  (19.3% → 18.5%)
+−0.4pp  HEV   (20.8% → 20.4%)
+−13.6pp  ICE   (22.8% → 9.2%)
 
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+PHEV peaked at 22.3% in 2026-03 (declining for 6 months).
+HEV peaked at 23.3% in 2026-03 (declining for 6 months).
