@@ -1,11 +1,9 @@
-🇷🇴 Romania - August 26 - BEV Trajectory
-7.0% BEV
-57.8% Hybrid
-35.1% ICE
+🇷🇴 Romania - September 26 - BEV Trajectory
+7.9% BEV
+55.5% Hybrid
+36.6% ICE
 
 Trailing 12 months are:
-7.6% BEV
-53.3% Hybrid
-39.1% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+7.8% BEV
+54.4% Hybrid
+37.8% ICE

@@ -1,0 +1,9 @@
+🇷🇴 Romania - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.4pp  BEV   (5.4% → 7.8%)
++0.0pp  PHEV  (0.0% → 0.0%)
++6.7pp  HEV   (47.7% → 54.4%)
+−9.1pp  ICE   (46.9% → 37.8%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2029-03.
