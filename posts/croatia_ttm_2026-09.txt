@@ -1,0 +1,9 @@
+🇭🇷 Croatia - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++2.7pp  BEV   (1.5% → 4.2%)
++3.9pp  PHEV  (3.1% → 7.1%)
++6.4pp  HEV   (32.3% → 38.7%)
+−13.0pp  ICE   (63.1% → 50.1%)
+
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2028-10.
