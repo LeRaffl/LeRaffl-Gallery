@@ -117,7 +117,7 @@ VERSIONS = [
     ("python3 (system)", "/usr/bin/python3 --version"),
     ("docker", "docker --version"),
     # R lives in the prebuilt image now (render leg only; R_IMAGE unset elsewhere).
-    ("R (image)", 'docker run --rm "${R_IMAGE:?}" R --version'),
+    ("R (image)", 'docker pull -q "${R_IMAGE:?}" >/dev/null 2>&1; docker run --rm "$R_IMAGE" R --version'),
     ("tesseract", "tesseract --version"),
     ("pdftotext", "pdftotext -v"),
     ("convert (ImageMagick 6 name)", "convert -version"),
