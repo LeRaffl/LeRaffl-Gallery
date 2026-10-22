@@ -91,7 +91,7 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2025-06,monthly,Whole,ACEA,203.0,57.0,161.0,3497.0,678.0,5.0,4601.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
 2025-07,monthly,Whole,ACEA,272.0,64.0,166.0,3843.0,361.0,0.0,4706.0,
 2025-08,monthly,Whole,ACEA,188.0,61.0,147.0,2935.0,350.0,2.0,3683.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
-2025-09,monthly,Whole,ACEA,226.0,39.0,139.0,3079.0,302.0,33.0,3818.0,
+2025-09,monthly,Whole,ACEA,226.0,43.0,141.0,3000.0,371.0,32.0,3813.0,https://www.acea.auto/files/Press_release_car_registrations_September_2026.pdf
 2025-10,monthly,Whole,ACEA,282.0,53.0,294.0,3811.0,489.0,3.0,4932.0,
 2025-11,monthly,Whole,ACEA,228.0,37.0,296.0,3172.0,331.0,0.0,4064.0,
 2025-12,monthly,Whole,ACEA,236.0,41.0,246.0,3291.0,391.0,12.0,4217.0,
@@ -103,3 +103,4 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-06,monthly,Whole,ACEA,478.0,128.0,345.0,3613.0,888.0,5.0,5457.0,https://www.acea.auto/files/Press_release_car_registrations_June_2026.pdf
 2026-07,monthly,Whole,ACEA,468.0,177.0,399.0,3893.0,0.0,0.0,4937.0,derived: ACEA Jan-Aug 2026 YTD minus Jan-Jun 2026 CSV rows minus Aug 2026 monthly (ACEA has no July release); OTHERS residual -17 (ACEA revised earlier months) set to 0 and netted against PETROL; DIESEL residual -343 (ACEA revised earlier months) set to 0 and netted against PETROL; https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
 2026-08,monthly,Whole,ACEA,429.0,252.0,364.0,3255.0,379.0,0.0,4679.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
+2026-09,monthly,Whole,ACEA,569.0,328.0,246.0,2753.0,291.0,6.0,4193.0,https://www.acea.auto/files/Press_release_car_registrations_September_2026.pdf
