@@ -8,7 +8,7 @@ What runs where, what version, what package.
 |---|---|---|---|
 | Frontend rendering | HTML5 + CSS3 + ES2020 JavaScript | `index.html` | Whatever evergreen browsers support today; no transpiler |
 | Edge compute | JavaScript (V8 isolate, Workers runtime) | `worker/index.js` | `compatibility_date = 2026-04-25` in `wrangler.toml` |
-| Data pipeline | R | `R/*.R`, `build_manifest.R` | R 4.5+ (CI uses `r-lib/actions/setup-r@v2` default) |
+| Data pipeline | R | `R/*.R`, `build_manifest.R` | R 4.6.1 in CI, from the prebuilt image `ghcr.io/leraffl/r-render` ([63](63-r-render-image.md)) |
 | CI orchestration | YAML for GitHub Actions | `.github/workflows/*.yml` | GitHub Actions current |
 | Build / packaging | None | — | Static site, no bundler |
 
@@ -102,8 +102,8 @@ workflow.
 
 - `actions/checkout@v5` — pull source
 - `actions/setup-python@v6` — Python for the fetchers and generators
-- `r-lib/actions/setup-r@v2` (with `use-public-rspm: true` for fast package binaries on Ubuntu)
-- `r-lib/actions/setup-r-dependencies@v2` — install the package list with apt prebuilds
+- R jobs run in the container `ghcr.io/leraffl/r-render:v<N>` (R + packages preinstalled, [63](63-r-render-image.md)); `r-lib/actions` is no longer used and `check-r-image.yml` keeps it out
+- `docker/login-action@v4`, `docker/setup-buildx-action@v4`, `docker/build-push-action@v7` — `build-r-image.yml` and the steps that `docker run` the R image
 - `actions/upload-artifact@v6` / `actions/download-artifact@v7` — debug dumps and the render preview
 - `EndBug/add-and-commit@v10` — commit and push outputs back. Every use of it in this repo sets
   `pull: '--rebase --autostash'`: CI pushes its own commits (manifest, source pages, renders,

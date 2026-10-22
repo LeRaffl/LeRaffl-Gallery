@@ -1,0 +1,121 @@
+name: Build R render image
+
+# Builds docker/r-render/ and pushes it to ghcr.io/leraffl/r-render. Every
+# workflow that runs R uses this image instead of r-lib/actions setup-r +
+# setup-r-dependencies (~97 s of apt + package setup per job before).
+# What is in the image, how to add a package, rollback:
+# docs/architecture/63-r-render-image.md.
+#
+# Tags pushed:
+#   vN              N = docker/r-render/IMAGE_VERSION. The tag the workflows
+#                   pin. Immutable by convention: if it already exists it is
+#                   NOT rebuilt (bump IMAGE_VERSION) unless run by hand with
+#                   `overwrite` ticked.
+#   sha-<commit>    the commit the image was built from
+#   YYYYMMDD        build date (UTC)
+#   latest          only for builds on master
+#
+# Runs on a push to ANY branch that touches docker/r-render/** (or this file),
+# so a PR that changes the image publishes its new vN from the PR branch BEFORE
+# the PR is merged — the PR's own workflows can then pull it (chicken-and-egg,
+# doc 63 §5).
+
+on:
+  push:
+    paths:
+      - 'docker/r-render/**'
+      - '.github/workflows/build-r-image.yml'
+  workflow_dispatch:
+    inputs:
+      overwrite:
+        description: 'Overwrite an existing vN tag (only to repair a broken image; normally bump IMAGE_VERSION)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: build-r-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Tags
+        id: tags
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/r-render"
+          version="v$(tr -d '[:space:]' < docker/r-render/IMAGE_VERSION)"
+          tags="${image}:${version},${image}:sha-${GITHUB_SHA::7},${image}:$(date -u +%Y%m%d)"
+          if [ "${GITHUB_REF_NAME}" = "master" ]; then tags="${tags},${image}:latest"; fi
+          {
+            echo "image=${image}"
+            echo "version=${version}"
+            echo "tags=${tags}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Will push: ${tags}"
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # vN is what the workflows pin, so silently replacing it would change
+      # every render without a reviewable diff. An existing vN is therefore
+      # never rebuilt by a push — that is the normal case when a PR that
+      # already published vN from its branch is merged into master. A change
+      # under docker/r-render/ without an IMAGE_VERSION bump is caught on the
+      # PR by scripts/check_r_image.py.
+      - name: Skip if this version already exists
+        id: exists
+        env:
+          REF: ${{ steps.tags.outputs.image }}:${{ steps.tags.outputs.version }}
+          OVERWRITE: ${{ inputs.overwrite && 'true' || 'false' }}
+        run: |
+          if docker manifest inspect "$REF" > /dev/null 2>&1 && [ "$OVERWRITE" != "true" ]; then
+            echo "::notice::$REF already exists; not rebuilding (bump docker/r-render/IMAGE_VERSION for a new image, or run by hand with 'overwrite')."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Master: point `latest` at the existing vN (informational only — no
+      # workflow pins `latest`).
+      - name: Tag existing version as latest
+        if: ${{ steps.exists.outputs.skip == 'true' && github.ref_name == 'master' }}
+        env:
+          IMAGE: ${{ steps.tags.outputs.image }}
+          VERSION: ${{ steps.tags.outputs.version }}
+        run: docker buildx imagetools create -t "$IMAGE:latest" "$IMAGE:$VERSION"
+
+      - uses: docker/setup-buildx-action@v4
+        if: ${{ steps.exists.outputs.skip != 'true' }}
+
+      - uses: docker/build-push-action@v7
+        if: ${{ steps.exists.outputs.skip != 'true' }}
+        with:
+          context: docker/r-render
+          push: true
+          provenance: false   # plain single-platform manifest, no attestation index
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        if: ${{ steps.exists.outputs.skip != 'true' }}
+        env:
+          REF: ${{ steps.tags.outputs.image }}:${{ steps.tags.outputs.version }}
+        run: |
+          docker run --rm "$REF" bash -c 'Rscript -e "cat(R.version.string, \"\n\")" && git --version && gh --version | head -1 && python3 --version'
+          { echo '### R packages in the image'; echo '```'; docker run --rm "$REF" cat /opt/r-render-packages.csv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          docker image inspect "$REF" --format 'Uncompressed size: {{.Size}} bytes' >> "$GITHUB_STEP_SUMMARY"
+          echo "Compressed (pull) size: $(docker buildx imagetools inspect "$REF" --raw | jq '[.layers[].size] | add') bytes" >> "$GITHUB_STEP_SUMMARY"

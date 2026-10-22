@@ -14,7 +14,10 @@ name: Runner canary (pinned image vs next)
 #     doesn't come back). Both images fetch the same document minutes apart,
 #     so a difference between them comes from the OS tools (tesseract,
 #     poppler, ImageMagick, Chromium).
-#   * render: the R model and charts for Sweden (Whole).
+#   * render: the R model and charts for Sweden (Whole), run in the prebuilt R
+#     image (docs/architecture/63-r-render-image.md) exactly like
+#     render-country.yml — so this leg now tests that the runner can pull and
+#     run the image; R and its libraries no longer come from the runner OS.
 #   * system-python: preview-render.yml's pip install into the runner's own
 #     Python (3.14 on Ubuntu 26.04).
 #
@@ -48,6 +51,7 @@ on:
 
 permissions:
   contents: read
+  packages: read   # the render leg pulls the R image from GHCR
 
 concurrency:
   group: runner-canary-${{ github.ref }}
@@ -79,29 +83,17 @@ jobs:
         with:
           python-version: '3.12'
 
+      # The render leg runs R in the same image as render-country.yml
+      # (runner_canary.py wraps the command in `docker run "$R_IMAGE"`).
+      # Login only matters while the GHCR package is private.
       - id: r
         if: matrix.target == 'render'
         continue-on-error: true
-        uses: r-lib/actions/setup-r@v2
+        uses: docker/login-action@v4
         with:
-          use-public-rspm: true
-
-      # Same package list as render-country.yml.
-      - id: rdeps
-        if: matrix.target == 'render'
-        continue-on-error: true
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: |
-            ggplot2
-            scales
-            grid
-            png
-            ggtext
-            viridis
-            showtext
-            sysfonts
-            glue
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run leg
         env:
@@ -109,7 +101,7 @@ jobs:
           IMAGE: ${{ matrix.os }}
           SETUP_PY: ${{ steps.py.outcome }}
           SETUP_R: ${{ steps.r.outcome }}
-          SETUP_RDEPS: ${{ steps.rdeps.outcome }}
+          R_IMAGE: ghcr.io/leraffl/r-render:v1
         run: python3 scripts/runner_canary.py leg "$TARGET" --out "$RUNNER_TEMP/canary" --image "$IMAGE"
 
       - if: always()

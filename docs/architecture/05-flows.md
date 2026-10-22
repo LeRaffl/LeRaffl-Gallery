@@ -112,7 +112,7 @@ sequenceDiagram
     Maintainer->>GHUI: Run "Render country charts" with country=Germany
     GHUI->>Runner: dispatch
     Runner->>Repo: actions/checkout
-    Runner->>Runner: setup-r + install ggplot2/scales/grid/png/ggtext/viridis/showtext/sysfonts/glue
+    Runner->>Runner: pull R image ghcr.io/leraffl/r-render (R + ggplot2/scales/…/glue preinstalled)
     Runner->>Runner: Rscript R/render_country.R Germany Whole
 
     Note over Runner: Inside the R script:<br/>1. load_country_csv(data/Germany.csv)<br/>2. fit_history(df) → params, history-loop<br/>3. build_post_text(df, "Germany")<br/>4. plot_bev_trajectory / plot_ice_bev_phev / plot_timer / plot_ttm_shares<br/>5. ggsave 4 PNGs to images/<period>/<br/>6. upsert_params, upsert_weights<br/>7. writeLines posts/<slug>.txt, posts/<slug>_<period>.txt
@@ -209,7 +209,7 @@ sequenceDiagram
     Repo->>Action: workflow trigger
     Action->>Runner: dispatch
     Runner->>Repo: checkout
-    Runner->>Runner: setup-r + install jsonlite/stringr/dplyr/lubridate/purrr/fs/tibble
+    Runner->>Runner: pull R image ghcr.io/leraffl/r-render (jsonlite/stringr/…/yaml preinstalled)
     Runner->>Runner: Rscript build_manifest.R
     Runner->>Runner: scan images/, derive country/variant/period/type per filename
     Runner->>Runner: write manifest.json
@@ -515,7 +515,7 @@ sequenceDiagram
     Fetch->>Render: matrix.country = changed_countries, max-parallel=1
     loop one country at a time
         Render->>RC: workflow_call(country, variant=Whole)
-        RC->>RC: setup-r → Rscript R/render_country.R → commit images/params/weights/posts
+        RC->>RC: R image → Rscript R/render_country.R → commit images/params/weights/posts
         RC->>Manifest: gh workflow run build-manifest.yml
     end
     Note over Manifest: build-manifest.yml has `concurrency: manifest-${{ github.ref }}, cancel-in-progress: true` so the ~16 fan-in triggers coalesce to a single final manifest build.

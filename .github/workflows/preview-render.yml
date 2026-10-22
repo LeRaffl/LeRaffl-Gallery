@@ -102,25 +102,19 @@ jobs:
       max-parallel: 12
       matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
     name: ${{ matrix.country }} (${{ matrix.variant }})
+    permissions:
+      contents: read
+      packages: read   # pull the R image from GHCR
+    # R + packages come from the prebuilt image (was r-lib/actions setup-r +
+    # setup-r-dependencies). Contents, adding a package, rollback:
+    # docs/architecture/63-r-render-image.md.
+    container:
+      image: ghcr.io/leraffl/r-render:v1
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v5
-
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          use-public-rspm: true
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: |
-            ggplot2
-            scales
-            grid
-            png
-            ggtext
-            viridis
-            showtext
-            sysfonts
-            glue
 
       - name: Render with PR code, then with base code
         env:
