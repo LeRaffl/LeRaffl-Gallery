@@ -1,0 +1,8 @@
+🇬🇪 Georgia - TTM Market Split
+
+Q4'24–Q3'25  vs  Q4'25–Q3'26
++3.3pp  BEV     (4.3% → 7.5%)
++3.5pp  Hybrid  (21.5% → 25.0%)
+−6.8pp  ICE     (74.3% → 67.5%)
+
+If the changes from the last 6 quarters continued linearly, BEV would overtake ICE in Q3 2033.

@@ -1,11 +1,9 @@
-🇬🇪 Georgia - Q2 2026 - BEV Trajectory
-8.6% BEV
-25.5% Hybrid
-65.9% ICE
+🇬🇪 Georgia - Q3 2026 - BEV Trajectory
+10.8% BEV
+26.8% Hybrid
+62.4% ICE
 
 Trailing 4 quarters are:
-5.9% BEV
-24.1% Hybrid
-70.1% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+7.5% BEV
+25.0% Hybrid
+67.5% ICE
