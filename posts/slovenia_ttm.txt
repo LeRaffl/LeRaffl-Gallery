@@ -1,11 +1,9 @@
 🇸🇮 Slovenia - TTM Market Split
 
-Sep24–Aug25  vs  Sep25–Aug26
-+9.6pp  BEV   (8.7% → 18.3%)
-+0.4pp  PHEV  (3.2% → 3.6%)
-+5.0pp  HEV   (11.9% → 17.0%)
-−15.1pp  ICE   (76.2% → 61.1%)
+Oct24–Sep25  vs  Oct25–Sep26
++9.6pp  BEV   (9.3% → 18.9%)
++0.4pp  PHEV  (3.3% → 3.7%)
++4.9pp  HEV   (12.3% → 17.2%)
+−15.0pp  ICE   (75.2% → 60.2%)
 
-If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-01.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-02.

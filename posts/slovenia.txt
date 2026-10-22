@@ -1,11 +1,9 @@
-🇸🇮 Slovenia - August 26 - BEV Trajectory
-33.3% BEV
-4.7% PHEV
-61.9% ICE (of which 13.2%p were HEV)
+🇸🇮 Slovenia - September 26 - BEV Trajectory
+23.2% BEV
+4.6% PHEV
+72.3% ICE (of which 16.6%p were HEV)
 
 Trailing 12 months are:
-18.3% BEV
-3.6% PHEV
-78.1% ICE (of which 17.0%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+18.9% BEV
+3.7% PHEV
+77.4% ICE (of which 17.2%p were HEV)
