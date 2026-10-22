@@ -1,11 +1,9 @@
-🇧🇬 Bulgaria - August 26 - BEV Trajectory
-9.2% BEV
-5.4% PHEV
-85.4% ICE (of which 7.8%p were HEV)
+🇧🇬 Bulgaria - September 26 - BEV Trajectory
+13.6% BEV
+7.8% PHEV
+78.6% ICE (of which 5.9%p were HEV)
 
 Trailing 12 months are:
-7.4% BEV
-2.0% PHEV
-90.6% ICE (of which 6.3%p were HEV)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+8.0% BEV
+2.5% PHEV
+89.4% ICE (of which 6.4%p were HEV)
