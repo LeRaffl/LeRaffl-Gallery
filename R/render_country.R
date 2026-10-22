@@ -196,8 +196,23 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 # NB: these locals must NOT be named reg_word/reg_Word — plots.R defines
 # accessor functions of exactly those names in the same global environment,
 # and a character binding here shadows them ("could not find function").
-reg_word_lc <- if (variant == "Used") "used-import" else "new"
-reg_word_uc <- if (variant == "Used") "Used-import" else "New"
+# Sources whose base series are FIRST registrations including imported used
+# vehicles (no new/used split at the source): their charts say "first
+# registrations" instead of "new registrations". Every variant of the country
+# is affected (Albania's HDV/Buses/2-Wheelers come from the same report); a
+# genuine Used variant keeps its "used-import" wording. Scope details live in
+# footnotes.csv and the source pages (52 Georgia, 27 Albania).
+FIRST_REG_SOURCES <- c("Georgia", "Albania")
+is_first_reg <- variant != "Used" && country %in% FIRST_REG_SOURCES
+reg_word_lc <- if (variant == "Used") "used-import" else if (is_first_reg) "first" else "new"
+reg_word_uc <- if (variant == "Used") "Used-import" else if (is_first_reg) "First" else "New"
+# Label of the ICE annotation on the trajectory chart ("New ICE in" /
+# "Used-import ICE in"); "First ICE in" would misread, so first-registration
+# sources say "First-registration ICE in".
+reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
+# Legend entry of the fitted curve on the BEV extrapolation chart (NULL keeps
+# the default "New Registrations").
+reg_legend_val <- if (is_first_reg) "First Registrations" else NULL
 # Sources that count SALES rather than registrations (#283). Only the noun
 # changes ("new sales" instead of "new registrations"); the scope itself is
 # spelled out in footnotes.csv and on the source page.
@@ -207,7 +222,8 @@ reg_noun_uc <- if (country %in% SALES_SOURCES) "Sales" else "Registration"
 
 meta <- list(
   country = country, country_label = country_label,
-  reg_word = reg_word_lc, reg_Word = reg_word_uc,
+  reg_word = reg_word_lc, reg_Word = reg_word_uc, reg_ice_Word = reg_ice_uc,
+  reg_legend = reg_legend_val,
   reg_noun = reg_noun_lc, reg_Noun = reg_noun_uc,
   bev_label = bev_label_val,
   has_phev_split = has_phev_split_val,

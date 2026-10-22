@@ -149,6 +149,10 @@ earlier data is available from this source. The backfill covers
 
 - **No PHEV/HEV split before ~2024.** Historical hybrid counts are a combined
   bucket. The gallery footnote explains this to readers.
+- **Recon (used) imports included.** JPJ registers every car at its first
+  Malaysian registration, so grey-market reconditioned imports (mostly from
+  Japan) are in the counts; the data has no new/used field. The footnote says
+  so; the charts keep the "new registrations" wording (recons are a minority).
 - **No commercial vehicle split.** The `cars` catalogue covers passenger
   cars only. Vans, trucks, and buses are not in scope from this source.
 - **greendiesel merged into diesel.** A small number of registrations use

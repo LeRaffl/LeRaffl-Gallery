@@ -359,8 +359,12 @@ columns blank so the renderer skips them (e.g. PHEV/HEV for trucks). See §10.
   * `Albania, Whole`: pre-2026 historical compiled by R. Andrew from DPSHTRR.
   * `Albania, HDV` / `Buses` / `2-Wheelers`: pre-2026 fetched directly from
     DPSHTRR open data (2020–2024); 2019 and 2025 unavailable.
-  * All four note: *figures include first registrations of both new and
-    imported used vehicles.*
+  * All four note: *first registrations incl. imported used vehicles - not
+    new sales* (kept short; no new/used share is published, so no number).
+* **Chart wording:** Albania is in `FIRST_REG_SOURCES`
+  (`R/render_country.R`), so every variant's extrapolation charts say
+  "first registrations" instead of "new registrations" (y-axis "First
+  Registration Share"). Same as Georgia ([52](52-source-georgia.md)).
 
 ## 10. Known quirks and hard-won discoveries
 

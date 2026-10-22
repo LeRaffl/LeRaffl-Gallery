@@ -1,8 +1,9 @@
 # Plot constructors for the four country charts.
 # `meta` is expected to be a list with: country, country_label, flag_img,
 # qr_img (optional QR code), entire_caption, social_caption, and
-# reg_word/reg_Word ("new" / "used-import" — the registration type the extrapolation
-# plots label; defaults to "new" when absent) and reg_noun/reg_Noun
+# reg_word/reg_Word ("new" / "used-import" / "first" — the registration type the
+# extrapolation plots label; defaults to "new" when absent; "first" for the
+# FIRST_REG_SOURCES in render_country.R) and reg_noun/reg_Noun
 # ("registrations" / "sales"; defaults to "registrations").
 # `fit` is the result of fit_history().
 # `df` is the full loaded data.
@@ -19,6 +20,18 @@ suppressPackageStartupMessages({
 # other caller keeps the pre-Used-variant labels instead of rendering a blank.
 reg_word <- function(meta) if (is.null(meta$reg_word)) "new" else meta$reg_word
 reg_Word <- function(meta) if (is.null(meta$reg_Word)) "New" else meta$reg_Word
+# Word in front of "ICE in" on the trajectory chart; defaults to reg_Word.
+# First-registration sources (FIRST_REG_SOURCES in render_country.R) set
+# "First-registration" because "First ICE in" would misread.
+reg_ice_Word <- function(meta) if (is.null(meta$reg_ice_Word)) reg_Word(meta) else meta$reg_ice_Word
+# Legend entry of the fitted curve on the BEV extrapolation chart. The fit's
+# internal Type level is always "New Registrations"; it is shown as such
+# unless meta$reg_legend overrides it (FIRST_REG_SOURCES: "First Registrations").
+# waiver() is ggplot's default, so every other chart is untouched.
+extrap_legend_labels <- function(meta) {
+  if (is.null(meta$reg_legend)) return(waiver())
+  function(x) ifelse(x == "New Registrations", meta$reg_legend, x)
+}
 # What is counted: "registrations" (default) or "sales" (USA, see
 # SALES_SOURCES in render_country.R / #283).
 reg_noun <- function(meta) if (is.null(meta$reg_noun)) "registrations" else meta$reg_noun
@@ -179,7 +192,8 @@ plot_bev_trajectory <- function(fit, meta) {
       axis.text = element_text(size = rel(0.9)),
       plot.caption = element_markdown(hjust = 0)
     ) +
-    scale_color_manual(values = c("#FF5733","#FFC300","#33FF3B","#33A1FF","#B633FF","#FF33E9"), name = "Color")
+    scale_color_manual(values = c("#FF5733","#FFC300","#33FF3B","#33A1FF","#B633FF","#FF33E9"), name = "Color",
+                       labels = extrap_legend_labels(meta))
 
   p <- p + annotate("text", x = 2010, y = 1, label = paste0(reg_Word(meta), " ", reg_Noun(meta), " estimates in"),
                     size = rel(6), hjust = 0, vjust = 1, col = "red")
@@ -258,7 +272,7 @@ plot_ice_bev_phev <- function(fit, df, meta) {
                        labels = traj_labels[traj_keys],
                        values = traj_shapes)
 
-  p <- p + annotate("text", x = 2010, y = 0.9, label = paste0(reg_Word(meta), " ICE in"),
+  p <- p + annotate("text", x = 2010, y = 0.9, label = paste0(reg_ice_Word(meta), " ICE in"),
                     size = rel(6), hjust = 0, vjust = 1, col = TRAJ_COLORS[["ICE"]])
   counter <- 0
   repeat {

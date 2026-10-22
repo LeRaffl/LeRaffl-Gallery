@@ -157,7 +157,16 @@ definitions (invariant 3). The body-type split of the same quarter
 (`mobile/body`) shows the order of magnitude of the non-car part: in 2026-Q2,
 1,999 lorries/trucks, 1,313 special vehicles, 985 vans ("furgon") and 124
 buses out of 43,449. The age split (`mobile/vehicle-age`) shows how used the
-flow is: 7,440 vehicles at most two years old in 2026-Q2.
+flow is: 7,440 vehicles at most two years old in 2026-Q2; in 2026-Q3 9,133
+of 42,758 (21.4 %) were at most two years old and 33,607 (78.6 %) older
+(18 unknown) — the "79 % over 2 years old, Q3 2026" in `footnotes.csv`.
+
+**Chart wording.** Because the series is first registrations incl. used
+imports, Georgia is in `FIRST_REG_SOURCES` (`R/render_country.R`): the
+extrapolation titles say "first registrations" instead of "new
+registrations" (y-axis "First Registration Share", legend "First
+Registrations", annotation "First-registration ICE in"). The gallery label
+("New Cars") is unchanged for now — open question in the follow-up issue.
 
 ## 5. Governance and validation
 
