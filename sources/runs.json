@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-21T09:35:24Z",
+ "generated": "2026-10-22T09:40:00Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6456,6 +6456,110 @@
    "slug": "usa",
    "period": "2026-09",
    "flag": "🇺🇸"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Belgium",
+   "base": "Belgium",
+   "slug": "belgium",
+   "period": "2026-09",
+   "flag": "🇧🇪"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Bulgaria",
+   "base": "Bulgaria",
+   "slug": "bulgaria",
+   "period": "2026-09",
+   "flag": "🇧🇬"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Croatia",
+   "base": "Croatia",
+   "slug": "croatia",
+   "period": "2026-09",
+   "flag": "🇭🇷"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Cyprus",
+   "base": "Cyprus",
+   "slug": "cyprus",
+   "period": "2026-09",
+   "flag": "🇨🇾"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Czechia",
+   "base": "Czechia",
+   "slug": "czechia",
+   "period": "2026-09",
+   "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Greece",
+   "base": "Greece",
+   "slug": "greece",
+   "period": "2026-09",
+   "flag": "🇬🇷"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Hungary",
+   "base": "Hungary",
+   "slug": "hungary",
+   "period": "2026-09",
+   "flag": "🇭🇺"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Iceland",
+   "base": "Iceland",
+   "slug": "iceland",
+   "period": "2026-09",
+   "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Lithuania",
+   "base": "Lithuania",
+   "slug": "lithuania",
+   "period": "2026-09",
+   "flag": "🇱🇹"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Malta",
+   "base": "Malta",
+   "slug": "malta",
+   "period": "2026-09",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Romania",
+   "base": "Romania",
+   "slug": "romania",
+   "period": "2026-09",
+   "flag": "🇷🇴"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Slovakia",
+   "base": "Slovakia",
+   "slug": "slovakia",
+   "period": "2026-09",
+   "flag": "🇸🇰"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Slovenia",
+   "base": "Slovenia",
+   "slug": "slovenia",
+   "period": "2026-09",
+   "flag": "🇸🇮"
   }
  ]
 }
