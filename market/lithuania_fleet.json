@@ -1,29 +1,29 @@
 {
  "months": {
   "2024-01|new": {
-   "HEV": 816,
-   "PHEV": 144
+   "HEV": 818,
+   "PHEV": 143
   },
   "2024-01|used": {
-   "HEV": 260,
-   "PHEV": 161,
+   "HEV": 259,
+   "PHEV": 158,
    "UNK": 192
   },
   "2024-02|new": {
-   "HEV": 819,
-   "PHEV": 101
+   "HEV": 813,
+   "PHEV": 99
   },
   "2024-02|used": {
-   "HEV": 302,
-   "PHEV": 184,
-   "UNK": 233
+   "HEV": 300,
+   "PHEV": 181,
+   "UNK": 231
   },
   "2024-03|new": {
    "HEV": 913,
    "PHEV": 107
   },
   "2024-03|used": {
-   "HEV": 360,
+   "HEV": 358,
    "PHEV": 215,
    "UNK": 298
   },
@@ -32,260 +32,289 @@
    "PHEV": 90
   },
   "2024-04|used": {
-   "HEV": 332,
+   "HEV": 329,
    "PHEV": 236,
    "UNK": 291
   },
   "2024-05|new": {
-   "HEV": 1192,
+   "HEV": 1171,
    "PHEV": 110,
    "UNK": 1
   },
   "2024-05|used": {
-   "HEV": 408,
-   "PHEV": 259,
-   "UNK": 325
+   "HEV": 406,
+   "PHEV": 258,
+   "UNK": 323
   },
   "2024-06|new": {
-   "HEV": 1063,
+   "HEV": 1055,
    "PHEV": 122
   },
   "2024-06|used": {
-   "HEV": 382,
+   "HEV": 381,
    "PHEV": 221,
-   "UNK": 346
+   "UNK": 347
   },
   "2024-07|new": {
-   "HEV": 1033,
-   "PHEV": 112,
+   "HEV": 1017,
+   "PHEV": 113,
    "UNK": 2
   },
   "2024-07|used": {
-   "HEV": 406,
-   "PHEV": 252,
-   "UNK": 366
+   "HEV": 405,
+   "PHEV": 248,
+   "UNK": 367
   },
   "2024-08|new": {
-   "HEV": 943,
+   "HEV": 922,
    "PHEV": 109
   },
   "2024-08|used": {
-   "HEV": 445,
+   "HEV": 446,
    "PHEV": 279,
-   "UNK": 375
+   "UNK": 374
   },
   "2024-09|new": {
-   "HEV": 1170,
+   "HEV": 1152,
    "PHEV": 167
   },
   "2024-09|used": {
-   "HEV": 419,
+   "HEV": 422,
    "PHEV": 310,
-   "UNK": 355
+   "UNK": 353
   },
   "2024-10|new": {
-   "HEV": 1099,
-   "PHEV": 206,
+   "HEV": 1075,
+   "PHEV": 205,
    "UNK": 5
   },
   "2024-10|used": {
-   "HEV": 474,
-   "PHEV": 347,
-   "UNK": 415
+   "HEV": 472,
+   "PHEV": 348,
+   "UNK": 413
   },
   "2024-11|new": {
-   "HEV": 1112,
+   "HEV": 1098,
    "PHEV": 178,
    "UNK": 1
   },
   "2024-11|used": {
-   "HEV": 458,
-   "PHEV": 325,
-   "UNK": 352
+   "HEV": 451,
+   "PHEV": 324,
+   "UNK": 351
   },
   "2024-12|new": {
-   "HEV": 1007,
+   "HEV": 1000,
    "PHEV": 192,
    "UNK": 1
   },
   "2024-12|used": {
-   "HEV": 422,
-   "PHEV": 318,
-   "UNK": 315
+   "HEV": 419,
+   "PHEV": 321,
+   "UNK": 312
   },
   "2025-01|new": {
-   "HEV": 1194,
-   "PHEV": 290,
+   "HEV": 1191,
+   "PHEV": 289,
    "UNK": 1
   },
   "2025-01|used": {
    "HEV": 408,
-   "PHEV": 304,
+   "PHEV": 302,
    "UNK": 343
   },
   "2025-02|new": {
-   "HEV": 1103,
+   "HEV": 1081,
    "PHEV": 206
   },
   "2025-02|used": {
-   "HEV": 327,
+   "HEV": 321,
    "PHEV": 327,
    "UNK": 429
   },
   "2025-03|new": {
-   "HEV": 1439,
+   "HEV": 1428,
    "PHEV": 207,
    "UNK": 1
   },
   "2025-03|used": {
    "HEV": 319,
    "PHEV": 331,
-   "UNK": 421
+   "UNK": 422
   },
   "2025-04|new": {
-   "HEV": 1602,
+   "HEV": 1573,
    "PHEV": 262,
-   "UNK": 2
+   "UNK": 3
   },
   "2025-04|used": {
-   "HEV": 410,
-   "PHEV": 446,
-   "UNK": 538
+   "HEV": 407,
+   "PHEV": 442,
+   "UNK": 539
   },
   "2025-05|new": {
-   "HEV": 1455,
+   "HEV": 1437,
    "PHEV": 310,
    "UNK": 1
   },
   "2025-05|used": {
-   "HEV": 388,
-   "PHEV": 399,
-   "UNK": 506
+   "HEV": 389,
+   "PHEV": 400,
+   "UNK": 503
   },
   "2025-06|new": {
-   "HEV": 1261,
-   "PHEV": 304,
-   "UNK": 1
+   "HEV": 1221,
+   "PHEV": 303
   },
   "2025-06|used": {
-   "HEV": 338,
+   "HEV": 337,
    "PHEV": 346,
-   "UNK": 481
+   "UNK": 479
   },
   "2025-07|new": {
-   "HEV": 1343,
+   "HEV": 1334,
    "PHEV": 459,
    "UNK": 2
   },
   "2025-07|used": {
-   "HEV": 410,
-   "PHEV": 416,
-   "UNK": 625
+   "HEV": 408,
+   "PHEV": 415,
+   "UNK": 624
   },
   "2025-08|new": {
-   "HEV": 1060,
-   "PHEV": 347,
+   "HEV": 1055,
+   "PHEV": 345,
    "UNK": 2
   },
   "2025-08|used": {
-   "HEV": 361,
-   "PHEV": 408,
-   "UNK": 560
+   "HEV": 363,
+   "PHEV": 411,
+   "UNK": 556
   },
   "2025-09|new": {
-   "HEV": 1121,
-   "PHEV": 404,
+   "HEV": 1114,
+   "PHEV": 403,
    "UNK": 3
   },
   "2025-09|used": {
-   "HEV": 421,
-   "PHEV": 409,
-   "UNK": 558
+   "HEV": 420,
+   "PHEV": 410,
+   "UNK": 556
   },
   "2025-10|new": {
-   "HEV": 1391,
+   "HEV": 1374,
    "PHEV": 482,
    "UNK": 2
   },
   "2025-10|used": {
-   "HEV": 400,
-   "PHEV": 484,
-   "UNK": 610
+   "HEV": 402,
+   "PHEV": 486,
+   "UNK": 612
   },
   "2025-11|new": {
-   "HEV": 1325,
-   "PHEV": 460,
+   "HEV": 1273,
+   "PHEV": 462,
    "UNK": 1
   },
   "2025-11|used": {
-   "HEV": 311,
-   "PHEV": 430,
-   "UNK": 515
+   "HEV": 312,
+   "PHEV": 427,
+   "UNK": 512
   },
   "2025-12|new": {
-   "HEV": 1017,
-   "PHEV": 435,
+   "HEV": 993,
+   "PHEV": 425,
    "UNK": 1
   },
   "2025-12|used": {
-   "HEV": 370,
-   "PHEV": 349,
-   "UNK": 503
+   "HEV": 368,
+   "PHEV": 346,
+   "UNK": 501
   },
   "2026-01|new": {
-   "HEV": 1059,
+   "HEV": 1007,
    "PHEV": 386,
    "UNK": 1
   },
   "2026-01|used": {
    "HEV": 324,
-   "PHEV": 333,
-   "UNK": 414
+   "PHEV": 332,
+   "UNK": 417
   },
   "2026-02|new": {
-   "HEV": 1276,
-   "PHEV": 303
+   "HEV": 971,
+   "PHEV": 290
   },
   "2026-02|used": {
    "HEV": 317,
-   "PHEV": 354,
-   "UNK": 438
+   "PHEV": 353,
+   "UNK": 440
   },
   "2026-03|new": {
-   "HEV": 2086,
-   "PHEV": 429,
+   "HEV": 1899,
+   "PHEV": 400,
    "UNK": 2
   },
   "2026-03|used": {
-   "HEV": 450,
-   "PHEV": 507,
-   "UNK": 642
+   "HEV": 449,
+   "PHEV": 509,
+   "UNK": 638
   },
   "2026-04|new": {
-   "HEV": 2361,
-   "PHEV": 552,
+   "HEV": 2114,
+   "PHEV": 506,
    "UNK": 1
   },
   "2026-04|used": {
-   "HEV": 579,
-   "PHEV": 647,
-   "UNK": 814
+   "HEV": 577,
+   "PHEV": 650,
+   "UNK": 811
   },
   "2026-05|new": {
-   "HEV": 2770,
-   "PHEV": 542
+   "HEV": 2480,
+   "PHEV": 520
   },
   "2026-05|used": {
-   "HEV": 489,
-   "PHEV": 630,
-   "UNK": 686
+   "HEV": 484,
+   "PHEV": 629,
+   "UNK": 678
+  },
+  "2026-06|new": {
+   "HEV": 2278,
+   "PHEV": 625,
+   "UNK": 2
+  },
+  "2026-06|used": {
+   "HEV": 570,
+   "PHEV": 618,
+   "UNK": 750
+  },
+  "2026-07|new": {
+   "HEV": 2257,
+   "PHEV": 698,
+   "UNK": 3
+  },
+  "2026-07|used": {
+   "HEV": 664,
+   "PHEV": 723,
+   "UNK": 812
+  },
+  "2026-08|new": {
+   "HEV": 2025,
+   "PHEV": 620,
+   "UNK": 1
+  },
+  "2026-08|used": {
+   "HEV": 656,
+   "PHEV": 636,
+   "UNK": 782
   }
  },
  "note": "generated by scripts/fetch_lithuania.py from Regitra's open register snapshot — M1 first registrations still registered, hybrids by EU CoC field 23.1; never hand-edit",
  "snapshot": {
-  "covers_to": "2026-05",
-  "file_date": "2026-07-01",
-  "label": "2026-07-03",
-  "newest_first_registration": "2026-06-27"
+  "covers_to": "2026-08",
+  "file_date": "2026-10-01",
+  "label": "2026-10-01",
+  "newest_first_registration": "2026-09-28"
  }
 }
