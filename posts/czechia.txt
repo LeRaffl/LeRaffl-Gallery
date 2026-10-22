@@ -1,11 +1,9 @@
 🇨🇿 Czechia - September 26 - BEV Trajectory
 11.2% BEV
-4.6% PHEV
-84.2% ICE
+4.8% PHEV
+84.0% ICE (of which 26.2%p were HEV)
 
 Trailing 12 months are:
 6.9% BEV
 5.0% PHEV
-88.1% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+88.1% ICE (of which 24.5%p were HEV)

@@ -3,6 +3,7 @@
 Oct24–Sep25  vs  Oct25–Sep26
 +1.2pp  BEV   (5.7% → 6.9%)
 +1.3pp  PHEV  (3.7% → 5.0%)
-−2.5pp  ICE   (90.6% → 88.1%)
++1.8pp  HEV   (22.8% → 24.5%)
+−4.3pp  ICE   (67.8% → 63.6%)
 
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 months continued linearly, BEV would overtake ICE in 2034-02.
