@@ -1,0 +1,7 @@
+🇨🇾 Cyprus - TTM Market Split
+
+Oct24–Sep25  vs  Oct25–Sep26
++0.4pp  BEV   (10.2% → 10.7%)
++0.9pp  PHEV  (5.3% → 6.1%)
++5.7pp  HEV   (45.8% → 51.5%)
+−7.0pp  ICE   (38.7% → 31.7%)
