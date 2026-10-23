@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-22T09:40:00Z",
- "today": "2026-10-22",
+ "generated": "2026-10-23T09:32:23Z",
+ "today": "2026-10-23",
  "countries": [
   {
    "country": "Albania",
@@ -1506,11 +1506,11 @@
    "source_url": "https://automobile.geostat.ge/en/automobiles/rating",
    "cadence_text": "daily on the 10th–31st of the two months after each quarter (Jan/Feb, Apr/May, Jul/Aug, Oct/Nov), 06:55 UTC — Geostat publishes a quarter some weeks after it ends (2026-Q2 was online before 25 July 2026)",
    "interval": "quarterly",
-   "latest_period": "2026-05",
+   "latest_period": "2026-08",
    "expected_period": "2026-08",
-   "behind": 3,
-   "behind_now": 4,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 1,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -1553,14 +1553,14 @@
     ],
     "workflow": ".github/workflows/fetch-georgia.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-10-22",
    "flag": "🇬🇪",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-05",
+     "latest": "2026-08",
      "first": "2017-02",
-     "rows": 38,
+     "rows": 39,
      "cadence": "quarterly",
      "in_repo": true
     }

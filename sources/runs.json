@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22T09:40:00Z",
+ "generated": "2026-10-23T09:32:23Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6496,6 +6496,14 @@
    "slug": "czechia",
    "period": "2026-09",
    "flag": "🇨🇿"
+  },
+  {
+   "date": "2026-10-22",
+   "label": "Georgia",
+   "base": "Georgia",
+   "slug": "georgia",
+   "period": "2026-09",
+   "flag": "🇬🇪"
   },
   {
    "date": "2026-10-22",
