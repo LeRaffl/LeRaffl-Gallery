@@ -2,6 +2,46 @@
   "updated": "2026-10-23",
   "images": [
     {
+      "country": "Georgia",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-23",
+      "filename": "georgia_ICE_BEV_20261023.png",
+      "url": "images/2026-09/georgia_ICE_BEV_20261023.png",
+      "alt": "Georgia ICE-BEV-Hybrid trajectory",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-23",
+      "filename": "georgia_20261023.png",
+      "url": "images/2026-09/georgia_20261023.png",
+      "alt": "Georgia BEV trajectory",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-23",
+      "filename": "georgia_time_20261023.png",
+      "url": "images/2026-09/georgia_time_20261023.png",
+      "alt": "Georgia Transition time curve",
+      "country_slug": "georgia"
+    },
+    {
+      "country": "Georgia",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-23",
+      "filename": "georgia_ttm_shares_20261023.png",
+      "url": "images/2026-09/georgia_ttm_shares_20261023.png",
+      "alt": "Georgia TTM market split graph",
+      "country_slug": "georgia"
+    },
+    {
       "country": "Belgium",
       "type": "ICE_BEV",
       "period": "2026-09",
