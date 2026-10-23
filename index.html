@@ -7051,11 +7051,13 @@ function tableToImage(tableEl, filename, title){
 // Wire up PNG export buttons
 document.getElementById('exportThresholdsPng')?.addEventListener('click', () => {
   const table = document.querySelector('#thresholdsMount table');
-  if (table) tableToImage(table, stampedFilename('bev_thresholds.png'), 'BEV Thresholds (years)');
+  if (table) tableToImage(table, stampedFilename(rankRegionFilename('bev_thresholds.png', 'regionThr')),
+                            rankRegionTitle('BEV Thresholds (years)', 'regionThr'));
 });
 document.getElementById('exportDurPng')?.addEventListener('click', () => {
   const table = document.querySelector('#durationsMount table');
-  if (table) tableToImage(table, stampedFilename('bev_durations.png'), 'BEV Durations');
+  if (table) tableToImage(table, stampedFilename(rankRegionFilename('bev_durations.png', 'regionDur')),
+                            rankRegionTitle('BEV Durations', 'regionDur'));
 });
 
 // -------- Lightbox ergonomics --------
@@ -7593,6 +7595,31 @@ function rankRegionMatcher(key){
     return country => set.has(String(country || '')) || set.has(rankRegionBase(country));
   }
   return () => true;
+}
+// Export labelling (#336): an exported table/chart must say which region it
+// was filtered to. '' (All countries) returns '' so the default export keeps
+// its title and filename exactly as before.
+function rankRegionLabel(key){
+  if (!key) return '';
+  if (key.startsWith('cont:')) return key.slice(5);
+  if (key.startsWith('grp:')) {
+    const g = RANK_REGION_GROUPS.find(([k]) => k === key.slice(4));
+    return g ? g[1] : '';
+  }
+  return '';
+}
+function rankRegionTitle(title, selId){
+  const label = rankRegionLabel(document.getElementById(selId)?.value || '');
+  return label ? title + ' \u00b7 ' + label : title;
+}
+// 'bev_thresholds.png' + EU -> 'bev_thresholds_EU.png' (before stampedFilename
+// adds the timestamp). Spaces become '_': 'Western Europe' -> 'Western_Europe'.
+function rankRegionFilename(filename, selId){
+  const label = rankRegionLabel(document.getElementById(selId)?.value || '');
+  if (!label) return filename;
+  const slug = label.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  const dot = filename.lastIndexOf('.');
+  return dot === -1 ? filename + '_' + slug : filename.slice(0, dot) + '_' + slug + filename.slice(dot);
 }
 
 // ---- Uncertainty bands (bands/<slug>.json, written by R/bands.R) ----------
@@ -8469,7 +8496,7 @@ renderTable();
     // Title block
     svg.appendChild(svgEl('text',{
       x:padLeft, y:28, fill:tok('--text','#1a1a18'),'font-size':'18','font-weight':'600'
-    }, 'BEV transition time interval by country'));
+    }, rankRegionTitle('BEV transition time interval by country', 'speedRegion')));
     svg.appendChild(svgEl('text',{
       x:padLeft, y:50, fill:tok('--muted','#55534c'),'font-size':'12'
     }, `Bars: ${opts.fromPct}% → ${opts.toPct}% BEV share · dot marks ${opts.midPct}% · sorted by ${opts.sortKey}`));
@@ -8674,14 +8701,14 @@ renderTable();
       document.getElementById('speedExportPng').addEventListener('click', ()=>{
         const svg=document.querySelector('#speedMount svg');
         if(!svg) return;
-        svgToPngBlob(svg, 2).then(b=>downloadBlob(b, stampedFilename('bev_time_interval.png')))
+        svgToPngBlob(svg, 2).then(b=>downloadBlob(b, stampedFilename(rankRegionFilename('bev_time_interval.png', 'speedRegion'))))
           .catch(err=>console.warn('PNG export failed:', err));
       });
       document.getElementById('speedExportSvg').addEventListener('click', ()=>{
         const svg=document.querySelector('#speedMount svg');
         if(!svg) return;
         const xml=new XMLSerializer().serializeToString(svg);
-        downloadBlob(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}), stampedFilename('bev_time_interval.svg'));
+        downloadBlob(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}), stampedFilename(rankRegionFilename('bev_time_interval.svg', 'speedRegion')));
       });
       window.addEventListener('resize', (()=>{
         let t; return ()=>{ clearTimeout(t); t=setTimeout(redraw,200); };
