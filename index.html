@@ -3431,6 +3431,11 @@ function tok(name, fallback){
   __TOK_CACHE.set(name, out);
   return out;
 }
+/* First year a time chart shows by default (#288). The Builder chart's x-axis
+   already started here; the Fleet tab's "Start year" defaults to it. Like the
+   Raw Data timeframe (default view, user can widen it), it only trims what is
+   drawn, never the data or a fit/projection behind it. */
+const VIEW_START_YEAR = 2015;
 </script>
   
 
@@ -4576,7 +4581,7 @@ function tok(name, fallback){
     <div class="field">
       <div style="display:flex; align-items:center; gap:6px;">
         <label for="fleetStartYear">Start year</label>
-        <span class="info-tip" data-tip="First year shown in the chart. Leave empty to show every observed year (Denmark goes back to 1993, Finland to 1990). Only the view changes; the projection still starts from the last observed year.">i</span>
+        <span class="info-tip" data-tip="First year shown in the chart (default 2015). Clear the field to show every observed year (Denmark goes back to 1993, Finland to 1990). Only the view changes; the projection still starts from the last observed year.">i</span>
       </div>
       <input id="fleetStartYear" type="number" min="1990" max="2100" step="1" placeholder="all years">
     </div>
@@ -9024,7 +9029,7 @@ function marketBucket(rows, vars, test){
       },
       xaxis: {
         type: 'date',
-        range: ['2015-01-01', '2040-01-01'],
+        range: [`${VIEW_START_YEAR}-01-01`, '2040-01-01'],
         tickformat: '%Y',
         dtick: 'M12',
         hoverformat: '%Y-%m',
@@ -11707,9 +11712,14 @@ function buildFleetPlot() {
 
   const commonYears = getCommonFleetYears(countries);
 
-  // Start year (#288): a view filter only. Empty = every observed year.
+  // Start year (#288): a view filter only, default VIEW_START_YEAR (2015).
+  // Empty = every observed year.
   const startYearRaw = document.getElementById('fleetStartYear')?.value;
   const viewStartYear = (startYearRaw === '' || startYearRaw == null) ? -Infinity : safeNum(startYearRaw, -Infinity);
+
+  // A "no data from <year>" note is plain HTML that Plotly.newPlot would leave
+  // in place under the next chart; drop it before drawing again.
+  document.querySelectorAll('#fleetPlot > .fleet-note').forEach(n => n.remove());
 
   if (mode === 'compare') {
     // Per-country lines need no common years. The Energy sub-tab keeps its
@@ -11758,8 +11768,12 @@ function buildFleetPlot() {
                      projectFn, options);
   } catch (e) { console.warn('energy view:', e); }
 
-  const combined = [...historySeries, ...projectedSeries]
-    .filter(r => r.year >= viewStartYear);
+  const allRows = [...historySeries, ...projectedSeries];
+  const combined = allRows.filter(r => r.year >= viewStartYear);
+  if (!combined.length) {
+    showFleetNoDataFrom(viewStartYear, Math.max(...allRows.map(r => r.year)));
+    return;
+  }
   const histYears = combined.filter(r => !r.projected).map(r => r.year);
   const projYears = combined.filter(r =>  r.projected).map(r => r.year);
 
@@ -11947,6 +11961,18 @@ function buildFleetPlot() {
 // country uses ALL of its observed years and projects from its own last
 // observed year, so one short series no longer cuts the others down to the
 // common years. Category chips do not apply (only BEV is drawn).
+// Start year after the last year the chart would draw (#288): say so instead of
+// an empty plot. Same approach as the Raw Data tab, which notes "nothing to
+// draw" rather than silently moving the user's setting.
+function showFleetNoDataFrom(startYear, lastYear) {
+  const el = document.getElementById('fleetPlot');
+  if (window.Plotly) { try { Plotly.purge(el); } catch (e) {} }
+  el.innerHTML = `
+    <div class="fleet-note" style="padding: 40px; text-align:center; color:#ffaaaa;">
+      No fleet data from ${startYear}: the chart ends in ${lastYear}.
+      Pick an earlier start year, or clear the field to show every year.
+    </div>`;
+}
 const FLEET_COMPARE_COLORS = ['#1d4f91','#d85a1a','#1e7a45','#c44c6a','#c9a227',
   '#7a4a28','#5b6abf','#2a9d8f','#8b887f','#9c4dcc','#e07b91','#4f7942'];
 function buildFleetCompareLines(countries, cfg) {
@@ -11954,10 +11980,12 @@ function buildFleetCompareLines(countries, cfg) {
   const share = r => { const t = rowTotal(r); return t > 0 ? safeNum(r.BEV, 0) / t * 100 : null; };
   const traces = [];
   const skipped = [];
+  let lastShownYear = -Infinity;   // latest year any line could reach (for the empty note)
   countries.forEach((country, i) => {
     const years = getCommonFleetYears([country]);
     if (!years.length) { skipped.push(country); return; }
     const last = Math.max(...years);
+    lastShownYear = Math.max(lastShownYear, projectionEnabled && endYear > last ? endYear : last);
     const color = FLEET_COMPARE_COLORS[i % FLEET_COMPARE_COLORS.length];
     const hist = buildFleetHistoryAggregate([country], years).filter(r => r.year >= viewStartYear);
     traces.push({
@@ -11972,10 +12000,12 @@ function buildFleetCompareLines(countries, cfg) {
       const proj = projectFn(country, last, endYear, options).filter(r => r.year > last);
       // Start the dashed line at the last observed point so it joins the solid one.
       const rows = [lastRow, ...proj].filter(r => r.year >= viewStartYear);
-      if (rows.length > 1) {
+      // One row left (start year = projection end year) draws as a marker.
+      if (rows.length) {
         traces.push({
           x: rows.map(r => r.year), y: rows.map(share),
-          name: country + ' (projected)', type: 'scatter', mode: 'lines',
+          name: country + ' (projected)', type: 'scatter', mode: rows.length > 1 ? 'lines' : 'markers',
+          marker: { color, size: 6 },
           line: { color, width: 2, dash: 'dash' },
           legendgroup: country, showlegend: false,
           hovertemplate: country + ' %{x} (projected)<br><b>%{y:.1f}%</b> BEV<extra></extra>'
@@ -11988,6 +12018,10 @@ function buildFleetCompareLines(countries, cfg) {
       <div style="padding: 40px; text-align:center; color:#ffaaaa;">
         No observed fleet data for the selected countries.
       </div>`;
+    return;
+  }
+  if (!traces.some(t => t.x.length)) {
+    showFleetNoDataFrom(viewStartYear, lastShownYear);
     return;
   }
   const layout = {
@@ -12027,6 +12061,12 @@ function buildFleetCompareLines(countries, cfg) {
 }
 
 const updateFleetPlot = () => buildFleetPlot();
+// Default start year from the shared constant (set once at load; the user can
+// change it, or clear it for every observed year).
+{
+  const el = document.getElementById('fleetStartYear');
+  if (el && el.value === '') el.value = String(VIEW_START_YEAR);
+}
 // Number inputs fire `input` on every keystroke; debounce so we don't rebuild
 // the Plotly chart five times while the user types "0.035".
 const updateFleetPlotDebounced = debounce(updateFleetPlot, 200);
