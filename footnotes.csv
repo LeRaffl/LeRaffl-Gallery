@@ -4,14 +4,14 @@ Canada,Whole,Pre-2017 figures are passenger cars only; SUVs/crossovers included 
 Israel,Whole,MoT registry snapshot of currently-registered private cars: older months slightly undercount (deregistered vehicles drop out). HEV/PHEV split via the official model-catalogue join.
 Israel,Vans,MoT registry snapshot; sug_degem M = light commercial vehicles up to 3.5t. Same snapshot/undercount and catalogue-join caveats as Whole. Low volume (roughly 500-1100/month).
 Türkiye,Whole,"Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE trajectory, which omits a PHEV curve because this source never measures one."
-Georgia,Whole,"All vehicle categories incl. imported used vehicles - not new-car sales. One combined hybrid figure: shown as 'Hybrid', counted within ICE, no PHEV curve."
+Georgia,Whole,"All vehicle categories, first registrations incl. used imports (79 % over 2 years old, Q3 2026). One combined hybrid figure, counted within ICE, no PHEV curve."
 Colombia,Whole,"Source reports a single combined hybrid figure (no PHEV/HEV split): shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE trajectory, which omits a PHEV curve because this source never measures one."
-Malaysia,Whole,"Source (data.gov.my) does not split PHEV from HEV: shown as 'Hybrid' in the fuel-split chart; counted within ICE in the BEV/ICE trajectory, which omits a PHEV curve because this source never measures one."
+Malaysia,Whole,"JPJ registrations incl. recon (used) imports. No PHEV/HEV split: shown as 'Hybrid', counted within ICE, no PHEV curve."
 Singapore,Whole,Monthly BEV/PHEV/HEV split reported by LTA from Jul 2022; earlier electrified cars sit in 'Others'. Pre-automation series compiled by R. Andrew.
-Albania,Whole,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Historical series (pre-2026) compiled by R. Andrew from DPSHTRR open data.
-Albania,HDV,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
-Albania,Buses,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
-Albania,2-Wheelers,Figures are first registrations incl. imported used vehicles — not new-car sales and not comparable to ACEA new-registration counts. Pre-2026 series fetched directly from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,Whole,First registrations incl. imported used vehicles - not new-car sales. Pre-2026 series compiled by R. Andrew from DPSHTRR open data.
+Albania,HDV,First registrations incl. imported used vehicles - not new sales. Pre-2026 series from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,Buses,First registrations incl. imported used vehicles - not new sales. Pre-2026 series from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
+Albania,2-Wheelers,First registrations incl. imported used vehicles - not new sales. Pre-2026 series from DPSHTRR open data (2020-2024); 2019 and 2025 unavailable.
 Spain,Whole,DGT registry data; includes M1 people movers (ID.Buzz / Multivan ...) that ANFAC/ACEA count as vans; totals ~2% above ACEA. Pre-Oct-2015 series by Asier Lizarraga.
 Spain,Rental,DGT registry data; new turismos & todoterrenos registered to short-term rental (alquiler sin conductor) or flagged as renting/leasing. Rental + NonRental = Whole.
 Spain,NonRental,DGT registry data; new turismos & todoterrenos excluding the rental & leasing channel. Rental + NonRental = Whole.
@@ -124,8 +124,8 @@ Hong Kong,Whole,"New private cars (EU M1); full and mild hybrids counted in petr
 Hong Kong,Used,"Used imports (mostly Japanese-market MPVs) - not new cars. Hybrids counted in petrol."
 Hong Kong,Vans,"New light goods vehicles up to 3.5 t (EU N1); Hong Kong's heavier LGVs (to 5.5 t) excluded. Low volume."
 South Korea,Whole,"Domestic sales of all vehicle types incl. commercial - not M1 registrations. Tesla missing before 2024, so BEV is understated up to 2023. Imported hybrids include mild hybrids."
-Peru,Whole,"New cars and SUVs (EU M1); pickups are in Peru (Vans), not here. HEV includes mild hybrids. No data for April 2020 (COVID-19 lockdown)."
-Peru,Vans,"SUNARP first registrations (via AAP BI-AAP): pickups, chassis-cabs, dropside and box vans, and panel vans (EU N1), from 2019-01. Diesel-dominated; plug-ins are a handful a month (JAC T8 EV, BYD Shark)."
+Peru,Whole,"New cars and SUVs (EU M1), may incl. near-new used imports (max. 2 model years); pickups are in Peru (Vans). HEV incl. mild hybrids. No data for April 2020 (COVID-19)."
+Peru,Vans,"SUNARP first registrations (via AAP BI-AAP): pickups, chassis-cabs, dropside and box vans, and panel vans (EU N1), from 2019-01; may include near-new used imports. Diesel-dominated; plug-ins are a handful a month (JAC T8 EV, BYD Shark)."
 Paraguay,Whole,"Customs imports of new cars, not registrations - single months can run ahead of sales. Pickups not included. HEV includes mild hybrids."
 Ecuador,Whole,"New cars and SUVs (EU M1); pickups and vans are in Ecuador (Vans). Plug-ins identified by model. HEV includes mild hybrids and Nissan e-POWER."
 Ecuador,Vans,"Pickups (most of it), panel vans and van-based minibuses (about EU N1; some passenger minivans included)."

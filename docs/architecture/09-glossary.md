@@ -95,6 +95,16 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > probe finds a model-year or new/used field in the report's datasource;
 > until then the footnote flags it.
 >
+> **Chart wording for these sources.** Countries whose series are first
+> registrations incl. used imports are listed in `FIRST_REG_SOURCES`
+> (`R/render_country.R`, today Georgia and Albania, every variant): their
+> extrapolation charts say "first registrations" instead of "new
+> registrations" (y-axis "First Registration Share"), next to "used-import
+> registrations" for `Used` variants and "new sales" for `SALES_SOURCES`
+> (USA). Sources where used imports are only a minority (Malaysia's recon
+> imports, Peru's near-new used imports) keep "new" and say it in the
+> footnote.
+>
 > **Georgia** is the same case, wider still: Geostat's quarterly fuel table
 > counts every vehicle *initially registered* in Georgia — all vehicle
 > categories, new and imported used — with no filter for either, so
