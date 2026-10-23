@@ -88,10 +88,15 @@ LEGS: dict[str, dict[str, str]] = {
         "pre": "python -m playwright install --with-deps chromium",
         "main": f"{AS_OF} data/Albania.csv scripts/fetch_albania.py --year-from {{year}}",
     },
-    # The R model and plots (render-country.yml's command for one series).
+    # The R model and plots (render-country.yml's command for one series), in
+    # the same prebuilt R image render-country.yml runs in (R_IMAGE, set by
+    # runner-canary.yml; docs/architecture/63-r-render-image.md). Runs as the
+    # runner user so `git add -A` below can read what it wrote.
     "render": {
         "kind": "render",
-        "main": "Rscript R/render_country.R Sweden Whole",
+        "main": 'docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp'
+                ' -v "$PWD:/work" -w /work "${R_IMAGE:?R_IMAGE not set}"'
+                " Rscript R/render_country.R Sweden Whole",
     },
     # preview-render.yml's collect job: pip into the runner's own Python
     # (no setup-python), which PEP 668 may refuse on a newer image.
@@ -110,7 +115,9 @@ VERSIONS = [
     ("image", "echo \"$ImageOS $ImageVersion\""),
     ("python (job)", "python --version"),
     ("python3 (system)", "/usr/bin/python3 --version"),
-    ("R", "R --version"),
+    ("docker", "docker --version"),
+    # R lives in the prebuilt image now (render leg only; R_IMAGE unset elsewhere).
+    ("R (image)", 'docker pull -q "${R_IMAGE:?}" >/dev/null 2>&1; docker run --rm "$R_IMAGE" R --version'),
     ("tesseract", "tesseract --version"),
     ("pdftotext", "pdftotext -v"),
     ("convert (ImageMagick 6 name)", "convert -version"),
@@ -210,10 +217,10 @@ def run_leg(target: str, out: Path, image: str) -> int:
     (out / "meta.txt").write_text(f"{target}\n{leg['kind']}\n{image}\n", encoding="utf-8")
 
     exits: list[str] = []
-    # Setup actions that ran before this script (setup-python / setup-r) pass
-    # their outcome in; with continue-on-error they don't stop the leg.
-    for name, var in (("setup-python", "SETUP_PY"), ("setup-r", "SETUP_R"),
-                      ("setup-r-dependencies", "SETUP_RDEPS")):
+    # Setup actions that ran before this script (setup-python / the R image's
+    # GHCR login) pass their outcome in; with continue-on-error they don't stop
+    # the leg.
+    for name, var in (("setup-python", "SETUP_PY"), ("r-image-login", "SETUP_R")):
         outcome = os.environ.get(var, "")
         if outcome and outcome != "skipped":
             exits.append(f"{name} {0 if outcome == 'success' else 1}")

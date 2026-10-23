@@ -1,0 +1,24 @@
+# One CRAN package per line. Installed with their hard dependencies only, from
+# the P3M snapshot in the Dockerfile. Adding a line = new image version
+# (bump IMAGE_VERSION), see docs/architecture/63-r-render-image.md.
+ggplot2
+scales
+png
+ggtext
+viridis
+showtext
+sysfonts
+glue
+jsonlite
+stringr
+dplyr
+lubridate
+purrr
+fs
+tibble
+yaml
+# Not called by our code, but ggsave() writes PNGs through ragg::agg_png when
+# ragg is installed. The old r-lib setup installed it (as a Suggests of
+# ggplot2), so every ggsave()'d chart was rasterised by ragg; without it the
+# charts come out from grDevices::png and differ by anti-aliasing.
+ragg

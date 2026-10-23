@@ -55,6 +55,7 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: write
+      packages: read   # pull the R image from GHCR
     concurrency:
       group: snapshot-builder-${{ github.ref }}
       cancel-in-progress: false
@@ -73,11 +74,15 @@ jobs:
         env:
           DATE: ${{ inputs.date }}
 
-      # `fit.R`/`data.R` are base R plus `parallel` — no CRAN packages, so no
-      # `setup-r-dependencies` step and no restore cache to wait on.
-      - uses: r-lib/actions/setup-r@v2
+      # `fit.R`/`data.R` are base R plus `parallel`. R comes from the prebuilt
+      # image (docs/architecture/63-r-render-image.md), run with `docker run`
+      # for this one step because the rest of the job is Python on the
+      # runner. Login only matters while the GHCR package is private.
+      - uses: docker/login-action@v4
         with:
-          use-public-rspm: true
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       # Extend the backtest by the months that have appeared since the last
       # run. `build_backtest()` writes per month and skips what exists, so
@@ -89,11 +94,16 @@ jobs:
       # This is the series the Time-lapse actually shows: it re-fits from the
       # CSVs and so reaches 2015, where `builder_history/` cannot start before
       # the repository did (2025-09).
+      # Runs as the runner user (-u) so the files it writes stay writable for
+      # the Python steps and the commit below.
       - name: Extend backtest
         run: |
-          Rscript -e 'source("R/build_backtest.R"); build_backtest(cores = 4)'
+          docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp -e BACKTEST_REFIT \
+            -v "$GITHUB_WORKSPACE:/work" -w /work "$R_IMAGE" \
+            Rscript -e 'source("R/build_backtest.R"); build_backtest(cores = 4)'
         env:
           BACKTEST_REFIT: ${{ inputs.refit }}
+          R_IMAGE: ghcr.io/leraffl/r-render:v1
 
       # The new month has to reach the Time-lapse panel, which reads the
       # compact per-group files rather than the per-month CSVs. Leaving this

@@ -327,8 +327,8 @@ A GitHub Action with two entry points and three inputs:
 ### What it does
 
 1. Checks out the repo (pinned to the branch tip via `ref: github.ref_name`, so a fetcher's just-committed data rows are present)
-2. Sets up R via `r-lib/actions/setup-r`
-3. Installs the R package set (ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue) with apt prebuilds
+2. Runs in the prebuilt R image `ghcr.io/leraffl/r-render` (R and the package set ggplot2, scales, grid, png, ggtext, viridis, showtext, sysfonts, glue are already installed — [63](63-r-render-image.md))
+3. (No per-job package install: R and the packages come with the image, frozen to a P3M snapshot date.)
 4. Builds the variant work-list (`variants` if set, else the single `variant`) and runs `Rscript R/render_country.R <country> <v>` for each entry **serially**, collecting any failures without aborting the rest (mirrors the old fail-fast:false matrix)
 5. Commits the resulting `images/<period>/*.png`, `params.csv` row updates, `weights.csv` row updates, `posts/<slug>.txt`, `posts/<slug>_<period>.txt` and `bands/<slug>.json` **once** for all rendered variants via `EndBug/add-and-commit`
 6. Dispatches `build-manifest.yml` explicitly so the generated images are indexed immediately (one dispatch per run, not per variant)
@@ -516,7 +516,7 @@ Manual dispatch takes `date` (label a back-dated snapshot), `backtest_only` (ski
 
 `timeout-minutes: 25` (raised from 10 when the backtest step was added): the snapshot itself finishes in seconds, and the budget is the fits plus R setup plus the GIF render. Still capped, so a hang fails fast and visibly instead of burning ~40 min then being cancelled — as happened on the 2026-07-25 scheduled run.
 
-`fit.R`/`data.R` are base R plus `parallel`, so the job needs `setup-r` but no `setup-r-dependencies` step and no package cache to restore.
+`fit.R`/`data.R` are base R plus `parallel`; the backtest step runs them with `docker run` in the R image ([63](63-r-render-image.md)).
 
 ### Triggers
 
