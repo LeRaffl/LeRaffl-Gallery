@@ -3,6 +3,13 @@ import os, pathlib, time, urllib.request, urllib.parse
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) LeRaffl-Gallery probe (github.com/LeRaffl/LeRaffl-Gallery)"
 OUT = pathlib.Path("probe_out"); OUT.mkdir(exist_ok=True)
+SEC_UA = "LeRaffl-Gallery grokbot@users.noreply.github.com"
+TESTS2 = [
+    ("edgar_json_ua", "https://data.sec.gov/submissions/CIK0001913510.json"),
+    ("edgar_index_ua", "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1913510&type=6-K&dateb=&owner=include&count=40&output=atom"),
+    ("edgar_doc_ua", "https://www.sec.gov/Archives/edgar/data/1913510/"),
+    ("efts_ua", "https://efts.sec.gov/LATEST/search-index?q=%22VinFast%22&forms=6-K"),
+]
 TESTS = [
     ("vama_list", "http://vama.org.vn/en/sales-report.html"),
     ("vama_list_https", "https://vama.org.vn/en/sales-report.html"),
@@ -20,10 +27,10 @@ TESTS = [
 TIMEOUT = 40
 lines = ["| name | status | bytes | seconds | url |", "|---|---|---|---|---|"]
 
-def get(name, url, save=True):
+def get(name, url, save=True, ua=None):
     t = time.time()
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+        req = urllib.request.Request(url, headers={"User-Agent": ua or UA, "Accept": "*/*", "Accept-Encoding": "identity"})
         with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             body = r.read(); st = r.status
         if save:
@@ -34,6 +41,9 @@ def get(name, url, save=True):
     lines.append(f"| {name} | {res[0]} | {res[1]} | {time.time()-t:.1f} | {url} |")
     print(lines[-1], flush=True)
 
+for n, u in TESTS2:
+    get(n + ".html", u, ua=SEC_UA)
+TESTS = TESTS[:1]
 for n, u in TESTS:
     get(n + ".html", u)
 ok_vama = any(l.startswith("| vama_list") and "| 200 |" in l for l in lines)
