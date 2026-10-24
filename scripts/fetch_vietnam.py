@@ -754,7 +754,7 @@ def month_units(row: dict, vama_units: dict | None) -> tuple[dict, dict]:
         al[("ALL", "HYUNDAI", k)] += v
     al[("ALL", "HYUNDAI", "")] += hy - sum(hym.values())
     others = _i(row, "vama_ti_pc") - members
-    al[("ALL", "NON-MEMBER IMPORTS (ALL BRANDS)", "")] += others
+    al[("ALL", "OTHER IMPORTS (ALL BRANDS)", "")] += others
     return ({k: v for k, v in el.items() if v}, {k: v for k, v in al.items() if v})
 
 

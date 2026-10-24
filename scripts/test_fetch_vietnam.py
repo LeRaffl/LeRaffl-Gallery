@@ -15,6 +15,7 @@ column composition (September 2026 = 51,013).
 The PDF cases need pdftotext (poppler-utils) and pdfplumber; they are
 skipped with a note when either is missing.
 """
+import importlib.util
 import shutil
 import sys
 import tempfile
@@ -38,9 +39,7 @@ def eq(got, want, msg):
 
 
 def have_pdf_tools() -> bool:
-    try:
-        import pdfplumber  # noqa: F401
-    except ImportError:
+    if importlib.util.find_spec("pdfplumber") is None:
         return False
     return shutil.which("pdftotext") is not None
 
