@@ -1,0 +1,41 @@
+"""TEMPORARY reachability probe for Vietnam sources (removed before merge)."""
+import os, pathlib, time, urllib.request, urllib.parse
+
+UA = "Mozilla/5.0 (X11; Linux x86_64) LeRaffl-Gallery probe (github.com/LeRaffl/LeRaffl-Gallery)"
+OUT = pathlib.Path("probe_out"); OUT.mkdir(exist_ok=True)
+TESTS = [
+    ("vama_list", "http://vama.org.vn/en/sales-report.html"),
+    ("vama_list_https", "https://vama.org.vn/en/sales-report.html"),
+    ("vama_list_p2", "http://vama.org.vn/en/sales-report.html?Page=2"),
+    ("edgar_index", "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1913510&type=6-K&dateb=&owner=include&count=40&output=atom"),
+    ("edgar_json", "https://data.sec.gov/submissions/CIK0001913510.json"),
+    ("vingroup", "https://vingroup.net/"),
+    ("tc_2026_09", "https://thanhcong.vn/tin-tuc/tc-group-thong-bao-doanh-so-ban-hang-xe-hyundai-thang-9-2026.html"),
+    ("tc_news", "https://thanhcong.vn/tin-tuc"),
+    ("csgt", "https://csgt.vn/"),
+    ("csgt_bocongan", "https://csgt.bocongan.gov.vn/"),
+    ("bocongan", "https://bocongan.gov.vn/"),
+]
+lines = ["| name | status | bytes | seconds | url |", "|---|---|---|---|---|"]
+
+def get(name, url, save=True):
+    t = time.time()
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+        with urllib.request.urlopen(req, timeout=90) as r:
+            body = r.read(); st = r.status
+        if save:
+            (OUT / name).write_bytes(body)
+        res = (st, len(body))
+    except Exception as e:  # noqa
+        res = (f"ERR {type(e).__name__}: {str(e)[:80]}", 0)
+    lines.append(f"| {name} | {res[0]} | {res[1]} | {time.time()-t:.1f} | {url} |")
+    print(lines[-1], flush=True)
+
+for n, u in TESTS:
+    get(n + ".html", u)
+for i, u in enumerate(open("scripts/probe_tmp_urls.txt").read().split()):
+    name = "vama_" + urllib.parse.unquote(u.rsplit("/", 1)[1]).replace(" ", "_")
+    get(name, u)
+with open(os.environ.get("GITHUB_STEP_SUMMARY", "/dev/null"), "a") as fh:
+    fh.write("\n".join(lines) + "\n")

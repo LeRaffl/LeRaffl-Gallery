@@ -1,0 +1,25 @@
+# TEMPORARY probe (docs/architecture/42 Phase 0): can GitHub runners reach
+# vama.org.vn, SEC EDGAR, thanhcong.vn, csgt? Downloads go to a workflow
+# artifact only (nothing is committed). Removed before the PR is merged.
+name: probe-tmp (Vietnam reachability)
+on:
+  push:
+    branches: [feat/vietnam]
+    paths: ['scripts/probe_tmp.py', 'scripts/probe_tmp_urls.txt', '.github/workflows/probe-tmp.yml']
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - run: python3 scripts/probe_tmp.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe_out
+          path: probe_out/
+          retention-days: 7
