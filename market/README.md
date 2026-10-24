@@ -42,6 +42,9 @@ PHEV with an EREV tag (`incl_erev`).
 | `japan_top.json` + `japan_months.json` | `scripts/fetch_japan.py` (JADA maker rows; brands only, imports one row) |
 | `singapore_top.json` + `singapore_months.json` | `scripts/fetch_singapore.py` (LTA M03 makes; brands only) |
 | `uruguay_top.json` + `uruguay_months.json` | `scripts/fetch_uruguay.py` (ACAU Compilado `Marca` / `Modelo`, AUTOS + SUV) |
+| `vietnam_top.json` + `vietnam_months.json` | `scripts/fetch_vietnam.py` (VAMA Detail sheet members' models + VinFast's named models; BEV / HEV / MHEV; sales, not registrations) |
+| `vietnam_all_top.json` + `vietnam_all_months.json` | the same script, **every powertrain in one class `ALL`** (adds Hyundai's models and VAMA's non-member imports as one pooled row — neither has a fuel split); shown via `market_breakdown_extra` |
+| `vietnam_checks.json` | `scripts/check_vietnam_reference.py` — not a ranking: our monthly sums against the media totals and police figures in `checks/vietnam_reference.csv` ([03 §3.16b](../docs/architecture/03-data-objects.md)) |
 
 `<slug>_months.json` is the **month store** of a source whose files only
 carry a few recent months: per-month brand/model counts of the ranked classes the

@@ -130,6 +130,7 @@
   - `fetch-ukraine.yml` — täglich 08:40 & 20:40, 1.→15. Ukraine (offenes MIA-Fahrzeugregister auf data.gov.ua, ein Datensatz pro Registrierungsvorgang **mit Kraftstofffeld**; Whole / Private / Industry / Used / Vans aus einem Download, neu/gebraucht über die Vorgangscodes des Registers, ab 2018-09; Hybride als ein kombinierter Hybrid-Topf ohne PHEV-Split; schreibt auch `market/ukraine_top.json` — siehe [40-source-ukraine.md](../docs/architecture/40-source-ukraine.md)).
   - `fetch-uruguay.yml` — täglich 08:00, 1.→EOM. Uruguay (ACAU; die Modellzeilen schreiben auch `market/uruguay_top.json` + `uruguay_months.json`).
   - `fetch-usa.yml` — täglich 10:00, 10.→EOM. USA (trailing 3-month window).
+  - `fetch-vietnam.yml` — zweimal täglich 04:05 & 10:05, 8.→28. Vietnam (Pkw-**Verkäufe** ≈ M1, keine Zulassungen: VAMA-Begleitschreiben + Detail-Blatt als PDF, VinFasts Monatsmeldung auf vingroup.net, TC Groups Hyundai-Tabelle — die Summe ist genau die Marktzahl der Presse; BEV = VinFast + VAMA-BEV, HEV/MHEV je Modell, Nicht-Mitglieder-Importe = OTHERS; schreibt auch `market/vietnam_top.json`, `vietnam_all_top.json` und `vietnam_checks.json` — Abgleich mit den von Hand gepflegten Referenzzahlen in `checks/vietnam_reference.csv`; `vietnam-reference-reminder.yml` hält ein Issue offen, solange eine Referenzzahl fällig ist. Siehe [64-source-vietnam.md](../docs/architecture/64-source-vietnam.md)).
 
 ### 3.6 GitHub Pages
 - **Rolle:** Static Hosting für die Gallery. Auto-Deploy auf jeden Push zu `master`.
