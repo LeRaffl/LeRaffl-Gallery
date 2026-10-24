@@ -17,9 +17,11 @@ here is ever read by a fetcher's scheduled run.
 | `greece/2026-8-BEV.pdf`, `greece/2026-8-PHEV.pdf`, `greece/2026-3-BEV-1.pdf` | SEAA BEV / PHEV registrations by segment, brand and model (2026-03: the shifted "700,00%" volume line) | `scripts/test_fetch_greece.py` |
 | `greece/2023-5-electric-1.pdf` | SEAA combined BEV + PHEV file of the 2021-12..2023-12 layout, May 2023 (printed month in Greek capitals, a few model lines missing) | `scripts/test_fetch_greece.py` |
 | `greece/Δελτίο-τύπου-ΣΕΑΑ-…-Αυγούστου-2026.pdf`, `greece/…-Μαΐου-2023.pdf` | SEAA monthly press releases (fuel shares; 2026 also preliminary counts) | `scripts/test_fetch_greece.py` |
+| `vietnam/vama-cover-2026-09.pdf`, `vietnam/vama-detail-2026-09.pdf` | VAMA cover letter (total industry, members' PC / BEV / Hybrid subtotals) and Detail sheet (member models), September 2026 | `scripts/test_fetch_vietnam.py`; [64-source-vietnam.md](../../docs/architecture/64-source-vietnam.md) |
 
 All were uploaded by the maintainer (`Add files via upload`) while the dev
 sandbox could not reach the source, and moved here from `data/` in 2026-10 (the `greece/` files were mirrored
-from seaa.gr by a GitHub Actions run in 2026-10, the sandbox being blocked).
+from seaa.gr by a GitHub Actions run in 2026-10, the sandbox being blocked; the `vietnam/`
+files were downloaded from vama.org.vn by a GitHub Actions run in 2026-10).
 Add a file here only together with the test or doc that uses it, and list it
 in this table.
