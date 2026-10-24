@@ -758,6 +758,203 @@ def build_notes(fm: dict) -> str:
     return f'<section><h2>How it works</h2>{paras}</section>'
 
 
+# --------------------------------------------------------------------------
+# Reconciliation: how the charted figure relates to other published figures
+# --------------------------------------------------------------------------
+#
+# Front-matter (optional, docs/architecture/31 "Reconciliation"):
+#
+#   reconciliation_heading: "Why other figures differ"     # optional
+#   reconciliation:                  # one table, or a list of tables
+#   - title: "From the media headline to the charted total — September 2026"
+#     lead: "One sentence above the table."                 # optional
+#     head: [Step, Units]                                   # optional
+#     rows:
+#     - ["Published national total (VnEconomy)", "62,590"]
+#     - ["+ VinFast deliveries", "23,624"]
+#     - ["= Whole (passenger cars ≈ M1)", "51,013"]       # "=" → result row, bold
+#     - {cells: ["Police registrations 2025", "624,300"], url: https://…, note: "…"}
+#     note: "Text under the table."                         # optional
+#   checks_file: market/<slug>_checks.json                  # optional, generated
+#
+# A row is a list of cells or a dict {cells, url, note, strong}. Every row of a
+# table has as many cells as `head` (default two). A first cell starting with
+# "=" marks a result line (bold), like `strong: true`. Cells that look like
+# numbers ("62,590", "−9,807", "+5.3 %") are right-aligned. `url` links the
+# first cell, `note` is a small line under it.
+#
+# `checks_file` is a JSON file a fetcher writes with its cross-checks against
+# independent figures (schema in docs/architecture/03 §3.16b); the page renders
+# it as a table so a gap to another published figure can be explained from the
+# page itself. A missing file renders nothing (it appears with the first run).
+
+RECON_DEFAULT_HEAD = ["Step", "Units"]
+CHECK_STATUS = {
+    # status -> (symbol, label, css class)
+    "pass": ("✓", "within tolerance", "ok"),
+    "warn": ("⚠", "outside tolerance — see note", "warn"),
+    "fail": ("✗", "failed — month not written", "bad"),
+    "info": ("ℹ", "information only", "info"),
+    "missing": ("…", "reference figure missing", "miss"),
+}
+_NUMERIC = re.compile(r"^[\s+\-−±=≈~]*[\d.,]+(\s?%|\s?pp)?(\s*·\s*[\d.,]+(\s?%)?)*\s*[✓✗]?$")
+
+
+def _recon_tables(fm: dict) -> list:
+    rec = fm.get("reconciliation")
+    if not rec:
+        return []
+    return rec if isinstance(rec, list) else [rec]
+
+
+def _recon_row(row) -> dict:
+    if isinstance(row, dict):
+        return {"cells": list(row.get("cells") or []), "url": row.get("url"),
+                "note": row.get("note"), "strong": bool(row.get("strong"))}
+    return {"cells": list(row) if isinstance(row, (list, tuple)) else [row],
+            "url": None, "note": None, "strong": False}
+
+
+def validate_reconciliation(fm: dict, where: str) -> list[str]:
+    """--check problems for `reconciliation:` / `checks_file:` (shape only)."""
+    problems = []
+    rec = fm.get("reconciliation")
+    if rec is not None and not isinstance(rec, (list, dict)):
+        return [f"{where}: reconciliation must be a table or a list of tables"]
+    for i, table in enumerate(_recon_tables(fm)):
+        tag = f"{where}: reconciliation[{i}]"
+        if not isinstance(table, dict):
+            problems.append(f"{tag} is not a mapping")
+            continue
+        if not table.get("title"):
+            problems.append(f"{tag} has no title")
+        head = table.get("head") or RECON_DEFAULT_HEAD
+        rows = table.get("rows") or []
+        if not rows:
+            problems.append(f"{tag} has no rows")
+        for j, raw in enumerate(rows):
+            if not isinstance(raw, (list, tuple, dict)):
+                problems.append(f"{tag} row {j + 1} is neither a list nor a mapping")
+                continue
+            cells = _recon_row(raw)["cells"]
+            if len(cells) != len(head):
+                problems.append(f"{tag} row {j + 1} has {len(cells)} cells, "
+                                f"head has {len(head)}")
+    cf = fm.get("checks_file")
+    if cf and not str(cf).endswith(".json"):
+        problems.append(f"{where}: checks_file must be a .json path")
+    return problems
+
+
+def _cell(value, first: bool, url=None, note=None) -> str:
+    text = esc(value)
+    if first and url:
+        text = f'<a href="{esc(url)}">{text}</a>'
+    if first and note:
+        text += f'<div class="dim rnote">{esc(note)}</div>'
+    numeric = not first and bool(_NUMERIC.match(str(value)))
+    return f'<td class="num">{text}</td>' if numeric else f"<td>{text}</td>"
+
+
+def build_reconciliation_table(table: dict) -> str:
+    head = table.get("head") or RECON_DEFAULT_HEAD
+    out = [f'<h3>{esc(table.get("title") or "Reconciliation")}</h3>']
+    if table.get("lead"):
+        out.append(f'<p class="fig-lead">{esc(table["lead"])}</p>')
+    num_cls = ' class="num"'
+    ths = "".join(f'<th{num_cls if k else ""}>{esc(h)}</th>'
+                  for k, h in enumerate(head))
+    trs = []
+    for raw in table.get("rows") or []:
+        row = _recon_row(raw)
+        cells = row["cells"]
+        strong = row["strong"] or str(cells[0] if cells else "").lstrip().startswith("=")
+        tds = "".join(_cell(c, k == 0, row["url"], row["note"]) for k, c in enumerate(cells))
+        cls = ' class="strong"' if strong else ""
+        trs.append(f"<tr{cls}>{tds}</tr>")
+    out.append(f'<div class="scroll"><table class="recon"><tr>{ths}</tr>'
+               f'{"".join(trs)}</table></div>')
+    if table.get("note"):
+        out.append(f'<p class="fig-note">{esc(table["note"])}</p>')
+    return "".join(out)
+
+
+def _fmt_num(v) -> str:
+    if v is None or v == "":
+        return "—"
+    if isinstance(v, bool):
+        return esc(v)
+    if isinstance(v, int):
+        return f"{v:,}".replace("-", "−")
+    if isinstance(v, float):
+        return f"{v:,.1f}".replace("-", "−")
+    return esc(v)
+
+
+def load_checks(fm: dict) -> dict | None:
+    rel = fm.get("checks_file")
+    path = REPO / rel if rel else None
+    if not path or not path.is_file():
+        return None
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return None
+    return doc if isinstance(doc, dict) and doc.get("checks") else None
+
+
+def build_checks_table(doc: dict) -> str:
+    """market/<slug>_checks.json → one row per check, newest first as written."""
+    rows = []
+    for c in doc.get("checks") or []:
+        sym, label, css = CHECK_STATUS.get(c.get("status"), ("·", c.get("status") or "", "info"))
+        gap = c.get("gap")
+        gap_txt = _fmt_num(gap)
+        if c.get("gap_pct") is not None:
+            g = float(c["gap_pct"])
+            g_txt = f"{g:+.2f}" if 0 < abs(g) < 0.1 else f"{g:+.1f}"
+            gap_txt += f' <span class="dim">({g_txt} %)</span>'.replace("-", "−")
+        what = esc(c.get("check", ""))
+        if c.get("url"):
+            what = f'<a href="{esc(c["url"])}">{what}</a>'
+        if c.get("source"):
+            what += f'<div class="dim rnote">{esc(c["source"])}</div>'
+        note = esc(c.get("note") or "")
+        note_html = f'<div class="dim rnote">{note}</div>' if note else ""
+        rows.append(
+            f'<tr><td class="nowrap">{esc(c.get("period", ""))}</td><td>{what}</td>'
+            f'<td class="num">{_fmt_num(c.get("ours"))}</td>'
+            f'<td class="num">{_fmt_num(c.get("theirs"))}</td>'
+            f'<td class="num">{gap_txt}</td>'
+            f'<td>{esc(c.get("tolerance") or "")}</td>'
+            f'<td class="chk chk--{css}" title="{esc(label)}">{sym} {esc(label)}'
+            f'{note_html}</td></tr>')
+    as_of = doc.get("as_of")
+    lead = ("Every month is compared with independent published figures before it "
+            "is written. Ours = the figure this page charts, built the same way "
+            "as the comparison; theirs = the published figure."
+            + (f" Checked through <code>{esc(as_of)}</code>." if as_of else ""))
+    return (f'<h3>{esc(doc.get("title") or "Checks against other published figures")}</h3>'
+            f'<p class="fig-lead">{lead}</p>'
+            '<div class="scroll"><table class="recon checks"><tr><th>Period</th>'
+            '<th>Compared with</th><th class="num">Ours</th><th class="num">Theirs</th>'
+            '<th class="num">Gap</th><th>Tolerance</th><th>Result</th></tr>'
+            f'{"".join(rows)}</table></div>')
+
+
+def build_reconciliation(fm: dict) -> str:
+    """'Why other figures differ': bridge tables from the front-matter plus the
+    fetcher's check table. Empty when the page has neither."""
+    parts = [build_reconciliation_table(t) for t in _recon_tables(fm) if isinstance(t, dict)]
+    checks = load_checks(fm)
+    if checks:
+        parts.append(build_checks_table(checks))
+    if not parts:
+        return ""
+    heading = esc(fm.get("reconciliation_heading") or "Why other figures differ")
+    return f'<section class="recon-sec"><h2>{heading}</h2>{"".join(parts)}</section>'
+
+
 # One shared explainer for every ACEA-fed country, injected by the generator
 # so the ~18 ACEA pages don't repeat the same paragraph in the registry.
 ACEA_GROUP_NOTE = (
@@ -1479,6 +1676,7 @@ def build_page(fm: dict, params: dict, is_stub: bool = False) -> str:
         n_variants=len(variants),
         sources=build_sources_section(fm, last_row),
         notes=build_notes(fm),
+        reconciliation=build_reconciliation(fm),
         market=build_market_breakdown(fm),
         classification=build_classification(fm),
         flow=build_flow(fm),
@@ -1746,6 +1944,16 @@ table.rules th,table.rules td,table.mapping th,table.mapping td{
 table.rules th,table.mapping th{color:var(--muted);font-weight:600;
   position:sticky;top:0;background:var(--panel)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.recon{width:100%;border-collapse:collapse;font-size:14px}
+table.recon th,table.recon td{text-align:left;vertical-align:top;padding:7px 9px;
+  border-bottom:1px solid var(--border)}
+table.recon th{color:var(--muted);font-weight:600}
+table.recon th.num,table.recon td.num{text-align:right}
+table.recon tr.strong td{font-weight:700;border-top:2px solid var(--border)}
+table.recon .rnote{font-size:12.5px;font-weight:400;margin-top:2px}
+table.recon td.chk{white-space:nowrap}
+.chk--ok{color:#2e7d32}.chk--warn{color:#b26a00}.chk--bad{color:#c62828}
+.chk--miss{color:var(--muted)}
 table.rules td:nth-child(2){min-width:140px}
 table.rules td:nth-child(3){min-width:150px;max-width:190px}
 table.rules td:nth-child(4){min-width:220px}
@@ -1810,6 +2018,8 @@ TEMPLATE = """<!doctype html>
   </div>
 
   {notes}
+
+  {reconciliation}
 
   {market}
 
@@ -2037,6 +2247,7 @@ def collect_entries() -> tuple[list[tuple[dict, bool]], list[str]]:
         missing = [f for f in REQUIRED_FIELDS if not fm.get(f)]
         if missing:
             problems.append(f"{where}: missing {', '.join(missing)}")
+        problems.extend(validate_reconciliation(fm, where))
 
     for doc in sorted(DOCS.glob("*-source-*.md")):
         fm = read_front_matter(doc)

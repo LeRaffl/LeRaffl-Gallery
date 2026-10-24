@@ -876,6 +876,34 @@ fuels, no brand × powertrain, so no electrified ranking is possible).
 | Israel | **Wired** (row above). |
 | Germany | **Not available as data.** The monthly release's `…_marken.xlsx` is make × month / year-to-date totals over *all* powertrains (probed 2026-09-26: `Marke | Anzahl | Anteil | Veränd. …`), and KBA's "… nach Marken und alternativen Antrieben" release is a PDF only (year to date). A make × BEV table would mean parsing that PDF — not planned. `fetch_germany.py --dry-run` still logs both (`[probe] marken.xlsx`, `[probe] Antriebe release`). |
 
+### 3.16b Cross-check results (`market/<slug>_checks.json`)
+
+Optional, written by a fetcher that compares its months with independent
+published figures (media totals, a police or ministry count, an association
+headline). The source page renders it under **"Why other figures differ"**
+(front-matter `checks_file:`, [31](31-proposal-country-source-pages.md)), so a
+gap to another number can be explained from the gallery itself. Generated —
+never hand-edited; a missing file simply renders nothing.
+
+```json
+{"schema": 1, "country": "…", "as_of": "YYYY-MM",
+ "title": "optional table heading",
+ "checks": [{"period": "2026-09",          // month, or a range label (2025-H1)
+             "check": "what we compared with",
+             "source": "optional second line (publisher, method)",
+             "url": "https://… the published figure",
+             "ours": 62590, "theirs": 62590,   // int / float / null
+             "gap": 0, "gap_pct": 0.0,          // ours − theirs, and in % of theirs
+             "tolerance": "0 (exact)",          // free text, shown as is
+             "status": "pass|warn|fail|info|missing",
+             "note": "optional explanation"}]}
+```
+
+`status`: `pass` within tolerance · `warn` outside it, month still written
+(the note says why) · `fail` a hard check failed and the month was not written
+· `info` comparison without a tolerance · `missing` the reference figure is
+due but not entered yet (`theirs` null).
+
 ## 3.17 Uncertainty bands (`bands/`)
 
 `bands/<slug>.json`, one per rendered series, written by `R/render_country.R`
