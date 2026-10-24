@@ -1,0 +1,85 @@
+name: Vietnam reference figures (reminder)
+
+# Vietnam's series is checked against figures nobody publishes in a file
+# (docs/architecture/64-source-vietnam.md §5): the monthly "whole market"
+# total the Vietnamese press prints, and the traffic police's (CSGT) half-
+# year and year registration counts. They are entered by hand in
+# checks/vietnam_reference.csv. This workflow lists what is due —
+#   * a media total for each of the three newest months, from the 20th of
+#     the following month,
+#   * CSGT H1 (15 Dec → 14 Jun) from 1 July, the CSGT year from 5 January,
+#   * any reference row without a URL —
+# in the run summary, and keeps ONE open issue labelled
+# `vietnam-reference` (found by the hidden marker <!-- vietnam-reference -->)
+# up to date; the issue is closed with a comment once nothing is due.
+# Plain Python, nothing is committed: market/vietnam_checks.json is written
+# by fetch-vietnam.yml. The comparison itself (ours vs. theirs) warns here
+# too, as annotations.
+#
+# This is the first workflow in the repo that opens issues, hence
+# `issues: write`.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 02:45 UTC (Hanoi 09:45) on the 12th–28th, and 1st–11th of January and
+    # July for the CSGT reports.
+    - cron: '45 2 12-28 * *'
+    - cron: '45 2 1-11 1,7 *'
+
+concurrency: vietnam-reference-reminder
+
+jobs:
+  remind:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: List the due reference figures
+        run: |
+          python scripts/check_vietnam_reference.py --no-write --due due.md
+          {
+            echo "## Vietnam reference figures due"
+            if [ -s due.md ]; then cat due.md; else echo "Nothing due."; fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update the reminder issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          marker='<!-- vietnam-reference -->'
+          number=$(gh issue list --label vietnam-reference --state open --limit 50 \
+                     --json number,body \
+                     --jq "[.[] | select(.body | contains(\"$marker\"))][0].number // empty")
+          if [ -s due.md ]; then
+            {
+              echo "$marker"
+              echo "Reference figures for the Vietnam series are due. Add them to"
+              echo "[\`checks/vietnam_reference.csv\`](../blob/master/checks/vietnam_reference.csv)"
+              echo "(columns: kind, period_from, period_to, figure, rounded, url, note — see"
+              echo "docs/architecture/64-source-vietnam.md §5). This issue updates itself and"
+              echo "closes once nothing is due."
+              echo
+              cat due.md
+            } > body.md
+            if [ -n "$number" ]; then
+              gh issue edit "$number" --body-file body.md
+            else
+              gh label create vietnam-reference --color 0E8A16 \
+                --description "Vietnam reference figures to enter by hand" 2>/dev/null || true
+              gh issue create --title "Vietnam: reference figures due" \
+                --label vietnam-reference --body-file body.md
+            fi
+          elif [ -n "$number" ]; then
+            gh issue close "$number" --comment "Nothing due any more — closing (vietnam-reference-reminder.yml)."
+          else
+            echo "Nothing due, no open issue."
+          fi
