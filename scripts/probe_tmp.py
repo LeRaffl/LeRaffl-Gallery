@@ -5,10 +5,13 @@ UA = "Mozilla/5.0 (X11; Linux x86_64) LeRaffl-Gallery probe (github.com/LeRaffl/
 OUT = pathlib.Path("probe_out"); OUT.mkdir(exist_ok=True)
 SEC_UA = "LeRaffl-Gallery grokbot@users.noreply.github.com"
 TESTS2 = [
-    ("edgar_json_ua", "https://data.sec.gov/submissions/CIK0001913510.json"),
-    ("edgar_index_ua", "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1913510&type=6-K&dateb=&owner=include&count=40&output=atom"),
-    ("edgar_doc_ua", "https://www.sec.gov/Archives/edgar/data/1913510/"),
-    ("efts_ua", "https://efts.sec.gov/LATEST/search-index?q=%22VinFast%22&forms=6-K"),
+    ("vg_news", "https://vingroup.net/tin-tuc-su-kien"),
+    ("vg_news_p2", "https://vingroup.net/tin-tuc-su-kien?page=2"),
+    ("vg_search", "https://vingroup.net/tim-kiem?keyword=VinFast%20b%C3%A0n%20giao"),
+    ("vg_art", "https://www.vingroup.net/vi/tin-tuc-su-kien/bai-viet/9096/vinfast-ban-giao-23624-o-to-dien-tai-viet-nam-trong-thang-9"),
+    ("vg_art2", "https://vingroup.net/tin-tuc-su-kien/bai-viet/9096/vinfast-ban-giao-23624-o-to-dien-tai-viet-nam-trong-thang-9"),
+    ("vg_en_news", "https://vingroup.net/en/news"),
+    ("vinfast_news", "https://vinfastauto.com/vn_vi/tin-tuc"),
 ]
 TESTS = [
     ("vama_list", "http://vama.org.vn/en/sales-report.html"),
@@ -42,7 +45,7 @@ def get(name, url, save=True, ua=None):
     print(lines[-1], flush=True)
 
 for n, u in TESTS2:
-    get(n + ".html", u, ua=SEC_UA)
+    get(n + ".html", u, ua=UA)
 TESTS = TESTS[:1]
 for n, u in TESTS:
     get(n + ".html", u)
