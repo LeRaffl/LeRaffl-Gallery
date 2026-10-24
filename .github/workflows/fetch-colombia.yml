@@ -6,9 +6,21 @@ name: Fetch Colombia data (ANDI/FENALCO Boletín)
 # registry — the same registry behind ANDEMOS's gated dashboards, just
 # delivered as a free public PDF here).
 #
-# Single variant (Whole, passenger cars). Colombia does not split PHEV vs HEV
-# in this report — combined "híbridos" go in the HEV column ("single Hybrid
-# bucket" convention shared with Türkiye and Georgia).
+# Since Sept 2026 the Cámara page no longer links monthlies, so discovery also
+# reads ANDI's press note for the month (PDF embedded there) and then tries the
+# known /Uploads/ filename shapes. If no PDF for the month is reachable at all,
+# the month is filled from FENALCO's public press text (fenalco.com.co/blog/
+# gremial-4) — target month only, cross-checked against the previous month,
+# flagged "fenalco press text - provisional …" in notes; daily runs keep
+# looking for the PDF and the first bulletin that carries the month overwrites
+# it. Once FENALCO lists the month, a month we still cannot ingest fails the
+# run on any day; before that, a miss is quiet until day 20.
+#
+# Single variant (Whole = the bulletin's "vehículos nuevos" total: all new
+# four-wheel vehicles incl. pick-ups, vans and commercial, not passenger cars
+# only — see doc 18 § 3a). Colombia does not split PHEV vs HEV in this
+# report — combined "híbridos" go in the HEV column ("single Hybrid bucket"
+# convention shared with Türkiye and Georgia).
 #
 # Set dry_run=true to discover, download and parse the newest bulletin and
 # print what would change — plus the full `pdftotext -layout` output — without
@@ -46,7 +58,7 @@ on:
     # ANDI/FENALCO publishes the previous month's boletín somewhere in the
     # first ~3 weeks of each month. Poll daily 5th–25th at 07:30 UTC (free
     # slot); per-variant early-exit makes runs no-ops once the previous month
-    # is in the CSV.
+    # is in the CSV from a boletín (a provisional press-text row does not count).
     - cron: '30 7 5-25 * *'
 
 jobs:

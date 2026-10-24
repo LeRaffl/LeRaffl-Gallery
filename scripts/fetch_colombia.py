@@ -8,6 +8,7 @@ Usage
 -----
     python scripts/fetch_colombia.py [--pdf-url URL] [--force] [--dry-run]
                                      [--dump-text] [--debug-dir DIR]
+                                     [--no-fenalco-fallback]
 
 Source
 ------
@@ -54,22 +55,38 @@ annual "A DICIEMBRE" one for the same month.
 In September 2026 ANDI rewrote that tab into a year-end archive: eight links,
 "INFORME FINAL SECTOR AUTOMOTOR 2018…2025", and no monthly file newer than
 Dec-2025. The monthly PDFs were not withdrawn — Feb…Aug 2026 still answer 200
-at their original /Uploads/ paths — they are just not linked from anywhere.
-FENALCO keeps a monthly index (fenalco.com.co/blog/gremial-4) but serves its
-copy behind a login, so it identifies months without yielding files.
+at their original /Uploads/ paths — they are just not linked from the page.
 
-So discovery has two legs (`resolve_bulletin`): scrape the listing, and if the
-newest thing on it is older than the month we came for, reconstruct that
-month's /Uploads/ URL from the filename shapes ANDI has actually used
-(`monthly_url_candidates`). Guessing is only safe because of what checks it:
-a candidate must answer 200 *and* begin with %PDF (one live URL returns an
-empty body), and a guessed URL must then parse to a series ending on exactly
-the month we asked for, or the run aborts rather than upsert the wrong month.
+So discovery has three legs (`resolve_bulletin`): scrape the listing; if the
+newest thing on it is older than the month we came for, look for the month's
+PDF embedded in ANDI's own press note (`find_in_andi_news` — the only place
+that still links it, and the only way to learn a name with a <ticks> suffix);
+then reconstruct the month's /Uploads/ URL from the filename shapes ANDI has
+actually used (`monthly_url_candidates`). An unlisted URL is only safe because
+of what checks it: it must answer 200 *and* begin with %PDF (one live URL
+returns an empty body), and must then parse to a series ending on exactly the
+month we asked for, or the run aborts rather than upsert the wrong month.
 
-If neither leg reaches the target month, `require_target_month` exits quietly
-before the 20th (ANDI publishes over the first ~3 weeks) and fails the run
-after it. A fetcher that reports success while fetching nothing is what hid
-the 2026 stall for eight months and this one for three weeks.
+FENALCO press-text fallback
+---------------------------
+The September 2026 PDF was never reachable at all: no press note, no
+guessable name. FENALCO's post for the month (fenalco.com.co/blog/gremial-4)
+keeps its PDF behind a login, but the post *text* is public and states the
+month's TOTAL, BEV ("eléctricos") and hybrid ("híbridos") counts — the same
+RUNT figures as the boletín (backtested exactly on Jul/Aug 2026).
+`fenalco_fallback` uses it only when no PDF for the target month is
+reachable: it fills the target month alone, cross-checks the previous month's
+post against the CSV first, fails loudly on wording it does not recognise,
+and flags the row in `notes` (FENALCO_NOTE). A provisional row does not count
+as "already have it" for the early exit, so the daily runs keep looking for
+the PDF, and the first bulletin that carries the month overwrites the row.
+
+If no leg reaches the target month: when FENALCO already lists the month the
+run fails at once (published, but we cannot get it); otherwise
+`require_target_month` exits quietly before the 20th (ANDI publishes over the
+first ~3 weeks) and fails the run after it. A fetcher that reports success
+while fetching nothing is what hid the 2026 stall for eight months and this
+one for three weeks.
 
 Parser
 ------
@@ -117,9 +134,16 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 CAMARA_URL = "https://www.andi.com.co/Home/Camara/4-automotriz"
+ANDI_NEWS_URL = "https://www.andi.com.co/Home/Noticias"
+FENALCO_INDEX_URL = "https://www.fenalco.com.co/blog/gremial-4"
 SOURCE = "andi.com.co + fenalco (datos RUNT)"
 CSV_PATH = "data/Colombia.csv"
 VARIANT = "Whole"
+# Marks a row filled from FENALCO's press text instead of the PDF, and makes it
+# provisional (csv_has_final_period). The `source` stays SOURCE — same
+# publishers, same RUNT figures — so the chart's "Source:" line does not flip
+# for a month or two.
+FENALCO_NOTE = "fenalco press text - provisional until the ANDI/FENALCO PDF is reachable"
 
 MONTH_ABBR = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6,
               "jul": 7, "ago": 8, "sep": 9, "oct": 10, "nov": 11, "dic": 12}
@@ -316,7 +340,95 @@ def monthly_url_candidates(year: int, month: int) -> list[str]:
         f"{month:02d}. INFORME SECTOR AUTOMOTOR {full}{year}_PRENSA.pdf",
         # 2025 shape — "_PRENSA-INDUSTRIA <year>"
         f"{month:02d}. INFORME SECTOR AUTOMOTOR {abbr}_PRENSA-INDUSTRIA {year}.pdf",
-    )]
+    )] + ([UPLOADS_BASE + quote(stem) for stem in (
+        # September has two other spellings in Spanish filenames: four-letter
+        # SEPT and the "SETIEMBRE" abbreviation SET. Never seen on ANDI yet,
+        # but cheap to try — each miss is one 404.
+        f"09. INFORME SECTOR AUTOMOTOR SEPT{year}_PRENSA.pdf",
+        f"09. INFORME SECTOR AUTOMOTOR SET{year}_PRENSA.pdf",
+    )] if month == 9 else [])
+
+
+# ANDI's press notes: /Home/Noticia/<id>-<slug>, the slug cut at ~40 chars
+# ("18083-andi-y-fenalco-en-agosto-de-2026-se-reg"). The note for a month's
+# boletín embeds the PDF in an <iframe src="…/Uploads/….pdf">.
+NEWS_LINK_RE = re.compile(r'''href\s*=\s*["'](/Home/Noticia/(\d+)-([^"'#?]*))["']''', re.IGNORECASE)
+NEWS_SLUG_HINT_RE = re.compile(r"fenalco|automot|vehicul|matricul", re.IGNORECASE)
+NEWS_MAX_ARTICLES = 8
+EMBEDDED_PDF_RE = re.compile(r'''(?:href|src)\s*=\s*["']([^"']+?\.pdf)(?:[?#][^"']*)?["']''', re.IGNORECASE)
+
+
+def news_article_links(listing_html: str) -> list[str]:
+    """Absolute URLs of press notes whose slug looks like the automotive report, newest id first."""
+    seen: dict[int, str] = {}
+    for m in NEWS_LINK_RE.finditer(listing_html):
+        path, nid, slug = m.group(1), int(m.group(2)), m.group(3)
+        if NEWS_SLUG_HINT_RE.search(slug) and nid not in seen:
+            seen[nid] = urljoin(ANDI_NEWS_URL, path)
+    return [seen[k] for k in sorted(seen, reverse=True)][:NEWS_MAX_ARTICLES]
+
+
+def bulletin_pdfs_in_article(article_html: str, base_url: str, year: int, month: int) -> list[str]:
+    """Bulletin PDF URLs embedded in a press note that classify as exactly (year, month)."""
+    found: list[str] = []
+    for m in EMBEDDED_PDF_RE.finditer(article_html):
+        href = m.group(1)
+        info = classify_pdf_name(_basename(href))
+        if info and (info[0], info[1]) == (year, month):
+            url = urljoin(base_url, html.unescape(href))
+            if url not in found:
+                found.append(url)
+    return found
+
+
+def find_in_andi_news(session: requests.Session, year: int,
+                      month: int) -> tuple[str, bytes] | None:
+    """Locate a month's boletín through the ANDI press note that embeds it.
+
+    ANDI announces each boletín in a press note ("ANDI y FENALCO: en agosto de
+    2026 se registraron …") with the PDF in an iframe. That is the only place
+    the file is still linked since the Cámara page stopped listing monthlies,
+    and the only way to learn a name with a per-upload <ticks> suffix
+    (Jul-2026, Dec-2025), which no amount of URL guessing can produce.
+
+    Same verification as find_unlisted_monthly: 200 and a body starting with
+    %PDF; the caller then requires the series to end on (year, month).
+    Network trouble here is reported and skipped — the next leg still runs.
+    """
+    print(f"Looking for the {year}-{month:02d} boletín in ANDI press notes ({ANDI_NEWS_URL}):")
+    try:
+        r = session.get(ANDI_NEWS_URL, timeout=30)
+        r.raise_for_status()
+    except requests.RequestException as exc:
+        print(f"  news listing unavailable ({type(exc).__name__}) — skipping this leg")
+        return None
+    articles = news_article_links(r.text)
+    if not articles:
+        print("  no automotive-looking press note on the listing")
+        return None
+    for article in articles:
+        try:
+            a = session.get(article, timeout=30)
+            a.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"  {type(exc).__name__}: {article}")
+            continue
+        pdfs = bulletin_pdfs_in_article(a.text, article, year, month)
+        if not pdfs:
+            print(f"  no {year}-{month:02d} boletín in {article}")
+            continue
+        for url in pdfs:
+            try:
+                p = session.get(url, timeout=60)
+            except requests.RequestException as exc:
+                print(f"  {type(exc).__name__}: {_basename(url)}")
+                continue
+            if p.status_code == 200 and p.content.startswith(b"%PDF"):
+                print(f"  found in {article} ({len(p.content)} bytes): {_basename(url)}")
+                return url, p.content
+            why = f"HTTP {p.status_code}" if p.status_code != 200 else f"not a PDF ({len(p.content)} bytes)"
+            print(f"  embedded but no ({why}): {_basename(url)}")
+    return None
 
 
 def find_unlisted_monthly(session: requests.Session, year: int,
@@ -327,8 +439,8 @@ def find_unlisted_monthly(session: requests.Session, year: int,
     AUTOMOTOR" tab from a list of monthly PDFs into a year-end archive
     (2018–2025). The monthly files were not withdrawn — Feb…Aug 2026 all still
     answer 200 at their original /Uploads/ paths — they are simply unreachable
-    from any page. FENALCO still indexes the months but puts its own copy
-    behind a login, so scraping it buys nothing.
+    from the page (find_in_andi_news covers the press notes that still embed
+    them; this covers the rest).
 
     What makes guessing safe here is the verification, not the guess: a
     candidate counts only if the body really begins with %PDF (one live URL
@@ -359,18 +471,25 @@ def resolve_bulletin(session: requests.Session, wanted: str, dump_listing: bool 
                      debug_dir: str | None = None) -> tuple[str, int, int, bool, bytes | None]:
     """(url, year, month, was_guessed, pdf) for `wanted` (YYYY-MM), else the newest listed one.
 
-    `was_guessed` marks a URL that came from monthly_url_candidates() rather
-    than from a link on the page; the caller holds those to a stricter check.
+    Legs, in order: the Cámara page listing, the PDF embedded in ANDI's press
+    note for the month (find_in_andi_news), the reconstructed /Uploads/ names
+    (find_unlisted_monthly).
+
+    `was_guessed` marks a URL that did not come from the Cámara listing (press
+    note or constructed name); the caller holds those to the stricter check
+    that the parsed series must end on exactly `wanted`.
     `pdf` is the already-downloaded body when the search fetched it, else None.
     """
     url, year, month = discover_latest_pdf(session, dump_listing, debug_dir)
     print(f"Latest listed PDF: {year}-{month:02d} -> {url}")
     if f"{year}-{month:02d}" >= wanted:
         return url, year, month, False, None
-    alt = find_unlisted_monthly(session, int(wanted[:4]), int(wanted[5:]))
-    if alt:
-        alt_url, pdf = alt
-        return alt_url, int(wanted[:4]), int(wanted[5:]), True, pdf
+    wy, wm = int(wanted[:4]), int(wanted[5:])
+    for leg in (find_in_andi_news, find_unlisted_monthly):
+        alt = leg(session, wy, wm)
+        if alt:
+            alt_url, pdf = alt
+            return alt_url, wy, wm, True, pdf
     return url, year, month, False, None
 
 
@@ -387,8 +506,9 @@ def require_target_month(wanted: str, got: str, today: date | None = None) -> No
         return
     today = today or date.today()
     msg = (f"No boletín for {wanted} is reachable — the newest one we can get is {got}. "
-           f"The Cámara page no longer lists monthly bulletins and no known "
-           f"/Uploads/ filename shape for {wanted} answered with a PDF.")
+           f"The Cámara page no longer lists monthly bulletins, no ANDI press note "
+           f"embeds it, no known /Uploads/ filename shape for {wanted} answered with "
+           f"a PDF, and FENALCO has no post for it either.")
     if today.day < PUBLICATION_GRACE_DAY:
         print(f"{msg}\nIt is only day {today.day} of the month, so this is most likely "
               f"'not published yet'. Nothing to do.")
@@ -399,6 +519,195 @@ def require_target_month(wanted: str, got: str, today: date | None = None) -> No
         f"Re-run with dump_listing=true to see what {CAMARA_URL} offers, then either\n"
         f"add the new filename shape to monthly_url_candidates() or pass pdf_url= directly."
     )
+
+
+# --- FENALCO press-text fallback -------------------------------------------
+#
+# FENALCO's post for each month ("Informe del Sector Automotor a Septiembre
+# 2026") serves the PDF behind /web/login, but its body text is public and
+# states the month's three numbers we need. Used only when no PDF for the
+# target month is reachable; see fenalco_fallback().
+
+# Post slugs: informe-del-sector-automotor-a-agosto-2026-9088. The motorcycle
+# report ("informe-del-sector-motocicletas-…") never matches.
+FENALCO_POST_RE = re.compile(
+    r'''href\s*=\s*["']((?:https?://[^"'/]*fenalco\.com\.co)?/blog/gremial-4/'''
+    r'''informe-del-sector-automotor-a-([a-z]+)(?:-a)?-(\d{4})-(\d+))["']''',
+    re.IGNORECASE,
+)
+# A Spanish count: "33.835", "947".
+_ES_INT = r'(\d{1,3}(?:\.\d{3})+|\d+)'
+# A sentence ends at a "." that is not a thousands separator.
+_SENTENCE_SPLIT_RE = re.compile(r'\.(?!\d)')
+
+
+def fenalco_post_url(index_html: str, year: int, month: int) -> str | None:
+    """The FENALCO post URL for (year, month) on the gremial-4 index, else None."""
+    want = MONTH_FULL_BY_NUM[month].lower()
+    for m in FENALCO_POST_RE.finditer(index_html):
+        name = m.group(2).lower()
+        if name == "setiembre":
+            name = "septiembre"
+        if name == want and int(m.group(3)) == year:
+            return urljoin(FENALCO_INDEX_URL, html.unescape(m.group(1)))
+    return None
+
+
+def _html_to_text(fragment: str) -> str:
+    no_tags = re.sub(r'<(script|style)\b.*?</\1>', ' ', fragment, flags=re.IGNORECASE | re.DOTALL)
+    no_tags = re.sub(r'<[^>]+>', ' ', no_tags)
+    return re.sub(r'\s+', ' ', html.unescape(no_tags)).strip()
+
+
+def _single(values: list[int], what: str, period: str) -> int:
+    distinct = sorted(set(values))
+    if len(distinct) != 1:
+        raise RuntimeError(
+            f"FENALCO post for {period}: expected one {what} figure, found {distinct or 'none'} — "
+            f"the press-text wording is not recognised. Read the post and adjust "
+            f"parse_fenalco_post() before trusting it."
+        )
+    return distinct[0]
+
+
+def parse_fenalco_post(page_html: str, year: int, month: int) -> dict:
+    """{'TOTAL', 'BEV', 'HEV'} for (year, month) from a FENALCO post page.
+
+    Tight on purpose — every rule below fails the run rather than guess:
+      * only the post body (#o_wblog_post_content … #o_wblog_post_footer) is
+        read, so teasers of the motorcycle report or other posts never count;
+      * the body must name "Informe de Registro de Vehículos a <mes> de <año>";
+      * TOTAL comes from "(En|Durante) <mes> [de <año>] se (registraron|
+        matricularon) N vehículos nuevos" — the YTD sentence ("Entre enero y
+        <mes> …") never matches; every hit must agree;
+      * BEV / HEV come from sentences that mention "eléctric…" (resp.
+        "híbrid…") but not the other, and end the number with "unidades";
+        a combined "eléctricos e híbridos … N unidades" sentence counts for
+        neither. Every hit must agree;
+      * BEV + HEV must not exceed TOTAL.
+    """
+    period = f"{year}-{month:02d}"
+    start = page_html.find('id="o_wblog_post_content"')
+    end = page_html.find('id="o_wblog_post_footer"', start + 1)
+    if start < 0 or end < 0:
+        raise RuntimeError(f"FENALCO post for {period}: post body markers not found — page layout changed.")
+    text = _html_to_text(page_html[start:end])
+    mes = MONTH_FULL_BY_NUM[month].lower()
+    mes_re = "(?:septiembre|setiembre)" if month == 9 else mes
+    if not re.search(rf'Informe de Registro de Veh[íi]culos a {mes_re} de {year}', text, re.IGNORECASE):
+        raise RuntimeError(f"FENALCO post for {period}: does not say it reports {mes} {year} — wrong post?")
+
+    totals = [parse_value(m.group(1)) for m in re.finditer(
+        rf'(?:En|Durante) {mes_re}(?: de {year})?,? se (?:registraron|matricularon) {_ES_INT} veh[íi]culos nuevos',
+        text, re.IGNORECASE)]
+    bevs: list[int] = []
+    hevs: list[int] = []
+    for sentence in _SENTENCE_SPLIT_RE.split(text):
+        low = sentence.lower()
+        if "motocicleta" in low:
+            continue
+        has_e, has_h = "eléctric" in low or "electric" in low, "híbrid" in low or "hibrid" in low
+        if has_e == has_h:
+            continue
+        hits = [parse_value(m.group(1)) for m in re.finditer(rf'{_ES_INT}\s+unidades', sentence)]
+        (bevs if has_e else hevs).extend(hits)
+    total = _single(totals, "TOTAL ('se registraron N vehículos nuevos')", period)
+    bev = _single(bevs, "BEV ('eléctricos … N unidades')", period)
+    hev = _single(hevs, "hybrid ('híbridos … N unidades')", period)
+    if bev + hev > total:
+        raise RuntimeError(f"FENALCO post for {period}: BEV+HEV ({bev}+{hev}) exceeds TOTAL ({total}).")
+    return {"TOTAL": total, "BEV": bev, "HEV": hev}
+
+
+def fenalco_row(period: str, values: dict) -> dict:
+    return {
+        "period": period, "time_interval": "monthly", "variant": VARIANT, "source": SOURCE,
+        "BEV": values["BEV"], "PHEV": "", "HEV": values["HEV"],
+        "PETROL": "", "DIESEL": "", "FLEXFUEL": "", "OTHERS": "",
+        "TOTAL": values["TOTAL"], "ICE": None, "notes": FENALCO_NOTE,
+    }
+
+
+def _previous_period(period: str) -> tuple[int, int]:
+    y, m = int(period[:4]), int(period[5:])
+    return (y - 1, 12) if m == 1 else (y, m - 1)
+
+
+# How far the previous month's press-text figures may sit from the CSV before
+# we stop trusting the text as a stand-in for the PDF. Same release, same
+# RUNT extract — Jul/Aug 2026 match to the unit; a revision in a later
+# bulletin moves a count by a handful, a scope change by far more.
+FENALCO_CROSSCHECK_TOLERANCE = 0.01
+
+
+def crosscheck_previous_month(prev: str, parsed: dict, csv_row: dict | None) -> None:
+    """Fail unless FENALCO's text for `prev` matches what the CSV has for it."""
+    if csv_row is None:
+        raise RuntimeError(
+            f"Cannot cross-check FENALCO's press text: the CSV has no {prev} row. "
+            f"Fill {prev} from a bulletin first (pdf_url=…) — the fallback only ever fills one month.")
+    for col in ("TOTAL", "BEV", "HEV"):
+        have = _num(csv_row.get(col))
+        got = float(parsed[col])
+        if have is None:
+            raise RuntimeError(f"Cannot cross-check FENALCO's press text: CSV {prev} has no {col}.")
+        diff = abs(got - have) / have if have else float(got != have)
+        if diff > FENALCO_CROSSCHECK_TOLERANCE:
+            raise RuntimeError(
+                f"FENALCO press text for {prev} says {col}={got:.0f}, the CSV (from the boletín) has "
+                f"{have:.0f} — the text no longer measures what the PDF does. Not using it.")
+        if got != have:
+            print(f"  note: {prev} {col} press text {got:.0f} vs CSV {have:.0f} (within tolerance)")
+    print(f"  cross-check {prev}: press text matches the CSV (TOTAL/BEV/HEV)")
+
+
+def fenalco_fallback(session: requests.Session, wanted: str, csv_path: str,
+                     write: bool) -> bool:
+    """Fill `wanted` from FENALCO's public press text. Returns True if handled.
+
+    False means FENALCO does not list the month (or cannot be reached) — the
+    caller then applies the usual "not published yet / overdue" rule. When
+    FENALCO *does* list the month, every problem from here on is a failure:
+    the month is out, and we cannot get it.
+    """
+    y, m = int(wanted[:4]), int(wanted[5:])
+    print(f"No PDF for {wanted} reachable — trying FENALCO's press text ({FENALCO_INDEX_URL}):")
+    try:
+        r = session.get(FENALCO_INDEX_URL, timeout=30)
+        r.raise_for_status()
+    except requests.RequestException as exc:
+        print(f"  ::warning title=FENALCO index unreachable::{type(exc).__name__} — no fallback this run")
+        return False
+    post = fenalco_post_url(r.text, y, m)
+    if post is None:
+        print(f"  FENALCO has no post for {wanted} yet")
+        return False
+    print(f"  FENALCO lists {wanted}: {post}")
+    try:
+        values = parse_fenalco_post(session.get(post, timeout=30).text, y, m)
+        print(f"  {wanted} press text: TOTAL={values['TOTAL']} BEV={values['BEV']} HEV={values['HEV']}")
+        py, pm = _previous_period(wanted)
+        prev = f"{py}-{pm:02d}"
+        prev_post = fenalco_post_url(r.text, py, pm)
+        if prev_post is None:
+            raise RuntimeError(f"FENALCO index has no post for {prev}, so the press text cannot be cross-checked.")
+        existing = read_csv(csv_path)
+        crosscheck_previous_month(prev, parse_fenalco_post(session.get(prev_post, timeout=30).text, py, pm),
+                                  existing.get((prev, VARIANT)))
+        old = existing.get((wanted, VARIANT))
+        if old is not None and FENALCO_NOTE not in (old.get("notes") or ""):
+            print(f"  CSV already has {wanted} from a boletín — press text not applied.")
+            return True
+    except (RuntimeError, requests.RequestException) as exc:
+        print(f"::error title=Colombia {wanted} published but not ingestible::{exc}")
+        raise SystemExit(
+            f"FENALCO lists {wanted} ({post}) but neither a PDF nor its press text could be used:\n  {exc}")
+    added, updated, skipped = upsert_csv(csv_path, {(wanted, VARIANT): fenalco_row(wanted, values)}, write=write)
+    print(f"::warning title=Colombia {wanted} from FENALCO press text::No PDF reachable; {wanted} "
+          f"filled from {post} and flagged in notes. The first bulletin carrying {wanted} overwrites it.")
+    print(f"{added} added, {updated} updated, {skipped} skipped -> {csv_path}"
+          + ("" if write else " (dry run, nothing written)"))
+    return True
 
 
 def download_pdf(url: str, session: requests.Session) -> bytes:
@@ -703,6 +1012,12 @@ def csv_has_period(csv_path: str, period: str) -> bool:
     return period in csv_periods(csv_path)
 
 
+def csv_has_final_period(csv_path: str, period: str) -> bool:
+    """True if `period` is in the CSV from a boletín, not just from FENALCO's press text."""
+    row = read_csv(csv_path).get((period, VARIANT))
+    return row is not None and FENALCO_NOTE not in (row.get("notes") or "")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--pdf-url", default=None,
@@ -718,10 +1033,14 @@ def main() -> None:
                          "mentions) — for discovery work in CI logs. The full HTML goes to --debug-dir.")
     ap.add_argument("--debug-dir", default=None,
                     help="Save the downloaded PDF and its pdftotext output into this directory.")
+    ap.add_argument("--no-fenalco-fallback", action="store_true",
+                    help="Do not fall back to FENALCO's press text when no PDF for the month is reachable.")
     args = ap.parse_args()
 
+    # A month filled from FENALCO's press text is provisional: keep looking
+    # for the boletín until one carries it.
     if not args.pdf_url and not args.force and not args.dry_run \
-            and csv_has_period(CSV_PATH, previous_month_period()):
+            and csv_has_final_period(CSV_PATH, previous_month_period()):
         print(f"CSV already has {previous_month_period()}; nothing to do (use --force or --pdf-url).")
         return
 
@@ -754,6 +1073,9 @@ def main() -> None:
         url, year, n, guessed_url, pdf = resolve_bulletin(
             session, wanted, args.dump_listing, args.debug_dir)
         print(f"Using: {year}-{n:02d} -> {url}")
+        if f"{year}-{n:02d}" < wanted and not args.no_fenalco_fallback \
+                and fenalco_fallback(session, wanted, CSV_PATH, write=not args.dry_run):
+            return
         require_target_month(wanted, f"{year}-{n:02d}")
 
     if pdf is None:  # not already fetched by the unlisted-URL search
@@ -786,14 +1108,14 @@ def main() -> None:
         mismatch = (f"newest month in the PDF text is {parsed_periods[-1]}, "
                     f"but the filename says {year}-{n:02d}")
         if guessed_url:
-            # This URL was constructed, not linked, so the filename is our
-            # assumption rather than ANDI's statement. If the contents disagree
+            # This URL was constructed or found outside the Cámara listing,
+            # so the filename is our assumption rather than ANDI's statement. If the contents disagree
             # with it, we guessed wrong — publishing the wrong month's numbers
             # under the right label would be far worse than fetching nothing.
-            print(f"::error title=Colombia constructed URL is not the month we asked for::{mismatch}")
+            print(f"::error title=Colombia unlisted URL is not the month we asked for::{mismatch}")
             raise SystemExit(
-                f"Constructed URL {url}\n  {mismatch}.\n"
-                f"Refusing to upsert: the guessed filename shape no longer identifies the month."
+                f"Unlisted URL (press note or constructed) {url}\n  {mismatch}.\n"
+                f"Refusing to upsert: the filename no longer identifies the month."
             )
         print(f"  WARNING {mismatch}")
 

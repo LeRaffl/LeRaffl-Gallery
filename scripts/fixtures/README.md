@@ -17,9 +17,13 @@ here is ever read by a fetcher's scheduled run.
 | `greece/2026-8-BEV.pdf`, `greece/2026-8-PHEV.pdf`, `greece/2026-3-BEV-1.pdf` | SEAA BEV / PHEV registrations by segment, brand and model (2026-03: the shifted "700,00%" volume line) | `scripts/test_fetch_greece.py` |
 | `greece/2023-5-electric-1.pdf` | SEAA combined BEV + PHEV file of the 2021-12..2023-12 layout, May 2023 (printed month in Greek capitals, a few model lines missing) | `scripts/test_fetch_greece.py` |
 | `greece/Δελτίο-τύπου-ΣΕΑΑ-…-Αυγούστου-2026.pdf`, `greece/…-Μαΐου-2023.pdf` | SEAA monthly press releases (fuel shares; 2026 also preliminary counts) | `scripts/test_fetch_greece.py` |
+| `colombia/fenalco_informe-del-sector-automotor-a-{septiembre-2026-9171,agosto-2026-9088,julio-2026-9021}.html` | FENALCO blog posts for the Sep/Aug/Jul 2026 automotive report (public press text; PDF itself behind login) | `scripts/test_fetch_colombia.py` (`test_fenalco_*`); [18-source-colombia.md](../../docs/architecture/18-source-colombia.md) § FENALCO press-text fallback |
+| `colombia/fenalco_blog_gremial-4.html` | FENALCO gremial-4 blog index (lists the monthly car and motorcycle reports) | `scripts/test_fetch_colombia.py` (`test_fenalco_*`) |
+| `colombia/andi_noticias.html`, `colombia/andi_noticia_18083.html`, `colombia/andi_noticia_18084.html` | ANDI press-note listing; the Aug-2026 car note (boletín embedded as iframe) and the motorcycle note beside it | `scripts/test_fetch_colombia.py` (`test_andi_news_*`, `test_resolve_bulletin_tries_press_notes_before_guessing`) |
 
 All were uploaded by the maintainer (`Add files via upload`) while the dev
 sandbox could not reach the source, and moved here from `data/` in 2026-10 (the `greece/` files were mirrored
-from seaa.gr by a GitHub Actions run in 2026-10, the sandbox being blocked).
+from seaa.gr by a GitHub Actions run in 2026-10, the sandbox being blocked; the `colombia/` pages were saved from
+andi.com.co / fenalco.com.co on 2026-10-24, anonymous CSRF tokens replaced by `REDACTED`).
 Add a file here only together with the test or doc that uses it, and list it
 in this table.
