@@ -7,6 +7,7 @@ TESTS = [
     ("vama_list", "http://vama.org.vn/en/sales-report.html"),
     ("vama_list_https", "https://vama.org.vn/en/sales-report.html"),
     ("vama_list_p2", "http://vama.org.vn/en/sales-report.html?Page=2"),
+    ("vama_home_www", "http://www.vama.org.vn/"),
     ("edgar_index", "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1913510&type=6-K&dateb=&owner=include&count=40&output=atom"),
     ("edgar_json", "https://data.sec.gov/submissions/CIK0001913510.json"),
     ("vingroup", "https://vingroup.net/"),
@@ -16,13 +17,14 @@ TESTS = [
     ("csgt_bocongan", "https://csgt.bocongan.gov.vn/"),
     ("bocongan", "https://bocongan.gov.vn/"),
 ]
+TIMEOUT = 40
 lines = ["| name | status | bytes | seconds | url |", "|---|---|---|---|---|"]
 
 def get(name, url, save=True):
     t = time.time()
     try:
         req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
-        with urllib.request.urlopen(req, timeout=90) as r:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
             body = r.read(); st = r.status
         if save:
             (OUT / name).write_bytes(body)
@@ -34,7 +36,13 @@ def get(name, url, save=True):
 
 for n, u in TESTS:
     get(n + ".html", u)
-for i, u in enumerate(open("scripts/probe_tmp_urls.txt").read().split()):
+ok_vama = any(l.startswith("| vama_list") and "| 200 |" in l for l in lines)
+print("VAMA listing reachable:", ok_vama, flush=True)
+urls = open("scripts/probe_tmp_urls.txt").read().split()
+if not ok_vama:
+    urls = urls[:2]  # two direct PDF attempts, then give up
+TIMEOUT = 120
+for i, u in enumerate(urls):
     name = "vama_" + urllib.parse.unquote(u.rsplit("/", 1)[1]).replace(" ", "_")
     get(name, u)
 with open(os.environ.get("GITHUB_STEP_SUMMARY", "/dev/null"), "a") as fh:
