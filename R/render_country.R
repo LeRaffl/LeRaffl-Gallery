@@ -215,8 +215,9 @@ reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
 reg_legend_val <- if (is_first_reg) "First Registrations" else NULL
 # Sources that count SALES rather than registrations (#283). Only the noun
 # changes ("new sales" instead of "new registrations"); the scope itself is
-# spelled out in footnotes.csv and on the source page.
-SALES_SOURCES <- c("USA")
+# spelled out in footnotes.csv and on the source page. Vietnam: VAMA member
+# sales + VinFast deliveries + TC Group (Hyundai) sales (64-source-vietnam).
+SALES_SOURCES <- c("USA", "Vietnam")
 reg_noun_lc <- if (country %in% SALES_SOURCES) "sales" else "registrations"
 reg_noun_uc <- if (country %in% SALES_SOURCES) "Sales" else "Registration"
 

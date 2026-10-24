@@ -19,7 +19,7 @@ FLAG <- c(
   poland="\U0001F1F5\U0001F1F1", portugal="\U0001F1F5\U0001F1F9", singapore="\U0001F1F8\U0001F1EC",
   `south-africa`="\U0001F1FF\U0001F1E6", `south-korea`="\U0001F1F0\U0001F1F7",
   spain="\U0001F1EA\U0001F1F8", sweden="\U0001F1F8\U0001F1EA", switzerland="\U0001F1E8\U0001F1ED", taiwan="\U0001F1F9\U0001F1FC", turkey="\U0001F1F9\U0001F1F7", uk="\U0001F1EC\U0001F1E7", ukraine="\U0001F1FA\U0001F1E6",
-  uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", acea="\U0001F1EA\U0001F1FA"
+  uruguay="\U0001F1FA\U0001F1FE", usa="\U0001F1FA\U0001F1F8", vietnam="\U0001F1FB\U0001F1F3", acea="\U0001F1EA\U0001F1FA"
 )
 
 LABEL <- c(
@@ -30,7 +30,7 @@ LABEL <- c(
   netherlands="Netherlands", `new-zealand`="New Zealand", norway="Norway", paraguay="Paraguay", peru="Peru", poland="Poland",
   portugal="Portugal", singapore="Singapore", `south-africa`="South Africa", `south-korea`="South Korea", spain="Spain", sweden="Sweden",
   switzerland="Switzerland", taiwan="Taiwan", turkey="T\u00fcrkiye", uk="UK", ukraine="Ukraine", uruguay="Uruguay", usa="USA", acea="ACEA (EU)",
-  indonesia="Indonesia", thailand="Thailand"
+  indonesia="Indonesia", thailand="Thailand", vietnam="Vietnam"
 )
 
 # Fallback-sicherer Lookup: LABEL/FLAG sind atomare benannte Vektoren, bei
