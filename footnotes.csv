@@ -24,7 +24,7 @@ Nepal,Whole,Customs imports (HS 8703 cars/jeeps/vans; no domestic production - i
 Nepal,3-Wheelers,Customs imports of passenger three-wheelers: petrol auto-rickshaws and electric e-rickshaws (HS 8703). Nepali-calendar months labelled by their Gregorian end month.
 France,Whole,SDES registry série — new EU M1 passenger cars (SUVs incl.; vans/trucks/buses separate). Raw counts from 2011; higher than the seasonally-adjusted SDES/Insee CVS-CJO headline.
 Japan,Whole,Registered passenger cars only; excludes kei cars (about a third of the market) and most kei-BEVs.
-India,Whole,EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). Latest 1-2 months provisional; running month excluded.
+India,Whole,"EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). HEV includes mild hybrids (VAHAN */HYBRID); strong hybrids alone are about 2 % (2025-26). Latest 1-2 months provisional; running month excluded."
 Belgium,Whole,"HEV includes mild hybrids (about 2.5x ACEA's full-hybrid figure), so petrol/diesel run lower than ACEA's. The April 2025 file is about 13 % short."
 Belgium,Private,"New passenger cars whose keeper is not VAT-registered (DIV keeper type Natural/Legal Person: in practice private persons, plus small non-VAT bodies), monthly from 2013-01. Private + Industry = Whole. HEV includes mild hybrids."
 Belgium,Industry,"New passenger cars kept by VAT-registered legal persons (company, leasing and rental fleets). Private + Industry = Whole. HEV includes mild hybrids."
