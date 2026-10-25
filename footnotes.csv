@@ -136,5 +136,5 @@ Taiwan,HDV,"THB register (MOTC statistics): new goods vehicles over 3.5 t ('larg
 Taiwan,Buses,"New buses and coaches (EU M2+M3). Small and lumpy (100-200 a month); the BEV share follows the city-bus electrification programme."
 UK,Whole,"Mild hybrids are inside petrol/diesel. March and September (plate changes) carry about a quarter of the year each - compare a month with the same month a year earlier."
 South Africa,Whole,"Whole new-vehicle market (cars, bakkies, trucks, buses) - not M1. Quarterly. More brands report from 2026, which lifts NEV counts a little."
-Austria,Used,"Used-car registrations as Statistik Austria counts them - mostly changes of owner within Austria (about 3x new registrations), not only used imports. Not comparable with other countries' Used."
+Austria,Resale,"Every used-car registration Statistik Austria counts (Gebrauchtzulassungen): mostly changes of owner within Austria, about 3x new registrations, plus used imports. Not a used-imports series."
 Netherlands,Used,"Used imports at their first Dutch registration, near-new cars (90 days or less) included - not new cars. Full hybrids inside petrol/diesel."

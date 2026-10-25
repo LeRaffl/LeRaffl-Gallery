@@ -189,9 +189,10 @@ if (file.exists("footnotes.csv")) {
 country_label <- if (variant == "Whole") country else paste0(country, " (", variant, ")")
 
 # Registration-type wording for the extrapolation plots. The Used variants
-# (Austria, Netherlands, Spain) chart used-car registrations, so labelling them
+# (used imports: Netherlands, Spain, …) and Austria's Resale (every used-car
+# registration, mostly owner changes) chart used cars, so labelling them
 # "new registrations" is simply wrong — flagged by Christian Peter on the
-# Austria (Used) projection. Only display strings vary; the internal
+# Austria (Used) projection, as it was then called. Only display strings vary; the internal
 # fit$extrap$Type factor level stays "New Registrations" for every variant.
 # NB: these locals must NOT be named reg_word/reg_Word — plots.R defines
 # accessor functions of exactly those names in the same global environment,
@@ -203,16 +204,19 @@ country_label <- if (variant == "Whole") country else paste0(country, " (", vari
 # genuine Used variant keeps its "used-import" wording. Scope details live in
 # footnotes.csv and the source pages (52 Georgia, 27 Albania).
 FIRST_REG_SOURCES <- c("Georgia", "Albania")
-is_first_reg <- variant != "Used" && country %in% FIRST_REG_SOURCES
-reg_word_lc <- if (variant == "Used") "used-import" else if (is_first_reg) "first" else "new"
-reg_word_uc <- if (variant == "Used") "Used-import" else if (is_first_reg) "First" else "New"
+is_first_reg <- !variant %in% c("Used", "Resale") && country %in% FIRST_REG_SOURCES
+reg_word_lc <- if (variant == "Used") "used-import" else if (variant == "Resale") "used-car" else
+  if (is_first_reg) "first" else "new"
+reg_word_uc <- if (variant == "Used") "Used-import" else if (variant == "Resale") "Used-car" else
+  if (is_first_reg) "First" else "New"
 # Label of the ICE annotation on the trajectory chart ("New ICE in" /
 # "Used-import ICE in"); "First ICE in" would misread, so first-registration
 # sources say "First-registration ICE in".
 reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
 # Legend entry of the fitted curve on the BEV extrapolation chart (NULL keeps
 # the default "New Registrations").
-reg_legend_val <- if (is_first_reg) "First Registrations" else NULL
+reg_legend_val <- if (is_first_reg) "First Registrations" else
+  if (variant == "Resale") "Used-car Registrations" else NULL
 # Sources that count SALES rather than registrations (#283). Only the noun
 # changes ("new sales" instead of "new registrations"); the scope itself is
 # spelled out in footnotes.csv and on the source page.

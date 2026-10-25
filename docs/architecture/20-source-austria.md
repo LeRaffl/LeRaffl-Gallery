@@ -12,20 +12,20 @@ variants:
 - Whole
 - HDV
 - Vans
-- Used
+- Resale
 variant_notes:
   Whole: New passenger cars, class M1 (Pkw).
   HDV: Lorries N2 + N3 plus articulated tractors (Sattelzugfahrzeuge).
   Vans: Lorries N1, up to 3.5 t.
-  Used: Used passenger-car registrations (Pkw Gebrauchtzulassungen).
+  Resale: Every used passenger-car registration (Pkw Gebrauchtzulassungen) - owner changes within Austria plus used imports, no split published. Was called Used until 2026-10.
 hev_split: true
-backfill: Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward; Used from 2019-01
-scope_note: Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1; Used = Pkw used registrations.
+backfill: Whole from 2012-01; HDV/Vans from 2024 (annual) + 2025-01 onward; Resale from 2019-01
+scope_note: Whole = Pkw (M1); HDV = Lkw N2+N3+articulated; Vans = Lkw N1; Resale = Pkw used registrations (owner changes + used imports).
 caveats:
 - The source blocks datacenter IPs; data is routed through a Cloudflare Worker relay.
-- PHEV/HEV are split for Whole and Used; for HDV and Vans hybrids are lumped into HEV.
-- Used registrations come from a separate listing page (kfz-gebrauchtzulassungen) whose filenames changed twice across publication eras.
-- Used = Statistik Austria's Pkw-Gebrauchtzulassungen: every registration of a used car, mostly changes of owner within Austria (about 3x new registrations), plus used imports. Not the used-imports-only Used of other countries (09-glossary, #342).
+- PHEV/HEV are split for Whole and Resale; for HDV and Vans hybrids are lumped into HEV.
+- Resale (used registrations) comes from a separate listing page (kfz-gebrauchtzulassungen) whose filenames changed twice across publication eras.
+- Resale = Statistik Austria's Pkw-Gebrauchtzulassungen: every registration of a used car, mostly changes of owner within Austria (about 3x new registrations), plus used imports. No public table splits the two, so Austria has no used-imports Used variant (09-glossary; renamed from Used in 2026-10, #342).
 fetcher: scripts/fetch_austria.py
 workflow: .github/workflows/fetch-austria.yml
 fragility_doc: docs/architecture/20-source-austria.md
@@ -55,10 +55,10 @@ Auth:      None on the source — but the source BLOCKS datacenter IPs
 Reach:     Runner → Cloudflare Worker /fetch relay → www.statistik.at
            (relay egresses from a non-blocked IP; raw bytes streamed back)
 Variants:  Whole (Pkw M1) · HDV (Lkw N2+N3+Sattelzug) · Vans (Lkw N1)
-           · Used (Pkw Gebrauchtzulassungen)
-PHEV/HEV:  Split for Whole & Used ("darunter Plug-In" rows); HDV/Vans lumped → HEV
+           · Resale (Pkw Gebrauchtzulassungen)
+PHEV/HEV:  Split for Whole & Resale ("darunter Plug-In" rows); HDV/Vans lumped → HEV
 Backfill:  Whole from 2012-01 · HDV/Vans 2024 annual + 2025-01 onward
-           · Used: every cumulative GE2 file on the listing page
+           · Resale: every cumulative GE2 file on the listing page
 Schedule:  Daily cron 8th–22nd, 09:25 UTC; per-variant early-exit
 Script:    scripts/fetch_austria.py
 Workflow:  .github/workflows/fetch-austria.yml
@@ -312,9 +312,9 @@ required) or modify secrets.
 | `Whole` | `data/Austria.csv` | DE2 — "Fahrzeug-Neuzulassungen" Tabelle 2 | Pkw Klasse M1 (passenger cars, new) |
 | `HDV` | `data/Austria_HDV.csv` | DE3 — class × fuel matrix | Lkw N2 + N3 + Sattelzugfahrzeuge (heavy trucks) |
 | `Vans` | `data/Austria_Vans.csv` | DE3 — class × fuel matrix | Lkw N1, ≤ 3.5 t (light commercial vehicles) |
-| `Used` | `data/Austria_Used.csv` | GE2 — "Fahrzeug-Gebrauchtzulassungen" Tabelle 2 | Pkw (passenger cars, used registrations) |
+| `Resale` | `data/Austria_Resale.csv` | GE2 — "Fahrzeug-Gebrauchtzulassungen" Tabelle 2 | Pkw (passenger cars, every used registration: owner changes + used imports) |
 
-**PHEV/HEV split:** For `Whole` and `Used`, the DE2/GE2 Tabelle 2 has explicit
+**PHEV/HEV split:** For `Whole` and `Resale`, the DE2/GE2 Tabelle 2 has explicit
 "darunter Plug-In" rows that let us separate PHEV from HEV. For `HDV` and
 `Vans`, DE3 lumps all hybrids together in the Lkw rows — so PHEV is left blank
 and HEV holds the combined lump.
@@ -339,7 +339,7 @@ renames surface instead of silently truncating year coverage.
 
 ### Column mapping
 
-**Whole** (DE2 Pkw Tabelle 2) / **Used** (GE2 Pkw Tabelle 2):
+**Whole** (DE2 Pkw Tabelle 2) / **Resale** (GE2 Pkw Tabelle 2):
 
 | CSV column | Source label |
 |---|---|
@@ -417,7 +417,7 @@ flowchart TD
     Script -->|"parse DE2 Tabelle 2"| CSV1["data/Austria.csv\n(Whole — Pkw M1)"]
     Script -->|"parse DE3 Lkw N2+N3+Sattel"| CSV2["data/Austria_HDV.csv\n(HDV — heavy trucks)"]
     Script -->|"parse DE3 Lkw N1"| CSV3["data/Austria_Vans.csv\n(Vans — ≤ 3.5 t)"]
-    Script -->|"parse GE2 Tabelle 2"| CSV4["data/Austria_Used.csv\n(Used — Pkw Gebrauchtzulassungen)"]
+    Script -->|"parse GE2 Tabelle 2"| CSV4["data/Austria_Resale.csv\n(Resale — Pkw Gebrauchtzulassungen)"]
 
     CSV1 & CSV2 & CSV3 & CSV4 -->|"git commit\n(if rows changed)"| Repo["📁 GitHub Repo"]
     Repo -->|"trigger once with the touched variants"| Render["render-country.yml\n→ R script per variant → PNGs + post"]
@@ -482,7 +482,7 @@ allow-list. A `502` means the Worker reached the source but got an error.
 | `ConnectTimeout` via relay | Cloudflare's egress is also blocked (rare) | Set `AUSTRIA_PROXY` to a real EU proxy as fallback |
 | `RuntimeError: no .ods found` | Statistik Austria renamed the file | Update `FILE_RE_*` regexes in `fetch_austria.py` |
 | `WARNING: no GE2 files matched` (with a list of .ods links) | Used-registration filename pattern changed | The warning prints the .ods links actually on the page — adjust `FILE_RE_GE2` accordingly |
-| `[Used ...] WARNING: missing [...] (labels seen: ...)` | GE2 Tabelle-2 row labels changed | Extend `GE2_LABELS` with the new normalised label |
+| `[Resale ...] WARNING: missing [...] (labels seen: ...)` | GE2 Tabelle-2 row labels changed | Extend `GE2_LABELS` with the new normalised label |
 | `Touched variants: <none>` | Data already up to date (normal most days) | Not a problem; re-run with `force: true` to confirm |
 
 ---
@@ -500,8 +500,14 @@ allow-list. A `502` means the Worker reached the source but got an error.
   unchanged.
 - **Pre-2024 HDV/Vans data.** Statistik Austria does not publish DE3 monthlies
   before 2024. Only annual 2024 and monthly 2025-01 onward are available.
-- **Used data beyond the listing page.** The Used backfill covers exactly the
+- **Resale data beyond the listing page.** The Resale backfill covers exactly the
   cumulative GE2 files linked on the kfz-gebrauchtzulassungen page; years that
   Statistik Austria has removed from the listing are not fetched.
-- **A Used split by vehicle class.** GE2's Tabelle 2 is Pkw only; there is no
+- **A Resale split by vehicle class.** GE2's Tabelle 2 is Pkw only; there is no
   used-registration equivalent of the DE3 class × fuel matrix.
+- **A `Used` (used imports) variant.** Gebrauchtzulassungen count every vehicle
+  registered before "im In- bzw. Ausland", and nothing public separates the
+  imports from the owner changes: not the yearly GE2 tables, not the OGD table
+  (brand only), not STATcube's documented features. Checked 2026-10. The only
+  route would be a Sonderauswertung from Statistik Austria (Gebrauchtzulassungen
+  by previous registration abroad). Until then Austria has `Resale` but no `Used`.
