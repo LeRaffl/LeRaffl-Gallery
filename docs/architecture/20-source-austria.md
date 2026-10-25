@@ -25,6 +25,7 @@ caveats:
 - The source blocks datacenter IPs; data is routed through a Cloudflare Worker relay.
 - PHEV/HEV are split for Whole and Used; for HDV and Vans hybrids are lumped into HEV.
 - Used registrations come from a separate listing page (kfz-gebrauchtzulassungen) whose filenames changed twice across publication eras.
+- Used = Statistik Austria's Pkw-Gebrauchtzulassungen: every registration of a used car, mostly changes of owner within Austria (about 3x new registrations), plus used imports. Not the used-imports-only Used of other countries (09-glossary, #342).
 fetcher: scripts/fetch_austria.py
 workflow: .github/workflows/fetch-austria.yml
 fragility_doc: docs/architecture/20-source-austria.md
