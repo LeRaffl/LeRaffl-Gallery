@@ -135,8 +135,16 @@ Rationale for the two judgement calls:
   ICE either way. India's CNG-car boom is real and worth its own column.
 - **Anything containing `HYBRID` → `HEV`, even with a CNG/LPG token**
   (`PETROL(E20)/HYBRID/CNG`): the electrified nature dominates. VAHAN has **no
-  consistent MHEV label**, so all hybrids fold into `HEV` — flagged as
-  unverified in the glossary/footnote.
+  consistent MHEV label**, so all hybrids fold into `HEV` — the footnote says
+  "HEV includes mild hybrids" (#293). Measured from these exports: from 2024
+  VAHAN has a `STRONG HYBRID EV` label (2024 1.36 %, 2025 2.32 %, 2026 Jan–Oct
+  2.16 % of M1), while `PETROL/HYBRID`, `PETROL(E20)/HYBRID` and
+  `DIESEL/HYBRID` (about 6.3 % in 2026) are mostly mild hybrids. That matches
+  the trade press's split (evelectree.com, June 2026: mild 6.1 %,
+  strong + PHEV 2.2 %). Before 2024 the strong label is all but unused (2022:
+  2, 2023: 6 cars), so strong hybrids launched in 2022–23 sit in
+  `PETROL/HYBRID` too. Splitting by label would therefore put a false step
+  into HEV at 2024-01, which is why it isn't done (yet).
 
 `BEV = ELECTRIC(BOV) + PURE EV` (both labels coexist across vintages/RTOs — the
 old and new spelling of battery-electric). India-included columns:
