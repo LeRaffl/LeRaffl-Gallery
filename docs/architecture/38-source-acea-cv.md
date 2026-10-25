@@ -299,6 +299,14 @@ most plausible guesses per checkpoint (both hyphen and underscore variants), tri
 `--pdf-url` correction — that is normal bring-up, not a bug, and is exactly why the
 `workflow_dispatch` inputs exist.
 
+A guess that doesn't exist is answered with a 404 on some days and a **520** on others (the
+same erratic "not here" answers `fetch_acea.py` documents for passenger cars, #244). Any
+HTTP error on a candidate therefore moves on to the next one, and a run that finds none of
+them is a green "not published yet" no-op. Before 2026-10 only a 404 did: on 2026-10-24 a 520
+on the first Q1-Q3 guess failed the run before it reached the third guess, the shape confirmed
+in 2025. A 403 still fails the run. `scripts/test_fetch_acea_cv.py` (offline) pins this
+and gates the workflow.
+
 ## See also
 
 - [09-glossary.md § Variant definitions](09-glossary.md#variant-definitions-canonical) — the
