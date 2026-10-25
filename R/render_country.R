@@ -218,9 +218,11 @@ reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
 # scope itself is spelled out in footnotes.csv, on the source page and in
 # 09-glossary.md "Vehicle scope per source". Sales: ANL (USA), MOTIR (South
 # Korea), CPCA retail/wholesale (China), GAIKINDO wholesales (Indonesia), SRI
-# invoices (Ecuador), naamsa (South Africa). Imports: customs declarations
+# invoices (Ecuador), naamsa (South Africa), ANAC (Chile), ACAU (Uruguay),
+# AIVAM (Morocco, probe only so far). Imports: customs declarations
 # (Nepal, Paraguay).
-SALES_SOURCES  <- c("USA", "South Korea", "China", "Indonesia", "Ecuador", "South Africa")
+SALES_SOURCES  <- c("USA", "South Korea", "China", "Indonesia", "Ecuador", "South Africa",
+                    "Chile", "Uruguay", "Morocco")
 IMPORT_SOURCES <- c("Nepal", "Paraguay")
 counts <- if (variant == "Used") "registrations" else
   if (country %in% SALES_SOURCES) "sales" else if (country %in% IMPORT_SOURCES) "imports" else "registrations"
