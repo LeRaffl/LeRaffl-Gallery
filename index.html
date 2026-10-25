@@ -5452,11 +5452,23 @@ window.addEventListener('DOMContentLoaded', activateTabByHash);
     for(let i=0;i<lead;i++) html += '<div class="sched-day sched-day--blank"></div>';
     for(let d=1; d<=dim; d++){
       const key = ymd(calYear, calMonth, d);
-      const landed = past[key] || [], coming = due[key] || [];
+      const coming = due[key] || [];
       const isToday = key === DATA.today;
       const isPast  = key < DATA.today;
+      // One flag per country, not per variant: Belgium's six variants landing
+      // together drew six identical flags and pushed everyone else into "+N".
+      // The variants ride in the tooltip; the day detail still lists each one.
+      const byBase = new Map();
+      (past[key] || []).forEach(r => {
+        const b = r.base || String(r.label||'').split(' (')[0];
+        if(!byBase.has(b)) byBase.set(b, []);
+        byBase.get(b).push(r);
+      });
+      const landed = [...byBase].map(([b, rs]) => ({flag: rs[0].flag, label: b,
+        extra: rs.map(r => (r.label === b ? '' : r.label.slice(b.length).trim() + ' ')
+                         + 'data through ' + prettyPeriod(r.period)).join('; ')}));
       let chips = landed.slice(0, MAX_CHIPS)
-        .map(r => chip(r.flag, r.label, 'sched-fl--done', 'data through ' + prettyPeriod(r.period))).join('');
+        .map(r => chip(r.flag, r.label, 'sched-fl--done', r.extra)).join('');
       let shown = landed.length;
       if(shown < MAX_CHIPS){
         chips += coming.slice(0, MAX_CHIPS - shown)
