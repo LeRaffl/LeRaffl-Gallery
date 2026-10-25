@@ -6264,9 +6264,12 @@ const QR = (() => {
   // The domain a list of bars needs to be drawn INSIDE. Starting it at the first
   // bar's end month cuts that bar in half and pushes its cycle label off the
   // plot — the combined chart's leading T12M bar lost its "2021" that way, and
-  // the left clamp then squashed it against the axis.
+  // the left clamp then squashed it against the axis. The edge sits half a month
+  // before the bar's first month, because cx() centres a month on its index: a
+  // monthly first bar (Norway, Denmark) was otherwise still half outside, and the
+  // clamp pushed it onto the second bar.
   function domOf(list, step){
-    return list.length ? [list[0].to - widthMonths(list, 0, step) + 1,
+    return list.length ? [list[0].to - widthMonths(list, 0, step) + 0.5,
                           list[list.length-1].to] : [0,1];
   }
 
