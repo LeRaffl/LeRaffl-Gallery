@@ -226,13 +226,13 @@ def test_compose():
 
 def test_compose_history():
     # 2022-09: VinFast still sold ICE cars; its month is a yearly residual (estimate)
-    # and there is no VAMA Hybrid block yet → HEV / MHEV empty, row labelled yearly.
+    # and there is no VAMA Hybrid block yet → HEV / MHEV empty, row labelled monthly_est.
     row = dict(SEP26, period="2022-09", vama_ti="33703", vama_ti_pc="25611", vama_members_pc="23000",
                vama_members_hybrid="", vama_members_bev="", vama_mhev="", vama_hev_in_pc="",
                vama_bev_in_pc="", vinfast="538", vinfast_ice="478", vinfast_kind="estimate",
                tc_total="8680", tc_commercial="1126", note="VinFast estimate")
     c = fv.compose(row)
-    eq((c["time_interval"], c["HEV"], c["MHEV"]), ("yearly", "", ""), "estimate → yearly, hybrids inside ICE")
+    eq((c["time_interval"], c["HEV"], c["MHEV"]), ("monthly_est", "", ""), "estimate → monthly_est, hybrids inside ICE")
     eq((float(c["BEV"]), float(c["ICE"]), float(c["OTHERS"])), (60.0, 23000 + 7554 + 478, 2611.0),
        "VinFast ICE part booked to ICE")
     eq(float(c["TOTAL"]), 25611 + 538 + 7554, "TOTAL = TI PC + VinFast + Hyundai")

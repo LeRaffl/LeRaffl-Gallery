@@ -28,6 +28,12 @@ load_country_csv <- function(path) {
   # Austria's Vans/HDV writer says "annual" where the rest of the repo says
   # "yearly"; normalise here so fit.R/upsert.R yearly handling applies.
   df$time_interval[df$time_interval %in% "annual"] <- "yearly"
+  # "monthly_est" = a monthly row whose values are partly estimated from an
+  # annual figure (docs/architecture/03-data-objects.md). Everything numeric
+  # treats it as monthly (TTM, fit, post texts, upsert); only the charts
+  # look at `estimated` and draw those points hollow.
+  df$estimated <- df$time_interval %in% "monthly_est"
+  df$time_interval[df$estimated] <- "monthly"
   df$year <- period_to_year(df$period)
   df$overall <- as.numeric(df$TOTAL)
 

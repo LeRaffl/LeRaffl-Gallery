@@ -583,6 +583,10 @@ def write_todo(built, raw_rows, noted):
                 idx[i] - idx[i - 1] if i else None)
             want = {1: "monthly", 3: "quarterly", 12: "yearly"}.get(gap)
             got = (r.get("time_interval") or "").strip().lower()
+            # monthly_est is a monthly row estimated from annual data (doc 03):
+            # its spacing is monthly, so it is not a mislabel.
+            if got == "monthly_est":
+                got = "monthly"
             if want and got and got != want:
                 mism[(got, want)] += 1
         for (got, want), k in mism.most_common(2):

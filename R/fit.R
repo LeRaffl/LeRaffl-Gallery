@@ -87,6 +87,7 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
     new_A$Quarter <- ifelse(df_loop$time_interval %in% "yearly", "Yearly", new_A$Quarter)
     new_A$overall <- df_loop$overall
     new_A$time_interval <- df_loop$time_interval
+    new_A$estimated <- if ("estimated" %in% names(df_loop)) df_loop$estimated else FALSE
 
     germany_extrap$Hybrid       <- pmax(germany_extrap$Hybrid, 0)
     germany_extrap$Hybrid_upper <- pmax(germany_extrap$Hybrid_upper, 0)
@@ -143,6 +144,8 @@ fit_history <- function(df, extrapol = 2200, confidence_level = 0.999) {
   ICE <- data.frame(ICE, overall = df$overall)
   BEV <- data.frame(BEV, overall = df$overall)
   Hybrid <- data.frame(Hybrid, overall = df$overall)
+  est <- if ("estimated" %in% names(df)) df$estimated %in% TRUE else rep(FALSE, nrow(df))
+  ICE$estimated <- est; BEV$estimated <- est; Hybrid$estimated <- est
 
   list(extrap = germany_extrap, new_A = new_A, BEV = BEV, ICE = ICE, Hybrid = Hybrid,
        timer = timer_df, timer_short = timer_short,

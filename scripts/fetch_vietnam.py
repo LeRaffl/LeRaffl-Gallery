@@ -47,7 +47,8 @@ History (2021-01 .. 2024-08) was assembled once from VAMA's archive, the
 VinFast and TC releases and VinFast's SEC filings; it lives in the same
 components file. Before 2024 VAMA had no Hybrid block, so HEV / MHEV are
 empty there (inside ICE). Months whose VinFast figure is a yearly residual
-(vinfast_kind=estimate) are labelled `yearly`, see the source page.
+(vinfast_kind=estimate) are labelled `monthly_est` (a monthly row estimated
+from annual data: counted as monthly, drawn hollow), see the source page.
 
 The PC-block exceptions and the mild hybrids come from the Detail sheet. VAMA
 has uploaded the previous month's Detail under a new month's name (2025-05,
@@ -654,8 +655,8 @@ def compose(row: dict) -> dict:
     VAMA had no Hybrid block before HYBRID_FROM — hybrids sat in its PC block,
     so HEV / MHEV stay empty (inside ICE). A VinFast `estimate` is a yearly
     figure minus the published months, spread evenly: the row is labelled
-    `yearly` (its coarsest component, as Singapore's), VAMA and Hyundai in it
-    are still the real monthly figures."""
+    `monthly_est` (monthly, estimated from annual data — counted as a month,
+    drawn hollow); VAMA and Hyundai in it are still the real monthly figures."""
     vf, vf_ice = _f(row, "vinfast"), _f(row, "vinfast_ice")
     bev = vf - vf_ice + _i(row, "vama_members_bev") + _i(row, "vama_bev_in_pc")
     mhev = _i(row, "vama_mhev")
@@ -686,7 +687,7 @@ def compose(row: dict) -> dict:
         notes.append("no VAMA Hybrid block before 2024: HEV/MHEV inside ICE")
     if row.get("note"):
         notes.append(row["note"])
-    return {"period": row["period"], "time_interval": "yearly" if kind == "estimate" else "monthly",
+    return {"period": row["period"], "time_interval": "monthly_est" if kind == "estimate" else "monthly",
             "variant": "Whole", "source": SOURCE,
             "BEV": _fmt(bev), "PHEV": "", "HEV": _fmt(hev) if split_hybrids else "",
             "MHEV": _fmt(mhev) if split_hybrids else "",

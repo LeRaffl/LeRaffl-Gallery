@@ -62,7 +62,7 @@ CSV with header. **Wide-but-sparse**: per-country only the fuel columns that the
 | Column | Required | Type | Notes |
 |---|---|---|---|
 | `period` | yes | `YYYY-MM` | Month-resolution. Quarterly rows use the middle month (Q1→Feb, Q2→May, Q3→Aug, Q4→Nov). Yearly rows use July (`YYYY-07`). |
-| `time_interval` | yes | `monthly` \| `quarterly` \| `yearly` | Drives the post-text "TTM" computation and the chart x-axis treatment. |
+| `time_interval` | yes | `monthly` \| `monthly_est` \| `quarterly` \| `yearly` | Drives the post-text "TTM" computation and the chart x-axis treatment. `monthly_est` = a monthly row whose figures are partly estimated from annual data (e.g. a year figure spread evenly over months without a monthly release); it counts as `monthly` in every calculation (`load_country_csv()` sets `time_interval = monthly`, `estimated = TRUE`), and the main and ICE/BEV charts draw those points hollow in their normal colour with a legend entry "Monthly (estimated from annual data)" shown only when such points exist. Only Vietnam uses it so far ([64](64-source-vietnam.md)); say which component is estimated in `notes`. |
 | `variant` | yes | string | Always `Whole` for top-level country files. Reserved for future per-CSV variants. |
 | `source` | yes | string | Short name of the source (`KBA`, `Statistik Austria`). Carried per-row so the maintainer can audit which row came from where; a bare link is tolerated (a Submit-Data PR may carry one) but never shown as a name. What charts, `params.csv` and `series/` display is derived from this column — see `params.csv` → `source`. |
 | `BEV` | yes | numeric | Battery electric vehicles registered in the period. |

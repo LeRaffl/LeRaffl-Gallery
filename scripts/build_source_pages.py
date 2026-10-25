@@ -154,6 +154,9 @@ FUEL_COLUMNS = [
 ]
 
 CADENCE_ORDER = {"monthly": 0, "quarterly": 1, "annual": 2, "yearly": 2}
+# A monthly row estimated from annual data (docs/architecture/03) is a month
+# for cadence purposes; the coverage caption names it separately.
+ESTIMATED_CADENCES = {"monthly_est": "monthly"}
 
 
 def variant_file(fm: dict, variant: str) -> str | None:
@@ -185,6 +188,7 @@ def read_variant_facts(path: str | None) -> dict | None:
 
     periods: list[str] = []
     cadences: set[str] = set()
+    estimated: list[str] = []
     filled: dict[str, int] = {c: 0 for c in FUEL_COLUMNS}
     nonzero: dict[str, int] = {c: 0 for c in FUEL_COLUMNS}
     present: set[str] = set()
@@ -197,7 +201,11 @@ def read_variant_facts(path: str | None) -> dict | None:
             if not period:
                 continue
             periods.append(period)
-            cadences.add((row.get("time_interval") or "").strip().lower())
+            label = (row.get("time_interval") or "").strip().lower()
+            if label in ESTIMATED_CADENCES:
+                estimated.append(period)
+                label = ESTIMATED_CADENCES[label]
+            cadences.add(label)
             for col in present:
                 raw = (row.get(col) or "").strip()
                 if raw == "":
@@ -233,6 +241,8 @@ def read_variant_facts(path: str | None) -> dict | None:
         "cadence_mismatch": bool(
             observed and uniform and set(labelled) - {observed}),
         "present": present,
+        # Periods labelled monthly_est (months estimated from annual data).
+        "estimated": sorted(estimated),
         "filled": filled,
         "nonzero": nonzero,
     }
@@ -252,6 +262,19 @@ def observed_cadence(periods: list[str]) -> tuple[str | None, bool]:
     dominant = max(set(gaps), key=gaps.count)
     uniform = gaps.count(dominant) / len(gaps) >= 0.9
     return {1: "monthly", 3: "quarterly", 12: "yearly"}.get(dominant), uniform
+
+
+def month_runs(periods: list[str]) -> str:
+    """'2022-09 … 2022-10, 2023-08 … 2024-08' for a sorted list of YYYY-MM."""
+    def idx(p: str) -> int:
+        return int(p[:4]) * 12 + int(p[5:7]) - 1
+    runs: list[list[str]] = []
+    for p in periods:
+        if runs and idx(p) == idx(runs[-1][-1]) + 1:
+            runs[-1].append(p)
+        else:
+            runs.append([p])
+    return ", ".join(r[0] if len(r) == 1 else f"{r[0]} … {r[-1]}" for r in runs)
 
 
 def collect_variant_facts(fm: dict) -> list[tuple[str, dict | None]]:
@@ -591,6 +614,13 @@ def build_coverage(variant_facts: list[tuple[str, dict | None]]) -> str:
         notes += (". Some rows additionally carry a <code>time_interval</code> of "
                   + "/".join(f"<code>{esc(c)}</code>" for c in sorted(mixed))
                   + "; the cadence shown is the spacing the periods actually have")
+    est = [(v, f["estimated"]) for v, f in variant_facts if f and f.get("estimated")]
+    if est:
+        notes += ". " + "; ".join(
+            f"{esc(v)}: {len(ps)} month{'s' if len(ps) != 1 else ''} "
+            f"({esc(month_runs(ps))}) carry <code>monthly_est</code> — monthly "
+            f"figures estimated from annual data, drawn as hollow points in the charts"
+            for v, ps in est)
 
     return (
         '<section><h2>History we hold</h2>'

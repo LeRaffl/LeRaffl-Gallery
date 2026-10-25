@@ -164,6 +164,32 @@ plot_timer <- function(fit, meta) {
           plot.caption = element_markdown(hjust = 0, size = rel(0.9)))
 }
 
+# ── Estimated monthly points (time_interval "monthly_est") ──────────────────
+# A monthly row whose values are partly spread from an annual figure keeps its
+# normal colour but is drawn HOLLOW — the same "hollow = provisional" reading
+# the gallery already uses for provisional tags (docs/architecture/61). The
+# legend gets one extra entry, and only when such points exist. Without any
+# estimated row this returns exactly the single geom_point it replaces, so
+# every other chart is unchanged.
+ESTIMATED_POINT_LABEL <- "Monthly (estimated from annual data)"
+
+estimated_point_layers <- function(data, mapping, size, hollow_shape = 21) {
+  est <- if ("estimated" %in% names(data)) data$estimated %in% TRUE else rep(FALSE, nrow(data))
+  if (!any(est)) return(geom_point(data = data, mapping, size = size))
+  hollow_map <- mapping
+  hollow_map$fill <- ESTIMATED_POINT_LABEL
+  hollow_map$shape <- NULL
+  list(
+    geom_point(data = data[!est, , drop = FALSE], mapping, size = size[!est]),
+    geom_point(data = data[est, , drop = FALSE], hollow_map, size = size[est],
+               shape = hollow_shape, stroke = 1,
+               show.legend = c(colour = FALSE, shape = FALSE, fill = TRUE)),
+    scale_fill_manual(name = NULL, values = setNames("white", ESTIMATED_POINT_LABEL),
+                      guide = guide_legend(order = 99, override.aes = list(
+                        shape = 21, colour = "grey25", size = 3, stroke = 1)))
+  )
+}
+
 # 3) BEV trajectory (single curve)
 plot_bev_trajectory <- function(fit, meta) {
   germany <- fit$extrap; new_A <- fit$new_A; default_size <- 2
@@ -171,8 +197,9 @@ plot_bev_trajectory <- function(fit, meta) {
   p <- ggplot(germany, aes(x = x, y = BEV, color = Type)) +
     geom_ribbon(aes(ymin = BEV_lower, ymax = BEV_upper), fill = "grey", alpha = 0.5, color = NA) +
     geom_line(lwd = 1) + ylim(0, 1.1) +
-    geom_point(data = new_A, aes(x = x, y = y, color = Quarter),
-               size = default_size + (new_A$overall - mean(new_A$overall)) / sd(new_A$overall)) +
+    estimated_point_layers(new_A, aes(x = x, y = y, color = Quarter),
+                           default_size + (new_A$overall - mean(new_A$overall)) / sd(new_A$overall),
+                           hollow_shape = 21) +
     scale_x_continuous(breaks = seq(2010, fit$extrapol, ifelse(fit$extrapol > 2045, 4, 2)),
                        labels = function(x) paste0("Jan ", x + 1),
                        limits = c(2010, min(fit$extrapol, 2045))) +
@@ -224,12 +251,14 @@ plot_ice_bev_phev <- function(fit, df, meta) {
   p <- ggplot(germany, aes(x = x, y = BEV, color = Type)) +
     geom_ribbon(aes(ymin = BEV_lower, ymax = BEV_upper), fill = TRAJ_COLORS[["BEV"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = BEV, color = "BEV", shape = "BEV"), lwd = 1) +
-    geom_point(data = fit$BEV, aes(x = x, y = y, color = "BEV", shape = "BEV"),
-               size = default_size + (fit$BEV$overall - mean(fit$BEV$overall)) / sd(fit$BEV$overall)) +
+    estimated_point_layers(fit$BEV, aes(x = x, y = y, color = "BEV", shape = "BEV"),
+                           default_size + (fit$BEV$overall - mean(fit$BEV$overall)) / sd(fit$BEV$overall),
+                           hollow_shape = 21) +
     geom_ribbon(aes(ymin = ICE_lower, ymax = ICE_upper), fill = TRAJ_COLORS[["ICE"]], alpha = 0.35, color = NA) +
     geom_line(aes(y = ICE, color = "ICE", shape = "ICE"), lwd = 1) +
-    geom_point(data = fit$ICE, aes(x = x, y = y, color = "ICE", shape = "ICE"),
-               size = default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall))
+    estimated_point_layers(fit$ICE, aes(x = x, y = y, color = "ICE", shape = "ICE"),
+                           default_size + (fit$ICE$overall - mean(fit$ICE$overall)) / sd(fit$ICE$overall),
+                           hollow_shape = 22)
 
   if (show_phev) {
     p <- p +
@@ -241,8 +270,9 @@ plot_ice_bev_phev <- function(fit, df, meta) {
       # Austria's annual Vans/HDV rows) — mixing frames made ggplot abort with
       # "Aesthetics must be either length 1 or the same as the data".
       # fit$Hybrid$y == 1 − BEV − ICE == the same phev+erev share df carries.
-      geom_point(data = fit$Hybrid, aes(x = x, y = y, color = "PHEV", shape = "PHEV"),
-                 size = default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall))
+      estimated_point_layers(fit$Hybrid, aes(x = x, y = y, color = "PHEV", shape = "PHEV"),
+                             default_size + (fit$Hybrid$overall - mean(fit$Hybrid$overall)) / sd(fit$Hybrid$overall),
+                             hollow_shape = 23)
   }
 
   p <- p +
