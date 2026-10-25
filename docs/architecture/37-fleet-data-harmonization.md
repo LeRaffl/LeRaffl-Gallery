@@ -194,7 +194,8 @@ or the maintainer confirms them at build time.
 | **Canada** | Statistics Canada. Reg uses cube **20-10-0025** (new regs). **Stock cube ⚠ verify** — 20-10-0025 is *registrations*, not parc; confirm a stock-by-fuel cube exists (else this stays estimate-flagged). | BEV, PHEV, HEV split | 2017–2024 | **Medium** — stock source unconfirmed | If no true stock cube, rows are derived/estimated → flag `estimated` in `notes`. Light vehicles; confirm M1 cut. |
 | **China** | CPCA / CAAM / MIIT / 公安部 (traffic-police NEV ownership releases); report-derived, no single clean table (cf. `24-source-china.md` for the reg CPCA scrape). | BEV, PHEV; HEV & ICE **not split** | 2017–2025 | **Medium** — multi-report | Current `HYBRID` column is actually **PHEV** (China NEV = BEV+PHEV) → migrate to `PHEV`, not `HEV`. Non-plug HEV + all ICE sit in `OTHERS` (aggregate) → flag. Scope = NEV定义; huge absolute base. |
 | **India** | VAHAN dashboard, MoRTH (`vahan.parivahan.gov.in`; see `33-expansion-candidates.md`). | BEV; petrol/diesel; **no PHEV/HEV** | 2018–2024 | **Medium** — coverage gaps | VAHAN historically **excludes some states** (e.g. Telangana, parts of MP) → under-counts stock; scope caveat in `notes`. Registered motor vehicles, M1 slice. |
-| **Georgia** | ⚠ **source unconfirmed** — likely Geostat (National Statistics Office of Georgia) or a customs/used-import-derived series. | Combined hybrid | 2017–2025 | **Low** — provenance unclear | `combined_hybrid`; heavily used-import-driven fleet. **Disambiguate: `Georgia` the country, not the US state; full-name migration removes the `GE`/`DE` collision.** Confirm publisher before the next refresh. |
+| **Georgia** | ⚠ **source unconfirmed** — likely Geostat (National Statistics Office of Georgia) or a customs/used-import-derived series. | Combined hybrid | 2017–2025 | **Low** — provenance unclear | `combined_hybrid`; heavily used-import-driven fleet. **Disambiguate: `Georgia` the country, not the US state; full-name migration removes the `GE`/`DE` collision.** Confirm publisher before the next refresh. Eurostat's Georgia rows (reported by Geostat) are within 3–4 % of these BEV figures (§4c). |
+| **22 more countries** ✅ | **Eurostat `road_eqs_carpda`**, built — see §4c for the list, mapping and per-country caveats. | mostly BEV/PHEV/HEV/petrol/diesel | 2013–2025 | **High** for most, caveats per country | One source, one fetcher: `scripts/fetch_fleet_eurostat.py`. |
 
 ---
 
@@ -404,6 +405,91 @@ pilot for the whole fleet-fetch pattern.
 
 ---
 
+## 4c · Eurostat — BUILT source for 22 countries (`road_eqs_carpda`)
+
+**Source.** Eurostat *Passenger cars by type of motor energy*
+(`road_eqs_carpda`), JSON-stat from the dissemination API
+(`ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_eqs_carpda`),
+open, no key, about 100 KB. Unit `NR`, legal form `TOTAL`, stock **at 31
+December** of the reference year: the same `year` as everywhere else in this
+file. National registers report it to Eurostat, so it is the fleet-side
+counterpart of ACEA: one fetcher instead of 22. Implemented in
+`scripts/fetch_fleet_eurostat.py` (tests: `scripts/test_fetch_fleet_eurostat.py`).
+No cron and no render: the table refreshes once a year (autumn), so run the
+script by hand or with an agent, like the other curated countries.
+
+**Checked against the series already here** (same year, BEV): Germany, Austria
+and Finland are identical to the vehicle (KBA stock on 1 Jan 2025 = Eurostat
+2024); Norway, the Netherlands and the UK are within 2 %, Georgia within 4 %.
+That pins the year convention. The same check showed that the curated
+**Denmark** rows are one year late (each is the stock on 1 January of its own
+year); that needs its own fix and is not part of this fetcher.
+
+**Hierarchy** (every level sums exactly on full rows):
+`TOTAL = PET + DIE + ALT`, `PET = PET_X_HYB + ELC_PET_HYB + ELC_PET_PI` (diesel
+alike), `ALT ⊇ ELC + HYD_FCELL + REN_OTH + GAS + LPG + OTH`.
+
+| Canonical | Eurostat |
+|---|---|
+| `BEV` | `ELC` |
+| `PHEV` | `ELC_PET_PI + ELC_DIE_PI` |
+| `HEV` | the rest of the hybrids: `(PET − PET_X_HYB − ELC_PET_PI)` + diesel alike |
+| `PETROL` / `DIESEL` | `PET_X_HYB` / `DIE_X_HYB` |
+| `CNG` / `LPG` | `GAS` (natural gas) / `LPG` |
+| `OTHERS` | `HYD_FCELL + REN_OTH + OTH` + any part of `ALT` without a leaf |
+| `TOTAL` | `TOTAL` |
+
+**Degraded rows** follow §2.2, decided per row (a country often changes how it
+reports): no plug-in leaf → `PHEV` empty and `HEV` is the combined bucket
+(noted); no "excluding hybrids" leaf → `PETROL`/`DIESEL` are the family total
+minus the hybrid leaves that exist, the rest of the hybrids stay in ICE (noted,
+`hev_in_ice`); no hybrid leaf and nothing to derive one from → `PHEV`/`HEV`
+empty, noted as "no hybrid figure" (empty ≠ 0); no petrol or no diesel figure at all → row skipped (an empty ICE
+would make the row's stock vanish in the Fleet tab); columns missing `TOTAL` by
+more than 3 % → row skipped. Eurostat's flags go into `notes` (`i` imputed,
+`p` provisional), plus the caveats below. The fetcher refuses to overwrite a
+country whose rows come from any other source, so the national series in §4
+stay as they are.
+
+| Country | Years | Notes |
+|---|---|---|
+| Albania | 2014–2025 | Hybrids are in `HEV` only in 2020; in every other year they are most likely in `OTHERS` (≈ 10 % of the stock). BEV looks sound. |
+| Belgium | 2013–2025 | Combined hybrids until 2021 (PHEV boom inside `HEV`). |
+| Bulgaria | 2016–2024 | Most cells imputed by Eurostat; combined hybrids until 2022; 2025 misses 16 % of `TOTAL` (no `LPG`), skipped. |
+| Croatia | 2013–2025 | Hybrids in ICE 2013–14, no hybrid figure at all 2015–22; 3–4 % of `ALT` without a leaf until 2024 (in `OTHERS`). |
+| Cyprus | 2013–2025 | Full split throughout. |
+| Czechia | 2013–2025 | Hybrids in ICE until 2021, combined in 2022; Eurostat breaks in 2018 (LPG) and 2023 (diesel). |
+| Estonia | 2013–2025 | Combined hybrids until 2020; the 2025 drop is most likely the new car tax (owners deregistering unused cars). |
+| France | 2013–2024 | 2025 has no petrol/diesel figure yet. |
+| Hungary | 2013–2025 | **Hybrids sit in `OTHERS` until 2023** (they appear as `HEV` in 2024 as `OTHERS` falls to near zero). BEV stock is about twice the cumulative new BEV registrations; most likely used EV imports, not checked against a national source. |
+| Ireland | 2013–2025 | Hybrids in ICE until 2016, combined 2017–22. |
+| Italy | 2013–2025 | Combined hybrids in most years until 2022. |
+| Latvia, Lithuania | 2013/2014–2025 | Combined hybrids until 2021/22; Lithuania's `OTHERS` (≈ 6 %) is most likely LPG conversions; Lithuania 2013 skipped (misses 17 % of `TOTAL`). |
+| Luxembourg, Spain | 2013/2014–2025 | Full split throughout. |
+| Malta, Portugal | 2013–2025 | Combined hybrids until 2018 (Malta) and in 2013 (Portugal); Portugal 2025 provisional. |
+| Slovenia | 2013–2025 | No hybrid figure at all until 2021 (`PET` = `PET_X_HYB`), full split from 2022. |
+| Romania | 2018–2025 | Before 2018 `ELC` falls tenfold the year the hybrid leaves appear, so it held hybrids: those years are not written. Combined hybrids until 2022. |
+| Sweden | 2013–2025 | `OTHERS` ≈ 3 % = E85 flexifuel (`REN_OTH`) and gas. |
+| Switzerland | 2013–2025 | Full split throughout. |
+| Türkiye | 2013–2025 | Combined hybrids in 2013–16, 2022–23 and 2025 (no plug-in leaf); `LPG` ≈ 30 % of the stock. |
+
+**Not built, and why:** Greece and Slovakia report no petrol or diesel figure in
+any year; Poland none in 2015–23 or 2025, and its register keeps cars that no
+longer drive; Iceland has one usable year. Liechtenstein, Moldova, Serbia,
+Bosnia, Montenegro, North Macedonia and Kosovo have no registration series in
+the gallery, so the Fleet tab could not project them. **The countries already in
+§4 are not taken from Eurostat**, but its rows could fill gaps there (Austria's
+PHEV/HEV split from 2013, a cross-check for Georgia); that is a decision per
+country, not part of this fetcher.
+
+**Annual refresh:** `python scripts/fetch_fleet_eurostat.py` (add `--dry-run`
+first). It rewrites the Eurostat rows of every country in `COUNTRIES`, so a
+revised year is picked up too. New country: add its geo code to `COUNTRIES` (the
+gallery name must match `params.csv`, which is what the Fleet tab joins on), add
+a row to the table above.
+
+---
+
 ## 5 · Status & what's next
 
 **Done (the Germany pilot):**
@@ -419,6 +505,9 @@ pilot for the whole fleet-fetch pattern.
 - ✅ `scripts/fetch_fleet_germany.py` (FZ 13.2.1 parser + overview scrape +
   line-upsert) and `.github/workflows/fetch-fleet-germany.yml` (monthly cron +
   dispatch, `actionlint`-clean, no render). Parser verified against the real file.
+- ✅ **22 more countries from Eurostat** (§4c): `scripts/fetch_fleet_eurostat.py`,
+  one source for the EU/EFTA countries plus Albania and Türkiye that have a
+  registration series. The Fleet tab now offers 34 countries.
 
 **Next:**
 1. **Roll the pattern out** to the other ⚠ countries: confirm each source (one
@@ -435,7 +524,8 @@ pilot for the whole fleet-fetch pattern.
 - **This schema / the contract** → `index.html:loadFleetObserved`, `03-data-objects.md`
   §3.9, and keep it consistent with the registration contract in `35-proposal-raw-data-tab.md` §2.
 - **A fleet source's logic** → `scripts/fetch_fleet_<c>.py` **and** this §4 row
-  **and** the country's `notes`/flags.
+  **and** the country's `notes`/flags. For a Eurostat country: `COUNTRIES` in
+  `scripts/fetch_fleet_eurostat.py` and the §4c table.
 - **A new fleet country / variant** → this §4 table, `SD_COUNTRIES` variants in
   `index.html`, and `09-glossary.md` if the scope needs a note.
 
@@ -446,7 +536,8 @@ pilot for the whole fleet-fetch pattern.
 - SSB 07849 fuel-leaf granularity (does it split plug-in/hybrid, or only "other"?).
 - Denmark & Finland exact **stock** (not registration) table IDs.
 - Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
-- Georgia: the actual publisher and its split capability.
+- Georgia: the actual publisher and its split capability. (Eurostat carries
+  Geostat's figures within 3–4 % of the curated BEV values, §4c: a strong lead.)
 - ~~KBA~~ — **resolved**: FZ 27.9 confirmed, mapping in §4b.
 - ~~KBA ArcGIS Hub~~ — **resolved**: Hub has no national fuel×time series
   (only capped model-level + regional e-mobility); FZ 27.9 xlsx stays the source.
