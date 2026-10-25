@@ -37,10 +37,17 @@ derived from it — only for months where all three are present:
            Hybrid block)
   ICE    = VAMA PC block − the PC-block exceptions above
            + Hyundai (TC total − TC commercial vehicles)
+           + VinFast ICE (Fadil / Lux, history to 2022 only)
   OTHERS = non-member imports: VAMA total-industry PC − members (PC + Hybrid
            + BEV). Fuel unknown (BYD, Mercedes, ...), so never BEV/PHEV.
   PHEV   = empty (no source splits it; never written as 0)
   TOTAL  = the sum = VAMA total-industry PC + VinFast + Hyundai passenger
+
+History (2021-01 .. 2024-08) was assembled once from VAMA's archive, the
+VinFast and TC releases and VinFast's SEC filings; it lives in the same
+components file. Before 2024 VAMA had no Hybrid block, so HEV / MHEV are
+empty there (inside ICE). Months whose VinFast figure is a yearly residual
+(vinfast_kind=estimate) are labelled `yearly`, see the source page.
 
 The PC-block exceptions and the mild hybrids come from the Detail sheet. VAMA
 has uploaded the previous month's Detail under a new month's name (2025-05,
@@ -95,7 +102,8 @@ REPO = Path(__file__).resolve().parent.parent
 CSV_PATH = REPO / "data" / "Vietnam.csv"
 COMPONENTS = REPO / "data" / "raw" / "vietnam" / "components.csv"
 SOURCE = "VAMA + VinFast + TC Group"
-FIRST_PERIOD = "2024-09"
+FIRST_PERIOD = "2021-01"      # history from here: docs/architecture/64-source-vietnam.md §2a
+HYBRID_FROM = "2024-01"       # VAMA's Hybrid block starts; before it hybrids sit in PC (→ ICE)
 COUNTRY = "Vietnam"
 TOP_SLUG = "vietnam"          # BEV / HEV / MHEV
 ALL_SLUG = "vietnam_all"      # every powertrain (ALL)
@@ -107,7 +115,7 @@ COMP_COLUMNS = [
     "vama_ti", "vama_ti_pc", "vama_ti_cv", "vama_ti_spv",
     "vama_members_pc", "vama_members_hybrid", "vama_members_bev",
     "vama_mhev", "vama_hev_in_pc", "vama_bev_in_pc", "vama_detail",
-    "vinfast", "vinfast_ytd", "vinfast_kind", "vinfast_models",
+    "vinfast", "vinfast_ice", "vinfast_ytd", "vinfast_kind", "vinfast_models",
     "tc_total", "tc_commercial", "hyundai_models",
     "src_vama", "src_vinfast", "src_tc", "note",
 ]
@@ -259,8 +267,11 @@ def parse_cover(text: str) -> dict:
     if m and month_of(m.group(1)):
         out["period"] = f"{m.group(2)}-{month_of(m.group(1)):02d}"
     m = re.search(r"Total industry (?:is|was) at " + NUM + r" units,? of which " + NUM +
-                  r" units were Passenger Cars?[;,]? " + NUM + r" units were Commercial Vehicles?,? and "
-                  + NUM + r" units were Special[- ]Purpose Vehicles?", t, re.I)
+                  r" ?units were Passenger Cars?[;,]? " + NUM + r" ?units were Commercial Vehicles?,? and "
+                  + NUM + r" ?units were Special[- ]Purpose Vehicles?", t, re.I)
+    if not m:   # Vietnamese-only months (2024-06): "đạt N xe, bao gồm xe N du lịch; N xe thương mại và N xe chuyên dụng"
+        m = re.search(r"toàn thị trường đạt " + NUM + r" xe,? bao gồm (?:xe )?" + NUM + r" (?:xe )?du lịch[;,]? "
+                      + NUM + r" xe thương mại và " + NUM + r" xe chuyên dụng", t, re.I)
     if m:
         out["ti"], out["ti_pc"], out["ti_cv"], out["ti_spv"] = map(num, m.groups())
     sec = None
@@ -619,29 +630,50 @@ def _i(row: dict, k: str) -> int:
     return int(float(v)) if v else 0
 
 
+def _f(row: dict, k: str) -> float:
+    v = (row.get(k) or "").strip()
+    return float(v) if v else 0.0
+
+
+def _fmt(x: float) -> str:
+    """One decimal like every other row; two where a period-average needs it (3948.75)."""
+    s = f"{x:.2f}"
+    return s[:-1] if s.endswith("0") else s
+
+
 def complete(row: dict) -> bool:
     return all((row.get(k) or "").strip() for k in
                ("vama_ti_pc", "vama_members_pc", "vama_members_hybrid", "vinfast", "tc_total", "tc_commercial"))
 
 
 def compose(row: dict) -> dict:
-    """One components row → one Vietnam.csv row (see module docstring)."""
-    vf = _i(row, "vinfast")
-    bev = vf + _i(row, "vama_members_bev") + _i(row, "vama_bev_in_pc")
+    """One components row → one Vietnam.csv row (see module docstring).
+
+    History rows (2021-01 … 2024-08, assembled once): VinFast
+    still sold ICE cars until Nov 2022 (`vinfast_ice`, booked to ICE), and
+    VAMA had no Hybrid block before HYBRID_FROM — hybrids sat in its PC block,
+    so HEV / MHEV stay empty (inside ICE). A VinFast `estimate` is a yearly
+    figure minus the published months, spread evenly: the row is labelled
+    `yearly` (its coarsest component, as Singapore's), VAMA and Hyundai in it
+    are still the real monthly figures."""
+    vf, vf_ice = _f(row, "vinfast"), _f(row, "vinfast_ice")
+    bev = vf - vf_ice + _i(row, "vama_members_bev") + _i(row, "vama_bev_in_pc")
     mhev = _i(row, "vama_mhev")
     hev = _i(row, "vama_members_hybrid") - mhev + _i(row, "vama_hev_in_pc")
     hyundai = _i(row, "tc_total") - _i(row, "tc_commercial")
-    ice = _i(row, "vama_members_pc") - _i(row, "vama_hev_in_pc") - _i(row, "vama_bev_in_pc") + hyundai
+    ice = (_i(row, "vama_members_pc") - _i(row, "vama_hev_in_pc") - _i(row, "vama_bev_in_pc")
+           + hyundai + vf_ice)
     others = (_i(row, "vama_ti_pc") - _i(row, "vama_members_pc") - _i(row, "vama_members_hybrid")
               - _i(row, "vama_members_bev"))
     total = bev + hev + mhev + ice + others
-    assert total == _i(row, "vama_ti_pc") + vf + hyundai, row["period"]
+    assert abs(total - (_i(row, "vama_ti_pc") + vf + hyundai)) < 1e-6, row["period"]
     if min(bev, hev, mhev, ice, others) < 0:
         raise ValueError(f"{row['period']}: negative component {bev, hev, mhev, ice, others}")
+    split_hybrids = row["period"] >= HYBRID_FROM
     notes = []
     kind = row.get("vinfast_kind", "")
     if kind == "rounded":
-        notes.append(f"VinFast rounded ('more than {vf:,}')")
+        notes.append(f"VinFast rounded ('more than {vf:,.0f}')")
     elif kind == "revised":
         notes.append("VinFast revised from next month's YTD")
     elif kind == "manual":
@@ -650,11 +682,15 @@ def compose(row: dict) -> dict:
         notes.append("VAMA detail sheet wrong/missing: mild hybrids not split from HEV yet")
     elif row.get("vama_detail") == "derived":
         notes.append("model split derived from neighbouring months' YTD (VAMA detail sheet mislabelled)")
+    if not split_hybrids:
+        notes.append("no VAMA Hybrid block before 2024: HEV/MHEV inside ICE")
     if row.get("note"):
         notes.append(row["note"])
-    return {"period": row["period"], "time_interval": "monthly", "variant": "Whole", "source": SOURCE,
-            "BEV": f"{bev:.1f}", "PHEV": "", "HEV": f"{hev:.1f}", "MHEV": f"{mhev:.1f}",
-            "ICE": f"{ice:.1f}", "OTHERS": f"{others:.1f}", "TOTAL": f"{total:.1f}",
+    return {"period": row["period"], "time_interval": "yearly" if kind == "estimate" else "monthly",
+            "variant": "Whole", "source": SOURCE,
+            "BEV": _fmt(bev), "PHEV": "", "HEV": _fmt(hev) if split_hybrids else "",
+            "MHEV": _fmt(mhev) if split_hybrids else "",
+            "ICE": _fmt(ice), "OTHERS": _fmt(others), "TOTAL": _fmt(total),
             "notes": "; ".join(notes)}
 
 
@@ -685,7 +721,7 @@ def apply_vinfast_revision(comp: dict[str, dict], period: str) -> str | None:
         return None
     if not (cur.get("vinfast_ytd") and prev.get("vinfast_ytd") and cur.get("vinfast")):
         return None
-    if prev.get("vinfast_kind") in ("rounded", "manual"):
+    if prev.get("vinfast_kind") in ("rounded", "manual", "estimate"):
         return None
     implied = _i(cur, "vinfast_ytd") - _i(cur, "vinfast")
     if implied == _i(prev, "vinfast_ytd"):
@@ -737,7 +773,7 @@ def month_units(row: dict, vama_units: dict | None) -> tuple[dict, dict]:
         el[("HEV", market_top.REST, "")] += _i(row, "vama_members_hybrid")
         el[("BEV", market_top.REST, "")] += _i(row, "vama_members_bev")
     al[("ALL", market_top.REST, "")] += max(0, members - counted)
-    vf, vfm = _i(row, "vinfast"), parse_models(row.get("vinfast_models", ""))
+    vf, vfm = _i(row, "vinfast") - _i(row, "vinfast_ice"), parse_models(row.get("vinfast_models", ""))
     if sum(vfm.values()) > vf:          # revised down after the release: scale
         f = vf / sum(vfm.values())
         vfm = {k: int(v * f) for k, v in vfm.items()}
