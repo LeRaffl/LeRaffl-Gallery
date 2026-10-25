@@ -2,7 +2,7 @@
 
 **Generated, not hand-written** — `python3 scripts/build_series.py` rewrites this file on every build. Items disappear when the rows behind them are fixed, so `git diff` on this file is the progress report. Nothing here is a rendering bug: every entry is a statement about what is in `data/<Country>.csv`, phrased so it can be checked against the file.
 
-**Status:** 60 countries · 6,989 periods drawable · 164 held back · **45 of 60 files cost the chart nothing.**
+**Status:** 60 countries · 6,992 periods drawable · 161 held back · **46 of 60 files cost the chart nothing.**
 
 ---
 
@@ -54,11 +54,6 @@ Ordered by what it costs. A period lost at T1M costs up to twelve bars at T12M, 
 
 - [ ] **No rows for 2020-01…2020-06** — 6 periods the CSV says nothing about.
 → *Symptom:* 1 visible gap in the chart, 6 months (worst 2020-01…2020-07).
-
-### Iceland  ·  costs 6 periods
-
-- [ ] **3 rows whose bands do not add up to `TOTAL`** (worst 2019-01: bands miss TOTAL by +7.4%) · 2019-01, 2019-03…2019-04
-→ *Symptom:* 2 visible gaps in the chart, 3 months (worst 2019-03…2019-05).
 
 ### China  ·  costs 2 periods
 
@@ -204,4 +199,4 @@ Real, and already handled by the pipeline. Listed so the provenance of each file
 
 ## Costs the chart nothing
 
-Albania, Argentina, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine
+Albania, Argentina, Austria, Belgium, Brazil, Bulgaria, Canada, Chile, Croatia, Cyprus, Czechia, Denmark, Ecuador, Estonia, Finland, France, Georgia, Germany, Greece, Hong Kong, Iceland, India, Indonesia, Ireland, Israel, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Nepal, Netherlands, New Zealand, Paraguay, Slovakia, South Africa, South Korea, Spain, Sweden, Switzerland, Taiwan, Thailand, Türkiye, UK, USA, Ukraine
