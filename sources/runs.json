@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-25T13:16:46Z",
+ "generated": "2026-10-25T13:27:32Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6568,6 +6568,14 @@
    "slug": "slovenia",
    "period": "2026-09",
    "flag": "🇸🇮"
+  },
+  {
+   "date": "2026-10-25",
+   "label": "Colombia",
+   "base": "Colombia",
+   "slug": "colombia",
+   "period": "2026-09",
+   "flag": "🇨🇴"
   }
  ]
 }
