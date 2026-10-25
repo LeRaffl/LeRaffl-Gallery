@@ -2,6 +2,7 @@ name: Build manifest
 
 on:
   push:
+    branches: [master]              # manifest + schedule beschreiben master; kein Bot-Commit auf Feature-Branches (#243)
     paths:
       - 'images/**'                 # triggert bei neuen/gelöschten/verschobenen Dateien in images/
       - 'build_manifest.R'          # falls du den Builder änderst

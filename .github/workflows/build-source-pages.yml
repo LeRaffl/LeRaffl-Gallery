@@ -37,6 +37,7 @@ on:
       - 'docs/architecture/country_source_stubs.yaml'
       - 'docs/architecture/candidate_sources.yaml'
       - 'scripts/build_source_pages.py'
+      - 'scripts/test_build_source_pages.py'
       - 'scripts/build_schedule.py'
       - 'scripts/build_theme.py'
       - 'index.html'
@@ -68,6 +69,10 @@ jobs:
       - name: Validate front-matter + stubs
         if: github.event_name == 'pull_request'
         run: python3 scripts/build_source_pages.py --check
+
+      - name: Generator tests (reconciliation section)
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/test_build_source_pages.py
 
       # assets/theme.css is generated from index.html's :root block (#221), so
       # a palette change there must not leave the standalone pages behind.

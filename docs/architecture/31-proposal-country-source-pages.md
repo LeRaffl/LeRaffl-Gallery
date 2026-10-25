@@ -129,6 +129,26 @@
     column → curve tree `RENDER_TREE` in the generator). Keep both in step
     with `R/render_country.R` / `R/plots.R`.
 
+- **Reconciliation (2026-10).** A charted figure that differs from what
+  others publish (media headlines, police registrations, an all-vehicle total)
+  needs its bridge on the page, not in someone's head. Optional section
+  **"Why other figures differ"** right after "How it works"
+  (`build_reconciliation()`):
+  - `reconciliation:` — one table or a list of tables, each with `title`,
+    optional `lead`, `head` (default `[Step, Units]`), `rows` and `note`. A
+    row is a list of cells or `{cells, url, note, strong}`; every row has as
+    many cells as `head` (`--check` enforces it). A first cell starting with
+    `=` is a result line and renders bold; number-like cells are right-aligned;
+    `url` links the first cell. Typical use: headline total → minus what the
+    gallery leaves out → the charted `Whole`, with the powertrain split.
+  - `checks_file:` — a fetcher-written `market/<slug>_checks.json`
+    ([03](03-data-objects.md) §3.16b) rendered as a check table (period,
+    compared with, ours, theirs, gap, tolerance, result). Missing file → no
+    table.
+  - `reconciliation_heading:` overrides the section title.
+  First user: Vietnam (three sources summed; media totals and police
+  registrations to reconcile). Tests: `scripts/test_build_source_pages.py`.
+
 - **Missing data is stated, not hidden.** A declared variant with no CSV in
   the repo (all four of India) renders as
   "not in this repo" with an explanation, and a country with no store at all
