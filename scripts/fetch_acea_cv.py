@@ -438,6 +438,13 @@ def fetch_checkpoint_pdf(checkpoint: str, year: int, pdf_url: str | None) -> tup
             return load_pdf_bytes(url), url
         except FileNotFoundError:
             continue
+        except requests.RequestException as e:
+            # acea.auto answers a path that doesn't exist with a 404 on some
+            # days and a 520 on others (2026-10-24: a 520 on the first Q1-Q3
+            # guess stopped the run before it reached the third, the shape
+            # confirmed in 2025). Either way it means "not this URL".
+            print(f"  {e}")
+            continue
     raise FileNotFoundError(
         f"None of the candidate URLs for {checkpoint} {year} were found: "
         f"{[t.format(year=year) for t in templates]}. Pass --pdf-url explicitly."
@@ -944,7 +951,7 @@ def main() -> int:
 
     try:
         pdf_bytes, source_url = fetch_checkpoint_pdf(checkpoint, target_year, args.pdf_url)
-    except FileNotFoundError as e:
+    except (FileNotFoundError, requests.RequestException) as e:
         print(f"PDF not available yet: {e}. Will retry next scheduled run.")
         return 0
     except PDFAccessDenied as e:
