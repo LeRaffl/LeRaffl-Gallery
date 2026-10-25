@@ -172,6 +172,16 @@ table.rules th,table.rules td,table.mapping th,table.mapping td{
 table.rules th,table.mapping th{color:var(--muted);font-weight:600;
   position:sticky;top:0;background:var(--panel)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.recon{width:100%;border-collapse:collapse;font-size:14px}
+table.recon th,table.recon td{text-align:left;vertical-align:top;padding:7px 9px;
+  border-bottom:1px solid var(--border)}
+table.recon th{color:var(--muted);font-weight:600}
+table.recon th.num,table.recon td.num{text-align:right}
+table.recon tr.strong td{font-weight:700;border-top:2px solid var(--border)}
+table.recon .rnote{font-size:12.5px;font-weight:400;margin-top:2px}
+table.recon td.chk{white-space:nowrap}
+.chk--ok{color:#2e7d32}.chk--warn{color:#b26a00}.chk--bad{color:#c62828}
+.chk--miss{color:var(--muted)}
 table.rules td:nth-child(2){min-width:140px}
 table.rules td:nth-child(3){min-width:150px;max-width:190px}
 table.rules td:nth-child(4){min-width:220px}
@@ -224,6 +234,8 @@ tr:target{outline:2px solid var(--accent);outline-offset:-2px}
     <div class="stat"><div class="n">35.4%</div><div class="l">TTM BEV share (Whole)</div></div>
     <div class="stat"><div class="n">1</div><div class="l">Variants</div></div>
   </div>
+
+  
 
   
 
