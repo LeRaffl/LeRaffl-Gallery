@@ -187,7 +187,7 @@ or the maintainer confirms them at build time.
 | **Norway** | SSB StatBank **table 07849** "Registered vehicles by type of transport and type of fuel", PxWebApi (JSON-stat2), annual `data.ssb.no/api/v0/en/table/07849`. PHEV/HEV split from **OFV** *bilparken*. | BEV, petrol, diesel, "other" from SSB; PHEV/HEV from OFV | SSB 2008– (fleet rows 2016–2025) | **High** (SSB official); OFV medium (report-based, no open API) | SSB fuel dimension is coarse pre-recode — **⚠ verify** whether 07849 now carries plug-in/hybrid petrol+diesel leaves; if not, PHEV/HEV need OFV. M1. |
 | **Germany** ✅ **confirmed (§4b)** | KBA **FZ 27, sheet FZ 27.9** — Pkw stock by quarter & drivetrain, XLSX (`kba.de/.../FZ27/`). | BEV, PHEV, HEV(+MHEV), gas, FCEV/H₂; **petrol/diesel not split** (aggregate-ICE) | quarterly 2018-07 → now | **High** | Old `HYBRID` was PHEV+HEV lumped → now split. `mhev_in_hev`. Year `Y` = `01.01.(Y+1)` snapshot. **Cron candidate.** M1 Pkw. |
 | **Austria** | Statistik Austria "Kfz-Bestand" (Kraftfahrzeuge – Bestand), annual. `statistik.at`. | Combined hybrid only (today) | 2000–2025 (long) | **High** | `combined_hybrid` → `HEV`+note. **⚠ verify** whether STAT now splits PHEV/HEV (recent years likely do). M1. |
-| **Denmark** | Danmarks Statistik StatBank, PxWeb API (`api.statbank.dk`). Reg uses **BIL53**; **stock table ⚠ verify** (BILA/BEST family — "Bestanden af køretøjer"). | BEV, PHEV; **HEV not split** | 1993–2025 (long) | **High** — open API | `hev_in_ice`. M1 personbiler. |
+| **Denmark** ✅ | Danmarks Statistik StatBank, API `api.statbank.dk`. Reg uses **BIL53**; stock is **BIL710** "Stock of passenger cars as per 1 January" (by propellant, 2018–), the curated rows match it to the vehicle; totals back to 1993 match **BIL8**. | BEV, PHEV; **HEV not split** | 1992–2025 (long) | **High** — open API | `hev_in_ice`. M1 personbiler. **Year = the 1 January (Y+1) table**, like KBA; until 2026-10 every row sat one year late (row Y held the stock on 1 January Y). |
 | **Finland** | Traficom vehicle register / Tilastokeskus **StatFin**, PxWeb API. Reg uses table **121d**; **stock table ⚠ verify** (Traficom *Ajoneuvokanta* by *käyttövoima*). | BEV, PHEV; **HEV not split / =0** | 1990–2025 (**longest**) | **High** — open API | `hev_in_ice`. M1 henkilöautot. |
 | **United Kingdom** | DfT **VEH0105 / VEH0203** "Licensed vehicles by body type & fuel", quarterly ODS, GB + UK. `gov.uk/.../vehicle-licensing-statistics-data-tables`. | BEV, PHEV, HEV split | 2014–2024 | **High** — open, authoritative | "**Licensed**" excludes SORN (off-road) vehicles — a scope difference vs ever-registered registers. Cars = M1. |
 | **New Zealand** | Ministry of Transport / NZTA Waka Kotahi fleet statistics; open dataset on `data.govt.nz` (see `19-source-new-zealand.md`). | BEV, PHEV, HEV, petrol, diesel | 2015–2025 | **High** — open | Light passenger fleet. Cross-check the light/heavy cut against the reg variant. |
@@ -237,12 +237,14 @@ breakdown offered · time = all available years**. `✅` = confirmed identifier;
   period = year-end (Q4) rows, all years. Scope note: "licensed" **excludes
   SORN** (off-road) cars.
 
-- **Denmark — Danmarks Statistik StatBank** `⚠`.
-  `statbank.dk` (PxWeb API `api.statbank.dk`) → transport → *bestand af
-  køretøjer* (stock, **not** BIL53 which is new regs). Find the personbiler ×
-  drivmiddel × tid table. Select: *personbiler* · drivmiddel = **El, Plug-in
-  hybrid, Benzin, Diesel, (Andet)** · tid = all years → CSV. HEV folds into
-  benzin/diesel → `hev_in_ice`.
+- **Denmark — Danmarks Statistik StatBank, table BIL710** ✅.
+  `statbank.dk/BIL710` (API `api.statbank.dk`, stock, **not** BIL53 which is
+  new regs). Select: *All Denmark* · ownership *Total* · propellant = all ·
+  time = all → CSV. Map Electricity → `BEV`, Pluginhybrid → `PHEV`, Petrol,
+  Diesel, and LPG + N-gas + Kerosene + Hydrogen + Ethanol + Other → `OTHERS`;
+  the propellants sum to the total. HEV folds into petrol/diesel →
+  `hev_in_ice`. **BIL710 year Y is the stock on 1 January Y: write it as year
+  Y − 1** (end of the previous year, the convention of every country here).
 
 - **Finland — Traficom / Tilastokeskus StatFin** `⚠`.
   Traficom open data *"Ajoneuvokanta"* (vehicle stock) or StatFin (reg uses 121d;
@@ -444,7 +446,8 @@ pilot for the whole fleet-fetch pattern.
 ## 6 · Open verification points
 
 - SSB 07849 fuel-leaf granularity (does it split plug-in/hybrid, or only "other"?).
-- Denmark & Finland exact **stock** (not registration) table IDs.
+- Finland exact **stock** (not registration) table ID. (~~Denmark~~ —
+  **resolved**: BIL710, see §4a; it also showed the rows were one year late.)
 - Canada: whether a stock-by-fuel cube exists, or fleet rows are estimates.
 - Georgia: the actual publisher and its split capability.
 - ~~KBA~~ — **resolved**: FZ 27.9 confirmed, mapping in §4b.
