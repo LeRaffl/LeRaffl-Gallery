@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-25T13:27:32Z",
+ "generated": "2026-10-25T16:03:08Z",
  "today": "2026-10-25",
  "countries": [
   {
@@ -1914,7 +1914,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-25",
    "flag": "🇮🇸",
    "variants": [
     {
