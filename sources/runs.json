@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T09:47:36Z",
+ "generated": "2026-10-26T10:23:51Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -6584,6 +6584,142 @@
    "slug": "iceland",
    "period": "2026-09",
    "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Chile",
+   "base": "Chile",
+   "slug": "chile",
+   "period": "2026-08",
+   "flag": "🇨🇱"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "China",
+   "base": "China",
+   "slug": "china",
+   "period": "2026-09",
+   "flag": "🇨🇳"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "China (Wholesale)",
+   "base": "China",
+   "slug": "china_wholesale",
+   "period": "2026-09",
+   "flag": "🇨🇳"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Ecuador",
+   "base": "Ecuador",
+   "slug": "ecuador",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Ecuador (Vans)",
+   "base": "Ecuador",
+   "slug": "ecuador_vans",
+   "period": "2026-09",
+   "flag": "🇪🇨"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Indonesia",
+   "base": "Indonesia",
+   "slug": "indonesia",
+   "period": "2026-09",
+   "flag": "🇮🇩"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Malta",
+   "base": "Malta",
+   "slug": "malta",
+   "period": "2026-09",
+   "flag": "🇲🇹"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Nepal",
+   "base": "Nepal",
+   "slug": "nepal",
+   "period": "2026-09",
+   "flag": "🇳🇵"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Nepal (3-Wheelers)",
+   "base": "Nepal",
+   "slug": "nepal_3_wheelers",
+   "period": "2026-09",
+   "flag": "🇳🇵"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Paraguay",
+   "base": "Paraguay",
+   "slug": "paraguay",
+   "period": "2026-09",
+   "flag": "🇵🇾"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "South Africa",
+   "base": "South Africa",
+   "slug": "south_africa",
+   "period": "2026-06",
+   "flag": "🇿🇦"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "South Korea",
+   "base": "South Korea",
+   "slug": "south_korea",
+   "period": "2026-09",
+   "flag": "🇰🇷"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "USA",
+   "base": "USA",
+   "slug": "usa",
+   "period": "2026-09",
+   "flag": "🇺🇸"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Uruguay",
+   "base": "Uruguay",
+   "slug": "uruguay",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Uruguay (Buses)",
+   "base": "Uruguay",
+   "slug": "uruguay_buses",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Uruguay (HDV)",
+   "base": "Uruguay",
+   "slug": "uruguay_hdv",
+   "period": "2026-09",
+   "flag": "🇺🇾"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Uruguay (Vans)",
+   "base": "Uruguay",
+   "slug": "uruguay_vans",
+   "period": "2026-09",
+   "flag": "🇺🇾"
   }
  ]
 }
