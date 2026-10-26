@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T10:23:51Z",
+ "generated": "2026-10-26T10:28:40Z",
  "runs": [
   {
    "date": "2026-02-03",
@@ -2906,14 +2906,6 @@
    "flag": "🇦🇹"
   },
   {
-   "date": "2026-07-14",
-   "label": "Austria (Used)",
-   "base": "Austria",
-   "slug": "austria_used",
-   "period": "2026-06",
-   "flag": "🇦🇹"
-  },
-  {
    "date": "2026-07-15",
    "label": "Spain",
    "base": "Spain",
@@ -3232,14 +3224,6 @@
    "slug": "chile",
    "period": "2026-05",
    "flag": "🇨🇱"
-  },
-  {
-   "date": "2026-07-28",
-   "label": "Austria (Used)",
-   "base": "Austria",
-   "slug": "austria_used",
-   "period": "2026-06",
-   "flag": "🇦🇹"
   },
   {
    "date": "2026-08-01",
@@ -3592,14 +3576,6 @@
    "slug": "singapore",
    "period": "2026-07",
    "flag": "🇸🇬"
-  },
-  {
-   "date": "2026-08-14",
-   "label": "Austria (Used)",
-   "base": "Austria",
-   "slug": "austria_used",
-   "period": "2026-07",
-   "flag": "🇦🇹"
   },
   {
    "date": "2026-08-15",
@@ -4176,14 +4152,6 @@
    "slug": "luxembourg_vans",
    "period": "2026-08",
    "flag": "🇱🇺"
-  },
-  {
-   "date": "2026-09-14",
-   "label": "Austria (Used)",
-   "base": "Austria",
-   "slug": "austria_used",
-   "period": "2026-08",
-   "flag": "🇦🇹"
   },
   {
    "date": "2026-09-14",
@@ -5939,14 +5907,6 @@
   },
   {
    "date": "2026-10-14",
-   "label": "Austria (Used)",
-   "base": "Austria",
-   "slug": "austria_used",
-   "period": "2026-09",
-   "flag": "🇦🇹"
-  },
-  {
-   "date": "2026-10-14",
    "label": "Greece",
    "base": "Greece",
    "slug": "greece",
@@ -6584,6 +6544,14 @@
    "slug": "iceland",
    "period": "2026-09",
    "flag": "🇮🇸"
+  },
+  {
+   "date": "2026-10-26",
+   "label": "Austria (Resale)",
+   "base": "Austria",
+   "slug": "austria_resale",
+   "period": "2026-09",
+   "flag": "🇦🇹"
   },
   {
    "date": "2026-10-26",

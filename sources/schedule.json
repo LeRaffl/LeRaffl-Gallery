@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T10:23:51Z",
+ "generated": "2026-10-26T10:28:40Z",
  "today": "2026-10-26",
  "countries": [
   {
@@ -260,7 +260,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-10-14",
+   "last_render": "2026-10-26",
    "flag": "🇦🇹",
    "variants": [
     {
