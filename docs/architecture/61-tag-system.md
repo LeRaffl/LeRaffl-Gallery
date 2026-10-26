@@ -116,7 +116,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | Tag popover / glossary | cut-offs, points, CATS texts | yes | yes (per-group wording, mini boxplot, link text) |
 | FAQ "What do the small tags…" | static text | yes | yes |
 | Sidebar labels (Speed / Timing) | static text | yes | yes ("quartile of its group") |
-| World map (`wmClassify`, `wmBuildRows`) | `rowHasNoTransition`, `rowIsUnreliableFit`, `fitReliability` — no tags | no | moved functions only (now from `fit_core.js`); since 2026-10 volatile / unreliable markets get a pale *Not coloured* layer and list instead of looking like no data |
+| World map (`wmClassify`, `wmBuildRows`) | `rowHasNoTransition`, `rowIsUnreliableFit`, `fitReliability` — no tags | no | moved functions only (now from `fit_core.js`); since 2026-10 volatile / unreliable markets get a pale *Too volatile to show* layer and list instead of looking like no data |
 | Fit reliability gate in Thresholds / Durations / Time interval | `fitReliability` | no | moved only |
 | `scripts/snapshot_builder.py` (+ test) | own Python mirror of the curve maths; no tags | no | no |
 | R (`fit.R` refit_swing, `post_text.R`, `render_*.R`) | no tags (refit_swing feeds `fitReliability`) | no | no |

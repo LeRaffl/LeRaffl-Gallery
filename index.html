@@ -5054,7 +5054,7 @@ const VIEW_START_YEAR = 2015;
         <span class="wm-sw wm-sw--x" style="background:#c2701a"></span><b>Amber</b> = pioneers that have already reached the threshold.
         <span class="wm-sw wm-sw--x" style="background:#6e6258"></span><b>Dark grey</b> = no transition: the same markets the tables list as "shows no transition" (under 1&nbsp;% BEV, or a negligible adoption rate), plus fits that do not reach the threshold within a reasonable horizon.
         Both sit outside the scale and carry a heavier outline, so they never read as just another step.
-        <span class="wm-sw" style="background:#cbc3b6"></span><b>Pale grey</b> = we have data, but the curve can't give a year yet (volatile curve or unreliable fit); listed under the map.
+        <span class="wm-sw" style="background:#cbc3b6"></span><b>Pale grey</b> = too volatile to show: we have data, but the curve can't give a year yet; listed under the map.
         HDV, Buses and the other variants use the <b>Cars</b> colour scale, so the same colour means the same year on every variant.
         Exact values always live in the hover tooltip.
       </p>
@@ -5079,12 +5079,12 @@ const VIEW_START_YEAR = 2015;
           <ul id="wmStalledList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
         <div>
-          <h3 class="wm-list-h"><span class="wm-sw" style="background:#cbc3b6"></span>Not coloured</h3>
+          <h3 class="wm-list-h"><span class="wm-sw" style="background:#cbc3b6"></span>Too volatile to show</h3>
           <ul id="wmHiddenList" style="margin:0 0 0; padding:0 0 0 22px; color:var(--text); font-size:13px; line-height:1.7;"></ul>
         </div>
       </div>
       <p class="small" style="margin:12px 0 0; color:var(--muted-2);">
-        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric (the swatch is the darkest / lightest step of the scale). <b>Pioneers</b> have already reached the threshold at the time of the last data point. <b>No transition</b> countries sell under 1&nbsp;% BEV or have a fitted curve that does not reach the threshold within a reasonable horizon — the same rule as the "shows no transition" label in Thresholds and Durations. <b>Not coloured</b> markets have data, but their fitted curve can't give a year yet: a <em>volatile curve</em> (the projected year still moves a lot with each new month) or an unreliable fit (collapsed or stale). Their charts stay in the gallery.
+        Leaders / Laggards are the top and bottom five <em>normal</em> countries for the selected metric (the swatch is the darkest / lightest step of the scale). <b>Pioneers</b> have already reached the threshold at the time of the last data point. <b>No transition</b> countries sell under 1&nbsp;% BEV or have a fitted curve that does not reach the threshold within a reasonable horizon — the same rule as the "shows no transition" label in Thresholds and Durations. <b>Too volatile to show</b>: we have data, but the fitted curve can't give a year yet, because it still moves a lot with each new month (the gallery tags these <em>Volatile curve</em>). The few with an unreliable fit (collapsed or stale) are listed here too, marked as such. Their charts stay in the gallery.
       </p>
     </div>
 
@@ -12331,7 +12331,7 @@ const FAQ_DATA = [
       '<b>Speed</b> \u2014 quartile of the <em>numerical speed at the inflection point</em> (same metric as the <em>Durations</em> tab) against its reference group:<br>&nbsp;&nbsp;<b>Fast</b> = top 25 % of the group by inflection speed.<br>&nbsp;&nbsp;<b>Avg speed</b> = middle 50 %.<br>&nbsp;&nbsp;<b>Slow</b> = bottom 25 %.',
       '<b>Timing</b> \u2014 when the market crossed (or is projected to cross) <b>10 %</b> BEV share, compared against its reference group. Markets still below 10 % count with their projected year:<br>&nbsp;&nbsp;<b>Early starter</b> = earliest 25 % of the group.<br>&nbsp;&nbsp;<b>Late starter</b> = latest 25 %.<br>&nbsp;&nbsp;The middle half carries no timing tag.',
       '<b>Data or model?</b> \u2014 80 % and 10 % are levels of new registrations, so a market either has reached them or has not. 2035 is a fixed calendar date; the timing and speed cut-offs are quartiles of the fitted curves in the group. <em>Where the curve crosses those levels always comes from the fit</em>, never from an observation, and speed is a model quantity throughout. Hover any tag: the popover says which of the two it is standing on for that market, and how far the fit has to reach past the data.',
-      '<b>Volatile curve / Unreliable fit</b> \u2014 a market whose fitted curve can\'t give a reliable year yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the colour scale of the World Map (a note under each table, and the <em>Not coloured</em> list under the map, name what was left out). The chart itself stays in the gallery. Three tests, any one is enough. When only the first fails, the pill says <b>Volatile curve</b>: nothing is wrong, the curve just isn\'t pinned down yet. Otherwise it says <b>Unreliable fit</b>.<br>&nbsp;&nbsp;<b>Volatile</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
+      '<b>Volatile curve / Unreliable fit</b> \u2014 a market whose fitted curve can\'t give a reliable year yet. It replaces status, speed and timing with a single pill, and the market is left out of Thresholds, Durations, Time interval and the colour scale of the World Map (a note under each table, and the <em>Too volatile to show</em> list under the map, name what was left out). The chart itself stays in the gallery. Three tests, any one is enough. When only the first fails, the pill says <b>Volatile curve</b>: nothing is wrong, the curve just isn\'t pinned down yet. Otherwise it says <b>Unreliable fit</b>.<br>&nbsp;&nbsp;<b>Volatile</b> = every time new data arrives the curve is refitted, and we track how far the projected 80 % crossing moves across the last twelve of those re-fits (<code>refit_swing</code> in <code>params.csv</code>). More than 25 years \u2014 or no crossing at all in a quarter of them. Between 5 and 25 years the tags are still shown but drawn hollow (provisional); under 5 years they are solid.<br>&nbsp;&nbsp;<b>Collapsed</b> = the curve goes from 10 % to 80 % in under 3 years while observed BEV share is still below 10 %. That is a near-vertical step no market has come close to (Norway took about 8 years, Denmark about 5), and none of the claimed rise has been observed yet. A collapse can repeat identically on every refit, so it is not caught by the swing test.<br>&nbsp;&nbsp;<b>Stale</b> = the newest data point is more than 12 months old.',
       'All thresholds (80 %, 2035, 10 %) are constants of the script that renders the tags; the quartiles (25 / 75 %) and the 4-market minimum per group are the <code>TAG_*</code> constants next to <code>tagGroupCutoffs()</code>; the reliability cut-offs (25 / 5 years swing, 3 years and 10 % for a collapse, 12 months for staleness) are the <code>FIT_*</code> constants shared by every tab. Sub-segments such as <code>(HDV)</code> or <code>(Used)</code> use their own row in <code>params.csv</code>, so they can carry a different set of tags from the main country curve.'
     ] },
   { tag: 'general', label: 'General', q: 'What is the shaded band around the curve in Builder and Compare?',
@@ -12617,7 +12617,7 @@ document.addEventListener('keydown', (e) => {
 // alone cannot separate five ramp steps plus two categories (see #226).
 // Volatile curves and unreliable fits (rowIsUnreliableFit — unsettled,
 // collapsed, stale) get no colour from the scale, like in the tables, but a
-// pale neutral layer of their own ("Not coloured"), so they don't look like
+// pale neutral layer of their own ("Too volatile to show"), so they don't look like
 // countries without data.
 //
 // Every variant is coloured on the SAME scale as Cars (whole): the P5..P95
@@ -13202,15 +13202,15 @@ function wmRender(){
   // step and darker than land, so it reads neither as a value nor as "no data".
   const hidden = rows.hidden || [];
   const wmHiddenWhy = h => h.volatile
-    ? 'Volatile curve: the projected year still moves a lot with each new month'
-    : 'Fit not reliable yet (' + h.reasons.join(', ') + ')';
+    ? 'Too volatile to show: the projected year still moves a lot with each new month'
+    : 'Not shown: the fit is not reliable (' + h.reasons.join(', ') + ')';
   const traceHidden = {
     type: 'choropleth', locationmode: 'country names',
     locations: hidden.map(h => h.country),
     z: hidden.map(() => 1),
     text: hidden.map(h => `<b>${h.country}</b><br>${wmHiddenWhy(h)}` +
       (isFinite(h.obs) ? `<br>${(h.obs * 100).toFixed(1)} % BEV in the last 12 months` : '') +
-      '<br>Not coloured: no reliable year to show'),
+      ''),
     hovertemplate: '%{text}<extra></extra>',
     colorscale: [[0, WM_COLORS.withheld], [1, WM_COLORS.withheld]],
     zmin: 0, zmax: 1,
@@ -13265,8 +13265,8 @@ function wmRender(){
   const hiddenList = document.getElementById('wmHiddenList');
   if (hiddenList) hiddenList.innerHTML = hidden.length
     ? hidden.slice().sort((a, b) => a.country.localeCompare(b.country)).map(h =>
-        `<li><b>${h.country}</b> — ${h.volatile ? 'volatile curve' : 'fit not reliable'}` +
-        `${isFinite(h.obs) ? `, ${(h.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
+        `<li><b>${h.country}</b>${h.volatile ? '' : ' — unreliable fit'}` +
+        `${isFinite(h.obs) ? `${h.volatile ? ' — ' : ', '}${(h.obs * 100).toFixed(1)} % BEV` : ''}</li>`).join('')
     : '<li style="opacity:0.6">None</li>';
 }
 
