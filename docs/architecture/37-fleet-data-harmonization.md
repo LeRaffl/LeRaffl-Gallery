@@ -424,8 +424,8 @@ script by hand or with an agent, like the other curated countries.
 and Finland are identical to the vehicle (KBA stock on 1 Jan 2025 = Eurostat
 2024); Norway, the Netherlands and the UK are within 2 %, Georgia within 4 %.
 That pins the year convention. The same check showed that the curated
-**Denmark** rows are one year late (each is the stock on 1 January of its own
-year); that needs its own fix and is not part of this fetcher.
+**Denmark** rows were one year late (each was the stock on 1 January of its own
+year); fixed in #362, see the Denmark row in §4.
 
 **Hierarchy** (every level sums exactly on full rows):
 `TOTAL = PET + DIE + ALT`, `PET = PET_X_HYB + ELC_PET_HYB + ELC_PET_PI` (diesel
