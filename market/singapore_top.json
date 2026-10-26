@@ -3,246 +3,246 @@
  "country": "Singapore",
  "variant": "Whole",
  "source": "lta.gov.sg",
- "as_of": "2026-08",
+ "as_of": "2026-09",
  "window": {
   "from": "2026-01",
-  "to": "2026-08",
-  "months": 8
+  "to": "2026-09",
+  "months": 9
  },
- "total_registrations": 36646,
+ "total_registrations": 40986,
  "unit": "registrations (brand = M03 make; no models published)",
  "classes": {
   "BEV": {
-   "units": 23028,
-   "share_of_market": 0.62839,
+   "units": 25855,
+   "share_of_market": 0.63083,
    "brands": [
     {
      "brand": "BYD",
-     "units": 8318,
-     "share_of_class": 0.3612
+     "units": 9278,
+     "share_of_class": 0.3588
     },
     {
      "brand": "TESLA",
-     "units": 3723,
-     "share_of_class": 0.1617
+     "units": 4129,
+     "share_of_class": 0.1597
     },
     {
      "brand": "CHERY",
-     "units": 1522,
+     "units": 1709,
      "share_of_class": 0.0661
     },
     {
      "brand": "M.G.",
-     "units": 1419,
+     "units": 1593,
      "share_of_class": 0.0616
     },
     {
      "brand": "GAC",
-     "units": 1320,
-     "share_of_class": 0.0573
+     "units": 1514,
+     "share_of_class": 0.0586
     },
     {
      "brand": "XPENG",
-     "units": 1064,
-     "share_of_class": 0.0462
+     "units": 1246,
+     "share_of_class": 0.0482
     },
     {
      "brand": "ZEEKR",
-     "units": 975,
-     "share_of_class": 0.0423
+     "units": 1104,
+     "share_of_class": 0.0427
     },
     {
      "brand": "B.M.W.",
-     "units": 790,
-     "share_of_class": 0.0343
+     "units": 840,
+     "share_of_class": 0.0325
     },
     {
      "brand": "MAXUS",
-     "units": 419,
-     "share_of_class": 0.0182
+     "units": 479,
+     "share_of_class": 0.0185
     },
     {
-     "brand": "DONGFENG",
-     "units": 410,
-     "share_of_class": 0.0178
+     "brand": "MERCEDES BENZ",
+     "units": 444,
+     "share_of_class": 0.0172
     }
    ],
    "models": []
   },
   "PHEV": {
-   "units": 1051,
-   "share_of_market": 0.02868,
+   "units": 1279,
+   "share_of_market": 0.03121,
    "brands": [
     {
      "brand": "BYD",
-     "units": 710,
-     "share_of_class": 0.6755
+     "units": 895,
+     "share_of_class": 0.6998
     },
     {
      "brand": "CHERY",
-     "units": 131,
-     "share_of_class": 0.1246
+     "units": 144,
+     "share_of_class": 0.1126
     },
     {
      "brand": "VOLVO",
-     "units": 67,
-     "share_of_class": 0.0637
+     "units": 75,
+     "share_of_class": 0.0586
     },
     {
      "brand": "GAC",
-     "units": 32,
-     "share_of_class": 0.0304
+     "units": 35,
+     "share_of_class": 0.0274
     },
     {
      "brand": "LAND ROVER",
-     "units": 25,
-     "share_of_class": 0.0238
+     "units": 29,
+     "share_of_class": 0.0227
     },
     {
      "brand": "MERCEDES BENZ",
-     "units": 25,
-     "share_of_class": 0.0238
+     "units": 29,
+     "share_of_class": 0.0227
     },
     {
      "brand": "JAGUAR",
-     "units": 20,
-     "share_of_class": 0.019
+     "units": 22,
+     "share_of_class": 0.0172
     },
     {
      "brand": "PORSCHE",
-     "units": 11,
-     "share_of_class": 0.0105
+     "units": 13,
+     "share_of_class": 0.0102
+    },
+    {
+     "brand": "BENTLEY",
+     "units": 7,
+     "share_of_class": 0.0055
     },
     {
      "brand": "LAMBORGHINI",
      "units": 7,
-     "share_of_class": 0.0067
-    },
-    {
-     "brand": "BENTLEY",
-     "units": 6,
-     "share_of_class": 0.0057
+     "share_of_class": 0.0055
     }
    ],
    "models": []
   },
   "HEV": {
-   "units": 10560,
-   "share_of_market": 0.28816,
+   "units": 11615,
+   "share_of_market": 0.28339,
    "brands": [
     {
      "brand": "TOYOTA",
-     "units": 4009,
-     "share_of_class": 0.3796
+     "units": 4379,
+     "share_of_class": 0.377
     },
     {
      "brand": "MERCEDES BENZ",
-     "units": 1896,
-     "share_of_class": 0.1795
+     "units": 2049,
+     "share_of_class": 0.1764
     },
     {
      "brand": "HONDA",
-     "units": 1209,
-     "share_of_class": 0.1145
+     "units": 1358,
+     "share_of_class": 0.1169
     },
     {
      "brand": "NISSAN",
-     "units": 732,
-     "share_of_class": 0.0693
+     "units": 829,
+     "share_of_class": 0.0714
     },
     {
      "brand": "KIA",
-     "units": 585,
-     "share_of_class": 0.0554
-    },
-    {
-     "brand": "HYUNDAI",
-     "units": 378,
-     "share_of_class": 0.0358
+     "units": 653,
+     "share_of_class": 0.0562
     },
     {
      "brand": "B.M.W.",
-     "units": 376,
-     "share_of_class": 0.0356
+     "units": 407,
+     "share_of_class": 0.035
     },
     {
-     "brand": "SUBARU",
-     "units": 320,
-     "share_of_class": 0.0303
+     "brand": "HYUNDAI",
+     "units": 396,
+     "share_of_class": 0.0341
     },
     {
      "brand": "MAZDA",
-     "units": 317,
-     "share_of_class": 0.03
+     "units": 358,
+     "share_of_class": 0.0308
+    },
+    {
+     "brand": "SUBARU",
+     "units": 355,
+     "share_of_class": 0.0306
     },
     {
      "brand": "SUZUKI",
-     "units": 222,
-     "share_of_class": 0.021
+     "units": 249,
+     "share_of_class": 0.0214
     }
    ],
    "models": []
   },
   "PETROL": {
-   "units": 2004,
-   "share_of_market": 0.05469,
+   "units": 2234,
+   "share_of_market": 0.05451,
    "brands": [
     {
      "brand": "B.M.W.",
-     "units": 863,
-     "share_of_class": 0.4306
+     "units": 968,
+     "share_of_class": 0.4333
     },
     {
      "brand": "HONDA",
-     "units": 480,
-     "share_of_class": 0.2395
+     "units": 543,
+     "share_of_class": 0.2431
     },
     {
      "brand": "PORSCHE",
-     "units": 183,
-     "share_of_class": 0.0913
+     "units": 206,
+     "share_of_class": 0.0922
     },
     {
      "brand": "TOYOTA",
-     "units": 151,
-     "share_of_class": 0.0753
+     "units": 157,
+     "share_of_class": 0.0703
     },
     {
      "brand": "AUDI",
-     "units": 96,
-     "share_of_class": 0.0479
+     "units": 102,
+     "share_of_class": 0.0457
     },
     {
      "brand": "SUZUKI",
-     "units": 49,
-     "share_of_class": 0.0245
+     "units": 51,
+     "share_of_class": 0.0228
     },
     {
      "brand": "MINI",
-     "units": 41,
-     "share_of_class": 0.0205
+     "units": 44,
+     "share_of_class": 0.0197
     },
     {
      "brand": "VOLKSWAGEN",
-     "units": 31,
-     "share_of_class": 0.0155
-    },
-    {
-     "brand": "MERCEDES BENZ",
-     "units": 18,
-     "share_of_class": 0.009
+     "units": 34,
+     "share_of_class": 0.0152
     },
     {
      "brand": "SKODA",
-     "units": 13,
-     "share_of_class": 0.0065
+     "units": 20,
+     "share_of_class": 0.009
+    },
+    {
+     "brand": "MERCEDES BENZ",
+     "units": 19,
+     "share_of_class": 0.0085
     }
    ],
    "models": []
   },
   "DIESEL": {
    "units": 3,
-   "share_of_market": 8e-05,
+   "share_of_market": 7e-05,
    "brands": [
     {
      "brand": "TOYOTA",
@@ -259,6 +259,240 @@
   }
  },
  "months": [
+  {
+   "period": "2026-09",
+   "total_registrations": 4340,
+   "classes": {
+    "BEV": {
+     "units": 2827,
+     "share_of_market": 0.65138,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 960,
+       "share_of_class": 0.3396
+      },
+      {
+       "brand": "TESLA",
+       "units": 406,
+       "share_of_class": 0.1436
+      },
+      {
+       "brand": "GAC",
+       "units": 194,
+       "share_of_class": 0.0686
+      },
+      {
+       "brand": "CHERY",
+       "units": 187,
+       "share_of_class": 0.0661
+      },
+      {
+       "brand": "XPENG",
+       "units": 182,
+       "share_of_class": 0.0644
+      },
+      {
+       "brand": "M.G.",
+       "units": 174,
+       "share_of_class": 0.0615
+      },
+      {
+       "brand": "ZEEKR",
+       "units": 129,
+       "share_of_class": 0.0456
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 84,
+       "share_of_class": 0.0297
+      },
+      {
+       "brand": "MAXUS",
+       "units": 60,
+       "share_of_class": 0.0212
+      },
+      {
+       "brand": "AVATR",
+       "units": 57,
+       "share_of_class": 0.0202
+      }
+     ],
+     "models": []
+    },
+    "PHEV": {
+     "units": 228,
+     "share_of_market": 0.05253,
+     "brands": [
+      {
+       "brand": "BYD",
+       "units": 185,
+       "share_of_class": 0.8114
+      },
+      {
+       "brand": "CHERY",
+       "units": 13,
+       "share_of_class": 0.057
+      },
+      {
+       "brand": "VOLVO",
+       "units": 8,
+       "share_of_class": 0.0351
+      },
+      {
+       "brand": "LAND ROVER",
+       "units": 4,
+       "share_of_class": 0.0175
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 4,
+       "share_of_class": 0.0175
+      },
+      {
+       "brand": "GAC",
+       "units": 3,
+       "share_of_class": 0.0132
+      },
+      {
+       "brand": "AUDI",
+       "units": 2,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "JAGUAR",
+       "units": 2,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 2,
+       "share_of_class": 0.0088
+      },
+      {
+       "brand": "B.M.W.",
+       "units": 1,
+       "share_of_class": 0.0044
+      }
+     ],
+     "models": []
+    },
+    "HEV": {
+     "units": 1055,
+     "share_of_market": 0.24309,
+     "brands": [
+      {
+       "brand": "TOYOTA",
+       "units": 370,
+       "share_of_class": 0.3507
+      },
+      {
+       "brand": "MERCEDES BENZ",
+       "units": 153,
+       "share_of_class": 0.145
+      },
+      {
+       "brand": "HONDA",
+       "units": 149,
+       "share_of_class": 0.1412
+      },
+      {
+       "brand": "NISSAN",
+       "units": 97,
+       "share_of_class": 0.0919
+      },
+      {
+       "brand": "KIA",
+       "units": 68,
+       "share_of_class": 0.0645
+      },
+      {
+       "brand": "MAZDA",
+       "units": 41,
+       "share_of_class": 0.0389
+      },
+      {
+       "brand": "SUBARU",
+       "units": 35,
+       "share_of_class": 0.0332
+      },
+      {
+       "brand": "B.M.W.",
+       "units": 31,
+       "share_of_class": 0.0294
+      },
+      {
+       "brand": "SUZUKI",
+       "units": 27,
+       "share_of_class": 0.0256
+      },
+      {
+       "brand": "AUDI",
+       "units": 24,
+       "share_of_class": 0.0227
+      }
+     ],
+     "models": []
+    },
+    "PETROL": {
+     "units": 230,
+     "share_of_market": 0.053,
+     "brands": [
+      {
+       "brand": "B.M.W.",
+       "units": 105,
+       "share_of_class": 0.4565
+      },
+      {
+       "brand": "HONDA",
+       "units": 63,
+       "share_of_class": 0.2739
+      },
+      {
+       "brand": "PORSCHE",
+       "units": 23,
+       "share_of_class": 0.1
+      },
+      {
+       "brand": "SKODA",
+       "units": 7,
+       "share_of_class": 0.0304
+      },
+      {
+       "brand": "AUDI",
+       "units": 6,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "TOYOTA",
+       "units": 6,
+       "share_of_class": 0.0261
+      },
+      {
+       "brand": "MINI",
+       "units": 3,
+       "share_of_class": 0.013
+      },
+      {
+       "brand": "VOLKSWAGEN",
+       "units": 3,
+       "share_of_class": 0.013
+      },
+      {
+       "brand": "FORD",
+       "units": 2,
+       "share_of_class": 0.0087
+      },
+      {
+       "brand": "JEEP",
+       "units": 2,
+       "share_of_class": 0.0087
+      }
+     ],
+     "models": []
+    }
+   }
+  },
   {
    "period": "2026-08",
    "total_registrations": 4549,
