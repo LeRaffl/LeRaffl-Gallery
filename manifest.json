@@ -632,6 +632,86 @@
       "country_slug": "romania_vans"
     },
     {
+      "country": "Singapore",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "singapore_ICE_BEV_20261026.png",
+      "url": "images/2026-09/singapore_ICE_BEV_20261026.png",
+      "alt": "Singapore ICE-BEV-Hybrid trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "singapore_20261026.png",
+      "url": "images/2026-09/singapore_20261026.png",
+      "alt": "Singapore BEV trajectory",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "singapore_time_20261026.png",
+      "url": "images/2026-09/singapore_time_20261026.png",
+      "alt": "Singapore Transition time curve",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Singapore",
+      "type": "ttm_shares",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "singapore_ttm_shares_20261026.png",
+      "url": "images/2026-09/singapore_ttm_shares_20261026.png",
+      "alt": "Singapore TTM market split graph",
+      "country_slug": "singapore"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ICE_BEV",
+      "period": "2026-06",
+      "date": "2026-10-26",
+      "filename": "slovakia_vans_ICE_BEV_20261026.png",
+      "url": "images/2026-06/slovakia_vans_ICE_BEV_20261026.png",
+      "alt": "Slovakia (Vans) ICE-BEV-Hybrid trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "share",
+      "period": "2026-06",
+      "date": "2026-10-26",
+      "filename": "slovakia_vans_20261026.png",
+      "url": "images/2026-06/slovakia_vans_20261026.png",
+      "alt": "Slovakia (Vans) BEV trajectory",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "time",
+      "period": "2026-06",
+      "date": "2026-10-26",
+      "filename": "slovakia_vans_time_20261026.png",
+      "url": "images/2026-06/slovakia_vans_time_20261026.png",
+      "alt": "Slovakia (Vans) Transition time curve",
+      "country_slug": "slovakia_vans"
+    },
+    {
+      "country": "Slovakia (Vans)",
+      "type": "ttm_shares",
+      "period": "2026-06",
+      "date": "2026-10-26",
+      "filename": "slovakia_vans_ttm_shares_20261026.png",
+      "url": "images/2026-06/slovakia_vans_ttm_shares_20261026.png",
+      "alt": "Slovakia (Vans) TTM market split graph",
+      "country_slug": "slovakia_vans"
+    },
+    {
       "country": "South Africa",
       "type": "ICE_BEV",
       "period": "2026-06",
