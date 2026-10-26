@@ -8,5 +8,3 @@ Oct24–Sep25  vs  Oct25–Sep26
 
 PHEV peaked at 20.9% in 2025-06 (declining for 15 months).
 If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2026-12.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
