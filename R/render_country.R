@@ -210,15 +210,28 @@ reg_word_uc <- if (variant == "Used") "Used-import" else if (is_first_reg) "Firs
 # "Used-import ICE in"); "First ICE in" would misread, so first-registration
 # sources say "First-registration ICE in".
 reg_ice_uc <- if (is_first_reg) "First-registration" else reg_word_uc
+# Sources that do not count registrations (#283): every variant of the
+# country but Used says "new sales" or "new imports" instead of "new
+# registrations" (title, "… estimates in" box, y-axis, legend); Used keeps
+# "used-import registrations" ("used-import imports" would read badly; the
+# one such series, Paraguay|Used, is data-only). Only the noun changes; the
+# scope itself is spelled out in footnotes.csv, on the source page and in
+# 09-glossary.md "Vehicle scope per source". Sales: ANL (USA), MOTIR (South
+# Korea), CPCA retail/wholesale (China), GAIKINDO wholesales (Indonesia), SRI
+# invoices (Ecuador), naamsa (South Africa), ANAC (Chile), ACAU (Uruguay),
+# AIVAM (Morocco, probe only so far). Imports: customs declarations
+# (Nepal, Paraguay).
+SALES_SOURCES  <- c("USA", "South Korea", "China", "Indonesia", "Ecuador", "South Africa",
+                    "Chile", "Uruguay", "Morocco")
+IMPORT_SOURCES <- c("Nepal", "Paraguay")
+counts <- if (variant == "Used") "registrations" else
+  if (country %in% SALES_SOURCES) "sales" else if (country %in% IMPORT_SOURCES) "imports" else "registrations"
+reg_noun_lc <- counts
+reg_noun_uc <- switch(counts, sales = "Sales", imports = "Import", registrations = "Registration")
 # Legend entry of the fitted curve on the BEV extrapolation chart (NULL keeps
 # the default "New Registrations").
-reg_legend_val <- if (is_first_reg) "First Registrations" else NULL
-# Sources that count SALES rather than registrations (#283). Only the noun
-# changes ("new sales" instead of "new registrations"); the scope itself is
-# spelled out in footnotes.csv and on the source page.
-SALES_SOURCES <- c("USA")
-reg_noun_lc <- if (country %in% SALES_SOURCES) "sales" else "registrations"
-reg_noun_uc <- if (country %in% SALES_SOURCES) "Sales" else "Registration"
+reg_legend_val <- if (is_first_reg) "First Registrations" else
+  switch(counts, sales = "New Sales", imports = "New Imports", registrations = NULL)
 
 meta <- list(
   country = country, country_label = country_label,

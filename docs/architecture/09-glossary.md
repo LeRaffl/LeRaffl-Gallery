@@ -100,8 +100,12 @@ A **variant** is a within-country slice rendered as its own gallery entry (own C
 > (`R/render_country.R`, today Georgia and Albania, every variant): their
 > extrapolation charts say "first registrations" instead of "new
 > registrations" (y-axis "First Registration Share"), next to "used-import
-> registrations" for `Used` variants and "new sales" for `SALES_SOURCES`
-> (USA). Sources where used imports are only a minority (Malaysia's recon
+> registrations" for `Used` variants, "new sales" for `SALES_SOURCES`
+> (USA, South Korea, China, Indonesia, Ecuador, South Africa, Chile,
+> Uruguay; Morocco once built) and "new
+> imports" for `IMPORT_SOURCES` (Nepal, Paraguay) — every variant but `Used`,
+> in the title, the "… estimates in" box, the y-axis and the legend (#283).
+> Sources where used imports are only a minority (Malaysia's recon
 > imports, Peru's near-new used imports) keep "new" and say it in the
 > footnote.
 >
