@@ -12,16 +12,16 @@ sections:
   - A reference group needs at least 4 markets. Smaller groups — and their subsets — get no speed or timing tag.
 - heading: Filtering the gallery by tag
   text:
-  - Right under the search box, country and chart types, the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
+  - Right under the search box, country and chart types, the gallery offers the tags themselves as chips, in four groups — Fit (Reliable, Volatile / unreliable, No transition), Status (Past 80 %, On track, Late), Speed (Fast, Avg, Slow) and Start (Early, Mid, Late). Start is the Timing tag; Mid is the middle half, which carries no pill on the cards.
   - Nothing picked shows everything. Within a group any picked tag matches; across groups all must match — Fast and Early means fast and early, Fast and Avg means either.
-  - Every chart has exactly one Fit value. No-transition charts appear only under No transition, never as Reliable, and Unreliable or No-transition charts carry no Status, Speed or Start — they drop out as soon as one of those is picked. So does a market whose group is too small for a scale, once a Speed or Start value is picked; it is never counted as Mid.
+  - Every chart has exactly one Fit value. No-transition charts appear only under No transition, never as Reliable, and Volatile / unreliable or No-transition charts carry no Status, Speed or Start — they drop out as soon as one of those is picked. So does a market whose group is too small for a scale, once a Speed or Start value is picked; it is never counted as Mid.
   - Each chip shows how many charts it would give with the other groups' picks applied; chips that would give none are dimmed. Picked tags also appear as removable chips above the results.
 - heading: The three tags
   text:
   - Status — where the fitted curve crosses 80 % BEV share of new registrations. Past 80 % (already crossed), On track (by the end of 2035), Late (after 2035). The same for every vehicle type.
   - Speed — the slope of the fitted curve at its steepest point. Fast = top quarter of the reference group, Slow = bottom quarter, Avg speed = the middle half.
   - Timing — the year the fitted curve crosses 10 % BEV share. Markets still below 10 % count with their projected year. Early starter = earliest quarter of the reference group, Late starter = latest quarter; the middle half carries no timing tag.
-  - Curves that show no transition get a single No transition tag, and fits that cannot be trusted yet (unsettled, collapsed or stale) a single Unreliable fit tag; neither counts towards any scale.
+  - Curves that show no transition get a single No transition tag, and fits that can't give a reliable year yet a single pill: Volatile curve when only the re-fit swing is too large (the curve keeps moving with every new month, nothing is wrong with it), Unreliable fit when it has collapsed or its data are stale. Neither counts towards any scale.
 processing:
 - title: Read every fitted curve
   text:
@@ -36,7 +36,9 @@ processing:
       then:
         ask: Is the fit reliable?
         branches:
-        - when: no — unsettled, collapsed or stale
+        - when: no — only the re-fit swing is over 25 years
+          then: Volatile curve (single tag, not in any scale)
+        - when: no — collapsed or stale
           then: Unreliable fit (single tag, not in any scale)
         - when: provisional — moved 5–25 years across re-fits
           then: tags drawn hollow, counts in its scale
@@ -114,7 +116,7 @@ pool mixing cars with trucks, so not a single HDV market could ever be an
 | Tag popover / glossary | cut-offs, points, CATS texts | yes | yes (per-group wording, mini boxplot, link text) |
 | FAQ "What do the small tags…" | static text | yes | yes |
 | Sidebar labels (Speed / Timing) | static text | yes | yes ("quartile of its group") |
-| World map (`wmClassify`, `wmBuildRows`) | `rowHasNoTransition`, `rowIsUnreliableFit` — no tags | no | moved functions only (now from `fit_core.js`) |
+| World map (`wmClassify`, `wmBuildRows`) | `rowHasNoTransition`, `rowIsUnreliableFit`, `fitReliability` — no tags | no | moved functions only (now from `fit_core.js`); since 2026-10 volatile / unreliable markets get a pale *Too volatile to show* layer and list instead of looking like no data |
 | Fit reliability gate in Thresholds / Durations / Time interval | `fitReliability` | no | moved only |
 | `scripts/snapshot_builder.py` (+ test) | own Python mirror of the curve maths; no tags | no | no |
 | R (`fit.R` refit_swing, `post_text.R`, `render_*.R`) | no tags (refit_swing feeds `fitReliability`) | no | no |
@@ -132,7 +134,7 @@ chips is selected; values are OR-ed within a group, groups are AND-ed.
 
 | Group (`cat`) | Values | `null` when |
 |---|---|---|
-| Fit (`fit`) | `notrans` (rowHasNoTransition) · `unreliable` (fitReliability *excluded*) · `reliable` (everything else, incl. charts without a params row) | never |
+| Fit (`fit`) | `notrans` (rowHasNoTransition) · `unreliable` (fitReliability *excluded*; labelled *Volatile / unreliable*, the card pill says *Volatile curve* or *Unreliable fit*) · `reliable` (everything else, incl. charts without a params row) | never |
 | Status (`status`) | `past` · `ontrack` · `late` | no transition, unreliable, no t80 |
 | Speed (`speed`) | `fast` · `avg` · `slow` | no transition, unreliable, group < 4 markets (`noscale.speed`) |
 | Start (`timing`) | `early` · `mid` (scaled, no pill) · `late_start` | no transition, unreliable, group < 4 markets (`noscale.timing`) |
