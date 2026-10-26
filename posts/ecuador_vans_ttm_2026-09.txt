@@ -7,5 +7,3 @@ Oct24–Sep25  vs  Oct25–Sep26
 −1.4pp  ICE   (96.6% → 95.2%)
 
 If the changes from the last 6 months continued linearly, BEV would overtake HEV in 2034-10.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

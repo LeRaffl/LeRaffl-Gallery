@@ -4,7 +4,7 @@
 # reg_word/reg_Word ("new" / "used-import" / "first" — the registration type the
 # extrapolation plots label; defaults to "new" when absent; "first" for the
 # FIRST_REG_SOURCES in render_country.R) and reg_noun/reg_Noun
-# ("registrations" / "sales"; defaults to "registrations").
+# ("registrations" / "sales" / "imports"; defaults to "registrations").
 # `fit` is the result of fit_history().
 # `df` is the full loaded data.
 #
@@ -26,14 +26,15 @@ reg_Word <- function(meta) if (is.null(meta$reg_Word)) "New" else meta$reg_Word
 reg_ice_Word <- function(meta) if (is.null(meta$reg_ice_Word)) reg_Word(meta) else meta$reg_ice_Word
 # Legend entry of the fitted curve on the BEV extrapolation chart. The fit's
 # internal Type level is always "New Registrations"; it is shown as such
-# unless meta$reg_legend overrides it (FIRST_REG_SOURCES: "First Registrations").
+# unless meta$reg_legend overrides it (FIRST_REG_SOURCES: "First Registrations";
+# SALES_SOURCES / IMPORT_SOURCES: "New Sales" / "New Imports").
 # waiver() is ggplot's default, so every other chart is untouched.
 extrap_legend_labels <- function(meta) {
   if (is.null(meta$reg_legend)) return(waiver())
   function(x) ifelse(x == "New Registrations", meta$reg_legend, x)
 }
-# What is counted: "registrations" (default) or "sales" (USA, see
-# SALES_SOURCES in render_country.R / #283).
+# What is counted: "registrations" (default), "sales" or "imports" (see
+# SALES_SOURCES / IMPORT_SOURCES in render_country.R, #283).
 reg_noun <- function(meta) if (is.null(meta$reg_noun)) "registrations" else meta$reg_noun
 reg_Noun <- function(meta) if (is.null(meta$reg_Noun)) "Registration" else meta$reg_Noun
 

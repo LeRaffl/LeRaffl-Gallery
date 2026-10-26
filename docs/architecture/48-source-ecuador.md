@@ -107,6 +107,7 @@ processing:
   - AEADE's monthly press bulletin is built from this register. Every run compares the all-segment total, the BEV count and Whole (against AEADE's automóvil + SUV) for the months the newest bulletin shows. Over all 16 bulletins with these tables (May 2025 to August 2026, months from 2024-05) totals agree within 1.5 % and BEV within 3.4 %; a gap beyond 10 % stops the run.
   - The one exception is AEADE's first edition for October/November 2025, which put about 500 vehicles in October that the register puts in November (the two months together agree within 0.5 %).
 market_breakdown: market/ecuador_top.json
+market_unit: sales
 market_designation_note: the model is the start of SRI's catalogue description, up to the first trim or specification word and at most two words ("YUAN PRO GS AC 5P 4X2 TA EV" → YUAN PRO; "TIGGO 4 PRO COMFORT AC 1.5 …" → TIGGO 4), so trims of one model are one row.
 market_powertrain_note: exactly as in the CSV — the end of SRI's catalogue description, else the invoice's fuel code; hybrids split into plug-in (PHEV), range-extender (EREV) and the rest (HEV, full and mild) by the rule table below. The Nissan e-POWER is HEV.
 market_class_names:

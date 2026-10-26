@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-24T09:05:32Z",
- "today": "2026-10-24",
+ "generated": "2026-10-26T11:28:56Z",
+ "today": "2026-10-26",
  "countries": [
   {
    "country": "Albania",
@@ -260,7 +260,7 @@
     ],
     "workflow": ".github/workflows/fetch-austria.yml"
    },
-   "last_render": "2026-10-14",
+   "last_render": "2026-10-26",
    "flag": "🇦🇹",
    "variants": [
     {
@@ -288,7 +288,7 @@
      "in_repo": true
     },
     {
-     "name": "Used",
+     "name": "Resale",
      "latest": "2026-09",
      "first": "2019-01",
      "rows": 93,
@@ -510,7 +510,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇧🇬",
    "variants": [
     {
@@ -649,7 +649,7 @@
     ],
     "workflow": ".github/workflows/fetch-chile.yml"
    },
-   "last_render": "2026-09-19",
+   "last_render": "2026-10-26",
    "flag": "🇨🇱",
    "variants": [
     {
@@ -730,7 +730,7 @@
     ],
     "workflow": ".github/workflows/fetch-china.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-26",
    "flag": "🇨🇳",
    "variants": [
     {
@@ -759,11 +759,11 @@
    "source_url": "https://www.andi.com.co/Home/Camara/4-automotriz",
    "cadence_text": "daily cron, 5th–25th, 07:30 UTC",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -809,14 +809,14 @@
     ],
     "workflow": ".github/workflows/fetch-colombia.yml"
    },
-   "last_render": "2026-09-19",
+   "last_render": "2026-10-25",
    "flag": "🇨🇴",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2019-01",
-     "rows": 92,
+     "rows": 93,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -1194,7 +1194,7 @@
     ],
     "workflow": ".github/workflows/fetch-ecuador.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-26",
    "flag": "🇪🇨",
    "variants": [
     {
@@ -1485,7 +1485,7 @@
     ],
     "workflow": ".github/workflows/fetch-france.yml"
    },
-   "last_render": "2026-10-05",
+   "last_render": "2026-10-26",
    "flag": "🇫🇷",
    "variants": [
     {
@@ -1914,7 +1914,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-25",
    "flag": "🇮🇸",
    "variants": [
     {
@@ -2014,7 +2014,7 @@
     ],
     "workflow": ".github/workflows/fetch-indonesia.yml"
    },
-   "last_render": "2026-10-12",
+   "last_render": "2026-10-26",
    "flag": "🇮🇩",
    "variants": [
     {
@@ -2802,14 +2802,14 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇲🇹",
    "variants": [
     {
      "name": "Whole",
      "latest": "2026-09",
      "first": "2022-01",
-     "rows": 49,
+     "rows": 56,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -2883,7 +2883,7 @@
     ],
     "workflow": ".github/workflows/fetch-nepal.yml"
    },
-   "last_render": "2026-09-23",
+   "last_render": "2026-10-26",
    "flag": "🇳🇵",
    "variants": [
     {
@@ -3210,7 +3210,7 @@
     ],
     "workflow": ".github/workflows/fetch-paraguay.yml"
    },
-   "last_render": "2026-10-03",
+   "last_render": "2026-10-26",
    "flag": "🇵🇾",
    "variants": [
     {
@@ -3355,7 +3355,7 @@
     ],
     "workflow": ".github/workflows/fetch-poland.yml"
    },
-   "last_render": "2026-10-10",
+   "last_render": "2026-10-26",
    "flag": "🇵🇱",
    "variants": [
     {
@@ -3525,7 +3525,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇷🇴",
    "variants": [
     {
@@ -3546,11 +3546,11 @@
    "source_url": "https://www.lta.gov.sg/content/ltagov/en/who_we_are/statistics_and_publications/statistics.html",
    "cadence_text": "daily 08:00 UTC, 15th–31st, commit-gated",
    "interval": "monthly",
-   "latest_period": "2026-08",
+   "latest_period": "2026-09",
    "expected_period": "2026-09",
-   "behind": 1,
-   "behind_now": 1,
-   "status": "due",
+   "behind": 0,
+   "behind_now": 0,
+   "status": "current",
    "automated": true,
    "schedule": {
     "enabled": true,
@@ -3592,14 +3592,14 @@
     ],
     "workflow": ".github/workflows/fetch-singapore.yml"
    },
-   "last_render": "2026-09-15",
+   "last_render": "2026-10-26",
    "flag": "🇸🇬",
    "variants": [
     {
      "name": "Whole",
-     "latest": "2026-08",
+     "latest": "2026-09",
      "first": "2016-01",
-     "rows": 117,
+     "rows": 118,
      "cadence": "monthly",
      "in_repo": true
     }
@@ -3658,7 +3658,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇸🇰",
    "variants": [
     {
@@ -3724,7 +3724,7 @@
     ],
     "workflow": ".github/workflows/fetch-acea.yml"
    },
-   "last_render": "2026-10-22",
+   "last_render": "2026-10-26",
    "flag": "🇸🇮",
    "variants": [
     {
@@ -3788,7 +3788,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-africa.yml"
    },
-   "last_render": "2026-10-16",
+   "last_render": "2026-10-26",
    "flag": "🇿🇦",
    "variants": [
     {
@@ -3853,7 +3853,7 @@
     ],
     "workflow": ".github/workflows/fetch-south-korea.yml"
    },
-   "last_render": "2026-10-19",
+   "last_render": "2026-10-26",
    "flag": "🇰🇷",
    "variants": [
     {
@@ -4041,7 +4041,7 @@
     ],
     "workflow": ".github/workflows/fetch-sweden.yml"
    },
-   "last_render": "2026-10-02",
+   "last_render": "2026-10-26",
    "flag": "🇸🇪",
    "variants": [
     {
@@ -4529,7 +4529,7 @@
     ],
     "workflow": ".github/workflows/fetch-usa.yml"
    },
-   "last_render": "2026-10-20",
+   "last_render": "2026-10-26",
    "flag": "🇺🇸",
    "variants": [
     {
@@ -4708,7 +4708,7 @@
     ],
     "workflow": ".github/workflows/fetch-uruguay.yml"
    },
-   "last_render": "2026-10-06",
+   "last_render": "2026-10-26",
    "flag": "🇺🇾",
    "variants": [
     {

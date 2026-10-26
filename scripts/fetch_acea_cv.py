@@ -88,6 +88,17 @@ PDF is manually re-fetched after later ones already landed for the same
 year. Acceptable tradeoff for not needing a full-year replay on every run;
 flagged here rather than silently accepted.
 
+Fuel restatements (#355): between releases ACEA moves vehicles between
+fuels, so a fuel's `checkpoint - quarters on record` can come out negative
+while TOTAL is fine (Cyprus Buses 2023: BEV 19 / HEV 21 in Q3, then -19 /
+-21 in Q4). carry_back_deficits() sets such a fuel to 0 and takes the
+deficit off the same fuel in the nearest earlier quarter(s), moving the same
+number of vehicles from that quarter's TOTAL to this one's: no negative
+counts, every row still sums, and every year-to-date sum per fuel and in
+TOTAL stays exactly ACEA's. Both rows say so in `notes`. A negative TOTAL
+delta is still skipped (above). `--repair-negatives` applies the same rule
+to rows written before this existed.
+
 Two report eras
 ----------------
 * **Old era** (through ~2023, e.g. the Dec-2022 / FY-2022 release parsed
@@ -437,6 +448,13 @@ def fetch_checkpoint_pdf(checkpoint: str, year: int, pdf_url: str | None) -> tup
         try:
             return load_pdf_bytes(url), url
         except FileNotFoundError:
+            continue
+        except requests.RequestException as e:
+            # acea.auto answers a path that doesn't exist with a 404 on some
+            # days and a 520 on others (2026-10-24: a 520 on the first Q1-Q3
+            # guess stopped the run before it reached the third, the shape
+            # confirmed in 2025). Either way it means "not this URL".
+            print(f"  {e}")
             continue
     raise FileNotFoundError(
         f"None of the candidate URLs for {checkpoint} {year} were found: "
@@ -793,6 +811,69 @@ def row_equals(existing: dict | None, new: dict, fields: list[str]) -> bool:
     return True
 
 
+def _num(v) -> float | None:
+    return float(v) if v not in (None, "") else None
+
+
+def _like(original, value: float) -> str | float:
+    """`value` in the style of the cell it replaces ("12" stays an integer
+    string, "12.0" a float), so a revised row doesn't reformat its file."""
+    if isinstance(original, str) and original and "." not in original:
+        return str(int(round(value)))
+    return float(value)
+
+
+def carry_back_deficits(delta: dict[str, float], earlier: dict[int, dict],
+                        target_q: int):
+    """Remove negative per-fuel deltas from a reconstructed quarter (#355).
+
+    ACEA restates fuels between releases, so `checkpoint - quarters on
+    record` can go negative for one fuel while TOTAL stays positive. A
+    negative fuel is set to 0 and its deficit taken off the same fuel in the
+    nearest earlier quarter(s) of the year that are ACEA's to revise; the
+    same number of vehicles moves from that quarter's TOTAL to this one's, so
+    every row still sums and every year-to-date sum stays exactly ACEA's.
+    The deficit always fits (it is at most what the earlier quarters hold),
+    unless the quarters holding it are another source's rows.
+
+    Returns ``(delta, {quarter: revised_row}, moves)`` with ``moves`` a list
+    of ``(fuel, from_quarter, units)``, or None if a deficit could not be
+    absorbed (then the caller skips the quarter, as for a negative TOTAL).
+    """
+    delta = dict(delta)
+    revised: dict[int, dict] = {}
+    moves: list[tuple[str, int, float]] = []
+    for fuel in [f for f in delta if f != "TOTAL"]:
+        deficit = -delta[fuel]
+        if deficit <= 0.5:
+            continue
+        delta[fuel] = 0.0
+        for q in sorted(earlier, reverse=True):
+            row = revised.get(q) or dict(earlier[q])
+            avail, total = _num(row.get(fuel)), _num(row.get("TOTAL"))
+            if not should_write(row) or not avail or avail <= 0 or total is None:
+                continue
+            take = min(avail, deficit)
+            row[fuel] = _like(earlier[q].get(fuel), avail - take)
+            row["TOTAL"] = _like(earlier[q].get("TOTAL"), total - take)
+            row["notes"] = (f"{row.get('notes') or ''} | later ACEA restatement: "
+                            f"{fuel} {take:g} moved to Q{target_q}").lstrip(" |")
+            revised[q] = row
+            delta["TOTAL"] = delta.get("TOTAL", 0.0) + take
+            moves.append((fuel, q, take))
+            deficit -= take
+            if deficit <= 0.5:
+                break
+        if deficit > 0.5:
+            return None
+    return delta, revised, moves
+
+
+def _moves_note(moves) -> str:
+    return " | restatement carried back: " + ", ".join(
+        f"{fuel} {units:g} to Q{q}" for fuel, q, units in moves)
+
+
 def _build_row(period: str, time_interval: str, fields: list[str],
                fuel_values: dict[str, float], source_url: str, era: str) -> dict:
     row: dict[str, str | float] = {f: "" for f in fields}
@@ -830,17 +911,33 @@ def handle_checkpoint(data_dir: Path, country: str, variant: str, year: int,
         delta = {f: fuels.get(f, 0.0) - baseline.get(f, 0.0) for f in fuels}
         period = quarter_period(year, target_q)
         existing = by_period.get(period)
+        carried = None
+        if delta.get("TOTAL", 0.0) >= -0.5 and should_write(existing):
+            carried = carry_back_deficits(
+                delta, {q: have[q] for q in range(1, target_q)}, target_q)
         if delta.get("TOTAL", 0.0) < -0.5:
             print(f"    {country} {variant} Q{target_q} {year}: SKIPPED — "
                   f"computed negative TOTAL delta ({delta.get('TOTAL')}); baseline "
                   f"quarters may be wrong, needs manual review")
+        elif should_write(existing) and carried is None:
+            print(f"    {country} {variant} Q{target_q} {year}: SKIPPED — a fuel's "
+                  f"delta is negative and the earlier quarters holding it are not "
+                  f"ACEA rows; needs manual review")
         elif should_write(existing):
+            delta, revised, moves = carried
             new_row = _build_row(period, "quarterly", fields, delta, source_url, era)
             new_row["variant"] = variant
+            if moves:
+                new_row["notes"] += _moves_note(moves)
             if not row_equals(existing, new_row, fields):
                 by_period[period] = new_row
                 print(f"    {country} {variant} Q{target_q} {year}: "
                       f"{'added' if existing is None else 'revised'}")
+                changed = True
+            for q, row in sorted(revised.items()):
+                by_period[quarter_period(year, q)] = row
+                print(f"    {country} {variant} Q{q} {year}: revised (a later ACEA "
+                      f"restatement moved units into Q{target_q})")
                 changed = True
         else:
             print(f"    {country} {variant} Q{target_q} {year}: skipped "
@@ -870,6 +967,55 @@ def handle_checkpoint(data_dir: Path, country: str, variant: str, year: int,
     if changed:
         write_csv(path, fields, list(by_period.values()), original_order=original_order)
     return changed
+
+
+def repair_negative_quarters(data_dir: Path) -> list[dict]:
+    """One-off for quarters written before carry_back_deficits existed
+    (#355): apply the same carry-back to every ACEA quarterly row that holds
+    a negative fuel, quarter by quarter. Year-to-date sums are unchanged;
+    only the cells involved are rewritten. Returns the changed pairs."""
+    changed_pairs: list[dict] = []
+    for path in sorted(data_dir.glob("*_*.csv")):
+        country, _, variant = path.stem.rpartition("_")
+        if variant not in VARIANTS:
+            continue                      # *_legacy.csv and other slices
+        fields, rows = load_csv(path)
+        original_order = [r["period"] for r in rows]
+        by_period = {r["period"]: r for r in rows}
+        numeric = [f for f in fields
+                   if f not in ("period", "time_interval", "variant", "source", "notes")]
+        changed = False
+        for year in sorted({int(p[:4]) for p in by_period if p[:4].isdigit()}):
+            for q in (2, 3, 4):
+                have = existing_quarter_rows(by_period, year)
+                row = have.get(q)
+                if row is None or not should_write(row):
+                    continue
+                delta = {f: _num(row.get(f)) for f in numeric if _num(row.get(f)) is not None}
+                if not any(v < -0.5 for f, v in delta.items() if f != "TOTAL"):
+                    continue
+                carried = carry_back_deficits(
+                    delta, {k: r for k, r in have.items() if k < q}, q)
+                if carried is None:
+                    print(f"    {country} {variant} Q{q} {year}: negative fuel left as "
+                          f"is (earlier quarters are not ACEA rows)")
+                    continue
+                new_delta, revised, moves = carried
+                new_row = dict(row)
+                for f, v in new_delta.items():
+                    if v != delta[f]:
+                        new_row[f] = _like(row.get(f), v)
+                new_row["notes"] = (row.get("notes") or "") + _moves_note(moves)
+                by_period[quarter_period(year, q)] = new_row
+                for k, r in revised.items():
+                    by_period[quarter_period(year, k)] = r
+                print(f"    {country} {variant} Q{q} {year}: "
+                      + ", ".join(f"{f} {u:g} from Q{k}" for f, k, u in moves))
+                changed = True
+        if changed:
+            write_csv(path, fields, list(by_period.values()), original_order=original_order)
+            changed_pairs.append({"country": country, "variant": variant})
+    return changed_pairs
 
 
 def already_have_checkpoint(data_dir: Path, year: int, n_quarters: int) -> bool:
@@ -920,7 +1066,15 @@ def main() -> int:
     parser.add_argument("--data-dir", default="data")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--github-output", default=os.environ.get("GITHUB_OUTPUT"))
+    parser.add_argument("--repair-negatives", action="store_true",
+                        help="Only carry back the negative fuels already in the CSVs "
+                             "(#355, one-off); no download")
     args = parser.parse_args()
+
+    if args.repair_negatives:
+        pairs = repair_negative_quarters(Path(args.data_dir))
+        print(f"\nRepaired (country, variant) pairs: {pairs}")
+        return 0
 
     from datetime import date
     default_checkpoint, default_year = default_checkpoint_and_year(date.today())
@@ -944,7 +1098,7 @@ def main() -> int:
 
     try:
         pdf_bytes, source_url = fetch_checkpoint_pdf(checkpoint, target_year, args.pdf_url)
-    except FileNotFoundError as e:
+    except (FileNotFoundError, requests.RequestException) as e:
         print(f"PDF not available yet: {e}. Will retry next scheduled run.")
         return 0
     except PDFAccessDenied as e:

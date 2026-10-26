@@ -192,6 +192,21 @@ checkpoints only ever move forward in time, so this only bites if an old checkpo
 manually re-fetched after later ones already landed for the same year. Accepted tradeoff —
 full-year replay on every run wasn't worth the complexity for what should be a rare case.
 
+**Fuel restatements are carried back, not written as negatives (#355).** Between releases
+ACEA moves vehicles between fuels, and each release's prior-year column rewrites last year's
+quarter, so one fuel's `checkpoint − quarters on record` can go negative while TOTAL is
+fine. Example, Cyprus Buses 2023: Q3 BEV 19 / HEV 21, and the FY release says the year had
+none, which used to land in Q4 as BEV −19 / HEV −21 (`R/data.R` then plots a share below
+zero). `carry_back_deficits()` sets such a fuel to 0 and takes the deficit off the same fuel
+in the nearest earlier quarter(s) of the year, moving the same number of vehicles from that
+quarter's TOTAL to this one's. Cyprus becomes Q3 BEV 0 / HEV 0 / TOTAL 45 and Q4 TOTAL 53.
+Nothing goes negative, every row still sums, and every year-to-date sum per fuel and in
+TOTAL is exactly ACEA's; both rows say so in `notes`. Earlier quarters that are not `ACEA`
+rows are never touched: then the quarter is skipped like a negative TOTAL. The 29 negatives
+written before this rule (17 files, 2022–2025) were repaired once with
+`fetch_acea_cv.py --repair-negatives`, which applies the same rule to the stored rows
+(year sums unchanged; `*_legacy.csv` archives left frozen).
+
 **Bootstrap timeline for right now (2026).** This pipeline didn't exist for the Q1 2026 or
 H1 2026 windows, so — barring a manual backfill dispatch once the live fetch can actually
 reach ACEA — 2026 has no quarterly baseline. The Q1-Q3 2026 checkpoint (~late October) will
@@ -298,6 +313,14 @@ most plausible guesses per checkpoint (both hyphen and underscore variants), tri
 `--pdf-url` overrides them. Expect the first live run of each checkpoint to need one
 `--pdf-url` correction — that is normal bring-up, not a bug, and is exactly why the
 `workflow_dispatch` inputs exist.
+
+A guess that doesn't exist is answered with a 404 on some days and a **520** on others (the
+same erratic "not here" answers `fetch_acea.py` documents for passenger cars, #244). Any
+HTTP error on a candidate therefore moves on to the next one, and a run that finds none of
+them is a green "not published yet" no-op. Before 2026-10 only a 404 did: on 2026-10-24 a 520
+on the first Q1-Q3 guess failed the run before it reached the third guess, the shape confirmed
+in 2025. A 403 still fails the run. `scripts/test_fetch_acea_cv.py` (offline) pins this
+and gates the workflow.
 
 ## See also
 

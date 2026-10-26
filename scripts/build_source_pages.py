@@ -1151,6 +1151,11 @@ def build_sources_section(fm: dict, last_row: dict | None) -> str:
 #                                               "new", "used-import" for Used) —
 #                                               Georgia's register counts new and
 #                                               imported used together
+#   market_unit: sales | imports                optional: what the units are
+#                                               (default "registrations") —
+#                                               Ecuador's invoices are sales,
+#                                               Paraguay's customs declarations
+#                                               imports (#283)
 #
 #   classification:
 #     rules:   classification/<slug>_rules.csv    (order,id,class,brand,pattern,
@@ -1241,7 +1246,8 @@ def _vals(share, units) -> str:
     return f'<span class="v-s">{_share(share)}</span><span class="v-u">{_num(units)}</span>'
 
 
-def _grid(classes: dict, order: list, key: str, names: dict, caption: str) -> str:
+def _grid(classes: dict, order: list, key: str, names: dict, caption: str,
+          unit: str = "registrations") -> str:
     """Leaderboard grid: rank rows × one column per class. Every value is there
     twice — share of the class (`.v-s`) and units (`.v-u`) — and the section's
     Share / Units toggle shows one. The header carries each column's base (its
@@ -1280,7 +1286,7 @@ def _grid(classes: dict, order: list, key: str, names: dict, caption: str) -> st
         rest.append(f'<td class="nm">rest</td><td class="num">{_vals(left / units, left)}</td>'
                     if left > 0 and units else '<td class="nm"></td><td></td>')
     caption = (f'{esc(caption)} — <span class="v-s">% of each powertrain; header: the '
-               'powertrain\'s % of all registrations</span><span class="v-u">registrations; '
+               f'powertrain\'s % of all {esc(unit)}</span><span class="v-u">{esc(unit)}; '
                'header: the powertrain\'s total</span>')
     # Fixed layout, same column widths in every grid of the section: each
     # powertrain gets an equal share, so the brand and model grids line up.
@@ -1297,7 +1303,8 @@ def _grid(classes: dict, order: list, key: str, names: dict, caption: str) -> st
 MARKET_ORDER = ("BEV", "PHEV", "EREV", "HEV", "MHEV", "PETROL", "DIESEL", "ALL")
 
 
-def _market_view(classes: dict, names: dict, labels: dict) -> str:
+def _market_view(classes: dict, names: dict, labels: dict,
+                 unit: str = "registrations") -> str:
     """One view (the headline window or one month): a brand grid and, when the
     source has models, a designation grid, one column per ranked class."""
     # PHEV and EREV ranked together (market_top's incl_erev) replace the two
@@ -1316,9 +1323,9 @@ def _market_view(classes: dict, names: dict, labels: dict) -> str:
     notes = [f'{esc(names[c])} = {esc(labels[c][0].lower() + labels[c][1:])}'
              for c in order if c in ("EREV", "HEV", "MHEV", "ALL")
              or labels[c] != CLASS_LABEL.get(c)]
-    out = _grid(classes, order, "brands", names, "Top brands")
+    out = _grid(classes, order, "brands", names, "Top brands", unit)
     if any(classes[c].get("models") for c in order):
-        out += _grid(classes, order, "models", names, "Top designations")
+        out += _grid(classes, order, "models", names, "Top designations", unit)
     if merged:
         notes.insert(0, f'{esc(names["PHEV"])} = plug-in hybrids including range extenders '
                         f'({cls_badge("EREV")} on the model)')
@@ -1373,6 +1380,7 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
         return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
                 '<p class="dim">Not generated yet — appears after the next fetch.</p></section>')
     top = json.loads(path.read_text(encoding="utf-8"))
+    unit = fm.get("market_unit") or "registrations"
     win = top.get("window") or {}
     classes = top.get("classes") or {}
     # A file that ranks petrol / diesel is no longer about the electrified cars
@@ -1394,8 +1402,8 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
             f'{_num(total)} '
             + esc(fm.get("market_total_word")
                   or ("used-import" if top.get("variant") == "Used" else "new"))
-            + ' registrations in total. '
-            'Units are registrations; '
+            + f' {esc(unit)} in total. '
+            f'Units are {esc(unit)}; '
             + esc(fm.get("market_designation_note")
                   or ('the source publishes brands only, no models.' if brand_only else
                       'a "designation" is the model string exactly as the source '
@@ -1426,7 +1434,7 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
     labels = CLASS_LABEL | (fm.get("market_class_labels") or {}) | (class_labels or {})
     head = (f'Last {n_months} months' if n_months != 1 else 'Latest month')
     views = [f'<div class="mkt-view" data-view="ttm">'
-             + _market_view(classes, names, labels) + '</div>']
+             + _market_view(classes, names, labels, unit) + '</div>']
     if not months:
         return (f'<section id="{esc(sec)}"><h2>{esc(heading)}</h2>'
                 + lead + f'<p class="mkt-pick">{MARKET_TOGGLE}</p>'
@@ -1440,10 +1448,10 @@ def _market_section(fm: dict, rel: str, sec: str, heading: str, note: str,
         opts.append(f'<option value="{esc(per)}">{esc(_month_label(per))}</option>')
         views.append(f'<div class="mkt-view" data-view="{esc(per)}" hidden>'
                      f'<p class="dim">{esc(_month_label(per))} · '
-                     f'{_num(m.get("total_registrations"))} new registrations. '
+                     f'{_num(m.get("total_registrations"))} new {esc(unit)}. '
                      'Single-month lists are shorter: top 10 brands and top 10 '
                      'designations per powertrain.</p>'
-                     + _market_view(m.get("classes") or {}, names, labels) + '</div>')
+                     + _market_view(m.get("classes") or {}, names, labels, unit) + '</div>')
     pick = f"mkt-pick-{sec}"
     picker = (f'<p class="mkt-pick"><label for="{esc(pick)}">Show: </label>'
               f'<select id="{esc(pick)}">{"".join(opts)}</select>{MARKET_TOGGLE}</p>')

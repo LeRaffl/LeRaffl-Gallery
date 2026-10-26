@@ -1,10 +1,8 @@
 🇷🇴 Romania (HDV) - TTM Market Split
 
-Q?'24–Q?'25  vs  Q?'25–Q?'26
+Q3'24–Q2'25  vs  Q3'25–Q2'26
 +0.2pp  EV      (0.3% → 0.5%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
 −0.2pp  ICE     (99.7% → 99.5%)
 
-Hybrid peaked at 0.0% in Q?'24 (declining for 6 quarters).
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+Hybrid peaked at 0.0% in Q4'24 (declining for 6 quarters).

@@ -2,8 +2,8 @@
 country: Colombia
 slug: colombia
 method: pdf
-summary: Passenger-car registrations for Colombia from the ANDI/FENALCO automotive bulletin, based on
-  the official RUNT registry.
+summary: New-vehicle registrations for Colombia (all four-wheel types, not passenger cars only) from
+  the ANDI/FENALCO automotive bulletin, based on the official RUNT registry.
 source_name: ANDI Camara de la Industria Automotriz
 source_url: https://www.andi.com.co/Home/Camara/4-automotriz
 underlying: RUNT — official Colombian vehicle registry (via ANDI/FENALCO)
@@ -12,11 +12,15 @@ cadence: daily cron, 5th–25th, 07:30 UTC
 variants:
 - Whole
 variant_notes:
-  Whole: New passenger cars (automóviles) from the ANDI/FENALCO bulletin.
+  Whole: All new vehicles in the ANDI/FENALCO bulletin's "vehículos nuevos" total — cars, SUVs,
+    pick-ups, taxis, vans and commercial vehicles (motorcycles excluded).
 hev_split: false
 hev_note: Combined hybrids (HEV + PHEV + MHEV) are reported in the HEV column; PHEV is left empty.
 backfill: each PDF carries ~2.5 prior years; older history via annual PDFs / maintainer backfill
-scope_note: Passenger cars only; freight (vehículos de carga) has no fuel split and is out of scope.
+scope_note: 'Wider than passenger cars: TOTAL, BEV and Hybrid count every new vehicle in the bulletin''s
+  "vehículos nuevos" total — SUVs, automóviles, pick-ups, camionetas, taxis, vans, commercial passenger
+  and cargo vehicles, quadricycles; only motorcycles are excluded. The bulletin has no passenger-car-only
+  BEV or hybrid figure, so the series cannot be narrowed to cars without mixing scopes.'
 caveats:
 - Hybrids are a single combined bucket placed in the HEV column.
 - 'Combustion is not reported at all: we derive ICE as TOTAL − BEV − HEV. There is no petrol/diesel split,
@@ -25,6 +29,12 @@ caveats:
 - 'Since September 2026 the Cámara Automotriz page lists only year-end reports (2018–2025), so the
   monthly bulletin behind recent months is not linked from it. ANDI still publishes each month''s PDF
   at its usual andi.com.co/Uploads/ address and we read it there; the figures are unchanged.'
+- 'Unlike most countries here, the totals are not passenger cars only: about one registration in ten
+  is a pick-up, commercial vehicle, van or quadricycle (Aug 2026: 2,744 of 27,124). BEV and Hybrid
+  are counted over the same wider total, so the shares stay consistent with each other.'
+- 'When ANDI has not put a month''s PDF anywhere we can reach, that month comes from the figures in
+  FENALCO''s public press note for it (same RUNT data), and is marked provisional in the data file
+  until a bulletin covering it is read. September 2026 is such a month.'
 fetcher: scripts/fetch_colombia.py
 workflow: .github/workflows/fetch-colombia.yml
 fragility_doc: docs/architecture/18-source-colombia.md
@@ -50,12 +60,15 @@ embedded dashboards to scrape, just a monthly PDF.
 Source:    ANDI Cámara Automotriz — joint with FENALCO, "Informe del Sector
            Automotor" PDF. Underlying data: RUNT (official Colombian registry).
 Auth:      None — public PDF download.
-API:       Discovery via the Cámara Automotriz HTML, plus a reconstructed
-           /Uploads/ URL for monthlies the page no longer links; PDF parsed with
-           `pdftotext -layout` (poppler).
-Variants:  Whole only (passenger cars). HDV ("vehículos de carga") is
-           published as a single monthly total without fuel split — not
-           ingestible into our schema; explicitly out of scope.
+API:       Discovery via the Cámara Automotriz HTML, then ANDI's press note
+           for the month (embedded PDF), then a reconstructed /Uploads/ URL;
+           PDF parsed with `pdftotext -layout` (poppler). If no PDF is
+           reachable: FENALCO's public press text for the month (provisional
+           row, § 2 "FENALCO press-text fallback").
+Variants:  Whole only = the bulletin's "vehículos nuevos" total: every new
+           four-wheel vehicle (SUV, automóviles, pick-ups, camionetas,
+           taxis, vans, comerciales de pasajeros / de carga, cuadriciclos).
+           NOT passenger cars only — see § 3a. Motorcycles excluded.
 HEV split: NONE. "Híbridos" is a single combined bucket (HEV+PHEV+MHEV
            unsplit). → Türkiye/Georgia convention: combined hybrids go in
            the HEV column, labelled "Hybrid" in posts. PHEV is left empty.
@@ -79,9 +92,11 @@ Workflow:  .github/workflows/fetch-colombia.yml
   dashboards (no clean download/API).
 - **ANDI Cámara Automotriz** publishes a **joint FENALCO+ANDI boletín** as a
   free PDF every month, *also sourced from RUNT*. Same numbers, no wall.
-  FENALCO mirrors the same report on `fenalco.com.co/blog/gremial-4/…`
-  (not ingestible — its post pages serve the PDF behind `web/login`; useful
-  only as a human cross-check of whether a month has been published).
+  FENALCO mirrors the same report on `fenalco.com.co/blog/gremial-4/…`. Its
+  PDF button sits behind `web/login`, but the post **text** is public and
+  states the month's total, electric and hybrid counts — enough for a
+  provisional row when the PDF itself cannot be reached (§ 2, "FENALCO
+  press-text fallback").
 
 The PDF carries less granularity than ANDEMOS's interactive dashboards
 (combined hybrids only), but it has enough for the gallery's BEV/Hybrid/ICE
@@ -102,11 +117,13 @@ There is no REST endpoint. We:
    token wins.
 4. Sort by (year, month) descending, a monthly `_PRENSA` file above an
    annual `A DICIEMBRE` file for the same month; pick the first.
-5. If that first candidate is **older than the month we came for**, fall back
-   to reconstructing the month's `/Uploads/` URL — see "When the listing
-   stopped carrying monthlies" below. As of Sept 2026 this is the leg that
-   actually finds every monthly.
+5. If that first candidate is **older than the month we came for**, look for
+   the PDF embedded in ANDI's press note for the month, then reconstruct the
+   month's `/Uploads/` URL — see "When the listing stopped carrying
+   monthlies" below.
 6. Download the PDF and run `pdftotext -layout` on it.
+7. If no leg produced a PDF for the month, fall back to FENALCO's press text
+   — see "FENALCO press-text fallback" below.
 
 ### Filename shapes seen so far
 
@@ -146,14 +163,25 @@ at its original `/Uploads/` path:
 | Ago 2026 | 200, 1,397,788 B |
 | Sep 2026 | 404 (not published yet — correct, it is due in October) |
 
-So discovery now has **two legs** (`resolve_bulletin`):
+So discovery now has **three legs** (`resolve_bulletin`):
 
 1. scrape the listing as before (still the source for annuals/backfill, and
    for monthlies if ANDI ever restores them);
-2. if the newest listed bulletin is older than the month we came for,
-   reconstruct that month's `/Uploads/` URL from the shapes above
-   (`monthly_url_candidates`, 2026 shape first) and take the first that is
-   really that PDF.
+2. if the newest listed bulletin is older than the month we came for, read
+   ANDI's press notes (`find_in_andi_news`): the listing
+   `https://www.andi.com.co/Home/Noticias` links notes as
+   `/Home/Noticia/<id>-<slug>` with the slug cut at ~40 characters
+   (`18083-andi-y-fenalco-en-agosto-de-2026-se-reg`). The up to 8 newest
+   notes whose slug mentions fenalco / automot / vehicul / matricul are
+   opened, and every `href`/`src` ending in `.pdf` that classifies as exactly
+   the wanted month is tried. The Aug-2026 note embeds its boletín as
+   `<iframe src="…/Uploads/08.%20INFORME%20SECTOR%20AUTOMOTOR%20AGO2026_PRENSA.pdf">`;
+   the motorcycle note next to it (`…Informe Motocicletas…`) does not
+   classify. This is the only leg that can find a name with a `<ticks>`
+   suffix, which no guess can produce;
+3. reconstruct that month's `/Uploads/` URL from the shapes above
+   (`monthly_url_candidates`, 2026 shape first; for September also `SEPT`
+   and `SET`) and take the first that is really that PDF.
 
 URL construction is only safe because of what checks it, so do not weaken
 either guard:
@@ -161,16 +189,64 @@ either guard:
 - a candidate counts only if it answers **200 and its body starts with
   `%PDF`** — the Jul-2026 0-byte URL is exactly why a status check alone is
   not enough;
-- a **guessed** URL must then parse to a series ending on exactly the month
-  requested, or the run aborts (`SystemExit`) rather than upsert one month's
-  numbers under another month's label. A linked URL only warns, because there
-  the filename is ANDI's claim rather than ours.
+- a URL from legs 2 or 3 must then parse to a series ending on exactly the
+  month requested, or the run aborts (`SystemExit`) rather than upsert one
+  month's numbers under another month's label. A URL from the Cámara listing
+  only warns.
 
-FENALCO (`fenalco.com.co/blog/gremial-4`) still keeps a proper monthly index —
-`informe-del-sector-automotor-a-agosto-2026-9088` and so on — but every post
-page serves its PDF behind `web/login`, so it can tell you a month exists
-without giving you the file. It is a useful human cross-check for "has ANDI
-published yet?", not an ingestible source.
+### FENALCO press-text fallback (Oct 2026)
+
+The September 2026 boletín was not reachable at all: no Cámara link, no ANDI
+press note (the newest automotive note on 2026-10-24 was still August's), and
+every `/Uploads/` shape answered 404. FENALCO had published the month on
+1–3 October. Its post keeps the PDF behind `web/login`, but the post body is
+public and carries the three figures we ingest, from the same RUNT extract:
+
+> Durante septiembre se registraron **33.835 vehículos nuevos** … Para el
+> caso de los eléctricos, … con **5.895 unidades** matriculadas … los
+> híbridos … con **11.261 unidades** …
+
+Backtest: the July and August 2026 posts give exactly the CSV's boletín
+values (28,633 / 4,870 / 9,410 and 27,124 / 4,542 / 9,195).
+
+`fenalco_fallback` runs only when no PDF for the target month was found:
+
+1. GET `https://www.fenalco.com.co/blog/gremial-4` and look for
+   `/blog/gremial-4/informe-del-sector-automotor-a-<mes>-<yyyy>-<id>`
+   (`informe-del-sector-motocicletas-…` never matches). No post → the month
+   is not published yet; the usual day-20 rule applies (below).
+2. Parse the post body only (`#o_wblog_post_content` up to
+   `#o_wblog_post_footer`), and require "Informe de Registro de Vehículos a
+   <mes> de <yyyy>" in it. TOTAL comes from "(En|Durante) <mes> [de <yyyy>]
+   se (registraron|matricularon) N vehículos nuevos" — the YTD sentence
+   ("Entre enero y septiembre … 247.212") never matches. BEV and Hybrid come
+   from sentences that name "eléctric…" or "híbrid…" (not both) and give
+   "N unidades". Every hit for a figure must agree; none, or two different
+   ones, fails the run ("wording not recognised").
+3. Cross-check: parse the **previous** month's post the same way and compare
+   with the CSV row for that month (from a boletín). Any figure more than 1 %
+   off — or no previous row to compare with — fails the run.
+4. Upsert the **target month only**: `source` unchanged, `notes` =
+   `fenalco press text - provisional until the ANDI/FENALCO PDF is reachable`,
+   ICE = TOTAL − BEV − HEV as usual. A boletín row for the month is never
+   replaced by press text.
+
+A provisional row does **not** satisfy the early exit (`csv_has_final_period`),
+so the daily runs keep searching for the PDF (re-applying the same text is a
+no-op, nothing is committed). The first boletín that carries the month —
+its own or any later one, each re-carries ~31 months — overwrites the row and
+clears the note (`merge_row` takes the new row's `source`/`notes`).
+
+**Fail early.** Once FENALCO lists the month, "not published yet" is no
+longer an excuse: if the post cannot be parsed or the cross-check fails, the
+run goes red with `::error title=Colombia <month> published but not
+ingestible::` on any day, instead of waiting for day 20. If FENALCO's index
+itself cannot be reached the run only warns and falls through to
+`require_target_month`. `--no-fenalco-fallback` switches the leg off for
+local debugging.
+
+When the fallback fires, check the post by hand once: the patterns are tight
+but the wording is a press office's, not a data format.
 
 ### The 2026 stall (postmortem)
 
@@ -224,13 +300,53 @@ another fetcher, make it exit non-zero.
 Each monthly boletín (~18 pages) contains, near the back, **three bar
 charts emitting one bar per month** for the previous ~31 months:
 
-- **Total passenger cars** monthly (the "Vehículos Nuevos" historical chart).
+- **Total new vehicles** monthly (the "Vehículos Nuevos" historical chart —
+  all types, see § 3a; not passenger cars only).
 - **Vehículos eléctricos** (BEV) monthly.
 - **Vehículos híbridos** (combined HEV+PHEV+MHEV) monthly.
 
-A fourth chart, **Vehículos de transporte de carga**, gives heavy-goods totals
-but **without** a fuel split — out of scope for our schema (no BEV share
-computable from a single total).
+A fourth chart, **Vehículos de transporte de carga**, repeats the
+*Comerciales Carga* line of the type table (Aug 2026: 755 in both). Those
+vehicles are already **inside** the total above; the chart is ignored because
+it adds nothing, not because cargo is excluded.
+
+### 3a. What TOTAL includes (vehicle scope)
+
+The bulletin's "Registros por tipo de vehículo" table splits the month's
+total by type. Aug 2026 (sums exactly to the 27,124 we publish):
+
+| Tipo de vehículo | Aug 2026 |
+|---|---:|
+| SUV | 17,929 |
+| Automóviles | 5,666 |
+| Pick Ups | 1,666 |
+| Comerciales Carga | 755 |
+| Taxis | 410 |
+| Camionetas | 375 |
+| Comerciales Pasajeros | 260 |
+| Vans | 56 |
+| Cuadriciclos | 7 |
+| **Total matrículas** | **27,124** |
+
+So `TOTAL` is **all new four-wheel registrations** (motorcycles have their
+own report), not "automóviles" and not an M1-only passenger-car figure.
+Earlier versions of this page said "passenger cars (automóviles)"; that was
+wrong. FENALCO's press text calls the same number "vehículos nuevos".
+
+The narrower, M1-like reading (SUV + Automóviles + Camionetas + Taxis ≈
+24,380, ~90 %) is **not** cleanly available:
+
+- the type table exists only for the bulletin's own month and the same month
+  a year earlier (plus year-to-date), not as a monthly history;
+- **BEV and Hybrid are published only over the whole total** — there is no
+  per-type electric or hybrid figure anywhere in the bulletin or the press
+  text. A car-only TOTAL with all-type BEV/HEV would mix scopes and overstate
+  the shares (electric pick-ups and vans would count in the numerator only).
+
+Hence the series stays on the wider total, consistently for TOTAL, BEV and
+HEV, and the source page states the scope. Narrowing it would need a source
+with fuel by vehicle class (RUNT open data, ANDEMOS — both gated, see
+[14-data-source-gaps.md](14-data-source-gaps.md)).
 
 `pdftotext -layout` linearises each bar's `mes-AA  value` label. The parser
 walks the text line by line, pairs every month label with its value, then
@@ -311,7 +427,7 @@ counts. `parse_value(s) = int(s.replace(".", ""))`.
 | Vehículos eléctricos | `BEV` |
 | Vehículos híbridos *(combined, no PHEV split)* | `HEV` (labelled "Hybrid" in posts) |
 | (TOTAL − BEV − HEV) | `ICE` |
-| TOTAL passenger-cars | `TOTAL` |
+| TOTAL "vehículos nuevos" (all types, § 3a) | `TOTAL` |
 | — | `PHEV`, `PETROL`, `DIESEL`, `FLEXFUEL`, `OTHERS` all empty |
 
 If ANDEMOS/RUNT ever start publishing the PHEV split in a free format, the
@@ -371,6 +487,11 @@ flowchart TD
     Cron --> Fetch["scripts/fetch_colombia.py"]
     Fetch -->|"GET /Home/Camara/4-automotriz"| Cam["ANDI Cámara Automotriz page"]
     Cam -->|"all bulletin-named .pdf links → newest (year, month)"| Fetch
+    Fetch -.->|"listing stale: GET /Home/Noticias → press note iframe"| News["ANDI press note"]
+    Fetch -.->|"still nothing: guessed /Uploads/ names"| PDF
+    Fetch -.->|"no PDF at all: GET blog/gremial-4 post"| Fen["FENALCO press text<br/>(target month only, cross-checked, notes=provisional)"]
+    Fen --> Merge
+    News --> PDF
     Fetch -->|"GET PDF"| PDF["Uploads/<N>. INFORME SECTOR AUTOMOTOR <MMM><YYYY>_PRENSA[_<ticks>].pdf"]
     PDF -->|"pdftotext -layout"| Parser["label/value pairing with look-ahead<br/>→ batch-detect 3 series (Pkw / BEV / Hybrid)"]
     Parser -->|"BEV, HEV, TOTAL, ICE=TOTAL−BEV−HEV<br/>unknown ≠ 0, newest month complete"| Merge["merge into data/Colombia.csv"]
@@ -391,6 +512,10 @@ Single variant ⇒ no parallel-render push race.
 | The PDF layout reorders the three charts | "Chart order looks off" — the first batch must have the largest peak | Eyeball one month's values vs the PDF narrative; if reorder is needed, detect sections by header text instead of position |
 | A bar value drifts further than 12 lines from its label, or lands left of the label column | Month reported as "no value found" and treated as unknown; the run fails if it is the newest month, otherwise the existing CSV value stands / the month is skipped | `dry_run` + read the dump around the label; adjust `VALUE_LOOKAHEAD_LINES` or the column rule; add the snippet to `test_fetch_colombia.py` |
 | A YTD total lands next to an orphan label without its `(Ene-…)` caption aligned under it | The caption rule misses it; the outlier guard drops it ("is >3x its neighbours … treated as unknown") and the month falls back to the CSV value / is skipped. Only if both fail would a wrong number reach the merge, where the >50 % change warning and the BEV+HEV ≤ TOTAL check are the last line | `dry_run`, read the dump, extend `_is_ytd_total`; add the snippet to the tests |
+| ANDI press note embeds the PDF under a name that does not classify, or the slug loses all hint words | Press-note leg prints "no <month> boletín in …" for each note; the guess leg and then the FENALCO fallback still run | `dry_run`, read the note; widen `NEWS_SLUG_HINT_RE` or `classify_pdf_name` |
+| FENALCO rewords its press text | `::error title=Colombia <month> published but not ingestible::` "expected one BEV … found none" — on any day once FENALCO lists the month | Read the post; adjust `parse_fenalco_post`, add the page to `scripts/fixtures/colombia/` and a test |
+| FENALCO's figures stop matching the boletín (e.g. a scope change) | Cross-check on the previous month fails, nothing is written | Compare the post with the PDF by hand; do not loosen the tolerance to make it pass |
+| A month stays provisional (no PDF ever surfaces) | Green runs with `::warning title=Colombia <month> from FENALCO press text::` until day 25; the next month's boletín replaces it if it is reachable | `pdf_url=` once the file is found |
 | ANDI/FENALCO add a separate PHEV split | combined Hybrid bucket understates the distinction | Extend mapping to write PHEV alongside HEV |
 | andi.com.co drops connections / 500s | Retried 5× with backoff by the session adapter; a run still fails if the host stays down | Nothing to do — the next daily run picks it up |
 | `poppler-utils` not installed (local run) | `pdftotext: command not found` | `brew install poppler` / `apt install poppler-utils` |
@@ -424,3 +549,5 @@ python scripts/fetch_colombia.py --pdf-url \
   boletín covers ~2.5 years; for older history use the annual PDFs via
   `--pdf-url`, or your own backfill).
 - ANDEMOS / RUNT direct access (still gated; see [14-data-source-gaps.md](14-data-source-gaps.md)).
+- A passenger-car-only (M1-like) series — the bulletin has no BEV/hybrid
+  split by vehicle type (§ 3a).

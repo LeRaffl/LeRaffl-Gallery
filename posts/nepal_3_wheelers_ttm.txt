@@ -4,5 +4,3 @@ Oct24–Sep25  vs  Oct25–Sep26
 −0.6pp  BEV     (81.0% → 80.4%)
 +0.0pp  Hybrid  (0.0% → 0.0%)
 +0.6pp  ICE     (19.0% → 19.6%)
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

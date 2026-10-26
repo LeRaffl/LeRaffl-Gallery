@@ -5,7 +5,7 @@ publications and upsert per-variant CSVs under data/.
 
 Usage
 -----
-    python scripts/fetch_austria.py [--variant {whole,hdv,vans,used,all}]
+    python scripts/fetch_austria.py [--variant {whole,hdv,vans,resale,all}]
                                     [--year YYYY] [--force]
 
 Network / reaching the source
@@ -30,7 +30,11 @@ Output files
     data/Austria.csv          <- variant=Whole (Pkw Klasse M1, new registrations)
     data/Austria_HDV.csv      <- variant=HDV   (Lkw N2 + N3 + Sattelzugfahrzeuge)
     data/Austria_Vans.csv     <- variant=Vans  (Lkw N1, ≤ 3.5 t)
-    data/Austria_Used.csv     <- variant=Used  (Pkw used/Gebrauchtzulassungen)
+    data/Austria_Resale.csv   <- variant=Resale (Pkw Gebrauchtzulassungen: every
+                                 registration of a used car - mostly changes of
+                                 owner within Austria, plus used imports; the
+                                 source has no split, so this is not the
+                                 used-imports `Used` of other countries)
 
 Sources
 -------
@@ -67,7 +71,7 @@ Two .ods file families are used (paths under /fileadmin/pages/77/):
 
 Canonical-column mapping
 ------------------------
-Whole (DE2 Pkw Tabelle 2) / Used (GE2 Pkw Tabelle 2, same math on
+Whole (DE2 Pkw Tabelle 2) / Resale (GE2 Pkw Tabelle 2, same math on
 "Benzin inkl. Flex-Fuel" instead of "Benzin"):
     BEV     <- Elektro
     PHEV    <- "darunter Plug-In" (Benzin/Elektro) + (Diesel/Elektro)
@@ -97,7 +101,7 @@ publication only exists from 2025-01 onward, so the backfill envelope is:
   2024            -> single annual row (time_interval=annual, period=2024)
   2025 / 2026 ... -> monthly rows
 Pre-2024 monthly LKW × fuel is not published.
-Used: no prior CSV. On the first run every cumulative GE2 file found on the
+Resale: no prior CSV. On the first run every cumulative GE2 file found on the
 kfz-gebrauchtzulassungen listing page is backfilled (monthly rows); thereafter
 only the current year is refreshed, same as HDV/Vans.
 
@@ -250,8 +254,10 @@ VARIANT_CONFIG = {
         "file_kinds": ["de3_monthly", "de3_annual"],
         "classes": frozenset({"Lastkraftwagen Klasse N1"}),
     },
-    "Used": {
-        "csv": "data/Austria_Used.csv",
+    # Pkw-Gebrauchtzulassungen. Until 2026-10 this was the "Used" variant; it is
+    # `Resale` (owner changes + imports, no split published), see 09-glossary.
+    "Resale": {
+        "csv": "data/Austria_Resale.csv",
         "file_kinds": ["ge2"],
         "classes": None,
     },
@@ -692,7 +698,7 @@ def refresh_top(content: bytes, year: int) -> None:
 
 
 # ---------------------------------------------------------------------------
-# GE2 parser (Used)
+# GE2 parser (Resale)
 # ---------------------------------------------------------------------------
 
 def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
@@ -714,7 +720,7 @@ def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
             continue  # cumulative / helper sheet
         raw = _parse_de2_sheet_tab2(sheet)
         if not raw:
-            print(f"[Used {year}-{month:02d}] WARNING: Tabelle 2 not found in {sheet_name!r}")
+            print(f"[Resale {year}-{month:02d}] WARNING: Tabelle 2 not found in {sheet_name!r}")
             continue
         norm = {_norm_label(k): v for k, v in raw.items()}
 
@@ -728,7 +734,7 @@ def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
             else:
                 missing.append(key)
         if missing:
-            print(f"[Used {year}-{month:02d}] WARNING: missing {missing} "
+            print(f"[Resale {year}-{month:02d}] WARNING: missing {missing} "
                   f"(labels seen: {sorted(norm)}) — skipping")
             continue
 
@@ -739,7 +745,7 @@ def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
         if -0.5 < others < 0:
             others = 0.0
         if others < 0:
-            print(f"[Used {year}-{month:02d}] WARNING: OTHERS={others:.1f} < 0")
+            print(f"[Resale {year}-{month:02d}] WARNING: OTHERS={others:.1f} < 0")
 
         out[f"{year}-{month:02d}"] = {
             "BEV": vals["BEV"], "PHEV": phev, "HEV": hev,
@@ -747,7 +753,7 @@ def parse_ge2(content: bytes, year: int) -> dict[str, dict[str, float]]:
             "OTHERS": max(0.0, others), "TOTAL": vals["TOTAL"],
         }
     if not out:
-        print(f"[Used {year}] WARNING: no month sheets parsed; "
+        print(f"[Resale {year}] WARNING: no month sheets parsed; "
               f"sheets in file: {seen_sheets}")
     return out
 
@@ -1054,7 +1060,7 @@ def _get(session: requests.Session, url: str, **kwargs):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--variant", choices=["whole", "hdv", "vans", "used", "all"], default="all",
+        "--variant", choices=["whole", "hdv", "vans", "resale", "all"], default="all",
         help="Variant to fetch (default: all).",
     )
     parser.add_argument(
@@ -1073,7 +1079,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    aliases = {"whole": "Whole", "hdv": "HDV", "vans": "Vans", "used": "Used"}
+    aliases = {"whole": "Whole", "hdv": "HDV", "vans": "Vans", "resale": "Resale"}
     targets = list(aliases.values()) if args.variant == "all" else [aliases[args.variant]]
 
     if not args.force and args.year is None and not args.probe:
@@ -1107,7 +1113,7 @@ def main() -> None:
     session.mount("https://", _adapter)
     session.mount("http://", _adapter)
     # The new-registrations listing feeds Whole/HDV/Vans; the used-registrations
-    # listing feeds Used. Only fetch the pages the requested variants need.
+    # listing feeds Resale. Only fetch the pages the requested variants need.
     if getattr(args, "probe_top_only", False):
         de2 = sorted((y, u) for (k, y), u in discover_file_urls(session).items() if k == "de2")
         if de2:
@@ -1122,9 +1128,9 @@ def main() -> None:
         parse_de2(fetch_ods(url, session, {}), year)
         return
     urls: dict[tuple[str, int], str] = {}
-    if any(v != "Used" for v in targets):
+    if any(v != "Resale" for v in targets):
         urls.update(discover_file_urls(session))
-    if "Used" in targets:
+    if "Resale" in targets:
         urls.update(discover_used_file_urls(session))
     if not urls:
         raise RuntimeError("No source files found on listing page(s).")
@@ -1132,7 +1138,7 @@ def main() -> None:
     # year_filter behaviour:
     #   --year given        -> only that year, for every variant
     #   default (no --year) -> current year for Whole (already-backfilled CSV);
-    #                          all available years for HDV/Vans/Used the first
+    #                          all available years for HDV/Vans/Resale the first
     #                          time (subsequent runs early-exit). After first
     #                          backfill, year_filter=current keeps reruns fast.
     cache: dict = {}
@@ -1143,7 +1149,7 @@ def main() -> None:
         elif variant == "Whole":
             yf = current_year
         else:
-            # HDV/Vans/Used: backfill all years on first run, current year thereafter.
+            # HDV/Vans/Resale: backfill all years on first run, current year thereafter.
             csv_path = VARIANT_CONFIG[variant]["csv"]
             yf = None if not os.path.exists(csv_path) else current_year
         run_variant(variant, urls, session, cache, yf)

@@ -24,7 +24,7 @@ Nepal,Whole,Customs imports (HS 8703 cars/jeeps/vans; no domestic production - i
 Nepal,3-Wheelers,Customs imports of passenger three-wheelers: petrol auto-rickshaws and electric e-rickshaws (HS 8703). Nepali-calendar months labelled by their Gregorian end month.
 France,Whole,SDES registry série — new EU M1 passenger cars (SUVs incl.; vans/trucks/buses separate). Raw counts from 2011; higher than the seasonally-adjusted SDES/Insee CVS-CJO headline.
 Japan,Whole,Registered passenger cars only; excludes kei cars (about a third of the market) and most kei-BEVs.
-India,Whole,EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). Latest 1-2 months provisional; running month excluded.
+India,Whole,"EU M1 passenger cars (VAHAN classes MOTOR CAR/CAB/LUXURY CAB). HEV includes mild hybrids (VAHAN */HYBRID); strong hybrids alone are about 2 % (2025-26). Latest 1-2 months provisional; running month excluded."
 Belgium,Whole,"HEV includes mild hybrids (about 2.5x ACEA's full-hybrid figure), so petrol/diesel run lower than ACEA's. The April 2025 file is about 13 % short."
 Belgium,Private,"New passenger cars whose keeper is not VAT-registered (DIV keeper type Natural/Legal Person: in practice private persons, plus small non-VAT bodies), monthly from 2013-01. Private + Industry = Whole. HEV includes mild hybrids."
 Belgium,Industry,"New passenger cars kept by VAT-registered legal persons (company, leasing and rental fleets). Private + Industry = Whole. HEV includes mild hybrids."
@@ -127,6 +127,7 @@ South Korea,Whole,"Domestic sales of all vehicle types incl. commercial - not M1
 Peru,Whole,"New cars and SUVs (EU M1), may incl. near-new used imports (max. 2 model years); pickups are in Peru (Vans). HEV incl. mild hybrids. No data for April 2020 (COVID-19)."
 Peru,Vans,"SUNARP first registrations (via AAP BI-AAP): pickups, chassis-cabs, dropside and box vans, and panel vans (EU N1), from 2019-01; may include near-new used imports. Diesel-dominated; plug-ins are a handful a month (JAC T8 EV, BYD Shark)."
 Paraguay,Whole,"Customs imports of new cars, not registrations - single months can run ahead of sales. Pickups not included. HEV includes mild hybrids."
+Paraguay,Used,"Customs imports of used cars (declared used) - not registrations, not new cars. Data only, not charted."
 Ecuador,Whole,"New cars and SUVs (EU M1); pickups and vans are in Ecuador (Vans). Plug-ins identified by model. HEV includes mild hybrids and Nissan e-POWER."
 Ecuador,Vans,"Pickups (most of it), panel vans and van-based minibuses (about EU N1; some passenger minivans included)."
 Taiwan,Whole,"New passenger cars up to 9 seats, from 2021. HEV includes Nissan e-POWER. Monthly BEV swings with Tesla's quarter-end deliveries - read the trend."
@@ -135,4 +136,6 @@ Taiwan,HDV,"THB register (MOTC statistics): new goods vehicles over 3.5 t ('larg
 Taiwan,Buses,"New buses and coaches (EU M2+M3). Small and lumpy (100-200 a month); the BEV share follows the city-bus electrification programme."
 UK,Whole,"Mild hybrids are inside petrol/diesel. March and September (plate changes) carry about a quarter of the year each - compare a month with the same month a year earlier."
 South Africa,Whole,"Whole new-vehicle market (cars, bakkies, trucks, buses) - not M1. Quarterly. More brands report from 2026, which lifts NEV counts a little."
+Austria,Resale,"Every used-car registration Statistik Austria counts (Gebrauchtzulassungen): mostly changes of owner within Austria, about 3x new registrations, plus used imports. Not a used-imports series."
+Netherlands,Used,"Used imports at their first Dutch registration, near-new cars (90 days or less) included - not new cars. Full hybrids inside petrol/diesel."
 Vietnam,Whole,"New passenger-car SALES (≈ M1, not registrations): VAMA members + VAMA's estimate of non-member imports + VinFast deliveries + Hyundai (TC Group). Non-member imports (no fuel split) shown as Other; Hyundai as ICE; no PHEV split. Hybrids in ICE before 2024; VinFast 2022-09/10 and 2023-08 to 2024-08: year figure spread evenly (hollow points)."

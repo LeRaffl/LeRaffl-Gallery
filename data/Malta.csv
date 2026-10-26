@@ -1,44 +1,44 @@
 period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,notes
-2022-01,monthly,Whole,ACEA,66.0,99.0,76.0,13.0,2.0,166.0,422.0,
-2022-02,monthly,Whole,ACEA,56.0,96.0,71.0,17.0,0.0,196.0,436.0,
-2022-03,monthly,Whole,ACEA,74.0,150.0,108.0,24.0,2.0,332.0,690.0,
-2022-04,monthly,Whole,ACEA,74.0,94.0,120.0,32.0,0.0,316.0,636.0,
-2022-05,monthly,Whole,ACEA,107.0,97.0,113.0,38.0,0.0,249.0,604.0,
-2022-06,monthly,Whole,ACEA,85.0,86.0,129.0,32.0,2.0,220.0,554.0,
-2022-07,monthly,Whole,ACEA,116.0,143.0,105.0,33.0,1.0,353.0,751.0,
-2022-08,monthly,Whole,ACEA,115.0,107.0,107.0,35.0,0.0,206.0,570.0,
-2022-09,monthly,Whole,ACEA,48.0,106.0,87.0,34.0,0.0,131.0,406.0,
-2022-10,monthly,Whole,ACEA,92.0,121.0,75.0,52.0,0.0,139.0,479.0,
-2022-11,monthly,Whole,ACEA,70.0,56.0,86.0,47.0,0.0,169.0,428.0,
-2022-12,monthly,Whole,ACEA,81.0,79.0,73.0,34.0,1.0,165.0,433.0,
-2023-01,monthly,Whole,ACEA,80.0,113.0,70.0,26.0,1.0,154.0,444.0,
-2023-02,monthly,Whole,ACEA,73.0,104.0,64.0,54.0,0.0,149.0,444.0,
-2023-03,monthly,Whole,ACEA,104.0,86.0,192.0,55.0,0.0,262.0,699.0,
-2023-04,monthly,Whole,ACEA,110.0,165.0,213.0,96.0,0.0,369.0,953.0,
-2023-05,monthly,Whole,ACEA,102.0,58.0,200.0,73.0,0.0,333.0,766.0,
-2023-06,monthly,Whole,ACEA,110.0,60.0,163.0,79.0,0.0,252.0,664.0,
-2023-07,monthly,Whole,ACEA,125.0,51.0,143.0,45.0,0.0,259.0,623.0,
-2023-08,monthly,Whole,ACEA,125.0,75.0,114.0,15.0,0.0,258.0,587.0,
-2023-09,monthly,Whole,ACEA,126.0,46.0,67.0,12.0,0.0,123.0,374.0,
-2023-10,monthly,Whole,ACEA,132.0,93.0,157.0,130.0,0.0,202.0,714.0,
-2023-11,monthly,Whole,ACEA,183.0,93.0,135.0,27.0,0.0,183.0,621.0,
-2023-12,monthly,Whole,ACEA,245.0,46.0,120.0,12.0,0.0,124.0,547.0,
-2024-01,monthly,Whole,ACEA,253.0,61.0,118.0,11.0,0.0,173.0,616.0,
-2024-02,monthly,Whole,ACEA,260.0,58.0,124.0,16.0,0.0,199.0,657.0,
-2024-03,monthly,Whole,ACEA,194.0,27.0,171.0,57.0,0.0,421.0,870.0,
-2024-04,monthly,Whole,ACEA,167.0,58.0,132.0,45.0,0.0,203.0,605.0,
-2024-05,monthly,Whole,ACEA,148.0,57.0,116.0,29.0,0.0,304.0,654.0,
-2024-06,monthly,Whole,ACEA,217.0,33.0,121.0,19.0,0.0,351.0,741.0,
-2024-07,monthly,Whole,ACEA,209.0,44.0,119.0,49.0,0.0,174.0,595.0,
-2024-08,monthly,Whole,ACEA,150.0,33.0,109.0,13.0,0.0,314.0,619.0,
-2024-09,monthly,Whole,ACEA,208.0,33.0,109.0,13.0,0.0,119.0,482.0,
-2024-10,monthly,Whole,ACEA,159.0,60.0,111.0,70.0,0.0,247.0,647.0,
-2024-11,monthly,Whole,ACEA,146.0,58.0,125.0,35.0,0.0,234.0,598.0,
-2024-12,monthly,Whole,ACEA,445.0,34.0,70.0,8.0,0.0,98.0,655.0,
-2025-01,monthly,Whole,ACEA,211.0,44.0,134.0,23.0,0.0,228.0,640.0,
-2025-02,monthly,Whole,ACEA,46.0,27.0,98.0,14.0,0.0,118.0,303.0,
-2025-03,monthly,Whole,ACEA,90.0,7.0,62.0,28.0,0.0,148.0,334.0,
-2025-04,monthly,Whole,ACEA,210.0,41.0,148.0,220.0,23.0,0.0,642.0,data/Press_release_car_registrations_April_2026.pdf
+2022-01,monthly,Whole,ACEA,66.0,99.0,76.0,166.0,13.0,2.0,422.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-02,monthly,Whole,ACEA,56.0,96.0,71.0,196.0,17.0,0.0,436.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-03,monthly,Whole,ACEA,74.0,150.0,108.0,332.0,24.0,2.0,690.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-04,monthly,Whole,ACEA,74.0,94.0,120.0,316.0,32.0,0.0,636.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-05,monthly,Whole,ACEA,107.0,97.0,113.0,249.0,38.0,0.0,604.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-06,monthly,Whole,ACEA,85.0,86.0,129.0,220.0,32.0,2.0,554.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-07,monthly,Whole,ACEA,116.0,143.0,105.0,353.0,33.0,1.0,751.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-08,monthly,Whole,ACEA,115.0,107.0,107.0,206.0,35.0,0.0,570.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-09,monthly,Whole,ACEA,48.0,106.0,87.0,131.0,34.0,0.0,406.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-10,monthly,Whole,ACEA,92.0,121.0,75.0,139.0,52.0,0.0,479.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-11,monthly,Whole,ACEA,70.0,56.0,86.0,169.0,47.0,0.0,428.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2022-12,monthly,Whole,ACEA,81.0,79.0,73.0,165.0,34.0,1.0,433.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-01,monthly,Whole,ACEA,80.0,113.0,70.0,154.0,26.0,1.0,444.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-02,monthly,Whole,ACEA,73.0,104.0,64.0,149.0,54.0,0.0,444.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-03,monthly,Whole,ACEA,104.0,86.0,192.0,262.0,55.0,0.0,699.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-04,monthly,Whole,ACEA,110.0,165.0,213.0,369.0,96.0,0.0,953.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-05,monthly,Whole,ACEA,102.0,58.0,200.0,333.0,73.0,0.0,766.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-06,monthly,Whole,ACEA,110.0,60.0,163.0,252.0,79.0,0.0,664.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-07,monthly,Whole,ACEA,125.0,51.0,143.0,259.0,45.0,0.0,623.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-08,monthly,Whole,ACEA,125.0,75.0,114.0,258.0,15.0,0.0,587.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-09,monthly,Whole,ACEA,126.0,46.0,67.0,123.0,12.0,0.0,374.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-10,monthly,Whole,ACEA,132.0,93.0,157.0,202.0,130.0,0.0,714.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-11,monthly,Whole,ACEA,183.0,93.0,135.0,183.0,27.0,0.0,621.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2023-12,monthly,Whole,ACEA,245.0,46.0,120.0,124.0,12.0,0.0,547.0,fuel columns un-rotated (hand entry had PETROL/DIESEL/OTHERS shifted)
+2024-01,monthly,Whole,ACEA,253.0,61.0,118.0,173.0,11.0,0.0,616.0,https://www.acea.auto/files/Press_release_car_registrations_January_2025.pdf
+2024-02,monthly,Whole,ACEA,260.0,58.0,124.0,199.0,16.0,0.0,657.0,https://www.acea.auto/files/Press_release_car_registrations_February_2025.pdf
+2024-03,monthly,Whole,ACEA,194.0,27.0,171.0,421.0,57.0,0.0,870.0,https://www.acea.auto/files/Press_release_car_registrations_March_2025.pdf
+2024-04,monthly,Whole,ACEA,167.0,58.0,132.0,203.0,45.0,0.0,605.0,https://www.acea.auto/files/Press_release_car_registrations_April_2025.pdf
+2024-05,monthly,Whole,ACEA,148.0,57.0,116.0,304.0,29.0,0.0,654.0,https://www.acea.auto/files/Press_release_car_registrations_May_2025.pdf
+2024-06,monthly,Whole,ACEA,217.0,33.0,121.0,351.0,19.0,0.0,741.0,https://www.acea.auto/files/Press_release_car_registrations_June_2025.pdf
+2024-07,monthly,Whole,ACEA,209.0,44.0,119.0,174.0,49.0,0.0,595.0,https://www.acea.auto/files/Press_release_car_registrations_July_2025.pdf
+2024-08,monthly,Whole,ACEA,150.0,33.0,109.0,314.0,13.0,0.0,619.0,https://www.acea.auto/files/Press_release_car_registrations_August_2025.pdf
+2024-09,monthly,Whole,ACEA,208.0,33.0,109.0,119.0,13.0,0.0,482.0,https://www.acea.auto/files/Press_release_car_registrations_September_2025.pdf
+2024-10,monthly,Whole,ACEA,227.0,33.0,124.0,86.0,16.0,0.0,486.0,https://www.acea.auto/files/Press_release_car_registrations_October_2025.pdf
+2024-11,monthly,Whole,ACEA,408.0,44.0,97.0,116.0,18.0,0.0,683.0,https://www.acea.auto/files/Press_release_car_registrations_November_2025.pdf
+2024-12,monthly,Whole,ACEA,445.0,34.0,70.0,98.0,8.0,0.0,655.0,https://www.acea.auto/files/Press_release_car_registrations_December_2025.pdf
+2025-01,monthly,Whole,ACEA,138.0,34.0,89.0,125.0,17.0,0.0,403.0,https://www.acea.auto/files/Press_release_car_registrations_January_2026.pdf
+2025-02,monthly,Whole,ACEA,46.0,27.0,98.0,118.0,14.0,0.0,303.0,https://www.acea.auto/files/Press_release_car_registrations_February_2025.pdf
+2025-03,monthly,Whole,ACEA,118.0,24.0,149.0,250.0,28.0,0.0,569.0,https://www.acea.auto/files/Press_release_car_registrations_March_2026.pdf
+2025-04,monthly,Whole,ACEA,210.0,41.0,148.0,220.0,23.0,0.0,642.0,https://www.acea.auto/files/Press_release_car_registrations_April_2026.pdf
 2025-05,monthly,Whole,ACEA,147.0,39.0,125.0,199.0,14.0,0.0,524.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
 2026-04,monthly,Whole,ACEA,138.0,19.0,211.0,198.0,27.0,0.0,592.0,data/Press_release_car_registrations_April_2026.pdf
 2026-05,monthly,Whole,ACEA,291.0,67.0,268.0,144.0,30.0,0.0,800.0,https://www.acea.auto/files/Press_release_car_registrations_May_2026.pdf
@@ -48,3 +48,10 @@ period,time_interval,variant,source,BEV,PHEV,HEV,PETROL,DIESEL,OTHERS,TOTAL,note
 2026-08,monthly,Whole,ACEA,302.0,73.0,199.0,133.0,38.0,0.0,745.0,https://www.acea.auto/files/Press_release_car_registrations_August_2026.pdf
 2025-09,monthly,Whole,ACEA,283.0,32.0,116.0,104.0,9.0,0.0,544.0,https://www.acea.auto/files/Press_release_car_registrations_September_2026.pdf
 2026-09,monthly,Whole,ACEA,283.0,81.0,170.0,68.0,27.0,0.0,629.0,https://www.acea.auto/files/Press_release_car_registrations_September_2026.pdf
+2025-07,monthly,Whole,ACEA,113.0,34.0,159.0,234.0,44.0,0.0,584.0,https://www.acea.auto/files/Press_release_car_registrations_July_2025.pdf
+2025-10,monthly,Whole,ACEA,150.0,39.0,138.0,170.0,36.0,0.0,533.0,https://www.acea.auto/files/Press_release_car_registrations_October_2025.pdf
+2025-11,monthly,Whole,ACEA,105.0,22.0,145.0,190.0,23.0,0.0,483.0,https://www.acea.auto/files/Press_release_car_registrations_November_2025.pdf
+2025-12,monthly,Whole,ACEA,244.0,35.0,127.0,104.0,41.0,0.0,551.0,https://www.acea.auto/files/Press_release_car_registrations_December_2025.pdf
+2026-01,monthly,Whole,ACEA,141.0,39.0,145.0,212.0,21.0,0.0,559.0,https://www.acea.auto/files/Press_release_car_registrations_January_2026.pdf
+2026-02,monthly,Whole,ACEA,112.0,15.0,178.0,194.0,22.0,0.0,521.0,https://www.acea.auto/files/Press_release_car_registrations_February_2026.pdf
+2026-03,monthly,Whole,ACEA,133.0,22.0,191.0,212.0,23.0,0.0,580.0,https://www.acea.auto/files/Press_release_car_registrations_March_2026.pdf

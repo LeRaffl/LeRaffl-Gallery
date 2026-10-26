@@ -9,10 +9,14 @@ name: Fetch Austria data (Statistik Austria DE2 / DE3 / GE2)
 #             DE3 vehicle-class × fuel matrix; PHEV blank, HEV holds combined
 #             Plug-In + full hybrid (source lumps them at Lkw row level).
 #   * Vans  — Lkw N1, ≤ 3.5 t (data/Austria_Vans.csv), same DE3 layout as HDV.
-#   * Used  — Pkw used registrations / Gebrauchtzulassungen
-#             (data/Austria_Used.csv), from GE2 Tabelle 2 on the
+#   * Resale — Pkw used registrations / Gebrauchtzulassungen
+#             (data/Austria_Resale.csv), from GE2 Tabelle 2 on the
 #             kfz-gebrauchtzulassungen listing page; same shape as DE2
-#             incl. the Plug-In rows, so PHEV/HEV are split.
+#             incl. the Plug-In rows, so PHEV/HEV are split. Every
+#             registration of a used car, mostly changes of owner within
+#             Austria plus used imports (no split published) - the
+#             `Resale` variant, not the used-imports `Used` (until 2026-10
+#             it was called Used).
 #
 # See scripts/fetch_austria.py for the file URLs, label mappings, and the
 # per-variant backfill envelope (HDV/Vans monthly only from 2025-01 onward;
@@ -36,7 +40,7 @@ on:
           - whole
           - hdv
           - vans
-          - used
+          - resale
       year:
         description: 'Year to refetch (optional)'
         required: false
@@ -106,7 +110,7 @@ jobs:
           for pair in "Whole:data/Austria.csv" \
                      "HDV:data/Austria_HDV.csv" \
                      "Vans:data/Austria_Vans.csv" \
-                     "Used:data/Austria_Used.csv"; do
+                     "Resale:data/Austria_Resale.csv"; do
             variant="${pair%%:*}"
             file="${pair##*:}"
             [ -f "$file" ] || continue
@@ -134,7 +138,7 @@ jobs:
             data/Austria.csv
             data/Austria_HDV.csv
             data/Austria_Vans.csv
-            data/Austria_Used.csv
+            data/Austria_Resale.csv
             market/austria_top.json
           message: 'chore: update Austria data from Statistik Austria (DE2/DE3/GE2)'
           default_author: github_actions

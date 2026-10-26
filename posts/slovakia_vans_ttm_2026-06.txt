@@ -1,10 +1,8 @@
 🇸🇰 Slovakia (Vans) - TTM Market Split
 
-Q?'24–Q?'25  vs  Q?'25–Q?'26
+Q3'24–Q2'25  vs  Q3'25–Q2'26
 +5.4pp  EV      (4.1% → 9.5%)
 +0.8pp  Hybrid  (1.1% → 1.9%)
 −6.2pp  ICE     (94.8% → 88.6%)
 
-If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q? 2032.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
+If the changes from the last 6 quarters continued linearly, EV would become the largest powertrain in Q2 2032.

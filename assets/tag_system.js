@@ -200,7 +200,7 @@ function tagFmtYearMonth(y){
 // filter. Values inside a group are OR-ed (a row has exactly one value per
 // group, so AND would always be empty); groups are AND-ed.
 const TAG_FILTER_GROUPS = [
-  { cat: 'fit',    label: 'Fit',    values: [['reliable', 'Reliable'], ['unreliable', 'Unreliable'], ['notrans', 'No transition']] },
+  { cat: 'fit',    label: 'Fit',    values: [['reliable', 'Reliable'], ['unreliable', 'Volatile / unreliable'], ['notrans', 'No transition']] },
   { cat: 'status', label: 'Status', values: [['past', 'Past 80%'], ['ontrack', 'On track'], ['late', 'Late']] },
   { cat: 'speed',  label: 'Speed',  values: [['fast', 'Fast'], ['avg', 'Avg'], ['slow', 'Slow']] },
   { cat: 'timing', label: 'Start',  values: [['early', 'Early'], ['mid', 'Mid'], ['late_start', 'Late']] },

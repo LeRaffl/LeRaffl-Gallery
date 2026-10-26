@@ -7,5 +7,3 @@ Oct24–Sep25  vs  Oct25–Sep26
 −17.5pp  ICE   (78.2% → 60.6%)
 
 If the changes from the last 6 months continued linearly, BEV would become the largest powertrain in 2028-03.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/

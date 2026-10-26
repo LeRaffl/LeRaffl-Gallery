@@ -116,6 +116,7 @@ processing:
     - when: a used car (USADO)
       then: Used data file (9 in 2025)
 market_breakdown: market/paraguay_top.json
+market_unit: imports
 market_designation_note: the model is read from the declaration's free-text description (the words after "MODELO", or the whole text when it is just a designation such as "TANK 400 PHEV 4WD"), first three words, upper-cased. A description without a model counts for its brand only.
 market_powertrain_note: BEV / PHEV / HEV / petrol / diesel exactly as in the CSV — the tariff subheading; HEV includes mild hybrids.
 fetcher: scripts/fetch_paraguay.py

@@ -8,5 +8,3 @@ Q3'24–Q2'25  vs  Q3'25–Q2'26
 
 HEV peaked at 2.6% in Q1'25 (declining for 5 quarters).
 If the changes from the last 6 quarters continued linearly, BEV would overtake HEV in Q4 2029.
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
