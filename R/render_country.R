@@ -281,7 +281,8 @@ if (file.exists(params_path)) {
   }
 }
 
-ttm_long <- compute_ttm_long(df, bev_label = bev_label_val)
+ttm_long <- compute_ttm_long(df, bev_label = bev_label_val,
+                             calendar = country %in% TTM_CALENDAR_COUNTRIES)
 
 # Latest TTM BEV share — written to params.csv for the frontend's < 1% no-transition check.
 # Matched against bev_label_val, not the literal "BEV", since compute_ttm_long()

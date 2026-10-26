@@ -28,6 +28,12 @@ load_country_csv <- function(path) {
   # Austria's Vans/HDV writer says "annual" where the rest of the repo says
   # "yearly"; normalise here so fit.R/upsert.R yearly handling applies.
   df$time_interval[df$time_interval %in% "annual"] <- "yearly"
+  # "monthly_est" = a monthly row whose values are partly estimated from an
+  # annual figure (docs/architecture/03-data-objects.md). Everything numeric
+  # treats it as monthly (TTM, fit, post texts, upsert); only the charts
+  # look at `estimated` and draw those points hollow.
+  df$estimated <- df$time_interval %in% "monthly_est"
+  df$time_interval[df$estimated] <- "monthly"
   df$year <- period_to_year(df$period)
   df$overall <- as.numeric(df$TOTAL)
 
@@ -50,7 +56,13 @@ load_country_csv <- function(path) {
 # rows = the same 12 months). Yearly-only series return NULL (a yearly point is
 # already 12 months). Returns a long data frame: month (YYYY-MM), type
 # (factor), value (share 0..1). Stack order matches the historical plot.
-compute_ttm_long <- function(df, bev_label = "BEV") {
+# Countries whose TTM runs on the calendar month grid (`calendar = TRUE`
+# below). Opt-in because switching it on everywhere re-shapes ~26 other
+# series (Singapore, China, Greece, ... would gain their coarse history; a few
+# with month gaps would lose a stretch) -- that is a separate decision.
+TTM_CALENDAR_COUNTRIES <- c("Vietnam")
+
+compute_ttm_long <- function(df, bev_label = "BEV", calendar = FALSE) {
   df <- df[order(df$year), ]
   if (nrow(df) == 0) return(NULL)
   last_ti <- df$time_interval[nrow(df)]
@@ -58,6 +70,31 @@ compute_ttm_long <- function(df, bev_label = "BEV") {
   if (is.na(window)) return(NULL)        # yearly / unknown: no rolling-12 TTM
   m <- df[df$time_interval == last_ti, ]
   m <- m[order(m$year), ]
+  # Mixed intervals (monthly series with coarse stretches): a coarse row whose
+  # period is still a calendar month (YYYY-MM) is a per-month spread of a
+  # yearly / quarterly figure -- the Singapore / Vietnam layout, labelled by its
+  # coarsest component. It belongs on the monthly axis, so the trailing window
+  # takes it too. The axis is then laid on a full month grid: a month with no
+  # row becomes an all-NA row, so a window across a gap is NA instead of
+  # silently summing 12 rows that span more than 12 months.
+  if (calendar && last_ti == "monthly") {
+    is_month <- grepl("^[0-9]{4}-[0-9]{2}$", df$period)
+    if (any(is_month & df$time_interval != "monthly")) {
+      m <- df[is_month, ]
+      m <- m[order(m$period), ]
+      m <- m[!duplicated(m$period, fromLast = TRUE), ]
+    }
+    if (nrow(m) > 0 && all(grepl("^[0-9]{4}-[0-9]{2}$", m$period))) {
+      grid <- format(seq(as.Date(paste0(m$period[1], "-01")),
+                         as.Date(paste0(m$period[nrow(m)], "-01")), by = "month"), "%Y-%m")
+      if (length(grid) > nrow(m)) {
+        m <- m[match(grid, m$period), ]
+        m$period <- grid
+        m$year <- period_to_year(grid)
+        m$time_interval[is.na(m$time_interval)] <- "gap"
+      }
+    }
+  }
   if (nrow(m) < window) return(NULL)
   # Hide the first calendar year of the series so the displayed TTM doesn't open
   # with partial-window noise at the left edge (monthly: 12 months; quarterly:
@@ -86,12 +123,33 @@ compute_ttm_long <- function(df, bev_label = "BEV") {
     out
   }
 
+  gap_row <- m$time_interval %in% "gap"
+  total[gap_row] <- NA
   total_ttm <- rolling(total)
+  total_ttm[as.logical(rolling(as.numeric(gap_row)) > 0)] <- NA
   ttm <- list()
   any_present <- rep(TRUE, nrow(m))
+  # Late-starting hybrid split: a source that books HEV / MHEV inside ICE
+  # before it reports them (Vietnam pre-2024) leaves those columns NA while ICE
+  # is filled. Count those months as 0 here and fold the partial-window mass
+  # into ICE below (as EREV into PHEV), instead of cutting the whole TTM
+  # until the hybrid columns have twelve months of their own.
+  late_start <- list()
+  if (calendar && "ICE" %in% present) {
+    ice_ok <- !is.na(as.numeric(m[["ICE"]]))
+    for (col in intersect(c("HEV", "MHEV"), present)) {
+      v <- as.numeric(m[[col]])
+      f <- which(!is.na(v))
+      if (length(f) == 0 || f[1] == 1) next
+      lead <- seq_len(nrow(m)) < f[1] & ice_ok
+      if (!any(lead)) next
+      late_start[[col]] <- list(first = f[1], lead = lead)
+    }
+  }
   for (col in present) {
     v <- as.numeric(m[[col]])
     if (all(is.na(v))) next
+    if (!is.null(late_start[[col]])) v[late_start[[col]]$lead] <- 0
     rs <- rolling(v, strict = TRUE)
     ttm[[col]] <- rs / total_ttm
     any_present <- any_present & !is.na(rs)
@@ -116,6 +174,18 @@ compute_ttm_long <- function(df, bev_label = "BEV") {
       ttm[["PHEV"]] <- phev_ct / total_ttm
       ttm[["EREV"]][!full] <- 0
     }
+  }
+
+  # Late-start HEV / MHEV (see above): until the window post-dates the first
+  # reported month, their partial mass stays in ICE and the band is held at 0.
+  for (col in names(late_start)) {
+    if (!(col %in% names(ttm) && "ICE" %in% names(ttm))) next
+    full <- (seq_len(nrow(m)) - window + 1) >= late_start[[col]]$first
+    ct <- ttm[[col]] * total_ttm; ct[is.na(ct)] <- 0
+    ice_ct <- ttm[["ICE"]] * total_ttm
+    ice_ct[!full] <- ice_ct[!full] + ct[!full]
+    ttm[["ICE"]] <- ice_ct / total_ttm
+    ttm[[col]][!full] <- 0
   }
 
   # Recompute OTHERS as the TTM residual (TOTAL minus all other known fuels) so

@@ -91,6 +91,17 @@ def test_cover_ti_typo():
     check("ti_note" in f, "TI typo leaves a note")
 
 
+def test_cover_history_wording():
+    # 2022-03: "28,491units" (no space); 2024-06: only the Vietnamese letter exists.
+    f = fv.parse_cover("Total industry is at 36,962 units of which 28,491units were Passenger Cars; "
+                       "7,794 units were Commercial Vehicles and 677 units were Special-Purpose Vehicles.")
+    eq((f.get("ti"), f.get("ti_pc")), (36962, 28491), "2022-03 'units' without a space")
+    f = fv.parse_cover("toàn thị trường đạt 26.575 xe, bao gồm xe 19.944 du lịch; 6.419 xe thương mại "
+                       "và 212 xe chuyên dụng; Doanh số xe du lịch tăng 9%")
+    eq((f.get("ti"), f.get("ti_pc"), f.get("ti_cv"), f.get("ti_spv")), (26575, 19944, 6419, 212),
+       "2024-06 Vietnamese-only cover")
+
+
 def test_detail_fixture():
     d = fv.parse_detail((FIX / "vama-detail-2026-09.pdf").read_bytes())
     eq(d["period"], "2026-09", "detail header period")
@@ -213,6 +224,25 @@ def test_compose():
     check(not fv.complete(dict(SEP26, tc_total="")), "TC missing → incomplete")
 
 
+def test_compose_history():
+    # 2022-09: VinFast still sold ICE cars; its month is a yearly residual (estimate)
+    # and there is no VAMA Hybrid block yet → HEV / MHEV empty, row labelled monthly_est.
+    row = dict(SEP26, period="2022-09", vama_ti="33703", vama_ti_pc="25611", vama_members_pc="23000",
+               vama_members_hybrid="", vama_members_bev="", vama_mhev="", vama_hev_in_pc="",
+               vama_bev_in_pc="", vinfast="538", vinfast_ice="478", vinfast_kind="estimate",
+               tc_total="8680", tc_commercial="1126", note="VinFast estimate")
+    c = fv.compose(row)
+    eq((c["time_interval"], c["HEV"], c["MHEV"]), ("monthly_est", "", ""), "estimate → monthly_est, hybrids inside ICE")
+    eq((float(c["BEV"]), float(c["ICE"]), float(c["OTHERS"])), (60.0, 23000 + 7554 + 478, 2611.0),
+       "VinFast ICE part booked to ICE")
+    eq(float(c["TOTAL"]), 25611 + 538 + 7554, "TOTAL = TI PC + VinFast + Hyundai")
+    check("HEV/MHEV inside ICE" in c["notes"] and "VinFast estimate" in c["notes"], f"notes: {c['notes']}")
+    c = fv.compose(dict(row, period="2024-03", vinfast="3948.75", vinfast_ice="0",
+                        vama_members_hybrid="645", vama_mhev="167", vama_hev_in_pc="0"))
+    eq((c["BEV"], c["HEV"], c["MHEV"]), ("3948.75", "478.0", "167.0"), "period average keeps its decimals")
+    eq(fv.compose(SEP26)["time_interval"], "monthly", "exact VinFast month stays monthly")
+
+
 def test_revision():
     comp = {"2026-07": dict(SEP26, period="2026-07", vinfast="21781", vinfast_ytd="137697"),
             "2026-06": dict(SEP26, period="2026-06", vinfast="17955", vinfast_ytd="115916"),
@@ -223,6 +253,9 @@ def test_revision():
     eq(fv.apply_vinfast_revision(comp, "2026-08"), None, "idempotent")
     comp["2026-01"] = dict(SEP26, period="2026-01", vinfast="16172", vinfast_ytd="16172")
     eq(fv.apply_vinfast_revision(comp, "2026-01"), None, "no revision across the year")
+    comp = {"2024-08": dict(SEP26, period="2024-08", vinfast="3948.75", vinfast_ytd="", vinfast_kind="estimate"),
+            "2024-09": dict(SEP26, period="2024-09", vinfast="9300", vinfast_ytd="40000")}
+    eq(fv.apply_vinfast_revision(comp, "2024-09"), None, "an estimate is never 'revised' from a YTD")
 
 
 def test_models_roundtrip():
@@ -256,6 +289,7 @@ def test_reference_checks():
     eq((got["2026-09"]["ours"], got["2026-09"]["status"]), (62590, "pass"), "media total = our inputs")
     eq(got["2026-08"]["status"], "warn", "gap beyond 0.1 % warns")
     eq(got["2025-12-15 → 2026-09-14"]["status"], "info", "CSGT is information only")
+    eq(cr.all_vehicles(dict(SEP26, vinfast="3948.75")), 35094 + 3949 + 3872, "estimate rows sum as floats")
     lines, missing = cr.due_items(comp, refs[2:], dt.date(2026, 10, 24))
     eq([m["period"] for m in missing], ["2026-08", "2026-09"], "media totals due after the 20th")
     check(any("URL missing" in x for x in cr.due_items(comp, refs, dt.date(2026, 10, 24))[0]),

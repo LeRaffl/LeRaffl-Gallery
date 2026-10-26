@@ -22,6 +22,15 @@ source_links:
 - label: VinFast — Form 6-K filings (SEC EDGAR, CIK 1913510)
   url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=1913510&type=6-K
   note: the history 2024-10 … 2026-09 was read from these; sec.gov refuses GitHub's runners, so the monthly fetch reads vingroup.net
+- label: VinFast — Form F-1/A (SEC, March 2023)
+  url: https://www.sec.gov/Archives/edgar/data/1913510/000119312523066067/d422592df1a.htm
+  note: 2022 year figures (ICE ≈ 16,800; VF e34 ≈ 4,000, VF 8 ≈ 3,200 cars) — the base of the September/October 2022 estimate
+- label: VinFast — FY2024 results (Form 6-K, exhibit 99.1)
+  url: https://www.sec.gov/Archives/edgar/data/1913510/000110465925038262/tm2512847d1_ex99-1.htm
+  note: 87,890 cars delivered in Vietnam in 2024, +171 % on 2023 — the base of the 2023-08 … 2024-08 estimates
+- label: VAMA — sales-report archive (cover letters 2021 … 2024)
+  url: http://vama.org.vn/en/sales-report.html
+  note: the history 2021-01 … 2024-08; 2023-02 and 2024-01 are missing from the listing and were taken from media copies (laodongdoanthe.vn, thoidai.com.vn)
 - label: TC Group — Hyundai monthly sales
   url: https://thanhcong.vn/tin-tuc/tc-group-thong-bao-doanh-so-ban-hang-xe-hyundai-thang-9-2026.html
   note: one row per model with a CKD/CBU flag, a commercial-vehicle row ("XE THƯƠNG MẠI"), the total; this and the previous month
@@ -41,18 +50,20 @@ variant_notes:
 hev_split: true
 hev_note: "HEV = full hybrids, per model from VAMA's Detail sheet: VAMA's Hybrid segment minus the mild hybrids Suzuki XL7 Hybrid and Ertiga Hybrid (→ MHEV, counted as ICE like everywhere in the gallery) plus full hybrids VAMA files under a body style (Toyota Land Cruiser Hybrid, SUV). Kia's \"New Sorento HEV/PHEV\" is one line and counts as HEV. No PHEV is reported. Hyundai has no fuel split (counted as ICE); non-member imports have none either and are their own column OTHERS (shown as Other)."
 scope_note: "Passenger cars ≈ M1, sales and deliveries (VAMA's members' sales, VinFast deliveries, Hyundai sales), not registrations — the charts say \"new sales\". Not covered: brands that sell without reporting (VAMA estimates only the imported ones), personal and used imports. VinFast's EC Van stays in (named only in some months). Police registrations differ by timing, period and definition; see \"Why other figures differ\"."
-backfill: 2024-09 onwards — the first month VinFast's figure, VAMA's cover letter and TC Group's table can all be read (earlier VinFast figures are quarterly)
+backfill: "2021-01 onwards. 2024-09 … is fetched every month; 2021-01 … 2024-08 was assembled once from VAMA's archive, VinFast's releases and SEC filings and TC Group's releases. 15 months with no VinFast monthly figure (2022-09/10, 2023-08 … 2024-08) carry a yearly residual spread evenly and are labelled monthly_est (monthly, estimated from annual data; hollow points in the charts); before 2024 VAMA has no Hybrid block, so hybrids sit in ICE."
 caveats:
 - "VinFast reports deliveries, which include handovers to dealers (Thanh Niên: \"bàn giao đến tay khách hàng cũng như các đại lý\"); this is one reason the BEV share here is well above registration-based figures (2025: 28.9 % here vs 17.8 % in police registrations)."
 - "VinFast's monthly figures are preliminary and are sometimes revised through the year-to-date figure: the August 2026 release's year to date (154,073) is 3,785 below the July one plus August. The month before is then rewritten from the year to date (July 2026: 17,996, not 21,781); see \"How it works\"."
 - "VinFast's figures before 2025-04 are rounded (\"more than 9,300\"); VinFast and Hyundai sometimes include a few dozen exported or commercial units."
 - "Non-member imports (5,044 cars in 2026-09, 9.9 %) are an association estimate without brand or fuel split: they are the column OTHERS (shown as Other in the fuel breakdown), never ICE. In the three-curve BEV / PHEV / ICE view every non-plug-in column falls in the ICE band, as for every country. The BYD and other imported EVs and plug-ins inside that pool are therefore not in BEV/PHEV. Whether the estimate already contains some of Hyundai's imported (CBU) models cannot be verified (at most 0.5–2.7 % of the total)."
+- "History estimates: VinFast published no monthly figure for 2022-09/10 and 2023-08 … 2024-08. Those months carry a yearly residual (the year figure from VinFast's SEC filings minus the published months), spread evenly; the rows are labelled monthly_est (counted as months everywhere, drawn as hollow points in the charts) and noted. VAMA and Hyundai in the same rows are the real monthly figures. Uncertainty: 2022-09/10 ±50 ICE / ±100 BEV per month, 2023-08 … 12 about ±100, 2024-01 … 08 at most ~110 too high (VinFast's Sep–Dec 2024 figures are 'more than' values)."
+- "Before 2024 VAMA reported no Hybrid block: full and mild hybrids are in its passenger-car block and therefore in ICE; HEV and MHEV are empty before 2024-01 and the TTM chart shows them from the first full twelve months (2024-12). VinFast sold petrol cars (Fadil, Lux A/SA) until late 2022: they count as ICE, its EVs as BEV."
 - "Lexus and BMW/MINI are VAMA members whose model figures VAMA publishes in separate sheets; they count in the totals and in ICE, but not in the brand/model tables."
 - "VAMA has twice uploaded January's Detail sheet under another month (May 2025, February 2026). Those months' mild hybrids and model figures are rebuilt from the neighbouring sheets' year-to-date columns; the totals come from the cover letter and are unaffected."
 - "Reference figures (media totals, police half-year and year) are entered by hand in checks/vietnam_reference.csv; a scheduled workflow keeps a GitHub issue open while one is due."
 notes:
 - "What goes where. BEV = every VinFast delivery (VinFast has built only electric vehicles since 2022 and reports \"electric vehicles\") plus VAMA's BEV segment (Ford Mustang Mach-E) and BEVs VAMA files under a body style. HEV = the full-hybrid models of VAMA's Detail sheet. MHEV = Suzuki XL7 Hybrid and Ertiga Hybrid. ICE = all other VAMA member passenger cars plus every Hyundai passenger model. Other = VAMA's estimate of non-member imported passenger cars. PHEV stays empty. September 2026: BEV 23,627 (46.3 %), HEV 2,171 (4.3 %), MHEV 113, ICE 20,058, Other 5,044 — Whole 51,013."
-- "How the total is built. The police publish registrations only as occasional aggregates, with no monthly fuel or brand split. The national total the media quote each month is VAMA's total industry plus the two big non-members that publish their own numbers, VinFast and Hyundai Thành Công. We take the same documents and check every month that our inputs add up to the published total: from 2024-09 to 2026-09 they did in every one of the 20 months with a published figure, within the media's rounding — except July 2026, where the media used VinFast's first figure (21,781) before its revision."
+- "How the total is built. The police publish registrations only as occasional aggregates, with no monthly fuel or brand split. The national total the media quote each month is VAMA's total industry plus the two big non-members that publish their own numbers, VinFast and Hyundai Thành Công. We take the same documents and check every month that our inputs add up to the published total: from 2024-09 to 2026-09 they did in every one of the 20 months with a published figure, within the media's rounding — except July 2026, where the media used VinFast's first figure (21,781) before its revision. The history back to 2021 is checked against the year figures VAMA, VinFast and TC Group published (\"Why other figures differ\")."
 reconciliation:
 - title: "From the media headline to the charted total — September 2026"
   lead: "The figure Vietnamese media print every month (VnEconomy: 62,590 cars) is every vehicle type of VAMA, VinFast and Hyundai. The charts keep the passenger cars."
@@ -68,6 +79,33 @@ reconciliation:
   - ["= Whole (passenger cars ≈ M1)", "51,013"]
   - ["of which BEV · HEV · MHEV · ICE · Other", "23,627 · 2,171 · 113 · 20,058 · 5,044"]
   note: "BEV = VinFast 23,624 + VAMA BEV 3. ICE = VAMA members' passenger cars 17,440 − the Land Cruiser Hybrid (116, to HEV) + Hyundai passenger 2,734. Other = VAMA passenger cars 24,655 − members' passenger cars, Hybrid and BEV."
+- title: "History 2021 … 2024 — sources per period"
+  lead: "Monthly wherever a monthly figure exists. Where VinFast published none, the month carries its share of a year figure and the row is labelled monthly_est (estimated from annual data)."
+  head: [Period, VAMA (cover letter), VinFast, TC Group (Hyundai), Row]
+  rows:
+  - ["2021-01 … 2021-12", "monthly", "monthly release; Fadil / Lux → ICE, VF e34 (Dec, 85) → BEV; January = year 35,723 − Feb … Dec", "monthly (media copies)", "monthly"]
+  - ["2022-01 … 2022-08", "monthly", "monthly release, ICE / EV split", "monthly (media copies to 2022-05, then thanhcong.vn)", "monthly"]
+  - {cells: ["2022-09 … 2022-10", "monthly", "estimate 538 / month (ICE 478 + BEV 60)", "monthly", "monthly_est"], url: "https://www.sec.gov/Archives/edgar/data/1913510/000119312523066067/d422592df1a.htm", note: "SEC F-1/A year figures"}
+  - ["2022-11 … 2023-07", "monthly (2023-02 from a media copy)", "monthly release; all BEV from 2023", "monthly", "monthly"]
+  - {cells: ["2023-08 … 2023-12", "monthly", "estimate 3,550 / month", "monthly", "monthly_est"], url: "https://www.sec.gov/Archives/edgar/data/1913510/000110465925038262/tm2512847d1_ex99-1.htm", note: "FY2024 6-K: 87,890 = +171 % → 2023 ≈ 32,430"}
+  - {cells: ["2024-01 … 2024-08", "monthly + Hybrid block (2024-01 media copy, 2024-06 Vietnamese only)", "estimate 3,948.75 / month", "monthly", "monthly_est"], url: "https://www.sec.gov/Archives/edgar/data/1913510/000110465925038262/tm2512847d1_ex99-1.htm", note: "87,890 − 56,300 published Sep–Dec"}
+  - ["2024-09 …", "monthly (live)", "monthly (live)", "monthly (live)", "monthly"]
+  note: "HEV / MHEV start 2024-01 (VAMA's Hybrid block); before that every hybrid is in ICE. Non-member imports (Other) are in VAMA's total industry for the whole history."
+- title: "History — VinFast estimates"
+  head: [Months, Per month, Derivation, Uncertainty]
+  rows:
+  - ["2022-09, 2022-10", "538", "ICE ≈ 16,800 − 15,844 (Jan–Aug, Nov–Dec) = 956; EV cars ≈ 4,000 + 3,200 − 7,080 = 120; each ÷ 2", "±50 ICE · ±100 BEV"]
+  - ["2023-08 … 2023-12", "3,550", "2023 ≈ 87,890 ÷ 2.71 = 32,430; − 14,680 (Jan–Jul) = 17,750; ÷ 5", "≈ ±100"]
+  - ["2024-01 … 2024-08", "3,948.75", "2024 = 87,890; − 56,300 (Sep–Dec, 'more than' figures) = 31,590; ÷ 8", "≤ −110 (Sep–Dec are lower bounds)"]
+  note: "An even spread is the coarsest honest interval: the month-to-month pattern inside a block is unknown, only its sum. VinFast's 7,400 EVs of 2022 include over 100 e-buses; the cars-only 7,200 is used."
+- title: "History — our year sums against the published year figures"
+  head: [Year, VAMA total industry, VinFast, TC Group, All three]
+  rows:
+  - {cells: ["2021", "303,821 vs 304,149", "35,723 = 35,723", "70,518 = 70,518", "410,062 vs 410,390 (−0.08 %)"], url: "https://vtv.vn/kinh-te/vuot-bao-covid-19-thi-truong-o-to-tai-viet-nam-nam-2021-tang-truong-20220112064433898.htm", note: "VTV / TTXVN year report"}
+  - {cells: ["2022", "404,435 vs 404,635", "24,000 vs ≈ 16,800 ICE + 7,200 EV cars", "81,580 vs 81,582", "510,015"], url: "https://vtv.vn/kinh-te/nam-2022-moi-phut-nguoi-viet-mua-gan-mot-chiec-o-to-20230111213833432.htm", note: "VAMA: April 2022's letter heads 42,359, its PC + CV + SPV = 42,159 — the year figure keeps the headline"}
+  - {cells: ["2023", "301,981 vs 301,989", "32,430 (derived)", "67,450", "401,861"], url: "https://theinvestor.vn/vietnams-2023-auto-sales-fall-25-to-301989-units-d8212.html", note: "VAMA passenger cars 230,696 vs 230,706 (February 2023 from a media copy)"}
+  - {cells: ["2024", "340,144 vs 340,142", "87,890 = 87,890", "67,165", "495,201 vs 494,310 (+0.18 %)"], url: "https://vietnamnet.vn/luong-o-to-tieu-thu-nam-2024-dat-340-142-chiec-pre2362405.html", note: "VAMA passenger cars 257,900 = 257,900; the all-three year total is VnExpress's"}
+  note: "Our sums are the monthly figures as published; VAMA's year figures carry small later corrections and headline typos. The 2021 and 2024 all-three totals are also in the checks table below."
 checks_file: market/vietnam_checks.json
 market_breakdown: market/vietnam_top.json
 market_total_word: new
@@ -187,6 +225,22 @@ processing:
     - when: no (same year, both figures exact)
       then: rewrite last month as this year to date − this month − the year to date before it, and note it
       note: 2026-08 release — YTD 154,073 − 20,161 = 133,912; July becomes 133,912 − 115,916 = 17,996 (was 21,781)
+- title: History 2021-01 … 2024-08
+  text:
+  - "Assembled once from the same three publishers' archives (VAMA's cover letters back to 2021, VinFast's releases on vinfastauto.com, TC Group's releases and their media copies) plus VinFast's SEC filings for the months VinFast published nothing. The rows sit in the same components file with a URL per figure; the monthly fetch never rewrites them."
+  decision:
+    ask: Is there a monthly VinFast figure for the month?
+    branches:
+    - when: "yes"
+      then: write the month as monthly
+    - when: "no"
+      then: "spread the year residual (VinFast year figure − its published months) evenly, label the row monthly_est and note the estimate"
+      note: VAMA and Hyundai in that row stay the real monthly figures
+  rules_head: [Before 2024, Column]
+  rules:
+  - ["VAMA hybrids (no Hybrid block yet; in the passenger-car block)", "ICE — HEV / MHEV empty"]
+  - ["VinFast Fadil, Lux A2.0, Lux SA2.0, President (to 2022)", "ICE"]
+  - ["VinFast VF e34, VF 8 (from 2021-12)", "BEV"]
 - title: Check
   text:
   - "Our inputs are compared with independent figures entered by hand in checks/vietnam_reference.csv; the result is market/vietnam_checks.json, shown below under \"Why other figures differ\"."
@@ -227,7 +281,9 @@ Variant:   Whole — passenger cars ≈ M1, sales (charts say "new sales").
 Columns:   BEV (VinFast + VAMA BEV) · HEV · MHEV (XL7/Ertiga Hybrid) · ICE (VAMA
            members' PC + Hyundai) · OTHERS (VAMA's non-member import estimate) ·
            TOTAL = VAMA PC + VinFast + Hyundai passenger. PHEV empty.
-History:   2024-09 … (25 months at launch). September 2026: 51,013, BEV 46.3 %.
+History:   2021-01 … (69 months). Fetched monthly from 2024-09; 2021-01 … 2024-08
+           assembled once. 15 months with a VinFast year residual are labelled
+           monthly_est, hollow points (§2a). HEV/MHEV from 2024-01. September 2026: 51,013, BEV 46.3 %.
 Check:     our all-vehicle sum = the media's national total in all 20 months with a
            figure (within rounding), except 2026-07 (VinFast revision).
 ```
@@ -268,6 +324,41 @@ published national total (§3). Parsing:
 - **TC Group release**: the HTML table (this month = second-last column, previous
   month = third-last); "TỔNG" total and "XE THƯƠNG MẠI" commercial.
 
+### 2a. History 2021-01 … 2024-08
+
+Assembled once (2026-10) from the publishers' archives; the rows carry a URL per
+figure in `data/raw/vietnam/components.csv` and the monthly fetch only reads them.
+
+- **VAMA**: the cover letter of every month from its archive (368 PDFs). Wording
+  drifted: "28,491units" (2022-03), a Vietnamese-only letter (2024-06) — both
+  parsed (`parse_cover`, tested). 2023-02 and 2024-01 are not in the listing: the
+  total-industry split comes from media copies of the letter, the members' passenger
+  cars from the next month's previous-month column (2023-02) and the Summary sheet
+  (2024-01). Headline typos (2021-10, 2022-04, 2023-10) → the PC + CV + SPV sum,
+  noted in the row. There is no Hybrid block before 2024 and the Detail sheets name no
+  hybrids then, so HEV / MHEV are empty (inside ICE); from 2024-01 the block equals
+  Detail HEV + MHEV in every month.
+- **VinFast**: monthly releases 2021-01 … 2023-07 except 2022-09/10 (vinfastauto.com;
+  ICE and EVs separate until 2022). The 15 months without one get an even share of a
+  year residual from the SEC filings (front matter: "History — VinFast estimates");
+  their rows are labelled `monthly_est` (docs/architecture/03-data-objects.md): a
+  month like any other for every calculation, marked as an estimate in the charts.
+- **TC Group**: monthly for the whole history (thanhcong.vn from 2022-06, media
+  copies before).
+
+`monthly_est` rows are monthly rows everywhere — `load_country_csv()` turns them into
+`monthly` plus `estimated = TRUE`, so the fit, the time chart, the post texts and the
+upsert use them as months (no straight line across the estimate blocks). Only the
+charts look at the flag: the main and ICE/BEV charts draw those points hollow in
+their usual colour (quarter colour / fuel colour), with a legend entry "Monthly
+(estimated from annual data)" that appears only when such points exist — the same
+"hollow = provisional" reading as the gallery's provisional tags (doc 61). The
+notes, the source page and the footnote still name the months as estimates. The TTM
+chart runs on a calendar month grid for Vietnam (`compute_ttm_long(calendar = TRUE)`,
+`TTM_CALENDAR_COUNTRIES` in `R/data.R`), so the hybrid bands start after twelve
+months of their own data (before that their partial window stays in ICE).
+2020 is not added: TC Group's 2020 months were not collected.
+
 ### Workflow
 
 ```mermaid
@@ -297,7 +388,12 @@ Results 2024-09 … 2026-09 (all in `market/vietnam_checks.json`):
   article's rounding or a media slip (2025-07: −11, the article used VinFast 11,490
   instead of 11,479), and 2026-07 −6.4 % because the media used VinFast's first figure
   (21,781) and we use the revised 17,996.
-- **Media year totals** — 2025: 603,551 vs VnExpress 604,134 (−0.1 %).
+- **Media year totals** — 2021: 410,062 vs VTV 410,390 (−0.08 %); 2024: 495,201 vs
+  VnExpress 494,310 (+0.18 %); 2025: 603,551 vs VnExpress 604,134 (−0.1 %).
+- **History 2021 … 2024** — year sums per publisher against the published year
+  figures (front matter): VAMA within 0.1 % (gaps = headline typos and later
+  corrections), VinFast equal by construction where an estimate closes the year,
+  TC Group within 2 units.
 - **CSGT registrations**, our months Dec → May / Dec → Nov against the police's
   15 Dec → 14 Jun / 14 Dec: H1 2025 +0.6 %, year 2025 −6.8 %, H1 2026 −3.2 %, 9M 2026
   +0.1 %. A different event (registration follows sale) and the police count includes

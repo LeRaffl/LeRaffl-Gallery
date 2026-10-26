@@ -236,7 +236,7 @@ The HDV intent is "heavy goods vehicles > 3.5 t = N2 + N3". Most sources expose 
 | Term | Meaning |
 |---|---|
 | **period** | A YYYY-MM string identifying the data point. Quarterly entries use the middle month (Q1→Feb, Q2→May, Q3→Aug, Q4→Nov). Yearly entries use July (`YYYY-07`). |
-| **time_interval** | One of `monthly`, `quarterly`, `yearly`. Drives how the row is plotted and aggregated. |
+| **time_interval** | One of `monthly`, `monthly_est`, `quarterly`, `yearly`. Drives how the row is plotted and aggregated. `monthly_est` is a month estimated from annual data: aggregated as `monthly`, plotted as a hollow point ([03](03-data-objects.md)). |
 | **TTM** | Trailing Twelve Months. Rolling sum of the last 12 monthly rows; shown as the `_ttm_shares` chart and as the second block in the post text. |
 | **data_per** | The `period` of the most recent data row this fit was based on. Lives in `params.csv` and `weights.csv`. |
 | **model_date** | The day the fit was last run, in `YYYY-MM-DD`. Mostly informational. |

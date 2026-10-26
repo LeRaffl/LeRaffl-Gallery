@@ -34,7 +34,7 @@ REPO = Path(__file__).resolve().parent.parent
 COMPONENTS = REPO / "data" / "raw" / "vietnam" / "components.csv"
 REFERENCE = REPO / "checks" / "vietnam_reference.csv"
 OUT = REPO / "market" / "vietnam_checks.json"
-FIRST_CSGT_YEAR = 2025          # the series starts 2024-09: CSGT 2025 (from 15 Dec 2024) is the first full one
+FIRST_CSGT_YEAR = 2025          # CSGT figures are chased from 2025 on (live series from 2024-09; history 2021-01.. is not chased)
 
 RECENT = 3                      # media totals are chased for the newest months only
 TOL_EXACT = 0.001               # 0.1 % — media sometimes carry a first-reported VinFast figure
@@ -50,8 +50,8 @@ def read_csv(path: Path) -> list[dict]:
 
 def all_vehicles(row: dict) -> int | None:
     """VAMA total industry + VinFast + TC Group total: what the media add up."""
-    try:
-        return int(row["vama_ti"]) + int(row["vinfast"]) + int(row["tc_total"])
+    try:   # VinFast history estimates are period averages (3948.75): sum as floats
+        return round(float(row["vama_ti"]) + float(row["vinfast"]) + float(row["tc_total"]))
     except (KeyError, ValueError):
         return None
 

@@ -265,17 +265,30 @@
    "note": ""
   },
   {
+   "period": "2021",
+   "check": "Media: year total, every vehicle type",
+   "source": "sum of our monthly inputs (VAMA + VinFast + TC Group)",
+   "tolerance": "±1.0%",
+   "ours": 410062,
+   "theirs": 410390,
+   "gap": -328,
+   "gap_pct": -0.08,
+   "status": "pass",
+   "url": "https://vtv.vn/kinh-te/vuot-bao-covid-19-thi-truong-o-to-tai-viet-nam-nam-2021-tang-truong-20220112064433898.htm",
+   "note": "VTV/TTXVN year total 2021 (VAMA 304,149 + TC 70,518 + VinFast 35,723); VAMA year figure is 328 above its monthly reports"
+  },
+  {
    "period": "2024",
    "check": "Media: year total, every vehicle type",
    "source": "sum of our monthly inputs (VAMA + VinFast + TC Group)",
    "tolerance": "±1.0%",
-   "ours": null,
+   "ours": 495201,
    "theirs": 494310,
-   "gap": null,
-   "gap_pct": null,
-   "status": "info",
+   "gap": 891,
+   "gap_pct": 0.18,
+   "status": "pass",
    "url": "https://vnexpress.net/moi-phut-nguoi-viet-sam-mot-oto-moi-trong-2024-4838583.html",
-   "note": "VnExpress year total 2024 (VAMA+VinFast+TC+others estimate); our series starts 2024-09"
+   "note": "VnExpress year total 2024 (VAMA+VinFast+TC+others estimate)"
   },
   {
    "period": "2025",
