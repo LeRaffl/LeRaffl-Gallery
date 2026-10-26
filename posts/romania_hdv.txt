@@ -7,5 +7,3 @@ Trailing 4 quarters are:
 0.5% EV
 0.0% PHEV
 99.5% ICE
-
-Graphs are available in the Gallery: https://leraffl.github.io/LeRaffl-Gallery/
