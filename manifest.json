@@ -522,6 +522,36 @@
       "country_slug": "paraguay"
     },
     {
+      "country": "Poland (HDV)",
+      "type": "ICE_BEV",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "poland_hdv_ICE_BEV_20261026.png",
+      "url": "images/2026-09/poland_hdv_ICE_BEV_20261026.png",
+      "alt": "Poland (HDV) ICE-BEV-Hybrid trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "share",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "poland_hdv_20261026.png",
+      "url": "images/2026-09/poland_hdv_20261026.png",
+      "alt": "Poland (HDV) BEV trajectory",
+      "country_slug": "poland_hdv"
+    },
+    {
+      "country": "Poland (HDV)",
+      "type": "time",
+      "period": "2026-09",
+      "date": "2026-10-26",
+      "filename": "poland_hdv_time_20261026.png",
+      "url": "images/2026-09/poland_hdv_time_20261026.png",
+      "alt": "Poland (HDV) Transition time curve",
+      "country_slug": "poland_hdv"
+    },
+    {
       "country": "South Africa",
       "type": "ICE_BEV",
       "period": "2026-06",
