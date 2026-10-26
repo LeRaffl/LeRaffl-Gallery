@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-26T11:57:49Z",
+ "generated": "2026-10-26T12:11:14Z",
  "today": "2026-10-26",
  "countries": [
   {
@@ -4810,8 +4810,8 @@
     {
      "name": "Whole",
      "latest": "2026-09",
-     "first": "2024-09",
-     "rows": 25,
+     "first": "2021-01",
+     "rows": 69,
      "cadence": "monthly",
      "in_repo": true
     }
